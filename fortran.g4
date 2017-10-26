@@ -1,7 +1,7 @@
 grammar fortran;
 
 module
-    : 'module' IDENT 'implicit none' decl*  'end' IDENT?
+    : 'module' IDENT 'implicit none' decl* ('contains' subroutine+ )?  'end' IDENT?
     ;
 
 decl
@@ -40,6 +40,10 @@ type
 
 modifier
     : 'parameter' | 'intent' | 'dimension' | 'allocatable' | 'pointer'
+    ;
+
+subroutine
+    : 'subroutine' IDENT decl* 'end' 'subroutine'?
     ;
 
 NUMBER

@@ -11,3 +11,4 @@ javac fortran*.java
 
 # Test:
 $grun fortran module -tree examples/m1.f90
+$grun fortran module -tree examples/subroutine1.f90
