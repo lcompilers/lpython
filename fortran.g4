@@ -27,7 +27,12 @@ var_sym_decl
     ;
 
 expr
-	: IDENT | NUMBER | fn_call
+	: expr ('*'|'/') expr
+    | expr ('+'|'-') expr
+    | NUMBER
+    | IDENT
+    | fn_call
+    | '(' expr ')'
 	;
 
 fn_call
