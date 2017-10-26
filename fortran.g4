@@ -43,7 +43,11 @@ modifier
     ;
 
 subroutine
-    : 'subroutine' IDENT decl* 'end' 'subroutine'?
+    : 'subroutine' IDENT decl* statement* 'end' 'subroutine'?
+    ;
+
+statement
+    : IDENT '=' expr
     ;
 
 NUMBER
