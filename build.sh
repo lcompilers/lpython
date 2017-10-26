@@ -15,3 +15,6 @@ echo
 $grun fortran module -tree examples/subroutine1.f90
 echo
 $grun fortran module -tree examples/expr1.f90
+
+# Visualize
+#grun fortran module -gui examples/m1.f90
