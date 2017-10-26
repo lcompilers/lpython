@@ -1,7 +1,7 @@
 grammar fortran;
 
 module
-    : 'module' IDENT 'implicit none' decl* ('contains' subroutine+ )?  'end' IDENT?
+    : 'module' IDENT NEWLINE+ 'implicit none' NEWLINE+ decl* ('contains' NEWLINE+ subroutine+ )?  'end module' IDENT? NEWLINE+
     ;
 
 decl
@@ -11,15 +11,15 @@ decl
     ;
 
 private_decl
-    : 'private'
+    : 'private' NEWLINE+
     ;
 
 public_decl
-    : 'public' IDENT (',' IDENT)*
+    : 'public' IDENT (',' IDENT)* NEWLINE+
     ;
 
 var_decl
-    : type (',' modifier)* '::' var_sym_decl (',' var_sym_decl)*
+    : type (',' modifier)* '::' var_sym_decl (',' var_sym_decl)* NEWLINE+
     ;
 
 var_sym_decl
@@ -48,12 +48,12 @@ modifier
     ;
 
 subroutine
-    : 'subroutine' IDENT decl* statement* 'end' 'subroutine'?
+    : 'subroutine' IDENT NEWLINE decl* statement* 'end subroutine' NEWLINE+
     ;
 
 statement
-    : IDENT '=' expr
-    | fn_call
+    : IDENT '=' expr NEWLINE+
+    | fn_call NEWLINE+
     ;
 
 NUMBER
@@ -69,9 +69,13 @@ COMMENT
     : '!' ~[\r\n]* -> skip;
 
 LINE_CONTINUATION
-    : '&' -> skip
+    : '&' WS* COMMENT? NEWLINE -> skip
+    ;
+
+NEWLINE
+    : '\r'? '\n'
     ;
 
 WS
-    : [ \t\r\n] -> skip
+    : [ \t] -> skip
     ;
