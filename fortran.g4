@@ -31,7 +31,7 @@ expr
 	;
 
 fn_call
-    : IDENT '(' expr ')'
+    : IDENT '(' expr? ')'
     ;
 
 type
@@ -48,6 +48,7 @@ subroutine
 
 statement
     : IDENT '=' expr
+    | fn_call
     ;
 
 NUMBER
