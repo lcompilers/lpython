@@ -4,15 +4,11 @@ from fortranLexer import fortranLexer
 from fortranListener import fortranListener
 
 def test_fortran_parser():
-    f = open("examples/m1.f90").read()
-    stream = antlr4.InputStream(f)
-    lex    = fortranLexer(stream)
-
-    tokens = antlr4.CommonTokenStream(lex)
+    stream = antlr4.FileStream("examples/m1.f90")
+    lexer = fortranLexer(stream)
+    tokens = antlr4.CommonTokenStream(lexer)
     parser = fortranParser(tokens)
-
     tree = parser.module()
-
     print(tree.toStringTree(recog=parser))
 
 if __name__ == "__main__":
