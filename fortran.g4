@@ -19,7 +19,7 @@ public_decl
     ;
 
 var_decl
-    : type (',' modifier)* '::' var_sym_decl (',' var_sym_decl)* NEWLINE+
+    : var_type (',' modifier)* '::' var_sym_decl (',' var_sym_decl)* NEWLINE+
     ;
 
 var_sym_decl
@@ -39,7 +39,7 @@ fn_call
     : IDENT '(' expr? ')'
     ;
 
-type
+var_type
     : 'integer' | 'char' | 'real' | 'logical'
     ;
 
