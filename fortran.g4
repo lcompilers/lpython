@@ -27,7 +27,7 @@ var_sym_decl
     ;
 
 expr
-	: expr ('*'|'/') expr
+    : expr ('*'|'/') expr
     | expr ('+'|'-') expr
     | NUMBER
     | IDENT
