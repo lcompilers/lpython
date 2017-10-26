@@ -1,7 +1,13 @@
 grammar fortran;
 
 module
-    : 'module' IDENT 'implicit none' private_decl? public_decl? 'end' IDENT?
+    : 'module' IDENT 'implicit none' decl*  'end' IDENT?
+    ;
+
+decl
+    : private_decl
+    | public_decl
+    | var_decl
     ;
 
 private_decl
@@ -12,9 +18,24 @@ public_decl
     : 'public' IDENT (',' IDENT)*
     ;
 
+var_decl
+    : type (',' modifier)* '::' IDENT (',' IDENT)*
+    ;
+
+type
+    : 'integer' | 'char' | 'real' | 'logical'
+    ;
+
+modifier
+    : 'parameter' | 'intent' | 'dimension' | 'allocatable' | 'pointer'
+    ;
+
 IDENT
     : ('a' .. 'z' | 'A' .. 'Z') ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*
     ;
+
+COMMENT
+    : '!' ~[\r\n]* -> skip;
 
 WS
     : [ \t\r\n] -> skip
