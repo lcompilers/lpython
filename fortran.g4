@@ -87,6 +87,7 @@ statement
     : IDENT '=' expr NEWLINE+
     | fn_call NEWLINE+
     | subroutine_call NEWLINE+
+    | 'exit' NEWLINE+
     ;
 
 number

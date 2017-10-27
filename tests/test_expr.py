@@ -81,3 +81,23 @@ x = u(2)
 first = .not. first
 end subroutine
 """, r)
+    assert parse("""\
+subroutine a
+d = a - 1._dp/3
+c = 1/sqrt(9*d)
+v = (1 + c*x)**3
+fn_val = d*v
+exit
+end subroutine
+""", r)
+    assert not parse("""\
+subroutine a
+call randn(x(i))
+call randn(x)
+call random_number(U)
+call rand_gamma0(a, .true., x)
+call rand_gamma0(a, .true., x(1))
+call rand_gamma0(a, .false., x(i))
+call rand_gamma_vector_n(a, size(x), x)
+end subroutine
+""", r)
