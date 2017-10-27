@@ -93,10 +93,18 @@ param_list
     ;
 
 statement
-    : IDENT '=' expr NEWLINE+
-    | fn_call NEWLINE+
-    | subroutine_call NEWLINE+
-    | 'exit' NEWLINE+
+    :
+    ( IDENT '=' expr
+    | fn_call
+    | subroutine_call
+    | 'exit'
+    | if_statement
+    ) NEWLINE+
+    ;
+
+if_statement
+    : 'if' '(' expr ')' statement
+    | 'if' '(' expr ')' 'then' NEWLINE+ statement+ ('else' NEWLINE+ statement+)? 'end' 'if'
     ;
 
 number
