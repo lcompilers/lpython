@@ -20,7 +20,7 @@ root
     ;
 
 module
-    : 'module' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ module_decl* ('contains' NEWLINE+ (subroutine|function)+ )?  'end module' ID? NEWLINE+ EOF
+    : 'module' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ module_decl* ('contains' NEWLINE+ (subroutine|function)+ )? 'end' 'module' ID? NEWLINE+ EOF
     ;
 
 module_decl
@@ -49,7 +49,7 @@ interface_decl
 // * use statement
 // * variable (and arrays) declarations
 //
-// It turns out that all subroutines, functions and programs have very similar
+// It turns out that all subroutines, functions and programs have a very similar
 // structure.
 //
 
