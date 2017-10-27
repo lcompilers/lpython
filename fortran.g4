@@ -58,11 +58,11 @@ program
     ;
 
 subroutine
-    : 'subroutine' ID ('(' param_list? ')')? NEWLINE+ sub_block 'subroutine' ID? NEWLINE+
+    : 'subroutine' ID ('(' id_list? ')')? NEWLINE+ sub_block 'subroutine' ID? NEWLINE+
     ;
 
 function
-    : 'pure'? 'recursive'? 'function' ID ('(' param_list? ')')? ('result' '(' ID ')')? NEWLINE+ sub_block 'function' ID? NEWLINE+
+    : 'pure'? 'recursive'? 'function' ID ('(' id_list? ')')? ('result' '(' ID ')')? NEWLINE+ sub_block 'function' ID? NEWLINE+
     ;
 
 sub_block
@@ -74,10 +74,10 @@ implicit_statement
     ;
 
 use_statement
-    : 'use' ID (',' 'only' ':' param_list)? NEWLINE+
+    : 'use' ID (',' 'only' ':' id_list)? NEWLINE+
     ;
 
-param_list
+id_list
     : ID (',' ID)*
     ;
 
