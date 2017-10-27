@@ -1,5 +1,13 @@
 grammar fortran;
 
+root
+    : module | program
+    ;
+
+program
+    : 'program' IDENT NEWLINE+ use_statement* 'implicit none' NEWLINE+ decl* statements? ('contains' NEWLINE+ (subroutine|function)+ )?  'end program' IDENT? NEWLINE+ EOF
+    ;
+
 module
     : 'module' IDENT NEWLINE+ use_statement* 'implicit none' NEWLINE+ decl* ('contains' NEWLINE+ (subroutine|function)+ )?  'end module' IDENT? NEWLINE+ EOF
     ;
@@ -110,6 +118,7 @@ statement
     | if_statement
     | do_statement
     | where_statement
+    | print_statement
     | ';'
     ;
 
@@ -141,6 +150,10 @@ else_where_block
 
 do_statement
     : 'do' (IDENT '=' expr ',' expr (',' expr)?)? NEWLINE+ statements 'end' 'do'
+    ;
+
+print_statement
+    : 'print' '*' (',' expr)*
     ;
 
 number

@@ -15,7 +15,7 @@ class VerboseListener(ErrorListener) :
         print("line", line, ":", column, "at", offendingSymbol, ":", msg)
         raise SyntaxErrorException("Syntax error.")
 
-def parse(source, rule="module"):
+def parse(source, rule="root"):
     stream = antlr4.InputStream(source)
     lexer = fortranLexer(stream)
     tokens = antlr4.CommonTokenStream(lexer)
