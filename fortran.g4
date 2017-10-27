@@ -179,6 +179,7 @@ IDENT
 
 STRING
     : '"' .*? '"'
+    | '\'' .*? '\''
     ;
 
 COMMENT
