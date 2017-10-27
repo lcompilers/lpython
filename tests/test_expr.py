@@ -101,6 +101,13 @@ call rand_gamma0(a, .false., x(i))
 call rand_gamma_vector_n(a, size(x), x)
 end subroutine
 """, r)
+    assert parse("""\
+subroutine a
+x = 1; y = 2
+y = 5; a = 1; x = u(2)
+a = 5
+end subroutine
+""", r)
 
 def test_control_flow():
     r = "subroutine"

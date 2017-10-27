@@ -95,10 +95,10 @@ param_list
 statement
     :
     ( IDENT '=' expr
-    | subroutine_call
     | 'exit'
+    | subroutine_call
     | if_statement
-    ) NEWLINE+
+    ) (NEWLINE+ | ';')
     ;
 
 if_statement
