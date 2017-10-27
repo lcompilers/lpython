@@ -64,10 +64,12 @@ expr
     | logical_value
     | IDENT
     | STRING
-    | fn_call
-    | '(' expr ')'  // accessing array
+    | fn_call       // E.g. f(5), can be a function call or array access
+    | '(' expr ')'  // E.g. (1+2)*3
 	;
 
+// This can be a function call, or array access. Must be determined later based
+// on the 'IDENT' definition.
 fn_call
     : IDENT '(' call_args? ')'
     ;
@@ -82,7 +84,7 @@ call_args
 
 call_arg
     : expr
-    | ':'
+    | ':'           // This is for arrays only, not function/subroutine calls
     ;
 
 var_type
