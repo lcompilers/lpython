@@ -128,3 +128,17 @@ else
 end if
 end subroutine
 """, r)
+    assert parse("""\
+subroutine a
+do
+    x = 1
+end do
+end subroutine
+""", r)
+    assert parse("""\
+subroutine a
+do i = 1, 5
+    x = x + i
+end do
+end subroutine
+""", r)

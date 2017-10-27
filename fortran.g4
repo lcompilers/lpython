@@ -98,6 +98,7 @@ statement
     | 'exit'
     | subroutine_call
     | if_statement
+    | do_statement
     | ';'
     ) (NEWLINE+ | ';' NEWLINE*)
     ;
@@ -105,6 +106,10 @@ statement
 if_statement
     : 'if' '(' expr ')' statement
     | 'if' '(' expr ')' 'then' NEWLINE+ statement+ ('else' NEWLINE+ statement+)? 'end' 'if'
+    ;
+
+do_statement
+    : 'do' (IDENT '=' expr ',' expr (',' expr)?)? NEWLINE+ statement+ 'end' 'do'
     ;
 
 number
