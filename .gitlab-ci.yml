@@ -8,7 +8,7 @@ ico:
     - pip install antlr4-python3-runtime
     - sudo apt-get update
     - sudo apt-get install -yq --no-install-recommends wget openjdk-9-jdk-headless
-    - export CLASSPATH=".:$HOME/antlr-4.7-complete.jar:$CLASSPATH"
+    - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
     - (cd; wget http://www.antlr.org/download/antlr-4.7-complete.jar)
     - ./build.sh
     - py.test
