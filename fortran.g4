@@ -47,8 +47,10 @@ interface_decl
 expr
     : expr '**' expr
     | expr ('*'|'/') expr
+    | '-' expr
     | expr ('+'|'-') expr
     | number
+    | '.not.' expr
     | logical_value
     | IDENT
     | fn_call
@@ -57,6 +59,10 @@ expr
 
 fn_call
     : IDENT '(' expr? ')'
+    ;
+
+subroutine_call
+    : 'call' IDENT '(' expr? ')'
     ;
 
 var_type
@@ -80,6 +86,7 @@ param_list
 statement
     : IDENT '=' expr NEWLINE+
     | fn_call NEWLINE+
+    | subroutine_call NEWLINE+
     ;
 
 number

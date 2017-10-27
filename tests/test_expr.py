@@ -67,3 +67,17 @@ integer :: b
 b = f(3+6)
 end subroutine
 """, r)
+
+def test_statements():
+    r = "subroutine"
+    assert parse("""\
+subroutine a
+call random_number(u)
+u = 2*u-1
+r2 = sum(u**2)
+u = u * sqrt(-2*log(r2)/r2)
+x = u(1)
+x = u(2)
+first = .not. first
+end subroutine
+""", r)
