@@ -110,11 +110,15 @@ statement
 
 if_statement
     : 'if' '(' expr ')' statement
-    | 'if' '(' expr ')' 'then' NEWLINE+ statements else_block? 'end' 'if'
+    | if_block 'end' 'if'
+    ;
+
+if_block
+    : 'if' '(' expr ')' 'then' NEWLINE+ statements else_block?
     ;
 
 else_block
-    : 'else' (('if' '(' expr ')' 'then' NEWLINE+ statements else_block?) | (NEWLINE+ statements))
+    : 'else' (if_block | (NEWLINE+ statements))
     ;
 
 do_statement
