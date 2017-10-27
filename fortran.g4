@@ -53,26 +53,20 @@ interface_decl
     ;
 
 expr
-    : <assoc=right> expr '**' expr
-    | expr ('*'|'/') expr
-    | '-' expr
-    | expr ('+'|'-') expr
-    | number
+    : IDENT '(' call_args? ')'
+    | <assoc=right> expr '**' expr
+    | ('+'|'-') expr
     | '.not.' expr
+    | expr ('*'|'/') expr
+    | expr ('+'|'-') expr
     | expr ('<'|'<='|'=='|'/='|'>='|'>') expr
     | expr ('.and.'|'.or.') expr
-    | logical_value
     | IDENT
+    | number
+    | '.true.' | '.false.'
     | STRING
-    | fn_call       // E.g. f(5), can be a function call or array access
     | '(' expr ')'  // E.g. (1+2)*3
 	;
-
-// This can be a function call, or array access. Must be determined later based
-// on the 'IDENT' definition.
-fn_call
-    : IDENT '(' call_args? ')'
-    ;
 
 subroutine_call
     : 'call' IDENT '(' call_args? ')'
@@ -161,11 +155,6 @@ print_statement
 number
     : NUMBER                    // Real number
     | '(' NUMBER ',' NUMBER ')' // Complex number
-    ;
-
-logical_value
-    : '.true.'
-    | '.false.'
     ;
 
 NUMBER
