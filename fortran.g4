@@ -121,11 +121,7 @@ if_statement
     ;
 
 if_block
-    : 'if' '(' expr ')' 'then' NEWLINE+ statements else_block?
-    ;
-
-else_block
-    : 'else' (if_block | (NEWLINE+ statements))
+    : 'if' '(' expr ')' 'then' NEWLINE+ statements ('else' (if_block | (NEWLINE+ statements)))?
     ;
 
 // TODO: the same here as with if
