@@ -51,6 +51,8 @@ expr
     | expr ('+'|'-') expr
     | number
     | '.not.' expr
+    | expr ('<'|'=='|'/='|'>') expr
+    | expr ('.and.'|'.or.') expr
     | logical_value
     | IDENT
     | fn_call
