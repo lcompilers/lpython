@@ -53,7 +53,7 @@ interface_decl
     ;
 
 expr
-    : expr '**' expr
+    : <assoc=right> expr '**' expr
     | expr ('*'|'/') expr
     | '-' expr
     | expr ('+'|'-') expr
