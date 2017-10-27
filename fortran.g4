@@ -1,7 +1,11 @@
 grammar fortran;
 
 module
-    : 'module' IDENT NEWLINE+ 'implicit none' NEWLINE+ decl* ('contains' NEWLINE+ subroutine+ )?  'end module' IDENT? NEWLINE+ EOF
+    : 'module' IDENT NEWLINE+ use_statement* 'implicit none' NEWLINE+ decl* ('contains' NEWLINE+ subroutine+ )?  'end module' IDENT? NEWLINE+ EOF
+    ;
+
+use_statement
+    : 'use' IDENT (',' 'only' ':' param_list)? NEWLINE+
     ;
 
 decl
@@ -19,7 +23,7 @@ public_decl
     ;
 
 var_decl
-    : var_type (',' modifier)* '::' var_sym_decl (',' var_sym_decl)* NEWLINE+
+    : var_type ('(' IDENT ')')? (',' modifier)* '::' var_sym_decl (',' var_sym_decl)* NEWLINE+
     ;
 
 var_sym_decl
@@ -27,9 +31,10 @@ var_sym_decl
     ;
 
 expr
-    : expr ('*'|'/') expr
+    : expr '**' expr
+    | expr ('*'|'/') expr
     | expr ('+'|'-') expr
-    | NUMBER
+    | number
     | IDENT
     | fn_call
     | '(' expr ')'
@@ -40,7 +45,7 @@ fn_call
     ;
 
 var_type
-    : 'integer' | 'char' | 'real' | 'logical'
+    : 'integer' | 'char' | 'real' | 'complex' | 'logical'
     ;
 
 modifier
@@ -61,9 +66,14 @@ statement
     | fn_call NEWLINE+
     ;
 
+number
+    : NUMBER                    // Real number
+    | '(' NUMBER ',' NUMBER ')' // Complex number
+    ;
+
 NUMBER
-    : ([0-9]+ '.' [0-9]* | '.' [0-9]+) ([eEdD] [+-]? [0-9]+)?
-    |  [0-9]+                          ([eEdD] [+-]? [0-9]+)?
+    : ([0-9]+ '.' [0-9]* | '.' [0-9]+) ([eEdD] [+-]? [0-9]+)? ('_' IDENT)?
+    |  [0-9]+                          ([eEdD] [+-]? [0-9]+)? ('_' IDENT)?
     ;
 
 IDENT
