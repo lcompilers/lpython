@@ -175,3 +175,37 @@ do i = 1, 5
 end do
 end subroutine
 """, r)
+
+def test_strings():
+    r = "subroutine"
+    assert parse("""\
+subroutine a
+x = "a'b'c"
+y = 'a"b"c'
+z = 'a""bc""x'
+end subroutine
+""", r)
+    assert parse("""\
+subroutine a
+x = "a""c"
+y = "a""b""c"
+y = \"\"\"zippo\"\"\"
+end subroutine
+""", r)
+    assert parse("""\
+subroutine a
+x = 'a''c'
+y = 'a''b''c'
+y = '''zippo'''
+end subroutine
+""", r)
+
+def test_arrays():
+    r = "subroutine"
+    assert parse("""\
+subroutine f()
+integer :: a(10,10), b(10)
+call g(a(3:5,i:j), b(:))
+call g(a(:5,i:j), b(1:))
+end subroutine
+""", r)

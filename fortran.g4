@@ -5,15 +5,15 @@ root
     ;
 
 program
-    : 'program' IDENT NEWLINE+ use_statement* 'implicit none' NEWLINE+ decl* statements? ('contains' NEWLINE+ (subroutine|function)+ )?  'end program' IDENT? NEWLINE+ EOF
+    : 'program' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ decl* statements? ('contains' NEWLINE+ (subroutine|function)+ )?  'end program' ID? NEWLINE+ EOF
     ;
 
 module
-    : 'module' IDENT NEWLINE+ use_statement* 'implicit none' NEWLINE+ decl* ('contains' NEWLINE+ (subroutine|function)+ )?  'end module' IDENT? NEWLINE+ EOF
+    : 'module' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ decl* ('contains' NEWLINE+ (subroutine|function)+ )?  'end module' ID? NEWLINE+ EOF
     ;
 
 use_statement
-    : 'use' IDENT (',' 'only' ':' param_list)? NEWLINE+
+    : 'use' ID (',' 'only' ':' param_list)? NEWLINE+
     ;
 
 decl
@@ -28,15 +28,15 @@ private_decl
     ;
 
 public_decl
-    : 'public' IDENT (',' IDENT)* NEWLINE+
+    : 'public' ID (',' ID)* NEWLINE+
     ;
 
 var_decl
-    : var_type ('(' IDENT ')')? (',' var_modifier)* '::' var_sym_decl (',' var_sym_decl)* NEWLINE+
+    : var_type ('(' ID ')')? (',' var_modifier)* '::' var_sym_decl (',' var_sym_decl)* NEWLINE+
     ;
 
 var_sym_decl
-    : IDENT array_decl? ('=' expr)?
+    : ID array_decl? ('=' expr)?
     ;
 
 array_decl
@@ -49,42 +49,41 @@ array_comp_decl
     ;
 
 interface_decl
-    : 'interface' IDENT NEWLINE+ ('module' 'procedure' IDENT NEWLINE+)* 'end' 'interface' IDENT? NEWLINE+
+    : 'interface' ID NEWLINE+ ('module' 'procedure' ID NEWLINE+)* 'end' 'interface' ID? NEWLINE+
     ;
 
 expr
-    : <assoc=right> expr '**' expr
-    | expr ('*'|'/') expr
-    | '-' expr
-    | expr ('+'|'-') expr
-    | number
+    : ID '(' expr_list? ')'            // func call like f(), f(x), f(1,2)
+    | ID '(' array_index_list ')'      // array index like a(i), a(i, :, 3:)
+    | <assoc=right> expr '**' expr
+    | ('+'|'-') expr
     | '.not.' expr
+    | expr ('*'|'/') expr
+    | expr ('+'|'-') expr
     | expr ('<'|'<='|'=='|'/='|'>='|'>') expr
     | expr ('.and.'|'.or.') expr
-    | logical_value
-    | IDENT
+    | ID
+    | number
+    | '.true.' | '.false.'
     | STRING
-    | fn_call       // E.g. f(5), can be a function call or array access
     | '(' expr ')'  // E.g. (1+2)*3
 	;
 
-// This can be a function call, or array access. Must be determined later based
-// on the 'IDENT' definition.
-fn_call
-    : IDENT '(' call_args? ')'
+expr_list
+    : expr (',' expr)*
     ;
 
 subroutine_call
-    : 'call' IDENT '(' call_args? ')'
+    : 'call' ID '(' expr_list? ')'
     ;
 
-call_args
-    : call_arg (',' call_arg)*
+array_index_list
+    : array_index (',' array_index)*
     ;
 
-call_arg
+array_index
     : expr
-    | ':'           // This is for arrays only, not function/subroutine calls
+    | expr? ':' expr?
     ;
 
 var_type
@@ -98,15 +97,15 @@ var_modifier
     ;
 
 subroutine
-    : 'subroutine' IDENT ('(' param_list? ')')? NEWLINE+ decl* statements? 'end subroutine' NEWLINE+
+    : 'subroutine' ID ('(' param_list? ')')? NEWLINE+ decl* statements? 'end subroutine' NEWLINE+
     ;
 
 function
-    : 'pure'? 'recursive'? 'function' IDENT ('(' param_list? ')')? ('result' '(' IDENT ')')? NEWLINE+ decl* statements? 'end function' NEWLINE+
+    : 'pure'? 'recursive'? 'function' ID ('(' param_list? ')')? ('result' '(' ID ')')? NEWLINE+ decl* statements? 'end function' NEWLINE+
     ;
 
 param_list
-    : IDENT (',' IDENT)*
+    : ID (',' ID)*
     ;
 
 statements
@@ -114,7 +113,7 @@ statements
     ;
 
 statement
-    : IDENT '=' expr
+    : ID '=' expr
     | 'exit'
     | subroutine_call
     | if_statement
@@ -151,7 +150,7 @@ else_where_block
     ;
 
 do_statement
-    : 'do' (IDENT '=' expr ',' expr (',' expr)?)? NEWLINE+ statements 'end' 'do'
+    : 'do' (ID '=' expr ',' expr (',' expr)?)? NEWLINE+ statements 'end' 'do'
     ;
 
 print_statement
@@ -163,22 +162,21 @@ number
     | '(' NUMBER ',' NUMBER ')' // Complex number
     ;
 
-logical_value
-    : '.true.'
-    | '.false.'
-    ;
-
 NUMBER
-    : ([0-9]+ '.' [0-9]* | '.' [0-9]+) ([eEdD] [+-]? [0-9]+)? ('_' IDENT)?
-    |  [0-9]+                          ([eEdD] [+-]? [0-9]+)? ('_' IDENT)?
+    : ([0-9]+ '.' [0-9]* | '.' [0-9]+) EXP? NTYP?
+    |  [0-9]+                          EXP? NTYP?
     ;
 
-IDENT
+fragment EXP : [eEdD] [+-]? [0-9]+ ;
+fragment NTYP : '_' ID ;
+
+ID
     : ('a' .. 'z' | 'A' .. 'Z') ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*
     ;
 
 STRING
-    : '"' ~[\r\n]* '"'
+    : '"' ('""'|~'"')* '"'
+    | '\'' ('\'\''|~'\'')* '\''
     ;
 
 COMMENT
