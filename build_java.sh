@@ -17,4 +17,4 @@ echo
 $grun fortran module -tree examples/expr1.f90
 
 # Visualize
-#grun fortran module -gui examples/m1.f90
+#grun fortran root -gui examples/m1.f90
