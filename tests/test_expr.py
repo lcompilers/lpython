@@ -199,3 +199,13 @@ y = 'a''b''c'
 y = '''zippo'''
 end subroutine
 """, r)
+
+def test_arrays():
+    r = "subroutine"
+    assert parse("""\
+subroutine f()
+integer :: a(10,10), b(10)
+call g(a(3:5,i:j), b(:))
+call g(a(:5,i:j), b(1:))
+end subroutine
+""", r)

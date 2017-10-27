@@ -53,7 +53,8 @@ interface_decl
     ;
 
 expr
-    : ID '(' call_args? ')'
+    : ID '(' expr_list? ')'            // func call like f(), f(x), f(1,2)
+    | ID '(' array_index_list ')'      // array index like a(i), a(i, :, 3:)
     | <assoc=right> expr '**' expr
     | ('+'|'-') expr
     | '.not.' expr
@@ -68,17 +69,21 @@ expr
     | '(' expr ')'  // E.g. (1+2)*3
 	;
 
+expr_list
+    : expr (',' expr)*
+    ;
+
 subroutine_call
-    : 'call' ID '(' call_args? ')'
+    : 'call' ID '(' expr_list? ')'
     ;
 
-call_args
-    : call_arg (',' call_arg)*
+array_index_list
+    : array_index (',' array_index)*
     ;
 
-call_arg
+array_index
     : expr
-    | ':'           // This is for arrays only, not function/subroutine calls
+    | expr? ':' expr?
     ;
 
 var_type
