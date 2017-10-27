@@ -8,16 +8,37 @@ with all the subsequent sections form a self-contained grammar.
 
 grammar fortran;
 
+// ----------------------------------------------------------------------------
+// Programs definitions
+//
+// Similar to a module, but a bit different structure.
+//
+
 root
     : module | program
     ;
 
 program
-    : 'program' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ decl* statements? ('contains' NEWLINE+ (subroutine|function)+ )?  'end program' ID? NEWLINE+ EOF
+    : 'program' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ module_decl* statements? ('contains' NEWLINE+ (subroutine|function)+ )?  'end program' ID? NEWLINE+ EOF
     ;
 
+
+// ----------------------------------------------------------------------------
+// Module definitions
+//
+// * private/public blocks
+// * interface blocks
+//
+
 module
-    : 'module' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ decl* ('contains' NEWLINE+ (subroutine|function)+ )?  'end module' ID? NEWLINE+ EOF
+    : 'module' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ module_decl* ('contains' NEWLINE+ (subroutine|function)+ )?  'end module' ID? NEWLINE+ EOF
+    ;
+
+module_decl
+    : private_decl
+    | public_decl
+    | var_decl
+    | interface_decl
     ;
 
 private_decl
@@ -30,13 +51,6 @@ public_decl
 
 interface_decl
     : 'interface' ID NEWLINE+ ('module' 'procedure' ID NEWLINE+)* 'end' 'interface' ID? NEWLINE+
-    ;
-
-decl
-    : private_decl
-    | public_decl
-    | var_decl
-    | interface_decl
     ;
 
 // ----------------------------------------------------------------------------
