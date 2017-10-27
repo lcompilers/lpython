@@ -125,18 +125,15 @@ if_block
     : if_cond 'then' NEWLINE+ statements ('else' (if_block | (NEWLINE+ statements)))?
     ;
 
-// TODO: the same here as with if
 where_statement
-    : 'where' '(' expr ')' statement
-    | 'where' where_block 'end' 'where'
+    : where_cond statement
+    | where_block 'end' 'where'
     ;
+
+where_cond: 'where' '(' expr ')' ;
 
 where_block
-    : '(' expr ')' NEWLINE+ statements else_where_block?
-    ;
-
-else_where_block
-    : 'else' 'where' (where_block | (NEWLINE+ statements))
+    : where_cond NEWLINE+ statements ('else' 'where'? (where_block | (NEWLINE+ statements)))?
     ;
 
 do_statement
