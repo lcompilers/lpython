@@ -12,3 +12,5 @@ ico:
     - (cd; wget http://www.antlr.org/download/antlr-4.7-complete.jar)
     - ./build.sh
     - py.test
+    - python fortran_parser.py
+    - python list_subroutines.py
