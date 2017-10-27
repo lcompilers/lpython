@@ -1,0 +1,14 @@
+image: registry.gitlab.com/certik/ci-images:conda_base
+
+ico:
+  stage: build
+  script:
+    - export PATH="$HOME/conda_root/bin:$PATH"
+    - conda install python=3.6 pytest
+    - pip install antlr4-python3-runtime
+    - sudo apt-get update
+    - sudo apt-get install -yq --no-install-recommends wget openjdk-9-jdk-headless openjdk-9-jre-headless
+    - export CLASSPATH=".:$HOME/antlr-4.7-complete.jar:$CLASSPATH"
+    - (cd; wget http://www.antlr.org/download/antlr-4.7-complete.jar)
+    - ./build.sh
+    - py.test
