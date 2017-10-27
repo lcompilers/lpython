@@ -12,6 +12,7 @@ decl
     : private_decl
     | public_decl
     | var_decl
+    | interface_decl
     ;
 
 private_decl
@@ -23,11 +24,24 @@ public_decl
     ;
 
 var_decl
-    : var_type ('(' IDENT ')')? (',' modifier)* '::' var_sym_decl (',' var_sym_decl)* NEWLINE+
+    : var_type ('(' IDENT ')')? (',' var_modifier)* '::' var_sym_decl (',' var_sym_decl)* NEWLINE+
     ;
 
 var_sym_decl
-    : IDENT ('=' expr)?
+    : IDENT array_decl? ('=' expr)?
+    ;
+
+array_decl
+    : '(' array_comp_decl (',' array_comp_decl)* ')'
+    ;
+
+array_comp_decl
+    : expr
+    | ':'
+    ;
+
+interface_decl
+    : 'interface' IDENT NEWLINE+ ('module' 'procedure' IDENT NEWLINE+)* 'end' 'interface' IDENT? NEWLINE+
     ;
 
 expr
@@ -35,6 +49,7 @@ expr
     | expr ('*'|'/') expr
     | expr ('+'|'-') expr
     | number
+    | logical_value
     | IDENT
     | fn_call
     | '(' expr ')'
@@ -48,9 +63,10 @@ var_type
     : 'integer' | 'char' | 'real' | 'complex' | 'logical'
     ;
 
-modifier
+var_modifier
     : 'parameter' | 'intent' | 'dimension' | 'allocatable' | 'pointer'
     | 'intent' '(' ('in' | 'out' | 'inout' ) ')'
+    | 'save'
     ;
 
 subroutine
@@ -69,6 +85,11 @@ statement
 number
     : NUMBER                    // Real number
     | '(' NUMBER ',' NUMBER ')' // Complex number
+    ;
+
+logical_value
+    : '.true.'
+    | '.false.'
     ;
 
 NUMBER
