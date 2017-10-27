@@ -26,7 +26,7 @@ subroutine randn_scalar(x)
 ! Returns a psuedorandom scalar drawn from the standard normal distribution.
 !
 ! [1] Marsaglia, G., & Bray, T. A. (1964). A Convenient Method for Generating
-!       Normal Variables. SIAM Review, 6(3), 260–264.
+!       Normal Variables. SIAM Review, 6(3), 260-264.
 real(dp), intent(out) :: x
 logical, save :: first = .true.
 real(dp), save :: u(2)
@@ -72,7 +72,7 @@ subroutine rand_gamma0(a, first, fn_val)
 !
 ! [1] Marsaglia, G., & Tsang, W. W. (2000). A Simple Method for Generating
 ! Gamma Variables. ACM Transactions on Mathematical Software (TOMS), 26(3),
-! 363–372.
+! 363-372.
 real(dp), intent(in) :: a
 logical, intent(in) :: first
 real(dp), intent(out) :: fn_val
