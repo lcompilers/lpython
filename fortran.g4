@@ -114,14 +114,15 @@ subroutine_call
     ;
 
 
-// TODO: if_block -> multiline_if, merge else_block
 if_statement
-    : 'if' '(' expr ')' statement
+    : if_cond statement
     | if_block 'end' 'if'
     ;
 
+if_cond: 'if' '(' expr ')' ;
+
 if_block
-    : 'if' '(' expr ')' 'then' NEWLINE+ statements ('else' (if_block | (NEWLINE+ statements)))?
+    : if_cond 'then' NEWLINE+ statements ('else' (if_block | (NEWLINE+ statements)))?
     ;
 
 // TODO: the same here as with if
