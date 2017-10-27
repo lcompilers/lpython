@@ -13,7 +13,7 @@ subroutine some_other_subroutine
 integer :: x, y
 y = 5
 x = y
-some_subroutine()
+call some_subroutine()
 end subroutine
 
 end module

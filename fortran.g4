@@ -95,7 +95,6 @@ param_list
 statement
     :
     ( IDENT '=' expr
-    | fn_call
     | subroutine_call
     | 'exit'
     | if_statement
