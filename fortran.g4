@@ -54,15 +54,23 @@ interface_decl
 //
 
 program
-    : 'program' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ var_decl* statements? ('contains' NEWLINE+ (subroutine|function)+ )?  'end program' ID? NEWLINE+ EOF
+    : 'program' ID NEWLINE+ sub_block 'program' ID? NEWLINE+ EOF
     ;
 
 subroutine
-    : 'subroutine' ID ('(' param_list? ')')? NEWLINE+ use_statement* var_decl* statements? 'end subroutine' NEWLINE+
+    : 'subroutine' ID ('(' param_list? ')')? NEWLINE+ sub_block 'subroutine' ID? NEWLINE+
     ;
 
 function
-    : 'pure'? 'recursive'? 'function' ID ('(' param_list? ')')? ('result' '(' ID ')')? NEWLINE+ use_statement* var_decl* statements? 'end function' NEWLINE+
+    : 'pure'? 'recursive'? 'function' ID ('(' param_list? ')')? ('result' '(' ID ')')? NEWLINE+ sub_block 'function' ID? NEWLINE+
+    ;
+
+sub_block
+    : use_statement* implicit_statement? var_decl* statements? ('contains' NEWLINE+ (subroutine|function)+ )? 'end'
+    ;
+
+implicit_statement
+    : 'implicit none' NEWLINE+
     ;
 
 use_statement
