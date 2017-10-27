@@ -178,7 +178,7 @@ IDENT
     ;
 
 STRING
-    : '"' ~[\r\n]* '"'
+    : '"' .*? '"'
     ;
 
 COMMENT
