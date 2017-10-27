@@ -169,9 +169,12 @@ logical_value
     ;
 
 NUMBER
-    : ([0-9]+ '.' [0-9]* | '.' [0-9]+) ([eEdD] [+-]? [0-9]+)? ('_' IDENT)?
-    |  [0-9]+                          ([eEdD] [+-]? [0-9]+)? ('_' IDENT)?
+    : ([0-9]+ '.' [0-9]* | '.' [0-9]+) EXP? NTYP?
+    |  [0-9]+                          EXP? NTYP?
     ;
+
+fragment EXP : [eEdD] [+-]? [0-9]+ ;
+fragment NTYP : '_' IDENT ;
 
 IDENT
     : ('a' .. 'z' | 'A' .. 'Z') ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*
