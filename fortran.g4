@@ -51,7 +51,7 @@ expr
     | expr ('+'|'-') expr
     | number
     | '.not.' expr
-    | expr ('<'|'=='|'/='|'>') expr
+    | expr ('<'|'<='|'=='|'/='|'>='|'>') expr
     | expr ('.and.'|'.or.') expr
     | logical_value
     | IDENT
@@ -109,6 +109,7 @@ statement
     | subroutine_call
     | if_statement
     | do_statement
+    | where_statement
     | ';'
     ;
 
@@ -123,6 +124,19 @@ if_block
 
 else_block
     : 'else' (if_block | (NEWLINE+ statements))
+    ;
+
+where_statement
+    : 'where' '(' expr ')' statement
+    | 'where' where_block 'end' 'where'
+    ;
+
+where_block
+    : '(' expr ')' NEWLINE+ statements else_where_block?
+    ;
+
+else_where_block
+    : 'else' 'where' (where_block | (NEWLINE+ statements))
     ;
 
 do_statement
