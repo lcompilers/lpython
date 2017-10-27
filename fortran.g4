@@ -12,6 +12,7 @@ decl
     : private_decl
     | public_decl
     | var_decl
+    | interface_decl
     ;
 
 private_decl
@@ -23,52 +24,115 @@ public_decl
     ;
 
 var_decl
-    : var_type ('(' IDENT ')')? (',' modifier)* '::' var_sym_decl (',' var_sym_decl)* NEWLINE+
+    : var_type ('(' IDENT ')')? (',' var_modifier)* '::' var_sym_decl (',' var_sym_decl)* NEWLINE+
     ;
 
 var_sym_decl
-    : IDENT ('=' expr)?
+    : IDENT array_decl? ('=' expr)?
+    ;
+
+array_decl
+    : '(' array_comp_decl (',' array_comp_decl)* ')'
+    ;
+
+array_comp_decl
+    : expr
+    | ':'
+    ;
+
+interface_decl
+    : 'interface' IDENT NEWLINE+ ('module' 'procedure' IDENT NEWLINE+)* 'end' 'interface' IDENT? NEWLINE+
     ;
 
 expr
     : expr '**' expr
     | expr ('*'|'/') expr
+    | '-' expr
     | expr ('+'|'-') expr
     | number
+    | '.not.' expr
+    | expr ('<'|'=='|'/='|'>') expr
+    | expr ('.and.'|'.or.') expr
+    | logical_value
     | IDENT
+    | STRING
     | fn_call
-    | '(' expr ')'
+    | '(' expr ')'  // accessing array
 	;
 
 fn_call
-    : IDENT '(' expr? ')'
+    : IDENT '(' call_args? ')'
+    ;
+
+subroutine_call
+    : 'call' IDENT '(' call_args? ')'
+    ;
+
+call_args
+    : call_arg (',' call_arg)*
+    ;
+
+call_arg
+    : expr
+    | ':'
     ;
 
 var_type
     : 'integer' | 'char' | 'real' | 'complex' | 'logical'
     ;
 
-modifier
+var_modifier
     : 'parameter' | 'intent' | 'dimension' | 'allocatable' | 'pointer'
     | 'intent' '(' ('in' | 'out' | 'inout' ) ')'
+    | 'save'
     ;
 
 subroutine
-    : 'subroutine' IDENT ('(' param_list? ')')? NEWLINE+ decl* statement* 'end subroutine' NEWLINE+
+    : 'subroutine' IDENT ('(' param_list? ')')? NEWLINE+ decl* statements? 'end subroutine' NEWLINE+
     ;
 
 param_list
     : IDENT (',' IDENT)*
     ;
 
+statements
+    : (statement (NEWLINE+ | ';' NEWLINE*))+
+    ;
+
 statement
-    : IDENT '=' expr NEWLINE+
-    | fn_call NEWLINE+
+    : IDENT '=' expr
+    | 'exit'
+    | subroutine_call
+    | if_statement
+    | do_statement
+    | ';'
+    ;
+
+if_statement
+    : 'if' '(' expr ')' statement
+    | if_block 'end' 'if'
+    ;
+
+if_block
+    : 'if' '(' expr ')' 'then' NEWLINE+ statements else_block?
+    ;
+
+else_block
+    : 'else' (if_block | (NEWLINE+ statements))
+    ;
+
+do_statement
+    : 'do' (IDENT '=' expr ',' expr (',' expr)?)? NEWLINE+ statements 'end' 'do'
     ;
 
 number
     : NUMBER                    // Real number
     | '(' NUMBER ',' NUMBER ')' // Complex number
+    ;
+
+logical_value
+    : '.true.'
+    | '.false.'
     ;
 
 NUMBER
@@ -78,6 +142,10 @@ NUMBER
 
 IDENT
     : ('a' .. 'z' | 'A' .. 'Z') ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*
+    ;
+
+STRING
+    : '"' ~[\r\n]* '"'
     ;
 
 COMMENT
