@@ -45,10 +45,15 @@ var_type
 
 modifier
     : 'parameter' | 'intent' | 'dimension' | 'allocatable' | 'pointer'
+    | 'intent' '(' ('in' | 'out' | 'inout' ) ')'
     ;
 
 subroutine
-    : 'subroutine' IDENT NEWLINE decl* statement* 'end subroutine' NEWLINE+
+    : 'subroutine' IDENT ('(' param_list? ')')? NEWLINE+ decl* statement* 'end subroutine' NEWLINE+
+    ;
+
+param_list
+    : IDENT (',' IDENT)*
     ;
 
 statement
