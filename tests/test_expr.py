@@ -185,3 +185,17 @@ y = 'a"b"c'
 z = 'a""bc""x'
 end subroutine
 """, r)
+    assert parse("""\
+subroutine a
+x = "a""c"
+y = "a""b""c"
+y = \"\"\"zippo\"\"\"
+end subroutine
+""", r)
+    assert parse("""\
+subroutine a
+x = 'a''c'
+y = 'a''b''c'
+y = '''zippo'''
+end subroutine
+""", r)
