@@ -1,3 +1,11 @@
+/*
+This is a grammar for a subset of modern Fortran.
+
+The file is organized in several sections, rules in each section only depend on
+that or below sections, never on sections above. As such any section together
+with all the subsequent sections form a self-contained grammar.
+*/
+
 grammar fortran;
 
 root
@@ -52,39 +60,14 @@ interface_decl
     : 'interface' ID NEWLINE+ ('module' 'procedure' ID NEWLINE+)* 'end' 'interface' ID? NEWLINE+
     ;
 
-expr
-    : ID '(' expr_list? ')'            // func call like f(), f(x), f(1,2)
-    | ID '(' array_index_list ')'      // array index like a(i), a(i, :, 3:)
-    | <assoc=right> expr '**' expr
-    | ('+'|'-') expr
-    | '.not.' expr
-    | expr ('*'|'/') expr
-    | expr ('+'|'-') expr
-    | expr ('<'|'<='|'=='|'/='|'>='|'>') expr
-    | expr ('.and.'|'.or.') expr
-    | ID
-    | number
-    | '.true.' | '.false.'
-    | STRING
-    | '(' expr ')'  // E.g. (1+2)*3
-	;
-
-expr_list
-    : expr (',' expr)*
+subroutine
+    : 'subroutine' ID ('(' param_list? ')')? NEWLINE+ decl* statements? 'end subroutine' NEWLINE+
     ;
 
-subroutine_call
-    : 'call' ID '(' expr_list? ')'
+function
+    : 'pure'? 'recursive'? 'function' ID ('(' param_list? ')')? ('result' '(' ID ')')? NEWLINE+ decl* statements? 'end function' NEWLINE+
     ;
 
-array_index_list
-    : array_index (',' array_index)*
-    ;
-
-array_index
-    : expr
-    | expr? ':' expr?
-    ;
 
 var_type
     : 'integer' | 'char' | 'real' | 'complex' | 'logical'
@@ -96,17 +79,20 @@ var_modifier
     | 'save'
     ;
 
-subroutine
-    : 'subroutine' ID ('(' param_list? ')')? NEWLINE+ decl* statements? 'end subroutine' NEWLINE+
-    ;
-
-function
-    : 'pure'? 'recursive'? 'function' ID ('(' param_list? ')')? ('result' '(' ID ')')? NEWLINE+ decl* statements? 'end function' NEWLINE+
-    ;
-
 param_list
     : ID (',' ID)*
     ;
+
+
+
+// ----------------------------------------------------------------------------
+// Control flow:
+//
+// * statements
+//     * assignment
+//     * if/do/where/print/exit statements
+//     * subroutine calls
+//
 
 statements
     : (statement (NEWLINE+ | ';' NEWLINE*))+
@@ -123,6 +109,12 @@ statement
     | ';'
     ;
 
+subroutine_call
+    : 'call' ID '(' expr_list? ')'
+    ;
+
+
+// TODO: if_block -> multiline_if, merge else_block
 if_statement
     : 'if' '(' expr ')' statement
     | if_block 'end' 'if'
@@ -136,6 +128,7 @@ else_block
     : 'else' (if_block | (NEWLINE+ statements))
     ;
 
+// TODO: the same here as with if
 where_statement
     : 'where' '(' expr ')' statement
     | 'where' where_block 'end' 'where'
@@ -157,10 +150,76 @@ print_statement
     : 'print' '*' (',' expr)*
     ;
 
+
+// ----------------------------------------------------------------------------
+// Fortran expression
+//
+// * function calls
+// * array operations
+// * arithmetics
+// * numbers/variables/strings/etc.
+//
+// Expressions are used in previous sections in the following situations:
+//
+// * assignments, possibly during declaration (x=1+2)
+// * subroutine/function calls (f(1+2, 2*a))
+// * in array dimension declarations (integer :: a(2*n))
+// * in if statement conditions (if (x == y+1) then)
+//
+// An expression can have any type (e.g. logical, integer, real, string), so
+// the allowed usage depends on the actual type (e.g. a dimension of an array
+// must be an integer, an if statement condition must be a logical, etc.).
+//
+
+expr_list
+    : expr (',' expr)*
+    ;
+
+expr
+    : ID '(' expr_list? ')'            // func call like f(), f(x), f(1,2)
+    | ID '(' array_index_list ')'      // array index like a(i), a(i, :, 3:)
+    | <assoc=right> expr '**' expr
+    | ('+'|'-') expr
+    | '.not.' expr
+    | expr ('*'|'/') expr
+    | expr ('+'|'-') expr
+    | expr ('<'|'<='|'=='|'/='|'>='|'>') expr
+    | expr ('.and.'|'.or.') expr
+    | ID
+    | number
+    | '.true.' | '.false.'
+    | STRING
+    | '(' expr ')'  // E.g. (1+2)*3
+	;
+
+array_index_list
+    : array_index (',' array_index)*
+    ;
+
+array_index
+    : expr
+    | expr? ':' expr?
+    ;
+
 number
     : NUMBER                    // Real number
     | '(' NUMBER ',' NUMBER ')' // Complex number
     ;
+
+
+// ----------------------------------------------------------------------------
+// Lexer
+//
+// * numbers
+// * identifiers (variables/arguments/function calls)
+// * strings
+// * comments
+// * white space / end of lines
+//
+// Besides the explicit tokens below (in uppercase), there are implicit tokens
+// above in quotes, such as '.true.', 'exit', '*', '(', etc. Those all together
+// form the tokens and are saved into `fortranLexer.tokens`.
+//
 
 NUMBER
     : ([0-9]+ '.' [0-9]* | '.' [0-9]+) EXP? NTYP?
