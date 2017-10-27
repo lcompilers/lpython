@@ -20,8 +20,16 @@ module
     : 'module' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ decl* ('contains' NEWLINE+ (subroutine|function)+ )?  'end module' ID? NEWLINE+ EOF
     ;
 
-use_statement
-    : 'use' ID (',' 'only' ':' param_list)? NEWLINE+
+private_decl
+    : 'private' NEWLINE+
+    ;
+
+public_decl
+    : 'public' ID (',' ID)* NEWLINE+
+    ;
+
+interface_decl
+    : 'interface' ID NEWLINE+ ('module' 'procedure' ID NEWLINE+)* 'end' 'interface' ID? NEWLINE+
     ;
 
 decl
@@ -31,16 +39,42 @@ decl
     | interface_decl
     ;
 
-private_decl
-    : 'private' NEWLINE+
+// ----------------------------------------------------------------------------
+// Subroutine/functions definitions
+//
+// * argument lists
+// * use statement
+// * variable (and arrays) declarations
+//
+
+subroutine
+    : 'subroutine' ID ('(' param_list? ')')? NEWLINE+ use_statement* var_decl* statements? 'end subroutine' NEWLINE+
     ;
 
-public_decl
-    : 'public' ID (',' ID)* NEWLINE+
+function
+    : 'pure'? 'recursive'? 'function' ID ('(' param_list? ')')? ('result' '(' ID ')')? NEWLINE+ use_statement* var_decl* statements? 'end function' NEWLINE+
+    ;
+
+use_statement
+    : 'use' ID (',' 'only' ':' param_list)? NEWLINE+
+    ;
+
+param_list
+    : ID (',' ID)*
     ;
 
 var_decl
     : var_type ('(' ID ')')? (',' var_modifier)* '::' var_sym_decl (',' var_sym_decl)* NEWLINE+
+    ;
+
+var_type
+    : 'integer' | 'char' | 'real' | 'complex' | 'logical'
+    ;
+
+var_modifier
+    : 'parameter' | 'intent' | 'dimension' | 'allocatable' | 'pointer'
+    | 'intent' '(' ('in' | 'out' | 'inout' ) ')'
+    | 'save'
     ;
 
 var_sym_decl
@@ -55,34 +89,6 @@ array_comp_decl
     : expr
     | ':'
     ;
-
-interface_decl
-    : 'interface' ID NEWLINE+ ('module' 'procedure' ID NEWLINE+)* 'end' 'interface' ID? NEWLINE+
-    ;
-
-subroutine
-    : 'subroutine' ID ('(' param_list? ')')? NEWLINE+ decl* statements? 'end subroutine' NEWLINE+
-    ;
-
-function
-    : 'pure'? 'recursive'? 'function' ID ('(' param_list? ')')? ('result' '(' ID ')')? NEWLINE+ decl* statements? 'end function' NEWLINE+
-    ;
-
-
-var_type
-    : 'integer' | 'char' | 'real' | 'complex' | 'logical'
-    ;
-
-var_modifier
-    : 'parameter' | 'intent' | 'dimension' | 'allocatable' | 'pointer'
-    | 'intent' '(' ('in' | 'out' | 'inout' ) ')'
-    | 'save'
-    ;
-
-param_list
-    : ID (',' ID)*
-    ;
-
 
 
 // ----------------------------------------------------------------------------
