@@ -130,6 +130,39 @@ end subroutine
 """, r)
     assert parse("""\
 subroutine a
+if (a) then
+    x = 1
+else if (b) then
+    x = 2
+end if
+end subroutine
+""", r)
+    assert parse("""\
+subroutine a
+if (a) then
+    x = 1
+else if (b) then
+    x = 2
+else if (c) then
+    x = 2
+end if
+end subroutine
+""", r)
+    assert parse("""\
+subroutine a
+if (a) then
+    x = 1
+end if
+end subroutine
+""", r)
+    assert parse("""\
+subroutine a
+if (a) x = 1
+end subroutine
+""", r)
+
+    assert parse("""\
+subroutine a
 do
     x = 1
 end do
