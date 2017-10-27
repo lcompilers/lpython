@@ -90,7 +90,7 @@ fn_val = d*v
 exit
 end subroutine
 """, r)
-    assert not parse("""\
+    assert parse("""\
 subroutine a
 call randn(x(i))
 call randn(x)

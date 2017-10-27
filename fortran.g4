@@ -54,15 +54,24 @@ expr
     | logical_value
     | IDENT
     | fn_call
-    | '(' expr ')'
+    | '(' expr ')'  // accessing array
 	;
 
 fn_call
-    : IDENT '(' expr? ')'
+    : IDENT '(' call_args? ')'
     ;
 
 subroutine_call
-    : 'call' IDENT '(' expr? ')'
+    : 'call' IDENT '(' call_args? ')'
+    ;
+
+call_args
+    : call_arg (',' call_arg)*
+    ;
+
+call_arg
+    : expr
+    | ':'
     ;
 
 var_type
