@@ -1,7 +1,7 @@
 grammar fortran;
 
 module
-    : 'module' IDENT NEWLINE+ 'implicit none' NEWLINE+ decl* ('contains' NEWLINE+ subroutine+ )?  'end module' IDENT? NEWLINE+
+    : 'module' IDENT NEWLINE+ 'implicit none' NEWLINE+ decl* ('contains' NEWLINE+ subroutine+ )?  'end module' IDENT? NEWLINE+ EOF
     ;
 
 decl
