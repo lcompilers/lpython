@@ -175,3 +175,13 @@ do i = 1, 5
 end do
 end subroutine
 """, r)
+
+def test_strings():
+    r = "subroutine"
+    assert parse("""\
+subroutine a
+x = "a'b'c"
+y = 'a"b"c'
+z = 'a""bc""x'
+end subroutine
+""", r)
