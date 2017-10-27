@@ -31,11 +31,11 @@ module_decl
     ;
 
 private_decl
-    : 'private' NEWLINE+
+    : 'private' id_list? NEWLINE+
     ;
 
 public_decl
-    : 'public' ID (',' ID)* NEWLINE+
+    : 'public' id_list NEWLINE+
     ;
 
 interface_decl
