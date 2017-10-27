@@ -2,7 +2,6 @@ import antlr4
 from antlr4.error.ErrorListener import ErrorListener
 from fortranParser import fortranParser
 from fortranLexer import fortranLexer
-from fortranListener import fortranListener
 
 class SyntaxErrorException(Exception):
     pass
@@ -15,13 +14,17 @@ class VerboseListener(ErrorListener) :
         print("line", line, ":", column, "at", offendingSymbol, ":", msg)
         raise SyntaxErrorException("Syntax error.")
 
-def parse(source, rule="root"):
+def get_parser(source):
     stream = antlr4.InputStream(source)
     lexer = fortranLexer(stream)
     tokens = antlr4.CommonTokenStream(lexer)
     parser = fortranParser(tokens)
     parser.removeErrorListeners()
     parser.addErrorListener(VerboseListener())
+    return parser
+
+def parse(source, rule="root"):
+    parser = get_parser(source)
     try:
         tree = getattr(parser, rule)()
     except SyntaxErrorException:
