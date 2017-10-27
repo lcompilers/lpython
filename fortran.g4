@@ -1,7 +1,7 @@
 grammar fortran;
 
 module
-    : 'module' IDENT NEWLINE+ use_statement* 'implicit none' NEWLINE+ decl* ('contains' NEWLINE+ subroutine+ )?  'end module' IDENT? NEWLINE+ EOF
+    : 'module' IDENT NEWLINE+ use_statement* 'implicit none' NEWLINE+ decl* ('contains' NEWLINE+ (subroutine|function)+ )?  'end module' IDENT? NEWLINE+ EOF
     ;
 
 use_statement
@@ -89,6 +89,10 @@ var_modifier
 
 subroutine
     : 'subroutine' IDENT ('(' param_list? ')')? NEWLINE+ decl* statements? 'end subroutine' NEWLINE+
+    ;
+
+function
+    : 'pure'? 'recursive'? 'function' IDENT ('(' param_list? ')')? ('result' '(' IDENT ')')? NEWLINE+ decl* statements? 'end function' NEWLINE+
     ;
 
 param_list
