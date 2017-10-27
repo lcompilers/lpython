@@ -1,7 +1,7 @@
 grammar fortran;
 
 module
-    : 'module' IDENT NEWLINE+ use_statement* 'implicit none' NEWLINE+ decl* ('contains' NEWLINE+ subroutine+ )?  'end module' IDENT? NEWLINE+ EOF
+    : 'module' IDENT NEWLINE+ use_statement* 'implicit none' NEWLINE+ decl* ('contains' NEWLINE+ (subroutine|function)+ )?  'end module' IDENT? NEWLINE+ EOF
     ;
 
 use_statement
@@ -51,7 +51,7 @@ expr
     | expr ('+'|'-') expr
     | number
     | '.not.' expr
-    | expr ('<'|'=='|'/='|'>') expr
+    | expr ('<'|'<='|'=='|'/='|'>='|'>') expr
     | expr ('.and.'|'.or.') expr
     | logical_value
     | IDENT
@@ -91,6 +91,10 @@ subroutine
     : 'subroutine' IDENT ('(' param_list? ')')? NEWLINE+ decl* statements? 'end subroutine' NEWLINE+
     ;
 
+function
+    : 'pure'? 'recursive'? 'function' IDENT ('(' param_list? ')')? ('result' '(' IDENT ')')? NEWLINE+ decl* statements? 'end function' NEWLINE+
+    ;
+
 param_list
     : IDENT (',' IDENT)*
     ;
@@ -105,6 +109,7 @@ statement
     | subroutine_call
     | if_statement
     | do_statement
+    | where_statement
     | ';'
     ;
 
@@ -119,6 +124,19 @@ if_block
 
 else_block
     : 'else' (if_block | (NEWLINE+ statements))
+    ;
+
+where_statement
+    : 'where' '(' expr ')' statement
+    | 'where' where_block 'end' 'where'
+    ;
+
+where_block
+    : '(' expr ')' NEWLINE+ statements else_where_block?
+    ;
+
+else_where_block
+    : 'else' 'where' (where_block | (NEWLINE+ statements))
     ;
 
 do_statement
