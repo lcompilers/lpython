@@ -87,31 +87,33 @@ var_modifier
     ;
 
 subroutine
-    : 'subroutine' IDENT ('(' param_list? ')')? NEWLINE+ decl* statement* 'end subroutine' NEWLINE+
+    : 'subroutine' IDENT ('(' param_list? ')')? NEWLINE+ decl* statements? 'end subroutine' NEWLINE+
     ;
 
 param_list
     : IDENT (',' IDENT)*
     ;
 
+statements
+    : (statement (NEWLINE+ | ';' NEWLINE*))+
+    ;
+
 statement
-    :
-    ( IDENT '=' expr
+    : IDENT '=' expr
     | 'exit'
     | subroutine_call
     | if_statement
     | do_statement
     | ';'
-    ) (NEWLINE+ | ';' NEWLINE*)
     ;
 
 if_statement
     : 'if' '(' expr ')' statement
-    | 'if' '(' expr ')' 'then' NEWLINE+ statement+ ('else' NEWLINE+ statement+)? 'end' 'if'
+    | 'if' '(' expr ')' 'then' NEWLINE+ statements ('else' NEWLINE+ statements)? 'end' 'if'
     ;
 
 do_statement
-    : 'do' (IDENT '=' expr ',' expr (',' expr)?)? NEWLINE+ statement+ 'end' 'do'
+    : 'do' (IDENT '=' expr ',' expr (',' expr)?)? NEWLINE+ statements 'end' 'do'
     ;
 
 number
