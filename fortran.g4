@@ -55,6 +55,7 @@ expr
     | expr ('.and.'|'.or.') expr
     | logical_value
     | IDENT
+    | STRING
     | fn_call
     | '(' expr ')'  // accessing array
 	;
@@ -133,6 +134,10 @@ NUMBER
 
 IDENT
     : ('a' .. 'z' | 'A' .. 'Z') ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*
+    ;
+
+STRING
+    : '"' ~[\r\n]* '"'
     ;
 
 COMMENT
