@@ -9,26 +9,15 @@ with all the subsequent sections form a self-contained grammar.
 grammar fortran;
 
 // ----------------------------------------------------------------------------
-// Programs definitions
-//
-// Similar to a module, but a bit different structure.
-//
-
-root
-    : module | program
-    ;
-
-program
-    : 'program' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ module_decl* statements? ('contains' NEWLINE+ (subroutine|function)+ )?  'end program' ID? NEWLINE+ EOF
-    ;
-
-
-// ----------------------------------------------------------------------------
 // Module definitions
 //
 // * private/public blocks
 // * interface blocks
 //
+
+root
+    : module | program
+    ;
 
 module
     : 'module' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ module_decl* ('contains' NEWLINE+ (subroutine|function)+ )?  'end module' ID? NEWLINE+ EOF
@@ -54,12 +43,19 @@ interface_decl
     ;
 
 // ----------------------------------------------------------------------------
-// Subroutine/functions definitions
+// Subroutine/functions/program definitions
 //
 // * argument lists
 // * use statement
 // * variable (and arrays) declarations
 //
+// It turns out that all subroutines, functions and programs have very similar
+// structure.
+//
+
+program
+    : 'program' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ var_decl* statements? ('contains' NEWLINE+ (subroutine|function)+ )?  'end program' ID? NEWLINE+ EOF
+    ;
 
 subroutine
     : 'subroutine' ID ('(' param_list? ')')? NEWLINE+ use_statement* var_decl* statements? 'end subroutine' NEWLINE+
