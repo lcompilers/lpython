@@ -98,7 +98,8 @@ statement
     | 'exit'
     | subroutine_call
     | if_statement
-    ) (NEWLINE+ | ';')
+    | ';'
+    ) (NEWLINE+ | ';' NEWLINE*)
     ;
 
 if_statement
