@@ -63,7 +63,7 @@ subroutine
     ;
 
 function
-    : 'pure'? 'recursive'? (var_type ('(' ID ')')?)? 'function' ID ('(' id_list? ')')? ('result' '(' ID ')')? NEWLINE+ sub_block 'function' ID? NEWLINE+
+    : (var_type ('(' ID ')')?)? 'pure'? 'recursive'? 'function' ID ('(' id_list? ')')? ('result' '(' ID ')')? NEWLINE+ sub_block 'function' ID? NEWLINE+
     ;
 
 sub_block
@@ -106,7 +106,7 @@ array_decl
 
 array_comp_decl
     : expr
-    | ':'
+    | expr? ':' expr?
     ;
 
 
@@ -125,8 +125,9 @@ statements
 
 statement
     : struct_member* ID ('(' array_index_list ')')? ('='|'=>') expr
-    | 'exit' | 'cycle'
+    | 'exit' | 'cycle' | 'return'
     | subroutine_call
+    | allocate_statement
     | if_statement
     | do_statement
     | while_statement
@@ -139,6 +140,10 @@ statement
 
 subroutine_call
     : 'call' struct_member* ID '(' arg_list? ')'
+    ;
+
+allocate_statement
+    : 'allocate' '(' arg_list? ')'
     ;
 
 
