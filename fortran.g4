@@ -123,8 +123,7 @@ statements
     ;
 
 statement
-    : ID '=' expr
-    | ID '=>' expr
+    : struct_member* ID ('(' array_index_list ')')? ('='|'=>') expr
     | 'exit'
     | subroutine_call
     | if_statement
