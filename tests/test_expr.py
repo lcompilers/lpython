@@ -233,6 +233,12 @@ y = 'a''b''c'
 y = '''zippo'''
 end subroutine
 """, r)
+    assert parse("""\
+subroutine a
+x = "aaa" // str(x) // "bb"
+y = "a" // "b"
+end subroutine
+""", r)
 
 def test_arrays():
     r = "subroutine"

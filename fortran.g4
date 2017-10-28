@@ -244,6 +244,7 @@ expr
     | (ID '%')* ID
     | number
     | '.true.' | '.false.'
+    | expr '//' expr
     | STRING
     | '(' expr ')'  // E.g. (1+2)*3
 	;
