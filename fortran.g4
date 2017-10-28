@@ -40,7 +40,7 @@ public_decl
     ;
 
 interface_decl
-    : 'interface' ID NEWLINE+ ('module' 'procedure' ID NEWLINE+)* 'end' 'interface' ID? NEWLINE+
+    : 'interface' ID NEWLINE+ ('module' 'procedure' id_list NEWLINE+)* 'end' 'interface' ID? NEWLINE+
     ;
 
 // ----------------------------------------------------------------------------
@@ -75,12 +75,12 @@ implicit_statement
     ;
 
 use_statement
-    : 'use' ID (',' 'only' ':' id_list)? NEWLINE+
+    : 'use' ID (',' 'only' ':' only_symbol (',' only_symbol)*)? NEWLINE+
     ;
 
-id_list
-    : ID (',' ID)*
-    ;
+only_symbol : ID | ID '=>' ID ;
+
+id_list : ID (',' ID)* ;
 
 var_decl
     : var_type ('(' ID ')')? (',' var_modifier)* '::'? var_sym_decl (',' var_sym_decl)* NEWLINE+
