@@ -221,3 +221,24 @@ call g(a(3:5,i:j), b(:))
 call g(a(:5,i:j), b(1:))
 end subroutine
 """, r)
+
+def test_derived_type():
+    r = "subroutine"
+    assert parse("""\
+subroutine f()
+type(xx), intent(inout) :: x, y
+real(dp) :: a, b
+a = x%a
+b = x%b(i, j)
+c = y%c(5, :)
+end subroutine
+""", r)
+    assert parse("""\
+subroutine f()
+type(xx), intent(inout) :: x, y
+real(dp) :: a, b
+a = x%f%a
+b = x%g%b(i, j)
+c = y%h%c(5, :)
+end subroutine
+""", r)

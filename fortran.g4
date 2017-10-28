@@ -176,6 +176,7 @@ print_statement
 // * array operations
 // * arithmetics
 // * numbers/variables/strings/etc.
+// * derived types access (e.g. x%a(3))
 //
 // Expressions are used in previous sections in the following situations:
 //
@@ -194,8 +195,8 @@ expr_list
     ;
 
 expr
-    : ID '(' expr_list? ')'            // func call like f(), f(x), f(1,2)
-    | ID '(' array_index_list ')'      // array index like a(i), a(i, :, 3:)
+    : (ID '%')* ID '(' expr_list? ')'            // func call like f(), f(x), f(1,2)
+    | (ID '%')* ID '(' array_index_list ')'      // array index like a(i), a(i, :, 3:)
     | <assoc=right> expr '**' expr
     | ('+'|'-') expr
     | '.not.' expr
@@ -203,7 +204,7 @@ expr
     | expr ('+'|'-') expr
     | expr ('<'|'<='|'=='|'/='|'>='|'>') expr
     | expr ('.and.'|'.or.') expr
-    | ID
+    | (ID '%')* ID
     | number
     | '.true.' | '.false.'
     | STRING
