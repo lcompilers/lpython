@@ -138,7 +138,7 @@ statement
     ;
 
 subroutine_call
-    : 'call' struct_member* ID '(' expr_list? ')'
+    : 'call' struct_member* ID '(' arg_list? ')'
     ;
 
 
@@ -211,7 +211,7 @@ expr_list
     ;
 
 expr
-    : struct_member* ID '(' expr_list? ')'       // func call like f(), f(x), f(1,2)
+    : struct_member* ID '(' arg_list? ')'       // func call like f(), f(x), f(1,2)
     | struct_member* ID '(' array_index_list ')' // array index like a(i), a(i, :, 3:)
     | '[' expr_list ']'                          // arrays like [1, 2, 3, x]
     | <assoc=right> expr '**' expr
@@ -227,6 +227,15 @@ expr
     | STRING
     | '(' expr ')'  // E.g. (1+2)*3
 	;
+
+arg_list
+    : arg (',' arg)*
+    ;
+
+arg
+    : expr
+    | ID '=' expr
+    ;
 
 array_index_list
     : array_index (',' array_index)*
