@@ -6,8 +6,8 @@ class SubroutinesVisitor(fortranVisitor):
 
     # Visit a parse tree produced by fortranParser#subroutine.
     def visitSubroutine(self, ctx:fortranParser.SubroutineContext):
-        print("subroutine %s(%s)" % (ctx.ID().getText(),
-            ctx.param_list().getText()))
+        print("subroutine %s(%s)" % (ctx.ID()[0].getText(),
+            ctx.id_list().getText()))
         return self.visitChildren(ctx)
 
 def main():

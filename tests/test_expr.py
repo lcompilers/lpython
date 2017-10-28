@@ -160,6 +160,18 @@ subroutine a
 if (a) x = 1
 end subroutine
 """, r)
+    assert parse("""\
+subroutine a
+if (a) &
+    x = 1
+end subroutine
+""", r)
+    assert parse("""\
+subroutine a
+if (a) &     ! if statement
+    x = 1
+end subroutine
+""", r)
 
     assert parse("""\
 subroutine a
