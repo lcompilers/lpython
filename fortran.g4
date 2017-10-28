@@ -130,6 +130,7 @@ statement
     | do_statement
     | where_statement
     | print_statement
+    | write_statement
     | ';'
     ;
 
@@ -165,7 +166,11 @@ do_statement
     ;
 
 print_statement
-    : 'print' '*' (',' expr)*
+    : 'print' ('*' | STRING) ',' expr_list?
+    ;
+
+write_statement
+    : 'write' '(' ('*' | expr) ',' ('*' | STRING) ')' expr_list?
     ;
 
 
