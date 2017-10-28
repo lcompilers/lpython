@@ -99,6 +99,10 @@ call rand_gamma0(a, .true., x)
 call rand_gamma0(a, .true., x(1))
 call rand_gamma0(a, .false., x(i))
 call rand_gamma_vector_n(a, size(x), x)
+call f(a=4, b=6, c=i)
+open(newunit=a, b, c)
+allocate(c(4), d(4))
+close(u)
 end subroutine
 """, r)
     assert parse("""\
@@ -237,6 +241,7 @@ integer, dimension(10,10) :: c
 integer, dimension(:,:), intent(in) :: e
 call g(a(3:5,i:j), b(:))
 call g(a(:5,i:j), b(1:))
+c = [1, 2, 3, i]
 end subroutine
 """, r)
 
@@ -268,5 +273,64 @@ x%f%a = a
 x%g%b(i, j) = b
 y%h%c(5, :) = c
 call x%f%e()
+end subroutine
+""", r)
+
+def test_use_statement():
+    r = "subroutine"
+    assert parse("""\
+subroutine f(e)
+use a, b, c
+use a, only: b, c
+use a, only: x => b, c, d => a
+integer :: a(10,10), b(10)
+end subroutine
+""", r)
+
+def test_function():
+    r = "function"
+    assert parse("""\
+real(dp) pure function f(e) result(r)
+r = 1
+end function
+""", r)
+    assert parse("""\
+real(dp) recursive function f(e) result(r)
+r = 1
+end function
+""", r)
+    assert parse("""\
+function f(e)
+f = 1
+end function
+""", r)
+
+def test_decl():
+    r = "subroutine"
+    assert parse("""\
+subroutine f(e)
+character(len=*) :: c
+real(dp) y = 5
+end subroutine
+""", r)
+
+def test_select():
+    r = "subroutine"
+    assert parse("""\
+subroutine f(e)
+select case(k)
+    case(1)
+        call a()
+    case(i)
+        call b()
+end select
+select case(k)
+    case(1)
+        call a()
+    case(i)
+        call b()
+    case default
+        call c()
+end select
 end subroutine
 """, r)

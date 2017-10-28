@@ -75,10 +75,11 @@ implicit_statement
     ;
 
 use_statement
-    : 'use' ID (',' 'only' ':' only_symbol (',' only_symbol)*)? NEWLINE+
+    : 'use' use_symbol_list (',' 'only' ':' use_symbol_list)? NEWLINE+
     ;
 
-only_symbol : ID | ID '=>' ID ;
+use_symbol_list : use_symbol (',' use_symbol)* ;
+use_symbol : ID | ID '=>' ID ;
 
 id_list : ID (',' ID)* ;
 
