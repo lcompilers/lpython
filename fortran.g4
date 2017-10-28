@@ -35,7 +35,7 @@ private_decl
     ;
 
 public_decl
-    : 'public' '::'? id_list NEWLINE+
+    : 'public' '::'? id_list? NEWLINE+
     ;
 
 interface_decl
