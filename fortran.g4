@@ -131,6 +131,7 @@ statement
     | if_statement
     | do_statement
     | while_statement
+    | select_statement
     | where_statement
     | print_statement
     | write_statement
@@ -175,6 +176,18 @@ do_statement
 
 while_statement
     : 'do' 'while' '(' expr ')' NEWLINE+ statements 'end' 'do'
+    ;
+
+select_statement
+    : 'select' 'case' '(' expr ')' NEWLINE+ case_statement* select_default_statement? 'end' 'select'
+    ;
+
+case_statement
+    : 'case' '(' expr ')' NEWLINE+ statements
+    ;
+
+select_default_statement
+    : 'case' 'default' NEWLINE+ statements
     ;
 
 print_statement
