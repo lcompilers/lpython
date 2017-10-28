@@ -134,7 +134,7 @@ statement
     ;
 
 subroutine_call
-    : 'call' ID '(' expr_list? ')'
+    : 'call' struct_member* ID '(' expr_list? ')'
     ;
 
 
@@ -195,8 +195,8 @@ expr_list
     ;
 
 expr
-    : (ID '%')* ID '(' expr_list? ')'            // func call like f(), f(x), f(1,2)
-    | (ID '%')* ID '(' array_index_list ')'      // array index like a(i), a(i, :, 3:)
+    : struct_member* ID '(' expr_list? ')'            // func call like f(), f(x), f(1,2)
+    | struct_member* ID '(' array_index_list ')'      // array index like a(i), a(i, :, 3:)
     | <assoc=right> expr '**' expr
     | ('+'|'-') expr
     | '.not.' expr
@@ -219,6 +219,8 @@ array_index
     : expr
     | expr? ':' expr?
     ;
+
+struct_member: ID '%' ;
 
 number
     : NUMBER                    // Real number
