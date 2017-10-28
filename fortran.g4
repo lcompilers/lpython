@@ -20,7 +20,7 @@ root
     ;
 
 module
-    : 'module' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ module_decl* ('contains' NEWLINE+ (subroutine|function)+ )? 'end' 'module' ID? NEWLINE+ EOF
+    : NEWLINE* 'module' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ module_decl* ('contains' NEWLINE+ (subroutine|function)+ )? 'end' 'module' ID? NEWLINE+ EOF
     ;
 
 module_decl
@@ -54,7 +54,7 @@ interface_decl
 //
 
 program
-    : 'program' ID NEWLINE+ sub_block 'program' ID? NEWLINE+ EOF
+    : NEWLINE* 'program' ID NEWLINE+ sub_block 'program' ID? NEWLINE+ EOF
     ;
 
 subroutine
