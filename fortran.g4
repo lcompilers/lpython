@@ -2,8 +2,9 @@
 This is a grammar for a subset of modern Fortran.
 
 The file is organized in several sections, rules in each section only depend on
-that or below sections, never on sections above. As such any section together
-with all the subsequent sections form a self-contained grammar.
+the same or further sections, never on the previous sections. As such any
+section together with all the subsequent sections form a self-contained
+grammar.
 */
 
 grammar fortran;
