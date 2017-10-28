@@ -86,7 +86,7 @@ var_decl
     ;
 
 var_type
-    : 'integer' | 'char' | 'real' | 'complex' | 'logical'
+    : 'integer' | 'char' | 'real' | 'complex' | 'logical' | 'type'
     ;
 
 var_modifier
