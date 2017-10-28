@@ -231,7 +231,7 @@ expr_list
     ;
 
 expr
-    : struct_member* ID '(' arg_list? ')'       // func call like f(), f(x), f(1,2)
+    : struct_member* fn_names '(' arg_list? ')'       // func call like f(), f(x), f(1,2)
     | struct_member* ID '(' array_index_list ')' // array index like a(i), a(i, :, 3:)
     | '[' expr_list ']'                          // arrays like [1, 2, 3, x]
     | <assoc=right> expr '**' expr
@@ -272,6 +272,8 @@ number
     : NUMBER                    // Real number
     | '(' NUMBER ',' NUMBER ')' // Complex number
     ;
+
+fn_names: ID | 'real' ; // real is both a type and a function name
 
 
 // ----------------------------------------------------------------------------

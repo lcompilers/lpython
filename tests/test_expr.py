@@ -64,7 +64,9 @@ end subroutine
     assert parse("""\
 subroutine a
 integer :: b
+real(dp) :: c
 b = f(3+6)
+c = real(b, dp)
 end subroutine
 """, r)
 
