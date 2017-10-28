@@ -211,8 +211,9 @@ expr_list
     ;
 
 expr
-    : struct_member* ID '(' expr_list? ')'            // func call like f(), f(x), f(1,2)
-    | struct_member* ID '(' array_index_list ')'      // array index like a(i), a(i, :, 3:)
+    : struct_member* ID '(' expr_list? ')'       // func call like f(), f(x), f(1,2)
+    | struct_member* ID '(' array_index_list ')' // array index like a(i), a(i, :, 3:)
+    | '[' expr_list ']'                          // arrays like [1, 2, 3, x]
     | <assoc=right> expr '**' expr
     | ('+'|'-') expr
     | '.not.' expr
