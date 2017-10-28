@@ -116,6 +116,22 @@ a = 5;
 ; ;
 end subroutine
 """, r)
+    assert parse("""\
+subroutine a
+do while(x == y)
+    i = i +1
+    cycle
+    exit
+end do
+stop "OK"
+write (*,"(i4)") 45
+write (*,*) 45, "ss"
+print "(i4)", 45
+print *, 45, "sss", a+1
+x => y
+x => y(1:4, 5)
+end subroutine
+""", r)
 
 def test_control_flow():
     r = "subroutine"
@@ -215,8 +231,10 @@ end subroutine
 def test_arrays():
     r = "subroutine"
     assert parse("""\
-subroutine f()
+subroutine f(e)
 integer :: a(10,10), b(10)
+integer, dimension(10,10) :: c
+integer, dimension(:,:), intent(in) :: e
 call g(a(3:5,i:j), b(:))
 call g(a(:5,i:j), b(1:))
 end subroutine
@@ -240,5 +258,15 @@ real(dp) :: a, b
 a = x%f%a
 b = x%g%b(i, j)
 c = y%h%c(5, :)
+end subroutine
+""", r)
+    assert parse("""\
+subroutine f()
+type(xx), intent(inout) :: x, y
+real(dp) :: a, b
+x%f%a = a
+x%g%b(i, j) = b
+y%h%c(5, :) = c
+call x%f%e()
 end subroutine
 """, r)
