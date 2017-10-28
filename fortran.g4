@@ -82,7 +82,7 @@ id_list
     ;
 
 var_decl
-    : var_type ('(' ID ')')? (',' var_modifier)* '::' var_sym_decl (',' var_sym_decl)* NEWLINE+
+    : var_type ('(' ID ')')? (',' var_modifier)* '::'? var_sym_decl (',' var_sym_decl)* NEWLINE+
     ;
 
 var_type
@@ -124,7 +124,7 @@ statements
 
 statement
     : struct_member* ID ('(' array_index_list ')')? ('='|'=>') expr
-    | 'exit'
+    | 'exit' | 'cycle'
     | subroutine_call
     | if_statement
     | do_statement
@@ -132,6 +132,7 @@ statement
     | where_statement
     | print_statement
     | write_statement
+    | stop_statement
     | ';'
     ;
 
@@ -176,6 +177,10 @@ print_statement
 
 write_statement
     : 'write' '(' ('*' | expr) ',' ('*' | STRING) ')' expr_list?
+    ;
+
+stop_statement
+    : 'stop' STRING?
     ;
 
 
