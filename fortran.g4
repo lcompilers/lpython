@@ -83,11 +83,12 @@ only_symbol : ID | ID '=>' ID ;
 id_list : ID (',' ID)* ;
 
 var_decl
-    : var_type ('(' ID ')')? (',' var_modifier)* '::'? var_sym_decl (',' var_sym_decl)* NEWLINE+
+    : var_type ('(' (ID '=')? ('*' | ID) ')')? (',' var_modifier)* '::'? var_sym_decl (',' var_sym_decl)* NEWLINE+
     ;
 
 var_type
     : 'integer' | 'char' | 'real' | 'complex' | 'logical' | 'type'
+    | 'character'
     ;
 
 var_modifier
