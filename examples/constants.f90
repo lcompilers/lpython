@@ -1,3 +1,5 @@
+! Some constants
+
 module constants
 use types, only: dp
 implicit none

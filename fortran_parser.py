@@ -6,12 +6,17 @@ from fortranLexer import fortranLexer
 class SyntaxErrorException(Exception):
     pass
 
-class VerboseListener(ErrorListener) :
+def get_line(s, l):
+    return s.split("\n")[l-1]
+
+class VerboseErrorListener(ErrorListener):
     def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
         stack = recognizer.getRuleInvocationStack()
         stack.reverse()
         print("rule stack: ", str(stack))
-        print("line", line, ":", column, "at", offendingSymbol, ":", msg)
+        print("%d:%d: %s" % (line, column, msg))
+        print(get_line(self.source, line))
+        print(" "*(column-1) + "^")
         raise SyntaxErrorException("Syntax error.")
 
 def get_parser(source):
@@ -20,7 +25,9 @@ def get_parser(source):
     tokens = antlr4.CommonTokenStream(lexer)
     parser = fortranParser(tokens)
     parser.removeErrorListeners()
-    parser.addErrorListener(VerboseListener())
+    err = VerboseErrorListener()
+    err.source = source
+    parser.addErrorListener(err)
     return parser
 
 def parse(source, rule="root"):

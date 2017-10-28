@@ -2,8 +2,9 @@
 This is a grammar for a subset of modern Fortran.
 
 The file is organized in several sections, rules in each section only depend on
-that or below sections, never on sections above. As such any section together
-with all the subsequent sections form a self-contained grammar.
+the same or further sections, never on the previous sections. As such any
+section together with all the subsequent sections form a self-contained
+grammar.
 */
 
 grammar fortran;
@@ -20,7 +21,7 @@ root
     ;
 
 module
-    : 'module' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ module_decl* ('contains' NEWLINE+ (subroutine|function)+ )? 'end' 'module' ID? NEWLINE+ EOF
+    : NEWLINE* 'module' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ module_decl* ('contains' NEWLINE+ (subroutine|function)+ )? 'end' 'module' ID? NEWLINE+ EOF
     ;
 
 module_decl
@@ -31,15 +32,15 @@ module_decl
     ;
 
 private_decl
-    : 'private' id_list? NEWLINE+
+    : 'private' '::'? id_list? NEWLINE+
     ;
 
 public_decl
-    : 'public' id_list NEWLINE+
+    : 'public' '::'? id_list? NEWLINE+
     ;
 
 interface_decl
-    : 'interface' ID NEWLINE+ ('module' 'procedure' ID NEWLINE+)* 'end' 'interface' ID? NEWLINE+
+    : 'interface' ID NEWLINE+ ('module' 'procedure' id_list NEWLINE+)* 'end' 'interface' ID? NEWLINE+
     ;
 
 // ----------------------------------------------------------------------------
@@ -54,7 +55,7 @@ interface_decl
 //
 
 program
-    : 'program' ID NEWLINE+ sub_block 'program' ID? NEWLINE+ EOF
+    : NEWLINE* 'program' ID NEWLINE+ sub_block 'program' ID? NEWLINE+ EOF
     ;
 
 subroutine
@@ -62,7 +63,7 @@ subroutine
     ;
 
 function
-    : 'pure'? 'recursive'? 'function' ID ('(' id_list? ')')? ('result' '(' ID ')')? NEWLINE+ sub_block 'function' ID? NEWLINE+
+    : (var_type ('(' ID ')')?)? 'pure'? 'recursive'? 'function' ID ('(' id_list? ')')? ('result' '(' ID ')')? NEWLINE+ sub_block 'function' ID? NEWLINE+
     ;
 
 sub_block
@@ -74,25 +75,27 @@ implicit_statement
     ;
 
 use_statement
-    : 'use' ID (',' 'only' ':' id_list)? NEWLINE+
+    : 'use' use_symbol_list (',' 'only' ':' use_symbol_list)? NEWLINE+
     ;
 
-id_list
-    : ID (',' ID)*
-    ;
+use_symbol_list : use_symbol (',' use_symbol)* ;
+use_symbol : ID | ID '=>' ID ;
+
+id_list : ID (',' ID)* ;
 
 var_decl
-    : var_type ('(' ID ')')? (',' var_modifier)* '::' var_sym_decl (',' var_sym_decl)* NEWLINE+
+    : var_type ('(' (ID '=')? ('*' | ID) ')')? (',' var_modifier)* '::'? var_sym_decl (',' var_sym_decl)* NEWLINE+
     ;
 
 var_type
-    : 'integer' | 'char' | 'real' | 'complex' | 'logical'
+    : 'integer' | 'char' | 'real' | 'complex' | 'logical' | 'type'
+    | 'character'
     ;
 
 var_modifier
-    : 'parameter' | 'intent' | 'dimension' | 'allocatable' | 'pointer'
+    : 'parameter' | 'intent' | 'dimension' array_decl? | 'allocatable' | 'pointer'
+    | 'protected' | 'save' | 'contiguous'
     | 'intent' '(' ('in' | 'out' | 'inout' ) ')'
-    | 'save'
     ;
 
 var_sym_decl
@@ -105,7 +108,7 @@ array_decl
 
 array_comp_decl
     : expr
-    | ':'
+    | expr? ':' expr?
     ;
 
 
@@ -123,18 +126,27 @@ statements
     ;
 
 statement
-    : ID '=' expr
-    | 'exit'
+    : struct_member* ID ('(' array_index_list ')')? ('='|'=>') expr
+    | 'exit' | 'cycle' | 'return'
     | subroutine_call
+    | builtin_statement
     | if_statement
     | do_statement
+    | while_statement
+    | select_statement
     | where_statement
     | print_statement
+    | write_statement
+    | stop_statement
     | ';'
     ;
 
 subroutine_call
-    : 'call' ID '(' expr_list? ')'
+    : 'call' struct_member* ID '(' arg_list? ')'
+    ;
+
+builtin_statement
+    : ('allocate' | 'open' | 'close') '(' arg_list? ')'
     ;
 
 
@@ -164,8 +176,32 @@ do_statement
     : 'do' (ID '=' expr ',' expr (',' expr)?)? NEWLINE+ statements 'end' 'do'
     ;
 
+while_statement
+    : 'do' 'while' '(' expr ')' NEWLINE+ statements 'end' 'do'
+    ;
+
+select_statement
+    : 'select' 'case' '(' expr ')' NEWLINE+ case_statement* select_default_statement? 'end' 'select'
+    ;
+
+case_statement
+    : 'case' '(' expr ')' NEWLINE+ statements
+    ;
+
+select_default_statement
+    : 'case' 'default' NEWLINE+ statements
+    ;
+
 print_statement
-    : 'print' '*' (',' expr)*
+    : 'print' ('*' | STRING) ',' expr_list?
+    ;
+
+write_statement
+    : 'write' '(' ('*' | expr) ',' ('*' | STRING) ')' expr_list?
+    ;
+
+stop_statement
+    : 'stop' STRING?
     ;
 
 
@@ -176,6 +212,7 @@ print_statement
 // * array operations
 // * arithmetics
 // * numbers/variables/strings/etc.
+// * derived types access (e.g. x%a(3))
 //
 // Expressions are used in previous sections in the following situations:
 //
@@ -194,8 +231,9 @@ expr_list
     ;
 
 expr
-    : ID '(' expr_list? ')'            // func call like f(), f(x), f(1,2)
-    | ID '(' array_index_list ')'      // array index like a(i), a(i, :, 3:)
+    : struct_member* fn_names '(' arg_list? ')'       // func call like f(), f(x), f(1,2)
+    | struct_member* ID '(' array_index_list ')' // array index like a(i), a(i, :, 3:)
+    | '[' expr_list ']'                          // arrays like [1, 2, 3, x]
     | <assoc=right> expr '**' expr
     | ('+'|'-') expr
     | '.not.' expr
@@ -203,12 +241,22 @@ expr
     | expr ('+'|'-') expr
     | expr ('<'|'<='|'=='|'/='|'>='|'>') expr
     | expr ('.and.'|'.or.') expr
-    | ID
+    | (ID '%')* ID
     | number
     | '.true.' | '.false.'
+    | expr '//' expr
     | STRING
     | '(' expr ')'  // E.g. (1+2)*3
 	;
+
+arg_list
+    : arg (',' arg)*
+    ;
+
+arg
+    : expr
+    | ID '=' expr
+    ;
 
 array_index_list
     : array_index (',' array_index)*
@@ -219,10 +267,14 @@ array_index
     | expr? ':' expr?
     ;
 
+struct_member: ID '%' ;
+
 number
     : NUMBER                    // Real number
     | '(' NUMBER ',' NUMBER ')' // Complex number
     ;
+
+fn_names: ID | 'real' ; // real is both a type and a function name
 
 
 // ----------------------------------------------------------------------------
