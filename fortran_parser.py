@@ -16,7 +16,7 @@ class VerboseErrorListener(ErrorListener):
         print("rule stack: ", str(stack))
         print("%d:%d: %s" % (line, column, msg))
         print(get_line(self.source, line))
-        print(" "*column + "^")
+        print(" "*(column-1) + "^")
         raise SyntaxErrorException("Syntax error.")
 
 def get_parser(source):
