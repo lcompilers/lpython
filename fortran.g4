@@ -128,7 +128,7 @@ statement
     : struct_member* ID ('(' array_index_list ')')? ('='|'=>') expr
     | 'exit' | 'cycle' | 'return'
     | subroutine_call
-    | allocate_statement
+    | builtin_statement
     | if_statement
     | do_statement
     | while_statement
@@ -144,8 +144,8 @@ subroutine_call
     : 'call' struct_member* ID '(' arg_list? ')'
     ;
 
-allocate_statement
-    : 'allocate' '(' arg_list? ')'
+builtin_statement
+    : ('allocate' | 'open' | 'close') '(' arg_list? ')'
     ;
 
 
