@@ -90,7 +90,7 @@ var_type
     ;
 
 var_modifier
-    : 'parameter' | 'intent' | 'dimension' | 'allocatable' | 'pointer'
+    : 'parameter' | 'intent' | 'dimension' array_decl? | 'allocatable' | 'pointer'
     | 'protected' | 'save' | 'contiguous'
     | 'intent' '(' ('in' | 'out' | 'inout' ) ')'
     ;
