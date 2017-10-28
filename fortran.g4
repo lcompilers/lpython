@@ -91,8 +91,8 @@ var_type
 
 var_modifier
     : 'parameter' | 'intent' | 'dimension' | 'allocatable' | 'pointer'
+    | 'protected' | 'save' | 'contiguous'
     | 'intent' '(' ('in' | 'out' | 'inout' ) ')'
-    | 'save'
     ;
 
 var_sym_decl
@@ -124,10 +124,12 @@ statements
 
 statement
     : ID '=' expr
+    | ID '=>' expr
     | 'exit'
     | subroutine_call
     | if_statement
     | do_statement
+    | while_statement
     | where_statement
     | print_statement
     | write_statement
@@ -163,6 +165,10 @@ where_block
 
 do_statement
     : 'do' (ID '=' expr ',' expr (',' expr)?)? NEWLINE+ statements 'end' 'do'
+    ;
+
+while_statement
+    : 'do' 'while' '(' expr ')' NEWLINE+ statements 'end' 'do'
     ;
 
 print_statement
