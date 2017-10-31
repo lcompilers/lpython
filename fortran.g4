@@ -126,7 +126,7 @@ statements
     ;
 
 statement
-    : struct_member* ID ('(' array_index_list ')')? ('='|'=>') expr
+    : assignment_statement
     | 'exit' | 'cycle' | 'return'
     | subroutine_call
     | builtin_statement
@@ -139,6 +139,10 @@ statement
     | write_statement
     | stop_statement
     | ';'
+    ;
+
+assignment_statement
+    : struct_member* ID ('(' array_index_list ')')? op=('='|'=>') expr
     ;
 
 subroutine_call
@@ -230,23 +234,29 @@ expr_list
     : expr (',' expr)*
     ;
 
+/*
+expr_fn_call: func call like f(), f(x), f(1,2), but it can also be an array
+             access
+expr_array_call: array index like a(i), a(i, :, 3:)
+expr_array_const: arrays like [1, 2, 3, x]
+*/
 expr
-    : struct_member* fn_names '(' arg_list? ')'       // func call like f(), f(x), f(1,2)
-    | struct_member* ID '(' array_index_list ')' // array index like a(i), a(i, :, 3:)
-    | '[' expr_list ']'                          // arrays like [1, 2, 3, x]
-    | <assoc=right> expr '**' expr
-    | ('+'|'-') expr
-    | '.not.' expr
-    | expr ('*'|'/') expr
-    | expr ('+'|'-') expr
-    | expr ('<'|'<='|'=='|'/='|'>='|'>') expr
-    | expr ('.and.'|'.or.') expr
-    | (ID '%')* ID
-    | number
-    | '.true.' | '.false.'
-    | expr '//' expr
-    | STRING
-    | '(' expr ')'  // E.g. (1+2)*3
+    : struct_member* fn_names '(' arg_list? ')'  # expr_fn_call
+    | struct_member* ID '(' array_index_list ')' # expr_array_call
+    | '[' expr_list ']'                          # expr_array_const
+    | <assoc=right> expr '**' expr               # expr_pow
+    | op=('+'|'-') expr                          # expr_unary
+    | '.not.' expr                               # expr_not
+    | expr op=('*'|'/') expr                     # expr_muldiv
+    | expr op=('+'|'-') expr                     # expr_addsub
+    | expr op=('<'|'<='|'=='|'/='|'>='|'>') expr # expr_rel
+    | expr op=('.and.'|'.or.') expr              # expr_andor
+    | (ID '%')* ID                               # expr_id
+    | number                                     # expr_number
+    | op=('.true.' | '.false.')                  # expr_truefalse
+    | expr '//' expr                             # expr_string_conc
+    | STRING                                     # expr_string
+    | '(' expr ')'                               # expr_nest // E.g. (1+2)*3
 	;
 
 arg_list
@@ -270,8 +280,8 @@ array_index
 struct_member: ID '%' ;
 
 number
-    : NUMBER                    // Real number
-    | '(' NUMBER ',' NUMBER ')' // Complex number
+    : NUMBER                    # number_real    // Real number
+    | '(' NUMBER ',' NUMBER ')' # number_complex // Complex number
     ;
 
 fn_names: ID | 'real' ; // real is both a type and a function name
