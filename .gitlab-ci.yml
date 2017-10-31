@@ -8,7 +8,7 @@ full:
     - conda install python=3.6 pytest llvmlite
     - pip install antlr4-python3-runtime
     - sudo apt-get update
-    - sudo apt-get install -yq --no-install-recommends wget openjdk-9-jdk-headless gcc gcc-multilib
+    - sudo apt-get install -yq --no-install-recommends wget openjdk-9-jre-headless gcc gcc-multilib
     - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
     - (cd; wget http://www.antlr.org/download/antlr-4.7-complete.jar)
     - ./build.sh
@@ -27,7 +27,7 @@ minimal:
     - conda install python=3.6 pytest llvmlite
     - pip install antlr4-python3-runtime
     - sudo apt-get update
-    - sudo apt-get install -yq --no-install-recommends wget openjdk-9-jdk-headless musl-dev binutils
+    - sudo apt-get install -yq --no-install-recommends wget openjdk-9-jre-headless musl-dev binutils
     - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
     - (cd; wget http://www.antlr.org/download/antlr-4.7-complete.jar)
     - ./build.sh
