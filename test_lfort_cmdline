@@ -41,21 +41,21 @@ $FC -o xx1 $f
 cd $(mktemp -d)
 $FC -S $f
 [ -f "expr2.s" ]
-grep movq expr2.s
+grep movl expr2.s
 
 cd $(mktemp -d)
 $FC -S -c $f
 [ -f "expr2.s" ]
-grep movq expr2.s
+grep movl expr2.s
 
 cd $(mktemp -d)
 $FC -S -o xx1 $f
 [ -f "xx1" ]
-grep movq xx1
+grep movl xx1
 
 cd $(mktemp -d)
 $FC -S -o xx1 -c $f
 [ -f "xx1" ]
-grep movq xx1
+grep movl xx1
 
 echo "All tests succeeded"
