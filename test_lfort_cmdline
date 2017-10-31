@@ -1,0 +1,61 @@
+#!/bin/bash
+
+set -e
+set -x
+
+PATH="`pwd`:$PATH"
+f=`pwd`/examples/expr2.f90
+FC=lfort
+#FC=gfortran
+
+cd $(mktemp -d)
+$FC $f
+[ -f "a.out" ]
+[ -x "a.out" ]
+./a.out
+
+cd $(mktemp -d)
+$FC -c $f
+[ -f "expr2.o" ]
+[ ! -x "expr2.o" ]
+$FC -o expr2 expr2.o
+[ -f "expr2" ]
+[ -x "expr2" ]
+./expr2
+
+cd $(mktemp -d)
+$FC -o xx1 -c $f
+[ -f "xx1" ]
+[ ! -x "xx1" ]
+$FC -o expr2 xx1
+[ -f "expr2" ]
+[ -x "expr2" ]
+./expr2
+
+cd $(mktemp -d)
+$FC -o xx1 $f
+[ -f "xx1" ]
+[ -x "xx1" ]
+./xx1
+
+cd $(mktemp -d)
+$FC -S $f
+[ -f "expr2.s" ]
+grep movq expr2.s
+
+cd $(mktemp -d)
+$FC -S -c $f
+[ -f "expr2.s" ]
+grep movq expr2.s
+
+cd $(mktemp -d)
+$FC -S -o xx1 $f
+[ -f "xx1" ]
+grep movq xx1
+
+cd $(mktemp -d)
+$FC -S -o xx1 -c $f
+[ -f "xx1" ]
+grep movq xx1
+
+echo "All tests succeeded"
