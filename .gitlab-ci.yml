@@ -14,5 +14,5 @@ ico:
     - py.test
     - python fortran_parser.py
     - python list_subroutines.py
-    - python compile.py
-    - ./a
+    - ./lfort examples/expr2.f90
+    - ./a.out
