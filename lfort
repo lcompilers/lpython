@@ -136,10 +136,12 @@ class CodeGenVisitor(fortranVisitor):
 def main():
     parser = argparse.ArgumentParser(description="Fortran compiler.")
     parser.add_argument('file', help="source file")
+    parser.add_argument('--emit-llvm', action="store_true",
+            help="emit LLVM IR source code, do not assemble or link")
     parser.add_argument('-S', action="store_true",
-            help="compile only, do not assemble or link")
+            help="emit assembly, do not assemble or link")
     parser.add_argument('-c', action="store_true",
-            help="compile and assemble, but do not link")
+            help="compile and assemble, do not link")
     parser.add_argument('-o', metavar="FILE", default="a.out",
             help="place the output into FILE")
     args = parser.parse_args()
@@ -151,7 +153,7 @@ def main():
     tree = parser.root()
     v = CodeGenVisitor()
     v.visit(tree)
-    if args.S:
+    if args.emit_llvm:
         with open("%s.ll" % basename, "w") as ll:
             ll.write(str(v.module))
         return
@@ -161,8 +163,15 @@ def main():
     llvm.initialize_native_target()
     target = llvm.Target.from_triple(v.module.triple)
     target_machine = target.create_target_machine()
+    target_machine.set_asm_verbosity(True)
     mod = llvm.parse_assembly(str(v.module))
     mod.verify()
+
+    if args.S:
+        with open("%s.s" % basename, "w") as o:
+            o.write(target_machine.emit_assembly(mod))
+        return
+
     with open("%s.o" % basename, "wb") as o:
         o.write(target_machine.emit_object(mod))
     if args.c:
