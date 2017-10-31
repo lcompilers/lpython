@@ -1,6 +1,26 @@
 image: registry.gitlab.com/certik/ci-images:conda_base
 
-ico:
+# Test full dependencies when a C compiler is available and used for linking
+full:
+  stage: build
+  script:
+    - export PATH="$HOME/conda_root/bin:$PATH"
+    - conda install python=3.6 pytest llvmlite
+    - pip install antlr4-python3-runtime
+    - sudo apt-get update
+    - sudo apt-get install -yq --no-install-recommends wget openjdk-9-jdk-headless gcc gcc-multilib
+    - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
+    - (cd; wget http://www.antlr.org/download/antlr-4.7-complete.jar)
+    - ./build.sh
+    - py.test
+    - python fortran_parser.py
+    - python list_subroutines.py
+    - ./lfort examples/expr2.f90
+    - ./a.out
+
+# Test minimal dependencies needed to get things to run. No gcc or clang
+# compilers, just the linker `ld` and the musl C library.
+minimal:
   stage: build
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
@@ -14,5 +34,5 @@ ico:
     - py.test
     - python fortran_parser.py
     - python list_subroutines.py
-    - ./lfort examples/expr2.f90
+    - ./lfort --ld-musl examples/expr2.f90
     - ./a.out

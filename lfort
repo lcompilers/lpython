@@ -144,6 +144,8 @@ def main():
             help="compile and assemble, do not link")
     parser.add_argument('-o', metavar="FILE", default="a.out",
             help="place the output into FILE")
+    parser.add_argument('--ld-musl', action="store_true",
+            help="invoke ld directly and link with musl")
     args = parser.parse_args()
 
     filename = args.file
@@ -177,13 +179,16 @@ def main():
     if args.c:
         return
 
-    # Link the object file into an executable. This is system dependent. One
-    # can use gcc to link, but for now we wanted to make sure we do not depend
-    # on gcc in any way.
-    musl_dir="/usr/lib/x86_64-linux-musl"
-    LDFLAGS="{0}/crt1.o {0}/libc.a".format(musl_dir)
+    # Link the object file into an executable.
     outfile = args.o
-    os.system("ld -o %s %s.o %s" % (outfile, basename, LDFLAGS))
+    if args.ld_musl:
+        # Invoke `ld` directly and link with musl. This is system dependent.
+        musl_dir="/usr/lib/x86_64-linux-musl"
+        LDFLAGS="{0}/crt1.o {0}/libc.a".format(musl_dir)
+        os.system("ld -o %s %s.o %s" % (outfile, basename, LDFLAGS))
+    else:
+        # Invoke a C compiler to do the linking
+        os.system("cc -o %s %s.o" % (outfile, basename))
 
 if __name__ == "__main__":
     main()
