@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+
+import argparse
 import os
 
 from llvmlite import ir
@@ -131,31 +134,61 @@ class CodeGenVisitor(fortranVisitor):
         return self.visitChildren(ctx)
 
 def main():
-    filename = "examples/expr2.f90"
+    parser = argparse.ArgumentParser(description="Fortran compiler.")
+    parser.add_argument('file', help="source file")
+    parser.add_argument('--emit-llvm', action="store_true",
+            help="emit LLVM IR source code, do not assemble or link")
+    parser.add_argument('-S', action="store_true",
+            help="emit assembly, do not assemble or link")
+    parser.add_argument('-c', action="store_true",
+            help="compile and assemble, do not link")
+    parser.add_argument('-o', metavar="FILE", default="a.out",
+            help="place the output into FILE")
+    parser.add_argument('--ld-musl', action="store_true",
+            help="invoke ld directly and link with musl")
+    args = parser.parse_args()
+
+    filename = args.file
+    basename, ext = os.path.splitext(os.path.basename(filename))
     source = open(filename).read()
     parser = get_parser(source)
     tree = parser.root()
     v = CodeGenVisitor()
     v.visit(tree)
-    with open("a.ll", "w") as ll:
-        ll.write(str(v.module))
+    if args.emit_llvm:
+        with open("%s.ll" % basename, "w") as ll:
+            ll.write(str(v.module))
+        return
 
     llvm.initialize()
     llvm.initialize_native_asmprinter()
     llvm.initialize_native_target()
     target = llvm.Target.from_triple(v.module.triple)
     target_machine = target.create_target_machine()
+    target_machine.set_asm_verbosity(True)
     mod = llvm.parse_assembly(str(v.module))
     mod.verify()
-    with open("a.o", "wb") as o:
-        o.write(target_machine.emit_object(mod))
 
-    # Link the object file into an executable. This is system dependent. One
-    # can use gcc to link, but for now we wanted to make sure we do not depend
-    # on gcc in any way.
-    musl_dir="/usr/lib/x86_64-linux-musl/"
-    LDFLAGS="{0}/crt1.o {0}/libc.a".format(musl_dir)
-    os.system("ld -o a a.o %s" % LDFLAGS)
+    if args.S:
+        with open("%s.s" % basename, "w") as o:
+            o.write(target_machine.emit_assembly(mod))
+        return
+
+    with open("%s.o" % basename, "wb") as o:
+        o.write(target_machine.emit_object(mod))
+    if args.c:
+        return
+
+    # Link the object file into an executable.
+    outfile = args.o
+    if args.ld_musl:
+        # Invoke `ld` directly and link with musl. This is system dependent.
+        musl_dir="/usr/lib/x86_64-linux-musl"
+        LDFLAGS="{0}/crt1.o {0}/libc.a".format(musl_dir)
+        os.system("ld -o %s %s.o %s" % (outfile, basename, LDFLAGS))
+    else:
+        # Invoke a C compiler to do the linking
+        os.system("cc -o %s %s.o" % (outfile, basename))
 
 if __name__ == "__main__":
     main()
