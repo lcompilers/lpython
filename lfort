@@ -171,7 +171,7 @@ def main():
     # Link the object file into an executable. This is system dependent. One
     # can use gcc to link, but for now we wanted to make sure we do not depend
     # on gcc in any way.
-    musl_dir="/usr/lib/x86_64-linux-musl/"
+    musl_dir="/usr/lib/x86_64-linux-musl"
     LDFLAGS="{0}/crt1.o {0}/libc.a".format(musl_dir)
     outfile = args.o
     os.system("ld -o %s %s.o %s" % (outfile, basename, LDFLAGS))
