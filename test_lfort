@@ -3,11 +3,23 @@
 set -e
 set -x
 
+# Put lfort into PATH
+PATH="`pwd`:$PATH"
+
 bdir=build-gfortran
 rm -rf $bdir
 mkdir $bdir
 cd $bdir
 FC=gfortran cmake ..
+make
+ctest
+cd ..
+
+bdir=build-lfort
+rm -rf $bdir
+mkdir $bdir
+cd $bdir
+FC=lfort cmake ..
 make
 ctest
 cd ..
