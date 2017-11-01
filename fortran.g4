@@ -55,7 +55,7 @@ interface_decl
 //
 
 program
-    : NEWLINE* 'program' ID NEWLINE+ sub_block 'program' ID? NEWLINE+ EOF
+    : NEWLINE* ('program'|'PROGRAM') ID NEWLINE+ sub_block 'program'? ID? NEWLINE+ EOF
     ;
 
 subroutine
@@ -67,7 +67,7 @@ function
     ;
 
 sub_block
-    : use_statement* implicit_statement? var_decl* statements? ('contains' NEWLINE+ (subroutine|function)+ )? 'end'
+    : use_statement* implicit_statement? var_decl* statements? ('contains' NEWLINE+ (subroutine|function)+ )? ('end'|'END')
     ;
 
 implicit_statement
@@ -197,7 +197,7 @@ select_default_statement
     ;
 
 print_statement
-    : 'print' ('*' | STRING) ',' expr_list?
+    : ('print'|'PRINT') ('*' | STRING) ',' expr_list?
     ;
 
 write_statement
