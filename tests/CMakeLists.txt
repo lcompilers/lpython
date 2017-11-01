@@ -9,4 +9,5 @@ endmacro(ADDPROG)
 
 project(tests)
 
-ADDTEST(test_expr01)
+ADDTEST(test_program_cmake_01)
+ADDTEST(test_expr_01)
