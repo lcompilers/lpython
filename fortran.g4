@@ -155,8 +155,8 @@ builtin_statement
 
 
 if_statement
-    : if_cond statement
-    | if_block 'end' 'if'
+    : if_cond statement    # if_single_line
+    | if_block 'end' 'if'  # if_multi_line
     ;
 
 if_cond: 'if' '(' expr ')' ;
