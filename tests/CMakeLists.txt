@@ -24,3 +24,6 @@ RUN(if_02 fail)
 RUN(if_03 fail)
 
 RUN(cond_01)
+
+RUN(variables_01)
+RUN(variables_02)
