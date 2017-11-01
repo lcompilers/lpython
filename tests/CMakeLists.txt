@@ -12,10 +12,15 @@ macro(COMPILE name)
 endmacro(COMPILE)
 
 RUN(program_cmake_01)
+
 RUN(expr_01)
 RUN(expr_02)
+RUN(expr_03 fail)
+
 RUN(abort_01 fail)
+
 RUN(if_01)
 RUN(if_02 fail)
 RUN(if_03 fail)
+
 RUN(cond_01)
