@@ -5,7 +5,7 @@ set -x
 
 PATH="`pwd`:$PATH"
 f=`pwd`/examples/expr2.f90
-ASM_PATTERN="'movq\|movl\|retq'"
+ASM_PATTERN="movq\|movl\|retq"
 FC=lfort
 #FC=gfortran
 
