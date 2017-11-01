@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e
+set -x
+
+bdir=build-gfortran
+rm -rf $bdir
+mkdir $bdir
+cd $bdir
+FC=gfortran cmake ..
+make
+ctest
+cd ..
