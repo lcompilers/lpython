@@ -133,6 +133,18 @@ class CodeGenVisitor(fortranVisitor):
         else:
             return self.builder.icmp_signed("!=", a, a)
 
+    # Visit a parse tree produced by fortranParser#expr_rel.
+    def visitExpr_rel(self, ctx:fortranParser.Expr_relContext):
+        op = ctx.op.text
+        lhs = self.visit(ctx.expr(0))
+        rhs = self.visit(ctx.expr(1))
+        if op in ["==", "<", "<=", ">=", ">"]:
+            return self.builder.icmp_signed(op, lhs, rhs)
+        elif op == '/=':
+            return self.builder.icmp_signed("!=", lhs, rhs)
+        else:
+            raise Exception("Operator not implemented.")
+
     # Visit a parse tree produced by fortranParser#expr_nest.
     def visitExpr_nest(self, ctx:fortranParser.Expr_nestContext):
         return self.visit(ctx.expr())
