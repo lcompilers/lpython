@@ -133,6 +133,16 @@ class CodeGenVisitor(fortranVisitor):
         else:
             return ir.Constant(ir.IntType(1), "false")
 
+    # Visit a parse tree produced by fortranParser#expr_unary.
+    def visitExpr_unary(self, ctx:fortranParser.Expr_unaryContext):
+        op = ctx.op.text
+        rhs = self.visit(ctx.expr())
+        if op == '+':
+            return rhs
+        else:
+            lhs = ir.Constant(ir.IntType(64), 0)
+            return self.builder.sub(lhs, rhs)
+
     # Visit a parse tree produced by fortranParser#expr_rel.
     def visitExpr_rel(self, ctx:fortranParser.Expr_relContext):
         op = ctx.op.text
@@ -188,7 +198,7 @@ class CodeGenVisitor(fortranVisitor):
     def visitIf_single_line(self, ctx:fortranParser.If_single_lineContext):
         cond = self.visit(ctx.if_cond().expr())
         with self.builder.if_then(cond):
-            self.visitChildren(ctx)
+            self.visit(ctx.statement())
 
 def main():
     parser = argparse.ArgumentParser(description="Fortran compiler.")
