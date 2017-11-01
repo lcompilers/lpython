@@ -7,9 +7,9 @@ from llvmlite import ir
 from llvmlite.binding import get_default_triple
 import llvmlite.binding as llvm
 
-from fortranParser import fortranParser
-from fortranVisitor import fortranVisitor
-from fortran_parser import get_parser
+from .fortranParser import fortranParser
+from .fortranVisitor import fortranVisitor
+from .fortran_parser import get_parser
 
 symbol_table = {}
 
