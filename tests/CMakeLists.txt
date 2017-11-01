@@ -13,9 +13,9 @@ endmacro(COMPILE)
 
 RUN(program_cmake_01)
 
-RUN(expr_01)
+RUN(expr_01 fail)
 RUN(expr_02)
-RUN(expr_03 fail)
+RUN(expr_03)
 
 RUN(abort_01 fail)
 
