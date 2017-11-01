@@ -81,21 +81,30 @@ class CodeGenVisitor(fortranVisitor):
     def visitVar_decl(self, ctx:fortranParser.Var_declContext):
         for v in ctx.var_sym_decl():
             sym = v.ID().getText()
-            symbol_table[sym] = {"name": sym, "type": ctx.var_type().getText()}
+            types = {
+                    "integer": ir.IntType(64)
+                }
+            type_f = ctx.var_type().getText()
+            if type_f not in types:
+                raise Exception("Type not implemented.")
+            ptr = self.builder.alloca(types[type_f], name=sym)
+            symbol_table[sym] = {"name": sym, "type": type_f, "ptr": ptr}
         return self.visitChildren(ctx)
 
     # Visit a parse tree produced by fortranParser#assignment_statement.
     def visitAssignment_statement(self, ctx:fortranParser.Assignment_statementContext):
-        lhs = ctx.ID().getText()
-        rhs = ctx.expr().getText()
         if ctx.op.text == "=>":
             raise Exception("operator => not implemented")
         assert ctx.op.text == "="
-        rhs = self.visit(ctx.expr())
+        lhs = ctx.ID().getText()
         if lhs not in symbol_table:
             raise Exception("Undefined variable.")
         sym = symbol_table[lhs]
-        sym["value"] = rhs
+        ptr = sym["ptr"]
+        value = self.visit(ctx.expr())
+        if value.type != ptr.type.pointee:
+            raise Exception("Type mismatch in assignment.")
+        self.builder.store(value, ptr)
 
 
     # Visit a parse tree produced by fortranParser#expr_pow.
@@ -157,9 +166,7 @@ class CodeGenVisitor(fortranVisitor):
         if v not in symbol_table:
             raise Exception("Undefined variable.")
         sym = symbol_table[v]
-        if "value" not in sym:
-            raise Exception("Variable is uninitialized.")
-        return sym["value"]
+        return self.builder.load(sym["ptr"])
 
     # Visit a parse tree produced by fortranParser#expr_nest.
     def visitExpr_nest(self, ctx:fortranParser.Expr_nestContext):
