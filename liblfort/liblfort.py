@@ -47,6 +47,20 @@ def printf(module, builder, fmt, *args):
 
     builder.call(fn_printf, [fmt_ptr] + list(args))
 
+def exit(module, builder, n=0):
+    """
+    Call exit(n).
+    """
+    c_ptr = ir.IntType(8).as_pointer()
+
+    n_ = ir.Constant(ir.IntType(64), n)
+    fn_exit = get_global(module, "exit")
+    if not fn_exit:
+        fn_type = ir.FunctionType(ir.VoidType(), [ir.IntType(64)])
+        fn_exit = ir.Function(module, fn_type, name="exit")
+
+    builder.call(fn_exit, [n_])
+
 class CodeGenVisitor(fortranVisitor):
     def __init__(self):
         self.module  = ir.Module()
@@ -131,6 +145,15 @@ class CodeGenVisitor(fortranVisitor):
 #                    symbol_table[var]["type"]))
             else:
                 raise Exception("Can only print variables for now.")
+        return self.visitChildren(ctx)
+
+    # Visit a parse tree produced by fortranParser#stop_statement.
+    def visitStop_statement(self, ctx:fortranParser.Stop_statementContext):
+        if ctx.NUMBER():
+            num = int(ctx.NUMBER().getText())
+            exit(self.module, self.builder, num)
+        else:
+            raise Exception("Not implemented yet.")
         return self.visitChildren(ctx)
 
 def main():

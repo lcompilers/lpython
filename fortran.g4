@@ -205,7 +205,7 @@ write_statement
     ;
 
 stop_statement
-    : 'stop' STRING?
+    : 'stop' STRING? NUMBER?
     ;
 
 
