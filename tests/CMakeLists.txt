@@ -25,5 +25,7 @@ RUN(if_03 fail)
 
 RUN(cond_01)
 
+RUN(print_01)
+
 RUN(variables_01)
 RUN(variables_02)
