@@ -91,10 +91,11 @@ class CodeGenVisitor(fortranVisitor):
         if ctx.op.text == "=>":
             raise Exception("operator => not implemented")
         assert ctx.op.text == "="
-        #print("%s = %s" % (lhs, rhs))
-        lhs = self.visit(ctx.ID())
         rhs = self.visit(ctx.expr())
-        printf(self.module, self.builder, "num %d.\n", rhs)
+        if lhs not in symbol_table:
+            raise Exception("Undefined variable.")
+        sym = symbol_table[lhs]
+        sym["value"] = rhs
 
 
     # Visit a parse tree produced by fortranParser#expr_pow.
@@ -140,6 +141,16 @@ class CodeGenVisitor(fortranVisitor):
         if op == "/=": op = "!="
         return self.builder.icmp_signed(op, lhs, rhs)
 
+    # Visit a parse tree produced by fortranParser#expr_id.
+    def visitExpr_id(self, ctx:fortranParser.Expr_idContext):
+        v = ctx.ID()[-1].getText()
+        if v not in symbol_table:
+            raise Exception("Undefined variable.")
+        sym = symbol_table[v]
+        if "value" not in sym:
+            raise Exception("Variable is uninitialized.")
+        return sym["value"]
+
     # Visit a parse tree produced by fortranParser#expr_nest.
     def visitExpr_nest(self, ctx:fortranParser.Expr_nestContext):
         return self.visit(ctx.expr())
@@ -159,6 +170,7 @@ class CodeGenVisitor(fortranVisitor):
                 var = expr.ID(0).getText()
 #                print("printing name=%s type=%s" % (symbol_table[var]["name"],
 #                    symbol_table[var]["type"]))
+                #printf(self.module, self.builder, "num %d.\n", rhs)
             else:
                 raise Exception("Can only print variables for now.")
         return self.visitChildren(ctx)
