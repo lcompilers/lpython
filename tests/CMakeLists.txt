@@ -13,6 +13,7 @@ endmacro(COMPILE)
 
 RUN(program_cmake_01)
 RUN(expr_01)
+RUN(expr_02)
 RUN(abort_01 fail)
 RUN(if_01)
 RUN(if_02 fail)
