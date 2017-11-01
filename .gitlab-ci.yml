@@ -8,16 +8,16 @@ full:
     - conda install python=3.6 pytest llvmlite
     - pip install antlr4-python3-runtime
     - sudo apt-get update
-    - sudo apt-get install -yq --no-install-recommends wget openjdk-9-jre-headless gcc gcc-multilib
+    - sudo apt-get install -yq --no-install-recommends wget openjdk-9-jre-headless gcc gfortran gcc-multilib cmake make
     - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
     - (cd; wget http://www.antlr.org/download/antlr-4.7-complete.jar)
     - ./build.sh
     - py.test
-    - python fortran_parser.py
     - python list_subroutines.py
     - ./lfort examples/expr2.f90
     - ./a.out
     - ./test_lfort_cmdline
+    - ./test_lfort
 
 # Test minimal dependencies needed to get things to run. No gcc or clang
 # compilers, just the linker `ld` and the musl C library.
@@ -33,7 +33,6 @@ minimal:
     - (cd; wget http://www.antlr.org/download/antlr-4.7-complete.jar)
     - ./build.sh
     - py.test
-    - python fortran_parser.py
     - python list_subroutines.py
     - ./lfort --ld-musl examples/expr2.f90
     - ./a.out
