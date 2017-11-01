@@ -122,7 +122,9 @@ class CodeGenVisitor(fortranVisitor):
     # Visit a parse tree produced by fortranParser#print_statement.
     def visitPrint_statement(self, ctx:fortranParser.Print_statementContext):
         for expr in ctx.expr_list().expr():
-            if expr.ID():
+            if isinstance(expr, fortranParser.Expr_stringContext):
+                pass
+            elif expr.ID():
                 assert len(expr.ID()) == 1
                 var = expr.ID(0).getText()
 #                print("printing name=%s type=%s" % (symbol_table[var]["name"],
