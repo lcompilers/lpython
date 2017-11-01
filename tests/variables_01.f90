@@ -9,4 +9,9 @@ if (y /= 3) stop 1
 x = y
 if (x /= 3) stop 1
 if (y /= 3) stop 1
+
+y = 1
+if (y == 1) x = 1
+!if (y /= 1) x = 2
+if (x /= 1) stop 1
 end program
