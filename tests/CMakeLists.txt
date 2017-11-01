@@ -9,3 +9,5 @@ endmacro(ADDPROG)
 
 ADDTEST(test_program_cmake_01)
 ADDTEST(test_expr_01)
+ADDTEST(test_abort)
+set_tests_properties(test_abort PROPERTIES WILL_FAIL TRUE)
