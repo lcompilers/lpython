@@ -162,7 +162,7 @@ class CodeGenVisitor(fortranVisitor):
 
     # Visit a parse tree produced by fortranParser#expr_id.
     def visitExpr_id(self, ctx:fortranParser.Expr_idContext):
-        v = ctx.ID()[-1].getText()
+        v = ctx.ID().getText()
         if v not in symbol_table:
             raise Exception("Undefined variable.")
         sym = symbol_table[v]
