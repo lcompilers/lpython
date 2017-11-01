@@ -1,4 +1,4 @@
-from fortran_parser import parse
+from liblfort.fortran_parser import parse
 
 def test_subroutine():
     r = "subroutine"

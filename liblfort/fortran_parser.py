@@ -1,7 +1,7 @@
 import antlr4
 from antlr4.error.ErrorListener import ErrorListener
-from fortranParser import fortranParser
-from fortranLexer import fortranLexer
+from .fortranParser import fortranParser
+from .fortranLexer import fortranLexer
 
 class SyntaxErrorException(Exception):
     pass
