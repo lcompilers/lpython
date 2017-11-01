@@ -124,6 +124,22 @@ class CodeGenVisitor(fortranVisitor):
         else:
             return self.builder.sub(lhs, rhs)
 
+    # Visit a parse tree produced by fortranParser#expr_truefalse.
+    def visitExpr_truefalse(self, ctx:fortranParser.Expr_truefalseContext):
+        op = ctx.op.text
+        if op == '.true.':
+            return ir.Constant(ir.IntType(1), "true")
+        else:
+            return ir.Constant(ir.IntType(1), "false")
+
+    # Visit a parse tree produced by fortranParser#expr_rel.
+    def visitExpr_rel(self, ctx:fortranParser.Expr_relContext):
+        op = ctx.op.text
+        lhs = self.visit(ctx.expr(0))
+        rhs = self.visit(ctx.expr(1))
+        if op == "/=": op = "!="
+        return self.builder.icmp_signed(op, lhs, rhs)
+
     # Visit a parse tree produced by fortranParser#expr_nest.
     def visitExpr_nest(self, ctx:fortranParser.Expr_nestContext):
         return self.visit(ctx.expr())
@@ -155,6 +171,12 @@ class CodeGenVisitor(fortranVisitor):
         else:
             raise Exception("Not implemented yet.")
         return self.visitChildren(ctx)
+
+    # Visit a parse tree produced by fortranParser#if_single_line.
+    def visitIf_single_line(self, ctx:fortranParser.If_single_lineContext):
+        cond = self.visit(ctx.if_cond().expr())
+        with self.builder.if_then(cond):
+            self.visitChildren(ctx)
 
 def main():
     parser = argparse.ArgumentParser(description="Fortran compiler.")

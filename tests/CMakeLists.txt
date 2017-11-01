@@ -11,3 +11,11 @@ ADDTEST(test_program_cmake_01)
 ADDTEST(test_expr_01)
 ADDTEST(test_abort)
 set_tests_properties(test_abort PROPERTIES WILL_FAIL TRUE)
+
+ADDTEST(if_01)
+ADDTEST(if_02)
+set_tests_properties(if_02 PROPERTIES WILL_FAIL TRUE)
+ADDTEST(if_03)
+set_tests_properties(if_03 PROPERTIES WILL_FAIL TRUE)
+
+ADDTEST(cond_01)
