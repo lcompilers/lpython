@@ -127,11 +127,10 @@ class CodeGenVisitor(fortranVisitor):
     # Visit a parse tree produced by fortranParser#expr_truefalse.
     def visitExpr_truefalse(self, ctx:fortranParser.Expr_truefalseContext):
         op = ctx.op.text
-        a = ir.Constant(ir.IntType(64), 1)
         if op == '.true.':
-            return self.builder.icmp_signed("==", a, a)
+            return ir.Constant(ir.IntType(1), "true")
         else:
-            return self.builder.icmp_signed("!=", a, a)
+            return ir.Constant(ir.IntType(1), "false")
 
     # Visit a parse tree produced by fortranParser#expr_rel.
     def visitExpr_rel(self, ctx:fortranParser.Expr_relContext):
