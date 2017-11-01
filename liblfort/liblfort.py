@@ -65,6 +65,9 @@ class CodeGenVisitor(fortranVisitor):
     def __init__(self):
         self.module  = ir.Module()
         self.module.triple = get_default_triple()
+        self.types = {
+                    "integer": ir.IntType(64)
+                }
 
     # Visit a parse tree produced by fortranParser#program.
     def visitProgram(self, ctx:fortranParser.ProgramContext):
@@ -81,13 +84,10 @@ class CodeGenVisitor(fortranVisitor):
     def visitVar_decl(self, ctx:fortranParser.Var_declContext):
         for v in ctx.var_sym_decl():
             sym = v.ID().getText()
-            types = {
-                    "integer": ir.IntType(64)
-                }
             type_f = ctx.var_type().getText()
-            if type_f not in types:
+            if type_f not in self.types:
                 raise Exception("Type not implemented.")
-            ptr = self.builder.alloca(types[type_f], name=sym)
+            ptr = self.builder.alloca(self.types[type_f], name=sym)
             symbol_table[sym] = {"name": sym, "type": type_f, "ptr": ptr}
         return self.visitChildren(ctx)
 
@@ -162,7 +162,7 @@ class CodeGenVisitor(fortranVisitor):
 
     # Visit a parse tree produced by fortranParser#expr_id.
     def visitExpr_id(self, ctx:fortranParser.Expr_idContext):
-        v = ctx.ID()[-1].getText()
+        v = ctx.ID().getText()
         if v not in symbol_table:
             raise Exception("Undefined variable.")
         sym = symbol_table[v]
@@ -181,15 +181,13 @@ class CodeGenVisitor(fortranVisitor):
     def visitPrint_statement(self, ctx:fortranParser.Print_statementContext):
         for expr in ctx.expr_list().expr():
             if isinstance(expr, fortranParser.Expr_stringContext):
-                pass
-            elif expr.ID():
-                assert len(expr.ID()) == 1
-                var = expr.ID(0).getText()
-#                print("printing name=%s type=%s" % (symbol_table[var]["name"],
-#                    symbol_table[var]["type"]))
-                #printf(self.module, self.builder, "num %d.\n", rhs)
+                continue # TODO: implement string printing
+            v = self.visit(expr)
+            if v.type == self.types["integer"]:
+                printf(self.module, self.builder, "%d ", v)
             else:
-                raise Exception("Can only print variables for now.")
+                raise Exception("Type not implemented in print.")
+        printf(self.module, self.builder, "\n")
         return self.visitChildren(ctx)
 
     # Visit a parse tree produced by fortranParser#stop_statement.

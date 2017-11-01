@@ -251,7 +251,7 @@ expr
     | expr op=('+'|'-') expr                     # expr_addsub
     | expr op=('<'|'<='|'=='|'/='|'>='|'>') expr # expr_rel
     | expr op=('.and.'|'.or.') expr              # expr_andor
-    | (ID '%')* ID                               # expr_id
+    | struct_member* ID                          # expr_id
     | number                                     # expr_number
     | op=('.true.' | '.false.')                  # expr_truefalse
     | expr '//' expr                             # expr_string_conc
