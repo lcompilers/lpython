@@ -113,7 +113,7 @@ class CodeGenVisitor(fortranVisitor):
         if op == '*':
             return self.builder.mul(lhs, rhs)
         else:
-            return self.builder.div(lhs, rhs)
+            return self.builder.udiv(lhs, rhs)
 
     # Visit a parse tree produced by fortranParser#expr_muldiv.
     def visitExpr_addsub(self, ctx:fortranParser.Expr_muldivContext):
