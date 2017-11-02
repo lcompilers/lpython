@@ -138,6 +138,7 @@ statement
     | print_statement
     | write_statement
     | stop_statement
+    | error_stop_statement
     | ';'
     ;
 
@@ -206,6 +207,10 @@ write_statement
 
 stop_statement
     : 'stop' STRING? NUMBER?
+    ;
+
+error_stop_statement
+    : 'error' 'stop' STRING? NUMBER?
     ;
 
 
