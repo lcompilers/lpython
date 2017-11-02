@@ -199,6 +199,11 @@ class CodeGenVisitor(fortranVisitor):
             raise Exception("Not implemented yet.")
         return self.visitChildren(ctx)
 
+    # Visit a parse tree produced by fortranParser#error_stop_statement.
+    def visitError_stop_statement(self, ctx:fortranParser.Error_stop_statementContext):
+        exit(self.module, self.builder, 1)
+        return self.visitChildren(ctx)
+
     # Visit a parse tree produced by fortranParser#if_single_line.
     def visitIf_single_line(self, ctx:fortranParser.If_single_lineContext):
         cond = self.visit(ctx.if_cond().expr())
