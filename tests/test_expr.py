@@ -1,36 +1,6 @@
 from liblfort.fortran_parser import parse
 
 
-def test_strings():
-    r = "subroutine"
-    assert parse("""\
-subroutine a
-x = "a'b'c"
-y = 'a"b"c'
-z = 'a""bc""x'
-end subroutine
-""", r)
-    assert parse("""\
-subroutine a
-x = "a""c"
-y = "a""b""c"
-y = \"\"\"zippo\"\"\"
-end subroutine
-""", r)
-    assert parse("""\
-subroutine a
-x = 'a''c'
-y = 'a''b''c'
-y = '''zippo'''
-end subroutine
-""", r)
-    assert parse("""\
-subroutine a
-x = "aaa" // str(x) // "bb"
-y = "a" // "b"
-end subroutine
-""", r)
-
 def test_arrays():
     r = "subroutine"
     assert parse("""\
@@ -110,26 +80,5 @@ def test_decl():
 subroutine f(e)
 character(len=*) :: c
 real(dp) y = 5
-end subroutine
-""", r)
-
-def test_select():
-    r = "subroutine"
-    assert parse("""\
-subroutine f(e)
-select case(k)
-    case(1)
-        call a()
-    case(i)
-        call b()
-end select
-select case(k)
-    case(1)
-        call a()
-    case(i)
-        call b()
-    case default
-        call c()
-end select
 end subroutine
 """, r)
