@@ -5,8 +5,7 @@ from llvmlite import ir
 from llvmlite.binding import get_default_triple
 import llvmlite.binding as llvm
 
-from .ast import ast
-from .parser import parse
+from .ast import ast, parse
 
 symbol_table = {}
 

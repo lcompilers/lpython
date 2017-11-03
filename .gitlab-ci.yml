@@ -14,6 +14,7 @@ full:
     - ./build.sh
     - py.test
     - python list_subroutines.py
+    - python show_ast.py
     - ./lfort examples/expr2.f90
     - ./a.out
     - ./test_lfort_cmdline

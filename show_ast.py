@@ -1,4 +1,4 @@
-from liblfort.parser import parse, dump
+from liblfort.ast import parse, dump
 
 source = open("examples/expr2.f90").read()
 t = parse(source)
