@@ -1,5 +1,5 @@
 from glob import glob
-from liblfort.fortran_parser import parse_file
+from liblfort.ast import parse_file
 
 def test_files():
     filenames = glob("examples/*.f90")
