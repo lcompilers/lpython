@@ -220,12 +220,15 @@ class ASTBuilderVisitor(fortranVisitor):
         return ast.If(test=cond, body=body, orelse=[], lineno=1, col_offset=1)
 
 
-def antlr_parse(source):
+def antlr_parse(source, translation_unit=False):
     """
     Parse the `source` string into an AST node.
 
     We first call ANTLR4 to convert the `source` string into a parse tree. Then
     we convert the parse tree into an AST.
+
+    translation_unit ... if True, only accept full programs or modules (the
+    'root' rule). If False, accept any valid Fortran code (the 'unit' rule).
     """
     stream = antlr4.InputStream(source)
     lexer = fortranLexer(stream)
@@ -235,7 +238,10 @@ def antlr_parse(source):
     err = VerboseErrorListener()
     err.source = source
     parser.addErrorListener(err)
-    parse_tree = parser.root()
+    if translation_unit:
+        parse_tree = parser.root()
+    else:
+        parse_tree = parser.unit()
     v = ASTBuilderVisitor()
     ast_tree = v.visit(parse_tree)
     return ast_tree
