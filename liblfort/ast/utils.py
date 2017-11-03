@@ -2,6 +2,9 @@ from . import ast
 
 from ..parser.parser import antlr_parse
 
+class SyntaxErrorException(Exception):
+    pass
+
 def parse(source):
     """
     Parse the `source` string into an AST node.

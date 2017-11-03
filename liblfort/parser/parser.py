@@ -21,10 +21,7 @@ from antlr4.error.ErrorListener import ErrorListener
 from .fortranLexer import fortranLexer
 from .fortranParser import fortranParser
 from .fortranVisitor import fortranVisitor
-from ..ast import ast
-
-class SyntaxErrorException(Exception):
-    pass
+from ..ast import ast, utils
 
 def get_line(s, l):
     return s.split("\n")[l-1]
@@ -37,7 +34,7 @@ class VerboseErrorListener(ErrorListener):
         print("%d:%d: %s" % (line, column, msg))
         print(get_line(self.source, line))
         print(" "*(column-1) + "^")
-        raise SyntaxErrorException("Syntax error.")
+        raise utils.SyntaxErrorException("Syntax error.")
 
 class ASTBuilderVisitor(fortranVisitor):
     """

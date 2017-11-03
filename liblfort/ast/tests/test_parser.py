@@ -1,6 +1,6 @@
 import os
 
-from liblfort.ast import parse, dump
+from liblfort.ast import parse, dump, SyntaxErrorException
 
 def to_tuple(t):
     if t is None or isinstance(t, (str, int, complex)):
@@ -60,6 +60,24 @@ def run_tests(tests, filename):
                 print("Results lists have different lengths.")
     assert equal
 
+def parses(test):
+    """
+    Returns True if and only if the string `test` parses to AST.
+    """
+    try:
+        s = parse(test)
+        passed = True
+    except SyntaxErrorException:
+        passed = False
+    return passed
+
+def all_fail(tests):
+    for test in tests:
+        assert not parses(test)
+
+
+# -------------------------------------------------------------------------
+# Tests:
 
 def test_dump_expr():
     assert dump(parse("1+1")) == \
@@ -173,3 +191,12 @@ def test_expr():
         #"y%h%c(5, :)",
         ]
     run_tests(tests, "expr_results.py")
+
+def test_expr2():
+    tests = [
+        "1x",
+        "1+",
+        "(1+",
+        "(1+2",
+        ]
+    all_fail(tests)
