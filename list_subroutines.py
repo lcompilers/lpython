@@ -1,5 +1,5 @@
-from liblfort.fortranParser import fortranParser
-from liblfort.fortranVisitor import fortranVisitor
+from liblfort.parser.fortranParser import fortranParser
+from liblfort.parser.fortranVisitor import fortranVisitor
 from liblfort.fortran_parser import get_parser
 
 class SubroutinesVisitor(fortranVisitor):
