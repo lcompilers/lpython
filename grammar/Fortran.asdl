@@ -8,8 +8,8 @@ mod
     | Program(identifier name, stmt* body)
 
 stmt
-    = FunctionDef(identifier name, arguments args, stmt* body,
-            expr* decorator_list, expr? returns, string? docstring)
+    = Subroutine(identifier name, arg* args, stmt* body)
+    | Function(identifier name, arg* args, stmt* body, expr returns)
     | Declaration(decl* vars)
     | Assignment(identifier target, expr value)
     | If(expr test, stmt* body, stmt* orelse)
@@ -35,12 +35,9 @@ unaryop = Invert | Not | UAdd | USub
 
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 
-arguments = (arg* args, arg? vararg, arg* kwonlyargs, expr* kw_defaults,
-                 arg? kwarg, expr* defaults)
-
 decl = (identifier sym, string sym_type)
 
-arg = (identifier arg, expr? annotation)
+arg = (identifier arg)
         attributes (int lineno, int col_offset)
 
 keyword = (identifier? arg, expr value)
