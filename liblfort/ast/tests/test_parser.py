@@ -397,3 +397,23 @@ def test_use():
     ]
     tests = [x+"\n" for x in tests]
     run_tests(tests, "use_results.py")
+
+def test_subroutines_functions():
+    tests = [
+        """\
+real(dp) pure function f(e) result(r)
+r = 1
+end function
+""",
+        """\
+real(dp) recursive function f(e) result(r)
+r = 1
+end function
+""",
+        """\
+function f(e)
+f = 1
+end function
+""",
+    ]
+    run_tests(tests, "subroutine_results.py")
