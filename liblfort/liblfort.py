@@ -5,9 +5,8 @@ from llvmlite import ir
 from llvmlite.binding import get_default_triple
 import llvmlite.binding as llvm
 
-from .fortranParser import fortranParser
-from .fortranVisitor import fortranVisitor
-from .fortran_parser import get_parser
+from .ast import ast
+from .parser import parse
 
 symbol_table = {}
 
@@ -61,126 +60,46 @@ def exit(module, builder, n=0):
 
     builder.call(fn_exit, [n_])
 
-class CodeGenVisitor(fortranVisitor):
-    def __init__(self):
+class CodeGenVisitor2(ast.ASTVisitor):
+
+    def visit_Program(self, node):
         self.module  = ir.Module()
         self.module.triple = get_default_triple()
         self.types = {
                     "integer": ir.IntType(64)
                 }
 
-    # Visit a parse tree produced by fortranParser#program.
-    def visitProgram(self, ctx:fortranParser.ProgramContext):
         int_type = ir.IntType(64);
         fn = ir.FunctionType(int_type, [])
         self.func = ir.Function(self.module, fn, name="main")
         block = self.func.append_basic_block(name='.entry')
         self.builder = ir.IRBuilder(block)
-        self.visitChildren(ctx)
+        self.visit_sequence(node.body)
         self.builder.ret(ir.Constant(ir.IntType(64), 0))
 
-
-    # Visit a parse tree produced by fortranParser#var_decl.
-    def visitVar_decl(self, ctx:fortranParser.Var_declContext):
-        for v in ctx.var_sym_decl():
-            sym = v.ID().getText()
-            type_f = ctx.var_type().getText()
+    def visit_Declaration(self, node):
+        for v in node.vars:
+            sym = v.sym
+            type_f = v.sym_type
             if type_f not in self.types:
                 raise Exception("Type not implemented.")
             ptr = self.builder.alloca(self.types[type_f], name=sym)
             symbol_table[sym] = {"name": sym, "type": type_f, "ptr": ptr}
-        return self.visitChildren(ctx)
 
-    # Visit a parse tree produced by fortranParser#assignment_statement.
-    def visitAssignment_statement(self, ctx:fortranParser.Assignment_statementContext):
-        if ctx.op.text == "=>":
-            raise Exception("operator => not implemented")
-        assert ctx.op.text == "="
-        lhs = ctx.ID().getText()
+    def visit_Assignment(self, node):
+        lhs = node.target
         if lhs not in symbol_table:
             raise Exception("Undefined variable.")
         sym = symbol_table[lhs]
         ptr = sym["ptr"]
-        value = self.visit(ctx.expr())
+        value = self.visit(node.value)
         if value.type != ptr.type.pointee:
             raise Exception("Type mismatch in assignment.")
         self.builder.store(value, ptr)
 
-
-    # Visit a parse tree produced by fortranParser#expr_pow.
-    def visitExpr_pow(self, ctx:fortranParser.Expr_powContext):
-        lhs = self.visit(ctx.expr(0))
-        rhs = self.visit(ctx.expr(1))
-        raise Exception("llvm doesn't have pow, not implemented yet")
-        # return self.builder.pow(lhs, rhs)
-
-    # Visit a parse tree produced by fortranParser#expr_muldiv.
-    def visitExpr_muldiv(self, ctx:fortranParser.Expr_muldivContext):
-        op = ctx.op.text
-        lhs = self.visit(ctx.expr(0))
-        rhs = self.visit(ctx.expr(1))
-        if op == '*':
-            return self.builder.mul(lhs, rhs)
-        else:
-            return self.builder.udiv(lhs, rhs)
-
-    # Visit a parse tree produced by fortranParser#expr_muldiv.
-    def visitExpr_addsub(self, ctx:fortranParser.Expr_muldivContext):
-        op = ctx.op.text
-        lhs = self.visit(ctx.expr(0))
-        rhs = self.visit(ctx.expr(1))
-        if op == '+':
-            return self.builder.add(lhs, rhs)
-        else:
-            return self.builder.sub(lhs, rhs)
-
-    # Visit a parse tree produced by fortranParser#expr_truefalse.
-    def visitExpr_truefalse(self, ctx:fortranParser.Expr_truefalseContext):
-        op = ctx.op.text
-        if op == '.true.':
-            return ir.Constant(ir.IntType(1), "true")
-        else:
-            return ir.Constant(ir.IntType(1), "false")
-
-    # Visit a parse tree produced by fortranParser#expr_unary.
-    def visitExpr_unary(self, ctx:fortranParser.Expr_unaryContext):
-        op = ctx.op.text
-        rhs = self.visit(ctx.expr())
-        if op == '+':
-            return rhs
-        else:
-            lhs = ir.Constant(ir.IntType(64), 0)
-            return self.builder.sub(lhs, rhs)
-
-    # Visit a parse tree produced by fortranParser#expr_rel.
-    def visitExpr_rel(self, ctx:fortranParser.Expr_relContext):
-        op = ctx.op.text
-        lhs = self.visit(ctx.expr(0))
-        rhs = self.visit(ctx.expr(1))
-        if op == "/=": op = "!="
-        return self.builder.icmp_signed(op, lhs, rhs)
-
-    # Visit a parse tree produced by fortranParser#expr_id.
-    def visitExpr_id(self, ctx:fortranParser.Expr_idContext):
-        v = ctx.ID().getText()
-        if v not in symbol_table:
-            raise Exception("Undefined variable.")
-        sym = symbol_table[v]
-        return self.builder.load(sym["ptr"])
-
-    # Visit a parse tree produced by fortranParser#expr_nest.
-    def visitExpr_nest(self, ctx:fortranParser.Expr_nestContext):
-        return self.visit(ctx.expr())
-
-    # Visit a parse tree produced by fortranParser#number_real.
-    def visitNumber_real(self, ctx:fortranParser.Number_realContext):
-        num = ctx.NUMBER().getText()
-        return ir.Constant(ir.IntType(64), int(num))
-
-    # Visit a parse tree produced by fortranParser#print_statement.
-    def visitPrint_statement(self, ctx:fortranParser.Print_statementContext):
-        for expr in ctx.expr_list().expr():
-            if isinstance(expr, fortranParser.Expr_stringContext):
+    def visit_Print(self, node):
+        for expr in node.values:
+            if isinstance(expr, ast.Str):
                 continue # TODO: implement string printing
             v = self.visit(expr)
             if v.type == self.types["integer"]:
@@ -188,27 +107,79 @@ class CodeGenVisitor(fortranVisitor):
             else:
                 raise Exception("Type not implemented in print.")
         printf(self.module, self.builder, "\n")
-        return self.visitChildren(ctx)
 
-    # Visit a parse tree produced by fortranParser#stop_statement.
-    def visitStop_statement(self, ctx:fortranParser.Stop_statementContext):
-        if ctx.NUMBER():
-            num = int(ctx.NUMBER().getText())
-            exit(self.module, self.builder, num)
+    def visit_BinOp(self, node):
+        op = node.op
+        lhs = self.visit(node.left)
+        rhs = self.visit(node.right)
+        if isinstance(op, ast.Mul):
+            return self.builder.mul(lhs, rhs)
+        elif isinstance(op, ast.Div):
+            return self.builder.udiv(lhs, rhs)
+        elif isinstance(op, ast.Add):
+            return self.builder.add(lhs, rhs)
+        elif isinstance(op, ast.Sub):
+            return self.builder.sub(lhs, rhs)
         else:
-            raise Exception("Not implemented yet.")
-        return self.visitChildren(ctx)
+            raise Exception("Not implemented")
 
-    # Visit a parse tree produced by fortranParser#error_stop_statement.
-    def visitError_stop_statement(self, ctx:fortranParser.Error_stop_statementContext):
-        exit(self.module, self.builder, 1)
-        return self.visitChildren(ctx)
+    def visit_UnaryOp(self, node):
+        op = node.op
+        rhs = self.visit(node.operand)
+        if isinstance(op, ast.UAdd):
+            return rhs
+        elif isinstance(op, ast.USub):
+            lhs = ir.Constant(ir.IntType(64), 0)
+            return self.builder.sub(lhs, rhs)
+        else:
+            raise Exception("Not implemented")
 
-    # Visit a parse tree produced by fortranParser#if_single_line.
-    def visitIf_single_line(self, ctx:fortranParser.If_single_lineContext):
-        cond = self.visit(ctx.if_cond().expr())
+    def visit_Num(self, node):
+        num = node.n
+        return ir.Constant(ir.IntType(64), int(num))
+
+    def visit_Constant(self, node):
+        if node.value == True:
+            return ir.Constant(ir.IntType(1), "true")
+        elif node.value == False:
+            return ir.Constant(ir.IntType(1), "false")
+        else:
+            raise Exception("Not implemented")
+
+    def visit_Name(self, node):
+        v = node.id
+        if v not in symbol_table:
+            raise Exception("Undefined variable.")
+        sym = symbol_table[v]
+        return self.builder.load(sym["ptr"])
+
+    def visit_If(self, node):
+        cond = self.visit(node.test)
         with self.builder.if_then(cond):
-            self.visit(ctx.statement())
+            self.visit_sequence(node.body)
+
+    def visit_Compare(self, node):
+        op = node.op
+        lhs = self.visit(node.left)
+        rhs = self.visit(node.right)
+        ops = {
+            ast.Eq: "==",
+            ast.NotEq: "!=",
+            ast.Lt: "<",
+            ast.LtE: "<=",
+            ast.Gt: ">",
+            ast.GtE: ">=",
+        }
+        return self.builder.icmp_signed(ops[type(op)], lhs, rhs)
+
+    def visit_Stop(self, node):
+        num = int(node.code)
+        exit(self.module, self.builder, num)
+
+    def visit_ErrorStop(self, node):
+        exit(self.module, self.builder, 1)
+
+
 
 def main():
     parser = argparse.ArgumentParser(description="Fortran compiler.")
@@ -249,10 +220,9 @@ def main():
     if not link_only:
         # Fortran -> LLVM IR source
         source = open(filename).read()
-        parser = get_parser(source)
-        tree = parser.root()
-        v = CodeGenVisitor()
-        v.visit(tree)
+        ast_tree = parse(source)
+        v = CodeGenVisitor2()
+        v.visit(ast_tree)
         source_ll = str(v.module)
         if args.emit_llvm:
             with open(outfile, "w") as ll:
