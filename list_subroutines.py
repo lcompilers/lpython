@@ -1,22 +1,16 @@
-from liblfort.parser.fortranParser import fortranParser
-from liblfort.parser.fortranVisitor import fortranVisitor
-from liblfort.fortran_parser import get_parser
+from liblfort import ast
 
-class SubroutinesVisitor(fortranVisitor):
+class SubroutinesVisitor(ast.ast.GenericASTVisitor):
 
-    # Visit a parse tree produced by fortranParser#subroutine.
-    def visitSubroutine(self, ctx:fortranParser.SubroutineContext):
-        print("subroutine %s(%s)" % (ctx.ID()[0].getText(),
-            ctx.id_list().getText()))
-        return self.visitChildren(ctx)
+    def visit_Subroutine(self, node):
+        print("subroutine %s(%s)" % (node.name, node.args))
+        self.visit_sequence(node.body)
 
 def main():
     filename = "examples/random.f90"
-    source = open(filename).read()
-    parser = get_parser(source)
-    tree = parser.root()
+    tree = ast.parse_file(filename)
     v = SubroutinesVisitor()
-    v.visit(tree)
+    #v.visit(tree)
 
 if __name__ == "__main__":
     main()
