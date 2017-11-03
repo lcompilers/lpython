@@ -253,6 +253,19 @@ def test_statements1():
         'print *, 45, "sss", a+1',
         #"x => y",
         #"x => y(1:4, 5)",
+        "call g(a(3:5,i:j), b(:))",
+        "call g(a(:5,i:j), b(1:))",
+        "c = [1, 2, 3, i]",
+        "a = x%a",
+        "b = x%b(i, j)",
+        "c = y%c(5, :)",
+        "a = x%f%a",
+        "b = x%g%b(i, j)",
+        "c = y%h%c(5, :)",
+        "x%f%a = a",
+        "x%g%b(i, j) = b",
+        "y%h%c(5, :) = c",
+        "call x%f%e()",
     ]
     tests = [x+"\n" for x in tests]
     run_tests(tests, "statements_results.py")
