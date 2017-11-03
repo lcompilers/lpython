@@ -73,12 +73,3 @@ function f(e)
 f = 1
 end function
 """, r)
-
-def test_decl():
-    r = "subroutine"
-    assert parse("""\
-subroutine f(e)
-character(len=*) :: c
-real(dp) y = 5
-end subroutine
-""", r)
