@@ -1,0 +1,49 @@
+-- ASDL's 7 builtin types are:
+-- identifier, int, string, bytes, object, singleton, constant
+
+module Fortran {
+
+mod
+    = Module(stmt* body, string? docstring)
+    | Program(identifier name, stmt* body)
+
+stmt
+    = FunctionDef(identifier name, arguments args, stmt* body,
+            expr* decorator_list, expr? returns, string? docstring)
+    | Declaration(decl* vars)
+    | Assignment(identifier target, expr value)
+    | If(expr test, stmt* body, stmt* orelse)
+    | Stop(int code)
+    | ErrorStop()
+    | Print(string fmt, expr* values)
+        attributes (int lineno, int col_offset)
+
+expr
+    = BinOp(expr left, operator op, expr right)
+    | UnaryOp(unaryop op, expr operand)
+    | Compare(expr left, cmpop op, expr right)
+    | FuncCallOrArray(expr func, expr* args, keyword* keywords)
+    | Num(object n)
+    | Str(string s)
+    | Name(identifier id)
+    | Constant(constant value)
+        attributes (int lineno, int col_offset)
+
+operator = Add | Sub | Mul | Div | Pow
+
+unaryop = Invert | Not | UAdd | USub
+
+cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
+
+arguments = (arg* args, arg? vararg, arg* kwonlyargs, expr* kw_defaults,
+                 arg? kwarg, expr* defaults)
+
+decl = (identifier sym, string sym_type)
+
+arg = (identifier arg, expr? annotation)
+        attributes (int lineno, int col_offset)
+
+keyword = (identifier? arg, expr value)
+
+
+}
