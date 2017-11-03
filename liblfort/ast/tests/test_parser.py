@@ -1,3 +1,5 @@
+import os
+
 from liblfort.ast import parse, dump
 
 def to_tuple(t):
@@ -13,6 +15,50 @@ def to_tuple(t):
     for f in t._fields:
         result.append(to_tuple(getattr(t, f)))
     return tuple(result)
+
+def run_tests(tests, filename):
+    results = []
+    for s in tests:
+        results.append(to_tuple(parse(s)))
+
+    here = os.path.dirname(__file__)
+    results_filename = os.path.join(here, filename)
+    try:
+        with open(results_filename) as f:
+            d = {}
+            exec(f.read(), d)
+            results_ref = d["results"]
+        equal = (results == results_ref)
+        report = True
+    except FileNotFoundError:
+        equal = False
+        report = False
+        print("Results file does not exist.")
+    if not equal:
+        results_str = "results = [\n"
+        for r in results:
+            results_str += "    %r,\n" % (r,)
+        results_str += "]\n"
+        with open(results_filename+".latest", "w") as f:
+            f.write(results_str)
+        print("Results file generated. If you want to use it, copy " \
+              "'{0}.latest' to '{0}'.".format(filename))
+        if report:
+            print()
+            if (len(results) == len(results_ref)):
+                print("REPORT:")
+                print("Printing failed tests:")
+                for i, t, s, l in zip(range(len(tests)), tests, results,
+                                        results_ref):
+                    if s != l:
+                        print("n test")
+                        print("%d: %s" % (i, t))
+                        print(s)
+                        print(l)
+                        print()
+            else:
+                print("Results lists have different lengths.")
+    assert equal
 
 
 def test_dump_expr():
@@ -83,3 +129,12 @@ b = 1
 end program
 """)) == "Program(name='a', body=[Declaration(vars=[decl(sym='b', " \
     "sym_type='integer')]), Assignment(target='b', value=Num(n='1'))])"
+
+
+def test_expr():
+    tests = [
+        "2+3",
+        "2+x",
+        "(x+y)**2",
+        ]
+    run_tests(tests, "expr_results.py")
