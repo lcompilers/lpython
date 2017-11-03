@@ -415,5 +415,33 @@ function f(e)
 f = 1
 end function
 """,
+        """\
+subroutine f
+integer :: x
+end subroutine
+""",
+        """\
+subroutine f()
+! Some comment
+integer :: x
+! Some other comment
+end subroutine
+""",
+        """\
+subroutine f(a, b, c, d)
+integer, intent(in) :: a, b
+integer, intent ( in ) :: c, d
+integer :: z
+integer::y
+end subroutine
+""",
+        """\
+subroutine f(a, b, c, d)
+integer, intent(out) :: a, b
+integer, intent(inout) :: c, d
+integer :: z
+integer::y
+end subroutine
+""",
     ]
     run_tests(tests, "subroutine_results.py")
