@@ -1,10 +1,13 @@
 from glob import glob
+import os
+
 from liblfort.ast import parse_file
 
 def test_files():
-    filenames = glob("examples/*.f90")
+    here = os.path.dirname(__file__)
+    filenames = glob(os.path.join(here, "..", "..", "..", "examples", "*.f90"))
     assert len(filenames) == 9
     print("Testing filenames:")
     for filename in filenames:
         print(filename)
-        assert parse_file(filename)
+        parse_file(filename)
