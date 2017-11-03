@@ -1,11 +1,12 @@
 import argparse
 import os
+import sys
 
 from llvmlite import ir
 from llvmlite.binding import get_default_triple
 import llvmlite.binding as llvm
 
-from .ast import ast, parse
+from .ast import ast, parse, SyntaxErrorException
 
 symbol_table = {}
 
@@ -219,7 +220,11 @@ def main():
     if not link_only:
         # Fortran -> LLVM IR source
         source = open(filename).read()
-        ast_tree = parse(source)
+        try:
+            ast_tree = parse(source)
+        except SyntaxErrorException as err:
+            print(str(err))
+            sys.exit(1)
         v = CodeGenVisitor2()
         v.visit(ast_tree)
         source_ll = str(v.module)
