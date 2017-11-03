@@ -12,4 +12,4 @@ starting point for the compiler and other tools. The only thing one has to
 understand is the AST, which is fully described by `Fortran.asdl`.
 """
 
-from .utils import parse, parse_file, dump
+from .utils import parse, parse_file, dump, SyntaxErrorException

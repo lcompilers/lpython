@@ -10,15 +10,33 @@ grammar.
 grammar fortran;
 
 // ----------------------------------------------------------------------------
-// Module definitions
+// Top level rules to be used for parsing.
 //
-// * private/public blocks
-// * interface blocks
+// * For compiling files use the 'root' rule:
+// * For interactive usage use the 'unit' rule, which allows to parse shorter
+//   pieces of code, much like Python
 //
 
 root
     : module | program
     ;
+
+unit
+    : root
+    | subroutine NEWLINE* EOF
+    | function NEWLINE* EOF
+    | use_statement NEWLINE* EOF
+    | var_decl NEWLINE* EOF
+    | statements NEWLINE* EOF
+    | expr NEWLINE* EOF
+    ;
+
+// ----------------------------------------------------------------------------
+// Module definitions
+//
+// * private/public blocks
+// * interface blocks
+//
 
 module
     : NEWLINE* 'module' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ module_decl* ('contains' NEWLINE+ (subroutine|function)+ )? 'end' 'module' ID? NEWLINE+ EOF

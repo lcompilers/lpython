@@ -21,10 +21,7 @@ from antlr4.error.ErrorListener import ErrorListener
 from .fortranLexer import fortranLexer
 from .fortranParser import fortranParser
 from .fortranVisitor import fortranVisitor
-from ..ast import ast
-
-class SyntaxErrorException(Exception):
-    pass
+from ..ast import ast, utils
 
 def get_line(s, l):
     return s.split("\n")[l-1]
@@ -33,11 +30,13 @@ class VerboseErrorListener(ErrorListener):
     def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
         stack = recognizer.getRuleInvocationStack()
         stack.reverse()
-        print("rule stack: ", str(stack))
-        print("%d:%d: %s" % (line, column, msg))
-        print(get_line(self.source, line))
-        print(" "*(column-1) + "^")
-        raise SyntaxErrorException("Syntax error.")
+        message = "\n".join([
+            "rule stack: ", str(stack),
+            "%d:%d: %s" % (line, column, msg),
+            get_line(self.source, line),
+            " "*(column-1) + "^",
+        ])
+        raise utils.SyntaxErrorException("Syntax error.\n" + message)
 
 class ASTBuilderVisitor(fortranVisitor):
     """
@@ -79,6 +78,19 @@ class ASTBuilderVisitor(fortranVisitor):
         if not isinstance(body, list):
             body = [body]
         return ast.Program(name, body)
+
+    # Visit a parse tree produced by fortranParser#subroutine.
+    def visitSubroutine(self, ctx:fortranParser.SubroutineContext):
+        name = ctx.ID(0).getText()
+        body = self.visit(ctx.sub_block())
+        args = []
+        if ctx.id_list():
+            for arg in ctx.id_list().ID():
+                args.append(ast.arg(arg=arg.getText()))
+        if not isinstance(body, list):
+            body = [body]
+        return ast.Subroutine(name=name, args=args, body=body,
+                lineno=1, col_offset=1)
 
     # Visit a parse tree produced by fortranParser#assignment_statement.
     def visitAssignment_statement(self, ctx:fortranParser.Assignment_statementContext):
@@ -220,12 +232,15 @@ class ASTBuilderVisitor(fortranVisitor):
         return ast.If(test=cond, body=body, orelse=[], lineno=1, col_offset=1)
 
 
-def antlr_parse(source):
+def antlr_parse(source, translation_unit=False):
     """
     Parse the `source` string into an AST node.
 
     We first call ANTLR4 to convert the `source` string into a parse tree. Then
     we convert the parse tree into an AST.
+
+    translation_unit ... if True, only accept full programs or modules (the
+    'root' rule). If False, accept any valid Fortran code (the 'unit' rule).
     """
     stream = antlr4.InputStream(source)
     lexer = fortranLexer(stream)
@@ -235,7 +250,10 @@ def antlr_parse(source):
     err = VerboseErrorListener()
     err.source = source
     parser.addErrorListener(err)
-    parse_tree = parser.root()
+    if translation_unit:
+        parse_tree = parser.root()
+    else:
+        parse_tree = parser.unit()
     v = ASTBuilderVisitor()
     ast_tree = v.visit(parse_tree)
     return ast_tree
