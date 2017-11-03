@@ -30,11 +30,13 @@ class VerboseErrorListener(ErrorListener):
     def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
         stack = recognizer.getRuleInvocationStack()
         stack.reverse()
-        print("rule stack: ", str(stack))
-        print("%d:%d: %s" % (line, column, msg))
-        print(get_line(self.source, line))
-        print(" "*(column-1) + "^")
-        raise utils.SyntaxErrorException("Syntax error.")
+        message = "\n".join([
+            "rule stack: ", str(stack),
+            "%d:%d: %s" % (line, column, msg),
+            get_line(self.source, line),
+            " "*(column-1) + "^",
+        ])
+        raise utils.SyntaxErrorException("Syntax error.\n" + message)
 
 class ASTBuilderVisitor(fortranVisitor):
     """
