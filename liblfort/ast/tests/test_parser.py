@@ -254,4 +254,90 @@ do while(x == y)
     exit
 end do
 """,
+        """\
+subroutine a
+if (a) then
+    x = 1
+else
+    x = 2
+end if
+end subroutine
+""",
+        """\
+subroutine a
+if (a) then
+    x = 1
+else if (b) then
+    x = 2
+end if
+end subroutine
+""",
+        """\
+subroutine a
+if (a) then
+    x = 1
+else if (b) then
+    x = 2
+else if (c) then
+    x = 2
+end if
+end subroutine
+""",
+        """\
+subroutine a
+if (a) then
+    x = 1
+end if
+end subroutine
+""",
+        """\
+subroutine a
+if (a) x = 1
+end subroutine
+""",
+        """\
+subroutine a
+if (a) &
+    x = 1
+end subroutine
+""",
+        """\
+subroutine a
+if (a) &     ! if statement
+    x = 1
+end subroutine
+""",
+        """\
+subroutine a
+do
+    x = 1
+end do
+end subroutine
+""",
+        """\
+subroutine a
+do i = 1, 5
+    x = x + i
+end do
+end subroutine
+""",
+        """\
+select case(k)
+    case(1)
+        call a()
+    case(i)
+        call b()
+end select
+""",
+        """\
+select case(k)
+    case(1)
+        call a()
+    case(i)
+        call b()
+    case default
+        call c()
+end select
+""",
     ]
+    run_tests(tests, "controlflow_results.py")
