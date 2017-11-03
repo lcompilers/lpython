@@ -149,7 +149,7 @@ end program
     "sym_type='integer')]), Assignment(target='b', value=Num(n='1'))])"
 
 
-def test_expr():
+def test_expr1():
     tests = [
         "1",
         "2+3",
@@ -198,5 +198,60 @@ def test_expr2():
         "1+",
         "(1+",
         "(1+2",
+        "1+2*",
+        "f(3+6",
         ]
     all_fail(tests)
+
+def test_statements1():
+    tests = [
+        "call random_number(u)",
+        "u = 2*u-1",
+        "r2 = sum(u**2)",
+        "u = u * sqrt(-2*log(r2)/r2)",
+        "x = u(1)",
+        "x = u(2)",
+        "first = .not. first",
+        "d = a - 1._dp/3",
+        "c = 1/sqrt(9*d)",
+        "v = (1 + c*x)**3",
+        "fn_val = d*v",
+        "exit",
+        "call randn(x(i))",
+        "call randn(x)",
+        "call random_number(U)",
+        "call rand_gamma0(a, .true., x)",
+        "call rand_gamma0(a, .true., x(1))",
+        "call rand_gamma0(a, .false., x(i))",
+        "call rand_gamma_vector_n(a, size(x), x)",
+        "call f(a=4, b=6, c=i)",
+        "open(newunit=a, b, c)",
+        "allocate(c(4), d(4))",
+        "close(u)",
+        "x = 1; y = 2",
+        "y = 5; a = 1; x = u(2)",
+        "a = 5",
+        "x = 1; y = 2;",
+        "y = 5; a = 1; x = u(2);",
+        "a = 5;",
+        "; ;",
+        'stop "OK"',
+        'write (*,"(i4)") 45',
+        'write (*,*) 45, "ss"',
+        'print "(i4)", 45',
+        'print *, 45, "sss", a+1',
+        #"x => y",
+        #"x => y(1:4, 5)",
+    ]
+    tests = [x+"\n" for x in tests]
+    run_tests(tests, "statements_results.py")
+
+def test_control_flow1():
+    tests = ["""\
+do while(x == y)
+    i = i +1
+    cycle
+    exit
+end do
+""",
+    ]
