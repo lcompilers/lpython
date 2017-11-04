@@ -7,7 +7,7 @@ class SubroutinesVisitor(ast.ast.GenericASTVisitor):
         self.visit_sequence(node.body)
 
 def main():
-    filename = "examples/random.f90"
+    filename = "examples/subroutine1.f90"
     tree = ast.parse_file(filename)
     v = SubroutinesVisitor()
     v.visit(tree)
