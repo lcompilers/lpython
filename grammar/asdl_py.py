@@ -124,6 +124,10 @@ class ASTNodeVisitor(ASDLVisitor):
         self.emit("self.%s = %s" % (field.name, field.name), 2)
         if field.seq:
             self.emit('assert isinstance(%s, list)' % field.name, 2)
+            self.emit('for x in %s:' % field.name, 2)
+            self.emit('assert isinstance(x, %s)' % field.type, 3)
+        else:
+            self.emit('assert isinstance(%s, %s)' % (field.name, field.type), 2)
         self._fields.append("'" + field.name + "'")
 
 
