@@ -110,7 +110,7 @@ def test_to_tuple():
 def test_dump_statements():
     assert dump(parse("if (x == 1) stop\n")) == \
             "If(test=Compare(left=Name(id='x'), op=Eq(), right=Num(n='1')), " \
-            "body=[Stop(code=None)], orelse=[])"
+            "body=[Stop(code=0)], orelse=[])"
     assert dump(parse("x == 1\n")) == \
             "Compare(left=Name(id='x'), op=Eq(), right=Num(n='1'))"
 

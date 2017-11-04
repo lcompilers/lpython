@@ -239,7 +239,7 @@ class ASTBuilderVisitor(fortranVisitor):
         if ctx.NUMBER():
             num = int(ctx.NUMBER().getText())
         else:
-            num = None
+            num = int(0)
         return ast.Stop(code=num, lineno=1, col_offset=1)
 
     # Visit a parse tree produced by fortranParser#error_stop_statement.
