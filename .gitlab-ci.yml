@@ -13,7 +13,6 @@ full:
     - (cd; wget http://www.antlr.org/download/antlr-4.7-complete.jar)
     - ./build.sh
     - py.test
-    - python list_subroutines.py
     - python show_ast.py
     - ./lfort examples/expr2.f90
     - ./a.out
@@ -34,6 +33,5 @@ minimal:
     - (cd; wget http://www.antlr.org/download/antlr-4.7-complete.jar)
     - ./build.sh
     - py.test
-    - python list_subroutines.py
     - ./lfort --ld-musl examples/expr2.f90
     - ./a.out
