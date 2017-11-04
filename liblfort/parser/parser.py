@@ -103,6 +103,18 @@ class ASTBuilderVisitor(fortranVisitor):
         return ast.Subroutine(name=name, args=args, body=body,
                 lineno=1, col_offset=1)
 
+    # Visit a parse tree produced by fortranParser#subroutine_call.
+    def visitSubroutine_call(self, ctx:fortranParser.Subroutine_callContext):
+        name = ctx.ID().getText()
+        args =[]
+        if ctx.arg_list():
+            for arg in ctx.arg_list().arg():
+                if arg.ID():
+                    # TODO: handle kwargs, we ignore the name for now
+                    kwarg = arg.ID().getText()
+                args.append(self.visit(arg))
+        return ast.SubroutineCall(name, args, lineno=1, col_offset=1)
+
     # Visit a parse tree produced by fortranParser#assignment_statement.
     def visitAssignment_statement(self, ctx:fortranParser.Assignment_statementContext):
         if ctx.op.text == "=>":

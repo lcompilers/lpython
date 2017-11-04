@@ -15,6 +15,7 @@ program_unit
 stmt
     = Declaration(decl* vars)
     | Assignment(identifier target, expr value)
+    | SubroutineCall(identifier name, expr* args)
     | If(expr test, stmt* body, stmt* orelse)
     | Stop(int code)
     | ErrorStop()
