@@ -39,7 +39,7 @@ unit
 //
 
 module
-    : NEWLINE* 'module' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ module_decl* ('contains' NEWLINE+ (subroutine|function)+ )? 'end' 'module' ID? NEWLINE+ EOF
+    : NEWLINE* 'module' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ module_decl* contains_block? 'end' 'module' ID? NEWLINE+ EOF
     ;
 
 module_decl
@@ -85,7 +85,11 @@ function
     ;
 
 sub_block
-    : use_statement* implicit_statement? var_decl* statements? ('contains' NEWLINE+ (subroutine|function)+ )? ('end'|'END')
+    : use_statement* implicit_statement? var_decl* statements? contains_block? ('end'|'END')
+    ;
+
+contains_block
+    : 'contains' NEWLINE+ (subroutine|function)+
     ;
 
 implicit_statement

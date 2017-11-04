@@ -3,14 +3,14 @@ from liblfort import ast
 class SubroutinesVisitor(ast.ast.GenericASTVisitor):
 
     def visit_Subroutine(self, node):
-        print("subroutine %s(%s)" % (node.name, node.args))
+        print("subroutine %s(%s)" % (node.name, [x.arg for x in node.args]))
         self.visit_sequence(node.body)
 
 def main():
-    filename = "examples/random.f90"
+    filename = "examples/subroutine1.f90"
     tree = ast.parse_file(filename)
     v = SubroutinesVisitor()
-    #v.visit(tree)
+    v.visit(tree)
 
 if __name__ == "__main__":
     main()

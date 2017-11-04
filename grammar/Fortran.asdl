@@ -4,13 +4,16 @@
 module Fortran {
 
 mod
-    = Module(stmt* body, string? docstring)
+    = Module(identifier name, program_unit* body)
     | Program(identifier name, stmt* body)
 
-stmt
+program_unit
     = Subroutine(identifier name, arg* args, stmt* body)
     | Function(identifier name, arg* args, stmt* body, expr returns)
-    | Declaration(decl* vars)
+        attributes (int lineno, int col_offset)
+
+stmt
+    = Declaration(decl* vars)
     | Assignment(identifier target, expr value)
     | If(expr test, stmt* body, stmt* orelse)
     | Stop(int code)
