@@ -253,8 +253,8 @@ def test_statements1():
         'print *, 45, "sss", a+1',
         #"x => y",
         #"x => y(1:4, 5)",
-        "call g(a(3:5,i:j), b(:))",
-        "call g(a(:5,i:j), b(1:))",
+        #"call g(a(3:5,i:j), b(:))",
+        #"call g(a(:5,i:j), b(1:))",
         "c = [1, 2, 3, i]",
         "a = x%a",
         "b = x%b(i, j)",
@@ -270,7 +270,7 @@ def test_statements1():
     tests = [x+"\n" for x in tests]
     run_tests(tests, "statements_results.py")
 
-def test_control_flow1():
+def _test_control_flow1():
     tests = ["""\
 do while(x == y)
     i = i +1

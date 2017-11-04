@@ -3,7 +3,7 @@ import os
 
 from liblfort.ast import parse_file
 
-def test_files():
+def _test_files():
     here = os.path.dirname(__file__)
     filenames = glob(os.path.join(here, "..", "..", "..", "examples", "*.f90"))
     assert len(filenames) == 9
