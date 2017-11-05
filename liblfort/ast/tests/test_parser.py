@@ -340,8 +340,6 @@ if (a) &     ! if statement
     x = 1
 end subroutine
 """,
-	]
-    tests_ = [
         """\
 subroutine a
 do
@@ -349,6 +347,8 @@ do
 end do
 end subroutine
 """,
+	]
+    tests_ = [
         """\
 subroutine a
 do i = 1, 5
