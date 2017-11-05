@@ -558,5 +558,14 @@ contains
     end subroutine
 end module
 """,
+        """\
+module test
+implicit none
+contains
+    function f() result(y)
+    y = 0
+    end function
+end module
+""",
     ]
     run_tests(tests, "module_results.py")
