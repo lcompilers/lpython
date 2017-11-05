@@ -308,13 +308,13 @@ end if
 end subroutine
 """,]
     tests = [
-#        """\
-#subroutine a
-#if (a) then
-#    x = 1
-#end if
-#end subroutine
-#""",
+        """\
+subroutine a
+if (a) then
+    x = 1
+end if
+end subroutine
+""",
         """\
 subroutine a
 if (a) x = 1
