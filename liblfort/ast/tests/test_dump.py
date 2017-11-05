@@ -16,31 +16,19 @@ def test_dump_statements():
     assert dump(parse("x == 1\n")) == \
             "Compare(left=Name(id='x'), op=Eq(), right=Num(n='1'))"
 
-def _test_dump_subroutines():
+def test_dump_subroutines():
     assert dump(parse("""\
-subroutine a
+subroutine f
 integer :: a, b
-a = 1+2*3
 b = (1+2+a)*3
 end subroutine
-""")) == "Subroutine(name='a', args=[], " \
-    "body=[Declaration(vars=[decl(sym='a', " \
-    "sym_type='integer'), decl(sym='b', sym_type='integer')]), " \
-    "Assignment(target='a', value=BinOp(left=Num(n='1'), op=Add(), " \
-    "right=BinOp(left=Num(n='2'), op=Mul(), right=Num(n='3')))), " \
-    "Assignment(target='b', " \
-    "value=BinOp(left=BinOp(left=BinOp(left=Num(n='1'), " \
-    "op=Add(), right=Num(n='2')), op=Add(), right=Name(id='a')), op=Mul(), " \
-    "right=Num(n='3')))], contains=[])"
-    assert  dump(parse("""\
+""")) == "Subroutine(name='f', args=[], decl=[Declaration(vars=[decl(sym='a', sym_type='integer'), decl(sym='b', sym_type='integer')])], body=[Assignment(target='b', value=BinOp(left=BinOp(left=BinOp(left=Num(n='1'), op=Add(), right=Num(n='2')), op=Add(), right=Name(id='a')), op=Mul(), right=Num(n='3')))], contains=[])"
+    assert dump(parse("""\
 subroutine f(x, y)
 integer, intent(out) :: x, y
 x = 1
 end subroutine
-""")) == "Subroutine(name='f', args=[arg(arg='x'), arg(arg='y')], " \
-    "body=[Declaration(vars=[decl(sym='x', sym_type='integer'), decl(sym='y', "\
-    "sym_type='integer')]), Assignment(target='x', value=Num(n='1'))], " \
-    "contains=[])"
+""")) == "Subroutine(name='f', args=[arg(arg='x'), arg(arg='y')], decl=[Declaration(vars=[decl(sym='x', sym_type='integer'), decl(sym='y', sym_type='integer')])], body=[Assignment(target='x', value=Num(n='1'))], contains=[])"
 
 def test_dump_programs():
     assert dump(parse("""\
