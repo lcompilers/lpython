@@ -114,7 +114,7 @@ def test_dump_statements():
     assert dump(parse("x == 1\n")) == \
             "Compare(left=Name(id='x'), op=Eq(), right=Num(n='1'))"
 
-def test_dump_subroutines():
+def _test_dump_subroutines():
     assert dump(parse("""\
 subroutine a
 integer :: a, b
@@ -140,7 +140,7 @@ end subroutine
     "sym_type='integer')]), Assignment(target='x', value=Num(n='1'))], " \
     "contains=[])"
 
-def test_dump_programs():
+def _test_dump_programs():
     assert dump(parse("""\
 program a
 integer :: b
