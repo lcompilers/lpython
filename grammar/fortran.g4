@@ -211,14 +211,18 @@ if_else_block
     ;
 
 where_statement
-    : where_cond statement
-    | where_block 'end' 'where'
+    : where_cond statement      # where_single_line
+    | where_block 'end' 'where' # where_multi_line
     ;
 
 where_cond: 'where' '(' expr ')' ;
 
 where_block
-    : where_cond NEWLINE+ statements ('else' 'where'? (where_block | (NEWLINE+ statements)))?
+    : where_cond NEWLINE+ statements where_else_block?
+    ;
+
+where_else_block
+    : 'else' 'where'? (where_block | (NEWLINE+ statements))
     ;
 
 do_statement

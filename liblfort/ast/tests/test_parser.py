@@ -337,6 +337,44 @@ select case(k)
         call c()
 end select
 """,
+        """\
+where (a < 5) B = 1
+""",
+#        """\
+#where (a < 5)
+#    B = 1
+#end where
+#""",
+#        """\
+#where (a < 5)
+#    B = 1
+#else where
+#    B = 0
+#end where
+#""",
+#        """\
+#where (a < 5)
+#    B = 1
+#else
+#    B = 0
+#end where
+#""",
+#        """\
+#where (a < 5)
+#    B = 1
+#else where (a < 7)
+#    B = 0
+#else where
+#    B = 3
+#end where
+#""",
+#        """\
+#where (a < 5)
+#    B = 1
+#else where (a < 7)
+#    B = 0
+#end where
+#""",
     ]
     run_tests(tests, "controlflow_results.py")
 

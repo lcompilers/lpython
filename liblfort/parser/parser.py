@@ -343,6 +343,15 @@ class ASTBuilderVisitor(fortranVisitor):
             return [self.visit(ctx.if_block())]
         raise Exception("The grammar should not allow this.")
 
+    # Visit a parse tree produced by fortranParser#where_single_line.
+    def visitWhere_single_line(self, ctx:fortranParser.Where_single_lineContext):
+        cond = self.visit(ctx.where_cond().expr())
+        body = self.visit(ctx.statement())
+        if not isinstance(body, list):
+            body = [body]
+        return ast.Where(test=cond, body=body, orelse=[],
+                lineno=1, col_offset=1)
+
     # Visit a parse tree produced by fortranParser#expr_array_call.
     def visitExpr_array_call(self, ctx:fortranParser.Expr_array_callContext):
         name = ctx.ID().getText()
