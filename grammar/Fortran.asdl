@@ -21,6 +21,7 @@ stmt
     | ErrorStop()
     | DoLoop(do_loop_head? head, stmt* body)
     | Select(expr test, case_stmt* body, case_default? default)
+    | Use(use_symbol module, use_symbol* symbols)
     | Cycle()
     | Exit()
     | WhileLoop(expr test, stmt* body)
@@ -62,5 +63,7 @@ case_stmt = (expr test, stmt* body)
 
 case_default = (stmt* body)
         attributes (int lineno, int col_offset)
+
+use_symbol = (identifier sym, identifier? rename)
 
 }

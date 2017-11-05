@@ -405,10 +405,9 @@ def test_decl():
     tests = [x+"\n" for x in tests]
     run_tests(tests, "decl_results.py")
 
-def _test_use():
+def test_use():
     tests = [
         "use b",
-        "use a, b, c",
         "use a, only: b, c",
         "use a, only: x => b, c, d => a",
     ]

@@ -358,8 +358,28 @@ class ASTBuilderVisitor(fortranVisitor):
             default = ast.case_default(body=default_body)
         else:
             default = None
-        return ast.Select(test=expr, body=body, default=default, lineno=1,
-                col_offset=1)
+        return ast.Select(test=expr, body=body, default=default,
+                lineno=1, col_offset=1)
+
+    # Visit a parse tree produced by fortranParser#use_statement.
+    def visitUse_statement(self, ctx:fortranParser.Use_statementContext):
+        module = self.visit(ctx.use_symbol())
+        symbols = []
+        if ctx.use_symbol_list():
+            for s in ctx.use_symbol_list().use_symbol():
+                symbols.append(self.visit(s))
+        return ast.Use(module=module, symbols=symbols,
+                lineno=1, col_offset=1)
+
+    # Visit a parse tree produced by fortranParser#use_symbol.
+    def visitUse_symbol(self, ctx:fortranParser.Use_symbolContext):
+        if len(ctx.ID()) == 1:
+            return ast.use_symbol(sym=ctx.ID(0).getText(), rename="")
+        elif len(ctx.ID()) == 2:
+            return ast.use_symbol(sym=ctx.ID(0).getText(),
+                    rename=ctx.ID(1).getText())
+        else:
+            raise Exception("The grammar should not allow this.")
 
 
 def antlr_parse(source, translation_unit=False):

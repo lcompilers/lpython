@@ -97,7 +97,7 @@ implicit_statement
     ;
 
 use_statement
-    : 'use' use_symbol_list (',' 'only' ':' use_symbol_list)? NEWLINE+
+    : 'use' use_symbol (',' 'only' ':' use_symbol_list)? NEWLINE+
     ;
 
 use_symbol_list : use_symbol (',' use_symbol)* ;
