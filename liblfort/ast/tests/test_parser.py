@@ -530,6 +530,20 @@ end module
         """\
 module test
 implicit none
+private x, y
+integer :: x, y
+end module
+""",
+        """\
+module test
+implicit none
+private :: x, y
+integer :: x, y
+end module
+""",
+        """\
+module test
+implicit none
 contains
     subroutine a(b)
     integer, intent(in) :: b
