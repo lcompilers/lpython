@@ -350,7 +350,7 @@ end subroutine
         """\
 subroutine a
 do i = 1, 5
-    x = i
+    x = x + i
 end do
 end subroutine
 """,
@@ -363,13 +363,6 @@ end subroutine
 """,
 	]
     tests_ = [
-        """\
-subroutine a
-do i = 1, 5
-    x = x + i
-end do
-end subroutine
-""",
         """\
 select case(k)
     case(1)
