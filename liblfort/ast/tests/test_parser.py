@@ -503,3 +503,30 @@ end program
 """,
     ]
     run_tests(tests, "program_results.py")
+
+def test_module():
+    tests = [
+        """\
+module test
+implicit none
+contains
+    subroutine a(b)
+    integer, intent(in) :: b
+    end subroutine
+end module
+""",
+        """\
+module test
+implicit none
+contains
+    subroutine a(b)
+    integer, intent(in) :: b
+    end subroutine
+
+    subroutine f(b)
+    integer, intent(in) :: b
+    end subroutine
+end module
+""",
+    ]
+    run_tests(tests, "module_results.py")
