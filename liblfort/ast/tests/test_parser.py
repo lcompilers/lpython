@@ -517,6 +517,12 @@ def test_module():
         """\
 module test
 implicit none
+integer :: x
+end module
+""",
+        """\
+module test
+implicit none
 contains
     subroutine a(b)
     integer, intent(in) :: b
