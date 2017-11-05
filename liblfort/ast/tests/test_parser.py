@@ -317,6 +317,14 @@ end subroutine
 """,
         """\
 subroutine a
+if (a) then
+    x = 1
+    y = 2
+end if
+end subroutine
+""",
+        """\
+subroutine a
 if (a) x = 1
 end subroutine
 """,
