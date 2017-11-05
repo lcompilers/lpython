@@ -496,7 +496,7 @@ contains
     integer, intent(in) :: b
     end subroutine
 
-    subroutine a(b)
+    subroutine f(b)
     integer, intent(in) :: b
     end subroutine
 end program
