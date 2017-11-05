@@ -311,6 +311,28 @@ class ASTBuilderVisitor(fortranVisitor):
         return ast.ArrayIndex(left=None, right=None,
                 step=None)
 
+    # Visit a parse tree produced by fortranParser#do_statement.
+    def visitDo_statement(self, ctx:fortranParser.Do_statementContext):
+        if ctx.ID():
+            var = ctx.ID().getText()
+            start = self.visit(ctx.expr(0))
+            end = self.visit(ctx.expr(1))
+            if len(ctx.expr()) == 3:
+                increment = self.visit(ctx.expr(2))
+            head = ast.do_loop_head(var=var, start=start, end=end,
+                    increment=increment, lineno=1, col_offset=1)
+        else:
+            head = None
+        body = self.statements2list(ctx.statements())
+        return ast.DoLoop(head=head, body=body, lineno=1, col_offset=1)
+
+    def statements2list(self, ctx:fortranParser.StatementsContext):
+        # Returns a list
+        statements = []
+        for stat in ctx.statement():
+            statements.append(self.visit(stat))
+        return statements
+
 def antlr_parse(source, translation_unit=False):
     """
     Parse the `source` string into an AST node.

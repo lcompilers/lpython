@@ -19,6 +19,7 @@ stmt
     | If(expr test, stmt* body, stmt* orelse)
     | Stop(int code)
     | ErrorStop()
+    | DoLoop(do_loop_head? head, stmt* body)
     | Print(string fmt, expr* values)
         attributes (int lineno, int col_offset)
 
@@ -49,5 +50,7 @@ keyword = (identifier? arg, expr value)
 
 array_index = ArrayIndex(expr? left, expr? right, expr? step)
 
+do_loop_head = (identifier var, expr start, expr end, expr? increment)
+        attributes (int lineno, int col_offset)
 
 }
