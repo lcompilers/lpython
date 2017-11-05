@@ -42,12 +42,12 @@ end subroutine
     "sym_type='integer')]), Assignment(target='x', value=Num(n='1'))], " \
     "contains=[])"
 
-def _test_dump_programs():
+def test_dump_programs():
     assert dump(parse("""\
 program a
 integer :: b
 b = 1
 end program
-""")) == "Program(name='a', body=[Declaration(vars=[decl(sym='b', " \
-    "sym_type='integer')]), Assignment(target='b', value=Num(n='1'))], " \
+""")) == "Program(name='a', decl=[Declaration(vars=[decl(sym='b', " \
+    "sym_type='integer')])], body=[Assignment(target='b', value=Num(n='1'))], "\
     "contains=[])"
