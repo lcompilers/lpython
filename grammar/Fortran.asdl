@@ -26,7 +26,7 @@ expr
     = BinOp(expr left, operator op, expr right)
     | UnaryOp(unaryop op, expr operand)
     | Compare(expr left, cmpop op, expr right)
-    | FuncCallOrArray(expr func, expr* args, keyword* keywords)
+    | FuncCallOrArray(identifier func, expr* args, keyword* keywords)
     | Array(identifier name, array_index* args)
     | Num(object n)
     | Str(string s)

@@ -262,6 +262,19 @@ class ASTBuilderVisitor(fortranVisitor):
             args.append(self.visit(arg))
         return ast.Array(name, args, lineno=1, col_offset=1)
 
+    # Visit a parse tree produced by fortranParser#expr_fn_call.
+    def visitExpr_fn_call(self, ctx:fortranParser.Expr_fn_callContext):
+        name = ctx.fn_names().getText()
+        args =[]
+        if ctx.arg_list():
+            for arg in ctx.arg_list().arg():
+                if arg.ID():
+                    # TODO: handle kwargs, we ignore the name for now
+                    kwarg = arg.ID().getText()
+                args.append(self.visit(arg))
+        return ast.FuncCallOrArray(func=name, args=args, keywords=[],
+                    lineno=1, col_offset=1)
+
     # Visit a parse tree produced by fortranParser#array_index_simple.
     def visitArray_index_simple(self, ctx:fortranParser.Array_index_simpleContext):
         return ast.ArrayIndex(left=self.visit(ctx.expr()), right=None,
