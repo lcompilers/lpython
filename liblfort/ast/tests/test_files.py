@@ -8,8 +8,6 @@ def test_files():
     filenames = glob(os.path.join(here, "..", "..", "..", "examples", "*.f90"))
     assert len(filenames) == 9
     print("Testing filenames:")
-    skip = ["random.f90"]
     for filename in filenames:
-        if os.path.basename(filename) in skip: continue
         print(filename)
         parse_file(filename)
