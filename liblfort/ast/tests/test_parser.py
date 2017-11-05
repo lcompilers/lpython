@@ -463,3 +463,20 @@ end subroutine
 """,
     ]
     run_tests(tests, "subroutine_results.py")
+
+def test_program():
+    tests = [
+        """\
+program test
+implicit none
+integer :: x
+x = 1
+call a(x)
+contains
+    subroutine a(b)
+    integer, intent(in) :: b
+    end subroutine
+end program
+""",
+    ]
+    run_tests(tests, "program_results.py")
