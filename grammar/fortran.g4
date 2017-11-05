@@ -97,7 +97,7 @@ implicit_statement
     ;
 
 use_statement
-    : 'use' use_symbol_list (',' 'only' ':' use_symbol_list)? NEWLINE+
+    : 'use' use_symbol (',' 'only' ':' use_symbol_list)? NEWLINE+
     ;
 
 use_symbol_list : use_symbol (',' use_symbol)* ;
@@ -149,7 +149,9 @@ statements
 
 statement
     : assignment_statement
-    | 'exit' | 'cycle' | 'return'
+    | exit_statement
+    | cycle_statement
+    | return_statement
     | subroutine_call
     | builtin_statement
     | if_statement
@@ -166,6 +168,18 @@ statement
 
 assignment_statement
     : struct_member* ID ('(' array_index_list ')')? op=('='|'=>') expr
+    ;
+
+exit_statement
+    : 'exit'
+    ;
+
+cycle_statement
+    : 'cycle'
+    ;
+
+return_statement
+    : 'return'
     ;
 
 subroutine_call
@@ -185,7 +199,11 @@ if_statement
 if_cond: 'if' '(' expr ')' ;
 
 if_block
-    : if_cond 'then' NEWLINE+ statements ('else' (if_block | (NEWLINE+ statements)))?
+    : if_cond 'then' NEWLINE+ statements if_else_block?
+    ;
+
+if_else_block
+    : 'else' (if_block | (NEWLINE+ statements))
     ;
 
 where_statement
@@ -300,8 +318,8 @@ array_index_list
     ;
 
 array_index
-    : expr
-    | expr? ':' expr?
+    : expr              # array_index_simple
+    | expr? ':' expr?   # array_index_slice
     ;
 
 struct_member: ID '%' ;

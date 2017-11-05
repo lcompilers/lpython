@@ -103,6 +103,18 @@ class ASTBuilderVisitor(fortranVisitor):
         return ast.Subroutine(name=name, args=args, body=body,
                 lineno=1, col_offset=1)
 
+    # Visit a parse tree produced by fortranParser#subroutine_call.
+    def visitSubroutine_call(self, ctx:fortranParser.Subroutine_callContext):
+        name = ctx.ID().getText()
+        args =[]
+        if ctx.arg_list():
+            for arg in ctx.arg_list().arg():
+                if arg.ID():
+                    # TODO: handle kwargs, we ignore the name for now
+                    kwarg = arg.ID().getText()
+                args.append(self.visit(arg))
+        return ast.SubroutineCall(name, args, lineno=1, col_offset=1)
+
     # Visit a parse tree produced by fortranParser#assignment_statement.
     def visitAssignment_statement(self, ctx:fortranParser.Assignment_statementContext):
         if ctx.op.text == "=>":
@@ -242,6 +254,133 @@ class ASTBuilderVisitor(fortranVisitor):
             body = [body]
         return ast.If(test=cond, body=body, orelse=[], lineno=1, col_offset=1)
 
+    # Visit a parse tree produced by fortranParser#if_block.
+    def visitIf_block(self, ctx:fortranParser.If_blockContext):
+        cond = self.visit(ctx.if_cond().expr())
+        body = self.statements2list(ctx.statements())
+        if ctx.if_else_block():
+            orelse = self.visit(ctx.if_else_block())
+        else:
+            orelse = []
+        return ast.If(test=cond, body=body, orelse=orelse,
+                lineno=1, col_offset=1)
+
+    # Visit a parse tree produced by fortranParser#if_else_block.
+    def visitIf_else_block(self, ctx:fortranParser.If_else_blockContext):
+        # This method returns a list [] of statements.
+        if ctx.statements():
+            return self.statements2list(ctx.statements())
+        if ctx.if_block():
+            return [self.visit(ctx.if_block())]
+        raise Exception("The grammar should not allow this.")
+
+    # Visit a parse tree produced by fortranParser#expr_array_call.
+    def visitExpr_array_call(self, ctx:fortranParser.Expr_array_callContext):
+        name = ctx.ID().getText()
+        args = []
+        for arg in ctx.array_index_list().array_index():
+            args.append(self.visit(arg))
+        return ast.Array(name, args, lineno=1, col_offset=1)
+
+    # Visit a parse tree produced by fortranParser#expr_fn_call.
+    def visitExpr_fn_call(self, ctx:fortranParser.Expr_fn_callContext):
+        name = ctx.fn_names().getText()
+        args =[]
+        if ctx.arg_list():
+            for arg in ctx.arg_list().arg():
+                if arg.ID():
+                    # TODO: handle kwargs, we ignore the name for now
+                    kwarg = arg.ID().getText()
+                args.append(self.visit(arg))
+        return ast.FuncCallOrArray(func=name, args=args, keywords=[],
+                    lineno=1, col_offset=1)
+
+    # Visit a parse tree produced by fortranParser#array_index_simple.
+    def visitArray_index_simple(self, ctx:fortranParser.Array_index_simpleContext):
+        return ast.ArrayIndex(left=self.visit(ctx.expr()), right=None,
+                step=None)
+
+    # Visit a parse tree produced by fortranParser#array_index_slice.
+    def visitArray_index_slice(self, ctx:fortranParser.Array_index_sliceContext):
+        # TODO: figure out how to access things like 3:4, or :4.
+        return ast.ArrayIndex(left=None, right=None,
+                step=None)
+
+    # Visit a parse tree produced by fortranParser#do_statement.
+    def visitDo_statement(self, ctx:fortranParser.Do_statementContext):
+        if ctx.ID():
+            var = ctx.ID().getText()
+            start = self.visit(ctx.expr(0))
+            end = self.visit(ctx.expr(1))
+            if len(ctx.expr()) == 3:
+                increment = self.visit(ctx.expr(2))
+            else:
+                increment = None
+            head = ast.do_loop_head(var=var, start=start, end=end,
+                    increment=increment)
+        else:
+            head = None
+        body = self.statements2list(ctx.statements())
+        return ast.DoLoop(head=head, body=body, lineno=1, col_offset=1)
+
+    def statements2list(self, ctx:fortranParser.StatementsContext):
+        # Returns a list
+        statements = []
+        for stat in ctx.statement():
+            statements.append(self.visit(stat))
+        return statements
+
+    # Visit a parse tree produced by fortranParser#while_statement.
+    def visitWhile_statement(self, ctx:fortranParser.While_statementContext):
+        test = self.visit(ctx.expr())
+        body = self.statements2list(ctx.statements())
+        return ast.WhileLoop(test=test, body=body, lineno=1, col_offset=1)
+
+    # Visit a parse tree produced by fortranParser#cycle_statement.
+    def visitCycle_statement(self, ctx:fortranParser.Cycle_statementContext):
+        return ast.Cycle(lineno=1, col_offset=1)
+
+    # Visit a parse tree produced by fortranParser#exit_statement.
+    def visitExit_statement(self, ctx:fortranParser.Exit_statementContext):
+        return ast.Exit(lineno=1, col_offset=1)
+
+    # Visit a parse tree produced by fortranParser#select_statement.
+    def visitSelect_statement(self, ctx:fortranParser.Select_statementContext):
+        expr = self.visit(ctx.expr())
+        body = []
+        for case in ctx.case_statement():
+            test = self.visit(case.expr())
+            case_body = self.statements2list(case.statements())
+            body.append(ast.case_stmt(test=test, body=case_body))
+        if ctx.select_default_statement():
+            default_body = self.statements2list( \
+                    ctx.select_default_statement().statements())
+            default = ast.case_default(body=default_body)
+        else:
+            default = None
+        return ast.Select(test=expr, body=body, default=default,
+                lineno=1, col_offset=1)
+
+    # Visit a parse tree produced by fortranParser#use_statement.
+    def visitUse_statement(self, ctx:fortranParser.Use_statementContext):
+        module = self.visit(ctx.use_symbol())
+        symbols = []
+        if ctx.use_symbol_list():
+            for s in ctx.use_symbol_list().use_symbol():
+                symbols.append(self.visit(s))
+        return ast.Use(module=module, symbols=symbols,
+                lineno=1, col_offset=1)
+
+    # Visit a parse tree produced by fortranParser#use_symbol.
+    def visitUse_symbol(self, ctx:fortranParser.Use_symbolContext):
+        if len(ctx.ID()) == 1:
+            return ast.use_symbol(sym=ctx.ID(0).getText(), rename=None)
+        elif len(ctx.ID()) == 2:
+            return ast.use_symbol(sym=ctx.ID(0).getText(),
+                    rename=ctx.ID(1).getText())
+        else:
+            raise Exception("The grammar should not allow this.")
+
 
 def antlr_parse(source, translation_unit=False):
     """
@@ -267,4 +406,5 @@ def antlr_parse(source, translation_unit=False):
         parse_tree = parser.unit()
     v = ASTBuilderVisitor()
     ast_tree = v.visit(parse_tree)
+    assert isinstance(ast_tree, ast.AST)
     return ast_tree

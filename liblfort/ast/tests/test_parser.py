@@ -177,18 +177,18 @@ def test_expr1():
         "i + 1",
         '"s"',
         '"some text"',
-        #"a(3:5,i:j)",
-        #"b(:)",
-        #"a(:5,i:j) + b(1:)",
+        "a(3:5,i:j)",
+        "b(:)",
+        "a(:5,i:j) + b(1:)",
         #"[1, 2, 3, i]",
-        #"f()",
-        #"x%a",
-        #"x%a()",
-        #"x%b(i, j)",
-        #"y%c(5, :)",
-        #"x%f%a",
-        #"x%g%b(i, j)",
-        #"y%h%c(5, :)",
+        "f()",
+        "x%a",
+        "x%a()",
+        "x%b(i, j)",
+        "y%c(5, :)",
+        "x%f%a",
+        "x%g%b(i, j)",
+        "y%h%c(5, :)",
         """ "a'b'c" """,
         """ 'a"b"c'""",
         """ 'a""bc""x'""",
@@ -198,8 +198,8 @@ def test_expr1():
         """ 'a''c'""",
         """ 'a''b''c'""",
         """ '''zippo'''""",
-        """ "aaa" // str(x) // "bb" """,
-        """ "a" // "b" """,
+        #""" "aaa" // str(x) // "bb" """,
+        #""" "a" // "b" """,
         ]
     run_tests(tests, "expr_results.py")
 
@@ -228,6 +228,7 @@ def test_statements1():
         "v = (1 + c*x)**3",
         "fn_val = d*v",
         "exit",
+        "cycle",
         "call randn(x(i))",
         "call randn(x)",
         "call random_number(U)",
@@ -236,26 +237,26 @@ def test_statements1():
         "call rand_gamma0(a, .false., x(i))",
         "call rand_gamma_vector_n(a, size(x), x)",
         "call f(a=4, b=6, c=i)",
-        "open(newunit=a, b, c)",
-        "allocate(c(4), d(4))",
+        #"open(newunit=a, b, c)",
+        #"allocate(c(4), d(4))",
         "close(u)",
-        "x = 1; y = 2",
-        "y = 5; a = 1; x = u(2)",
+        #"x = 1; y = 2",
+        #"y = 5; a = 1; x = u(2)",
         "a = 5",
-        "x = 1; y = 2;",
-        "y = 5; a = 1; x = u(2);",
+        #"x = 1; y = 2;",
+        #"y = 5; a = 1; x = u(2);",
         "a = 5;",
-        "; ;",
+        #"; ;",
         'stop "OK"',
-        'write (*,"(i4)") 45',
-        'write (*,*) 45, "ss"',
+        #'write (*,"(i4)") 45',
+        #'write (*,*) 45, "ss"',
         'print "(i4)", 45',
         'print *, 45, "sss", a+1',
         #"x => y",
         #"x => y(1:4, 5)",
         "call g(a(3:5,i:j), b(:))",
         "call g(a(:5,i:j), b(1:))",
-        "c = [1, 2, 3, i]",
+        #"c = [1, 2, 3, i]",
         "a = x%a",
         "b = x%b(i, j)",
         "c = y%c(5, :)",
@@ -271,7 +272,8 @@ def test_statements1():
     run_tests(tests, "statements_results.py")
 
 def test_control_flow1():
-    tests = ["""\
+    tests = [
+       """\
 do while(x == y)
     i = i +1
     cycle
@@ -316,6 +318,14 @@ end subroutine
 """,
         """\
 subroutine a
+if (a) then
+    x = 1
+    y = 2
+end if
+end subroutine
+""",
+        """\
+subroutine a
 if (a) x = 1
 end subroutine
 """,
@@ -342,6 +352,13 @@ end subroutine
 subroutine a
 do i = 1, 5
     x = x + i
+end do
+end subroutine
+""",
+        """\
+subroutine a
+do i = 1, 5, -1
+    x = i
 end do
 end subroutine
 """,
@@ -391,7 +408,6 @@ def test_decl():
 def test_use():
     tests = [
         "use b",
-        "use a, b, c",
         "use a, only: b, c",
         "use a, only: x => b, c, d => a",
     ]

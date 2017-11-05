@@ -124,6 +124,18 @@ class ASTNodeVisitor(ASDLVisitor):
         self.emit("self.%s = %s" % (field.name, field.name), 2)
         if field.seq:
             self.emit('assert isinstance(%s, list)' % field.name, 2)
+            self.emit('for x in %s:' % field.name, 2)
+            self.emit('checkinstance(x, %s)' % field.type, 3)
+        else:
+            type_ = field.type
+            if type_ == "string":
+                type_ = "str"
+            elif type_ == "identifier":
+                type_ = "str"
+            elif type_ == "constant":
+                type_ = "bool"
+            self.emit('checkinstance(%s, %s, %r)' % \
+                    (field.name, type_, field.opt), 2)
         self._fields.append("'" + field.name + "'")
 
 
@@ -269,6 +281,17 @@ class AST(object):
 class NodeVisitorNotImplemented(Exception):
     pass
 
+def checkinstance(a, b, opt=False):
+    if opt and a is None:
+        return
+    from .utils import dump
+    if not isinstance(a, b):
+        if isinstance(a, AST):
+            a_dump = dump(a)
+        else:
+            a_dump = a
+        print("Wrong instance: %s, types: a=%s; b=%s" % (a_dump, type(a), b))
+    assert isinstance(a, b)
 
 """
 
