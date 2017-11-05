@@ -22,7 +22,7 @@ def test_num():
 def test_expr():
     value = 42
     node = ast.Num(value, lineno=1, col_offset=1)
-    p = ast.Print(fmt="", values=[node], lineno=1, col_offset=1)
+    p = ast.Print(fmt=None, values=[node], lineno=1, col_offset=1)
     assert p.values[0].n == value
     v = ast.GenericASTVisitor()
     p.walkabout(v)
