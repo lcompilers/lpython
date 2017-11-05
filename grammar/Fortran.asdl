@@ -18,6 +18,8 @@ program_unit
 unit_decl
     = Use(use_symbol module, use_symbol* symbols)
     | Declaration(decl* vars)
+    | Private(identifier* vars)
+    | Public(identifier* vars)
         attributes (int lineno, int col_offset)
 
 stmt
