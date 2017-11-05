@@ -270,8 +270,8 @@ def test_statements1():
     tests = [x+"\n" for x in tests]
     run_tests(tests, "statements_results.py")
 
-def _test_control_flow1():
-    tests = ["""\
+def test_control_flow1():
+    tests_ = ["""\
 do while(x == y)
     i = i +1
     cycle
@@ -306,14 +306,15 @@ else if (c) then
     x = 2
 end if
 end subroutine
-""",
-        """\
-subroutine a
-if (a) then
-    x = 1
-end if
-end subroutine
-""",
+""",]
+    tests = [
+#        """\
+#subroutine a
+#if (a) then
+#    x = 1
+#end if
+#end subroutine
+#""",
         """\
 subroutine a
 if (a) x = 1
@@ -331,6 +332,8 @@ if (a) &     ! if statement
     x = 1
 end subroutine
 """,
+	]
+    tests_ = [
         """\
 subroutine a
 do
