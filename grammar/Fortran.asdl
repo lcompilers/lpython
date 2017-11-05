@@ -20,6 +20,7 @@ unit_decl
     | Declaration(decl* vars)
     | Private(identifier* vars)
     | Public(identifier* vars)
+    | Interface(identifier name, identifier* procs)
         attributes (int lineno, int col_offset)
 
 stmt

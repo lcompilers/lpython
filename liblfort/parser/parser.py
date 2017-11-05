@@ -479,6 +479,16 @@ class ASTBuilderVisitor(fortranVisitor):
         else:
             raise Exception("The grammar should not allow this.")
 
+    # Visit a parse tree produced by fortranParser#interface_decl.
+    def visitInterface_decl(self, ctx:fortranParser.Interface_declContext):
+        name = ctx.ID(0).getText()
+        procs = []
+        for proc_line in ctx.id_list():
+            for proc in proc_line.ID():
+                procs.append(proc.getText())
+        return ast.Interface(name=name, procs=procs,
+                lineno=1, col_offset=1)
+
 
 def antlr_parse(source, translation_unit=False):
     """
