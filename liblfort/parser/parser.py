@@ -258,7 +258,7 @@ class ASTBuilderVisitor(fortranVisitor):
     def visitIf_multi_line(self, ctx:fortranParser.If_multi_lineContext):
         cond = self.visit(ctx.if_block().if_cond().expr())
         body = []
-        for statement in ctx.if_block().statements(0).statement():
+        for statement in ctx.if_block().statements().statement():
             body.append(self.visit(statement))
         # TODO: handle the else part
         return ast.If(test=cond, body=body, orelse=[], lineno=1, col_offset=1)

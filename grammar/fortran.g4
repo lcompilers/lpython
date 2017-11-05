@@ -185,7 +185,11 @@ if_statement
 if_cond: 'if' '(' expr ')' ;
 
 if_block
-    : if_cond 'then' NEWLINE+ statements ('else' (if_block | (NEWLINE+ statements)))?
+    : if_cond 'then' NEWLINE+ statements if_else_block?
+    ;
+
+if_else_block
+    : 'else' (if_block | (NEWLINE+ statements))
     ;
 
 where_statement
