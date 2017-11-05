@@ -479,6 +479,14 @@ implicit none
 integer :: x
 x = 1
 call a(x)
+end program
+""",
+        """\
+program test
+implicit none
+integer :: x
+x = 1
+call a(x)
 contains
     subroutine a(b)
     integer, intent(in) :: b
