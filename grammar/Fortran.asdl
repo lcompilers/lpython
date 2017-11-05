@@ -4,12 +4,14 @@
 module Fortran {
 
 mod
-    = Module(identifier name, program_unit* body)
-    | Program(identifier name, stmt* body)
+    = Module(identifier name, program_unit* contains)
+    | Program(identifier name, stmt* body, program_unit* contains)
 
 program_unit
-    = Subroutine(identifier name, arg* args, stmt* body)
-    | Function(identifier name, arg* args, stmt* body, expr returns)
+    = Subroutine(identifier name, arg* args, stmt* body,
+            program_unit* contains)
+    | Function(identifier name, arg* args, stmt* body, expr returns,
+            program_unit* contains)
         attributes (int lineno, int col_offset)
 
 stmt

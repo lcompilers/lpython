@@ -129,7 +129,7 @@ end subroutine
     "Assignment(target='b', " \
     "value=BinOp(left=BinOp(left=BinOp(left=Num(n='1'), " \
     "op=Add(), right=Num(n='2')), op=Add(), right=Name(id='a')), op=Mul(), " \
-    "right=Num(n='3')))])"
+    "right=Num(n='3')))], contains=[])"
     assert  dump(parse("""\
 subroutine f(x, y)
 integer, intent(out) :: x, y
@@ -137,7 +137,8 @@ x = 1
 end subroutine
 """)) == "Subroutine(name='f', args=[arg(arg='x'), arg(arg='y')], " \
     "body=[Declaration(vars=[decl(sym='x', sym_type='integer'), decl(sym='y', "\
-    "sym_type='integer')]), Assignment(target='x', value=Num(n='1'))])"
+    "sym_type='integer')]), Assignment(target='x', value=Num(n='1'))], " \
+    "contains=[])"
 
 def test_dump_programs():
     assert dump(parse("""\
@@ -146,7 +147,8 @@ integer :: b
 b = 1
 end program
 """)) == "Program(name='a', body=[Declaration(vars=[decl(sym='b', " \
-    "sym_type='integer')]), Assignment(target='b', value=Num(n='1'))])"
+    "sym_type='integer')]), Assignment(target='b', value=Num(n='1'))], " \
+    "contains=[])"
 
 
 def test_expr1():
