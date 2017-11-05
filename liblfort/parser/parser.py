@@ -127,6 +127,14 @@ class ASTBuilderVisitor(fortranVisitor):
                 syms.append(sym.getText())
         return ast.Private(vars=syms, lineno=1, col_offset=1)
 
+    # Visit a parse tree produced by fortranParser#public_decl.
+    def visitPublic_decl(self, ctx:fortranParser.Public_declContext):
+        syms = []
+        if ctx.id_list():
+            for sym in ctx.id_list().ID():
+                syms.append(sym.getText())
+        return ast.Public(vars=syms, lineno=1, col_offset=1)
+
     # Visit a parse tree produced by fortranParser#subroutine.
     def visitSubroutine(self, ctx:fortranParser.SubroutineContext):
         name = ctx.ID(0).getText()
