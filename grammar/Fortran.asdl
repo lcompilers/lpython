@@ -17,7 +17,7 @@ stmt
     | Assignment(identifier target, expr value)
     | SubroutineCall(identifier name, expr* args)
     | If(expr test, stmt* body, stmt* orelse)
-    | Stop(int code)
+    | Stop(int? code)
     | ErrorStop()
     | DoLoop(do_loop_head? head, stmt* body)
     | Select(expr test, case_stmt* body, case_default? default)

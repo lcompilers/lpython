@@ -23,7 +23,7 @@ results = [
     ('Name', (1, 1), 'u'),
     ('Assignment', (1, 1), 'a', ('Num', (1, 1), '5')),
     ('Assignment', (1, 1), 'a', ('Num', (1, 1), '5')),
-    ('Stop', (1, 1), 0),
+    ('Stop', (1, 1), None),
     ('Print', (1, 1), None, [('Num', (1, 1), '45')]),
     ('Print', (1, 1), None, [('Num', (1, 1), '45'), ('Str', (1, 1), 'sss'), ('BinOp', (1, 1), ('Name', (1, 1), 'a'), ('Add',), ('Num', (1, 1), '1'))]),
     ('SubroutineCall', (1, 1), 'g', [('Array', (1, 1), 'a', [('ArrayIndex', None, None, None), ('ArrayIndex', None, None, None)]), ('Array', (1, 1), 'b', [('ArrayIndex', None, None, None)])]),
