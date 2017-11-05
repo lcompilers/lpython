@@ -10,6 +10,8 @@ results = [
     ('Assignment', (1, 1), 'c', ('BinOp', (1, 1), ('Num', (1, 1), '1'), ('Div',), ('FuncCallOrArray', (1, 1), 'sqrt', [('BinOp', (1, 1), ('Num', (1, 1), '9'), ('Mul',), ('Name', (1, 1), 'd'))], []))),
     ('Assignment', (1, 1), 'v', ('BinOp', (1, 1), ('BinOp', (1, 1), ('Num', (1, 1), '1'), ('Add',), ('BinOp', (1, 1), ('Name', (1, 1), 'c'), ('Mul',), ('Name', (1, 1), 'x'))), ('Pow',), ('Num', (1, 1), '3'))),
     ('Assignment', (1, 1), 'fn_val', ('BinOp', (1, 1), ('Name', (1, 1), 'd'), ('Mul',), ('Name', (1, 1), 'v'))),
+    ('Exit', (1, 1)),
+    ('Cycle', (1, 1)),
     ('SubroutineCall', (1, 1), 'randn', [('FuncCallOrArray', (1, 1), 'x', [('Name', (1, 1), 'i')], [])]),
     ('SubroutineCall', (1, 1), 'randn', [('Name', (1, 1), 'x')]),
     ('SubroutineCall', (1, 1), 'random_number', [('Name', (1, 1), 'U')]),
