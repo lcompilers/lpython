@@ -202,6 +202,13 @@ def test_expr1():
         """ '''zippo'''""",
         #""" "aaa" // str(x) // "bb" """,
         #""" "a" // "b" """,
+
+        "1 .and. 2",
+        "a .and. b",
+        "a == 1 .and. b == 2",
+        "a == 1 .or. b == 2",
+        "a .and. b .and. c",
+        "a .or. b .or. c",
         ]
     run_tests(tests, "expr_results.py")
 

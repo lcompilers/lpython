@@ -31,7 +31,8 @@ stmt
         attributes (int lineno, int col_offset)
 
 expr
-    = BinOp(expr left, operator op, expr right)
+    = BoolOp(expr left, boolop op, expr right)
+    | BinOp(expr left, operator op, expr right)
     | UnaryOp(unaryop op, expr operand)
     | Compare(expr left, cmpop op, expr right)
     | FuncCallOrArray(identifier func, expr* args, keyword* keywords)
@@ -41,6 +42,8 @@ expr
     | Name(identifier id)
     | Constant(constant value)
         attributes (int lineno, int col_offset)
+
+boolop = And | Or
 
 operator = Add | Sub | Mul | Div | Pow
 
