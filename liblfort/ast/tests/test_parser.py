@@ -528,5 +528,15 @@ contains
     end subroutine
 end module
 """,
+        """\
+module test
+implicit none
+integer :: x
+contains
+    subroutine a(b)
+    integer, intent(in) :: b
+    end subroutine
+end module
+""",
     ]
     run_tests(tests, "module_results.py")
