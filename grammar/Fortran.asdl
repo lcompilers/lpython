@@ -4,26 +4,32 @@
 module Fortran {
 
 mod
-    = Module(identifier name, program_unit* contains)
-    | Program(identifier name, stmt* body, program_unit* contains)
+    = Module(identifier name, unit_decl* decl, program_unit* contains)
+    | Program(identifier name,
+            unit_decl* decl, stmt* body, program_unit* contains)
 
 program_unit
-    = Subroutine(identifier name, arg* args, stmt* body,
-            program_unit* contains)
-    | Function(identifier name, arg* args, stmt* body, expr returns,
-            program_unit* contains)
+    = Subroutine(identifier name, arg* args,
+            unit_decl* decl, stmt* body, program_unit* contains)
+    | Function(identifier name, arg* args, expr? returns,
+            unit_decl* decl, stmt* body, program_unit* contains)
+        attributes (int lineno, int col_offset)
+
+unit_decl
+    = Use(use_symbol module, use_symbol* symbols)
+    | Declaration(decl* vars)
+    | Private(identifier* vars)
+    | Public(identifier* vars)
         attributes (int lineno, int col_offset)
 
 stmt
-    = Declaration(decl* vars)
-    | Assignment(identifier target, expr value)
+    = Assignment(identifier target, expr value)
     | SubroutineCall(identifier name, expr* args)
     | If(expr test, stmt* body, stmt* orelse)
     | Stop(int? code)
     | ErrorStop()
     | DoLoop(do_loop_head? head, stmt* body)
     | Select(expr test, case_stmt* body, case_default? default)
-    | Use(use_symbol module, use_symbol* symbols)
     | Cycle()
     | Exit()
     | WhileLoop(expr test, stmt* body)

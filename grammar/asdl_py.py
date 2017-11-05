@@ -125,7 +125,14 @@ class ASTNodeVisitor(ASDLVisitor):
         if field.seq:
             self.emit('assert isinstance(%s, list)' % field.name, 2)
             self.emit('for x in %s:' % field.name, 2)
-            self.emit('checkinstance(x, %s)' % field.type, 3)
+            type_ = field.type
+            if type_ == "string":
+                type_ = "str"
+            elif type_ == "identifier":
+                type_ = "str"
+            elif type_ == "constant":
+                type_ = "bool"
+            self.emit('checkinstance(x, %s, %r)' % (type_, field.opt), 3)
         else:
             type_ = field.type
             if type_ == "string":

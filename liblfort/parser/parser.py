@@ -74,24 +74,39 @@ class ASTBuilderVisitor(fortranVisitor):
     # Visit a parse tree produced by fortranParser#program.
     def visitProgram(self, ctx:fortranParser.ProgramContext):
         name = ctx.ID(0).getText()
-        body = self.visit(ctx.sub_block())
-        if not isinstance(body, list):
-            body = [body]
-        if ctx.sub_block().contains_block():
-            contains = self.contains_block2list(ctx.sub_block() \
-                    .contains_block())
+        decl, body, contains = self.process_sub_block(ctx.sub_block())
+        return ast.Program(name=name, decl=decl, body=body, contains=contains)
+
+    def process_sub_block(self, ctx:fortranParser.Sub_blockContext):
+        # Returns (decl=[], body=[], contains=[])
+        decl = []
+        for u in ctx.use_statement():
+            decl.append(self.visit(u))
+        for u in ctx.var_decl():
+            decl.append(self.visit(u))
+        if ctx.statements():
+            body = self.statements2list(ctx.statements())
+        else:
+            body = []
+        if ctx.contains_block():
+            contains = self.contains_block2list(ctx.contains_block())
         else:
             contains = []
-        return ast.Program(name, body, contains=contains)
+        return (decl, body, contains)
 
     # Visit a parse tree produced by fortranParser#module.
     def visitModule(self, ctx:fortranParser.ModuleContext):
         name = ctx.ID(0).getText()
+        decl = []
+        for u in ctx.use_statement():
+            decl.append(self.visit(u))
+        for u in ctx.module_decl():
+            decl.append(self.visit(u))
         if ctx.contains_block():
-            body = self.contains_block2list(ctx.contains_block())
+            contains = self.contains_block2list(ctx.contains_block())
         else:
-            body = []
-        return ast.Module(name=name, contains=body)
+            contains = []
+        return ast.Module(name=name, decl=decl, contains=contains)
 
     def contains_block2list(self, ctx:fortranParser.Contains_blockContext):
         # Returns a list
@@ -104,17 +119,45 @@ class ASTBuilderVisitor(fortranVisitor):
     def visitContains_block(self, ctx:fortranParser.Contains_blockContext):
         pass
 
+    # Visit a parse tree produced by fortranParser#private_decl.
+    def visitPrivate_decl(self, ctx:fortranParser.Private_declContext):
+        syms = []
+        if ctx.id_list():
+            for sym in ctx.id_list().ID():
+                syms.append(sym.getText())
+        return ast.Private(vars=syms, lineno=1, col_offset=1)
+
+    # Visit a parse tree produced by fortranParser#public_decl.
+    def visitPublic_decl(self, ctx:fortranParser.Public_declContext):
+        syms = []
+        if ctx.id_list():
+            for sym in ctx.id_list().ID():
+                syms.append(sym.getText())
+        return ast.Public(vars=syms, lineno=1, col_offset=1)
+
     # Visit a parse tree produced by fortranParser#subroutine.
     def visitSubroutine(self, ctx:fortranParser.SubroutineContext):
         name = ctx.ID(0).getText()
-        body = self.visit(ctx.sub_block())
         args = []
         if ctx.id_list():
             for arg in ctx.id_list().ID():
                 args.append(ast.arg(arg=arg.getText()))
-        if not isinstance(body, list):
-            body = [body]
-        return ast.Subroutine(name=name, args=args, body=body, contains=[],
+        decl, body, contains = self.process_sub_block(ctx.sub_block())
+        return ast.Subroutine(name=name, args=args,
+                decl=decl, body=body, contains=contains,
+                lineno=1, col_offset=1)
+
+    # Visit a parse tree produced by fortranParser#function.
+    def visitFunction(self, ctx:fortranParser.FunctionContext):
+        name = ctx.ID(0).getText()
+        args = []
+        if ctx.id_list():
+            for arg in ctx.id_list().ID():
+                args.append(ast.arg(arg=arg.getText()))
+        decl, body, contains = self.process_sub_block(ctx.sub_block())
+        returns = None
+        return ast.Function(name=name, args=args, returns=returns,
+                decl=decl, body=body, contains=contains,
                 lineno=1, col_offset=1)
 
     # Visit a parse tree produced by fortranParser#subroutine_call.

@@ -79,15 +79,6 @@ def all_fail(tests):
 # -------------------------------------------------------------------------
 # Tests:
 
-def test_dump_expr():
-    assert dump(parse("1+1")) == \
-            "BinOp(left=Num(n='1'), op=Add(), right=Num(n='1'))"
-    assert dump(parse("1+x")) == \
-            "BinOp(left=Num(n='1'), op=Add(), right=Name(id='x'))"
-    assert dump(parse("(x+y)**2")) == \
-            "BinOp(left=BinOp(left=Name(id='x'), op=Add(), " \
-            "right=Name(id='y')), op=Pow(), right=Num(n='2'))"
-
 def test_to_tuple():
     ast_tree = parse("2+3")
     t = to_tuple(ast_tree)
@@ -106,49 +97,6 @@ def test_to_tuple():
     t_ref = ('BinOp', (1, 1), ('BinOp', (1, 1), ('Name', (1, 1), 'x'),
         ('Add',), ('Name', (1, 1), 'y')), ('Pow',), ('Num', (1, 1), '2'))
     assert t == t_ref
-
-def test_dump_statements():
-    assert dump(parse("if (x == 1) stop\n")) == \
-            "If(test=Compare(left=Name(id='x'), op=Eq(), right=Num(n='1')), " \
-            "body=[Stop(code=None)], orelse=[])"
-    assert dump(parse("x == 1\n")) == \
-            "Compare(left=Name(id='x'), op=Eq(), right=Num(n='1'))"
-
-def test_dump_subroutines():
-    assert dump(parse("""\
-subroutine a
-integer :: a, b
-a = 1+2*3
-b = (1+2+a)*3
-end subroutine
-""")) == "Subroutine(name='a', args=[], " \
-    "body=[Declaration(vars=[decl(sym='a', " \
-    "sym_type='integer'), decl(sym='b', sym_type='integer')]), " \
-    "Assignment(target='a', value=BinOp(left=Num(n='1'), op=Add(), " \
-    "right=BinOp(left=Num(n='2'), op=Mul(), right=Num(n='3')))), " \
-    "Assignment(target='b', " \
-    "value=BinOp(left=BinOp(left=BinOp(left=Num(n='1'), " \
-    "op=Add(), right=Num(n='2')), op=Add(), right=Name(id='a')), op=Mul(), " \
-    "right=Num(n='3')))], contains=[])"
-    assert  dump(parse("""\
-subroutine f(x, y)
-integer, intent(out) :: x, y
-x = 1
-end subroutine
-""")) == "Subroutine(name='f', args=[arg(arg='x'), arg(arg='y')], " \
-    "body=[Declaration(vars=[decl(sym='x', sym_type='integer'), decl(sym='y', "\
-    "sym_type='integer')]), Assignment(target='x', value=Num(n='1'))], " \
-    "contains=[])"
-
-def test_dump_programs():
-    assert dump(parse("""\
-program a
-integer :: b
-b = 1
-end program
-""")) == "Program(name='a', body=[Declaration(vars=[decl(sym='b', " \
-    "sym_type='integer')]), Assignment(target='b', value=Num(n='1'))], " \
-    "contains=[])"
 
 
 def test_expr1():
@@ -479,6 +427,14 @@ implicit none
 integer :: x
 x = 1
 call a(x)
+end program
+""",
+        """\
+program test
+implicit none
+integer :: x
+x = 1
+call a(x)
 contains
     subroutine a(b)
     integer, intent(in) :: b
@@ -496,10 +452,120 @@ contains
     integer, intent(in) :: b
     end subroutine
 
-    subroutine a(b)
+    subroutine f(b)
     integer, intent(in) :: b
     end subroutine
 end program
 """,
     ]
     run_tests(tests, "program_results.py")
+
+def test_module():
+    tests = [
+        """\
+module test
+implicit none
+integer :: x
+end module
+""",
+        """\
+module test
+implicit none
+private
+integer :: x
+end module
+""",
+        """\
+module test
+implicit none
+private x, y
+integer :: x, y
+end module
+""",
+        """\
+module test
+implicit none
+private :: x, y
+integer :: x, y
+end module
+""",
+        """\
+module test
+implicit none
+public
+integer :: x
+end module
+""",
+        """\
+module test
+implicit none
+public x, y
+integer :: x, y
+end module
+""",
+        """\
+module test
+implicit none
+public :: x, y
+integer :: x, y
+end module
+""",
+        """\
+module test
+implicit none
+private
+public :: x, y
+integer :: x, y
+end module
+""",
+        """\
+module test
+implicit none
+private x
+public y
+integer :: x, y
+end module
+""",
+        """\
+module test
+implicit none
+contains
+    subroutine a(b)
+    integer, intent(in) :: b
+    end subroutine
+end module
+""",
+        """\
+module test
+implicit none
+contains
+    subroutine a(b)
+    integer, intent(in) :: b
+    end subroutine
+
+    subroutine f(b)
+    integer, intent(in) :: b
+    end subroutine
+end module
+""",
+        """\
+module test
+implicit none
+integer :: x
+contains
+    subroutine a(b)
+    integer, intent(in) :: b
+    end subroutine
+end module
+""",
+        """\
+module test
+implicit none
+contains
+    function f() result(y)
+    y = 0
+    end function
+end module
+""",
+    ]
+    run_tests(tests, "module_results.py")

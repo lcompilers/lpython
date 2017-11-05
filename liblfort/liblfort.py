@@ -61,6 +61,13 @@ def exit(module, builder, n=0):
     builder.call(fn_exit, [n_])
 
 class CodeGenVisitor2(ast.ASTVisitor):
+    """
+    Loop over AST.
+
+    Consult Fortran.asdl to see what the nodes are and their members. If a node
+    is encountered that is not implemented by the visit_* method, the
+    ASTVisitor base class raises an exception.
+    """
 
     def visit_Program(self, node):
         self.module  = ir.Module()
@@ -74,7 +81,9 @@ class CodeGenVisitor2(ast.ASTVisitor):
         self.func = ir.Function(self.module, fn, name="main")
         block = self.func.append_basic_block(name='.entry')
         self.builder = ir.IRBuilder(block)
+        self.visit_sequence(node.decl)
         self.visit_sequence(node.body)
+        self.visit_sequence(node.contains)
         self.builder.ret(ir.Constant(ir.IntType(64), 0))
 
     def visit_Declaration(self, node):
