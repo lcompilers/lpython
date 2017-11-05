@@ -14,4 +14,9 @@ results = [
     ('Select', (1, 1), ('Name', (1, 1), 'k'), [('case_stmt', ('Num', (1, 1), '1'), [('SubroutineCall', (1, 1), 'a', [])]), ('case_stmt', ('Name', (1, 1), 'i'), [('SubroutineCall', (1, 1), 'b', [])])], None),
     ('Select', (1, 1), ('Name', (1, 1), 'k'), [('case_stmt', ('Num', (1, 1), '1'), [('SubroutineCall', (1, 1), 'a', [])]), ('case_stmt', ('Name', (1, 1), 'i'), [('SubroutineCall', (1, 1), 'b', [])])], ('case_default', [('SubroutineCall', (1, 1), 'c', [])])),
     ('Where', (1, 1), ('Compare', (1, 1), ('Name', (1, 1), 'a'), ('Lt',), ('Num', (1, 1), '5')), [('Assignment', (1, 1), 'B', ('Num', (1, 1), '1'))], []),
+    ('Where', (1, 1), ('Compare', (1, 1), ('Name', (1, 1), 'a'), ('Lt',), ('Num', (1, 1), '5')), [('Assignment', (1, 1), 'B', ('Num', (1, 1), '1'))], []),
+    ('Where', (1, 1), ('Compare', (1, 1), ('Name', (1, 1), 'a'), ('Lt',), ('Num', (1, 1), '5')), [('Assignment', (1, 1), 'B', ('Num', (1, 1), '1'))], [('Assignment', (1, 1), 'B', ('Num', (1, 1), '0'))]),
+    ('Where', (1, 1), ('Compare', (1, 1), ('Name', (1, 1), 'a'), ('Lt',), ('Num', (1, 1), '5')), [('Assignment', (1, 1), 'B', ('Num', (1, 1), '1'))], [('Assignment', (1, 1), 'B', ('Num', (1, 1), '0'))]),
+    ('Where', (1, 1), ('Compare', (1, 1), ('Name', (1, 1), 'a'), ('Lt',), ('Num', (1, 1), '5')), [('Assignment', (1, 1), 'B', ('Num', (1, 1), '1'))], [('Where', (1, 1), ('Compare', (1, 1), ('Name', (1, 1), 'a'), ('Lt',), ('Num', (1, 1), '7')), [('Assignment', (1, 1), 'B', ('Num', (1, 1), '0'))], [('Assignment', (1, 1), 'B', ('Num', (1, 1), '3'))])]),
+    ('Where', (1, 1), ('Compare', (1, 1), ('Name', (1, 1), 'a'), ('Lt',), ('Num', (1, 1), '5')), [('Assignment', (1, 1), 'B', ('Num', (1, 1), '1'))], [('Where', (1, 1), ('Compare', (1, 1), ('Name', (1, 1), 'a'), ('Lt',), ('Num', (1, 1), '7')), [('Assignment', (1, 1), 'B', ('Num', (1, 1), '0'))], [])]),
 ]
