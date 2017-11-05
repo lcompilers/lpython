@@ -354,5 +354,5 @@ def antlr_parse(source, translation_unit=False):
         parse_tree = parser.unit()
     v = ASTBuilderVisitor()
     ast_tree = v.visit(parse_tree)
-    assert ast_tree is not None
+    assert isinstance(ast_tree, ast.AST)
     return ast_tree
