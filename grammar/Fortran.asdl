@@ -20,6 +20,7 @@ stmt
     | Stop(int code)
     | ErrorStop()
     | DoLoop(do_loop_head? head, stmt* body)
+    | Select(expr test, case_stmt* body, case_default? default)
     | Cycle()
     | Exit()
     | WhileLoop(expr test, stmt* body)
@@ -54,6 +55,12 @@ keyword = (identifier? arg, expr value)
 array_index = ArrayIndex(expr? left, expr? right, expr? step)
 
 do_loop_head = (identifier var, expr start, expr end, expr? increment)
+        attributes (int lineno, int col_offset)
+
+case_stmt = (expr test, stmt* body)
+        attributes (int lineno, int col_offset)
+
+case_default = (stmt* body)
         attributes (int lineno, int col_offset)
 
 }

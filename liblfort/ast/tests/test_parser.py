@@ -361,8 +361,6 @@ do i = 1, 5, -1
 end do
 end subroutine
 """,
-	]
-    tests_ = [
         """\
 select case(k)
     case(1)

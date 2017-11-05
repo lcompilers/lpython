@@ -344,6 +344,24 @@ class ASTBuilderVisitor(fortranVisitor):
     def visitExit_statement(self, ctx:fortranParser.Exit_statementContext):
         return ast.Exit(lineno=1, col_offset=1)
 
+    # Visit a parse tree produced by fortranParser#select_statement.
+    def visitSelect_statement(self, ctx:fortranParser.Select_statementContext):
+        expr = self.visit(ctx.expr())
+        body = []
+        for case in ctx.case_statement():
+            test = self.visit(case.expr())
+            case_body = self.statements2list(case.statements())
+            body.append(ast.case_stmt(test=test, body=case_body))
+        if ctx.select_default_statement():
+            default_body = self.statements2list( \
+                    ctx.select_default_statement().statements())
+            default = ast.case_default(body=default_body)
+        else:
+            default = None
+        return ast.Select(test=expr, body=body, default=default, lineno=1,
+                col_offset=1)
+
+
 def antlr_parse(source, translation_unit=False):
     """
     Parse the `source` string into an AST node.

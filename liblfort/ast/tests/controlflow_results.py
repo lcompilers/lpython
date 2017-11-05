@@ -11,4 +11,6 @@ results = [
     ('Subroutine', (1, 1), 'a', [], [('DoLoop', (1, 1), None, [('Assignment', (1, 1), 'x', ('Num', (1, 1), '1'))])]),
     ('Subroutine', (1, 1), 'a', [], [('DoLoop', (1, 1), ('do_loop_head', 'i', ('Num', (1, 1), '1'), ('Num', (1, 1), '5'), None), [('Assignment', (1, 1), 'x', ('BinOp', (1, 1), ('Name', (1, 1), 'x'), ('Add',), ('Name', (1, 1), 'i')))])]),
     ('Subroutine', (1, 1), 'a', [], [('DoLoop', (1, 1), ('do_loop_head', 'i', ('Num', (1, 1), '1'), ('Num', (1, 1), '5'), ('UnaryOp', (1, 1), ('USub',), ('Num', (1, 1), '1'))), [('Assignment', (1, 1), 'x', ('Name', (1, 1), 'i'))])]),
+    ('Select', (1, 1), ('Name', (1, 1), 'k'), [('case_stmt', ('Num', (1, 1), '1'), [('SubroutineCall', (1, 1), 'a', [])]), ('case_stmt', ('Name', (1, 1), 'i'), [('SubroutineCall', (1, 1), 'b', [])])], None),
+    ('Select', (1, 1), ('Name', (1, 1), 'k'), [('case_stmt', ('Num', (1, 1), '1'), [('SubroutineCall', (1, 1), 'a', [])]), ('case_stmt', ('Name', (1, 1), 'i'), [('SubroutineCall', (1, 1), 'b', [])])], ('case_default', [('SubroutineCall', (1, 1), 'c', [])])),
 ]
