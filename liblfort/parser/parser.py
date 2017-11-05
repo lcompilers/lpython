@@ -314,8 +314,10 @@ class ASTBuilderVisitor(fortranVisitor):
             end = self.visit(ctx.expr(1))
             if len(ctx.expr()) == 3:
                 increment = self.visit(ctx.expr(2))
+            else:
+                increment = None
             head = ast.do_loop_head(var=var, start=start, end=end,
-                    increment=increment, lineno=1, col_offset=1)
+                    increment=increment)
         else:
             head = None
         body = self.statements2list(ctx.statements())
