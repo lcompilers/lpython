@@ -1,5 +1,5 @@
 results = [
-    ('Use', (1, 1), ('use_symbol', 'b', ''), []),
-    ('Use', (1, 1), ('use_symbol', 'a', ''), [('use_symbol', 'b', ''), ('use_symbol', 'c', '')]),
-    ('Use', (1, 1), ('use_symbol', 'a', ''), [('use_symbol', 'x', 'b'), ('use_symbol', 'c', ''), ('use_symbol', 'd', 'a')]),
+    ('Use', (1, 1), ('use_symbol', 'b', None), []),
+    ('Use', (1, 1), ('use_symbol', 'a', None), [('use_symbol', 'b', None), ('use_symbol', 'c', None)]),
+    ('Use', (1, 1), ('use_symbol', 'a', None), [('use_symbol', 'x', 'b'), ('use_symbol', 'c', None), ('use_symbol', 'd', 'a')]),
 ]

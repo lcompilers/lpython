@@ -374,7 +374,7 @@ class ASTBuilderVisitor(fortranVisitor):
     # Visit a parse tree produced by fortranParser#use_symbol.
     def visitUse_symbol(self, ctx:fortranParser.Use_symbolContext):
         if len(ctx.ID()) == 1:
-            return ast.use_symbol(sym=ctx.ID(0).getText(), rename="")
+            return ast.use_symbol(sym=ctx.ID(0).getText(), rename=None)
         elif len(ctx.ID()) == 2:
             return ast.use_symbol(sym=ctx.ID(0).getText(),
                     rename=ctx.ID(1).getText())
