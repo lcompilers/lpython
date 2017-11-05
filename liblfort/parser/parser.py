@@ -254,14 +254,30 @@ class ASTBuilderVisitor(fortranVisitor):
             body = [body]
         return ast.If(test=cond, body=body, orelse=[], lineno=1, col_offset=1)
 
-    # Visit a parse tree produced by fortranParser#if_multi_line.
-    def visitIf_multi_line(self, ctx:fortranParser.If_multi_lineContext):
-        cond = self.visit(ctx.if_block().if_cond().expr())
+    # Visit a parse tree produced by fortranParser#if_block.
+    def visitIf_block(self, ctx:fortranParser.If_blockContext):
+        cond = self.visit(ctx.if_cond().expr())
         body = []
-        for statement in ctx.if_block().statements().statement():
+        for statement in ctx.statements().statement():
             body.append(self.visit(statement))
-        # TODO: handle the else part
-        return ast.If(test=cond, body=body, orelse=[], lineno=1, col_offset=1)
+        if ctx.if_else_block():
+            orelse = self.visit(ctx.if_else_block())
+        else:
+            orelse = []
+        return ast.If(test=cond, body=body, orelse=orelse,
+                lineno=1, col_offset=1)
+
+    # Visit a parse tree produced by fortranParser#if_else_block.
+    def visitIf_else_block(self, ctx:fortranParser.If_else_blockContext):
+        # This method returns a list [] of statements.
+        if ctx.statements():
+            orelse = []
+            for stat in ctx.statements().statement():
+                orelse.append(self.visit(stat))
+            return orelse
+        if ctx.if_block():
+            return [self.visit(ctx.if_block())]
+        raise Exception("The grammar should not allow this.")
 
     # Visit a parse tree produced by fortranParser#expr_array_call.
     def visitExpr_array_call(self, ctx:fortranParser.Expr_array_callContext):
