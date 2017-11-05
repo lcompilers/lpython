@@ -20,6 +20,8 @@ stmt
     | Stop(int code)
     | ErrorStop()
     | DoLoop(do_loop_head? head, stmt* body)
+    | Cycle()
+    | Exit()
     | WhileLoop(expr test, stmt* body)
     | Print(string fmt, expr* values)
         attributes (int lineno, int col_offset)

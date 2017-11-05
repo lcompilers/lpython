@@ -149,7 +149,9 @@ statements
 
 statement
     : assignment_statement
-    | 'exit' | 'cycle' | 'return'
+    | exit_statement
+    | cycle_statement
+    | return_statement
     | subroutine_call
     | builtin_statement
     | if_statement
@@ -166,6 +168,18 @@ statement
 
 assignment_statement
     : struct_member* ID ('(' array_index_list ')')? op=('='|'=>') expr
+    ;
+
+exit_statement
+    : 'exit'
+    ;
+
+cycle_statement
+    : 'cycle'
+    ;
+
+return_statement
+    : 'return'
     ;
 
 subroutine_call

@@ -336,6 +336,14 @@ class ASTBuilderVisitor(fortranVisitor):
         body = self.statements2list(ctx.statements())
         return ast.WhileLoop(test=test, body=body, lineno=1, col_offset=1)
 
+    # Visit a parse tree produced by fortranParser#cycle_statement.
+    def visitCycle_statement(self, ctx:fortranParser.Cycle_statementContext):
+        return ast.Cycle(lineno=1, col_offset=1)
+
+    # Visit a parse tree produced by fortranParser#exit_statement.
+    def visitExit_statement(self, ctx:fortranParser.Exit_statementContext):
+        return ast.Exit(lineno=1, col_offset=1)
+
 def antlr_parse(source, translation_unit=False):
     """
     Parse the `source` string into an AST node.

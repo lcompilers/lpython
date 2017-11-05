@@ -275,8 +275,8 @@ def test_control_flow1():
        """\
 do while(x == y)
     i = i +1
-!    cycle
-!    exit
+    cycle
+    exit
 end do
 """,
         """\
