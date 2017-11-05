@@ -257,9 +257,7 @@ class ASTBuilderVisitor(fortranVisitor):
     # Visit a parse tree produced by fortranParser#if_block.
     def visitIf_block(self, ctx:fortranParser.If_blockContext):
         cond = self.visit(ctx.if_cond().expr())
-        body = []
-        for statement in ctx.statements().statement():
-            body.append(self.visit(statement))
+        body = self.statements2list(ctx.statements())
         if ctx.if_else_block():
             orelse = self.visit(ctx.if_else_block())
         else:
@@ -271,10 +269,7 @@ class ASTBuilderVisitor(fortranVisitor):
     def visitIf_else_block(self, ctx:fortranParser.If_else_blockContext):
         # This method returns a list [] of statements.
         if ctx.statements():
-            orelse = []
-            for stat in ctx.statements().statement():
-                orelse.append(self.visit(stat))
-            return orelse
+            return self.statements2list(ctx.statements())
         if ctx.if_block():
             return [self.visit(ctx.if_block())]
         raise Exception("The grammar should not allow this.")
