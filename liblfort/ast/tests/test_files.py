@@ -8,7 +8,7 @@ def test_files():
     filenames = glob(os.path.join(here, "..", "..", "..", "examples", "*.f90"))
     assert len(filenames) == 9
     print("Testing filenames:")
-    skip = ["bsplines.f90", "random.f90"]
+    skip = ["random.f90"]
     for filename in filenames:
         if os.path.basename(filename) in skip: continue
         print(filename)
