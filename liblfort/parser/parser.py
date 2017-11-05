@@ -147,6 +147,19 @@ class ASTBuilderVisitor(fortranVisitor):
                 decl=decl, body=body, contains=contains,
                 lineno=1, col_offset=1)
 
+    # Visit a parse tree produced by fortranParser#function.
+    def visitFunction(self, ctx:fortranParser.FunctionContext):
+        name = ctx.ID(0).getText()
+        args = []
+        if ctx.id_list():
+            for arg in ctx.id_list().ID():
+                args.append(ast.arg(arg=arg.getText()))
+        decl, body, contains = self.process_sub_block(ctx.sub_block())
+        returns = None
+        return ast.Function(name=name, args=args, returns=returns,
+                decl=decl, body=body, contains=contains,
+                lineno=1, col_offset=1)
+
     # Visit a parse tree produced by fortranParser#subroutine_call.
     def visitSubroutine_call(self, ctx:fortranParser.Subroutine_callContext):
         name = ctx.ID().getText()
