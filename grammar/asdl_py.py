@@ -136,7 +136,8 @@ class ASTNodeVisitor(ASDLVisitor):
             elif field.type == "string":
                 self.emit('assert isinstance(%s, str)' % (field.name), 2)
             else:
-                self.emit('checkinstance(%s, %s)' % (field.name, field.type), 2)
+                self.emit('checkinstance(%s, %s, %r)' % \
+                        (field.name, field.type, field.opt), 2)
         self._fields.append("'" + field.name + "'")
 
 
@@ -282,7 +283,9 @@ class AST(object):
 class NodeVisitorNotImplemented(Exception):
     pass
 
-def checkinstance(a, b):
+def checkinstance(a, b, opt=False):
+    if opt and a is None:
+        return
     from .utils import dump
     if not isinstance(a, b):
         if isinstance(a, AST):

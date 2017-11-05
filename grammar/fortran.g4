@@ -300,8 +300,8 @@ array_index_list
     ;
 
 array_index
-    : expr
-    | expr? ':' expr?
+    : expr              # array_index_simple
+    | expr? ':' expr?   # array_index_slice
     ;
 
 struct_member: ID '%' ;

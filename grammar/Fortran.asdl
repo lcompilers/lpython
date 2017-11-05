@@ -27,6 +27,7 @@ expr
     | UnaryOp(unaryop op, expr operand)
     | Compare(expr left, cmpop op, expr right)
     | FuncCallOrArray(expr func, expr* args, keyword* keywords)
+    | Array(identifier name, array_index* args)
     | Num(object n)
     | Str(string s)
     | Name(identifier id)
@@ -45,6 +46,8 @@ arg = (identifier arg)
         attributes (int lineno, int col_offset)
 
 keyword = (identifier? arg, expr value)
+
+array_index = ArrayIndex(expr? left, expr? right, expr? step)
 
 
 }

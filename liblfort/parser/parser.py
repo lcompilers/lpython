@@ -254,6 +254,24 @@ class ASTBuilderVisitor(fortranVisitor):
             body = [body]
         return ast.If(test=cond, body=body, orelse=[], lineno=1, col_offset=1)
 
+    # Visit a parse tree produced by fortranParser#expr_array_call.
+    def visitExpr_array_call(self, ctx:fortranParser.Expr_array_callContext):
+        name = ctx.ID().getText()
+        args = []
+        for arg in ctx.array_index_list().array_index():
+            args.append(self.visit(arg))
+        return ast.Array(name, args, lineno=1, col_offset=1)
+
+    # Visit a parse tree produced by fortranParser#array_index_simple.
+    def visitArray_index_simple(self, ctx:fortranParser.Array_index_simpleContext):
+        return ast.ArrayIndex(left=self.visit(ctx.expr()), right=None,
+                step=None)
+
+    # Visit a parse tree produced by fortranParser#array_index_slice.
+    def visitArray_index_slice(self, ctx:fortranParser.Array_index_sliceContext):
+        # TODO: figure out how to access things like 3:4, or :4.
+        return ast.ArrayIndex(left=None, right=None,
+                step=None)
 
 def antlr_parse(source, translation_unit=False):
     """

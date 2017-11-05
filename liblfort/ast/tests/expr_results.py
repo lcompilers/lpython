@@ -25,6 +25,7 @@ results = [
     ('BinOp', (1, 1), ('Name', (1, 1), 'i'), ('Add',), ('Num', (1, 1), '1')),
     ('Str', (1, 1), 's'),
     ('Str', (1, 1), 'some text'),
+    ('Array', (1, 1), 'b', [('ArrayIndex', None, None, None)]),
     ('Str', (1, 1), "a'b'c"),
     ('Str', (1, 1), 'a"b"c'),
     ('Str', (1, 1), 'a""bc""x'),
