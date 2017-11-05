@@ -139,7 +139,7 @@ class ASTBuilderVisitor(fortranVisitor):
         for expr in ctx.expr_list().expr():
             v = self.visit(expr)
             values.append(v)
-        return ast.Print(fmt="", values=values, lineno=1, col_offset=1)
+        return ast.Print(fmt=None, values=values, lineno=1, col_offset=1)
 
     # Visit a parse tree produced by fortranParser#expr_string.
     def visitExpr_string(self, ctx:fortranParser.Expr_stringContext):

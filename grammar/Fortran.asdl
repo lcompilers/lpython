@@ -25,7 +25,7 @@ stmt
     | Cycle()
     | Exit()
     | WhileLoop(expr test, stmt* body)
-    | Print(string fmt, expr* values)
+    | Print(string? fmt, expr* values)
         attributes (int lineno, int col_offset)
 
 expr
