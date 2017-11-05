@@ -272,13 +272,13 @@ def test_statements1():
 
 def test_control_flow1():
     tests = [
-#       """\
-#do while(x == y)
-#    i = i +1
-#    cycle
-#    exit
-#end do
-#""",
+       """\
+do while(x == y)
+    i = i +1
+!    cycle
+!    exit
+end do
+""",
         """\
 subroutine a
 if (a) then

@@ -330,6 +330,12 @@ class ASTBuilderVisitor(fortranVisitor):
             statements.append(self.visit(stat))
         return statements
 
+    # Visit a parse tree produced by fortranParser#while_statement.
+    def visitWhile_statement(self, ctx:fortranParser.While_statementContext):
+        test = self.visit(ctx.expr())
+        body = self.statements2list(ctx.statements())
+        return ast.WhileLoop(test=test, body=body, lineno=1, col_offset=1)
+
 def antlr_parse(source, translation_unit=False):
     """
     Parse the `source` string into an AST node.
