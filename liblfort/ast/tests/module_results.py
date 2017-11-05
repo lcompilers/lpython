@@ -12,4 +12,5 @@ results = [
     ('Module', 'test', [], [('Subroutine', (1, 1), 'a', [('arg', 'b')], [('Declaration', (1, 1), [('decl', 'b', 'integer')])], [], []), ('Subroutine', (1, 1), 'f', [('arg', 'b')], [('Declaration', (1, 1), [('decl', 'b', 'integer')])], [], [])]),
     ('Module', 'test', [('Declaration', (1, 1), [('decl', 'x', 'integer')])], [('Subroutine', (1, 1), 'a', [('arg', 'b')], [('Declaration', (1, 1), [('decl', 'b', 'integer')])], [], [])]),
     ('Module', 'test', [], [('Function', (1, 1), 'f', [], None, [], [('Assignment', (1, 1), 'y', ('Num', (1, 1), '0'))], [])]),
+    ('Module', 'test', [('Interface', (1, 1), 'name', ['a', 'b', 'c'])], []),
 ]

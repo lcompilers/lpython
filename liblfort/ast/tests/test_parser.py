@@ -605,5 +605,17 @@ contains
     end function
 end module
 """,
+
+    # interface
+        """\
+module test
+implicit none
+interface name
+    module procedure a
+    module procedure b
+    module procedure c
+end interface
+end module
+""",
     ]
     run_tests(tests, "module_results.py")
