@@ -89,7 +89,11 @@ sub_block
     ;
 
 contains_block
-    : 'contains' NEWLINE+ (subroutine|function)+
+    : 'contains' NEWLINE+ sub_or_func+
+    ;
+
+sub_or_func
+    : subroutine | function
     ;
 
 implicit_statement

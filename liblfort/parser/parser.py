@@ -83,12 +83,17 @@ class ASTBuilderVisitor(fortranVisitor):
     def visitModule(self, ctx:fortranParser.ModuleContext):
         name = ctx.ID(0).getText()
         if ctx.contains_block():
-            body = self.visit(ctx.contains_block())
-            if not isinstance(body, list):
-                body = [body]
+            body = self.contains_block2list(ctx.contains_block())
         else:
             body = []
         return ast.Module(name=name, contains=body)
+
+    def contains_block2list(self, ctx:fortranParser.Contains_blockContext):
+        # Returns a list
+        units = []
+        for unit in ctx.sub_or_func():
+            units.append(self.visit(unit))
+        return units
 
     # Visit a parse tree produced by fortranParser#subroutine.
     def visitSubroutine(self, ctx:fortranParser.SubroutineContext):
