@@ -343,6 +343,35 @@ class ASTBuilderVisitor(fortranVisitor):
             return [self.visit(ctx.if_block())]
         raise Exception("The grammar should not allow this.")
 
+    # Visit a parse tree produced by fortranParser#where_single_line.
+    def visitWhere_single_line(self, ctx:fortranParser.Where_single_lineContext):
+        cond = self.visit(ctx.where_cond().expr())
+        body = self.visit(ctx.statement())
+        if not isinstance(body, list):
+            body = [body]
+        return ast.Where(test=cond, body=body, orelse=[],
+                lineno=1, col_offset=1)
+
+    # Visit a parse tree produced by fortranParser#where_block.
+    def visitWhere_block(self, ctx:fortranParser.Where_blockContext):
+        cond = self.visit(ctx.where_cond().expr())
+        body = self.statements2list(ctx.statements())
+        if ctx.where_else_block():
+            orelse = self.visit(ctx.where_else_block())
+        else:
+            orelse = []
+        return ast.Where(test=cond, body=body, orelse=orelse,
+                lineno=1, col_offset=1)
+
+    # Visit a parse tree produced by fortranParser#where_else_block.
+    def visitWhere_else_block(self, ctx:fortranParser.Where_else_blockContext):
+        # This method returns a list [] of statements.
+        if ctx.statements():
+            return self.statements2list(ctx.statements())
+        if ctx.where_block():
+            return [self.visit(ctx.where_block())]
+        raise Exception("The grammar should not allow this.")
+
     # Visit a parse tree produced by fortranParser#expr_array_call.
     def visitExpr_array_call(self, ctx:fortranParser.Expr_array_callContext):
         name = ctx.ID().getText()
