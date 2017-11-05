@@ -354,6 +354,13 @@ do i = 1, 5
 end do
 end subroutine
 """,
+        """\
+subroutine a
+do i = 1, 5, -1
+    x = i
+end do
+end subroutine
+""",
 	]
     tests_ = [
         """\
