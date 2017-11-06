@@ -114,3 +114,10 @@ class ExprVisitor(ast.GenericASTVisitor):
         self.visit(node.value)
         if node.value._type != node._type:
             raise TypeMismatch("Type mismatch")
+
+def annotate_tree(tree, symbol_table):
+    """
+    Annotates the `tree` with types.
+    """
+    v = ExprVisitor(symbol_table)
+    v.visit(tree)

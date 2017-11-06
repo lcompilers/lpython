@@ -1,7 +1,7 @@
 import pytest
 
 from liblfort.semantic.analyze import (create_symbol_table, Integer, Real,
-        UndeclaredVariableError, ExprVisitor, TypeMismatch)
+        UndeclaredVariableError, annotate_tree, TypeMismatch)
 from liblfort.ast import parse, dump
 
 def test_types():
@@ -64,9 +64,8 @@ end module
 """
     tree = parse(source)
     symbol_table = create_symbol_table(tree)
-    v = ExprVisitor(symbol_table)
     with pytest.raises(UndeclaredVariableError):
-        v.visit(tree)
+        annotate_tree(tree, symbol_table)
 
 def test_unknown_type2():
     source = """\
@@ -83,9 +82,8 @@ end module
 """
     tree = parse(source)
     symbol_table = create_symbol_table(tree)
-    v = ExprVisitor(symbol_table)
     with pytest.raises(UndeclaredVariableError):
-        v.visit(tree)
+        annotate_tree(tree, symbol_table)
 
 def test_unknown_type3():
     source = """\
@@ -102,8 +100,7 @@ end module
 """
     tree = parse(source)
     symbol_table = create_symbol_table(tree)
-    v = ExprVisitor(symbol_table)
-    v.visit(tree)
+    annotate_tree(tree, symbol_table)
 
 def test_type1():
     source = """\
@@ -120,8 +117,7 @@ end module
 """
     tree = parse(source)
     symbol_table = create_symbol_table(tree)
-    v = ExprVisitor(symbol_table)
-    v.visit(tree)
+    annotate_tree(tree, symbol_table)
     assert tree.contains[0].body[0]._type == Integer()
 
 def test_type2():
@@ -140,9 +136,8 @@ end module
 """
     tree = parse(source)
     symbol_table = create_symbol_table(tree)
-    v = ExprVisitor(symbol_table)
     with pytest.raises(TypeMismatch):
-        v.visit(tree)
+        annotate_tree(tree, symbol_table)
 
 def test_type3():
     source = """\
@@ -160,8 +155,7 @@ end module
 """
     tree = parse(source)
     symbol_table = create_symbol_table(tree)
-    v = ExprVisitor(symbol_table)
-    v.visit(tree)
+    annotate_tree(tree, symbol_table)
     assert tree.contains[0].body[0]._type == Integer()
 
 def test_type4():
@@ -180,9 +174,8 @@ end module
 """
     tree = parse(source)
     symbol_table = create_symbol_table(tree)
-    v = ExprVisitor(symbol_table)
     with pytest.raises(TypeMismatch):
-        v.visit(tree)
+        annotate_tree(tree, symbol_table)
 
 def test_type5():
     source = """\
@@ -200,8 +193,7 @@ end module
 """
     tree = parse(source)
     symbol_table = create_symbol_table(tree)
-    v = ExprVisitor(symbol_table)
-    v.visit(tree)
+    annotate_tree(tree, symbol_table)
     assert tree.contains[0].body[0]._type == Integer()
 
 def test_type6():
@@ -220,9 +212,8 @@ end module
 """
     tree = parse(source)
     symbol_table = create_symbol_table(tree)
-    v = ExprVisitor(symbol_table)
     with pytest.raises(TypeMismatch):
-        v.visit(tree)
+        annotate_tree(tree, symbol_table)
 
 def test_type7():
     source = """\
@@ -234,8 +225,7 @@ end subroutine
 """
     tree = parse(source, False)
     symbol_table = create_symbol_table(tree)
-    v = ExprVisitor(symbol_table)
-    v.visit(tree)
+    annotate_tree(tree, symbol_table)
     assert tree.body[0]._type == Real()
 
 def test_dump():
@@ -248,6 +238,5 @@ end subroutine
 """
     tree = parse(source, False)
     symbol_table = create_symbol_table(tree)
-    v = ExprVisitor(symbol_table)
-    v.visit(tree)
+    annotate_tree(tree, symbol_table)
     assert dump(tree, include_type=True) == "Subroutine(name='sub1', args=[arg(arg='a'), arg(arg='b')], decl=[Declaration(vars=[decl(sym='a', sym_type='integer')]), Declaration(vars=[decl(sym='b', sym_type='integer')])], body=[Assignment(target='a', value=BinOp(left=BinOp(left=BinOp(left=Name(id='b', type=Integer()), op=Add(), right=Num(n='1', type=Integer()), type=Integer()), op=Mul(), right=Name(id='a', type=Integer()), type=Integer()), op=Mul(), right=Num(n='5', type=Integer()), type=Integer()), type=Integer())], contains=[])"
