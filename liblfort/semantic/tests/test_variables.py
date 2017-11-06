@@ -1,4 +1,7 @@
-from liblfort.semantic.analyze import SymbolTableVisitor, Integer, Real
+import pytest
+
+from liblfort.semantic.analyze import (SymbolTableVisitor, Integer, Real,
+        UndeclaredVariableError)
 from liblfort.ast import parse
 
 def test_variables():

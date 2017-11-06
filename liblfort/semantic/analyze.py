@@ -4,6 +4,12 @@ Semantic analysis module
 
 from ..ast import ast
 
+class SemanticError(Exception):
+    pass
+
+class UndeclaredVariableError(Exception):
+    pass
+
 class Type(object):
     def __init__(self, varname):
         self.varname = varname
@@ -47,6 +53,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
             sym = v.sym
             type_f = v.sym_type
             if type_f not in self.types:
-                raise Exception("Type not implemented.")
+                # This shouldn't happen, as the parser checks types
+                raise SemanticError("Type not implemented.")
             type_ = self.types[type_f](sym)
             self.symbol_table[sym] = type_
