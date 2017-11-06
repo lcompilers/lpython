@@ -1,4 +1,4 @@
-from liblfort.semantic.analyze import SymbolTableVisitor
+from liblfort.semantic.analyze import SymbolTableVisitor, Integer, Real
 from liblfort.ast import parse
 
 def test_variables():
@@ -19,7 +19,9 @@ end module
     v = SymbolTableVisitor()
     v.visit(tree)
     assert "a" in v.symbol_table
-    assert v.symbol_table["a"]["type"] == "integer"
+    assert isinstance(v.symbol_table["a"], Integer)
+    assert v.symbol_table["a"].varname == "a"
     assert "b" in v.symbol_table
-    assert v.symbol_table["b"]["type"] == "real"
+    assert isinstance(v.symbol_table["b"], Real)
+    assert v.symbol_table["b"].varname == "b"
     assert not "c" in v.symbol_table
