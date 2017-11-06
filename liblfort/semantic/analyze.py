@@ -13,16 +13,25 @@ class UndeclaredVariableError(Exception):
 class TypeMismatch(Exception):
     pass
 
+
+# ----------------------------
+
+# Types are immutable. Once instantiated, they never change.
+
 class Type(object):
-    pass
+
+    def __neq__(self, other):
+        return not self.__eq__(other)
 
 class Intrinsic(Type):
     def __init__(self, kind=None):
         #super(Intrinsic, self).__init__()
         self.kind = kind
 
-    def equal(self, other):
-        return type(self) == type(other) and self.kind == other.kind
+    def __eq__(self, other):
+        if type(self) != type(other):
+            return False
+        return self.kind == other.kind
 
 class Integer(Intrinsic): pass
 class Real(Intrinsic): pass
@@ -38,6 +47,9 @@ class Array(Type):
         self.type_ = type_
         self.rank = rank
         self.shape = shape
+
+
+# --------------------------------
 
 
 class SymbolTableVisitor(ast.GenericASTVisitor):
@@ -96,7 +108,7 @@ class ExprVisitor(ast.GenericASTVisitor):
     def visit_BinOp(self, node):
         left_type = self.visit(node.left)
         right_type = self.visit(node.right)
-        if not left_type.equal(right_type):
+        if left_type != right_type:
             raise TypeMismatch("Type mismatch")
         return left_type
 
@@ -106,5 +118,5 @@ class ExprVisitor(ast.GenericASTVisitor):
                     % node.id)
         target_type = self.symbol_table[node.target]["type"]
         value_type = self.visit(node.value)
-        if not target_type.equal(value_type):
+        if target_type != value_type:
             raise TypeMismatch("Type mismatch")
