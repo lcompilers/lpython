@@ -85,16 +85,6 @@ def create_symbol_table(tree):
 
 
 
-class VariableVisitor(ast.GenericASTVisitor):
-
-    def __init__(self, symbol_table):
-        self.symbol_table = symbol_table
-
-    def visit_Name(self, node):
-        if not node.id in self.symbol_table:
-            raise UndeclaredVariableError("Variable '%s' not declared." \
-                    % node.id)
-
 class ExprVisitor(ast.GenericASTVisitor):
 
     def __init__(self, symbol_table):
