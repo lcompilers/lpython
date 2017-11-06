@@ -4,6 +4,27 @@ from liblfort.semantic.analyze import (create_symbol_table, Integer, Real,
         UndeclaredVariableError, VariableVisitor, ExprVisitor, TypeMismatch)
 from liblfort.ast import parse, dump
 
+def test_types():
+    r = Real()
+    i = Integer()
+    assert r == r
+    assert not (r != r)
+    assert r == Real()
+
+    assert i == i
+    assert not (i != i)
+    assert i == Integer()
+
+    assert i != r
+    assert not (i == r)
+    assert not (i == Real())
+    assert i != Real()
+
+    assert r != i
+    assert not (r == i)
+    assert not (r == Integer())
+    assert r != Integer()
+
 def test_variables():
     source = """\
 module test
