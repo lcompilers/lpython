@@ -35,6 +35,7 @@ class Array(Type):
         self.rank = rank
         self.shape = shape
 
+
 class SymbolTableVisitor(ast.GenericASTVisitor):
 
     def __init__(self):
@@ -47,7 +48,6 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
             }
         self.symbol_table = {}
 
-
     def visit_Declaration(self, node):
         for v in node.vars:
             sym = v.sym
@@ -57,3 +57,20 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 raise SemanticError("Type not implemented.")
             type_ = self.types[type_f](sym)
             self.symbol_table[sym] = type_
+
+def create_symbol_table(tree):
+    v = SymbolTableVisitor()
+    v.visit(tree)
+    return v.symbol_table
+
+
+
+class VariableVisitor(ast.GenericASTVisitor):
+
+    def __init__(self, symbol_table):
+        self.symbol_table = symbol_table
+
+    def visit_Name(self, node):
+        if not node.id in self.symbol_table:
+            raise UndeclaredVariableError("Variable '%s' not declared." \
+                    % node.id)

@@ -1,7 +1,7 @@
 import pytest
 
-from liblfort.semantic.analyze import (SymbolTableVisitor, Integer, Real,
-        UndeclaredVariableError)
+from liblfort.semantic.analyze import (create_symbol_table, Integer, Real,
+        UndeclaredVariableError, VariableVisitor)
 from liblfort.ast import parse
 
 def test_variables():
@@ -19,12 +19,30 @@ contains
 end module
 """
     tree = parse(source)
-    v = SymbolTableVisitor()
-    v.visit(tree)
-    assert "a" in v.symbol_table
-    assert isinstance(v.symbol_table["a"], Integer)
-    assert v.symbol_table["a"].varname == "a"
-    assert "b" in v.symbol_table
-    assert isinstance(v.symbol_table["b"], Real)
-    assert v.symbol_table["b"].varname == "b"
-    assert not "c" in v.symbol_table
+    symbol_table = create_symbol_table(tree)
+    assert "a" in symbol_table
+    assert isinstance(symbol_table["a"], Integer)
+    assert symbol_table["a"].varname == "a"
+    assert "b" in symbol_table
+    assert isinstance(symbol_table["b"], Real)
+    assert symbol_table["b"].varname == "b"
+    assert not "c" in symbol_table
+
+def test_unknown_type():
+    source = """\
+module test
+implicit none
+contains
+
+    subroutine sub1(a)
+    integer, intent(in) :: a
+    a = b
+    end subroutine
+
+end module
+"""
+    tree = parse(source)
+    symbol_table = create_symbol_table(tree)
+    v = VariableVisitor(symbol_table)
+    with pytest.raises(UndeclaredVariableError):
+        v.visit(tree)
