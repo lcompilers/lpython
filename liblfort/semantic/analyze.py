@@ -84,11 +84,21 @@ class ExprVisitor(ast.GenericASTVisitor):
     def __init__(self, symbol_table):
         self.symbol_table = symbol_table
 
+    def visit_Num(self, node):
+        return Integer()
+
     def visit_Name(self, node):
         if not node.id in self.symbol_table:
             raise UndeclaredVariableError("Variable '%s' not declared." \
                     % node.id)
         return self.symbol_table[node.id]["type"]
+
+    def visit_BinOp(self, node):
+        left_type = self.visit(node.left)
+        right_type = self.visit(node.right)
+        if not left_type.equal(right_type):
+            raise TypeMismatch("Type mismatch")
+        return left_type
 
     def visit_Assignment(self, node):
         if not node.target in self.symbol_table:

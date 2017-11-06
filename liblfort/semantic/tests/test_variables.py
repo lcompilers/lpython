@@ -121,3 +121,42 @@ end module
     v = ExprVisitor(symbol_table)
     with pytest.raises(TypeMismatch):
         v.visit(tree)
+
+def test_type3():
+    source = """\
+module test
+implicit none
+contains
+
+    subroutine sub1(a, b)
+    integer, intent(in) :: a
+    integer, intent(in) :: b
+    a = b + 1
+    end subroutine
+
+end module
+"""
+    tree = parse(source)
+    symbol_table = create_symbol_table(tree)
+    v = ExprVisitor(symbol_table)
+    v.visit(tree)
+
+def test_type4():
+    source = """\
+module test
+implicit none
+contains
+
+    subroutine sub1(a, b)
+    integer, intent(in) :: a
+    real, intent(in) :: b
+    a = b + 1
+    end subroutine
+
+end module
+"""
+    tree = parse(source)
+    symbol_table = create_symbol_table(tree)
+    v = ExprVisitor(symbol_table)
+    with pytest.raises(TypeMismatch):
+        v.visit(tree)
