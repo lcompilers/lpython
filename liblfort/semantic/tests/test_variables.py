@@ -1,7 +1,7 @@
 import pytest
 
 from liblfort.semantic.analyze import (create_symbol_table, Integer, Real,
-        UndeclaredVariableError, VariableVisitor)
+        UndeclaredVariableError, VariableVisitor, ExprVisitor, TypeMismatch)
 from liblfort.ast import parse
 
 def test_variables():
@@ -83,3 +83,41 @@ end module
     symbol_table = create_symbol_table(tree)
     v = VariableVisitor(symbol_table)
     v.visit(tree)
+
+def test_type1():
+    source = """\
+module test
+implicit none
+contains
+
+    subroutine sub1(a, b)
+    integer, intent(in) :: a, b
+    a = b
+    end subroutine
+
+end module
+"""
+    tree = parse(source)
+    symbol_table = create_symbol_table(tree)
+    v = ExprVisitor(symbol_table)
+    v.visit(tree)
+
+def test_type2():
+    source = """\
+module test
+implicit none
+contains
+
+    subroutine sub1(a, b)
+    integer, intent(in) :: a
+    real, intent(in) :: b
+    a = b
+    end subroutine
+
+end module
+"""
+    tree = parse(source)
+    symbol_table = create_symbol_table(tree)
+    v = ExprVisitor(symbol_table)
+    with pytest.raises(TypeMismatch):
+        v.visit(tree)

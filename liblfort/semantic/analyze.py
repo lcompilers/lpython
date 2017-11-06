@@ -10,6 +10,9 @@ class SemanticError(Exception):
 class UndeclaredVariableError(Exception):
     pass
 
+class TypeMismatch(Exception):
+    pass
+
 class Type(object):
     pass
 
@@ -17,6 +20,9 @@ class Intrinsic(Type):
     def __init__(self, kind=None):
         #super(Intrinsic, self).__init__()
         self.kind = kind
+
+    def equal(self, other):
+        return type(self) == type(other) and self.kind == other.kind
 
 class Integer(Intrinsic): pass
 class Real(Intrinsic): pass
@@ -82,4 +88,13 @@ class ExprVisitor(ast.GenericASTVisitor):
         if not node.id in self.symbol_table:
             raise UndeclaredVariableError("Variable '%s' not declared." \
                     % node.id)
-        return self.symbol_table[node.id]
+        return self.symbol_table[node.id]["type"]
+
+    def visit_Assignment(self, node):
+        if not node.target in self.symbol_table:
+            raise UndeclaredVariableError("Variable '%s' not declared." \
+                    % node.id)
+        target_type = self.symbol_table[node.target]["type"]
+        value_type = self.visit(node.value)
+        if not target_type.equal(value_type):
+            raise TypeMismatch("Type mismatch")
