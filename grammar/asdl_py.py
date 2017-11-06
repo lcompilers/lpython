@@ -277,6 +277,7 @@ class AST(object):
 
     def __init__(self):
         self._fields = ()
+        self._type = None # Type of the expression
 
     def walkabout(self, visitor):
         raise AssertionError("walkabout() implementation not provided")
