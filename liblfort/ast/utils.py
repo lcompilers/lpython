@@ -5,11 +5,11 @@ from ..parser.parser import antlr_parse
 class SyntaxErrorException(Exception):
     pass
 
-def parse(source):
+def parse(source, translation_unit=False):
     """
     Parse the `source` string into an AST node.
     """
-    return antlr_parse(source)
+    return antlr_parse(source, translation_unit)
 
 def parse_file(filename):
     source = open(filename).read()
