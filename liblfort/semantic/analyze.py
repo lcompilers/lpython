@@ -33,8 +33,12 @@ class Intrinsic(Type):
             return False
         return self.kind == other.kind
 
-class Integer(Intrinsic): pass
-class Real(Intrinsic): pass
+class Integer(Intrinsic):
+    def __repr__(self):
+        return "Integer()"
+class Real(Intrinsic):
+    def __repr__(self):
+        return "Real()"
 class Complex(Intrinsic): pass
 class Character(Intrinsic): pass
 class Logical(Intrinsic): pass

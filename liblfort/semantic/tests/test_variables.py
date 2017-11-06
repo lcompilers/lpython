@@ -2,7 +2,7 @@ import pytest
 
 from liblfort.semantic.analyze import (create_symbol_table, Integer, Real,
         UndeclaredVariableError, VariableVisitor, ExprVisitor, TypeMismatch)
-from liblfort.ast import parse
+from liblfort.ast import parse, dump
 
 def test_variables():
     source = """\
@@ -199,3 +199,17 @@ end module
     v = ExprVisitor(symbol_table)
     with pytest.raises(TypeMismatch):
         v.visit(tree)
+
+def test_dump():
+    source = """\
+subroutine sub1(a, b)
+integer, intent(in) :: a
+integer, intent(in) :: b
+a = (b + 1)*a*5
+end subroutine
+"""
+    tree = parse(source, False)
+    symbol_table = create_symbol_table(tree)
+    v = ExprVisitor(symbol_table)
+    v.visit(tree)
+    assert dump(tree, include_type=True) == "Subroutine(name='sub1', args=[arg(arg='a'), arg(arg='b')], decl=[Declaration(vars=[decl(sym='a', sym_type='integer')]), Declaration(vars=[decl(sym='b', sym_type='integer')])], body=[Assignment(target='a', value=BinOp(left=BinOp(left=BinOp(left=Name(id='b', type=Integer()), op=Add(), right=Num(n='1', type=Integer()), type=Integer()), op=Mul(), right=Name(id='a', type=Integer()), type=Integer()), op=Mul(), right=Num(n='5', type=Integer()), type=Integer()), type=Integer())], contains=[])"
