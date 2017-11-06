@@ -5,7 +5,7 @@ from ..parser.parser import antlr_parse
 class SyntaxErrorException(Exception):
     pass
 
-def parse(source, translation_unit=False):
+def parse(source, translation_unit=True):
     """
     Parse the `source` string into an AST node.
     """
