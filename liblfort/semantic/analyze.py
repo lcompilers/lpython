@@ -2,9 +2,9 @@
 Semantic analysis module
 """
 
-from .. import ast
+from ..ast import ast
 
-class SymbolTableVisitor(ast.ast.GenericASTVisitor):
+class SymbolTableVisitor(ast.GenericASTVisitor):
 
     def __init__(self):
         self.types = ["integer", "real", "complex", "character", "logical"]
