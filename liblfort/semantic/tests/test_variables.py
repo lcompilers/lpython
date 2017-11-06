@@ -122,6 +122,7 @@ end module
     symbol_table = create_symbol_table(tree)
     v = ExprVisitor(symbol_table)
     v.visit(tree)
+    assert tree.contains[0].body[0]._type == Integer()
 
 def test_type2():
     source = """\
@@ -161,6 +162,7 @@ end module
     symbol_table = create_symbol_table(tree)
     v = ExprVisitor(symbol_table)
     v.visit(tree)
+    assert tree.contains[0].body[0]._type == Integer()
 
 def test_type4():
     source = """\
@@ -200,6 +202,7 @@ end module
     symbol_table = create_symbol_table(tree)
     v = ExprVisitor(symbol_table)
     v.visit(tree)
+    assert tree.contains[0].body[0]._type == Integer()
 
 def test_type6():
     source = """\
@@ -220,6 +223,20 @@ end module
     v = ExprVisitor(symbol_table)
     with pytest.raises(TypeMismatch):
         v.visit(tree)
+
+def test_type7():
+    source = """\
+subroutine sub1(a, b)
+real, intent(in) :: a
+real, intent(in) :: b
+a = (b + a)*a
+end subroutine
+"""
+    tree = parse(source, False)
+    symbol_table = create_symbol_table(tree)
+    v = ExprVisitor(symbol_table)
+    v.visit(tree)
+    assert tree.body[0]._type == Real()
 
 def test_dump():
     source = """\
