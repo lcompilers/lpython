@@ -42,10 +42,10 @@ end module
     tree = parse(source)
     symbol_table = create_symbol_table(tree)
     assert "a" in symbol_table
-    assert isinstance(symbol_table["a"]["type"], Integer)
+    assert symbol_table["a"]["type"] == Integer()
     assert symbol_table["a"]["name"] == "a"
     assert "b" in symbol_table
-    assert isinstance(symbol_table["b"]["type"], Real)
+    assert symbol_table["b"]["type"] == Real()
     assert symbol_table["b"]["name"] == "b"
     assert not "c" in symbol_table
 
