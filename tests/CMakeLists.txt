@@ -29,3 +29,5 @@ RUN(print_01)
 
 RUN(variables_01)
 RUN(variables_02)
+
+RUN(while_01)
