@@ -33,6 +33,9 @@ class Intrinsic(Type):
             return False
         return self.kind == other.kind
 
+    def __hash__(self):
+        return 1
+
 class Integer(Intrinsic):
     def __repr__(self):
         return "Integer()"

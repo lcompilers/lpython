@@ -2,8 +2,7 @@ from llvmlite import ir
 from llvmlite.binding import get_default_triple
 
 from ..ast import ast
-
-symbol_table = {}
+from ..semantic.analyze import Integer
 
 def get_global(module, name):
     try:
@@ -71,7 +70,7 @@ class CodeGenVisitor(ast.ASTVisitor):
         self.module  = ir.Module()
         self.module.triple = get_default_triple()
         self.types = {
-                    "integer": ir.IntType(64)
+                    Integer(): ir.IntType(64)
                 }
 
         int_type = ir.IntType(64);
@@ -86,18 +85,18 @@ class CodeGenVisitor(ast.ASTVisitor):
 
     def visit_Declaration(self, node):
         for v in node.vars:
-            sym = v.sym
-            type_f = v.sym_type
+            sym = self.symbol_table[v.sym]
+            type_f = sym["type"]
             if type_f not in self.types:
                 raise Exception("Type not implemented.")
-            ptr = self.builder.alloca(self.types[type_f], name=sym)
-            symbol_table[sym] = {"name": sym, "type": type_f, "ptr": ptr}
+            ptr = self.builder.alloca(self.types[type_f], name=sym["name"])
+            sym["ptr"] = ptr
 
     def visit_Assignment(self, node):
         lhs = node.target
-        if lhs not in symbol_table:
+        if lhs not in self.symbol_table:
             raise Exception("Undefined variable.")
-        sym = symbol_table[lhs]
+        sym = self.symbol_table[lhs]
         ptr = sym["ptr"]
         value = self.visit(node.value)
         if value.type != ptr.type.pointee:
@@ -155,9 +154,9 @@ class CodeGenVisitor(ast.ASTVisitor):
 
     def visit_Name(self, node):
         v = node.id
-        if v not in symbol_table:
+        if v not in self.symbol_table:
             raise Exception("Undefined variable.")
-        sym = symbol_table[v]
+        sym = self.symbol_table[v]
         return self.builder.load(sym["ptr"])
 
     def visit_If(self, node):
