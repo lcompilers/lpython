@@ -64,6 +64,9 @@ class CodeGenVisitor(ast.ASTVisitor):
     ASTVisitor base class raises an exception.
     """
 
+    def __init__(self, symbol_table):
+        self.symbol_table = symbol_table
+
     def visit_Program(self, node):
         self.module  = ir.Module()
         self.module.triple = get_default_triple()
@@ -183,7 +186,7 @@ class CodeGenVisitor(ast.ASTVisitor):
     def visit_ErrorStop(self, node):
         exit(self.module, self.builder, 1)
 
-def codegen(tree):
-    v = CodeGenVisitor()
+def codegen(tree, symbol_table):
+    v = CodeGenVisitor(symbol_table)
     v.visit(tree)
     return v.module

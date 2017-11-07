@@ -55,7 +55,7 @@ def main():
             sys.exit(1)
         symbol_table = create_symbol_table(ast_tree)
         annotate_tree(ast_tree, symbol_table)
-        module = codegen(ast_tree)
+        module = codegen(ast_tree, symbol_table)
         source_ll = str(module)
         if args.emit_llvm:
             with open(outfile, "w") as ll:
