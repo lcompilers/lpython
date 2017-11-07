@@ -221,17 +221,19 @@ class ASTBuilderVisitor(fortranVisitor):
         v = ctx.ID().getText()
         return ast.Name(id=v, lineno=1, col_offset=1)
 
-    # Visit a parse tree produced by fortranParser#expr_andor.
-    def visitExpr_andor(self, ctx:fortranParser.Expr_andorContext):
-        op = ctx.op.text
+    # Visit a parse tree produced by fortranParser#expr_and.
+    def visitExpr_and(self, ctx:fortranParser.Expr_andContext):
         lhs = self.visit(ctx.expr(0))
         rhs = self.visit(ctx.expr(1))
-        if op == '.and.':
-            return ast.BoolOp(left=lhs, op=ast.And(), right=rhs,
-                    lineno=1, col_offset=1)
-        else:
-            return ast.BoolOp(left=lhs, op=ast.Or(), right=rhs,
-                    lineno=1, col_offset=1)
+        return ast.BoolOp(left=lhs, op=ast.And(), right=rhs,
+                lineno=1, col_offset=1)
+
+    # Visit a parse tree produced by fortranParser#expr_or.
+    def visitExpr_or(self, ctx:fortranParser.Expr_orContext):
+        lhs = self.visit(ctx.expr(0))
+        rhs = self.visit(ctx.expr(1))
+        return ast.BoolOp(left=lhs, op=ast.Or(), right=rhs,
+                lineno=1, col_offset=1)
 
     # Visit a parse tree produced by fortranParser#expr_muldiv.
     def visitExpr_addsub(self, ctx:fortranParser.Expr_muldivContext):

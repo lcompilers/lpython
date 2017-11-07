@@ -17,7 +17,7 @@ results = [
     ('BinOp', (1, 1), ('BinOp', (1, 1), ('Num', (1, 1), '2'), ('Mul',), ('Name', (1, 1), 'u')), ('Sub',), ('Num', (1, 1), '1')),
     ('FuncCallOrArray', (1, 1), 'sum', [('BinOp', (1, 1), ('Name', (1, 1), 'u'), ('Pow',), ('Num', (1, 1), '2'))], []),
     ('FuncCallOrArray', (1, 1), 'u', [('Num', (1, 1), '2')], []),
-    ('BinOp', (1, 1), ('Name', (1, 1), 'u'), ('Mul',), ('FuncCallOrArray', (1, 1), 'sqrt', [('BinOp', (1, 1), ('BinOp', (1, 1), ('UnaryOp', (1, 1), ('USub',), ('Num', (1, 1), '2')), ('Mul',), ('FuncCallOrArray', (1, 1), 'log', [('Name', (1, 1), 'r2')], [])), ('Div',), ('Name', (1, 1), 'r2'))], [])),
+    ('BinOp', (1, 1), ('Name', (1, 1), 'u'), ('Mul',), ('FuncCallOrArray', (1, 1), 'sqrt', [('UnaryOp', (1, 1), ('USub',), ('BinOp', (1, 1), ('BinOp', (1, 1), ('Num', (1, 1), '2'), ('Mul',), ('FuncCallOrArray', (1, 1), 'log', [('Name', (1, 1), 'r2')], [])), ('Div',), ('Name', (1, 1), 'r2')))], [])),
     ('Name', (1, 1), 'first'),
     ('BinOp', (1, 1), ('Name', (1, 1), 'a'), ('Sub',), ('BinOp', (1, 1), ('Num', (1, 1), '1._dp'), ('Div',), ('Num', (1, 1), '3'))),
     ('BinOp', (1, 1), ('Num', (1, 1), '1'), ('Div',), ('FuncCallOrArray', (1, 1), 'sqrt', [('BinOp', (1, 1), ('Num', (1, 1), '9'), ('Mul',), ('Name', (1, 1), 'd'))], [])),

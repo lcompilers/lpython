@@ -294,22 +294,35 @@ expr_array_call: array index like a(i), a(i, :, 3:)
 expr_array_const: arrays like [1, 2, 3, x]
 */
 expr
+// ### primary
     : struct_member* fn_names '(' arg_list? ')'  # expr_fn_call
     | struct_member* ID '(' array_index_list ')' # expr_array_call
     | '[' expr_list ']'                          # expr_array_const
-    | <assoc=right> expr '**' expr               # expr_pow
-    | op=('+'|'-') expr                          # expr_unary
-    | '.not.' expr                               # expr_not
-    | expr op=('*'|'/') expr                     # expr_muldiv
-    | expr op=('+'|'-') expr                     # expr_addsub
-    | expr op=('<'|'<='|'=='|'/='|'>='|'>') expr # expr_rel
-    | expr op=('.and.'|'.or.') expr              # expr_andor
     | struct_member* ID                          # expr_id
     | number                                     # expr_number
     | op=('.true.' | '.false.')                  # expr_truefalse
-    | expr '//' expr                             # expr_string_conc
     | STRING                                     # expr_string
     | '(' expr ')'                               # expr_nest // E.g. (1+2)*3
+
+// ### level-1
+
+// ### level-2
+    | <assoc=right> expr '**' expr               # expr_pow
+    | expr op=('*'|'/') expr                     # expr_muldiv
+    | op=('+'|'-') expr                          # expr_unary
+    | expr op=('+'|'-') expr                     # expr_addsub
+
+// ### level-3
+    | expr '//' expr                             # expr_string_conc
+
+// ### level-4
+    | expr op=('<'|'<='|'=='|'/='|'>='|'>') expr # expr_rel
+
+// ### level-5
+    | '.not.' expr                               # expr_not
+    | expr '.and.' expr                          # expr_and
+    | expr '.or.' expr                           # expr_or
+    | expr op=('.eqv.'|'.neqv') expr             # expr_eqv
 	;
 
 arg_list
