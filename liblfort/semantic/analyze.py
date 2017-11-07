@@ -114,6 +114,11 @@ class ExprVisitor(ast.GenericASTVisitor):
             raise TypeMismatch("Type mismatch")
         node._type = Logical()
 
+    def visit_If(self, node):
+        self.visit(node.test)
+        if node.test._type != Logical():
+            raise TypeMismatch("If condition must be of type logical.")
+
     def visit_Assignment(self, node):
         if not node.target in self.symbol_table:
             raise UndeclaredVariableError("Variable '%s' not declared." \

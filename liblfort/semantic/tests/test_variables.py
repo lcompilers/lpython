@@ -291,3 +291,16 @@ end subroutine
     tree = parse(source, False)
     symbol_table = create_symbol_table(tree)
     annotate_tree(tree, symbol_table)
+
+def test_logical3():
+    source = """\
+subroutine sub1(a, b)
+integer, intent(in) :: a, b
+integer :: c
+if (a) c = 1
+end subroutine
+"""
+    tree = parse(source, False)
+    symbol_table = create_symbol_table(tree)
+    with pytest.raises(TypeMismatch):
+        annotate_tree(tree, symbol_table)
