@@ -82,3 +82,40 @@ end module
     assert v.get_subroutine_list() == """\
 subroutine sub1(a, b)
 subroutine sub2(c)"""
+
+
+
+
+class DoLoopTransformer(ast.utils.NodeTransformer):
+
+    def visit_DoLoop(self, node):
+        if node.head:
+            cond = ast.ast.Compare(node.head.var, ast.ast.LtE, node.head.end,
+                    lineno=1, col_offset=1)
+            if node.head.increment:
+                step = node.head.increment
+            else:
+                step = ast.ast.Num(n="1", lineno=1, col_offset=1)
+        else:
+            cond = ast.ast.Constant(True, lineno=1, col_offset=1)
+        #body = self.visit_sequence(node.body)
+        body = node.body
+        return ast.ast.WhileLoop(cond, node.body, lineno=1, col_offset=1)
+
+
+def test_doloop_transformer():
+    source = """\
+subroutine test()
+integer :: i, j
+j = 0
+do i = 1, 10
+    j = j + i
+end do
+if (j /= 55) error stop
+end subroutine
+"""
+    tree = ast.parse(source, False)
+    v = DoLoopTransformer()
+    print(ast.dump(tree))
+    tree = v.visit(tree)
+    print(ast.dump(tree))
