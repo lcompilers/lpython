@@ -108,7 +108,7 @@ class CodeGenVisitor(ast.ASTVisitor):
             if isinstance(expr, ast.Str):
                 continue # TODO: implement string printing
             v = self.visit(expr)
-            if v.type == self.types["integer"]:
+            if expr._type == Integer():
                 printf(self.module, self.builder, "%d ", v)
             else:
                 raise Exception("Type not implemented in print.")
