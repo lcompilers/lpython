@@ -33,6 +33,9 @@ class Intrinsic(Type):
             return False
         return self.kind == other.kind
 
+    def __hash__(self):
+        return 1
+
 class Integer(Intrinsic):
     def __repr__(self):
         return "Integer()"
@@ -93,6 +96,9 @@ class ExprVisitor(ast.GenericASTVisitor):
     def visit_Num(self, node):
         node._type = Integer()
 
+    def visit_Constant(self, node):
+        node._type = Logical()
+
     def visit_Name(self, node):
         if not node.id in self.symbol_table:
             raise UndeclaredVariableError("Variable '%s' not declared." \
@@ -105,6 +111,10 @@ class ExprVisitor(ast.GenericASTVisitor):
         if node.left._type != node.right._type:
             raise TypeMismatch("Type mismatch")
         node._type = node.left._type
+
+    def visit_UnaryOp(self, node):
+        self.visit(node.operand)
+        node._type = node.operand._type
 
     def visit_Compare(self, node):
         self.visit(node.left)
