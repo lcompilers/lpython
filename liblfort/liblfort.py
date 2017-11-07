@@ -6,7 +6,7 @@ import llvmlite.binding as llvm
 
 from .ast import parse
 from .semantic.analyze import create_symbol_table, annotate_tree
-from .codegen.gen import CodeGenVisitor
+from .codegen.gen import codegen
 
 
 def main():
@@ -55,9 +55,8 @@ def main():
             sys.exit(1)
         symbol_table = create_symbol_table(ast_tree)
         annotate_tree(ast_tree, symbol_table)
-        v = CodeGenVisitor()
-        v.visit(ast_tree)
-        source_ll = str(v.module)
+        module = codegen(ast_tree)
+        source_ll = str(module)
         if args.emit_llvm:
             with open(outfile, "w") as ll:
                 ll.write(source_ll)
@@ -67,7 +66,7 @@ def main():
         llvm.initialize()
         llvm.initialize_native_asmprinter()
         llvm.initialize_native_target()
-        target = llvm.Target.from_triple(v.module.triple)
+        target = llvm.Target.from_triple(module.triple)
         target_machine = target.create_target_machine()
         target_machine.set_asm_verbosity(True)
         mod = llvm.parse_assembly(source_ll)

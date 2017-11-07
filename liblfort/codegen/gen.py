@@ -182,3 +182,8 @@ class CodeGenVisitor(ast.ASTVisitor):
 
     def visit_ErrorStop(self, node):
         exit(self.module, self.builder, 1)
+
+def codegen(tree):
+    v = CodeGenVisitor()
+    v.visit(tree)
+    return v.module
