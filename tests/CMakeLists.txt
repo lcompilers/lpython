@@ -31,3 +31,4 @@ RUN(variables_01)
 RUN(variables_02)
 
 RUN(while_01)
+RUN(doloop_01)
