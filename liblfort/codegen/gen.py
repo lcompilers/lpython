@@ -184,6 +184,25 @@ class CodeGenVisitor(ast.ASTVisitor):
     def visit_ErrorStop(self, node):
         exit(self.module, self.builder, 1)
 
+    def visit_WhileLoop(self, node):
+        loophead = self.func.append_basic_block('loop.header')
+        loopbody = self.func.append_basic_block('loop.body')
+        loopend = self.func.append_basic_block('loop.end')
+
+        # header
+        self.builder.branch(loophead)
+        self.builder.position_at_end(loophead)
+        cond = self.visit(node.test)
+        self.builder.cbranch(cond, loopbody, loopend)
+
+        # body
+        self.builder.position_at_end(loopbody)
+        self.visit_sequence(node.body)
+        self.builder.branch(loophead)
+
+        # end
+        self.builder.position_at_end(loopend)
+
 def codegen(tree, symbol_table):
     v = CodeGenVisitor(symbol_table)
     v.visit(tree)
