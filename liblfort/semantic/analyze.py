@@ -93,6 +93,9 @@ class ExprVisitor(ast.GenericASTVisitor):
     def visit_Num(self, node):
         node._type = Integer()
 
+    def visit_Constant(self, node):
+        node._type = Logical()
+
     def visit_Name(self, node):
         if not node.id in self.symbol_table:
             raise UndeclaredVariableError("Variable '%s' not declared." \
