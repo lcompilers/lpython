@@ -16,10 +16,10 @@ def to_tuple(t):
         result.append(to_tuple(getattr(t, f)))
     return tuple(result)
 
-def run_tests(tests, filename):
+def run_tests(tests, filename, translation_unit=False):
     results = []
     for s in tests:
-        results.append(to_tuple(parse(s)))
+        results.append(to_tuple(parse(s, translation_unit)))
 
     here = os.path.dirname(__file__)
     results_filename = os.path.join(here, filename)
@@ -60,39 +60,39 @@ def run_tests(tests, filename):
                 print("Results lists have different lengths.")
     assert equal
 
-def parses(test):
+def parses(test, translation_unit=False):
     """
     Returns True if and only if the string `test` parses to AST.
     """
     try:
-        s = parse(test)
+        s = parse(test, translation_unit)
         passed = True
     except SyntaxErrorException:
         passed = False
     return passed
 
-def all_fail(tests):
+def all_fail(tests, translation_unit=False):
     for test in tests:
-        assert not parses(test)
+        assert not parses(test, translation_unit)
 
 
 # -------------------------------------------------------------------------
 # Tests:
 
 def test_to_tuple():
-    ast_tree = parse("2+3")
+    ast_tree = parse("2+3", False)
     t = to_tuple(ast_tree)
     t_ref = ('BinOp', (1, 1), ('Num', (1, 1), '2'), ('Add',), ('Num', (1, 1),
         '3'))
     assert t == t_ref
 
-    ast_tree = parse("2+x")
+    ast_tree = parse("2+x", False)
     t = to_tuple(ast_tree)
     t_ref = ('BinOp', (1, 1), ('Num', (1, 1), '2'), ('Add',), ('Name', (1, 1),
         'x'))
     assert t == t_ref
 
-    ast_tree = parse("(x+y)**2")
+    ast_tree = parse("(x+y)**2", False)
     t = to_tuple(ast_tree)
     t_ref = ('BinOp', (1, 1), ('BinOp', (1, 1), ('Name', (1, 1), 'x'),
         ('Add',), ('Name', (1, 1), 'y')), ('Pow',), ('Num', (1, 1), '2'))
@@ -496,7 +496,7 @@ contains
 end program
 """,
     ]
-    run_tests(tests, "program_results.py")
+    run_tests(tests, "program_results.py", True)
 
 def test_module():
     tests = [
@@ -618,4 +618,4 @@ end interface
 end module
 """,
     ]
-    run_tests(tests, "module_results.py")
+    run_tests(tests, "module_results.py", True)

@@ -5,11 +5,11 @@ from ..parser.parser import antlr_parse
 class SyntaxErrorException(Exception):
     pass
 
-def parse(source):
+def parse(source, translation_unit=True):
     """
     Parse the `source` string into an AST node.
     """
-    return antlr_parse(source)
+    return antlr_parse(source, translation_unit)
 
 def parse_file(filename):
     source = open(filename).read()
@@ -26,7 +26,8 @@ def iter_fields(node):
         except AttributeError:
             pass
 
-def dump(node, annotate_fields=True, include_attributes=False):
+def dump(node, annotate_fields=True, include_attributes=False,
+        include_type=False):
     """
     Return a formatted dump of the tree in *node*.  This is mainly useful for
     debugging purposes.  The returned string will show the names and the values
@@ -47,6 +48,8 @@ def dump(node, annotate_fields=True, include_attributes=False):
                 rv += fields and ', ' or ' '
                 rv += ', '.join('%s=%s' % (a, _format(getattr(node, a)))
                                 for a in node._attributes)
+            if include_type and node._type:
+                rv += ', type=%s' % node._type
             return rv + ')'
         elif isinstance(node, list):
             return '[%s]' % ', '.join(_format(x) for x in node)

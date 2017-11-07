@@ -73,6 +73,7 @@ class ASTNodeVisitor(ASDLVisitor):
                 self.emit("def __init__(self, %s):" % (args,), 1)
                 for attr in sum.attributes:
                     self.visit(attr)
+                self.emit("self._type = None", 2)
             else:
                 self.emit("pass", 1)
             self.emit("")
@@ -89,6 +90,7 @@ class ASTNodeVisitor(ASDLVisitor):
         s = ", ".join(self._fields)
         if len(self._fields) == 1: s = s + ","
         self.emit("self._fields = (%s)" % s, 2)
+        self.emit("self._type = None", 2)
         self.emit("")
         self.emit("def walkabout(self, visitor):", 1)
         self.emit("return visitor.visit_%s(self)" % (name,), 2)
@@ -114,6 +116,7 @@ class ASTNodeVisitor(ASDLVisitor):
         s = ", ".join(self._fields)
         if len(self._fields) == 1: s = s + ","
         self.emit("self._fields = (%s)" % s, 2)
+        self.emit("self._type = None", 2)
         self.emit("")
         self.emit("def walkabout(self, visitor):", 1)
         self.emit("return visitor.visit_%s(self)" % (cons.name,), 2)
@@ -277,6 +280,7 @@ class AST(object):
 
     def __init__(self):
         self._fields = ()
+        self._type = None
 
     def walkabout(self, visitor):
         raise AssertionError("walkabout() implementation not provided")
