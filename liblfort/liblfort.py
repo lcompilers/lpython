@@ -5,6 +5,7 @@ import sys
 import llvmlite.binding as llvm
 
 from .ast import parse
+from .semantic.analyze import create_symbol_table, annotate_tree
 from .codegen.gen import CodeGenVisitor
 
 
@@ -52,6 +53,8 @@ def main():
         except SyntaxErrorException as err:
             print(str(err))
             sys.exit(1)
+        symbol_table = create_symbol_table(ast_tree)
+        annotate_tree(ast_tree, symbol_table)
         v = CodeGenVisitor()
         v.visit(ast_tree)
         source_ll = str(v.module)
