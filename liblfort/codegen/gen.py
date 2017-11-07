@@ -78,19 +78,18 @@ class CodeGenVisitor(ast.ASTVisitor):
         self.func = ir.Function(self.module, fn, name="main")
         block = self.func.append_basic_block(name='.entry')
         self.builder = ir.IRBuilder(block)
-        self.visit_sequence(node.decl)
-        self.visit_sequence(node.body)
-        self.visit_sequence(node.contains)
-        self.builder.ret(ir.Constant(ir.IntType(64), 0))
 
-    def visit_Declaration(self, node):
-        for v in node.vars:
-            sym = self.symbol_table[v.sym]
+        for ssym in self.symbol_table:
+            sym = self.symbol_table[ssym]
             type_f = sym["type"]
             if type_f not in self.types:
                 raise Exception("Type not implemented.")
             ptr = self.builder.alloca(self.types[type_f], name=sym["name"])
             sym["ptr"] = ptr
+
+        self.visit_sequence(node.body)
+        self.visit_sequence(node.contains)
+        self.builder.ret(ir.Constant(ir.IntType(64), 0))
 
     def visit_Assignment(self, node):
         lhs = node.target
