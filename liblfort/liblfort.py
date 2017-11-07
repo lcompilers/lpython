@@ -5,7 +5,7 @@ import sys
 import llvmlite.binding as llvm
 
 from .ast import parse
-from .codegen.gen import CodeGenVisitor2
+from .codegen.gen import CodeGenVisitor
 
 
 def main():
@@ -52,7 +52,7 @@ def main():
         except SyntaxErrorException as err:
             print(str(err))
             sys.exit(1)
-        v = CodeGenVisitor2()
+        v = CodeGenVisitor()
         v.visit(ast_tree)
         source_ll = str(v.module)
         if args.emit_llvm:

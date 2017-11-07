@@ -55,7 +55,7 @@ def exit(module, builder, n=0):
 
     builder.call(fn_exit, [n_])
 
-class CodeGenVisitor2(ast.ASTVisitor):
+class CodeGenVisitor(ast.ASTVisitor):
     """
     Loop over AST.
 
