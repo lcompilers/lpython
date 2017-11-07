@@ -49,6 +49,7 @@ class SubroutinesVisitor2(ast.utils.NodeVisitor):
     def visit_Subroutine(self, node):
         self.subroutine_list.append("subroutine %s(%s)" % (node.name,
             ", ".join([x.arg for x in node.args])))
+        # FIXME: visit_sequence() not defined yet
         self.visit_sequence(node.body)
 
     def get_subroutine_list(self):
@@ -76,7 +77,7 @@ end subroutine
 end module
 """
     tree = ast.parse(source)
-    v = SubroutinesVisitor()
+    v = SubroutinesVisitor2()
     v.visit(tree)
     assert v.get_subroutine_list() == """\
 subroutine sub1(a, b)
