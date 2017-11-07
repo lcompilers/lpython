@@ -106,10 +106,25 @@ class ExprVisitor(ast.GenericASTVisitor):
             raise TypeMismatch("Type mismatch")
         node._type = node.left._type
 
+    def visit_Compare(self, node):
+        self.visit(node.left)
+        self.visit(node.right)
+        if node.left._type != node.right._type:
+            # TODO: allow combinations of Real/Integer
+            raise TypeMismatch("Type mismatch")
+        node._type = Logical()
+
+    def visit_If(self, node):
+        self.visit(node.test)
+        if node.test._type != Logical():
+            raise TypeMismatch("If condition must be of type logical.")
+        self.visit_sequence(node.body)
+        self.visit_sequence(node.orelse)
+
     def visit_Assignment(self, node):
         if not node.target in self.symbol_table:
             raise UndeclaredVariableError("Variable '%s' not declared." \
-                    % node.id)
+                    % node.target)
         node._type = self.symbol_table[node.target]["type"]
         self.visit(node.value)
         if node.value._type != node._type:

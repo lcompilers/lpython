@@ -1,7 +1,7 @@
 import pytest
 
 from liblfort.semantic.analyze import (create_symbol_table, Integer, Real,
-        UndeclaredVariableError, annotate_tree, TypeMismatch)
+        Logical, UndeclaredVariableError, annotate_tree, TypeMismatch)
 from liblfort.ast import parse, dump
 
 def test_types():
@@ -81,6 +81,18 @@ contains
 end module
 """
     tree = parse(source)
+    symbol_table = create_symbol_table(tree)
+    with pytest.raises(UndeclaredVariableError):
+        annotate_tree(tree, symbol_table)
+
+def test_unknown_type2b():
+    source = """\
+subroutine sub1(a)
+integer, intent(in) :: a
+b = 1
+end subroutine
+"""
+    tree = parse(source, False)
     symbol_table = create_symbol_table(tree)
     with pytest.raises(UndeclaredVariableError):
         annotate_tree(tree, symbol_table)
@@ -240,3 +252,70 @@ end subroutine
     symbol_table = create_symbol_table(tree)
     annotate_tree(tree, symbol_table)
     assert dump(tree, include_type=True) == "Subroutine(name='sub1', args=[arg(arg='a'), arg(arg='b')], decl=[Declaration(vars=[decl(sym='a', sym_type='integer')]), Declaration(vars=[decl(sym='b', sym_type='integer')])], body=[Assignment(target='a', value=BinOp(left=BinOp(left=BinOp(left=Name(id='b', type=Integer()), op=Add(), right=Num(n='1', type=Integer()), type=Integer()), op=Mul(), right=Name(id='a', type=Integer()), type=Integer()), op=Mul(), right=Num(n='5', type=Integer()), type=Integer()), type=Integer())], contains=[])"
+
+def test_logical1():
+    source = """\
+subroutine sub1(a, b)
+integer, intent(in) :: a
+integer, intent(in) :: b
+logical :: r
+r = (a == b)
+end subroutine
+"""
+    tree = parse(source, False)
+    symbol_table = create_symbol_table(tree)
+    annotate_tree(tree, symbol_table)
+    assert tree.body[0]._type == Logical()
+
+def test_logical2():
+    source = """\
+subroutine sub1(a)
+integer, intent(in) :: a
+logical :: r
+r = a
+end subroutine
+"""
+    tree = parse(source, False)
+    symbol_table = create_symbol_table(tree)
+    with pytest.raises(TypeMismatch):
+        annotate_tree(tree, symbol_table)
+
+def test_logical3():
+    source = """\
+subroutine sub1(a, b)
+integer, intent(in) :: a, b
+integer :: c
+if (a == b) c = 1
+end subroutine
+"""
+    tree = parse(source, False)
+    symbol_table = create_symbol_table(tree)
+    annotate_tree(tree, symbol_table)
+
+def test_logical4():
+    source = """\
+subroutine sub1(a, b)
+integer, intent(in) :: a, b
+integer :: c
+if (a) c = 1
+end subroutine
+"""
+    tree = parse(source, False)
+    symbol_table = create_symbol_table(tree)
+    with pytest.raises(TypeMismatch):
+        annotate_tree(tree, symbol_table)
+
+def test_logical5():
+    source = """\
+subroutine sub1(a, b)
+integer, intent(in) :: a, b
+integer :: c
+if (a == b) then
+    d = 1
+end if
+end subroutine
+"""
+    tree = parse(source, False)
+    symbol_table = create_symbol_table(tree)
+    with pytest.raises(UndeclaredVariableError):
+        annotate_tree(tree, symbol_table)
