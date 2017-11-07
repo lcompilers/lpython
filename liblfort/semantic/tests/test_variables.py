@@ -85,6 +85,18 @@ end module
     with pytest.raises(UndeclaredVariableError):
         annotate_tree(tree, symbol_table)
 
+def test_unknown_type2b():
+    source = """\
+subroutine sub1(a)
+integer, intent(in) :: a
+b = 1
+end subroutine
+"""
+    tree = parse(source, False)
+    symbol_table = create_symbol_table(tree)
+    with pytest.raises(UndeclaredVariableError):
+        annotate_tree(tree, symbol_table)
+
 def test_unknown_type3():
     source = """\
 module test
@@ -267,3 +279,15 @@ end subroutine
     symbol_table = create_symbol_table(tree)
     with pytest.raises(TypeMismatch):
         annotate_tree(tree, symbol_table)
+
+def test_logical3():
+    source = """\
+subroutine sub1(a, b)
+integer, intent(in) :: a, b
+integer :: c
+if (a == b) c = 1
+end subroutine
+"""
+    tree = parse(source, False)
+    symbol_table = create_symbol_table(tree)
+    annotate_tree(tree, symbol_table)

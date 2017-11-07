@@ -117,7 +117,7 @@ class ExprVisitor(ast.GenericASTVisitor):
     def visit_Assignment(self, node):
         if not node.target in self.symbol_table:
             raise UndeclaredVariableError("Variable '%s' not declared." \
-                    % node.id)
+                    % node.target)
         node._type = self.symbol_table[node.target]["type"]
         self.visit(node.value)
         if node.value._type != node._type:
