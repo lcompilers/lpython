@@ -118,6 +118,8 @@ class ExprVisitor(ast.GenericASTVisitor):
         self.visit(node.test)
         if node.test._type != Logical():
             raise TypeMismatch("If condition must be of type logical.")
+        self.visit_sequence(node.body)
+        self.visit_sequence(node.orelse)
 
     def visit_Assignment(self, node):
         if not node.target in self.symbol_table:
