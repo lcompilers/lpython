@@ -28,11 +28,7 @@ def printf(module, builder, fmt, *args):
     """
     c_ptr = ir.IntType(8).as_pointer()
 
-    b = bytearray((fmt + '\00').encode('ascii'))
-    fmt_const = ir.Constant(ir.ArrayType(ir.IntType(8), len(b)), b)
-    fmt_var = create_global_var(module, "fmt_printf", fmt_const)
-    fmt_ptr = builder.bitcast(fmt_var, c_ptr)
-
+    fmt_ptr = create_global_string(module, builder, fmt)
     fn_printf = get_global(module, "printf")
     if not fn_printf:
         fn_type = ir.FunctionType(ir.IntType(32), [c_ptr], var_arg=True)
@@ -53,6 +49,15 @@ def exit(module, builder, n=0):
         fn_exit = ir.Function(module, fn_type, name="exit")
 
     builder.call(fn_exit, [n_])
+
+def create_global_string(module, builder, string):
+    c_ptr = ir.IntType(8).as_pointer()
+    b = bytearray((string + '\00').encode('ascii'))
+    string_const = ir.Constant(ir.ArrayType(ir.IntType(8), len(b)), b)
+    string_var = create_global_var(module, "compiler_id", string_const)
+    string_ptr = builder.bitcast(string_var, c_ptr)
+    return string_ptr
+
 
 class CodeGenVisitor(ast.ASTVisitor):
     """
