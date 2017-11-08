@@ -20,6 +20,12 @@ end do
 if (j /= 25) error stop
 
 j = 0
+do i = 9, 1, -2
+    j = j + i
+end do
+if (j /= 25) error stop
+
+j = 0
 do i = 1, 10, 2
     j = j + i
 end do
