@@ -2,6 +2,7 @@ from llvmlite import ir
 from llvmlite.binding import get_default_triple
 
 from ..ast import ast
+from ..ast.utils import NodeTransformer
 from ..semantic.analyze import Integer
 
 def get_global(module, name):
@@ -49,6 +50,33 @@ def exit(module, builder, n=0):
         fn_exit = ir.Function(module, fn_type, name="exit")
 
     builder.call(fn_exit, [n_])
+
+
+class DoLoopTransformer(NodeTransformer):
+
+    def visit_DoLoop(self, node):
+        if node.head:
+            cond = ast.Compare(ast.Name(node.head.var,
+                lineno=1, col_offset=1),
+                    ast.LtE(), node.head.end, lineno=1, col_offset=1)
+            if node.head.increment:
+                step = node.head.increment
+            else:
+                step = ast.Num(n="1", lineno=1, col_offset=1)
+        else:
+            cond = ast.Constant(True, lineno=1, col_offset=1)
+        body = self.visit_sequence(node.body)
+        body = [ast.Assignment(node.head.var,
+            ast.BinOp(ast.Name(node.head.var, lineno=1, col_offset=1),
+                ast.Add(), step, lineno=1, col_offset=1), lineno=1,
+            col_offset=1)] + body
+        return [ast.Assignment(node.head.var, node.head.start,
+            lineno=1, col_offset=1),
+                ast.WhileLoop(cond, body, lineno=1, col_offset=1)]
+
+def transform_doloops(tree):
+    v = DoLoopTransformer()
+    return v.visit(tree)
 
 def create_global_string(module, builder, string):
     c_ptr = ir.IntType(8).as_pointer()
@@ -209,6 +237,7 @@ class CodeGenVisitor(ast.ASTVisitor):
         self.builder.position_at_end(loopend)
 
 def codegen(tree, symbol_table):
+    tree = transform_doloops(tree)
     v = CodeGenVisitor(symbol_table)
     v.visit(tree)
     return v.module
