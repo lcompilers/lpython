@@ -135,20 +135,23 @@ class NodeTransformer(NodeVisitor):
        node = YourTransformer().visit(node)
     """
 
+    def visit_sequence(self, old_value):
+        new_values = []
+        for value in old_value:
+            if isinstance(value, ast.AST):
+                value = self.visit(value)
+                if value is None:
+                    continue
+                elif not isinstance(value, ast.AST):
+                    new_values.extend(value)
+                    continue
+            new_values.append(value)
+        return new_values
+
     def generic_visit(self, node):
         for field, old_value in iter_fields(node):
             if isinstance(old_value, list):
-                new_values = []
-                for value in old_value:
-                    if isinstance(value, ast.AST):
-                        value = self.visit(value)
-                        if value is None:
-                            continue
-                        elif not isinstance(value, ast.AST):
-                            new_values.extend(value)
-                            continue
-                    new_values.append(value)
-                old_value[:] = new_values
+                old_value[:] = self.visit_sequence(old_value)
             elif isinstance(old_value, ast.AST):
                 new_node = self.visit(old_value)
                 if new_node is None:
