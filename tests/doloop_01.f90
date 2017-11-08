@@ -8,6 +8,12 @@ end do
 if (j /= 55) error stop
 
 j = 0
+do i = 10, 1, -1
+    j = j + i
+end do
+if (j /= 55) error stop
+
+j = 0
 do i = 1, 9, 2
     j = j + i
 end do

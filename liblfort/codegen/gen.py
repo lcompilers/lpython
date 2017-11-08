@@ -51,18 +51,30 @@ def exit(module, builder, n=0):
 
     builder.call(fn_exit, [n_])
 
+def is_positive(expr):
+    if isinstance(expr, ast.Num):
+        return float(expr.n) > 0
+    if isinstance(expr, ast.UnaryOp):
+        if isinstance(expr.op, ast.USub):
+            return not is_positive(expr.operand)
+    raise Exception("Not implemented.")
 
 class DoLoopTransformer(NodeTransformer):
 
     def visit_DoLoop(self, node):
         if node.head:
-            cond = ast.Compare(ast.Name(node.head.var,
-                lineno=1, col_offset=1),
-                    ast.LtE(), node.head.end, lineno=1, col_offset=1)
             if node.head.increment:
                 step = node.head.increment
+                if is_positive(step):
+                    op = ast.LtE()
+                else:
+                    op = ast.GtE()
             else:
                 step = ast.Num(n="1", lineno=1, col_offset=1)
+                op = ast.LtE()
+            cond = ast.Compare(ast.Name(node.head.var,
+                lineno=1, col_offset=1),
+                    op, node.head.end, lineno=1, col_offset=1)
         else:
             cond = ast.Constant(True, lineno=1, col_offset=1)
         body = self.visit_sequence(node.body)
