@@ -98,11 +98,10 @@ class DoLoopTransformer(ast.utils.NodeTransformer):
                 step = ast.ast.Num(n="1", lineno=1, col_offset=1)
         else:
             cond = ast.ast.Constant(True, lineno=1, col_offset=1)
-        #body = self.visit_sequence(node.body)
-        body = node.body
+        body = self.visit_sequence(node.body)
         return [ast.ast.Assignment(node.head.var, node.head.start,
             lineno=1, col_offset=1),
-                ast.ast.WhileLoop(cond, node.body, lineno=1, col_offset=1)]
+                ast.ast.WhileLoop(cond, body, lineno=1, col_offset=1)]
 
 
 def test_doloop_transformer():
