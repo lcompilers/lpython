@@ -89,8 +89,9 @@ class DoLoopTransformer(ast.utils.NodeTransformer):
 
     def visit_DoLoop(self, node):
         if node.head:
-            cond = ast.ast.Compare(node.head.var, ast.ast.LtE, node.head.end,
-                    lineno=1, col_offset=1)
+            cond = ast.ast.Compare(ast.ast.Name(node.head.var,
+                lineno=1, col_offset=1),
+                    ast.ast.LtE(), node.head.end, lineno=1, col_offset=1)
             if node.head.increment:
                 step = node.head.increment
             else:
