@@ -100,7 +100,9 @@ class DoLoopTransformer(ast.utils.NodeTransformer):
             cond = ast.ast.Constant(True, lineno=1, col_offset=1)
         #body = self.visit_sequence(node.body)
         body = node.body
-        return ast.ast.WhileLoop(cond, node.body, lineno=1, col_offset=1)
+        return [ast.ast.Assignment(node.head.var, node.head.start,
+            lineno=1, col_offset=1),
+                ast.ast.WhileLoop(cond, node.body, lineno=1, col_offset=1)]
 
 
 def test_doloop_transformer():
@@ -116,6 +118,7 @@ end subroutine
 """
     tree = ast.parse(source, False)
     v = DoLoopTransformer()
+    print()
     print(ast.dump(tree))
     tree = v.visit(tree)
     print(ast.dump(tree))
