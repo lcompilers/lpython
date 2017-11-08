@@ -85,13 +85,16 @@ class NodeVisitor(object):
         visitor = getattr(self, method, self.generic_visit)
         return visitor(node)
 
+    def visit_sequence(self, value):
+        for item in value:
+            if isinstance(item, ast.AST):
+                self.visit(item)
+
     def generic_visit(self, node):
         """Called if no explicit visitor function exists for a node."""
         for field, value in iter_fields(node):
             if isinstance(value, list):
-                for item in value:
-                    if isinstance(item, ast.AST):
-                        self.visit(item)
+                self.visit_sequence(value)
             elif isinstance(value, ast.AST):
                 self.visit(value)
 

@@ -49,7 +49,6 @@ class SubroutinesVisitor2(ast.utils.NodeVisitor):
     def visit_Subroutine(self, node):
         self.subroutine_list.append("subroutine %s(%s)" % (node.name,
             ", ".join([x.arg for x in node.args])))
-        # FIXME: visit_sequence() not defined yet
         self.visit_sequence(node.body)
 
     def get_subroutine_list(self):
