@@ -66,10 +66,10 @@ class DoLoopTransformer(NodeTransformer):
         else:
             cond = ast.Constant(True, lineno=1, col_offset=1)
         body = self.visit_sequence(node.body)
-        body = [ast.Assignment(node.head.var,
+        body = body + [ast.Assignment(node.head.var,
             ast.BinOp(ast.Name(node.head.var, lineno=1, col_offset=1),
                 ast.Add(), step, lineno=1, col_offset=1), lineno=1,
-            col_offset=1)] + body
+            col_offset=1)]
         return [ast.Assignment(node.head.var, node.head.start,
             lineno=1, col_offset=1),
                 ast.WhileLoop(cond, body, lineno=1, col_offset=1)]
