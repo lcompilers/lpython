@@ -117,7 +117,7 @@ end subroutine
 """
     tree = ast.parse(source, False)
     v = DoLoopTransformer()
-    print()
-    print(ast.dump(tree))
+    assert isinstance(tree.body[1], ast.ast.DoLoop)
     tree = v.visit(tree)
-    print(ast.dump(tree))
+    assert isinstance(tree.body[1], ast.ast.Assignment)
+    assert isinstance(tree.body[2], ast.ast.WhileLoop)
