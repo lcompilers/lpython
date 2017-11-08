@@ -180,8 +180,9 @@ class CodeGenVisitor(ast.ASTVisitor):
         if isinstance(op, ast.UAdd):
             return rhs
         elif isinstance(op, ast.USub):
-            lhs = ir.Constant(ir.IntType(64), 0)
-            return self.builder.sub(lhs, rhs)
+            return self.builder.neg(rhs)
+        elif isinstance(op, ast.Not):
+            return self.builder.not_(rhs)
         else:
             raise Exception("Not implemented")
 
