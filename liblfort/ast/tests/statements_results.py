@@ -5,7 +5,7 @@ results = [
     ('Assignment', (1, 1), 'u', ('BinOp', (1, 1), ('Name', (1, 1), 'u'), ('Mul',), ('FuncCallOrArray', (1, 1), 'sqrt', [('UnaryOp', (1, 1), ('USub',), ('BinOp', (1, 1), ('BinOp', (1, 1), ('Num', (1, 1), '2'), ('Mul',), ('FuncCallOrArray', (1, 1), 'log', [('Name', (1, 1), 'r2')], [])), ('Div',), ('Name', (1, 1), 'r2')))], []))),
     ('Assignment', (1, 1), 'x', ('FuncCallOrArray', (1, 1), 'u', [('Num', (1, 1), '1')], [])),
     ('Assignment', (1, 1), 'x', ('FuncCallOrArray', (1, 1), 'u', [('Num', (1, 1), '2')], [])),
-    ('Assignment', (1, 1), 'first', ('Name', (1, 1), 'first')),
+    ('Assignment', (1, 1), 'first', ('UnaryOp', (1, 1), ('Not',), ('Name', (1, 1), 'first'))),
     ('Assignment', (1, 1), 'd', ('BinOp', (1, 1), ('Name', (1, 1), 'a'), ('Sub',), ('BinOp', (1, 1), ('Num', (1, 1), '1._dp'), ('Div',), ('Num', (1, 1), '3')))),
     ('Assignment', (1, 1), 'c', ('BinOp', (1, 1), ('Num', (1, 1), '1'), ('Div',), ('FuncCallOrArray', (1, 1), 'sqrt', [('BinOp', (1, 1), ('Num', (1, 1), '9'), ('Mul',), ('Name', (1, 1), 'd'))], []))),
     ('Assignment', (1, 1), 'v', ('BinOp', (1, 1), ('BinOp', (1, 1), ('Num', (1, 1), '1'), ('Add',), ('BinOp', (1, 1), ('Name', (1, 1), 'c'), ('Mul',), ('Name', (1, 1), 'x'))), ('Pow',), ('Num', (1, 1), '3'))),

@@ -157,6 +157,8 @@ def test_expr1():
         "a == 1 .or. b == 2",
         "a .and. b .and. c",
         "a .or. b .or. c",
+        ".not. (a == 1)",
+        "(a == 1) .and. .not. (b == 2)",
         ]
     run_tests(tests, "expr_results.py")
 
