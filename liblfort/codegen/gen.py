@@ -3,7 +3,7 @@ from llvmlite.binding import get_default_triple
 
 from ..ast import ast
 from ..ast.utils import NodeTransformer
-from ..semantic.analyze import Integer
+from ..semantic.analyze import Integer, Logical
 
 def get_global(module, name):
     try:
@@ -115,7 +115,8 @@ class CodeGenVisitor(ast.ASTVisitor):
         self.module  = ir.Module()
         self.module.triple = get_default_triple()
         self.types = {
-                    Integer(): ir.IntType(64)
+                    Integer(): ir.IntType(64),
+                    Logical(): ir.IntType(1),
                 }
 
         int_type = ir.IntType(64);
