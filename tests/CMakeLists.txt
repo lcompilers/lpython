@@ -29,6 +29,7 @@ RUN(print_01)
 
 RUN(variables_01)
 RUN(variables_02)
+RUN(variables_03)
 
 RUN(while_01)
 RUN(doloop_01)

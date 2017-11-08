@@ -221,6 +221,12 @@ class ASTBuilderVisitor(fortranVisitor):
         v = ctx.ID().getText()
         return ast.Name(id=v, lineno=1, col_offset=1)
 
+    # Visit a parse tree produced by fortranParser#expr_not.
+    def visitExpr_not(self, ctx:fortranParser.Expr_notContext):
+        rhs = self.visit(ctx.expr())
+        return ast.UnaryOp(op=ast.Not(), operand=rhs,
+                lineno=1, col_offset=1)
+
     # Visit a parse tree produced by fortranParser#expr_and.
     def visitExpr_and(self, ctx:fortranParser.Expr_andContext):
         lhs = self.visit(ctx.expr(0))

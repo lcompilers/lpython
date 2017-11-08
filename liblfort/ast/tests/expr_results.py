@@ -18,7 +18,7 @@ results = [
     ('FuncCallOrArray', (1, 1), 'sum', [('BinOp', (1, 1), ('Name', (1, 1), 'u'), ('Pow',), ('Num', (1, 1), '2'))], []),
     ('FuncCallOrArray', (1, 1), 'u', [('Num', (1, 1), '2')], []),
     ('BinOp', (1, 1), ('Name', (1, 1), 'u'), ('Mul',), ('FuncCallOrArray', (1, 1), 'sqrt', [('UnaryOp', (1, 1), ('USub',), ('BinOp', (1, 1), ('BinOp', (1, 1), ('Num', (1, 1), '2'), ('Mul',), ('FuncCallOrArray', (1, 1), 'log', [('Name', (1, 1), 'r2')], [])), ('Div',), ('Name', (1, 1), 'r2')))], [])),
-    ('Name', (1, 1), 'first'),
+    ('UnaryOp', (1, 1), ('Not',), ('Name', (1, 1), 'first')),
     ('BinOp', (1, 1), ('Name', (1, 1), 'a'), ('Sub',), ('BinOp', (1, 1), ('Num', (1, 1), '1._dp'), ('Div',), ('Num', (1, 1), '3'))),
     ('BinOp', (1, 1), ('Num', (1, 1), '1'), ('Div',), ('FuncCallOrArray', (1, 1), 'sqrt', [('BinOp', (1, 1), ('Num', (1, 1), '9'), ('Mul',), ('Name', (1, 1), 'd'))], [])),
     ('BinOp', (1, 1), ('BinOp', (1, 1), ('Num', (1, 1), '1'), ('Add',), ('BinOp', (1, 1), ('Name', (1, 1), 'c'), ('Mul',), ('Name', (1, 1), 'x'))), ('Pow',), ('Num', (1, 1), '3')),
@@ -51,4 +51,6 @@ results = [
     ('BoolOp', (1, 1), ('Compare', (1, 1), ('Name', (1, 1), 'a'), ('Eq',), ('Num', (1, 1), '1')), ('Or',), ('Compare', (1, 1), ('Name', (1, 1), 'b'), ('Eq',), ('Num', (1, 1), '2'))),
     ('BoolOp', (1, 1), ('BoolOp', (1, 1), ('Name', (1, 1), 'a'), ('And',), ('Name', (1, 1), 'b')), ('And',), ('Name', (1, 1), 'c')),
     ('BoolOp', (1, 1), ('BoolOp', (1, 1), ('Name', (1, 1), 'a'), ('Or',), ('Name', (1, 1), 'b')), ('Or',), ('Name', (1, 1), 'c')),
+    ('UnaryOp', (1, 1), ('Not',), ('Compare', (1, 1), ('Name', (1, 1), 'a'), ('Eq',), ('Num', (1, 1), '1'))),
+    ('BoolOp', (1, 1), ('Compare', (1, 1), ('Name', (1, 1), 'a'), ('Eq',), ('Num', (1, 1), '1')), ('And',), ('UnaryOp', (1, 1), ('Not',), ('Compare', (1, 1), ('Name', (1, 1), 'b'), ('Eq',), ('Num', (1, 1), '2')))),
 ]
