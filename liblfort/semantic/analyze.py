@@ -49,10 +49,21 @@ class Logical(Intrinsic): pass
 class Derived(Type):
     pass
 
+
 class Array(Type):
+
     def __init__(self, type_, shape):
         self.type_ = type_
         self.shape = shape
+
+    def __eq__(self, other):
+        if type(self) != type(other):
+            return False
+        return self.type_ == other.type_ and self.shape == other.shape
+
+    def __hash__(self):
+        return 1
+
     def __repr__(self):
         return "Array(%r, %r)" % (self.type_, self.shape)
 

@@ -1,7 +1,7 @@
 import pytest
 
 from liblfort.semantic.analyze import (create_symbol_table, Integer, Real,
-        Logical, UndeclaredVariableError, annotate_tree, TypeMismatch)
+        Array, Logical, UndeclaredVariableError, annotate_tree, TypeMismatch)
 from liblfort.ast import parse, dump
 
 def test_types():
@@ -24,6 +24,17 @@ def test_types():
     assert not (r == i)
     assert not (r == Integer())
     assert r != Integer()
+
+def test_types_arrays():
+    i = Integer()
+    dims = [9, 10]
+    a = Array(i, dims)
+    assert a == a
+    assert not (a != a)
+    assert a == Array(i, dims)
+    assert a == Array(Integer(), [9, 10])
+    assert a != Array(Integer(), [9, 11])
+    assert a != Array(Real(), [9, 10])
 
 def test_variables():
     source = """\
