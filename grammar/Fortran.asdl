@@ -59,7 +59,9 @@ unaryop = Invert | Not | UAdd | USub
 
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 
-decl = (identifier sym, string sym_type)
+decl = (identifier sym, string sym_type, dimension* dims)
+
+dimension = (expr? start, expr? end)
 
 arg = (identifier arg)
         attributes (int lineno, int col_offset)

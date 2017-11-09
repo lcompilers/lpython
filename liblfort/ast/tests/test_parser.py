@@ -384,14 +384,17 @@ def test_decl():
     tests = [
         "integer x",
         "integer :: x",
-        "integer :: a(10,10), b(10)",
-        "integer, dimension(10,10) :: c",
+        "integer :: a(9,10), b(10)",
+        "integer, dimension(9,10) :: c",
         "integer, dimension(:,:), intent(in) :: e",
         "integer(c_int) :: i",
 
         "real a",
         "real :: a",
         "real(dp) :: a, b",
+        "real(dp) :: a(9,10), b(10)",
+        "real(dp) :: a(m,n)",
+        "real(dp), allocatable :: a(:,:)",
         "real(dp) y = 5",
         "real(c_double) :: f",
 

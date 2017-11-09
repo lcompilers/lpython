@@ -187,7 +187,17 @@ class ASTBuilderVisitor(fortranVisitor):
         for v in ctx.var_sym_decl():
             sym = v.ID().getText()
             sym_type = ctx.var_type().getText()
-            d.append(ast.decl(sym, sym_type))
+            dims = []
+            if v.array_decl():
+                for dim in v.array_decl().array_comp_decl():
+                    e = dim.expr()
+                    if len(e) == 1:
+                        end = self.visit(e[0])
+                    else:
+                        # TODO: implement expr:expr
+                        end = None
+                    dims.append(ast.dimension(start=None, end=end))
+            d.append(ast.decl(sym, sym_type, dims=dims))
         return ast.Declaration(d, lineno=1, col_offset=1)
 
     # Visit a parse tree produced by fortranParser#print_statement.
