@@ -50,10 +50,11 @@ class Derived(Type):
     pass
 
 class Array(Type):
-    def __init__(self, type_, rank, shape):
+    def __init__(self, type_, shape):
         self.type_ = type_
-        self.rank = rank
         self.shape = shape
+    def __repr__(self):
+        return "Array(%r, %r)" % (self.type_, self.shape)
 
 
 # --------------------------------
@@ -78,7 +79,17 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
             if type_f not in self.types:
                 # This shouldn't happen, as the parser checks types
                 raise SemanticError("Type not implemented.")
+            dims = []
+            for dim in v.dims:
+                if isinstance(dim.end, ast.Num):
+                    dims.append(int(dim.end.n))
+                else:
+                    raise NotImplementedError("Index not a number")
+                if dim.start:
+                    raise NotImplementedError("start index")
             type_ = self.types[type_f]()
+            if len(dims) > 0:
+                type_ = Array(type_, dims)
             self.symbol_table[sym] = {"name": sym, "type": type_}
 
 def create_symbol_table(tree):
@@ -105,6 +116,12 @@ class ExprVisitor(ast.GenericASTVisitor):
                     % node.id)
         node._type = self.symbol_table[node.id]["type"]
 
+    def visit_FuncCallOrArray(self, node):
+        if not node.func in self.symbol_table:
+            raise UndeclaredVariableError("Func or Array '%s' not declared." \
+                    % node.id)
+        node._type = self.symbol_table[node.func]["type"]
+
     def visit_BinOp(self, node):
         self.visit(node.left)
         self.visit(node.right)
@@ -120,8 +137,12 @@ class ExprVisitor(ast.GenericASTVisitor):
         self.visit(node.left)
         self.visit(node.right)
         if node.left._type != node.right._type:
-            # TODO: allow combinations of Real/Integer
-            raise TypeMismatch("Type mismatch")
+            if isinstance(node.left._type, Array):
+                if node.left._type.type_ != node.right._type:
+                    raise TypeMismatch("Array Type mismatch")
+            else:
+                # TODO: allow combinations of Real/Integer
+                raise TypeMismatch("Type mismatch")
         node._type = Logical()
 
     def visit_If(self, node):
@@ -139,7 +160,11 @@ class ExprVisitor(ast.GenericASTVisitor):
         node._type = self.symbol_table[node.target.id]["type"]
         self.visit(node.value)
         if node.value._type != node._type:
-            raise TypeMismatch("Type mismatch")
+            if isinstance(node._type, Array):
+                if node._type.type_ != node.value._type:
+                    raise TypeMismatch("Array Type mismatch")
+            else:
+                raise TypeMismatch("Type mismatch")
 
 def annotate_tree(tree, symbol_table):
     """
