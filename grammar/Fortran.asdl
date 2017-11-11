@@ -24,7 +24,7 @@ unit_decl
         attributes (int lineno, int col_offset)
 
 stmt
-    = Assignment(identifier target, expr value)
+    = Assignment(expr target, expr value)
     | SubroutineCall(identifier name, expr* args)
     | If(expr test, stmt* body, stmt* orelse)
     | Where(expr test, stmt* body, stmt* orelse)

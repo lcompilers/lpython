@@ -177,8 +177,8 @@ class ASTBuilderVisitor(fortranVisitor):
         if ctx.op.text == "=>":
             raise Exception("operator => not implemented")
         assert ctx.op.text == "="
-        lhs = ctx.ID().getText()
-        value = self.visit(ctx.expr())
+        lhs = self.visit(ctx.expr(0))
+        value = self.visit(ctx.expr(1))
         return ast.Assignment(lhs, value, lineno=1, col_offset=1)
 
     # Visit a parse tree produced by fortranParser#var_decl.
