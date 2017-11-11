@@ -132,10 +132,11 @@ class ExprVisitor(ast.GenericASTVisitor):
         self.visit_sequence(node.orelse)
 
     def visit_Assignment(self, node):
-        if not node.target in self.symbol_table:
+        assert isinstance(node.target, ast.Name)
+        if not node.target.id in self.symbol_table:
             raise UndeclaredVariableError("Variable '%s' not declared." \
                     % node.target)
-        node._type = self.symbol_table[node.target]["type"]
+        node._type = self.symbol_table[node.target.id]["type"]
         self.visit(node.value)
         if node.value._type != node._type:
             raise TypeMismatch("Type mismatch")
