@@ -330,3 +330,17 @@ end subroutine
     symbol_table = create_symbol_table(tree)
     with pytest.raises(UndeclaredVariableError):
         annotate_tree(tree, symbol_table)
+
+def test_arrays1():
+    source = """\
+subroutine sub1()
+integer :: a(3), i
+a(1) = 1
+i = 2
+a(2) = i
+a(i) = i+1
+end subroutine
+"""
+    tree = parse(source, False)
+    symbol_table = create_symbol_table(tree)
+    annotate_tree(tree, symbol_table)
