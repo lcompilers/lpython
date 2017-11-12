@@ -171,7 +171,7 @@ statement
     ;
 
 assignment_statement
-    : struct_member* ID ('(' array_index_list ')')? op=('='|'=>') expr
+    : expr op=('='|'=>') expr
     ;
 
 exit_statement

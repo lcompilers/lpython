@@ -78,11 +78,12 @@ class DoLoopTransformer(NodeTransformer):
         else:
             cond = ast.Constant(True, lineno=1, col_offset=1)
         body = self.visit_sequence(node.body)
-        body = body + [ast.Assignment(node.head.var,
+        var_name = ast.Name(node.head.var, lineno=1, col_offset=1)
+        body = body + [ast.Assignment(var_name,
             ast.BinOp(ast.Name(node.head.var, lineno=1, col_offset=1),
                 ast.Add(), step, lineno=1, col_offset=1), lineno=1,
             col_offset=1)]
-        return [ast.Assignment(node.head.var, node.head.start,
+        return [ast.Assignment(var_name, node.head.start,
             lineno=1, col_offset=1),
                 ast.WhileLoop(cond, body, lineno=1, col_offset=1)]
 
@@ -139,9 +140,10 @@ class CodeGenVisitor(ast.ASTVisitor):
 
     def visit_Assignment(self, node):
         lhs = node.target
-        if lhs not in self.symbol_table:
+        assert isinstance(lhs, ast.Name)
+        if lhs.id not in self.symbol_table:
             raise Exception("Undefined variable.")
-        sym = self.symbol_table[lhs]
+        sym = self.symbol_table[lhs.id]
         ptr = sym["ptr"]
         value = self.visit(node.value)
         if value.type != ptr.type.pointee:
