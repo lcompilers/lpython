@@ -141,15 +141,21 @@ class CodeGenVisitor(ast.ASTVisitor):
 
     def visit_Assignment(self, node):
         lhs = node.target
-        assert isinstance(lhs, ast.Name)
-        if lhs.id not in self.symbol_table:
-            raise Exception("Undefined variable.")
-        sym = self.symbol_table[lhs.id]
-        ptr = sym["ptr"]
-        value = self.visit(node.value)
-        if value.type != ptr.type.pointee:
-            raise Exception("Type mismatch in assignment.")
-        self.builder.store(value, ptr)
+        if isinstance(lhs, ast.Name):
+            if lhs.id not in self.symbol_table:
+                raise Exception("Undefined variable.")
+            sym = self.symbol_table[lhs.id]
+            ptr = sym["ptr"]
+            value = self.visit(node.value)
+            if value.type != ptr.type.pointee:
+                raise Exception("Type mismatch in assignment.")
+            self.builder.store(value, ptr)
+        elif isinstance(lhs, ast.FuncCallOrArray):
+            # array
+            raise NotImplementedError("arrays not implemented yet")
+        else:
+            # should not happend
+            raise Exception("`node` must be either a variable or an array")
 
     def visit_Print(self, node):
         for expr in node.values:
