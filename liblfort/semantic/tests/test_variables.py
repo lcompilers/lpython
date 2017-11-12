@@ -344,3 +344,35 @@ end subroutine
     tree = parse(source, False)
     symbol_table = create_symbol_table(tree)
     annotate_tree(tree, symbol_table)
+
+def test_arrays2():
+    source = """\
+subroutine sub1()
+integer :: a(3)
+real :: r
+a(1) = 1
+r = 2
+a(r) = 2
+end subroutine
+"""
+    tree = parse(source, False)
+    symbol_table = create_symbol_table(tree)
+    with pytest.raises(TypeMismatch):
+        annotate_tree(tree, symbol_table)
+
+def test_arrays3():
+    # Here we test assigning the wrong type to an array. Since only real and
+    # integer types are implemented for now, just test that real cannot be
+    # assinged to an integer. Later we can change this to, say, a character.
+    source = """\
+subroutine sub1()
+integer :: a(3), i
+real :: r
+i = 1
+a(i) = r
+end subroutine
+"""
+    tree = parse(source, False)
+    symbol_table = create_symbol_table(tree)
+    with pytest.raises(TypeMismatch):
+        annotate_tree(tree, symbol_table)

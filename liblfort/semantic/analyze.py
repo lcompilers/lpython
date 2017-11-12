@@ -172,6 +172,8 @@ class ExprVisitor(ast.GenericASTVisitor):
             self.visit(node.value)
             if node.value._type != node._type:
                 if isinstance(node._type, Array):
+                    # FIXME: this shouldn't happen --- this is handled by the
+                    # next if
                     if node._type.type_ != node.value._type:
                         raise TypeMismatch("Array Type mismatch")
                 else:
@@ -180,6 +182,7 @@ class ExprVisitor(ast.GenericASTVisitor):
             if not node.target.func in self.symbol_table:
                 raise UndeclaredVariableError("Array '%s' not declared." \
                         % node.target.func)
+            node._type = self.symbol_table[node.target.func]["type"]
             # TODO: based on symbol_table, figure out if `node.target` is an
             # array or a function call. Annotate the `node` to reflect that.
             # Then in later stage the node can be replaced, based on the
@@ -193,6 +196,15 @@ class ExprVisitor(ast.GenericASTVisitor):
             idx = node.target.args[0]
             if idx._type != Integer():
                 raise TypeMismatch("Array index must be an integer")
+            self.visit(node.value)
+            if node.value._type != node._type:
+                if isinstance(node._type, Array):
+                    if node._type.type_ != node.value._type:
+                        raise TypeMismatch("Array Type mismatch")
+                else:
+                    # FIXME: this shouldn't happen --- this is handled by the
+                    # above if
+                    raise TypeMismatch("Type mismatch")
         else:
             raise SemanticError("LHS must be a variable or an array")
 
