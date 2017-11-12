@@ -376,3 +376,17 @@ end subroutine
     symbol_table = create_symbol_table(tree)
     with pytest.raises(TypeMismatch):
         annotate_tree(tree, symbol_table)
+
+def test_arrays4():
+    source = """\
+subroutine sub1()
+integer :: a(3), b(3), i
+a(1) = b(2)
+a(i) = b(2)
+!a(1) = b(2) + 1  ! <--- this raises, but it should pass
+!a(1) = b(i) + 1  ! <--- this raises, but it should pass
+end subroutine
+"""
+    tree = parse(source, False)
+    symbol_table = create_symbol_table(tree)
+    annotate_tree(tree, symbol_table)
