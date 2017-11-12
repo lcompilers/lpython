@@ -164,18 +164,37 @@ class ExprVisitor(ast.GenericASTVisitor):
         self.visit_sequence(node.orelse)
 
     def visit_Assignment(self, node):
-        assert isinstance(node.target, ast.Name)
-        if not node.target.id in self.symbol_table:
-            raise UndeclaredVariableError("Variable '%s' not declared." \
-                    % node.target)
-        node._type = self.symbol_table[node.target.id]["type"]
-        self.visit(node.value)
-        if node.value._type != node._type:
-            if isinstance(node._type, Array):
-                if node._type.type_ != node.value._type:
-                    raise TypeMismatch("Array Type mismatch")
-            else:
-                raise TypeMismatch("Type mismatch")
+        if isinstance(node.target, ast.Name):
+            if not node.target.id in self.symbol_table:
+                raise UndeclaredVariableError("Variable '%s' not declared." \
+                        % node.target)
+            node._type = self.symbol_table[node.target.id]["type"]
+            self.visit(node.value)
+            if node.value._type != node._type:
+                if isinstance(node._type, Array):
+                    if node._type.type_ != node.value._type:
+                        raise TypeMismatch("Array Type mismatch")
+                else:
+                    raise TypeMismatch("Type mismatch")
+        elif isinstance(node.target, ast.FuncCallOrArray):
+            if not node.target.func in self.symbol_table:
+                raise UndeclaredVariableError("Array '%s' not declared." \
+                        % node.target.func)
+            # TODO: based on symbol_table, figure out if `node.target` is an
+            # array or a function call. Annotate the `node` to reflect that.
+            # Then in later stage the node can be replaced, based on the
+            # annotation. Extend Fortran.asdl to include FuncCall and
+            # ArrayRef, and change all occurrences of FuncCallOrArray to one of
+            # those.
+            # For now we assume that FuncCallOrArray is an ArrayRef.
+            self.visit_sequence(node.target.args)
+            if len(node.target.args) != 1:
+                raise NotImplementedError("Require exactly one index for now")
+            idx = node.target.args[0]
+            if idx._type != Integer():
+                raise TypeMismatch("Array index must be an integer")
+        else:
+            raise SemanticError("LHS must be a variable or an array")
 
 def annotate_tree(tree, symbol_table):
     """
