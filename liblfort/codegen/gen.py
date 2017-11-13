@@ -140,8 +140,8 @@ class CodeGenVisitor(ast.ASTVisitor):
                 ptr = self.builder.alloca(self.types[type_f], name=sym["name"])
             sym["ptr"] = ptr
 
-        self.visit_sequence(node.body)
         self.visit_sequence(node.contains)
+        self.visit_sequence(node.body)
         self.builder.ret(ir.Constant(ir.IntType(64), 0))
 
     def visit_Assignment(self, node):
