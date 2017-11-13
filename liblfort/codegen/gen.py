@@ -152,10 +152,19 @@ class CodeGenVisitor(ast.ASTVisitor):
             self.builder.store(value, ptr)
         elif isinstance(lhs, ast.FuncCallOrArray):
             # array
-            raise NotImplementedError("arrays not implemented yet")
+            value = self.visit(node.value)
+            printf(self.module, self.builder, "array assignment: RHS=\n", value)
         else:
             # should not happend
             raise Exception("`node` must be either a variable or an array")
+
+    def visit_FuncCallOrArray(self, node):
+        if len(node.args) != 1:
+            raise NotImplementedError("Require exactly one index for now")
+        idx = self.visit(node.args[0])
+        printf(self.module, self.builder, "array ref: idx=\n", idx)
+        return idx
+
 
     def visit_Print(self, node):
         for expr in node.values:
