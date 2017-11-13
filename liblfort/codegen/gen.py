@@ -284,6 +284,22 @@ class CodeGenVisitor(ast.ASTVisitor):
         # end
         self.builder.position_at_end(loopend)
 
+    def visit_Subroutine(self, node):
+        fn = ir.FunctionType(ir.VoidType(), [])
+        func = ir.Function(self.module, fn, name=node.name)
+        block = func.append_basic_block(name='.entry')
+        builder = ir.IRBuilder(block)
+        old = [self.func, self.builder]
+        self.func, self.builder = func, builder
+        self.visit_sequence(node.body)
+        self.builder.ret_void()
+        self.func, self.builder = old
+
+    def visit_SubroutineCall(self, node):
+        fn_exit = get_global(self.module, "f")
+        self.builder.call(fn_exit, [])
+
+
 def codegen(tree, symbol_table):
     tree = transform_doloops(tree)
     v = CodeGenVisitor(symbol_table)
