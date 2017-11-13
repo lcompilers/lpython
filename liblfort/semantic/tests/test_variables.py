@@ -331,6 +331,21 @@ end subroutine
     with pytest.raises(UndeclaredVariableError):
         annotate_tree(tree, symbol_table)
 
+def test_logical6():
+    source = """\
+subroutine sub1(a, b)
+integer, intent(in) :: a(3), b(3)
+integer :: c
+if (a == b) c = 1
+if (a(1) == 1) c = 1
+if (1 == a(1)) c = 1
+if (a(1) == a(1)) c = 1
+end subroutine
+"""
+    tree = parse(source, False)
+    symbol_table = create_symbol_table(tree)
+    annotate_tree(tree, symbol_table)
+
 def test_arrays1():
     source = """\
 subroutine sub1()

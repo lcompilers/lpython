@@ -162,6 +162,9 @@ class ExprVisitor(ast.GenericASTVisitor):
             if isinstance(node.left._type, Array):
                 if node.left._type.type_ != node.right._type:
                     raise TypeMismatch("Array Type mismatch")
+            elif isinstance(node.right._type, Array):
+                if node.right._type.type_ != node.left._type:
+                    raise TypeMismatch("Array Type mismatch")
             else:
                 # TODO: allow combinations of Real/Integer
                 raise TypeMismatch("Type mismatch")
