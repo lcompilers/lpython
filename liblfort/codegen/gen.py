@@ -162,6 +162,8 @@ class CodeGenVisitor(ast.ASTVisitor):
             assert len(sym["type"].shape) == 1
             idx = self.visit(lhs.args[0])
             value = self.visit(node.value)
+            # Convert 1-based indexing to 0-based
+            idx = self.builder.sub(idx, ir.Constant(ir.IntType(64), 1))
             addr = self.builder.gep(ptr, [ir.Constant(ir.IntType(64), 0),
                     idx])
             self.builder.store(value, addr)
@@ -230,6 +232,8 @@ class CodeGenVisitor(ast.ASTVisitor):
         if len(node.args) != 1:
             raise NotImplementedError("Require exactly one index for now")
         idx = self.visit(node.args[0])
+        # Convert 1-based indexing to 0-based
+        idx = self.builder.sub(idx, ir.Constant(ir.IntType(64), 1))
         sym = self.symbol_table[node.func]
         addr = self.builder.gep(sym["ptr"],
                 [ir.Constant(ir.IntType(64), 0), idx])
