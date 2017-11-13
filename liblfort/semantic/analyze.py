@@ -218,8 +218,12 @@ class ExprVisitor(ast.GenericASTVisitor):
             self.visit(node.value)
             if node.value._type != node._type:
                 if isinstance(node._type, Array):
-                    if node._type.type_ != node.value._type:
-                        raise TypeMismatch("Array Type mismatch")
+                    if isinstance(node.value._type, Array):
+                        if node._type.type_ != node.value._type.type_:
+                            raise TypeMismatch("Array Type mismatch")
+                    else:
+                        if node._type.type_ != node.value._type:
+                            raise TypeMismatch("Array Type mismatch")
                 else:
                     # FIXME: this shouldn't happen --- this is handled by the
                     # above if

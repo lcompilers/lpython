@@ -395,7 +395,7 @@ end subroutine
 def test_arrays4():
     source = """\
 subroutine sub1()
-integer :: a(3), b(3), i
+integer :: a(3), b(4), i
 a(1) = b(2)
 a(i) = b(2)
 a(1) = b(2) + 1
