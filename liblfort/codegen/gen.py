@@ -165,11 +165,6 @@ class CodeGenVisitor(ast.ASTVisitor):
             addr = self.builder.gep(ptr, [ir.Constant(ir.IntType(64), 0),
                     idx])
             self.builder.store(value, addr)
-
-            printf(self.module, self.builder,
-                    "array assignment: %s(%s) = %s RHS=%%d\n" % (lhs.func,
-                        lhs.args[0].id,
-                        node.value.id), value)
         else:
             # should not happen
             raise Exception("`node` must be either a variable or an array")
