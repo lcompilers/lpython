@@ -165,10 +165,15 @@ class CodeGenVisitor(ast.ASTVisitor):
         if len(node.args) != 1:
             raise NotImplementedError("Require exactly one index for now")
         idx = self.visit(node.args[0])
-        node.func
+        array_type = ir.ArrayType(ir.IntType(64), 3)
+        ptr = self.builder.alloca(array_type, name="XXX1")
+        for i in range(1, 3+1):
+            addr = self.builder.gep(ptr, [ir.Constant(ir.IntType(64), 0), ir.Constant(ir.IntType(64), i)])
+            self.builder.store(ir.Constant(ir.IntType(64), i), addr)
         printf(self.module, self.builder, "array ref: name=" + node.func + \
                 " idx=%d\n", idx)
-        return idx
+        addr = self.builder.gep(ptr, [ir.Constant(ir.IntType(64), 0), idx])
+        return self.builder.load(addr)
 
 
     def visit_Print(self, node):
