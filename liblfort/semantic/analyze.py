@@ -139,7 +139,12 @@ class ExprVisitor(ast.GenericASTVisitor):
         if node.left._type == node.right._type:
             node._type = node.left._type
         else:
-            if isinstance(node.left._type, Array):
+            if isinstance(node.left._type, Array) and \
+                    isinstance(node.right._type, Array):
+                if node.left._type.type_ != node.right._type.type_:
+                    raise TypeMismatch("Array Type mismatch")
+                node._type = node.right._type.type_
+            elif isinstance(node.left._type, Array):
                 if node.left._type.type_ != node.right._type:
                     raise TypeMismatch("Array Type mismatch")
                 node._type = node.right._type

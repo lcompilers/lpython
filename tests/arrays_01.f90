@@ -22,4 +22,7 @@ end do
 if (b(1) /= 1) error stop
 if (b(2) /= 2) error stop
 if (b(3) /= 3) error stop
+
+b(4) = b(1)+b(2)+b(3)+a(1)
+if (b(4) /= 17) error stop
 end
