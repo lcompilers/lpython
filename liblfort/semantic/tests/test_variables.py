@@ -1,7 +1,7 @@
 import pytest
 
 from liblfort.semantic.analyze import (create_symbol_table, Integer, Real,
-        Logical, UndeclaredVariableError, annotate_tree, TypeMismatch)
+        Array, Logical, UndeclaredVariableError, annotate_tree, TypeMismatch)
 from liblfort.ast import parse, dump
 
 def test_types():
@@ -24,6 +24,17 @@ def test_types():
     assert not (r == i)
     assert not (r == Integer())
     assert r != Integer()
+
+def test_types_arrays():
+    i = Integer()
+    dims = [9, 10]
+    a = Array(i, dims)
+    assert a == a
+    assert not (a != a)
+    assert a == Array(i, dims)
+    assert a == Array(Integer(), [9, 10])
+    assert a != Array(Integer(), [9, 11])
+    assert a != Array(Real(), [9, 10])
 
 def test_variables():
     source = """\
@@ -319,3 +330,80 @@ end subroutine
     symbol_table = create_symbol_table(tree)
     with pytest.raises(UndeclaredVariableError):
         annotate_tree(tree, symbol_table)
+
+def test_logical6():
+    source = """\
+subroutine sub1(a, b)
+integer, intent(in) :: a(3), b(3)
+integer :: c
+if (a == b) c = 1
+if (a(1) == 1) c = 1
+if (1 == a(1)) c = 1
+if (a(1) == a(1)) c = 1
+end subroutine
+"""
+    tree = parse(source, False)
+    symbol_table = create_symbol_table(tree)
+    annotate_tree(tree, symbol_table)
+
+def test_arrays1():
+    source = """\
+subroutine sub1()
+integer :: a(3), i
+a(1) = 1
+i = 2
+a(2) = i
+a(i) = i+1
+end subroutine
+"""
+    tree = parse(source, False)
+    symbol_table = create_symbol_table(tree)
+    annotate_tree(tree, symbol_table)
+
+def test_arrays2():
+    source = """\
+subroutine sub1()
+integer :: a(3)
+real :: r
+a(1) = 1
+r = 2
+a(r) = 2
+end subroutine
+"""
+    tree = parse(source, False)
+    symbol_table = create_symbol_table(tree)
+    with pytest.raises(TypeMismatch):
+        annotate_tree(tree, symbol_table)
+
+def test_arrays3():
+    # Here we test assigning the wrong type to an array. Since only real and
+    # integer types are implemented for now, just test that real cannot be
+    # assinged to an integer. Later we can change this to, say, a character.
+    source = """\
+subroutine sub1()
+integer :: a(3), i
+real :: r
+i = 1
+a(i) = r
+end subroutine
+"""
+    tree = parse(source, False)
+    symbol_table = create_symbol_table(tree)
+    with pytest.raises(TypeMismatch):
+        annotate_tree(tree, symbol_table)
+
+def test_arrays4():
+    source = """\
+subroutine sub1()
+integer :: a(3), b(4), i
+a(1) = b(2)
+a(i) = b(2)
+a(1) = b(2) + 1
+a(1) = 1 + b(2)
+a(1) = b(i) + 1
+a(1) = b(i) + b(1)
+end subroutine
+"""
+    tree = parse(source, False)
+    symbol_table = create_symbol_table(tree)
+    annotate_tree(tree, symbol_table)

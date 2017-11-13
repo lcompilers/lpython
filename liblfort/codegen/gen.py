@@ -3,7 +3,7 @@ from llvmlite.binding import get_default_triple
 
 from ..ast import ast
 from ..ast.utils import NodeTransformer
-from ..semantic.analyze import Integer, Logical
+from ..semantic.analyze import Integer, Logical, Array
 
 def get_global(module, name):
     try:
@@ -129,9 +129,15 @@ class CodeGenVisitor(ast.ASTVisitor):
         for ssym in self.symbol_table:
             sym = self.symbol_table[ssym]
             type_f = sym["type"]
-            if type_f not in self.types:
-                raise Exception("Type not implemented.")
-            ptr = self.builder.alloca(self.types[type_f], name=sym["name"])
+            if isinstance(type_f, Array):
+                assert type_f.type_ == Integer()
+                assert len(type_f.shape) == 1
+                array_type = ir.ArrayType(ir.IntType(64), type_f.shape[0])
+                ptr = self.builder.alloca(array_type, name=sym["name"])
+            else:
+                if type_f not in self.types:
+                    raise Exception("Type not implemented.")
+                ptr = self.builder.alloca(self.types[type_f], name=sym["name"])
             sym["ptr"] = ptr
 
         self.visit_sequence(node.body)
@@ -140,15 +146,30 @@ class CodeGenVisitor(ast.ASTVisitor):
 
     def visit_Assignment(self, node):
         lhs = node.target
-        assert isinstance(lhs, ast.Name)
-        if lhs.id not in self.symbol_table:
-            raise Exception("Undefined variable.")
-        sym = self.symbol_table[lhs.id]
-        ptr = sym["ptr"]
-        value = self.visit(node.value)
-        if value.type != ptr.type.pointee:
-            raise Exception("Type mismatch in assignment.")
-        self.builder.store(value, ptr)
+        if isinstance(lhs, ast.Name):
+            if lhs.id not in self.symbol_table:
+                raise Exception("Undefined variable.")
+            sym = self.symbol_table[lhs.id]
+            ptr = sym["ptr"]
+            value = self.visit(node.value)
+            if value.type != ptr.type.pointee:
+                raise Exception("Type mismatch in assignment.")
+            self.builder.store(value, ptr)
+        elif isinstance(lhs, ast.FuncCallOrArray):
+            # array
+            sym = self.symbol_table[lhs.func]
+            ptr = sym["ptr"]
+            assert len(sym["type"].shape) == 1
+            idx = self.visit(lhs.args[0])
+            value = self.visit(node.value)
+            # Convert 1-based indexing to 0-based
+            idx = self.builder.sub(idx, ir.Constant(ir.IntType(64), 1))
+            addr = self.builder.gep(ptr, [ir.Constant(ir.IntType(64), 0),
+                    idx])
+            self.builder.store(value, addr)
+        else:
+            # should not happen
+            raise Exception("`node` must be either a variable or an array")
 
     def visit_Print(self, node):
         for expr in node.values:
@@ -206,6 +227,17 @@ class CodeGenVisitor(ast.ASTVisitor):
             raise Exception("Undefined variable.")
         sym = self.symbol_table[v]
         return self.builder.load(sym["ptr"])
+
+    def visit_FuncCallOrArray(self, node):
+        if len(node.args) != 1:
+            raise NotImplementedError("Require exactly one index for now")
+        idx = self.visit(node.args[0])
+        # Convert 1-based indexing to 0-based
+        idx = self.builder.sub(idx, ir.Constant(ir.IntType(64), 1))
+        sym = self.symbol_table[node.func]
+        addr = self.builder.gep(sym["ptr"],
+                [ir.Constant(ir.IntType(64), 0), idx])
+        return self.builder.load(addr)
 
     def visit_If(self, node):
         cond = self.visit(node.test)

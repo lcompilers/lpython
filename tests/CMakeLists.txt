@@ -34,3 +34,5 @@ RUN(variables_03)
 RUN(while_01)
 RUN(doloop_01)
 RUN(doloop_02)
+
+RUN(arrays_01)

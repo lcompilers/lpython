@@ -4,10 +4,6 @@ import sys
 
 import llvmlite.binding as llvm
 
-from .ast import parse
-from .semantic.analyze import create_symbol_table, annotate_tree
-from .codegen.gen import codegen
-
 
 def main():
     parser = argparse.ArgumentParser(description="Fortran compiler.")
@@ -22,11 +18,14 @@ def main():
             help="place the output into FILE")
     parser.add_argument('--ld-musl', action="store_true",
             help="invoke ld directly and link with musl")
+    parser.add_argument('-v', action="store_true",
+            help="be more verbose")
     args = parser.parse_args()
 
     filename = args.file
     basename, ext = os.path.splitext(os.path.basename(filename))
     link_only = (open(filename, mode="rb").read(4)[1:] == b"ELF")
+    verbose = args.v
     if args.o:
         outfile = args.o
     elif args.S:
@@ -47,36 +46,65 @@ def main():
 
     if not link_only:
         # Fortran -> LLVM IR source
+        if verbose: print("Reading...")
         source = open(filename).read()
+        if verbose: print("    Done.")
+        if verbose: print("Importing parser...")
+        from .ast import parse
+        if verbose: print("    Done.")
         try:
+            if verbose: print("Parsing...")
             ast_tree = parse(source)
+            if verbose: print("    Done.")
         except SyntaxErrorException as err:
             print(str(err))
             sys.exit(1)
+        if verbose: print("Importing semantic analyzer...")
+        from .semantic.analyze import create_symbol_table, annotate_tree
+        if verbose: print("    Done.")
+        if verbose: print("Symbol table...")
         symbol_table = create_symbol_table(ast_tree)
+        if verbose: print("    Done.")
+        if verbose: print("Type annotation...")
         annotate_tree(ast_tree, symbol_table)
+        if verbose: print("    Done.")
+        if verbose: print("Importing codegen...")
+        from .codegen.gen import codegen
+        if verbose: print("    Done.")
+        if verbose: print("LLMV IR generation...")
         module = codegen(ast_tree, symbol_table)
+        if verbose: print("    Done.")
+        if verbose: print("LLMV IR -> string...")
         source_ll = str(module)
+        if verbose: print("    Done.")
         if args.emit_llvm:
             with open(outfile, "w") as ll:
                 ll.write(source_ll)
             return
 
         # LLVM IR source -> assembly / machine object code
+        if verbose: print("Initializing LLVM...")
         llvm.initialize()
         llvm.initialize_native_asmprinter()
         llvm.initialize_native_target()
         target = llvm.Target.from_triple(module.triple)
         target_machine = target.create_target_machine()
         target_machine.set_asm_verbosity(True)
+        if verbose: print("    Done.")
+        if verbose: print("Loading LLMV IR string...")
         mod = llvm.parse_assembly(source_ll)
+        if verbose: print("    Done.")
+        if verbose: print("Verifying LLMV IR...")
         mod.verify()
+        if verbose: print("    Done.")
         if args.S:
             with open(outfile, "w") as o:
                 o.write(target_machine.emit_assembly(mod))
             return
+        if verbose: print("Machine code...")
         with open(objfile, "wb") as o:
             o.write(target_machine.emit_object(mod))
+        if verbose: print("    Done.")
         if args.c:
             return
 
