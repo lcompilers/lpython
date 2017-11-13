@@ -384,7 +384,9 @@ integer :: a(3), b(3), i
 a(1) = b(2)
 a(i) = b(2)
 a(1) = b(2) + 1
+a(1) = 1 + b(2)
 a(1) = b(i) + 1
+a(1) = b(i) + b(1)
 end subroutine
 """
     tree = parse(source, False)

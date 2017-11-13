@@ -136,13 +136,20 @@ class ExprVisitor(ast.GenericASTVisitor):
     def visit_BinOp(self, node):
         self.visit(node.left)
         self.visit(node.right)
-        if node.left._type != node.right._type:
+        if node.left._type == node.right._type:
+            node._type = node.left._type
+        else:
             if isinstance(node.left._type, Array):
                 if node.left._type.type_ != node.right._type:
                     raise TypeMismatch("Array Type mismatch")
+                node._type = node.right._type
+            elif isinstance(node.right._type, Array):
+                if node.right._type.type_ != node.left._type:
+                    raise TypeMismatch("Array Type mismatch")
+                node._type = node.left._type
             else:
+                # TODO: allow combinations of Real/Integer
                 raise TypeMismatch("Type mismatch")
-        node._type = node.right._type
 
     def visit_UnaryOp(self, node):
         self.visit(node.operand)
