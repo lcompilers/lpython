@@ -154,7 +154,7 @@ class CodeGenVisitor(ast.ASTVisitor):
             # array
             value = self.visit(node.value)
             printf(self.module, self.builder,
-                    "array assignment: %s(%s) = %s RHS=\n" % (lhs.func,
+                    "array assignment: %s(%s) = %s RHS=%%d\n" % (lhs.func,
                         lhs.args[0].id,
                         node.value.id), value)
         else:
@@ -165,7 +165,7 @@ class CodeGenVisitor(ast.ASTVisitor):
         if len(node.args) != 1:
             raise NotImplementedError("Require exactly one index for now")
         idx = self.visit(node.args[0])
-        printf(self.module, self.builder, "array ref: idx=\n", idx)
+        printf(self.module, self.builder, "array ref: idx=%d\n", idx)
         return idx
 
 
