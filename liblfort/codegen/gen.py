@@ -165,7 +165,9 @@ class CodeGenVisitor(ast.ASTVisitor):
         if len(node.args) != 1:
             raise NotImplementedError("Require exactly one index for now")
         idx = self.visit(node.args[0])
-        printf(self.module, self.builder, "array ref: idx=%d\n", idx)
+        node.func
+        printf(self.module, self.builder, "array ref: name=" + node.func + \
+                " idx=%d\n", idx)
         return idx
 
 
