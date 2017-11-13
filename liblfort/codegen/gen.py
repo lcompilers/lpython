@@ -153,7 +153,10 @@ class CodeGenVisitor(ast.ASTVisitor):
         elif isinstance(lhs, ast.FuncCallOrArray):
             # array
             value = self.visit(node.value)
-            printf(self.module, self.builder, "array assignment: RHS=\n", value)
+            printf(self.module, self.builder,
+                    "array assignment: %s(%s) = %s RHS=\n" % (lhs.func,
+                        lhs.args[0].id,
+                        node.value.id), value)
         else:
             # should not happend
             raise Exception("`node` must be either a variable or an array")
