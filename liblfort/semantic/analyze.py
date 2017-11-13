@@ -137,8 +137,12 @@ class ExprVisitor(ast.GenericASTVisitor):
         self.visit(node.left)
         self.visit(node.right)
         if node.left._type != node.right._type:
-            raise TypeMismatch("Type mismatch")
-        node._type = node.left._type
+            if isinstance(node.left._type, Array):
+                if node.left._type.type_ != node.right._type:
+                    raise TypeMismatch("Array Type mismatch")
+            else:
+                raise TypeMismatch("Type mismatch")
+        node._type = node.right._type
 
     def visit_UnaryOp(self, node):
         self.visit(node.operand)
