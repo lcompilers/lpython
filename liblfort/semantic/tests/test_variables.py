@@ -407,3 +407,16 @@ end subroutine
     tree = parse(source, False)
     symbol_table = create_symbol_table(tree)
     annotate_tree(tree, symbol_table)
+
+
+def test_subroutines1():
+    source = """\
+subroutine sub1(a, b)
+integer, intent(in) :: a
+integer, intent(out) :: b
+b = a + 1
+end subroutine
+"""
+    tree = parse(source, False)
+    symbol_table = create_symbol_table(tree)
+    annotate_tree(tree, symbol_table)
