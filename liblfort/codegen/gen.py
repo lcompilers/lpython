@@ -118,7 +118,6 @@ class CodeGenVisitor(ast.ASTVisitor):
         self.types = {
                     Integer(): ir.IntType(64),
                     Logical(): ir.IntType(1),
-                    Array(Integer(), [3]): ir.IntType(1),
                 }
 
         int_type = ir.IntType(64);
@@ -130,9 +129,15 @@ class CodeGenVisitor(ast.ASTVisitor):
         for ssym in self.symbol_table:
             sym = self.symbol_table[ssym]
             type_f = sym["type"]
-            if type_f not in self.types:
-                raise Exception("Type not implemented.")
-            ptr = self.builder.alloca(self.types[type_f], name=sym["name"])
+            if isinstance(type_f, Array):
+                assert type_f.type_ == Integer()
+                assert len(type_f.shape) == 1
+                array_type = ir.ArrayType(ir.IntType(64), type_f.shape[0])
+                ptr = self.builder.alloca(array_type, name=sym["name"])
+            else:
+                if type_f not in self.types:
+                    raise Exception("Type not implemented.")
+                ptr = self.builder.alloca(self.types[type_f], name=sym["name"])
             sym["ptr"] = ptr
 
         self.visit_sequence(node.body)
@@ -152,7 +157,15 @@ class CodeGenVisitor(ast.ASTVisitor):
             self.builder.store(value, ptr)
         elif isinstance(lhs, ast.FuncCallOrArray):
             # array
+            sym = self.symbol_table[lhs.func]
+            ptr = sym["ptr"]
+            assert len(sym["type"].shape) == 1
+            idx = self.visit(lhs.args[0])
             value = self.visit(node.value)
+            addr = self.builder.gep(ptr, [ir.Constant(ir.IntType(64), 0),
+                    idx])
+            self.builder.store(value, addr)
+
             printf(self.module, self.builder,
                     "array assignment: %s(%s) = %s RHS=%%d\n" % (lhs.func,
                         lhs.args[0].id,
@@ -160,21 +173,6 @@ class CodeGenVisitor(ast.ASTVisitor):
         else:
             # should not happen
             raise Exception("`node` must be either a variable or an array")
-
-    def visit_FuncCallOrArray(self, node):
-        if len(node.args) != 1:
-            raise NotImplementedError("Require exactly one index for now")
-        idx = self.visit(node.args[0])
-        array_type = ir.ArrayType(ir.IntType(64), 3)
-        ptr = self.builder.alloca(array_type, name="XXX1")
-        for i in range(1, 3+1):
-            addr = self.builder.gep(ptr, [ir.Constant(ir.IntType(64), 0), ir.Constant(ir.IntType(64), i)])
-            self.builder.store(ir.Constant(ir.IntType(64), i), addr)
-        printf(self.module, self.builder, "array ref: name=" + node.func + \
-                " idx=%d\n", idx)
-        addr = self.builder.gep(ptr, [ir.Constant(ir.IntType(64), 0), idx])
-        return self.builder.load(addr)
-
 
     def visit_Print(self, node):
         for expr in node.values:
@@ -232,6 +230,15 @@ class CodeGenVisitor(ast.ASTVisitor):
             raise Exception("Undefined variable.")
         sym = self.symbol_table[v]
         return self.builder.load(sym["ptr"])
+
+    def visit_FuncCallOrArray(self, node):
+        if len(node.args) != 1:
+            raise NotImplementedError("Require exactly one index for now")
+        idx = self.visit(node.args[0])
+        sym = self.symbol_table[node.func]
+        addr = self.builder.gep(sym["ptr"],
+                [ir.Constant(ir.IntType(64), 0), idx])
+        return self.builder.load(addr)
 
     def visit_If(self, node):
         cond = self.visit(node.test)
