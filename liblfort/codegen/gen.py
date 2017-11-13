@@ -158,7 +158,7 @@ class CodeGenVisitor(ast.ASTVisitor):
                         lhs.args[0].id,
                         node.value.id), value)
         else:
-            # should not happend
+            # should not happen
             raise Exception("`node` must be either a variable or an array")
 
     def visit_FuncCallOrArray(self, node):
