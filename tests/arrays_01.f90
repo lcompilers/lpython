@@ -16,10 +16,10 @@ if (b(2) /= 12) error stop
 if (b(3) /= 13) error stop
 if (b(4) /= 14) error stop
 
-!do i = 1, 3
-!    b(i) = a(i)-10
-!end do
-!if (b(1) /= 1) error stop
-!if (b(2) /= 2) error stop
-!if (b(3) /= 3) error stop
+do i = 1, 3
+    b(i) = a(i)-10
+end do
+if (b(1) /= 1) error stop
+if (b(2) /= 2) error stop
+if (b(3) /= 3) error stop
 end
