@@ -303,10 +303,25 @@ class CodeGenVisitor(ast.ASTVisitor):
         self.func, self.builder = old
 
     def visit_SubroutineCall(self, node):
-        fn_exit = get_global(self.module, "f")
-        i = self.symbol_table["i"]["ptr"]
-        j = self.symbol_table["j"]["ptr"]
-        self.builder.call(fn_exit, [i, j])
+        fn = get_global(self.module, "f")
+        # Pass expressions by value (copying the result to a temporary variable
+        # and passing a pointer to that), pass variables by reference.
+        args_ptr = []
+        for arg in node.args:
+            if isinstance(arg, ast.Name):
+                # Get a pointer to a variable
+                v = arg.id
+                assert v in self.symbol_table
+                sym = self.symbol_table[v]
+                a_ptr = sym["ptr"]
+                args_ptr.append(a_ptr)
+            else:
+                # Expression is a value, get a pointer to a copy of it
+                a_value = self.visit(arg)
+                a_ptr = self.builder.alloca(a_value.type)
+                self.builder.store(a_value, a_ptr)
+                args_ptr.append(a_ptr)
+        self.builder.call(fn, args_ptr)
 
 
 def codegen(tree, symbol_table):
