@@ -20,12 +20,15 @@ def main():
             help="invoke ld directly and link with musl")
     parser.add_argument('-v', action="store_true",
             help="be more verbose")
+    parser.add_argument('-O3', action="store_true",
+            help="turn LLVM optimizations on")
     args = parser.parse_args()
 
     filename = args.file
     basename, ext = os.path.splitext(os.path.basename(filename))
     link_only = (open(filename, mode="rb").read(4)[1:] == b"ELF")
     verbose = args.v
+    optimizations = args.O3
     if args.o:
         outfile = args.o
     elif args.S:
