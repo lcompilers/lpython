@@ -303,7 +303,7 @@ class CodeGenVisitor(ast.ASTVisitor):
         self.func, self.builder = old
 
     def visit_SubroutineCall(self, node):
-        fn = get_global(self.module, "f")
+        fn = get_global(self.module, node.name)
         # Pass expressions by value (copying the result to a temporary variable
         # and passing a pointer to that), pass variables by reference.
         args_ptr = []
