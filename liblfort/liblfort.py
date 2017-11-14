@@ -8,7 +8,7 @@ import llvmlite.binding as llvm
 def main():
     parser = argparse.ArgumentParser(description="Fortran compiler.")
     parser.add_argument('file', help="source file")
-    parser.add_argument('--emit-llvm', action="store_true",
+    parser.add_argument('-emit-llvm', action="store_true",
             help="emit LLVM IR source code, do not assemble or link")
     parser.add_argument('-S', action="store_true",
             help="emit assembly, do not assemble or link")
