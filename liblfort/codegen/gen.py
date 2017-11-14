@@ -285,19 +285,28 @@ class CodeGenVisitor(ast.ASTVisitor):
         self.builder.position_at_end(loopend)
 
     def visit_Subroutine(self, node):
-        fn = ir.FunctionType(ir.VoidType(), [])
+        fn = ir.FunctionType(ir.VoidType(), [ir.IntType(64).as_pointer(),
+            ir.IntType(64).as_pointer()])
         func = ir.Function(self.module, fn, name=node.name)
         block = func.append_basic_block(name='.entry')
         builder = ir.IRBuilder(block)
         old = [self.func, self.builder]
         self.func, self.builder = func, builder
+
+        # Assign the local variables
+        self.symbol_table["a"]["ptr"] = self.func.args[0]
+        self.symbol_table["b"]["ptr"] = self.func.args[1]
+
         self.visit_sequence(node.body)
         self.builder.ret_void()
+
         self.func, self.builder = old
 
     def visit_SubroutineCall(self, node):
         fn_exit = get_global(self.module, "f")
-        self.builder.call(fn_exit, [])
+        i = self.symbol_table["i"]["ptr"]
+        j = self.symbol_table["j"]["ptr"]
+        self.builder.call(fn_exit, [i, j])
 
 
 def codegen(tree, symbol_table):
