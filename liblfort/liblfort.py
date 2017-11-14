@@ -28,7 +28,7 @@ def main():
     basename, ext = os.path.splitext(os.path.basename(filename))
     link_only = (open(filename, mode="rb").read(4)[1:] == b"ELF")
     verbose = args.v
-    optimizations = args.O3
+    optimize = args.O3
     if args.o:
         outfile = args.o
     elif args.S:
@@ -80,10 +80,6 @@ def main():
         if verbose: print("LLMV IR -> string...")
         source_ll = str(module)
         if verbose: print("    Done.")
-        if args.emit_llvm:
-            with open(outfile, "w") as ll:
-                ll.write(source_ll)
-            return
 
         # LLVM IR source -> assembly / machine object code
         if verbose: print("Initializing LLVM...")
@@ -100,6 +96,21 @@ def main():
         if verbose: print("Verifying LLMV IR...")
         mod.verify()
         if verbose: print("    Done.")
+        if optimize:
+            if verbose: print("Optimizing...")
+            pmb = llvm.create_pass_manager_builder()
+            pmb.opt_level = 3
+            pmb.loop_vectorize = True
+            pmb.slp_vectorize = True
+            pm = llvm.create_module_pass_manager()
+            pmb.populate(pm)
+            pm.run(mod)
+            if verbose: print("    Done.")
+
+        if args.emit_llvm:
+            with open(outfile, "w") as ll:
+                ll.write(str(mod))
+            return
         if args.S:
             with open(outfile, "w") as o:
                 o.write(target_machine.emit_assembly(mod))
