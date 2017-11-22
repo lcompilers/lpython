@@ -292,10 +292,8 @@ class CodeGenVisitor(ast.ASTVisitor):
         builder = ir.IRBuilder(block)
         old = [self.func, self.builder]
         self.func, self.builder = func, builder
-
-        # Assign the local variables
-        self.symbol_table["a"]["ptr"] = self.func.args[0]
-        self.symbol_table["b"]["ptr"] = self.func.args[1]
+        for n, arg in enumerate(node.args):
+            self.symbol_table[arg.arg]["ptr"] = self.func.args[n]
 
         self.visit_sequence(node.body)
         self.builder.ret_void()
