@@ -8,7 +8,7 @@ import llvmlite.binding as llvm
 def main():
     parser = argparse.ArgumentParser(description="Fortran compiler.")
     parser.add_argument('file', help="source file")
-    parser.add_argument('--emit-llvm', action="store_true",
+    parser.add_argument('-emit-llvm', action="store_true",
             help="emit LLVM IR source code, do not assemble or link")
     parser.add_argument('-S', action="store_true",
             help="emit assembly, do not assemble or link")
@@ -20,12 +20,15 @@ def main():
             help="invoke ld directly and link with musl")
     parser.add_argument('-v', action="store_true",
             help="be more verbose")
+    parser.add_argument('-O3', action="store_true",
+            help="turn LLVM optimizations on")
     args = parser.parse_args()
 
     filename = args.file
     basename, ext = os.path.splitext(os.path.basename(filename))
     link_only = (open(filename, mode="rb").read(4)[1:] == b"ELF")
     verbose = args.v
+    optimize = args.O3
     if args.o:
         outfile = args.o
     elif args.S:
@@ -77,10 +80,6 @@ def main():
         if verbose: print("LLMV IR -> string...")
         source_ll = str(module)
         if verbose: print("    Done.")
-        if args.emit_llvm:
-            with open(outfile, "w") as ll:
-                ll.write(source_ll)
-            return
 
         # LLVM IR source -> assembly / machine object code
         if verbose: print("Initializing LLVM...")
@@ -97,6 +96,21 @@ def main():
         if verbose: print("Verifying LLMV IR...")
         mod.verify()
         if verbose: print("    Done.")
+        if optimize:
+            if verbose: print("Optimizing...")
+            pmb = llvm.create_pass_manager_builder()
+            pmb.opt_level = 3
+            pmb.loop_vectorize = True
+            pmb.slp_vectorize = True
+            pm = llvm.create_module_pass_manager()
+            pmb.populate(pm)
+            pm.run(mod)
+            if verbose: print("    Done.")
+
+        if args.emit_llvm:
+            with open(outfile, "w") as ll:
+                ll.write(str(mod))
+            return
         if args.S:
             with open(outfile, "w") as o:
                 o.write(target_machine.emit_assembly(mod))

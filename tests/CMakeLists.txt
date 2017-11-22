@@ -36,3 +36,5 @@ RUN(doloop_01)
 RUN(doloop_02)
 
 RUN(arrays_01)
+
+RUN(subroutines_01)

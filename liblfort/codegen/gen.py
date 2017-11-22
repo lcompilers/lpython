@@ -140,8 +140,8 @@ class CodeGenVisitor(ast.ASTVisitor):
                 ptr = self.builder.alloca(self.types[type_f], name=sym["name"])
             sym["ptr"] = ptr
 
-        self.visit_sequence(node.body)
         self.visit_sequence(node.contains)
+        self.visit_sequence(node.body)
         self.builder.ret(ir.Constant(ir.IntType(64), 0))
 
     def visit_Assignment(self, node):
@@ -283,6 +283,44 @@ class CodeGenVisitor(ast.ASTVisitor):
 
         # end
         self.builder.position_at_end(loopend)
+
+    def visit_Subroutine(self, node):
+        fn = ir.FunctionType(ir.VoidType(), [ir.IntType(64).as_pointer(),
+            ir.IntType(64).as_pointer()])
+        func = ir.Function(self.module, fn, name=node.name)
+        block = func.append_basic_block(name='.entry')
+        builder = ir.IRBuilder(block)
+        old = [self.func, self.builder]
+        self.func, self.builder = func, builder
+        for n, arg in enumerate(node.args):
+            self.symbol_table[arg.arg]["ptr"] = self.func.args[n]
+
+        self.visit_sequence(node.body)
+        self.builder.ret_void()
+
+        self.func, self.builder = old
+
+    def visit_SubroutineCall(self, node):
+        fn = get_global(self.module, node.name)
+        # Pass expressions by value (copying the result to a temporary variable
+        # and passing a pointer to that), pass variables by reference.
+        args_ptr = []
+        for arg in node.args:
+            if isinstance(arg, ast.Name):
+                # Get a pointer to a variable
+                v = arg.id
+                assert v in self.symbol_table
+                sym = self.symbol_table[v]
+                a_ptr = sym["ptr"]
+                args_ptr.append(a_ptr)
+            else:
+                # Expression is a value, get a pointer to a copy of it
+                a_value = self.visit(arg)
+                a_ptr = self.builder.alloca(a_value.type)
+                self.builder.store(a_value, a_ptr)
+                args_ptr.append(a_ptr)
+        self.builder.call(fn, args_ptr)
+
 
 def codegen(tree, symbol_table):
     tree = transform_doloops(tree)
