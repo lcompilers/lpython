@@ -53,7 +53,7 @@ def main():
         source = open(filename).read()
         if verbose: print("    Done.")
         if verbose: print("Importing parser...")
-        from .ast import parse
+        from .ast import parse, SyntaxErrorException
         if verbose: print("    Done.")
         try:
             if verbose: print("Parsing...")
