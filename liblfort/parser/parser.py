@@ -449,7 +449,9 @@ class ASTBuilderVisitor(fortranVisitor):
         # Returns a list
         statements = []
         for stat in ctx.statement():
-            statements.append(self.visit(stat))
+            s = self.visit(stat)
+            if s is not None:
+                statements.append(s)
         return statements
 
     # Visit a parse tree produced by fortranParser#while_statement.
