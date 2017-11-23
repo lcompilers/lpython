@@ -12,6 +12,7 @@ macro(COMPILE name)
 endmacro(COMPILE)
 
 RUN(program_cmake_01)
+RUN(program_cmake_02)
 
 RUN(expr_01 fail)
 RUN(expr_02)
