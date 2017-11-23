@@ -73,7 +73,7 @@ interface_decl
 //
 
 program
-    : NEWLINE* ('program'|'PROGRAM') ID NEWLINE+ sub_block 'program'? ID? NEWLINE+ EOF
+    : NEWLINE* ('program'|'PROGRAM') ID NEWLINE+ sub_block ('program'|'PROGRAM')? ID? NEWLINE+ EOF
     ;
 
 subroutine
