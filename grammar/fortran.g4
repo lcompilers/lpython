@@ -148,7 +148,7 @@ array_comp_decl
 //
 
 statements
-    : (statement (NEWLINE+ | ';' NEWLINE*))*
+    : ';'* ( statement (NEWLINE+ | ';' NEWLINE*))*
     ;
 
 statement
@@ -230,7 +230,7 @@ do_statement
     ;
 
 while_statement
-    : 'do' 'while' '(' expr ')' NEWLINE+ statements 'end' 'do'
+    : 'do' 'while' '(' expr ')' NEWLINE* statements 'end' 'do'
     ;
 
 select_statement
