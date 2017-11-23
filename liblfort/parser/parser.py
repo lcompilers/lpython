@@ -185,7 +185,7 @@ class ASTBuilderVisitor(fortranVisitor):
     def visitVar_decl(self, ctx:fortranParser.Var_declContext):
         d = []
         for v in ctx.var_sym_decl():
-            sym = v.ID().getText()
+            sym = v.ident().getText()
             sym_type = ctx.var_type().getText()
             dims = []
             if v.array_decl():
@@ -228,7 +228,7 @@ class ASTBuilderVisitor(fortranVisitor):
 
     # Visit a parse tree produced by fortranParser#expr_id.
     def visitExpr_id(self, ctx:fortranParser.Expr_idContext):
-        v = ctx.ID().getText()
+        v = ctx.ident().getText()
         return ast.Name(id=v, lineno=1, col_offset=1)
 
     # Visit a parse tree produced by fortranParser#expr_not.

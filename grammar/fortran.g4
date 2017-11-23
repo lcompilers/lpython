@@ -125,7 +125,7 @@ var_modifier
     ;
 
 var_sym_decl
-    : ID array_decl? ('=' expr)?
+    : ident array_decl? ('=' expr)?
     ;
 
 array_decl
@@ -298,7 +298,7 @@ expr
     : struct_member* fn_names '(' arg_list? ')'  # expr_fn_call
     | struct_member* ID '(' array_index_list ')' # expr_array_call
     | '[' expr_list ']'                          # expr_array_const
-    | struct_member* ID                          # expr_id
+    | struct_member* ident                       # expr_id
     | number                                     # expr_number
     | op=('.true.' | '.false.')                  # expr_truefalse
     | STRING                                     # expr_string
@@ -352,6 +352,10 @@ number
 
 fn_names: ID | 'real' ; // real is both a type and a function name
 
+ident
+    : ID
+    | 'stop'
+    ;
 
 // ----------------------------------------------------------------------------
 // Lexer
