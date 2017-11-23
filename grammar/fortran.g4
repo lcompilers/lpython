@@ -85,7 +85,7 @@ function
     ;
 
 sub_block
-    : use_statement* implicit_statement? var_decl* statements? contains_block? ('end'|'END')
+    : use_statement* implicit_statement? var_decl* statements contains_block? ('end'|'END')
     ;
 
 contains_block
@@ -148,7 +148,7 @@ array_comp_decl
 //
 
 statements
-    : (statement (NEWLINE+ | ';' NEWLINE*))+
+    : (statement (NEWLINE+ | ';' NEWLINE*))*
     ;
 
 statement
