@@ -316,7 +316,7 @@ expr
     | expr '//' expr                             # expr_string_conc
 
 // ### level-4
-    | expr op=('<'|'<='|'=='|'/='|'>='|'>') expr # expr_rel
+    | expr op=('<'|'<='|'=='|'/='|'>='|'>' | '.lt.'|'.le.'|'.eq.'|'.neq.'|'.ge.'|'.gt.') expr # expr_rel
 
 // ### level-5
     | '.not.' expr                               # expr_not

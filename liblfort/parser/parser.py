@@ -308,11 +308,17 @@ class ASTBuilderVisitor(fortranVisitor):
         rhs = self.visit(ctx.expr(1))
         ops = {
             "==": ast.Eq(),
+            ".eq.": ast.Eq(),
             "/=": ast.NotEq(),
+            ".neq.": ast.NotEq(),
             "<": ast.Lt(),
+            ".lt.": ast.Lt(),
             "<=": ast.LtE(),
+            ".le.": ast.LtE(),
             ">": ast.Gt(),
+            ".gt.": ast.Gt(),
             ">=": ast.GtE(),
+            ".ge.": ast.GtE(),
         }
         return ast.Compare(left=lhs, op=ops[op], right=rhs,
                 lineno=1, col_offset=1)
