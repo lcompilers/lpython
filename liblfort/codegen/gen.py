@@ -268,10 +268,14 @@ class CodeGenVisitor(ast.ASTVisitor):
     def visit_Exit(self, node):
         self.builder.branch(self.loopend)
 
+    def visit_Cycle(self, node):
+        self.builder.branch(self.loophead)
+
     def visit_WhileLoop(self, node):
         loophead = self.func.append_basic_block('loop.header')
         loopbody = self.func.append_basic_block('loop.body')
         loopend = self.func.append_basic_block('loop.end')
+        self.loophead = loophead
         self.loopend = loopend
 
         # header
