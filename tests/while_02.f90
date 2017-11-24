@@ -14,6 +14,16 @@ i = 0
 j = 0
 do while (i < 10)
     i = i + 1
+    if (i == 2) exit
+    j = j + i
+end do
+if (j /= 1) error stop
+if (i /= 2) error stop
+
+i = 0
+j = 0
+do while (i < 10)
+    i = i + 1
     if (i == 2) cycle
     j = j + i
 end do
