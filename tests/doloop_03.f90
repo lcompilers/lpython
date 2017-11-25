@@ -14,4 +14,11 @@ do i = 1, 10
     j = j + i
 end do
 if (j /= 1) error stop
+
+j = 0
+do i = 1, 10
+    if (i == 2) cycle
+    j = j + i
+end do
+if (j /= 53) error stop
 end
