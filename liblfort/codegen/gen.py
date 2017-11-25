@@ -72,18 +72,21 @@ class DoLoopTransformer(NodeTransformer):
             else:
                 step = ast.Num(n="1", lineno=1, col_offset=1)
                 op = ast.LtE()
-            cond = ast.Compare(ast.Name(node.head.var,
-                lineno=1, col_offset=1),
-                    op, node.head.end, lineno=1, col_offset=1)
+            cond = ast.Compare(
+                ast.BinOp(ast.Name(node.head.var, lineno=1, col_offset=1),
+                    ast.Add(), step, lineno=1, col_offset=1),
+                op, node.head.end, lineno=1, col_offset=1)
         else:
             cond = ast.Constant(True, lineno=1, col_offset=1)
         body = self.visit_sequence(node.body)
         var_name = ast.Name(node.head.var, lineno=1, col_offset=1)
-        body = body + [ast.Assignment(var_name,
+        body = [ast.Assignment(var_name,
             ast.BinOp(ast.Name(node.head.var, lineno=1, col_offset=1),
                 ast.Add(), step, lineno=1, col_offset=1), lineno=1,
-            col_offset=1)]
-        return [ast.Assignment(var_name, node.head.start,
+            col_offset=1)] + body
+        return [ast.Assignment(var_name,
+            ast.BinOp(node.head.start,
+                ast.Sub(), step, lineno=1, col_offset=1),
             lineno=1, col_offset=1),
                 ast.WhileLoop(cond, body, lineno=1, col_offset=1)]
 
