@@ -28,11 +28,11 @@ minimal:
     - conda install python=3.6 pytest llvmlite
     - pip install antlr4-python3-runtime
     - sudo apt-get update
-    - sudo apt-get install -yq --no-install-recommends wget openjdk-9-jre-headless musl-dev binutils gcc
+    - sudo apt-get install -yq --no-install-recommends wget openjdk-9-jre-headless musl-dev binutils gcc libc6-dev
     - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
     - (cd; wget http://www.antlr.org/download/antlr-4.7-complete.jar)
     - ./build.sh
-    - sudo apt-get remove -yq gcc
+    - sudo apt-get remove -yq gcc libc6-dev
     - sudo apt-get autoremove -yq
     - py.test
     - ./lfort --ld-musl examples/expr2.f90
