@@ -137,7 +137,7 @@ class CodeGenVisitor(ast.ASTVisitor):
         self.builder = ir.IRBuilder(block)
 
         for ssym in self.symbol_table:
-            if ssym in ["abs", "sqrt", "log", "sum"]: continue
+            if ssym in ["abs", "sqrt", "log", "sum", "random_number"]: continue
             sym = self.symbol_table[ssym]
             type_f = sym["type"]
             if isinstance(type_f, Array):
@@ -156,10 +156,13 @@ class CodeGenVisitor(ast.ASTVisitor):
                 'llvm.sqrt', [ir.DoubleType()])
         self.symbol_table["log"]["fn"] = self.module.declare_intrinsic(
                 'llvm.log', [ir.DoubleType()])
+
         fn_type = ir.FunctionType(ir.DoubleType(),
                 [ir.IntType(64), ir.DoubleType().as_pointer()])
         fn_sum = ir.Function(self.module, fn_type, name="_lfort_sum")
         self.symbol_table["sum"]["fn"] = fn_sum
+        fn_rand = ir.Function(self.module, fn_type, name="_lfort_random_number")
+        self.symbol_table["random_number"]["fn"] = fn_rand
 
         self.visit_sequence(node.contains)
         self.visit_sequence(node.body)
@@ -281,7 +284,7 @@ class CodeGenVisitor(ast.ASTVisitor):
             sym = self.symbol_table[node.func]
             fn = sym["fn"]
             arg = self.visit(node.args[0])
-            if sym["name"] == "sum":
+            if sym["name"] in ["sum"]:
                 # FIXME: for now we assume an array was passed in:
                 arg = self.symbol_table[node.args[0].id]
                 addr = self.builder.gep(arg["ptr"],
@@ -366,25 +369,37 @@ class CodeGenVisitor(ast.ASTVisitor):
         self.func, self.builder = old
 
     def visit_SubroutineCall(self, node):
-        fn = get_global(self.module, node.name)
-        # Pass expressions by value (copying the result to a temporary variable
-        # and passing a pointer to that), pass variables by reference.
-        args_ptr = []
-        for arg in node.args:
-            if isinstance(arg, ast.Name):
-                # Get a pointer to a variable
-                v = arg.id
-                assert v in self.symbol_table
-                sym = self.symbol_table[v]
-                a_ptr = sym["ptr"]
-                args_ptr.append(a_ptr)
-            else:
-                # Expression is a value, get a pointer to a copy of it
-                a_value = self.visit(arg)
-                a_ptr = self.builder.alloca(a_value.type)
-                self.builder.store(a_value, a_ptr)
-                args_ptr.append(a_ptr)
-        self.builder.call(fn, args_ptr)
+        if node.name in ["random_number"]:
+            # FIXME: for now we assume an array was passed in:
+            sym = self.symbol_table[node.name]
+            fn = sym["fn"]
+            arg = self.symbol_table[node.args[0].id]
+            addr = self.builder.gep(arg["ptr"],
+                    [ir.Constant(ir.IntType(64), 0),
+                     ir.Constant(ir.IntType(64), 0)])
+            array_size = arg["ptr"].type.pointee.count
+            return self.builder.call(fn,
+                    [ir.Constant(ir.IntType(64), array_size), addr])
+        else:
+            fn = get_global(self.module, node.name)
+            # Pass expressions by value (copying the result to a temporary variable
+            # and passing a pointer to that), pass variables by reference.
+            args_ptr = []
+            for arg in node.args:
+                if isinstance(arg, ast.Name):
+                    # Get a pointer to a variable
+                    v = arg.id
+                    assert v in self.symbol_table
+                    sym = self.symbol_table[v]
+                    a_ptr = sym["ptr"]
+                    args_ptr.append(a_ptr)
+                else:
+                    # Expression is a value, get a pointer to a copy of it
+                    a_value = self.visit(arg)
+                    a_ptr = self.builder.alloca(a_value.type)
+                    self.builder.store(a_value, a_ptr)
+                    args_ptr.append(a_ptr)
+            self.builder.call(fn, args_ptr)
 
 
 def codegen(tree, symbol_table):
