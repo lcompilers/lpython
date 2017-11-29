@@ -238,14 +238,22 @@ class CodeGenVisitor(ast.ASTVisitor):
     def visit_UnaryOp(self, node):
         op = node.op
         rhs = self.visit(node.operand)
-        if isinstance(op, ast.UAdd):
-            return rhs
-        elif isinstance(op, ast.USub):
-            return self.builder.neg(rhs)
-        elif isinstance(op, ast.Not):
-            return self.builder.not_(rhs)
+        if is_int(node.operand) or node.operand._type == Logical():
+            if isinstance(op, ast.UAdd):
+                return rhs
+            elif isinstance(op, ast.USub):
+                return self.builder.neg(rhs)
+            elif isinstance(op, ast.Not):
+                return self.builder.not_(rhs)
+            else:
+                raise Exception("Not implemented")
         else:
-            raise Exception("Not implemented")
+            if isinstance(op, ast.UAdd):
+                return rhs
+            elif isinstance(op, ast.USub):
+                return self.builder.fsub(ir.Constant(ir.DoubleType(), 0), rhs)
+            else:
+                raise Exception("Not implemented")
 
     def visit_Num(self, node):
         return ir.Constant(self.types[node._type], node.o)

@@ -14,6 +14,10 @@ if (abs(sqrt(a)-2._dp) > 1e-12_dp) error stop
 a = 4._dp
 if (abs(log(a)-1.3862943611198906_dp) > 1e-12_dp) error stop
 
+c(1) = -1._dp
+c(2) = -1._dp
+c(3) = -1._dp
+c(4) = -1._dp
 call random_number(c)
 do i = 1, 4
     if (c(i) < 0._dp) error stop
