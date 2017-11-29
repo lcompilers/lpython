@@ -81,7 +81,11 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 "character": Character,
                 "logical": Logical,
             }
-        self.symbol_table = {}
+        self.symbol_table = {
+                "abs": {"name": "abs", "type": Real()},
+                "sqrt": {"name": "sqrt", "type": Real()},
+                "log": {"name": "log", "type": Real()},
+                }
 
     def visit_Declaration(self, node):
         for v in node.vars:
@@ -116,7 +120,19 @@ class ExprVisitor(ast.GenericASTVisitor):
         self.symbol_table = symbol_table
 
     def visit_Num(self, node):
-        node._type = Integer()
+        try:
+            node.o = int(node.n)
+            node._type = Integer()
+        except ValueError:
+            try:
+                node.o = float(node.n)
+                node._type = Real()
+            except ValueError:
+                if node.n.endswith("_dp"):
+                    node.o = float(node.n[:-3])
+                    node._type = Real()
+                else:
+                    raise SemanticError("Unknown number syntax.")
 
     def visit_Constant(self, node):
         node._type = Logical()
@@ -130,7 +146,8 @@ class ExprVisitor(ast.GenericASTVisitor):
     def visit_FuncCallOrArray(self, node):
         if not node.func in self.symbol_table:
             raise UndeclaredVariableError("Func or Array '%s' not declared." \
-                    % node.id)
+                    % node.func)
+        self.visit_sequence(node.args)
         node._type = self.symbol_table[node.func]["type"]
 
     def visit_BinOp(self, node):

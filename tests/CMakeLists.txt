@@ -41,3 +41,5 @@ RUN(doloop_03)
 RUN(arrays_01)
 
 RUN(subroutines_01)
+
+RUN(intrinsics_01)
