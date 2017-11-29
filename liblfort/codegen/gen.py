@@ -140,9 +140,9 @@ class CodeGenVisitor(ast.ASTVisitor):
             sym = self.symbol_table[ssym]
             type_f = sym["type"]
             if isinstance(type_f, Array):
-                assert type_f.type_ == Integer()
                 assert len(type_f.shape) == 1
-                array_type = ir.ArrayType(ir.IntType(64), type_f.shape[0])
+                array_type = ir.ArrayType(self.types[type_f.type_],
+                        type_f.shape[0])
                 ptr = self.builder.alloca(array_type, name=sym["name"])
             else:
                 if type_f not in self.types:
