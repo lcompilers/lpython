@@ -287,9 +287,9 @@ class CodeGenVisitor(ast.ASTVisitor):
                 addr = self.builder.gep(arg["ptr"],
                         [ir.Constant(ir.IntType(64), 0),
                          ir.Constant(ir.IntType(64), 0)])
-                # FIXME: pass in the length of the array
-                return self.builder.call(fn, [ir.Constant(ir.IntType(64), 3),
-                    addr])
+                array_size = arg["ptr"].type.pointee.count
+                return self.builder.call(fn,
+                        [ir.Constant(ir.IntType(64), array_size), addr])
             else:
                 return self.builder.call(fn, [arg])
 
