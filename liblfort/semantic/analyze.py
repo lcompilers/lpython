@@ -81,7 +81,10 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 "character": Character,
                 "logical": Logical,
             }
-        self.symbol_table = {}
+        self.symbol_table = {
+                "abs": {"name": "abs", "type": Real()},
+                "sqrt": {"name": "sqrt", "type": Real()},
+                }
 
     def visit_Declaration(self, node):
         for v in node.vars:
@@ -142,7 +145,7 @@ class ExprVisitor(ast.GenericASTVisitor):
     def visit_FuncCallOrArray(self, node):
         if not node.func in self.symbol_table:
             raise UndeclaredVariableError("Func or Array '%s' not declared." \
-                    % node.id)
+                    % node.func)
         self.visit_sequence(node.args)
         node._type = self.symbol_table[node.func]["type"]
 

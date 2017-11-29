@@ -149,6 +149,9 @@ class CodeGenVisitor(ast.ASTVisitor):
                     raise Exception("Type not implemented.")
                 ptr = self.builder.alloca(self.types[type_f], name=sym["name"])
             sym["ptr"] = ptr
+        sym = self.symbol_table["abs"]
+        sym["fn"] = self.module.declare_intrinsic('llvm.fabs',
+                        [ir.DoubleType()])
 
         self.visit_sequence(node.contains)
         self.visit_sequence(node.body)
@@ -252,15 +255,25 @@ class CodeGenVisitor(ast.ASTVisitor):
         return self.builder.load(sym["ptr"])
 
     def visit_FuncCallOrArray(self, node):
-        if len(node.args) != 1:
-            raise NotImplementedError("Require exactly one index for now")
-        idx = self.visit(node.args[0])
-        # Convert 1-based indexing to 0-based
-        idx = self.builder.sub(idx, ir.Constant(ir.IntType(64), 1))
-        sym = self.symbol_table[node.func]
-        addr = self.builder.gep(sym["ptr"],
-                [ir.Constant(ir.IntType(64), 0), idx])
-        return self.builder.load(addr)
+        if isinstance(node._type, Array):
+            # Array
+            if len(node.args) != 1:
+                raise NotImplementedError("Require exactly one index for now")
+            idx = self.visit(node.args[0])
+            # Convert 1-based indexing to 0-based
+            idx = self.builder.sub(idx, ir.Constant(ir.IntType(64), 1))
+            sym = self.symbol_table[node.func]
+            addr = self.builder.gep(sym["ptr"],
+                    [ir.Constant(ir.IntType(64), 0), idx])
+            return self.builder.load(addr)
+        else:
+            # Function call
+            if len(node.args) != 1:
+                raise NotImplementedError("Require exactly one fn arg for now")
+            sym = self.symbol_table[node.func]
+            fn = sym["fn"]
+            arg = self.visit(node.args[0])
+            return self.builder.call(fn, [arg])
 
     def visit_If(self, node):
         cond = self.visit(node.test)
