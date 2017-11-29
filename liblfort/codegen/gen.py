@@ -153,6 +153,8 @@ class CodeGenVisitor(ast.ASTVisitor):
                 'llvm.fabs', [ir.DoubleType()])
         self.symbol_table["sqrt"]["fn"] = self.module.declare_intrinsic(
                 'llvm.sqrt', [ir.DoubleType()])
+        self.symbol_table["log"]["fn"] = self.module.declare_intrinsic(
+                'llvm.log', [ir.DoubleType()])
 
         self.visit_sequence(node.contains)
         self.visit_sequence(node.body)

@@ -130,6 +130,6 @@ def main():
         os.system("ld -o %s %s %s" % (outfile, objfile, LDFLAGS))
     else:
         # Invoke a C compiler to do the linking
-        os.system("cc -o %s %s" % (outfile, objfile))
+        os.system("cc -o %s %s -lm" % (outfile, objfile))
     if objfile == "tmp_object_file.o":
         os.system("rm %s" % objfile)
