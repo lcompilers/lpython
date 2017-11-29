@@ -130,6 +130,8 @@ def main():
         os.system("ld -o %s %s %s" % (outfile, objfile, LDFLAGS))
     else:
         # Invoke a C compiler to do the linking
-        os.system("cc -o %s %s -lm" % (outfile, objfile))
+        here = os.path.dirname(__file__)
+        base_dir = os.path.join(here, "..")
+        os.system("cc -o %s %s -L%s -llfort -lm" % (outfile, objfile, base_dir))
     if objfile == "tmp_object_file.o":
         os.system("rm %s" % objfile)

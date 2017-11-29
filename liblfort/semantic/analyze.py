@@ -85,6 +85,8 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 "abs": {"name": "abs", "type": Real()},
                 "sqrt": {"name": "sqrt", "type": Real()},
                 "log": {"name": "log", "type": Real()},
+                "sum": {"name": "sum", "type": Real()},
+                "random_number": {"name": "random_number", "type": Real()},
                 }
 
     def visit_Declaration(self, node):
@@ -211,7 +213,10 @@ class ExprVisitor(ast.GenericASTVisitor):
                     # FIXME: this shouldn't happen --- this is handled by the
                     # next if
                     if node._type.type_ != node.value._type:
-                        raise TypeMismatch("Array Type mismatch")
+                        raise TypeMismatch("LHS Array Type mismatch")
+                if isinstance(node.value._type, Array):
+                    if node._type != node.value._type.type_:
+                        raise TypeMismatch("RHS Array Type mismatch")
                 else:
                     raise TypeMismatch("Type mismatch")
         elif isinstance(node.target, ast.FuncCallOrArray):
