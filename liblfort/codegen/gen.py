@@ -3,7 +3,7 @@ from llvmlite.binding import get_default_triple
 
 from ..ast import ast
 from ..ast.utils import NodeTransformer
-from ..semantic.analyze import Integer, Logical, Array
+from ..semantic.analyze import Integer, Real, Logical, Array
 
 def get_global(module, name):
     try:
@@ -102,6 +102,12 @@ def create_global_string(module, builder, string):
     string_ptr = builder.bitcast(string_var, c_ptr)
     return string_ptr
 
+def is_int(node):
+    if node._type == Integer():
+        return True
+    if isinstance(node._type, Array):
+        return node._type.type_ == Integer()
+    return False
 
 class CodeGenVisitor(ast.ASTVisitor):
     """
@@ -120,6 +126,7 @@ class CodeGenVisitor(ast.ASTVisitor):
         self.module.triple = get_default_triple()
         self.types = {
                     Integer(): ir.IntType(64),
+                    Real(): ir.DoubleType(),
                     Logical(): ir.IntType(1),
                 }
 
@@ -181,6 +188,8 @@ class CodeGenVisitor(ast.ASTVisitor):
             v = self.visit(expr)
             if expr._type == Integer():
                 printf(self.module, self.builder, "%d ", v)
+            elif expr._type == Real():
+                printf(self.module, self.builder, "%.17e ", v)
             else:
                 raise Exception("Type not implemented in print.")
         printf(self.module, self.builder, "\n")
@@ -189,16 +198,28 @@ class CodeGenVisitor(ast.ASTVisitor):
         op = node.op
         lhs = self.visit(node.left)
         rhs = self.visit(node.right)
-        if isinstance(op, ast.Mul):
-            return self.builder.mul(lhs, rhs)
-        elif isinstance(op, ast.Div):
-            return self.builder.udiv(lhs, rhs)
-        elif isinstance(op, ast.Add):
-            return self.builder.add(lhs, rhs)
-        elif isinstance(op, ast.Sub):
-            return self.builder.sub(lhs, rhs)
+        if is_int(node.left) and is_int(node.right):
+            if isinstance(op, ast.Mul):
+                return self.builder.mul(lhs, rhs)
+            elif isinstance(op, ast.Div):
+                return self.builder.udiv(lhs, rhs)
+            elif isinstance(op, ast.Add):
+                return self.builder.add(lhs, rhs)
+            elif isinstance(op, ast.Sub):
+                return self.builder.sub(lhs, rhs)
+            else:
+                raise Exception("Not implemented")
         else:
-            raise Exception("Not implemented")
+            if isinstance(op, ast.Mul):
+                return self.builder.fmul(lhs, rhs)
+            elif isinstance(op, ast.Div):
+                return self.builder.fdiv(lhs, rhs)
+            elif isinstance(op, ast.Add):
+                return self.builder.fadd(lhs, rhs)
+            elif isinstance(op, ast.Sub):
+                return self.builder.fsub(lhs, rhs)
+            else:
+                raise Exception("Not implemented")
 
     def visit_UnaryOp(self, node):
         op = node.op
@@ -213,8 +234,7 @@ class CodeGenVisitor(ast.ASTVisitor):
             raise Exception("Not implemented")
 
     def visit_Num(self, node):
-        num = node.n
-        return ir.Constant(ir.IntType(64), int(num))
+        return ir.Constant(self.types[node._type], node.o)
 
     def visit_Constant(self, node):
         if node.value == True:
@@ -259,7 +279,10 @@ class CodeGenVisitor(ast.ASTVisitor):
             ast.Gt: ">",
             ast.GtE: ">=",
         }
-        return self.builder.icmp_signed(ops[type(op)], lhs, rhs)
+        if is_int(node.left) and is_int(node.right):
+            return self.builder.icmp_signed(ops[type(op)], lhs, rhs)
+        else:
+            return self.builder.fcmp_ordered(ops[type(op)], lhs, rhs)
 
     def visit_Stop(self, node):
         num = int(node.code)
@@ -335,6 +358,9 @@ class CodeGenVisitor(ast.ASTVisitor):
 
 def codegen(tree, symbol_table):
     tree = transform_doloops(tree)
+    # after transforming do loops, we have to annotate types again:
+    from ..semantic.analyze import annotate_tree
+    annotate_tree(tree, symbol_table)
     v = CodeGenVisitor(symbol_table)
     v.visit(tree)
     return v.module
