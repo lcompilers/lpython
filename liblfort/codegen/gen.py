@@ -149,9 +149,10 @@ class CodeGenVisitor(ast.ASTVisitor):
                     raise Exception("Type not implemented.")
                 ptr = self.builder.alloca(self.types[type_f], name=sym["name"])
             sym["ptr"] = ptr
-        sym = self.symbol_table["abs"]
-        sym["fn"] = self.module.declare_intrinsic('llvm.fabs',
-                        [ir.DoubleType()])
+        self.symbol_table["abs"]["fn"] = self.module.declare_intrinsic(
+                'llvm.fabs', [ir.DoubleType()])
+        self.symbol_table["sqrt"]["fn"] = self.module.declare_intrinsic(
+                'llvm.sqrt', [ir.DoubleType()])
 
         self.visit_sequence(node.contains)
         self.visit_sequence(node.body)

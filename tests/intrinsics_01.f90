@@ -6,4 +6,7 @@ b = 1.2_dp
 if (b-a > 0.2_dp) error stop
 if (abs(b-a) > 0.2_dp) error stop
 if (abs(a-b) > 0.2_dp) error stop
+
+a = 4._dp
+if (abs(sqrt(a)-2._dp) > 1e-12_dp) error stop
 end
