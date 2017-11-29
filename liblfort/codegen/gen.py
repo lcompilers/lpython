@@ -137,6 +137,7 @@ class CodeGenVisitor(ast.ASTVisitor):
         self.builder = ir.IRBuilder(block)
 
         for ssym in self.symbol_table:
+            if ssym in ["abs", "sqrt", "log", "sum"]: continue
             sym = self.symbol_table[ssym]
             type_f = sym["type"]
             if isinstance(type_f, Array):
@@ -155,6 +156,10 @@ class CodeGenVisitor(ast.ASTVisitor):
                 'llvm.sqrt', [ir.DoubleType()])
         self.symbol_table["log"]["fn"] = self.module.declare_intrinsic(
                 'llvm.log', [ir.DoubleType()])
+        fn_type = ir.FunctionType(ir.DoubleType(),
+                [ir.IntType(64), ir.DoubleType().as_pointer()])
+        fn_sum = ir.Function(self.module, fn_type, name="_lfort_sum")
+        self.symbol_table["sum"]["fn"] = fn_sum
 
         self.visit_sequence(node.contains)
         self.visit_sequence(node.body)
@@ -276,7 +281,17 @@ class CodeGenVisitor(ast.ASTVisitor):
             sym = self.symbol_table[node.func]
             fn = sym["fn"]
             arg = self.visit(node.args[0])
-            return self.builder.call(fn, [arg])
+            if sym["name"] == "sum":
+                # FIXME: for now we assume an array was passed in:
+                arg = self.symbol_table[node.args[0].id]
+                addr = self.builder.gep(arg["ptr"],
+                        [ir.Constant(ir.IntType(64), 0),
+                         ir.Constant(ir.IntType(64), 0)])
+                # FIXME: pass in the length of the array
+                return self.builder.call(fn, [ir.Constant(ir.IntType(64), 3),
+                    addr])
+            else:
+                return self.builder.call(fn, [arg])
 
     def visit_If(self, node):
         cond = self.visit(node.test)

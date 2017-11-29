@@ -85,6 +85,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 "abs": {"name": "abs", "type": Real()},
                 "sqrt": {"name": "sqrt", "type": Real()},
                 "log": {"name": "log", "type": Real()},
+                "sum": {"name": "sum", "type": Real()},
                 }
 
     def visit_Declaration(self, node):
