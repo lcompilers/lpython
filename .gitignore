@@ -1,0 +1,45 @@
+# fortran_parser
+
+build-gfortran
+build-lfort
+lfort_intrinsics.o
+liblfort.a
+liblfort/ast/ast.py
+liblfort/parser/fortran.tokens
+liblfort/parser/fortranLexer.py
+liblfort/parser/fortranLexer.tokens
+liblfort/parser/fortranParser.py
+liblfort/parser/fortranVisitor.py
+
+
+# Python
+
+## Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+## C extensions
+*.so
+
+## Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+## PyTest
+.pytest_cache/
