@@ -2,7 +2,7 @@ from ctypes import CFUNCTYPE, c_int
 
 import llvmlite.binding as llvm
 
-from ..ast import parse, dump, SyntaxErrorException
+from ..ast import parse, dump, SyntaxErrorException, ast
 from ..semantic.analyze import create_symbol_table, annotate_tree
 from .gen import codegen
 
@@ -18,9 +18,15 @@ class FortranEvaluator(object):
 
     def evaluate(self, source, optimize=True):
         ast_tree = parse(source, translation_unit=False)
-        # Check if `ast_tree` is an expression and if it is, wrap it into an
-        # anonymous function `_run1` here, on the AST level. Otherwise let it
-        # be.
+        is_expr = isinstance(ast_tree, ast.expr)
+        if is_expr:
+            # if `ast_tree` is an expression, wrap it in an anonymous function
+            body = [ast.Assignment(ast.Name("_run1", lineno=1, col_offset=1),
+                ast_tree, lineno=1, col_offset=1)]
+
+            ast_tree = ast.Function(name="_run1", args=[], returns=None,
+                decl=[], body=body, contains=[],
+                lineno=1, col_offset=1)
         symbol_table = create_symbol_table(ast_tree)
         annotate_tree(ast_tree, symbol_table)
         module = codegen(ast_tree, symbol_table)
@@ -49,6 +55,7 @@ class FortranEvaluator(object):
         target_machine = self.target.create_target_machine()
         with llvm.create_mcjit_compiler(mod, target_machine) as ee:
             ee.finalize_object()
-            #fptr = CFUNCTYPE(c_int)(ee.get_function_address("_run1"))
-            #result = fptr()
-            #return result
+            if is_expr:
+                fptr = CFUNCTYPE(c_int)(ee.get_function_address("_run1"))
+                result = fptr()
+                return result

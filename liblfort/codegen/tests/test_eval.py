@@ -33,3 +33,9 @@ integer function fn()
 fn = 5
 end function
 """)
+
+def test_eval4():
+    e = FortranEvaluator()
+    assert e.evaluate("""\
+5+5
+""") == 10
