@@ -47,8 +47,8 @@ class FortranEvaluator(object):
             pmb.populate(pm)
             pm.run(mod)
         target_machine = self.target.create_target_machine()
-        with llvm.create_mcjit_compiler(llvmmod, target_machine) as ee:
+        with llvm.create_mcjit_compiler(mod, target_machine) as ee:
             ee.finalize_object()
-            fptr = CFUNCTYPE(c_int)(ee.get_function_address("_run1"))
-            result = fptr()
-            return result
+            #fptr = CFUNCTYPE(c_int)(ee.get_function_address("_run1"))
+            #result = fptr()
+            #return result

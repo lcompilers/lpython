@@ -3,7 +3,7 @@ from liblfort.codegen.evaluator import FortranEvaluator
 def test_eval1():
     e = FortranEvaluator()
     e.evaluate("""\
-module test
+program test
 implicit none
 contains
 
@@ -13,5 +13,5 @@ contains
     b = a + 1
     end subroutine
 
-end module
+end program
 """)
