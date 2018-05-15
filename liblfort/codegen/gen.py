@@ -120,6 +120,14 @@ class CodeGenVisitor(ast.ASTVisitor):
 
     def __init__(self, symbol_table):
         self.symbol_table = symbol_table
+        self.module = ir.Module()
+        self.func = None
+        self.builder = None
+        self.types = {
+                    Integer(): ir.IntType(64),
+                    Real(): ir.DoubleType(),
+                    Logical(): ir.IntType(1),
+                }
 
     def visit_Program(self, node):
         self.module  = ir.Module()
