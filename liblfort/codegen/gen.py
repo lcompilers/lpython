@@ -407,7 +407,8 @@ class CodeGenVisitor(ast.ASTVisitor):
         retsym["ptr"] = ptr
 
         self.visit_sequence(node.body)
-        self.builder.ret(retsym["ptr"])
+        retval = self.builder.load(retsym["ptr"])
+        self.builder.ret(retval)
 
         self.func, self.builder = old
 
