@@ -130,7 +130,7 @@ class CodeGenVisitor(ast.ASTVisitor):
                     Logical(): ir.IntType(1),
                 }
 
-        int_type = ir.IntType(64);
+        int_type = ir.IntType(64)
         fn = ir.FunctionType(int_type, [])
         self.func = ir.Function(self.module, fn, name="main")
         block = self.func.append_basic_block(name='.entry')
