@@ -448,7 +448,7 @@ class CodeGenVisitor(ast.ASTVisitor):
 
 def codegen(tree, symbol_table):
     tree = transform_doloops(tree)
-    # after transforming do loops, we have to annotate types again:
+    # FIXME: after transforming do loops, we have to annotate types again:
     from ..semantic.analyze import annotate_tree
     annotate_tree(tree, symbol_table)
     v = CodeGenVisitor(symbol_table)
