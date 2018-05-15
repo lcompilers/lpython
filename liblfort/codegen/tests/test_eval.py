@@ -33,6 +33,8 @@ integer function fn()
 fn = 5
 end function
 """)
+#    assert e.evaluate("fn()+5") == 10
+#    assert e.evaluate("fn()+6") == 11
 
 def test_eval4():
     e = FortranEvaluator()

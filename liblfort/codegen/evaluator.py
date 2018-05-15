@@ -29,6 +29,9 @@ class FortranEvaluator(object):
                 lineno=1, col_offset=1)
         symbol_table = create_symbol_table(ast_tree)
         annotate_tree(ast_tree, symbol_table)
+        # TODO: keep adding to the "module", i.e., pass it as an optional
+        # argument to codegen() on subsequent runs of evaluate(), also store
+        # and keep appending to symbol_table.
         module = codegen(ast_tree, symbol_table)
         source_ll = str(module)
         # TODO:
