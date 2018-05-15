@@ -395,6 +395,17 @@ class CodeGenVisitor(ast.ASTVisitor):
         for n, arg in enumerate(node.args):
             self.symbol_table[arg.arg]["ptr"] = self.func.args[n]
 
+        # Allocate the "result" variable
+        sym = self.symbol_table[node.name]
+        type_f = sym["type"]
+        if isinstance(type_f, Array):
+            raise NotImplementedError("Return arrays are not implemented yet.")
+        else:
+            if type_f not in self.types:
+                raise Exception("Type not implemented.")
+            ptr = self.builder.alloca(self.types[type_f], name=sym["name"])
+        sym["ptr"] = ptr
+
         self.visit_sequence(node.body)
         self.builder.ret_void()
 
