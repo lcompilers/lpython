@@ -384,6 +384,22 @@ class CodeGenVisitor(ast.ASTVisitor):
 
         self.func, self.builder = old
 
+    def visit_Function(self, node):
+        fn = ir.FunctionType(ir.IntType(64), [ir.IntType(64).as_pointer(),
+            ir.IntType(64).as_pointer()])
+        func = ir.Function(self.module, fn, name=node.name)
+        block = func.append_basic_block(name='.entry')
+        builder = ir.IRBuilder(block)
+        old = [self.func, self.builder]
+        self.func, self.builder = func, builder
+        for n, arg in enumerate(node.args):
+            self.symbol_table[arg.arg]["ptr"] = self.func.args[n]
+
+        self.visit_sequence(node.body)
+        self.builder.ret_void()
+
+        self.func, self.builder = old
+
     def visit_SubroutineCall(self, node):
         if node.name in ["random_number"]:
             # FIXME: for now we assume an array was passed in:

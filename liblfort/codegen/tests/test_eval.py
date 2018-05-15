@@ -25,3 +25,11 @@ integer, intent(out) :: b
 b = a + 1
 end subroutine
 """)
+
+def test_eval3():
+    e = FortranEvaluator()
+    e.evaluate("""\
+integer function fn()
+fn = 5
+end function
+""")
