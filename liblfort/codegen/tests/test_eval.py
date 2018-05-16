@@ -41,3 +41,6 @@ def test_eval4():
     assert e.evaluate("""\
 5+5
 """) == 10
+    assert e.evaluate("""\
+5+6
+""") == 11

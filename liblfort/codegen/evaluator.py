@@ -20,15 +20,21 @@ class FortranEvaluator(object):
         self.code_gen_visitor = CodeGenVisitor(
             self.symbol_table_visitor.symbol_table)
 
+        self.anonymous_fn_counter = 0
+
     def evaluate(self, source, optimize=True):
         ast_tree = parse(source, translation_unit=False)
         is_expr = isinstance(ast_tree, ast.expr)
         if is_expr:
             # if `ast_tree` is an expression, wrap it in an anonymous function
-            body = [ast.Assignment(ast.Name("_run1", lineno=1, col_offset=1),
+            self.anonymous_fn_counter += 1
+            anonymous_fn_name = "_run%d" % self.anonymous_fn_counter
+            body = [ast.Assignment(ast.Name(anonymous_fn_name,
+                lineno=1, col_offset=1),
                 ast_tree, lineno=1, col_offset=1)]
 
-            ast_tree = ast.Function(name="_run1", args=[], returns=None,
+            ast_tree = ast.Function(name=anonymous_fn_name, args=[],
+                returns=None,
                 decl=[], body=body, contains=[],
                 lineno=1, col_offset=1)
         self.symbol_table_visitor.visit(ast_tree)
@@ -64,6 +70,7 @@ class FortranEvaluator(object):
         with llvm.create_mcjit_compiler(mod, target_machine) as ee:
             ee.finalize_object()
             if is_expr:
-                fptr = CFUNCTYPE(c_int)(ee.get_function_address("_run1"))
+                fptr = CFUNCTYPE(c_int)(ee.get_function_address(
+                    anonymous_fn_name))
                 result = fptr()
                 return result
