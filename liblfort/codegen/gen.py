@@ -136,13 +136,14 @@ class CodeGenVisitor(ast.ASTVisitor):
                     Logical(): ir.IntType(1),
                 }
 
-    def codegen(self, node):
+    def codegen(self, tree):
         """
-        Generates code for `node` and appends it into the LLVM module.
+        Generates code for `tree` and appends it into the LLVM module.
         """
-        assert isinstance(node, (ast.Program, ast.Module, ast.Function,
+        assert isinstance(tree, (ast.Program, ast.Module, ast.Function,
             ast.Subroutine))
-        self.visit(node)
+        tree = transform_doloops(tree, self.symbol_table)
+        self.visit(tree)
 
     def visit_Program(self, node):
         self.module  = ir.Module()
@@ -462,7 +463,6 @@ class CodeGenVisitor(ast.ASTVisitor):
 
 
 def codegen(tree, symbol_table):
-    tree = transform_doloops(tree, symbol_table)
     v = CodeGenVisitor(symbol_table)
     v.codegen(tree)
     return v.module
