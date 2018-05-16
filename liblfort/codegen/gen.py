@@ -111,7 +111,10 @@ def is_int(node):
 
 class CodeGenVisitor(ast.ASTVisitor):
     """
-    Loop over AST.
+    Loop over AST and generate LLVM IR code.
+
+    The __init__() function initializes a new LLVM module and the codegen()
+    function keeps appending to it --- it can be called several times.
 
     Consult Fortran.asdl to see what the nodes are and their members. If a node
     is encountered that is not implemented by the visit_* method, the
@@ -128,6 +131,14 @@ class CodeGenVisitor(ast.ASTVisitor):
                     Real(): ir.DoubleType(),
                     Logical(): ir.IntType(1),
                 }
+
+    def codegen(self, node):
+        """
+        Generates code for `node` and appends it into the LLVM module.
+        """
+        assert isinstance(node, (ast.Program, ast.Module, ast.Function,
+            ast.Subroutine))
+        self.visit(node)
 
     def visit_Program(self, node):
         self.module  = ir.Module()
@@ -452,5 +463,5 @@ def codegen(tree, symbol_table):
     from ..semantic.analyze import annotate_tree
     annotate_tree(tree, symbol_table)
     v = CodeGenVisitor(symbol_table)
-    v.visit(tree)
+    v.codegen(tree)
     return v.module
