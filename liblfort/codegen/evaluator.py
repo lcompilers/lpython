@@ -16,6 +16,10 @@ class FortranEvaluator(object):
 
         self.target = llvm.Target.from_default_triple()
 
+        self.symbol_table_visitor = SymbolTableVisitor()
+        self.code_gen_visitor = CodeGenVisitor(
+            self.symbol_table_visitor.symbol_table)
+
     def evaluate(self, source, optimize=True):
         ast_tree = parse(source, translation_unit=False)
         is_expr = isinstance(ast_tree, ast.expr)
@@ -27,16 +31,14 @@ class FortranEvaluator(object):
             ast_tree = ast.Function(name="_run1", args=[], returns=None,
                 decl=[], body=body, contains=[],
                 lineno=1, col_offset=1)
-        v = SymbolTableVisitor()
-        v.visit(ast_tree)
-        symbol_table = v.symbol_table
+        self.symbol_table_visitor.visit(ast_tree)
+        symbol_table = self.symbol_table_visitor.symbol_table
         annotate_tree(ast_tree, symbol_table)
         # TODO: keep adding to the "module", i.e., pass it as an optional
         # argument to codegen() on subsequent runs of evaluate(), also store
         # and keep appending to symbol_table.
-        v = CodeGenVisitor(symbol_table)
-        v.codegen(ast_tree)
-        source_ll = str(v.module)
+        self.code_gen_visitor.codegen(ast_tree)
+        source_ll = str(self.code_gen_visitor.module)
         # TODO:
         #
         # if not (ast_tree is expression):
