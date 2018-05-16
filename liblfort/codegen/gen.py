@@ -90,9 +90,13 @@ class DoLoopTransformer(NodeTransformer):
             lineno=1, col_offset=1),
                 ast.WhileLoop(cond, body, lineno=1, col_offset=1)]
 
-def transform_doloops(tree):
+def transform_doloops(tree, symbol_table):
     v = DoLoopTransformer()
-    return v.visit(tree)
+    tree = v.visit(tree)
+    # FIXME: after transforming do loops, we have to annotate types again:
+    from ..semantic.analyze import annotate_tree
+    annotate_tree(tree, symbol_table)
+    return tree
 
 def create_global_string(module, builder, string):
     c_ptr = ir.IntType(8).as_pointer()
@@ -458,10 +462,7 @@ class CodeGenVisitor(ast.ASTVisitor):
 
 
 def codegen(tree, symbol_table):
-    tree = transform_doloops(tree)
-    # FIXME: after transforming do loops, we have to annotate types again:
-    from ..semantic.analyze import annotate_tree
-    annotate_tree(tree, symbol_table)
+    tree = transform_doloops(tree, symbol_table)
     v = CodeGenVisitor(symbol_table)
     v.codegen(tree)
     return v.module
