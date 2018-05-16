@@ -4,7 +4,7 @@ import llvmlite.binding as llvm
 
 from ..ast import parse, dump, SyntaxErrorException, ast
 from ..semantic.analyze import create_symbol_table, annotate_tree
-from .gen import codegen
+from .gen import CodeGenVisitor
 
 
 class FortranEvaluator(object):
@@ -32,8 +32,9 @@ class FortranEvaluator(object):
         # TODO: keep adding to the "module", i.e., pass it as an optional
         # argument to codegen() on subsequent runs of evaluate(), also store
         # and keep appending to symbol_table.
-        module = codegen(ast_tree, symbol_table)
-        source_ll = str(module)
+        v = CodeGenVisitor(symbol_table)
+        v.codegen(ast_tree)
+        source_ll = str(v.module)
         # TODO:
         #
         # if not (ast_tree is expression):
