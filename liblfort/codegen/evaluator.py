@@ -3,7 +3,7 @@ from ctypes import CFUNCTYPE, c_int
 import llvmlite.binding as llvm
 
 from ..ast import parse, dump, SyntaxErrorException, ast
-from ..semantic.analyze import create_symbol_table, annotate_tree
+from ..semantic.analyze import SymbolTableVisitor, annotate_tree
 from .gen import CodeGenVisitor
 
 
@@ -27,7 +27,9 @@ class FortranEvaluator(object):
             ast_tree = ast.Function(name="_run1", args=[], returns=None,
                 decl=[], body=body, contains=[],
                 lineno=1, col_offset=1)
-        symbol_table = create_symbol_table(ast_tree)
+        v = SymbolTableVisitor()
+        v.visit(ast_tree)
+        symbol_table = v.symbol_table
         annotate_tree(ast_tree, symbol_table)
         # TODO: keep adding to the "module", i.e., pass it as an optional
         # argument to codegen() on subsequent runs of evaluate(), also store
