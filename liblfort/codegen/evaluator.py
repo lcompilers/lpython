@@ -45,6 +45,7 @@ class FortranEvaluator(object):
         # and keep appending to symbol_table.
         self.code_gen_visitor.codegen(ast_tree)
         source_ll = str(self.code_gen_visitor.module)
+        self._source_ll = source_ll
         # TODO:
         #
         # if not (ast_tree is expression):

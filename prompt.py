@@ -13,8 +13,10 @@ from prompt_toolkit.token import Token
 import llvmlite.binding as llvm
 
 from liblfort.ast import parse, dump, SyntaxErrorException
-from liblfort.semantic.analyze import create_symbol_table, annotate_tree
+from liblfort.codegen.evaluator import FortranEvaluator
 from liblfort.codegen.gen import codegen
+from liblfort.semantic.analyze import create_symbol_table, annotate_tree
+
 
 def print_bold(text):
     style = style_from_dict({
@@ -26,7 +28,7 @@ def print_bold(text):
     ]
     print_tokens(tokens, style=style)
 
-def handle_input(engine, source):
+def handle_input(engine, evaluator, source):
     print_bold("Input:")
     print(source)
 
@@ -54,23 +56,9 @@ def handle_input(engine, source):
     # TODO: use the generated source_ll
     #module = codegen(ast_tree, symbol_table)
     #source_ll = str(module)
-    source_ll = """
-       define double @"my_func"(double %".1", double %".2")
-       {
-         %"res" = fadd double %".1", %".2"
-         ret double %"res"
-       }
-       """
+    result = evaluator.evaluate(source)
     print_bold("LLVM IR:")
-    print(source_ll)
-
-
-    print()
-    mod = llvm.parse_assembly(source_ll)
-    mod.verify()
-    engine.add_module(mod)
-    engine.finalize_object()
-    engine.run_static_constructors()
+    print(evaluator._source_ll)
 
     # NOTE: This shows how to execute the function and how to pass data in and
     # out. The idea is that if "ast_tree" is a:
@@ -86,11 +74,8 @@ def handle_input(engine, source):
     # * Subroutine/Module: gets loaded into the engine, but not executed
     # * Program: gets compiled and executed.
     # For anything else, we get an error.
-    func_ptr = engine.get_function_address("my_func")
-    cfunc = CFUNCTYPE(c_double, c_double, c_double)(func_ptr)
-    res = cfunc(3.0, 2.0)
     print_bold("Result:")
-    print(res)
+    print(result)
 
 def main():
     llvm.initialize()
@@ -117,12 +102,14 @@ def main():
     print("    - Syntax highlighting")
     print()
 
+    fortran_evaluator = FortranEvaluator()
+
     try:
         while True:
             text = prompt('> ', history=history,
                     lexer=PygmentsLexer(FortranLexer), multiline=True)
             print()
-            handle_input(engine, text)
+            handle_input(engine, fortran_evaluator, text)
             print()
     except EOFError:
         print("Exiting.")
