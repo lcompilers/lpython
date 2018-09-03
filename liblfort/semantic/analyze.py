@@ -109,6 +109,13 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 type_ = Array(type_, dims)
             self.symbol_table[sym] = {"name": sym, "type": type_}
 
+    def visit_Function(self, node):
+        sym = node.name
+        # TODO: for now we assume integer result, but we should read the AST
+        # and determine the type of the result.
+        type_ = self.types["integer"]()
+        self.symbol_table[sym] = {"name": "RESULT_" + sym, "type": type_}
+
 def create_symbol_table(tree):
     v = SymbolTableVisitor()
     v.visit(tree)

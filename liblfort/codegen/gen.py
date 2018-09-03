@@ -90,9 +90,13 @@ class DoLoopTransformer(NodeTransformer):
             lineno=1, col_offset=1),
                 ast.WhileLoop(cond, body, lineno=1, col_offset=1)]
 
-def transform_doloops(tree):
+def transform_doloops(tree, symbol_table):
     v = DoLoopTransformer()
-    return v.visit(tree)
+    tree = v.visit(tree)
+    # FIXME: after transforming do loops, we have to annotate types again:
+    from ..semantic.analyze import annotate_tree
+    annotate_tree(tree, symbol_table)
+    return tree
 
 def create_global_string(module, builder, string):
     c_ptr = ir.IntType(8).as_pointer()
@@ -111,7 +115,10 @@ def is_int(node):
 
 class CodeGenVisitor(ast.ASTVisitor):
     """
-    Loop over AST.
+    Loop over AST and generate LLVM IR code.
+
+    The __init__() function initializes a new LLVM module and the codegen()
+    function keeps appending to it --- it can be called several times.
 
     Consult Fortran.asdl to see what the nodes are and their members. If a node
     is encountered that is not implemented by the visit_* method, the
@@ -120,6 +127,23 @@ class CodeGenVisitor(ast.ASTVisitor):
 
     def __init__(self, symbol_table):
         self.symbol_table = symbol_table
+        self.module = ir.Module()
+        self.func = None
+        self.builder = None
+        self.types = {
+                    Integer(): ir.IntType(64),
+                    Real(): ir.DoubleType(),
+                    Logical(): ir.IntType(1),
+                }
+
+    def codegen(self, tree):
+        """
+        Generates code for `tree` and appends it into the LLVM module.
+        """
+        assert isinstance(tree, (ast.Program, ast.Module, ast.Function,
+            ast.Subroutine))
+        tree = transform_doloops(tree, self.symbol_table)
+        self.visit(tree)
 
     def visit_Program(self, node):
         self.module  = ir.Module()
@@ -130,7 +154,7 @@ class CodeGenVisitor(ast.ASTVisitor):
                     Logical(): ir.IntType(1),
                 }
 
-        int_type = ir.IntType(64);
+        int_type = ir.IntType(64)
         fn = ir.FunctionType(int_type, [])
         self.func = ir.Function(self.module, fn, name="main")
         block = self.func.append_basic_block(name='.entry')
@@ -376,6 +400,34 @@ class CodeGenVisitor(ast.ASTVisitor):
 
         self.func, self.builder = old
 
+    def visit_Function(self, node):
+        fn = ir.FunctionType(ir.IntType(64), [ir.IntType(64).as_pointer(),
+            ir.IntType(64).as_pointer()])
+        func = ir.Function(self.module, fn, name=node.name)
+        block = func.append_basic_block(name='.entry')
+        builder = ir.IRBuilder(block)
+        old = [self.func, self.builder]
+        self.func, self.builder = func, builder
+        for n, arg in enumerate(node.args):
+            self.symbol_table[arg.arg]["ptr"] = self.func.args[n]
+
+        # Allocate the "result" variable
+        retsym = self.symbol_table[node.name]
+        type_f = retsym["type"]
+        if isinstance(type_f, Array):
+            raise NotImplementedError("Return arrays are not implemented yet.")
+        else:
+            if type_f not in self.types:
+                raise Exception("Type not implemented.")
+            ptr = self.builder.alloca(self.types[type_f], name=retsym["name"])
+        retsym["ptr"] = ptr
+
+        self.visit_sequence(node.body)
+        retval = self.builder.load(retsym["ptr"])
+        self.builder.ret(retval)
+
+        self.func, self.builder = old
+
     def visit_SubroutineCall(self, node):
         if node.name in ["random_number"]:
             # FIXME: for now we assume an array was passed in:
@@ -411,10 +463,6 @@ class CodeGenVisitor(ast.ASTVisitor):
 
 
 def codegen(tree, symbol_table):
-    tree = transform_doloops(tree)
-    # after transforming do loops, we have to annotate types again:
-    from ..semantic.analyze import annotate_tree
-    annotate_tree(tree, symbol_table)
     v = CodeGenVisitor(symbol_table)
-    v.visit(tree)
+    v.codegen(tree)
     return v.module
