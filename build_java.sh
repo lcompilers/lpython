@@ -6,7 +6,7 @@ set -x
 antlr4="java org.antlr.v4.Tool"
 grun="java org.antlr.v4.gui.TestRig"
 
-$antlr4 fortran.g4
+$antlr4 grammar/fortran.g4
 javac fortran*.java
 
 # Test:
