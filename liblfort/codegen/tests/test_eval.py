@@ -85,8 +85,12 @@ def test_simple_arithmetics():
 
 def test_variables():
     e = FortranEvaluator()
-    assert e.evaluate("""\
+    e.evaluate("""\
 integer :: a
+""")
+    e.evaluate("""\
 a = 5
+""")
+    e.evaluate("""\
 a
 """) == 5
