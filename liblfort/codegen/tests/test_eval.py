@@ -26,6 +26,32 @@ b = a + 1
 end subroutine
 """)
 
+def test_fn_declaration():
+    e = FortranEvaluator()
+    e.evaluate("""\
+integer function fn0()
+fn0 = 5
+end function
+""")
+    e.evaluate("""\
+integer function fn1(a)
+integer, intent(in) :: a
+fn1 = 5
+end function
+""")
+    e.evaluate("""\
+integer function fn2(a, b)
+integer, intent(in) :: a, b
+fn2 = 5
+end function
+""")
+    e.evaluate("""\
+integer function fn3(a, b, c)
+integer, intent(in) :: a, b, c
+fn3 = 5
+end function
+""")
+
 def test_eval3():
     e = FortranEvaluator()
     e.evaluate("""\

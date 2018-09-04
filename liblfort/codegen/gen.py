@@ -404,15 +404,19 @@ class CodeGenVisitor(ast.ASTVisitor):
         self.func, self.builder = old
 
     def visit_Function(self, node):
-        fn = ir.FunctionType(ir.IntType(64), [ir.IntType(64).as_pointer(),
-            ir.IntType(64).as_pointer()])
+        args = []
+        # TODO: for now we assume integer arguments and return values
+        for n, arg in enumerate(node.args):
+            args.append(ir.IntType(64).as_pointer())
+        fn = ir.FunctionType(ir.IntType(64), args)
         func = ir.Function(self.module, fn, name=node.name)
         block = func.append_basic_block(name='.entry')
         builder = ir.IRBuilder(block)
         old = [self.func, self.builder]
         self.func, self.builder = func, builder
         for n, arg in enumerate(node.args):
-            self.symbol_table[arg.arg]["ptr"] = self.func.args[n]
+            self.symbol_table[arg.arg] = {"name": arg.arg,
+                "ptr": self.func.args[n]}
 
         # Allocate the "result" variable
         retsym = self.symbol_table[node.name]
