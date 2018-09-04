@@ -328,6 +328,9 @@ class CodeGenVisitor(ast.ASTVisitor):
                             [ir.Constant(ir.IntType(64), array_size), addr])
                 else:
                     return self.builder.call(fn, [arg])
+            if len(node.args) == 2:
+                args = [self.visit(arg) for arg in node.args]
+                return self.builder.call(fn, args)
             else:
                 raise NotImplementedError("Require 0 or 1 fn args for now")
 
