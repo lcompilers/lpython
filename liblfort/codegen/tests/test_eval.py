@@ -1,6 +1,6 @@
 from liblfort.codegen.evaluator import FortranEvaluator
 
-def test_eval1():
+def test_program():
     e = FortranEvaluator()
     e.evaluate("""\
 program test
@@ -16,7 +16,7 @@ contains
 end program
 """)
 
-def test_eval2():
+def test_subroutine():
     e = FortranEvaluator()
     e.evaluate("""\
 subroutine sub1(a, b)
@@ -26,17 +26,55 @@ b = a + 1
 end subroutine
 """)
 
-def test_eval3():
+def test_fn_declaration():
+    e = FortranEvaluator()
+    e.evaluate("""\
+integer function fn0()
+fn0 = 5
+end function
+""")
+    e.evaluate("""\
+integer function fn1(a)
+integer, intent(in) :: a
+fn1 = 5
+end function
+""")
+    e.evaluate("""\
+integer function fn2(a, b)
+integer, intent(in) :: a, b
+fn2 = 5
+end function
+""")
+    e.evaluate("""\
+integer function fn3(a, b, c)
+integer, intent(in) :: a, b, c
+fn3 = 5
+end function
+""")
+
+def test_fn_call1():
     e = FortranEvaluator()
     e.evaluate("""\
 integer function fn()
 fn = 5
 end function
 """)
-#    assert e.evaluate("fn()+5") == 10
-#    assert e.evaluate("fn()+6") == 11
+    assert e.evaluate("fn()+5") == 10
+    assert e.evaluate("fn()+6") == 11
 
-def test_eval4():
+def test_fn_call2():
+    e = FortranEvaluator()
+    e.evaluate("""\
+integer function fn(a, b)
+integer, intent(in) :: a, b
+fn = a + b
+end function
+""")
+    # TODO: the arguments must be passes as pointers:
+    #assert e.evaluate("fn(2, 3)") == 5
+    #assert e.evaluate("fn(5, -3)") == 2
+
+def test_simple_arithmetics():
     e = FortranEvaluator()
     assert e.evaluate("""\
 5+5

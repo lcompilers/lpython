@@ -115,6 +115,12 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
         # and determine the type of the result.
         type_ = self.types["integer"]()
         self.symbol_table[sym] = {"name": "RESULT_" + sym, "type": type_}
+        # TODO: put these declarations into the scoped symbol table for this
+        # function only:
+        self.visit_sequence(node.decl)
+
+        # Iterate over nested functions
+        self.visit_sequence(node.contains)
 
 def create_symbol_table(tree):
     v = SymbolTableVisitor()

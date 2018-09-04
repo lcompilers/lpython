@@ -311,22 +311,28 @@ class CodeGenVisitor(ast.ASTVisitor):
             return self.builder.load(addr)
         else:
             # Function call
-            if len(node.args) != 1:
-                raise NotImplementedError("Require exactly one fn arg for now")
             sym = self.symbol_table[node.func]
             fn = sym["fn"]
-            arg = self.visit(node.args[0])
-            if sym["name"] in ["sum"]:
-                # FIXME: for now we assume an array was passed in:
-                arg = self.symbol_table[node.args[0].id]
-                addr = self.builder.gep(arg["ptr"],
-                        [ir.Constant(ir.IntType(64), 0),
-                         ir.Constant(ir.IntType(64), 0)])
-                array_size = arg["ptr"].type.pointee.count
-                return self.builder.call(fn,
-                        [ir.Constant(ir.IntType(64), array_size), addr])
+            if len(node.args) == 0:
+                return self.builder.call(fn, [])
+            elif len(node.args) == 1:
+                arg = self.visit(node.args[0])
+                if sym["name"] in ["sum"]:
+                    # FIXME: for now we assume an array was passed in:
+                    arg = self.symbol_table[node.args[0].id]
+                    addr = self.builder.gep(arg["ptr"],
+                            [ir.Constant(ir.IntType(64), 0),
+                            ir.Constant(ir.IntType(64), 0)])
+                    array_size = arg["ptr"].type.pointee.count
+                    return self.builder.call(fn,
+                            [ir.Constant(ir.IntType(64), array_size), addr])
+                else:
+                    return self.builder.call(fn, [arg])
+            if len(node.args) == 2:
+                args = [self.visit(arg) for arg in node.args]
+                return self.builder.call(fn, args)
             else:
-                return self.builder.call(fn, [arg])
+                raise NotImplementedError("Require 0 or 1 fn args for now")
 
     def visit_If(self, node):
         cond = self.visit(node.test)
@@ -401,15 +407,24 @@ class CodeGenVisitor(ast.ASTVisitor):
         self.func, self.builder = old
 
     def visit_Function(self, node):
-        fn = ir.FunctionType(ir.IntType(64), [ir.IntType(64).as_pointer(),
-            ir.IntType(64).as_pointer()])
+        args = []
+        # TODO: for now we assume integer arguments and return values
+        for n, arg in enumerate(node.args):
+            args.append(ir.IntType(64).as_pointer())
+        fn = ir.FunctionType(ir.IntType(64), args)
         func = ir.Function(self.module, fn, name=node.name)
         block = func.append_basic_block(name='.entry')
         builder = ir.IRBuilder(block)
         old = [self.func, self.builder]
         self.func, self.builder = func, builder
         for n, arg in enumerate(node.args):
-            self.symbol_table[arg.arg]["ptr"] = self.func.args[n]
+            self.symbol_table[arg.arg] = {"name": arg.arg,
+                "ptr": self.func.args[n]}
+        key = node.name
+        # FIXME: this should happen earlier
+        if key not in self.symbol_table:
+            self.symbol_table[key] = {}
+        self.symbol_table[key]["fn"] = func
 
         # Allocate the "result" variable
         retsym = self.symbol_table[node.name]
