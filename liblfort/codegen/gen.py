@@ -214,8 +214,12 @@ class CodeGenVisitor(ast.ASTVisitor):
                 assert not isinstance(type_f, Array)
                 if type_f not in self.types:
                     raise Exception("Type not implemented.")
-                sym["ptr"] = self.builder.alloca(self.types[type_f],
-                    name=sym["name"])
+                #sym["ptr"] = self.builder.alloca(self.types[type_f],
+                #    name=sym["name"])
+                sym["ptr"] = create_global_var(self.module, sym["name"],
+                    self.builder.alloca(self.types[type_f],
+                    name=sym["name"]))
+                print("adding!", sym)
 
             ptr = sym["ptr"]
             value = self.visit(node.value)
