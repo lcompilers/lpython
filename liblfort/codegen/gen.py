@@ -417,6 +417,11 @@ class CodeGenVisitor(ast.ASTVisitor):
         for n, arg in enumerate(node.args):
             self.symbol_table[arg.arg] = {"name": arg.arg,
                 "ptr": self.func.args[n]}
+        key = node.name
+        # FIXME: this should happen earlier
+        if key not in self.symbol_table:
+            self.symbol_table[key] = {}
+        self.symbol_table[key]["fn"] = func
 
         # Allocate the "result" variable
         retsym = self.symbol_table[node.name]
