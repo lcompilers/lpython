@@ -201,6 +201,15 @@ class CodeGenVisitor(ast.ASTVisitor):
             if lhs.id not in self.symbol_table:
                 raise Exception("Undefined variable.")
             sym = self.symbol_table[lhs.id]
+            if "ptr" not in sym:
+                # TODO: this must happen elsewhere:
+                type_f = sym["type"]
+                assert not isinstance(type_f, Array)
+                if type_f not in self.types:
+                    raise Exception("Type not implemented.")
+                sym["ptr"] = self.builder.alloca(self.types[type_f],
+                    name=sym["name"])
+
             ptr = sym["ptr"]
             value = self.visit(node.value)
             if value.type != ptr.type.pointee:
