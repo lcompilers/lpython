@@ -140,6 +140,9 @@ class CodeGenVisitor(ast.ASTVisitor):
         """
         Generates code for `tree` and appends it into the LLVM module.
         """
+        if isinstance(tree, ast.Declaration):
+            # We do not generate any code for a declaration
+            return
         assert isinstance(tree, (ast.Program, ast.Module, ast.Function,
             ast.Subroutine))
         tree = transform_doloops(tree, self.symbol_table)
