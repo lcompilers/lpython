@@ -21,14 +21,18 @@ root
     : module | program
     ;
 
+units:
+    unit+ EOF
+    ;
+
 unit
     : root
-    | subroutine NEWLINE* EOF
-    | function NEWLINE* EOF
-    | use_statement NEWLINE* EOF
-    | var_decl NEWLINE* EOF
-    | statements NEWLINE* EOF
-    | expr NEWLINE* EOF
+    | subroutine NEWLINE*
+    | function NEWLINE*
+    | use_statement NEWLINE*
+    | var_decl NEWLINE*
+    | statement NEWLINE*
+    | expr NEWLINE*
     ;
 
 // ----------------------------------------------------------------------------
