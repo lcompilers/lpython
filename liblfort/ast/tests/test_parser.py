@@ -634,5 +634,43 @@ a = 5; b = 6
 a = 5
 b = 6
 """,
+        """\
+a = 5
+print *, a
+""",
+        """\
+a = 5
+
+subroutine p()
+print *, a
+end subroutine
+
+call p()
+""",
+        """\
+module a
+implicit none
+integer :: i
+end module
+
+use a, only: i
+
+i = 5
+""",
+        """\
+use a, only: i
+
+i = 5
+""",
+# FIXME: Fails:
+#        """\
+#use a, only: i
+#i = 5
+#""",
+#        """\
+#x = [1, 2, 3]
+#y = [1, 2, 1]
+#call plot(x, y, "o-")
+#""",
     ]
     run_tests(tests, "interactive_results.py", False)
