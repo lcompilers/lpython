@@ -542,6 +542,8 @@ def antlr_parse(source, translation_unit=False):
     ast_tree = v.visit(parse_tree)
     if isinstance(ast_tree, list):
         if len(ast_tree) != 1:
+            print(ast_tree)
+            assert False
             raise utils.SyntaxErrorException("List of units not implemented")
         ast_tree = ast_tree[0]
     assert isinstance(ast_tree, ast.AST)

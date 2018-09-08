@@ -21,8 +21,8 @@ root
     : (module | program) EOF
     ;
 
-units:
-    unit+ EOF
+units
+    : ( unit (EOF | NEWLINE+ | ';' NEWLINE*))+ EOF
     ;
 
 unit
