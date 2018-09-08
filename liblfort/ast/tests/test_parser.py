@@ -624,3 +624,15 @@ end module
 """,
     ]
     run_tests(tests, "module_results.py", True)
+
+def test_interactive():
+    tests = [
+        """\
+a = 5; b = 6
+""",
+        """\
+a = 5
+b = 6
+""",
+    ]
+    run_tests(tests, "interactive_results.py", False)
