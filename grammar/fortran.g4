@@ -18,7 +18,7 @@ grammar fortran;
 //
 
 root
-    : module | program
+    : (module | program) EOF
     ;
 
 units:
@@ -26,13 +26,14 @@ units:
     ;
 
 unit
-    : root
-    | subroutine NEWLINE*
-    | function NEWLINE*
-    | use_statement NEWLINE*
-    | var_decl NEWLINE*
-    | statement NEWLINE*
-    | expr NEWLINE*
+    : module NEWLINE* EOF
+    | program NEWLINE* EOF
+    | subroutine NEWLINE* EOF
+    | function NEWLINE* EOF
+    | use_statement NEWLINE* EOF
+    | var_decl NEWLINE* EOF
+    | statements NEWLINE* EOF
+    | expr NEWLINE* EOF
     ;
 
 // ----------------------------------------------------------------------------
@@ -43,7 +44,7 @@ unit
 //
 
 module
-    : NEWLINE* 'module' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ module_decl* contains_block? 'end' 'module' ID? NEWLINE+ EOF
+    : NEWLINE* 'module' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ module_decl* contains_block? 'end' 'module' ID? NEWLINE+
     ;
 
 module_decl
@@ -77,7 +78,7 @@ interface_decl
 //
 
 program
-    : NEWLINE* ('program'|'PROGRAM') ID NEWLINE+ sub_block ('program'|'PROGRAM')? ID? NEWLINE+ EOF
+    : NEWLINE* ('program'|'PROGRAM') ID NEWLINE+ sub_block ('program'|'PROGRAM')? ID? NEWLINE+
     ;
 
 subroutine
