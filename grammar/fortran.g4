@@ -26,14 +26,14 @@ units:
     ;
 
 unit
-    : module NEWLINE* EOF
-    | program NEWLINE* EOF
-    | subroutine NEWLINE* EOF
-    | function NEWLINE* EOF
-    | use_statement NEWLINE* EOF
-    | var_decl NEWLINE* EOF
-    | statements NEWLINE* EOF
-    | expr NEWLINE* EOF
+    : module NEWLINE*
+    | program NEWLINE*
+    | subroutine NEWLINE*
+    | function NEWLINE*
+    | use_statement NEWLINE*
+    | var_decl NEWLINE*
+    | statement NEWLINE*
+    | expr NEWLINE*
     ;
 
 // ----------------------------------------------------------------------------
