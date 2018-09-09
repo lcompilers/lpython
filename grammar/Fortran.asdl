@@ -45,6 +45,7 @@ expr
     | Compare(expr left, cmpop op, expr right)
     | FuncCallOrArray(identifier func, expr* args, keyword* keywords)
     | Array(identifier name, array_index* args)
+    | ArrayInitializer(expr* args)
     | Num(object n)
     | Str(string s)
     | Name(identifier id)

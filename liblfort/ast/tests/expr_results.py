@@ -28,6 +28,7 @@ results = [
     ('Array', (1, 1), 'a', [('ArrayIndex', None, None, None), ('ArrayIndex', None, None, None)]),
     ('Array', (1, 1), 'b', [('ArrayIndex', None, None, None)]),
     ('BinOp', (1, 1), ('Array', (1, 1), 'a', [('ArrayIndex', None, None, None), ('ArrayIndex', None, None, None)]), ('Add',), ('Array', (1, 1), 'b', [('ArrayIndex', None, None, None)])),
+    ('ArrayInitializer', (1, 1), [('Num', (1, 1), '1'), ('Num', (1, 1), '2'), ('Num', (1, 1), '3'), ('Name', (1, 1), 'i')]),
     ('FuncCallOrArray', (1, 1), 'f', [], []),
     ('Name', (1, 1), 'a'),
     ('FuncCallOrArray', (1, 1), 'a', [], []),
