@@ -130,7 +130,7 @@ def test_expr1():
         "a(3:5,i:j)",
         "b(:)",
         "a(:5,i:j) + b(1:)",
-        #"[1, 2, 3, i]",
+        "[1, 2, 3, i]",
         "f()",
         "x%a",
         "x%a()",
@@ -196,16 +196,16 @@ def test_statements1():
         "call rand_gamma0(a, .false., x(i))",
         "call rand_gamma_vector_n(a, size(x), x)",
         "call f(a=4, b=6, c=i)",
-        #"open(newunit=a, b, c)",
-        #"allocate(c(4), d(4))",
+        "open(newunit=a, b, c)",
+        "allocate(c(4), d(4))",
         "close(u)",
-        #"x = 1; y = 2",
-        #"y = 5; a = 1; x = u(2)",
+        "x = 1; y = 2",
+        "y = 5; a = 1; x = u(2)",
         "a = 5",
-        #"x = 1; y = 2;",
-        #"y = 5; a = 1; x = u(2);",
+        "x = 1; y = 2;",
+        "y = 5; a = 1; x = u(2);",
         "a = 5;",
-        #"; ;",
+        "; ;",
         'stop "OK"',
         #'write (*,"(i4)") 45',
         #'write (*,*) 45, "ss"',
@@ -215,7 +215,7 @@ def test_statements1():
         #"x => y(1:4, 5)",
         "call g(a(3:5,i:j), b(:))",
         "call g(a(:5,i:j), b(1:))",
-        #"c = [1, 2, 3, i]",
+        "c = [1, 2, 3, i]",
         "a = x%a",
         "b = x%b(i, j)",
         "c = y%c(5, :)",
@@ -624,3 +624,63 @@ end module
 """,
     ]
     run_tests(tests, "module_results.py", True)
+
+def test_interactive():
+    tests = [
+        """\
+a = 5; b = 6
+""",
+        """\
+a = 5
+b = 6
+""",
+        """\
+a = 5
+print *, a
+""",
+        """\
+a = 5
+
+subroutine p()
+print *, a
+end subroutine
+
+call p()
+""",
+        """\
+module a
+implicit none
+integer :: i
+end module
+
+use a, only: i
+
+i = 5
+""",
+        """\
+use a, only: i
+
+i = 5
+""",
+        """\
+use a, only: i
+i = 5
+""",
+        """\
+!x = [1, 2, 3]
+!y = [1, 2, 1]
+call plot(x, y, "o-")
+""",
+        """\
+x = [1, 2, 3]
+y = [1, 2, 1]
+call plot(x, y, "o-")
+""",
+    ]
+    run_tests(tests, "interactive_results.py", False)
+
+def test_interactive2():
+    tests = [
+        "use a i=5",
+        ]
+    all_fail(tests)

@@ -26,6 +26,7 @@ unit_decl
 stmt
     = Assignment(expr target, expr value)
     | SubroutineCall(identifier name, expr* args)
+    | BuiltinCall(identifier name, expr* args)
     | If(expr test, stmt* body, stmt* orelse)
     | Where(expr test, stmt* body, stmt* orelse)
     | Stop(int? code)
@@ -45,6 +46,7 @@ expr
     | Compare(expr left, cmpop op, expr right)
     | FuncCallOrArray(identifier func, expr* args, keyword* keywords)
     | Array(identifier name, array_index* args)
+    | ArrayInitializer(expr* args)
     | Num(object n)
     | Str(string s)
     | Name(identifier id)

@@ -18,17 +18,22 @@ grammar fortran;
 //
 
 root
-    : module | program
+    : (module | program) EOF
     ;
 
-unit
-    : root
-    | subroutine NEWLINE* EOF
-    | function NEWLINE* EOF
-    | use_statement NEWLINE* EOF
-    | var_decl NEWLINE* EOF
-    | statements NEWLINE* EOF
-    | expr NEWLINE* EOF
+units
+    : ( NEWLINE* script_unit NEWLINE* (EOF | NEWLINE+ | ';' NEWLINE*))+ EOF
+    ;
+
+script_unit
+    : module
+    | program
+    | subroutine
+    | function
+    | use_statement
+    | var_decl
+    | statement
+    | expr
     ;
 
 // ----------------------------------------------------------------------------
@@ -39,7 +44,7 @@ unit
 //
 
 module
-    : NEWLINE* 'module' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ module_decl* contains_block? 'end' 'module' ID? NEWLINE+ EOF
+    : NEWLINE* 'module' ID NEWLINE+ (use_statement NEWLINE+)* 'implicit none' NEWLINE+ module_decl* contains_block? 'end' 'module' ID? NEWLINE+
     ;
 
 module_decl
@@ -73,7 +78,7 @@ interface_decl
 //
 
 program
-    : NEWLINE* ('program'|'PROGRAM') ID NEWLINE+ sub_block ('program'|'PROGRAM')? ID? NEWLINE+ EOF
+    : NEWLINE* ('program'|'PROGRAM') ID NEWLINE+ sub_block ('program'|'PROGRAM')? ID? NEWLINE+
     ;
 
 subroutine
@@ -85,7 +90,7 @@ function
     ;
 
 sub_block
-    : use_statement* implicit_statement? var_decl* statements contains_block? ('end'|'END')
+    : (use_statement NEWLINE+)* (implicit_statement NEWLINE+)? var_decl* statements contains_block? ('end'|'END')
     ;
 
 contains_block
@@ -97,11 +102,11 @@ sub_or_func
     ;
 
 implicit_statement
-    : 'implicit none' NEWLINE+
+    : 'implicit none'
     ;
 
 use_statement
-    : 'use' use_symbol (',' 'only' ':' use_symbol_list)? NEWLINE+
+    : 'use' use_symbol (',' 'only' ':' use_symbol_list)?
     ;
 
 use_symbol_list : use_symbol (',' use_symbol)* ;
@@ -191,7 +196,7 @@ subroutine_call
     ;
 
 builtin_statement
-    : ('allocate' | 'open' | 'close') '(' arg_list? ')'
+    : name=('allocate' | 'open' | 'close') '(' arg_list? ')'
     ;
 
 

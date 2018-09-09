@@ -163,7 +163,7 @@ class ASTBuilderVisitor(fortranVisitor):
     # Visit a parse tree produced by fortranParser#subroutine_call.
     def visitSubroutine_call(self, ctx:fortranParser.Subroutine_callContext):
         name = ctx.ID().getText()
-        args =[]
+        args = []
         if ctx.arg_list():
             for arg in ctx.arg_list().arg():
                 if arg.ID():
@@ -171,6 +171,19 @@ class ASTBuilderVisitor(fortranVisitor):
                     kwarg = arg.ID().getText()
                 args.append(self.visit(arg))
         return ast.SubroutineCall(name, args, lineno=1, col_offset=1)
+
+    # Visit a parse tree produced by fortranParser#builtin_statement.
+    def visitBuiltin_statement(self, ctx:fortranParser.Builtin_statementContext):
+        name = ctx.name.text
+        args = []
+        if ctx.arg_list():
+            for arg in ctx.arg_list().arg():
+                if arg.ID():
+                    # TODO: handle kwargs, we ignore the name for now
+                    kwarg = arg.ID().getText()
+                args.append(self.visit(arg))
+        return ast.BuiltinCall(name, args, lineno=1, col_offset=1)
+
 
     # Visit a parse tree produced by fortranParser#assignment_statement.
     def visitAssignment_statement(self, ctx:fortranParser.Assignment_statementContext):
@@ -207,6 +220,14 @@ class ASTBuilderVisitor(fortranVisitor):
             v = self.visit(expr)
             values.append(v)
         return ast.Print(fmt=None, values=values, lineno=1, col_offset=1)
+
+    # Visit a parse tree produced by fortranParser#expr_array_const.
+    def visitExpr_array_const(self, ctx:fortranParser.Expr_array_constContext):
+        values = []
+        for expr in ctx.expr_list().expr():
+            v = self.visit(expr)
+            values.append(v)
+        return ast.ArrayInitializer(args=values, lineno=1, col_offset=1)
 
     # Visit a parse tree produced by fortranParser#expr_string.
     def visitExpr_string(self, ctx:fortranParser.Expr_stringContext):
@@ -537,8 +558,15 @@ def antlr_parse(source, translation_unit=False):
     if translation_unit:
         parse_tree = parser.root()
     else:
-        parse_tree = parser.unit()
+        parse_tree = parser.units()
     v = ASTBuilderVisitor()
     ast_tree = v.visit(parse_tree)
-    assert isinstance(ast_tree, ast.AST)
+    if isinstance(ast_tree, list):
+        assert len(ast_tree) > 1
+        for x in ast_tree:
+            assert isinstance(x, ast.AST)
+    elif ast_tree is None:
+        pass
+    else:
+        assert isinstance(ast_tree, ast.AST)
     return ast_tree
