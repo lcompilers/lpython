@@ -565,6 +565,8 @@ def antlr_parse(source, translation_unit=False):
         assert len(ast_tree) > 1
         for x in ast_tree:
             assert isinstance(x, ast.AST)
+    elif ast_tree is None:
+        pass
     else:
         assert isinstance(ast_tree, ast.AST)
     return ast_tree

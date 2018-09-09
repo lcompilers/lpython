@@ -29,6 +29,7 @@ results = [
     [('Assignment', (1, 1), ('Name', (1, 1), 'x'), ('Num', (1, 1), '1')), ('Assignment', (1, 1), ('Name', (1, 1), 'y'), ('Num', (1, 1), '2'))],
     [('Assignment', (1, 1), ('Name', (1, 1), 'y'), ('Num', (1, 1), '5')), ('Assignment', (1, 1), ('Name', (1, 1), 'a'), ('Num', (1, 1), '1')), ('Assignment', (1, 1), ('Name', (1, 1), 'x'), ('FuncCallOrArray', (1, 1), 'u', [('Num', (1, 1), '2')], []))],
     ('Assignment', (1, 1), ('Name', (1, 1), 'a'), ('Num', (1, 1), '5')),
+    None,
     ('Stop', (1, 1), None),
     ('Print', (1, 1), None, [('Num', (1, 1), '45')]),
     ('Print', (1, 1), None, [('Num', (1, 1), '45'), ('Str', (1, 1), 'sss'), ('BinOp', (1, 1), ('Name', (1, 1), 'a'), ('Add',), ('Num', (1, 1), '1'))]),

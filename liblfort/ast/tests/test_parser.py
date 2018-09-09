@@ -205,7 +205,7 @@ def test_statements1():
         "x = 1; y = 2;",
         "y = 5; a = 1; x = u(2);",
         "a = 5;",
-        #"; ;",
+        "; ;",
         'stop "OK"',
         #'write (*,"(i4)") 45',
         #'write (*,*) 45, "ss"',
