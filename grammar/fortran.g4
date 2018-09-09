@@ -44,7 +44,7 @@ unit
 //
 
 module
-    : NEWLINE* 'module' ID NEWLINE+ use_statement* 'implicit none' NEWLINE+ module_decl* contains_block? 'end' 'module' ID? NEWLINE+
+    : NEWLINE* 'module' ID NEWLINE+ (use_statement NEWLINE+)* 'implicit none' NEWLINE+ module_decl* contains_block? 'end' 'module' ID? NEWLINE+
     ;
 
 module_decl
@@ -90,7 +90,7 @@ function
     ;
 
 sub_block
-    : use_statement* (implicit_statement NEWLINE+)? var_decl* statements contains_block? ('end'|'END')
+    : (use_statement NEWLINE+)* (implicit_statement NEWLINE+)? var_decl* statements contains_block? ('end'|'END')
     ;
 
 contains_block
@@ -106,7 +106,7 @@ implicit_statement
     ;
 
 use_statement
-    : 'use' use_symbol (',' 'only' ':' use_symbol_list)? NEWLINE+
+    : 'use' use_symbol (',' 'only' ':' use_symbol_list)?
     ;
 
 use_symbol_list : use_symbol (',' use_symbol)* ;
