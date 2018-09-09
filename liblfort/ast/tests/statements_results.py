@@ -20,6 +20,7 @@ results = [
     ('SubroutineCall', (1, 1), 'rand_gamma0', [('Name', (1, 1), 'a'), ('Constant', (1, 1), False), ('FuncCallOrArray', (1, 1), 'x', [('Name', (1, 1), 'i')], [])]),
     ('SubroutineCall', (1, 1), 'rand_gamma_vector_n', [('Name', (1, 1), 'a'), ('FuncCallOrArray', (1, 1), 'size', [('Name', (1, 1), 'x')], []), ('Name', (1, 1), 'x')]),
     ('SubroutineCall', (1, 1), 'f', [('Num', (1, 1), '4'), ('Num', (1, 1), '6'), ('Name', (1, 1), 'i')]),
+    [('FuncCallOrArray', (1, 1), 'c', [('Num', (1, 1), '4')], []), ('FuncCallOrArray', (1, 1), 'd', [('Num', (1, 1), '4')], [])],
     ('Name', (1, 1), 'u'),
     [('Assignment', (1, 1), ('Name', (1, 1), 'x'), ('Num', (1, 1), '1')), ('Assignment', (1, 1), ('Name', (1, 1), 'y'), ('Num', (1, 1), '2'))],
     [('Assignment', (1, 1), ('Name', (1, 1), 'y'), ('Num', (1, 1), '5')), ('Assignment', (1, 1), ('Name', (1, 1), 'a'), ('Num', (1, 1), '1')), ('Assignment', (1, 1), ('Name', (1, 1), 'x'), ('FuncCallOrArray', (1, 1), 'u', [('Num', (1, 1), '2')], []))],
