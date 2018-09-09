@@ -196,7 +196,7 @@ def test_statements1():
         "call rand_gamma0(a, .false., x(i))",
         "call rand_gamma_vector_n(a, size(x), x)",
         "call f(a=4, b=6, c=i)",
-        #"open(newunit=a, b, c)",
+        "open(newunit=a, b, c)",
         "allocate(c(4), d(4))",
         "close(u)",
         "x = 1; y = 2",

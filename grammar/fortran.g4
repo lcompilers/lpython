@@ -196,7 +196,7 @@ subroutine_call
     ;
 
 builtin_statement
-    : ('allocate' | 'open' | 'close') '(' arg_list? ')'
+    : name=('allocate' | 'open' | 'close') '(' arg_list? ')'
     ;
 
 
