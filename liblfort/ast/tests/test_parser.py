@@ -666,12 +666,11 @@ i = 5
 use a, only: i
 i = 5
 """,
-# FIXME: Fails:
-#        """\
-#x = [1, 2, 3]
-#y = [1, 2, 1]
-#call plot(x, y, "o-")
-#""",
+        """\
+!x = [1, 2, 3]
+!y = [1, 2, 1]
+call plot(x, y, "o-")
+""",
     ]
     run_tests(tests, "interactive_results.py", False)
 

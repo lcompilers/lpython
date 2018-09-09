@@ -6,4 +6,5 @@ results = [
     [('Module', 'a', [('Declaration', (1, 1), [('decl', 'i', 'integer', [])])], []), ('Use', (1, 1), ('use_symbol', 'a', None), [('use_symbol', 'i', None)]), ('Assignment', (1, 1), ('Name', (1, 1), 'i'), ('Num', (1, 1), '5'))],
     [('Use', (1, 1), ('use_symbol', 'a', None), [('use_symbol', 'i', None)]), ('Assignment', (1, 1), ('Name', (1, 1), 'i'), ('Num', (1, 1), '5'))],
     [('Use', (1, 1), ('use_symbol', 'a', None), [('use_symbol', 'i', None)]), ('Assignment', (1, 1), ('Name', (1, 1), 'i'), ('Num', (1, 1), '5'))],
+    ('SubroutineCall', (1, 1), 'plot', [('Name', (1, 1), 'x'), ('Name', (1, 1), 'y'), ('Str', (1, 1), 'o-')]),
 ]

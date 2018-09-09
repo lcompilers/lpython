@@ -22,18 +22,18 @@ root
     ;
 
 units
-    : ( unit (EOF | NEWLINE+ | ';' NEWLINE*))+ EOF
+    : ( NEWLINE* script_unit NEWLINE* (EOF | NEWLINE+ | ';' NEWLINE*))+ EOF
     ;
 
-unit
-    : module NEWLINE*
-    | program NEWLINE*
-    | subroutine NEWLINE*
-    | function NEWLINE*
-    | use_statement NEWLINE*
-    | var_decl NEWLINE*
-    | statement NEWLINE*
-    | expr NEWLINE*
+script_unit
+    : module
+    | program
+    | subroutine
+    | function
+    | use_statement
+    | var_decl
+    | statement
+    | expr
     ;
 
 // ----------------------------------------------------------------------------
