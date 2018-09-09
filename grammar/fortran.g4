@@ -90,7 +90,7 @@ function
     ;
 
 sub_block
-    : use_statement* implicit_statement? var_decl* statements contains_block? ('end'|'END')
+    : use_statement* (implicit_statement NEWLINE+)? var_decl* statements contains_block? ('end'|'END')
     ;
 
 contains_block
@@ -102,7 +102,7 @@ sub_or_func
     ;
 
 implicit_statement
-    : 'implicit none' NEWLINE+
+    : 'implicit none'
     ;
 
 use_statement
