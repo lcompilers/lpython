@@ -90,7 +90,6 @@ def test_variables():
 integer :: a
 """)
     assert "a" in e.symbol_table
-    # TODO: add a test that 'a' is in the symbol table
     e.evaluate("""\
 a = 5
 """)
