@@ -92,6 +92,6 @@ integer :: a
     e.evaluate("""\
 a = 5
 """)
-    e.evaluate("""\
+    assert e.evaluate("""\
 a
 """) == 5
