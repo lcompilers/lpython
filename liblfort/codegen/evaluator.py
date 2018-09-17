@@ -19,12 +19,14 @@ class FortranEvaluator(object):
         self.symbol_table_visitor = SymbolTableVisitor()
         self.code_gen_visitor = CodeGenVisitor(
             self.symbol_table_visitor.symbol_table)
+        self.symbol_table = self.symbol_table_visitor.symbol_table
 
         self.anonymous_fn_counter = 0
 
     def evaluate(self, source, optimize=True):
         ast_tree = parse(source, translation_unit=False)
         is_expr = isinstance(ast_tree, ast.expr)
+        is_stmt = isinstance(ast_tree, ast.stmt)
         if is_expr:
             # if `ast_tree` is an expression, wrap it in an anonymous function
             self.anonymous_fn_counter += 1
@@ -37,9 +39,21 @@ class FortranEvaluator(object):
                 returns=None,
                 decl=[], body=body, contains=[],
                 lineno=1, col_offset=1)
+
+        if is_stmt:
+            # if `ast_tree` is a statement, wrap it in an anonymous subroutine
+            self.anonymous_fn_counter += 1
+            anonymous_fn_name = "_run%d" % self.anonymous_fn_counter
+            body = [ast_tree]
+
+            ast_tree = ast.Function(name=anonymous_fn_name, args=[],
+                returns=None,
+                decl=[], body=body, contains=[],
+                lineno=1, col_offset=1)
+
         self.symbol_table_visitor.visit(ast_tree)
-        symbol_table = self.symbol_table_visitor.symbol_table
-        annotate_tree(ast_tree, symbol_table)
+        self.symbol_table = self.symbol_table_visitor.symbol_table
+        annotate_tree(ast_tree, self.symbol_table)
         # TODO: keep adding to the "module", i.e., pass it as an optional
         # argument to codegen() on subsequent runs of evaluate(), also store
         # and keep appending to symbol_table.
@@ -75,3 +89,9 @@ class FortranEvaluator(object):
                     anonymous_fn_name))
                 result = fptr()
                 return result
+
+            if is_stmt:
+                fptr = CFUNCTYPE(None)(ee.get_function_address(
+                    anonymous_fn_name))
+                fptr()
+                return

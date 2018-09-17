@@ -19,8 +19,15 @@ def create_global_var(module, base_name, v):
     while get_global(module, "%s_%d" % (base_name, count)):
         count += 1
     var = ir.GlobalVariable(module, v.type, name="%s_%d" % (base_name, count))
-    var.global_constant = True
     var.initializer = v
+    return var
+
+def create_global_const(module, base_name, v):
+    """
+    Create a unique global constant with the name base_name_%d.
+    """
+    var = create_global_var(module, base_name, v)
+    var.global_constant = True
     return var
 
 def printf(module, builder, fmt, *args):
@@ -102,7 +109,7 @@ def create_global_string(module, builder, string):
     c_ptr = ir.IntType(8).as_pointer()
     b = bytearray((string + '\00').encode('ascii'))
     string_const = ir.Constant(ir.ArrayType(ir.IntType(8), len(b)), b)
-    string_var = create_global_var(module, "compiler_id", string_const)
+    string_var = create_global_const(module, "compiler_id", string_const)
     string_ptr = builder.bitcast(string_var, c_ptr)
     return string_ptr
 
@@ -140,6 +147,10 @@ class CodeGenVisitor(ast.ASTVisitor):
         """
         Generates code for `tree` and appends it into the LLVM module.
         """
+        if isinstance(tree, ast.Declaration):
+            # We do not generate any code for a declaration for now, but
+            # we should: we should create a global variable. XXX1
+            return
         assert isinstance(tree, (ast.Program, ast.Module, ast.Function,
             ast.Subroutine))
         tree = transform_doloops(tree, self.symbol_table)
@@ -198,8 +209,18 @@ class CodeGenVisitor(ast.ASTVisitor):
             if lhs.id not in self.symbol_table:
                 raise Exception("Undefined variable.")
             sym = self.symbol_table[lhs.id]
-            ptr = sym["ptr"]
+
             value = self.visit(node.value)
+
+            if "ptr" not in sym:
+                # TODO: this must happen elsewhere, in XXX1.
+                type_f = sym["type"]
+                assert not isinstance(type_f, Array)
+                if type_f not in self.types:
+                    raise Exception("Type not implemented.")
+                sym["ptr"] = create_global_var(self.module, sym["name"],
+                    value)
+            ptr = sym["ptr"]
             if value.type != ptr.type.pointee:
                 raise Exception("Type mismatch in assignment.")
             self.builder.store(value, ptr)

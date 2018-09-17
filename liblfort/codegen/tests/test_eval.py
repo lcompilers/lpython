@@ -70,7 +70,7 @@ integer, intent(in) :: a, b
 fn = a + b
 end function
 """)
-    # TODO: the arguments must be passes as pointers:
+    # TODO: the arguments must be passed as pointers:
     #assert e.evaluate("fn(2, 3)") == 5
     #assert e.evaluate("fn(5, -3)") == 2
 
@@ -82,3 +82,19 @@ def test_simple_arithmetics():
     assert e.evaluate("""\
 5+6
 """) == 11
+
+def test_variables():
+    e = FortranEvaluator()
+    assert "a" not in e.symbol_table
+    e.evaluate("""\
+integer :: a
+""")
+    assert "a" in e.symbol_table
+    e.evaluate("""\
+a = 5
+""")
+    assert "a" in e.symbol_table
+    assert e.evaluate("""\
+a
+""") == 5
+    assert "a" in e.symbol_table
