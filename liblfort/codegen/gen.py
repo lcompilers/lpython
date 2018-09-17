@@ -209,6 +209,9 @@ class CodeGenVisitor(ast.ASTVisitor):
             if lhs.id not in self.symbol_table:
                 raise Exception("Undefined variable.")
             sym = self.symbol_table[lhs.id]
+
+            value = self.visit(node.value)
+
             if "ptr" not in sym:
                 # TODO: this must happen elsewhere, in XXX1.
                 type_f = sym["type"]
@@ -219,12 +222,9 @@ class CodeGenVisitor(ast.ASTVisitor):
                 #    name=sym["name"])
                 # TODO: pass the value directly, do not use alloca
                 sym["ptr"] = create_global_var(self.module, sym["name"],
-                    self.builder.alloca(self.types[type_f],
-                    name=sym["name"]))
+                    value)
                 print("adding!", sym)
-
             ptr = sym["ptr"]
-            value = self.visit(node.value)
             if value.type != ptr.type.pointee:
                 raise Exception("Type mismatch in assignment.")
             self.builder.store(value, ptr)
