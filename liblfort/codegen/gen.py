@@ -223,7 +223,6 @@ class CodeGenVisitor(ast.ASTVisitor):
                 # TODO: pass the value directly, do not use alloca
                 sym["ptr"] = create_global_var(self.module, sym["name"],
                     value)
-                print("adding!", sym)
             ptr = sym["ptr"]
             if value.type != ptr.type.pointee:
                 raise Exception("Type mismatch in assignment.")
