@@ -217,6 +217,7 @@ class CodeGenVisitor(ast.ASTVisitor):
                     raise Exception("Type not implemented.")
                 #sym["ptr"] = self.builder.alloca(self.types[type_f],
                 #    name=sym["name"])
+                # TODO: pass the value directly, do not use alloca
                 sym["ptr"] = create_global_var(self.module, sym["name"],
                     self.builder.alloca(self.types[type_f],
                     name=sym["name"]))

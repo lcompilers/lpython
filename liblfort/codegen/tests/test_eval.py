@@ -88,6 +88,7 @@ def test_variables():
     e.evaluate("""\
 integer :: a
 """)
+    # TODO: add a test that 'a' is in the symbol table
     e.evaluate("""\
 a = 5
 """)
