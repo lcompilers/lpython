@@ -148,7 +148,8 @@ class CodeGenVisitor(ast.ASTVisitor):
         Generates code for `tree` and appends it into the LLVM module.
         """
         if isinstance(tree, ast.Declaration):
-            # We do not generate any code for a declaration
+            # We do not generate any code for a declaration for now, but
+            # we should: we should create a global variable. XXX1
             return
         assert isinstance(tree, (ast.Program, ast.Module, ast.Function,
             ast.Subroutine))
@@ -209,7 +210,7 @@ class CodeGenVisitor(ast.ASTVisitor):
                 raise Exception("Undefined variable.")
             sym = self.symbol_table[lhs.id]
             if "ptr" not in sym:
-                # TODO: this must happen elsewhere:
+                # TODO: this must happen elsewhere, in XXX1.
                 type_f = sym["type"]
                 assert not isinstance(type_f, Array)
                 if type_f not in self.types:
