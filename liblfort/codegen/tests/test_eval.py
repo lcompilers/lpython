@@ -85,13 +85,17 @@ def test_simple_arithmetics():
 
 def test_variables():
     e = FortranEvaluator()
+    assert "a" not in e.symbol_table
     e.evaluate("""\
 integer :: a
 """)
+    assert "a" in e.symbol_table
     # TODO: add a test that 'a' is in the symbol table
     e.evaluate("""\
 a = 5
 """)
+    assert "a" in e.symbol_table
     assert e.evaluate("""\
 a
 """) == 5
+    assert "a" in e.symbol_table

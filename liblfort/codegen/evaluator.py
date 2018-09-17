@@ -19,6 +19,7 @@ class FortranEvaluator(object):
         self.symbol_table_visitor = SymbolTableVisitor()
         self.code_gen_visitor = CodeGenVisitor(
             self.symbol_table_visitor.symbol_table)
+        self.symbol_table = self.symbol_table_visitor.symbol_table
 
         self.anonymous_fn_counter = 0
 
@@ -51,8 +52,8 @@ class FortranEvaluator(object):
                 lineno=1, col_offset=1)
 
         self.symbol_table_visitor.visit(ast_tree)
-        symbol_table = self.symbol_table_visitor.symbol_table
-        annotate_tree(ast_tree, symbol_table)
+        self.symbol_table = self.symbol_table_visitor.symbol_table
+        annotate_tree(ast_tree, self.symbol_table)
         # TODO: keep adding to the "module", i.e., pass it as an optional
         # argument to codegen() on subsequent runs of evaluate(), also store
         # and keep appending to symbol_table.
