@@ -70,7 +70,7 @@ integer, intent(in) :: a, b
 fn = a + b
 end function
 """)
-    # TODO: the arguments must be passes as pointers:
+    # TODO: the arguments must be passed as pointers:
     #assert e.evaluate("fn(2, 3)") == 5
     #assert e.evaluate("fn(5, -3)") == 2
 
