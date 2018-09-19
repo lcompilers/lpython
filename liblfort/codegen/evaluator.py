@@ -48,11 +48,12 @@ class FortranEvaluator(object):
                 lineno=1, col_offset=1)
 
         self.symbol_table_visitor.visit(self.ast_tree)
-        self.symbol_table = self.symbol_table_visitor.symbol_table
         annotate_tree(self.ast_tree, self.symbol_table)
         # TODO: keep adding to the "module", i.e., pass it as an optional
         # argument to codegen() on subsequent runs of evaluate(), also store
         # and keep appending to symbol_table.
+        if not isinstance(self.ast_tree, ast.Declaration):
+            self.code_gen_visitor.do_global_vars()
         self.code_gen_visitor.codegen(self.ast_tree)
         source_ll = str(self.code_gen_visitor.module)
         self._source_ll = source_ll
@@ -71,9 +72,13 @@ class FortranEvaluator(object):
         self.lle.add_module(source_ll, optimize=optimize)
 
         if is_expr:
+            self.code_gen_visitor = CodeGenVisitor(
+                self.symbol_table_visitor.symbol_table)
             return self.lle.intfn(anonymous_fn_name)
 
         if is_stmt:
+            self.code_gen_visitor = CodeGenVisitor(
+                self.symbol_table_visitor.symbol_table)
             self.lle.voidfn(anonymous_fn_name)
             return
 

@@ -148,13 +148,28 @@ class CodeGenVisitor(ast.ASTVisitor):
         Generates code for `tree` and appends it into the LLVM module.
         """
         if isinstance(tree, ast.Declaration):
-            # We do not generate any code for a declaration for now, but
-            # we should: we should create a global variable. XXX1
+            # `tree` is a declaration in the global scope. Create a global
+            # variable in the LLVM code.
+            name = tree.vars[0].sym + "_0"
+            sym = self.symbol_table[tree.vars[0].sym]
+            var = ir.GlobalVariable(self.module, ir.IntType(64), name)
+            var.initializer = ir.Constant(ir.IntType(64), 0)
+            sym["ptr"] = var
             return
         assert isinstance(tree, (ast.Program, ast.Module, ast.Function,
             ast.Subroutine))
         tree = transform_doloops(tree, self.symbol_table)
         self.visit(tree)
+
+    def do_global_vars(self):
+        for sym in self.symbol_table:
+            s = self.symbol_table[sym]
+            if s.get("global", False):
+                name = s["name"] + "_0"
+                if not get_global(self.module, name):
+                    var = ir.GlobalVariable(self.module, self.types[s["type"]],
+                        name=name)
+                    s["ptr"] = var
 
     def visit_Program(self, node):
         self.module  = ir.Module()
@@ -218,8 +233,6 @@ class CodeGenVisitor(ast.ASTVisitor):
                 assert not isinstance(type_f, Array)
                 if type_f not in self.types:
                     raise Exception("Type not implemented.")
-                sym["ptr"] = create_global_var(self.module, sym["name"],
-                    value)
             ptr = sym["ptr"]
             if value.type != ptr.type.pointee:
                 raise Exception("Type mismatch in assignment.")
