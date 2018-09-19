@@ -88,6 +88,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 "sum": {"name": "sum", "type": Real()},
                 "random_number": {"name": "random_number", "type": Real()},
                 }
+        self._global_level = True
 
     def visit_Declaration(self, node):
         for v in node.vars:
@@ -107,9 +108,11 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
             type_ = self.types[type_f]()
             if len(dims) > 0:
                 type_ = Array(type_, dims)
-            self.symbol_table[sym] = {"name": sym, "type": type_}
+            self.symbol_table[sym] = {"name": sym, "type": type_,
+                "global": self._global_level}
 
     def visit_Function(self, node):
+        self._global_level = False
         sym = node.name
         # TODO: for now we assume integer result, but we should read the AST
         # and determine the type of the result.
@@ -121,6 +124,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
 
         # Iterate over nested functions
         self.visit_sequence(node.contains)
+        self._global_level = True
 
 def create_symbol_table(tree):
     v = SymbolTableVisitor()
