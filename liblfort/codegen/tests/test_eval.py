@@ -1,3 +1,5 @@
+import pytest
+
 from liblfort.codegen.evaluator import FortranEvaluator, LLVMEvaluator
 
 # LLVM
@@ -5,20 +7,38 @@ from liblfort.codegen.evaluator import FortranEvaluator, LLVMEvaluator
 def test_llvm_eval1():
     e = LLVMEvaluator()
     assert e.evaluate("""\
-; ModuleID = ""
-target triple = "unknown-unknown-unknown"
-target datalayout = ""
+define i64 @f1()
+{
+  %1 = alloca i64, align 4
+  store i64 4, i64* %1, align 4
+  %2 = load i64, i64* %1, align 4
+  ret i64 %2
+}
+""", intfn="f1") == 4
+
+def test_llvm_eval1_fail():
+    e = LLVMEvaluator()
+    with pytest.raises(RuntimeError):
+        assert e.evaluate("""\
+define i64 @f1()
+{
+  %1 =x alloca i64, align 4
+}
+""", intfn="f1") == 4
+
+def test_llvm_eval2():
+    e = LLVMEvaluator()
+    assert e.evaluate("""\
+@count = global i64 0, align 4
 
 define i64 @f1()
 {
 .entry:
-  %0 = alloca i64, align 4
-  store i64 4, i64* %0, align 4
-  %1 = load i64, i64* %0, align 4
-  ret i64 %1
+  store i64 4, i64* @count, align 4
+  %0 = load i64, i64* @count, align 4
+  ret i64 %0
 }
 """, intfn="f1") == 4
-
 
 
 
