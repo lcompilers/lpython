@@ -201,6 +201,7 @@ define void @inc2()
         e.add_module("""\
 define void @inc2()
 {
+  ; FAIL: @inc is not defined
   call void @inc()
   call void @inc()
   ret void
