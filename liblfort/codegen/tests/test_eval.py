@@ -1,4 +1,29 @@
-from liblfort.codegen.evaluator import FortranEvaluator
+from liblfort.codegen.evaluator import FortranEvaluator, LLVMEvaluator
+
+# LLVM
+
+def test_llvm_eval1():
+    e = LLVMEvaluator()
+    assert e.evaluate("""\
+; ModuleID = ""
+target triple = "unknown-unknown-unknown"
+target datalayout = ""
+
+define i64 @f1()
+{
+.entry:
+  %0 = alloca i64, align 4
+  store i64 4, i64* %0, align 4
+  %1 = load i64, i64* %0, align 4
+  ret i64 %1
+}
+""", intfn="f1") == 4
+
+
+
+
+
+# Fortran
 
 def test_program():
     e = FortranEvaluator()

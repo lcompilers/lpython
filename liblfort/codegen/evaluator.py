@@ -95,3 +95,37 @@ class FortranEvaluator(object):
                     anonymous_fn_name))
                 fptr()
                 return
+
+
+class LLVMEvaluator(object):
+
+    def __init__(self):
+        llvm.initialize()
+        llvm.initialize_native_asmprinter()
+        llvm.initialize_native_target()
+
+        self.target = llvm.Target.from_default_triple()
+
+    def evaluate(self, source, intfn=None, optimize=True):
+        """
+        If `intfn` is a string (name of the function of no arguments that
+        returns an int), the function will be called and the integer value
+        returned. The `intfn` must be present and of the correct signature,
+        otherwise the behavior is undefined.
+        """
+        mod = llvm.parse_assembly(source)
+        mod.verify()
+        if optimize:
+            pmb = llvm.create_pass_manager_builder()
+            pmb.opt_level = 3
+            pmb.loop_vectorize = True
+            pmb.slp_vectorize = True
+            pm = llvm.create_module_pass_manager()
+            pmb.populate(pm)
+            pm.run(mod)
+        target_machine = self.target.create_target_machine()
+        with llvm.create_mcjit_compiler(mod, target_machine) as ee:
+            ee.finalize_object()
+            if intfn:
+                fptr = CFUNCTYPE(c_int)(ee.get_function_address(intfn))
+                return fptr()
