@@ -110,13 +110,7 @@ class LLVMEvaluator(object):
         mod.verify()
         self.ee = llvm.create_mcjit_compiler(mod, target_machine)
 
-    def evaluate(self, source, intfn=None, optimize=True):
-        """
-        If `intfn` is a string (name of the function of no arguments that
-        returns an int), the function will be called and the integer value
-        returned. The `intfn` must be present and of the correct signature,
-        otherwise the behavior is undefined.
-        """
+    def add_module(self, source, optimize=True):
         mod = llvm.parse_assembly(source)
         mod.verify()
         if optimize:
@@ -127,9 +121,15 @@ class LLVMEvaluator(object):
             pm = llvm.create_module_pass_manager()
             pmb.populate(pm)
             pm.run(mod)
-
         self.ee.add_module(mod)
         self.ee.finalize_object()
-        if intfn:
-            fptr = CFUNCTYPE(c_int)(self.ee.get_function_address(intfn))
-            return fptr()
+
+    def intfn(self, name):
+        """
+        `name` is a string, the name of the function of no arguments that
+        returns an int, the function will be called and the integer value
+        returned. The `name` must be present and of the correct signature,
+        otherwise the behavior is undefined.
+        """
+        fptr = CFUNCTYPE(c_int)(self.ee.get_function_address(name))
+        return fptr()

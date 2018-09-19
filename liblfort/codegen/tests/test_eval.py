@@ -6,7 +6,7 @@ from liblfort.codegen.evaluator import FortranEvaluator, LLVMEvaluator
 
 def test_llvm_eval1():
     e = LLVMEvaluator()
-    assert e.evaluate("""\
+    e.add_module("""\
 define i64 @f1()
 {
   %1 = alloca i64, align 4
@@ -14,11 +14,12 @@ define i64 @f1()
   %2 = load i64, i64* %1, align 4
   ret i64 %2
 }
-""", intfn="f1") == 4
+""")
+    assert e.intfn("f1") == 4
+    e.add_module("")
+    assert e.intfn("f1") == 4
 
-    assert e.evaluate("", intfn="f1") == 4
-
-    assert e.evaluate("""\
+    e.add_module("""\
 define i64 @f1()
 {
   %1 = alloca i64, align 4
@@ -26,34 +27,24 @@ define i64 @f1()
   %2 = load i64, i64* %1, align 4
   ret i64 %2
 }
-""", intfn="f1") == 5
-
-    assert e.evaluate("", intfn="f1") == 5
-
-    e.evaluate("""\
-define i64 @f1()
-{
-  %1 = alloca i64, align 4
-  store i64 6, i64* %1, align 4
-  %2 = load i64, i64* %1, align 4
-  ret i64 %2
-}
 """)
-    assert e.evaluate("", intfn="f1") == 6
+    assert e.intfn("f1") == 5
+    e.add_module("")
+    assert e.intfn("f1") == 5
 
 def test_llvm_eval1_fail():
     e = LLVMEvaluator()
     with pytest.raises(RuntimeError):
-        assert e.evaluate("""\
+        e.add_module("""\
 define i64 @f1()
 {
   %1 =x alloca i64, align 4
 }
-""", intfn="f1") == 4
+""")
 
 def test_llvm_eval2():
     e = LLVMEvaluator()
-    assert e.evaluate("""\
+    e.add_module("""\
 @count = global i64 0, align 4
 
 define i64 @f1()
@@ -63,9 +54,10 @@ define i64 @f1()
   %0 = load i64, i64* @count, align 4
   ret i64 %0
 }
-""", intfn="f1") == 4
+""")
+    assert e.intfn("f1") == 4
 
-    assert e.evaluate("""\
+    e.add_module("""\
 @count = external global i64
 
 define i64 @f2()
@@ -74,17 +66,18 @@ define i64 @f2()
   %0 = load i64, i64* @count, align 4
   ret i64 %0
 }
-""", intfn="f2") == 4
+""")
+    assert e.intfn("f2") == 4
 
     with pytest.raises(RuntimeError):
-        assert e.evaluate("""\
+        e.add_module("""\
 define i64 @f3()
 {
 .entry:
   %0 = load i64, i64* @count, align 4
   ret i64 %0
 }
-""", intfn="f3") == 4
+""")
 
 
 
