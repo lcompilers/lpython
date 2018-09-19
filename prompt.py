@@ -4,11 +4,9 @@ from ctypes import CFUNCTYPE, c_double
 
 from pygments.lexers import FortranLexer
 
-from prompt_toolkit.history import InMemoryHistory
-from prompt_toolkit.layout.lexers import PygmentsLexer
-from prompt_toolkit.shortcuts import prompt, print_tokens
-from prompt_toolkit.styles import style_from_dict
-from prompt_toolkit.token import Token
+from prompt_toolkit import PromptSession, print_formatted_text, HTML
+from prompt_toolkit.lexers import PygmentsLexer
+from prompt_toolkit.key_binding import KeyBindings
 
 import llvmlite.binding as llvm
 
@@ -19,14 +17,7 @@ from liblfort.semantic.analyze import create_symbol_table, annotate_tree
 
 
 def print_bold(text):
-    style = style_from_dict({
-        Token.Bold: '#ansiblue bold',
-    })
-    tokens = [
-        (Token.Bold, text),
-        (Token, '\n'),
-    ]
-    print_tokens(tokens, style=style)
+    print_formatted_text(HTML('<ansiblue><b>%s</b></ansiblue>' % text))
 
 def handle_input(engine, evaluator, source):
     print_bold("Input:")
@@ -49,6 +40,16 @@ def handle_input(engine, evaluator, source):
     print_bold("Result:")
     print(result)
 
+kb = KeyBindings()
+
+@kb.add('escape', 'enter')
+def _(event):
+    event.current_buffer.insert_text('\n')
+
+@kb.add('enter')
+def _(event):
+    event.current_buffer.validate_and_handle()
+
 def main():
     llvm.initialize()
     llvm.initialize_native_asmprinter()
@@ -63,23 +64,22 @@ def main():
     backing_mod.verify()
     engine = llvm.create_mcjit_compiler(backing_mod, target_machine)
 
-    history = InMemoryHistory()
-
     print("Interactive Fortran.")
     print("  * Use Ctrl-D to exit.")
-    print("  * Use Alt-Enter to submit.")
+    print("  * Use Enter to submit.")
     print("  * Features:")
-    print("    - Multi-line editing")
+    print("    - Multi-line editing (use Alt-Enter)")
     print("    - History")
     print("    - Syntax highlighting")
     print()
 
     fortran_evaluator = FortranEvaluator()
 
+    session = PromptSession('> ', lexer=PygmentsLexer(FortranLexer),
+            multiline=True, key_bindings=kb)
     try:
         while True:
-            text = prompt('> ', history=history,
-                    lexer=PygmentsLexer(FortranLexer), multiline=True)
+            text = session.prompt()
             print()
             handle_input(engine, fortran_evaluator, text)
             print()
