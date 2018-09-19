@@ -68,7 +68,7 @@ class FortranEvaluator(object):
         #     # it and run it:
         #     <everything below...>
 
-        self.lle.add_module(source_ll)
+        self.lle.add_module(source_ll, optimize=optimize)
 
         if is_expr:
             return self.lle.intfn(anonymous_fn_name)
