@@ -32,6 +32,7 @@ def test_llvm_eval1_fail():
         e.add_module("""\
 define i64 @f1()
 {
+  ; FAIL: "=x" is incorrect syntax
   %1 =x alloca i64
 }
 """)
@@ -65,6 +66,7 @@ define i64 @f2()
         e.add_module("""\
 define i64 @f3()
 {
+  ; FAIL: @count is not defined
   %1 = load i64, i64* @count
   ret i64 %1
 }
