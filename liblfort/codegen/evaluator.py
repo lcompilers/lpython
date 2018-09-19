@@ -10,11 +10,7 @@ from .gen import CodeGenVisitor
 class FortranEvaluator(object):
 
     def __init__(self):
-        llvm.initialize()
-        llvm.initialize_native_asmprinter()
-        llvm.initialize_native_target()
-
-        self.target = llvm.Target.from_default_triple()
+        self.lle = LLVMEvaluator()
 
         self.symbol_table_visitor = SymbolTableVisitor()
         self.code_gen_visitor = CodeGenVisitor(
@@ -71,7 +67,32 @@ class FortranEvaluator(object):
         #     # The expression was wrapped into `_run1` above, let us compile
         #     # it and run it:
         #     <everything below...>
-        mod = llvm.parse_assembly(source_ll)
+
+        self.lle.add_module(source_ll, optimize=optimize)
+
+        if is_expr:
+            return self.lle.intfn(anonymous_fn_name)
+
+        if is_stmt:
+            self.lle.voidfn(anonymous_fn_name)
+            return
+
+
+class LLVMEvaluator(object):
+
+    def __init__(self):
+        llvm.initialize()
+        llvm.initialize_native_asmprinter()
+        llvm.initialize_native_target()
+
+        self.target = llvm.Target.from_default_triple()
+        target_machine = self.target.create_target_machine()
+        mod = llvm.parse_assembly("")
+        mod.verify()
+        self.ee = llvm.create_mcjit_compiler(mod, target_machine)
+
+    def add_module(self, source, optimize=True):
+        mod = llvm.parse_assembly(source)
         mod.verify()
         if optimize:
             pmb = llvm.create_pass_manager_builder()
@@ -81,17 +102,24 @@ class FortranEvaluator(object):
             pm = llvm.create_module_pass_manager()
             pmb.populate(pm)
             pm.run(mod)
-        target_machine = self.target.create_target_machine()
-        with llvm.create_mcjit_compiler(mod, target_machine) as ee:
-            ee.finalize_object()
-            if is_expr:
-                fptr = CFUNCTYPE(c_int)(ee.get_function_address(
-                    anonymous_fn_name))
-                result = fptr()
-                return result
+        self.ee.add_module(mod)
+        self.ee.finalize_object()
 
-            if is_stmt:
-                fptr = CFUNCTYPE(None)(ee.get_function_address(
-                    anonymous_fn_name))
-                fptr()
-                return
+    def intfn(self, name):
+        """
+        `name` is a string, the name of the function of no arguments that
+        returns an int, the function will be called and the integer value
+        returned. The `name` must be present and of the correct signature,
+        otherwise the behavior is undefined.
+        """
+        fptr = CFUNCTYPE(c_int)(self.ee.get_function_address(name))
+        return fptr()
+
+    def voidfn(self, name):
+        """
+        `name` is a string, the name of the function of no arguments and no
+        return value, the function will be called. The `name` must be present
+        and of the correct signature, otherwise the behavior is undefined.
+        """
+        fptr = CFUNCTYPE(None)(self.ee.get_function_address(name))
+        return fptr()
