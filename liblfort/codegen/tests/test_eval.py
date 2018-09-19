@@ -9,10 +9,7 @@ def test_llvm_eval1():
     e.add_module("""\
 define i64 @f1()
 {
-  %1 = alloca i64, align 4
-  store i64 4, i64* %1, align 4
-  %2 = load i64, i64* %1, align 4
-  ret i64 %2
+  ret i64 4
 }
 """)
     assert e.intfn("f1") == 4
@@ -22,10 +19,7 @@ define i64 @f1()
     e.add_module("""\
 define i64 @f1()
 {
-  %1 = alloca i64, align 4
-  store i64 5, i64* %1, align 4
-  %2 = load i64, i64* %1, align 4
-  ret i64 %2
+  ret i64 5
 }
 """)
     assert e.intfn("f1") == 5
@@ -38,21 +32,20 @@ def test_llvm_eval1_fail():
         e.add_module("""\
 define i64 @f1()
 {
-  %1 =x alloca i64, align 4
+  %1 =x alloca i64
 }
 """)
 
 def test_llvm_eval2():
     e = LLVMEvaluator()
     e.add_module("""\
-@count = global i64 0, align 4
+@count = global i64 0
 
 define i64 @f1()
 {
-.entry:
-  store i64 4, i64* @count, align 4
-  %0 = load i64, i64* @count, align 4
-  ret i64 %0
+  store i64 4, i64* @count
+  %1 = load i64, i64* @count
+  ret i64 %1
 }
 """)
     assert e.intfn("f1") == 4
@@ -62,9 +55,8 @@ define i64 @f1()
 
 define i64 @f2()
 {
-.entry:
-  %0 = load i64, i64* @count, align 4
-  ret i64 %0
+  %1 = load i64, i64* @count
+  ret i64 %1
 }
 """)
     assert e.intfn("f2") == 4
@@ -73,9 +65,8 @@ define i64 @f2()
         e.add_module("""\
 define i64 @f3()
 {
-.entry:
-  %0 = load i64, i64* @count, align 4
-  ret i64 %0
+  %1 = load i64, i64* @count
+  ret i64 %1
 }
 """)
 
