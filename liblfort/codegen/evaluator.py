@@ -105,6 +105,10 @@ class LLVMEvaluator(object):
         llvm.initialize_native_target()
 
         self.target = llvm.Target.from_default_triple()
+        target_machine = self.target.create_target_machine()
+        mod = llvm.parse_assembly("")
+        mod.verify()
+        self.ee = llvm.create_mcjit_compiler(mod, target_machine)
 
     def evaluate(self, source, intfn=None, optimize=True):
         """
@@ -123,9 +127,9 @@ class LLVMEvaluator(object):
             pm = llvm.create_module_pass_manager()
             pmb.populate(pm)
             pm.run(mod)
-        target_machine = self.target.create_target_machine()
-        with llvm.create_mcjit_compiler(mod, target_machine) as ee:
-            ee.finalize_object()
-            if intfn:
-                fptr = CFUNCTYPE(c_int)(ee.get_function_address(intfn))
-                return fptr()
+
+        self.ee.add_module(mod)
+        self.ee.finalize_object()
+        if intfn:
+            fptr = CFUNCTYPE(c_int)(self.ee.get_function_address(intfn))
+            return fptr()

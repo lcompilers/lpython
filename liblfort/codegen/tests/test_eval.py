@@ -40,6 +40,17 @@ define i64 @f1()
 }
 """, intfn="f1") == 4
 
+    assert e.evaluate("""\
+@count = external global i64
+
+define i64 @f2()
+{
+.entry:
+  %0 = load i64, i64* @count, align 4
+  ret i64 %0
+}
+""", intfn="f2") == 4
+
 
 
 
