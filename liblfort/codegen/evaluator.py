@@ -133,3 +133,12 @@ class LLVMEvaluator(object):
         """
         fptr = CFUNCTYPE(c_int)(self.ee.get_function_address(name))
         return fptr()
+
+    def voidfn(self, name):
+        """
+        `name` is a string, the name of the function of no arguments and no
+        return value, the function will be called. The `name` must be present
+        and of the correct signature, otherwise the behavior is undefined.
+        """
+        fptr = CFUNCTYPE(None)(self.ee.get_function_address(name))
+        return fptr()

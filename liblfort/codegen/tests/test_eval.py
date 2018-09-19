@@ -87,18 +87,18 @@ define i64 @f1()
   ret i64 %1
 }
 
-define i64 @inc()
+define void @inc()
 {
   %1 = load i64, i64* @count
   %2 = add i64 %1, 1
   store i64 %2, i64* @count
-  ret i64 0
+  ret void
 }
 """)
     assert e.intfn("f1") == 5
-    assert e.intfn("inc") == 0
+    e.voidfn("inc")
     assert e.intfn("f1") == 6
-    assert e.intfn("inc") == 0
+    e.voidfn("inc")
     assert e.intfn("f1") == 7
 
 
