@@ -109,22 +109,32 @@ class LLVMEvaluator(object):
         mod.verify()
         self.ee = llvm.create_mcjit_compiler(mod, target_machine)
 
-    def add_module(self, source, optimize=True):
+    def parse(self, source):
         mod = llvm.parse_assembly(source)
         mod.verify()
+        return mod
+
+    def optimize(self, mod):
+        pmb = llvm.create_pass_manager_builder()
+        pmb.opt_level = 3
+        pmb.loop_vectorize = True
+        pmb.slp_vectorize = True
+        pm = llvm.create_module_pass_manager()
+        pmb.populate(pm)
+        pm.run(mod)
+
+    def add_module_mod(self, mod):
+        self.ee.add_module(mod)
+        self.ee.finalize_object()
+
+    def add_module(self, source, optimize=True):
+        mod = self.parse(source)
         if optimize:
-            pmb = llvm.create_pass_manager_builder()
-            pmb.opt_level = 3
-            pmb.loop_vectorize = True
-            pmb.slp_vectorize = True
-            pm = llvm.create_module_pass_manager()
-            pmb.populate(pm)
-            pm.run(mod)
+            self.optimize(mod)
             source_opt = str(mod)
         else:
             source_opt = None
-        self.ee.add_module(mod)
-        self.ee.finalize_object()
+        self.add_module_mod(mod)
         return source_opt
 
     def intfn(self, name):
