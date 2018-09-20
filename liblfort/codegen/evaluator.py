@@ -114,19 +114,20 @@ class LLVMEvaluator(object):
         mod.verify()
         self.ee = llvm.create_mcjit_compiler(mod, target_machine)
 
+        pmb = llvm.create_pass_manager_builder()
+        pmb.opt_level = 3
+        pmb.loop_vectorize = True
+        pmb.slp_vectorize = True
+        self.pm = llvm.create_module_pass_manager()
+        pmb.populate(self.pm)
+
     def parse(self, source):
         mod = llvm.parse_assembly(source)
         mod.verify()
         return mod
 
     def optimize(self, mod):
-        pmb = llvm.create_pass_manager_builder()
-        pmb.opt_level = 3
-        pmb.loop_vectorize = True
-        pmb.slp_vectorize = True
-        pm = llvm.create_module_pass_manager()
-        pmb.populate(pm)
-        pm.run(mod)
+        self.pm.run(mod)
 
     def add_module_mod(self, mod):
         self.ee.add_module(mod)
