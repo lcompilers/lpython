@@ -48,11 +48,13 @@ def handle_input(engine, evaluator, source):
     print_bold("Initial LLVM IR:")
     print(evaluator._source_ll)
     print()
-    result = evaluator.machine_code_generation_load_run()
     print_bold("Optimized LLVM IR:")
     print(evaluator._source_ll_opt)
 
     print_stage("Machine Code Generation, Load and Run")
+    result = evaluator.machine_code_generation_load_run()
+    print_bold("Machine code ASM:")
+    print(evaluator._source_asm)
     print_bold("Result:")
     print(result)
 
