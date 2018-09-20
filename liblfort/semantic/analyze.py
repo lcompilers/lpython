@@ -91,6 +91,13 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 }
         self._global_level = True
 
+    def mark_all_external(self):
+        """
+        Marks all symbols in the symbol table as external.
+        """
+        for sym in self.symbol_table:
+            self.symbol_table[sym]["external"] = True
+
     def visit_Declaration(self, node):
         for v in node.vars:
             sym = v.sym

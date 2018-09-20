@@ -96,11 +96,14 @@ class FortranEvaluator(object):
             self.lle.voidfn(self.anonymous_fn_name)
             return
 
+        self.symbol_table_visitor.mark_all_external()
+
     def evaluate(self, source, optimize=True):
         self.parse(source)
         self.semantic_analysis()
         self.llvm_code_generation(optimize)
         return self.machine_code_generation_load_run()
+
 
 class LLVMEvaluator(object):
 
