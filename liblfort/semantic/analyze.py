@@ -137,6 +137,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 "func": True,
             }
 
+        gl = self._global_level
         self._global_level = False
         # TODO: put these declarations into the scoped symbol table for this
         # function only:
@@ -144,7 +145,24 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
 
         # Iterate over nested functions
         self.visit_sequence(node.contains)
-        self._global_level = True
+        self._global_level = gl
+
+    def visit_Program(self, node):
+        gl = self._global_level
+        self._global_level = False
+        self.visit_sequence(node.decl)
+        #self.visit_sequence(node.body)
+        self.visit_sequence(node.contains)
+        self._global_level = gl
+
+    def visit_Subroutine(self, node):
+        gl = self._global_level
+        self._global_level = False
+        self.visit_sequence(node.args)
+        self.visit_sequence(node.decl)
+        #self.visit_sequence(node.body)
+        self.visit_sequence(node.contains)
+        self._global_level = gl
 
 def create_symbol_table(tree):
     v = SymbolTableVisitor()

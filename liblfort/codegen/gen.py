@@ -147,6 +147,7 @@ class CodeGenVisitor(ast.ASTVisitor):
         """
         Generates code for `tree` and appends it into the LLVM module.
         """
+        self.do_global_vars()
         if isinstance(tree, ast.Declaration):
             # `tree` is a declaration in the global scope.
             # The global variable is already defined by do_global_vars(),

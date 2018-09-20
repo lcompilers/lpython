@@ -5,7 +5,7 @@ import llvmlite.binding as llvm
 
 from ..ast import parse, dump, SyntaxErrorException, ast
 from ..semantic.analyze import SymbolTableVisitor, annotate_tree
-from .gen import CodeGenVisitor
+from .gen import codegen
 
 
 class FortranEvaluator(object):
@@ -54,11 +54,8 @@ class FortranEvaluator(object):
         annotate_tree(self.ast_tree, self.symbol_table)
 
     def llvm_code_generation(self, optimize=True):
-        code_gen_visitor = CodeGenVisitor(
-            self.symbol_table_visitor.symbol_table)
-        code_gen_visitor.do_global_vars()
-        code_gen_visitor.codegen(self.ast_tree)
-        source_ll = str(code_gen_visitor.module)
+        source_ll = str(codegen(self.ast_tree,
+            self.symbol_table_visitor.symbol_table))
         self._source_ll = source_ll
         self.mod = self.lle.parse(self._source_ll)
         if optimize:
