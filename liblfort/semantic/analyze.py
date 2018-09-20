@@ -82,11 +82,12 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 "logical": Logical,
             }
         self.symbol_table = {
-                "abs": {"name": "abs", "type": Real()},
-                "sqrt": {"name": "sqrt", "type": Real()},
-                "log": {"name": "log", "type": Real()},
-                "sum": {"name": "sum", "type": Real()},
-                "random_number": {"name": "random_number", "type": Real()},
+                "abs": {"name": "abs", "type": Real(), "external": True},
+                "sqrt": {"name": "sqrt", "type": Real(), "external": True},
+                "log": {"name": "log", "type": Real(), "external": True},
+                "sum": {"name": "sum", "type": Real(), "external": True},
+                "random_number": {"name": "random_number", "type": Real(),
+                    "external": True},
                 }
         self._global_level = True
 
@@ -109,7 +110,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
             if len(dims) > 0:
                 type_ = Array(type_, dims)
             self.symbol_table[sym] = {"name": sym, "type": type_,
-                "global": self._global_level}
+                "global": self._global_level, "external": False}
 
     def visit_Function(self, node):
         self._global_level = False
@@ -117,7 +118,8 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
         # TODO: for now we assume integer result, but we should read the AST
         # and determine the type of the result.
         type_ = self.types["integer"]()
-        self.symbol_table[sym] = {"name": "RESULT_" + sym, "type": type_}
+        self.symbol_table[sym] = {"name": "RESULT_" + sym, "type": type_,
+            "external": False}
         # TODO: put these declarations into the scoped symbol table for this
         # function only:
         self.visit_sequence(node.decl)
