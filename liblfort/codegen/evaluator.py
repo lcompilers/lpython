@@ -108,11 +108,12 @@ class LLVMEvaluator(object):
         llvm.initialize_native_asmprinter()
         llvm.initialize_native_target()
 
-        self.target = llvm.Target.from_default_triple()
-        target_machine = self.target.create_target_machine()
+        target = llvm.Target.from_default_triple()
+        self.target_machine = target.create_target_machine()
+        self.target_machine.set_asm_verbosity(True)
         mod = llvm.parse_assembly("")
         mod.verify()
-        self.ee = llvm.create_mcjit_compiler(mod, target_machine)
+        self.ee = llvm.create_mcjit_compiler(mod, self.target_machine)
 
         pmb = llvm.create_pass_manager_builder()
         pmb.opt_level = 3
@@ -133,14 +134,17 @@ class LLVMEvaluator(object):
         self.ee.add_module(mod)
         self.ee.finalize_object()
 
+    def get_asm(self, mod):
+        return self.target_machine.emit_assembly(mod)
+
     def add_module(self, source, optimize=True):
-        mod = self.parse(source)
+        self.mod = self.parse(source)
         if optimize:
-            self.optimize(mod)
-            source_opt = str(mod)
+            self.optimize(self.mod)
+            source_opt = str(self.mod)
         else:
             source_opt = None
-        self.add_module_mod(mod)
+        self.add_module_mod(self.mod)
         return source_opt
 
     def intfn(self, name):
