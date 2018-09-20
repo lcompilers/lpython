@@ -54,7 +54,7 @@ class FortranEvaluator(object):
         self.symbol_table_visitor.visit(self.ast_tree)
         annotate_tree(self.ast_tree, self.symbol_table)
 
-    def llvm_code_generation(self):
+    def llvm_code_generation(self, optimize=True):
         # TODO: keep adding to the "module", i.e., pass it as an optional
         # argument to codegen() on subsequent runs of evaluate(), also store
         # and keep appending to symbol_table.
@@ -74,10 +74,15 @@ class FortranEvaluator(object):
         #     # The expression was wrapped into `_run1` above, let us compile
         #     # it and run it:
         #     <everything below...>
+        self.mod = self.lle.parse(self._source_ll)
+        if optimize:
+            self.lle.optimize(self.mod)
+            self._source_ll_opt = str(self.mod)
+        else:
+            self._source_ll_opt = None
 
-    def machine_code_generation_load_run(self, optimize=True):
-        self._source_ll_opt = self.lle.add_module(self._source_ll,
-                optimize=optimize)
+    def machine_code_generation_load_run(self):
+        self.lle.add_module_mod(self.mod)
 
         if self.is_expr:
             self.code_gen_visitor = CodeGenVisitor(
@@ -93,8 +98,8 @@ class FortranEvaluator(object):
     def evaluate(self, source, optimize=True):
         self.parse(source)
         self.semantic_analysis()
-        self.llvm_code_generation()
-        return self.machine_code_generation_load_run(optimize)
+        self.llvm_code_generation(optimize)
+        return self.machine_code_generation_load_run()
 
 class LLVMEvaluator(object):
 
