@@ -14,8 +14,6 @@ class FortranEvaluator(object):
         self.lle = LLVMEvaluator()
 
         self.symbol_table_visitor = SymbolTableVisitor()
-        self.code_gen_visitor = CodeGenVisitor(
-            self.symbol_table_visitor.symbol_table)
         self.symbol_table = self.symbol_table_visitor.symbol_table
 
         self.anonymous_fn_counter = 0
@@ -51,28 +49,17 @@ class FortranEvaluator(object):
                 decl=[], body=body, contains=[],
                 lineno=1, col_offset=1)
 
+        self.symbol_table_visitor.mark_all_external()
         self.symbol_table_visitor.visit(self.ast_tree)
         annotate_tree(self.ast_tree, self.symbol_table)
 
     def llvm_code_generation(self, optimize=True):
-        # TODO: keep adding to the "module", i.e., pass it as an optional
-        # argument to codegen() on subsequent runs of evaluate(), also store
-        # and keep appending to symbol_table.
-        self.code_gen_visitor.do_global_vars()
-        self.code_gen_visitor.codegen(self.ast_tree)
-        source_ll = str(self.code_gen_visitor.module)
+        code_gen_visitor = CodeGenVisitor(
+            self.symbol_table_visitor.symbol_table)
+        code_gen_visitor.do_global_vars()
+        code_gen_visitor.codegen(self.ast_tree)
+        source_ll = str(code_gen_visitor.module)
         self._source_ll = source_ll
-        # TODO:
-        #
-        # if not (ast_tree is expression):
-        #     # The `source` is a subroutine, variable declaration, etc., just
-        #     # keep appending the output and the symbol table.
-        #     self._source = self._source + source_ll
-        #     self._symbol_table <update using symbol_table>
-        # else:
-        #     # The expression was wrapped into `_run1` above, let us compile
-        #     # it and run it:
-        #     <everything below...>
         self.mod = self.lle.parse(self._source_ll)
         if optimize:
             self.lle.optimize(self.mod)
@@ -83,11 +70,6 @@ class FortranEvaluator(object):
     def machine_code_generation_load_run(self):
         self.lle.add_module_mod(self.mod)
         self._source_asm = self.lle.get_asm(self.mod)
-
-        self.symbol_table_visitor.mark_all_external()
-
-        self.code_gen_visitor = CodeGenVisitor(
-            self.symbol_table_visitor.symbol_table)
 
         if self.is_expr:
             return self.lle.intfn(self.anonymous_fn_name)
