@@ -81,14 +81,27 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 "character": Character,
                 "logical": Logical,
             }
-        self.symbol_table = {
-                "abs": {"name": "abs", "type": Real()},
-                "sqrt": {"name": "sqrt", "type": Real()},
-                "log": {"name": "log", "type": Real()},
-                "sum": {"name": "sum", "type": Real()},
-                "random_number": {"name": "random_number", "type": Real()},
-                }
+        self.symbol_table = { x: {
+                "name": x,
+                "type": Real(),
+                "external": True,
+                "func": True,
+                "global": True,
+            } for x in [
+                "abs",
+                "sqrt",
+                "log",
+                "sum",
+                "random_number",
+            ]}
         self._global_level = True
+
+    def mark_all_external(self):
+        """
+        Marks all symbols in the symbol table as external.
+        """
+        for sym in self.symbol_table:
+            self.symbol_table[sym]["external"] = True
 
     def visit_Declaration(self, node):
         for v in node.vars:
@@ -109,15 +122,22 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
             if len(dims) > 0:
                 type_ = Array(type_, dims)
             self.symbol_table[sym] = {"name": sym, "type": type_,
-                "global": self._global_level}
+                "global": self._global_level, "external": False, "func": False}
 
     def visit_Function(self, node):
-        self._global_level = False
         sym = node.name
         # TODO: for now we assume integer result, but we should read the AST
         # and determine the type of the result.
         type_ = self.types["integer"]()
-        self.symbol_table[sym] = {"name": "RESULT_" + sym, "type": type_}
+        self.symbol_table[sym] = {
+                "name": sym,
+                "type": type_,
+                "external": False,
+                "global": self._global_level,
+                "func": True,
+            }
+
+        self._global_level = False
         # TODO: put these declarations into the scoped symbol table for this
         # function only:
         self.visit_sequence(node.decl)

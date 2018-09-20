@@ -272,8 +272,7 @@ fn = 5
 end function
 """)
     assert e.evaluate("fn()+5") == 10
-# TODO: FAILS
-#    assert e.evaluate("fn()+6") == 11
+    assert e.evaluate("fn()+6") == 11
 
 def test_fn_call2():
     e = FortranEvaluator()

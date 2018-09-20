@@ -148,13 +148,9 @@ class CodeGenVisitor(ast.ASTVisitor):
         Generates code for `tree` and appends it into the LLVM module.
         """
         if isinstance(tree, ast.Declaration):
-            # `tree` is a declaration in the global scope. Create a global
-            # variable in the LLVM code.
-            name = tree.vars[0].sym + "_0"
-            sym = self.symbol_table[tree.vars[0].sym]
-            var = ir.GlobalVariable(self.module, ir.IntType(64), name)
-            var.initializer = ir.Constant(ir.IntType(64), 0)
-            sym["ptr"] = var
+            # `tree` is a declaration in the global scope.
+            # The global variable is already defined by do_global_vars(),
+            # nothing to do here.
             return
         assert isinstance(tree, (ast.Program, ast.Module, ast.Function,
             ast.Subroutine))
@@ -164,11 +160,26 @@ class CodeGenVisitor(ast.ASTVisitor):
     def do_global_vars(self):
         for sym in self.symbol_table:
             s = self.symbol_table[sym]
-            if s.get("global", False):
-                name = s["name"] + "_0"
-                if not get_global(self.module, name):
+            if s["global"]:
+                if s["func"]:
+                    if s["external"]:
+                        if s["name"] in ["abs", "sqrt", "log", "sum",
+                            "random_number"]:
+                            # Skip these for now (they are handled in Program)
+                            continue
+                        # FIXME: handle "int f()" only for now
+                        fn = ir.FunctionType(ir.IntType(64), [])
+                        s["fn"] = ir.Function(self.module, fn, name=s["name"])
+                else:
+                    name = s["name"] + "_0"
+                    assert not get_global(self.module, name)
                     var = ir.GlobalVariable(self.module, self.types[s["type"]],
                         name=name)
+                    if not s["external"]:
+                        # TODO: Undefined fails, but should work:
+                        #var.initializer = ir.Undefined
+                        # For now we initialize to 0:
+                        var.initializer = ir.Constant(ir.IntType(64), 0)
                     s["ptr"] = var
 
     def visit_Program(self, node):

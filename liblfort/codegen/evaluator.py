@@ -58,8 +58,7 @@ class FortranEvaluator(object):
         # TODO: keep adding to the "module", i.e., pass it as an optional
         # argument to codegen() on subsequent runs of evaluate(), also store
         # and keep appending to symbol_table.
-        if not isinstance(self.ast_tree, ast.Declaration):
-            self.code_gen_visitor.do_global_vars()
+        self.code_gen_visitor.do_global_vars()
         self.code_gen_visitor.codegen(self.ast_tree)
         source_ll = str(self.code_gen_visitor.module)
         self._source_ll = source_ll
@@ -85,14 +84,15 @@ class FortranEvaluator(object):
         self.lle.add_module_mod(self.mod)
         self._source_asm = self.lle.get_asm(self.mod)
 
+        self.symbol_table_visitor.mark_all_external()
+
+        self.code_gen_visitor = CodeGenVisitor(
+            self.symbol_table_visitor.symbol_table)
+
         if self.is_expr:
-            self.code_gen_visitor = CodeGenVisitor(
-                self.symbol_table_visitor.symbol_table)
             return self.lle.intfn(self.anonymous_fn_name)
 
         if self.is_stmt:
-            self.code_gen_visitor = CodeGenVisitor(
-                self.symbol_table_visitor.symbol_table)
             self.lle.voidfn(self.anonymous_fn_name)
             return
 
@@ -101,6 +101,7 @@ class FortranEvaluator(object):
         self.semantic_analysis()
         self.llvm_code_generation(optimize)
         return self.machine_code_generation_load_run()
+
 
 class LLVMEvaluator(object):
 
