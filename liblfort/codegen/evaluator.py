@@ -20,37 +20,41 @@ class FortranEvaluator(object):
 
         self.anonymous_fn_counter = 0
 
-    def evaluate(self, source, optimize=True):
+    def parse(self, source):
         self.ast_tree = parse(source, translation_unit=False)
         self.ast_tree0 = deepcopy(self.ast_tree)
-        is_expr = isinstance(self.ast_tree, ast.expr)
-        is_stmt = isinstance(self.ast_tree, ast.stmt)
-        if is_expr:
+
+    def semantic_analysis(self):
+        self.is_expr = isinstance(self.ast_tree, ast.expr)
+        self.is_stmt = isinstance(self.ast_tree, ast.stmt)
+        if self.is_expr:
             # if `ast_tree` is an expression, wrap it in an anonymous function
             self.anonymous_fn_counter += 1
-            anonymous_fn_name = "_run%d" % self.anonymous_fn_counter
-            body = [ast.Assignment(ast.Name(anonymous_fn_name,
+            self.anonymous_fn_name = "_run%d" % self.anonymous_fn_counter
+            body = [ast.Assignment(ast.Name(self.anonymous_fn_name,
                 lineno=1, col_offset=1),
                 self.ast_tree, lineno=1, col_offset=1)]
 
-            self.ast_tree = ast.Function(name=anonymous_fn_name, args=[],
+            self.ast_tree = ast.Function(name=self.anonymous_fn_name, args=[],
                 returns=None,
                 decl=[], body=body, contains=[],
                 lineno=1, col_offset=1)
 
-        if is_stmt:
+        if self.is_stmt:
             # if `ast_tree` is a statement, wrap it in an anonymous subroutine
             self.anonymous_fn_counter += 1
-            anonymous_fn_name = "_run%d" % self.anonymous_fn_counter
+            self.anonymous_fn_name = "_run%d" % self.anonymous_fn_counter
             body = [self.ast_tree]
 
-            self.ast_tree = ast.Function(name=anonymous_fn_name, args=[],
+            self.ast_tree = ast.Function(name=self.anonymous_fn_name, args=[],
                 returns=None,
                 decl=[], body=body, contains=[],
                 lineno=1, col_offset=1)
 
         self.symbol_table_visitor.visit(self.ast_tree)
         annotate_tree(self.ast_tree, self.symbol_table)
+
+    def llvm_code_generation(self, optimize=True):
         # TODO: keep adding to the "module", i.e., pass it as an optional
         # argument to codegen() on subsequent runs of evaluate(), also store
         # and keep appending to symbol_table.
@@ -70,20 +74,33 @@ class FortranEvaluator(object):
         #     # The expression was wrapped into `_run1` above, let us compile
         #     # it and run it:
         #     <everything below...>
+        self.mod = self.lle.parse(self._source_ll)
+        if optimize:
+            self.lle.optimize(self.mod)
+            self._source_ll_opt = str(self.mod)
+        else:
+            self._source_ll_opt = None
 
-        self._source_ll_opt = self.lle.add_module(source_ll, optimize=optimize)
+    def machine_code_generation_load_run(self):
+        self.lle.add_module_mod(self.mod)
+        self._source_asm = self.lle.get_asm(self.mod)
 
-        if is_expr:
+        if self.is_expr:
             self.code_gen_visitor = CodeGenVisitor(
                 self.symbol_table_visitor.symbol_table)
-            return self.lle.intfn(anonymous_fn_name)
+            return self.lle.intfn(self.anonymous_fn_name)
 
-        if is_stmt:
+        if self.is_stmt:
             self.code_gen_visitor = CodeGenVisitor(
                 self.symbol_table_visitor.symbol_table)
-            self.lle.voidfn(anonymous_fn_name)
+            self.lle.voidfn(self.anonymous_fn_name)
             return
 
+    def evaluate(self, source, optimize=True):
+        self.parse(source)
+        self.semantic_analysis()
+        self.llvm_code_generation(optimize)
+        return self.machine_code_generation_load_run()
 
 class LLVMEvaluator(object):
 
@@ -92,28 +109,43 @@ class LLVMEvaluator(object):
         llvm.initialize_native_asmprinter()
         llvm.initialize_native_target()
 
-        self.target = llvm.Target.from_default_triple()
-        target_machine = self.target.create_target_machine()
+        target = llvm.Target.from_default_triple()
+        self.target_machine = target.create_target_machine()
+        self.target_machine.set_asm_verbosity(True)
         mod = llvm.parse_assembly("")
         mod.verify()
-        self.ee = llvm.create_mcjit_compiler(mod, target_machine)
+        self.ee = llvm.create_mcjit_compiler(mod, self.target_machine)
 
-    def add_module(self, source, optimize=True):
+        pmb = llvm.create_pass_manager_builder()
+        pmb.opt_level = 3
+        pmb.loop_vectorize = True
+        pmb.slp_vectorize = True
+        self.pm = llvm.create_module_pass_manager()
+        pmb.populate(self.pm)
+
+    def parse(self, source):
         mod = llvm.parse_assembly(source)
         mod.verify()
-        if optimize:
-            pmb = llvm.create_pass_manager_builder()
-            pmb.opt_level = 3
-            pmb.loop_vectorize = True
-            pmb.slp_vectorize = True
-            pm = llvm.create_module_pass_manager()
-            pmb.populate(pm)
-            pm.run(mod)
-            source_opt = str(mod)
-        else:
-            source_opt = None
+        return mod
+
+    def optimize(self, mod):
+        self.pm.run(mod)
+
+    def add_module_mod(self, mod):
         self.ee.add_module(mod)
         self.ee.finalize_object()
+
+    def get_asm(self, mod):
+        return self.target_machine.emit_assembly(mod)
+
+    def add_module(self, source, optimize=True):
+        self.mod = self.parse(source)
+        if optimize:
+            self.optimize(self.mod)
+            source_opt = str(self.mod)
+        else:
+            source_opt = None
+        self.add_module_mod(self.mod)
         return source_opt
 
     def intfn(self, name):
