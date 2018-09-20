@@ -83,6 +83,7 @@ class FortranEvaluator(object):
 
     def machine_code_generation_load_run(self):
         self.lle.add_module_mod(self.mod)
+        self._source_asm = self.lle.get_asm(self.mod)
 
         if self.is_expr:
             self.code_gen_visitor = CodeGenVisitor(
