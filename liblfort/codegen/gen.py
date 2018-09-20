@@ -160,7 +160,7 @@ class CodeGenVisitor(ast.ASTVisitor):
     def do_global_vars(self):
         for sym in self.symbol_table:
             s = self.symbol_table[sym]
-            if s.get("global", False):
+            if s["global"]:
                 name = s["name"] + "_0"
                 assert not get_global(self.module, name)
                 var = ir.GlobalVariable(self.module, self.types[s["type"]],
