@@ -20,37 +20,41 @@ class FortranEvaluator(object):
 
         self.anonymous_fn_counter = 0
 
-    def evaluate(self, source, optimize=True):
+    def parse(self, source):
         self.ast_tree = parse(source, translation_unit=False)
         self.ast_tree0 = deepcopy(self.ast_tree)
-        is_expr = isinstance(self.ast_tree, ast.expr)
-        is_stmt = isinstance(self.ast_tree, ast.stmt)
-        if is_expr:
+
+    def semantic_analysis(self):
+        self.is_expr = isinstance(self.ast_tree, ast.expr)
+        self.is_stmt = isinstance(self.ast_tree, ast.stmt)
+        if self.is_expr:
             # if `ast_tree` is an expression, wrap it in an anonymous function
             self.anonymous_fn_counter += 1
-            anonymous_fn_name = "_run%d" % self.anonymous_fn_counter
-            body = [ast.Assignment(ast.Name(anonymous_fn_name,
+            self.anonymous_fn_name = "_run%d" % self.anonymous_fn_counter
+            body = [ast.Assignment(ast.Name(self.anonymous_fn_name,
                 lineno=1, col_offset=1),
                 self.ast_tree, lineno=1, col_offset=1)]
 
-            self.ast_tree = ast.Function(name=anonymous_fn_name, args=[],
+            self.ast_tree = ast.Function(name=self.anonymous_fn_name, args=[],
                 returns=None,
                 decl=[], body=body, contains=[],
                 lineno=1, col_offset=1)
 
-        if is_stmt:
+        if self.is_stmt:
             # if `ast_tree` is a statement, wrap it in an anonymous subroutine
             self.anonymous_fn_counter += 1
-            anonymous_fn_name = "_run%d" % self.anonymous_fn_counter
+            self.anonymous_fn_name = "_run%d" % self.anonymous_fn_counter
             body = [self.ast_tree]
 
-            self.ast_tree = ast.Function(name=anonymous_fn_name, args=[],
+            self.ast_tree = ast.Function(name=self.anonymous_fn_name, args=[],
                 returns=None,
                 decl=[], body=body, contains=[],
                 lineno=1, col_offset=1)
 
         self.symbol_table_visitor.visit(self.ast_tree)
         annotate_tree(self.ast_tree, self.symbol_table)
+
+    def llvm_code_generation(self):
         # TODO: keep adding to the "module", i.e., pass it as an optional
         # argument to codegen() on subsequent runs of evaluate(), also store
         # and keep appending to symbol_table.
@@ -71,19 +75,26 @@ class FortranEvaluator(object):
         #     # it and run it:
         #     <everything below...>
 
-        self._source_ll_opt = self.lle.add_module(source_ll, optimize=optimize)
+    def machine_code_generation_load_run(self, optimize=True):
+        self._source_ll_opt = self.lle.add_module(self._source_ll,
+                optimize=optimize)
 
-        if is_expr:
+        if self.is_expr:
             self.code_gen_visitor = CodeGenVisitor(
                 self.symbol_table_visitor.symbol_table)
-            return self.lle.intfn(anonymous_fn_name)
+            return self.lle.intfn(self.anonymous_fn_name)
 
-        if is_stmt:
+        if self.is_stmt:
             self.code_gen_visitor = CodeGenVisitor(
                 self.symbol_table_visitor.symbol_table)
-            self.lle.voidfn(anonymous_fn_name)
+            self.lle.voidfn(self.anonymous_fn_name)
             return
 
+    def evaluate(self, source, optimize=True):
+        self.parse(source)
+        self.semantic_analysis()
+        self.llvm_code_generation()
+        return self.machine_code_generation_load_run(optimize)
 
 class LLVMEvaluator(object):
 
