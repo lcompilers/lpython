@@ -161,16 +161,26 @@ class CodeGenVisitor(ast.ASTVisitor):
         for sym in self.symbol_table:
             s = self.symbol_table[sym]
             if s["global"]:
-                name = s["name"] + "_0"
-                assert not get_global(self.module, name)
-                var = ir.GlobalVariable(self.module, self.types[s["type"]],
-                    name=name)
-                if not s["external"]:
-                    # TODO: Undefined fails, but should work:
-                    #var.initializer = ir.Undefined
-                    # For now we initialize to 0:
-                    var.initializer = ir.Constant(ir.IntType(64), 0)
-                s["ptr"] = var
+                if s["func"]:
+                    if s["external"]:
+                        if s["name"] in ["abs", "sqrt", "log", "sum",
+                            "random_number"]:
+                            # Skip these for now (they are handled in Program)
+                            continue
+                        # FIXME: handle "int f()" only for now
+                        fn = ir.FunctionType(ir.IntType(64), [])
+                        s["fn"] = ir.Function(self.module, fn, name=s["name"])
+                else:
+                    name = s["name"] + "_0"
+                    assert not get_global(self.module, name)
+                    var = ir.GlobalVariable(self.module, self.types[s["type"]],
+                        name=name)
+                    if not s["external"]:
+                        # TODO: Undefined fails, but should work:
+                        #var.initializer = ir.Undefined
+                        # For now we initialize to 0:
+                        var.initializer = ir.Constant(ir.IntType(64), 0)
+                    s["ptr"] = var
 
     def visit_Program(self, node):
         self.module  = ir.Module()
