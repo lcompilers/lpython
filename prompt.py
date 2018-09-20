@@ -17,11 +17,11 @@ from liblfort.semantic.analyze import create_symbol_table, annotate_tree
 
 
 def print_bold(text):
-    print_formatted_text(HTML('<ansiblue><b>%s</b></ansiblue>' % text))
+    print_formatted_text(HTML('<ansiblue>%s</ansiblue>' % text))
 
 def print_stage(text):
     print()
-    print_formatted_text(HTML('<b>↓ </b>Stage: <ansigreen>%s</ansigreen>' \
+    print_formatted_text(HTML('<b><ansigreen>↓ Stage: %s</ansigreen></b>' \
         % text))
     print()
 
