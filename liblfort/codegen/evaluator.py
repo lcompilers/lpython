@@ -1,4 +1,5 @@
 from ctypes import CFUNCTYPE, c_int
+from copy import deepcopy
 
 import llvmlite.binding as llvm
 
@@ -21,6 +22,7 @@ class FortranEvaluator(object):
 
     def evaluate(self, source, optimize=True):
         self.ast_tree = parse(source, translation_unit=False)
+        self.ast_tree0 = deepcopy(self.ast_tree)
         is_expr = isinstance(self.ast_tree, ast.expr)
         is_stmt = isinstance(self.ast_tree, ast.stmt)
         if is_expr:
@@ -69,7 +71,7 @@ class FortranEvaluator(object):
         #     # it and run it:
         #     <everything below...>
 
-        self.lle.add_module(source_ll, optimize=optimize)
+        self._source_ll_opt = self.lle.add_module(source_ll, optimize=optimize)
 
         if is_expr:
             self.code_gen_visitor = CodeGenVisitor(
@@ -107,8 +109,12 @@ class LLVMEvaluator(object):
             pm = llvm.create_module_pass_manager()
             pmb.populate(pm)
             pm.run(mod)
+            source_opt = str(mod)
+        else:
+            source_opt = None
         self.ee.add_module(mod)
         self.ee.finalize_object()
+        return source_opt
 
     def intfn(self, name):
         """

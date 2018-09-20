@@ -19,24 +19,36 @@ from liblfort.semantic.analyze import create_symbol_table, annotate_tree
 def print_bold(text):
     print_formatted_text(HTML('<ansiblue><b>%s</b></ansiblue>' % text))
 
+def print_stage(text):
+    print()
+    print_formatted_text(HTML('<b>↓ </b>Stage: <ansigreen>%s</ansigreen>' \
+        % text))
+    print()
+
 def handle_input(engine, evaluator, source):
     print_bold("Input:")
     print(source)
 
+    print_stage("Parse")
     result = evaluator.evaluate(source)
+    print_bold("Parse AST:")
+    print(dump(evaluator.ast_tree0))
 
-    print()
-    print_bold("AST:")
+    print_stage("Semantic Analysis")
+    print_bold("Semantic AST:")
     print(dump(evaluator.ast_tree))
-
     print()
     print_bold("Symbol table:")
-    print(evaluator.symbol_table)
+    print(list(evaluator.symbol_table.keys()))
 
-    print()
-    print_bold("LLVM IR:")
+    print_stage("LLVM Code Generation")
+    print_bold("Initial LLVM IR:")
     print(evaluator._source_ll)
+    print()
+    print_bold("Optimized LLVM IR:")
+    print(evaluator._source_ll_opt)
 
+    print_stage("Machine Code Generation, Load and Run")
     print_bold("Result:")
     print(result)
 
