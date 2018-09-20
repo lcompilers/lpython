@@ -130,7 +130,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
         # and determine the type of the result.
         type_ = self.types["integer"]()
         self.symbol_table[sym] = {
-                "name": "RESULT_" + sym,
+                "name": sym,
                 "type": type_,
                 "external": False,
                 "global": self._global_level,
