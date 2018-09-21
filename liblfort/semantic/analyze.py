@@ -7,10 +7,10 @@ from ..ast import ast
 class SemanticError(Exception):
     pass
 
-class UndeclaredVariableError(Exception):
+class UndeclaredVariableError(SemanticError):
     pass
 
-class TypeMismatch(Exception):
+class TypeMismatch(SemanticError):
     pass
 
 
