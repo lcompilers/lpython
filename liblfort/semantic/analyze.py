@@ -70,6 +70,15 @@ class Array(Type):
 
 # --------------------------------
 
+class Scope:
+
+    def __init__(self, parent=None):
+        self._parent = parent
+
+    @property
+    def parent(self):
+        return self._parent
+
 
 class SymbolTableVisitor(ast.GenericASTVisitor):
 
@@ -95,6 +104,9 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 "random_number",
             ]}
         self._global_level = True
+
+        self._global_scope = Scope()
+        self._current_scope = self._global_scope
 
     def mark_all_external(self):
         """
@@ -137,6 +149,9 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 "func": True,
             }
 
+        node._scope = Scope(self._current_scope)
+        self._current_scope = node._scope
+
         gl = self._global_level
         self._global_level = False
         # TODO: put these declarations into the scoped symbol table for this
@@ -147,7 +162,12 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
         self.visit_sequence(node.contains)
         self._global_level = gl
 
+        self._current_scope = node._scope.parent
+
     def visit_Program(self, node):
+        node._scope = Scope(self._current_scope)
+        self._current_scope = node._scope
+
         gl = self._global_level
         self._global_level = False
         self.visit_sequence(node.decl)
@@ -155,7 +175,12 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
         self.visit_sequence(node.contains)
         self._global_level = gl
 
+        self._current_scope = node._scope.parent
+
     def visit_Subroutine(self, node):
+        node._scope = Scope(self._current_scope)
+        self._current_scope = node._scope
+
         gl = self._global_level
         self._global_level = False
         self.visit_sequence(node.args)
@@ -163,6 +188,8 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
         #self.visit_sequence(node.body)
         self.visit_sequence(node.contains)
         self._global_level = gl
+
+        self._current_scope = node._scope.parent
 
 def create_symbol_table(tree):
     v = SymbolTableVisitor()
