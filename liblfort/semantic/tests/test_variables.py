@@ -51,7 +51,7 @@ contains
 end module
 """
     tree = parse(source)
-    symbol_table = create_symbol_table(tree)
+    symbol_table = create_symbol_table(tree)._old_symbol_table
     assert "a" in symbol_table
     assert symbol_table["a"]["type"] == Integer()
     assert symbol_table["a"]["name"] == "a"

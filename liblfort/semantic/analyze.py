@@ -72,19 +72,19 @@ class Array(Type):
 
 class Scope:
 
-    def __init__(self, parent=None):
-        self._parent = parent
+    def __init__(self, parent_scope=None):
+        self._parent_scope = parent_scope
         self._local_symbols = {}
 
     @property
-    def parent(self):
-        return self._parent
+    def parent_scope(self):
+        return self._parent_scope
 
     def resolve(self, sym):
-        if sym in self._symbols:
-            return sym
-        elif self._parent:
-            return self._parent.resolve()
+        if sym in self._local_symbols:
+            return self._local_symbols[sym]
+        elif self._parent_scope:
+            return self._parent_scope.resolve(sym)
         else:
             # Symbol not found
             return None
@@ -100,7 +100,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 "character": Character,
                 "logical": Logical,
             }
-        self.symbol_table = { x: {
+        self.__symbol_table = { x: {
                 "name": x,
                 "type": Real(),
                 "external": True,
@@ -118,12 +118,15 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
         self._global_scope = Scope()
         self._current_scope = self._global_scope
 
+        # Temporary:
+        self._global_scope._old_symbol_table = self.__symbol_table
+
     def mark_all_external(self):
         """
         Marks all symbols in the symbol table as external.
         """
-        for sym in self.symbol_table:
-            self.symbol_table[sym]["external"] = True
+        for sym in self.__symbol_table:
+            self.__symbol_table[sym]["external"] = True
 
     def visit_Declaration(self, node):
         for v in node.vars:
@@ -145,7 +148,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 type_ = Array(type_, dims)
             sym_data = {"name": sym, "type": type_,
                 "global": self._global_level, "external": False, "func": False}
-            self.symbol_table[sym] = sym_data
+            self.__symbol_table[sym] = sym_data
             self._current_scope._local_symbols[sym] = sym_data
 
     def visit_Function(self, node):
@@ -153,7 +156,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
         # TODO: for now we assume integer result, but we should read the AST
         # and determine the type of the result.
         type_ = self.types["integer"]()
-        self.symbol_table[sym] = {
+        self.__symbol_table[sym] = {
                 "name": sym,
                 "type": type_,
                 "external": False,
@@ -174,7 +177,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
         self.visit_sequence(node.contains)
         self._global_level = gl
 
-        self._current_scope = node._scope.parent
+        self._current_scope = node._scope.parent_scope
 
     def visit_Program(self, node):
         node._scope = Scope(self._current_scope)
@@ -187,7 +190,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
         self.visit_sequence(node.contains)
         self._global_level = gl
 
-        self._current_scope = node._scope.parent
+        self._current_scope = node._scope.parent_scope
 
     def visit_Subroutine(self, node):
         node._scope = Scope(self._current_scope)
@@ -201,19 +204,43 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
         self.visit_sequence(node.contains)
         self._global_level = gl
 
-        self._current_scope = node._scope.parent
+        self._current_scope = node._scope.parent_scope
 
 def create_symbol_table(tree):
     v = SymbolTableVisitor()
     v.visit(tree)
-    return v.symbol_table
+    return v._global_scope
 
 
 
 class ExprVisitor(ast.GenericASTVisitor):
 
-    def __init__(self, symbol_table):
+    def __init__(self, symbol_table, global_scope):
         self.symbol_table = symbol_table
+        self._current_scope = global_scope
+
+    def visit_Program(self, node):
+        self._current_scope = node._scope
+        self.visit_sequence(node.decl)
+        self.visit_sequence(node.body)
+        self.visit_sequence(node.contains)
+        self._current_scope = node._scope.parent_scope
+
+    def visit_Subroutine(self, node):
+        self._current_scope = node._scope
+        self.visit_sequence(node.args)
+        self.visit_sequence(node.decl)
+        self.visit_sequence(node.body)
+        self.visit_sequence(node.contains)
+        self._current_scope = node._scope.parent_scope
+
+    def visit_Function(self, node):
+        self._current_scope = node._scope
+        self.visit_sequence(node.args)
+        self.visit_sequence(node.decl)
+        self.visit_sequence(node.body)
+        self.visit_sequence(node.contains)
+        self._current_scope = node._scope.parent_scope
 
     def visit_Num(self, node):
         try:
@@ -237,7 +264,9 @@ class ExprVisitor(ast.GenericASTVisitor):
         if not node.id in self.symbol_table:
             raise UndeclaredVariableError("Variable '%s' not declared." \
                     % node.id)
-        node._type = self.symbol_table[node.id]["type"]
+        #node._type = self.symbol_table[node.id]["type"]
+        print(self._current_scope.resolve(node.id))
+        node._type = self._current_scope.resolve(node.id)["type"]
 
     def visit_FuncCallOrArray(self, node):
         if not node.func in self.symbol_table:
@@ -347,9 +376,10 @@ class ExprVisitor(ast.GenericASTVisitor):
         else:
             raise SemanticError("LHS must be a variable or an array")
 
-def annotate_tree(tree, symbol_table):
+def annotate_tree(tree, global_scope):
     """
     Annotates the `tree` with types.
     """
-    v = ExprVisitor(symbol_table)
+    symbol_table = global_scope._old_symbol_table
+    v = ExprVisitor(symbol_table, global_scope)
     v.visit(tree)

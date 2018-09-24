@@ -311,27 +311,27 @@ a
 
 def test_variables1():
     e = FortranEvaluator()
-    assert "a" not in e.symbol_table
+    assert "a" not in e._global_scope._old_symbol_table
     e.evaluate("integer :: a")
-    assert "a" in e.symbol_table
+    assert "a" in e._global_scope._old_symbol_table
     e.evaluate("a = 5")
-    assert "a" in e.symbol_table
+    assert "a" in e._global_scope._old_symbol_table
     assert e.evaluate("a") == 5
-    assert "a" in e.symbol_table
+    assert "a" in e._global_scope._old_symbol_table
     assert e.evaluate("a+3") == 8
 
 def test_variables2():
     e = FortranEvaluator()
     e.evaluate("integer :: a")
-    assert "a" in e.symbol_table
-    assert "b" not in e.symbol_table
+    assert "a" in e._global_scope._old_symbol_table
+    assert "b" not in e._global_scope._old_symbol_table
     e.evaluate("integer :: b")
-    assert "a" in e.symbol_table
-    assert "b" in e.symbol_table
+    assert "a" in e._global_scope._old_symbol_table
+    assert "b" in e._global_scope._old_symbol_table
     e.evaluate("a = 5")
     assert e.evaluate("a") == 5
-    assert "a" in e.symbol_table
-    assert "b" in e.symbol_table
+    assert "a" in e._global_scope._old_symbol_table
+    assert "b" in e._global_scope._old_symbol_table
     e.evaluate("b = a")
     assert e.evaluate("a") == 5
     assert e.evaluate("b") == 5

@@ -97,12 +97,12 @@ class DoLoopTransformer(NodeTransformer):
             lineno=1, col_offset=1),
                 ast.WhileLoop(cond, body, lineno=1, col_offset=1)]
 
-def transform_doloops(tree, symbol_table):
+def transform_doloops(tree, global_scope):
     v = DoLoopTransformer()
     tree = v.visit(tree)
     # FIXME: after transforming do loops, we have to annotate types again:
     from ..semantic.analyze import annotate_tree
-    annotate_tree(tree, symbol_table)
+    annotate_tree(tree, global_scope)
     return tree
 
 def create_global_string(module, builder, string):
@@ -132,8 +132,9 @@ class CodeGenVisitor(ast.ASTVisitor):
     ASTVisitor base class raises an exception.
     """
 
-    def __init__(self, symbol_table):
-        self.symbol_table = symbol_table
+    def __init__(self, global_scope):
+        self.symbol_table = global_scope._old_symbol_table
+        self._global_scope = global_scope
         self.module = ir.Module()
         self.func = None
         self.builder = None
@@ -155,7 +156,7 @@ class CodeGenVisitor(ast.ASTVisitor):
             return
         assert isinstance(tree, (ast.Program, ast.Module, ast.Function,
             ast.Subroutine))
-        tree = transform_doloops(tree, self.symbol_table)
+        tree = transform_doloops(tree, self._global_scope)
         self.visit(tree)
 
     def do_global_vars(self):
@@ -523,7 +524,7 @@ class CodeGenVisitor(ast.ASTVisitor):
             self.builder.call(fn, args_ptr)
 
 
-def codegen(tree, symbol_table):
-    v = CodeGenVisitor(symbol_table)
+def codegen(tree, global_scope):
+    v = CodeGenVisitor(global_scope)
     v.codegen(tree)
     return v.module
