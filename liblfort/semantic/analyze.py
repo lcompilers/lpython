@@ -74,10 +74,20 @@ class Scope:
 
     def __init__(self, parent=None):
         self._parent = parent
+        self._local_symbols = {}
 
     @property
     def parent(self):
         return self._parent
+
+    def resolve(self, sym):
+        if sym in self._symbols:
+            return sym
+        elif self._parent:
+            return self._parent.resolve()
+        else:
+            # Symbol not found
+            return None
 
 
 class SymbolTableVisitor(ast.GenericASTVisitor):
@@ -133,8 +143,10 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
             type_ = self.types[type_f]()
             if len(dims) > 0:
                 type_ = Array(type_, dims)
-            self.symbol_table[sym] = {"name": sym, "type": type_,
+            sym_data = {"name": sym, "type": type_,
                 "global": self._global_level, "external": False, "func": False}
+            self.symbol_table[sym] = sym_data
+            self._current_scope._local_symbols[sym] = sym_data
 
     def visit_Function(self, node):
         sym = node.name
