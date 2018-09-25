@@ -162,27 +162,26 @@ class CodeGenVisitor(ast.ASTVisitor):
     def do_global_vars(self):
         for sym in self._global_scope.symbols:
             s = self._global_scope.symbols[sym]
-            if s["global"]:
-                if s["func"]:
-                    if s["external"]:
-                        if s["name"] in ["abs", "sqrt", "log", "sum",
-                            "random_number"]:
-                            # Skip these for now (they are handled in Program)
-                            continue
-                        # FIXME: handle "int f()" only for now
-                        fn = ir.FunctionType(ir.IntType(64), [])
-                        s["fn"] = ir.Function(self.module, fn, name=s["name"])
-                else:
-                    name = s["name"] + "_0"
-                    assert not get_global(self.module, name)
-                    var = ir.GlobalVariable(self.module, self.types[s["type"]],
-                        name=name)
-                    if not s["external"]:
-                        # TODO: Undefined fails, but should work:
-                        #var.initializer = ir.Undefined
-                        # For now we initialize to 0:
-                        var.initializer = ir.Constant(ir.IntType(64), 0)
-                    s["ptr"] = var
+            if s["func"]:
+                if s["external"]:
+                    if s["name"] in ["abs", "sqrt", "log", "sum",
+                        "random_number"]:
+                        # Skip these for now (they are handled in Program)
+                        continue
+                    # FIXME: handle "int f()" only for now
+                    fn = ir.FunctionType(ir.IntType(64), [])
+                    s["fn"] = ir.Function(self.module, fn, name=s["name"])
+            else:
+                name = s["name"] + "_0"
+                assert not get_global(self.module, name)
+                var = ir.GlobalVariable(self.module, self.types[s["type"]],
+                    name=name)
+                if not s["external"]:
+                    # TODO: Undefined fails, but should work:
+                    #var.initializer = ir.Undefined
+                    # For now we initialize to 0:
+                    var.initializer = ir.Constant(ir.IntType(64), 0)
+                s["ptr"] = var
 
     def visit_Program(self, node):
         self._current_scope = node._scope
@@ -200,9 +199,9 @@ class CodeGenVisitor(ast.ASTVisitor):
         block = self.func.append_basic_block(name='.entry')
         self.builder = ir.IRBuilder(block)
 
-        for ssym in self.symbol_table:
-            if ssym in ["abs", "sqrt", "log", "sum", "random_number"]: continue
-            sym = self.symbol_table[ssym]
+        for ssym in self._current_scope.symbols:
+            assert ssym not in ["abs", "sqrt", "log", "sum", "random_number"]
+            sym = self._current_scope.symbols[ssym]
             type_f = sym["type"]
             if isinstance(type_f, Array):
                 assert len(type_f.shape) == 1
@@ -214,19 +213,19 @@ class CodeGenVisitor(ast.ASTVisitor):
                     raise Exception("Type not implemented.")
                 ptr = self.builder.alloca(self.types[type_f], name=sym["name"])
             sym["ptr"] = ptr
-        self.symbol_table["abs"]["fn"] = self.module.declare_intrinsic(
+        self._global_scope.symbols["abs"]["fn"] = self.module.declare_intrinsic(
                 'llvm.fabs', [ir.DoubleType()])
-        self.symbol_table["sqrt"]["fn"] = self.module.declare_intrinsic(
+        self._global_scope.symbols["sqrt"]["fn"] = self.module.declare_intrinsic(
                 'llvm.sqrt', [ir.DoubleType()])
-        self.symbol_table["log"]["fn"] = self.module.declare_intrinsic(
+        self._global_scope.symbols["log"]["fn"] = self.module.declare_intrinsic(
                 'llvm.log', [ir.DoubleType()])
 
         fn_type = ir.FunctionType(ir.DoubleType(),
                 [ir.IntType(64), ir.DoubleType().as_pointer()])
         fn_sum = ir.Function(self.module, fn_type, name="_lfort_sum")
-        self.symbol_table["sum"]["fn"] = fn_sum
+        self._global_scope.symbols["sum"]["fn"] = fn_sum
         fn_rand = ir.Function(self.module, fn_type, name="_lfort_random_number")
-        self.symbol_table["random_number"]["fn"] = fn_rand
+        self._global_scope.symbols["random_number"]["fn"] = fn_rand
 
         self.visit_sequence(node.contains)
         self.visit_sequence(node.body)
@@ -236,9 +235,7 @@ class CodeGenVisitor(ast.ASTVisitor):
     def visit_Assignment(self, node):
         lhs = node.target
         if isinstance(lhs, ast.Name):
-            if lhs.id not in self.symbol_table:
-                raise Exception("Undefined variable.")
-            sym = self.symbol_table[lhs.id]
+            sym = self._current_scope.resolve(lhs.id)
 
             value = self.visit(node.value)
 
@@ -341,9 +338,7 @@ class CodeGenVisitor(ast.ASTVisitor):
 
     def visit_Name(self, node):
         v = node.id
-        if v not in self.symbol_table:
-            raise Exception("Undefined variable.")
-        sym = self.symbol_table[v]
+        sym = self._current_scope.resolve(v)
         return self.builder.load(sym["ptr"])
 
     def visit_FuncCallOrArray(self, node):
@@ -360,7 +355,7 @@ class CodeGenVisitor(ast.ASTVisitor):
             return self.builder.load(addr)
         else:
             # Function call
-            sym = self.symbol_table[node.func]
+            sym = self._current_scope.resolve(node.func)
             fn = sym["fn"]
             if len(node.args) == 0:
                 return self.builder.call(fn, [])
@@ -368,7 +363,7 @@ class CodeGenVisitor(ast.ASTVisitor):
                 arg = self.visit(node.args[0])
                 if sym["name"] in ["sum"]:
                     # FIXME: for now we assume an array was passed in:
-                    arg = self.symbol_table[node.args[0].id]
+                    arg = self._current_scope.scope(node.args[0].id)
                     addr = self.builder.gep(arg["ptr"],
                             [ir.Constant(ir.IntType(64), 0),
                             ir.Constant(ir.IntType(64), 0)])
@@ -449,7 +444,7 @@ class CodeGenVisitor(ast.ASTVisitor):
         old = [self.func, self.builder]
         self.func, self.builder = func, builder
         for n, arg in enumerate(node.args):
-            self.symbol_table[arg.arg]["ptr"] = self.func.args[n]
+            self._current_scope.resolve(arg.arg)["ptr"] = self.func.args[n]
 
         self.visit_sequence(node.body)
         self.builder.ret_void()
@@ -470,16 +465,13 @@ class CodeGenVisitor(ast.ASTVisitor):
         old = [self.func, self.builder]
         self.func, self.builder = func, builder
         for n, arg in enumerate(node.args):
-            self.symbol_table[arg.arg] = {"name": arg.arg,
+            # FIXME: move this to analyze.py
+            self._current_scope._local_symbols[arg.arg] = {"name": arg.arg,
                 "ptr": self.func.args[n]}
-        key = node.name
-        # FIXME: this should happen earlier
-        if key not in self.symbol_table:
-            self.symbol_table[key] = {}
-        self.symbol_table[key]["fn"] = func
+        self._current_scope.resolve(node.name)["fn"] = func
 
         # Allocate the "result" variable
-        retsym = self.symbol_table[node.name]
+        retsym = self._current_scope.resolve(node.name)
         type_f = retsym["type"]
         if isinstance(type_f, Array):
             raise NotImplementedError("Return arrays are not implemented yet.")

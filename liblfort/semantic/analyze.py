@@ -100,7 +100,11 @@ class Scope:
         else:
             # Symbol not found
             if raise_exception:
-                raise UndeclaredVariableError("Symbol '%s' not declared." \
+                # This only happens when there is a bug. The semantic phase
+                # should call resolve() with raise_exception=False and create
+                # nice user errors. The code generation phase calls resolve()
+                # with raise_exception=True.
+                raise Exception("Internal error: Symbol '%s' not declared." \
                         % sym)
             else:
                 return None
