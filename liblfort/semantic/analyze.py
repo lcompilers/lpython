@@ -84,14 +84,18 @@ class Scope:
     def symbols(self):
         return self._local_symbols
 
-    def resolve(self, sym):
+    def resolve(self, sym, raise_exception=True):
         if sym in self._local_symbols:
             return self._local_symbols[sym]
         elif self._parent_scope:
             return self._parent_scope.resolve(sym)
         else:
             # Symbol not found
-            return None
+            if raise_exception:
+                raise UndeclaredVariableError("Symbol '%s' not declared." \
+                        % sym)
+            else:
+                return None
 
 
 class SymbolTableVisitor(ast.GenericASTVisitor):
@@ -104,7 +108,10 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 "character": Character,
                 "logical": Logical,
             }
-        self.__symbol_table = { x: {
+        self._global_level = True
+
+        self._global_scope = Scope()
+        self._global_scope._local_symbols = { x: {
                 "name": x,
                 "type": Real(),
                 "external": True,
@@ -117,20 +124,15 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 "sum",
                 "random_number",
             ]}
-        self._global_level = True
 
-        self._global_scope = Scope()
         self._current_scope = self._global_scope
-
-        # Temporary:
-        self._global_scope._old_symbol_table = self.__symbol_table
 
     def mark_all_external(self):
         """
         Marks all symbols in the symbol table as external.
         """
-        for sym in self.__symbol_table:
-            self.__symbol_table[sym]["external"] = True
+        for sym in self._global_scope.symbols:
+            self._global_scope.symbols[sym]["external"] = True
 
     def visit_Declaration(self, node):
         for v in node.vars:
@@ -152,7 +154,6 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 type_ = Array(type_, dims)
             sym_data = {"name": sym, "type": type_,
                 "global": self._global_level, "external": False, "func": False}
-            self.__symbol_table[sym] = sym_data
             self._current_scope._local_symbols[sym] = sym_data
 
     def visit_Function(self, node):
@@ -168,7 +169,6 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 "func": True,
             }
 
-        self.__symbol_table[sym] = sym_data
         self._current_scope._local_symbols[sym] = sym_data
 
         node._scope = Scope(self._current_scope)
@@ -222,8 +222,7 @@ def create_symbol_table(tree):
 
 class ExprVisitor(ast.GenericASTVisitor):
 
-    def __init__(self, symbol_table, global_scope):
-        self.symbol_table = symbol_table
+    def __init__(self, global_scope):
         self._current_scope = global_scope
 
     def visit_Program(self, node):
@@ -268,19 +267,17 @@ class ExprVisitor(ast.GenericASTVisitor):
         node._type = Logical()
 
     def visit_Name(self, node):
-        if not node.id in self.symbol_table:
+        if not self._current_scope.resolve(node.id, False):
             raise UndeclaredVariableError("Variable '%s' not declared." \
                     % node.id)
-        #node._type = self.symbol_table[node.id]["type"]
-        print(self._current_scope.resolve(node.id))
         node._type = self._current_scope.resolve(node.id)["type"]
 
     def visit_FuncCallOrArray(self, node):
-        if not node.func in self.symbol_table:
+        if not self._current_scope.resolve(node.func, False):
             raise UndeclaredVariableError("Func or Array '%s' not declared." \
                     % node.func)
         self.visit_sequence(node.args)
-        node._type = self.symbol_table[node.func]["type"]
+        node._type = self._current_scope.resolve(node.func)["type"]
 
     def visit_BinOp(self, node):
         self.visit(node.left)
@@ -333,10 +330,10 @@ class ExprVisitor(ast.GenericASTVisitor):
 
     def visit_Assignment(self, node):
         if isinstance(node.target, ast.Name):
-            if not node.target.id in self.symbol_table:
+            if not self._current_scope.resolve(node.target.id, False):
                 raise UndeclaredVariableError("Variable '%s' not declared." \
                         % node.target)
-            node._type = self.symbol_table[node.target.id]["type"]
+            node._type = self._current_scope.resolve(node.target.id)["type"]
             self.visit(node.value)
             if node.value._type != node._type:
                 if isinstance(node._type, Array):
@@ -350,10 +347,10 @@ class ExprVisitor(ast.GenericASTVisitor):
                 else:
                     raise TypeMismatch("Type mismatch")
         elif isinstance(node.target, ast.FuncCallOrArray):
-            if not node.target.func in self.symbol_table:
+            if not self._current_scope.resolve(node.target.func, False):
                 raise UndeclaredVariableError("Array '%s' not declared." \
                         % node.target.func)
-            node._type = self.symbol_table[node.target.func]["type"]
+            node._type = self._current_scope.resolve(node.target.func)["type"]
             # TODO: based on symbol_table, figure out if `node.target` is an
             # array or a function call. Annotate the `node` to reflect that.
             # Then in later stage the node can be replaced, based on the
@@ -387,6 +384,5 @@ def annotate_tree(tree, global_scope):
     """
     Annotates the `tree` with types.
     """
-    symbol_table = global_scope._old_symbol_table
-    v = ExprVisitor(symbol_table, global_scope)
+    v = ExprVisitor(global_scope)
     v.visit(tree)
