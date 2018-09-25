@@ -80,6 +80,10 @@ class Scope:
     def parent_scope(self):
         return self._parent_scope
 
+    @property
+    def symbols(self):
+        return self._local_symbols
+
     def resolve(self, sym):
         if sym in self._local_symbols:
             return self._local_symbols[sym]
@@ -156,13 +160,16 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
         # TODO: for now we assume integer result, but we should read the AST
         # and determine the type of the result.
         type_ = self.types["integer"]()
-        self.__symbol_table[sym] = {
+        sym_data = {
                 "name": sym,
                 "type": type_,
                 "external": False,
                 "global": self._global_level,
                 "func": True,
             }
+
+        self.__symbol_table[sym] = sym_data
+        self._current_scope._local_symbols[sym] = sym_data
 
         node._scope = Scope(self._current_scope)
         self._current_scope = node._scope

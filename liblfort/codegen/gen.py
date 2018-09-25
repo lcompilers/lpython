@@ -160,8 +160,8 @@ class CodeGenVisitor(ast.ASTVisitor):
         self.visit(tree)
 
     def do_global_vars(self):
-        for sym in self.symbol_table:
-            s = self.symbol_table[sym]
+        for sym in self._global_scope.symbols:
+            s = self._global_scope.symbols[sym]
             if s["global"]:
                 if s["func"]:
                     if s["external"]:
