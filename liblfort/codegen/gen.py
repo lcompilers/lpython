@@ -251,7 +251,7 @@ class CodeGenVisitor(ast.ASTVisitor):
             self.builder.store(value, ptr)
         elif isinstance(lhs, ast.FuncCallOrArray):
             # array
-            sym = self._current_scope.resolve[lhs.func]
+            sym = self._current_scope.resolve(lhs.func)
             ptr = sym["ptr"]
             assert len(sym["type"].shape) == 1
             idx = self.visit(lhs.args[0])
@@ -363,7 +363,7 @@ class CodeGenVisitor(ast.ASTVisitor):
                 arg = self.visit(node.args[0])
                 if sym["name"] in ["sum"]:
                     # FIXME: for now we assume an array was passed in:
-                    arg = self._current_scope.scope(node.args[0].id)
+                    arg = self._current_scope.resolve(node.args[0].id)
                     addr = self.builder.gep(arg["ptr"],
                             [ir.Constant(ir.IntType(64), 0),
                             ir.Constant(ir.IntType(64), 0)])
