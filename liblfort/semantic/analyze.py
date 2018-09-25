@@ -71,6 +71,14 @@ class Array(Type):
 # --------------------------------
 
 class Scope:
+    """
+    A Scope contains local symbols and a link to the parent scope.
+
+    It is attached directly to the AST nodes for functions, subroutines and
+    programs. When using a visitor pattern, one must propagate the "current
+    scope" by hand, so that one can access the function's scope from, say,
+    the assignment statement.
+    """
 
     def __init__(self, parent_scope=None):
         self._parent_scope = parent_scope
