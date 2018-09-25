@@ -251,7 +251,7 @@ class CodeGenVisitor(ast.ASTVisitor):
             self.builder.store(value, ptr)
         elif isinstance(lhs, ast.FuncCallOrArray):
             # array
-            sym = self.symbol_table[lhs.func]
+            sym = self._current_scope.resolve[lhs.func]
             ptr = sym["ptr"]
             assert len(sym["type"].shape) == 1
             idx = self.visit(lhs.args[0])
@@ -349,7 +349,7 @@ class CodeGenVisitor(ast.ASTVisitor):
             idx = self.visit(node.args[0])
             # Convert 1-based indexing to 0-based
             idx = self.builder.sub(idx, ir.Constant(ir.IntType(64), 1))
-            sym = self.symbol_table[node.func]
+            sym = self._current_scope.resolve(node.func)
             addr = self.builder.gep(sym["ptr"],
                     [ir.Constant(ir.IntType(64), 0), idx])
             return self.builder.load(addr)
@@ -491,9 +491,9 @@ class CodeGenVisitor(ast.ASTVisitor):
     def visit_SubroutineCall(self, node):
         if node.name in ["random_number"]:
             # FIXME: for now we assume an array was passed in:
-            sym = self.symbol_table[node.name]
+            sym = self._current_scope.resolve(node.name)
             fn = sym["fn"]
-            arg = self.symbol_table[node.args[0].id]
+            arg = self._current_scope.resolve(node.args[0].id)
             addr = self.builder.gep(arg["ptr"],
                     [ir.Constant(ir.IntType(64), 0),
                      ir.Constant(ir.IntType(64), 0)])
@@ -508,9 +508,7 @@ class CodeGenVisitor(ast.ASTVisitor):
             for arg in node.args:
                 if isinstance(arg, ast.Name):
                     # Get a pointer to a variable
-                    v = arg.id
-                    assert v in self.symbol_table
-                    sym = self.symbol_table[v]
+                    sym = self._current_scope.resolve(arg.id)
                     a_ptr = sym["ptr"]
                     args_ptr.append(a_ptr)
                 else:
