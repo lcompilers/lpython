@@ -133,8 +133,8 @@ class CodeGenVisitor(ast.ASTVisitor):
     """
 
     def __init__(self, global_scope):
-        self.symbol_table = global_scope._old_symbol_table
         self._global_scope = global_scope
+        self._current_scope = self._global_scope
         self.module = ir.Module()
         self.func = None
         self.builder = None
@@ -185,6 +185,7 @@ class CodeGenVisitor(ast.ASTVisitor):
                     s["ptr"] = var
 
     def visit_Program(self, node):
+        self._current_scope = node._scope
         self.module  = ir.Module()
         self.module.triple = get_default_triple()
         self.types = {
@@ -230,6 +231,7 @@ class CodeGenVisitor(ast.ASTVisitor):
         self.visit_sequence(node.contains)
         self.visit_sequence(node.body)
         self.builder.ret(ir.Constant(ir.IntType(64), 0))
+        self._current_scope = node._scope.parent_scope
 
     def visit_Assignment(self, node):
         lhs = node.target
@@ -438,6 +440,7 @@ class CodeGenVisitor(ast.ASTVisitor):
         self.builder.position_at_end(loopend)
 
     def visit_Subroutine(self, node):
+        self._current_scope = node._scope
         fn = ir.FunctionType(ir.VoidType(), [ir.IntType(64).as_pointer(),
             ir.IntType(64).as_pointer()])
         func = ir.Function(self.module, fn, name=node.name)
@@ -452,8 +455,10 @@ class CodeGenVisitor(ast.ASTVisitor):
         self.builder.ret_void()
 
         self.func, self.builder = old
+        self._current_scope = node._scope.parent_scope
 
     def visit_Function(self, node):
+        self._current_scope = node._scope
         args = []
         # TODO: for now we assume integer arguments and return values
         for n, arg in enumerate(node.args):
@@ -489,6 +494,7 @@ class CodeGenVisitor(ast.ASTVisitor):
         self.builder.ret(retval)
 
         self.func, self.builder = old
+        self._current_scope = node._scope.parent_scope
 
     def visit_SubroutineCall(self, node):
         if node.name in ["random_number"]:

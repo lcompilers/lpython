@@ -108,7 +108,6 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 "character": Character,
                 "logical": Logical,
             }
-        self._global_level = True
 
         self._global_scope = Scope()
         self._global_scope._local_symbols = { x: {
@@ -153,7 +152,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
             if len(dims) > 0:
                 type_ = Array(type_, dims)
             sym_data = {"name": sym, "type": type_,
-                "global": self._global_level, "external": False, "func": False}
+                "external": False, "func": False}
             self._current_scope._local_symbols[sym] = sym_data
 
     def visit_Function(self, node):
@@ -165,7 +164,6 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 "name": sym,
                 "type": type_,
                 "external": False,
-                "global": self._global_level,
                 "func": True,
             }
 
@@ -174,15 +172,10 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
         node._scope = Scope(self._current_scope)
         self._current_scope = node._scope
 
-        gl = self._global_level
-        self._global_level = False
-        # TODO: put these declarations into the scoped symbol table for this
-        # function only:
         self.visit_sequence(node.decl)
 
         # Iterate over nested functions
         self.visit_sequence(node.contains)
-        self._global_level = gl
 
         self._current_scope = node._scope.parent_scope
 
@@ -190,12 +183,9 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
         node._scope = Scope(self._current_scope)
         self._current_scope = node._scope
 
-        gl = self._global_level
-        self._global_level = False
         self.visit_sequence(node.decl)
         #self.visit_sequence(node.body)
         self.visit_sequence(node.contains)
-        self._global_level = gl
 
         self._current_scope = node._scope.parent_scope
 
@@ -203,13 +193,10 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
         node._scope = Scope(self._current_scope)
         self._current_scope = node._scope
 
-        gl = self._global_level
-        self._global_level = False
         self.visit_sequence(node.args)
         self.visit_sequence(node.decl)
         #self.visit_sequence(node.body)
         self.visit_sequence(node.contains)
-        self._global_level = gl
 
         self._current_scope = node._scope.parent_scope
 
