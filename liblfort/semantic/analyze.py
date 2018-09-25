@@ -88,7 +88,7 @@ class Scope:
         if sym in self._local_symbols:
             return self._local_symbols[sym]
         elif self._parent_scope:
-            return self._parent_scope.resolve(sym)
+            return self._parent_scope.resolve(sym, raise_exception)
         else:
             # Symbol not found
             if raise_exception:
