@@ -36,7 +36,7 @@ def test_types_arrays():
     assert a != Array(Integer(), [9, 11])
     assert a != Array(Real(), [9, 10])
 
-def test_variables():
+def test_variables1():
     source = """\
 module test
 implicit none
@@ -51,14 +51,15 @@ contains
 end module
 """
     tree = parse(source)
-    symbol_table = create_symbol_table(tree)
-    assert "a" in symbol_table
-    assert symbol_table["a"]["type"] == Integer()
-    assert symbol_table["a"]["name"] == "a"
-    assert "b" in symbol_table
-    assert symbol_table["b"]["type"] == Real()
-    assert symbol_table["b"]["name"] == "b"
-    assert not "c" in symbol_table
+    global_scope = create_symbol_table(tree)
+    assert not global_scope.resolve("a", False)
+    sym = tree.contains[0]._scope.resolve("a")
+    assert sym["type"] == Integer()
+    assert sym["name"] == "a"
+    sym = tree.contains[0]._scope.resolve("b")
+    assert sym["type"] == Real()
+    assert sym["name"] == "b"
+    assert not tree.contains[0]._scope.resolve("c", False)
 
 def test_unknown_type1():
     source = """\

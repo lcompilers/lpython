@@ -14,7 +14,7 @@ class FortranEvaluator(object):
         self.lle = LLVMEvaluator()
 
         self.symbol_table_visitor = SymbolTableVisitor()
-        self.symbol_table = self.symbol_table_visitor.symbol_table
+        self._global_scope = self.symbol_table_visitor._global_scope
 
         self.anonymous_fn_counter = 0
 
@@ -51,11 +51,11 @@ class FortranEvaluator(object):
 
         self.symbol_table_visitor.mark_all_external()
         self.symbol_table_visitor.visit(self.ast_tree)
-        annotate_tree(self.ast_tree, self.symbol_table)
+        annotate_tree(self.ast_tree, self._global_scope)
 
     def llvm_code_generation(self, optimize=True):
         source_ll = str(codegen(self.ast_tree,
-            self.symbol_table_visitor.symbol_table))
+            self.symbol_table_visitor._global_scope))
         self._source_ll = source_ll
         self.mod = self.lle.parse(self._source_ll)
         if optimize:
