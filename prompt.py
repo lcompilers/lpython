@@ -39,7 +39,7 @@ def handle_input(engine, evaluator, source):
     print(dump(evaluator.ast_tree))
     print()
     print_bold("Symbol table:")
-    print(list(evaluator.symbol_table.keys()))
+    print(list(evaluator._global_scope.symbols.keys()))
 
     print_stage("LLVM Code Generation")
     evaluator.llvm_code_generation()
