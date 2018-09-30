@@ -14,14 +14,10 @@ prepare tarball:
     - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
     - (cd; wget http://www.antlr.org/download/antlr-4.7-complete.jar)
     - ./build0.sh
+    - python setup.py sdist
   artifacts:
     paths:
-      - liblfort/ast/ast.py
-      - liblfort/parser/fortran.tokens
-      - liblfort/parser/fortranLexer.py
-      - liblfort/parser/fortranLexer.tokens
-      - liblfort/parser/fortranParser.py
-      - liblfort/parser/fortranVisitor.py
+      - dist/lfortran-0.1.tar.gz
     when: always
 
 # Test full dependencies when a C compiler is available and used for linking
