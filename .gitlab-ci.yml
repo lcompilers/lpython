@@ -33,9 +33,9 @@ full:
     - cd lfortran-0.1
     - python setup.py install
     - cd ..
-    - rm -r liblfort
+    - rm -r liblfort lfortran-0.1
     - ./build1.sh
-    - py.test
+    - py.test --pyargs liblfort
     - python show_ast.py
     - ./lfort examples/expr2.f90
     - ./a.out
