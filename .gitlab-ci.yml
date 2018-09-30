@@ -29,6 +29,8 @@ full:
     - pip install antlr4-python3-runtime
     - sudo apt-get update
     - sudo apt-get install -yq --no-install-recommends gcc gfortran gcc-multilib cmake make
+    - tar xzf dist/lfortran-0.1.tar.gz
+    - cd lfortran-0.1
     - ./build1.sh
     - py.test
     - python show_ast.py
@@ -47,6 +49,8 @@ minimal:
     - pip install antlr4-python3-runtime
     - sudo apt-get update
     - sudo apt-get install -yq --no-install-recommends musl-dev binutils gcc libc6-dev
+    - tar xzf dist/lfortran-0.1.tar.gz
+    - cd lfortran-0.1
     - ./build1.sh
     - sudo apt-get remove -yq gcc libc6-dev
     - sudo apt-get autoremove -yq
@@ -63,6 +67,8 @@ jupyter:
     - pip install antlr4-python3-runtime
     - sudo apt-get update
     - sudo apt-get install -yq --no-install-recommends gcc gfortran gcc-multilib cmake make git
+    - tar xzf dist/lfortran-0.1.tar.gz
+    - cd lfortran-0.1
     - ./build1.sh
     - pip install .
     - (git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/lfortran/fortran_kernel && cd fortran_kernel && git checkout v0.1.0 && pip install . && cd .. && rm -r fortran_kernel)
