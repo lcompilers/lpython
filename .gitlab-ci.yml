@@ -1,5 +1,25 @@
 image: registry.gitlab.com/certik/ci-images:conda_base
 
+stages:
+  - tarball
+  - build
+
+prepare tarball:
+  stage: tarball
+  image: registry.gitlab.com/certik/ci-images:conda_base
+  script:
+    - export PATH="$HOME/conda_root/bin:$PATH"
+    - sudo apt-get update
+    - sudo apt-get install -yq --no-install-recommends wget openjdk-9-jre-headless
+    - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
+    - (cd; wget http://www.antlr.org/download/antlr-4.7-complete.jar)
+    - ./build0.sh
+    - python setup.py sdist
+  artifacts:
+    paths:
+      - dist/lfortran-0.1.tar.gz
+    when: always
+
 # Test full dependencies when a C compiler is available and used for linking
 full:
   stage: build
@@ -8,11 +28,15 @@ full:
     - conda install python=3.7 pytest llvmlite
     - pip install antlr4-python3-runtime
     - sudo apt-get update
-    - sudo apt-get install -yq --no-install-recommends wget openjdk-9-jre-headless gcc gfortran gcc-multilib cmake make
-    - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
-    - (cd; wget http://www.antlr.org/download/antlr-4.7-complete.jar)
-    - ./build.sh
-    - py.test
+    - sudo apt-get install -yq --no-install-recommends gcc gfortran gcc-multilib cmake make
+    - tar xzf dist/lfortran-0.1.tar.gz
+    - cd lfortran-0.1
+    - python setup.py install
+    - cd ..
+    - rm -r liblfort lfortran-0.1
+    - ./build1.sh
+    - sudo cp liblfort.a /usr/lib/
+    - py.test --pyargs liblfort
     - python show_ast.py
     - ./lfort examples/expr2.f90
     - ./a.out
@@ -28,13 +52,16 @@ minimal:
     - conda install python=3.7 pytest llvmlite
     - pip install antlr4-python3-runtime
     - sudo apt-get update
-    - sudo apt-get install -yq --no-install-recommends wget openjdk-9-jre-headless musl-dev binutils gcc libc6-dev
-    - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
-    - (cd; wget http://www.antlr.org/download/antlr-4.7-complete.jar)
-    - ./build.sh
+    - sudo apt-get install -yq --no-install-recommends musl-dev binutils gcc libc6-dev
+    - tar xzf dist/lfortran-0.1.tar.gz
+    - cd lfortran-0.1
+    - python setup.py install
+    - cd ..
+    - rm -r liblfort lfortran-0.1
+    - ./build1.sh
     - sudo apt-get remove -yq gcc libc6-dev
     - sudo apt-get autoremove -yq
-    - py.test
+    - py.test --pyargs liblfort
     - ./lfort --ld-musl examples/expr2.f90
     - ./a.out
 
@@ -46,11 +73,13 @@ jupyter:
     - conda install python=3.7 pytest llvmlite jupyter
     - pip install antlr4-python3-runtime
     - sudo apt-get update
-    - sudo apt-get install -yq --no-install-recommends wget openjdk-9-jre-headless gcc gfortran gcc-multilib cmake make git
-    - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
-    - (cd; wget http://www.antlr.org/download/antlr-4.7-complete.jar)
-    - ./build.sh
+    - sudo apt-get install -yq --no-install-recommends gcc gfortran gcc-multilib cmake make git
+    - tar xzf dist/lfortran-0.1.tar.gz
+    - cd lfortran-0.1
     - pip install .
+    - cd ..
+    - rm -r liblfort lfortran-0.1
+    - ./build1.sh
     - (git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/lfortran/fortran_kernel && cd fortran_kernel && git checkout v0.1.0 && pip install . && cd .. && rm -r fortran_kernel)
     - python -m fortran_kernel.install
     - jupyter kernelspec list --json
