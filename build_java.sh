@@ -10,11 +10,7 @@ $antlr4 grammar/fortran.g4
 javac fortran*.java
 
 # Test:
-$grun fortran module -tree examples/m1.f90
-echo
-$grun fortran module -tree examples/subroutine1.f90
-echo
-$grun fortran module -tree examples/expr1.f90
+$grun fortran module -tree examples/expr2.f90
 
 # Visualize
-#grun fortran root -gui examples/m1.f90
+#grun fortran root -gui examples/expr2.f90
