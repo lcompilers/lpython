@@ -35,6 +35,7 @@ full:
     - cd ..
     - rm -r liblfort lfortran-0.1
     - ./build1.sh
+    - sudo cp liblfort.a /usr/lib/
     - py.test --pyargs liblfort
     - python show_ast.py
     - ./lfort examples/expr2.f90
