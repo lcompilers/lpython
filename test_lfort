@@ -3,9 +3,6 @@
 set -e
 set -x
 
-# Put lfort into PATH
-PATH="`pwd`:$PATH"
-
 bdir=build-gfortran
 rm -rf $bdir
 mkdir $bdir
