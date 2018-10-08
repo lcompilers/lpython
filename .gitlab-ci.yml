@@ -21,7 +21,7 @@ prepare tarball:
     - python setup.py sdist
   artifacts:
     paths:
-      - dist/lfortran-${lfortran_version}.tar.gz
+      - dist/*
     when: always
 
 # Test full dependencies when a C compiler is available and used for linking
