@@ -9,8 +9,15 @@
 set -e
 set -x
 
-COMMIT_TAG=$(git tag -l --points-at HEAD)
-COMMIT_SHA=$(git rev-parse HEAD)
+if [[ $CI_COMMIT_SHA == "" ]]; then
+    # Use sha and tag values provided by git (requires git to be installed)
+    COMMIT_TAG=$(git tag -l --points-at HEAD)
+    COMMIT_SHA=$(git rev-parse HEAD)
+else
+    # Use sha and tag variables provides by the CI
+    COMMIT_TAG=${CI_COMMIT_TAG}
+    COMMIT_SHA=${CI_COMMIT_SHA}
+fi
 
 if [[ $COMMIT_TAG == "" ]]; then
     # The commit is not tagged, use the first 7 chars of git commit hash
