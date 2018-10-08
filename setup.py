@@ -3,9 +3,12 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+with open("version", "r") as fh:
+    version = fh.read().strip()
+
 setuptools.setup(
     name="lfortran",
-    version="0.1",
+    version=version,
     author="Ondřej Čertík",
     author_email="ondrej@certik.us",
     description="Fortran compiler",

@@ -14,6 +14,7 @@ prepare tarball:
     - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
     - (cd; wget http://www.antlr.org/download/antlr-4.7-complete.jar)
     - ./build0.sh
+    - ci/version.sh
     - python setup.py sdist
   artifacts:
     paths:
