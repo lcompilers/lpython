@@ -14,7 +14,7 @@ prepare tarball:
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
     - sudo apt-get update
-    - sudo apt-get install -yq --no-install-recommends wget openjdk-9-jre-headless
+    - sudo apt-get install -yq --no-install-recommends git wget openjdk-9-jre-headless
     - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
     - (cd; wget http://www.antlr.org/download/antlr-4.7-complete.jar)
     - ./build0.sh
