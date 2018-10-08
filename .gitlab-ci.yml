@@ -4,6 +4,10 @@ stages:
   - tarball
   - build
 
+before_script:
+  - ci/version.sh
+  - lfortran_version=$(<version)
+
 prepare tarball:
   stage: tarball
   image: registry.gitlab.com/certik/ci-images:conda_base
@@ -14,11 +18,10 @@ prepare tarball:
     - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
     - (cd; wget http://www.antlr.org/download/antlr-4.7-complete.jar)
     - ./build0.sh
-    - ci/version.sh
     - python setup.py sdist
   artifacts:
     paths:
-      - dist/lfortran-0.1.tar.gz
+      - dist/lfortran-${lfortran_version}.tar.gz
     when: always
 
 # Test full dependencies when a C compiler is available and used for linking
@@ -30,11 +33,11 @@ full:
     - pip install antlr4-python3-runtime
     - sudo apt-get update
     - sudo apt-get install -yq --no-install-recommends gcc gfortran gcc-multilib cmake make
-    - tar xzf dist/lfortran-0.1.tar.gz
-    - cd lfortran-0.1
+    - tar xzf dist/lfortran-${lfortran_version}.tar.gz
+    - cd lfortran-${lfortran_version}
     - python setup.py install
     - cd ..
-    - rm -r liblfort lfortran-0.1
+    - rm -r liblfort lfortran-${lfortran_version}
     - rm lfort
     - ./build1.sh
     - sudo cp liblfort.a /usr/lib/
@@ -55,11 +58,11 @@ minimal:
     - pip install antlr4-python3-runtime
     - sudo apt-get update
     - sudo apt-get install -yq --no-install-recommends musl-dev binutils gcc libc6-dev
-    - tar xzf dist/lfortran-0.1.tar.gz
-    - cd lfortran-0.1
+    - tar xzf dist/lfortran-${lfortran_version}.tar.gz
+    - cd lfortran-${lfortran_version}
     - python setup.py install
     - cd ..
-    - rm -r liblfort lfortran-0.1
+    - rm -r liblfort lfortran-${lfortran_version}
     - rm lfort
     - ./build1.sh
     - sudo apt-get remove -yq gcc libc6-dev
@@ -77,11 +80,11 @@ jupyter:
     - pip install antlr4-python3-runtime
     - sudo apt-get update
     - sudo apt-get install -yq --no-install-recommends gcc gfortran gcc-multilib cmake make git
-    - tar xzf dist/lfortran-0.1.tar.gz
-    - cd lfortran-0.1
+    - tar xzf dist/lfortran-${lfortran_version}.tar.gz
+    - cd lfortran-${lfortran_version}
     - pip install .
     - cd ..
-    - rm -r liblfort lfortran-0.1
+    - rm -r liblfort lfortran-${lfortran_version}
     - ./build1.sh
     - (git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/lfortran/fortran_kernel && cd fortran_kernel && git checkout v0.1.0 && pip install . && cd .. && rm -r fortran_kernel)
     - python -m fortran_kernel.install
