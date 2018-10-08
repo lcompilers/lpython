@@ -19,6 +19,7 @@ prepare tarball:
     - (cd; wget http://www.antlr.org/download/antlr-4.7-complete.jar)
     - ./build0.sh
     - python setup.py sdist
+    - ci/upload_tarball.sh
   artifacts:
     paths:
       - dist/*
