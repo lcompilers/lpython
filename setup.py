@@ -16,6 +16,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://gitlab.com/lfortran/lfortran",
     packages=setuptools.find_packages(),
+    include_package_data=True,
     scripts=['lfort', 'prompt.py'],
     classifiers=[
         "Programming Language :: Python :: 3",
