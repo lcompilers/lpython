@@ -6,41 +6,14 @@ set -x
 if [[ $COMMIT_TAG == "" ]]; then
     # Development version
     dest_branch=${CI_COMMIT_REF_NAME}
-    deploy_repo="git@gitlab.com:lfortran/packages/testing.git"
+    deploy_repo="https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/lfortran/packages/testing.git"
 else
     # Release version
     dest_branch="master"
-    deploy_repo="git@gitlab.com:lfortran/packages/releases.git"
+    deploy_repo="https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/lfortran/packages/releases.git"
 fi
 
 lfortran_version=$(<version)
-
-mkdir ~/.ssh
-chmod 700 ~/.ssh
-ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
-
-eval "$(ssh-agent -s)"
-
-set +x
-if [[ "${SSH_PRIVATE_KEY}" == "" ]]; then
-    echo "Error: SSH_PRIVATE_KEY is empty."
-    exit 1
-fi
-# Generate the private/public key pair using:
-#
-#     ssh-keygen -f deploy_key -N ""
-#
-# then set the $SSH_PRIVATE_KEY environment variable in the GitLab-CI to the
-# base64 encoded private key:
-#
-#     cat deploy_key | base64 -w0
-#
-# and add the public key `deploy_key.pub` into the target git repository (with
-# write permissions).
-
-ssh-add <(echo "$SSH_PRIVATE_KEY" | base64 --decode)
-set -x
-
 
 D=`pwd`
 
