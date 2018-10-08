@@ -24,6 +24,9 @@ prepare tarball:
     paths:
       - dist/*
     when: always
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    url: https://gitlab.com/lfortran/packages/testing/tree/$CI_COMMIT_REF_NAME
 
 # Test full dependencies when a C compiler is available and used for linking
 full:
