@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# This script extracts the project's current version from git. If there is a
+# tag attached to the current commit (of the form "v1.0.1"), then it will be
+# used ("1.0.1"), otherwise the first 7 characters of the hash of the current
+# commit will be used ("eb757a8"). The result will be saved to a "version"
+# file.
+
 set -e
 set -x
 
