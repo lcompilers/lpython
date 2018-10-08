@@ -27,7 +27,7 @@ cp dist/lfortran-${lfortran_version}.tar.gz $HOME/repos/lfortran-deploy
 cd $HOME/repos/lfortran-deploy
 
 git config user.name "Deploy"
-git config user.email ""
+git config user.email "noreply@deploy"
 COMMIT_MESSAGE="Deploying on $(date "+%Y-%m-%d %H:%M:%S")"
 
 git add .
