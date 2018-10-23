@@ -93,9 +93,9 @@ jupyter:
     - (git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/lfortran/fortran_kernel && cd fortran_kernel && git checkout v0.1.0 && pip install . && cd .. && rm -r fortran_kernel)
     - python -m fortran_kernel.install
     - jupyter kernelspec list --json
-    - cd nb
+    - cd share/lfortran/nb
     - jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --output Demo_out.ipynb Demo.ipynb
   artifacts:
     paths:
-      - nb/Demo_out.ipynb
+      - share/lfortran/nb/Demo_out.ipynb
     when: always

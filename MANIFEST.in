@@ -1,1 +1,2 @@
 include version
+recursive-include share *
