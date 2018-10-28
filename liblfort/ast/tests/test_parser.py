@@ -529,6 +529,11 @@ end module
         """\
 module test
 implicit none
+integer :: x
+end module""",
+        """\
+module test
+implicit none
 private
 integer :: x
 end module

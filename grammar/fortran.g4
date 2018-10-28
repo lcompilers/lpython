@@ -44,7 +44,9 @@ script_unit
 //
 
 module
-    : NEWLINE* 'module' ID NEWLINE+ (use_statement NEWLINE+)* 'implicit none' NEWLINE+ module_decl* contains_block? 'end' 'module' ID? NEWLINE+
+    : NEWLINE* 'module' ID NEWLINE+ (use_statement NEWLINE+)* 'implicit none'
+        NEWLINE+ module_decl* contains_block? 'end' 'module' ID?
+        (EOF | NEWLINE+)
     ;
 
 module_decl
