@@ -22,7 +22,7 @@ def run_tests(tests, filename, translation_unit=False):
         results.append(to_tuple(parse(s, translation_unit)))
 
     here = os.path.dirname(__file__)
-    results_filename = os.path.join(here, filename)
+    results_filename = os.path.abspath(os.path.join(here, filename))
     try:
         with open(results_filename) as f:
             d = {}
@@ -41,8 +41,8 @@ def run_tests(tests, filename, translation_unit=False):
         results_str += "]\n"
         with open(results_filename+".latest", "w") as f:
             f.write(results_str)
-        print("Results file generated. If you want to use it, copy " \
-              "'{0}.latest' to '{0}'.".format(filename))
+        print("Results file generated. If you want to use it, execute:\n" \
+            "cp '{0}.latest' '{0}'".format(results_filename))
         if report:
             print()
             if (len(results) == len(results_ref)):
