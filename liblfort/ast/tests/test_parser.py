@@ -432,6 +432,10 @@ f = 1
 end function
 """,
         """\
+function f(e)
+f = 1
+end function""",
+        """\
 subroutine f
 integer :: x
 end subroutine

@@ -86,7 +86,9 @@ subroutine
     ;
 
 function
-    : (var_type ('(' ID ')')?)? 'pure'? 'recursive'? 'function' ID ('(' id_list? ')')? ('result' '(' ID ')')? NEWLINE+ sub_block 'function' ID? NEWLINE+
+    : (var_type ('(' ID ')')?)? 'pure'? 'recursive'?
+        'function' ID ('(' id_list? ')')? ('result' '(' ID ')')? NEWLINE+
+        sub_block 'function' ID? (EOF | NEWLINE+)
     ;
 
 sub_block
