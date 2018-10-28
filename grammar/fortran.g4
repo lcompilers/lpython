@@ -82,7 +82,8 @@ program
     ;
 
 subroutine
-    : 'subroutine' ID ('(' id_list? ')')? NEWLINE+ sub_block 'subroutine' ID? NEWLINE+
+    : 'subroutine' ID ('(' id_list? ')')? NEWLINE+ sub_block 'subroutine' ID?
+        (EOF | NEWLINE+)
     ;
 
 function

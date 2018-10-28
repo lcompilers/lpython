@@ -448,6 +448,10 @@ integer :: x
 end subroutine
 """,
         """\
+subroutine f()
+integer :: x
+end subroutine""",
+        """\
 subroutine f(a, b, c, d)
 integer, intent(in) :: a, b
 integer, intent ( in ) :: c, d
