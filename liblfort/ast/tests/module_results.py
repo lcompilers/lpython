@@ -1,5 +1,6 @@
 results = [
     ('Module', 'test', [('Declaration', (1, 1), [('decl', 'x', 'integer', [])])], []),
+    ('Module', 'test', [('Declaration', (1, 1), [('decl', 'x', 'integer', [])])], []),
     ('Module', 'test', [('Private', (1, 1), []), ('Declaration', (1, 1), [('decl', 'x', 'integer', [])])], []),
     ('Module', 'test', [('Private', (1, 1), ['x', 'y']), ('Declaration', (1, 1), [('decl', 'x', 'integer', []), ('decl', 'y', 'integer', [])])], []),
     ('Module', 'test', [('Private', (1, 1), ['x', 'y']), ('Declaration', (1, 1), [('decl', 'x', 'integer', []), ('decl', 'y', 'integer', [])])], []),

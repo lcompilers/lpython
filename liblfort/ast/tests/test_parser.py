@@ -22,7 +22,7 @@ def run_tests(tests, filename, translation_unit=False):
         results.append(to_tuple(parse(s, translation_unit)))
 
     here = os.path.dirname(__file__)
-    results_filename = os.path.join(here, filename)
+    results_filename = os.path.abspath(os.path.join(here, filename))
     try:
         with open(results_filename) as f:
             d = {}
@@ -41,8 +41,8 @@ def run_tests(tests, filename, translation_unit=False):
         results_str += "]\n"
         with open(results_filename+".latest", "w") as f:
             f.write(results_str)
-        print("Results file generated. If you want to use it, copy " \
-              "'{0}.latest' to '{0}'.".format(filename))
+        print("Results file generated. If you want to use it, execute:\n" \
+            "cp '{0}.latest' '{0}'".format(results_filename))
         if report:
             print()
             if (len(results) == len(results_ref)):
@@ -432,6 +432,10 @@ f = 1
 end function
 """,
         """\
+function f(e)
+f = 1
+end function""",
+        """\
 subroutine f
 integer :: x
 end subroutine
@@ -443,6 +447,10 @@ integer :: x
 ! Some other comment
 end subroutine
 """,
+        """\
+subroutine f()
+integer :: x
+end subroutine""",
         """\
 subroutine f(a, b, c, d)
 integer, intent(in) :: a, b
@@ -472,6 +480,13 @@ x = 1
 call a(x)
 end program
 """,
+        """\
+program test
+implicit none
+integer :: x
+x = 1
+call a(x)
+end program""",
         """\
 program test
 implicit none
@@ -511,6 +526,11 @@ implicit none
 integer :: x
 end module
 """,
+        """\
+module test
+implicit none
+integer :: x
+end module""",
         """\
 module test
 implicit none

@@ -29,7 +29,11 @@ def handle_input(engine, evaluator, source):
 
 
     print_stage("Parse")
-    evaluator.parse(source)
+    try:
+        evaluator.parse(source)
+    except SyntaxErrorException as e:
+        print(e)
+        return
     print_bold("Parse AST:")
     print(dump(evaluator.ast_tree0))
 

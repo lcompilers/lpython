@@ -44,7 +44,9 @@ script_unit
 //
 
 module
-    : NEWLINE* 'module' ID NEWLINE+ (use_statement NEWLINE+)* 'implicit none' NEWLINE+ module_decl* contains_block? 'end' 'module' ID? NEWLINE+
+    : NEWLINE* 'module' ID NEWLINE+ (use_statement NEWLINE+)* 'implicit none'
+        NEWLINE+ module_decl* contains_block? 'end' 'module' ID?
+        (EOF | NEWLINE+)
     ;
 
 module_decl
@@ -78,15 +80,19 @@ interface_decl
 //
 
 program
-    : NEWLINE* ('program'|'PROGRAM') ID NEWLINE+ sub_block ('program'|'PROGRAM')? ID? NEWLINE+
+    : NEWLINE* ('program'|'PROGRAM') ID NEWLINE+ sub_block
+        ('program'|'PROGRAM')? ID? (EOF | NEWLINE+)
     ;
 
 subroutine
-    : 'subroutine' ID ('(' id_list? ')')? NEWLINE+ sub_block 'subroutine' ID? NEWLINE+
+    : 'subroutine' ID ('(' id_list? ')')? NEWLINE+ sub_block 'subroutine' ID?
+        (EOF | NEWLINE+)
     ;
 
 function
-    : (var_type ('(' ID ')')?)? 'pure'? 'recursive'? 'function' ID ('(' id_list? ')')? ('result' '(' ID ')')? NEWLINE+ sub_block 'function' ID? NEWLINE+
+    : (var_type ('(' ID ')')?)? 'pure'? 'recursive'?
+        'function' ID ('(' id_list? ')')? ('result' '(' ID ')')? NEWLINE+
+        sub_block 'function' ID? (EOF | NEWLINE+)
     ;
 
 sub_block
