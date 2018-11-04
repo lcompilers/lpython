@@ -360,36 +360,31 @@ class CodeGenVisitor(ast.ASTVisitor):
             # Function call
             sym = self._current_scope.resolve(node.func)
             fn = sym["fn"]
-            if len(node.args) == 0:
-                return self.builder.call(fn, [])
-            elif len(node.args) == 1:
-                arg = self.visit(node.args[0])
-                if sym["name"] in ["sum"]:
-                    # FIXME: for now we assume an array was passed in:
-                    arg = self._current_scope.resolve(node.args[0].id)
-                    addr = self.builder.gep(arg["ptr"],
-                            [ir.Constant(ir.IntType(64), 0),
-                            ir.Constant(ir.IntType(64), 0)])
-                    array_size = arg["ptr"].type.pointee.count
-                    return self.builder.call(fn,
-                            [ir.Constant(ir.IntType(64), array_size), addr])
+            # Temporary workaround:
+            if len(node.args) == 1 and sym["name"] in ["sum"]:
+                # FIXME: for now we assume an array was passed in:
+                arg = self._current_scope.resolve(node.args[0].id)
+                addr = self.builder.gep(arg["ptr"],
+                        [ir.Constant(ir.IntType(64), 0),
+                        ir.Constant(ir.IntType(64), 0)])
+                array_size = arg["ptr"].type.pointee.count
+                return self.builder.call(fn,
+                        [ir.Constant(ir.IntType(64), array_size), addr])
+
+            args_ptr = []
+            for arg in node.args:
+                if isinstance(arg, ast.Name):
+                    # Get a pointer to a variable
+                    sym = self._current_scope.resolve(arg.id)
+                    a_ptr = sym["ptr"]
+                    args_ptr.append(a_ptr)
                 else:
-                    return self.builder.call(fn, [arg])
-            if len(node.args) >= 2:
-                args_ptr = []
-                for arg in node.args:
-                    if isinstance(arg, ast.Name):
-                        # Get a pointer to a variable
-                        sym = self._current_scope.resolve(arg.id)
-                        a_ptr = sym["ptr"]
-                        args_ptr.append(a_ptr)
-                    else:
-                        # Expression is a value, get a pointer to a copy of it
-                        a_value = self.visit(arg)
-                        a_ptr = self.builder.alloca(a_value.type)
-                        self.builder.store(a_value, a_ptr)
-                        args_ptr.append(a_ptr)
-                return self.builder.call(fn, args_ptr)
+                    # Expression is a value, get a pointer to a copy of it
+                    a_value = self.visit(arg)
+                    a_ptr = self.builder.alloca(a_value.type)
+                    self.builder.store(a_value, a_ptr)
+                    args_ptr.append(a_ptr)
+            return self.builder.call(fn, args_ptr)
 
     def visit_If(self, node):
         cond = self.visit(node.test)
