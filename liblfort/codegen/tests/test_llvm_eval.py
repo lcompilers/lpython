@@ -1,6 +1,6 @@
 import pytest
 
-from liblfort.codegen.evaluator import FortranEvaluator, LLVMEvaluator
+from liblfort.codegen.evaluator import LLVMEvaluator
 
 # Tests for LLVMEvaluator
 
