@@ -172,9 +172,14 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
         # TODO: for now we assume integer result, but we should read the AST
         # and determine the type of the result.
         type_ = self.types["integer"]()
+        # TODO: we assume integer arguments -- we should read the declaration
+        # part of AST to determine the types
+        for arg in node.args:
+            arg._type = self.types["integer"]()
         sym_data = {
                 "name": sym,
                 "type": type_,
+                "args": node.args,
                 "external": False,
                 "func": True,
             }
