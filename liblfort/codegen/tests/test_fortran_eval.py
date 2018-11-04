@@ -76,6 +76,11 @@ end function
 """)
     assert e.evaluate("f(2)") == 7
     assert e.evaluate("f(5)") == 10
+    e.evaluate("integer :: i")
+    e.evaluate("i = 2")
+    assert e.evaluate("f(i)") == 7
+    e.evaluate("i = 5")
+    assert e.evaluate("f(i)") == 10
 
 def test_f_call2():
     e = FortranEvaluator()
@@ -87,6 +92,9 @@ end function
 """)
     assert e.evaluate("f(2, 3)") == 5
     assert e.evaluate("f(5, -3)") == 2
+    e.evaluate("integer :: i")
+    e.evaluate("i = -3")
+    assert e.evaluate("f(5, i)") == 2
 
 def test_f_call3():
     e = FortranEvaluator()
@@ -98,6 +106,9 @@ end function
 """)
     assert e.evaluate("f(2, 3, 4)") == 9
     assert e.evaluate("f(5, -3, -1)") == 1
+    e.evaluate("integer :: i")
+    e.evaluate("i = -3")
+    assert e.evaluate("f(5, i, -1)") == 1
 
 def test_simple_arithmetics():
     e = FortranEvaluator()
