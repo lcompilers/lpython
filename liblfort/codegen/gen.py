@@ -168,8 +168,11 @@ class CodeGenVisitor(ast.ASTVisitor):
                         "random_number"]:
                         # Skip these for now (they are handled in Program)
                         continue
-                    # FIXME: handle "int f()" only for now
-                    fn = ir.FunctionType(ir.IntType(64), [])
+                    return_type = self.types[s["type"]]
+                    args = []
+                    for n, arg in enumerate(s["args"]):
+                        args.append(self.types[arg._type].as_pointer())
+                    fn = ir.FunctionType(return_type, args)
                     s["fn"] = ir.Function(self.module, fn, name=s["name"])
             else:
                 name = s["name"] + "_0"
@@ -357,26 +360,34 @@ class CodeGenVisitor(ast.ASTVisitor):
             # Function call
             sym = self._current_scope.resolve(node.func)
             fn = sym["fn"]
-            if len(node.args) == 0:
-                return self.builder.call(fn, [])
-            elif len(node.args) == 1:
+            # Temporary workarounds:
+            if len(node.args) == 1 and sym["name"] in ["sum"]:
+                # FIXME: for now we assume an array was passed in:
+                arg = self._current_scope.resolve(node.args[0].id)
+                addr = self.builder.gep(arg["ptr"],
+                        [ir.Constant(ir.IntType(64), 0),
+                        ir.Constant(ir.IntType(64), 0)])
+                array_size = arg["ptr"].type.pointee.count
+                return self.builder.call(fn,
+                        [ir.Constant(ir.IntType(64), array_size), addr])
+            if len(node.args) == 1 and sym["name"] in ["abs", "sqrt", "log"]:
                 arg = self.visit(node.args[0])
-                if sym["name"] in ["sum"]:
-                    # FIXME: for now we assume an array was passed in:
-                    arg = self._current_scope.resolve(node.args[0].id)
-                    addr = self.builder.gep(arg["ptr"],
-                            [ir.Constant(ir.IntType(64), 0),
-                            ir.Constant(ir.IntType(64), 0)])
-                    array_size = arg["ptr"].type.pointee.count
-                    return self.builder.call(fn,
-                            [ir.Constant(ir.IntType(64), array_size), addr])
+                return self.builder.call(fn, [arg])
+
+            args_ptr = []
+            for arg in node.args:
+                if isinstance(arg, ast.Name):
+                    # Get a pointer to a variable
+                    sym = self._current_scope.resolve(arg.id)
+                    a_ptr = sym["ptr"]
+                    args_ptr.append(a_ptr)
                 else:
-                    return self.builder.call(fn, [arg])
-            if len(node.args) == 2:
-                args = [self.visit(arg) for arg in node.args]
-                return self.builder.call(fn, args)
-            else:
-                raise NotImplementedError("Require 0 or 1 fn args for now")
+                    # Expression is a value, get a pointer to a copy of it
+                    a_value = self.visit(arg)
+                    a_ptr = self.builder.alloca(a_value.type)
+                    self.builder.store(a_value, a_ptr)
+                    args_ptr.append(a_ptr)
+            return self.builder.call(fn, args_ptr)
 
     def visit_If(self, node):
         cond = self.visit(node.test)
@@ -455,9 +466,8 @@ class CodeGenVisitor(ast.ASTVisitor):
     def visit_Function(self, node):
         self._current_scope = node._scope
         args = []
-        # TODO: for now we assume integer arguments and return values
         for n, arg in enumerate(node.args):
-            args.append(ir.IntType(64).as_pointer())
+            args.append(self.types[arg._type].as_pointer())
         fn = ir.FunctionType(ir.IntType(64), args)
         func = ir.Function(self.module, fn, name=node.name)
         block = func.append_basic_block(name='.entry')
