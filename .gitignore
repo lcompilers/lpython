@@ -43,3 +43,6 @@ MANIFEST
 
 ## PyTest
 .pytest_cache/
+
+## Jupyter
+*-checkpoint.ipynb
