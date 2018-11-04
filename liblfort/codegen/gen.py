@@ -360,7 +360,7 @@ class CodeGenVisitor(ast.ASTVisitor):
             # Function call
             sym = self._current_scope.resolve(node.func)
             fn = sym["fn"]
-            # Temporary workaround:
+            # Temporary workarounds:
             if len(node.args) == 1 and sym["name"] in ["sum"]:
                 # FIXME: for now we assume an array was passed in:
                 arg = self._current_scope.resolve(node.args[0].id)
@@ -370,6 +370,9 @@ class CodeGenVisitor(ast.ASTVisitor):
                 array_size = arg["ptr"].type.pointee.count
                 return self.builder.call(fn,
                         [ir.Constant(ir.IntType(64), array_size), addr])
+            if len(node.args) == 1 and sym["name"] in ["abs", "sqrt", "log"]:
+                arg = self.visit(node.args[0])
+                return self.builder.call(fn, [arg])
 
             args_ptr = []
             for arg in node.args:
