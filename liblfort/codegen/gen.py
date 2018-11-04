@@ -375,7 +375,7 @@ class CodeGenVisitor(ast.ASTVisitor):
                             [ir.Constant(ir.IntType(64), array_size), addr])
                 else:
                     return self.builder.call(fn, [arg])
-            if len(node.args) == 2:
+            if len(node.args) >= 2:
                 args_ptr = []
                 for arg in node.args:
                     if isinstance(arg, ast.Name):
@@ -390,8 +390,6 @@ class CodeGenVisitor(ast.ASTVisitor):
                         self.builder.store(a_value, a_ptr)
                         args_ptr.append(a_ptr)
                 return self.builder.call(fn, args_ptr)
-            else:
-                raise NotImplementedError("Require 0 or 1 fn args for now")
 
     def visit_If(self, node):
         cond = self.visit(node.test)

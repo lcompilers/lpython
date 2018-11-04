@@ -56,7 +56,7 @@ fn3 = 5
 end function
 """)
 
-def test_fn_call1():
+def test_fn_call0():
     e = FortranEvaluator()
     e.evaluate("""\
 integer function fn()
@@ -76,6 +76,17 @@ end function
 """)
     assert e.evaluate("fn(2, 3)") == 5
     assert e.evaluate("fn(5, -3)") == 2
+
+def test_fn_call3():
+    e = FortranEvaluator()
+    e.evaluate("""\
+integer function fn(a, b, c)
+integer, intent(in) :: a, b, c
+fn = a + b + c
+end function
+""")
+    assert e.evaluate("fn(2, 3, 4)") == 9
+    assert e.evaluate("fn(5, -3, -1)") == 1
 
 def test_simple_arithmetics():
     e = FortranEvaluator()
