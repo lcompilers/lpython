@@ -66,6 +66,17 @@ end function
     assert e.evaluate("f()+5") == 10
     assert e.evaluate("f()+6") == 11
 
+def test_f_call1():
+    e = FortranEvaluator()
+    e.evaluate("""\
+integer function f(a)
+integer, intent(in) :: a
+f = a + 5
+end function
+""")
+    assert e.evaluate("f(2)") == 7
+    assert e.evaluate("f(5)") == 10
+
 def test_f_call2():
     e = FortranEvaluator()
     e.evaluate("""\
