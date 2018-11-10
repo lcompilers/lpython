@@ -118,3 +118,30 @@ do i = 0, 1, -1
 end do
 """)
     assert e.evaluate("j") == 0
+
+    e.evaluate("j = 0")
+    e.evaluate("""\
+do i = 1, 10
+    j = j + i
+    if (i == 2) exit
+end do
+""")
+    assert e.evaluate("j") == 3
+
+    e.evaluate("j = 0")
+    e.evaluate("""\
+do i = 1, 10
+    if (i == 2) exit
+    j = j + i
+end do
+""")
+    assert e.evaluate("j") == 1
+
+    e.evaluate("j = 0")
+    e.evaluate("""\
+do i = 1, 10
+    if (i == 2) cycle
+    j = j + i
+end do
+""")
+    assert e.evaluate("j") == 53
