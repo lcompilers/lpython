@@ -175,3 +175,75 @@ do i = 1, 10
 end do
 """)
     assert e.evaluate("a") == 220
+
+
+def test_while_loops_interactive():
+    e = FortranEvaluator()
+    e.evaluate("""\
+integer :: i, j
+i = 1
+j = 0
+do while (i < 11)
+    j = j + i
+    i = i + 1
+end do
+""")
+    assert e.evaluate("i") == 11
+    assert e.evaluate("j") == 55
+
+    e.evaluate("""\
+i = 1
+j = 0
+do while (i <= 10)
+    j = j + i
+    i = i + 1
+end do
+""")
+    assert e.evaluate("i") == 11
+    assert e.evaluate("j") == 55
+
+    e.evaluate("""\
+i = 1
+j = 0
+do while (i < 1)
+    j = j + i
+    i = i + 1
+end do
+""")
+    assert e.evaluate("i") == 1
+    assert e.evaluate("j") == 0
+
+    e.evaluate("""\
+i = 0
+j = 0
+do while (i < 10)
+    i = i + 1
+    j = j + i
+end do
+""")
+    assert e.evaluate("i") == 10
+    assert e.evaluate("j") == 55
+
+    e.evaluate("""\
+i = 0
+j = 0
+do while (i < 10)
+    i = i + 1
+    if (i == 2) exit
+    j = j + i
+end do
+""")
+    assert e.evaluate("i") == 2
+    assert e.evaluate("j") == 1
+
+    e.evaluate("""\
+i = 0
+j = 0
+do while (i < 10)
+    i = i + 1
+    if (i == 2) cycle
+    j = j + i
+end do
+""")
+    assert e.evaluate("i") == 10
+    assert e.evaluate("j") == 53
