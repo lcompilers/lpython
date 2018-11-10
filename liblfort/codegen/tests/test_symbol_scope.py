@@ -35,3 +35,24 @@ f3 = a + b
 end function
 """)
     assert e.evaluate("f3(2)") == 7
+
+def test_fn_local_shadow():
+    e = FortranEvaluator()
+    e.evaluate("integer :: b")
+    e.evaluate("b = 1")
+    e.evaluate("""\
+function f1(a)
+integer, intent(in) :: a
+integer :: b
+b = 5
+f1 = a + b
+end function
+""")
+    e.evaluate("""\
+function f2(a)
+integer, intent(in) :: a
+f2 = a + b
+end function
+""")
+    assert e.evaluate("f1(2)") == 7
+    assert e.evaluate("f2(2)") == 3
