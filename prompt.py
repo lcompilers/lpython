@@ -30,35 +30,41 @@ def handle_input(engine, evaluator, source):
 
     print_stage("Parse")
     try:
-        evaluator.parse(source)
+        ast_tree0 = evaluator.parse(source)
     except SyntaxErrorException as e:
         print(e)
         return
     print_bold("Parse AST:")
-    print(dump(evaluator.ast_tree0))
+    print(dump(ast_tree0))
 
-    print_stage("Semantic Analysis")
-    evaluator.semantic_analysis()
-    print_bold("Semantic AST:")
-    print(dump(evaluator.ast_tree))
-    print()
-    print_bold("Symbol table:")
-    print(list(evaluator._global_scope.symbols.keys()))
+    if isinstance(ast_tree0, list):
+        statements = ast_tree0
+    else:
+        statements = [ast_tree0]
 
-    print_stage("LLVM Code Generation")
-    evaluator.llvm_code_generation()
-    print_bold("Initial LLVM IR:")
-    print(evaluator._source_ll)
-    print()
-    print_bold("Optimized LLVM IR:")
-    print(evaluator._source_ll_opt)
+    for ast_tree0 in statements:
+        print_stage("Semantic Analysis")
+        ast_tree = evaluator.semantic_analysis(ast_tree0)
+        print_bold("Semantic AST:")
+        print(dump(ast_tree))
+        print()
+        print_bold("Symbol table:")
+        print(list(evaluator._global_scope.symbols.keys()))
 
-    print_stage("Machine Code Generation, Load and Run")
-    result = evaluator.machine_code_generation_load_run()
-    print_bold("Machine code ASM:")
-    print(evaluator._source_asm)
-    print_bold("Result:")
-    print(result)
+        print_stage("LLVM Code Generation")
+        mod = evaluator.llvm_code_generation(ast_tree)
+        print_bold("Initial LLVM IR:")
+        print(evaluator._source_ll)
+        print()
+        print_bold("Optimized LLVM IR:")
+        print(evaluator._source_ll_opt)
+
+        print_stage("Machine Code Generation, Load and Run")
+        result = evaluator.machine_code_generation_load_run(mod)
+        print_bold("Machine code ASM:")
+        print(evaluator._source_asm)
+        print_bold("Result:")
+        print(result)
 
 kb = KeyBindings()
 

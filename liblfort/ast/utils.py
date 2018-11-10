@@ -54,7 +54,7 @@ def dump(node, annotate_fields=True, include_attributes=False,
         elif isinstance(node, list):
             return '[%s]' % ', '.join(_format(x) for x in node)
         return repr(node)
-    if not isinstance(node, ast.AST):
+    if not isinstance(node, (ast.AST, list)):
         raise TypeError('expected AST, got %r' % node.__class__.__name__)
     return _format(node)
 
