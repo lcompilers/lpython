@@ -131,6 +131,31 @@ a = 5
 a
 """) == 5
 
+def test_multiline1():
+    e = FortranEvaluator()
+    e.evaluate("""\
+integer :: a
+a = 5""")
+    assert e.evaluate("a") == 5
+    e.evaluate("""\
+a = 6
+a = a + 1""")
+    assert e.evaluate("a") == 7
+
+def test_multiline2():
+    e = FortranEvaluator()
+    e.evaluate("""\
+integer :: b
+b = 5
+function f2(a)
+integer, intent(in) :: a
+f2 = a + b
+end function
+""")
+    assert e.evaluate("f2(2)") == 7
+    e.evaluate("b = 6")
+    assert e.evaluate("f2(2)") == 8
+
 def test_variables1():
     e = FortranEvaluator()
     assert not e._global_scope.resolve("a", False)
