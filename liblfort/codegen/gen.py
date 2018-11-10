@@ -177,13 +177,23 @@ class CodeGenVisitor(ast.ASTVisitor):
             else:
                 name = s["name"] + "_0"
                 assert not get_global(self.module, name)
-                var = ir.GlobalVariable(self.module, self.types[s["type"]],
-                    name=name)
+                type_f = s["type"]
+                if isinstance(type_f, Array):
+                    assert len(type_f.shape) == 1
+                    var_type = ir.ArrayType(self.types[type_f.type_],
+                            type_f.shape[0])
+                else:
+                    var_type = self.types[type_f]
+                var = ir.GlobalVariable(self.module, var_type, name=name)
                 if not s["external"]:
                     # TODO: Undefined fails, but should work:
                     #var.initializer = ir.Undefined
                     # For now we initialize to 0:
-                    var.initializer = ir.Constant(ir.IntType(64), 0)
+                    if isinstance(type_f, Array):
+                        # TODO: initialize arrays
+                        pass
+                    else:
+                        var.initializer = ir.Constant(ir.IntType(64), 0)
                 s["ptr"] = var
 
     def visit_Program(self, node):
