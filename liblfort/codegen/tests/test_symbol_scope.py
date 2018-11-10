@@ -24,6 +24,21 @@ end function
     e.evaluate("b = 6")
     assert e.evaluate("f2(2)") == 8
 
+def test_fn_global_set():
+    e = FortranEvaluator()
+    e.evaluate("integer :: b")
+    e.evaluate("""\
+function f(a)
+integer, intent(in) :: a
+b = a
+f = 0
+end function
+""")
+    e.evaluate("f(2)")
+    assert e.evaluate("b") == 2
+    e.evaluate("f(5)")
+    assert e.evaluate("b") == 5
+
 def test_fn_local():
     e = FortranEvaluator()
     e.evaluate("""\
