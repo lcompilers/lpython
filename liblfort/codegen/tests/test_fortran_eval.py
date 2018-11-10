@@ -131,6 +131,22 @@ a = 5
 a
 """) == 5
 
+def test_whitespace3():
+    e = FortranEvaluator()
+    e.evaluate("""\
+
+integer :: a
+
+""")
+    e.evaluate("""\
+a = 5
+
+""")
+    assert e.evaluate("""\
+a
+
+""") == 5
+
 def test_multiline1():
     e = FortranEvaluator()
     e.evaluate("""\
@@ -159,6 +175,23 @@ end function
     assert e.evaluate("f2(2)") == 7
     e.evaluate("b = 6")
     assert e.evaluate("f2(2)") == 8
+
+def test_multiline3():
+    e = FortranEvaluator()
+    e.evaluate("""\
+integer :: b
+
+b = 5
+
+function f2(a)
+integer, intent(in) :: a
+f2 = a + b
+end function
+""")
+    assert e.evaluate("f2(2)") == 7
+    e.evaluate("b = 6")
+    assert e.evaluate("f2(2)") == 8
+
 
 def test_variables1():
     e = FortranEvaluator()
