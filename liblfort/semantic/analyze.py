@@ -164,7 +164,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
             if len(dims) > 0:
                 type_ = Array(type_, dims)
             sym_data = {"name": sym, "type": type_,
-                "external": False, "func": False}
+                "external": False, "func": False, "dummy": False}
             self._current_scope._local_symbols[sym] = sym_data
 
     def visit_Function(self, node):
@@ -190,6 +190,9 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
         self._current_scope = node._scope
 
         self.visit_sequence(node.decl)
+        # Go over arguments and set them as dummy
+        for arg in node.args:
+            self._current_scope._local_symbols[arg.arg]["dummy"] = True
 
         # Iterate over nested functions
         self.visit_sequence(node.contains)
