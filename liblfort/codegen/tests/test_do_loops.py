@@ -145,3 +145,35 @@ do i = 1, 10
 end do
 """)
     assert e.evaluate("j") == 53
+
+    e.evaluate("integer :: a, b")
+
+    e.evaluate("j = 0")
+    e.evaluate("a = 1")
+    e.evaluate("b = 10")
+    e.evaluate("""\
+do i = a, b
+    j = j + i
+end do
+""")
+    assert e.evaluate("j") == 55
+
+    e.evaluate("a = 0")
+    e.evaluate("""\
+do i = 1, 10
+    do j = 1, 10
+        a = a + (i-1)*10+j
+    end do
+end do
+""")
+    assert e.evaluate("a") == 50*101
+
+    e.evaluate("a = 0")
+    e.evaluate("""\
+do i = 1, 10
+    do j = 1, i
+        a = a + j
+    end do
+end do
+""")
+    assert e.evaluate("a") == 220
