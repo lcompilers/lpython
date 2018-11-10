@@ -43,13 +43,17 @@ def test_arrays2():
     e.evaluate("""\
 integer, parameter :: dp = kind(0.d0)
 real(dp) :: a(3), b, c
+integer :: i
 a(1) = 3._dp
 a(2) = 2._dp
 a(3) = 1._dp
 ! TODO: link the lfortran runtime lib to make this work:
 !b = sum(a)
 b = a(1) + a(2) + a(3)
-c = abs(b-6._dp)
+if (abs(b-6._dp) < 1e-12_dp) then
+    i = 1
+else
+    i = 2
+end if
 """)
-    # TODO: implement returning real(dp)
-    #assert e.evaluate("c") < 1e-12
+    assert e.evaluate("i") == 1
