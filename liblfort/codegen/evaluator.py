@@ -19,21 +19,20 @@ class FortranEvaluator(object):
         self.anonymous_fn_counter = 0
 
     def parse(self, source):
-        self.ast_tree = parse(source, translation_unit=False)
-        self.ast_tree0 = deepcopy(self.ast_tree)
+        return parse(source, translation_unit=False)
 
-    def semantic_analysis(self):
-        self.is_expr = isinstance(self.ast_tree, ast.expr)
-        self.is_stmt = isinstance(self.ast_tree, ast.stmt)
+    def semantic_analysis(self, ast_tree):
+        self.is_expr = isinstance(ast_tree, ast.expr)
+        self.is_stmt = isinstance(ast_tree, ast.stmt)
         if self.is_expr:
             # if `ast_tree` is an expression, wrap it in an anonymous function
             self.anonymous_fn_counter += 1
             self.anonymous_fn_name = "_run%d" % self.anonymous_fn_counter
             body = [ast.Assignment(ast.Name(self.anonymous_fn_name,
                 lineno=1, col_offset=1),
-                self.ast_tree, lineno=1, col_offset=1)]
+                ast_tree, lineno=1, col_offset=1)]
 
-            self.ast_tree = ast.Function(name=self.anonymous_fn_name, args=[],
+            ast_tree = ast.Function(name=self.anonymous_fn_name, args=[],
                 returns=None,
                 decl=[], body=body, contains=[],
                 lineno=1, col_offset=1)
@@ -42,31 +41,33 @@ class FortranEvaluator(object):
             # if `ast_tree` is a statement, wrap it in an anonymous subroutine
             self.anonymous_fn_counter += 1
             self.anonymous_fn_name = "_run%d" % self.anonymous_fn_counter
-            body = [self.ast_tree]
+            body = [ast_tree]
 
-            self.ast_tree = ast.Function(name=self.anonymous_fn_name, args=[],
+            ast_tree = ast.Function(name=self.anonymous_fn_name, args=[],
                 returns=None,
                 decl=[], body=body, contains=[],
                 lineno=1, col_offset=1)
 
         self.symbol_table_visitor.mark_all_external()
-        self.symbol_table_visitor.visit(self.ast_tree)
-        annotate_tree(self.ast_tree, self._global_scope)
+        self.symbol_table_visitor.visit(ast_tree)
+        annotate_tree(ast_tree, self._global_scope)
+        return ast_tree
 
-    def llvm_code_generation(self, optimize=True):
-        source_ll = str(codegen(self.ast_tree,
+    def llvm_code_generation(self, ast_tree, optimize=True):
+        source_ll = str(codegen(ast_tree,
             self.symbol_table_visitor._global_scope))
         self._source_ll = source_ll
-        self.mod = self.lle.parse(self._source_ll)
+        mod = self.lle.parse(self._source_ll)
         if optimize:
-            self.lle.optimize(self.mod)
-            self._source_ll_opt = str(self.mod)
+            self.lle.optimize(mod)
+            self._source_ll_opt = str(mod)
         else:
             self._source_ll_opt = None
+        return mod
 
-    def machine_code_generation_load_run(self):
-        self.lle.add_module_mod(self.mod)
-        self._source_asm = self.lle.get_asm(self.mod)
+    def machine_code_generation_load_run(self, mod):
+        self.lle.add_module_mod(mod)
+        self._source_asm = self.lle.get_asm(mod)
 
         if self.is_expr:
             return self.lle.intfn(self.anonymous_fn_name)
@@ -75,11 +76,21 @@ class FortranEvaluator(object):
             self.lle.voidfn(self.anonymous_fn_name)
             return
 
+    def evaluate_statement(self, ast_tree0, optimize=True):
+        if ast_tree0 is None:
+            return
+        ast_tree = self.semantic_analysis(ast_tree0)
+        mod = self.llvm_code_generation(ast_tree, optimize)
+        return self.machine_code_generation_load_run(mod)
+
     def evaluate(self, source, optimize=True):
-        self.parse(source)
-        self.semantic_analysis()
-        self.llvm_code_generation(optimize)
-        return self.machine_code_generation_load_run()
+        ast_tree0 = self.parse(source)
+        if isinstance(ast_tree0, list):
+            for statement in ast_tree0:
+                r = self.evaluate_statement(statement, optimize)
+        else:
+            r = self.evaluate_statement(ast_tree0, optimize)
+        return r
 
 
 class LLVMEvaluator(object):
