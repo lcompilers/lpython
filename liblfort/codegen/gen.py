@@ -475,9 +475,15 @@ class CodeGenVisitor(ast.ASTVisitor):
         old = [self.func, self.builder]
         self.func, self.builder = func, builder
         for n, arg in enumerate(node.args):
-            # FIXME: move this to analyze.py
-            self._current_scope._local_symbols[arg.arg] = {"name": arg.arg,
-                "ptr": self.func.args[n]}
+            sym = self._current_scope._local_symbols[arg.arg]
+            assert sym["name"] == arg.arg
+            assert sym["dummy"] == True
+            sym["ptr"] = self.func.args[n]
+        for v in self._current_scope._local_symbols:
+            sym = self._current_scope._local_symbols[v]
+            if sym["dummy"]: continue
+            ptr = self.builder.alloca(self.types[sym["type"]], name=sym["name"])
+            sym["ptr"] = ptr
         self._current_scope.resolve(node.name)["fn"] = func
 
         # Allocate the "result" variable
