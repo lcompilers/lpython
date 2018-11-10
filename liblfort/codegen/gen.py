@@ -190,8 +190,8 @@ class CodeGenVisitor(ast.ASTVisitor):
                     #var.initializer = ir.Undefined
                     # For now we initialize to 0:
                     if isinstance(type_f, Array):
-                        # TODO: initialize arrays
-                        pass
+                        var.initializer = ir.Constant(var_type,
+                            [0]*type_f.shape[0])
                     else:
                         var.initializer = ir.Constant(ir.IntType(64), 0)
                 s["ptr"] = var
