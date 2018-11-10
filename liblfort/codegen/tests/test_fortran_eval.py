@@ -108,6 +108,20 @@ end function
     e.evaluate("i = -3")
     assert e.evaluate("f(5, i, -1)") == 1
 
+def test_f_call_outarg():
+    e = FortranEvaluator()
+    e.evaluate("""\
+integer function f(a, b)
+integer, intent(in) :: a
+integer, intent(out) :: b
+b = a + 5
+f = 0
+end function
+""")
+    e.evaluate("integer :: i")
+    assert e.evaluate("f(2, i)") == 0
+    assert e.evaluate("i") == 7
+
 def test_simple_arithmetics():
     e = FortranEvaluator()
     assert e.evaluate("5+5") == 10
