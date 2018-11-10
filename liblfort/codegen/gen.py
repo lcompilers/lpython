@@ -143,6 +143,16 @@ class CodeGenVisitor(ast.ASTVisitor):
                     Real(): ir.DoubleType(),
                     Logical(): ir.IntType(1),
                 }
+        fn_type = ir.FunctionType(ir.DoubleType(),
+                [ir.IntType(64), ir.DoubleType().as_pointer()])
+        fn_sum = ir.Function(self.module, fn_type, name="_lfort_sum")
+        self._global_scope.symbols["sum"]["fn"] = fn_sum
+        self._global_scope.symbols["abs"]["fn"] = self.module.declare_intrinsic(
+                'llvm.fabs', [ir.DoubleType()])
+        self._global_scope.symbols["sqrt"]["fn"] = self.module.declare_intrinsic(
+                'llvm.sqrt', [ir.DoubleType()])
+        self._global_scope.symbols["log"]["fn"] = self.module.declare_intrinsic(
+                'llvm.log', [ir.DoubleType()])
 
     def codegen(self, tree):
         """
@@ -193,7 +203,7 @@ class CodeGenVisitor(ast.ASTVisitor):
                         var.initializer = ir.Constant(var_type,
                             [0]*type_f.shape[0])
                     else:
-                        var.initializer = ir.Constant(ir.IntType(64), 0)
+                        var.initializer = ir.Constant(var_type, 0)
                 s["ptr"] = var
 
     def visit_Program(self, node):

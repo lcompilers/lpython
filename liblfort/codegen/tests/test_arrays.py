@@ -38,7 +38,7 @@ end do
     e.evaluate("b(4) = a(1)")
     assert e.evaluate("b(4)") == 11
 
-def _test_arrays2():
+def test_arrays2():
     e = FortranEvaluator()
     e.evaluate("""\
 integer, parameter :: dp = kind(0.d0)
@@ -46,7 +46,9 @@ real(dp) :: a(3), b, c
 a(1) = 3._dp
 a(2) = 2._dp
 a(3) = 1._dp
-b = sum(a)
+! TODO: link the lfortran runtime lib to make this work:
+!b = sum(a)
+b = a(1) + a(2) + a(3)
 c = abs(b-6._dp)
 """)
     # TODO: implement returning real(dp)
