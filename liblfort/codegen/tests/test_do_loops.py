@@ -13,6 +13,19 @@ f = j
 end function
 """)
     assert e.evaluate("f()") == 55
+    e.evaluate("""\
+integer function f2(n)
+integer, intent(in) :: n
+integer :: i, j
+j = 0
+do i = 1, n
+    j = j + i
+end do
+f2 = j
+end function
+""")
+    assert e.evaluate("f2(10)") == 55
+    assert e.evaluate("f2(20)") == 210
 
 def test_do_loops_interactive():
     e = FortranEvaluator()
