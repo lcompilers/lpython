@@ -231,3 +231,11 @@ def test_variables2():
     assert e.evaluate("a") == 5
     assert e.evaluate("b") == 8
     assert e.evaluate("(a+b)*2") == 26
+
+def test_print():
+    e = FortranEvaluator()
+    e.evaluate("""\
+integer :: x
+x = (2+3)*5
+print *, x, 1, 3, x, (2+3)*5+x
+""")
