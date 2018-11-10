@@ -141,6 +141,10 @@ a = 5""")
 a = 6
 a = a + 1""")
     assert e.evaluate("a") == 7
+    assert e.evaluate("""\
+a = 6
+a = a + 2
+a""") == 8
 
 def test_multiline2():
     e = FortranEvaluator()
