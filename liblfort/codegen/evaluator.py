@@ -77,6 +77,8 @@ class FortranEvaluator(object):
             return
 
     def evaluate_statement(self, ast_tree0, optimize=True):
+        if ast_tree0 is None:
+            return
         ast_tree = self.semantic_analysis(ast_tree0)
         mod = self.llvm_code_generation(ast_tree, optimize)
         return self.machine_code_generation_load_run(mod)

@@ -147,6 +147,14 @@ a
 
 """) == 5
 
+def test_whitespace4():
+    e = FortranEvaluator()
+    e.evaluate("""\
+
+""")
+    e.evaluate(" ")
+    e.evaluate("")
+
 def test_multiline1():
     e = FortranEvaluator()
     e.evaluate("""\

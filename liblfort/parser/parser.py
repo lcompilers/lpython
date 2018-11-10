@@ -544,6 +544,8 @@ def antlr_parse(source, translation_unit=False):
     translation_unit ... if True, only accept full programs or modules (the
     'root' rule). If False, accept any valid Fortran code (the 'unit' rule).
     """
+    if source.strip() == "":
+        return
     stream = antlr4.InputStream(source)
     lexer = fortranLexer(stream)
     tokens = antlr4.CommonTokenStream(lexer)
