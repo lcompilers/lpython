@@ -16,7 +16,8 @@ def load_lfortran_runtime_library():
     global _lfortran_runtime_library_loaded
     if not _lfortran_runtime_library_loaded:
         here = os.path.dirname(__file__)
-        base_dir = os.path.abspath(os.path.join(here, ".."))
+        base_dir = os.path.abspath(os.path.join(here, "..", "share",
+            "lfortran", "lib"))
         liblfort_so = os.path.join(base_dir, "liblfort.so")
         llvm.load_library_permanently(liblfort_so)
         _lfortran_runtime_library_loaded = True
