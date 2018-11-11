@@ -5,9 +5,14 @@ import sys
 import llvmlite.binding as llvm
 
 def get_lib_path():
-    here = os.path.dirname(__file__)
-    base_dir = os.path.abspath(os.path.join(here, "..", "share",
-        "lfortran", "lib"))
+    here = os.path.abspath(os.path.dirname(__file__))
+    if here.startswith(sys.prefix):
+        # We are installed, use the install location
+        root_dir = sys.prefix
+    else:
+        # We run from git, use the relative location
+        root_dir = os.path.abspath(os.path.join(here, ".."))
+    base_dir = os.path.join(root_dir, "share", "lfortran", "lib")
     return base_dir
 
 _lfortran_runtime_library_loaded = False
