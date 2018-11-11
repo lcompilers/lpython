@@ -86,7 +86,7 @@ jupyter:
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
     - ./build1.sh
-    - pip install .
+    - python setup.py install
     - cd ..
     - rm -r liblfort lfortran-${lfortran_version}
     - (git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/lfortran/fortran_kernel && cd fortran_kernel && git checkout v0.1.0 && pip install . && cd .. && rm -r fortran_kernel)
