@@ -159,6 +159,7 @@ def main():
     else:
         # Invoke a C compiler to do the linking
         base_dir = get_lib_path()
-        os.system("cc -o %s %s -L%s -llfort -lm" % (outfile, objfile, base_dir))
+        os.system("cc -o %s %s -L%s -Wl,-rpath=%s -llfort -lm" % (outfile,
+            objfile, base_dir, base_dir))
     if objfile == "tmp_object_file.o":
         os.system("rm %s" % objfile)
