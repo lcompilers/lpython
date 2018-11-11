@@ -6,6 +6,7 @@ import llvmlite.binding as llvm
 from ..ast import parse, dump, SyntaxErrorException, ast
 from ..semantic.analyze import SymbolTableVisitor, annotate_tree
 from .gen import codegen
+from ..liblfort import load_lfortran_runtime_library
 
 
 class FortranEvaluator(object):
@@ -113,6 +114,8 @@ class LLVMEvaluator(object):
         pmb.slp_vectorize = True
         self.pm = llvm.create_module_pass_manager()
         pmb.populate(self.pm)
+
+        load_lfortran_runtime_library()
 
     def parse(self, source):
         mod = llvm.parse_assembly(source)

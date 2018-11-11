@@ -5,6 +5,22 @@ import sys
 import llvmlite.binding as llvm
 
 
+_lfortran_runtime_library_loaded = False
+
+def load_lfortran_runtime_library():
+    """
+    Locates and loads the LFortran runtime library.
+
+    If the library is already loaded, it will not load it again.
+    """
+    global _lfortran_runtime_library_loaded
+    if not _lfortran_runtime_library_loaded:
+        here = os.path.dirname(__file__)
+        base_dir = os.path.abspath(os.path.join(here, ".."))
+        liblfort_so = os.path.join(base_dir, "liblfort.so")
+        llvm.load_library_permanently(liblfort_so)
+        _lfortran_runtime_library_loaded = True
+
 def main():
     parser = argparse.ArgumentParser(description="Fortran compiler.")
     parser.add_argument('file', help="source file")
