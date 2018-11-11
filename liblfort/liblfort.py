@@ -13,6 +13,9 @@ def get_lib_path():
         # We run from git, use the relative location
         root_dir = os.path.abspath(os.path.join(here, ".."))
     base_dir = os.path.join(root_dir, "share", "lfortran", "lib")
+    if not os.path.exists(base_dir):
+        raise Exception("LFortran runtime library path does not exist: %s" \
+            % base_dir)
     return base_dir
 
 _lfortran_runtime_library_loaded = False
