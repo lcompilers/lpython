@@ -147,6 +147,8 @@ class CodeGenVisitor(ast.ASTVisitor):
                 [ir.IntType(64), ir.DoubleType().as_pointer()])
         fn_sum = ir.Function(self.module, fn_type, name="_lfort_sum")
         self._global_scope.symbols["sum"]["fn"] = fn_sum
+        fn_rand = ir.Function(self.module, fn_type, name="_lfort_random_number")
+        self._global_scope.symbols["random_number"]["fn"] = fn_rand
         self._global_scope.symbols["abs"]["fn"] = self.module.declare_intrinsic(
                 'llvm.fabs', [ir.DoubleType()])
         self._global_scope.symbols["sqrt"]["fn"] = self.module.declare_intrinsic(

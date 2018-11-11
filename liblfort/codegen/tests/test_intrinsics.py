@@ -23,9 +23,9 @@ c(1) = -1._dp
 c(2) = -1._dp
 c(3) = -1._dp
 c(4) = -1._dp
-!call random_number(c)
+call random_number(c)
 do i = 1, 4
-    !if (c(i) < 0._dp) r = 1
+    if (c(i) < 0._dp) r = 1
     if (c(i) > 1._dp) r = 1
 end do
 """)
