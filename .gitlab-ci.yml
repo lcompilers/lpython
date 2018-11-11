@@ -44,7 +44,6 @@ full:
     - rm -r liblfort lfortran-${lfortran_version}
     - rm lfort
     - ./build1.sh
-    - sudo cp liblfort.a /usr/lib/
     - py.test --pyargs liblfort
     - python show_ast.py
     - lfort examples/expr2.f90
