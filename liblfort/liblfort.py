@@ -5,18 +5,15 @@ import sys
 import llvmlite.binding as llvm
 
 def get_lib_path():
-    import pkg_resources
-    try:
-        # Try the installed version
-        liblfort_so = pkg_resources.resource_filename("lfortran",
-            "share/lfortran/lib/liblfort.so")
-    except ModuleNotFoundError:
-        # Fallback to the version in git/tarball that is not installed
-        here = os.path.dirname(__file__)
-        base_dir = os.path.abspath(os.path.join(here, "..", "share",
-            "lfortran", "lib"))
-        liblfort_so = os.path.join(base_dir, "liblfort.so")
-    return os.path.dirname(liblfort_so)
+    here = os.path.abspath(os.path.dirname(__file__))
+    if here.startswith(sys.prefix):
+        # We are installed, use the install location
+        root_dir = sys.prefix
+    else:
+        # We run from git, use the relative location
+        root_dir = os.path.abspath(os.path.join(here, ".."))
+    base_dir = os.path.join(root_dir, "share", "lfortran", "lib")
+    return base_dir
 
 _lfortran_runtime_library_loaded = False
 
