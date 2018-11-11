@@ -39,12 +39,11 @@ full:
     - sudo apt-get install -yq --no-install-recommends gcc gfortran gcc-multilib cmake make
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
+    - ./build1.sh
     - python setup.py install
     - cd ..
     - rm -r liblfort lfortran-${lfortran_version}
     - rm lfort
-    - ./build1.sh
-    - sudo cp liblfort.a /usr/lib/
     - py.test --pyargs liblfort
     - python show_ast.py
     - lfort examples/expr2.f90
@@ -64,11 +63,11 @@ minimal:
     - sudo apt-get install -yq --no-install-recommends musl-dev binutils gcc libc6-dev
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
+    - ./build1.sh
     - python setup.py install
     - cd ..
     - rm -r liblfort lfortran-${lfortran_version}
     - rm lfort
-    - ./build1.sh
     - sudo apt-get remove -yq gcc libc6-dev
     - sudo apt-get autoremove -yq
     - py.test --pyargs liblfort
@@ -86,10 +85,10 @@ jupyter:
     - sudo apt-get install -yq --no-install-recommends gcc gfortran gcc-multilib cmake make git
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
-    - pip install .
+    - ./build1.sh
+    - python setup.py install
     - cd ..
     - rm -r liblfort lfortran-${lfortran_version}
-    - ./build1.sh
     - (git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/lfortran/fortran_kernel && cd fortran_kernel && git checkout v0.1.0 && pip install . && cd .. && rm -r fortran_kernel)
     - python -m fortran_kernel.install
     - jupyter kernelspec list --json

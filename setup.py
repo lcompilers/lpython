@@ -17,7 +17,12 @@ setuptools.setup(
     url="https://gitlab.com/lfortran/lfortran",
     packages=setuptools.find_packages(),
     include_package_data=True,
-    data_files=[('share/lfortran/nb', ['share/lfortran/nb/Demo.ipynb'])],
+    data_files=[
+        ('share/lfortran/nb', ['share/lfortran/nb/Demo.ipynb']),
+        ('share/lfortran/lib', [
+            'share/lfortran/lib/liblfort.a',
+            'share/lfortran/lib/liblfort.so']),
+        ],
     scripts=['lfort', 'prompt.py'],
     classifiers=[
         "Programming Language :: Python :: 3",
