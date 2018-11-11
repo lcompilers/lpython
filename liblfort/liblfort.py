@@ -4,6 +4,19 @@ import sys
 
 import llvmlite.binding as llvm
 
+def get_lib_path():
+    import pkg_resources
+    try:
+        # Try the installed version
+        liblfort_so = pkg_resources.resource_filename("lfortran",
+            "share/lfortran/lib/liblfort.so")
+    except ModuleNotFoundError:
+        # Fallback to the version in git/tarball that is not installed
+        here = os.path.dirname(__file__)
+        base_dir = os.path.abspath(os.path.join(here, "..", "share",
+            "lfortran", "lib"))
+        liblfort_so = os.path.join(base_dir, "liblfort.so")
+    return os.path.dirname(liblfort_so)
 
 _lfortran_runtime_library_loaded = False
 
@@ -15,17 +28,8 @@ def load_lfortran_runtime_library():
     """
     global _lfortran_runtime_library_loaded
     if not _lfortran_runtime_library_loaded:
-        import pkg_resources
-        try:
-            # Try the installed version
-            liblfort_so = pkg_resources.resource_filename("lfortran",
-                "share/lfortran/lib/liblfort.so")
-        except ModuleNotFoundError:
-            # Fallback to the version in git/tarball that is not installed
-            here = os.path.dirname(__file__)
-            base_dir = os.path.abspath(os.path.join(here, "..", "share",
-                "lfortran", "lib"))
-            liblfort_so = os.path.join(base_dir, "liblfort.so")
+        base_dir = get_lib_path()
+        liblfort_so = os.path.join(base_dir, "liblfort.so")
         llvm.load_library_permanently(liblfort_so)
         _lfortran_runtime_library_loaded = True
 
@@ -154,8 +158,7 @@ def main():
         os.system("ld -o %s %s %s" % (outfile, objfile, LDFLAGS))
     else:
         # Invoke a C compiler to do the linking
-        here = os.path.dirname(__file__)
-        base_dir = os.path.join(here, "..")
+        base_dir = get_lib_path()
         os.system("cc -o %s %s -L%s -llfort -lm" % (outfile, objfile, base_dir))
     if objfile == "tmp_object_file.o":
         os.system("rm %s" % objfile)
