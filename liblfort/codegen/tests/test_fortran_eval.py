@@ -246,10 +246,17 @@ def test_variables2():
     assert e.evaluate("b") == 8
     assert e.evaluate("(a+b)*2") == 26
 
-def test_print():
+def test_print(capfd):
+    import ctypes
+    libc = ctypes.CDLL(None)
+    c_stdout = ctypes.c_void_p.in_dll(libc, 'stdout')
+
     e = FortranEvaluator()
     e.evaluate("""\
 integer :: x
 x = (2+3)*5
 print *, x, 1, 3, x, (2+3)*5+x
 """)
+    libc.fflush(c_stdout) # The C stdout buffer must be flushed out
+    out = capfd.readouterr().out
+    assert out == "25 1 3 25 50 \n"
