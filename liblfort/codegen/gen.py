@@ -226,6 +226,9 @@ class CodeGenVisitor(ast.ASTVisitor):
                         "random_number"]:
                         # Skip these for now (they are handled in Program)
                         continue
+                    if s["name"] == "plot":
+                        # Handled by plotting extension
+                        continue
                     return_type = self.types[s["type"]]
                     args = []
                     for n, arg in enumerate(s["args"]):
@@ -586,6 +589,7 @@ class CodeGenVisitor(ast.ASTVisitor):
                     [ir.Constant(ir.IntType(64), array_size), addr])
         else:
             fn = get_global(self.module, node.name)
+            assert fn is not None
             # Pass expressions by value (copying the result to a temporary variable
             # and passing a pointer to that), pass variables by reference.
             args_ptr = []

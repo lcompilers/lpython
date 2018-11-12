@@ -30,3 +30,12 @@ do i = 1, 4
 end do
 """)
     assert e.evaluate("r") == 0
+
+def test_plot():
+    e = FortranEvaluator()
+    e.evaluate("""\
+integer :: a, b
+a = 1
+b = 5
+call plot(a, b)
+""")

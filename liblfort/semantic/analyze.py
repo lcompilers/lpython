@@ -127,6 +127,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 "type": Real(),
                 "external": True,
                 "func": True,
+                "subroutine": False,
                 "global": True,
             } for x in [
                 "abs",
@@ -135,6 +136,14 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 "sum",
                 "random_number",
             ]}
+
+        self._global_scope._local_symbols["plot"] = {
+            "name": "plot",
+            "type": None,
+            "external": True,
+            "func": True, # Function or Subroutine
+            "global": True,
+        }
 
         self._current_scope = self._global_scope
 
