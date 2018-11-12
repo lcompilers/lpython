@@ -9,7 +9,7 @@ def test_llvm_eval1():
     e.add_module("""\
 define i64 @f1()
 {
-  ret i64 4
+    ret i64 4
 }
 """)
     assert e.intfn("f1") == 4
@@ -19,7 +19,7 @@ define i64 @f1()
     e.add_module("""\
 define i64 @f1()
 {
-  ret i64 5
+    ret i64 5
 }
 """)
     assert e.intfn("f1") == 5
@@ -32,8 +32,8 @@ def test_llvm_eval1_fail():
         e.add_module("""\
 define i64 @f1()
 {
-  ; FAIL: "=x" is incorrect syntax
-  %1 =x alloca i64
+    ; FAIL: "=x" is incorrect syntax
+    %1 =x alloca i64
 }
 """)
 
@@ -44,9 +44,9 @@ def test_llvm_eval2():
 
 define i64 @f1()
 {
-  store i64 4, i64* @count
-  %1 = load i64, i64* @count
-  ret i64 %1
+    store i64 4, i64* @count
+    %1 = load i64, i64* @count
+    ret i64 %1
 }
 """)
     assert e.intfn("f1") == 4
@@ -56,8 +56,8 @@ define i64 @f1()
 
 define i64 @f2()
 {
-  %1 = load i64, i64* @count
-  ret i64 %1
+    %1 = load i64, i64* @count
+    ret i64 %1
 }
 """)
     assert e.intfn("f2") == 4
@@ -66,9 +66,9 @@ define i64 @f2()
         e.add_module("""\
 define i64 @f3()
 {
-  ; FAIL: @count is not defined
-  %1 = load i64, i64* @count
-  ret i64 %1
+    ; FAIL: @count is not defined
+    %1 = load i64, i64* @count
+    ret i64 %1
 }
 """)
 
@@ -83,16 +83,16 @@ def test_llvm_eval3():
 
 define i64 @f1()
 {
-  %1 = load i64, i64* @count
-  ret i64 %1
+    %1 = load i64, i64* @count
+    ret i64 %1
 }
 
 define void @inc()
 {
-  %1 = load i64, i64* @count
-  %2 = add i64 %1, 1
-  store i64 %2, i64* @count
-  ret void
+    %1 = load i64, i64* @count
+    %2 = add i64 %1, 1
+    store i64 %2, i64* @count
+    ret void
 }
 """)
     assert e.intfn("f1") == 5
@@ -106,10 +106,10 @@ define void @inc()
 
 define void @inc2()
 {
-  %1 = load i64, i64* @count
-  %2 = add i64 %1, 2
-  store i64 %2, i64* @count
-  ret void
+    %1 = load i64, i64* @count
+    %2 = add i64 %1, 2
+    store i64 %2, i64* @count
+    ret void
 }
 """)
     assert e.intfn("f1") == 7
@@ -128,16 +128,16 @@ define void @inc2()
 
 define i64 @f1()
 {
-  %1 = load i64, i64* @count
-  ret i64 %1
+    %1 = load i64, i64* @count
+    ret i64 %1
 }
 
 define void @inc()
 {
-  %1 = load i64, i64* @count
-  %2 = add i64 %1, 1
-  store i64 %2, i64* @count
-  ret void
+    %1 = load i64, i64* @count
+    %2 = add i64 %1, 1
+    store i64 %2, i64* @count
+    ret void
 }
 """)
     assert e2.intfn("f1") == 5
@@ -161,16 +161,16 @@ def test_llvm_eval4():
 
 define i64 @f1()
 {
-  %1 = load i64, i64* @count
-  ret i64 %1
+    %1 = load i64, i64* @count
+    ret i64 %1
 }
 
 define void @inc()
 {
-  %1 = load i64, i64* @count
-  %2 = add i64 %1, 1
-  store i64 %2, i64* @count
-  ret void
+    %1 = load i64, i64* @count
+    %2 = add i64 %1, 1
+    store i64 %2, i64* @count
+    ret void
 }
 """)
     assert e.intfn("f1") == 5
@@ -184,9 +184,9 @@ declare void @inc()
 
 define void @inc2()
 {
-  call void @inc()
-  call void @inc()
-  ret void
+    call void @inc()
+    call void @inc()
+    ret void
 }
 """)
     assert e.intfn("f1") == 7
@@ -201,9 +201,9 @@ define void @inc2()
         e.add_module("""\
 define void @inc2()
 {
-  ; FAIL: @inc is not defined
-  call void @inc()
-  call void @inc()
-  ret void
+    ; FAIL: @inc is not defined
+    call void @inc()
+    call void @inc()
+    ret void
 }
 """)
