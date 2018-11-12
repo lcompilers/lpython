@@ -207,3 +207,27 @@ define void @inc2()
     ret void
 }
 """)
+
+def test_llvm_callback():
+    from ctypes import c_int, c_void_p, CFUNCTYPE, cast
+    data = [0, 0]
+    def f(a, b):
+        data[0] = a
+        data[1] = b
+        return a + b
+    fptr = CFUNCTYPE(c_int, c_int, c_int)(f)
+    faddr = cast(fptr, c_void_p).value
+    e = LLVMEvaluator()
+    e.add_module("""\
+define i64 @addrcaller(i64 %a, i64 %b)
+{
+    %f = inttoptr i64 %ADDR to i64 (i64, i64)*
+    %r = call i64 %f(i64 %a, i64 %b)
+    ret i64 %r
+}
+""".replace("%ADDR", str(faddr)))
+    addrcaller = CFUNCTYPE(c_int, c_int, c_int)(
+        e.ee.get_function_address('addrcaller'))
+    assert data == [0, 0]
+    assert addrcaller(2, 3) == 5
+    assert data == [2, 3]
