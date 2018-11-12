@@ -126,11 +126,7 @@ def create_callback_py(m, name, f):
     from inspect import signature
     sig = signature(f)
     nargs = len(sig.parameters)
-    if nargs == 2:
-        ftype = CFUNCTYPE(c_int, c_int, c_int)
-    else:
-        assert nargs == 3
-        ftype = CFUNCTYPE(c_int, c_int, c_int, c_int)
+    ftype = CFUNCTYPE(c_int, *([c_int]*nargs))
     f2 = ftype(f)
     # Store the function pointer so that it does not get garbage collected
     _function_pointers.append(f2)
