@@ -231,3 +231,24 @@ define i64 @addrcaller(i64 %a, i64 %b)
     assert data == [0, 0]
     assert addrcaller(2, 3) == 5
     assert data == [2, 3]
+
+def test_llvm_callback2():
+    from ctypes import c_int, c_void_p, CFUNCTYPE, cast
+    from liblfort.codegen.gen import create_callback_stub
+    from llvmlite import ir
+    data = [0, 0]
+    @CFUNCTYPE(c_int, c_int, c_int)
+    def f(a, b):
+        data[0] = a
+        data[1] = b
+        return a + b
+    faddr = cast(f, c_void_p).value
+    mod = ir.Module()
+    create_callback_stub(mod, "stub", faddr)
+    e = LLVMEvaluator()
+    e.add_module(str(mod))
+    stub = CFUNCTYPE(c_int, c_int, c_int)(
+        e.ee.get_function_address('stub'))
+    assert data == [0, 0]
+    assert stub(2, 3) == 5
+    assert data == [2, 3]

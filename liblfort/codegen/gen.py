@@ -120,6 +120,18 @@ def is_int(node):
         return node._type.type_ == Integer()
     return False
 
+def create_callback_stub(m, name, addr):
+    """
+    Creates an LLVM function that calls the callback function at memory
+    address `addr`.
+    """
+    int64 = ir.IntType(64)
+    cb_type = ir.FunctionType(int64, [int64, int64])
+    stub = ir.Function(m, cb_type, name=name)
+    builder = ir.IRBuilder(stub.append_basic_block('entry'))
+    cb = builder.inttoptr(ir.Constant(int64, addr), cb_type.as_pointer())
+    builder.ret(builder.call(cb, stub.args))
+
 class CodeGenVisitor(ast.ASTVisitor):
     """
     Loop over AST and generate LLVM IR code.
