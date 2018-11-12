@@ -242,10 +242,10 @@ def test_llvm_callback2():
         data[1] = b
         return a + b
     mod = ir.Module()
-    create_callback_py(mod, "f", f)
+    ftype = create_callback_py(mod, "f", f)
     e = LLVMEvaluator()
     e.add_module(str(mod))
-    stub = CFUNCTYPE(c_int, c_int, c_int)(e.ee.get_function_address('f'))
+    stub = ftype(e.ee.get_function_address('f'))
     assert data == [0, 0]
     assert stub(2, 3) == 5
     assert data == [2, 3]

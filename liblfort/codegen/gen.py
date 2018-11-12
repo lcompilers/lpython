@@ -123,11 +123,13 @@ def is_int(node):
 _function_pointers = []
 def create_callback_py(m, name, f):
     from ctypes import c_int, c_void_p, CFUNCTYPE, cast
-    f2 = CFUNCTYPE(c_int, c_int, c_int)(f)
+    ftype = CFUNCTYPE(c_int, c_int, c_int)
+    f2 = ftype(f)
     # Store the function pointer so that it does not get garbage collected
     _function_pointers.append(f2)
     faddr = cast(f2, c_void_p).value
     create_callback_stub(m, name, faddr)
+    return ftype
 
 def create_callback_stub(m, name, addr):
     """
