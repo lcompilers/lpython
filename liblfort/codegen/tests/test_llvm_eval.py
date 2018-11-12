@@ -211,12 +211,12 @@ define void @inc2()
 def test_llvm_callback():
     from ctypes import c_int, c_void_p, CFUNCTYPE, cast
     data = [0, 0]
+    @CFUNCTYPE(c_int, c_int, c_int)
     def f(a, b):
         data[0] = a
         data[1] = b
         return a + b
-    fptr = CFUNCTYPE(c_int, c_int, c_int)(f)
-    faddr = cast(fptr, c_void_p).value
+    faddr = cast(f, c_void_p).value
     e = LLVMEvaluator()
     e.add_module("""\
 define i64 @addrcaller(i64 %a, i64 %b)
