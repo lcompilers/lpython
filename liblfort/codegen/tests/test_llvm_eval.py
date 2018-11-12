@@ -290,3 +290,22 @@ def test_llvm_callback3():
     assert data == [0, 0, 0]
     assert stub(2, 3, 5) == 10
     assert data == [2, 3, 5]
+
+def test_llvm_callback4():
+    from ctypes import c_int, CFUNCTYPE
+    from liblfort.codegen.gen import create_callback_py
+    from llvmlite import ir
+    data = [0]
+    def f():
+        return data[0]
+    mod = ir.Module()
+    ftype = create_callback_py(mod, "f", f)
+    e = LLVMEvaluator()
+    e.add_module(str(mod))
+    stub = ftype(e.ee.get_function_address('f'))
+    assert data == [0]
+    assert stub() == 0
+    data[0] = 2
+    assert stub() == 2
+    data[0] = 5
+    assert stub() == 5
