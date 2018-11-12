@@ -123,24 +123,32 @@ def is_int(node):
 _function_pointers = []
 def create_callback_py(m, name, f):
     from ctypes import c_int, c_void_p, CFUNCTYPE, cast
-    ftype = CFUNCTYPE(c_int, c_int, c_int)
+    from inspect import signature
+    sig = signature(f)
+    nargs = len(sig.parameters)
+    if nargs == 2:
+        ftype = CFUNCTYPE(c_int, c_int, c_int)
+    else:
+        assert nargs == 3
+        ftype = CFUNCTYPE(c_int, c_int, c_int, c_int)
     f2 = ftype(f)
     # Store the function pointer so that it does not get garbage collected
     _function_pointers.append(f2)
     faddr = cast(f2, c_void_p).value
-    create_callback_stub(m, name, faddr)
+    int64 = ir.IntType(64)
+    ftype2 = ir.FunctionType(int64, [int64]*nargs)
+    create_callback_stub(m, name, faddr, ftype2)
     return ftype
 
-def create_callback_stub(m, name, addr):
+def create_callback_stub(m, name, faddr, ftype):
     """
     Creates an LLVM function that calls the callback function at memory
     address `addr`.
     """
-    int64 = ir.IntType(64)
-    cb_type = ir.FunctionType(int64, [int64, int64])
-    stub = ir.Function(m, cb_type, name=name)
+    stub = ir.Function(m, ftype, name=name)
     builder = ir.IRBuilder(stub.append_basic_block('entry'))
-    cb = builder.inttoptr(ir.Constant(int64, addr), cb_type.as_pointer())
+    cb = builder.inttoptr(ir.Constant(ir.IntType(64), faddr),
+        ftype.as_pointer())
     builder.ret(builder.call(cb, stub.args))
 
 class CodeGenVisitor(ast.ASTVisitor):
