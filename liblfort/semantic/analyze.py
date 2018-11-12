@@ -339,7 +339,7 @@ class ExprVisitor(ast.GenericASTVisitor):
         if isinstance(node.target, ast.Name):
             if not self._current_scope.resolve(node.target.id, False):
                 raise UndeclaredVariableError("Variable '%s' not declared." \
-                        % node.target)
+                        % node.target.id)
             node._type = self._current_scope.resolve(node.target.id)["type"]
             self.visit(node.value)
             if node.value._type != node._type:
