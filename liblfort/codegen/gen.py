@@ -202,6 +202,12 @@ class CodeGenVisitor(ast.ASTVisitor):
         self._global_scope.symbols["log"]["fn"] = self.module.declare_intrinsic(
                 'llvm.log', [ir.DoubleType()])
 
+        # plot
+        fn_type = ir.FunctionType(ir.IntType(64),
+                [ir.IntType(64), ir.IntType(64)])
+        fn_plot = ir.Function(self.module, fn_type, name="_lfort_plot")
+        self._global_scope.symbols["plot"]["fn"] = fn_plot
+
     def codegen(self, tree):
         """
         Generates code for `tree` and appends it into the LLVM module.
@@ -225,6 +231,9 @@ class CodeGenVisitor(ast.ASTVisitor):
                     if s["name"] in ["abs", "sqrt", "log", "sum",
                         "random_number"]:
                         # Skip these for now (they are handled in Program)
+                        continue
+                    if s["name"] == "plot":
+                        # Handled by plotting extension
                         continue
                     return_type = self.types[s["type"]]
                     args = []
@@ -441,6 +450,12 @@ class CodeGenVisitor(ast.ASTVisitor):
             if len(node.args) == 1 and sym["name"] in ["abs", "sqrt", "log"]:
                 arg = self.visit(node.args[0])
                 return self.builder.call(fn, [arg])
+            if sym["name"] == "plot":
+                # FIXME: Pass by value currently:
+                args = []
+                for arg in node.args:
+                    args.append(self.visit(arg))
+                return self.builder.call(fn, args)
 
             args_ptr = []
             for arg in node.args:
@@ -586,6 +601,7 @@ class CodeGenVisitor(ast.ASTVisitor):
                     [ir.Constant(ir.IntType(64), array_size), addr])
         else:
             fn = get_global(self.module, node.name)
+            assert fn is not None
             # Pass expressions by value (copying the result to a temporary variable
             # and passing a pointer to that), pass variables by reference.
             args_ptr = []
