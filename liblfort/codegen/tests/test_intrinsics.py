@@ -37,5 +37,5 @@ def test_plot():
 integer :: a, b
 a = 1
 b = 5
-plot(a, b)
+plot_test(a, b)
 """) == 6

@@ -23,9 +23,14 @@ class FortranEvaluator(object):
         from llvmlite import ir
         from .gen import create_callback_py
         mod = ir.Module()
-        def _lfort_plot(a, b):
-            print("_lfort_plot: Got a=%d, b=%d" % (a, b))
+        def _lfort_plot_test(a, b):
+            print("_lfort_plot_test: Got a=%d, b=%d" % (a, b))
             return a+b
+        def _lfort_plot(a, b, c):
+            import pylab
+            pylab.plot([1, 2, 3], [a, b, c], "o-")
+            return 0
+        create_callback_py(mod, _lfort_plot_test)
         create_callback_py(mod, _lfort_plot)
         self.lle.add_module(str(mod))
 
