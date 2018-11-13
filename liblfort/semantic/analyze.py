@@ -361,7 +361,9 @@ class ExprVisitor(ast.GenericASTVisitor):
                     if node._type != node.value._type.type_:
                         raise TypeMismatch("RHS Array Type mismatch")
                 else:
-                    raise TypeMismatch("Type mismatch")
+                    raise TypeMismatch("Type mismatch: " \
+                        "LHS=%s (%s), RHS=%s (%s)" % (node.target.id,
+                        node._type, node.value, node.value._type))
         elif isinstance(node.target, ast.FuncCallOrArray):
             if not self._current_scope.resolve(node.target.func, False):
                 raise UndeclaredVariableError("Array '%s' not declared." \
