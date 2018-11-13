@@ -24,7 +24,6 @@ class FortranEvaluator(object):
         from .gen import create_callback_py
         mod = ir.Module()
         def _lfort_plot_test(a, b):
-            print("_lfort_plot_test: Got a=%d, b=%d" % (a, b))
             return a+b
         def _lfort_plot(a, b, c):
             import pylab
