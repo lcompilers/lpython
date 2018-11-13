@@ -19,6 +19,16 @@ class FortranEvaluator(object):
 
         self.anonymous_fn_counter = 0
 
+        # Magic intrinsics:
+        from llvmlite import ir
+        from .gen import create_callback_py
+        mod = ir.Module()
+        def _lfort_plot(a, b):
+            print("_lfort_plot: Got a=%d, b=%d" % (a, b))
+            return a+b
+        create_callback_py(mod, _lfort_plot)
+        self.lle.add_module(str(mod))
+
     def parse(self, source):
         return parse(source, translation_unit=False)
 

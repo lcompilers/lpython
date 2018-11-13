@@ -139,7 +139,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
 
         self._global_scope._local_symbols["plot"] = {
             "name": "plot",
-            "type": None,
+            "type": Integer(),
             "external": True,
             "func": True, # Function or Subroutine
             "global": True,

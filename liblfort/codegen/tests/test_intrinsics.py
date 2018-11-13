@@ -33,9 +33,9 @@ end do
 
 def test_plot():
     e = FortranEvaluator()
-    e.evaluate("""\
+    assert e.evaluate("""\
 integer :: a, b
 a = 1
 b = 5
-call plot(a, b)
-""")
+plot(a, b)
+""") == 6
