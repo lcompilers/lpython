@@ -238,11 +238,12 @@ def test_llvm_callback_stub():
     from llvmlite import ir
     data = [0, 0]
     ftype = CFUNCTYPE(c_int, c_int, c_int)
+    @ftype
     def f(a, b):
         data[0] = a
         data[1] = b
         return a + b
-    faddr = cast(ftype(f), c_void_p).value
+    faddr = cast(f, c_void_p).value
     mod = ir.Module()
     int64 = ir.IntType(64)
     ftype2 = ir.FunctionType(int64, [int64]*2)
