@@ -211,7 +211,8 @@ define void @inc2()
 def test_llvm_callback0():
     from ctypes import c_int, c_void_p, CFUNCTYPE, cast
     data = [0, 0]
-    @CFUNCTYPE(c_int, c_int, c_int)
+    ftype = CFUNCTYPE(c_int, c_int, c_int)
+    @ftype
     def f(a, b):
         data[0] = a
         data[1] = b
@@ -226,8 +227,7 @@ define i64 @addrcaller(i64 %a, i64 %b)
     ret i64 %r
 }
 """.replace("%ADDR", str(faddr)))
-    addrcaller = CFUNCTYPE(c_int, c_int, c_int)(
-        e.ee.get_function_address('addrcaller'))
+    addrcaller = ftype(e.ee.get_function_address('addrcaller'))
     assert data == [0, 0]
     assert addrcaller(2, 3) == 5
     assert data == [2, 3]
@@ -245,9 +245,8 @@ def test_llvm_callback_stub():
         return a + b
     faddr = cast(f, c_void_p).value
     mod = ir.Module()
-    int64 = ir.IntType(64)
-    ftype2 = ir.FunctionType(int64, [int64]*2)
-    create_callback_stub(mod, "f", faddr, ftype2)
+    create_callback_stub(mod, "f", faddr,
+        ir.FunctionType(ir.IntType(64), [ir.IntType(64), ir.IntType(64)]))
     e = LLVMEvaluator()
     e.add_module(str(mod))
     stub = ftype(e.ee.get_function_address('f'))
