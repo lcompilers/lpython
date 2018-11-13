@@ -122,6 +122,23 @@ def is_int(node):
 
 _function_pointers = []
 def create_callback_py(m, f, name=None):
+    """
+    Creates an LLVM function that calls the Python callback function `f`.
+
+    Parameters:
+
+    m ...... LLVM module
+    f ...... Python function
+    name ... the name of the LLVM function to create (if None, the name
+             of the function 'f will be used)
+
+    It uses ctypes to create a C functin pointer and embeds this pointer into
+    the generated LLVM function. It returns a ctype's function type, which
+    you can use to type the LLVM function pointer back into a Python function.
+
+    The C pointer is stored in the `_function_pointers` global list to
+    prevent it from being garbage collected.
+    """
     from ctypes import c_int, c_void_p, CFUNCTYPE, cast
     from inspect import signature
     sig = signature(f)
