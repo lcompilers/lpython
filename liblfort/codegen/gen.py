@@ -120,6 +120,52 @@ def is_int(node):
         return node._type.type_ == Integer()
     return False
 
+_function_pointers = []
+def create_callback_py(m, f, name=None):
+    """
+    Creates an LLVM function that calls the Python callback function `f`.
+
+    Parameters:
+
+    m ...... LLVM module
+    f ...... Python function
+    name ... the name of the LLVM function to create (if None, the name
+             of the function 'f will be used)
+
+    It uses ctypes to create a C functin pointer and embeds this pointer into
+    the generated LLVM function. It returns a ctype's function type, which
+    you can use to type the LLVM function pointer back into a Python function.
+
+    The C pointer is stored in the `_function_pointers` global list to
+    prevent it from being garbage collected.
+    """
+    from ctypes import c_int, c_void_p, CFUNCTYPE, cast
+    from inspect import signature
+    sig = signature(f)
+    nargs = len(sig.parameters)
+    if name is None:
+        name = f.__name__
+    ftype = CFUNCTYPE(c_int, *([c_int]*nargs))
+    f2 = ftype(f)
+    # Store the function pointer so that it does not get garbage collected
+    _function_pointers.append(f2)
+    faddr = cast(f2, c_void_p).value
+    int64 = ir.IntType(64)
+    ftype2 = ir.FunctionType(int64, [int64]*nargs)
+    create_callback_stub(m, name, faddr, ftype2)
+    return ftype
+
+def create_callback_stub(m, name, faddr, ftype):
+    """
+    Creates an LLVM function that calls the callback function at memory
+    address `addr`.
+    """
+    stub = ir.Function(m, ftype, name=name)
+    builder = ir.IRBuilder(stub.append_basic_block('entry'))
+    cb = builder.inttoptr(ir.Constant(ir.IntType(64), faddr),
+        ftype.as_pointer())
+    builder.ret(builder.call(cb, stub.args))
+
 class CodeGenVisitor(ast.ASTVisitor):
     """
     Loop over AST and generate LLVM IR code.

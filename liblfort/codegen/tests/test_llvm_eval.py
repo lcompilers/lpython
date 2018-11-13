@@ -208,10 +208,11 @@ define void @inc2()
 }
 """)
 
-def test_llvm_callback():
+def test_llvm_callback0():
     from ctypes import c_int, c_void_p, CFUNCTYPE, cast
     data = [0, 0]
-    @CFUNCTYPE(c_int, c_int, c_int)
+    ftype = CFUNCTYPE(c_int, c_int, c_int)
+    @ftype
     def f(a, b):
         data[0] = a
         data[1] = b
@@ -226,8 +227,82 @@ define i64 @addrcaller(i64 %a, i64 %b)
     ret i64 %r
 }
 """.replace("%ADDR", str(faddr)))
-    addrcaller = CFUNCTYPE(c_int, c_int, c_int)(
-        e.ee.get_function_address('addrcaller'))
+    addrcaller = ftype(e.ee.get_function_address('addrcaller'))
     assert data == [0, 0]
     assert addrcaller(2, 3) == 5
     assert data == [2, 3]
+
+def test_llvm_callback_stub():
+    from ctypes import c_int, c_void_p, CFUNCTYPE, cast
+    from liblfort.codegen.gen import create_callback_stub
+    from llvmlite import ir
+    data = [0, 0]
+    ftype = CFUNCTYPE(c_int, c_int, c_int)
+    @ftype
+    def f(a, b):
+        data[0] = a
+        data[1] = b
+        return a + b
+    faddr = cast(f, c_void_p).value
+    mod = ir.Module()
+    create_callback_stub(mod, "f", faddr,
+        ir.FunctionType(ir.IntType(64), [ir.IntType(64), ir.IntType(64)]))
+    e = LLVMEvaluator()
+    e.add_module(str(mod))
+    stub = ftype(e.ee.get_function_address('f'))
+    assert data == [0, 0]
+    assert stub(2, 3) == 5
+    assert data == [2, 3]
+
+def test_llvm_callback_py0():
+    from liblfort.codegen.gen import create_callback_py
+    from llvmlite import ir
+    data = [0]
+    def f():
+        return data[0]
+    mod = ir.Module()
+    ftype = create_callback_py(mod, f)
+    e = LLVMEvaluator()
+    e.add_module(str(mod))
+    stub = ftype(e.ee.get_function_address('f'))
+    assert data == [0]
+    assert stub() == 0
+    data[0] = 2
+    assert stub() == 2
+    data[0] = 5
+    assert stub() == 5
+
+def test_llvm_callback_py2():
+    from liblfort.codegen.gen import create_callback_py
+    from llvmlite import ir
+    data = [0, 0]
+    def g(a, b):
+        data[0] = a
+        data[1] = b
+        return a + b
+    mod = ir.Module()
+    ftype = create_callback_py(mod, g)
+    e = LLVMEvaluator()
+    e.add_module(str(mod))
+    stub = ftype(e.ee.get_function_address('g'))
+    assert data == [0, 0]
+    assert stub(2, 3) == 5
+    assert data == [2, 3]
+
+def test_llvm_callback_py3():
+    from liblfort.codegen.gen import create_callback_py
+    from llvmlite import ir
+    data = [0, 0, 0]
+    def f(a, b, c):
+        data[0] = a
+        data[1] = b
+        data[2] = c
+        return a + b + c
+    mod = ir.Module()
+    ftype = create_callback_py(mod, f, "h")
+    e = LLVMEvaluator()
+    e.add_module(str(mod))
+    stub = ftype(e.ee.get_function_address('h'))
+    assert data == [0, 0, 0]
+    assert stub(2, 3, 5) == 10
+    assert data == [2, 3, 5]
