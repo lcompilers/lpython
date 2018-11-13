@@ -261,7 +261,7 @@ def test_llvm_callback_py0():
     def f():
         return data[0]
     mod = ir.Module()
-    ftype = create_callback_py(mod, "f", f)
+    ftype = create_callback_py(mod, f)
     e = LLVMEvaluator()
     e.add_module(str(mod))
     stub = ftype(e.ee.get_function_address('f'))
@@ -276,15 +276,15 @@ def test_llvm_callback_py2():
     from liblfort.codegen.gen import create_callback_py
     from llvmlite import ir
     data = [0, 0]
-    def f(a, b):
+    def g(a, b):
         data[0] = a
         data[1] = b
         return a + b
     mod = ir.Module()
-    ftype = create_callback_py(mod, "f", f)
+    ftype = create_callback_py(mod, g)
     e = LLVMEvaluator()
     e.add_module(str(mod))
-    stub = ftype(e.ee.get_function_address('f'))
+    stub = ftype(e.ee.get_function_address('g'))
     assert data == [0, 0]
     assert stub(2, 3) == 5
     assert data == [2, 3]
@@ -299,10 +299,10 @@ def test_llvm_callback_py3():
         data[2] = c
         return a + b + c
     mod = ir.Module()
-    ftype = create_callback_py(mod, "f", f)
+    ftype = create_callback_py(mod, f, "h")
     e = LLVMEvaluator()
     e.add_module(str(mod))
-    stub = ftype(e.ee.get_function_address('f'))
+    stub = ftype(e.ee.get_function_address('h'))
     assert data == [0, 0, 0]
     assert stub(2, 3, 5) == 10
     assert data == [2, 3, 5]

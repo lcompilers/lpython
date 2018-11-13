@@ -121,11 +121,13 @@ def is_int(node):
     return False
 
 _function_pointers = []
-def create_callback_py(m, name, f):
+def create_callback_py(m, f, name=None):
     from ctypes import c_int, c_void_p, CFUNCTYPE, cast
     from inspect import signature
     sig = signature(f)
     nargs = len(sig.parameters)
+    if name is None:
+        name = f.__name__
     ftype = CFUNCTYPE(c_int, *([c_int]*nargs))
     f2 = ftype(f)
     # Store the function pointer so that it does not get garbage collected
