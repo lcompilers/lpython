@@ -79,7 +79,7 @@ jupyter:
   stage: build
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
-    - conda install python=3.7 pytest llvmlite jupyter
+    - conda install python=3.7 pytest llvmlite jupyter matplotlib
     - pip install antlr4-python3-runtime
     - sudo apt-get update
     - sudo apt-get install -yq --no-install-recommends gcc gfortran gcc-multilib cmake make git
@@ -93,8 +93,11 @@ jupyter:
     - python -m fortran_kernel.install
     - jupyter kernelspec list --json
     - cd share/lfortran/nb
+    - py.test --pyargs liblfort
     - jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --output Demo_out.ipynb Demo.ipynb
+    - ls -l output1.png
   artifacts:
     paths:
       - share/lfortran/nb/Demo_out.ipynb
+      - share/lfortran/nb/output1.png
     when: always
