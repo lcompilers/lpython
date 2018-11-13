@@ -144,6 +144,13 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
             "func": True, # Function or Subroutine
             "global": True,
         }
+        self._global_scope._local_symbols["savefig"] = {
+            "name": "savefig",
+            "type": Integer(),
+            "external": True,
+            "func": True, # Function or Subroutine
+            "global": True,
+        }
         self._global_scope._local_symbols["plot_test"] = {
             "name": "plot_test",
             "type": Integer(),

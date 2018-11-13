@@ -29,8 +29,15 @@ class FortranEvaluator(object):
             import pylab
             pylab.plot([1, 2, 3], [a, b, c], "o-")
             return 0
+        def _lfort_savefig(i):
+            import pylab
+            filename = "output%d.png" % i
+            print("Saving to %s." % filename)
+            pylab.savefig(filename)
+            return 0
         create_callback_py(mod, _lfort_plot_test)
         create_callback_py(mod, _lfort_plot)
+        create_callback_py(mod, _lfort_savefig)
         self.lle.add_module(str(mod))
 
     def parse(self, source):
