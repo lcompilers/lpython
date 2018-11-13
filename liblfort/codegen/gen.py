@@ -205,8 +205,16 @@ class CodeGenVisitor(ast.ASTVisitor):
         # plot
         fn_type = ir.FunctionType(ir.IntType(64),
                 [ir.IntType(64), ir.IntType(64)])
+        fn_plot = ir.Function(self.module, fn_type, name="_lfort_plot_test")
+        self._global_scope.symbols["plot_test"]["fn"] = fn_plot
+        fn_type = ir.FunctionType(ir.IntType(64),
+                [ir.IntType(64), ir.IntType(64), ir.IntType(64)])
         fn_plot = ir.Function(self.module, fn_type, name="_lfort_plot")
         self._global_scope.symbols["plot"]["fn"] = fn_plot
+        fn_type = ir.FunctionType(ir.IntType(64),
+                [ir.IntType(64)])
+        fn_plot = ir.Function(self.module, fn_type, name="_lfort_savefig")
+        self._global_scope.symbols["savefig"]["fn"] = fn_plot
 
     def codegen(self, tree):
         """
@@ -232,7 +240,7 @@ class CodeGenVisitor(ast.ASTVisitor):
                         "random_number"]:
                         # Skip these for now (they are handled in Program)
                         continue
-                    if s["name"] == "plot":
+                    if s["name"] in ["plot", "plot_test", "savefig"]:
                         # Handled by plotting extension
                         continue
                     return_type = self.types[s["type"]]
@@ -450,7 +458,7 @@ class CodeGenVisitor(ast.ASTVisitor):
             if len(node.args) == 1 and sym["name"] in ["abs", "sqrt", "log"]:
                 arg = self.visit(node.args[0])
                 return self.builder.call(fn, [arg])
-            if sym["name"] == "plot":
+            if sym["name"] in ["plot", "plot_test", "savefig"]:
                 # FIXME: Pass by value currently:
                 args = []
                 for arg in node.args:
