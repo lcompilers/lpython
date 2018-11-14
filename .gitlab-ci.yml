@@ -48,12 +48,9 @@ full:
 # compilers, just the linker `ld` and the musl C library.
 minimal:
   stage: build
+  image: registry.gitlab.com/lfortran/ci-images/ci-test:minimal-77f05a1
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
-    - conda install python=3.7 pytest llvmlite
-    - pip install antlr4-python3-runtime
-    - sudo apt-get update
-    - sudo apt-get install -yq --no-install-recommends musl-dev binutils gcc libc6-dev
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
     - ./build1.sh
@@ -70,12 +67,9 @@ minimal:
 # Test Jupyter notebooks
 jupyter:
   stage: build
+  image: registry.gitlab.com/lfortran/ci-images/ci-test:jupyter-77f05a1
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
-    - conda install python=3.7 pytest llvmlite jupyter matplotlib
-    - pip install antlr4-python3-runtime
-    - sudo apt-get update
-    - sudo apt-get install -yq --no-install-recommends gcc gfortran gcc-multilib cmake make git
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
     - ./build1.sh
