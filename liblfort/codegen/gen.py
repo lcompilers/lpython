@@ -355,10 +355,10 @@ class CodeGenVisitor(ast.ASTVisitor):
 
     def visit_Print(self, node):
         for expr in node.values:
-            if isinstance(expr, ast.Str):
-                continue # TODO: implement string printing
             v = self.visit(expr)
-            if expr._type == Integer():
+            if isinstance(expr, ast.Str):
+                printf(self.module, self.builder, "%s ", v)
+            elif expr._type == Integer():
                 printf(self.module, self.builder, "%d ", v)
             elif expr._type == Real():
                 printf(self.module, self.builder, "%.17e ", v)
@@ -428,6 +428,9 @@ class CodeGenVisitor(ast.ASTVisitor):
         v = node.id
         sym = self._current_scope.resolve(v)
         return self.builder.load(sym["ptr"])
+
+    def visit_Str(self, node):
+        return create_global_string(self.module, self.builder, node.s)
 
     def visit_FuncCallOrArray(self, node):
         if isinstance(node._type, Array):
