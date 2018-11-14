@@ -10,7 +10,7 @@ before_script:
 
 prepare tarball:
   stage: tarball
-  image: registry.gitlab.com/lfortran/ci-images/ci-test:prepare2-8400c1c
+  image: registry.gitlab.com/lfortran/ci-images:prepare-1.0.0
   script:
     - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
     - ./build0.sh
