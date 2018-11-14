@@ -27,12 +27,9 @@ prepare tarball:
 # Test full dependencies when a C compiler is available and used for linking
 full:
   stage: build
+  image: registry.gitlab.com/lfortran/ci-images:full-1.0.0
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
-    - conda install python=3.7 pytest llvmlite
-    - pip install antlr4-python3-runtime
-    - sudo apt-get update
-    - sudo apt-get install -yq --no-install-recommends gcc gfortran gcc-multilib cmake make
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
     - ./build1.sh
