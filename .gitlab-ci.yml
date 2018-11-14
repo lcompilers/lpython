@@ -10,7 +10,7 @@ before_script:
 
 prepare tarball:
   stage: tarball
-  image: registry.gitlab.com/lfortran/ci-images:prepare-1.0.0
+  image: registry.gitlab.com/lfortran/ci-images:prepare-1.1.0
   script:
     - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
     - ./build0.sh
@@ -27,7 +27,7 @@ prepare tarball:
 # Test full dependencies when a C compiler is available and used for linking
 full:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images:full-1.0.0
+  image: registry.gitlab.com/lfortran/ci-images:full-1.1.0
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
@@ -48,7 +48,7 @@ full:
 # compilers, just the linker `ld` and the musl C library.
 minimal:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images/ci-test:minimal-77f05a1
+  image: registry.gitlab.com/lfortran/ci-images:minimal-1.1.0
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
@@ -67,7 +67,7 @@ minimal:
 # Test Jupyter notebooks
 jupyter:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images/ci-test:jupyter-77f05a1
+  image: registry.gitlab.com/lfortran/ci-images:jupyter-1.1.0
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
