@@ -38,7 +38,7 @@ fi
 # and add the public key `deploy_key.pub` into the target git repository (with
 # write permissions).
 
-ssh-add <(echo "$SSH_PRIVATE_KEY" | base64 --decode)
+ssh-add <(echo "$SSH_PRIVATE_KEY" | base64 -d)
 set -x
 
 
