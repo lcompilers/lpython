@@ -10,13 +10,9 @@ before_script:
 
 prepare tarball:
   stage: tarball
-  image: registry.gitlab.com/certik/ci-images:conda_base
+  image: registry.gitlab.com/lfortran/ci-images/ci-test:prepare2-95381ad
   script:
-    - export PATH="$HOME/conda_root/bin:$PATH"
-    - sudo apt-get update
-    - sudo apt-get install -yq --no-install-recommends git wget ssh openjdk-9-jre-headless
     - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
-    - (cd; wget http://www.antlr.org/download/antlr-4.7-complete.jar)
     - ./build0.sh
     - python setup.py sdist
     - ci/upload_tarball.sh
