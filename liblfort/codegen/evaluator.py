@@ -121,6 +121,7 @@ class FortranEvaluator(object):
                 r = self.evaluate_statement(statement, optimize)
         else:
             r = self.evaluate_statement(ast_tree0, optimize)
+        self._ast_tree0 = ast_tree0
         return r
 
 
