@@ -35,6 +35,7 @@ class FortranEvaluator(object):
             import pylab
             filename = "show_output%d.png" % self._show_counter
             pylab.savefig(filename)
+            pylab.clf()
             return self._show_counter
         def _lfort_savefig(i):
             import pylab
