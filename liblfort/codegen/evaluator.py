@@ -29,6 +29,14 @@ class FortranEvaluator(object):
             import pylab
             pylab.plot([1, 2, 3], [a, b, c], "o-")
             return 0
+        self._show_counter = 0
+        def _lfort_show():
+            self._show_counter += 1
+            import pylab
+            filename = "show_output%d.png" % self._show_counter
+            pylab.savefig(filename)
+            pylab.clf()
+            return self._show_counter
         def _lfort_savefig(i):
             import pylab
             filename = "output%d.png" % i
@@ -38,6 +46,7 @@ class FortranEvaluator(object):
         create_callback_py(mod, _lfort_plot_test)
         create_callback_py(mod, _lfort_plot)
         create_callback_py(mod, _lfort_savefig)
+        create_callback_py(mod, _lfort_show)
         self.lle.add_module(str(mod))
 
     def parse(self, source):
