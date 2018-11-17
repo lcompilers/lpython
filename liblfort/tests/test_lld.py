@@ -1,4 +1,6 @@
+import os
 from subprocess import call
+from tempfile import TemporaryDirectory
 
 import llvmlite.binding as llvm
 
@@ -33,22 +35,22 @@ define void @_start() {
     ret void
 }
     """
-    objfile = "test1.o"
-    binfile = "test1"
-
-    llvm.initialize()
-    llvm.initialize_native_asmprinter()
-    llvm.initialize_native_asmparser()
-    llvm.initialize_native_target()
-    target = llvm.Target.from_triple(llvm.get_default_triple())
-    target_machine = target.create_target_machine()
-    mod = llvm.parse_assembly(source_ll)
-    mod.verify()
-    with open(objfile, "wb") as o:
-        o.write(target_machine.emit_object(mod))
-    linker(["-o", binfile, objfile])
-    r = call("./%s" % binfile)
-    assert r == 42
+    with TemporaryDirectory() as tmpdir:
+        objfile = os.path.join(tmpdir, "test1.o")
+        binfile = os.path.join(tmpdir, "test1")
+        llvm.initialize()
+        llvm.initialize_native_asmprinter()
+        llvm.initialize_native_asmparser()
+        llvm.initialize_native_target()
+        target = llvm.Target.from_triple(llvm.get_default_triple())
+        target_machine = target.create_target_machine()
+        mod = llvm.parse_assembly(source_ll)
+        mod.verify()
+        with open(objfile, "wb") as o:
+            o.write(target_machine.emit_object(mod))
+        linker(["-o", binfile, objfile])
+        r = call("%s" % binfile)
+        assert r == 42
 
 def test_linux64_program_write(capfd):
     source_ll = r"""
@@ -84,22 +86,21 @@ define void @_start() {
     ret void
 }
     """
-    objfile = "test1.o"
-    binfile = "test1"
-
-    llvm.initialize()
-    llvm.initialize_native_asmprinter()
-    llvm.initialize_native_asmparser()
-    llvm.initialize_native_target()
-    target = llvm.Target.from_triple(llvm.get_default_triple())
-    target_machine = target.create_target_machine()
-    mod = llvm.parse_assembly(source_ll)
-    mod.verify()
-    with open(objfile, "wb") as o:
-        o.write(target_machine.emit_object(mod))
-    linker(["-o", binfile, objfile])
-    r = call("./%s" % binfile)
-    assert r == 42
-
-    out = capfd.readouterr().out
-    assert out == "Hello, world!\n"
+    with TemporaryDirectory() as tmpdir:
+        objfile = os.path.join(tmpdir, "test1.o")
+        binfile = os.path.join(tmpdir, "test1")
+        llvm.initialize()
+        llvm.initialize_native_asmprinter()
+        llvm.initialize_native_asmparser()
+        llvm.initialize_native_target()
+        target = llvm.Target.from_triple(llvm.get_default_triple())
+        target_machine = target.create_target_machine()
+        mod = llvm.parse_assembly(source_ll)
+        mod.verify()
+        with open(objfile, "wb") as o:
+            o.write(target_machine.emit_object(mod))
+        linker(["-o", binfile, objfile])
+        r = call("%s" % binfile)
+        assert r == 42
+        out = capfd.readouterr().out
+        assert out == "Hello, world!\n"
