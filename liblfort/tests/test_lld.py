@@ -44,7 +44,7 @@ define void @_start() {
     r = call("./%s" % binfile)
     assert r == 42
 
-def test_linux64_program_write():
+def test_linux64_program_write(capfd):
     source_ll = r"""
 @.message = internal constant [14 x i8] c"Hello, world!\0A"
 
@@ -94,3 +94,6 @@ define void @_start() {
     llvm.lld_main(["ld.lld", "-o", binfile, objfile])
     r = call("./%s" % binfile)
     assert r == 42
+
+    out = capfd.readouterr().out
+    assert out == "Hello, world!\n"
