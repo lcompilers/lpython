@@ -7,14 +7,23 @@ def test_linux64_program():
     This is the simplest assembly program that uses Linux 64bit syscall to
     return an exit value.
     """
+    # Named registers are used in the "asm" block, so that LLVM handles
+    # register allocation. The syscall kernel call clobbers rcx and r11
+    # registers. The LLVM's "asm" call itself seems to clobber dirflag, fpsr
+    # and flags registers.
     source_ll = r"""
-define void @syscall1(i64 %n, i64 %a) {
-    call void asm sideeffect "movq $0, %rax; movq $1, %rdi; syscall", "m,m,~{rax},~{rdi},~{dirflag},~{fpsr},~{flags}"(i64 %n, i64 %a)
+; exit(int exit_code)
+define void @exit(i64 %exit_code) {
+    call i64 asm sideeffect "syscall",
+        "={rax},{rax},{rdi},~{rcx},~{r11},~{dirflag},~{fpsr},~{flags}"
+        ( i64 60          ; {rax} SYSCALL_EXIT
+        , i64 %exit_code  ; {rdi} exit_code
+        )
     ret void
 }
 
 define void @_start() {
-    call void @syscall1(i64 60, i64 42)
+    call void @exit(i64 42)
     ret void
 }
     """
