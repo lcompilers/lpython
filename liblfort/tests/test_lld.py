@@ -43,3 +43,54 @@ define void @_start() {
     llvm.lld_main(["ld.lld", "-o", binfile, objfile])
     r = call("./%s" % binfile)
     assert r == 42
+
+def test_linux64_program_write():
+    source_ll = r"""
+@.message = internal constant [14 x i8] c"Hello, world!\0A"
+
+; write(STDOUT, message, message_len)
+define void @write(i8* %message_ptr) {
+    call i64 asm sideeffect "syscall",
+        "={rax},{rax},{rdi},{rsi},{rdx},~{rcx},~{r11},~{dirflag},~{fpsr},~{flags}"
+        ( i64 1            ; {rax} SYSCALL_WRITE
+        , i64 1            ; {rdi} STDOUT
+        , i8* %message_ptr ; {rsi} message
+        , i64 14           ; {rdx} message_len
+        )
+    ret void
+}
+
+; exit(int exit_code)
+define void @exit(i64 %exit_code) {
+    call i64 asm sideeffect "syscall",
+        "={rax},{rax},{rdi},~{rcx},~{r11},~{dirflag},~{fpsr},~{flags}"
+        ( i64 60          ; {rax} SYSCALL_EXIT
+        , i64 %exit_code  ; {rdi} exit_code
+        )
+    ret void
+}
+
+define void @_start() {
+    %message_ptr = getelementptr [14 x i8], [14 x i8]* @.message , i64 0, i64 0
+
+    call void @write(i8* %message_ptr)
+    call void @exit(i64 42)
+    ret void
+}
+    """
+    objfile = "test1.o"
+    binfile = "test1"
+
+    llvm.initialize()
+    llvm.initialize_native_asmprinter()
+    llvm.initialize_native_asmparser()
+    llvm.initialize_native_target()
+    target = llvm.Target.from_triple(llvm.get_default_triple())
+    target_machine = target.create_target_machine()
+    mod = llvm.parse_assembly(source_ll)
+    mod.verify()
+    with open(objfile, "wb") as o:
+        o.write(target_machine.emit_object(mod))
+    llvm.lld_main(["ld.lld", "-o", binfile, objfile])
+    r = call("./%s" % binfile)
+    assert r == 42
