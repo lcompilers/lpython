@@ -8,12 +8,8 @@ def test_linux64_program():
     return an exit value.
     """
     source_ll = r"""
-define void @syscall1(i64, i64) {
-    %3 = alloca i64, align 8
-    %4 = alloca i64, align 8
-    store i64 %0, i64* %3, align 8
-    store i64 %1, i64* %4, align 8
-    call void asm sideeffect "movq $0, %rax\0Amovq $1, %rdi\0Asyscall", "*m,*m,~{rax},~{rdi},~{dirflag},~{fpsr},~{flags}"(i64* %3, i64* %4)
+define void @syscall1(i64 %n, i64 %a) {
+    call void asm sideeffect "movq $0, %rax\0Amovq $1, %rdi\0Asyscall", "m,m,~{rax},~{rdi},~{dirflag},~{fpsr},~{flags}"(i64 %n, i64 %a)
     ret void
 }
 
