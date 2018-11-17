@@ -9,7 +9,7 @@ def test_linux64_program():
     """
     source_ll = r"""
 define void @syscall1(i64 %n, i64 %a) {
-    call void asm sideeffect "movq $0, %rax\0Amovq $1, %rdi\0Asyscall", "m,m,~{rax},~{rdi},~{dirflag},~{fpsr},~{flags}"(i64 %n, i64 %a)
+    call void asm sideeffect "movq $0, %rax; movq $1, %rdi; syscall", "m,m,~{rax},~{rdi},~{dirflag},~{fpsr},~{flags}"(i64 %n, i64 %a)
     ret void
 }
 
