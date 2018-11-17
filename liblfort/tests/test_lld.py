@@ -2,6 +2,12 @@ from subprocess import call
 
 import llvmlite.binding as llvm
 
+def linker(args):
+    try:
+        llvm.lld_main(["ld.lld"] + args)
+    except AttributeError:
+        call(["ld"] + args)
+
 def test_linux64_program():
     """
     This is the simplest assembly program that uses Linux 64bit syscall to
@@ -40,7 +46,7 @@ define void @_start() {
     mod.verify()
     with open(objfile, "wb") as o:
         o.write(target_machine.emit_object(mod))
-    llvm.lld_main(["ld.lld", "-o", binfile, objfile])
+    linker(["-o", binfile, objfile])
     r = call("./%s" % binfile)
     assert r == 42
 
@@ -91,7 +97,7 @@ define void @_start() {
     mod.verify()
     with open(objfile, "wb") as o:
         o.write(target_machine.emit_object(mod))
-    llvm.lld_main(["ld.lld", "-o", binfile, objfile])
+    linker(["-o", binfile, objfile])
     r = call("./%s" % binfile)
     assert r == 42
 
