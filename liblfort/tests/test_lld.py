@@ -16,9 +16,11 @@ def test_linux64_program():
     return an exit value.
     """
     # Named registers are used in the "asm" block, so that LLVM handles
-    # register allocation. The syscall kernel call clobbers rcx and r11
-    # registers. The LLVM's "asm" call itself seems to clobber dirflag, fpsr
-    # and flags registers.
+    # register allocation. The syscall kernel call clobbers `rcx` and `r11`
+    # registers. The LLVM's "asm" call itself clobbers the following registers:
+    #   * flags (EFLAGS: status flags register)
+    #   * dirflag (DF: direction flag. Modeled separately from "flags")
+    #   * fpsr (floating point status register)
     source_ll = r"""
 ; exit(int exit_code)
 define void @exit(i64 %exit_code) {
