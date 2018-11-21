@@ -15,12 +15,19 @@ def test_linux64_program():
     This is the simplest assembly program that uses Linux 64bit syscall to
     return an exit value.
     """
-    # Named registers are used in the "asm" block, so that LLVM handles
-    # register allocation. The syscall kernel call clobbers `rcx` and `r11`
-    # registers. The LLVM's "asm" call itself clobbers the following registers:
-    #   * flags (EFLAGS: status flags register)
-    #   * dirflag (DF: direction flag. Modeled separately from "flags")
-    #   * fpsr (floating point status register)
+    # Named registers are used in the `asm` block, so that LLVM handles
+    # register allocation.
+    #
+    # The calling convention for syscall on x86-64 (see `man syscall`) is to
+    # pass the system call number in {rax}, the return value is returned in
+    # {rax}, and the system call arguments in:
+    #     {rdi},{rsi},{rdx},{r10},{r8},{r9}
+    # The syscall kernel call clobbers {rcx} and {r11} registers.
+    #
+    # The LLVM's `asm` call itself clobbers the following registers:
+    #   * {flags} (EFLAGS: status flags register)
+    #   * {dirflag} (DF: direction flag; modeled separately from {flags})
+    #   * {fpsr} (floating point status register)
     source_ll = r"""
 ; exit(int exit_code)
 define void @exit(i64 %exit_code) {
