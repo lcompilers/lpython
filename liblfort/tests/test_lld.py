@@ -66,15 +66,15 @@ def test_linux64_program_write(capfd):
 @.message = internal constant [14 x i8] c"Hello, world!\0A"
 
 ; write(STDOUT, message, message_len)
-define void @write(i64 %STDOUT, i8* %message, i64 %message_len) {
-    call i64 asm sideeffect "syscall",
+define i64 @write(i64 %STDOUT, i8* %message, i64 %message_len) {
+    %1 = call i64 asm sideeffect "syscall",
         "={rax},{rax},{rdi},{rsi},{rdx},~{rcx},~{r11},~{dirflag},~{fpsr},~{flags}"
         ( i64 1            ; {rax} SYSCALL_WRITE
         , i64 %STDOUT      ; {rdi} STDOUT
         , i8* %message     ; {rsi} message
         , i64 %message_len ; {rdx} message_len
         )
-    ret void
+    ret i64 %1
 }
 
 ; exit(int exit_code)
@@ -90,7 +90,7 @@ define void @exit(i64 %exit_code) {
 define void @_start() {
     %message_ptr = getelementptr [14 x i8], [14 x i8]* @.message , i64 0, i64 0
 
-    call void @write(i64 1, i8* %message_ptr, i64 14)
+    call i64 @write(i64 1, i8* %message_ptr, i64 14)
     call void @exit(i64 42)
     ret void
 }
