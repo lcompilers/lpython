@@ -80,8 +80,8 @@ interface_decl
 //
 
 program
-    : NEWLINE* ('program'|'PROGRAM') ID NEWLINE+ sub_block
-        ('program'|'PROGRAM')? ID? (EOF | NEWLINE+)
+    : NEWLINE* PROGRAM ID NEWLINE+ sub_block
+        PROGRAM? ID? (EOF | NEWLINE+)
     ;
 
 subroutine
@@ -413,6 +413,10 @@ NEWLINE
 WS
     : [ \t] -> skip
     ;
+
+// Keywords
+
+PROGRAM : P R O G R A M ;
 
 fragment A : [aA] ;
 fragment B : [bB] ;
