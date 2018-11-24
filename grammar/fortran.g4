@@ -418,24 +418,24 @@ WS
 
 PROGRAM : P R O G R A M ;
 
-fragment A : [aA] ;
+fragment A : ('a' | 'A' ) ;
 fragment B : [bB] ;
 fragment C : [cC] ;
 fragment D : [dD] ;
 fragment E : [eE] ;
 fragment F : [fF] ;
-fragment G : [gG] ;
+fragment G : ('g' | 'G' ) ;
 fragment H : [hH] ;
 fragment I : [iI] ;
 fragment J : [jJ] ;
 fragment K : [kK] ;
 fragment L : [lL] ;
-fragment M : [mM] ;
+fragment M : ('m' | 'M') ;
 fragment N : [nN] ;
-fragment O : [oO] ;
-fragment P : [pP] ;
+fragment O : ('o' | 'O') ;
+fragment P : ('p' | 'P') ;
 fragment Q : [qQ] ;
-fragment R : [rR] ;
+fragment R : ('r' | 'R') ;
 fragment S : [sS] ;
 fragment T : [tT] ;
 fragment U : [uU] ;
