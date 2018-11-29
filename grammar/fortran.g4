@@ -382,6 +382,38 @@ ident
 // form the tokens and are saved into `fortranLexer.tokens`.
 //
 
+// Keywords
+
+fragment A : [aA] ;
+fragment B : [bB] ;
+fragment C : [cC] ;
+fragment D : [dD] ;
+fragment E : [eE] ;
+fragment F : [fF] ;
+fragment G : [gG] ;
+fragment H : [hH] ;
+fragment I : [iI] ;
+fragment J : [jJ] ;
+fragment K : [kK] ;
+fragment L : [lL] ;
+fragment M : [mM] ;
+fragment N : [nN] ;
+fragment O : [oO] ;
+fragment P : [pP] ;
+fragment Q : [qQ] ;
+fragment R : [rR] ;
+fragment S : [sS] ;
+fragment T : [tT] ;
+fragment U : [uU] ;
+fragment V : [vV] ;
+fragment W : [wW] ;
+fragment X : [xX] ;
+fragment Y : [yY] ;
+fragment Z : [zZ] ;
+
+PROGRAM : P R O G R A M ;
+
+
 NUMBER
     : ([0-9]+ '.' [0-9]* | '.' [0-9]+) EXP? NTYP?
     |  [0-9]+                          EXP? NTYP?
@@ -413,34 +445,3 @@ NEWLINE
 WS
     : [ \t] -> skip
     ;
-
-// Keywords
-
-PROGRAM : P R O G R A M ;
-
-fragment A : ('a' | 'A' ) ;
-fragment B : [bB] ;
-fragment C : [cC] ;
-fragment D : [dD] ;
-fragment E : [eE] ;
-fragment F : [fF] ;
-fragment G : ('g' | 'G' ) ;
-fragment H : [hH] ;
-fragment I : [iI] ;
-fragment J : [jJ] ;
-fragment K : [kK] ;
-fragment L : [lL] ;
-fragment M : ('m' | 'M') ;
-fragment N : [nN] ;
-fragment O : ('o' | 'O') ;
-fragment P : ('p' | 'P') ;
-fragment Q : [qQ] ;
-fragment R : ('r' | 'R') ;
-fragment S : [sS] ;
-fragment T : [tT] ;
-fragment U : [uU] ;
-fragment V : [vV] ;
-fragment W : [wW] ;
-fragment X : [xX] ;
-fragment Y : [yY] ;
-fragment Z : [zZ] ;
