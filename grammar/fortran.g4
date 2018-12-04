@@ -44,7 +44,7 @@ script_unit
 //
 
 module
-    : NEWLINE* MODULE ID NEWLINE+ (use_statement NEWLINE+)* 'implicit none'
+    : NEWLINE* MODULE ID NEWLINE+ (use_statement NEWLINE+)* implicit_statement
         NEWLINE+ module_decl* contains_block? 'end' MODULE ID?
         (EOF | NEWLINE+)
     ;
@@ -108,7 +108,7 @@ sub_or_func
     ;
 
 implicit_statement
-    : 'implicit none'
+    : IMPLICIT NONE
     ;
 
 use_statement
@@ -413,6 +413,8 @@ fragment Z : [zZ] ;
 
 PROGRAM : P R O G R A M ;
 MODULE : M O D U L E;
+IMPLICIT : I M P L I C I T;
+NONE: N O N E;
 
 
 NUMBER
