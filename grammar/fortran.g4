@@ -57,11 +57,11 @@ module_decl
     ;
 
 private_decl
-    : 'private' '::'? id_list? NEWLINE+
+    : PRIVATE '::'? id_list? NEWLINE+
     ;
 
 public_decl
-    : 'public' '::'? id_list? NEWLINE+
+    : PUBLIC '::'? id_list? NEWLINE+
     ;
 
 interface_decl
@@ -415,6 +415,8 @@ END: E N D;
 IMPLICIT : I M P L I C I T;
 MODULE : M O D U L E;
 NONE: N O N E;
+PRIVATE: P R I V A T E;
+PUBLIC: P U B L I C;
 PROGRAM : P R O G R A M ;
 
 
