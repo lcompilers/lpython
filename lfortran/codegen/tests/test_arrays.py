@@ -55,3 +55,17 @@ else
 end if
 """)
     assert e.evaluate("i") == 1
+
+def test_arrays3():
+    e = FortranEvaluator()
+    e.evaluate("""\
+integer function f(a)
+integer, intent(in) :: a(3)
+integer :: i
+f = 0
+do i = 1, 3
+    f = f + a(i)
+end do
+end function
+""")
+    assert e.evaluate("a([1, 2, 3])") == 6
