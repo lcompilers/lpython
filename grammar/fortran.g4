@@ -130,9 +130,9 @@ var_type
     ;
 
 var_modifier
-    : 'parameter' | 'intent' | 'dimension' array_decl? | 'allocatable' | 'pointer'
-    | 'protected' | 'save' | 'contiguous'
-    | 'intent' '(' ('in' | 'out' | 'inout' ) ')'
+    : KW_PARAMETER | KW_INTENT | KW_DIMENSION array_decl? | KW_ALLOCATABLE | KW_POINTER
+    | KW_PROTECTED | KW_SAVE | KW_CONTIGUOUS
+    | KW_INTENT '(' (KW_IN | KW_OUT | KW_INOUT ) ')'
     ;
 
 var_sym_decl
@@ -411,28 +411,39 @@ fragment X : [xX] ;
 fragment Y : [yY] ;
 fragment Z : [zZ] ;
 
+KW_ALLOCATABLE: A L L O C A T A B L E;
 KW_CHAR: C H A R;
 KW_CHARACTER: C H A R A C T E R;
 KW_COMPLEX: C O M P L E X;
 KW_CONTAINS: C O N T A I N S;
+KW_CONTIGUOUS: C O N T I G U O U S;
+KW_DIMENSION: D I M E N S I O N;
 KW_END: E N D;
 KW_EXIT: E X I T;
 KW_FUNCTION: F U N C T I O N;
 KW_IMPLICIT: I M P L I C I T;
+KW_IN: I N;
+KW_OUT: O U T;
+KW_INOUT: I N O U T;
 KW_INTEGER: I N T E G E R;
 KW_INTERFACE: I N T E R F A C E;
+KW_INTENT: I N T E N T;
 KW_LOGICAL: L O G I C A L;
 KW_MODULE: M O D U L E;
 KW_NONE: N O N E;
 KW_ONLY: O N L Y;
+KW_PARAMETER: P A R A M E T E R;
+KW_POINTER: P O I N T E R;
 KW_PRIVATE: P R I V A T E;
 KW_PROCEDURE: P R O C E D U R E;
 KW_PROGRAM: P R O G R A M ;
+KW_PROTECTED: P R O T E C T E D;
 KW_PUBLIC: P U B L I C;
 KW_PURE: P U R E;
 KW_REAL: R E A L;
 KW_RECURSIVE: R E C U R S I V E;
 KW_RESULT: R E S U L T;
+KW_SAVE: S A V E;
 KW_SUBROUTINE: S U B R O U T I N E;
 KW_TYPE: T Y P E;
 KW_USE: U S E;
