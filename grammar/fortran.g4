@@ -45,7 +45,7 @@ script_unit
 
 module
     : NEWLINE* MODULE ID NEWLINE+ (use_statement NEWLINE+)* implicit_statement
-        NEWLINE+ module_decl* contains_block? 'end' MODULE ID?
+        NEWLINE+ module_decl* contains_block? END MODULE ID?
         (EOF | NEWLINE+)
     ;
 
@@ -65,7 +65,7 @@ public_decl
     ;
 
 interface_decl
-    : 'interface' ID NEWLINE+ (MODULE 'procedure' id_list NEWLINE+)* 'end' 'interface' ID? NEWLINE+
+    : 'interface' ID NEWLINE+ (MODULE 'procedure' id_list NEWLINE+)* END 'interface' ID? NEWLINE+
     ;
 
 // ----------------------------------------------------------------------------
@@ -96,7 +96,7 @@ function
     ;
 
 sub_block
-    : (use_statement NEWLINE+)* (implicit_statement NEWLINE+)? var_decl* statements contains_block? ('end'|'END')
+    : (use_statement NEWLINE+)* (implicit_statement NEWLINE+)? var_decl* statements contains_block? END
     ;
 
 contains_block
@@ -208,7 +208,7 @@ builtin_statement
 
 if_statement
     : if_cond statement    # if_single_line
-    | if_block 'end' 'if'  # if_multi_line
+    | if_block END 'if'  # if_multi_line
     ;
 
 if_cond: 'if' '(' expr ')' ;
@@ -223,7 +223,7 @@ if_else_block
 
 where_statement
     : where_cond statement      # where_single_line
-    | where_block 'end' 'where' # where_multi_line
+    | where_block END 'where' # where_multi_line
     ;
 
 where_cond: 'where' '(' expr ')' ;
@@ -237,15 +237,15 @@ where_else_block
     ;
 
 do_statement
-    : 'do' (ID '=' expr ',' expr (',' expr)?)? NEWLINE+ statements 'end' 'do'
+    : 'do' (ID '=' expr ',' expr (',' expr)?)? NEWLINE+ statements END 'do'
     ;
 
 while_statement
-    : 'do' 'while' '(' expr ')' NEWLINE* statements 'end' 'do'
+    : 'do' 'while' '(' expr ')' NEWLINE* statements END 'do'
     ;
 
 select_statement
-    : 'select' 'case' '(' expr ')' NEWLINE+ case_statement* select_default_statement? 'end' 'select'
+    : 'select' 'case' '(' expr ')' NEWLINE+ case_statement* select_default_statement? END 'select'
     ;
 
 case_statement
@@ -411,10 +411,11 @@ fragment X : [xX] ;
 fragment Y : [yY] ;
 fragment Z : [zZ] ;
 
-PROGRAM : P R O G R A M ;
-MODULE : M O D U L E;
+END: E N D;
 IMPLICIT : I M P L I C I T;
+MODULE : M O D U L E;
 NONE: N O N E;
+PROGRAM : P R O G R A M ;
 
 
 NUMBER
