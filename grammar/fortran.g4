@@ -65,7 +65,7 @@ public_decl
     ;
 
 interface_decl
-    : 'interface' ID NEWLINE+ (MODULE 'procedure' id_list NEWLINE+)* END 'interface' ID? NEWLINE+
+    : INTERFACE ID NEWLINE+ (MODULE 'procedure' id_list NEWLINE+)* END INTERFACE ID? NEWLINE+
     ;
 
 // ----------------------------------------------------------------------------
@@ -413,6 +413,7 @@ fragment Z : [zZ] ;
 
 END: E N D;
 IMPLICIT : I M P L I C I T;
+INTERFACE: I N T E R F A C E;
 MODULE : M O D U L E;
 NONE: N O N E;
 PRIVATE: P R I V A T E;
