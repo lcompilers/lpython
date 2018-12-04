@@ -306,7 +306,7 @@ expr_array_const: arrays like [1, 2, 3, x]
 */
 expr
 // ### primary
-    : struct_member* fn_names '(' arg_list? ')'  # expr_fn_call
+    : struct_member* ident '(' arg_list? ')'  # expr_fn_call
     | struct_member* ident '(' array_index_list ')' # expr_array_call
     | '[' expr_list ']'                          # expr_array_const
     | struct_member* ident                       # expr_id
@@ -360,8 +360,6 @@ number
     : NUMBER                    # number_real    // Real number
     | '(' NUMBER ',' NUMBER ')' # number_complex // Complex number
     ;
-
-fn_names: ident;
 
 ident
     : ID

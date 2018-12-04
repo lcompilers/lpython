@@ -424,7 +424,7 @@ class ASTBuilderVisitor(fortranVisitor):
 
     # Visit a parse tree produced by fortranParser#expr_fn_call.
     def visitExpr_fn_call(self, ctx:fortranParser.Expr_fn_callContext):
-        name = ctx.fn_names().getText()
+        name = ctx.ident().getText()
         args =[]
         if ctx.arg_list():
             for arg in ctx.arg_list().arg():
