@@ -525,7 +525,7 @@ class ASTBuilderVisitor(fortranVisitor):
 
     # Visit a parse tree produced by fortranParser#interface_decl.
     def visitInterface_decl(self, ctx:fortranParser.Interface_declContext):
-        name = ctx.ID(0).getText()
+        name = ctx.ident(0).getText()
         procs = []
         for proc_line in ctx.id_list():
             for proc in proc_line.ID():

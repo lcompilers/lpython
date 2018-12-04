@@ -65,7 +65,7 @@ public_decl
     ;
 
 interface_decl
-    : KW_INTERFACE ID NEWLINE+ (KW_MODULE KW_PROCEDURE id_list NEWLINE+)* KW_END KW_INTERFACE ID? NEWLINE+
+    : KW_INTERFACE ident NEWLINE+ (KW_MODULE KW_PROCEDURE id_list NEWLINE+)* KW_END KW_INTERFACE ident? NEWLINE+
     ;
 
 // ----------------------------------------------------------------------------
