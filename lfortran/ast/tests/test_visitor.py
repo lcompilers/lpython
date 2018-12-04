@@ -1,4 +1,4 @@
-from liblfort import ast
+from lfortran import ast
 
 class SubroutinesVisitor(ast.ast.GenericASTVisitor):
 

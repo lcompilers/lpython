@@ -20,8 +20,8 @@ setuptools.setup(
     data_files=[
         ('share/lfortran/nb', ['share/lfortran/nb/Demo.ipynb']),
         ('share/lfortran/lib', [
-            'share/lfortran/lib/liblfort.a',
-            'share/lfortran/lib/liblfort.so']),
+            'share/lfortran/lib/liblfortran.a',
+            'share/lfortran/lib/liblfortran.so']),
         ],
     scripts=['lfort', 'prompt.py'],
     classifiers=[

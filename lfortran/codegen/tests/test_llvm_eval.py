@@ -1,6 +1,6 @@
 import pytest
 
-from liblfort.codegen.evaluator import LLVMEvaluator
+from lfortran.codegen.evaluator import LLVMEvaluator
 
 # Tests for LLVMEvaluator
 
@@ -234,7 +234,7 @@ define i64 @addrcaller(i64 %a, i64 %b)
 
 def test_llvm_callback_stub():
     from ctypes import c_int, c_void_p, CFUNCTYPE, cast
-    from liblfort.codegen.gen import create_callback_stub
+    from lfortran.codegen.gen import create_callback_stub
     from llvmlite import ir
     data = [0, 0]
     ftype = CFUNCTYPE(c_int, c_int, c_int)
@@ -255,7 +255,7 @@ def test_llvm_callback_stub():
     assert data == [2, 3]
 
 def test_llvm_callback_py0():
-    from liblfort.codegen.gen import create_callback_py
+    from lfortran.codegen.gen import create_callback_py
     from llvmlite import ir
     data = [0]
     def f():
@@ -273,7 +273,7 @@ def test_llvm_callback_py0():
     assert stub() == 5
 
 def test_llvm_callback_py2():
-    from liblfort.codegen.gen import create_callback_py
+    from lfortran.codegen.gen import create_callback_py
     from llvmlite import ir
     data = [0, 0]
     def g(a, b):
@@ -290,7 +290,7 @@ def test_llvm_callback_py2():
     assert data == [2, 3]
 
 def test_llvm_callback_py3():
-    from liblfort.codegen.gen import create_callback_py
+    from lfortran.codegen.gen import create_callback_py
     from llvmlite import ir
     data = [0, 0, 0]
     def f(a, b, c):

@@ -1,7 +1,7 @@
 from glob import glob
 import os
 
-from liblfort.ast import parse
+from lfortran.ast import parse
 
 def test_files():
     sources = [file1, file2, file3, file4, file5, file6, file7, file8, file9]

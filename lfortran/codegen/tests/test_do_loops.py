@@ -1,4 +1,4 @@
-from liblfort.codegen.evaluator import FortranEvaluator
+from lfortran.codegen.evaluator import FortranEvaluator
 
 def test_do_loops_fn():
     e = FortranEvaluator()
