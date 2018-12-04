@@ -704,3 +704,21 @@ def test_interactive2():
         "use a i=5",
         ]
     all_fail(tests)
+
+def test_case_sensitivity():
+    tests = [
+        "Integer :: x",
+        "INTEGER :: x",
+        "iNteger :: x",
+        "integeR, dImenSion(9,10) :: c",
+        "integer, DIMENSION(:,:), intenT(In) :: e",
+        "integer(c_Int) :: i",
+
+        "Real a",
+        "REAL :: a",
+        "real(dp), aLLocatable :: a(:,:)",
+        "cHAracter(len=*) :: c",
+
+        "tYPe(xx), inTEnt(inOUt) :: x, y",
+    ]
+    run_tests(tests, "case_sensitivity_results.py")

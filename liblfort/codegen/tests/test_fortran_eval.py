@@ -267,3 +267,14 @@ print *, "Hello world!"
     libc.fflush(c_stdout)
     out = capfd.readouterr().out
     assert out == "Hello world! \n"
+
+def test_case_sensitivity():
+    e = FortranEvaluator()
+    e.evaluate("""\
+Integer FUNCTION f(a)
+INTEGER, Intent(In) :: a
+f = a + 5
+End Function
+""")
+    assert e.evaluate("f(2)") == 7
+    assert e.evaluate("f(5)") == 10

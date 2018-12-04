@@ -44,8 +44,8 @@ script_unit
 //
 
 module
-    : NEWLINE* 'module' ID NEWLINE+ (use_statement NEWLINE+)* 'implicit none'
-        NEWLINE+ module_decl* contains_block? 'end' 'module' ID?
+    : NEWLINE* KW_MODULE ident NEWLINE+ (use_statement NEWLINE+)* implicit_statement
+        NEWLINE+ module_decl* contains_block? KW_END KW_MODULE ident?
         (EOF | NEWLINE+)
     ;
 
@@ -57,15 +57,15 @@ module_decl
     ;
 
 private_decl
-    : 'private' '::'? id_list? NEWLINE+
+    : KW_PRIVATE '::'? id_list? NEWLINE+
     ;
 
 public_decl
-    : 'public' '::'? id_list? NEWLINE+
+    : KW_PUBLIC '::'? id_list? NEWLINE+
     ;
 
 interface_decl
-    : 'interface' ID NEWLINE+ ('module' 'procedure' id_list NEWLINE+)* 'end' 'interface' ID? NEWLINE+
+    : KW_INTERFACE ident NEWLINE+ (KW_MODULE KW_PROCEDURE id_list NEWLINE+)* KW_END KW_INTERFACE ident? NEWLINE+
     ;
 
 // ----------------------------------------------------------------------------
@@ -80,27 +80,27 @@ interface_decl
 //
 
 program
-    : NEWLINE* ('program'|'PROGRAM') ID NEWLINE+ sub_block
-        ('program'|'PROGRAM')? ID? (EOF | NEWLINE+)
+    : NEWLINE* KW_PROGRAM ident NEWLINE+ sub_block
+        KW_PROGRAM? ident? (EOF | NEWLINE+)
     ;
 
 subroutine
-    : 'subroutine' ID ('(' id_list? ')')? NEWLINE+ sub_block 'subroutine' ID?
+    : KW_SUBROUTINE ident ('(' id_list? ')')? NEWLINE+ sub_block KW_SUBROUTINE ident?
         (EOF | NEWLINE+)
     ;
 
 function
-    : (var_type ('(' ID ')')?)? 'pure'? 'recursive'?
-        'function' ID ('(' id_list? ')')? ('result' '(' ID ')')? NEWLINE+
-        sub_block 'function' ID? (EOF | NEWLINE+)
+    : (var_type ('(' ident ')')?)? KW_PURE? KW_RECURSIVE?
+        KW_FUNCTION ident ('(' id_list? ')')? (KW_RESULT '(' ident ')')? NEWLINE+
+        sub_block KW_FUNCTION ident? (EOF | NEWLINE+)
     ;
 
 sub_block
-    : (use_statement NEWLINE+)* (implicit_statement NEWLINE+)? var_decl* statements contains_block? ('end'|'END')
+    : (use_statement NEWLINE+)* (implicit_statement NEWLINE+)? var_decl* statements contains_block? KW_END
     ;
 
 contains_block
-    : 'contains' NEWLINE+ sub_or_func+
+    : KW_CONTAINS NEWLINE+ sub_or_func+
     ;
 
 sub_or_func
@@ -108,31 +108,31 @@ sub_or_func
     ;
 
 implicit_statement
-    : 'implicit none'
+    : KW_IMPLICIT KW_NONE
     ;
 
 use_statement
-    : 'use' use_symbol (',' 'only' ':' use_symbol_list)?
+    : KW_USE use_symbol (',' KW_ONLY ':' use_symbol_list)?
     ;
 
 use_symbol_list : use_symbol (',' use_symbol)* ;
-use_symbol : ID | ID '=>' ID ;
+use_symbol : ident | ident '=>' ident ;
 
-id_list : ID (',' ID)* ;
+id_list : ident (',' ident)* ;
 
 var_decl
-    : var_type ('(' (ID '=')? ('*' | ID) ')')? (',' var_modifier)* '::'?  var_sym_decl (',' var_sym_decl)* ';'* NEWLINE*
+    : var_type ('(' (ident '=')? ('*' | ident) ')')? (',' var_modifier)* '::'?  var_sym_decl (',' var_sym_decl)* ';'* NEWLINE*
     ;
 
 var_type
-    : 'integer' | 'char' | 'real' | 'complex' | 'logical' | 'type'
-    | 'character'
+    : KW_INTEGER | KW_CHAR | KW_REAL | KW_COMPLEX | KW_LOGICAL | KW_TYPE
+    | KW_CHARACTER
     ;
 
 var_modifier
-    : 'parameter' | 'intent' | 'dimension' array_decl? | 'allocatable' | 'pointer'
-    | 'protected' | 'save' | 'contiguous'
-    | 'intent' '(' ('in' | 'out' | 'inout' ) ')'
+    : KW_PARAMETER | KW_INTENT | KW_DIMENSION array_decl? | KW_ALLOCATABLE | KW_POINTER
+    | KW_PROTECTED | KW_SAVE | KW_CONTIGUOUS
+    | KW_INTENT '(' (KW_IN | KW_OUT | KW_INOUT ) ')'
     ;
 
 var_sym_decl
@@ -186,90 +186,90 @@ assignment_statement
     ;
 
 exit_statement
-    : 'exit'
+    : KW_EXIT
     ;
 
 cycle_statement
-    : 'cycle'
+    : KW_CYCLE
     ;
 
 return_statement
-    : 'return'
+    : KW_RETURN
     ;
 
 subroutine_call
-    : 'call' struct_member* ID '(' arg_list? ')'
+    : KW_CALL struct_member* ident '(' arg_list? ')'
     ;
 
 builtin_statement
-    : name=('allocate' | 'open' | 'close') '(' arg_list? ')'
+    : name=(KW_ALLOCATE | KW_OPEN | KW_CLOSE) '(' arg_list? ')'
     ;
 
 
 if_statement
     : if_cond statement    # if_single_line
-    | if_block 'end' 'if'  # if_multi_line
+    | if_block KW_END KW_IF  # if_multi_line
     ;
 
-if_cond: 'if' '(' expr ')' ;
+if_cond: KW_IF '(' expr ')' ;
 
 if_block
-    : if_cond 'then' NEWLINE+ statements if_else_block?
+    : if_cond KW_THEN NEWLINE+ statements if_else_block?
     ;
 
 if_else_block
-    : 'else' (if_block | (NEWLINE+ statements))
+    : KW_ELSE (if_block | (NEWLINE+ statements))
     ;
 
 where_statement
-    : where_cond statement      # where_single_line
-    | where_block 'end' 'where' # where_multi_line
+    : where_cond statement        # where_single_line
+    | where_block KW_END KW_WHERE # where_multi_line
     ;
 
-where_cond: 'where' '(' expr ')' ;
+where_cond: KW_WHERE '(' expr ')' ;
 
 where_block
     : where_cond NEWLINE+ statements where_else_block?
     ;
 
 where_else_block
-    : 'else' 'where'? (where_block | (NEWLINE+ statements))
+    : KW_ELSE KW_WHERE? (where_block | (NEWLINE+ statements))
     ;
 
 do_statement
-    : 'do' (ID '=' expr ',' expr (',' expr)?)? NEWLINE+ statements 'end' 'do'
+    : KW_DO (ident '=' expr ',' expr (',' expr)?)? NEWLINE+ statements KW_END KW_DO
     ;
 
 while_statement
-    : 'do' 'while' '(' expr ')' NEWLINE* statements 'end' 'do'
+    : KW_DO KW_WHILE '(' expr ')' NEWLINE* statements KW_END KW_DO
     ;
 
 select_statement
-    : 'select' 'case' '(' expr ')' NEWLINE+ case_statement* select_default_statement? 'end' 'select'
+    : KW_SELECT KW_CASE '(' expr ')' NEWLINE+ case_statement* select_default_statement? KW_END KW_SELECT
     ;
 
 case_statement
-    : 'case' '(' expr ')' NEWLINE+ statements
+    : KW_CASE '(' expr ')' NEWLINE+ statements
     ;
 
 select_default_statement
-    : 'case' 'default' NEWLINE+ statements
+    : KW_CASE KW_DEFAULT NEWLINE+ statements
     ;
 
 print_statement
-    : ('print'|'PRINT') ('*' | STRING) ',' expr_list?
+    : KW_PRINT ('*' | STRING) ',' expr_list?
     ;
 
 write_statement
-    : 'write' '(' ('*' | expr) ',' ('*' | STRING) ')' expr_list?
+    : KW_WRITE '(' ('*' | expr) ',' ('*' | STRING) ')' expr_list?
     ;
 
 stop_statement
-    : 'stop' STRING? NUMBER?
+    : KW_STOP STRING? NUMBER?
     ;
 
 error_stop_statement
-    : 'error' 'stop' STRING? NUMBER?
+    : KW_ERROR KW_STOP STRING? NUMBER?
     ;
 
 
@@ -306,8 +306,8 @@ expr_array_const: arrays like [1, 2, 3, x]
 */
 expr
 // ### primary
-    : struct_member* fn_names '(' arg_list? ')'  # expr_fn_call
-    | struct_member* ID '(' array_index_list ')' # expr_array_call
+    : struct_member* ident '(' arg_list? ')'  # expr_fn_call
+    | struct_member* ident '(' array_index_list ')' # expr_array_call
     | '[' expr_list ']'                          # expr_array_const
     | struct_member* ident                       # expr_id
     | number                                     # expr_number
@@ -342,7 +342,7 @@ arg_list
 
 arg
     : expr
-    | ID '=' expr
+    | ident '=' expr
     ;
 
 array_index_list
@@ -354,18 +354,70 @@ array_index
     | expr? ':' expr?   # array_index_slice
     ;
 
-struct_member: ID '%' ;
+struct_member: ident '%' ;
 
 number
     : NUMBER                    # number_real    // Real number
     | '(' NUMBER ',' NUMBER ')' # number_complex // Complex number
     ;
 
-fn_names: ID | 'real' ; // real is both a type and a function name
-
 ident
     : ID
-    | 'stop'
+    | KW_ALLOCATABLE
+    | KW_ALLOCATE
+    | KW_CALL
+    | KW_CASE
+    | KW_CHAR
+    | KW_CHARACTER
+    | KW_CLOSE
+    | KW_COMPLEX
+    | KW_CONTAINS
+    | KW_CONTIGUOUS
+    | KW_CYCLE
+    | KW_DEFAULT
+    | KW_DIMENSION
+    | KW_DO
+    | KW_ELSE
+    | KW_END
+    | KW_ERROR
+    | KW_EXIT
+    | KW_FUNCTION
+    | KW_IF
+    | KW_IMPLICIT
+    | KW_IN
+    | KW_INOUT
+    | KW_INTEGER
+    | KW_INTERFACE
+    | KW_INTENT
+    | KW_LOGICAL
+    | KW_MODULE
+    | KW_NONE
+    | KW_ONLY
+    | KW_OPEN
+    | KW_OUT
+    | KW_PARAMETER
+    | KW_POINTER
+    | KW_PRINT
+    | KW_PRIVATE
+    | KW_PROCEDURE
+    | KW_PROGRAM
+    | KW_PROTECTED
+    | KW_PUBLIC
+    | KW_PURE
+    | KW_REAL
+    | KW_RECURSIVE
+    | KW_RESULT
+    | KW_RETURN
+    | KW_SAVE
+    | KW_SELECT
+    | KW_STOP
+    | KW_SUBROUTINE
+    | KW_THEN
+    | KW_TYPE
+    | KW_USE
+    | KW_WHERE
+    | KW_WHILE
+    | KW_WRITE
     ;
 
 // ----------------------------------------------------------------------------
@@ -381,6 +433,92 @@ ident
 // above in quotes, such as '.true.', 'exit', '*', '(', etc. Those all together
 // form the tokens and are saved into `fortranLexer.tokens`.
 //
+
+// Keywords
+
+fragment A : [aA] ;
+fragment B : [bB] ;
+fragment C : [cC] ;
+fragment D : [dD] ;
+fragment E : [eE] ;
+fragment F : [fF] ;
+fragment G : [gG] ;
+fragment H : [hH] ;
+fragment I : [iI] ;
+fragment J : [jJ] ;
+fragment K : [kK] ;
+fragment L : [lL] ;
+fragment M : [mM] ;
+fragment N : [nN] ;
+fragment O : [oO] ;
+fragment P : [pP] ;
+fragment Q : [qQ] ;
+fragment R : [rR] ;
+fragment S : [sS] ;
+fragment T : [tT] ;
+fragment U : [uU] ;
+fragment V : [vV] ;
+fragment W : [wW] ;
+fragment X : [xX] ;
+fragment Y : [yY] ;
+fragment Z : [zZ] ;
+
+KW_ALLOCATABLE: A L L O C A T A B L E;
+KW_ALLOCATE: A L L O C A T E;
+KW_CALL: C A L L;
+KW_CASE: C A S E;
+KW_CHAR: C H A R;
+KW_CHARACTER: C H A R A C T E R;
+KW_CLOSE: C L O S E;
+KW_COMPLEX: C O M P L E X;
+KW_CONTAINS: C O N T A I N S;
+KW_CONTIGUOUS: C O N T I G U O U S;
+KW_CYCLE: C Y C L E;
+KW_DEFAULT: D E F A U L T;
+KW_DIMENSION: D I M E N S I O N;
+KW_DO: D O;
+KW_ELSE: E L S E;
+KW_END: E N D;
+KW_ERROR: E R R O R;
+KW_EXIT: E X I T;
+KW_FUNCTION: F U N C T I O N;
+KW_IF: I F;
+KW_IMPLICIT: I M P L I C I T;
+KW_IN: I N;
+KW_INOUT: I N O U T;
+KW_INTEGER: I N T E G E R;
+KW_INTERFACE: I N T E R F A C E;
+KW_INTENT: I N T E N T;
+KW_LOGICAL: L O G I C A L;
+KW_MODULE: M O D U L E;
+KW_NONE: N O N E;
+KW_ONLY: O N L Y;
+KW_OPEN: O P E N;
+KW_OUT: O U T;
+KW_PARAMETER: P A R A M E T E R;
+KW_POINTER: P O I N T E R;
+KW_PRINT: P R I N T;
+KW_PRIVATE: P R I V A T E;
+KW_PROCEDURE: P R O C E D U R E;
+KW_PROGRAM: P R O G R A M ;
+KW_PROTECTED: P R O T E C T E D;
+KW_PUBLIC: P U B L I C;
+KW_PURE: P U R E;
+KW_REAL: R E A L;
+KW_RECURSIVE: R E C U R S I V E;
+KW_RESULT: R E S U L T;
+KW_RETURN: R E T U R N;
+KW_SAVE: S A V E;
+KW_SELECT: S E L E C T;
+KW_STOP: S T O P;
+KW_SUBROUTINE: S U B R O U T I N E;
+KW_THEN: T H E N;
+KW_TYPE: T Y P E;
+KW_USE: U S E;
+KW_WHERE: W H E R E;
+KW_WHILE: W H I L E;
+KW_WRITE: W R I T E;
+
 
 NUMBER
     : ([0-9]+ '.' [0-9]* | '.' [0-9]+) EXP? NTYP?
