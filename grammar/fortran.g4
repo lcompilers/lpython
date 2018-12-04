@@ -44,8 +44,8 @@ script_unit
 //
 
 module
-    : NEWLINE* MODULE ID NEWLINE+ (use_statement NEWLINE+)* implicit_statement
-        NEWLINE+ module_decl* contains_block? END MODULE ID?
+    : NEWLINE* KW_MODULE ID NEWLINE+ (use_statement NEWLINE+)* implicit_statement
+        NEWLINE+ module_decl* contains_block? KW_END KW_MODULE ID?
         (EOF | NEWLINE+)
     ;
 
@@ -57,15 +57,15 @@ module_decl
     ;
 
 private_decl
-    : PRIVATE '::'? id_list? NEWLINE+
+    : KW_PRIVATE '::'? id_list? NEWLINE+
     ;
 
 public_decl
-    : PUBLIC '::'? id_list? NEWLINE+
+    : KW_PUBLIC '::'? id_list? NEWLINE+
     ;
 
 interface_decl
-    : INTERFACE ID NEWLINE+ (MODULE 'procedure' id_list NEWLINE+)* END INTERFACE ID? NEWLINE+
+    : KW_INTERFACE ID NEWLINE+ (KW_MODULE KW_PROCEDURE id_list NEWLINE+)* KW_END KW_INTERFACE ID? NEWLINE+
     ;
 
 // ----------------------------------------------------------------------------
@@ -80,27 +80,27 @@ interface_decl
 //
 
 program
-    : NEWLINE* PROGRAM ID NEWLINE+ sub_block
-        PROGRAM? ID? (EOF | NEWLINE+)
+    : NEWLINE* KW_PROGRAM ID NEWLINE+ sub_block
+        KW_PROGRAM? ID? (EOF | NEWLINE+)
     ;
 
 subroutine
-    : 'subroutine' ID ('(' id_list? ')')? NEWLINE+ sub_block 'subroutine' ID?
+    : KW_SUBROUTINE ID ('(' id_list? ')')? NEWLINE+ sub_block KW_SUBROUTINE ID?
         (EOF | NEWLINE+)
     ;
 
 function
-    : (var_type ('(' ID ')')?)? 'pure'? 'recursive'?
-        'function' ID ('(' id_list? ')')? ('result' '(' ID ')')? NEWLINE+
-        sub_block 'function' ID? (EOF | NEWLINE+)
+    : (var_type ('(' ID ')')?)? KW_PURE? KW_RECURSIVE?
+        KW_FUNCTION ID ('(' id_list? ')')? (KW_RESULT '(' ID ')')? NEWLINE+
+        sub_block KW_FUNCTION ID? (EOF | NEWLINE+)
     ;
 
 sub_block
-    : (use_statement NEWLINE+)* (implicit_statement NEWLINE+)? var_decl* statements contains_block? END
+    : (use_statement NEWLINE+)* (implicit_statement NEWLINE+)? var_decl* statements contains_block? KW_END
     ;
 
 contains_block
-    : 'contains' NEWLINE+ sub_or_func+
+    : KW_CONTAINS NEWLINE+ sub_or_func+
     ;
 
 sub_or_func
@@ -108,11 +108,11 @@ sub_or_func
     ;
 
 implicit_statement
-    : IMPLICIT NONE
+    : KW_IMPLICIT KW_NONE
     ;
 
 use_statement
-    : 'use' use_symbol (',' 'only' ':' use_symbol_list)?
+    : KW_USE use_symbol (',' KW_ONLY ':' use_symbol_list)?
     ;
 
 use_symbol_list : use_symbol (',' use_symbol)* ;
@@ -125,8 +125,8 @@ var_decl
     ;
 
 var_type
-    : 'integer' | 'char' | 'real' | 'complex' | 'logical' | 'type'
-    | 'character'
+    : KW_INTEGER | KW_CHAR | KW_REAL | KW_COMPLEX | KW_LOGICAL | KW_TYPE
+    | KW_CHARACTER
     ;
 
 var_modifier
@@ -186,7 +186,7 @@ assignment_statement
     ;
 
 exit_statement
-    : 'exit'
+    : KW_EXIT
     ;
 
 cycle_statement
@@ -208,7 +208,7 @@ builtin_statement
 
 if_statement
     : if_cond statement    # if_single_line
-    | if_block END 'if'  # if_multi_line
+    | if_block KW_END 'if'  # if_multi_line
     ;
 
 if_cond: 'if' '(' expr ')' ;
@@ -223,7 +223,7 @@ if_else_block
 
 where_statement
     : where_cond statement      # where_single_line
-    | where_block END 'where' # where_multi_line
+    | where_block KW_END 'where' # where_multi_line
     ;
 
 where_cond: 'where' '(' expr ')' ;
@@ -237,15 +237,15 @@ where_else_block
     ;
 
 do_statement
-    : 'do' (ID '=' expr ',' expr (',' expr)?)? NEWLINE+ statements END 'do'
+    : 'do' (ID '=' expr ',' expr (',' expr)?)? NEWLINE+ statements KW_END 'do'
     ;
 
 while_statement
-    : 'do' 'while' '(' expr ')' NEWLINE* statements END 'do'
+    : 'do' 'while' '(' expr ')' NEWLINE* statements KW_END 'do'
     ;
 
 select_statement
-    : 'select' 'case' '(' expr ')' NEWLINE+ case_statement* select_default_statement? END 'select'
+    : 'select' 'case' '(' expr ')' NEWLINE+ case_statement* select_default_statement? KW_END 'select'
     ;
 
 case_statement
@@ -361,7 +361,7 @@ number
     | '(' NUMBER ',' NUMBER ')' # number_complex // Complex number
     ;
 
-fn_names: ID | 'real' ; // real is both a type and a function name
+fn_names: ID | KW_REAL ; // real is both a type and a function name
 
 ident
     : ID
@@ -411,14 +411,31 @@ fragment X : [xX] ;
 fragment Y : [yY] ;
 fragment Z : [zZ] ;
 
-END: E N D;
-IMPLICIT : I M P L I C I T;
-INTERFACE: I N T E R F A C E;
-MODULE : M O D U L E;
-NONE: N O N E;
-PRIVATE: P R I V A T E;
-PUBLIC: P U B L I C;
-PROGRAM : P R O G R A M ;
+KW_CHAR: C H A R;
+KW_CHARACTER: C H A R A C T E R;
+KW_COMPLEX: C O M P L E X;
+KW_CONTAINS: C O N T A I N S;
+KW_END: E N D;
+KW_EXIT: E X I T;
+KW_FUNCTION: F U N C T I O N;
+KW_IMPLICIT: I M P L I C I T;
+KW_INTEGER: I N T E G E R;
+KW_INTERFACE: I N T E R F A C E;
+KW_LOGICAL: L O G I C A L;
+KW_MODULE: M O D U L E;
+KW_NONE: N O N E;
+KW_ONLY: O N L Y;
+KW_PRIVATE: P R I V A T E;
+KW_PROCEDURE: P R O C E D U R E;
+KW_PROGRAM: P R O G R A M ;
+KW_PUBLIC: P U B L I C;
+KW_PURE: P U R E;
+KW_REAL: R E A L;
+KW_RECURSIVE: R E C U R S I V E;
+KW_RESULT: R E S U L T;
+KW_SUBROUTINE: S U B R O U T I N E;
+KW_TYPE: T Y P E;
+KW_USE: U S E;
 
 
 NUMBER
