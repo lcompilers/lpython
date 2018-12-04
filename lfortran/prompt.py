@@ -9,6 +9,7 @@ from prompt_toolkit.key_binding import KeyBindings
 import llvmlite.binding as llvm
 
 from lfortran.ast import dump, SyntaxErrorException
+from lfortran.semantic.analyze import SemanticError
 from lfortran.codegen.evaluator import FortranEvaluator
 
 
@@ -45,7 +46,11 @@ def handle_input(engine, evaluator, source, verbose=True):
     for ast_tree0 in statements:
         if verbose:
             print_stage("Semantic Analysis")
-        ast_tree = evaluator.semantic_analysis(ast_tree0)
+        try:
+            ast_tree = evaluator.semantic_analysis(ast_tree0)
+        except SemanticError as e:
+            print(e)
+            return
         if verbose:
             print_bold("Semantic AST:")
             print(dump(ast_tree))
