@@ -365,7 +365,61 @@ fn_names: ID | KW_REAL ; // real is both a type and a function name
 
 ident
     : ID
+    | KW_ALLOCATABLE
+    | KW_ALLOCATE
+    | KW_CALL
+    | KW_CASE
+    | KW_CHAR
+    | KW_CHARACTER
+    | KW_CLOSE
+    | KW_COMPLEX
+    | KW_CONTAINS
+    | KW_CONTIGUOUS
+    | KW_CYCLE
+    | KW_DEFAULT
+    | KW_DIMENSION
+    | KW_DO
+    | KW_ELSE
+    | KW_END
+    | KW_ERROR
+    | KW_EXIT
+    | KW_FUNCTION
+    | KW_IF
+    | KW_IMPLICIT
+    | KW_IN
+    | KW_INOUT
+    | KW_INTEGER
+    | KW_INTERFACE
+    | KW_INTENT
+    | KW_LOGICAL
+    | KW_MODULE
+    | KW_NONE
+    | KW_ONLY
+    | KW_OPEN
+    | KW_OUT
+    | KW_PARAMETER
+    | KW_POINTER
+    | KW_PRINT
+    | KW_PRIVATE
+    | KW_PROCEDURE
+    | KW_PROGRAM
+    | KW_PROTECTED
+    | KW_PUBLIC
+    | KW_PURE
+    | KW_REAL
+    | KW_RECURSIVE
+    | KW_RESULT
+    | KW_RETURN
+    | KW_SAVE
+    | KW_SELECT
     | KW_STOP
+    | KW_SUBROUTINE
+    | KW_THEN
+    | KW_TYPE
+    | KW_USE
+    | KW_WHERE
+    | KW_WHILE
+    | KW_WRITE
     ;
 
 // ----------------------------------------------------------------------------
