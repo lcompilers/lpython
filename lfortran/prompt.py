@@ -21,19 +21,21 @@ def print_stage(text):
         % text))
     print()
 
-def handle_input(engine, evaluator, source):
-    print_bold("Input:")
-    print(source)
+def handle_input(engine, evaluator, source, verbose=True):
+    if verbose:
+        print_bold("Input:")
+        print(source)
 
 
-    print_stage("Parse")
+        print_stage("Parse")
     try:
         ast_tree0 = evaluator.parse(source)
     except SyntaxErrorException as e:
         print(e)
         return
-    print_bold("Parse AST:")
-    print(dump(ast_tree0))
+    if verbose:
+        print_bold("Parse AST:")
+        print(dump(ast_tree0))
 
     if isinstance(ast_tree0, list):
         statements = ast_tree0
@@ -41,28 +43,33 @@ def handle_input(engine, evaluator, source):
         statements = [ast_tree0]
 
     for ast_tree0 in statements:
-        print_stage("Semantic Analysis")
+        if verbose:
+            print_stage("Semantic Analysis")
         ast_tree = evaluator.semantic_analysis(ast_tree0)
-        print_bold("Semantic AST:")
-        print(dump(ast_tree))
-        print()
-        print_bold("Symbol table:")
-        print(list(evaluator._global_scope.symbols.keys()))
+        if verbose:
+            print_bold("Semantic AST:")
+            print(dump(ast_tree))
+            print()
+            print_bold("Symbol table:")
+            print(list(evaluator._global_scope.symbols.keys()))
 
-        print_stage("LLVM Code Generation")
+            print_stage("LLVM Code Generation")
         mod = evaluator.llvm_code_generation(ast_tree)
-        print_bold("Initial LLVM IR:")
-        print(evaluator._source_ll)
-        print()
-        print_bold("Optimized LLVM IR:")
-        print(evaluator._source_ll_opt)
+        if verbose:
+            print_bold("Initial LLVM IR:")
+            print(evaluator._source_ll)
+            print()
+            print_bold("Optimized LLVM IR:")
+            print(evaluator._source_ll_opt)
 
-        print_stage("Machine Code Generation, Load and Run")
+            print_stage("Machine Code Generation, Load and Run")
         result = evaluator.machine_code_generation_load_run(mod)
-        print_bold("Machine code ASM:")
-        print(evaluator._source_asm)
-        print_bold("Result:")
-        print(result)
+        if verbose:
+            print_bold("Machine code ASM:")
+            print(evaluator._source_asm)
+            print_bold("Result:")
+        if verbose or result is not None:
+            print(result)
 
 kb = KeyBindings()
 
@@ -74,7 +81,7 @@ def _(event):
 def _(event):
     event.current_buffer.validate_and_handle()
 
-def main():
+def main(verbose=True):
     llvm.initialize()
     llvm.initialize_native_asmprinter()
     llvm.initialize_native_target()
@@ -104,8 +111,10 @@ def main():
     try:
         while True:
             text = session.prompt()
-            print()
-            handle_input(engine, fortran_evaluator, text)
-            print()
+            if verbose:
+                print()
+            handle_input(engine, fortran_evaluator, text, verbose)
+            if verbose:
+                print()
     except EOFError:
         print("Exiting.")
