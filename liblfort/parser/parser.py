@@ -196,7 +196,7 @@ class ASTBuilderVisitor(fortranVisitor):
         d = []
         for v in ctx.var_sym_decl():
             sym = v.ident().getText()
-            sym_type = ctx.var_type().getText()
+            sym_type = ctx.var_type().getText().lower()
             dims = []
             if v.array_decl():
                 for dim in v.array_decl().array_comp_decl():
