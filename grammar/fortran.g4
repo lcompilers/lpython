@@ -361,7 +361,7 @@ number
     | '(' NUMBER ',' NUMBER ')' # number_complex // Complex number
     ;
 
-fn_names: ID | KW_REAL ; // real is both a type and a function name
+fn_names: ident;
 
 ident
     : ID
