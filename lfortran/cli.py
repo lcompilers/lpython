@@ -34,6 +34,10 @@ def load_lfortran_runtime_library():
         _lfortran_runtime_library_loaded = True
 
 def main():
+    if len(sys.argv) == 1:
+        from lfortran.prompt import main
+        main(verbose=False)
+        return
     parser = argparse.ArgumentParser(description="Fortran compiler.")
     parser.add_argument('file', help="source file")
     parser.add_argument('-emit-llvm', action="store_true",
