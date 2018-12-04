@@ -80,19 +80,19 @@ interface_decl
 //
 
 program
-    : NEWLINE* KW_PROGRAM ID NEWLINE+ sub_block
-        KW_PROGRAM? ID? (EOF | NEWLINE+)
+    : NEWLINE* KW_PROGRAM ident NEWLINE+ sub_block
+        KW_PROGRAM? ident? (EOF | NEWLINE+)
     ;
 
 subroutine
-    : KW_SUBROUTINE ID ('(' id_list? ')')? NEWLINE+ sub_block KW_SUBROUTINE ID?
+    : KW_SUBROUTINE ident ('(' id_list? ')')? NEWLINE+ sub_block KW_SUBROUTINE ident?
         (EOF | NEWLINE+)
     ;
 
 function
-    : (var_type ('(' ID ')')?)? KW_PURE? KW_RECURSIVE?
-        KW_FUNCTION ID ('(' id_list? ')')? (KW_RESULT '(' ID ')')? NEWLINE+
-        sub_block KW_FUNCTION ID? (EOF | NEWLINE+)
+    : (var_type ('(' ident ')')?)? KW_PURE? KW_RECURSIVE?
+        KW_FUNCTION ident ('(' id_list? ')')? (KW_RESULT '(' ident ')')? NEWLINE+
+        sub_block KW_FUNCTION ident? (EOF | NEWLINE+)
     ;
 
 sub_block
@@ -116,12 +116,12 @@ use_statement
     ;
 
 use_symbol_list : use_symbol (',' use_symbol)* ;
-use_symbol : ID | ID '=>' ID ;
+use_symbol : ident | ident '=>' ident ;
 
-id_list : ID (',' ID)* ;
+id_list : ident (',' ident)* ;
 
 var_decl
-    : var_type ('(' (ID '=')? ('*' | ID) ')')? (',' var_modifier)* '::'?  var_sym_decl (',' var_sym_decl)* ';'* NEWLINE*
+    : var_type ('(' (ident '=')? ('*' | ident) ')')? (',' var_modifier)* '::'?  var_sym_decl (',' var_sym_decl)* ';'* NEWLINE*
     ;
 
 var_type
@@ -198,7 +198,7 @@ return_statement
     ;
 
 subroutine_call
-    : KW_CALL struct_member* ID '(' arg_list? ')'
+    : KW_CALL struct_member* ident '(' arg_list? ')'
     ;
 
 builtin_statement
@@ -237,7 +237,7 @@ where_else_block
     ;
 
 do_statement
-    : KW_DO (ID '=' expr ',' expr (',' expr)?)? NEWLINE+ statements KW_END KW_DO
+    : KW_DO (ident '=' expr ',' expr (',' expr)?)? NEWLINE+ statements KW_END KW_DO
     ;
 
 while_statement
@@ -307,7 +307,7 @@ expr_array_const: arrays like [1, 2, 3, x]
 expr
 // ### primary
     : struct_member* fn_names '(' arg_list? ')'  # expr_fn_call
-    | struct_member* ID '(' array_index_list ')' # expr_array_call
+    | struct_member* ident '(' array_index_list ')' # expr_array_call
     | '[' expr_list ']'                          # expr_array_const
     | struct_member* ident                       # expr_id
     | number                                     # expr_number
@@ -342,7 +342,7 @@ arg_list
 
 arg
     : expr
-    | ID '=' expr
+    | ident '=' expr
     ;
 
 array_index_list
@@ -354,7 +354,7 @@ array_index
     | expr? ':' expr?   # array_index_slice
     ;
 
-struct_member: ID '%' ;
+struct_member: ident '%' ;
 
 number
     : NUMBER                    # number_real    // Real number

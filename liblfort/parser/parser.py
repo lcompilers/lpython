@@ -70,7 +70,7 @@ class ASTBuilderVisitor(fortranVisitor):
 
     # Visit a parse tree produced by fortranParser#program.
     def visitProgram(self, ctx:fortranParser.ProgramContext):
-        name = ctx.ID(0).getText()
+        name = ctx.ident(0).getText()
         decl, body, contains = self.process_sub_block(ctx.sub_block())
         return ast.Program(name=name, decl=decl, body=body, contains=contains)
 
@@ -120,7 +120,7 @@ class ASTBuilderVisitor(fortranVisitor):
     def visitPrivate_decl(self, ctx:fortranParser.Private_declContext):
         syms = []
         if ctx.id_list():
-            for sym in ctx.id_list().ID():
+            for sym in ctx.id_list().ident():
                 syms.append(sym.getText())
         return ast.Private(vars=syms, lineno=1, col_offset=1)
 
@@ -128,16 +128,16 @@ class ASTBuilderVisitor(fortranVisitor):
     def visitPublic_decl(self, ctx:fortranParser.Public_declContext):
         syms = []
         if ctx.id_list():
-            for sym in ctx.id_list().ID():
+            for sym in ctx.id_list().ident():
                 syms.append(sym.getText())
         return ast.Public(vars=syms, lineno=1, col_offset=1)
 
     # Visit a parse tree produced by fortranParser#subroutine.
     def visitSubroutine(self, ctx:fortranParser.SubroutineContext):
-        name = ctx.ID(0).getText()
+        name = ctx.ident(0).getText()
         args = []
         if ctx.id_list():
-            for arg in ctx.id_list().ID():
+            for arg in ctx.id_list().ident():
                 args.append(ast.arg(arg=arg.getText()))
         decl, body, contains = self.process_sub_block(ctx.sub_block())
         return ast.Subroutine(name=name, args=args,
@@ -146,10 +146,10 @@ class ASTBuilderVisitor(fortranVisitor):
 
     # Visit a parse tree produced by fortranParser#function.
     def visitFunction(self, ctx:fortranParser.FunctionContext):
-        name = ctx.ID(0).getText()
+        name = ctx.ident(0).getText()
         args = []
         if ctx.id_list():
-            for arg in ctx.id_list().ID():
+            for arg in ctx.id_list().ident():
                 args.append(ast.arg(arg=arg.getText()))
         decl, body, contains = self.process_sub_block(ctx.sub_block())
         returns = None
@@ -159,13 +159,13 @@ class ASTBuilderVisitor(fortranVisitor):
 
     # Visit a parse tree produced by fortranParser#subroutine_call.
     def visitSubroutine_call(self, ctx:fortranParser.Subroutine_callContext):
-        name = ctx.ID().getText()
+        name = ctx.ident().getText()
         args = []
         if ctx.arg_list():
             for arg in ctx.arg_list().arg():
-                if arg.ID():
+                if arg.ident():
                     # TODO: handle kwargs, we ignore the name for now
-                    kwarg = arg.ID().getText()
+                    kwarg = arg.ident().getText()
                 args.append(self.visit(arg))
         return ast.SubroutineCall(name, args, lineno=1, col_offset=1)
 
@@ -175,9 +175,9 @@ class ASTBuilderVisitor(fortranVisitor):
         args = []
         if ctx.arg_list():
             for arg in ctx.arg_list().arg():
-                if arg.ID():
+                if arg.ident():
                     # TODO: handle kwargs, we ignore the name for now
-                    kwarg = arg.ID().getText()
+                    kwarg = arg.ident().getText()
                 args.append(self.visit(arg))
         return ast.BuiltinCall(name, args, lineno=1, col_offset=1)
 
@@ -416,7 +416,7 @@ class ASTBuilderVisitor(fortranVisitor):
 
     # Visit a parse tree produced by fortranParser#expr_array_call.
     def visitExpr_array_call(self, ctx:fortranParser.Expr_array_callContext):
-        name = ctx.ID().getText()
+        name = ctx.ident().getText()
         args = []
         for arg in ctx.array_index_list().array_index():
             args.append(self.visit(arg))
@@ -428,9 +428,9 @@ class ASTBuilderVisitor(fortranVisitor):
         args =[]
         if ctx.arg_list():
             for arg in ctx.arg_list().arg():
-                if arg.ID():
+                if arg.ident():
                     # TODO: handle kwargs, we ignore the name for now
-                    kwarg = arg.ID().getText()
+                    kwarg = arg.ident().getText()
                 args.append(self.visit(arg))
         return ast.FuncCallOrArray(func=name, args=args, keywords=[],
                     lineno=1, col_offset=1)
@@ -448,8 +448,8 @@ class ASTBuilderVisitor(fortranVisitor):
 
     # Visit a parse tree produced by fortranParser#do_statement.
     def visitDo_statement(self, ctx:fortranParser.Do_statementContext):
-        if ctx.ID():
-            var = ctx.ID().getText()
+        if ctx.ident():
+            var = ctx.ident().getText()
             start = self.visit(ctx.expr(0))
             end = self.visit(ctx.expr(1))
             if len(ctx.expr()) == 3:
@@ -515,11 +515,11 @@ class ASTBuilderVisitor(fortranVisitor):
 
     # Visit a parse tree produced by fortranParser#use_symbol.
     def visitUse_symbol(self, ctx:fortranParser.Use_symbolContext):
-        if len(ctx.ID()) == 1:
-            return ast.use_symbol(sym=ctx.ID(0).getText(), rename=None)
-        elif len(ctx.ID()) == 2:
-            return ast.use_symbol(sym=ctx.ID(0).getText(),
-                    rename=ctx.ID(1).getText())
+        if len(ctx.ident()) == 1:
+            return ast.use_symbol(sym=ctx.ident(0).getText(), rename=None)
+        elif len(ctx.ident()) == 2:
+            return ast.use_symbol(sym=ctx.ident(0).getText(),
+                    rename=ctx.ident(1).getText())
         else:
             raise Exception("The grammar should not allow this.")
 
@@ -528,7 +528,7 @@ class ASTBuilderVisitor(fortranVisitor):
         name = ctx.ident(0).getText()
         procs = []
         for proc_line in ctx.id_list():
-            for proc in proc_line.ID():
+            for proc in proc_line.ident():
                 procs.append(proc.getText())
         return ast.Interface(name=name, procs=procs,
                 lineno=1, col_offset=1)
