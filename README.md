@@ -22,7 +22,7 @@ Now the `lfortran` environment has the `lfort` compiler available.
 
 Optional: run tests:
 ```
-py.test --pyargs liblfort
+py.test --pyargs lfortran
 ```
 
 

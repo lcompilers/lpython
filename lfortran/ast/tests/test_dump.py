@@ -1,4 +1,4 @@
-from liblfort.ast import parse, dump
+from lfortran.ast import parse, dump
 
 def test_dump_expr():
     assert dump(parse("1+1", False)) == \

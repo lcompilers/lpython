@@ -1,6 +1,6 @@
 import os
 
-from liblfort.ast import parse, dump, SyntaxErrorException
+from lfortran.ast import parse, dump, SyntaxErrorException
 
 def to_tuple(t):
     if t is None or isinstance(t, (str, int, complex)):

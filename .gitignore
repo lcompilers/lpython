@@ -3,13 +3,13 @@
 build-gfortran
 build-lfort
 lfort_intrinsics.o
-liblfort.a
-liblfort/ast/ast.py
-liblfort/parser/fortran.tokens
-liblfort/parser/fortranLexer.py
-liblfort/parser/fortranLexer.tokens
-liblfort/parser/fortranParser.py
-liblfort/parser/fortranVisitor.py
+liblfortran.a
+lfortran/ast/ast.py
+lfortran/parser/fortran.tokens
+lfortran/parser/fortranLexer.py
+lfortran/parser/fortranLexer.tokens
+lfortran/parser/fortranParser.py
+lfortran/parser/fortranVisitor.py
 
 
 # Python

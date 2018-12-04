@@ -316,7 +316,7 @@ def main(argv):
         print("Assuming default values of Fortran.asdl and ast.py")
         here = os.path.dirname(__file__)
         def_file = os.path.join(here, "Fortran.asdl")
-        out_file = os.path.join(here, "..", "liblfort", "ast", "ast.py")
+        out_file = os.path.join(here, "..", "lfortran", "ast", "ast.py")
     else:
         print("invalid arguments")
         return 2

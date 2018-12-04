@@ -29,8 +29,8 @@ def load_lfortran_runtime_library():
     global _lfortran_runtime_library_loaded
     if not _lfortran_runtime_library_loaded:
         base_dir = get_lib_path()
-        liblfort_so = os.path.join(base_dir, "liblfort.so")
-        llvm.load_library_permanently(liblfort_so)
+        liblfortran_so = os.path.join(base_dir, "liblfortran.so")
+        llvm.load_library_permanently(liblfortran_so)
         _lfortran_runtime_library_loaded = True
 
 def main():
@@ -159,7 +159,7 @@ def main():
     else:
         # Invoke a C compiler to do the linking
         base_dir = get_lib_path()
-        os.system("cc -o %s %s -L%s -Wl,-rpath=%s -llfort -lm" % (outfile,
+        os.system("cc -o %s %s -L%s -Wl,-rpath=%s -llfortran -lm" % (outfile,
             objfile, base_dir, base_dir))
     if objfile == "tmp_object_file.o":
         os.system("rm %s" % objfile)

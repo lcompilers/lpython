@@ -35,9 +35,9 @@ full:
     - ./build1.sh
     - pip install .
     - cd ..
-    - rm -r liblfort lfortran-${lfortran_version}
+    - rm -r lfortran lfortran-${lfortran_version}
     - rm lfort
-    - py.test --pyargs liblfort
+    - py.test --pyargs lfortran
     - python show_ast.py
     - lfort examples/expr2.f90
     - ./a.out
@@ -56,11 +56,11 @@ minimal:
     - ./build1.sh
     - pip install .
     - cd ..
-    - rm -r liblfort lfortran-${lfortran_version}
+    - rm -r lfortran lfortran-${lfortran_version}
     - rm lfort
     - sudo apt-get remove -yq gcc libc6-dev
     - sudo apt-get autoremove -yq
-    - py.test --pyargs liblfort
+    - py.test --pyargs lfortran
     - lfort --ld-musl examples/expr2.f90
     - ./a.out
 
@@ -75,12 +75,12 @@ jupyter:
     - ./build1.sh
     - pip install .
     - cd ..
-    - rm -r liblfort lfortran-${lfortran_version}
+    - rm -r lfortran lfortran-${lfortran_version}
     - (git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/lfortran/fortran_kernel && cd fortran_kernel && git checkout v0.1.3 && pip install . && cd .. && rm -r fortran_kernel)
     - python -m fortran_kernel.install --sys-prefix
     - jupyter kernelspec list --json
     - cd share/lfortran/nb
-    - py.test --pyargs liblfort
+    - py.test --pyargs lfortran
     - jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --output Demo_out.ipynb Demo.ipynb
     - ls -l output1.png
   artifacts:

@@ -1,8 +1,8 @@
 import pytest
 
-from liblfort.semantic.analyze import (create_symbol_table, Integer, Real,
+from lfortran.semantic.analyze import (create_symbol_table, Integer, Real,
         Array, Logical, UndeclaredVariableError, annotate_tree, TypeMismatch)
-from liblfort.ast import parse, dump
+from lfortran.ast import parse, dump
 
 def test_types():
     r = Real()

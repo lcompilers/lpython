@@ -1,4 +1,4 @@
-from liblfort.ast import ast
+from lfortran.ast import ast
 
 class CountNum(ast.GenericASTVisitor):
 

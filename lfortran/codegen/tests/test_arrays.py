@@ -1,4 +1,4 @@
-from liblfort.codegen.evaluator import FortranEvaluator
+from lfortran.codegen.evaluator import FortranEvaluator
 
 def test_arrays1():
     e = FortranEvaluator()

@@ -10,8 +10,8 @@ from prompt_toolkit.key_binding import KeyBindings
 
 import llvmlite.binding as llvm
 
-from liblfort.ast import dump, SyntaxErrorException
-from liblfort.codegen.evaluator import FortranEvaluator
+from lfortran.ast import dump, SyntaxErrorException
+from lfortran.codegen.evaluator import FortranEvaluator
 
 
 def print_bold(text):

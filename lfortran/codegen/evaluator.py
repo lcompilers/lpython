@@ -6,7 +6,7 @@ import llvmlite.binding as llvm
 from ..ast import parse, dump, SyntaxErrorException, ast
 from ..semantic.analyze import SymbolTableVisitor, annotate_tree
 from .gen import codegen
-from ..liblfort import load_lfortran_runtime_library
+from ..cli import load_lfortran_runtime_library
 
 
 class FortranEvaluator(object):
