@@ -76,7 +76,7 @@ jupyter:
     - pip install .
     - cd ..
     - rm -r lfortran lfortran-${lfortran_version}
-    - (git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/lfortran/fortran_kernel && cd fortran_kernel && git checkout 91cda7b952d2fcd98b303234e9b541eb6b81871f && pip install . && cd .. && rm -r fortran_kernel)
+    - (git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/lfortran/fortran_kernel && cd fortran_kernel && git checkout v0.1.4 && pip install . && cd .. && rm -r fortran_kernel)
     - python -m fortran_kernel.install --sys-prefix
     - jupyter kernelspec list --json
     - cd share/lfortran/nb
