@@ -44,8 +44,8 @@ script_unit
 //
 
 module
-    : NEWLINE* KW_MODULE ID NEWLINE+ (use_statement NEWLINE+)* implicit_statement
-        NEWLINE+ module_decl* contains_block? KW_END KW_MODULE ID?
+    : NEWLINE* KW_MODULE ident NEWLINE+ (use_statement NEWLINE+)* implicit_statement
+        NEWLINE+ module_decl* contains_block? KW_END KW_MODULE ident?
         (EOF | NEWLINE+)
     ;
 

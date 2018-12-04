@@ -93,7 +93,7 @@ class ASTBuilderVisitor(fortranVisitor):
 
     # Visit a parse tree produced by fortranParser#module.
     def visitModule(self, ctx:fortranParser.ModuleContext):
-        name = ctx.ID(0).getText()
+        name = ctx.ident(0).getText()
         decl = []
         for u in ctx.use_statement():
             decl.append(self.visit(u))
