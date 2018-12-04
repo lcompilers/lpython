@@ -44,8 +44,8 @@ script_unit
 //
 
 module
-    : NEWLINE* 'module' ID NEWLINE+ (use_statement NEWLINE+)* 'implicit none'
-        NEWLINE+ module_decl* contains_block? 'end' 'module' ID?
+    : NEWLINE* MODULE ID NEWLINE+ (use_statement NEWLINE+)* 'implicit none'
+        NEWLINE+ module_decl* contains_block? 'end' MODULE ID?
         (EOF | NEWLINE+)
     ;
 
@@ -65,7 +65,7 @@ public_decl
     ;
 
 interface_decl
-    : 'interface' ID NEWLINE+ ('module' 'procedure' id_list NEWLINE+)* 'end' 'interface' ID? NEWLINE+
+    : 'interface' ID NEWLINE+ (MODULE 'procedure' id_list NEWLINE+)* 'end' 'interface' ID? NEWLINE+
     ;
 
 // ----------------------------------------------------------------------------
@@ -412,6 +412,7 @@ fragment Y : [yY] ;
 fragment Z : [zZ] ;
 
 PROGRAM : P R O G R A M ;
+MODULE : M O D U L E;
 
 
 NUMBER
