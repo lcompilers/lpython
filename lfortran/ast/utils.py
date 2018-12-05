@@ -58,6 +58,45 @@ def dump(node, annotate_fields=True, include_attributes=False,
         raise TypeError('expected AST, got %r' % node.__class__.__name__)
     return _format(node)
 
+def print_tree(node):
+    def _tree(root, children):
+        def indent(s, type=1):
+            x = s.split("\n")
+            if type == 1:
+                r = "├─%s\n" % x[0]
+            else:
+                r = "╰─%s\n" % x[0]
+            for a in x[1:]:
+                if a == "":
+                    continue
+                if type == 1:
+                    r += "│ %s\n" % a
+                else:
+                    r += "  %s\n" % a
+            return r
+        f = []
+        f.append(root + "\n")
+        if len(children) == 0:
+            return ''.join(f)
+        for a in children[:-1]:
+            f.append(indent(a, 1))
+        f.append(indent(children[-1], 2))
+        return ''.join(f)
+
+    def _format(node):
+        if isinstance(node, ast.AST):
+            root = node.__class__.__name__
+            children = []
+            for a, b in iter_fields(node):
+                if isinstance(b, list):
+                    children.append(_tree(a, [_format(x) for x in b]))
+                else:
+                    children.append(a + "=" + _format(b))
+            return _tree(root, children)
+        return repr(node)
+    if not isinstance(node, ast.AST):
+        raise TypeError('expected AST, got %r' % node.__class__.__name__)
+    print(_format(node))
 
 class NodeVisitor(object):
     """
