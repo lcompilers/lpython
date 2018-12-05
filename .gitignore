@@ -6,8 +6,10 @@ lfort_intrinsics.o
 liblfortran.a
 lfortran/ast/ast.py
 lfortran/parser/fortran.tokens
+lfortran/parser/fortran.interp
 lfortran/parser/fortranLexer.py
 lfortran/parser/fortranLexer.tokens
+lfortran/parser/fortranLexer.interp
 lfortran/parser/fortranParser.py
 lfortran/parser/fortranVisitor.py
 
