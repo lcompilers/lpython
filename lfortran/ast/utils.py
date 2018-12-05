@@ -1,3 +1,7 @@
+import io
+from prompt_toolkit.output.vt100 import Vt100_Output
+from prompt_toolkit import print_formatted_text, HTML
+
 from . import ast
 
 from ..parser.parser import antlr_parse
@@ -98,7 +102,13 @@ def make_tree(root, children):
         f.append(indent(children[-1], 2))
     return '\n'.join(f)
 
-def print_tree(node):
+def fmt(text):
+    s = io.StringIO()
+    o = Vt100_Output(s, lambda : 80, write_binary=False)
+    print_formatted_text(HTML(text), end='', output=o)
+    return s.getvalue()
+
+def print_tree(node, color=True):
     def _format(node):
         if isinstance(node, ast.AST):
             t = node.__class__.__bases__[0]
@@ -107,6 +117,8 @@ def print_tree(node):
             else:
                 root = ""
             root += node.__class__.__name__
+            if color:
+                root = fmt("<bold><ansiblue>%s</ansiblue></bold>" % root)
             children = []
             for a, b in iter_fields(node):
                 if isinstance(b, list):
@@ -117,9 +129,18 @@ def print_tree(node):
                 else:
                     children.append(a + "=" + _format(b))
             return make_tree(root, children)
-        return repr(node)
+        r = repr(node)
+        if color:
+            r = fmt("<ansigreen>%s</ansigreen>" % r)
+        return r
     if not isinstance(node, ast.AST):
         raise TypeError('expected AST, got %r' % node.__class__.__name__)
+    if color:
+        print_formatted_text(HTML("Legend: "
+            "<bold><ansiblue>Node</ansiblue></bold>, "
+            "Field, "
+            "<ansigreen>Token</ansigreen>"
+            ))
     print(_format(node))
 
 class NodeVisitor(object):
