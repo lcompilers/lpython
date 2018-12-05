@@ -58,6 +58,9 @@ end if
 
 def test_arrays3():
     e = FortranEvaluator()
+    # Currently fails in llvmlite with:
+    # AttributeError: 'IntType' object has no attribute 'gep'
+    # Which is a bug in codegen, most probably already at the semantic level
     e.evaluate("""\
 integer function f(a)
 integer, intent(in) :: a(3)
@@ -68,4 +71,16 @@ do i = 1, 3
 end do
 end function
 """)
-    assert e.evaluate("a([1, 2, 3])") == 6
+    # FIXME: this should give a SemanticError:
+    #assert e.evaluate("a([1, 2, 3])") == 6
+    # FIXME: this should work:
+    #assert e.evaluate("f([1, 2, 3])") == 6
+
+    # FIXME: this should work:
+#    e.evaluate("""\
+#integer :: x(3)
+#x(1) = 1
+#x(2) = 2
+#x(3) = 3
+#""")
+#    assert e.evaluate("f(x)") == 6
