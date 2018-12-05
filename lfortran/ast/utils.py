@@ -79,23 +79,23 @@ def make_tree(root, children):
     """
     def indent(s, type=1):
         x = s.split("\n")
+        r = []
         if type == 1:
-            r = "├─%s\n" % x[0]
+            r.append("├─%s" % x[0])
         else:
-            r = "╰─%s\n" % x[0]
+            r.append("╰─%s" % x[0])
         for a in x[1:]:
             if type == 1:
-                r += "│ %s\n" % a
+                r.append("│ %s" % a)
             else:
-                r += "  %s\n" % a
-        return r.rstrip()
+                r.append("  %s" % a)
+        return '\n'.join(r)
     f = []
     f.append(root)
-    if len(children) == 0:
-        return '\n'.join(f)
-    for a in children[:-1]:
-        f.append(indent(a, 1))
-    f.append(indent(children[-1], 2))
+    if len(children) > 0:
+        for a in children[:-1]:
+            f.append(indent(a, 1))
+        f.append(indent(children[-1], 2))
     return '\n'.join(f)
 
 def print_tree(node):
