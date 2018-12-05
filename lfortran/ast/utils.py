@@ -58,6 +58,46 @@ def dump(node, annotate_fields=True, include_attributes=False,
         raise TypeError('expected AST, got %r' % node.__class__.__name__)
     return _format(node)
 
+def make_tree(root, children):
+    """
+    Takes strings `root` and a list of strings `children` and it returns a
+    string with the tree properly formatted.
+
+    Example:
+
+    >>> from lfortran.ast.utils import make_tree
+    >>> print(make_tree("a", ["1", "2"]))
+    a
+    ├─1
+    ╰─2
+    >>> print(make_tree("a", [make_tree("A", ["B", "C"]), "2"]))
+    a
+    ├─A
+    │ ├─B
+    │ ╰─C
+    ╰─2
+    """
+    def indent(s, type=1):
+        x = s.split("\n")
+        if type == 1:
+            r = "├─%s\n" % x[0]
+        else:
+            r = "╰─%s\n" % x[0]
+        for a in x[1:]:
+            if type == 1:
+                r += "│ %s\n" % a
+            else:
+                r += "  %s\n" % a
+        return r.rstrip()
+    f = []
+    f.append(root)
+    if len(children) == 0:
+        return '\n'.join(f)
+    for a in children[:-1]:
+        f.append(indent(a, 1))
+    f.append(indent(children[-1], 2))
+    return '\n'.join(f)
+
 def print_tree(node):
     def _tree(root, children):
         def indent(s, type=1):
