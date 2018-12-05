@@ -101,11 +101,19 @@ def make_tree(root, children):
 def print_tree(node):
     def _format(node):
         if isinstance(node, ast.AST):
-            root = node.__class__.__name__
+            t = node.__class__.__bases__[0]
+            if issubclass(t, ast.AST):
+                root = t.__name__ + "."
+            else:
+                root = ""
+            root += node.__class__.__name__
             children = []
             for a, b in iter_fields(node):
                 if isinstance(b, list):
-                    children.append(make_tree(a, [_format(x) for x in b]))
+                    if len(b) == 0:
+                        children.append(make_tree(a + "=[]", []))
+                    else:
+                        children.append(make_tree(a + "=↓", [_format(x) for x in b]))
                 else:
                     children.append(a + "=" + _format(b))
             return make_tree(root, children)
