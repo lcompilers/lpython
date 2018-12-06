@@ -39,21 +39,27 @@ def main():
         main(verbose=False)
         return
     parser = argparse.ArgumentParser(description="Fortran compiler.")
-    parser.add_argument('file', help="source file")
-    parser.add_argument('-emit-llvm', action="store_true",
+    # Standard
+    std = parser.add_argument_group('standard arguments',
+        'compatible with other compilers')
+    std.add_argument('file', help="source file")
+    std.add_argument('-emit-llvm', action="store_true",
             help="emit LLVM IR source code, do not assemble or link")
-    parser.add_argument('-S', action="store_true",
+    std.add_argument('-S', action="store_true",
             help="emit assembly, do not assemble or link")
-    parser.add_argument('-c', action="store_true",
+    std.add_argument('-c', action="store_true",
             help="compile and assemble, do not link")
-    parser.add_argument('-o', metavar="FILE",
+    std.add_argument('-o', metavar="FILE",
             help="place the output into FILE")
-    parser.add_argument('--ld-musl', action="store_true",
-            help="invoke ld directly and link with musl")
-    parser.add_argument('-v', action="store_true",
+    std.add_argument('-v', action="store_true",
             help="be more verbose")
-    parser.add_argument('-O3', action="store_true",
+    std.add_argument('-O3', action="store_true",
             help="turn LLVM optimizations on")
+    # LFortran
+    lf = parser.add_argument_group('LFortran arguments',
+        'specific to LFortran')
+    lf.add_argument('--ld-musl', action="store_true",
+            help="invoke ld directly and link with musl")
     args = parser.parse_args()
 
     filename = args.file
