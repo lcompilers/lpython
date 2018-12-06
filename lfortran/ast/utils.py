@@ -154,6 +154,14 @@ def print_tree_typed(node, color=True):
             root += node.__class__.__name__
             if color:
                 root = fmt("<bold><ansiblue>%s</ansiblue></bold>" % root)
+            if node._type is None:
+                root_type = ""
+            else:
+                root_type = repr(node._type)
+                if color:
+                    root_type = fmt("<ansired>%s</ansired>" % root_type)
+                root_type = " " + root_type
+            root += root_type
             children = []
             for a, b in iter_fields(node):
                 if isinstance(b, list):
@@ -164,17 +172,21 @@ def print_tree_typed(node, color=True):
                 else:
                     children.append(a + "=" + _format(b))
             return make_tree(root, children)
-        r = repr(node)
-        if color:
-            r = fmt("<ansigreen>%s</ansigreen>" % r)
+        if node is None:
+            r = "None"
+        else:
+            r = repr(node)
+            if color:
+                r = fmt("<ansigreen>%s</ansigreen>" % r)
         return r
     if not isinstance(node, ast.AST):
         raise TypeError('expected AST, got %r' % node.__class__.__name__)
     if color:
-        print_formatted_text(HTML("Annoated AST tree\nLegend: "
+        print_formatted_text(HTML("Legend: "
             "<bold><ansiblue>Node</ansiblue></bold>, "
             "Field, "
-            "<ansigreen>Token</ansigreen>"
+            "<ansigreen>Token</ansigreen>, "
+            "<ansired>Type</ansired>"
             ))
     print(_format(node))
 
