@@ -154,13 +154,19 @@ def print_tree_typed(node, color=True):
             root += node.__class__.__name__
             if color:
                 root = fmt("<bold><ansiblue>%s</ansiblue></bold>" % root)
-            if node._type is None:
-                root_type = ""
-            else:
+            if isinstance(node, ast.expr):
+                # FIXME: expr.Name should have a type
+                if not isinstance(node, ast.Name):
+                    assert node._type is not None
                 root_type = repr(node._type)
                 if color:
                     root_type = fmt("<ansired>%s</ansired>" % root_type)
                 root_type = " " + root_type
+            else:
+                # FIXME: stmt.Assignment should not have a type
+                if not isinstance(node, ast.Assignment):
+                    assert node._type is None
+                root_type = ""
             root += root_type
             children = []
             for a, b in iter_fields(node):
