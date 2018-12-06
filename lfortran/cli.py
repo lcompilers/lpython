@@ -61,7 +61,9 @@ def main():
     lf.add_argument('--ld-musl', action="store_true",
             help="invoke ld directly and link with musl")
     lf.add_argument('--show-ast', action="store_true",
-            help="show AST for the given file and exit")
+            help="show AST (parsing only) for the given file and exit")
+    lf.add_argument('--show-ast-typed', action="store_true",
+            help="show type annotated AST (parsing and semantics) for the given file and exit")
     args = parser.parse_args()
 
     filename = args.file
@@ -93,7 +95,8 @@ def main():
         source = open(filename).read()
         if verbose: print("    Done.")
         if verbose: print("Importing parser...")
-        from .ast import parse, SyntaxErrorException, print_tree
+        from .ast import (parse, SyntaxErrorException, print_tree,
+                print_tree_typed)
         if verbose: print("    Done.")
         try:
             if verbose: print("Parsing...")
@@ -114,6 +117,9 @@ def main():
         if verbose: print("Type annotation...")
         annotate_tree(ast_tree, symbol_table)
         if verbose: print("    Done.")
+        if args.show_ast_typed:
+            print_tree_typed(ast_tree)
+            return
         if verbose: print("Importing codegen...")
         from .codegen.gen import codegen
         if verbose: print("    Done.")

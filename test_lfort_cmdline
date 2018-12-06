@@ -76,6 +76,8 @@ if [[ $FC != "gfortran" ]]; then
     cd $(mktemp -d)
     $FC --show-ast $f
     [ ! -f "expr2.o" ]
+    $FC --show-ast-typed $f
+    [ ! -f "expr2.o" ]
 
     cd $(mktemp -d)
     $FC -emit-llvm $f

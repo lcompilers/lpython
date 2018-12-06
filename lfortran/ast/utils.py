@@ -143,6 +143,41 @@ def print_tree(node, color=True):
             ))
     print(_format(node))
 
+def print_tree_typed(node, color=True):
+    def _format(node):
+        if isinstance(node, ast.AST):
+            t = node.__class__.__bases__[0]
+            if issubclass(t, ast.AST):
+                root = t.__name__ + "."
+            else:
+                root = ""
+            root += node.__class__.__name__
+            if color:
+                root = fmt("<bold><ansiblue>%s</ansiblue></bold>" % root)
+            children = []
+            for a, b in iter_fields(node):
+                if isinstance(b, list):
+                    if len(b) == 0:
+                        children.append(make_tree(a + "=[]", []))
+                    else:
+                        children.append(make_tree(a + "=↓", [_format(x) for x in b]))
+                else:
+                    children.append(a + "=" + _format(b))
+            return make_tree(root, children)
+        r = repr(node)
+        if color:
+            r = fmt("<ansigreen>%s</ansigreen>" % r)
+        return r
+    if not isinstance(node, ast.AST):
+        raise TypeError('expected AST, got %r' % node.__class__.__name__)
+    if color:
+        print_formatted_text(HTML("Annoated AST tree\nLegend: "
+            "<bold><ansiblue>Node</ansiblue></bold>, "
+            "Field, "
+            "<ansigreen>Token</ansigreen>"
+            ))
+    print(_format(node))
+
 class NodeVisitor(object):
     """
     A node visitor base class that walks the abstract syntax tree and calls a
