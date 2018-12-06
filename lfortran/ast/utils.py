@@ -162,12 +162,19 @@ def print_tree_typed(node, color=True):
                 if color:
                     root_type = fmt("<ansired>%s</ansired>" % root_type)
                 root_type = " " + root_type
+                root += root_type
             else:
                 # FIXME: stmt.Assignment should not have a type
                 if not isinstance(node, ast.Assignment):
                     assert node._type is None
-                root_type = ""
-            root += root_type
+            if isinstance(node, (ast.Subroutine, ast.Function, ast.Program)):
+                scope = " Scope:"
+                for (s, sym) in node._scope.symbols.items():
+                    if color:
+                        scope += fmt(" <ansiyellow>%s</ansiyellow>:<ansired>%s</ansired>;" % (s, repr(sym["type"])))
+                    else:
+                        scope += " %s:%s;" % (s, repr(sym["type"]))
+                root += scope
             children = []
             for a, b in iter_fields(node):
                 if isinstance(b, list):
@@ -192,7 +199,8 @@ def print_tree_typed(node, color=True):
             "<bold><ansiblue>Node</ansiblue></bold>, "
             "Field, "
             "<ansigreen>Token</ansigreen>, "
-            "<ansired>Type</ansired>"
+            "<ansired>Type</ansired>, "
+            "<ansiyellow>Variables</ansiyellow>"
             ))
     print(_format(node))
 
