@@ -171,7 +171,8 @@ def print_tree_typed(node, color=True):
                 scope = " Scope:"
                 for (s, sym) in node._scope.symbols.items():
                     if color:
-                        scope += fmt(" <ansiyellow>%s</ansiyellow>:<ansired>%s</ansired>;" % (s, repr(sym["type"])))
+                        scope += fmt(" <ansiyellow>%s</ansiyellow>:"
+                            "<ansired>%s</ansired>;" % (s, repr(sym["type"])))
                     else:
                         scope += " %s:%s;" % (s, repr(sym["type"]))
                 root += scope
@@ -181,7 +182,8 @@ def print_tree_typed(node, color=True):
                     if len(b) == 0:
                         children.append(make_tree(a + "=[]", []))
                     else:
-                        children.append(make_tree(a + "=↓", [_format(x) for x in b]))
+                        children.append(make_tree(a + "=↓",
+                            [_format(x) for x in b]))
                 else:
                     children.append(a + "=" + _format(b))
             return make_tree(root, children)
