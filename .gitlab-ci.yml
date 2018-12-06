@@ -41,7 +41,8 @@ full:
     - python show_ast.py
     - lfort examples/expr2.f90
     - ./a.out
-    - ./test_lfort_cmdline
+    - ./test_lfort_cmdline gfortran
+    - ./test_lfort_cmdline lfort
     - ./test_lfort
 
 # Test minimal dependencies needed to get things to run. No gcc or clang
