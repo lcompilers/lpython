@@ -42,12 +42,19 @@ class Integer(Intrinsic):
 class Real(Intrinsic):
     def __repr__(self):
         return "Real()"
-class Complex(Intrinsic): pass
-class Character(Intrinsic): pass
-class Logical(Intrinsic): pass
+class Complex(Intrinsic):
+    def __repr__(self):
+        return "Complex()"
+class Character(Intrinsic):
+    def __repr__(self):
+        return "Character()"
+class Logical(Intrinsic):
+    def __repr__(self):
+        return "Logical()"
 
 class Derived(Type):
-    pass
+    def __repr__(self):
+        return "Derived()"
 
 
 class Array(Type):

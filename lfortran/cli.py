@@ -39,21 +39,31 @@ def main():
         main(verbose=False)
         return
     parser = argparse.ArgumentParser(description="Fortran compiler.")
-    parser.add_argument('file', help="source file")
-    parser.add_argument('-emit-llvm', action="store_true",
+    # Standard
+    std = parser.add_argument_group('standard arguments',
+        'compatible with other compilers')
+    std.add_argument('file', help="source file")
+    std.add_argument('-emit-llvm', action="store_true",
             help="emit LLVM IR source code, do not assemble or link")
-    parser.add_argument('-S', action="store_true",
+    std.add_argument('-S', action="store_true",
             help="emit assembly, do not assemble or link")
-    parser.add_argument('-c', action="store_true",
+    std.add_argument('-c', action="store_true",
             help="compile and assemble, do not link")
-    parser.add_argument('-o', metavar="FILE",
+    std.add_argument('-o', metavar="FILE",
             help="place the output into FILE")
-    parser.add_argument('--ld-musl', action="store_true",
-            help="invoke ld directly and link with musl")
-    parser.add_argument('-v', action="store_true",
+    std.add_argument('-v', action="store_true",
             help="be more verbose")
-    parser.add_argument('-O3', action="store_true",
+    std.add_argument('-O3', action="store_true",
             help="turn LLVM optimizations on")
+    # LFortran
+    lf = parser.add_argument_group('LFortran arguments',
+        'specific to LFortran')
+    lf.add_argument('--ld-musl', action="store_true",
+            help="invoke ld directly and link with musl")
+    lf.add_argument('--show-ast', action="store_true",
+            help="show AST (parsing only) for the given file and exit")
+    lf.add_argument('--show-ast-typed', action="store_true",
+            help="show type annotated AST (parsing and semantics) for the given file and exit")
     args = parser.parse_args()
 
     filename = args.file
@@ -85,7 +95,8 @@ def main():
         source = open(filename).read()
         if verbose: print("    Done.")
         if verbose: print("Importing parser...")
-        from .ast import parse, SyntaxErrorException
+        from .ast import (parse, SyntaxErrorException, print_tree,
+                print_tree_typed)
         if verbose: print("    Done.")
         try:
             if verbose: print("Parsing...")
@@ -94,6 +105,9 @@ def main():
         except SyntaxErrorException as err:
             print(str(err))
             sys.exit(1)
+        if args.show_ast:
+            print_tree(ast_tree)
+            return
         if verbose: print("Importing semantic analyzer...")
         from .semantic.analyze import create_symbol_table, annotate_tree
         if verbose: print("    Done.")
@@ -103,6 +117,9 @@ def main():
         if verbose: print("Type annotation...")
         annotate_tree(ast_tree, symbol_table)
         if verbose: print("    Done.")
+        if args.show_ast_typed:
+            print_tree_typed(ast_tree)
+            return
         if verbose: print("Importing codegen...")
         from .codegen.gen import codegen
         if verbose: print("    Done.")

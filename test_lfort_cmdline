@@ -3,10 +3,23 @@
 set -e
 set -x
 
+if [[ $1 == "" ]]; then
+    echo "Test local lfort"
+    PATH="$(pwd):$PATH"
+    FC=lfort
+elif [[ $1 == "lfort" ]]; then
+    echo "Test installed lfort"
+    FC=lfort
+elif [[ $1 == "gfortran" ]]; then
+    echo "Test installed gfortran"
+    FC=gfortran
+else
+    echo "Invalid option"
+    exit 1
+fi
+
 f=`pwd`/examples/expr2.f90
 ASM_PATTERN="movq\|movl\|retq"
-FC=lfort
-#FC=gfortran
 
 cd $(mktemp -d)
 $FC $f
@@ -57,5 +70,18 @@ cd $(mktemp -d)
 $FC -S -o xx1 -c $f
 [ -f "xx1" ]
 grep $ASM_PATTERN xx1
+
+if [[ $FC != "gfortran" ]]; then
+    # LFortran specific options
+    cd $(mktemp -d)
+    $FC --show-ast $f
+    [ ! -f "expr2.o" ]
+    $FC --show-ast-typed $f
+    [ ! -f "expr2.o" ]
+
+    cd $(mktemp -d)
+    $FC -emit-llvm $f
+    [ -f "expr2.ll" ]
+fi
 
 echo "All tests succeeded"
