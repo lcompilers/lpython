@@ -60,6 +60,8 @@ def main():
         'specific to LFortran')
     lf.add_argument('--ld-musl', action="store_true",
             help="invoke ld directly and link with musl")
+    lf.add_argument('--show-ast', action="store_true",
+            help="show AST for the given file and exit")
     args = parser.parse_args()
 
     filename = args.file
@@ -91,7 +93,7 @@ def main():
         source = open(filename).read()
         if verbose: print("    Done.")
         if verbose: print("Importing parser...")
-        from .ast import parse, SyntaxErrorException
+        from .ast import parse, SyntaxErrorException, print_tree
         if verbose: print("    Done.")
         try:
             if verbose: print("Parsing...")
@@ -100,6 +102,9 @@ def main():
         except SyntaxErrorException as err:
             print(str(err))
             sys.exit(1)
+        if args.show_ast:
+            print_tree(ast_tree)
+            return
         if verbose: print("Importing semantic analyzer...")
         from .semantic.analyze import create_symbol_table, annotate_tree
         if verbose: print("    Done.")

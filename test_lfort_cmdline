@@ -58,4 +58,13 @@ $FC -S -o xx1 -c $f
 [ -f "xx1" ]
 grep $ASM_PATTERN xx1
 
+# LFortran specific options
+cd $(mktemp -d)
+$FC --show-ast $f
+[ ! -f "expr2.o" ]
+
+cd $(mktemp -d)
+$FC -emit-llvm $f
+[ -f "expr2.ll" ]
+
 echo "All tests succeeded"
