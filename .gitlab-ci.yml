@@ -30,6 +30,7 @@ full:
   image: registry.gitlab.com/lfortran/ci-images:full-1.1.0
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
+    - conda install prompt_toolkit
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
     - ./build1.sh
@@ -51,6 +52,7 @@ minimal:
   image: registry.gitlab.com/lfortran/ci-images:minimal-1.1.0
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
+    - conda install prompt_toolkit
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
     - ./build1.sh

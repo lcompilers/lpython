@@ -1,3 +1,7 @@
+import io
+from prompt_toolkit.output.vt100 import Vt100_Output
+from prompt_toolkit import print_formatted_text, HTML
+
 from . import ast
 
 from ..parser.parser import antlr_parse
@@ -58,6 +62,86 @@ def dump(node, annotate_fields=True, include_attributes=False,
         raise TypeError('expected AST, got %r' % node.__class__.__name__)
     return _format(node)
 
+def make_tree(root, children):
+    """
+    Takes strings `root` and a list of strings `children` and it returns a
+    string with the tree properly formatted.
+
+    Example:
+
+    >>> from lfortran.ast.utils import make_tree
+    >>> print(make_tree("a", ["1", "2"]))
+    a
+    ├─1
+    ╰─2
+    >>> print(make_tree("a", [make_tree("A", ["B", "C"]), "2"]))
+    a
+    ├─A
+    │ ├─B
+    │ ╰─C
+    ╰─2
+    """
+    def indent(s, type=1):
+        x = s.split("\n")
+        r = []
+        if type == 1:
+            r.append("├─%s" % x[0])
+        else:
+            r.append("╰─%s" % x[0])
+        for a in x[1:]:
+            if type == 1:
+                r.append("│ %s" % a)
+            else:
+                r.append("  %s" % a)
+        return '\n'.join(r)
+    f = []
+    f.append(root)
+    if len(children) > 0:
+        for a in children[:-1]:
+            f.append(indent(a, 1))
+        f.append(indent(children[-1], 2))
+    return '\n'.join(f)
+
+def fmt(text):
+    s = io.StringIO()
+    o = Vt100_Output(s, lambda : 80, write_binary=False)
+    print_formatted_text(HTML(text), end='', output=o)
+    return s.getvalue()
+
+def print_tree(node, color=True):
+    def _format(node):
+        if isinstance(node, ast.AST):
+            t = node.__class__.__bases__[0]
+            if issubclass(t, ast.AST):
+                root = t.__name__ + "."
+            else:
+                root = ""
+            root += node.__class__.__name__
+            if color:
+                root = fmt("<bold><ansiblue>%s</ansiblue></bold>" % root)
+            children = []
+            for a, b in iter_fields(node):
+                if isinstance(b, list):
+                    if len(b) == 0:
+                        children.append(make_tree(a + "=[]", []))
+                    else:
+                        children.append(make_tree(a + "=↓", [_format(x) for x in b]))
+                else:
+                    children.append(a + "=" + _format(b))
+            return make_tree(root, children)
+        r = repr(node)
+        if color:
+            r = fmt("<ansigreen>%s</ansigreen>" % r)
+        return r
+    if not isinstance(node, ast.AST):
+        raise TypeError('expected AST, got %r' % node.__class__.__name__)
+    if color:
+        print_formatted_text(HTML("Legend: "
+            "<bold><ansiblue>Node</ansiblue></bold>, "
+            "Field, "
+            "<ansigreen>Token</ansigreen>"
+            ))
+    print(_format(node))
 
 class NodeVisitor(object):
     """
