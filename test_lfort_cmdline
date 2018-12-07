@@ -82,6 +82,10 @@ if [[ $FC != "gfortran" ]]; then
     cd $(mktemp -d)
     $FC -emit-llvm $f
     [ -f "expr2.ll" ]
+
+    cd $(mktemp -d)
+    $FC $f
+    [ ! -f "a.out" ]
 fi
 
 echo "All tests succeeded"
