@@ -71,6 +71,7 @@ def main():
     link_only = (open(filename, mode="rb").read(4)[1:] == b"ELF")
     verbose = args.v
     optimize = args.O3
+
     if args.o:
         outfile = args.o
     elif args.S:
@@ -94,6 +95,14 @@ def main():
         if verbose: print("Reading...")
         source = open(filename).read()
         if verbose: print("    Done.")
+        if len(sys.argv) == 2 and filename:
+            # Run as a script:
+            if verbose: print("Importing evaluator...")
+            from lfortran.codegen.evaluator import FortranEvaluator
+            if verbose: print("    Done.")
+            e = FortranEvaluator()
+            e.evaluate(source)
+            return
         if verbose: print("Importing parser...")
         from .ast import (parse, SyntaxErrorException, print_tree,
                 print_tree_typed)

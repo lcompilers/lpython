@@ -22,7 +22,7 @@ f=`pwd`/examples/expr2.f90
 ASM_PATTERN="movq\|movl\|retq"
 
 cd $(mktemp -d)
-$FC $f
+$FC $f -o a.out
 [ -f "a.out" ]
 [ -x "a.out" ]
 ./a.out
@@ -74,14 +74,22 @@ grep $ASM_PATTERN xx1
 if [[ $FC != "gfortran" ]]; then
     # LFortran specific options
     cd $(mktemp -d)
-    $FC --show-ast $f
+    $FC --show-ast $f > log
     [ ! -f "expr2.o" ]
-    $FC --show-ast-typed $f
+    grep 'mod.Program' log
+    grep 'Integer()' log && exit 1
+    $FC --show-ast-typed $f > log
     [ ! -f "expr2.o" ]
+    grep 'mod.Program' log
+    grep 'Integer()' log
 
     cd $(mktemp -d)
     $FC -emit-llvm $f
     [ -f "expr2.ll" ]
+
+    cd $(mktemp -d)
+    $FC $f
+    [ ! -f "a.out" ]
 fi
 
 echo "All tests succeeded"

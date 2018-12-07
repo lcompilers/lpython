@@ -39,7 +39,7 @@ full:
     - rm lfort
     - py.test --pyargs lfortran
     - python show_ast.py
-    - lfort examples/expr2.f90
+    - lfort examples/expr2.f90 -o a.out
     - ./a.out
     - ./test_lfort_cmdline gfortran
     - ./test_lfort_cmdline lfort
@@ -63,7 +63,7 @@ minimal:
     - sudo apt-get remove -yq gcc libc6-dev
     - sudo apt-get autoremove -yq
     - py.test --pyargs lfortran
-    - lfort --ld-musl examples/expr2.f90
+    - lfort --ld-musl examples/expr2.f90 -o a.out
     - ./a.out
 
 # Test Jupyter notebooks

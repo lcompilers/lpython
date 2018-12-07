@@ -165,7 +165,7 @@ def print_tree_typed(node, color=True):
                 root += root_type
             else:
                 # FIXME: stmt.Assignment should not have a type
-                if not isinstance(node, ast.Assignment):
+                if not isinstance(node, (ast.Assignment, ast.arg)):
                     assert node._type is None
             if isinstance(node, (ast.Subroutine, ast.Function, ast.Program)):
                 scope = " Scope:"
