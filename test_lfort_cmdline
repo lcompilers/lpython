@@ -74,10 +74,14 @@ grep $ASM_PATTERN xx1
 if [[ $FC != "gfortran" ]]; then
     # LFortran specific options
     cd $(mktemp -d)
-    $FC --show-ast $f
+    $FC --show-ast $f > log
     [ ! -f "expr2.o" ]
-    $FC --show-ast-typed $f
+    grep 'mod.Program' log
+    grep 'Integer()' log && exit 1
+    $FC --show-ast-typed $f > log
     [ ! -f "expr2.o" ]
+    grep 'mod.Program' log
+    grep 'Integer()' log
 
     cd $(mktemp -d)
     $FC -emit-llvm $f
