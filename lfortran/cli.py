@@ -95,7 +95,7 @@ def main():
         if verbose: print("Reading...")
         source = open(filename).read()
         if verbose: print("    Done.")
-        if not args.o and not args.emit_llvm and not args.S and not args.c:
+        if len(sys.argv) == 2 and filename:
             # Run as a script:
             if verbose: print("Importing evaluator...")
             from lfortran.codegen.evaluator import FortranEvaluator
