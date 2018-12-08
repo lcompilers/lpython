@@ -34,15 +34,11 @@ def load_lfortran_runtime_library():
         _lfortran_runtime_library_loaded = True
 
 def main():
-    if len(sys.argv) == 1:
-        from lfortran.prompt import main
-        main(verbose=False)
-        return
     parser = argparse.ArgumentParser(description="Fortran compiler.")
     # Standard
     std = parser.add_argument_group('standard arguments',
         'compatible with other compilers')
-    std.add_argument('file', help="source file")
+    std.add_argument('file', help="source file", nargs="?")
     std.add_argument('-emit-llvm', action="store_true",
             help="emit LLVM IR source code, do not assemble or link")
     std.add_argument('-S', action="store_true",
@@ -74,10 +70,16 @@ def main():
         sys.exit(1)
 
     filename = args.file
-    basename, ext = os.path.splitext(os.path.basename(filename))
-    link_only = (open(filename, mode="rb").read(4)[1:] == b"ELF")
     verbose = args.v
     optimize = args.O3
+
+    if not filename:
+        from lfortran.prompt import main
+        main(verbose=verbose)
+        return
+
+    basename, ext = os.path.splitext(os.path.basename(filename))
+    link_only = (open(filename, mode="rb").read(4)[1:] == b"ELF")
 
     if args.o:
         outfile = args.o
