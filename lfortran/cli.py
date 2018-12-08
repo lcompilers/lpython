@@ -55,6 +55,8 @@ def main():
             help="be more verbose")
     std.add_argument('-O3', action="store_true",
             help="turn LLVM optimizations on")
+    std.add_argument('-E', action="store_true",
+            help="not used (present for compatibility with cmake)")
     # LFortran
     lf = parser.add_argument_group('LFortran arguments',
         'specific to LFortran')
@@ -65,6 +67,11 @@ def main():
     lf.add_argument('--show-ast-typed', action="store_true",
             help="show type annotated AST (parsing and semantics) for the given file and exit")
     args = parser.parse_args()
+
+    if args.E:
+        # CMake calls `lfort` with -E, and if we silently return a non-zero
+        # exit code, CMake does not produce an error to the user.
+        sys.exit(1)
 
     filename = args.file
     basename, ext = os.path.splitext(os.path.basename(filename))
