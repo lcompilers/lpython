@@ -8,7 +8,8 @@ from prompt_toolkit.key_binding import KeyBindings
 
 import llvmlite.binding as llvm
 
-from lfortran.ast import dump, SyntaxErrorException
+from lfortran.ast import (dump, print_tree, print_tree_typed,
+        SyntaxErrorException)
 from lfortran.semantic.analyze import SemanticError
 from lfortran.codegen.evaluator import FortranEvaluator
 
@@ -36,7 +37,7 @@ def handle_input(engine, evaluator, source, verbose=True):
         return
     if verbose:
         print_bold("Parse AST:")
-        print(dump(ast_tree0))
+        print_tree(ast_tree0)
 
     if isinstance(ast_tree0, list):
         statements = ast_tree0
@@ -53,7 +54,7 @@ def handle_input(engine, evaluator, source, verbose=True):
             return
         if verbose:
             print_bold("Semantic AST:")
-            print(dump(ast_tree))
+            print_tree_typed(ast_tree)
             print()
             print_bold("Symbol table:")
             print(list(evaluator._global_scope.symbols.keys()))
