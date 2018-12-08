@@ -23,7 +23,7 @@ setuptools.setup(
             'share/lfortran/lib/liblfortran.a',
             'share/lfortran/lib/liblfortran.so']),
         ],
-    scripts=['lfort', 'prompt.py'],
+    scripts=['lfort'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
