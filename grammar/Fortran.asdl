@@ -1,5 +1,12 @@
--- ASDL's 7 builtin types are:
--- identifier, int, string, bytes, object, singleton, constant
+-- This is the Abstract Syntax Description Lanuguage (ASDL). See [1] for a
+-- short background information and motivation and see the paper [2] for a
+-- detailed motivation, explanation and specification of the language.
+--
+-- [1] https://eli.thegreenplace.net/2014/06/04/using-asdl-to-describe-asts-in-compilers/
+-- [2] Wang, D. C., Appel, A. W., Korn, J. L., & Serra, C. S. (1997). The Zephyr Abstract Syntax Description Language. USENIX Conference on Domain-Specific Languages, (October), 213–228.
+--
+-- Our ASDL's builtin types are:
+-- identifier, int, string, object, constant
 
 module Fortran {
 
