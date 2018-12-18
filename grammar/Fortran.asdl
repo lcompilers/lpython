@@ -1,5 +1,22 @@
--- ASDL's 7 builtin types are:
--- identifier, int, string, bytes, object, singleton, constant
+-- This is a Abstract Syntax Description Lanuguage (ASDL) that describes the
+-- Fortran's Abstract Syntax Tree (AST). See [1] for a short background
+-- information and motivation and see the paper [2] for a detailed motivation,
+-- explanation and specification of the language.
+--
+-- [1] https://eli.thegreenplace.net/2014/06/04/using-asdl-to-describe-asts-in-compilers/
+-- [2] Wang, D. C., Appel, A. W., Korn, J. L., & Serra, C. S. (1997). The Zephyr Abstract Syntax Description Language. USENIX Conference on Domain-Specific Languages, (October), 213–228.
+--
+-- ASDL's builtin types are:
+--   * identifier
+--   * int (signed integers of infinite precision)
+--   * string
+-- We extend these by:
+--   * object (any Python object)
+--   * constant
+--
+-- Specific tools may choose to produce language interfaces that represent
+-- these types and the ASDL tree in a language specific way (e.g. use finite
+-- precision integers and signal an error otherwise).
 
 module Fortran {
 
