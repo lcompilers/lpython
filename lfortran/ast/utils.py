@@ -88,26 +88,21 @@ def make_tree(root, children, color=False):
         r = []
         if type == 1:
             tree_char = "├─"
-            if color:
-                tree_char = fmt("<bold><ansigreen>%s</ansigreen></bold>" \
-                    % tree_char)
-            r.append(tree_char + x[0])
         else:
             tree_char = "╰─"
-            if color:
-                tree_char = fmt("<bold><ansigreen>%s</ansigreen></bold>" \
-                    % tree_char)
-            r.append(tree_char + x[0])
+        if color:
+            tree_char = fmt("<bold><ansigreen>%s</ansigreen></bold>" \
+                % tree_char)
+        r.append(tree_char + x[0])
         for a in x[1:]:
             if type == 1:
                 tree_char = "│ "
-                if color:
-                    tree_char = fmt("<bold><ansigreen>%s</ansigreen></bold>" \
-                        % tree_char)
-                r.append(tree_char + a)
             else:
                 tree_char = "  "
-                r.append(tree_char + a)
+            if color:
+                tree_char = fmt("<bold><ansigreen>%s</ansigreen></bold>" \
+                    % tree_char)
+            r.append(tree_char + a)
         return '\n'.join(r)
     f = []
     f.append(root)
