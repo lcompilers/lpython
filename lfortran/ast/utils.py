@@ -85,12 +85,15 @@ def make_tree(root, children):
         x = s.split("\n")
         r = []
         if type == 1:
-            r.append("├─%s" % x[0])
+            r.append(fmt("<bold><ansigreen>├─</ansigreen></bold>") \
+                + "%s" % x[0])
         else:
-            r.append("╰─%s" % x[0])
+            r.append(fmt("<bold><ansigreen>╰─</ansigreen></bold>") \
+                + "%s" % x[0])
         for a in x[1:]:
             if type == 1:
-                r.append("│ %s" % a)
+                r.append(fmt("<bold><ansigreen>│ </ansigreen></bold>") \
+                    + "%s" % a)
             else:
                 r.append("  %s" % a)
         return '\n'.join(r)
