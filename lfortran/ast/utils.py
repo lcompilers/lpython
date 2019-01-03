@@ -62,10 +62,12 @@ def dump(node, annotate_fields=True, include_attributes=False,
         raise TypeError('expected AST, got %r' % node.__class__.__name__)
     return _format(node)
 
-def make_tree(root, children):
+def make_tree(root, children, color=False):
     """
     Takes strings `root` and a list of strings `children` and it returns a
     string with the tree properly formatted.
+
+    color ... True: print the tree in color, False: no colors
 
     Example:
 
@@ -81,25 +83,33 @@ def make_tree(root, children):
     │ ╰─C
     ╰─2
     """
-    def indent(s, type=1):
+    def indent(s, type=1, color=False):
         x = s.split("\n")
         r = []
         if type == 1:
-            r.append("├─%s" % x[0])
+            tree_char = "├─"
         else:
-            r.append("╰─%s" % x[0])
+            tree_char = "╰─"
+        if color:
+            tree_char = fmt("<bold><ansigreen>%s</ansigreen></bold>" \
+                % tree_char)
+        r.append(tree_char + x[0])
         for a in x[1:]:
             if type == 1:
-                r.append("│ %s" % a)
+                tree_char = "│ "
             else:
-                r.append("  %s" % a)
+                tree_char = "  "
+            if color:
+                tree_char = fmt("<bold><ansigreen>%s</ansigreen></bold>" \
+                    % tree_char)
+            r.append(tree_char + a)
         return '\n'.join(r)
     f = []
     f.append(root)
     if len(children) > 0:
         for a in children[:-1]:
-            f.append(indent(a, 1))
-        f.append(indent(children[-1], 2))
+            f.append(indent(a, 1, color))
+        f.append(indent(children[-1], 2, color))
     return '\n'.join(f)
 
 def fmt(text):
@@ -123,12 +133,13 @@ def print_tree(node, color=True):
             for a, b in iter_fields(node):
                 if isinstance(b, list):
                     if len(b) == 0:
-                        children.append(make_tree(a + "=[]", []))
+                        children.append(make_tree(a + "=[]", [], color))
                     else:
-                        children.append(make_tree(a + "=↓", [_format(x) for x in b]))
+                        children.append(make_tree(a + "=↓",
+                            [_format(x) for x in b], color))
                 else:
                     children.append(a + "=" + _format(b))
-            return make_tree(root, children)
+            return make_tree(root, children, color)
         r = repr(node)
         if color:
             r = fmt("<ansigreen>%s</ansigreen>" % r)
@@ -180,13 +191,13 @@ def print_tree_typed(node, color=True):
             for a, b in iter_fields(node):
                 if isinstance(b, list):
                     if len(b) == 0:
-                        children.append(make_tree(a + "=[]", []))
+                        children.append(make_tree(a + "=[]", [], color))
                     else:
                         children.append(make_tree(a + "=↓",
-                            [_format(x) for x in b]))
+                            [_format(x) for x in b], color))
                 else:
                     children.append(a + "=" + _format(b))
-            return make_tree(root, children)
+            return make_tree(root, children, color)
         if node is None:
             r = "None"
         else:
