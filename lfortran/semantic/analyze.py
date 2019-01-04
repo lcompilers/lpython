@@ -1,5 +1,10 @@
 """
-Semantic analysis module
+Semantic analysis module.
+
+It declares Fortran types as Python classes. It contains a visitor pattern to
+create a symbol table (SymbolTableVisitor) that is run first. Then it
+contains another visitor pattern that walks all expressions and assigns/check
+types based on the symbol table (ExprVisitor) that is run second.
 """
 
 from ..ast import ast
@@ -120,6 +125,7 @@ class Scope:
 class SymbolTableVisitor(ast.GenericASTVisitor):
 
     def __init__(self):
+        # Mapping between Fortran type strings and LFortran type classes
         self.types = {
                 "integer": Integer,
                 "real": Real,
