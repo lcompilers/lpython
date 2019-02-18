@@ -155,6 +155,17 @@ def print_tree(node, color=True):
     print(_format(node))
 
 def print_tree_typed(node, color=True):
+    def sym_str(sym):
+        """
+        Print useful information about the symbol `sym`.
+        """
+        s = ""
+        for a in sym:
+            if a == "intent" and sym[a]:
+                s += ", %s(%s)" % (a, sym[a])
+            elif a == "dummy" and sym[a]:
+                s += ", %s" % a
+        return s
     def _format(node):
         if isinstance(node, ast.AST):
             t = node.__class__.__bases__[0]
@@ -179,11 +190,12 @@ def print_tree_typed(node, color=True):
                 if not isinstance(node, (ast.Assignment, ast.arg)):
                     assert node._type is None
             if isinstance(node, (ast.Subroutine, ast.Function, ast.Program)):
-                scope = " Scope:"
+                scope = "\n│ Scope:"
                 for (s, sym) in node._scope.symbols.items():
                     if color:
-                        scope += fmt(" <ansiyellow>%s</ansiyellow>:"
-                            "<ansired>%s</ansired>;" % (s, repr(sym["type"])))
+                        scope += fmt("\n│  <ansiyellow>%s</ansiyellow>:"
+                            "<ansired>%s</ansired>%s" % (s,
+                            repr(sym["type"]), sym_str(sym)))
                     else:
                         scope += " %s:%s;" % (s, repr(sym["type"]))
                 root += scope

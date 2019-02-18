@@ -207,7 +207,11 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
             if len(dims) > 0:
                 type_ = Array(type_, dims)
             sym_data = {"name": sym, "type": type_,
-                "external": False, "func": False, "dummy": False}
+                "external": False, "func": False, "dummy": False,
+                "intent": None}
+            for a in v.attrs:
+                if a.name == "intent":
+                    sym_data["intent"] = a.args[0].arg
             self._current_scope._local_symbols[sym] = sym_data
 
     def visit_Function(self, node):
