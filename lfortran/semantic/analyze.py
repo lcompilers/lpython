@@ -236,6 +236,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
 
         node._scope = Scope(self._current_scope)
         self._current_scope = node._scope
+        sym_data["scope"] = node._scope
 
         self.visit_sequence(node.decl)
         # Go over arguments and set them as dummy

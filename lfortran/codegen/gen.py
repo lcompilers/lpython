@@ -249,7 +249,8 @@ class CodeGenVisitor(ast.ASTVisitor):
                     return_type = self.types[s["type"]]
                     args = []
                     for n, arg in enumerate(s["args"]):
-                        args.append(self.types[arg._type].as_pointer())
+                        _type = s["scope"].symbols[arg.arg]["type"]
+                        args.append(self.types[_type].as_pointer())
                     fn = ir.FunctionType(return_type, args)
                     s["fn"] = ir.Function(self.module, fn, name=s["name"])
             else:
@@ -564,7 +565,8 @@ class CodeGenVisitor(ast.ASTVisitor):
         self._current_scope = node._scope
         args = []
         for n, arg in enumerate(node.args):
-            args.append(self.types[arg._type].as_pointer())
+            sym = self._current_scope._local_symbols[arg.arg]
+            args.append(self.types[sym["type"]].as_pointer())
         fn = ir.FunctionType(ir.IntType(64), args)
         func = ir.Function(self.module, fn, name=node.name)
         block = func.append_basic_block(name='.entry')
