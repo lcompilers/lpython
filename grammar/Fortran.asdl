@@ -1,4 +1,4 @@
--- This is a Abstract Syntax Description Lanuguage (ASDL) that describes the
+-- This is an Abstract Syntax Description Lanuguage (ASDL) that describes the
 -- Fortran's Abstract Syntax Tree (AST). See [1] for a short background
 -- information and motivation and see the paper [2] for a detailed motivation,
 -- explanation and specification of the language.
