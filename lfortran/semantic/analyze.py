@@ -223,6 +223,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
         # part of AST to determine the types
         for arg in node.args:
             arg._type = self.types["integer"]()
+
         sym_data = {
                 "name": sym,
                 "type": type_,
@@ -239,7 +240,16 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
         self.visit_sequence(node.decl)
         # Go over arguments and set them as dummy
         for arg in node.args:
+            if not arg.arg in self._current_scope._local_symbols:
+                raise SemanticError("Dummy variable '%s' not declared" % arg.arg)
             self._current_scope._local_symbols[arg.arg]["dummy"] = True
+        # Check that non-dummy variables do not use the intent(..) attribute
+        for sym in self._current_scope._local_symbols:
+            s = self._current_scope._local_symbols[sym]
+            if not s["dummy"]:
+                if s["intent"]:
+                    raise SemanticError("intent(..) is used for a non-dummy variable '%s'" % \
+                        s["name"])
 
         # Iterate over nested functions
         self.visit_sequence(node.contains)
