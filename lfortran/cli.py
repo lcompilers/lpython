@@ -118,7 +118,10 @@ def main():
         if verbose: print("    Done.")
         try:
             if verbose: print("Parsing...")
-            ast_tree = parse(source)
+            if args.show_ast or args.show_ast_typed:
+                ast_tree = parse(source, translation_unit=False)
+            else:
+                ast_tree = parse(source)
             if verbose: print("    Done.")
         except SyntaxErrorException as err:
             print(str(err))
