@@ -1,3 +1,5 @@
+import pytest
+
 from lfortran.codegen.evaluator import FortranEvaluator
 
 def test_arrays1():
@@ -58,19 +60,18 @@ end if
 
 def test_arrays3():
     e = FortranEvaluator()
-    # Currently fails in llvmlite with:
-    # AttributeError: 'IntType' object has no attribute 'gep'
-    # Which is a bug in codegen, most probably already at the semantic level
-    e.evaluate("""\
-integer function f(a)
-integer, intent(in) :: a(3)
-integer :: i
-f = 0
-do i = 1, 3
-    f = f + a(i)
-end do
-end function
-""")
+    # Currently fails with NotImplementedError in codegen
+    with pytest.raises(NotImplementedError):
+        e.evaluate("""\
+    integer function f(a)
+    integer, intent(in) :: a(3)
+    integer :: i
+    f = 0
+    do i = 1, 3
+        f = f + a(i)
+    end do
+    end function
+    """)
     # FIXME: this should give a SemanticError:
     #assert e.evaluate("a([1, 2, 3])") == 6
     # FIXME: this should work:

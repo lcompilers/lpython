@@ -566,6 +566,8 @@ class CodeGenVisitor(ast.ASTVisitor):
         args = []
         for n, arg in enumerate(node.args):
             sym = self._current_scope._local_symbols[arg.arg]
+            if isinstance(sym["type"], Array):
+                raise NotImplementedError("Array arguments not implemented yet")
             args.append(self.types[sym["type"]].as_pointer())
         fn = ir.FunctionType(ir.IntType(64), args)
         func = ir.Function(self.module, fn, name=node.name)
