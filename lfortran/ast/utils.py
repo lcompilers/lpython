@@ -190,7 +190,7 @@ def print_tree_typed(node, color=True):
                 if not isinstance(node, (ast.Assignment, ast.arg)):
                     assert node._type is None
             if isinstance(node, (ast.Subroutine, ast.Function, ast.Program)):
-                scope = "\n│ Scope:"
+                scope = "\n│ Local Scope:"
                 for (s, sym) in node._scope.symbols.items():
                     if color:
                         scope += fmt("\n│  <ansiyellow>%s</ansiyellow>:"
