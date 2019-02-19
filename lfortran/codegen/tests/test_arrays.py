@@ -76,14 +76,13 @@ end function
     # FIXME: this should work:
     #assert e.evaluate("f([1, 2, 3])") == 6
 
-    # FIXME: this should work:
-#    e.evaluate("""\
-#integer :: x(3)
-#x(1) = 1
-#x(2) = 2
-#x(3) = 3
-#""")
-#    assert e.evaluate("f(x)") == 6
+    e.evaluate("""\
+integer :: x(3)
+x(1) = 1
+x(2) = 2
+x(3) = 3
+""")
+    assert e.evaluate("f(x)") == 6
 
     e.evaluate("""\
 integer function g()
