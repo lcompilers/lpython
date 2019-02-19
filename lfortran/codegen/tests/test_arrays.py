@@ -84,3 +84,14 @@ end function
 #x(3) = 3
 #""")
 #    assert e.evaluate("f(x)") == 6
+
+    e.evaluate("""\
+integer function g()
+integer :: x(3)
+x(1) = 1
+x(2) = 2
+x(3) = 3
+g = f(x)
+end function
+""")
+    assert e.evaluate("g()") == 6

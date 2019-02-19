@@ -250,6 +250,8 @@ class CodeGenVisitor(ast.ASTVisitor):
                     args = []
                     for n, arg in enumerate(s["args"]):
                         _type = s["scope"].symbols[arg.arg]["type"]
+                        if isinstance(_type, Array):
+                            _type = _type.type_
                         args.append(self.types[_type].as_pointer())
                     fn = ir.FunctionType(return_type, args)
                     s["fn"] = ir.Function(self.module, fn, name=s["name"])
@@ -481,7 +483,12 @@ class CodeGenVisitor(ast.ASTVisitor):
                 if isinstance(arg, ast.Name):
                     # Get a pointer to a variable
                     sym = self._current_scope.resolve(arg.id)
-                    a_ptr = sym["ptr"]
+                    if isinstance(sym["type"], Array):
+                        a_ptr = self.builder.gep(sym["ptr"],
+                                [ir.Constant(ir.IntType(64), 0),
+                                ir.Constant(ir.IntType(64), 0)])
+                    else:
+                        a_ptr = sym["ptr"]
                     args_ptr.append(a_ptr)
                 else:
                     # Expression is a value, get a pointer to a copy of it
@@ -597,7 +604,14 @@ class CodeGenVisitor(ast.ASTVisitor):
         for v in self._current_scope._local_symbols:
             sym = self._current_scope._local_symbols[v]
             if sym["dummy"]: continue
-            ptr = self.builder.alloca(self.types[sym["type"]], name=sym["name"])
+            type_f = sym["type"]
+            if isinstance(type_f, Array):
+                assert len(type_f.shape) == 1
+                array_type = ir.ArrayType(self.types[type_f.type_],
+                        type_f.shape[0])
+                ptr = self.builder.alloca(array_type, name=sym["name"])
+            else:
+                ptr = self.builder.alloca(self.types[type_f], name=sym["name"])
             sym["ptr"] = ptr
         self._current_scope.resolve(node.name)["fn"] = func
 
