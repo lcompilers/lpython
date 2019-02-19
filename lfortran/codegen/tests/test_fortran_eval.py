@@ -122,6 +122,64 @@ end function
     assert e.evaluate("f(2, i)") == 0
     assert e.evaluate("i") == 7
 
+def test_f_call_real_1():
+    e = FortranEvaluator()
+    e.evaluate("""\
+integer function f(a)
+real, intent(in) :: a
+f = 0
+if (a > 2.7) f = 1
+end function
+""")
+    assert e.evaluate("f(2.8)") == 1
+    assert e.evaluate("f(2.6)") == 0
+
+def test_f_call_real_2():
+    e = FortranEvaluator()
+    e.evaluate("""\
+integer function f(a, b)
+real, intent(in) :: a, b
+real :: c
+c = a + b
+f = 0
+if (c > 2.7) f = 1
+end function
+""")
+    assert e.evaluate("f(1.8, 1.0)") == 1
+    assert e.evaluate("f(1.6, 1.0)") == 0
+
+def test_f_call_real_int_2():
+    e = FortranEvaluator()
+    e.evaluate("""\
+integer function f(a, b)
+real, intent(in) :: a
+integer, intent(in) :: b
+f = 0
+if (a > 1.7) f = 1
+f = f + b
+end function
+""")
+    assert e.evaluate("f(1.8, 0)") == 1
+    assert e.evaluate("f(1.6, 0)") == 0
+    assert e.evaluate("f(1.8, 1)") == 2
+    assert e.evaluate("f(1.6, 1)") == 1
+
+def test_if_then_else_1():
+    e = FortranEvaluator()
+    e.evaluate("""\
+integer function f(a)
+real, intent(in) :: a
+f = 3
+if (a > 2.7) then
+    f = 1
+else
+    f = 0
+end if
+end function
+""")
+    assert e.evaluate("f(2.8)") == 1
+    assert e.evaluate("f(2.6)") == 0
+
 def test_simple_arithmetics():
     e = FortranEvaluator()
     assert e.evaluate("5+5") == 10

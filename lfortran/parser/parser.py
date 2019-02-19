@@ -193,6 +193,22 @@ class ASTBuilderVisitor(fortranVisitor):
 
     # Visit a parse tree produced by fortranParser#var_decl.
     def visitVar_decl(self, ctx:fortranParser.Var_declContext):
+        attrs = []
+        for a in ctx.var_modifier():
+            if a.KW_INTENT():
+                if a.KW_IN():
+                    arg = ast.attribute_arg(arg="in")
+                elif a.KW_OUT():
+                    arg = ast.attribute_arg(arg="out")
+                elif a.KW_INOUT():
+                    arg = ast.attribute_arg(arg="inout")
+                else:
+                    assert False
+                attr = ast.Attribute(name=a.KW_INTENT().getText().lower(),
+                    args=[arg])
+            else:
+                attr = ast.Attribute(name=a.getText().lower(), args=[])
+            attrs.append(attr)
         d = []
         for v in ctx.var_sym_decl():
             sym = v.ident().getText()
@@ -207,7 +223,7 @@ class ASTBuilderVisitor(fortranVisitor):
                         # TODO: implement expr:expr
                         end = None
                     dims.append(ast.dimension(start=None, end=end))
-            d.append(ast.decl(sym, sym_type, dims=dims))
+            d.append(ast.decl(sym, sym_type, dims, attrs))
         return ast.Declaration(d, lineno=1, col_offset=1)
 
     # Visit a parse tree produced by fortranParser#print_statement.

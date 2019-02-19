@@ -1,3 +1,5 @@
+import pytest
+
 from lfortran.codegen.evaluator import FortranEvaluator
 
 def test_arrays1():
@@ -55,3 +57,37 @@ else
 end if
 """)
     assert e.evaluate("i") == 1
+
+def test_arrays3():
+    e = FortranEvaluator()
+    e.evaluate("""\
+integer function f(a)
+integer, intent(in) :: a(3)
+integer :: i
+f = 0
+do i = 1, 3
+    f = f + a(i)
+end do
+end function
+""")
+    # TODO: Enable this after [1, 2, 3] is implemented
+    #assert e.evaluate("f([1, 2, 3])") == 6
+
+    e.evaluate("""\
+integer :: x(3)
+x(1) = 1
+x(2) = 2
+x(3) = 3
+""")
+    assert e.evaluate("f(x)") == 6
+
+    e.evaluate("""\
+integer function g()
+integer :: x(3)
+x(1) = 1
+x(2) = 2
+x(3) = 3
+g = f(x)
+end function
+""")
+    assert e.evaluate("g()") == 6

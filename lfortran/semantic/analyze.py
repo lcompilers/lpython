@@ -1,5 +1,10 @@
 """
-Semantic analysis module
+Semantic analysis module.
+
+It declares Fortran types as Python classes. It contains a visitor pattern to
+create a symbol table (SymbolTableVisitor) that is run first. Then it
+contains another visitor pattern that walks all expressions and assigns/check
+types based on the symbol table (ExprVisitor) that is run second.
 """
 
 from ..ast import ast
@@ -120,6 +125,7 @@ class Scope:
 class SymbolTableVisitor(ast.GenericASTVisitor):
 
     def __init__(self):
+        # Mapping between Fortran type strings and LFortran type classes
         self.types = {
                 "integer": Integer,
                 "real": Real,
@@ -201,7 +207,11 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
             if len(dims) > 0:
                 type_ = Array(type_, dims)
             sym_data = {"name": sym, "type": type_,
-                "external": False, "func": False, "dummy": False}
+                "external": False, "func": False, "dummy": False,
+                "intent": None}
+            for a in v.attrs:
+                if a.name == "intent":
+                    sym_data["intent"] = a.args[0].arg
             self._current_scope._local_symbols[sym] = sym_data
 
     def visit_Function(self, node):
@@ -209,10 +219,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
         # TODO: for now we assume integer result, but we should read the AST
         # and determine the type of the result.
         type_ = self.types["integer"]()
-        # TODO: we assume integer arguments -- we should read the declaration
-        # part of AST to determine the types
-        for arg in node.args:
-            arg._type = self.types["integer"]()
+
         sym_data = {
                 "name": sym,
                 "type": type_,
@@ -225,11 +232,21 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
 
         node._scope = Scope(self._current_scope)
         self._current_scope = node._scope
+        sym_data["scope"] = node._scope
 
         self.visit_sequence(node.decl)
         # Go over arguments and set them as dummy
         for arg in node.args:
+            if not arg.arg in self._current_scope._local_symbols:
+                raise SemanticError("Dummy variable '%s' not declared" % arg.arg)
             self._current_scope._local_symbols[arg.arg]["dummy"] = True
+        # Check that non-dummy variables do not use the intent(..) attribute
+        for sym in self._current_scope._local_symbols:
+            s = self._current_scope._local_symbols[sym]
+            if not s["dummy"]:
+                if s["intent"]:
+                    raise SemanticError("intent(..) is used for a non-dummy variable '%s'" % \
+                        s["name"])
 
         # Iterate over nested functions
         self.visit_sequence(node.contains)

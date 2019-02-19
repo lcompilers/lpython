@@ -249,7 +249,10 @@ class CodeGenVisitor(ast.ASTVisitor):
                     return_type = self.types[s["type"]]
                     args = []
                     for n, arg in enumerate(s["args"]):
-                        args.append(self.types[arg._type].as_pointer())
+                        _type = s["scope"].symbols[arg.arg]["type"]
+                        if isinstance(_type, Array):
+                            _type = _type.type_
+                        args.append(self.types[_type].as_pointer())
                     fn = ir.FunctionType(return_type, args)
                     s["fn"] = ir.Function(self.module, fn, name=s["name"])
             else:
@@ -444,8 +447,12 @@ class CodeGenVisitor(ast.ASTVisitor):
             # Convert 1-based indexing to 0-based
             idx = self.builder.sub(idx, ir.Constant(ir.IntType(64), 1))
             sym = self._current_scope.resolve(node.func)
-            addr = self.builder.gep(sym["ptr"],
-                    [ir.Constant(ir.IntType(64), 0), idx])
+            if sym["dummy"]:
+                addr = self.builder.gep(sym["ptr"],
+                        [idx])
+            else:
+                addr = self.builder.gep(sym["ptr"],
+                        [ir.Constant(ir.IntType(64), 0), idx])
             return self.builder.load(addr)
         else:
             # Function call
@@ -476,7 +483,12 @@ class CodeGenVisitor(ast.ASTVisitor):
                 if isinstance(arg, ast.Name):
                     # Get a pointer to a variable
                     sym = self._current_scope.resolve(arg.id)
-                    a_ptr = sym["ptr"]
+                    if isinstance(sym["type"], Array):
+                        a_ptr = self.builder.gep(sym["ptr"],
+                                [ir.Constant(ir.IntType(64), 0),
+                                ir.Constant(ir.IntType(64), 0)])
+                    else:
+                        a_ptr = sym["ptr"]
                     args_ptr.append(a_ptr)
                 else:
                     # Expression is a value, get a pointer to a copy of it
@@ -488,8 +500,17 @@ class CodeGenVisitor(ast.ASTVisitor):
 
     def visit_If(self, node):
         cond = self.visit(node.test)
-        with self.builder.if_then(cond):
-            self.visit_sequence(node.body)
+        if not node.orelse:
+            # Only the `then` branch
+            with self.builder.if_then(cond):
+                self.visit_sequence(node.body)
+        else:
+            # Both `then` and `else` branches
+            with self.builder.if_else(cond) as (then, otherwise):
+                with then:
+                    self.visit_sequence(node.body)
+                with otherwise:
+                    self.visit_sequence(node.orelse)
 
     def visit_Compare(self, node):
         op = node.op
@@ -564,7 +585,11 @@ class CodeGenVisitor(ast.ASTVisitor):
         self._current_scope = node._scope
         args = []
         for n, arg in enumerate(node.args):
-            args.append(self.types[arg._type].as_pointer())
+            sym = self._current_scope._local_symbols[arg.arg]
+            _type = sym["type"]
+            if isinstance(_type, Array):
+                _type = _type.type_
+            args.append(self.types[_type].as_pointer())
         fn = ir.FunctionType(ir.IntType(64), args)
         func = ir.Function(self.module, fn, name=node.name)
         block = func.append_basic_block(name='.entry')
@@ -579,7 +604,14 @@ class CodeGenVisitor(ast.ASTVisitor):
         for v in self._current_scope._local_symbols:
             sym = self._current_scope._local_symbols[v]
             if sym["dummy"]: continue
-            ptr = self.builder.alloca(self.types[sym["type"]], name=sym["name"])
+            type_f = sym["type"]
+            if isinstance(type_f, Array):
+                assert len(type_f.shape) == 1
+                array_type = ir.ArrayType(self.types[type_f.type_],
+                        type_f.shape[0])
+                ptr = self.builder.alloca(array_type, name=sym["name"])
+            else:
+                ptr = self.builder.alloca(self.types[type_f], name=sym["name"])
             sym["ptr"] = ptr
         self._current_scope.resolve(node.name)["fn"] = func
 

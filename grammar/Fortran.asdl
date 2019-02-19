@@ -1,4 +1,4 @@
--- This is a Abstract Syntax Description Lanuguage (ASDL) that describes the
+-- This is an Abstract Syntax Description Lanuguage (ASDL) that describes the
 -- Fortran's Abstract Syntax Tree (AST). See [1] for a short background
 -- information and motivation and see the paper [2] for a detailed motivation,
 -- explanation and specification of the language.
@@ -78,9 +78,13 @@ unaryop = Invert | Not | UAdd | USub
 
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 
-decl = (identifier sym, string sym_type, dimension* dims)
+decl = (identifier sym, string sym_type, dimension* dims, attribute *attrs)
 
 dimension = (expr? start, expr? end)
+
+attribute = Attribute(identifier name, attribute_arg *args)
+
+attribute_arg = (identifier arg)
 
 arg = (identifier arg)
         attributes (int lineno, int col_offset)
