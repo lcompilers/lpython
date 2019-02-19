@@ -489,8 +489,17 @@ class CodeGenVisitor(ast.ASTVisitor):
 
     def visit_If(self, node):
         cond = self.visit(node.test)
-        with self.builder.if_then(cond):
-            self.visit_sequence(node.body)
+        if not node.orelse:
+            # Only the `then` branch
+            with self.builder.if_then(cond):
+                self.visit_sequence(node.body)
+        else:
+            # Both `then` and `else` branches
+            with self.builder.if_else(cond) as (then, otherwise):
+                with then:
+                    self.visit_sequence(node.body)
+                with otherwise:
+                    self.visit_sequence(node.orelse)
 
     def visit_Compare(self, node):
         op = node.op
