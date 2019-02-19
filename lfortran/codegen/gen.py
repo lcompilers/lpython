@@ -445,8 +445,12 @@ class CodeGenVisitor(ast.ASTVisitor):
             # Convert 1-based indexing to 0-based
             idx = self.builder.sub(idx, ir.Constant(ir.IntType(64), 1))
             sym = self._current_scope.resolve(node.func)
-            addr = self.builder.gep(sym["ptr"],
-                    [ir.Constant(ir.IntType(64), 0), idx])
+            if sym["dummy"]:
+                addr = self.builder.gep(sym["ptr"],
+                        [idx])
+            else:
+                addr = self.builder.gep(sym["ptr"],
+                        [ir.Constant(ir.IntType(64), 0), idx])
             return self.builder.load(addr)
         else:
             # Function call
@@ -575,9 +579,10 @@ class CodeGenVisitor(ast.ASTVisitor):
         args = []
         for n, arg in enumerate(node.args):
             sym = self._current_scope._local_symbols[arg.arg]
-            if isinstance(sym["type"], Array):
-                raise NotImplementedError("Array arguments not implemented yet")
-            args.append(self.types[sym["type"]].as_pointer())
+            _type = sym["type"]
+            if isinstance(_type, Array):
+                _type = _type.type_
+            args.append(self.types[_type].as_pointer())
         fn = ir.FunctionType(ir.IntType(64), args)
         func = ir.Function(self.module, fn, name=node.name)
         block = func.append_basic_block(name='.entry')
