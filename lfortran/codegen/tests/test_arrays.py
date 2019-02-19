@@ -60,7 +60,6 @@ end if
 
 def test_arrays3():
     e = FortranEvaluator()
-    # Currently fails with NotImplementedError in codegen
     e.evaluate("""\
 integer function f(a)
 integer, intent(in) :: a(3)
@@ -71,9 +70,7 @@ do i = 1, 3
 end do
 end function
 """)
-    # FIXME: this should give a SemanticError:
-    #assert e.evaluate("a([1, 2, 3])") == 6
-    # FIXME: this should work:
+    # TODO: Enable this after [1, 2, 3] is implemented
     #assert e.evaluate("f([1, 2, 3])") == 6
 
     e.evaluate("""\
