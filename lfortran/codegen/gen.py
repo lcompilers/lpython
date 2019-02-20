@@ -448,9 +448,16 @@ class CodeGenVisitor(ast.ASTVisitor):
             idx = self.builder.sub(idx, ir.Constant(ir.IntType(64), 1))
             sym = self._current_scope.resolve(node.func)
             if sym["dummy"]:
+                # Dummy array argument is just a pointer directly into the
+                # array elements (e.g., a type i64*), so we index the pointer
+                # itself (i.e., just one index in the GEP instruction):
                 addr = self.builder.gep(sym["ptr"],
                         [idx])
             else:
+                # Non-dummy array variable is a pointer to the array (e.g., a
+                # type [4 x i64]*), so we first index the pointer as index 0,
+                # and then access the array (i.e., two indinces in the GEP
+                # instruction):
                 addr = self.builder.gep(sym["ptr"],
                         [ir.Constant(ir.IntType(64), 0), idx])
             return self.builder.load(addr)
