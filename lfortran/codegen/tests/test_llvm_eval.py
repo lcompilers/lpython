@@ -313,13 +313,18 @@ def test_llvm_array1():
 ; Sum the three elements in %a
 define i64 @sum3(i64* %a)
 {
-    %a1 = load i64, i64* %a
+    %a1addr = getelementptr i64, i64* %a, i64 0
+    %a1 = load i64, i64* %a1addr
+
     %a2addr = getelementptr i64, i64* %a, i64 1
     %a2 = load i64, i64* %a2addr
-    %tmp = add i64 %a2, %a1
+
     %a3addr = getelementptr i64, i64* %a, i64 2
     %a3 = load i64, i64* %a3addr
+
+    %tmp = add i64 %a2, %a1
     %r = add i64 %a3, %tmp
+
     ret i64 %r
 }
 
