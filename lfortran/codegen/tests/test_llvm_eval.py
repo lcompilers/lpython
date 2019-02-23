@@ -306,3 +306,96 @@ def test_llvm_callback_py3():
     assert data == [0, 0, 0]
     assert stub(2, 3, 5) == 10
     assert data == [2, 3, 5]
+
+def test_llvm_array1():
+    """
+    This test represents the array directly as a pointer.
+    """
+    e = LLVMEvaluator()
+    e.add_module("""\
+; Sum the three elements in %a
+define i64 @sum3(i64* %a)
+{
+    %a1addr = getelementptr i64, i64* %a, i64 0
+    %a1 = load i64, i64* %a1addr
+
+    %a2addr = getelementptr i64, i64* %a, i64 1
+    %a2 = load i64, i64* %a2addr
+
+    %a3addr = getelementptr i64, i64* %a, i64 2
+    %a3 = load i64, i64* %a3addr
+
+    %tmp = add i64 %a2, %a1
+    %r = add i64 %a3, %tmp
+
+    ret i64 %r
+}
+
+
+define i64 @f()
+{
+    %a = alloca [3 x i64]
+
+    %a1 = getelementptr [3 x i64], [3 x i64]* %a, i64 0, i64 0
+    store i64 1, i64* %a1
+
+    %a2 = getelementptr [3 x i64], [3 x i64]* %a, i64 0, i64 1
+    store i64 2, i64* %a2
+
+    %a3 = getelementptr [3 x i64], [3 x i64]* %a, i64 0, i64 2
+    store i64 3, i64* %a3
+
+    %r = call i64 @sum3(i64* %a1)
+    ret i64 %r
+}
+""")
+    assert e.intfn("f") == 6
+
+def test_llvm_array2():
+    """
+    This test represents the array as a structure that contains the array
+    size and data.
+    """
+    e = LLVMEvaluator()
+    e.add_module("""\
+
+%array = type {i64, [3 x i64]}
+
+; Sum the three elements in %a
+define i64 @sum3(%array* %a)
+{
+    %a1addr = getelementptr %array, %array* %a, i64 0, i32 1, i64 0
+    %a1 = load i64, i64* %a1addr
+
+    %a2addr = getelementptr %array, %array* %a, i64 0, i32 1, i64 1
+    %a2 = load i64, i64* %a2addr
+
+    %a3addr = getelementptr %array, %array* %a, i64 0, i32 1, i64 2
+    %a3 = load i64, i64* %a3addr
+
+    %tmp = add i64 %a2, %a1
+    %r = add i64 %a3, %tmp
+
+    ret i64 %r
+}
+
+
+define i64 @f()
+{
+    %a = alloca %array
+
+    %idx0 = getelementptr %array, %array* %a, i64 0, i32 0
+    store i64 3, i64* %idx0
+
+    %idx1 = getelementptr %array, %array* %a, i64 0, i32 1, i64 0
+    store i64 1, i64* %idx1
+    %idx2 = getelementptr %array, %array* %a, i64 0, i32 1, i64 1
+    store i64 2, i64* %idx2
+    %idx3 = getelementptr %array, %array* %a, i64 0, i32 1, i64 2
+    store i64 3, i64* %idx3
+
+    %r = call i64 @sum3(%array* %a)
+    ret i64 %r
+}
+""")
+    assert e.intfn("f") == 6
