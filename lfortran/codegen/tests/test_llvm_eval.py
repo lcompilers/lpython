@@ -306,3 +306,38 @@ def test_llvm_callback_py3():
     assert data == [0, 0, 0]
     assert stub(2, 3, 5) == 10
     assert data == [2, 3, 5]
+
+def test_llvm_array1():
+    e = LLVMEvaluator()
+    e.add_module("""\
+; Sum the three elements in %a
+define i64 @sum3(i64* %a)
+{
+    %a1 = load i64, i64* %a
+    %a2addr = getelementptr i64, i64* %a, i64 1
+    %a2 = load i64, i64* %a2addr
+    %tmp = add i64 %a2, %a1
+    %a3addr = getelementptr i64, i64* %a, i64 2
+    %a3 = load i64, i64* %a3addr
+    %r = add i64 %a3, %tmp
+    ret i64 %r
+}
+
+@a0 = global [3 x i64] [i64 0, i64 0, i64 0]
+
+define i64 @f()
+{
+    %a1 = getelementptr [3 x i64], [3 x i64]* @a0, i64 0, i64 0
+    store i64 1, i64* %a1
+
+    %a2 = getelementptr [3 x i64], [3 x i64]* @a0, i64 0, i64 1
+    store i64 2, i64* %a2
+
+    %a3 = getelementptr [3 x i64], [3 x i64]* @a0, i64 0, i64 2
+    store i64 3, i64* %a3
+
+    %r = call i64 @sum3(i64* %a1)
+    ret i64 %r
+}
+""")
+    assert e.intfn("f") == 6
