@@ -323,17 +323,18 @@ define i64 @sum3(i64* %a)
     ret i64 %r
 }
 
-@a0 = global [3 x i64] [i64 0, i64 0, i64 0]
 
 define i64 @f()
 {
-    %a1 = getelementptr [3 x i64], [3 x i64]* @a0, i64 0, i64 0
+    %a = alloca [3 x i64]
+
+    %a1 = getelementptr [3 x i64], [3 x i64]* %a, i64 0, i64 0
     store i64 1, i64* %a1
 
-    %a2 = getelementptr [3 x i64], [3 x i64]* @a0, i64 0, i64 1
+    %a2 = getelementptr [3 x i64], [3 x i64]* %a, i64 0, i64 1
     store i64 2, i64* %a2
 
-    %a3 = getelementptr [3 x i64], [3 x i64]* @a0, i64 0, i64 2
+    %a3 = getelementptr [3 x i64], [3 x i64]* %a, i64 0, i64 2
     store i64 3, i64* %a3
 
     %r = call i64 @sum3(i64* %a1)
