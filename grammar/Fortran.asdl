@@ -1,10 +1,12 @@
 -- This is an Abstract Syntax Description Lanuguage (ASDL) that describes the
 -- Fortran's Abstract Syntax Tree (AST). See [1] for a short background
 -- information and motivation and see the paper [2] for a detailed motivation,
--- explanation and specification of the language.
+-- explanation and specification of the language. See [3] for further examples
+-- of ASDL usage in a real compiler.
 --
 -- [1] https://eli.thegreenplace.net/2014/06/04/using-asdl-to-describe-asts-in-compilers/
 -- [2] Wang, D. C., Appel, A. W., Korn, J. L., & Serra, C. S. (1997). The Zephyr Abstract Syntax Description Language. USENIX Conference on Domain-Specific Languages, (October), 213–228.
+-- [3] https://arxiv.org/abs/cs/9810013
 --
 -- ASDL's builtin types are:
 --   * identifier
