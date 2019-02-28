@@ -1,3 +1,64 @@
+"""
+# Design
+
+This file converts from a GFortran module file representation (documented in
+the `gfort_mod_parser.py` module) to an LFortran abstract semantic
+representation (ASR).
+
+The ASR is designed to have the following features:
+
+* ASR is still semantically equivalent to the original Fortran code (it did not
+  lose any semantic information). ASR can be converted to AST, and AST to
+  Fortran source code which is functionally equivalent to the original.
+
+* ASR is as simple as possible: it does not contain any information that could
+  not be inferred from ASR.
+
+Note: Information that is lost when parsing source to AST: whitespace,
+multiline/single line if statement distinction, case sensitivity of keywords.
+Information that is lost when going from AST to ASR: detailed syntax how
+variables were defined and the order of type attributes (whether array
+dimension is using the `dimension` attribute, or parentheses at the variable;
+or how many variables there are per declaration line or their order), as ASR
+only represents the aggregated type information in the symbol table.
+
+Note: ASR is the simplest way to generate Fortran code, as one does not
+have to worry about the detailed syntax (as in AST) about how and where
+things are declared. One specifies the symbol table for a module, then for
+each symbol (functions, global variables, types, ...) one specifies the local
+variables and if this is an interface then one needs to specify where one can
+find an implementation, otherwise a body is supplied with statements, those
+nodes are almost the same as in AST, except that each variable is just a
+reference to a symbol in the symbol table (so by construction one cannot have
+undefined variables). The symbol table for each node such as Function or Module
+also references its parent (for example a function references a module,
+a module references the global scope).
+
+The ASR can be directly converted to an AST without gathering any other
+information. And the AST directly to Fortran source code.
+
+The ASR is always representing a semantically valid Fortran code. Part of
+this is enforced by its construction, but part of it must be enforced with a
+check (verification) after it is constructed.
+
+When an ASR is used, it is assumed that it is valid (either explicitly
+verified or constructed to be valid).
+
+One can use ASR to gather further information about the program, for example
+which procedures are pure, to introduce nodes for explicit type casting
+(float to integer, and such) and one can optionally annotate/amend ASR with
+such information.
+
+The alternative solution is to check and gather all information as ASR is
+constructed. For example when an ASR expression is constructed from variables
+and numbers, it keeps track of the type and gives an exception when an
+operation is not permitted by Fortran (such as adding numbers and characters)
+and it automatically inserts explicit type casting nodes. When a function is
+constructed, it automatically checks if it is pure. There still might
+be some small check/verification that needs to be executed once ASR is
+constructed.
+"""
+
 # TODO: move this into the lfortran package itself
 import sys
 sys.path.append("../..")
