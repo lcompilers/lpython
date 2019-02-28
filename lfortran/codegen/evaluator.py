@@ -64,7 +64,8 @@ class FortranEvaluator(object):
                 ast_tree, lineno=1, col_offset=1)]
 
             ast_tree = ast.Function(name=self.anonymous_fn_name, args=[],
-                returns=None,
+                return_type=None, return_var=None, bind=None,
+                use=[],
                 decl=[], body=body, contains=[],
                 lineno=1, col_offset=1)
 
@@ -75,7 +76,8 @@ class FortranEvaluator(object):
             body = [ast_tree]
 
             ast_tree = ast.Function(name=self.anonymous_fn_name, args=[],
-                returns=None,
+                return_type=None, return_var=None, bind=None,
+                use=[],
                 decl=[], body=body, contains=[],
                 lineno=1, col_offset=1)
 
