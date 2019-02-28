@@ -71,14 +71,16 @@ class ASTBuilderVisitor(fortranVisitor):
     # Visit a parse tree produced by fortranParser#program.
     def visitProgram(self, ctx:fortranParser.ProgramContext):
         name = ctx.ident(0).getText()
-        decl, body, contains = self.process_sub_block(ctx.sub_block())
-        return ast.Program(name=name, decl=decl, body=body, contains=contains)
+        use, decl, body, contains = self.process_sub_block(ctx.sub_block())
+        return ast.Program(name=name, use=use, decl=decl, body=body,
+            contains=contains)
 
     def process_sub_block(self, ctx:fortranParser.Sub_blockContext):
-        # Returns (decl=[], body=[], contains=[])
+        # Returns (use=[], decl=[], body=[], contains=[])
+        use = []
         decl = []
         for u in ctx.use_statement():
-            decl.append(self.visit(u))
+            use.append(self.visit(u))
         for u in ctx.var_decl():
             decl.append(self.visit(u))
         if ctx.statements():
@@ -89,21 +91,22 @@ class ASTBuilderVisitor(fortranVisitor):
             contains = self.contains_block2list(ctx.contains_block())
         else:
             contains = []
-        return (decl, body, contains)
+        return (use, decl, body, contains)
 
     # Visit a parse tree produced by fortranParser#module.
     def visitModule(self, ctx:fortranParser.ModuleContext):
         name = ctx.ident(0).getText()
+        use = []
         decl = []
         for u in ctx.use_statement():
-            decl.append(self.visit(u))
+            use.append(self.visit(u))
         for u in ctx.module_decl():
             decl.append(self.visit(u))
         if ctx.contains_block():
             contains = self.contains_block2list(ctx.contains_block())
         else:
             contains = []
-        return ast.Module(name=name, decl=decl, contains=contains)
+        return ast.Module(name=name, use=[], decl=decl, contains=contains)
 
     def contains_block2list(self, ctx:fortranParser.Contains_blockContext):
         # Returns a list
@@ -139,8 +142,8 @@ class ASTBuilderVisitor(fortranVisitor):
         if ctx.id_list():
             for arg in ctx.id_list().ident():
                 args.append(ast.arg(arg=arg.getText()))
-        decl, body, contains = self.process_sub_block(ctx.sub_block())
-        return ast.Subroutine(name=name, args=args,
+        use, decl, body, contains = self.process_sub_block(ctx.sub_block())
+        return ast.Subroutine(name=name, args=args, use=use,
                 decl=decl, body=body, contains=contains,
                 lineno=1, col_offset=1)
 
@@ -151,10 +154,12 @@ class ASTBuilderVisitor(fortranVisitor):
         if ctx.id_list():
             for arg in ctx.id_list().ident():
                 args.append(ast.arg(arg=arg.getText()))
-        decl, body, contains = self.process_sub_block(ctx.sub_block())
-        returns = None
-        return ast.Function(name=name, args=args, returns=returns,
-                decl=decl, body=body, contains=contains,
+        use, decl, body, contains = self.process_sub_block(ctx.sub_block())
+        return_type = None
+        return_var = None
+        return ast.Function(name=name, args=args, return_type=return_type,
+                return_var=return_var, bind=None, use=use, decl=decl, body=body,
+                contains=contains,
                 lineno=1, col_offset=1)
 
     # Visit a parse tree produced by fortranParser#subroutine_call.

@@ -22,13 +22,13 @@ subroutine f
 integer :: a, b
 b = (1+2+a)*3
 end subroutine
-""", False)) == "Subroutine(name='f', args=[], decl=[Declaration(vars=[decl(sym='a', sym_type='integer', dims=[], attrs=[]), decl(sym='b', sym_type='integer', dims=[], attrs=[])])], body=[Assignment(target=Name(id='b'), value=BinOp(left=BinOp(left=BinOp(left=Num(n='1'), op=Add(), right=Num(n='2')), op=Add(), right=Name(id='a')), op=Mul(), right=Num(n='3')))], contains=[])"
+""", False)) == "Subroutine(name='f', args=[], use=[], decl=[Declaration(vars=[decl(sym='a', sym_type='integer', dims=[], attrs=[]), decl(sym='b', sym_type='integer', dims=[], attrs=[])])], body=[Assignment(target=Name(id='b'), value=BinOp(left=BinOp(left=BinOp(left=Num(n='1'), op=Add(), right=Num(n='2')), op=Add(), right=Name(id='a')), op=Mul(), right=Num(n='3')))], contains=[])"
     assert dump(parse("""\
 subroutine f(x, y)
 integer, intent(out) :: x, y
 x = 1
 end subroutine
-""", False)) == "Subroutine(name='f', args=[arg(arg='x'), arg(arg='y')], decl=[Declaration(vars=[decl(sym='x', sym_type='integer', dims=[], attrs=[Attribute(name='intent', args=[attribute_arg(arg='out')])]), decl(sym='y', sym_type='integer', dims=[], attrs=[Attribute(name='intent', args=[attribute_arg(arg='out')])])])], body=[Assignment(target=Name(id='x'), value=Num(n='1'))], contains=[])"
+""", False)) == "Subroutine(name='f', args=[arg(arg='x'), arg(arg='y')], use=[], decl=[Declaration(vars=[decl(sym='x', sym_type='integer', dims=[], attrs=[Attribute(name='intent', args=[attribute_arg(arg='out')])]), decl(sym='y', sym_type='integer', dims=[], attrs=[Attribute(name='intent', args=[attribute_arg(arg='out')])])])], body=[Assignment(target=Name(id='x'), value=Num(n='1'))], contains=[])"
 
 def test_dump_programs():
     assert dump(parse("""\
@@ -36,4 +36,4 @@ program a
 integer :: b
 b = 1
 end program
-""")) == "Program(name='a', decl=[Declaration(vars=[decl(sym='b', sym_type='integer', dims=[], attrs=[])])], body=[Assignment(target=Name(id='b'), value=Num(n='1'))], contains=[])"
+""")) == "Program(name='a', use=[], decl=[Declaration(vars=[decl(sym='b', sym_type='integer', dims=[], attrs=[])])], body=[Assignment(target=Name(id='b'), value=Num(n='1'))], contains=[])"
