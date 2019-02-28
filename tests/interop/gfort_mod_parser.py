@@ -35,7 +35,7 @@ as the basis for any tools that need to work with the GFortran module file.
 ## Details
 
 The symbol table `symtab` is a dictionary, with keys being the symbol index
-(number). The following symbol types are permitted: Procedure, Variable, Mod.
+(number). The following symbol types are permitted: Procedure, Variable, Module.
 Each is represented by a namedtuple. Procedure and Variable have some common
 fields:
 
@@ -66,7 +66,7 @@ import gzip
 class GFortranModuleParseError(Exception):
     pass
 
-Mod = namedtuple("Module", ["name"])
+Module = namedtuple("Module", ["name"])
 Procedure = namedtuple("Procedure", ["name", "mod", "type", "args",
     "return_sym"])
 Variable = namedtuple("Variable", ["name", "mod", "type", "bounds",
@@ -170,7 +170,7 @@ def parse_symbol(name, mod, info):
                 )
         return p
     elif sym_info[0] == "MODULE":
-        m = Mod(name=name)
+        m = Module(name=name)
         return m
     else:
         print(sym_info)

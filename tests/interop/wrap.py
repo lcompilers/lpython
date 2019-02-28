@@ -241,7 +241,7 @@ def convert_module(table, public_symbols):
     module_name = None
     for sym in public_symbols:
         s = table[sym.idx]
-        if isinstance(s, gp.Mod):
+        if isinstance(s, gp.Module):
             # Skip modules if they are listed in public symbols
             continue
         assert isinstance(s, gp.Procedure)
