@@ -297,7 +297,8 @@ def load_module(filename):
         # Transform into a list of namedtuples
         symtree_list = []
         for s in symtree:
-            symtree_list.append(PublicSymbol(str_(s[0]), s[1], s[2]))
+            symtree_list.append(PublicSymbol(str_(s[0]), s[1],
+                VarIdx(idx=s[2])))
         return version, orig_file, symtab_dict, symtree_list
     else:
         raise GFortranModuleParseError("Unsupported version")

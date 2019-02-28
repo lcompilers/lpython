@@ -240,7 +240,7 @@ def convert_module(table, public_symbols):
     contains = []
     module_name = None
     for sym in public_symbols:
-        s = table[sym.idx]
+        s = table[sym.idx.idx]
         if isinstance(s, gp.Module):
             # Skip modules if they are listed in public symbols
             continue
