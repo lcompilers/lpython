@@ -1,5 +1,63 @@
 """
-Module for parsing GFortran module files.
+# Module for parsing GFortran module files.
+
+## Usage:
+
+Load the module file using:
+
+>>> version, orig_filename, symtab, public_symbols = load_module("filename.mod")
+
+The `symtab` will contain the symbol table, `public_symbols` contains the list
+of module symbols that are public, `orig_filename` is the name of the original
+Fortran module source code (e.g., "filename.f90") and `version` is the GFortran
+module version (e.g., 14).
+
+## Design Motivation
+
+This module is self-contained, it does not depend on the rest of LFortran. It
+parses the GFortran module file into a representation with the following
+properties:
+
+* It contains all the information from the original GFortran module file
+  (nothing got lost), so that in principle the original file can be
+  reconstructed (the only thing lost would be white space and the order of the
+  symbols).
+
+* It is as simple as possible: it does not contain any additional
+  information that could be inferred.
+
+* Implemented using natural Python datastructures/syntax: it uses a Python
+  dicitonary, lists and namedtuples to store the data.
+
+In this sense it an abstract representation of the module file that is suitable
+as the basis for any tools that need to work with the GFortran module file.
+
+## Details
+
+The symbol table `symtab` is a dictionary, with keys being the symbol index
+(number). The following symbol types are permitted: Procedure, Variable, Mod.
+Each is represented by a namedtuple. Procedure and Variable have some common
+fields:
+
+* name: name of the symbol
+* mod: which module it belongs to
+* type: type of the symbol
+
+Procedure has `args` and `return_sym` fields, which contain VarIdx namedtuples.
+Each variable is uniquely indentified by its symbol index, which can be used to
+look it up in the `symtab` dictionary. The VarIdx namedtuple represents this
+symbol index.
+
+If the variable is an array, then the `bounds` field is not None and it
+contains the lower and upper bound for each dimension (as lists of lists). If
+the upper bound is None, it is an assumed-shape array, otherwise it is an
+explicit-shape array. The array bound can be an integer (represented by the
+Integer namedtuple), or it can be a variable (represented by VarIdx) or an
+expression (represented by Expr).
+
+The `public_symbols` variable contains the list of public module symbols,
+represented by the PublicSymbol namedtuple.
+
 """
 
 from collections import namedtuple
@@ -9,15 +67,18 @@ class GFortranModuleParseError(Exception):
     pass
 
 Mod = namedtuple("Module", ["name"])
-PublicSymbol = namedtuple("PublicSymbol", ["name", "ambiguous_flag",
-        "idx"])
 Procedure = namedtuple("Procedure", ["name", "mod", "type", "args",
     "return_sym"])
 Variable = namedtuple("Variable", ["name", "mod", "type", "bounds",
     "dummy", "intent"])
-Integer = namedtuple("Integer", ["i"])
+
 VarIdx = namedtuple("VarIdx", ["idx"])
+
+Integer = namedtuple("Integer", ["i"])
 Expr = namedtuple("Expr", [])
+
+PublicSymbol = namedtuple("PublicSymbol", ["name", "ambiguous_flag",
+        "idx"])
 
 def str_(s):
     if not (isinstance(s, str) and len(s) >= 2 and s[0] == "'" and \
