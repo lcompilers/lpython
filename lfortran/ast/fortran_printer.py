@@ -103,8 +103,23 @@ class FortranPrinterVisitor(ast.ASTVisitor):
     def visit_Name(self, node):
         return node.id
 
+    def visit_Num(self, node):
+        return str(node.n)
+
     def visit_Str(self, node):
         return '"' + node.s + '"'
+
+    def visit_BinOp(self, node):
+        left = self.visit(node.left)
+        right = self.visit(node.right)
+        if isinstance(node.op, ast.Add):
+            op = "+"
+            return "%s %s %s" % (left, op, right)
+        elif isinstance(node.op, ast.Mul):
+            op = "*"
+            return "(%s) %s (%s)" % (left, op, right)
+        else:
+            raise NotImplementedError()
 
     def visit_FuncCallOrArray(self, node):
         return node.func + "(" + \
