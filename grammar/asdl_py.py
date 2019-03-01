@@ -42,11 +42,43 @@ class ASDLVisitor(asdl.VisitorBase):
 
 
 def is_simple_sum(sum):
+    """
+    Returns true if `sum` is a simple sum.
+
+    Example of a simple sum:
+
+        boolop = And | Or
+
+    Example of not a simple sum:
+
+        type
+            = Integer(int kind)
+            | Real(int kind)
+
+    """
     assert isinstance(sum, asdl.Sum)
     for constructor in sum.types:
         if constructor.fields:
             return False
     return True
+
+def attr_to_args(attrs):
+    args = []
+    for attr in attrs:
+        kw = ""
+        if attr.type == "int":
+            if attr.name in ["lineno", "col_offset"]:
+                kw = "=1"
+            else:
+                kw = "=0"
+        elif attr.type in ["string", "identifier"]:
+            kw = '=None'
+        elif attr.seq:
+            kw = "=[]"
+        else:
+            kw = "=None"
+        args.append(attr.name + kw)
+    return ", ".join(args)
 
 
 class ASTNodeVisitor(ASDLVisitor):
@@ -57,23 +89,23 @@ class ASTNodeVisitor(ASDLVisitor):
     def visitSum(self, sum, base):
         if is_simple_sum(sum):
             self.emit("class %s(AST): # Sum" % (base,))
-            self.emit("pass", 1)
+            self.emit(    "pass", 1)
             self.emit("")
             self.emit("")
             for i, cons in enumerate(sum.types):
                 self.emit("class %s(%s): # Type" % (cons.name, base))
-                self.emit("pass", 1)
+                self.emit(    "pass", 1)
                 self.emit("")
                 self.emit("")
         else:
             self.emit("class %s(AST): # Sum" % (base,))
             if sum.attributes:
                 self.emit("")
-                args = ", ".join(attr.name for attr in sum.attributes)
-                self.emit("def __init__(self, %s):" % (args,), 1)
+                self.emit("def __init__(self, %s):" \
+                    % attr_to_args(sum.attributes), 1)
                 for attr in sum.attributes:
                     self.visit(attr)
-                self.emit("self._type = None", 2)
+                self.emit(    "self._type = None", 2)
             else:
                 self.emit("pass", 1)
             self.emit("")
@@ -100,13 +132,15 @@ class ASTNodeVisitor(ASDLVisitor):
     def make_constructor(self, fields, node, extras=None, base=None):
         if fields or extras:
             arg_fields = fields + extras if extras else fields
-            args = ", ".join(str(field.name) for field in arg_fields)
+            args = attr_to_args(arg_fields)
             self.emit("def __init__(self, %s):" % args, 1)
             for field in fields:
                 self.visit(field)
             if extras:
                 base_args = ", ".join(str(field.name) for field in extras)
                 self.emit("%s.__init__(self, %s)" % (base, base_args), 2)
+        else:
+            self.emit("def __init__(self):", 1)
 
     def visitConstructor(self, cons, base, extra_attributes):
         self.emit("class %s(%s): # Constructor" % (cons.name, base))
@@ -295,7 +329,7 @@ class NodeVisitorNotImplemented(Exception):
 def checkinstance(a, b, opt=False):
     if opt and a is None:
         return
-    from .utils import dump
+    from {} import dump
     if not isinstance(a, b):
         if isinstance(a, AST):
             a_dump = dump(a)
@@ -310,13 +344,14 @@ visitors = [ASTNodeVisitor, ASTVisitorVisitor, GenericASTVisitorVisitor]
 
 
 def main(argv):
-    if len(argv) == 3:
-        def_file, out_file = argv[1:]
+    if len(argv) == 4:
+        def_file, out_file, util_import_part = argv[1:]
     elif len(argv) == 1:
         print("Assuming default values of Fortran.asdl and ast.py")
         here = os.path.dirname(__file__)
         def_file = os.path.join(here, "Fortran.asdl")
         out_file = os.path.join(here, "..", "lfortran", "ast", "ast.py")
+        util_import_part = ".utils"
     else:
         print("invalid arguments")
         return 2
@@ -324,7 +359,7 @@ def main(argv):
     data = ASDLData(mod)
     fp = open(out_file, "w")
     try:
-        fp.write(HEAD)
+        fp.write(HEAD.format(util_import_part))
         for visitor in visitors:
             visitor(fp, data).visit(mod)
     finally:
