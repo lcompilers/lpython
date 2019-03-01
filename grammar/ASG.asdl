@@ -1,0 +1,103 @@
+-- Abstract Semantic Graph (ASG) definition
+
+-- ASDL's builtin types are:
+--   * identifier
+--   * int (signed integers of infinite precision)
+--   * string
+-- We extend these by:
+--   * object (any Python object)
+--   * constant
+--   * symbol_table (scoped Symbol Table implementation), for now we use object
+--
+-- Note: `symbol_table` contains `mod`, `sub`, `fn`, `var`.
+
+module ASG {
+
+-- FIXME: these functions might be implemented by hand in the code. `sub` and
+-- `fn` is used once, and it should be changed to a pointer to
+-- Function/Subroutine. `var` is used a lot, but again it should be a pointer to
+-- Variable, in the symbol table.
+
+prog
+    = Program(identifier name, object symtab)
+
+mod
+    = Module(identifier name, object symtab)
+
+sub
+    = Subroutine()
+        attributes (identifier name, expr* args, stmt* body, tbind? bind,
+            object symtab)
+
+fn
+    = Function(expr return_var)
+        attributes (identifier name, expr* args, stmt* body, tbind? bind,
+            object symtab)
+
+stmt
+    = Assignment(expr target, expr value)
+    | SubroutineCall(sub name, expr* args)
+    | BuiltinCall(identifier name, expr* args)
+    | If(expr test, stmt* body, stmt* orelse)
+    | Where(expr test, stmt* body, stmt* orelse)
+    | Stop(int? code)
+    | ErrorStop()
+    | DoLoop(do_loop_head? head, stmt* body)
+    | Select(expr test, case_stmt* body, case_default? default)
+    | Cycle()
+    | Exit()
+    | WhileLoop(expr test, stmt* body)
+    | Print(string? fmt, expr* values)
+
+expr
+    = BoolOp(expr left, boolop op, expr right)
+    | BinOp(expr left, operator op, expr right)
+    | UnaryOp(unaryop op, expr operand)
+    | Compare(expr left, cmpop op, expr right)
+    | FuncCall(fn func, expr* args, keyword* keywords)
+    | Array(identifier name, array_index* args)
+    | ArrayInitializer(expr* args)
+    | Num(object n)
+    | Str(string s)
+    | Variable(identifier name, string? intent, int? dummy, object? scope)
+    | Constant(constant value)
+        attributes (ttype type)
+
+ttype
+    = Integer(int kind)
+    | Real(int kind)
+    | Complex(int kind)
+    | Character(int kind)
+    | Logical(int kind)
+    | Derived()
+        attributes (dimension* dims)
+
+boolop = And | Or
+
+operator = Add | Sub | Mul | Div | Pow
+
+unaryop = Invert | Not | UAdd | USub
+
+cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
+
+dimension = (expr? start, expr? end)
+
+attribute = Attribute(identifier name, attribute_arg *args)
+
+attribute_arg = (identifier arg)
+
+arg = (identifier arg)
+
+keyword = (identifier? arg, expr value)
+
+tbind = Bind(keyword* args)
+
+array_index = ArrayIndex(expr? left, expr? right, expr? step)
+
+do_loop_head = (expr v, expr start, expr end, expr? increment)
+
+case_stmt = (expr test, stmt* body)
+
+case_default = (stmt* body)
+
+}

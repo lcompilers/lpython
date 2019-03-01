@@ -1,5 +1,111 @@
 # LFortran Design
 
+## High Level Overview
+
+LFortran is structured around two independent modules, AST and ASG, both of
+which are standalone (completely independent of the rest of LFortran) and users
+are encouraged to use them independently for other applications and build tools
+on top:
+
+* Abstract Syntax Tree (AST), module `lfortran.ast`: Represents any Fortran
+  source code, strictly based on syntax, no semantic is included. The AST
+  module can convert itself to Fortran source code.
+
+* Abstract Semantic Graph (ASG), module `lfortran.asg`: Represents a valid
+  Fortran source code, all semantic is included. Invalid Fortran code is not
+  allowed (an error will be given). The ASG module can convert itself to an
+  AST.
+
+The LFortran compiler is then composed of the following independent stages:
+
+* Parsing: converts Fotran source code to an AST
+* Semantic: converts an AST to an ASG
+* High level optimizations: optimize ASG to a possibly faster/simpler ASG
+  (things like inlining functions, eliminating redundant expressions or
+  statements, etc.)
+* LLVM IR code generation and lower level optimizations: converts an ASG to an
+  LLVM IR. This stage also does all other optimizations that do not produce an
+  ASG, but still make sense to do before passing to LLVM IR.
+* Machine code generation: LLVM then does all its optimizations and generates
+  machine code (such as a binary executable, a library, an object file, or it
+  is loaded and executed using JIT as part of the interactive LFortran session
+  or in a Jupyter kernel).
+
+LFortran is structured as a library, and so one can for example use the parser
+to obtain an AST and do something with it, or one can then use the semantic
+analyzer to obtain ASG and do something with it. One can generate the ASG
+directly (e.g., from SymPy) and then either convert to AST and to a Fortran
+source code, or use LFortran to compile it to machine code directly. In other
+words, one can use LFortran to easily convert between the three equivalent
+representations:
+
+* Fortran source code
+* Abstract Syntax Tree (AST)
+* Abstract Semantic Graph (ASG)
+
+They are all equivalent in the following sense:
+
+* Any ASG can always be converted to an equivalent AST
+* Any AST can always be converted to an equivalent Fortran source code
+* Any Fortran source code can always be either converted to an equivalent AST
+  or one gets a syntax error
+* Any AST can always be either converted to an equivalent ASG or one gets a
+  semantic error
+
+So when a conversion can be done, they are equivalent, and the conversion can
+always be done unless the code is invalid.
+
+## ASG Design Details
+
+The ASG is designed to have the following features:
+
+* ASG is still semantically equivalent to the original Fortran code (it did not
+  lose any semantic information). ASG can be converted to AST, and AST to
+  Fortran source code which is functionally equivalent to the original.
+
+* ASG is as simple as possible: it does not contain any information that could
+  not be inferred from ASG.
+
+* The ASG C++ classes (down the road) are designed similarly to SymEngine: they
+  are constructed once and after that they are immutable. The constructor
+  checks in Debug more that all the requirements are met (e.g., that all
+  Variables in a Function have a dummy argument set, that explicit-shape arrays
+  are not allocatable and all other Fortran requirements to make it a valid
+  code), but in Release mode it quickly constructs the class without checks.
+  Then there are builder classes that construct the ASG C++ classes to meet
+  requirements (checked in Debug mode) and the builder gives an error message
+  if a code is not a valid Fortran code, and if it doesn't give an error
+  message, then the ASG C++ classes are constructed correctly. Thus by
+  construction, the ASG classes always contain valid Fortran code and the rest
+  of LFortran can depend on it.
+
+Note: Information that is lost when parsing source to AST: whitespace,
+multiline/single line if statement distinction, case sensitivity of keywords.
+Information that is lost when going from AST to ASG: detailed syntax how
+variables were defined and the order of type attributes (whether array
+dimension is using the `dimension` attribute, or parentheses at the variable;
+or how many variables there are per declaration line or their order), as ASG
+only represents the aggregated type information in the symbol table.
+
+Note: ASG is the simplest way to generate Fortran code, as one does not
+have to worry about the detailed syntax (as in AST) about how and where
+things are declared. One specifies the symbol table for a module, then for
+each symbol (functions, global variables, types, ...) one specifies the local
+variables and if this is an interface then one needs to specify where one can
+find an implementation, otherwise a body is supplied with statements, those
+nodes are almost the same as in AST, except that each variable is just a
+reference to a symbol in the symbol table (so by construction one cannot have
+undefined variables). The symbol table for each node such as Function or Module
+also references its parent (for example a function references a module,
+a module references the global scope).
+
+The ASG can be directly converted to an AST without gathering any other
+information. And the AST directly to Fortran source code.
+
+The ASG is always representing a semantically valid Fortran code.  This is
+enforced by checks in the ASG C++ constructors (in Debug build).
+When an ASG is used, one can assume it is valid.
+
 ## Fortran 2008
 
 Fortran 2008 [standard](https://j3-fortran.org/doc/year/10/10-007.pdf) chapter
