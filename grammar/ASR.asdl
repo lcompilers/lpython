@@ -1,4 +1,4 @@
--- Abstract Semantic Graph (ASG) definition
+-- Abstract Semantic Representation (ASR) definition
 
 -- ASDL's builtin types are:
 --   * identifier
@@ -11,7 +11,7 @@
 --
 -- Note: `symbol_table` contains `mod`, `sub`, `fn`, `var`.
 
-module ASG {
+module ASR {
 
 -- FIXME: these functions might be implemented by hand in the code. `sub` and
 -- `fn` is used once, and it should be changed to a pointer to

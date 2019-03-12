@@ -1,7 +1,7 @@
 from ..ast import ast
-from . import asg
+from . import asr
 
-class ASG2ASTVisitor(asg.ASTVisitor):
+class ASR2ASTVisitor(asr.ASTVisitor):
 
     def visit_sequence(self, seq):
         r = []
@@ -15,7 +15,7 @@ class ASG2ASTVisitor(asg.ASTVisitor):
         contains = []
         for s in node.symtab.symbols:
             sym = node.symtab.symbols[s]
-            if isinstance(sym, asg.Function):
+            if isinstance(sym, asr.Function):
                 if sym.body:
                     contains.append(self.visit(sym))
                 else:
@@ -34,9 +34,9 @@ class ASG2ASTVisitor(asg.ASTVisitor):
     def visit_BinOp(self, node):
         left = self.visit(node.left)
         right = self.visit(node.right)
-        if isinstance(node.op, asg.Add):
+        if isinstance(node.op, asr.Add):
             op = ast.Add()
-        elif isinstance(node.op, asg.Mul):
+        elif isinstance(node.op, asr.Mul):
             op = ast.Mul()
         else:
             raise NotImplementedError()
@@ -85,6 +85,6 @@ class ASG2ASTVisitor(asg.ASTVisitor):
             decl=decl, body=body)
 
 
-def asg_to_ast(a):
-    v = ASG2ASTVisitor()
+def asr_to_ast(a):
+    v = ASR2ASTVisitor()
     return v.visit(a)
