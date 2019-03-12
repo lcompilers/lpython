@@ -2,7 +2,7 @@
 # Design
 
 This file converts from a GFortran module file representation (documented in
-the `gfort_mod_parser.py` module) to an Abstract Semantic Graph (ASG).
+the `gfort_mod_parser.py` module) to an Abstract Semantic Representation (ASR).
 """
 
 # TODO: move this into the lfortran package itself
@@ -66,9 +66,9 @@ class Arg:
         print(b)
         raise NotImplementedError("Unsupported bound type")
 
-# TODO: generate ASG in these functions. The ASG will then get converted
+# TODO: generate ASR in these functions. The ASR will then get converted
 # to AST and to Fortran code. This will simplify all the declaration code
-# below, which is implicit in the ASG's symbol table.
+# below, which is implicit in the ASR's symbol table.
 
     def tofortran_decl(self):
         attrs = [

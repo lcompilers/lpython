@@ -1,17 +1,17 @@
 """
-# ASG Builder
+# ASR Builder
 
-Using the ASG builder has the following advantages over constructing the ASG
+Using the ASR builder has the following advantages over constructing the ASR
 directly:
 
-* The ASG is constructed correctly, or a nice error is given
+* The ASR is constructed correctly, or a nice error is given
 * Is easier to use, for example it handles the scoped symbol table
   automatically
 
 """
 
-from . import asg
-from .asg_check import check_function
+from . import asr
+from .asr_check import check_function
 from ..semantic.analyze import Scope
 
 # Private:
@@ -30,13 +30,13 @@ def _add_var(scope, v, dummy=False):
 def make_type_integer(kind=None):
     if not kind:
         kind = 4
-    return asg.Integer(kind=kind)
+    return asr.Integer(kind=kind)
 
 
 class FunctionBuilder():
 
     def __init__(self, mod, name, args=[], return_var=None, body=[]):
-        assert isinstance(mod, asg.Module)
+        assert isinstance(mod, asr.Module)
         scope = mod.symtab
         self._name = name
         self._args = args.copy()
@@ -50,7 +50,7 @@ class FunctionBuilder():
             _add_var(self._function_scope, return_var, dummy=True)
 
     def make_var(self, name, type):
-        v = asg.Variable(name=name, dummy=False, type=type)
+        v = asr.Variable(name=name, dummy=False, type=type)
         _add_var(self._function_scope, v, dummy=False)
         return v
 
@@ -59,7 +59,7 @@ class FunctionBuilder():
         self._body += statements
 
     def finalize(self):
-        f = asg.Function(name=self._name, symtab=self._function_scope,
+        f = asr.Function(name=self._name, symtab=self._function_scope,
                 args=self._args, return_var=self._return_var, body=self._body)
         _add_symbol(self._parent_scope, f)
         check_function(f)
@@ -73,6 +73,6 @@ class TranslationUnit():
 
     def make_module(self, name):
         module_scope = Scope(self._global_scope)
-        m = asg.Module(name=name, symtab=module_scope)
+        m = asr.Module(name=name, symtab=module_scope)
         _add_symbol(self._global_scope, m)
         return m
