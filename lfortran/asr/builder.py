@@ -7,6 +7,35 @@ directly:
 * The ASR is constructed correctly, or a nice error is given
 * Is easier to use, for example it handles the scoped symbol table
   automatically
+* The API is natural to be used in the semantic analyzer, making its AST
+  visitor as simple as possible (by handling many things automatically)
+
+## TODO
+
+* Add asr.FunctionType: The FunctionType will not have a symbol table, but will
+  have a list of arguments as Variables. FunctionType has a name associated
+  with it --- this will either be the name used in the `procedure(some_name)`
+  declaration, or as a function name if used in Function(..).
+
+* Rename FunctionBuilder() to FunctionTypeBuilder(), and once build, the
+  symbol table will have an asr.FunctionType() instance.
+
+* the asr.Function will just be asr.Function(FunctionType(), Body()), the name
+  of the function is stored in FunctionType.
+
+* asr.Function will have a symbol table, but asr.FunctionSignature() will not
+
+* Add a VariableBuilder to construct Variable field by field, and it's
+  VariableBuilder.finalize() method will be called from
+  FunctionTypeBuilder.finalize()
+
+Function call will simply reference the symbol table which has a FunctionType
+symbol.
+
+## Immutability
+
+* All ASR classes are immutable once constructed with no exceptions.
+
 
 """
 
