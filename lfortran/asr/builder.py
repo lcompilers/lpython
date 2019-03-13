@@ -34,8 +34,9 @@ symbol.
 
 ## Immutability
 
-* All ASR classes are immutable once constructed with no exceptions.
-
+All ASR classes are mutable when constructing them. One is free to create just
+asr.Variable() and populate it later. Then one calls "verify_asr()", everything
+gets checked and error reported. After that, all classes are immutable.
 
 """
 
