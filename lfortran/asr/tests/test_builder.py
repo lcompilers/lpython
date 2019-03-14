@@ -1,6 +1,7 @@
 def test_builder_module1():
     from lfortran.ast.fortran_printer import print_fortran
     from lfortran.asr import asr, asr_to_ast
+    from lfortran.asr.asr_check import verify_asr
     from lfortran.asr.builder import (make_type_integer, TranslationUnit,
             FunctionBuilder)
 
@@ -31,7 +32,8 @@ def test_builder_module1():
     f = FunctionBuilder(m, name="g", args=[a, b], return_var=c)
     f.finalize()
 
-
+    # Verify ASR, after that it is considered immutable
+    verify_asr(m)
 
     a = asr_to_ast.asr_to_ast(m)
     s = print_fortran(a)
