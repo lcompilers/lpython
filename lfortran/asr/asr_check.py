@@ -27,12 +27,32 @@ does not depend on the rest of LFortran and can be used, verified and
 improved independently.
 """
 
-# TODO: Make this a visitor
+from . import asr
 
-def check_function(f):
-    for arg in f.args:
-        assert arg.name in f.symtab.symbols
-        assert arg.dummy == True
-    assert f.return_var.name in f.symtab.symbols
-    assert f.return_var.dummy == True
-    assert f.return_var.intent is None
+class ASRVerifyVisitor(asr.ASTVisitor):
+
+    def visit_Module(self, node):
+        for s in node.symtab.symbols:
+            sym = node.symtab.symbols[s]
+            self.visit(sym)
+
+    def visit_Function(self, node):
+        for arg in node.args:
+            assert arg.name in node.symtab.symbols
+            assert arg.dummy == True
+        assert node.return_var.name in node.symtab.symbols
+        assert node.return_var.dummy == True
+        assert node.return_var.intent is None
+
+
+def verify_asr(asr):
+    """
+    Verifies the ASR.
+
+    Before this function is called, the ASR nodes are mutable and one can
+    construct ASR piece by piece, filling in more information as it becomes
+    available. However, once verify_asr() is called, the nodes are considered
+    correct and immutable; the rest of the code can depend on it.
+    """
+    v = ASRVerifyVisitor()
+    return v.visit(asr)
