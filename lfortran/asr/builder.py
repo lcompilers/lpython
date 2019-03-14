@@ -62,38 +62,6 @@ def make_type_integer(kind=None):
     return asr.Integer(kind=kind)
 
 
-class FunctionBuilder():
-
-    def __init__(self, mod, name, args=[], return_var=None, body=[]):
-        assert isinstance(mod, asr.Module)
-        scope = mod.symtab
-        self._name = name
-        self._args = args.copy()
-        self._body = body.copy()
-        self._return_var = return_var
-        self._parent_scope = scope
-        self._function_scope = Scope(self._parent_scope)
-        for arg in args:
-            _add_var(self._function_scope, arg, dummy=True)
-        if return_var:
-            _add_var(self._function_scope, return_var, dummy=True)
-
-    def make_var(self, name, type):
-        v = asr.Variable(name=name, dummy=False, type=type)
-        _add_var(self._function_scope, v, dummy=False)
-        return v
-
-    def add_statements(self, statements):
-        assert isinstance(statements, list)
-        self._body += statements
-
-    def finalize(self):
-        f = asr.Function(name=self._name, symtab=self._function_scope,
-                args=self._args, return_var=self._return_var, body=self._body)
-        _add_symbol(self._parent_scope, f)
-        verify_asr(f)
-        return f
-
 class TranslationUnit():
 
     def __init__(self):
@@ -105,3 +73,30 @@ class TranslationUnit():
         m = asr.Module(name=name, symtab=module_scope)
         _add_symbol(self._global_scope, m)
         return m
+
+def make_function(mod, name, args=[], return_var=None, body=None):
+    assert isinstance(mod, asr.Module)
+    parent_scope = mod.symtab
+    function_scope = Scope(parent_scope)
+    args_ = []
+    for arg in args:
+        if isinstance(arg, str):
+            arg = asr.Variable(name=arg, type=make_type_integer())
+        _add_var(function_scope, arg, dummy=True)
+        args_.append(arg)
+    if return_var:
+        if isinstance(return_var, str):
+            return_var = asr.Variable(name=return_var, type=make_type_integer())
+        _add_var(function_scope, return_var, dummy=True)
+    if body is None:
+        # TODO: body=None should mean no body, and body=[] an empty body
+        body = []
+    f = asr.Function(name=name, symtab=function_scope,
+            args=args_, return_var=return_var, body=body)
+    _add_symbol(parent_scope, f)
+    return f
+
+def function_make_var(fn, name, type):
+    v = asr.Variable(name=name, dummy=False, type=type)
+    _add_var(fn.symtab, v, dummy=False)
+    return v
