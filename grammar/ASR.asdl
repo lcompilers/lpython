@@ -18,6 +18,9 @@ module ASR {
 -- Function/Subroutine. `var` is used a lot, but again it should be a pointer to
 -- Variable, in the symbol table.
 
+unit
+    = TranslationUnit(object global_scope)
+
 prog
     = Program(identifier name, object symtab)
 
