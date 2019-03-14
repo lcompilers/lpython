@@ -30,4 +30,13 @@ def test_builder_module1():
     verify_asr(m)
     a = asr_to_ast.asr_to_ast(m)
     s = print_fortran(a)
-    print(s)
+    # Check that the generated source code contains a few "key" parts, which
+    # are reasonably robust against changes in the way the source code is
+    # generated from ASR.
+    def has(s, a):
+        assert s.find(a) > 0
+    has(s, "function f(a, b)")
+    has(s, "d = 5\n")
+    has(s, "(a + b)")
+    has(s, "interface\n")
+    has(s, "function g(a, b)")
