@@ -5,6 +5,10 @@ from lfortran.ast import parse
 from lfortran.asr import asr
 from lfortran.asr.asr_check import verify_asr
 
+from lfortran.ast.fortran_printer import print_fortran
+from lfortran.asr.asr_to_ast import asr_to_ast
+
+
 def test_function1():
     source = """\
 module test
@@ -28,3 +32,4 @@ end module
     assert isinstance(fn1, asr.Function)
     assert fn1.args[0].name == "a"
     assert fn1.args[1].name == "b"
+    print(print_fortran(asr_to_ast(m)))
