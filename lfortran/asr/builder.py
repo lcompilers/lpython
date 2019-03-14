@@ -54,6 +54,11 @@ def make_type_integer(kind=None):
         kind = 4
     return asr.Integer(kind=kind)
 
+def make_type_real(kind=None):
+    if not kind:
+        kind = 8
+    return asr.Real(kind=kind)
+
 def make_translation_unit():
     return asr.TranslationUnit(global_scope=Scope())
 
