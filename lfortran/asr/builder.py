@@ -53,18 +53,14 @@ def make_type_integer(kind=None):
         kind = 4
     return asr.Integer(kind=kind)
 
+def make_translation_unit():
+    return asr.TranslationUnit(global_scope=Scope())
 
-class TranslationUnit():
-
-    def __init__(self):
-        self._global_scope = Scope()
-        pass
-
-    def make_module(self, name):
-        module_scope = Scope(self._global_scope)
-        m = asr.Module(name=name, symtab=module_scope)
-        scope_add_symbol(self._global_scope, m)
-        return m
+def translation_unit_make_module(unit, name):
+    module_scope = Scope(unit.global_scope)
+    m = asr.Module(name=name, symtab=module_scope)
+    scope_add_symbol(unit.global_scope, m)
+    return m
 
 def make_function(mod, name, args=[], return_var=None, body=None):
     assert isinstance(mod, asr.Module)
