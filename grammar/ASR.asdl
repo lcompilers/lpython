@@ -9,14 +9,9 @@
 --   * constant
 --   * symbol_table (scoped Symbol Table implementation), for now we use object
 --
--- Note: `symbol_table` contains `mod`, `sub`, `fn`, `var`.
+-- Note: `symbol_table` contains `Module`, `Subroutine`, `Function`, `Variable`.
 
 module ASR {
-
--- FIXME: these functions might be implemented by hand in the code. `sub` and
--- `fn` is used once, and it should be changed to a pointer to
--- Function/Subroutine. `var` is used a lot, but again it should be a pointer to
--- Variable, in the symbol table.
 
 unit
     = TranslationUnit(object global_scope)
