@@ -43,18 +43,10 @@ from . import asr
 from .asr_check import verify_asr
 from ..semantic.analyze import Scope
 
-# Private:
 
-def _add_symbol(scope, v):
+def scope_add_symbol(scope, v):
     scope.symbols[v.name] = v
-    v._scope = scope
-
-def _add_var(scope, v, dummy=False):
     v.scope = scope
-    v.dummy = dummy
-    _add_symbol(scope, v)
-
-# Public API:
 
 def make_type_integer(kind=None):
     if not kind:
@@ -71,7 +63,7 @@ class TranslationUnit():
     def make_module(self, name):
         module_scope = Scope(self._global_scope)
         m = asr.Module(name=name, symtab=module_scope)
-        _add_symbol(self._global_scope, m)
+        scope_add_symbol(self._global_scope, m)
         return m
 
 def make_function(mod, name, args=[], return_var=None, body=None):
@@ -82,21 +74,23 @@ def make_function(mod, name, args=[], return_var=None, body=None):
     for arg in args:
         if isinstance(arg, str):
             arg = asr.Variable(name=arg, type=make_type_integer())
-        _add_var(function_scope, arg, dummy=True)
+        arg.dummy = True
+        scope_add_symbol(function_scope, arg)
         args_.append(arg)
     if return_var:
         if isinstance(return_var, str):
             return_var = asr.Variable(name=return_var, type=make_type_integer())
-        _add_var(function_scope, return_var, dummy=True)
+        return_var.dummy = True
+        scope_add_symbol(function_scope, return_var)
     if body is None:
         # TODO: body=None should mean no body, and body=[] an empty body
         body = []
     f = asr.Function(name=name, symtab=function_scope,
             args=args_, return_var=return_var, body=body)
-    _add_symbol(parent_scope, f)
+    scope_add_symbol(parent_scope, f)
     return f
 
 def function_make_var(fn, name, type):
     v = asr.Variable(name=name, dummy=False, type=type)
-    _add_var(fn.symtab, v, dummy=False)
+    scope_add_symbol(fn.symtab, v)
     return v
