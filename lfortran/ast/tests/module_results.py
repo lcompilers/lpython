@@ -12,6 +12,6 @@ results = [
     ('Module', 'test', [], [], [('Subroutine', (1, 1), 'a', [('arg', 'b')], [], [('Declaration', (1, 1), [('decl', 'b', 'integer', [], [('Attribute', 'intent', [('attribute_arg', 'in')])])])], [], [])]),
     ('Module', 'test', [], [], [('Subroutine', (1, 1), 'a', [('arg', 'b')], [], [('Declaration', (1, 1), [('decl', 'b', 'integer', [], [('Attribute', 'intent', [('attribute_arg', 'in')])])])], [], []), ('Subroutine', (1, 1), 'f', [('arg', 'b')], [], [('Declaration', (1, 1), [('decl', 'b', 'integer', [], [('Attribute', 'intent', [('attribute_arg', 'in')])])])], [], [])]),
     ('Module', 'test', [], [('Declaration', (1, 1), [('decl', 'x', 'integer', [], [])])], [('Subroutine', (1, 1), 'a', [('arg', 'b')], [], [('Declaration', (1, 1), [('decl', 'b', 'integer', [], [('Attribute', 'intent', [('attribute_arg', 'in')])])])], [], [])]),
-    ('Module', 'test', [], [], [('Function', (1, 1), 'f', [], None, None, None, [], [], [('Assignment', (1, 1), ('Name', (1, 1), 'y'), ('Num', (1, 1), '0'))], [])]),
+    ('Module', 'test', [], [], [('Function', (1, 1), 'f', [], None, ('Name', (1, 1), 'y'), None, [], [], [('Assignment', (1, 1), ('Name', (1, 1), 'y'), ('Num', (1, 1), '0'))], [])]),
     ('Module', 'test', [], [('Interface', (1, 1), 'name', ['a', 'b', 'c'])], []),
 ]

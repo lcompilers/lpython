@@ -156,7 +156,10 @@ class ASTBuilderVisitor(fortranVisitor):
                 args.append(ast.arg(arg=arg.getText()))
         use, decl, body, contains = self.process_sub_block(ctx.sub_block())
         return_type = None
-        return_var = ast.Name(id=ctx.ident(1).getText())
+        if ctx.ident(1):
+            return_var = ast.Name(id=ctx.ident(1).getText())
+        else:
+            return_var = None
         return ast.Function(name=name, args=args, return_type=return_type,
                 return_var=return_var, bind=None, use=use, decl=decl, body=body,
                 contains=contains,

@@ -1,6 +1,6 @@
 results = [
-    ('Function', (1, 1), 'dp', [('arg', 'e')], None, None, None, [], [], [('Assignment', (1, 1), ('Name', (1, 1), 'r'), ('Num', (1, 1), '1'))], []),
-    ('Function', (1, 1), 'dp', [('arg', 'e')], None, None, None, [], [], [('Assignment', (1, 1), ('Name', (1, 1), 'r'), ('Num', (1, 1), '1'))], []),
+    ('Function', (1, 1), 'dp', [('arg', 'e')], None, ('Name', (1, 1), 'f'), None, [], [], [('Assignment', (1, 1), ('Name', (1, 1), 'r'), ('Num', (1, 1), '1'))], []),
+    ('Function', (1, 1), 'dp', [('arg', 'e')], None, ('Name', (1, 1), 'f'), None, [], [], [('Assignment', (1, 1), ('Name', (1, 1), 'r'), ('Num', (1, 1), '1'))], []),
     ('Function', (1, 1), 'f', [('arg', 'e')], None, None, None, [], [], [('Assignment', (1, 1), ('Name', (1, 1), 'f'), ('Num', (1, 1), '1'))], []),
     ('Function', (1, 1), 'f', [('arg', 'e')], None, None, None, [], [], [('Assignment', (1, 1), ('Name', (1, 1), 'f'), ('Num', (1, 1), '1'))], []),
     ('Subroutine', (1, 1), 'f', [], [], [('Declaration', (1, 1), [('decl', 'x', 'integer', [], [])])], [], []),
