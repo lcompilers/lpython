@@ -31,6 +31,11 @@ from . import asr
 
 class ASRVerifyVisitor(asr.ASTVisitor):
 
+    def visit_TranslationUnit(self, node):
+        for s in node.global_scope.symbols:
+            sym = node.global_scope.symbols[s]
+            self.visit(sym)
+
     def visit_Module(self, node):
         for s in node.symtab.symbols:
             sym = node.symtab.symbols[s]
