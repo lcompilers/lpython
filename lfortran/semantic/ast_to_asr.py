@@ -8,7 +8,7 @@ once it reaches feature parity with it.
 from ..ast import ast
 from ..asr import asr
 from ..asr.builder import (make_translation_unit,
-        translation_unit_make_module, make_function)
+        translation_unit_make_module, make_function, make_type_integer)
 
 class SymbolTableVisitor(ast.GenericASTVisitor):
 
@@ -19,7 +19,20 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
 
     def visit_Function(self, node):
         args = [arg.arg for arg in node.args]
-        return_var = "FIXME"
+        if node.return_var:
+            name = node.return_var # Name of the result(...) var
+        else:
+            name = node.name # Name of the function
+        if node.return_type:
+            if node.return_type == "integer":
+                type = make_type_integer()
+            else:
+                raise NotImplementedError("Type not implemented")
+        else:
+            # FIXME: should return None here
+            #type = None
+            type = make_type_integer()
+        return_var = asr.Variable(name=name, type=type)
         f = make_function(self._current_module, node.name,
                 args=args, return_var=return_var)
 
