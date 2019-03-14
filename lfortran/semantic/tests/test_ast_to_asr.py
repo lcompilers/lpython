@@ -3,6 +3,7 @@ import pytest
 from lfortran.semantic.ast_to_asr import ast_to_asr
 from lfortran.ast import parse
 from lfortran.asr import asr
+from lfortran.asr.asr_check import verify_asr
 
 def test_function1():
     source = """\
@@ -19,6 +20,7 @@ end module
 """
     ast = parse(source)
     asrepr = ast_to_asr(ast)
+    verify_asr(asrepr)
     assert 'modx' in asrepr.global_scope.symbols
     m = asrepr.global_scope.symbols['modx']
     assert isinstance(m, asr.Module)
