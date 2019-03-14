@@ -45,6 +45,14 @@ class ASRVerifyVisitor(asr.ASTVisitor):
         assert node.return_var.intent is None
 
 
-def verify_asr(a):
+def verify_asr(asr):
+    """
+    Verifies the ASR.
+
+    Before this function is called, the ASR nodes are mutable and one can
+    construct ASR piece by piece, filling in more information as it becomes
+    available. However, once verify_asr() is called, the nodes are considered
+    correct and immutable; the rest of the code can depend on it.
+    """
     v = ASRVerifyVisitor()
-    return v.visit(a)
+    return v.visit(asr)
