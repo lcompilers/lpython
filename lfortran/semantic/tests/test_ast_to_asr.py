@@ -32,4 +32,5 @@ end module
     assert isinstance(fn1, asr.Function)
     assert fn1.args[0].name == "a"
     assert fn1.args[1].name == "b"
+    assert fn1.return_var.name == "r"
     print(print_fortran(asr_to_ast(m)))

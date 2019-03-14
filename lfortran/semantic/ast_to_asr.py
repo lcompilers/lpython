@@ -38,7 +38,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
     def visit_Function(self, node):
         args = [arg.arg for arg in node.args]
         if node.return_var:
-            name = node.return_var # Name of the result(...) var
+            name = node.return_var.id # Name of the result(...) var
         else:
             name = node.name # Name of the function
         if node.return_type:
