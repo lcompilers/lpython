@@ -40,7 +40,7 @@ symbol.
 """
 
 from . import asr
-from .asr_check import check_function
+from .asr_check import verify_asr
 from ..semantic.analyze import Scope
 
 # Private:
@@ -91,7 +91,7 @@ class FunctionBuilder():
         f = asr.Function(name=self._name, symtab=self._function_scope,
                 args=self._args, return_var=self._return_var, body=self._body)
         _add_symbol(self._parent_scope, f)
-        check_function(f)
+        verify_asr(f)
         return f
 
 class TranslationUnit():

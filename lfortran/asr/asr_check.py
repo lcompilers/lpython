@@ -27,12 +27,24 @@ does not depend on the rest of LFortran and can be used, verified and
 improved independently.
 """
 
-# TODO: Make this a visitor
+from . import asr
 
-def check_function(f):
-    for arg in f.args:
-        assert arg.name in f.symtab.symbols
-        assert arg.dummy == True
-    assert f.return_var.name in f.symtab.symbols
-    assert f.return_var.dummy == True
-    assert f.return_var.intent is None
+class ASRVerifyVisitor(asr.ASTVisitor):
+
+    def visit_Module(self, node):
+        for s in node.symtab.symbols:
+            sym = node.symtab.symbols[s]
+            self.visit(sym)
+
+    def visit_Function(self, node):
+        for arg in node.args:
+            assert arg.name in node.symtab.symbols
+            assert arg.dummy == True
+        assert node.return_var.name in node.symtab.symbols
+        assert node.return_var.dummy == True
+        assert node.return_var.intent is None
+
+
+def verify_asr(a):
+    v = ASRVerifyVisitor()
+    return v.visit(a)
