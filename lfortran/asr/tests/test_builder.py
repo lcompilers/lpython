@@ -9,7 +9,8 @@ def test_builder_module1():
     unit = make_translation_unit()
     m = translation_unit_make_module(unit, "mod1")
 
-    f = make_function(m, "f", args=["a", "b"], return_var="c")
+    f = scope_add_function(unit.global_scope, "f", args=["a", "b"],
+        return_var="c")
     a, b = f.args
     a.intent = "in"; a.type = integer
     b.intent = "in"; b.type = integer
@@ -25,10 +26,10 @@ def test_builder_module1():
     a = asr.Variable(name="a", intent="in", type=integer)
     b = asr.Variable(name="b", intent="in", type=integer)
     c = asr.Variable(name="c", type=integer)
-    f = make_function(m, name="g", args=[a, b], return_var=c)
+    f = scope_add_function(m.symtab, name="g", args=[a, b], return_var=c)
 
     verify_asr(unit)
-    a = asr_to_ast.asr_to_ast(m)
+    a = asr_to_ast.asr_to_ast(unit)
     s = print_fortran(a)
     # Check that the generated source code contains a few "key" parts, which
     # are reasonably robust against changes in the way the source code is
