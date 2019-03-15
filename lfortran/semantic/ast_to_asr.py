@@ -167,7 +167,7 @@ class BodyVisitor(ast.GenericASTVisitor):
 
 def wrap_ast_translation_unit(astree):
     # Note: We wrap the `astree` into an ast.TranslationUnit. This should
-    # eventually be moved into parse() itself (the rest of LFortran would
+    # eventually be moved into src_to_ast() itself (the rest of LFortran would
     # need to be updated).
     assert not isinstance(astree, ast.TranslationUnit)
     if isinstance(astree, list):

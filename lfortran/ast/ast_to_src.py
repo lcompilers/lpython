@@ -145,7 +145,7 @@ class FortranPrinterVisitor(ast.ASTVisitor):
         return s
 
 
-def print_fortran(a):
+def ast_to_src(a):
     v = FortranPrinterVisitor()
     lines = v.visit(a)
     return "\n".join(lines) + "\n"

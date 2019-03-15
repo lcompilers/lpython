@@ -2,7 +2,7 @@ import pytest
 
 from lfortran.semantic.analyze import (create_symbol_table, Integer, Real,
         Array, Logical, UndeclaredVariableError, annotate_tree, TypeMismatch)
-from lfortran.ast import parse, dump
+from lfortran.ast import src_to_ast, dump
 
 def test_types():
     r = Real()
@@ -50,7 +50,7 @@ contains
 
 end module
 """
-    tree = parse(source)
+    tree = src_to_ast(source)
     global_scope = create_symbol_table(tree)
     assert not global_scope.resolve("a", False)
     sym = tree.contains[0]._scope.resolve("a")
@@ -74,7 +74,7 @@ contains
 
 end module
 """
-    tree = parse(source)
+    tree = src_to_ast(source)
     symbol_table = create_symbol_table(tree)
     with pytest.raises(UndeclaredVariableError):
         annotate_tree(tree, symbol_table)
@@ -92,7 +92,7 @@ contains
 
 end module
 """
-    tree = parse(source)
+    tree = src_to_ast(source)
     symbol_table = create_symbol_table(tree)
     with pytest.raises(UndeclaredVariableError):
         annotate_tree(tree, symbol_table)
@@ -104,7 +104,7 @@ integer, intent(in) :: a
 b = 1
 end subroutine
 """
-    tree = parse(source, False)
+    tree = src_to_ast(source, False)
     symbol_table = create_symbol_table(tree)
     with pytest.raises(UndeclaredVariableError):
         annotate_tree(tree, symbol_table)
@@ -122,7 +122,7 @@ contains
 
 end module
 """
-    tree = parse(source)
+    tree = src_to_ast(source)
     symbol_table = create_symbol_table(tree)
     annotate_tree(tree, symbol_table)
 
@@ -139,7 +139,7 @@ contains
 
 end module
 """
-    tree = parse(source)
+    tree = src_to_ast(source)
     symbol_table = create_symbol_table(tree)
     annotate_tree(tree, symbol_table)
     assert tree.contains[0].body[0]._type == Integer()
@@ -158,7 +158,7 @@ contains
 
 end module
 """
-    tree = parse(source)
+    tree = src_to_ast(source)
     symbol_table = create_symbol_table(tree)
     with pytest.raises(TypeMismatch):
         annotate_tree(tree, symbol_table)
@@ -177,7 +177,7 @@ contains
 
 end module
 """
-    tree = parse(source)
+    tree = src_to_ast(source)
     symbol_table = create_symbol_table(tree)
     annotate_tree(tree, symbol_table)
     assert tree.contains[0].body[0]._type == Integer()
@@ -196,7 +196,7 @@ contains
 
 end module
 """
-    tree = parse(source)
+    tree = src_to_ast(source)
     symbol_table = create_symbol_table(tree)
     with pytest.raises(TypeMismatch):
         annotate_tree(tree, symbol_table)
@@ -215,7 +215,7 @@ contains
 
 end module
 """
-    tree = parse(source)
+    tree = src_to_ast(source)
     symbol_table = create_symbol_table(tree)
     annotate_tree(tree, symbol_table)
     assert tree.contains[0].body[0]._type == Integer()
@@ -234,7 +234,7 @@ contains
 
 end module
 """
-    tree = parse(source)
+    tree = src_to_ast(source)
     symbol_table = create_symbol_table(tree)
     with pytest.raises(TypeMismatch):
         annotate_tree(tree, symbol_table)
@@ -247,7 +247,7 @@ real, intent(in) :: b
 a = (b + a)*a
 end subroutine
 """
-    tree = parse(source, False)
+    tree = src_to_ast(source, False)
     symbol_table = create_symbol_table(tree)
     annotate_tree(tree, symbol_table)
     assert tree.body[0]._type == Real()
@@ -260,7 +260,7 @@ integer, intent(in) :: b
 a = (b + 1)*a*5
 end subroutine
 """
-    tree = parse(source, False)
+    tree = src_to_ast(source, False)
     symbol_table = create_symbol_table(tree)
     annotate_tree(tree, symbol_table)
     assert dump(tree, include_type=True) == "Subroutine(name='sub1', args=[arg(arg='a'), arg(arg='b')], use=[], decl=[Declaration(vars=[decl(sym='a', sym_type='integer', dims=[], attrs=[Attribute(name='intent', args=[attribute_arg(arg='in')])])]), Declaration(vars=[decl(sym='b', sym_type='integer', dims=[], attrs=[Attribute(name='intent', args=[attribute_arg(arg='in')])])])], body=[Assignment(target=Name(id='a'), value=BinOp(left=BinOp(left=BinOp(left=Name(id='b', type=Integer()), op=Add(), right=Num(n='1', type=Integer()), type=Integer()), op=Mul(), right=Name(id='a', type=Integer()), type=Integer()), op=Mul(), right=Num(n='5', type=Integer()), type=Integer()), type=Integer())], contains=[])"
@@ -274,7 +274,7 @@ logical :: r
 r = (a == b)
 end subroutine
 """
-    tree = parse(source, False)
+    tree = src_to_ast(source, False)
     symbol_table = create_symbol_table(tree)
     annotate_tree(tree, symbol_table)
     assert tree.body[0]._type == Logical()
@@ -287,7 +287,7 @@ logical :: r
 r = a
 end subroutine
 """
-    tree = parse(source, False)
+    tree = src_to_ast(source, False)
     symbol_table = create_symbol_table(tree)
     with pytest.raises(TypeMismatch):
         annotate_tree(tree, symbol_table)
@@ -300,7 +300,7 @@ integer :: c
 if (a == b) c = 1
 end subroutine
 """
-    tree = parse(source, False)
+    tree = src_to_ast(source, False)
     symbol_table = create_symbol_table(tree)
     annotate_tree(tree, symbol_table)
 
@@ -312,7 +312,7 @@ integer :: c
 if (a) c = 1
 end subroutine
 """
-    tree = parse(source, False)
+    tree = src_to_ast(source, False)
     symbol_table = create_symbol_table(tree)
     with pytest.raises(TypeMismatch):
         annotate_tree(tree, symbol_table)
@@ -327,7 +327,7 @@ if (a == b) then
 end if
 end subroutine
 """
-    tree = parse(source, False)
+    tree = src_to_ast(source, False)
     symbol_table = create_symbol_table(tree)
     with pytest.raises(UndeclaredVariableError):
         annotate_tree(tree, symbol_table)
@@ -343,7 +343,7 @@ if (1 == a(1)) c = 1
 if (a(1) == a(1)) c = 1
 end subroutine
 """
-    tree = parse(source, False)
+    tree = src_to_ast(source, False)
     symbol_table = create_symbol_table(tree)
     annotate_tree(tree, symbol_table)
 
@@ -357,7 +357,7 @@ a(2) = i
 a(i) = i+1
 end subroutine
 """
-    tree = parse(source, False)
+    tree = src_to_ast(source, False)
     symbol_table = create_symbol_table(tree)
     annotate_tree(tree, symbol_table)
 
@@ -371,7 +371,7 @@ r = 2
 a(r) = 2
 end subroutine
 """
-    tree = parse(source, False)
+    tree = src_to_ast(source, False)
     symbol_table = create_symbol_table(tree)
     with pytest.raises(TypeMismatch):
         annotate_tree(tree, symbol_table)
@@ -388,7 +388,7 @@ i = 1
 a(i) = r
 end subroutine
 """
-    tree = parse(source, False)
+    tree = src_to_ast(source, False)
     symbol_table = create_symbol_table(tree)
     with pytest.raises(TypeMismatch):
         annotate_tree(tree, symbol_table)
@@ -405,7 +405,7 @@ a(1) = b(i) + 1
 a(1) = b(i) + b(1)
 end subroutine
 """
-    tree = parse(source, False)
+    tree = src_to_ast(source, False)
     symbol_table = create_symbol_table(tree)
     annotate_tree(tree, symbol_table)
 
@@ -418,6 +418,6 @@ integer, intent(out) :: b
 b = a + 1
 end subroutine
 """
-    tree = parse(source, False)
+    tree = src_to_ast(source, False)
     symbol_table = create_symbol_table(tree)
     annotate_tree(tree, symbol_table)

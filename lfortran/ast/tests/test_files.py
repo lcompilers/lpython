@@ -1,14 +1,14 @@
 from glob import glob
 import os
 
-from lfortran.ast import parse
+from lfortran.ast import src_to_ast
 
 def test_files():
     sources = [file1, file2, file3, file4, file5, file6, file7, file8, file9]
     assert len(sources) == 9
     print("Testing filenames:")
     for source in sources:
-        parse(source)
+        src_to_ast(source)
 
 file1 = """\
 module bsplines

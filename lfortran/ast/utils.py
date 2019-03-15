@@ -9,7 +9,7 @@ from ..parser.parser import antlr_parse
 class SyntaxErrorException(Exception):
     pass
 
-def parse(source, translation_unit=True):
+def src_to_ast(source, translation_unit=True):
     """
     Parse the `source` string into an AST node.
     """
@@ -17,7 +17,7 @@ def parse(source, translation_unit=True):
 
 def parse_file(filename):
     source = open(filename).read()
-    return parse(source)
+    return src_to_ast(source)
 
 def iter_fields(node):
     """

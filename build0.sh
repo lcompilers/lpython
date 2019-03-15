@@ -3,7 +3,7 @@
 set -e
 set -x
 
-# Generate a Fortran AST from Fortran.asdl
+# Generate a Fortran AST from AST.asdl
 python grammar/asdl_py.py
 # Generate a Fortran ASR from ASR.asdl
 python grammar/asdl_py.py grammar/ASR.asdl lfortran/asr/asr.py ..ast.utils

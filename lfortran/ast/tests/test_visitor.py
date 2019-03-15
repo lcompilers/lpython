@@ -34,7 +34,7 @@ end subroutine
 
 end module
 """
-    tree = ast.parse(source)
+    tree = ast.src_to_ast(source)
     v = SubroutinesVisitor()
     v.visit(tree)
     assert v.get_subroutine_list() == """\
@@ -75,7 +75,7 @@ end subroutine
 
 end module
 """
-    tree = ast.parse(source)
+    tree = ast.src_to_ast(source)
     v = SubroutinesVisitor2()
     v.visit(tree)
     assert v.get_subroutine_list() == """\
@@ -120,7 +120,7 @@ end do
 if (j /= 55) error stop
 end subroutine
 """
-    tree = ast.parse(source, False)
+    tree = ast.src_to_ast(source, False)
     v = DoLoopTransformer()
     assert isinstance(tree.body[1], ast.ast.DoLoop)
     tree = v.visit(tree)
