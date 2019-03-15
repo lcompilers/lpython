@@ -36,20 +36,24 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
         self._scopes = []
         pass
 
+    @property
+    def scope(self):
+        """
+        Return the current scope
+        """
+        return self._scopes[-1]
+
     def visit_TranslationUnit(self, node):
         self._unit = make_translation_unit()
         self._scopes.append(self._unit.global_scope)
-        self._current_scope = self._scopes[-1]
         for item in node.items:
             self.visit(item)
 
     def visit_Module(self, node):
         module = translation_unit_make_module(self._unit, node.name)
         self._scopes.append(module.symtab)
-        self._current_scope = self._scopes[-1]
         self.visit_sequence(node.contains)
         self._scopes.pop()
-        self._current_scope = self._scopes[-1]
 
     def visit_Function(self, node):
         args = [arg.arg for arg in node.args]
@@ -64,14 +68,12 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
             #type = None
             type = make_type_integer()
         return_var = asr.Variable(name=name, type=type)
-        f = scope_add_function(self._current_scope, node.name,
+        f = scope_add_function(self.scope, node.name,
                 args=args, return_var=return_var)
 
         self._scopes.append(f.symtab)
-        self._current_scope = self._scopes[-1]
         self.visit_sequence(node.decl)
         self._scopes.pop()
-        self._current_scope = self._scopes[-1]
 
     def visit_Declaration(self, node):
         for v in node.vars:
@@ -87,11 +89,11 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                     raise NotImplementedError("start index")
             #if len(dims) > 0:
             #    type = Array(type, dims)
-            if name in self._current_scope.symbols:
-                sym = self._current_scope.symbols[name]
+            if name in self.scope.symbols:
+                sym = self.scope.symbols[name]
             else:
                 sym = asr.Variable(name=name, type=type, dummy=False)
-                scope_add_symbol(self._current_scope, sym)
+                scope_add_symbol(self.scope, sym)
             assert sym.name == name
             for a in v.attrs:
                 if a.name == "intent":
