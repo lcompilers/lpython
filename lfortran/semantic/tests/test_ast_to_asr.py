@@ -86,4 +86,10 @@ r = a + b
     assert body[0].value.left == asrepr.global_scope.symbols["a"]
     assert body[0].value.right == asrepr.global_scope.symbols["b"]
 
-    print(print_fortran(asr_to_ast(asrepr)))
+    s = print_fortran(asr_to_ast(asrepr))
+    assert s == """\
+integer :: a
+integer :: b
+integer :: r
+r = a + b
+"""
