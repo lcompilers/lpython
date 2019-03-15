@@ -5,7 +5,7 @@ from lfortran.ast import parse
 from lfortran.asr import asr
 from lfortran.asr.asr_check import verify_asr
 
-from lfortran.ast.fortran_printer import print_fortran
+from lfortran.ast.fortran_printer import ast_to_src
 from lfortran.asr.asr_to_ast import asr_to_ast
 
 
@@ -59,7 +59,7 @@ end function
     assert fn1.body[0].value.left == fn1.args[0]
     assert fn1.body[0].value.right == fn1.args[1]
 
-    s = print_fortran(asr_to_ast(asrepr))
+    s = ast_to_src(asr_to_ast(asrepr))
     assert s == """\
 integer function fn1(a, b) result(r)
 integer, intent(in) :: a
@@ -86,7 +86,7 @@ r = a + b
     assert body[0].value.left == asrepr.global_scope.symbols["a"]
     assert body[0].value.right == asrepr.global_scope.symbols["b"]
 
-    s = print_fortran(asr_to_ast(asrepr))
+    s = ast_to_src(asr_to_ast(asrepr))
     assert s == """\
 integer :: a
 integer :: b

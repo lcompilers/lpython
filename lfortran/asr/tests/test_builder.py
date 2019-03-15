@@ -1,4 +1,4 @@
-from lfortran.ast.fortran_printer import print_fortran
+from lfortran.ast.fortran_printer import ast_to_src
 from lfortran.asr import asr, asr_to_ast
 from lfortran.asr.asr_check import verify_asr
 from lfortran.asr.builder import (make_type_integer, make_translation_unit,
@@ -30,7 +30,7 @@ def test_builder_module1():
 
     verify_asr(unit)
     a = asr_to_ast.asr_to_ast(unit)
-    s = print_fortran(a)
+    s = ast_to_src(a)
     # Check that the generated source code contains a few "key" parts, which
     # are reasonably robust against changes in the way the source code is
     # generated from ASR.

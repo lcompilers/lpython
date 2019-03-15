@@ -9,7 +9,7 @@ the `gfort_mod_parser.py` module) to an Abstract Semantic Representation (ASR).
 import sys
 sys.path.append("../..")
 from lfortran.ast import ast
-from lfortran.ast.fortran_printer import print_fortran
+from lfortran.ast.fortran_printer import ast_to_src
 import gfort_mod_parser as gp
 
 class Type(object):
@@ -269,5 +269,5 @@ version, orig_file, table, public_symbols = gp.load_module("mod1.mod")
 m = convert_module(table, public_symbols)
 a = m.tofortran()
 a.name = "mod2"
-s = print_fortran(a)
+s = ast_to_src(a)
 print(s)
