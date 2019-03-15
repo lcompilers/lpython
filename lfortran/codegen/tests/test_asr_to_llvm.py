@@ -25,7 +25,6 @@ end function
     assert fn1.body[0].value.right == fn1.args[1]
 
     llmod = asr_to_llvm(asrepr)
-    print(llmod)
     e = LLVMEvaluator()
     e.add_module(str(llmod))
     e.add_module("""\
