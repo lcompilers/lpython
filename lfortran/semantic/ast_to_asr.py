@@ -9,7 +9,7 @@ from ..ast import ast
 from ..asr import asr
 from ..asr.builder import (make_translation_unit,
     translation_unit_make_module, scope_add_function, make_type_integer,
-    make_type_real, type_eq, make_binop)
+    make_type_real, type_eq, make_binop, scope_add_symbol)
 
 from .analyze import TypeMismatch
 
@@ -108,8 +108,12 @@ class BodyVisitor(ast.GenericASTVisitor):
 
     def visit_TranslationUnit(self, node):
         self._current_scope = self._unit.global_scope
+        items = []
         for item in node.items:
-            self.visit(item)
+            a = self.visit(item)
+            if a:
+                items.append(a)
+        self._unit.items = items
 
     def visit_Module(self, node):
         old_scope = self._current_scope

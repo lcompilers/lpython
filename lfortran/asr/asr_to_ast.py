@@ -11,11 +11,27 @@ class ASR2ASTVisitor(asr.ASTVisitor):
         return r
 
     def visit_TranslationUnit(self, node):
+        decl = []
         items = []
         for s in node.global_scope.symbols:
             sym = node.global_scope.symbols[s]
-            items.append(self.visit(sym))
-        return ast.TranslationUnit(items=items)
+            if isinstance(sym, asr.Variable):
+                stype = self.visit(sym.type)
+                decl.append(ast.Declaration(vars=[
+                    ast.decl(sym=sym.name, sym_type=stype)]))
+            else:
+                items.append(self.visit(sym))
+        for item in node.items:
+            items.append(self.visit(item))
+        return ast.TranslationUnit(items=decl+items)
+
+        for s in node.symtab.symbols:
+            sym = node.symtab.symbols[s]
+            if sym.dummy:
+                continue
+            stype = self.visit(sym.type)
+            decl.append(ast.Declaration(vars=[
+                ast.decl(sym=sym.name, sym_type=stype)]))
 
     def visit_Module(self, node):
         decl = []
