@@ -111,11 +111,13 @@ class BodyVisitor(ast.GenericASTVisitor):
         self._current_scope = old_scope
 
     def visit_Assignment(self, node):
-        # TODO: make this general:
-        r = self._current_scope.symbols["r"]
-        self._current_function.body = [
-            asr.Assignment(r, asr.Num(n=5, type=make_type_integer())),
-        ]
+        if isinstance(node.target, ast.Name):
+            r = self._current_scope.symbols[node.target.id]
+            self._current_function.body = [
+                asr.Assignment(r, asr.Num(n=5, type=make_type_integer())),
+            ]
+        else:
+            raise NotImplementedError()
 
 
 def ast_to_asr(ast):
