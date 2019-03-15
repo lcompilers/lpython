@@ -53,8 +53,7 @@ class ASR2LLVMVisitor(asr.ASTVisitor):
         op = node.op
         lhs = self.visit(node.left)
         rhs = self.visit(node.right)
-        if isinstance(node.left.type, asr.Integer) and \
-                isinstance(node.right.type, asr.Integer):
+        if isinstance(node.type, asr.Integer):
             if isinstance(op, asr.Mul):
                 return self._builder.mul(lhs, rhs)
             elif isinstance(op, asr.Div):
