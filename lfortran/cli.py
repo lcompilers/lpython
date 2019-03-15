@@ -113,15 +113,15 @@ def main():
             e.evaluate(source)
             return
         if verbose: print("Importing parser...")
-        from .ast import (parse, SyntaxErrorException, print_tree,
+        from .ast import (src_to_ast, SyntaxErrorException, print_tree,
                 print_tree_typed)
         if verbose: print("    Done.")
         try:
             if verbose: print("Parsing...")
             if args.show_ast or args.show_ast_typed:
-                ast_tree = parse(source, translation_unit=False)
+                ast_tree = src_to_ast(source, translation_unit=False)
             else:
-                ast_tree = parse(source)
+                ast_tree = src_to_ast(source)
             if verbose: print("    Done.")
         except SyntaxErrorException as err:
             print(str(err))

@@ -3,7 +3,7 @@ from copy import deepcopy
 
 import llvmlite.binding as llvm
 
-from ..ast import parse, dump, SyntaxErrorException, ast
+from ..ast import src_to_ast, dump, SyntaxErrorException, ast
 from ..semantic.analyze import SymbolTableVisitor, annotate_tree
 from .gen import codegen
 from ..cli import load_lfortran_runtime_library
@@ -50,7 +50,7 @@ class FortranEvaluator(object):
         self.lle.add_module(str(mod))
 
     def parse(self, source):
-        return parse(source, translation_unit=False)
+        return src_to_ast(source, translation_unit=False)
 
     def semantic_analysis(self, ast_tree):
         self.is_expr = isinstance(ast_tree, ast.expr)

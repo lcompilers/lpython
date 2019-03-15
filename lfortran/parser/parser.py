@@ -2,16 +2,16 @@
 # Fortran Parser
 
 This module provides a parser implementation for the `ast` module. This module
-should not be used directly, use `ast.parse()` instead.
+should not be used directly, use `ast.src_to_ast()` instead.
 
-Internally, `ast.parse()` calls `antlr_parse()` provided by this module.  The
+Internally, `ast.src_to_ast()` calls `antlr_parse()` provided by this module.  The
 `antlr_parse()` function accepts source code as a string and then uses ANTLR4
 to create a parse tree and then converts the parse tree to an AST (using the
 classes from the `ast` module) and returns it.
 
 The returned AST (and thus the rest of the code) does not depend on ANTLR in
 any way. As such, alternative parser implementations can be used --- all they
-have to do is to return an AST, and one can just update the `ast.parse()` to
+have to do is to return an AST, and one can just update the `ast.src_to_ast()` to
 use them. The rest of the code does not depend on the parser implementation.
 
 """

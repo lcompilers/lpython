@@ -1,7 +1,7 @@
 import pytest
 
 from lfortran.semantic.ast_to_asr import ast_to_asr
-from lfortran.ast import parse
+from lfortran.ast import src_to_ast
 from lfortran.asr import asr
 from lfortran.asr.asr_check import verify_asr
 
@@ -22,7 +22,7 @@ contains
 
 end module
 """
-    ast = parse(source)
+    ast = src_to_ast(source)
     asrepr = ast_to_asr(ast)
     verify_asr(asrepr)
     assert isinstance(asrepr, asr.TranslationUnit)
@@ -45,7 +45,7 @@ integer, intent(in) :: a, b
 r = a + b
 end function
 """
-    ast = parse(source, translation_unit=False)
+    ast = src_to_ast(source, translation_unit=False)
     asrepr = ast_to_asr(ast)
     verify_asr(asrepr)
     assert isinstance(asrepr, asr.TranslationUnit)
@@ -73,7 +73,7 @@ def test_statements():
 integer :: a, b, r
 r = a + b
 """
-    ast = parse(source, translation_unit=False)
+    ast = src_to_ast(source, translation_unit=False)
     asrepr = ast_to_asr(ast)
     verify_asr(asrepr)
     assert isinstance(asrepr, asr.TranslationUnit)
