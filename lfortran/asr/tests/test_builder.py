@@ -1,4 +1,4 @@
-from lfortran.ast.fortran_printer import ast_to_src
+from lfortran.ast.ast_to_src import ast_to_src
 from lfortran.asr import asr, asr_to_ast
 from lfortran.asr.asr_check import verify_asr
 from lfortran.asr.builder import (make_type_integer, make_translation_unit,

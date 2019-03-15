@@ -5,7 +5,7 @@ from lfortran.ast import parse
 from lfortran.asr import asr
 from lfortran.asr.asr_check import verify_asr
 
-from lfortran.ast.fortran_printer import ast_to_src
+from lfortran.ast.ast_to_src import ast_to_src
 from lfortran.asr.asr_to_ast import asr_to_ast
 
 
