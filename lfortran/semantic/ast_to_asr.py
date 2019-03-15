@@ -29,12 +29,26 @@ def string_to_type(stype, kind=None):
         raise NotImplementedError("Complex not implemented")
     raise Exception("Unknown type")
 
+class Stack:
+
+    def __init__(self, scopes):
+        self._scopes = scopes
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._scopes.pop()
 
 class SymbolTableVisitor(ast.GenericASTVisitor):
 
     def __init__(self):
         self._scopes = []
         pass
+
+    def add_scope(self, scope):
+        self._scopes.append(scope)
+        return Stack(self._scopes)
 
     @property
     def scope(self):
@@ -45,15 +59,14 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
 
     def visit_TranslationUnit(self, node):
         self._unit = make_translation_unit()
-        self._scopes.append(self._unit.global_scope)
-        for item in node.items:
-            self.visit(item)
+        with self.add_scope(self._unit.global_scope):
+            for item in node.items:
+                self.visit(item)
 
     def visit_Module(self, node):
         module = translation_unit_make_module(self._unit, node.name)
-        self._scopes.append(module.symtab)
-        self.visit_sequence(node.contains)
-        self._scopes.pop()
+        with self.add_scope(module.symtab):
+            self.visit_sequence(node.contains)
 
     def visit_Function(self, node):
         args = [arg.arg for arg in node.args]
@@ -70,10 +83,8 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
         return_var = asr.Variable(name=name, type=type)
         f = scope_add_function(self.scope, node.name,
                 args=args, return_var=return_var)
-
-        self._scopes.append(f.symtab)
-        self.visit_sequence(node.decl)
-        self._scopes.pop()
+        with self.add_scope(f.symtab):
+            self.visit_sequence(node.decl)
 
     def visit_Declaration(self, node):
         for v in node.vars:
