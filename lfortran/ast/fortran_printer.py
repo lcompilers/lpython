@@ -148,4 +148,4 @@ class FortranPrinterVisitor(ast.ASTVisitor):
 def print_fortran(a):
     v = FortranPrinterVisitor()
     lines = v.visit(a)
-    return "\n".join(lines)
+    return "\n".join(lines) + "\n"

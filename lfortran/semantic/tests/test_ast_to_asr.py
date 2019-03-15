@@ -59,6 +59,15 @@ end function
     assert fn1.body[0].value.left == fn1.args[0]
     assert fn1.body[0].value.right == fn1.args[1]
 
+    s = print_fortran(asr_to_ast(asrepr))
+    assert s == """\
+integer function fn1(a, b) result(r)
+integer, intent(in) :: a
+integer, intent(in) :: b
+r = a + b
+end function
+"""
+
 def test_statements():
     source = """\
 integer :: a, b, r
