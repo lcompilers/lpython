@@ -33,20 +33,23 @@ def string_to_type(stype, kind=None):
 class SymbolTableVisitor(ast.GenericASTVisitor):
 
     def __init__(self):
+        self._scopes = []
         pass
 
     def visit_TranslationUnit(self, node):
         self._unit = make_translation_unit()
-        self._current_scope = self._unit.global_scope
+        self._scopes.append(self._unit.global_scope)
+        self._current_scope = self._scopes[-1]
         for item in node.items:
             self.visit(item)
 
     def visit_Module(self, node):
         module = translation_unit_make_module(self._unit, node.name)
-        old_scope = self._current_scope
-        self._current_scope = module.symtab
+        self._scopes.append(module.symtab)
+        self._current_scope = self._scopes[-1]
         self.visit_sequence(node.contains)
-        self._current_scope = old_scope
+        self._scopes.pop()
+        self._current_scope = self._scopes[-1]
 
     def visit_Function(self, node):
         args = [arg.arg for arg in node.args]
@@ -64,10 +67,11 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
         f = scope_add_function(self._current_scope, node.name,
                 args=args, return_var=return_var)
 
-        old_scope = self._current_scope
-        self._current_scope = f.symtab
+        self._scopes.append(f.symtab)
+        self._current_scope = self._scopes[-1]
         self.visit_sequence(node.decl)
-        self._current_scope = old_scope
+        self._scopes.pop()
+        self._current_scope = self._scopes[-1]
 
     def visit_Declaration(self, node):
         for v in node.vars:
