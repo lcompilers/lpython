@@ -42,10 +42,9 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
             self.visit(item)
 
     def visit_Module(self, node):
-        self._current_module = translation_unit_make_module(self._unit,
-            node.name)
+        module = translation_unit_make_module(self._unit, node.name)
         old_scope = self._current_scope
-        self._current_scope = self._current_module.symtab
+        self._current_scope = module.symtab
         self.visit_sequence(node.contains)
         self._current_scope = old_scope
 
