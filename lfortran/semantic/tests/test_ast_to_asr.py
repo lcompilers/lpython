@@ -33,4 +33,7 @@ end module
     assert fn1.args[0].name == "a"
     assert fn1.args[1].name == "b"
     assert fn1.return_var.name == "r"
+    assert fn1.body[0].target == fn1.return_var
+    assert fn1.body[0].value.left == fn1.args[0]
+    assert fn1.body[0].value.right == fn1.args[1]
     print(print_fortran(asr_to_ast(m)))
