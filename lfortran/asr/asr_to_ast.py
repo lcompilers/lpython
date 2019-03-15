@@ -10,6 +10,13 @@ class ASR2ASTVisitor(asr.ASTVisitor):
                 r.append(self.visit(node))
         return r
 
+    def visit_TranslationUnit(self, node):
+        items = []
+        for s in node.global_scope.symbols:
+            sym = node.global_scope.symbols[s]
+            items.append(self.visit(sym))
+        return ast.TranslationUnit(items=items)
+
     def visit_Module(self, node):
         decl = []
         contains = []

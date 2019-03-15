@@ -78,9 +78,9 @@ def translation_unit_make_module(unit, name):
     scope_add_symbol(unit.global_scope, m)
     return m
 
-def make_function(mod, name, args=[], return_var=None, body=None):
-    assert isinstance(mod, asr.Module)
-    parent_scope = mod.symtab
+def scope_add_function(scope, name, args=[], return_var=None, body=None):
+    assert isinstance(scope, Scope)
+    parent_scope = scope
     function_scope = Scope(parent_scope)
     args_ = []
     for arg in args:

@@ -22,6 +22,9 @@
 
 module Fortran {
 
+unit
+    = TranslationUnit(object* items)
+
 mod
     = Module(identifier name, unit_decl1* use, unit_decl2* decl,
         program_unit* contains)

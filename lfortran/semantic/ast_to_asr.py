@@ -8,7 +8,7 @@ once it reaches feature parity with it.
 from ..ast import ast
 from ..asr import asr
 from ..asr.builder import (make_translation_unit,
-    translation_unit_make_module, make_function, make_type_integer,
+    translation_unit_make_module, scope_add_function, make_type_integer,
     make_type_real, type_eq, make_binop)
 
 from .analyze import TypeMismatch
@@ -33,8 +33,13 @@ def string_to_type(stype, kind=None):
 class SymbolTableVisitor(ast.GenericASTVisitor):
 
     def __init__(self):
+        pass
+
+    def visit_TranslationUnit(self, node):
         self._unit = make_translation_unit()
         self._current_scope = self._unit.global_scope
+        for item in node.items:
+            self.visit(item)
 
     def visit_Module(self, node):
         self._current_module = translation_unit_make_module(self._unit,
@@ -57,7 +62,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
             #type = None
             type = make_type_integer()
         return_var = asr.Variable(name=name, type=type)
-        f = make_function(self._current_module, node.name,
+        f = scope_add_function(self._current_scope, node.name,
                 args=args, return_var=return_var)
 
         old_scope = self._current_scope
@@ -91,6 +96,9 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
 
 class BodyVisitor(ast.GenericASTVisitor):
 
+    def __init__(self, unit):
+        self._unit = unit
+
     def visit_sequence(self, seq):
         r = []
         if seq is not None:
@@ -98,8 +106,10 @@ class BodyVisitor(ast.GenericASTVisitor):
                 r.append(self.visit(node))
         return r
 
-    def __init__(self, global_scope):
-        self._current_scope = global_scope
+    def visit_TranslationUnit(self, node):
+        self._current_scope = self._unit.global_scope
+        for item in node.items:
+            self.visit(item)
 
     def visit_Module(self, node):
         old_scope = self._current_scope
@@ -151,12 +161,24 @@ class BodyVisitor(ast.GenericASTVisitor):
                     % node.id)
         return self._current_scope.symbols[node.id]
 
+def wrap_ast_translation_unit(astree):
+    # Note: We wrap the `astree` into an ast.TranslationUnit. This should
+    # eventually be moved into parse() itself (the rest of LFortran would
+    # need to be updated).
+    assert not isinstance(astree, ast.TranslationUnit)
+    if isinstance(astree, list):
+        items = astree
+    else:
+        items = [astree]
+    return ast.TranslationUnit(items=items)
 
-def ast_to_asr(ast):
+def ast_to_asr(astree):
+    astree = wrap_ast_translation_unit(astree)
     v = SymbolTableVisitor()
-    v.visit(ast)
+    assert isinstance(astree, ast.TranslationUnit)
+    v.visit(astree)
     unit = v._unit
 
-    v = BodyVisitor(unit.global_scope)
-    v.visit(ast)
+    v = BodyVisitor(unit)
+    v.visit(astree)
     return unit
