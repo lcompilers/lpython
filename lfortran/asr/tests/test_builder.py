@@ -2,7 +2,7 @@ from lfortran.ast.fortran_printer import print_fortran
 from lfortran.asr import asr, asr_to_ast
 from lfortran.asr.asr_check import verify_asr
 from lfortran.asr.builder import (make_type_integer, make_translation_unit,
-        translation_unit_make_module, make_function, function_make_var)
+        translation_unit_make_module, scope_add_function, function_make_var)
 
 def test_builder_module1():
     integer = make_type_integer()

@@ -8,7 +8,7 @@ once it reaches feature parity with it.
 from ..ast import ast
 from ..asr import asr
 from ..asr.builder import (make_translation_unit,
-    translation_unit_make_module, make_function, make_type_integer,
+    translation_unit_make_module, scope_add_function, make_type_integer,
     make_type_real, type_eq, make_binop)
 
 from .analyze import TypeMismatch
@@ -62,7 +62,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
             #type = None
             type = make_type_integer()
         return_var = asr.Variable(name=name, type=type)
-        f = make_function(self._current_module, node.name,
+        f = scope_add_function(self._current_scope, node.name,
                 args=args, return_var=return_var)
 
         old_scope = self._current_scope
@@ -96,8 +96,8 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
 
 class BodyVisitor(ast.GenericASTVisitor):
 
-    def __init__(self, global_scope):
-        self._current_scope = global_scope
+    def __init__(self, unit):
+        self._unit = unit
 
     def visit_sequence(self, seq):
         r = []
@@ -107,6 +107,7 @@ class BodyVisitor(ast.GenericASTVisitor):
         return r
 
     def visit_TranslationUnit(self, node):
+        self._current_scope = self._unit.global_scope
         for item in node.items:
             self.visit(item)
 
@@ -178,6 +179,6 @@ def ast_to_asr(astree):
     v.visit(astree)
     unit = v._unit
 
-    v = BodyVisitor(unit.global_scope)
+    v = BodyVisitor(unit)
     v.visit(astree)
     return unit
