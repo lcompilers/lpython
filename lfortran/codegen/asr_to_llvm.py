@@ -53,8 +53,7 @@ class ASR2LLVMVisitor(asr.ASTVisitor):
         op = node.op
         lhs = self.visit(node.left)
         rhs = self.visit(node.right)
-        if isinstance(node.left.type, asr.Integer) and \
-                isinstance(node.right.type, asr.Integer):
+        if isinstance(node.type, asr.Integer):
             if isinstance(op, asr.Mul):
                 return self._builder.mul(lhs, rhs)
             elif isinstance(op, asr.Div):
@@ -86,7 +85,8 @@ class ASR2LLVMVisitor(asr.ASTVisitor):
             llvm_type = asr_type_to_llvm(arg.type)
             args.append(llvm_type.as_pointer())
             self._sym2argn[arg] = n
-        fn = ir.FunctionType(ir.IntType(64), args)
+        return_type = asr_type_to_llvm(node.return_var.type)
+        fn = ir.FunctionType(return_type, args)
         func = ir.Function(self._module, fn, name=node.name)
         block = func.append_basic_block(name='.entry')
         builder = ir.IRBuilder(block)
