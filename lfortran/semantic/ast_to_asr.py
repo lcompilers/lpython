@@ -44,7 +44,6 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
 
     def __init__(self):
         self._scopes = []
-        pass
 
     def add_scope(self, scope):
         self._scopes.append(scope)
@@ -114,6 +113,18 @@ class BodyVisitor(ast.GenericASTVisitor):
 
     def __init__(self, unit):
         self._unit = unit
+        self._scopes = []
+
+    def add_scope(self, scope):
+        self._scopes.append(scope)
+        return Stack(self._scopes)
+
+    @property
+    def scope(self):
+        """
+        Return the current scope
+        """
+        return self._scopes[-1]
 
     def visit_sequence(self, seq):
         r = []
@@ -123,36 +134,28 @@ class BodyVisitor(ast.GenericASTVisitor):
         return r
 
     def visit_TranslationUnit(self, node):
-        self._current_scope = self._unit.global_scope
-        items = []
-        for item in node.items:
-            a = self.visit(item)
-            if a:
-                items.append(a)
-        self._unit.items = items
+        with self.add_scope(self._unit.global_scope):
+            items = []
+            for item in node.items:
+                a = self.visit(item)
+                if a:
+                    items.append(a)
+            self._unit.items = items
 
     def visit_Module(self, node):
-        old_scope = self._current_scope
-        self._current_scope = old_scope.symbols[node.name].symtab
-
-        self.visit_sequence(node.contains)
-
-        self._current_scope = old_scope
+        with self.add_scope(self.scope.symbols[node.name].symtab):
+            self.visit_sequence(node.contains)
 
     def visit_Function(self, node):
-        old_scope = self._current_scope
-        self._current_scope = old_scope.symbols[node.name].symtab
-        self._current_function = old_scope.symbols[node.name]
-
-        body = self.visit_sequence(node.body)
-        self._current_function.body = body
-        self.visit_sequence(node.contains)
-
-        self._current_scope = old_scope
+        self._current_function = self.scope.symbols[node.name]
+        with self.add_scope(self.scope.symbols[node.name].symtab):
+            body = self.visit_sequence(node.body)
+            self._current_function.body = body
+            self.visit_sequence(node.contains)
 
     def visit_Assignment(self, node):
         if isinstance(node.target, ast.Name):
-            r = self._current_scope.symbols[node.target.id]
+            r = self.scope.symbols[node.target.id]
             value = self.visit(node.value)
             return asr.Assignment(r, value)
         else:
@@ -176,10 +179,10 @@ class BodyVisitor(ast.GenericASTVisitor):
         return make_binop(left=left, op=op, right=right)
 
     def visit_Name(self, node):
-        if not self._current_scope.resolve(node.id, False):
+        if not self.scope.resolve(node.id, False):
             raise UndeclaredVariableError("Variable '%s' not declared." \
                     % node.id)
-        return self._current_scope.symbols[node.id]
+        return self.scope.symbols[node.id]
 
 def wrap_ast_translation_unit(astree):
     # Note: We wrap the `astree` into an ast.TranslationUnit. This should
