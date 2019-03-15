@@ -29,6 +29,16 @@ improved independently.
 
 from . import asr
 
+class SemanticError(Exception):
+    pass
+
+class UndeclaredVariableError(SemanticError):
+    pass
+
+class TypeMismatch(SemanticError):
+    pass
+
+
 class ASRVerifyVisitor(asr.ASTVisitor):
 
     def visit_TranslationUnit(self, node):

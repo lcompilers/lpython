@@ -41,7 +41,7 @@ gets checked and error reported. After that, all classes are immutable.
 """
 
 from . import asr
-from .asr_check import verify_asr
+from .asr_check import TypeMismatch
 from ..semantic.analyze import Scope
 
 
@@ -106,3 +106,13 @@ def function_make_var(fn, name, type):
     v = asr.Variable(name=name, dummy=False, type=type)
     scope_add_symbol(fn.symtab, v)
     return v
+
+def make_binop(left, op, right):
+    if type_eq(left.type, right.type):
+        type = left.type
+    else:
+        print(left.type)
+        print(right.type)
+        raise TypeMismatch("Type mismatch")
+    # TODO: add explicit type casting nodes here
+    return asr.BinOp(left=left, op=op, right=right, type=type)

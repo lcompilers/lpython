@@ -9,7 +9,7 @@ from ..ast import ast
 from ..asr import asr
 from ..asr.builder import (make_translation_unit,
     translation_unit_make_module, make_function, make_type_integer,
-    make_type_real, type_eq)
+    make_type_real, type_eq, make_binop)
 
 from .analyze import TypeMismatch
 
@@ -143,13 +143,7 @@ class BodyVisitor(ast.GenericASTVisitor):
             op = asr.Pow()
         else:
             assert False
-        if type_eq(left.type, right.type):
-            type = left.type
-        else:
-            print(left.type)
-            print(right.type)
-            raise TypeMismatch("Type mismatch")
-        return asr.BinOp(left=left, op=op, right=right, type=type)
+        return make_binop(left=left, op=op, right=right)
 
     def visit_Name(self, node):
         if not self._current_scope.resolve(node.id, False):
