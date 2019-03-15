@@ -25,8 +25,8 @@ end module
     ast = parse(source)
     asrepr = ast_to_asr(ast)
     verify_asr(asrepr)
-    assert 'modx' in asrepr.global_scope.symbols
-    m = asrepr.global_scope.symbols['modx']
+    assert 'test' in asrepr.global_scope.symbols
+    m = asrepr.global_scope.symbols['test']
     assert isinstance(m, asr.Module)
     fn1 = m.symtab.symbols["fn1"]
     assert isinstance(fn1, asr.Function)

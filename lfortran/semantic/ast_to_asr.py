@@ -32,8 +32,15 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
 
     def __init__(self):
         self._unit = make_translation_unit()
-        self._current_module = translation_unit_make_module(self._unit, "modx")
+        self._current_scope = self._unit.global_scope
+
+    def visit_Module(self, node):
+        self._current_module = translation_unit_make_module(self._unit,
+            node.name)
+        old_scope = self._current_scope
         self._current_scope = self._current_module.symtab
+        self.visit_sequence(node.contains)
+        self._current_scope = old_scope
 
     def visit_Function(self, node):
         args = [arg.arg for arg in node.args]
@@ -80,8 +87,42 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 if a.name == "intent":
                     sym.intent = a.args[0].arg
 
+class BodyVisitor(ast.GenericASTVisitor):
+
+    def __init__(self, global_scope):
+        self._current_scope = global_scope
+
+    def visit_Module(self, node):
+        old_scope = self._current_scope
+        self._current_scope = old_scope.symbols[node.name].symtab
+
+        self.visit_sequence(node.contains)
+
+        self._current_scope = old_scope
+
+    def visit_Function(self, node):
+        old_scope = self._current_scope
+        self._current_scope = old_scope.symbols[node.name].symtab
+        self._current_function = old_scope.symbols[node.name]
+
+        self.visit_sequence(node.body)
+        self.visit_sequence(node.contains)
+
+        self._current_scope = old_scope
+
+    def visit_Assignment(self, node):
+        # TODO: make this general:
+        r = self._current_scope.symbols["r"]
+        self._current_function.body = [
+            asr.Assignment(r, asr.Num(n=5, type=make_type_integer())),
+        ]
+
 
 def ast_to_asr(ast):
     v = SymbolTableVisitor()
     v.visit(ast)
-    return v._unit
+    unit = v._unit
+
+    v = BodyVisitor(unit.global_scope)
+    v.visit(ast)
+    return unit
