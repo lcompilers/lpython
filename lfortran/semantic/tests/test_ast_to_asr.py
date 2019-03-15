@@ -25,6 +25,7 @@ end module
     ast = parse(source)
     asrepr = ast_to_asr(ast)
     verify_asr(asrepr)
+    assert isinstance(asrepr, asr.TranslationUnit)
     assert 'test' in asrepr.global_scope.symbols
     m = asrepr.global_scope.symbols['test']
     assert isinstance(m, asr.Module)
