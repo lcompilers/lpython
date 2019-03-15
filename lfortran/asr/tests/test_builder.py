@@ -27,7 +27,7 @@ def test_builder_module1():
     c = asr.Variable(name="c", type=integer)
     f = make_function(m, name="g", args=[a, b], return_var=c)
 
-    verify_asr(m)
+    verify_asr(unit)
     a = asr_to_ast.asr_to_ast(m)
     s = print_fortran(a)
     # Check that the generated source code contains a few "key" parts, which
