@@ -9,7 +9,9 @@ from ..ast import ast
 from ..asr import asr
 from ..asr.builder import (make_translation_unit,
     translation_unit_make_module, make_function, make_type_integer,
-    make_type_real)
+    make_type_real, type_eq)
+
+from .analyze import TypeMismatch
 
 def string_to_type(stype, kind=None):
     """
@@ -121,10 +123,39 @@ class BodyVisitor(ast.GenericASTVisitor):
     def visit_Assignment(self, node):
         if isinstance(node.target, ast.Name):
             r = self._current_scope.symbols[node.target.id]
-            #value = self.visit(node.value)
-            return asr.Assignment(r, asr.Num(n=5, type=make_type_integer()))
+            value = self.visit(node.value)
+            return asr.Assignment(r, value)
         else:
             raise NotImplementedError()
+
+    def visit_BinOp(self, node):
+        left = self.visit(node.left)
+        right = self.visit(node.right)
+        if isinstance(node.op, ast.Add):
+            op = asr.Add()
+        elif isinstance(node.op, ast.Sub):
+            op = asr.Sub()
+        elif isinstance(node.op, ast.Mul):
+            op = asr.Mul()
+        elif isinstance(node.op, ast.Div):
+            op = asr.Div()
+        elif isinstance(node.op, ast.Pow):
+            op = asr.Pow()
+        else:
+            assert False
+        if type_eq(left.type, right.type):
+            type = left.type
+        else:
+            print(left.type)
+            print(right.type)
+            raise TypeMismatch("Type mismatch")
+        return asr.BinOp(left=left, op=op, right=right, type=type)
+
+    def visit_Name(self, node):
+        if not self._current_scope.resolve(node.id, False):
+            raise UndeclaredVariableError("Variable '%s' not declared." \
+                    % node.id)
+        return self._current_scope.symbols[node.id]
 
 
 def ast_to_asr(ast):

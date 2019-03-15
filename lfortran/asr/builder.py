@@ -59,6 +59,16 @@ def make_type_real(kind=None):
         kind = 8
     return asr.Real(kind=kind)
 
+def type_eq(type1, type2):
+    if isinstance(type1, asr.ttype) and isinstance(type2, asr.ttype):
+        if type(type1) != type(type2):
+            return False
+        return type1.kind == type2.kind
+    # TODO: implement other types comparisons here. In the meantime return
+    # False:
+    return False
+
+
 def make_translation_unit():
     return asr.TranslationUnit(global_scope=Scope())
 
