@@ -5,6 +5,7 @@ build-lfort
 lfort_intrinsics.o
 liblfortran.a
 lfortran/ast/ast.py
+lfortran/asr/asr.py
 lfortran/parser/fortran.tokens
 lfortran/parser/fortran.interp
 lfortran/parser/fortranLexer.py
