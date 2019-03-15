@@ -89,6 +89,13 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
 
 class BodyVisitor(ast.GenericASTVisitor):
 
+    def visit_sequence(self, seq):
+        r = []
+        if seq is not None:
+            for node in seq:
+                r.append(self.visit(node))
+        return r
+
     def __init__(self, global_scope):
         self._current_scope = global_scope
 
@@ -105,7 +112,8 @@ class BodyVisitor(ast.GenericASTVisitor):
         self._current_scope = old_scope.symbols[node.name].symtab
         self._current_function = old_scope.symbols[node.name]
 
-        self.visit_sequence(node.body)
+        body = self.visit_sequence(node.body)
+        self._current_function.body = body
         self.visit_sequence(node.contains)
 
         self._current_scope = old_scope
@@ -113,9 +121,8 @@ class BodyVisitor(ast.GenericASTVisitor):
     def visit_Assignment(self, node):
         if isinstance(node.target, ast.Name):
             r = self._current_scope.symbols[node.target.id]
-            self._current_function.body = [
-                asr.Assignment(r, asr.Num(n=5, type=make_type_integer())),
-            ]
+            #value = self.visit(node.value)
+            return asr.Assignment(r, asr.Num(n=5, type=make_type_integer()))
         else:
             raise NotImplementedError()
 
