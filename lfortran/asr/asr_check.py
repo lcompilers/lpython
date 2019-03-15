@@ -59,6 +59,9 @@ class ASRVerifyVisitor(asr.ASTVisitor):
         assert node.return_var.dummy == True
         assert node.return_var.intent is None
 
+    def visit_Variable(self, node):
+        pass
+
 
 def verify_asr(asr):
     """

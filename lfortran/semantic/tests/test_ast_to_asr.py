@@ -58,4 +58,23 @@ end function
     assert fn1.body[0].target == fn1.return_var
     assert fn1.body[0].value.left == fn1.args[0]
     assert fn1.body[0].value.right == fn1.args[1]
-    print(print_fortran(asr_to_ast(fn1)))
+
+def test_statements():
+    source = """\
+integer :: a, b, r
+r = a + b
+"""
+    ast = parse(source, translation_unit=False)
+    asrepr = ast_to_asr(ast)
+    verify_asr(asrepr)
+    assert isinstance(asrepr, asr.TranslationUnit)
+    assert 'a' in asrepr.global_scope.symbols
+    assert 'b' in asrepr.global_scope.symbols
+    assert 'r' in asrepr.global_scope.symbols
+    body = asrepr.items
+    assert isinstance(body[0], asr.Assignment)
+    assert body[0].target == asrepr.global_scope.symbols["r"]
+    assert body[0].value.left == asrepr.global_scope.symbols["a"]
+    assert body[0].value.right == asrepr.global_scope.symbols["b"]
+
+    print(print_fortran(asr_to_ast(asrepr)))
