@@ -10,6 +10,7 @@ import sys
 sys.path.append("../..")
 
 from lfortran.asr import asr
+from lfortran.asr.asr_check import verify_asr
 from lfortran.asr.builder import (make_translation_unit,
     translation_unit_make_module, scope_add_function, make_type_integer,
     make_type_real, type_eq, make_binop, scope_add_symbol)
@@ -96,6 +97,7 @@ def convert_module(table, public_symbols):
 
 version, orig_file, table, public_symbols = gp.load_module("mod1.mod")
 u = convert_module(table, public_symbols)
+verify_asr(u)
 a = asr_to_ast(u)
 s = ast_to_src(a)
 print(s)
