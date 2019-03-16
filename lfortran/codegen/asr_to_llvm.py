@@ -1,22 +1,23 @@
 from llvmlite import ir
 
 from ..asr import asr
+from ..semantic import kinds
 
 def asr_type_to_llvm(type):
     """
     Converts an ASR type to an LLVM type.
     """
     if isinstance(type, asr.Integer):
-        if type.kind == 4:
+        if type.kind == kinds.int64:
             return ir.IntType(64)
-        elif type.kind == 2:
+        elif type.kind == kinds.int32:
             return ir.IntType(32)
         else:
             raise NotImplementedError("Integer kind not implemented")
     elif isinstance(type, asr.Real):
-        if type.kind == 8:
+        if type.kind == kinds.real64:
             return ir.DoubleType(64)
-        elif type.kind == 4:
+        elif type.kind == kinds.real32:
             return ir.DoubleType(32)
         else:
             raise NotImplementedError("Real kind not implemented")

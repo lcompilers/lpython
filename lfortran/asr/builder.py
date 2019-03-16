@@ -43,6 +43,7 @@ gets checked and error reported. After that, all classes are immutable.
 from . import asr
 from .asr_check import TypeMismatch
 from ..semantic.analyze import Scope
+from ..semantic import kinds
 
 
 def scope_add_symbol(scope, v):
@@ -51,12 +52,12 @@ def scope_add_symbol(scope, v):
 
 def make_type_integer(kind=None):
     if not kind:
-        kind = 4
+        kind = kinds.int32
     return asr.Integer(kind=kind)
 
 def make_type_real(kind=None):
     if not kind:
-        kind = 8
+        kind = kinds.real32
     return asr.Real(kind=kind)
 
 def type_eq(type1, type2):

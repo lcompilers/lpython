@@ -1,5 +1,6 @@
 from ..ast import ast
 from . import asr
+from ..semantic import kinds
 
 class ASR2ASTVisitor(asr.ASTVisitor):
 
@@ -72,7 +73,7 @@ class ASR2ASTVisitor(asr.ASTVisitor):
         return ast.Num(n=node.n)
 
     def visit_Integer(self, node):
-        if node.kind == 4:
+        if node.kind == kinds.int32:
             return "integer"
         else:
             return "integer(kind=%d)" % node.kind
