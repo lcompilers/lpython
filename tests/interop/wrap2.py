@@ -34,6 +34,19 @@ def string_to_type(stype, kind=None):
         raise NotImplementedError("Complex not implemented")
     raise Exception("Unknown type")
 
+def tofortran_bound(symtab, b):
+    if isinstance(b, gp.Integer):
+        return asr.Num(n=b.i, type=make_type_integer())
+    elif isinstance(b, gp.VarIdx):
+        # TODO: maintain a lookup table of GFortran symbols and ASR symbols
+        # and lookup the symbol first in ASR symbols here. For now, we
+        # always construct a new variable, which means that two arrays
+        # A(n), B(n) will have two distinct variables called "n".
+        v = symtab[b.idx]
+        w = asr.Variable(name=v.name, type=string_to_type(v.type))
+        return w
+    raise NotImplementedError("Unsupported bound type")
+
 def convert_arg(table, idx):
     arg = table[idx]
     assert isinstance(arg.name, str)
@@ -42,18 +55,16 @@ def convert_arg(table, idx):
     assert isinstance(arg.intent, str)
     a.intent = arg.intent
 
-    #if arg.bounds:
-    #    ar = Array()
-    #    ar.type = type_
-    #    ar.ndim = len(arg.bounds)
-    #    if arg.bounds[0][1] is None:
-    #        ar.atype = "assumed_shape"
-    #    else:
-    #        ar.atype = "explicit_shape"
-    #    ar.bounds = arg.bounds
-    #    a.type = ar
-    #else:
-    #    a.type = type_
+    if arg.bounds:
+        dims = []
+        for bound in arg.bounds:
+            lb, ub = bound
+            if lb:
+                lb = tofortran_bound(table, lb)
+            if ub:
+                ub = tofortran_bound(table, ub)
+            dims.append((lb, ub))
+        a.type.dims = dims
     return a
 
 def convert_function(symtab, table, f):
