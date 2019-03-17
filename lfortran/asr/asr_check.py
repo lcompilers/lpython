@@ -62,8 +62,7 @@ class ASRVerifyVisitor(asr.ASTVisitor):
             elif isinstance(b, asr.Num):
                 assert isinstance(b.type, asr.Integer)
             elif isinstance(b, asr.Variable):
-                #var_in_symtab(b, node.symtab)
-                pass
+                var_in_symtab(b, node.symtab)
             else:
                 raise NotImplementedError()
         for arg in node.args:
