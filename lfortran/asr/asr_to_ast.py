@@ -92,7 +92,8 @@ class ASR2ASTVisitor(asr.ASTVisitor):
                     args=[ast.attribute_arg(arg=arg.intent)]),
                 ]
             dims = []
-            for lb, ub in arg.type.dims:
+            for d in arg.type.dims:
+                lb, ub = d.start, d.end
                 assert lb is not None
                 if isinstance(lb, asr.Num) \
                         and isinstance(lb.type, asr.Integer) \

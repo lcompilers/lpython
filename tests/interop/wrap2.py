@@ -63,7 +63,7 @@ def convert_arg(table, idx):
                 lb = tofortran_bound(table, lb)
             if ub:
                 ub = tofortran_bound(table, ub)
-            dims.append((lb, ub))
+            dims.append(asr.dimension(lb, ub))
         a.type.dims = dims
     return a
 

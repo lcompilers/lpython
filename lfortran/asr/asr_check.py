@@ -55,6 +55,11 @@ class ASRVerifyVisitor(asr.ASTVisitor):
         for arg in node.args:
             assert arg.name in node.symtab.symbols
             assert arg.dummy == True
+            for d in arg.type.dims:
+                # After #55 is fixed, this will be checked by ASR itself,
+                # or by calling a check() method
+                assert isinstance(d, asr.dimension)
+                lb, ub = d.start, d.end
         assert node.return_var.name in node.symtab.symbols
         assert node.return_var.dummy == True
         assert node.return_var.intent is None
