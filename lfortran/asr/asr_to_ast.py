@@ -91,9 +91,24 @@ class ASR2ASTVisitor(asr.ASTVisitor):
                     ast.Attribute(name="intent",
                     args=[ast.attribute_arg(arg=arg.intent)]),
                 ]
+            dims = []
+            for d in arg.type.dims:
+                lb, ub = d.start, d.end
+                assert lb is not None
+                if isinstance(lb, asr.Num) \
+                        and isinstance(lb.type, asr.Integer) \
+                        and lb.n == 1:
+                    # 1 is the default for lower bound, no need to specify
+                    # explicitly
+                    lb = None
+                else:
+                    lb = self.visit(lb)
+                if ub:
+                    ub = self.visit(ub)
+                dims.append(ast.dimension(lb, ub))
             decl.append(ast.Declaration(vars=[
                 ast.decl(sym=arg.name, sym_type=stype,
-                attrs=attrs)]))
+                attrs=attrs, dims=dims)]))
         for s in node.symtab.symbols:
             sym = node.symtab.symbols[s]
             if sym.dummy:

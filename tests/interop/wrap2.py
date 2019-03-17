@@ -34,26 +34,34 @@ def string_to_type(stype, kind=None):
         raise NotImplementedError("Complex not implemented")
     raise Exception("Unknown type")
 
-def convert_arg(table, idx):
+def tofortran_bound(symtab, lscope, b):
+    if isinstance(b, gp.Integer):
+        return asr.Num(n=b.i, type=make_type_integer())
+    elif isinstance(b, gp.VarIdx):
+        v = symtab[b.idx]
+        w = lscope.resolve(v.name)
+        assert type_eq(w.type, string_to_type(v.type))
+        return w
+    raise NotImplementedError("Unsupported bound type")
+
+def convert_arg(table, lscope, idx):
     arg = table[idx]
     assert isinstance(arg.name, str)
     assert isinstance(arg.type, str)
-    a = asr.Variable(name=arg.name, type=string_to_type(arg.type))
+    a = asr.Variable(name=arg.name, type=string_to_type(arg.type), dummy=True)
     assert isinstance(arg.intent, str)
     a.intent = arg.intent
 
-    #if arg.bounds:
-    #    ar = Array()
-    #    ar.type = type_
-    #    ar.ndim = len(arg.bounds)
-    #    if arg.bounds[0][1] is None:
-    #        ar.atype = "assumed_shape"
-    #    else:
-    #        ar.atype = "explicit_shape"
-    #    ar.bounds = arg.bounds
-    #    a.type = ar
-    #else:
-    #    a.type = type_
+    if arg.bounds:
+        dims = []
+        for bound in arg.bounds:
+            lb, ub = bound
+            if lb:
+                lb = tofortran_bound(table, lscope, lb)
+            if ub:
+                ub = tofortran_bound(table, lscope, ub)
+            dims.append(asr.dimension(lb, ub))
+        a.type.dims = dims
     return a
 
 def convert_function(symtab, table, f):
@@ -61,11 +69,14 @@ def convert_function(symtab, table, f):
     assert isinstance(f.name, str)
     assert isinstance(f.type, str)
     return_var = asr.Variable(name=f.name, type=string_to_type(f.type))
+    lf = scope_add_function(symtab, f.name, return_var=return_var)
     args = []
     for arg in f.args:
         assert isinstance(arg, gp.VarIdx)
-        args.append(convert_arg(table, arg.idx))
-    scope_add_function(symtab, f.name, args=args, return_var=return_var)
+        larg = convert_arg(table, lf.symtab, arg.idx)
+        scope_add_symbol(lf.symtab, larg)
+        args.append(larg)
+    lf.args = args
 
 def convert_module(table, public_symbols):
     # Determine the module name

@@ -53,7 +53,7 @@ expr
     | UnaryOp(unaryop op, expr operand)
     | Compare(expr left, cmpop op, expr right)
     | FuncCall(fn func, expr* args, keyword* keywords)
-    | Array(identifier name, array_index* args)
+    | ArrayRef(identifier name, array_index* args)
     | ArrayInitializer(expr* args)
     | Num(object n)
     | Str(string s)
@@ -62,13 +62,12 @@ expr
         attributes (ttype type)
 
 ttype
-    = Integer(int kind)
-    | Real(int kind)
-    | Complex(int kind)
-    | Character(int kind)
-    | Logical(int kind)
-    | Derived()
-        attributes (dimension* dims)
+    = Integer(int kind, dimension* dims)
+    | Real(int kind, dimension* dims)
+    | Complex(int kind, dimension* dims)
+    | Character(int kind, dimension* dims)
+    | Logical(int kind, dimension* dims)
+    | Derived(dimension* dims)
 
 boolop = And | Or
 
