@@ -88,7 +88,34 @@ class FortranPrinterVisitor(ast.ASTVisitor):
             parts = [decl.sym_type]
             for attr in decl.attrs:
                 parts.append(self.visit(attr))
-            lines.append(", ".join(parts) + " :: " + decl.sym)
+            dims = []
+            for dim in decl.dims:
+                lb, ub = dim.start, dim.end
+                if lb:
+                    lb = self.visit(lb)
+                else:
+                    lb = ""
+                if ub:
+                    ub = self.visit(ub)
+                else:
+                    ub = ""
+                if ub == "":
+                    # assumed-shape
+                    if lb == "1":
+                        lb = ""
+                    dims.append("%s:%s" % (lb, ub))
+                else:
+                    # explicit-shape
+                    if lb == "1":
+                        dims.append("%s" % (ub))
+                    else:
+                        dims.append("%s:%s" % (lb, ub))
+            if dims:
+                sdim = "("+",".join(dims)+")"
+            else:
+                sdim = ""
+
+            lines.append(", ".join(parts) + " :: " + decl.sym + sdim)
         return lines
 
     def visit_Attribute(self, node):
