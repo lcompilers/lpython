@@ -91,9 +91,16 @@ class ASR2ASTVisitor(asr.ASTVisitor):
                     ast.Attribute(name="intent",
                     args=[ast.attribute_arg(arg=arg.intent)]),
                 ]
+            dims = []
+            for lb, ub in arg.type.dims:
+                if lb:
+                    lb = self.visit(lb)
+                if ub:
+                    ub = self.visit(ub)
+                dims.append(ast.dimension(lb, ub))
             decl.append(ast.Declaration(vars=[
                 ast.decl(sym=arg.name, sym_type=stype,
-                attrs=attrs)]))
+                attrs=attrs, dims=dims)]))
         for s in node.symtab.symbols:
             sym = node.symtab.symbols[s]
             if sym.dummy:
