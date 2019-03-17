@@ -51,7 +51,7 @@ def convert_arg(table, idx):
     arg = table[idx]
     assert isinstance(arg.name, str)
     assert isinstance(arg.type, str)
-    a = asr.Variable(name=arg.name, type=string_to_type(arg.type))
+    a = asr.Variable(name=arg.name, type=string_to_type(arg.type), dummy=True)
     assert isinstance(arg.intent, str)
     a.intent = arg.intent
 
@@ -72,11 +72,14 @@ def convert_function(symtab, table, f):
     assert isinstance(f.name, str)
     assert isinstance(f.type, str)
     return_var = asr.Variable(name=f.name, type=string_to_type(f.type))
+    lf = scope_add_function(symtab, f.name, return_var=return_var)
     args = []
     for arg in f.args:
         assert isinstance(arg, gp.VarIdx)
-        args.append(convert_arg(table, arg.idx))
-    scope_add_function(symtab, f.name, args=args, return_var=return_var)
+        larg = convert_arg(table, arg.idx)
+        scope_add_symbol(lf.symtab, larg)
+        args.append(larg)
+    lf.args = args
 
 def convert_module(table, public_symbols):
     # Determine the module name
