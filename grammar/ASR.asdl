@@ -53,7 +53,7 @@ expr
     | UnaryOp(unaryop op, expr operand)
     | Compare(expr left, cmpop op, expr right)
     | FuncCall(fn func, expr* args, keyword* keywords)
-    | Array(identifier name, array_index* args)
+    | ArrayRef(identifier name, array_index* args)
     | ArrayInitializer(expr* args)
     | Num(object n)
     | Str(string s)
