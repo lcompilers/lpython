@@ -52,14 +52,30 @@ class ASRVerifyVisitor(asr.ASTVisitor):
             self.visit(sym)
 
     def visit_Function(self, node):
+        def var_in_symtab(v, symtab):
+            assert isinstance(v, asr.Variable)
+            assert v.name in symtab.symbols
+            assert v == symtab.symbols[v.name]
+        def check_bound(b):
+            if b is None:
+                pass
+            elif isinstance(b, asr.Num):
+                assert isinstance(b.type, asr.Integer)
+            elif isinstance(b, asr.Variable):
+                #var_in_symtab(b, node.symtab)
+                pass
+            else:
+                raise NotImplementedError()
         for arg in node.args:
-            assert arg.name in node.symtab.symbols
+            var_in_symtab(arg, node.symtab)
             assert arg.dummy == True
             for d in arg.type.dims:
                 # After #55 is fixed, this will be checked by ASR itself,
                 # or by calling a check() method
                 assert isinstance(d, asr.dimension)
                 lb, ub = d.start, d.end
+                check_bound(lb)
+                check_bound(ub)
         assert node.return_var.name in node.symtab.symbols
         assert node.return_var.dummy == True
         assert node.return_var.intent is None
