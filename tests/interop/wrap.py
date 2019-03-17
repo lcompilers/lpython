@@ -10,7 +10,7 @@ import sys
 sys.path.append("../..")
 from lfortran.ast import ast
 from lfortran.ast.ast_to_src import ast_to_src
-import gfort_mod_parser as gp
+import lfortran.adapters.gfortran.mod as gp
 
 class Type(object):
     pass
