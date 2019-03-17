@@ -90,6 +90,8 @@ class FortranPrinterVisitor(ast.ASTVisitor):
                 parts.append(self.visit(attr))
             dims = []
             for dim in decl.dims:
+                # If a bound is None, we do not print it, otherwise we
+                # explicitly print it (even if it is 1).
                 lb, ub = dim.start, dim.end
                 if lb:
                     lb = self.visit(lb)
@@ -101,12 +103,10 @@ class FortranPrinterVisitor(ast.ASTVisitor):
                     ub = ""
                 if ub == "":
                     # assumed-shape
-                    if lb == "1":
-                        lb = ""
                     dims.append("%s:%s" % (lb, ub))
                 else:
                     # explicit-shape
-                    if lb == "1":
+                    if lb == "":
                         dims.append("%s" % (ub))
                     else:
                         dims.append("%s:%s" % (lb, ub))

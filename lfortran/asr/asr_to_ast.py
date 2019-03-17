@@ -93,7 +93,14 @@ class ASR2ASTVisitor(asr.ASTVisitor):
                 ]
             dims = []
             for lb, ub in arg.type.dims:
-                if lb:
+                assert lb is not None
+                if isinstance(lb, asr.Num) \
+                        and isinstance(lb.type, asr.Integer) \
+                        and lb.n == 1:
+                    # 1 is the default for lower bound, no need to specify
+                    # explicitly
+                    lb = None
+                else:
                     lb = self.visit(lb)
                 if ub:
                     ub = self.visit(ub)
