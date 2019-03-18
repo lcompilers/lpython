@@ -81,6 +81,7 @@ class WrapperVisitor(NodeTransformer):
 
     def visit_Module(self, node):
         name = node.name + "_wrapper"
+        self._modname = node.name
         symtab = self.visit_scope(node.symtab)
         return asr.Module(name=name, symtab=symtab)
 
@@ -103,7 +104,11 @@ class WrapperVisitor(NodeTransformer):
         return_var.dummy = True
         f.return_var = return_var
 
-        fw = scope_add_function(symtab, "fw", args=["a", "b"], return_var="c")
+        cname = node.name + "_c_wrapper"
+        mangled_name = '__' + self._modname + '_MOD_' + node.name.lower()
+        bind = asr.Bind(lang="c", name=mangled_name)
+        fw = scope_add_function(symtab, cname, args=["a", "b"], return_var=cname)
+        fw.bind = bind
 
         body = [
             asr.Assignment(return_var, asr.Num(n=5, type=make_type_integer()))

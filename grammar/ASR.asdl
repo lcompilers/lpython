@@ -84,7 +84,7 @@ arg = (identifier arg)
 
 keyword = (identifier? arg, expr value)
 
-tbind = Bind(keyword* args)
+tbind = Bind(str lang, str name)
 
 array_index = ArrayIndex(expr? left, expr? right, expr? step)
 

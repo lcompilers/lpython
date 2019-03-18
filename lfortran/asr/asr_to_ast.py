@@ -136,9 +136,24 @@ class ASR2ASTVisitor(asr.ASTVisitor):
             return_var = None
         else:
             return_var = self.visit(node.return_var)
+        if node.bind:
+            bind_args = []
+            if node.bind.lang != "":
+                bind_args.append(ast.keyword(
+                    arg=None,
+                    value=ast.Name(id=node.bind.lang)
+                ))
+            if node.bind.name != "":
+                bind_args.append(ast.keyword(
+                    arg="name",
+                    value=ast.Str(s=node.bind.name)
+                ))
+            bind = ast.Bind(args=bind_args)
+        else:
+            bind = None
         return ast.Function(
             name=node.name, args=args, return_type=return_type,
-                return_var=return_var,
+                return_var=return_var, bind=bind,
             decl=decl, body=body)
 
 
