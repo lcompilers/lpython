@@ -188,16 +188,16 @@ class ASTVisitorVisitor(ASDLVisitor):
     def visitModule(self, mod):
         self.emit("class ASTVisitor(object):")
         self.emit("")
-        self.emit("def visit_sequence(self, seq):", 1)
-        self.emit("if seq is not None:", 2)
-        self.emit("for node in seq:", 3)
-        self.emit("self.visit(node)", 4)
+        self.emit(    "def visit_sequence(self, seq):", 1)
+        self.emit(        "if seq is not None:", 2)
+        self.emit(        "for node in seq:", 3)
+        self.emit(            "self.visit(node)", 4)
         self.emit("")
-        self.emit("def visit(self, node):", 1)
-        self.emit("return node.walkabout(self)", 2)
+        self.emit(    "def visit(self, node):", 1)
+        self.emit(        "return node.walkabout(self)", 2)
         self.emit("")
-        self.emit("def default_visitor(self, node):", 1)
-        self.emit("raise NodeVisitorNotImplemented", 2)
+        self.emit(    "def default_visitor(self, node):", 1)
+        self.emit(        "raise NodeVisitorNotImplemented", 2)
         self.emit("")
         super(ASTVisitorVisitor, self).visitModule(mod)
         self.emit("")
@@ -208,12 +208,12 @@ class ASTVisitorVisitor(ASDLVisitor):
             super(ASTVisitorVisitor, self).visitType(tp, tp.name)
 
     def visitProduct(self, prod, name):
-        self.emit("def visit_%s(self, node):" % (name,), 1)
-        self.emit("return self.default_visitor(node)", 2)
+        self.emit(    "def visit_%s(self, node):" % (name,), 1)
+        self.emit(        "return self.default_visitor(node)", 2)
 
     def visitConstructor(self, cons, _):
-        self.emit("def visit_%s(self, node):" % (cons.name,), 1)
-        self.emit("return self.default_visitor(node)", 2)
+        self.emit(    "def visit_%s(self, node):" % (cons.name,), 1)
+        self.emit(        "return self.default_visitor(node)", 2)
 
 
 class GenericASTVisitorVisitor(ASDLVisitor):
