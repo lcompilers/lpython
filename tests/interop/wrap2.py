@@ -22,8 +22,11 @@ class NodeTransformer(asr.NodeTransformerBase):
 
     def visit_scope(self, symtab, parent=None):
         new_symtab = Scope(parent)
+        self._lookup = 2
+        self._scope = new_symtab
         for s, sym in symtab.symbols.items():
             new_symtab.symbols[s] = self.visit(sym)
+        self._lookup = 0
         return new_symtab
 
     def visit_sequence(self, seq):
@@ -45,9 +48,33 @@ class NodeTransformer(asr.NodeTransformerBase):
             raise NotImplementedError()
 
     def visit_Function(self, node):
-        # As a workaround: we need to rebuild Function with the new symbol
-        # table
-        return node
+        name = self.visit_object(node.name)
+        symtab = self.visit_object(node.symtab)
+        self._lookup = 1
+        self._scope = symtab
+        args = self.visit_sequence(node.args)
+        body = self.visit_sequence(node.body)
+        return_var = self.visit(node.return_var)
+        self._lookup = 0
+        if node.bind:
+            bind = self.visit(node.bind)
+        else:
+            bind = None
+        return asr.Function(name=name, args=args, body=body, bind=bind, return_var=return_var, symtab=symtab)
+
+    def visit_Variable(self, node):
+        if self._lookup == 1:
+            return self._scope.resolve(node.name)
+        elif self._lookup == 2:
+            v = self._scope.resolve(node.name, raise_exception=False)
+            if v:
+                return v
+        name = self.visit_object(node.name)
+        intent = self.visit_object(node.intent)
+        dummy = self.visit_object(node.dummy)
+        type = self.visit(node.type)
+        return asr.Variable(name=name, intent=intent, dummy=dummy, type=type)
+
 
 class WrapperVisitor(NodeTransformer):
 
