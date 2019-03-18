@@ -103,6 +103,8 @@ class WrapperVisitor(NodeTransformer):
         return_var.dummy = True
         f.return_var = return_var
 
+        fw = scope_add_function(symtab, "fw", args=["a", "b"], return_var="c")
+
         body = [
             asr.Assignment(return_var, asr.Num(n=5, type=make_type_integer()))
         ]

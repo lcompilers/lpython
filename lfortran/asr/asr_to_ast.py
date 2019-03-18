@@ -111,11 +111,26 @@ class ASR2ASTVisitor(asr.ASTVisitor):
                 attrs=attrs, dims=dims)]))
         for s in node.symtab.symbols:
             sym = node.symtab.symbols[s]
-            if sym.dummy:
-                continue
-            stype = self.visit(sym.type)
-            decl.append(ast.Declaration(vars=[
-                ast.decl(sym=sym.name, sym_type=stype)]))
+            if isinstance(sym, asr.Variable):
+                if sym.dummy:
+                    continue
+                stype = self.visit(sym.type)
+                decl.append(ast.Declaration(vars=[
+                    ast.decl(sym=sym.name, sym_type=stype)]))
+            elif isinstance(sym, asr.Function):
+                if sym.body:
+                    raise NotImplementedError("Nested functions")
+                else:
+                    decl.append(
+                        ast.Interface2(
+                            name="",
+                            procs=[
+                                self.visit(sym)
+                            ],
+                        )
+                    )
+            else:
+                raise NotImplementedError()
         return_type = self.visit(node.return_var.type)
         if node.return_var.name == node.name:
             return_var = None
