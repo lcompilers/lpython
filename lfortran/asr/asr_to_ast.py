@@ -78,6 +78,9 @@ class ASR2ASTVisitor(asr.ASTVisitor):
         else:
             return "integer(kind=%d)" % node.kind
 
+    def visit_Derived(self, node):
+        return "type(%s)" % node.name
+
     def visit_Function(self, node):
         body = self.visit_sequence(node.body)
         args = []

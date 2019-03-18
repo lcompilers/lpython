@@ -111,7 +111,13 @@ class WrapperVisitor(NodeTransformer):
         for arg in node.args:
             type = self.visit(arg.type)
             if array_is_assumed_shape(type):
-                type.dims = []
+                if len(type.dims) == 1:
+                    dname = "c_desc1_t"
+                elif len(type.dims) == 2:
+                    dname = "c_desc2_t"
+                else:
+                    raise NotImplementedError("Too many dimensions")
+                type = asr.Derived(name=dname)
             cargs.append(asr.Variable(
                 name=arg.name,
                 intent=arg.intent,
