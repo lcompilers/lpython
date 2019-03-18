@@ -102,6 +102,12 @@ class WrapperVisitor(NodeTransformer):
         return_var = function_make_var(f, name="r", type=self.visit(node.return_var.type))
         return_var.dummy = True
         f.return_var = return_var
+
+        body = [
+            asr.Assignment(return_var, asr.Num(n=5, type=make_type_integer()))
+        ]
+        f.body = body
+
         return f
 
 def create_wrapper(u):
