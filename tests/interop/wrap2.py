@@ -16,7 +16,8 @@ from lfortran.ast.ast_to_src import ast_to_src
 from lfortran.adapters.gfortran.mod import mod_to_asr
 from lfortran.asr.builder import (make_translation_unit,
     translation_unit_make_module, scope_add_function, make_type_integer,
-    make_type_real, type_eq, make_binop, scope_add_symbol, Scope)
+    make_type_real, type_eq, make_binop, scope_add_symbol, Scope,
+    function_make_var)
 
 class NodeTransformer(asr.NodeTransformerBase):
 
@@ -82,6 +83,26 @@ class WrapperVisitor(NodeTransformer):
         name = node.name + "_wrapper"
         symtab = self.visit_scope(node.symtab)
         return asr.Module(name=name, symtab=symtab)
+
+    def visit_Function(self, node):
+        name = self.visit_object(node.name)
+        symtab = self.visit_object(node.symtab)
+        self._lookup = 1
+        self._scope = symtab
+        args = self.visit_sequence(node.args)
+        body = self.visit_sequence(node.body)
+        self._lookup = 0
+        if node.bind:
+            bind = self.visit(node.bind)
+        else:
+            bind = None
+        tmp = asr.Variable(name="a", type=make_type_integer())
+        f = asr.Function(name=name, args=args, body=body, bind=bind,
+            symtab=symtab, return_var=tmp)
+        return_var = function_make_var(f, name="r", type=self.visit(node.return_var.type))
+        return_var.dummy = True
+        f.return_var = return_var
+        return f
 
 def create_wrapper(u):
     v = WrapperVisitor()
