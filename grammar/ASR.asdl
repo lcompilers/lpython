@@ -23,14 +23,12 @@ mod
     = Module(identifier name, object symtab)
 
 sub
-    = Subroutine()
-        attributes (identifier name, expr* args, stmt* body, tbind? bind,
+    = Subroutine(identifier name, expr* args, stmt* body, tbind? bind,
             object symtab)
 
 fn
-    = Function(expr return_var)
-        attributes (identifier name, expr* args, stmt* body, tbind? bind,
-            object symtab)
+    = Function(identifier name, expr* args, stmt* body, tbind? bind,
+            expr return_var, object symtab)
 
 stmt
     = Assignment(expr target, expr value)
@@ -48,18 +46,18 @@ stmt
     | Print(string? fmt, expr* values)
 
 expr
-    = BoolOp(expr left, boolop op, expr right)
-    | BinOp(expr left, operator op, expr right)
-    | UnaryOp(unaryop op, expr operand)
-    | Compare(expr left, cmpop op, expr right)
-    | FuncCall(fn func, expr* args, keyword* keywords)
-    | ArrayRef(identifier name, array_index* args)
-    | ArrayInitializer(expr* args)
-    | Num(object n)
-    | Str(string s)
-    | Variable(identifier name, string? intent, int? dummy, object? scope)
-    | Constant(constant value)
-        attributes (ttype type)
+    = BoolOp(expr left, boolop op, expr right, ttype type)
+    | BinOp(expr left, operator op, expr right, ttype type)
+    | UnaryOp(unaryop op, expr operand, ttype type)
+    | Compare(expr left, cmpop op, expr right, ttype type)
+    | FuncCall(fn func, expr* args, keyword* keywords, ttype type)
+    | ArrayRef(identifier name, array_index* args, ttype type)
+    | ArrayInitializer(expr* args, ttype type)
+    | Num(object n, ttype type)
+    | Str(string s, ttype type)
+    | Variable(identifier name, string? intent, int? dummy, object? scope,
+        ttype type)
+    | Constant(constant value, ttype type)
 
 ttype
     = Integer(int kind, dimension* dims)
