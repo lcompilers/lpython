@@ -260,6 +260,50 @@ class GenericASTVisitorVisitor(ASDLVisitor):
         return False
 
 
+class NodeTransformerVisitor(ASDLVisitor):
+
+    def visitModule(self, mod):
+        self.emit("class NodeTransformer(ASTVisitor):")
+        self.emit("")
+        super(NodeTransformerVisitor, self).visitModule(mod)
+        self.emit("")
+
+    def visitType(self, tp):
+        if not (isinstance(tp.value, asdl.Sum) and
+                is_simple_sum(tp.value)):
+            super(NodeTransformerVisitor, self).visitType(tp, tp.name)
+
+    def visitProduct(self, prod, name):
+        self.make_visitor(name, prod.fields)
+
+    def visitConstructor(self, cons, _):
+        self.make_visitor(cons.name, cons.fields)
+
+    def make_visitor(self, name, fields):
+        self.emit("def visit_%s(self, node):" % (name,), 1)
+        have_body = False
+        for field in fields:
+            if self.visitField(field):
+                have_body = True
+        if not have_body:
+            self.emit("pass", 2)
+        self.emit("")
+
+    def visitField(self, field):
+        if (field.type not in asdl.builtin_types and
+            field.type not in self.data.simple_types):
+            level = 2
+            template = "self.visit(node.%s)"
+            if field.seq:
+                template = "self.visit_sequence(node.%s)"
+            elif field.opt:
+                self.emit("if node.%s:" % (field.name,), 2)
+                level = 3
+            self.emit(template % (field.name,), level)
+            return True
+        return False
+
+
 class ASDLData(object):
 
     def __init__(self, tree):
@@ -340,7 +384,8 @@ def checkinstance(a, b, opt=False):
 
 """
 
-visitors = [ASTNodeVisitor, ASTVisitorVisitor, GenericASTVisitorVisitor]
+visitors = [ASTNodeVisitor, ASTVisitorVisitor, GenericASTVisitorVisitor,
+    NodeTransformerVisitor]
 
 
 def main(argv):
