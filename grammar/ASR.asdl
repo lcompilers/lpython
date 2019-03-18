@@ -55,8 +55,7 @@ expr
     | ArrayInitializer(expr* args, ttype type)
     | Num(object n, ttype type)
     | Str(string s, ttype type)
-    | Variable(identifier name, string? intent, int? dummy, object? scope,
-        ttype type)
+    | Variable(identifier name, string? intent, int? dummy, ttype type)
     | Constant(constant value, ttype type)
 
 ttype
