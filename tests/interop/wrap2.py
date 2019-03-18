@@ -108,16 +108,60 @@ class WrapperVisitor(NodeTransformer):
         mangled_name = '__' + self._modname + '_MOD_' + node.name.lower()
         bind = asr.Bind(lang="c", name=mangled_name)
         cargs = []
+        args2 = []
+        type1 = make_type_integer()
+        type1.dims = [asr.dimension(asr.Num(n=1, type=make_type_integer()))]
+        type2 = make_type_integer()
+        type2.dims = [
+            asr.dimension(asr.Num(n=1, type=make_type_integer())),
+            asr.dimension(asr.Num(n=1, type=make_type_integer()))
+            ]
+        c_desc1 = scope_add_function(
+            symtab,
+            "c_desc1_int32",
+            args=[
+                asr.Variable(
+                    name="A",
+                    intent="in",
+                    type=type1
+                )
+            ],
+            return_var=asr.Variable(
+                name="c_desc1_int32",
+                type=asr.Derived(name="c_desc1_t")
+            )
+        )
+        c_desc2 = scope_add_function(
+            symtab,
+            "c_desc2_int32",
+            args=[
+                asr.Variable(
+                    name="A",
+                    intent="in",
+                    type=type2
+                )
+            ],
+            return_var=asr.Variable(
+                name="c_desc2_int32",
+                type=asr.Derived(name="c_desc2_t")
+            )
+        )
         for arg in node.args:
             type = self.visit(arg.type)
             if array_is_assumed_shape(type):
                 if len(type.dims) == 1:
                     dname = "c_desc1_t"
+                    fname = c_desc1
                 elif len(type.dims) == 2:
                     dname = "c_desc2_t"
+                    fname = c_desc2
                 else:
                     raise NotImplementedError("Too many dimensions")
                 type = asr.Derived(name=dname)
+                args2.append(asr.FuncCall(func=fname, args=[arg],
+                    keywords=[], type=type))
+            else:
+                args2.append(arg)
             cargs.append(asr.Variable(
                 name=arg.name,
                 intent=arg.intent,
@@ -128,7 +172,7 @@ class WrapperVisitor(NodeTransformer):
 
         body = [
             asr.Assignment(return_var,
-                asr.FuncCall(func=fw, args=args, keywords=[],
+                asr.FuncCall(func=fw, args=args2, keywords=[],
                     type=fw.return_var.type)
             )
         ]
