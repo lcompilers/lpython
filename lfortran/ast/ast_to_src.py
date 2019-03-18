@@ -157,6 +157,10 @@ class FortranPrinterVisitor(ast.ASTVisitor):
         return node.func + "(" + \
             ", ".join([self.visit(arg) for arg in node.args]) + ")"
 
+    def visit_FuncCall(self, node):
+        return node.func + "(" + \
+            ", ".join([self.visit(arg) for arg in node.args]) + ")"
+
     def visit_Use(self, node):
         if node.symbols:
             syms = ", only: " + ", ".join([self.visit(x) for x in node.symbols])

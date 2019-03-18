@@ -111,7 +111,9 @@ class WrapperVisitor(NodeTransformer):
         fw.bind = bind
 
         body = [
-            asr.Assignment(return_var, asr.Num(n=5, type=make_type_integer()))
+            asr.Assignment(return_var,
+                asr.FuncCall(fw, [], [], fw.return_var.type)
+            )
         ]
         f.body = body
 
