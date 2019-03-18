@@ -107,7 +107,18 @@ class WrapperVisitor(NodeTransformer):
         cname = node.name + "_c_wrapper"
         mangled_name = '__' + self._modname + '_MOD_' + node.name.lower()
         bind = asr.Bind(lang="c", name=mangled_name)
-        fw = scope_add_function(symtab, cname, args=["a", "b"], return_var=cname)
+        cargs = []
+        for arg in node.args:
+            type = self.visit(arg.type)
+            if type.dims:
+                if type.dims[-1].end is None:
+                    type.dims = []
+            cargs.append(asr.Variable(
+                name=arg.name,
+                intent=arg.intent,
+                type=type,
+            ))
+        fw = scope_add_function(symtab, cname, args=cargs, return_var=cname)
         fw.bind = bind
 
         body = [
