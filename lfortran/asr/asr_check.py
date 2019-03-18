@@ -75,6 +75,7 @@ class ASRVerifyVisitor(asr.ASTVisitor):
                 lb, ub = d.start, d.end
                 check_bound(lb)
                 check_bound(ub)
+        assert isinstance(node.return_var, asr.Variable)
         assert node.return_var.name in node.symtab.symbols
         assert node.return_var.dummy == True
         assert node.return_var.intent is None
