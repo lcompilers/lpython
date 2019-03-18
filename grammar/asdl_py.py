@@ -263,7 +263,7 @@ class GenericASTVisitorVisitor(ASDLVisitor):
 class NodeTransformerVisitor(ASDLVisitor):
 
     def visitModule(self, mod):
-        self.emit("class NodeTransformer(ASTVisitor):")
+        self.emit("class NodeTransformerBase(ASTVisitor):")
         self.emit("")
         super(NodeTransformerVisitor, self).visitModule(mod)
         self.emit("")
@@ -303,7 +303,8 @@ class NodeTransformerVisitor(ASDLVisitor):
                 self.emit("else:", 2)
                 self.emit(    "%s = None" % field.name, 3)
         else:
-            self.emit(    "%s = node.%s" % (field.name, field.name), 2)
+            self.emit(    "%s = self.visit_object(node.%s)" % \
+                (field.name, field.name), 2)
 
 
 class ASDLData(object):
