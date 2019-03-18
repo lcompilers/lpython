@@ -110,6 +110,14 @@ class ASR2ASTVisitor(asr.ASTVisitor):
                 if ub:
                     ub = self.visit(ub)
                 dims.append(ast.dimension(lb, ub))
+            if isinstance(arg.type, asr.Derived):
+                if arg.type.module:
+                    use.append(
+                        ast.Use(
+                            module=ast.use_symbol(sym=arg.type.module),
+                            symbols=[]
+                        )
+                    )
             decl.append(ast.Declaration(vars=[
                 ast.decl(sym=arg.name, sym_type=stype,
                 attrs=attrs, dims=dims)]))
@@ -132,7 +140,6 @@ class ASR2ASTVisitor(asr.ASTVisitor):
                                 symbols=[]
                             )
                         )
-                        pass
                     else:
                         decl.append(
                             ast.Interface2(

@@ -159,7 +159,7 @@ class WrapperVisitor(NodeTransformer):
                     fname = c_desc2
                 else:
                     raise NotImplementedError("Too many dimensions")
-                type = asr.Derived(name=dname)
+                type = asr.Derived(name=dname, module="gfort_interop")
                 args2.append(asr.FuncCall(func=fname, args=[arg],
                     keywords=[], type=type))
             else:

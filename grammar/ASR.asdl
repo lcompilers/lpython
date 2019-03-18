@@ -64,7 +64,7 @@ ttype
     | Complex(int kind, dimension* dims)
     | Character(int kind, dimension* dims)
     | Logical(int kind, dimension* dims)
-    | Derived(str name, dimension* dims)
+    | Derived(str name, dimension* dims, str? module)
 
 boolop = And | Or
 
