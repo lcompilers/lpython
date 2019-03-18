@@ -281,27 +281,29 @@ class NodeTransformerVisitor(ASDLVisitor):
 
     def make_visitor(self, name, fields):
         self.emit("def visit_%s(self, node):" % (name,), 1)
-        have_body = False
+        parts = []
         for field in fields:
-            if self.visitField(field):
-                have_body = True
-        if not have_body:
-            self.emit("pass", 2)
+            self.visitField(field)
+            parts.append("%s=%s" % (field.name, field.name))
+        self.emit("return %s(%s)" % (name, ", ".join(parts)), 2)
         self.emit("")
 
     def visitField(self, field):
         if (field.type not in asdl.builtin_types and
             field.type not in self.data.simple_types):
             level = 2
-            template = "self.visit(node.%s)"
+            template = "%s = self.visit(node.%s)"
             if field.seq:
-                template = "self.visit_sequence(node.%s)"
+                template = "%s = self.visit_sequence(node.%s)"
             elif field.opt:
                 self.emit("if node.%s:" % (field.name,), 2)
                 level = 3
-            self.emit(template % (field.name,), level)
-            return True
-        return False
+            self.emit(template % (field.name, field.name), level)
+            if field.opt:
+                self.emit("else:", 2)
+                self.emit(    "%s = None" % field.name, 3)
+        else:
+            self.emit(    "%s = node.%s" % (field.name, field.name), 2)
 
 
 class ASDLData(object):
