@@ -80,7 +80,7 @@ class NodeTransformer(asr.NodeTransformerBase):
 class WrapperVisitor(NodeTransformer):
 
     def visit_Module(self, node):
-        name = node.name + "_wrapper"
+        name = "mod2" #node.name + "_wrapper"
         self._modname = node.name
         symtab = self.visit_scope(node.symtab)
         return asr.Module(name=name, symtab=symtab)

@@ -12,5 +12,7 @@ make
 ctest
 
 python wrap.py > mod2.f90
-python wrap2.py > mod1_parsed.f90
+./mod2.sh
+
+python wrap2.py > mod2.f90
 ./mod2.sh
