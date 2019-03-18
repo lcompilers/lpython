@@ -85,6 +85,7 @@ class ASR2ASTVisitor(asr.ASTVisitor):
         body = self.visit_sequence(node.body)
         args = []
         decl = []
+        use = []
         for arg in node.args:
             args.append(ast.arg(arg=arg.name))
             stype = self.visit(arg.type)
@@ -124,14 +125,23 @@ class ASR2ASTVisitor(asr.ASTVisitor):
                 if sym.body:
                     raise NotImplementedError("Nested functions")
                 else:
-                    decl.append(
-                        ast.Interface2(
-                            name="",
-                            procs=[
-                                self.visit(sym)
-                            ],
+                    if sym.module:
+                        use.append(
+                            ast.Use(
+                                module=ast.use_symbol(sym=sym.module),
+                                symbols=[]
+                            )
                         )
-                    )
+                        pass
+                    else:
+                        decl.append(
+                            ast.Interface2(
+                                name="",
+                                procs=[
+                                    self.visit(sym)
+                                ],
+                            )
+                        )
             else:
                 raise NotImplementedError()
         return_type = self.visit(node.return_var.type)
@@ -157,7 +167,7 @@ class ASR2ASTVisitor(asr.ASTVisitor):
         return ast.Function(
             name=node.name, args=args, return_type=return_type,
                 return_var=return_var, bind=bind,
-            decl=decl, body=body)
+            decl=decl, body=body, use=use)
 
     def visit_FuncCall(self, node):
         return ast.FuncCall(

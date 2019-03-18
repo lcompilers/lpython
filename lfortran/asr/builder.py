@@ -84,7 +84,8 @@ def translation_unit_make_module(unit, name):
     scope_add_symbol(unit.global_scope, m)
     return m
 
-def scope_add_function(scope, name, args=[], return_var=None, body=None):
+def scope_add_function(scope, name, args=[], return_var=None, body=None,
+        module=None):
     assert isinstance(scope, Scope)
     parent_scope = scope
     function_scope = Scope(parent_scope)
@@ -104,7 +105,7 @@ def scope_add_function(scope, name, args=[], return_var=None, body=None):
         # TODO: body=None should mean no body, and body=[] an empty body
         body = []
     f = asr.Function(name=name, symtab=function_scope,
-            args=args_, return_var=return_var, body=body)
+            args=args_, return_var=return_var, body=body, module=module)
     scope_add_symbol(parent_scope, f)
     return f
 

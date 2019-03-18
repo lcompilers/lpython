@@ -28,7 +28,7 @@ sub
 
 fn
     = Function(identifier name, expr* args, stmt* body, tbind? bind,
-            expr return_var, object symtab)
+            expr return_var, str? module, object symtab)
 
 stmt
     = Assignment(expr target, expr value)

@@ -129,7 +129,8 @@ class WrapperVisitor(NodeTransformer):
             return_var=asr.Variable(
                 name="c_desc1_int32",
                 type=asr.Derived(name="c_desc1_t")
-            )
+            ),
+            module = "gfort_interop"
         )
         c_desc2 = scope_add_function(
             symtab,
@@ -144,7 +145,8 @@ class WrapperVisitor(NodeTransformer):
             return_var=asr.Variable(
                 name="c_desc2_int32",
                 type=asr.Derived(name="c_desc2_t")
-            )
+            ),
+            module = "gfort_interop"
         )
         for arg in node.args:
             type = self.visit(arg.type)
@@ -189,10 +191,10 @@ def create_wrapper(u):
 u = mod_to_asr("mod1.mod")
 a = asr_to_ast(u)
 s = ast_to_src(a)
-print(s)
+#print(s)
 
 u2 = create_wrapper(u)
 a = asr_to_ast(u2)
 s = ast_to_src(a)
-print("-"*80)
+#print("-"*80)
 print(s)
