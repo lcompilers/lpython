@@ -17,7 +17,7 @@ from lfortran.adapters.gfortran.mod import mod_to_asr
 from lfortran.asr.builder import (make_translation_unit,
     translation_unit_make_module, scope_add_function, make_type_integer,
     make_type_real, type_eq, make_binop, scope_add_symbol, Scope,
-    function_make_var)
+    function_make_var, array_is_assumed_shape)
 
 class NodeTransformer(asr.NodeTransformerBase):
 
@@ -110,9 +110,8 @@ class WrapperVisitor(NodeTransformer):
         cargs = []
         for arg in node.args:
             type = self.visit(arg.type)
-            if type.dims:
-                if type.dims[-1].end is None:
-                    type.dims = []
+            if array_is_assumed_shape(type):
+                type.dims = []
             cargs.append(asr.Variable(
                 name=arg.name,
                 intent=arg.intent,

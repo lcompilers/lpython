@@ -69,6 +69,11 @@ def type_eq(type1, type2):
     # False:
     return False
 
+def array_is_assumed_shape(type):
+    if type.dims:
+        if type.dims[-1].end is None:
+            return True
+    return False
 
 def make_translation_unit():
     return asr.TranslationUnit(global_scope=Scope())
