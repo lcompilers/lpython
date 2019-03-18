@@ -117,7 +117,10 @@ class ASR2ASTVisitor(asr.ASTVisitor):
             decl.append(ast.Declaration(vars=[
                 ast.decl(sym=sym.name, sym_type=stype)]))
         return_type = self.visit(node.return_var.type)
-        return_var = self.visit(node.return_var)
+        if node.return_var.name == node.name:
+            return_var = None
+        else:
+            return_var = self.visit(node.return_var)
         return ast.Function(
             name=node.name, args=args, return_type=return_type,
                 return_var=return_var,
