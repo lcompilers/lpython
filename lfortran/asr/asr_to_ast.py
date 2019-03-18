@@ -157,7 +157,11 @@ class ASR2ASTVisitor(asr.ASTVisitor):
             decl=decl, body=body)
 
     def visit_FuncCall(self, node):
-        return ast.FuncCall(func=node.func.name, args=[], keywords=[])
+        return ast.FuncCall(
+            func=node.func.name,
+            args=self.visit_sequence(node.args),
+            keywords=[]
+        )
 
 
 def asr_to_ast(a):
