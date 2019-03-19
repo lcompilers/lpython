@@ -78,10 +78,14 @@ class ASR2ASTVisitor(asr.ASTVisitor):
         else:
             return "integer(kind=%d)" % node.kind
 
+    def visit_Derived(self, node):
+        return "type(%s)" % node.name
+
     def visit_Function(self, node):
         body = self.visit_sequence(node.body)
         args = []
         decl = []
+        use = []
         for arg in node.args:
             args.append(ast.arg(arg=arg.name))
             stype = self.visit(arg.type)
@@ -106,25 +110,78 @@ class ASR2ASTVisitor(asr.ASTVisitor):
                 if ub:
                     ub = self.visit(ub)
                 dims.append(ast.dimension(lb, ub))
+            if isinstance(arg.type, asr.Derived):
+                if arg.type.module:
+                    use.append(
+                        ast.Use(
+                            module=ast.use_symbol(sym=arg.type.module),
+                            symbols=[]
+                        )
+                    )
             decl.append(ast.Declaration(vars=[
                 ast.decl(sym=arg.name, sym_type=stype,
                 attrs=attrs, dims=dims)]))
         for s in node.symtab.symbols:
             sym = node.symtab.symbols[s]
-            if sym.dummy:
-                continue
-            stype = self.visit(sym.type)
-            decl.append(ast.Declaration(vars=[
-                ast.decl(sym=sym.name, sym_type=stype)]))
+            if isinstance(sym, asr.Variable):
+                if sym.dummy:
+                    continue
+                stype = self.visit(sym.type)
+                decl.append(ast.Declaration(vars=[
+                    ast.decl(sym=sym.name, sym_type=stype)]))
+            elif isinstance(sym, asr.Function):
+                if sym.body:
+                    raise NotImplementedError("Nested functions")
+                else:
+                    if sym.module:
+                        use.append(
+                            ast.Use(
+                                module=ast.use_symbol(sym=sym.module),
+                                symbols=[]
+                            )
+                        )
+                    else:
+                        decl.append(
+                            ast.Interface2(
+                                name="",
+                                procs=[
+                                    self.visit(sym)
+                                ],
+                            )
+                        )
+            else:
+                raise NotImplementedError()
         return_type = self.visit(node.return_var.type)
         if node.return_var.name == node.name:
             return_var = None
         else:
             return_var = self.visit(node.return_var)
+        if node.bind:
+            bind_args = []
+            if node.bind.lang != "":
+                bind_args.append(ast.keyword(
+                    arg=None,
+                    value=ast.Name(id=node.bind.lang)
+                ))
+            if node.bind.name != "":
+                bind_args.append(ast.keyword(
+                    arg="name",
+                    value=ast.Str(s=node.bind.name)
+                ))
+            bind = ast.Bind(args=bind_args)
+        else:
+            bind = None
         return ast.Function(
             name=node.name, args=args, return_type=return_type,
-                return_var=return_var,
-            decl=decl, body=body)
+                return_var=return_var, bind=bind,
+            decl=decl, body=body, use=use)
+
+    def visit_FuncCall(self, node):
+        return ast.FuncCall(
+            func=node.func.name,
+            args=self.visit_sequence(node.args),
+            keywords=[]
+        )
 
 
 def asr_to_ast(a):
