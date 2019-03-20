@@ -1,1 +1,5 @@
-site_name: My Docs
+site_name: LFortran Documentation
+
+nav:
+    - Home: index.md
+    - Design: design.md
