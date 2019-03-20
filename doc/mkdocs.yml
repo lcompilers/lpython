@@ -3,3 +3,7 @@ site_name: LFortran Documentation
 nav:
     - Home: index.md
     - Design: design.md
+
+theme: readthedocs
+
+docs_dir: src
