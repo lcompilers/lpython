@@ -50,7 +50,7 @@ git clone ${deploy_repo} docs-deploy
 cd docs-deploy
 rm -rf docs
 mkdir docs
-cp -r $D/site/* docs/*
+cp -r $D/site/* docs/
 
 git config user.name "Deploy"
 git config user.email "noreply@deploy"
