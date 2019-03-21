@@ -3,6 +3,7 @@ site_name: LFortran Documentation
 nav:
     - Home: index.md
     - installation.md
+    - language.md
     - design.md
 
 repo_url: https://gitlab.com/lfortran/lfortran
