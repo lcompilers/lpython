@@ -1,58 +1,16 @@
 # LFortran
 
-LFortran is an interactive Fortran compiler built on top of LLVM.
+LFortran is a modern open-source (BSD licensed) interactive Fortran compiler
+built on top of LLVM. It can execute user's code interactively to allow
+exploratory work (much like Python, MATLAB or Julia) as well as compile to
+binaries with the goal to run user's code on modern architectures such as
+multi-core CPUs and GPUs.
 
-# Installation
+# Documentation
 
-## From a Tarball
+All documentation, installation instructions, motivation, design, ... is
+available at:
 
-This is the easiest way.
+https://docs.lfortran.org/
 
-Install prerequisites and LFortran (works on both Linux and Mac):
-```
-conda create -n lfortran python=3.7 pytest llvmlite prompt_toolkit
-conda activate lfortran
-pip install antlr4-python3-runtime
-tar xzf lfortran-0.1.tar.gz
-cd lfortran-0.1
-pip install .
-```
-
-Now the `lfortran` environment has the `lfort` compiler available.
-
-Optional: run tests:
-```
-py.test --pyargs lfortran
-```
-
-
-## From Git
-
-This works both on Linux and a Mac:
-
-```
-conda create -n lfortran python=3.7 pytest llvmlite prompt_toolkit
-conda activate lfortran
-pip install antlr4-python3-runtime
-```
-
-Install Java and then ANTLR, say, into `~/ext`:
-```
-export CLASSPATH="$HOME/ext/antlr-4.7-complete.jar:$CLASSPATH"
-```
-
-Build:
-```
-./build.sh
-```
-
-Run tests:
-
-```
-py.test
-```
-
-Run prompt:
-```
-./prompt
-```
+Which is generated using the files in the `doc` directory.
