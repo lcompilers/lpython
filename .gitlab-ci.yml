@@ -49,9 +49,6 @@ full:
     - ./test_lfort lfort
     - cd tests/interop
     - ./run.sh
-    - conda install -c conda-forge mkdocs
-    - cd ../../doc
-    - mkdocs build -s
 
 # Build and upload documentation
 documentation:
