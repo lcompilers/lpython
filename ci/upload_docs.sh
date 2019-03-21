@@ -50,6 +50,7 @@ git clone ${deploy_repo} docs-deploy
 cd docs-deploy
 rm -rf docs
 mkdir docs
+echo "docs.lfortran.org" > CNAME
 cp -r $D/site/* docs/
 
 git config user.name "Deploy"
