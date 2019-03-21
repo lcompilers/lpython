@@ -53,6 +53,17 @@ full:
     - cd ../../doc
     - mkdocs build -s
 
+# Build and upload documentation
+documentation:
+  stage: build
+  image: registry.gitlab.com/lfortran/ci-images:full-1.2.0
+  script:
+    - export PATH="$HOME/conda_root/bin:$PATH"
+    - conda install -c conda-forge mkdocs
+    - cd doc
+    - mkdocs build -s
+    - ../ci/upload_docs.sh
+
 # Test minimal dependencies needed to get things to run. No gcc or clang
 # compilers, just the linker `ld` and the musl C library.
 minimal:
