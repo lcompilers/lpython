@@ -1,0 +1,18 @@
+site_name: LFortran Documentation
+
+nav:
+    - Home: index.md
+    - installation.md
+    - language.md
+    - design.md
+
+repo_url: https://gitlab.com/lfortran/lfortran
+edit_uri: blob/master/doc/src
+
+theme:
+    name: readthedocs
+    highlightjs: true
+    hljs_languages:
+        - fortran
+
+docs_dir: src
