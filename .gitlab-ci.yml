@@ -50,7 +50,7 @@ full:
     - cd tests/interop
     - ./run.sh
     - conda install -c conda-forge mkdocs
-    - cd doc
+    - cd ../../doc
     - mkdocs build -s
 
 # Test minimal dependencies needed to get things to run. No gcc or clang
