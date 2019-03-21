@@ -3,7 +3,7 @@
 set -e
 set -x
 
-if [[ $CI_COMMIT_TAG == "" ]]; then
+if [[ $CI_COMMIT_REF_NAME != "master" ]]; then
     # Development version
     dest_branch=${CI_COMMIT_REF_NAME}
     deploy_repo="git@gitlab.com:lfortran/web/docs.lfortran.org-testing.git"
