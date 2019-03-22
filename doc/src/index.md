@@ -6,6 +6,10 @@ It can execute user's code interactively to allow exploratory work (much like
 Python, MATLAB or Julia) as well as compile to binaries with the goal to run
 user's code on modern architectures such as multi-core CPUs and GPUs.
 
+Main repository:
+
+https://gitlab.com/lfortran/lfortran
+
 ## Feature Highlights
 
 LFortran is in development, the features below either work, or are being
