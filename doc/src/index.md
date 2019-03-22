@@ -8,7 +8,7 @@ user's code on modern architectures such as multi-core CPUs and GPUs.
 
 Main repository:
 
-https://gitlab.com/lfortran/lfortran
+[https://gitlab.com/lfortran/lfortran](https://gitlab.com/lfortran/lfortran)
 
 ## Feature Highlights
 
