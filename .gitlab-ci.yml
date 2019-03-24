@@ -24,6 +24,19 @@ prepare tarball:
     name: review/$CI_COMMIT_REF_NAME
     url: https://gitlab.com/lfortran/packages/testing/tree/$CI_COMMIT_REF_NAME
 
+# GitHub mirror
+mirror:
+  stage: tarball
+  image: registry.gitlab.com/lfortran/ci-images:full-1.2.0
+  script:
+    - export PATH="$HOME/conda_root/bin:$PATH"
+    - sudo apt-get update
+    - sudo apt-get install -yq --no-install-recommends openssh-client git
+    - ci/github_mirror.sh
+  only:
+    - master
+
+
 # Test full dependencies when a C compiler is available and used for linking
 full:
   stage: build
