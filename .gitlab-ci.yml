@@ -33,6 +33,7 @@ mirror:
     - sudo apt-get update
     - sudo apt-get install -yq --no-install-recommends openssh-client git
     - ci/github_mirror.sh
+  allow_failure: true
   only:
     - master
 
