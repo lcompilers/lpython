@@ -50,3 +50,8 @@ you can track the progress by following it).
     Currently only a subset of Fortran is implemented, but the goal is to have
     a full implementation of the latest Fortran 2018 standard, see
     [#58](https://gitlab.com/lfortran/lfortran/issues/58).
+
+
+Please vote on issues in our
+[issue tracker](https://gitlab.com/lfortran/lfortran/issues) that you want us
+to prioritize (feel free to create new ones if we are missing anything).
