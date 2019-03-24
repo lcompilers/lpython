@@ -36,4 +36,7 @@ fi
 ssh-add <(echo "$SSH_PRIVATE_KEY_MIRROR" | base64 -d)
 set -x
 
-git push git@github.com:lfortran/lfortran.git master --tags
+pwd
+git show-ref
+git remote -v
+git push git@github.com:lfortran/lfortran.git +origin/master:master --tags
