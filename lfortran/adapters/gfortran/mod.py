@@ -64,30 +64,32 @@ That way all the semantics is already in the (verified) ASR, and one can use
 all the tooling around ASR right away without needing to learn about some
 internal representation in this module that is specific to GFortran.
 
-  GFortran ABI is stable for a given GFortran module file version. The module
-  file version stays the same between releases (4.5.0 and 4.5.2), but usually
-  changes between minor versions (4.5 vs. 4.6). Here is a correspondence of
-  GFortran compiler versions and GFortran module file versions:
+## GFortran ABI
 
-  GFortran version    module file version
-  ---------------------------------------
-  <= 4.3              unversioned
-  4.4 (Apr 2009)       0
-  4.5 (Apr 2010)       4
-  4.6 (Mar 2011)       6
-  4.7 (Mar 2012)       9
-  4.8 (Mar 2013)      10
-  4.9 (Apr 2014)      12
-  5.x (Apr 2015)      14
-  6.x (Apr 2016)      14
-  7.x (May 2017)      14
-  8.x (May 2018)      15
-  9.x (??? 2019)      ??
+GFortran ABI is stable for a given GFortran module file version. The module
+file version stays the same between releases (4.5.0 and 4.5.2), but usually
+changes between minor versions (4.5 vs. 4.6). Here is a correspondence of
+GFortran compiler versions and GFortran module file versions:
 
-  The GFortran array descriptor is defined in libgfortran.h.
-  Module file version 15:
+GFortran version    module file version
+---------------------------------------
+<= 4.3              unversioned
+4.4 (Apr 2009)       0
+4.5 (Apr 2010)       4
+4.6 (Mar 2011)       6
+4.7 (Mar 2012)       9
+4.8 (Mar 2013)      10
+4.9 (Apr 2014)      12
+5.x (Apr 2015)      14
+6.x (Apr 2016)      14
+7.x (May 2017)      14
+8.x (May 2018)      15
+9.x (??? 2019)      ??
 
-  https://github.com/gcc-mirror/gcc/blob/gcc-8_1_0-release/libgfortran/libgfortran.h#L324
+The GFortran array descriptor is defined in libgfortran.h.
+Module file version 15:
+
+https://github.com/gcc-mirror/gcc/blob/gcc-8_1_0-release/libgfortran/libgfortran.h#L324
 
     typedef struct descriptor_dimension
     {
@@ -116,11 +118,11 @@ internal representation in this module that is specific to GFortran.
         descriptor_dimension dim[r];\
     }
 
-  Module file versions 0..14 (changes from 15: no `span` member, `dtype` is
-  an integer instead of a struct):
+Module file versions 0..14 (changes from 15: no `span` member, `dtype` is
+an integer instead of a struct):
 
-  https://github.com/gcc-mirror/gcc/blob/gcc-7_1_0-release/libgfortran/libgfortran.h#L328
-  https://github.com/gcc-mirror/gcc/blob/gcc-4_4_0-release/libgfortran/libgfortran.h#L298
+https://github.com/gcc-mirror/gcc/blob/gcc-7_1_0-release/libgfortran/libgfortran.h#L328
+https://github.com/gcc-mirror/gcc/blob/gcc-4_4_0-release/libgfortran/libgfortran.h#L298
 
     typedef struct descriptor_dimension
     {
@@ -138,9 +140,9 @@ internal representation in this module that is specific to GFortran.
         descriptor_dimension dim[r];\
     }
 
-  Then there is the CFI array descriptor from ISO_Fortran_binding.h:
+Then there is the CFI array descriptor from ISO_Fortran_binding.h:
 
-  https://github.com/gcc-mirror/gcc/blob/c3ce5d657bac95a3ac5c0457ac48b47a9710c838/libgfortran/ISO_Fortran_binding.h#L69
+https://github.com/gcc-mirror/gcc/blob/c3ce5d657bac95a3ac5c0457ac48b47a9710c838/libgfortran/ISO_Fortran_binding.h#L69
 
     typedef struct CFI_dim_t
     {
@@ -161,11 +163,11 @@ internal representation in this module that is specific to GFortran.
             CFI_dim_t dim[r]; \
     }
 
-  GFortran then converts between its own array descriptor and the CFI
-  descriptor, for example here is the code that converts from CFI to
-  GFortran:
+GFortran then converts between its own array descriptor and the CFI
+descriptor, for example here is the code that converts from CFI to
+GFortran:
 
-  https://github.com/gcc-mirror/gcc/blob/c3ce5d657bac95a3ac5c0457ac48b47a9710c838/libgfortran/runtime/ISO_Fortran_binding.c#L37
+https://github.com/gcc-mirror/gcc/blob/c3ce5d657bac95a3ac5c0457ac48b47a9710c838/libgfortran/runtime/ISO_Fortran_binding.c#L37
 
 """
 
