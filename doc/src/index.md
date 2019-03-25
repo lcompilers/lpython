@@ -10,6 +10,9 @@ Main repository:
 
 [https://gitlab.com/lfortran/lfortran](https://gitlab.com/lfortran/lfortran)
 
+Try online using Binder:
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gl/lfortran%2Fweb%2Flfortran-binder/master?filepath=Demo.ipynb)
+
 ## Feature Highlights
 
 LFortran is in development, the features below either work, or are being
