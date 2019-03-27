@@ -22,8 +22,8 @@ eval "$(ssh-agent -s)"
 
 set +x
 if [[ "${SSH_PRIVATE_KEY_DOCS}" == "" ]]; then
-    echo "Error: SSH_PRIVATE_KEY_DOCS is empty."
-    exit 1
+    echo "Note: SSH_PRIVATE_KEY_DOCS is empty, skipping..."
+    exit 0
 fi
 # Generate the private/public key pair using:
 #

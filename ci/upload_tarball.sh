@@ -23,8 +23,8 @@ eval "$(ssh-agent -s)"
 
 set +x
 if [[ "${SSH_PRIVATE_KEY}" == "" ]]; then
-    echo "Error: SSH_PRIVATE_KEY is empty."
-    exit 1
+    echo "Note: SSH_PRIVATE_KEY is empty, skipping..."
+    exit 0
 fi
 # Generate the private/public key pair using:
 #

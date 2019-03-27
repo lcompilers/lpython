@@ -25,7 +25,7 @@ fi
 #
 #     ssh-keygen -f deploy_key -N ""
 #
-# then set the $SSH_PRIVATE_KEY_DOCS environment variable in the GitLab-CI to
+# then set the $SSH_PRIVATE_KEY_MIRROR environment variable in the GitLab-CI to
 # the base64 encoded private key:
 #
 #     cat deploy_key | base64 -w0
