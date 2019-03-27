@@ -8,9 +8,18 @@ exploratory work (much like Python, MATLAB or Julia) as well as compile to
 binaries with the goal to run user's code on modern architectures such as
 multi-core CPUs and GPUs.
 
-Official git repository:
+# Development
+
+The main development repository is at GitLab:
 
 https://gitlab.com/lfortran/lfortran
+
+Please use it to open issues or send merge requests.
+
+We maintain an official GitHub read-only
+[mirror](https://github.com/lfortran/lfortran)
+(please do not send pull
+requests there, use our GitLab repository instead).
 
 # Documentation
 
