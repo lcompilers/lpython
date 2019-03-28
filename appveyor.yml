@@ -5,4 +5,4 @@ environment:
     PLATFORMTOOLSET: "v140"
 
 build_script:
-- dir
+- ci\build0.bat
