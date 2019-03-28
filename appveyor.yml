@@ -1,0 +1,8 @@
+version: '{build}'
+
+environment:
+  global:
+    PLATFORMTOOLSET: "v140"
+
+build_script:
+- dir
