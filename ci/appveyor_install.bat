@@ -13,7 +13,7 @@ setlocal
 ::
 :: -----------------------------------------------------------------------------
 
-set CONDA_INSTALL_LOCN=C:\\Miniconda36-x64
+set CONDA_INSTALL_LOCN=C:\\Miniconda37-x64
 call :check
 
 call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
