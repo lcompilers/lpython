@@ -9,3 +9,6 @@ install:
 
 build_script:
 - call ci\build0.bat
+
+test_script:
+- pytest
