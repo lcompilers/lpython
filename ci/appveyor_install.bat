@@ -30,6 +30,11 @@ call :check
 pip install antlr4-python3-runtime
 call :check
 
+cd grammar
+call :check
+curl -O https://www.antlr.org/download/antlr-4.7-complete.jar
+call :check
+
 :: -----------------------------------------------------------------------------
 :: End of script. We exit the script now.
 goto :eof
