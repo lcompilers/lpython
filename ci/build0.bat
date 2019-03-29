@@ -19,6 +19,11 @@ call :check
 python grammar\asdl_py.py grammar\ASR.asdl lfortran\asr\asr.py ..ast.utils
 call :check
 
+cd grammar
+call :check
+java -cp antlr-4.7-complete.jar org.antlr.v4.Tool -Dlanguage=Python3 -no-listener -visitor fortran.g4 -o ..\lfortran\parser
+call :check
+
 :: -----------------------------------------------------------------------------
 :: End of script. We exit the script now.
 goto :eof
