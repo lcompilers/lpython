@@ -42,6 +42,10 @@ features that are being implemented.
 * **Create executables**  
     It can create executables just like other Fortran compilers.
 
+* **Runs on Linux and Windows**  
+    Regularly tested on Linux and Windows. Mac support is planned
+    ([#67](https://gitlab.com/lfortran/lfortran/issues/67)).
+
 
 ### Planned
 
