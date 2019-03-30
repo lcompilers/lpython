@@ -1,8 +1,13 @@
 import os
 from subprocess import call
+import sys
 from tempfile import TemporaryDirectory
 
+import pytest
 import llvmlite.binding as llvm
+
+linux_only = pytest.mark.skipif(sys.platform != "linux",
+                                reason="Runs on Linux only")
 
 def linker(args):
     try:
@@ -10,6 +15,7 @@ def linker(args):
     except AttributeError:
         call(["ld"] + args)
 
+@linux_only
 def test_linux64_program():
     """
     This is the simplest assembly program that uses Linux 64bit syscall to
@@ -61,6 +67,7 @@ define void @_start() {
         r = call("%s" % binfile)
         assert r == 42
 
+@linux_only
 def test_linux64_program_write(capfd):
     source_ll = r"""
 @.message = internal constant [14 x i8] c"Hello, world!\0A"
