@@ -3,11 +3,9 @@ from subprocess import call
 import sys
 from tempfile import TemporaryDirectory
 
-import pytest
 import llvmlite.binding as llvm
 
-linux_only = pytest.mark.skipif(sys.platform != "linux",
-                                reason="Runs on Linux only")
+from .utils import linux_only
 
 def linker(args):
     try:
