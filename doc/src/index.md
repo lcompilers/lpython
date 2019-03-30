@@ -43,8 +43,7 @@ features that are being implemented.
     It can create executables just like other Fortran compilers.
 
 * **Runs on Linux, Mac and Windows**  
-    Regularly tested on Linux and Windows by our CI. Mac is currently only
-    tested manually ([#67](https://gitlab.com/lfortran/lfortran/issues/67)).
+    All three platforms are regularly tested by our CI.
 
 
 ### Planned
