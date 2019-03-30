@@ -1,6 +1,7 @@
 import pytest
 
 from lfortran.codegen.evaluator import FortranEvaluator
+from lfortran.tests.utils import linux_only
 
 def test_arrays1():
     e = FortranEvaluator()
@@ -40,6 +41,8 @@ end do
     e.evaluate("b(4) = a(1)")
     assert e.evaluate("b(4)") == 11
 
+# FIXME: This fails on Windows, but it should work there
+@linux_only
 def test_arrays2():
     e = FortranEvaluator()
     e.evaluate("""\

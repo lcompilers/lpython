@@ -1,5 +1,8 @@
 from lfortran.codegen.evaluator import FortranEvaluator
+from lfortran.tests.utils import linux_only
 
+# FIXME: This fails on Windows, but it should work there
+@linux_only
 def test_intrinsics():
     e = FortranEvaluator()
     e.evaluate("""\

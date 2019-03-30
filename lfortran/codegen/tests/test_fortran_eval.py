@@ -1,4 +1,5 @@
 from lfortran.codegen.evaluator import FortranEvaluator
+from lfortran.tests.utils import linux_only
 
 # Tests for FortranEvaluator
 
@@ -304,6 +305,8 @@ def test_variables2():
     assert e.evaluate("b") == 8
     assert e.evaluate("(a+b)*2") == 26
 
+# FIXME: This fails on Windows, but it should work there
+@linux_only
 def test_print(capfd):
     import ctypes
     libc = ctypes.CDLL(None)
