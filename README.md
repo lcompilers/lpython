@@ -16,6 +16,17 @@ https://gitlab.com/lfortran/lfortran
 
 Please use it to open issues or send merge requests.
 
+CI status on master:
+
+Linux: https://gitlab.com/lfortran/lfortran/pipelines
+
+macOS:
+[![Build Status](https://dev.azure.com/lfortran/lfortran/_apis/build/status/lfortran?branchName=master)](https://dev.azure.com/lfortran/lfortran/_build/latest?definitionId=1&branchName=master)
+
+Windows:
+[![Build status](https://ci.appveyor.com/api/projects/status/qeaanx87eypihj8p/branch/master?svg=true)](https://ci.appveyor.com/project/certik/lfortran-ts83e/branch/master)
+
+
 We maintain an official GitHub read-only
 [mirror](https://github.com/lfortran/lfortran)
 (please do not send pull
