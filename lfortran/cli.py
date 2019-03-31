@@ -35,7 +35,8 @@ def load_lfortran_runtime_library():
 
 def main():
     parser = argparse.ArgumentParser(description="Fortran compiler.")
-    # Standard
+    # Standard options compatible with gfortran or clang
+    # We follow the established conventions
     std = parser.add_argument_group('standard arguments',
         'compatible with other compilers')
     std.add_argument('file', help="source file", nargs="?")
@@ -53,15 +54,18 @@ def main():
             help="turn LLVM optimizations on")
     std.add_argument('-E', action="store_true",
             help="not used (present for compatibility with cmake)")
-    # LFortran
+    # LFortran specific options, we follow the Python conventions:
+    # short option (-k), long option (--long-option)
     lf = parser.add_argument_group('LFortran arguments',
         'specific to LFortran')
     lf.add_argument('--ld-musl', action="store_true",
             help="invoke ld directly and link with musl")
     lf.add_argument('--show-ast', action="store_true",
-            help="show AST (parsing only) for the given file and exit")
+            help="show AST for the given file and exit")
+    lf.add_argument('--show-asr', action="store_true",
+            help="show ASR for the given file and exit")
     lf.add_argument('--show-ast-typed', action="store_true",
-            help="show type annotated AST (parsing and semantics) for the given file and exit")
+            help="show type annotated AST (parsing and semantics) for the given file and exit (deprecated)")
     args = parser.parse_args()
 
     if args.E:
@@ -118,7 +122,7 @@ def main():
         if verbose: print("    Done.")
         try:
             if verbose: print("Parsing...")
-            if args.show_ast or args.show_ast_typed:
+            if args.show_ast or args.show_ast_typed or args.show_asr:
                 ast_tree = src_to_ast(source, translation_unit=False)
             else:
                 ast_tree = src_to_ast(source)
@@ -128,6 +132,12 @@ def main():
             sys.exit(1)
         if args.show_ast:
             print_tree(ast_tree)
+            return
+        if args.show_asr:
+            from lfortran import ast_to_asr
+            from lfortran.asr.pprint import pprint_asr
+            asr_repr = ast_to_asr(ast_tree)
+            pprint_asr(asr_repr)
             return
         if verbose: print("Importing semantic analyzer...")
         from .semantic.analyze import create_symbol_table, annotate_tree

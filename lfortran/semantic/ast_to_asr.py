@@ -109,7 +109,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
                 if a.name == "intent":
                     sym.intent = a.args[0].arg
 
-class BodyVisitor(ast.GenericASTVisitor):
+class BodyVisitor(ast.ASTVisitor):
 
     def __init__(self, unit):
         self._unit = unit
@@ -152,6 +152,9 @@ class BodyVisitor(ast.GenericASTVisitor):
             body = self.visit_sequence(node.body)
             self._current_function.body = body
             self.visit_sequence(node.contains)
+
+    def visit_Declaration(self, node):
+        return
 
     def visit_Assignment(self, node):
         if isinstance(node.target, ast.Name):
