@@ -8,9 +8,11 @@ def pprint_asr(asr):
     print_tree(asr)
 
 def print_tree(node, color=True):
-    def _format(node):
+    def _format(node, print_scope=False):
         if isinstance(node, asr.AST):
             t = node.__class__.__bases__[0]
+            if isinstance(node, asr.Variable) and not print_scope:
+                return fmt("<ansiyellow>%s</ansiyellow>" % node.name)
             if issubclass(t, asr.AST):
                 root = t.__name__ + "."
             else:
@@ -33,7 +35,7 @@ def print_tree(node, color=True):
             root = "Scope"
             children = []
             for k, v in node.symbols.items():
-                children.append("%s = %s" % (k, _format(v)))
+                children.append("%s = %s" % (k, _format(v, print_scope=True)))
             return make_tree(root, children, color)
         r = repr(node)
         if color:
