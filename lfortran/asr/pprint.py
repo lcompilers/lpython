@@ -1,13 +1,11 @@
-from prompt_toolkit import print_formatted_text, HTML
-
 from lfortran.asr import asr
 from lfortran.ast.utils import fmt, iter_fields, make_tree
 from lfortran.semantic.analyze import Scope
 
 def pprint_asr(asr):
-    print_tree(asr)
+    print(pprint_asr_str(asr))
 
-def print_tree(node, color=True):
+def pprint_asr_str(node, color=True):
     def _format(node, print_scope=False):
         if isinstance(node, asr.AST):
             t = node.__class__.__bases__[0]
@@ -44,9 +42,11 @@ def print_tree(node, color=True):
     if not isinstance(node, asr.AST):
         raise TypeError('expected AST, got %r' % node.__class__.__name__)
     if color:
-        print_formatted_text(HTML("Legend: "
+        s = fmt("Legend: "
             "<bold><ansiblue>Node</ansiblue></bold>, "
             "Field, "
-            "<ansigreen>Token</ansigreen>"
-            ))
-    print(_format(node))
+            "<ansigreen>Token</ansigreen>\n"
+            )
+    else:
+        s = ""
+    return s + _format(node)

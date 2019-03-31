@@ -1,5 +1,5 @@
 from lfortran import src_to_ast, ast_to_asr
-from lfortran.asr.pprint import pprint_asr
+from lfortran.asr.pprint import pprint_asr_str
 
 def test_pprint1():
     src = """\
@@ -9,4 +9,4 @@ r = x+x
 end function
 """
     asr = ast_to_asr(src_to_ast(src, translation_unit=False))
-    pprint_asr(asr)
+    s = pprint_asr_str(asr)
