@@ -8,6 +8,7 @@ exploratory work (much like Python, MATLAB or Julia) as well as compile to
 binaries with the goal to run user's code on modern architectures such as
 multi-core CPUs and GPUs.
 
+Website: https://www.lfortran.org/
 
 # Documentation
 
