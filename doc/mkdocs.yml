@@ -4,11 +4,16 @@ nav:
     - Home: index.md
     - installation.md
     - language.md
-    - design.md
-    - developer_tutorial.md
+    - Developer's Guide:
+        - design.md
+        - developer_tutorial.md
+        - AST and ASR.md
 
 repo_url: https://gitlab.com/lfortran/lfortran
 edit_uri: blob/master/doc/src
+
+extra_css:
+    - ansi.css
 
 theme:
     name: readthedocs
