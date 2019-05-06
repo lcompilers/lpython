@@ -2,7 +2,6 @@
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gl/lfortran%2Fweb%2Flfortran-binder/master?filepath=Demo.ipynb)
 [![project chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://lfortran.zulipchat.com/)
-[![Gitter](https://badges.gitter.im/lfortran-project/lfortran.svg)](https://gitter.im/lfortran-project/lfortran?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 LFortran is a modern open-source (BSD licensed) interactive Fortran compiler
 built on top of LLVM. It can execute user's code interactively to allow
@@ -30,7 +29,7 @@ https://gitlab.com/lfortran/lfortran
 
 Please use it to open issues or send merge requests.
 
-You can also chat with us on Zulip ([![project chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://lfortran.zulipchat.com/)) or Gitter ([![Gitter](https://badges.gitter.im/lfortran-project/lfortran.svg)](https://gitter.im/lfortran-project/lfortran?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)).
+You can also chat with us on Zulip ([![project chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://lfortran.zulipchat.com/)).
 
 CI status on master:
 
