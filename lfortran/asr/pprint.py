@@ -41,12 +41,4 @@ def pprint_asr_str(node, color=True):
         return r
     if not isinstance(node, asr.AST):
         raise TypeError('expected AST, got %r' % node.__class__.__name__)
-    if color:
-        s = fmt("Legend: "
-            "<bold><ansiblue>Node</ansiblue></bold>, "
-            "Field, "
-            "<ansigreen>Token</ansigreen>\n"
-            )
-    else:
-        s = ""
-    return s + _format(node)
+    return _format(node)
