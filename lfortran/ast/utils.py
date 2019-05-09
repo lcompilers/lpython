@@ -146,13 +146,16 @@ def print_tree(node, color=True):
         return r
     if not isinstance(node, ast.AST):
         raise TypeError('expected AST, got %r' % node.__class__.__name__)
+    s = ""
     if color:
-        print_formatted_text(HTML("Legend: "
+        s += fmt("Legend: "
             "<bold><ansiblue>Node</ansiblue></bold>, "
             "Field, "
             "<ansigreen>Token</ansigreen>"
-            ))
-    print(_format(node))
+            "\n"
+            )
+    s += _format(node)
+    print(s)
 
 def print_tree_typed(node, color=True):
     def sym_str(sym):
@@ -219,15 +222,18 @@ def print_tree_typed(node, color=True):
         return r
     if not isinstance(node, ast.AST):
         raise TypeError('expected AST, got %r' % node.__class__.__name__)
+    s = ""
     if color:
-        print_formatted_text(HTML("Legend: "
+        s += fmt("Legend: "
             "<bold><ansiblue>Node</ansiblue></bold>, "
             "Field, "
             "<ansigreen>Token</ansigreen>, "
             "<ansired>Type</ansired>, "
             "<ansiyellow>Variables</ansiyellow>"
-            ))
-    print(_format(node))
+            "n"
+            )
+    s += _format(node)
+    print(s)
 
 class NodeVisitor(object):
     """
