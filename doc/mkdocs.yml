@@ -7,7 +7,6 @@ nav:
     - Developer's Guide:
         - design.md
         - developer_tutorial.md
-        - Developer Tutorial.md
         - AST and ASR.md
 
 repo_url: https://gitlab.com/lfortran/lfortran
