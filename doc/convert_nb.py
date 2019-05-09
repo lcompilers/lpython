@@ -16,6 +16,12 @@ dl = DictLoader({'markdown2.tpl':
 <pre>{{ output.text | ansi2html }}</pre>
 </div>
 {% endblock stream %}
+
+{% block data_text scoped %}
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>{{ output.data['text/plain'] | ansi2html }}</pre>
+</div>
+{% endblock data_text %}
 """})
 
 for infile in glob("nb/*.ipynb"):
