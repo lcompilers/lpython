@@ -3,14 +3,15 @@
 set -e
 set -x
 
+deploy_repo_pull="https://github.com/lfortran/tarballs"
+deploy_repo_push="git@github.com:lfortran/tarballs.git"
+
 if [[ $CI_COMMIT_TAG == "" ]]; then
     # Development version
-    dest_branch=${CI_COMMIT_REF_NAME}
-    deploy_repo="git@gitlab.com:lfortran/packages/testing.git"
+    dest_dir="dev"
 else
     # Release version
-    dest_branch="master"
-    deploy_repo="git@gitlab.com:lfortran/packages/releases.git"
+    dest_dir="release"
 fi
 
 lfortran_version=$(<version)
@@ -18,8 +19,38 @@ lfortran_version=$(<version)
 mkdir ~/.ssh
 chmod 700 ~/.ssh
 ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+ssh-keyscan github.com >> ~/.ssh/known_hosts
 
 eval "$(ssh-agent -s)"
+
+
+D=`pwd`
+
+mkdir $HOME/repos
+cd $HOME/repos
+
+git clone ${deploy_repo_pull} tarballs
+cd tarballs/docs
+mkdir -p ${dest_dir}
+cp $D/dist/lfortran-${lfortran_version}.tar.gz ${dest_dir}/
+
+git config user.name "Deploy"
+git config user.email "noreply@deploy"
+COMMIT_MESSAGE="Deploying on $(date "+%Y-%m-%d %H:%M:%S")"
+
+git add .
+git commit -m "${COMMIT_MESSAGE}"
+
+git show HEAD --stat
+dest_commit=$(git show HEAD -s --format=%H)
+
+
+if [[ ${CI_COMMIT_REF_NAME} != "master" ]]; then
+    # We only execute the rest of master
+    echo "Not a master branch, skipping..."
+    exit 0
+fi
+
 
 set +x
 if [[ "${SSH_PRIVATE_KEY}" == "" ]]; then
@@ -42,22 +73,6 @@ ssh-add <(echo "$SSH_PRIVATE_KEY" | base64 -d)
 set -x
 
 
-D=`pwd`
-
-mkdir $HOME/repos
-cd $HOME/repos
-
-git clone ${deploy_repo} lfortran-deploy
-cd lfortran-deploy
-cd $D
-cp dist/lfortran-${lfortran_version}.tar.gz $HOME/repos/lfortran-deploy
-cd $HOME/repos/lfortran-deploy
-
-git config user.name "Deploy"
-git config user.email "noreply@deploy"
-COMMIT_MESSAGE="Deploying on $(date "+%Y-%m-%d %H:%M:%S")"
-
-git add .
-git commit -m "${COMMIT_MESSAGE}"
-
-git push origin +master:$dest_branch
+git push ${deploy_repo_push} master:master
+echo "New commit pushed at:"
+echo "https://github.com/lfortran/tarballs/commit/${dest_commit}"
