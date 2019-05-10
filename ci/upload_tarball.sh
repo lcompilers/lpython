@@ -76,3 +76,6 @@ set -x
 git push ${deploy_repo_push} master:master
 echo "New commit pushed at:"
 echo "https://github.com/lfortran/tarballs/commit/${dest_commit}"
+
+echo "The tarball is available from:"
+echo "https://lfortran.github.io/tarballs/${dest_dir}/lfortran-${lfortran_version}.tar.gz"
