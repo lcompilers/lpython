@@ -86,7 +86,6 @@ documentation:
     - sudo apt-get update
     - sudo apt-get install -yq --no-install-recommends openssh-client git g++
     - conda install -c conda-forge mkdocs jupyter nbconvert
-    - pip install nbconvert-utils
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
     - ./build1.sh
