@@ -37,11 +37,8 @@ mirror:
 # Azure
 azure:
   stage: tarball
-  image: registry.gitlab.com/lfortran/ci-images:full-1.2.0
+  image: registry.gitlab.com/lfortran/ci-images/ci-test:mirror-94126a6
   script:
-    - export PATH="$HOME/conda_root/bin:$PATH"
-    - sudo apt-get update
-    - sudo apt-get install -yq --no-install-recommends openssh-client git
     - ci/azure_mirror.sh
   only:
     variables:
