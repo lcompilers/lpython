@@ -80,7 +80,7 @@ full:
 # Build and upload documentation
 documentation:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images/ci-test:documentation-9675cd6
+  image: registry.gitlab.com/lfortran/ci-images/ci-test:documentation-4c00d7e
   script:
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
