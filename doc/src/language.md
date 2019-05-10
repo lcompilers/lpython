@@ -2,39 +2,44 @@
 
 ## Background and Motivation
 
-Fortran is built from the ground up to translate mathematics into simple,
-readable, and fast code – straightforwardly maintainable by the gamut of
-mathematicians, scientists, and engineers who actually produce/apply that
-mathematics. If that is the task at hand, it is the right tool for the job and,
-as right tools tend to do, can save enormous time and pain, with most excellent
-results. If, however, mathematics is not the main task, then almost certainly
-C/C++, or a host of other more general-purpose languages, will be much better.
+Fortran was designed from the ground up to naturally and simply translate
+mathematics to code that compiles and runs at maximum speed. And being
+specifically targeted for such fundamentally computational tasks, it contains a
+broad range of key functionality within the language itself, standard across
+all platforms, with no need for external libraries that may or may not be well
+optimized or maintained, at present or down the road.
 
-An important point is that having all the basic elements in the language itself
-greatly simplifies both writing and reading fast, robust code. Writing and
-reading is simplified because there is a single standard set of
-functions/constructs. No need to wonder what class the array operations are
-coming from, what the member functions are, how well it will be maintained in 5
-years, how well optimized it is/will be, etc. All the basics are in the
-language itself: fast, robust, and standard for all to read and write – and for
-the compiler writers to optimize at the machine level.
+Some highlights:
+
+* Multidimensional arrays which can be allocated and indexed as the
+  math/science dictates (not restricted to start at 0 or 1) and can be sliced
+  as desired (as, e.g., in MATLAB);
+* Operators which operate naturally upon the aforementioned arrays/matrices, as
+  they do scalars;
+* Complex numbers;
+* Special functions;
+* Structures and pointers for more general data representation.
+
+Because the essentials are contained in the language itself, it is simple to
+read and write, without need of choosing from among or deciphering a
+proliferation of external classes to do the same thing. And because the
+essentials are self-contained, compilers can provide detailed compile-time
+(e.g., argument mismatch) and run-time (e.g., memory access) checks, as well as
+highly optimized executables, directly from natural, readable code without need
+of extensive optimization heroics by the developer.
+
+See our blog posts for more information:
+
+* [Why We Created LFortran](https://lfortran.org/blog/2019/04/why-we-created-lfortran/)
+* [Why to Use Fortran For New Projects](https://lfortran.org/blog/2019/05/why-to-use-fortran-for-new-projects/)
 
 ## How to Learn Fortran
 
 Fortran is relatively quick to learn because it is so much simpler and smaller
 than C/C++ (in practice, that is, with all needed libraries included).
-A good online resource to learn modern Fortran is:
+If you are interested in learning more, please see our webpage at
+[fortran90.org] with recommended practices for writing code, side by side
+comparison with Python/NumPy, links to other online Fortran resources and
+books, and an FAQ.
 
-* [fortran90.org](https://www.fortran90.org)
-
-The website provides the
-[recommended practices](https://www.fortran90.org/src/best-practices.html)
-for modern Fortran and also has
-[side-by-side examples](https://www.fortran90.org/src/rosetta.html)
-of using Fortran and Python for common numerical tasks,
-highliting the conceptual similarities between the two languages.
-The website also maintains a
-[list of books](https://www.fortran90.org/src/faq.html#what-are-good-books-to-learn-fortran-from)
-and links to
-[other online resources](https://www.fortran90.org/src/faq.html#what-are-other-good-online-fortran-resources)
-about Fortran.
+[fortran90.org]: https://www.fortran90.org/
