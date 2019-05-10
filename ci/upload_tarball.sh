@@ -43,7 +43,7 @@ COMMIT_MESSAGE="Deploying on $(date "+%Y-%m-%d %H:%M:%S")"
 git add .
 git commit -m "${COMMIT_MESSAGE}"
 
-git show HEAD --stat
+git show HEAD -p --stat
 dest_commit=$(git show HEAD -s --format=%H)
 
 
