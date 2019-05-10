@@ -80,16 +80,12 @@ full:
 # Build and upload documentation
 documentation:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images:full-1.2.0
+  image: registry.gitlab.com/lfortran/ci-images/ci-test:documentation-9675cd6
   script:
-    - export PATH="$HOME/conda_root/bin:$PATH"
-    - sudo apt-get update
-    - sudo apt-get install -yq --no-install-recommends openssh-client git g++
-    - conda install -c conda-forge mkdocs jupyter nbconvert
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
     - ./build1.sh
-    - pip install .
+    - sudo pip install .
     - cd ..
     - rm -r lfortran lfortran-${lfortran_version}
     - cd doc
