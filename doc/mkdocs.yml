@@ -9,8 +9,10 @@ nav:
         - developer_tutorial.md
         - AST and ASR.md
 
-repo_url: https://gitlab.com/lfortran/lfortran
-edit_uri: blob/master/doc/src
+# Until https://gitlab.com/lfortran/lfortran/issues/89 is fixed, we disable the
+# "Edit on GitLab" link:
+#repo_url: https://gitlab.com/lfortran/lfortran
+#edit_uri: blob/master/doc/src
 
 extra_css:
     - ansi.css
