@@ -53,23 +53,23 @@ fi
 
 
 set +x
-if [[ "${SSH_PRIVATE_KEY}" == "" ]]; then
-    echo "Note: SSH_PRIVATE_KEY is empty, skipping..."
+if [[ "${SSH_PRIVATE_KEY_TARBALL}" == "" ]]; then
+    echo "Note: SSH_PRIVATE_KEY_TARBALL is empty, skipping..."
     exit 0
 fi
 # Generate the private/public key pair using:
 #
 #     ssh-keygen -f deploy_key -N ""
 #
-# then set the $SSH_PRIVATE_KEY environment variable in the GitLab-CI to the
-# base64 encoded private key:
+# then set the $SSH_PRIVATE_KEY_TARBALL environment variable in the GitLab-CI
+# to the base64 encoded private key (uncheck the "Masked" check box):
 #
 #     cat deploy_key | base64 -w0
 #
 # and add the public key `deploy_key.pub` into the target git repository (with
 # write permissions).
 
-ssh-add <(echo "$SSH_PRIVATE_KEY" | base64 -d)
+ssh-add <(echo "$SSH_PRIVATE_KEY_TARBALL" | base64 -d)
 set -x
 
 
