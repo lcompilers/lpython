@@ -48,11 +48,9 @@ azure:
 # Test full dependencies when a C compiler is available and used for linking
 full:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images:full-1.2.0
+  image: registry.gitlab.com/lfortran/ci-images/ci-test:full-d23cff9
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
-    - sudo apt-get update
-    - sudo apt-get install -yq --no-install-recommends g++
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
     - ./build1.sh
