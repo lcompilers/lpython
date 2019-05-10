@@ -34,6 +34,8 @@ cd tarballs/docs
 mkdir -p ${dest_dir}
 cp $D/dist/lfortran-${lfortran_version}.tar.gz ${dest_dir}/
 
+python $D/ci/tarball_update_json.py ${dest_dir} ${lfortran_version} ${CI_COMMIT_SHA}
+
 git config user.name "Deploy"
 git config user.email "noreply@deploy"
 COMMIT_MESSAGE="Deploying on $(date "+%Y-%m-%d %H:%M:%S")"
@@ -41,7 +43,7 @@ COMMIT_MESSAGE="Deploying on $(date "+%Y-%m-%d %H:%M:%S")"
 git add .
 git commit -m "${COMMIT_MESSAGE}"
 
-git show HEAD --stat
+git show HEAD -p --stat
 dest_commit=$(git show HEAD -s --format=%H)
 
 
