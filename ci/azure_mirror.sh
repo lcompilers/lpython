@@ -30,9 +30,10 @@ ssh-add <(echo "$SSH_PRIVATE_KEY_AZURE" | base64 -d)
 set -x
 
 pwd
-git branch -D $CI_COMMIT_REF_NAME || echo ok
+bname="branch-$CI_COMMIT_REF_NAME"
+git branch -D ${bname} || echo ok
 git checkout $CI_COMMIT_SHA
-git checkout -b $CI_COMMIT_REF_NAME
+git checkout -b ${bname}
 git show-ref
 git remote -v
-git push git@ssh.dev.azure.com:v3/lfortran/lfortran/lfortran +$CI_COMMIT_REF_NAME:$CI_COMMIT_REF_NAME
+git push git@ssh.dev.azure.com:v3/lfortran/lfortran/lfortran +${bname}:${bname}
