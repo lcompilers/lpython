@@ -46,10 +46,9 @@ git commit -m "${COMMIT_MESSAGE}"
 git show HEAD -p --stat
 dest_commit=$(git show HEAD -s --format=%H)
 
-
-if [[ ${CI_COMMIT_REF_NAME} != "master" ]]; then
+if [[ ${CI_COMMIT_REF_NAME} != "master" && $COMMIT_TAG == "" ]]; then
     # We only execute the rest of master
-    echo "Not a master branch, skipping..."
+    echo "Not a master branch, not tagged, skipping..."
     exit 0
 fi
 
