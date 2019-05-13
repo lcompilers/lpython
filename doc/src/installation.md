@@ -17,9 +17,9 @@ git directly, the tarball does not depend on Java in any way.
 
 ## From a Tarball
 
-Download the latest tarball from https://lfortran.org/download/.
-
 This is the easiest way.
+Download the latest tarball from
+[https://lfortran.org/download/](https://lfortran.org/download/).
 
 Install prerequisites and LFortran (works on both Linux and Mac):
 ```bash
