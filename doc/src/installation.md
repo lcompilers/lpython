@@ -26,11 +26,15 @@ Install prerequisites and LFortran (works on both Linux and Mac):
 conda create -n lfortran python=3.7 pytest llvmlite prompt_toolkit
 conda activate lfortran
 pip install antlr4-python3-runtime
-tar xzf lfortran-0.1.tar.gz
-cd lfortran-0.1
+wget https://lfortran.github.io/tarballs/release/lfortran-0.1.11.tar.gz
+tar xzf lfortran-0.1.11.tar.gz
+cd lfortran-0.1.11
+./build1.sh
 pip install .
 ```
-Now the `lfortran` environment has the `lfort` compiler available.
+Now the `lfortran` environment has the `lfort` compiler available, you can
+start the interactive prompt using `./lfort`, or see the command line options
+using `./lfort -h`.
 
 Optional: run tests:
 ```bash
