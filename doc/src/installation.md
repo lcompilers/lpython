@@ -33,8 +33,8 @@ cd lfortran-0.1.11
 pip install .
 ```
 Now the `lfortran` environment has the `lfort` compiler available, you can
-start the interactive prompt using `./lfort`, or see the command line options
-using `./lfort -h`.
+start the interactive prompt by executing `lfort`, or see the command line
+options using `lfort -h`.
 
 Optional: run tests:
 ```bash
