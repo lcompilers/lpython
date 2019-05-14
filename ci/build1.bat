@@ -15,6 +15,10 @@ setlocal
 
 set PATH=C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin;%PATH%
 call :check
+set CONDA_INSTALL_LOCN=C:\\Miniconda37-x64
+call :check
+call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
+call :check
 cmake -DCMAKE_INSTALL_PREFIX=%cd% -DBUILD_SHARED_LIBS=OFF .
 call :check
 make install
