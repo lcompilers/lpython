@@ -23,7 +23,7 @@ Download the latest tarball from
 
 Install prerequisites and LFortran (works on both Linux and Mac):
 ```bash
-conda create -n lfortran python=3.7 pytest llvmlite prompt_toolkit
+conda create -n lfortran python=3.7 pytest llvmlite prompt_toolkit cmake make
 conda activate lfortran
 pip install antlr4-python3-runtime
 wget https://lfortran.github.io/tarballs/release/lfortran-0.1.11.tar.gz
@@ -46,7 +46,7 @@ py.test --pyargs lfortran
 
 This works both on Linux and a Mac:
 ```bash
-conda create -n lfortran python=3.7 pytest llvmlite prompt_toolkit
+conda create -n lfortran python=3.7 pytest llvmlite prompt_toolkit cmake make
 conda activate lfortran
 pip install antlr4-python3-runtime
 ```
