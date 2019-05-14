@@ -13,19 +13,18 @@ setlocal
 ::
 :: -----------------------------------------------------------------------------
 
-set PATH=C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin;%PATH%
-call :check
 set CONDA_INSTALL_LOCN=C:\\Miniconda37-x64
 call :check
+set BUILD_TYPE=Debug
 call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
 call :check
-cmake -DCMAKE_INSTALL_PREFIX=%cd% -DBUILD_SHARED_LIBS=OFF .
+cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_INSTALL_PREFIX=%cd% -DBUILD_SHARED_LIBS=OFF .
 call :check
-make install
+cmake --build . --config %BUILD_TYPE% --target install
 call :check
-cmake -DCMAKE_INSTALL_PREFIX=%cd% -DBUILD_SHARED_LIBS=ON .
+cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_INSTALL_PREFIX=%cd% -DBUILD_SHARED_LIBS=ON .
 call :check
-make install
+cmake --build . --config %BUILD_TYPE% --target install
 call :check
 
 :: -----------------------------------------------------------------------------
