@@ -72,6 +72,7 @@ documentation:
   stage: build
   image: registry.gitlab.com/lfortran/ci-images:documentation-1.4.0
   script:
+    - sudo apk add --no-cache cmake
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
     - ./build1.sh
@@ -104,6 +105,7 @@ minimal:
   image: registry.gitlab.com/lfortran/ci-images:minimal-1.4.0
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
+    - conda install cmake
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
     - ./build1.sh
