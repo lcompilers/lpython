@@ -12,6 +12,7 @@ prepare tarball:
   script:
     - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
     - ./build0.sh
+    - sudo pip install scikit-build
     - python setup.py sdist
     - ci/upload_tarball.sh
   artifacts:
