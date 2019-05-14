@@ -11,8 +11,9 @@ prepare tarball:
   image: registry.gitlab.com/lfortran/ci-images:prepare-1.4.0
   script:
     - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
-    - ./build0.sh
+    - sudo ln /usr/bin/pip3 /usr/bin/pip
     - sudo pip install scikit-build
+    - ./build0.sh
     - python setup.py sdist
     - ci/upload_tarball.sh
   artifacts:
