@@ -30,8 +30,10 @@ message("Installation prefix: ${CMAKE_INSTALL_PREFIX}")
 set(SRC
     lfort_intrinsics.c
 )
-add_library(lfortran ${SRC})
-install(TARGETS lfortran
+add_library(lfortran SHARED ${SRC})
+add_library(lfortran_static STATIC ${SRC})
+set_target_properties(lfortran_static PROPERTIES OUTPUT_NAME lfortran)
+install(TARGETS lfortran lfortran_static
     RUNTIME DESTINATION bin
     ARCHIVE DESTINATION share/lfortran/lib
     LIBRARY DESTINATION share/lfortran/lib
