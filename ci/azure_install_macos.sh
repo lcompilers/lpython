@@ -16,9 +16,7 @@ curl -O https://www.antlr.org/download/antlr-4.7-complete.jar
 java -cp antlr-4.7-complete.jar org.antlr.v4.Tool -Dlanguage=Python3 -no-listener -visitor fortran.g4 -o ../lfortran/parser
 cd ..
 
-cmake -DCMAKE_INSTALL_PREFIX=`pwd` -DBUILD_SHARED_LIBS=OFF .
-make install
-cmake -DCMAKE_INSTALL_PREFIX=`pwd` -DBUILD_SHARED_LIBS=ON .
-make install
+cmake -DCMAKE_INSTALL_PREFIX=`pwd` .
+cmake --build . --target install
 
 pytest

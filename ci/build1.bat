@@ -18,11 +18,7 @@ call :check
 set BUILD_TYPE=Debug
 call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
 call :check
-cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_INSTALL_PREFIX=%cd% -DBUILD_SHARED_LIBS=OFF .
-call :check
-cmake --build . --config %BUILD_TYPE% --target install
-call :check
-cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_INSTALL_PREFIX=%cd% -DBUILD_SHARED_LIBS=ON .
+cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_INSTALL_PREFIX=%cd% .
 call :check
 cmake --build . --config %BUILD_TYPE% --target install
 call :check
