@@ -107,7 +107,7 @@ minimal:
   image: registry.gitlab.com/lfortran/ci-images:minimal-1.4.0
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
-    - conda install cmake make scikit-build
+    - conda install cmake make
     - conda install -c conda-forge scikit-build
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
