@@ -54,7 +54,6 @@ full:
     - conda install -c conda-forge scikit-build
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
-    - ./build1.sh
     - pip install .
     - cd ..
     - rm -r lfortran lfortran-${lfortran_version}
@@ -79,7 +78,6 @@ documentation:
     - sudo pip install scikit-build
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
-    - ./build1.sh
     - sudo pip install .
     - cd ..
     - rm -r lfortran lfortran-${lfortran_version}
@@ -113,7 +111,6 @@ minimal:
     - conda install -c conda-forge scikit-build
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
-    - ./build1.sh
     - pip install .
     - cd ..
     - rm -r lfortran lfortran-${lfortran_version}
@@ -133,7 +130,6 @@ jupyter:
     - conda install -c conda-forge scikit-build
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
-    - ./build1.sh
     - pip install .
     - cd ..
     - rm -r lfortran lfortran-${lfortran_version}
