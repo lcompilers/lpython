@@ -12,7 +12,10 @@ def get_lib_path():
     else:
         # We run from git, use the relative location
         root_dir = os.path.abspath(os.path.join(here, ".."))
-    base_dir = os.path.join(root_dir, "share", "lfortran", "lib")
+    if sys.platform == "win32":
+        base_dir = os.path.join(root_dir, "bin")
+    else:
+        base_dir = os.path.join(root_dir, "share", "lfortran", "lib")
     if not os.path.exists(base_dir):
         raise Exception("LFortran runtime library path does not exist: %s" \
             % base_dir)
@@ -29,7 +32,19 @@ def load_lfortran_runtime_library():
     global _lfortran_runtime_library_loaded
     if not _lfortran_runtime_library_loaded:
         base_dir = get_lib_path()
-        liblfortran_so = os.path.join(base_dir, "liblfortran.so")
+        if sys.platform == "linux":
+            shprefix = "lib"
+            shsuffix = "so"
+        elif sys.platform == "win32":
+            shprefix = ""
+            shsuffix = "dll"
+        elif sys.platform == "darwin":
+            shprefix = "lib"
+            shsuffix = "dylib"
+        else:
+            raise NotImplementedError("Platform not supported yet.")
+        liblfortran_so = os.path.join(base_dir, shprefix + "lfortran." \
+                + shsuffix)
         llvm.load_library_permanently(liblfortran_so)
         _lfortran_runtime_library_loaded = True
 

@@ -1,4 +1,6 @@
 image: Visual Studio 2017
+# List of preinstalled software in the image:
+# https://www.appveyor.com/docs/windows-images-software/
 
 install:
 - call ci\appveyor_install.bat

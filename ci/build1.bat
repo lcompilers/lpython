@@ -13,21 +13,18 @@ setlocal
 ::
 :: -----------------------------------------------------------------------------
 
-set CFLAGS=-Wall -g -fPIC
+set CONDA_INSTALL_LOCN=C:\\Miniconda37-x64
 call :check
-set PATH=C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin;%PATH%
+set BUILD_TYPE=Debug
+call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
 call :check
-gcc %CFLAGS% -o lfort_intrinsics.o -c lfort_intrinsics.c
+cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_INSTALL_PREFIX=%cd% -DBUILD_SHARED_LIBS=OFF .
 call :check
-ar rcs liblfortran.a lfort_intrinsics.o
+cmake --build . --config %BUILD_TYPE% --target install
 call :check
-gcc -shared -o liblfortran.so lfort_intrinsics.o
+cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_INSTALL_PREFIX=%cd% -DBUILD_SHARED_LIBS=ON .
 call :check
-mkdir share\lfortran\lib
-call :check
-xcopy liblfortran.a share\lfortran\lib\
-call :check
-xcopy liblfortran.so share\lfortran\lib\
+cmake --build . --config %BUILD_TYPE% --target install
 call :check
 
 :: -----------------------------------------------------------------------------
