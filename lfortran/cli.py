@@ -29,7 +29,15 @@ def load_lfortran_runtime_library():
     global _lfortran_runtime_library_loaded
     if not _lfortran_runtime_library_loaded:
         base_dir = get_lib_path()
-        liblfortran_so = os.path.join(base_dir, "liblfortran.so")
+        if sys.platform == "linux":
+            shprefix = "so"
+        elif sys.platform == "win32":
+            shprefix = "dll"
+        elif sys.platform == "darwin":
+            shprefix = "dylib"
+        else:
+            raise NotImplementedError("Platform not supported yet.")
+        liblfortran_so = os.path.join(base_dir, "liblfortran." + shprefix)
         llvm.load_library_permanently(liblfortran_so)
         _lfortran_runtime_library_loaded = True
 
