@@ -13,21 +13,15 @@ setlocal
 ::
 :: -----------------------------------------------------------------------------
 
-set CFLAGS=-Wall -g -fPIC
-call :check
 set PATH=C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin;%PATH%
 call :check
-gcc %CFLAGS% -o lfort_intrinsics.o -c lfort_intrinsics.c
+cmake -DCMAKE_INSTALL_PREFIX=%cd% -DBUILD_SHARED_LIBS=OFF .
 call :check
-ar rcs liblfortran.a lfort_intrinsics.o
+make install
 call :check
-gcc -shared -o liblfortran.so lfort_intrinsics.o
+cmake -DCMAKE_INSTALL_PREFIX=%cd% -DBUILD_SHARED_LIBS=ON .
 call :check
-mkdir share\lfortran\lib
-call :check
-xcopy liblfortran.a share\lfortran\lib\
-call :check
-xcopy liblfortran.so share\lfortran\lib\
+make install
 call :check
 
 :: -----------------------------------------------------------------------------
