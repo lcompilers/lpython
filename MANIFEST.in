@@ -1,4 +1,5 @@
 include version
 include build1.sh
 include lfort_intrinsics.c
+include CMakeLists.txt
 recursive-include share *
