@@ -11,4 +11,6 @@ build_script:
 test_script:
 - set CONDA_INSTALL_LOCN=C:\\Miniconda37-x64
 - call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
-- pytest
+- mkdir tmp
+- cd tmp
+- pytest --pyargs lfortran
