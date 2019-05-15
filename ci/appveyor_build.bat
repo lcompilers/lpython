@@ -23,6 +23,20 @@ cd grammar
 call :check
 java -cp antlr-4.7-complete.jar org.antlr.v4.Tool -Dlanguage=Python3 -no-listener -visitor fortran.g4 -o ..\lfortran\parser
 call :check
+cd ..
+call :check
+
+
+set CONDA_INSTALL_LOCN=C:\\Miniconda37-x64
+call :check
+set BUILD_TYPE=Debug
+call :check
+call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
+call :check
+cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_INSTALL_PREFIX=%cd% .
+call :check
+cmake --build . --config %BUILD_TYPE% --target install
+call :check
 
 :: -----------------------------------------------------------------------------
 :: End of script. We exit the script now.

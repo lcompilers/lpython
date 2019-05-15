@@ -6,8 +6,7 @@ install:
 - call ci\appveyor_install.bat
 
 build_script:
-- call ci\build0.bat
-- call ci\build1.bat
+- call ci\appveyor_build.bat
 
 test_script:
 - set CONDA_INSTALL_LOCN=C:\\Miniconda37-x64
