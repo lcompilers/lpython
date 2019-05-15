@@ -33,9 +33,7 @@ set BUILD_TYPE=Debug
 call :check
 call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
 call :check
-cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_INSTALL_PREFIX=%cd% .
-call :check
-cmake --build . --config %BUILD_TYPE% --target install
+pip install -v .
 call :check
 
 :: -----------------------------------------------------------------------------
