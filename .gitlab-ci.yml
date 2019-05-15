@@ -11,6 +11,8 @@ prepare tarball:
   image: registry.gitlab.com/lfortran/ci-images:prepare-1.4.0
   script:
     - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
+    - sudo ln /usr/bin/pip3 /usr/bin/pip
+    - sudo pip install scikit-build
     - ./build0.sh
     - python setup.py sdist
     - ci/upload_tarball.sh
@@ -49,9 +51,9 @@ full:
   image: registry.gitlab.com/lfortran/ci-images:full-1.4.0
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
+    - conda install -c conda-forge scikit-build
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
-    - ./build1.sh
     - pip install .
     - cd ..
     - rm -r lfortran lfortran-${lfortran_version}
@@ -73,9 +75,9 @@ documentation:
   image: registry.gitlab.com/lfortran/ci-images:documentation-1.4.0
   script:
     - sudo apk add --no-cache cmake make
+    - sudo pip install scikit-build
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
-    - ./build1.sh
     - sudo pip install .
     - cd ..
     - rm -r lfortran lfortran-${lfortran_version}
@@ -106,9 +108,9 @@ minimal:
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
     - conda install cmake make
+    - conda install -c conda-forge scikit-build
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
-    - ./build1.sh
     - pip install .
     - cd ..
     - rm -r lfortran lfortran-${lfortran_version}
@@ -125,9 +127,9 @@ jupyter:
   image: registry.gitlab.com/lfortran/ci-images:jupyter-1.4.0
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
+    - conda install -c conda-forge scikit-build
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
-    - ./build1.sh
     - pip install .
     - cd ..
     - rm -r lfortran lfortran-${lfortran_version}
