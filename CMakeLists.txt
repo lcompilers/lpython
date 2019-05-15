@@ -32,7 +32,6 @@ set(SRC
 )
 add_library(lfortran SHARED ${SRC})
 add_library(lfortran_static STATIC ${SRC})
-set_target_properties(lfortran_static PROPERTIES OUTPUT_NAME lfortran)
 install(TARGETS lfortran lfortran_static
     RUNTIME DESTINATION bin
     ARCHIVE DESTINATION share/lfortran/lib
