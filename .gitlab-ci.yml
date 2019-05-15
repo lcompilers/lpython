@@ -127,7 +127,6 @@ jupyter:
   image: registry.gitlab.com/lfortran/ci-images:jupyter-1.4.0
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
-    - conda install ninja
     - conda install -c conda-forge scikit-build
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
