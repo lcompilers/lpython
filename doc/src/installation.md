@@ -21,7 +21,7 @@ This is the easiest way.
 Download the latest tarball from
 [https://lfortran.org/download/](https://lfortran.org/download/).
 
-Install prerequisites and LFortran (works on both Linux and Mac):
+Install prerequisites and LFortran (works on Linux, macOS and Windows):
 ```bash
 conda create -n lfortran python=3.7 pytest llvmlite prompt_toolkit cmake make
 conda activate lfortran
@@ -35,15 +35,20 @@ Now the `lfortran` environment has the `lfort` compiler available, you can
 start the interactive prompt by executing `lfort`, or see the command line
 options using `lfort -h`.
 
+Note: besides the above prerequisites installed by `conda`, you also have to
+have a C compiler.
+
+Note on macOS: if `wget` is not present, use `curl -O` instead.
+
 Optional: run tests:
 ```bash
-py.test --pyargs lfortran
+pytest --pyargs lfortran
 ```
 
 
 ## From Git
 
-This works both on Linux and a Mac:
+This works both on Linux, macOS and Windows:
 ```bash
 conda create -n lfortran python=3.7 pytest llvmlite prompt_toolkit cmake make
 conda activate lfortran
@@ -59,7 +64,7 @@ Build:
 ```
 Run tests:
 ```bash
-py.test
+pytest
 ```
 Run an interactive prompt:
 ```bash
