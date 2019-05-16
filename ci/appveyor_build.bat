@@ -33,7 +33,17 @@ set BUILD_TYPE=Debug
 call :check
 call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
 call :check
+set lfortran_version=0.0+git
+call :check
+python setup.py sdist
+call :check
+tar xzf dist/lfortran-%lfortran_version%.tar.gz
+call :check
+cd lfortran-%lfortran_version%
+call :check
 pip install -v .
+call :check
+cd ..
 call :check
 
 :: -----------------------------------------------------------------------------
