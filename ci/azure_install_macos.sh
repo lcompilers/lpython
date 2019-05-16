@@ -24,4 +24,7 @@ python setup.py sdist
 tar xzf dist/lfortran-${lfortran_version}.tar.gz
 cd lfortran-${lfortran_version}
 pip install -v .
+cd ..
+rm -rf lfortran-${lfortran_version} lfortran
+ls -l
 py.test --pyargs lfortran
