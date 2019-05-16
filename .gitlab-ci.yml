@@ -34,6 +34,17 @@ mirror:
   only:
     - master
 
+# PyPI upload
+pypi:
+  stage: build
+  image: registry.gitlab.com/lfortran/ci-images:mirror-1.4.0
+  script:
+    - sudo pip3 install twine
+    - ci/upload_pypi.sh
+  #only:
+  #  - master
+  #  - tags
+
 # Azure
 azure:
   stage: tarball
