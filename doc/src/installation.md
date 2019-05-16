@@ -25,11 +25,10 @@ Install prerequisites and LFortran (works on both Linux and Mac):
 ```bash
 conda create -n lfortran python=3.7 pytest llvmlite prompt_toolkit cmake make
 conda activate lfortran
-pip install antlr4-python3-runtime
-wget https://lfortran.github.io/tarballs/release/lfortran-0.1.11.tar.gz
-tar xzf lfortran-0.1.11.tar.gz
-cd lfortran-0.1.11
-./build1.sh
+pip install antlr4-python3-runtime scikit-build
+wget https://lfortran.github.io/tarballs/release/lfortran-0.1.12.tar.gz
+tar xzf lfortran-0.1.12.tar.gz
+cd lfortran-0.1.12
 pip install .
 ```
 Now the `lfortran` environment has the `lfort` compiler available, you can
@@ -48,7 +47,7 @@ This works both on Linux and a Mac:
 ```bash
 conda create -n lfortran python=3.7 pytest llvmlite prompt_toolkit cmake make
 conda activate lfortran
-pip install antlr4-python3-runtime
+pip install antlr4-python3-runtime scikit-build
 ```
 Install Java and then ANTLR, say, into `~/ext`:
 ```bash
