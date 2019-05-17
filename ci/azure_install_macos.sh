@@ -5,9 +5,7 @@ set -ex
 conda config --set always_yes yes --set changeps1 no
 conda info -a
 conda update -q conda
-conda install python=3.7 pytest llvmlite prompt_toolkit cmake make
-conda install -c conda-forge scikit-build
-pip install antlr4-python3-runtime
+conda install python=3.7
 
 python grammar/asdl_py.py
 python grammar/asdl_py.py grammar/ASR.asdl lfortran/asr/asr.py ..ast.utils
@@ -20,7 +18,9 @@ cd ..
 ci/version.sh
 lfortran_version=$(<version)
 
+pip install scikit-build
 python setup.py sdist
+pip uninstall -y scikit-build
 tar xzf dist/lfortran-${lfortran_version}.tar.gz
 cd lfortran-${lfortran_version}
 pip install -v .
