@@ -5,10 +5,10 @@ set -x
 
 if [[ $CI_COMMIT_TAG == "" ]]; then
     # Development version
-    TWINE_REPOSITORY_URL="https://test.pypi.org/legacy/"
+    export TWINE_REPOSITORY_URL="https://test.pypi.org/legacy/"
 else
     # Release version
-    TWINE_REPOSITORY_URL="https://upload.pypi.org/legacy/"
+    export TWINE_REPOSITORY_URL="https://upload.pypi.org/legacy/"
 fi
 
 lfortran_version=$(<version)
@@ -21,8 +21,8 @@ ssh-keyscan github.com >> ~/.ssh/known_hosts
 eval "$(ssh-agent -s)"
 
 set +x
-TWINE_USERNAME=${PYPI_USERNAME}
-TWINE_PASSWORD=${PYPI_PASSWORD}
+export TWINE_USERNAME=${PYPI_USERNAME}
+export TWINE_PASSWORD=${PYPI_PASSWORD}
 set -x
 
 
