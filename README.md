@@ -2,6 +2,7 @@
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gl/lfortran%2Fweb%2Flfortran-binder/master?filepath=Demo.ipynb)
 [![project chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://lfortran.zulipchat.com/)
+[![PyPI](https://img.shields.io/pypi/v/lfortran.svg)](https://pypi.org/project/lfortran/)
 
 LFortran is a modern open-source (BSD licensed) interactive Fortran compiler
 built on top of LLVM. It can execute user's code interactively to allow
