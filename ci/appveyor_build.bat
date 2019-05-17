@@ -35,7 +35,11 @@ call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
 call :check
 set lfortran_version=0.0+git
 call :check
+pip install scikit-build
+call :check
 python setup.py sdist
+call :check
+pip uninstall -y scikit-build
 call :check
 tar xzf dist/lfortran-%lfortran_version%.tar.gz
 call :check
