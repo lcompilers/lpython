@@ -322,7 +322,12 @@ class ExprVisitor(ast.GenericASTVisitor):
                     node.o = float(node.n[:-3])
                     node._type = Real()
                 else:
-                    raise SemanticError("Unknown number syntax.")
+                    try:
+                        node_exp = node.n.replace('d', 'e')
+                        node.o = float(node_exp)
+                        node._type = Real()
+                    except ValueError:
+                        raise SemanticError("Unknown number syntax.")
 
     def visit_Constant(self, node):
         node._type = Logical()
