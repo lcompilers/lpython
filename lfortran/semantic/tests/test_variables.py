@@ -436,3 +436,6 @@ def test_d_exponent():
     assert get_num("7.000d0") == 7.0
     assert get_num("1.0d-1") == 0.1
     assert get_num("0.000000001d10") == 10.0
+
+    assert get_num("0.D0") == 0.0
+    assert get_num("0.01D2") == 1.0

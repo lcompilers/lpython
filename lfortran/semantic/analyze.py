@@ -323,7 +323,7 @@ class ExprVisitor(ast.GenericASTVisitor):
                     node._type = Real()
                 else:
                     try:
-                        node_exp = node.n.replace('d', 'e')
+                        node_exp = node.n.lower().replace('d', 'e')
                         node.o = float(node_exp)
                         node._type = Real()
                     except ValueError:
