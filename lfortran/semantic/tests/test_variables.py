@@ -421,3 +421,21 @@ end subroutine
     tree = src_to_ast(source, False)
     symbol_table = create_symbol_table(tree)
     annotate_tree(tree, symbol_table)
+
+
+def get_num(src):
+    numexpr = src_to_ast(src, translation_unit=False)
+    symbol_table = create_symbol_table(numexpr)
+    annotate_tree(numexpr, symbol_table)
+    return numexpr.o
+
+
+def test_d_exponent():
+    assert get_num("0d0") == 0.0
+    assert get_num("42d0") == 42.0
+    assert get_num("7.000d0") == 7.0
+    assert get_num("1.0d-1") == 0.1
+    assert get_num("0.000000001d10") == 10.0
+
+    assert get_num("0.D0") == 0.0
+    assert get_num("0.01D2") == 1.0
