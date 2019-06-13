@@ -9,14 +9,13 @@ program print_kinds
 use iso_fortran_env
 implicit none
 integer :: i
-print "('int8 = ', i0)", int8
-print "('int16 = ', i0)", int16
-print "('int32 = ', i0)", int32
-print "('int64 = ', i0)", int64
+do i = 1, size(integer_kinds)
+    print "('int', i0, ' = ', i0)", integer_kinds(i)*8, integer_kinds(i)
+end do
 print *
-print "('real32 = ', i0)", real32
-print "('real64 = ', i0)", real64
-print "('real128 = ', i0)", real128
+do i = 1, size(real_kinds)
+    print "('real', i0, ' = ', i0)", real_kinds(i)*8, real_kinds(i)
+end do
 print *
 do i = 1, size(logical_kinds)
     print "('logical', i0, ' = ', i0)", logical_kinds(i)*8, logical_kinds(i)
@@ -34,9 +33,11 @@ int8 = 1
 int16 = 2
 int32 = 4
 int64 = 8
+int128 = 16
 
 real32 = 4
 real64 = 8
+real80 = 10
 real128 = 16
 
 logical8 = 1
