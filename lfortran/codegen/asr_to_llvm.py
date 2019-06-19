@@ -8,17 +8,27 @@ def asr_type_to_llvm(type):
     Converts an ASR type to an LLVM type.
     """
     if isinstance(type, asr.Integer):
-        if type.kind == kinds.int64:
-            return ir.IntType(64)
+        if type.kind == kinds.int8:
+            return ir.IntType(8)
+        elif type.kind == kinds.int16:
+            return ir.IntType(16)
         elif type.kind == kinds.int32:
             return ir.IntType(32)
+        elif type.kind == kinds.int64:
+            return ir.IntType(64)
+        elif type.kind == kinds.int128:
+            return ir.IntType(128)
         else:
             raise NotImplementedError("Integer kind not implemented")
     elif isinstance(type, asr.Real):
-        if type.kind == kinds.real64:
-            return ir.DoubleType(64)
-        elif type.kind == kinds.real32:
+        if type.kind == kinds.real32:
             return ir.DoubleType(32)
+        elif type.kind == kinds.real64:
+            return ir.DoubleType(64)
+        elif type.kind == kinds.real80:
+            return ir.DoubleType(80)
+        elif type.kind == kinds.real128:
+            return ir.DoubleType(128)
         else:
             raise NotImplementedError("Real kind not implemented")
     elif isinstance(type, asr.Logical):
