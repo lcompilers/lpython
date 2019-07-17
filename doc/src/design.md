@@ -79,15 +79,16 @@ The ASR is designed to have the following features:
   construction, the ASR classes always contain valid Fortran code and the rest
   of LFortran can depend on it.
 
-Note: Information that is lost when parsing source to AST: whitespace,
-multiline/single line if statement distinction, case sensitivity of keywords.
-Information that is lost when going from AST to ASR: detailed syntax how
-variables were defined and the order of type attributes (whether array
-dimension is using the `dimension` attribute, or parentheses at the variable;
-or how many variables there are per declaration line or their order), as ASR
-only represents the aggregated type information in the symbol table.
+## Notes:
 
-Note: ASR is the simplest way to generate Fortran code, as one does not
+Information that is lost when parsing source to AST:
+
+whitespace, multiline/single line if statement distinction, case sensitivity of keywords.
+Information that is lost when going from AST to ASR:
+
+detailed syntax how variables were defined and the order of type attributes (whether array dimension is using the `dimension` attribute, or parentheses at the variable; or how many variables there are per declaration line or their order), as ASR only represents the aggregated type information in the symbol table.
+
+ASR is the simplest way to generate Fortran code, as one does not
 have to worry about the detailed syntax (as in AST) about how and where
 things are declared. One specifies the symbol table for a module, then for
 each symbol (functions, global variables, types, ...) one specifies the local

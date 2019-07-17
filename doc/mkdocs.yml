@@ -4,6 +4,7 @@ nav:
     - Home: index.md
     - installation.md
     - language.md
+    - progress.md
     - Developer's Guide:
         - design.md
         - developer_tutorial.md
