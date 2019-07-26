@@ -3,4 +3,5 @@ include lfort_intrinsics.c
 include CMakeLists.txt
 include README.md
 include pyproject.toml
+include LICENSE
 recursive-include share *
