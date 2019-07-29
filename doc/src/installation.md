@@ -1,18 +1,50 @@
 # Installation
 
+All the instructions below work on Linux, macOS and Windows.
+
+## Binaries
+
+The recommended way to install LFortran is using Conda.
+Install Conda for example by installing the
+[Miniconda](https://conda.io/en/latest/miniconda.html) installation.
+Then create a new environment (you can choose any name, here we chose `lf`) and
+activate it:
+```bash
+conda create -n lf
+conda activate lf
+```
+Then install LFortran by:
+```bash
+conda install lfortran -c conda-forge
+```
+Now the `lf` environment has the `lfort` compiler available, you can start the
+interactive prompt by executing `lfort`, or see the command line options using
+`lfort -h`.
+
+To install the Jupyter kernel, do:
+```bash
+conda install jupyter fortran_kernel -c conda-forge
+```
+Now you can create a Fortran based Jupyter notebook by executing:
+```bash
+jupyter notebook
+```
+and selecting `New->Fortran`.
+
+
 ## From a Tarball Using Pip
 
-The easiest way is to simply `pip` install LFortran. An example:
+One can install from source by `pip` installing LFortran. An example:
 ```bash
-conda create -n lfortran python=3.7
-conda activate lfortran
+conda create -n lf python=3.7
+conda activate lf
 pip install lfortran
 ```
-This works on Linux, macOS and Windows. Pip will automatically download all
-build and run time dependencies, compile and install LFortran. The only
-prerequisite that you have to have is a working C compiler.
+Pip will automatically download all build and run time dependencies, compile
+and install LFortran. The only prerequisite that you have to have is a working
+C compiler.
 
-Now the `lfortran` environment has the `lfort` compiler available, you can
+Now the `lf` environment has the `lfort` compiler available, you can
 start the interactive prompt by executing `lfort`, or see the command line
 options using `lfort -h`.
 
@@ -38,15 +70,10 @@ pip install .
 
 ## From Git
 
-This works on Linux, macOS and Windows:
+Prepare the environment:
 ```bash
-conda create -n lfortran python=3.7 pytest llvmlite prompt_toolkit cmake make
-conda activate lfortran
-pip install antlr4-python3-runtime scikit-build
-```
-Install Java and then ANTLR, say, into `~/ext`:
-```bash
-export CLASSPATH="$HOME/ext/antlr-4.7-complete.jar:$CLASSPATH"
+conda create -n lf python=3.7 pytest llvmlite prompt_toolkit antlr-python-runtime scikit-build antlr cmake make -c conda-forge
+conda activate lf
 ```
 Clone the LFortran git repository:
 ```
