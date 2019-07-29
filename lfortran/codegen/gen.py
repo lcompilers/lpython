@@ -37,10 +37,10 @@ def printf(module, builder, fmt, *args):
     c_ptr = ir.IntType(8).as_pointer()
 
     fmt_ptr = create_global_string(module, builder, fmt)
-    fn_printf = get_global(module, "printf")
+    fn_printf = get_global(module, "_lfortran_printf")
     if not fn_printf:
-        fn_type = ir.FunctionType(ir.IntType(32), [c_ptr], var_arg=True)
-        fn_printf = ir.Function(module, fn_type, name="printf")
+        fn_type = ir.FunctionType(ir.VoidType(), [c_ptr], var_arg=True)
+        fn_printf = ir.Function(module, fn_type, name="_lfortran_printf")
 
     builder.call(fn_printf, [fmt_ptr] + list(args))
 

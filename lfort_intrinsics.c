@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#include <stdio.h>
+#include <stdarg.h>
 
 double _lfort_sum(int n, double *v)
 {
@@ -16,4 +18,13 @@ void _lfort_random_number(int n, double *v)
     for (i=0; i < n; i++) {
         v[i] = rand() / (double) RAND_MAX;
     }
+}
+
+void _lfortran_printf(const char* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    vfprintf(stdout, format, args);
+    fflush(stdout);
+    va_end(args);
 }
