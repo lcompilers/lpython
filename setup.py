@@ -1,5 +1,6 @@
 import os
 import setuptools
+import sys
 import skbuild
 
 with open("README.md", "r") as fh:
@@ -14,6 +15,9 @@ cmake_args = []
 mdt = os.getenv("MACOSX_DEPLOYMENT_TARGET")
 if mdt:
     cmake_args.append("-DCMAKE_OSX_DEPLOYMENT_TARGET={}".format(mdt))
+
+if sys.platform == "win32":
+    cmake_args.append("-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE")
 
 skbuild.setup(
     name="lfortran",

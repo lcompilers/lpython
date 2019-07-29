@@ -218,14 +218,15 @@ def main():
             return
 
     # Link object code
+    base_dir = get_lib_path()
     if args.ld_musl:
         # Invoke `ld` directly and link with musl. This is system dependent.
         musl_dir="/usr/lib/x86_64-linux-musl"
-        LDFLAGS="{0}/crt1.o {0}/libc.a".format(musl_dir)
+        LDFLAGS="{1}/liblfortran_static.a {0}/crt1.o {0}/libc.a".format(
+                musl_dir, base_dir)
         os.system("ld -o %s %s %s" % (outfile, objfile, LDFLAGS))
     else:
         # Invoke a C compiler to do the linking
-        base_dir = get_lib_path()
         os.system("cc -o %s %s -L%s -Wl,-rpath=%s -llfortran -lm" % (outfile,
             objfile, base_dir, base_dir))
     if objfile == "tmp_object_file.o":
