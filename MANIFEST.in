@@ -1,5 +1,5 @@
 include version
-include lfort_intrinsics.c
+recursive-include src *
 include CMakeLists.txt
 include README.md
 include pyproject.toml
