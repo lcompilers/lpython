@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
-project(lfort C CXX)
+project(lfortran C CXX)
 
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release
@@ -11,6 +11,14 @@ if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
     message("${CMAKE_BUILD_TYPE}")
     message(FATAL_ERROR "CMAKE_BUILD_TYPE must be one of: Debug, Release (current value: '${CMAKE_BUILD_TYPE}')")
 endif ()
+
+# Enable C++11 support in all compilers.
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|Intel")
+    set(CXX11_OPTIONS "-std=c++11")
+endif ()
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${CXX11_OPTIONS}")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CXX11_OPTIONS}")
+
 
 enable_testing()
 

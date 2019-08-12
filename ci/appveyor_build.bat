@@ -33,6 +33,14 @@ set BUILD_TYPE=Debug
 call :check
 call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
 call :check
+cd src\lfortran\parser
+call :check
+re2c -W -b tokenizer.re -o tokenizer.cpp
+call :check
+bison -Wall -d parser.yy
+call :check
+cd ..\..\..
+call :check
 set lfortran_version=0.0+git
 call :check
 pip install scikit-build
