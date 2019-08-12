@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
-project(lfort C)
+project(lfort C CXX)
 
 if (NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Debug
+    set(CMAKE_BUILD_TYPE Release
         CACHE STRING "Build type (Debug, Release)" FORCE)
 endif ()
 if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
@@ -18,11 +18,14 @@ message("\n")
 message("Configuration results")
 message("---------------------")
 message("C compiler      : ${CMAKE_C_COMPILER}")
+message("C++ compiler    : ${CMAKE_CXX_COMPILER}")
 message("Build type: ${CMAKE_BUILD_TYPE}")
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     message("C compiler flags      : ${CMAKE_C_FLAGS_DEBUG}")
+    message("C++ compiler flags    : ${CMAKE_CXX_FLAGS_DEBUG}")
 else ()
     message("C compiler flags      : ${CMAKE_C_FLAGS_RELEASE}")
+    message("C++ compiler flags    : ${CMAKE_CXX_FLAGS_RELEASE}")
 endif ()
 message("Installation prefix: ${CMAKE_INSTALL_PREFIX}")
 
