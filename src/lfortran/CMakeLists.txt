@@ -10,3 +10,5 @@ install(TARGETS lfortran_lib
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
 )
+
+add_subdirectory(tests)
