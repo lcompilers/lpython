@@ -25,6 +25,8 @@ public:
 private:
 };
 
+void parse(const std::string &s);
+
 } // namespace LFortran
 
 #endif
