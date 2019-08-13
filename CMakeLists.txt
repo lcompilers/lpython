@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
+set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_SOURCE_DIR}/cmake/UserOverride.cmake)
+
 project(lfortran C CXX)
+
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release
