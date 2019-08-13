@@ -80,6 +80,20 @@ full:
     - cd tests/interop
     - ./run.sh
 
+# Test the C++ version
+cxx:
+  stage: build
+  image: registry.gitlab.com/lfortran/ci-images:full-1.4.0
+  script:
+    - export PATH="$HOME/conda_root/bin:$PATH"
+    - tar xzf dist/lfortran-${lfortran_version}.tar.gz
+    - cd lfortran-${lfortran_version}
+    - cmake -DCMAKE_INSTALL_PREFIX=`pwd` .
+    - cmake --build . --target install
+    - ctest --output-on-failure
+    - ./src/bin/parse
+
+
 # Build and upload documentation
 documentation:
   stage: build
