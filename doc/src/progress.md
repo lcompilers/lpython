@@ -7,19 +7,7 @@
 
 ## Fortran Standards Supported
 
-LFortran currently supports the latest Fortran standard Fortran 2018. Since 2018 was a revision of Fortran90, most of the features of F90 are supported.
-
-### Currently Supported:
-
-- Fortran 2018
-- Fortran 2008
-- F90
-
-### Not Supported/Currently in Development:
-
-- F77
-- F90
-- F95
+LFortran currently supports a subset of the latest Fortran standard Fortran 2018. This document describes details about which features are supported and which are not.
 
 ### Related Issues:
 
@@ -74,21 +62,21 @@ LFortran does not support some of the standard intrinsic functions for the Fortr
 
 ### Not Suported/Currently in Development:
 
-- ABS
-- SQRT
-- SIN
-- COS
-- TAN
-- ASIN
-- ACOS
-- ATAN
-- EXP
-- INT
-- REAL
-- NINT
-- FLOOR
-- FRACTION
-- REAL
-- MAX
-- MIN
-- MOD
+- abs
+- sqrt
+- sin
+- cos
+- tan
+- asin
+- acos
+- atan
+- exp
+- int
+- real
+- nint
+- floor
+- fraction
+- real
+- max
+- min
+- mod
