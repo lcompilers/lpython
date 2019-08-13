@@ -16,7 +16,7 @@ Try online using Binder:
 ## Feature Highlights
 
 LFortran is in development, there are features that work today, and there are
-features that are being implemented. You can also check out the Development Status section for more information on features being supported and being worked on.
+features that are being implemented. You can also check out the [Development Status](progress.md) section for more information on features being supported and being worked on.
 
 ### Works today
 
