@@ -7,9 +7,9 @@ Python, MATLAB or Julia) as well as compile to binaries with the goal to run
 user's code on modern architectures such as multi-core CPUs and GPUs.
 
 Website:
-[https://lfortran.org/](https://lfortran.org/)
+[https://lfortran.org/](https://lfortran.org/)  
 Main repository:
-[https://gitlab.com/lfortran/lfortran](https://gitlab.com/lfortran/lfortran)
+[https://gitlab.com/lfortran/lfortran](https://gitlab.com/lfortran/lfortran)  
 Try online using Binder:
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gl/lfortran%2Fweb%2Flfortran-binder/master?filepath=Demo.ipynb)
 
@@ -20,7 +20,7 @@ features that are being implemented. You can also check out the Development Stat
 
 ### Works today
 
-* **Interactive, Jupyter support**
+* **Interactive, Jupyter support**  
     LFortran can be used from Jupyter as a Fortran kernel, allowing a
     Python/Julia style rapid prototyping and exploratory workflow
     (see the [static](https://nbviewer.jupyter.org/gist/certik/f1d28a486510810d824869ab0c491b1c)
@@ -29,22 +29,22 @@ features that are being implemented. You can also check out the Development Stat
     example notebook).
     Or it can be used from the command-line in an interactive prompt (REPL).
 
-* **Clean, modular design, usable as a library**
+* **Clean, modular design, usable as a library**  
     LFortran is structured around two independent modules, AST and ASR, both of
     which are standalone (completely independent of the rest of LFortran) and
     users are encouraged to use them independently for other applications and
     build tools on top. See the [Design](design.md)
     and [Developer Tutorial](developer_tutorial.md) documents for more details.
 
-* **Interoperation with GFortran**
+* **Interoperation with GFortran**  
     LFortran can parse GFortran module files into an ASR and generate a Fortran
     wrapper that can be compiled with any Fortran compiler and linked with the
     original GFortran compiled module.
 
-* **Create executables**
+* **Create executables**  
     It can create executables just like other Fortran compilers.
 
-* **Runs on Linux, Mac and Windows**
+* **Runs on Linux, Mac and Windows**  
     All three platforms are regularly tested by our CI.
 
 
@@ -53,7 +53,7 @@ features that are being implemented. You can also check out the Development Stat
 These features are under development, there is a link to the corresponding
 issue so that you can track the progress by following it.
 
-* **Native interoperation with other languages (and other Fortran compilers)**
+* **Native interoperation with other languages (and other Fortran compilers)**  
     It can automatically call code written in other languages (such as C or
     Python) just by using the `use` statement, see
     [#44](https://gitlab.com/lfortran/lfortran/issues/44). It understands
@@ -62,13 +62,13 @@ issue so that you can track the progress by following it.
     see [#56](https://gitlab.com/lfortran/lfortran/issues/56)), which allows to
     use LFortran with production codes today.
 
-* **Modern hardware support**
+* **Modern hardware support**  
     Thanks to LLVM, the goal of LFortran is to run on modern hardware and take
     advantage of native Fortran language constructs (such as `do concurrent`)
     to run on multi-core CPUs and GPUs, see
     [#57](https://gitlab.com/lfortran/lfortran/issues/57).
 
-* **Full Fortran 2018 support**
+* **Full Fortran 2018 support**  
     Currently only a subset of Fortran is implemented, but the goal is to have
     a full implementation of the latest Fortran 2018 standard, see
     [#58](https://gitlab.com/lfortran/lfortran/issues/58).
