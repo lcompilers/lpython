@@ -82,10 +82,9 @@ The ASR is designed to have the following features:
 ## Notes:
 
 Information that is lost when parsing source to AST:
-
 whitespace, multiline/single line if statement distinction, case sensitivity of keywords.
-Information that is lost when going from AST to ASR:
 
+Information that is lost when going from AST to ASR:
 detailed syntax how variables were defined and the order of type attributes (whether array dimension is using the `dimension` attribute, or parentheses at the variable; or how many variables there are per declaration line or their order), as ASR only represents the aggregated type information in the symbol table.
 
 ASR is the simplest way to generate Fortran code, as one does not
