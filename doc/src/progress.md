@@ -15,7 +15,7 @@ LFortran currently supports the latest Fortran standard Fortran 2018. Since 2018
 - Fortran 2008
 - F90
 
-###Not Supported/Currently in Development:
+### Not Supported/Currently in Development:
 
 - F77
 - F90
@@ -27,7 +27,7 @@ LFortran currently supports the latest Fortran standard Fortran 2018. Since 2018
 
 ## Features Supported
 
-LFortran is currently in development andyou might find some unsupported features while using it. We are working on fixing the issues and improving and expanding LFortran. You can also help out by reporting any new bug you find or you can check out any of the issues mentioned in the section and help us implement the feature faster.
+LFortran is currently in development and you might find some unsupported features while using it. We are working on fixing the issues and improving and expanding LFortran. You can also help out by reporting any new bug you find or you can check out any of the issues mentioned in the section and help us implement the feature faster.
 
 ### Currently Supported:
 
@@ -47,7 +47,7 @@ LFortran is currently in development andyou might find some unsupported features
 - Nested Function Definitions
 - Complex Numbers
 - Optional Arguments
-- ASR not created for a few features supported by lfortran
+- ASR not created for a few features supported by LFortran
     - Conditional and iterative statements
     - Function Calls
     - Arithmatic assignment(like a = 10)
