@@ -25,7 +25,7 @@ call conda info -a
 call :check
 call conda update -q conda
 call :check
-call conda install python=3.7
+call conda install -c conda-forge python=3.7 re2c m2-bison
 call :check
 
 cd grammar

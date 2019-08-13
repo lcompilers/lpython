@@ -8,7 +8,7 @@ before_script:
 
 prepare tarball:
   stage: tarball
-  image: registry.gitlab.com/lfortran/ci-images:prepare-1.4.0
+  image: registry.gitlab.com/lfortran/ci-images:prepare-1.5.1
   script:
     - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
     - sudo ln /usr/bin/pip3 /usr/bin/pip
@@ -80,10 +80,24 @@ full:
     - cd tests/interop
     - ./run.sh
 
+# Test the C++ version
+cxx:
+  stage: build
+  image: registry.gitlab.com/lfortran/ci-images:full-1.4.0
+  script:
+    - export PATH="$HOME/conda_root/bin:$PATH"
+    - tar xzf dist/lfortran-${lfortran_version}.tar.gz
+    - cd lfortran-${lfortran_version}
+    - cmake -DCMAKE_INSTALL_PREFIX=`pwd` .
+    - cmake --build . --target install
+    - ctest --output-on-failure
+    - ./src/bin/parse
+
+
 # Build and upload documentation
 documentation:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images:jupyter-1.4.0
+  image: registry.gitlab.com/lfortran/ci-images:jupyter-1.5.1
   script:
     - sudo apt-get update
     - sudo apt-get install -yq --no-install-recommends openssh-client
@@ -117,7 +131,7 @@ downloads_update:
 # compilers, just the linker `ld` and the musl C library.
 minimal:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images:minimal-1.4.0
+  image: registry.gitlab.com/lfortran/ci-images:minimal-1.5.1
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
@@ -127,7 +141,7 @@ minimal:
     - cd ..
     - rm -r lfortran lfortran-${lfortran_version}
     - rm lfort
-    - sudo apt-get remove -yq gcc libc6-dev
+    - sudo apt-get remove -yq gcc g++ libc6-dev
     - sudo apt-get autoremove -yq
     - py.test --pyargs lfortran
     - lfort --ld-musl examples/expr2.f90 -o a.out
@@ -136,7 +150,7 @@ minimal:
 # Test Jupyter notebooks
 jupyter:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images:jupyter-1.4.0
+  image: registry.gitlab.com/lfortran/ci-images:jupyter-1.5.1
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz

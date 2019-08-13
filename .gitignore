@@ -2,8 +2,21 @@
 
 build-gfortran
 build-lfort
-lfort_intrinsics.o
-liblfortran.a
+
+## CMake
+CMakeCache.txt
+CMakeFiles/
+Makefile
+CTestTestfile.cmake
+cmake_install.cmake
+install_manifest.txt
+
+
+## libraries
+*.a
+*.so
+
+## Generated files
 lfortran/ast/ast.py
 lfortran/asr/asr.py
 lfortran/parser/fortran.tokens
@@ -13,6 +26,9 @@ lfortran/parser/fortranLexer.tokens
 lfortran/parser/fortranLexer.interp
 lfortran/parser/fortranParser.py
 lfortran/parser/fortranVisitor.py
+src/lfortran/parser/parser.tab.cc
+src/lfortran/parser/parser.tab.hh
+src/lfortran/parser/tokenizer.cpp
 
 
 # Python

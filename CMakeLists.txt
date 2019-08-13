@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
-project(lfort C)
+project(lfortran C CXX)
 
 if (NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Debug
+    set(CMAKE_BUILD_TYPE Release
         CACHE STRING "Build type (Debug, Release)" FORCE)
 endif ()
 if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
@@ -12,28 +12,30 @@ if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
     message(FATAL_ERROR "CMAKE_BUILD_TYPE must be one of: Debug, Release (current value: '${CMAKE_BUILD_TYPE}')")
 endif ()
 
+# Enable C++11 support in all compilers.
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|Intel")
+    set(CXX11_OPTIONS "-std=c++11")
+endif ()
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${CXX11_OPTIONS}")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CXX11_OPTIONS}")
+
+
 enable_testing()
 
 message("\n")
 message("Configuration results")
 message("---------------------")
 message("C compiler      : ${CMAKE_C_COMPILER}")
+message("C++ compiler    : ${CMAKE_CXX_COMPILER}")
 message("Build type: ${CMAKE_BUILD_TYPE}")
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     message("C compiler flags      : ${CMAKE_C_FLAGS_DEBUG}")
+    message("C++ compiler flags    : ${CMAKE_CXX_FLAGS_DEBUG}")
 else ()
     message("C compiler flags      : ${CMAKE_C_FLAGS_RELEASE}")
+    message("C++ compiler flags    : ${CMAKE_CXX_FLAGS_RELEASE}")
 endif ()
 message("Installation prefix: ${CMAKE_INSTALL_PREFIX}")
 
 
-set(SRC
-    lfort_intrinsics.c
-)
-add_library(lfortran SHARED ${SRC})
-add_library(lfortran_static STATIC ${SRC})
-install(TARGETS lfortran lfortran_static
-    RUNTIME DESTINATION bin
-    ARCHIVE DESTINATION share/lfortran/lib
-    LIBRARY DESTINATION share/lfortran/lib
-)
+add_subdirectory(src)
