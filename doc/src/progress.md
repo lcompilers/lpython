@@ -58,7 +58,7 @@ LFortran does not support some of the standard intrinsic functions for the Fortr
 
 ### Currently Supported:
 
- - log
+- log
 
 ### Not Suported/Currently in Development:
 
