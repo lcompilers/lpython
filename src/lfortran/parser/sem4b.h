@@ -3,6 +3,7 @@
 
 #include <lfortran/casts.h>
 #include <lfortran/parser/alloc.h>
+#include <lfortran/ast.h>
 
 namespace LFortran {
 
@@ -12,88 +13,44 @@ extern Allocator al;
 
 using LFortran::al;
 
+using LFortran::AST::exprType;
+using LFortran::AST::operatorType;
+using LFortran::AST::expr_t;
+using LFortran::AST::BinOp_t;
+using LFortran::AST::Name_t;
+using LFortran::AST::Num_t;
+typedef struct LFortran::AST::expr_t *PExpr;
 
-enum NodeType
-{
-    nt_BinOp, nt_Pow, nt_Symbol, nt_Integer
-};
 
-enum BinOpType
-{
-    Add, Sub, Mul, Div
-};
 
-typedef struct Node *PNode;
-struct Node {
-    NodeType type;
+static PExpr make_binop(operatorType type, PExpr x, PExpr y) {
+    BinOp_t *n;
+    n = al.make_new<BinOp_t>();
+    n->base.type = exprType::BinOp;
+    n->m_op = type;
+    n->m_left = x;
+    n->m_right = y;
+    return (PExpr)n;
+}
+
+
+static PExpr make_symbol(std::string s) {
+    Name_t *n;
+    n = al.make_new<Name_t>();
+    n->base.type = exprType::Name;
+    n->m_id = &s[0];
+    return (PExpr)n;
+}
+
+static PExpr make_integer(std::string s) {
+    Num_t *n;
+    n = al.make_new<Num_t>();
+    n->base.type = exprType::Num;
+    n->m_n = s[0];
+    return (PExpr)n;
+}
+
 /*
-    union {
-        BinOp binop;
-        Pow pow;
-        Symbol symbol;
-        Integer integer;
-    } d;
-*/
-};
-
-struct BinOp {
-    struct Node node;
-    BinOpType btype;
-    PNode left, right;
-};
-
-struct Pow {
-    struct Node node;
-    PNode base, exp;
-};
-
-struct Symbol {
-    struct Node node;
-    char *name;
-};
-
-struct Integer {
-    struct Node node;
-    char *i;
-};
-
-
-
-static Node* make_binop(BinOpType type, PNode x, PNode y) {
-    struct BinOp *n;
-    n = al.make_new<BinOp>();
-    n->node.type = NodeType::nt_BinOp;
-    n->btype = type;
-    n->left = x;
-    n->right = y;
-    return (PNode)n;
-}
-
-static Node* make_pow(PNode x, PNode y) {
-    struct Pow *n;
-    n = al.make_new<Pow>();
-    n->node.type = NodeType::nt_Pow;
-    n->base = x;
-    n->exp = y;
-    return (PNode)n;
-}
-
-static Node* make_symbol(std::string s) {
-    struct Symbol *n;
-    n = al.make_new<Symbol>();
-    n->node.type = NodeType::nt_Symbol;
-    n->name = &s[0];
-    return (PNode)n;
-}
-
-static Node* make_integer(std::string s) {
-    struct Integer *n;
-    n = al.make_new<Integer>();
-    n->node.type = NodeType::nt_Integer;
-    n->i = &s[0];
-    return (PNode)n;
-}
-
 
 
 template <class Derived>
@@ -148,18 +105,17 @@ static int count(const Node &b) {
     v.apply(b);
     return v.get_count();
 }
+*/
 
-
-#define TYPE PNode
-#define ADD(x, y) make_binop(BinOpType::Add, x, y)
-#define SUB(x, y) make_binop(BinOpType::Sub, x, y)
-#define MUL(x, y) make_binop(BinOpType::Mul, x, y)
-#define DIV(x, y) make_binop(BinOpType::Div, x, y)
-#define POW(x, y) make_pow(x, y)
+#define TYPE PExpr
+#define ADD(x, y) make_binop(operatorType::Add, x, y)
+#define SUB(x, y) make_binop(operatorType::Sub, x, y)
+#define MUL(x, y) make_binop(operatorType::Mul, x, y)
+#define DIV(x, y) make_binop(operatorType::Div, x, y)
+#define POW(x, y) make_binop(operatorType::Pow, x, y)
 #define SYMBOL(x) make_symbol(x)
 #define INTEGER(x) make_integer(x)
-//#define PRINT(x) std::cout << x->d.binop.right->type << std::endl
-#define PRINT(x) std::cout << count(*x) << std::endl;
-
+#define PRINT(x) std::cout << x->type << std::endl
+//#define PRINT(x) std::cout << count(*x) << std::endl;
 
 #endif
