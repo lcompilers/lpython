@@ -50,41 +50,34 @@ static PExpr make_integer(std::string s) {
     return (PExpr)n;
 }
 
-/*
 
 
 template <class Derived>
 class BaseWalkVisitor
 {
 public:
-    void visit(const BinOp &x) {
-        apply(*x.left);
-        apply(*x.right);
+    void visit(const BinOp_t &x) {
+        apply(*x.m_left);
+        apply(*x.m_right);
         LFortran::down_cast<Derived *>(this)->bvisit(x);
     }
-    void visit(const Pow &x) {
-        apply(*x.base);
-        apply(*x.exp);
+    void visit(const Name_t &x) {
         LFortran::down_cast<Derived *>(this)->bvisit(x);
     }
-    void visit(const Symbol &x) {
+    void visit(const Num_t &x) {
         LFortran::down_cast<Derived *>(this)->bvisit(x);
     }
-    void visit(const Integer &x) {
-        LFortran::down_cast<Derived *>(this)->bvisit(x);
-    }
-    void apply(const Node &b) {
+    void apply(const expr_t &b) {
         accept(b, *this);
     }
 };
 
 template <class Derived>
-static void accept(const Node &x, BaseWalkVisitor<Derived> &v) {
+static void accept(const expr_t &x, BaseWalkVisitor<Derived> &v) {
     switch (x.type) {
-        case nt_BinOp: { v.visit((const BinOp &)x); return; }
-        case nt_Pow: { v.visit((const Pow &)x); return; }
-        case nt_Symbol: { v.visit((const Symbol &)x); return; }
-        case nt_Integer: { v.visit((const Integer &)x); return; }
+        case exprType::BinOp: { v.visit((const BinOp_t &)x); return; }
+        case exprType::Name: { v.visit((const Name_t &)x); return; }
+        case exprType::Num: { v.visit((const Num_t &)x); return; }
     }
 }
 
@@ -94,18 +87,17 @@ class CountVisitor : public BaseWalkVisitor<CountVisitor>
 public:
     CountVisitor() : c_{0} {}
     template <typename T> void bvisit(const T &x) { }
-    void bvisit(const Symbol &x) { c_ += 1; }
+    void bvisit(const Name_t &x) { c_ += 1; }
     int get_count() {
         return c_;
     }
 };
 
-static int count(const Node &b) {
+static int count(const expr_t &b) {
     CountVisitor v;
     v.apply(b);
     return v.get_count();
 }
-*/
 
 #define TYPE PExpr
 #define ADD(x, y) make_binop(operatorType::Add, x, y)
@@ -115,7 +107,7 @@ static int count(const Node &b) {
 #define POW(x, y) make_binop(operatorType::Pow, x, y)
 #define SYMBOL(x) make_symbol(x)
 #define INTEGER(x) make_integer(x)
-#define PRINT(x) std::cout << x->type << std::endl
-//#define PRINT(x) std::cout << count(*x) << std::endl;
+//#define PRINT(x) std::cout << x->type << std::endl
+#define PRINT(x) std::cout << count(*x) << std::endl;
 
 #endif
