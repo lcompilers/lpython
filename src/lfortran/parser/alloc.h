@@ -25,7 +25,7 @@ public:
 
     void *allocate(size_t s) {
         if (start == nullptr) {
-            throw std::runtime_error("malloc failed 2.");
+            throw std::bad_alloc();
         }
         size_t addr = current_pos;
         /*
@@ -37,7 +37,8 @@ public:
         */
         current_pos += align(s);
         if (current_pos - (size_t)start > size) {
-            throw std::runtime_error("Linear allocator too small.");
+            //throw std::runtime_error("Linear allocator too small.");
+            throw std::bad_alloc();
         }
         return (void*)addr;
     }
