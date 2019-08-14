@@ -1,5 +1,6 @@
 include version
 recursive-include src *
+recursive-include cmake *
 include CMakeLists.txt
 include README.md
 include pyproject.toml
