@@ -24,30 +24,16 @@ typedef struct LFortran::AST::expr_t *PExpr;
 
 
 static PExpr make_binop(operatorType type, PExpr x, PExpr y) {
-    BinOp_t *n;
-    n = al.make_new<BinOp_t>();
-    n->base.type = exprType::BinOp;
-    n->m_op = type;
-    n->m_left = x;
-    n->m_right = y;
-    return (PExpr)n;
+    return LFortran::AST::make_BinOp_t(al, x, type, y);
 }
 
 
 static PExpr make_symbol(std::string s) {
-    Name_t *n;
-    n = al.make_new<Name_t>();
-    n->base.type = exprType::Name;
-    n->m_id = &s[0];
-    return (PExpr)n;
+    return LFortran::AST::make_Name_t(al, &s[0]);
 }
 
 static PExpr make_integer(std::string s) {
-    Num_t *n;
-    n = al.make_new<Num_t>();
-    n->base.type = exprType::Num;
-    n->m_n = s[0];
-    return (PExpr)n;
+    return LFortran::AST::make_Num_t(al, s[0]);
 }
 
 
