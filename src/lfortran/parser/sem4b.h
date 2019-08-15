@@ -39,21 +39,19 @@ static inline PExpr make_integer(std::string s) {
 
 
 template <class Derived>
-class BaseWalkVisitor
+class BaseVisitor
 {
 private:
     Derived& self() { return LFortran::down_cast<Derived&>(*this); }
 public:
     void visit(const BinOp_t &x) {
-        apply(*x.m_left);
-        apply(*x.m_right);
-        self().bvisit(x);
+        self().bvisit_BinOp(x);
     }
     void visit(const Name_t &x) {
-        self().bvisit(x);
+        self().bvisit_Name(x);
     }
     void visit(const Num_t &x) {
-        self().bvisit(x);
+        self().bvisit_Num(x);
     }
     void apply(const expr_t &b) {
         visit_expr_t(b, *this);
@@ -61,13 +59,23 @@ public:
     template <typename T> void visit(const T &x) { }
 };
 
+template <class Derived>
+class BaseWalkVisitor : public BaseVisitor<Derived>
+{
+public:
+    void bvisit_BinOp(const BinOp_t &x) {
+        this->apply(*x.m_left);
+        this->apply(*x.m_right);
+    }
+    void bvisit_Num(const Num_t &x) { }
+};
+
 class CountVisitor : public BaseWalkVisitor<CountVisitor>
 {
     int c_;
 public:
     CountVisitor() : c_{0} {}
-    template <typename T> void bvisit(const T &x) { }
-    void bvisit(const Name_t &x) { c_ += 1; }
+    void bvisit_Name(const Name_t &x) { c_ += 1; }
     int get_count() {
         return c_;
     }
