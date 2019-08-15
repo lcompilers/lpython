@@ -53,12 +53,10 @@ class BaseVisitor
 private:
     Derived& self() { return LFortran::down_cast<Derived&>(*this); }
 public:
+    void visit_expr(const expr_t &b) { visit_expr_t(b, self()); }
     void visit_BinOp(const BinOp_t &x) { }
     void visit_Name(const Name_t &x) { }
     void visit_Num(const Num_t &x) { }
-    void visit(const expr_t &b) {
-        visit_expr_t(b, self());
-    }
     void visit_BoolOp(const BoolOp_t &x) { }
     void visit_UnaryOp(const UnaryOp_t &x) { }
     void visit_Compare(const Compare_t &x) { }
@@ -75,8 +73,8 @@ class BaseWalkVisitor : public BaseVisitor<Derived>
 {
 public:
     void visit_BinOp(const BinOp_t &x) {
-        this->visit(*x.m_left);
-        this->visit(*x.m_right);
+        this->visit_expr(*x.m_left);
+        this->visit_expr(*x.m_right);
     }
 };
 
@@ -93,7 +91,7 @@ public:
 
 static inline int count(const expr_t &b) {
     CountVisitor v;
-    v.visit(b);
+    v.visit_expr(b);
     return v.get_count();
 }
 
