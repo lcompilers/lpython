@@ -13,22 +13,9 @@ extern Allocator al;
 
 using LFortran::al;
 
-using LFortran::AST::exprType;
 using LFortran::AST::operatorType;
 using LFortran::AST::expr_t;
-using LFortran::AST::BinOp_t;
 using LFortran::AST::Name_t;
-using LFortran::AST::Num_t;
-using LFortran::AST::BoolOp_t;
-using LFortran::AST::UnaryOp_t;
-using LFortran::AST::Compare_t;
-using LFortran::AST::FuncCall_t;
-using LFortran::AST::FuncCallOrArray_t;
-using LFortran::AST::Array_t;
-using LFortran::AST::ArrayInitializer_t;
-using LFortran::AST::Str_t;
-using LFortran::AST::Constant_t;
-using LFortran::AST::BaseVisitor;
 using LFortran::AST::BaseWalkVisitor;
 typedef struct LFortran::AST::expr_t *PExpr;
 
