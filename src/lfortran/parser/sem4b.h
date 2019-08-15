@@ -68,6 +68,7 @@ public:
         this->visit(*x.m_right);
     }
     void bvisit_Num(const Num_t &x) { }
+    void bvisit_Name(const Name_t &x) { }
 };
 
 class CountVisitor : public BaseWalkVisitor<CountVisitor>
