@@ -58,8 +58,8 @@ public:
     }
 };
 
-template <class Derived>
-static void accept(const expr_t &x, BaseWalkVisitor<Derived> &v) {
+template <class Visitor>
+static void accept(const expr_t &x, Visitor &v) {
     switch (x.type) {
         case exprType::BinOp: { v.visit((const BinOp_t &)x); return; }
         case exprType::Name: { v.visit((const Name_t &)x); return; }
