@@ -31,21 +31,24 @@ int main(int argc, char *argv[])
     N = 5000;
     std::string text;
     std::string t0 = "(a*z+3+2*x + 3*y - x/(z**2-4) - x**(y**z))";
-    text.reserve(10000000);
+    text.reserve(225042);
     text = t0;
     std::cout << "Construct" << std::endl;
     for (int i = 0; i < N; i++) {
         text.append(" * " + t0);
     }
+    Allocator al(4*1024*1024);
     std::cout << "Parse" << std::endl;
     auto t1 = std::chrono::high_resolution_clock::now();
-    auto result = parse(text);
+    auto result = parse(al, text);
     auto t2 = std::chrono::high_resolution_clock::now();
     std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                      .count()
               << "ms" << std::endl;
     int c = count(*result);
     std::cout << "Count: " << c << std::endl;
+    std::cout << "String size (bytes):      " << text.size() << std::endl;
+    std::cout << "Allocator usage (bytes): " << al.size_current() << std::endl;
     if (c == 45009) {
         return 0;
     } else {
