@@ -2,6 +2,7 @@ set(SRC
     parser/tokenizer.cpp
     parser/parser.tab.cc
     parser/parser.cpp
+    ast_to_json.cpp
 )
 add_library(lfortran_lib ${SRC})
 target_include_directories(lfortran_lib BEFORE PUBLIC ${lfortran_SOURCE_DIR}/src)
