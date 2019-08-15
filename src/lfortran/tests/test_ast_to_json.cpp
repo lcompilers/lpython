@@ -2,12 +2,17 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 
+#include <lfortran/ast_to_json.h>
+#include <lfortran/parser/parser.h>
+
 using json = nlohmann::json;
 
-#include <lfortran/ast_to_json.h>
-
 TEST_CASE("Check ast_to_json()") {
-    std::string s = LFortran::ast_to_json(nullptr);
+    std::string text = "(a*z+3+2*x + 3*y - x/(z**2-4) - x**(y**z))";
+    Allocator al(4*1024);
+    LFortran::AST::expr_t* result = LFortran::parse(al, text);
+    std::string s = LFortran::ast_to_json(*result);
+    std::cout << s << std::endl;
     auto r = R"(
         {
             "answer": {

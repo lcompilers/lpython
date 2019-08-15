@@ -3,39 +3,28 @@
 #include <lfortran/ast_to_json.h>
 
 using json = nlohmann::json;
+using LFortran::AST::expr_t;
+using LFortran::AST::Name_t;
+using LFortran::AST::BaseWalkVisitor;
+
 
 namespace LFortran {
 
-std::string ast_to_json(LFortran::AST::expr_t *ast) {
-    json j = {
-        {"pi", 3.141},
-        {"happy", true},
-        {"name", "Niels"},
-        {"nothing", nullptr},
-        {"answer", {
-            {"everything", 42}
-        }},
-        {"list", {1, 0, 2}},
-        {"object", {
-            {"currency", "USD"},
-            {"value", 42.99}
-        }},
-        {"objects", {
-            {
-                {"currency", "USD"},
-                {"value", 42.99}
-            },
-            {
-                {"currency", "USD"},
-                {"value", 42.99}
-            },
-            {
-                {"currency", "USD"},
-                {"value", 42.99}
-            },
-        }}
-    };
-    return j.dump(4);
+
+class JSONVisitor : public BaseWalkVisitor<JSONVisitor>
+{
+    json j;
+public:
+    void visit_Name(const Name_t &x) { j["x"] = 1; }
+    std::string get_str() {
+        return j.dump(4);
+    }
+};
+
+std::string ast_to_json(LFortran::AST::expr_t &ast) {
+    JSONVisitor v;
+    v.visit_expr(ast);
+    return v.get_str();
 }
 
 }
