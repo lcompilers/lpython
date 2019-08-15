@@ -39,11 +39,18 @@ int main(int argc, char *argv[])
     std::cout << "Parse" << std::endl;
     auto t1 = std::chrono::high_resolution_clock::now();
     auto result = parse(text);
-    int c = count(*result);
     auto t2 = std::chrono::high_resolution_clock::now();
-    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
-                     .count()
-              << "ms" << std::endl;
+    int c = count(*result);
+    auto t3 = std::chrono::high_resolution_clock::now();
+    std::cout << "Parsing: " <<
+        std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count()
+        << "ms" << std::endl;
+    std::cout << "Counting: " <<
+        std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2).count()
+        << "ms" << std::endl;
+    std::cout << "Total: " <<
+        std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t1).count()
+        << "ms" << std::endl;
     std::cout << "Count: " << c << std::endl;
     return 0;
 }
