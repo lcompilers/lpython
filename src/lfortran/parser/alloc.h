@@ -18,21 +18,20 @@ class Allocator
 public:
     Allocator(size_t s) {
         start = malloc(s);
-        if (start == nullptr) {
-            throw std::runtime_error("malloc failed.");
-        }
+        if (start == nullptr) throw std::runtime_error("malloc failed.");
         current_pos = (size_t)start;
         current_pos = align(current_pos);
         size = s;
+    }
+    ~Allocator() {
+        if (start != nullptr) free(start);
     }
 
     void *allocate(size_t s) {
         LFORTRAN_ASSERT(start != nullptr);
         size_t addr = current_pos;
         current_pos += align(s);
-        if (size_current() > size_total()) {
-            throw std::bad_alloc();
-        }
+        if (size_current() > size_total()) throw std::bad_alloc();
         return (void*)addr;
     }
 
