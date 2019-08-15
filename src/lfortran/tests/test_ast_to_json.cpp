@@ -22,7 +22,7 @@ TEST_CASE("Check ast_to_json()") {
                 "n": 50,
                 "type": "Num"
             },
-            "op": 2,
+            "op": "Mul",
             "right": {
                 "id": "x",
                 "type": "Name"
@@ -48,13 +48,13 @@ TEST_CASE("Check ast_to_json()") {
                 "n": 50,
                 "type": "Num"
             },
-            "op": 2,
+            "op": "Mul",
             "right": {
                 "left": {
                     "id": "x",
                     "type": "Name"
                 },
-                "op": 4,
+                "op": "Pow",
                 "right": {
                     "id": "y",
                     "type": "Name"

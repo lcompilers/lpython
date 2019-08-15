@@ -7,10 +7,23 @@ using LFortran::AST::expr_t;
 using LFortran::AST::Name_t;
 using LFortran::AST::Num_t;
 using LFortran::AST::BinOp_t;
+using LFortran::AST::operatorType;
 using LFortran::AST::BaseWalkVisitor;
 
 
 namespace LFortran {
+
+std::string op2str(const operatorType type)
+{
+    switch (type) {
+        case (operatorType::Add) : return "Add";
+        case (operatorType::Sub) : return "Sub";
+        case (operatorType::Mul) : return "Mul";
+        case (operatorType::Div) : return "Div";
+        case (operatorType::Pow) : return "Pow";
+    }
+    throw std::runtime_error("Unknown type");
+}
 
 
 class JSONVisitor : public BaseWalkVisitor<JSONVisitor>
@@ -24,7 +37,7 @@ public:
         json right = j;
         j = {
             {"type", "BinOp"},
-            {"op", x.m_op},
+            {"op", op2str(x.m_op)},
             {"left", left },
             {"right", right }
         };
