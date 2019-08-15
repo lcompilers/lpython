@@ -63,7 +63,7 @@ public:
         self().visit_Num(x);
     }
     void visit(const expr_t &b) {
-        visit_expr_t(b, *this);
+        visit_expr_t(b, self());
     }
     void visit_BoolOp(const BoolOp_t &x) { }
     void visit_UnaryOp(const UnaryOp_t &x) { }
