@@ -1,6 +1,15 @@
 #ifndef LFORTRAN_PARSER_SEM4b_H
 #define LFORTRAN_PARSER_SEM4b_H
 
+/*
+   This header file contains parser semantics: how the AST classes get
+   constructed from the parser. This file only gets included in the generated
+   parser cpp file, nowhere else.
+
+   Note that this is part of constructing the AST from the source code, not the
+   LFortran semantic phase (AST -> ASR).
+*/
+
 #include <lfortran/casts.h>
 #include <lfortran/parser/alloc.h>
 #include <lfortran/ast.h>
@@ -26,8 +35,6 @@ using LFortran::AST::make_Num_t;
 #define POW(x, y) make_BinOp_t(al, x, operatorType::Pow, y)
 #define SYMBOL(x) make_Name_t(al, &x[0])
 #define INTEGER(x) make_Num_t(al, x[0])
-//#define PRINT(x) std::cout << x->type << std::endl
-//#define RESULT(x) std::cout << count(*x) << std::endl;
 #define RESULT(x) p.result = x
 
 #endif
