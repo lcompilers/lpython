@@ -21,6 +21,7 @@
 
 #include <lfortran/parser/parser.h>
 #include <lfortran/parser/tokenizer.h>
+#include <lfortran/parser/sem4b.h>
 
 int yylex(LFortran::YYSTYPE *yylval, LFortran::Parser &p)
 {

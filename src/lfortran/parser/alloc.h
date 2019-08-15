@@ -1,6 +1,8 @@
 #ifndef LFORTRAN_PARSER_ALLOC_H
 #define LFORTRAN_PARSER_ALLOC_H
 
+#include <stdexcept>
+
 #define ALIGNMENT 8
 
 inline size_t align(size_t n) {

@@ -1,15 +1,13 @@
 #ifndef LFORTRAN_PARSER_STYPE_H
 #define LFORTRAN_PARSER_STYPE_H
 
-#include <lfortran/parser/sem4b.h>
-
-
+#include <lfortran/ast.h>
 
 namespace LFortran
 {
 
 struct YYSTYPE {
-    TYPE basic;
+    LFortran::AST::expr_t* basic;
     std::string string;
     // Constructor
     YYSTYPE() = default;
