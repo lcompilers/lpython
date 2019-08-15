@@ -1,5 +1,8 @@
+#include <tests/doctest.h>
+
 #include <iostream>
 #include <chrono>
+
 #include <lfortran/parser/parser.h>
 
 using LFortran::parse;
@@ -25,8 +28,7 @@ int count(const expr_t &b) {
 }
 
 
-int main(int argc, char *argv[])
-{
+TEST_CASE("Test longer parser (N = 5000)") {
     int N;
     N = 5000;
     std::string text;
@@ -49,9 +51,5 @@ int main(int argc, char *argv[])
     std::cout << "Count: " << c << std::endl;
     std::cout << "String size (bytes):      " << text.size() << std::endl;
     std::cout << "Allocator usage (bytes): " << al.size_current() << std::endl;
-    if (c == 45009) {
-        return 0;
-    } else {
-        return 1;
-    }
+    CHECK(c == 45009);
 }
