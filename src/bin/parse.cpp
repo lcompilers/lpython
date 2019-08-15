@@ -30,14 +30,14 @@ int main(int argc, char *argv[])
     N = 50000;
     std::string text;
     std::string t0 = "(a*z+3+2*x + 3*y - x/(z**2-4) - x**(y**z))";
-    text.reserve(10000000);
+    text.reserve(2250042);
     text = t0;
     std::cout << "Construct" << std::endl;
     for (int i = 0; i < N; i++) {
         text.append(" * " + t0);
     }
+    Allocator al(50000000);
     std::cout << "Parse" << std::endl;
-    Allocator al(1000000000);
     auto t1 = std::chrono::high_resolution_clock::now();
     auto result = parse(al, text);
     auto t2 = std::chrono::high_resolution_clock::now();
@@ -53,5 +53,8 @@ int main(int argc, char *argv[])
         std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t1).count()
         << "ms" << std::endl;
     std::cout << "Count: " << c << std::endl;
+    // For some reason these slow things down:
+    //std::cout << "String size (bytes): " << text.size() << std::endl;
+    //std::cout << "Allocator usage (bytes): " << al.size_current() << std::endl;
     return 0;
 }
