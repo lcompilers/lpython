@@ -29,6 +29,7 @@ using LFortran::AST::ArrayInitializer_t;
 using LFortran::AST::Str_t;
 using LFortran::AST::Constant_t;
 using LFortran::AST::BaseVisitor;
+using LFortran::AST::BaseWalkVisitor;
 typedef struct LFortran::AST::expr_t *PExpr;
 
 
@@ -45,16 +46,6 @@ static inline PExpr make_integer(std::string s) {
     return LFortran::AST::make_Num_t(al, s[0]);
 }
 
-
-template <class Derived>
-class BaseWalkVisitor : public BaseVisitor<Derived>
-{
-public:
-    void visit_BinOp(const BinOp_t &x) {
-        this->visit_expr(*x.m_left);
-        this->visit_expr(*x.m_right);
-    }
-};
 
 class CountVisitor : public BaseWalkVisitor<CountVisitor>
 {
