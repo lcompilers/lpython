@@ -16,6 +16,9 @@ setlocal
 python grammar\asdl_py.py
 call :check
 
+python grammar\asdl_cpp.py
+call :check
+
 python grammar\asdl_py.py grammar\ASR.asdl lfortran\asr\asr.py ..ast.utils
 call :check
 
