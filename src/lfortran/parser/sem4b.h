@@ -45,13 +45,13 @@ private:
     Derived& self() { return LFortran::down_cast<Derived&>(*this); }
 public:
     void visit(const BinOp_t &x) {
-        self().bvisit_BinOp(x);
+        self().visit_BinOp(x);
     }
     void visit(const Name_t &x) {
-        self().bvisit_Name(x);
+        self().visit_Name(x);
     }
     void visit(const Num_t &x) {
-        self().bvisit_Num(x);
+        self().visit_Num(x);
     }
     void visit(const expr_t &b) {
         visit_expr_t(b, *this);
@@ -63,12 +63,12 @@ template <class Derived>
 class BaseWalkVisitor : public BaseVisitor<Derived>
 {
 public:
-    void bvisit_BinOp(const BinOp_t &x) {
+    void visit_BinOp(const BinOp_t &x) {
         this->visit(*x.m_left);
         this->visit(*x.m_right);
     }
-    void bvisit_Num(const Num_t &x) { }
-    void bvisit_Name(const Name_t &x) { }
+    void visit_Num(const Num_t &x) { }
+    void visit_Name(const Name_t &x) { }
 };
 
 class CountVisitor : public BaseWalkVisitor<CountVisitor>
@@ -76,7 +76,7 @@ class CountVisitor : public BaseWalkVisitor<CountVisitor>
     int c_;
 public:
     CountVisitor() : c_{0} {}
-    void bvisit_Name(const Name_t &x) { c_ += 1; }
+    void visit_Name(const Name_t &x) { c_ += 1; }
     int get_count() {
         return c_;
     }
