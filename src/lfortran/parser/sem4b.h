@@ -41,17 +41,19 @@ static inline PExpr make_integer(std::string s) {
 template <class Derived>
 class BaseWalkVisitor
 {
+private:
+    Derived& self() { return LFortran::down_cast<Derived&>(*this); }
 public:
     void visit(const BinOp_t &x) {
         apply(*x.m_left);
         apply(*x.m_right);
-        LFortran::down_cast<Derived *>(this)->bvisit(x);
+        self().bvisit(x);
     }
     void visit(const Name_t &x) {
-        LFortran::down_cast<Derived *>(this)->bvisit(x);
+        self().bvisit(x);
     }
     void visit(const Num_t &x) {
-        LFortran::down_cast<Derived *>(this)->bvisit(x);
+        self().bvisit(x);
     }
     void apply(const expr_t &b) {
         visit_expr_t(b, *this);
