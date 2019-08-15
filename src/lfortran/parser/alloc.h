@@ -2,6 +2,7 @@
 #define LFORTRAN_PARSER_ALLOC_H
 
 #include <stdexcept>
+#include <lfortran/assert.h>
 
 #define ALIGNMENT 8
 
@@ -26,20 +27,10 @@ public:
     }
 
     void *allocate(size_t s) {
-        if (start == nullptr) {
-            throw std::bad_alloc();
-        }
+        LFORTRAN_ASSERT(start != nullptr);
         size_t addr = current_pos;
-        /*
-        std::cout << "start:" << (size_t)start << std::endl;
-        std::cout << "addr:" << addr << std::endl;
-        std::cout << "size:" << size << std::endl;
-        std::cout << "s:" << s << std::endl;
-        std::cout << "align(s):" << align(s) << std::endl;
-        */
         current_pos += align(s);
-        if (current_pos - (size_t)start > size) {
-            //throw std::runtime_error("Linear allocator too small.");
+        if (size_current() > size_total()) {
             throw std::bad_alloc();
         }
         return (void*)addr;
@@ -49,6 +40,14 @@ public:
         return new(allocate(sizeof(T))) T(std::forward<Args>(args)...);
         // To test the default "new", comment the above and uncomment this:
         //return new T(std::forward<Args>(args)...);
+    }
+
+    size_t size_current() {
+        return current_pos - (size_t)start;
+    }
+
+    size_t size_total() {
+        return size;
     }
 };
 
