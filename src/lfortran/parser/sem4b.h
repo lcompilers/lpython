@@ -28,6 +28,7 @@ using LFortran::AST::Array_t;
 using LFortran::AST::ArrayInitializer_t;
 using LFortran::AST::Str_t;
 using LFortran::AST::Constant_t;
+using LFortran::AST::BaseVisitor;
 typedef struct LFortran::AST::expr_t *PExpr;
 
 
@@ -69,7 +70,7 @@ public:
 };
 
 template <class Derived>
-class BaseWalkVisitor : public BaseExprVisitor<Derived>
+class BaseWalkVisitor : public BaseVisitor<Derived>
 {
 public:
     void visit_BinOp(const BinOp_t &x) {
