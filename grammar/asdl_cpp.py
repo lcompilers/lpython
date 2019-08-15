@@ -211,7 +211,7 @@ class ASTVisitorVisitor1(ASDLVisitor):
 
     def visitModule(self, mod):
         self.emit("/" + "*"*78 + "/")
-        self.emit("// Visitor")
+        self.emit("// Visitor functions")
         self.emit("")
         super(ASTVisitorVisitor1, self).visitModule(mod)
 
@@ -230,6 +230,32 @@ class ASTVisitorVisitor1(ASDLVisitor):
             self.emit("    }")
             self.emit("}")
             self.emit("")
+
+class ASTVisitorVisitor2(ASDLVisitor):
+
+    def visitModule(self, mod):
+        self.emit("/" + "*"*78 + "/")
+        self.emit("// Visitor base class")
+        self.emit("")
+        self.emit("template <class Derived>")
+        self.emit("class BaseVisitor")
+        self.emit("{")
+        self.emit("private:")
+        self.emit("    Derived& self() { return LFortran::down_cast<Derived&>(*this); }")
+        self.emit("public:")
+        super(ASTVisitorVisitor2, self).visitModule(mod)
+        self.emit("};")
+
+    def visitType(self, tp):
+        self.visit(tp.value, tp.name)
+
+    def visitSum(self, sum, base):
+        if not is_simple_sum(sum):
+            self.emit("void visit_%s(const %s_t &b) { visit_%s_t(b, self()); }"\
+                    % (base, base, base), 1)
+            for type_ in sum.types:
+                self.emit("void visit_%s(const %s_t &x) { }" \
+                        % (type_.name, type_.name), 2)
 
 
 class ASTVisitorVisitor(ASDLVisitor):
@@ -419,7 +445,7 @@ FOOT = r"""} // namespace LFortran::AST
 """
 
 visitors = [ASTNodeVisitor0, ASTNodeVisitor1, ASTNodeVisitor,
-        ASTVisitorVisitor1]
+        ASTVisitorVisitor1, ASTVisitorVisitor2]
 
 
 def main(argv):
