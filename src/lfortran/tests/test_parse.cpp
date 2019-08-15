@@ -3,6 +3,27 @@
 #include <lfortran/parser/parser.h>
 
 using LFortran::parse;
+using LFortran::AST::expr_t;
+using LFortran::AST::Name_t;
+using LFortran::AST::BaseWalkVisitor;
+
+class CountVisitor : public BaseWalkVisitor<CountVisitor>
+{
+    int c_;
+public:
+    CountVisitor() : c_{0} {}
+    void visit_Name(const Name_t &x) { c_ += 1; }
+    int get_count() {
+        return c_;
+    }
+};
+
+int count(const expr_t &b) {
+    CountVisitor v;
+    v.visit_expr(b);
+    return v.get_count();
+}
+
 
 int main(int argc, char *argv[])
 {

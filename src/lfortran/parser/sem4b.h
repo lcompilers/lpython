@@ -14,28 +14,9 @@ extern Allocator al;
 using LFortran::al;
 using LFortran::AST::operatorType;
 using LFortran::AST::expr_t;
-using LFortran::AST::Name_t;
-using LFortran::AST::BaseWalkVisitor;
 using LFortran::AST::make_BinOp_t;
 using LFortran::AST::make_Name_t;
 using LFortran::AST::make_Num_t;
-
-class CountVisitor : public BaseWalkVisitor<CountVisitor>
-{
-    int c_;
-public:
-    CountVisitor() : c_{0} {}
-    void visit_Name(const Name_t &x) { c_ += 1; }
-    int get_count() {
-        return c_;
-    }
-};
-
-static inline int count(const expr_t &b) {
-    CountVisitor v;
-    v.visit_expr(b);
-    return v.get_count();
-}
 
 #define TYPE expr_t*
 #define ADD(x, y) make_BinOp_t(al, x, operatorType::Add, y)
