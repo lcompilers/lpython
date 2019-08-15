@@ -16,7 +16,7 @@ class Parser
 
 public:
     Tokenizer m_tokenizer;
-    //Base *res;
+    LFortran::AST::expr_t *result;
 
     void parse(const std::string &input);
     int parse();

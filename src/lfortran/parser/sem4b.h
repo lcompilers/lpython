@@ -46,6 +46,7 @@ static inline int count(const expr_t &b) {
 #define SYMBOL(x) make_Name_t(al, &x[0])
 #define INTEGER(x) make_Num_t(al, x[0])
 //#define PRINT(x) std::cout << x->type << std::endl
-#define PRINT(x) std::cout << count(*x) << std::endl;
+//#define RESULT(x) std::cout << count(*x) << std::endl;
+#define RESULT(x) p.result = x
 
 #endif

@@ -60,7 +60,7 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 
 %%
 st_expr
-    : expr { $$ = $1; PRINT($$); }
+    : expr { $$ = $1; RESULT($$); }
     ;
 
 expr
