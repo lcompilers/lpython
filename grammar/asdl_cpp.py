@@ -258,51 +258,23 @@ class ASTVisitorVisitor2(ASDLVisitor):
                         % (type_.name, type_.name), 2)
 
 
-class ASTVisitorVisitor(ASDLVisitor):
+class ASTWalkVisitorVisitor(ASDLVisitor):
 
     def visitModule(self, mod):
-        self.emit("class ASTVisitor(object):")
+        self.emit("/" + "*"*78 + "/")
+        self.emit("// Walk Visitor base class")
         self.emit("")
-        self.emit(    "def visit_sequence(self, seq):", 1)
-        self.emit(        "if seq is not None:", 2)
-        self.emit(        "for node in seq:", 3)
-        self.emit(            "self.visit(node)", 4)
-        self.emit("")
-        self.emit(    "def visit(self, node):", 1)
-        self.emit(        "return node.walkabout(self)", 2)
-        self.emit("")
-        self.emit(    "def default_visitor(self, node):", 1)
-        self.emit(        "raise NodeVisitorNotImplemented", 2)
-        self.emit("")
-        super(ASTVisitorVisitor, self).visitModule(mod)
-        self.emit("")
+        self.emit("template <class Derived>")
+        self.emit("class BaseWalkVisitor : public BaseVisitor<Derived>")
+        self.emit("{")
+        self.emit("public:")
+        super(ASTWalkVisitorVisitor, self).visitModule(mod)
+        self.emit("};")
 
     def visitType(self, tp):
         if not (isinstance(tp.value, asdl.Sum) and
                 is_simple_sum(tp.value)):
-            super(ASTVisitorVisitor, self).visitType(tp, tp.name)
-
-    def visitProduct(self, prod, name):
-        self.emit(    "def visit_%s(self, node):" % (name,), 1)
-        self.emit(        "return self.default_visitor(node)", 2)
-
-    def visitConstructor(self, cons, _):
-        self.emit(    "def visit_%s(self, node):" % (cons.name,), 1)
-        self.emit(        "return self.default_visitor(node)", 2)
-
-
-class GenericASTVisitorVisitor(ASDLVisitor):
-
-    def visitModule(self, mod):
-        self.emit("class GenericASTVisitor(ASTVisitor):")
-        self.emit("")
-        super(GenericASTVisitorVisitor, self).visitModule(mod)
-        self.emit("")
-
-    def visitType(self, tp):
-        if not (isinstance(tp.value, asdl.Sum) and
-                is_simple_sum(tp.value)):
-            super(GenericASTVisitorVisitor, self).visitType(tp, tp.name)
+            super(ASTWalkVisitorVisitor, self).visitType(tp, tp.name)
 
     def visitProduct(self, prod, name):
         self.make_visitor(name, prod.fields)
@@ -311,75 +283,27 @@ class GenericASTVisitorVisitor(ASDLVisitor):
         self.make_visitor(cons.name, cons.fields)
 
     def make_visitor(self, name, fields):
-        self.emit("def visit_%s(self, node):" % (name,), 1)
+        self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
         have_body = False
         for field in fields:
-            if self.visitField(field):
-                have_body = True
-        if not have_body:
-            self.emit("pass", 2)
-        self.emit("")
-
-    def visitField(self, field):
-        if (field.type not in asdl.builtin_types and
-            field.type not in self.data.simple_types):
-            level = 2
-            template = "self.visit(node.%s)"
-            if field.seq:
-                template = "self.visit_sequence(node.%s)"
-            elif field.opt:
-                self.emit("if node.%s:" % (field.name,), 2)
-                level = 3
-            self.emit(template % (field.name,), level)
-            return True
-        return False
-
-
-class NodeTransformerVisitor(ASDLVisitor):
-
-    def visitModule(self, mod):
-        self.emit("class NodeTransformerBase(ASTVisitor):")
-        self.emit("")
-        super(NodeTransformerVisitor, self).visitModule(mod)
-        self.emit("")
-
-    def visitType(self, tp):
-        if not (isinstance(tp.value, asdl.Sum) and
-                is_simple_sum(tp.value)):
-            super(NodeTransformerVisitor, self).visitType(tp, tp.name)
-
-    def visitProduct(self, prod, name):
-        self.make_visitor(name, prod.fields)
-
-    def visitConstructor(self, cons, _):
-        self.make_visitor(cons.name, cons.fields)
-
-    def make_visitor(self, name, fields):
-        self.emit("def visit_%s(self, node):" % (name,), 1)
-        parts = []
-        for field in fields:
             self.visitField(field)
-            parts.append("%s=%s" % (field.name, field.name))
-        self.emit("return %s(%s)" % (name, ", ".join(parts)), 2)
-        self.emit("")
+        self.emit("}", 1)
 
     def visitField(self, field):
         if (field.type not in asdl.builtin_types and
             field.type not in self.data.simple_types):
             level = 2
-            template = "%s = self.visit(node.%s)"
+            if field.type in products:
+                template = "this->visit_%s(x.m_%s);" % (field.type, field.name)
+            else:
+                template = "this->visit_%s(*x.m_%s);" % (field.type, field.name)
             if field.seq:
-                template = "%s = self.visit_sequence(node.%s)"
+                template = "// self.visit_sequence(node.%s)" % field.name
             elif field.opt:
-                self.emit("if node.%s:" % (field.name,), 2)
+                self.emit("//if node.%s:" % field.name, 2)
                 level = 3
-            self.emit(template % (field.name, field.name), level)
-            if field.opt:
-                self.emit("else:", 2)
-                self.emit(    "%s = None" % field.name, 3)
-        else:
-            self.emit(    "%s = self.visit_object(node.%s)" % \
-                (field.name, field.name), 2)
+            self.emit(template, level)
+
 
 
 class ASDLData(object):
@@ -445,7 +369,7 @@ FOOT = r"""} // namespace LFortran::AST
 """
 
 visitors = [ASTNodeVisitor0, ASTNodeVisitor1, ASTNodeVisitor,
-        ASTVisitorVisitor1, ASTVisitorVisitor2]
+        ASTVisitorVisitor1, ASTVisitorVisitor2, ASTWalkVisitorVisitor]
 
 
 def main(argv):
