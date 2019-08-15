@@ -12,7 +12,6 @@ extern Allocator al;
 }
 
 using LFortran::al;
-
 using LFortran::AST::operatorType;
 using LFortran::AST::expr_t;
 using LFortran::AST::Name_t;
@@ -20,9 +19,6 @@ using LFortran::AST::BaseWalkVisitor;
 using LFortran::AST::make_BinOp_t;
 using LFortran::AST::make_Name_t;
 using LFortran::AST::make_Num_t;
-
-typedef struct LFortran::AST::expr_t *PExpr;
-
 
 class CountVisitor : public BaseWalkVisitor<CountVisitor>
 {
@@ -41,7 +37,7 @@ static inline int count(const expr_t &b) {
     return v.get_count();
 }
 
-#define TYPE PExpr
+#define TYPE expr_t*
 #define ADD(x, y) make_BinOp_t(al, x, operatorType::Add, y)
 #define SUB(x, y) make_BinOp_t(al, x, operatorType::Sub, y)
 #define MUL(x, y) make_BinOp_t(al, x, operatorType::Mul, y)
