@@ -8,6 +8,7 @@ conda update -q conda
 conda install -c conda-forge python=3.7 re2c bison m4
 
 python grammar/asdl_py.py
+python grammar/asdl_cpp.py
 python grammar/asdl_py.py grammar/ASR.asdl lfortran/asr/asr.py ..ast.utils
 
 cd grammar
