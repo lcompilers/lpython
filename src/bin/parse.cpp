@@ -53,8 +53,7 @@ int main(int argc, char *argv[])
         std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t1).count()
         << "ms" << std::endl;
     std::cout << "Count: " << c << std::endl;
-    // For some reason these slow things down:
-    //std::cout << "String size (bytes): " << text.size() << std::endl;
-    //std::cout << "Allocator usage (bytes): " << al.size_current() << std::endl;
+    std::cout << "String size (bytes):      " << text.size() << std::endl;
+    std::cout << "Allocator usage (bytes): " << al.size_current() << std::endl;
     return 0;
 }
