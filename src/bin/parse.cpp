@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     for (int i = 0; i < N; i++) {
         text.append(" * " + t0);
     }
-    Allocator al(50000000);
+    Allocator al(64*1024*1024); // The actual size is 31,600,600
     std::cout << "Parse" << std::endl;
     auto t1 = std::chrono::high_resolution_clock::now();
     auto result = parse(al, text);
