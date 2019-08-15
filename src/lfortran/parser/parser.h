@@ -25,7 +25,7 @@ public:
 private:
 };
 
-void parse(const std::string &s);
+LFortran::AST::expr_t *parse(const std::string &s);
 
 } // namespace LFortran
 

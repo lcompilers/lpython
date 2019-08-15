@@ -18,10 +18,16 @@ int main(int argc, char *argv[])
     }
     std::cout << "Parse" << std::endl;
     auto t1 = std::chrono::high_resolution_clock::now();
-    parse(text);
+    auto result = parse(text);
     auto t2 = std::chrono::high_resolution_clock::now();
     std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                      .count()
               << "ms" << std::endl;
-    return 0;
+    int c = count(*result);
+    std::cout << "Count: " << c << std::endl;
+    if (c == 45009) {
+        return 0;
+    } else {
+        return 1;
+    }
 }
