@@ -37,7 +37,6 @@ static inline PExpr make_binop(operatorType type, PExpr x, PExpr y) {
     return LFortran::AST::make_BinOp_t(al, x, type, y);
 }
 
-
 static inline PExpr make_symbol(std::string s) {
     return LFortran::AST::make_Name_t(al, &s[0]);
 }
@@ -46,28 +45,6 @@ static inline PExpr make_integer(std::string s) {
     return LFortran::AST::make_Num_t(al, s[0]);
 }
 
-
-
-template <class Derived>
-class BaseExprVisitor
-{
-private:
-    Derived& self() { return LFortran::down_cast<Derived&>(*this); }
-public:
-    void visit_expr(const expr_t &b) { visit_expr_t(b, self()); }
-    void visit_BinOp(const BinOp_t &x) { }
-    void visit_Name(const Name_t &x) { }
-    void visit_Num(const Num_t &x) { }
-    void visit_BoolOp(const BoolOp_t &x) { }
-    void visit_UnaryOp(const UnaryOp_t &x) { }
-    void visit_Compare(const Compare_t &x) { }
-    void visit_FuncCall(const FuncCall_t &x) { }
-    void visit_FuncCallOrArray(const FuncCallOrArray_t &x) { }
-    void visit_Array(const Array_t &x) { }
-    void visit_ArrayInitializer(const ArrayInitializer_t &x) { }
-    void visit_Str(const Str_t &x) { }
-    void visit_Constant(const Constant_t &x) { }
-};
 
 template <class Derived>
 class BaseWalkVisitor : public BaseVisitor<Derived>
