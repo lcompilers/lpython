@@ -10,7 +10,6 @@
    LFortran semantic phase (AST -> ASR).
 */
 
-#include <lfortran/casts.h>
 #include <lfortran/parser/alloc.h>
 #include <lfortran/ast.h>
 
