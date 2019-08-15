@@ -225,8 +225,8 @@ class ASTVisitorVisitor1(ASDLVisitor):
                     % (base, base))
             self.emit("    switch (x.type) {")
             for type_ in sum.types:
-                self.emit("        case %sType::%s: { v.visit((const %s_t &)x);"
-                    " return; }" % (base, type_.name, type_.name))
+                self.emit("        case %sType::%s: { v.visit_%s((const %s_t &)x);"
+                    " return; }" % (base, type_.name, type_.name, type_.name))
             self.emit("    }")
             self.emit("}")
             self.emit("")

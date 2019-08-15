@@ -19,6 +19,15 @@ using LFortran::AST::expr_t;
 using LFortran::AST::BinOp_t;
 using LFortran::AST::Name_t;
 using LFortran::AST::Num_t;
+using LFortran::AST::BoolOp_t;
+using LFortran::AST::UnaryOp_t;
+using LFortran::AST::Compare_t;
+using LFortran::AST::FuncCall_t;
+using LFortran::AST::FuncCallOrArray_t;
+using LFortran::AST::Array_t;
+using LFortran::AST::ArrayInitializer_t;
+using LFortran::AST::Str_t;
+using LFortran::AST::Constant_t;
 typedef struct LFortran::AST::expr_t *PExpr;
 
 
@@ -44,19 +53,27 @@ class BaseVisitor
 private:
     Derived& self() { return LFortran::down_cast<Derived&>(*this); }
 public:
-    void visit(const BinOp_t &x) {
+    void visit_BinOp(const BinOp_t &x) {
         self().visit_BinOp(x);
     }
-    void visit(const Name_t &x) {
+    void visit_Name(const Name_t &x) {
         self().visit_Name(x);
     }
-    void visit(const Num_t &x) {
+    void visit_Num(const Num_t &x) {
         self().visit_Num(x);
     }
     void visit(const expr_t &b) {
         visit_expr_t(b, *this);
     }
-    template <typename T> void visit(const T &x) { }
+    void visit_BoolOp(const BoolOp_t &x) { }
+    void visit_UnaryOp(const UnaryOp_t &x) { }
+    void visit_Compare(const Compare_t &x) { }
+    void visit_FuncCall(const FuncCall_t &x) { }
+    void visit_FuncCallOrArray(const FuncCallOrArray_t &x) { }
+    void visit_Array(const Array_t &x) { }
+    void visit_ArrayInitializer(const ArrayInitializer_t &x) { }
+    void visit_Str(const Str_t &x) { }
+    void visit_Constant(const Constant_t &x) { }
 };
 
 template <class Derived>
