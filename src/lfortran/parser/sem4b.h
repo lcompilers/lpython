@@ -53,7 +53,7 @@ public:
     void visit(const Num_t &x) {
         self().bvisit_Num(x);
     }
-    void apply(const expr_t &b) {
+    void visit(const expr_t &b) {
         visit_expr_t(b, *this);
     }
     template <typename T> void visit(const T &x) { }
@@ -64,8 +64,8 @@ class BaseWalkVisitor : public BaseVisitor<Derived>
 {
 public:
     void bvisit_BinOp(const BinOp_t &x) {
-        this->apply(*x.m_left);
-        this->apply(*x.m_right);
+        this->visit(*x.m_left);
+        this->visit(*x.m_right);
     }
     void bvisit_Num(const Num_t &x) { }
 };
@@ -83,7 +83,7 @@ public:
 
 static inline int count(const expr_t &b) {
     CountVisitor v;
-    v.apply(b);
+    v.visit(b);
     return v.get_count();
 }
 
