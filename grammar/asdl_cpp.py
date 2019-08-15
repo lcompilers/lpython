@@ -106,6 +106,12 @@ def convert_type(asdl_type):
 
 class ASTNodeVisitor0(ASDLVisitor):
 
+    def visitModule(self, mod):
+        self.emit("/" + "*"*78 + "/")
+        self.emit("// Forward declarations")
+        self.emit("")
+        super(ASTNodeVisitor0, self).visitModule(mod)
+
     def visitType(self, tp):
         self.visit(tp.value, tp.name)
 
@@ -127,6 +133,12 @@ class ASTNodeVisitor0(ASDLVisitor):
 
 class ASTNodeVisitor1(ASDLVisitor):
 
+    def visitModule(self, mod):
+        self.emit("/" + "*"*78 + "/")
+        self.emit("// Products declarations")
+        self.emit("")
+        super(ASTNodeVisitor1, self).visitModule(mod)
+
     def visitType(self, tp):
         self.visit(tp.value, tp.name)
 
@@ -142,6 +154,12 @@ class ASTNodeVisitor1(ASDLVisitor):
 
 
 class ASTNodeVisitor(ASDLVisitor):
+
+    def visitModule(self, mod):
+        self.emit("/" + "*"*78 + "/")
+        self.emit("// Sums declarations")
+        self.emit("")
+        super(ASTNodeVisitor, self).visitModule(mod)
 
     def visitType(self, tp):
         self.visit(tp.value, tp.name)
