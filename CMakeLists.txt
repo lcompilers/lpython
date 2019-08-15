@@ -21,6 +21,11 @@ if (NOT CMAKE_CXX_STANDARD)
         CACHE STRING "C++ standard" FORCE)
 endif ()
 
+
+# 3rd party libraries:
+find_package(NLJSON REQUIRED)
+
+
 enable_testing()
 
 message("\n")
