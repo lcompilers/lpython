@@ -54,18 +54,10 @@ public:
         LFortran::down_cast<Derived *>(this)->bvisit(x);
     }
     void apply(const expr_t &b) {
-        accept(b, *this);
+        visit_expr_t(b, *this);
     }
+    template <typename T> void visit(const T &x) { }
 };
-
-template <class Visitor>
-static void accept(const expr_t &x, Visitor &v) {
-    switch (x.type) {
-        case exprType::BinOp: { v.visit((const BinOp_t &)x); return; }
-        case exprType::Name: { v.visit((const Name_t &)x); return; }
-        case exprType::Num: { v.visit((const Num_t &)x); return; }
-    }
-}
 
 class CountVisitor : public BaseWalkVisitor<CountVisitor>
 {
