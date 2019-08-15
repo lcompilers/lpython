@@ -48,7 +48,7 @@ static inline PExpr make_integer(std::string s) {
 
 
 template <class Derived>
-class BaseVisitor
+class BaseExprVisitor
 {
 private:
     Derived& self() { return LFortran::down_cast<Derived&>(*this); }
@@ -69,7 +69,7 @@ public:
 };
 
 template <class Derived>
-class BaseWalkVisitor : public BaseVisitor<Derived>
+class BaseWalkVisitor : public BaseExprVisitor<Derived>
 {
 public:
     void visit_BinOp(const BinOp_t &x) {
