@@ -23,16 +23,16 @@ typedef struct LFortran::AST::expr_t *PExpr;
 
 
 
-static PExpr make_binop(operatorType type, PExpr x, PExpr y) {
+static inline PExpr make_binop(operatorType type, PExpr x, PExpr y) {
     return LFortran::AST::make_BinOp_t(al, x, type, y);
 }
 
 
-static PExpr make_symbol(std::string s) {
+static inline PExpr make_symbol(std::string s) {
     return LFortran::AST::make_Name_t(al, &s[0]);
 }
 
-static PExpr make_integer(std::string s) {
+static inline PExpr make_integer(std::string s) {
     return LFortran::AST::make_Num_t(al, s[0]);
 }
 
@@ -79,7 +79,7 @@ public:
     }
 };
 
-static int count(const expr_t &b) {
+static inline int count(const expr_t &b) {
     CountVisitor v;
     v.apply(b);
     return v.get_count();

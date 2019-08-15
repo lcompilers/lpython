@@ -178,7 +178,7 @@ class ASTNodeVisitor(ASDLVisitor):
             args.append("%s a_%s" % (type_, f.name))
             lines.append("n->m_%s = a_%s;" % (f.name, f.name))
         self.emit("};", 1)
-        self.emit("static %s_t* make_%s_t(%s) {" % (base, cons.name,
+        self.emit("static inline %s_t* make_%s_t(%s) {" % (base, cons.name,
             ", ".join(args)), 1)
         self.emit("%s_t *n;" % cons.name, 2)
         self.emit("n = al.make_new<%s_t>();" % cons.name, 2)
