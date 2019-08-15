@@ -8,43 +8,23 @@
 using json = nlohmann::json;
 
 TEST_CASE("Check ast_to_json()") {
-    std::string text = "(a*z+3+2*x + 3*y - x/(z**2-4) - x**(y**z))";
+    std::string text = "2*x";
     Allocator al(4*1024);
     LFortran::AST::expr_t* result = LFortran::parse(al, text);
     std::string s = LFortran::ast_to_json(*result);
     std::cout << s << std::endl;
     auto r = R"(
         {
-            "answer": {
-                "everything": 42
+            "left": {
+                "n": 50,
+                "type": "Num"
             },
-            "happy": true,
-            "list": [
-                1,
-                0,
-                2
-            ],
-            "name": "Niels",
-            "nothing": null,
-            "object": {
-                "currency": "USD",
-                "value": 42.99
+            "op": 2,
+            "right": {
+                "id": "x",
+                "type": "Name"
             },
-            "objects": [
-                {
-                    "currency": "USD",
-                    "value": 42.99
-                },
-                {
-                    "currency": "USD",
-                    "value": 42.99
-                },
-                {
-                    "currency": "USD",
-                    "value": 42.99
-                }
-            ],
-            "pi": 3.141
+            "type": "BinOp"
         }
     )"_json;
 
