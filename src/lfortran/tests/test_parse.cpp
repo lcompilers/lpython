@@ -37,9 +37,10 @@ int main(int argc, char *argv[])
     for (int i = 0; i < N; i++) {
         text.append(" * " + t0);
     }
+    Allocator al(1000000000);
     std::cout << "Parse" << std::endl;
     auto t1 = std::chrono::high_resolution_clock::now();
-    auto result = parse(text);
+    auto result = parse(al, text);
     auto t2 = std::chrono::high_resolution_clock::now();
     std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                      .count()
