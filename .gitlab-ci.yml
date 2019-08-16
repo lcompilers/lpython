@@ -89,7 +89,11 @@ cxx:
     - conda install -c conda-forge rapidjson
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
-    - cmake -DCMAKE_PREFIX_PATH=$HOME/conda_root -DCMAKE_INSTALL_PREFIX=`pwd` .
+    - cmake \
+         -DCMAKE_PREFIX_PATH=$HOME/conda_root \
+         -DCMAKE_INSTALL_PREFIX=`pwd` \
+         -DWITH_JSON=yes \
+         .
     - cmake --build . --target install
     - ctest --output-on-failure
     - ./src/bin/parse
