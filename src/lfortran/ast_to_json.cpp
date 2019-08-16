@@ -61,7 +61,7 @@ public:
         rapidjson::StringBuffer strbuf;
         rapidjson::Writer<rapidjson::StringBuffer> writer(strbuf);
         j.Accept(writer);
-	    return strbuf.GetString();
+        return strbuf.GetString();
     }
 };
 
