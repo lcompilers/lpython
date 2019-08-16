@@ -1,3 +1,5 @@
+#include <climits>
+
 #include "tokenizer.h"
 #include "parser.tab.hh"
 
@@ -13,8 +15,29 @@ void Tokenizer::set_string(const std::string &str)
     cur = (unsigned char *)(&str[0]);
 }
 
+template<int base>
+bool adddgt(unsigned long &u, unsigned long d)
+{
+    if (u > (ULONG_MAX - d) / base) {
+        return false;
+    }
+    u = u * base + d;
+    return true;
+}
+
+bool lex_dec(const unsigned char *s, const unsigned char *e, unsigned long &u)
+{
+    for (u = 0; s < e; ++s) {
+        if (!adddgt<10>(u, *s - 0x30u)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 int Tokenizer::lex(YYSTYPE &yylval)
 {
+	unsigned long u;
     for (;;) {
         tok = cur;
         /*!re2c
@@ -44,7 +67,14 @@ int Tokenizer::lex(YYSTYPE &yylval)
             operators { return tok[0]; }
             pows { return yytokentype::POW; }
             ident { yylval.string=token(); return yytokentype::IDENTIFIER; }
-            numeric { yylval.string=token(); return yytokentype::NUMERIC; }
+            numeric {
+                if (lex_dec(tok, cur, u)) {
+                    yylval.n = u;
+                    return yytokentype::NUMERIC;
+                } else {
+                    throw LFortran::TokenizerError("Integer too large");
+                }
+            }
         */
     }
 }

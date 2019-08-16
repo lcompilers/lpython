@@ -21,7 +21,7 @@ TEST_CASE("Check ast_to_json()") {
     r = R"(
         {
             "left": {
-                "n": 50,
+                "n": 2,
                 "type": "Num"
             },
             "op": "Mul",
@@ -50,7 +50,7 @@ TEST_CASE("Check ast_to_json()") {
     r = R"(
         {
             "left": {
-                "n": 50,
+                "n": 2,
                 "type": "Num"
             },
             "op": "Mul",
