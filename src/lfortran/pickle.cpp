@@ -11,19 +11,6 @@ using LFortran::AST::BaseWalkVisitor;
 
 namespace LFortran {
 
-std::string op2str(const operatorType type)
-{
-    switch (type) {
-        case (operatorType::Add) : return "Add";
-        case (operatorType::Sub) : return "Sub";
-        case (operatorType::Mul) : return "Mul";
-        case (operatorType::Div) : return "Div";
-        case (operatorType::Pow) : return "Pow";
-    }
-    throw std::runtime_error("Unknown type");
-}
-
-
 class PickleVisitor : public BaseWalkVisitor<PickleVisitor>
 {
     std::string s;
@@ -33,7 +20,7 @@ public:
     }
     void visit_BinOp(const BinOp_t &x) {
         s.append(std::to_string(x.base.type));
-        s.append(op2str(x.m_op));
+        s.append(std::to_string(x.m_op));
         this->visit_expr(*x.m_left);
         this->visit_expr(*x.m_right);
     }
