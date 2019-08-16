@@ -1,17 +1,19 @@
 #include <tests/doctest.h>
 #include <iostream>
-#include <nlohmann/json.hpp>
+
+#define RAPIDJSON_HAS_STDSTRING 1
+#include <rapidjson/document.h>
 
 #include <lfortran/ast_to_json.h>
 #include <lfortran/parser/parser.h>
 
-using json = nlohmann::json;
+using namespace rapidjson;
 
 TEST_CASE("Check ast_to_json()") {
     Allocator al(4*1024);
-    std::string s;
+    std::string s, r;
     LFortran::AST::expr_t* result;
-    json r;
+    rapidjson::Document d1, d2;
 
     result = LFortran::parse(al, "2*x");
     s = LFortran::ast_to_json(*result);
@@ -29,14 +31,17 @@ TEST_CASE("Check ast_to_json()") {
             },
             "type": "BinOp"
         }
-    )"_json;
-    CHECK(json::parse(s) == r);
+    )";
+    d1.Parse(s);
+    d2.Parse(r);
+    CHECK(d1 == d2);
 
 
     result = LFortran::parse(al, "(2*x)");
     s = LFortran::ast_to_json(*result);
     std::cout << s << std::endl;
-    CHECK(json::parse(s) == r);
+    d1.Parse(s);
+    CHECK(d1 == d2);
 
 
     result = LFortran::parse(al, "2*x**y");
@@ -63,6 +68,8 @@ TEST_CASE("Check ast_to_json()") {
             },
             "type": "BinOp"
         }
-    )"_json;
-    CHECK(json::parse(s) == r);
+    )";
+    d1.Parse(s);
+    d2.Parse(r);
+    CHECK(d1 == d2);
 }
