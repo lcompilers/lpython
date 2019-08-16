@@ -5,11 +5,35 @@ using LFortran::AST::expr_t;
 using LFortran::AST::Name_t;
 using LFortran::AST::Num_t;
 using LFortran::AST::BinOp_t;
+using LFortran::AST::exprType;
 using LFortran::AST::operatorType;
 using LFortran::AST::BaseWalkVisitor;
 
 
 namespace LFortran {
+
+std::string expr2str(const exprType type)
+{
+    switch (type) {
+        case (exprType::BoolOp) : return "BoolOp";
+        case (exprType::BinOp) : return "BinOp";
+        case (exprType::UnaryOp) : return "UnaryOp";
+        default : throw std::runtime_error("Unknown type");
+    }
+    throw std::runtime_error("Unknown type");
+}
+
+std::string op2str(const operatorType type)
+{
+    switch (type) {
+        case (operatorType::Add) : return "Add";
+        case (operatorType::Sub) : return "Sub";
+        case (operatorType::Mul) : return "Mul";
+        case (operatorType::Div) : return "Div";
+        case (operatorType::Pow) : return "Pow";
+    }
+    throw std::runtime_error("Unknown type");
+}
 
 class PickleVisitor : public BaseWalkVisitor<PickleVisitor>
 {
@@ -20,9 +44,9 @@ public:
     }
     void visit_BinOp(const BinOp_t &x) {
         s.append("(");
-        s.append(std::to_string(x.base.type));
+        s.append(expr2str(x.base.type));
         s.append(" ");
-        s.append(std::to_string(x.m_op));
+        s.append(op2str(x.m_op));
         s.append(" ");
         this->visit_expr(*x.m_left);
         s.append(" ");
