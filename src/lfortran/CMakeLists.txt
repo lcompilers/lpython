@@ -2,6 +2,7 @@ set(SRC
     parser/tokenizer.cpp
     parser/parser.tab.cc
     parser/parser.cpp
+    pickle.cpp
 )
 if (WITH_JSON)
     set(SRC ${SRC}
