@@ -49,7 +49,8 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 
 
 %token END_OF_FILE 0
-%token <string> IDENTIFIER NUMERIC
+%token <string> IDENTIFIER
+%token <n> NUMERIC
 %type <basic> st_expr expr
 
 %left '-' '+'

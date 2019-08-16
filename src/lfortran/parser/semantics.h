@@ -25,7 +25,7 @@ using LFortran::AST::make_Num_t;
 #define DIV(x, y) make_BinOp_t(p.m_a, x, operatorType::Div, y)
 #define POW(x, y) make_BinOp_t(p.m_a, x, operatorType::Pow, y)
 #define SYMBOL(x) make_Name_t(p.m_a, &x[0])
-#define INTEGER(x) make_Num_t(p.m_a, x[0])
+#define INTEGER(x) make_Num_t(p.m_a, x)
 #define RESULT(x) p.result = x
 
 #endif

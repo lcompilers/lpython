@@ -8,6 +8,7 @@ namespace LFortran
 
 struct YYSTYPE {
     LFortran::AST::expr_t* basic;
+    unsigned long n;
     std::string string;
     // Constructor
     YYSTYPE() = default;

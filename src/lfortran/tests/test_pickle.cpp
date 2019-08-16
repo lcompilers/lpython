@@ -13,7 +13,7 @@ TEST_CASE("Check pickle()") {
     result = LFortran::parse(al, "2*x");
     s = LFortran::pickle(*result);
     std::cout << s << std::endl;
-    r = "(BinOp Mul 50 x)";
+    r = "(BinOp Mul 2 x)";
     CHECK(s == r);
 
 
@@ -23,9 +23,9 @@ TEST_CASE("Check pickle()") {
     CHECK(s == r);
 
 
-    result = LFortran::parse(al, "2*x**y");
+    result = LFortran::parse(al, "3*x**y");
     s = LFortran::pickle(*result);
     std::cout << s << std::endl;
-    r = "(BinOp Mul 50 (BinOp Pow x y))";
+    r = "(BinOp Mul 3 (BinOp Pow x y))";
     CHECK(s == r);
 }
