@@ -19,10 +19,15 @@ public:
         s.reserve(100000);
     }
     void visit_BinOp(const BinOp_t &x) {
+        s.append("(");
         s.append(std::to_string(x.base.type));
+        s.append(" ");
         s.append(std::to_string(x.m_op));
+        s.append(" ");
         this->visit_expr(*x.m_left);
+        s.append(" ");
         this->visit_expr(*x.m_right);
+        s.append(")");
     }
     void visit_Name(const Name_t &x) {
         s.append(x.m_id);

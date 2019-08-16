@@ -13,7 +13,7 @@ TEST_CASE("Check pickle()") {
     result = LFortran::parse(al, "2*x");
     s = LFortran::pickle(*result);
     std::cout << s << std::endl;
-    r = "1250x";
+    r = "(1 2 50 x)";
     CHECK(s == r);
 
 
@@ -26,6 +26,6 @@ TEST_CASE("Check pickle()") {
     result = LFortran::parse(al, "2*x**y");
     s = LFortran::pickle(*result);
     std::cout << s << std::endl;
-    r = "125014xy";
+    r = "(1 2 50 (1 4 x y))";
     CHECK(s == r);
 }
