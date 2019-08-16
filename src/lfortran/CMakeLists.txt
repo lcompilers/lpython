@@ -6,7 +6,7 @@ set(SRC
 )
 add_library(lfortran_lib ${SRC})
 target_include_directories(lfortran_lib BEFORE PUBLIC ${lfortran_SOURCE_DIR}/src)
-target_link_libraries(lfortran_lib p::nljson)
+target_link_libraries(lfortran_lib p::rapidjson)
 install(TARGETS lfortran_lib
     RUNTIME DESTINATION bin
     ARCHIVE DESTINATION lib

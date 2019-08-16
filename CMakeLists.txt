@@ -23,7 +23,7 @@ endif ()
 
 
 # 3rd party libraries:
-find_package(NLJSON REQUIRED)
+find_package(RapidJSON REQUIRED)
 
 
 enable_testing()
