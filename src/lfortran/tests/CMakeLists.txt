@@ -8,4 +8,6 @@ endmacro(ADDTEST)
 
 ADDTEST(test_parse p::doctest)
 ADDTEST(test_ast)
-ADDTEST(test_ast_to_json p::doctest)
+if (WITH_JSON)
+    ADDTEST(test_ast_to_json p::doctest)
+endif()

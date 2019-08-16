@@ -22,8 +22,11 @@ if (NOT CMAKE_CXX_STANDARD)
 endif ()
 
 
-# 3rd party libraries:
-find_package(RapidJSON REQUIRED)
+# JSON
+set(WITH_JSON no CACHE BOOL "Build with JSON support")
+if (WITH_JSON)
+    find_package(RapidJSON REQUIRED)
+endif()
 
 
 enable_testing()
@@ -42,6 +45,7 @@ else ()
     message("C++ compiler flags    : ${CMAKE_CXX_FLAGS_RELEASE}")
 endif ()
 message("Installation prefix: ${CMAKE_INSTALL_PREFIX}")
+message("WITH_JSON: ${WITH_JSON}")
 
 
 add_subdirectory(src)
