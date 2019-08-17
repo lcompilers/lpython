@@ -255,7 +255,7 @@ class ASTVisitorVisitor2(ASDLVisitor):
         self.emit("class BaseVisitor")
         self.emit("{")
         self.emit("private:")
-        self.emit("    Derived& self() { return LFortran::down_cast<Derived&>(*this); }")
+        self.emit("    Derived& self() { return static_cast<Derived&>(*this); }")
         self.emit("public:")
         super(ASTVisitorVisitor2, self).visitModule(mod)
         self.emit("};")
@@ -385,7 +385,7 @@ enum astType
 
 struct ast_t
 {
-    int type;
+    astType type;
 };
 
 """
