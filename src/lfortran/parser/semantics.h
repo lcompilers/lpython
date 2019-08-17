@@ -12,6 +12,7 @@
 
 #include <lfortran/ast.h>
 
+using LFortran::AST::astType;
 using LFortran::AST::operatorType;
 using LFortran::AST::stmt_t;
 using LFortran::AST::expr_t;
@@ -22,7 +23,7 @@ using LFortran::AST::make_Num_t;
 
 static inline expr_t* EXPR(ast_t *f)
 {
-    LFORTRAN_ASSERT(f.type == astType::expr);
+    LFORTRAN_ASSERT(f->type == astType::expr);
     return (expr_t*)f;
 }
 
