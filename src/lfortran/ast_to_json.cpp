@@ -67,8 +67,7 @@ public:
 
 std::string ast_to_json(LFortran::AST::ast_t &ast) {
     JSONVisitor v;
-    // FIXME: unsafe cast
-    v.visit_expr((const LFortran::AST::expr_t &)ast);
+    v.visit_ast(ast);
     return v.get_str();
 }
 

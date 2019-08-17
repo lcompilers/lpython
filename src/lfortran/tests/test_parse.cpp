@@ -24,8 +24,7 @@ public:
 
 int count(const ast_t &b) {
     CountVisitor v;
-    // FIXME: unsafe cast
-    v.visit_expr((const expr_t &)b);
+    v.visit_ast(b);
     return v.get_count();
 }
 
