@@ -59,6 +59,8 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 %token <string> IDENTIFIER
 %token <n> NUMERIC
 %type <basic> expr
+%type <basic> start_unit
+%type <basic> sub_block
 %type <stmt> statement
 %type <stmt> assignment_statement
 %type <stmt> exit_statement
@@ -71,7 +73,7 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 %right POW
 
 
-%start start_sub_block
+%start start_unit
 
 %%
 
@@ -81,13 +83,14 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 //subroutine
 //    : KW_SUBROUTINE sub_block KW_SUBROUTINE
 
-start_sub_block
+start_unit
     : sub_block // { $$ = $1; RESULT($$); }
+    | expr { $$ = $1; RESULT($$); }
     ;
 
 
 sub_block
-    : statements
+    : statements { /* FIXME: $$ = $1;*/ }
     ;
 
 // -----------------------------------------------------------------------------
