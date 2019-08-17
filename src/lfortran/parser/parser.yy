@@ -84,7 +84,7 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 //    : KW_SUBROUTINE sub_block KW_SUBROUTINE
 
 start_unit
-    : statement // { $$ = $1; RESULT($$); }
+    : statement { $$ = $1; RESULT($$); }
     | expr { $$ = $1; RESULT($$); }
     ;
 

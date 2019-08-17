@@ -28,4 +28,10 @@ TEST_CASE("Check pickle()") {
     std::cout << s << std::endl;
     r = "(BinOp Mul 3 (BinOp Pow x y))";
     CHECK(s == r);
+
+    result = LFortran::parse(al, "x = 2*y");
+    s = LFortran::pickle(*result);
+    std::cout << s << std::endl;
+    r = "(Assignment x (BinOp Mul 2 y))";
+    CHECK(s == r);
 }

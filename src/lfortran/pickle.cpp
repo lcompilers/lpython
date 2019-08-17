@@ -7,13 +7,24 @@ using LFortran::AST::stmt_t;
 using LFortran::AST::Name_t;
 using LFortran::AST::Num_t;
 using LFortran::AST::BinOp_t;
+using LFortran::AST::Assignment_t;
 using LFortran::AST::astType;
 using LFortran::AST::exprType;
+using LFortran::AST::stmtType;
 using LFortran::AST::operatorType;
 using LFortran::AST::BaseWalkVisitor;
 
 
 namespace LFortran {
+
+std::string stmt2str(const stmtType type)
+{
+    switch (type) {
+        case (stmtType::Assignment) : return "Assignment";
+        default : throw std::runtime_error("Unknown type");
+    }
+    throw std::runtime_error("Unknown type");
+}
 
 std::string expr2str(const exprType type)
 {
@@ -63,6 +74,15 @@ public:
         this->visit_expr(*x.m_left);
         s.append(" ");
         this->visit_expr(*x.m_right);
+        s.append(")");
+    }
+    void visit_Assignment(const Assignment_t &x) {
+        s.append("(");
+        s.append(stmt2str(x.base.type));
+        s.append(" ");
+        this->visit_expr(*x.m_target);
+        s.append(" ");
+        this->visit_expr(*x.m_value);
         s.append(")");
     }
     void visit_Name(const Name_t &x) {
