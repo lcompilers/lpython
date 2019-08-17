@@ -65,9 +65,9 @@ public:
     }
 };
 
-std::string ast_to_json(LFortran::AST::expr_t &ast) {
+std::string ast_to_json(LFortran::AST::ast_t &ast) {
     JSONVisitor v;
-    v.visit_expr(ast);
+    v.visit_ast(ast);
     return v.get_str();
 }
 

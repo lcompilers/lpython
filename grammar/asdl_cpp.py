@@ -81,6 +81,7 @@ def attr_to_args(attrs):
     return ", ".join(args)
 
 simple_sums = []
+sums = []
 products = []
 
 def convert_type(asdl_type):
@@ -103,6 +104,15 @@ def convert_type(asdl_type):
             # Sum type is polymorphic, must be a pointer
             type_ = type_ + "*"
     return type_
+
+class CollectVisitor(ASDLVisitor):
+
+    def visitType(self, tp):
+        self.visit(tp.value, tp.name)
+
+    def visitSum(self, sum, base):
+        if not is_simple_sum(sum):
+            sums.append(base);
 
 class ASTNodeVisitor0(ASDLVisitor):
 
@@ -145,6 +155,7 @@ class ASTNodeVisitor1(ASDLVisitor):
     def visitProduct(self, product, name):
         self.emit("struct %s_t // Product" % name)
         self.emit("{");
+        self.emit(    "ast_t base;", 1)
         for f in product.fields:
             type_ = convert_type(f.type)
             if f.seq:
@@ -174,6 +185,7 @@ class ASTNodeVisitor(ASDLVisitor):
             self.emit("")
             self.emit("struct %s_t // Sum" % base)
             self.emit("{")
+            self.emit(    "ast_t base;", 1)
             self.emit(    "%sType type;" % base, 1)
             self.emit("};")
             self.emit("")
@@ -196,14 +208,15 @@ class ASTNodeVisitor(ASDLVisitor):
             args.append("%s a_%s" % (type_, f.name))
             lines.append("n->m_%s = a_%s;" % (f.name, f.name))
         self.emit("};", 1)
-        self.emit("static inline %s_t* make_%s_t(%s) {" % (base, cons.name,
+        self.emit("static inline ast_t* make_%s_t(%s) {" % (cons.name,
             ", ".join(args)), 1)
         self.emit("%s_t *n;" % cons.name, 2)
         self.emit("n = al.make_new<%s_t>();" % cons.name, 2)
         self.emit("n->base.type = %sType::%s;" % (base, cons.name), 2)
+        self.emit("n->base.base.type = astType::%s;" % (base), 2)
         for line in lines:
             self.emit(line, 2)
-        self.emit("return (%s_t*)n;" % base, 2)
+        self.emit("return (ast_t*)n;", 2)
         self.emit("}", 1)
         self.emit("")
 
@@ -231,6 +244,19 @@ class ASTVisitorVisitor1(ASDLVisitor):
             self.emit("}")
             self.emit("")
 
+class ASTVisitorVisitor1b(ASDLVisitor):
+
+    def visitModule(self, mod):
+        self.emit("template <class Visitor>")
+        self.emit("static void visit_ast_t(const ast_t &x, Visitor &v) {")
+        self.emit("    switch (x.type) {")
+        for type_ in sums:
+            self.emit("        case astType::%s: { v.visit_%s((const %s_t &)x);"
+                " return; }" % (type_, type_, type_))
+        self.emit("    }")
+        self.emit("}")
+        self.emit("")
+
 class ASTVisitorVisitor2(ASDLVisitor):
 
     def visitModule(self, mod):
@@ -241,8 +267,9 @@ class ASTVisitorVisitor2(ASDLVisitor):
         self.emit("class BaseVisitor")
         self.emit("{")
         self.emit("private:")
-        self.emit("    Derived& self() { return LFortran::down_cast<Derived&>(*this); }")
+        self.emit("    Derived& self() { return static_cast<Derived&>(*this); }")
         self.emit("public:")
+        self.emit(    "void visit_ast(const ast_t &b) { visit_ast_t(b, self()); }", 1)
         super(ASTVisitorVisitor2, self).visitModule(mod)
         self.emit("};")
 
@@ -364,6 +391,15 @@ HEAD = r"""#ifndef LFORTRAN_AST_H
 
 namespace LFortran::AST {
 
+enum astType
+{
+    %s
+};
+
+struct ast_t
+{
+    astType type;
+};
 
 """
 
@@ -373,7 +409,8 @@ FOOT = r"""} // namespace LFortran::AST
 """
 
 visitors = [ASTNodeVisitor0, ASTNodeVisitor1, ASTNodeVisitor,
-        ASTVisitorVisitor1, ASTVisitorVisitor2, ASTWalkVisitorVisitor]
+        ASTVisitorVisitor1, ASTVisitorVisitor1b, ASTVisitorVisitor2,
+        ASTWalkVisitorVisitor]
 
 
 def main(argv):
@@ -389,9 +426,11 @@ def main(argv):
         return 2
     mod = asdl.parse(def_file)
     data = ASDLData(mod)
+    CollectVisitor(None, data).visit(mod)
     fp = open(out_file, "w")
     try:
-        fp.write(HEAD)
+        types_ = ", ".join(sums)
+        fp.write(HEAD % types_)
         for visitor in visitors:
             visitor(fp, data).visit(mod)
             fp.write("\n\n")

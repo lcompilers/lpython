@@ -1,13 +1,15 @@
 #ifndef LFORTRAN_PARSER_STYPE_H
 #define LFORTRAN_PARSER_STYPE_H
 
+#include <vector>
 #include <lfortran/ast.h>
 
 namespace LFortran
 {
 
 struct YYSTYPE {
-    LFortran::AST::expr_t* basic;
+    LFortran::AST::ast_t* ast;
+    std::vector<LFortran::AST::ast_t*> vec_stmt;
     unsigned long n;
     std::string string;
     // Constructor

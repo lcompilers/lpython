@@ -17,7 +17,7 @@ class Parser
 public:
     Allocator &m_a;
     Tokenizer m_tokenizer;
-    LFortran::AST::expr_t *result;
+    LFortran::AST::ast_t *result;
 
     Parser(Allocator &al) : m_a{al} {}
     void parse(const std::string &input);
@@ -27,7 +27,7 @@ public:
 private:
 };
 
-LFortran::AST::expr_t *parse(Allocator &al, const std::string &s);
+LFortran::AST::ast_t *parse(Allocator &al, const std::string &s);
 
 } // namespace LFortran
 

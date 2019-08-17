@@ -5,6 +5,8 @@
 // so that there is no effect with NDEBUG
 #if defined(WITH_LFORTRAN_ASSERT)
 
+#include <iostream>
+
 #if !defined(LFORTRAN_ASSERT)
 #define stringize(s) #s
 #define XSTR(s) stringize(s)

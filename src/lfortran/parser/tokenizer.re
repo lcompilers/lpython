@@ -50,7 +50,7 @@ int Tokenizer::lex(YYSTYPE &yylval)
             whitespace = [ \t\v\n\r]+;
             dig = [0-9];
             char =  [\x80-\xff] | [a-zA-Z_];
-            operators = "-"|"+"|"/"|"("|")"|"*"|",";
+            operators = "-"|"+"|"/"|"("|")"|"*"|","|"=";
 
             pows = "**"|"@";
             ident = char (char | dig)*;

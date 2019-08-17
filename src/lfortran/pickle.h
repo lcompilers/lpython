@@ -5,7 +5,7 @@
 
 namespace LFortran {
 
-    std::string pickle(LFortran::AST::expr_t &ast);
+    std::string pickle(LFortran::AST::ast_t &ast);
 
 }
 
