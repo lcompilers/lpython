@@ -134,7 +134,6 @@ class ASTNodeVisitor0(ASDLVisitor):
             self.emit(    ", ".join(s), 1)
             self.emit("};");
         else:
-            sums.append(base);
             self.emit("struct %s_t; // Sum" % base)
 
     def visitProduct(self, product, name):
