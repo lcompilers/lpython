@@ -49,15 +49,6 @@ std::string op2str(const operatorType type)
     throw std::runtime_error("Unknown type");
 }
 
-template <class Visitor>
-static void visit_ast_t(const ast_t &x, Visitor &v) {
-    switch (x.type) {
-        case astType::expr: { v.visit_expr((const expr_t &)x); return; }
-        case astType::stmt: { v.visit_stmt((const stmt_t &)x); return; }
-        default : throw std::runtime_error("ast not implemented in visitor");
-    }
-}
-
 class PickleVisitor : public BaseWalkVisitor<PickleVisitor>
 {
     std::string s;

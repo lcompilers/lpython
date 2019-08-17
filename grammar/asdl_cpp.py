@@ -244,6 +244,19 @@ class ASTVisitorVisitor1(ASDLVisitor):
             self.emit("}")
             self.emit("")
 
+class ASTVisitorVisitor1b(ASDLVisitor):
+
+    def visitModule(self, mod):
+        self.emit("template <class Visitor>")
+        self.emit("static void visit_ast_t(const ast_t &x, Visitor &v) {")
+        self.emit("    switch (x.type) {")
+        for type_ in sums:
+            self.emit("        case astType::%s: { v.visit_%s((const %s_t &)x);"
+                " return; }" % (type_, type_, type_))
+        self.emit("    }")
+        self.emit("}")
+        self.emit("")
+
 class ASTVisitorVisitor2(ASDLVisitor):
 
     def visitModule(self, mod):
@@ -395,7 +408,8 @@ FOOT = r"""} // namespace LFortran::AST
 """
 
 visitors = [ASTNodeVisitor0, ASTNodeVisitor1, ASTNodeVisitor,
-        ASTVisitorVisitor1, ASTVisitorVisitor2, ASTWalkVisitorVisitor]
+        ASTVisitorVisitor1, ASTVisitorVisitor1b, ASTVisitorVisitor2,
+        ASTWalkVisitorVisitor]
 
 
 def main(argv):
