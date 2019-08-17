@@ -58,14 +58,14 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 %token END_OF_FILE 0
 %token <string> IDENTIFIER
 %token <n> NUMERIC
-%type <basic> expr
-%type <basic> start_unit
-%type <basic> sub_block
-%type <stmt> statement
-%type <stmt> assignment_statement
-%type <stmt> exit_statement
-%type <vec_stmt> statements
-%token <stmt> KW_EXIT
+%type <ast> expr
+%type <ast> start_unit
+//%type <basic> sub_block
+%type <ast> statement
+%type <ast> assignment_statement
+%type <ast> exit_statement
+//%type <vec_ast> statements
+%token <ast> KW_EXIT
 %token KW_NEWLINE
 
 %left '-' '+'
@@ -84,18 +84,21 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 //    : KW_SUBROUTINE sub_block KW_SUBROUTINE
 
 start_unit
-    : sub_block // { $$ = $1; RESULT($$); }
+    : statement // { $$ = $1; RESULT($$); }
     | expr { $$ = $1; RESULT($$); }
     ;
 
 
+/*
 sub_block
-    : statements { /* FIXME: $$ = $1;*/ }
+    : statements
     ;
+*/
 
 // -----------------------------------------------------------------------------
 // Control flow
 
+/*
 statements
     : statements statement_sep statement { $$ = $1;  $$.push_back($3); }
     | statement { $$.push_back($1); }
@@ -105,6 +108,7 @@ statement_sep
     : KW_NEWLINE
     | ';'
     ;
+*/
 
 statement
     : assignment_statement

@@ -6,6 +6,7 @@
 #include <lfortran/parser/parser.h>
 
 using LFortran::parse;
+using LFortran::AST::ast_t;
 using LFortran::AST::expr_t;
 using LFortran::AST::Name_t;
 using LFortran::AST::BaseWalkVisitor;
@@ -21,9 +22,10 @@ public:
     }
 };
 
-int count(const expr_t &b) {
+int count(const ast_t &b) {
     CountVisitor v;
-    v.visit_expr(b);
+    // FIXME: unsafe cast
+    v.visit_expr((const expr_t &)b);
     return v.get_count();
 }
 

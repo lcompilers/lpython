@@ -8,7 +8,7 @@
 TEST_CASE("Check pickle()") {
     Allocator al(4*1024);
     std::string s, r;
-    LFortran::AST::expr_t* result;
+    LFortran::AST::ast_t* result;
 
     result = LFortran::parse(al, "2*x");
     s = LFortran::pickle(*result);

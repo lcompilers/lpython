@@ -8,9 +8,8 @@ namespace LFortran
 {
 
 struct YYSTYPE {
-    LFortran::AST::expr_t* basic;
-    LFortran::AST::stmt_t* stmt;
-    std::vector<LFortran::AST::stmt_t*> vec_stmt;
+    LFortran::AST::ast_t* ast;
+    std::vector<LFortran::AST::ast_t*> vec_stmt;
     unsigned long n;
     std::string string;
     // Constructor

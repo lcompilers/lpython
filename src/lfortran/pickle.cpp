@@ -1,10 +1,13 @@
 #include <string>
 #include <lfortran/pickle.h>
 
+using LFortran::AST::ast_t;
 using LFortran::AST::expr_t;
+using LFortran::AST::stmt_t;
 using LFortran::AST::Name_t;
 using LFortran::AST::Num_t;
 using LFortran::AST::BinOp_t;
+using LFortran::AST::astType;
 using LFortran::AST::exprType;
 using LFortran::AST::operatorType;
 using LFortran::AST::BaseWalkVisitor;
@@ -35,6 +38,15 @@ std::string op2str(const operatorType type)
     throw std::runtime_error("Unknown type");
 }
 
+template <class Visitor>
+static void visit_ast_t(const ast_t &x, Visitor &v) {
+    switch (x.type) {
+        case astType::expr: { v.visit_expr((const expr_t &)x); return; }
+        case astType::stmt: { v.visit_stmt((const stmt_t &)x); return; }
+        default : throw std::runtime_error("ast not implemented in visitor");
+    }
+}
+
 class PickleVisitor : public BaseWalkVisitor<PickleVisitor>
 {
     std::string s;
@@ -59,14 +71,17 @@ public:
     void visit_Num(const Num_t &x) {
         s.append(std::to_string(x.m_n));
     }
+    void visit_ast(const ast_t &x) {
+        visit_ast_t(x, *this);
+    }
     std::string get_str() {
         return s;
     }
 };
 
-std::string pickle(LFortran::AST::expr_t &ast) {
+std::string pickle(LFortran::AST::ast_t &ast) {
     PickleVisitor v;
-    v.visit_expr(ast);
+    v.visit_ast(ast);
     return v.get_str();
 }
 

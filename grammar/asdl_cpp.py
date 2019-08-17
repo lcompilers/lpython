@@ -81,6 +81,7 @@ def attr_to_args(attrs):
     return ", ".join(args)
 
 simple_sums = []
+sums = []
 products = []
 
 def convert_type(asdl_type):
@@ -104,6 +105,15 @@ def convert_type(asdl_type):
             type_ = type_ + "*"
     return type_
 
+class CollectVisitor(ASDLVisitor):
+
+    def visitType(self, tp):
+        self.visit(tp.value, tp.name)
+
+    def visitSum(self, sum, base):
+        if not is_simple_sum(sum):
+            sums.append(base);
+
 class ASTNodeVisitor0(ASDLVisitor):
 
     def visitModule(self, mod):
@@ -124,6 +134,7 @@ class ASTNodeVisitor0(ASDLVisitor):
             self.emit(    ", ".join(s), 1)
             self.emit("};");
         else:
+            sums.append(base);
             self.emit("struct %s_t; // Sum" % base)
 
     def visitProduct(self, product, name):
@@ -145,6 +156,7 @@ class ASTNodeVisitor1(ASDLVisitor):
     def visitProduct(self, product, name):
         self.emit("struct %s_t // Product" % name)
         self.emit("{");
+        self.emit(    "ast_t base;", 1)
         for f in product.fields:
             type_ = convert_type(f.type)
             if f.seq:
@@ -174,6 +186,7 @@ class ASTNodeVisitor(ASDLVisitor):
             self.emit("")
             self.emit("struct %s_t // Sum" % base)
             self.emit("{")
+            self.emit(    "ast_t base;", 1)
             self.emit(    "%sType type;" % base, 1)
             self.emit("};")
             self.emit("")
@@ -201,6 +214,7 @@ class ASTNodeVisitor(ASDLVisitor):
         self.emit("%s_t *n;" % cons.name, 2)
         self.emit("n = al.make_new<%s_t>();" % cons.name, 2)
         self.emit("n->base.type = %sType::%s;" % (base, cons.name), 2)
+        self.emit("n->base.base.type = astType::%s;" % (base), 2)
         for line in lines:
             self.emit(line, 2)
         self.emit("return (%s_t*)n;" % base, 2)
@@ -364,6 +378,15 @@ HEAD = r"""#ifndef LFORTRAN_AST_H
 
 namespace LFortran::AST {
 
+enum astType
+{
+    %s
+};
+
+struct ast_t
+{
+    int type;
+};
 
 """
 
@@ -389,9 +412,11 @@ def main(argv):
         return 2
     mod = asdl.parse(def_file)
     data = ASDLData(mod)
+    CollectVisitor(None, data).visit(mod)
     fp = open(out_file, "w")
     try:
-        fp.write(HEAD)
+        types_ = ", ".join(sums)
+        fp.write(HEAD % types_)
         for visitor in visitors:
             visitor(fp, data).visit(mod)
             fp.write("\n\n")

@@ -4,7 +4,7 @@
 namespace LFortran
 {
 
-LFortran::AST::expr_t *parse(Allocator &al, const std::string &s)
+LFortran::AST::ast_t *parse(Allocator &al, const std::string &s)
 {
     Parser p(al);
     p.parse(s);
