@@ -82,9 +82,6 @@ public:
     void visit_Num(const Num_t &x) {
         s.append(std::to_string(x.m_n));
     }
-    void visit_ast(const ast_t &x) {
-        visit_ast_t(x, *this);
-    }
     std::string get_str() {
         return s;
     }

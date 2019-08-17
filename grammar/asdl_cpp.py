@@ -269,6 +269,7 @@ class ASTVisitorVisitor2(ASDLVisitor):
         self.emit("private:")
         self.emit("    Derived& self() { return static_cast<Derived&>(*this); }")
         self.emit("public:")
+        self.emit(    "void visit_ast(const ast_t &b) { visit_ast_t(b, self()); }", 1)
         super(ASTVisitorVisitor2, self).visitModule(mod)
         self.emit("};")
 
