@@ -65,9 +65,10 @@ public:
     }
 };
 
-std::string ast_to_json(LFortran::AST::expr_t &ast) {
+std::string ast_to_json(LFortran::AST::ast_t &ast) {
     JSONVisitor v;
-    v.visit_expr(ast);
+    // FIXME: unsafe cast
+    v.visit_expr((const LFortran::AST::expr_t &)ast);
     return v.get_str();
 }
 

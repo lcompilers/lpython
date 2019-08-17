@@ -12,7 +12,7 @@ using namespace rapidjson;
 TEST_CASE("Check ast_to_json()") {
     Allocator al(4*1024);
     std::string s, r;
-    LFortran::AST::expr_t* result;
+    LFortran::AST::ast_t* result;
     rapidjson::Document d1, d2;
 
     result = LFortran::parse(al, "2*x");

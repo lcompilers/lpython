@@ -5,7 +5,7 @@
 
 namespace LFortran {
 
-    std::string ast_to_json(LFortran::AST::expr_t &ast);
+    std::string ast_to_json(LFortran::AST::ast_t &ast);
 
 }
 
