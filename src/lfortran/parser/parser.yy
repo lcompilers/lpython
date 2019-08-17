@@ -47,23 +47,77 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 } // code
 
 
+// -----------------------------------------------------------------------------
+// List of tokens
+// All tokens must be mentioned here in one of: %token, %type, %left, %right.
+// Otherwise Bison will issue an error. Each token mentioned here will end up a
+// member of the "enum yytokentype" in parser.tab.h. The only exception are
+// implicit one character literal tokens specified as strings, such as '+' or
+// '/'. Their codes are their character ord number.
 
 %token END_OF_FILE 0
 %token <string> IDENTIFIER
 %token <n> NUMERIC
-%type <basic> st_expr expr
+%type <basic> expr
+%type <stmt> statement
+%type <stmt> assignment_statement
+%type <stmt> exit_statement
+%type <vec_stmt> statements
+%token <stmt> KW_EXIT
+%token KW_NEWLINE
 
 %left '-' '+'
 %left '*' '/'
 %right POW
 
 
-%start st_expr
+%start start_sub_block
 
 %%
-st_expr
-    : expr { $$ = $1; RESULT($$); }
+
+// ----------------------------------------------------------------------------
+// Subroutine/functions/program definitions
+
+//subroutine
+//    : KW_SUBROUTINE sub_block KW_SUBROUTINE
+
+start_sub_block
+    : sub_block // { $$ = $1; RESULT($$); }
     ;
+
+
+sub_block
+    : statements
+    ;
+
+// -----------------------------------------------------------------------------
+// Control flow
+
+statements
+    : statements statement_sep statement { $$ = $1;  $$.push_back($3); }
+    | statement { $$.push_back($1); }
+    ;
+
+statement_sep
+    : KW_NEWLINE
+    | ';'
+    ;
+
+statement
+    : assignment_statement
+    | exit_statement
+    ;
+
+assignment_statement
+    : expr '=' expr { $$ = ASSIGNMENT($1, $3); }
+    ;
+
+exit_statement
+    : KW_EXIT
+    ;
+
+// -----------------------------------------------------------------------------
+// Fortran expression
 
 expr
     : expr '+' expr { $$ = ADD($1, $3); }
