@@ -208,7 +208,7 @@ class ASTNodeVisitor(ASDLVisitor):
             args.append("%s a_%s" % (type_, f.name))
             lines.append("n->m_%s = a_%s;" % (f.name, f.name))
         self.emit("};", 1)
-        self.emit("static inline %s_t* make_%s_t(%s) {" % (base, cons.name,
+        self.emit("static inline ast_t* make_%s_t(%s) {" % (cons.name,
             ", ".join(args)), 1)
         self.emit("%s_t *n;" % cons.name, 2)
         self.emit("n = al.make_new<%s_t>();" % cons.name, 2)
@@ -216,7 +216,7 @@ class ASTNodeVisitor(ASDLVisitor):
         self.emit("n->base.base.type = astType::%s;" % (base), 2)
         for line in lines:
             self.emit(line, 2)
-        self.emit("return (%s_t*)n;" % base, 2)
+        self.emit("return (ast_t*)n;", 2)
         self.emit("}", 1)
         self.emit("")
 

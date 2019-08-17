@@ -27,25 +27,16 @@ static inline expr_t* EXPR(ast_t *f)
     return (expr_t*)f;
 }
 
-static inline ast_t* AST(stmt_t *f)
-{
-    return (ast_t*)f;
-}
-static inline ast_t* AST(expr_t *f)
-{
-    return (ast_t*)f;
-}
-
 
 #define TYPE ast_t*
-#define ADD(x, y) AST(make_BinOp_t(p.m_a, EXPR(x), operatorType::Add, EXPR(y)))
-#define SUB(x, y) AST(make_BinOp_t(p.m_a, EXPR(x), operatorType::Sub, EXPR(y)))
-#define MUL(x, y) AST(make_BinOp_t(p.m_a, EXPR(x), operatorType::Mul, EXPR(y)))
-#define DIV(x, y) AST(make_BinOp_t(p.m_a, EXPR(x), operatorType::Div, EXPR(y)))
-#define POW(x, y) AST(make_BinOp_t(p.m_a, EXPR(x), operatorType::Pow, EXPR(y)))
-#define SYMBOL(x) AST(make_Name_t(p.m_a, &x[0]))
-#define INTEGER(x) AST(make_Num_t(p.m_a, x))
-#define ASSIGNMENT(x, y) AST(make_Assignment_t(p.m_a, EXPR(x), EXPR(y)))
+#define ADD(x, y) make_BinOp_t(p.m_a, EXPR(x), operatorType::Add, EXPR(y))
+#define SUB(x, y) make_BinOp_t(p.m_a, EXPR(x), operatorType::Sub, EXPR(y))
+#define MUL(x, y) make_BinOp_t(p.m_a, EXPR(x), operatorType::Mul, EXPR(y))
+#define DIV(x, y) make_BinOp_t(p.m_a, EXPR(x), operatorType::Div, EXPR(y))
+#define POW(x, y) make_BinOp_t(p.m_a, EXPR(x), operatorType::Pow, EXPR(y))
+#define SYMBOL(x) make_Name_t(p.m_a, &x[0])
+#define INTEGER(x) make_Num_t(p.m_a, x)
+#define ASSIGNMENT(x, y) make_Assignment_t(p.m_a, EXPR(x), EXPR(y))
 #define RESULT(x) p.result = x
 
 #endif
