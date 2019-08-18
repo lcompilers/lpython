@@ -4,10 +4,12 @@
 %param {LFortran::Parser &p}
 
 /*
-// Uncomment this to enable parser tracing:
+// Uncomment this to enable parser tracing. Then in the main code, set
+// extern int yydebug;
+// yydebug=1;
 %define parse.trace
 %printer { fprintf(yyo, "%s", $$.c_str()); } <string>
-%printer { std::cerr << *$$; } <basic>
+%printer { std::cerr << "AST TYPE: " << $$->type; } <ast>
 */
 
 
@@ -60,13 +62,14 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 %token <n> NUMERIC
 %type <ast> expr
 %type <ast> start_unit
-//%type <basic> sub_block
+%type <ast> subroutine
 %type <ast> statement
 %type <ast> assignment_statement
 %type <ast> exit_statement
-//%type <vec_ast> statements
+%type <vec_ast> statements
 %token <ast> KW_EXIT
 %token KW_NEWLINE
+%token KW_SUBROUTINE
 
 %left '-' '+'
 %left '*' '/'
@@ -80,25 +83,19 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 // ----------------------------------------------------------------------------
 // Subroutine/functions/program definitions
 
-//subroutine
-//    : KW_SUBROUTINE sub_block KW_SUBROUTINE
-
 start_unit
-    : statement { $$ = $1; RESULT($$); }
+    : subroutine { $$ = $1; RESULT($$); }
+    | statement { $$ = $1; RESULT($$); }
     | expr { $$ = $1; RESULT($$); }
     ;
 
-
-/*
-sub_block
-    : statements
+subroutine
+    : KW_SUBROUTINE statement_sep statements statement_sep KW_SUBROUTINE { $$ = SUBROUTINE($3); }
     ;
-*/
 
 // -----------------------------------------------------------------------------
 // Control flow
 
-/*
 statements
     : statements statement_sep statement { $$ = $1;  $$.push_back($3); }
     | statement { $$.push_back($1); }
@@ -108,7 +105,6 @@ statement_sep
     : KW_NEWLINE
     | ';'
     ;
-*/
 
 statement
     : assignment_statement

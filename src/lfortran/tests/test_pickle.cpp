@@ -37,3 +37,12 @@ TEST_CASE("Arithmetics") {
     CHECK(P("1+2**3*4")   == "(BinOp Add 1 (BinOp Mul (BinOp Pow 2 3) 4))");
     CHECK(P("1+2**(3*4)") == "(BinOp Add 1 (BinOp Pow 2 (BinOp Mul 3 4)))");
 }
+
+TEST_CASE("Subroutines") {
+    Allocator al(4*1024);
+
+    CHECK(P(R"(subroutine
+    x = y
+    x = 2*y
+    subroutine)")   == "(Subroutine 2 (Assignment x y)(Assignment y (BinOp Mul 2 y)))");
+}

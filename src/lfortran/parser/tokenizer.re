@@ -47,7 +47,8 @@ int Tokenizer::lex(YYSTYPE &yylval)
             re2c:define:YYCTYPE = "unsigned char";
 
             end = "\x00";
-            whitespace = [ \t\v\n\r]+;
+            whitespace = [ \t\v\r]+;
+            newline = "\n";
             dig = [0-9];
             char =  [\x80-\xff] | [a-zA-Z_];
             operators = "-"|"+"|"/"|"("|")"|"*"|","|"=";
@@ -62,8 +63,12 @@ int Tokenizer::lex(YYSTYPE &yylval)
             }
             end { return yytokentype::END_OF_FILE; }
             whitespace { continue; }
+            newline { return yytokentype::KW_NEWLINE; }
 
-            // FIXME:
+            // keywords
+            'exit'       { return yytokentype::KW_EXIT; }
+            'subroutine' { return yytokentype::KW_SUBROUTINE; }
+
             operators { return tok[0]; }
             pows { return yytokentype::POW; }
             ident { yylval.string=token(); return yytokentype::IDENTIFIER; }
