@@ -21,6 +21,17 @@ if (NOT CMAKE_CXX_STANDARD)
         CACHE STRING "C++ standard" FORCE)
 endif ()
 
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # In Debug mode we enable assertions
+    set(WITH_LFORTRAN_ASSERT_DEFAULT yes)
+else()
+    set(WITH_LFORTRAN_ASSERT_DEFAULT no)
+endif()
+
+
+# LFORTRAN_ASSERT
+set(WITH_LFORTRAN_ASSERT ${WITH_LFORTRAN_ASSERT_DEFAULT}
+    CACHE BOOL "Enable LFORTRAN_ASSERT macro")
 
 # JSON
 set(WITH_JSON no CACHE BOOL "Build with JSON support")
@@ -45,6 +56,7 @@ else ()
     message("C++ compiler flags    : ${CMAKE_CXX_FLAGS_RELEASE}")
 endif ()
 message("Installation prefix: ${CMAKE_INSTALL_PREFIX}")
+message("WITH_LFORTRAN_ASSERT: ${WITH_LFORTRAN_ASSERT}")
 message("WITH_JSON: ${WITH_JSON}")
 
 

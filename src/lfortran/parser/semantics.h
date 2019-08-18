@@ -13,10 +13,12 @@
 #include <lfortran/ast.h>
 
 using LFortran::AST::astType;
+using LFortran::AST::stmtType;
 using LFortran::AST::operatorType;
 using LFortran::AST::stmt_t;
 using LFortran::AST::expr_t;
 using LFortran::AST::ast_t;
+using LFortran::AST::Assignment_t;
 using LFortran::AST::make_BinOp_t;
 using LFortran::AST::make_Name_t;
 using LFortran::AST::make_Num_t;
@@ -25,6 +27,19 @@ static inline expr_t* EXPR(ast_t *f)
 {
     LFORTRAN_ASSERT(f->type == astType::expr);
     return (expr_t*)f;
+}
+
+static inline stmt_t** STMTS(Allocator &al, std::vector<ast_t*> &x)
+{
+    stmt_t **s = (stmt_t**)al.allocate(sizeof(stmt_t*) * x.size());
+    for (size_t i=0; i < x.size(); i++) {
+        LFORTRAN_ASSERT(x[i]->type == astType::stmt);
+        s[i] = (stmt_t*)x[i];
+    }
+    for (size_t i=0; i < x.size(); i++) {
+        LFORTRAN_ASSERT(s[i]->base.type == astType::stmt)
+    }
+    return s;
 }
 
 
@@ -37,6 +52,18 @@ static inline expr_t* EXPR(ast_t *f)
 #define SYMBOL(x) make_Name_t(p.m_a, &x[0])
 #define INTEGER(x) make_Num_t(p.m_a, x)
 #define ASSIGNMENT(x, y) make_Assignment_t(p.m_a, EXPR(x), EXPR(y))
+#define SUBROUTINE(x) make_Subroutine_t(p.m_a, \
+        /*name*/ nullptr, \
+        /*args*/ nullptr, \
+        /*n_args*/ 0, \
+        /*use*/ nullptr, \
+        /*n_use*/ 0, \
+        /*decl*/ nullptr, \
+        /*n_decl*/ 0, \
+        /*body*/ STMTS(p.m_a, x), \
+        /*n_body*/ x.size(), \
+        /*contains*/ nullptr, \
+        /*n_contains*/ 0)
 #define RESULT(x) p.result = x
 
 #endif

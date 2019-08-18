@@ -4,34 +4,45 @@
 #include <lfortran/pickle.h>
 #include <lfortran/parser/parser.h>
 
+std::string p(Allocator &al, const std::string &s)
+{
+    LFortran::AST::ast_t* result;
+    result = LFortran::parse(al, s);
+    return LFortran::pickle(*result);
+}
+
+#define P(x) p(al, x)
+
 
 TEST_CASE("Check pickle()") {
     Allocator al(4*1024);
-    std::string s, r;
-    LFortran::AST::ast_t* result;
 
-    result = LFortran::parse(al, "2*x");
-    s = LFortran::pickle(*result);
-    std::cout << s << std::endl;
-    r = "(BinOp Mul 2 x)";
-    CHECK(s == r);
+    CHECK(P("2*x")   == "(BinOp Mul 2 x)");
+    CHECK(P("(2*x)") == "(BinOp Mul 2 x)");
+    CHECK(P("3*x**y") == "(BinOp Mul 3 (BinOp Pow x y))");
+    CHECK(P("x = 2*y") == "(Assignment x (BinOp Mul 2 y))");
+}
 
+TEST_CASE("Arithmetics") {
+    Allocator al(4*1024);
 
-    result = LFortran::parse(al, "(2*x)");
-    s = LFortran::pickle(*result);
-    std::cout << s << std::endl;
-    CHECK(s == r);
+    CHECK(P("1+2*3")   == "(BinOp Add 1 (BinOp Mul 2 3))");
+    CHECK(P("1+(2*3)") == "(BinOp Add 1 (BinOp Mul 2 3))");
+    CHECK(P("1*2+3")   == "(BinOp Add (BinOp Mul 1 2) 3)");
+    CHECK(P("(1+2)*3") == "(BinOp Mul (BinOp Add 1 2) 3)");
+    CHECK(P("1+2*3**4")   == "(BinOp Add 1 (BinOp Mul 2 (BinOp Pow 3 4)))");
+    CHECK(P("1+2*(3**4)") == "(BinOp Add 1 (BinOp Mul 2 (BinOp Pow 3 4)))");
+    CHECK(P("1+(2*3)**4") == "(BinOp Add 1 (BinOp Pow (BinOp Mul 2 3) 4))");
+    CHECK(P("(1+2*3)**4") == "(BinOp Pow (BinOp Add 1 (BinOp Mul 2 3)) 4)");
+    CHECK(P("1+2**3*4")   == "(BinOp Add 1 (BinOp Mul (BinOp Pow 2 3) 4))");
+    CHECK(P("1+2**(3*4)") == "(BinOp Add 1 (BinOp Pow 2 (BinOp Mul 3 4)))");
+}
 
+TEST_CASE("Subroutines") {
+    Allocator al(4*1024);
 
-    result = LFortran::parse(al, "3*x**y");
-    s = LFortran::pickle(*result);
-    std::cout << s << std::endl;
-    r = "(BinOp Mul 3 (BinOp Pow x y))";
-    CHECK(s == r);
-
-    result = LFortran::parse(al, "x = 2*y");
-    s = LFortran::pickle(*result);
-    std::cout << s << std::endl;
-    r = "(Assignment x (BinOp Mul 2 y))";
-    CHECK(s == r);
+    CHECK(P(R"(subroutine
+    x = y
+    x = 2*y
+    subroutine)")   == "(Subroutine 2 (Assignment x y)(Assignment y (BinOp Mul 2 y)))");
 }

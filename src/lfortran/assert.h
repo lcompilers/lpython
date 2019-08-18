@@ -3,6 +3,7 @@
 
 // LFORTRAN_ASSERT uses internal functions to perform as assert
 // so that there is no effect with NDEBUG
+#include <lfortran/config.h>
 #if defined(WITH_LFORTRAN_ASSERT)
 
 #include <iostream>
