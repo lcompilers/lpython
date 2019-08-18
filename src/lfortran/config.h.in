@@ -1,0 +1,7 @@
+#ifndef LFORTRAN_CONFIG_H
+#define LFORTRAN_CONFIG_H
+
+/* Define if you want to enable ASSERT testing in LFortran */
+#cmakedefine WITH_LFORTRAN_ASSERT
+
+#endif // LFORTRAN_CONFIG_H
