@@ -84,24 +84,36 @@ simple_sums = []
 sums = []
 products = []
 
-def convert_type(asdl_type):
+def convert_type(asdl_type, seq):
     if asdl_type in simple_sums:
         type_ = asdl_type + "Type"
+        assert not seq
     elif asdl_type == "string":
         type_ = "char*"
+        assert not seq
     elif asdl_type == "identifier":
         type_ = "char*"
+        if seq:
+            # List of strings is **
+            type_ = type_ + "*"
     elif asdl_type == "constant":
         type_ = "bool"
+        assert not seq
     elif asdl_type == "object":
         # FIXME: this should use some other type that we actually need
         type_ = "int /* object */"
+        if seq:
+            type_ = type_ + "*"
     elif asdl_type == "int":
         type_ = "int"
+        assert not seq
     else:
         type_ = asdl_type + "_t"
         if not asdl_type in products:
             # Sum type is polymorphic, must be a pointer
+            type_ = type_ + "*"
+        if seq:
+            # Sequence of polymorphic types must be a pointer also
             type_ = type_ + "*"
     return type_
 
@@ -157,10 +169,12 @@ class ASTNodeVisitor1(ASDLVisitor):
         self.emit("{");
         self.emit(    "ast_t base;", 1)
         for f in product.fields:
-            type_ = convert_type(f.type)
+            type_ = convert_type(f.type, f.seq)
             if f.seq:
-                type_ = type_ + "*"
-            self.emit("%s m_%s;" % (type_, f.name), 1)
+                seq = " // Sequence"
+            else:
+                seq = ""
+            self.emit("%s m_%s;%s" % (type_, f.name, seq), 1)
         self.emit("};");
 
 
@@ -201,22 +215,27 @@ class ASTNodeVisitor(ASDLVisitor):
         args = ["Allocator &al"]
         lines = []
         for f in cons.fields:
-            type_ = convert_type(f.type)
+            type_ = convert_type(f.type, f.seq)
             if f.seq:
-                type_ = type_ + "*"
-            self.emit("%s m_%s;" % (type_, f.name), 2)
+                seq = " size_t n_%s; // Sequence" % f.name
+            else:
+                seq = ""
+            self.emit("%s m_%s;%s" % (type_, f.name, seq), 2)
             args.append("%s a_%s" % (type_, f.name))
             lines.append("n->m_%s = a_%s;" % (f.name, f.name))
+            if f.seq:
+                args.append("size_t n_%s" % (f.name))
+                lines.append("n->n_%s = n_%s;" % (f.name, f.name))
         self.emit("};", 1)
         self.emit("static inline ast_t* make_%s_t(%s) {" % (cons.name,
             ", ".join(args)), 1)
-        self.emit("%s_t *n;" % cons.name, 2)
-        self.emit("n = al.make_new<%s_t>();" % cons.name, 2)
-        self.emit("n->base.type = %sType::%s;" % (base, cons.name), 2)
-        self.emit("n->base.base.type = astType::%s;" % (base), 2)
+        self.emit(    "%s_t *n;" % cons.name, 2)
+        self.emit(    "n = al.make_new<%s_t>();" % cons.name, 2)
+        self.emit(    "n->base.type = %sType::%s;" % (base, cons.name), 2)
+        self.emit(    "n->base.base.type = astType::%s;" % (base), 2)
         for line in lines:
             self.emit(line, 2)
-        self.emit("return (ast_t*)n;", 2)
+        self.emit(    "return (ast_t*)n;", 2)
         self.emit("}", 1)
         self.emit("")
 
