@@ -92,6 +92,7 @@ cxx:
     - cmake
          -DCMAKE_PREFIX_PATH=$HOME/conda_root
          -DCMAKE_INSTALL_PREFIX=`pwd`
+         -DCMAKE_BUILD_TYPE=Debug
          -DWITH_JSON=yes
          .
     - cmake --build . --target install
