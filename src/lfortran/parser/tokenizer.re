@@ -1,4 +1,4 @@
-#include <climits>
+#include <limits>
 
 #include "tokenizer.h"
 #include "parser.tab.hh"
@@ -18,7 +18,7 @@ void Tokenizer::set_string(const std::string &str)
 template<int base>
 bool adddgt(unsigned long &u, unsigned long d)
 {
-    if (u > (ULONG_MAX - d) / base) {
+    if (u > (std::numeric_limits<unsigned long>::max() - d) / base) {
         return false;
     }
     u = u * base + d;
@@ -50,10 +50,10 @@ int Tokenizer::lex(YYSTYPE &yylval)
             whitespace = [ \t\v\r]+;
             newline = "\n";
             dig = [0-9];
-            char =  [\x80-\xff] | [a-zA-Z_];
-            operators = "-"|"+"|"/"|"("|")"|"*"|","|"=";
+            char =  [a-zA-Z_];
+            operators = "-"|"+"|"/"|"("|")"|"*"|","|"="|";";
 
-            pows = "**"|"@";
+            pow = "**";
             ident = char (char | dig)*;
             numeric = dig+;
 
@@ -70,7 +70,7 @@ int Tokenizer::lex(YYSTYPE &yylval)
             'subroutine' { return yytokentype::KW_SUBROUTINE; }
 
             operators { return tok[0]; }
-            pows { return yytokentype::POW; }
+            pow { return yytokentype::POW; }
             ident { yylval.string=token(); return yytokentype::IDENTIFIER; }
             numeric {
                 if (lex_dec(tok, cur, u)) {
