@@ -194,8 +194,8 @@ int Tokenizer::lex(YYSTYPE &yylval)
             newline { return yytokentype::TK_NEWLINE; }
 
             // Single character symbols
-            operators = "-"|"+"|"/"|"("|")"|"*"|","|"="|";";
-            operators { return tok[0]; }
+            symbols1 = "("|")"|"["|"]"|"+"|"-"|"="|":"|";"|"/"|"%"|","|"*"|"|";
+            symbols1 { return tok[0]; }
 
             // Multiple character symbols
             "**" { return yytokentype::POW; }
