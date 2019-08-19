@@ -76,6 +76,13 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 %token TK_CONCAT
 %token TK_ARROW
 
+%token TK_EQ
+%token TK_NE
+%token TK_LT
+%token TK_LE
+%token TK_GT
+%token TK_GE
+
 %token KW_ABSTRACT
 %token KW_ALL
 %token KW_ALLOCATABLE

@@ -204,6 +204,15 @@ int Tokenizer::lex(YYSTYPE &yylval)
             "//" { return yytokentype::TK_CONCAT; }
             "=>" { return yytokentype::TK_ARROW; }
 
+            // Relational operators
+            ".eq." | "==" { return yytokentype::TK_EQ; }
+            ".ne." | "/=" { return yytokentype::TK_NE; }
+            ".lt." | "<"  { return yytokentype::TK_LT; }
+            ".le." | "<=" { return yytokentype::TK_LE; }
+            ".gt." | ">"  { return yytokentype::TK_GT; }
+            ".ge." | ">=" { return yytokentype::TK_GE; }
+
+
             ident { yylval.string=token(); return yytokentype::IDENTIFIER; }
             numeric {
                 if (lex_dec(tok, cur, u)) {
