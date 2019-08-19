@@ -59,6 +59,7 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 
 %token END_OF_FILE 0
 %token <string> TK_NAME
+%token <string> TK_DEF_OP
 %token <n> TK_INTEGER
 %type <ast> expr
 %type <ast> start_unit

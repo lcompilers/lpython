@@ -229,6 +229,7 @@ int Tokenizer::lex(YYSTYPE &yylval)
                 }
             }
 
+            "."[a-z]+"." { yylval.string=token(); return yytokentype::TK_DEF_OP; }
             name { yylval.string=token(); return yytokentype::TK_NAME; }
         */
     }
