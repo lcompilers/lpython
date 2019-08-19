@@ -98,6 +98,7 @@ std::vector<int> tokens(const std::string &input)
     return tst;
 }
 
+using tt = yytokentype;
 
 TEST_CASE("Tokenizer") {
     std::string s;
@@ -108,44 +109,44 @@ TEST_CASE("Tokenizer") {
     x = 2*y
     subroutine)";
     ref = {
-        yytokentype::KW_SUBROUTINE,
-        yytokentype::KW_NEWLINE,
-        yytokentype::IDENTIFIER,
+        tt::KW_SUBROUTINE,
+        tt::KW_NEWLINE,
+        tt::IDENTIFIER,
         '=',
-        yytokentype::IDENTIFIER,
-        yytokentype::KW_NEWLINE,
-        yytokentype::IDENTIFIER,
+        tt::IDENTIFIER,
+        tt::KW_NEWLINE,
+        tt::IDENTIFIER,
         '=',
-        yytokentype::NUMERIC,
+        tt::NUMERIC,
         '*',
-        yytokentype::IDENTIFIER,
-        yytokentype::KW_NEWLINE,
-        yytokentype::KW_SUBROUTINE,
-        yytokentype::END_OF_FILE,
+        tt::IDENTIFIER,
+        tt::KW_NEWLINE,
+        tt::KW_SUBROUTINE,
+        tt::END_OF_FILE,
     };
     CHECK(tokens(s) == ref);
 
     s = "2*x**3";
     ref = {
-        yytokentype::NUMERIC,
+        tt::NUMERIC,
         '*',
-        yytokentype::IDENTIFIER,
-        yytokentype::POW,
-        yytokentype::NUMERIC,
-        yytokentype::END_OF_FILE,
+        tt::IDENTIFIER,
+        tt::POW,
+        tt::NUMERIC,
+        tt::END_OF_FILE,
     };
     CHECK(tokens(s) == ref);
 
     s = "(2*x**3)";
     ref = {
         '(',
-        yytokentype::NUMERIC,
+        tt::NUMERIC,
         '*',
-        yytokentype::IDENTIFIER,
-        yytokentype::POW,
-        yytokentype::NUMERIC,
+        tt::IDENTIFIER,
+        tt::POW,
+        tt::NUMERIC,
         ')',
-        yytokentype::END_OF_FILE,
+        tt::END_OF_FILE,
     };
     CHECK(tokens(s) == ref);
 }
