@@ -450,4 +450,63 @@ TEST_CASE("Tokenizer") {
         tt::END_OF_FILE,
     };
     CHECK(tokens(s) == ref);
+
+    s = "1+1.0+2";
+    ref = {
+        tt::TK_INTEGER,
+        '+',
+        tt::TK_REAL,
+        '+',
+        tt::TK_INTEGER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "1+1d0+2";
+    ref = {
+        tt::TK_INTEGER,
+        '+',
+        tt::TK_REAL,
+        '+',
+        tt::TK_INTEGER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "1D-5+1.e12+2.E-10+1.E+10+1e10";
+    ref = {
+        tt::TK_REAL,
+        '+',
+        tt::TK_REAL,
+        '+',
+        tt::TK_REAL,
+        '+',
+        tt::TK_REAL,
+        '+',
+        tt::TK_REAL,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "3 + .3 + .3e-3";
+    ref = {
+        tt::TK_INTEGER,
+        '+',
+        tt::TK_REAL,
+        '+',
+        tt::TK_REAL,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "3 + 3. + 3.e-3";
+    ref = {
+        tt::TK_INTEGER,
+        '+',
+        tt::TK_REAL,
+        '+',
+        tt::TK_REAL,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
 }

@@ -49,10 +49,15 @@ int Tokenizer::lex(YYSTYPE &yylval)
             end = "\x00";
             whitespace = [ \t\v\r]+;
             newline = "\n";
-            dig = [0-9];
+            digit = [0-9];
             char =  [a-zA-Z_];
-            name = char (char | dig)*;
-            integer = dig+;
+            name = char (char | digit)*;
+            significand = (digit+"."digit*) | ("."digit+);
+            exp = [edED][-+]? digit+;
+            integer = digit+;
+            real1 = significand exp?;
+            real2 = digit+ exp;
+            real = real1 | real2;
 
             * {
                 throw LFortran::TokenizerError("Unknown token: '"
@@ -220,6 +225,7 @@ int Tokenizer::lex(YYSTYPE &yylval)
             ".neqv." { return yytokentype::TK_NEQV; }
 
 
+            real { return yytokentype::TK_REAL; }
             integer {
                 if (lex_dec(tok, cur, u)) {
                     yylval.n = u;
