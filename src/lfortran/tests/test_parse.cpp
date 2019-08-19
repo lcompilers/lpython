@@ -84,7 +84,8 @@ TEST_CASE("Test longer parser (N = 500)") {
     CHECK(c == 4509);
 }
 
-std::vector<int> tokens(const std::string &input)
+std::vector<int> tokens(const std::string &input,
+        std::vector<LFortran::YYSTYPE> *stypes=nullptr)
 {
     LFortran::Tokenizer t;
     t.set_string(input);
@@ -94,6 +95,7 @@ std::vector<int> tokens(const std::string &input)
         LFortran::YYSTYPE y;
         token = t.lex(y);
         tst.push_back(token);
+        if (stypes) stypes->push_back(y);
     }
     return tst;
 }
@@ -103,6 +105,7 @@ using tt = yytokentype;
 TEST_CASE("Tokenizer") {
     std::string s;
     std::vector<int> ref;
+    std::vector<LFortran::YYSTYPE> stypes;
 
     s = R"(subroutine
     x = y
@@ -160,5 +163,20 @@ TEST_CASE("Tokenizer") {
     CHECK(tokens(s) == ref);
 
     s = "2*??";
+    CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
+
+    s = "2*12345678901234567890";
+    ref = {
+        tt::NUMERIC,
+        '*',
+        tt::NUMERIC,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s, &stypes) == ref);
+    CHECK(stypes[0].n == 2);
+    unsigned long nref = 12345678901234567890U;
+    CHECK(stypes[2].n == nref);
+
+    s = "2*123456789012345678901";
     CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
 }
