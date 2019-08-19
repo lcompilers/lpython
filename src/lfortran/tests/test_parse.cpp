@@ -404,4 +404,50 @@ TEST_CASE("Tokenizer") {
         tt::END_OF_FILE,
     };
     CHECK(tokens(s) == ref);
+
+    s = "not";
+    ref = {
+        tt::TK_NAME,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = ".not.";
+    ref = {
+        tt::TK_NOT,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = ".nnot.";
+    ref = {
+        tt::TK_DEF_OP,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "2.nnot.3";
+    ref = {
+        tt::TK_INTEGER,
+        tt::TK_DEF_OP,
+        tt::TK_INTEGER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "2.not.3";
+    ref = {
+        tt::TK_INTEGER,
+        tt::TK_NOT,
+        tt::TK_INTEGER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "nnot";
+    ref = {
+        tt::TK_NAME,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
 }
