@@ -1,6 +1,7 @@
 #include <tests/doctest.h>
 
 #include <iostream>
+#include <sstream>
 #include <chrono>
 
 #include <lfortran/parser/parser.h>
@@ -11,6 +12,33 @@ using LFortran::AST::ast_t;
 using LFortran::AST::expr_t;
 using LFortran::AST::Name_t;
 using LFortran::AST::BaseWalkVisitor;
+
+// Print any vector like iterable to a string
+template <class T>
+inline std::ostream &print_vec(std::ostream &out, T &d)
+{
+    out << "[";
+    for (auto p = d.begin(); p != d.end(); p++) {
+        if (p != d.begin())
+            out << ", ";
+        out << *p;
+    }
+    out << "]";
+    return out;
+}
+
+
+namespace doctest {
+    // Convert std::vector<T> to string for doctest
+    template<typename T> struct StringMaker<std::vector<T>> {
+        static String convert(const std::vector<T> &value) {
+            std::ostringstream oss;
+            print_vec(oss, value);
+            return oss.str().c_str();
+        }
+    };
+}
+
 
 class CountVisitor : public BaseWalkVisitor<CountVisitor>
 {
@@ -56,20 +84,26 @@ TEST_CASE("Test longer parser (N = 500)") {
     CHECK(c == 4509);
 }
 
+std::vector<int> tokens(const std::string &input)
+{
+    LFortran::Tokenizer t;
+    t.set_string(input);
+    std::vector<int> tst;
+    int token = yytokentype::END_OF_FILE + 1; // Something different from EOF
+    while (token != yytokentype::END_OF_FILE) {
+        LFortran::YYSTYPE y;
+        token = t.lex(y);
+        tst.push_back(token);
+    }
+    return tst;
+}
+
+
 TEST_CASE("Tokenizer 1") {
-    std::string input = R"(subroutine
+    std::string s = R"(subroutine
     x = y
     x = 2*y
     subroutine)";
-    /*
-    END_OF_FILE = 0,
-    IDENTIFIER = 258,
-    NUMERIC = 259,
-    KW_EXIT = 260,
-    KW_NEWLINE = 261,
-    KW_SUBROUTINE = 262,
-    POW = 263
-    */
     std::vector<int> ref = {
         yytokentype::KW_SUBROUTINE,
         yytokentype::KW_NEWLINE,
@@ -86,18 +120,11 @@ TEST_CASE("Tokenizer 1") {
         yytokentype::KW_SUBROUTINE,
         yytokentype::END_OF_FILE,
     };
-    LFortran::Tokenizer t;
-    t.set_string(input);
-    for (size_t i = 0; i < ref.size(); i++) {
-        CAPTURE(i);
-        LFortran::YYSTYPE y;
-        int token = t.lex(y);
-        CHECK(token == ref[i]);
-    }
+    CHECK(tokens(s) == ref);
 }
 
 TEST_CASE("Tokenizer 2") {
-    std::string input = "2*x**3";
+    std::string s = "2*x**3";
     std::vector<int> ref = {
         yytokentype::NUMERIC,
         '*',
@@ -106,18 +133,11 @@ TEST_CASE("Tokenizer 2") {
         yytokentype::NUMERIC,
         yytokentype::END_OF_FILE,
     };
-    LFortran::Tokenizer t;
-    t.set_string(input);
-    for (size_t i = 0; i < ref.size(); i++) {
-        CAPTURE(i);
-        LFortran::YYSTYPE y;
-        int token = t.lex(y);
-        CHECK(token == ref[i]);
-    }
+    CHECK(tokens(s) == ref);
 }
 
 TEST_CASE("Tokenizer 3") {
-    std::string input = "(2*x**3)";
+    std::string s = "(2*x**3)";
     std::vector<int> ref = {
         '(',
         yytokentype::NUMERIC,
@@ -128,12 +148,5 @@ TEST_CASE("Tokenizer 3") {
         ')',
         yytokentype::END_OF_FILE,
     };
-    LFortran::Tokenizer t;
-    t.set_string(input);
-    for (size_t i = 0; i < ref.size(); i++) {
-        CAPTURE(i);
-        LFortran::YYSTYPE y;
-        int token = t.lex(y);
-        CHECK(token == ref[i]);
-    }
+    CHECK(tokens(s) == ref);
 }
