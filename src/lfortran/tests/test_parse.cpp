@@ -562,4 +562,34 @@ TEST_CASE("Tokenizer") {
         tt::END_OF_FILE,
     };
     CHECK(tokens(s) == ref);
+
+    s = "3_i + 3._dp + 3.e-3_dp + 0.3_dp + 1e5_dp";
+    ref = {
+        tt::TK_INTEGER,
+        '+',
+        tt::TK_REAL,
+        '+',
+        tt::TK_REAL,
+        '+',
+        tt::TK_REAL,
+        '+',
+        tt::TK_REAL,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "3_4 + 3._8 + 3.e-3_8 + 0.3_8 + 1e5_8";
+    ref = {
+        tt::TK_INTEGER,
+        '+',
+        tt::TK_REAL,
+        '+',
+        tt::TK_REAL,
+        '+',
+        tt::TK_REAL,
+        '+',
+        tt::TK_REAL,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
 }

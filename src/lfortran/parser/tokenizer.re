@@ -54,12 +54,13 @@ int Tokenizer::lex(YYSTYPE &yylval)
             char =  [a-zA-Z_];
             name = char (char | digit)*;
             defop = "."[a-z]+".";
+            kind = digit+ | name;
             significand = (digit+"."digit*) | ("."digit+);
             exp = [edED][-+]? digit+;
-            integer = digit+;
-            real1 = significand exp;
-            real2 = significand;
-            real3 = digit+ exp;
+            integer = digit+ ("_" kind)?;
+            real1 = significand exp ("_" kind)?;
+            real2 = significand ("_" kind)?;
+            real3 = digit+ exp ("_" kind)?;
 
             * {
                 throw LFortran::TokenizerError("Unknown token: '"
