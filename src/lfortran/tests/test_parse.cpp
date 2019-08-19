@@ -867,6 +867,18 @@ TEST_CASE("Tokenizer") {
     };
     CHECK(tokens(s) == ref);
 
+    s = R"(print *, somekind_"o,""k", otherKind_"s''""''")";
+    ref = {
+        tt::KW_PRINT,
+        '*',
+        ',',
+        tt::TK_STRING,
+        ',',
+        tt::TK_STRING,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
     /*
     // Segfaults instead of an exception:
     s = R"(print *, "o,'"k", "s''""''")";

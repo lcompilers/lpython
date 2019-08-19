@@ -255,8 +255,8 @@ int Tokenizer::lex(YYSTYPE &yylval)
                 }
             }
 
-            '"' ('""'|[^"])* '"' { return yytokentype::TK_STRING; }
-            "'" ("''"|[^'])* "'" { return yytokentype::TK_STRING; }
+            (kind "_")? '"' ('""'|[^"])* '"' { return yytokentype::TK_STRING; }
+            (kind "_")? "'" ("''"|[^'])* "'" { return yytokentype::TK_STRING; }
 
             defop { yylval.string=token(); return yytokentype::TK_DEF_OP; }
             name { yylval.string=token(); return yytokentype::TK_NAME; }
