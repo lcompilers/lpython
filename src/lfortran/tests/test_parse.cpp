@@ -149,4 +149,16 @@ TEST_CASE("Tokenizer") {
         tt::END_OF_FILE,
     };
     CHECK(tokens(s) == ref);
+
+    s = "2*x";
+    ref = {
+        tt::NUMERIC,
+        '*',
+        tt::IDENTIFIER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "2*??";
+    CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
 }
