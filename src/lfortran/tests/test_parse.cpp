@@ -189,7 +189,7 @@ TEST_CASE("Tokenizer") {
     s = "2*\\";
     CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
 
-    s = "2*18446744073709551615";
+    s = "2*4294967295"; // 2**32-1, works everywhere
     ref = {
         tt::TK_INTEGER,
         '*',
@@ -198,10 +198,10 @@ TEST_CASE("Tokenizer") {
     };
     CHECK(tokens(s, &stypes) == ref);
     CHECK(stypes[0].n == 2);
-    unsigned long nref = 18446744073709551615U;
+    unsigned long nref = 4294967295U;
     CHECK(stypes[2].n == nref);
 
-    s = "2*18446744073709551616";
+    s = "2*18446744073709551616"; // 2**64, too large, will throw an exception
     CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
 
     // The tokenizer will only go to the first null character
