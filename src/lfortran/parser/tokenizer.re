@@ -43,6 +43,7 @@ int Tokenizer::lex(YYSTYPE &yylval)
         /*!re2c
             re2c:define:YYCURSOR = cur;
             re2c:define:YYMARKER = mar;
+            re2c:define:YYCTXMARKER = ctxmar;
             re2c:yyfill:enable = 0;
             re2c:define:YYCTYPE = "unsigned char";
 
@@ -224,6 +225,15 @@ int Tokenizer::lex(YYSTYPE &yylval)
             ".or."   { return yytokentype::TK_OR; }
             ".eqv."  { return yytokentype::TK_EQV; }
             ".neqv." { return yytokentype::TK_NEQV; }
+
+            integer / defop {
+                if (lex_dec(tok, cur, u)) {
+                    yylval.n = u;
+                    return yytokentype::TK_INTEGER;
+                } else {
+                    throw LFortran::TokenizerError("Integer too large");
+                }
+            }
 
 
             real1 { return yytokentype::TK_REAL; }
