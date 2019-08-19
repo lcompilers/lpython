@@ -232,7 +232,9 @@ int Tokenizer::lex(YYSTYPE &yylval)
 
             // This is needed to ensure that 2.op.3 gets tokenized as
             // TK_INTEGER(2), TK_DEFOP(.op.), TK_INTEGER(3), and not
-            // TK_REAL(2.), TK_NAME(op), TK_REAL(.3).
+            // TK_REAL(2.), TK_NAME(op), TK_REAL(.3). The `.op.` can be a
+            // built-in or custom defined operator, such as: `.eq.`, `.not.`,
+            // or `.custom.`.
             integer / defop {
                 if (lex_dec(tok, cur, u)) {
                     yylval.n = u;
