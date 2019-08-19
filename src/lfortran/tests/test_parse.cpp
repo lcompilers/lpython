@@ -113,17 +113,17 @@ TEST_CASE("Tokenizer") {
     subroutine)";
     ref = {
         tt::KW_SUBROUTINE,
-        tt::KW_NEWLINE,
+        tt::TK_NEWLINE,
         tt::IDENTIFIER,
         '=',
         tt::IDENTIFIER,
-        tt::KW_NEWLINE,
+        tt::TK_NEWLINE,
         tt::IDENTIFIER,
         '=',
         tt::NUMERIC,
         '*',
         tt::IDENTIFIER,
-        tt::KW_NEWLINE,
+        tt::TK_NEWLINE,
         tt::KW_SUBROUTINE,
         tt::END_OF_FILE,
     };
@@ -204,7 +204,7 @@ TEST_CASE("Tokenizer") {
         tt::NUMERIC,
         '*',
         tt::IDENTIFIER,
-        tt::KW_NEWLINE,
+        tt::TK_NEWLINE,
         tt::POW,
         tt::NUMERIC,
         tt::END_OF_FILE,
@@ -218,24 +218,24 @@ TEST_CASE("Tokenizer") {
     x = 2*y
     )";
     ref = {
-        tt::KW_NEWLINE,
+        tt::TK_NEWLINE,
         tt::IDENTIFIER,
         '=',
         tt::NUMERIC,
-        tt::KW_NEWLINE,
+        tt::TK_NEWLINE,
 
         tt::IDENTIFIER,
         '=',
         tt::IDENTIFIER,
-        tt::KW_NEWLINE,
-        tt::KW_NEWLINE,
+        tt::TK_NEWLINE,
+        tt::TK_NEWLINE,
 
         tt::IDENTIFIER,
         '=',
         tt::NUMERIC,
         '*',
         tt::IDENTIFIER,
-        tt::KW_NEWLINE,
+        tt::TK_NEWLINE,
 
         tt::END_OF_FILE,
     };
@@ -266,18 +266,18 @@ TEST_CASE("Tokenizer") {
 
     s = "\n2*x\n\n;;\n**3\n";
     ref = {
-        tt::KW_NEWLINE,
+        tt::TK_NEWLINE,
         tt::NUMERIC,
         '*',
         tt::IDENTIFIER,
-        tt::KW_NEWLINE,
-        tt::KW_NEWLINE,
+        tt::TK_NEWLINE,
+        tt::TK_NEWLINE,
         ';',
         ';',
-        tt::KW_NEWLINE,
+        tt::TK_NEWLINE,
         tt::POW,
         tt::NUMERIC,
-        tt::KW_NEWLINE,
+        tt::TK_NEWLINE,
         tt::END_OF_FILE,
     };
     CHECK(tokens(s) == ref);

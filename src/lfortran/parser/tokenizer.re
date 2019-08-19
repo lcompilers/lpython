@@ -62,9 +62,8 @@ int Tokenizer::lex(YYSTYPE &yylval)
             }
             end { return yytokentype::END_OF_FILE; }
             whitespace { continue; }
-            newline { return yytokentype::KW_NEWLINE; }
 
-            // keywords
+            // Keywords
             'abstract' { return yytokentype::KW_ABSTRACT; }
             'all' { return yytokentype::KW_ALL; }
             'allocatable' { return yytokentype::KW_ALLOCATABLE; }
@@ -192,6 +191,9 @@ int Tokenizer::lex(YYSTYPE &yylval)
             'where' { return yytokentype::KW_WHERE; }
             'while' { return yytokentype::KW_WHILE; }
             'write' { return yytokentype::KW_WRITE; }
+
+            // Symbols
+            newline { return yytokentype::TK_NEWLINE; }
 
             operators { return tok[0]; }
             pow { return yytokentype::POW; }

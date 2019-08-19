@@ -67,7 +67,7 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 %type <ast> assignment_statement
 %type <ast> exit_statement
 %type <vec_ast> statements
-%token KW_NEWLINE
+%token TK_NEWLINE
 
 %token KW_ABSTRACT
 %token KW_ALL
@@ -228,7 +228,7 @@ statements
     ;
 
 statement_sep
-    : KW_NEWLINE
+    : TK_NEWLINE
     | ';'
     ;
 
