@@ -58,8 +58,8 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 // '/'. Their codes are their character ord number.
 
 %token END_OF_FILE 0
-%token <string> IDENTIFIER
-%token <n> NUMERIC
+%token <string> TK_NAME
+%token <n> TK_INTEGER
 %type <ast> expr
 %type <ast> start_unit
 %type <ast> subroutine
@@ -274,6 +274,6 @@ expr
     | expr '/' expr { $$ = DIV($1, $3); }
     | expr TK_POW expr { $$ = POW($1, $3); }
     | '(' expr ')' { $$ = $2; }
-    | IDENTIFIER { $$ = SYMBOL($1); }
-    | NUMERIC { $$ = INTEGER($1); }
+    | TK_NAME { $$ = SYMBOL($1); }
+    | TK_INTEGER { $$ = INTEGER($1); }
     ;

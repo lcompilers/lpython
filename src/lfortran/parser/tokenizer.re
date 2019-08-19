@@ -51,8 +51,8 @@ int Tokenizer::lex(YYSTYPE &yylval)
             newline = "\n";
             dig = [0-9];
             char =  [a-zA-Z_];
-            ident = char (char | dig)*;
-            numeric = dig+;
+            name = char (char | dig)*;
+            integer = dig+;
 
             * {
                 throw LFortran::TokenizerError("Unknown token: '"
@@ -220,16 +220,16 @@ int Tokenizer::lex(YYSTYPE &yylval)
             ".neqv." { return yytokentype::TK_NEQV; }
 
 
-
-            ident { yylval.string=token(); return yytokentype::IDENTIFIER; }
-            numeric {
+            integer {
                 if (lex_dec(tok, cur, u)) {
                     yylval.n = u;
-                    return yytokentype::NUMERIC;
+                    return yytokentype::TK_INTEGER;
                 } else {
                     throw LFortran::TokenizerError("Integer too large");
                 }
             }
+
+            name { yylval.string=token(); return yytokentype::TK_NAME; }
         */
     }
 }
