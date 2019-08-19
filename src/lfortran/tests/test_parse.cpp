@@ -165,7 +165,7 @@ TEST_CASE("Tokenizer") {
     s = "2*??";
     CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
 
-    s = "2*12345678901234567890";
+    s = "2*18446744073709551615";
     ref = {
         tt::NUMERIC,
         '*',
@@ -174,9 +174,9 @@ TEST_CASE("Tokenizer") {
     };
     CHECK(tokens(s, &stypes) == ref);
     CHECK(stypes[0].n == 2);
-    unsigned long nref = 12345678901234567890U;
+    unsigned long nref = 18446744073709551615U;
     CHECK(stypes[2].n == nref);
 
-    s = "2*123456789012345678901";
+    s = "2*18446744073709551616";
     CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
 }
