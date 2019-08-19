@@ -710,4 +710,175 @@ TEST_CASE("Tokenizer") {
 
     s = "and. .false.";
     CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
+
+    s = R"(print *, "ok", 3)";
+    ref = {
+        tt::KW_PRINT,
+        '*',
+        ',',
+        tt::TK_STRING,
+        ',',
+        tt::TK_INTEGER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = R"(print *, "o'k", 3)";
+    ref = {
+        tt::KW_PRINT,
+        '*',
+        ',',
+        tt::TK_STRING,
+        ',',
+        tt::TK_INTEGER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = R"(print *, "o''k", 3)";
+    ref = {
+        tt::KW_PRINT,
+        '*',
+        ',',
+        tt::TK_STRING,
+        ',',
+        tt::TK_INTEGER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = R"(print *, "o'x'k", 3)";
+    ref = {
+        tt::KW_PRINT,
+        '*',
+        ',',
+        tt::TK_STRING,
+        ',',
+        tt::TK_INTEGER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = R"(print *, "o,""k", 3)";
+    ref = {
+        tt::KW_PRINT,
+        '*',
+        ',',
+        tt::TK_STRING,
+        ',',
+        tt::TK_INTEGER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = R"(print *, "o,""k", "s""")";
+    ref = {
+        tt::KW_PRINT,
+        '*',
+        ',',
+        tt::TK_STRING,
+        ',',
+        tt::TK_STRING,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = R"(print *, 'ok', 3)";
+    ref = {
+        tt::KW_PRINT,
+        '*',
+        ',',
+        tt::TK_STRING,
+        ',',
+        tt::TK_INTEGER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = R"(print *, 'o"k', 3)";
+    ref = {
+        tt::KW_PRINT,
+        '*',
+        ',',
+        tt::TK_STRING,
+        ',',
+        tt::TK_INTEGER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = R"(print *, 'o""k', 3)";
+    ref = {
+        tt::KW_PRINT,
+        '*',
+        ',',
+        tt::TK_STRING,
+        ',',
+        tt::TK_INTEGER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = R"(print *, 'o"x"k', 3)";
+    ref = {
+        tt::KW_PRINT,
+        '*',
+        ',',
+        tt::TK_STRING,
+        ',',
+        tt::TK_INTEGER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = R"(print *, 'o,''k', 3)";
+    ref = {
+        tt::KW_PRINT,
+        '*',
+        ',',
+        tt::TK_STRING,
+        ',',
+        tt::TK_INTEGER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = R"(print *, 'o,''k', 's''')";
+    ref = {
+        tt::KW_PRINT,
+        '*',
+        ',',
+        tt::TK_STRING,
+        ',',
+        tt::TK_STRING,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = R"(print *, "o,""k", "s''""''")";
+    ref = {
+        tt::KW_PRINT,
+        '*',
+        ',',
+        tt::TK_STRING,
+        ',',
+        tt::TK_STRING,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    /*
+    // Segfaults instead of an exception:
+    s = R"(print *, "o,'"k", "s''""''")";
+    ref = {
+        tt::KW_PRINT,
+        '*',
+        ',',
+        tt::TK_STRING,
+        ',',
+        tt::TK_STRING,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+    */
 }

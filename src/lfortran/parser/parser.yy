@@ -71,6 +71,7 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> statements
 
 %token TK_NEWLINE
+%token TK_STRING
 
 %token TK_DBL_DOT
 %token TK_DBL_COLON
