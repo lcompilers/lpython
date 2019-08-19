@@ -211,6 +211,59 @@ TEST_CASE("Tokenizer") {
     };
     CHECK(tokens(s) == ref);
 
+    s = R"(
+    x = 1
+    x = y
+
+    x = 2*y
+    )";
+    ref = {
+        tt::KW_NEWLINE,
+        tt::IDENTIFIER,
+        '=',
+        tt::NUMERIC,
+        tt::KW_NEWLINE,
+
+        tt::IDENTIFIER,
+        '=',
+        tt::IDENTIFIER,
+        tt::KW_NEWLINE,
+        tt::KW_NEWLINE,
+
+        tt::IDENTIFIER,
+        '=',
+        tt::NUMERIC,
+        '*',
+        tt::IDENTIFIER,
+        tt::KW_NEWLINE,
+
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "x = 1; x = y;;x = 2*y";
+    ref = {
+        tt::IDENTIFIER,
+        '=',
+        tt::NUMERIC,
+        ';',
+
+        tt::IDENTIFIER,
+        '=',
+        tt::IDENTIFIER,
+        ';',
+        ';',
+
+        tt::IDENTIFIER,
+        '=',
+        tt::NUMERIC,
+        '*',
+        tt::IDENTIFIER,
+
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
     s = "\n2*x\n\n;;\n**3\n";
     ref = {
         tt::KW_NEWLINE,
