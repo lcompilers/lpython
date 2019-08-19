@@ -165,6 +165,30 @@ TEST_CASE("Tokenizer") {
     s = "2*??";
     CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
 
+    s = "2*@";
+    CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
+
+    s = "2*#";
+    CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
+
+    s = "2*$";
+    CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
+
+    s = "2*^";
+    CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
+
+    s = "2*&";
+    CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
+
+    s = "2*~";
+    CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
+
+    s = "2*`";
+    CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
+
+    s = "2*\\";
+    CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
+
     s = "2*18446744073709551615";
     ref = {
         tt::NUMERIC,
