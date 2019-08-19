@@ -29,18 +29,18 @@ int count(const ast_t &b) {
 }
 
 
-TEST_CASE("Test longer parser (N = 5000)") {
+TEST_CASE("Test longer parser (N = 500)") {
     int N;
-    N = 5000;
+    N = 500;
     std::string text;
     std::string t0 = "(a*z+3+2*x + 3*y - x/(z**2-4) - x**(y**z))";
-    text.reserve(225042);
+    text.reserve(22542);
     text = t0;
     std::cout << "Construct" << std::endl;
     for (int i = 0; i < N; i++) {
         text.append(" * " + t0);
     }
-    Allocator al(4*1024*1024);
+    Allocator al(1024*1024);
     std::cout << "Parse" << std::endl;
     auto t1 = std::chrono::high_resolution_clock::now();
     auto result = parse(al, text);
@@ -52,5 +52,5 @@ TEST_CASE("Test longer parser (N = 5000)") {
     std::cout << "Count: " << c << std::endl;
     std::cout << "String size (bytes):      " << text.size() << std::endl;
     std::cout << "Allocator usage (bytes): " << al.size_current() << std::endl;
-    CHECK(c == 45009);
+    CHECK(c == 4509);
 }
