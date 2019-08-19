@@ -52,7 +52,6 @@ int Tokenizer::lex(YYSTYPE &yylval)
             dig = [0-9];
             char =  [a-zA-Z_];
             operators = "-"|"+"|"/"|"("|")"|"*"|","|"="|";";
-
             pow = "**";
             ident = char (char | dig)*;
             numeric = dig+;
