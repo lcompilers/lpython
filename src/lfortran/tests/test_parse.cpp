@@ -880,7 +880,8 @@ TEST_CASE("Tokenizer") {
     CHECK(tokens(s) == ref);
 
     /*
-    // Segfaults instead of an exception:
+    // Segfaults instead of an exception due to
+    // https://github.com/skvadrik/re2c/issues/259
     s = R"(print *, "o,'"k", "s''""''")";
     ref = {
         tt::KW_PRINT,
