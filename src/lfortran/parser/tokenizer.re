@@ -230,6 +230,9 @@ int Tokenizer::lex(YYSTYPE &yylval)
             ".true." ("_" kind)? { return yytokentype::TK_TRUE; }
             ".false." ("_" kind)? { return yytokentype::TK_FALSE; }
 
+            // This is needed to ensure that 2.op.3 gets tokenized as
+            // TK_INTEGER(2), TK_DEFOP(.op.), TK_INTEGER(3), and not
+            // TK_REAL(2.), TK_NAME(op), TK_REAL(.3).
             integer / defop {
                 if (lex_dec(tok, cur, u)) {
                     yylval.n = u;
