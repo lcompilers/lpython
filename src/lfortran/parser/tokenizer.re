@@ -53,7 +53,7 @@ int Tokenizer::lex(YYSTYPE &yylval)
             char =  [a-zA-Z_];
             operators = "-"|"+"|"/"|"("|")"|"*"|","|"="|";";
 
-            pows = "**"|"@";
+            pow = "**";
             ident = char (char | dig)*;
             numeric = dig+;
 
@@ -70,7 +70,7 @@ int Tokenizer::lex(YYSTYPE &yylval)
             'subroutine' { return yytokentype::KW_SUBROUTINE; }
 
             operators { return tok[0]; }
-            pows { return yytokentype::POW; }
+            pow { return yytokentype::POW; }
             ident { yylval.string=token(); return yytokentype::IDENTIFIER; }
             numeric {
                 if (lex_dec(tok, cur, u)) {
