@@ -83,6 +83,12 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 %token TK_GT
 %token TK_GE
 
+%token TK_NOT
+%token TK_AND
+%token TK_OR
+%token TK_EQV
+%token TK_NEQV
+
 %token KW_ABSTRACT
 %token KW_ALL
 %token KW_ALLOCATABLE

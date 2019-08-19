@@ -212,6 +212,14 @@ int Tokenizer::lex(YYSTYPE &yylval)
             ".gt." | ">"  { return yytokentype::TK_GT; }
             ".ge." | ">=" { return yytokentype::TK_GE; }
 
+            // Logical operators
+            ".not."  { return yytokentype::TK_NOT; }
+            ".and."  { return yytokentype::TK_AND; }
+            ".or."   { return yytokentype::TK_OR; }
+            ".eqv."  { return yytokentype::TK_EQV; }
+            ".neqv." { return yytokentype::TK_NEQV; }
+
+
 
             ident { yylval.string=token(); return yytokentype::IDENTIFIER; }
             numeric {
