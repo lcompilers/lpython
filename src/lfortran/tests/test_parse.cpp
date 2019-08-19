@@ -592,4 +592,50 @@ TEST_CASE("Tokenizer") {
         tt::END_OF_FILE,
     };
     CHECK(tokens(s) == ref);
+
+    s = ".true. .and. .false.";
+    ref = {
+        tt::TK_TRUE,
+        tt::TK_AND,
+        tt::TK_FALSE,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = ".true._lp .and. .false._8";
+    ref = {
+        tt::TK_TRUE,
+        tt::TK_AND,
+        tt::TK_FALSE,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = ".true._lp .and._lp .false._8";
+    ref = {
+        tt::TK_TRUE,
+        tt::TK_AND,
+        tt::TK_NAME,
+        tt::TK_FALSE,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = ".true. _lp .and. _lp .false. _8";
+    ref = {
+        tt::TK_TRUE,
+        tt::TK_NAME,
+        tt::TK_AND,
+        tt::TK_NAME,
+        tt::TK_FALSE,
+        tt::TK_NAME,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = ".and .false.";
+    CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
+
+    s = "and. .false.";
+    CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
 }

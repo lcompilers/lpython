@@ -225,6 +225,11 @@ int Tokenizer::lex(YYSTYPE &yylval)
             ".eqv."  { return yytokentype::TK_EQV; }
             ".neqv." { return yytokentype::TK_NEQV; }
 
+            // True/False
+
+            ".true." ("_" kind)? { return yytokentype::TK_TRUE; }
+            ".false." ("_" kind)? { return yytokentype::TK_FALSE; }
+
             integer / defop {
                 if (lex_dec(tok, cur, u)) {
                     yylval.n = u;

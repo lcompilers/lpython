@@ -91,6 +91,9 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 %token TK_EQV
 %token TK_NEQV
 
+%token TK_TRUE
+%token TK_FALSE
+
 %token KW_ABSTRACT
 %token KW_ALL
 %token KW_ALLOCATABLE
