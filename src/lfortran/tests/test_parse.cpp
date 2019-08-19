@@ -179,4 +179,23 @@ TEST_CASE("Tokenizer") {
 
     s = "2*18446744073709551616";
     CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
+
+    // The tokenizer will only go to the first null character
+    s = "2*x\0yyyyy";
+    ref = {
+        tt::NUMERIC,
+        '*',
+        tt::IDENTIFIER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+    s = "2*x yyyyy";
+    ref = {
+        tt::NUMERIC,
+        '*',
+        tt::IDENTIFIER,
+        tt::IDENTIFIER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
 }
