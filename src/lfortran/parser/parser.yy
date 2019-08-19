@@ -67,7 +67,7 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 %type <ast> assignment_statement
 %type <ast> exit_statement
 %type <vec_ast> statements
-%token <ast> KW_EXIT
+%token KW_EXIT
 %token KW_NEWLINE
 %token KW_SUBROUTINE
 
@@ -116,7 +116,7 @@ assignment_statement
     ;
 
 exit_statement
-    : KW_EXIT
+    : KW_EXIT { $$ = EXIT(); }
     ;
 
 // -----------------------------------------------------------------------------
