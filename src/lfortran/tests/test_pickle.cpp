@@ -44,5 +44,5 @@ TEST_CASE("Subroutines") {
     CHECK(P(R"(subroutine
     x = y
     x = 2*y
-    subroutine)")   == "(Subroutine 2 (Assignment x y)(Assignment y (BinOp Mul 2 y)))");
+    subroutine)")   == "(Subroutine 2 (Assignment x y)(Assignment x (BinOp Mul 2 y)))");
 }

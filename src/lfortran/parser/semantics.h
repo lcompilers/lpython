@@ -43,6 +43,21 @@ static inline stmt_t** STMTS(Allocator &al, std::vector<ast_t*> &x)
     return s;
 }
 
+static inline ast_t* make_SYMBOL(Allocator &al, const std::string &x)
+{
+    // Copy the string into our own allocated memory.
+    // TODO: Instead, we should pass a pointer to the Tokenizer's string of the
+    // original source code (the string there is not zero terminated, as it's a
+    // substring), and a length. And provide functions to deal with the
+    // non-zero terminated string properly. That will be much faster.
+    char *s = (char *)al.allocate(sizeof(char) * (x.size()+1));
+    for (size_t i=0; i < x.size()+1; i++) {
+        s[i] = x[i];
+    }
+    LFORTRAN_ASSERT(s[x.size()] == '\0');
+    return make_Name_t(al, s);
+}
+
 
 #define TYPE ast_t*
 #define ADD(x, y) make_BinOp_t(p.m_a, EXPR(x), operatorType::Add, EXPR(y))
@@ -50,7 +65,7 @@ static inline stmt_t** STMTS(Allocator &al, std::vector<ast_t*> &x)
 #define MUL(x, y) make_BinOp_t(p.m_a, EXPR(x), operatorType::Mul, EXPR(y))
 #define DIV(x, y) make_BinOp_t(p.m_a, EXPR(x), operatorType::Div, EXPR(y))
 #define POW(x, y) make_BinOp_t(p.m_a, EXPR(x), operatorType::Pow, EXPR(y))
-#define SYMBOL(x) make_Name_t(p.m_a, &x[0])
+#define SYMBOL(x) make_SYMBOL(p.m_a, x)
 #define INTEGER(x) make_Num_t(p.m_a, x)
 #define ASSIGNMENT(x, y) make_Assignment_t(p.m_a, EXPR(x), EXPR(y))
 #define EXIT() make_Exit_t(p.m_a)
