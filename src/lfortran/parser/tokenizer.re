@@ -1,4 +1,4 @@
-#include <climits>
+#include <limits>
 
 #include "tokenizer.h"
 #include "parser.tab.hh"
@@ -18,7 +18,7 @@ void Tokenizer::set_string(const std::string &str)
 template<int base>
 bool adddgt(unsigned long &u, unsigned long d)
 {
-    if (u > (ULONG_MAX - d) / base) {
+    if (u > (std::numeric_limits<unsigned long>::max() - d) / base) {
         return false;
     }
     u = u * base + d;
