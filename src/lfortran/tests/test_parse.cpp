@@ -275,4 +275,40 @@ TEST_CASE("Tokenizer") {
         tt::END_OF_FILE,
     };
     CHECK(tokens(s) == ref);
+
+    s = "x 2";
+    ref = {
+        tt::IDENTIFIER,
+        tt::NUMERIC,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "x2";
+    ref = {
+        tt::IDENTIFIER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "x_2";
+    ref = {
+        tt::IDENTIFIER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "x_";
+    ref = {
+        tt::IDENTIFIER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "_x";
+    ref = {
+        tt::IDENTIFIER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
 }
