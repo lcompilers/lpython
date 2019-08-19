@@ -453,6 +453,78 @@ TEST_CASE("Tokenizer") {
     };
     CHECK(tokens(s) == ref);
 
+    s = "2 == 3";
+    ref = {
+        tt::TK_INTEGER,
+        tt::TK_EQ,
+        tt::TK_INTEGER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "2==3";
+    ref = {
+        tt::TK_INTEGER,
+        tt::TK_EQ,
+        tt::TK_INTEGER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "2 .eq. 3";
+    ref = {
+        tt::TK_INTEGER,
+        tt::TK_EQ,
+        tt::TK_INTEGER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "2.eq.3";
+    ref = {
+        tt::TK_INTEGER,
+        tt::TK_EQ,
+        tt::TK_INTEGER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "2.==.3";
+    ref = {
+        tt::TK_REAL,
+        tt::TK_EQ,
+        tt::TK_REAL,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "2..eq..3";
+    ref = {
+        tt::TK_REAL,
+        tt::TK_EQ,
+        tt::TK_REAL,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "2..eq.3.";
+    ref = {
+        tt::TK_REAL,
+        tt::TK_EQ,
+        tt::TK_REAL,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "2._dp.eq.3._dp";
+    ref = {
+        tt::TK_REAL,
+        tt::TK_EQ,
+        tt::TK_REAL,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
     s = "2. .not. .3";
     ref = {
         tt::TK_REAL,
