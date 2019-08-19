@@ -51,8 +51,6 @@ int Tokenizer::lex(YYSTYPE &yylval)
             newline = "\n";
             dig = [0-9];
             char =  [a-zA-Z_];
-            operators = "-"|"+"|"/"|"("|")"|"*"|","|"="|";";
-            pow = "**";
             ident = char (char | dig)*;
             numeric = dig+;
 
@@ -192,11 +190,16 @@ int Tokenizer::lex(YYSTYPE &yylval)
             'while' { return yytokentype::KW_WHILE; }
             'write' { return yytokentype::KW_WRITE; }
 
-            // Symbols
+            // Tokens
             newline { return yytokentype::TK_NEWLINE; }
 
+            // Single character symbols
+            operators = "-"|"+"|"/"|"("|")"|"*"|","|"="|";";
             operators { return tok[0]; }
-            pow { return yytokentype::POW; }
+
+            // Multiple character symbols
+            "**" { return yytokentype::POW; }
+
             ident { yylval.string=token(); return yytokentype::IDENTIFIER; }
             numeric {
                 if (lex_dec(tok, cur, u)) {
