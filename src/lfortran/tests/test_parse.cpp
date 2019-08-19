@@ -291,6 +291,22 @@ TEST_CASE("Tokenizer") {
     };
     CHECK(tokens(s) == ref);
 
+    s = "2 x";
+    ref = {
+        tt::NUMERIC,
+        tt::IDENTIFIER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "2x";
+    ref = {
+        tt::NUMERIC,
+        tt::IDENTIFIER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
     s = "x_2";
     ref = {
         tt::IDENTIFIER,
