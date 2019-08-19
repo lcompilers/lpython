@@ -27,6 +27,14 @@ python setup.py sdist
 pip uninstall -y scikit-build
 tar xzf dist/lfortran-${lfortran_version}.tar.gz
 cd lfortran-${lfortran_version}
+
+mkdir test-bld
+cd test-bld
+cmake ..
+cmake --build .
+ctest --output-on-failure
+cd ..
+
 pip install -v .
 cd ..
 rm -rf lfortran-${lfortran_version} lfortran

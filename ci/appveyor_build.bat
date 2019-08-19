@@ -56,10 +56,20 @@ tar xzf dist/lfortran-%lfortran_version%.tar.gz
 call :check
 cd lfortran-%lfortran_version%
 call :check
+
+mkdir test-bld
+cd test-bld
+cmake ..
+call :check
+cmake --build .
+call :check
+ctest --output-on-failure
+call :check
+cd ..
+
 pip install -v .
 call :check
 cd ..
-call :check
 
 :: -----------------------------------------------------------------------------
 :: End of script. We exit the script now.
