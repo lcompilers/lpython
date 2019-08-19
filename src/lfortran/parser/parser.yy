@@ -67,7 +67,14 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 %type <ast> assignment_statement
 %type <ast> exit_statement
 %type <vec_ast> statements
+
 %token TK_NEWLINE
+
+%token TK_DBL_DOT
+%token TK_DBL_COLON
+%token TK_POW
+%token TK_CONCAT
+%token TK_ARROW
 
 %token KW_ABSTRACT
 %token KW_ALL
@@ -199,8 +206,7 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 
 %left '-' '+'
 %left '*' '/'
-%right POW
-
+%right TK_POW
 
 %start start_unit
 
@@ -253,7 +259,7 @@ expr
     | expr '-' expr { $$ = SUB($1, $3); }
     | expr '*' expr { $$ = MUL($1, $3); }
     | expr '/' expr { $$ = DIV($1, $3); }
-    | expr POW expr { $$ = POW($1, $3); }
+    | expr TK_POW expr { $$ = POW($1, $3); }
     | '(' expr ')' { $$ = $2; }
     | IDENTIFIER { $$ = SYMBOL($1); }
     | NUMERIC { $$ = INTEGER($1); }

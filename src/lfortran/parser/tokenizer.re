@@ -198,7 +198,11 @@ int Tokenizer::lex(YYSTYPE &yylval)
             symbols1 { return tok[0]; }
 
             // Multiple character symbols
-            "**" { return yytokentype::POW; }
+            ".." { return yytokentype::TK_DBL_DOT; }
+            "::" { return yytokentype::TK_DBL_COLON; }
+            "**" { return yytokentype::TK_POW; }
+            "//" { return yytokentype::TK_CONCAT; }
+            "=>" { return yytokentype::TK_ARROW; }
 
             ident { yylval.string=token(); return yytokentype::IDENTIFIER; }
             numeric {
