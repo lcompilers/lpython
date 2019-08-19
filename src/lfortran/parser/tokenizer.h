@@ -11,6 +11,7 @@ class Tokenizer
 {
     unsigned char *cur;
     unsigned char *mar;
+    unsigned char *ctxmar;
     unsigned char *tok;
 
 public:

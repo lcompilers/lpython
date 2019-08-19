@@ -20,6 +20,7 @@ using LFortran::AST::expr_t;
 using LFortran::AST::ast_t;
 using LFortran::AST::Assignment_t;
 using LFortran::AST::make_BinOp_t;
+using LFortran::AST::make_Exit_t;
 using LFortran::AST::make_Name_t;
 using LFortran::AST::make_Num_t;
 
@@ -52,6 +53,7 @@ static inline stmt_t** STMTS(Allocator &al, std::vector<ast_t*> &x)
 #define SYMBOL(x) make_Name_t(p.m_a, &x[0])
 #define INTEGER(x) make_Num_t(p.m_a, x)
 #define ASSIGNMENT(x, y) make_Assignment_t(p.m_a, EXPR(x), EXPR(y))
+#define EXIT() make_Exit_t(p.m_a)
 #define SUBROUTINE(x) make_Subroutine_t(p.m_a, \
         /*name*/ nullptr, \
         /*args*/ nullptr, \

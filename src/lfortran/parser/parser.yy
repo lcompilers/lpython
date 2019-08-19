@@ -58,8 +58,10 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 // '/'. Their codes are their character ord number.
 
 %token END_OF_FILE 0
-%token <string> IDENTIFIER
-%token <n> NUMERIC
+%token <string> TK_NAME
+%token <string> TK_DEF_OP
+%token <n> TK_INTEGER
+%token TK_REAL
 %type <ast> expr
 %type <ast> start_unit
 %type <ast> subroutine
@@ -67,14 +69,163 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 %type <ast> assignment_statement
 %type <ast> exit_statement
 %type <vec_ast> statements
-%token <ast> KW_EXIT
-%token KW_NEWLINE
+
+%token TK_NEWLINE
+%token TK_STRING
+
+%token TK_DBL_DOT
+%token TK_DBL_COLON
+%token TK_POW
+%token TK_CONCAT
+%token TK_ARROW
+
+%token TK_EQ
+%token TK_NE
+%token TK_LT
+%token TK_LE
+%token TK_GT
+%token TK_GE
+
+%token TK_NOT
+%token TK_AND
+%token TK_OR
+%token TK_EQV
+%token TK_NEQV
+
+%token TK_TRUE
+%token TK_FALSE
+
+%token KW_ABSTRACT
+%token KW_ALL
+%token KW_ALLOCATABLE
+%token KW_ALLOCATE
+%token KW_ASSIGNMENT
+%token KW_ASSOCIATE
+%token KW_ASYNCHRONOUS
+%token KW_BACKSPACE
+%token KW_BIND
+%token KW_BLOCK
+%token KW_CALL
+%token KW_CASE
+%token KW_CHARACTER
+%token KW_CLASS
+%token KW_CLOSE
+%token KW_CODIMENSION
+%token KW_COMMON
+%token KW_COMPLEX
+%token KW_CONCURRENT
+%token KW_CONTAINS
+%token KW_CONTIGUOUS
+%token KW_CONTINUE
+%token KW_CRITICAL
+%token KW_CYCLE
+%token KW_DATA
+%token KW_DEALLOCATE
+%token KW_DEFAULT
+%token KW_DEFERRED
+%token KW_DIMENSION
+%token KW_DO
+%token KW_DOWHILE
+%token KW_DOUBLE
+%token KW_ELEMENTAL
+%token KW_ELSE
+%token KW_END
+%token KW_ENTRY
+%token KW_ENUM
+%token KW_ENUMERATOR
+%token KW_EQUIVALENCE
+%token KW_ERRMSG
+%token KW_ERROR
+%token KW_EXIT
+%token KW_EXTENDS
+%token KW_EXTERNAL
+%token KW_FILE
+%token KW_FINAL
+%token KW_FLUSH
+%token KW_FORALL
+%token KW_FORMAT
+%token KW_FORMATTED
+%token KW_FUNCTION
+%token KW_GENERIC
+%token KW_GO
+%token KW_IF
+%token KW_IMPLICIT
+%token KW_IMPORT
+%token KW_IMPURE
+%token KW_IN
+%token KW_INCLUDE
+%token KW_INOUT
+%token KW_INQUIRE
+%token KW_INTEGER
+%token KW_INTENT
+%token KW_INTERFACE
+%token KW_INTRINSIC
+%token KW_IS
+%token KW_KIND
+%token KW_LEN
+%token KW_LOCAL
+%token KW_LOCAL_INIT
+%token KW_LOGICAL
+%token KW_MODULE
+%token KW_MOLD
+%token KW_NAME
+%token KW_NAMELIST
+%token KW_NOPASS
+%token KW_NON_INTRINSIC
+%token KW_NON_OVERRIDABLE
+%token KW_NON_RECURSIVE
+%token KW_NONE
+%token KW_NULLIFY
+%token KW_ONLY
+%token KW_OPEN
+%token KW_OPERATOR
+%token KW_OPTIONAL
+%token KW_OUT
+%token KW_PARAMETER
+%token KW_PASS
+%token KW_POINTER
+%token KW_PRECISION
+%token KW_PRINT
+%token KW_PRIVATE
+%token KW_PROCEDURE
+%token KW_PROGRAM
+%token KW_PROTECTED
+%token KW_PUBLIC
+%token KW_PURE
+%token KW_QUIET
+%token KW_RANK
+%token KW_READ
+%token KW_REAL
+%token KW_RECURSIVE
+%token KW_RESULT
+%token KW_RETURN
+%token KW_REWIND
+%token KW_SAVE
+%token KW_SELECT
+%token KW_SEQUENCE
+%token KW_SHARED
+%token KW_SOURCE
+%token KW_STAT
+%token KW_STOP
+%token KW_SUBMODULE
 %token KW_SUBROUTINE
+%token KW_TARGET
+%token KW_TEAM
+%token KW_TEAM_NUMBER
+%token KW_THEN
+%token KW_TO
+%token KW_TYPE
+%token KW_UNFORMATTED
+%token KW_USE
+%token KW_VALUE
+%token KW_VOLATILE
+%token KW_WHERE
+%token KW_WHILE
+%token KW_WRITE
 
 %left '-' '+'
 %left '*' '/'
-%right POW
-
+%right TK_POW
 
 %start start_unit
 
@@ -102,7 +253,7 @@ statements
     ;
 
 statement_sep
-    : KW_NEWLINE
+    : TK_NEWLINE
     | ';'
     ;
 
@@ -116,7 +267,7 @@ assignment_statement
     ;
 
 exit_statement
-    : KW_EXIT
+    : KW_EXIT { $$ = EXIT(); }
     ;
 
 // -----------------------------------------------------------------------------
@@ -127,8 +278,8 @@ expr
     | expr '-' expr { $$ = SUB($1, $3); }
     | expr '*' expr { $$ = MUL($1, $3); }
     | expr '/' expr { $$ = DIV($1, $3); }
-    | expr POW expr { $$ = POW($1, $3); }
+    | expr TK_POW expr { $$ = POW($1, $3); }
     | '(' expr ')' { $$ = $2; }
-    | IDENTIFIER { $$ = SYMBOL($1); }
-    | NUMERIC { $$ = INTEGER($1); }
+    | TK_NAME { $$ = SYMBOL($1); }
+    | TK_INTEGER { $$ = INTEGER($1); }
     ;
