@@ -99,12 +99,15 @@ std::vector<int> tokens(const std::string &input)
 }
 
 
-TEST_CASE("Tokenizer 1") {
-    std::string s = R"(subroutine
+TEST_CASE("Tokenizer") {
+    std::string s;
+    std::vector<int> ref;
+
+    s = R"(subroutine
     x = y
     x = 2*y
     subroutine)";
-    std::vector<int> ref = {
+    ref = {
         yytokentype::KW_SUBROUTINE,
         yytokentype::KW_NEWLINE,
         yytokentype::IDENTIFIER,
@@ -121,11 +124,9 @@ TEST_CASE("Tokenizer 1") {
         yytokentype::END_OF_FILE,
     };
     CHECK(tokens(s) == ref);
-}
 
-TEST_CASE("Tokenizer 2") {
-    std::string s = "2*x**3";
-    std::vector<int> ref = {
+    s = "2*x**3";
+    ref = {
         yytokentype::NUMERIC,
         '*',
         yytokentype::IDENTIFIER,
@@ -134,11 +135,9 @@ TEST_CASE("Tokenizer 2") {
         yytokentype::END_OF_FILE,
     };
     CHECK(tokens(s) == ref);
-}
 
-TEST_CASE("Tokenizer 3") {
-    std::string s = "(2*x**3)";
-    std::vector<int> ref = {
+    s = "(2*x**3)";
+    ref = {
         '(',
         yytokentype::NUMERIC,
         '*',
