@@ -52,12 +52,13 @@ int Tokenizer::lex(YYSTYPE &yylval)
             digit = [0-9];
             char =  [a-zA-Z_];
             name = char (char | digit)*;
+            defop = "."[a-z]+".";
             significand = (digit+"."digit*) | ("."digit+);
             exp = [edED][-+]? digit+;
             integer = digit+;
-            real1 = significand exp?;
-            real2 = digit+ exp;
-            real = real1 | real2;
+            real1 = significand exp;
+            real2 = significand;
+            real3 = digit+ exp;
 
             * {
                 throw LFortran::TokenizerError("Unknown token: '"
@@ -225,7 +226,8 @@ int Tokenizer::lex(YYSTYPE &yylval)
             ".neqv." { return yytokentype::TK_NEQV; }
 
 
-            real { return yytokentype::TK_REAL; }
+            real1 { return yytokentype::TK_REAL; }
+            real2 | real3 { return yytokentype::TK_REAL; }
             integer {
                 if (lex_dec(tok, cur, u)) {
                     yylval.n = u;
@@ -235,7 +237,7 @@ int Tokenizer::lex(YYSTYPE &yylval)
                 }
             }
 
-            "."[a-z]+"." { yylval.string=token(); return yytokentype::TK_DEF_OP; }
+            defop { yylval.string=token(); return yytokentype::TK_DEF_OP; }
             name { yylval.string=token(); return yytokentype::TK_NAME; }
         */
     }
