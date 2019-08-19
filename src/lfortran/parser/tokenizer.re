@@ -58,9 +58,7 @@ int Tokenizer::lex(YYSTYPE &yylval)
             significand = (digit+"."digit*) | ("."digit+);
             exp = [edED][-+]? digit+;
             integer = digit+ ("_" kind)?;
-            real1 = significand exp ("_" kind)?;
-            real2 = significand ("_" kind)?;
-            real3 = digit+ exp ("_" kind)?;
+            real = ((significand exp?) | (digit+ exp)) ("_" kind)?;
 
             * {
                 throw LFortran::TokenizerError("Unknown token: '"
@@ -237,8 +235,7 @@ int Tokenizer::lex(YYSTYPE &yylval)
             }
 
 
-            real1 { return yytokentype::TK_REAL; }
-            real2 | real3 { return yytokentype::TK_REAL; }
+            real { return yytokentype::TK_REAL; }
             integer {
                 if (lex_dec(tok, cur, u)) {
                     yylval.n = u;
