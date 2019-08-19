@@ -96,3 +96,24 @@ TEST_CASE("Tokenizer 1") {
         CHECK(token == ref[i]);
     }
 }
+
+TEST_CASE("Tokenizer 2") {
+    std::string input = "2*x**3";
+    std::vector<int> ref = {
+        yytokentype::NUMERIC,
+        '*',
+        yytokentype::IDENTIFIER,
+        yytokentype::POW,
+        yytokentype::NUMERIC,
+        yytokentype::END_OF_FILE,
+    };
+    LFortran::Tokenizer t;
+    t.set_string(input);
+    for (size_t i = 0; i < ref.size(); i++) {
+        int token;
+        LFortran::YYSTYPE y;
+        token = t.lex(y);
+        CAPTURE(i);
+        CHECK(token == ref[i]);
+    }
+}
