@@ -89,10 +89,9 @@ TEST_CASE("Tokenizer 1") {
     LFortran::Tokenizer t;
     t.set_string(input);
     for (size_t i = 0; i < ref.size(); i++) {
-        int token;
-        LFortran::YYSTYPE y;
-        token = t.lex(y);
         CAPTURE(i);
+        LFortran::YYSTYPE y;
+        int token = t.lex(y);
         CHECK(token == ref[i]);
     }
 }
@@ -110,10 +109,9 @@ TEST_CASE("Tokenizer 2") {
     LFortran::Tokenizer t;
     t.set_string(input);
     for (size_t i = 0; i < ref.size(); i++) {
-        int token;
-        LFortran::YYSTYPE y;
-        token = t.lex(y);
         CAPTURE(i);
+        LFortran::YYSTYPE y;
+        int token = t.lex(y);
         CHECK(token == ref[i]);
     }
 }
