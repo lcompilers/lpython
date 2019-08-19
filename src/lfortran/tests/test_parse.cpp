@@ -198,4 +198,81 @@ TEST_CASE("Tokenizer") {
         tt::END_OF_FILE,
     };
     CHECK(tokens(s) == ref);
+
+    s = "2*x\n**3";
+    ref = {
+        tt::NUMERIC,
+        '*',
+        tt::IDENTIFIER,
+        tt::KW_NEWLINE,
+        tt::POW,
+        tt::NUMERIC,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "\n2*x\n\n;;\n**3\n";
+    ref = {
+        tt::KW_NEWLINE,
+        tt::NUMERIC,
+        '*',
+        tt::IDENTIFIER,
+        tt::KW_NEWLINE,
+        tt::KW_NEWLINE,
+        ';',
+        ';',
+        tt::KW_NEWLINE,
+        tt::POW,
+        tt::NUMERIC,
+        tt::KW_NEWLINE,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "exit subroutine";
+    ref = {
+        tt::KW_EXIT,
+        tt::KW_SUBROUTINE,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "Exit Subroutine";
+    ref = {
+        tt::KW_EXIT,
+        tt::KW_SUBROUTINE,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "EXIT SUBROUTINE";
+    ref = {
+        tt::KW_EXIT,
+        tt::KW_SUBROUTINE,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "exIT SuBrOuTiNe";
+    ref = {
+        tt::KW_EXIT,
+        tt::KW_SUBROUTINE,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "exITt SuBrOuTiNe";
+    ref = {
+        tt::IDENTIFIER,
+        tt::KW_SUBROUTINE,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = "exitsubroutine";
+    ref = {
+        tt::IDENTIFIER,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
 }
