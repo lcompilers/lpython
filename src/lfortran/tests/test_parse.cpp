@@ -879,19 +879,12 @@ TEST_CASE("Tokenizer") {
     };
     CHECK(tokens(s) == ref);
 
-    /*
-    // Segfaults instead of an exception due to
-    // https://github.com/skvadrik/re2c/issues/259
     s = R"(print *, "o,'"k", "s''""''")";
-    ref = {
-        tt::KW_PRINT,
-        '*',
-        ',',
-        tt::TK_STRING,
-        ',',
-        tt::TK_STRING,
-        tt::END_OF_FILE,
-    };
-    CHECK(tokens(s) == ref);
-    */
+    CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
+
+    s = R"(x ")";
+    CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
+
+    s = R"(x ')";
+    CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
 }
