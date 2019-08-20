@@ -96,6 +96,16 @@ static inline ast_t* make_SYMBOL(Allocator &al, const std::string &x)
         /*n_body*/ stmts.size(), \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
+#define PROGRAM(name, stmts) make_Program_t(p.m_a, \
+        /*name*/ nullptr, \
+        /*use*/ nullptr, \
+        /*n_use*/ 0, \
+        /*decl*/ nullptr, \
+        /*n_decl*/ 0, \
+        /*body*/ STMTS(p.m_a, stmts), \
+        /*n_body*/ stmts.size(), \
+        /*contains*/ nullptr, \
+        /*n_contains*/ 0)
 #define RESULT(x) p.result = x
 
 #endif

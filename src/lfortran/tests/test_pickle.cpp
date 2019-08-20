@@ -140,3 +140,28 @@ TEST_CASE("Functions") {
     x = 2*subroutine
     end function)")   == "(Function 2 (Assignment subroutine y)(Assignment x (BinOp Mul 2 subroutine)))");
 }
+
+TEST_CASE("Programs") {
+    Allocator al(4*1024);
+
+    CHECK(P(R"(program g
+    x = y
+    x = 2*y
+    end program)")   == "(Program 2 (Assignment x y)(Assignment x (BinOp Mul 2 y)))");
+
+
+    CHECK(P(R"(program g
+    x = y; ;
+
+
+    x = 2*y;; ;
+
+    end program)")   == "(Program 2 (Assignment x y)(Assignment x (BinOp Mul 2 y)))");
+
+    CHECK(P("program g; x = y; x = 2*y; end program") == "(Program 2 (Assignment x y)(Assignment x (BinOp Mul 2 y)))");
+
+    CHECK(P(R"(program f
+    subroutine = y
+    x = 2*subroutine
+    end program)")   == "(Program 2 (Assignment subroutine y)(Assignment x (BinOp Mul 2 subroutine)))");
+}

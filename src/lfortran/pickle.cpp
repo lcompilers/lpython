@@ -10,6 +10,7 @@ using LFortran::AST::BinOp_t;
 using LFortran::AST::Assignment_t;
 using LFortran::AST::Subroutine_t;
 using LFortran::AST::Function_t;
+using LFortran::AST::Program_t;
 using LFortran::AST::astType;
 using LFortran::AST::exprType;
 using LFortran::AST::stmtType;
@@ -73,6 +74,18 @@ public:
     void visit_Function(const Function_t &x) {
         s.append("(");
         s.append("Function");
+        s.append(" ");
+        s.append(std::to_string(x.n_body));
+        s.append(" ");
+        for (size_t i=0; i<x.n_body; i++) {
+            LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
+            this->visit_stmt(*x.m_body[i]);
+        }
+        s.append(")");
+    }
+    void visit_Program(const Program_t &x) {
+        s.append("(");
+        s.append("Program");
         s.append(" ");
         s.append(std::to_string(x.n_body));
         s.append(" ");
