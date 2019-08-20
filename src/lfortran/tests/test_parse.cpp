@@ -1019,4 +1019,17 @@ TEST_CASE("Errors") {
         CHECK(e.loc.last_line == 2);
         CHECK(e.loc.last_column == 13);
     }
+
+    input = "1 + .notx.";
+    try {
+        parse(al, input);
+    } catch (const LFortran::ParserError &e) {
+        CHECK(e.msg() == "syntax error");
+        CHECK(e.token  == yytokentype::TK_DEF_OP);
+        show_syntax_error("input", input, e.loc, e.token);
+        CHECK(e.loc.first_line == 1);
+        CHECK(e.loc.first_column == 5);
+        CHECK(e.loc.last_line == 1);
+        CHECK(e.loc.last_column == 10);
+    }
 }

@@ -43,6 +43,8 @@ std::string get_line(std::string str, int n)
     return line;
 }
 
+#define T(tk, name) case (yytokentype::tk) : return name;
+
 std::string token2text(const int token)
 {
     if (0 < token && token < 256) {
@@ -50,8 +52,31 @@ std::string token2text(const int token)
         return std::string(&t, 1);
     }
     switch (token) {
-        case (yytokentype::END_OF_FILE) : return "EOF";
-        case (yytokentype::TK_NAME) : return "identifier";
+        T(END_OF_FILE, "EOF")
+        T(TK_NAME, "identifier")
+        T(TK_DEF_OP, "defined operator")
+        T(TK_INTEGER, "integer")
+        T(TK_REAL, "real")
+        T(TK_NEWLINE, "newline")
+        T(TK_STRING, "string")
+        T(TK_DBL_DOT, "..")
+        T(TK_DBL_COLON, "::")
+        T(TK_POW, "**")
+        T(TK_CONCAT, "//")
+        T(TK_ARROW, "=>")
+        T(TK_EQ, "==")
+        T(TK_NE, "!=")
+        T(TK_LT, "<")
+        T(TK_LE, "<=")
+        T(TK_GT, ">")
+        T(TK_GE, ">=")
+        T(TK_NOT, ".not.")
+        T(TK_AND, ".and.")
+        T(TK_OR, ".or.")
+        T(TK_EQV, ".eqv.")
+        T(TK_NEQV, ".neqv.")
+        T(TK_TRUE, ".true.")
+        T(TK_FALSE, ".false.")
         default : {
             std::cout << "TOKEN: " << token << std::endl;
             throw std::runtime_error("Token conversion not implemented yet.");
