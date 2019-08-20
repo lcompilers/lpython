@@ -6,6 +6,13 @@
 
 //extern int yydebug;
 
+static inline void print_loc(const LFortran::Location &l)
+{
+    std::cout << "LOCATION:" << l.first_line << " " << l.first_column << " ";
+    std::cout << l.last_line << " " << l.last_column << std::endl;
+}
+
+
 int main()
 {
     Allocator al(4*1024);
@@ -24,6 +31,9 @@ int main()
     while (true) {
         token = t.lex(y, l);
         std::cout << token << std::endl;
+        if (token == yytokentype::TK_INTEGER) {
+            print_loc(l);
+        };
         if (token == yytokentype::END_OF_FILE) break;
     }
 
