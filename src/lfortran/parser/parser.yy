@@ -255,7 +255,7 @@ statements
     ;
 
 sep
-    : sep_one sep_one
+    : sep sep_one
     | sep_one
     ;
 
