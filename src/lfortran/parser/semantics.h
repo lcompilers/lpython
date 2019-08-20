@@ -60,12 +60,6 @@ static inline ast_t* make_SYMBOL(Allocator &al, const std::string &x)
     return make_Name_t(al, s);
 }
 
-static inline void print_loc(const Location &l)
-{
-    std::cout << "LOCATION:" << l.first_line << " " << l.first_column << " ";
-    std::cout << l.last_line << " " << l.last_column << std::endl;
-}
-
 
 #define TYPE ast_t*
 #define ADD(x, y) make_BinOp_t(p.m_a, EXPR(x), operatorType::Add, EXPR(y))
