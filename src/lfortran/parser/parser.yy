@@ -2,6 +2,7 @@
 %define api.pure full
 %define api.value.type {struct LFortran::YYSTYPE}
 %param {LFortran::Parser &p}
+%locations
 
 /*
 // Uncomment this to enable parser tracing. Then in the main code, set
@@ -25,12 +26,12 @@
 #include <lfortran/parser/tokenizer.h>
 #include <lfortran/parser/semantics.h>
 
-int yylex(LFortran::YYSTYPE *yylval, LFortran::Parser &p)
+int yylex(LFortran::YYSTYPE *yylval, YYLTYPE *yyloc, LFortran::Parser &p)
 {
     return p.m_tokenizer.lex(*yylval);
 } // ylex
 
-void yyerror(LFortran::Parser &p, const std::string &msg)
+void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 {
     throw LFortran::ParserError(msg);
 }
