@@ -314,7 +314,7 @@ expr
     | expr TK_POW expr { $$ = POW($1, $3); }
     | '(' expr ')' { $$ = $2; }
     | id { $$ = $1; }
-    | TK_INTEGER { $$ = INTEGER($1); }
+    | TK_INTEGER { $$ = INTEGER($1, @$); }
     ;
 
 id

@@ -13,11 +13,13 @@
 #include <lfortran/ast.h>
 
 using LFortran::AST::astType;
+using LFortran::Location;
 using LFortran::AST::stmtType;
 using LFortran::AST::operatorType;
 using LFortran::AST::stmt_t;
 using LFortran::AST::expr_t;
 using LFortran::AST::ast_t;
+using LFortran::AST::Num_t;
 using LFortran::AST::Assignment_t;
 using LFortran::AST::make_BinOp_t;
 using LFortran::AST::make_Exit_t;
@@ -58,6 +60,12 @@ static inline ast_t* make_SYMBOL(Allocator &al, const std::string &x)
     return make_Name_t(al, s);
 }
 
+static inline void print_loc(const Location &l)
+{
+    std::cout << "LOCATION:" << l.first_line << " " << l.first_column << " ";
+    std::cout << l.last_line << " " << l.last_column << std::endl;
+}
+
 
 #define TYPE ast_t*
 #define ADD(x, y) make_BinOp_t(p.m_a, EXPR(x), operatorType::Add, EXPR(y))
@@ -66,7 +74,7 @@ static inline ast_t* make_SYMBOL(Allocator &al, const std::string &x)
 #define DIV(x, y) make_BinOp_t(p.m_a, EXPR(x), operatorType::Div, EXPR(y))
 #define POW(x, y) make_BinOp_t(p.m_a, EXPR(x), operatorType::Pow, EXPR(y))
 #define SYMBOL(x) make_SYMBOL(p.m_a, x)
-#define INTEGER(x) make_Num_t(p.m_a, x)
+#define INTEGER(x, l) make_Num_t(p.m_a, x); yyval.ast->loc = l;
 #define ASSIGNMENT(x, y) make_Assignment_t(p.m_a, EXPR(x), EXPR(y))
 #define EXIT() make_Exit_t(p.m_a)
 #define SUBROUTINE(name, stmts) make_Subroutine_t(p.m_a, \
