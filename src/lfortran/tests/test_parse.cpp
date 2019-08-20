@@ -962,6 +962,7 @@ TEST_CASE("Errors") {
     input = "(2+3+";
     try {
         parse(al, input);
+        CHECK(false);
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
         CHECK(e.token  == yytokentype::END_OF_FILE);
@@ -978,6 +979,7 @@ TEST_CASE("Errors") {
     end function)";
     try {
         parse(al, input);
+        CHECK(false);
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
         CHECK(e.token  == '*');
@@ -994,6 +996,7 @@ TEST_CASE("Errors") {
     end function)";
     try {
         parse(al, input);
+        CHECK(false);
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
         CHECK(e.token  == '*');
@@ -1010,6 +1013,7 @@ TEST_CASE("Errors") {
     end function)";
     try {
         parse(al, input);
+        CHECK(false);
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
         CHECK(e.token  == yytokentype::TK_NAME);
@@ -1023,6 +1027,7 @@ TEST_CASE("Errors") {
     input = "1 + .notx.";
     try {
         parse(al, input);
+        CHECK(false);
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
         CHECK(e.token  == yytokentype::TK_DEF_OP);
@@ -1031,5 +1036,19 @@ TEST_CASE("Errors") {
         CHECK(e.loc.first_column == 5);
         CHECK(e.loc.last_line == 1);
         CHECK(e.loc.last_column == 10);
+    }
+
+    input = "1 + x allocate y";
+    try {
+        parse(al, input);
+        CHECK(false);
+    } catch (const LFortran::ParserError &e) {
+        CHECK(e.msg() == "syntax error");
+        CHECK(e.token  == yytokentype::KW_ALLOCATE);
+        show_syntax_error("input", input, e.loc, e.token);
+        CHECK(e.loc.first_line == 1);
+        CHECK(e.loc.first_column == 7);
+        CHECK(e.loc.last_line == 1);
+        CHECK(e.loc.last_column == 14);
     }
 }
