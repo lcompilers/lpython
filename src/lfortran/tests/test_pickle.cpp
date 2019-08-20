@@ -165,3 +165,51 @@ TEST_CASE("Programs") {
     x = 2*subroutine
     end program)")   == "(Program 2 (Assignment subroutine y)(Assignment x (BinOp Mul 2 subroutine)))");
 }
+
+TEST_CASE("Multiple units") {
+    Allocator al(4*1024);
+    std::vector<LFortran::AST::ast_t*> results;
+    std::string s = R"(x = x+1
+        y = z+1)";
+    results = LFortran::parsen(al, s);
+    CHECK(results.size() == 2);
+    CHECK(LFortran::pickle(*results[0]) == "(Assignment x (BinOp Add x 1))");
+    CHECK(LFortran::pickle(*results[1]) == "(Assignment y (BinOp Add z 1))");
+
+    s = "x = x+1; ; y = z+1";
+    results = LFortran::parsen(al, s);
+    CHECK(results.size() == 2);
+    CHECK(LFortran::pickle(*results[0]) == "(Assignment x (BinOp Add x 1))");
+    CHECK(LFortran::pickle(*results[1]) == "(Assignment y (BinOp Add z 1))");
+
+    s = R"(x = x+1;
+
+    ; y = z+1)";
+    results = LFortran::parsen(al, s);
+    CHECK(results.size() == 2);
+    CHECK(LFortran::pickle(*results[0]) == "(Assignment x (BinOp Add x 1))");
+    CHECK(LFortran::pickle(*results[1]) == "(Assignment y (BinOp Add z 1))");
+
+    s = R"(x+1
+    y = z+1
+    a)";
+    results = LFortran::parsen(al, s);
+    CHECK(results.size() == 3);
+    CHECK(LFortran::pickle(*results[0]) == "(BinOp Add x 1)");
+    CHECK(LFortran::pickle(*results[1]) == "(Assignment y (BinOp Add z 1))");
+    CHECK(LFortran::pickle(*results[2]) == "a");
+
+    s = R"(function g
+    x = y
+    x = 2*y
+    end function
+    s = x
+    y = z+1
+    a)";
+    results = LFortran::parsen(al, s);
+    CHECK(results.size() == 4);
+    CHECK(LFortran::pickle(*results[0]) == "(Function 2 (Assignment x y)(Assignment x (BinOp Mul 2 y)))");
+    CHECK(LFortran::pickle(*results[1]) == "(Assignment s x)");
+    CHECK(LFortran::pickle(*results[2]) == "(Assignment y (BinOp Add z 1))");
+    CHECK(LFortran::pickle(*results[3]) == "a");
+}
