@@ -13,6 +13,8 @@ class Tokenizer
     unsigned char *mar;
     unsigned char *ctxmar;
     unsigned char *tok;
+    unsigned char *cur_line;
+    unsigned int line_num;
 
 public:
     // Set the string to tokenize. The caller must ensure `str` will stay valid
@@ -27,6 +29,15 @@ public:
     std::string token() const
     {
         return std::string((char *)tok, cur - tok);
+    }
+
+    // Return the current token's location
+    void token_loc(Location &loc)
+    {
+        loc.first_line = line_num;
+        loc.last_line = line_num;
+        loc.first_column = tok-cur_line;
+        loc.last_column = cur-cur_line;
     }
 };
 

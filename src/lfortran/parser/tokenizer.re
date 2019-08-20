@@ -13,6 +13,8 @@ void Tokenizer::set_string(const std::string &str)
     // to end with \0, but we check this here just in case.
     LFORTRAN_ASSERT(str[str.size()] == '\0');
     cur = (unsigned char *)(&str[0]);
+    cur_line = cur;
+    line_num = 1;
 }
 
 template<int base>
@@ -199,7 +201,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             'write' { KW(WRITE) }
 
             // Tokens
-            newline { return yytokentype::TK_NEWLINE; }
+            newline { line_num++;cur_line=cur; return yytokentype::TK_NEWLINE; }
 
             // Single character symbols
             symbols1 = "("|")"|"["|"]"|"+"|"-"|"="|":"|";"|"/"|"%"|","|"*"|"|";
@@ -240,6 +242,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             integer / defop {
                 if (lex_dec(tok, cur, u)) {
                     yylval.n = u;
+                    token_loc(loc);
                     return yytokentype::TK_INTEGER;
                 } else {
                     throw LFortran::TokenizerError("Integer too large");
@@ -251,6 +254,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             integer {
                 if (lex_dec(tok, cur, u)) {
                     yylval.n = u;
+                    token_loc(loc);
                     return yytokentype::TK_INTEGER;
                 } else {
                     throw LFortran::TokenizerError("Integer too large");
