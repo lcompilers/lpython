@@ -3,18 +3,10 @@
 
 #include <vector>
 #include <lfortran/ast.h>
+#include <lfortran/parser/location.h>
 
 namespace LFortran
 {
-
-struct YYLTYPE
-{
-  int first_line;
-  int first_column;
-  int last_line;
-  int last_column;
-};
-
 
 struct YYSTYPE {
     LFortran::AST::ast_t* ast;
@@ -36,7 +28,7 @@ struct YYSTYPE {
 } // namespace LFortran
 
 
-typedef struct LFortran::YYLTYPE YYLTYPE;
+typedef struct LFortran::Location YYLTYPE;
 #define YYLTYPE_IS_DECLARED 1
 #define YYLTYPE_IS_TRIVIAL 1
 
