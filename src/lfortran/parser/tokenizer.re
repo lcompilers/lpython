@@ -35,7 +35,7 @@ bool lex_dec(const unsigned char *s, const unsigned char *e, unsigned long &u)
     return true;
 }
 
-#define KW(x) yylval.string=token(); return yytokentype::x;
+#define KW(x) yylval.string=token(); return yytokentype::KW_##x;
 
 int Tokenizer::lex(YYSTYPE &yylval)
 {
@@ -120,7 +120,7 @@ int Tokenizer::lex(YYSTYPE &yylval)
             'forall' { return yytokentype::KW_FORALL; }
             'format' { return yytokentype::KW_FORMAT; }
             'formatted' { return yytokentype::KW_FORMATTED; }
-            'function' { KW(KW_FUNCTION) }
+            'function' { KW(FUNCTION) }
             'generic' { return yytokentype::KW_GENERIC; }
             'go'  { return yytokentype::KW_GO; }
             'if' { return yytokentype::KW_IF; }
@@ -183,7 +183,7 @@ int Tokenizer::lex(YYSTYPE &yylval)
             'stat' { return yytokentype::KW_STAT; }
             'stop' { return yytokentype::KW_STOP; }
             'submodule' { return yytokentype::KW_SUBMODULE; }
-            'subroutine' { return yytokentype::KW_SUBROUTINE; }
+            'subroutine' { KW(SUBROUTINE) }
             'target' { return yytokentype::KW_TARGET; }
             'team' { return yytokentype::KW_TEAM; }
             'team_number' { return yytokentype::KW_TEAM_NUMBER; }

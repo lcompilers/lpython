@@ -209,7 +209,7 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 %token KW_STAT
 %token KW_STOP
 %token KW_SUBMODULE
-%token KW_SUBROUTINE
+%token <string> KW_SUBROUTINE
 %token KW_TARGET
 %token KW_TEAM
 %token KW_TEAM_NUMBER
@@ -288,4 +288,5 @@ expr
 id
     : TK_NAME { $$ = SYMBOL($1); }
     | KW_FUNCTION { $$ = SYMBOL($1); }
+    | KW_SUBROUTINE { $$ = SYMBOL($1); }
     ;
