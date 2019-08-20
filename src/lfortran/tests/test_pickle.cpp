@@ -19,6 +19,8 @@ TEST_CASE("Names") {
     CHECK(P("2*y")   == "(BinOp Mul 2 y)");
     CHECK(P("2*yz")   == "(BinOp Mul 2 yz)");
     CHECK(P("abc*xyz")   == "(BinOp Mul abc xyz)");
+    CHECK(P("abc*function")   == "(BinOp Mul abc function)");
+    CHECK(P("abc*subroutine")   == "(BinOp Mul abc subroutine)");
 
     CHECK_THROWS_AS(P("abc*2xyz"), LFortran::ParserError);
 }
@@ -68,8 +70,13 @@ TEST_CASE("Arithmetics") {
 TEST_CASE("Subroutines") {
     Allocator al(4*1024);
 
-    CHECK(P(R"(subroutine
+    CHECK(P(R"(subroutine g
     x = y
     x = 2*y
-    subroutine)")   == "(Subroutine 2 (Assignment x y)(Assignment x (BinOp Mul 2 y)))");
+    end subroutine)")   == "(Subroutine 2 (Assignment x y)(Assignment x (BinOp Mul 2 y)))");
+
+    CHECK(P(R"(subroutine f
+    subroutine = y
+    x = 2*subroutine
+    end subroutine)")   == "(Subroutine 2 (Assignment subroutine y)(Assignment x (BinOp Mul 2 subroutine)))");
 }
