@@ -294,7 +294,7 @@ statement
     ;
 
 assignment_statement
-    : expr '=' expr { $$ = ASSIGNMENT($1, $3); }
+    : expr '=' expr { $$ = ASSIGNMENT($1, $3, @$); }
     ;
 
 /*

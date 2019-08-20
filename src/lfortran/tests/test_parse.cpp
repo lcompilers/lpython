@@ -906,6 +906,10 @@ TEST_CASE("Location") {
     CHECK(result->loc.last_column == 18);
     auto sub = cast(Subroutine, result);
     auto stmt = cast(Assignment, sub->m_body[1]);
+    CHECK(stmt->base.base.loc.first_line == 3);
+    CHECK(stmt->base.base.loc.first_column == 5);
+    CHECK(stmt->base.base.loc.last_line == 3);
+    CHECK(stmt->base.base.loc.last_column == 13);
     auto m = cast(BinOp, stmt->m_value);
     auto i = cast(Num, m->m_left);
     CHECK(i->m_n == 213);
