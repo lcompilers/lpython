@@ -52,7 +52,16 @@ void show_error(const std::string &filename, const std::string &text,
     std::cout << " " << redon << "syntax error:" << redoff << " ";
     std::cout << text << std::endl;
     if (loc.first_line == loc.last_line) {
-        std::cout << get_line(input, loc.first_line) << std::endl;
+        std::string line = get_line(input, loc.first_line);
+        std::cout << line.substr(0, loc.first_column-1);
+        if (loc.last_column <= line.size()) {
+            std::cout << redon;
+            std::cout << line.substr(loc.first_column-1,
+                    loc.last_column-loc.first_column+1);
+            std::cout << redoff;
+            std::cout << line.substr(loc.last_column);
+        }
+        std::cout << std::endl;;
         for (int i=0; i < loc.first_column-1; i++) {
             std::cout << " ";
         }
