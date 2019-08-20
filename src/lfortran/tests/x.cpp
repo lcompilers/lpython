@@ -12,10 +12,10 @@ int main()
     LFortran::AST::ast_t* result;
     int token;
 
-    std::string input = R"(subroutine
+    std::string input = R"(subroutine f
     x = y
     x = 2*y
-    subroutine)";
+    end subroutine)";
 
     LFortran::Tokenizer t;
     t.set_string(input);
