@@ -93,7 +93,8 @@ std::vector<int> tokens(const std::string &input,
     int token = yytokentype::END_OF_FILE + 1; // Something different from EOF
     while (token != yytokentype::END_OF_FILE) {
         LFortran::YYSTYPE y;
-        token = t.lex(y);
+        LFortran::Location l;
+        token = t.lex(y, l);
         tst.push_back(token);
         if (stypes) stypes->push_back(y);
     }
@@ -887,4 +888,69 @@ TEST_CASE("Tokenizer") {
 
     s = R"(x ')";
     CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
+}
+
+#define cast(type, p) (LFortran::AST::type##_t*) (p)
+
+TEST_CASE("Location") {
+    std::string input = R"(subroutine f
+    x = y
+    x = 213*yz
+    end subroutine)";
+
+    Allocator al(1024*1024);
+    LFortran::AST::ast_t* result = parse(al, input);
+    CHECK(result->loc.first_line == 1);
+    CHECK(result->loc.first_column == 1);
+    CHECK(result->loc.last_line == 4);
+    CHECK(result->loc.last_column == 18);
+    auto sub = cast(Subroutine, result);
+    auto stmt = cast(Assignment, sub->m_body[1]);
+    CHECK(stmt->base.base.loc.first_line == 3);
+    CHECK(stmt->base.base.loc.first_column == 5);
+    CHECK(stmt->base.base.loc.last_line == 3);
+    CHECK(stmt->base.base.loc.last_column == 14);
+    auto m = cast(BinOp, stmt->m_value);
+    CHECK(m->base.base.loc.first_line == 3);
+    CHECK(m->base.base.loc.first_column == 9);
+    CHECK(m->base.base.loc.last_line == 3);
+    CHECK(m->base.base.loc.last_column == 14);
+    auto i = cast(Num, m->m_left);
+    CHECK(i->m_n == 213);
+    CHECK(i->base.base.loc.first_line == 3);
+    CHECK(i->base.base.loc.first_column == 9);
+    CHECK(i->base.base.loc.last_line == 3);
+    CHECK(i->base.base.loc.last_column == 11);
+    auto sym = cast(Name, m->m_right);
+    CHECK(std::string(sym->m_id) == "yz");
+    CHECK(sym->base.base.loc.first_line == 3);
+    CHECK(sym->base.base.loc.first_column == 13);
+    CHECK(sym->base.base.loc.last_line == 3);
+    CHECK(sym->base.base.loc.last_column == 14);
+    auto sym2 = cast(Name, stmt->m_target);
+    CHECK(std::string(sym2->m_id) == "x");
+    CHECK(sym2->base.base.loc.first_line == 3);
+    CHECK(sym2->base.base.loc.first_column == 5);
+    CHECK(sym2->base.base.loc.last_line == 3);
+    CHECK(sym2->base.base.loc.last_column == 5);
+
+    input = R"(function f
+    x = y
+    x = 213*yz
+    end function)";
+    result = parse(al, input);
+    CHECK(result->loc.first_line == 1);
+    CHECK(result->loc.first_column == 1);
+    CHECK(result->loc.last_line == 4);
+    CHECK(result->loc.last_column == 16);
+
+    input = R"(program f
+    x = y
+    x = 213*yz
+    end program)";
+    result = parse(al, input);
+    CHECK(result->loc.first_line == 1);
+    CHECK(result->loc.first_column == 1);
+    CHECK(result->loc.last_line == 4);
+    CHECK(result->loc.last_column == 15);
 }

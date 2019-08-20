@@ -13,6 +13,8 @@ void Tokenizer::set_string(const std::string &str)
     // to end with \0, but we check this here just in case.
     LFORTRAN_ASSERT(str[str.size()] == '\0');
     cur = (unsigned char *)(&str[0]);
+    cur_line = cur;
+    line_num = 1;
 }
 
 template<int base>
@@ -35,9 +37,10 @@ bool lex_dec(const unsigned char *s, const unsigned char *e, unsigned long &u)
     return true;
 }
 
-#define KW(x) yylval.string=token(); return yytokentype::KW_##x;
+#define KW(x) yylval.string=token(); RET(KW_##x);
+#define RET(x) token_loc(loc); return yytokentype::x;
 
-int Tokenizer::lex(YYSTYPE &yylval)
+int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
 {
 	unsigned long u;
     for (;;) {
@@ -66,7 +69,7 @@ int Tokenizer::lex(YYSTYPE &yylval)
                 throw LFortran::TokenizerError("Unknown token: '"
                     + token() + "'");
             }
-            end { return yytokentype::END_OF_FILE; }
+            end { RET(END_OF_FILE); }
             whitespace { continue; }
 
             // Keywords
@@ -199,38 +202,41 @@ int Tokenizer::lex(YYSTYPE &yylval)
             'write' { KW(WRITE) }
 
             // Tokens
-            newline { return yytokentype::TK_NEWLINE; }
+            newline {
+                    token_loc(loc); line_num++; cur_line=cur;
+                    return yytokentype::TK_NEWLINE;
+            }
 
             // Single character symbols
             symbols1 = "("|")"|"["|"]"|"+"|"-"|"="|":"|";"|"/"|"%"|","|"*"|"|";
-            symbols1 { return tok[0]; }
+            symbols1 { token_loc(loc); return tok[0]; }
 
             // Multiple character symbols
-            ".." { return yytokentype::TK_DBL_DOT; }
-            "::" { return yytokentype::TK_DBL_COLON; }
-            "**" { return yytokentype::TK_POW; }
-            "//" { return yytokentype::TK_CONCAT; }
-            "=>" { return yytokentype::TK_ARROW; }
+            ".." { RET(TK_DBL_DOT) }
+            "::" { RET(TK_DBL_COLON) }
+            "**" { RET(TK_POW) }
+            "//" { RET(TK_CONCAT) }
+            "=>" { RET(TK_ARROW) }
 
             // Relational operators
-            ".eq." | "==" { return yytokentype::TK_EQ; }
-            ".ne." | "/=" { return yytokentype::TK_NE; }
-            ".lt." | "<"  { return yytokentype::TK_LT; }
-            ".le." | "<=" { return yytokentype::TK_LE; }
-            ".gt." | ">"  { return yytokentype::TK_GT; }
-            ".ge." | ">=" { return yytokentype::TK_GE; }
+            ".eq." | "==" { RET(TK_EQ) }
+            ".ne." | "/=" { RET(TK_NE) }
+            ".lt." | "<"  { RET(TK_LT) }
+            ".le." | "<=" { RET(TK_LE) }
+            ".gt." | ">"  { RET(TK_GT) }
+            ".ge." | ">=" { RET(TK_GE) }
 
             // Logical operators
-            ".not."  { return yytokentype::TK_NOT; }
-            ".and."  { return yytokentype::TK_AND; }
-            ".or."   { return yytokentype::TK_OR; }
-            ".eqv."  { return yytokentype::TK_EQV; }
-            ".neqv." { return yytokentype::TK_NEQV; }
+            ".not."  { RET(TK_NOT) }
+            ".and."  { RET(TK_AND) }
+            ".or."   { RET(TK_OR) }
+            ".eqv."  { RET(TK_EQV) }
+            ".neqv." { RET(TK_NEQV) }
 
             // True/False
 
-            ".true." ("_" kind)? { return yytokentype::TK_TRUE; }
-            ".false." ("_" kind)? { return yytokentype::TK_FALSE; }
+            ".true." ("_" kind)? { RET(TK_TRUE) }
+            ".false." ("_" kind)? { RET(TK_FALSE) }
 
             // This is needed to ensure that 2.op.3 gets tokenized as
             // TK_INTEGER(2), TK_DEFOP(.op.), TK_INTEGER(3), and not
@@ -240,28 +246,28 @@ int Tokenizer::lex(YYSTYPE &yylval)
             integer / defop {
                 if (lex_dec(tok, cur, u)) {
                     yylval.n = u;
-                    return yytokentype::TK_INTEGER;
+                    RET(TK_INTEGER)
                 } else {
                     throw LFortran::TokenizerError("Integer too large");
                 }
             }
 
 
-            real { return yytokentype::TK_REAL; }
+            real { RET(TK_REAL) }
             integer {
                 if (lex_dec(tok, cur, u)) {
                     yylval.n = u;
-                    return yytokentype::TK_INTEGER;
+                    RET(TK_INTEGER)
                 } else {
                     throw LFortran::TokenizerError("Integer too large");
                 }
             }
 
-            (kind "_")? '"' ('""'|[^"\x00])* '"' { return yytokentype::TK_STRING; }
-            (kind "_")? "'" ("''"|[^'\x00])* "'" { return yytokentype::TK_STRING; }
+            (kind "_")? '"' ('""'|[^"\x00])* '"' { RET(TK_STRING) }
+            (kind "_")? "'" ("''"|[^'\x00])* "'" { RET(TK_STRING) }
 
-            defop { yylval.string=token(); return yytokentype::TK_DEF_OP; }
-            name { yylval.string=token(); return yytokentype::TK_NAME; }
+            defop { yylval.string=token(); RET(TK_DEF_OP) }
+            name { yylval.string=token(); RET(TK_NAME) }
         */
     }
 }

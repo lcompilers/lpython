@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <lfortran/ast.h>
+#include <lfortran/parser/location.h>
 
 namespace LFortran
 {
@@ -26,6 +27,10 @@ struct YYSTYPE {
 
 } // namespace LFortran
 
+
+typedef struct LFortran::Location YYLTYPE;
+#define YYLTYPE_IS_DECLARED 1
+#define YYLTYPE_IS_TRIVIAL 1
 
 
 #endif

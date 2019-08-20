@@ -13,24 +13,26 @@
 #include <lfortran/ast.h>
 
 using LFortran::AST::astType;
+using LFortran::Location;
 using LFortran::AST::stmtType;
 using LFortran::AST::operatorType;
 using LFortran::AST::stmt_t;
 using LFortran::AST::expr_t;
 using LFortran::AST::ast_t;
+using LFortran::AST::Num_t;
 using LFortran::AST::Assignment_t;
 using LFortran::AST::make_BinOp_t;
 using LFortran::AST::make_Exit_t;
 using LFortran::AST::make_Name_t;
 using LFortran::AST::make_Num_t;
 
-static inline expr_t* EXPR(ast_t *f)
+static inline expr_t* EXPR(const ast_t *f)
 {
     LFORTRAN_ASSERT(f->type == astType::expr);
     return (expr_t*)f;
 }
 
-static inline stmt_t** STMTS(Allocator &al, std::vector<ast_t*> &x)
+static inline stmt_t** STMTS(Allocator &al, const std::vector<ast_t*> &x)
 {
     stmt_t **s = (stmt_t**)al.allocate(sizeof(stmt_t*) * x.size());
     for (size_t i=0; i < x.size(); i++) {
@@ -43,7 +45,8 @@ static inline stmt_t** STMTS(Allocator &al, std::vector<ast_t*> &x)
     return s;
 }
 
-static inline ast_t* make_SYMBOL(Allocator &al, const std::string &x)
+static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
+        const std::string &x)
 {
     // Copy the string into our own allocated memory.
     // TODO: Instead, we should pass a pointer to the Tokenizer's string of the
@@ -55,21 +58,21 @@ static inline ast_t* make_SYMBOL(Allocator &al, const std::string &x)
         s[i] = x[i];
     }
     LFORTRAN_ASSERT(s[x.size()] == '\0');
-    return make_Name_t(al, s);
+    return make_Name_t(al, loc, s);
 }
 
 
 #define TYPE ast_t*
-#define ADD(x, y) make_BinOp_t(p.m_a, EXPR(x), operatorType::Add, EXPR(y))
-#define SUB(x, y) make_BinOp_t(p.m_a, EXPR(x), operatorType::Sub, EXPR(y))
-#define MUL(x, y) make_BinOp_t(p.m_a, EXPR(x), operatorType::Mul, EXPR(y))
-#define DIV(x, y) make_BinOp_t(p.m_a, EXPR(x), operatorType::Div, EXPR(y))
-#define POW(x, y) make_BinOp_t(p.m_a, EXPR(x), operatorType::Pow, EXPR(y))
-#define SYMBOL(x) make_SYMBOL(p.m_a, x)
-#define INTEGER(x) make_Num_t(p.m_a, x)
-#define ASSIGNMENT(x, y) make_Assignment_t(p.m_a, EXPR(x), EXPR(y))
-#define EXIT() make_Exit_t(p.m_a)
-#define SUBROUTINE(name, stmts) make_Subroutine_t(p.m_a, \
+#define ADD(x, y, l) make_BinOp_t(p.m_a, l, EXPR(x), operatorType::Add, EXPR(y))
+#define SUB(x, y, l) make_BinOp_t(p.m_a, l, EXPR(x), operatorType::Sub, EXPR(y))
+#define MUL(x, y, l) make_BinOp_t(p.m_a, l, EXPR(x), operatorType::Mul, EXPR(y))
+#define DIV(x, y, l) make_BinOp_t(p.m_a, l, EXPR(x), operatorType::Div, EXPR(y))
+#define POW(x, y, l) make_BinOp_t(p.m_a, l, EXPR(x), operatorType::Pow, EXPR(y))
+#define SYMBOL(x, l) make_SYMBOL(p.m_a, l, x)
+#define INTEGER(x, l) make_Num_t(p.m_a, l, x)
+#define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, l, EXPR(x), EXPR(y))
+#define EXIT() make_Exit_t(p.m_a, l)
+#define SUBROUTINE(name, stmts, l) make_Subroutine_t(p.m_a, l, \
         /*name*/ nullptr, \
         /*args*/ nullptr, \
         /*n_args*/ 0, \
@@ -81,7 +84,7 @@ static inline ast_t* make_SYMBOL(Allocator &al, const std::string &x)
         /*n_body*/ stmts.size(), \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
-#define FUNCTION(name, stmts) make_Function_t(p.m_a, \
+#define FUNCTION(name, stmts, l) make_Function_t(p.m_a, l, \
         /*name*/ nullptr, \
         /*args*/ nullptr, \
         /*n_args*/ 0, \
@@ -96,7 +99,7 @@ static inline ast_t* make_SYMBOL(Allocator &al, const std::string &x)
         /*n_body*/ stmts.size(), \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
-#define PROGRAM(name, stmts) make_Program_t(p.m_a, \
+#define PROGRAM(name, stmts, l) make_Program_t(p.m_a, l, \
         /*name*/ nullptr, \
         /*use*/ nullptr, \
         /*n_use*/ 0, \
