@@ -983,4 +983,18 @@ TEST_CASE("Errors") {
         CHECK(e.loc.last_line == 3);
         CHECK(e.loc.last_column == 16);
     }
+
+    input = R"(function f
+    x = y
+    x = 213-*yz
+    end function)";
+    try {
+        parse(al, input);
+    } catch (const LFortran::ParserError &e) {
+        show_error("input", e.what(), input, e.loc);
+        CHECK(e.loc.first_line == 3);
+        CHECK(e.loc.first_column == 13);
+        CHECK(e.loc.last_line == 3);
+        CHECK(e.loc.last_column == 13);
+    }
 }
