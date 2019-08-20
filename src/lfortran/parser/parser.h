@@ -29,6 +29,8 @@ private:
 
 LFortran::AST::ast_t *parse(Allocator &al, const std::string &s);
 std::vector<LFortran::AST::ast_t*> parsen(Allocator &al, const std::string &s);
+void show_error(const std::string &filename, const std::string &text,
+        const std::string &input, const Location &loc);
 
 } // namespace LFortran
 

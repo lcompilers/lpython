@@ -1,3 +1,6 @@
+#include <string>
+#include <sstream>
+
 #include <lfortran/parser/parser.h>
 #include <lfortran/parser/parser.tab.hh>
 
@@ -28,6 +31,37 @@ void Parser::parse(const std::string &input)
     }
     Location loc;
     throw ParserError("Parsing Unsuccessful", loc);
+}
+
+std::string get_line(std::string str, int n)
+{
+    std::string line;
+    std::stringstream s(str);
+    for (int i=0; i < n; i++) {
+        std::getline(s, line);
+    }
+    return line;
+}
+
+void show_error(const std::string &filename, const std::string &text,
+        const std::string &input, const Location &loc)
+{
+    std::string redon  = "\033[0;31m";
+    std::string redoff = "\033[0;00m";
+    std::cout << filename << ":" << loc.first_line << ":" << loc.first_column;
+    std::cout << " " << redon << "error:" << redoff << " " << text << std::endl;
+    if (loc.first_line == loc.last_line) {
+        std::cout << get_line(input, loc.first_line) << std::endl;
+        for (int i=0; i < loc.first_column-1; i++) {
+            std::cout << " ";
+        }
+        std::cout << redon << "^" << redoff << std::endl;;
+        if (loc.first_column != loc.last_column) {
+            throw std::runtime_error("Multi-character errors not implemented yet.");
+        }
+    } else {
+        throw std::runtime_error("Multiline errors not implemented yet.");
+    }
 }
 
 }
