@@ -212,15 +212,22 @@ std::string token2text(const int token)
 }
 
 void show_syntax_error(const std::string &filename, const std::string &input,
-        const Location &loc, const int token)
+        const Location &loc, const int token, const std::string *tstr)
 {
     std::string redon  = "\033[0;31m";
     std::string redoff = "\033[0;00m";
     std::cout << filename << ":" << loc.first_line << ":" << loc.first_column;
     std::cout << " " << redon << "syntax error:" << redoff << " ";
-    std::cout << "token type '";
-    std::cout << token2text(token);
-    std::cout << "' is unexpected" << std::endl;
+    if (token == -1) {
+        LFORTRAN_ASSERT(tstr != nullptr);
+        std::cout << "token '";
+        std::cout << *tstr;
+        std::cout << "' is not recognized" << std::endl;
+    } else {
+        std::cout << "token type '";
+        std::cout << token2text(token);
+        std::cout << "' is unexpected here" << std::endl;
+    }
     if (loc.first_line == loc.last_line) {
         std::string line = get_line(input, loc.first_line);
         std::cout << line.substr(0, loc.first_column-1);

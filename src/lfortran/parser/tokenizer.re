@@ -65,9 +65,10 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             integer = digit+ ("_" kind)?;
             real = ((significand exp?) | (digit+ exp)) ("_" kind)?;
 
-            * {
-                throw LFortran::TokenizerError("Unknown token: '"
-                    + token() + "'");
+            * { token_loc(loc);
+                std::string t = token();
+                throw LFortran::TokenizerError("token '" + t
+                    + "' is not recognized", loc, t);
             }
             end { RET(END_OF_FILE); }
             whitespace { continue; }
@@ -248,7 +249,10 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
                     yylval.n = u;
                     RET(TK_INTEGER)
                 } else {
-                    throw LFortran::TokenizerError("Integer too large");
+                    token_loc(loc);
+                    std::string t = token();
+                    throw LFortran::TokenizerError("Integer too large",
+                        loc, t);
                 }
             }
 
@@ -259,7 +263,10 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
                     yylval.n = u;
                     RET(TK_INTEGER)
                 } else {
-                    throw LFortran::TokenizerError("Integer too large");
+                    token_loc(loc);
+                    std::string t = token();
+                    throw LFortran::TokenizerError("Integer too large",
+                        loc, t);
                 }
             }
 

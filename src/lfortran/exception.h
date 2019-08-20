@@ -57,8 +57,13 @@ public:
 class TokenizerError : public LFortranException
 {
 public:
-    TokenizerError(const std::string &msg)
-        : LFortranException(msg, LFORTRAN_TOKENIZER_ERROR)
+    Location loc;
+    std::string token;
+public:
+    TokenizerError(const std::string &msg, const Location &loc,
+            const std::string &token)
+        : LFortranException(msg, LFORTRAN_TOKENIZER_ERROR), loc{loc},
+            token{token}
     {
     }
 };

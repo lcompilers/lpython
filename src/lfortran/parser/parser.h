@@ -30,7 +30,7 @@ private:
 LFortran::AST::ast_t *parse(Allocator &al, const std::string &s);
 std::vector<LFortran::AST::ast_t*> parsen(Allocator &al, const std::string &s);
 void show_syntax_error(const std::string &filename, const std::string &input,
-        const Location &loc, const int token);
+        const Location &loc, const int token, const std::string *tstr=nullptr);
 
 } // namespace LFortran
 
