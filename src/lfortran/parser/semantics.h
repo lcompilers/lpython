@@ -106,6 +106,6 @@ static inline ast_t* make_SYMBOL(Allocator &al, const std::string &x)
         /*n_body*/ stmts.size(), \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
-#define RESULT(x) p.result = x
+#define RESULT(x) p.result.push_back(x)
 
 #endif
