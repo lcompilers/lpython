@@ -66,6 +66,7 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 %type <ast> id
 %type <ast> start_unit
 %type <ast> subroutine
+%type <ast> function
 %type <ast> statement
 %type <ast> assignment_statement
 //%type <ast> exit_statement
@@ -237,6 +238,7 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 
 start_unit
     : subroutine { $$ = $1; RESULT($$); }
+    | function { $$ = $1; RESULT($$); }
     | statement { $$ = $1; RESULT($$); }
     | expr { $$ = $1; RESULT($$); }
     ;
@@ -244,6 +246,11 @@ start_unit
 subroutine
     : KW_SUBROUTINE id sep statements sep KW_END KW_SUBROUTINE {
             $$ = SUBROUTINE($2, $4); }
+    ;
+
+function
+    : KW_FUNCTION id sep statements sep KW_END KW_FUNCTION {
+            $$ = FUNCTION($2, $4); }
     ;
 
 // -----------------------------------------------------------------------------
