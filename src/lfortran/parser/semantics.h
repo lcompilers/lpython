@@ -67,7 +67,7 @@ static inline ast_t* make_SYMBOL(Allocator &al, const std::string &x)
 #define MUL(x, y, l) make_BinOp_t(p.m_a, EXPR(x), operatorType::Mul, EXPR(y)); yyval.ast->loc = l;
 #define DIV(x, y, l) make_BinOp_t(p.m_a, EXPR(x), operatorType::Div, EXPR(y)); yyval.ast->loc = l;
 #define POW(x, y, l) make_BinOp_t(p.m_a, EXPR(x), operatorType::Pow, EXPR(y)); yyval.ast->loc = l;
-#define SYMBOL(x) make_SYMBOL(p.m_a, x)
+#define SYMBOL(x, l) make_SYMBOL(p.m_a, x); yyval.ast->loc = l;
 #define INTEGER(x, l) make_Num_t(p.m_a, x); yyval.ast->loc = l;
 #define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, EXPR(x), EXPR(y)); yyval.ast->loc = l;
 #define EXIT() make_Exit_t(p.m_a)

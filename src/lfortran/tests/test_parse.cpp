@@ -921,4 +921,10 @@ TEST_CASE("Location") {
     CHECK(i->base.base.loc.first_column == 9);
     CHECK(i->base.base.loc.last_line == 3);
     CHECK(i->base.base.loc.last_column == 11);
+    auto sym = cast(Name, m->m_right);
+    CHECK(std::string(sym->m_id) == "y");
+    CHECK(sym->base.base.loc.first_line == 3);
+    CHECK(sym->base.base.loc.first_column == 13);
+    CHECK(sym->base.base.loc.last_line == 3);
+    CHECK(sym->base.base.loc.last_column == 13);
 }
