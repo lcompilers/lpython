@@ -890,6 +890,8 @@ TEST_CASE("Tokenizer") {
     CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
 }
 
+#define cast(type, p) (LFortran::AST::type##_t*) (p)
+
 TEST_CASE("Location") {
     std::string input = R"(subroutine f
     x = y
@@ -898,10 +900,10 @@ TEST_CASE("Location") {
 
     Allocator al(1024*1024);
     LFortran::AST::ast_t* result = parse(al, input);
-    auto sub = (LFortran::AST::Subroutine_t*) result;
-    auto stmt = (LFortran::AST::Assignment_t*) sub->m_body[1];
-    auto m = (LFortran::AST::BinOp_t*) stmt->m_value;
-    auto i = (LFortran::AST::Num_t*) m->m_left;
+    auto sub = cast(Subroutine, result);
+    auto stmt = cast(Assignment, sub->m_body[1]);
+    auto m = cast(BinOp, stmt->m_value);
+    auto i = cast(Num, m->m_left);
     CHECK(i->m_n == 213);
     CHECK(i->base.base.loc.first_line == 3);
     CHECK(i->base.base.loc.first_column == 9);
