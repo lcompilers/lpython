@@ -71,7 +71,7 @@ static inline ast_t* make_SYMBOL(Allocator &al, const std::string &x)
 #define INTEGER(x, l) make_Num_t(p.m_a, x); yyval.ast->loc = l;
 #define ASSIGNMENT(x, y) make_Assignment_t(p.m_a, EXPR(x), EXPR(y))
 #define EXIT() make_Exit_t(p.m_a)
-#define SUBROUTINE(name, stmts) make_Subroutine_t(p.m_a, \
+#define SUBROUTINE(name, stmts, l) make_Subroutine_t(p.m_a, \
         /*name*/ nullptr, \
         /*args*/ nullptr, \
         /*n_args*/ 0, \
@@ -82,7 +82,7 @@ static inline ast_t* make_SYMBOL(Allocator &al, const std::string &x)
         /*body*/ STMTS(p.m_a, stmts), \
         /*n_body*/ stmts.size(), \
         /*contains*/ nullptr, \
-        /*n_contains*/ 0)
+        /*n_contains*/ 0); yyval.ast->loc = l;
 #define FUNCTION(name, stmts) make_Function_t(p.m_a, \
         /*name*/ nullptr, \
         /*args*/ nullptr, \

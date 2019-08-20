@@ -900,6 +900,10 @@ TEST_CASE("Location") {
 
     Allocator al(1024*1024);
     LFortran::AST::ast_t* result = parse(al, input);
+    CHECK(result->loc.first_line == 1);
+    CHECK(result->loc.first_column == 1);
+    CHECK(result->loc.last_line == 4);
+    CHECK(result->loc.last_column == 18);
     auto sub = cast(Subroutine, result);
     auto stmt = cast(Assignment, sub->m_body[1]);
     auto m = cast(BinOp, stmt->m_value);

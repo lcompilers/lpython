@@ -262,7 +262,7 @@ program
 
 subroutine
     : KW_SUBROUTINE id sep statements sep KW_END KW_SUBROUTINE {
-            $$ = SUBROUTINE($2, $4); }
+            $$ = SUBROUTINE($2, $4, @$); }
     ;
 
 function
