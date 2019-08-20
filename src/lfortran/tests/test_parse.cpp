@@ -992,6 +992,7 @@ TEST_CASE("Errors") {
         parse(al, input);
     } catch (const LFortran::ParserError &e) {
         show_error("input", e.what(), input, e.loc);
+        CHECK(e.msg() == "syntax error");
         CHECK(e.loc.first_line == 3);
         CHECK(e.loc.first_column == 13);
         CHECK(e.loc.last_line == 3);

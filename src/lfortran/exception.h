@@ -44,6 +44,10 @@ public:
     {
         return m_msg.c_str();
     }
+    std::string msg() const
+    {
+        return m_msg;
+    }
     lfortran_exceptions_t error_code()
     {
         return ec;
