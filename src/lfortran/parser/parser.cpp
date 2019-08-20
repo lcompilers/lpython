@@ -56,10 +56,11 @@ void show_error(const std::string &filename, const std::string &text,
         for (int i=0; i < loc.first_column-1; i++) {
             std::cout << " ";
         }
-        std::cout << redon << "^" << redoff << std::endl;;
-        if (loc.first_column != loc.last_column) {
-            throw std::runtime_error("Multi-character errors not implemented yet.");
+        std::cout << redon << "^";
+        for (int i=loc.first_column; i < loc.last_column; i++) {
+            std::cout << "~";
         }
+        std::cout << redoff << std::endl;
     } else {
         throw std::runtime_error("Multiline errors not implemented yet.");
     }
