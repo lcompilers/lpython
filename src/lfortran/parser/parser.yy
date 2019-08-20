@@ -68,7 +68,7 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 %type <ast> subroutine
 %type <ast> statement
 %type <ast> assignment_statement
-%type <ast> exit_statement
+//%type <ast> exit_statement
 %type <vec_ast> statements
 
 %token TK_NEWLINE
@@ -261,16 +261,18 @@ sep
 
 statement
     : assignment_statement
-    | exit_statement
+//    | exit_statement
     ;
 
 assignment_statement
     : expr '=' expr { $$ = ASSIGNMENT($1, $3); }
     ;
 
+/*
 exit_statement
     : KW_EXIT { $$ = EXIT(); }
     ;
+*/
 
 // -----------------------------------------------------------------------------
 // Fortran expression
