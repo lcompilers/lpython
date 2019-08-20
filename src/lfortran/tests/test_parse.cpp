@@ -895,7 +895,7 @@ TEST_CASE("Tokenizer") {
 TEST_CASE("Location") {
     std::string input = R"(subroutine f
     x = y
-    x = 213*y
+    x = 213*yz
     end subroutine)";
 
     Allocator al(1024*1024);
@@ -909,12 +909,12 @@ TEST_CASE("Location") {
     CHECK(stmt->base.base.loc.first_line == 3);
     CHECK(stmt->base.base.loc.first_column == 5);
     CHECK(stmt->base.base.loc.last_line == 3);
-    CHECK(stmt->base.base.loc.last_column == 13);
+    CHECK(stmt->base.base.loc.last_column == 14);
     auto m = cast(BinOp, stmt->m_value);
     CHECK(m->base.base.loc.first_line == 3);
     CHECK(m->base.base.loc.first_column == 9);
     CHECK(m->base.base.loc.last_line == 3);
-    CHECK(m->base.base.loc.last_column == 13);
+    CHECK(m->base.base.loc.last_column == 14);
     auto i = cast(Num, m->m_left);
     CHECK(i->m_n == 213);
     CHECK(i->base.base.loc.first_line == 3);
@@ -922,9 +922,9 @@ TEST_CASE("Location") {
     CHECK(i->base.base.loc.last_line == 3);
     CHECK(i->base.base.loc.last_column == 11);
     auto sym = cast(Name, m->m_right);
-    CHECK(std::string(sym->m_id) == "y");
+    CHECK(std::string(sym->m_id) == "yz");
     CHECK(sym->base.base.loc.first_line == 3);
     CHECK(sym->base.base.loc.first_column == 13);
     CHECK(sym->base.base.loc.last_line == 3);
-    CHECK(sym->base.base.loc.last_column == 13);
+    CHECK(sym->base.base.loc.last_column == 14);
 }
