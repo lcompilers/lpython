@@ -96,133 +96,133 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 %token TK_TRUE
 %token TK_FALSE
 
-%token KW_ABSTRACT
-%token KW_ALL
-%token KW_ALLOCATABLE
-%token KW_ALLOCATE
-%token KW_ASSIGNMENT
-%token KW_ASSOCIATE
-%token KW_ASYNCHRONOUS
-%token KW_BACKSPACE
-%token KW_BIND
-%token KW_BLOCK
-%token KW_CALL
-%token KW_CASE
-%token KW_CHARACTER
-%token KW_CLASS
-%token KW_CLOSE
-%token KW_CODIMENSION
-%token KW_COMMON
-%token KW_COMPLEX
-%token KW_CONCURRENT
-%token KW_CONTAINS
-%token KW_CONTIGUOUS
-%token KW_CONTINUE
-%token KW_CRITICAL
-%token KW_CYCLE
-%token KW_DATA
-%token KW_DEALLOCATE
-%token KW_DEFAULT
-%token KW_DEFERRED
-%token KW_DIMENSION
-%token KW_DO
-%token KW_DOWHILE
-%token KW_DOUBLE
-%token KW_ELEMENTAL
-%token KW_ELSE
-%token KW_END
-%token KW_ENTRY
-%token KW_ENUM
-%token KW_ENUMERATOR
-%token KW_EQUIVALENCE
-%token KW_ERRMSG
-%token KW_ERROR
-%token KW_EXIT
-%token KW_EXTENDS
-%token KW_EXTERNAL
-%token KW_FILE
-%token KW_FINAL
-%token KW_FLUSH
-%token KW_FORALL
-%token KW_FORMAT
-%token KW_FORMATTED
+%token <string> KW_ABSTRACT
+%token <string> KW_ALL
+%token <string> KW_ALLOCATABLE
+%token <string> KW_ALLOCATE
+%token <string> KW_ASSIGNMENT
+%token <string> KW_ASSOCIATE
+%token <string> KW_ASYNCHRONOUS
+%token <string> KW_BACKSPACE
+%token <string> KW_BIND
+%token <string> KW_BLOCK
+%token <string> KW_CALL
+%token <string> KW_CASE
+%token <string> KW_CHARACTER
+%token <string> KW_CLASS
+%token <string> KW_CLOSE
+%token <string> KW_CODIMENSION
+%token <string> KW_COMMON
+%token <string> KW_COMPLEX
+%token <string> KW_CONCURRENT
+%token <string> KW_CONTAINS
+%token <string> KW_CONTIGUOUS
+%token <string> KW_CONTINUE
+%token <string> KW_CRITICAL
+%token <string> KW_CYCLE
+%token <string> KW_DATA
+%token <string> KW_DEALLOCATE
+%token <string> KW_DEFAULT
+%token <string> KW_DEFERRED
+%token <string> KW_DIMENSION
+%token <string> KW_DO
+%token <string> KW_DOWHILE
+%token <string> KW_DOUBLE
+%token <string> KW_ELEMENTAL
+%token <string> KW_ELSE
+%token <string> KW_END
+%token <string> KW_ENTRY
+%token <string> KW_ENUM
+%token <string> KW_ENUMERATOR
+%token <string> KW_EQUIVALENCE
+%token <string> KW_ERRMSG
+%token <string> KW_ERROR
+%token <string> KW_EXIT
+%token <string> KW_EXTENDS
+%token <string> KW_EXTERNAL
+%token <string> KW_FILE
+%token <string> KW_FINAL
+%token <string> KW_FLUSH
+%token <string> KW_FORALL
+%token <string> KW_FORMAT
+%token <string> KW_FORMATTED
 %token <string> KW_FUNCTION
-%token KW_GENERIC
-%token KW_GO
-%token KW_IF
-%token KW_IMPLICIT
-%token KW_IMPORT
-%token KW_IMPURE
-%token KW_IN
-%token KW_INCLUDE
-%token KW_INOUT
-%token KW_INQUIRE
-%token KW_INTEGER
-%token KW_INTENT
-%token KW_INTERFACE
-%token KW_INTRINSIC
-%token KW_IS
-%token KW_KIND
-%token KW_LEN
-%token KW_LOCAL
-%token KW_LOCAL_INIT
-%token KW_LOGICAL
-%token KW_MODULE
-%token KW_MOLD
-%token KW_NAME
-%token KW_NAMELIST
-%token KW_NOPASS
-%token KW_NON_INTRINSIC
-%token KW_NON_OVERRIDABLE
-%token KW_NON_RECURSIVE
-%token KW_NONE
-%token KW_NULLIFY
-%token KW_ONLY
-%token KW_OPEN
-%token KW_OPERATOR
-%token KW_OPTIONAL
-%token KW_OUT
-%token KW_PARAMETER
-%token KW_PASS
-%token KW_POINTER
-%token KW_PRECISION
-%token KW_PRINT
-%token KW_PRIVATE
-%token KW_PROCEDURE
-%token KW_PROGRAM
-%token KW_PROTECTED
-%token KW_PUBLIC
-%token KW_PURE
-%token KW_QUIET
-%token KW_RANK
-%token KW_READ
-%token KW_REAL
-%token KW_RECURSIVE
-%token KW_RESULT
-%token KW_RETURN
-%token KW_REWIND
-%token KW_SAVE
-%token KW_SELECT
-%token KW_SEQUENCE
-%token KW_SHARED
-%token KW_SOURCE
-%token KW_STAT
-%token KW_STOP
-%token KW_SUBMODULE
+%token <string> KW_GENERIC
+%token <string> KW_GO
+%token <string> KW_IF
+%token <string> KW_IMPLICIT
+%token <string> KW_IMPORT
+%token <string> KW_IMPURE
+%token <string> KW_IN
+%token <string> KW_INCLUDE
+%token <string> KW_INOUT
+%token <string> KW_INQUIRE
+%token <string> KW_INTEGER
+%token <string> KW_INTENT
+%token <string> KW_INTERFACE
+%token <string> KW_INTRINSIC
+%token <string> KW_IS
+%token <string> KW_KIND
+%token <string> KW_LEN
+%token <string> KW_LOCAL
+%token <string> KW_LOCAL_INIT
+%token <string> KW_LOGICAL
+%token <string> KW_MODULE
+%token <string> KW_MOLD
+%token <string> KW_NAME
+%token <string> KW_NAMELIST
+%token <string> KW_NOPASS
+%token <string> KW_NON_INTRINSIC
+%token <string> KW_NON_OVERRIDABLE
+%token <string> KW_NON_RECURSIVE
+%token <string> KW_NONE
+%token <string> KW_NULLIFY
+%token <string> KW_ONLY
+%token <string> KW_OPEN
+%token <string> KW_OPERATOR
+%token <string> KW_OPTIONAL
+%token <string> KW_OUT
+%token <string> KW_PARAMETER
+%token <string> KW_PASS
+%token <string> KW_POINTER
+%token <string> KW_PRECISION
+%token <string> KW_PRINT
+%token <string> KW_PRIVATE
+%token <string> KW_PROCEDURE
+%token <string> KW_PROGRAM
+%token <string> KW_PROTECTED
+%token <string> KW_PUBLIC
+%token <string> KW_PURE
+%token <string> KW_QUIET
+%token <string> KW_RANK
+%token <string> KW_READ
+%token <string> KW_REAL
+%token <string> KW_RECURSIVE
+%token <string> KW_RESULT
+%token <string> KW_RETURN
+%token <string> KW_REWIND
+%token <string> KW_SAVE
+%token <string> KW_SELECT
+%token <string> KW_SEQUENCE
+%token <string> KW_SHARED
+%token <string> KW_SOURCE
+%token <string> KW_STAT
+%token <string> KW_STOP
+%token <string> KW_SUBMODULE
 %token <string> KW_SUBROUTINE
-%token KW_TARGET
-%token KW_TEAM
-%token KW_TEAM_NUMBER
-%token KW_THEN
-%token KW_TO
-%token KW_TYPE
-%token KW_UNFORMATTED
-%token KW_USE
-%token KW_VALUE
-%token KW_VOLATILE
-%token KW_WHERE
-%token KW_WHILE
-%token KW_WRITE
+%token <string> KW_TARGET
+%token <string> KW_TEAM
+%token <string> KW_TEAM_NUMBER
+%token <string> KW_THEN
+%token <string> KW_TO
+%token <string> KW_TYPE
+%token <string> KW_UNFORMATTED
+%token <string> KW_USE
+%token <string> KW_VALUE
+%token <string> KW_VOLATILE
+%token <string> KW_WHERE
+%token <string> KW_WHILE
+%token <string> KW_WRITE
 
 %left '-' '+'
 %left '*' '/'
