@@ -21,7 +21,7 @@ int main()
 
     std::string input = R"(subroutine f
     x = y
-    x = 2*y
+    x = 213*y
     end subroutine)";
 
     LFortran::Tokenizer t;
