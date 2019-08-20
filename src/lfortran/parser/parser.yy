@@ -238,16 +238,16 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 // Top level rules to be used for parsing.
 
 units
-    : units sep script_unit
-    | script_unit
+    : units sep script_unit { RESULT($3); }
+    | script_unit { RESULT($1); }
     ;
 
 script_unit
-    : program { $$ = $1; RESULT($$); }
-    | subroutine { $$ = $1; RESULT($$); }
-    | function { $$ = $1; RESULT($$); }
-    | statement { $$ = $1; RESULT($$); }
-    | expr { $$ = $1; RESULT($$); }
+    : program
+    | subroutine
+    | function
+    | statement
+    | expr
     ;
 
 // ----------------------------------------------------------------------------
