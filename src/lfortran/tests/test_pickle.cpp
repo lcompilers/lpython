@@ -19,6 +19,7 @@ TEST_CASE("Names") {
     CHECK(P("2*y")   == "(BinOp Mul 2 y)");
     CHECK(P("2*yz")   == "(BinOp Mul 2 yz)");
     CHECK(P("abc*xyz")   == "(BinOp Mul abc xyz)");
+    CHECK(P("abc*function")   == "(BinOp Mul abc function)");
 
     CHECK_THROWS_AS(P("abc*2xyz"), LFortran::ParserError);
 }

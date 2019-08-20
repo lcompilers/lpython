@@ -118,7 +118,7 @@ int Tokenizer::lex(YYSTYPE &yylval)
             'forall' { return yytokentype::KW_FORALL; }
             'format' { return yytokentype::KW_FORMAT; }
             'formatted' { return yytokentype::KW_FORMATTED; }
-            'function' { return yytokentype::KW_FUNCTION; }
+            'function' { yylval.string=token(); return yytokentype::KW_FUNCTION; }
             'generic' { return yytokentype::KW_GENERIC; }
             'go'  { return yytokentype::KW_GO; }
             'if' { return yytokentype::KW_IF; }

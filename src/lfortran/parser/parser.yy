@@ -63,6 +63,7 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 %token <n> TK_INTEGER
 %token TK_REAL
 %type <ast> expr
+%type <ast> id
 %type <ast> start_unit
 %type <ast> subroutine
 %type <ast> statement
@@ -145,7 +146,7 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 %token KW_FORALL
 %token KW_FORMAT
 %token KW_FORMATTED
-%token KW_FUNCTION
+%token <string> KW_FUNCTION
 %token KW_GENERIC
 %token KW_GO
 %token KW_IF
@@ -280,6 +281,11 @@ expr
     | expr '/' expr { $$ = DIV($1, $3); }
     | expr TK_POW expr { $$ = POW($1, $3); }
     | '(' expr ')' { $$ = $2; }
-    | TK_NAME { $$ = SYMBOL($1); }
+    | id { $$ = $1; }
     | TK_INTEGER { $$ = INTEGER($1); }
+    ;
+
+id
+    : TK_NAME { $$ = SYMBOL($1); }
+    | KW_FUNCTION { $$ = SYMBOL($1); }
     ;
