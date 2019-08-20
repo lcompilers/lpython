@@ -49,7 +49,8 @@ void show_error(const std::string &filename, const std::string &text,
     std::string redon  = "\033[0;31m";
     std::string redoff = "\033[0;00m";
     std::cout << filename << ":" << loc.first_line << ":" << loc.first_column;
-    std::cout << " " << redon << "error:" << redoff << " " << text << std::endl;
+    std::cout << " " << redon << "syntax error:" << redoff << " ";
+    std::cout << text << std::endl;
     if (loc.first_line == loc.last_line) {
         std::cout << get_line(input, loc.first_line) << std::endl;
         for (int i=0; i < loc.first_column-1; i++) {

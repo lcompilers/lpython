@@ -958,12 +958,14 @@ TEST_CASE("Location") {
 TEST_CASE("Errors") {
     Allocator al(1024*1024);
     std::string input;
+    std::string text = "token does not satisfy any syntax rule";
 
     input = "(2+3+";
     try {
         parse(al, input);
     } catch (const LFortran::ParserError &e) {
-        show_error("input", e.what(), input, e.loc);
+        CHECK(e.msg() == "syntax error");
+        show_error("input", text, input, e.loc);
         CHECK(e.loc.first_line == 1);
         CHECK(e.loc.first_column == 6);
         CHECK(e.loc.last_line == 1);
@@ -977,7 +979,8 @@ TEST_CASE("Errors") {
     try {
         parse(al, input);
     } catch (const LFortran::ParserError &e) {
-        show_error("input", e.what(), input, e.loc);
+        CHECK(e.msg() == "syntax error");
+        show_error("input", text, input, e.loc);
         CHECK(e.loc.first_line == 3);
         CHECK(e.loc.first_column == 16);
         CHECK(e.loc.last_line == 3);
@@ -991,8 +994,8 @@ TEST_CASE("Errors") {
     try {
         parse(al, input);
     } catch (const LFortran::ParserError &e) {
-        show_error("input", e.what(), input, e.loc);
         CHECK(e.msg() == "syntax error");
+        show_error("input", text, input, e.loc);
         CHECK(e.loc.first_line == 3);
         CHECK(e.loc.first_column == 13);
         CHECK(e.loc.last_line == 3);
