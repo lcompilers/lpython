@@ -242,7 +242,7 @@ start_unit
     ;
 
 subroutine
-    : KW_SUBROUTINE id sep statements sep KW_END KW_SUBROUTINE {
+    : KW_SUBROUTINE id sep statements seps KW_END KW_SUBROUTINE {
             $$ = SUBROUTINE($2, $4); }
     ;
 
@@ -250,8 +250,13 @@ subroutine
 // Control flow
 
 statements
-    : statements sep statement { $$ = $1;  $$.push_back($3); }
+    : statements seps statement { $$ = $1;  $$.push_back($3); }
     | statement { $$.push_back($1); }
+    ;
+
+seps
+    : sep sep
+    | sep
     ;
 
 sep
