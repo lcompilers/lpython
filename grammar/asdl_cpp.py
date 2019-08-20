@@ -212,7 +212,7 @@ class ASTNodeVisitor(ASDLVisitor):
         self.emit("struct %s_t // Constructor" % cons.name, 1)
         self.emit("{", 1);
         self.emit(    "%s_t base;" % base, 2);
-        args = ["Allocator &al"]
+        args = ["Allocator &al", "const Location &a_loc"]
         lines = []
         for f in cons.fields:
             type_ = convert_type(f.type, f.seq)
@@ -233,6 +233,7 @@ class ASTNodeVisitor(ASDLVisitor):
         self.emit(    "n = al.make_new<%s_t>();" % cons.name, 2)
         self.emit(    "n->base.type = %sType::%s;" % (base, cons.name), 2)
         self.emit(    "n->base.base.type = astType::%s;" % (base), 2)
+        self.emit(    "n->base.base.loc = a_loc;", 2)
         for line in lines:
             self.emit(line, 2)
         self.emit(    "return (ast_t*)n;", 2)
