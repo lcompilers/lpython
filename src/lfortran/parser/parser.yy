@@ -4,6 +4,9 @@
 %param {LFortran::Parser &p}
 %locations
 
+// Uncomment this to get verbose error messages
+//%define parse.error verbose
+
 /*
 // Uncomment this to enable parser tracing. Then in the main code, set
 // extern int yydebug;
