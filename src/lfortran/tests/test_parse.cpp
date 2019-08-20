@@ -911,6 +911,10 @@ TEST_CASE("Location") {
     CHECK(stmt->base.base.loc.last_line == 3);
     CHECK(stmt->base.base.loc.last_column == 13);
     auto m = cast(BinOp, stmt->m_value);
+    CHECK(m->base.base.loc.first_line == 3);
+    CHECK(m->base.base.loc.first_column == 9);
+    CHECK(m->base.base.loc.last_line == 3);
+    CHECK(m->base.base.loc.last_column == 13);
     auto i = cast(Num, m->m_left);
     CHECK(i->m_n == 213);
     CHECK(i->base.base.loc.first_line == 3);

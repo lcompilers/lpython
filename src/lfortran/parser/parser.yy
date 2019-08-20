@@ -307,11 +307,11 @@ exit_statement
 // Fortran expression
 
 expr
-    : expr '+' expr { $$ = ADD($1, $3); }
-    | expr '-' expr { $$ = SUB($1, $3); }
-    | expr '*' expr { $$ = MUL($1, $3); }
-    | expr '/' expr { $$ = DIV($1, $3); }
-    | expr TK_POW expr { $$ = POW($1, $3); }
+    : expr '+' expr { $$ = ADD($1, $3, @$); }
+    | expr '-' expr { $$ = SUB($1, $3, @$); }
+    | expr '*' expr { $$ = MUL($1, $3, @$); }
+    | expr '/' expr { $$ = DIV($1, $3, @$); }
+    | expr TK_POW expr { $$ = POW($1, $3, @$); }
     | '(' expr ')' { $$ = $2; }
     | id { $$ = $1; }
     | TK_INTEGER { $$ = INTEGER($1, @$); }

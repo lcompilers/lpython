@@ -62,11 +62,11 @@ static inline ast_t* make_SYMBOL(Allocator &al, const std::string &x)
 
 
 #define TYPE ast_t*
-#define ADD(x, y) make_BinOp_t(p.m_a, EXPR(x), operatorType::Add, EXPR(y))
-#define SUB(x, y) make_BinOp_t(p.m_a, EXPR(x), operatorType::Sub, EXPR(y))
-#define MUL(x, y) make_BinOp_t(p.m_a, EXPR(x), operatorType::Mul, EXPR(y))
-#define DIV(x, y) make_BinOp_t(p.m_a, EXPR(x), operatorType::Div, EXPR(y))
-#define POW(x, y) make_BinOp_t(p.m_a, EXPR(x), operatorType::Pow, EXPR(y))
+#define ADD(x, y, l) make_BinOp_t(p.m_a, EXPR(x), operatorType::Add, EXPR(y)); yyval.ast->loc = l;
+#define SUB(x, y, l) make_BinOp_t(p.m_a, EXPR(x), operatorType::Sub, EXPR(y)); yyval.ast->loc = l;
+#define MUL(x, y, l) make_BinOp_t(p.m_a, EXPR(x), operatorType::Mul, EXPR(y)); yyval.ast->loc = l;
+#define DIV(x, y, l) make_BinOp_t(p.m_a, EXPR(x), operatorType::Div, EXPR(y)); yyval.ast->loc = l;
+#define POW(x, y, l) make_BinOp_t(p.m_a, EXPR(x), operatorType::Pow, EXPR(y)); yyval.ast->loc = l;
 #define SYMBOL(x) make_SYMBOL(p.m_a, x)
 #define INTEGER(x, l) make_Num_t(p.m_a, x); yyval.ast->loc = l;
 #define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, EXPR(x), EXPR(y)); yyval.ast->loc = l;
