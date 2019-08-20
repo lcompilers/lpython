@@ -1011,9 +1011,9 @@ TEST_CASE("Errors") {
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
         show_error("input", text, input, e.loc);
-        CHECK(e.loc.first_line == 3);
-        CHECK(e.loc.first_column == 13);
-        CHECK(e.loc.last_line == 3);
+        CHECK(e.loc.first_line == 2);
+        CHECK(e.loc.first_column == 11);
+        CHECK(e.loc.last_line == 2);
         CHECK(e.loc.last_column == 13);
     }
 }
