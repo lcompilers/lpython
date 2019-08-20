@@ -8,6 +8,7 @@
 #include <lfortran/parser/parser.tab.hh>
 
 using LFortran::parse;
+using LFortran::parse2;
 using LFortran::AST::ast_t;
 using LFortran::AST::expr_t;
 using LFortran::AST::Name_t;
@@ -953,4 +954,117 @@ TEST_CASE("Location") {
     CHECK(result->loc.first_column == 1);
     CHECK(result->loc.last_line == 4);
     CHECK(result->loc.last_column == 15);
+}
+
+TEST_CASE("Errors") {
+    Allocator al(1024*1024);
+    std::string input;
+
+    input = "(2+3+";
+    try {
+        parse(al, input);
+        CHECK(false);
+    } catch (const LFortran::ParserError &e) {
+        CHECK(e.msg() == "syntax error");
+        CHECK(e.token == yytokentype::END_OF_FILE);
+        show_syntax_error("input", input, e.loc, e.token);
+        CHECK(e.loc.first_line == 1);
+        CHECK(e.loc.first_column == 6);
+        CHECK(e.loc.last_line == 1);
+        CHECK(e.loc.last_column == 6);
+    }
+
+    input = R"(function f
+    x = y
+    x = 213*yz+*
+    end function)";
+    try {
+        parse(al, input);
+        CHECK(false);
+    } catch (const LFortran::ParserError &e) {
+        CHECK(e.msg() == "syntax error");
+        CHECK(e.token == '*');
+        show_syntax_error("input", input, e.loc, e.token);
+        CHECK(e.loc.first_line == 3);
+        CHECK(e.loc.first_column == 16);
+        CHECK(e.loc.last_line == 3);
+        CHECK(e.loc.last_column == 16);
+    }
+
+    input = R"(function f
+    x = y
+    x = 213-*yz
+    end function)";
+    try {
+        parse(al, input);
+        CHECK(false);
+    } catch (const LFortran::ParserError &e) {
+        CHECK(e.msg() == "syntax error");
+        CHECK(e.token == '*');
+        show_syntax_error("input", input, e.loc, e.token);
+        CHECK(e.loc.first_line == 3);
+        CHECK(e.loc.first_column == 13);
+        CHECK(e.loc.last_line == 3);
+        CHECK(e.loc.last_column == 13);
+    }
+
+    input = R"(function f
+    x = y xxy xx
+    x = 213*yz
+    end function)";
+    try {
+        parse(al, input);
+        CHECK(false);
+    } catch (const LFortran::ParserError &e) {
+        CHECK(e.msg() == "syntax error");
+        CHECK(e.token == yytokentype::TK_NAME);
+        show_syntax_error("input", input, e.loc, e.token);
+        CHECK(e.loc.first_line == 2);
+        CHECK(e.loc.first_column == 11);
+        CHECK(e.loc.last_line == 2);
+        CHECK(e.loc.last_column == 13);
+    }
+
+    input = "1 + .notx.";
+    try {
+        parse(al, input);
+        CHECK(false);
+    } catch (const LFortran::ParserError &e) {
+        CHECK(e.msg() == "syntax error");
+        CHECK(e.token == yytokentype::TK_DEF_OP);
+        show_syntax_error("input", input, e.loc, e.token);
+        CHECK(e.loc.first_line == 1);
+        CHECK(e.loc.first_column == 5);
+        CHECK(e.loc.last_line == 1);
+        CHECK(e.loc.last_column == 10);
+    }
+
+    input = "1 + x allocate y";
+    try {
+        parse(al, input);
+        CHECK(false);
+    } catch (const LFortran::ParserError &e) {
+        CHECK(e.msg() == "syntax error");
+        CHECK(e.token == yytokentype::KW_ALLOCATE);
+        show_syntax_error("input", input, e.loc, e.token);
+        CHECK(e.loc.first_line == 1);
+        CHECK(e.loc.first_column == 7);
+        CHECK(e.loc.last_line == 1);
+        CHECK(e.loc.last_column == 14);
+    }
+    CHECK_THROWS_AS(parse2(al, input), LFortran::ParserError);
+
+    input = "1 @ x allocate y";
+    try {
+        parse(al, input);
+        CHECK(false);
+    } catch (const LFortran::TokenizerError &e) {
+        CHECK(e.token == "@");
+        show_syntax_error("input", input, e.loc, -1, &e.token);
+        CHECK(e.loc.first_line == 1);
+        CHECK(e.loc.first_column == 3);
+        CHECK(e.loc.last_line == 1);
+        CHECK(e.loc.last_column == 3);
+    }
+    CHECK_THROWS_AS(parse2(al, input), LFortran::TokenizerError);
 }

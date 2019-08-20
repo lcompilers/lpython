@@ -21,6 +21,7 @@ typedef enum {
 
 #include <exception>
 #include <string>
+#include <lfortran/parser/location.h>
 
 namespace LFortran
 {
@@ -43,6 +44,10 @@ public:
     {
         return m_msg.c_str();
     }
+    std::string msg() const
+    {
+        return m_msg;
+    }
     lfortran_exceptions_t error_code()
     {
         return ec;
@@ -52,8 +57,13 @@ public:
 class TokenizerError : public LFortranException
 {
 public:
-    TokenizerError(const std::string &msg)
-        : LFortranException(msg, LFORTRAN_TOKENIZER_ERROR)
+    Location loc;
+    std::string token;
+public:
+    TokenizerError(const std::string &msg, const Location &loc,
+            const std::string &token)
+        : LFortranException(msg, LFORTRAN_TOKENIZER_ERROR), loc{loc},
+            token{token}
     {
     }
 };
@@ -61,8 +71,11 @@ public:
 class ParserError : public LFortranException
 {
 public:
-    ParserError(const std::string &msg)
-        : LFortranException(msg, LFORTRAN_PARSER_ERROR)
+    Location loc;
+    int token;
+public:
+    ParserError(const std::string &msg, const Location &loc, const int token)
+        : LFortranException(msg, LFORTRAN_PARSER_ERROR), loc{loc}, token{token}
     {
     }
 };

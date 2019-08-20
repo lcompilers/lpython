@@ -27,8 +27,19 @@ public:
 private:
 };
 
+// Parses Fortran code to AST
 LFortran::AST::ast_t *parse(Allocator &al, const std::string &s);
+
+// Just like `parse`, but prints a nice error message to std::cout if a syntax
+// error happens:
+LFortran::AST::ast_t *parse2(Allocator &al, const std::string &s);
+
+// Parse multiple translation units
 std::vector<LFortran::AST::ast_t*> parsen(Allocator &al, const std::string &s);
+
+// Prints a nice error message to std::cout
+void show_syntax_error(const std::string &filename, const std::string &input,
+        const Location &loc, const int token, const std::string *tstr=nullptr);
 
 } // namespace LFortran
 

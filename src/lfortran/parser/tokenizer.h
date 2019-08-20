@@ -9,6 +9,7 @@ namespace LFortran
 
 class Tokenizer
 {
+public:
     unsigned char *cur;
     unsigned char *mar;
     unsigned char *ctxmar;
