@@ -239,9 +239,13 @@ void show_syntax_error(const std::string &filename, const std::string &input,
         std::cout << *tstr;
         std::cout << "' is not recognized" << std::endl;
     } else {
-        std::cout << "token type '";
-        std::cout << token2text(token);
-        std::cout << "' is unexpected here" << std::endl;
+        if (token == yytokentype::END_OF_FILE) {
+            std::cout << "end of file is unexpected here" << std::endl;
+        } else {
+            std::cout << "token type '";
+            std::cout << token2text(token);
+            std::cout << "' is unexpected here" << std::endl;
+        }
     }
     if (loc.first_line == loc.last_line) {
         std::string line = get_line(input, loc.first_line);
