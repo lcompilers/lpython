@@ -37,7 +37,7 @@ bool lex_dec(const unsigned char *s, const unsigned char *e, unsigned long &u)
 
 #define KW(x) yylval.string=token(); return yytokentype::KW_##x;
 
-int Tokenizer::lex(YYSTYPE &yylval)
+int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
 {
 	unsigned long u;
     for (;;) {

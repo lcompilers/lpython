@@ -21,7 +21,7 @@ public:
 
     // Get next token. Token ID is returned as function result, the semantic
     // value is put into `yylval`.
-    int lex(YYSTYPE &yylval);
+    int lex(YYSTYPE &yylval, Location &loc);
 
     // Return the current token as std::string
     std::string token() const

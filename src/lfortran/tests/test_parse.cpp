@@ -93,7 +93,8 @@ std::vector<int> tokens(const std::string &input,
     int token = yytokentype::END_OF_FILE + 1; // Something different from EOF
     while (token != yytokentype::END_OF_FILE) {
         LFortran::YYSTYPE y;
-        token = t.lex(y);
+        LFortran::Location l;
+        token = t.lex(y, l);
         tst.push_back(token);
         if (stypes) stypes->push_back(y);
     }

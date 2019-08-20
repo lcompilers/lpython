@@ -20,8 +20,9 @@ int main()
     LFortran::Tokenizer t;
     t.set_string(input);
     LFortran::YYSTYPE y;
+    LFortran::Location l;
     while (true) {
-        token = t.lex(y);
+        token = t.lex(y, l);
         std::cout << token << std::endl;
         if (token == yytokentype::END_OF_FILE) break;
     }
