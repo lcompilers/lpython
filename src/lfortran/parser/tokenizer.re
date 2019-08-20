@@ -70,133 +70,133 @@ int Tokenizer::lex(YYSTYPE &yylval)
             whitespace { continue; }
 
             // Keywords
-            'abstract' { return yytokentype::KW_ABSTRACT; }
-            'all' { return yytokentype::KW_ALL; }
-            'allocatable' { return yytokentype::KW_ALLOCATABLE; }
-            'allocate' { return yytokentype::KW_ALLOCATE; }
-            'assignment' { return yytokentype::KW_ASSIGNMENT; }
-            'associate' { return yytokentype::KW_ASSOCIATE; }
-            'asynchronous' { return yytokentype::KW_ASYNCHRONOUS; }
-            'backspace' { return yytokentype::KW_BACKSPACE; }
-            'bind' { return yytokentype::KW_BIND; }
-            'block' { return yytokentype::KW_BLOCK; }
-            'call' { return yytokentype::KW_CALL; }
-            'case' { return yytokentype::KW_CASE; }
-            'character' { return yytokentype::KW_CHARACTER; }
-            'class' { return yytokentype::KW_CLASS; }
-            'close' { return yytokentype::KW_CLOSE; }
-            'codimension' { return yytokentype::KW_CODIMENSION; }
-            'common' { return yytokentype::KW_COMMON; }
-            'complex' { return yytokentype::KW_COMPLEX; }
-            'concurrent' { return yytokentype::KW_CONCURRENT; }
-            'contains' { return yytokentype::KW_CONTAINS; }
-            'contiguous' { return yytokentype::KW_CONTIGUOUS; }
-            'continue' { return yytokentype::KW_CONTINUE; }
-            'critical' { return yytokentype::KW_CRITICAL; }
-            'cycle' { return yytokentype::KW_CYCLE; }
-            'data' { return yytokentype::KW_DATA; }
-            'deallocate' { return yytokentype::KW_DEALLOCATE; }
-            'default' { return yytokentype::KW_DEFAULT; }
-            'deferred' { return yytokentype::KW_DEFERRED; }
-            'dimension' { return yytokentype::KW_DIMENSION; }
-            'do' { return yytokentype::KW_DO; }
-            'dowhile' { return yytokentype::KW_DOWHILE; }
-            'double' { return yytokentype::KW_DOUBLE; }
-            'elemental' { return yytokentype::KW_ELEMENTAL; }
-            'else' { return yytokentype::KW_ELSE; }
-            'end' { return yytokentype::KW_END; }
-            'entry' { return yytokentype::KW_ENTRY; }
-            'enum' { return yytokentype::KW_ENUM; }
-            'enumerator' { return yytokentype::KW_ENUMERATOR; }
-            'equivalence' { return yytokentype::KW_EQUIVALENCE; }
-            'errmsg' { return yytokentype::KW_ERRMSG; }
-            'error' { return yytokentype::KW_ERROR; }
-            'exit' { return yytokentype::KW_EXIT; }
-            'extends' { return yytokentype::KW_EXTENDS; }
-            'external' { return yytokentype::KW_EXTERNAL; }
-            'file' { return yytokentype::KW_FILE; }
-            'final' { return yytokentype::KW_FINAL; }
-            'flush' { return yytokentype::KW_FLUSH; }
-            'forall' { return yytokentype::KW_FORALL; }
-            'format' { return yytokentype::KW_FORMAT; }
-            'formatted' { return yytokentype::KW_FORMATTED; }
+            'abstract' { KW(ABSTRACT) }
+            'all' { KW(ALL) }
+            'allocatable' { KW(ALLOCATABLE) }
+            'allocate' { KW(ALLOCATE) }
+            'assignment' { KW(ASSIGNMENT) }
+            'associate' { KW(ASSOCIATE) }
+            'asynchronous' { KW(ASYNCHRONOUS) }
+            'backspace' { KW(BACKSPACE) }
+            'bind' { KW(BIND) }
+            'block' { KW(BLOCK) }
+            'call' { KW(CALL) }
+            'case' { KW(CASE) }
+            'character' { KW(CHARACTER) }
+            'class' { KW(CLASS) }
+            'close' { KW(CLOSE) }
+            'codimension' { KW(CODIMENSION) }
+            'common' { KW(COMMON) }
+            'complex' { KW(COMPLEX) }
+            'concurrent' { KW(CONCURRENT) }
+            'contains' { KW(CONTAINS) }
+            'contiguous' { KW(CONTIGUOUS) }
+            'continue' { KW(CONTINUE) }
+            'critical' { KW(CRITICAL) }
+            'cycle' { KW(CYCLE) }
+            'data' { KW(DATA) }
+            'deallocate' { KW(DEALLOCATE) }
+            'default' { KW(DEFAULT) }
+            'deferred' { KW(DEFERRED) }
+            'dimension' { KW(DIMENSION) }
+            'do' { KW(DO) }
+            'dowhile' { KW(DOWHILE) }
+            'double' { KW(DOUBLE) }
+            'elemental' { KW(ELEMENTAL) }
+            'else' { KW(ELSE) }
+            'end' { KW(END) }
+            'entry' { KW(ENTRY) }
+            'enum' { KW(ENUM) }
+            'enumerator' { KW(ENUMERATOR) }
+            'equivalence' { KW(EQUIVALENCE) }
+            'errmsg' { KW(ERRMSG) }
+            'error' { KW(ERROR) }
+            'exit' { KW(EXIT) }
+            'extends' { KW(EXTENDS) }
+            'external' { KW(EXTERNAL) }
+            'file' { KW(FILE) }
+            'final' { KW(FINAL) }
+            'flush' { KW(FLUSH) }
+            'forall' { KW(FORALL) }
+            'format' { KW(FORMAT) }
+            'formatted' { KW(FORMATTED) }
             'function' { KW(FUNCTION) }
-            'generic' { return yytokentype::KW_GENERIC; }
-            'go'  { return yytokentype::KW_GO; }
-            'if' { return yytokentype::KW_IF; }
-            'implicit' { return yytokentype::KW_IMPLICIT; }
-            'import' { return yytokentype::KW_IMPORT; }
-            'impure' { return yytokentype::KW_IMPURE; }
-            'in' { return yytokentype::KW_IN; }
-            'include' { return yytokentype::KW_INCLUDE; }
-            'inout' { return yytokentype::KW_INOUT; }
-            'inquire' { return yytokentype::KW_INQUIRE; }
-            'integer' { return yytokentype::KW_INTEGER; }
-            'intent' { return yytokentype::KW_INTENT; }
-            'interface' { return yytokentype::KW_INTERFACE; }
-            'intrinsic' { return yytokentype::KW_INTRINSIC; }
-            'is' { return yytokentype::KW_IS; }
-            'kind' { return yytokentype::KW_KIND; }
-            'len' { return yytokentype::KW_LEN; }
-            'local' { return yytokentype::KW_LOCAL; }
-            'local_init' { return yytokentype::KW_LOCAL_INIT; }
-            'logical' { return yytokentype::KW_LOGICAL; }
-            'module' { return yytokentype::KW_MODULE; }
-            'mold' { return yytokentype::KW_MOLD; }
-            'name' { return yytokentype::KW_NAME; }
-            'namelist' { return yytokentype::KW_NAMELIST; }
-            'nopass' { return yytokentype::KW_NOPASS; }
-            'non_intrinsic' { return yytokentype::KW_NON_INTRINSIC; }
-            'non_overridable' { return yytokentype::KW_NON_OVERRIDABLE; }
-            'non_recursive' { return yytokentype::KW_NON_RECURSIVE; }
-            'none' { return yytokentype::KW_NONE; }
-            'nullify' { return yytokentype::KW_NULLIFY; }
-            'only' { return yytokentype::KW_ONLY; }
-            'open' { return yytokentype::KW_OPEN; }
-            'operator' { return yytokentype::KW_OPERATOR; }
-            'optional' { return yytokentype::KW_OPTIONAL; }
-            'out' { return yytokentype::KW_OUT; }
-            'parameter' { return yytokentype::KW_PARAMETER; }
-            'pass' { return yytokentype::KW_PASS; }
-            'pointer' { return yytokentype::KW_POINTER; }
-            'precision' { return yytokentype::KW_PRECISION; }
-            'print' { return yytokentype::KW_PRINT; }
-            'private' { return yytokentype::KW_PRIVATE; }
-            'procedure' { return yytokentype::KW_PROCEDURE; }
-            'program' { return yytokentype::KW_PROGRAM; }
-            'protected' { return yytokentype::KW_PROTECTED; }
-            'public' { return yytokentype::KW_PUBLIC; }
-            'pure' { return yytokentype::KW_PURE; }
-            'quiet' { return yytokentype::KW_QUIET; }
-            'rank' { return yytokentype::KW_RANK; }
-            'read' { return yytokentype::KW_READ; }
-            'real' {return yytokentype::KW_REAL; }
-            'recursive' { return yytokentype::KW_RECURSIVE; }
-            'result' { return yytokentype::KW_RESULT; }
-            'return' { return yytokentype::KW_RETURN; }
-            'rewind' { return yytokentype::KW_REWIND; }
-            'save' { return yytokentype::KW_SAVE; }
-            'select' { return yytokentype::KW_SELECT; }
-            'sequence' { return yytokentype::KW_SEQUENCE; }
-            'shared' { return yytokentype::KW_SHARED; }
-            'source' { return yytokentype::KW_SOURCE; }
-            'stat' { return yytokentype::KW_STAT; }
-            'stop' { return yytokentype::KW_STOP; }
-            'submodule' { return yytokentype::KW_SUBMODULE; }
+            'generic' { KW(GENERIC) }
+            'go'  { KW(GO) }
+            'if' { KW(IF) }
+            'implicit' { KW(IMPLICIT) }
+            'import' { KW(IMPORT) }
+            'impure' { KW(IMPURE) }
+            'in' { KW(IN) }
+            'include' { KW(INCLUDE) }
+            'inout' { KW(INOUT) }
+            'inquire' { KW(INQUIRE) }
+            'integer' { KW(INTEGER) }
+            'intent' { KW(INTENT) }
+            'interface' { KW(INTERFACE) }
+            'intrinsic' { KW(INTRINSIC) }
+            'is' { KW(IS) }
+            'kind' { KW(KIND) }
+            'len' { KW(LEN) }
+            'local' { KW(LOCAL) }
+            'local_init' { KW(LOCAL_INIT) }
+            'logical' { KW(LOGICAL) }
+            'module' { KW(MODULE) }
+            'mold' { KW(MOLD) }
+            'name' { KW(NAME) }
+            'namelist' { KW(NAMELIST) }
+            'nopass' { KW(NOPASS) }
+            'non_intrinsic' { KW(NON_INTRINSIC) }
+            'non_overridable' { KW(NON_OVERRIDABLE) }
+            'non_recursive' { KW(NON_RECURSIVE) }
+            'none' { KW(NONE) }
+            'nullify' { KW(NULLIFY) }
+            'only' { KW(ONLY) }
+            'open' { KW(OPEN) }
+            'operator' { KW(OPERATOR) }
+            'optional' { KW(OPTIONAL) }
+            'out' { KW(OUT) }
+            'parameter' { KW(PARAMETER) }
+            'pass' { KW(PASS) }
+            'pointer' { KW(POINTER) }
+            'precision' { KW(PRECISION) }
+            'print' { KW(PRINT) }
+            'private' { KW(PRIVATE) }
+            'procedure' { KW(PROCEDURE) }
+            'program' { KW(PROGRAM) }
+            'protected' { KW(PROTECTED) }
+            'public' { KW(PUBLIC) }
+            'pure' { KW(PURE) }
+            'quiet' { KW(QUIET) }
+            'rank' { KW(RANK) }
+            'read' { KW(READ) }
+            'real' {KW(REAL) }
+            'recursive' { KW(RECURSIVE) }
+            'result' { KW(RESULT) }
+            'return' { KW(RETURN) }
+            'rewind' { KW(REWIND) }
+            'save' { KW(SAVE) }
+            'select' { KW(SELECT) }
+            'sequence' { KW(SEQUENCE) }
+            'shared' { KW(SHARED) }
+            'source' { KW(SOURCE) }
+            'stat' { KW(STAT) }
+            'stop' { KW(STOP) }
+            'submodule' { KW(SUBMODULE) }
             'subroutine' { KW(SUBROUTINE) }
-            'target' { return yytokentype::KW_TARGET; }
-            'team' { return yytokentype::KW_TEAM; }
-            'team_number' { return yytokentype::KW_TEAM_NUMBER; }
-            'then' { return yytokentype::KW_THEN; }
-            'to' { return yytokentype::KW_TO; }
-            'type' { return yytokentype::KW_TYPE; }
-            'unformatted' { return yytokentype::KW_UNFORMATTED; }
-            'use' { return yytokentype::KW_USE; }
-            'value' { return yytokentype::KW_VALUE; }
-            'volatile' { return yytokentype::KW_VOLATILE; }
-            'where' { return yytokentype::KW_WHERE; }
-            'while' { return yytokentype::KW_WHILE; }
-            'write' { return yytokentype::KW_WRITE; }
+            'target' { KW(TARGET) }
+            'team' { KW(TEAM) }
+            'team_number' { KW(TEAM_NUMBER) }
+            'then' { KW(THEN) }
+            'to' { KW(TO) }
+            'type' { KW(TYPE) }
+            'unformatted' { KW(UNFORMATTED) }
+            'use' { KW(USE) }
+            'value' { KW(VALUE) }
+            'volatile' { KW(VOLATILE) }
+            'where' { KW(WHERE) }
+            'while' { KW(WHILE) }
+            'write' { KW(WRITE) }
 
             // Tokens
             newline { return yytokentype::TK_NEWLINE; }
