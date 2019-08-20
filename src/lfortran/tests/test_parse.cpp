@@ -889,3 +889,22 @@ TEST_CASE("Tokenizer") {
     s = R"(x ')";
     CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
 }
+
+TEST_CASE("Location") {
+    std::string input = R"(subroutine f
+    x = y
+    x = 213*y
+    end subroutine)";
+
+    Allocator al(1024*1024);
+    LFortran::AST::ast_t* result = parse(al, input);
+    auto sub = (LFortran::AST::Subroutine_t*) result;
+    auto stmt = (LFortran::AST::Assignment_t*) sub->m_body[1];
+    auto m = (LFortran::AST::BinOp_t*) stmt->m_value;
+    auto i = (LFortran::AST::Num_t*) m->m_left;
+    CHECK(i->m_n == 213);
+    CHECK(i->base.base.loc.first_line == 3);
+    CHECK(i->base.base.loc.first_column == 9);
+    CHECK(i->base.base.loc.last_line == 3);
+    CHECK(i->base.base.loc.last_column == 11);
+}
