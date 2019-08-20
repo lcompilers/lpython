@@ -7,6 +7,15 @@
 namespace LFortran
 {
 
+struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+};
+
+
 struct YYSTYPE {
     LFortran::AST::ast_t* ast;
     std::vector<LFortran::AST::ast_t*> vec_ast;
@@ -26,6 +35,10 @@ struct YYSTYPE {
 
 } // namespace LFortran
 
+
+typedef struct LFortran::YYLTYPE YYLTYPE;
+#define YYLTYPE_IS_DECLARED 1
+#define YYLTYPE_IS_TRIVIAL 1
 
 
 #endif
