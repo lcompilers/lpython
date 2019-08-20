@@ -38,6 +38,7 @@ bool lex_dec(const unsigned char *s, const unsigned char *e, unsigned long &u)
 }
 
 #define KW(x) yylval.string=token(); return yytokentype::KW_##x;
+#define RET(x) token_loc(loc); return yytokentype::x;
 
 int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
 {
@@ -242,8 +243,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             integer / defop {
                 if (lex_dec(tok, cur, u)) {
                     yylval.n = u;
-                    token_loc(loc);
-                    return yytokentype::TK_INTEGER;
+                    RET(TK_INTEGER)
                 } else {
                     throw LFortran::TokenizerError("Integer too large");
                 }
@@ -254,8 +254,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             integer {
                 if (lex_dec(tok, cur, u)) {
                     yylval.n = u;
-                    token_loc(loc);
-                    return yytokentype::TK_INTEGER;
+                    RET(TK_INTEGER)
                 } else {
                     throw LFortran::TokenizerError("Integer too large");
                 }
