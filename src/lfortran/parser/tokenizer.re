@@ -35,6 +35,8 @@ bool lex_dec(const unsigned char *s, const unsigned char *e, unsigned long &u)
     return true;
 }
 
+#define KW(x) yylval.string=token(); return yytokentype::x;
+
 int Tokenizer::lex(YYSTYPE &yylval)
 {
 	unsigned long u;
@@ -118,7 +120,7 @@ int Tokenizer::lex(YYSTYPE &yylval)
             'forall' { return yytokentype::KW_FORALL; }
             'format' { return yytokentype::KW_FORMAT; }
             'formatted' { return yytokentype::KW_FORMATTED; }
-            'function' { yylval.string=token(); return yytokentype::KW_FUNCTION; }
+            'function' { KW(KW_FUNCTION) }
             'generic' { return yytokentype::KW_GENERIC; }
             'go'  { return yytokentype::KW_GO; }
             'if' { return yytokentype::KW_IF; }
