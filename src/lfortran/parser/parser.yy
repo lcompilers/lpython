@@ -64,7 +64,7 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 %token TK_REAL
 %type <ast> expr
 %type <ast> id
-%type <ast> start_unit
+%type <ast> script_unit
 %type <ast> program
 %type <ast> subroutine
 %type <ast> function
@@ -230,20 +230,29 @@ void yyerror(LFortran::Parser &p, const std::string &msg)
 %left '*' '/'
 %right TK_POW
 
-%start start_unit
+%start units
 
 %%
 
 // ----------------------------------------------------------------------------
-// Subroutine/functions/program definitions
+// Top level rules to be used for parsing.
 
-start_unit
+units
+    : units sep script_unit
+    | script_unit
+    ;
+
+script_unit
     : program { $$ = $1; RESULT($$); }
     | subroutine { $$ = $1; RESULT($$); }
     | function { $$ = $1; RESULT($$); }
     | statement { $$ = $1; RESULT($$); }
     | expr { $$ = $1; RESULT($$); }
     ;
+
+// ----------------------------------------------------------------------------
+// Subroutine/functions/program definitions
+
 
 program
     : KW_PROGRAM id sep statements sep KW_END KW_PROGRAM {
