@@ -933,4 +933,24 @@ TEST_CASE("Location") {
     CHECK(sym2->base.base.loc.first_column == 5);
     CHECK(sym2->base.base.loc.last_line == 3);
     CHECK(sym2->base.base.loc.last_column == 5);
+
+    input = R"(function f
+    x = y
+    x = 213*yz
+    end function)";
+    result = parse(al, input);
+    CHECK(result->loc.first_line == 1);
+    CHECK(result->loc.first_column == 1);
+    CHECK(result->loc.last_line == 4);
+    CHECK(result->loc.last_column == 16);
+
+    input = R"(program f
+    x = y
+    x = 213*yz
+    end program)";
+    result = parse(al, input);
+    CHECK(result->loc.first_line == 1);
+    CHECK(result->loc.first_column == 1);
+    CHECK(result->loc.last_line == 4);
+    CHECK(result->loc.last_column == 15);
 }

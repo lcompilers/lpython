@@ -83,7 +83,7 @@ static inline ast_t* make_SYMBOL(Allocator &al, const std::string &x)
         /*n_body*/ stmts.size(), \
         /*contains*/ nullptr, \
         /*n_contains*/ 0); yyval.ast->loc = l;
-#define FUNCTION(name, stmts) make_Function_t(p.m_a, \
+#define FUNCTION(name, stmts, l) make_Function_t(p.m_a, \
         /*name*/ nullptr, \
         /*args*/ nullptr, \
         /*n_args*/ 0, \
@@ -97,8 +97,8 @@ static inline ast_t* make_SYMBOL(Allocator &al, const std::string &x)
         /*body*/ STMTS(p.m_a, stmts), \
         /*n_body*/ stmts.size(), \
         /*contains*/ nullptr, \
-        /*n_contains*/ 0)
-#define PROGRAM(name, stmts) make_Program_t(p.m_a, \
+        /*n_contains*/ 0); yyval.ast->loc = l;
+#define PROGRAM(name, stmts, l) make_Program_t(p.m_a, \
         /*name*/ nullptr, \
         /*use*/ nullptr, \
         /*n_use*/ 0, \
@@ -107,7 +107,7 @@ static inline ast_t* make_SYMBOL(Allocator &al, const std::string &x)
         /*body*/ STMTS(p.m_a, stmts), \
         /*n_body*/ stmts.size(), \
         /*contains*/ nullptr, \
-        /*n_contains*/ 0)
+        /*n_contains*/ 0); yyval.ast->loc = l;
 #define RESULT(x) p.result.push_back(x)
 
 #endif

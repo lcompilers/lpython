@@ -257,7 +257,7 @@ script_unit
 
 program
     : KW_PROGRAM id sep statements sep KW_END KW_PROGRAM {
-            $$ = PROGRAM($2, $4); }
+            $$ = PROGRAM($2, $4, @$); }
     ;
 
 subroutine
@@ -267,7 +267,7 @@ subroutine
 
 function
     : KW_FUNCTION id sep statements sep KW_END KW_FUNCTION {
-            $$ = FUNCTION($2, $4); }
+            $$ = FUNCTION($2, $4, @$); }
     ;
 
 // -----------------------------------------------------------------------------
