@@ -36,7 +36,7 @@ public:
     {
         loc.first_line = line_num;
         loc.last_line = line_num;
-        loc.first_column = tok-cur_line;
+        loc.first_column = tok-cur_line+1;
         loc.last_column = cur-cur_line;
     }
 };
