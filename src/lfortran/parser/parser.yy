@@ -33,7 +33,7 @@ int yylex(LFortran::YYSTYPE *yylval, YYLTYPE *yyloc, LFortran::Parser &p)
 
 void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 {
-    throw LFortran::ParserError(msg);
+    throw LFortran::ParserError(msg, *yyloc);
 }
 
 // Force YYCOPY to not use memcopy, but rather copy the structs one by one,

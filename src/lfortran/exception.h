@@ -21,6 +21,7 @@ typedef enum {
 
 #include <exception>
 #include <string>
+#include <lfortran/parser/location.h>
 
 namespace LFortran
 {
@@ -61,8 +62,10 @@ public:
 class ParserError : public LFortranException
 {
 public:
-    ParserError(const std::string &msg)
-        : LFortranException(msg, LFORTRAN_PARSER_ERROR)
+    Location loc;
+public:
+    ParserError(const std::string &msg, const Location &loc)
+        : LFortranException(msg, LFORTRAN_PARSER_ERROR), loc{loc}
     {
     }
 };

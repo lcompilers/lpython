@@ -26,7 +26,8 @@ void Parser::parse(const std::string &input)
         LFORTRAN_ASSERT(result.size() >= 1);
         return;
     }
-    throw ParserError("Parsing Unsuccessful");
+    Location loc;
+    throw ParserError("Parsing Unsuccessful", loc);
 }
 
 }

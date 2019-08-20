@@ -3,7 +3,6 @@
 
 #include <cstdint>
 #include <vector>
-#include <lfortran/ast.h>
 
 namespace LFortran
 {

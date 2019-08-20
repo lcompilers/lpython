@@ -954,3 +954,18 @@ TEST_CASE("Location") {
     CHECK(result->loc.last_line == 4);
     CHECK(result->loc.last_column == 15);
 }
+
+TEST_CASE("Errors") {
+    Allocator al(1024*1024);
+    std::string input;
+
+    input = "(2+3+";
+    try {
+        parse(al, input);
+    } catch (const LFortran::ParserError &e) {
+        CHECK(e.loc.first_line == 1);
+        CHECK(e.loc.first_column == 6);
+        CHECK(e.loc.last_line == 1);
+        CHECK(e.loc.last_column == 6);
+    }
+}
