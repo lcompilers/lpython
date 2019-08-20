@@ -26,13 +26,13 @@ using LFortran::AST::make_Exit_t;
 using LFortran::AST::make_Name_t;
 using LFortran::AST::make_Num_t;
 
-static inline expr_t* EXPR(ast_t *f)
+static inline expr_t* EXPR(const ast_t *f)
 {
     LFORTRAN_ASSERT(f->type == astType::expr);
     return (expr_t*)f;
 }
 
-static inline stmt_t** STMTS(Allocator &al, std::vector<ast_t*> &x)
+static inline stmt_t** STMTS(Allocator &al, const std::vector<ast_t*> &x)
 {
     stmt_t **s = (stmt_t**)al.allocate(sizeof(stmt_t*) * x.size());
     for (size_t i=0; i < x.size(); i++) {
@@ -45,7 +45,7 @@ static inline stmt_t** STMTS(Allocator &al, std::vector<ast_t*> &x)
     return s;
 }
 
-static inline ast_t* make_SYMBOL(Allocator &al, Location &loc,
+static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
         const std::string &x)
 {
     // Copy the string into our own allocated memory.
