@@ -43,14 +43,32 @@ std::string get_line(std::string str, int n)
     return line;
 }
 
-void show_error(const std::string &filename, const std::string &text,
-        const std::string &input, const Location &loc)
+std::string token2text(const int token)
+{
+    if (0 < token && token < 256) {
+        char t = token;
+        return std::string(&t, 1);
+    }
+    switch (token) {
+        case (yytokentype::END_OF_FILE) : return "EOF";
+        case (yytokentype::TK_NAME) : return "identifier";
+        default : {
+            std::cout << "TOKEN: " << token << std::endl;
+            throw std::runtime_error("Token conversion not implemented yet.");
+        }
+    }
+}
+
+void show_syntax_error(const std::string &filename, const std::string &input,
+        const Location &loc, const int token)
 {
     std::string redon  = "\033[0;31m";
     std::string redoff = "\033[0;00m";
     std::cout << filename << ":" << loc.first_line << ":" << loc.first_column;
     std::cout << " " << redon << "syntax error:" << redoff << " ";
-    std::cout << text << std::endl;
+    std::cout << "token '";
+    std::cout << token2text(token);
+    std::cout << "' is unexpected" << std::endl;
     if (loc.first_line == loc.last_line) {
         std::string line = get_line(input, loc.first_line);
         std::cout << line.substr(0, loc.first_column-1);

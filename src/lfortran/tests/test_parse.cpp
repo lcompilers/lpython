@@ -958,7 +958,6 @@ TEST_CASE("Location") {
 TEST_CASE("Errors") {
     Allocator al(1024*1024);
     std::string input;
-    std::string text = "unexpected token";
 
     input = "(2+3+";
     try {
@@ -966,7 +965,7 @@ TEST_CASE("Errors") {
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
         CHECK(e.token  == yytokentype::END_OF_FILE);
-        show_error("input", text, input, e.loc);
+        show_syntax_error("input", input, e.loc, e.token);
         CHECK(e.loc.first_line == 1);
         CHECK(e.loc.first_column == 6);
         CHECK(e.loc.last_line == 1);
@@ -982,7 +981,7 @@ TEST_CASE("Errors") {
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
         CHECK(e.token  == '*');
-        show_error("input", text, input, e.loc);
+        show_syntax_error("input", input, e.loc, e.token);
         CHECK(e.loc.first_line == 3);
         CHECK(e.loc.first_column == 16);
         CHECK(e.loc.last_line == 3);
@@ -998,7 +997,7 @@ TEST_CASE("Errors") {
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
         CHECK(e.token  == '*');
-        show_error("input", text, input, e.loc);
+        show_syntax_error("input", input, e.loc, e.token);
         CHECK(e.loc.first_line == 3);
         CHECK(e.loc.first_column == 13);
         CHECK(e.loc.last_line == 3);
@@ -1014,7 +1013,7 @@ TEST_CASE("Errors") {
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
         CHECK(e.token  == yytokentype::TK_NAME);
-        show_error("input", text, input, e.loc);
+        show_syntax_error("input", input, e.loc, e.token);
         CHECK(e.loc.first_line == 2);
         CHECK(e.loc.first_column == 11);
         CHECK(e.loc.last_line == 2);
