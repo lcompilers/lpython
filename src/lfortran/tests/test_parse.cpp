@@ -958,7 +958,7 @@ TEST_CASE("Location") {
 TEST_CASE("Errors") {
     Allocator al(1024*1024);
     std::string input;
-    std::string text = "token does not satisfy any syntax rule";
+    std::string text = "unexpected token";
 
     input = "(2+3+";
     try {
@@ -974,7 +974,7 @@ TEST_CASE("Errors") {
 
     input = R"(function f
     x = y
-    x = 213*yz+
+    x = 213*yz+*
     end function)";
     try {
         parse(al, input);
@@ -990,6 +990,21 @@ TEST_CASE("Errors") {
     input = R"(function f
     x = y
     x = 213-*yz
+    end function)";
+    try {
+        parse(al, input);
+    } catch (const LFortran::ParserError &e) {
+        CHECK(e.msg() == "syntax error");
+        show_error("input", text, input, e.loc);
+        CHECK(e.loc.first_line == 3);
+        CHECK(e.loc.first_column == 13);
+        CHECK(e.loc.last_line == 3);
+        CHECK(e.loc.last_column == 13);
+    }
+
+    input = R"(function f
+    x = y xxy xx
+    x = 213*yz
     end function)";
     try {
         parse(al, input);
