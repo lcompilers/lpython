@@ -13,14 +13,39 @@ std::string p(Allocator &al, const std::string &s)
 
 #define P(x) p(al, x)
 
+TEST_CASE("Names") {
+    Allocator al(4*1024);
 
-TEST_CASE("Check pickle()") {
+    CHECK(P("2*y")   == "(BinOp Mul 2 y)");
+    CHECK(P("2*yz")   == "(BinOp Mul 2 yz)");
+    CHECK(P("abc*xyz")   == "(BinOp Mul abc xyz)");
+
+    CHECK_THROWS_AS(P("abc*2xyz"), LFortran::ParserError);
+}
+
+TEST_CASE("Symbolic expressions") {
     Allocator al(4*1024);
 
     CHECK(P("2*x")   == "(BinOp Mul 2 x)");
     CHECK(P("(2*x)") == "(BinOp Mul 2 x)");
     CHECK(P("3*x**y") == "(BinOp Mul 3 (BinOp Pow x y))");
+    CHECK(P("a+b*c") == "(BinOp Add a (BinOp Mul b c))");
+    CHECK(P("(a+b)*c") == "(BinOp Mul (BinOp Add a b) c)");
+
+    CHECK_THROWS_AS(P("2*"), LFortran::ParserError);
+    CHECK_THROWS_AS(P("(2*x"), LFortran::ParserError);
+    CHECK_THROWS_AS(P("2*x)"), LFortran::ParserError);
+    CHECK_THROWS_AS(P("3*x**"), LFortran::ParserError);
+}
+
+TEST_CASE("Symbolic assignments") {
+    Allocator al(4*1024);
+    CHECK(P("x = y") == "(Assignment x y)");
     CHECK(P("x = 2*y") == "(Assignment x (BinOp Mul 2 y))");
+
+    CHECK_THROWS_AS(P("x ="), LFortran::ParserError);
+    CHECK_THROWS_AS(P("x = 2*"), LFortran::ParserError);
+    CHECK_THROWS_AS(P(" = 2*y"), LFortran::ParserError);
 }
 
 TEST_CASE("Arithmetics") {
@@ -36,6 +61,8 @@ TEST_CASE("Arithmetics") {
     CHECK(P("(1+2*3)**4") == "(BinOp Pow (BinOp Add 1 (BinOp Mul 2 3)) 4)");
     CHECK(P("1+2**3*4")   == "(BinOp Add 1 (BinOp Mul (BinOp Pow 2 3) 4))");
     CHECK(P("1+2**(3*4)") == "(BinOp Add 1 (BinOp Pow 2 (BinOp Mul 3 4)))");
+
+    CHECK_THROWS_AS(P("1+2**(*4)"), LFortran::ParserError);
 }
 
 TEST_CASE("Subroutines") {
