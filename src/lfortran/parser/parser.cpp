@@ -14,6 +14,21 @@ LFortran::AST::ast_t *parse(Allocator &al, const std::string &s)
     return p.result[0];
 }
 
+LFortran::AST::ast_t *parse2(Allocator &al, const std::string &s)
+{
+    LFortran::AST::ast_t *result;
+    try {
+        result = parse(al, s);
+    } catch (const LFortran::ParserError &e) {
+        show_syntax_error("input", s, e.loc, e.token);
+        throw;
+    } catch (const LFortran::TokenizerError &e) {
+        show_syntax_error("input", s, e.loc, -1, &e.token);
+        throw;
+    }
+    return result;
+}
+
 std::vector<LFortran::AST::ast_t*> parsen(Allocator &al, const std::string &s)
 {
     Parser p(al);
