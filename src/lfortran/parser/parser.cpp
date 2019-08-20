@@ -30,7 +30,7 @@ void Parser::parse(const std::string &input)
         return;
     }
     Location loc;
-    throw ParserError("Parsing Unsuccessful", loc);
+    throw ParserError("Parsing Unsuccessful", loc, 0);
 }
 
 std::string get_line(std::string str, int n)

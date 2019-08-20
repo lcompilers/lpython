@@ -67,9 +67,10 @@ class ParserError : public LFortranException
 {
 public:
     Location loc;
+    int token;
 public:
-    ParserError(const std::string &msg, const Location &loc)
-        : LFortranException(msg, LFORTRAN_PARSER_ERROR), loc{loc}
+    ParserError(const std::string &msg, const Location &loc, const int token)
+        : LFortranException(msg, LFORTRAN_PARSER_ERROR), loc{loc}, token{token}
     {
     }
 };

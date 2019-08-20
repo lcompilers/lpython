@@ -965,6 +965,7 @@ TEST_CASE("Errors") {
         parse(al, input);
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
+        CHECK(e.token  == yytokentype::END_OF_FILE);
         show_error("input", text, input, e.loc);
         CHECK(e.loc.first_line == 1);
         CHECK(e.loc.first_column == 6);
@@ -980,6 +981,7 @@ TEST_CASE("Errors") {
         parse(al, input);
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
+        CHECK(e.token  == '*');
         show_error("input", text, input, e.loc);
         CHECK(e.loc.first_line == 3);
         CHECK(e.loc.first_column == 16);
@@ -995,6 +997,7 @@ TEST_CASE("Errors") {
         parse(al, input);
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
+        CHECK(e.token  == '*');
         show_error("input", text, input, e.loc);
         CHECK(e.loc.first_line == 3);
         CHECK(e.loc.first_column == 13);
@@ -1010,6 +1013,7 @@ TEST_CASE("Errors") {
         parse(al, input);
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
+        CHECK(e.token  == yytokentype::TK_NAME);
         show_error("input", text, input, e.loc);
         CHECK(e.loc.first_line == 2);
         CHECK(e.loc.first_column == 11);

@@ -33,7 +33,11 @@ int yylex(LFortran::YYSTYPE *yylval, YYLTYPE *yyloc, LFortran::Parser &p)
 
 void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 {
-    throw LFortran::ParserError(msg, *yyloc);
+    LFortran::YYSTYPE yylval_;
+    YYLTYPE yyloc_;
+    p.m_tokenizer.cur = p.m_tokenizer.tok;
+    int token = p.m_tokenizer.lex(yylval_, yyloc_);
+    throw LFortran::ParserError(msg, *yyloc, token);
 }
 
 // Force YYCOPY to not use memcopy, but rather copy the structs one by one,
