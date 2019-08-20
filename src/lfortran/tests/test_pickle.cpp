@@ -181,4 +181,12 @@ TEST_CASE("Multiple units") {
     CHECK(results.size() == 2);
     CHECK(LFortran::pickle(*results[0]) == "(Assignment x (BinOp Add x 1))");
     CHECK(LFortran::pickle(*results[1]) == "(Assignment y (BinOp Add z 1))");
+
+    s = R"(x = x+1;
+
+    ; y = z+1)";
+    results = LFortran::parsen(al, s);
+    CHECK(results.size() == 2);
+    CHECK(LFortran::pickle(*results[0]) == "(Assignment x (BinOp Add x 1))");
+    CHECK(LFortran::pickle(*results[1]) == "(Assignment y (BinOp Add z 1))");
 }
