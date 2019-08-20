@@ -75,6 +75,41 @@ TEST_CASE("Subroutines") {
     x = 2*y
     end subroutine)")   == "(Subroutine 2 (Assignment x y)(Assignment x (BinOp Mul 2 y)))");
 
+    CHECK(P(R"(subroutine g
+    x = y
+
+    x = 2*y
+    end subroutine)")   == "(Subroutine 2 (Assignment x y)(Assignment x (BinOp Mul 2 y)))");
+
+    CHECK(P(R"(subroutine g
+
+    x = y
+
+
+    x = 2*y
+
+
+
+    end subroutine)")   == "(Subroutine 2 (Assignment x y)(Assignment x (BinOp Mul 2 y)))");
+
+    CHECK(P(R"(subroutine g
+    x = y
+    ;;;;;; ; ; ;
+    x = 2*y
+    end subroutine)")   == "(Subroutine 2 (Assignment x y)(Assignment x (BinOp Mul 2 y)))");
+
+    CHECK(P(R"(subroutine g
+    x = y;
+    x = 2*y;
+    end subroutine)")   == "(Subroutine 2 (Assignment x y)(Assignment x (BinOp Mul 2 y)))");
+
+    CHECK(P(R"(subroutine g
+    x = y; ;
+    x = 2*y;; ;
+    end subroutine)")   == "(Subroutine 2 (Assignment x y)(Assignment x (BinOp Mul 2 y)))");
+
+    CHECK(P("subroutine g; x = y; x = 2*y; end subroutine") == "(Subroutine 2 (Assignment x y)(Assignment x (BinOp Mul 2 y)))");
+
     CHECK(P(R"(subroutine f
     subroutine = y
     x = 2*subroutine

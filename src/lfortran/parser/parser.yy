@@ -255,6 +255,11 @@ statements
     ;
 
 sep
+    : sep sep_one
+    | sep_one
+    ;
+
+sep_one
     : TK_NEWLINE
     | ';'
     ;
