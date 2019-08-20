@@ -242,18 +242,19 @@ start_unit
     ;
 
 subroutine
-    : KW_SUBROUTINE statement_sep statements statement_sep KW_SUBROUTINE { $$ = SUBROUTINE($3); }
+    : KW_SUBROUTINE id sep statements sep KW_END KW_SUBROUTINE {
+            $$ = SUBROUTINE($2, $4); }
     ;
 
 // -----------------------------------------------------------------------------
 // Control flow
 
 statements
-    : statements statement_sep statement { $$ = $1;  $$.push_back($3); }
+    : statements sep statement { $$ = $1;  $$.push_back($3); }
     | statement { $$.push_back($1); }
     ;
 
-statement_sep
+sep
     : TK_NEWLINE
     | ';'
     ;

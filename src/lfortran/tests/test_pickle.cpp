@@ -70,13 +70,13 @@ TEST_CASE("Arithmetics") {
 TEST_CASE("Subroutines") {
     Allocator al(4*1024);
 
-    CHECK(P(R"(subroutine
+    CHECK(P(R"(subroutine g
     x = y
     x = 2*y
-    subroutine)")   == "(Subroutine 2 (Assignment x y)(Assignment x (BinOp Mul 2 y)))");
+    end subroutine)")   == "(Subroutine 2 (Assignment x y)(Assignment x (BinOp Mul 2 y)))");
 
-    CHECK(P(R"(subroutine
+    CHECK(P(R"(subroutine f
     subroutine = y
     x = 2*subroutine
-    subroutine)")   == "(Subroutine 2 (Assignment subroutine y)(Assignment x (BinOp Mul 2 subroutine)))");
+    end subroutine)")   == "(Subroutine 2 (Assignment subroutine y)(Assignment x (BinOp Mul 2 subroutine)))");
 }
