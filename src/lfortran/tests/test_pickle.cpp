@@ -215,7 +215,7 @@ TEST_CASE("Multiple units") {
 }
 
 TEST_CASE("if") {
-    Allocator al(4*1024);
+    Allocator al(16*1024);
 
     CHECK(P(R"(subroutine g
     if (x) then
@@ -243,6 +243,16 @@ TEST_CASE("if") {
         a = 5
     else
         b = 4
+    end if
+    end subroutine)")   == "(Subroutine 1 (If x (Assignment a 5) (Assignment b 4)))");
+
+    CHECK(P(R"(subroutine g
+    if (x) then
+        a = 5
+        c = 7
+    else
+        b = 4
+        e = 5
     end if
     end subroutine)")   == "(Subroutine 1 (If x (Assignment a 5) (Assignment b 4)))");
 
