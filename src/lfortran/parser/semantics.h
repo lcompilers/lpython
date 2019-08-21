@@ -32,14 +32,14 @@ static inline expr_t* EXPR(const ast_t *f)
     return (expr_t*)f;
 }
 
-static inline stmt_t** STMTS(Allocator &al, const std::vector<ast_t*> &x)
+static inline stmt_t** STMTS(Allocator &al, const YYSTYPE::Vec &x)
 {
-    stmt_t **s = (stmt_t**)al.allocate(sizeof(stmt_t*) * x.size());
-    for (size_t i=0; i < x.size(); i++) {
-        LFORTRAN_ASSERT(x[i]->type == astType::stmt);
-        s[i] = (stmt_t*)x[i];
+    stmt_t **s = (stmt_t**)al.allocate(sizeof(stmt_t*) * x.n);
+    for (size_t i=0; i < x.n; i++) {
+        LFORTRAN_ASSERT(x.p[i]->type == astType::stmt);
+        s[i] = (stmt_t*)x.p[i];
     }
-    for (size_t i=0; i < x.size(); i++) {
+    for (size_t i=0; i < x.n; i++) {
         LFORTRAN_ASSERT(s[i]->base.type == astType::stmt)
     }
     return s;
@@ -81,7 +81,7 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
         /*decl*/ nullptr, \
         /*n_decl*/ 0, \
         /*body*/ STMTS(p.m_a, stmts), \
-        /*n_body*/ stmts.size(), \
+        /*n_body*/ stmts.n, \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
 #define FUNCTION(name, stmts, l) make_Function_t(p.m_a, l, \
@@ -96,7 +96,7 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
         /*decl*/ nullptr, \
         /*n_decl*/ 0, \
         /*body*/ STMTS(p.m_a, stmts), \
-        /*n_body*/ stmts.size(), \
+        /*n_body*/ stmts.n, \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
 #define PROGRAM(name, stmts, l) make_Program_t(p.m_a, l, \
@@ -106,9 +106,15 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
         /*decl*/ nullptr, \
         /*n_decl*/ 0, \
         /*body*/ STMTS(p.m_a, stmts), \
-        /*n_body*/ stmts.size(), \
+        /*n_body*/ stmts.n, \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
 #define RESULT(x) p.result.push_back(x)
+
+#define STMTS_NEW(l) { \
+    l.n = 0; \
+    l.p = (ast_t**)p.m_a.allocate(sizeof(ast_t*) * 100); \
+}
+#define STMTS_ADD(l, x) {l.p[l.n] = x; l.n++;}
 
 #endif

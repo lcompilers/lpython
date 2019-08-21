@@ -281,8 +281,8 @@ function
 // Control flow
 
 statements
-    : statements sep statement { $$ = $1;  $$.push_back($3); }
-    | statement { $$.push_back($1); }
+    : statements sep statement { $$ = $1; STMTS_ADD($$, $3); }
+    | statement { STMTS_NEW($$); STMTS_ADD($$, $1); }
     ;
 
 sep
