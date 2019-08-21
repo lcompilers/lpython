@@ -123,7 +123,6 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
         std::memcpy(p2, l.p, sizeof(ast_t*) * l.max); \
         l.p = p2; \
         l.max = max2; \
-        std::cout << "MAX: " << l.max << std::endl; \
     } \
     l.p[l.n] = x; \
     l.n++; \
