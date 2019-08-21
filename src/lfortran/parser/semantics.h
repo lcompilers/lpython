@@ -46,18 +46,20 @@ static inline stmt_t** STMTS(Allocator &al, const YYSTYPE::Vec &x)
 }
 
 static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
-        const std::string &x)
+        const YYSTYPE::Str &x)
 {
     // Copy the string into our own allocated memory.
+    // `x` is not NULL terminated, but we need to make it null terminated.
     // TODO: Instead, we should pass a pointer to the Tokenizer's string of the
     // original source code (the string there is not zero terminated, as it's a
     // substring), and a length. And provide functions to deal with the
     // non-zero terminated string properly. That will be much faster.
-    char *s = (char *)al.allocate(sizeof(char) * (x.size()+1));
-    for (size_t i=0; i < x.size()+1; i++) {
-        s[i] = x[i];
+    char *s = (char *)al.allocate(sizeof(char) * (x.n+1));
+    for (size_t i=0; i < x.n; i++) {
+        s[i] = x.p[i];
     }
-    LFORTRAN_ASSERT(s[x.size()] == '\0');
+    s[x.n] = '\0';
+    LFORTRAN_ASSERT(s[x.n] == '\0');
     return make_Name_t(al, loc, s);
 }
 

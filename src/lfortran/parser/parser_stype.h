@@ -12,18 +12,11 @@ struct YYSTYPE {
     LFortran::AST::ast_t* ast;
     struct Vec {size_t n; LFortran::AST::ast_t** p;} vec_ast;
     unsigned long n;
-    std::string string;
-    // Constructor
-    YYSTYPE() = default;
-    // Destructor
-    ~YYSTYPE() = default;
-    // Copy constructor and assignment
-    YYSTYPE(const YYSTYPE &) = default;
-    YYSTYPE &operator=(const YYSTYPE &) = default;
-    // Move constructor and assignment
-    YYSTYPE(YYSTYPE &&) = default;
-    YYSTYPE &operator=(YYSTYPE &&) = default;
+    struct Str {size_t n; char* p;} string; // Not null-terminated
 };
+
+static_assert(std::is_standard_layout<YYSTYPE>::value);
+static_assert(std::is_trivial<YYSTYPE>::value);
 
 } // namespace LFortran
 

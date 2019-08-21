@@ -37,7 +37,7 @@ bool lex_dec(const unsigned char *s, const unsigned char *e, unsigned long &u)
     return true;
 }
 
-#define KW(x) yylval.string=token(); RET(KW_##x);
+#define KW(x) token(yylval.string); RET(KW_##x);
 #define RET(x) token_loc(loc); return yytokentype::x;
 
 int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
@@ -273,8 +273,8 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             (kind "_")? '"' ('""'|[^"\x00])* '"' { RET(TK_STRING) }
             (kind "_")? "'" ("''"|[^'\x00])* "'" { RET(TK_STRING) }
 
-            defop { yylval.string=token(); RET(TK_DEF_OP) }
-            name { yylval.string=token(); RET(TK_NAME) }
+            defop { token(yylval.string); RET(TK_DEF_OP) }
+            name { token(yylval.string); RET(TK_NAME) }
         */
     }
 }
