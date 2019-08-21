@@ -27,8 +27,6 @@
 %code // *.cpp
 {
 
-#define union struct
-
 #include <lfortran/parser/parser.h>
 #include <lfortran/parser/tokenizer.h>
 #include <lfortran/parser/semantics.h>
