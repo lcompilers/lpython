@@ -36,11 +36,7 @@ static inline expr_t* EXPR(const ast_t *f)
 
 static inline stmt_t** STMTS(Allocator &al, const YYSTYPE::Vec &x)
 {
-    stmt_t **s = (stmt_t**)al.allocate(sizeof(stmt_t*) * x.n);
-    for (size_t i=0; i < x.n; i++) {
-        LFORTRAN_ASSERT(x.p[i]->type == astType::stmt);
-        s[i] = (stmt_t*)x.p[i];
-    }
+    stmt_t **s = (stmt_t**)x.p;
     for (size_t i=0; i < x.n; i++) {
         LFORTRAN_ASSERT(s[i]->base.type == astType::stmt)
     }
