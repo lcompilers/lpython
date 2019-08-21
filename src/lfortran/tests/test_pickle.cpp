@@ -68,7 +68,7 @@ TEST_CASE("Arithmetics") {
 }
 
 TEST_CASE("Subroutines") {
-    Allocator al(1024*1024);
+    Allocator al(4*1024);
 
     CHECK(P(R"(subroutine g
     x = y
@@ -117,7 +117,7 @@ TEST_CASE("Subroutines") {
 }
 
 TEST_CASE("Functions") {
-    Allocator al(1024*1024);
+    Allocator al(4*1024);
 
     CHECK(P(R"(function g
     x = y
@@ -142,7 +142,7 @@ TEST_CASE("Functions") {
 }
 
 TEST_CASE("Programs") {
-    Allocator al(1024*1024);
+    Allocator al(4*1024);
 
     CHECK(P(R"(program g
     x = y
