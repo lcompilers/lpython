@@ -1,8 +1,10 @@
 %require "3.0"
-%define api.pure full
+%define api.pure
 %define api.value.type {LFortran::YYSTYPE}
 %param {LFortran::Parser &p}
 %locations
+%glr-parser
+%expect 2
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -24,6 +26,8 @@
 
 %code // *.cpp
 {
+
+#define union struct
 
 #include <lfortran/parser/parser.h>
 #include <lfortran/parser/tokenizer.h>
@@ -67,6 +71,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> function
 %type <ast> statement
 %type <ast> assignment_statement
+%type <ast> if_statement
+%type <ast> if_block
 //%type <ast> exit_statement
 %type <vec_ast> statements
 
@@ -287,11 +293,42 @@ sep_one
 statement
     : assignment_statement
 //    | exit_statement
+    | if_statement
     ;
 
 assignment_statement
     : expr '=' expr { $$ = ASSIGNMENT($1, $3, @$); }
     ;
+
+if_statement
+    : if_block KW_END KW_IF {}
+    ;
+
+if_block
+    : KW_IF '(' expr ')' KW_THEN sep statements sep {
+            $$ = IF1($3, $7, @$); }
+    | KW_IF '(' expr ')' KW_THEN sep statements sep KW_ELSE sep statements sep {
+            $$ = IF2($3, $7, $11, @$); }
+    | KW_IF '(' expr ')' KW_THEN sep statements sep KW_ELSE if_block {
+            $$ = IF3($3, $7, $10, @$); }
+    ;
+
+/*
+if_statement
+    : if_cond statement    # if_single_line
+    | if_block KW_END KW_IF  # if_multi_line
+    ;
+
+if_cond: KW_IF '(' expr ')' ;
+
+if_block
+    : if_cond KW_THEN NEWLINE+ statements if_else_block?
+    ;
+
+if_else_block
+    : KW_ELSE (if_block | (NEWLINE+ statements))
+    ;
+*/
 
 /*
 exit_statement
