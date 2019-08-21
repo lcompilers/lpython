@@ -1,6 +1,6 @@
 %require "3.0"
 %define api.pure full
-%define api.value.type {struct LFortran::YYSTYPE}
+%define api.value.type {LFortran::YYSTYPE}
 %param {LFortran::Parser &p}
 %locations
 

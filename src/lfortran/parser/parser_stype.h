@@ -8,7 +8,7 @@
 namespace LFortran
 {
 
-struct YYSTYPE {
+union YYSTYPE {
     LFortran::AST::ast_t* ast;
     struct Vec {size_t n; LFortran::AST::ast_t** p;} vec_ast;
     unsigned long n;
