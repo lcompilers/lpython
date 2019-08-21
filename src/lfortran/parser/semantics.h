@@ -10,6 +10,8 @@
    LFortran semantic phase (AST -> ASR).
 */
 
+#include <cstring>
+
 #include <lfortran/ast.h>
 
 using LFortran::AST::astType;
@@ -32,32 +34,30 @@ static inline expr_t* EXPR(const ast_t *f)
     return (expr_t*)f;
 }
 
-static inline stmt_t** STMTS(Allocator &al, const std::vector<ast_t*> &x)
+static inline stmt_t** STMTS(Allocator &al, const YYSTYPE::Vec &x)
 {
-    stmt_t **s = (stmt_t**)al.allocate(sizeof(stmt_t*) * x.size());
-    for (size_t i=0; i < x.size(); i++) {
-        LFORTRAN_ASSERT(x[i]->type == astType::stmt);
-        s[i] = (stmt_t*)x[i];
-    }
-    for (size_t i=0; i < x.size(); i++) {
+    stmt_t **s = (stmt_t**)x.p;
+    for (size_t i=0; i < x.n; i++) {
         LFORTRAN_ASSERT(s[i]->base.type == astType::stmt)
     }
     return s;
 }
 
 static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
-        const std::string &x)
+        const YYSTYPE::Str &x)
 {
     // Copy the string into our own allocated memory.
+    // `x` is not NULL terminated, but we need to make it null terminated.
     // TODO: Instead, we should pass a pointer to the Tokenizer's string of the
     // original source code (the string there is not zero terminated, as it's a
     // substring), and a length. And provide functions to deal with the
     // non-zero terminated string properly. That will be much faster.
-    char *s = (char *)al.allocate(sizeof(char) * (x.size()+1));
-    for (size_t i=0; i < x.size()+1; i++) {
-        s[i] = x[i];
+    char *s = (char *)al.allocate(sizeof(char) * (x.n+1));
+    for (size_t i=0; i < x.n; i++) {
+        s[i] = x.p[i];
     }
-    LFORTRAN_ASSERT(s[x.size()] == '\0');
+    s[x.n] = '\0';
+    LFORTRAN_ASSERT(s[x.n] == '\0');
     return make_Name_t(al, loc, s);
 }
 
@@ -81,7 +81,7 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
         /*decl*/ nullptr, \
         /*n_decl*/ 0, \
         /*body*/ STMTS(p.m_a, stmts), \
-        /*n_body*/ stmts.size(), \
+        /*n_body*/ stmts.n, \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
 #define FUNCTION(name, stmts, l) make_Function_t(p.m_a, l, \
@@ -96,7 +96,7 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
         /*decl*/ nullptr, \
         /*n_decl*/ 0, \
         /*body*/ STMTS(p.m_a, stmts), \
-        /*n_body*/ stmts.size(), \
+        /*n_body*/ stmts.n, \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
 #define PROGRAM(name, stmts, l) make_Program_t(p.m_a, l, \
@@ -106,9 +106,26 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
         /*decl*/ nullptr, \
         /*n_decl*/ 0, \
         /*body*/ STMTS(p.m_a, stmts), \
-        /*n_body*/ stmts.size(), \
+        /*n_body*/ stmts.n, \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
 #define RESULT(x) p.result.push_back(x)
+
+#define STMTS_NEW(l) { \
+    l.n = 0; \
+    l.max = 4; \
+    l.p = (ast_t**)p.m_a.allocate(sizeof(ast_t*) * l.max); \
+}
+#define STMTS_ADD(l, x) { \
+    if (l.n == l.max) { \
+        size_t max2 = 2*l.max; \
+        ast_t** p2 = (ast_t**)p.m_a.allocate(sizeof(ast_t*) * max2); \
+        std::memcpy(p2, l.p, sizeof(ast_t*) * l.max); \
+        l.p = p2; \
+        l.max = max2; \
+    } \
+    l.p[l.n] = x; \
+    l.n++; \
+}
 
 #endif

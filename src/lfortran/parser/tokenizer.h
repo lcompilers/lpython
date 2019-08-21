@@ -32,6 +32,13 @@ public:
         return std::string((char *)tok, cur - tok);
     }
 
+    // Return the current token as YYSTYPE::Str
+    void token(YYSTYPE::Str &s) const
+    {
+        s.p = (char*) tok;
+        s.n = cur-tok;
+    }
+
     // Return the current token's location
     void token_loc(Location &loc)
     {

@@ -1,6 +1,6 @@
 %require "3.0"
 %define api.pure full
-%define api.value.type {struct LFortran::YYSTYPE}
+%define api.value.type {LFortran::YYSTYPE}
 %param {LFortran::Parser &p}
 %locations
 
@@ -42,17 +42,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
     int token = p.m_tokenizer.lex(yylval_, yyloc_);
     throw LFortran::ParserError(msg, *yyloc, token);
 }
-
-// Force YYCOPY to not use memcopy, but rather copy the structs one by one,
-// which will cause C++ to call the proper copy constructors.
-# define YYCOPY(Dst, Src, Count)              \
-    do                                        \
-      {                                       \
-        YYSIZE_T yyi;                         \
-        for (yyi = 0; yyi < (Count); yyi++)   \
-          (Dst)[yyi] = (Src)[yyi];            \
-      }                                       \
-    while (0)
 
 } // code
 
@@ -281,8 +270,8 @@ function
 // Control flow
 
 statements
-    : statements sep statement { $$ = $1;  $$.push_back($3); }
-    | statement { $$.push_back($1); }
+    : statements sep statement { $$ = $1; STMTS_ADD($$, $3); }
+    | statement { STMTS_NEW($$); STMTS_ADD($$, $1); }
     ;
 
 sep
