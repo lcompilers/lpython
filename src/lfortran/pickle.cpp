@@ -24,7 +24,7 @@ namespace LFortran {
 std::string stmt2str(const stmtType type)
 {
     switch (type) {
-        case (stmtType::Assignment) : return "Assignment";
+        case (stmtType::Assignment) : return "=";
         default : throw std::runtime_error("Unknown type");
     }
     throw std::runtime_error("Unknown type");
@@ -44,11 +44,11 @@ std::string expr2str(const exprType type)
 std::string op2str(const operatorType type)
 {
     switch (type) {
-        case (operatorType::Add) : return "Add";
-        case (operatorType::Sub) : return "Sub";
-        case (operatorType::Mul) : return "Mul";
-        case (operatorType::Div) : return "Div";
-        case (operatorType::Pow) : return "Pow";
+        case (operatorType::Add) : return "+";
+        case (operatorType::Sub) : return "-";
+        case (operatorType::Mul) : return "*";
+        case (operatorType::Div) : return "/";
+        case (operatorType::Pow) : return "**";
     }
     throw std::runtime_error("Unknown type");
 }
@@ -62,63 +62,72 @@ public:
     }
     void visit_Subroutine(const Subroutine_t &x) {
         s.append("(");
-        s.append("Subroutine");
+        s.append("sub");
         s.append(" ");
-        s.append(std::to_string(x.n_body));
-        s.append(" ");
+        s.append("[");
         for (size_t i=0; i<x.n_body; i++) {
             LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
             this->visit_stmt(*x.m_body[i]);
+            if (i < x.n_body-1) s.append(" ");
         }
+        s.append("]");
         s.append(")");
     }
     void visit_Function(const Function_t &x) {
         s.append("(");
-        s.append("Function");
+        s.append("fn");
         s.append(" ");
-        s.append(std::to_string(x.n_body));
-        s.append(" ");
+        s.append("[");
         for (size_t i=0; i<x.n_body; i++) {
             LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
             this->visit_stmt(*x.m_body[i]);
+            if (i < x.n_body-1) s.append(" ");
         }
+        s.append("]");
         s.append(")");
     }
     void visit_If(const If_t &x) {
         s.append("(");
-        s.append("If");
+        s.append("if");
         s.append(" ");
-        this->visit_expr(*x.m_test);
-        s.append(" ");
+        s.append("[");
         for (size_t i=0; i<x.n_body; i++) {
             LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
             this->visit_stmt(*x.m_body[i]);
+            if (i < x.n_body-1) s.append(" ");
         }
-        if (x.n_orelse > 0) {
-            s.append(" ");
-            for (size_t i=0; i<x.n_orelse; i++) {
-                LFORTRAN_ASSERT(x.m_orelse[i]->base.type == astType::stmt)
-                this->visit_stmt(*x.m_orelse[i]);
-            }
+        s.append("]");
+        s.append(" ");
+        s.append("[");
+        for (size_t i=0; i<x.n_orelse; i++) {
+            LFORTRAN_ASSERT(x.m_orelse[i]->base.type == astType::stmt)
+            this->visit_stmt(*x.m_orelse[i]);
+            if (i < x.n_orelse-1) s.append(" ");
         }
+        s.append("]");
         s.append(")");
     }
     void visit_Program(const Program_t &x) {
         s.append("(");
-        s.append("Program");
+        s.append("prog");
         s.append(" ");
-        s.append(std::to_string(x.n_body));
-        s.append(" ");
+        s.append("[");
         for (size_t i=0; i<x.n_body; i++) {
             LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
             this->visit_stmt(*x.m_body[i]);
+            if (i < x.n_body-1) s.append(" ");
         }
+        s.append("]");
         s.append(")");
     }
     void visit_BinOp(const BinOp_t &x) {
         s.append("(");
+        // We do not print BinOp +, but rather just +. It is still uniquely
+        // determined that + means BinOp's +.
+        /*
         s.append(expr2str(x.base.type));
         s.append(" ");
+        */
         s.append(op2str(x.m_op));
         s.append(" ");
         this->visit_expr(*x.m_left);
