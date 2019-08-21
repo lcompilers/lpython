@@ -7,7 +7,7 @@
 std::string p(Allocator &al, const std::string &s)
 {
     LFortran::AST::ast_t* result;
-    result = LFortran::parse(al, s);
+    result = LFortran::parse2(al, s);
     return LFortran::pickle(*result);
 }
 
@@ -212,4 +212,73 @@ TEST_CASE("Multiple units") {
     CHECK(LFortran::pickle(*results[1]) == "(Assignment s x)");
     CHECK(LFortran::pickle(*results[2]) == "(Assignment y (BinOp Add z 1))");
     CHECK(LFortran::pickle(*results[3]) == "a");
+}
+
+TEST_CASE("if") {
+    Allocator al(4*1024);
+
+    CHECK(P(R"(subroutine g
+    if (x) then
+        a = 5
+        b = 4
+    end if
+    end subroutine)")   == "(Subroutine 1 (If x (Assignment a 5)(Assignment b 4)))");
+
+    CHECK(P(R"(subroutine g
+    if (else) then
+        a = 5
+        b = 4
+    end if
+    end subroutine)")   == "(Subroutine 1 (If else (Assignment a 5)(Assignment b 4)))");
+
+    CHECK(P(R"(subroutine g
+    if (else) then
+        then = 5
+        else = 4
+    end if
+    end subroutine)")   == "(Subroutine 1 (If else (Assignment then 5)(Assignment else 4)))");
+
+    CHECK(P(R"(subroutine g
+    if (x) then
+        a = 5
+    else
+        b = 4
+    end if
+    end subroutine)")   == "(Subroutine 1 (If x (Assignment a 5) (Assignment b 4)))");
+
+    CHECK(P(R"(subroutine g
+    if (else) then
+        else = 5
+    else
+        else = 4
+    end if
+    end subroutine)")   == "(Subroutine 1 (If else (Assignment else 5) (Assignment else 4)))");
+
+    CHECK(P(R"(subroutine g
+    if (x) then
+        a = 5
+    else if (y) then
+        b = 4
+    end if
+    end subroutine)") == "(Subroutine 1 (If x (Assignment a 5) (If y (Assignment b 4))))");
+
+    CHECK(P(R"(subroutine g
+    if (x) then
+        a = 5
+    else if (y) then
+        b = 4
+    else if (z) then
+        c = 3
+    end if
+    end subroutine)") == "(Subroutine 1 (If x (Assignment a 5) (If y (Assignment b 4) (If z (Assignment c 3)))))");
+
+    CHECK_THROWS_AS(P(R"(subroutine g
+    if (else) then
+        else = 5
+    else if (else) then
+        else if (else) then
+    else if (else) then
+        else = 3
+    end if
+    end subroutine)"), LFortran::ParserError);
 }

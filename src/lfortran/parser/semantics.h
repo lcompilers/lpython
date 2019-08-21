@@ -43,6 +43,15 @@ static inline stmt_t** STMTS(Allocator &al, const YYSTYPE::Vec &x)
     return s;
 }
 
+static inline stmt_t** IFSTMTS(Allocator &al, ast_t* x)
+{
+    stmt_t **s = (stmt_t**)al.allocate(sizeof(stmt_t*) * 1);
+    LFORTRAN_ASSERT(x->type == astType::stmt);
+    *s = (stmt_t*)x;
+    LFORTRAN_ASSERT((*s)->base.type == astType::stmt)
+    return s;
+}
+
 static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
         const YYSTYPE::Str &x)
 {
@@ -110,6 +119,27 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
 #define RESULT(x) p.result.push_back(x)
+
+#define IF1(cond, body, l) make_If_t(p.m_a, l, \
+        /*test*/ EXPR(cond), \
+        /*body*/ STMTS(p.m_a, body), \
+        /*n_body*/ body.n, \
+        /*a_orelse*/ nullptr, \
+        /*n_orelse*/ 0)
+
+#define IF2(cond, body, orelse, l) make_If_t(p.m_a, l, \
+        /*test*/ EXPR(cond), \
+        /*body*/ STMTS(p.m_a, body), \
+        /*n_body*/ body.n, \
+        /*a_orelse*/ STMTS(p.m_a, orelse), \
+        /*n_orelse*/ orelse.n)
+
+#define IF3(cond, body, ifblock, l) make_If_t(p.m_a, l, \
+        /*test*/ EXPR(cond), \
+        /*body*/ STMTS(p.m_a, body), \
+        /*n_body*/ body.n, \
+        /*a_orelse*/ IFSTMTS(p.m_a, ifblock), \
+        /*n_orelse*/ 1)
 
 #define STMTS_NEW(l) { \
     l.n = 0; \

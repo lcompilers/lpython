@@ -7,6 +7,7 @@ using LFortran::AST::stmt_t;
 using LFortran::AST::Name_t;
 using LFortran::AST::Num_t;
 using LFortran::AST::BinOp_t;
+using LFortran::AST::If_t;
 using LFortran::AST::Assignment_t;
 using LFortran::AST::Subroutine_t;
 using LFortran::AST::Function_t;
@@ -80,6 +81,25 @@ public:
         for (size_t i=0; i<x.n_body; i++) {
             LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
             this->visit_stmt(*x.m_body[i]);
+        }
+        s.append(")");
+    }
+    void visit_If(const If_t &x) {
+        s.append("(");
+        s.append("If");
+        s.append(" ");
+        this->visit_expr(*x.m_test);
+        s.append(" ");
+        for (size_t i=0; i<x.n_body; i++) {
+            LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
+            this->visit_stmt(*x.m_body[i]);
+        }
+        if (x.n_orelse > 0) {
+            s.append(" ");
+            for (size_t i=0; i<x.n_orelse; i++) {
+                LFORTRAN_ASSERT(x.m_orelse[i]->base.type == astType::stmt)
+                this->visit_stmt(*x.m_orelse[i]);
+            }
         }
         s.append(")");
     }
