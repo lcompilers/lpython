@@ -43,17 +43,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
     throw LFortran::ParserError(msg, *yyloc, token);
 }
 
-// Force YYCOPY to not use memcopy, but rather copy the structs one by one,
-// which will cause C++ to call the proper copy constructors.
-# define YYCOPY(Dst, Src, Count)              \
-    do                                        \
-      {                                       \
-        YYSIZE_T yyi;                         \
-        for (yyi = 0; yyi < (Count); yyi++)   \
-          (Dst)[yyi] = (Src)[yyi];            \
-      }                                       \
-    while (0)
-
 } // code
 
 
