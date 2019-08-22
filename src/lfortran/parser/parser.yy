@@ -3,9 +3,9 @@
 %define api.value.type {LFortran::YYSTYPE}
 %param {LFortran::Parser &p}
 %locations
-//%glr-parser
-//%expect-rr 0
-%expect 0
+%glr-parser
+%expect-rr 0
+%expect 2
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -322,6 +322,7 @@ while_statement
     : KW_DO KW_WHILE '(' expr ')' sep statements sep KW_ENDDO {
             $$ = WHILE($4, $7, @$); }
 
+// Two sr conflicts due to "KW_DO sep" being either a do_statement or an expr
 do_statement
     : KW_DO sep statements sep KW_ENDDO {}
     | KW_DO id '=' expr ',' expr sep statements sep KW_ENDDO {}
