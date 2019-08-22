@@ -20,7 +20,13 @@ LFortran::AST::ast_t *parse2(Allocator &al, const std::string &s)
     try {
         result = parse(al, s);
     } catch (const LFortran::ParserError &e) {
-        show_syntax_error("input", s, e.loc, e.token);
+        int token;
+        if (e.msg() == "syntax is ambiguous") {
+            token = -2;
+        } else {
+            token = e.token;
+        }
+        show_syntax_error("input", s, e.loc, token);
         throw;
     } catch (const LFortran::TokenizerError &e) {
         show_syntax_error("input", s, e.loc, -1, &e.token);
@@ -270,6 +276,8 @@ void show_syntax_error(const std::string &filename, const std::string &input,
         std::cout << "token '";
         std::cout << *tstr;
         std::cout << "' is not recognized" << std::endl;
+    } else if (token == -2) {
+        std::cout << "syntax is ambiguous" << std::endl;
     } else {
         if (token == yytokentype::END_OF_FILE) {
             std::cout << "end of file is unexpected here" << std::endl;
