@@ -196,4 +196,6 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
         /*body*/ STMTS(p.m_a, body), \
         /*n_body*/ body.n)
 
+#define VAR_DECL(type, sym, l)
+
 #endif

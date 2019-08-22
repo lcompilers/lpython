@@ -69,6 +69,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> program
 %type <ast> subroutine
 %type <ast> function
+%type <ast> var_decl
+%type <ast> var_sym_decl
+%type <string> var_type
 %type <ast> statement
 %type <ast> assignment_statement
 %type <ast> if_statement
@@ -259,6 +262,7 @@ script_unit
     : program
     | subroutine
     | function
+    | var_decl
     | statement              %dprec 7
     | expr                   %dprec 8
     ;
@@ -285,6 +289,23 @@ subroutine
 function
     : KW_FUNCTION id sep statements sep KW_END KW_FUNCTION {
             $$ = FUNCTION($2, $4, @$); }
+    ;
+
+var_decl
+    : var_type var_sym_decl { VAR_DECL($1, $2, @$); }
+    ;
+
+var_type
+    : KW_INTEGER
+    | KW_CHARACTER
+    | KW_REAL
+    | KW_COMPLEX
+    | KW_LOGICAL
+    | KW_TYPE
+    ;
+
+var_sym_decl
+    : id
     ;
 
 // -----------------------------------------------------------------------------
