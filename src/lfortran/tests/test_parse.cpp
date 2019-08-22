@@ -916,6 +916,40 @@ TEST_CASE("Tokenizer") {
 
     s = R"(x ')";
     CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);
+
+
+    s = R"(if (x) then
+               y = 5
+           end if)";
+    ref = {
+        tt::KW_IF, '(', tt::TK_NAME, ')', tt::KW_THEN, tt::TK_NEWLINE,
+        tt::TK_NAME, '=', tt::TK_INTEGER, tt::TK_NEWLINE,
+        tt::KW_ENDIF,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = R"(if (x) then
+               y = 5
+           enD  iF)";
+    ref = {
+        tt::KW_IF, '(', tt::TK_NAME, ')', tt::KW_THEN, tt::TK_NEWLINE,
+        tt::TK_NAME, '=', tt::TK_INTEGER, tt::TK_NEWLINE,
+        tt::KW_ENDIF,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
+
+    s = R"(if (x) then
+               y = 5
+           endif)";
+    ref = {
+        tt::KW_IF, '(', tt::TK_NAME, ')', tt::KW_THEN, tt::TK_NEWLINE,
+        tt::TK_NAME, '=', tt::TK_INTEGER, tt::TK_NEWLINE,
+        tt::KW_ENDIF,
+        tt::END_OF_FILE,
+    };
+    CHECK(tokens(s) == ref);
 }
 
 #define cast(type, p) (LFortran::AST::type##_t*) (p)
