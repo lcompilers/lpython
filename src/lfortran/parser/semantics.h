@@ -48,8 +48,12 @@ static inline do_loop_head_t DOLOOP_HEAD(const expr_t *i, expr_t *a,
         expr_t *b, expr_t *c)
 {
     do_loop_head_t s;
-    LFORTRAN_ASSERT(i->type == exprType::Name)
-    s.m_var = ((Name_t*)i)->m_id;
+    if (i) {
+        LFORTRAN_ASSERT(i->type == exprType::Name)
+        s.m_var = ((Name_t*)i)->m_id;
+    } else {
+        s.m_var = nullptr;
+    }
     s.m_start = a;
     s.m_end = b;
     s.m_increment = c;
@@ -182,6 +186,11 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
 
 #define WHILE(cond, body, l) make_WhileLoop_t(p.m_a, l, \
         /*test*/ EXPR(cond), \
+        /*body*/ STMTS(p.m_a, body), \
+        /*n_body*/ body.n)
+
+#define DO1(body, l) make_DoLoop_t(p.m_a, l, \
+        /*head*/ DOLOOP_HEAD(nullptr, nullptr, nullptr, nullptr), \
         /*body*/ STMTS(p.m_a, body), \
         /*n_body*/ body.n)
 

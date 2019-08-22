@@ -130,12 +130,23 @@ public:
         s.append("(");
         s.append("do");
         s.append(" ");
-        //this->visit_expr(*x.m_test);
-        s.append(x.m_head.m_var);
+        if (x.m_head.m_var) {
+            s.append(x.m_head.m_var);
+        } else {
+            s.append("()");
+        }
         s.append(" ");
-        this->visit_expr(*x.m_head.m_start);
+        if (x.m_head.m_start) {
+            this->visit_expr(*x.m_head.m_start);
+        } else {
+            s.append("()");
+        }
         s.append(" ");
-        this->visit_expr(*x.m_head.m_end);
+        if (x.m_head.m_end) {
+            this->visit_expr(*x.m_head.m_end);
+        } else {
+            s.append("()");
+        }
         s.append(" ");
         if (x.m_head.m_increment) {
             this->visit_expr(*x.m_head.m_increment);
