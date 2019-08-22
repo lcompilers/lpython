@@ -3,9 +3,9 @@
 %define api.value.type {LFortran::YYSTYPE}
 %param {LFortran::Parser &p}
 %locations
-//%glr-parser
-//%expect-rr 0
-%expect 0
+%glr-parser
+%expect-rr 0
+%expect 2
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -136,6 +136,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_ELEMENTAL
 %token <string> KW_ELSE
 %token <string> KW_END
+%token <string> KW_END_IF
 %token <string> KW_ENDIF
 %token <string> KW_END_DO
 %token <string> KW_ENDDO
@@ -305,7 +306,7 @@ assignment_statement
     ;
 
 if_statement
-    : if_block KW_ENDIF {}
+    : if_block endif {}
     ;
 
 if_block
@@ -324,6 +325,11 @@ while_statement
 enddo
     : KW_END_DO
     | KW_ENDDO
+    ;
+
+endif
+    : KW_END_IF
+    | KW_ENDIF
     ;
 
 /*
@@ -384,6 +390,7 @@ id
     | KW_ELSE { $$ = SYMBOL($1, @$); }
     | KW_END { $$ = SYMBOL($1, @$); }
     | KW_ENDDO { $$ = SYMBOL($1, @$); }
+    | KW_ENDIF { $$ = SYMBOL($1, @$); }
     | KW_ENTRY { $$ = SYMBOL($1, @$); }
     | KW_ENUM { $$ = SYMBOL($1, @$); }
     | KW_ENUMERATOR { $$ = SYMBOL($1, @$); }
