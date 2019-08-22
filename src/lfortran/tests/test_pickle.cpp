@@ -335,4 +335,14 @@ TEST_CASE("if") {
         c = 3
     end if
     end subroutine)") == "(sub [(if [(= a 5) (if [(= b 4)] [])] [(= c 3)])])");
+
+    CHECK(P(
+ R"(if (x) then
+        a = 5
+        if (y) then
+            b = 4
+        end if
+    else
+        c = 3
+    end if)") == "(if [(= a 5) (if [(= b 4)] [])] [(= c 3)])");
 }
