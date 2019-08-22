@@ -10,6 +10,7 @@ using LFortran::AST::BinOp_t;
 using LFortran::AST::If_t;
 using LFortran::AST::Assignment_t;
 using LFortran::AST::WhileLoop_t;
+using LFortran::AST::Exit_t;
 using LFortran::AST::DoLoop_t;
 using LFortran::AST::Subroutine_t;
 using LFortran::AST::Function_t;
@@ -199,6 +200,9 @@ public:
         s.append(" ");
         this->visit_expr(*x.m_value);
         s.append(")");
+    }
+    void visit_Exit(const Exit_t &x) {
+        s.append("(exit)");
     }
     void visit_Name(const Name_t &x) {
         s.append(x.m_id);

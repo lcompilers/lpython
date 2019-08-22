@@ -441,3 +441,17 @@ TEST_CASE("do loop") {
     a = a + i
     b = 3)") == "do");
 }
+
+TEST_CASE("exit") {
+    Allocator al(4*1024);
+
+    CHECK(P(
+ R"(do i = 1, 5
+        exit
+    end do)") == "(do i 1 5 () [(exit)])");
+
+    CHECK(P(
+ R"(do i = 1, 5
+        exit = 5
+    end do)") == "(do i 1 5 () [(= exit 5)])");
+}
