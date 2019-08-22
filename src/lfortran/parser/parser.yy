@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect 2
+%expect 0
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -134,6 +134,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_ELEMENTAL
 %token <string> KW_ELSE
 %token <string> KW_END
+%token <string> KW_ENDIF
 %token <string> KW_ENTRY
 %token <string> KW_ENUM
 %token <string> KW_ENUMERATOR
@@ -299,7 +300,7 @@ assignment_statement
     ;
 
 if_statement
-    : if_block KW_END KW_IF {}
+    : if_block KW_ENDIF {}
     ;
 
 if_block
