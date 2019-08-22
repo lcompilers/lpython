@@ -380,4 +380,8 @@ TEST_CASE("do loop") {
         a = a + i
         b = 3
     end do)") == "(do () () () () [(= a (+ a i)) (= b 3)])");
+
+    CHECK(P("do; a = a + i; b = 3; end do") == "(do () () () () [(= a (+ a i)) (= b 3)])");
+
+    CHECK(P("do") == "do");
 }
