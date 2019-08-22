@@ -48,8 +48,6 @@ static inline do_loop_head_t DOLOOP_HEAD(const expr_t *i, expr_t *a,
         expr_t *b, expr_t *c)
 {
     do_loop_head_t s;
-    // FIXME: Products do not need "base"
-    // s.base = ...
     LFORTRAN_ASSERT(i->type == exprType::Name)
     s.m_var = ((Name_t*)i)->m_id;
     s.m_start = a;
