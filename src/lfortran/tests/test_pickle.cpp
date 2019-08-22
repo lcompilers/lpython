@@ -384,4 +384,9 @@ TEST_CASE("do loop") {
     CHECK(P("do; a = a + i; b = 3; end do") == "(do () () () () [(= a (+ a i)) (= b 3)])");
 
     CHECK(P("do") == "do");
+
+    CHECK(P(
+ R"(do
+    a = a + i
+    b = 3)") == "do");
 }
