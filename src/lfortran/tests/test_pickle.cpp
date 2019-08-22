@@ -361,3 +361,12 @@ TEST_CASE("while") {
         a = 5
     enddo)") == "(while x [(= a 5)])");
 }
+
+TEST_CASE("do loop") {
+    Allocator al(4*1024);
+
+    CHECK(P(
+ R"(do i = 1, 5
+        a = a + i
+    end do)") == "(do i 1 5 () [(= a (+ a i))])");
+}

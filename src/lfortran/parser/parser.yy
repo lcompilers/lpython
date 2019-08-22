@@ -325,7 +325,8 @@ while_statement
 // Two sr conflicts due to "KW_DO sep" being either a do_statement or an expr
 do_statement
     : KW_DO sep statements sep KW_ENDDO {}
-    | KW_DO id '=' expr ',' expr sep statements sep KW_ENDDO {}
+    | KW_DO id '=' expr ',' expr sep statements sep KW_ENDDO {
+            $$ = DO2($2, $4, $6, $8, @$); }
     | KW_DO id '=' expr ',' expr ',' expr sep statements sep KW_ENDDO {}
     ;
 
