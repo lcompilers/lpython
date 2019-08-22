@@ -505,3 +505,37 @@ TEST_CASE("cycle") {
     CHECK(P("cycle=1") == "(= cycle 1)");
     CHECK(P("a=cycle") == "(= a cycle)");
 }
+
+TEST_CASE("return") {
+    Allocator al(4*1024);
+
+    CHECK(P(R"(subroutine g
+    x = y
+    return
+    x = 2*y
+    end subroutine)")   == "(sub [(= x y) (return) (= x (* 2 y))])");
+
+    CHECK(P(
+ R"(do i = 1, 5
+        return
+    end do)") == "(do i 1 5 () [(return)])");
+
+    CHECK(P(
+ R"(do while (x)
+        return
+    end do)") == "(while x [(return)])");
+
+    CHECK(P(
+ R"(return
+    enddo)") == "return");
+
+    CHECK(P(
+ R"(do i = 1, 5
+        return = 5
+    end do)") == "(do i 1 5 () [(= return 5)])");
+
+    CHECK(P("return") == "return");
+    CHECK(P("return+1") == "(+ return 1)");
+    CHECK(P("return=1") == "(= return 1)");
+    CHECK(P("a=return") == "(= a return)");
+}
