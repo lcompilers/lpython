@@ -261,6 +261,9 @@ void show_syntax_error(const std::string &filename, const std::string &input,
         const Location &loc, const int token, const std::string *tstr)
 {
     std::cout << filename << ":" << loc.first_line << ":" << loc.first_column;
+    if (loc.first_line != loc.last_line) {
+        std::cout << " - " << loc.last_line << ":" << loc.last_column;
+    }
     std::cout << " " << redon << "syntax error:" << redoff << " ";
     if (token == -1) {
         LFORTRAN_ASSERT(tstr != nullptr);
@@ -280,10 +283,14 @@ void show_syntax_error(const std::string &filename, const std::string &input,
         std::string line = get_line(input, loc.first_line);
         highlight_line(line, loc.first_column, loc.last_column);
     } else {
-        std::cout << "Begining:" << std::endl;
-        std::cout << loc.first_line << ":" << loc.first_column << " - ";
-        std::cout << loc.last_line << ":" << loc.last_column << std::endl;;
-        throw std::runtime_error("Multiline errors not implemented yet.");
+        std::cout << "first (" << loc.first_line << ":" << loc.first_column;
+        std::cout << ")" << std::endl;
+        std::string line = get_line(input, loc.first_line);
+        highlight_line(line, loc.first_column, line.size());
+        std::cout << "last (" << loc.last_line << ":" << loc.last_column;
+        std::cout << ")" << std::endl;
+        line = get_line(input, loc.last_line);
+        highlight_line(line, 1, loc.last_column);
     }
 }
 
