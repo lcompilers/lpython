@@ -242,6 +242,12 @@ TEST_CASE("if") {
     ENDIF
     end subroutine)")   == "(sub [(if x [(= endif 5)] [])])");
 
+    CHECK_THROWS_AS(P(R"(subroutine g
+    if (x) then
+        end if = 5
+    end if
+    end subroutine)"), LFortran::ParserError);
+
     CHECK(P(R"(subroutine g
     if (else) then
         a = 5
