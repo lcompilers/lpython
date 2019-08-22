@@ -1,7 +1,7 @@
 #ifndef LFORTRAN_PARSER_STYPE_H
 #define LFORTRAN_PARSER_STYPE_H
 
-#include <vector>
+#include <cstring>
 #include <lfortran/ast.h>
 #include <lfortran/parser/location.h>
 
@@ -9,9 +9,26 @@ namespace LFortran
 {
 
 union YYSTYPE {
-    LFortran::AST::ast_t* ast;
-    struct Vec {size_t n, max; LFortran::AST::ast_t** p;} vec_ast;
     unsigned long n;
+    LFortran::AST::ast_t* ast;
+
+    // Vector implementation
+    struct Vec {
+        size_t n, max;
+        LFortran::AST::ast_t** p;
+        void push_back(Allocator &al, LFortran::AST::ast_t *x) {
+            if (n == max) {
+                size_t max2 = 2*max;
+                LFortran::AST::ast_t** p2 = (LFortran::AST::ast_t**)
+                    al.allocate(sizeof(LFortran::AST::ast_t*) * max2);
+                std::memcpy(p2, p, sizeof(LFortran::AST::ast_t*) * max);
+                p = p2;
+                max = max2;
+            }
+            p[n] = x;
+            n++;
+        }
+    } vec_ast;
 
     // String implementation (not null-terminated)
     struct Str {
