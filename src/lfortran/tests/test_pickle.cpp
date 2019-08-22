@@ -164,6 +164,17 @@ TEST_CASE("Programs") {
     subroutine = y
     x = 2*subroutine
     end program)")   == "(prog [(= subroutine y) (= x (* 2 subroutine))])");
+
+    CHECK(P(R"(program g
+    x = y
+    end program g)")   == "(prog [(= x y)])");
+
+    /*
+    CHECK(P(
+   R"(PROGRAM TESTFortran90
+      integer stop ; stop = 1 ; do while ( stop .eq. 0 ) ; end do
+      END PROGRAM TESTFortran90)") == "");
+    */
 }
 
 TEST_CASE("Multiple units") {
