@@ -80,6 +80,13 @@ static inline stmt_t** IFSTMTS(Allocator &al, ast_t* x)
     return s;
 }
 
+static inline char* name2char(const expr_t *n)
+{
+    LFORTRAN_ASSERT(n->type == exprType::Name)
+    char *s = ((Name_t*)n)->m_id;
+    return s;
+}
+
 static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
         const YYSTYPE::Str &x)
 {
@@ -139,7 +146,7 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
 #define PROGRAM(name, stmts, l) make_Program_t(p.m_a, l, \
-        /*name*/ nullptr, \
+        /*name*/ name2char(EXPR(name)), \
         /*use*/ nullptr, \
         /*n_use*/ 0, \
         /*decl*/ nullptr, \

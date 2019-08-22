@@ -268,8 +268,13 @@ script_unit
 
 
 program
-    : KW_PROGRAM id sep statements sep KW_END KW_PROGRAM {
+    : KW_PROGRAM id sep statements sep KW_END KW_PROGRAM id_opt {
             $$ = PROGRAM($2, $4, @$); }
+    ;
+
+id_opt
+    : id
+    | %empty
     ;
 
 subroutine

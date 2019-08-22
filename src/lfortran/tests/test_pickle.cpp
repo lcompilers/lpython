@@ -147,7 +147,7 @@ TEST_CASE("Programs") {
     CHECK(P(R"(program g
     x = y
     x = 2*y
-    end program)")   == "(prog [(= x y) (= x (* 2 y))])");
+    end program)")   == "(prog g [(= x y) (= x (* 2 y))])");
 
 
     CHECK(P(R"(program g
@@ -156,14 +156,25 @@ TEST_CASE("Programs") {
 
     x = 2*y;; ;
 
-    end program)")   == "(prog [(= x y) (= x (* 2 y))])");
+    end program)")   == "(prog g [(= x y) (= x (* 2 y))])");
 
-    CHECK(P("program g; x = y; x = 2*y; end program") == "(prog [(= x y) (= x (* 2 y))])");
+    CHECK(P("program g; x = y; x = 2*y; end program") == "(prog g [(= x y) (= x (* 2 y))])");
 
     CHECK(P(R"(program f
     subroutine = y
     x = 2*subroutine
-    end program)")   == "(prog [(= subroutine y) (= x (* 2 subroutine))])");
+    end program)")   == "(prog f [(= subroutine y) (= x (* 2 subroutine))])");
+
+    CHECK(P(R"(program g
+    x = y
+    end program g)")   == "(prog g [(= x y)])");
+
+    /*
+    CHECK(P(
+   R"(PROGRAM TESTFortran90
+      integer stop ; stop = 1 ; do while ( stop .eq. 0 ) ; end do
+      END PROGRAM TESTFortran90)") == "");
+    */
 }
 
 TEST_CASE("Multiple units") {
