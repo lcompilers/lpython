@@ -170,6 +170,8 @@ public:
         s.append("(");
         s.append("prog");
         s.append(" ");
+        s.append(x.m_name);
+        s.append(" ");
         s.append("[");
         for (size_t i=0; i<x.n_body; i++) {
             LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
