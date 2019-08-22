@@ -360,4 +360,24 @@ TEST_CASE("while") {
  R"(do while (x)
         a = 5
     enddo)") == "(while x [(= a 5)])");
+
+    CHECK(P(
+ R"(do while (x)
+        do = 5
+    enddo)") == "(while x [(= do 5)])");
+
+    CHECK(P(
+ R"(do while (x)
+        end = 5
+    enddo)") == "(while x [(= end 5)])");
+
+    CHECK(P(
+ R"(do while (x)
+        enddo = 5
+    enddo)") == "(while x [(= enddo 5)])");
+
+    CHECK_THROWS_AS(P(
+ R"(do while (x)
+        end do = 5
+    enddo)"), LFortran::ParserError);
 }
