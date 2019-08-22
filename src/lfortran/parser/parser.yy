@@ -5,7 +5,7 @@
 %locations
 %glr-parser
 %expect-rr 0
-%expect 2
+%expect 4
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -137,7 +137,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_ELEMENTAL
 %token <string> KW_ELSE
 %token <string> KW_END
+%token <string> KW_END_IF
 %token <string> KW_ENDIF
+%token <string> KW_END_DO
 %token <string> KW_ENDDO
 %token <string> KW_ENTRY
 %token <string> KW_ENUM
@@ -305,8 +307,9 @@ assignment_statement
     : expr '=' expr { $$ = ASSIGNMENT($1, $3, @$); }
     ;
 
+// sr-conflict: KW_ENDIF can be an "id" or end of "if_statement"
 if_statement
-    : if_block KW_ENDIF {}
+    : if_block endif {}
     ;
 
 if_block
@@ -319,19 +322,28 @@ if_block
     ;
 
 while_statement
-    : KW_DO KW_WHILE '(' expr ')' sep statements sep KW_ENDDO {
+    : KW_DO KW_WHILE '(' expr ')' sep statements sep enddo {
             $$ = WHILE($4, $7, @$); }
 
-// Two sr conflicts due to "KW_DO sep" being either a do_statement or an expr
+// sr-conflict (2x): "KW_DO sep" being either a do_statement or an expr
 do_statement
-    : KW_DO sep statements sep KW_ENDDO {
+    : KW_DO sep statements sep enddo {
             $$ = DO1($3, @$); }
-    | KW_DO id '=' expr ',' expr sep statements sep KW_ENDDO {
+    | KW_DO id '=' expr ',' expr sep statements sep enddo {
             $$ = DO2($2, $4, $6, $8, @$); }
-    | KW_DO id '=' expr ',' expr ',' expr sep statements sep KW_ENDDO {
+    | KW_DO id '=' expr ',' expr ',' expr sep statements sep enddo {
             $$ = DO3($2, $4, $6, $8, $10, @$); }
     ;
 
+enddo
+    : KW_END_DO
+    | KW_ENDDO
+    ;
+
+endif
+    : KW_END_IF
+    | KW_ENDIF
+    ;
 
 /*
 exit_statement
@@ -390,6 +402,8 @@ id
     | KW_ELEMENTAL { $$ = SYMBOL($1, @$); }
     | KW_ELSE { $$ = SYMBOL($1, @$); }
     | KW_END { $$ = SYMBOL($1, @$); }
+    | KW_ENDDO { $$ = SYMBOL($1, @$); }
+    | KW_ENDIF { $$ = SYMBOL($1, @$); }
     | KW_ENTRY { $$ = SYMBOL($1, @$); }
     | KW_ENUM { $$ = SYMBOL($1, @$); }
     | KW_ENUMERATOR { $$ = SYMBOL($1, @$); }

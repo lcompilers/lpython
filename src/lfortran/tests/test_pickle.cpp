@@ -237,6 +237,18 @@ TEST_CASE("if") {
     end subroutine)")   == "(sub [(if x [(= a 5)] [])])");
 
     CHECK(P(R"(subroutine g
+    if (x) then
+        endif = 5
+    ENDIF
+    end subroutine)")   == "(sub [(if x [(= endif 5)] [])])");
+
+    CHECK_THROWS_AS(P(R"(subroutine g
+    if (x) then
+        end if = 5
+    end if
+    end subroutine)"), LFortran::ParserError);
+
+    CHECK(P(R"(subroutine g
     if (else) then
         a = 5
         b = 4
@@ -360,6 +372,26 @@ TEST_CASE("while") {
  R"(do while (x)
         a = 5
     enddo)") == "(while x [(= a 5)])");
+
+    CHECK(P(
+ R"(do while (x)
+        do = 5
+    enddo)") == "(while x [(= do 5)])");
+
+    CHECK(P(
+ R"(do while (x)
+        end = 5
+    enddo)") == "(while x [(= end 5)])");
+
+    CHECK(P(
+ R"(do while (x)
+        enddo = 5
+    enddo)") == "(while x [(= enddo 5)])");
+
+    CHECK_THROWS_AS(P(
+ R"(do while (x)
+        end do = 5
+    enddo)"), LFortran::ParserError);
 }
 
 TEST_CASE("do loop") {
