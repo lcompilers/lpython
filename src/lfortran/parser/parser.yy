@@ -314,23 +314,6 @@ if_block
     ;
 
 /*
-if_statement
-    : if_cond statement    # if_single_line
-    | if_block KW_END KW_IF  # if_multi_line
-    ;
-
-if_cond: KW_IF '(' expr ')' ;
-
-if_block
-    : if_cond KW_THEN NEWLINE+ statements if_else_block?
-    ;
-
-if_else_block
-    : KW_ELSE (if_block | (NEWLINE+ statements))
-    ;
-*/
-
-/*
 exit_statement
     : KW_EXIT { $$ = EXIT(); }
     ;
