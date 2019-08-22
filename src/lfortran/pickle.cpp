@@ -91,6 +91,8 @@ public:
         s.append("(");
         s.append("if");
         s.append(" ");
+        this->visit_expr(*x.m_test);
+        s.append(" ");
         s.append("[");
         for (size_t i=0; i<x.n_body; i++) {
             LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
