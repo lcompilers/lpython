@@ -3,7 +3,8 @@
 %define api.value.type {LFortran::YYSTYPE}
 %param {LFortran::Parser &p}
 %locations
-%glr-parser
+//%glr-parser
+//%expect-rr 0
 %expect 0
 
 // Uncomment this to get verbose error messages
