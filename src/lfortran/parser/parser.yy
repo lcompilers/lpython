@@ -15,7 +15,8 @@
 // extern int yydebug;
 // yydebug=1;
 %define parse.trace
-%printer { fprintf(yyo, "%s", $$.c_str()); } <string>
+%printer { fprintf(yyo, "%s", $$.str().c_str()); } <string>
+%printer { fprintf(yyo, "%d", $$); } <n>
 %printer { std::cerr << "AST TYPE: " << $$->type; } <ast>
 */
 
@@ -73,6 +74,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> if_statement
 %type <ast> if_block
 %type <ast> while_statement
+%type <ast> do_statement
 //%type <ast> exit_statement
 %type <vec_ast> statements
 
@@ -245,7 +247,13 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 // Top level rules to be used for parsing.
 
 units
-    : units sep script_unit { RESULT($3); }
+    : script_units
+    | script_units sep expr { RESULT($3); }
+    | expr { RESULT($1); }
+    ;
+
+script_units
+    : script_units sep script_unit { RESULT($3); }
     | script_unit { RESULT($1); }
     ;
 
@@ -254,7 +262,6 @@ script_unit
     | subroutine
     | function
     | statement
-    | expr
     ;
 
 // ----------------------------------------------------------------------------
@@ -299,6 +306,7 @@ statement
 //    | exit_statement
     | if_statement
     | while_statement
+    | do_statement
     ;
 
 assignment_statement
@@ -322,6 +330,16 @@ if_block
 while_statement
     : KW_DO KW_WHILE '(' expr ')' sep statements sep enddo {
             $$ = WHILE($4, $7, @$); }
+
+// sr-conflict (2x): "KW_DO sep" being either a do_statement or an expr
+do_statement
+    : KW_DO sep statements sep enddo {
+            $$ = DO1($3, @$); }
+    | KW_DO id '=' expr ',' expr sep statements sep enddo {
+            $$ = DO2($2, $4, $6, $8, @$); }
+    | KW_DO id '=' expr ',' expr ',' expr sep statements sep enddo {
+            $$ = DO3($2, $4, $6, $8, $10, @$); }
+    ;
 
 enddo
     : KW_END_DO

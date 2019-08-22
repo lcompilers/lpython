@@ -12,7 +12,13 @@ union YYSTYPE {
     LFortran::AST::ast_t* ast;
     struct Vec {size_t n, max; LFortran::AST::ast_t** p;} vec_ast;
     unsigned long n;
-    struct Str {size_t n; char* p;} string; // Not null-terminated
+
+    // String implementation (not null-terminated)
+    struct Str {
+        size_t n;
+        char* p;
+        std::string str() const { return std::string(p, n); }
+    } string;
 };
 
 static_assert(std::is_standard_layout<YYSTYPE>::value);

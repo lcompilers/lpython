@@ -167,7 +167,6 @@ class ASTNodeVisitor1(ASDLVisitor):
     def visitProduct(self, product, name):
         self.emit("struct %s_t // Product" % name)
         self.emit("{");
-        self.emit(    "ast_t base;", 1)
         for f in product.fields:
             type_ = convert_type(f.type, f.seq)
             if f.seq:

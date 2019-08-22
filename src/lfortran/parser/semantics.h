@@ -14,25 +14,50 @@
 
 #include <lfortran/ast.h>
 
-using LFortran::AST::astType;
 using LFortran::Location;
-using LFortran::AST::stmtType;
+
+using LFortran::AST::astType;
+using LFortran::AST::exprType;
 using LFortran::AST::operatorType;
-using LFortran::AST::stmt_t;
-using LFortran::AST::expr_t;
+using LFortran::AST::stmtType;
+
 using LFortran::AST::ast_t;
-using LFortran::AST::Num_t;
+using LFortran::AST::do_loop_head_t;
+using LFortran::AST::expr_t;
+using LFortran::AST::stmt_t;
+
 using LFortran::AST::Assignment_t;
-using LFortran::AST::make_WhileLoop_t;
+using LFortran::AST::Name_t;
+using LFortran::AST::Num_t;
+
 using LFortran::AST::make_BinOp_t;
+using LFortran::AST::make_DoLoop_t;
 using LFortran::AST::make_Exit_t;
 using LFortran::AST::make_Name_t;
 using LFortran::AST::make_Num_t;
+using LFortran::AST::make_WhileLoop_t;
+
 
 static inline expr_t* EXPR(const ast_t *f)
 {
     LFORTRAN_ASSERT(f->type == astType::expr);
     return (expr_t*)f;
+}
+
+static inline do_loop_head_t DOLOOP_HEAD(const expr_t *i, expr_t *a,
+        expr_t *b, expr_t *c)
+{
+    do_loop_head_t s;
+    if (i) {
+        LFORTRAN_ASSERT(i->type == exprType::Name)
+        s.m_var = ((Name_t*)i)->m_id;
+    } else {
+        s.m_var = nullptr;
+    }
+    s.m_start = a;
+    s.m_end = b;
+    s.m_increment = c;
+    return s;
 }
 
 static inline stmt_t** STMTS(Allocator &al, const YYSTYPE::Vec &x)
@@ -161,6 +186,21 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
 
 #define WHILE(cond, body, l) make_WhileLoop_t(p.m_a, l, \
         /*test*/ EXPR(cond), \
+        /*body*/ STMTS(p.m_a, body), \
+        /*n_body*/ body.n)
+
+#define DO1(body, l) make_DoLoop_t(p.m_a, l, \
+        /*head*/ DOLOOP_HEAD(nullptr, nullptr, nullptr, nullptr), \
+        /*body*/ STMTS(p.m_a, body), \
+        /*n_body*/ body.n)
+
+#define DO2(i, a, b, body, l) make_DoLoop_t(p.m_a, l, \
+        /*head*/ DOLOOP_HEAD(EXPR(i), EXPR(a), EXPR(b), nullptr), \
+        /*body*/ STMTS(p.m_a, body), \
+        /*n_body*/ body.n)
+
+#define DO3(i, a, b, c, body, l) make_DoLoop_t(p.m_a, l, \
+        /*head*/ DOLOOP_HEAD(EXPR(i), EXPR(a), EXPR(b), EXPR(c)), \
         /*body*/ STMTS(p.m_a, body), \
         /*n_body*/ body.n)
 

@@ -190,12 +190,12 @@ TEST_CASE("Multiple units") {
     CHECK(LFortran::pickle(*results[0]) == "(= x (+ x 1))");
     CHECK(LFortran::pickle(*results[1]) == "(= y (+ z 1))");
 
-    s = R"(x+1
+    s = R"(a = x+1
     y = z+1
     a)";
     results = LFortran::parsen(al, s);
     CHECK(results.size() == 3);
-    CHECK(LFortran::pickle(*results[0]) == "(+ x 1)");
+    CHECK(LFortran::pickle(*results[0]) == "(= a (+ x 1))");
     CHECK(LFortran::pickle(*results[1]) == "(= y (+ z 1))");
     CHECK(LFortran::pickle(*results[2]) == "a");
 
@@ -392,4 +392,54 @@ TEST_CASE("while") {
  R"(do while (x)
         end do = 5
     enddo)"), LFortran::ParserError);
+}
+
+TEST_CASE("do loop") {
+    Allocator al(4*1024);
+
+    CHECK(P(
+ R"(do i = 1, 5
+        a = a + i
+    end do)") == "(do i 1 5 () [(= a (+ a i))])");
+
+    CHECK(P(
+ R"(do i = 1, 5, 2
+        a = a + i
+    end do)") == "(do i 1 5 2 [(= a (+ a i))])");
+
+    CHECK(P(
+ R"(do
+        a = a + i
+        b = 3
+    end do)") == "(do () () () () [(= a (+ a i)) (= b 3)])");
+
+    CHECK(P(R"(subroutine g
+    do
+        a = a + i
+        b = 3
+    enddo
+    end subroutine)") == "(sub [(do () () () () [(= a (+ a i)) (= b 3)])])");
+
+    CHECK(P(
+ R"(do
+        a = a + i
+        b = 3
+    enddo)") == "(do () () () () [(= a (+ a i)) (= b 3)])");
+
+    CHECK(P(
+ R"(do
+        do = a + i
+        enddo = 3
+    enddo)") == "(do () () () () [(= do (+ a i)) (= enddo 3)])");
+
+    CHECK(P("do; a = a + i; b = 3; end do") == "(do () () () () [(= a (+ a i)) (= b 3)])");
+
+    CHECK(P("do") == "do");
+
+    /*
+    CHECK(P(
+ R"(do
+    a = a + i
+    b = 3)") == "do");
+    */
 }
