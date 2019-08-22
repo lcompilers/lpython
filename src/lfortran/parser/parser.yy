@@ -5,7 +5,7 @@
 %locations
 %glr-parser
 %expect-rr 0
-%expect 4
+%expect 2
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -247,7 +247,13 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 // Top level rules to be used for parsing.
 
 units
-    : units sep script_unit { RESULT($3); }
+    : script_units
+    | script_units sep expr { RESULT($3); }
+    | expr { RESULT($1); }
+    ;
+
+script_units
+    : script_units sep script_unit { RESULT($3); }
     | script_unit { RESULT($1); }
     ;
 
@@ -256,7 +262,6 @@ script_unit
     | subroutine
     | function
     | statement
-    | expr
     ;
 
 // ----------------------------------------------------------------------------
