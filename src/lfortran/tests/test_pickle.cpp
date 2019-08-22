@@ -291,4 +291,36 @@ TEST_CASE("if") {
         else = 3
     end if
     end subroutine)"), LFortran::ParserError);
+
+    CHECK(P(R"(subroutine g
+    if (x) then
+        a = 5
+    else if (y) then
+        b = 4
+    else
+        c = 3
+    end if
+    end subroutine)") == "(sub [(if [(= a 5)] [(if [(= b 4)] [(= c 3)])])])");
+
+    CHECK(P(R"(subroutine g
+    if (x) then
+        a = 5
+        if (y) then
+            b = 4
+        else
+            c = 3
+        end if
+    end if
+    end subroutine)") == "(sub [(if [(= a 5) (if [(= b 4)] [(= c 3)])] [])])");
+
+    CHECK(P(R"(subroutine g
+    if (x) then
+        a = 5
+        if (y) then
+            b = 4
+        end if
+    else
+        c = 3
+    end if
+    end subroutine)") == "(sub [(if [(= a 5) (if [(= b 4)] [])] [(= c 3)])])");
 }
