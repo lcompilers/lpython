@@ -16,6 +16,13 @@ union YYSTYPE {
     struct Vec {
         size_t n, max;
         LFortran::AST::ast_t** p;
+        // reserve() must be called before calling push_back()
+        void reserve(Allocator &al, size_t max) {
+            n = 0;
+            this->max = max;
+            p = (LFortran::AST::ast_t**)
+                    al.allocate(sizeof(LFortran::AST::ast_t*) * max);
+        }
         void push_back(Allocator &al, LFortran::AST::ast_t *x) {
             if (n == max) {
                 size_t max2 = 2*max;
