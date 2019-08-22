@@ -15,7 +15,7 @@
 // extern int yydebug;
 // yydebug=1;
 %define parse.trace
-%printer { fprintf(yyo, "%s", $$.c_str()); } <string>
+%printer { fprintf(yyo, "%s", $$.str().c_str()); } <string>
 %printer { std::cerr << "AST TYPE: " << $$->type; } <ast>
 */
 
