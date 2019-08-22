@@ -335,4 +335,29 @@ TEST_CASE("if") {
         c = 3
     end if
     end subroutine)") == "(sub [(if [(= a 5) (if [(= b 4)] [])] [(= c 3)])])");
+
+    CHECK(P(
+ R"(if (x) then
+        a = 5
+        if (y) then
+            b = 4
+        end if
+    else
+        c = 3
+    end if)") == "(if [(= a 5) (if [(= b 4)] [])] [(= c 3)])");
+}
+
+
+TEST_CASE("while") {
+    Allocator al(4*1024);
+
+    CHECK(P(
+ R"(do while (x)
+        a = 5
+    end do)") == "(while x [(= a 5)])");
+
+    CHECK(P(
+ R"(do while (x)
+        a = 5
+    enddo)") == "(while x [(= a 5)])");
 }

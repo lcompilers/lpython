@@ -23,6 +23,7 @@ using LFortran::AST::expr_t;
 using LFortran::AST::ast_t;
 using LFortran::AST::Num_t;
 using LFortran::AST::Assignment_t;
+using LFortran::AST::make_WhileLoop_t;
 using LFortran::AST::make_BinOp_t;
 using LFortran::AST::make_Exit_t;
 using LFortran::AST::make_Name_t;
@@ -157,5 +158,10 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
     l.p[l.n] = x; \
     l.n++; \
 }
+
+#define WHILE(cond, body, l) make_WhileLoop_t(p.m_a, l, \
+        /*test*/ EXPR(cond), \
+        /*body*/ STMTS(p.m_a, body), \
+        /*n_body*/ body.n)
 
 #endif

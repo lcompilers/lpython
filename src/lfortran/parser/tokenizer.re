@@ -110,6 +110,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             'else' { KW(ELSE) }
             'end' { KW(END) }
             'end' whitespace? 'if' { KW(ENDIF) }
+            'end' whitespace? 'do' { KW(ENDDO) }
             'entry' { KW(ENTRY) }
             'enum' { KW(ENUM) }
             'enumerator' { KW(ENUMERATOR) }

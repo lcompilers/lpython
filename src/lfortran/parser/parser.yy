@@ -72,6 +72,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> assignment_statement
 %type <ast> if_statement
 %type <ast> if_block
+%type <ast> while_statement
 //%type <ast> exit_statement
 %type <vec_ast> statements
 
@@ -136,6 +137,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_ELSE
 %token <string> KW_END
 %token <string> KW_ENDIF
+%token <string> KW_ENDDO
 %token <string> KW_ENTRY
 %token <string> KW_ENUM
 %token <string> KW_ENUMERATOR
@@ -294,6 +296,7 @@ statement
     : assignment_statement
 //    | exit_statement
     | if_statement
+    | while_statement
     ;
 
 assignment_statement
@@ -313,22 +316,9 @@ if_block
             $$ = IF3($3, $7, $10, @$); }
     ;
 
-/*
-if_statement
-    : if_cond statement    # if_single_line
-    | if_block KW_END KW_IF  # if_multi_line
-    ;
-
-if_cond: KW_IF '(' expr ')' ;
-
-if_block
-    : if_cond KW_THEN NEWLINE+ statements if_else_block?
-    ;
-
-if_else_block
-    : KW_ELSE (if_block | (NEWLINE+ statements))
-    ;
-*/
+while_statement
+    : KW_DO KW_WHILE '(' expr ')' sep statements sep KW_ENDDO {
+            $$ = WHILE($4, $7, @$); }
 
 /*
 exit_statement

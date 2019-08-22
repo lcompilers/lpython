@@ -9,6 +9,7 @@ using LFortran::AST::Num_t;
 using LFortran::AST::BinOp_t;
 using LFortran::AST::If_t;
 using LFortran::AST::Assignment_t;
+using LFortran::AST::WhileLoop_t;
 using LFortran::AST::Subroutine_t;
 using LFortran::AST::Function_t;
 using LFortran::AST::Program_t;
@@ -103,6 +104,21 @@ public:
             LFORTRAN_ASSERT(x.m_orelse[i]->base.type == astType::stmt)
             this->visit_stmt(*x.m_orelse[i]);
             if (i < x.n_orelse-1) s.append(" ");
+        }
+        s.append("]");
+        s.append(")");
+    }
+    void visit_WhileLoop(const WhileLoop_t &x) {
+        s.append("(");
+        s.append("while");
+        s.append(" ");
+        this->visit_expr(*x.m_test);
+        s.append(" ");
+        s.append("[");
+        for (size_t i=0; i<x.n_body; i++) {
+            LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
+            this->visit_stmt(*x.m_body[i]);
+            if (i < x.n_body-1) s.append(" ");
         }
         s.append("]");
         s.append(")");
