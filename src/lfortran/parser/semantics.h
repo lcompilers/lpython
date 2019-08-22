@@ -178,22 +178,8 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
         /*a_orelse*/ IFSTMTS(p.m_a, ifblock), \
         /*n_orelse*/ 1)
 
-#define STMTS_NEW(l) { \
-    l.n = 0; \
-    l.max = 4; \
-    l.p = (ast_t**)p.m_a.allocate(sizeof(ast_t*) * l.max); \
-}
-#define STMTS_ADD(l, x) { \
-    if (l.n == l.max) { \
-        size_t max2 = 2*l.max; \
-        ast_t** p2 = (ast_t**)p.m_a.allocate(sizeof(ast_t*) * max2); \
-        std::memcpy(p2, l.p, sizeof(ast_t*) * l.max); \
-        l.p = p2; \
-        l.max = max2; \
-    } \
-    l.p[l.n] = x; \
-    l.n++; \
-}
+#define STMTS_NEW(l) l.reserve(p.m_a, 4)
+#define STMTS_ADD(l, x) l.push_back(p.m_a, x)
 
 #define WHILE(cond, body, l) make_WhileLoop_t(p.m_a, l, \
         /*test*/ EXPR(cond), \
