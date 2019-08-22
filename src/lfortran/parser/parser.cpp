@@ -230,11 +230,36 @@ std::string token2text(const int token)
     }
 }
 
+const static std::string redon  = "\033[0;31m";
+const static std::string redoff = "\033[0;00m";
+
+void highlight_line(const std::string &line,
+        const size_t first_column,
+        const size_t last_column
+        )
+{
+    std::cout << line.substr(0, first_column-1);
+    if (last_column <= line.size()) {
+        std::cout << redon;
+        std::cout << line.substr(first_column-1,
+                last_column-first_column+1);
+        std::cout << redoff;
+        std::cout << line.substr(last_column);
+    }
+    std::cout << std::endl;;
+    for (size_t i=0; i < first_column-1; i++) {
+        std::cout << " ";
+    }
+    std::cout << redon << "^";
+    for (size_t i=first_column; i < last_column; i++) {
+        std::cout << "~";
+    }
+    std::cout << redoff << std::endl;
+}
+
 void show_syntax_error(const std::string &filename, const std::string &input,
         const Location &loc, const int token, const std::string *tstr)
 {
-    std::string redon  = "\033[0;31m";
-    std::string redoff = "\033[0;00m";
     std::cout << filename << ":" << loc.first_line << ":" << loc.first_column;
     std::cout << " " << redon << "syntax error:" << redoff << " ";
     if (token == -1) {
@@ -253,24 +278,11 @@ void show_syntax_error(const std::string &filename, const std::string &input,
     }
     if (loc.first_line == loc.last_line) {
         std::string line = get_line(input, loc.first_line);
-        std::cout << line.substr(0, loc.first_column-1);
-        if (loc.last_column <= line.size()) {
-            std::cout << redon;
-            std::cout << line.substr(loc.first_column-1,
-                    loc.last_column-loc.first_column+1);
-            std::cout << redoff;
-            std::cout << line.substr(loc.last_column);
-        }
-        std::cout << std::endl;;
-        for (int i=0; i < loc.first_column-1; i++) {
-            std::cout << " ";
-        }
-        std::cout << redon << "^";
-        for (int i=loc.first_column; i < loc.last_column; i++) {
-            std::cout << "~";
-        }
-        std::cout << redoff << std::endl;
+        highlight_line(line, loc.first_column, loc.last_column);
     } else {
+        std::cout << "Begining:" << std::endl;
+        std::cout << loc.first_line << ":" << loc.first_column << " - ";
+        std::cout << loc.last_line << ":" << loc.last_column << std::endl;;
         throw std::runtime_error("Multiline errors not implemented yet.");
     }
 }
