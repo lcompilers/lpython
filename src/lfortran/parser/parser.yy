@@ -72,6 +72,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> assignment_statement
 %type <ast> if_statement
 %type <ast> if_block
+%type <ast> while_statement
 //%type <ast> exit_statement
 %type <vec_ast> statements
 
@@ -294,6 +295,7 @@ statement
     : assignment_statement
 //    | exit_statement
     | if_statement
+    | while_statement
     ;
 
 assignment_statement
@@ -312,6 +314,10 @@ if_block
     | KW_IF '(' expr ')' KW_THEN sep statements sep KW_ELSE if_block {
             $$ = IF3($3, $7, $10, @$); }
     ;
+
+while_statement
+    : KW_DO KW_WHILE '(' expr ')' sep statements sep KW_END KW_DO {
+            $$ = WHILE($4, $7, @$); }
 
 /*
 exit_statement
