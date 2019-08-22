@@ -369,4 +369,9 @@ TEST_CASE("do loop") {
  R"(do i = 1, 5
         a = a + i
     end do)") == "(do i 1 5 () [(= a (+ a i))])");
+
+    CHECK(P(
+ R"(do i = 1, 5, 2
+        a = a + i
+    end do)") == "(do i 1 5 2 [(= a (+ a i))])");
 }

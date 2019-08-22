@@ -327,7 +327,8 @@ do_statement
     : KW_DO sep statements sep KW_ENDDO {}
     | KW_DO id '=' expr ',' expr sep statements sep KW_ENDDO {
             $$ = DO2($2, $4, $6, $8, @$); }
-    | KW_DO id '=' expr ',' expr ',' expr sep statements sep KW_ENDDO {}
+    | KW_DO id '=' expr ',' expr ',' expr sep statements sep KW_ENDDO {
+            $$ = DO3($2, $4, $6, $8, $10, @$); }
     ;
 
 

@@ -190,4 +190,9 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
         /*body*/ STMTS(p.m_a, body), \
         /*n_body*/ body.n)
 
+#define DO3(i, a, b, c, body, l) make_DoLoop_t(p.m_a, l, \
+        /*head*/ DOLOOP_HEAD(EXPR(i), EXPR(a), EXPR(b), EXPR(c)), \
+        /*body*/ STMTS(p.m_a, body), \
+        /*n_body*/ body.n)
+
 #endif
