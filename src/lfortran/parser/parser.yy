@@ -305,7 +305,7 @@ assignment_statement
     : expr '=' expr { $$ = ASSIGNMENT($1, $3, @$); }
     ;
 
-// sr-conflict: KW_ENDIF can be an "id" or end of "if_statement"
+// sr-conflict (2x): KW_ENDIF can be an "id" or end of "if_statement"
 if_statement
     : if_block endif {}
     ;
