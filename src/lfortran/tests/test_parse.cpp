@@ -924,7 +924,7 @@ TEST_CASE("Tokenizer") {
     ref = {
         tt::KW_IF, '(', tt::TK_NAME, ')', tt::KW_THEN, tt::TK_NEWLINE,
         tt::TK_NAME, '=', tt::TK_INTEGER, tt::TK_NEWLINE,
-        tt::KW_ENDIF,
+        tt::KW_END_IF,
         tt::END_OF_FILE,
     };
     CHECK(tokens(s) == ref);
@@ -935,7 +935,7 @@ TEST_CASE("Tokenizer") {
     ref = {
         tt::KW_IF, '(', tt::TK_NAME, ')', tt::KW_THEN, tt::TK_NEWLINE,
         tt::TK_NAME, '=', tt::TK_INTEGER, tt::TK_NEWLINE,
-        tt::KW_ENDIF,
+        tt::KW_END_IF,
         tt::END_OF_FILE,
     };
     CHECK(tokens(s) == ref);
