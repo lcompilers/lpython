@@ -477,3 +477,31 @@ TEST_CASE("exit") {
     CHECK(P("exit=1") == "(= exit 1)");
     CHECK(P("a=exit") == "(= a exit)");
 }
+
+TEST_CASE("cycle") {
+    Allocator al(4*1024);
+
+    CHECK(P(
+ R"(do i = 1, 5
+        cycle
+    end do)") == "(do i 1 5 () [(cycle)])");
+
+    CHECK(P(
+ R"(do while (x)
+        cycle
+    end do)") == "(while x [(cycle)])");
+
+    CHECK(P(
+ R"(cycle
+    enddo)") == "cycle");
+
+    CHECK(P(
+ R"(do i = 1, 5
+        cycle = 5
+    end do)") == "(do i 1 5 () [(= cycle 5)])");
+
+    CHECK(P("cycle") == "cycle");
+    CHECK(P("cycle+1") == "(+ cycle 1)");
+    CHECK(P("cycle=1") == "(= cycle 1)");
+    CHECK(P("a=cycle") == "(= a cycle)");
+}

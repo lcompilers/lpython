@@ -11,6 +11,8 @@ using LFortran::AST::If_t;
 using LFortran::AST::Assignment_t;
 using LFortran::AST::WhileLoop_t;
 using LFortran::AST::Exit_t;
+using LFortran::AST::Return_t;
+using LFortran::AST::Cycle_t;
 using LFortran::AST::DoLoop_t;
 using LFortran::AST::Subroutine_t;
 using LFortran::AST::Function_t;
@@ -203,6 +205,12 @@ public:
     }
     void visit_Exit(const Exit_t &x) {
         s.append("(exit)");
+    }
+    void visit_Return(const Return_t &x) {
+        s.append("(return)");
+    }
+    void visit_Cycle(const Cycle_t &x) {
+        s.append("(cycle)");
     }
     void visit_Name(const Name_t &x) {
         s.append(x.m_id);

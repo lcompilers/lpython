@@ -33,6 +33,8 @@ using LFortran::AST::Num_t;
 using LFortran::AST::make_BinOp_t;
 using LFortran::AST::make_DoLoop_t;
 using LFortran::AST::make_Exit_t;
+using LFortran::AST::make_Cycle_t;
+using LFortran::AST::make_Return_t;
 using LFortran::AST::make_Name_t;
 using LFortran::AST::make_Num_t;
 using LFortran::AST::make_WhileLoop_t;
@@ -107,6 +109,8 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
 #define INTEGER(x, l) make_Num_t(p.m_a, l, x)
 #define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, l, EXPR(x), EXPR(y))
 #define EXIT(l) make_Exit_t(p.m_a, l)
+#define RETURN(l) make_Return_t(p.m_a, l)
+#define CYCLE(l) make_Cycle_t(p.m_a, l)
 #define SUBROUTINE(name, stmts, l) make_Subroutine_t(p.m_a, l, \
         /*name*/ nullptr, \
         /*args*/ nullptr, \
