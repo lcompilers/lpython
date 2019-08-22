@@ -441,3 +441,39 @@ TEST_CASE("do loop") {
     a = a + i
     b = 3)") == "do");
 }
+
+TEST_CASE("exit") {
+    Allocator al(4*1024);
+
+    // (exit) ... statement exit
+    // exit   ... variable "exit"
+
+    CHECK(P(
+ R"(do i = 1, 5
+        exit
+    end do)") == "(do i 1 5 () [(exit)])");
+
+    CHECK(P(
+ R"(do
+        exit
+    enddo)") == "(do () () () () [(exit)])");
+
+    CHECK(P(
+ R"(do while (x)
+        exit
+    end do)") == "(while x [(exit)])");
+
+    CHECK(P(
+ R"(exit
+    enddo)") == "exit");
+
+    CHECK(P(
+ R"(do i = 1, 5
+        exit = 5
+    end do)") == "(do i 1 5 () [(= exit 5)])");
+
+    CHECK(P("exit") == "exit");
+    CHECK(P("exit+1") == "(+ exit 1)");
+    CHECK(P("exit=1") == "(= exit 1)");
+    CHECK(P("a=exit") == "(= a exit)");
+}

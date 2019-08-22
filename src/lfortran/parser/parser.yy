@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect-rr 0
+%expect-rr 3
 %expect 4
 
 // Uncomment this to get verbose error messages
@@ -75,7 +75,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> if_block
 %type <ast> while_statement
 %type <ast> do_statement
-//%type <ast> exit_statement
+%type <ast> exit_statement
 %type <vec_ast> statements
 
 %token TK_NEWLINE
@@ -246,7 +246,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 // ----------------------------------------------------------------------------
 // Top level rules to be used for parsing.
 
-// Higher %dprec means precedence
+// Higher %dprec means higher precedence
 
 units
     : units sep script_unit  %dprec 9  { RESULT($3); }
@@ -257,8 +257,8 @@ script_unit
     : program
     | subroutine
     | function
-    | statement
-    | expr
+    | statement              %dprec 7
+    | expr                   %dprec 8
     ;
 
 // ----------------------------------------------------------------------------
@@ -300,7 +300,7 @@ sep_one
 
 statement
     : assignment_statement
-//    | exit_statement
+    | exit_statement
     | if_statement
     | while_statement
     | do_statement
@@ -348,11 +348,9 @@ endif
     | KW_ENDIF
     ;
 
-/*
 exit_statement
-    : KW_EXIT { $$ = EXIT(); }
+    : KW_EXIT { $$ = EXIT(@$); }
     ;
-*/
 
 // -----------------------------------------------------------------------------
 // Fortran expression
