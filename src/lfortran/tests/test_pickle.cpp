@@ -190,12 +190,12 @@ TEST_CASE("Multiple units") {
     CHECK(LFortran::pickle(*results[0]) == "(= x (+ x 1))");
     CHECK(LFortran::pickle(*results[1]) == "(= y (+ z 1))");
 
-    s = R"(x+1
+    s = R"(a = x+1
     y = z+1
     a)";
     results = LFortran::parsen(al, s);
     CHECK(results.size() == 3);
-    CHECK(LFortran::pickle(*results[0]) == "(+ x 1)");
+    CHECK(LFortran::pickle(*results[0]) == "(= a (+ x 1))");
     CHECK(LFortran::pickle(*results[1]) == "(= y (+ z 1))");
     CHECK(LFortran::pickle(*results[2]) == "a");
 
@@ -412,6 +412,19 @@ TEST_CASE("do loop") {
         a = a + i
         b = 3
     end do)") == "(do () () () () [(= a (+ a i)) (= b 3)])");
+
+    CHECK(P(R"(subroutine g
+    do
+        a = a + i
+        b = 3
+    enddo
+    end subroutine)") == "(sub [(do () () () () [(= a (+ a i)) (= b 3)])])");
+
+    CHECK(P(
+ R"(do
+        a = a + i
+        b = 3
+    enddo)") == "(do () () () () [(= a (+ a i)) (= b 3)])");
 
     CHECK(P(
  R"(do
