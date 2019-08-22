@@ -63,6 +63,7 @@ stmt
     | Select(expr test, case_stmt* body, case_default? default)
     | Cycle()
     | Exit()
+    | Return()
     | WhileLoop(expr test, stmt* body)
     | Print(string? fmt, expr* values)
         attributes (int lineno, int col_offset)

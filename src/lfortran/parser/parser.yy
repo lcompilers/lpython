@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect-rr 3
+%expect-rr 9
 %expect 4
 
 // Uncomment this to get verbose error messages
@@ -76,6 +76,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> while_statement
 %type <ast> do_statement
 %type <ast> exit_statement
+%type <ast> return_statement
+%type <ast> cycle_statement
 %type <vec_ast> statements
 
 %token TK_NEWLINE
@@ -301,6 +303,8 @@ sep_one
 statement
     : assignment_statement
     | exit_statement
+    | return_statement
+    | cycle_statement
     | if_statement
     | while_statement
     | do_statement
@@ -350,6 +354,14 @@ endif
 
 exit_statement
     : KW_EXIT { $$ = EXIT(@$); }
+    ;
+
+return_statement
+    : KW_RETURN { $$ = RETURN(@$); }
+    ;
+
+cycle_statement
+    : KW_CYCLE { $$ = CYCLE(@$); }
     ;
 
 // -----------------------------------------------------------------------------
