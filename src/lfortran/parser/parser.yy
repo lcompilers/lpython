@@ -137,6 +137,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_ELSE
 %token <string> KW_END
 %token <string> KW_ENDIF
+%token <string> KW_END_DO
 %token <string> KW_ENDDO
 %token <string> KW_ENTRY
 %token <string> KW_ENUM
@@ -317,8 +318,13 @@ if_block
     ;
 
 while_statement
-    : KW_DO KW_WHILE '(' expr ')' sep statements sep KW_ENDDO {
+    : KW_DO KW_WHILE '(' expr ')' sep statements sep enddo {
             $$ = WHILE($4, $7, @$); }
+
+enddo
+    : KW_END_DO
+    | KW_ENDDO
+    ;
 
 /*
 exit_statement
@@ -377,6 +383,7 @@ id
     | KW_ELEMENTAL { $$ = SYMBOL($1, @$); }
     | KW_ELSE { $$ = SYMBOL($1, @$); }
     | KW_END { $$ = SYMBOL($1, @$); }
+    | KW_ENDDO { $$ = SYMBOL($1, @$); }
     | KW_ENTRY { $$ = SYMBOL($1, @$); }
     | KW_ENUM { $$ = SYMBOL($1, @$); }
     | KW_ENUMERATOR { $$ = SYMBOL($1, @$); }
