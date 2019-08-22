@@ -454,4 +454,6 @@ TEST_CASE("exit") {
  R"(do i = 1, 5
         exit = 5
     end do)") == "(do i 1 5 () [(= exit 5)])");
+
+    CHECK(P("exit") == "exit");
 }

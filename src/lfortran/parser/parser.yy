@@ -246,7 +246,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 // ----------------------------------------------------------------------------
 // Top level rules to be used for parsing.
 
-// Higher %dprec means precedence
+// Higher %dprec means higher precedence
 
 units
     : units sep script_unit  %dprec 9  { RESULT($3); }
@@ -257,8 +257,8 @@ script_unit
     : program
     | subroutine
     | function
-    | statement
-    | expr
+    | statement              %dprec 7
+    | expr                   %dprec 8
     ;
 
 // ----------------------------------------------------------------------------
