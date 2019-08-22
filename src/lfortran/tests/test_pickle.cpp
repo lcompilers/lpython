@@ -237,6 +237,12 @@ TEST_CASE("if") {
     end subroutine)")   == "(sub [(if x [(= a 5)] [])])");
 
     CHECK(P(R"(subroutine g
+    if (x) then
+        endif = 5
+    ENDIF
+    end subroutine)")   == "(sub [(if x [(= endif 5)] [])])");
+
+    CHECK(P(R"(subroutine g
     if (else) then
         a = 5
         b = 4
