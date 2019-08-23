@@ -27,6 +27,7 @@ public:
         if (start != nullptr) free(start);
     }
 
+    // Allocates `s` bytes of memory, returns a pointer to it
     void *malloc(size_t s) {
         LFORTRAN_ASSERT(start != nullptr);
         size_t addr = current_pos;
@@ -35,10 +36,19 @@ public:
         return (void*)addr;
     }
 
+    // Allocates `n` elements of type T, returns the pointer T* to the first
+    // element
     template <typename T> T* alloc(size_t n) {
         return (T *)malloc(sizeof(T) * n);
     }
 
+    // Just like `new`, but using Allocator
+    // The following two both construct the same instance MyInt(5), but first
+    // uses the default C++ allocator, while the second uses Allocator
+    // MyInt *n = new MyInt(5);          // Default C++ allocator
+    //
+    // Allocator al(1024);
+    // MyInt *n = al.make_new<MyInt>(5); // Allocator
     template <typename T, typename... Args> T* make_new(Args &&... args) {
         return new(malloc(sizeof(T))) T(std::forward<Args>(args)...);
         // To test the default "new", comment the above and uncomment this:
