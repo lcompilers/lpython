@@ -276,19 +276,26 @@ program
             $$ = PROGRAM($2, $4, @$); }
     ;
 
+// id?
 id_opt
     : id
     | %empty
     ;
 
 subroutine
-    : KW_SUBROUTINE id sep statements sep KW_END KW_SUBROUTINE {
-            $$ = SUBROUTINE($2, $4, @$); }
+    : KW_SUBROUTINE id sep var_decl_star statements sep KW_END KW_SUBROUTINE {
+            $$ = SUBROUTINE($2, $5, @$); }
     ;
 
 function
-    : KW_FUNCTION id sep statements sep KW_END KW_FUNCTION {
-            $$ = FUNCTION($2, $4, @$); }
+    : KW_FUNCTION id sep var_decl_star statements sep KW_END KW_FUNCTION {
+            $$ = FUNCTION($2, $5, @$); }
+    ;
+
+// var_decl*
+var_decl_star
+    : var_decl_star var_decl sep
+    | %empty
     ;
 
 var_decl
