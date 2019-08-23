@@ -70,22 +70,23 @@ static inline do_loop_head_t DOLOOP_HEAD(const expr_t *i, expr_t *a,
     return s;
 }
 
-static inline unit_decl2_t** DECLS(Allocator &al, const YYSTYPE::Vec &x)
-{
-    unit_decl2_t **s = (unit_decl2_t**)x.p;
+template <typename T, astType type>
+static inline T** vec_cast(const YYSTYPE::Vec &x) {
+    T **s = (T**)x.p;
     for (size_t i=0; i < x.n; i++) {
-        LFORTRAN_ASSERT(s[i]->base.type == astType::unit_decl2)
+        LFORTRAN_ASSERT((s[i]->base.type == type))
     }
     return s;
 }
 
+static inline unit_decl2_t** DECLS(Allocator &al, const YYSTYPE::Vec &x)
+{
+    return vec_cast<unit_decl2_t, astType::unit_decl2>(x);
+}
+
 static inline stmt_t** STMTS(Allocator &al, const YYSTYPE::Vec &x)
 {
-    stmt_t **s = (stmt_t**)x.p;
-    for (size_t i=0; i < x.n; i++) {
-        LFORTRAN_ASSERT(s[i]->base.type == astType::stmt)
-    }
-    return s;
+    return vec_cast<stmt_t, astType::stmt>(x);
 }
 
 static inline stmt_t** IFSTMTS(Allocator &al, ast_t* x)
