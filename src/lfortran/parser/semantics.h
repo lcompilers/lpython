@@ -79,7 +79,7 @@ static inline stmt_t** STMTS(Allocator &al, const YYSTYPE::Vec &x)
 
 static inline stmt_t** IFSTMTS(Allocator &al, ast_t* x)
 {
-    stmt_t **s = al.alloc<stmt_t*>(1);
+    stmt_t **s = al.allocate<stmt_t*>(1);
     LFORTRAN_ASSERT(x->type == astType::stmt);
     *s = (stmt_t*)x;
     LFORTRAN_ASSERT((*s)->base.type == astType::stmt)

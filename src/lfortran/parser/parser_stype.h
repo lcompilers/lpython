@@ -20,12 +20,12 @@ union YYSTYPE {
         void reserve(Allocator &al, size_t max) {
             n = 0;
             this->max = max;
-            p = al.alloc<LFortran::AST::ast_t*>(max);
+            p = al.allocate<LFortran::AST::ast_t*>(max);
         }
         void push_back(Allocator &al, LFortran::AST::ast_t *x) {
             if (n == max) {
                 size_t max2 = 2*max;
-                LFortran::AST::ast_t** p2 = al.alloc<LFortran::AST::ast_t*>(max2);
+                LFortran::AST::ast_t** p2 = al.allocate<LFortran::AST::ast_t*>(max2);
                 std::memcpy(p2, p, sizeof(LFortran::AST::ast_t*) * max);
                 p = p2;
                 max = max2;
@@ -44,7 +44,7 @@ union YYSTYPE {
         // Returns a copy of the string as a NULL terminated C string,
         // allocated using Allocator
         char* c_str(Allocator &al) const {
-            char *s = al.alloc<char>(n+1);
+            char *s = al.allocate<char>(n+1);
             std::memcpy(s, p, sizeof(char) * n);
             s[n] = '\0';
             return s;

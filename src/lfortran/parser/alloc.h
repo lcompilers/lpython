@@ -28,7 +28,7 @@ public:
     }
 
     // Allocates `s` bytes of memory, returns a pointer to it
-    void *malloc(size_t s) {
+    void *alloc(size_t s) {
         LFORTRAN_ASSERT(start != nullptr);
         size_t addr = current_pos;
         current_pos += align(s);
@@ -38,8 +38,8 @@ public:
 
     // Allocates `n` elements of type T, returns the pointer T* to the first
     // element
-    template <typename T> T* alloc(size_t n) {
-        return (T *)malloc(sizeof(T) * n);
+    template <typename T> T* allocate(size_t n) {
+        return (T *)alloc(sizeof(T) * n);
     }
 
     // Just like `new`, but using Allocator
@@ -50,7 +50,7 @@ public:
     // Allocator al(1024);
     // MyInt *n = al.make_new<MyInt>(5); // Allocator
     template <typename T, typename... Args> T* make_new(Args &&... args) {
-        return new(malloc(sizeof(T))) T(std::forward<Args>(args)...);
+        return new(alloc(sizeof(T))) T(std::forward<Args>(args)...);
         // To test the default "new", comment the above and uncomment this:
         //return new T(std::forward<Args>(args)...);
     }
