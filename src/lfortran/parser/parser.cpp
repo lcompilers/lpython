@@ -11,6 +11,7 @@ LFortran::AST::ast_t *parse(Allocator &al, const std::string &s)
 {
     Parser p(al);
     p.parse(s);
+    LFORTRAN_ASSERT(p.result.size() >= 1);
     return p.result[0];
 }
 

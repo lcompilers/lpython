@@ -22,9 +22,11 @@ using LFortran::AST::operatorType;
 using LFortran::AST::stmtType;
 
 using LFortran::AST::ast_t;
+using LFortran::AST::decl_t;
 using LFortran::AST::do_loop_head_t;
 using LFortran::AST::expr_t;
 using LFortran::AST::stmt_t;
+using LFortran::AST::unit_decl2_t;
 
 using LFortran::AST::Assignment_t;
 using LFortran::AST::Name_t;
@@ -68,6 +70,15 @@ static inline do_loop_head_t DOLOOP_HEAD(const expr_t *i, expr_t *a,
     return s;
 }
 
+static inline unit_decl2_t** DECLS(Allocator &al, const YYSTYPE::Vec &x)
+{
+    unit_decl2_t **s = (unit_decl2_t**)x.p;
+    for (size_t i=0; i < x.n; i++) {
+        LFORTRAN_ASSERT(s[i]->base.type == astType::unit_decl2)
+    }
+    return s;
+}
+
 static inline stmt_t** STMTS(Allocator &al, const YYSTYPE::Vec &x)
 {
     stmt_t **s = (stmt_t**)x.p;
@@ -100,6 +111,16 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
     return make_Name_t(al, loc, s);
 }
 
+static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
+{
+    decl_t *s = al.allocate<decl_t>();
+    s->m_sym = name2char(EXPR(x));
+    s->m_sym_type = type.c_str(al);
+    s->m_dims = nullptr;
+    s->m_attrs = nullptr;
+    return s;
+}
+
 
 #define TYPE ast_t*
 #define ADD(x, y, l) make_BinOp_t(p.m_a, l, EXPR(x), operatorType::Add, EXPR(y))
@@ -113,19 +134,19 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
 #define EXIT(l) make_Exit_t(p.m_a, l)
 #define RETURN(l) make_Return_t(p.m_a, l)
 #define CYCLE(l) make_Cycle_t(p.m_a, l)
-#define SUBROUTINE(name, stmts, l) make_Subroutine_t(p.m_a, l, \
+#define SUBROUTINE(name, decl, stmts, l) make_Subroutine_t(p.m_a, l, \
         /*name*/ nullptr, \
         /*args*/ nullptr, \
         /*n_args*/ 0, \
         /*use*/ nullptr, \
         /*n_use*/ 0, \
-        /*decl*/ nullptr, \
-        /*n_decl*/ 0, \
+        /*decl*/ DECLS(p.m_a, decl), \
+        /*n_decl*/ decl.n, \
         /*body*/ STMTS(p.m_a, stmts), \
         /*n_body*/ stmts.n, \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
-#define FUNCTION(name, stmts, l) make_Function_t(p.m_a, l, \
+#define FUNCTION(name, decl, stmts, l) make_Function_t(p.m_a, l, \
         /*name*/ nullptr, \
         /*args*/ nullptr, \
         /*n_args*/ 0, \
@@ -134,18 +155,18 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
         /*bind*/ nullptr, \
         /*use*/ nullptr, \
         /*n_use*/ 0, \
-        /*decl*/ nullptr, \
-        /*n_decl*/ 0, \
+        /*decl*/ DECLS(p.m_a, decl), \
+        /*n_decl*/ decl.n, \
         /*body*/ STMTS(p.m_a, stmts), \
         /*n_body*/ stmts.n, \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
-#define PROGRAM(name, stmts, l) make_Program_t(p.m_a, l, \
+#define PROGRAM(name, decl, stmts, l) make_Program_t(p.m_a, l, \
         /*name*/ name2char(EXPR(name)), \
         /*use*/ nullptr, \
         /*n_use*/ 0, \
-        /*decl*/ nullptr, \
-        /*n_decl*/ 0, \
+        /*decl*/ DECLS(p.m_a, decl), \
+        /*n_decl*/ decl.n, \
         /*body*/ STMTS(p.m_a, stmts), \
         /*n_body*/ stmts.n, \
         /*contains*/ nullptr, \
@@ -173,8 +194,8 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
         /*a_orelse*/ IFSTMTS(p.m_a, ifblock), \
         /*n_orelse*/ 1)
 
-#define STMTS_NEW(l) l.reserve(p.m_a, 4)
-#define STMTS_ADD(l, x) l.push_back(p.m_a, x)
+#define LIST_NEW(l) l.reserve(p.m_a, 4)
+#define LIST_ADD(l, x) l.push_back(p.m_a, x)
 
 #define WHILE(cond, body, l) make_WhileLoop_t(p.m_a, l, \
         /*test*/ EXPR(cond), \
@@ -195,5 +216,8 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
         /*head*/ DOLOOP_HEAD(EXPR(i), EXPR(a), EXPR(b), EXPR(c)), \
         /*body*/ STMTS(p.m_a, body), \
         /*n_body*/ body.n)
+
+#define VAR_DECL(type, sym, l) make_Declaration_t(p.m_a, l, \
+        DECL(p.m_a, sym, type), 1)
 
 #endif

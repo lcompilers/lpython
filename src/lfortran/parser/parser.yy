@@ -69,6 +69,10 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> program
 %type <ast> subroutine
 %type <ast> function
+%type <vec_ast> var_decl_star
+%type <ast> var_decl
+%type <ast> var_sym_decl
+%type <string> var_type
 %type <ast> statement
 %type <ast> assignment_statement
 %type <ast> if_statement
@@ -259,6 +263,7 @@ script_unit
     : program
     | subroutine
     | function
+    | var_decl
     | statement              %dprec 7
     | expr                   %dprec 8
     ;
@@ -268,31 +273,55 @@ script_unit
 
 
 program
-    : KW_PROGRAM id sep statements sep KW_END KW_PROGRAM id_opt {
-            $$ = PROGRAM($2, $4, @$); }
+    : KW_PROGRAM id sep var_decl_star statements sep KW_END KW_PROGRAM id_opt {
+            $$ = PROGRAM($2, $4, $5, @$); }
     ;
 
+// id?
 id_opt
     : id
     | %empty
     ;
 
 subroutine
-    : KW_SUBROUTINE id sep statements sep KW_END KW_SUBROUTINE {
-            $$ = SUBROUTINE($2, $4, @$); }
+    : KW_SUBROUTINE id sep var_decl_star statements sep KW_END KW_SUBROUTINE {
+            $$ = SUBROUTINE($2, $4, $5, @$); }
     ;
 
 function
-    : KW_FUNCTION id sep statements sep KW_END KW_FUNCTION {
-            $$ = FUNCTION($2, $4, @$); }
+    : KW_FUNCTION id sep var_decl_star statements sep KW_END KW_FUNCTION {
+            $$ = FUNCTION($2, $4, $5, @$); }
+    ;
+
+// var_decl*
+var_decl_star
+    : var_decl_star var_decl sep { $$ = $1; LIST_ADD($$, $2); }
+    | %empty { LIST_NEW($$); }
+    ;
+
+var_decl
+    : var_type var_sym_decl { $$ = VAR_DECL($1, $2, @$); }
+    ;
+
+var_type
+    : KW_INTEGER
+    | KW_CHARACTER
+    | KW_REAL
+    | KW_COMPLEX
+    | KW_LOGICAL
+    | KW_TYPE
+    ;
+
+var_sym_decl
+    : id
     ;
 
 // -----------------------------------------------------------------------------
 // Control flow
 
 statements
-    : statements sep statement { $$ = $1; STMTS_ADD($$, $3); }
-    | statement { STMTS_NEW($$); STMTS_ADD($$, $1); }
+    : statements sep statement { $$ = $1; LIST_ADD($$, $3); }
+    | statement { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 sep
