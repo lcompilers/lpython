@@ -555,4 +555,9 @@ TEST_CASE("declaration") {
     Allocator al(4*1024);
 
     CHECK(P("integer x") == "(decl x integer)");
+    CHECK(P("character x") == "(decl x character)");
+    CHECK(P("real x") == "(decl x real)");
+    CHECK(P("complex x") == "(decl x complex)");
+    CHECK(P("logical x") == "(decl x logical)");
+    CHECK(P("type x") == "(decl x type)");
 }
