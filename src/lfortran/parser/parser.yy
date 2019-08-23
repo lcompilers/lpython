@@ -285,7 +285,7 @@ id_opt
 
 subroutine
     : KW_SUBROUTINE id sep var_decl_star statements sep KW_END KW_SUBROUTINE {
-            $$ = SUBROUTINE($2, $5, @$); }
+            $$ = SUBROUTINE($2, $4, $5, @$); }
     ;
 
 function

@@ -134,14 +134,14 @@ static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
 #define EXIT(l) make_Exit_t(p.m_a, l)
 #define RETURN(l) make_Return_t(p.m_a, l)
 #define CYCLE(l) make_Cycle_t(p.m_a, l)
-#define SUBROUTINE(name, stmts, l) make_Subroutine_t(p.m_a, l, \
+#define SUBROUTINE(name, decl, stmts, l) make_Subroutine_t(p.m_a, l, \
         /*name*/ nullptr, \
         /*args*/ nullptr, \
         /*n_args*/ 0, \
         /*use*/ nullptr, \
         /*n_use*/ 0, \
-        /*decl*/ nullptr, \
-        /*n_decl*/ 0, \
+        /*decl*/ DECLS(p.m_a, decl), \
+        /*n_decl*/ decl.n, \
         /*body*/ STMTS(p.m_a, stmts), \
         /*n_body*/ stmts.n, \
         /*contains*/ nullptr, \

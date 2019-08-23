@@ -73,13 +73,13 @@ TEST_CASE("Subroutines") {
     CHECK(P(R"(subroutine g
     x = y
     x = 2*y
-    end subroutine)")   == "(sub [(= x y) (= x (* 2 y))])");
+    end subroutine)")   == "(sub [] [(= x y) (= x (* 2 y))])");
 
     CHECK(P(R"(subroutine g
     x = y
 
     x = 2*y
-    end subroutine)")   == "(sub [(= x y) (= x (* 2 y))])");
+    end subroutine)")   == "(sub [] [(= x y) (= x (* 2 y))])");
 
     CHECK(P(R"(subroutine g
 
@@ -90,30 +90,30 @@ TEST_CASE("Subroutines") {
 
 
 
-    end subroutine)")   == "(sub [(= x y) (= x (* 2 y))])");
+    end subroutine)")   == "(sub [] [(= x y) (= x (* 2 y))])");
 
     CHECK(P(R"(subroutine g
     x = y
     ;;;;;; ; ; ;
     x = 2*y
-    end subroutine)")   == "(sub [(= x y) (= x (* 2 y))])");
+    end subroutine)")   == "(sub [] [(= x y) (= x (* 2 y))])");
 
     CHECK(P(R"(subroutine g
     x = y;
     x = 2*y;
-    end subroutine)")   == "(sub [(= x y) (= x (* 2 y))])");
+    end subroutine)")   == "(sub [] [(= x y) (= x (* 2 y))])");
 
     CHECK(P(R"(subroutine g
     x = y; ;
     x = 2*y;; ;
-    end subroutine)")   == "(sub [(= x y) (= x (* 2 y))])");
+    end subroutine)")   == "(sub [] [(= x y) (= x (* 2 y))])");
 
-    CHECK(P("subroutine g; x = y; x = 2*y; end subroutine") == "(sub [(= x y) (= x (* 2 y))])");
+    CHECK(P("subroutine g; x = y; x = 2*y; end subroutine") == "(sub [] [(= x y) (= x (* 2 y))])");
 
     CHECK(P(R"(subroutine f
     subroutine = y
     x = 2*subroutine
-    end subroutine)")   == "(sub [(= subroutine y) (= x (* 2 subroutine))])");
+    end subroutine)")   == "(sub [] [(= subroutine y) (= x (* 2 subroutine))])");
 }
 
 TEST_CASE("Functions") {
@@ -233,25 +233,25 @@ TEST_CASE("if") {
         a = 5
         b = 4
     end if
-    end subroutine)")   == "(sub [(if x [(= a 5) (= b 4)] [])])");
+    end subroutine)")   == "(sub [] [(if x [(= a 5) (= b 4)] [])])");
 
     CHECK(P(R"(subroutine g
     if (x) then
         a = 5
     end   If
-    end subroutine)")   == "(sub [(if x [(= a 5)] [])])");
+    end subroutine)")   == "(sub [] [(if x [(= a 5)] [])])");
 
     CHECK(P(R"(subroutine g
     if (x) then
         a = 5
     ENDIF
-    end subroutine)")   == "(sub [(if x [(= a 5)] [])])");
+    end subroutine)")   == "(sub [] [(if x [(= a 5)] [])])");
 
     CHECK(P(R"(subroutine g
     if (x) then
         endif = 5
     ENDIF
-    end subroutine)")   == "(sub [(if x [(= endif 5)] [])])");
+    end subroutine)")   == "(sub [] [(if x [(= endif 5)] [])])");
 
     CHECK_THROWS_AS(P(R"(subroutine g
     if (x) then
@@ -264,14 +264,14 @@ TEST_CASE("if") {
         a = 5
         b = 4
     end if
-    end subroutine)")   == "(sub [(if else [(= a 5) (= b 4)] [])])");
+    end subroutine)")   == "(sub [] [(if else [(= a 5) (= b 4)] [])])");
 
     CHECK(P(R"(subroutine g
     if (else) then
         then = 5
         else = 4
     end if
-    end subroutine)")   == "(sub [(if else [(= then 5) (= else 4)] [])])");
+    end subroutine)")   == "(sub [] [(if else [(= then 5) (= else 4)] [])])");
 
     CHECK(P(R"(subroutine g
     if (x) then
@@ -279,7 +279,7 @@ TEST_CASE("if") {
     else
         b = 4
     end if
-    end subroutine)")   == "(sub [(if x [(= a 5)] [(= b 4)])])");
+    end subroutine)")   == "(sub [] [(if x [(= a 5)] [(= b 4)])])");
 
     CHECK(P(R"(subroutine g
     if (x) then
@@ -289,7 +289,7 @@ TEST_CASE("if") {
         b = 4
         e = 5
     end if
-    end subroutine)")   == "(sub [(if x [(= a 5) (= c 7)] [(= b 4) (= e 5)])])");
+    end subroutine)")   == "(sub [] [(if x [(= a 5) (= c 7)] [(= b 4) (= e 5)])])");
 
     CHECK(P(R"(subroutine g
     if (else) then
@@ -297,7 +297,7 @@ TEST_CASE("if") {
     else
         else = 4
     end if
-    end subroutine)")   == "(sub [(if else [(= else 5)] [(= else 4)])])");
+    end subroutine)")   == "(sub [] [(if else [(= else 5)] [(= else 4)])])");
 
     CHECK(P(R"(subroutine g
     if (x) then
@@ -305,7 +305,7 @@ TEST_CASE("if") {
     else if (y) then
         b = 4
     end if
-    end subroutine)") == "(sub [(if x [(= a 5)] [(if y [(= b 4)] [])])])");
+    end subroutine)") == "(sub [] [(if x [(= a 5)] [(if y [(= b 4)] [])])])");
 
     CHECK(P(R"(subroutine g
     if (x) then
@@ -315,7 +315,7 @@ TEST_CASE("if") {
     else if (z) then
         c = 3
     end if
-    end subroutine)") == "(sub [(if x [(= a 5)] [(if y [(= b 4)] [(if z [(= c 3)] [])])])])");
+    end subroutine)") == "(sub [] [(if x [(= a 5)] [(if y [(= b 4)] [(if z [(= c 3)] [])])])])");
 
     CHECK_THROWS_AS(P(R"(subroutine g
     if (else) then
@@ -335,7 +335,7 @@ TEST_CASE("if") {
     else
         c = 3
     end if
-    end subroutine)") == "(sub [(if x [(= a 5)] [(if y [(= b 4)] [(= c 3)])])])");
+    end subroutine)") == "(sub [] [(if x [(= a 5)] [(if y [(= b 4)] [(= c 3)])])])");
 
     CHECK(P(R"(subroutine g
     if (x) then
@@ -346,7 +346,7 @@ TEST_CASE("if") {
             c = 3
         end if
     end if
-    end subroutine)") == "(sub [(if x [(= a 5) (if y [(= b 4)] [(= c 3)])] [])])");
+    end subroutine)") == "(sub [] [(if x [(= a 5) (if y [(= b 4)] [(= c 3)])] [])])");
 
     CHECK(P(R"(subroutine g
     if (x) then
@@ -357,7 +357,7 @@ TEST_CASE("if") {
     else
         c = 3
     end if
-    end subroutine)") == "(sub [(if x [(= a 5) (if y [(= b 4)] [])] [(= c 3)])])");
+    end subroutine)") == "(sub [] [(if x [(= a 5) (if y [(= b 4)] [])] [(= c 3)])])");
 
     CHECK(P(
  R"(if (x) then
@@ -429,7 +429,7 @@ TEST_CASE("do loop") {
         a = a + i
         b = 3
     enddo
-    end subroutine)") == "(sub [(do () () () () [(= a (+ a i)) (= b 3)])])");
+    end subroutine)") == "(sub [] [(do () () () () [(= a (+ a i)) (= b 3)])])");
 
     CHECK(P(
  R"(do
@@ -524,7 +524,7 @@ TEST_CASE("return") {
     x = y
     return
     x = 2*y
-    end subroutine)")   == "(sub [(= x y) (return) (= x (* 2 y))])");
+    end subroutine)")   == "(sub [] [(= x y) (return) (= x (* 2 y))])");
 
     CHECK(P(
  R"(do i = 1, 5
@@ -565,4 +565,9 @@ TEST_CASE("declaration") {
     integer x
     x = 1
     end function)")   == "(fn [(decl x integer)] [(= x 1)])");
+
+    CHECK(P(R"(subroutine g
+    integer x
+    x = 1
+    end subroutine)")   == "(sub [(decl x integer)] [(= x 1)])");
 }
