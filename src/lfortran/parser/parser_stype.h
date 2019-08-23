@@ -33,6 +33,9 @@ union YYSTYPE {
             p[n] = x;
             n++;
         }
+        size_t size() const {
+            return n;
+        }
     } vec_ast;
 
     // String implementation (not null-terminated)
@@ -48,6 +51,9 @@ union YYSTYPE {
             std::memcpy(s, p, sizeof(char) * n);
             s[n] = '\0';
             return s;
+        }
+        size_t size() const {
+            return n;
         }
     } string;
 };

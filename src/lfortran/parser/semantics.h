@@ -73,7 +73,7 @@ static inline do_loop_head_t DOLOOP_HEAD(const expr_t *i, expr_t *a,
 template <typename T, astType type>
 static inline T** vec_cast(const YYSTYPE::Vec &x) {
     T **s = (T**)x.p;
-    for (size_t i=0; i < x.n; i++) {
+    for (size_t i=0; i < x.size(); i++) {
         LFORTRAN_ASSERT((s[i]->base.type == type))
     }
     return s;
@@ -102,7 +102,7 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
     // substring), and a length. And provide functions to deal with the
     // non-zero terminated string properly. That will be much faster.
     char *s = x.c_str(al);
-    LFORTRAN_ASSERT(s[x.n] == '\0');
+    LFORTRAN_ASSERT(s[x.size()] == '\0');
     return make_Name_t(al, loc, s);
 }
 
@@ -136,9 +136,9 @@ static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
         /*use*/ nullptr, \
         /*n_use*/ 0, \
         /*decl*/ DECLS(decl), \
-        /*n_decl*/ decl.n, \
+        /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \
-        /*n_body*/ stmts.n, \
+        /*n_body*/ stmts.size(), \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
 #define FUNCTION(name, decl, stmts, l) make_Function_t(p.m_a, l, \
@@ -151,9 +151,9 @@ static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
         /*use*/ nullptr, \
         /*n_use*/ 0, \
         /*decl*/ DECLS(decl), \
-        /*n_decl*/ decl.n, \
+        /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \
-        /*n_body*/ stmts.n, \
+        /*n_body*/ stmts.size(), \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
 #define PROGRAM(name, decl, stmts, l) make_Program_t(p.m_a, l, \
@@ -161,9 +161,9 @@ static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
         /*use*/ nullptr, \
         /*n_use*/ 0, \
         /*decl*/ DECLS(decl), \
-        /*n_decl*/ decl.n, \
+        /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \
-        /*n_body*/ stmts.n, \
+        /*n_body*/ stmts.size(), \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
 #define RESULT(x) p.result.push_back(x)
@@ -171,21 +171,21 @@ static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
 #define IF1(cond, body, l) make_If_t(p.m_a, l, \
         /*test*/ EXPR(cond), \
         /*body*/ STMTS(body), \
-        /*n_body*/ body.n, \
+        /*n_body*/ body.size(), \
         /*a_orelse*/ nullptr, \
         /*n_orelse*/ 0)
 
 #define IF2(cond, body, orelse, l) make_If_t(p.m_a, l, \
         /*test*/ EXPR(cond), \
         /*body*/ STMTS(body), \
-        /*n_body*/ body.n, \
+        /*n_body*/ body.size(), \
         /*a_orelse*/ STMTS(orelse), \
-        /*n_orelse*/ orelse.n)
+        /*n_orelse*/ orelse.size())
 
 #define IF3(cond, body, ifblock, l) make_If_t(p.m_a, l, \
         /*test*/ EXPR(cond), \
         /*body*/ STMTS(body), \
-        /*n_body*/ body.n, \
+        /*n_body*/ body.size(), \
         /*a_orelse*/ IFSTMTS(p.m_a, ifblock), \
         /*n_orelse*/ 1)
 
@@ -195,22 +195,22 @@ static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
 #define WHILE(cond, body, l) make_WhileLoop_t(p.m_a, l, \
         /*test*/ EXPR(cond), \
         /*body*/ STMTS(body), \
-        /*n_body*/ body.n)
+        /*n_body*/ body.size())
 
 #define DO1(body, l) make_DoLoop_t(p.m_a, l, \
         /*head*/ DOLOOP_HEAD(nullptr, nullptr, nullptr, nullptr), \
         /*body*/ STMTS(body), \
-        /*n_body*/ body.n)
+        /*n_body*/ body.size())
 
 #define DO2(i, a, b, body, l) make_DoLoop_t(p.m_a, l, \
         /*head*/ DOLOOP_HEAD(EXPR(i), EXPR(a), EXPR(b), nullptr), \
         /*body*/ STMTS(body), \
-        /*n_body*/ body.n)
+        /*n_body*/ body.size())
 
 #define DO3(i, a, b, c, body, l) make_DoLoop_t(p.m_a, l, \
         /*head*/ DOLOOP_HEAD(EXPR(i), EXPR(a), EXPR(b), EXPR(c)), \
         /*body*/ STMTS(body), \
-        /*n_body*/ body.n)
+        /*n_body*/ body.size())
 
 #define VAR_DECL(type, sym, l) make_Declaration_t(p.m_a, l, \
         DECL(p.m_a, sym, type), 1)
