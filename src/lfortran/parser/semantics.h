@@ -46,13 +46,19 @@ static inline expr_t* EXPR(const ast_t *f)
     return (expr_t*)f;
 }
 
+static inline char* name2char(const expr_t *n)
+{
+    LFORTRAN_ASSERT(n->type == exprType::Name)
+    char *s = ((Name_t*)n)->m_id;
+    return s;
+}
+
 static inline do_loop_head_t DOLOOP_HEAD(const expr_t *i, expr_t *a,
         expr_t *b, expr_t *c)
 {
     do_loop_head_t s;
     if (i) {
-        LFORTRAN_ASSERT(i->type == exprType::Name)
-        s.m_var = ((Name_t*)i)->m_id;
+        s.m_var = name2char(i);
     } else {
         s.m_var = nullptr;
     }
@@ -77,13 +83,6 @@ static inline stmt_t** IFSTMTS(Allocator &al, ast_t* x)
     LFORTRAN_ASSERT(x->type == astType::stmt);
     *s = (stmt_t*)x;
     LFORTRAN_ASSERT((*s)->base.type == astType::stmt)
-    return s;
-}
-
-static inline char* name2char(const expr_t *n)
-{
-    LFORTRAN_ASSERT(n->type == exprType::Name)
-    char *s = ((Name_t*)n)->m_id;
     return s;
 }
 
