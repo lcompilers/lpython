@@ -550,3 +550,9 @@ TEST_CASE("return") {
     CHECK(P("return=1") == "(= return 1)");
     CHECK(P("a=return") == "(= a return)");
 }
+
+TEST_CASE("declaration") {
+    Allocator al(4*1024);
+
+    CHECK(P("integer x") == "(decl x integer");
+}

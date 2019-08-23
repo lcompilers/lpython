@@ -2,6 +2,7 @@
 #include <lfortran/pickle.h>
 
 using LFortran::AST::ast_t;
+using LFortran::AST::Declaration_t;
 using LFortran::AST::expr_t;
 using LFortran::AST::stmt_t;
 using LFortran::AST::Name_t;
@@ -213,6 +214,14 @@ public:
     }
     void visit_Cycle(const Cycle_t &x) {
         s.append("(cycle)");
+    }
+    void visit_Declaration(const Declaration_t &x) {
+        s.append("(decl ");
+        LFORTRAN_ASSERT(x.n_vars == 1);
+        s.append(x.m_vars[0].m_sym);
+        s.append(" ");
+        s.append(x.m_vars[0].m_sym_type);
+        s.append(")");
     }
     void visit_Name(const Name_t &x) {
         s.append(x.m_id);
