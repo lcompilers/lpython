@@ -38,7 +38,7 @@ public:
 
     // Allocates `n` elements of type T, returns the pointer T* to the first
     // element
-    template <typename T> T* allocate(size_t n) {
+    template <typename T> T* allocate(size_t n=1) {
         return (T *)alloc(sizeof(T) * n);
     }
 
