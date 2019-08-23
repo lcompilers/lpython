@@ -554,5 +554,5 @@ TEST_CASE("return") {
 TEST_CASE("declaration") {
     Allocator al(4*1024);
 
-    CHECK(P("integer x") == "(decl x integer");
+    CHECK(P("integer x") == "(decl x integer)");
 }

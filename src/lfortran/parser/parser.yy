@@ -292,7 +292,7 @@ function
     ;
 
 var_decl
-    : var_type var_sym_decl { VAR_DECL($1, $2, @$); }
+    : var_type var_sym_decl { $$ = VAR_DECL($1, $2, @$); }
     ;
 
 var_type
