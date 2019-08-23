@@ -27,7 +27,7 @@ public:
         if (start != nullptr) free(start);
     }
 
-    void *allocate(size_t s) {
+    void *malloc(size_t s) {
         LFORTRAN_ASSERT(start != nullptr);
         size_t addr = current_pos;
         current_pos += align(s);
@@ -36,11 +36,11 @@ public:
     }
 
     template <typename T> T* alloc(size_t n) {
-        return (T *)allocate(sizeof(T) * n);
+        return (T *)malloc(sizeof(T) * n);
     }
 
     template <typename T, typename... Args> T* make_new(Args &&... args) {
-        return new(allocate(sizeof(T))) T(std::forward<Args>(args)...);
+        return new(malloc(sizeof(T))) T(std::forward<Args>(args)...);
         // To test the default "new", comment the above and uncomment this:
         //return new T(std::forward<Args>(args)...);
     }
