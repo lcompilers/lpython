@@ -103,7 +103,7 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
 
 static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
 {
-    decl_t *s = (decl_t*)al.allocate(sizeof(decl_t) * 1);
+    decl_t *s = al.allocate<decl_t>();
     s->m_sym = name2char(EXPR(x));
     s->m_sym_type = type.c_str(al);
     s->m_dims = nullptr;
