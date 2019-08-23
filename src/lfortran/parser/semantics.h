@@ -22,6 +22,7 @@ using LFortran::AST::operatorType;
 using LFortran::AST::stmtType;
 
 using LFortran::AST::ast_t;
+using LFortran::AST::decl_t;
 using LFortran::AST::do_loop_head_t;
 using LFortran::AST::expr_t;
 using LFortran::AST::stmt_t;
@@ -98,6 +99,16 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
     char *s = x.c_str(al);
     LFORTRAN_ASSERT(s[x.n] == '\0');
     return make_Name_t(al, loc, s);
+}
+
+static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
+{
+    decl_t *s = (decl_t*)al.allocate(sizeof(decl_t) * 1);
+    s->m_sym = name2char(EXPR(x));
+    s->m_sym_type = type.c_str(al);
+    s->m_dims = nullptr;
+    s->m_attrs = nullptr;
+    return s;
 }
 
 
@@ -196,6 +207,7 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
         /*body*/ STMTS(p.m_a, body), \
         /*n_body*/ body.n)
 
-#define VAR_DECL(type, sym, l)
+#define VAR_DECL(type, sym, l) make_Declaration_t(p.m_a, l, \
+        DECL(p.m_a, sym, type), 1)
 
 #endif
