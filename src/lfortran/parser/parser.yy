@@ -69,6 +69,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> program
 %type <ast> subroutine
 %type <ast> function
+%type <vec_ast> var_decl_star
 %type <ast> var_decl
 %type <ast> var_sym_decl
 %type <string> var_type
@@ -289,13 +290,13 @@ subroutine
 
 function
     : KW_FUNCTION id sep var_decl_star statements sep KW_END KW_FUNCTION {
-            $$ = FUNCTION($2, $5, @$); }
+            $$ = FUNCTION($2, $4, $5, @$); }
     ;
 
 // var_decl*
 var_decl_star
-    : var_decl_star var_decl sep
-    | %empty
+    : var_decl_star var_decl sep { $$ = $1; LIST_ADD($$, $2); }
+    | %empty { LIST_NEW($$); }
     ;
 
 var_decl
@@ -319,8 +320,8 @@ var_sym_decl
 // Control flow
 
 statements
-    : statements sep statement { $$ = $1; STMTS_ADD($$, $3); }
-    | statement { STMTS_NEW($$); STMTS_ADD($$, $1); }
+    : statements sep statement { $$ = $1; LIST_ADD($$, $3); }
+    | statement { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 sep

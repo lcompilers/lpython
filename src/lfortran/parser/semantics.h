@@ -26,6 +26,7 @@ using LFortran::AST::decl_t;
 using LFortran::AST::do_loop_head_t;
 using LFortran::AST::expr_t;
 using LFortran::AST::stmt_t;
+using LFortran::AST::unit_decl2_t;
 
 using LFortran::AST::Assignment_t;
 using LFortran::AST::Name_t;
@@ -66,6 +67,15 @@ static inline do_loop_head_t DOLOOP_HEAD(const expr_t *i, expr_t *a,
     s.m_start = a;
     s.m_end = b;
     s.m_increment = c;
+    return s;
+}
+
+static inline unit_decl2_t** DECLS(Allocator &al, const YYSTYPE::Vec &x)
+{
+    unit_decl2_t **s = (unit_decl2_t**)x.p;
+    for (size_t i=0; i < x.n; i++) {
+        LFORTRAN_ASSERT(s[i]->base.type == astType::unit_decl2)
+    }
     return s;
 }
 
@@ -136,7 +146,7 @@ static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
         /*n_body*/ stmts.n, \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
-#define FUNCTION(name, stmts, l) make_Function_t(p.m_a, l, \
+#define FUNCTION(name, decl, stmts, l) make_Function_t(p.m_a, l, \
         /*name*/ nullptr, \
         /*args*/ nullptr, \
         /*n_args*/ 0, \
@@ -145,8 +155,8 @@ static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
         /*bind*/ nullptr, \
         /*use*/ nullptr, \
         /*n_use*/ 0, \
-        /*decl*/ nullptr, \
-        /*n_decl*/ 0, \
+        /*decl*/ DECLS(p.m_a, decl), \
+        /*n_decl*/ decl.n, \
         /*body*/ STMTS(p.m_a, stmts), \
         /*n_body*/ stmts.n, \
         /*contains*/ nullptr, \
@@ -184,8 +194,8 @@ static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
         /*a_orelse*/ IFSTMTS(p.m_a, ifblock), \
         /*n_orelse*/ 1)
 
-#define STMTS_NEW(l) l.reserve(p.m_a, 4)
-#define STMTS_ADD(l, x) l.push_back(p.m_a, x)
+#define LIST_NEW(l) l.reserve(p.m_a, 4)
+#define LIST_ADD(l, x) l.push_back(p.m_a, x)
 
 #define WHILE(cond, body, l) make_WhileLoop_t(p.m_a, l, \
         /*test*/ EXPR(cond), \
