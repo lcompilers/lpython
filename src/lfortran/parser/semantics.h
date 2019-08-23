@@ -46,13 +46,19 @@ static inline expr_t* EXPR(const ast_t *f)
     return (expr_t*)f;
 }
 
+static inline char* name2char(const expr_t *n)
+{
+    LFORTRAN_ASSERT(n->type == exprType::Name)
+    char *s = ((Name_t*)n)->m_id;
+    return s;
+}
+
 static inline do_loop_head_t DOLOOP_HEAD(const expr_t *i, expr_t *a,
         expr_t *b, expr_t *c)
 {
     do_loop_head_t s;
     if (i) {
-        LFORTRAN_ASSERT(i->type == exprType::Name)
-        s.m_var = ((Name_t*)i)->m_id;
+        s.m_var = name2char(i);
     } else {
         s.m_var = nullptr;
     }
@@ -80,13 +86,6 @@ static inline stmt_t** IFSTMTS(Allocator &al, ast_t* x)
     return s;
 }
 
-static inline char* name2char(const expr_t *n)
-{
-    LFORTRAN_ASSERT(n->type == exprType::Name)
-    char *s = ((Name_t*)n)->m_id;
-    return s;
-}
-
 static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
         const YYSTYPE::Str &x)
 {
@@ -96,11 +95,7 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
     // original source code (the string there is not zero terminated, as it's a
     // substring), and a length. And provide functions to deal with the
     // non-zero terminated string properly. That will be much faster.
-    char *s = (char *)al.allocate(sizeof(char) * (x.n+1));
-    for (size_t i=0; i < x.n; i++) {
-        s[i] = x.p[i];
-    }
-    s[x.n] = '\0';
+    char *s = x.c_str(al);
     LFORTRAN_ASSERT(s[x.n] == '\0');
     return make_Name_t(al, loc, s);
 }
