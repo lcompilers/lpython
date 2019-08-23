@@ -8,6 +8,7 @@ using LFortran::AST::stmt_t;
 using LFortran::AST::Name_t;
 using LFortran::AST::Num_t;
 using LFortran::AST::BinOp_t;
+using LFortran::AST::Compare_t;
 using LFortran::AST::If_t;
 using LFortran::AST::Assignment_t;
 using LFortran::AST::WhileLoop_t;
@@ -22,6 +23,7 @@ using LFortran::AST::astType;
 using LFortran::AST::exprType;
 using LFortran::AST::stmtType;
 using LFortran::AST::operatorType;
+using LFortran::AST::cmpopType;
 using LFortran::AST::BaseWalkVisitor;
 
 
@@ -55,6 +57,19 @@ std::string op2str(const operatorType type)
         case (operatorType::Mul) : return "*";
         case (operatorType::Div) : return "/";
         case (operatorType::Pow) : return "**";
+    }
+    throw std::runtime_error("Unknown type");
+}
+
+std::string compare2str(const cmpopType type)
+{
+    switch (type) {
+        case (cmpopType::Eq) : return "==";
+        case (cmpopType::NotEq) : return "/=";
+        case (cmpopType::Lt) : return "<";
+        case (cmpopType::LtE) : return "<=";
+        case (cmpopType::Gt) : return ">";
+        case (cmpopType::GtE) : return ">=";
     }
     throw std::runtime_error("Unknown type");
 }
@@ -215,6 +230,15 @@ public:
         s.append(" ");
         */
         s.append(op2str(x.m_op));
+        s.append(" ");
+        this->visit_expr(*x.m_left);
+        s.append(" ");
+        this->visit_expr(*x.m_right);
+        s.append(")");
+    }
+    void visit_Compare(const Compare_t &x) {
+        s.append("(");
+        s.append(compare2str(x.m_op));
         s.append(" ");
         this->visit_expr(*x.m_left);
         s.append(" ");
