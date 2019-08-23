@@ -41,7 +41,16 @@ union YYSTYPE {
     struct Str {
         size_t n;
         char* p;
+        // Returns a copy of the string as a NULL terminated std::string
         std::string str() const { return std::string(p, n); }
+        // Returns a copy of the string as a NULL terminated C string,
+        // allocated using Allocator
+        char* c_str(Allocator &al) const {
+            char *s = (char *)al.allocate(sizeof(char) * (n+1));
+            std::memcpy(s, p, sizeof(char) * n);
+            s[n] = '\0';
+            return s;
+        }
     } string;
 };
 

@@ -96,11 +96,7 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
     // original source code (the string there is not zero terminated, as it's a
     // substring), and a length. And provide functions to deal with the
     // non-zero terminated string properly. That will be much faster.
-    char *s = (char *)al.allocate(sizeof(char) * (x.n+1));
-    for (size_t i=0; i < x.n; i++) {
-        s[i] = x.p[i];
-    }
-    s[x.n] = '\0';
+    char *s = x.c_str(al);
     LFORTRAN_ASSERT(s[x.n] == '\0');
     return make_Name_t(al, loc, s);
 }
