@@ -67,6 +67,12 @@ TEST_CASE("Arithmetics") {
     CHECK_THROWS_AS(P("1+2**(*4)"), LFortran::ParserError);
 }
 
+TEST_CASE("Comparison") {
+    Allocator al(4*1024);
+
+    CHECK(P("1 == 2")   == "(== 1 2)");
+}
+
 TEST_CASE("Subroutines") {
     Allocator al(4*1024);
 
