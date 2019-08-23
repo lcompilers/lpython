@@ -70,7 +70,20 @@ TEST_CASE("Arithmetics") {
 TEST_CASE("Comparison") {
     Allocator al(4*1024);
 
-    CHECK(P("1 == 2")   == "(== 1 2)");
+    CHECK(P("1 == 2") == "(== 1 2)");
+    CHECK(P("1 /= 2") == "(/= 1 2)");
+    CHECK(P("1 < 2") == "(< 1 2)");
+    CHECK(P("1 <= 2") == "(<= 1 2)");
+    CHECK(P("1 > 2") == "(> 1 2)");
+    CHECK(P("1 >= 2") == "(>= 1 2)");
+
+    CHECK(P("1 == 2 + 3") == "(== 1 (+ 2 3))");
+    CHECK(P("1 + 3*4 <= 2 + 3") == "(<= (+ 1 (* 3 4)) (+ 2 3))");
+
+    // These are not valid Fortran, but we test that the parser follows the
+    // precedence rules correctly
+    CHECK(P("1 == 2 + 3 == 2") == "(== (== 1 (+ 2 3)) 2)");
+    CHECK(P("(1 == 2) + 3") == "(+ (== 1 2) 3)");
 }
 
 TEST_CASE("Subroutines") {
