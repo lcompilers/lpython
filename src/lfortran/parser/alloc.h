@@ -35,6 +35,10 @@ public:
         return (void*)addr;
     }
 
+    template <typename T> T* alloc(size_t n) {
+        return (T *)allocate(sizeof(T) * n);
+    }
+
     template <typename T, typename... Args> T* make_new(Args &&... args) {
         return new(allocate(sizeof(T))) T(std::forward<Args>(args)...);
         // To test the default "new", comment the above and uncomment this:
