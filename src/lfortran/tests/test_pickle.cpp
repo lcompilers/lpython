@@ -564,10 +564,22 @@ TEST_CASE("declaration") {
     CHECK(P(R"(function g
     integer x
     x = 1
-    end function)")   == "(fn [(decl x integer)] [(= x 1)])");
+    end function)") == "(fn [(decl x integer)] [(= x 1)])");
+
+    CHECK(P(R"(function g
+    integer x
+    real x
+    x = 1
+    end function)") == "(fn [(decl x integer) (decl x real)] [(= x 1)])");
 
     CHECK(P(R"(subroutine g
     integer x
     x = 1
-    end subroutine)")   == "(sub [(decl x integer)] [(= x 1)])");
+    end subroutine)") == "(sub [(decl x integer)] [(= x 1)])");
+
+    CHECK(P(R"(subroutine g
+    integer x
+    character x
+    x = 1
+    end subroutine)") == "(sub [(decl x integer) (decl x character)] [(= x 1)])");
 }
