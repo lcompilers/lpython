@@ -241,6 +241,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_WHILE
 %token <string> KW_WRITE
 
+%left TK_EQ TK_NE TK_LT TK_LE TK_GT TK_GE
 %left '-' '+'
 %left '*' '/'
 %right TK_POW
@@ -423,6 +424,12 @@ expr
 // ### level-3
 
 // ### level-4
+    | expr TK_EQ expr { $$ = EQ($1, $3, @$); }
+    | expr TK_NE expr { $$ = NE($1, $3, @$); }
+    | expr TK_LT expr { $$ = LT($1, $3, @$); }
+    | expr TK_LE expr { $$ = LE($1, $3, @$); }
+    | expr TK_GT expr { $$ = GT($1, $3, @$); }
+    | expr TK_GE expr { $$ = GE($1, $3, @$); }
 
 // ### level-5
 
