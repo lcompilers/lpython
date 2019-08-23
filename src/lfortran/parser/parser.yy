@@ -249,6 +249,10 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 
 %%
 
+// The order of rules does not matter in Bison (unlike in ANTLR). The
+// precedence is specified not by the order but by %left and %right directives
+// as well as with %dprec.
+
 // ----------------------------------------------------------------------------
 // Top level rules to be used for parsing.
 
@@ -402,14 +406,26 @@ cycle_statement
 // Fortran expression
 
 expr
-    : expr '+' expr { $$ = ADD($1, $3, @$); }
+// ### primary
+    : id { $$ = $1; }
+    | TK_INTEGER { $$ = INTEGER($1, @$); }
+    | '(' expr ')' { $$ = $2; }
+
+// ### level-1
+
+// ### level-2
+    | expr '+' expr { $$ = ADD($1, $3, @$); }
     | expr '-' expr { $$ = SUB($1, $3, @$); }
     | expr '*' expr { $$ = MUL($1, $3, @$); }
     | expr '/' expr { $$ = DIV($1, $3, @$); }
     | expr TK_POW expr { $$ = POW($1, $3, @$); }
-    | '(' expr ')' { $$ = $2; }
-    | id { $$ = $1; }
-    | TK_INTEGER { $$ = INTEGER($1, @$); }
+
+// ### level-3
+
+// ### level-4
+
+// ### level-5
+
     ;
 
 id
