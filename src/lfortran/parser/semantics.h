@@ -161,12 +161,12 @@ static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
         /*n_body*/ stmts.n, \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
-#define PROGRAM(name, stmts, l) make_Program_t(p.m_a, l, \
+#define PROGRAM(name, decl, stmts, l) make_Program_t(p.m_a, l, \
         /*name*/ name2char(EXPR(name)), \
         /*use*/ nullptr, \
         /*n_use*/ 0, \
-        /*decl*/ nullptr, \
-        /*n_decl*/ 0, \
+        /*decl*/ DECLS(p.m_a, decl), \
+        /*n_decl*/ decl.n, \
         /*body*/ STMTS(p.m_a, stmts), \
         /*n_body*/ stmts.n, \
         /*contains*/ nullptr, \

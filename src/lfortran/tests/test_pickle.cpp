@@ -147,7 +147,7 @@ TEST_CASE("Programs") {
     CHECK(P(R"(program g
     x = y
     x = 2*y
-    end program)")   == "(prog g [(= x y) (= x (* 2 y))])");
+    end program)")   == "(prog g [] [(= x y) (= x (* 2 y))])");
 
 
     CHECK(P(R"(program g
@@ -156,18 +156,18 @@ TEST_CASE("Programs") {
 
     x = 2*y;; ;
 
-    end program)")   == "(prog g [(= x y) (= x (* 2 y))])");
+    end program)")   == "(prog g [] [(= x y) (= x (* 2 y))])");
 
-    CHECK(P("program g; x = y; x = 2*y; end program") == "(prog g [(= x y) (= x (* 2 y))])");
+    CHECK(P("program g; x = y; x = 2*y; end program") == "(prog g [] [(= x y) (= x (* 2 y))])");
 
     CHECK(P(R"(program f
     subroutine = y
     x = 2*subroutine
-    end program)")   == "(prog f [(= subroutine y) (= x (* 2 subroutine))])");
+    end program)")   == "(prog f [] [(= subroutine y) (= x (* 2 subroutine))])");
 
     CHECK(P(R"(program g
     x = y
-    end program g)")   == "(prog g [(= x y)])");
+    end program g)")   == "(prog g [] [(= x y)])");
 
     /*
     CHECK(P(
@@ -582,4 +582,15 @@ TEST_CASE("declaration") {
     character x
     x = 1
     end subroutine)") == "(sub [(decl x integer) (decl x character)] [(= x 1)])");
+
+    CHECK(P(R"(program g
+    integer x
+    x = 1
+    end program)") == "(prog g [(decl x integer)] [(= x 1)])");
+
+    CHECK(P(R"(program g
+    integer x
+    complex x
+    x = 1
+    end program)") == "(prog g [(decl x integer) (decl x complex)] [(= x 1)])");
 }

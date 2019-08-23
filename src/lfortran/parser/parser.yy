@@ -273,8 +273,8 @@ script_unit
 
 
 program
-    : KW_PROGRAM id sep statements sep KW_END KW_PROGRAM id_opt {
-            $$ = PROGRAM($2, $4, @$); }
+    : KW_PROGRAM id sep var_decl_star statements sep KW_END KW_PROGRAM id_opt {
+            $$ = PROGRAM($2, $4, $5, @$); }
     ;
 
 // id?
