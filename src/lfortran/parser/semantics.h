@@ -79,15 +79,9 @@ static inline T** vec_cast(const YYSTYPE::Vec &x) {
     return s;
 }
 
-static inline unit_decl2_t** DECLS(Allocator &al, const YYSTYPE::Vec &x)
-{
-    return vec_cast<unit_decl2_t, astType::unit_decl2>(x);
-}
-
-static inline stmt_t** STMTS(Allocator &al, const YYSTYPE::Vec &x)
-{
-    return vec_cast<stmt_t, astType::stmt>(x);
-}
+#define VEC_CAST(x, type) vec_cast<type##_t, astType::type>(x)
+#define DECLS(x) VEC_CAST(x, unit_decl2)
+#define STMTS(x) VEC_CAST(x, stmt)
 
 static inline stmt_t** IFSTMTS(Allocator &al, ast_t* x)
 {
@@ -141,9 +135,9 @@ static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
         /*n_args*/ 0, \
         /*use*/ nullptr, \
         /*n_use*/ 0, \
-        /*decl*/ DECLS(p.m_a, decl), \
+        /*decl*/ DECLS(decl), \
         /*n_decl*/ decl.n, \
-        /*body*/ STMTS(p.m_a, stmts), \
+        /*body*/ STMTS(stmts), \
         /*n_body*/ stmts.n, \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
@@ -156,9 +150,9 @@ static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
         /*bind*/ nullptr, \
         /*use*/ nullptr, \
         /*n_use*/ 0, \
-        /*decl*/ DECLS(p.m_a, decl), \
+        /*decl*/ DECLS(decl), \
         /*n_decl*/ decl.n, \
-        /*body*/ STMTS(p.m_a, stmts), \
+        /*body*/ STMTS(stmts), \
         /*n_body*/ stmts.n, \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
@@ -166,9 +160,9 @@ static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
         /*name*/ name2char(EXPR(name)), \
         /*use*/ nullptr, \
         /*n_use*/ 0, \
-        /*decl*/ DECLS(p.m_a, decl), \
+        /*decl*/ DECLS(decl), \
         /*n_decl*/ decl.n, \
-        /*body*/ STMTS(p.m_a, stmts), \
+        /*body*/ STMTS(stmts), \
         /*n_body*/ stmts.n, \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
@@ -176,21 +170,21 @@ static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
 
 #define IF1(cond, body, l) make_If_t(p.m_a, l, \
         /*test*/ EXPR(cond), \
-        /*body*/ STMTS(p.m_a, body), \
+        /*body*/ STMTS(body), \
         /*n_body*/ body.n, \
         /*a_orelse*/ nullptr, \
         /*n_orelse*/ 0)
 
 #define IF2(cond, body, orelse, l) make_If_t(p.m_a, l, \
         /*test*/ EXPR(cond), \
-        /*body*/ STMTS(p.m_a, body), \
+        /*body*/ STMTS(body), \
         /*n_body*/ body.n, \
-        /*a_orelse*/ STMTS(p.m_a, orelse), \
+        /*a_orelse*/ STMTS(orelse), \
         /*n_orelse*/ orelse.n)
 
 #define IF3(cond, body, ifblock, l) make_If_t(p.m_a, l, \
         /*test*/ EXPR(cond), \
-        /*body*/ STMTS(p.m_a, body), \
+        /*body*/ STMTS(body), \
         /*n_body*/ body.n, \
         /*a_orelse*/ IFSTMTS(p.m_a, ifblock), \
         /*n_orelse*/ 1)
@@ -200,22 +194,22 @@ static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
 
 #define WHILE(cond, body, l) make_WhileLoop_t(p.m_a, l, \
         /*test*/ EXPR(cond), \
-        /*body*/ STMTS(p.m_a, body), \
+        /*body*/ STMTS(body), \
         /*n_body*/ body.n)
 
 #define DO1(body, l) make_DoLoop_t(p.m_a, l, \
         /*head*/ DOLOOP_HEAD(nullptr, nullptr, nullptr, nullptr), \
-        /*body*/ STMTS(p.m_a, body), \
+        /*body*/ STMTS(body), \
         /*n_body*/ body.n)
 
 #define DO2(i, a, b, body, l) make_DoLoop_t(p.m_a, l, \
         /*head*/ DOLOOP_HEAD(EXPR(i), EXPR(a), EXPR(b), nullptr), \
-        /*body*/ STMTS(p.m_a, body), \
+        /*body*/ STMTS(body), \
         /*n_body*/ body.n)
 
 #define DO3(i, a, b, c, body, l) make_DoLoop_t(p.m_a, l, \
         /*head*/ DOLOOP_HEAD(EXPR(i), EXPR(a), EXPR(b), EXPR(c)), \
-        /*body*/ STMTS(p.m_a, body), \
+        /*body*/ STMTS(body), \
         /*n_body*/ body.n)
 
 #define VAR_DECL(type, sym, l) make_Declaration_t(p.m_a, l, \
