@@ -372,22 +372,22 @@ class PickleVisitorVisitor(ASDLVisitor):
             super(PickleVisitorVisitor, self).visitType(tp, tp.name)
 
     def visitProduct(self, prod, name):
-        self.make_visitor(name, prod.fields)
+        self.make_visitor(name, prod.fields, False)
 
     def visitConstructor(self, cons, _):
-        self.make_visitor(cons.name, cons.fields)
+        self.make_visitor(cons.name, cons.fields, True)
 
-    def make_visitor(self, name, fields):
+    def make_visitor(self, name, fields, cons):
         self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
         self.emit(    's.append("(");', 2)
         self.emit(    's.append("%s");' % name, 2)
         for field in fields:
             self.emit(    's.append(" ");', 2)
-            self.visitField(field)
+            self.visitField(field, cons)
         self.emit(    's.append(")");', 2)
         self.emit("}", 1)
 
-    def visitField(self, field):
+    def visitField(self, field, cons):
         if (field.type not in asdl.builtin_types and
             field.type not in self.data.simple_types):
             level = 2
@@ -396,11 +396,26 @@ class PickleVisitorVisitor(ASDLVisitor):
             else:
                 template = "this->visit_%s(*x.m_%s);" % (field.type, field.name)
             if field.seq:
-                template = "// self.visit_sequence(node.%s)" % field.name
+                if cons:
+                    self.emit('s.append("[");', level)
+                    self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
+                    if field.type in sums:
+                        self.emit("LFORTRAN_ASSERT(x.m_%s[i]->base.type == astType::%s)" % (field.name, field.type), level+1)
+                        self.emit("this->visit_%s(*x.m_%s[i]);" % (field.type, field.name), level+1)
+                    else:
+                        self.emit("this->visit_%s(x.m_%s[i]);" % (field.type, field.name), level+1)
+                    self.emit(    'if (i < x.n_%s-1) s.append(" ");' % (field.name), level+1)
+                    self.emit("}", level)
+                    self.emit('s.append("]");', level)
+                else:
+                    template = "// self.visit_sequence(node.%s)" % field.name
+                    self.emit(template, level)
             elif field.opt:
                 self.emit("//if node.%s:" % field.name, 2)
                 level = 3
-            self.emit(template, level)
+                self.emit(template, level)
+            else:
+                self.emit(template, level)
 
 
 
