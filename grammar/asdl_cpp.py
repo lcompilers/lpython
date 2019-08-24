@@ -414,6 +414,8 @@ class PickleVisitorVisitor(ASDLVisitor):
                 self.emit("}", 2)
             else:
                 self.emit(template, level)
+        else:
+            self.emit('s.append("Unimplemented");', 2)
 
 
 
