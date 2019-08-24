@@ -354,11 +354,21 @@ TEST_CASE("if") {
     end if
     end subroutine)") == "(sub [] [(if x [(= a 5)] [(if y [(= b 4)] [(if z [(= c 3)] [])])])])");
 
+    CHECK(P(R"(subroutine g
+    if (else) then
+        else = 5
+    else if (else) then
+    else if (else) then
+    else if (else) then
+        else = 3
+    end if
+    end subroutine)") == "(sub [] [(if else [(= else 5)] [(if else [] [(if else [] [(if else [(= else 3)] [])])])])])");
+
     CHECK_THROWS_AS(P(R"(subroutine g
     if (else) then
         else = 5
     else if (else) then
-        else if (else) then
+        else if (else)
     else if (else) then
         else = 3
     end if
