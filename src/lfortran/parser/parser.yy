@@ -5,7 +5,7 @@
 %locations
 %glr-parser
 %expect-rr 0
-%expect 26
+%expect 10
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -359,25 +359,25 @@ if_statement
     ;
 
 if_block
-    : KW_IF '(' expr ')' KW_THEN sep statements sep {
+    : KW_IF '(' expr ')' KW_THEN sep statements {
             $$ = IF1($3, $7, @$); }
-    | KW_IF '(' expr ')' KW_THEN sep statements sep KW_ELSE sep statements sep {
-            $$ = IF2($3, $7, $11, @$); }
-    | KW_IF '(' expr ')' KW_THEN sep statements sep KW_ELSE if_block {
-            $$ = IF3($3, $7, $10, @$); }
+    | KW_IF '(' expr ')' KW_THEN sep statements KW_ELSE sep statements {
+            $$ = IF2($3, $7, $10, @$); }
+    | KW_IF '(' expr ')' KW_THEN sep statements KW_ELSE if_block {
+            $$ = IF3($3, $7, $9, @$); }
     ;
 
 while_statement
-    : KW_DO KW_WHILE '(' expr ')' sep statements sep enddo sep {
+    : KW_DO KW_WHILE '(' expr ')' sep statements enddo sep {
             $$ = WHILE($4, $7, @$); }
 
 // sr-conflict (2x): "KW_DO sep" being either a do_statement or an expr
 do_statement
-    : KW_DO sep statements sep enddo sep {
+    : KW_DO sep statements enddo sep {
             $$ = DO1($3, @$); }
-    | KW_DO id '=' expr ',' expr sep statements sep enddo sep {
+    | KW_DO id '=' expr ',' expr sep statements enddo sep {
             $$ = DO2($2, $4, $6, $8, @$); }
-    | KW_DO id '=' expr ',' expr ',' expr sep statements sep enddo sep {
+    | KW_DO id '=' expr ',' expr ',' expr sep statements enddo sep {
             $$ = DO3($2, $4, $6, $8, $10, @$); }
     ;
 
