@@ -113,6 +113,9 @@ TEST_CASE("Subroutines") {
     end subroutine)")   == "(sub [] [(= x y) (= x (* 2 y))])");
 
     CHECK(P(R"(subroutine g
+    end subroutine)")   == "(sub [] [])");
+
+    CHECK(P(R"(subroutine g
     x = y
 
     x = 2*y
@@ -161,6 +164,9 @@ TEST_CASE("Functions") {
     x = 2*y
     end function)")   == "(fn [] [(= x y) (= x (* 2 y))])");
 
+    CHECK(P(R"(function g
+    end function)")   == "(fn [] [])");
+
 
     CHECK(P(R"(function g
     x = y; ;
@@ -185,6 +191,9 @@ TEST_CASE("Programs") {
     x = y
     x = 2*y
     end program)")   == "(prog g [] [(= x y) (= x (* 2 y))])");
+
+    CHECK(P(R"(program g
+    end program)")   == "(prog g [] [])");
 
 
     CHECK(P(R"(program g
@@ -318,6 +327,31 @@ TEST_CASE("if") {
 
     CHECK(P(R"(subroutine g
     if (x) then
+    else
+        b = 4
+    end if
+    end subroutine)")   == "(sub [] [(if x [] [(= b 4)])])");
+
+    CHECK(P(R"(subroutine g
+    if (x) then
+        a = 5
+    else
+    end if
+    end subroutine)")   == "(sub [] [(if x [(= a 5)] [])])");
+
+    CHECK(P(R"(subroutine g
+    if (x) then
+    else
+    end if
+    end subroutine)")   == "(sub [] [(if x [] [])])");
+
+    CHECK(P(R"(subroutine g
+    if (x) then
+    end if
+    end subroutine)")   == "(sub [] [(if x [] [])])");
+
+    CHECK(P(R"(subroutine g
+    if (x) then
         a = 5
         c = 7
     else
@@ -426,6 +460,10 @@ TEST_CASE("while") {
 
     CHECK(P(
  R"(do while (x)
+    end do)") == "(while x [])");
+
+    CHECK(P(
+ R"(do while (x)
         a = 5
     enddo)") == "(while x [(= a 5)])");
 
@@ -464,6 +502,10 @@ TEST_CASE("do loop") {
  R"(do i = 1, 5
         a = a + i
     end do)") == "(do i 1 5 () [(= a (+ a i))])");
+
+    CHECK(P(
+ R"(do i = 1, 5
+    end do)") == "(do i 1 5 () [])");
 
     CHECK(P(
  R"(do i = 1, 5, 2
