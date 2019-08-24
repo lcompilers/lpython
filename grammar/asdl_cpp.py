@@ -351,6 +351,58 @@ class ASTWalkVisitorVisitor(ASDLVisitor):
             self.emit(template, level)
 
 
+class PickleVisitorVisitor(ASDLVisitor):
+
+    def visitModule(self, mod):
+        self.emit("/" + "*"*78 + "/")
+        self.emit("// Walk Visitor base class")
+        self.emit("")
+        self.emit("template <class Derived>")
+        self.emit("class PickleBaseVisitor : public BaseVisitor<Derived>")
+        self.emit("{")
+        self.emit(  "std::string s;", 1)
+        self.emit("public:")
+        self.emit(  "PickleBaseVisitor() { s.reserve(100000); }", 1)
+        super(PickleVisitorVisitor, self).visitModule(mod)
+        self.emit("};")
+
+    def visitType(self, tp):
+        if not (isinstance(tp.value, asdl.Sum) and
+                is_simple_sum(tp.value)):
+            super(PickleVisitorVisitor, self).visitType(tp, tp.name)
+
+    def visitProduct(self, prod, name):
+        self.make_visitor(name, prod.fields)
+
+    def visitConstructor(self, cons, _):
+        self.make_visitor(cons.name, cons.fields)
+
+    def make_visitor(self, name, fields):
+        self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
+        self.emit(    's.append("(");', 2)
+        self.emit(    's.append("%s");' % name, 2)
+        for field in fields:
+            self.emit(    's.append(" ");', 2)
+            self.visitField(field)
+        self.emit(    's.append(")");', 2)
+        self.emit("}", 1)
+
+    def visitField(self, field):
+        if (field.type not in asdl.builtin_types and
+            field.type not in self.data.simple_types):
+            level = 2
+            if field.type in products:
+                template = "this->visit_%s(x.m_%s);" % (field.type, field.name)
+            else:
+                template = "this->visit_%s(*x.m_%s);" % (field.type, field.name)
+            if field.seq:
+                template = "// self.visit_sequence(node.%s)" % field.name
+            elif field.opt:
+                self.emit("//if node.%s:" % field.name, 2)
+                level = 3
+            self.emit(template, level)
+
+
 
 class ASDLData(object):
 
@@ -431,7 +483,7 @@ FOOT = r"""} // namespace LFortran::AST
 
 visitors = [ASTNodeVisitor0, ASTNodeVisitor1, ASTNodeVisitor,
         ASTVisitorVisitor1, ASTVisitorVisitor1b, ASTVisitorVisitor2,
-        ASTWalkVisitorVisitor]
+        ASTWalkVisitorVisitor, PickleVisitorVisitor]
 
 
 def main(argv):
