@@ -113,6 +113,9 @@ TEST_CASE("Subroutines") {
     end subroutine)")   == "(sub [] [(= x y) (= x (* 2 y))])");
 
     CHECK(P(R"(subroutine g
+    end subroutine)")   == "(sub [] [])");
+
+    CHECK(P(R"(subroutine g
     x = y
 
     x = 2*y
@@ -161,6 +164,9 @@ TEST_CASE("Functions") {
     x = 2*y
     end function)")   == "(fn [] [(= x y) (= x (* 2 y))])");
 
+    CHECK(P(R"(function g
+    end function)")   == "(fn [] [])");
+
 
     CHECK(P(R"(function g
     x = y; ;
@@ -186,6 +192,9 @@ TEST_CASE("Programs") {
     x = 2*y
     end program)")   == "(prog g [] [(= x y) (= x (* 2 y))])");
 
+    CHECK(P(R"(program g
+    end program)")   == "(prog g [] [])");
+
 
     CHECK(P(R"(program g
     x = y; ;
@@ -206,12 +215,10 @@ TEST_CASE("Programs") {
     x = y
     end program g)")   == "(prog g [] [(= x y)])");
 
-    /*
     CHECK(P(
    R"(PROGRAM TESTFortran90
       integer stop ; stop = 1 ; do while ( stop .eq. 0 ) ; end do
-      END PROGRAM TESTFortran90)") == "");
-    */
+      END PROGRAM TESTFortran90)") == "(prog TESTFortran90 [(decl stop integer)] [(= stop 1) (while (== stop 0) [])])");
 }
 
 TEST_CASE("Multiple units") {
@@ -320,6 +327,31 @@ TEST_CASE("if") {
 
     CHECK(P(R"(subroutine g
     if (x) then
+    else
+        b = 4
+    end if
+    end subroutine)")   == "(sub [] [(if x [] [(= b 4)])])");
+
+    CHECK(P(R"(subroutine g
+    if (x) then
+        a = 5
+    else
+    end if
+    end subroutine)")   == "(sub [] [(if x [(= a 5)] [])])");
+
+    CHECK(P(R"(subroutine g
+    if (x) then
+    else
+    end if
+    end subroutine)")   == "(sub [] [(if x [] [])])");
+
+    CHECK(P(R"(subroutine g
+    if (x) then
+    end if
+    end subroutine)")   == "(sub [] [(if x [] [])])");
+
+    CHECK(P(R"(subroutine g
+    if (x) then
         a = 5
         c = 7
     else
@@ -354,11 +386,21 @@ TEST_CASE("if") {
     end if
     end subroutine)") == "(sub [] [(if x [(= a 5)] [(if y [(= b 4)] [(if z [(= c 3)] [])])])])");
 
+    CHECK(P(R"(subroutine g
+    if (else) then
+        else = 5
+    else if (else) then
+    else if (else) then
+    else if (else) then
+        else = 3
+    end if
+    end subroutine)") == "(sub [] [(if else [(= else 5)] [(if else [] [(if else [] [(if else [(= else 3)] [])])])])])");
+
     CHECK_THROWS_AS(P(R"(subroutine g
     if (else) then
         else = 5
     else if (else) then
-        else if (else) then
+        else if (else)
     else if (else) then
         else = 3
     end if
@@ -418,6 +460,10 @@ TEST_CASE("while") {
 
     CHECK(P(
  R"(do while (x)
+    end do)") == "(while x [])");
+
+    CHECK(P(
+ R"(do while (x)
         a = 5
     enddo)") == "(while x [(= a 5)])");
 
@@ -456,6 +502,10 @@ TEST_CASE("do loop") {
  R"(do i = 1, 5
         a = a + i
     end do)") == "(do i 1 5 () [(= a (+ a i))])");
+
+    CHECK(P(
+ R"(do i = 1, 5
+    end do)") == "(do i 1 5 () [])");
 
     CHECK(P(
  R"(do i = 1, 5, 2

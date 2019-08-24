@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect-rr 6  // reduce/reduce conflicts
-%expect 4     // shift/reduce conflicts
+%expect-rr  6 // reduce/reduce conflicts
+%expect    22 // shift/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -326,7 +326,7 @@ var_sym_decl
 
 statements
     : statements statement { $$ = $1; LIST_ADD($$, $2); }
-    | statement { LIST_NEW($$); LIST_ADD($$, $1); }
+    | %empty { LIST_NEW($$); }
     ;
 
 sep
