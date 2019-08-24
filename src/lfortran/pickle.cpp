@@ -241,15 +241,6 @@ public:
         this->visit_expr(*x.m_right);
         s.append(")");
     }
-    void visit_Assignment(const Assignment_t &x) {
-        s.append("(");
-        s.append(stmt2str(x.base.type));
-        s.append(" ");
-        this->visit_expr(*x.m_target);
-        s.append(" ");
-        this->visit_expr(*x.m_value);
-        s.append(")");
-    }
     void visit_Declaration(const Declaration_t &x) {
         s.append("(decl ");
         LFORTRAN_ASSERT(x.n_vars == 1);

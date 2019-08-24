@@ -381,7 +381,13 @@ class PickleVisitorVisitor(ASDLVisitor):
     def make_visitor(self, name, fields, cons):
         self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
         self.emit(    's.append("(");', 2)
-        self.emit(    's.append("%s");' % name.lower(), 2)
+        subs = {
+            "assignment": "=",
+        }
+        name = name.lower()
+        if name in subs:
+            name = subs[name]
+        self.emit(    's.append("%s");' % name, 2)
         for field in fields:
             self.emit(    's.append(" ");', 2)
             self.visitField(field, cons)
