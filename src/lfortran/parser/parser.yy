@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect-rr 0
-%expect 10
+%expect-rr 6  // reduce/reduce conflicts
+%expect 4     // shift/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -340,22 +340,22 @@ sep_one
     ;
 
 statement
-    : assignment_statement
-    | exit_statement
-    | return_statement
-    | cycle_statement
-    | if_statement
-    | while_statement
-    | do_statement
+    : assignment_statement sep
+    | exit_statement sep
+    | return_statement sep
+    | cycle_statement sep
+    | if_statement sep
+    | while_statement sep
+    | do_statement sep
     ;
 
 assignment_statement
-    : expr '=' expr sep { LLOC(@$, @3); $$ = ASSIGNMENT($1, $3, @$); }
+    : expr '=' expr { $$ = ASSIGNMENT($1, $3, @$); }
     ;
 
 // sr-conflict (2x): KW_ENDIF can be an "id" or end of "if_statement"
 if_statement
-    : if_block endif sep {}
+    : if_block endif {}
     ;
 
 if_block
@@ -368,16 +368,16 @@ if_block
     ;
 
 while_statement
-    : KW_DO KW_WHILE '(' expr ')' sep statements enddo sep {
+    : KW_DO KW_WHILE '(' expr ')' sep statements enddo {
             $$ = WHILE($4, $7, @$); }
 
 // sr-conflict (2x): "KW_DO sep" being either a do_statement or an expr
 do_statement
-    : KW_DO sep statements enddo sep {
+    : KW_DO sep statements enddo {
             $$ = DO1($3, @$); }
-    | KW_DO id '=' expr ',' expr sep statements enddo sep {
+    | KW_DO id '=' expr ',' expr sep statements enddo {
             $$ = DO2($2, $4, $6, $8, @$); }
-    | KW_DO id '=' expr ',' expr ',' expr sep statements enddo sep {
+    | KW_DO id '=' expr ',' expr ',' expr sep statements enddo {
             $$ = DO3($2, $4, $6, $8, $10, @$); }
     ;
 
@@ -392,15 +392,15 @@ endif
     ;
 
 exit_statement
-    : KW_EXIT sep { $$ = EXIT(@$); }
+    : KW_EXIT { $$ = EXIT(@$); }
     ;
 
 return_statement
-    : KW_RETURN sep { $$ = RETURN(@$); }
+    : KW_RETURN { $$ = RETURN(@$); }
     ;
 
 cycle_statement
-    : KW_CYCLE sep { $$ = CYCLE(@$); }
+    : KW_CYCLE { $$ = CYCLE(@$); }
     ;
 
 // -----------------------------------------------------------------------------
