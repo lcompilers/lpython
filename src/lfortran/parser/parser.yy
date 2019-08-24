@@ -279,9 +279,7 @@ script_unit
 
 program
     : KW_PROGRAM id sep var_decl_star statements KW_END KW_PROGRAM id_opt sep {
-            @$.last_line = @8.last_line;
-            @$.last_column = @8.last_column;
-            $$ = PROGRAM($2, $4, $5, @$); }
+            LLOC(@$, @8); $$ = PROGRAM($2, $4, $5, @$); }
     ;
 
 // id?
@@ -292,16 +290,12 @@ id_opt
 
 subroutine
     : KW_SUBROUTINE id sep var_decl_star statements KW_END KW_SUBROUTINE sep {
-            @$.last_line = @7.last_line;
-            @$.last_column = @7.last_column;
-            $$ = SUBROUTINE($2, $4, $5, @$); }
+            LLOC(@$, @7); $$ = SUBROUTINE($2, $4, $5, @$); }
     ;
 
 function
     : KW_FUNCTION id sep var_decl_star statements KW_END KW_FUNCTION sep {
-            @$.last_line = @7.last_line;
-            @$.last_column = @7.last_column;
-            $$ = FUNCTION($2, $4, $5, @$); }
+            LLOC(@$, @7); $$ = FUNCTION($2, $4, $5, @$); }
     ;
 
 // var_decl*
@@ -356,10 +350,7 @@ statement
     ;
 
 assignment_statement
-    : expr '=' expr sep {
-            @$.last_line = @3.last_line;
-            @$.last_column = @3.last_column;
-            $$ = ASSIGNMENT($1, $3, @$); }
+    : expr '=' expr sep { LLOC(@$, @3); $$ = ASSIGNMENT($1, $3, @$); }
     ;
 
 // sr-conflict (2x): KW_ENDIF can be an "id" or end of "if_statement"
