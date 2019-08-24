@@ -270,7 +270,7 @@ script_unit
     | function
     | var_decl
     | statement              %dprec 7
-    | expr                   %dprec 8
+    | expr sep                   %dprec 8
     ;
 
 // ----------------------------------------------------------------------------
@@ -278,7 +278,7 @@ script_unit
 
 
 program
-    : KW_PROGRAM id sep var_decl_star statements sep KW_END KW_PROGRAM id_opt {
+    : KW_PROGRAM id sep var_decl_star statements sep KW_END KW_PROGRAM id_opt sep {
             $$ = PROGRAM($2, $4, $5, @$); }
     ;
 
@@ -289,12 +289,12 @@ id_opt
     ;
 
 subroutine
-    : KW_SUBROUTINE id sep var_decl_star statements sep KW_END KW_SUBROUTINE {
+    : KW_SUBROUTINE id sep var_decl_star statements sep KW_END KW_SUBROUTINE sep {
             $$ = SUBROUTINE($2, $4, $5, @$); }
     ;
 
 function
-    : KW_FUNCTION id sep var_decl_star statements sep KW_END KW_FUNCTION {
+    : KW_FUNCTION id sep var_decl_star statements sep KW_END KW_FUNCTION sep {
             $$ = FUNCTION($2, $4, $5, @$); }
     ;
 
