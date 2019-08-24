@@ -24,7 +24,7 @@ using LFortran::AST::exprType;
 using LFortran::AST::stmtType;
 using LFortran::AST::operatorType;
 using LFortran::AST::cmpopType;
-using LFortran::AST::BaseWalkVisitor;
+using LFortran::AST::PickleBaseVisitor;
 
 
 namespace LFortran {
@@ -74,13 +74,9 @@ std::string compare2str(const cmpopType type)
     throw std::runtime_error("Unknown type");
 }
 
-class PickleVisitor : public BaseWalkVisitor<PickleVisitor>
+class PickleVisitor : public PickleBaseVisitor<PickleVisitor>
 {
-    std::string s;
 public:
-    PickleVisitor() {
-        s.reserve(100000);
-    }
     void visit_Subroutine(const Subroutine_t &x) {
         s.append("(");
         s.append("sub");
@@ -113,44 +109,6 @@ public:
             if (i < x.n_decl-1) s.append(" ");
         }
         s.append("]");
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_body; i++) {
-            LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
-            this->visit_stmt(*x.m_body[i]);
-            if (i < x.n_body-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(")");
-    }
-    void visit_If(const If_t &x) {
-        s.append("(");
-        s.append("if");
-        s.append(" ");
-        this->visit_expr(*x.m_test);
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_body; i++) {
-            LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
-            this->visit_stmt(*x.m_body[i]);
-            if (i < x.n_body-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_orelse; i++) {
-            LFORTRAN_ASSERT(x.m_orelse[i]->base.type == astType::stmt)
-            this->visit_stmt(*x.m_orelse[i]);
-            if (i < x.n_orelse-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(")");
-    }
-    void visit_WhileLoop(const WhileLoop_t &x) {
-        s.append("(");
-        s.append("while");
-        s.append(" ");
-        this->visit_expr(*x.m_test);
         s.append(" ");
         s.append("[");
         for (size_t i=0; i<x.n_body; i++) {
@@ -244,24 +202,6 @@ public:
         s.append(" ");
         this->visit_expr(*x.m_right);
         s.append(")");
-    }
-    void visit_Assignment(const Assignment_t &x) {
-        s.append("(");
-        s.append(stmt2str(x.base.type));
-        s.append(" ");
-        this->visit_expr(*x.m_target);
-        s.append(" ");
-        this->visit_expr(*x.m_value);
-        s.append(")");
-    }
-    void visit_Exit(const Exit_t &x) {
-        s.append("(exit)");
-    }
-    void visit_Return(const Return_t &x) {
-        s.append("(return)");
-    }
-    void visit_Cycle(const Cycle_t &x) {
-        s.append("(cycle)");
     }
     void visit_Declaration(const Declaration_t &x) {
         s.append("(decl ");

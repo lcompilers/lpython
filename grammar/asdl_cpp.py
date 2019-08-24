@@ -170,7 +170,7 @@ class ASTNodeVisitor1(ASDLVisitor):
         for f in product.fields:
             type_ = convert_type(f.type, f.seq)
             if f.seq:
-                seq = " // Sequence"
+                seq = " size_t n_%s; // Sequence" % f.name
             else:
                 seq = ""
             self.emit("%s m_%s;%s" % (type_, f.name, seq), 1)
@@ -351,6 +351,88 @@ class ASTWalkVisitorVisitor(ASDLVisitor):
             self.emit(template, level)
 
 
+class PickleVisitorVisitor(ASDLVisitor):
+
+    def visitModule(self, mod):
+        self.emit("/" + "*"*78 + "/")
+        self.emit("// Walk Visitor base class")
+        self.emit("")
+        self.emit("template <class Derived>")
+        self.emit("class PickleBaseVisitor : public BaseVisitor<Derived>")
+        self.emit("{")
+        self.emit("public:")
+        self.emit(  "std::string s;", 1)
+        self.emit("public:")
+        self.emit(  "PickleBaseVisitor() { s.reserve(100000); }", 1)
+        super(PickleVisitorVisitor, self).visitModule(mod)
+        self.emit("};")
+
+    def visitType(self, tp):
+        if not (isinstance(tp.value, asdl.Sum) and
+                is_simple_sum(tp.value)):
+            super(PickleVisitorVisitor, self).visitType(tp, tp.name)
+
+    def visitProduct(self, prod, name):
+        self.make_visitor(name, prod.fields, False)
+
+    def visitConstructor(self, cons, _):
+        self.make_visitor(cons.name, cons.fields, True)
+
+    def make_visitor(self, name, fields, cons):
+        self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
+        self.emit(    's.append("(");', 2)
+        subs = {
+            "assignment": "=",
+            "whileloop": "while",
+        }
+        name = name.lower()
+        if name in subs:
+            name = subs[name]
+        self.emit(    's.append("%s");' % name, 2)
+        for field in fields:
+            self.emit(    's.append(" ");', 2)
+            self.visitField(field, cons)
+        self.emit(    's.append(")");', 2)
+        self.emit("}", 1)
+
+    def visitField(self, field, cons):
+        if (field.type not in asdl.builtin_types and
+            field.type not in self.data.simple_types):
+            level = 2
+            if field.type in products:
+                template = "this->visit_%s(x.m_%s);" % (field.type, field.name)
+            else:
+                template = "this->visit_%s(*x.m_%s);" % (field.type, field.name)
+            if field.seq:
+                self.emit('s.append("[");', level)
+                self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
+                if field.type in sums:
+                    self.emit("LFORTRAN_ASSERT(x.m_%s[i]->base.type == astType::%s)" % (field.name, field.type), level+1)
+                    self.emit("this->visit_%s(*x.m_%s[i]);" % (field.type, field.name), level+1)
+                else:
+                    self.emit("this->visit_%s(x.m_%s[i]);" % (field.type, field.name), level+1)
+                self.emit(    'if (i < x.n_%s-1) s.append(" ");' % (field.name), level+1)
+                self.emit("}", level)
+                self.emit('s.append("]");', level)
+            elif field.opt:
+                if field.type in products:
+                    self.emit("// Optional products not implemented yet:", 2)
+                    self.emit(template, 3)
+                else:
+                    self.emit("if (x.m_%s) {" % field.name, 2)
+                    self.emit(template, 3)
+                    self.emit("} else {", 2)
+                    self.emit(    's.append("()");', 3)
+                    self.emit("}", 2)
+            else:
+                self.emit(template, level)
+        else:
+            if field.type == "identifier" and not field.seq:
+                self.emit('s.append(x.m_%s);' % field.name, 2)
+            else:
+                self.emit('s.append("Unimplemented");', 2)
+
+
 
 class ASDLData(object):
 
@@ -431,7 +513,7 @@ FOOT = r"""} // namespace LFortran::AST
 
 visitors = [ASTNodeVisitor0, ASTNodeVisitor1, ASTNodeVisitor,
         ASTVisitorVisitor1, ASTVisitorVisitor1b, ASTVisitorVisitor2,
-        ASTWalkVisitorVisitor]
+        ASTWalkVisitorVisitor, PickleVisitorVisitor]
 
 
 def main(argv):
