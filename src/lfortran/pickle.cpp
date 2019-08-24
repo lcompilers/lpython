@@ -250,15 +250,6 @@ public:
         this->visit_expr(*x.m_value);
         s.append(")");
     }
-    void visit_Exit(const Exit_t &x) {
-        s.append("(exit)");
-    }
-    void visit_Return(const Return_t &x) {
-        s.append("(return)");
-    }
-    void visit_Cycle(const Cycle_t &x) {
-        s.append("(cycle)");
-    }
     void visit_Declaration(const Declaration_t &x) {
         s.append("(decl ");
         LFORTRAN_ASSERT(x.n_vars == 1);
