@@ -360,6 +360,7 @@ class PickleVisitorVisitor(ASDLVisitor):
         self.emit("template <class Derived>")
         self.emit("class PickleBaseVisitor : public BaseVisitor<Derived>")
         self.emit("{")
+        self.emit("public:")
         self.emit(  "std::string s;", 1)
         self.emit("public:")
         self.emit(  "PickleBaseVisitor() { s.reserve(100000); }", 1)

@@ -24,7 +24,7 @@ using LFortran::AST::exprType;
 using LFortran::AST::stmtType;
 using LFortran::AST::operatorType;
 using LFortran::AST::cmpopType;
-using LFortran::AST::BaseWalkVisitor;
+using LFortran::AST::PickleBaseVisitor;
 
 
 namespace LFortran {
@@ -74,13 +74,9 @@ std::string compare2str(const cmpopType type)
     throw std::runtime_error("Unknown type");
 }
 
-class PickleVisitor : public BaseWalkVisitor<PickleVisitor>
+class PickleVisitor : public PickleBaseVisitor<PickleVisitor>
 {
-    std::string s;
 public:
-    PickleVisitor() {
-        s.reserve(100000);
-    }
     void visit_Subroutine(const Subroutine_t &x) {
         s.append("(");
         s.append("sub");
