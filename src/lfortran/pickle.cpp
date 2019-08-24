@@ -142,21 +142,6 @@ public:
         s.append("]");
         s.append(")");
     }
-    void visit_WhileLoop(const WhileLoop_t &x) {
-        s.append("(");
-        s.append("while");
-        s.append(" ");
-        this->visit_expr(*x.m_test);
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_body; i++) {
-            LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
-            this->visit_stmt(*x.m_body[i]);
-            if (i < x.n_body-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(")");
-    }
     void visit_DoLoop(const DoLoop_t &x) {
         s.append("(");
         s.append("do");

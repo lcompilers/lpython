@@ -383,6 +383,7 @@ class PickleVisitorVisitor(ASDLVisitor):
         self.emit(    's.append("(");', 2)
         subs = {
             "assignment": "=",
+            "whileloop": "while",
         }
         name = name.lower()
         if name in subs:
