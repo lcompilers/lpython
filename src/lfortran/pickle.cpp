@@ -119,29 +119,6 @@ public:
         s.append("]");
         s.append(")");
     }
-    void visit_If(const If_t &x) {
-        s.append("(");
-        s.append("if");
-        s.append(" ");
-        this->visit_expr(*x.m_test);
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_body; i++) {
-            LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
-            this->visit_stmt(*x.m_body[i]);
-            if (i < x.n_body-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_orelse; i++) {
-            LFORTRAN_ASSERT(x.m_orelse[i]->base.type == astType::stmt)
-            this->visit_stmt(*x.m_orelse[i]);
-            if (i < x.n_orelse-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(")");
-    }
     void visit_DoLoop(const DoLoop_t &x) {
         s.append("(");
         s.append("do");
