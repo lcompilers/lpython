@@ -260,7 +260,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 // Higher %dprec means higher precedence
 
 units
-    : units sep script_unit  %dprec 9  { RESULT($3); }
+    : units script_unit  %dprec 9  { RESULT($2); }
     | script_unit            %dprec 10 { RESULT($1); }
     ;
 
@@ -325,7 +325,7 @@ var_sym_decl
 // Control flow
 
 statements
-    : statements sep statement { $$ = $1; LIST_ADD($$, $3); }
+    : statements statement { $$ = $1; LIST_ADD($$, $2); }
     | statement { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
