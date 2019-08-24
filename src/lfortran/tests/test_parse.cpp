@@ -965,13 +965,13 @@ TEST_CASE("Location") {
     CHECK(result->loc.first_line == 1);
     CHECK(result->loc.first_column == 1);
     CHECK(result->loc.last_line == 4);
-    CHECK(result->loc.last_column == 19);
+    CHECK(result->loc.last_column == 18);
     auto sub = cast(Subroutine, result);
     auto stmt = cast(Assignment, sub->m_body[1]);
     CHECK(stmt->base.base.loc.first_line == 3);
     CHECK(stmt->base.base.loc.first_column == 5);
     CHECK(stmt->base.base.loc.last_line == 3);
-    CHECK(stmt->base.base.loc.last_column == 15);
+    CHECK(stmt->base.base.loc.last_column == 14);
     auto m = cast(BinOp, stmt->m_value);
     CHECK(m->base.base.loc.first_line == 3);
     CHECK(m->base.base.loc.first_column == 9);
@@ -1004,7 +1004,7 @@ TEST_CASE("Location") {
     CHECK(result->loc.first_line == 1);
     CHECK(result->loc.first_column == 1);
     CHECK(result->loc.last_line == 4);
-    CHECK(result->loc.last_column == 17);
+    CHECK(result->loc.last_column == 16);
 
     input = R"(program f
     x = y
@@ -1014,7 +1014,7 @@ TEST_CASE("Location") {
     CHECK(result->loc.first_line == 1);
     CHECK(result->loc.first_column == 1);
     CHECK(result->loc.last_line == 4);
-    CHECK(result->loc.last_column == 16);
+    CHECK(result->loc.last_column == 15);
 }
 
 TEST_CASE("Errors") {
