@@ -67,6 +67,43 @@ TEST_CASE("Arithmetics") {
     CHECK_THROWS_AS(P("1+2**(*4)"), LFortran::ParserError);
 }
 
+TEST_CASE("Comparison") {
+    Allocator al(4*1024);
+
+    CHECK(P("1 == 2") == "(== 1 2)");
+    CHECK(P("1 /= 2") == "(/= 1 2)");
+    CHECK(P("1 < 2") == "(< 1 2)");
+    CHECK(P("1 <= 2") == "(<= 1 2)");
+    CHECK(P("1 > 2") == "(> 1 2)");
+    CHECK(P("1 >= 2") == "(>= 1 2)");
+
+    CHECK(P("1 .eq. 2") == "(== 1 2)");
+    CHECK(P("1 .ne. 2") == "(/= 1 2)");
+    CHECK(P("1 .lt. 2") == "(< 1 2)");
+    CHECK(P("1 .le. 2") == "(<= 1 2)");
+    CHECK(P("1 .gt. 2") == "(> 1 2)");
+    CHECK(P("1 .ge. 2") == "(>= 1 2)");
+
+    CHECK(P("1.eq.2") == "(== 1 2)");
+    CHECK(P("1.ne.2") == "(/= 1 2)");
+    CHECK(P("1.lt.2") == "(< 1 2)");
+    CHECK(P("1.le.2") == "(<= 1 2)");
+    CHECK(P("1.gt.2") == "(> 1 2)");
+    CHECK(P("1.ge.2") == "(>= 1 2)");
+
+    CHECK(P("1 == 2 + 3") == "(== 1 (+ 2 3))");
+    CHECK(P("1 + 3*4 <= 2 + 3") == "(<= (+ 1 (* 3 4)) (+ 2 3))");
+    CHECK(P("1 .eq. 2 + 3") == "(== 1 (+ 2 3))");
+    CHECK(P("1 + 3*4 .le. 2 + 3") == "(<= (+ 1 (* 3 4)) (+ 2 3))");
+    CHECK(P("1.eq.2 + 3") == "(== 1 (+ 2 3))");
+    CHECK(P("1 + 3*4.le.2 + 3") == "(<= (+ 1 (* 3 4)) (+ 2 3))");
+
+    // These are not valid Fortran, but we test that the parser follows the
+    // precedence rules correctly
+    CHECK(P("1 == 2 + 3 == 2") == "(== (== 1 (+ 2 3)) 2)");
+    CHECK(P("(1 == 2) + 3") == "(+ (== 1 2) 3)");
+}
+
 TEST_CASE("Subroutines") {
     Allocator al(4*1024);
 
@@ -403,6 +440,13 @@ TEST_CASE("while") {
  R"(do while (x)
         end do = 5
     enddo)"), LFortran::ParserError);
+
+    CHECK(P(
+ R"(do while (x > 5)
+        a = 5
+    end do)") == "(while (> x 5) [(= a 5)])");
+
+    CHECK(P("do while (x > 5); a = 5; end do") == "(while (> x 5) [(= a 5)])");
 }
 
 TEST_CASE("do loop") {

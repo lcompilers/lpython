@@ -241,6 +241,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_WHILE
 %token <string> KW_WRITE
 
+%left TK_EQ TK_NE TK_LT TK_LE TK_GT TK_GE
 %left '-' '+'
 %left '*' '/'
 %right TK_POW
@@ -248,6 +249,10 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %start units
 
 %%
+
+// The order of rules does not matter in Bison (unlike in ANTLR). The
+// precedence is specified not by the order but by %left and %right directives
+// as well as with %dprec.
 
 // ----------------------------------------------------------------------------
 // Top level rules to be used for parsing.
@@ -402,14 +407,32 @@ cycle_statement
 // Fortran expression
 
 expr
-    : expr '+' expr { $$ = ADD($1, $3, @$); }
+// ### primary
+    : id { $$ = $1; }
+    | TK_INTEGER { $$ = INTEGER($1, @$); }
+    | '(' expr ')' { $$ = $2; }
+
+// ### level-1
+
+// ### level-2
+    | expr '+' expr { $$ = ADD($1, $3, @$); }
     | expr '-' expr { $$ = SUB($1, $3, @$); }
     | expr '*' expr { $$ = MUL($1, $3, @$); }
     | expr '/' expr { $$ = DIV($1, $3, @$); }
     | expr TK_POW expr { $$ = POW($1, $3, @$); }
-    | '(' expr ')' { $$ = $2; }
-    | id { $$ = $1; }
-    | TK_INTEGER { $$ = INTEGER($1, @$); }
+
+// ### level-3
+
+// ### level-4
+    | expr TK_EQ expr { $$ = EQ($1, $3, @$); }
+    | expr TK_NE expr { $$ = NE($1, $3, @$); }
+    | expr TK_LT expr { $$ = LT($1, $3, @$); }
+    | expr TK_LE expr { $$ = LE($1, $3, @$); }
+    | expr TK_GT expr { $$ = GT($1, $3, @$); }
+    | expr TK_GE expr { $$ = GE($1, $3, @$); }
+
+// ### level-5
+
     ;
 
 id
