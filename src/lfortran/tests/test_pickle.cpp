@@ -206,12 +206,10 @@ TEST_CASE("Programs") {
     x = y
     end program g)")   == "(prog g [] [(= x y)])");
 
-    /*
     CHECK(P(
    R"(PROGRAM TESTFortran90
       integer stop ; stop = 1 ; do while ( stop .eq. 0 ) ; end do
-      END PROGRAM TESTFortran90)") == "");
-    */
+      END PROGRAM TESTFortran90)") == "(prog TESTFortran90 [(decl stop integer)] [(= stop 1) (while (== stop 0) [])])");
 }
 
 TEST_CASE("Multiple units") {
