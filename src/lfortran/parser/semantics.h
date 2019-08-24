@@ -144,7 +144,7 @@ static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
 #define RETURN(l) make_Return_t(p.m_a, l)
 #define CYCLE(l) make_Cycle_t(p.m_a, l)
 #define SUBROUTINE(name, decl, stmts, l) make_Subroutine_t(p.m_a, l, \
-        /*name*/ nullptr, \
+        /*name*/ name2char(EXPR(name)), \
         /*args*/ nullptr, \
         /*n_args*/ 0, \
         /*use*/ nullptr, \
@@ -156,7 +156,7 @@ static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
 #define FUNCTION(name, decl, stmts, l) make_Function_t(p.m_a, l, \
-        /*name*/ nullptr, \
+        /*name*/ name2char(EXPR(name)), \
         /*args*/ nullptr, \
         /*n_args*/ 0, \
         /*return_type*/ nullptr, \

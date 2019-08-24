@@ -427,7 +427,10 @@ class PickleVisitorVisitor(ASDLVisitor):
             else:
                 self.emit(template, level)
         else:
-            self.emit('s.append("Unimplemented");', 2)
+            if field.type == "identifier" and not field.seq:
+                self.emit('s.append(x.m_%s);' % field.name, 2)
+            else:
+                self.emit('s.append("Unimplemented");', 2)
 
 
 
