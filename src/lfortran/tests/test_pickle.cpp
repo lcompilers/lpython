@@ -7,7 +7,7 @@
 std::string p(Allocator &al, const std::string &s)
 {
     LFortran::AST::ast_t* result;
-    result = LFortran::parse2(al, s);
+    result = LFortran::parse2(al, s + "\n");
     return LFortran::pickle(*result);
 }
 

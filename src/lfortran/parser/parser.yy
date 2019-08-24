@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect-rr 9
-%expect 4
+%expect-rr 0
+%expect 26
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -278,7 +278,7 @@ script_unit
 
 
 program
-    : KW_PROGRAM id sep var_decl_star statements sep KW_END KW_PROGRAM id_opt sep {
+    : KW_PROGRAM id sep var_decl_star statements KW_END KW_PROGRAM id_opt sep {
             $$ = PROGRAM($2, $4, $5, @$); }
     ;
 
@@ -289,23 +289,23 @@ id_opt
     ;
 
 subroutine
-    : KW_SUBROUTINE id sep var_decl_star statements sep KW_END KW_SUBROUTINE sep {
+    : KW_SUBROUTINE id sep var_decl_star statements KW_END KW_SUBROUTINE sep {
             $$ = SUBROUTINE($2, $4, $5, @$); }
     ;
 
 function
-    : KW_FUNCTION id sep var_decl_star statements sep KW_END KW_FUNCTION sep {
+    : KW_FUNCTION id sep var_decl_star statements KW_END KW_FUNCTION sep {
             $$ = FUNCTION($2, $4, $5, @$); }
     ;
 
 // var_decl*
 var_decl_star
-    : var_decl_star var_decl sep { $$ = $1; LIST_ADD($$, $2); }
+    : var_decl_star var_decl { $$ = $1; LIST_ADD($$, $2); }
     | %empty { LIST_NEW($$); }
     ;
 
 var_decl
-    : var_type var_sym_decl { $$ = VAR_DECL($1, $2, @$); }
+    : var_type var_sym_decl sep { $$ = VAR_DECL($1, $2, @$); }
     ;
 
 var_type
