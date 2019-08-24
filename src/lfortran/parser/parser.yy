@@ -350,12 +350,12 @@ statement
     ;
 
 assignment_statement
-    : expr '=' expr { $$ = ASSIGNMENT($1, $3, @$); }
+    : expr '=' expr sep { $$ = ASSIGNMENT($1, $3, @$); }
     ;
 
 // sr-conflict (2x): KW_ENDIF can be an "id" or end of "if_statement"
 if_statement
-    : if_block endif {}
+    : if_block endif sep {}
     ;
 
 if_block
@@ -368,16 +368,16 @@ if_block
     ;
 
 while_statement
-    : KW_DO KW_WHILE '(' expr ')' sep statements sep enddo {
+    : KW_DO KW_WHILE '(' expr ')' sep statements sep enddo sep {
             $$ = WHILE($4, $7, @$); }
 
 // sr-conflict (2x): "KW_DO sep" being either a do_statement or an expr
 do_statement
-    : KW_DO sep statements sep enddo {
+    : KW_DO sep statements sep enddo sep {
             $$ = DO1($3, @$); }
-    | KW_DO id '=' expr ',' expr sep statements sep enddo {
+    | KW_DO id '=' expr ',' expr sep statements sep enddo sep {
             $$ = DO2($2, $4, $6, $8, @$); }
-    | KW_DO id '=' expr ',' expr ',' expr sep statements sep enddo {
+    | KW_DO id '=' expr ',' expr ',' expr sep statements sep enddo sep {
             $$ = DO3($2, $4, $6, $8, $10, @$); }
     ;
 
@@ -392,15 +392,15 @@ endif
     ;
 
 exit_statement
-    : KW_EXIT { $$ = EXIT(@$); }
+    : KW_EXIT sep { $$ = EXIT(@$); }
     ;
 
 return_statement
-    : KW_RETURN { $$ = RETURN(@$); }
+    : KW_RETURN sep { $$ = RETURN(@$); }
     ;
 
 cycle_statement
-    : KW_CYCLE { $$ = CYCLE(@$); }
+    : KW_CYCLE sep { $$ = CYCLE(@$); }
     ;
 
 // -----------------------------------------------------------------------------
