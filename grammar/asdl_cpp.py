@@ -407,9 +407,11 @@ class PickleVisitorVisitor(ASDLVisitor):
                 self.emit("}", level)
                 self.emit('s.append("]");', level)
             elif field.opt:
-                self.emit("//if node.%s:" % field.name, 2)
-                level = 3
-                self.emit(template, level)
+                self.emit("if (x.m_%s) {" % field.name, 2)
+                self.emit(template, 3)
+                self.emit("} else {", 2)
+                self.emit(    's.append("()");', 3)
+                self.emit("}", 2)
             else:
                 self.emit(template, level)
 
