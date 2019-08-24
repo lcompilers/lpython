@@ -170,7 +170,7 @@ class ASTNodeVisitor1(ASDLVisitor):
         for f in product.fields:
             type_ = convert_type(f.type, f.seq)
             if f.seq:
-                seq = " // Sequence"
+                seq = " size_t n_%s; // Sequence" % f.name
             else:
                 seq = ""
             self.emit("%s m_%s;%s" % (type_, f.name, seq), 1)
@@ -396,20 +396,16 @@ class PickleVisitorVisitor(ASDLVisitor):
             else:
                 template = "this->visit_%s(*x.m_%s);" % (field.type, field.name)
             if field.seq:
-                if cons:
-                    self.emit('s.append("[");', level)
-                    self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
-                    if field.type in sums:
-                        self.emit("LFORTRAN_ASSERT(x.m_%s[i]->base.type == astType::%s)" % (field.name, field.type), level+1)
-                        self.emit("this->visit_%s(*x.m_%s[i]);" % (field.type, field.name), level+1)
-                    else:
-                        self.emit("this->visit_%s(x.m_%s[i]);" % (field.type, field.name), level+1)
-                    self.emit(    'if (i < x.n_%s-1) s.append(" ");' % (field.name), level+1)
-                    self.emit("}", level)
-                    self.emit('s.append("]");', level)
+                self.emit('s.append("[");', level)
+                self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
+                if field.type in sums:
+                    self.emit("LFORTRAN_ASSERT(x.m_%s[i]->base.type == astType::%s)" % (field.name, field.type), level+1)
+                    self.emit("this->visit_%s(*x.m_%s[i]);" % (field.type, field.name), level+1)
                 else:
-                    template = "// self.visit_sequence(node.%s)" % field.name
-                    self.emit(template, level)
+                    self.emit("this->visit_%s(x.m_%s[i]);" % (field.type, field.name), level+1)
+                self.emit(    'if (i < x.n_%s-1) s.append(" ");' % (field.name), level+1)
+                self.emit("}", level)
+                self.emit('s.append("]");', level)
             elif field.opt:
                 self.emit("//if node.%s:" % field.name, 2)
                 level = 3
