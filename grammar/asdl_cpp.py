@@ -408,11 +408,15 @@ class PickleVisitorVisitor(ASDLVisitor):
                 self.emit("}", level)
                 self.emit('s.append("]");', level)
             elif field.opt:
-                self.emit("if (x.m_%s) {" % field.name, 2)
-                self.emit(template, 3)
-                self.emit("} else {", 2)
-                self.emit(    's.append("()");', 3)
-                self.emit("}", 2)
+                if field.type in products:
+                    self.emit("// Optional products not implemented yet:", 2)
+                    self.emit(template, 3)
+                else:
+                    self.emit("if (x.m_%s) {" % field.name, 2)
+                    self.emit(template, 3)
+                    self.emit("} else {", 2)
+                    self.emit(    's.append("()");', 3)
+                    self.emit("}", 2)
             else:
                 self.emit(template, level)
         else:
