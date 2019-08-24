@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect-rr 9
-%expect 4
+%expect-rr 6  // reduce/reduce conflicts
+%expect 4     // shift/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -260,7 +260,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 // Higher %dprec means higher precedence
 
 units
-    : units sep script_unit  %dprec 9  { RESULT($3); }
+    : units script_unit  %dprec 9  { RESULT($2); }
     | script_unit            %dprec 10 { RESULT($1); }
     ;
 
@@ -270,7 +270,7 @@ script_unit
     | function
     | var_decl
     | statement              %dprec 7
-    | expr                   %dprec 8
+    | expr sep                   %dprec 8
     ;
 
 // ----------------------------------------------------------------------------
@@ -278,8 +278,8 @@ script_unit
 
 
 program
-    : KW_PROGRAM id sep var_decl_star statements sep KW_END KW_PROGRAM id_opt {
-            $$ = PROGRAM($2, $4, $5, @$); }
+    : KW_PROGRAM id sep var_decl_star statements KW_END KW_PROGRAM id_opt sep {
+            LLOC(@$, @8); $$ = PROGRAM($2, $4, $5, @$); }
     ;
 
 // id?
@@ -289,23 +289,23 @@ id_opt
     ;
 
 subroutine
-    : KW_SUBROUTINE id sep var_decl_star statements sep KW_END KW_SUBROUTINE {
-            $$ = SUBROUTINE($2, $4, $5, @$); }
+    : KW_SUBROUTINE id sep var_decl_star statements KW_END KW_SUBROUTINE sep {
+            LLOC(@$, @7); $$ = SUBROUTINE($2, $4, $5, @$); }
     ;
 
 function
-    : KW_FUNCTION id sep var_decl_star statements sep KW_END KW_FUNCTION {
-            $$ = FUNCTION($2, $4, $5, @$); }
+    : KW_FUNCTION id sep var_decl_star statements KW_END KW_FUNCTION sep {
+            LLOC(@$, @7); $$ = FUNCTION($2, $4, $5, @$); }
     ;
 
 // var_decl*
 var_decl_star
-    : var_decl_star var_decl sep { $$ = $1; LIST_ADD($$, $2); }
+    : var_decl_star var_decl { $$ = $1; LIST_ADD($$, $2); }
     | %empty { LIST_NEW($$); }
     ;
 
 var_decl
-    : var_type var_sym_decl { $$ = VAR_DECL($1, $2, @$); }
+    : var_type var_sym_decl sep { $$ = VAR_DECL($1, $2, @$); }
     ;
 
 var_type
@@ -325,7 +325,7 @@ var_sym_decl
 // Control flow
 
 statements
-    : statements sep statement { $$ = $1; LIST_ADD($$, $3); }
+    : statements statement { $$ = $1; LIST_ADD($$, $2); }
     | statement { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
@@ -340,13 +340,13 @@ sep_one
     ;
 
 statement
-    : assignment_statement
-    | exit_statement
-    | return_statement
-    | cycle_statement
-    | if_statement
-    | while_statement
-    | do_statement
+    : assignment_statement sep
+    | exit_statement sep
+    | return_statement sep
+    | cycle_statement sep
+    | if_statement sep
+    | while_statement sep
+    | do_statement sep
     ;
 
 assignment_statement
@@ -359,25 +359,25 @@ if_statement
     ;
 
 if_block
-    : KW_IF '(' expr ')' KW_THEN sep statements sep {
+    : KW_IF '(' expr ')' KW_THEN sep statements {
             $$ = IF1($3, $7, @$); }
-    | KW_IF '(' expr ')' KW_THEN sep statements sep KW_ELSE sep statements sep {
-            $$ = IF2($3, $7, $11, @$); }
-    | KW_IF '(' expr ')' KW_THEN sep statements sep KW_ELSE if_block {
-            $$ = IF3($3, $7, $10, @$); }
+    | KW_IF '(' expr ')' KW_THEN sep statements KW_ELSE sep statements {
+            $$ = IF2($3, $7, $10, @$); }
+    | KW_IF '(' expr ')' KW_THEN sep statements KW_ELSE if_block {
+            $$ = IF3($3, $7, $9, @$); }
     ;
 
 while_statement
-    : KW_DO KW_WHILE '(' expr ')' sep statements sep enddo {
+    : KW_DO KW_WHILE '(' expr ')' sep statements enddo {
             $$ = WHILE($4, $7, @$); }
 
 // sr-conflict (2x): "KW_DO sep" being either a do_statement or an expr
 do_statement
-    : KW_DO sep statements sep enddo {
+    : KW_DO sep statements enddo {
             $$ = DO1($3, @$); }
-    | KW_DO id '=' expr ',' expr sep statements sep enddo {
+    | KW_DO id '=' expr ',' expr sep statements enddo {
             $$ = DO2($2, $4, $6, $8, @$); }
-    | KW_DO id '=' expr ',' expr ',' expr sep statements sep enddo {
+    | KW_DO id '=' expr ',' expr ',' expr sep statements enddo {
             $$ = DO3($2, $4, $6, $8, $10, @$); }
     ;
 

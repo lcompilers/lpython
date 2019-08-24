@@ -12,7 +12,7 @@ python grammar/asdl_py.py grammar/ASR.asdl lfortran/asr/asr.py ..ast.utils
 
 # Generate the tokenizer and parser
 (cd src/lfortran/parser && re2c -W -b tokenizer.re -o tokenizer.cpp)
-(cd src/lfortran/parser && bison -Wall -d parser.yy)
+(cd src/lfortran/parser && bison -Wall -d -r all parser.yy)
 
 # Generate a parse tree from fortran.g4
 antlr4="java org.antlr.v4.Tool"

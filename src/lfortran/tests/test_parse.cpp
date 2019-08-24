@@ -1027,7 +1027,7 @@ TEST_CASE("Errors") {
         CHECK(false);
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
-        CHECK(e.token == yytokentype::END_OF_FILE);
+        CHECK(e.token == yytokentype::TK_NEWLINE);
         show_syntax_error("input", input, e.loc, e.token);
         CHECK(e.loc.first_line == 1);
         CHECK(e.loc.first_column == 6);
