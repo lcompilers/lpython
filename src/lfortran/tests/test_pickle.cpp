@@ -162,10 +162,10 @@ TEST_CASE("Functions") {
     CHECK(P(R"(function g
     x = y
     x = 2*y
-    end function)")   == "(fn [] [(= x y) (= x (* 2 y))])");
+    end function)")   == "(fn g [] () () () [] [] [(= x y) (= x (* 2 y))] [])");
 
     CHECK(P(R"(function g
-    end function)")   == "(fn [] [])");
+    end function)")   == "(fn g [] () () () [] [] [] [])");
 
 
     CHECK(P(R"(function g
@@ -174,14 +174,14 @@ TEST_CASE("Functions") {
 
     x = 2*y;; ;
 
-    end function)")   == "(fn [] [(= x y) (= x (* 2 y))])");
+    end function)")   == "(fn g [] () () () [] [] [(= x y) (= x (* 2 y))] [])");
 
-    CHECK(P("function g; x = y; x = 2*y; end function") == "(fn [] [(= x y) (= x (* 2 y))])");
+    CHECK(P("function g; x = y; x = 2*y; end function") == "(fn g [] () () () [] [] [(= x y) (= x (* 2 y))] [])");
 
     CHECK(P(R"(function f
     subroutine = y
     x = 2*subroutine
-    end function)")   == "(fn [] [(= subroutine y) (= x (* 2 subroutine))])");
+    end function)")   == "(fn f [] () () () [] [] [(= subroutine y) (= x (* 2 subroutine))] [])");
 }
 
 TEST_CASE("Programs") {
@@ -263,7 +263,7 @@ TEST_CASE("Multiple units") {
     a)";
     results = LFortran::parsen(al, s);
     CHECK(results.size() == 4);
-    CHECK(LFortran::pickle(*results[0]) == "(fn [] [(= x y) (= x (* 2 y))])");
+    CHECK(LFortran::pickle(*results[0]) == "(fn g [] () () () [] [] [(= x y) (= x (* 2 y))] [])");
     CHECK(LFortran::pickle(*results[1]) == "(= s x)");
     CHECK(LFortran::pickle(*results[2]) == "(= y (+ z 1))");
     CHECK(LFortran::pickle(*results[3]) == "a");
@@ -658,13 +658,13 @@ TEST_CASE("declaration") {
     CHECK(P(R"(function g
     integer x
     x = 1
-    end function)") == "(fn [(decl x integer)] [(= x 1)])");
+    end function)") == "(fn g [] () () () [] [(decl x integer)] [(= x 1)] [])");
 
     CHECK(P(R"(function g
     integer x
     real x
     x = 1
-    end function)") == "(fn [(decl x integer) (decl x real)] [(= x 1)])");
+    end function)") == "(fn g [] () () () [] [(decl x integer) (decl x real)] [(= x 1)] [])");
 
     CHECK(P(R"(subroutine g
     integer x
