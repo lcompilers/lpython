@@ -384,6 +384,9 @@ class PickleVisitorVisitor(ASDLVisitor):
         subs = {
             "assignment": "=",
             "whileloop": "while",
+            "program": "prog",
+            "subroutine": "sub",
+            "function": "fn",
         }
         name = name.lower()
         if name in subs:
