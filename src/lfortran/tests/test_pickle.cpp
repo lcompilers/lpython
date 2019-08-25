@@ -162,10 +162,10 @@ TEST_CASE("Functions") {
     CHECK(P(R"(function g
     x = y
     x = 2*y
-    end function)")   == "(fn [] [(= x y) (= x (* 2 y))])");
+    end function)")   == "(fn g [] () () () [] [] [(= x y) (= x (* 2 y))] [])");
 
     CHECK(P(R"(function g
-    end function)")   == "(fn [] [])");
+    end function)")   == "(fn g [] () () () [] [] [] [])");
 
 
     CHECK(P(R"(function g
@@ -174,14 +174,14 @@ TEST_CASE("Functions") {
 
     x = 2*y;; ;
 
-    end function)")   == "(fn [] [(= x y) (= x (* 2 y))])");
+    end function)")   == "(fn g [] () () () [] [] [(= x y) (= x (* 2 y))] [])");
 
-    CHECK(P("function g; x = y; x = 2*y; end function") == "(fn [] [(= x y) (= x (* 2 y))])");
+    CHECK(P("function g; x = y; x = 2*y; end function") == "(fn g [] () () () [] [] [(= x y) (= x (* 2 y))] [])");
 
     CHECK(P(R"(function f
     subroutine = y
     x = 2*subroutine
-    end function)")   == "(fn [] [(= subroutine y) (= x (* 2 subroutine))])");
+    end function)")   == "(fn f [] () () () [] [] [(= subroutine y) (= x (* 2 subroutine))] [])");
 }
 
 TEST_CASE("Programs") {
@@ -190,10 +190,10 @@ TEST_CASE("Programs") {
     CHECK(P(R"(program g
     x = y
     x = 2*y
-    end program)")   == "(prog g [] [(= x y) (= x (* 2 y))])");
+    end program)")   == "(prog g [] [] [(= x y) (= x (* 2 y))] [])");
 
     CHECK(P(R"(program g
-    end program)")   == "(prog g [] [])");
+    end program)")   == "(prog g [] [] [] [])");
 
 
     CHECK(P(R"(program g
@@ -202,23 +202,23 @@ TEST_CASE("Programs") {
 
     x = 2*y;; ;
 
-    end program)")   == "(prog g [] [(= x y) (= x (* 2 y))])");
+    end program)")   == "(prog g [] [] [(= x y) (= x (* 2 y))] [])");
 
-    CHECK(P("program g; x = y; x = 2*y; end program") == "(prog g [] [(= x y) (= x (* 2 y))])");
+    CHECK(P("program g; x = y; x = 2*y; end program") == "(prog g [] [] [(= x y) (= x (* 2 y))] [])");
 
     CHECK(P(R"(program f
     subroutine = y
     x = 2*subroutine
-    end program)")   == "(prog f [] [(= subroutine y) (= x (* 2 subroutine))])");
+    end program)")   == "(prog f [] [] [(= subroutine y) (= x (* 2 subroutine))] [])");
 
     CHECK(P(R"(program g
     x = y
-    end program g)")   == "(prog g [] [(= x y)])");
+    end program g)")   == "(prog g [] [] [(= x y)] [])");
 
     CHECK(P(
    R"(PROGRAM TESTFortran90
       integer stop ; stop = 1 ; do while ( stop .eq. 0 ) ; end do
-      END PROGRAM TESTFortran90)") == "(prog TESTFortran90 [(decl stop integer)] [(= stop 1) (while (== stop 0) [])])");
+      END PROGRAM TESTFortran90)") == "(prog TESTFortran90 [] [(decl stop integer)] [(= stop 1) (while (== stop 0) [])] [])");
 }
 
 TEST_CASE("Multiple units") {
@@ -263,7 +263,7 @@ TEST_CASE("Multiple units") {
     a)";
     results = LFortran::parsen(al, s);
     CHECK(results.size() == 4);
-    CHECK(LFortran::pickle(*results[0]) == "(fn [] [(= x y) (= x (* 2 y))])");
+    CHECK(LFortran::pickle(*results[0]) == "(fn g [] () () () [] [] [(= x y) (= x (* 2 y))] [])");
     CHECK(LFortran::pickle(*results[1]) == "(= s x)");
     CHECK(LFortran::pickle(*results[2]) == "(= y (+ z 1))");
     CHECK(LFortran::pickle(*results[3]) == "a");
@@ -658,13 +658,13 @@ TEST_CASE("declaration") {
     CHECK(P(R"(function g
     integer x
     x = 1
-    end function)") == "(fn [(decl x integer)] [(= x 1)])");
+    end function)") == "(fn g [] () () () [] [(decl x integer)] [(= x 1)] [])");
 
     CHECK(P(R"(function g
     integer x
     real x
     x = 1
-    end function)") == "(fn [(decl x integer) (decl x real)] [(= x 1)])");
+    end function)") == "(fn g [] () () () [] [(decl x integer) (decl x real)] [(= x 1)] [])");
 
     CHECK(P(R"(subroutine g
     integer x
@@ -680,11 +680,11 @@ TEST_CASE("declaration") {
     CHECK(P(R"(program g
     integer x
     x = 1
-    end program)") == "(prog g [(decl x integer)] [(= x 1)])");
+    end program)") == "(prog g [] [(decl x integer)] [(= x 1)] [])");
 
     CHECK(P(R"(program g
     integer x
     complex x
     x = 1
-    end program)") == "(prog g [(decl x integer) (decl x complex)] [(= x 1)])");
+    end program)") == "(prog g [] [(decl x integer) (decl x complex)] [(= x 1)] [])");
 }
