@@ -58,32 +58,14 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 // implicit one character literal tokens specified as strings, such as '+' or
 // '/'. Their codes are their character ord number.
 
+// Terminal tokens
+
 %token END_OF_FILE 0
 %token <string> TK_NAME
 %token <string> TK_DEF_OP
 %token <n> TK_INTEGER
 %token TK_REAL
-%type <ast> expr
-%type <ast> id
-%type <ast> script_unit
-%type <ast> program
-%type <ast> subroutine
-%type <ast> function
-%type <vec_ast> var_decl_star
-%type <vec_ast> var_sym_decl_list
-%type <ast> var_decl
-%type <ast> var_sym_decl
-%type <string> var_type
-%type <ast> statement
-%type <ast> assignment_statement
-%type <ast> if_statement
-%type <ast> if_block
-%type <ast> while_statement
-%type <ast> do_statement
-%type <ast> exit_statement
-%type <ast> return_statement
-%type <ast> cycle_statement
-%type <vec_ast> statements
+
 
 %token TK_NEWLINE
 %token TK_STRING
@@ -109,6 +91,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 
 %token TK_TRUE
 %token TK_FALSE
+
+// Terminal tokens: semi-reserved keywords
 
 %token <string> KW_ABSTRACT
 %token <string> KW_ALL
@@ -241,6 +225,32 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_WHERE
 %token <string> KW_WHILE
 %token <string> KW_WRITE
+
+// Nonterminal tokens
+
+%type <ast> expr
+%type <ast> id
+%type <ast> script_unit
+%type <ast> program
+%type <ast> subroutine
+%type <ast> function
+%type <vec_ast> var_decl_star
+%type <vec_ast> var_sym_decl_list
+%type <ast> var_decl
+%type <ast> var_sym_decl
+%type <string> var_type
+%type <ast> statement
+%type <ast> assignment_statement
+%type <ast> if_statement
+%type <ast> if_block
+%type <ast> while_statement
+%type <ast> do_statement
+%type <ast> exit_statement
+%type <ast> return_statement
+%type <ast> cycle_statement
+%type <vec_ast> statements
+
+// Precedence
 
 %left TK_EQ TK_NE TK_LT TK_LE TK_GT TK_GE
 %left '-' '+'
