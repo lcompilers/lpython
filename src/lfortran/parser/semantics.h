@@ -96,7 +96,9 @@ static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
     decl_t *s = al.allocate<decl_t>();
     s->m_sym = name2char(EXPR(x));
     s->m_sym_type = type.c_str(al);
+    s->n_dims = 0;
     s->m_dims = nullptr;
+    s->n_attrs = 0;
     s->m_attrs = nullptr;
     return s;
 }
