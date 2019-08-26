@@ -648,43 +648,43 @@ TEST_CASE("return") {
 TEST_CASE("declaration") {
     Allocator al(4*1024);
 
-    CHECK(P("integer x") == "(decl x integer)");
-    CHECK(P("character x") == "(decl x character)");
-    CHECK(P("real x") == "(decl x real)");
-    CHECK(P("complex x") == "(decl x complex)");
-    CHECK(P("logical x") == "(decl x logical)");
-    CHECK(P("type x") == "(decl x type)");
+    CHECK(P("integer x") == "(declaration [(decl x integer [] [])])");
+    CHECK(P("character x") == "(declaration [(decl x character [] [])])");
+    CHECK(P("real x") == "(declaration [(decl x real [] [])])");
+    CHECK(P("complex x") == "(declaration [(decl x complex [] [])])");
+    CHECK(P("logical x") == "(declaration [(decl x logical [] [])])");
+    CHECK(P("type x") == "(declaration [(decl x type [] [])])");
 
     CHECK(P(R"(function g
     integer x
     x = 1
-    end function)") == "(fn g [] () () () [] [(decl x integer)] [(= x 1)] [])");
+    end function)") == "(fn g [] () () () [] [(declaration [(decl x integer [] [])])] [(= x 1)] [])");
 
     CHECK(P(R"(function g
     integer x
     real x
     x = 1
-    end function)") == "(fn g [] () () () [] [(decl x integer) (decl x real)] [(= x 1)] [])");
+    end function)") == "(fn g [] () () () [] [(declaration [(decl x integer [] [])]) (declaration [(decl x real [] [])])] [(= x 1)] [])");
 
     CHECK(P(R"(subroutine g
     integer x
     x = 1
-    end subroutine)") == "(sub g [] [] [(decl x integer)] [(= x 1)] [])");
+    end subroutine)") == "(sub g [] [] [(declaration [(decl x integer [] [])])] [(= x 1)] [])");
 
     CHECK(P(R"(subroutine g
     integer x
     character x
     x = 1
-    end subroutine)") == "(sub g [] [] [(decl x integer) (decl x character)] [(= x 1)] [])");
+    end subroutine)") == "(sub g [] [] [(declaration [(decl x integer [] [])]) (declaration [(decl x character [] [])])] [(= x 1)] [])");
 
     CHECK(P(R"(program g
     integer x
     x = 1
-    end program)") == "(prog g [] [(decl x integer)] [(= x 1)] [])");
+    end program)") == "(prog g [] [(declaration [(decl x integer [] [])])] [(= x 1)] [])");
 
     CHECK(P(R"(program g
     integer x
     complex x
     x = 1
-    end program)") == "(prog g [] [(decl x integer) (decl x complex)] [(= x 1)] [])");
+    end program)") == "(prog g [] [(declaration [(decl x integer [] [])]) (declaration [(decl x complex [] [])])] [(= x 1)] [])");
 }
