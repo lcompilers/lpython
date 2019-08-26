@@ -29,26 +29,6 @@ using LFortran::AST::PickleBaseVisitor;
 
 namespace LFortran {
 
-std::string stmt2str(const stmtType type)
-{
-    switch (type) {
-        case (stmtType::Assignment) : return "=";
-        default : throw std::runtime_error("Unknown type");
-    }
-    throw std::runtime_error("Unknown type");
-}
-
-std::string expr2str(const exprType type)
-{
-    switch (type) {
-        case (exprType::BoolOp) : return "BoolOp";
-        case (exprType::BinOp) : return "BinOp";
-        case (exprType::UnaryOp) : return "UnaryOp";
-        default : throw std::runtime_error("Unknown type");
-    }
-    throw std::runtime_error("Unknown type");
-}
-
 std::string op2str(const operatorType type)
 {
     switch (type) {
