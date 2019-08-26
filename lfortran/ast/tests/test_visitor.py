@@ -88,23 +88,23 @@ subroutine sub2(c)"""
 class DoLoopTransformer(ast.utils.NodeTransformer):
 
     def visit_DoLoop(self, node):
-        if node.head:
-            cond = ast.ast.Compare(ast.ast.Name(node.head.var,
+        if node.var:
+            cond = ast.ast.Compare(ast.ast.Name(node.var,
                 lineno=1, col_offset=1),
-                    ast.ast.LtE(), node.head.end, lineno=1, col_offset=1)
-            if node.head.increment:
-                step = node.head.increment
+                    ast.ast.LtE(), node.end, lineno=1, col_offset=1)
+            if node.increment:
+                step = node.increment
             else:
                 step = ast.ast.Num(n="1", lineno=1, col_offset=1)
         else:
             cond = ast.ast.Constant(True, lineno=1, col_offset=1)
-        varname = ast.ast.Name(node.head.var, lineno=1, col_offset=1)
+        varname = ast.ast.Name(node.var, lineno=1, col_offset=1)
         body = self.visit_sequence(node.body)
         body = [ast.ast.Assignment(varname,
             ast.ast.BinOp(varname,
                 ast.ast.Add(), step, lineno=1, col_offset=1), lineno=1,
             col_offset=1)] + body
-        return [ast.ast.Assignment(varname, node.head.start,
+        return [ast.ast.Assignment(varname, node.start,
             lineno=1, col_offset=1),
                 ast.ast.WhileLoop(cond, body, lineno=1, col_offset=1)]
 
