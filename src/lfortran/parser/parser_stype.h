@@ -9,20 +9,21 @@ namespace LFortran
 {
 
 // Vector implementation
+template <typename T>
 struct Vec {
     size_t n, max;
-    LFortran::AST::ast_t** p;
+    T* p;
     // reserve() must be called before calling push_back()
     void reserve(Allocator &al, size_t max) {
         n = 0;
         this->max = max;
-        p = al.allocate<LFortran::AST::ast_t*>(max);
+        p = al.allocate<T>(max);
     }
-    void push_back(Allocator &al, LFortran::AST::ast_t *x) {
+    void push_back(Allocator &al, T x) {
         if (n == max) {
             size_t max2 = 2*max;
-            LFortran::AST::ast_t** p2 = al.allocate<LFortran::AST::ast_t*>(max2);
-            std::memcpy(p2, p, sizeof(LFortran::AST::ast_t*) * max);
+            T* p2 = al.allocate<T>(max2);
+            std::memcpy(p2, p, sizeof(T) * max);
             p = p2;
             max = max2;
         }
@@ -37,7 +38,7 @@ struct Vec {
 union YYSTYPE {
     unsigned long n;
     LFortran::AST::ast_t* ast;
-    using Vec = LFortran::Vec;
+    using Vec = LFortran::Vec<LFortran::AST::ast_t*>;
     Vec vec_ast;
 
     // String implementation (not null-terminated)
