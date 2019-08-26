@@ -52,11 +52,14 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 
 // -----------------------------------------------------------------------------
 // List of tokens
-// All tokens must be mentioned here in one of: %token, %type, %left, %right.
-// Otherwise Bison will issue an error. Each token mentioned here will end up a
-// member of the "enum yytokentype" in parser.tab.h. The only exception are
-// implicit one character literal tokens specified as strings, such as '+' or
-// '/'. Their codes are their character ord number.
+// All tokens that we use (including "+" and such) are declared here first
+// using the %token line. Each token will end up a member of the "enum
+// yytokentype" in parser.tab.hh. Tokens can have a string equivalent (such as
+// "+" for TK_PLUS) that is used later in the file to simplify reading it, but
+// it is equivalent to TK_PLUS. Bison also allows so called "character token
+// type" which are specified using single quotes (and that bypass the %token
+// definitions), and those are not used here, and we test that the whole file
+// does not contain any single quotes to ensure that.
 
 // Terminal tokens
 
@@ -65,6 +68,16 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> TK_DEF_OP
 %token <n> TK_INTEGER
 %token TK_REAL
+
+%token TK_PLUS "+"
+%token TK_MINUS "-"
+%token TK_STAR "*"
+%token TK_SLASH "/"
+%token TK_SEMICOLON ";"
+%token TK_COMMA ","
+%token TK_EQUAL "="
+%token TK_LPAREN "("
+%token TK_RPAREN ")"
 
 
 %token TK_NEWLINE
@@ -76,7 +89,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token TK_CONCAT
 %token TK_ARROW
 
-%token TK_EQ
+%token TK_EQ "=="
 %token TK_NE
 %token TK_LT
 %token TK_LE
@@ -253,8 +266,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 // Precedence
 
 %left TK_EQ TK_NE TK_LT TK_LE TK_GT TK_GE
-%left '-' '+'
-%left '*' '/'
+%left "-" "+"
+%left "*" "/"
 %right TK_POW
 
 %start units
@@ -329,7 +342,7 @@ var_type
     ;
 
 var_sym_decl_list
-    : var_sym_decl_list ',' var_sym_decl { $$=$1; LIST_ADD($$, $3); }
+    : var_sym_decl_list "," var_sym_decl { $$=$1; LIST_ADD($$, $3); }
     | var_sym_decl { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
@@ -352,7 +365,7 @@ sep
 
 sep_one
     : TK_NEWLINE
-    | ';'
+    | ";"
     ;
 
 statement
@@ -366,7 +379,7 @@ statement
     ;
 
 assignment_statement
-    : expr '=' expr { $$ = ASSIGNMENT($1, $3, @$); }
+    : expr "=" expr { $$ = ASSIGNMENT($1, $3, @$); }
     ;
 
 // sr-conflict (2x): KW_ENDIF can be an "id" or end of "if_statement"
@@ -375,25 +388,25 @@ if_statement
     ;
 
 if_block
-    : KW_IF '(' expr ')' KW_THEN sep statements {
+    : KW_IF "(" expr ")" KW_THEN sep statements {
             $$ = IF1($3, $7, @$); }
-    | KW_IF '(' expr ')' KW_THEN sep statements KW_ELSE sep statements {
+    | KW_IF "(" expr ")" KW_THEN sep statements KW_ELSE sep statements {
             $$ = IF2($3, $7, $10, @$); }
-    | KW_IF '(' expr ')' KW_THEN sep statements KW_ELSE if_block {
+    | KW_IF "(" expr ")" KW_THEN sep statements KW_ELSE if_block {
             $$ = IF3($3, $7, $9, @$); }
     ;
 
 while_statement
-    : KW_DO KW_WHILE '(' expr ')' sep statements enddo {
+    : KW_DO KW_WHILE "(" expr ")" sep statements enddo {
             $$ = WHILE($4, $7, @$); }
 
 // sr-conflict (2x): "KW_DO sep" being either a do_statement or an expr
 do_statement
     : KW_DO sep statements enddo {
             $$ = DO1($3, @$); }
-    | KW_DO id '=' expr ',' expr sep statements enddo {
+    | KW_DO id "=" expr "," expr sep statements enddo {
             $$ = DO2($2, $4, $6, $8, @$); }
-    | KW_DO id '=' expr ',' expr ',' expr sep statements enddo {
+    | KW_DO id "=" expr "," expr "," expr sep statements enddo {
             $$ = DO3($2, $4, $6, $8, $10, @$); }
     ;
 
@@ -426,15 +439,15 @@ expr
 // ### primary
     : id { $$ = $1; }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
-    | '(' expr ')' { $$ = $2; }
+    | "(" expr ")" { $$ = $2; }
 
 // ### level-1
 
 // ### level-2
-    | expr '+' expr { $$ = ADD($1, $3, @$); }
-    | expr '-' expr { $$ = SUB($1, $3, @$); }
-    | expr '*' expr { $$ = MUL($1, $3, @$); }
-    | expr '/' expr { $$ = DIV($1, $3, @$); }
+    | expr "+" expr { $$ = ADD($1, $3, @$); }
+    | expr "-" expr { $$ = SUB($1, $3, @$); }
+    | expr "*" expr { $$ = MUL($1, $3, @$); }
+    | expr "/" expr { $$ = DIV($1, $3, @$); }
     | expr TK_POW expr { $$ = POW($1, $3, @$); }
 
 // ### level-3
