@@ -656,15 +656,15 @@ TEST_CASE("declaration") {
     CHECK(P("type x") == "(decl [(x type [] [] ())])");
 
     CHECK(P("integer x = 3") == "(decl [(x integer [] [] 3)])");
-    CHECK(P("integer x(5)") == "(decl [(x integer [(() 5)] [] ())])");
+    CHECK(P("integer x(5)") == "(decl [(x integer [(1 5)] [] ())])");
     CHECK(P("integer x(5:)") == "(decl [(x integer [(5 ())] [] ())])");
     CHECK(P("integer x(:5)") == "(decl [(x integer [(() 5)] [] ())])");
     CHECK(P("integer x(:)") == "(decl [(x integer [(() ())] [] ())])");
-    CHECK(P("integer x(5,:,:3,3:)") == "(decl [(x integer [(() 5) (() ()) (() 3) (3 ())] [] ())])");
-    CHECK(P("integer x(5,:,:3,3:) = 3") == "(decl [(x integer [(() 5) (() ()) (() 3) (3 ())] [] 3)])");
-    CHECK(P("integer x(5,:,:3,3:) = 3+2") == "(decl [(x integer [(() 5) (() ()) (() 3) (3 ())] [] (+ 3 2))])");
-    CHECK(P("integer x(5,:,:3,3:) = 3, y(:3)=4") == "(decl [(x integer [(() 5) (() ()) (() 3) (3 ())] [] 3) (y integer [(() 3)] [] 4)])");
-    CHECK(P("integer x(5,:,:3,3:) = x") == "(decl [(x integer [(() 5) (() ()) (() 3) (3 ())] [] x)])");
+    CHECK(P("integer x(5,:,:3,3:)") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] ())])");
+    CHECK(P("integer x(5,:,:3,3:) = 3") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] 3)])");
+    CHECK(P("integer x(5,:,:3,3:) = 3+2") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] (+ 3 2))])");
+    CHECK(P("integer x(5,:,:3,3:) = 3, y(:3)=4") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] 3) (y integer [(() 3)] [] 4)])");
+    CHECK(P("integer x(5,:,:3,3:) = x") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] x)])");
     CHECK_THROWS_AS(P("integer x(5,:,:3,3:) = x y"), LFortran::ParserError);
 
     CHECK(P(R"(function g
