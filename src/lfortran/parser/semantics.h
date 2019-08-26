@@ -106,6 +106,18 @@ static inline decl_t* DECL(Allocator &al, const YYSTYPE::VecDecl &x,
     return s;
 }
 
+static inline decl_t DECL2(ast_t* n)
+{
+    decl_t s;
+    s.m_sym = name2char(EXPR(n));
+    s.m_sym_type = nullptr;
+    s.n_dims = 0;
+    s.m_dims = nullptr;
+    s.n_attrs = 0;
+    s.m_attrs = nullptr;
+    return s;
+}
+
 
 #define TYPE ast_t*
 
@@ -218,9 +230,10 @@ static inline decl_t* DECL(Allocator &al, const YYSTYPE::VecDecl &x,
 #define VAR_DECL(type, syms, l) make_Declaration_t(p.m_a, l, \
         DECL(p.m_a, syms, type), syms.size())
 
-#define VAR_SYM_DECL1(id, l)
-#define VAR_SYM_DECL2(id, e, l)
-#define VAR_SYM_DECL3(id, a, l)
-#define VAR_SYM_DECL4(id, a, e, l)
+#define VSD(id) DECL2(id)
+#define VAR_SYM_DECL1(id, l)         VSD(id)
+#define VAR_SYM_DECL2(id, e, l)      VSD(id)
+#define VAR_SYM_DECL3(id, a, l)      VSD(id)
+#define VAR_SYM_DECL4(id, a, e, l)   VSD(id)
 
 #endif

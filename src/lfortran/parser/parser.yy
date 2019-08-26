@@ -355,10 +355,11 @@ var_sym_decl_list
     ;
 
 var_sym_decl
-    : id                                       { VAR_SYM_DECL1($1, @$); }
-    | id "=" expr                              { VAR_SYM_DECL2($1, $3, @$); }
-    | id "(" array_comp_decl_list ")"          { VAR_SYM_DECL3($1, $3, @$); }
-    | id "(" array_comp_decl_list ")" "=" expr { VAR_SYM_DECL4($1, $3, $6, @$);}
+    : id                                     { $$ = VAR_SYM_DECL1($1, @$); }
+    | id "=" expr                            { $$ = VAR_SYM_DECL2($1, $3, @$); }
+    | id "(" array_comp_decl_list ")"        { $$ = VAR_SYM_DECL3($1, $3, @$); }
+    | id "(" array_comp_decl_list ")" "=" expr {
+            $$ = VAR_SYM_DECL4($1, $3, $6, @$); }
     ;
 
 array_comp_decl_list
