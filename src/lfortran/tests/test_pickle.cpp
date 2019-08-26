@@ -650,6 +650,12 @@ TEST_CASE("declaration") {
 
     CHECK(P("integer x") == "(decl [(x integer [] [] ())])");
     CHECK(P("integer :: x") == "(decl [(x integer [] [] ())])");
+    // TODO: put modifier in pickle
+    CHECK(P("integer, parameter :: x") == "(decl [(x integer [] [] ())])");
+    // TODO: put modifier in pickle
+    CHECK(P("integer, parameter, pointer :: x") == "(decl [(x integer [] [] ())])");
+    CHECK_THROWS_AS(P("integer, parameter, pointer x"),
+            LFortran::ParserError);
     CHECK(P("character x") == "(decl [(x character [] [] ())])");
     CHECK(P("real x") == "(decl [(x real [] [] ())])");
     CHECK(P("complex x") == "(decl [(x complex [] [] ())])");
