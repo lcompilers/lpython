@@ -263,7 +263,7 @@ end subroutine
     tree = src_to_ast(source, False)
     symbol_table = create_symbol_table(tree)
     annotate_tree(tree, symbol_table)
-    assert dump(tree, include_type=True) == "Subroutine(name='sub1', args=[arg(arg='a'), arg(arg='b')], use=[], decl=[Declaration(vars=[decl(sym='a', sym_type='integer', dims=[], attrs=[Attribute(name='intent', args=[attribute_arg(arg='in')])])]), Declaration(vars=[decl(sym='b', sym_type='integer', dims=[], attrs=[Attribute(name='intent', args=[attribute_arg(arg='in')])])])], body=[Assignment(target=Name(id='a'), value=BinOp(left=BinOp(left=BinOp(left=Name(id='b', type=Integer()), op=Add(), right=Num(n='1', type=Integer()), type=Integer()), op=Mul(), right=Name(id='a', type=Integer()), type=Integer()), op=Mul(), right=Num(n='5', type=Integer()), type=Integer()), type=Integer())], contains=[])"
+    assert dump(tree, include_type=True) == "Subroutine(name='sub1', args=[arg(arg='a'), arg(arg='b')], use=[], decl=[Declaration(vars=[decl(sym='a', sym_type='integer', dims=[], attrs=[Attribute(name='intent', args=[attribute_arg(arg='in')])], initializer=None)]), Declaration(vars=[decl(sym='b', sym_type='integer', dims=[], attrs=[Attribute(name='intent', args=[attribute_arg(arg='in')])], initializer=None)])], body=[Assignment(target=Name(id='a'), value=BinOp(left=BinOp(left=BinOp(left=Name(id='b', type=Integer()), op=Add(), right=Num(n='1', type=Integer()), type=Integer()), op=Mul(), right=Name(id='a', type=Integer()), type=Integer()), op=Mul(), right=Num(n='5', type=Integer()), type=Integer()), type=Integer())], contains=[])"
 
 def test_logical1():
     source = """\
