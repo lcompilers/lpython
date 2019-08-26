@@ -260,6 +260,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_dim> array_comp_decl_list
 %type <dim> array_comp_decl
 %type <string> var_type
+%type <vec_ast> var_modifier_list
+%type <ast> var_modifier
 %type <ast> statement
 %type <ast> assignment_statement
 %type <ast> if_statement
@@ -355,21 +357,21 @@ var_modifiers
     ;
 
 var_modifier_list
-    : var_modifier_list "," var_modifier
-    | "," var_modifier
+    : var_modifier_list "," var_modifier { $$=$1; LIST_ADD($$, $3); }
+    | "," var_modifier { LIST_NEW($$); LIST_ADD($$, $2); }
     ;
 
 var_modifier
-    : KW_PARAMETER
-    | KW_DIMENSION "(" array_comp_decl_list ")"
-    | KW_ALLOCATABLE
-    | KW_POINTER
-    | KW_PROTECTED
-    | KW_SAVE
-    | KW_CONTIGUOUS
-    | KW_INTENT "(" KW_IN ")"
-    | KW_INTENT "(" KW_OUT ")"
-    | KW_INTENT "(" KW_INOUT ")"
+    : KW_PARAMETER                  { $$ = VARMOD($1, @$); }
+    | KW_DIMENSION "(" array_comp_decl_list ")" {}
+    | KW_ALLOCATABLE {}
+    | KW_POINTER {}
+    | KW_PROTECTED {}
+    | KW_SAVE {}
+    | KW_CONTIGUOUS {}
+    | KW_INTENT "(" KW_IN ")" {}
+    | KW_INTENT "(" KW_OUT ")" {}
+    | KW_INTENT "(" KW_INOUT ")" {}
     ;
 
 

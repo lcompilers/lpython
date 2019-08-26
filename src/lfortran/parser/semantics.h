@@ -34,6 +34,7 @@ using LFortran::AST::Name_t;
 using LFortran::AST::Num_t;
 
 using LFortran::AST::make_BinOp_t;
+using LFortran::AST::make_Attribute_t;
 using LFortran::AST::make_DoLoop_t;
 using LFortran::AST::make_Exit_t;
 using LFortran::AST::make_Cycle_t;
@@ -253,5 +254,10 @@ static inline dimension_t DIM1(expr_t *a, expr_t *b)
 #define ARRAY_COMP_DECL3(a, l)       DIM1(EXPR(a), nullptr)
 #define ARRAY_COMP_DECL4(b, l)       DIM1(nullptr, EXPR(b))
 #define ARRAY_COMP_DECL5(l)          DIM1(nullptr, nullptr)
+
+#define VARMOD(a, l) make_Attribute_t(p.m_a, l, \
+        a.c_str(p.m_a), \
+        /*args*/ nullptr, \
+        /*n_args*/ 0)
 
 #endif
