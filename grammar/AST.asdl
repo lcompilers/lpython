@@ -59,7 +59,8 @@ stmt
     | Where(expr test, stmt* body, stmt* orelse)
     | Stop(int? code)
     | ErrorStop()
-    | DoLoop(do_loop_head? head, stmt* body)
+    | DoLoop(identifier? var, expr? start, expr? end, expr? increment,
+            stmt* body)
     | Select(expr test, case_stmt* body, case_default? default)
     | Cycle()
     | Exit()
@@ -107,9 +108,6 @@ keyword = (identifier? arg, expr value)
 tbind = Bind(keyword* args)
 
 array_index = ArrayIndex(expr? left, expr? right, expr? step)
-
-do_loop_head = (identifier var, expr start, expr end, expr? increment)
-        attributes (int lineno, int col_offset)
 
 case_stmt = (expr test, stmt* body)
         attributes (int lineno, int col_offset)
