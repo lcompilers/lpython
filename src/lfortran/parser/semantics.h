@@ -57,7 +57,7 @@ static inline char* name2char(const expr_t *n)
 }
 
 template <typename T, astType type>
-static inline T** vec_cast(const YYSTYPE::Vec &x) {
+static inline T** vec_cast(const YYSTYPE::VecAST &x) {
     T **s = (T**)x.p;
     for (size_t i=0; i < x.size(); i++) {
         LFORTRAN_ASSERT((s[i]->base.type == type))
