@@ -101,14 +101,6 @@ public:
         this->visit_expr(*x.m_right);
         s.append(")");
     }
-    void visit_Declaration(const Declaration_t &x) {
-        s.append("(decl ");
-        LFORTRAN_ASSERT(x.n_vars == 1);
-        s.append(x.m_vars[0].m_sym);
-        s.append(" ");
-        s.append(x.m_vars[0].m_sym_type);
-        s.append(")");
-    }
     void visit_Name(const Name_t &x) {
         s.append(x.m_id);
     }
