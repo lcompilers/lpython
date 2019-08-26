@@ -655,6 +655,8 @@ TEST_CASE("declaration") {
     CHECK(P("logical x") == "(declaration [(decl x logical [] [])])");
     CHECK(P("type x") == "(declaration [(decl x type [] [])])");
 
+    CHECK(P("integer x = 3") == "(declaration [(decl x integer [] [])])");
+
     CHECK(P(R"(function g
     integer x
     x = 1
