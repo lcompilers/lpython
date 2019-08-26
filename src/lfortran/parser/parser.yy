@@ -89,27 +89,27 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 
 %token TK_STRING
 
-%token TK_DBL_DOT
-%token TK_DBL_COLON
-%token TK_POW
-%token TK_CONCAT
-%token TK_ARROW
+%token TK_DBL_DOT ".."
+%token TK_DBL_COLON "::"
+%token TK_POW "**"
+%token TK_CONCAT "//"
+%token TK_ARROW "=>"
 
 %token TK_EQ "=="
-%token TK_NE
-%token TK_LT
-%token TK_LE
-%token TK_GT
-%token TK_GE
+%token TK_NE "/="
+%token TK_LT "<"
+%token TK_LE "<="
+%token TK_GT ">"
+%token TK_GE ">="
 
-%token TK_NOT
-%token TK_AND
-%token TK_OR
-%token TK_EQV
-%token TK_NEQV
+%token TK_NOT ".not."
+%token TK_AND ".and."
+%token TK_OR ".or."
+%token TK_EQV ".eqv."
+%token TK_NEQV ".neqv."
 
-%token TK_TRUE
-%token TK_FALSE
+%token TK_TRUE ".true."
+%token TK_FALSE ".false."
 
 // Terminal tokens: semi-reserved keywords
 
@@ -271,10 +271,10 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 
 // Precedence
 
-%left TK_EQ TK_NE TK_LT TK_LE TK_GT TK_GE
+%left "==" "/=" "<" "<=" ">" ">="
 %left "-" "+"
 %left "*" "/"
-%right TK_POW
+%right "**"
 
 %start units
 
@@ -454,17 +454,17 @@ expr
     | expr "-" expr { $$ = SUB($1, $3, @$); }
     | expr "*" expr { $$ = MUL($1, $3, @$); }
     | expr "/" expr { $$ = DIV($1, $3, @$); }
-    | expr TK_POW expr { $$ = POW($1, $3, @$); }
+    | expr "**" expr { $$ = POW($1, $3, @$); }
 
 // ### level-3
 
 // ### level-4
-    | expr TK_EQ expr { $$ = EQ($1, $3, @$); }
-    | expr TK_NE expr { $$ = NE($1, $3, @$); }
-    | expr TK_LT expr { $$ = LT($1, $3, @$); }
-    | expr TK_LE expr { $$ = LE($1, $3, @$); }
-    | expr TK_GT expr { $$ = GT($1, $3, @$); }
-    | expr TK_GE expr { $$ = GE($1, $3, @$); }
+    | expr "==" expr { $$ = EQ($1, $3, @$); }
+    | expr "/=" expr { $$ = NE($1, $3, @$); }
+    | expr "<" expr { $$ = LT($1, $3, @$); }
+    | expr "<=" expr { $$ = LE($1, $3, @$); }
+    | expr ">" expr { $$ = GT($1, $3, @$); }
+    | expr ">=" expr { $$ = GE($1, $3, @$); }
 
 // ### level-5
 
