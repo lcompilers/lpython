@@ -91,12 +91,12 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
     return make_Name_t(al, loc, s);
 }
 
-static inline decl_t* DECL(Allocator &al, const YYSTYPE::Vec &x,
+static inline decl_t* DECL(Allocator &al, const YYSTYPE::VecDecl &x,
         const YYSTYPE::Str &type)
 {
     decl_t *s = al.allocate<decl_t>(x.size());
     for (size_t i=0; i < x.size(); i++) {
-        s[i].m_sym = name2char(EXPR(x.p[i]));
+        s[i].m_sym = x.p[i].m_sym;
         s[i].m_sym_type = type.c_str(al);
         s[i].n_dims = 0;
         s[i].m_dims = nullptr;
