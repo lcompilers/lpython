@@ -257,7 +257,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_decl> var_sym_decl_list
 %type <ast> var_decl
 %type <decl> var_sym_decl
-%type <vec_decl> array_decl
 %type <vec_decl> array_comp_decl_list
 %type <decl> array_comp_decl
 %type <string> var_type
@@ -356,14 +355,10 @@ var_sym_decl_list
     ;
 
 var_sym_decl
-    : id                      { VAR_SYM_DECL1($1, @$); }
-    | id "=" expr             { VAR_SYM_DECL2($1, $3, @$); }
-    | id array_decl           { VAR_SYM_DECL3($1, $2, @$); }
-    | id array_decl "=" expr  { VAR_SYM_DECL4($1, $2, $4, @$); }
-    ;
-
-array_decl
-    : "(" array_comp_decl_list ")" { $$ = $2; }
+    : id                                       { VAR_SYM_DECL1($1, @$); }
+    | id "=" expr                              { VAR_SYM_DECL2($1, $3, @$); }
+    | id "(" array_comp_decl_list ")"          { VAR_SYM_DECL3($1, $3, @$); }
+    | id "(" array_comp_decl_list ")" "=" expr { VAR_SYM_DECL4($1, $3, $6, @$);}
     ;
 
 array_comp_decl_list
