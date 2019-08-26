@@ -260,6 +260,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_dim> array_comp_decl_list
 %type <dim> array_comp_decl
 %type <string> var_type
+%type <vec_ast> var_modifiers
 %type <vec_ast> var_modifier_list
 %type <ast> var_modifier
 %type <ast> statement
@@ -340,7 +341,7 @@ var_decl_star
 
 var_decl
     : var_type kind_selector var_modifiers var_sym_decl_list sep {
-            $$ = VAR_DECL($1, $4, @$); }
+            $$ = VAR_DECL($1, $3, $4, @$); }
     ;
 
 kind_selector
@@ -351,9 +352,9 @@ kind_selector
     ;
 
 var_modifiers
-    : %empty
-    | "::"
-    | var_modifier_list "::"
+    : %empty { LIST_NEW($$); }
+    | "::" { LIST_NEW($$); }
+    | var_modifier_list "::" { $$ = $1; }
     ;
 
 var_modifier_list
@@ -362,16 +363,16 @@ var_modifier_list
     ;
 
 var_modifier
-    : KW_PARAMETER                  { $$ = VARMOD($1, @$); }
-    | KW_DIMENSION "(" array_comp_decl_list ")" {}
-    | KW_ALLOCATABLE {}
-    | KW_POINTER {}
-    | KW_PROTECTED {}
-    | KW_SAVE {}
-    | KW_CONTIGUOUS {}
-    | KW_INTENT "(" KW_IN ")" {}
-    | KW_INTENT "(" KW_OUT ")" {}
-    | KW_INTENT "(" KW_INOUT ")" {}
+    : KW_PARAMETER { $$ = VARMOD($1, @$); }
+    | KW_DIMENSION "(" array_comp_decl_list ")" { $$ = VARMOD($1, @$); }
+    | KW_ALLOCATABLE { $$ = VARMOD($1, @$); }
+    | KW_POINTER { $$ = VARMOD($1, @$); }
+    | KW_PROTECTED { $$ = VARMOD($1, @$); }
+    | KW_SAVE { $$ = VARMOD($1, @$); }
+    | KW_CONTIGUOUS { $$ = VARMOD($1, @$); }
+    | KW_INTENT "(" KW_IN ")" { $$ = VARMOD($1, @$); }
+    | KW_INTENT "(" KW_OUT ")" { $$ = VARMOD($1, @$); }
+    | KW_INTENT "(" KW_INOUT ")" { $$ = VARMOD($1, @$); }
     ;
 
 
