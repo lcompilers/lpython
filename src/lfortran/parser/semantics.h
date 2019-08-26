@@ -102,6 +102,7 @@ static inline decl_t* DECL(Allocator &al, const YYSTYPE::VecDecl &x,
         s[i].m_dims = nullptr;
         s[i].n_attrs = 0;
         s[i].m_attrs = nullptr;
+        s[i].m_initializer = x.p[i].m_initializer;
     }
     return s;
 }
@@ -115,6 +116,20 @@ static inline decl_t DECL2(ast_t* n)
     s.m_dims = nullptr;
     s.n_attrs = 0;
     s.m_attrs = nullptr;
+    s.m_initializer = nullptr;
+    return s;
+}
+
+static inline decl_t DECL3(ast_t* n, expr_t *e)
+{
+    decl_t s;
+    s.m_sym = name2char(EXPR(n));
+    s.m_sym_type = nullptr;
+    s.n_dims = 0;
+    s.m_dims = nullptr;
+    s.n_attrs = 0;
+    s.m_attrs = nullptr;
+    s.m_initializer = e;
     return s;
 }
 
@@ -232,7 +247,7 @@ static inline decl_t DECL2(ast_t* n)
 
 #define VSD(id) DECL2(id)
 #define VAR_SYM_DECL1(id, l)         VSD(id)
-#define VAR_SYM_DECL2(id, e, l)      VSD(id)
+#define VAR_SYM_DECL2(id, e, l)      DECL3(id, EXPR(e))
 #define VAR_SYM_DECL3(id, a, l)      VSD(id)
 #define VAR_SYM_DECL4(id, a, e, l)   VSD(id)
 
