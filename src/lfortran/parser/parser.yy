@@ -337,7 +337,15 @@ var_decl_star
     ;
 
 var_decl
-    : var_type var_modifiers var_sym_decl_list sep { $$ = VAR_DECL($1, $3, @$);}
+    : var_type kind_selector var_modifiers var_sym_decl_list sep {
+            $$ = VAR_DECL($1, $4, @$); }
+    ;
+
+kind_selector
+    : "(" id "=" "*" ")"
+    | "(" id "=" id ")"
+    | "(" id ")"
+    | %empty
     ;
 
 var_modifiers
@@ -353,7 +361,7 @@ var_modifier_list
 
 var_modifier
     : KW_PARAMETER
-    | KW_INTENT
+//  | KW_INTENT
 //  | KW_DIMENSION array_decl?
     | KW_ALLOCATABLE
     | KW_POINTER

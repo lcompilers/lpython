@@ -657,7 +657,15 @@ TEST_CASE("declaration") {
     CHECK_THROWS_AS(P("integer, parameter, pointer x"),
             LFortran::ParserError);
     CHECK(P("character x") == "(decl [(x character [] [] ())])");
+    // TODO: put selector in pickle
+    CHECK(P("character(len=*) x") == "(decl [(x character [] [] ())])");
     CHECK(P("real x") == "(decl [(x real [] [] ())])");
+    // TODO: put selector in pickle
+    CHECK(P("real(dp) x") == "(decl [(x real [] [] ())])");
+    // TODO: put selector in pickle
+    CHECK(P("real(dp) :: x") == "(decl [(x real [] [] ())])");
+    // TODO: put selector in pickle
+    CHECK(P("real(kind=dp) :: x") == "(decl [(x real [] [] ())])");
     CHECK(P("complex x") == "(decl [(x complex [] [] ())])");
     CHECK(P("logical x") == "(decl [(x logical [] [] ())])");
     CHECK(P("type x") == "(decl [(x type [] [] ())])");
