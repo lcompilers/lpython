@@ -70,6 +70,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> subroutine
 %type <ast> function
 %type <vec_ast> var_decl_star
+%type <vec_ast> var_sym_decl_list
 %type <ast> var_decl
 %type <ast> var_sym_decl
 %type <string> var_type
@@ -305,7 +306,7 @@ var_decl_star
     ;
 
 var_decl
-    : var_type var_sym_decl sep { $$ = VAR_DECL($1, $2, @$); }
+    : var_type var_sym_decl_list sep { $$ = VAR_DECL($1, $2, @$); }
     ;
 
 var_type
@@ -315,6 +316,11 @@ var_type
     | KW_COMPLEX
     | KW_LOGICAL
     | KW_TYPE
+    ;
+
+var_sym_decl_list
+    : var_sym_decl_list ',' var_sym_decl { $$=$1; LIST_ADD($$, $3); }
+    | var_sym_decl { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 var_sym_decl

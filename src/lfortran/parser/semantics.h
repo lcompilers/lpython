@@ -91,15 +91,18 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
     return make_Name_t(al, loc, s);
 }
 
-static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
+static inline decl_t* DECL(Allocator &al, const YYSTYPE::Vec &x,
+        const YYSTYPE::Str &type)
 {
-    decl_t *s = al.allocate<decl_t>();
-    s->m_sym = name2char(EXPR(x));
-    s->m_sym_type = type.c_str(al);
-    s->n_dims = 0;
-    s->m_dims = nullptr;
-    s->n_attrs = 0;
-    s->m_attrs = nullptr;
+    decl_t *s = al.allocate<decl_t>(x.size());
+    for (size_t i=0; i < x.size(); i++) {
+        s[i].m_sym = name2char(EXPR(x.p[i]));
+        s[i].m_sym_type = type.c_str(al);
+        s[i].n_dims = 0;
+        s[i].m_dims = nullptr;
+        s[i].n_attrs = 0;
+        s[i].m_attrs = nullptr;
+    }
     return s;
 }
 
@@ -212,7 +215,7 @@ static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
         /*body*/ STMTS(body), \
         /*n_body*/ body.size())
 
-#define VAR_DECL(type, sym, l) make_Declaration_t(p.m_a, l, \
-        DECL(p.m_a, sym, type), 1)
+#define VAR_DECL(type, syms, l) make_Declaration_t(p.m_a, l, \
+        DECL(p.m_a, syms, type), syms.size())
 
 #endif

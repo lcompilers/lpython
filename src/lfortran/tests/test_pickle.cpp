@@ -646,7 +646,7 @@ TEST_CASE("return") {
 }
 
 TEST_CASE("declaration") {
-    Allocator al(4*1024);
+    Allocator al(16*1024);
 
     CHECK(P("integer x") == "(declaration [(decl x integer [] [])])");
     CHECK(P("character x") == "(declaration [(decl x character [] [])])");
@@ -660,11 +660,19 @@ TEST_CASE("declaration") {
     x = 1
     end function)") == "(fn g [] () () () [] [(declaration [(decl x integer [] [])])] [(= x 1)] [])");
 
+    CHECK(P(R"(subroutine g
+    integer x, y
+    end subroutine)") == "(sub g [] [] [(declaration [(decl x integer [] []) (decl y integer [] [])])] [] [])");
+
+    CHECK(P(R"(subroutine g
+    integer x, y, z
+    end subroutine)") == "(sub g [] [] [(declaration [(decl x integer [] []) (decl y integer [] []) (decl z integer [] [])])] [] [])");
+
     CHECK(P(R"(function g
     integer x
-    real x
+    real y, z
     x = 1
-    end function)") == "(fn g [] () () () [] [(declaration [(decl x integer [] [])]) (declaration [(decl x real [] [])])] [(= x 1)] [])");
+    end function)") == "(fn g [] () () () [] [(declaration [(decl x integer [] [])]) (declaration [(decl y real [] []) (decl z real [] [])])] [(= x 1)] [])");
 
     CHECK(P(R"(subroutine g
     integer x
