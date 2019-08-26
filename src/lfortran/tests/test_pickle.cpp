@@ -649,6 +649,7 @@ TEST_CASE("declaration") {
     Allocator al(1024*1024);
 
     CHECK(P("integer x") == "(decl [(x integer [] [] ())])");
+    CHECK(P("integer :: x") == "(decl [(x integer [] [] ())])");
     CHECK(P("character x") == "(decl [(x character [] [] ())])");
     CHECK(P("real x") == "(decl [(x real [] [] ())])");
     CHECK(P("complex x") == "(decl [(x complex [] [] ())])");
@@ -658,6 +659,7 @@ TEST_CASE("declaration") {
     CHECK(P("integer x = 3") == "(decl [(x integer [] [] 3)])");
     CHECK(P("integer x(5)") == "(decl [(x integer [(1 5)] [] ())])");
     CHECK(P("integer x(5:)") == "(decl [(x integer [(5 ())] [] ())])");
+    CHECK(P("integer :: x(5:)") == "(decl [(x integer [(5 ())] [] ())])");
     CHECK(P("integer x(:5)") == "(decl [(x integer [(() 5)] [] ())])");
     CHECK(P("integer x(:)") == "(decl [(x integer [(() ())] [] ())])");
     CHECK(P("integer x(3:5)") == "(decl [(x integer [(3 5)] [] ())])");

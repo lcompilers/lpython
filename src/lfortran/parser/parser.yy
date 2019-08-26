@@ -337,7 +337,12 @@ var_decl_star
     ;
 
 var_decl
-    : var_type var_sym_decl_list sep { $$ = VAR_DECL($1, $2, @$); }
+    : var_type var_modifiers var_sym_decl_list sep { $$ = VAR_DECL($1, $3, @$);}
+    ;
+
+var_modifiers
+    : %empty
+    | "::"
     ;
 
 var_type
