@@ -213,8 +213,20 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             }
 
             // Single character symbols
-            symbols1 = "("|")"|"["|"]"|"+"|"-"|"="|":"|";"|"/"|"%"|","|"*"|"|";
-            symbols1 { token_loc(loc); return tok[0]; }
+            "(" { RET(TK_LPAREN) }
+            ")" { RET(TK_RPAREN) }
+            "[" { RET(TK_LBRACKET) }
+            "]" { RET(TK_RBRACKET) }
+            "+" { RET(TK_PLUS) }
+            "-" { RET(TK_MINUS) }
+            "=" { RET(TK_EQUAL) }
+            ":" { RET(TK_COLON) }
+            ";" { RET(TK_SEMICOLON) }
+            "/" { RET(TK_SLASH) }
+            "%" { RET(TK_PERCENT) }
+            "," { RET(TK_COMMA) }
+            "*" { RET(TK_STAR) }
+            "|" { RET(TK_VBAR) }
 
             // Multiple character symbols
             ".." { RET(TK_DBL_DOT) }

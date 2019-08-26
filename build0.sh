@@ -14,6 +14,9 @@ python grammar/asdl_py.py grammar/ASR.asdl lfortran/asr/asr.py ..ast.utils
 (cd src/lfortran/parser && re2c -W -b tokenizer.re -o tokenizer.cpp)
 (cd src/lfortran/parser && bison -Wall -d -r all parser.yy)
 
+grep -n "'" src/lfortran/parser/parser.yy && echo "Single quote not allowed" && exit 1
+
+
 # Generate a parse tree from fortran.g4
 antlr4="java org.antlr.v4.Tool"
 (cd grammar && $antlr4 -Dlanguage=Python3 -no-listener -visitor fortran.g4 -o ../lfortran/parser)

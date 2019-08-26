@@ -117,13 +117,13 @@ TEST_CASE("Tokenizer") {
         tt::KW_SUBROUTINE,
         tt::TK_NEWLINE,
         tt::TK_NAME,
-        '=',
+        tt::TK_EQUAL,
         tt::TK_NAME,
         tt::TK_NEWLINE,
         tt::TK_NAME,
-        '=',
+        tt::TK_EQUAL,
         tt::TK_INTEGER,
-        '*',
+        tt::TK_STAR,
         tt::TK_NAME,
         tt::TK_NEWLINE,
         tt::KW_SUBROUTINE,
@@ -134,7 +134,7 @@ TEST_CASE("Tokenizer") {
     s = "2*x**3";
     ref = {
         tt::TK_INTEGER,
-        '*',
+        tt::TK_STAR,
         tt::TK_NAME,
         tt::TK_POW,
         tt::TK_INTEGER,
@@ -144,13 +144,13 @@ TEST_CASE("Tokenizer") {
 
     s = "(2*x**3)";
     ref = {
-        '(',
+        tt::TK_LPAREN,
         tt::TK_INTEGER,
-        '*',
+        tt::TK_STAR,
         tt::TK_NAME,
         tt::TK_POW,
         tt::TK_INTEGER,
-        ')',
+        tt::TK_RPAREN,
         tt::END_OF_FILE,
     };
     CHECK(tokens(s) == ref);
@@ -158,7 +158,7 @@ TEST_CASE("Tokenizer") {
     s = "2*x";
     ref = {
         tt::TK_INTEGER,
-        '*',
+        tt::TK_STAR,
         tt::TK_NAME,
         tt::END_OF_FILE,
     };
@@ -194,7 +194,7 @@ TEST_CASE("Tokenizer") {
     s = "2*4294967295"; // 2**32-1, works everywhere
     ref = {
         tt::TK_INTEGER,
-        '*',
+        tt::TK_STAR,
         tt::TK_INTEGER,
         tt::END_OF_FILE,
     };
@@ -210,7 +210,7 @@ TEST_CASE("Tokenizer") {
     s = "2*x\0yyyyy";
     ref = {
         tt::TK_INTEGER,
-        '*',
+        tt::TK_STAR,
         tt::TK_NAME,
         tt::END_OF_FILE,
     };
@@ -218,7 +218,7 @@ TEST_CASE("Tokenizer") {
     s = "2*x yyyyy";
     ref = {
         tt::TK_INTEGER,
-        '*',
+        tt::TK_STAR,
         tt::TK_NAME,
         tt::TK_NAME,
         tt::END_OF_FILE,
@@ -228,7 +228,7 @@ TEST_CASE("Tokenizer") {
     s = "2*x\n**3";
     ref = {
         tt::TK_INTEGER,
-        '*',
+        tt::TK_STAR,
         tt::TK_NAME,
         tt::TK_NEWLINE,
         tt::TK_POW,
@@ -246,20 +246,20 @@ TEST_CASE("Tokenizer") {
     ref = {
         tt::TK_NEWLINE,
         tt::TK_NAME,
-        '=',
+        tt::TK_EQUAL,
         tt::TK_INTEGER,
         tt::TK_NEWLINE,
 
         tt::TK_NAME,
-        '=',
+        tt::TK_EQUAL,
         tt::TK_NAME,
         tt::TK_NEWLINE,
         tt::TK_NEWLINE,
 
         tt::TK_NAME,
-        '=',
+        tt::TK_EQUAL,
         tt::TK_INTEGER,
-        '*',
+        tt::TK_STAR,
         tt::TK_NAME,
         tt::TK_NEWLINE,
 
@@ -270,20 +270,20 @@ TEST_CASE("Tokenizer") {
     s = "x = 1; x = y;;x = 2*y";
     ref = {
         tt::TK_NAME,
-        '=',
+        tt::TK_EQUAL,
         tt::TK_INTEGER,
-        ';',
+        tt::TK_SEMICOLON,
 
         tt::TK_NAME,
-        '=',
+        tt::TK_EQUAL,
         tt::TK_NAME,
-        ';',
-        ';',
+        tt::TK_SEMICOLON,
+        tt::TK_SEMICOLON,
 
         tt::TK_NAME,
-        '=',
+        tt::TK_EQUAL,
         tt::TK_INTEGER,
-        '*',
+        tt::TK_STAR,
         tt::TK_NAME,
 
         tt::END_OF_FILE,
@@ -294,12 +294,12 @@ TEST_CASE("Tokenizer") {
     ref = {
         tt::TK_NEWLINE,
         tt::TK_INTEGER,
-        '*',
+        tt::TK_STAR,
         tt::TK_NAME,
         tt::TK_NEWLINE,
         tt::TK_NEWLINE,
-        ';',
-        ';',
+        tt::TK_SEMICOLON,
+        tt::TK_SEMICOLON,
         tt::TK_NEWLINE,
         tt::TK_POW,
         tt::TK_INTEGER,
@@ -608,9 +608,9 @@ TEST_CASE("Tokenizer") {
     s = "1+1.0+2";
     ref = {
         tt::TK_INTEGER,
-        '+',
+        tt::TK_PLUS,
         tt::TK_REAL,
-        '+',
+        tt::TK_PLUS,
         tt::TK_INTEGER,
         tt::END_OF_FILE,
     };
@@ -619,9 +619,9 @@ TEST_CASE("Tokenizer") {
     s = "1+1d0+2";
     ref = {
         tt::TK_INTEGER,
-        '+',
+        tt::TK_PLUS,
         tt::TK_REAL,
-        '+',
+        tt::TK_PLUS,
         tt::TK_INTEGER,
         tt::END_OF_FILE,
     };
@@ -630,13 +630,13 @@ TEST_CASE("Tokenizer") {
     s = "1D-5+1.e12+2.E-10+1.E+10+1e10";
     ref = {
         tt::TK_REAL,
-        '+',
+        tt::TK_PLUS,
         tt::TK_REAL,
-        '+',
+        tt::TK_PLUS,
         tt::TK_REAL,
-        '+',
+        tt::TK_PLUS,
         tt::TK_REAL,
-        '+',
+        tt::TK_PLUS,
         tt::TK_REAL,
         tt::END_OF_FILE,
     };
@@ -645,9 +645,9 @@ TEST_CASE("Tokenizer") {
     s = "3 + .3 + .3e-3";
     ref = {
         tt::TK_INTEGER,
-        '+',
+        tt::TK_PLUS,
         tt::TK_REAL,
-        '+',
+        tt::TK_PLUS,
         tt::TK_REAL,
         tt::END_OF_FILE,
     };
@@ -656,9 +656,9 @@ TEST_CASE("Tokenizer") {
     s = "3 + 3. + 3.e-3";
     ref = {
         tt::TK_INTEGER,
-        '+',
+        tt::TK_PLUS,
         tt::TK_REAL,
-        '+',
+        tt::TK_PLUS,
         tt::TK_REAL,
         tt::END_OF_FILE,
     };
@@ -667,13 +667,13 @@ TEST_CASE("Tokenizer") {
     s = "3_i + 3._dp + 3.e-3_dp + 0.3_dp + 1e5_dp";
     ref = {
         tt::TK_INTEGER,
-        '+',
+        tt::TK_PLUS,
         tt::TK_REAL,
-        '+',
+        tt::TK_PLUS,
         tt::TK_REAL,
-        '+',
+        tt::TK_PLUS,
         tt::TK_REAL,
-        '+',
+        tt::TK_PLUS,
         tt::TK_REAL,
         tt::END_OF_FILE,
     };
@@ -682,13 +682,13 @@ TEST_CASE("Tokenizer") {
     s = "3_4 + 3._8 + 3.e-3_8 + 0.3_8 + 1e5_8";
     ref = {
         tt::TK_INTEGER,
-        '+',
+        tt::TK_PLUS,
         tt::TK_REAL,
-        '+',
+        tt::TK_PLUS,
         tt::TK_REAL,
-        '+',
+        tt::TK_PLUS,
         tt::TK_REAL,
-        '+',
+        tt::TK_PLUS,
         tt::TK_REAL,
         tt::END_OF_FILE,
     };
@@ -743,10 +743,10 @@ TEST_CASE("Tokenizer") {
     s = R"(print *, "ok", 3)";
     ref = {
         tt::KW_PRINT,
-        '*',
-        ',',
+        tt::TK_STAR,
+        tt::TK_COMMA,
         tt::TK_STRING,
-        ',',
+        tt::TK_COMMA,
         tt::TK_INTEGER,
         tt::END_OF_FILE,
     };
@@ -755,10 +755,10 @@ TEST_CASE("Tokenizer") {
     s = R"(print *, "o'k", 3)";
     ref = {
         tt::KW_PRINT,
-        '*',
-        ',',
+        tt::TK_STAR,
+        tt::TK_COMMA,
         tt::TK_STRING,
-        ',',
+        tt::TK_COMMA,
         tt::TK_INTEGER,
         tt::END_OF_FILE,
     };
@@ -767,10 +767,10 @@ TEST_CASE("Tokenizer") {
     s = R"(print *, "o''k", 3)";
     ref = {
         tt::KW_PRINT,
-        '*',
-        ',',
+        tt::TK_STAR,
+        tt::TK_COMMA,
         tt::TK_STRING,
-        ',',
+        tt::TK_COMMA,
         tt::TK_INTEGER,
         tt::END_OF_FILE,
     };
@@ -779,10 +779,10 @@ TEST_CASE("Tokenizer") {
     s = R"(print *, "o'x'k", 3)";
     ref = {
         tt::KW_PRINT,
-        '*',
-        ',',
+        tt::TK_STAR,
+        tt::TK_COMMA,
         tt::TK_STRING,
-        ',',
+        tt::TK_COMMA,
         tt::TK_INTEGER,
         tt::END_OF_FILE,
     };
@@ -791,10 +791,10 @@ TEST_CASE("Tokenizer") {
     s = R"(print *, "o,""k", 3)";
     ref = {
         tt::KW_PRINT,
-        '*',
-        ',',
+        tt::TK_STAR,
+        tt::TK_COMMA,
         tt::TK_STRING,
-        ',',
+        tt::TK_COMMA,
         tt::TK_INTEGER,
         tt::END_OF_FILE,
     };
@@ -803,10 +803,10 @@ TEST_CASE("Tokenizer") {
     s = R"(print *, "o,""k", "s""")";
     ref = {
         tt::KW_PRINT,
-        '*',
-        ',',
+        tt::TK_STAR,
+        tt::TK_COMMA,
         tt::TK_STRING,
-        ',',
+        tt::TK_COMMA,
         tt::TK_STRING,
         tt::END_OF_FILE,
     };
@@ -815,10 +815,10 @@ TEST_CASE("Tokenizer") {
     s = R"(print *, 'ok', 3)";
     ref = {
         tt::KW_PRINT,
-        '*',
-        ',',
+        tt::TK_STAR,
+        tt::TK_COMMA,
         tt::TK_STRING,
-        ',',
+        tt::TK_COMMA,
         tt::TK_INTEGER,
         tt::END_OF_FILE,
     };
@@ -827,10 +827,10 @@ TEST_CASE("Tokenizer") {
     s = R"(print *, 'o"k', 3)";
     ref = {
         tt::KW_PRINT,
-        '*',
-        ',',
+        tt::TK_STAR,
+        tt::TK_COMMA,
         tt::TK_STRING,
-        ',',
+        tt::TK_COMMA,
         tt::TK_INTEGER,
         tt::END_OF_FILE,
     };
@@ -839,10 +839,10 @@ TEST_CASE("Tokenizer") {
     s = R"(print *, 'o""k', 3)";
     ref = {
         tt::KW_PRINT,
-        '*',
-        ',',
+        tt::TK_STAR,
+        tt::TK_COMMA,
         tt::TK_STRING,
-        ',',
+        tt::TK_COMMA,
         tt::TK_INTEGER,
         tt::END_OF_FILE,
     };
@@ -851,10 +851,10 @@ TEST_CASE("Tokenizer") {
     s = R"(print *, 'o"x"k', 3)";
     ref = {
         tt::KW_PRINT,
-        '*',
-        ',',
+        tt::TK_STAR,
+        tt::TK_COMMA,
         tt::TK_STRING,
-        ',',
+        tt::TK_COMMA,
         tt::TK_INTEGER,
         tt::END_OF_FILE,
     };
@@ -863,10 +863,10 @@ TEST_CASE("Tokenizer") {
     s = R"(print *, 'o,''k', 3)";
     ref = {
         tt::KW_PRINT,
-        '*',
-        ',',
+        tt::TK_STAR,
+        tt::TK_COMMA,
         tt::TK_STRING,
-        ',',
+        tt::TK_COMMA,
         tt::TK_INTEGER,
         tt::END_OF_FILE,
     };
@@ -875,10 +875,10 @@ TEST_CASE("Tokenizer") {
     s = R"(print *, 'o,''k', 's''')";
     ref = {
         tt::KW_PRINT,
-        '*',
-        ',',
+        tt::TK_STAR,
+        tt::TK_COMMA,
         tt::TK_STRING,
-        ',',
+        tt::TK_COMMA,
         tt::TK_STRING,
         tt::END_OF_FILE,
     };
@@ -887,10 +887,10 @@ TEST_CASE("Tokenizer") {
     s = R"(print *, "o,""k", "s''""''")";
     ref = {
         tt::KW_PRINT,
-        '*',
-        ',',
+        tt::TK_STAR,
+        tt::TK_COMMA,
         tt::TK_STRING,
-        ',',
+        tt::TK_COMMA,
         tt::TK_STRING,
         tt::END_OF_FILE,
     };
@@ -899,10 +899,10 @@ TEST_CASE("Tokenizer") {
     s = R"(print *, somekind_"o,""k", otherKind_"s''""''")";
     ref = {
         tt::KW_PRINT,
-        '*',
-        ',',
+        tt::TK_STAR,
+        tt::TK_COMMA,
         tt::TK_STRING,
-        ',',
+        tt::TK_COMMA,
         tt::TK_STRING,
         tt::END_OF_FILE,
     };
@@ -922,8 +922,8 @@ TEST_CASE("Tokenizer") {
                y = 5
            end if)";
     ref = {
-        tt::KW_IF, '(', tt::TK_NAME, ')', tt::KW_THEN, tt::TK_NEWLINE,
-        tt::TK_NAME, '=', tt::TK_INTEGER, tt::TK_NEWLINE,
+        tt::KW_IF, tt::TK_LPAREN, tt::TK_NAME, tt::TK_RPAREN, tt::KW_THEN, tt::TK_NEWLINE,
+        tt::TK_NAME, tt::TK_EQUAL, tt::TK_INTEGER, tt::TK_NEWLINE,
         tt::KW_END_IF,
         tt::END_OF_FILE,
     };
@@ -933,8 +933,8 @@ TEST_CASE("Tokenizer") {
                y = 5
            enD  iF)";
     ref = {
-        tt::KW_IF, '(', tt::TK_NAME, ')', tt::KW_THEN, tt::TK_NEWLINE,
-        tt::TK_NAME, '=', tt::TK_INTEGER, tt::TK_NEWLINE,
+        tt::KW_IF, tt::TK_LPAREN, tt::TK_NAME, tt::TK_RPAREN, tt::KW_THEN, tt::TK_NEWLINE,
+        tt::TK_NAME, tt::TK_EQUAL, tt::TK_INTEGER, tt::TK_NEWLINE,
         tt::KW_END_IF,
         tt::END_OF_FILE,
     };
@@ -944,8 +944,8 @@ TEST_CASE("Tokenizer") {
                y = 5
            endif)";
     ref = {
-        tt::KW_IF, '(', tt::TK_NAME, ')', tt::KW_THEN, tt::TK_NEWLINE,
-        tt::TK_NAME, '=', tt::TK_INTEGER, tt::TK_NEWLINE,
+        tt::KW_IF, tt::TK_LPAREN, tt::TK_NAME, tt::TK_RPAREN, tt::KW_THEN, tt::TK_NEWLINE,
+        tt::TK_NAME, tt::TK_EQUAL, tt::TK_INTEGER, tt::TK_NEWLINE,
         tt::KW_ENDIF,
         tt::END_OF_FILE,
     };
@@ -1044,7 +1044,7 @@ TEST_CASE("Errors") {
         CHECK(false);
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
-        CHECK(e.token == '*');
+        CHECK(e.token == tt::TK_STAR);
         show_syntax_error("input", input, e.loc, e.token);
         CHECK(e.loc.first_line == 3);
         CHECK(e.loc.first_column == 16);
@@ -1061,7 +1061,7 @@ TEST_CASE("Errors") {
         CHECK(false);
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
-        CHECK(e.token == '*');
+        CHECK(e.token == tt::TK_STAR);
         show_syntax_error("input", input, e.loc, e.token);
         CHECK(e.loc.first_line == 3);
         CHECK(e.loc.first_column == 13);
