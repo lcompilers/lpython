@@ -103,13 +103,18 @@ static inline decl_t* DECL(Allocator &al, const YYSTYPE::VecDecl &x,
     return s;
 }
 
-static inline decl_t DECL3(ast_t* n, expr_t *e)
+static inline decl_t DECL3(ast_t* n, const YYSTYPE::VecDim *d, expr_t *e)
 {
     decl_t s;
     s.m_sym = name2char(EXPR(n));
     s.m_sym_type = nullptr;
-    s.n_dims = 0;
-    s.m_dims = nullptr;
+    if (d) {
+        s.n_dims = d->size();
+        s.m_dims = d->p;
+    } else {
+        s.n_dims = 0;
+        s.m_dims = nullptr;
+    }
     s.n_attrs = 0;
     s.m_attrs = nullptr;
     s.m_initializer = e;
@@ -236,10 +241,10 @@ static inline dimension_t DIM1(expr_t *a, expr_t *b)
 #define VAR_DECL(type, syms, l) make_Declaration_t(p.m_a, l, \
         DECL(p.m_a, syms, type), syms.size())
 
-#define VAR_SYM_DECL1(id, l)         DECL3(id, nullptr)
-#define VAR_SYM_DECL2(id, e, l)      DECL3(id, EXPR(e))
-#define VAR_SYM_DECL3(id, a, l)      DECL3(id, nullptr)
-#define VAR_SYM_DECL4(id, a, e, l)   DECL3(id, EXPR(e))
+#define VAR_SYM_DECL1(id, l)         DECL3(id, nullptr, nullptr)
+#define VAR_SYM_DECL2(id, e, l)      DECL3(id, nullptr, EXPR(e))
+#define VAR_SYM_DECL3(id, a, l)      DECL3(id, &a, nullptr)
+#define VAR_SYM_DECL4(id, a, e, l)   DECL3(id, &a, EXPR(e))
 
 // FIXME: should really be DIM(1, a)
 #define ARRAY_COMP_DECL1(a, l)       DIM1(nullptr, EXPR(a))
