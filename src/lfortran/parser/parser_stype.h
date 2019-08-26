@@ -8,35 +8,37 @@
 namespace LFortran
 {
 
+// Vector implementation
+struct Vec {
+    size_t n, max;
+    LFortran::AST::ast_t** p;
+    // reserve() must be called before calling push_back()
+    void reserve(Allocator &al, size_t max) {
+        n = 0;
+        this->max = max;
+        p = al.allocate<LFortran::AST::ast_t*>(max);
+    }
+    void push_back(Allocator &al, LFortran::AST::ast_t *x) {
+        if (n == max) {
+            size_t max2 = 2*max;
+            LFortran::AST::ast_t** p2 = al.allocate<LFortran::AST::ast_t*>(max2);
+            std::memcpy(p2, p, sizeof(LFortran::AST::ast_t*) * max);
+            p = p2;
+            max = max2;
+        }
+        p[n] = x;
+        n++;
+    }
+    size_t size() const {
+        return n;
+    }
+};
+
 union YYSTYPE {
     unsigned long n;
     LFortran::AST::ast_t* ast;
-
-    // Vector implementation
-    struct Vec {
-        size_t n, max;
-        LFortran::AST::ast_t** p;
-        // reserve() must be called before calling push_back()
-        void reserve(Allocator &al, size_t max) {
-            n = 0;
-            this->max = max;
-            p = al.allocate<LFortran::AST::ast_t*>(max);
-        }
-        void push_back(Allocator &al, LFortran::AST::ast_t *x) {
-            if (n == max) {
-                size_t max2 = 2*max;
-                LFortran::AST::ast_t** p2 = al.allocate<LFortran::AST::ast_t*>(max2);
-                std::memcpy(p2, p, sizeof(LFortran::AST::ast_t*) * max);
-                p = p2;
-                max = max2;
-            }
-            p[n] = x;
-            n++;
-        }
-        size_t size() const {
-            return n;
-        }
-    } vec_ast;
+    using Vec = LFortran::Vec;
+    Vec vec_ast;
 
     // String implementation (not null-terminated)
     struct Str {
