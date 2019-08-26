@@ -41,6 +41,7 @@ union YYSTYPE {
     using Vec = LFortran::Vec<LFortran::AST::ast_t*>;
     using VecDecl = LFortran::Vec<LFortran::AST::decl_t>;
     Vec vec_ast;
+    LFortran::AST::decl_t decl;
     VecDecl vec_decl;
 
     // String implementation (not null-terminated)

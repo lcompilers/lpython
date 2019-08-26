@@ -218,4 +218,9 @@ static inline decl_t* DECL(Allocator &al, const YYSTYPE::Vec &x,
 #define VAR_DECL(type, syms, l) make_Declaration_t(p.m_a, l, \
         DECL(p.m_a, syms, type), syms.size())
 
+#define VAR_SYM_DECL1(id, l)
+#define VAR_SYM_DECL2(id, e, l)
+#define VAR_SYM_DECL3(id, a, l)
+#define VAR_SYM_DECL4(id, a, e, l)
+
 #endif

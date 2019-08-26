@@ -254,9 +254,12 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> subroutine
 %type <ast> function
 %type <vec_ast> var_decl_star
-%type <vec_ast> var_sym_decl_list
+%type <vec_decl> var_sym_decl_list
 %type <ast> var_decl
-%type <ast> var_sym_decl
+%type <decl> var_sym_decl
+%type <vec_decl> array_decl
+%type <vec_decl> array_comp_decl_list
+%type <decl> array_comp_decl
 %type <string> var_type
 %type <ast> statement
 %type <ast> assignment_statement
@@ -353,27 +356,27 @@ var_sym_decl_list
     ;
 
 var_sym_decl
-    : id
-    | id "=" expr
-    | id array_decl
-    | id array_decl "=" expr
+    : id                      { VAR_SYM_DECL1($1, @$); }
+    | id "=" expr             { VAR_SYM_DECL2($1, $3, @$); }
+    | id array_decl           { VAR_SYM_DECL3($1, $2, @$); }
+    | id array_decl "=" expr  { VAR_SYM_DECL4($1, $2, $4, @$); }
     ;
 
 array_decl
-    : "(" array_comp_decl_list ")"
+    : "(" array_comp_decl_list ")" { $$ = $2; }
     ;
 
 array_comp_decl_list
-    : array_comp_decl_list "," array_comp_decl
-    | array_comp_decl
+    : array_comp_decl_list "," array_comp_decl { $$ = $1; LIST_ADD($$, $3); }
+    | array_comp_decl { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 array_comp_decl
-    : expr
-    | expr ":" expr
-    | expr ":"
-    | ":" expr
-    | ":"
+    : expr           { }
+    | expr ":" expr  { }
+    | expr ":"       { }
+    | ":" expr       { }
+    | ":"            { }
     ;
 
 
