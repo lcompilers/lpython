@@ -361,14 +361,15 @@ var_modifier_list
 
 var_modifier
     : KW_PARAMETER
-//  | KW_INTENT
 //  | KW_DIMENSION array_decl?
     | KW_ALLOCATABLE
     | KW_POINTER
     | KW_PROTECTED
     | KW_SAVE
     | KW_CONTIGUOUS
-//    | KW_INTENT "(" (KW_IN | KW_OUT | KW_INOUT ) ")"
+    | KW_INTENT "(" KW_IN ")"
+    | KW_INTENT "(" KW_OUT ")"
+    | KW_INTENT "(" KW_INOUT ")"
     ;
 
 
