@@ -24,7 +24,6 @@ using LFortran::AST::stmtType;
 
 using LFortran::AST::ast_t;
 using LFortran::AST::decl_t;
-using LFortran::AST::do_loop_head_t;
 using LFortran::AST::expr_t;
 using LFortran::AST::stmt_t;
 using LFortran::AST::unit_decl2_t;
@@ -53,21 +52,6 @@ static inline char* name2char(const expr_t *n)
 {
     LFORTRAN_ASSERT(n->type == exprType::Name)
     char *s = ((Name_t*)n)->m_id;
-    return s;
-}
-
-static inline do_loop_head_t DOLOOP_HEAD(const expr_t *i, expr_t *a,
-        expr_t *b, expr_t *c)
-{
-    do_loop_head_t s;
-    if (i) {
-        s.m_var = name2char(i);
-    } else {
-        s.m_var = nullptr;
-    }
-    s.m_start = a;
-    s.m_end = b;
-    s.m_increment = c;
     return s;
 }
 
@@ -212,17 +196,17 @@ static inline decl_t* DECL(Allocator &al, ast_t* x, const YYSTYPE::Str &type)
         /*n_body*/ body.size())
 
 #define DO1(body, l) make_DoLoop_t(p.m_a, l, \
-        /*head*/ DOLOOP_HEAD(nullptr, nullptr, nullptr, nullptr), \
+        nullptr, nullptr, nullptr, nullptr, \
         /*body*/ STMTS(body), \
         /*n_body*/ body.size())
 
 #define DO2(i, a, b, body, l) make_DoLoop_t(p.m_a, l, \
-        /*head*/ DOLOOP_HEAD(EXPR(i), EXPR(a), EXPR(b), nullptr), \
+        name2char(EXPR(i)), EXPR(a), EXPR(b), nullptr, \
         /*body*/ STMTS(body), \
         /*n_body*/ body.size())
 
 #define DO3(i, a, b, c, body, l) make_DoLoop_t(p.m_a, l, \
-        /*head*/ DOLOOP_HEAD(EXPR(i), EXPR(a), EXPR(b), EXPR(c)), \
+        name2char(EXPR(i)), EXPR(a), EXPR(b), EXPR(c), \
         /*body*/ STMTS(body), \
         /*n_body*/ body.size())
 

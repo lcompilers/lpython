@@ -472,6 +472,7 @@ class ASTBuilderVisitor(fortranVisitor):
 
     # Visit a parse tree produced by fortranParser#do_statement.
     def visitDo_statement(self, ctx:fortranParser.Do_statementContext):
+        body = self.statements2list(ctx.statements())
         if ctx.ident():
             var = ctx.ident().getText()
             start = self.visit(ctx.expr(0))
@@ -480,12 +481,11 @@ class ASTBuilderVisitor(fortranVisitor):
                 increment = self.visit(ctx.expr(2))
             else:
                 increment = None
-            head = ast.do_loop_head(var=var, start=start, end=end,
-                    increment=increment)
+            return ast.DoLoop(var=var, start=start, end=end,
+                    increment=increment, body=body, lineno=1, col_offset=1)
         else:
-            head = None
-        body = self.statements2list(ctx.statements())
-        return ast.DoLoop(head=head, body=body, lineno=1, col_offset=1)
+            return ast.DoLoop(var=None, start=None, end=None,
+                    increment=None, body=body, lineno=1, col_offset=1)
 
     def statements2list(self, ctx:fortranParser.StatementsContext):
         # Returns a list

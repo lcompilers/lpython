@@ -77,43 +77,6 @@ std::string compare2str(const cmpopType type)
 class PickleVisitor : public PickleBaseVisitor<PickleVisitor>
 {
 public:
-    void visit_DoLoop(const DoLoop_t &x) {
-        s.append("(");
-        s.append("do");
-        s.append(" ");
-        if (x.m_head.m_var) {
-            s.append(x.m_head.m_var);
-        } else {
-            s.append("()");
-        }
-        s.append(" ");
-        if (x.m_head.m_start) {
-            this->visit_expr(*x.m_head.m_start);
-        } else {
-            s.append("()");
-        }
-        s.append(" ");
-        if (x.m_head.m_end) {
-            this->visit_expr(*x.m_head.m_end);
-        } else {
-            s.append("()");
-        }
-        s.append(" ");
-        if (x.m_head.m_increment) {
-            this->visit_expr(*x.m_head.m_increment);
-        } else {
-            s.append("()");
-        }
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_body; i++) {
-            LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
-            this->visit_stmt(*x.m_body[i]);
-            if (i < x.n_body-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(")");
-    }
     void visit_BinOp(const BinOp_t &x) {
         s.append("(");
         // We do not print BinOp +, but rather just +. It is still uniquely

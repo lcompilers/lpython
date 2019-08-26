@@ -387,6 +387,7 @@ class PickleVisitorVisitor(ASDLVisitor):
             "program": "prog",
             "subroutine": "sub",
             "function": "fn",
+            "doloop": "do",
         }
         name = name.lower()
         if name in subs:
@@ -431,7 +432,14 @@ class PickleVisitorVisitor(ASDLVisitor):
                 self.emit(template, level)
         else:
             if field.type == "identifier" and not field.seq:
-                self.emit('s.append(x.m_%s);' % field.name, 2)
+                if field.opt:
+                    self.emit("if (x.m_%s) {" % field.name, 2)
+                    self.emit(    's.append(x.m_%s);' % field.name, 3)
+                    self.emit("} else {", 2)
+                    self.emit(    's.append("()");', 3)
+                    self.emit("}", 2)
+                else:
+                    self.emit('s.append(x.m_%s);' % field.name, 2)
             elif field.type == "string" and not field.seq:
                 if field.opt:
                     self.emit("if (x.m_%s) {" % field.name, 2)

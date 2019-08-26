@@ -69,9 +69,9 @@ def is_positive(expr):
 class DoLoopTransformer(NodeTransformer):
 
     def visit_DoLoop(self, node):
-        if node.head:
-            if node.head.increment:
-                step = node.head.increment
+        if node.var:
+            if node.increment:
+                step = node.increment
                 if is_positive(step):
                     op = ast.LtE()
                 else:
@@ -80,19 +80,19 @@ class DoLoopTransformer(NodeTransformer):
                 step = ast.Num(n="1", lineno=1, col_offset=1)
                 op = ast.LtE()
             cond = ast.Compare(
-                ast.BinOp(ast.Name(node.head.var, lineno=1, col_offset=1),
+                ast.BinOp(ast.Name(node.var, lineno=1, col_offset=1),
                     ast.Add(), step, lineno=1, col_offset=1),
-                op, node.head.end, lineno=1, col_offset=1)
+                op, node.end, lineno=1, col_offset=1)
         else:
             cond = ast.Constant(True, lineno=1, col_offset=1)
         body = self.visit_sequence(node.body)
-        var_name = ast.Name(node.head.var, lineno=1, col_offset=1)
+        var_name = ast.Name(node.var, lineno=1, col_offset=1)
         body = [ast.Assignment(var_name,
-            ast.BinOp(ast.Name(node.head.var, lineno=1, col_offset=1),
+            ast.BinOp(ast.Name(node.var, lineno=1, col_offset=1),
                 ast.Add(), step, lineno=1, col_offset=1), lineno=1,
             col_offset=1)] + body
         return [ast.Assignment(var_name,
-            ast.BinOp(node.head.start,
+            ast.BinOp(node.start,
                 ast.Sub(), step, lineno=1, col_offset=1),
             lineno=1, col_offset=1),
                 ast.WhileLoop(cond, body, lineno=1, col_offset=1)]
