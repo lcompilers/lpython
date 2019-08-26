@@ -387,6 +387,7 @@ class PickleVisitorVisitor(ASDLVisitor):
             "program": "prog",
             "subroutine": "sub",
             "function": "fn",
+            "doloop": "do",
         }
         name = name.lower()
         if name in subs:
