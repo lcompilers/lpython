@@ -257,8 +257,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_decl> var_sym_decl_list
 %type <ast> var_decl
 %type <decl> var_sym_decl
-%type <vec_decl> array_comp_decl_list
-%type <decl> array_comp_decl
+%type <vec_dim> array_comp_decl_list
+%type <dim> array_comp_decl
 %type <string> var_type
 %type <ast> statement
 %type <ast> assignment_statement
@@ -368,11 +368,11 @@ array_comp_decl_list
     ;
 
 array_comp_decl
-    : expr           { }
-    | expr ":" expr  { }
-    | expr ":"       { }
-    | ":" expr       { }
-    | ":"            { }
+    : expr           { $$ = ARRAY_COMP_DECL1($1, @$); }
+    | expr ":" expr  { $$ = ARRAY_COMP_DECL2($1, $3, @$); }
+    | expr ":"       { $$ = ARRAY_COMP_DECL3($1, @$); }
+    | ":" expr       { $$ = ARRAY_COMP_DECL4($2, @$); }
+    | ":"            { $$ = ARRAY_COMP_DECL5(@$); }
     ;
 
 

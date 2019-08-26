@@ -24,6 +24,7 @@ using LFortran::AST::stmtType;
 
 using LFortran::AST::ast_t;
 using LFortran::AST::decl_t;
+using LFortran::AST::dimension_t;
 using LFortran::AST::expr_t;
 using LFortran::AST::stmt_t;
 using LFortran::AST::unit_decl2_t;
@@ -112,6 +113,14 @@ static inline decl_t DECL3(ast_t* n, expr_t *e)
     s.n_attrs = 0;
     s.m_attrs = nullptr;
     s.m_initializer = e;
+    return s;
+}
+
+static inline dimension_t DIM1(expr_t *a, expr_t *b)
+{
+    dimension_t s;
+    s.m_start = a;
+    s.m_end = b;
     return s;
 }
 
@@ -231,5 +240,12 @@ static inline decl_t DECL3(ast_t* n, expr_t *e)
 #define VAR_SYM_DECL2(id, e, l)      DECL3(id, EXPR(e))
 #define VAR_SYM_DECL3(id, a, l)      DECL3(id, nullptr)
 #define VAR_SYM_DECL4(id, a, e, l)   DECL3(id, EXPR(e))
+
+// FIXME: should really be DIM(1, a)
+#define ARRAY_COMP_DECL1(a, l)       DIM1(nullptr, EXPR(a))
+#define ARRAY_COMP_DECL2(a, b, l)    DIM1(EXPR(a), EXPR(b))
+#define ARRAY_COMP_DECL3(a, l)       DIM1(EXPR(a), nullptr)
+#define ARRAY_COMP_DECL4(b, l)       DIM1(nullptr, EXPR(b))
+#define ARRAY_COMP_DECL5(l)          DIM1(nullptr, nullptr)
 
 #endif

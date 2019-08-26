@@ -40,9 +40,12 @@ union YYSTYPE {
     LFortran::AST::ast_t* ast;
     using Vec = LFortran::Vec<LFortran::AST::ast_t*>;
     using VecDecl = LFortran::Vec<LFortran::AST::decl_t>;
+    using VecDim = LFortran::Vec<LFortran::AST::dimension_t>;
     Vec vec_ast;
     LFortran::AST::decl_t decl;
     VecDecl vec_decl;
+    LFortran::AST::dimension_t dim;
+    VecDim vec_dim;
 
     // String implementation (not null-terminated)
     struct Str {
