@@ -361,7 +361,7 @@ var_modifier_list
 
 var_modifier
     : KW_PARAMETER
-//  | KW_DIMENSION array_decl?
+    | KW_DIMENSION "(" array_comp_decl_list ")"
     | KW_ALLOCATABLE
     | KW_POINTER
     | KW_PROTECTED

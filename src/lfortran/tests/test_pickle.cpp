@@ -684,6 +684,8 @@ TEST_CASE("declaration") {
     CHECK(P("integer x(:)") == "(decl [(x integer [(() ())] [] ())])");
     CHECK(P("integer x(3:5)") == "(decl [(x integer [(3 5)] [] ())])");
     CHECK(P("integer x(5,:,:3,3:)") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] ())])");
+    // FIXME: add dimension in the pickle
+    CHECK(P("integer, dimension(5,:,:3,3:) :: x") == "(decl [(x integer [] [] ())])");
     CHECK(P("integer x(5,:,:3,3:) = 3") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] 3)])");
     CHECK(P("integer x(5,:,:3,3:) = 3+2") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] (+ 3 2))])");
     CHECK(P("integer x(5,:,:3,3:) = 3, y(:3)=4") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] 3) (y integer [(() 3)] [] 4)])");
