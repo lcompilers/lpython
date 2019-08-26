@@ -77,27 +77,6 @@ std::string compare2str(const cmpopType type)
 class PickleVisitor : public PickleBaseVisitor<PickleVisitor>
 {
 public:
-    void visit_Subroutine(const Subroutine_t &x) {
-        s.append("(");
-        s.append("sub");
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_decl; i++) {
-            LFORTRAN_ASSERT(x.m_decl[i]->base.type == astType::unit_decl2)
-            this->visit_unit_decl2(*x.m_decl[i]);
-            if (i < x.n_decl-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_body; i++) {
-            LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
-            this->visit_stmt(*x.m_body[i]);
-            if (i < x.n_body-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(")");
-    }
     void visit_DoLoop(const DoLoop_t &x) {
         s.append("(");
         s.append("do");
