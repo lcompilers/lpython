@@ -254,9 +254,11 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> subroutine
 %type <ast> function
 %type <vec_ast> var_decl_star
-%type <vec_ast> var_sym_decl_list
+%type <vec_decl> var_sym_decl_list
 %type <ast> var_decl
-%type <ast> var_sym_decl
+%type <decl> var_sym_decl
+%type <vec_dim> array_comp_decl_list
+%type <dim> array_comp_decl
 %type <string> var_type
 %type <ast> statement
 %type <ast> assignment_statement
@@ -348,13 +350,31 @@ var_type
     ;
 
 var_sym_decl_list
-    : var_sym_decl_list "," var_sym_decl { $$=$1; LIST_ADD($$, $3); }
-    | var_sym_decl { LIST_NEW($$); LIST_ADD($$, $1); }
+    : var_sym_decl_list "," var_sym_decl { $$=$1; PLIST_ADD($$, $3); }
+    | var_sym_decl { LIST_NEW($$); PLIST_ADD($$, $1); }
     ;
 
 var_sym_decl
-    : id
+    : id                                     { $$ = VAR_SYM_DECL1($1, @$); }
+    | id "=" expr                            { $$ = VAR_SYM_DECL2($1, $3, @$); }
+    | id "(" array_comp_decl_list ")"        { $$ = VAR_SYM_DECL3($1, $3, @$); }
+    | id "(" array_comp_decl_list ")" "=" expr {
+            $$ = VAR_SYM_DECL4($1, $3, $6, @$); }
     ;
+
+array_comp_decl_list
+    : array_comp_decl_list "," array_comp_decl { $$ = $1; LIST_ADD($$, $3); }
+    | array_comp_decl { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+array_comp_decl
+    : expr           { $$ = ARRAY_COMP_DECL1($1, @$); }
+    | expr ":" expr  { $$ = ARRAY_COMP_DECL2($1, $3, @$); }
+    | expr ":"       { $$ = ARRAY_COMP_DECL3($1, @$); }
+    | ":" expr       { $$ = ARRAY_COMP_DECL4($2, @$); }
+    | ":"            { $$ = ARRAY_COMP_DECL5(@$); }
+    ;
+
 
 // -----------------------------------------------------------------------------
 // Control flow

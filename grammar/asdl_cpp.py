@@ -388,14 +388,19 @@ class PickleVisitorVisitor(ASDLVisitor):
             "subroutine": "sub",
             "function": "fn",
             "doloop": "do",
+            "declaration": "decl",
         }
         name = name.lower()
         if name in subs:
             name = subs[name]
-        self.emit(    's.append("%s");' % name, 2)
-        for field in fields:
-            self.emit(    's.append(" ");', 2)
+        if cons:
+            self.emit(    's.append("%s");' % name, 2)
+            if len(fields) > 0:
+                self.emit(    's.append(" ");', 2)
+        for n, field in enumerate(fields):
             self.visitField(field, cons)
+            if n < len(fields) - 1:
+                self.emit(    's.append(" ");', 2)
         self.emit(    's.append(")");', 2)
         self.emit("}", 1)
 

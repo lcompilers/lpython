@@ -218,7 +218,7 @@ TEST_CASE("Programs") {
     CHECK(P(
    R"(PROGRAM TESTFortran90
       integer stop ; stop = 1 ; do while ( stop .eq. 0 ) ; end do
-      END PROGRAM TESTFortran90)") == "(prog TESTFortran90 [] [(declaration [(decl stop integer [] [])])] [(= stop 1) (while (== stop 0) [])] [])");
+      END PROGRAM TESTFortran90)") == "(prog TESTFortran90 [] [(decl [(stop integer [] [] ())])] [(= stop 1) (while (== stop 0) [])] [])");
 }
 
 TEST_CASE("Multiple units") {
@@ -646,53 +646,66 @@ TEST_CASE("return") {
 }
 
 TEST_CASE("declaration") {
-    Allocator al(16*1024);
+    Allocator al(1024*1024);
 
-    CHECK(P("integer x") == "(declaration [(decl x integer [] [])])");
-    CHECK(P("character x") == "(declaration [(decl x character [] [])])");
-    CHECK(P("real x") == "(declaration [(decl x real [] [])])");
-    CHECK(P("complex x") == "(declaration [(decl x complex [] [])])");
-    CHECK(P("logical x") == "(declaration [(decl x logical [] [])])");
-    CHECK(P("type x") == "(declaration [(decl x type [] [])])");
+    CHECK(P("integer x") == "(decl [(x integer [] [] ())])");
+    CHECK(P("character x") == "(decl [(x character [] [] ())])");
+    CHECK(P("real x") == "(decl [(x real [] [] ())])");
+    CHECK(P("complex x") == "(decl [(x complex [] [] ())])");
+    CHECK(P("logical x") == "(decl [(x logical [] [] ())])");
+    CHECK(P("type x") == "(decl [(x type [] [] ())])");
+
+    CHECK(P("integer x = 3") == "(decl [(x integer [] [] 3)])");
+    CHECK(P("integer x(5)") == "(decl [(x integer [(1 5)] [] ())])");
+    CHECK(P("integer x(5:)") == "(decl [(x integer [(5 ())] [] ())])");
+    CHECK(P("integer x(:5)") == "(decl [(x integer [(() 5)] [] ())])");
+    CHECK(P("integer x(:)") == "(decl [(x integer [(() ())] [] ())])");
+    CHECK(P("integer x(3:5)") == "(decl [(x integer [(3 5)] [] ())])");
+    CHECK(P("integer x(5,:,:3,3:)") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] ())])");
+    CHECK(P("integer x(5,:,:3,3:) = 3") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] 3)])");
+    CHECK(P("integer x(5,:,:3,3:) = 3+2") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] (+ 3 2))])");
+    CHECK(P("integer x(5,:,:3,3:) = 3, y(:3)=4") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] 3) (y integer [(() 3)] [] 4)])");
+    CHECK(P("integer x(5,:,:3,3:) = x") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] x)])");
+    CHECK_THROWS_AS(P("integer x(5,:,:3,3:) = x y"), LFortran::ParserError);
 
     CHECK(P(R"(function g
     integer x
     x = 1
-    end function)") == "(fn g [] () () () [] [(declaration [(decl x integer [] [])])] [(= x 1)] [])");
+    end function)") == "(fn g [] () () () [] [(decl [(x integer [] [] ())])] [(= x 1)] [])");
 
     CHECK(P(R"(subroutine g
     integer x, y
-    end subroutine)") == "(sub g [] [] [(declaration [(decl x integer [] []) (decl y integer [] [])])] [] [])");
+    end subroutine)") == "(sub g [] [] [(decl [(x integer [] [] ()) (y integer [] [] ())])] [] [])");
 
     CHECK(P(R"(subroutine g
     integer x, y, z
-    end subroutine)") == "(sub g [] [] [(declaration [(decl x integer [] []) (decl y integer [] []) (decl z integer [] [])])] [] [])");
+    end subroutine)") == "(sub g [] [] [(decl [(x integer [] [] ()) (y integer [] [] ()) (z integer [] [] ())])] [] [])");
 
     CHECK(P(R"(function g
     integer x
     real y, z
     x = 1
-    end function)") == "(fn g [] () () () [] [(declaration [(decl x integer [] [])]) (declaration [(decl y real [] []) (decl z real [] [])])] [(= x 1)] [])");
+    end function)") == "(fn g [] () () () [] [(decl [(x integer [] [] ())]) (decl [(y real [] [] ()) (z real [] [] ())])] [(= x 1)] [])");
 
     CHECK(P(R"(subroutine g
     integer x
     x = 1
-    end subroutine)") == "(sub g [] [] [(declaration [(decl x integer [] [])])] [(= x 1)] [])");
+    end subroutine)") == "(sub g [] [] [(decl [(x integer [] [] ())])] [(= x 1)] [])");
 
     CHECK(P(R"(subroutine g
     integer x
     character x
     x = 1
-    end subroutine)") == "(sub g [] [] [(declaration [(decl x integer [] [])]) (declaration [(decl x character [] [])])] [(= x 1)] [])");
+    end subroutine)") == "(sub g [] [] [(decl [(x integer [] [] ())]) (decl [(x character [] [] ())])] [(= x 1)] [])");
 
     CHECK(P(R"(program g
     integer x
     x = 1
-    end program)") == "(prog g [] [(declaration [(decl x integer [] [])])] [(= x 1)] [])");
+    end program)") == "(prog g [] [(decl [(x integer [] [] ())])] [(= x 1)] [])");
 
     CHECK(P(R"(program g
     integer x
     complex x
     x = 1
-    end program)") == "(prog g [] [(declaration [(decl x integer [] [])]) (declaration [(decl x complex [] [])])] [(= x 1)] [])");
+    end program)") == "(prog g [] [(decl [(x integer [] [] ())]) (decl [(x complex [] [] ())])] [(= x 1)] [])");
 }

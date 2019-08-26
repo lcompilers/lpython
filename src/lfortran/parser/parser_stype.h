@@ -8,35 +8,44 @@
 namespace LFortran
 {
 
+// Vector implementation
+template <typename T>
+struct Vec {
+    size_t n, max;
+    T* p;
+    // reserve() must be called before calling push_back()
+    void reserve(Allocator &al, size_t max) {
+        n = 0;
+        this->max = max;
+        p = al.allocate<T>(max);
+    }
+    void push_back(Allocator &al, T x) {
+        if (n == max) {
+            size_t max2 = 2*max;
+            T* p2 = al.allocate<T>(max2);
+            std::memcpy(p2, p, sizeof(T) * max);
+            p = p2;
+            max = max2;
+        }
+        p[n] = x;
+        n++;
+    }
+    size_t size() const {
+        return n;
+    }
+};
+
 union YYSTYPE {
     unsigned long n;
     LFortran::AST::ast_t* ast;
-
-    // Vector implementation
-    struct Vec {
-        size_t n, max;
-        LFortran::AST::ast_t** p;
-        // reserve() must be called before calling push_back()
-        void reserve(Allocator &al, size_t max) {
-            n = 0;
-            this->max = max;
-            p = al.allocate<LFortran::AST::ast_t*>(max);
-        }
-        void push_back(Allocator &al, LFortran::AST::ast_t *x) {
-            if (n == max) {
-                size_t max2 = 2*max;
-                LFortran::AST::ast_t** p2 = al.allocate<LFortran::AST::ast_t*>(max2);
-                std::memcpy(p2, p, sizeof(LFortran::AST::ast_t*) * max);
-                p = p2;
-                max = max2;
-            }
-            p[n] = x;
-            n++;
-        }
-        size_t size() const {
-            return n;
-        }
-    } vec_ast;
+    using Vec = LFortran::Vec<LFortran::AST::ast_t*>;
+    using VecDecl = LFortran::Vec<LFortran::AST::decl_t>;
+    using VecDim = LFortran::Vec<LFortran::AST::dimension_t>;
+    Vec vec_ast;
+    LFortran::AST::decl_t *decl; // Pointer, to reduce size of YYSTYPE
+    VecDecl vec_decl;
+    LFortran::AST::dimension_t dim;
+    VecDim vec_dim;
 
     // String implementation (not null-terminated)
     struct Str {
@@ -60,6 +69,10 @@ union YYSTYPE {
 
 static_assert(std::is_standard_layout<YYSTYPE>::value);
 static_assert(std::is_trivial<YYSTYPE>::value);
+// Ensure the YYSTYPE size is equal to Vec, which is a required member, so
+// YYSTYPE has to be at least as big, but it should not be bigger, otherwise it
+// would reduce performance.
+static_assert(sizeof(YYSTYPE) == sizeof(YYSTYPE::Vec));
 
 } // namespace LFortran
 

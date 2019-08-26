@@ -24,6 +24,7 @@ using LFortran::AST::stmtType;
 
 using LFortran::AST::ast_t;
 using LFortran::AST::decl_t;
+using LFortran::AST::dimension_t;
 using LFortran::AST::expr_t;
 using LFortran::AST::stmt_t;
 using LFortran::AST::unit_decl2_t;
@@ -91,18 +92,41 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
     return make_Name_t(al, loc, s);
 }
 
-static inline decl_t* DECL(Allocator &al, const YYSTYPE::Vec &x,
+static inline decl_t* DECL(Allocator &al, const YYSTYPE::VecDecl &x,
         const YYSTYPE::Str &type)
 {
     decl_t *s = al.allocate<decl_t>(x.size());
     for (size_t i=0; i < x.size(); i++) {
-        s[i].m_sym = name2char(EXPR(x.p[i]));
+        s[i] = x.p[i];
         s[i].m_sym_type = type.c_str(al);
-        s[i].n_dims = 0;
-        s[i].m_dims = nullptr;
-        s[i].n_attrs = 0;
-        s[i].m_attrs = nullptr;
     }
+    return s;
+}
+
+static inline decl_t* DECL3(Allocator &al, ast_t* n,
+        const YYSTYPE::VecDim *d, expr_t *e)
+{
+    decl_t *s = al.allocate<decl_t>();
+    s->m_sym = name2char(EXPR(n));
+    s->m_sym_type = nullptr;
+    if (d) {
+        s->n_dims = d->size();
+        s->m_dims = d->p;
+    } else {
+        s->n_dims = 0;
+        s->m_dims = nullptr;
+    }
+    s->n_attrs = 0;
+    s->m_attrs = nullptr;
+    s->m_initializer = e;
+    return s;
+}
+
+static inline dimension_t DIM1(expr_t *a, expr_t *b)
+{
+    dimension_t s;
+    s.m_start = a;
+    s.m_end = b;
     return s;
 }
 
@@ -194,6 +218,7 @@ static inline decl_t* DECL(Allocator &al, const YYSTYPE::Vec &x,
 
 #define LIST_NEW(l) l.reserve(p.m_a, 4)
 #define LIST_ADD(l, x) l.push_back(p.m_a, x)
+#define PLIST_ADD(l, x) l.push_back(p.m_a, *x)
 
 #define WHILE(cond, body, l) make_WhileLoop_t(p.m_a, l, \
         /*test*/ EXPR(cond), \
@@ -217,5 +242,16 @@ static inline decl_t* DECL(Allocator &al, const YYSTYPE::Vec &x,
 
 #define VAR_DECL(type, syms, l) make_Declaration_t(p.m_a, l, \
         DECL(p.m_a, syms, type), syms.size())
+
+#define VAR_SYM_DECL1(id, l)         DECL3(p.m_a, id, nullptr, nullptr)
+#define VAR_SYM_DECL2(id, e, l)      DECL3(p.m_a, id, nullptr, EXPR(e))
+#define VAR_SYM_DECL3(id, a, l)      DECL3(p.m_a, id, &a, nullptr)
+#define VAR_SYM_DECL4(id, a, e, l)   DECL3(p.m_a, id, &a, EXPR(e))
+
+#define ARRAY_COMP_DECL1(a, l)       DIM1(EXPR(INTEGER(1, l)), EXPR(a))
+#define ARRAY_COMP_DECL2(a, b, l)    DIM1(EXPR(a), EXPR(b))
+#define ARRAY_COMP_DECL3(a, l)       DIM1(EXPR(a), nullptr)
+#define ARRAY_COMP_DECL4(b, l)       DIM1(nullptr, EXPR(b))
+#define ARRAY_COMP_DECL5(l)          DIM1(nullptr, nullptr)
 
 #endif
