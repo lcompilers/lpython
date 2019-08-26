@@ -60,10 +60,13 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 // type" which are specified using single quotes (and that bypass the %token
 // definitions), and those are not used here, and we test that the whole file
 // does not contain any single quotes to ensure that.
+//
+// If this list is updated, update also token2text() in parser.cpp.
 
 // Terminal tokens
 
 %token END_OF_FILE 0
+%token TK_NEWLINE
 %token <string> TK_NAME
 %token <string> TK_DEF_OP
 %token <n> TK_INTEGER
@@ -84,8 +87,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token TK_PERCENT "%"
 %token TK_VBAR "|"
 
-
-%token TK_NEWLINE
 %token TK_STRING
 
 %token TK_DBL_DOT
