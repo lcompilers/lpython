@@ -355,7 +355,27 @@ var_sym_decl_list
 var_sym_decl
     : id
     | id "=" expr
+    | id array_decl
+    | id array_decl "=" expr
     ;
+
+array_decl
+    : "(" array_comp_decl_list ")"
+    ;
+
+array_comp_decl_list
+    : array_comp_decl_list "," array_comp_decl
+    | array_comp_decl
+    ;
+
+array_comp_decl
+    : expr
+    | expr ":" expr
+    | expr ":"
+    | ":" expr
+    | ":"
+    ;
+
 
 // -----------------------------------------------------------------------------
 // Control flow

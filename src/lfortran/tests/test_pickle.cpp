@@ -656,6 +656,16 @@ TEST_CASE("declaration") {
     CHECK(P("type x") == "(declaration [(decl x type [] [])])");
 
     CHECK(P("integer x = 3") == "(declaration [(decl x integer [] [])])");
+    CHECK(P("integer x(5)") == "(declaration [(decl x integer [] [])])");
+    CHECK(P("integer x(5:)") == "(declaration [(decl x integer [] [])])");
+    CHECK(P("integer x(:5)") == "(declaration [(decl x integer [] [])])");
+    CHECK(P("integer x(:)") == "(declaration [(decl x integer [] [])])");
+    CHECK(P("integer x(5,:,:3,3:)") == "(declaration [(decl x integer [] [])])");
+    CHECK(P("integer x(5,:,:3,3:) = 3") == "(declaration [(decl x integer [] [])])");
+    CHECK(P("integer x(5,:,:3,3:) = 3+2") == "(declaration [(decl x integer [] [])])");
+    CHECK(P("integer x(5,:,:3,3:) = 3, y(:3)=4") == "(declaration [(decl x integer [] []) (decl y integer [] [])])");
+    CHECK(P("integer x(5,:,:3,3:) = x") == "(declaration [(decl x integer [] [])])");
+    CHECK_THROWS_AS(P("integer x(5,:,:3,3:) = x y"), LFortran::ParserError);
 
     CHECK(P(R"(function g
     integer x
