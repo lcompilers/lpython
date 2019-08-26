@@ -244,6 +244,6 @@ static inline decl_t DECL3(ast_t* n, expr_t *e)
 #define VAR_SYM_DECL1(id, l)         DECL3(id, nullptr)
 #define VAR_SYM_DECL2(id, e, l)      DECL3(id, EXPR(e))
 #define VAR_SYM_DECL3(id, a, l)      VSD(id)
-#define VAR_SYM_DECL4(id, a, e, l)   VSD(id)
+#define VAR_SYM_DECL4(id, a, e, l)   DECL3(id, EXPR(e))
 
 #endif
