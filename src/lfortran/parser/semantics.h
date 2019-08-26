@@ -103,21 +103,22 @@ static inline decl_t* DECL(Allocator &al, const YYSTYPE::VecDecl &x,
     return s;
 }
 
-static inline decl_t DECL3(ast_t* n, const YYSTYPE::VecDim *d, expr_t *e)
+static inline decl_t* DECL3(Allocator &al, ast_t* n,
+        const YYSTYPE::VecDim *d, expr_t *e)
 {
-    decl_t s;
-    s.m_sym = name2char(EXPR(n));
-    s.m_sym_type = nullptr;
+    decl_t *s = al.allocate<decl_t>();
+    s->m_sym = name2char(EXPR(n));
+    s->m_sym_type = nullptr;
     if (d) {
-        s.n_dims = d->size();
-        s.m_dims = d->p;
+        s->n_dims = d->size();
+        s->m_dims = d->p;
     } else {
-        s.n_dims = 0;
-        s.m_dims = nullptr;
+        s->n_dims = 0;
+        s->m_dims = nullptr;
     }
-    s.n_attrs = 0;
-    s.m_attrs = nullptr;
-    s.m_initializer = e;
+    s->n_attrs = 0;
+    s->m_attrs = nullptr;
+    s->m_initializer = e;
     return s;
 }
 
@@ -217,6 +218,7 @@ static inline dimension_t DIM1(expr_t *a, expr_t *b)
 
 #define LIST_NEW(l) l.reserve(p.m_a, 4)
 #define LIST_ADD(l, x) l.push_back(p.m_a, x)
+#define PLIST_ADD(l, x) l.push_back(p.m_a, *x)
 
 #define WHILE(cond, body, l) make_WhileLoop_t(p.m_a, l, \
         /*test*/ EXPR(cond), \
@@ -241,10 +243,10 @@ static inline dimension_t DIM1(expr_t *a, expr_t *b)
 #define VAR_DECL(type, syms, l) make_Declaration_t(p.m_a, l, \
         DECL(p.m_a, syms, type), syms.size())
 
-#define VAR_SYM_DECL1(id, l)         DECL3(id, nullptr, nullptr)
-#define VAR_SYM_DECL2(id, e, l)      DECL3(id, nullptr, EXPR(e))
-#define VAR_SYM_DECL3(id, a, l)      DECL3(id, &a, nullptr)
-#define VAR_SYM_DECL4(id, a, e, l)   DECL3(id, &a, EXPR(e))
+#define VAR_SYM_DECL1(id, l)         DECL3(p.m_a, id, nullptr, nullptr)
+#define VAR_SYM_DECL2(id, e, l)      DECL3(p.m_a, id, nullptr, EXPR(e))
+#define VAR_SYM_DECL3(id, a, l)      DECL3(p.m_a, id, &a, nullptr)
+#define VAR_SYM_DECL4(id, a, e, l)   DECL3(p.m_a, id, &a, EXPR(e))
 
 #define ARRAY_COMP_DECL1(a, l)       DIM1(EXPR(INTEGER(1, l)), EXPR(a))
 #define ARRAY_COMP_DECL2(a, b, l)    DIM1(EXPR(a), EXPR(b))

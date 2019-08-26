@@ -350,8 +350,8 @@ var_type
     ;
 
 var_sym_decl_list
-    : var_sym_decl_list "," var_sym_decl { $$=$1; LIST_ADD($$, $3); }
-    | var_sym_decl { LIST_NEW($$); LIST_ADD($$, $1); }
+    : var_sym_decl_list "," var_sym_decl { $$=$1; PLIST_ADD($$, $3); }
+    | var_sym_decl { LIST_NEW($$); PLIST_ADD($$, $1); }
     ;
 
 var_sym_decl

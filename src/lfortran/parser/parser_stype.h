@@ -42,7 +42,7 @@ union YYSTYPE {
     using VecDecl = LFortran::Vec<LFortran::AST::decl_t>;
     using VecDim = LFortran::Vec<LFortran::AST::dimension_t>;
     Vec vec_ast;
-    LFortran::AST::decl_t decl;
+    LFortran::AST::decl_t *decl; // Pointer, to reduce size of YYSTYPE
     VecDecl vec_decl;
     LFortran::AST::dimension_t dim;
     VecDim vec_dim;
@@ -69,6 +69,10 @@ union YYSTYPE {
 
 static_assert(std::is_standard_layout<YYSTYPE>::value);
 static_assert(std::is_trivial<YYSTYPE>::value);
+// Ensure the YYSTYPE size is equal to Vec, which is a required member, so
+// YYSTYPE has to be at least as big, but it should not be bigger, otherwise it
+// would reduce performance.
+static_assert(sizeof(YYSTYPE) == sizeof(YYSTYPE::Vec));
 
 } // namespace LFortran
 

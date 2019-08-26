@@ -646,7 +646,7 @@ TEST_CASE("return") {
 }
 
 TEST_CASE("declaration") {
-    Allocator al(16*1024);
+    Allocator al(1024*1024);
 
     CHECK(P("integer x") == "(decl [(x integer [] [] ())])");
     CHECK(P("character x") == "(decl [(x character [] [] ())])");
