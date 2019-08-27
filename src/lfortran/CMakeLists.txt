@@ -5,6 +5,7 @@ set(SRC
     parser/parser.tab.cc
     parser/parser.cpp
     pickle.cpp
+    cwrapper.cpp
 )
 if (WITH_JSON)
     set(SRC ${SRC}
