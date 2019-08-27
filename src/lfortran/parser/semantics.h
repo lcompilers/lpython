@@ -23,6 +23,8 @@ using LFortran::AST::cmpopType;
 using LFortran::AST::stmtType;
 
 using LFortran::AST::ast_t;
+using LFortran::AST::attribute_t;
+using LFortran::AST::attribute_arg_t;
 using LFortran::AST::decl_t;
 using LFortran::AST::dimension_t;
 using LFortran::AST::expr_t;
@@ -34,6 +36,7 @@ using LFortran::AST::Name_t;
 using LFortran::AST::Num_t;
 
 using LFortran::AST::make_BinOp_t;
+using LFortran::AST::make_Attribute_t;
 using LFortran::AST::make_DoLoop_t;
 using LFortran::AST::make_Exit_t;
 using LFortran::AST::make_Cycle_t;
@@ -68,6 +71,7 @@ static inline T** vec_cast(const YYSTYPE::VecAST &x) {
 #define VEC_CAST(x, type) vec_cast<type##_t, astType::type>(x)
 #define DECLS(x) VEC_CAST(x, unit_decl2)
 #define STMTS(x) VEC_CAST(x, stmt)
+#define ATTRS(x) VEC_CAST(x, attribute)
 
 static inline stmt_t** IFSTMTS(Allocator &al, ast_t* x)
 {
@@ -93,12 +97,14 @@ static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
 }
 
 static inline decl_t* DECL(Allocator &al, const YYSTYPE::VecDecl &x,
-        const YYSTYPE::Str &type)
+        const YYSTYPE::Str &type, const YYSTYPE::VecAST &attrs)
 {
     decl_t *s = al.allocate<decl_t>(x.size());
     for (size_t i=0; i < x.size(); i++) {
         s[i] = x.p[i];
         s[i].m_sym_type = type.c_str(al);
+        s[i].m_attrs = ATTRS(attrs);
+        s[i].n_attrs = attrs.size();
     }
     return s;
 }
@@ -130,6 +136,12 @@ static inline dimension_t DIM1(expr_t *a, expr_t *b)
     return s;
 }
 
+static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
+{
+    attribute_arg_t *s = al.allocate<attribute_arg_t>();
+    s->m_arg = arg.c_str(al);
+    return s;
+}
 
 #define TYPE ast_t*
 
@@ -240,8 +252,8 @@ static inline dimension_t DIM1(expr_t *a, expr_t *b)
         /*body*/ STMTS(body), \
         /*n_body*/ body.size())
 
-#define VAR_DECL(type, syms, l) make_Declaration_t(p.m_a, l, \
-        DECL(p.m_a, syms, type), syms.size())
+#define VAR_DECL(type, attrs, syms, l) make_Declaration_t(p.m_a, l, \
+        DECL(p.m_a, syms, type, attrs), syms.size())
 
 #define VAR_SYM_DECL1(id, l)         DECL3(p.m_a, id, nullptr, nullptr)
 #define VAR_SYM_DECL2(id, e, l)      DECL3(p.m_a, id, nullptr, EXPR(e))
@@ -253,5 +265,15 @@ static inline dimension_t DIM1(expr_t *a, expr_t *b)
 #define ARRAY_COMP_DECL3(a, l)       DIM1(EXPR(a), nullptr)
 #define ARRAY_COMP_DECL4(b, l)       DIM1(nullptr, EXPR(b))
 #define ARRAY_COMP_DECL5(l)          DIM1(nullptr, nullptr)
+
+#define VARMOD(a, l) make_Attribute_t(p.m_a, l, \
+        a.c_str(p.m_a), \
+        /*args*/ nullptr, \
+        /*n_args*/ 0)
+
+#define VARMOD2(a, b, l) make_Attribute_t(p.m_a, l, \
+        a.c_str(p.m_a), \
+        /*args*/ ATTR_ARG(p.m_a, b), \
+        /*n_args*/ 1)
 
 #endif

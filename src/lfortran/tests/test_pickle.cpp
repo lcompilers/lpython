@@ -649,8 +649,24 @@ TEST_CASE("declaration") {
     Allocator al(1024*1024);
 
     CHECK(P("integer x") == "(decl [(x integer [] [] ())])");
+    CHECK(P("integer :: x") == "(decl [(x integer [] [] ())])");
+    CHECK(P("integer, parameter :: x") == "(decl [(x integer [] [(attribute parameter [])] ())])");
+    CHECK(P("integer, parameter, pointer :: x") == "(decl [(x integer [] [(attribute parameter []) (attribute pointer [])] ())])");
+    CHECK_THROWS_AS(P("integer, parameter, pointer x"),
+            LFortran::ParserError);
     CHECK(P("character x") == "(decl [(x character [] [] ())])");
+    // TODO: put selector in pickle
+    CHECK(P("character(len=*) x") == "(decl [(x character [] [] ())])");
     CHECK(P("real x") == "(decl [(x real [] [] ())])");
+    // TODO: put selector in pickle
+    CHECK(P("real(dp) x") == "(decl [(x real [] [] ())])");
+    // TODO: put selector in pickle
+    CHECK(P("real(dp) :: x") == "(decl [(x real [] [] ())])");
+    // TODO: put selector in pickle
+    CHECK(P("real(kind=dp) :: x") == "(decl [(x real [] [] ())])");
+    CHECK(P("real(dp), intent(in) :: x") == "(decl [(x real [] [(attribute intent [(in)])] ())])");
+    CHECK(P("real(dp), intent(out) :: x") == "(decl [(x real [] [(attribute intent [(out)])] ())])");
+    CHECK(P("real(dp), intent(inout) :: x") == "(decl [(x real [] [(attribute intent [(inout)])] ())])");
     CHECK(P("complex x") == "(decl [(x complex [] [] ())])");
     CHECK(P("logical x") == "(decl [(x logical [] [] ())])");
     CHECK(P("type x") == "(decl [(x type [] [] ())])");
@@ -658,10 +674,13 @@ TEST_CASE("declaration") {
     CHECK(P("integer x = 3") == "(decl [(x integer [] [] 3)])");
     CHECK(P("integer x(5)") == "(decl [(x integer [(1 5)] [] ())])");
     CHECK(P("integer x(5:)") == "(decl [(x integer [(5 ())] [] ())])");
+    CHECK(P("integer :: x(5:)") == "(decl [(x integer [(5 ())] [] ())])");
     CHECK(P("integer x(:5)") == "(decl [(x integer [(() 5)] [] ())])");
     CHECK(P("integer x(:)") == "(decl [(x integer [(() ())] [] ())])");
     CHECK(P("integer x(3:5)") == "(decl [(x integer [(3 5)] [] ())])");
     CHECK(P("integer x(5,:,:3,3:)") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] ())])");
+    // TODO: add dimensions in the dimension attribute into the pickle
+    CHECK(P("integer, dimension(5,:,:3,3:) :: x") == "(decl [(x integer [] [(attribute dimension [])] ())])");
     CHECK(P("integer x(5,:,:3,3:) = 3") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] 3)])");
     CHECK(P("integer x(5,:,:3,3:) = 3+2") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] (+ 3 2))])");
     CHECK(P("integer x(5,:,:3,3:) = 3, y(:3)=4") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] 3) (y integer [(() 3)] [] 4)])");
