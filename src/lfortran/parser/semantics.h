@@ -24,6 +24,7 @@ using LFortran::AST::stmtType;
 
 using LFortran::AST::ast_t;
 using LFortran::AST::attribute_t;
+using LFortran::AST::attribute_arg_t;
 using LFortran::AST::decl_t;
 using LFortran::AST::dimension_t;
 using LFortran::AST::expr_t;
@@ -135,6 +136,12 @@ static inline dimension_t DIM1(expr_t *a, expr_t *b)
     return s;
 }
 
+static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
+{
+    attribute_arg_t *s = al.allocate<attribute_arg_t>();
+    s->m_arg = arg.c_str(al);
+    return s;
+}
 
 #define TYPE ast_t*
 
@@ -263,5 +270,10 @@ static inline dimension_t DIM1(expr_t *a, expr_t *b)
         a.c_str(p.m_a), \
         /*args*/ nullptr, \
         /*n_args*/ 0)
+
+#define VARMOD2(a, b, l) make_Attribute_t(p.m_a, l, \
+        a.c_str(p.m_a), \
+        /*args*/ ATTR_ARG(p.m_a, b), \
+        /*n_args*/ 1)
 
 #endif

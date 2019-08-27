@@ -664,12 +664,9 @@ TEST_CASE("declaration") {
     CHECK(P("real(dp) :: x") == "(decl [(x real [] [] ())])");
     // TODO: put selector in pickle
     CHECK(P("real(kind=dp) :: x") == "(decl [(x real [] [] ())])");
-    // TODO: put "in" in pickle
-    CHECK(P("real(dp), intent(in) :: x") == "(decl [(x real [] [(attribute intent [])] ())])");
-    // TODO: put "out" in the pickle
-    CHECK(P("real(dp), intent(out) :: x") == "(decl [(x real [] [(attribute intent [])] ())])");
-    // TODO: put "inout" in the pickle
-    CHECK(P("real(dp), intent(inout) :: x") == "(decl [(x real [] [(attribute intent [])] ())])");
+    CHECK(P("real(dp), intent(in) :: x") == "(decl [(x real [] [(attribute intent [(in)])] ())])");
+    CHECK(P("real(dp), intent(out) :: x") == "(decl [(x real [] [(attribute intent [(out)])] ())])");
+    CHECK(P("real(dp), intent(inout) :: x") == "(decl [(x real [] [(attribute intent [(inout)])] ())])");
     CHECK(P("complex x") == "(decl [(x complex [] [] ())])");
     CHECK(P("logical x") == "(decl [(x logical [] [] ())])");
     CHECK(P("type x") == "(decl [(x type [] [] ())])");
