@@ -16,6 +16,7 @@ python grammar/asdl_py.py grammar/ASR.asdl lfortran/asr/asr.py ..ast.utils
 
 grep -n "'" src/lfortran/parser/parser.yy && echo "Single quote not allowed" && exit 1
 
+(cd lfortran/parser && cython -3 -I. cparser.pyx)
 
 # Generate a parse tree from fortran.g4
 antlr4="java org.antlr.v4.Tool"

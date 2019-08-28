@@ -21,6 +21,8 @@ if (NOT CMAKE_CXX_STANDARD)
         CACHE STRING "C++ standard" FORCE)
 endif ()
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     # In Debug mode we enable assertions
     set(WITH_LFORTRAN_ASSERT_DEFAULT yes)
@@ -39,6 +41,11 @@ if (WITH_JSON)
     find_package(RapidJSON REQUIRED)
 endif()
 
+# Python
+set(WITH_PYTHON no CACHE BOOL "Build with Python wrappers")
+if (WITH_PYTHON)
+    find_package(Python REQUIRED COMPONENTS Interpreter Development)
+endif()
 
 enable_testing()
 
@@ -58,6 +65,10 @@ endif ()
 message("Installation prefix: ${CMAKE_INSTALL_PREFIX}")
 message("WITH_LFORTRAN_ASSERT: ${WITH_LFORTRAN_ASSERT}")
 message("WITH_JSON: ${WITH_JSON}")
+message("WITH_PYTHON: ${WITH_PYTHON}")
 
 
 add_subdirectory(src)
+if (WITH_PYTHON)
+    add_subdirectory(lfortran/parser)
+endif()
