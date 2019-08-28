@@ -6,3 +6,4 @@ include README.md
 include pyproject.toml
 include LICENSE
 recursive-include share *
+include lfortran/parser/cparser.c
