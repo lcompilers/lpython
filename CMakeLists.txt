@@ -21,6 +21,8 @@ if (NOT CMAKE_CXX_STANDARD)
         CACHE STRING "C++ standard" FORCE)
 endif ()
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     # In Debug mode we enable assertions
     set(WITH_LFORTRAN_ASSERT_DEFAULT yes)
