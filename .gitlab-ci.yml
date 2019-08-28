@@ -8,7 +8,7 @@ before_script:
 
 prepare tarball:
   stage: tarball
-  image: registry.gitlab.com/lfortran/ci-images:prepare-1.5.1
+  image: registry.gitlab.com/lfortran/ci-images/ci-test:prepare-9d13b09
   script:
     - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
     - sudo ln /usr/bin/pip3 /usr/bin/pip
