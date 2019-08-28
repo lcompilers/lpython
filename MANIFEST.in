@@ -1,9 +1,10 @@
-include version
 recursive-include src *
 recursive-include cmake *
+recursive-include share *
+include version
 include CMakeLists.txt
 include README.md
 include pyproject.toml
 include LICENSE
-recursive-include share *
 include lfortran/parser/cparser.c
+include lfortran/parser/CMakeLists.txt
