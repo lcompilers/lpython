@@ -1,5 +1,9 @@
 #!/usr/bin/env xonsh
 
+# A platform independent Xonsh script to build LFortran. Works on Linux, macOS
+# and Windows. The prerequisites such as bison, re2c or cython must be already
+# installed.
+
 $RAISE_SUBPROC_ERROR = True
 trace on
 
