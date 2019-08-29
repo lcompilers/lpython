@@ -66,7 +66,7 @@ full:
     - conda install -c conda-forge cmake scikit-build
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
-    - pip install -v .
+    - pip install --no-index -v .
     - cd ..
     - rm -r lfortran lfortran-${lfortran_version}
     - rm lfort
@@ -121,7 +121,7 @@ documentation:
     - pip install nbconvert mkdocs
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
-    - pip install -v .
+    - pip install --no-index -v .
     - cd ..
     - rm -r lfortran lfortran-${lfortran_version}
     - cd doc
@@ -154,7 +154,7 @@ minimal:
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
     - export CFLAGS="-I/usr/include/x86_64-linux-musl/"
-    - pip install -v .
+    - pip install --no-index -v .
     - cd ..
     - rm -r lfortran lfortran-${lfortran_version}
     - rm lfort
@@ -173,10 +173,10 @@ jupyter:
     - conda install -c conda-forge cmake scikit-build
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
-    - pip install -v .
+    - pip install --no-index -v .
     - cd ..
     - rm -r lfortran lfortran-${lfortran_version}
-    - (git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/lfortran/fortran_kernel && cd fortran_kernel && git checkout v0.1.4 && pip install . && cd .. && rm -r fortran_kernel)
+    - (git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/lfortran/fortran_kernel && cd fortran_kernel && git checkout v0.1.4 && pip install --no-index . && cd .. && rm -r fortran_kernel)
     - python -m fortran_kernel.install --sys-prefix
     - jupyter kernelspec list --json
     - cd share/lfortran/nb
