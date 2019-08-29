@@ -43,14 +43,24 @@ void lfortran_parser_free(LFortranCParser *self)
 }
 
 lfortran_exceptions_t lfortran_parser_parse(LFortranCParser *self,
-        const char *input)
+        const char *input, char **ast)
 {
     CWRAPPER_BEGIN
 
     LFortran::AST::ast_t* result;
     result = LFortran::parse(self->al, input);
     std::string p = LFortran::pickle(*result);
-    std::cout << p << std::endl;
+    *ast = new char[p.length()+1];
+    std::strcpy(*ast, p.c_str());
+
+    CWRAPPER_END
+}
+
+lfortran_exceptions_t lfortran_str_free(char *str)
+{
+    CWRAPPER_BEGIN
+
+    delete[] str;
 
     CWRAPPER_END
 }

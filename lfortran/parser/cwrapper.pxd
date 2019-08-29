@@ -12,4 +12,5 @@ cdef extern from "lfortran/cwrapper.h":
     LFortranCParser *lfortran_parser_new() nogil
     void lfortran_parser_free(LFortranCParser *self) nogil
     lfortran_exceptions_t lfortran_parser_parse(LFortranCParser *self,
-        const char *input) nogil
+        const char *input, char **ast) nogil
+    lfortran_exceptions_t lfortran_str_free(char *str) nogil
