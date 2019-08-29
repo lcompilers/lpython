@@ -19,4 +19,30 @@ pushd src/lfortran/parser && bison -Wall -d -r all parser.yy && popd
 pushd lfortran/parser && cython -3 -I. cparser.pyx && popd
 
 # Generate a parse tree from fortran.g4
-pushd grammar && java org.antlr.v4.Tool -Dlanguage=Python3 -no-listener -visitor fortran.g4 -o ../lfortran/parser && popd
+cd grammar
+curl -O https://www.antlr.org/download/antlr-4.7-complete.jar
+java -cp antlr-4.7-complete.jar org.antlr.v4.Tool -Dlanguage=Python3 -no-listener -visitor fortran.g4 -o ../lfortran/parser
+cd ..
+
+export lfortran_version=0.0+git
+pip install scikit-build
+python setup.py sdist
+pip uninstall -y scikit-build
+tar xzf dist/lfortran-$lfortran_version.tar.gz
+cd lfortran-$lfortran_version
+
+mkdir test-bld
+cd test-bld
+cmake ..
+cmake --build .
+ctest --output-on-failure
+cd ..
+
+pip install -v .
+cd ..
+
+from shutil import rmtree
+rmtree("lfortran")
+rmtree("dist")
+ls
+pytest --pyargs lfortran
