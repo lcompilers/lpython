@@ -2,16 +2,11 @@ image: Visual Studio 2017
 # List of preinstalled software in the image:
 # https://www.appveyor.com/docs/windows-images-software/
 
-install:
-- call ci\appveyor_install.bat
-
-build_script:
-- call ci\appveyor_build.bat
-
 test_script:
 - set CONDA_INSTALL_LOCN=C:\\Miniconda37-x64
 - call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
-- rmdir /s /q lfortran
-- rmdir /s /q dist
-- dir
-- pytest --pyargs lfortran
+- call conda config --set always_yes yes --set changeps1 no
+- call conda info -a
+- call conda update -q conda
+- call conda install -c conda-forge python=3.7 re2c m2-bison xonsh cython
+- xonsh build0.xsh
