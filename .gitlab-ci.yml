@@ -105,7 +105,7 @@ build.xsh:
   image: registry.gitlab.com/lfortran/ci-images:full-1.4.0
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
-    - conda install -c conda-forge python=3.7 re2c bison m4 cython xonsh
+    - conda install -c conda-forge python=3.7 re2c bison m4 cython xonsh curl openjdk
     - xonsh ci/build.xsh
 
 # Build and upload documentation
