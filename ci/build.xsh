@@ -58,7 +58,7 @@ cmake --build .
 ctest --output-on-failure
 cd ..
 
-pip install .
+pip install -v .
 cd ..
 
 from shutil import rmtree
