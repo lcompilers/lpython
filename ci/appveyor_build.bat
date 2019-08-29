@@ -15,48 +15,24 @@ setlocal
 
 
 set CONDA_INSTALL_LOCN=C:\\Miniconda37-x64
-call :check
 set BUILD_TYPE=Debug
-call :check
 call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
 
-xonsh .\build0.xsh
-call :check
+xonsh build0.xsh
 
 set lfortran_version=0.0+git
-call :check
 pip install scikit-build
-call :check
 python setup.py sdist
-call :check
 pip uninstall -y scikit-build
-call :check
 tar xzf dist/lfortran-%lfortran_version%.tar.gz
-call :check
 cd lfortran-%lfortran_version%
-call :check
 
 mkdir test-bld
 cd test-bld
 cmake ..
-call :check
 cmake --build .
-call :check
 ctest --output-on-failure
-call :check
 cd ..
 
 pip install -v .
-call :check
 cd ..
-
-:: -----------------------------------------------------------------------------
-:: End of script. We exit the script now.
-goto :eof
-
-:: Function definitions
-:check
-if errorlevel 1 (
-    echo "Non zero exit code returned, aborting..."
-    (goto) 2>nul & endlocal & exit /b %errorlevel%
-)
