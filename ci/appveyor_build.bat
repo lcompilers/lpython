@@ -13,22 +13,6 @@ setlocal
 ::
 :: -----------------------------------------------------------------------------
 
-python grammar\asdl_py.py
-call :check
-
-python grammar\asdl_cpp.py
-call :check
-
-python grammar\asdl_py.py grammar\ASR.asdl lfortran\asr\asr.py ..ast.utils
-call :check
-
-cd grammar
-call :check
-java -cp antlr-4.7-complete.jar org.antlr.v4.Tool -Dlanguage=Python3 -no-listener -visitor fortran.g4 -o ..\lfortran\parser
-call :check
-cd ..
-call :check
-
 
 set CONDA_INSTALL_LOCN=C:\\Miniconda37-x64
 call :check
@@ -36,14 +20,9 @@ set BUILD_TYPE=Debug
 call :check
 call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
 
-cd src\lfortran\parser
+xonsh build0.xsh
 call :check
-re2c -W -b tokenizer.re -o tokenizer.cpp
-call :check
-bison -Wall -d parser.yy
-call :check
-cd ..\..\..
-call :check
+
 set lfortran_version=0.0+git
 call :check
 pip install scikit-build
