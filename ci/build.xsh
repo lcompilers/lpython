@@ -45,9 +45,7 @@ java -cp antlr-4.7-complete.jar org.antlr.v4.Tool -Dlanguage=Python3 -no-listene
 cd ..
 
 $lfortran_version=$(cat version).strip()
-pip install scikit-build
 python setup.py sdist
-pip uninstall -y scikit-build
 tar xzf dist/lfortran-$lfortran_version.tar.gz
 cd lfortran-$lfortran_version
 
