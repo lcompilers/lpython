@@ -19,6 +19,8 @@ if mdt:
 if sys.platform == "win32":
     cmake_args.append("-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE")
 
+cmake_args.append("-DWITH_PYTHON=TRUE")
+
 skbuild.setup(
     name="lfortran",
     version=version,

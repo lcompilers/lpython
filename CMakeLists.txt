@@ -44,6 +44,7 @@ endif()
 # Python
 set(WITH_PYTHON no CACHE BOOL "Build with Python wrappers")
 if (WITH_PYTHON)
+    cmake_minimum_required(VERSION 3.12.4 FATAL_ERROR)
     find_package(Python REQUIRED COMPONENTS Interpreter Development)
 endif()
 
