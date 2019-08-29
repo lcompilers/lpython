@@ -7,4 +7,4 @@ conda info -a
 conda update -q conda
 conda install -c conda-forge python=3.7 re2c bison m4 cython xonsh
 
-xonsh ci-build.xsh
+xonsh ci\build.xsh

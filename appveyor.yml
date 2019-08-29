@@ -9,4 +9,4 @@ build_script:
 - call conda info -a
 - call conda update -q conda
 - call conda install -c conda-forge python=3.7 re2c m2-bison xonsh cython
-- xonsh ci-build.xsh
+- xonsh ci\build.xsh
