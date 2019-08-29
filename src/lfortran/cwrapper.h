@@ -28,7 +28,8 @@ typedef struct LFortranCParser LFortranCParser;
 LFortranCParser *lfortran_parser_new();
 void lfortran_parser_free(LFortranCParser *self);
 lfortran_exceptions_t lfortran_parser_parse(LFortranCParser *self,
-        const char *input);
+        const char *input, char **ast);
+lfortran_exceptions_t lfortran_str_free(char *str);
 
 
 #ifdef __cplusplus

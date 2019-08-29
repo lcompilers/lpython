@@ -3,6 +3,6 @@ requires = [
     "setuptools",
     "wheel",
     "scikit-build",
-    "cmake",
+#    "cmake",
     "ninja",
 ]
