@@ -28,7 +28,7 @@ curl -O https://www.antlr.org/download/antlr-4.7-complete.jar
 java -cp antlr-4.7-complete.jar org.antlr.v4.Tool -Dlanguage=Python3 -no-listener -visitor fortran.g4 -o ../lfortran/parser
 cd ..
 
-$lfortran_version="0.0+git"
+$lfortran_version=$(cat version)
 pip install scikit-build
 python setup.py sdist
 pip uninstall -y scikit-build
