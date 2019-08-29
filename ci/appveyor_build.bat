@@ -20,7 +20,7 @@ set BUILD_TYPE=Debug
 call :check
 call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
 
-xonsh build0.xsh
+xonsh .\build0.xsh
 call :check
 
 set lfortran_version=0.0+git
