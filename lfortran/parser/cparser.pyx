@@ -15,9 +15,15 @@ cdef class AST(object):
             raise Exception("str_free failed")
         return sout
 
+    def __cinit__(self):
+        self.h = cwrapper.lfortran_parser_new()
+#        self.thisptr = 0;
+
+    def __dealloc__(self):
+        cwrapper.lfortran_parser_free(self.h)
+
 def parse(s):
     a = AST()
-    a.h = cwrapper.lfortran_parser_new()
     sb = s.encode()
     cdef char *str = sb
     cdef cwrapper.lfortran_ast_t *ast;
@@ -26,5 +32,4 @@ def parse(s):
         raise Exception("parser_parse failed")
     a.thisptr = ast
     s = a.pickle()
-    cwrapper.lfortran_parser_free(a.h)
     return s
