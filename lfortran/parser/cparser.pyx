@@ -1,5 +1,19 @@
 cimport cwrapper
 
+cdef class AST(object):
+    cdef cwrapper.lfortran_ast_t *thisptr
+
+    def pickle(self):
+        cdef char *out
+        e = cwrapper.lfortran_parser_pickle(self.thisptr, &out)
+        if (e != cwrapper.LFORTRAN_NO_EXCEPTION):
+            raise Exception("parser_pickle failed")
+        sout = out.decode()
+        e = cwrapper.lfortran_str_free(out)
+        if (e != cwrapper.LFORTRAN_NO_EXCEPTION):
+            raise Exception("str_free failed")
+        return sout
+
 def parse(s):
     cdef cwrapper.LFortranCParser *h
     h = cwrapper.lfortran_parser_new()
@@ -13,7 +27,7 @@ def parse(s):
     cdef char *out
     e = cwrapper.lfortran_parser_pickle(ast, &out)
     if (e != cwrapper.LFORTRAN_NO_EXCEPTION):
-        raise Exception("parser_parse failed")
+        raise Exception("parser_pickle failed")
     sout = out.decode()
     e = cwrapper.lfortran_str_free(out)
     if (e != cwrapper.LFORTRAN_NO_EXCEPTION):
