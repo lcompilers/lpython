@@ -24,13 +24,8 @@ def parse(s):
     e = cwrapper.lfortran_parser_parse(h, str, &ast)
     if (e != cwrapper.LFORTRAN_NO_EXCEPTION):
         raise Exception("parser_parse failed")
-    cdef char *out
-    e = cwrapper.lfortran_parser_pickle(ast, &out)
-    if (e != cwrapper.LFORTRAN_NO_EXCEPTION):
-        raise Exception("parser_pickle failed")
-    sout = out.decode()
-    e = cwrapper.lfortran_str_free(out)
-    if (e != cwrapper.LFORTRAN_NO_EXCEPTION):
-        raise Exception("str_free failed")
+    a = AST()
+    a.thisptr = ast
+    s = a.pickle()
     cwrapper.lfortran_parser_free(h)
-    return sout
+    return s
