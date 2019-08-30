@@ -31,6 +31,10 @@ struct LFortranCParser {
     Allocator al;
     LFortranCParser() : al{1024*1024} {}
 };
+struct lfortran_ast_t {
+    LFortran::AST::ast_t m;
+};
+
 
 LFortranCParser *lfortran_parser_new()
 {
@@ -49,9 +53,20 @@ lfortran_exceptions_t lfortran_parser_parse(LFortranCParser *self,
 
     LFortran::AST::ast_t* result;
     result = LFortran::parse(self->al, input);
-    std::string p = LFortran::pickle(*result);
-    *ast = new char[p.length()+1];
-    std::strcpy(*ast, p.c_str());
+    lfortran_ast_t* result2 = (lfortran_ast_t*)result;
+    lfortran_parser_pickle(result2, ast);
+
+    CWRAPPER_END
+}
+
+lfortran_exceptions_t lfortran_parser_pickle(lfortran_ast_t* ast,
+        char **str)
+{
+    CWRAPPER_BEGIN
+
+    std::string p = LFortran::pickle(ast->m);
+    *str = new char[p.length()+1];
+    std::strcpy(*str, p.c_str());
 
     CWRAPPER_END
 }
