@@ -2,6 +2,7 @@ cimport cwrapper
 
 cdef class AST(object):
     cdef cwrapper.lfortran_ast_t *thisptr
+    cdef cwrapper.LFortranCParser *h;
 
     def pickle(self):
         cdef char *out
@@ -15,17 +16,15 @@ cdef class AST(object):
         return sout
 
 def parse(s):
-    cdef cwrapper.LFortranCParser *h
-    h = cwrapper.lfortran_parser_new()
-    cdef cwrapper.lfortran_exceptions_t e
+    a = AST()
+    a.h = cwrapper.lfortran_parser_new()
     sb = s.encode()
     cdef char *str = sb
     cdef cwrapper.lfortran_ast_t *ast;
-    e = cwrapper.lfortran_parser_parse(h, str, &ast)
+    e = cwrapper.lfortran_parser_parse(a.h, str, &ast)
     if (e != cwrapper.LFORTRAN_NO_EXCEPTION):
         raise Exception("parser_parse failed")
-    a = AST()
     a.thisptr = ast
     s = a.pickle()
-    cwrapper.lfortran_parser_free(h)
+    cwrapper.lfortran_parser_free(a.h)
     return s
