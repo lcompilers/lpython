@@ -29,7 +29,7 @@ typedef struct lfortran_ast_t lfortran_ast_t;
 LFortranCParser *lfortran_parser_new();
 void lfortran_parser_free(LFortranCParser *self);
 lfortran_exceptions_t lfortran_parser_parse(LFortranCParser *self,
-        const char *input, char **ast);
+        const char *input, lfortran_ast_t **ast);
 lfortran_exceptions_t lfortran_parser_pickle(lfortran_ast_t* ast,
         char **str);
 lfortran_exceptions_t lfortran_str_free(char *str);

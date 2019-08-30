@@ -47,14 +47,14 @@ void lfortran_parser_free(LFortranCParser *self)
 }
 
 lfortran_exceptions_t lfortran_parser_parse(LFortranCParser *self,
-        const char *input, char **ast)
+        const char *input, lfortran_ast_t **ast)
 {
     CWRAPPER_BEGIN
 
     LFortran::AST::ast_t* result;
     result = LFortran::parse(self->al, input);
     lfortran_ast_t* result2 = (lfortran_ast_t*)result;
-    lfortran_parser_pickle(result2, ast);
+    *ast = result2;
 
     CWRAPPER_END
 }
