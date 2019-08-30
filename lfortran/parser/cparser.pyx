@@ -1,7 +1,17 @@
 cimport cwrapper
 
+cdef class Parser(object)
+
 cdef class AST(object):
     cdef cwrapper.lfortran_ast_t *thisptr
+    cdef Parser parser
+
+    @staticmethod
+    cdef create(Parser p, cwrapper.lfortran_ast_t *ast):
+        cdef AST a = AST.__new__(AST)
+        a.parser = p
+        a.thisptr = ast
+        return a
 
     def pickle(self):
         cdef char *out
@@ -30,9 +40,7 @@ cdef class Parser(object):
         e = cwrapper.lfortran_parser_parse(self.h, str, &ast)
         if (e != cwrapper.LFORTRAN_NO_EXCEPTION):
             raise Exception("parser_parse failed")
-        a = AST()
-        a.thisptr = ast
-        return a
+        return AST.create(self, ast)
 
 def parse(s):
     p = Parser()
