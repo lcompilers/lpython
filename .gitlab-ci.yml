@@ -8,7 +8,7 @@ before_script:
 
 prepare tarball:
   stage: tarball
-  image: registry.gitlab.com/lfortran/ci-images/ci-test:prepare-ef167c2
+  image: registry.gitlab.com/lfortran/ci-images:prepare-1.7.0
   script:
     - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
     - ./build0.sh
@@ -25,7 +25,7 @@ prepare tarball:
 # GitHub mirror
 mirror:
   stage: tarball
-  image: registry.gitlab.com/lfortran/ci-images:mirror-1.4.0
+  image: registry.gitlab.com/lfortran/ci-images:mirror-1.7.0
   script:
     - ci/github_mirror.sh
   allow_failure: true
@@ -35,7 +35,7 @@ mirror:
 # PyPI upload
 pypi:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images:prepare-1.4.0
+  image: registry.gitlab.com/lfortran/ci-images:prepare-1.7.0
   script:
     - sudo ln /usr/bin/pip3 /usr/bin/pip
     - sudo pip install twine
@@ -47,7 +47,7 @@ pypi:
 # Azure
 azure:
   stage: tarball
-  image: registry.gitlab.com/lfortran/ci-images:mirror-1.4.0
+  image: registry.gitlab.com/lfortran/ci-images:mirror-1.7.0
   script:
     - ci/azure_mirror.sh
   only:
@@ -58,7 +58,7 @@ azure:
 # Test full dependencies when a C compiler is available and used for linking
 full:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images/ci-test:full-ef167c2
+  image: registry.gitlab.com/lfortran/ci-images:full-1.7.0
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
@@ -81,7 +81,7 @@ full:
 # Test the C++ version
 cxx:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images:full-1.4.0
+  image: registry.gitlab.com/lfortran/ci-images:full-1.7.0
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
     - conda install -c conda-forge rapidjson
@@ -100,7 +100,7 @@ cxx:
 # Test the multiplatform build script
 build.xsh:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images/ci-test:full2-ef167c2
+  image: registry.gitlab.com/lfortran/ci-images:full2-1.7.0
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
     - xonsh ci/build.xsh
@@ -108,7 +108,7 @@ build.xsh:
 # Build and upload documentation
 documentation:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images/ci-test:jupyter-ef167c2
+  image: registry.gitlab.com/lfortran/ci-images:jupyter-1.7.0
   script:
     - sudo apt-get update
     - sudo apt-get install -yq --no-install-recommends openssh-client
@@ -131,7 +131,7 @@ documentation:
 # Update the downloads page
 downloads_update:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images:prepare-1.4.0
+  image: registry.gitlab.com/lfortran/ci-images:prepare-1.7.0
   script:
     - sudo apk add --no-cache curl
     - curl -X POST -F token=${DOWNLOAD_UPDATE_TOKEN} -F ref=master https://gitlab.com/api/v4/projects/11905898/trigger/pipeline
@@ -142,7 +142,7 @@ downloads_update:
 # compilers, just the linker `ld` and the musl C library.
 minimal:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images/ci-test:minimal-801342f
+  image: registry.gitlab.com/lfortran/ci-images:minimal-1.7.0
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
@@ -161,7 +161,7 @@ minimal:
 # Test Jupyter notebooks
 jupyter:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images/ci-test:jupyter-ef167c2
+  image: registry.gitlab.com/lfortran/ci-images:jupyter-1.7.0
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
