@@ -8,11 +8,9 @@ before_script:
 
 prepare tarball:
   stage: tarball
-  image: registry.gitlab.com/lfortran/ci-images:prepare-1.6.0
+  image: registry.gitlab.com/lfortran/ci-images/ci-test:prepare-ef167c2
   script:
     - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
-    - sudo ln /usr/bin/pip3 /usr/bin/pip
-    - sudo pip install scikit-build
     - ./build0.sh
     - python setup.py sdist
     - ci/upload_tarball.sh
@@ -60,10 +58,9 @@ azure:
 # Test full dependencies when a C compiler is available and used for linking
 full:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images:full-1.4.0
+  image: registry.gitlab.com/lfortran/ci-images/ci-test:full-ef167c2
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
-    - conda install -c conda-forge cmake scikit-build
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
     - pip install --no-index -v .
@@ -103,21 +100,19 @@ cxx:
 # Test the multiplatform build script
 build.xsh:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images:full-1.4.0
+  image: registry.gitlab.com/lfortran/ci-images/ci-test:full2-ef167c2
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
-    - conda install -c conda-forge python=3.7 cmake re2c bison m4 cython xonsh curl openjdk scikit-build
     - xonsh ci/build.xsh
 
 # Build and upload documentation
 documentation:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images:jupyter-1.5.1
+  image: registry.gitlab.com/lfortran/ci-images/ci-test:jupyter-ef167c2
   script:
     - sudo apt-get update
     - sudo apt-get install -yq --no-install-recommends openssh-client
     - export PATH="$HOME/conda_root/bin:$PATH"
-    - conda install -c conda-forge cmake scikit-build
     - pip install nbconvert mkdocs
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
@@ -147,10 +142,9 @@ downloads_update:
 # compilers, just the linker `ld` and the musl C library.
 minimal:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images:minimal-1.5.1
+  image: registry.gitlab.com/lfortran/ci-images/ci-test:minimal-ef167c2
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
-    - conda install -c conda-forge cmake scikit-build
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
     - export CFLAGS="-I/usr/include/x86_64-linux-musl/"
@@ -167,10 +161,9 @@ minimal:
 # Test Jupyter notebooks
 jupyter:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images:jupyter-1.5.1
+  image: registry.gitlab.com/lfortran/ci-images/ci-test:jupyter-ef167c2
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
-    - conda install -c conda-forge cmake scikit-build
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
     - pip install --no-index -v .
