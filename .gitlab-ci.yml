@@ -142,7 +142,7 @@ downloads_update:
 # compilers, just the linker `ld` and the musl C library.
 minimal:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images/ci-test:minimal-ef167c2
+  image: registry.gitlab.com/lfortran/ci-images/ci-test:minimal-801342f
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
