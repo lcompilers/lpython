@@ -43,8 +43,6 @@
 
 #include <tests/doctest.h>
 
-DEFINE_SIMPLE_CONVERSION_FUNCTIONS(llvm::TargetMachine, LLVMTargetMachineRef)
-
 
 TEST_CASE("llvm 1") {
     std::cout << "LLVM Version:" << std::endl;
