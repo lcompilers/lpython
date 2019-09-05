@@ -34,6 +34,9 @@
 #include "llvm/ExecutionEngine/ObjectCache.h"
 #include "llvm/Support/FileSystem.h"
 #include "llvm/Support/Path.h"
+#include "llvm/AsmParser/Parser.h"
+#include "llvm/Support/SourceMgr.h"
+#include "llvm/ADT/StringRef.h"
 
 
 int main() {
@@ -44,11 +47,23 @@ int main() {
     llvm::InitializeNativeTargetAsmPrinter();
     llvm::InitializeNativeTargetAsmParser();
 
-    auto context = std::make_shared<llvm::LLVMContext>();
+    std::shared_ptr<llvm::LLVMContext> context
+        = std::make_shared<llvm::LLVMContext>();
+
+    llvm::SMDiagnostic err;
+    std::string asm_string = R"""(;
+define i64 @f1()
+{
+    ret i64 4
+}
+    )""";
     std::unique_ptr<llvm::Module> module
-        = llvm::make_unique<llvm::Module>("SymEngine", *context.get());
-    module->setDataLayout("");
-    auto mod = module.get();
+        = llvm::parseAssemblyString(asm_string, err, *context);
+    if (llvm::verifyModule(*module)) {
+        std::cerr << "Error: module failed verification." << std::endl;
+    };
+    std::cout << "The loaded module" << std::endl;
+    llvm::outs() << *module;
 
     return 0;
 }

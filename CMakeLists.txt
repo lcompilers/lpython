@@ -38,7 +38,7 @@ set(WITH_LFORTRAN_ASSERT ${WITH_LFORTRAN_ASSERT_DEFAULT}
 # LLVM
 set(WITH_LLVM no CACHE BOOL "Build with LLVM support")
 if (WITH_LLVM)
-    set(LFORTRAN_LLVM_COMPONENTS core support mcjit native)
+    set(LFORTRAN_LLVM_COMPONENTS core support mcjit native asmparser)
     find_package(LLVM REQUIRED)
     message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
     message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
