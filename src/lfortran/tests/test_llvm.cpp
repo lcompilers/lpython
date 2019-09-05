@@ -38,6 +38,9 @@
 #include "llvm/Support/SourceMgr.h"
 #include "llvm/ADT/StringRef.h"
 
+#include "llvm/Target/TargetOptions.h"
+#include "llvm/Support/TargetRegistry.h"
+
 #include <tests/doctest.h>
 
 DEFINE_SIMPLE_CONVERSION_FUNCTIONS(llvm::TargetMachine, LLVMTargetMachineRef)
@@ -73,19 +76,22 @@ define i64 @f1()
 
     llvm::Function *f1 = module->getFunction("f1");
 
-    std::unique_ptr<llvm::ExecutionEngine> ee
-        = std::unique_ptr<llvm::ExecutionEngine>(
-                llvm::EngineBuilder(std::move(module)).create());
-    if (!ee) {
-        std::cout << "Error: execution engine creation failed." << std::endl;
-    }
-    CHECK(ee != nullptr);
-    ee->finalizeObject();
-    std::vector<llvm::GenericValue> args;
-    llvm::GenericValue gv = ee->runFunction(f1, args);
+    auto TargetTriple = llvm::sys::getDefaultTargetTriple();
+    module->setTargetTriple(TargetTriple);
+    std::string Error;
+    auto Target = llvm::TargetRegistry::lookupTarget(TargetTriple, Error);
+    CHECK(Target != nullptr);
+    auto CPU = "generic";
+    auto Features = "";
+    llvm::TargetOptions opt;
+    auto RM = llvm::Optional<llvm::Reloc::Model>();
+    auto TM =
+      Target->createTargetMachine(TargetTriple, CPU, Features, opt, RM);
+    module->setDataLayout(TM->createDataLayout());
 
+
+    /*
     std::cout << "ASM code" << std::endl;
-    llvm::TargetMachine *TM = ee->getTargetMachine();
     llvm::legacy::PassManager pass;
     llvm::TargetMachine::CodeGenFileType ft = llvm::TargetMachine::CGFT_AssemblyFile;
     std::error_code EC;
@@ -98,8 +104,19 @@ define i64 @f1()
         CHECK(false);
     }
     pass.run(*module);
+    */
 
 
+    std::unique_ptr<llvm::ExecutionEngine> ee
+        = std::unique_ptr<llvm::ExecutionEngine>(
+                llvm::EngineBuilder(std::move(module)).create(TM));
+    if (!ee) {
+        std::cout << "Error: execution engine creation failed." << std::endl;
+    }
+    CHECK(ee != nullptr);
+    ee->finalizeObject();
+    std::vector<llvm::GenericValue> args;
+    llvm::GenericValue gv = ee->runFunction(f1, args);
 
     std::string r = gv.IntVal.toString(10, true);
 
