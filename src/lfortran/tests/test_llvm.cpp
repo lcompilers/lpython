@@ -61,9 +61,11 @@ define i64 @f1()
     )""";
     std::unique_ptr<llvm::Module> module
         = llvm::parseAssemblyString(asm_string, err, *context);
-    if (llvm::verifyModule(*module)) {
+    bool v = llvm::verifyModule(*module);
+    if (v) {
         std::cerr << "Error: module failed verification." << std::endl;
     };
+    CHECK(v == false);
     std::cout << "The loaded module" << std::endl;
     llvm::outs() << *module;
 
@@ -75,9 +77,20 @@ define i64 @f1()
     if (!ee) {
         std::cout << "Error: execution engine creation failed." << std::endl;
     }
+    CHECK(ee != nullptr);
     ee->finalizeObject();
     std::vector<llvm::GenericValue> args;
     llvm::GenericValue gv = ee->runFunction(f1, args);
+
+    std::cout << "ASM code" << std::endl;
+
+    /*
+    int err = LLVMTargetMachineEmitToMemoryBuffer(TM, M, filetype,
+                                                  &ErrorMessage,
+                                                  &BufOut);
+    CHECK(err == 0);
+    */
+
 
     std::string r = gv.IntVal.toString(10, true);
 
