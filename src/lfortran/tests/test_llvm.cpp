@@ -65,5 +65,19 @@ define i64 @f1()
     std::cout << "The loaded module" << std::endl;
     llvm::outs() << *module;
 
+    llvm::Function *f1 = module->getFunction("f1");
+
+    llvm::ExecutionEngine *ee = llvm::EngineBuilder(std::move(module)).create();
+    if (!ee) {
+        std::cout << "Error: execution engine creation failed." << std::endl;
+    }
+    ee->finalizeObject();
+    std::vector<llvm::GenericValue> args;
+    llvm::GenericValue gv = ee->runFunction(f1, args);
+
+    llvm::outs() << "Result: " << gv.IntVal << "\n";
+
+    delete ee;
+    llvm::llvm_shutdown();
     return 0;
 }
