@@ -67,7 +67,9 @@ define i64 @f1()
 
     llvm::Function *f1 = module->getFunction("f1");
 
-    llvm::ExecutionEngine *ee = llvm::EngineBuilder(std::move(module)).create();
+    std::unique_ptr<llvm::ExecutionEngine> ee
+        = std::unique_ptr<llvm::ExecutionEngine>(
+                llvm::EngineBuilder(std::move(module)).create());
     if (!ee) {
         std::cout << "Error: execution engine creation failed." << std::endl;
     }
@@ -77,7 +79,7 @@ define i64 @f1()
 
     llvm::outs() << "Result: " << gv.IntVal << "\n";
 
-    delete ee;
+    ee.reset();
     llvm::llvm_shutdown();
     return 0;
 }
