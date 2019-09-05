@@ -18,6 +18,9 @@ target_include_directories(lfortran_lib BEFORE PUBLIC ${lfortran_BINARY_DIR}/src
 if (WITH_JSON)
     target_link_libraries(lfortran_lib p::rapidjson)
 endif()
+if (WITH_LLVM)
+    target_link_libraries(lfortran_lib p::llvm)
+endif()
 install(TARGETS lfortran_lib
     RUNTIME DESTINATION bin
     ARCHIVE DESTINATION lib

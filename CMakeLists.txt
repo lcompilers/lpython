@@ -35,6 +35,27 @@ endif()
 set(WITH_LFORTRAN_ASSERT ${WITH_LFORTRAN_ASSERT_DEFAULT}
     CACHE BOOL "Enable LFORTRAN_ASSERT macro")
 
+# LLVM
+set(WITH_LLVM no CACHE BOOL "Build with LLVM support")
+if (WITH_LLVM)
+    set(LFORTRAN_LLVM_COMPONENTS core support mcjit native)
+    find_package(LLVM REQUIRED)
+    message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+    message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+    llvm_map_components_to_libnames(llvm_libs ${LFORTRAN_LLVM_COMPONENTS})
+    unset(LFORTRAN_LLVM_COMPONENTS)
+
+    add_library(p::llvm INTERFACE IMPORTED)
+    set_property(TARGET p::llvm PROPERTY INTERFACE_INCLUDE_DIRECTORIES
+        ${LLVM_INCLUDE_DIRS})
+    #set_property(TARGET p::llvm PROPERTY INTERFACE_COMPILE_DEFINITIONS
+    #    ${LLVM_DEFINITIONS})
+    #set_property(TARGET p::llvm PROPERTY INTERFACE_COMPILE_OPTIONS
+    #    ${LLVM_DEFINITIONS})
+    set_property(TARGET p::llvm PROPERTY INTERFACE_LINK_LIBRARIES
+        ${llvm_libs})
+endif()
+
 # JSON
 set(WITH_JSON no CACHE BOOL "Build with JSON support")
 if (WITH_JSON)
@@ -65,6 +86,7 @@ else ()
 endif ()
 message("Installation prefix: ${CMAKE_INSTALL_PREFIX}")
 message("WITH_LFORTRAN_ASSERT: ${WITH_LFORTRAN_ASSERT}")
+message("WITH_LLVM: ${WITH_LLVM}")
 message("WITH_JSON: ${WITH_JSON}")
 message("WITH_PYTHON: ${WITH_PYTHON}")
 
