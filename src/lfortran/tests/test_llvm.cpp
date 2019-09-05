@@ -40,6 +40,8 @@
 
 #include <tests/doctest.h>
 
+DEFINE_SIMPLE_CONVERSION_FUNCTIONS(llvm::TargetMachine, LLVMTargetMachineRef)
+
 
 TEST_CASE("llvm 1") {
     std::cout << "LLVM Version:" << std::endl;
@@ -84,12 +86,15 @@ define i64 @f1()
 
     std::cout << "ASM code" << std::endl;
 
-    /*
-    int err = LLVMTargetMachineEmitToMemoryBuffer(TM, M, filetype,
+    char *ErrorMessage;
+    LLVMMemoryBufferRef BufOut;
+    LLVMCodeGenFileType filetype = LLVMAssemblyFile;
+    LLVMTargetMachineRef TM = wrap(ee->getTargetMachine());
+    LLVMModuleRef M = wrap(module.get());
+    int err2 = LLVMTargetMachineEmitToMemoryBuffer(TM, M, filetype,
                                                   &ErrorMessage,
                                                   &BufOut);
-    CHECK(err == 0);
-    */
+    CHECK(err2 == 0);
 
 
     std::string r = gv.IntVal.toString(10, true);
