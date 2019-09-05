@@ -38,8 +38,10 @@
 #include "llvm/Support/SourceMgr.h"
 #include "llvm/ADT/StringRef.h"
 
+#include <tests/doctest.h>
 
-int main() {
+
+TEST_CASE("llvm 1") {
     std::cout << "LLVM Version:" << std::endl;
     llvm::cl::PrintVersionMessage();
 
@@ -77,9 +79,12 @@ define i64 @f1()
     std::vector<llvm::GenericValue> args;
     llvm::GenericValue gv = ee->runFunction(f1, args);
 
-    llvm::outs() << "Result: " << gv.IntVal << "\n";
+    std::string r = gv.IntVal.toString(10, true);
+
+    std::cout << "Result: " << r << std::endl;
+
+    CHECK(r == "4");
 
     ee.reset();
     llvm::llvm_shutdown();
-    return 0;
 }
