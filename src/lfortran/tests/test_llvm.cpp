@@ -90,7 +90,6 @@ define i64 @f1()
     module->setDataLayout(TM->createDataLayout());
 
 
-    /*
     std::cout << "ASM code" << std::endl;
     llvm::legacy::PassManager pass;
     llvm::TargetMachine::CodeGenFileType ft = llvm::TargetMachine::CGFT_AssemblyFile;
@@ -104,7 +103,6 @@ define i64 @f1()
         CHECK(false);
     }
     pass.run(*module);
-    */
 
 
     std::unique_ptr<llvm::ExecutionEngine> ee
