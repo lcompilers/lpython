@@ -61,7 +61,7 @@ else:
 ctest --output-on-failure
 cd ..
 
-pip install -v .
+pip install -v --no-index .
 cd ..
 
 from shutil import rmtree
