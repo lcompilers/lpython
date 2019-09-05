@@ -85,16 +85,20 @@ define i64 @f1()
     llvm::GenericValue gv = ee->runFunction(f1, args);
 
     std::cout << "ASM code" << std::endl;
+    llvm::TargetMachine *TM = ee->getTargetMachine();
+    llvm::legacy::PassManager pass;
+    llvm::TargetMachine::CodeGenFileType ft = llvm::TargetMachine::CGFT_AssemblyFile;
+    std::error_code EC;
+    llvm::raw_fd_ostream dest("output.txt", EC, llvm::sys::fs::OF_None);
+    //CHECK(EC == 0);
 
-    char *ErrorMessage;
-    LLVMMemoryBufferRef BufOut;
-    LLVMCodeGenFileType filetype = LLVMAssemblyFile;
-    LLVMTargetMachineRef TM = wrap(ee->getTargetMachine());
-    LLVMModuleRef M = wrap(module.get());
-    int err2 = LLVMTargetMachineEmitToMemoryBuffer(TM, M, filetype,
-                                                  &ErrorMessage,
-                                                  &BufOut);
-    CHECK(err2 == 0);
+    if (TM->addPassesToEmitFile(pass, dest, nullptr, ft)) {
+        std::cout << "TargetMachine can't emit a file of this type" <<
+            std::endl;
+        CHECK(false);
+    }
+    pass.run(*module);
+
 
 
     std::string r = gv.IntVal.toString(10, true);
