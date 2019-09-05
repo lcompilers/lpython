@@ -34,9 +34,14 @@
 #include "llvm/ExecutionEngine/ObjectCache.h"
 #include "llvm/Support/FileSystem.h"
 #include "llvm/Support/Path.h"
+#include "llvm/AsmParser/Parser.h"
+#include "llvm/Support/SourceMgr.h"
+#include "llvm/ADT/StringRef.h"
+
+#include <tests/doctest.h>
 
 
-int main() {
+TEST_CASE("llvm 1") {
     std::cout << "LLVM Version:" << std::endl;
     llvm::cl::PrintVersionMessage();
 
@@ -44,11 +49,42 @@ int main() {
     llvm::InitializeNativeTargetAsmPrinter();
     llvm::InitializeNativeTargetAsmParser();
 
-    auto context = std::make_shared<llvm::LLVMContext>();
-    std::unique_ptr<llvm::Module> module
-        = llvm::make_unique<llvm::Module>("SymEngine", *context.get());
-    module->setDataLayout("");
-    auto mod = module.get();
+    std::shared_ptr<llvm::LLVMContext> context
+        = std::make_shared<llvm::LLVMContext>();
 
-    return 0;
+    llvm::SMDiagnostic err;
+    std::string asm_string = R"""(;
+define i64 @f1()
+{
+    ret i64 4
+}
+    )""";
+    std::unique_ptr<llvm::Module> module
+        = llvm::parseAssemblyString(asm_string, err, *context);
+    if (llvm::verifyModule(*module)) {
+        std::cerr << "Error: module failed verification." << std::endl;
+    };
+    std::cout << "The loaded module" << std::endl;
+    llvm::outs() << *module;
+
+    llvm::Function *f1 = module->getFunction("f1");
+
+    std::unique_ptr<llvm::ExecutionEngine> ee
+        = std::unique_ptr<llvm::ExecutionEngine>(
+                llvm::EngineBuilder(std::move(module)).create());
+    if (!ee) {
+        std::cout << "Error: execution engine creation failed." << std::endl;
+    }
+    ee->finalizeObject();
+    std::vector<llvm::GenericValue> args;
+    llvm::GenericValue gv = ee->runFunction(f1, args);
+
+    std::string r = gv.IntVal.toString(10, true);
+
+    std::cout << "Result: " << r << std::endl;
+
+    CHECK(r == "4");
+
+    ee.reset();
+    llvm::llvm_shutdown();
 }
