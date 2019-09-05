@@ -92,9 +92,10 @@ define i64 @f1()
 
     std::cout << "ASM code" << std::endl;
     llvm::legacy::PassManager pass;
-    llvm::TargetMachine::CodeGenFileType ft = llvm::TargetMachine::CGFT_AssemblyFile;
+    //llvm::TargetMachine::CodeGenFileType ft = llvm::TargetMachine::CGFT_AssemblyFile;
+    llvm::TargetMachine::CodeGenFileType ft = llvm::TargetMachine::CGFT_ObjectFile;
     std::error_code EC;
-    llvm::raw_fd_ostream dest("output.txt", EC, llvm::sys::fs::OF_None);
+    llvm::raw_fd_ostream dest("output.o", EC, llvm::sys::fs::OF_None);
     //CHECK(EC == 0);
 
     if (TM->addPassesToEmitFile(pass, dest, nullptr, ft)) {
@@ -103,6 +104,7 @@ define i64 @f1()
         CHECK(false);
     }
     pass.run(*module);
+    dest.flush();
 
 
     std::unique_ptr<llvm::ExecutionEngine> ee
