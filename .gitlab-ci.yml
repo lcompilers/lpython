@@ -101,7 +101,10 @@ build.xsh:
   stage: build
   image: registry.gitlab.com/lfortran/ci-images:full2-1.7.0
   script:
+    - export CONDA_PREFIX="$HOME/conda_root"
     - export PATH="$HOME/conda_root/bin:$PATH"
+    - export LFORTRAN_CMAKE_GENERATOR="Unix Makefiles"
+    - export WIN=0
     - xonsh ci/build.xsh
 
 # Build and upload documentation
