@@ -145,6 +145,14 @@ public:
         pass.run(m);
         dest.flush();
     }
+
+    std::string module_to_string(llvm::Module &m) {
+        std::string buf;
+        llvm::raw_string_ostream os(buf);
+        m.print(os, nullptr);
+        os.flush();
+        return buf;
+    }
 };
 
 }
@@ -164,7 +172,7 @@ define i64 @f1()
     )""";
     std::unique_ptr<llvm::Module> module = e.parse_module(asm_string);
     std::cout << "The loaded module" << std::endl;
-    llvm::outs() << *module;
+    std::cout << e.module_to_string(*module);
     llvm::Function *f1 = module->getFunction("f1");
     e.save_object_file(*module, "output.o");
 
