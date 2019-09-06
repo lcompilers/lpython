@@ -45,6 +45,18 @@
 
 namespace LFortran {
 
+    // Extracts the integer from APInt.
+    // APInt does not seem to have this functionality, so we implement it here.
+    uint64_t APInt_getint(const llvm::APInt &i) {
+        // The APInt::isSingleWord() is private, but we can emulate it:
+        bool isSingleWord = !i.needsCleanup();
+        if (isSingleWord) {
+            return *i.getRawData();
+        } else {
+            throw std::runtime_error("APInt too large to fit uint64_t");
+        }
+    }
+
 class LLVMEvaluator
 {
     std::unique_ptr<llvm::ExecutionEngine> ee;
@@ -144,11 +156,10 @@ define i64 @f1()
     std::vector<llvm::GenericValue> args;
     llvm::GenericValue gv = ee->runFunction(f1, args);
 
-    std::string r = gv.IntVal.toString(10, true);
+    uint64_t r = LFortran::APInt_getint(gv.IntVal);
 
     std::cout << "Result: " << r << std::endl;
-
-    CHECK(r == "4");
+    CHECK(r == 4);
 
     ee.reset();
     llvm::llvm_shutdown();
