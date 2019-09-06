@@ -85,6 +85,16 @@ public:
         TM = Target->createTargetMachine(target_triple, CPU, Features, opt, RM);
     }
 
+    void init_ee() {
+        std::unique_ptr<llvm::Module> module0 = parse_module("");
+        ee = std::unique_ptr<llvm::ExecutionEngine>(
+                    llvm::EngineBuilder(std::move(module0)).create(TM));
+        if (!ee) {
+            std::runtime_error("Error: execution engine creation failed.");
+        }
+        ee->finalizeObject();
+    }
+
     std::unique_ptr<llvm::Module> parse_module(const std::string &source) {
         llvm::SMDiagnostic err;
         std::unique_ptr<llvm::Module> module
@@ -164,13 +174,7 @@ define i64 @f1()
 
     e.save_object_file(*module, "output.o");
 
-    std::unique_ptr<llvm::Module> module0 = e.parse_module("");
-    e.ee = std::unique_ptr<llvm::ExecutionEngine>(
-                llvm::EngineBuilder(std::move(module0)).create(e.TM));
-    if (!e.ee) {
-        std::runtime_error("Error: execution engine creation failed.");
-    }
-    e.ee->finalizeObject();
+    e.init_ee();
 
     e.add_module(std::move(module));
 
