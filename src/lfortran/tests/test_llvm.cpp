@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include <llvm/IR/LLVMContext.h>
-
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/Analysis/Passes.h"
 #include "llvm/ExecutionEngine/ExecutionEngine.h"
@@ -37,9 +36,10 @@
 #include "llvm/AsmParser/Parser.h"
 #include "llvm/Support/SourceMgr.h"
 #include "llvm/ADT/StringRef.h"
-
 #include "llvm/Target/TargetOptions.h"
 #include "llvm/Support/TargetRegistry.h"
+
+#include <lfortran/exception.h>
 
 #include <tests/doctest.h>
 
@@ -104,7 +104,7 @@ public:
         std::unique_ptr<llvm::Module> module
             = llvm::parseAssemblyString(source, err, *context);
         if (!module) {
-            throw std::runtime_error("parse");
+            throw CodeGenError("Invalid LLVM IR");
         }
         bool v = llvm::verifyModule(*module);
         if (v) {
@@ -205,7 +205,7 @@ define i64 @f1()
     ; FAIL: "=x" is incorrect syntax
     %1 =x alloca i64
 }
-        )"""), std::runtime_error);
+        )"""), LFortran::CodeGenError);
 }
 
 TEST_CASE("llvm 2") {
