@@ -61,7 +61,7 @@ class LLVMEvaluator
 {
 public:
     std::unique_ptr<llvm::ExecutionEngine> ee;
-    std::shared_ptr<llvm::LLVMContext> context;
+    std::unique_ptr<llvm::LLVMContext> context;
     std::string target_triple;
     llvm::TargetMachine *TM;
 public:
@@ -70,7 +70,7 @@ public:
         llvm::InitializeNativeTargetAsmPrinter();
         llvm::InitializeNativeTargetAsmParser();
 
-        context = std::make_shared<llvm::LLVMContext>();
+        context = std::make_unique<llvm::LLVMContext>();
 
         target_triple = llvm::sys::getDefaultTargetTriple();
         std::string Error;
@@ -96,6 +96,7 @@ public:
     ~LLVMEvaluator() {
         // Ensure ExecutionEngine is deleted before LLVMContext
         ee.reset();
+        context.reset();
     }
 
     std::unique_ptr<llvm::Module> parse_module(const std::string &source) {
