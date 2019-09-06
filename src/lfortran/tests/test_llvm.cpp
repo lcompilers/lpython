@@ -93,6 +93,11 @@ public:
         ee->finalizeObject();
     }
 
+    ~LLVMEvaluator() {
+        // Ensure ExecutionEngine is deleted before LLVMContext
+        ee.reset();
+    }
+
     std::unique_ptr<llvm::Module> parse_module(const std::string &source) {
         llvm::SMDiagnostic err;
         std::unique_ptr<llvm::Module> module
@@ -186,7 +191,6 @@ define i64 @f1()
     CHECK(e.intfn("f1") == 5);
     e.add_module("");
     CHECK(e.intfn("f1") == 5);
-    e.ee.reset();
 }
 
 TEST_CASE("llvm 2") {
@@ -198,5 +202,4 @@ define i64 @f1()
 }
     )""");
     CHECK(e.intfn("f1") == 4);
-    e.ee.reset();
 }
