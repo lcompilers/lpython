@@ -164,20 +164,15 @@ define i64 @f1()
 
     e.save_object_file(*module, "output.o");
 
-    module = e.parse_module("");
+    std::unique_ptr<llvm::Module> module0 = e.parse_module("");
     e.ee = std::unique_ptr<llvm::ExecutionEngine>(
-                llvm::EngineBuilder(std::move(module)).create(e.TM));
+                llvm::EngineBuilder(std::move(module0)).create(e.TM));
     if (!e.ee) {
         std::runtime_error("Error: execution engine creation failed.");
     }
     e.ee->finalizeObject();
 
-    e.ee = std::unique_ptr<llvm::ExecutionEngine>(
-                llvm::EngineBuilder(std::move(module)).create(e.TM));
-    if (!e.ee) {
-        std::runtime_error("Error: execution engine creation failed.");
-    }
-    e.ee->finalizeObject();
+    e.add_module(std::move(module));
 
     uint64_t r = e.intfn(f1);
 
