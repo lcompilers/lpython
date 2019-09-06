@@ -62,10 +62,10 @@ class LLVMEvaluator
     std::unique_ptr<llvm::ExecutionEngine> ee;
     std::unique_ptr<llvm::LLVMContext> context;
 public:
-    void add_module(std::string &s) {
+    void add_module(std::string &source) {
         llvm::SMDiagnostic err;
         std::unique_ptr<llvm::Module> module
-            = llvm::parseAssemblyString(s, err, *context);
+            = llvm::parseAssemblyString(source, err, *context);
         bool v = llvm::verifyModule(*module);
         if (v) {
             std::cerr << "Error: module failed verification." << std::endl;
@@ -78,6 +78,17 @@ public:
     void add_module(std::unique_ptr<llvm::Module> mod) {
         ee->addModule(std::move(mod));
         ee->finalizeObject();
+    }
+
+    uint64_t intfn(const std::string &name) {
+        uint64_t f = ee->getFunctionAddress(name);
+        // TODO: how to run this?
+    }
+
+    uint64_t intfn(llvm::Function *f) {
+        std::vector<llvm::GenericValue> args;
+        llvm::GenericValue gv = ee->runFunction(f, args);
+        return APInt_getint(gv.IntVal);
     }
 };
 
