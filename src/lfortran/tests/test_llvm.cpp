@@ -122,12 +122,7 @@ TEST_CASE("llvm 1") {
     std::cout << "LLVM Version:" << std::endl;
     llvm::cl::PrintVersionMessage();
 
-    llvm::InitializeNativeTarget();
-    llvm::InitializeNativeTargetAsmPrinter();
-    llvm::InitializeNativeTargetAsmParser();
-
-    std::shared_ptr<llvm::LLVMContext> context
-        = std::make_shared<llvm::LLVMContext>();
+    LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
 
     llvm::SMDiagnostic err;
     std::string asm_string = R"""(;
@@ -137,7 +132,7 @@ define i64 @f1()
 }
     )""";
     std::unique_ptr<llvm::Module> module
-        = llvm::parseAssemblyString(asm_string, err, *context);
+        = llvm::parseAssemblyString(asm_string, err, *e.context);
     bool v = llvm::verifyModule(*module);
     if (v) {
         std::cerr << "Error: module failed verification." << std::endl;
@@ -148,18 +143,8 @@ define i64 @f1()
 
     llvm::Function *f1 = module->getFunction("f1");
 
-    auto TargetTriple = llvm::sys::getDefaultTargetTriple();
-    module->setTargetTriple(TargetTriple);
-    std::string Error;
-    auto Target = llvm::TargetRegistry::lookupTarget(TargetTriple, Error);
-    CHECK(Target != nullptr);
-    auto CPU = "generic";
-    auto Features = "";
-    llvm::TargetOptions opt;
-    auto RM = llvm::Optional<llvm::Reloc::Model>();
-    auto TM =
-      Target->createTargetMachine(TargetTriple, CPU, Features, opt, RM);
-    module->setDataLayout(TM->createDataLayout());
+    module->setTargetTriple(e.target_triple);
+    module->setDataLayout(e.TM->createDataLayout());
 
 
     std::cout << "ASM code" << std::endl;
@@ -170,7 +155,7 @@ define i64 @f1()
     llvm::raw_fd_ostream dest("output.o", EC, llvm::sys::fs::OF_None);
     //CHECK(EC == 0);
 
-    if (TM->addPassesToEmitFile(pass, dest, nullptr, ft)) {
+    if (e.TM->addPassesToEmitFile(pass, dest, nullptr, ft)) {
         std::cout << "TargetMachine can't emit a file of this type" <<
             std::endl;
         CHECK(false);
@@ -179,22 +164,20 @@ define i64 @f1()
     dest.flush();
 
 
-    std::unique_ptr<llvm::ExecutionEngine> ee
-        = std::unique_ptr<llvm::ExecutionEngine>(
-                llvm::EngineBuilder(std::move(module)).create(TM));
-    if (!ee) {
-        std::cout << "Error: execution engine creation failed." << std::endl;
+    e.ee = std::unique_ptr<llvm::ExecutionEngine>(
+                llvm::EngineBuilder(std::move(module)).create(e.TM));
+    if (!e.ee) {
+        std::runtime_error("Error: execution engine creation failed.");
     }
-    CHECK(ee != nullptr);
-    ee->finalizeObject();
+    e.ee->finalizeObject();
     std::vector<llvm::GenericValue> args;
-    llvm::GenericValue gv = ee->runFunction(f1, args);
+    llvm::GenericValue gv = e.ee->runFunction(f1, args);
 
     uint64_t r = LFortran::APInt_getint(gv.IntVal);
 
     std::cout << "Result: " << r << std::endl;
     CHECK(r == 4);
 
-    ee.reset();
+    e.ee.reset();
     llvm::llvm_shutdown();
 }
