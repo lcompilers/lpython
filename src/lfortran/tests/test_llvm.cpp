@@ -113,6 +113,23 @@ public:
         llvm::GenericValue gv = ee->runFunction(f, args);
         return APInt_getint(gv.IntVal);
     }
+
+    void save_object_file(llvm::Module &m, const std::string &filename) {
+        llvm::legacy::PassManager pass;
+        //llvm::TargetMachine::CodeGenFileType ft = llvm::TargetMachine::CGFT_AssemblyFile;
+        llvm::TargetMachine::CodeGenFileType ft = llvm::TargetMachine::CGFT_ObjectFile;
+        std::error_code EC;
+        llvm::raw_fd_ostream dest(filename, EC, llvm::sys::fs::OF_None);
+        if (EC) {
+            throw std::runtime_error("raw_fd_ostream failed");
+        }
+
+        if (TM->addPassesToEmitFile(pass, dest, nullptr, ft)) {
+            throw std::runtime_error("TargetMachine can't emit a file of this type");
+        }
+        pass.run(m);
+        dest.flush();
+    }
 };
 
 }
@@ -147,21 +164,7 @@ define i64 @f1()
     module->setDataLayout(e.TM->createDataLayout());
 
 
-    std::cout << "ASM code" << std::endl;
-    llvm::legacy::PassManager pass;
-    //llvm::TargetMachine::CodeGenFileType ft = llvm::TargetMachine::CGFT_AssemblyFile;
-    llvm::TargetMachine::CodeGenFileType ft = llvm::TargetMachine::CGFT_ObjectFile;
-    std::error_code EC;
-    llvm::raw_fd_ostream dest("output.o", EC, llvm::sys::fs::OF_None);
-    //CHECK(EC == 0);
-
-    if (e.TM->addPassesToEmitFile(pass, dest, nullptr, ft)) {
-        std::cout << "TargetMachine can't emit a file of this type" <<
-            std::endl;
-        CHECK(false);
-    }
-    pass.run(*module);
-    dest.flush();
+    e.save_object_file(*module, "output.o");
 
 
     e.ee = std::unique_ptr<llvm::ExecutionEngine>(
