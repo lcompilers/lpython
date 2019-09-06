@@ -119,8 +119,12 @@ public:
     }
 
     uint64_t intfn(const std::string &name) {
-        uint64_t f = ee->getFunctionAddress(name);
-        // TODO: how to run this?
+        uint64_t ptr = ee->getFunctionAddress(name);
+        if (ptr == 0) {
+            throw std::runtime_error("Unable to get pointer to function");
+        }
+        int (*f)() = (int (*)())ptr;
+        return f();
     }
 
     uint64_t intfn(llvm::Function *f) {
@@ -173,11 +177,10 @@ define i64 @f1()
     std::unique_ptr<llvm::Module> module = e.parse_module(asm_string);
     std::cout << "The loaded module" << std::endl;
     std::cout << e.module_to_string(*module);
-    llvm::Function *f1 = module->getFunction("f1");
     e.save_object_file(*module, "output.o");
 
     e.add_module(std::move(module));
-    uint64_t r = e.intfn(f1);
+    int r = e.intfn("f1");
     std::cout << "Result: " << r << std::endl;
     CHECK(r == 4);
 
