@@ -85,7 +85,7 @@ public:
         TM = Target->createTargetMachine(target_triple, CPU, Features, opt, RM);
     }
 
-    void add_module(std::string &source) {
+    std::unique_ptr<llvm::Module> parse_module(std::string &source) {
         llvm::SMDiagnostic err;
         std::unique_ptr<llvm::Module> module
             = llvm::parseAssemblyString(source, err, *context);
@@ -94,6 +94,11 @@ public:
             std::cerr << "Error: module failed verification." << std::endl;
             throw std::runtime_error("add_module");
         };
+        return module;
+    }
+
+    void add_module(std::string &source) {
+        std::unique_ptr<llvm::Module> module = parse_module(source);
         // TODO: apply LLVM optimizations here
         add_module(std::move(module));
     }
@@ -141,20 +146,13 @@ TEST_CASE("llvm 1") {
 
     LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
 
-    llvm::SMDiagnostic err;
     std::string asm_string = R"""(;
 define i64 @f1()
 {
     ret i64 4
 }
     )""";
-    std::unique_ptr<llvm::Module> module
-        = llvm::parseAssemblyString(asm_string, err, *e.context);
-    bool v = llvm::verifyModule(*module);
-    if (v) {
-        std::cerr << "Error: module failed verification." << std::endl;
-    };
-    CHECK(v == false);
+    std::unique_ptr<llvm::Module> module = e.parse_module(asm_string);
     std::cout << "The loaded module" << std::endl;
     llvm::outs() << *module;
 
