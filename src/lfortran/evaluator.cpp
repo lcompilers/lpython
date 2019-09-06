@@ -40,6 +40,8 @@
 #include "llvm/Support/TargetRegistry.h"
 
 #include <lfortran/evaluator.h>
+#include <lfortran/exception.h>
+
 
 namespace LFortran {
 
@@ -167,6 +169,11 @@ std::string LLVMEvaluator::module_to_string(llvm::Module &m) {
     m.print(os, nullptr);
     os.flush();
     return buf;
+}
+
+void LLVMEvaluator::print_version_message()
+{
+    llvm::cl::PrintVersionMessage();
 }
 
 } // namespace LFortran

@@ -1,11 +1,12 @@
-#include <lfortran/evaluator.h>
-
 #include <tests/doctest.h>
+
+#include <lfortran/evaluator.h>
+#include <lfortran/exception.h>
 
 
 TEST_CASE("llvm 1") {
     std::cout << "LLVM Version:" << std::endl;
-    llvm::cl::PrintVersionMessage();
+    LFortran::LLVMEvaluator::print_version_message();
 
     LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
     e.add_module(R"""(
