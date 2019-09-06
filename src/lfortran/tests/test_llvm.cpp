@@ -173,10 +173,8 @@ define i64 @f1()
         std::runtime_error("Error: execution engine creation failed.");
     }
     e.ee->finalizeObject();
-    std::vector<llvm::GenericValue> args;
-    llvm::GenericValue gv = e.ee->runFunction(f1, args);
 
-    uint64_t r = LFortran::APInt_getint(gv.IntVal);
+    uint64_t r = e.intfn(f1);
 
     std::cout << "Result: " << r << std::endl;
     CHECK(r == 4);
