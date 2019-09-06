@@ -173,7 +173,7 @@ TEST_CASE("llvm 1") {
     llvm::cl::PrintVersionMessage();
 
     LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
-    e.add_module(R"""(;
+    e.add_module(R"""(
 define i64 @f1()
 {
     ret i64 4
@@ -183,7 +183,7 @@ define i64 @f1()
     e.add_module("");
     CHECK(e.intfn("f1") == 4);
 
-    e.add_module(R"""(;
+    e.add_module(R"""(
 define i64 @f1()
 {
     ret i64 5
@@ -196,11 +196,27 @@ define i64 @f1()
 
 TEST_CASE("llvm 2") {
     LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
-    e.add_module(R"""(;
+    e.add_module(R"""(
+@count = global i64 0
+
 define i64 @f1()
 {
-    ret i64 4
+    store i64 4, i64* @count
+    %1 = load i64, i64* @count
+    ret i64 %1
 }
     )""");
     CHECK(e.intfn("f1") == 4);
+
+    e.add_module(R"""(
+@count = external global i64
+
+define i64 @f2()
+{
+    %1 = load i64, i64* @count
+    ret i64 %1
+}
+    )""");
+    CHECK(e.intfn("f2") == 4);
+
 }
