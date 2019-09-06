@@ -240,4 +240,12 @@ define i64 @f2()
     )""");
     CHECK(e.intfn("f2") == 4);
 
+    CHECK_THROWS_AS(e.add_module(R"""(
+define i64 @f3()
+{
+    ; FAIL: @count is not defined
+    %1 = load i64, i64* @count
+    ret i64 %1
+}
+        )"""), LFortran::CodeGenError);
 }
