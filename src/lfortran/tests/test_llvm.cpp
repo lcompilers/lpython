@@ -173,3 +173,57 @@ define void @inc()
     CHECK(e.intfn("f1") == 13);
 
 }
+
+TEST_CASE("llvm 4") {
+    LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
+    e.add_module(R"""(
+@count = global i64 5
+
+define i64 @f1()
+{
+    %1 = load i64, i64* @count
+    ret i64 %1
+}
+
+define void @inc()
+{
+    %1 = load i64, i64* @count
+    %2 = add i64 %1, 1
+    store i64 %2, i64* @count
+    ret void
+}
+)""");
+    CHECK(e.intfn("f1") == 5);
+    e.voidfn("inc");
+    CHECK(e.intfn("f1") == 6);
+    e.voidfn("inc");
+    CHECK(e.intfn("f1") == 7);
+
+    e.add_module(R"""(
+declare void @inc()
+
+define void @inc2()
+{
+    call void @inc()
+    call void @inc()
+    ret void
+}
+)""");
+    CHECK(e.intfn("f1") == 7);
+    e.voidfn("inc2");
+    CHECK(e.intfn("f1") == 9);
+    e.voidfn("inc");
+    CHECK(e.intfn("f1") == 10);
+    e.voidfn("inc2");
+    CHECK(e.intfn("f1") == 12);
+
+    CHECK_THROWS_AS(e.add_module(R"""(
+define void @inc2()
+{
+    ; FAIL: @inc is not defined
+    call void @inc()
+    call void @inc()
+    ret void
+}
+        )"""), LFortran::CodeGenError);
+}
