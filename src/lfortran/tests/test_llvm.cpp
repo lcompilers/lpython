@@ -186,7 +186,17 @@ define i64 @f1()
     CHECK(e.intfn("f1") == 5);
     e.add_module("");
     CHECK(e.intfn("f1") == 5);
-
     e.ee.reset();
-    llvm::llvm_shutdown();
+}
+
+TEST_CASE("llvm 2") {
+    LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
+    e.add_module(R"""(;
+define i64 @f1()
+{
+    ret i64 4
+}
+    )""");
+    CHECK(e.intfn("f1") == 4);
+    e.ee.reset();
 }
