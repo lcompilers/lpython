@@ -74,7 +74,6 @@ define i64 @f2()
     )""");
 #ifdef _MSC_VER
     // FIXME: For some reason this returns the wrong value on Windows:
-    CHECK(e.intfn("f2") == 9727);
 #else
     CHECK(e.intfn("f2") == 4);
 #endif
@@ -114,7 +113,6 @@ define void @inc()
     )""");
 #ifdef _MSC_VER
     // FIXME: For some reason this returns the wrong value on Windows:
-    CHECK(e.intfn("f1") == 9727);
 #else
     CHECK(e.intfn("f1") == 5);
 #endif
