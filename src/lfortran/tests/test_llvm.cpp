@@ -84,10 +84,6 @@ public:
         auto RM = llvm::Optional<llvm::Reloc::Model>();
         TM = Target->createTargetMachine(target_triple, CPU, Features, opt, RM);
 
-        init_ee();
-    }
-
-    void init_ee() {
         std::unique_ptr<llvm::Module> module0 = parse_module("");
         ee = std::unique_ptr<llvm::ExecutionEngine>(
                     llvm::EngineBuilder(std::move(module0)).create(TM));
