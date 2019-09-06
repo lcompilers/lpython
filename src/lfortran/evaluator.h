@@ -30,9 +30,8 @@ public:
     std::unique_ptr<llvm::Module> parse_module(const std::string &source);
     void add_module(const std::string &source);
     void add_module(std::unique_ptr<llvm::Module> mod);
-    uint64_t intfn(const std::string &name);
+    int64_t intfn(const std::string &name);
     void voidfn(const std::string &name);
-    uint64_t intfn(llvm::Function *f);
     void save_object_file(llvm::Module &m, const std::string &filename);
     std::string module_to_string(llvm::Module &m);
     static void print_version_message();

@@ -122,12 +122,12 @@ void LLVMEvaluator::add_module(std::unique_ptr<llvm::Module> mod) {
     ee->finalizeObject();
 }
 
-uint64_t LLVMEvaluator::intfn(const std::string &name) {
+int64_t LLVMEvaluator::intfn(const std::string &name) {
     uint64_t ptr = ee->getFunctionAddress(name);
     if (ptr == 0) {
         throw std::runtime_error("Unable to get pointer to function");
     }
-    int (*f)() = (int (*)())ptr;
+    int64_t (*f)() = (int64_t (*)())ptr;
     return f();
 }
 
@@ -138,12 +138,6 @@ void LLVMEvaluator::voidfn(const std::string &name) {
     }
     void (*f)() = (void (*)())ptr;
     f();
-}
-
-uint64_t LLVMEvaluator::intfn(llvm::Function *f) {
-    std::vector<llvm::GenericValue> args;
-    llvm::GenericValue gv = ee->runFunction(f, args);
-    return APInt_getint(gv.IntVal);
 }
 
 void LLVMEvaluator::save_object_file(llvm::Module &m, const std::string &filename) {
