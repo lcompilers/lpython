@@ -59,9 +59,32 @@ namespace LFortran {
 
 class LLVMEvaluator
 {
-    std::unique_ptr<llvm::ExecutionEngine> ee;
-    std::unique_ptr<llvm::LLVMContext> context;
 public:
+    std::unique_ptr<llvm::ExecutionEngine> ee;
+    std::shared_ptr<llvm::LLVMContext> context;
+    std::string target_triple;
+    llvm::TargetMachine *TM;
+public:
+    LLVMEvaluator() {
+        llvm::InitializeNativeTarget();
+        llvm::InitializeNativeTargetAsmPrinter();
+        llvm::InitializeNativeTargetAsmParser();
+
+        context = std::make_shared<llvm::LLVMContext>();
+
+        target_triple = llvm::sys::getDefaultTargetTriple();
+        std::string Error;
+        const llvm::Target *Target = llvm::TargetRegistry::lookupTarget(target_triple, Error);
+        if (Target == nullptr) {
+            throw std::runtime_error("lookupTarget failed");
+        }
+        std::string CPU = "generic";
+        std::string Features = "";
+        llvm::TargetOptions opt;
+        auto RM = llvm::Optional<llvm::Reloc::Model>();
+        TM = Target->createTargetMachine(target_triple, CPU, Features, opt, RM);
+    }
+
     void add_module(std::string &source) {
         llvm::SMDiagnostic err;
         std::unique_ptr<llvm::Module> module
