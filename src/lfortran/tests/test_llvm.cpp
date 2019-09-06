@@ -94,6 +94,8 @@ public:
             std::cerr << "Error: module failed verification." << std::endl;
             throw std::runtime_error("add_module");
         };
+        module->setTargetTriple(target_triple);
+        module->setDataLayout(TM->createDataLayout());
         return module;
     }
 
@@ -158,8 +160,6 @@ define i64 @f1()
 
     llvm::Function *f1 = module->getFunction("f1");
 
-    module->setTargetTriple(e.target_triple);
-    module->setDataLayout(e.TM->createDataLayout());
 
 
     e.save_object_file(*module, "output.o");
