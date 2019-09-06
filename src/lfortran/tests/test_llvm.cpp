@@ -103,6 +103,9 @@ public:
         llvm::SMDiagnostic err;
         std::unique_ptr<llvm::Module> module
             = llvm::parseAssemblyString(source, err, *context);
+        if (!module) {
+            throw std::runtime_error("parse");
+        }
         bool v = llvm::verifyModule(*module);
         if (v) {
             std::cerr << "Error: module failed verification." << std::endl;
@@ -192,6 +195,17 @@ define i64 @f1()
     CHECK(e.intfn("f1") == 5);
     e.add_module("");
     CHECK(e.intfn("f1") == 5);
+}
+
+TEST_CASE("llvm 1 fail") {
+    LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
+    CHECK_THROWS_AS(e.add_module(R"""(
+define i64 @f1()
+{
+    ; FAIL: "=x" is incorrect syntax
+    %1 =x alloca i64
+}
+        )"""), std::runtime_error);
 }
 
 TEST_CASE("llvm 2") {
