@@ -107,7 +107,7 @@ public:
         return module;
     }
 
-    void add_module(std::string &source) {
+    void add_module(const std::string &source) {
         std::unique_ptr<llvm::Module> module = parse_module(source);
         // TODO: apply LLVM optimizations here
         add_module(std::move(module));
@@ -167,22 +167,13 @@ TEST_CASE("llvm 1") {
     llvm::cl::PrintVersionMessage();
 
     LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
-
-    std::string asm_string = R"""(;
+    e.add_module(R"""(;
 define i64 @f1()
 {
     ret i64 4
 }
-    )""";
-    std::unique_ptr<llvm::Module> module = e.parse_module(asm_string);
-    std::cout << "The loaded module" << std::endl;
-    std::cout << e.module_to_string(*module);
-    e.save_object_file(*module, "output.o");
-
-    e.add_module(std::move(module));
-    int r = e.intfn("f1");
-    std::cout << "Result: " << r << std::endl;
-    CHECK(r == 4);
+    )""");
+    CHECK(e.intfn("f1") == 4);
 
     e.ee.reset();
     llvm::llvm_shutdown();
