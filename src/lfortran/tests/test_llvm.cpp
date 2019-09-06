@@ -136,6 +136,15 @@ public:
         return f();
     }
 
+    void voidfn(const std::string &name) {
+        uint64_t ptr = ee->getFunctionAddress(name);
+        if (ptr == 0) {
+            throw std::runtime_error("Unable to get pointer to function");
+        }
+        void (*f)() = (void (*)())ptr;
+        f();
+    }
+
     uint64_t intfn(llvm::Function *f) {
         std::vector<llvm::GenericValue> args;
         llvm::GenericValue gv = ee->runFunction(f, args);
