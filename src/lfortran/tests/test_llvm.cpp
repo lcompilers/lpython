@@ -43,6 +43,34 @@
 
 #include <tests/doctest.h>
 
+namespace LFortran {
+
+class LLVMEvaluator
+{
+    std::unique_ptr<llvm::ExecutionEngine> ee;
+    std::unique_ptr<llvm::LLVMContext> context;
+public:
+    void add_module(std::string &s) {
+        llvm::SMDiagnostic err;
+        std::unique_ptr<llvm::Module> module
+            = llvm::parseAssemblyString(s, err, *context);
+        bool v = llvm::verifyModule(*module);
+        if (v) {
+            std::cerr << "Error: module failed verification." << std::endl;
+            throw std::runtime_error("add_module");
+        };
+        // TODO: apply LLVM optimizations here
+        add_module(std::move(module));
+    }
+
+    void add_module(std::unique_ptr<llvm::Module> mod) {
+        ee->addModule(std::move(mod));
+        ee->finalizeObject();
+    }
+};
+
+}
+
 
 TEST_CASE("llvm 1") {
     std::cout << "LLVM Version:" << std::endl;
