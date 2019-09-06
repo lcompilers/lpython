@@ -114,6 +114,10 @@ std::unique_ptr<llvm::Module> LLVMEvaluator::parse_module(const std::string &sou
 void LLVMEvaluator::add_module(const std::string &source) {
     std::unique_ptr<llvm::Module> module = parse_module(source);
     // TODO: apply LLVM optimizations here
+    std::cout << "---------------------------------------------" << std::endl;
+    std::cout << "LLVM Module IR:" << std::endl;
+    std::cout << module_to_string(*module);
+    std::cout << "---------------------------------------------" << std::endl;
     add_module(std::move(module));
 }
 
