@@ -6,11 +6,15 @@ set(SRC
     parser/parser.cpp
     pickle.cpp
     cwrapper.cpp
-    evaluator.cpp
 )
 if (WITH_JSON)
     set(SRC ${SRC}
         ast_to_json.cpp
+    )
+endif()
+if (WITH_LLVM)
+    set(SRC ${SRC}
+        evaluator.cpp
     )
 endif()
 add_library(lfortran_lib ${SRC})
