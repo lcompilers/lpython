@@ -85,7 +85,7 @@ public:
         TM = Target->createTargetMachine(target_triple, CPU, Features, opt, RM);
     }
 
-    std::unique_ptr<llvm::Module> parse_module(std::string &source) {
+    std::unique_ptr<llvm::Module> parse_module(const std::string &source) {
         llvm::SMDiagnostic err;
         std::unique_ptr<llvm::Module> module
             = llvm::parseAssemblyString(source, err, *context);
