@@ -12,6 +12,11 @@ if (WITH_JSON)
         ast_to_json.cpp
     )
 endif()
+if (WITH_LLVM)
+    set(SRC ${SRC}
+        evaluator.cpp
+    )
+endif()
 add_library(lfortran_lib ${SRC})
 target_include_directories(lfortran_lib BEFORE PUBLIC ${lfortran_SOURCE_DIR}/src)
 target_include_directories(lfortran_lib BEFORE PUBLIC ${lfortran_BINARY_DIR}/src)
