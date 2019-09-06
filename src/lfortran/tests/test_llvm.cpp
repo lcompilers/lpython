@@ -164,6 +164,13 @@ define i64 @f1()
 
     e.save_object_file(*module, "output.o");
 
+    module = e.parse_module("");
+    e.ee = std::unique_ptr<llvm::ExecutionEngine>(
+                llvm::EngineBuilder(std::move(module)).create(e.TM));
+    if (!e.ee) {
+        std::runtime_error("Error: execution engine creation failed.");
+    }
+    e.ee->finalizeObject();
 
     e.ee = std::unique_ptr<llvm::ExecutionEngine>(
                 llvm::EngineBuilder(std::move(module)).create(e.TM));
