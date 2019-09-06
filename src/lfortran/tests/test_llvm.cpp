@@ -83,6 +83,8 @@ public:
         llvm::TargetOptions opt;
         auto RM = llvm::Optional<llvm::Reloc::Model>();
         TM = Target->createTargetMachine(target_triple, CPU, Features, opt, RM);
+
+        init_ee();
     }
 
     void init_ee() {
@@ -167,19 +169,11 @@ define i64 @f1()
     std::unique_ptr<llvm::Module> module = e.parse_module(asm_string);
     std::cout << "The loaded module" << std::endl;
     llvm::outs() << *module;
-
     llvm::Function *f1 = module->getFunction("f1");
-
-
-
     e.save_object_file(*module, "output.o");
 
-    e.init_ee();
-
     e.add_module(std::move(module));
-
     uint64_t r = e.intfn(f1);
-
     std::cout << "Result: " << r << std::endl;
     CHECK(r == 4);
 
