@@ -88,3 +88,88 @@ define i64 @f3()
 }
         )"""), LFortran::CodeGenError);
 }
+
+TEST_CASE("llvm 3") {
+    LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
+    e.add_module(R"""(
+@count = global i64 5
+    )""");
+
+    e.add_module(R"""(
+@count = external global i64
+
+define i64 @f1()
+{
+    %1 = load i64, i64* @count
+    ret i64 %1
+}
+
+define void @inc()
+{
+    %1 = load i64, i64* @count
+    %2 = add i64 %1, 1
+    store i64 %2, i64* @count
+    ret void
+}
+    )""");
+    CHECK(e.intfn("f1") == 5);
+    e.voidfn("inc");
+    CHECK(e.intfn("f1") == 6);
+    e.voidfn("inc");
+    CHECK(e.intfn("f1") == 7);
+
+    e.add_module(R"""(
+@count = external global i64
+
+define void @inc2()
+{
+    %1 = load i64, i64* @count
+    %2 = add i64 %1, 2
+    store i64 %2, i64* @count
+    ret void
+}
+    )""");
+    CHECK(e.intfn("f1") == 7);
+    e.voidfn("inc2");
+    CHECK(e.intfn("f1") == 9);
+    e.voidfn("inc");
+    CHECK(e.intfn("f1") == 10);
+    e.voidfn("inc2");
+    CHECK(e.intfn("f1") == 12);
+
+    // Test that we can have another independent LLVMEvaluator and use both at
+    // the same time:
+    LFortran::LLVMEvaluator e2 = LFortran::LLVMEvaluator();
+    e2.add_module(R"""(
+@count = global i64 5
+
+define i64 @f1()
+{
+    %1 = load i64, i64* @count
+    ret i64 %1
+}
+
+define void @inc()
+{
+    %1 = load i64, i64* @count
+    %2 = add i64 %1, 1
+    store i64 %2, i64* @count
+    ret void
+}
+    )""");
+
+    CHECK(e2.intfn("f1") == 5);
+    e2.voidfn("inc");
+    CHECK(e2.intfn("f1") == 6);
+    e2.voidfn("inc");
+    CHECK(e2.intfn("f1") == 7);
+
+    CHECK(e.intfn("f1") == 12);
+    e2.voidfn("inc");
+    CHECK(e2.intfn("f1") == 8);
+    CHECK(e.intfn("f1") == 12);
+    e.voidfn("inc");
+    CHECK(e2.intfn("f1") == 8);
+    CHECK(e.intfn("f1") == 13);
+
+}
