@@ -13,6 +13,9 @@ namespace llvm {
     class TargetMachine;
     class Module;
     class Function;
+    namespace orc {
+        class KaleidoscopeJIT;
+    }
 }
 
 namespace LFortran {
@@ -20,7 +23,7 @@ namespace LFortran {
 class LLVMEvaluator
 {
 private:
-    std::unique_ptr<llvm::ExecutionEngine> ee;
+    std::unique_ptr<llvm::orc::KaleidoscopeJIT> jit;
     std::unique_ptr<llvm::LLVMContext> context;
     std::string target_triple;
     llvm::TargetMachine *TM;
