@@ -222,3 +222,90 @@ define void @inc2()
 }
         )"""), LFortran::CodeGenError);
 }
+
+TEST_CASE("llvm array 1") {
+    LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
+    e.add_module(R"""(
+; Sum the three elements in %a
+define i64 @sum3(i64* %a)
+{
+    %a1addr = getelementptr i64, i64* %a, i64 0
+    %a1 = load i64, i64* %a1addr
+
+    %a2addr = getelementptr i64, i64* %a, i64 1
+    %a2 = load i64, i64* %a2addr
+
+    %a3addr = getelementptr i64, i64* %a, i64 2
+    %a3 = load i64, i64* %a3addr
+
+    %tmp = add i64 %a2, %a1
+    %r = add i64 %a3, %tmp
+
+    ret i64 %r
+}
+
+
+define i64 @f()
+{
+    %a = alloca [3 x i64]
+
+    %a1 = getelementptr [3 x i64], [3 x i64]* %a, i64 0, i64 0
+    store i64 1, i64* %a1
+
+    %a2 = getelementptr [3 x i64], [3 x i64]* %a, i64 0, i64 1
+    store i64 2, i64* %a2
+
+    %a3 = getelementptr [3 x i64], [3 x i64]* %a, i64 0, i64 2
+    store i64 3, i64* %a3
+
+    %r = call i64 @sum3(i64* %a1)
+    ret i64 %r
+}
+    )""");
+    CHECK(e.intfn("f") == 6);
+}
+
+TEST_CASE("llvm array 2") {
+    LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
+    e.add_module(R"""(
+%array = type {i64, [3 x i64]}
+
+; Sum the three elements in %a
+define i64 @sum3(%array* %a)
+{
+    %a1addr = getelementptr %array, %array* %a, i64 0, i32 1, i64 0
+    %a1 = load i64, i64* %a1addr
+
+    %a2addr = getelementptr %array, %array* %a, i64 0, i32 1, i64 1
+    %a2 = load i64, i64* %a2addr
+
+    %a3addr = getelementptr %array, %array* %a, i64 0, i32 1, i64 2
+    %a3 = load i64, i64* %a3addr
+
+    %tmp = add i64 %a2, %a1
+    %r = add i64 %a3, %tmp
+
+    ret i64 %r
+}
+
+
+define i64 @f()
+{
+    %a = alloca %array
+
+    %idx0 = getelementptr %array, %array* %a, i64 0, i32 0
+    store i64 3, i64* %idx0
+
+    %idx1 = getelementptr %array, %array* %a, i64 0, i32 1, i64 0
+    store i64 1, i64* %idx1
+    %idx2 = getelementptr %array, %array* %a, i64 0, i32 1, i64 1
+    store i64 2, i64* %idx2
+    %idx3 = getelementptr %array, %array* %a, i64 0, i32 1, i64 2
+    store i64 3, i64* %idx3
+
+    %r = call i64 @sum3(%array* %a)
+    ret i64 %r
+}
+    )""");
+    CHECK(e.intfn("f") == 6);
+}
