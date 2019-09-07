@@ -39,6 +39,8 @@
 #include <llvm/Target/TargetOptions.h>
 #include <llvm/Support/TargetRegistry.h>
 
+#include <lfortran/KaleidoscopeJIT.h>
+
 #include <lfortran/evaluator.h>
 #include <lfortran/exception.h>
 
@@ -66,30 +68,13 @@ LLVMEvaluator::LLVMEvaluator()
     context = std::make_unique<llvm::LLVMContext>();
 
     target_triple = llvm::sys::getDefaultTargetTriple();
-    std::string Error;
-    const llvm::Target *Target = llvm::TargetRegistry::lookupTarget(target_triple, Error);
-    if (Target == nullptr) {
-        throw std::runtime_error("lookupTarget failed");
-    }
-    std::string CPU = "generic";
-    std::string Features = "";
-    llvm::TargetOptions opt;
-    auto RM = llvm::Optional<llvm::Reloc::Model>();
-    TM = Target->createTargetMachine(target_triple, CPU, Features, opt, RM);
-
-    std::unique_ptr<llvm::Module> module0 = parse_module("");
-    ee = std::unique_ptr<llvm::ExecutionEngine>(
-                llvm::EngineBuilder(std::move(module0)).create(TM));
-    if (!ee) {
-        std::runtime_error("Error: execution engine creation failed.");
-    }
-    ee->finalizeObject();
+    jit = std::make_unique<llvm::orc::KaleidoscopeJIT>();
+    TM = &jit->getTargetMachine();
 }
 
 LLVMEvaluator::~LLVMEvaluator()
 {
-    // Ensure ExecutionEngine is deleted before LLVMContext
-    ee.reset();
+    jit.reset();
     context.reset();
 }
 
@@ -114,36 +99,33 @@ std::unique_ptr<llvm::Module> LLVMEvaluator::parse_module(const std::string &sou
 void LLVMEvaluator::add_module(const std::string &source) {
     std::unique_ptr<llvm::Module> module = parse_module(source);
     // TODO: apply LLVM optimizations here
+    std::cout << "---------------------------------------------" << std::endl;
+    std::cout << "LLVM Module IR:" << std::endl;
+    std::cout << module_to_string(*module);
+    std::cout << "---------------------------------------------" << std::endl;
     add_module(std::move(module));
 }
 
 void LLVMEvaluator::add_module(std::unique_ptr<llvm::Module> mod) {
-    ee->addModule(std::move(mod));
-    ee->finalizeObject();
+    jit->addModule(std::move(mod));
 }
 
-uint64_t LLVMEvaluator::intfn(const std::string &name) {
-    uint64_t ptr = ee->getFunctionAddress(name);
-    if (ptr == 0) {
+int64_t LLVMEvaluator::intfn(const std::string &name) {
+    llvm::JITSymbol s = jit->findSymbol(name);
+    if (!s) {
         throw std::runtime_error("Unable to get pointer to function");
     }
-    int (*f)() = (int (*)())ptr;
+    int64_t (*f)() = (int64_t (*)())(intptr_t)cantFail(s.getAddress());
     return f();
 }
 
 void LLVMEvaluator::voidfn(const std::string &name) {
-    uint64_t ptr = ee->getFunctionAddress(name);
-    if (ptr == 0) {
+    llvm::JITSymbol s = jit->findSymbol(name);
+    if (!s) {
         throw std::runtime_error("Unable to get pointer to function");
     }
-    void (*f)() = (void (*)())ptr;
+    void (*f)() = (void (*)())(intptr_t)cantFail(s.getAddress());
     f();
-}
-
-uint64_t LLVMEvaluator::intfn(llvm::Function *f) {
-    std::vector<llvm::GenericValue> args;
-    llvm::GenericValue gv = ee->runFunction(f, args);
-    return APInt_getint(gv.IntVal);
 }
 
 void LLVMEvaluator::save_object_file(llvm::Module &m, const std::string &filename) {
