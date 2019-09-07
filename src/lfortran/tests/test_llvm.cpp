@@ -309,3 +309,27 @@ define i64 @f()
     )""");
     CHECK(e.intfn("f") == 6);
 }
+
+int f(int a, int b) {
+    return a+b;
+}
+
+TEST_CASE("llvm callback 0") {
+    LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
+    std::string addr = std::to_string((int64_t)f);
+    e.add_module(R"""(
+define i64 @addrcaller(i64 %a, i64 %b)
+{
+    %f = inttoptr i64 )""" + addr + R"""( to i64 (i64, i64)*
+    %r = call i64 %f(i64 %a, i64 %b)
+    ret i64 %r
+}
+
+define i64 @f1()
+{
+    %r = call i64 @addrcaller(i64 2, i64 3)
+    ret i64 %r
+}
+    )""");
+    CHECK(e.intfn("f1") == 5);
+}
