@@ -10,7 +10,6 @@
 namespace llvm {
     class ExecutionEngine;
     class LLVMContext;
-    class TargetMachine;
     class Module;
     class Function;
     namespace orc {
@@ -26,7 +25,6 @@ private:
     std::unique_ptr<llvm::orc::KaleidoscopeJIT> jit;
     std::unique_ptr<llvm::LLVMContext> context;
     std::string target_triple;
-    llvm::TargetMachine *TM;
 public:
     LLVMEvaluator();
     ~LLVMEvaluator();
