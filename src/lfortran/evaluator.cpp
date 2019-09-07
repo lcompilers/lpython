@@ -69,7 +69,6 @@ LLVMEvaluator::LLVMEvaluator()
 
     target_triple = llvm::sys::getDefaultTargetTriple();
     jit = std::make_unique<llvm::orc::KaleidoscopeJIT>();
-    TM = &jit->getTargetMachine();
 }
 
 LLVMEvaluator::~LLVMEvaluator()
@@ -92,7 +91,7 @@ std::unique_ptr<llvm::Module> LLVMEvaluator::parse_module(const std::string &sou
         throw std::runtime_error("add_module");
     };
     module->setTargetTriple(target_triple);
-    module->setDataLayout(TM->createDataLayout());
+    module->setDataLayout(jit->getTargetMachine().createDataLayout());
     return module;
 }
 
@@ -138,7 +137,7 @@ void LLVMEvaluator::save_object_file(llvm::Module &m, const std::string &filenam
         throw std::runtime_error("raw_fd_ostream failed");
     }
 
-    if (TM->addPassesToEmitFile(pass, dest, nullptr, ft)) {
+    if (jit->getTargetMachine().addPassesToEmitFile(pass, dest, nullptr, ft)) {
         throw std::runtime_error("TargetMachine can't emit a file of this type");
     }
     pass.run(m);
