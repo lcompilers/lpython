@@ -34,7 +34,7 @@ public:
     int64_t intfn(const std::string &name);
     void voidfn(const std::string &name);
     void save_object_file(llvm::Module &m, const std::string &filename);
-    std::string module_to_string(llvm::Module &m);
+    static std::string module_to_string(llvm::Module &m);
     static void print_version_message();
 };
 
