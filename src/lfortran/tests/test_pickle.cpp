@@ -182,6 +182,11 @@ TEST_CASE("Functions") {
     subroutine = y
     x = 2*subroutine
     end function)")   == "(fn f [] () () () [] [] [(= subroutine y) (= x (* 2 subroutine))] [])");
+
+    CHECK(P(R"(function f
+integer :: f
+f = 5
+end function)") == "(fn f [] () () () [] [(decl [(f integer [] [] ())])] [(= f 5)] [])");
 }
 
 TEST_CASE("Programs") {
