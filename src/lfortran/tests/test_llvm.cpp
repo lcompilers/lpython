@@ -1,7 +1,15 @@
 #include <tests/doctest.h>
 
+#include <llvm/IR/Module.h>
+
 #include <lfortran/codegen/evaluator.h>
 #include <lfortran/exception.h>
+#include <lfortran/ast.h>
+#include <lfortran/asr.h>
+#include <lfortran/parser/parser.h>
+#include <lfortran/semantics/ast_to_asr.h>
+#include <lfortran/codegen/asr_to_llvm.h>
+#include <lfortran/pickle.h>
 
 
 TEST_CASE("llvm 1") {
@@ -332,4 +340,20 @@ define i64 @f1()
 }
     )""");
     CHECK(e.intfn("f1") == 5);
+}
+
+
+TEST_CASE("ASR -> LLVM 1") {
+    std::string source = R"(function f()
+integer :: f
+f = 5
+end function)";
+
+    Allocator al(4*1024);
+    LFortran::AST::ast_t* ast = LFortran::parse2(al, source);
+    LFortran::ASR::asr_t* asr;
+    LFortran::ast_to_asr(*ast, al, &asr);
+    CHECK(LFortran::pickle(*asr) == "(fn f [] [] () (variable f () Unimplemented (integer Unimplemented [])) () Unimplemented)");
+
+    std::unique_ptr<llvm::Module> m = LFortran::asr_to_llvm(*asr);
 }
