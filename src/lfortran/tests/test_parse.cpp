@@ -996,7 +996,7 @@ TEST_CASE("Location") {
     CHECK(sym2->base.base.loc.last_line == 3);
     CHECK(sym2->base.base.loc.last_column == 5);
 
-    input = R"(function f
+    input = R"(function f()
     x = y
     x = 213*yz
     end function)";
@@ -1035,7 +1035,7 @@ TEST_CASE("Errors") {
         CHECK(e.loc.last_column == 6);
     }
 
-    input = R"(function f
+    input = R"(function f()
     x = y
     x = 213*yz+*
     end function)";
@@ -1052,7 +1052,7 @@ TEST_CASE("Errors") {
         CHECK(e.loc.last_column == 16);
     }
 
-    input = R"(function f
+    input = R"(function f()
     x = y
     x = 213-*yz
     end function)";
@@ -1069,7 +1069,7 @@ TEST_CASE("Errors") {
         CHECK(e.loc.last_column == 13);
     }
 
-    input = R"(function f
+    input = R"(function f()
     x = y xxy xx
     x = 213*yz
     end function)";
