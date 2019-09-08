@@ -4,12 +4,14 @@
 #include <lfortran/asr.h>
 
 namespace llvm {
+    class LLVMContext;
     class Module;
 }
 
 namespace LFortran {
 
-    std::unique_ptr<llvm::Module> asr_to_llvm(ASR::asr_t &asr);
+    std::unique_ptr<llvm::Module> asr_to_llvm(ASR::asr_t &asr,
+            llvm::LLVMContext &context);
 
 } // namespace LFortran
 

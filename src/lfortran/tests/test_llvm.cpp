@@ -355,5 +355,8 @@ end function)";
     LFortran::ast_to_asr(*ast, al, &asr);
     CHECK(LFortran::pickle(*asr) == "(fn f [] [] () (variable f () Unimplemented (integer Unimplemented [])) () Unimplemented)");
 
-    std::unique_ptr<llvm::Module> m = LFortran::asr_to_llvm(*asr);
+    std::unique_ptr<llvm::LLVMContext> context
+        = std::make_unique<llvm::LLVMContext>();
+    std::unique_ptr<llvm::Module> m = LFortran::asr_to_llvm(*asr, *context);
+    m.reset();
 }
