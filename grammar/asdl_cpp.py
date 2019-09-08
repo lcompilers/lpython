@@ -92,6 +92,9 @@ def convert_type(asdl_type, seq):
     elif asdl_type == "string":
         type_ = "char*"
         assert not seq
+    elif asdl_type == "str":
+        type_ = "char*"
+        assert not seq
     elif asdl_type == "identifier":
         type_ = "char*"
         if seq:
