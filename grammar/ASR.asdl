@@ -28,7 +28,7 @@ sub
 
 fn
     = Function(identifier name, expr* args, stmt* body, tbind? bind,
-            expr return_var, str? module, object symtab)
+            expr return_var, string? module, object symtab)
 
 stmt
     = Assignment(expr target, expr value)
@@ -64,7 +64,7 @@ ttype
     | Complex(int kind, dimension* dims)
     | Character(int kind, dimension* dims)
     | Logical(int kind, dimension* dims)
-    | Derived(str name, dimension* dims, str? module)
+    | Derived(string name, dimension* dims, string? module)
 
 boolop = And | Or
 
@@ -84,7 +84,7 @@ arg = (identifier arg)
 
 keyword = (identifier? arg, expr value)
 
-tbind = Bind(str lang, str name)
+tbind = Bind(string lang, string name)
 
 array_index = ArrayIndex(expr? left, expr? right, expr? step)
 

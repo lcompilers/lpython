@@ -98,4 +98,22 @@ std::string pickle(LFortran::AST::ast_t &ast) {
     return v.get_str();
 }
 
+/* -----------------------------------------------------------------------*/
+// ASR
+
+class ASRPickleVisitor :
+    public LFortran::ASR::PickleBaseVisitor<ASRPickleVisitor>
+{
+public:
+    std::string get_str() {
+        return s;
+    }
+};
+
+std::string pickle(LFortran::ASR::asr_t &asr) {
+    ASRPickleVisitor v;
+    v.visit_asr(asr);
+    return v.get_str();
+}
+
 }
