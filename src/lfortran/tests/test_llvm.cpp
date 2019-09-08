@@ -349,16 +349,25 @@ integer :: f
 f = 5
 end function)";
 
+    // Src -> AST
     Allocator al(4*1024);
     LFortran::AST::ast_t* ast = LFortran::parse2(al, source);
+
+    // AST -> ASR
     LFortran::ASR::asr_t* asr;
     LFortran::ast_to_asr(*ast, al, &asr);
     CHECK(LFortran::pickle(*asr) == "(fn f [] [] () (variable f () Unimplemented (integer Unimplemented [])) () Unimplemented)");
 
+    // ASR -> LLVM
     std::unique_ptr<llvm::LLVMContext> context
         = std::make_unique<llvm::LLVMContext>();
     std::unique_ptr<llvm::Module> m = LFortran::asr_to_llvm(*asr, *context);
     std::cout << "Module:" << std::endl;
     std::cout << LFortran::LLVMEvaluator::module_to_string(*m) << std::endl;
+
+    // LLVM -> Machine code -> Execution
+    LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
+    e.add_module(std::move(m));
+    CHECK(e.intfn("f") == 5);
     m.reset();
 }
