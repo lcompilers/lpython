@@ -32,6 +32,8 @@ python grammar/asdl_py.py
 python grammar/asdl_cpp.py
 # Generate a Fortran ASR from ASR.asdl
 python grammar/asdl_py.py grammar/ASR.asdl lfortran/asr/asr.py ..ast.utils
+# Generate a Fortran ASR from ASR.asdl (C++)
+python grammar/asdl_cpp.py grammar/ASR.asdl src/lfortran/asr.h
 
 # Generate the tokenizer and parser
 pushd src/lfortran/parser && re2c -W -b tokenizer.re -o tokenizer.cpp && popd
