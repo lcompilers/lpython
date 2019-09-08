@@ -159,16 +159,16 @@ TEST_CASE("Subroutines") {
 TEST_CASE("Functions") {
     Allocator al(4*1024);
 
-    CHECK(P(R"(function g
+    CHECK(P(R"(function g()
     x = y
     x = 2*y
     end function)")   == "(fn g [] () () () [] [] [(= x y) (= x (* 2 y))] [])");
 
-    CHECK(P(R"(function g
+    CHECK(P(R"(function g()
     end function)")   == "(fn g [] () () () [] [] [] [])");
 
 
-    CHECK(P(R"(function g
+    CHECK(P(R"(function g()
     x = y; ;
 
 
@@ -176,14 +176,14 @@ TEST_CASE("Functions") {
 
     end function)")   == "(fn g [] () () () [] [] [(= x y) (= x (* 2 y))] [])");
 
-    CHECK(P("function g; x = y; x = 2*y; end function") == "(fn g [] () () () [] [] [(= x y) (= x (* 2 y))] [])");
+    CHECK(P("function g(); x = y; x = 2*y; end function") == "(fn g [] () () () [] [] [(= x y) (= x (* 2 y))] [])");
 
-    CHECK(P(R"(function f
+    CHECK(P(R"(function f()
     subroutine = y
     x = 2*subroutine
     end function)")   == "(fn f [] () () () [] [] [(= subroutine y) (= x (* 2 subroutine))] [])");
 
-    CHECK(P(R"(function f
+    CHECK(P(R"(function f()
 integer :: f
 f = 5
 end function)") == "(fn f [] () () () [] [(decl [(f integer [] [] ())])] [(= f 5)] [])");
@@ -259,7 +259,7 @@ TEST_CASE("Multiple units") {
     CHECK(LFortran::pickle(*results[1]) == "(= y (+ z 1))");
     CHECK(LFortran::pickle(*results[2]) == "a");
 
-    s = R"(function g
+    s = R"(function g()
     x = y
     x = 2*y
     end function
@@ -692,7 +692,7 @@ TEST_CASE("declaration") {
     CHECK(P("integer x(5,:,:3,3:) = x") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] x)])");
     CHECK_THROWS_AS(P("integer x(5,:,:3,3:) = x y"), LFortran::ParserError);
 
-    CHECK(P(R"(function g
+    CHECK(P(R"(function g()
     integer x
     x = 1
     end function)") == "(fn g [] () () () [] [(decl [(x integer [] [] ())])] [(= x 1)] [])");
@@ -705,7 +705,7 @@ TEST_CASE("declaration") {
     integer x, y, z
     end subroutine)") == "(sub g [] [] [(decl [(x integer [] [] ()) (y integer [] [] ()) (z integer [] [] ())])] [] [])");
 
-    CHECK(P(R"(function g
+    CHECK(P(R"(function g()
     integer x
     real y, z
     x = 1

@@ -329,8 +329,9 @@ subroutine
     ;
 
 function
-    : KW_FUNCTION id sep var_decl_star statements KW_END KW_FUNCTION sep {
-            LLOC(@$, @7); $$ = FUNCTION($2, $4, $5, @$); }
+    : KW_FUNCTION id "(" ")" sep var_decl_star statements
+        KW_END KW_FUNCTION sep {
+            LLOC(@$, @9); $$ = FUNCTION($2, $6, $7, @$); }
     ;
 
 // var_decl*
