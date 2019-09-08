@@ -48,20 +48,32 @@ public:
     Allocator &al;
     ASR::asr_t *asr;
     BodyVisitor(Allocator &al, ASR::asr_t *unit) : al{al}, asr{unit} {}
+
     void visit_Function(const AST::Function_t &x) {
-        ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                8, nullptr, 0));
-        ASR::expr_t *return_var = EXPR(ASR::make_Variable_t(al, x.base.base.loc,
-                x.m_name, nullptr, 1, type));
-        asr = ASR::make_Function_t(al, x.base.base.loc,
-            /*char* a_name*/ x.m_name,
-            /*expr_t** a_args*/ nullptr, /*size_t n_args*/ 0,
-            /*stmt_t** a_body*/ nullptr, /*size_t n_body*/ 0,
-            /*tbind_t* a_bind*/ nullptr,
-            /*expr_t* a_return_var*/ return_var,
-            /*char* a_module*/ nullptr,
-            /*int *object* a_symtab*/ 0);
+        std::vector<ASR::asr_t*> body;
+        for (size_t i=0; i<x.n_body; i++) {
+            LFORTRAN_ASSERT(x.m_body[i]->base.type == AST::astType::stmt)
+            this->visit_stmt(*x.m_body[i]);
+            ASR::asr_t *stmt = asr;
+            body.push_back(stmt);
+        }
+        // TODO:
+        // We must keep track of the current scope, lookup this function in the
+        // scope as "_current_function" and attach the body to it:
+        // _current_function.m_body = &body[0];
+        // _current_function.n_body = body.size();
     }
+
+    void visit_Assignment(const AST::Assignment_t &x) {
+        this->visit_expr(*x.m_target);
+        ASR::expr_t *target = EXPR(asr);
+        this->visit_expr(*x.m_value);
+        ASR::expr_t *value = EXPR(asr);
+        asr = ASR::make_Assignment_t(al, x.base.base.loc, target, value);
+    }
+    // TODO: return asr for:
+    // * visit variable "f" (Name)
+    // * visit 5 (Integer)
 };
 
 ASR::asr_t *ast_to_asr(Allocator &al, AST::ast_t &ast)
