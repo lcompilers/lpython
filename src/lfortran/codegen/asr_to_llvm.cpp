@@ -71,12 +71,12 @@ public:
     }
 };
 
-std::unique_ptr<llvm::Module> asr_to_llvm(ASR::asr_t &asr,
+std::unique_ptr<LLVMModule> asr_to_llvm(ASR::asr_t &asr,
         llvm::LLVMContext &context)
 {
     ASRToLLVMVisitor v(context);
     v.visit_asr(asr);
-    return std::move(v.module);
+    return std::make_unique<LLVMModule>(std::move(v.module));
 }
 
 } // namespace LFortran

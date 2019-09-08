@@ -1,7 +1,5 @@
 #include <tests/doctest.h>
 
-#include <llvm/IR/Module.h>
-
 #include <lfortran/codegen/evaluator.h>
 #include <lfortran/exception.h>
 #include <lfortran/ast.h>
@@ -360,13 +358,12 @@ end function)";
 
     // ASR -> LLVM
     LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
-    std::unique_ptr<llvm::Module> m = LFortran::asr_to_llvm(*asr,
+    std::unique_ptr<LFortran::LLVMModule> m = LFortran::asr_to_llvm(*asr,
             e.get_context());
     std::cout << "Module:" << std::endl;
-    std::cout << LFortran::LLVMEvaluator::module_to_string(*m) << std::endl;
+    std::cout << LFortran::LLVMEvaluator::module_to_string(*m->m) << std::endl;
 
     // LLVM -> Machine code -> Execution
     e.add_module(std::move(m));
     CHECK(e.intfn("f") == 5);
-    m.reset();
 }

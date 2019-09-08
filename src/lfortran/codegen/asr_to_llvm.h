@@ -2,15 +2,11 @@
 #define LFORTRAN_ASR_TO_LLVM_H
 
 #include <lfortran/asr.h>
-
-namespace llvm {
-    class LLVMContext;
-    class Module;
-}
+#include <lfortran/codegen/evaluator.h>
 
 namespace LFortran {
 
-    std::unique_ptr<llvm::Module> asr_to_llvm(ASR::asr_t &asr,
+    std::unique_ptr<LLVMModule> asr_to_llvm(ASR::asr_t &asr,
             llvm::LLVMContext &context);
 
 } // namespace LFortran
