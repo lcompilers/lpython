@@ -83,6 +83,7 @@ def attr_to_args(attrs):
 simple_sums = []
 sums = []
 products = []
+subs = {}
 
 def convert_type(asdl_type, seq):
     if asdl_type in simple_sums:
@@ -198,7 +199,7 @@ class ASTNodeVisitor(ASDLVisitor):
             self.emit("")
             self.emit("struct %s_t // Sum" % base)
             self.emit("{")
-            self.emit(    "ast_t base;", 1)
+            self.emit(    "%(mod)s_t base;" % subs, 1)
             self.emit(    "%sType type;" % base, 1)
             self.emit("};")
             self.emit("")
@@ -226,16 +227,17 @@ class ASTNodeVisitor(ASDLVisitor):
                 args.append("size_t n_%s" % (f.name))
                 lines.append("n->n_%s = n_%s;" % (f.name, f.name))
         self.emit("};", 1)
-        self.emit("static inline ast_t* make_%s_t(%s) {" % (cons.name,
-            ", ".join(args)), 1)
+        self.emit("static inline %s_t* make_%s_t(%s) {" % (subs["mod"],
+            cons.name, ", ".join(args)), 1)
         self.emit(    "%s_t *n;" % cons.name, 2)
         self.emit(    "n = al.make_new<%s_t>();" % cons.name, 2)
         self.emit(    "n->base.type = %sType::%s;" % (base, cons.name), 2)
-        self.emit(    "n->base.base.type = astType::%s;" % (base), 2)
+        self.emit(    "n->base.base.type = %sType::%s;" % (subs["mod"],
+            base), 2)
         self.emit(    "n->base.base.loc = a_loc;", 2)
         for line in lines:
             self.emit(line, 2)
-        self.emit(    "return (ast_t*)n;", 2)
+        self.emit(    "return (%(mod)s_t*)n;" % subs, 2)
         self.emit("}", 1)
         self.emit("")
 
@@ -267,11 +269,11 @@ class ASTVisitorVisitor1b(ASDLVisitor):
 
     def visitModule(self, mod):
         self.emit("template <class Visitor>")
-        self.emit("static void visit_ast_t(const ast_t &x, Visitor &v) {")
+        self.emit("static void visit_%(mod)s_t(const %(mod)s_t &x, Visitor &v) {" % subs)
         self.emit("    switch (x.type) {")
         for type_ in sums:
-            self.emit("        case astType::%s: { v.visit_%s((const %s_t &)x);"
-                " return; }" % (type_, type_, type_))
+            self.emit("        case %sType::%s: { v.visit_%s((const %s_t &)x);"
+                " return; }" % (subs["mod"], type_, type_, type_))
         self.emit("    }")
         self.emit("}")
         self.emit("")
@@ -288,7 +290,7 @@ class ASTVisitorVisitor2(ASDLVisitor):
         self.emit("private:")
         self.emit("    Derived& self() { return static_cast<Derived&>(*this); }")
         self.emit("public:")
-        self.emit(    "void visit_ast(const ast_t &b) { visit_ast_t(b, self()); }", 1)
+        self.emit(    "void visit_%(mod)s(const %(mod)s_t &b) { visit_%(mod)s_t(b, self()); }" % subs, 1)
         super(ASTVisitorVisitor2, self).visitModule(mod)
         self.emit("};")
 
@@ -416,7 +418,7 @@ class PickleVisitorVisitor(ASDLVisitor):
                 self.emit('s.append("[");', level)
                 self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
                 if field.type in sums:
-                    self.emit("LFORTRAN_ASSERT(x.m_%s[i]->base.type == astType::%s)" % (field.name, field.type), level+1)
+                    self.emit("LFORTRAN_ASSERT(x.m_%s[i]->base.type == %sType::%s)" % (field.name, subs["mod"], field.type), level+1)
                     self.emit("this->visit_%s(*x.m_%s[i]);" % (field.type, field.name), level+1)
                 else:
                     self.emit("this->visit_%s(x.m_%s[i]);" % (field.type, field.name), level+1)
@@ -556,18 +558,19 @@ def main(argv):
     data = ASDLData(mod)
     CollectVisitor(None, data).visit(mod)
     types_ = ", ".join(sums)
-    subs_data = {
+    global subs
+    subs = {
         "MOD": mod.name.upper(),
         "mod": mod.name.lower(),
         "types": types_,
     }
     fp = open(out_file, "w")
     try:
-        fp.write(HEAD % subs_data)
+        fp.write(HEAD % subs)
         for visitor in visitors:
             visitor(fp, data).visit(mod)
             fp.write("\n\n")
-        fp.write(FOOT % subs_data)
+        fp.write(FOOT % subs)
     finally:
         fp.close()
 
