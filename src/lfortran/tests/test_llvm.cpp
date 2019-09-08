@@ -1,6 +1,6 @@
 #include <tests/doctest.h>
 
-#include <lfortran/evaluator.h>
+#include <lfortran/codegen/evaluator.h>
 #include <lfortran/exception.h>
 
 

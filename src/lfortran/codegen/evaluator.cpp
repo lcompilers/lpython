@@ -39,9 +39,9 @@
 #include <llvm/Target/TargetOptions.h>
 #include <llvm/Support/TargetRegistry.h>
 
-#include <lfortran/KaleidoscopeJIT.h>
+#include <lfortran/codegen/KaleidoscopeJIT.h>
 
-#include <lfortran/evaluator.h>
+#include <lfortran/codegen/evaluator.h>
 #include <lfortran/exception.h>
 
 

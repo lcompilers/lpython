@@ -14,7 +14,7 @@ if (WITH_JSON)
 endif()
 if (WITH_LLVM)
     set(SRC ${SRC}
-        evaluator.cpp
+        codegen/evaluator.cpp
     )
 endif()
 add_library(lfortran_lib ${SRC})
