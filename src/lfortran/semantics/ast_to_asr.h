@@ -6,7 +6,7 @@
 
 namespace LFortran {
 
-    void ast_to_asr(AST::ast_t &ast, Allocator &al, ASR::asr_t **asr);
+    ASR::asr_t *ast_to_asr(Allocator &al, AST::ast_t &ast);
 
 } // namespace LFortran
 

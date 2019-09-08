@@ -2,6 +2,12 @@
 
 #include <lfortran/codegen/evaluator.h>
 #include <lfortran/exception.h>
+#include <lfortran/ast.h>
+#include <lfortran/asr.h>
+#include <lfortran/parser/parser.h>
+#include <lfortran/semantics/ast_to_asr.h>
+#include <lfortran/codegen/asr_to_llvm.h>
+#include <lfortran/pickle.h>
 
 
 TEST_CASE("llvm 1") {
@@ -332,4 +338,32 @@ define i64 @f1()
 }
     )""");
     CHECK(e.intfn("f1") == 5);
+}
+
+
+TEST_CASE("ASR -> LLVM 1") {
+    std::string source = R"(function f()
+integer :: f
+f = 5
+end function)";
+
+    // Src -> AST
+    Allocator al(4*1024);
+    LFortran::AST::ast_t* ast = LFortran::parse2(al, source);
+    CHECK(LFortran::pickle(*ast) == "(fn f [] () () () [] [(decl [(f integer [] [] ())])] [(= f 5)] [])");
+
+    // AST -> ASR
+    LFortran::ASR::asr_t* asr = LFortran::ast_to_asr(al, *ast);
+    CHECK(LFortran::pickle(*asr) == "(fn f [] [] () (variable f () Unimplemented (integer Unimplemented [])) () Unimplemented)");
+
+    // ASR -> LLVM
+    LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
+    std::unique_ptr<LFortran::LLVMModule> m = LFortran::asr_to_llvm(*asr,
+            e.get_context());
+    std::cout << "Module:" << std::endl;
+    std::cout << m->str() << std::endl;
+
+    // LLVM -> Machine code -> Execution
+    e.add_module(std::move(m));
+    CHECK(e.intfn("f") == 5);
 }

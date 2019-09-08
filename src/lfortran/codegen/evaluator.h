@@ -19,6 +19,15 @@ namespace llvm {
 
 namespace LFortran {
 
+class LLVMModule
+{
+public:
+    std::unique_ptr<llvm::Module> m_m;
+    LLVMModule(std::unique_ptr<llvm::Module> m);
+    ~LLVMModule();
+    std::string str();
+};
+
 class LLVMEvaluator
 {
 private:
@@ -31,11 +40,13 @@ public:
     std::unique_ptr<llvm::Module> parse_module(const std::string &source);
     void add_module(const std::string &source);
     void add_module(std::unique_ptr<llvm::Module> mod);
+    void add_module(std::unique_ptr<LLVMModule> m);
     int64_t intfn(const std::string &name);
     void voidfn(const std::string &name);
     void save_object_file(llvm::Module &m, const std::string &filename);
-    std::string module_to_string(llvm::Module &m);
+    static std::string module_to_string(llvm::Module &m);
     static void print_version_message();
+    llvm::LLVMContext &get_context();
 };
 
 } // namespace LFortran

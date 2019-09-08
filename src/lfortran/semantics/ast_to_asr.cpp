@@ -27,7 +27,6 @@ public:
     Allocator &al;
     SymbolTableVisitor(Allocator &al) : al{al} {}
     void visit_Function(const AST::Function_t &x) {
-        std::cout << "Function: " << x.m_name << std::endl;
         ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 8, nullptr, 0));
         ASR::expr_t *return_var = EXPR(ASR::make_Variable_t(al, x.base.base.loc,
@@ -43,11 +42,11 @@ public:
     }
 };
 
-void ast_to_asr(AST::ast_t &ast, Allocator &al, ASR::asr_t **asr)
+ASR::asr_t *ast_to_asr(Allocator &al, AST::ast_t &ast)
 {
     SymbolTableVisitor v(al);
     v.visit_ast(ast);
-    *asr = v.asr;
+    return v.asr;
 }
 
 } // namespace LFortran

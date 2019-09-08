@@ -59,6 +59,18 @@ uint64_t APInt_getint(const llvm::APInt &i) {
     }
 }
 
+LLVMModule::LLVMModule(std::unique_ptr<llvm::Module> m)
+{
+    m_m = std::move(m);
+}
+
+LLVMModule::~LLVMModule() = default;
+
+std::string LLVMModule::str()
+{
+    return LFortran::LLVMEvaluator::module_to_string(*m_m);
+}
+
 LLVMEvaluator::LLVMEvaluator()
 {
     llvm::InitializeNativeTarget();
@@ -106,7 +118,15 @@ void LLVMEvaluator::add_module(const std::string &source) {
 }
 
 void LLVMEvaluator::add_module(std::unique_ptr<llvm::Module> mod) {
+    // These are already set in parse_module(), but we set it here again for
+    // cases when the Module was constructed directly, not via parse_module().
+    mod->setTargetTriple(target_triple);
+    mod->setDataLayout(jit->getTargetMachine().createDataLayout());
     jit->addModule(std::move(mod));
+}
+
+void LLVMEvaluator::add_module(std::unique_ptr<LLVMModule> m) {
+    add_module(std::move(m->m_m));
 }
 
 int64_t LLVMEvaluator::intfn(const std::string &name) {
@@ -155,6 +175,11 @@ std::string LLVMEvaluator::module_to_string(llvm::Module &m) {
 void LLVMEvaluator::print_version_message()
 {
     llvm::cl::PrintVersionMessage();
+}
+
+llvm::LLVMContext &LLVMEvaluator::get_context()
+{
+    return *context;
 }
 
 } // namespace LFortran
