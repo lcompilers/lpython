@@ -161,4 +161,9 @@ void LLVMEvaluator::print_version_message()
     llvm::cl::PrintVersionMessage();
 }
 
+llvm::LLVMContext &LLVMEvaluator::get_context()
+{
+    return *context;
+}
+
 } // namespace LFortran

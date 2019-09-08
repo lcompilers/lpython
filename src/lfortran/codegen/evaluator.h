@@ -36,6 +36,7 @@ public:
     void save_object_file(llvm::Module &m, const std::string &filename);
     static std::string module_to_string(llvm::Module &m);
     static void print_version_message();
+    llvm::LLVMContext &get_context();
 };
 
 } // namespace LFortran
