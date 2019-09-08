@@ -14,6 +14,12 @@ static inline ASR::expr_t* EXPR(const ASR::asr_t *f)
     return (ASR::expr_t*)f;
 }
 
+static inline ASR::ttype_t* TYPE(const ASR::asr_t *f)
+{
+    LFORTRAN_ASSERT(f->type == ASR::asrType::ttype);
+    return (ASR::ttype_t*)f;
+}
+
 class SymbolTableVisitor : public AST::BaseVisitor<SymbolTableVisitor>
 {
 public:
@@ -22,8 +28,10 @@ public:
     SymbolTableVisitor(Allocator &al) : al{al} {}
     void visit_Function(const AST::Function_t &x) {
         std::cout << "Function: " << x.m_name << std::endl;
+        ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                8, nullptr, 0));
         ASR::expr_t *return_var = EXPR(ASR::make_Variable_t(al, x.base.base.loc,
-                x.m_name, nullptr, 1, nullptr));
+                x.m_name, nullptr, 1, type));
         asr = ASR::make_Function_t(al, x.base.base.loc,
             /*char* a_name*/ x.m_name,
             /*expr_t** a_args*/ nullptr, /*size_t n_args*/ 0,
