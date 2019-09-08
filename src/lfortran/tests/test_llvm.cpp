@@ -367,3 +367,30 @@ end function)";
     e.add_module(std::move(m));
     CHECK(e.intfn("f") == 5);
 }
+
+TEST_CASE("ASR -> LLVM 2") {
+    std::string source = R"(function f()
+integer :: f
+f = 4
+end function)";
+
+    // Src -> AST
+    Allocator al(4*1024);
+    LFortran::AST::ast_t* ast = LFortran::parse2(al, source);
+    CHECK(LFortran::pickle(*ast) == "(fn f [] () () () [] [(decl [(f integer [] [] ())])] [(= f 4)] [])");
+
+    // AST -> ASR
+    LFortran::ASR::asr_t* asr = LFortran::ast_to_asr(al, *ast);
+    CHECK(LFortran::pickle(*asr) == "(fn f [] [] () (variable f () Unimplemented (integer Unimplemented [])) () Unimplemented)");
+
+    // ASR -> LLVM
+    LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
+    std::unique_ptr<LFortran::LLVMModule> m = LFortran::asr_to_llvm(*asr,
+            e.get_context());
+    std::cout << "Module:" << std::endl;
+    std::cout << m->str() << std::endl;
+
+    // LLVM -> Machine code -> Execution
+    e.add_module(std::move(m));
+    CHECK(e.intfn("f") == 4);
+}
