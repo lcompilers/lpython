@@ -20,7 +20,7 @@
 -- these types and the ASDL tree in a language specific way (e.g. use finite
 -- precision integers and signal an error otherwise).
 
-module Fortran {
+module AST {
 
 unit
     = TranslationUnit(object* items)
