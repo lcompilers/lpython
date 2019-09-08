@@ -106,6 +106,10 @@ void LLVMEvaluator::add_module(const std::string &source) {
 }
 
 void LLVMEvaluator::add_module(std::unique_ptr<llvm::Module> mod) {
+    // These are already set in parse_module(), but we set it here again for
+    // cases when the Module was constructed directly, not via parse_module().
+    mod->setTargetTriple(target_triple);
+    mod->setDataLayout(jit->getTargetMachine().createDataLayout());
     jit->addModule(std::move(mod));
 }
 
