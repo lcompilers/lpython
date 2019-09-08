@@ -6,6 +6,7 @@ set(SRC
     parser/parser.cpp
     pickle.cpp
     cwrapper.cpp
+    semantics/ast_to_asr.cpp
 )
 if (WITH_JSON)
     set(SRC ${SRC}
