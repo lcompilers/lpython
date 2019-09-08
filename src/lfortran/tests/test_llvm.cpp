@@ -361,7 +361,7 @@ end function)";
     std::unique_ptr<LFortran::LLVMModule> m = LFortran::asr_to_llvm(*asr,
             e.get_context());
     std::cout << "Module:" << std::endl;
-    std::cout << LFortran::LLVMEvaluator::module_to_string(*m->m) << std::endl;
+    std::cout << m->str() << std::endl;
 
     // LLVM -> Machine code -> Execution
     e.add_module(std::move(m));

@@ -22,9 +22,10 @@ namespace LFortran {
 class LLVMModule
 {
 public:
-    std::unique_ptr<llvm::Module> m;
+    std::unique_ptr<llvm::Module> m_m;
     LLVMModule(std::unique_ptr<llvm::Module> m);
     ~LLVMModule();
+    std::string str();
 };
 
 class LLVMEvaluator

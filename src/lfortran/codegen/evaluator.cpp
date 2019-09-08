@@ -61,10 +61,15 @@ uint64_t APInt_getint(const llvm::APInt &i) {
 
 LLVMModule::LLVMModule(std::unique_ptr<llvm::Module> m)
 {
-    this->m = std::move(m);
+    m_m = std::move(m);
 }
 
 LLVMModule::~LLVMModule() = default;
+
+std::string LLVMModule::str()
+{
+    return LFortran::LLVMEvaluator::module_to_string(*m_m);
+}
 
 LLVMEvaluator::LLVMEvaluator()
 {
@@ -121,7 +126,7 @@ void LLVMEvaluator::add_module(std::unique_ptr<llvm::Module> mod) {
 }
 
 void LLVMEvaluator::add_module(std::unique_ptr<LLVMModule> m) {
-    add_module(std::move(m->m));
+    add_module(std::move(m->m_m));
 }
 
 int64_t LLVMEvaluator::intfn(const std::string &name) {
