@@ -7,10 +7,8 @@
 
 std::string p(Allocator &al, const std::string &s)
 {
-    LFortran::AST::ast_t* ast;
-    ast = LFortran::parse2(al, s);
-    LFortran::ASR::asr_t* asr;
-    LFortran::ast_to_asr(*ast, al, &asr);
+    LFortran::AST::ast_t* ast = LFortran::parse2(al, s);
+    LFortran::ASR::asr_t* asr = LFortran::ast_to_asr(al, *ast);
     return LFortran::pickle(*asr);
 }
 
