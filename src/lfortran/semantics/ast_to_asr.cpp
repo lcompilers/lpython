@@ -46,7 +46,7 @@ class BodyVisitor : public AST::BaseVisitor<BodyVisitor>
 {
 public:
     Allocator &al;
-    ASR::asr_t *asr;
+    ASR::asr_t *asr, *tmp;
     BodyVisitor(Allocator &al, ASR::asr_t *unit) : al{al}, asr{unit} {}
 
     void visit_Function(const AST::Function_t &x) {
@@ -54,7 +54,7 @@ public:
         for (size_t i=0; i<x.n_body; i++) {
             LFORTRAN_ASSERT(x.m_body[i]->base.type == AST::astType::stmt)
             this->visit_stmt(*x.m_body[i]);
-            ASR::asr_t *stmt = asr;
+            ASR::asr_t *stmt = tmp;
             body.push_back(stmt);
         }
         // TODO:
@@ -66,14 +66,22 @@ public:
 
     void visit_Assignment(const AST::Assignment_t &x) {
         this->visit_expr(*x.m_target);
-        ASR::expr_t *target = EXPR(asr);
+        ASR::expr_t *target = EXPR(tmp);
         this->visit_expr(*x.m_value);
-        ASR::expr_t *value = EXPR(asr);
-        asr = ASR::make_Assignment_t(al, x.base.base.loc, target, value);
+        ASR::expr_t *value = EXPR(tmp);
+        tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value);
     }
-    // TODO: return asr for:
-    // * visit variable "f" (Name)
-    // * visit 5 (Integer)
+    void visit_Name(const AST::Name_t &x) {
+        ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                8, nullptr, 0));
+        tmp = ASR::make_Variable_t(al, x.base.base.loc,
+                x.m_id, nullptr, 1, type);
+    }
+    void visit_Num(const AST::Num_t &x) {
+        ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                8, nullptr, 0));
+        tmp = ASR::make_Num_t(al, x.base.base.loc, x.m_n, type);
+    }
 };
 
 ASR::asr_t *ast_to_asr(Allocator &al, AST::ast_t &ast)
