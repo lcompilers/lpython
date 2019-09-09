@@ -60,11 +60,10 @@ cmake -G $LFORTRAN_CMAKE_GENERATOR -DCMAKE_VERBOSE_MAKEFILE=ON -DWITH_LLVM=yes -
 if $WIN == "1":
     cmake --build . --config Release
     ./src/lfortran/tests/Release/test_llvm -s
-    ./src/bin/Release/lfortran < ../src/bin/example_input.txt
 else:
     cmake --build .
     ./src/lfortran/tests/test_llvm -s
-    ./src/bin/lfortran < ../src/bin/example_input.txt
+./src/bin/lfortran < ../src/bin/example_input.txt
 ctest --output-on-failure
 cd ..
 
