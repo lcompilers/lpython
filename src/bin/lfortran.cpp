@@ -19,15 +19,18 @@ int main(int argc, char *argv[])
             return 0;
         }
         if (std::cin.rdstate() & std::ios_base::badbit) {
-            std::cout << "irrecoverable stream error" << std::endl;
+            std::cout << "Irrecoverable stream error." << std::endl;
+            std::cout << "Exiting." << std::endl;
             return 1;
         }
         if (std::cin.rdstate() & std::ios_base::failbit) {
-            std::cout << "input/output operation failed (formatting or extraction error)" << std::endl;
+            std::cout << "Input/output operation failed (formatting or extraction error)." << std::endl;
+            std::cout << "Exiting." << std::endl;
             return 2;
         }
         if (std::cin.rdstate() != std::ios_base::goodbit) {
-            std::cout << "Unknown error" << std::endl;
+            std::cout << "Unknown error." << std::endl;
+            std::cout << "Exiting." << std::endl;
             return 3;
         }
         std::cout << "Input:" << std::endl;
