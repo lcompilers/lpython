@@ -1,5 +1,7 @@
-add_executable(lfortran lfortran.cpp)
-target_link_libraries(lfortran lfortran_lib)
+if (WITH_JSON)
+    add_executable(lfortran lfortran.cpp)
+    target_link_libraries(lfortran lfortran_lib)
+endif()
 
 add_executable(parse parse.cpp)
 target_link_libraries(parse lfortran_lib)
