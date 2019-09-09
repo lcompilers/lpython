@@ -1,4 +1,4 @@
-if (WITH_JSON)
+if (WITH_LLVM)
     add_executable(lfortran lfortran.cpp)
     target_link_libraries(lfortran lfortran_lib)
 endif()
