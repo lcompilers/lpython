@@ -64,6 +64,7 @@ else:
     cmake --build .
     ./src/lfortran/tests/test_llvm -s
 ctest --output-on-failure
+src/bin/lfortran < ../src/bin/example_input.txt
 cd ..
 
 pip install -v --no-index .
