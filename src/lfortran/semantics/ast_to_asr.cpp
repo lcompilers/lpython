@@ -4,6 +4,7 @@
 #include <lfortran/ast.h>
 #include <lfortran/asr.h>
 #include <lfortran/semantics/ast_to_asr.h>
+#include <lfortran/parser/parser_stype.h>
 
 
 namespace LFortran {
@@ -56,19 +57,20 @@ public:
     BodyVisitor(Allocator &al, ASR::asr_t *unit) : al{al}, asr{unit} {}
 
     void visit_Function(const AST::Function_t &x) {
-        std::vector<ASR::stmt_t*> body;
+        Vec<ASR::stmt_t*> body;
+        body.reserve(al, 8);
         for (size_t i=0; i<x.n_body; i++) {
             LFORTRAN_ASSERT(x.m_body[i]->base.type == AST::astType::stmt)
             this->visit_stmt(*x.m_body[i]);
             ASR::stmt_t *stmt = STMT(tmp);
-            body.push_back(stmt);
+            body.push_back(al, stmt);
         }
         // TODO:
         // We must keep track of the current scope, lookup this function in the
         // scope as "_current_function" and attach the body to it. For now we
         // simply assume `asr` is this very function:
         ASR::Function_t *current_fn = (ASR::Function_t*)asr;
-        current_fn->m_body = &body[0];
+        current_fn->m_body = &body.p[0];
         current_fn->n_body = body.size();
     }
 
