@@ -9,7 +9,7 @@
 
 int main(int argc, char *argv[])
 {
-    std::cout << "Interactive Fortran" << std::endl;
+    std::cout << "Interactive Fortran. Experimental prototype, not ready for end users." << std::endl;
     std::cout << "  * Use Ctrl-D to exit" << std::endl;
     std::cout << "  * Use Enter to submit" << std::endl;
     std::cout << "Try: function f(); f = 42; end function" << std::endl;
