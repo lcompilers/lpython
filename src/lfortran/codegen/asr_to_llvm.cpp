@@ -49,6 +49,10 @@ class ASRToLLVMVisitor : public ASR::BaseVisitor<ASRToLLVMVisitor>
 public:
     llvm::LLVMContext &context;
     std::unique_ptr<llvm::Module> module;
+
+    IRBuilder *builder;
+    llvm::Value *tmp;
+
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context} {}
 
     void visit_Function(const ASR::Function_t &x) {
@@ -62,13 +66,28 @@ public:
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
                 "EntryBlock", F);
         llvm::IRBuilder<> _builder = llvm::IRBuilder<>(BB);
-        IRBuilder *builder = reinterpret_cast<IRBuilder *>(&_builder);
+        builder = reinterpret_cast<IRBuilder *>(&_builder);
         builder->SetInsertPoint(BB);
-        llvm::Value *ret_val
-            = llvm::ConstantInt::get(context, llvm::APInt(64, 5));
-        builder->CreateRet(ret_val);
+
+        for (size_t i=0; i<x.n_body; i++) {
+            LFORTRAN_ASSERT(x.m_body[i]->base.type == ASR::asrType::stmt)
+            this->visit_stmt(*x.m_body[i]);
+        }
+
         llvm::verifyFunction(*F);
     }
+
+    void visit_Assignment(const ASR::Assignment_t &x) {
+        //this->visit_expr(*x.m_target);
+        //LFORTRAN_ASSERT(x.m_target.m_id == "f");
+        this->visit_expr(*x.m_value);
+        llvm::Value *ret_val = tmp;
+        builder->CreateRet(ret_val);
+    }
+    void visit_Num(const ASR::Num_t &x) {
+        tmp = llvm::ConstantInt::get(context, llvm::APInt(64, x.m_n));
+    }
+
 };
 
 std::unique_ptr<LLVMModule> asr_to_llvm(ASR::asr_t &asr,
