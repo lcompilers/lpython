@@ -1,6 +1,10 @@
 if (WITH_LLVM)
     add_executable(lfortran lfortran.cpp)
     target_link_libraries(lfortran lfortran_lib)
+
+    # Ensure "Release" is not appended to the path on Windows:
+    # https://stackoverflow.com/a/56201564/479532
+    set_target_properties(lfortran PROPERTIES RUNTIME_OUTPUT_DIRECTORY $<0:>)
 endif()
 
 add_executable(parse parse.cpp)
