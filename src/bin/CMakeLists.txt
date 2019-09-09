@@ -1,3 +1,6 @@
+add_executable(lfortran lfortran.cpp)
+target_link_libraries(lfortran lfortran_lib)
+
 add_executable(parse parse.cpp)
 target_link_libraries(parse lfortran_lib)
 
