@@ -43,7 +43,7 @@ def load_lfortran_runtime_library():
             shsuffix = "dylib"
         else:
             raise NotImplementedError("Platform not supported yet.")
-        liblfortran_so = os.path.join(base_dir, shprefix + "lfortran." \
+        liblfortran_so = os.path.join(base_dir, shprefix + "lfortran_runtime." \
                 + shsuffix)
         llvm.load_library_permanently(liblfortran_so)
         _lfortran_runtime_library_loaded = True
@@ -222,12 +222,12 @@ def main():
     if args.ld_musl:
         # Invoke `ld` directly and link with musl. This is system dependent.
         musl_dir="/usr/lib/x86_64-linux-musl"
-        LDFLAGS="{1}/liblfortran_static.a {0}/crt1.o {0}/libc.a".format(
+        LDFLAGS="{1}/liblfortran_runtime_static.a {0}/crt1.o {0}/libc.a".format(
                 musl_dir, base_dir)
         os.system("ld -o %s %s %s" % (outfile, objfile, LDFLAGS))
     else:
         # Invoke a C compiler to do the linking
-        os.system("cc -o %s %s -L%s -Wl,-rpath=%s -llfortran -lm" % (outfile,
+        os.system("cc -o %s %s -L%s -Wl,-rpath=%s -llfortran_runtime -lm" % (outfile,
             objfile, base_dir, base_dir))
     if objfile == "tmp_object_file.o":
         os.system("rm %s" % objfile)
