@@ -14,6 +14,12 @@ static inline ASR::expr_t* EXPR(const ASR::asr_t *f)
     return (ASR::expr_t*)f;
 }
 
+static inline ASR::stmt_t* STMT(const ASR::asr_t *f)
+{
+    LFORTRAN_ASSERT(f->type == ASR::asrType::stmt);
+    return (ASR::stmt_t*)f;
+}
+
 static inline ASR::ttype_t* TYPE(const ASR::asr_t *f)
 {
     LFORTRAN_ASSERT(f->type == ASR::asrType::ttype);
@@ -50,18 +56,20 @@ public:
     BodyVisitor(Allocator &al, ASR::asr_t *unit) : al{al}, asr{unit} {}
 
     void visit_Function(const AST::Function_t &x) {
-        std::vector<ASR::asr_t*> body;
+        std::vector<ASR::stmt_t*> body;
         for (size_t i=0; i<x.n_body; i++) {
             LFORTRAN_ASSERT(x.m_body[i]->base.type == AST::astType::stmt)
             this->visit_stmt(*x.m_body[i]);
-            ASR::asr_t *stmt = tmp;
+            ASR::stmt_t *stmt = STMT(tmp);
             body.push_back(stmt);
         }
         // TODO:
         // We must keep track of the current scope, lookup this function in the
-        // scope as "_current_function" and attach the body to it:
-        // _current_function.m_body = &body[0];
-        // _current_function.n_body = body.size();
+        // scope as "_current_function" and attach the body to it. For now we
+        // simply assume `asr` is this very function:
+        ASR::Function_t *current_fn = (ASR::Function_t*)asr;
+        current_fn->m_body = &body[0];
+        current_fn->n_body = body.size();
     }
 
     void visit_Assignment(const AST::Assignment_t &x) {
