@@ -99,14 +99,12 @@ cxx:
 # Create a binary tarball with the C++ based LFortran
 cxx_binary:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images:full-1.7.0
+  image: registry.gitlab.com/lfortran/ci-images:prepare-1.7.0
   script:
-    - export PATH="$HOME/conda_root/bin:$PATH"
-    - conda install -c conda-forge llvmdev
+    - sudo apk add --no-cache llvm8-dev cmake make g++ llvm8-static zlib-dev
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
     - cmake
-         -DCMAKE_PREFIX_PATH=$HOME/conda_root
          -DCMAKE_BUILD_TYPE=Release
          -DWITH_LLVM=yes
          .
