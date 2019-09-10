@@ -65,6 +65,7 @@ else:
     ./src/lfortran/tests/test_llvm -s
 ./src/bin/lfortran < ../src/bin/example_input.txt
 ctest --output-on-failure
+cpack -V
 cd ..
 
 pip install -v --no-index .
