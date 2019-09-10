@@ -1,11 +1,13 @@
 if (WITH_LLVM)
     add_executable(lfortran lfortran.cpp)
     target_link_libraries(lfortran lfortran_lib)
-    if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-        # Link statically on Linux with gcc or clang
-        if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR
-                CMAKE_CXX_COMPILER_ID MATCHES Clang)
-            target_link_options(lfortran PRIVATE -static)
+    if (LFORTRAN_STATIC_BIN)
+        if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+            # Link statically on Linux with gcc or clang
+            if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR
+                    CMAKE_CXX_COMPILER_ID MATCHES Clang)
+                target_link_options(lfortran PRIVATE -static)
+            endif()
         endif()
     endif()
 

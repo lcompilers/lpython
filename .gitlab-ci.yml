@@ -107,6 +107,7 @@ cxx_binary:
     - cmake
          -DCMAKE_BUILD_TYPE=Release
          -DWITH_LLVM=yes
+         -DLFORTRAN_STATIC_BIN=yes
          .
     - make
     - ctest --output-on-failure

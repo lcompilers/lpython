@@ -46,6 +46,9 @@ endif()
 set(WITH_LFORTRAN_ASSERT ${WITH_LFORTRAN_ASSERT_DEFAULT}
     CACHE BOOL "Enable LFORTRAN_ASSERT macro")
 
+# LFORTRAN_STATIC_BIN
+set(LFORTRAN_STATIC_BIN no CACHE BOOL "Build LFortran as a static binary")
+
 # LLVM
 set(WITH_LLVM no CACHE BOOL "Build with LLVM support")
 if (WITH_LLVM)
@@ -97,6 +100,7 @@ else ()
 endif ()
 message("Installation prefix: ${CMAKE_INSTALL_PREFIX}")
 message("WITH_LFORTRAN_ASSERT: ${WITH_LFORTRAN_ASSERT}")
+message("LFORTRAN_STATIC_BIN: ${LFORTRAN_STATIC_BIN}")
 message("WITH_LLVM: ${WITH_LLVM}")
 message("WITH_JSON: ${WITH_JSON}")
 message("WITH_PYTHON: ${WITH_PYTHON}")
