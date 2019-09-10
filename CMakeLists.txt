@@ -16,6 +16,17 @@ if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
     message(FATAL_ERROR "CMAKE_BUILD_TYPE must be one of: Debug, Release (current value: '${CMAKE_BUILD_TYPE}')")
 endif ()
 
+
+# build a CPack driven installer package
+include(InstallRequiredSystemLibraries)
+set(CPACK_GENERATOR "TBZ2")
+set(CPACK_STRIP_FILES YES)
+set (CPACK_PACKAGE_VERSION_MAJOR "0")
+set (CPACK_PACKAGE_VERSION_MINOR "1")
+set (CPACK_PACKAGE_VERSION_PATCH "16")
+include(CPack)
+
+
 if (NOT CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 17
         CACHE STRING "C++ standard" FORCE)
