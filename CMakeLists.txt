@@ -46,6 +46,9 @@ endif()
 set(WITH_LFORTRAN_ASSERT ${WITH_LFORTRAN_ASSERT_DEFAULT}
     CACHE BOOL "Enable LFORTRAN_ASSERT macro")
 
+# LFORTRAN_STATIC_BIN
+set(LFORTRAN_STATIC_BIN no CACHE BOOL "Build LFortran as a static binary")
+
 # LLVM
 set(WITH_LLVM no CACHE BOOL "Build with LLVM support")
 if (WITH_LLVM)
