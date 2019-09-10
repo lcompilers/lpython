@@ -28,10 +28,10 @@ endif()
 if (WITH_LLVM)
     target_link_libraries(lfortran_lib p::llvm)
 endif()
-install(TARGETS lfortran_lib
-    RUNTIME DESTINATION bin
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
-)
+#install(TARGETS lfortran_lib
+#    RUNTIME DESTINATION bin
+#    ARCHIVE DESTINATION lib
+#    LIBRARY DESTINATION lib
+#)
 
 add_subdirectory(tests)
