@@ -1,4 +1,5 @@
 #include <string>
+
 #include <lfortran/pickle.h>
 
 using LFortran::AST::ast_t;
@@ -82,18 +83,31 @@ public:
         s.append(")");
     }
     void visit_Name(const Name_t &x) {
+        if (use_colors) {
+            s.append(color(fg::yellow));
+        }
         s.append(x.m_id);
+        if (use_colors) {
+            s.append(color(fg::reset));
+        }
     }
     void visit_Num(const Num_t &x) {
+        if (use_colors) {
+            s.append(color(fg::cyan));
+        }
         s.append(std::to_string(x.m_n));
+        if (use_colors) {
+            s.append(color(fg::reset));
+        }
     }
     std::string get_str() {
         return s;
     }
 };
 
-std::string pickle(LFortran::AST::ast_t &ast) {
+std::string pickle(LFortran::AST::ast_t &ast, bool colors) {
     PickleVisitor v;
+    v.use_colors = colors;
     v.visit_ast(ast);
     return v.get_str();
 }
@@ -110,8 +124,9 @@ public:
     }
 };
 
-std::string pickle(LFortran::ASR::asr_t &asr) {
+std::string pickle(LFortran::ASR::asr_t &asr, bool colors) {
     ASRPickleVisitor v;
+    v.use_colors = colors;
     v.visit_asr(asr);
     return v.get_str();
 }
