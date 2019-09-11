@@ -24,3 +24,10 @@ endif()
 if (WITH_LLVM)
     ADDTEST(test_llvm p::doctest)
 endif()
+
+
+add_custom_target(copy-input ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/ref_pickle.txt)
+add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ref_pickle.txt
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/ref_pickle.txt
+                                     ${CMAKE_CURRENT_BINARY_DIR}/ref_pickle.txt
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/ref_pickle.txt)
