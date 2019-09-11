@@ -364,8 +364,9 @@ class PickleVisitorVisitor(ASDLVisitor):
         self.emit("{")
         self.emit("public:")
         self.emit(  "std::string s;", 1)
+        self.emit(  "bool use_colors;", 1)
         self.emit("public:")
-        self.emit(  "PickleBaseVisitor() { s.reserve(100000); }", 1)
+        self.emit(  "PickleBaseVisitor() : use_colors(false) { s.reserve(100000); }", 1)
         super(PickleVisitorVisitor, self).visitModule(mod)
         self.emit("};")
 
@@ -396,7 +397,15 @@ class PickleVisitorVisitor(ASDLVisitor):
         if name in subs:
             name = subs[name]
         if cons:
+            self.emit(    'if (use_colors) {', 2)
+            self.emit(        's.append(color(style::bold));', 3)
+            self.emit(        's.append(color(fg::magenta));', 3)
+            self.emit(    '}', 2)
             self.emit(    's.append("%s");' % name, 2)
+            self.emit(    'if (use_colors) {', 2)
+            self.emit(        's.append(color(fg::reset));', 3)
+            self.emit(        's.append(color(style::reset));', 3)
+            self.emit(    '}', 2)
             if len(fields) > 0:
                 self.emit(    's.append(" ");', 2)
         for n, field in enumerate(fields):
@@ -516,6 +525,7 @@ HEAD = r"""#ifndef LFORTRAN_%(MOD)s_H
 #include <lfortran/parser/alloc.h>
 #include <lfortran/parser/location.h>
 #include <lfortran/casts.h>
+#include <lfortran/colors.h>
 
 
 namespace LFortran::%(MOD)s {

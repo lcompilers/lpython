@@ -6,8 +6,8 @@
 
 namespace LFortran {
 
-    std::string pickle(LFortran::AST::ast_t &ast);
-    std::string pickle(LFortran::ASR::asr_t &asr);
+    std::string pickle(LFortran::AST::ast_t &ast, bool colors=false);
+    std::string pickle(LFortran::ASR::asr_t &asr, bool colors=false);
 
 }
 
