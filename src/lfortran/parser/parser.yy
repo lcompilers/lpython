@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect-rr  6 // reduce/reduce conflicts
-%expect    22 // shift/reduce conflicts
+%expect-rr 12 // reduce/reduce conflicts
+%expect    23 // shift/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -501,6 +501,7 @@ cycle_statement
 expr
 // ### primary
     : id { $$ = $1; }
+    | id "(" fnarray_arg_list_opt ")" { $$ = FUNCCALLORARRAY($1, @$); }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
     | "(" expr ")" { $$ = $2; }
 
@@ -525,6 +526,21 @@ expr
 
 // ### level-5
 
+    ;
+
+fnarray_arg_list_opt
+    : fnarray_arg_list
+    | %empty
+    ;
+
+fnarray_arg_list
+    : fnarray_arg_list "," fnarray_arg
+    | fnarray_arg
+    ;
+
+fnarray_arg
+    : array_comp_decl
+    | id "=" expr
     ;
 
 id
