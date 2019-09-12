@@ -19,6 +19,7 @@ using LFortran::Location;
 using LFortran::AST::astType;
 using LFortran::AST::exprType;
 using LFortran::AST::operatorType;
+using LFortran::AST::unaryopType;
 using LFortran::AST::cmpopType;
 using LFortran::AST::stmtType;
 
@@ -154,6 +155,7 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
 #define MUL(x, y, l) make_BinOp_t(p.m_a, l, EXPR(x), operatorType::Mul, EXPR(y))
 #define DIV(x, y, l) make_BinOp_t(p.m_a, l, EXPR(x), operatorType::Div, EXPR(y))
 #define POW(x, y, l) make_BinOp_t(p.m_a, l, EXPR(x), operatorType::Pow, EXPR(y))
+#define UNARY_MINUS(x, l) make_UnaryOp_t(p.m_a, l, unaryopType::USub, EXPR(x))
 
 #define EQ(x, y, l)  make_Compare_t(p.m_a, l, EXPR(x), cmpopType::Eq, EXPR(y))
 #define NE(x, y, l)  make_Compare_t(p.m_a, l, EXPR(x), cmpopType::NotEq, EXPR(y))
