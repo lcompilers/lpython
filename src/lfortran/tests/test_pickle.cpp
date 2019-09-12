@@ -745,6 +745,7 @@ TEST_CASE("fn call / array") {
     };
     std::vector<std::string> o;
     for (std::string &s: v) {
+        INFO(s);
         o.push_back(P(s));
     }
     {
