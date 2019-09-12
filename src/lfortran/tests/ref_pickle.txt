@@ -1,5 +1,7 @@
 (funccallorarray f [] [])
 (funccallorarray f [] [])
 (funccallorarray f [] [])
+(funccallorarray log [] [])
+(funccallorarray f [] [])
 (funccallorarray f [] [])
 (funccallorarray f [] [])

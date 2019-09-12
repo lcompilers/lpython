@@ -737,11 +737,22 @@ TEST_CASE("declaration") {
 TEST_CASE("fn call / array") {
     Allocator al(1024*1024);
     std::vector<std::string> v = {
-        "f()",
+        // Function calls or arrays:
         "f(a)",
         "f(1+1)",
-        "f(a, b, c)",
+        "f(a, b, 1)",
+        "log(r2)",
+        // -2 fails
+        //"u * sqrt(-2*log(r2)/r2)",
+
+        // Only arrays
         "f(a,:,:,a)",
+        "f(a:,1:,:2,1:a,:)",
+
+        // Only functions
+        "f()",
+        // .true. fails:
+        //"f(a, arg1=b+1, arg2=.true.)",
     };
     std::vector<std::string> o;
     for (std::string &s: v) {
