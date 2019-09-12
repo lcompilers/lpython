@@ -44,6 +44,7 @@ using LFortran::AST::make_Return_t;
 using LFortran::AST::make_Name_t;
 using LFortran::AST::make_Num_t;
 using LFortran::AST::make_WhileLoop_t;
+using LFortran::AST::make_FuncCallOrArray_t;
 
 
 static inline expr_t* EXPR(const ast_t *f)
@@ -275,5 +276,10 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
         a.c_str(p.m_a), \
         /*args*/ ATTR_ARG(p.m_a, b), \
         /*n_args*/ 1)
+
+#define FUNCCALLORARRAY(id, l) make_FuncCallOrArray_t(p.m_a, l, \
+        /*char* a_func*/ name2char(EXPR(id)), \
+        /*expr_t** a_args*/ nullptr, /*size_t n_args*/ 0, \
+        /*keyword_t* a_keywords*/ nullptr, /*size_t n_keywords*/ 0)
 
 #endif

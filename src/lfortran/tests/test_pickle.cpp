@@ -733,3 +733,42 @@ TEST_CASE("declaration") {
     x = 1
     end program)") == "(prog g [] [(decl [(x integer [] [] ())]) (decl [(x complex [] [] ())])] [(= x 1)] [])");
 }
+
+TEST_CASE("fn call / array") {
+    Allocator al(1024*1024);
+    std::vector<std::string> v = {
+        "f()",
+        "f(a)",
+        "f(1+1)",
+        "f(a, b, c)",
+        "f(a,:,:,a)",
+    };
+    std::vector<std::string> o;
+    for (std::string &s: v) {
+        INFO(s);
+        o.push_back(P(s));
+    }
+    {
+        std::ofstream out;
+        out.open("ref_pickle.txt.new");
+        for (std::string &s: o) {
+            out << s << std::endl;
+        }
+    }
+    std::vector<std::string> ref;
+    {
+        std::ifstream in;
+        in.open("ref_pickle.txt");
+        std::string s;
+        std::getline(in, s);
+        while (in.rdstate() == std::ios_base::goodbit) {
+            ref.push_back(s);
+            std::getline(in, s);
+        }
+
+    }
+    REQUIRE(o.size() == ref.size());
+    for (size_t i=0; i<o.size(); i++) {
+        CHECK(o[i] == ref[i]);
+    }
+}

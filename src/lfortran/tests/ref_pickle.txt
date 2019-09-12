@@ -1,0 +1,5 @@
+(funccallorarray f [] [])
+(funccallorarray f [] [])
+(funccallorarray f [] [])
+(funccallorarray f [] [])
+(funccallorarray f [] [])
