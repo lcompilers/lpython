@@ -26,8 +26,10 @@ if (WITH_LLVM)
 endif()
 
 
-add_custom_target(copy-input ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/ref_pickle.txt)
-add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ref_pickle.txt
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/ref_pickle.txt
-                                     ${CMAKE_CURRENT_BINARY_DIR}/ref_pickle.txt
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/ref_pickle.txt)
+if (NOT(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR}))
+    add_custom_target(copy-input ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/ref_pickle.txt)
+    add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ref_pickle.txt
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/ref_pickle.txt
+                                         ${CMAKE_CURRENT_BINARY_DIR}/ref_pickle.txt
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/ref_pickle.txt)
+endif()
