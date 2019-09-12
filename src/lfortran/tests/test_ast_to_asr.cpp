@@ -20,5 +20,5 @@ TEST_CASE("Functions") {
     CHECK(P(R"(function f()
 integer :: f
 f = 5
-end function)") == "(fn f [] [(= (variable f () Unimplemented (integer Unimplemented [])) (num Unimplemented (integer Unimplemented [])))] () (variable f () Unimplemented (integer Unimplemented [])) () Unimplemented)");
+end function)") == "(fn f [] [(= (variable f () Unimplementedint (integer Unimplementedint [])) (num Unimplementedobject (integer Unimplementedint [])))] () (variable f () Unimplementedint (integer Unimplementedint [])) () Unimplementedobject)");
 }

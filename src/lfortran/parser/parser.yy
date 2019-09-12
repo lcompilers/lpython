@@ -279,6 +279,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %left "==" "/=" "<" "<=" ">" ">="
 %left "-" "+"
 %left "*" "/"
+%precedence UMINUS
 %right "**"
 
 %start units
@@ -512,6 +513,8 @@ expr
     | expr "-" expr { $$ = SUB($1, $3, @$); }
     | expr "*" expr { $$ = MUL($1, $3, @$); }
     | expr "/" expr { $$ = DIV($1, $3, @$); }
+    | "-" expr %prec UMINUS { $$ = UNARY_MINUS($2, @$); }
+    | "+" expr %prec UMINUS { $$ = UNARY_PLUS ($2, @$); }
     | expr "**" expr { $$ = POW($1, $3, @$); }
 
 // ### level-3
