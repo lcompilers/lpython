@@ -465,8 +465,14 @@ class PickleVisitorVisitor(ASDLVisitor):
                     self.emit("}", 2)
                 else:
                     self.emit('s.append(x.m_%s);' % field.name, 2)
+            elif field.type in self.data.simple_types:
+                if field.opt:
+                    self.emit('s.append("Unimplemented");', 2)
+                else:
+                    self.emit('s.append("%sType" + std::to_string(x.m_%s));' \
+                            % (field.type, field.name), 2)
             else:
-                self.emit('s.append("Unimplemented");', 2)
+                self.emit('s.append("Unimplemented' + field.type + '");', 2)
 
 
 
