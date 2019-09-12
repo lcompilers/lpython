@@ -354,7 +354,7 @@ end function)";
 
     // AST -> ASR
     LFortran::ASR::asr_t* asr = LFortran::ast_to_asr(al, *ast);
-    CHECK(LFortran::pickle(*asr) == "(fn f [] [(= (variable f () Unimplemented (integer Unimplemented [])) (num Unimplemented (integer Unimplemented [])))] () (variable f () Unimplemented (integer Unimplemented [])) () Unimplemented)");
+    CHECK(LFortran::pickle(*asr) == "(fn f [] [(= (variable f () Unimplementedint (integer Unimplementedint [])) (num Unimplementedobject (integer Unimplementedint [])))] () (variable f () Unimplementedint (integer Unimplementedint [])) () Unimplementedobject)");
 
     // ASR -> LLVM
     LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
@@ -381,7 +381,7 @@ end function)";
 
     // AST -> ASR
     LFortran::ASR::asr_t* asr = LFortran::ast_to_asr(al, *ast);
-    CHECK(LFortran::pickle(*asr) == "(fn f [] [(= (variable f () Unimplemented (integer Unimplemented [])) (num Unimplemented (integer Unimplemented [])))] () (variable f () Unimplemented (integer Unimplemented [])) () Unimplemented)");
+    CHECK(LFortran::pickle(*asr) == "(fn f [] [(= (variable f () Unimplementedint (integer Unimplementedint [])) (num Unimplementedobject (integer Unimplementedint [])))] () (variable f () Unimplementedint (integer Unimplementedint [])) () Unimplementedobject)");
 
     // ASR -> LLVM
     LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
