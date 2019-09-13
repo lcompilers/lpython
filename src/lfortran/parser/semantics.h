@@ -150,6 +150,8 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
 #define TRUE(l) make_Constant_t(p.m_a, l, true)
 #define FALSE(l) make_Constant_t(p.m_a, l, false)
 
+#define STRCONCAT(x, y, l) x /* TODO: concacenate */
+
 #define EQ(x, y, l)  make_Compare_t(p.m_a, l, EXPR(x), cmpopType::Eq, EXPR(y))
 #define NE(x, y, l)  make_Compare_t(p.m_a, l, EXPR(x), cmpopType::NotEq, EXPR(y))
 #define LT(x, y, l)  make_Compare_t(p.m_a, l, EXPR(x), cmpopType::Lt, EXPR(y))

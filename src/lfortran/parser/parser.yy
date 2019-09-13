@@ -279,6 +279,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 
 %left ".not." ".and." ".or." ".eqv." ".neqv."
 %left "==" "/=" "<" "<=" ">" ">="
+%left "//"
 %left "-" "+"
 %left "*" "/"
 %precedence UMINUS
@@ -529,6 +530,7 @@ expr
     | expr "**" expr { $$ = POW($1, $3, @$); }
 
 // ### level-3
+    | expr "//" expr { $$ = STRCONCAT($1, $3, @$); }
 
 // ### level-4
     | expr "==" expr { $$ = EQ($1, $3, @$); }
@@ -539,7 +541,6 @@ expr
     | expr ">=" expr { $$ = GE($1, $3, @$); }
 
 // ### level-5
-
     | ".not." expr { $$ = NOT($2, @$); }
     | expr ".and." expr { $$ = AND($1, $3, @$); }
     | expr ".or." expr { $$ = OR($1, $3, @$); }

@@ -775,8 +775,8 @@ TEST_CASE("Lists of tests") {
         R"( 'a''c')",
         R"( 'a''b''c')",
         R"( '''zippo''')",
-        //""" "aaa" // str(x) // "bb" """,
-        //""" "a" // "b" """,
+        R"( "aaa" // str(x) // "bb" )",
+        R"( "a" // "b" )",
 
         "1 .and. 2",
         "a .and. b",

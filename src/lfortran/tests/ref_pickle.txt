@@ -84,6 +84,8 @@ yx
 (str "'a''c'")
 (str "'a''b''c'")
 (str "'''zippo'''")
+(str ""aaa"")
+(str ""a"")
 (boolop 1 boolopType0 2)
 (boolop a boolopType0 b)
 (boolop (== a 1) boolopType0 (== b 2))
