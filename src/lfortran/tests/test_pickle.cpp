@@ -787,8 +787,7 @@ TEST_CASE("fn call / array") {
 
         // Only functions
         "f()",
-        // .true. fails:
-        //"f(a, arg1=b+1, arg2=.true.)",
+        "f(a, arg1=b+1, arg2=.true.)",
     };
     std::vector<std::string> o;
     for (std::string &s: v) {
