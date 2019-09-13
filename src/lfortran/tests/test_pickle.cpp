@@ -822,7 +822,7 @@ TEST_CASE("Lists of tests") {
         "sum(u**2)",
         "u(2)",
         "u * sqrt(-2*log(r2)/r2)",
-        //".not. first",
+        ".not. first",
         //"a - 1._dp/3",
         "1/sqrt(9*d)",
         "(1 + c*x)**3",
@@ -855,7 +855,6 @@ TEST_CASE("Lists of tests") {
         //""" "aaa" // str(x) // "bb" """,
         //""" "a" // "b" """,
 
-        /*
         "1 .and. 2",
         "a .and. b",
         "a == 1 .and. b == 2",
@@ -864,7 +863,8 @@ TEST_CASE("Lists of tests") {
         "a .or. b .or. c",
         ".not. (a == 1)",
         "(a == 1) .and. .not. (b == 2)",
-        */
+        "a .eqv. b",
+        "a .neqv. b",
     };
     std::vector<std::string> o;
     for (std::string &s: v) {

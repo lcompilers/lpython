@@ -277,6 +277,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 
 // Precedence
 
+%left ".not." ".and." ".or." ".eqv." ".neqv."
 %left "==" "/=" "<" "<=" ">" ">="
 %left "-" "+"
 %left "*" "/"
@@ -538,6 +539,11 @@ expr
 
 // ### level-5
 
+    | ".not." expr { $$ = NOT($2, @$); }
+    | expr ".and." expr { $$ = AND($1, $3, @$); }
+    | expr ".or." expr { $$ = OR($1, $3, @$); }
+    | expr ".eqv." expr { $$ = EQV($1, $3, @$); }
+    | expr ".neqv." expr { $$ = NEQV($1, $3, @$); }
     ;
 
 fnarray_arg_list_opt

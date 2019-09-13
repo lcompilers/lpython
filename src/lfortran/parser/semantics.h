@@ -20,6 +20,7 @@ using LFortran::AST::astType;
 using LFortran::AST::exprType;
 using LFortran::AST::operatorType;
 using LFortran::AST::unaryopType;
+using LFortran::AST::boolopType;
 using LFortran::AST::cmpopType;
 using LFortran::AST::stmtType;
 
@@ -168,6 +169,12 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
 #define LE(x, y, l)  make_Compare_t(p.m_a, l, EXPR(x), cmpopType::LtE, EXPR(y))
 #define GT(x, y, l)  make_Compare_t(p.m_a, l, EXPR(x), cmpopType::Gt, EXPR(y))
 #define GE(x, y, l)  make_Compare_t(p.m_a, l, EXPR(x), cmpopType::GtE, EXPR(y))
+
+#define NOT(x, l) make_UnaryOp_t(p.m_a, l, unaryopType::Not, EXPR(x))
+#define AND(x, y, l) make_BoolOp_t(p.m_a, l, EXPR(x), boolopType::And, EXPR(y))
+#define OR(x, y, l)  make_BoolOp_t(p.m_a, l, EXPR(x), boolopType::Or,  EXPR(y))
+#define EQV(x, y, l) make_BoolOp_t(p.m_a, l, EXPR(x), boolopType::Eqv, EXPR(y))
+#define NEQV(x, y, l) make_BoolOp_t(p.m_a, l, EXPR(x), boolopType::NEqv, EXPR(y))
 
 #define ARRAY_IN(a, l) make_ArrayInitializer_t(p.m_a, l, \
         EXPRS(a), a.size())

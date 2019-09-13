@@ -84,7 +84,7 @@ expr
     | Constant(constant value)
         attributes (int lineno, int col_offset)
 
-boolop = And | Or
+boolop = And | Or | Eqv | NEqv
 
 operator = Add | Sub | Mul | Div | Pow
 
