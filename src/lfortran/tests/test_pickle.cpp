@@ -54,6 +54,12 @@ TEST_CASE("Arithmetics") {
     Allocator al(4*1024);
 
     CHECK_THROWS_AS(P("1+2**(*4)"), LFortran::ParserError);
+    CHECK_THROWS_AS(P("1x"), LFortran::ParserError);
+    CHECK_THROWS_AS(P("1+"), LFortran::ParserError);
+    CHECK_THROWS_AS(P("(1+"), LFortran::ParserError);
+    CHECK_THROWS_AS(P("(1+2"), LFortran::ParserError);
+    CHECK_THROWS_AS(P("1+2*"), LFortran::ParserError);
+    CHECK_THROWS_AS(P("f(3+6"), LFortran::ParserError);
 }
 
 TEST_CASE("Comparison") {
