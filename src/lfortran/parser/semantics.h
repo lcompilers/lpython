@@ -20,6 +20,7 @@ using LFortran::AST::astType;
 using LFortran::AST::exprType;
 using LFortran::AST::operatorType;
 using LFortran::AST::unaryopType;
+using LFortran::AST::boolopType;
 using LFortran::AST::cmpopType;
 using LFortran::AST::stmtType;
 
@@ -45,6 +46,8 @@ using LFortran::AST::make_Cycle_t;
 using LFortran::AST::make_Return_t;
 using LFortran::AST::make_Name_t;
 using LFortran::AST::make_Num_t;
+using LFortran::AST::make_Str_t;
+using LFortran::AST::make_Real_t;
 using LFortran::AST::make_WhileLoop_t;
 using LFortran::AST::make_FuncCallOrArray_t;
 
@@ -84,20 +87,6 @@ static inline stmt_t** IFSTMTS(Allocator &al, ast_t* x)
     *s = (stmt_t*)x;
     LFORTRAN_ASSERT((*s)->base.type == astType::stmt)
     return s;
-}
-
-static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
-        const YYSTYPE::Str &x)
-{
-    // Copy the string into our own allocated memory.
-    // `x` is not NULL terminated, but we need to make it null terminated.
-    // TODO: Instead, we should pass a pointer to the Tokenizer's string of the
-    // original source code (the string there is not zero terminated, as it's a
-    // substring), and a length. And provide functions to deal with the
-    // non-zero terminated string properly. That will be much faster.
-    char *s = x.c_str(al);
-    LFORTRAN_ASSERT(s[x.size()] == '\0');
-    return make_Name_t(al, loc, s);
 }
 
 static inline decl_t* DECL(Allocator &al, const YYSTYPE::VecDecl &x,
@@ -162,6 +151,8 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
 #define TRUE(l) make_Constant_t(p.m_a, l, true)
 #define FALSE(l) make_Constant_t(p.m_a, l, false)
 
+#define STRCONCAT(x, y, l) x /* TODO: concacenate */
+
 #define EQ(x, y, l)  make_Compare_t(p.m_a, l, EXPR(x), cmpopType::Eq, EXPR(y))
 #define NE(x, y, l)  make_Compare_t(p.m_a, l, EXPR(x), cmpopType::NotEq, EXPR(y))
 #define LT(x, y, l)  make_Compare_t(p.m_a, l, EXPR(x), cmpopType::Lt, EXPR(y))
@@ -169,11 +160,19 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
 #define GT(x, y, l)  make_Compare_t(p.m_a, l, EXPR(x), cmpopType::Gt, EXPR(y))
 #define GE(x, y, l)  make_Compare_t(p.m_a, l, EXPR(x), cmpopType::GtE, EXPR(y))
 
+#define NOT(x, l) make_UnaryOp_t(p.m_a, l, unaryopType::Not, EXPR(x))
+#define AND(x, y, l) make_BoolOp_t(p.m_a, l, EXPR(x), boolopType::And, EXPR(y))
+#define OR(x, y, l)  make_BoolOp_t(p.m_a, l, EXPR(x), boolopType::Or,  EXPR(y))
+#define EQV(x, y, l) make_BoolOp_t(p.m_a, l, EXPR(x), boolopType::Eqv, EXPR(y))
+#define NEQV(x, y, l) make_BoolOp_t(p.m_a, l, EXPR(x), boolopType::NEqv, EXPR(y))
+
 #define ARRAY_IN(a, l) make_ArrayInitializer_t(p.m_a, l, \
         EXPRS(a), a.size())
 
-#define SYMBOL(x, l) make_SYMBOL(p.m_a, l, x)
+#define SYMBOL(x, l) make_Name_t(p.m_a, l, x.c_str(p.m_a));
 #define INTEGER(x, l) make_Num_t(p.m_a, l, x)
+#define REAL(x, l) make_Real_t(p.m_a, l, x.c_str(p.m_a))
+#define STRING(x, l) make_Str_t(p.m_a, l, x.c_str(p.m_a))
 #define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, l, EXPR(x), EXPR(y))
 #define EXIT(l) make_Exit_t(p.m_a, l)
 #define RETURN(l) make_Return_t(p.m_a, l)

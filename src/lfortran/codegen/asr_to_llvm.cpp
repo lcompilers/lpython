@@ -36,6 +36,7 @@
 
 #include <lfortran/asr.h>
 #include <lfortran/codegen/asr_to_llvm.h>
+#include <lfortran/exception.h>
 
 
 namespace LFortran {
@@ -54,6 +55,10 @@ public:
     llvm::Value *tmp;
 
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context} {}
+
+    void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
+        throw CodeGenError("Not implemented yet.");
+    }
 
     void visit_Function(const ASR::Function_t &x) {
         module = std::make_unique<llvm::Module>("LFortran", context);

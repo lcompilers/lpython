@@ -70,7 +70,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> TK_NAME
 %token <string> TK_DEF_OP
 %token <n> TK_INTEGER
-%token TK_REAL
+%token <string> TK_REAL
 
 %token TK_PLUS "+"
 %token TK_MINUS "-"
@@ -87,7 +87,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token TK_PERCENT "%"
 %token TK_VBAR "|"
 
-%token TK_STRING
+%token <string> TK_STRING
 
 %token TK_DBL_DOT ".."
 %token TK_DBL_COLON "::"
@@ -277,7 +277,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 
 // Precedence
 
+%left ".not." ".and." ".or." ".eqv." ".neqv."
 %left "==" "/=" "<" "<=" ">" ">="
+%left "//"
 %left "-" "+"
 %left "*" "/"
 %precedence UMINUS
@@ -508,9 +510,14 @@ expr_list
 expr
 // ### primary
     : id { $$ = $1; }
+    | struct_member_star id { $$ = $2; }
     | id "(" fnarray_arg_list_opt ")" { $$ = FUNCCALLORARRAY($1, @$); }
+    | struct_member_star id "(" fnarray_arg_list_opt ")" {
+            $$ = FUNCCALLORARRAY($2, @$); }
     | "[" expr_list "]" { $$ = ARRAY_IN($2, @$); }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
+    | TK_REAL { $$ = REAL($1, @$); }
+    | TK_STRING { $$ = STRING($1, @$); }
     | ".true."  { $$ = TRUE(@$); }
     | ".false." { $$ = FALSE(@$); }
     | "(" expr ")" { $$ = $2; }
@@ -527,6 +534,7 @@ expr
     | expr "**" expr { $$ = POW($1, $3, @$); }
 
 // ### level-3
+    | expr "//" expr { $$ = STRCONCAT($1, $3, @$); }
 
 // ### level-4
     | expr "==" expr { $$ = EQ($1, $3, @$); }
@@ -537,7 +545,20 @@ expr
     | expr ">=" expr { $$ = GE($1, $3, @$); }
 
 // ### level-5
+    | ".not." expr { $$ = NOT($2, @$); }
+    | expr ".and." expr { $$ = AND($1, $3, @$); }
+    | expr ".or." expr { $$ = OR($1, $3, @$); }
+    | expr ".eqv." expr { $$ = EQV($1, $3, @$); }
+    | expr ".neqv." expr { $$ = NEQV($1, $3, @$); }
+    ;
 
+struct_member_star
+    : struct_member_star struct_member
+    | struct_member
+    ;
+
+struct_member
+    : id "%"
     ;
 
 fnarray_arg_list_opt

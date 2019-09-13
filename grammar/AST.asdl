@@ -79,12 +79,13 @@ expr
     | Array(identifier name, array_index* args)
     | ArrayInitializer(expr* args)
     | Num(object n)
+    | Real(string n)
     | Str(string s)
     | Name(identifier id)
     | Constant(constant value)
         attributes (int lineno, int col_offset)
 
-boolop = And | Or
+boolop = And | Or | Eqv | NEqv
 
 operator = Add | Sub | Mul | Div | Pow
 
