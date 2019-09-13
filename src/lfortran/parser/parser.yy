@@ -510,7 +510,10 @@ expr_list
 expr
 // ### primary
     : id { $$ = $1; }
+    | struct_member_star id { $$ = $2; }
     | id "(" fnarray_arg_list_opt ")" { $$ = FUNCCALLORARRAY($1, @$); }
+    | struct_member_star id "(" fnarray_arg_list_opt ")" {
+            $$ = FUNCCALLORARRAY($2, @$); }
     | "[" expr_list "]" { $$ = ARRAY_IN($2, @$); }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
     | TK_STRING { $$ = STRING($1, @$); }
@@ -546,6 +549,15 @@ expr
     | expr ".or." expr { $$ = OR($1, $3, @$); }
     | expr ".eqv." expr { $$ = EQV($1, $3, @$); }
     | expr ".neqv." expr { $$ = NEQV($1, $3, @$); }
+    ;
+
+struct_member_star
+    : struct_member_star struct_member
+    | struct_member
+    ;
+
+struct_member
+    : id "%"
     ;
 
 fnarray_arg_list_opt

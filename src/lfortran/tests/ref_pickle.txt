@@ -75,6 +75,13 @@ yx
 (+ (funccallorarray a [] []) (funccallorarray b [] []))
 (arrayinitializer [1 2 3 i])
 (funccallorarray f [] [])
+a
+(funccallorarray a [] [])
+(funccallorarray b [] [])
+(funccallorarray c [] [])
+a
+(funccallorarray b [] [])
+(funccallorarray c [] [])
 (str ""a'b'c"")
 (str "'a"b"c'")
 (str "'a""bc""x'")
