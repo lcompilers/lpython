@@ -88,20 +88,6 @@ static inline stmt_t** IFSTMTS(Allocator &al, ast_t* x)
     return s;
 }
 
-static inline ast_t* make_SYMBOL(Allocator &al, const Location &loc,
-        const YYSTYPE::Str &x)
-{
-    // Copy the string into our own allocated memory.
-    // `x` is not NULL terminated, but we need to make it null terminated.
-    // TODO: Instead, we should pass a pointer to the Tokenizer's string of the
-    // original source code (the string there is not zero terminated, as it's a
-    // substring), and a length. And provide functions to deal with the
-    // non-zero terminated string properly. That will be much faster.
-    char *s = x.c_str(al);
-    LFORTRAN_ASSERT(s[x.size()] == '\0');
-    return make_Name_t(al, loc, s);
-}
-
 static inline decl_t* DECL(Allocator &al, const YYSTYPE::VecDecl &x,
         const YYSTYPE::Str &type, const YYSTYPE::VecAST &attrs)
 {
@@ -180,7 +166,7 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
 #define ARRAY_IN(a, l) make_ArrayInitializer_t(p.m_a, l, \
         EXPRS(a), a.size())
 
-#define SYMBOL(x, l) make_SYMBOL(p.m_a, l, x)
+#define SYMBOL(x, l) make_Name_t(p.m_a, l, x.c_str(p.m_a));
 #define INTEGER(x, l) make_Num_t(p.m_a, l, x)
 #define STRING(x, l) make_Str_t(p.m_a, l, x.c_str(p.m_a))
 #define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, l, EXPR(x), EXPR(y))
