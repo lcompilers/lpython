@@ -48,7 +48,16 @@ int main(int argc, char *argv[])
 
         // Src -> AST
         Allocator al(16*1024);
-        LFortran::AST::ast_t* ast = LFortran::parse2(al, input);
+        LFortran::AST::ast_t* ast;
+        try {
+            ast = LFortran::parse2(al, input);
+        } catch (const LFortran::TokenizerError &e) {
+            std::cout << "Tokenizing error: " << e.msg() << std::endl;
+            continue;
+        } catch (const LFortran::ParserError &e) {
+            std::cout << "Parsing error: " << e.msg() << std::endl;
+            continue;
+        }
         section("AST:");
         std::cout << LFortran::pickle(*ast, true) << std::endl;
 
@@ -60,8 +69,13 @@ int main(int argc, char *argv[])
 
         // ASR -> LLVM
         LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
-        std::unique_ptr<LFortran::LLVMModule> m = LFortran::asr_to_llvm(*asr,
-                e.get_context());
+        std::unique_ptr<LFortran::LLVMModule> m;
+        try {
+            m = LFortran::asr_to_llvm(*asr, e.get_context());
+        } catch (const LFortran::CodeGenError &e) {
+            std::cout << "Code generation error: " << e.msg() << std::endl;
+            continue;
+        }
         section("LLVM IR:");
         std::cout << m->str() << std::endl;
 
