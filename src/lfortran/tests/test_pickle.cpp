@@ -828,7 +828,7 @@ TEST_CASE("Lists of tests") {
         "(1 + c*x)**3",
         "i + 1",
         R"("s")",
-        //'"some text"',
+        R"("some test")",
         "a(3:5,i:j)",
         "b(:)",
         "a(:5,i:j) + b(1:)",

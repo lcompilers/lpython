@@ -69,6 +69,7 @@ yx
 (** (+ 1 (* c x)) 3)
 (+ i 1)
 (str )
+(str )
 (funccallorarray a [] [])
 (funccallorarray b [] [])
 (+ (funccallorarray a [] []) (funccallorarray b [] []))
