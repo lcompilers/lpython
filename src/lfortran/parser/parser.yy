@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect-rr 12 // reduce/reduce conflicts
-%expect    25 // shift/reduce conflicts
+%expect    28 // shift/reduce conflicts
+%expect-rr 14 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -276,6 +276,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> exit_statement
 %type <ast> return_statement
 %type <ast> cycle_statement
+%type <ast> stop_statement
 %type <vec_ast> statements
 
 // Precedence
@@ -446,6 +447,7 @@ statement
     | exit_statement sep
     | return_statement sep
     | cycle_statement sep
+    | stop_statement sep
     | if_statement sep
     | while_statement sep
     | do_statement sep
@@ -532,6 +534,11 @@ return_statement
 
 cycle_statement
     : KW_CYCLE { $$ = CYCLE(@$); }
+    ;
+
+stop_statement
+    : KW_STOP { $$ = STOP(@$); }
+    | KW_STOP expr { $$ = STOP1($2, @$); }
     ;
 
 // -----------------------------------------------------------------------------

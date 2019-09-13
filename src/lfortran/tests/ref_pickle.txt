@@ -177,6 +177,9 @@ cycle
 (= x 1)
 (= y 5)
 (= a 5)
+(stop (str ""OK""))
+(stop 1)
+stop
 (print "(i4)" [45 x])
 (print "(i4)" [45])
 (print "(i4)" [])
