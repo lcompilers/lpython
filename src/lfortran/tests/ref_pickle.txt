@@ -203,6 +203,8 @@ stop
 (print () [a b])
 (print () [a])
 (funccallorarray write [] [])
+(=> x y)
+(=> x (funccallorarray y [] []))
 (subroutinecall g [])
 (subroutinecall g [])
 (= c (arrayinitializer [1 2 3 i]))

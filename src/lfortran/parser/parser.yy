@@ -266,6 +266,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> var_modifier
 %type <ast> statement
 %type <ast> assignment_statement
+%type <ast> associate_statement
 %type <ast> subroutine_call
 %type <ast> print_statement
 %type <ast> write_statement
@@ -441,6 +442,7 @@ sep_one
 
 statement
     : assignment_statement sep
+    | associate_statement sep
     | subroutine_call sep
     | print_statement sep
     | write_statement sep
@@ -455,6 +457,10 @@ statement
 
 assignment_statement
     : expr "=" expr { $$ = ASSIGNMENT($1, $3, @$); }
+    ;
+
+associate_statement
+    : expr "=>" expr { $$ = ASSOCIATE($1, $3, @$); }
     ;
 
 subroutine_call
