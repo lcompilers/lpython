@@ -306,6 +306,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 units
     : units script_unit  %dprec 9  { RESULT($2); }
     | script_unit        %dprec 10 { RESULT($1); }
+    | sep
     ;
 
 script_unit

@@ -11,8 +11,16 @@ LFortran::AST::ast_t *parse(Allocator &al, const std::string &s)
 {
     Parser p(al);
     p.parse(s);
-    LFORTRAN_ASSERT(p.result.size() >= 1);
-    return p.result[0];
+    if (p.result.size() >= 1) {
+        return p.result[0];
+    } else {
+        Location l;
+        l.first_line=0;
+        l.first_column=0;
+        l.last_line=0;
+        l.last_column=0;
+        return AST::make_TranslationUnit_t(al, l, 0, 0);
+    }
 }
 
 LFortran::AST::ast_t *parse2(Allocator &al, const std::string &s)
@@ -49,7 +57,6 @@ void Parser::parse(const std::string &input)
     if (inp[inp.size()-1] != '\n') inp.append("\n");
     m_tokenizer.set_string(inp);
     if (yyparse(*this) == 0) {
-        LFORTRAN_ASSERT(result.size() >= 1);
         return;
     }
     Location loc;
