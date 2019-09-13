@@ -248,6 +248,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 // Nonterminal tokens
 
 %type <ast> expr
+%type <vec_ast> expr_list
 %type <ast> id
 %type <ast> script_unit
 %type <ast> program
@@ -499,10 +500,16 @@ cycle_statement
 // -----------------------------------------------------------------------------
 // Fortran expression
 
+expr_list
+    : expr_list "," expr { $$ = $1; LIST_ADD($$, $3); }
+    | expr { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
 expr
 // ### primary
     : id { $$ = $1; }
     | id "(" fnarray_arg_list_opt ")" { $$ = FUNCCALLORARRAY($1, @$); }
+    | "[" expr_list "]" { $$ = ARRAY_IN($2, @$); }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
     | ".true."  { $$ = TRUE(@$); }
     | ".false." { $$ = FALSE(@$); }

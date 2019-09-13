@@ -788,6 +788,12 @@ TEST_CASE("fn call / array") {
         // Only functions
         "f()",
         "f(a, arg1=b+1, arg2=.true.)",
+
+        // ----------------------------------------------------------
+        "[1]",
+        "[1,b]",
+        "[1,b,c]",
+        "[f(a),b+c,c**2+1]",
     };
     std::vector<std::string> o;
     for (std::string &s: v) {

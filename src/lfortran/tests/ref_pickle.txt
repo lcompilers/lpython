@@ -41,3 +41,7 @@
 (funccallorarray f [] [])
 (funccallorarray f [] [])
 (funccallorarray f [] [])
+(arrayinitializer [1])
+(arrayinitializer [1 b])
+(arrayinitializer [1 b c])
+(arrayinitializer [(funccallorarray f [] []) (+ b c) (+ (** c 2) 1)])
