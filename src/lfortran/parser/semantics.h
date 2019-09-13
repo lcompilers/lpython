@@ -38,6 +38,7 @@ using LFortran::AST::Num_t;
 
 using LFortran::AST::make_BinOp_t;
 using LFortran::AST::make_Attribute_t;
+using LFortran::AST::make_Constant_t;
 using LFortran::AST::make_DoLoop_t;
 using LFortran::AST::make_Exit_t;
 using LFortran::AST::make_Cycle_t;
@@ -74,6 +75,7 @@ static inline T** vec_cast(const YYSTYPE::VecAST &x) {
 #define DECLS(x) VEC_CAST(x, unit_decl2)
 #define STMTS(x) VEC_CAST(x, stmt)
 #define ATTRS(x) VEC_CAST(x, attribute)
+#define EXPRS(x) VEC_CAST(x, expr)
 
 static inline stmt_t** IFSTMTS(Allocator &al, ast_t* x)
 {
@@ -157,6 +159,8 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
 #define POW(x, y, l) make_BinOp_t(p.m_a, l, EXPR(x), operatorType::Pow, EXPR(y))
 #define UNARY_MINUS(x, l) make_UnaryOp_t(p.m_a, l, unaryopType::USub, EXPR(x))
 #define UNARY_PLUS(x, l) make_UnaryOp_t(p.m_a, l, unaryopType::UAdd, EXPR(x))
+#define TRUE(l) make_Constant_t(p.m_a, l, true)
+#define FALSE(l) make_Constant_t(p.m_a, l, false)
 
 #define EQ(x, y, l)  make_Compare_t(p.m_a, l, EXPR(x), cmpopType::Eq, EXPR(y))
 #define NE(x, y, l)  make_Compare_t(p.m_a, l, EXPR(x), cmpopType::NotEq, EXPR(y))
@@ -165,6 +169,8 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
 #define GT(x, y, l)  make_Compare_t(p.m_a, l, EXPR(x), cmpopType::Gt, EXPR(y))
 #define GE(x, y, l)  make_Compare_t(p.m_a, l, EXPR(x), cmpopType::GtE, EXPR(y))
 
+#define ARRAY_IN(a, l) make_ArrayInitializer_t(p.m_a, l, \
+        EXPRS(a), a.size())
 
 #define SYMBOL(x, l) make_SYMBOL(p.m_a, l, x)
 #define INTEGER(x, l) make_Num_t(p.m_a, l, x)

@@ -767,6 +767,12 @@ TEST_CASE("fn call / array") {
         "(+2)*3",
         "+2*3",
 
+        // ---------------------------------------------------
+        // Logical
+
+        ".true.",
+        ".false.",
+
         // ------------------------------------------------------------
         // Function calls or arrays:
         "f(a)",
@@ -781,8 +787,13 @@ TEST_CASE("fn call / array") {
 
         // Only functions
         "f()",
-        // .true. fails:
-        //"f(a, arg1=b+1, arg2=.true.)",
+        "f(a, arg1=b+1, arg2=.true.)",
+
+        // ----------------------------------------------------------
+        "[1]",
+        "[1,b]",
+        "[1,b,c]",
+        "[f(a),b+c,c**2+1]",
     };
     std::vector<std::string> o;
     for (std::string &s: v) {
