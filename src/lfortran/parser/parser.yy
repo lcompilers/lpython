@@ -303,7 +303,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 
 units
     : units script_unit  %dprec 9  { RESULT($2); }
-    | script_unit            %dprec 10 { RESULT($1); }
+    | script_unit        %dprec 10 { RESULT($1); }
     ;
 
 script_unit
@@ -311,8 +311,8 @@ script_unit
     | subroutine
     | function
     | var_decl
-    | statement              %dprec 7
-    | expr sep                   %dprec 8
+    | statement          %dprec 7
+    | expr sep           %dprec 8
     ;
 
 // ----------------------------------------------------------------------------
