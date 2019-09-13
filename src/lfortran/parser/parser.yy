@@ -266,6 +266,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> var_modifier
 %type <ast> statement
 %type <ast> assignment_statement
+%type <ast> subroutine_call
 %type <ast> if_statement
 %type <ast> if_block
 %type <ast> while_statement
@@ -437,6 +438,7 @@ sep_one
 
 statement
     : assignment_statement sep
+    | subroutine_call sep
     | exit_statement sep
     | return_statement sep
     | cycle_statement sep
@@ -447,6 +449,12 @@ statement
 
 assignment_statement
     : expr "=" expr { $$ = ASSIGNMENT($1, $3, @$); }
+    ;
+
+subroutine_call
+    : KW_CALL id "(" fnarray_arg_list_opt ")" { $$ = CALL($2, @$); }
+    | KW_CALL struct_member_star id "(" fnarray_arg_list_opt ")" {
+            $$ = CALL($3, @$); }
     ;
 
 // sr-conflict (2x): KW_ENDIF can be an "id" or end of "if_statement"

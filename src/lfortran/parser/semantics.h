@@ -48,6 +48,7 @@ using LFortran::AST::make_Name_t;
 using LFortran::AST::make_Num_t;
 using LFortran::AST::make_Str_t;
 using LFortran::AST::make_Real_t;
+using LFortran::AST::make_SubroutineCall_t;
 using LFortran::AST::make_WhileLoop_t;
 using LFortran::AST::make_FuncCallOrArray_t;
 
@@ -58,6 +59,7 @@ static inline expr_t* EXPR(const ast_t *f)
     return (expr_t*)f;
 }
 
+// TODO: just accept ast_t here
 static inline char* name2char(const expr_t *n)
 {
     LFORTRAN_ASSERT(n->type == exprType::Name)
@@ -174,6 +176,9 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
 #define REAL(x, l) make_Real_t(p.m_a, l, x.c_str(p.m_a))
 #define STRING(x, l) make_Str_t(p.m_a, l, x.c_str(p.m_a))
 #define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, l, EXPR(x), EXPR(y))
+#define CALL(x, l) make_SubroutineCall_t(p.m_a, l, \
+        name2char(EXPR(x)), \
+        nullptr, 0)
 #define EXIT(l) make_Exit_t(p.m_a, l)
 #define RETURN(l) make_Return_t(p.m_a, l)
 #define CYCLE(l) make_Cycle_t(p.m_a, l)
