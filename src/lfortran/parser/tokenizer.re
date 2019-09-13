@@ -286,8 +286,8 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
                 }
             }
 
-            (kind "_")? '"' ('""'|[^"\x00])* '"' { RET(TK_STRING) }
-            (kind "_")? "'" ("''"|[^'\x00])* "'" { RET(TK_STRING) }
+            (kind "_")? '"' ('""'|[^"\x00])* '"' { token(yylval.string); RET(TK_STRING) }
+            (kind "_")? "'" ("''"|[^'\x00])* "'" { token(yylval.string); RET(TK_STRING) }
 
             defop { token(yylval.string); RET(TK_DEF_OP) }
             name { token(yylval.string); RET(TK_NAME) }
