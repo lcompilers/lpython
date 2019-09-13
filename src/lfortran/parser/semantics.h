@@ -59,10 +59,9 @@ static inline expr_t* EXPR(const ast_t *f)
     return (expr_t*)f;
 }
 
-// TODO: just accept ast_t here
-static inline char* name2char(const expr_t *n)
+static inline char* name2char(const ast_t *n)
 {
-    LFORTRAN_ASSERT(n->type == exprType::Name)
+    LFORTRAN_ASSERT(EXPR(n)->type == exprType::Name)
     char *s = ((Name_t*)n)->m_id;
     return s;
 }
@@ -108,7 +107,7 @@ static inline decl_t* DECL3(Allocator &al, ast_t* n,
         const YYSTYPE::VecDim *d, expr_t *e)
 {
     decl_t *s = al.allocate<decl_t>();
-    s->m_sym = name2char(EXPR(n));
+    s->m_sym = name2char(n);
     s->m_sym_type = nullptr;
     if (d) {
         s->n_dims = d->size();
@@ -177,13 +176,13 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
 #define STRING(x, l) make_Str_t(p.m_a, l, x.c_str(p.m_a))
 #define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, l, EXPR(x), EXPR(y))
 #define CALL(x, l) make_SubroutineCall_t(p.m_a, l, \
-        name2char(EXPR(x)), \
+        name2char(x), \
         nullptr, 0)
 #define EXIT(l) make_Exit_t(p.m_a, l)
 #define RETURN(l) make_Return_t(p.m_a, l)
 #define CYCLE(l) make_Cycle_t(p.m_a, l)
 #define SUBROUTINE(name, decl, stmts, l) make_Subroutine_t(p.m_a, l, \
-        /*name*/ name2char(EXPR(name)), \
+        /*name*/ name2char(name), \
         /*args*/ nullptr, \
         /*n_args*/ 0, \
         /*use*/ nullptr, \
@@ -195,7 +194,7 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
 #define FUNCTION(name, decl, stmts, l) make_Function_t(p.m_a, l, \
-        /*name*/ name2char(EXPR(name)), \
+        /*name*/ name2char(name), \
         /*args*/ nullptr, \
         /*n_args*/ 0, \
         /*return_type*/ nullptr, \
@@ -210,7 +209,7 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
 #define PROGRAM(name, decl, stmts, l) make_Program_t(p.m_a, l, \
-        /*name*/ name2char(EXPR(name)), \
+        /*name*/ name2char(name), \
         /*use*/ nullptr, \
         /*n_use*/ 0, \
         /*decl*/ DECLS(decl), \
@@ -257,12 +256,12 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
         /*n_body*/ body.size())
 
 #define DO2(i, a, b, body, l) make_DoLoop_t(p.m_a, l, \
-        name2char(EXPR(i)), EXPR(a), EXPR(b), nullptr, \
+        name2char(i), EXPR(a), EXPR(b), nullptr, \
         /*body*/ STMTS(body), \
         /*n_body*/ body.size())
 
 #define DO3(i, a, b, c, body, l) make_DoLoop_t(p.m_a, l, \
-        name2char(EXPR(i)), EXPR(a), EXPR(b), EXPR(c), \
+        name2char(i), EXPR(a), EXPR(b), EXPR(c), \
         /*body*/ STMTS(body), \
         /*n_body*/ body.size())
 
@@ -291,7 +290,7 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
         /*n_args*/ 1)
 
 #define FUNCCALLORARRAY(id, l) make_FuncCallOrArray_t(p.m_a, l, \
-        /*char* a_func*/ name2char(EXPR(id)), \
+        /*char* a_func*/ name2char(id), \
         /*expr_t** a_args*/ nullptr, /*size_t n_args*/ 0, \
         /*keyword_t* a_keywords*/ nullptr, /*size_t n_keywords*/ 0)
 
