@@ -827,7 +827,7 @@ TEST_CASE("Lists of tests") {
         "1/sqrt(9*d)",
         "(1 + c*x)**3",
         "i + 1",
-        //'"s"',
+        R"("s")",
         //'"some text"',
         "a(3:5,i:j)",
         "b(:)",

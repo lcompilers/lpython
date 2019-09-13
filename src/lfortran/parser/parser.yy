@@ -87,7 +87,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token TK_PERCENT "%"
 %token TK_VBAR "|"
 
-%token TK_STRING
+%token <string> TK_STRING
 
 %token TK_DBL_DOT ".."
 %token TK_DBL_COLON "::"
@@ -512,6 +512,7 @@ expr
     | id "(" fnarray_arg_list_opt ")" { $$ = FUNCCALLORARRAY($1, @$); }
     | "[" expr_list "]" { $$ = ARRAY_IN($2, @$); }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
+    | TK_STRING { $$ = STRING($1, @$); }
     | ".true."  { $$ = TRUE(@$); }
     | ".false." { $$ = FALSE(@$); }
     | "(" expr ")" { $$ = $2; }
