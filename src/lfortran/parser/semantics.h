@@ -43,6 +43,7 @@ using LFortran::AST::make_Constant_t;
 using LFortran::AST::make_DoLoop_t;
 using LFortran::AST::make_Exit_t;
 using LFortran::AST::make_Cycle_t;
+using LFortran::AST::make_Print_t;
 using LFortran::AST::make_Return_t;
 using LFortran::AST::make_Name_t;
 using LFortran::AST::make_Num_t;
@@ -178,6 +179,11 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
 #define CALL(x, l) make_SubroutineCall_t(p.m_a, l, \
         name2char(x), \
         nullptr, 0)
+#define PRINT0(l) make_Print_t(p.m_a, l, nullptr, nullptr, 0)
+#define PRINT(args, l) make_Print_t(p.m_a, l, nullptr, EXPRS(args), args.size())
+#define PRINTF0(fmt, l) make_Print_t(p.m_a, l, fmt.c_str(p.m_a), nullptr, 0)
+#define PRINTF(fmt, args, l) make_Print_t(p.m_a, l, fmt.c_str(p.m_a), \
+        EXPRS(args), args.size())
 #define EXIT(l) make_Exit_t(p.m_a, l)
 #define RETURN(l) make_Return_t(p.m_a, l)
 #define CYCLE(l) make_Cycle_t(p.m_a, l)

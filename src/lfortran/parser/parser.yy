@@ -5,7 +5,7 @@
 %locations
 %glr-parser
 %expect-rr 12 // reduce/reduce conflicts
-%expect    23 // shift/reduce conflicts
+%expect    24 // shift/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -267,6 +267,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> statement
 %type <ast> assignment_statement
 %type <ast> subroutine_call
+%type <ast> print_statement
 %type <ast> if_statement
 %type <ast> if_block
 %type <ast> while_statement
@@ -439,6 +440,7 @@ sep_one
 statement
     : assignment_statement sep
     | subroutine_call sep
+    | print_statement sep
     | exit_statement sep
     | return_statement sep
     | cycle_statement sep
@@ -455,6 +457,15 @@ subroutine_call
     : KW_CALL id "(" fnarray_arg_list_opt ")" { $$ = CALL($2, @$); }
     | KW_CALL struct_member_star id "(" fnarray_arg_list_opt ")" {
             $$ = CALL($3, @$); }
+    ;
+
+print_statement
+    : KW_PRINT    "*"                  { $$ = PRINT0(        @$); }
+    | KW_PRINT    "*"    ","           { $$ = PRINT0(        @$); }
+    | KW_PRINT    "*"    "," expr_list { $$ = PRINT(     $4, @$); }
+    | KW_PRINT TK_STRING               { $$ = PRINTF0($2,    @$); }
+    | KW_PRINT TK_STRING ","           { $$ = PRINTF0($2,    @$); }
+    | KW_PRINT TK_STRING "," expr_list { $$ = PRINTF($2, $4, @$); }
     ;
 
 // sr-conflict (2x): KW_ENDIF can be an "id" or end of "if_statement"
