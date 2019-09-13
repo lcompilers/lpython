@@ -729,6 +729,10 @@ TEST_CASE("Lists of tests") {
         // --------------------
         // Tests from Python parser
         "1",
+        "1.",
+        "1._dp",
+        "1.03_dp",
+        "1.e5_dp",
         "2+3",
         "(1+3)*4",
         "1+3*4",
@@ -748,7 +752,7 @@ TEST_CASE("Lists of tests") {
         "u(2)",
         "u * sqrt(-2*log(r2)/r2)",
         ".not. first",
-        //"a - 1._dp/3",
+        "a - 1._dp/3",
         "1/sqrt(9*d)",
         "(1 + c*x)**3",
         "i + 1",

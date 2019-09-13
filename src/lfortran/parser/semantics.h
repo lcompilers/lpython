@@ -47,6 +47,7 @@ using LFortran::AST::make_Return_t;
 using LFortran::AST::make_Name_t;
 using LFortran::AST::make_Num_t;
 using LFortran::AST::make_Str_t;
+using LFortran::AST::make_Real_t;
 using LFortran::AST::make_WhileLoop_t;
 using LFortran::AST::make_FuncCallOrArray_t;
 
@@ -170,6 +171,7 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
 
 #define SYMBOL(x, l) make_Name_t(p.m_a, l, x.c_str(p.m_a));
 #define INTEGER(x, l) make_Num_t(p.m_a, l, x)
+#define REAL(x, l) make_Real_t(p.m_a, l, x.c_str(p.m_a))
 #define STRING(x, l) make_Str_t(p.m_a, l, x.c_str(p.m_a))
 #define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, l, EXPR(x), EXPR(y))
 #define EXIT(l) make_Exit_t(p.m_a, l)

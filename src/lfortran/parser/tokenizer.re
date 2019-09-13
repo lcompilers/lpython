@@ -273,7 +273,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             }
 
 
-            real { RET(TK_REAL) }
+            real { token(yylval.string); RET(TK_REAL) }
             integer {
                 if (lex_dec(tok, cur, u)) {
                     yylval.n = u;

@@ -79,6 +79,7 @@ expr
     | Array(identifier name, array_index* args)
     | ArrayInitializer(expr* args)
     | Num(object n)
+    | Real(string n)
     | Str(string s)
     | Name(identifier id)
     | Constant(constant value)
