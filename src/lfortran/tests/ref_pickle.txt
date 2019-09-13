@@ -177,6 +177,10 @@ cycle
 (= x 1)
 (= y 5)
 (= a 5)
+a
+a
+a
+a
 (stop (str ""OK""))
 (stop 1)
 stop
