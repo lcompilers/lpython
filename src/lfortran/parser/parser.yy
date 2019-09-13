@@ -5,7 +5,7 @@
 %locations
 %glr-parser
 %expect-rr 12 // reduce/reduce conflicts
-%expect    24 // shift/reduce conflicts
+%expect    25 // shift/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -268,6 +268,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> assignment_statement
 %type <ast> subroutine_call
 %type <ast> print_statement
+%type <ast> write_statement
 %type <ast> if_statement
 %type <ast> if_block
 %type <ast> while_statement
@@ -441,6 +442,7 @@ statement
     : assignment_statement sep
     | subroutine_call sep
     | print_statement sep
+    | write_statement sep
     | exit_statement sep
     | return_statement sep
     | cycle_statement sep
@@ -466,6 +468,20 @@ print_statement
     | KW_PRINT TK_STRING               { $$ = PRINTF0($2,    @$); }
     | KW_PRINT TK_STRING ","           { $$ = PRINTF0($2,    @$); }
     | KW_PRINT TK_STRING "," expr_list { $$ = PRINTF($2, $4, @$); }
+    ;
+
+write_statement
+    : KW_WRITE "(" "*" "," "*" ")" expr_list { $$ = PRINT($7, @$); }
+    | KW_WRITE "(" "*" "," "*" ")" { $$ = PRINT0(@$); }
+    | KW_WRITE "(" "*" "," TK_STRING ")" expr_list { $$ = PRINTF($5, $7, @$); }
+    | KW_WRITE "(" "*" "," TK_STRING ")" { $$ = PRINTF0($5, @$); }
+    | KW_WRITE "(" expr "," "*" ")" expr_list { $$ = WRITE($3, $7, @$); }
+    | KW_WRITE "(" expr "," "*" ")" { $$ = WRITE0($3, @$); }
+    | KW_WRITE "(" expr "," TK_STRING ")" expr_list {
+            $$ = WRITEF($3, $5, $7, @$); }
+    | KW_WRITE "(" expr "," TK_STRING ")" { $$ = WRITEF0($3, $5, @$); }
+    | KW_WRITE "(" expr ")" expr_list { $$ = WRITEE($3, $5, @$); }
+    | KW_WRITE "(" expr ")" { $$ = WRITEE0($3, @$); }
     ;
 
 // sr-conflict (2x): KW_ENDIF can be an "id" or end of "if_statement"

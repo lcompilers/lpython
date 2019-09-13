@@ -179,11 +179,23 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
 #define CALL(x, l) make_SubroutineCall_t(p.m_a, l, \
         name2char(x), \
         nullptr, 0)
+
 #define PRINT0(l) make_Print_t(p.m_a, l, nullptr, nullptr, 0)
 #define PRINT(args, l) make_Print_t(p.m_a, l, nullptr, EXPRS(args), args.size())
 #define PRINTF0(fmt, l) make_Print_t(p.m_a, l, fmt.c_str(p.m_a), nullptr, 0)
 #define PRINTF(fmt, args, l) make_Print_t(p.m_a, l, fmt.c_str(p.m_a), \
         EXPRS(args), args.size())
+
+#define WRITE0(u, l) make_Print_t(p.m_a, l, nullptr, nullptr, 0)
+#define WRITE(u, args, l) make_Print_t(p.m_a, l, nullptr, \
+        EXPRS(args), args.size())
+#define WRITEF0(u, fmt, l) make_Print_t(p.m_a, l, fmt.c_str(p.m_a), nullptr, 0)
+#define WRITEF(u, fmt, args, l) make_Print_t(p.m_a, l, fmt.c_str(p.m_a), \
+        EXPRS(args), args.size())
+#define WRITEE0(u, l) make_Print_t(p.m_a, l, nullptr, nullptr, 0)
+#define WRITEE(u, args, l) make_Print_t(p.m_a, l, nullptr, \
+        EXPRS(args), args.size())
+
 #define EXIT(l) make_Exit_t(p.m_a, l)
 #define RETURN(l) make_Return_t(p.m_a, l)
 #define CYCLE(l) make_Cycle_t(p.m_a, l)
