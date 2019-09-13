@@ -504,6 +504,8 @@ expr
     : id { $$ = $1; }
     | id "(" fnarray_arg_list_opt ")" { $$ = FUNCCALLORARRAY($1, @$); }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
+    | ".true."  { $$ = TRUE(@$); }
+    | ".false." { $$ = FALSE(@$); }
     | "(" expr ")" { $$ = $2; }
 
 // ### level-1

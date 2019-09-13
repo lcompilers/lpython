@@ -38,6 +38,7 @@ using LFortran::AST::Num_t;
 
 using LFortran::AST::make_BinOp_t;
 using LFortran::AST::make_Attribute_t;
+using LFortran::AST::make_Constant_t;
 using LFortran::AST::make_DoLoop_t;
 using LFortran::AST::make_Exit_t;
 using LFortran::AST::make_Cycle_t;
@@ -157,6 +158,8 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
 #define POW(x, y, l) make_BinOp_t(p.m_a, l, EXPR(x), operatorType::Pow, EXPR(y))
 #define UNARY_MINUS(x, l) make_UnaryOp_t(p.m_a, l, unaryopType::USub, EXPR(x))
 #define UNARY_PLUS(x, l) make_UnaryOp_t(p.m_a, l, unaryopType::UAdd, EXPR(x))
+#define TRUE(l) make_Constant_t(p.m_a, l, true)
+#define FALSE(l) make_Constant_t(p.m_a, l, false)
 
 #define EQ(x, y, l)  make_Compare_t(p.m_a, l, EXPR(x), cmpopType::Eq, EXPR(y))
 #define NE(x, y, l)  make_Compare_t(p.m_a, l, EXPR(x), cmpopType::NotEq, EXPR(y))

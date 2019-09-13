@@ -30,6 +30,8 @@
 (* 3 (u+ 2))
 (* (u+ 2) 3)
 (* (u+ 2) 3)
+(constant Unimplementedconstant)
+(constant Unimplementedconstant)
 (funccallorarray f [] [])
 (funccallorarray f [] [])
 (funccallorarray f [] [])
