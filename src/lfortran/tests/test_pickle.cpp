@@ -181,7 +181,7 @@ TEST_CASE("Functions") {
     CHECK(P(R"(function f()
 integer :: f
 f = 5
-end function)") == "(fn f [] () () () [] [(decl [(f integer [] [] ())])] [(= f 5)] [])");
+end function)") == "(fn f [] () () () [] [(decl [(f \"integer\" [] [] ())])] [(= f 5)] [])");
 }
 
 TEST_CASE("Programs") {
@@ -218,7 +218,7 @@ TEST_CASE("Programs") {
     CHECK(P(
    R"(PROGRAM TESTFortran90
       integer stop ; stop = 1 ; do while ( stop .eq. 0 ) ; end do
-      END PROGRAM TESTFortran90)") == "(prog TESTFortran90 [] [(decl [(stop integer [] [] ())])] [(= stop 1) (while (== stop 0) [])] [])");
+      END PROGRAM TESTFortran90)") == "(prog TESTFortran90 [] [(decl [(stop \"integer\" [] [] ())])] [(= stop 1) (while (== stop 0) [])] [])");
 }
 
 TEST_CASE("Multiple units") {
