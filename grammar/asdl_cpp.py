@@ -386,6 +386,7 @@ class PickleVisitorVisitor(ASDLVisitor):
         self.emit(    's.append("(");', 2)
         subs = {
             "assignment": "=",
+            "associate": "=>",
             "whileloop": "while",
             "program": "prog",
             "subroutine": "sub",

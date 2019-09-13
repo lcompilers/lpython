@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect-rr 12 // reduce/reduce conflicts
-%expect    23 // shift/reduce conflicts
+%expect    28 // shift/reduce conflicts
+%expect-rr 14 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -266,6 +266,10 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> var_modifier
 %type <ast> statement
 %type <ast> assignment_statement
+%type <ast> associate_statement
+%type <ast> subroutine_call
+%type <ast> print_statement
+%type <ast> write_statement
 %type <ast> if_statement
 %type <ast> if_block
 %type <ast> while_statement
@@ -273,6 +277,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> exit_statement
 %type <ast> return_statement
 %type <ast> cycle_statement
+%type <ast> stop_statement
 %type <vec_ast> statements
 
 // Precedence
@@ -300,7 +305,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 
 units
     : units script_unit  %dprec 9  { RESULT($2); }
-    | script_unit            %dprec 10 { RESULT($1); }
+    | script_unit        %dprec 10 { RESULT($1); }
+    | sep
     ;
 
 script_unit
@@ -308,8 +314,8 @@ script_unit
     | subroutine
     | function
     | var_decl
-    | statement              %dprec 7
-    | expr sep                   %dprec 8
+    | statement          %dprec 7
+    | expr sep           %dprec 8
     ;
 
 // ----------------------------------------------------------------------------
@@ -437,9 +443,14 @@ sep_one
 
 statement
     : assignment_statement sep
+    | associate_statement sep
+    | subroutine_call sep
+    | print_statement sep
+    | write_statement sep
     | exit_statement sep
     | return_statement sep
     | cycle_statement sep
+    | stop_statement sep
     | if_statement sep
     | while_statement sep
     | do_statement sep
@@ -447,6 +458,39 @@ statement
 
 assignment_statement
     : expr "=" expr { $$ = ASSIGNMENT($1, $3, @$); }
+    ;
+
+associate_statement
+    : expr "=>" expr { $$ = ASSOCIATE($1, $3, @$); }
+    ;
+
+subroutine_call
+    : KW_CALL id "(" fnarray_arg_list_opt ")" { $$ = CALL($2, @$); }
+    | KW_CALL struct_member_star id "(" fnarray_arg_list_opt ")" {
+            $$ = CALL($3, @$); }
+    ;
+
+print_statement
+    : KW_PRINT    "*"                  { $$ = PRINT0(        @$); }
+    | KW_PRINT    "*"    ","           { $$ = PRINT0(        @$); }
+    | KW_PRINT    "*"    "," expr_list { $$ = PRINT(     $4, @$); }
+    | KW_PRINT TK_STRING               { $$ = PRINTF0($2,    @$); }
+    | KW_PRINT TK_STRING ","           { $$ = PRINTF0($2,    @$); }
+    | KW_PRINT TK_STRING "," expr_list { $$ = PRINTF($2, $4, @$); }
+    ;
+
+write_statement
+    : KW_WRITE "(" "*" "," "*" ")" expr_list { $$ = PRINT($7, @$); }
+    | KW_WRITE "(" "*" "," "*" ")" { $$ = PRINT0(@$); }
+    | KW_WRITE "(" "*" "," TK_STRING ")" expr_list { $$ = PRINTF($5, $7, @$); }
+    | KW_WRITE "(" "*" "," TK_STRING ")" { $$ = PRINTF0($5, @$); }
+    | KW_WRITE "(" expr "," "*" ")" expr_list { $$ = WRITE($3, $7, @$); }
+    | KW_WRITE "(" expr "," "*" ")" { $$ = WRITE0($3, @$); }
+    | KW_WRITE "(" expr "," TK_STRING ")" expr_list {
+            $$ = WRITEF($3, $5, $7, @$); }
+    | KW_WRITE "(" expr "," TK_STRING ")" { $$ = WRITEF0($3, $5, @$); }
+    | KW_WRITE "(" expr ")" expr_list { $$ = WRITEE($3, $5, @$); }
+    | KW_WRITE "(" expr ")" { $$ = WRITEE0($3, @$); }
     ;
 
 // sr-conflict (2x): KW_ENDIF can be an "id" or end of "if_statement"
@@ -497,6 +541,11 @@ return_statement
 
 cycle_statement
     : KW_CYCLE { $$ = CYCLE(@$); }
+    ;
+
+stop_statement
+    : KW_STOP { $$ = STOP(@$); }
+    | KW_STOP expr { $$ = STOP1($2, @$); }
     ;
 
 // -----------------------------------------------------------------------------

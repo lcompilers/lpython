@@ -53,11 +53,12 @@ unit_decl2
 
 stmt
     = Assignment(expr target, expr value)
+    | Associate(expr target, expr value)
     | SubroutineCall(identifier name, expr* args)
     | BuiltinCall(identifier name, expr* args)
     | If(expr test, stmt* body, stmt* orelse)
     | Where(expr test, stmt* body, stmt* orelse)
-    | Stop(int? code)
+    | Stop(expr? code)
     | ErrorStop()
     | DoLoop(identifier? var, expr? start, expr? end, expr? increment,
             stmt* body)
