@@ -723,7 +723,7 @@ TEST_CASE("declaration") {
     end program)") == "(prog g [] [(decl [(x integer [] [] ())]) (decl [(x complex [] [] ())])] [(= x 1)] [])");
 }
 
-TEST_CASE("fn call / array") {
+TEST_CASE("Lists of tests") {
     Allocator al(1024*1024);
     std::vector<std::string> v = {
         // Arithmetics
@@ -794,6 +794,71 @@ TEST_CASE("fn call / array") {
         "[1,b]",
         "[1,b,c]",
         "[f(a),b+c,c**2+1]",
+
+        // --------------------
+        // Tests from Python parser
+        "1",
+        "2+3",
+        "(1+3)*4",
+        "1+3*4",
+        "x",
+        "yx",
+        "x+y",
+        "2+x",
+        "(x+y)**2",
+        "(x+y)*3",
+        "x+y*3",
+        "(1+2+a)*3",
+        "f(3)+6",
+        "f(3+6)",
+        "real(b, dp)",
+        "2*u-1",
+        "sum(u**2)",
+        "u(2)",
+        "u * sqrt(-2*log(r2)/r2)",
+        //".not. first",
+        //"a - 1._dp/3",
+        "1/sqrt(9*d)",
+        "(1 + c*x)**3",
+        "i + 1",
+        //'"s"',
+        //'"some text"',
+        "a(3:5,i:j)",
+        "b(:)",
+        "a(:5,i:j) + b(1:)",
+        "[1, 2, 3, i]",
+        "f()",
+        //"x%a",
+        //"x%a()",
+        //"x%b(i, j)",
+        //"y%c(5, :)",
+        //"x%f%a",
+        //"x%g%b(i, j)",
+        //"y%h%c(5, :)",
+        /*
+        """ "a'b'c" """,
+        """ 'a"b"c'""",
+        """ 'a""bc""x'""",
+        """ "a""c" """,
+        """ "a""b""c" """,
+        """ \"\"\"zippo\"\"\" """,
+        """ 'a''c'""",
+        """ 'a''b''c'""",
+        """ '''zippo'''""",
+        */
+        //""" "aaa" // str(x) // "bb" """,
+        //""" "a" // "b" """,
+
+        /*
+        "1 .and. 2",
+        "a .and. b",
+        "a == 1 .and. b == 2",
+        "a == 1 .or. b == 2",
+        "a .and. b .and. c",
+        "a .or. b .or. c",
+        ".not. (a == 1)",
+        "(a == 1) .and. .not. (b == 2)",
+        */
     };
     std::vector<std::string> o;
     for (std::string &s: v) {
