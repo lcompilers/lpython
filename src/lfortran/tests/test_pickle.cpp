@@ -648,85 +648,10 @@ TEST_CASE("return") {
 TEST_CASE("declaration") {
     Allocator al(1024*1024);
 
-    CHECK(P("integer x") == "(decl [(x integer [] [] ())])");
-    CHECK(P("integer :: x") == "(decl [(x integer [] [] ())])");
-    CHECK(P("integer, parameter :: x") == "(decl [(x integer [] [(attribute parameter [])] ())])");
-    CHECK(P("integer, parameter, pointer :: x") == "(decl [(x integer [] [(attribute parameter []) (attribute pointer [])] ())])");
     CHECK_THROWS_AS(P("integer, parameter, pointer x"),
             LFortran::ParserError);
-    CHECK(P("character x") == "(decl [(x character [] [] ())])");
-    // TODO: put selector in pickle
-    CHECK(P("character(len=*) x") == "(decl [(x character [] [] ())])");
-    CHECK(P("real x") == "(decl [(x real [] [] ())])");
-    // TODO: put selector in pickle
-    CHECK(P("real(dp) x") == "(decl [(x real [] [] ())])");
-    // TODO: put selector in pickle
-    CHECK(P("real(dp) :: x") == "(decl [(x real [] [] ())])");
-    // TODO: put selector in pickle
-    CHECK(P("real(kind=dp) :: x") == "(decl [(x real [] [] ())])");
-    CHECK(P("real(dp), intent(in) :: x") == "(decl [(x real [] [(attribute intent [(in)])] ())])");
-    CHECK(P("real(dp), intent(out) :: x") == "(decl [(x real [] [(attribute intent [(out)])] ())])");
-    CHECK(P("real(dp), intent(inout) :: x") == "(decl [(x real [] [(attribute intent [(inout)])] ())])");
-    CHECK(P("complex x") == "(decl [(x complex [] [] ())])");
-    CHECK(P("logical x") == "(decl [(x logical [] [] ())])");
-    CHECK(P("type x") == "(decl [(x type [] [] ())])");
-
-    CHECK(P("integer x = 3") == "(decl [(x integer [] [] 3)])");
-    CHECK(P("integer x(5)") == "(decl [(x integer [(1 5)] [] ())])");
-    CHECK(P("integer x(5:)") == "(decl [(x integer [(5 ())] [] ())])");
-    CHECK(P("integer :: x(5:)") == "(decl [(x integer [(5 ())] [] ())])");
-    CHECK(P("integer x(:5)") == "(decl [(x integer [(() 5)] [] ())])");
-    CHECK(P("integer x(:)") == "(decl [(x integer [(() ())] [] ())])");
-    CHECK(P("integer x(3:5)") == "(decl [(x integer [(3 5)] [] ())])");
-    CHECK(P("integer x(5,:,:3,3:)") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] ())])");
-    // TODO: add dimensions in the dimension attribute into the pickle
-    CHECK(P("integer, dimension(5,:,:3,3:) :: x") == "(decl [(x integer [] [(attribute dimension [])] ())])");
-    CHECK(P("integer x(5,:,:3,3:) = 3") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] 3)])");
-    CHECK(P("integer x(5,:,:3,3:) = 3+2") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] (+ 3 2))])");
-    CHECK(P("integer x(5,:,:3,3:) = 3, y(:3)=4") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] 3) (y integer [(() 3)] [] 4)])");
-    CHECK(P("integer x(5,:,:3,3:) = x") == "(decl [(x integer [(1 5) (() ()) (() 3) (3 ())] [] x)])");
     CHECK_THROWS_AS(P("integer x(5,:,:3,3:) = x y"), LFortran::ParserError);
 
-    CHECK(P(R"(function g()
-    integer x
-    x = 1
-    end function)") == "(fn g [] () () () [] [(decl [(x integer [] [] ())])] [(= x 1)] [])");
-
-    CHECK(P(R"(subroutine g
-    integer x, y
-    end subroutine)") == "(sub g [] [] [(decl [(x integer [] [] ()) (y integer [] [] ())])] [] [])");
-
-    CHECK(P(R"(subroutine g
-    integer x, y, z
-    end subroutine)") == "(sub g [] [] [(decl [(x integer [] [] ()) (y integer [] [] ()) (z integer [] [] ())])] [] [])");
-
-    CHECK(P(R"(function g()
-    integer x
-    real y, z
-    x = 1
-    end function)") == "(fn g [] () () () [] [(decl [(x integer [] [] ())]) (decl [(y real [] [] ()) (z real [] [] ())])] [(= x 1)] [])");
-
-    CHECK(P(R"(subroutine g
-    integer x
-    x = 1
-    end subroutine)") == "(sub g [] [] [(decl [(x integer [] [] ())])] [(= x 1)] [])");
-
-    CHECK(P(R"(subroutine g
-    integer x
-    character x
-    x = 1
-    end subroutine)") == "(sub g [] [] [(decl [(x integer [] [] ())]) (decl [(x character [] [] ())])] [(= x 1)] [])");
-
-    CHECK(P(R"(program g
-    integer x
-    x = 1
-    end program)") == "(prog g [] [(decl [(x integer [] [] ())])] [(= x 1)] [])");
-
-    CHECK(P(R"(program g
-    integer x
-    complex x
-    x = 1
-    end program)") == "(prog g [] [(decl [(x integer [] [] ())]) (decl [(x complex [] [] ())])] [(= x 1)] [])");
 }
 
 TEST_CASE("Lists of tests") {
@@ -865,6 +790,81 @@ TEST_CASE("Lists of tests") {
         "(a == 1) .and. .not. (b == 2)",
         "a .eqv. b",
         "a .neqv. b",
+
+        // ----------------------------------------------
+        // Declarations
+
+        "integer x",
+        "integer :: x",
+        "integer, parameter :: x",
+        "integer, parameter, pointer :: x",
+        "character x",
+        "character(len=*) x",
+        "real x",
+        "real(dp) x",
+        "real(dp) :: x",
+        "real(kind=dp) :: x",
+        "real(dp), intent(in) :: x",
+        "real(dp), intent(out) :: x",
+        "real(dp), intent(inout) :: x",
+        "complex x",
+        "logical x",
+        "type x",
+
+        "integer x = 3",
+        "integer x(5)",
+        "integer x(5:)",
+        "integer :: x(5:)",
+        "integer x(:5)",
+        "integer x(:)",
+        "integer x(3:5)",
+        "integer x(5,:,:3,3:)",
+        "integer, dimension(5,:,:3,3:) :: x",
+        "integer x(5,:,:3,3:) = 3",
+        "integer x(5,:,:3,3:) = 3+2",
+        "integer x(5,:,:3,3:) = 3, y(:3)=4",
+        "integer x(5,:,:3,3:) = x",
+
+        R"(function g()
+            integer x
+            x = 1
+            end function)",
+
+        R"(subroutine g
+            integer x, y
+            end subroutine)",
+
+        R"(subroutine g
+            integer x, y, z
+            end subroutine)",
+
+        R"(function g()
+            integer x
+            real y, z
+            x = 1
+            end function)",
+
+        R"(subroutine g
+            integer x
+            x = 1
+            end subroutine)",
+
+        R"(subroutine g
+            integer x
+            character x
+            x = 1
+            end subroutine)",
+
+        R"(program g
+            integer x
+            x = 1
+            end program)",
+
+        R"(program g
+            integer x
+            complex x
+            x = 1
+            end program)",
     };
     std::vector<std::string> o;
     for (std::string &s: v) {
