@@ -1157,7 +1157,6 @@ end function)",
         integer :: x
         end module)",
 
-        /*
         R"(module test
         implicit none
         private
@@ -1257,6 +1256,7 @@ end function)",
         end module
         )",
 
+        /*
         R"(module test
         implicit none
         interface name

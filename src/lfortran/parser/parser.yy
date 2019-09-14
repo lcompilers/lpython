@@ -366,13 +366,18 @@ module_decl
 
 private_decl
     : KW_PRIVATE id_list_opt sep { $$ = PRIVATE($2, @$); }
+    | KW_PRIVATE "::" id_list_opt sep { $$ = PRIVATE($3, @$); }
+    ;
 
 public_decl
     : KW_PUBLIC id_list_opt sep { $$ = PUBLIC($2, @$); }
+    | KW_PUBLIC "::" id_list_opt sep { $$ = PUBLIC($3, @$); }
+    ;
 
 interface_decl
     : KW_INTERFACE id sep KW_END KW_INTERFACE id_opt sep {
             $$ = INTERFACE($2, @$); }
+    ;
 
 
 
