@@ -166,7 +166,7 @@ class FortranPrinterVisitor(ast.ASTVisitor):
             syms = ", only: " + ", ".join([self.visit(x) for x in node.symbols])
         else:
             syms = ""
-        return ["use " + self.visit(node.module) + syms]
+        return ["use " + node.module + syms]
 
     def visit_use_symbol(self, node):
         if node.rename:
