@@ -1143,6 +1143,77 @@ end function)",
         end program
         )",
 
+        // -------------------------------------------------------
+        // Case sensitivity
+        "Integer :: x",
+        "INTEGER :: x",
+        "iNteger :: x",
+        "integeR, dImenSion(9,10) :: c",
+        "integer, DIMENSION(:,:), intenT(In) :: e",
+        "integer(c_Int) :: i",
+
+        "Real a",
+        "REAL :: a",
+        "real(dp), aLLocatable :: a(:,:)",
+        "cHAracter(len=*) :: c",
+
+        "tYPe(xx), inTEnt(inOUt) :: x, y",
+
+        // -------------------------------------------------------
+        // Interactivity
+        "a = 5; b = 6",
+
+        R"(a = 5
+        b = 6
+        )",
+
+        R"(a = 5
+        print *, a
+        )",
+
+        R"(a = 5
+
+        subroutine p()
+        print *, a
+        end subroutine
+
+        call p()
+        )",
+
+        /*
+        R"(module a
+        implicit none
+        integer :: i
+        end module
+
+        use a, only: i
+
+        i = 5
+        )",
+        */
+
+        R"(use a, only: i
+
+        i = 5
+        )",
+
+        R"(use a, only: i
+        i = 5
+        )",
+
+        /*
+        R"(!x = [1, 2, 3]
+        !y = [1, 2, 1]
+        call plot(x, y, "o-")
+        )",
+        */
+
+        R"(x = [1, 2, 3]
+        y = [1, 2, 1]
+        call plot(x, y, "o-")
+        )",
+
+
 
     };
     std::vector<std::string> o;
