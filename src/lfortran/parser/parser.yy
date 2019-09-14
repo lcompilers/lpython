@@ -375,9 +375,17 @@ public_decl
     ;
 
 interface_decl
-    : KW_INTERFACE id sep KW_END KW_INTERFACE id_opt sep {
+    : KW_INTERFACE id sep proc_list KW_END KW_INTERFACE id_opt sep {
             $$ = INTERFACE($2, @$); }
     ;
+
+proc_list
+    : proc_list proc
+    | %empty
+    ;
+
+proc
+    : KW_MODULE KW_PROCEDURE id_list sep
 
 
 

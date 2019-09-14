@@ -377,6 +377,7 @@ exit
 (module test [] [] [])
 (module test [] [] [])
 (module test [] [] [])
+(module test [] [] [])
 (decl [(x "Integer" [] [] ())])
 (decl [(x "INTEGER" [] [] ())])
 (decl [(x "iNteger" [] [] ())])

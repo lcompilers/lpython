@@ -1256,7 +1256,6 @@ end function)",
         end module
         )",
 
-        /*
         R"(module test
         implicit none
         interface name
@@ -1266,7 +1265,6 @@ end function)",
         end interface
         end module
         )",
-        */
 
 
         // -------------------------------------------------------
