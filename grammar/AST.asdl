@@ -40,7 +40,7 @@ program_unit
         attributes (int lineno, int col_offset)
 
 unit_decl1
-    = Use(use_symbol module, use_symbol* symbols)
+    = Use(identifier module, use_symbol* symbols)
         attributes (int lineno, int col_offset)
 
 unit_decl2
@@ -114,6 +114,6 @@ array_index = ArrayIndex(expr? left, expr? right, expr? step)
 
 case_stmt = CaseStmt(expr test, stmt* body)
 
-use_symbol = (identifier sym, identifier? rename)
+use_symbol = UseSymbol(identifier sym, identifier? rename)
 
 }

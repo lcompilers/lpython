@@ -112,7 +112,7 @@ implicit_statement
     ;
 
 use_statement
-    : KW_USE use_symbol (',' KW_ONLY ':' use_symbol_list)?
+    : KW_USE ident (',' KW_ONLY ':' use_symbol_list)?
     ;
 
 use_symbol_list : use_symbol (',' use_symbol)* ;

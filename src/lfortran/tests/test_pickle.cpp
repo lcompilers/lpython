@@ -377,30 +377,43 @@ TEST_CASE("Lists of tests") {
         "integer, parameter, pointer :: x",
         "character x",
         "character(len=*) x",
+        "character(len=*) :: c",
         "real x",
+        "real :: a",
         "real(dp) x",
         "real(dp) :: x",
         "real(kind=dp) :: x",
         "real(dp), intent(in) :: x",
         "real(dp), intent(out) :: x",
         "real(dp), intent(inout) :: x",
+        "real(dp) :: a, b",
+        "real(dp) :: a(9,10), b(10)",
+        "real(dp) :: a(m,n)",
+        "real(dp), allocatable :: a(:,:)",
+        "real(dp) y = 5",
+        "real(c_double) :: f",
         "complex x",
         "logical x",
         "type x",
+        "type(xx), intent(inout) :: x, y",
 
         "integer x = 3",
         "integer x(5)",
         "integer x(5:)",
         "integer :: x(5:)",
+        "integer :: a(9,10), b(10)",
         "integer x(:5)",
         "integer x(:)",
         "integer x(3:5)",
         "integer x(5,:,:3,3:)",
         "integer, dimension(5,:,:3,3:) :: x",
+        "integer, dimension(9,10) :: c",
+        "integer, dimension(:,:), intent(in) :: e",
         "integer x(5,:,:3,3:) = 3",
         "integer x(5,:,:3,3:) = 3+2",
         "integer x(5,:,:3,3:) = 3, y(:3)=4",
         "integer x(5,:,:3,3:) = x",
+        "integer(c_int) :: i",
 
         R"(function g()
             integer x
@@ -1013,6 +1026,13 @@ end function)",
     subroutine = y
     x = 2*subroutine
     end subroutine)",
+
+        // -------------------------------------------------------
+        // Use
+        "use b",
+        "use a, only: b, c",
+        "use a, only: x => b, c, d => a",
+
 
     };
     std::vector<std::string> o;

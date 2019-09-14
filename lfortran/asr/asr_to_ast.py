@@ -114,7 +114,7 @@ class ASR2ASTVisitor(asr.ASTVisitor):
                 if arg.type.module:
                     use.append(
                         ast.Use(
-                            module=ast.use_symbol(sym=arg.type.module),
+                            module=arg.type.module,
                             symbols=[]
                         )
                     )
@@ -136,7 +136,7 @@ class ASR2ASTVisitor(asr.ASTVisitor):
                     if sym.module:
                         use.append(
                             ast.Use(
-                                module=ast.use_symbol(sym=sym.module),
+                                module=sym.module,
                                 symbols=[]
                             )
                         )

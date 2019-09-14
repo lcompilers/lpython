@@ -28,6 +28,7 @@ using LFortran::AST::ast_t;
 using LFortran::AST::attribute_t;
 using LFortran::AST::attribute_arg_t;
 using LFortran::AST::case_stmt_t;
+using LFortran::AST::use_symbol_t;
 using LFortran::AST::decl_t;
 using LFortran::AST::dimension_t;
 using LFortran::AST::expr_t;
@@ -54,6 +55,8 @@ using LFortran::AST::make_Real_t;
 using LFortran::AST::make_SubroutineCall_t;
 using LFortran::AST::make_WhileLoop_t;
 using LFortran::AST::make_FuncCallOrArray_t;
+using LFortran::AST::make_Use_t;
+using LFortran::AST::make_UseSymbol_t;
 
 
 static inline expr_t* EXPR(const ast_t *f)
@@ -84,6 +87,7 @@ static inline T** vec_cast(const YYSTYPE::VecAST &x) {
 #define ATTRS(x) VEC_CAST(x, attribute)
 #define EXPRS(x) VEC_CAST(x, expr)
 #define CASE_STMTS(x) VEC_CAST(x, case_stmt)
+#define USE_SYMBOLS(x) VEC_CAST(x, use_symbol)
 
 static inline stmt_t** IFSTMTS(Allocator &al, ast_t* x)
 {
@@ -361,5 +365,17 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
 
 #define CASE_STMT(cond, body, l) make_CaseStmt_t(p.m_a, l, \
         EXPR(cond), STMTS(body), body.size())
+
+#define USE1(mod, l) make_Use_t(p.m_a, l, \
+        name2char(mod), \
+        nullptr, 0)
+#define USE2(mod, syms, l) make_Use_t(p.m_a, l, \
+        name2char(mod), \
+        USE_SYMBOLS(syms), syms.size())
+
+#define USE_SYMBOL1(x, l) make_UseSymbol_t(p.m_a, l, \
+        name2char(x), nullptr)
+#define USE_SYMBOL2(x, y, l) make_UseSymbol_t(p.m_a, l, \
+        name2char(y), name2char(x))
 
 #endif

@@ -256,6 +256,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> program
 %type <ast> subroutine
 %type <ast> function
+%type <ast> use_statement
+%type <ast> use_symbol
+%type <vec_ast> use_symbol_list
 %type <vec_ast> var_decl_star
 %type <vec_decl> var_sym_decl_list
 %type <ast> var_decl
@@ -322,6 +325,7 @@ script_unit
     : program
     | subroutine
     | function
+    | use_statement
     | var_decl
     | statement          %dprec 7
     | expr sep           %dprec 8
@@ -351,6 +355,22 @@ function
     : KW_FUNCTION id "(" ")" sep var_decl_star statements
         KW_END KW_FUNCTION sep {
             LLOC(@$, @9); $$ = FUNCTION($2, $6, $7, @$); }
+    ;
+
+use_statement
+    : KW_USE id sep { $$ = USE1($2, @$); }
+    | KW_USE id "," KW_ONLY ":" use_symbol_list sep {
+            $$ = USE2($2, $6, @$); }
+    ;
+
+use_symbol_list
+    : use_symbol_list "," use_symbol { $$ = $1; LIST_ADD($$, $3); }
+    | use_symbol { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+use_symbol
+    : id          { $$ = USE_SYMBOL1($1, @$); }
+    | id "=>" id  { $$ = USE_SYMBOL2($1, $3, @$); }
     ;
 
 // var_decl*
