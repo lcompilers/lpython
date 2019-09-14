@@ -184,42 +184,6 @@ f = 5
 end function)") == "(fn f [] () () () [] [(decl [(f \"integer\" [] [] ())])] [(= f 5)] [])");
 }
 
-TEST_CASE("Programs") {
-    Allocator al(4*1024);
-
-    CHECK(P(R"(program g
-    x = y
-    x = 2*y
-    end program)")   == "(prog g [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P(R"(program g
-    end program)")   == "(prog g [] [] [] [])");
-
-
-    CHECK(P(R"(program g
-    x = y; ;
-
-
-    x = 2*y;; ;
-
-    end program)")   == "(prog g [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P("program g; x = y; x = 2*y; end program") == "(prog g [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P(R"(program f
-    subroutine = y
-    x = 2*subroutine
-    end program)")   == "(prog f [] [] [(= subroutine y) (= x (* 2 subroutine))] [])");
-
-    CHECK(P(R"(program g
-    x = y
-    end program g)")   == "(prog g [] [] [(= x y)] [])");
-
-    CHECK(P(
-   R"(PROGRAM TESTFortran90
-      integer stop ; stop = 1 ; do while ( stop .eq. 0 ) ; end do
-      END PROGRAM TESTFortran90)") == "(prog TESTFortran90 [] [(decl [(stop \"integer\" [] [] ())])] [(= stop 1) (while (== stop 0) [])] [])");
-}
 
 TEST_CASE("Multiple units") {
     Allocator al(4*1024);
@@ -905,6 +869,33 @@ TEST_CASE("Lists of tests") {
     else
         c = 3
     end if)",
+
+        // -------------------------------------------------------
+        // Program
+        R"(program g
+    x = y
+    x = 2*y
+    end program)",
+        R"(program g
+    end program)",
+        R"(program g
+    x = y; ;
+
+
+    x = 2*y;; ;
+
+    end program)",
+        "program g; x = y; x = 2*y; end program",
+        R"(program f
+    subroutine = y
+    x = 2*subroutine
+    end program)",
+        R"(program g
+    x = y
+    end program g)",
+        R"(PROGRAM TESTFortran90
+      integer stop ; stop = 1 ; do while ( stop .eq. 0 ) ; end do
+      END PROGRAM TESTFortran90)",
     };
     std::vector<std::string> o;
     for (std::string &s: v) {
