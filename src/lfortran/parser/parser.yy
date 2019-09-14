@@ -354,9 +354,9 @@ subroutine
     ;
 
 function
-    : fn_type pure_opt KW_FUNCTION id "(" id_list_opt ")" sep
+    : fn_type pure_opt KW_FUNCTION id "(" id_list_opt ")" result_opt sep
         var_decl_star statements KW_END KW_FUNCTION sep {
-            LLOC(@$, @12); $$ = FUNCTION($4, $9, $10, @$); }
+            LLOC(@$, @13); $$ = FUNCTION($4, $10, $11, @$); }
     ;
 
 pure_opt
@@ -366,6 +366,11 @@ pure_opt
 
 fn_type
     : var_type kind_selector
+    | %empty
+    ;
+
+result_opt
+    : KW_RESULT "(" id ")"
     | %empty
     ;
 

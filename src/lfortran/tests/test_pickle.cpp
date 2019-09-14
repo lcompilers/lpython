@@ -1000,11 +1000,11 @@ end function)",
         f = 1
         end function
         )",
-        /*
         R"(real(dp) pure function f(e) result(r)
         r = 1
         end function
         )",
+        /*
         R"(real(dp) recursive function f(e) result(r)
         r = 1
         end function
