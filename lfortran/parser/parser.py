@@ -517,13 +517,13 @@ class ASTBuilderVisitor(fortranVisitor):
         for case in ctx.case_statement():
             test = self.visit(case.expr())
             case_body = self.statements2list(case.statements())
-            body.append(ast.case_stmt(test=test, body=case_body))
+            body.append(ast.CaseStmt(test=test, body=case_body))
         if ctx.select_default_statement():
             default_body = self.statements2list( \
                     ctx.select_default_statement().statements())
-            default = ast.case_default(body=default_body)
+            default = default_body
         else:
-            default = None
+            default = []
         return ast.Select(test=expr, body=body, default=default,
                 lineno=1, col_offset=1)
 

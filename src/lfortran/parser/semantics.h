@@ -27,6 +27,7 @@ using LFortran::AST::stmtType;
 using LFortran::AST::ast_t;
 using LFortran::AST::attribute_t;
 using LFortran::AST::attribute_arg_t;
+using LFortran::AST::case_stmt_t;
 using LFortran::AST::decl_t;
 using LFortran::AST::dimension_t;
 using LFortran::AST::expr_t;
@@ -82,6 +83,7 @@ static inline T** vec_cast(const YYSTYPE::VecAST &x) {
 #define STMTS(x) VEC_CAST(x, stmt)
 #define ATTRS(x) VEC_CAST(x, attribute)
 #define EXPRS(x) VEC_CAST(x, expr)
+#define CASE_STMTS(x) VEC_CAST(x, case_stmt)
 
 static inline stmt_t** IFSTMTS(Allocator &al, ast_t* x)
 {
@@ -243,6 +245,13 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
         /*n_contains*/ 0)
 #define RESULT(x) p.result.push_back(x)
 
+#define IFSINGLE(cond, body, l) make_If_t(p.m_a, l, \
+        /*test*/ EXPR(cond), \
+        /*body*/ IFSTMTS(p.m_a, body), \
+        /*n_body*/ 1, \
+        /*a_orelse*/ nullptr, \
+        /*n_orelse*/ 0)
+
 #define IF1(cond, body, l) make_If_t(p.m_a, l, \
         /*test*/ EXPR(cond), \
         /*body*/ STMTS(body), \
@@ -262,6 +271,34 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
         /*body*/ STMTS(body), \
         /*n_body*/ body.size(), \
         /*a_orelse*/ IFSTMTS(p.m_a, ifblock), \
+        /*n_orelse*/ 1)
+
+#define WHERESINGLE(cond, body, l) make_Where_t(p.m_a, l, \
+        /*test*/ EXPR(cond), \
+        /*body*/ IFSTMTS(p.m_a, body), \
+        /*n_body*/ 1, \
+        /*a_orelse*/ nullptr, \
+        /*n_orelse*/ 0)
+
+#define WHERE1(cond, body, l) make_Where_t(p.m_a, l, \
+        /*test*/ EXPR(cond), \
+        /*body*/ STMTS(body), \
+        /*n_body*/ body.size(), \
+        /*a_orelse*/ nullptr, \
+        /*n_orelse*/ 0)
+
+#define WHERE2(cond, body, orelse, l) make_Where_t(p.m_a, l, \
+        /*test*/ EXPR(cond), \
+        /*body*/ STMTS(body), \
+        /*n_body*/ body.size(), \
+        /*a_orelse*/ STMTS(orelse), \
+        /*n_orelse*/ orelse.size())
+
+#define WHERE3(cond, body, whereblock, l) make_Where_t(p.m_a, l, \
+        /*test*/ EXPR(cond), \
+        /*body*/ STMTS(body), \
+        /*n_body*/ body.size(), \
+        /*a_orelse*/ IFSTMTS(p.m_a, whereblock), \
         /*n_orelse*/ 1)
 
 #define LIST_NEW(l) l.reserve(p.m_a, 4)
@@ -316,5 +353,13 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
         /*char* a_func*/ name2char(id), \
         /*expr_t** a_args*/ nullptr, /*size_t n_args*/ 0, \
         /*keyword_t* a_keywords*/ nullptr, /*size_t n_keywords*/ 0)
+
+#define SELECT(cond, body, def, l) make_Select_t(p.m_a, l, \
+        EXPR(cond), \
+        CASE_STMTS(body), body.size(), \
+        STMTS(def), def.size())
+
+#define CASE_STMT(cond, body, l) make_CaseStmt_t(p.m_a, l, \
+        EXPR(cond), STMTS(body), body.size())
 
 #endif
