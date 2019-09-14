@@ -529,7 +529,7 @@ class ASTBuilderVisitor(fortranVisitor):
 
     # Visit a parse tree produced by fortranParser#use_statement.
     def visitUse_statement(self, ctx:fortranParser.Use_statementContext):
-        module = self.visit(ctx.use_symbol())
+        module = ctx.ident().getText()
         symbols = []
         if ctx.use_symbol_list():
             for s in ctx.use_symbol_list().use_symbol():
@@ -540,9 +540,9 @@ class ASTBuilderVisitor(fortranVisitor):
     # Visit a parse tree produced by fortranParser#use_symbol.
     def visitUse_symbol(self, ctx:fortranParser.Use_symbolContext):
         if len(ctx.ident()) == 1:
-            return ast.use_symbol(sym=ctx.ident(0).getText(), rename=None)
+            return ast.UseSymbol(sym=ctx.ident(0).getText(), rename=None)
         elif len(ctx.ident()) == 2:
-            return ast.use_symbol(sym=ctx.ident(0).getText(),
+            return ast.UseSymbol(sym=ctx.ident(0).getText(),
                     rename=ctx.ident(1).getText())
         else:
             raise Exception("The grammar should not allow this.")
