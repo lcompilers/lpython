@@ -342,12 +342,6 @@ program
             LLOC(@$, @8); $$ = PROGRAM($2, $4, $5, @$); }
     ;
 
-// id?
-id_opt
-    : id
-    | %empty
-    ;
-
 subroutine
     : KW_SUBROUTINE id sub_args sep var_decl_star statements
         KW_END KW_SUBROUTINE sep {
@@ -740,6 +734,13 @@ id_list
     : id_list "," id { $$ = $1; LIST_ADD($$, $3); }
     | id { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
+
+// id?
+id_opt
+    : id
+    | %empty
+    ;
+
 
 id
     : TK_NAME { $$ = SYMBOL($1, @$); }

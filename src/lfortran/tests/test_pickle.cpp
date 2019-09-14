@@ -1093,6 +1093,51 @@ end function)",
         "use a, only: b, c",
         "use a, only: x => b, c, d => a",
 
+        // -------------------------------------------------------
+        // Program
+        R"(program test
+        implicit none
+        integer :: x
+        x = 1
+        call a(x)
+        end program
+        )",
+
+        R"(program test
+        implicit none
+        integer :: x
+        x = 1
+        call a(x)
+        end program)",
+
+        R"(program test
+        implicit none
+        integer :: x
+        x = 1
+        call a(x)
+        contains
+            subroutine a(b)
+            integer, intent(in) :: b
+            end subroutine
+        end program
+        )",
+
+        R"(program test
+        implicit none
+        integer :: x
+        x = 1
+        call a(x)
+        contains
+            subroutine a(b)
+            integer, intent(in) :: b
+            end subroutine
+
+            subroutine f(b)
+            integer, intent(in) :: b
+            end subroutine
+        end program
+        )",
+
 
     };
     std::vector<std::string> o;
