@@ -364,6 +364,7 @@ exit
 (prog test [] [(decl [(x "integer" [] [] ())])] [(= x 1) (subroutinecall a [])] [])
 (prog test [] [(decl [(x "integer" [] [] ())])] [(= x 1) (subroutinecall a [])] [])
 (module test [] [] [])
+(module test [] [] [])
 (decl [(x "Integer" [] [] ())])
 (decl [(x "INTEGER" [] [] ())])
 (decl [(x "iNteger" [] [] ())])

@@ -1152,12 +1152,12 @@ end function)",
         end module
         )",
 
-        /*
         R"(module test
         implicit none
         integer :: x
         end module)",
 
+        /*
         R"(module test
         implicit none
         private
