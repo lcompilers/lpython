@@ -988,11 +988,19 @@ end function)",
         f = 1
         end function
         )",
-        /*
-        R"(real(dp) function f(e) result(r)
-        r = 1
+        R"(real(dp) function f(e)
+        f = 1
         end function
         )",
+        R"(real(dp) function f(e, b)
+        f = 1
+        end function
+        )",
+        R"(real(dp) pure function f(e, b)
+        f = 1
+        end function
+        )",
+        /*
         R"(real(dp) pure function f(e) result(r)
         r = 1
         end function
