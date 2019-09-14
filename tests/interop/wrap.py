@@ -175,10 +175,10 @@ class Function:
         args = [x.tofortran_arg() for x in self.args]
         args_decl = [x.tofortran_cdecl() for x in self.args]
         use = [
-            ast.Use(module=ast.use_symbol(sym="gfort_interop", rename=None),
+            ast.Use(module=ast.UseSymbol(sym="gfort_interop", rename=None),
                 symbols=[
-                    ast.use_symbol(sym="c_desc1_t", rename=None),
-                    ast.use_symbol(sym="c_desc2_t", rename=None),
+                    ast.UseSymbol(sym="c_desc1_t", rename=None),
+                    ast.UseSymbol(sym="c_desc2_t", rename=None),
                 ], lineno=1, col_offset=1)
         ]
         cname = self.name + "_c_wrapper"
@@ -196,9 +196,9 @@ class Module:
     def tofortran(self):
         contains = [x.tofortran_impl() for x in self.contains]
         use = [
-            ast.Use(module=ast.use_symbol(sym="gfort_interop", rename=None),
+            ast.Use(module=ast.UseSymbol(sym="gfort_interop", rename=None),
                 symbols=[
-                    ast.use_symbol(sym="c_desc", rename=None),
+                    ast.UseSymbol(sym="c_desc", rename=None),
                 ], lineno=1, col_offset=1)
         ]
         return ast.Module(name=self.name, use=use, decl=[], contains=contains)
