@@ -1152,6 +1152,7 @@ end function)",
         end module
         )",
 
+        /*
         R"(module test
         implicit none
         integer :: x
@@ -1265,6 +1266,7 @@ end function)",
         end interface
         end module
         )",
+        */
 
 
         // -------------------------------------------------------

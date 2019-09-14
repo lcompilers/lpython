@@ -57,6 +57,10 @@ using LFortran::AST::make_WhileLoop_t;
 using LFortran::AST::make_FuncCallOrArray_t;
 using LFortran::AST::make_Use_t;
 using LFortran::AST::make_UseSymbol_t;
+using LFortran::AST::make_Module_t;
+using LFortran::AST::make_Private_t;
+using LFortran::AST::make_Public_t;
+using LFortran::AST::make_Interface_t;
 
 
 static inline expr_t* EXPR(const ast_t *f)
@@ -377,5 +381,17 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
         name2char(x), nullptr)
 #define USE_SYMBOL2(x, y, l) make_UseSymbol_t(p.m_a, l, \
         name2char(y), name2char(x))
+
+#define MODULE(name, l) make_Module_t(p.m_a, l, \
+        name2char(name), \
+        /*unit_decl1_t** a_use*/ nullptr, /*size_t n_use*/ 0, \
+        /*unit_decl2_t** a_decl*/ nullptr, /*size_t n_decl*/ 0, \
+        /*program_unit_t** a_contains*/ nullptr, /*size_t n_contains*/ 0)
+#define PRIVATE(syms, l) make_Private_t(p.m_a, l, \
+        nullptr, 0)
+#define PUBLIC(syms, l) make_Public_t(p.m_a, l, \
+        nullptr, 0)
+#define INTERFACE(name, l) make_Interface_t(p.m_a, l, \
+        name2char(name), nullptr, 0)
 
 #endif
