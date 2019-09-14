@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    39 // shift/reduce conflicts
+%expect    40 // shift/reduce conflicts
 %expect-rr 17 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -338,7 +338,8 @@ script_unit
 
 
 program
-    : KW_PROGRAM id sep implicit_statement_opt var_decl_star statements KW_END KW_PROGRAM id_opt sep {
+    : KW_PROGRAM id sep implicit_statement_opt var_decl_star statements
+        contains_block_opt KW_END KW_PROGRAM id_opt sep {
             LLOC(@$, @9); $$ = PROGRAM($2, $5, $6, @$); }
     ;
 
@@ -352,6 +353,21 @@ function
     : fn_type pure_opt recursive_opt KW_FUNCTION id "(" id_list_opt ")"
         result_opt sep var_decl_star statements KW_END KW_FUNCTION sep {
             LLOC(@$, @14); $$ = FUNCTION($5, $11, $12, @$); }
+    ;
+
+contains_block_opt
+    : KW_CONTAINS sep sub_or_func_plus
+    | %empty
+    ;
+
+sub_or_func_plus
+    : sub_or_func_plus sub_or_func
+    | sub_or_func
+    ;
+
+sub_or_func
+    : subroutine
+    | function
     ;
 
 sub_args
