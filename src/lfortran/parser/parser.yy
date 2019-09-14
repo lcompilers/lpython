@@ -255,6 +255,12 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> id_list
 %type <vec_ast> id_list_opt
 %type <ast> script_unit
+%type <ast> module
+%type <ast> module_decl
+%type <vec_ast> module_decl_star
+%type <ast> private_decl
+%type <ast> public_decl
+%type <ast> interface_decl
 %type <ast> program
 %type <ast> subroutine
 %type <ast> function
@@ -324,7 +330,8 @@ units
     ;
 
 script_unit
-    : program
+    : module
+    | program
     | subroutine
     | function
     | use_statement
@@ -332,6 +339,55 @@ script_unit
     | statement          %dprec 7
     | expr sep           %dprec 8
     ;
+
+// ----------------------------------------------------------------------------
+// Module definitions
+//
+// * private/public blocks
+// * interface blocks
+//
+
+module
+    : KW_MODULE id sep implicit_statement_opt
+        module_decl_star contains_block_opt KW_END KW_MODULE id_opt sep {
+            $$ = MODULE($2, @$); }
+    ;
+
+module_decl_star
+    : module_decl_star module_decl { $$ = $1; LIST_ADD($$, $2); }
+    | %empty { LIST_NEW($$); }
+
+module_decl
+    : private_decl
+    | public_decl
+    | var_decl
+    | interface_decl
+    ;
+
+private_decl
+    : KW_PRIVATE id_list_opt sep { $$ = PRIVATE($2, @$); }
+    | KW_PRIVATE "::" id_list_opt sep { $$ = PRIVATE($3, @$); }
+    ;
+
+public_decl
+    : KW_PUBLIC id_list_opt sep { $$ = PUBLIC($2, @$); }
+    | KW_PUBLIC "::" id_list_opt sep { $$ = PUBLIC($3, @$); }
+    ;
+
+interface_decl
+    : KW_INTERFACE id sep proc_list KW_END KW_INTERFACE id_opt sep {
+            $$ = INTERFACE($2, @$); }
+    ;
+
+proc_list
+    : proc_list proc
+    | %empty
+    ;
+
+proc
+    : KW_MODULE KW_PROCEDURE id_list sep
+
+
 
 // ----------------------------------------------------------------------------
 // Subroutine/functions/program definitions

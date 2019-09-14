@@ -1144,6 +1144,130 @@ end function)",
         )",
 
         // -------------------------------------------------------
+        // Module
+
+        R"(module test
+        implicit none
+        integer :: x
+        end module
+        )",
+
+        R"(module test
+        implicit none
+        integer :: x
+        end module)",
+
+        R"(module test
+        implicit none
+        private
+        integer :: x
+        end module
+        )",
+
+        R"(module test
+        implicit none
+        private x, y
+        integer :: x, y
+        end module
+        )",
+
+        R"(module test
+        implicit none
+        private :: x, y
+        integer :: x, y
+        end module
+        )",
+
+        R"(module test
+        implicit none
+        public
+        integer :: x
+        end module
+        )",
+
+        R"(module test
+        implicit none
+        public x, y
+        integer :: x, y
+        end module
+        )",
+
+        R"(module test
+        implicit none
+        public :: x, y
+        integer :: x, y
+        end module
+        )",
+
+        R"(module test
+        implicit none
+        private
+        public :: x, y
+        integer :: x, y
+        end module
+        )",
+
+        R"(module test
+        implicit none
+        private x
+        public y
+        integer :: x, y
+        end module
+        )",
+
+        R"(module test
+        implicit none
+        contains
+            subroutine a(b)
+            integer, intent(in) :: b
+            end subroutine
+        end module
+        )",
+
+        R"(module test
+        implicit none
+        contains
+            subroutine a(b)
+            integer, intent(in) :: b
+            end subroutine
+
+            subroutine f(b)
+            integer, intent(in) :: b
+            end subroutine
+        end module
+        )",
+
+        R"(module test
+        implicit none
+        integer :: x
+        contains
+            subroutine a(b)
+            integer, intent(in) :: b
+            end subroutine
+        end module
+        )",
+
+        R"(module test
+        implicit none
+        contains
+            function f() result(y)
+            y = 0
+            end function
+        end module
+        )",
+
+        R"(module test
+        implicit none
+        interface name
+            module procedure a
+            module procedure b
+            module procedure c
+        end interface
+        end module
+        )",
+
+
+        // -------------------------------------------------------
         // Case sensitivity
         "Integer :: x",
         "INTEGER :: x",
