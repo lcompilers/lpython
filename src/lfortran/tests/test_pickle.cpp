@@ -151,39 +151,6 @@ TEST_CASE("Subroutines") {
     end subroutine)")   == "(sub f [] [] [] [(= subroutine y) (= x (* 2 subroutine))] [])");
 }
 
-TEST_CASE("Functions") {
-    Allocator al(4*1024);
-
-    CHECK(P(R"(function g()
-    x = y
-    x = 2*y
-    end function)")   == "(fn g [] () () () [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P(R"(function g()
-    end function)")   == "(fn g [] () () () [] [] [] [])");
-
-
-    CHECK(P(R"(function g()
-    x = y; ;
-
-
-    x = 2*y;; ;
-
-    end function)")   == "(fn g [] () () () [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P("function g(); x = y; x = 2*y; end function") == "(fn g [] () () () [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P(R"(function f()
-    subroutine = y
-    x = 2*subroutine
-    end function)")   == "(fn f [] () () () [] [] [(= subroutine y) (= x (* 2 subroutine))] [])");
-
-    CHECK(P(R"(function f()
-integer :: f
-f = 5
-end function)") == "(fn f [] () () () [] [(decl [(f \"integer\" [] [] ())])] [(= f 5)] [])");
-}
-
 
 TEST_CASE("Multiple units") {
     Allocator al(4*1024);
@@ -896,6 +863,32 @@ TEST_CASE("Lists of tests") {
         R"(PROGRAM TESTFortran90
       integer stop ; stop = 1 ; do while ( stop .eq. 0 ) ; end do
       END PROGRAM TESTFortran90)",
+
+        // -------------------------------------------------------
+        // Function
+        R"(function g()
+    x = y
+    x = 2*y
+    end function)",
+        R"(function g()
+    end function)",
+        R"(function g()
+    x = y; ;
+
+
+    x = 2*y;; ;
+
+    end function)",
+        "function g(); x = y; x = 2*y; end function",
+        R"(function f()
+    subroutine = y
+    x = 2*subroutine
+    end function)",
+        R"(function f()
+integer :: f
+f = 5
+end function)",
+
     };
     std::vector<std::string> o;
     for (std::string &s: v) {
