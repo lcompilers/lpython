@@ -252,6 +252,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> expr
 %type <vec_ast> expr_list
 %type <ast> id
+%type <vec_ast> id_list
+%type <vec_ast> id_list_opt
 %type <ast> script_unit
 %type <ast> program
 %type <ast> subroutine
@@ -352,9 +354,9 @@ subroutine
     ;
 
 function
-    : fn_type KW_FUNCTION id "(" ")" sep var_decl_star statements
+    : fn_type KW_FUNCTION id "(" id_list_opt ")" sep var_decl_star statements
         KW_END KW_FUNCTION sep {
-            LLOC(@$, @10); $$ = FUNCTION($3, $7, $8, @$); }
+            LLOC(@$, @11); $$ = FUNCTION($3, $8, $9, @$); }
     ;
 
 fn_type
@@ -706,6 +708,16 @@ fnarray_arg_list
 fnarray_arg
     : array_comp_decl
     | id "=" expr
+    ;
+
+id_list_opt
+    : id_list
+    | %empty { LIST_NEW($$); }
+    ;
+
+id_list
+    : id_list "," id { $$ = $1; LIST_ADD($$, $3); }
+    | id { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 id
