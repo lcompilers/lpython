@@ -354,6 +354,8 @@ exit
 (sub f [] [] [] [(= subroutine y) (= x (* 2 subroutine))] [])
 (sub f [] [] [(decl [(x "integer" [] [] ())])] [] [])
 (sub f [] [] [(decl [(x "integer" [] [] ())])] [] [])
+(sub f [] [] [(decl [(a "integer" [] [(attribute intent [(in)])] ()) (b "integer" [] [(attribute intent [(in)])] ())]) (decl [(c "integer" [] [(attribute intent [(in)])] ()) (d "integer" [] [(attribute intent [(in)])] ())]) (decl [(z "integer" [] [] ())]) (decl [(y "integer" [] [] ())])] [] [])
+(sub f [] [] [(decl [(a "integer" [] [(attribute intent [(out)])] ()) (b "integer" [] [(attribute intent [(out)])] ())]) (decl [(c "integer" [] [(attribute intent [(inout)])] ()) (d "integer" [] [(attribute intent [(inout)])] ())]) (decl [(z "integer" [] [] ())]) (decl [(y "integer" [] [] ())])] [] [])
 (use b [])
 (use a [(usesymbol b ()) (usesymbol c ())])
 (use a [(usesymbol b x) (usesymbol c ()) (usesymbol a d)])

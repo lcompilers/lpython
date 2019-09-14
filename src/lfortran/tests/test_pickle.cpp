@@ -1072,7 +1072,6 @@ end function)",
         R"(subroutine f()
         integer :: x
         end subroutine)",
-        /*
         R"(subroutine f(a, b, c, d)
         integer, intent(in) :: a, b
         integer, intent ( in ) :: c, d
@@ -1087,7 +1086,6 @@ end function)",
         integer::y
         end subroutine
         )",
-        */
 
         // -------------------------------------------------------
         // Use
