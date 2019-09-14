@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    32 // shift/reduce conflicts
-%expect-rr 14 // reduce/reduce conflicts
+%expect    38 // shift/reduce conflicts
+%expect-rr 17 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -252,6 +252,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> expr
 %type <vec_ast> expr_list
 %type <ast> id
+%type <vec_ast> id_list
+%type <vec_ast> id_list_opt
 %type <ast> script_unit
 %type <ast> program
 %type <ast> subroutine
@@ -347,14 +349,40 @@ id_opt
     ;
 
 subroutine
-    : KW_SUBROUTINE id sep var_decl_star statements KW_END KW_SUBROUTINE sep {
-            LLOC(@$, @7); $$ = SUBROUTINE($2, $4, $5, @$); }
+    : KW_SUBROUTINE id sub_args sep var_decl_star statements
+        KW_END KW_SUBROUTINE sep {
+            LLOC(@$, @8); $$ = SUBROUTINE($2, $5, $6, @$); }
     ;
 
 function
-    : KW_FUNCTION id "(" ")" sep var_decl_star statements
-        KW_END KW_FUNCTION sep {
-            LLOC(@$, @9); $$ = FUNCTION($2, $6, $7, @$); }
+    : fn_type pure_opt recursive_opt KW_FUNCTION id "(" id_list_opt ")"
+        result_opt sep var_decl_star statements KW_END KW_FUNCTION sep {
+            LLOC(@$, @14); $$ = FUNCTION($5, $11, $12, @$); }
+    ;
+
+sub_args
+    : "(" id_list_opt ")"
+    | %empty
+    ;
+
+pure_opt
+    : KW_PURE
+    | %empty
+    ;
+
+recursive_opt
+    : KW_RECURSIVE
+    | %empty
+    ;
+
+fn_type
+    : var_type kind_selector
+    | %empty
+    ;
+
+result_opt
+    : KW_RESULT "(" id ")"
+    | %empty
     ;
 
 use_statement
@@ -701,6 +729,16 @@ fnarray_arg_list
 fnarray_arg
     : array_comp_decl
     | id "=" expr
+    ;
+
+id_list_opt
+    : id_list
+    | %empty { LIST_NEW($$); }
+    ;
+
+id_list
+    : id_list "," id { $$ = $1; LIST_ADD($$, $3); }
+    | id { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 id

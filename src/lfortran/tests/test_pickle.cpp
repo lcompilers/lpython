@@ -984,6 +984,37 @@ end subroutine
 integer :: f
 f = 5
 end function)",
+        R"(real(dp) function f()
+        f = 1
+        end function
+        )",
+        R"(real(dp) function f(e)
+        f = 1
+        end function
+        )",
+        R"(real(dp) function f(e, b)
+        f = 1
+        end function
+        )",
+        R"(real(dp) pure function f(e, b)
+        f = 1
+        end function
+        )",
+        R"(real(dp) pure function f(e) result(r)
+        r = 1
+        end function
+        )",
+        R"(real(dp) recursive function f(e) result(r)
+        r = 1
+        end function
+        )",
+        R"(function f(e)
+        f = 1
+        end function
+        )",
+        R"(function f(e)
+        f = 1
+        end function)",
 
         // -------------------------------------------------------
         // Subroutine
@@ -1026,6 +1057,35 @@ end function)",
     subroutine = y
     x = 2*subroutine
     end subroutine)",
+        R"(subroutine f
+        integer :: x
+        end subroutine
+        )",
+        /*
+        R"(subroutine f()
+        ! Some comment
+        integer :: x
+        ! Some other comment
+        end subroutine
+        )",
+        */
+        R"(subroutine f()
+        integer :: x
+        end subroutine)",
+        R"(subroutine f(a, b, c, d)
+        integer, intent(in) :: a, b
+        integer, intent ( in ) :: c, d
+        integer :: z
+        integer::y
+        end subroutine
+        )",
+        R"(subroutine f(a, b, c, d)
+        integer, intent(out) :: a, b
+        integer, intent(inout) :: c, d
+        integer :: z
+        integer::y
+        end subroutine
+        )",
 
         // -------------------------------------------------------
         // Use
