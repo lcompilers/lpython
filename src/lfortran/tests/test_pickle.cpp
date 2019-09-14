@@ -555,6 +555,68 @@ TEST_CASE("Lists of tests") {
             a = 5
         end do)",
         "do while (x > 5); a = 5; end do",
+     R"(do while(x == y)
+            i = i +1
+            cycle
+            exit
+        end do)",
+
+        // -----------------------------------------------------------
+        // Select case
+     /*
+    R"(select case(k)
+    case(1)
+        call a()
+    case(i)
+        call b()
+end select
+)",
+    R"(select case(k)
+    case(1)
+        call a()
+    case(i)
+        call b()
+    case default
+        call c()
+end select
+)",
+    */
+
+        // -----------------------------------------------------------
+        // Where
+/*
+        "where (a < 5) B = 1",
+        R"(where (a < 5)
+        B = 1
+    end where
+    )",
+        R"(where (a < 5)
+        B = 1
+    else where
+        B = 0
+    end where
+    )",
+        R"(where (a < 5)
+        B = 1
+    else
+        B = 0
+    end where
+    )",
+        R"(where (a < 5)
+        B = 1
+    else where (a < 7)
+        B = 0
+    else where
+        B = 3
+    end where
+    )",
+        R"(where (a < 5)
+        B = 1
+    else where (a < 7)
+        B = 0
+    end where
+    )",
+    */
 
         // -----------------------------------------------------------
         // Do loop
@@ -586,6 +648,24 @@ TEST_CASE("Lists of tests") {
         enddo)",
         "do; a = a + i; b = 3; end do",
         "do",
+        R"(subroutine a
+    do
+        x = 1
+    end do
+    end subroutine
+    )",
+        R"(subroutine a
+    do i = 1, 5
+        x = x + i
+    end do
+    end subroutine
+    )",
+        R"(subroutine a
+    do i = 1, 5, -1
+        x = i
+    end do
+    end subroutine
+    )",
 
         // -------------------------------------------------------
         // Return
@@ -784,6 +864,62 @@ TEST_CASE("Lists of tests") {
     else
         c = 3
     end if)",
+     R"(subroutine a
+if (a) then
+    x = 1
+else
+    x = 2
+end if
+end subroutine
+)",
+     R"(subroutine a
+if (a) then
+    x = 1
+else if (b) then
+    x = 2
+end if
+end subroutine
+)",
+    R"(subroutine a
+if (a) then
+    x = 1
+else if (b) then
+    x = 2
+else if (c) then
+    x = 2
+end if
+end subroutine
+)",
+    R"(subroutine a
+if (a) then
+    x = 1
+end if
+end subroutine
+)",
+    R"(subroutine a
+if (a) then
+    x = 1
+    y = 2
+end if
+end subroutine
+)",
+        /*
+    R"(subroutine a
+if (a) x = 1
+end subroutine
+)",
+    R"(subroutine a
+if (a) &
+    x = 1
+end subroutine
+)",
+    R"(
+subroutine a
+if (a) &     ! if statement
+    x = 1
+end subroutine
+)",
+*/
 
         // -------------------------------------------------------
         // Program
