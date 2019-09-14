@@ -451,7 +451,7 @@ statement
     | return_statement sep
     | cycle_statement sep
     | stop_statement sep
-    | if_statement sep
+    | if_statement
     | while_statement sep
     | do_statement sep
     ;
@@ -495,7 +495,8 @@ write_statement
 
 // sr-conflict (2x): KW_ENDIF can be an "id" or end of "if_statement"
 if_statement
-    : if_block endif {}
+    : if_block endif sep {}
+    | KW_IF "(" expr ")" statement { $$ = IFSINGLE($3, $5, @$); }
     ;
 
 if_block

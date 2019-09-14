@@ -903,11 +903,12 @@ if (a) then
 end if
 end subroutine
 )",
-        /*
     R"(subroutine a
 if (a) x = 1
 end subroutine
 )",
+    "if (a) x = 1",
+        /*
     R"(subroutine a
 if (a) &
     x = 1

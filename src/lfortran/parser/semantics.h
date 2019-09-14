@@ -243,6 +243,13 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
         /*n_contains*/ 0)
 #define RESULT(x) p.result.push_back(x)
 
+#define IFSINGLE(cond, body, l) make_If_t(p.m_a, l, \
+        /*test*/ EXPR(cond), \
+        /*body*/ IFSTMTS(p.m_a, body), \
+        /*n_body*/ 1, \
+        /*a_orelse*/ nullptr, \
+        /*n_orelse*/ 0)
+
 #define IF1(cond, body, l) make_If_t(p.m_a, l, \
         /*test*/ EXPR(cond), \
         /*body*/ STMTS(body), \
