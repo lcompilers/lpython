@@ -255,3 +255,10 @@ return
 (+ return 1)
 (= return 1)
 (= a return)
+(do i 1 5 () [(cycle)])
+(while x [(cycle)])
+(do i 1 5 () [(= cycle 5)])
+cycle
+(+ cycle 1)
+(= cycle 1)
+(= a cycle)
