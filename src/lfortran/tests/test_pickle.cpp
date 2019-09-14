@@ -1027,6 +1027,13 @@ end function)",
     x = 2*subroutine
     end subroutine)",
 
+        // -------------------------------------------------------
+        // Use
+        "use b",
+        "use a, only: b, c",
+        "use a, only: x => b, c, d => a",
+
+
     };
     std::vector<std::string> o;
     for (std::string &s: v) {
