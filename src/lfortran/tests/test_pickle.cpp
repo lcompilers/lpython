@@ -272,129 +272,11 @@ TEST_CASE("Multiple units") {
 TEST_CASE("if") {
     Allocator al(16*1024);
 
-    CHECK(P(R"(subroutine g
-    if (x) then
-        a = 5
-        b = 4
-    end if
-    end subroutine)")   == "(sub g [] [] [] [(if x [(= a 5) (= b 4)] [])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-        a = 5
-    end   If
-    end subroutine)")   == "(sub g [] [] [] [(if x [(= a 5)] [])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-        a = 5
-    ENDIF
-    end subroutine)")   == "(sub g [] [] [] [(if x [(= a 5)] [])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-        endif = 5
-    ENDIF
-    end subroutine)")   == "(sub g [] [] [] [(if x [(= endif 5)] [])] [])");
-
     CHECK_THROWS_AS(P(R"(subroutine g
     if (x) then
         end if = 5
     end if
     end subroutine)"), LFortran::ParserError);
-
-    CHECK(P(R"(subroutine g
-    if (else) then
-        a = 5
-        b = 4
-    end if
-    end subroutine)")   == "(sub g [] [] [] [(if else [(= a 5) (= b 4)] [])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (else) then
-        then = 5
-        else = 4
-    end if
-    end subroutine)")   == "(sub g [] [] [] [(if else [(= then 5) (= else 4)] [])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-        a = 5
-    else
-        b = 4
-    end if
-    end subroutine)")   == "(sub g [] [] [] [(if x [(= a 5)] [(= b 4)])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-    else
-        b = 4
-    end if
-    end subroutine)")   == "(sub g [] [] [] [(if x [] [(= b 4)])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-        a = 5
-    else
-    end if
-    end subroutine)")   == "(sub g [] [] [] [(if x [(= a 5)] [])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-    else
-    end if
-    end subroutine)")   == "(sub g [] [] [] [(if x [] [])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-    end if
-    end subroutine)")   == "(sub g [] [] [] [(if x [] [])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-        a = 5
-        c = 7
-    else
-        b = 4
-        e = 5
-    end if
-    end subroutine)")   == "(sub g [] [] [] [(if x [(= a 5) (= c 7)] [(= b 4) (= e 5)])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (else) then
-        else = 5
-    else
-        else = 4
-    end if
-    end subroutine)")   == "(sub g [] [] [] [(if else [(= else 5)] [(= else 4)])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-        a = 5
-    else if (y) then
-        b = 4
-    end if
-    end subroutine)") == "(sub g [] [] [] [(if x [(= a 5)] [(if y [(= b 4)] [])])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-        a = 5
-    else if (y) then
-        b = 4
-    else if (z) then
-        c = 3
-    end if
-    end subroutine)") == "(sub g [] [] [] [(if x [(= a 5)] [(if y [(= b 4)] [(if z [(= c 3)] [])])])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (else) then
-        else = 5
-    else if (else) then
-    else if (else) then
-    else if (else) then
-        else = 3
-    end if
-    end subroutine)") == "(sub g [] [] [] [(if else [(= else 5)] [(if else [] [(if else [] [(if else [(= else 3)] [])])])])] [])");
 
     CHECK_THROWS_AS(P(R"(subroutine g
     if (else) then
@@ -406,47 +288,6 @@ TEST_CASE("if") {
     end if
     end subroutine)"), LFortran::ParserError);
 
-    CHECK(P(R"(subroutine g
-    if (x) then
-        a = 5
-    else if (y) then
-        b = 4
-    else
-        c = 3
-    end if
-    end subroutine)") == "(sub g [] [] [] [(if x [(= a 5)] [(if y [(= b 4)] [(= c 3)])])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-        a = 5
-        if (y) then
-            b = 4
-        else
-            c = 3
-        end if
-    end if
-    end subroutine)") == "(sub g [] [] [] [(if x [(= a 5) (if y [(= b 4)] [(= c 3)])] [])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-        a = 5
-        if (y) then
-            b = 4
-        end if
-    else
-        c = 3
-    end if
-    end subroutine)") == "(sub g [] [] [] [(if x [(= a 5) (if y [(= b 4)] [])] [(= c 3)])] [])");
-
-    CHECK(P(
- R"(if (x) then
-        a = 5
-        if (y) then
-            b = 4
-        end if
-    else
-        c = 3
-    end if)") == "(if x [(= a 5) (if y [(= b 4)] [])] [(= c 3)])");
 }
 
 
@@ -922,6 +763,148 @@ TEST_CASE("Lists of tests") {
         "exit+1",
         "exit=1",
         "a=exit",
+
+        // -------------------------------------------------------
+        // If
+        R"(subroutine g
+    if (x) then
+        a = 5
+        b = 4
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+        a = 5
+    end   If
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+        a = 5
+    ENDIF
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+        endif = 5
+    ENDIF
+    end subroutine)",
+        R"(subroutine g
+    if (else) then
+        a = 5
+        b = 4
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (else) then
+        then = 5
+        else = 4
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+        a = 5
+    else
+        b = 4
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+    else
+        b = 4
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+        a = 5
+    else
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+    else
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+        a = 5
+        c = 7
+    else
+        b = 4
+        e = 5
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (else) then
+        else = 5
+    else
+        else = 4
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+        a = 5
+    else if (y) then
+        b = 4
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+        a = 5
+    else if (y) then
+        b = 4
+    else if (z) then
+        c = 3
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (else) then
+        else = 5
+    else if (else) then
+    else if (else) then
+    else if (else) then
+        else = 3
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+        a = 5
+    else if (y) then
+        b = 4
+    else
+        c = 3
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+        a = 5
+        if (y) then
+            b = 4
+        else
+            c = 3
+        end if
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+        a = 5
+        if (y) then
+            b = 4
+        end if
+    else
+        c = 3
+    end if
+    end subroutine)",
+        R"(if (x) then
+        a = 5
+        if (y) then
+            b = 4
+        end if
+    else
+        c = 3
+    end if)",
     };
     std::vector<std::string> o;
     for (std::string &s: v) {
