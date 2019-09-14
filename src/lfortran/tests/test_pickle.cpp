@@ -1159,6 +1159,60 @@ end function)",
 
         "tYPe(xx), inTEnt(inOUt) :: x, y",
 
+        // -------------------------------------------------------
+        // Interactivity
+        "a = 5; b = 6",
+
+        R"(a = 5
+        b = 6
+        )",
+
+        R"(a = 5
+        print *, a
+        )",
+
+        R"(a = 5
+
+        subroutine p()
+        print *, a
+        end subroutine
+
+        call p()
+        )",
+
+        /*
+        R"(module a
+        implicit none
+        integer :: i
+        end module
+
+        use a, only: i
+
+        i = 5
+        )",
+        */
+
+        R"(use a, only: i
+
+        i = 5
+        )",
+
+        R"(use a, only: i
+        i = 5
+        )",
+
+        /*
+        R"(!x = [1, 2, 3]
+        !y = [1, 2, 1]
+        call plot(x, y, "o-")
+        )",
+        */
+
+        R"(x = [1, 2, 3]
+        y = [1, 2, 1]
+        call plot(x, y, "o-")
+        )",
+
 
 
     };
