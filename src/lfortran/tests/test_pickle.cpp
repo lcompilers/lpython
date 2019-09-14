@@ -1135,6 +1135,11 @@ end function)",
             subroutine f(b)
             integer, intent(in) :: b
             end subroutine
+
+            integer function a() result(r)
+            r = 5
+            end function
+
         end program
         )",
 
