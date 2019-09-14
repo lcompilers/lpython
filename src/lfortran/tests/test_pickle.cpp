@@ -1087,6 +1087,16 @@ end function)",
         end subroutine
         )",
 
+        R"(subroutine saxpy(n, a, x, y)
+        real(dp), intent(in) :: x(:), a
+        real(dp), intent(inout) :: y(:)
+        integer, intent(in) :: n
+        integer :: i
+        do i = 1, n
+            y(i) = a*x(i)+y(i)
+        enddo
+        end subroutine saxpy)",
+
         // -------------------------------------------------------
         // Use
         "use b",
