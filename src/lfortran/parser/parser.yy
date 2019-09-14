@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    38 // shift/reduce conflicts
+%expect    39 // shift/reduce conflicts
 %expect-rr 17 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -338,8 +338,8 @@ script_unit
 
 
 program
-    : KW_PROGRAM id sep var_decl_star statements KW_END KW_PROGRAM id_opt sep {
-            LLOC(@$, @8); $$ = PROGRAM($2, $4, $5, @$); }
+    : KW_PROGRAM id sep implicit_statement_opt var_decl_star statements KW_END KW_PROGRAM id_opt sep {
+            LLOC(@$, @9); $$ = PROGRAM($2, $5, $6, @$); }
     ;
 
 subroutine
@@ -377,6 +377,15 @@ fn_type
 result_opt
     : KW_RESULT "(" id ")"
     | %empty
+    ;
+
+implicit_statement_opt
+    : implicit_statement
+    | %empty
+    ;
+
+implicit_statement
+    : KW_IMPLICIT KW_NONE sep
     ;
 
 use_statement
