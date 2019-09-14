@@ -271,6 +271,34 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
         /*a_orelse*/ IFSTMTS(p.m_a, ifblock), \
         /*n_orelse*/ 1)
 
+#define WHERESINGLE(cond, body, l) make_Where_t(p.m_a, l, \
+        /*test*/ EXPR(cond), \
+        /*body*/ IFSTMTS(p.m_a, body), \
+        /*n_body*/ 1, \
+        /*a_orelse*/ nullptr, \
+        /*n_orelse*/ 0)
+
+#define WHERE1(cond, body, l) make_Where_t(p.m_a, l, \
+        /*test*/ EXPR(cond), \
+        /*body*/ STMTS(body), \
+        /*n_body*/ body.size(), \
+        /*a_orelse*/ nullptr, \
+        /*n_orelse*/ 0)
+
+#define WHERE2(cond, body, orelse, l) make_Where_t(p.m_a, l, \
+        /*test*/ EXPR(cond), \
+        /*body*/ STMTS(body), \
+        /*n_body*/ body.size(), \
+        /*a_orelse*/ STMTS(orelse), \
+        /*n_orelse*/ orelse.size())
+
+#define WHERE3(cond, body, whereblock, l) make_Where_t(p.m_a, l, \
+        /*test*/ EXPR(cond), \
+        /*body*/ STMTS(body), \
+        /*n_body*/ body.size(), \
+        /*a_orelse*/ IFSTMTS(p.m_a, whereblock), \
+        /*n_orelse*/ 1)
+
 #define LIST_NEW(l) l.reserve(p.m_a, 4)
 #define LIST_ADD(l, x) l.push_back(p.m_a, x)
 #define PLIST_ADD(l, x) l.push_back(p.m_a, *x)

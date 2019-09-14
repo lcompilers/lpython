@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    28 // shift/reduce conflicts
+%expect    29 // shift/reduce conflicts
 %expect-rr 14 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -152,6 +152,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_ENDIF
 %token <string> KW_END_DO
 %token <string> KW_ENDDO
+%token <string> KW_END_WHERE
+%token <string> KW_ENDWHERE
 %token <string> KW_ENTRY
 %token <string> KW_ENUM
 %token <string> KW_ENUMERATOR
@@ -272,6 +274,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> write_statement
 %type <ast> if_statement
 %type <ast> if_block
+%type <ast> where_statement
+%type <ast> where_block
 %type <ast> while_statement
 %type <ast> do_statement
 %type <ast> exit_statement
@@ -452,6 +456,7 @@ statement
     | cycle_statement sep
     | stop_statement sep
     | if_statement
+    | where_statement
     | while_statement sep
     | do_statement sep
     ;
@@ -508,6 +513,22 @@ if_block
             $$ = IF3($3, $7, $9, @$); }
     ;
 
+where_statement
+    : where_block endwhere sep {}
+    | KW_WHERE "(" expr ")" statement { $$ = WHERESINGLE($3, $5, @$); }
+    ;
+
+where_block
+    : KW_WHERE "(" expr ")" sep statements {
+            $$ = WHERE1($3, $6, @$); }
+    | KW_WHERE "(" expr ")" sep statements KW_ELSE sep statements {
+            $$ = WHERE2($3, $6, $9, @$); }
+    | KW_WHERE "(" expr ")" sep statements KW_ELSE KW_WHERE sep statements {
+            $$ = WHERE2($3, $6, $10, @$); }
+    | KW_WHERE "(" expr ")" sep statements KW_ELSE where_block {
+            $$ = WHERE3($3, $6, $8, @$); }
+    ;
+
 while_statement
     : KW_DO KW_WHILE "(" expr ")" sep statements enddo {
             $$ = WHILE($4, $7, @$); }
@@ -530,6 +551,11 @@ enddo
 endif
     : KW_END_IF
     | KW_ENDIF
+    ;
+
+endwhere
+    : KW_END_WHERE
+    | KW_ENDWHERE
     ;
 
 exit_statement
