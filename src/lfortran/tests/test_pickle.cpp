@@ -1009,6 +1009,7 @@ end function)",
         r = 1
         end function
         )",
+        */
         R"(function f(e)
         f = 1
         end function
@@ -1016,7 +1017,6 @@ end function)",
         R"(function f(e)
         f = 1
         end function)",
-        */
 
         // -------------------------------------------------------
         // Subroutine
