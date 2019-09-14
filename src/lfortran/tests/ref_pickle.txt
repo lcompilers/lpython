@@ -262,3 +262,11 @@ cycle
 (+ cycle 1)
 (= cycle 1)
 (= a cycle)
+(do i 1 5 () [(exit)])
+(do () () () () [(exit)])
+(while x [(exit)])
+(do i 1 5 () [(= exit 5)])
+exit
+(+ exit 1)
+(= exit 1)
+(= a exit)

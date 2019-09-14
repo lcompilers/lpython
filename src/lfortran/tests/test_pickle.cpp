@@ -477,33 +477,9 @@ TEST_CASE("exit") {
     // exit   ... variable "exit"
 
     CHECK(P(
- R"(do i = 1, 5
-        exit
-    end do)") == "(do i 1 5 () [(exit)])");
-
-    CHECK(P(
- R"(do
-        exit
-    enddo)") == "(do () () () () [(exit)])");
-
-    CHECK(P(
- R"(do while (x)
-        exit
-    end do)") == "(while x [(exit)])");
-
-    CHECK(P(
  R"(exit
     enddo)") == "exit");
 
-    CHECK(P(
- R"(do i = 1, 5
-        exit = 5
-    end do)") == "(do i 1 5 () [(= exit 5)])");
-
-    CHECK(P("exit") == "exit");
-    CHECK(P("exit+1") == "(+ exit 1)");
-    CHECK(P("exit=1") == "(= exit 1)");
-    CHECK(P("a=exit") == "(= a exit)");
 }
 
 TEST_CASE("cycle") {
@@ -927,6 +903,25 @@ TEST_CASE("Lists of tests") {
         "cycle+1",
         "cycle=1",
         "a=cycle",
+
+        // -------------------------------------------------------
+        // Exit
+     R"(do i = 1, 5
+            exit
+        end do)",
+     R"(do
+            exit
+        enddo)",
+     R"(do while (x)
+            exit
+        end do)",
+     R"(do i = 1, 5
+            exit = 5
+        end do)",
+        "exit",
+        "exit+1",
+        "exit=1",
+        "a=exit",
     };
     std::vector<std::string> o;
     for (std::string &s: v) {
