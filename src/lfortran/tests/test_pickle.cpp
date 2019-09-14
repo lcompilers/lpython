@@ -463,48 +463,6 @@ TEST_CASE("while") {
 TEST_CASE("do loop") {
     Allocator al(4*1024);
 
-    CHECK(P(
- R"(do i = 1, 5
-        a = a + i
-    end do)") == "(do i 1 5 () [(= a (+ a i))])");
-
-    CHECK(P(
- R"(do i = 1, 5
-    end do)") == "(do i 1 5 () [])");
-
-    CHECK(P(
- R"(do i = 1, 5, 2
-        a = a + i
-    end do)") == "(do i 1 5 2 [(= a (+ a i))])");
-
-    CHECK(P(
- R"(do
-        a = a + i
-        b = 3
-    end do)") == "(do () () () () [(= a (+ a i)) (= b 3)])");
-
-    CHECK(P(R"(subroutine g
-    do
-        a = a + i
-        b = 3
-    enddo
-    end subroutine)") == "(sub g [] [] [] [(do () () () () [(= a (+ a i)) (= b 3)])] [])");
-
-    CHECK(P(
- R"(do
-        a = a + i
-        b = 3
-    enddo)") == "(do () () () () [(= a (+ a i)) (= b 3)])");
-
-    CHECK(P(
- R"(do
-        do = a + i
-        enddo = 3
-    enddo)") == "(do () () () () [(= do (+ a i)) (= enddo 3)])");
-
-    CHECK(P("do; a = a + i; b = 3; end do") == "(do () () () () [(= a (+ a i)) (= b 3)])");
-
-    CHECK(P("do") == "do");
 
     CHECK(P(
  R"(do
@@ -945,6 +903,37 @@ TEST_CASE("Lists of tests") {
             a = 5
         end do)",
         "do while (x > 5); a = 5; end do",
+
+        // -----------------------------------------------------------
+        // Do loop
+     R"(do i = 1, 5
+            a = a + i
+        end do)",
+     R"(do i = 1, 5
+        end do)",
+     R"(do i = 1, 5, 2
+            a = a + i
+        end do)",
+     R"(do
+            a = a + i
+            b = 3
+        end do)",
+     R"(subroutine g
+        do
+            a = a + i
+            b = 3
+        enddo
+        end subroutine)",
+     R"(do
+            a = a + i
+            b = 3
+        enddo)",
+     R"(do
+            do = a + i
+            enddo = 3
+        enddo)",
+        "do; a = a + i; b = 3; end do",
+        "do",
     };
     std::vector<std::string> o;
     for (std::string &s: v) {
