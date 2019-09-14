@@ -239,6 +239,8 @@ stop
 (while (> x 5) [(= a 5)])
 (while (> x 5) [(= a 5)])
 (while (== x y) [(= i (+ i 1)) (cycle) (exit)])
+(select k [(casestmt 1 [(subroutinecall a [])]) (casestmt i [(subroutinecall b []) (subroutinecall c [])])] [])
+(select k [(casestmt 1 [(subroutinecall a [])]) (casestmt i [(subroutinecall b []) (= a 5)])] [(subroutinecall c [])])
 (where (< a 5) [(= B 1)] [])
 (where (< a 5) [(= B 1)] [])
 (where (< a 5) [(= B 1)] [(= B 0)])

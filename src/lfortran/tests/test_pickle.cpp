@@ -563,12 +563,12 @@ TEST_CASE("Lists of tests") {
 
         // -----------------------------------------------------------
         // Select case
-     /*
     R"(select case(k)
     case(1)
         call a()
     case(i)
         call b()
+        call c()
 end select
 )",
     R"(select case(k)
@@ -576,11 +576,11 @@ end select
         call a()
     case(i)
         call b()
+        a = 5
     case default
         call c()
 end select
 )",
-    */
 
         // -----------------------------------------------------------
         // Where
