@@ -99,127 +99,6 @@ TEST_CASE("Comparison") {
     CHECK(P("(1 == 2) + 3") == "(+ (== 1 2) 3)");
 }
 
-TEST_CASE("Subroutines") {
-    Allocator al(4*1024);
-
-    CHECK(P(R"(subroutine g
-    x = y
-    x = 2*y
-    end subroutine)")   == "(sub g [] [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P(R"(subroutine g
-    end subroutine)")   == "(sub g [] [] [] [] [])");
-
-    CHECK(P(R"(subroutine g
-    x = y
-
-    x = 2*y
-    end subroutine)")   == "(sub g [] [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P(R"(subroutine g
-
-    x = y
-
-
-    x = 2*y
-
-
-
-    end subroutine)")   == "(sub g [] [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P(R"(subroutine g
-    x = y
-    ;;;;;; ; ; ;
-    x = 2*y
-    end subroutine)")   == "(sub g [] [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P(R"(subroutine g
-    x = y;
-    x = 2*y;
-    end subroutine)")   == "(sub g [] [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P(R"(subroutine g
-    x = y; ;
-    x = 2*y;; ;
-    end subroutine)")   == "(sub g [] [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P("subroutine g; x = y; x = 2*y; end subroutine") == "(sub g [] [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P(R"(subroutine f
-    subroutine = y
-    x = 2*subroutine
-    end subroutine)")   == "(sub f [] [] [] [(= subroutine y) (= x (* 2 subroutine))] [])");
-}
-
-TEST_CASE("Functions") {
-    Allocator al(4*1024);
-
-    CHECK(P(R"(function g()
-    x = y
-    x = 2*y
-    end function)")   == "(fn g [] () () () [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P(R"(function g()
-    end function)")   == "(fn g [] () () () [] [] [] [])");
-
-
-    CHECK(P(R"(function g()
-    x = y; ;
-
-
-    x = 2*y;; ;
-
-    end function)")   == "(fn g [] () () () [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P("function g(); x = y; x = 2*y; end function") == "(fn g [] () () () [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P(R"(function f()
-    subroutine = y
-    x = 2*subroutine
-    end function)")   == "(fn f [] () () () [] [] [(= subroutine y) (= x (* 2 subroutine))] [])");
-
-    CHECK(P(R"(function f()
-integer :: f
-f = 5
-end function)") == "(fn f [] () () () [] [(decl [(f \"integer\" [] [] ())])] [(= f 5)] [])");
-}
-
-TEST_CASE("Programs") {
-    Allocator al(4*1024);
-
-    CHECK(P(R"(program g
-    x = y
-    x = 2*y
-    end program)")   == "(prog g [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P(R"(program g
-    end program)")   == "(prog g [] [] [] [])");
-
-
-    CHECK(P(R"(program g
-    x = y; ;
-
-
-    x = 2*y;; ;
-
-    end program)")   == "(prog g [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P("program g; x = y; x = 2*y; end program") == "(prog g [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P(R"(program f
-    subroutine = y
-    x = 2*subroutine
-    end program)")   == "(prog f [] [] [(= subroutine y) (= x (* 2 subroutine))] [])");
-
-    CHECK(P(R"(program g
-    x = y
-    end program g)")   == "(prog g [] [] [(= x y)] [])");
-
-    CHECK(P(
-   R"(PROGRAM TESTFortran90
-      integer stop ; stop = 1 ; do while ( stop .eq. 0 ) ; end do
-      END PROGRAM TESTFortran90)") == "(prog TESTFortran90 [] [(decl [(stop \"integer\" [] [] ())])] [(= stop 1) (while (== stop 0) [])] [])");
-}
 
 TEST_CASE("Multiple units") {
     Allocator al(4*1024);
@@ -272,129 +151,11 @@ TEST_CASE("Multiple units") {
 TEST_CASE("if") {
     Allocator al(16*1024);
 
-    CHECK(P(R"(subroutine g
-    if (x) then
-        a = 5
-        b = 4
-    end if
-    end subroutine)")   == "(sub g [] [] [] [(if x [(= a 5) (= b 4)] [])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-        a = 5
-    end   If
-    end subroutine)")   == "(sub g [] [] [] [(if x [(= a 5)] [])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-        a = 5
-    ENDIF
-    end subroutine)")   == "(sub g [] [] [] [(if x [(= a 5)] [])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-        endif = 5
-    ENDIF
-    end subroutine)")   == "(sub g [] [] [] [(if x [(= endif 5)] [])] [])");
-
     CHECK_THROWS_AS(P(R"(subroutine g
     if (x) then
         end if = 5
     end if
     end subroutine)"), LFortran::ParserError);
-
-    CHECK(P(R"(subroutine g
-    if (else) then
-        a = 5
-        b = 4
-    end if
-    end subroutine)")   == "(sub g [] [] [] [(if else [(= a 5) (= b 4)] [])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (else) then
-        then = 5
-        else = 4
-    end if
-    end subroutine)")   == "(sub g [] [] [] [(if else [(= then 5) (= else 4)] [])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-        a = 5
-    else
-        b = 4
-    end if
-    end subroutine)")   == "(sub g [] [] [] [(if x [(= a 5)] [(= b 4)])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-    else
-        b = 4
-    end if
-    end subroutine)")   == "(sub g [] [] [] [(if x [] [(= b 4)])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-        a = 5
-    else
-    end if
-    end subroutine)")   == "(sub g [] [] [] [(if x [(= a 5)] [])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-    else
-    end if
-    end subroutine)")   == "(sub g [] [] [] [(if x [] [])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-    end if
-    end subroutine)")   == "(sub g [] [] [] [(if x [] [])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-        a = 5
-        c = 7
-    else
-        b = 4
-        e = 5
-    end if
-    end subroutine)")   == "(sub g [] [] [] [(if x [(= a 5) (= c 7)] [(= b 4) (= e 5)])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (else) then
-        else = 5
-    else
-        else = 4
-    end if
-    end subroutine)")   == "(sub g [] [] [] [(if else [(= else 5)] [(= else 4)])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-        a = 5
-    else if (y) then
-        b = 4
-    end if
-    end subroutine)") == "(sub g [] [] [] [(if x [(= a 5)] [(if y [(= b 4)] [])])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-        a = 5
-    else if (y) then
-        b = 4
-    else if (z) then
-        c = 3
-    end if
-    end subroutine)") == "(sub g [] [] [] [(if x [(= a 5)] [(if y [(= b 4)] [(if z [(= c 3)] [])])])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (else) then
-        else = 5
-    else if (else) then
-    else if (else) then
-    else if (else) then
-        else = 3
-    end if
-    end subroutine)") == "(sub g [] [] [] [(if else [(= else 5)] [(if else [] [(if else [] [(if else [(= else 3)] [])])])])] [])");
 
     CHECK_THROWS_AS(P(R"(subroutine g
     if (else) then
@@ -406,140 +167,22 @@ TEST_CASE("if") {
     end if
     end subroutine)"), LFortran::ParserError);
 
-    CHECK(P(R"(subroutine g
-    if (x) then
-        a = 5
-    else if (y) then
-        b = 4
-    else
-        c = 3
-    end if
-    end subroutine)") == "(sub g [] [] [] [(if x [(= a 5)] [(if y [(= b 4)] [(= c 3)])])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-        a = 5
-        if (y) then
-            b = 4
-        else
-            c = 3
-        end if
-    end if
-    end subroutine)") == "(sub g [] [] [] [(if x [(= a 5) (if y [(= b 4)] [(= c 3)])] [])] [])");
-
-    CHECK(P(R"(subroutine g
-    if (x) then
-        a = 5
-        if (y) then
-            b = 4
-        end if
-    else
-        c = 3
-    end if
-    end subroutine)") == "(sub g [] [] [] [(if x [(= a 5) (if y [(= b 4)] [])] [(= c 3)])] [])");
-
-    CHECK(P(
- R"(if (x) then
-        a = 5
-        if (y) then
-            b = 4
-        end if
-    else
-        c = 3
-    end if)") == "(if x [(= a 5) (if y [(= b 4)] [])] [(= c 3)])");
 }
 
 
 TEST_CASE("while") {
     Allocator al(4*1024);
 
-    CHECK(P(
- R"(do while (x)
-        a = 5
-    end do)") == "(while x [(= a 5)])");
-
-    CHECK(P(
- R"(do while (x)
-    end do)") == "(while x [])");
-
-    CHECK(P(
- R"(do while (x)
-        a = 5
-    enddo)") == "(while x [(= a 5)])");
-
-    CHECK(P(
- R"(do while (x)
-        do = 5
-    enddo)") == "(while x [(= do 5)])");
-
-    CHECK(P(
- R"(do while (x)
-        end = 5
-    enddo)") == "(while x [(= end 5)])");
-
-    CHECK(P(
- R"(do while (x)
-        enddo = 5
-    enddo)") == "(while x [(= enddo 5)])");
-
     CHECK_THROWS_AS(P(
  R"(do while (x)
         end do = 5
     enddo)"), LFortran::ParserError);
 
-    CHECK(P(
- R"(do while (x > 5)
-        a = 5
-    end do)") == "(while (> x 5) [(= a 5)])");
-
-    CHECK(P("do while (x > 5); a = 5; end do") == "(while (> x 5) [(= a 5)])");
 }
 
 TEST_CASE("do loop") {
     Allocator al(4*1024);
 
-    CHECK(P(
- R"(do i = 1, 5
-        a = a + i
-    end do)") == "(do i 1 5 () [(= a (+ a i))])");
-
-    CHECK(P(
- R"(do i = 1, 5
-    end do)") == "(do i 1 5 () [])");
-
-    CHECK(P(
- R"(do i = 1, 5, 2
-        a = a + i
-    end do)") == "(do i 1 5 2 [(= a (+ a i))])");
-
-    CHECK(P(
- R"(do
-        a = a + i
-        b = 3
-    end do)") == "(do () () () () [(= a (+ a i)) (= b 3)])");
-
-    CHECK(P(R"(subroutine g
-    do
-        a = a + i
-        b = 3
-    enddo
-    end subroutine)") == "(sub g [] [] [] [(do () () () () [(= a (+ a i)) (= b 3)])] [])");
-
-    CHECK(P(
- R"(do
-        a = a + i
-        b = 3
-    enddo)") == "(do () () () () [(= a (+ a i)) (= b 3)])");
-
-    CHECK(P(
- R"(do
-        do = a + i
-        enddo = 3
-    enddo)") == "(do () () () () [(= do (+ a i)) (= enddo 3)])");
-
-    CHECK(P("do; a = a + i; b = 3; end do") == "(do () () () () [(= a (+ a i)) (= b 3)])");
-
-    CHECK(P("do") == "do");
 
     CHECK(P(
  R"(do
@@ -554,95 +197,27 @@ TEST_CASE("exit") {
     // exit   ... variable "exit"
 
     CHECK(P(
- R"(do i = 1, 5
-        exit
-    end do)") == "(do i 1 5 () [(exit)])");
-
-    CHECK(P(
- R"(do
-        exit
-    enddo)") == "(do () () () () [(exit)])");
-
-    CHECK(P(
- R"(do while (x)
-        exit
-    end do)") == "(while x [(exit)])");
-
-    CHECK(P(
  R"(exit
     enddo)") == "exit");
 
-    CHECK(P(
- R"(do i = 1, 5
-        exit = 5
-    end do)") == "(do i 1 5 () [(= exit 5)])");
-
-    CHECK(P("exit") == "exit");
-    CHECK(P("exit+1") == "(+ exit 1)");
-    CHECK(P("exit=1") == "(= exit 1)");
-    CHECK(P("a=exit") == "(= a exit)");
 }
 
 TEST_CASE("cycle") {
     Allocator al(4*1024);
 
     CHECK(P(
- R"(do i = 1, 5
-        cycle
-    end do)") == "(do i 1 5 () [(cycle)])");
-
-    CHECK(P(
- R"(do while (x)
-        cycle
-    end do)") == "(while x [(cycle)])");
-
-    CHECK(P(
  R"(cycle
     enddo)") == "cycle");
 
-    CHECK(P(
- R"(do i = 1, 5
-        cycle = 5
-    end do)") == "(do i 1 5 () [(= cycle 5)])");
-
-    CHECK(P("cycle") == "cycle");
-    CHECK(P("cycle+1") == "(+ cycle 1)");
-    CHECK(P("cycle=1") == "(= cycle 1)");
-    CHECK(P("a=cycle") == "(= a cycle)");
 }
 
 TEST_CASE("return") {
     Allocator al(4*1024);
 
-    CHECK(P(R"(subroutine g
-    x = y
-    return
-    x = 2*y
-    end subroutine)") == "(sub g [] [] [] [(= x y) (return) (= x (* 2 y))] [])");
-
-    CHECK(P(
- R"(do i = 1, 5
-        return
-    end do)") == "(do i 1 5 () [(return)])");
-
-    CHECK(P(
- R"(do while (x)
-        return
-    end do)") == "(while x [(return)])");
-
     CHECK(P(
  R"(return
     enddo)") == "return");
 
-    CHECK(P(
- R"(do i = 1, 5
-        return = 5
-    end do)") == "(do i 1 5 () [(= return 5)])");
-
-    CHECK(P("return") == "return");
-    CHECK(P("return+1") == "(+ return 1)");
-    CHECK(P("return=1") == "(= return 1)");
-    CHECK(P("a=return") == "(= a return)");
 }
 
 TEST_CASE("declaration") {
@@ -956,6 +531,353 @@ TEST_CASE("Lists of tests") {
         "x%g%b(i, j) = b",
         "y%h%c(5, :) = c",
         "call x%f%e()",
+
+        // ------------------------------------------------------------
+        // While loop
+     R"(do while (x)
+            a = 5
+        end do)",
+     R"(do while (x)
+        end do)",
+     R"(do while (x)
+            a = 5
+        enddo)",
+     R"(do while (x)
+            do = 5
+        enddo)",
+     R"(do while (x)
+            end = 5
+        enddo)",
+     R"(do while (x)
+            enddo = 5
+        enddo)",
+     R"(do while (x > 5)
+            a = 5
+        end do)",
+        "do while (x > 5); a = 5; end do",
+
+        // -----------------------------------------------------------
+        // Do loop
+     R"(do i = 1, 5
+            a = a + i
+        end do)",
+     R"(do i = 1, 5
+        end do)",
+     R"(do i = 1, 5, 2
+            a = a + i
+        end do)",
+     R"(do
+            a = a + i
+            b = 3
+        end do)",
+     R"(subroutine g
+        do
+            a = a + i
+            b = 3
+        enddo
+        end subroutine)",
+     R"(do
+            a = a + i
+            b = 3
+        enddo)",
+     R"(do
+            do = a + i
+            enddo = 3
+        enddo)",
+        "do; a = a + i; b = 3; end do",
+        "do",
+
+        // -------------------------------------------------------
+        // Return
+     R"(subroutine g
+        x = y
+        return
+        x = 2*y
+        end subroutine)",
+     R"(do i = 1, 5
+            return
+        end do)",
+     R"(do while (x)
+            return
+        end do)",
+     R"(do i = 1, 5
+            return = 5
+        end do)",
+        "return",
+        "return+1",
+        "return=1",
+        "a=return",
+
+        // -------------------------------------------------------
+        // Cycle
+     R"(do i = 1, 5
+            cycle
+        end do)",
+     R"(do while (x)
+            cycle
+        end do)",
+     R"(do i = 1, 5
+            cycle = 5
+        end do)",
+        "cycle",
+        "cycle+1",
+        "cycle=1",
+        "a=cycle",
+
+        // -------------------------------------------------------
+        // Exit
+     R"(do i = 1, 5
+            exit
+        end do)",
+     R"(do
+            exit
+        enddo)",
+     R"(do while (x)
+            exit
+        end do)",
+     R"(do i = 1, 5
+            exit = 5
+        end do)",
+        "exit",
+        "exit+1",
+        "exit=1",
+        "a=exit",
+
+        // -------------------------------------------------------
+        // If
+        R"(subroutine g
+    if (x) then
+        a = 5
+        b = 4
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+        a = 5
+    end   If
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+        a = 5
+    ENDIF
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+        endif = 5
+    ENDIF
+    end subroutine)",
+        R"(subroutine g
+    if (else) then
+        a = 5
+        b = 4
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (else) then
+        then = 5
+        else = 4
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+        a = 5
+    else
+        b = 4
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+    else
+        b = 4
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+        a = 5
+    else
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+    else
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+        a = 5
+        c = 7
+    else
+        b = 4
+        e = 5
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (else) then
+        else = 5
+    else
+        else = 4
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+        a = 5
+    else if (y) then
+        b = 4
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+        a = 5
+    else if (y) then
+        b = 4
+    else if (z) then
+        c = 3
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (else) then
+        else = 5
+    else if (else) then
+    else if (else) then
+    else if (else) then
+        else = 3
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+        a = 5
+    else if (y) then
+        b = 4
+    else
+        c = 3
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+        a = 5
+        if (y) then
+            b = 4
+        else
+            c = 3
+        end if
+    end if
+    end subroutine)",
+        R"(subroutine g
+    if (x) then
+        a = 5
+        if (y) then
+            b = 4
+        end if
+    else
+        c = 3
+    end if
+    end subroutine)",
+        R"(if (x) then
+        a = 5
+        if (y) then
+            b = 4
+        end if
+    else
+        c = 3
+    end if)",
+
+        // -------------------------------------------------------
+        // Program
+        R"(program g
+    x = y
+    x = 2*y
+    end program)",
+        R"(program g
+    end program)",
+        R"(program g
+    x = y; ;
+
+
+    x = 2*y;; ;
+
+    end program)",
+        "program g; x = y; x = 2*y; end program",
+        R"(program f
+    subroutine = y
+    x = 2*subroutine
+    end program)",
+        R"(program g
+    x = y
+    end program g)",
+        R"(PROGRAM TESTFortran90
+      integer stop ; stop = 1 ; do while ( stop .eq. 0 ) ; end do
+      END PROGRAM TESTFortran90)",
+
+        // -------------------------------------------------------
+        // Function
+        R"(function g()
+    x = y
+    x = 2*y
+    end function)",
+        R"(function g()
+    end function)",
+        R"(function g()
+    x = y; ;
+
+
+    x = 2*y;; ;
+
+    end function)",
+        "function g(); x = y; x = 2*y; end function",
+        R"(function f()
+    subroutine = y
+    x = 2*subroutine
+    end function)",
+        R"(function f()
+integer :: f
+f = 5
+end function)",
+
+        // -------------------------------------------------------
+        // Subroutine
+        R"(subroutine g
+    x = y
+    x = 2*y
+    end subroutine)",
+        R"(subroutine g
+    end subroutine)",
+        R"(subroutine g
+    x = y
+
+    x = 2*y
+    end subroutine)",
+        R"(subroutine g
+
+    x = y
+
+
+    x = 2*y
+
+
+
+    end subroutine)",
+        R"(subroutine g
+    x = y
+    ;;;;;; ; ; ;
+    x = 2*y
+    end subroutine)",
+        R"(subroutine g
+    x = y;
+    x = 2*y;
+    end subroutine)",
+        R"(subroutine g
+    x = y; ;
+    x = 2*y;; ;
+    end subroutine)",
+        "subroutine g; x = y; x = 2*y; end subroutine",
+        R"(subroutine f
+    subroutine = y
+    x = 2*subroutine
+    end subroutine)",
 
     };
     std::vector<std::string> o;
