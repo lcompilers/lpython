@@ -453,46 +453,11 @@ TEST_CASE("if") {
 TEST_CASE("while") {
     Allocator al(4*1024);
 
-    CHECK(P(
- R"(do while (x)
-        a = 5
-    end do)") == "(while x [(= a 5)])");
-
-    CHECK(P(
- R"(do while (x)
-    end do)") == "(while x [])");
-
-    CHECK(P(
- R"(do while (x)
-        a = 5
-    enddo)") == "(while x [(= a 5)])");
-
-    CHECK(P(
- R"(do while (x)
-        do = 5
-    enddo)") == "(while x [(= do 5)])");
-
-    CHECK(P(
- R"(do while (x)
-        end = 5
-    enddo)") == "(while x [(= end 5)])");
-
-    CHECK(P(
- R"(do while (x)
-        enddo = 5
-    enddo)") == "(while x [(= enddo 5)])");
-
     CHECK_THROWS_AS(P(
  R"(do while (x)
         end do = 5
     enddo)"), LFortran::ParserError);
 
-    CHECK(P(
- R"(do while (x > 5)
-        a = 5
-    end do)") == "(while (> x 5) [(= a 5)])");
-
-    CHECK(P("do while (x > 5); a = 5; end do") == "(while (> x 5) [(= a 5)])");
 }
 
 TEST_CASE("do loop") {
@@ -957,6 +922,29 @@ TEST_CASE("Lists of tests") {
         "y%h%c(5, :) = c",
         "call x%f%e()",
 
+        // ------------------------------------------------------------
+        // While loop
+     R"(do while (x)
+            a = 5
+        end do)",
+     R"(do while (x)
+        end do)",
+     R"(do while (x)
+            a = 5
+        enddo)",
+     R"(do while (x)
+            do = 5
+        enddo)",
+     R"(do while (x)
+            end = 5
+        enddo)",
+     R"(do while (x)
+            enddo = 5
+        enddo)",
+     R"(do while (x > 5)
+            a = 5
+        end do)",
+        "do while (x > 5); a = 5; end do",
     };
     std::vector<std::string> o;
     for (std::string &s: v) {
