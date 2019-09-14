@@ -349,14 +349,20 @@ id_opt
     ;
 
 subroutine
-    : KW_SUBROUTINE id sep var_decl_star statements KW_END KW_SUBROUTINE sep {
-            LLOC(@$, @7); $$ = SUBROUTINE($2, $4, $5, @$); }
+    : KW_SUBROUTINE id sub_args sep var_decl_star statements
+        KW_END KW_SUBROUTINE sep {
+            LLOC(@$, @8); $$ = SUBROUTINE($2, $5, $6, @$); }
     ;
 
 function
     : fn_type pure_opt recursive_opt KW_FUNCTION id "(" id_list_opt ")"
         result_opt sep var_decl_star statements KW_END KW_FUNCTION sep {
             LLOC(@$, @14); $$ = FUNCTION($5, $11, $12, @$); }
+    ;
+
+sub_args
+    : "(" id_list_opt ")"
+    | %empty
     ;
 
 pure_opt

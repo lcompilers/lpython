@@ -353,6 +353,7 @@ exit
 (sub g [] [] [] [(= x y) (= x (* 2 y))] [])
 (sub f [] [] [] [(= subroutine y) (= x (* 2 subroutine))] [])
 (sub f [] [] [(decl [(x "integer" [] [] ())])] [] [])
+(sub f [] [] [(decl [(x "integer" [] [] ())])] [] [])
 (use b [])
 (use a [(usesymbol b ()) (usesymbol c ())])
 (use a [(usesymbol b x) (usesymbol c ()) (usesymbol a d)])
