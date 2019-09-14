@@ -247,3 +247,11 @@ stop
 (do () () () () [(= do (+ a i)) (= enddo 3)])
 (do () () () () [(= a (+ a i)) (= b 3)])
 do
+(sub g [] [] [] [(= x y) (return) (= x (* 2 y))] [])
+(do i 1 5 () [(return)])
+(while x [(return)])
+(do i 1 5 () [(= return 5)])
+return
+(+ return 1)
+(= return 1)
+(= a return)

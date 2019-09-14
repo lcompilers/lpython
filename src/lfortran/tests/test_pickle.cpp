@@ -537,35 +537,10 @@ TEST_CASE("cycle") {
 TEST_CASE("return") {
     Allocator al(4*1024);
 
-    CHECK(P(R"(subroutine g
-    x = y
-    return
-    x = 2*y
-    end subroutine)") == "(sub g [] [] [] [(= x y) (return) (= x (* 2 y))] [])");
-
-    CHECK(P(
- R"(do i = 1, 5
-        return
-    end do)") == "(do i 1 5 () [(return)])");
-
-    CHECK(P(
- R"(do while (x)
-        return
-    end do)") == "(while x [(return)])");
-
     CHECK(P(
  R"(return
     enddo)") == "return");
 
-    CHECK(P(
- R"(do i = 1, 5
-        return = 5
-    end do)") == "(do i 1 5 () [(= return 5)])");
-
-    CHECK(P("return") == "return");
-    CHECK(P("return+1") == "(+ return 1)");
-    CHECK(P("return=1") == "(= return 1)");
-    CHECK(P("a=return") == "(= a return)");
 }
 
 TEST_CASE("declaration") {
@@ -934,6 +909,27 @@ TEST_CASE("Lists of tests") {
         enddo)",
         "do; a = a + i; b = 3; end do",
         "do",
+
+        // -------------------------------------------------------
+        // Return
+     R"(subroutine g
+        x = y
+        return
+        x = 2*y
+        end subroutine)",
+     R"(do i = 1, 5
+            return
+        end do)",
+     R"(do while (x)
+            return
+        end do)",
+     R"(do i = 1, 5
+            return = 5
+        end do)",
+        "return",
+        "return+1",
+        "return=1",
+        "a=return",
     };
     std::vector<std::string> o;
     for (std::string &s: v) {
