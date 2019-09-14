@@ -99,58 +99,6 @@ TEST_CASE("Comparison") {
     CHECK(P("(1 == 2) + 3") == "(+ (== 1 2) 3)");
 }
 
-TEST_CASE("Subroutines") {
-    Allocator al(4*1024);
-
-    CHECK(P(R"(subroutine g
-    x = y
-    x = 2*y
-    end subroutine)")   == "(sub g [] [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P(R"(subroutine g
-    end subroutine)")   == "(sub g [] [] [] [] [])");
-
-    CHECK(P(R"(subroutine g
-    x = y
-
-    x = 2*y
-    end subroutine)")   == "(sub g [] [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P(R"(subroutine g
-
-    x = y
-
-
-    x = 2*y
-
-
-
-    end subroutine)")   == "(sub g [] [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P(R"(subroutine g
-    x = y
-    ;;;;;; ; ; ;
-    x = 2*y
-    end subroutine)")   == "(sub g [] [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P(R"(subroutine g
-    x = y;
-    x = 2*y;
-    end subroutine)")   == "(sub g [] [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P(R"(subroutine g
-    x = y; ;
-    x = 2*y;; ;
-    end subroutine)")   == "(sub g [] [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P("subroutine g; x = y; x = 2*y; end subroutine") == "(sub g [] [] [] [(= x y) (= x (* 2 y))] [])");
-
-    CHECK(P(R"(subroutine f
-    subroutine = y
-    x = 2*subroutine
-    end subroutine)")   == "(sub f [] [] [] [(= subroutine y) (= x (* 2 subroutine))] [])");
-}
-
 
 TEST_CASE("Multiple units") {
     Allocator al(4*1024);
@@ -888,6 +836,48 @@ TEST_CASE("Lists of tests") {
 integer :: f
 f = 5
 end function)",
+
+        // -------------------------------------------------------
+        // Subroutine
+        R"(subroutine g
+    x = y
+    x = 2*y
+    end subroutine)",
+        R"(subroutine g
+    end subroutine)",
+        R"(subroutine g
+    x = y
+
+    x = 2*y
+    end subroutine)",
+        R"(subroutine g
+
+    x = y
+
+
+    x = 2*y
+
+
+
+    end subroutine)",
+        R"(subroutine g
+    x = y
+    ;;;;;; ; ; ;
+    x = 2*y
+    end subroutine)",
+        R"(subroutine g
+    x = y;
+    x = 2*y;
+    end subroutine)",
+        R"(subroutine g
+    x = y; ;
+    x = 2*y;; ;
+    end subroutine)",
+        "subroutine g; x = y; x = 2*y; end subroutine",
+        R"(subroutine f
+    subroutine = y
+    x = 2*subroutine
+    end subroutine)",
 
     };
     std::vector<std::string> o;
