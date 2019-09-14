@@ -359,3 +359,7 @@ exit
 (use b [])
 (use a [(usesymbol b ()) (usesymbol c ())])
 (use a [(usesymbol b x) (usesymbol c ()) (usesymbol a d)])
+(prog test [] [(decl [(x "integer" [] [] ())])] [(= x 1) (subroutinecall a [])] [])
+(prog test [] [(decl [(x "integer" [] [] ())])] [(= x 1) (subroutinecall a [])] [])
+(prog test [] [(decl [(x "integer" [] [] ())])] [(= x 1) (subroutinecall a [])] [])
+(prog test [] [(decl [(x "integer" [] [] ())])] [(= x 1) (subroutinecall a [])] [])
