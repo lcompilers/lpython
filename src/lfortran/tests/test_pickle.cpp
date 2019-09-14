@@ -984,6 +984,15 @@ end subroutine
 integer :: f
 f = 5
 end function)",
+        R"(real(dp) function f()
+        f = 1
+        end function
+        )",
+        /*
+        R"(real(dp) function f(e) result(r)
+        r = 1
+        end function
+        )",
         R"(real(dp) pure function f(e) result(r)
         r = 1
         end function
@@ -999,6 +1008,7 @@ end function)",
         R"(function f(e)
         f = 1
         end function)",
+        */
 
         // -------------------------------------------------------
         // Subroutine
@@ -1052,7 +1062,6 @@ end function)",
         ! Some other comment
         end subroutine
         )",
-        */
         R"(subroutine f()
         integer :: x
         end subroutine)",
@@ -1070,6 +1079,7 @@ end function)",
         integer::y
         end subroutine
         )",
+        */
 
         // -------------------------------------------------------
         // Use

@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    32 // shift/reduce conflicts
-%expect-rr 14 // reduce/reduce conflicts
+%expect    34 // shift/reduce conflicts
+%expect-rr 15 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -352,9 +352,14 @@ subroutine
     ;
 
 function
-    : KW_FUNCTION id "(" ")" sep var_decl_star statements
+    : fn_type KW_FUNCTION id "(" ")" sep var_decl_star statements
         KW_END KW_FUNCTION sep {
-            LLOC(@$, @9); $$ = FUNCTION($2, $6, $7, @$); }
+            LLOC(@$, @10); $$ = FUNCTION($3, $7, $8, @$); }
+    ;
+
+fn_type
+    : var_type kind_selector
+    | %empty
     ;
 
 use_statement
