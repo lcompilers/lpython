@@ -1143,6 +1143,23 @@ end function)",
         end program
         )",
 
+        // -------------------------------------------------------
+        // Case sensitivity
+        "Integer :: x",
+        "INTEGER :: x",
+        "iNteger :: x",
+        "integeR, dImenSion(9,10) :: c",
+        "integer, DIMENSION(:,:), intenT(In) :: e",
+        "integer(c_Int) :: i",
+
+        "Real a",
+        "REAL :: a",
+        "real(dp), aLLocatable :: a(:,:)",
+        "cHAracter(len=*) :: c",
+
+        "tYPe(xx), inTEnt(inOUt) :: x, y",
+
+
 
     };
     std::vector<std::string> o;
