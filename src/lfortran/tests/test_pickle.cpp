@@ -5,6 +5,11 @@
 #include <lfortran/ast_to_src.h>
 #include <lfortran/parser/parser.h>
 
+void section(const std::string &s)
+{
+    std::cout << color(LFortran::style::bold) << color(LFortran::fg::blue) << s << color(LFortran::style::reset) << color(LFortran::fg::reset) << std::endl;
+}
+
 std::string p(Allocator &al, const std::string &s)
 {
     LFortran::AST::ast_t* result;
@@ -13,12 +18,12 @@ std::string p(Allocator &al, const std::string &s)
     std::string src = LFortran::ast_to_src(*result);
 
     // Print the test nicely:
-    std::cout << "--------------------------------------------------------------------------------" << std::endl;
-    std::cout << "SRC:" << std::endl;
+    section("--------------------------------------------------------------------------------");
+    section("SRC:");
     std::cout << s << std::endl;
-    std::cout << "SRC -> AST:" << std::endl;
+    section("SRC -> AST:");
     std::cout << pickle << std::endl;
-    std::cout << "AST -> SRC:" << std::endl;
+    section("AST -> SRC:");
     std::cout << src << std::endl;
 
     return pickle;
