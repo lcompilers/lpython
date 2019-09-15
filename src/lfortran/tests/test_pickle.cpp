@@ -9,10 +9,19 @@ std::string p(Allocator &al, const std::string &s)
 {
     LFortran::AST::ast_t* result;
     result = LFortran::parse2(al, s);
+    std::string pickle = LFortran::pickle(*result);
     std::string src = LFortran::ast_to_src(*result);
+
+    // Print the test nicely:
+    std::cout << "--------------------------------------------------------------------------------" << std::endl;
     std::cout << "SRC:" << std::endl;
+    std::cout << s << std::endl;
+    std::cout << "SRC -> AST:" << std::endl;
+    std::cout << pickle << std::endl;
+    std::cout << "AST -> SRC:" << std::endl;
     std::cout << src << std::endl;
-    return LFortran::pickle(*result);
+
+    return pickle;
 }
 
 #define P(x) p(al, x)
