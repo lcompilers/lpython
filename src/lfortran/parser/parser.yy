@@ -263,6 +263,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> interface_decl
 %type <ast> program
 %type <ast> subroutine
+%type <vec_ast> sub_args
 %type <ast> function
 %type <ast> use_statement
 %type <ast> use_symbol
@@ -402,7 +403,7 @@ program
 subroutine
     : KW_SUBROUTINE id sub_args sep var_decl_star statements
         KW_END KW_SUBROUTINE id_opt sep {
-            LLOC(@$, @9); $$ = SUBROUTINE($2, $5, $6, @$); }
+            LLOC(@$, @9); $$ = SUBROUTINE($2, $3, $5, $6, @$); }
     ;
 
 function
@@ -427,8 +428,8 @@ sub_or_func
     ;
 
 sub_args
-    : "(" id_list_opt ")"
-    | %empty
+    : "(" id_list_opt ")" { $$ = $2; }
+    | %empty { LIST_NEW($$); }
     ;
 
 pure_opt

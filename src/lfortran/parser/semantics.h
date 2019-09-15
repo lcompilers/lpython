@@ -225,10 +225,10 @@ static inline arg_t* ARGS(Allocator &al, const YYSTYPE::VecAST args)
 #define EXIT(l) make_Exit_t(p.m_a, l)
 #define RETURN(l) make_Return_t(p.m_a, l)
 #define CYCLE(l) make_Cycle_t(p.m_a, l)
-#define SUBROUTINE(name, decl, stmts, l) make_Subroutine_t(p.m_a, l, \
+#define SUBROUTINE(name, args, decl, stmts, l) make_Subroutine_t(p.m_a, l, \
         /*name*/ name2char(name), \
-        /*args*/ nullptr, \
-        /*n_args*/ 0, \
+        /*args*/ ARGS(p.m_a, args), \
+        /*n_args*/ args.size(), \
         /*use*/ nullptr, \
         /*n_use*/ 0, \
         /*decl*/ DECLS(decl), \
