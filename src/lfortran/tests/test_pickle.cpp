@@ -2,12 +2,16 @@
 #include <iostream>
 
 #include <lfortran/pickle.h>
+#include <lfortran/ast_to_src.h>
 #include <lfortran/parser/parser.h>
 
 std::string p(Allocator &al, const std::string &s)
 {
     LFortran::AST::ast_t* result;
     result = LFortran::parse2(al, s);
+    std::string src = LFortran::ast_to_src(*result);
+    std::cout << "SRC:" << std::endl;
+    std::cout << src << std::endl;
     return LFortran::pickle(*result);
 }
 
