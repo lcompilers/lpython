@@ -168,7 +168,7 @@ public:
             r.append(x.m_return_type);
             r.append(" ");
         }
-        r.append("function");
+        r.append("function ");
         r.append(x.m_name);
         r.append("(");
         for (size_t i=0; i<x.n_args; i++) {
