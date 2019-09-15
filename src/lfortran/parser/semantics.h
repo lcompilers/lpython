@@ -27,6 +27,7 @@ using LFortran::AST::stmtType;
 using LFortran::AST::ast_t;
 using LFortran::AST::attribute_t;
 using LFortran::AST::attribute_arg_t;
+using LFortran::AST::arg_t;
 using LFortran::AST::case_stmt_t;
 using LFortran::AST::use_symbol_t;
 using LFortran::AST::decl_t;
@@ -149,6 +150,16 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
     return s;
 }
 
+static inline arg_t* ARGS(Allocator &al, const YYSTYPE::VecAST args)
+{
+    arg_t *a = al.allocate<arg_t>(args.size());
+    for (size_t i=0; i < args.size(); i++) {
+        a[i].m_arg = name2char(args.p[i]);
+    }
+    return a;
+}
+
+
 #define TYPE ast_t*
 
 // Assign last_* location to `a` from `b`
@@ -226,10 +237,10 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
         /*n_body*/ stmts.size(), \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
-#define FUNCTION(name, decl, stmts, l) make_Function_t(p.m_a, l, \
+#define FUNCTION(name, args, decl, stmts, l) make_Function_t(p.m_a, l, \
         /*name*/ name2char(name), \
-        /*args*/ nullptr, \
-        /*n_args*/ 0, \
+        /*args*/ ARGS(p.m_a, args), \
+        /*n_args*/ args.size(), \
         /*return_type*/ nullptr, \
         /*return_var*/ nullptr, \
         /*bind*/ nullptr, \

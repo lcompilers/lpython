@@ -408,7 +408,7 @@ subroutine
 function
     : fn_type pure_opt recursive_opt KW_FUNCTION id "(" id_list_opt ")"
         result_opt sep var_decl_star statements KW_END KW_FUNCTION id_opt sep {
-            LLOC(@$, @15); $$ = FUNCTION($5, $11, $12, @$); }
+            LLOC(@$, @15); $$ = FUNCTION($5, $7, $11, $12, @$); }
     ;
 
 contains_block_opt
