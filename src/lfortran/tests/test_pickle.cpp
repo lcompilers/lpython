@@ -2,13 +2,31 @@
 #include <iostream>
 
 #include <lfortran/pickle.h>
+#include <lfortran/ast_to_src.h>
 #include <lfortran/parser/parser.h>
+
+void section(const std::string &s)
+{
+    std::cout << color(LFortran::style::bold) << color(LFortran::fg::blue) << s << color(LFortran::style::reset) << color(LFortran::fg::reset) << std::endl;
+}
 
 std::string p(Allocator &al, const std::string &s)
 {
     LFortran::AST::ast_t* result;
     result = LFortran::parse2(al, s);
-    return LFortran::pickle(*result);
+    std::string pickle = LFortran::pickle(*result);
+    std::string src = LFortran::ast_to_src(*result);
+
+    // Print the test nicely:
+    section("--------------------------------------------------------------------------------");
+    section("SRC:");
+    std::cout << s << std::endl;
+    section("SRC -> AST:");
+    std::cout << pickle << std::endl;
+    section("AST -> SRC:");
+    std::cout << src << std::endl;
+
+    return pickle;
 }
 
 #define P(x) p(al, x)

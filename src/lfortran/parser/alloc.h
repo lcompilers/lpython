@@ -2,6 +2,8 @@
 #define LFORTRAN_PARSER_ALLOC_H
 
 #include <stdexcept>
+#include <new>
+
 #include <lfortran/assert.h>
 
 #define ALIGNMENT 8
