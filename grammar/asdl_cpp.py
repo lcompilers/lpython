@@ -302,8 +302,8 @@ class ASTVisitorVisitor2(ASDLVisitor):
             self.emit("void visit_%s(const %s_t &b) { visit_%s_t(b, self()); }"\
                     % (base, base, base), 1)
             for type_ in sum.types:
-                self.emit("void visit_%s(const %s_t &x) { }" \
-                        % (type_.name, type_.name), 2)
+                self.emit("""void visit_%s(const %s_t &x) { throw LFortran::LFortranException("visit_%s() not implemented"); }""" \
+                        % (type_.name, type_.name, type_.name), 2)
 
 
 class ASTWalkVisitorVisitor(ASDLVisitor):
@@ -533,6 +533,7 @@ HEAD = r"""#ifndef LFORTRAN_%(MOD)s_H
 #include <lfortran/parser/location.h>
 #include <lfortran/casts.h>
 #include <lfortran/colors.h>
+#include <lfortran/exception.h>
 
 
 namespace LFortran::%(MOD)s {
