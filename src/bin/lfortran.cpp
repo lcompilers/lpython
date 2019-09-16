@@ -57,13 +57,22 @@ int main(int argc, char *argv[])
         } catch (const LFortran::ParserError &e) {
             std::cout << "Parsing error: " << e.msg() << std::endl;
             continue;
+        } catch (const LFortran::LFortranException &e) {
+            std::cout << "Other LFortran exception: " << e.msg() << std::endl;
+            continue;
         }
         section("AST:");
         std::cout << LFortran::pickle(*ast, true) << std::endl;
 
 
         // AST -> ASR
-        LFortran::ASR::asr_t* asr = LFortran::ast_to_asr(al, *ast);
+        LFortran::ASR::asr_t* asr;
+        try {
+            asr = LFortran::ast_to_asr(al, *ast);
+        } catch (const LFortran::LFortranException &e) {
+            std::cout << "LFortran exception: " << e.msg() << std::endl;
+            continue;
+        }
         section("ASR:");
         std::cout << LFortran::pickle(*asr, true) << std::endl;
 
