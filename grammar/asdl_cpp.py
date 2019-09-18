@@ -257,7 +257,9 @@ class ASTVisitorVisitor1(ASDLVisitor):
             self.emit("template <class Visitor>")
             self.emit("static void visit_%s_t(const %s_t &x, Visitor &v) {" \
                     % (base, base))
-            self.emit("    switch (x.type) {")
+            self.emit(    "LFORTRAN_ASSERT(x.base.type == %sType::%s)" \
+                    % (subs["mod"], base), 1)
+            self.emit(    "switch (x.type) {", 1)
             for type_ in sum.types:
                 self.emit("        case %sType::%s: { v.visit_%s((const %s_t &)x);"
                     " return; }" % (base, type_.name, type_.name, type_.name))
@@ -428,7 +430,6 @@ class PickleVisitorVisitor(ASDLVisitor):
                 self.emit('s.append("[");', level)
                 self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
                 if field.type in sums:
-                    self.emit("LFORTRAN_ASSERT(x.m_%s[i]->base.type == %sType::%s)" % (field.name, subs["mod"], field.type), level+1)
                     self.emit("this->visit_%s(*x.m_%s[i]);" % (field.type, field.name), level+1)
                 else:
                     self.emit("this->visit_%s(x.m_%s[i]);" % (field.type, field.name), level+1)
