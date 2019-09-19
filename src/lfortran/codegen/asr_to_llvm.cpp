@@ -75,7 +75,6 @@ public:
         builder->SetInsertPoint(BB);
 
         for (size_t i=0; i<x.n_body; i++) {
-            LFORTRAN_ASSERT(x.m_body[i]->base.type == ASR::asrType::stmt)
             this->visit_stmt(*x.m_body[i]);
         }
 

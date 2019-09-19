@@ -60,7 +60,6 @@ public:
         Vec<ASR::stmt_t*> body;
         body.reserve(al, 8);
         for (size_t i=0; i<x.n_body; i++) {
-            LFORTRAN_ASSERT(x.m_body[i]->base.type == AST::astType::stmt)
             this->visit_stmt(*x.m_body[i]);
             ASR::stmt_t *stmt = STMT(tmp);
             body.push_back(al, stmt);

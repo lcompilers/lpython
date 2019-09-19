@@ -58,21 +58,18 @@ public:
         r.append(x.m_name);
         r.append("\n");
         for (size_t i=0; i<x.n_use; i++) {
-            LFORTRAN_ASSERT(x.m_use[i]->base.type == astType::unit_decl1)
             this->visit_unit_decl1(*x.m_use[i]);
             r.append(s);
             if (i < x.n_use-1) r.append("\n");
         }
         r.append("\n");
         for (size_t i=0; i<x.n_decl; i++) {
-            LFORTRAN_ASSERT(x.m_decl[i]->base.type == astType::unit_decl2)
             this->visit_unit_decl2(*x.m_decl[i]);
             r.append(s);
             if (i < x.n_decl-1) r.append("\n");
         }
         r.append("\n");
         for (size_t i=0; i<x.n_contains; i++) {
-            LFORTRAN_ASSERT(x.m_contains[i]->base.type == astType::program_unit)
             this->visit_program_unit(*x.m_contains[i]);
             r.append(s);
             if (i < x.n_contains-1) r.append("\n");
@@ -87,26 +84,22 @@ public:
         r.append(x.m_name);
         r.append("\n");
         for (size_t i=0; i<x.n_use; i++) {
-            LFORTRAN_ASSERT(x.m_use[i]->base.type == astType::unit_decl1)
             this->visit_unit_decl1(*x.m_use[i]);
             r.append(s);
             r.append("\n");
         }
         for (size_t i=0; i<x.n_decl; i++) {
-            LFORTRAN_ASSERT(x.m_decl[i]->base.type == astType::unit_decl2)
             this->visit_unit_decl2(*x.m_decl[i]);
             r.append(s);
             r.append("\n");
         }
         for (size_t i=0; i<x.n_body; i++) {
-            LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
             this->visit_stmt(*x.m_body[i]);
             r.append(s);
             r.append("\n");
         }
         if (x.n_contains > 0) {
             for (size_t i=0; i<x.n_contains; i++) {
-                LFORTRAN_ASSERT(x.m_contains[i]->base.type == astType::program_unit)
                 this->visit_program_unit(*x.m_contains[i]);
                 r.append(s);
                 r.append("\n");
@@ -131,19 +124,16 @@ public:
         }
         r.append("\n");
         for (size_t i=0; i<x.n_use; i++) {
-            LFORTRAN_ASSERT(x.m_use[i]->base.type == astType::unit_decl1)
             this->visit_unit_decl1(*x.m_use[i]);
             r.append(s);
             r.append("\n");
         }
         for (size_t i=0; i<x.n_decl; i++) {
-            LFORTRAN_ASSERT(x.m_decl[i]->base.type == astType::unit_decl2)
             this->visit_unit_decl2(*x.m_decl[i]);
             r.append(s);
             r.append("\n");
         }
         for (size_t i=0; i<x.n_body; i++) {
-            LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
             this->visit_stmt(*x.m_body[i]);
             r.append(s);
             r.append("\n");
@@ -151,7 +141,6 @@ public:
         if (x.n_contains > 0) {
             r.append("contains\n");
             for (size_t i=0; i<x.n_contains; i++) {
-                LFORTRAN_ASSERT(x.m_contains[i]->base.type == astType::program_unit)
                 this->visit_program_unit(*x.m_contains[i]);
                 r.append(s);
                 r.append("\n");
@@ -191,25 +180,21 @@ public:
         r.append("\n");
 
         for (size_t i=0; i<x.n_use; i++) {
-            LFORTRAN_ASSERT(x.m_use[i]->base.type == astType::unit_decl1)
             this->visit_unit_decl1(*x.m_use[i]);
             r.append(s);
             r.append("\n");
         }
         for (size_t i=0; i<x.n_decl; i++) {
-            LFORTRAN_ASSERT(x.m_decl[i]->base.type == astType::unit_decl2)
             this->visit_unit_decl2(*x.m_decl[i]);
             r.append(s);
             r.append("\n");
         }
         for (size_t i=0; i<x.n_body; i++) {
-            LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
             this->visit_stmt(*x.m_body[i]);
             r.append(s);
             r.append("\n");
         }
         for (size_t i=0; i<x.n_contains; i++) {
-            LFORTRAN_ASSERT(x.m_contains[i]->base.type == astType::program_unit)
             this->visit_program_unit(*x.m_contains[i]);
             r.append(s);
             r.append("\n");
@@ -226,8 +211,6 @@ public:
         if (x.n_symbols > 0) {
             r.append(", only: ");
             for (size_t i=0; i<x.n_symbols; i++) {
-                LFORTRAN_ASSERT(x.m_symbols[i]->base.type
-                        == astType::use_symbol)
                 this->visit_use_symbol(*x.m_symbols[i]);
                 r.append(s);
                 if (i < x.n_symbols-1) r.append(", ");
@@ -311,7 +294,6 @@ public:
         s.append(" ");
         s.append("[");
         for (size_t i=0; i<x.n_procs; i++) {
-            LFORTRAN_ASSERT(x.m_procs[i]->base.type == astType::program_unit)
             this->visit_program_unit(*x.m_procs[i]);
             if (i < x.n_procs-1) s.append(" ");
         }
@@ -341,7 +323,6 @@ public:
         r.append(x.m_name);
         r.append("(");
         for (size_t i=0; i<x.n_args; i++) {
-            LFORTRAN_ASSERT(x.m_args[i]->base.type == astType::expr)
             this->visit_expr(*x.m_args[i]);
             r.append(s);
             if (i < x.n_args-1) r.append(" ");
@@ -365,7 +346,6 @@ public:
         s.append(" ");
         s.append("[");
         for (size_t i=0; i<x.n_args; i++) {
-            LFORTRAN_ASSERT(x.m_args[i]->base.type == astType::expr)
             this->visit_expr(*x.m_args[i]);
             if (i < x.n_args-1) s.append(" ");
         }
@@ -388,7 +368,6 @@ public:
         s.append(" ");
         s.append("[");
         for (size_t i=0; i<x.n_body; i++) {
-            LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
             this->visit_stmt(*x.m_body[i]);
             if (i < x.n_body-1) s.append(" ");
         }
@@ -396,7 +375,6 @@ public:
         s.append(" ");
         s.append("[");
         for (size_t i=0; i<x.n_orelse; i++) {
-            LFORTRAN_ASSERT(x.m_orelse[i]->base.type == astType::stmt)
             this->visit_stmt(*x.m_orelse[i]);
             if (i < x.n_orelse-1) s.append(" ");
         }
@@ -419,7 +397,6 @@ public:
         s.append(" ");
         s.append("[");
         for (size_t i=0; i<x.n_body; i++) {
-            LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
             this->visit_stmt(*x.m_body[i]);
             if (i < x.n_body-1) s.append(" ");
         }
@@ -427,7 +404,6 @@ public:
         s.append(" ");
         s.append("[");
         for (size_t i=0; i<x.n_orelse; i++) {
-            LFORTRAN_ASSERT(x.m_orelse[i]->base.type == astType::stmt)
             this->visit_stmt(*x.m_orelse[i]);
             if (i < x.n_orelse-1) s.append(" ");
         }
@@ -490,7 +466,6 @@ public:
         r.append("\n");
         indent_level += 4;
         for (size_t i=0; i<x.n_body; i++) {
-            LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
             this->visit_stmt(*x.m_body[i]);
             for (int i=0; i < indent_level; i++) r.append(" ");
             r.append(s);
@@ -516,7 +491,6 @@ public:
         s.append(" ");
         s.append("[");
         for (size_t i=0; i<x.n_body; i++) {
-            LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::case_stmt)
             this->visit_case_stmt(*x.m_body[i]);
             if (i < x.n_body-1) s.append(" ");
         }
@@ -524,7 +498,6 @@ public:
         s.append(" ");
         s.append("[");
         for (size_t i=0; i<x.n_default; i++) {
-            LFORTRAN_ASSERT(x.m_default[i]->base.type == astType::stmt)
             this->visit_stmt(*x.m_default[i]);
             if (i < x.n_default-1) s.append(" ");
         }
@@ -586,7 +559,6 @@ public:
         s.append(" ");
         s.append("[");
         for (size_t i=0; i<x.n_body; i++) {
-            LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
             this->visit_stmt(*x.m_body[i]);
             if (i < x.n_body-1) s.append(" ");
         }
@@ -613,7 +585,6 @@ public:
         s.append(" ");
         s.append("[");
         for (size_t i=0; i<x.n_values; i++) {
-            LFORTRAN_ASSERT(x.m_values[i]->base.type == astType::expr)
             this->visit_expr(*x.m_values[i]);
             if (i < x.n_values-1) s.append(" ");
         }
@@ -698,7 +669,6 @@ public:
         s.append(" ");
         s.append("[");
         for (size_t i=0; i<x.n_args; i++) {
-            LFORTRAN_ASSERT(x.m_args[i]->base.type == astType::expr)
             this->visit_expr(*x.m_args[i]);
             if (i < x.n_args-1) s.append(" ");
         }
@@ -717,7 +687,6 @@ public:
         r.append(x.m_func);
         r.append("(");
         for (size_t i=0; i<x.n_args; i++) {
-            LFORTRAN_ASSERT(x.m_args[i]->base.type == astType::expr)
             this->visit_expr(*x.m_args[i]);
             r.append(s);
             if (i < x.n_args-1) s.append(", ");
@@ -746,7 +715,6 @@ public:
         s.append(" ");
         s.append("[");
         for (size_t i=0; i<x.n_args; i++) {
-            LFORTRAN_ASSERT(x.m_args[i]->base.type == astType::array_index)
             this->visit_array_index(*x.m_args[i]);
             if (i < x.n_args-1) s.append(" ");
         }
@@ -756,7 +724,6 @@ public:
     void visit_ArrayInitializer(const ArrayInitializer_t &x) {
         std::string r = "[";
         for (size_t i=0; i<x.n_args; i++) {
-            LFORTRAN_ASSERT(x.m_args[i]->base.type == astType::expr)
             this->visit_expr(*x.m_args[i]);
             r.append(s);
             if (i < x.n_args-1) r.append(", ");
@@ -819,7 +786,6 @@ public:
         std::string r = std::string(x.m_sym_type);
         if (x.n_attrs > 0) {
             for (size_t i=0; i<x.n_attrs; i++) {
-                LFORTRAN_ASSERT(x.m_attrs[i]->base.type == astType::attribute)
                 r.append(", ");
                 this->visit_attribute(*x.m_attrs[i]);
                 r.append(s);
@@ -959,7 +925,6 @@ public:
         s.append(" ");
         s.append("[");
         for (size_t i=0; i<x.n_body; i++) {
-            LFORTRAN_ASSERT(x.m_body[i]->base.type == astType::stmt)
             this->visit_stmt(*x.m_body[i]);
             if (i < x.n_body-1) s.append(" ");
         }
