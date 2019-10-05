@@ -3,6 +3,7 @@
 
 #include <stdexcept>
 #include <new>
+#include <cstdlib>
 
 #include <lfortran/assert.h>
 
