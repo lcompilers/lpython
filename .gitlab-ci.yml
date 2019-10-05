@@ -99,9 +99,8 @@ cxx:
 # Create a binary tarball with the C++ based LFortran
 cxx_binary:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images:prepare-1.7.0
+  image: registry.gitlab.com/lfortran/ci-images:cxxbinary-1.8.0
   script:
-    - sudo apk add --no-cache llvm8-dev cmake make g++ llvm8-static zlib-dev
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
     - cmake
@@ -155,9 +154,8 @@ documentation:
 # Update the downloads page
 downloads_update:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images:prepare-1.7.0
+  image: registry.gitlab.com/lfortran/ci-images:prepare-1.8.0
   script:
-    - sudo apk add --no-cache curl
     - curl -X POST -F token=${DOWNLOAD_UPDATE_TOKEN} -F ref=master https://gitlab.com/api/v4/projects/11905898/trigger/pipeline
   only:
     - master
