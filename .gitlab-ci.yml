@@ -99,9 +99,8 @@ cxx:
 # Create a binary tarball with the C++ based LFortran
 cxx_binary:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images:prepare-1.7.0
+  image: registry.gitlab.com/lfortran/ci-images/ci-test:cxxbinary-f505667
   script:
-    - sudo apk add --no-cache llvm8-dev cmake make g++ llvm8-static zlib-dev
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
     - cmake
