@@ -99,7 +99,7 @@ cxx:
 # Create a binary tarball with the C++ based LFortran
 cxx_binary:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images:prepare-1.8.0
+  image: registry.gitlab.com/lfortran/ci-images:cxxbinary-1.8.0
   script:
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
