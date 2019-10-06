@@ -22,6 +22,7 @@ add_test(test_mod1 ${CURRENT_BINARY_DIR}/test_mod1)
 
 add_executable(test_cpp test_cpp.cpp)
 target_link_libraries(test_cpp mod1)
+target_include_directories(test_cpp BEFORE PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 add_test(test_cpp ${CURRENT_BINARY_DIR}/test_cpp)
 
 add_executable(test_fortran test_fortran.f90 gfort_interop.f90)
