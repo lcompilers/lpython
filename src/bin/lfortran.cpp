@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
         std::cout << LFortran::pickle(*asr, true) << std::endl;
 
         // ASR -> LLVM
-        LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
+        LFortran::LLVMEvaluator e;
         std::unique_ptr<LFortran::LLVMModule> m;
         try {
             m = LFortran::asr_to_llvm(*asr, e.get_context());

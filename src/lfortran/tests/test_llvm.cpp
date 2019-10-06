@@ -14,7 +14,7 @@ TEST_CASE("llvm 1") {
     std::cout << "LLVM Version:" << std::endl;
     LFortran::LLVMEvaluator::print_version_message();
 
-    LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
+    LFortran::LLVMEvaluator e;
     e.add_module(R"""(
 define i64 @f1()
 {
@@ -37,7 +37,7 @@ define i64 @f1()
 }
 
 TEST_CASE("llvm 1 fail") {
-    LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
+    LFortran::LLVMEvaluator e;
     CHECK_THROWS_AS(e.add_module(R"""(
 define i64 @f1()
 {
@@ -56,7 +56,7 @@ define i64 @f1()
 
 
 TEST_CASE("llvm 2") {
-    LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
+    LFortran::LLVMEvaluator e;
     e.add_module(R"""(
 @count = global i64 0
 
@@ -91,7 +91,7 @@ define i64 @f3()
 }
 
 TEST_CASE("llvm 3") {
-    LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
+    LFortran::LLVMEvaluator e;
     e.add_module(R"""(
 @count = global i64 5
     )""");
@@ -140,7 +140,7 @@ define void @inc2()
 
     // Test that we can have another independent LLVMEvaluator and use both at
     // the same time:
-    LFortran::LLVMEvaluator e2 = LFortran::LLVMEvaluator();
+    LFortran::LLVMEvaluator e2;
     e2.add_module(R"""(
 @count = global i64 5
 
@@ -176,7 +176,7 @@ define void @inc()
 }
 
 TEST_CASE("llvm 4") {
-    LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
+    LFortran::LLVMEvaluator e;
     e.add_module(R"""(
 @count = global i64 5
 
@@ -230,7 +230,7 @@ define void @inc2()
 }
 
 TEST_CASE("llvm array 1") {
-    LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
+    LFortran::LLVMEvaluator e;
     e.add_module(R"""(
 ; Sum the three elements in %a
 define i64 @sum3(i64* %a)
@@ -272,7 +272,7 @@ define i64 @f()
 }
 
 TEST_CASE("llvm array 2") {
-    LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
+    LFortran::LLVMEvaluator e;
     e.add_module(R"""(
 %array = type {i64, [3 x i64]}
 
@@ -321,7 +321,7 @@ int f(int a, int b) {
 }
 
 TEST_CASE("llvm callback 0") {
-    LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
+    LFortran::LLVMEvaluator e;
     std::string addr = std::to_string((int64_t)f);
     e.add_module(R"""(
 define i64 @addrcaller(i64 %a, i64 %b)
@@ -357,7 +357,7 @@ end function)";
     CHECK(LFortran::pickle(*asr) == "(fn f [] [(= (variable f () Unimplementedint (integer Unimplementedint [])) (num Unimplementedobject (integer Unimplementedint [])))] () (variable f () Unimplementedint (integer Unimplementedint [])) () Unimplementedobject)");
 
     // ASR -> LLVM
-    LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
+    LFortran::LLVMEvaluator e;
     std::unique_ptr<LFortran::LLVMModule> m = LFortran::asr_to_llvm(*asr,
             e.get_context());
     std::cout << "Module:" << std::endl;
@@ -384,7 +384,7 @@ end function)";
     CHECK(LFortran::pickle(*asr) == "(fn f [] [(= (variable f () Unimplementedint (integer Unimplementedint [])) (num Unimplementedobject (integer Unimplementedint [])))] () (variable f () Unimplementedint (integer Unimplementedint [])) () Unimplementedobject)");
 
     // ASR -> LLVM
-    LFortran::LLVMEvaluator e = LFortran::LLVMEvaluator();
+    LFortran::LLVMEvaluator e;
     std::unique_ptr<LFortran::LLVMModule> m = LFortran::asr_to_llvm(*asr,
             e.get_context());
     std::cout << "Module:" << std::endl;
