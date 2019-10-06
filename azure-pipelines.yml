@@ -3,33 +3,28 @@
 # https://aka.ms/yaml
 
 jobs:
-#  - job: Linux
-#    pool:
-#      vmImage: 'Ubuntu-16.04'
-#    steps:
-#    - script: echo Hello, world!
-
   - job: macOS
     pool:
       # List of preinstalled software on the macOS image:
       # https://github.com/Microsoft/azure-pipelines-image-generation/blob/master/images/macos/macos-Readme.md
       vmImage: 'macOS-10.13'
     steps:
+    - script: ci/azure_status.sh running
+      env:
+        TOKEN_STATUS: $(TOKEN_STATUS)
+        COMMIT_ID: $(Build.SourceVersion)
+        BUILD_ID: $(Build.BuildId)
+      displayName: Set commit status to running
     - bash: echo "##vso[task.prependpath]$CONDA/bin"
       displayName: Add conda to PATH
     - bash: sudo chown -R $USER $CONDA
       displayName: Take ownership of conda installation
     - script: ci/azure_install_macos.sh
       displayName: 'Install prerequisites'
-
-    - script: |
-        echo Add other tasks to build, test, and deploy your project.
-        echo See https://aka.ms/yaml
-      displayName: 'Run a multi-line script'
-
-#  - job: Windows
-#    pool:
-#      vmImage: 'vs2017-win2016'
-#    steps:
-#    - script: echo Hello, world!
-#      displayName: 'Run a one-line script'
+    - script: ci/azure_status.sh
+      condition: always()
+      env:
+        TOKEN_STATUS: $(TOKEN_STATUS)
+        COMMIT_ID: $(Build.SourceVersion)
+        BUILD_ID: $(Build.BuildId)
+      displayName: Set commit status (success/failed)
