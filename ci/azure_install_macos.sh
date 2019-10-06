@@ -10,4 +10,5 @@ export MACOSX_DEPLOYMENT_TARGET="10.9"
 export CONDA_PREFIX=/usr/local/miniconda
 export LFORTRAN_CMAKE_GENERATOR="Unix Makefiles"
 export WIN=0
+export MACOS=1
 xonsh ci/build.xsh
