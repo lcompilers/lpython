@@ -56,6 +56,7 @@ extern "C" {
 
 int32_t __mod1_MOD_f2b(descriptor<1, int32_t> *descr);
 int32_t __mod1_MOD_f3b(descriptor<2, int32_t> *descr);
+int32_t __mod1_MOD_f5b(descriptor<2, int32_t> *descr);
 
 }
 
@@ -85,4 +86,20 @@ TEST_CASE("f3b")
             {{1, 2}, {1, 3}});
 
     CHECK(__mod1_MOD_f3b(&a) == 21);
+}
+
+TEST_CASE("f5b")
+{
+    std::vector<int32_t> data(6);
+    data[0] = 1;
+    data[1] = 2;
+    data[2] = 3;
+    data[3] = 4;
+    data[4] = 5;
+    data[5] = 6;
+
+    descriptor<2, int32_t> a = c_desc<2, int32_t>(&data[0],
+            {{1, 2}, {1, 3}});
+
+    CHECK(__mod1_MOD_f5b(&a) == 9);
 }

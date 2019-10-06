@@ -1,7 +1,7 @@
 module mod1
 implicit none
 private
-public f1, f2, f3, f4, f2b, f3b
+public f1, f2, f3, f4, f2b, f3b, f5b
 
 contains
 
@@ -35,6 +35,15 @@ integer, intent(in) :: a
 integer, intent(out) :: b
 b = a
 f4 = 0
+end function
+
+integer function f5b(a) result(r)
+integer, intent(in) :: a(:,:)
+integer :: i
+r = 0
+do i = 1, size(a, 2)
+    r = r + a(1, i)
+end do
 end function
 
 end module
