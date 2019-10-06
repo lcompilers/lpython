@@ -12,4 +12,5 @@ build_script:
 - set CONDA_PREFIX=C:\\Miniconda37-x64
 - set LFORTRAN_CMAKE_GENERATOR=Visual Studio 15 2017 Win64
 - set WIN=1
+- set MACOS=0
 - xonsh ci\build.xsh

@@ -126,6 +126,7 @@ build.xsh:
     - conda install -c conda-forge llvmdev
     - export LFORTRAN_CMAKE_GENERATOR="Unix Makefiles"
     - export WIN=0
+    - export MACOS=0
     - xonsh ci/build.xsh
 
 # Build and upload documentation
