@@ -16,3 +16,6 @@ python wrap.py > mod2.f90
 
 python wrap2.py > mod2.f90
 ./mod2.sh
+
+python wrap_cpp.py > mod2.h
+make
