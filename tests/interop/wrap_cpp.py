@@ -64,6 +64,20 @@ extern "C" {
 
     def visit_Function(self, node):
         name = self.visit_object(node.name)
+        args2 = []
+        for arg in node.args:
+            #type = self.visit(arg.type)
+            #if array_is_assumed_shape(type):
+            #    if len(type.dims) == 1:
+            #        dname = "c_desc1_t"
+            #    elif len(type.dims) == 2:
+            #        dname = "c_desc2_t"
+            #    else:
+            #        raise NotImplementedError("Too many dimensions")
+            #    args2.append(dname)
+            #else:
+            #    args2.append(arg)
+            args2.append(arg.name)
         #symtab = self.visit_object(node.symtab)
         #self._lookup = 1
         #self._scope = symtab
@@ -75,7 +89,7 @@ extern "C" {
         #    bind = self.visit(node.bind)
         #else:
         #    bind = None
-        return "int32_t __mod1_MOD_%s();\n" % (name)
+        return "int32_t __mod1_MOD_%s(%s);\n" % (name, ", ".join(args2))
         #return asr.Function(name=name, args=args, body=body, bind=bind, return_var=return_var, symtab=symtab)
 
 
