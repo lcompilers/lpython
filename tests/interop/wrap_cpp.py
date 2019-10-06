@@ -77,7 +77,14 @@ extern "C" {
             #    args2.append(dname)
             #else:
             #    args2.append(arg)
-            args2.append("int32_t *" + arg.name)
+            n = len(arg.type.dims)
+            if n == 0:
+                args2.append("int32_t *%s" % arg.name)
+            else:
+                if array_is_assumed_shape(arg.type):
+                    args2.append("descriptor<%s, int32_t> *%s" % (n, arg.name))
+                else:
+                    args2.append("int32_t *%s" % arg.name)
         #symtab = self.visit_object(node.symtab)
         #self._lookup = 1
         #self._scope = symtab
