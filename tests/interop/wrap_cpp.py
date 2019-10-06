@@ -77,7 +77,7 @@ extern "C" {
             #    args2.append(dname)
             #else:
             #    args2.append(arg)
-            args2.append(arg.name)
+            args2.append("int32_t *" + arg.name)
         #symtab = self.visit_object(node.symtab)
         #self._lookup = 1
         #self._scope = symtab
