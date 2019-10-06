@@ -54,10 +54,31 @@ descriptor<Rank, Type> c_desc(Type *array_ptr,
 
 extern "C" {
 
+int32_t __mod1_MOD_f1(int32_t *a, int32_t *b);
+int32_t __mod1_MOD_f2(int32_t *n, int32_t *a);
+int32_t __mod1_MOD_f3(int32_t *n, int32_t *m, int32_t *a);
 int32_t __mod1_MOD_f2b(descriptor<1, int32_t> *descr);
 int32_t __mod1_MOD_f3b(descriptor<2, int32_t> *descr);
+int32_t __mod1_MOD_f4(int32_t *a, int32_t *b);
 int32_t __mod1_MOD_f5b(descriptor<2, int32_t> *descr);
 
+}
+
+TEST_CASE("f1")
+{
+    int a = 1;
+    int b = 2;
+    CHECK(__mod1_MOD_f1(&a, &b) == 3);
+}
+
+TEST_CASE("f2")
+{
+    int n = 3;
+    std::vector<int32_t> data(3);
+    data[0] = 1;
+    data[1] = 2;
+    data[2] = 3;
+    CHECK(__mod1_MOD_f2(&n, &data[0]) == 6);
 }
 
 TEST_CASE("f2b")
@@ -70,6 +91,22 @@ TEST_CASE("f2b")
     descriptor<1, int32_t> a = c_desc<1, int32_t>(&data[0],
             {{1, 3}});
     CHECK(__mod1_MOD_f2b(&a) == 6);
+}
+
+TEST_CASE("f3")
+{
+    std::vector<int32_t> data(6);
+    data[0] = 1;
+    data[1] = 2;
+    data[2] = 3;
+    data[3] = 4;
+    data[4] = 5;
+    data[5] = 6;
+
+    int n = 2;
+    int m = 3;
+
+    CHECK(__mod1_MOD_f3(&n, &m, &data[0]) == 21);
 }
 
 TEST_CASE("f3b")
@@ -86,6 +123,14 @@ TEST_CASE("f3b")
             {{1, 2}, {1, 3}});
 
     CHECK(__mod1_MOD_f3b(&a) == 21);
+}
+
+TEST_CASE("f4")
+{
+    int a = 1;
+    int b = 0;
+    CHECK(__mod1_MOD_f4(&a, &b) == 0);
+    CHECK(b == 1);
 }
 
 TEST_CASE("f5b")
