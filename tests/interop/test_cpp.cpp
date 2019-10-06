@@ -1,5 +1,13 @@
+// ptrdiff_t, size_t
 #include <cstddef>
+
+// int32_t
+#include <cstdint>
+
 #include <iostream>
+
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <tests/doctest.h>
 
 
 struct descriptor_dimension
@@ -19,14 +27,14 @@ struct descriptor {
 
 extern "C" {
 
-int __mod1_MOD_f2b(descriptor<1, int> *descr);
+int32_t __mod1_MOD_f2b(descriptor<1, int32_t> *descr);
 
 }
 
-int main()
+TEST_CASE("main")
 {
-    descriptor<1, int> a;
-    a.base_addr = new int[3];
+    descriptor<1, int32_t> a;
+    a.base_addr = new int32_t[3];
     a.base_addr[0] = 1;
     a.base_addr[1] = 2;
     a.base_addr[2] = 3;
@@ -42,6 +50,5 @@ int main()
 
     int s;
     s = __mod1_MOD_f2b(&a);
-    std::cout << "Result: " << s << std::endl;
-    return 0;
+    CHECK(s == 6);
 }
