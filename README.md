@@ -30,6 +30,10 @@ https://gitlab.com/lfortran/lfortran
 
 Please use it to open issues or send merge requests.
 
+Main mailinglist:
+
+https://groups.io/g/lfortran
+
 You can also chat with us on Zulip ([![project chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://lfortran.zulipchat.com/)).
 
 CI status on master:
