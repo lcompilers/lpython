@@ -66,6 +66,8 @@ if (WITH_LLVM)
     #    ${LLVM_DEFINITIONS})
     #set_property(TARGET p::llvm PROPERTY INTERFACE_COMPILE_OPTIONS
     #    ${LLVM_DEFINITIONS})
+    set_property(TARGET p::llvm PROPERTY INTERFACE_COMPILE_OPTIONS
+        $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>)
     set_property(TARGET p::llvm PROPERTY INTERFACE_LINK_LIBRARIES
         ${llvm_libs})
 endif()
