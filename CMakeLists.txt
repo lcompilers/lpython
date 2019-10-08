@@ -67,8 +67,7 @@ if (WITH_LLVM)
     #set_property(TARGET p::llvm PROPERTY INTERFACE_COMPILE_OPTIONS
     #    ${LLVM_DEFINITIONS})
     set_property(TARGET p::llvm PROPERTY INTERFACE_COMPILE_OPTIONS
-        $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang,GNU>:-fno-rtti>
-        $<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/GR->)
+        $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>)
     set_property(TARGET p::llvm PROPERTY INTERFACE_LINK_LIBRARIES
         ${llvm_libs})
 endif()
