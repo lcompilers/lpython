@@ -16,6 +16,13 @@ if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
     message(FATAL_ERROR "CMAKE_BUILD_TYPE must be one of: Debug, Release (current value: '${CMAKE_BUILD_TYPE}')")
 endif ()
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(LFORTRAN_CXX_NO_RTTI_FLAG "-fno-rtti")
+elseif (CMAKE_CXX_COMPILER_ID MATCHES Clang)
+    set(LFORTRAN_CXX_NO_RTTI_FLAG "-fno-rtti")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(LFORTRAN_CXX_NO_RTTI_FLAG "/GR-")
+endif ()
 
 # build a CPack driven installer package
 include(InstallRequiredSystemLibraries)
@@ -66,6 +73,8 @@ if (WITH_LLVM)
     #    ${LLVM_DEFINITIONS})
     #set_property(TARGET p::llvm PROPERTY INTERFACE_COMPILE_OPTIONS
     #    ${LLVM_DEFINITIONS})
+    set_property(TARGET p::llvm PROPERTY INTERFACE_COMPILE_OPTIONS
+        $<$<COMPILE_LANGUAGE:CXX>:${LFORTRAN_CXX_NO_RTTI_FLAG}>)
     set_property(TARGET p::llvm PROPERTY INTERFACE_LINK_LIBRARIES
         ${llvm_libs})
 endif()
