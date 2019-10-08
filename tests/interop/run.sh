@@ -19,3 +19,6 @@ python wrap2.py > mod2.f90
 
 python wrap_cpp.py > mod2.h
 make
+
+python cxxwrap.py > cxx_wrapper.f90
+gfortran -c cxx_wrapper.f90 -o cxx_wrapper.o
