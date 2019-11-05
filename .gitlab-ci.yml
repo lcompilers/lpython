@@ -60,6 +60,7 @@ full:
   image: registry.gitlab.com/lfortran/ci-images:full-1.7.0
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
+    - conda install -c conda-forge python-clang
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
     - pip install --no-index -v .
