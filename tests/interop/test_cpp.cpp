@@ -101,17 +101,9 @@ TEST_CASE("f3")
 
 TEST_CASE("f3b")
 {
-    std::vector<int32_t> data(6);
-    data[0] = 1;
-    data[1] = 2;
-    data[2] = 3;
-    data[3] = 4;
-    data[4] = 5;
-    data[5] = 6;
-
+    std::vector<int32_t> data = {1, 2, 3, 4, 5, 6};
     descriptor<2, int32_t> a = c_desc<2, int32_t>(&data[0],
             {{1, 2}, {1, 3}});
-
     CHECK(__mod1_MOD_f3b(&a) == 21);
 }
 
