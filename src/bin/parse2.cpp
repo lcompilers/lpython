@@ -9,7 +9,8 @@ int main(int argc, char *argv[])
     int N;
     N = 10000;
     std::string text;
-    std::string t0 = R"(subroutine g
+    std::string st1 = "subroutine g";
+    std::string st2 = R"(
     integer :: x, i
     x = 1
     do i = 1, 10
@@ -17,10 +18,10 @@ int main(int argc, char *argv[])
     end do
 end subroutine)";
     text.reserve(2250042);
-    text = t0;
+    text = st1 + std::to_string(0) + st2;
     std::cout << "Construct" << std::endl;
     for (int i = 0; i < N-1; i++) {
-        text.append("\n\n" + t0);
+        text.append("\n\n" + st1 + std::to_string(i+1) + st2);
     }
     {
         std::ofstream file;
