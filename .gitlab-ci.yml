@@ -125,7 +125,9 @@ build.xsh:
   script:
     - export CONDA_PREFIX="$HOME/conda_root"
     - export PATH="$HOME/conda_root/bin:$PATH"
-    - conda install -c conda-forge llvmdev=9.0.1 zlib
+    - sudo apt-get update
+    - sudo apt-get install -yq --no-install-recommends zlib1g
+    - conda install -c conda-forge llvmdev=9.0.1
     - export LFORTRAN_CMAKE_GENERATOR="Unix Makefiles"
     - export WIN=0
     - export MACOS=0
