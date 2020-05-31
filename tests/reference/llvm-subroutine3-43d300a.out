@@ -1,0 +1,8 @@
+; ModuleID = 'LFortran'
+source_filename = "LFortran"
+
+define i64 @f() {
+EntryBlock:
+  ret i64 42
+}
+

@@ -37,6 +37,7 @@ def main():
         tokens = test.get("tokens", False)
         ast = test.get("ast", False)
         asr = test.get("asr", False)
+        llvm = test.get("llvm", False)
         bin_ = test.get("bin", False)
 
         print(color(style.bold)+"TEST:"+color(style.reset), filename)
@@ -51,6 +52,10 @@ def main():
 
         if asr:
             run_test("asr", "lfortran --show-asr {infile} -o {outfile}",
+                    filename, update_reference)
+
+        if llvm:
+            run_test("llvm", "lfortran --show-llvm {infile} -o {outfile}",
                     filename, update_reference)
 
         if bin_:
