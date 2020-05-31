@@ -1,0 +1,13 @@
+{
+    "basename": "tokens-subroutine1-518e530",
+    "cmd": "lfortran --show-tokens {infile} -o {outfile}",
+    "infile": "tests/subroutine1.f90",
+    "infile_hash": "e209c22328b423e75d6801f3c0ef19bc120936196435dff2cb19df31",
+    "outfile": "tokens-subroutine1-518e530.out",
+    "outfile_hash": "d8d57bc24f81e53f3a20acfef58b8ebaff7db0400900591ecdc77a79",
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
