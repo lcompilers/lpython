@@ -51,6 +51,27 @@ std::vector<LFortran::AST::ast_t*> parsen(Allocator &al, const std::string &s)
     return p.result;
 }
 
+std::vector<LFortran::AST::ast_t*> parsen2(Allocator &al, const std::string &s)
+{
+    std::vector<LFortran::AST::ast_t*> result;
+    try {
+        result = parsen(al, s);
+    } catch (const LFortran::ParserError &e) {
+        int token;
+        if (e.msg() == "syntax is ambiguous") {
+            token = -2;
+        } else {
+            token = e.token;
+        }
+        show_syntax_error("input", s, e.loc, token);
+        throw;
+    } catch (const LFortran::TokenizerError &e) {
+        show_syntax_error("input", s, e.loc, -1, &e.token);
+        throw;
+    }
+    return result;
+}
+
 void Parser::parse(const std::string &input)
 {
     inp = input;
