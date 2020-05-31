@@ -130,6 +130,12 @@ int emit_ast(std::string &infile, std::string &outfile)
     return 0;
 }
 
+std::string remove_extension(const std::string& filename) {
+    size_t lastdot = filename.find_last_of(".");
+    if (lastdot == std::string::npos) return filename;
+    return filename.substr(0, lastdot);
+}
+
 int main(int argc, char *argv[])
 {
     bool arg_S = false;
@@ -172,19 +178,18 @@ int main(int argc, char *argv[])
 
     std::string outfile;
     std::string basename;
-    basename = arg_file; // TODO: remove the .f90 extension
-    //basename, ext = os.path.splitext(os.path.basename(filename))
+    basename = remove_extension(arg_file);
     if (arg_o.size() > 0) {
         outfile = arg_o;
     } else if (arg_S) {
         outfile = basename + ".s";
     } else if (arg_c) {
         outfile = basename + ".o";
+    } else if (show_ast) {
+        outfile = basename + ".ast";
     } else {
         outfile = "a.out";
     }
-
-    std::cout << "outfile: " << outfile << std::endl;
 
     if (show_ast) {
         return emit_ast(arg_file, outfile);
