@@ -99,6 +99,37 @@ int prompt()
     return 0;
 }
 
+int emit_ast(std::string &infile, std::string &outfile)
+{
+    std::string input;
+    {
+        std::ifstream file;
+        file.open(infile);
+        file >> input;
+    }
+    // Src -> AST
+    Allocator al(16*1024);
+    LFortran::AST::ast_t* ast;
+    try {
+        ast = LFortran::parse2(al, input);
+    } catch (const LFortran::TokenizerError &e) {
+        std::cout << "Tokenizing error: " << e.msg() << std::endl;
+        return 1;
+    } catch (const LFortran::ParserError &e) {
+        std::cout << "Parsing error: " << e.msg() << std::endl;
+        return 2;
+    } catch (const LFortran::LFortranException &e) {
+        std::cout << "Other LFortran exception: " << e.msg() << std::endl;
+        return 3;
+    }
+    {
+        std::ofstream file;
+        file.open(outfile);
+        file << LFortran::pickle(*ast, true) << std::endl;
+    }
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
     bool arg_S = false;
@@ -151,6 +182,12 @@ int main(int argc, char *argv[])
         outfile = basename + ".o";
     } else {
         outfile = "a.out";
+    }
+
+    std::cout << "outfile: " << outfile << std::endl;
+
+    if (show_ast) {
+        return emit_ast(arg_file, outfile);
     }
 
     return 0;
