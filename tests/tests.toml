@@ -17,6 +17,7 @@ ast = true
 filename = "subroutine3.f90"
 ast = true
 asr = true
+llvm = true
 
 [[test]]
 filename = "do1.f90"
