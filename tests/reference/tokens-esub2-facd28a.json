@@ -1,0 +1,13 @@
+{
+    "basename": "tokens-esub2-facd28a",
+    "cmd": "lfortran --show-tokens {infile} -o {outfile}",
+    "infile": "tests/errors/esub2.f90",
+    "infile_hash": "fb45951fe73ff1605633612371af0d19b7036b3aef93d6b084c33823",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "tokens-esub2-facd28a.stderr",
+    "stderr_hash": "d4f78baf787bf092f7453457e4b4ea945788ad0ae8c655a2854c0ddc",
+    "returncode": 1
+}

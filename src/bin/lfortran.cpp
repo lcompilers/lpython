@@ -121,6 +121,32 @@ int prompt()
     return 0;
 }
 
+int emit_tokens(const std::string &infile, const std::string &outfile)
+{
+    std::string input = read_file(infile);
+    // Src -> Tokens
+    Allocator al(64*1024*1024);
+    std::vector<int> toks;
+    std::vector<LFortran::YYSTYPE> stypes;
+    try {
+        toks = LFortran::tokens(input, &stypes);
+    } catch (const LFortran::TokenizerError &e) {
+        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
+        return 1;
+    } catch (const LFortran::LFortranException &e) {
+        std::cerr << "Other LFortran exception: " << e.msg() << std::endl;
+        return 3;
+    }
+    {
+        std::ofstream file;
+        file.open(outfile);
+        for (size_t i=0; i < toks.size(); i++) {
+            file << LFortran::pickle(toks[i], stypes[i]) << std::endl;
+        }
+    }
+    return 0;
+}
+
 int emit_ast(const std::string &infile, const std::string &outfile)
 {
     std::string input = read_file(infile);
@@ -158,6 +184,7 @@ int main(int argc, char *argv[])
     std::string arg_o;
     std::string arg_file;
     bool arg_version = false;
+    bool show_tokens = false;
     bool show_ast = false;
     bool show_asr = false;
     bool show_llvm = false;
@@ -175,6 +202,7 @@ int main(int argc, char *argv[])
     app.add_flag("--version", arg_version, "Display compiler version information");
 
     // LFortran specific options
+    app.add_flag("--show-tokens", show_tokens, "Show tokens for the given file and exit");
     app.add_flag("--show-ast", show_ast, "Show AST for the given file and exit");
     app.add_flag("--show-asr", show_asr, "Show ASR for the given file and exit");
     app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
@@ -198,12 +226,17 @@ int main(int argc, char *argv[])
         outfile = basename + ".s";
     } else if (arg_c) {
         outfile = basename + ".o";
+    } else if (show_tokens) {
+        outfile = basename + ".tokens";
     } else if (show_ast) {
         outfile = basename + ".ast";
     } else {
         outfile = "a.out";
     }
 
+    if (show_tokens) {
+        return emit_tokens(arg_file, outfile);
+    }
     if (show_ast) {
         return emit_ast(arg_file, outfile);
     }

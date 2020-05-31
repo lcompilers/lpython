@@ -6,6 +6,7 @@
 
 [[test]]
 filename = "subroutine1.f90"
+tokens = true
 ast = true
 
 [[test]]
@@ -22,8 +23,10 @@ ast = true
 
 [[test]]
 filename = "errors/esub1.f90"
+tokens = true
 ast = true
 
 [[test]]
 filename = "errors/esub2.f90"
+tokens = true
 ast = true
