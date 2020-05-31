@@ -130,13 +130,13 @@ int emit_ast(const std::string &infile, const std::string &outfile)
     try {
         ast = LFortran::parsen2(al, input);
     } catch (const LFortran::TokenizerError &e) {
-        std::cout << "Tokenizing error: " << e.msg() << std::endl;
+        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
     } catch (const LFortran::ParserError &e) {
-        std::cout << "Parsing error: " << e.msg() << std::endl;
+        std::cerr << "Parsing error: " << e.msg() << std::endl;
         return 2;
     } catch (const LFortran::LFortranException &e) {
-        std::cout << "Other LFortran exception: " << e.msg() << std::endl;
+        std::cerr << "Other LFortran exception: " << e.msg() << std::endl;
         return 3;
     }
     {
