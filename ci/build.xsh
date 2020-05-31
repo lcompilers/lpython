@@ -66,6 +66,8 @@ else:
 ./src/bin/lfortran < ../src/bin/example_input.txt
 ctest --output-on-failure
 cpack -V
+if $WIN != "1":
+    cp ./src/bin/lfortran ../../src/bin
 cd ..
 
 if $MACOS == "1":
@@ -74,6 +76,9 @@ if $MACOS == "1":
     remove("lfortran/ast/tests/test_cparser.py")
 pip install -v --no-index .
 cd ..
+
+if $WIN != "1":
+    ./run_tests.py
 
 from shutil import rmtree
 rmtree("lfortran")
