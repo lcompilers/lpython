@@ -84,6 +84,24 @@ void Parser::parse(const std::string &input)
     throw ParserError("Parsing Unsuccessful", loc, 0);
 }
 
+std::vector<int> tokens(const std::string &input,
+        std::vector<LFortran::YYSTYPE> *stypes)
+{
+    LFortran::Tokenizer t;
+    t.set_string(input);
+    std::vector<int> tst;
+    int token = yytokentype::END_OF_FILE + 1; // Something different from EOF
+    while (token != yytokentype::END_OF_FILE) {
+        LFortran::YYSTYPE y;
+        LFortran::Location l;
+        token = t.lex(y, l);
+        tst.push_back(token);
+        if (stypes) stypes->push_back(y);
+    }
+    return tst;
+}
+
+
 std::string get_line(std::string str, int n)
 {
     std::string line;

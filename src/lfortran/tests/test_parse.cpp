@@ -9,6 +9,7 @@
 
 using LFortran::parse;
 using LFortran::parse2;
+using LFortran::tokens;
 using LFortran::AST::ast_t;
 using LFortran::AST::expr_t;
 using LFortran::AST::Name_t;
@@ -83,23 +84,6 @@ TEST_CASE("Test longer parser (N = 500)") {
     std::cout << "String size (bytes):      " << text.size() << std::endl;
     std::cout << "Allocator usage (bytes): " << al.size_current() << std::endl;
     CHECK(c == 4509);
-}
-
-std::vector<int> tokens(const std::string &input,
-        std::vector<LFortran::YYSTYPE> *stypes=nullptr)
-{
-    LFortran::Tokenizer t;
-    t.set_string(input);
-    std::vector<int> tst;
-    int token = yytokentype::END_OF_FILE + 1; // Something different from EOF
-    while (token != yytokentype::END_OF_FILE) {
-        LFortran::YYSTYPE y;
-        LFortran::Location l;
-        token = t.lex(y, l);
-        tst.push_back(token);
-        if (stypes) stypes->push_back(y);
-    }
-    return tst;
 }
 
 using tt = yytokentype;
