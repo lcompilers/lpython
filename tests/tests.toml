@@ -23,3 +23,7 @@ ast = true
 [[test]]
 filename = "errors/esub1.f90"
 ast = true
+
+[[test]]
+filename = "errors/esub2.f90"
+ast = true
