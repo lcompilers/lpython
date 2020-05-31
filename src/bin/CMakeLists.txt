@@ -1,6 +1,10 @@
 if (WITH_LLVM)
     add_executable(lfortran lfortran.cpp)
     target_link_libraries(lfortran lfortran_lib)
+    if (UNIX AND NOT APPLE)
+        # This is sometimes needed to fix link errors for CLI11
+        target_link_libraries(lfortran stdc++fs)
+    endif()
     if (LFORTRAN_STATIC_BIN)
         if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
             # Link statically on Linux with gcc or clang
