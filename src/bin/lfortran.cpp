@@ -16,10 +16,34 @@ void section(const std::string &s)
 
 int main(int argc, char *argv[])
 {
+    bool arg_S = false;
+    bool arg_c = false;
+    bool arg_v = false;
+    bool arg_E = false;
+    std::string arg_o;
+    std::string arg_file;
+    bool arg_version = false;
     bool show_ast = false;
+    bool show_asr = false;
+    bool show_llvm = false;
+    bool show_asm = false;
 
     CLI::App app{"LFortran: modern interactive LLVM-based Fortran compiler"};
-    app.add_flag("--show-ast", show_ast, "Show AST and exit");
+    // Standard options compatible with gfortran, gcc or clang
+    // We follow the established conventions
+    app.add_option("file", arg_file, "Source file");
+    app.add_flag("-S", arg_S, "Emit assembly, do not assemble or link");
+    app.add_flag("-c", arg_c, "Compile and assemble, do not link");
+    app.add_option("-o", arg_o, "Specify the file to place the output into");
+    app.add_flag("-v", arg_v, "Be more verbose");
+    app.add_flag("-E", arg_E, "Preprocess only; do not compile, assemble or link");
+    app.add_flag("--version", arg_version, "Display compiler version information");
+
+    // LFortran specific options
+    app.add_flag("--show-ast", show_ast, "Show AST for the given file and exit");
+    app.add_flag("--show-asr", show_asr, "Show ASR for the given file and exit");
+    app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
+    app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
     CLI11_PARSE(app, argc, argv);
 
     std::cout << "Interactive Fortran. Experimental prototype, not ready for end users." << std::endl;
