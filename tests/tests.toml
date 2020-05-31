@@ -1,0 +1,9 @@
+# Possible tests:
+# tokens ... run the Lexer and output tokens, compare against reference version
+# ast ... run the Parser and output AST, compare against reference version
+# asr ... run the Semantics and output ASR, compare against reference version
+# bin ... run the CodeGen and output bin, compare against reference bin
+
+[[test]]
+filename = "subroutine1.f90"
+ast = true
