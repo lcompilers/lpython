@@ -212,6 +212,54 @@ int emit_asr(const std::string &infile, const std::string &outfile)
     return 0;
 }
 
+int emit_llvm(const std::string &infile, const std::string &outfile)
+{
+    std::string input = read_file(infile);
+
+    // Src -> AST
+    Allocator al(64*1024*1024);
+    std::vector<LFortran::AST::ast_t*> ast;
+    try {
+        ast = LFortran::parsen2(al, input);
+    } catch (const LFortran::TokenizerError &e) {
+        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
+        return 1;
+    } catch (const LFortran::ParserError &e) {
+        std::cerr << "Parsing error: " << e.msg() << std::endl;
+        return 2;
+    } catch (const LFortran::LFortranException &e) {
+        std::cerr << "Other LFortran exception: " << e.msg() << std::endl;
+        return 3;
+    }
+
+    // AST -> ASR
+    LFortran::ASR::asr_t* asr;
+    try {
+        // FIXME: For now we only transform the first node in the list:
+        asr = LFortran::ast_to_asr(al, *ast[0]);
+    } catch (const LFortran::LFortranException &e) {
+        std::cerr << "LFortran exception: " << e.msg() << std::endl;
+        return 4;
+    }
+
+    // ASR -> LLVM
+    LFortran::LLVMEvaluator e;
+    std::unique_ptr<LFortran::LLVMModule> m;
+    try {
+        m = LFortran::asr_to_llvm(*asr, e.get_context());
+    } catch (const LFortran::CodeGenError &e) {
+        std::cerr << "Code generation error: " << e.msg() << std::endl;
+        return 5;
+    }
+
+    {
+        std::ofstream file;
+        file.open(outfile);
+        file << m->str() << std::endl;
+    }
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
     bool arg_S = false;
@@ -269,6 +317,8 @@ int main(int argc, char *argv[])
         outfile = basename + ".ast";
     } else if (show_asr) {
         outfile = basename + ".asr";
+    } else if (show_llvm) {
+        outfile = basename + ".ll";
     } else {
         outfile = "a.out";
     }
@@ -281,6 +331,9 @@ int main(int argc, char *argv[])
     }
     if (show_asr) {
         return emit_asr(arg_file, outfile);
+    }
+    if (show_llvm) {
+        return emit_llvm(arg_file, outfile);
     }
 
     return 0;
