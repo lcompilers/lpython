@@ -175,6 +175,43 @@ int emit_ast(const std::string &infile, const std::string &outfile)
     return 0;
 }
 
+int emit_asr(const std::string &infile, const std::string &outfile)
+{
+    std::string input = read_file(infile);
+
+    // Src -> AST
+    Allocator al(64*1024*1024);
+    std::vector<LFortran::AST::ast_t*> ast;
+    try {
+        ast = LFortran::parsen2(al, input);
+    } catch (const LFortran::TokenizerError &e) {
+        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
+        return 1;
+    } catch (const LFortran::ParserError &e) {
+        std::cerr << "Parsing error: " << e.msg() << std::endl;
+        return 2;
+    } catch (const LFortran::LFortranException &e) {
+        std::cerr << "Other LFortran exception: " << e.msg() << std::endl;
+        return 3;
+    }
+
+    // AST -> ASR
+    LFortran::ASR::asr_t* asr;
+    try {
+        // FIXME: For now we only transform the first node in the list:
+        asr = LFortran::ast_to_asr(al, *ast[0]);
+    } catch (const LFortran::LFortranException &e) {
+        std::cerr << "LFortran exception: " << e.msg() << std::endl;
+        return 4;
+    }
+    {
+        std::ofstream file;
+        file.open(outfile);
+        file << LFortran::pickle(*asr) << std::endl;
+    }
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
     bool arg_S = false;
@@ -230,6 +267,8 @@ int main(int argc, char *argv[])
         outfile = basename + ".tokens";
     } else if (show_ast) {
         outfile = basename + ".ast";
+    } else if (show_asr) {
+        outfile = basename + ".asr";
     } else {
         outfile = "a.out";
     }
@@ -239,6 +278,9 @@ int main(int argc, char *argv[])
     }
     if (show_ast) {
         return emit_ast(arg_file, outfile);
+    }
+    if (show_asr) {
+        return emit_asr(arg_file, outfile);
     }
 
     return 0;
