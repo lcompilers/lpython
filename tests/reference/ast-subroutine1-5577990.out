@@ -1,0 +1,1 @@
+(sub g [] [] [(decl [(x "integer" [] [] ()) (i "integer" [] [] ())])] [(= x 1) (do i 1 10 () [(= x (* x i))])] [])
