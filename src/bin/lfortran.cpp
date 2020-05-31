@@ -46,6 +46,10 @@ int main(int argc, char *argv[])
     app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
     CLI11_PARSE(app, argc, argv);
 
+    if (arg_E) {
+        return 1;
+    }
+
     std::cout << "Interactive Fortran. Experimental prototype, not ready for end users." << std::endl;
     std::cout << "  * Use Ctrl-D to exit" << std::endl;
     std::cout << "  * Use Enter to submit" << std::endl;
