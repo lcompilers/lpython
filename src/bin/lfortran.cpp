@@ -71,7 +71,7 @@ int prompt()
         std::cout << input << std::endl;
 
         // Src -> AST
-        Allocator al(16*1024);
+        Allocator al(64*1024*1024);
         LFortran::AST::ast_t* ast;
         try {
             ast = LFortran::parse2(al, input);
@@ -121,16 +121,11 @@ int prompt()
     return 0;
 }
 
-int emit_ast(std::string &infile, std::string &outfile)
+int emit_ast(const std::string &infile, const std::string &outfile)
 {
-    std::string input;
-    {
-        std::ifstream file;
-        file.open(infile);
-        file >> input;
-    }
+    std::string input = read_file(infile);
     // Src -> AST
-    Allocator al(16*1024);
+    Allocator al(64*1024*1024);
     LFortran::AST::ast_t* ast;
     try {
         ast = LFortran::parse2(al, input);
