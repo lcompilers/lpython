@@ -126,23 +126,25 @@ int emit_ast(const std::string &infile, const std::string &outfile)
     std::string input = read_file(infile);
     // Src -> AST
     Allocator al(64*1024*1024);
-    LFortran::AST::ast_t* ast;
+    std::vector<LFortran::AST::ast_t*> ast;
     try {
-        ast = LFortran::parse2(al, input);
+        ast = LFortran::parsen2(al, input);
     } catch (const LFortran::TokenizerError &e) {
-        std::cout << "Tokenizing error: " << e.msg() << std::endl;
+        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
     } catch (const LFortran::ParserError &e) {
-        std::cout << "Parsing error: " << e.msg() << std::endl;
+        std::cerr << "Parsing error: " << e.msg() << std::endl;
         return 2;
     } catch (const LFortran::LFortranException &e) {
-        std::cout << "Other LFortran exception: " << e.msg() << std::endl;
+        std::cerr << "Other LFortran exception: " << e.msg() << std::endl;
         return 3;
     }
     {
         std::ofstream file;
         file.open(outfile);
-        file << LFortran::pickle(*ast) << std::endl;
+        for (auto a: ast) {
+            file << LFortran::pickle(*a) << std::endl;
+        }
     }
     return 0;
 }

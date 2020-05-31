@@ -51,6 +51,27 @@ std::vector<LFortran::AST::ast_t*> parsen(Allocator &al, const std::string &s)
     return p.result;
 }
 
+std::vector<LFortran::AST::ast_t*> parsen2(Allocator &al, const std::string &s)
+{
+    std::vector<LFortran::AST::ast_t*> result;
+    try {
+        result = parsen(al, s);
+    } catch (const LFortran::ParserError &e) {
+        int token;
+        if (e.msg() == "syntax is ambiguous") {
+            token = -2;
+        } else {
+            token = e.token;
+        }
+        show_syntax_error("input", s, e.loc, token);
+        throw;
+    } catch (const LFortran::TokenizerError &e) {
+        show_syntax_error("input", s, e.loc, -1, &e.token);
+        throw;
+    }
+    return result;
+}
+
 void Parser::parse(const std::string &input)
 {
     inp = input;
@@ -274,59 +295,59 @@ void highlight_line(const std::string &line,
         const size_t last_column
         )
 {
-    std::cout << line.substr(0, first_column-1);
+    std::cerr << line.substr(0, first_column-1);
     if (last_column <= line.size()) {
-        std::cout << redon;
-        std::cout << line.substr(first_column-1,
+        std::cerr << redon;
+        std::cerr << line.substr(first_column-1,
                 last_column-first_column+1);
-        std::cout << redoff;
-        std::cout << line.substr(last_column);
+        std::cerr << redoff;
+        std::cerr << line.substr(last_column);
     }
-    std::cout << std::endl;;
+    std::cerr << std::endl;;
     for (size_t i=0; i < first_column-1; i++) {
-        std::cout << " ";
+        std::cerr << " ";
     }
-    std::cout << redon << "^";
+    std::cerr << redon << "^";
     for (size_t i=first_column; i < last_column; i++) {
-        std::cout << "~";
+        std::cerr << "~";
     }
-    std::cout << redoff << std::endl;
+    std::cerr << redoff << std::endl;
 }
 
 void show_syntax_error(const std::string &filename, const std::string &input,
         const Location &loc, const int token, const std::string *tstr)
 {
-    std::cout << filename << ":" << loc.first_line << ":" << loc.first_column;
+    std::cerr << filename << ":" << loc.first_line << ":" << loc.first_column;
     if (loc.first_line != loc.last_line) {
-        std::cout << " - " << loc.last_line << ":" << loc.last_column;
+        std::cerr << " - " << loc.last_line << ":" << loc.last_column;
     }
-    std::cout << " " << redon << "syntax error:" << redoff << " ";
+    std::cerr << " " << redon << "syntax error:" << redoff << " ";
     if (token == -1) {
         LFORTRAN_ASSERT(tstr != nullptr);
-        std::cout << "token '";
-        std::cout << *tstr;
-        std::cout << "' is not recognized" << std::endl;
+        std::cerr << "token '";
+        std::cerr << *tstr;
+        std::cerr << "' is not recognized" << std::endl;
     } else if (token == -2) {
-        std::cout << "syntax is ambiguous" << std::endl;
+        std::cerr << "syntax is ambiguous" << std::endl;
     } else {
         if (token == yytokentype::END_OF_FILE) {
-            std::cout << "end of file is unexpected here" << std::endl;
+            std::cerr << "end of file is unexpected here" << std::endl;
         } else {
-            std::cout << "token type '";
-            std::cout << token2text(token);
-            std::cout << "' is unexpected here" << std::endl;
+            std::cerr << "token type '";
+            std::cerr << token2text(token);
+            std::cerr << "' is unexpected here" << std::endl;
         }
     }
     if (loc.first_line == loc.last_line) {
         std::string line = get_line(input, loc.first_line);
         highlight_line(line, loc.first_column, loc.last_column);
     } else {
-        std::cout << "first (" << loc.first_line << ":" << loc.first_column;
-        std::cout << ")" << std::endl;
+        std::cerr << "first (" << loc.first_line << ":" << loc.first_column;
+        std::cerr << ")" << std::endl;
         std::string line = get_line(input, loc.first_line);
         highlight_line(line, loc.first_column, line.size());
-        std::cout << "last (" << loc.last_line << ":" << loc.last_column;
-        std::cout << ")" << std::endl;
+        std::cerr << "last (" << loc.last_line << ":" << loc.last_column;
+        std::cerr << ")" << std::endl;
         line = get_line(input, loc.last_line);
         highlight_line(line, 1, loc.last_column);
     }

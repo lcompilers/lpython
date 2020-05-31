@@ -1,0 +1,13 @@
+{
+    "basename": "ast-esub1-98ccd74",
+    "cmd": "lfortran --show-ast {infile} -o {outfile}",
+    "infile": "tests/errors/esub1.f90",
+    "infile_hash": "93b7d715c14f2da952a8945b7ea7b16817b269880b156f00497dd7b1",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "ast-esub1-98ccd74.stderr",
+    "stderr_hash": "7f3fb8e73adf5d203bb7f4d8529fb9f0d163a809d2e99eb6a485f882",
+    "returncode": 2
+}

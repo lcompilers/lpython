@@ -7,3 +7,23 @@
 [[test]]
 filename = "subroutine1.f90"
 ast = true
+
+[[test]]
+filename = "subroutine2.f90"
+ast = true
+
+[[test]]
+filename = "do1.f90"
+ast = true
+
+[[test]]
+filename = "do2.f90"
+ast = true
+
+[[test]]
+filename = "errors/esub1.f90"
+ast = true
+
+[[test]]
+filename = "errors/esub2.f90"
+ast = true
