@@ -1,6 +1,8 @@
 #include <string>
 
 #include <lfortran/pickle.h>
+#include <lfortran/pickle.h>
+#include <lfortran/parser/parser.h>
 
 using LFortran::AST::ast_t;
 using LFortran::AST::Declaration_t;
@@ -31,6 +33,16 @@ using LFortran::AST::PickleBaseVisitor;
 
 
 namespace LFortran {
+
+std::string pickle(int token, const LFortran::YYSTYPE &yystype,
+        bool colors)
+{
+    std::string t;
+    t += "(token \"";
+    t += token2text(token);
+    t += "\")";
+    return t;
+}
 
 std::string op2str(const operatorType type)
 {

@@ -127,8 +127,9 @@ int emit_tokens(const std::string &infile, const std::string &outfile)
     // Src -> Tokens
     Allocator al(64*1024*1024);
     std::vector<int> toks;
+    std::vector<LFortran::YYSTYPE> stypes;
     try {
-        toks = LFortran::tokens(input);
+        toks = LFortran::tokens(input, &stypes);
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
@@ -140,7 +141,7 @@ int emit_tokens(const std::string &infile, const std::string &outfile)
         std::ofstream file;
         file.open(outfile);
         for (size_t i=0; i < toks.size(); i++) {
-            file << "(" << LFortran::token2text(toks[i]) << ")" << std::endl;
+            file << LFortran::pickle(toks[i], stypes[i]) << std::endl;
         }
     }
     return 0;
