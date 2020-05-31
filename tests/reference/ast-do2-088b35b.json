@@ -1,0 +1,13 @@
+{
+    "basename": "ast-do2-088b35b",
+    "cmd": "lfortran --show-ast {infile} -o {outfile}",
+    "infile": "tests/do2.f90",
+    "infile_hash": "7f47b6b127565d836c9d83019e001f2160489c3d1243f1de7e93af71",
+    "outfile": "ast-do2-088b35b.out",
+    "outfile_hash": "4dc5bc42883b56ed9c891f19b235c56ac0fe02d72975a3a6fd38e191",
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
