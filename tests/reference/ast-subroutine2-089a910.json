@@ -4,7 +4,7 @@
     "infile": "tests/subroutine2.f90",
     "infile_hash": "e9fd527d51cbd1c8733dbb9a1f11be9be90ff8008fdc2a4551cf4419",
     "outfile": "ast-subroutine2-089a910.out",
-    "outfile_hash": "25fe753568db8b7170de0613324f2537dba004ce4165e8153dbb32c1",
+    "outfile_hash": "e813a27ff55d42032b2673ae4d273651b8adc942e1b96bd1815433af",
     "stdout": null,
     "stdout_hash": null,
     "stderr": null,
