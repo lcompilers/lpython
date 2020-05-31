@@ -125,7 +125,7 @@ int emit_ast(std::string &infile, std::string &outfile)
     {
         std::ofstream file;
         file.open(outfile);
-        file << LFortran::pickle(*ast, true) << std::endl;
+        file << LFortran::pickle(*ast) << std::endl;
     }
     return 0;
 }
