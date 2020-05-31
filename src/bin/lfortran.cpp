@@ -139,8 +139,8 @@ int emit_tokens(const std::string &infile, const std::string &outfile)
     {
         std::ofstream file;
         file.open(outfile);
-        for (auto a: toks) {
-            file << "(" << a << ")" << std::endl;
+        for (size_t i=0; i < toks.size(); i++) {
+            file << "(" << LFortran::token2text(toks[i]) << ")" << std::endl;
         }
     }
     return 0;

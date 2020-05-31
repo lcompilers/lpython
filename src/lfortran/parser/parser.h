@@ -49,6 +49,9 @@ void show_syntax_error(const std::string &filename, const std::string &input,
 std::vector<int> tokens(const std::string &input,
         std::vector<LFortran::YYSTYPE> *stypes=nullptr);
 
+// Converts token number to text
+std::string token2text(const int token);
+
 } // namespace LFortran
 
 #endif
