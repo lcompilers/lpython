@@ -14,6 +14,11 @@ filename = "subroutine2.f90"
 ast = true
 
 [[test]]
+filename = "subroutine3.f90"
+ast = true
+asr = true
+
+[[test]]
 filename = "do1.f90"
 ast = true
 
