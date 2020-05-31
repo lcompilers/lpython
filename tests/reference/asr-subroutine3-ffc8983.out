@@ -1,0 +1,1 @@
+(fn f [] [(= (variable f () Unimplementedint (integer Unimplementedint [])) (num Unimplementedobject (integer Unimplementedint [])))] () (variable f () Unimplementedint (integer Unimplementedint [])) () Unimplementedobject)
