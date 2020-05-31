@@ -24,6 +24,6 @@ fi
 rm -rf $bdir
 mkdir $bdir
 cd $bdir
-cmake ../tests
+cmake ../old_tests
 make
 ctest

@@ -76,7 +76,7 @@ full:
     - ./test_lfort_cmdline lfort
     - ./test_lfort gfortran
     - ./test_lfort lfort
-    - cd tests/interop
+    - cd old_tests/interop
     - ./run.sh
 
 # Test the C++ version
