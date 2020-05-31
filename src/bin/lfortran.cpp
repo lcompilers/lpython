@@ -14,6 +14,28 @@ void section(const std::string &s)
     std::cout << color(LFortran::style::bold) << color(LFortran::fg::blue) << s << color(LFortran::style::reset) << color(LFortran::fg::reset) << std::endl;
 }
 
+std::string remove_extension(const std::string& filename) {
+    size_t lastdot = filename.find_last_of(".");
+    if (lastdot == std::string::npos) return filename;
+    return filename.substr(0, lastdot);
+}
+
+std::string read_file(const std::string &filename)
+{
+    std::ifstream ifs(filename.c_str(), std::ios::in | std::ios::binary
+            | std::ios::ate);
+
+    std::ifstream::pos_type filesize = ifs.tellg();
+    if (filesize < 0) return std::string();
+
+    ifs.seekg(0, std::ios::beg);
+
+    std::vector<char> bytes(filesize);
+    ifs.read(&bytes[0], filesize);
+
+    return std::string(&bytes[0], filesize);
+}
+
 int prompt()
 {
     std::cout << "Interactive Fortran. Experimental prototype, not ready for end users." << std::endl;
@@ -128,12 +150,6 @@ int emit_ast(std::string &infile, std::string &outfile)
         file << LFortran::pickle(*ast) << std::endl;
     }
     return 0;
-}
-
-std::string remove_extension(const std::string& filename) {
-    size_t lastdot = filename.find_last_of(".");
-    if (lastdot == std::string::npos) return filename;
-    return filename.substr(0, lastdot);
 }
 
 int main(int argc, char *argv[])
