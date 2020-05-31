@@ -1,0 +1,73 @@
+#!/usr/bin/env python
+
+import argparse
+import hashlib
+import os
+import subprocess
+
+import toml
+
+from compiler_tester.tester import (RunException, run, run_test, color,
+    style, print_check, fg)
+
+def main():
+    parser = argparse.ArgumentParser(description="LFortran Test Suite")
+    parser.add_argument("-u", "--update", action="store_true",
+            help="update all reference results")
+    parser.add_argument("-l", "--list", action="store_true",
+            help="list all tests")
+    parser.add_argument("-t", metavar="TEST",
+            help="Run a specific test")
+    parser.add_argument("-v", "--verbose", action="store_true",
+            help="increase test verbosity")
+    args = parser.parse_args()
+    update_reference = args.update
+    list_tests = args.list
+    specific_test = args.t
+    verbose = args.verbose
+
+    # So that the tests find the `lfortran` executable
+    os.environ["PATH"] += os.pathsep + os.path.join(os.getcwd(), "src", "bin")
+
+    d = toml.load(open("tests/tests.toml"))
+    for test in d["test"]:
+        filename = test["filename"]
+        if specific_test and filename != specific_test:
+            continue
+        tokens = test.get("tokens", False)
+        ast = test.get("ast", False)
+        asr = test.get("asr", False)
+        bin_ = test.get("bin", False)
+
+        print(color(style.bold)+"TEST:"+color(style.reset), filename)
+
+        if tokens:
+            run_test("tokens", "lfortran --show-tokens {infile} -o {outfile}",
+                    filename, update_reference)
+
+        if ast:
+            run_test("ast", "lfortran --show-ast {infile} -o {outfile}",
+                    filename, update_reference)
+
+        if asr:
+            run_test("asr", "lfortran --show-asr {infile} -o {outfile}",
+                    filename, update_reference)
+
+        if bin_:
+            run_test("bin", "lfortran {infile} -o {outfile}",
+                    filename, update_reference)
+
+
+        print()
+
+    if list_tests:
+        return
+
+    if update_reference:
+        print("Reference tests updated.")
+    else:
+        print("%sTESTS PASSED%s" % (color(fg.green)+color(style.bold),
+            color(fg.reset)+color(style.reset)))
+
+if __name__ == "__main__":
+    main()
