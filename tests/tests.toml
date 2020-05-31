@@ -7,3 +7,7 @@
 [[test]]
 filename = "subroutine1.f90"
 ast = true
+
+[[test]]
+filename = "subroutine2.f90"
+ast = true
