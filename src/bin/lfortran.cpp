@@ -1,6 +1,8 @@
 #include <iostream>
 #include <chrono>
 
+#include <bin/CLI11.hpp>
+
 #include <lfortran/parser/parser.h>
 #include <lfortran/pickle.h>
 #include <lfortran/semantics/ast_to_asr.h>
@@ -14,6 +16,12 @@ void section(const std::string &s)
 
 int main(int argc, char *argv[])
 {
+    bool show_ast = false;
+
+    CLI::App app{"LFortran: modern interactive LLVM-based Fortran compiler"};
+    app.add_flag("--show-ast", show_ast, "Show AST and exit");
+    CLI11_PARSE(app, argc, argv);
+
     std::cout << "Interactive Fortran. Experimental prototype, not ready for end users." << std::endl;
     std::cout << "  * Use Ctrl-D to exit" << std::endl;
     std::cout << "  * Use Enter to submit" << std::endl;
