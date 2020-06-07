@@ -122,7 +122,7 @@ int prompt()
     return 0;
 }
 
-int emit_tokens(const std::string &infile, const std::string &outfile)
+int emit_tokens(const std::string &infile)
 {
     std::string input = read_file(infile);
     // Src -> Tokens
@@ -138,17 +138,14 @@ int emit_tokens(const std::string &infile, const std::string &outfile)
         std::cerr << "Other LFortran exception: " << e.msg() << std::endl;
         return 3;
     }
-    {
-        std::ofstream file;
-        file.open(outfile);
-        for (size_t i=0; i < toks.size(); i++) {
-            file << LFortran::pickle(toks[i], stypes[i]) << std::endl;
-        }
+
+    for (size_t i=0; i < toks.size(); i++) {
+        std::cout << LFortran::pickle(toks[i], stypes[i]) << std::endl;
     }
     return 0;
 }
 
-int emit_ast(const std::string &infile, const std::string &outfile)
+int emit_ast(const std::string &infile)
 {
     std::string input = read_file(infile);
     // Src -> AST
@@ -166,17 +163,14 @@ int emit_ast(const std::string &infile, const std::string &outfile)
         std::cerr << "Other LFortran exception: " << e.msg() << std::endl;
         return 3;
     }
-    {
-        std::ofstream file;
-        file.open(outfile);
-        for (auto a: ast) {
-            file << LFortran::pickle(*a) << std::endl;
-        }
+
+    for (auto a: ast) {
+        std::cout << LFortran::pickle(*a) << std::endl;
     }
     return 0;
 }
 
-int emit_asr(const std::string &infile, const std::string &outfile)
+int emit_asr(const std::string &infile)
 {
     std::string input = read_file(infile);
 
@@ -205,15 +199,12 @@ int emit_asr(const std::string &infile, const std::string &outfile)
         std::cerr << "LFortran exception: " << e.msg() << std::endl;
         return 4;
     }
-    {
-        std::ofstream file;
-        file.open(outfile);
-        file << LFortran::pickle(*asr) << std::endl;
-    }
+
+    std::cout << LFortran::pickle(*asr) << std::endl;
     return 0;
 }
 
-int emit_llvm(const std::string &infile, const std::string &outfile)
+int emit_llvm(const std::string &infile)
 {
     std::string input = read_file(infile);
 
@@ -253,11 +244,7 @@ int emit_llvm(const std::string &infile, const std::string &outfile)
         return 5;
     }
 
-    {
-        std::ofstream file;
-        file.open(outfile);
-        file << m->str() << std::endl;
-    }
+    std::cout << m->str() << std::endl;
     return 0;
 }
 
@@ -332,16 +319,16 @@ int main(int argc, char *argv[])
     }
 
     if (show_tokens) {
-        return emit_tokens(arg_file, outfile);
+        return emit_tokens(arg_file);
     }
     if (show_ast) {
-        return emit_ast(arg_file, outfile);
+        return emit_ast(arg_file);
     }
     if (show_asr) {
-        return emit_asr(arg_file, outfile);
+        return emit_asr(arg_file);
     }
     if (show_llvm) {
-        return emit_llvm(arg_file, outfile);
+        return emit_llvm(arg_file);
     }
 
     return 0;
