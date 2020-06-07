@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_SOURCE_DIR}/cmake/UserOverride.cmake)
 
 file(STRINGS "version" LFORTRAN_VERSION)
-if (LFORTRAN_VERSION STREQUAL "0.0+git")
+if (LFORTRAN_VERSION MATCHES git)
     # CMake only allows integers in the version, so we use the version 0.1.1 to
     # mean an unreleased git commit
     set(LFORTRAN_VERSION "0.1.1")
