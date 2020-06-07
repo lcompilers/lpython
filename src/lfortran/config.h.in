@@ -4,4 +4,7 @@
 /* Define if you want to enable ASSERT testing in LFortran */
 #cmakedefine WITH_LFORTRAN_ASSERT
 
+/* LFortran version */
+#cmakedefine LFORTRAN_VERSION "@LFORTRAN_VERSION@"
+
 #endif // LFORTRAN_CONFIG_H
