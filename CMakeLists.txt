@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_SOURCE_DIR}/cmake/UserOverride.cmake)
 
-project(lfortran C CXX)
+project(lfortran LANGUAGES C CXX VERSION 0.1.16)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
@@ -28,9 +28,6 @@ endif ()
 include(InstallRequiredSystemLibraries)
 set(CPACK_GENERATOR "TBZ2")
 set(CPACK_STRIP_FILES YES)
-set (CPACK_PACKAGE_VERSION_MAJOR "0")
-set (CPACK_PACKAGE_VERSION_MINOR "1")
-set (CPACK_PACKAGE_VERSION_PATCH "16")
 include(CPack)
 
 
