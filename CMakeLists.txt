@@ -2,7 +2,14 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_SOURCE_DIR}/cmake/UserOverride.cmake)
 
-project(lfortran C CXX)
+file(STRINGS "version" LFORTRAN_VERSION)
+if (LFORTRAN_VERSION MATCHES git)
+    # CMake only allows integers in the version, so we use the version 0.1.1 to
+    # mean an unreleased git commit
+    set(LFORTRAN_VERSION "0.1.1")
+endif ()
+
+project(lfortran LANGUAGES C CXX VERSION ${LFORTRAN_VERSION})
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
@@ -28,10 +35,14 @@ endif ()
 include(InstallRequiredSystemLibraries)
 set(CPACK_GENERATOR "TBZ2")
 set(CPACK_STRIP_FILES YES)
-set (CPACK_PACKAGE_VERSION_MAJOR "0")
-set (CPACK_PACKAGE_VERSION_MINOR "1")
-set (CPACK_PACKAGE_VERSION_PATCH "16")
+if (LFORTRAN_VERSION STREQUAL "0.1.1")
+    set(CPACK_PACKAGE_FILE_NAME lfortran-git-${CMAKE_SYSTEM_NAME})
+endif()
 include(CPack)
+# So that CPACK_PACKAGE_FILE_NAME prints the correct value below
+if (LFORTRAN_VERSION STREQUAL "0.1.1")
+    set(CPACK_PACKAGE_FILE_NAME lfortran-git-${CMAKE_SYSTEM_NAME})
+endif()
 
 
 if (NOT CMAKE_CXX_STANDARD)
@@ -97,6 +108,8 @@ enable_testing()
 message("\n")
 message("Configuration results")
 message("---------------------")
+message("CMAKE_PROJECT_VERSION: ${CMAKE_PROJECT_VERSION}")
+message("CPACK_PACKAGE_FILE_NAME: ${CPACK_PACKAGE_FILE_NAME}")
 message("C compiler      : ${CMAKE_C_COMPILER}")
 message("C++ compiler    : ${CMAKE_CXX_COMPILER}")
 message("Build type: ${CMAKE_BUILD_TYPE}")

@@ -8,6 +8,7 @@
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/codegen/asr_to_llvm.h>
 #include <lfortran/codegen/evaluator.h>
+#include <lfortran/config.h>
 
 void section(const std::string &s)
 {
@@ -293,6 +294,13 @@ int main(int argc, char *argv[])
     app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
     app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
     CLI11_PARSE(app, argc, argv);
+
+    if (arg_version) {
+        std::string version = LFORTRAN_VERSION;
+        if (version == "0.1.1") version = "git";
+        std::cout << "LFortran version: " << version << std::endl;
+        return 0;
+    }
 
     if (arg_E) {
         return 1;
