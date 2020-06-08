@@ -12,12 +12,14 @@ template <typename T>
 struct Vec {
     size_t n, max;
     T* p;
+
     // reserve() must be called before calling push_back()
     void reserve(Allocator &al, size_t max) {
         n = 0;
         this->max = max;
         p = al.allocate<T>(max);
     }
+
     void push_back(Allocator &al, T x) {
         if (n == max) {
             size_t max2 = 2*max;
@@ -29,6 +31,7 @@ struct Vec {
         p[n] = x;
         n++;
     }
+
     size_t size() const {
         return n;
     }
@@ -41,8 +44,10 @@ static_assert(std::is_trivial<Vec<int>>::value);
 struct Str {
     size_t n;
     char* p;
+
     // Returns a copy of the string as a NULL terminated std::string
     std::string str() const { return std::string(p, n); }
+
     // Returns a copy of the string as a NULL terminated C string,
     // allocated using Allocator
     char* c_str(Allocator &al) const {
@@ -51,6 +56,7 @@ struct Str {
         s[n] = '\0';
         return s;
     }
+
     size_t size() const {
         return n;
     }
