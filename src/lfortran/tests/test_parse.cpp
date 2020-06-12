@@ -89,24 +89,45 @@ TEST_CASE("Test longer parser (N = 500)") {
 TEST_CASE("Test LFortran::Vec") {
     Allocator al(1024);
     LFortran::Vec<int> v;
+
     v.reserve(al, 2);
     CHECK(v.size() == 0);
     CHECK(v.capacity() == 2);
+
     v.push_back(al, 1);
     CHECK(v.size() == 1);
     CHECK(v.capacity() == 2);
+    CHECK(v.p[0] == 1);
+
     v.push_back(al, 2);
     CHECK(v.size() == 2);
     CHECK(v.capacity() == 2);
+    CHECK(v.p[0] == 1);
+    CHECK(v.p[1] == 2);
+
     v.push_back(al, 3);
     CHECK(v.size() == 3);
     CHECK(v.capacity() == 4);
+    CHECK(v.p[0] == 1);
+    CHECK(v.p[1] == 2);
+    CHECK(v.p[2] == 3);
+
     v.push_back(al, 4);
     CHECK(v.size() == 4);
     CHECK(v.capacity() == 4);
+    CHECK(v.p[0] == 1);
+    CHECK(v.p[1] == 2);
+    CHECK(v.p[2] == 3);
+    CHECK(v.p[3] == 4);
+
     v.push_back(al, 5);
     CHECK(v.size() == 5);
     CHECK(v.capacity() == 8);
+    CHECK(v.p[0] == 1);
+    CHECK(v.p[1] == 2);
+    CHECK(v.p[2] == 3);
+    CHECK(v.p[3] == 4);
+    CHECK(v.p[4] == 5);
 }
 
 using tt = yytokentype;
