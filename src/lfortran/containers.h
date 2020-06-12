@@ -40,6 +40,10 @@ struct Vec {
         return max;
     }
 
+    const T& operator[](size_t pos) const {
+        return p[pos];
+    }
+
     // Returns a copy of the data as std::vector
     std::vector<T> as_vector() const {
         return std::vector<T>(p, p+n);
