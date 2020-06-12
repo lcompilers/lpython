@@ -91,14 +91,22 @@ TEST_CASE("Test LFortran::Vec") {
     LFortran::Vec<int> v;
     v.reserve(al, 2);
     CHECK(v.size() == 0);
+    CHECK(v.capacity() == 2);
     v.push_back(al, 1);
     CHECK(v.size() == 1);
+    CHECK(v.capacity() == 2);
     v.push_back(al, 2);
     CHECK(v.size() == 2);
+    CHECK(v.capacity() == 2);
     v.push_back(al, 3);
     CHECK(v.size() == 3);
+    CHECK(v.capacity() == 4);
     v.push_back(al, 4);
     CHECK(v.size() == 4);
+    CHECK(v.capacity() == 4);
+    v.push_back(al, 5);
+    CHECK(v.size() == 5);
+    CHECK(v.capacity() == 8);
 }
 
 using tt = yytokentype;

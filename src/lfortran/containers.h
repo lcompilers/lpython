@@ -35,6 +35,10 @@ struct Vec {
     size_t size() const {
         return n;
     }
+
+    size_t capacity() const {
+        return max;
+    }
 };
 
 static_assert(std::is_standard_layout<Vec<int>>::value);
