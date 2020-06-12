@@ -17,9 +17,12 @@ class Parser
 public:
     Allocator &m_a;
     Tokenizer m_tokenizer;
-    std::vector<LFortran::AST::ast_t*> result;
+    LFortran::Vec<LFortran::AST::ast_t*> result;
 
-    Parser(Allocator &al) : m_a{al} {}
+    Parser(Allocator &al) : m_a{al} {
+        result.reserve(al, 32);
+    }
+
     void parse(const std::string &input);
     int parse();
 

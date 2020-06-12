@@ -262,7 +262,7 @@ static inline arg_t* ARGS(Allocator &al, const YYSTYPE::VecAST args)
         /*n_body*/ stmts.size(), \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
-#define RESULT(x) p.result.push_back(x)
+#define RESULT(x) p.result.push_back(p.m_a, x)
 
 #define IFSINGLE(cond, body, l) make_If_t(p.m_a, l, \
         /*test*/ EXPR(cond), \
