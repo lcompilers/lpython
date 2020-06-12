@@ -1,6 +1,7 @@
 #ifndef LFORTRAN_PARSER_ALLOC_H
 #define LFORTRAN_PARSER_ALLOC_H
 
+#include <algorithm>
 #include <stdexcept>
 #include <new>
 #include <cstdlib>
