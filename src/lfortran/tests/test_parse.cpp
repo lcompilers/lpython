@@ -128,6 +128,16 @@ TEST_CASE("Test LFortran::Vec") {
     CHECK(v.p[2] == 3);
     CHECK(v.p[3] == 4);
     CHECK(v.p[4] == 5);
+
+
+    std::vector<int> sv = v.as_vector();
+    CHECK(sv.size() == 5);
+    CHECK(&(sv[0]) != &(v.p[0]));
+    CHECK(sv[0] == 1);
+    CHECK(sv[1] == 2);
+    CHECK(sv[2] == 3);
+    CHECK(sv[3] == 4);
+    CHECK(sv[4] == 5);
 }
 
 TEST_CASE("Test LFortran::Str") {

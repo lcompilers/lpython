@@ -39,6 +39,11 @@ struct Vec {
     size_t capacity() const {
         return max;
     }
+
+    // Returns a copy of the data as std::vector
+    std::vector<T> as_vector() const {
+        return std::vector<T>(p, p+n);
+    }
 };
 
 static_assert(std::is_standard_layout<Vec<int>>::value);
