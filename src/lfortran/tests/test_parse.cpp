@@ -182,17 +182,23 @@ TEST_CASE("Test LFortran::Str") {
 
 TEST_CASE("Test LFortran::Allocator") {
     Allocator al(32);
+    // Size is what we asked (32) plus alignment (8) = 40
     CHECK(al.size_total() == 40);
 
+    // Fits in the pre-allocated chunk
     al.alloc(32);
     CHECK(al.size_total() == 40);
 
+    // Chunk doubles
     al.alloc(32);
     CHECK(al.size_total() == 80);
 
+    // Chunk doubles
     al.alloc(90);
     CHECK(al.size_total() == 160);
 
+    // We asked more than can fit in the doubled chunk (2*160),
+    // so the chunk will be equal to what we asked (1024) plus alignment (8)
     al.alloc(1024);
     CHECK(al.size_total() == 1032);
 }
