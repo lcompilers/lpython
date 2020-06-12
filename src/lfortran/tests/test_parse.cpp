@@ -86,6 +86,100 @@ TEST_CASE("Test longer parser (N = 500)") {
     CHECK(c == 4509);
 }
 
+TEST_CASE("Test LFortran::Vec") {
+    Allocator al(1024);
+    LFortran::Vec<int> v;
+
+    v.reserve(al, 2);
+    CHECK(v.size() == 0);
+    CHECK(v.capacity() == 2);
+
+    v.push_back(al, 1);
+    CHECK(v.size() == 1);
+    CHECK(v.capacity() == 2);
+    CHECK(v.p[0] == 1);
+    CHECK(v[0] == 1);
+
+    v.push_back(al, 2);
+    CHECK(v.size() == 2);
+    CHECK(v.capacity() == 2);
+    CHECK(v.p[0] == 1);
+    CHECK(v.p[1] == 2);
+    CHECK(v[0] == 1);
+    CHECK(v[1] == 2);
+
+    v.push_back(al, 3);
+    CHECK(v.size() == 3);
+    CHECK(v.capacity() == 4);
+    CHECK(v.p[0] == 1);
+    CHECK(v.p[1] == 2);
+    CHECK(v.p[2] == 3);
+    CHECK(v[0] == 1);
+    CHECK(v[1] == 2);
+    CHECK(v[2] == 3);
+
+    v.push_back(al, 4);
+    CHECK(v.size() == 4);
+    CHECK(v.capacity() == 4);
+    CHECK(v.p[0] == 1);
+    CHECK(v.p[1] == 2);
+    CHECK(v.p[2] == 3);
+    CHECK(v.p[3] == 4);
+    CHECK(v[0] == 1);
+    CHECK(v[1] == 2);
+    CHECK(v[2] == 3);
+    CHECK(v[3] == 4);
+
+    v.push_back(al, 5);
+    CHECK(v.size() == 5);
+    CHECK(v.capacity() == 8);
+    CHECK(v.p[0] == 1);
+    CHECK(v.p[1] == 2);
+    CHECK(v.p[2] == 3);
+    CHECK(v.p[3] == 4);
+    CHECK(v.p[4] == 5);
+    CHECK(v[0] == 1);
+    CHECK(v[1] == 2);
+    CHECK(v[2] == 3);
+    CHECK(v[3] == 4);
+    CHECK(v[4] == 5);
+
+
+    std::vector<int> sv = v.as_vector();
+    CHECK(sv.size() == 5);
+    CHECK(&(sv[0]) != &(v.p[0]));
+    CHECK(sv[0] == 1);
+    CHECK(sv[1] == 2);
+    CHECK(sv[2] == 3);
+    CHECK(sv[3] == 4);
+    CHECK(sv[4] == 5);
+}
+
+TEST_CASE("Test LFortran::Str") {
+    Allocator al(1024);
+    LFortran::Str s;
+    const char *data = "Some string.";
+
+    s.p = const_cast<char*>(data);
+    s.n = 2;
+    CHECK(s.size() == 2);
+    CHECK(s.p == data);
+    CHECK(s.str() == "So");
+
+    std::string scopy = s.str();
+    CHECK(s.p != &scopy[0]);
+    CHECK(scopy == "So");
+    CHECK(scopy[0] == 'S');
+    CHECK(scopy[1] == 'o');
+    CHECK(scopy[2] == '\x00');
+
+    char *copy = s.c_str(al);
+    CHECK(s.p != copy);
+    CHECK(copy[0] == 'S');
+    CHECK(copy[1] == 'o');
+    CHECK(copy[2] == '\x00');
+}
+
 using tt = yytokentype;
 
 TEST_CASE("Tokenizer") {
