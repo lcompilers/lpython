@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <new>
 #include <stdexcept>
+#include <vector>
 
 #include <lfortran/assert.h>
 
@@ -19,6 +20,7 @@ class Allocator
     void *start;
     size_t current_pos;
     size_t size;
+    std::vector<void*> blocks;
 public:
     Allocator(size_t s) {
         s += ALIGNMENT;
@@ -27,9 +29,12 @@ public:
         current_pos = (size_t)start;
         current_pos = align(current_pos);
         size = s;
+        blocks.push_back(start);
     }
     ~Allocator() {
-        if (start != nullptr) free(start);
+        for (size_t i = 0; i < blocks.size(); i++) {
+            if (blocks[i] != nullptr) free(blocks[i]);
+        }
     }
 
     // Allocates `s` bytes of memory, returns a pointer to it
@@ -39,8 +44,8 @@ public:
         current_pos += align(s);
         if (size_current() > size_total()) {
             size_t snew = std::max(s+ALIGNMENT, 2*size);
-            // TODO: save the old `start` and free it in ~Allocator()
             start = malloc(snew);
+            blocks.push_back(start);
             if (start == nullptr) throw std::runtime_error("malloc failed.");
             current_pos = (size_t)start;
             current_pos = align(current_pos);
