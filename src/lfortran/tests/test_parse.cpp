@@ -197,6 +197,22 @@ TEST_CASE("Test LFortran::Allocator") {
     CHECK(al.size_total() == 1032);
 }
 
+TEST_CASE("Test LFortran::Allocator 2") {
+    Allocator al(32);
+    int *p = al.allocate<int>();
+    p[0] = 5;
+
+    p = al.allocate<int>(3);
+    p[0] = 1;
+    p[1] = 2;
+    p[2] = 3;
+
+    std::vector<int> *v = al.make_new<std::vector<int>>(5);
+    CHECK(v->size() == 5);
+    // Must manually call the destructor:
+    v->~vector<int>();
+}
+
 using tt = yytokentype;
 
 TEST_CASE("Tokenizer") {
