@@ -2,9 +2,9 @@
 #define LFORTRAN_PARSER_ALLOC_H
 
 #include <algorithm>
-#include <stdexcept>
-#include <new>
 #include <cstdlib>
+#include <new>
+#include <stdexcept>
 
 #include <lfortran/assert.h>
 
