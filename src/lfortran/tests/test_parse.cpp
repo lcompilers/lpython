@@ -130,6 +130,31 @@ TEST_CASE("Test LFortran::Vec") {
     CHECK(v.p[4] == 5);
 }
 
+TEST_CASE("Test LFortran::Str") {
+    Allocator al(1024);
+    LFortran::Str s;
+    const char *data = "Some string.";
+
+    s.p = const_cast<char*>(data);
+    s.n = 2;
+    CHECK(s.size() == 2);
+    CHECK(s.p == data);
+    CHECK(s.str() == "So");
+
+    std::string scopy = s.str();
+    CHECK(s.p != &scopy[0]);
+    CHECK(scopy == "So");
+    CHECK(scopy[0] == 'S');
+    CHECK(scopy[1] == 'o');
+    CHECK(scopy[2] == '\x00');
+
+    char *copy = s.c_str(al);
+    CHECK(s.p != copy);
+    CHECK(copy[0] == 'S');
+    CHECK(copy[1] == 'o');
+    CHECK(copy[2] == '\x00');
+}
+
 using tt = yytokentype;
 
 TEST_CASE("Tokenizer") {
