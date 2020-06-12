@@ -20,6 +20,7 @@ class Allocator
     size_t size;
 public:
     Allocator(size_t s) {
+        s += ALIGNMENT;
         start = malloc(s);
         if (start == nullptr) throw std::runtime_error("malloc failed.");
         current_pos = (size_t)start;
@@ -36,7 +37,7 @@ public:
         size_t addr = current_pos;
         current_pos += align(s);
         if (size_current() > size_total()) {
-            size_t snew = std::max(s, 2*size);
+            size_t snew = std::max(s+ALIGNMENT, 2*size);
             // TODO: save the old `start` and free it in ~Allocator()
             start = malloc(snew);
             if (start == nullptr) throw std::runtime_error("malloc failed.");
@@ -47,10 +48,7 @@ public:
             addr = current_pos;
             current_pos += align(s);
 
-            // This should not happen, but just in case
-            if (size_current() > size_total()) {
-                throw std::bad_alloc();
-            }
+            LFORTRAN_ASSERT(size_current() <= size_total());
         }
         return (void*)addr;
     }

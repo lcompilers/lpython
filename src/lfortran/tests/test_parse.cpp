@@ -181,7 +181,7 @@ TEST_CASE("Test LFortran::Str") {
 }
 
 TEST_CASE("Test LFortran::Allocator") {
-    Allocator al(40);
+    Allocator al(32);
     CHECK(al.size_total() == 40);
 
     al.alloc(32);
@@ -194,7 +194,7 @@ TEST_CASE("Test LFortran::Allocator") {
     CHECK(al.size_total() == 160);
 
     al.alloc(1024);
-    CHECK(al.size_total() == 1024);
+    CHECK(al.size_total() == 1032);
 }
 
 using tt = yytokentype;
