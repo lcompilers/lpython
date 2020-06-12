@@ -180,6 +180,23 @@ TEST_CASE("Test LFortran::Str") {
     CHECK(copy[2] == '\x00');
 }
 
+TEST_CASE("Test LFortran::Allocator") {
+    Allocator al(40);
+    CHECK(al.size_total() == 40);
+
+    al.alloc(32);
+    CHECK(al.size_total() == 40);
+
+    al.alloc(32);
+    CHECK(al.size_total() == 80);
+
+    al.alloc(90);
+    CHECK(al.size_total() == 160);
+
+    al.alloc(1024);
+    CHECK(al.size_total() == 1024);
+}
+
 using tt = yytokentype;
 
 TEST_CASE("Tokenizer") {

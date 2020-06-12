@@ -35,7 +35,23 @@ public:
         LFORTRAN_ASSERT(start != nullptr);
         size_t addr = current_pos;
         current_pos += align(s);
-        if (size_current() > size_total()) throw std::bad_alloc();
+        if (size_current() > size_total()) {
+            size_t snew = std::max(s, 2*size);
+            // TODO: save the old `start` and free it in ~Allocator()
+            start = malloc(snew);
+            if (start == nullptr) throw std::runtime_error("malloc failed.");
+            current_pos = (size_t)start;
+            current_pos = align(current_pos);
+            size = snew;
+
+            addr = current_pos;
+            current_pos += align(s);
+
+            // This should not happen, but just in case
+            if (size_current() > size_total()) {
+                throw std::bad_alloc();
+            }
+        }
         return (void*)addr;
     }
 
