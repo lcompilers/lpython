@@ -120,7 +120,7 @@ TEST_CASE("Comparison") {
 
 TEST_CASE("Multiple units") {
     Allocator al(4*1024);
-    std::vector<LFortran::AST::ast_t*> results;
+    LFortran::Vec<LFortran::AST::ast_t*> results;
     std::string s = R"(x = x+1
         y = z+1)";
     results = LFortran::parsen(al, s);

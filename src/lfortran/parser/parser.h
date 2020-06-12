@@ -38,11 +38,11 @@ LFortran::AST::ast_t *parse(Allocator &al, const std::string &s);
 LFortran::AST::ast_t *parse2(Allocator &al, const std::string &s);
 
 // Parse multiple translation units
-std::vector<LFortran::AST::ast_t*> parsen(Allocator &al, const std::string &s);
+Vec<AST::ast_t*> parsen(Allocator &al, const std::string &s);
 
 // Just like `parsen`, but prints a nice error message to std::cout if a syntax
 // error happens:
-std::vector<LFortran::AST::ast_t*> parsen2(Allocator &al, const std::string &s);
+Vec<AST::ast_t*> parsen2(Allocator &al, const std::string &s);
 
 // Prints a nice error message to std::cout
 void show_syntax_error(const std::string &filename, const std::string &input,
