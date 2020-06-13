@@ -39,14 +39,18 @@ public:
 
     // Allocates `s` bytes of memory, returns a pointer to it
     void *alloc(size_t s) {
-        LFORTRAN_ASSERT(start != nullptr);
-        size_t addr = current_pos;
-        current_pos += align(s);
-        if (size_current() > size_total()) return new_chunk(s);
-        return (void*)addr;
+        try {
+            LFORTRAN_ASSERT(start != nullptr);
+            size_t addr = current_pos;
+            current_pos += align(s);
+            if (size_current() > size_total()) throw std::bad_alloc();
+            return (void*)addr;
+        } catch (const std::bad_alloc &e) {
+            return new_chunk(s);
+        }
     }
 
-    void __attribute__((__noinline__)) *new_chunk(size_t s) {
+    void *new_chunk(size_t s) {
         size_t snew = std::max(s+ALIGNMENT, 2*size);
         start = malloc(snew);
         blocks.push_back(start);
