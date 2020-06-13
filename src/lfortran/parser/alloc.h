@@ -11,9 +11,6 @@
 
 #define ALIGNMENT 8
 
-#define likely(x)       __builtin_expect((x),1)
-#define unlikely(x)     __builtin_expect((x),0)
-
 inline size_t align(size_t n) {
   return (n + ALIGNMENT - 1) & ~(ALIGNMENT - 1);
 }
@@ -45,7 +42,7 @@ public:
         LFORTRAN_ASSERT(start != nullptr);
         size_t addr = current_pos;
         current_pos += align(s);
-        if (unlikely(size_current() > size_total())) return new_chunk(s);
+        if (size_current() > size_total()) return new_chunk(s);
         return (void*)addr;
     }
 
@@ -53,7 +50,7 @@ public:
         size_t snew = std::max(s+ALIGNMENT, 2*size);
         start = malloc(snew);
         blocks.push_back(start);
-        if (unlikely(start == nullptr)) {
+        if (start == nullptr) {
             throw std::runtime_error("malloc failed.");
         }
         current_pos = (size_t)start;
