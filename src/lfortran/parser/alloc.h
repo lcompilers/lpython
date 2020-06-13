@@ -1,9 +1,11 @@
 #ifndef LFORTRAN_PARSER_ALLOC_H
 #define LFORTRAN_PARSER_ALLOC_H
 
-#include <stdexcept>
-#include <new>
+#include <algorithm>
 #include <cstdlib>
+#include <new>
+#include <stdexcept>
+#include <vector>
 
 #include <lfortran/assert.h>
 
@@ -18,24 +20,59 @@ class Allocator
     void *start;
     size_t current_pos;
     size_t size;
+    std::vector<void*> blocks;
 public:
     Allocator(size_t s) {
+        s += ALIGNMENT;
         start = malloc(s);
         if (start == nullptr) throw std::runtime_error("malloc failed.");
         current_pos = (size_t)start;
         current_pos = align(current_pos);
         size = s;
+        blocks.push_back(start);
     }
     ~Allocator() {
-        if (start != nullptr) free(start);
+        for (size_t i = 0; i < blocks.size(); i++) {
+            if (blocks[i] != nullptr) free(blocks[i]);
+        }
     }
 
     // Allocates `s` bytes of memory, returns a pointer to it
     void *alloc(size_t s) {
-        LFORTRAN_ASSERT(start != nullptr);
+        // For good performance, the code inside of `try` must be very short, as
+        // it will get inlined. One could just `return new_chunk(s)` instead of
+        // `throw std::bad_alloc()`, but a parsing benchmark gets about 2% or 3%
+        // slower. Even though it is never executed for the benchmark, the extra
+        // machine code makes the overall benchmark slower. One would have to
+        // force new_chunk() not to get inlined, but there is no standard way of
+        // doing it. This try/catch approach effectively achieves the same using
+        // standard C++.
+        try {
+            LFORTRAN_ASSERT(start != nullptr);
+            size_t addr = current_pos;
+            current_pos += align(s);
+            if (size_current() > size_total()) throw std::bad_alloc();
+            return (void*)addr;
+        } catch (const std::bad_alloc &e) {
+            return new_chunk(s);
+        }
+    }
+
+    void *new_chunk(size_t s) {
+        size_t snew = std::max(s+ALIGNMENT, 2*size);
+        start = malloc(snew);
+        blocks.push_back(start);
+        if (start == nullptr) {
+            throw std::runtime_error("malloc failed.");
+        }
+        current_pos = (size_t)start;
+        current_pos = align(current_pos);
+        size = snew;
+
         size_t addr = current_pos;
         current_pos += align(s);
-        if (size_current() > size_total()) throw std::bad_alloc();
+
+        LFORTRAN_ASSERT(size_current() <= size_total());
         return (void*)addr;
     }
 

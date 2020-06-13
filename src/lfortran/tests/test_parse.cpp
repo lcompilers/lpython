@@ -180,6 +180,45 @@ TEST_CASE("Test LFortran::Str") {
     CHECK(copy[2] == '\x00');
 }
 
+TEST_CASE("Test LFortran::Allocator") {
+    Allocator al(32);
+    // Size is what we asked (32) plus alignment (8) = 40
+    CHECK(al.size_total() == 40);
+
+    // Fits in the pre-allocated chunk
+    al.alloc(32);
+    CHECK(al.size_total() == 40);
+
+    // Chunk doubles
+    al.alloc(32);
+    CHECK(al.size_total() == 80);
+
+    // Chunk doubles
+    al.alloc(90);
+    CHECK(al.size_total() == 160);
+
+    // We asked more than can fit in the doubled chunk (2*160),
+    // so the chunk will be equal to what we asked (1024) plus alignment (8)
+    al.alloc(1024);
+    CHECK(al.size_total() == 1032);
+}
+
+TEST_CASE("Test LFortran::Allocator 2") {
+    Allocator al(32);
+    int *p = al.allocate<int>();
+    p[0] = 5;
+
+    p = al.allocate<int>(3);
+    p[0] = 1;
+    p[1] = 2;
+    p[2] = 3;
+
+    std::vector<int> *v = al.make_new<std::vector<int>>(5);
+    CHECK(v->size() == 5);
+    // Must manually call the destructor:
+    v->~vector<int>();
+}
+
 using tt = yytokentype;
 
 TEST_CASE("Tokenizer") {
