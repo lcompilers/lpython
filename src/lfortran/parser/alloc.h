@@ -39,6 +39,14 @@ public:
 
     // Allocates `s` bytes of memory, returns a pointer to it
     void *alloc(size_t s) {
+        // For good performance, the code inside of `try` must be very short, as
+        // it will get inlined. One could just `return new_chunk(s)` instead of
+        // `throw std::bad_alloc()`, but a parsing benchmark gets about 2% or 3%
+        // slower. Even though it is never executed for the benchmark, the extra
+        // machine code makes the overall benchmark slower. One would have to
+        // force new_chunk() not to get inlined, but there is no standard way of
+        // doing it. This try/catch approach effectively achieves the same using
+        // standard C++.
         try {
             LFORTRAN_ASSERT(start != nullptr);
             size_t addr = current_pos;
