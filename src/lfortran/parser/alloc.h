@@ -104,6 +104,10 @@ public:
     size_t size_total() {
         return size;
     }
+
+    size_t num_chunks() {
+        return blocks.size();
+    }
 };
 
 #endif

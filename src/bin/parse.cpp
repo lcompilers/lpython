@@ -56,5 +56,6 @@ int main(int argc, char *argv[])
     std::cout << "Count: " << c << std::endl;
     std::cout << "String size (bytes):      " << text.size() << std::endl;
     std::cout << "Allocator usage (bytes): " << al.size_current() << std::endl;
+    std::cout << "Allocator chunks: " << al.num_chunks() << std::endl;
     return 0;
 }
