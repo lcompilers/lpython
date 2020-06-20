@@ -8,6 +8,35 @@ namespace LFortran
 {
 
 // Vector implementation
+
+template <typename T>
+struct Vec;
+
+template <typename T>
+class VecIterator
+{
+public:
+    VecIterator(const Vec<T>& c, size_t idx=0)
+        : m_container(c), m_index(idx) {}
+
+    bool operator!=(const VecIterator& other) {
+        return (m_index != other.m_index);
+    }
+
+    const VecIterator& operator++() {
+        m_index++;
+        return *this;
+    }
+
+    const T& operator*() const {
+        return m_container[m_index];
+    }
+private:
+    const Vec<T>& m_container;
+    size_t m_index;
+};
+
+
 template <typename T>
 struct Vec {
     size_t n, max;
@@ -47,6 +76,14 @@ struct Vec {
     // Returns a copy of the data as std::vector
     std::vector<T> as_vector() const {
         return std::vector<T>(p, p+n);
+    }
+
+    VecIterator<T> begin() const {
+        return VecIterator<T>(*this, 0);
+    }
+
+    VecIterator<T> end() const {
+        return VecIterator<T>(*this, n);
     }
 };
 

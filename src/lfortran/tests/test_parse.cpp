@@ -155,6 +155,52 @@ TEST_CASE("Test LFortran::Vec") {
     CHECK(sv[4] == 5);
 }
 
+TEST_CASE("LFortran::Vec iterators") {
+    Allocator al(1024);
+    LFortran::Vec<int> v;
+
+    v.reserve(al, 2);
+    v.push_back(al, 1);
+    v.push_back(al, 2);
+    v.push_back(al, 3);
+    v.push_back(al, 4);
+
+    // Check reference (auto)
+    int i = 0;
+    for (auto &a : v) {
+        i += a;
+    }
+    CHECK(i == 10);
+
+    // Check reference (must be const)
+    i = 0;
+    for (const int &a : v) {
+        i += a;
+    }
+    CHECK(i == 10);
+
+    // Check direct type (auto)
+    i = 0;
+    for (auto a : v) {
+        i += a;
+    }
+    CHECK(i == 10);
+
+    // Check direct type (const)
+    i = 0;
+    for (const int a : v) {
+        i += a;
+    }
+    CHECK(i == 10);
+
+    // Check direct type (non const)
+    i = 0;
+    for (int a : v) {
+        i += a;
+    }
+    CHECK(i == 10);
+}
+
 TEST_CASE("Test LFortran::Str") {
     Allocator al(1024);
     LFortran::Str s;
