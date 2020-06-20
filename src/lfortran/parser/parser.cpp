@@ -48,7 +48,7 @@ std::vector<LFortran::AST::ast_t*> parsen(Allocator &al, const std::string &s)
 {
     Parser p(al);
     p.parse(s);
-    return p.result;
+    return p.result.as_vector();
 }
 
 std::vector<LFortran::AST::ast_t*> parsen2(Allocator &al, const std::string &s)
