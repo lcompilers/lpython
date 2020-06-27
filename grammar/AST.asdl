@@ -14,6 +14,7 @@
 --   * string
 -- We extend these by:
 --   * object (any Python object)
+--   * node (any ASDL node)
 --   * constant
 --
 -- Specific tools may choose to produce language interfaces that represent
@@ -23,7 +24,7 @@
 module AST {
 
 unit
-    = TranslationUnit(object* items)
+    = TranslationUnit(node* items)
 
 mod
     = Module(identifier name, unit_decl1* use, unit_decl2* decl,
