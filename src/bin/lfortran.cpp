@@ -150,7 +150,7 @@ int emit_ast(const std::string &infile)
     std::string input = read_file(infile);
     // Src -> AST
     Allocator al(64*1024*1024);
-    std::vector<LFortran::AST::ast_t*> ast;
+    LFortran::Vec<LFortran::AST::ast_t*> ast;
     try {
         ast = LFortran::parsen2(al, input);
     } catch (const LFortran::TokenizerError &e) {
@@ -176,7 +176,7 @@ int emit_asr(const std::string &infile)
 
     // Src -> AST
     Allocator al(64*1024*1024);
-    std::vector<LFortran::AST::ast_t*> ast;
+    LFortran::Vec<LFortran::AST::ast_t*> ast;
     try {
         ast = LFortran::parsen2(al, input);
     } catch (const LFortran::TokenizerError &e) {
@@ -210,7 +210,7 @@ int emit_llvm(const std::string &infile)
 
     // Src -> AST
     Allocator al(64*1024*1024);
-    std::vector<LFortran::AST::ast_t*> ast;
+    LFortran::Vec<LFortran::AST::ast_t*> ast;
     try {
         ast = LFortran::parsen2(al, input);
     } catch (const LFortran::TokenizerError &e) {

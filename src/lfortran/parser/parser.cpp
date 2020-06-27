@@ -44,16 +44,16 @@ LFortran::AST::ast_t *parse2(Allocator &al, const std::string &s)
     return result;
 }
 
-std::vector<LFortran::AST::ast_t*> parsen(Allocator &al, const std::string &s)
+Vec<AST::ast_t*> parsen(Allocator &al, const std::string &s)
 {
     Parser p(al);
     p.parse(s);
     return p.result;
 }
 
-std::vector<LFortran::AST::ast_t*> parsen2(Allocator &al, const std::string &s)
+Vec<AST::ast_t*> parsen2(Allocator &al, const std::string &s)
 {
-    std::vector<LFortran::AST::ast_t*> result;
+    Vec<AST::ast_t*> result;
     try {
         result = parsen(al, s);
     } catch (const LFortran::ParserError &e) {
