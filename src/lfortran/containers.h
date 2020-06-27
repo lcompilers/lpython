@@ -78,6 +78,12 @@ struct Vec {
         return std::vector<T>(p, p+n);
     }
 
+    void from_pointer_n(T* p, size_t n) {
+        this->p = p;
+        this->n = n;
+        this->max = n;
+    }
+
     VecIterator<T> begin() const {
         return VecIterator<T>(*this, 0);
     }
