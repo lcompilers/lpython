@@ -169,6 +169,8 @@ class ASTNodeVisitor(ASDLVisitor):
                 type_ = "str"
             elif type_ == "constant":
                 type_ = "bool"
+            elif type_ == "node":
+                type_ = "AST"
             self.emit('checkinstance(x, %s, %r)' % (type_, field.opt), 3)
         else:
             type_ = field.type
@@ -178,6 +180,8 @@ class ASTNodeVisitor(ASDLVisitor):
                 type_ = "str"
             elif type_ == "constant":
                 type_ = "bool"
+            elif type_ == "node":
+                type_ = "AST"
             self.emit('checkinstance(%s, %s, %r)' % \
                     (field.name, type_, field.opt), 2)
         self._fields.append("'" + field.name + "'")

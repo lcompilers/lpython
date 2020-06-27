@@ -105,6 +105,10 @@ def convert_type(asdl_type, seq):
         type_ = "int /* object */"
         if seq:
             type_ = type_ + "*"
+    elif asdl_type == "node":
+        type_ = "ast_t*"
+        if seq:
+            type_ = type_ + "*"
     elif asdl_type == "int":
         type_ = "int"
         assert not seq
