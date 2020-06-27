@@ -7,19 +7,26 @@
 namespace LFortran
 {
 
-LFortran::AST::ast_t *parse(Allocator &al, const std::string &s)
+AST::TranslationUnit_t* parse0(Allocator &al, const std::string &s)
 {
     Parser p(al);
     p.parse(s);
-    if (p.result.size() >= 1) {
-        return p.result[0];
+    Location l;
+    l.first_line=0;
+    l.first_column=0;
+    l.last_line=0;
+    l.last_column=0;
+    return (AST::TranslationUnit_t*)AST::make_TranslationUnit_t(al, l,
+        p.result.p, p.result.size());
+}
+
+LFortran::AST::ast_t *parse(Allocator &al, const std::string &s)
+{
+    AST::TranslationUnit_t* p = parse0(al, s);
+    if (p->n_items >= 1) {
+        return p->m_items[0];
     } else {
-        Location l;
-        l.first_line=0;
-        l.first_column=0;
-        l.last_line=0;
-        l.last_column=0;
-        return AST::make_TranslationUnit_t(al, l, 0, 0);
+        return (AST::ast_t*)p;
     }
 }
 
@@ -46,9 +53,10 @@ LFortran::AST::ast_t *parse2(Allocator &al, const std::string &s)
 
 Vec<AST::ast_t*> parsen(Allocator &al, const std::string &s)
 {
-    Parser p(al);
-    p.parse(s);
-    return p.result;
+    AST::TranslationUnit_t* p = parse0(al, s);
+    Vec<AST::ast_t*> r;
+    r.from_pointer_n(p->m_items, p->n_items);
+    return r;
 }
 
 Vec<AST::ast_t*> parsen2(Allocator &al, const std::string &s)
