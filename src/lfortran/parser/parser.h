@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <memory>
 
+#include <lfortran/containers.h>
 #include <lfortran/parser/tokenizer.h>
 
 namespace LFortran
@@ -17,7 +18,7 @@ class Parser
 public:
     Allocator &m_a;
     Tokenizer m_tokenizer;
-    LFortran::Vec<LFortran::AST::ast_t*> result;
+    Vec<AST::ast_t*> result;
 
     Parser(Allocator &al) : m_a{al} {
         result.reserve(al, 32);
