@@ -30,3 +30,10 @@ target_link_libraries(parse lfortran_lib)
 
 add_executable(parse2 parse2.cpp)
 target_link_libraries(parse2 lfortran_lib)
+
+add_executable(cpptranslate cpptranslate.cpp)
+target_link_libraries(cpptranslate lfortran_lib)
+if (UNIX AND NOT APPLE)
+    # This is sometimes needed to fix link errors for CLI11
+    target_link_libraries(cpptranslate stdc++fs)
+endif()
