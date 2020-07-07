@@ -20,11 +20,14 @@ def main():
             help="Run a specific test")
     parser.add_argument("-v", "--verbose", action="store_true",
             help="increase test verbosity")
+    parser.add_argument("--no-llvm", action="store_true",
+            help="Skip LLVM tests")
     args = parser.parse_args()
     update_reference = args.update
     list_tests = args.list
     specific_test = args.t
     verbose = args.verbose
+    no_llvm = args.no_llvm
 
     # So that the tests find the `lfortran` executable
     os.environ["PATH"] = os.path.join(os.getcwd(), "src", "bin") \
@@ -56,8 +59,11 @@ def main():
                     filename, update_reference)
 
         if llvm:
-            run_test("llvm", "lfortran --show-llvm {infile} -o {outfile}",
-                    filename, update_reference)
+            if no_llvm:
+                print("    * llvm   SKIPPED as requested")
+            else:
+                run_test("llvm", "lfortran --show-llvm {infile} -o {outfile}",
+                        filename, update_reference)
 
         if bin_:
             run_test("bin", "lfortran {infile} -o {outfile}",
