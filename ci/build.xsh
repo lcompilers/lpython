@@ -66,8 +66,6 @@ else:
 ./src/bin/lfortran < ../src/bin/example_input.txt
 ctest --output-on-failure
 cpack -V
-if $WIN != "1":
-    cp ./src/bin/lfortran ../../src/bin
 cd ..
 
 if $MACOS == "1":
@@ -78,6 +76,7 @@ pip install -v --no-index .
 cd ..
 
 if $WIN != "1":
+    cp lfortran-$lfortran_version/test-bld/src/bin/lfortran src/bin
     ./run_tests.py
 
 from shutil import rmtree

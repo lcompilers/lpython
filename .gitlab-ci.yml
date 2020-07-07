@@ -119,6 +119,19 @@ cxx_binary:
       - lfortran-*/lfortran-*-Linux.tar.bz2
     when: always
 
+# Test LFortran without the LLVM backend
+cxx_binary_min:
+  stage: build
+  image: registry.gitlab.com/lfortran/ci-images:cxxbinary-1.8.0
+  script:
+    - tar xzf dist/lfortran-${lfortran_version}.tar.gz
+    - cd lfortran-${lfortran_version}
+    - cmake
+         -DCMAKE_BUILD_TYPE=Debug
+         .
+    - make
+    - ctest --output-on-failure
+
 # Test the multiplatform build script
 build.xsh:
   stage: build
