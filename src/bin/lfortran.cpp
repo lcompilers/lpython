@@ -37,6 +37,7 @@ std::string read_file(const std::string &filename)
     return std::string(&bytes[0], filesize);
 }
 
+#ifdef HAVE_LFORTRAN_LLVM
 int prompt()
 {
     std::cout << "Interactive Fortran. Experimental prototype, not ready for end users." << std::endl;
@@ -121,6 +122,7 @@ int prompt()
     }
     return 0;
 }
+#endif
 
 int emit_tokens(const std::string &infile)
 {
@@ -204,6 +206,7 @@ int emit_asr(const std::string &infile)
     return 0;
 }
 
+#ifdef HAVE_LFORTRAN_LLVM
 int emit_llvm(const std::string &infile)
 {
     std::string input = read_file(infile);
@@ -247,6 +250,7 @@ int emit_llvm(const std::string &infile)
     std::cout << m->str() << std::endl;
     return 0;
 }
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -294,7 +298,12 @@ int main(int argc, char *argv[])
     }
 
     if (arg_file.size() == 0) {
+#ifdef HAVE_LFORTRAN_LLVM
         return prompt();
+#else
+        std::cerr << "Interactive prompt requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+        return 1;
+#endif
     }
 
     std::string outfile;
@@ -328,7 +337,12 @@ int main(int argc, char *argv[])
         return emit_asr(arg_file);
     }
     if (show_llvm) {
+#ifdef HAVE_LFORTRAN_LLVM
         return emit_llvm(arg_file);
+#else
+        std::cerr << "The --show-llvm option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+        return 1;
+#endif
     }
 
     return 0;
