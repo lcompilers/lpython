@@ -475,6 +475,39 @@ public:
         r.append("end do");
         s = r;
     }
+    void visit_DoConcurrentLoop(const DoConcurrentLoop_t &x) {
+        std::string r = "do concurrent";
+        if (x.m_var) {
+            r.append(" (");
+            r.append(x.m_var);
+            r.append(" = ");
+        }
+        if (x.m_start) {
+            this->visit_expr(*x.m_start);
+            r.append(s);
+            r.append(":");
+        }
+        if (x.m_end) {
+            this->visit_expr(*x.m_end);
+            r.append(s);
+        }
+        if (x.m_increment) {
+            r.append(":");
+            this->visit_expr(*x.m_increment);
+            r.append(s);
+        }
+        r.append(")\n");
+        indent_level += 4;
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            for (int i=0; i < indent_level; i++) r.append(" ");
+            r.append(s);
+            r.append("\n");
+        }
+        indent_level -= 4;
+        r.append("end do");
+        s = r;
+    }
     void visit_Select(const Select_t &x) {
         s.append("(");
         if (use_colors) {
