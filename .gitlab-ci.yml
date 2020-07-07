@@ -132,6 +132,25 @@ cxx_binary_min:
     - make
     - ctest --output-on-failure
 
+# Test LFortran without the LLVM backend and run tests
+cxx_binary_min_tests:
+  stage: build
+  image: registry.gitlab.com/lfortran/ci-images:full2-1.7.0
+  script:
+    - export CONDA_PREFIX="$HOME/conda_root"
+    - export PATH="$HOME/conda_root/bin:$PATH"
+    - conda install -c conda-forge toml
+    - tar xzf dist/lfortran-${lfortran_version}.tar.gz
+    - cd lfortran-${lfortran_version}
+    - cmake
+         -DCMAKE_BUILD_TYPE=Debug
+         .
+    - make
+    - ctest --output-on-failure
+    - cp src/bin/lfortran ../src/bin/
+    - cd ..
+    - ./run_tests.py --no-llvm
+
 # Test the multiplatform build script
 build.xsh:
   stage: build
