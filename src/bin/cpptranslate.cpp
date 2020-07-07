@@ -7,6 +7,7 @@
 #include <lfortran/pickle.h>
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/ast_to_src.h>
+#include <lfortran/ast_to_cpp.h>
 #include <lfortran/config.h>
 
 
@@ -142,6 +143,34 @@ int emit_ast_f90(const std::string &infile)
     return 0;
 }
 
+int emit_ast_cpp(const std::string &infile)
+{
+    std::string input = read_file(infile);
+
+    // Src -> AST
+    Allocator al(64*1024*1024);
+    LFortran::Vec<LFortran::AST::ast_t*> ast;
+    try {
+        ast = LFortran::parsen2(al, input);
+    } catch (const LFortran::TokenizerError &e) {
+        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
+        return 1;
+    } catch (const LFortran::ParserError &e) {
+        std::cerr << "Parsing error: " << e.msg() << std::endl;
+        return 2;
+    } catch (const LFortran::LFortranException &e) {
+        std::cerr << "Other LFortran exception: " << e.msg() << std::endl;
+        return 3;
+    }
+
+    // AST -> C++
+    // FIXME: For now we only transform the first node in the list:
+    std::string source = LFortran::ast_to_cpp(*ast[0]);
+
+    std::cout << source << std::endl;
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
     std::string arg_file;
@@ -150,6 +179,7 @@ int main(int argc, char *argv[])
     bool show_ast = false;
     bool show_asr = false;
     bool show_ast_f90 = false;
+    bool show_ast_cpp = false;
 
     CLI::App app{"cpptranslate: Fortran to C++ translation"};
     app.add_option("file", arg_file, "Source file");
@@ -159,6 +189,7 @@ int main(int argc, char *argv[])
     app.add_flag("--show-ast", show_ast, "Show AST for the given file and exit");
     app.add_flag("--show-asr", show_asr, "Show ASR for the given file and exit");
     app.add_flag("--show-ast-f90", show_ast_f90, "Show AST -> Fortran for the given file and exit");
+    app.add_flag("--show-ast-cpp", show_ast_cpp, "Show AST -> C++ for the given file and exit");
     CLI11_PARSE(app, argc, argv);
 
     if (arg_version) {
@@ -184,6 +215,9 @@ int main(int argc, char *argv[])
     }
     if (show_ast_f90) {
         return emit_ast_f90(arg_file);
+    }
+    if (show_ast_cpp) {
+        return emit_ast_cpp(arg_file);
     }
 
     return 0;
