@@ -27,7 +27,8 @@ def main():
     verbose = args.verbose
 
     # So that the tests find the `lfortran` executable
-    os.environ["PATH"] += os.pathsep + os.path.join(os.getcwd(), "src", "bin")
+    os.environ["PATH"] = os.path.join(os.getcwd(), "src", "bin") \
+            + os.pathsep + os.environ["PATH"]
 
     d = toml.load(open("tests/tests.toml"))
     for test in d["test"]:
