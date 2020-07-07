@@ -259,5 +259,9 @@ def run_test(basename, cmd, infile=None, update_reference=False):
                     os.system("diff %s %s" % (fr, fo))
                 else:
                     print("Reference file '%s' does not exist" % fr)
+            elif do["stderr_hash"] is not None and dr["stderr_hash"] is None:
+                fo = os.path.join("tests", "output", do["stderr"])
+                print("No reference stderr output exists. Stderr:")
+                os.system("cat %s" % fo)
         raise RunException("The reference result differs")
     print_check()

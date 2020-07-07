@@ -40,6 +40,8 @@ def main():
             continue
         tokens = test.get("tokens", False)
         ast = test.get("ast", False)
+        ast_f90 = test.get("ast_f90", False)
+        ast_cpp = test.get("ast_cpp", False)
         asr = test.get("asr", False)
         llvm = test.get("llvm", False)
         bin_ = test.get("bin", False)
@@ -52,6 +54,14 @@ def main():
 
         if ast:
             run_test("ast", "lfortran --show-ast {infile} -o {outfile}",
+                    filename, update_reference)
+
+        if ast_f90:
+            run_test("ast_f90", "cpptranslate --show-ast-f90 {infile}",
+                    filename, update_reference)
+
+        if ast_cpp:
+            run_test("ast_cpp", "cpptranslate --show-ast-cpp {infile}",
                     filename, update_reference)
 
         if asr:
