@@ -88,6 +88,7 @@ if (WITH_LLVM)
         $<$<COMPILE_LANGUAGE:CXX>:${LFORTRAN_CXX_NO_RTTI_FLAG}>)
     set_property(TARGET p::llvm PROPERTY INTERFACE_LINK_LIBRARIES
         ${llvm_libs})
+    set(HAVE_LFORTRAN_LLVM yes)
 endif()
 
 # JSON
