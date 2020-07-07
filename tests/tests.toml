@@ -40,3 +40,4 @@ ast = true
 [[test]]
 filename = "subroutine4.f90"
 ast = true
+ast_f90 = true
