@@ -36,3 +36,7 @@ ast = true
 filename = "errors/esub2.f90"
 tokens = true
 ast = true
+
+[[test]]
+filename = "subroutine4.f90"
+ast = true

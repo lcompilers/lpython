@@ -344,6 +344,11 @@ static inline arg_t* ARGS(Allocator &al, const YYSTYPE::VecAST args)
         /*body*/ STMTS(body), \
         /*n_body*/ body.size())
 
+#define DO_CONCURRENT(i, a, b, body, l) make_DoConcurrentLoop_t(p.m_a, l, \
+        name2char(i), EXPR(a), EXPR(b), nullptr, \
+        /*body*/ STMTS(body), \
+        /*n_body*/ body.size())
+
 #define VAR_DECL(type, attrs, syms, l) make_Declaration_t(p.m_a, l, \
         DECL(p.m_a, syms, type, attrs), syms.size())
 

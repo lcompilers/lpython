@@ -696,6 +696,8 @@ do_statement
             $$ = DO2($2, $4, $6, $8, @$); }
     | KW_DO id "=" expr "," expr "," expr sep statements enddo {
             $$ = DO3($2, $4, $6, $8, $10, @$); }
+    | KW_DO KW_CONCURRENT "(" id "=" expr ":" expr ")" sep statements enddo {
+            $$ = DO_CONCURRENT($4, $6, $8, $11, @$); }
     ;
 
 enddo
