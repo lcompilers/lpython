@@ -8,6 +8,7 @@ set(SRC
     cwrapper.cpp
     semantics/ast_to_asr.cpp
     ast_to_src.cpp
+    ast_to_cpp.cpp
 )
 if (WITH_JSON)
     set(SRC ${SRC}
