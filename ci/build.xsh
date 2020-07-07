@@ -77,6 +77,7 @@ cd ..
 
 if $WIN != "1":
     cp lfortran-$lfortran_version/test-bld/src/bin/lfortran src/bin
+    cp lfortran-$lfortran_version/test-bld/src/bin/cpptranslate src/bin
     ./run_tests.py
 
 from shutil import rmtree
