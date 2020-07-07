@@ -111,7 +111,7 @@ public:
         s = r;
     }
     void visit_Subroutine(const Subroutine_t &x) {
-        std::string r = "subroutine ";
+        std::string r = "void ";
         r.append(x.m_name);
         if (x.n_args > 0) {
             r.append("(");
@@ -123,6 +123,8 @@ public:
             r.append(")");
         }
         r.append("\n");
+        r.append("{\n");
+        indent_level += 4;
         for (size_t i=0; i<x.n_use; i++) {
             this->visit_unit_decl1(*x.m_use[i]);
             r.append(s);
@@ -146,9 +148,8 @@ public:
                 r.append("\n");
             }
         }
-        r.append("end subroutine ");
-        r.append(x.m_name);
-        r.append("\n");
+        r.append("}\n");
+        indent_level -= 4;
         s = r;
     }
     void visit_Function(const Function_t &x) {
@@ -221,6 +222,8 @@ public:
     void visit_Declaration(const Declaration_t &x) {
         std::string r = "";
         for (size_t i=0; i<x.n_vars; i++) {
+            for (int i=0; i < indent_level; i++) r.append(" ");
+            r.append("// ");
             this->visit_decl(x.m_vars[i]);
             r.append(s);
             if (i < x.n_vars-1) r.append("\n");
@@ -302,6 +305,7 @@ public:
     }
     void visit_Assignment(const Assignment_t &x) {
         std::string r = "";
+        for (int i=0; i < indent_level; i++) r.append(" ");
         this->visit_expr(*x.m_target);
         r.append(s);
         r.append(" = ");
@@ -476,36 +480,26 @@ public:
         s = r;
     }
     void visit_DoConcurrentLoop(const DoConcurrentLoop_t &x) {
-        std::string r = "do concurrent";
-        if (x.m_var) {
-            r.append(" (");
-            r.append(x.m_var);
-            r.append(" = ");
-        }
-        if (x.m_start) {
-            this->visit_expr(*x.m_start);
-            r.append(s);
-            r.append(":");
-        }
-        if (x.m_end) {
-            this->visit_expr(*x.m_end);
-            r.append(s);
-        }
-        if (x.m_increment) {
-            r.append(":");
-            this->visit_expr(*x.m_increment);
-            r.append(s);
-        }
-        r.append(")\n");
+        std::string r;
+        for (int i=0; i < indent_level; i++) r.append(" ");
+        LFORTRAN_ASSERT(x.m_var)
+        LFORTRAN_ASSERT(x.m_end)
+        r += "Kokkos::parallel_for(";
+        this->visit_expr(*x.m_end);
+        r.append(s);
+
+        r.append(", KOKKOS_LAMBDA(const long ");
+        r.append(x.m_var);
+        r.append(") {\n");
         indent_level += 4;
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
-            for (int i=0; i < indent_level; i++) r.append(" ");
             r.append(s);
             r.append("\n");
         }
         indent_level -= 4;
-        r.append("end do");
+        for (int i=0; i < indent_level; i++) r.append(" ");
+        r.append("});");
         s = r;
     }
     void visit_Select(const Select_t &x) {
@@ -717,19 +711,26 @@ public:
     }
     void visit_FuncCallOrArray(const FuncCallOrArray_t &x) {
         std::string r = "";
-        r.append(x.m_func);
-        r.append("(");
-        for (size_t i=0; i<x.n_args; i++) {
-            this->visit_expr(*x.m_args[i]);
-            r.append(s);
-            if (i < x.n_args-1) s.append(", ");
+        // TODO: determine if it is a function or an array (better to use ASR
+        // for this)
+        if (std::string(x.m_func) == "size") {
+            // TODO: Hardwire the correct result for now:
+            r = "a.extent(0);";
+        } else {
+            r.append(x.m_func);
+            r.append("[");
+            for (size_t i=0; i<x.n_args; i++) {
+                this->visit_expr(*x.m_args[i]);
+                r.append(s);
+                if (i < x.n_args-1) s.append(", ");
+            }
+            for (size_t i=0; i<x.n_keywords; i++) {
+                this->visit_keyword(x.m_keywords[i]);
+                r.append(s);
+                if (i < x.n_keywords-1) r.append(", ");
+            }
+            r.append("]");
         }
-        for (size_t i=0; i<x.n_keywords; i++) {
-            this->visit_keyword(x.m_keywords[i]);
-            r.append(s);
-            if (i < x.n_keywords-1) r.append(", ");
-        }
-        r.append(")");
         s = r;
     }
     void visit_Array(const Array_t &x) {
