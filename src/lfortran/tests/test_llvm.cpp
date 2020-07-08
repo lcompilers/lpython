@@ -350,11 +350,11 @@ end function)";
     // Src -> AST
     Allocator al(4*1024);
     LFortran::AST::ast_t* ast = LFortran::parse2(al, source);
-    CHECK(LFortran::pickle(*ast) == "(fn f [] () () () [] [(decl [(f \"integer\" [] [] ())])] [(= f 5)] [])");
+    CHECK(LFortran::pickle(*ast) == "(Function f [] () () () [] [(Declaration [(f \"integer\" [] [] ())])] [(= f 5)] [])");
 
     // AST -> ASR
     LFortran::ASR::asr_t* asr = LFortran::ast_to_asr(al, *ast);
-    CHECK(LFortran::pickle(*asr) == "(fn f [] [(= (variable f () Unimplementedint (integer Unimplementedint [])) (num Unimplementedobject (integer Unimplementedint [])))] () (variable f () Unimplementedint (integer Unimplementedint [])) () Unimplementedobject)");
+    CHECK(LFortran::pickle(*asr) == "(Function f [] [(= (Variable f () Unimplementedint (Integer Unimplementedint [])) (Num Unimplementedobject (Integer Unimplementedint [])))] () (Variable f () Unimplementedint (Integer Unimplementedint [])) () Unimplementedobject)");
 
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
@@ -377,11 +377,11 @@ end function)";
     // Src -> AST
     Allocator al(4*1024);
     LFortran::AST::ast_t* ast = LFortran::parse2(al, source);
-    CHECK(LFortran::pickle(*ast) == "(fn f [] () () () [] [(decl [(f \"integer\" [] [] ())])] [(= f 4)] [])");
+    CHECK(LFortran::pickle(*ast) == "(Function f [] () () () [] [(Declaration [(f \"integer\" [] [] ())])] [(= f 4)] [])");
 
     // AST -> ASR
     LFortran::ASR::asr_t* asr = LFortran::ast_to_asr(al, *ast);
-    CHECK(LFortran::pickle(*asr) == "(fn f [] [(= (variable f () Unimplementedint (integer Unimplementedint [])) (num Unimplementedobject (integer Unimplementedint [])))] () (variable f () Unimplementedint (integer Unimplementedint [])) () Unimplementedobject)");
+    CHECK(LFortran::pickle(*asr) == "(Function f [] [(= (Variable f () Unimplementedint (Integer Unimplementedint [])) (Num Unimplementedobject (Integer Unimplementedint [])))] () (Variable f () Unimplementedint (Integer Unimplementedint [])) () Unimplementedobject)");
 
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
