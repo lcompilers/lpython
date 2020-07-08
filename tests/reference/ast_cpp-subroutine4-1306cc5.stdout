@@ -8,7 +8,7 @@ void triad(a, b, scalar, c)
     // integer :: i 
     N = a.extent(0);
     Kokkos::parallel_for(N, KOKKOS_LAMBDA(const long i) {
-        c[] = (a[]) + ((scalar)*(b[]))
+        c[i] = (a[i]) + ((scalar)*(b[i]))
     });
 }
 

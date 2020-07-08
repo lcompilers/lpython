@@ -5,9 +5,9 @@ real, intent(in) :: scalar
 real, intent(out) :: c(:) 
 integer :: N 
 integer :: i 
-N = size()
+N = size(a)
 do concurrent (i = 1:N)
-    c() = (a()) + ((scalar)*(b()))
+    c(i) = (a(i)) + ((scalar)*(b(i)))
 end do
 end subroutine triad
 
