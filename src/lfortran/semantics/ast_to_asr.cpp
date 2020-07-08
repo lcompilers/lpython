@@ -33,6 +33,13 @@ public:
     ASR::asr_t *asr;
     Allocator &al;
     SymbolTableVisitor(Allocator &al) : al{al} {}
+
+    void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
+        for (size_t i=0; i<x.n_items; i++) {
+            visit_ast(*x.m_items[i]);
+        }
+    }
+
     void visit_Function(const AST::Function_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 8, nullptr, 0));
@@ -55,6 +62,12 @@ public:
     Allocator &al;
     ASR::asr_t *asr, *tmp;
     BodyVisitor(Allocator &al, ASR::asr_t *unit) : al{al}, asr{unit} {}
+
+    void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
+        for (size_t i=0; i<x.n_items; i++) {
+            visit_ast(*x.m_items[i]);
+        }
+    }
 
     void visit_Function(const AST::Function_t &x) {
         Vec<ASR::stmt_t*> body;
@@ -93,14 +106,14 @@ public:
     }
 };
 
-ASR::asr_t *ast_to_asr(Allocator &al, AST::ast_t &ast)
+ASR::asr_t *ast_to_asr(Allocator &al, AST::TranslationUnit_t &ast)
 {
     SymbolTableVisitor v(al);
-    v.visit_ast(ast);
+    v.visit_TranslationUnit(ast);
     ASR::asr_t *unit = v.asr;
 
     BodyVisitor b(al, unit);
-    b.visit_ast(ast);
+    b.visit_TranslationUnit(ast);
     return unit;
 }
 

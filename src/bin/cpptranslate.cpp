@@ -103,7 +103,7 @@ int emit_asr(const std::string &infile)
     LFortran::ASR::asr_t* asr;
     try {
         // FIXME: For now we only transform the first node in the list:
-        asr = LFortran::ast_to_asr(al, *ast->m_items[0]);
+        asr = LFortran::ast_to_asr(al, *ast);
     } catch (const LFortran::LFortranException &e) {
         std::cerr << "LFortran exception: " << e.msg() << std::endl;
         return 4;
