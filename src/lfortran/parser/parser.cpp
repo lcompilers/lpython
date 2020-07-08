@@ -30,7 +30,7 @@ LFortran::AST::ast_t *parse_first(Allocator &al, const std::string &s)
     }
 }
 
-LFortran::AST::ast_t *parse2(Allocator &al, const std::string &s)
+LFortran::AST::ast_t *parse2_first(Allocator &al, const std::string &s)
 {
     LFortran::AST::ast_t *result;
     try {

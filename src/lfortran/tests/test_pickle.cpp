@@ -13,7 +13,7 @@ void section(const std::string &s)
 std::string p(Allocator &al, const std::string &s)
 {
     LFortran::AST::ast_t* result;
-    result = LFortran::parse2(al, s);
+    result = LFortran::parse2_first(al, s);
     std::string pickle = LFortran::pickle(*result);
     std::string src = LFortran::ast_to_src(*result);
 

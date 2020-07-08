@@ -76,7 +76,7 @@ int prompt()
         Allocator al(64*1024*1024);
         LFortran::AST::ast_t* ast;
         try {
-            ast = LFortran::parse2(al, input);
+            ast = LFortran::parse2_first(al, input);
         } catch (const LFortran::TokenizerError &e) {
             std::cout << "Tokenizing error: " << e.msg() << std::endl;
             continue;

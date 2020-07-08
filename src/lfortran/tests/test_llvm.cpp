@@ -349,7 +349,7 @@ end function)";
 
     // Src -> AST
     Allocator al(4*1024);
-    LFortran::AST::ast_t* ast = LFortran::parse2(al, source);
+    LFortran::AST::ast_t* ast = LFortran::parse2_first(al, source);
     CHECK(LFortran::pickle(*ast) == "(Function f [] () () () [] [(Declaration [(f \"integer\" [] [] ())])] [(= f 5)] [])");
 
     // AST -> ASR
@@ -376,7 +376,7 @@ end function)";
 
     // Src -> AST
     Allocator al(4*1024);
-    LFortran::AST::ast_t* ast = LFortran::parse2(al, source);
+    LFortran::AST::ast_t* ast = LFortran::parse2_first(al, source);
     CHECK(LFortran::pickle(*ast) == "(Function f [] () () () [] [(Declaration [(f \"integer\" [] [] ())])] [(= f 4)] [])");
 
     // AST -> ASR
