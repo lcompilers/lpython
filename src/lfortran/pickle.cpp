@@ -91,26 +91,6 @@ std::string compare2str(const cmpopType type)
 class PickleVisitor : public PickleBaseVisitor<PickleVisitor>
 {
 public:
-    void visit_TranslationUnit(const TranslationUnit_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("TranslationUnit");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_items; i++) {
-            this->visit_ast(*x.m_items[i]);
-            if (i < x.n_items-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(")");
-    }
     void visit_BinOp(const BinOp_t &x) {
         s.append("(");
         // We do not print BinOp +, but rather just +. It is still uniquely
