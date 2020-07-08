@@ -143,8 +143,13 @@ static inline expr_t** DIMS2EXPRS(Allocator &al, const YYSTYPE::VecDim &d)
         expr_t **s = al.allocate<expr_t*>(d.size());
         for (size_t i=0; i < d.size(); i++) {
             // TODO: we need to change this to allow both array and fn arguments
-            LFORTRAN_ASSERT(d[i].m_start);
-            s[i] = d[i].m_end;
+            // Right now we assume everything is a function argument
+            if (d[i].m_end) {
+                s[i] = d[i].m_end;
+            } else {
+                Location l;
+                s[i] = EXPR(make_Num_t(al, l, 1));
+            }
         }
         return s;
     }
