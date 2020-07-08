@@ -1,4 +1,4 @@
-(sub a [] [] [] [(do () () () () [(= a (+ a i)) (= b 3)]) (do () () () () [(= do (+ a i)) (= enddo 3)]) (do () () () () [(= a (+ a i)) (= b 3)])] [])
-(sub a [] [] [] [(do () () () () [(= x 1)])] [])
-(sub a [] [] [] [(do i 1 5 () [(= x (+ x i))])] [])
-(sub a [] [] [] [(do i 1 5 (u- 1) [(= x i)])] [])
+(Subroutine a [] [] [] [(DoLoop () () () () [(= a (+ a i)) (= b 3)]) (DoLoop () () () () [(= do (+ a i)) (= enddo 3)]) (DoLoop () () () () [(= a (+ a i)) (= b 3)])] [])
+(Subroutine a [] [] [] [(DoLoop () () () () [(= x 1)])] [])
+(Subroutine a [] [] [] [(DoLoop i 1 5 () [(= x (+ x i))])] [])
+(Subroutine a [] [] [] [(DoLoop i 1 5 (u- 1) [(= x i)])] [])

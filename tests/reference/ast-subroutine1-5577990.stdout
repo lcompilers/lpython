@@ -1,2 +1,2 @@
-(sub g [] [] [(decl [(x "integer" [] [] ()) (i "integer" [] [] ())])] [(= x 1) (do i 1 10 () [(= x (* x i))])] [])
-(sub h [] [] [(decl [(x "integer" [] [] ()) (i "integer" [] [] ())])] [(= x 1) (do i 1 10 () [(= x (* i x))])] [])
+(Subroutine g [] [] [(Declaration [(x "integer" [] [] ()) (i "integer" [] [] ())])] [(= x 1) (DoLoop i 1 10 () [(= x (* x i))])] [])
+(Subroutine h [] [] [(Declaration [(x "integer" [] [] ()) (i "integer" [] [] ())])] [(= x 1) (DoLoop i 1 10 () [(= x (* i x))])] [])

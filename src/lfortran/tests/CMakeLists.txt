@@ -33,7 +33,6 @@ ADDTESTC(test_cwrapper)
 ADDTEST(test_pickle p::doctest)
 COPYFILE(ref_pickle.txt)
 
-ADDTEST(test_ast_to_asr p::doctest)
 ADDTEST(x)
 if (WITH_JSON)
     ADDTEST(test_ast_to_json p::doctest)

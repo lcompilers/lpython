@@ -391,16 +391,9 @@ class PickleVisitorVisitor(ASDLVisitor):
         self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
         self.emit(    's.append("(");', 2)
         subs = {
-            "assignment": "=",
-            "associate": "=>",
-            "whileloop": "while",
-            "program": "prog",
-            "subroutine": "sub",
-            "function": "fn",
-            "doloop": "do",
-            "declaration": "decl",
+            "Assignment": "=",
+            "Associate": "=>",
         }
-        name = name.lower()
         if name in subs:
             name = subs[name]
         if cons:
