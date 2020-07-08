@@ -30,6 +30,7 @@ using LFortran::AST::stmtType;
 using LFortran::AST::operatorType;
 using LFortran::AST::unaryopType;
 using LFortran::AST::cmpopType;
+using LFortran::AST::TranslationUnit_t;
 using LFortran::AST::PickleBaseVisitor;
 
 
@@ -90,6 +91,26 @@ std::string compare2str(const cmpopType type)
 class PickleVisitor : public PickleBaseVisitor<PickleVisitor>
 {
 public:
+    void visit_TranslationUnit(const TranslationUnit_t &x) {
+        s.append("(");
+        if (use_colors) {
+            s.append(color(style::bold));
+            s.append(color(fg::magenta));
+        }
+        s.append("TranslationUnit");
+        if (use_colors) {
+            s.append(color(fg::reset));
+            s.append(color(style::reset));
+        }
+        s.append(" ");
+        s.append("[");
+        for (size_t i=0; i<x.n_items; i++) {
+            this->visit_ast(*x.m_items[i]);
+            if (i < x.n_items-1) s.append(" ");
+        }
+        s.append("]");
+        s.append(")");
+    }
     void visit_BinOp(const BinOp_t &x) {
         s.append("(");
         // We do not print BinOp +, but rather just +. It is still uniquely
@@ -148,6 +169,13 @@ std::string pickle(LFortran::AST::ast_t &ast, bool colors) {
     PickleVisitor v;
     v.use_colors = colors;
     v.visit_ast(ast);
+    return v.get_str();
+}
+
+std::string pickle(AST::TranslationUnit_t &ast, bool colors) {
+    PickleVisitor v;
+    v.use_colors = colors;
+    v.visit_ast((AST::ast_t&)(ast));
     return v.get_str();
 }
 

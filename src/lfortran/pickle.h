@@ -8,14 +8,14 @@
 namespace LFortran {
 
     // Pickle a token
-    std::string pickle(int token, const LFortran::YYSTYPE &yystype,
-            bool colors=false);
+    std::string pickle(int token, const YYSTYPE &yystype, bool colors=false);
 
     // Pickle an AST node
-    std::string pickle(LFortran::AST::ast_t &ast, bool colors=false);
+    std::string pickle(AST::ast_t &ast, bool colors=false);
+    std::string pickle(AST::TranslationUnit_t &ast, bool colors=false); 
 
     // Pickle an ASR node
-    std::string pickle(LFortran::ASR::asr_t &asr, bool colors=false);
+    std::string pickle(ASR::asr_t &asr, bool colors=false);
 
 }
 

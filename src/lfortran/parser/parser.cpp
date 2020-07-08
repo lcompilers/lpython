@@ -7,7 +7,7 @@
 namespace LFortran
 {
 
-AST::TranslationUnit_t* parse0(Allocator &al, const std::string &s)
+AST::TranslationUnit_t* parse(Allocator &al, const std::string &s)
 {
     Parser p(al);
     p.parse(s);
@@ -20,19 +20,9 @@ AST::TranslationUnit_t* parse0(Allocator &al, const std::string &s)
         p.result.p, p.result.size());
 }
 
-LFortran::AST::ast_t *parse(Allocator &al, const std::string &s)
+AST::TranslationUnit_t* parse2(Allocator &al, const std::string &s)
 {
-    AST::TranslationUnit_t* p = parse0(al, s);
-    if (p->n_items >= 1) {
-        return p->m_items[0];
-    } else {
-        return (AST::ast_t*)p;
-    }
-}
-
-LFortran::AST::ast_t *parse2(Allocator &al, const std::string &s)
-{
-    LFortran::AST::ast_t *result;
+    AST::TranslationUnit_t* result;
     try {
         result = parse(al, s);
     } catch (const LFortran::ParserError &e) {
@@ -51,9 +41,40 @@ LFortran::AST::ast_t *parse2(Allocator &al, const std::string &s)
     return result;
 }
 
+LFortran::AST::ast_t *parse_first(Allocator &al, const std::string &s)
+{
+    AST::TranslationUnit_t* p = parse(al, s);
+    if (p->n_items >= 1) {
+        return p->m_items[0];
+    } else {
+        return (AST::ast_t*)p;
+    }
+}
+
+LFortran::AST::ast_t *parse2_first(Allocator &al, const std::string &s)
+{
+    LFortran::AST::ast_t *result;
+    try {
+        result = parse_first(al, s);
+    } catch (const LFortran::ParserError &e) {
+        int token;
+        if (e.msg() == "syntax is ambiguous") {
+            token = -2;
+        } else {
+            token = e.token;
+        }
+        show_syntax_error("input", s, e.loc, token);
+        throw;
+    } catch (const LFortran::TokenizerError &e) {
+        show_syntax_error("input", s, e.loc, -1, &e.token);
+        throw;
+    }
+    return result;
+}
+
 Vec<AST::ast_t*> parsen(Allocator &al, const std::string &s)
 {
-    AST::TranslationUnit_t* p = parse0(al, s);
+    AST::TranslationUnit_t* p = parse(al, s);
     Vec<AST::ast_t*> r;
     r.from_pointer_n(p->m_items, p->n_items);
     return r;

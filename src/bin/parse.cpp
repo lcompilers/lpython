@@ -2,7 +2,7 @@
 #include <chrono>
 #include <lfortran/parser/parser.h>
 
-using LFortran::parse;
+using LFortran::parse_first;
 using LFortran::AST::ast_t;
 using LFortran::AST::expr_t;
 using LFortran::AST::Name_t;
@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     Allocator al(64*1024*1024); // The actual size is 31,600,600
     std::cout << "Parse" << std::endl;
     auto t1 = std::chrono::high_resolution_clock::now();
-    auto result = parse(al, text);
+    auto result = parse_first(al, text);
     auto t2 = std::chrono::high_resolution_clock::now();
     int c = count(*result);
     auto t3 = std::chrono::high_resolution_clock::now();

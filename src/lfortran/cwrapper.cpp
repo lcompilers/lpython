@@ -52,7 +52,7 @@ lfortran_exceptions_t lfortran_parser_parse(LFortranCParser *self,
     CWRAPPER_BEGIN
 
     LFortran::AST::ast_t* result;
-    result = LFortran::parse(self->al, input);
+    result = LFortran::parse_first(self->al, input);
     lfortran_ast_t* result2 = (lfortran_ast_t*)result;
     *ast = result2;
 
