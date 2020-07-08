@@ -57,10 +57,6 @@ std::string token2text(const int token);
 // Parses Fortran code to AST, only the first AST node is returned
 LFortran::AST::ast_t *parse_first(Allocator &al, const std::string &s);
 
-// Just like `parse_first`, but prints a nice error message to std::cout if a
-// syntax error happens:
-LFortran::AST::ast_t *parse2_first(Allocator &al, const std::string &s);
-
 } // namespace LFortran
 
 #endif
