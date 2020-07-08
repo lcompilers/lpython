@@ -373,7 +373,7 @@ static inline arg_t* ARGS(Allocator &al, const YYSTYPE::VecAST args)
         /*args*/ ATTR_ARG(p.m_a, b), \
         /*n_args*/ 1)
 
-#define FUNCCALLORARRAY(id, l) make_FuncCallOrArray_t(p.m_a, l, \
+#define FUNCCALLORARRAY(id, args, l) make_FuncCallOrArray_t(p.m_a, l, \
         /*char* a_func*/ name2char(id), \
         /*expr_t** a_args*/ nullptr, /*size_t n_args*/ 0, \
         /*keyword_t* a_keywords*/ nullptr, /*size_t n_keywords*/ 0)
