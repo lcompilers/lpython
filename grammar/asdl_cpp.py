@@ -455,6 +455,16 @@ class PickleVisitorVisitor(ASDLVisitor):
                     self.emit("}", 2)
                 else:
                     self.emit('s.append(x.m_%s);' % field.name, 2)
+            elif field.type == "node":
+                assert not field.opt
+                assert field.seq
+                level = 2
+                self.emit('s.append("[");', level)
+                self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
+                self.emit("this->visit_ast(*x.m_%s[i]);" % (field.name), level+1)
+                self.emit(    'if (i < x.n_%s-1) s.append(" ");' % (field.name), level+1)
+                self.emit("}", level)
+                self.emit('s.append("]");', level)
             elif field.type == "string" and not field.seq:
                 if field.opt:
                     self.emit("if (x.m_%s) {" % field.name, 2)
@@ -466,7 +476,7 @@ class PickleVisitorVisitor(ASDLVisitor):
                     self.emit('s.append("\\"" + std::string(x.m_%s) + "\\"");' % field.name, 2)
             elif field.type in self.data.simple_types:
                 if field.opt:
-                    self.emit('s.append("Unimplemented");', 2)
+                    self.emit('s.append("Unimplementedopt");', 2)
                 else:
                     self.emit('s.append("%sType" + std::to_string(x.m_%s));' \
                             % (field.type, field.name), 2)
