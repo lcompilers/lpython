@@ -74,9 +74,9 @@ int prompt()
 
         // Src -> AST
         Allocator al(64*1024*1024);
-        LFortran::AST::ast_t* ast;
+        LFortran::AST::TranslationUnit_t* ast;
         try {
-            ast = LFortran::parse2_first(al, input);
+            ast = LFortran::parse2(al, input);
         } catch (const LFortran::TokenizerError &e) {
             std::cout << "Tokenizing error: " << e.msg() << std::endl;
             continue;
@@ -94,7 +94,7 @@ int prompt()
         // AST -> ASR
         LFortran::ASR::asr_t* asr;
         try {
-            asr = LFortran::ast_to_asr(al, *ast);
+            asr = LFortran::ast_to_asr(al, *ast->m_items[0]);
         } catch (const LFortran::LFortranException &e) {
             std::cout << "LFortran exception: " << e.msg() << std::endl;
             continue;
@@ -176,9 +176,9 @@ int emit_asr(const std::string &infile)
 
     // Src -> AST
     Allocator al(64*1024*1024);
-    LFortran::Vec<LFortran::AST::ast_t*> ast;
+    LFortran::AST::TranslationUnit_t* ast;
     try {
-        ast = LFortran::parsen2(al, input);
+        ast = LFortran::parse2(al, input);
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
@@ -194,7 +194,7 @@ int emit_asr(const std::string &infile)
     LFortran::ASR::asr_t* asr;
     try {
         // FIXME: For now we only transform the first node in the list:
-        asr = LFortran::ast_to_asr(al, *ast[0]);
+        asr = LFortran::ast_to_asr(al, *ast->m_items[0]);
     } catch (const LFortran::LFortranException &e) {
         std::cerr << "LFortran exception: " << e.msg() << std::endl;
         return 4;
@@ -211,9 +211,9 @@ int emit_llvm(const std::string &infile)
 
     // Src -> AST
     Allocator al(64*1024*1024);
-    LFortran::Vec<LFortran::AST::ast_t*> ast;
+    LFortran::AST::TranslationUnit_t* ast;
     try {
-        ast = LFortran::parsen2(al, input);
+        ast = LFortran::parse2(al, input);
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
@@ -229,7 +229,7 @@ int emit_llvm(const std::string &infile)
     LFortran::ASR::asr_t* asr;
     try {
         // FIXME: For now we only transform the first node in the list:
-        asr = LFortran::ast_to_asr(al, *ast[0]);
+        asr = LFortran::ast_to_asr(al, *ast->m_items[0]);
     } catch (const LFortran::LFortranException &e) {
         std::cerr << "LFortran exception: " << e.msg() << std::endl;
         return 4;
