@@ -50,13 +50,6 @@ std::vector<int> tokens(const std::string &input,
 std::string token2text(const int token);
 
 
-
-
-// Deprecated functions, will be removed in the future:
-
-// Parses Fortran code to AST, only the first AST node is returned
-LFortran::AST::ast_t *parse_first(Allocator &al, const std::string &s);
-
 } // namespace LFortran
 
 #endif

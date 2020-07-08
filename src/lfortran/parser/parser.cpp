@@ -41,15 +41,6 @@ AST::TranslationUnit_t* parse2(Allocator &al, const std::string &s)
     return result;
 }
 
-LFortran::AST::ast_t *parse_first(Allocator &al, const std::string &s)
-{
-    AST::TranslationUnit_t* p = parse(al, s);
-    if (p->n_items == 0) {
-        throw LFortranException("parse_first: empty TranslationUnit");
-    }
-    return p->m_items[0];
-}
-
 void Parser::parse(const std::string &input)
 {
     inp = input;
