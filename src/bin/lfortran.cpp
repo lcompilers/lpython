@@ -94,7 +94,7 @@ int prompt()
         // AST -> ASR
         LFortran::ASR::asr_t* asr;
         try {
-            asr = LFortran::ast_to_asr(al, *ast->m_items[0]);
+            asr = LFortran::ast_to_asr(al, *ast);
         } catch (const LFortran::LFortranException &e) {
             std::cout << "LFortran exception: " << e.msg() << std::endl;
             continue;
@@ -194,7 +194,7 @@ int emit_asr(const std::string &infile)
     LFortran::ASR::asr_t* asr;
     try {
         // FIXME: For now we only transform the first node in the list:
-        asr = LFortran::ast_to_asr(al, *ast->m_items[0]);
+        asr = LFortran::ast_to_asr(al, *ast);
     } catch (const LFortran::LFortranException &e) {
         std::cerr << "LFortran exception: " << e.msg() << std::endl;
         return 4;
@@ -229,7 +229,7 @@ int emit_llvm(const std::string &infile)
     LFortran::ASR::asr_t* asr;
     try {
         // FIXME: For now we only transform the first node in the list:
-        asr = LFortran::ast_to_asr(al, *ast->m_items[0]);
+        asr = LFortran::ast_to_asr(al, *ast);
     } catch (const LFortran::LFortranException &e) {
         std::cerr << "LFortran exception: " << e.msg() << std::endl;
         return 4;
