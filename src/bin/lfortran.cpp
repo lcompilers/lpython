@@ -152,9 +152,9 @@ int emit_ast(const std::string &infile)
     std::string input = read_file(infile);
     // Src -> AST
     Allocator al(64*1024*1024);
-    LFortran::Vec<LFortran::AST::ast_t*> ast;
+    LFortran::AST::TranslationUnit_t* ast;
     try {
-        ast = LFortran::parsen2(al, input);
+        ast = LFortran::parse2(al, input);
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
@@ -166,9 +166,7 @@ int emit_ast(const std::string &infile)
         return 3;
     }
 
-    for (auto a: ast) {
-        std::cout << LFortran::pickle(*a) << std::endl;
-    }
+    std::cout << LFortran::pickle(*ast) << std::endl;
     return 0;
 }
 
