@@ -64,10 +64,6 @@ LFortran::AST::ast_t *parse2_first(Allocator &al, const std::string &s);
 // Parse multiple translation units
 Vec<AST::ast_t*> parsen(Allocator &al, const std::string &s);
 
-// Just like `parsen`, but prints a nice error message to std::cout if a syntax
-// error happens:
-Vec<AST::ast_t*> parsen2(Allocator &al, const std::string &s);
-
 } // namespace LFortran
 
 #endif
