@@ -135,6 +135,21 @@ static inline decl_t* DECL3(Allocator &al, ast_t* n,
     return s;
 }
 
+static inline expr_t** DIMS2EXPRS(Allocator &al, const YYSTYPE::VecDim &d)
+{
+    if (d.size() == 0) {
+        return nullptr;
+    } else {
+        expr_t **s = al.allocate<expr_t*>(d.size());
+        for (size_t i=0; i < d.size(); i++) {
+            // TODO: we need to change this to allow both array and fn arguments
+            LFORTRAN_ASSERT(d[i].m_start);
+            s[i] = d[i].m_end;
+        }
+        return s;
+    }
+}
+
 static inline dimension_t DIM1(expr_t *a, expr_t *b)
 {
     dimension_t s;
@@ -375,7 +390,7 @@ static inline arg_t* ARGS(Allocator &al, const YYSTYPE::VecAST args)
 
 #define FUNCCALLORARRAY(id, args, l) make_FuncCallOrArray_t(p.m_a, l, \
         /*char* a_func*/ name2char(id), \
-        /*expr_t** a_args*/ nullptr, /*size_t n_args*/ 0, \
+        /*expr_t** a_args*/ DIMS2EXPRS(p.m_a, args), /*size_t n_args*/ args.size(), \
         /*keyword_t* a_keywords*/ nullptr, /*size_t n_keywords*/ 0)
 
 #define SELECT(cond, body, def, l) make_Select_t(p.m_a, l, \
