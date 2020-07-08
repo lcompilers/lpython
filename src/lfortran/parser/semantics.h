@@ -135,6 +135,26 @@ static inline decl_t* DECL3(Allocator &al, ast_t* n,
     return s;
 }
 
+static inline expr_t** DIMS2EXPRS(Allocator &al, const YYSTYPE::VecDim &d)
+{
+    if (d.size() == 0) {
+        return nullptr;
+    } else {
+        expr_t **s = al.allocate<expr_t*>(d.size());
+        for (size_t i=0; i < d.size(); i++) {
+            // TODO: we need to change this to allow both array and fn arguments
+            // Right now we assume everything is a function argument
+            if (d[i].m_end) {
+                s[i] = d[i].m_end;
+            } else {
+                Location l;
+                s[i] = EXPR(make_Num_t(al, l, 1));
+            }
+        }
+        return s;
+    }
+}
+
 static inline dimension_t DIM1(expr_t *a, expr_t *b)
 {
     dimension_t s;
@@ -373,9 +393,9 @@ static inline arg_t* ARGS(Allocator &al, const YYSTYPE::VecAST args)
         /*args*/ ATTR_ARG(p.m_a, b), \
         /*n_args*/ 1)
 
-#define FUNCCALLORARRAY(id, l) make_FuncCallOrArray_t(p.m_a, l, \
+#define FUNCCALLORARRAY(id, args, l) make_FuncCallOrArray_t(p.m_a, l, \
         /*char* a_func*/ name2char(id), \
-        /*expr_t** a_args*/ nullptr, /*size_t n_args*/ 0, \
+        /*expr_t** a_args*/ DIMS2EXPRS(p.m_a, args), /*size_t n_args*/ args.size(), \
         /*keyword_t* a_keywords*/ nullptr, /*size_t n_keywords*/ 0)
 
 #define SELECT(cond, body, def, l) make_Select_t(p.m_a, l, \

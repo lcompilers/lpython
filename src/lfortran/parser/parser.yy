@@ -273,6 +273,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> var_decl
 %type <decl> var_sym_decl
 %type <vec_dim> array_comp_decl_list
+%type <dim> fnarray_arg
+%type <vec_dim> fnarray_arg_list
+%type <vec_dim> fnarray_arg_list_opt
 %type <dim> array_comp_decl
 %type <string> var_type
 %type <vec_ast> var_modifiers
@@ -744,9 +747,9 @@ expr
 // ### primary
     : id { $$ = $1; }
     | struct_member_star id { $$ = $2; }
-    | id "(" fnarray_arg_list_opt ")" { $$ = FUNCCALLORARRAY($1, @$); }
+    | id "(" fnarray_arg_list_opt ")" { $$ = FUNCCALLORARRAY($1, $3, @$); }
     | struct_member_star id "(" fnarray_arg_list_opt ")" {
-            $$ = FUNCCALLORARRAY($2, @$); }
+            $$ = FUNCCALLORARRAY($2, $4, @$); }
     | "[" expr_list "]" { $$ = ARRAY_IN($2, @$); }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
     | TK_REAL { $$ = REAL($1, @$); }
@@ -796,17 +799,20 @@ struct_member
 
 fnarray_arg_list_opt
     : fnarray_arg_list
-    | %empty
+    | %empty { LIST_NEW($$); }
     ;
 
 fnarray_arg_list
-    : fnarray_arg_list "," fnarray_arg
-    | fnarray_arg
+    : fnarray_arg_list "," fnarray_arg {$$ = $1; LIST_ADD($$, $3); }
+    | fnarray_arg { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 fnarray_arg
     : array_comp_decl
-    | id "=" expr
+    // TODO: extend "dim" to also include the keyword argument "id"
+    // This can be done by adding a flag "keyword",
+    // and encoding start=id, end=expr
+    | id "=" expr { $$ = ARRAY_COMP_DECL1($3, @$); }
     ;
 
 id_list_opt
