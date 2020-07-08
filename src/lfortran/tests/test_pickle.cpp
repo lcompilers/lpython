@@ -160,7 +160,7 @@ TEST_CASE("Multiple units") {
     a)";
     results = LFortran::parsen(al, s);
     CHECK(results.size() == 4);
-    CHECK(LFortran::pickle(*results[0]) == "(fn g [] () () () [] [] [(= x y) (= x (* 2 y))] [])");
+    CHECK(LFortran::pickle(*results[0]) == "(Function g [] () () () [] [] [(= x y) (= x (* 2 y))] [])");
     CHECK(LFortran::pickle(*results[1]) == "(= s x)");
     CHECK(LFortran::pickle(*results[2]) == "(= y (+ z 1))");
     CHECK(LFortran::pickle(*results[3]) == "a");
