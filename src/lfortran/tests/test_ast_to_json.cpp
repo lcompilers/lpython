@@ -15,7 +15,7 @@ TEST_CASE("Check ast_to_json()") {
     LFortran::AST::ast_t* result;
     rapidjson::Document d1, d2;
 
-    result = LFortran::parse(al, "2*x");
+    result = LFortran::parse_first(al, "2*x");
     s = LFortran::ast_to_json(*result);
     std::cout << s << std::endl;
     r = R"(
@@ -37,14 +37,14 @@ TEST_CASE("Check ast_to_json()") {
     CHECK(d1 == d2);
 
 
-    result = LFortran::parse(al, "(2*x)");
+    result = LFortran::parse_first(al, "(2*x)");
     s = LFortran::ast_to_json(*result);
     std::cout << s << std::endl;
     d1.Parse(s);
     CHECK(d1 == d2);
 
 
-    result = LFortran::parse(al, "2*x**y");
+    result = LFortran::parse_first(al, "2*x**y");
     s = LFortran::ast_to_json(*result);
     std::cout << s << std::endl;
     r = R"(

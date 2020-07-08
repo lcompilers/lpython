@@ -20,7 +20,7 @@ AST::TranslationUnit_t* parse0(Allocator &al, const std::string &s)
         p.result.p, p.result.size());
 }
 
-LFortran::AST::ast_t *parse(Allocator &al, const std::string &s)
+LFortran::AST::ast_t *parse_first(Allocator &al, const std::string &s)
 {
     AST::TranslationUnit_t* p = parse0(al, s);
     if (p->n_items >= 1) {
@@ -34,7 +34,7 @@ LFortran::AST::ast_t *parse2(Allocator &al, const std::string &s)
 {
     LFortran::AST::ast_t *result;
     try {
-        result = parse(al, s);
+        result = parse_first(al, s);
     } catch (const LFortran::ParserError &e) {
         int token;
         if (e.msg() == "syntax is ambiguous") {

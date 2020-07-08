@@ -39,7 +39,7 @@ int main()
 
 
     //yydebug=1;
-    result = LFortran::parse(al, input);
+    result = LFortran::parse_first(al, input);
     std::string p = LFortran::pickle(*result);
     std::cout << p << std::endl;
 

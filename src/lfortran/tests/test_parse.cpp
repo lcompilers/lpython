@@ -7,7 +7,7 @@
 #include <lfortran/parser/parser.h>
 #include <lfortran/parser/parser.tab.hh>
 
-using LFortran::parse;
+using LFortran::parse_first;
 using LFortran::parse2;
 using LFortran::tokens;
 using LFortran::AST::ast_t;
@@ -74,7 +74,7 @@ TEST_CASE("Test longer parser (N = 500)") {
     Allocator al(1024*1024);
     std::cout << "Parse" << std::endl;
     auto t1 = std::chrono::high_resolution_clock::now();
-    auto result = parse(al, text);
+    auto result = parse_first(al, text);
     auto t2 = std::chrono::high_resolution_clock::now();
     std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                      .count()
@@ -1124,7 +1124,7 @@ TEST_CASE("Location") {
     end subroutine)";
 
     Allocator al(1024*1024);
-    LFortran::AST::ast_t* result = parse(al, input);
+    LFortran::AST::ast_t* result = parse_first(al, input);
     CHECK(result->loc.first_line == 1);
     CHECK(result->loc.first_column == 1);
     CHECK(result->loc.last_line == 4);
@@ -1163,7 +1163,7 @@ TEST_CASE("Location") {
     x = y
     x = 213*yz
     end function)";
-    result = parse(al, input);
+    result = parse_first(al, input);
     CHECK(result->loc.first_line == 1);
     CHECK(result->loc.first_column == 1);
     CHECK(result->loc.last_line == 4);
@@ -1173,7 +1173,7 @@ TEST_CASE("Location") {
     x = y
     x = 213*yz
     end program)";
-    result = parse(al, input);
+    result = parse_first(al, input);
     CHECK(result->loc.first_line == 1);
     CHECK(result->loc.first_column == 1);
     CHECK(result->loc.last_line == 4);
@@ -1186,7 +1186,7 @@ TEST_CASE("Errors") {
 
     input = "(2+3+";
     try {
-        parse(al, input);
+        parse_first(al, input);
         CHECK(false);
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
@@ -1203,7 +1203,7 @@ TEST_CASE("Errors") {
     x = 213*yz+*
     end function)";
     try {
-        parse(al, input);
+        parse_first(al, input);
         CHECK(false);
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
@@ -1220,7 +1220,7 @@ TEST_CASE("Errors") {
     x = 213-*yz
     end function)";
     try {
-        parse(al, input);
+        parse_first(al, input);
         CHECK(false);
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
@@ -1237,7 +1237,7 @@ TEST_CASE("Errors") {
     x = 213*yz
     end function)";
     try {
-        parse(al, input);
+        parse_first(al, input);
         CHECK(false);
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
@@ -1251,7 +1251,7 @@ TEST_CASE("Errors") {
 
     input = "1 + .notx.";
     try {
-        parse(al, input);
+        parse_first(al, input);
         CHECK(false);
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
@@ -1265,7 +1265,7 @@ TEST_CASE("Errors") {
 
     input = "1 + x allocate y";
     try {
-        parse(al, input);
+        parse_first(al, input);
         CHECK(false);
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
@@ -1280,7 +1280,7 @@ TEST_CASE("Errors") {
 
     input = "1 @ x allocate y";
     try {
-        parse(al, input);
+        parse_first(al, input);
         CHECK(false);
     } catch (const LFortran::TokenizerError &e) {
         CHECK(e.token == "@");
