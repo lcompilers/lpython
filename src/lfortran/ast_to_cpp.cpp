@@ -508,7 +508,7 @@ public:
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
             r.append(s);
-            r.append("\n");
+            r.append(";\n");
         }
         indent_level -= 4;
         for (int i=0; i < indent_level; i++) r.append(" ");
