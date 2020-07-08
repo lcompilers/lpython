@@ -8,7 +8,7 @@
 #include <lfortran/parser/parser.tab.hh>
 
 using LFortran::parse_first;
-using LFortran::parse2_first;
+using LFortran::parse2;
 using LFortran::tokens;
 using LFortran::AST::ast_t;
 using LFortran::AST::expr_t;
@@ -1276,7 +1276,7 @@ TEST_CASE("Errors") {
         CHECK(e.loc.last_line == 1);
         CHECK(e.loc.last_column == 14);
     }
-    CHECK_THROWS_AS(parse2_first(al, input), LFortran::ParserError);
+    CHECK_THROWS_AS(parse2(al, input), LFortran::ParserError);
 
     input = "1 @ x allocate y";
     try {
@@ -1290,5 +1290,5 @@ TEST_CASE("Errors") {
         CHECK(e.loc.last_line == 1);
         CHECK(e.loc.last_column == 3);
     }
-    CHECK_THROWS_AS(parse2_first(al, input), LFortran::TokenizerError);
+    CHECK_THROWS_AS(parse2(al, input), LFortran::TokenizerError);
 }
