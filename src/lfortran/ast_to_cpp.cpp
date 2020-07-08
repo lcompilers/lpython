@@ -841,7 +841,11 @@ public:
             r.append(x.m_sym);
         } else {
             if (std::string(((Attribute_t*)(x.m_attrs[0]))->m_args[0].m_arg) == "in") {
-                r.append("const Kokkos::View<const float*> & ");
+                if (x.n_dims == 0) {
+                    r.append("float ");
+                } else {
+                    r.append("const Kokkos::View<const float*> & ");
+                }
             } else {
                 r.append("const Kokkos::View<float*> & ");
             }
