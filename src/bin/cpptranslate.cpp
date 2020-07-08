@@ -61,9 +61,9 @@ int emit_ast(const std::string &infile)
     std::string input = read_file(infile);
     // Src -> AST
     Allocator al(64*1024*1024);
-    LFortran::Vec<LFortran::AST::ast_t*> ast;
+    LFortran::AST::TranslationUnit_t* ast;
     try {
-        ast = LFortran::parsen2(al, input);
+        ast = LFortran::parse2(al, input);
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
@@ -75,9 +75,7 @@ int emit_ast(const std::string &infile)
         return 3;
     }
 
-    for (auto a: ast) {
-        std::cout << LFortran::pickle(*a) << std::endl;
-    }
+    std::cout << LFortran::pickle(*ast) << std::endl;
     return 0;
 }
 
@@ -87,9 +85,9 @@ int emit_asr(const std::string &infile)
 
     // Src -> AST
     Allocator al(64*1024*1024);
-    LFortran::Vec<LFortran::AST::ast_t*> ast;
+    LFortran::AST::TranslationUnit_t* ast;
     try {
-        ast = LFortran::parsen2(al, input);
+        ast = LFortran::parse2(al, input);
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
@@ -105,7 +103,7 @@ int emit_asr(const std::string &infile)
     LFortran::ASR::asr_t* asr;
     try {
         // FIXME: For now we only transform the first node in the list:
-        asr = LFortran::ast_to_asr(al, *ast[0]);
+        asr = LFortran::ast_to_asr(al, *ast->m_items[0]);
     } catch (const LFortran::LFortranException &e) {
         std::cerr << "LFortran exception: " << e.msg() << std::endl;
         return 4;
@@ -121,9 +119,9 @@ int emit_ast_f90(const std::string &infile)
 
     // Src -> AST
     Allocator al(64*1024*1024);
-    LFortran::Vec<LFortran::AST::ast_t*> ast;
+    LFortran::AST::TranslationUnit_t* ast;
     try {
-        ast = LFortran::parsen2(al, input);
+        ast = LFortran::parse2(al, input);
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
@@ -137,7 +135,7 @@ int emit_ast_f90(const std::string &infile)
 
     // AST -> Source
     // FIXME: For now we only transform the first node in the list:
-    std::string source = LFortran::ast_to_src(*ast[0]);
+    std::string source = LFortran::ast_to_src(*ast->m_items[0]);
 
     std::cout << source << std::endl;
     return 0;
@@ -149,9 +147,9 @@ int emit_ast_cpp(const std::string &infile)
 
     // Src -> AST
     Allocator al(64*1024*1024);
-    LFortran::Vec<LFortran::AST::ast_t*> ast;
+    LFortran::AST::TranslationUnit_t* ast;
     try {
-        ast = LFortran::parsen2(al, input);
+        ast = LFortran::parse2(al, input);
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
@@ -165,7 +163,7 @@ int emit_ast_cpp(const std::string &infile)
 
     // AST -> C++
     // FIXME: For now we only transform the first node in the list:
-    std::string source = LFortran::ast_to_cpp(*ast[0]);
+    std::string source = LFortran::ast_to_cpp(*ast->m_items[0]);
 
     std::cout << source << std::endl;
     return 0;
