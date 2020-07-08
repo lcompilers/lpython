@@ -34,6 +34,7 @@ public:
     std::string s;
     bool use_colors;
     int indent_level;
+    int n_params, current_param;
 public:
     ASTToCPPVisitor() : use_colors{false}, indent_level{0} { }
     void visit_TranslationUnit(const TranslationUnit_t &x) {
@@ -112,18 +113,20 @@ public:
     }
     void visit_Subroutine(const Subroutine_t &x) {
         std::string r = "void ";
+        n_params = x.n_args;
+        current_param = 0;
         r.append(x.m_name);
         if (x.n_args > 0) {
             r.append("(");
+            /*
             for (size_t i=0; i<x.n_args; i++) {
                 this->visit_arg(x.m_args[i]);
                 r.append(s);
                 if (i < x.n_args-1) r.append(", ");
             }
             r.append(")");
+            */
         }
-        r.append("\n");
-        r.append("{\n");
         indent_level += 4;
         for (size_t i=0; i<x.n_use; i++) {
             this->visit_unit_decl1(*x.m_use[i]);
@@ -222,11 +225,21 @@ public:
     void visit_Declaration(const Declaration_t &x) {
         std::string r = "";
         for (size_t i=0; i<x.n_vars; i++) {
-            for (int i=0; i < indent_level; i++) r.append(" ");
-            r.append("// ");
+            current_param++;
+            if (current_param > n_params) {
+                for (int i=0; i < indent_level; i++) r.append(" ");
+            }
             this->visit_decl(x.m_vars[i]);
             r.append(s);
-            if (i < x.n_vars-1) r.append("\n");
+            if (current_param < n_params) {
+                r.append(", ");
+            } else {
+                if (current_param > n_params) r.append(";");
+                if (i < x.n_vars-1) r.append("\n");
+            }
+        }
+        if (current_param == n_params) {
+            r.append(")\n{");
         }
         s = r;
     }
@@ -495,7 +508,7 @@ public:
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
             r.append(s);
-            r.append("\n");
+            r.append(";\n");
         }
         indent_level -= 4;
         for (int i=0; i < indent_level; i++) r.append(" ");
@@ -817,6 +830,28 @@ public:
         s.append(")");
     }
     void visit_decl(const decl_t &x) {
+        std::string r;
+        if (x.n_attrs == 0) {
+            if (std::string(x.m_sym_type) == "integer") {
+                r.append("size_t");
+            } else if (std::string(x.m_sym_type) == "real") {
+                r.append("float");
+            }
+            r.append(" ");
+            r.append(x.m_sym);
+        } else {
+            if (std::string(((Attribute_t*)(x.m_attrs[0]))->m_args[0].m_arg) == "in") {
+                if (x.n_dims == 0) {
+                    r.append("float ");
+                } else {
+                    r.append("const Kokkos::View<const float*> & ");
+                }
+            } else {
+                r.append("const Kokkos::View<float*> & ");
+            }
+            r.append(x.m_sym);
+        }
+        /*
         std::string r = std::string(x.m_sym_type);
         if (x.n_attrs > 0) {
             for (size_t i=0; i<x.n_attrs; i++) {
@@ -842,6 +877,7 @@ public:
             this->visit_expr(*x.m_initializer);
             r.append(s);
         }
+        */
         s = r;
     }
     void visit_dimension(const dimension_t &x) {
