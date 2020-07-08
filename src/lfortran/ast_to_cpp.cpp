@@ -840,10 +840,12 @@ public:
             r.append(" ");
             r.append(x.m_sym);
         } else {
-            //if (x.m_attrs[i]->)
-            r.append("const Kokkos::View<const float*> & ");
+            if (std::string(((Attribute_t*)(x.m_attrs[0]))->m_args[0].m_arg) == "in") {
+                r.append("const Kokkos::View<const float*> & ");
+            } else {
+                r.append("const Kokkos::View<float*> & ");
+            }
             r.append(x.m_sym);
-            //const Kokkos::View<float*> & a
         }
         /*
         std::string r = std::string(x.m_sym_type);
