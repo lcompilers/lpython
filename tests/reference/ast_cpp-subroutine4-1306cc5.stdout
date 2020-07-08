@@ -1,14 +1,11 @@
-void triad(a, b, scalar, c)
+void triad(const Kokkos::View<const float*> & a, const Kokkos::View<const float*> & b, float scalar, 
+const Kokkos::View<float*> & c)
 {
-    // real, intent(in) :: a(:) 
-    // real, intent(in) :: b(:) 
-    // real, intent(in) :: scalar 
-    // real, intent(out) :: c(:) 
-    // integer :: N 
-    // integer :: i 
+    size_t N;
+    size_t i;
     N = a.extent(0);
     Kokkos::parallel_for(N, KOKKOS_LAMBDA(const long i) {
-        c[i] = (a[i]) + ((scalar)*(b[i]))
+        c[i] = (a[i]) + ((scalar)*(b[i]));
     });
 }
 
