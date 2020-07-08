@@ -12,10 +12,16 @@ void section(const std::string &s)
 
 std::string p(Allocator &al, const std::string &s)
 {
-    LFortran::AST::ast_t* result;
-    result = LFortran::parse2_first(al, s);
-    std::string pickle = LFortran::pickle(*result);
-    std::string src = LFortran::ast_to_src(*result);
+    LFortran::AST::TranslationUnit_t* result;
+    result = LFortran::parse2(al, s);
+    LFortran::AST::ast_t* ast;
+    if (result->n_items >= 1) {
+        ast = result->m_items[0];
+    } else {
+        ast = (LFortran::AST::ast_t*)result;
+    }
+    std::string pickle = LFortran::pickle(*ast);
+    std::string src = LFortran::ast_to_src(*ast);
 
     // Print the test nicely:
     section("--------------------------------------------------------------------------------");
