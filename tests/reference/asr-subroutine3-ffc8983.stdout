@@ -1,1 +1,1 @@
-(Function f [] [(= (Variable f () Unimplementedint (Integer Unimplementedint [])) (Num Unimplementedobject (Integer Unimplementedint [])))] () (Variable f () Unimplementedint (Integer Unimplementedint [])) () Unimplementedobject)
+(Function f [] [(= (Variable f () 1 (Integer 8 [])) (Num Unimplementedobject (Integer 8 [])))] () (Variable f () 1 (Integer 8 [])) () Unimplementedobject)
