@@ -32,11 +32,11 @@ end subroutine)";
     Allocator al(64*1024*1024); // The actual size is 31,600,600
     std::cout << "Parse" << std::endl;
     auto t1 = std::chrono::high_resolution_clock::now();
-    auto result = LFortran::parsen(al, text);
+    auto result = LFortran::parse(al, text);
     auto t2 = std::chrono::high_resolution_clock::now();
 
-    std::string p = LFortran::pickle(*result[0]);
-    std::cout << "Number of units: " << result.size() << std::endl;
+    std::string p = LFortran::pickle(*result);
+    std::cout << "Number of units: " << result->n_items << std::endl;
 
     std::cout << "Parsing: " <<
         std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count()
