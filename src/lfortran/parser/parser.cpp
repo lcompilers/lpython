@@ -7,7 +7,7 @@
 namespace LFortran
 {
 
-AST::TranslationUnit_t* parse0(Allocator &al, const std::string &s)
+AST::TranslationUnit_t* parse(Allocator &al, const std::string &s)
 {
     Parser p(al);
     p.parse(s);
@@ -22,7 +22,7 @@ AST::TranslationUnit_t* parse0(Allocator &al, const std::string &s)
 
 LFortran::AST::ast_t *parse_first(Allocator &al, const std::string &s)
 {
-    AST::TranslationUnit_t* p = parse0(al, s);
+    AST::TranslationUnit_t* p = parse(al, s);
     if (p->n_items >= 1) {
         return p->m_items[0];
     } else {
@@ -53,7 +53,7 @@ LFortran::AST::ast_t *parse2_first(Allocator &al, const std::string &s)
 
 Vec<AST::ast_t*> parsen(Allocator &al, const std::string &s)
 {
-    AST::TranslationUnit_t* p = parse0(al, s);
+    AST::TranslationUnit_t* p = parse(al, s);
     Vec<AST::ast_t*> r;
     r.from_pointer_n(p->m_items, p->n_items);
     return r;
