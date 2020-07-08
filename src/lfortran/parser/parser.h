@@ -32,10 +32,13 @@ private:
 };
 
 // Parses Fortran code to AST
+AST::TranslationUnit_t* parse(Allocator &al, const std::string &s);
+
+// Parses Fortran code to AST, only the first AST node is returned
 LFortran::AST::ast_t *parse_first(Allocator &al, const std::string &s);
 
-// Just like `parse`, but prints a nice error message to std::cout if a syntax
-// error happens:
+// Just like `parse_first`, but prints a nice error message to std::cout if a
+// syntax error happens:
 LFortran::AST::ast_t *parse2_first(Allocator &al, const std::string &s);
 
 // Parse multiple translation units
