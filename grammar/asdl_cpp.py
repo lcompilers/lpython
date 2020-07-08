@@ -446,15 +446,25 @@ class PickleVisitorVisitor(ASDLVisitor):
             else:
                 self.emit(template, level)
         else:
-            if field.type == "identifier" and not field.seq:
-                if field.opt:
-                    self.emit("if (x.m_%s) {" % field.name, 2)
-                    self.emit(    's.append(x.m_%s);' % field.name, 3)
-                    self.emit("} else {", 2)
-                    self.emit(    's.append("()");', 3)
-                    self.emit("}", 2)
+            if field.type == "identifier":
+                if field.seq:
+                    assert not field.opt
+                    level = 2
+                    self.emit('s.append("[");', level)
+                    self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
+                    self.emit("s.append(x.m_%s[i]);" % (field.name), level+1)
+                    self.emit(    'if (i < x.n_%s-1) s.append(" ");' % (field.name), level+1)
+                    self.emit("}", level)
+                    self.emit('s.append("]");', level)
                 else:
-                    self.emit('s.append(x.m_%s);' % field.name, 2)
+                    if field.opt:
+                        self.emit("if (x.m_%s) {" % field.name, 2)
+                        self.emit(    's.append(x.m_%s);' % field.name, 3)
+                        self.emit("} else {", 2)
+                        self.emit(    's.append("()");', 3)
+                        self.emit("}", 2)
+                    else:
+                        self.emit('s.append(x.m_%s);' % field.name, 2)
             elif field.type == "node":
                 assert not field.opt
                 assert field.seq
