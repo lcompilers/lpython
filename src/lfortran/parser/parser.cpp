@@ -72,14 +72,6 @@ LFortran::AST::ast_t *parse2_first(Allocator &al, const std::string &s)
     return result;
 }
 
-Vec<AST::ast_t*> parsen(Allocator &al, const std::string &s)
-{
-    AST::TranslationUnit_t* p = parse(al, s);
-    Vec<AST::ast_t*> r;
-    r.from_pointer_n(p->m_items, p->n_items);
-    return r;
-}
-
 void Parser::parse(const std::string &input)
 {
     inp = input;

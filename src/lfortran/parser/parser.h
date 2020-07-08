@@ -61,9 +61,6 @@ LFortran::AST::ast_t *parse_first(Allocator &al, const std::string &s);
 // syntax error happens:
 LFortran::AST::ast_t *parse2_first(Allocator &al, const std::string &s);
 
-// Parse multiple translation units
-Vec<AST::ast_t*> parsen(Allocator &al, const std::string &s);
-
 } // namespace LFortran
 
 #endif
