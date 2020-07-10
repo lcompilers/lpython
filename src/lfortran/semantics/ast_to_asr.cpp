@@ -40,6 +40,9 @@ public:
         }
     }
 
+    void visit_Subroutine(const AST::Subroutine_t &x) {
+    }
+
     void visit_Function(const AST::Function_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 8, nullptr, 0));
@@ -67,6 +70,9 @@ public:
         for (size_t i=0; i<x.n_items; i++) {
             visit_ast(*x.m_items[i]);
         }
+    }
+
+    void visit_Subroutine(const AST::Subroutine_t &x) {
     }
 
     void visit_Function(const AST::Function_t &x) {
