@@ -85,7 +85,7 @@ sums = []
 products = []
 subs = {}
 
-def convert_type(asdl_type, seq):
+def convert_type(asdl_type, seq, mod_name):
     if asdl_type in simple_sums:
         type_ = asdl_type + "Type"
         assert not seq
@@ -106,7 +106,7 @@ def convert_type(asdl_type, seq):
         if seq:
             type_ = type_ + "*"
     elif asdl_type == "node":
-        type_ = "ast_t*"
+        type_ = "%s_t*" % mod_name
         if seq:
             type_ = type_ + "*"
     elif asdl_type == "int":
@@ -164,6 +164,7 @@ class ASTNodeVisitor1(ASDLVisitor):
         self.emit("/" + "*"*78 + "/")
         self.emit("// Products declarations")
         self.emit("")
+        self.mod = mod
         super(ASTNodeVisitor1, self).visitModule(mod)
 
     def visitType(self, tp):
@@ -173,7 +174,7 @@ class ASTNodeVisitor1(ASDLVisitor):
         self.emit("struct %s_t // Product" % name)
         self.emit("{");
         for f in product.fields:
-            type_ = convert_type(f.type, f.seq)
+            type_ = convert_type(f.type, f.seq, self.mod.name.lower())
             if f.seq:
                 seq = " size_t n_%s; // Sequence" % f.name
             else:
@@ -188,6 +189,7 @@ class ASTNodeVisitor(ASDLVisitor):
         self.emit("/" + "*"*78 + "/")
         self.emit("// Sums declarations")
         self.emit("")
+        self.mod = mod
         super(ASTNodeVisitor, self).visitModule(mod)
 
     def visitType(self, tp):
@@ -219,7 +221,7 @@ class ASTNodeVisitor(ASDLVisitor):
         args = ["Allocator &al", "const Location &a_loc"]
         lines = []
         for f in cons.fields:
-            type_ = convert_type(f.type, f.seq)
+            type_ = convert_type(f.type, f.seq, self.mod.name.lower())
             if f.seq:
                 seq = " size_t n_%s; // Sequence" % f.name
             else:
@@ -373,6 +375,7 @@ class PickleVisitorVisitor(ASDLVisitor):
         self.emit(  "bool use_colors;", 1)
         self.emit("public:")
         self.emit(  "PickleBaseVisitor() : use_colors(false) { s.reserve(100000); }", 1)
+        self.mod = mod
         super(PickleVisitorVisitor, self).visitModule(mod)
         self.emit("};")
 
@@ -471,7 +474,8 @@ class PickleVisitorVisitor(ASDLVisitor):
                 level = 2
                 self.emit('s.append("[");', level)
                 self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
-                self.emit("this->visit_ast(*x.m_%s[i]);" % (field.name), level+1)
+                mod_name = self.mod.name.lower()
+                self.emit("this->visit_%s(*x.m_%s[i]);" % (mod_name, field.name), level+1)
                 self.emit(    'if (i < x.n_%s-1) s.append(" ");' % (field.name), level+1)
                 self.emit("}", level)
                 self.emit('s.append("]");', level)
