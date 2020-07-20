@@ -10,6 +10,8 @@ set(SRC
     semantics/asr_scopes.cpp
     ast_to_src.cpp
     ast_to_cpp.cpp
+    ast_to_cpp_hip.cpp
+    ast_to_openmp.cpp
 )
 if (WITH_JSON)
     set(SRC ${SRC}
