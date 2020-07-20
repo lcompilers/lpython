@@ -148,9 +148,9 @@ int emit_ast_openmp(const std::string &infile)
 
     // Src -> AST
     Allocator al(64*1024*1024);
-    LFortran::Vec<LFortran::AST::ast_t*> ast;
+    LFortran::AST::TranslationUnit_t* ast;
     try {
-        ast = LFortran::parsen2(al, input);
+        ast = LFortran::parse2(al, input);
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
@@ -164,7 +164,7 @@ int emit_ast_openmp(const std::string &infile)
 
     // AST -> Source
     // FIXME: For now we only transform the first node in the list:
-    std::string source = LFortran::ast_to_openmp(*ast[0]);
+    std::string source = LFortran::ast_to_openmp(*ast->m_items[0]);
 
     std::cout << source << std::endl;
     return 0;
