@@ -509,7 +509,7 @@ public:
         newkernel.append(loopsize);
         //WIP the function inputs are hard coded right now
         //Will need to go into x.m_body and find all variables used
-        newkernel += ", double scalar, double *a, double *b, double *c";
+        newkernel += ", double scalar, float *a, float *b, float *c";
         newkernel += "){\n";
         //WIP assuming the index must be defined this way.
         newkernel += "    int ";
