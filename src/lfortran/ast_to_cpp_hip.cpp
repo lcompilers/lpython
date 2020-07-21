@@ -32,6 +32,7 @@ class ASTToCPPHIPVisitor : public BaseVisitor<ASTToCPPHIPVisitor>
 {
 public:
     std::string s;
+    std::string kernels; //Keeps track of new kernel function. Is there a more elegant solution?
     bool use_colors;
     int indent_level;
     int n_params, current_param;
@@ -153,7 +154,7 @@ public:
         }
         r.append("}\n");
         indent_level -= 4;
-        s = r;
+        s = kernels + r;
     }
     void visit_Function(const Function_t &x) {
         std::string r = "";
@@ -494,7 +495,101 @@ public:
     }
     void visit_DoConcurrentLoop(const DoConcurrentLoop_t &x) {
         std::string r;
+
+        //Create new kernel function from body of do concurrent loop
+        //Will be placed at the start
+        std::string newkernel;
+        newkernel = "//WIP the function inputs are hard coded\n";
+        newkernel += "__global__ void TEMPKERNELNAME(";
+        LFORTRAN_ASSERT(x.m_var)
+        LFORTRAN_ASSERT(x.m_end)
+        this->visit_expr(*x.m_end);
+        std::string loopsize = s;
+        newkernel.append(loopsize);
+        //WIP the function inputs are hard coded right now
+        //Will need to go into x.m_body and find all variables used
+        newkernel += ", double scalar, double *a, double *b, double *c";
+        newkernel += "){\n";
+        //WIP assuming the index must be defined this way.
+        newkernel += "    int ";
+        newkernel.append(x.m_var);
+        newkernel += " = blockIDx.x*blockDim.x+threadIdx.x;\n";
+        newkernel += "    if (";
+        newkernel.append(x.m_var);
+        newkernel += " >= ";
+        newkernel.append(loopsize);
+        newkernel += ") return;\n";
+        int oldindent = indent_level;
+        indent_level = 4;
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            newkernel.append(s);
+            newkernel.append(";\n");
+        }
+        indent_level = oldindent;
+        newkernel += "}\n\n";
+
+        //Setting up device memory and calling the kernel
         for (int i=0; i < indent_level; i++) r.append(" ");
+        r.append("int blocksize = 512;\n");
+        for (int i=0; i < indent_level; i++) r.append(" ");
+        r.append("int gridsize = (");
+        r.append(loopsize);
+        r.append(" + blocksize - 1)/blocksize;\n");
+
+        //In order to copy data from host to device we will need all the
+        //variables used in the kernel. Hard code for now.
+        std::string variables[3] = { "a", "b", "c" };
+        std::string pbv_variables[1] = { "scalar" }; //Pass_by_value variables
+        bool copy_to_device[3] = { true, true, false };
+        for (int i = 0; i < 3; i++)
+        {
+            for (int i=0; i < indent_level; i++) r.append(" ");
+            r.append("double *");
+            r.append(variables[i]);
+            r.append("_d;\n");
+            for (int i=0; i < indent_level; i++) r.append(" ");
+            r.append("hipMalloc(&");
+            r.append(variables[i]);
+            r.append("_d, ");
+            r.append(loopsize);
+            r.append("*sizeof(double));\n");
+            if (copy_to_device[i])
+            {
+                for (int i=0; i < indent_level; i++) r.append(" ");
+                r.append("hipMemcpy(");
+                r.append(variables[i]);
+                r.append("_d, ");
+                r.append(variables[i]);
+                r.append(", ");
+                r.append(loopsize);
+                r.append("*sizeof(double), hipMemcpyHostToDevice);\n");
+            }
+        }
+        for (int i=0; i < indent_level; i++) r.append(" ");
+        r.append("hipLaunchKernelGGL(");
+        r.append("TEMPKERNELNAME");
+        r.append(", dim3(gridsize), dim3(blocksize), 0, 0, ");
+        r.append(loopsize);
+        for (int i = 0; i < 1; i++)
+        {
+            r.append(", ");
+            r.append(pbv_variables[i]);
+        }
+        for (int i = 0; i < 3; i++)
+        {
+            r.append(", ");
+            r.append(variables[i]);
+            r.append("_d");
+        }
+        r.append(");\n");
+        s = r;
+        kernels = newkernel + kernels;
+
+
+
+
+/*        for (int i=0; i < indent_level; i++) r.append(" ");
         LFORTRAN_ASSERT(x.m_var)
         LFORTRAN_ASSERT(x.m_end)
         r += "Kokkos::parallel_for(";
@@ -513,7 +608,7 @@ public:
         indent_level -= 4;
         for (int i=0; i < indent_level; i++) r.append(" ");
         r.append("});");
-        s = r;
+        s = r;*/
     }
     void visit_Select(const Select_t &x) {
         s.append("(");
