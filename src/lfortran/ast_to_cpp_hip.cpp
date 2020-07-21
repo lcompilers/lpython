@@ -505,6 +505,7 @@ public:
         LFORTRAN_ASSERT(x.m_end)
         this->visit_expr(*x.m_end);
         std::string loopsize = s;
+        newkernel.append("int ");
         newkernel.append(loopsize);
         //WIP the function inputs are hard coded right now
         //Will need to go into x.m_body and find all variables used
