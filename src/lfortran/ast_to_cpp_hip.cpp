@@ -823,7 +823,8 @@ public:
         // for this)
         if (std::string(x.m_func) == "size") {
             // TODO: Hardwire the correct result for now:
-            r = "a.extent(0);";
+            //r = "a.extent(0);";
+            r = "sizeof(a)/sizeof(float);";
         } else {
             r.append(x.m_func);
             r.append("[");
@@ -939,10 +940,12 @@ public:
                 if (x.n_dims == 0) {
                     r.append("float ");
                 } else {
-                    r.append("const Kokkos::View<const float*> & ");
+                    //r.append("const Kokkos::View<const float*> & ");
+                    r.append("float *");
                 }
             } else {
-                r.append("const Kokkos::View<float*> & ");
+                //r.append("const Kokkos::View<float*> & ");
+                r.append("float *");
             }
             r.append(x.m_sym);
         }
