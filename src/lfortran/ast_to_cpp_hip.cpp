@@ -522,9 +522,11 @@ public:
         std::vector<std::string> pbvvariables;
         std::vector<std::string> variables;
         std::unordered_set<std::string> :: iterator itr;
+        std::string iteratorvar = x.m_var;
         for (itr = pbvvars_set.begin(); itr != pbvvars_set.end(); itr++)
         {
-            pbvvariables.push_back(*itr);
+            if (iteratorvar.compare(*itr) != 0)
+               pbvvariables.push_back(*itr);
         }
         for (itr = vars_set.begin(); itr != vars_set.end(); itr++)
         {
