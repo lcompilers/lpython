@@ -495,6 +495,12 @@ public:
     }
     void visit_DoConcurrentLoop(const DoConcurrentLoop_t &x) {
         std::string r;
+ 
+        //In order to copy data from host to device we will need all the
+        //variables used in the kernel. Hard code for now.
+        std::string variables[3] = { "a", "b", "c" };
+        std::string pbv_variables[1] = { "scalar" }; //Pass_by_value variables
+        bool copy_to_device[3] = { true, true, false };
 
         //Create new kernel function from body of do concurrent loop
         //Will be placed at the start
@@ -509,7 +515,16 @@ public:
         newkernel.append(loopsize);
         //WIP the function inputs are hard coded right now
         //Will need to go into x.m_body and find all variables used
-        newkernel += ", double scalar, float *a, float *b, float *c";
+        for (int i = 0; i < (int)(sizeof(pbv_variables)/sizeof(std::string)); i++)
+        {
+            newkernel.append(", float ");
+            newkernel.append(pbv_variables[i]);
+        }
+        for (int i = 0; i < (int)(sizeof(variables)/sizeof(std::string)); i++)
+        {
+            newkernel.append(", float *");
+            newkernel.append(variables[i]);
+        }
         newkernel += "){\n";
         //WIP assuming the index must be defined this way.
         newkernel += "    int ";
@@ -520,6 +535,7 @@ public:
         newkernel += " >= ";
         newkernel.append(loopsize);
         newkernel += ") return;\n";
+        //Put the do concurrent body in the kernel
         int oldindent = indent_level;
         indent_level = 4;
         for (size_t i=0; i<x.n_body; i++) {
@@ -537,16 +553,10 @@ public:
         r.append("int gridsize = (");
         r.append(loopsize);
         r.append(" + blocksize - 1)/blocksize;\n");
-
-        //In order to copy data from host to device we will need all the
-        //variables used in the kernel. Hard code for now.
-        std::string variables[3] = { "a", "b", "c" };
-        std::string pbv_variables[1] = { "scalar" }; //Pass_by_value variables
-        bool copy_to_device[3] = { true, true, false };
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < (int)(sizeof(variables)/sizeof(std::string)); i++)
         {
             for (int i=0; i < indent_level; i++) r.append(" ");
-            r.append("double *");
+            r.append("float *");
             r.append(variables[i]);
             r.append("_d;\n");
             for (int i=0; i < indent_level; i++) r.append(" ");
@@ -554,7 +564,7 @@ public:
             r.append(variables[i]);
             r.append("_d, ");
             r.append(loopsize);
-            r.append("*sizeof(double));\n");
+            r.append("*sizeof(float));\n");
             if (copy_to_device[i])
             {
                 for (int i=0; i < indent_level; i++) r.append(" ");
@@ -564,7 +574,7 @@ public:
                 r.append(variables[i]);
                 r.append(", ");
                 r.append(loopsize);
-                r.append("*sizeof(double), hipMemcpyHostToDevice);\n");
+                r.append("*sizeof(float), hipMemcpyHostToDevice);\n");
             }
         }
         for (int i=0; i < indent_level; i++) r.append(" ");
@@ -572,12 +582,12 @@ public:
         r.append("TEMPKERNELNAME");
         r.append(", dim3(gridsize), dim3(blocksize), 0, 0, ");
         r.append(loopsize);
-        for (int i = 0; i < 1; i++)
+        for (int i = 0; i < (int)(sizeof(pbv_variables)/sizeof(std::string)); i++)
         {
             r.append(", ");
             r.append(pbv_variables[i]);
         }
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < (int)(sizeof(variables)/sizeof(std::string)); i++)
         {
             r.append(", ");
             r.append(variables[i]);
