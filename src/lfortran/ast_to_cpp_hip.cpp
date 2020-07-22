@@ -1,4 +1,6 @@
 #include <lfortran/ast_to_cpp_hip.h>
+#include <vector>
+#include <unordered_set>
 
 using LFortran::AST::expr_t;
 using LFortran::AST::Name_t;
@@ -33,6 +35,8 @@ class ASTToCPPHIPVisitor : public BaseVisitor<ASTToCPPHIPVisitor>
 public:
     std::string s;
     std::string kernels; //Keeps track of new kernel function. Is there a more elegant solution?
+    std::vector<std::string> pbvvars; //Temporary solution. Keeps track of pass-by-value variables.
+    std::vector<std::string> vars; //Temporary solution. Keeps track of pointers/arrays for now.
     bool use_colors;
     int indent_level;
     int n_params, current_param;
@@ -495,17 +499,62 @@ public:
     }
     void visit_DoConcurrentLoop(const DoConcurrentLoop_t &x) {
         std::string r;
- 
+        std::string body = "";
+        std::string newkernel = "";
+
+        pbvvars.clear();
+        vars.clear();
+        //Get the text for the body. This is done at the start so
+        //that the variables get found.
+        int oldindent = indent_level;
+        indent_level = 4;
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            body.append(s);
+            body.append(";\n");
+        }
+        indent_level = oldindent;
+        //Make copy of variable arrays and remove duplicates
+        std::unordered_set<std::string> pbvvars_set;
+        std::unordered_set<std::string> vars_set;
+        pbvvars_set.insert(pbvvars.begin(), pbvvars.end());
+        vars_set.insert(vars.begin(), vars.end());
+        std::vector<std::string> pbvvariables;
+        std::vector<std::string> variables;
+        std::unordered_set<std::string> :: iterator itr;
+        for (itr = pbvvars_set.begin(); itr != pbvvars_set.end(); itr++)
+        {
+            pbvvariables.push_back(*itr);
+        }
+        for (itr = vars_set.begin(); itr != vars_set.end(); itr++)
+        {
+            variables.push_back(*itr);
+        }
+        //Print out variables as an example
+        newkernel += "//Pass by value variables found in the loop body: ";
+        for (int i = 0; i < (int)pbvvariables.size(); i++)
+        {
+            newkernel.append(" ");
+            newkernel.append(pbvvariables[i]);
+        }
+        newkernel.append("\n");
+        newkernel += "//Pass by reference variables found in the loop body: ";
+        for (int i = 0; i < (int)variables.size(); i++)
+        {
+            newkernel.append(" ");
+            newkernel.append(variables[i]);
+        }
+        newkernel.append("\n");
+
         //In order to copy data from host to device we will need all the
         //variables used in the kernel. Hard code for now.
-        std::string variables[3] = { "a", "b", "c" };
-        std::string pbv_variables[1] = { "scalar" }; //Pass_by_value variables
-        bool copy_to_device[3] = { true, true, false };
+        //std::string variables[3] = { "a", "b", "c" };
+        //std::string pbv_variables[1] = { "scalar" }; //Pass_by_value variables
+        //bool copy_to_device[3] = { true, true, false };
 
         //Create new kernel function from body of do concurrent loop
         //Will be placed at the start
-        std::string newkernel;
-        newkernel = "//WIP the function inputs are hard coded\n";
+        //newkernel += "//WIP the function inputs are hard coded\n";
         newkernel += "__global__ void TEMPKERNELNAME(";
         LFORTRAN_ASSERT(x.m_var)
         LFORTRAN_ASSERT(x.m_end)
@@ -513,14 +562,12 @@ public:
         std::string loopsize = s;
         newkernel.append("int ");
         newkernel.append(loopsize);
-        //WIP the function inputs are hard coded right now
-        //Will need to go into x.m_body and find all variables used
-        for (int i = 0; i < (int)(sizeof(pbv_variables)/sizeof(std::string)); i++)
+        for (int i = 0; i < (int)pbvvariables.size(); i++)
         {
             newkernel.append(", float ");
-            newkernel.append(pbv_variables[i]);
+            newkernel.append(pbvvariables[i]);
         }
-        for (int i = 0; i < (int)(sizeof(variables)/sizeof(std::string)); i++)
+        for (int i = 0; i < (int)variables.size(); i++)
         {
             newkernel.append(", float *");
             newkernel.append(variables[i]);
@@ -535,14 +582,7 @@ public:
         newkernel += " >= ";
         newkernel.append(loopsize);
         newkernel += ") return;\n";
-        //Put the do concurrent body in the kernel
-        int oldindent = indent_level;
-        indent_level = 4;
-        for (size_t i=0; i<x.n_body; i++) {
-            this->visit_stmt(*x.m_body[i]);
-            newkernel.append(s);
-            newkernel.append(";\n");
-        }
+        newkernel.append(body);
         indent_level = oldindent;
         newkernel += "}\n\n";
 
@@ -553,7 +593,7 @@ public:
         r.append("int gridsize = (");
         r.append(loopsize);
         r.append(" + blocksize - 1)/blocksize;\n");
-        for (int i = 0; i < (int)(sizeof(variables)/sizeof(std::string)); i++)
+        for (int i = 0; i < (int)variables.size(); i++)
         {
             for (int i=0; i < indent_level; i++) r.append(" ");
             r.append("float *");
@@ -565,7 +605,8 @@ public:
             r.append("_d, ");
             r.append(loopsize);
             r.append("*sizeof(float));\n");
-            if (copy_to_device[i])
+            //if (copy_to_device[i])
+            if (true)
             {
                 for (int i=0; i < indent_level; i++) r.append(" ");
                 r.append("hipMemcpy(");
@@ -582,12 +623,12 @@ public:
         r.append("TEMPKERNELNAME");
         r.append(", dim3(gridsize), dim3(blocksize), 0, 0, ");
         r.append(loopsize);
-        for (int i = 0; i < (int)(sizeof(pbv_variables)/sizeof(std::string)); i++)
+        for (int i = 0; i < (int)pbvvariables.size(); i++)
         {
             r.append(", ");
-            r.append(pbv_variables[i]);
+            r.append(pbvvariables[i]);
         }
-        for (int i = 0; i < (int)(sizeof(variables)/sizeof(std::string)); i++)
+        for (int i = 0; i < (int)variables.size(); i++)
         {
             r.append(", ");
             r.append(variables[i]);
@@ -596,30 +637,6 @@ public:
         r.append(");\n");
         s = r;
         kernels = newkernel + kernels;
-
-
-
-
-/*        for (int i=0; i < indent_level; i++) r.append(" ");
-        LFORTRAN_ASSERT(x.m_var)
-        LFORTRAN_ASSERT(x.m_end)
-        r += "Kokkos::parallel_for(";
-        this->visit_expr(*x.m_end);
-        r.append(s);
-
-        r.append(", KOKKOS_LAMBDA(const long ");
-        r.append(x.m_var);
-        r.append(") {\n");
-        indent_level += 4;
-        for (size_t i=0; i<x.n_body; i++) {
-            this->visit_stmt(*x.m_body[i]);
-            r.append(s);
-            r.append(";\n");
-        }
-        indent_level -= 4;
-        for (int i=0; i < indent_level; i++) r.append(" ");
-        r.append("});");
-        s = r;*/
     }
     void visit_Select(const Select_t &x) {
         s.append("(");
@@ -838,6 +855,7 @@ public:
             r = "sizeof(a)/sizeof(float);";
         } else {
             r.append(x.m_func);
+            vars.push_back(x.m_func);
             r.append("[");
             for (size_t i=0; i<x.n_args; i++) {
                 this->visit_expr(*x.m_args[i]);
@@ -920,6 +938,7 @@ public:
     }
     void visit_Name(const Name_t &x) {
         s = std::string(x.m_id);
+        pbvvars.push_back(s);
     }
     void visit_Constant(const Constant_t &x) {
         s.append("(");
