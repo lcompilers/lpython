@@ -1,8 +1,10 @@
 #include <iostream>
+#include <map>
 #include <memory>
 
 #include <lfortran/ast.h>
 #include <lfortran/asr.h>
+#include <lfortran/pickle.h>
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/parser/parser_stype.h>
 
@@ -27,11 +29,19 @@ static inline ASR::ttype_t* TYPE(const ASR::asr_t *f)
     return (ASR::ttype_t*)f;
 }
 
-class SymbolTableVisitor : public AST::BaseVisitor<SymbolTableVisitor>
+struct Symbol
+{
+    char* name;
+    int type; // 1 = real, 2 = integer
+    bool dummy;
+};
+
+class SymbolTableVisitor : public AST::BaseWalkVisitor<SymbolTableVisitor>
 {
 public:
     ASR::asr_t *asr;
     Allocator &al;
+    std::map<std::string, Symbol> subroutine_scope;
     SymbolTableVisitor(Allocator &al) : al{al} {}
 
     void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
@@ -42,6 +52,50 @@ public:
     }
 
     void visit_Subroutine(const AST::Subroutine_t &x) {
+        // TODO: put this Subroutine into TranslationUnit's symbol table
+        for (size_t i=0; i<x.n_decl; i++) {
+            std::cout << "decl2" << std::endl;
+            visit_unit_decl2(*x.m_decl[i]);
+        }
+        std::cout << "Subroutine finished:" << std::endl;
+        std::cout << pickle((AST::ast_t&)(x)) << std::endl;
+        std::cout << "Symbol table:" << std::endl;
+        for (auto &a : subroutine_scope) {
+            std::cout << "    " << a.first << " " << a.second.type << std::endl;
+        }
+        std::cout << "S";
+    }
+
+    void visit_decl(const AST::decl_t &x) {
+        std::string sym = x.m_sym;
+        std::string sym_type = x.m_sym_type;
+        if (subroutine_scope.find(sym) == subroutine_scope.end()) {
+            Symbol s;
+            s.name = x.m_sym;
+            if (sym_type == "integer") {
+                s.type = 2;
+            } else if (sym_type == "real") {
+                s.type = 1;
+            } else {
+                Location loc;
+                // TODO: decl_t does not have location information...
+                loc.first_column = 0;
+                loc.first_line = 0;
+                loc.last_column = 0;
+                loc.last_line = 0;
+                throw SemanticError("Unsupported type", loc);
+            }
+            subroutine_scope[sym] = s;
+
+        }
+        std::cout << "D(";
+        std::cout << x.m_sym << " ";
+        std::cout << x.m_sym_type;
+        std::cout << ")D" << std::endl;
+        // self.visit_sequence(node.dims)
+        // self.visit_sequence(node.attrs)
+        //if node.initializer:
+        //    this->visit_expr(*x.m_initializer);
     }
 
     void visit_Function(const AST::Function_t &x) {
