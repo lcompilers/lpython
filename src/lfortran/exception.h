@@ -10,7 +10,8 @@ typedef enum {
     LFORTRAN_RUNTIME_ERROR = 1,
     LFORTRAN_TOKENIZER_ERROR = 2,
     LFORTRAN_PARSER_ERROR = 3,
-    LFORTRAN_CODEGEN_ERROR = 4,
+    LFORTRAN_SEMANTIC_ERROR = 4,
+    LFORTRAN_CODEGEN_ERROR = 5,
 } lfortran_exceptions_t;
 
 #ifdef __cplusplus
@@ -77,6 +78,17 @@ public:
 public:
     ParserError(const std::string &msg, const Location &loc, const int token)
         : LFortranException(msg, LFORTRAN_PARSER_ERROR), loc{loc}, token{token}
+    {
+    }
+};
+
+class SemanticError : public LFortranException
+{
+public:
+    Location loc;
+public:
+    SemanticError(const std::string &msg, const Location &loc)
+        : LFortranException(msg, LFORTRAN_SEMANTIC_ERROR), loc{loc}
     {
     }
 };
