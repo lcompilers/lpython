@@ -33,7 +33,7 @@ struct Symbol
 {
     char* name;
     int type; // 1 = real, 2 = integer
-    bool dummy;
+    int intent; // 0 = local variable, >0 dummy: 1 = in, 2 = out, 3 = inout
 };
 
 class SymbolTableVisitor : public AST::BaseWalkVisitor<SymbolTableVisitor>
@@ -61,7 +61,7 @@ public:
         std::cout << pickle((AST::ast_t&)(x)) << std::endl;
         std::cout << "Symbol table:" << std::endl;
         for (auto &a : subroutine_scope) {
-            std::cout << "    " << a.first << " " << a.second.type << std::endl;
+            std::cout << "    " << a.first << " " << a.second.type << " " << a.second.intent << std::endl;
         }
         std::cout << "S";
     }
@@ -84,6 +84,38 @@ public:
                 loc.last_column = 0;
                 loc.last_line = 0;
                 throw SemanticError("Unsupported type", loc);
+            }
+            s.intent = 0;
+            if (x.n_attrs > 0) {
+                AST::Attribute_t *a = (AST::Attribute_t*)(x.m_attrs[0]);
+                if (std::string(a->m_name) == "intent") {
+                    if (a->n_args > 0) {
+                        std::string intent = std::string(a->m_args[0].m_arg);
+                        if (intent == "in") {
+                            s.intent = 1;
+                        } else if (intent == "out") {
+                            s.intent = 2;
+                        } else if (intent == "inout") {
+                            s.intent = 3;
+                        } else {
+                            Location loc;
+                            // TODO: decl_t does not have location information...
+                            loc.first_column = 0;
+                            loc.first_line = 0;
+                            loc.last_column = 0;
+                            loc.last_line = 0;
+                            throw SemanticError("Incorrect intent specifier", loc);
+                        }
+                    } else {
+                        Location loc;
+                        // TODO: decl_t does not have location information...
+                        loc.first_column = 0;
+                        loc.first_line = 0;
+                        loc.last_column = 0;
+                        loc.last_line = 0;
+                        throw SemanticError("intent() is empty. Must specify intent", loc);
+                    }
+                }
             }
             subroutine_scope[sym] = s;
 
