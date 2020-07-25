@@ -57,6 +57,15 @@ public:
             std::cout << "decl2" << std::endl;
             visit_unit_decl2(*x.m_decl[i]);
         }
+        asr = ASR::make_Subroutine_t(
+            al, x.base.base.loc,
+            /* a_name */ x.m_name,
+            /* a_args */ nullptr,
+            /* n_args */ 0,
+            /* a_body */ nullptr,
+            /* n_body */ 0,
+            /* a_bind */ nullptr,
+            /* a_symtab */ 0);
         std::cout << "Subroutine finished:" << std::endl;
         std::cout << pickle((AST::ast_t&)(x)) << std::endl;
         std::cout << "Symbol table:" << std::endl;
