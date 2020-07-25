@@ -324,11 +324,6 @@ class ASTWalkVisitorVisitor(ASDLVisitor):
         self.emit("class BaseWalkVisitor : public BaseVisitor<Derived>")
         self.emit("{")
         self.emit("public:")
-        self.emit("    void visit_sequence(size_t n, const %(mod)s_t *x) {" % subs)
-        self.emit("        for (size_t i=0; i<n; i++) {")
-        self.emit("            this->visit_ast(x[i]);")
-        self.emit("        }")
-        self.emit("    }")
         super(ASTWalkVisitorVisitor, self).visitModule(mod)
         self.emit("};")
 
@@ -359,8 +354,13 @@ class ASTWalkVisitorVisitor(ASDLVisitor):
             else:
                 template = "this->visit_%s(*x.m_%s);" % (field.type, field.name)
             if field.seq:
-                template = "this->visit_sequence(x.n_%s, (%s_t*)x.m_%s);" \
-                    % (field.name, subs["mod"], field.name)
+                self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
+                if field.type in products:
+                    self.emit("    this->visit_%s(x.m_%s[i]);" % (field.type, field.name), level)
+                else:
+                    self.emit("    this->visit_%s(*x.m_%s[i]);" % (field.type, field.name), level)
+                self.emit("}", level)
+                return
             elif field.opt:
                 self.emit("//if node.%s:" % field.name, 2)
                 level = 3
