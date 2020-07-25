@@ -323,6 +323,8 @@ class ASTWalkVisitorVisitor(ASDLVisitor):
         self.emit("template <class Derived>")
         self.emit("class BaseWalkVisitor : public BaseVisitor<Derived>")
         self.emit("{")
+        self.emit("private:")
+        self.emit("    Derived& self() { return static_cast<Derived&>(*this); }")
         self.emit("public:")
         super(ASTWalkVisitorVisitor, self).visitModule(mod)
         self.emit("};")
@@ -350,15 +352,15 @@ class ASTWalkVisitorVisitor(ASDLVisitor):
             field.type not in self.data.simple_types):
             level = 2
             if field.type in products:
-                template = "this->visit_%s(x.m_%s);" % (field.type, field.name)
+                template = "self().visit_%s(x.m_%s);" % (field.type, field.name)
             else:
-                template = "this->visit_%s(*x.m_%s);" % (field.type, field.name)
+                template = "self().visit_%s(*x.m_%s);" % (field.type, field.name)
             if field.seq:
                 self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
                 if field.type in products:
-                    self.emit("    this->visit_%s(x.m_%s[i]);" % (field.type, field.name), level)
+                    self.emit("    self().visit_%s(x.m_%s[i]);" % (field.type, field.name), level)
                 else:
-                    self.emit("    this->visit_%s(*x.m_%s[i]);" % (field.type, field.name), level)
+                    self.emit("    self().visit_%s(*x.m_%s[i]);" % (field.type, field.name), level)
                 self.emit("}", level)
                 return
             elif field.opt:
