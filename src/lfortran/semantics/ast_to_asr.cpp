@@ -66,6 +66,8 @@ public:
             /* n_body */ 0,
             /* a_bind */ nullptr,
             /* a_symtab */ 0);
+        // TODO: change a_symtab from an integer to std::map and put
+        // subroutine_scope in it here.
         std::cout << "Subroutine finished:" << std::endl;
         std::cout << pickle((AST::ast_t&)(x)) << std::endl;
         std::cout << "Symbol table:" << std::endl;
