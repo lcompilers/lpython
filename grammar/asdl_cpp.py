@@ -362,7 +362,7 @@ class ASTWalkVisitorVisitor(ASDLVisitor):
                 self.emit("}", level)
                 return
             elif field.opt:
-                self.emit("//if node.%s:" % field.name, 2)
+                self.emit("if (x.m_%s)" % field.name, 2)
                 level = 3
             self.emit(template, level)
 
