@@ -34,6 +34,7 @@ class SymbolTableVisitor : public AST::BaseWalkVisitor<SymbolTableVisitor>
 public:
     ASR::asr_t *asr;
     Allocator &al;
+    TranslationUnitScope translation_unit_scope;
     SubroutineScope subroutine_scope;
 
     SymbolTableVisitor(Allocator &al) : al{al} {}
@@ -42,7 +43,8 @@ public:
         for (size_t i=0; i<x.n_items; i++) {
             visit_ast(*x.m_items[i]);
         }
-        asr = ASR::make_TranslationUnit_t(al, x.base.base.loc, 0, 0, 0);
+        asr = ASR::make_TranslationUnit_t(al, x.base.base.loc,
+            translation_unit_scope, 0, 0);
     }
 
     void visit_Subroutine(const AST::Subroutine_t &x) {

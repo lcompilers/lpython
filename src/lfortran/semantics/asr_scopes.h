@@ -5,6 +5,16 @@
 
 namespace LFortran  {
 
+struct TranslationUnitSymbol
+{
+    char* name;
+    // Currently only Subroutines
+};
+
+struct TranslationUnitScope {
+    std::map<std::string, TranslationUnitSymbol> scope;
+};
+
 struct SubroutineSymbol
 {
     char* name;
