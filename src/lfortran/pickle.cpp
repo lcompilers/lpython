@@ -169,6 +169,39 @@ public:
     std::string get_str() {
         return s;
     }
+
+    void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
+        s.append("(");
+        if (use_colors) {
+            s.append(color(style::bold));
+            s.append(color(fg::magenta));
+        }
+        s.append("TranslationUnit");
+        if (use_colors) {
+            s.append(color(fg::reset));
+            s.append(color(style::reset));
+        }
+        s.append(" ");
+        s.append("{");
+        {
+            size_t i = 0;
+            for (auto &a : x.m_global_scope.scope) {
+                s.append(a.first + ": ");
+                this->visit_asr(*a.second.node);
+                if (i < x.m_global_scope.scope.size()-1) s.append(", ");
+                i++;
+            }
+        }
+        s.append("}");
+        s.append(" ");
+        s.append("[");
+        for (size_t i=0; i<x.n_items; i++) {
+            this->visit_asr(*x.m_items[i]);
+            if (i < x.n_items-1) s.append(" ");
+        }
+        s.append("]");
+        s.append(")");
+    }
 };
 
 std::string pickle(LFortran::ASR::asr_t &asr, bool colors) {
