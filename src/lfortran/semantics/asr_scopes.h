@@ -9,13 +9,8 @@ namespace ASR {
     struct asr_t;
 }
 
-struct TranslationUnitSymbol
-{
-    ASR::asr_t *node;
-};
-
 struct TranslationUnitScope {
-    std::map<std::string, TranslationUnitSymbol> scope;
+    std::map<std::string, ASR::asr_t*> scope;
 };
 
 struct SubroutineSymbol

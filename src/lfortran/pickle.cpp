@@ -187,7 +187,7 @@ public:
             size_t i = 0;
             for (auto &a : x.m_global_scope.scope) {
                 s.append(a.first + ": ");
-                this->visit_asr(*a.second.node);
+                this->visit_asr(*a.second);
                 if (i < x.m_global_scope.scope.size()-1) s.append(", ");
                 i++;
             }

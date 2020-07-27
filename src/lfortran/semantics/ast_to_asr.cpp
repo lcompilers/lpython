@@ -71,13 +71,11 @@ public:
             std::cout << "    " << a.first << " " << a.second.type << " " << a.second.intent << std::endl;
         }
         std::cout << "S";
-        TranslationUnitSymbol s;
-        s.node = asr;
         std::string sym_name = x.m_name;
         if (translation_unit_scope.scope.find(sym_name) != translation_unit_scope.scope.end()) {
-            throw SemanticError("Subroutine already defined", s.node->loc);
+            throw SemanticError("Subroutine already defined", asr->loc);
         }
-        translation_unit_scope.scope[sym_name] = s;
+        translation_unit_scope.scope[sym_name] = asr;
     }
 
     void visit_decl(const AST::decl_t &x) {
