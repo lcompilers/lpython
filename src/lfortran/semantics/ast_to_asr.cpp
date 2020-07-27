@@ -73,8 +73,10 @@ public:
         std::cout << "S";
         TranslationUnitSymbol s;
         s.node = asr;
-        // TODO: check if it already exists
         std::string sym_name = x.m_name;
+        if (translation_unit_scope.scope.find(sym_name) != translation_unit_scope.scope.end()) {
+            throw SemanticError("Subroutine already defined", s.node->loc);
+        }
         translation_unit_scope.scope[sym_name] = s;
     }
 
