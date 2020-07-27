@@ -158,6 +158,10 @@ public:
         }
         r.append("}\n");
         indent_level -= 4;
+        if (kernels.length() > 0)
+        {
+            kernels = "#define blocksize 512\n\n" + kernels;
+        }
         s = kernels + r;
     }
     void visit_Function(const Function_t &x) {
@@ -589,8 +593,8 @@ public:
         newkernel += "}\n\n";
 
         //Setting up device memory and calling the kernel
-        for (int i=0; i < indent_level; i++) r.append(" ");
-        r.append("int blocksize = 512;\n");
+        //for (int i=0; i < indent_level; i++) r.append(" ");
+        //r.append("int blocksize = 512;\n");
         for (int i=0; i < indent_level; i++) r.append(" ");
         r.append("int gridsize = (");
         r.append(loopsize);
