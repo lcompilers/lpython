@@ -71,6 +71,11 @@ public:
             std::cout << "    " << a.first << " " << a.second.type << " " << a.second.intent << std::endl;
         }
         std::cout << "S";
+        TranslationUnitSymbol s;
+        s.name = x.m_name;
+        // TODO: check if it already exists
+        std::string sym_name = x.m_name;
+        translation_unit_scope.scope[sym_name] = s;
     }
 
     void visit_decl(const AST::decl_t &x) {
