@@ -37,6 +37,7 @@ public:
     std::string kernels; //Keeps track of new kernel function. Is there a more elegant solution?
     std::vector<std::string> pbvvars; //Temporary solution. Keeps track of pass-by-value variables.
     std::vector<std::string> vars; //Temporary solution. Keeps track of pointers/arrays for now.
+    std::vector<std::string> createdvars; //Stores the newly created variables. Used so that a name is not repeated
     bool use_colors;
     int indent_level;
     int n_params, current_param;
@@ -501,6 +502,16 @@ public:
         r.append("end do");
         s = r;
     }
+    std::string CreateVariable(std::string name) {
+        int endingnumber = 0;
+        for (size_t i=0; i<createdvars.size(); i++)
+        {
+            if (createdvars[i].compare(endingnumber == 0 ? name : (name + std::to_string(endingnumber))) == 0)
+                endingnumber++;
+        }
+        createdvars.push_back(endingnumber == 0 ? name : (name + std::to_string(endingnumber)));
+        return endingnumber == 0 ? name : (name + std::to_string(endingnumber));
+    }
     void visit_DoConcurrentLoop(const DoConcurrentLoop_t &x) {
         std::string r;
         std::string body = "";
@@ -552,16 +563,10 @@ public:
         }
         newkernel.append("\n");
 
-        //In order to copy data from host to device we will need all the
-        //variables used in the kernel. Hard code for now.
-        //std::string variables[3] = { "a", "b", "c" };
-        //std::string pbv_variables[1] = { "scalar" }; //Pass_by_value variables
-        //bool copy_to_device[3] = { true, true, false };
-
         //Create new kernel function from body of do concurrent loop
         //Will be placed at the start
-        //newkernel += "//WIP the function inputs are hard coded\n";
-        newkernel += "__global__ void TEMPKERNELNAME(";
+        std::string kernel_name = CreateVariable("Tempkernelname");
+        newkernel += "__global__ void " + kernel_name + "(";
         LFORTRAN_ASSERT(x.m_var)
         LFORTRAN_ASSERT(x.m_end)
         this->visit_expr(*x.m_end);
@@ -593,41 +598,40 @@ public:
         newkernel += "}\n\n";
 
         //Setting up device memory and calling the kernel
-        //for (int i=0; i < indent_level; i++) r.append(" ");
-        //r.append("int blocksize = 512;\n");
+        std::string gridsize = CreateVariable("gridsize");
         for (int i=0; i < indent_level; i++) r.append(" ");
-        r.append("int gridsize = (");
+        r.append("int " + gridsize + " = (");
         r.append(loopsize);
         r.append(" + blocksize - 1)/blocksize;\n");
+        std::vector<std::string> devicevars;
         for (int i = 0; i < (int)variables.size(); i++)
         {
+            std::string newvariable = CreateVariable(variables[i] + "_d");
+            devicevars.push_back(newvariable);
+
             for (int i=0; i < indent_level; i++) r.append(" ");
             r.append("float *");
-            r.append(variables[i]);
-            r.append("_d;\n");
+            r.append(newvariable);
+            r.append(";\n");
             for (int i=0; i < indent_level; i++) r.append(" ");
             r.append("hipMalloc(&");
-            r.append(variables[i]);
-            r.append("_d, ");
+            r.append(newvariable);
+            r.append(", ");
             r.append(loopsize);
             r.append("*sizeof(float));\n");
-            //if (copy_to_device[i])
-            if (true)
-            {
-                for (int i=0; i < indent_level; i++) r.append(" ");
-                r.append("hipMemcpy(");
-                r.append(variables[i]);
-                r.append("_d, ");
-                r.append(variables[i]);
-                r.append(", ");
-                r.append(loopsize);
-                r.append("*sizeof(float), hipMemcpyHostToDevice);\n");
-            }
+            for (int i=0; i < indent_level; i++) r.append(" ");
+            r.append("hipMemcpy(");
+            r.append(newvariable);
+            r.append(", ");
+            r.append(variables[i]);
+            r.append(", ");
+            r.append(loopsize);
+            r.append("*sizeof(float), hipMemcpyHostToDevice);\n");
         }
         for (int i=0; i < indent_level; i++) r.append(" ");
         r.append("hipLaunchKernelGGL(");
-        r.append("TEMPKERNELNAME");
-        r.append(", dim3(gridsize), dim3(blocksize), 0, 0, ");
+        r.append(kernel_name);
+        r.append(", dim3(" + gridsize + "), dim3(blocksize), 0, 0, ");
         r.append(loopsize);
         for (int i = 0; i < (int)pbvvariables.size(); i++)
         {
@@ -637,8 +641,7 @@ public:
         for (int i = 0; i < (int)variables.size(); i++)
         {
             r.append(", ");
-            r.append(variables[i]);
-            r.append("_d");
+            r.append(devicevars[i]);
         }
         r.append(");\n");
         s = r;
