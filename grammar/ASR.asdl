@@ -14,7 +14,7 @@
 module ASR {
 
 unit
-    = TranslationUnit(translation_unit_scope global_scope, node* items)
+    = TranslationUnit(translation_unit_scope global_scope)
 
 prog
     = Program(identifier name, object symtab)

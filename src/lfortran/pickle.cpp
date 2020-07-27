@@ -193,13 +193,6 @@ public:
             }
         }
         s.append("}");
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_items; i++) {
-            this->visit_asr(*x.m_items[i]);
-            if (i < x.n_items-1) s.append(" ");
-        }
-        s.append("]");
         s.append(")");
     }
 };
