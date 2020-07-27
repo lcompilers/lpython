@@ -29,6 +29,11 @@ sub
 fn
     = Function(identifier name, expr* args, stmt* body, tbind? bind,
             expr return_var, string? module, object symtab)
+var
+-- intent:
+-- =0 ... local variable,
+-- >0 ... dummy argument: 1=in, 2=out, 3=inout
+    = Variable(identifier name, int intent, ttype type)
 
 stmt
     = Assignment(expr target, expr value)
@@ -55,7 +60,8 @@ expr
     | ArrayInitializer(expr* args, ttype type)
     | Num(object n, ttype type)
     | Str(string s, ttype type)
-    | Variable(identifier name, string? intent, int? dummy, ttype type)
+    | VariableOld(identifier name, string? intent, int? dummy, ttype type)
+    | Var(var v)
     | Constant(constant value, ttype type)
 
 ttype

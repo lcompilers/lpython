@@ -145,7 +145,7 @@ public:
     void visit_Function(const AST::Function_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 8, nullptr, 0));
-        ASR::expr_t *return_var = EXPR(ASR::make_Variable_t(al, x.base.base.loc,
+        ASR::expr_t *return_var = EXPR(ASR::make_VariableOld_t(al, x.base.base.loc,
                 x.m_name, nullptr, 1, type));
         asr = ASR::make_Function_t(al, x.base.base.loc,
             /*char* a_name*/ x.m_name,
@@ -201,7 +201,7 @@ public:
     void visit_Name(const AST::Name_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 8, nullptr, 0));
-        tmp = ASR::make_Variable_t(al, x.base.base.loc,
+        tmp = ASR::make_VariableOld_t(al, x.base.base.loc,
                 x.m_id, nullptr, 1, type);
     }
     void visit_Num(const AST::Num_t &x) {
