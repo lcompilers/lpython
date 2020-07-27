@@ -72,7 +72,6 @@ public:
         }
         std::cout << "S";
         TranslationUnitSymbol s;
-        s.name = x.m_name;
         s.node = asr;
         // TODO: check if it already exists
         std::string sym_name = x.m_name;

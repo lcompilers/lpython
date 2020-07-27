@@ -11,11 +11,6 @@ namespace ASR {
 
 struct TranslationUnitSymbol
 {
-    char* name;
-    // Currently only Subroutines
-    // TODO: one would need to check the type of the node present here,
-    // the name should be in it, so we can probably remove the "char* name"
-    // above.
     ASR::asr_t *node;
 };
 
