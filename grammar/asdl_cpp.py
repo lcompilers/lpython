@@ -109,6 +109,8 @@ def convert_type(asdl_type, seq, mod_name):
         type_ = "%s_t*" % mod_name
         if seq:
             type_ = type_ + "*"
+    elif asdl_type == "subroutine_scope":
+        type_ = "SubroutineScope"
     elif asdl_type == "int":
         type_ = "int"
         assert not seq
@@ -573,6 +575,7 @@ HEAD = r"""#ifndef LFORTRAN_%(MOD)s_H
 #include <lfortran/casts.h>
 #include <lfortran/colors.h>
 #include <lfortran/exception.h>
+#include <lfortran/semantics/asr_scopes.h>
 
 
 namespace LFortran::%(MOD)s {

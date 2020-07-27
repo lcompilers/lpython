@@ -24,7 +24,7 @@ mod
 
 sub
     = Subroutine(identifier name, expr* args, stmt* body, tbind? bind,
-            object symtab)
+            subroutine_scope symtab)
 
 fn
     = Function(identifier name, expr* args, stmt* body, tbind? bind,

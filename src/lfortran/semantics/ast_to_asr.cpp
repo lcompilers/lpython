@@ -29,19 +29,13 @@ static inline ASR::ttype_t* TYPE(const ASR::asr_t *f)
     return (ASR::ttype_t*)f;
 }
 
-struct Symbol
-{
-    char* name;
-    int type; // 1 = real, 2 = integer
-    int intent; // 0 = local variable, >0 dummy: 1 = in, 2 = out, 3 = inout
-};
-
 class SymbolTableVisitor : public AST::BaseWalkVisitor<SymbolTableVisitor>
 {
 public:
     ASR::asr_t *asr;
     Allocator &al;
-    std::map<std::string, Symbol> subroutine_scope;
+    SubroutineScope subroutine_scope;
+
     SymbolTableVisitor(Allocator &al) : al{al} {}
 
     void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
@@ -65,13 +59,13 @@ public:
             /* a_body */ nullptr,
             /* n_body */ 0,
             /* a_bind */ nullptr,
-            /* a_symtab */ 0);
+            /* a_symtab */ subroutine_scope);
         // TODO: change a_symtab from an integer to std::map and put
         // subroutine_scope in it here.
         std::cout << "Subroutine finished:" << std::endl;
         std::cout << pickle((AST::ast_t&)(x)) << std::endl;
         std::cout << "Symbol table:" << std::endl;
-        for (auto &a : subroutine_scope) {
+        for (auto &a : subroutine_scope.scope) {
             std::cout << "    " << a.first << " " << a.second.type << " " << a.second.intent << std::endl;
         }
         std::cout << "S";
@@ -80,8 +74,8 @@ public:
     void visit_decl(const AST::decl_t &x) {
         std::string sym = x.m_sym;
         std::string sym_type = x.m_sym_type;
-        if (subroutine_scope.find(sym) == subroutine_scope.end()) {
-            Symbol s;
+        if (subroutine_scope.scope.find(sym) == subroutine_scope.scope.end()) {
+            SubroutineSymbol s;
             s.name = x.m_sym;
             if (sym_type == "integer") {
                 s.type = 2;
@@ -128,7 +122,7 @@ public:
                     }
                 }
             }
-            subroutine_scope[sym] = s;
+            subroutine_scope.scope[sym] = s;
 
         }
         std::cout << "D(";
