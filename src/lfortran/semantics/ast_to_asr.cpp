@@ -51,6 +51,9 @@ public:
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
         }
+        // TODO: save the arguments into `a_args` and `n_args`.
+        // We need to get Variables settled first, then it will be just a
+        // reference to a variable.
         for (size_t i=0; i<x.n_args; i++) {
             char *arg=x.m_args[i].m_arg;
             std::string args = arg;
@@ -173,6 +176,11 @@ public:
     }
 
     void visit_Subroutine(const AST::Subroutine_t &x) {
+    // TODO: visit the body (which will call the visit_Assignment below)
+    // and append it to the body of the subroutine.
+    // Check all variables.
+    // TODO: add SymbolTable::find_symbol(), which will automatically return
+    // an error
     }
 
     void visit_Function(const AST::Function_t &x) {
@@ -193,6 +201,7 @@ public:
     }
 
     void visit_Assignment(const AST::Assignment_t &x) {
+        // TODO: assign this to the function's body in the ASR.
         this->visit_expr(*x.m_target);
         ASR::expr_t *target = EXPR(tmp);
         this->visit_expr(*x.m_value);
