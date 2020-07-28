@@ -110,7 +110,7 @@ def convert_type(asdl_type, seq, mod_name):
         if seq:
             type_ = type_ + "*"
     elif asdl_type == "symbol_table":
-        type_ = "SymbolTable"
+        type_ = "SymbolTable*"
     elif asdl_type == "int":
         type_ = "int"
         assert not seq
@@ -496,10 +496,10 @@ class PickleVisitorVisitor(ASDLVisitor):
                 self.emit('s.append("{");', level)
                 self.emit('{', level)
                 self.emit('    size_t i = 0;', level)
-                self.emit('    for (auto &a : x.m_%s.scope) {' % field.name, level)
+                self.emit('    for (auto &a : x.m_%s->scope) {' % field.name, level)
                 self.emit('        s.append(a.first + ": ");', level)
                 self.emit('        this->visit_asr(*a.second);', level)
-                self.emit('        if (i < x.m_%s.scope.size()-1) s.append(", ");' % field.name, level)
+                self.emit('        if (i < x.m_%s->scope.size()-1) s.append(", ");' % field.name, level)
                 self.emit('        i++;', level)
                 self.emit('    }', level)
                 self.emit('}', level)

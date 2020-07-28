@@ -34,10 +34,13 @@ class SymbolTableVisitor : public AST::BaseWalkVisitor<SymbolTableVisitor>
 public:
     ASR::asr_t *asr;
     Allocator &al;
-    SymbolTable translation_unit_scope;
-    SymbolTable subroutine_scope;
+    SymbolTable *translation_unit_scope;
+    SymbolTable *subroutine_scope;
 
-    SymbolTableVisitor(Allocator &al) : al{al} {}
+    SymbolTableVisitor(Allocator &al) : al{al} {
+        translation_unit_scope = al.make_new<SymbolTable>();
+        subroutine_scope = al.make_new<SymbolTable>();
+    }
 
     void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
         for (size_t i=0; i<x.n_items; i++) {
@@ -57,7 +60,7 @@ public:
         for (size_t i=0; i<x.n_args; i++) {
             char *arg=x.m_args[i].m_arg;
             std::string args = arg;
-            if (subroutine_scope.scope.find(args) == subroutine_scope.scope.end()) {
+            if (subroutine_scope->scope.find(args) == subroutine_scope->scope.end()) {
                 throw SemanticError("Dummy argument '" + args + "' not defined", x.base.base.loc);
             }
         }
@@ -71,16 +74,16 @@ public:
             /* a_bind */ nullptr,
             /* a_symtab */ subroutine_scope);
         std::string sym_name = x.m_name;
-        if (translation_unit_scope.scope.find(sym_name) != translation_unit_scope.scope.end()) {
+        if (translation_unit_scope->scope.find(sym_name) != translation_unit_scope->scope.end()) {
             throw SemanticError("Subroutine already defined", asr->loc);
         }
-        translation_unit_scope.scope[sym_name] = asr;
+        translation_unit_scope->scope[sym_name] = asr;
     }
 
     void visit_decl(const AST::decl_t &x) {
         std::string sym = x.m_sym;
         std::string sym_type = x.m_sym_type;
-        if (subroutine_scope.scope.find(sym) == subroutine_scope.scope.end()) {
+        if (subroutine_scope->scope.find(sym) == subroutine_scope->scope.end()) {
             int s_type;
             if (sym_type == "integer") {
                 s_type = 2;
@@ -141,7 +144,7 @@ public:
                 type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
             }
             ASR::asr_t *v = ASR::make_Variable_t(al, loc, x.m_sym, s_intent, type);
-            subroutine_scope.scope[sym] = v;
+            subroutine_scope->scope[sym] = v;
 
         }
     }
