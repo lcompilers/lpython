@@ -51,6 +51,13 @@ public:
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
         }
+        for (size_t i=0; i<x.n_args; i++) {
+            char *arg=x.m_args[i].m_arg;
+            std::string args = arg;
+            if (subroutine_scope.scope.find(args) == subroutine_scope.scope.end()) {
+                throw SemanticError("Dummy argument '" + args + "' not defined", x.base.base.loc);
+            }
+        }
         asr = ASR::make_Subroutine_t(
             al, x.base.base.loc,
             /* a_name */ x.m_name,
