@@ -35,7 +35,7 @@ public:
     ASR::asr_t *asr;
     Allocator &al;
     SymbolTable translation_unit_scope;
-    SubroutineScope subroutine_scope;
+    SymbolTable subroutine_scope;
 
     SymbolTableVisitor(Allocator &al) : al{al} {}
 
@@ -65,11 +65,13 @@ public:
         // subroutine_scope in it here.
         std::cout << "Subroutine finished:" << std::endl;
         std::cout << pickle((AST::ast_t&)(x)) << std::endl;
+        /*
         std::cout << "Symbol table:" << std::endl;
         for (auto &a : subroutine_scope.scope) {
             std::cout << "    " << a.first << " " << a.second.type << " " << a.second.intent << std::endl;
         }
         std::cout << "S";
+        */
         std::string sym_name = x.m_name;
         if (translation_unit_scope.scope.find(sym_name) != translation_unit_scope.scope.end()) {
             throw SemanticError("Subroutine already defined", asr->loc);
@@ -128,7 +130,14 @@ public:
                     }
                 }
             }
-            subroutine_scope.scope[sym] = s;
+            Location loc;
+            // TODO: decl_t does not have location information...
+            loc.first_column = 0;
+            loc.first_line = 0;
+            loc.last_column = 0;
+            loc.last_line = 0;
+            ASR::asr_t *v = ASR::make_Variable_t(al, loc, s.name, s.intent);
+            subroutine_scope.scope[sym] = v;
 
         }
         std::cout << "D(";
