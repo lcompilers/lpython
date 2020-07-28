@@ -248,6 +248,7 @@ public:
     void visit_Name(const AST::Name_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 8, nullptr, 0));
+        // TODO: Add a Var(symtab ref, direct Variable)
         tmp = ASR::make_VariableOld_t(al, x.base.base.loc,
                 x.m_id, nullptr, 1, type);
     }
