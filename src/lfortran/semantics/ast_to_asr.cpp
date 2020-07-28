@@ -279,15 +279,17 @@ public:
                 left, op, right, type);
     }
     void visit_Name(const AST::Name_t &x) {
-        ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                8, nullptr, 0));
-        // TODO: Add a Var(symtab ref, direct Variable)
         SymbolTable *scope = current_scope;
         ASR::Variable_t *v = VARIABLE(scope->scope[std::string(x.m_id)]);
         ASR::var_t *var = (ASR::var_t*)v;
         ASR::asr_t *tmp2 = ASR::make_Var_t(al, x.base.base.loc, scope, var);
+        tmp = tmp2;
+        /*
+        ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                8, nullptr, 0));
         tmp = ASR::make_VariableOld_t(al, x.base.base.loc,
                 x.m_id, nullptr, 1, type);
+        */
     }
     void visit_Num(const AST::Num_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
