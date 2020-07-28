@@ -109,8 +109,8 @@ def convert_type(asdl_type, seq, mod_name):
         type_ = "%s_t*" % mod_name
         if seq:
             type_ = type_ + "*"
-    elif asdl_type == "translation_unit_scope":
-        type_ = "TranslationUnitScope"
+    elif asdl_type == "symbol_table":
+        type_ = "SymbolTable"
     elif asdl_type == "subroutine_scope":
         type_ = "SubroutineScope"
     elif asdl_type == "int":

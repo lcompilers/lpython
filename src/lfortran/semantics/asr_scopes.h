@@ -9,7 +9,7 @@ namespace ASR {
     struct asr_t;
 }
 
-struct TranslationUnitScope {
+struct SymbolTable {
     std::map<std::string, ASR::asr_t*> scope;
 };
 

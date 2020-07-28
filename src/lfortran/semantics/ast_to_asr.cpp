@@ -34,7 +34,7 @@ class SymbolTableVisitor : public AST::BaseWalkVisitor<SymbolTableVisitor>
 public:
     ASR::asr_t *asr;
     Allocator &al;
-    TranslationUnitScope translation_unit_scope;
+    SymbolTable translation_unit_scope;
     SubroutineScope subroutine_scope;
 
     SymbolTableVisitor(Allocator &al) : al{al} {}
