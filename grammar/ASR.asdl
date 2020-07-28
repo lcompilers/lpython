@@ -7,7 +7,7 @@
 -- We extend these by:
 --   * object (any Python object)
 --   * constant
---   * symbol_table (scoped Symbol Table implementation), for now we use object
+--   * symbol_table (scoped Symbol Table implementation)
 --
 -- Note: `symbol_table` contains `Module`, `Subroutine`, `Function`, `Variable`.
 
@@ -24,7 +24,7 @@ mod
 
 sub
     = Subroutine(identifier name, expr* args, stmt* body, tbind? bind,
-            subroutine_scope symtab)
+            symbol_table symtab)
 
 fn
     = Function(identifier name, expr* args, stmt* body, tbind? bind,
