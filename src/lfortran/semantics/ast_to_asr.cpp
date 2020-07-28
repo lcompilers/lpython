@@ -181,6 +181,13 @@ public:
     // Check all variables.
     // TODO: add SymbolTable::find_symbol(), which will automatically return
     // an error
+        Vec<ASR::stmt_t*> body;
+        body.reserve(al, x.n_body);
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            ASR::stmt_t *stmt = STMT(tmp);
+            body.push_back(al, stmt);
+        }
     }
 
     void visit_Function(const AST::Function_t &x) {
@@ -207,6 +214,36 @@ public:
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = EXPR(tmp);
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value);
+    }
+    void visit_BinOp(const AST::BinOp_t &x) {
+        this->visit_expr(*x.m_left);
+        ASR::expr_t *left = EXPR(tmp);
+        this->visit_expr(*x.m_right);
+        ASR::expr_t *right = EXPR(tmp);
+        ASR::operatorType op;
+        switch (x.m_op) {
+            case (AST::Add) :
+                op = ASR::Add;
+                break;
+            case (AST::Sub) :
+                op = ASR::Sub;
+                break;
+            case (AST::Mul) :
+                op = ASR::Mul;
+                break;
+            case (AST::Div) :
+                op = ASR::Div;
+                break;
+            case (AST::Pow) :
+                op = ASR::Pow;
+                break;
+        }
+        LFORTRAN_ASSERT(left->type == right->type);
+        // TODO: For now assume reals:
+        ASR::ttype_t *type = TYPE(ASR::make_Real_t(al, x.base.base.loc,
+                4, nullptr, 0));
+        tmp = ASR::make_BinOp_t(al, x.base.base.loc,
+                left, op, right, type);
     }
     void visit_Name(const AST::Name_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
