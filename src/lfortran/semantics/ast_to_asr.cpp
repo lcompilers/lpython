@@ -136,7 +136,14 @@ public:
             loc.first_line = 0;
             loc.last_column = 0;
             loc.last_line = 0;
-            ASR::asr_t *v = ASR::make_Variable_t(al, loc, s.name, s.intent);
+            ASR::ttype_t *type;
+            if (s.type == 1) {
+                type = TYPE(ASR::make_Real_t(al, loc, 4, nullptr, 0));
+            } else {
+                LFORTRAN_ASSERT(s.type == 2);
+                type = TYPE(ASR::make_Integer_t(al, loc, 8, nullptr, 0));
+            }
+            ASR::asr_t *v = ASR::make_Variable_t(al, loc, s.name, s.intent, type);
             subroutine_scope.scope[sym] = v;
 
         }

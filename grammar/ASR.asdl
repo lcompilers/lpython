@@ -33,8 +33,7 @@ var
 -- intent:
 -- =0 ... local variable,
 -- >0 ... dummy argument: 1=in, 2=out, 3=inout
---    = Variable(identifier name, int intent, ttype type)
-    = Variable(identifier name, int intent)
+    = Variable(identifier name, int intent, ttype type)
 
 stmt
     = Assignment(expr target, expr value)
