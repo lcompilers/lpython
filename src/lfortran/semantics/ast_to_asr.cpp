@@ -17,6 +17,30 @@ static inline ASR::expr_t* EXPR(const ASR::asr_t *f)
     return (ASR::expr_t*)f;
 }
 
+static inline ASR::Variable_t* VARIABLE(const ASR::asr_t *f)
+{
+    LFORTRAN_ASSERT(f->type == ASR::asrType::var);
+    ASR::var_t *t = (ASR::var_t *)f;
+    LFORTRAN_ASSERT(t->type == ASR::varType::Variable);
+    return (ASR::Variable_t*)t;
+}
+
+static inline ASR::Subroutine_t* SUBROUTINE(const ASR::asr_t *f)
+{
+    LFORTRAN_ASSERT(f->type == ASR::asrType::sub);
+    ASR::sub_t *t = (ASR::sub_t *)f;
+    LFORTRAN_ASSERT(t->type == ASR::subType::Subroutine);
+    return (ASR::Subroutine_t*)t;
+}
+
+static inline ASR::TranslationUnit_t* TRANSLATION_UNIT(const ASR::asr_t *f)
+{
+    LFORTRAN_ASSERT(f->type == ASR::asrType::unit);
+    ASR::unit_t *t = (ASR::unit_t *)f;
+    LFORTRAN_ASSERT(t->type == ASR::unitType::TranslationUnit);
+    return (ASR::TranslationUnit_t*)t;
+}
+
 static inline ASR::stmt_t* STMT(const ASR::asr_t *f)
 {
     LFORTRAN_ASSERT(f->type == ASR::asrType::stmt);
@@ -170,9 +194,11 @@ class BodyVisitor : public AST::BaseVisitor<BodyVisitor>
 public:
     Allocator &al;
     ASR::asr_t *asr, *tmp;
+    SymbolTable *current_scope;
     BodyVisitor(Allocator &al, ASR::asr_t *unit) : al{al}, asr{unit} {}
 
     void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
+        current_scope = TRANSLATION_UNIT(asr)->m_global_scope;
         for (size_t i=0; i<x.n_items; i++) {
             visit_ast(*x.m_items[i]);
         }
@@ -184,6 +210,10 @@ public:
     // Check all variables.
     // TODO: add SymbolTable::find_symbol(), which will automatically return
     // an error
+        ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
+        ASR::Subroutine_t *v = SUBROUTINE(t);
+        current_scope = v->m_symtab;
+        //current_scope = current_scope->scope[std::string(x.m_name)].second;
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
         for (size_t i=0; i<x.n_body; i++) {
@@ -252,6 +282,10 @@ public:
         ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 8, nullptr, 0));
         // TODO: Add a Var(symtab ref, direct Variable)
+        SymbolTable *scope = current_scope;
+        ASR::Variable_t *v = VARIABLE(scope->scope[std::string(x.m_id)]);
+        ASR::var_t *var = (ASR::var_t*)v;
+        ASR::asr_t *tmp2 = ASR::make_Var_t(al, x.base.base.loc, scope, var);
         tmp = ASR::make_VariableOld_t(al, x.base.base.loc,
                 x.m_id, nullptr, 1, type);
     }
