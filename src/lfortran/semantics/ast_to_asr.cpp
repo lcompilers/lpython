@@ -48,7 +48,6 @@ public:
     }
 
     void visit_Subroutine(const AST::Subroutine_t &x) {
-        // TODO: put this Subroutine into TranslationUnit's symbol table
         for (size_t i=0; i<x.n_decl; i++) {
             std::cout << "decl2" << std::endl;
             visit_unit_decl2(*x.m_decl[i]);
