@@ -1,0 +1,13 @@
+{
+    "basename": "asr-subroutine5-c2f7c91",
+    "cmd": "lfortran --show-asr {infile} -o {outfile}",
+    "infile": "tests/subroutine5.f90",
+    "infile_hash": "88c62ffd8f005d7a511511e43da68f25e8fe795a75fec462baa25885",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-subroutine5-c2f7c91.stdout",
+    "stdout_hash": "e4ae0996b61b553aa8a658250a8dc7b42eeaa49575ca4b881d4920ca",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
