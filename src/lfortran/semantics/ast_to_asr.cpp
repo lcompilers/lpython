@@ -49,7 +49,6 @@ public:
 
     void visit_Subroutine(const AST::Subroutine_t &x) {
         for (size_t i=0; i<x.n_decl; i++) {
-            std::cout << "decl2" << std::endl;
             visit_unit_decl2(*x.m_decl[i]);
         }
         asr = ASR::make_Subroutine_t(
@@ -61,17 +60,6 @@ public:
             /* n_body */ 0,
             /* a_bind */ nullptr,
             /* a_symtab */ subroutine_scope);
-        // TODO: change a_symtab from an integer to std::map and put
-        // subroutine_scope in it here.
-        std::cout << "Subroutine finished:" << std::endl;
-        std::cout << pickle((AST::ast_t&)(x)) << std::endl;
-        /*
-        std::cout << "Symbol table:" << std::endl;
-        for (auto &a : subroutine_scope.scope) {
-            std::cout << "    " << a.first << " " << a.second.type << " " << a.second.intent << std::endl;
-        }
-        std::cout << "S";
-        */
         std::string sym_name = x.m_name;
         if (translation_unit_scope.scope.find(sym_name) != translation_unit_scope.scope.end()) {
             throw SemanticError("Subroutine already defined", asr->loc);
@@ -141,20 +129,12 @@ public:
                 type = TYPE(ASR::make_Real_t(al, loc, 4, nullptr, 0));
             } else {
                 LFORTRAN_ASSERT(s.type == 2);
-                type = TYPE(ASR::make_Integer_t(al, loc, 8, nullptr, 0));
+                type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
             }
             ASR::asr_t *v = ASR::make_Variable_t(al, loc, s.name, s.intent, type);
             subroutine_scope.scope[sym] = v;
 
         }
-        std::cout << "D(";
-        std::cout << x.m_sym << " ";
-        std::cout << x.m_sym_type;
-        std::cout << ")D" << std::endl;
-        // self.visit_sequence(node.dims)
-        // self.visit_sequence(node.attrs)
-        //if node.initializer:
-        //    this->visit_expr(*x.m_initializer);
     }
 
     void visit_Function(const AST::Function_t &x) {
