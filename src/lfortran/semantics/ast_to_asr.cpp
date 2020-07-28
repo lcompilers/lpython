@@ -71,12 +71,11 @@ public:
         std::string sym = x.m_sym;
         std::string sym_type = x.m_sym_type;
         if (subroutine_scope.scope.find(sym) == subroutine_scope.scope.end()) {
-            SubroutineSymbol s;
-            s.name = x.m_sym;
+            int s_type;
             if (sym_type == "integer") {
-                s.type = 2;
+                s_type = 2;
             } else if (sym_type == "real") {
-                s.type = 1;
+                s_type = 1;
             } else {
                 Location loc;
                 // TODO: decl_t does not have location information...
@@ -86,18 +85,18 @@ public:
                 loc.last_line = 0;
                 throw SemanticError("Unsupported type", loc);
             }
-            s.intent = 0;
+            int s_intent=intent_local;
             if (x.n_attrs > 0) {
                 AST::Attribute_t *a = (AST::Attribute_t*)(x.m_attrs[0]);
                 if (std::string(a->m_name) == "intent") {
                     if (a->n_args > 0) {
                         std::string intent = std::string(a->m_args[0].m_arg);
                         if (intent == "in") {
-                            s.intent = 1;
+                            s_intent = intent_in;
                         } else if (intent == "out") {
-                            s.intent = 2;
+                            s_intent = intent_out;
                         } else if (intent == "inout") {
-                            s.intent = 3;
+                            s_intent = intent_inout;
                         } else {
                             Location loc;
                             // TODO: decl_t does not have location information...
@@ -125,13 +124,13 @@ public:
             loc.last_column = 0;
             loc.last_line = 0;
             ASR::ttype_t *type;
-            if (s.type == 1) {
+            if (s_type == 1) {
                 type = TYPE(ASR::make_Real_t(al, loc, 4, nullptr, 0));
             } else {
-                LFORTRAN_ASSERT(s.type == 2);
+                LFORTRAN_ASSERT(s_type == 2);
                 type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
             }
-            ASR::asr_t *v = ASR::make_Variable_t(al, loc, s.name, s.intent, type);
+            ASR::asr_t *v = ASR::make_Variable_t(al, loc, x.m_sym, s_intent, type);
             subroutine_scope.scope[sym] = v;
 
         }
