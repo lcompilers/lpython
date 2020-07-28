@@ -205,9 +205,9 @@ public:
     }
 
     void visit_Subroutine(const AST::Subroutine_t &x) {
-    // Check all variables.
-    // TODO: add SymbolTable::find_symbol(), which will automatically return
+    // TODO: add SymbolTable::lookup_symbol(), which will automatically return
     // an error
+    // TODO: add SymbolTable::get_symbol(), which will only check in Debug mode
         ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
         ASR::Subroutine_t *v = SUBROUTINE(t);
         current_scope = v->m_symtab;
