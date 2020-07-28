@@ -213,7 +213,6 @@ public:
         ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
         ASR::Subroutine_t *v = SUBROUTINE(t);
         current_scope = v->m_symtab;
-        //current_scope = current_scope->scope[std::string(x.m_name)].second;
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
         for (size_t i=0; i<x.n_body; i++) {
@@ -221,6 +220,8 @@ public:
             ASR::stmt_t *stmt = STMT(tmp);
             body.push_back(al, stmt);
         }
+        v->m_body = body.p;
+        v->n_body = body.size();
     }
 
     void visit_Function(const AST::Function_t &x) {
