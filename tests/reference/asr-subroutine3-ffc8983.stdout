@@ -1,1 +1,1 @@
-(TranslationUnit {f: (Function f [] [(= (Var {f: (Variable f 4 (Integer 4 []))} (Variable f 4 (Integer 4 []))) (Num Unimplementedobject (Integer 8 [])))] () (Var {f: (Variable f 4 (Integer 4 []))} (Variable f 4 (Integer 4 []))) () {f: (Variable f 4 (Integer 4 []))})} [])
+(TranslationUnit (SymbolTable 822fad0 {f: (Function f [] [(= (Var 73ca7fd f) (Num Unimplementedobject (Integer 8 [])))] () (Var 73ca7fd f) () (SymbolTable 73ca7fd {f: (Variable f 4 (Integer 4 []))}))}) [])
