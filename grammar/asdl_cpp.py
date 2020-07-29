@@ -365,7 +365,7 @@ class ASTWalkVisitorVisitor(ASDLVisitor):
                     self.emit("    self().visit_%s(*x.m_%s[i]);" % (field.type, field.name), level)
                 self.emit("}", level)
                 return
-            elif field.opt:
+            elif field.opt and field.type not in products:
                 self.emit("if (x.m_%s)" % field.name, 2)
                 level = 3
             self.emit(template, level)
