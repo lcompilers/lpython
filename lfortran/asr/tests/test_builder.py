@@ -23,9 +23,9 @@ def test_builder_module1():
             asr.BinOp(a, asr.Add(), b, integer), integer))
     ])
 
-    a = asr.Variable(name="a", intent="in", type=integer)
-    b = asr.Variable(name="b", intent="in", type=integer)
-    c = asr.Variable(name="c", type=integer)
+    a = asr.VariableOld(name="a", intent="in", type=integer)
+    b = asr.VariableOld(name="b", intent="in", type=integer)
+    c = asr.VariableOld(name="c", type=integer)
     f = scope_add_function(m.symtab, name="g", args=[a, b], return_var=c)
 
     verify_asr(unit)

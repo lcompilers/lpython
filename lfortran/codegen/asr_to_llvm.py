@@ -51,7 +51,7 @@ class ASR2LLVMVisitor(asr.ASTVisitor):
             self.visit(item)
 
     def visit_Assignment(self, node):
-        if isinstance(node.target, asr.Variable):
+        if isinstance(node.target, asr.VariableOld):
             target = self.visit(node.target)
             value = self.visit(node.value)
             ptr = self._sym2ptr[node.target]
@@ -87,7 +87,7 @@ class ASR2LLVMVisitor(asr.ASTVisitor):
             else:
                 raise NotImplementedError("Pow")
 
-    def visit_Variable(self, node):
+    def visit_VariableOld(self, node):
         return self._builder.load(self._sym2ptr[node])
 
     def visit_Function(self, node):

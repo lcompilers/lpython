@@ -53,7 +53,7 @@ def process_function(scope, node):
     for arg in node.get_arguments():
         arg_names.append(arg.spelling)
     type = make_type_integer()
-    return_var = asr.Variable(name=node.spelling, type=type)
+    return_var = asr.VariableOld(name=node.spelling, type=type)
     f = scope_add_function(scope, node.spelling, args=arg_names,
             return_var=return_var)
     for a in f.args:

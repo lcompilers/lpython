@@ -57,7 +57,9 @@ public:
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context} {}
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
-        throw CodeGenError("Not implemented yet.");
+        for (auto &item : x.m_global_scope->scope) {
+            visit_asr(*item.second);
+        }
     }
 
     void visit_Function(const ASR::Function_t &x) {

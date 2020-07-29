@@ -9,7 +9,7 @@ def pprint_asr_str(node, color=True):
     def _format(node, print_scope=False):
         if isinstance(node, asr.AST):
             t = node.__class__.__bases__[0]
-            if isinstance(node, asr.Variable) and not print_scope:
+            if isinstance(node, asr.VariableOld) and not print_scope:
                 return fmt("<ansiyellow>%s</ansiyellow>" % node.name)
             if issubclass(t, asr.AST):
                 root = t.__name__ + "."

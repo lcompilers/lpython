@@ -63,7 +63,7 @@ class NodeTransformer(asr.NodeTransformerBase):
             bind = None
         return asr.Function(name=name, args=args, body=body, bind=bind, return_var=return_var, symtab=symtab)
 
-    def visit_Variable(self, node):
+    def visit_VariableOld(self, node):
         if self._lookup == 1:
             return self._scope.resolve(node.name)
         elif self._lookup == 2:
@@ -74,7 +74,7 @@ class NodeTransformer(asr.NodeTransformerBase):
         intent = self.visit_object(node.intent)
         dummy = self.visit_object(node.dummy)
         type = self.visit(node.type)
-        return asr.Variable(name=name, intent=intent, dummy=dummy, type=type)
+        return asr.VariableOld(name=name, intent=intent, dummy=dummy, type=type)
 
 
 class WrapperVisitor(NodeTransformer):
@@ -97,7 +97,7 @@ class WrapperVisitor(NodeTransformer):
             bind = self.visit(node.bind)
         else:
             bind = None
-        tmp = asr.Variable(name="a", type=make_type_integer())
+        tmp = asr.VariableOld(name="a", type=make_type_integer())
         f = asr.Function(name=name, args=args, body=body, bind=bind,
             symtab=symtab, return_var=tmp)
         return_var = function_make_var(f, name="r", type=self.visit(node.return_var.type))
@@ -120,13 +120,13 @@ class WrapperVisitor(NodeTransformer):
             symtab,
             "c_desc1_int32",
             args=[
-                asr.Variable(
+                asr.VariableOld(
                     name="A",
                     intent="in",
                     type=type1
                 )
             ],
-            return_var=asr.Variable(
+            return_var=asr.VariableOld(
                 name="c_desc1_int32",
                 type=asr.Derived(name="c_desc1_t")
             ),
@@ -136,13 +136,13 @@ class WrapperVisitor(NodeTransformer):
             symtab,
             "c_desc2_int32",
             args=[
-                asr.Variable(
+                asr.VariableOld(
                     name="A",
                     intent="in",
                     type=type2
                 )
             ],
-            return_var=asr.Variable(
+            return_var=asr.VariableOld(
                 name="c_desc2_int32",
                 type=asr.Derived(name="c_desc2_t")
             ),
@@ -164,7 +164,7 @@ class WrapperVisitor(NodeTransformer):
                     keywords=[], type=type))
             else:
                 args2.append(arg)
-            cargs.append(asr.Variable(
+            cargs.append(asr.VariableOld(
                 name=arg.name,
                 intent=arg.intent,
                 type=type,

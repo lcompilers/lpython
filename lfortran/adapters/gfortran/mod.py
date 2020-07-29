@@ -211,7 +211,7 @@ def convert_arg(table, lscope, idx):
     arg = table[idx]
     assert isinstance(arg.name, str)
     assert isinstance(arg.type, str)
-    a = asr.Variable(name=arg.name, type=string_to_type(arg.type), dummy=True)
+    a = asr.VariableOld(name=arg.name, type=string_to_type(arg.type), dummy=True)
     assert isinstance(arg.intent, str)
     a.intent = arg.intent
 
@@ -231,7 +231,7 @@ def convert_function(symtab, table, f):
     assert isinstance(f, Procedure)
     assert isinstance(f.name, str)
     assert isinstance(f.type, str)
-    return_var = asr.Variable(name=f.name, type=string_to_type(f.type))
+    return_var = asr.VariableOld(name=f.name, type=string_to_type(f.type))
     lf = scope_add_function(symtab, f.name, return_var=return_var)
     args = []
     for arg in f.args:

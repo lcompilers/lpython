@@ -34,7 +34,7 @@ __all__ = [
 # between the various node types.
 
 builtin_types = {'identifier', 'string', 'bytes', 'int', 'object', 'singleton',
-                 'constant', 'node'}
+                 'constant', 'node', 'symbol_table'}
 
 class AST:
     def __repr__(self):

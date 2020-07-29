@@ -42,3 +42,13 @@ filename = "subroutine4.f90"
 ast = true
 ast_f90 = true
 ast_cpp = true
+asr = true
+
+[[test]]
+filename = "subroutine5.f90"
+ast = true
+asr = true
+
+[[test]]
+filename = "errors/subroutine5.f90"
+asr = true

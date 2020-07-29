@@ -85,7 +85,7 @@ sums = []
 products = []
 subs = {}
 
-def convert_type(asdl_type, seq):
+def convert_type(asdl_type, seq, mod_name):
     if asdl_type in simple_sums:
         type_ = asdl_type + "Type"
         assert not seq
@@ -106,9 +106,11 @@ def convert_type(asdl_type, seq):
         if seq:
             type_ = type_ + "*"
     elif asdl_type == "node":
-        type_ = "ast_t*"
+        type_ = "%s_t*" % mod_name
         if seq:
             type_ = type_ + "*"
+    elif asdl_type == "symbol_table":
+        type_ = "SymbolTable*"
     elif asdl_type == "int":
         type_ = "int"
         assert not seq
@@ -164,6 +166,7 @@ class ASTNodeVisitor1(ASDLVisitor):
         self.emit("/" + "*"*78 + "/")
         self.emit("// Products declarations")
         self.emit("")
+        self.mod = mod
         super(ASTNodeVisitor1, self).visitModule(mod)
 
     def visitType(self, tp):
@@ -173,7 +176,7 @@ class ASTNodeVisitor1(ASDLVisitor):
         self.emit("struct %s_t // Product" % name)
         self.emit("{");
         for f in product.fields:
-            type_ = convert_type(f.type, f.seq)
+            type_ = convert_type(f.type, f.seq, self.mod.name.lower())
             if f.seq:
                 seq = " size_t n_%s; // Sequence" % f.name
             else:
@@ -188,6 +191,7 @@ class ASTNodeVisitor(ASDLVisitor):
         self.emit("/" + "*"*78 + "/")
         self.emit("// Sums declarations")
         self.emit("")
+        self.mod = mod
         super(ASTNodeVisitor, self).visitModule(mod)
 
     def visitType(self, tp):
@@ -219,7 +223,7 @@ class ASTNodeVisitor(ASDLVisitor):
         args = ["Allocator &al", "const Location &a_loc"]
         lines = []
         for f in cons.fields:
-            type_ = convert_type(f.type, f.seq)
+            type_ = convert_type(f.type, f.seq, self.mod.name.lower())
             if f.seq:
                 seq = " size_t n_%s; // Sequence" % f.name
             else:
@@ -321,6 +325,8 @@ class ASTWalkVisitorVisitor(ASDLVisitor):
         self.emit("template <class Derived>")
         self.emit("class BaseWalkVisitor : public BaseVisitor<Derived>")
         self.emit("{")
+        self.emit("private:")
+        self.emit("    Derived& self() { return static_cast<Derived&>(*this); }")
         self.emit("public:")
         super(ASTWalkVisitorVisitor, self).visitModule(mod)
         self.emit("};")
@@ -348,13 +354,19 @@ class ASTWalkVisitorVisitor(ASDLVisitor):
             field.type not in self.data.simple_types):
             level = 2
             if field.type in products:
-                template = "this->visit_%s(x.m_%s);" % (field.type, field.name)
+                template = "self().visit_%s(x.m_%s);" % (field.type, field.name)
             else:
-                template = "this->visit_%s(*x.m_%s);" % (field.type, field.name)
+                template = "self().visit_%s(*x.m_%s);" % (field.type, field.name)
             if field.seq:
-                template = "// self.visit_sequence(node.%s)" % field.name
-            elif field.opt:
-                self.emit("//if node.%s:" % field.name, 2)
+                self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
+                if field.type in products:
+                    self.emit("    self().visit_%s(x.m_%s[i]);" % (field.type, field.name), level)
+                else:
+                    self.emit("    self().visit_%s(*x.m_%s[i]);" % (field.type, field.name), level)
+                self.emit("}", level)
+                return
+            elif field.opt and field.type not in products:
+                self.emit("if (x.m_%s)" % field.name, 2)
                 level = 3
             self.emit(template, level)
 
@@ -373,6 +385,7 @@ class PickleVisitorVisitor(ASDLVisitor):
         self.emit(  "bool use_colors;", 1)
         self.emit("public:")
         self.emit(  "PickleBaseVisitor() : use_colors(false) { s.reserve(100000); }", 1)
+        self.mod = mod
         super(PickleVisitorVisitor, self).visitModule(mod)
         self.emit("};")
 
@@ -471,10 +484,26 @@ class PickleVisitorVisitor(ASDLVisitor):
                 level = 2
                 self.emit('s.append("[");', level)
                 self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
-                self.emit("this->visit_ast(*x.m_%s[i]);" % (field.name), level+1)
+                mod_name = self.mod.name.lower()
+                self.emit("this->visit_%s(*x.m_%s[i]);" % (mod_name, field.name), level+1)
                 self.emit(    'if (i < x.n_%s-1) s.append(" ");' % (field.name), level+1)
                 self.emit("}", level)
                 self.emit('s.append("]");', level)
+            elif field.type == "symbol_table":
+                assert not field.opt
+                assert not field.seq
+                level = 2
+                self.emit('s.append("{");', level)
+                self.emit('{', level)
+                self.emit('    size_t i = 0;', level)
+                self.emit('    for (auto &a : x.m_%s->scope) {' % field.name, level)
+                self.emit('        s.append(a.first + ": ");', level)
+                self.emit('        this->visit_asr(*a.second);', level)
+                self.emit('        if (i < x.m_%s->scope.size()-1) s.append(", ");' % field.name, level)
+                self.emit('        i++;', level)
+                self.emit('    }', level)
+                self.emit('}', level)
+                self.emit('s.append("}");', level)
             elif field.type == "string" and not field.seq:
                 if field.opt:
                     self.emit("if (x.m_%s) {" % field.name, 2)
@@ -561,6 +590,7 @@ HEAD = r"""#ifndef LFORTRAN_%(MOD)s_H
 #include <lfortran/casts.h>
 #include <lfortran/colors.h>
 #include <lfortran/exception.h>
+#include <lfortran/semantics/asr_scopes.h>
 
 
 namespace LFortran::%(MOD)s {

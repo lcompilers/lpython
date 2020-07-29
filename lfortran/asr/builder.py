@@ -92,13 +92,13 @@ def scope_add_function(scope, name, args=[], return_var=None, body=None,
     args_ = []
     for arg in args:
         if isinstance(arg, str):
-            arg = asr.Variable(name=arg, type=make_type_integer())
+            arg = asr.VariableOld(name=arg, type=make_type_integer())
         arg.dummy = True
         scope_add_symbol(function_scope, arg)
         args_.append(arg)
     if return_var:
         if isinstance(return_var, str):
-            return_var = asr.Variable(name=return_var, type=make_type_integer())
+            return_var = asr.VariableOld(name=return_var, type=make_type_integer())
         return_var.dummy = True
         scope_add_symbol(function_scope, return_var)
     if body is None:
@@ -110,7 +110,7 @@ def scope_add_function(scope, name, args=[], return_var=None, body=None,
     return f
 
 def function_make_var(fn, name, type):
-    v = asr.Variable(name=name, dummy=False, type=type)
+    v = asr.VariableOld(name=name, dummy=False, type=type)
     scope_add_symbol(fn.symtab, v)
     return v
 

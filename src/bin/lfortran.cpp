@@ -195,8 +195,11 @@ int emit_asr(const std::string &infile)
     try {
         // FIXME: For now we only transform the first node in the list:
         asr = LFortran::ast_to_asr(al, *ast);
+    } catch (const LFortran::SemanticError &e) {
+        std::cerr << "Semantic error: " << e.msg() << std::endl;
+        return 2;
     } catch (const LFortran::LFortranException &e) {
-        std::cerr << "LFortran exception: " << e.msg() << std::endl;
+        std::cerr << "Other LFortran exception: " << e.msg() << std::endl;
         return 4;
     }
 
