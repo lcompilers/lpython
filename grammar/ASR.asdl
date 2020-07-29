@@ -28,7 +28,7 @@ sub
 
 fn
     = Function(identifier name, expr* args, stmt* body, tbind? bind,
-            expr return_var, string? module, object symtab)
+            expr return_var, string? module, symbol_table symtab)
 var
 -- intent:
 -- =0 ... local variable,

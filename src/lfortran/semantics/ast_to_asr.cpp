@@ -17,6 +17,12 @@ static inline ASR::expr_t* EXPR(const ASR::asr_t *f)
     return (ASR::expr_t*)f;
 }
 
+static inline ASR::var_t* VAR(const ASR::asr_t *f)
+{
+    LFORTRAN_ASSERT(f->type == ASR::asrType::var);
+    return (ASR::var_t*)f;
+}
+
 static inline ASR::Variable_t* VARIABLE(const ASR::asr_t *f)
 {
     LFORTRAN_ASSERT(f->type == ASR::asrType::var);
@@ -31,6 +37,14 @@ static inline ASR::Subroutine_t* SUBROUTINE(const ASR::asr_t *f)
     ASR::sub_t *t = (ASR::sub_t *)f;
     LFORTRAN_ASSERT(t->type == ASR::subType::Subroutine);
     return (ASR::Subroutine_t*)t;
+}
+
+static inline ASR::Function_t* FUNCTION(const ASR::asr_t *f)
+{
+    LFORTRAN_ASSERT(f->type == ASR::asrType::fn);
+    ASR::fn_t *t = (ASR::fn_t *)f;
+    LFORTRAN_ASSERT(t->type == ASR::fnType::Function);
+    return (ASR::Function_t*)t;
 }
 
 static inline ASR::TranslationUnit_t* TRANSLATION_UNIT(const ASR::asr_t *f)
@@ -104,6 +118,47 @@ public:
         translation_unit_scope->scope[sym_name] = asr;
     }
 
+    void visit_Function(const AST::Function_t &x) {
+        for (size_t i=0; i<x.n_decl; i++) {
+            visit_unit_decl2(*x.m_decl[i]);
+        }
+        // TODO: save the arguments into `a_args` and `n_args`.
+        // We need to get Variables settled first, then it will be just a
+        // reference to a variable.
+        for (size_t i=0; i<x.n_args; i++) {
+            char *arg=x.m_args[i].m_arg;
+            std::string args = arg;
+            if (subroutine_scope->scope.find(args) == subroutine_scope->scope.end()) {
+                throw SemanticError("Dummy argument '" + args + "' not defined", x.base.base.loc);
+            }
+        }
+        ASR::ttype_t *type;
+        type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+        ASR::asr_t *return_var = ASR::make_Variable_t(al, x.base.base.loc,
+            x.m_name, intent_return_var, type);
+        subroutine_scope->scope[std::string(x.m_name)] = return_var;
+
+        ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
+            subroutine_scope, VAR(return_var));
+
+        asr = ASR::make_Function_t(
+            al, x.base.base.loc,
+            /* a_name */ x.m_name,
+            /* a_args */ nullptr,
+            /* n_args */ 0,
+            /* a_body */ nullptr,
+            /* n_body */ 0,
+            /* a_bind */ nullptr,
+            /* a_return_var */ EXPR(return_var_ref),
+            /* a_module */ nullptr,
+            /* a_symtab */ subroutine_scope);
+        std::string sym_name = x.m_name;
+        if (translation_unit_scope->scope.find(sym_name) != translation_unit_scope->scope.end()) {
+            throw SemanticError("Function already defined", asr->loc);
+        }
+        translation_unit_scope->scope[sym_name] = asr;
+    }
+
     void visit_decl(const AST::decl_t &x) {
         std::string sym = x.m_sym;
         std::string sym_type = x.m_sym_type;
@@ -172,21 +227,6 @@ public:
 
         }
     }
-
-    void visit_Function(const AST::Function_t &x) {
-        ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                8, nullptr, 0));
-        ASR::expr_t *return_var = EXPR(ASR::make_VariableOld_t(al, x.base.base.loc,
-                x.m_name, nullptr, 1, type));
-        asr = ASR::make_Function_t(al, x.base.base.loc,
-            /*char* a_name*/ x.m_name,
-            /*expr_t** a_args*/ nullptr, /*size_t n_args*/ 0,
-            /*stmt_t** a_body*/ nullptr, /*size_t n_body*/ 0,
-            /*tbind_t* a_bind*/ nullptr,
-            /*expr_t* a_return_var*/ return_var,
-            /*char* a_module*/ nullptr,
-            /*int *object* a_symtab*/ 0);
-    }
 };
 
 class BodyVisitor : public AST::BaseVisitor<BodyVisitor>
@@ -223,24 +263,21 @@ public:
     }
 
     void visit_Function(const AST::Function_t &x) {
+        ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
+        ASR::Function_t *v = FUNCTION(t);
+        current_scope = v->m_symtab;
         Vec<ASR::stmt_t*> body;
-        body.reserve(al, 8);
+        body.reserve(al, x.n_body);
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
             ASR::stmt_t *stmt = STMT(tmp);
             body.push_back(al, stmt);
         }
-        // TODO:
-        // We must keep track of the current scope, lookup this function in the
-        // scope as "_current_function" and attach the body to it. For now we
-        // simply assume `asr` is this very function:
-        ASR::Function_t *current_fn = (ASR::Function_t*)asr;
-        current_fn->m_body = &body.p[0];
-        current_fn->n_body = body.size();
+        v->m_body = body.p;
+        v->n_body = body.size();
     }
 
     void visit_Assignment(const AST::Assignment_t &x) {
-        // TODO: assign this to the function's body in the ASR.
         this->visit_expr(*x.m_target);
         ASR::expr_t *target = EXPR(tmp);
         this->visit_expr(*x.m_value);
