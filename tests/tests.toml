@@ -16,8 +16,8 @@ ast = true
 [[test]]
 filename = "subroutine3.f90"
 ast = true
-# TODO: get these working again:
-#asr = true
+asr = true
+# TODO: get this working again:
 #llvm = true
 
 [[test]]
