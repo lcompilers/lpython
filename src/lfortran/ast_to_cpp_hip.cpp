@@ -861,7 +861,8 @@ public:
         if (std::string(x.m_func) == "size") {
             // TODO: Hardwire the correct result for now:
             //r = "a.extent(0);";
-            r = "sizeof(a)/sizeof(float);";
+            //r = "sizeof(a)/sizeof(float);";
+            r = "a_size;";
         } else {
             r.append(x.m_func);
             vars.push_back(x.m_func);
@@ -975,18 +976,26 @@ public:
             r.append(" ");
             r.append(x.m_sym);
         } else {
+            bool appendsize = false;
             if (std::string(((Attribute_t*)(x.m_attrs[0]))->m_args[0].m_arg) == "in") {
                 if (x.n_dims == 0) {
                     r.append("float ");
                 } else {
                     //r.append("const Kokkos::View<const float*> & ");
                     r.append("float *");
+                    appendsize = true;
                 }
             } else {
                 //r.append("const Kokkos::View<float*> & ");
                 r.append("float *");
+                appendsize = true;
             }
             r.append(x.m_sym);
+            if (appendsize) {
+                r.append(", size_t ");
+                r.append(x.m_sym);
+                r.append("_size");
+            }
         }
         /*
         std::string r = std::string(x.m_sym_type);
