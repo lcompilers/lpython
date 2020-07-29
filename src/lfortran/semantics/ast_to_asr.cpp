@@ -85,7 +85,7 @@ public:
             visit_ast(*x.m_items[i]);
         }
         asr = ASR::make_TranslationUnit_t(al, x.base.base.loc,
-            translation_unit_scope);
+            translation_unit_scope, nullptr, 0);
     }
 
     void visit_Subroutine(const AST::Subroutine_t &x) {

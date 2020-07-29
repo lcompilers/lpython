@@ -355,7 +355,7 @@ end function)";
 
     // AST -> ASR
     LFortran::ASR::asr_t* asr = LFortran::ast_to_asr(al, *tu);
-    CHECK(LFortran::pickle(*asr) == "(TranslationUnit {f: (Function f [] [(= (Var {f: (Variable f 4 (Integer 4 []))} (Variable f 4 (Integer 4 []))) (Num Unimplementedobject (Integer 8 [])))] () (Var {f: (Variable f 4 (Integer 4 []))} (Variable f 4 (Integer 4 []))) () {f: (Variable f 4 (Integer 4 []))})})");
+    CHECK(LFortran::pickle(*asr) == "(TranslationUnit {f: (Function f [] [(= (Var {f: (Variable f 4 (Integer 4 []))} (Variable f 4 (Integer 4 []))) (Num Unimplementedobject (Integer 8 [])))] () (Var {f: (Variable f 4 (Integer 4 []))} (Variable f 4 (Integer 4 []))) () {f: (Variable f 4 (Integer 4 []))})} [])");
 
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
@@ -383,7 +383,7 @@ end function)";
 
     // AST -> ASR
     LFortran::ASR::asr_t* asr = LFortran::ast_to_asr(al, *tu);
-    CHECK(LFortran::pickle(*asr) == "(TranslationUnit {f: (Function f [] [(= (Var {f: (Variable f 4 (Integer 4 []))} (Variable f 4 (Integer 4 []))) (Num Unimplementedobject (Integer 8 [])))] () (Var {f: (Variable f 4 (Integer 4 []))} (Variable f 4 (Integer 4 []))) () {f: (Variable f 4 (Integer 4 []))})})");
+    CHECK(LFortran::pickle(*asr) == "(TranslationUnit {f: (Function f [] [(= (Var {f: (Variable f 4 (Integer 4 []))} (Variable f 4 (Integer 4 []))) (Num Unimplementedobject (Integer 8 [])))] () (Var {f: (Variable f 4 (Integer 4 []))} (Variable f 4 (Integer 4 []))) () {f: (Variable f 4 (Integer 4 []))})} [])");
 
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
