@@ -161,7 +161,7 @@ public:
         indent_level -= 4;
         if (kernels.length() > 0)
         {
-            kernels = "#define blocksize 512\n\n" + kernels;
+            kernels = "#define blocksize 128\n\n" + kernels;
         }
         s = kernels + r;
     }
