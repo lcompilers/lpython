@@ -37,7 +37,7 @@ struct SymbolTable {
         }
         std::hash<std::string> hasher;
         size_t hash_int = hasher(str);
-        return hexify(hash_int);
+        return hexify(hash_int).substr(0, 7);
     }
 };
 
