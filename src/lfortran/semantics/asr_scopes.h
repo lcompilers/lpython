@@ -2,43 +2,18 @@
 #define LFORTRAN_SEMANTICS_ASR_SCOPES_H
 
 #include <map>
-#include <hash_map>
-#include <iomanip>
-#include <sstream>
 
 namespace LFortran  {
 
 namespace ASR {
     struct asr_t;
 }
-std::string pickle(ASR::asr_t &asr, bool colors);
-
-template< typename T >
-std::string hexify(T i)
-{
-    std::stringbuf buf;
-    std::ostream os(&buf);
-    os << std::setfill('0') << std::setw(sizeof(T) * 2) << std::hex << i;
-    return buf.str();
-}
 
 struct SymbolTable {
     std::map<std::string, ASR::asr_t*> scope;
 
-    // TODO: move this to a cpp file, together with the associated headers
-    //
     // Determines a stable hash based on the content of the symbol table
-    std::string get_hash() {
-        std::string str;
-        for (auto &a : scope) {
-            str += a.first + ": ";
-            str += pickle(*a.second, false);
-            str += ", ";
-        }
-        std::hash<std::string> hasher;
-        size_t hash_int = hasher(str);
-        return hexify(hash_int).substr(0, 7);
-    }
+    std::string get_hash();
 };
 
 const int intent_local=0; // local variable (not a dummy argument)
