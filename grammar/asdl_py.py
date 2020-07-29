@@ -182,6 +182,8 @@ class ASTNodeVisitor(ASDLVisitor):
                 type_ = "bool"
             elif type_ == "node":
                 type_ = "AST"
+            elif type_ == "symbol_table":
+                type_ = "object"
             self.emit('checkinstance(%s, %s, %r)' % \
                     (field.name, type_, field.opt), 2)
         self._fields.append("'" + field.name + "'")

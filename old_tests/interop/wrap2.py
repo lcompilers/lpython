@@ -63,7 +63,7 @@ class NodeTransformer(asr.NodeTransformerBase):
             bind = None
         return asr.Function(name=name, args=args, body=body, bind=bind, return_var=return_var, symtab=symtab)
 
-    def visit_Variable(self, node):
+    def visit_VariableOld(self, node):
         if self._lookup == 1:
             return self._scope.resolve(node.name)
         elif self._lookup == 2:

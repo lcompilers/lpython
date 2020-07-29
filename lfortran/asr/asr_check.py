@@ -53,7 +53,7 @@ class ASRVerifyVisitor(asr.ASTVisitor):
 
     def visit_Function(self, node):
         def var_in_symtab(v, symtab):
-            assert isinstance(v, asr.Variable)
+            assert isinstance(v, asr.VariableOld)
             assert v.name in symtab.symbols
             assert v == symtab.symbols[v.name]
         def check_bound(b):
@@ -61,7 +61,7 @@ class ASRVerifyVisitor(asr.ASTVisitor):
                 pass
             elif isinstance(b, asr.Num):
                 assert isinstance(b.type, asr.Integer)
-            elif isinstance(b, asr.Variable):
+            elif isinstance(b, asr.VariableOld):
                 var_in_symtab(b, node.symtab)
             else:
                 raise NotImplementedError()
@@ -75,12 +75,12 @@ class ASRVerifyVisitor(asr.ASTVisitor):
                 lb, ub = d.start, d.end
                 check_bound(lb)
                 check_bound(ub)
-        assert isinstance(node.return_var, asr.Variable)
+        assert isinstance(node.return_var, asr.VariableOld)
         assert node.return_var.name in node.symtab.symbols
         assert node.return_var.dummy == True
         assert node.return_var.intent is None
 
-    def visit_Variable(self, node):
+    def visit_VariableOld(self, node):
         pass
 
 

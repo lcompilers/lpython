@@ -16,7 +16,7 @@ class ASR2ASTVisitor(asr.ASTVisitor):
         items = []
         for s in node.global_scope.symbols:
             sym = node.global_scope.symbols[s]
-            if isinstance(sym, asr.Variable):
+            if isinstance(sym, asr.VariableOld):
                 stype = self.visit(sym.type)
                 decl.append(ast.Declaration(vars=[
                     ast.decl(sym=sym.name, sym_type=stype)]))
@@ -66,7 +66,7 @@ class ASR2ASTVisitor(asr.ASTVisitor):
             raise NotImplementedError()
         return ast.BinOp(left, op, right)
 
-    def visit_Variable(self, node):
+    def visit_VariableOld(self, node):
         return ast.Name(id=node.name)
 
     def visit_Num(self, node):
@@ -123,7 +123,7 @@ class ASR2ASTVisitor(asr.ASTVisitor):
                 attrs=attrs, dims=dims)]))
         for s in node.symtab.symbols:
             sym = node.symtab.symbols[s]
-            if isinstance(sym, asr.Variable):
+            if isinstance(sym, asr.VariableOld):
                 if sym.dummy:
                     continue
                 stype = self.visit(sym.type)

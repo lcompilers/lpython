@@ -79,7 +79,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
             # FIXME: should return None here
             #type = None
             type = make_type_integer()
-        return_var = asr.Variable(name=name, type=type)
+        return_var = asr.VariableOld(name=name, type=type)
         f = scope_add_function(self.scope, node.name,
                 args=args, return_var=return_var)
         with self.add_scope(f.symtab):
@@ -102,7 +102,7 @@ class SymbolTableVisitor(ast.GenericASTVisitor):
             if name in self.scope.symbols:
                 sym = self.scope.symbols[name]
             else:
-                sym = asr.Variable(name=name, type=type, dummy=False)
+                sym = asr.VariableOld(name=name, type=type, dummy=False)
                 scope_add_symbol(self.scope, sym)
             assert sym.name == name
             for a in v.attrs:
