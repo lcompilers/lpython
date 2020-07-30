@@ -67,3 +67,8 @@ asr = true
 filename = "expr2.f90"
 ast = true
 asr = true
+
+[[test]]
+filename = "expr3.f90"
+ast = true
+asr = true
