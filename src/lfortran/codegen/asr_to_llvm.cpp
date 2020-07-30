@@ -120,11 +120,41 @@ public:
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
+        // TODO: currently we assign to the return value.
+        // Allow to assign to a variable.
         //this->visit_expr(*x.m_target);
         //LFORTRAN_ASSERT(x.m_target.m_id == "f");
         this->visit_expr(*x.m_value);
         llvm::Value *ret_val = tmp;
         builder->CreateRet(ret_val);
+    }
+    void visit_BinOp(const ASR::BinOp_t &x) {
+        this->visit_expr(*x.m_left);
+        llvm::Value *left_val = tmp;
+        this->visit_expr(*x.m_right);
+        llvm::Value *right_val = tmp;
+        switch (x.m_op) {
+            case ASR::operatorType::Add: { 
+                tmp = builder->CreateAdd(left_val, right_val);
+                break;
+            };
+            case ASR::operatorType::Sub: { 
+                tmp = builder->CreateSub(left_val, right_val);
+                break;
+            };
+            case ASR::operatorType::Mul: { 
+                tmp = builder->CreateMul(left_val, right_val);
+                break;
+            };
+            case ASR::operatorType::Div: { 
+                tmp = builder->CreateUDiv(left_val, right_val);
+                break;
+            };
+            case ASR::operatorType::Pow: { 
+                throw CodeGenError("Pow not implemented yet");
+                break;
+            };
+        }
     }
     void visit_Num(const ASR::Num_t &x) {
         tmp = llvm::ConstantInt::get(context, llvm::APInt(64, x.m_n));
