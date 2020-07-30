@@ -194,6 +194,23 @@ public:
         s.append(VARIABLE((ASR::asr_t*)x.m_v)->m_name);
         s.append(")");
     }
+    void visit_Num(const ASR::Num_t &x) {
+        s.append("(");
+        if (use_colors) {
+            s.append(color(style::bold));
+            s.append(color(fg::magenta));
+        }
+        s.append("Num");
+        if (use_colors) {
+            s.append(color(fg::reset));
+            s.append(color(style::reset));
+        }
+        s.append(" ");
+        s.append(std::to_string(x.m_n));
+        s.append(" ");
+        this->visit_ttype(*x.m_type);
+        s.append(")");
+    }
 };
 
 std::string pickle(LFortran::ASR::asr_t &asr, bool colors) {
