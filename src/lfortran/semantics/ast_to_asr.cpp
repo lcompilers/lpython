@@ -77,7 +77,6 @@ public:
 
     SymbolTableVisitor(Allocator &al) : al{al} {
         translation_unit_scope = al.make_new<SymbolTable>();
-        current_scope = al.make_new<SymbolTable>();
     }
 
     void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
@@ -89,6 +88,7 @@ public:
     }
 
     void visit_Subroutine(const AST::Subroutine_t &x) {
+        current_scope = al.make_new<SymbolTable>();
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
         }
@@ -119,6 +119,7 @@ public:
     }
 
     void visit_Function(const AST::Function_t &x) {
+        current_scope = al.make_new<SymbolTable>();
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
         }
