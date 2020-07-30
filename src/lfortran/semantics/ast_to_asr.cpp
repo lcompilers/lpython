@@ -74,11 +74,11 @@ public:
     Allocator &al;
     SymbolTable *current_scope;
 
-    SymbolTableVisitor(Allocator &al) : al{al} {
-        current_scope = al.make_new<SymbolTable>();
-    }
+    SymbolTableVisitor(Allocator &al) : al{al}, current_scope{nullptr} { }
 
     void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
+        LFORTRAN_ASSERT(current_scope == nullptr);
+        current_scope = al.make_new<SymbolTable>();
         for (size_t i=0; i<x.n_items; i++) {
             visit_ast(*x.m_items[i]);
         }
