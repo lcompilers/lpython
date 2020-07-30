@@ -1,0 +1,13 @@
+{
+    "basename": "asr-expr4-bb584f7",
+    "cmd": "lfortran --show-asr {infile} -o {outfile}",
+    "infile": "tests/expr4.f90",
+    "infile_hash": "104847f7b62623d6e9d6d752ab2c6c58a31b70bc70a9cae0b5809241",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-expr4-bb584f7.stdout",
+    "stdout_hash": "6ecaf9dbf99474f9110ad70834c8f74d58ac510b8fb60e4e0d9a1324",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

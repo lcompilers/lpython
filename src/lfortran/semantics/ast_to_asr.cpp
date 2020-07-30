@@ -67,27 +67,46 @@ static inline ASR::ttype_t* TYPE(const ASR::asr_t *f)
     return (ASR::ttype_t*)f;
 }
 
-class SymbolTableVisitor : public AST::BaseWalkVisitor<SymbolTableVisitor>
+static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
+{
+    switch (f->type) {
+        case ASR::exprType::BoolOp: { return ((ASR::BoolOp_t*)f)->m_type; }
+        case ASR::exprType::BinOp: { return ((ASR::BinOp_t*)f)->m_type; }
+        case ASR::exprType::UnaryOp: { return ((ASR::UnaryOp_t*)f)->m_type; }
+        case ASR::exprType::Compare: { return ((ASR::Compare_t*)f)->m_type; }
+        case ASR::exprType::FuncCall: { return ((ASR::FuncCall_t*)f)->m_type; }
+        case ASR::exprType::ArrayRef: { return ((ASR::ArrayRef_t*)f)->m_type; }
+        case ASR::exprType::ArrayInitializer: { return ((ASR::ArrayInitializer_t*)f)->m_type; }
+        case ASR::exprType::Num: { return ((ASR::Num_t*)f)->m_type; }
+        case ASR::exprType::Str: { return ((ASR::Str_t*)f)->m_type; }
+        case ASR::exprType::VariableOld: { return ((ASR::VariableOld_t*)f)->m_type; }
+        case ASR::exprType::Var: { return VARIABLE((ASR::asr_t*)((ASR::Var_t*)f)->m_v)->m_type; }
+        case ASR::exprType::Constant: { return ((ASR::Constant_t*)f)->m_type; }
+        default : throw LFortranException("Not implemented");
+    }
+}
+
+class SymbolTableVisitor : public AST::BaseVisitor<SymbolTableVisitor>
 {
 public:
     ASR::asr_t *asr;
     Allocator &al;
-    SymbolTable *translation_unit_scope;
     SymbolTable *current_scope;
 
-    SymbolTableVisitor(Allocator &al) : al{al} {
-        translation_unit_scope = al.make_new<SymbolTable>();
-    }
+    SymbolTableVisitor(Allocator &al) : al{al}, current_scope{nullptr} { }
 
     void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
+        LFORTRAN_ASSERT(current_scope == nullptr);
+        current_scope = al.make_new<SymbolTable>();
         for (size_t i=0; i<x.n_items; i++) {
             visit_ast(*x.m_items[i]);
         }
         asr = ASR::make_TranslationUnit_t(al, x.base.base.loc,
-            translation_unit_scope, nullptr, 0);
+            current_scope, nullptr, 0);
     }
 
     void visit_Subroutine(const AST::Subroutine_t &x) {
+        SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>();
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
@@ -112,13 +131,15 @@ public:
             /* a_bind */ nullptr,
             /* a_symtab */ current_scope);
         std::string sym_name = x.m_name;
-        if (translation_unit_scope->scope.find(sym_name) != translation_unit_scope->scope.end()) {
+        if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             throw SemanticError("Subroutine already defined", asr->loc);
         }
-        translation_unit_scope->scope[sym_name] = asr;
+        parent_scope->scope[sym_name] = asr;
+        current_scope = parent_scope;
     }
 
     void visit_Function(const AST::Function_t &x) {
+        SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>();
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
@@ -154,10 +175,17 @@ public:
             /* a_module */ nullptr,
             /* a_symtab */ current_scope);
         std::string sym_name = x.m_name;
-        if (translation_unit_scope->scope.find(sym_name) != translation_unit_scope->scope.end()) {
+        if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             throw SemanticError("Function already defined", asr->loc);
         }
-        translation_unit_scope->scope[sym_name] = asr;
+        parent_scope->scope[sym_name] = asr;
+        current_scope = parent_scope;
+    }
+
+    void visit_Declaration(const AST::Declaration_t &x) {
+        for (size_t i=0; i<x.n_vars; i++) {
+            this->visit_decl(x.m_vars[i]);
+        }
     }
 
     void visit_decl(const AST::decl_t &x) {
@@ -228,6 +256,8 @@ public:
 
         }
     }
+
+    void visit_expr(const AST::expr_t &x) {}
 };
 
 class BodyVisitor : public AST::BaseVisitor<BodyVisitor>
@@ -239,10 +269,19 @@ public:
     BodyVisitor(Allocator &al, ASR::asr_t *unit) : al{al}, asr{unit} {}
 
     void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
-        current_scope = TRANSLATION_UNIT(asr)->m_global_scope;
+        ASR::TranslationUnit_t *unit = TRANSLATION_UNIT(asr);
+        current_scope = unit->m_global_scope;
+        Vec<ASR::asr_t*> items;
+        items.reserve(al, x.n_items);
         for (size_t i=0; i<x.n_items; i++) {
+            tmp = nullptr;
             visit_ast(*x.m_items[i]);
+            if (tmp) {
+                items.push_back(al, tmp);
+            }
         }
+        unit->m_items = items.p;
+        unit->n_items = items.size();
     }
 
     void visit_Subroutine(const AST::Subroutine_t &x) {
@@ -263,6 +302,7 @@ public:
         v->m_body = body.p;
         v->n_body = body.size();
         current_scope = old_scope;
+        tmp = nullptr;
     }
 
     void visit_Function(const AST::Function_t &x) {
@@ -280,6 +320,7 @@ public:
         v->m_body = body.p;
         v->n_body = body.size();
         current_scope = old_scope;
+        tmp = nullptr;
     }
 
     void visit_Assignment(const AST::Assignment_t &x) {
@@ -312,10 +353,12 @@ public:
                 op = ASR::Pow;
                 break;
         }
-        LFORTRAN_ASSERT(left->type == right->type);
-        // TODO: For now assume reals:
-        ASR::ttype_t *type = TYPE(ASR::make_Real_t(al, x.base.base.loc,
-                4, nullptr, 0));
+        // TODO: For now we require the types to match (implicit casting is not
+        // implemented yet)
+        ASR::ttype_t *left_type = expr_type(left);
+        ASR::ttype_t *right_type = expr_type(right);
+        LFORTRAN_ASSERT(left_type->type == right_type->type);
+        ASR::ttype_t *type = left_type;
         tmp = ASR::make_BinOp_t(al, x.base.base.loc,
                 left, op, right, type);
     }
@@ -340,6 +383,15 @@ public:
         ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 8, nullptr, 0));
         tmp = ASR::make_Num_t(al, x.base.base.loc, x.m_n, type);
+    }
+    void visit_Real(const AST::Real_t &x) {
+        ASR::ttype_t *type = TYPE(ASR::make_Real_t(al, x.base.base.loc,
+                4, nullptr, 0));
+        std::string f = x.m_n;
+        float f2 = std::stof(f);
+        // TODO: represent Real numbers properly in ASR
+        int f3 = int(f2); // For now we cast floats to ints
+        tmp = ASR::make_Num_t(al, x.base.base.loc, f3, type);
     }
 };
 

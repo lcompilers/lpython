@@ -57,3 +57,23 @@ asr = true
 [[test]]
 filename = "errors/subroutine5.f90"
 asr = true
+
+[[test]]
+filename = "expr1.f90"
+ast = true
+asr = true
+
+[[test]]
+filename = "expr2.f90"
+ast = true
+asr = true
+
+[[test]]
+filename = "expr3.f90"
+ast = true
+asr = true
+
+[[test]]
+filename = "expr4.f90"
+ast = true
+asr = true
