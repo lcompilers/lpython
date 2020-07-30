@@ -3,6 +3,7 @@
 
 #include <bin/CLI11.hpp>
 
+#include <lfortran/stacktrace.h>
 #include <lfortran/parser/parser.h>
 #include <lfortran/pickle.h>
 #include <lfortran/semantics/ast_to_asr.h>
@@ -255,6 +256,9 @@ int emit_llvm(const std::string &infile)
 
 int main(int argc, char *argv[])
 {
+#if defined(HAVE_LFORTRAN_STACKTRACE)
+    LFortran::print_stack_on_segfault();
+#endif
     bool arg_S = false;
     bool arg_c = false;
     bool arg_v = false;

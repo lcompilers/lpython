@@ -97,6 +97,29 @@ if (WITH_JSON)
     find_package(RapidJSON REQUIRED)
 endif()
 
+set(HAVE_LFORTRAN_DEMANGLE yes
+    CACHE BOOL "Build with C++ name demangling support (cxxabi.h)")
+
+if (MSVC)
+    # MSVC doesn't have cxxabi.h
+    set(HAVE_LFORTRAN_DEMANGLE no)
+endif()
+
+# Stacktrace
+set(WITH_STACKTRACE no
+    CACHE BOOL "Build with stacktrace support (requires binutils-dev)")
+
+if (WITH_STACKTRACE)
+    find_package(BFD REQUIRED)
+    find_package(LINK REQUIRED)
+    find_package(EXECINFO REQUIRED)
+    set(HAVE_LFORTRAN_BFD yes)
+    set(HAVE_LFORTRAN_LINK yes)
+    set(HAVE_LFORTRAN_EXECINFO yes)
+    set(HAVE_LFORTRAN_STACKTRACE yes)
+endif()
+
+
 # Python
 set(WITH_PYTHON no CACHE BOOL "Build with Python wrappers")
 if (WITH_PYTHON)
@@ -124,6 +147,8 @@ endif ()
 message("Installation prefix: ${CMAKE_INSTALL_PREFIX}")
 message("WITH_LFORTRAN_ASSERT: ${WITH_LFORTRAN_ASSERT}")
 message("LFORTRAN_STATIC_BIN: ${LFORTRAN_STATIC_BIN}")
+message("WITH_STACKTRACE: ${WITH_STACKTRACE}")
+message("HAVE_LFORTRAN_DEMANGLE: ${HAVE_LFORTRAN_DEMANGLE}")
 message("WITH_LLVM: ${WITH_LLVM}")
 message("WITH_JSON: ${WITH_JSON}")
 message("WITH_PYTHON: ${WITH_PYTHON}")
