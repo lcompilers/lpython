@@ -67,7 +67,7 @@ static inline ASR::ttype_t* TYPE(const ASR::asr_t *f)
     return (ASR::ttype_t*)f;
 }
 
-class SymbolTableVisitor : public AST::BaseWalkVisitor<SymbolTableVisitor>
+class SymbolTableVisitor : public AST::BaseVisitor<SymbolTableVisitor>
 {
 public:
     ASR::asr_t *asr;
@@ -161,6 +161,12 @@ public:
         }
         parent_scope->scope[sym_name] = asr;
         current_scope = parent_scope;
+    }
+
+    void visit_Declaration(const AST::Declaration_t &x) {
+        for (size_t i=0; i<x.n_vars; i++) {
+            this->visit_decl(x.m_vars[i]);
+        }
     }
 
     void visit_decl(const AST::decl_t &x) {
