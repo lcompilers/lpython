@@ -72,11 +72,10 @@ class SymbolTableVisitor : public AST::BaseWalkVisitor<SymbolTableVisitor>
 public:
     ASR::asr_t *asr;
     Allocator &al;
-    SymbolTable *translation_unit_scope;
     SymbolTable *current_scope;
 
     SymbolTableVisitor(Allocator &al) : al{al} {
-        translation_unit_scope = al.make_new<SymbolTable>();
+        current_scope = al.make_new<SymbolTable>();
     }
 
     void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
@@ -84,10 +83,11 @@ public:
             visit_ast(*x.m_items[i]);
         }
         asr = ASR::make_TranslationUnit_t(al, x.base.base.loc,
-            translation_unit_scope, nullptr, 0);
+            current_scope, nullptr, 0);
     }
 
     void visit_Subroutine(const AST::Subroutine_t &x) {
+        SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>();
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
@@ -112,13 +112,15 @@ public:
             /* a_bind */ nullptr,
             /* a_symtab */ current_scope);
         std::string sym_name = x.m_name;
-        if (translation_unit_scope->scope.find(sym_name) != translation_unit_scope->scope.end()) {
+        if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             throw SemanticError("Subroutine already defined", asr->loc);
         }
-        translation_unit_scope->scope[sym_name] = asr;
+        parent_scope->scope[sym_name] = asr;
+        current_scope = parent_scope;
     }
 
     void visit_Function(const AST::Function_t &x) {
+        SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>();
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
@@ -154,10 +156,11 @@ public:
             /* a_module */ nullptr,
             /* a_symtab */ current_scope);
         std::string sym_name = x.m_name;
-        if (translation_unit_scope->scope.find(sym_name) != translation_unit_scope->scope.end()) {
+        if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             throw SemanticError("Function already defined", asr->loc);
         }
-        translation_unit_scope->scope[sym_name] = asr;
+        parent_scope->scope[sym_name] = asr;
+        current_scope = parent_scope;
     }
 
     void visit_decl(const AST::decl_t &x) {
