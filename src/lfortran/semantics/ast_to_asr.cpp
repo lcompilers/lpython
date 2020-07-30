@@ -384,6 +384,15 @@ public:
                 8, nullptr, 0));
         tmp = ASR::make_Num_t(al, x.base.base.loc, x.m_n, type);
     }
+    void visit_Real(const AST::Real_t &x) {
+        ASR::ttype_t *type = TYPE(ASR::make_Real_t(al, x.base.base.loc,
+                4, nullptr, 0));
+        std::string f = x.m_n;
+        float f2 = std::stof(f);
+        // TODO: represent Real numbers properly in ASR
+        int f3 = int(f2); // For now we cast floats to ints
+        tmp = ASR::make_Num_t(al, x.base.base.loc, f3, type);
+    }
 };
 
 ASR::asr_t *ast_to_asr(Allocator &al, AST::TranslationUnit_t &ast)
