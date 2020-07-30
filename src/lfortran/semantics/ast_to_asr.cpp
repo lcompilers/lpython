@@ -237,6 +237,8 @@ public:
 
         }
     }
+
+    void visit_Num(const AST::Num_t &x) {}
 };
 
 class BodyVisitor : public AST::BaseVisitor<BodyVisitor>
@@ -248,10 +250,19 @@ public:
     BodyVisitor(Allocator &al, ASR::asr_t *unit) : al{al}, asr{unit} {}
 
     void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
-        current_scope = TRANSLATION_UNIT(asr)->m_global_scope;
+        ASR::TranslationUnit_t *unit = TRANSLATION_UNIT(asr);
+        current_scope = unit->m_global_scope;
+        Vec<ASR::asr_t*> items;
+        items.reserve(al, x.n_items);
         for (size_t i=0; i<x.n_items; i++) {
+            tmp = nullptr;
             visit_ast(*x.m_items[i]);
+            if (tmp) {
+                items.push_back(al, tmp);
+            }
         }
+        unit->m_items = items.p;
+        unit->n_items = items.size();
     }
 
     void visit_Subroutine(const AST::Subroutine_t &x) {
@@ -272,6 +283,7 @@ public:
         v->m_body = body.p;
         v->n_body = body.size();
         current_scope = old_scope;
+        tmp = nullptr;
     }
 
     void visit_Function(const AST::Function_t &x) {
@@ -289,6 +301,7 @@ public:
         v->m_body = body.p;
         v->n_body = body.size();
         current_scope = old_scope;
+        tmp = nullptr;
     }
 
     void visit_Assignment(const AST::Assignment_t &x) {

@@ -61,3 +61,4 @@ asr = true
 [[test]]
 filename = "expr1.f90"
 ast = true
+asr = true
