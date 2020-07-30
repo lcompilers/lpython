@@ -16,6 +16,11 @@ if (WITH_JSON)
         ast_to_json.cpp
     )
 endif()
+if (WITH_STACKTRACE)
+    set(SRC ${SRC}
+        stacktrace.cpp
+    )
+endif()
 if (WITH_LLVM)
     set(SRC ${SRC}
         codegen/evaluator.cpp
@@ -27,6 +32,9 @@ target_include_directories(lfortran_lib BEFORE PUBLIC ${lfortran_SOURCE_DIR}/src
 target_include_directories(lfortran_lib BEFORE PUBLIC ${lfortran_BINARY_DIR}/src)
 if (WITH_JSON)
     target_link_libraries(lfortran_lib p::rapidjson)
+endif()
+if (WITH_STACKTRACE)
+    target_link_libraries(lfortran_lib p::bfd p::link p::execinfo)
 endif()
 if (WITH_LLVM)
     target_link_libraries(lfortran_lib p::llvm)
