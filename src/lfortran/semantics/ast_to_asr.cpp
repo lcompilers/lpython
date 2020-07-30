@@ -248,6 +248,7 @@ public:
     // TODO: add SymbolTable::lookup_symbol(), which will automatically return
     // an error
     // TODO: add SymbolTable::get_symbol(), which will only check in Debug mode
+        SymbolTable *old_scope = current_scope;
         ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
         ASR::Subroutine_t *v = SUBROUTINE(t);
         current_scope = v->m_symtab;
@@ -260,9 +261,11 @@ public:
         }
         v->m_body = body.p;
         v->n_body = body.size();
+        current_scope = old_scope;
     }
 
     void visit_Function(const AST::Function_t &x) {
+        SymbolTable *old_scope = current_scope;
         ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
         ASR::Function_t *v = FUNCTION(t);
         current_scope = v->m_symtab;
@@ -275,6 +278,7 @@ public:
         }
         v->m_body = body.p;
         v->n_body = body.size();
+        current_scope = old_scope;
     }
 
     void visit_Assignment(const AST::Assignment_t &x) {
