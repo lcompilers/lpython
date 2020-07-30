@@ -360,7 +360,7 @@ end function)";
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
     std::unique_ptr<LFortran::LLVMModule> m = LFortran::asr_to_llvm(*asr,
-            e.get_context());
+            e.get_context(), al);
     std::cout << "Module:" << std::endl;
     std::cout << m->str() << std::endl;
 
@@ -388,7 +388,7 @@ end function)";
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
     std::unique_ptr<LFortran::LLVMModule> m = LFortran::asr_to_llvm(*asr,
-            e.get_context());
+            e.get_context(), al);
     std::cout << "Module:" << std::endl;
     std::cout << m->str() << std::endl;
 

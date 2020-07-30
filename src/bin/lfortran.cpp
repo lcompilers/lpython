@@ -107,7 +107,7 @@ int prompt()
         LFortran::LLVMEvaluator e;
         std::unique_ptr<LFortran::LLVMModule> m;
         try {
-            m = LFortran::asr_to_llvm(*asr, e.get_context());
+            m = LFortran::asr_to_llvm(*asr, e.get_context(), al);
         } catch (const LFortran::CodeGenError &e) {
             std::cout << "Code generation error: " << e.msg() << std::endl;
             continue;
@@ -243,7 +243,7 @@ int emit_llvm(const std::string &infile)
     LFortran::LLVMEvaluator e;
     std::unique_ptr<LFortran::LLVMModule> m;
     try {
-        m = LFortran::asr_to_llvm(*asr, e.get_context());
+        m = LFortran::asr_to_llvm(*asr, e.get_context(), al);
     } catch (const LFortran::CodeGenError &e) {
         std::cerr << "Code generation error: " << e.msg() << std::endl;
         return 5;
