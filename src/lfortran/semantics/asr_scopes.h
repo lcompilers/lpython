@@ -11,6 +11,9 @@ namespace ASR {
 
 struct SymbolTable {
     std::map<std::string, ASR::asr_t*> scope;
+
+    // Determines a stable hash based on the content of the symbol table
+    std::string get_hash();
 };
 
 const int intent_local=0; // local variable (not a dummy argument)

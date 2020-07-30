@@ -162,12 +162,37 @@ std::string pickle(AST::TranslationUnit_t &ast, bool colors) {
 /* -----------------------------------------------------------------------*/
 // ASR
 
+static inline ASR::Variable_t* VARIABLE(const ASR::asr_t *f)
+{
+    LFORTRAN_ASSERT(f->type == ASR::asrType::var);
+    ASR::var_t *t = (ASR::var_t *)f;
+    LFORTRAN_ASSERT(t->type == ASR::varType::Variable);
+    return (ASR::Variable_t*)t;
+}
+
 class ASRPickleVisitor :
     public LFortran::ASR::PickleBaseVisitor<ASRPickleVisitor>
 {
 public:
     std::string get_str() {
         return s;
+    }
+    void visit_Var(const ASR::Var_t &x) {
+        s.append("(");
+        if (use_colors) {
+            s.append(color(style::bold));
+            s.append(color(fg::magenta));
+        }
+        s.append("Var");
+        if (use_colors) {
+            s.append(color(fg::reset));
+            s.append(color(style::reset));
+        }
+        s.append(" ");
+        s.append(x.m_symtab->get_hash());
+        s.append(" ");
+        s.append(VARIABLE((ASR::asr_t*)x.m_v)->m_name);
+        s.append(")");
     }
 };
 
