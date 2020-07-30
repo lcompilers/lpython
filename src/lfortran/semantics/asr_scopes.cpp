@@ -1,5 +1,4 @@
 #include <iomanip>
-#include <sstream>
 
 #include <lfortran/semantics/asr_scopes.h>
 #include <lfortran/pickle.h>
@@ -61,9 +60,8 @@ std::string SymbolTable::get_hash() {
         str += pickle(*a.second, false);
         str += ", ";
     }
-    std::hash<std::string> hasher;
-    size_t hash_int = hasher(str);
-    return hexify(hash_int).substr(0, 7);
+    uint32_t hash = murmur_hash(&str[0], str.size(), 3);
+    return hexify(hash);
 }
 
 
