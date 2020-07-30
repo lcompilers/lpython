@@ -1,4 +1,5 @@
 #include <iomanip>
+#include <sstream>
 
 #include <lfortran/semantics/asr_scopes.h>
 #include <lfortran/pickle.h>
