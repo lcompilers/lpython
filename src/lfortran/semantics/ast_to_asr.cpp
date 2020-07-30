@@ -73,11 +73,10 @@ public:
     ASR::asr_t *asr;
     Allocator &al;
     SymbolTable *translation_unit_scope;
-    SymbolTable *subroutine_scope;
+    SymbolTable *current_scope;
 
     SymbolTableVisitor(Allocator &al) : al{al} {
         translation_unit_scope = al.make_new<SymbolTable>();
-        subroutine_scope = al.make_new<SymbolTable>();
     }
 
     void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
@@ -89,6 +88,7 @@ public:
     }
 
     void visit_Subroutine(const AST::Subroutine_t &x) {
+        current_scope = al.make_new<SymbolTable>();
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
         }
@@ -98,7 +98,7 @@ public:
         for (size_t i=0; i<x.n_args; i++) {
             char *arg=x.m_args[i].m_arg;
             std::string args = arg;
-            if (subroutine_scope->scope.find(args) == subroutine_scope->scope.end()) {
+            if (current_scope->scope.find(args) == current_scope->scope.end()) {
                 throw SemanticError("Dummy argument '" + args + "' not defined", x.base.base.loc);
             }
         }
@@ -110,7 +110,7 @@ public:
             /* a_body */ nullptr,
             /* n_body */ 0,
             /* a_bind */ nullptr,
-            /* a_symtab */ subroutine_scope);
+            /* a_symtab */ current_scope);
         std::string sym_name = x.m_name;
         if (translation_unit_scope->scope.find(sym_name) != translation_unit_scope->scope.end()) {
             throw SemanticError("Subroutine already defined", asr->loc);
@@ -119,6 +119,7 @@ public:
     }
 
     void visit_Function(const AST::Function_t &x) {
+        current_scope = al.make_new<SymbolTable>();
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
         }
@@ -128,7 +129,7 @@ public:
         for (size_t i=0; i<x.n_args; i++) {
             char *arg=x.m_args[i].m_arg;
             std::string args = arg;
-            if (subroutine_scope->scope.find(args) == subroutine_scope->scope.end()) {
+            if (current_scope->scope.find(args) == current_scope->scope.end()) {
                 throw SemanticError("Dummy argument '" + args + "' not defined", x.base.base.loc);
             }
         }
@@ -136,10 +137,10 @@ public:
         type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
         ASR::asr_t *return_var = ASR::make_Variable_t(al, x.base.base.loc,
             x.m_name, intent_return_var, type);
-        subroutine_scope->scope[std::string(x.m_name)] = return_var;
+        current_scope->scope[std::string(x.m_name)] = return_var;
 
         ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
-            subroutine_scope, VAR(return_var));
+            current_scope, VAR(return_var));
 
         asr = ASR::make_Function_t(
             al, x.base.base.loc,
@@ -151,7 +152,7 @@ public:
             /* a_bind */ nullptr,
             /* a_return_var */ EXPR(return_var_ref),
             /* a_module */ nullptr,
-            /* a_symtab */ subroutine_scope);
+            /* a_symtab */ current_scope);
         std::string sym_name = x.m_name;
         if (translation_unit_scope->scope.find(sym_name) != translation_unit_scope->scope.end()) {
             throw SemanticError("Function already defined", asr->loc);
@@ -162,7 +163,7 @@ public:
     void visit_decl(const AST::decl_t &x) {
         std::string sym = x.m_sym;
         std::string sym_type = x.m_sym_type;
-        if (subroutine_scope->scope.find(sym) == subroutine_scope->scope.end()) {
+        if (current_scope->scope.find(sym) == current_scope->scope.end()) {
             int s_type;
             if (sym_type == "integer") {
                 s_type = 2;
@@ -223,7 +224,7 @@ public:
                 type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
             }
             ASR::asr_t *v = ASR::make_Variable_t(al, loc, x.m_sym, s_intent, type);
-            subroutine_scope->scope[sym] = v;
+            current_scope->scope[sym] = v;
 
         }
     }
@@ -248,6 +249,7 @@ public:
     // TODO: add SymbolTable::lookup_symbol(), which will automatically return
     // an error
     // TODO: add SymbolTable::get_symbol(), which will only check in Debug mode
+        SymbolTable *old_scope = current_scope;
         ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
         ASR::Subroutine_t *v = SUBROUTINE(t);
         current_scope = v->m_symtab;
@@ -260,9 +262,11 @@ public:
         }
         v->m_body = body.p;
         v->n_body = body.size();
+        current_scope = old_scope;
     }
 
     void visit_Function(const AST::Function_t &x) {
+        SymbolTable *old_scope = current_scope;
         ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
         ASR::Function_t *v = FUNCTION(t);
         current_scope = v->m_symtab;
@@ -275,6 +279,7 @@ public:
         }
         v->m_body = body.p;
         v->n_body = body.size();
+        current_scope = old_scope;
     }
 
     void visit_Assignment(const AST::Assignment_t &x) {
