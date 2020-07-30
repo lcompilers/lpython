@@ -20,6 +20,11 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "subroutine3b.f90"
+ast = true
+#asr = true
+
+[[test]]
 filename = "do1.f90"
 ast = true
 
