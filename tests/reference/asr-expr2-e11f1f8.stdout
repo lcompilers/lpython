@@ -1,1 +1,1 @@
-(TranslationUnit (SymbolTable 13759a54 {}) [(BinOp (Num Unimplementedobject (Integer 8 [])) operatorType0 (Num Unimplementedobject (Integer 8 [])) (Real 4 []))])
+(TranslationUnit (SymbolTable 13759a54 {}) [(BinOp (Num Unimplementedobject (Integer 8 [])) operatorType0 (Num Unimplementedobject (Integer 8 [])) (Integer 8 []))])

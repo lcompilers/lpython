@@ -67,6 +67,25 @@ static inline ASR::ttype_t* TYPE(const ASR::asr_t *f)
     return (ASR::ttype_t*)f;
 }
 
+static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
+{
+    switch (f->type) {
+        case ASR::exprType::BoolOp: { return ((ASR::BoolOp_t*)f)->m_type; }
+        case ASR::exprType::BinOp: { return ((ASR::BinOp_t*)f)->m_type; }
+        case ASR::exprType::UnaryOp: { return ((ASR::UnaryOp_t*)f)->m_type; }
+        case ASR::exprType::Compare: { return ((ASR::Compare_t*)f)->m_type; }
+        case ASR::exprType::FuncCall: { return ((ASR::FuncCall_t*)f)->m_type; }
+        case ASR::exprType::ArrayRef: { return ((ASR::ArrayRef_t*)f)->m_type; }
+        case ASR::exprType::ArrayInitializer: { return ((ASR::ArrayInitializer_t*)f)->m_type; }
+        case ASR::exprType::Num: { return ((ASR::Num_t*)f)->m_type; }
+        case ASR::exprType::Str: { return ((ASR::Str_t*)f)->m_type; }
+        case ASR::exprType::VariableOld: { return ((ASR::VariableOld_t*)f)->m_type; }
+        case ASR::exprType::Var: { return VARIABLE((ASR::asr_t*)((ASR::Var_t*)f)->m_v)->m_type; }
+        case ASR::exprType::Constant: { return ((ASR::Constant_t*)f)->m_type; }
+        default : throw LFortranException("Not implemented");
+    }
+}
+
 class SymbolTableVisitor : public AST::BaseVisitor<SymbolTableVisitor>
 {
 public:
@@ -334,10 +353,12 @@ public:
                 op = ASR::Pow;
                 break;
         }
-        LFORTRAN_ASSERT(left->type == right->type);
-        // TODO: For now assume reals:
-        ASR::ttype_t *type = TYPE(ASR::make_Real_t(al, x.base.base.loc,
-                4, nullptr, 0));
+        // TODO: For now we require the types to match (implicit casting is not
+        // implemented yet)
+        ASR::ttype_t *left_type = expr_type(left);
+        ASR::ttype_t *right_type = expr_type(right);
+        LFORTRAN_ASSERT(left_type->type == right_type->type);
+        ASR::ttype_t *type = left_type;
         tmp = ASR::make_BinOp_t(al, x.base.base.loc,
                 left, op, right, type);
     }
