@@ -238,7 +238,7 @@ public:
         }
     }
 
-    void visit_Num(const AST::Num_t &x) {}
+    void visit_expr(const AST::expr_t &x) {}
 };
 
 class BodyVisitor : public AST::BaseVisitor<BodyVisitor>
