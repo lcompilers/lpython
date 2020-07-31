@@ -82,17 +82,13 @@ static inline ASR::Variable_t* VARIABLE(const ASR::asr_t *f)
     return (ASR::Variable_t*)t;
 }
 
-class IRBuilder : public llvm::IRBuilder<>
-{
-};
-
 class ASRToLLVMVisitor : public ASR::BaseVisitor<ASRToLLVMVisitor>
 {
 public:
     llvm::LLVMContext &context;
     std::unique_ptr<llvm::Module> module;
+    std::unique_ptr<llvm::IRBuilder<>> builder;
 
-    IRBuilder *builder;
     llvm::Value *tmp;
 
     // TODO: This is not scoped, should lookup by hashes instead:
@@ -103,6 +99,8 @@ public:
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         module = std::make_unique<llvm::Module>("LFortran", context);
         module->setDataLayout("");
+        builder = std::make_unique<llvm::IRBuilder<>>(context);
+
 
         // All loose statements must be converted to a function, so the items
         // must be empty:
@@ -119,8 +117,6 @@ public:
                 llvm::Function::ExternalLinkage, "main", module.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
                 ".entry", F);
-        llvm::IRBuilder<> _builder = llvm::IRBuilder<>(BB);
-        builder = reinterpret_cast<IRBuilder *>(&_builder);
         builder->SetInsertPoint(BB);
 
         for (auto &item : x.m_symtab->scope) {
@@ -144,9 +140,6 @@ public:
     }
 
     void visit_Function(const ASR::Function_t &x) {
-        llvm::IRBuilder<> _builder = llvm::IRBuilder<>(context);
-        builder = reinterpret_cast<IRBuilder *>(&_builder);
-
         std::vector<llvm::Type *> args;
         llvm::FunctionType *function_type = llvm::FunctionType::get(
                 llvm::Type::getInt64Ty(context), args, false);
