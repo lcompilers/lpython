@@ -47,6 +47,8 @@ filename = "subroutine4.f90"
 ast = true
 ast_f90 = true
 ast_cpp = true
+ast_cpp_hip = true
+ast_openmp = true
 asr = true
 
 [[test]]

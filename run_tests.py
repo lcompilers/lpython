@@ -42,6 +42,8 @@ def main():
         ast = test.get("ast", False)
         ast_f90 = test.get("ast_f90", False)
         ast_cpp = test.get("ast_cpp", False)
+        ast_cpp_hip = test.get("ast_cpp_hip", False)
+        ast_openmp = test.get("ast_openmp", False)
         asr = test.get("asr", False)
         llvm = test.get("llvm", False)
         bin_ = test.get("bin", False)
@@ -62,6 +64,14 @@ def main():
 
         if ast_cpp:
             run_test("ast_cpp", "cpptranslate --show-ast-cpp {infile}",
+                    filename, update_reference)
+
+        if ast_cpp_hip:
+            run_test("ast_cpp_hip", "cpptranslate --show-ast-cpp-hip {infile}",
+                    filename, update_reference)
+
+        if ast_openmp:
+            run_test("ast_openmp", "cpptranslate --show-ast-openmp {infile}",
                     filename, update_reference)
 
         if asr:
