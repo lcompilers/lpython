@@ -90,6 +90,9 @@ public:
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context} {}
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
+        module = std::make_unique<llvm::Module>("LFortran", context);
+        module->setDataLayout("");
+
         // All loose statements must be converted to a function, so the items
         // must be empty:
         LFORTRAN_ASSERT(x.n_items == 0);
@@ -99,8 +102,6 @@ public:
     }
 
     void visit_Function(const ASR::Function_t &x) {
-        module = std::make_unique<llvm::Module>("LFortran", context);
-        module->setDataLayout("");
         std::vector<llvm::Type *> args;
         llvm::FunctionType *function_type = llvm::FunctionType::get(
                 llvm::Type::getInt64Ty(context), args, false);
