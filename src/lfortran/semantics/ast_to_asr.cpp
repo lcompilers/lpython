@@ -105,6 +105,18 @@ public:
             current_scope, nullptr, 0);
     }
 
+    void visit_Program(const AST::Program_t &x) {
+        for (size_t i=0; i<x.n_use; i++) {
+            visit_unit_decl1(*x.m_use[i]);
+        }
+        for (size_t i=0; i<x.n_decl; i++) {
+            visit_unit_decl2(*x.m_decl[i]);
+        }
+        for (size_t i=0; i<x.n_contains; i++) {
+            visit_program_unit(*x.m_contains[i]);
+        }
+    }
+
     void visit_Subroutine(const AST::Subroutine_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>();
@@ -282,6 +294,15 @@ public:
         }
         unit->m_items = items.p;
         unit->n_items = items.size();
+    }
+
+    void visit_Program(const AST::Program_t &x) {
+        for (size_t i=0; i<x.n_body; i++) {
+            visit_stmt(*x.m_body[i]);
+        }
+        for (size_t i=0; i<x.n_contains; i++) {
+            visit_program_unit(*x.m_contains[i]);
+        }
     }
 
     void visit_Subroutine(const AST::Subroutine_t &x) {
