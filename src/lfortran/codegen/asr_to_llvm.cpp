@@ -139,7 +139,7 @@ public:
             this->visit_stmt(*x.m_body[i]);
         }
 
-        llvm::verifyFunction(*F);
+        //llvm::verifyFunction(*F);
     }
 
     void visit_Function(const ASR::Function_t &x) {
@@ -173,7 +173,7 @@ public:
         llvm::Value *ret_val = llvm_symtab[std::string(x.m_name)];
         builder->CreateRet(ret_val);
 
-        llvm::verifyFunction(*F);
+        //llvm::verifyFunction(*F);
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
