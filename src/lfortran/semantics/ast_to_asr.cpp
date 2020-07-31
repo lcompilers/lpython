@@ -456,13 +456,17 @@ public:
         tmp = ASR::make_Num_t(al, x.base.base.loc, f3, type);
     }
 
-    /*
     void visit_Print(const AST::Print_t &x) {
+        Vec<ASR::expr_t*> body;
+        body.reserve(al, x.n_values);
         for (size_t i=0; i<x.n_values; i++) {
             visit_expr(*x.m_values[i]);
+            ASR::expr_t *expr = EXPR(tmp);
+            body.push_back(al, expr);
         }
+        tmp = ASR::make_Print_t(al, x.base.base.loc, nullptr,
+            body.p, body.size());
     }
-    */
 };
 
 ASR::asr_t *ast_to_asr(Allocator &al, AST::TranslationUnit_t &ast)
