@@ -110,9 +110,8 @@ public:
         }
     }
     void visit_Program(const ASR::Program_t &x) {
-        std::vector<llvm::Type *> args;
         llvm::FunctionType *function_type = llvm::FunctionType::get(
-                llvm::Type::getInt64Ty(context), args, false);
+                llvm::Type::getInt64Ty(context), {}, false);
         llvm::Function *F = llvm::Function::Create(function_type,
                 llvm::Function::ExternalLinkage, "main", module.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
@@ -140,9 +139,8 @@ public:
     }
 
     void visit_Function(const ASR::Function_t &x) {
-        std::vector<llvm::Type *> args;
         llvm::FunctionType *function_type = llvm::FunctionType::get(
-                llvm::Type::getInt64Ty(context), args, false);
+                llvm::Type::getInt64Ty(context), {}, false);
         llvm::Function *F = llvm::Function::Create(function_type,
                 llvm::Function::ExternalLinkage, x.m_name, module.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
