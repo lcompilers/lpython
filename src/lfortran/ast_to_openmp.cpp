@@ -28,14 +28,14 @@ namespace {
 
 namespace AST {
 
-class ASTToOPENMPisitor : public BaseVisitor<ASTToOPENMPisitor>
+class ASTToOPENMPVisitor : public BaseVisitor<ASTToOPENMPVisitor>
 {
 public:
     std::string s;
     bool use_colors;
     int indent_level;
 public:
-    ASTToOPENMPisitor() : use_colors{false}, indent_level{0} { }
+    ASTToOPENMPVisitor() : use_colors{false}, indent_level{0} { }
     void visit_TranslationUnit(const TranslationUnit_t &x) {
         s.append("(");
         if (use_colors) {
@@ -982,7 +982,7 @@ public:
 }
 
 std::string ast_to_openmp(LFortran::AST::ast_t &ast) {
-    AST::ASTToOPENMPisitor v;
+    AST::ASTToOPENMPVisitor v;
     v.visit_ast(ast);
     return v.s;
 }
