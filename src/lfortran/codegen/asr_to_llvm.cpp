@@ -82,6 +82,14 @@ static inline ASR::Variable_t* VARIABLE(const ASR::asr_t *f)
     return (ASR::Variable_t*)t;
 }
 
+static inline ASR::Var_t* EXPR_VAR(const ASR::asr_t *f)
+{
+    LFORTRAN_ASSERT(f->type == ASR::asrType::expr);
+    ASR::expr_t *t = (ASR::expr_t *)f;
+    LFORTRAN_ASSERT(t->type == ASR::exprType::Var);
+    return (ASR::Var_t*)t;
+}
+
 class ASRToLLVMVisitor : public ASR::BaseVisitor<ASRToLLVMVisitor>
 {
 public:
@@ -169,8 +177,9 @@ public:
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
-        this->visit_expr(*x.m_target);
-        llvm::Value *target=tmp;
+        //this->visit_expr(*x.m_target);
+        ASR::var_t *t1 = EXPR_VAR((ASR::asr_t*)(x.m_target))->m_v;
+        llvm::Value *target= llvm_symtab[std::string(VARIABLE((ASR::asr_t*)t1)->m_name)];
         this->visit_expr(*x.m_value);
         llvm::Value *value=tmp;
         builder->CreateStore(value, target);
