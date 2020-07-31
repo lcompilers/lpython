@@ -5,6 +5,7 @@ define i64 @f() {
 .entry:
   %f = alloca i64
   store i64 8, i64* %f
-  ret i64* %f
+  %0 = load i64, i64* %f
+  ret i64 %0
 }
 
