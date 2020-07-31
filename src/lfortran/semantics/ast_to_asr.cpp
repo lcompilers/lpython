@@ -47,6 +47,14 @@ static inline ASR::Function_t* FUNCTION(const ASR::asr_t *f)
     return (ASR::Function_t*)t;
 }
 
+static inline ASR::Program_t* PROGRAM(const ASR::asr_t *f)
+{
+    LFORTRAN_ASSERT(f->type == ASR::asrType::prog);
+    ASR::prog_t *t = (ASR::prog_t *)f;
+    LFORTRAN_ASSERT(t->type == ASR::progType::Program);
+    return (ASR::Program_t*)t;
+}
+
 static inline ASR::TranslationUnit_t* TRANSLATION_UNIT(const ASR::asr_t *f)
 {
     LFORTRAN_ASSERT(f->type == ASR::asrType::unit);
@@ -103,6 +111,32 @@ public:
         }
         asr = ASR::make_TranslationUnit_t(al, x.base.base.loc,
             current_scope, nullptr, 0);
+    }
+
+    void visit_Program(const AST::Program_t &x) {
+        SymbolTable *parent_scope = current_scope;
+        current_scope = al.make_new<SymbolTable>();
+        for (size_t i=0; i<x.n_use; i++) {
+            visit_unit_decl1(*x.m_use[i]);
+        }
+        for (size_t i=0; i<x.n_decl; i++) {
+            visit_unit_decl2(*x.m_decl[i]);
+        }
+        for (size_t i=0; i<x.n_contains; i++) {
+            visit_program_unit(*x.m_contains[i]);
+        }
+        asr = ASR::make_Program_t(
+            al, x.base.base.loc,
+            /* a_name */ x.m_name,
+            /* a_body */ nullptr,
+            /* n_body */ 0,
+            /* a_symtab */ current_scope);
+        std::string sym_name = x.m_name;
+        if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
+            throw SemanticError("Program already defined", asr->loc);
+        }
+        parent_scope->scope[sym_name] = asr;
+        current_scope = parent_scope;
     }
 
     void visit_Subroutine(const AST::Subroutine_t &x) {
@@ -284,6 +318,30 @@ public:
         unit->n_items = items.size();
     }
 
+    void visit_Program(const AST::Program_t &x) {
+        SymbolTable *old_scope = current_scope;
+        ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
+        ASR::Program_t *v = PROGRAM(t);
+        current_scope = v->m_symtab;
+
+        Vec<ASR::stmt_t*> body;
+        body.reserve(al, x.n_body);
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            ASR::stmt_t *stmt = STMT(tmp);
+            body.push_back(al, stmt);
+        }
+        v->m_body = body.p;
+        v->n_body = body.size();
+
+        for (size_t i=0; i<x.n_contains; i++) {
+            visit_program_unit(*x.m_contains[i]);
+        }
+
+        current_scope = old_scope;
+        tmp = nullptr;
+    }
+
     void visit_Subroutine(const AST::Subroutine_t &x) {
     // TODO: add SymbolTable::lookup_symbol(), which will automatically return
     // an error
@@ -330,6 +388,7 @@ public:
         ASR::expr_t *value = EXPR(tmp);
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value);
     }
+
     void visit_BinOp(const AST::BinOp_t &x) {
         this->visit_expr(*x.m_left);
         ASR::expr_t *left = EXPR(tmp);
@@ -362,6 +421,7 @@ public:
         tmp = ASR::make_BinOp_t(al, x.base.base.loc,
                 left, op, right, type);
     }
+
     void visit_Name(const AST::Name_t &x) {
         SymbolTable *scope = current_scope;
         std::string var_name = x.m_id;
@@ -379,11 +439,13 @@ public:
                 x.m_id, nullptr, 1, type);
         */
     }
+
     void visit_Num(const AST::Num_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 8, nullptr, 0));
         tmp = ASR::make_Num_t(al, x.base.base.loc, x.m_n, type);
     }
+
     void visit_Real(const AST::Real_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Real_t(al, x.base.base.loc,
                 4, nullptr, 0));
@@ -392,6 +454,18 @@ public:
         // TODO: represent Real numbers properly in ASR
         int f3 = int(f2); // For now we cast floats to ints
         tmp = ASR::make_Num_t(al, x.base.base.loc, f3, type);
+    }
+
+    void visit_Print(const AST::Print_t &x) {
+        Vec<ASR::expr_t*> body;
+        body.reserve(al, x.n_values);
+        for (size_t i=0; i<x.n_values; i++) {
+            visit_expr(*x.m_values[i]);
+            ASR::expr_t *expr = EXPR(tmp);
+            body.push_back(al, expr);
+        }
+        tmp = ASR::make_Print_t(al, x.base.base.loc, nullptr,
+            body.p, body.size());
     }
 };
 

@@ -17,7 +17,7 @@ unit
     = TranslationUnit(symbol_table global_scope, node* items)
 
 prog
-    = Program(identifier name, object symtab)
+    = Program(identifier name, stmt* body, symbol_table symtab)
 
 mod
     = Module(identifier name, object symtab)

@@ -1,0 +1,13 @@
+{
+    "basename": "asr-program1-15828e9",
+    "cmd": "lfortran --show-asr {infile} -o {outfile}",
+    "infile": "tests/program1.f90",
+    "infile_hash": "e8860cc213161e08f9368bb48f89142901685d49e330f73849d6cb90",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-program1-15828e9.stdout",
+    "stdout_hash": "689729426bd43615c0d0d8acc22facbfbe14177d12c8b40f689f162f",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
