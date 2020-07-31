@@ -170,6 +170,9 @@ public:
             this->visit_stmt(*x.m_body[i]);
         }
 
+        llvm::Value *ret_val = llvm_symtab[std::string(x.m_name)];
+        builder->CreateRet(ret_val);
+
         llvm::verifyFunction(*F);
     }
 
@@ -180,9 +183,6 @@ public:
         llvm::Value *value=tmp;
         builder->CreateStore(value, target);
 
-        // TODO: move this into Function
-        //llvm::Value *ret_val = tmp;
-        //builder->CreateRet(ret_val);
     }
     void visit_BinOp(const ASR::BinOp_t &x) {
         this->visit_expr(*x.m_left);
