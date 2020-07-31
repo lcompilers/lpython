@@ -154,6 +154,18 @@ public:
         builder = reinterpret_cast<IRBuilder *>(&_builder);
         builder->SetInsertPoint(BB);
 
+        for (auto &item : x.m_symtab->scope) {
+            if (item.second->type == ASR::asrType::var) {
+                ASR::var_t *v2 = (ASR::var_t*)(item.second);
+                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+
+                // TODO: we are assuming integer here:
+                llvm::AllocaInst *ptr = builder->CreateAlloca(
+                    llvm::Type::getInt64Ty(context), nullptr, v->m_name);
+                llvm_symtab[std::string(v->m_name)] = ptr;
+            }
+        }
+
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
         }
