@@ -47,6 +47,14 @@ static inline ASR::Function_t* FUNCTION(const ASR::asr_t *f)
     return (ASR::Function_t*)t;
 }
 
+static inline ASR::Program_t* PROGRAM(const ASR::asr_t *f)
+{
+    LFORTRAN_ASSERT(f->type == ASR::asrType::prog);
+    ASR::prog_t *t = (ASR::prog_t *)f;
+    LFORTRAN_ASSERT(t->type == ASR::progType::Program);
+    return (ASR::Program_t*)t;
+}
+
 static inline ASR::TranslationUnit_t* TRANSLATION_UNIT(const ASR::asr_t *f)
 {
     LFORTRAN_ASSERT(f->type == ASR::asrType::unit);
@@ -106,6 +114,8 @@ public:
     }
 
     void visit_Program(const AST::Program_t &x) {
+        SymbolTable *parent_scope = current_scope;
+        current_scope = al.make_new<SymbolTable>();
         for (size_t i=0; i<x.n_use; i++) {
             visit_unit_decl1(*x.m_use[i]);
         }
@@ -115,6 +125,16 @@ public:
         for (size_t i=0; i<x.n_contains; i++) {
             visit_program_unit(*x.m_contains[i]);
         }
+        asr = ASR::make_Program_t(
+            al, x.base.base.loc,
+            /* a_name */ x.m_name,
+            /* a_symtab */ current_scope);
+        std::string sym_name = x.m_name;
+        if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
+            throw SemanticError("Program already defined", asr->loc);
+        }
+        parent_scope->scope[sym_name] = asr;
+        current_scope = parent_scope;
     }
 
     void visit_Subroutine(const AST::Subroutine_t &x) {
@@ -297,12 +317,20 @@ public:
     }
 
     void visit_Program(const AST::Program_t &x) {
+        SymbolTable *old_scope = current_scope;
+        ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
+        ASR::Program_t *v = PROGRAM(t);
+
+        current_scope = v->m_symtab;
         for (size_t i=0; i<x.n_body; i++) {
             visit_stmt(*x.m_body[i]);
         }
         for (size_t i=0; i<x.n_contains; i++) {
             visit_program_unit(*x.m_contains[i]);
         }
+
+        current_scope = old_scope;
+        tmp = nullptr;
     }
 
     void visit_Subroutine(const AST::Subroutine_t &x) {
