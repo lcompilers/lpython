@@ -2,11 +2,11 @@
     "basename": "llvm-program1-e049333",
     "cmd": "lfortran --show-llvm {infile} -o {outfile}",
     "infile": "tests/program1.f90",
-    "infile_hash": "e8860cc213161e08f9368bb48f89142901685d49e330f73849d6cb90",
+    "infile_hash": "ec4ccdfed01d45648718ca57a9ceb3e5aa82e55e57d8906636902e7b",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "llvm-program1-e049333.stdout",
-    "stdout_hash": "b21709145bad638c3aee24593e96c313f456faadb7279af43b457ebb",
+    "stdout_hash": "6fb6eb4966c7dfc66a94f220e36bebf3fd40ddb910c914579f000fb0",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
