@@ -234,7 +234,7 @@ public:
         LFORTRAN_ASSERT(x.n_values == 1);
         this->visit_expr(*x.m_values[0]);
         llvm::Value *arg1 = tmp;
-        llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("%d");
+        llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("%d\n");
         builder->CreateCall(fn_printf, {fmt_ptr, arg1});
     }
 
