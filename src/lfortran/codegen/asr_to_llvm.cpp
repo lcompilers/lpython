@@ -74,6 +74,14 @@ static inline ASR::stmt_t* STMT(const ASR::asr_t *f)
     return (ASR::stmt_t*)f;
 }
 
+static inline ASR::Variable_t* VARIABLE(const ASR::asr_t *f)
+{
+    LFORTRAN_ASSERT(f->type == ASR::asrType::var);
+    ASR::var_t *t = (ASR::var_t *)f;
+    LFORTRAN_ASSERT(t->type == ASR::varType::Variable);
+    return (ASR::Variable_t*)t;
+}
+
 class IRBuilder : public llvm::IRBuilder<>
 {
 };
@@ -86,6 +94,9 @@ public:
 
     IRBuilder *builder;
     llvm::Value *tmp;
+
+    // TODO: This is not scoped, should lookup by hashes instead:
+    std::map<std::string, llvm::AllocaInst*> llvm_symtab;
 
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context} {}
 
@@ -111,6 +122,10 @@ public:
         llvm::IRBuilder<> _builder = llvm::IRBuilder<>(BB);
         builder = reinterpret_cast<IRBuilder *>(&_builder);
         builder->SetInsertPoint(BB);
+
+        llvm::AllocaInst *ptr = builder->CreateAlloca(
+            llvm::Type::getInt64Ty(context), nullptr, "i");
+        llvm_symtab["i"] = ptr;
 
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
@@ -139,13 +154,15 @@ public:
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
-        // TODO: currently we assign to the return value.
-        // Allow to assign to a variable.
-        //this->visit_expr(*x.m_target);
-        //LFORTRAN_ASSERT(x.m_target.m_id == "f");
+        this->visit_expr(*x.m_target);
+        llvm::Value *target=tmp;
         this->visit_expr(*x.m_value);
-        llvm::Value *ret_val = tmp;
-        builder->CreateRet(ret_val);
+        llvm::Value *value=tmp;
+        builder->CreateStore(value, target);
+
+        // TODO: move this into Function
+        //llvm::Value *ret_val = tmp;
+        //builder->CreateRet(ret_val);
     }
     void visit_BinOp(const ASR::BinOp_t &x) {
         this->visit_expr(*x.m_left);
@@ -175,8 +192,13 @@ public:
             };
         }
     }
+
     void visit_Num(const ASR::Num_t &x) {
         tmp = llvm::ConstantInt::get(context, llvm::APInt(64, x.m_n));
+    }
+
+    void visit_Var(const ASR::Var_t &x) {
+        tmp = llvm_symtab[std::string(VARIABLE((ASR::asr_t*)(x.m_v))->m_name)];
     }
 
     void visit_Print(const ASR::Print_t &x) {
