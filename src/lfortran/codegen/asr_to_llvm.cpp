@@ -100,6 +100,24 @@ public:
             visit_asr(*item.second);
         }
     }
+    void visit_Program(const ASR::Program_t &x) {
+        std::vector<llvm::Type *> args;
+        llvm::FunctionType *function_type = llvm::FunctionType::get(
+                llvm::Type::getInt64Ty(context), args, false);
+        llvm::Function *F = llvm::Function::Create(function_type,
+                llvm::Function::ExternalLinkage, "main", module.get());
+        llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
+                ".entry", F);
+        llvm::IRBuilder<> _builder = llvm::IRBuilder<>(BB);
+        builder = reinterpret_cast<IRBuilder *>(&_builder);
+        builder->SetInsertPoint(BB);
+
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+        }
+
+        llvm::verifyFunction(*F);
+    }
 
     void visit_Function(const ASR::Function_t &x) {
         std::vector<llvm::Type *> args;
@@ -108,7 +126,7 @@ public:
         llvm::Function *F = llvm::Function::Create(function_type,
                 llvm::Function::ExternalLinkage, x.m_name, module.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
-                "EntryBlock", F);
+                ".entry", F);
         llvm::IRBuilder<> _builder = llvm::IRBuilder<>(BB);
         builder = reinterpret_cast<IRBuilder *>(&_builder);
         builder->SetInsertPoint(BB);
@@ -159,6 +177,10 @@ public:
     }
     void visit_Num(const ASR::Num_t &x) {
         tmp = llvm::ConstantInt::get(context, llvm::APInt(64, x.m_n));
+    }
+
+    void visit_Print(const ASR::Print_t &x) {
+        // pass
     }
 
 };
