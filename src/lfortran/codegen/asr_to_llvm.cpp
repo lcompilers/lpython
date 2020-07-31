@@ -286,6 +286,12 @@ std::unique_ptr<LLVMModule> asr_to_llvm(ASR::asr_t &asr,
             new_scope, nullptr, 0);
     }
     v.visit_asr(*asr2);
+    std::string msg;
+    llvm::raw_string_ostream err(msg);
+    if (llvm::verifyModule(*v.module, &err)) {
+        throw CodeGenError("asr_to_llvm: module failed verification. Error:\n"
+            + err.str());
+    };
     return std::make_unique<LLVMModule>(std::move(v.module));
 }
 
