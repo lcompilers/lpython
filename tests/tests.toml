@@ -47,12 +47,21 @@ filename = "subroutine4.f90"
 ast = true
 ast_f90 = true
 ast_cpp = true
+ast_cpp_hip = true
+ast_openmp = true
 asr = true
 
 [[test]]
 filename = "subroutine5.f90"
 ast = true
 asr = true
+
+[[test]]
+filename = "subroutine6.f90"
+ast = true
+ast_cpp = true
+ast_cpp_hip = true
+ast_openmp = true
 
 [[test]]
 filename = "errors/subroutine5.f90"
