@@ -351,6 +351,7 @@ public:
         ASR::expr_t *value = EXPR(tmp);
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value);
     }
+
     void visit_BinOp(const AST::BinOp_t &x) {
         this->visit_expr(*x.m_left);
         ASR::expr_t *left = EXPR(tmp);
@@ -383,6 +384,7 @@ public:
         tmp = ASR::make_BinOp_t(al, x.base.base.loc,
                 left, op, right, type);
     }
+
     void visit_Name(const AST::Name_t &x) {
         SymbolTable *scope = current_scope;
         std::string var_name = x.m_id;
@@ -400,11 +402,13 @@ public:
                 x.m_id, nullptr, 1, type);
         */
     }
+
     void visit_Num(const AST::Num_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 8, nullptr, 0));
         tmp = ASR::make_Num_t(al, x.base.base.loc, x.m_n, type);
     }
+
     void visit_Real(const AST::Real_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Real_t(al, x.base.base.loc,
                 4, nullptr, 0));
@@ -414,6 +418,14 @@ public:
         int f3 = int(f2); // For now we cast floats to ints
         tmp = ASR::make_Num_t(al, x.base.base.loc, f3, type);
     }
+
+    /*
+    void visit_Print(const AST::Print_t &x) {
+        for (size_t i=0; i<x.n_values; i++) {
+            visit_expr(*x.m_values[i]);
+        }
+    }
+    */
 };
 
 ASR::asr_t *ast_to_asr(Allocator &al, AST::TranslationUnit_t &ast)
