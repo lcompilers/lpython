@@ -2,7 +2,7 @@
 source_filename = "LFortran"
 
 define i64 @f() {
-EntryBlock:
+.entry:
   ret i64 8
 }
 
