@@ -138,11 +138,15 @@ public:
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
         }
-
-        //llvm::verifyFunction(*F);
+        llvm::Value *ret_val2 = llvm::ConstantInt::get(context,
+            llvm::APInt(64, 0));
+        builder->CreateRet(ret_val2);
     }
 
     void visit_Function(const ASR::Function_t &x) {
+        llvm::IRBuilder<> _builder = llvm::IRBuilder<>(context);
+        builder = reinterpret_cast<IRBuilder *>(&_builder);
+
         std::vector<llvm::Type *> args;
         llvm::FunctionType *function_type = llvm::FunctionType::get(
                 llvm::Type::getInt64Ty(context), args, false);
@@ -150,8 +154,6 @@ public:
                 llvm::Function::ExternalLinkage, x.m_name, module.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
                 ".entry", F);
-        llvm::IRBuilder<> _builder = llvm::IRBuilder<>(BB);
-        builder = reinterpret_cast<IRBuilder *>(&_builder);
         builder->SetInsertPoint(BB);
 
         for (auto &item : x.m_symtab->scope) {
@@ -171,9 +173,8 @@ public:
         }
 
         llvm::Value *ret_val = llvm_symtab[std::string(x.m_name)];
-        builder->CreateRet(ret_val);
-
-        //llvm::verifyFunction(*F);
+        llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
+        builder->CreateRet(ret_val2);
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
