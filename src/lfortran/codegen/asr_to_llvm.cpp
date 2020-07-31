@@ -74,22 +74,42 @@ static inline ASR::stmt_t* STMT(const ASR::asr_t *f)
     return (ASR::stmt_t*)f;
 }
 
-class IRBuilder : public llvm::IRBuilder<>
+static inline ASR::Variable_t* VARIABLE(const ASR::asr_t *f)
 {
-};
+    LFORTRAN_ASSERT(f->type == ASR::asrType::var);
+    ASR::var_t *t = (ASR::var_t *)f;
+    LFORTRAN_ASSERT(t->type == ASR::varType::Variable);
+    return (ASR::Variable_t*)t;
+}
+
+static inline ASR::Var_t* EXPR_VAR(const ASR::asr_t *f)
+{
+    LFORTRAN_ASSERT(f->type == ASR::asrType::expr);
+    ASR::expr_t *t = (ASR::expr_t *)f;
+    LFORTRAN_ASSERT(t->type == ASR::exprType::Var);
+    return (ASR::Var_t*)t;
+}
 
 class ASRToLLVMVisitor : public ASR::BaseVisitor<ASRToLLVMVisitor>
 {
 public:
     llvm::LLVMContext &context;
     std::unique_ptr<llvm::Module> module;
+    std::unique_ptr<llvm::IRBuilder<>> builder;
 
-    IRBuilder *builder;
     llvm::Value *tmp;
+
+    // TODO: This is not scoped, should lookup by hashes instead:
+    std::map<std::string, llvm::AllocaInst*> llvm_symtab;
 
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context} {}
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
+        module = std::make_unique<llvm::Module>("LFortran", context);
+        module->setDataLayout("");
+        builder = std::make_unique<llvm::IRBuilder<>>(context);
+
+
         // All loose statements must be converted to a function, so the items
         // must be empty:
         LFORTRAN_ASSERT(x.n_items == 0);
@@ -97,36 +117,73 @@ public:
             visit_asr(*item.second);
         }
     }
+    void visit_Program(const ASR::Program_t &x) {
+        llvm::FunctionType *function_type = llvm::FunctionType::get(
+                llvm::Type::getInt64Ty(context), {}, false);
+        llvm::Function *F = llvm::Function::Create(function_type,
+                llvm::Function::ExternalLinkage, "main", module.get());
+        llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
+                ".entry", F);
+        builder->SetInsertPoint(BB);
+
+        for (auto &item : x.m_symtab->scope) {
+            if (item.second->type == ASR::asrType::var) {
+                ASR::var_t *v2 = (ASR::var_t*)(item.second);
+                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+
+                // TODO: we are assuming integer here:
+                llvm::AllocaInst *ptr = builder->CreateAlloca(
+                    llvm::Type::getInt64Ty(context), nullptr, v->m_name);
+                llvm_symtab[std::string(v->m_name)] = ptr;
+            }
+        }
+
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+        }
+        llvm::Value *ret_val2 = llvm::ConstantInt::get(context,
+            llvm::APInt(64, 0));
+        builder->CreateRet(ret_val2);
+    }
 
     void visit_Function(const ASR::Function_t &x) {
-        module = std::make_unique<llvm::Module>("LFortran", context);
-        module->setDataLayout("");
-        std::vector<llvm::Type *> args;
         llvm::FunctionType *function_type = llvm::FunctionType::get(
-                llvm::Type::getInt64Ty(context), args, false);
+                llvm::Type::getInt64Ty(context), {}, false);
         llvm::Function *F = llvm::Function::Create(function_type,
                 llvm::Function::ExternalLinkage, x.m_name, module.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
-                "EntryBlock", F);
-        llvm::IRBuilder<> _builder = llvm::IRBuilder<>(BB);
-        builder = reinterpret_cast<IRBuilder *>(&_builder);
+                ".entry", F);
         builder->SetInsertPoint(BB);
+
+        for (auto &item : x.m_symtab->scope) {
+            if (item.second->type == ASR::asrType::var) {
+                ASR::var_t *v2 = (ASR::var_t*)(item.second);
+                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+
+                // TODO: we are assuming integer here:
+                llvm::AllocaInst *ptr = builder->CreateAlloca(
+                    llvm::Type::getInt64Ty(context), nullptr, v->m_name);
+                llvm_symtab[std::string(v->m_name)] = ptr;
+            }
+        }
 
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
         }
 
-        llvm::verifyFunction(*F);
+        llvm::Value *ret_val = llvm_symtab[std::string(x.m_name)];
+        llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
+        builder->CreateRet(ret_val2);
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
-        // TODO: currently we assign to the return value.
-        // Allow to assign to a variable.
         //this->visit_expr(*x.m_target);
-        //LFORTRAN_ASSERT(x.m_target.m_id == "f");
+        ASR::var_t *t1 = EXPR_VAR((ASR::asr_t*)(x.m_target))->m_v;
+        llvm::Value *target= llvm_symtab[std::string(VARIABLE((ASR::asr_t*)t1)->m_name)];
         this->visit_expr(*x.m_value);
-        llvm::Value *ret_val = tmp;
-        builder->CreateRet(ret_val);
+        llvm::Value *value=tmp;
+        builder->CreateStore(value, target);
+
     }
     void visit_BinOp(const ASR::BinOp_t &x) {
         this->visit_expr(*x.m_left);
@@ -156,8 +213,29 @@ public:
             };
         }
     }
+
     void visit_Num(const ASR::Num_t &x) {
         tmp = llvm::ConstantInt::get(context, llvm::APInt(64, x.m_n));
+    }
+
+    void visit_Var(const ASR::Var_t &x) {
+        llvm::Value *ptr = llvm_symtab[std::string(VARIABLE((ASR::asr_t*)(x.m_v))->m_name)];
+        tmp = builder->CreateLoad(ptr);
+    }
+
+    void visit_Print(const ASR::Print_t &x) {
+        llvm::Function *fn_printf = module->getFunction("_lfortran_printf");
+        if (!fn_printf) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {llvm::Type::getInt8PtrTy(context)}, true);
+            fn_printf = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, "_lfortran_printf", module.get());
+        }
+        LFORTRAN_ASSERT(x.n_values == 1);
+        this->visit_expr(*x.m_values[0]);
+        llvm::Value *arg1 = tmp;
+        llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("%d");
+        builder->CreateCall(fn_printf, {fmt_ptr, arg1});
     }
 
 };
@@ -221,6 +299,16 @@ std::unique_ptr<LLVMModule> asr_to_llvm(ASR::asr_t &asr,
             new_scope, nullptr, 0);
     }
     v.visit_asr(*asr2);
+    std::string msg;
+    llvm::raw_string_ostream err(msg);
+    if (llvm::verifyModule(*v.module, &err)) {
+        std::string buf;
+        llvm::raw_string_ostream os(buf);
+        v.module->print(os, nullptr);
+        std::cout << os.str();
+        throw CodeGenError("asr_to_llvm: module failed verification. Error:\n"
+            + err.str());
+    };
     return std::make_unique<LLVMModule>(std::move(v.module));
 }
 
