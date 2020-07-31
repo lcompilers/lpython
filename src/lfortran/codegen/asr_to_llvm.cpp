@@ -289,6 +289,10 @@ std::unique_ptr<LLVMModule> asr_to_llvm(ASR::asr_t &asr,
     std::string msg;
     llvm::raw_string_ostream err(msg);
     if (llvm::verifyModule(*v.module, &err)) {
+        std::string buf;
+        llvm::raw_string_ostream os(buf);
+        v.module->print(os, nullptr);
+        std::cout << os.str();
         throw CodeGenError("asr_to_llvm: module failed verification. Error:\n"
             + err.str());
     };
