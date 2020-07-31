@@ -214,10 +214,15 @@ public:
     }
 
     void visit_Print(const ASR::Print_t &x) {
-        llvm::FunctionType *function_type = llvm::FunctionType::get(
-                llvm::Type::getVoidTy(context), {llvm::Type::getInt64PtrTy(context)}, true);
-        llvm::Function *fn_printf = llvm::Function::Create(function_type,
-                llvm::Function::ExternalLinkage, "_lfortran_printf", module.get());
+        llvm::Function *fn_printf = module->getFunction("_lfortran_printf");
+        if (!fn_printf) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {llvm::Type::getInt8PtrTy(context)}, true);
+            fn_printf = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, "_lfortran_printf", module.get());
+        }
+        llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("test string");
+        builder->CreateCall(fn_printf, {fmt_ptr});
     }
 
 };
