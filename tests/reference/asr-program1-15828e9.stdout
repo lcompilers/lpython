@@ -1,1 +1,1 @@
-(TranslationUnit (SymbolTable a3b82bc0 {i: (Variable i 0 (Integer 4 []))}) [(= (Var a3b82bc0 i) (Num 5 (Integer 8 [])))])
+(TranslationUnit (SymbolTable 434bcf6e {program1: (Program program1 [(= (Var a3b82bc0 i) (Num 5 (Integer 8 [])))] (SymbolTable a3b82bc0 {i: (Variable i 0 (Integer 4 []))}))}) [])

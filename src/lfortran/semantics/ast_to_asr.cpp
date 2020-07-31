@@ -128,6 +128,8 @@ public:
         asr = ASR::make_Program_t(
             al, x.base.base.loc,
             /* a_name */ x.m_name,
+            /* a_body */ nullptr,
+            /* n_body */ 0,
             /* a_symtab */ current_scope);
         std::string sym_name = x.m_name;
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
@@ -320,11 +322,18 @@ public:
         SymbolTable *old_scope = current_scope;
         ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
         ASR::Program_t *v = PROGRAM(t);
-
         current_scope = v->m_symtab;
+
+        Vec<ASR::stmt_t*> body;
+        body.reserve(al, x.n_body);
         for (size_t i=0; i<x.n_body; i++) {
-            visit_stmt(*x.m_body[i]);
+            this->visit_stmt(*x.m_body[i]);
+            ASR::stmt_t *stmt = STMT(tmp);
+            body.push_back(al, stmt);
         }
+        v->m_body = body.p;
+        v->n_body = body.size();
+
         for (size_t i=0; i<x.n_contains; i++) {
             visit_program_unit(*x.m_contains[i]);
         }
