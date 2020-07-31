@@ -210,7 +210,8 @@ public:
     }
 
     void visit_Var(const ASR::Var_t &x) {
-        tmp = llvm_symtab[std::string(VARIABLE((ASR::asr_t*)(x.m_v))->m_name)];
+        llvm::Value *ptr = llvm_symtab[std::string(VARIABLE((ASR::asr_t*)(x.m_v))->m_name)];
+        tmp = builder->CreateLoad(ptr);
     }
 
     void visit_Print(const ASR::Print_t &x) {
@@ -221,8 +222,11 @@ public:
             fn_printf = llvm::Function::Create(function_type,
                     llvm::Function::ExternalLinkage, "_lfortran_printf", module.get());
         }
-        llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("test string");
-        builder->CreateCall(fn_printf, {fmt_ptr});
+        LFORTRAN_ASSERT(x.n_values == 1);
+        this->visit_expr(*x.m_values[0]);
+        llvm::Value *arg1 = tmp;
+        llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("%d");
+        builder->CreateCall(fn_printf, {fmt_ptr, arg1});
     }
 
 };
