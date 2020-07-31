@@ -216,7 +216,10 @@ public:
     }
 
     void visit_Print(const ASR::Print_t &x) {
-        // pass
+        llvm::FunctionType *function_type = llvm::FunctionType::get(
+                llvm::Type::getVoidTy(context), {llvm::Type::getInt64PtrTy(context)}, true);
+        llvm::Function *fn_printf = llvm::Function::Create(function_type,
+                llvm::Function::ExternalLinkage, "_lfortran_printf", module.get());
     }
 
 };
