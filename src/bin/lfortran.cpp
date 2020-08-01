@@ -310,7 +310,7 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
 // outfile will become the executable
 int link_executable(const std::string &infile, const std::string &outfile)
 {
-    std::string CC = "gcc";
+    std::string CC = "cc";
     std::string base_path = "src/runtime";
     std::string cmd = CC + " -o " + outfile + " " + infile + " -L" + base_path
         + " -Wl,-rpath=" + base_path + " -llfortran_runtime -lm";
