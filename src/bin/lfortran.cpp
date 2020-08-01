@@ -512,10 +512,7 @@ int main(int argc, char *argv[])
         return 1;
 #endif
         return link_executable(tmp_o, outfile, static_link);
-    } else if (ends_with(arg_file, ".o")) {
-        return link_executable(arg_file, outfile, static_link);
     } else {
-        std::cerr << "Input filename extension not recognized." << std::endl;
-        return 1;
+        return link_executable(arg_file, outfile, static_link);
     }
 }
