@@ -302,6 +302,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> return_statement
 %type <ast> cycle_statement
 %type <ast> stop_statement
+%type <ast> error_stop_statement
 %type <vec_ast> statements
 
 // Precedence
@@ -587,6 +588,7 @@ statement
     | return_statement sep
     | cycle_statement sep
     | stop_statement sep
+    | error_stop_statement sep
     | if_statement
     | where_statement
     | select_statement sep
@@ -733,6 +735,11 @@ cycle_statement
 stop_statement
     : KW_STOP { $$ = STOP(@$); }
     | KW_STOP expr { $$ = STOP1($2, @$); }
+    ;
+
+error_stop_statement
+    : KW_ERROR KW_STOP { $$ = ERROR_STOP(@$); }
+    | KW_ERROR KW_STOP expr { $$ = ERROR_STOP1($3, @$); }
     ;
 
 // -----------------------------------------------------------------------------
