@@ -311,6 +311,23 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
 int link_executable(const std::string &infile, const std::string &outfile,
     bool static_executable=false)
 {
+    /*
+    The gcc line is equivalent to the following for dynamic linking:
+
+    ld -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o $outfile $infile \
+        -Lsrc/runtime -rpath=src/runtime -llfortran_runtime \
+        /usr/lib/x86_64-linux-gnu/Scrt1.o /usr/lib/x86_64-linux-gnu/libc.so
+
+    and this for static linking:
+
+    ld -static -o $outfile $infile \
+        -Lsrc/runtime -rpath=src/runtime -llfortran_runtime_static \
+        /usr/lib/x86_64-linux-gnu/crt1.o /usr/lib/x86_64-linux-gnu/crti.o \
+        --start-group /usr/lib/gcc/x86_64-linux-gnu/7/libgcc.a \
+                      /usr/lib/gcc/x86_64-linux-gnu/7/libgcc_eh.a \
+                      /usr/lib/x86_64-linux-gnu/libc.a --end-group \
+        /usr/lib/x86_64-linux-gnu/crtn.o
+    */
     std::string CC = "gcc";
     std::string base_path = "src/runtime";
     std::string options;
