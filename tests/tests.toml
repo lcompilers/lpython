@@ -92,6 +92,11 @@ ast = true
 asr = true
 
 [[test]]
+filename = "expr5.f90"
+ast = true
+asr = true
+
+[[test]]
 filename = "program1.f90"
 ast = true
 asr = true
