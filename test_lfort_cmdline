@@ -13,6 +13,9 @@ elif [[ $1 == "lfort" ]]; then
 elif [[ $1 == "gfortran" ]]; then
     echo "Test installed gfortran"
     FC=gfortran
+elif [[ $1 == "lfortran" ]]; then
+    echo "Test installed lfortran"
+    FC=lfortran
 else
     echo "Invalid option"
     exit 1
@@ -71,8 +74,8 @@ $FC -S -o xx1 -c $f
 [ -f "xx1" ]
 grep $ASM_PATTERN xx1
 
-if [[ $FC != "gfortran" ]]; then
-    # LFortran specific options
+if [[ $FC == "lfort" ]]; then
+    # Python LFortran specific options
     cd $(mktemp -d)
     $FC --show-ast $f > log
     [ ! -f "expr2.o" ]
