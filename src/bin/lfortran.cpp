@@ -404,5 +404,6 @@ int main(int argc, char *argv[])
 #endif
     }
 
-    return 0;
+    std::cerr << "The requested action not implemented." << std::endl;
+    return 1;
 }
