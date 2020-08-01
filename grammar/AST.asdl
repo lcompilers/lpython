@@ -60,7 +60,7 @@ stmt
     | If(expr test, stmt* body, stmt* orelse)
     | Where(expr test, stmt* body, stmt* orelse)
     | Stop(expr? code)
-    | ErrorStop()
+    | ErrorStop(expr? code)
     | DoLoop(identifier? var, expr? start, expr? end, expr? increment,
             stmt* body)
     | DoConcurrentLoop(identifier? var, expr? start, expr? end, expr? increment,

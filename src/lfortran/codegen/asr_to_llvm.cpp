@@ -185,6 +185,55 @@ public:
         builder->CreateStore(value, target);
 
     }
+
+    void visit_Compare(const ASR::Compare_t &x) {
+        this->visit_expr(*x.m_left);
+        llvm::Value *left = tmp;
+        this->visit_expr(*x.m_right);
+        llvm::Value *right = tmp;
+        switch (x.m_op) {
+            case (ASR::cmpopType::Eq) : {
+                tmp = builder->CreateICmpEQ(left, right);
+                break;
+            }
+            default : {
+                throw SemanticError("Comparison operator not implemented",
+                        x.base.base.loc);
+            }
+        }
+    }
+
+    void visit_If(const ASR::If_t &x) {
+        this->visit_expr(*x.m_test);
+        llvm::Value *cond=tmp;
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
+        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
+        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
+        builder->CreateCondBr(cond, thenBB, elseBB);
+        builder->SetInsertPoint(thenBB);
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+        }
+        llvm::Value *thenV = llvm::ConstantInt::get(context, llvm::APInt(64, 1));
+        builder->CreateBr(mergeBB);
+        thenBB = builder->GetInsertBlock();
+        fn->getBasicBlockList().push_back(elseBB);
+        builder->SetInsertPoint(elseBB);
+        for (size_t i=0; i<x.n_orelse; i++) {
+            this->visit_stmt(*x.m_orelse[i]);
+        }
+        llvm::Value *elseV = llvm::ConstantInt::get(context, llvm::APInt(64, 2));
+        builder->CreateBr(mergeBB);
+        elseBB = builder->GetInsertBlock();
+        fn->getBasicBlockList().push_back(mergeBB);
+        builder->SetInsertPoint(mergeBB);
+        llvm::PHINode *PN = builder->CreatePHI(llvm::Type::getInt64Ty(context), 2,
+                                        "iftmp");
+        PN->addIncoming(thenV, thenBB);
+        PN->addIncoming(elseV, elseBB);
+    }
+
     void visit_BinOp(const ASR::BinOp_t &x) {
         this->visit_expr(*x.m_left);
         llvm::Value *left_val = tmp;
@@ -236,6 +285,18 @@ public:
         llvm::Value *arg1 = tmp;
         llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("%d\n");
         builder->CreateCall(fn_printf, {fmt_ptr, arg1});
+    }
+
+    void visit_ErrorStop(const ASR::ErrorStop_t &x) {
+        llvm::Function *fn_printf = module->getFunction("_lfortran_printf");
+        if (!fn_printf) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {llvm::Type::getInt8PtrTy(context)}, true);
+            fn_printf = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, "_lfortran_printf", module.get());
+        }
+        llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("ERROR STOP\n");
+        builder->CreateCall(fn_printf, {fmt_ptr});
     }
 
 };

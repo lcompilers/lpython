@@ -49,6 +49,7 @@ using LFortran::AST::make_Cycle_t;
 using LFortran::AST::make_Print_t;
 using LFortran::AST::make_Return_t;
 using LFortran::AST::make_Stop_t;
+using LFortran::AST::make_ErrorStop_t;
 using LFortran::AST::make_Name_t;
 using LFortran::AST::make_Num_t;
 using LFortran::AST::make_Str_t;
@@ -241,6 +242,8 @@ static inline arg_t* ARGS(Allocator &al, const YYSTYPE::VecAST args)
 
 #define STOP(l) make_Stop_t(p.m_a, l, nullptr)
 #define STOP1(e, l) make_Stop_t(p.m_a, l, EXPR(e))
+#define ERROR_STOP(l) make_ErrorStop_t(p.m_a, l, nullptr)
+#define ERROR_STOP1(e, l) make_ErrorStop_t(p.m_a, l, EXPR(e))
 
 #define EXIT(l) make_Exit_t(p.m_a, l)
 #define RETURN(l) make_Return_t(p.m_a, l)
