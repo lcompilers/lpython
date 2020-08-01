@@ -1,0 +1,13 @@
+{
+    "basename": "obj-subroutine3-74fd66c",
+    "cmd": "lfortran -c {infile} -o output.o",
+    "infile": "tests/subroutine3.f90",
+    "infile_hash": "a524604ef3f17ed8a7b81b5ac3b03932cbc3ec6f308982532b4d9900",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

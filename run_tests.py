@@ -46,6 +46,7 @@ def main():
         ast_openmp = test.get("ast_openmp", False)
         asr = test.get("asr", False)
         llvm = test.get("llvm", False)
+        obj = test.get("obj", False)
         bin_ = test.get("bin", False)
 
         print(color(style.bold)+"TEST:"+color(style.reset), filename)
@@ -83,6 +84,12 @@ def main():
                 print("    * llvm   SKIPPED as requested")
             else:
                 run_test("llvm", "lfortran --show-llvm {infile} -o {outfile}",
+                        filename, update_reference)
+        if obj:
+            if no_llvm:
+                print("    * obj    SKIPPED as requested")
+            else:
+                run_test("obj", "lfortran -c {infile} -o output.o",
                         filename, update_reference)
 
         if bin_:
