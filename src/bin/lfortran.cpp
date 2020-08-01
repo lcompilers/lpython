@@ -23,6 +23,12 @@ std::string remove_extension(const std::string& filename) {
     return filename.substr(0, lastdot);
 }
 
+std::string remove_path(const std::string& filename) {
+    size_t lastslash = filename.find_last_of("/");
+    if (lastslash == std::string::npos) return filename;
+    return filename.substr(lastslash+1);
+}
+
 bool ends_with(const std::string &s, const std::string &e) {
     if (s.size() < e.size()) return false;
     return s.substr(s.size()-e.size()) == e;
@@ -451,6 +457,7 @@ int main(int argc, char *argv[])
     std::string outfile;
     std::string basename;
     basename = remove_extension(arg_file);
+    basename = remove_path(basename);
     if (arg_o.size() > 0) {
         outfile = arg_o;
     } else if (arg_S) {
