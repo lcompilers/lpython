@@ -369,6 +369,10 @@ int link_executable(const std::string &infile, const std::string &outfile,
     */
     std::string CC = "gcc";
     std::string base_path = "src/runtime";
+    char *env_p = std::getenv("LFORTRAN_RUNTIME_LIBRARY_DIR");
+    if (env_p) {
+        base_path = env_p;
+    }
     std::string options;
     std::string runtime_lib = "lfortran_runtime";
     if (static_executable) {
