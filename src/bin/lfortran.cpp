@@ -1,5 +1,6 @@
-#include <iostream>
 #include <chrono>
+#include <iostream>
+#include <stdlib.h>
 
 #include <bin/CLI11.hpp>
 
@@ -20,6 +21,11 @@ std::string remove_extension(const std::string& filename) {
     size_t lastdot = filename.find_last_of(".");
     if (lastdot == std::string::npos) return filename;
     return filename.substr(0, lastdot);
+}
+
+bool ends_with(const std::string &s, const std::string &e) {
+    if (s.size() < e.size()) return false;
+    return s.substr(s.size()-e.size()) == e;
 }
 
 std::string read_file(const std::string &filename)
@@ -253,7 +259,7 @@ int emit_llvm(const std::string &infile)
     return 0;
 }
 
-int emit_object_file(const std::string &infile, const std::string &outfile)
+int compile_to_object_file(const std::string &infile, const std::string &outfile)
 {
     std::string input = read_file(infile);
 
@@ -300,6 +306,46 @@ int emit_object_file(const std::string &infile, const std::string &outfile)
 }
 #endif
 
+// infile is an object file
+// outfile will become the executable
+int link_executable(const std::string &infile, const std::string &outfile,
+    bool static_executable=false)
+{
+    /*
+    The gcc line is equivalent to the following for dynamic linking:
+
+    ld -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o $outfile $infile \
+        -Lsrc/runtime -rpath=src/runtime -llfortran_runtime \
+        /usr/lib/x86_64-linux-gnu/Scrt1.o /usr/lib/x86_64-linux-gnu/libc.so
+
+    and this for static linking:
+
+    ld -static -o $outfile $infile \
+        -Lsrc/runtime -rpath=src/runtime -llfortran_runtime_static \
+        /usr/lib/x86_64-linux-gnu/crt1.o /usr/lib/x86_64-linux-gnu/crti.o \
+        --start-group /usr/lib/gcc/x86_64-linux-gnu/7/libgcc.a \
+                      /usr/lib/gcc/x86_64-linux-gnu/7/libgcc_eh.a \
+                      /usr/lib/x86_64-linux-gnu/libc.a --end-group \
+        /usr/lib/x86_64-linux-gnu/crtn.o
+    */
+    std::string CC = "gcc";
+    std::string base_path = "src/runtime";
+    std::string options;
+    std::string runtime_lib = "lfortran_runtime";
+    if (static_executable) {
+        options += " -static ";
+        runtime_lib = "lfortran_runtime_static";
+    }
+    std::string cmd = CC + options + " -o " + outfile + " " + infile + " -L"
+        + base_path + " -Wl,-rpath=" + base_path + " -l" + runtime_lib + " -lm";
+    int err = system(cmd.c_str());
+    if (err) {
+        std::cout << "The command '" + cmd + "' failed." << std::endl;
+        return 10;
+    }
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
 #if defined(HAVE_LFORTRAN_STACKTRACE)
@@ -317,6 +363,7 @@ int main(int argc, char *argv[])
     bool show_asr = false;
     bool show_llvm = false;
     bool show_asm = false;
+    bool static_link = false;
 
     CLI::App app{"LFortran: modern interactive LLVM-based Fortran compiler"};
     // Standard options compatible with gfortran, gcc or clang
@@ -335,6 +382,7 @@ int main(int argc, char *argv[])
     app.add_flag("--show-asr", show_asr, "Show ASR for the given file and exit");
     app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
     app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
+    app.add_flag("--static", static_link, "Create a static executable");
     CLI11_PARSE(app, argc, argv);
 
     if (arg_version) {
@@ -397,12 +445,27 @@ int main(int argc, char *argv[])
     }
     if (arg_c) {
 #ifdef HAVE_LFORTRAN_LLVM
-        return emit_object_file(arg_file, outfile);
+        return compile_to_object_file(arg_file, outfile);
 #else
         std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
         return 1;
 #endif
     }
 
-    return 0;
+    if (ends_with(arg_file, ".f90")) {
+        std::string tmp_o = outfile + ".tmp.o";
+#ifdef HAVE_LFORTRAN_LLVM
+        int err = compile_to_object_file(arg_file, tmp_o);
+        if (err) return err;
+#else
+        std::cerr << "Compiling Fortran files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+        return 1;
+#endif
+        return link_executable(tmp_o, outfile, static_link);
+    } else if (ends_with(arg_file, ".o")) {
+        return link_executable(arg_file, outfile, static_link);
+    } else {
+        std::cerr << "Input filename extension not recognized." << std::endl;
+        return 1;
+    }
 }
