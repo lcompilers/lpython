@@ -18,6 +18,7 @@ filename = "subroutine3.f90"
 ast = true
 asr = true
 llvm = true
+obj = true
 
 [[test]]
 filename = "subroutine3b.f90"
@@ -78,6 +79,7 @@ filename = "expr2.f90"
 ast = true
 asr = true
 llvm = true
+obj = true
 
 [[test]]
 filename = "expr3.f90"
@@ -94,3 +96,4 @@ filename = "program1.f90"
 ast = true
 asr = true
 llvm = true
+obj = true

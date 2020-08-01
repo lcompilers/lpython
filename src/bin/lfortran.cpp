@@ -252,6 +252,52 @@ int emit_llvm(const std::string &infile)
     std::cout << m->str() << std::endl;
     return 0;
 }
+
+int emit_object_file(const std::string &infile, const std::string &outfile)
+{
+    std::string input = read_file(infile);
+
+    // Src -> AST
+    Allocator al(64*1024*1024);
+    LFortran::AST::TranslationUnit_t* ast;
+    try {
+        ast = LFortran::parse2(al, input);
+    } catch (const LFortran::TokenizerError &e) {
+        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
+        return 1;
+    } catch (const LFortran::ParserError &e) {
+        std::cerr << "Parsing error: " << e.msg() << std::endl;
+        return 2;
+    } catch (const LFortran::LFortranException &e) {
+        std::cerr << "Other LFortran exception: " << e.msg() << std::endl;
+        return 3;
+    }
+
+    // AST -> ASR
+    LFortran::ASR::asr_t* asr;
+    try {
+        // FIXME: For now we only transform the first node in the list:
+        asr = LFortran::ast_to_asr(al, *ast);
+    } catch (const LFortran::LFortranException &e) {
+        std::cerr << "LFortran exception: " << e.msg() << std::endl;
+        return 4;
+    }
+
+    // ASR -> LLVM
+    LFortran::LLVMEvaluator e;
+    std::unique_ptr<LFortran::LLVMModule> m;
+    try {
+        m = LFortran::asr_to_llvm(*asr, e.get_context(), al);
+    } catch (const LFortran::CodeGenError &e) {
+        std::cerr << "Code generation error: " << e.msg() << std::endl;
+        return 5;
+    }
+
+    // LLVM -> Machine code (saves to an object file)
+    e.save_object_file(*(m->m_m), outfile);
+
+    return 0;
+}
 #endif
 
 int main(int argc, char *argv[])
@@ -346,6 +392,14 @@ int main(int argc, char *argv[])
         return emit_llvm(arg_file);
 #else
         std::cerr << "The --show-llvm option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+        return 1;
+#endif
+    }
+    if (arg_c) {
+#ifdef HAVE_LFORTRAN_LLVM
+        return emit_object_file(arg_file, outfile);
+#else
+        std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
         return 1;
 #endif
     }
