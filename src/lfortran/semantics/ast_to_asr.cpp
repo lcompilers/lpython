@@ -399,7 +399,8 @@ public:
         ASR::ttype_t *left_type = expr_type(left);
         ASR::ttype_t *right_type = expr_type(right);
         LFORTRAN_ASSERT(left_type->type == right_type->type);
-        ASR::ttype_t *type = left_type;
+        ASR::ttype_t *type = TYPE(ASR::make_Logical_t(al, x.base.base.loc,
+                4, nullptr, 0));
         switch (x.m_op) {
             case (AST::cmpopType::Eq) : {
                 tmp = ASR::make_Compare_t(al, x.base.base.loc,
