@@ -346,6 +346,7 @@ int main(int argc, char *argv[])
     bool show_asr = false;
     bool show_llvm = false;
     bool show_asm = false;
+    bool static_link = false;
 
     CLI::App app{"LFortran: modern interactive LLVM-based Fortran compiler"};
     // Standard options compatible with gfortran, gcc or clang
@@ -364,6 +365,7 @@ int main(int argc, char *argv[])
     app.add_flag("--show-asr", show_asr, "Show ASR for the given file and exit");
     app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
     app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
+    app.add_flag("--static", static_link, "Create a static executable");
     CLI11_PARSE(app, argc, argv);
 
     if (arg_version) {
@@ -442,9 +444,9 @@ int main(int argc, char *argv[])
         std::cerr << "Compiling Fortran files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
         return 1;
 #endif
-        return link_executable(tmp_o, outfile);
+        return link_executable(tmp_o, outfile, static_link);
     } else if (ends_with(arg_file, ".o")) {
-        return link_executable(arg_file, outfile);
+        return link_executable(arg_file, outfile, static_link);
     } else {
         std::cerr << "Input filename extension not recognized." << std::endl;
         return 1;
