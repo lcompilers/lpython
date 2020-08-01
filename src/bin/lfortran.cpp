@@ -503,19 +503,19 @@ int main(int argc, char *argv[])
         return 1;
 #endif
     }
-    if (arg_c) {
-#ifdef HAVE_LFORTRAN_LLVM
-        return compile_to_object_file(arg_file, outfile);
-#else
-        std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
-        return 1;
-#endif
-    }
     if (arg_S) {
 #ifdef HAVE_LFORTRAN_LLVM
         return compile_to_assembly_file(arg_file, outfile);
 #else
         std::cerr << "The -S option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+        return 1;
+#endif
+    }
+    if (arg_c) {
+#ifdef HAVE_LFORTRAN_LLVM
+        return compile_to_object_file(arg_file, outfile);
+#else
+        std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
         return 1;
 #endif
     }
