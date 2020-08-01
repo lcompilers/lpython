@@ -389,6 +389,30 @@ public:
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value);
     }
 
+    void visit_Compare(const AST::Compare_t &x) {
+        this->visit_expr(*x.m_left);
+        ASR::expr_t *left = EXPR(tmp);
+        this->visit_expr(*x.m_right);
+        ASR::expr_t *right = EXPR(tmp);
+        // TODO: For now we require the types to match (implicit casting is not
+        // implemented yet)
+        ASR::ttype_t *left_type = expr_type(left);
+        ASR::ttype_t *right_type = expr_type(right);
+        LFORTRAN_ASSERT(left_type->type == right_type->type);
+        ASR::ttype_t *type = left_type;
+        switch (x.m_op) {
+            case (AST::cmpopType::Eq) : {
+                tmp = ASR::make_Compare_t(al, x.base.base.loc,
+                    left, ASR::cmpopType::Eq, right, type);
+                break;
+            }
+            default : {
+                throw SemanticError("Comparison operator not implemented",
+                        x.base.base.loc);
+            }
+        }
+    }
+
     void visit_BinOp(const AST::BinOp_t &x) {
         this->visit_expr(*x.m_left);
         ASR::expr_t *left = EXPR(tmp);
@@ -466,6 +490,36 @@ public:
         }
         tmp = ASR::make_Print_t(al, x.base.base.loc, nullptr,
             body.p, body.size());
+    }
+
+    void visit_If(const AST::If_t &x) {
+        visit_expr(*x.m_test);
+        ASR::expr_t *test = EXPR(tmp);
+        Vec<ASR::stmt_t*> body;
+        body.reserve(al, x.n_body);
+        for (size_t i=0; i<x.n_body; i++) {
+            visit_stmt(*x.m_body[i]);
+            body.push_back(al, STMT(tmp));
+        }
+        Vec<ASR::stmt_t*> orelse;
+        orelse.reserve(al, x.n_orelse);
+        for (size_t i=0; i<x.n_orelse; i++) {
+            visit_stmt(*x.m_orelse[i]);
+            orelse.push_back(al, STMT(tmp));
+        }
+        tmp = ASR::make_If_t(al, x.base.base.loc, test, body.p,
+                body.size(), orelse.p, orelse.size());
+    }
+
+    void visit_ErrorStop(const AST::ErrorStop_t &x) {
+        ASR::expr_t *code;
+        if (x.m_code) {
+            visit_expr(*x.m_code);
+            code = EXPR(tmp);
+        } else {
+            code = nullptr;
+        }
+        tmp = ASR::make_ErrorStop_t(al, x.base.base.loc, code);
     }
 };
 
