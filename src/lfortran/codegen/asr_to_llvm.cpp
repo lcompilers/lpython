@@ -207,6 +207,14 @@ public:
         this->visit_expr(*x.m_test);
         llvm::Value *cond=tmp;
 
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+
+        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
+        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
+        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
+
+        builder->CreateCondBr(cond, thenBB, elseBB);
+
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
         }
