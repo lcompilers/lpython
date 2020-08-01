@@ -23,6 +23,12 @@ std::string remove_extension(const std::string& filename) {
     return filename.substr(0, lastdot);
 }
 
+std::string remove_path(const std::string& filename) {
+    size_t lastslash = filename.find_last_of("/");
+    if (lastslash == std::string::npos) return filename;
+    return filename.substr(lastslash+1);
+}
+
 bool ends_with(const std::string &s, const std::string &e) {
     if (s.size() < e.size()) return false;
     return s.substr(s.size()-e.size()) == e;
@@ -259,7 +265,8 @@ int emit_llvm(const std::string &infile)
     return 0;
 }
 
-int compile_to_object_file(const std::string &infile, const std::string &outfile)
+int compile_to_object_file(const std::string &infile, const std::string &outfile,
+        bool assembly=false)
 {
     std::string input = read_file(infile);
 
@@ -300,9 +307,18 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
     }
 
     // LLVM -> Machine code (saves to an object file)
-    e.save_object_file(*(m->m_m), outfile);
+    if (assembly) {
+        e.save_asm_file(*(m->m_m), outfile);
+    } else {
+        e.save_object_file(*(m->m_m), outfile);
+    }
 
     return 0;
+}
+
+int compile_to_assembly_file(const std::string &infile, const std::string &outfile)
+{
+    return compile_to_object_file(infile, outfile, true);
 }
 #endif
 
@@ -312,24 +328,67 @@ int link_executable(const std::string &infile, const std::string &outfile,
     bool static_executable=false)
 {
     /*
-    The gcc line is equivalent to the following for dynamic linking:
+    The `gcc` line for dynamic linking that is constructed below:
 
-    ld -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o $outfile $infile \
+    gcc -o $outfile $infile \
+        -Lsrc/runtime -Wl,-rpath=src/runtime -llfortran_runtime
+
+    is equivalent to the following:
+
+    ld -o $outfile $infile \
         -Lsrc/runtime -rpath=src/runtime -llfortran_runtime \
+        -dynamic-linker /lib64/ld-linux-x86-64.so.2  \
         /usr/lib/x86_64-linux-gnu/Scrt1.o /usr/lib/x86_64-linux-gnu/libc.so
 
     and this for static linking:
 
-    ld -static -o $outfile $infile \
+    gcc -static -o $outfile $infile \
+        -Lsrc/runtime -Wl,-rpath=src/runtime -llfortran_runtime_static
+
+    is equivalent to:
+
+    ld -o $outfile $infile \
         -Lsrc/runtime -rpath=src/runtime -llfortran_runtime_static \
         /usr/lib/x86_64-linux-gnu/crt1.o /usr/lib/x86_64-linux-gnu/crti.o \
-        --start-group /usr/lib/gcc/x86_64-linux-gnu/7/libgcc.a \
-                      /usr/lib/gcc/x86_64-linux-gnu/7/libgcc_eh.a \
-                      /usr/lib/x86_64-linux-gnu/libc.a --end-group \
+        /usr/lib/x86_64-linux-gnu/libc.a \
+        /usr/lib/gcc/x86_64-linux-gnu/7/libgcc_eh.a \
+        /usr/lib/x86_64-linux-gnu/libc.a \
+        /usr/lib/gcc/x86_64-linux-gnu/7/libgcc.a \
         /usr/lib/x86_64-linux-gnu/crtn.o
+
+    This was tested on Ubuntu 18.04.
+
+    The `gcc` and `ld` approaches are equivalent except:
+
+    1. The `gcc` command knows how to find and link the `libc` library,
+       while in `ld` we must do that manually
+    2. For dynamic linking, we must also specify the dynamic linker for `ld`
+
+    Notes:
+
+    * We can use `lld` to do the linking via the `ld` approach, so `ld` is
+      preferable if we can mitigate the issues 1. and 2.
+    * If we ship our own libc (such as musl), then we know how to find it
+      and link it, which mitigates the issue 1.
+    * If we link `musl` statically, then issue 2. does not apply.
+    * If we link `musl` dynamically, then we have to find the dynamic
+      linker (doable), which mitigates the issue 2.
+
+    One way to find the default dynamic linker is by:
+
+        $ readelf -e /bin/bash | grep ld-linux
+            [Requesting program interpreter: /lib64/ld-linux-x86-64.so.2]
+
+    There are probably simpler ways.
+
+
     */
     std::string CC = "gcc";
     std::string base_path = "src/runtime";
+    char *env_p = std::getenv("LFORTRAN_RUNTIME_LIBRARY_DIR");
+    if (env_p) {
+        base_path = env_p;
+    }
     std::string options;
     std::string runtime_lib = "lfortran_runtime";
     if (static_executable) {
@@ -408,6 +467,7 @@ int main(int argc, char *argv[])
     std::string outfile;
     std::string basename;
     basename = remove_extension(arg_file);
+    basename = remove_path(basename);
     if (arg_o.size() > 0) {
         outfile = arg_o;
     } else if (arg_S) {
@@ -443,6 +503,14 @@ int main(int argc, char *argv[])
         return 1;
 #endif
     }
+    if (arg_S) {
+#ifdef HAVE_LFORTRAN_LLVM
+        return compile_to_assembly_file(arg_file, outfile);
+#else
+        std::cerr << "The -S option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+        return 1;
+#endif
+    }
     if (arg_c) {
 #ifdef HAVE_LFORTRAN_LLVM
         return compile_to_object_file(arg_file, outfile);
@@ -462,10 +530,7 @@ int main(int argc, char *argv[])
         return 1;
 #endif
         return link_executable(tmp_o, outfile, static_link);
-    } else if (ends_with(arg_file, ".o")) {
-        return link_executable(arg_file, outfile, static_link);
     } else {
-        std::cerr << "Input filename extension not recognized." << std::endl;
-        return 1;
+        return link_executable(arg_file, outfile, static_link);
     }
 }

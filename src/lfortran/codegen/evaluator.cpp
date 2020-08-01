@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/ADT/STLExtras.h>
@@ -147,16 +148,34 @@ void LLVMEvaluator::voidfn(const std::string &name) {
     f();
 }
 
+void write_file(const std::string &filename, const std::string &contents)
+{
+    std::ofstream out;
+    out.open(filename);
+    out << contents << std::endl;
+}
+
+void LLVMEvaluator::save_asm_file(llvm::Module &m, const std::string &filename)
+{
+    llvm::legacy::PassManager pass;
+    llvm::TargetMachine::CodeGenFileType ft = llvm::TargetMachine::CGFT_AssemblyFile;
+    llvm::SmallVector<char, 128> buf;
+    llvm::raw_svector_ostream dest(buf);
+    if (jit->getTargetMachine().addPassesToEmitFile(pass, dest, nullptr, ft)) {
+        throw std::runtime_error("TargetMachine can't emit a file of this type");
+    }
+    pass.run(m);
+    write_file(filename, dest.str().data());
+}
+
 void LLVMEvaluator::save_object_file(llvm::Module &m, const std::string &filename) {
     llvm::legacy::PassManager pass;
-    //llvm::TargetMachine::CodeGenFileType ft = llvm::TargetMachine::CGFT_AssemblyFile;
     llvm::TargetMachine::CodeGenFileType ft = llvm::TargetMachine::CGFT_ObjectFile;
     std::error_code EC;
     llvm::raw_fd_ostream dest(filename, EC, llvm::sys::fs::OF_None);
     if (EC) {
         throw std::runtime_error("raw_fd_ostream failed");
     }
-
     if (jit->getTargetMachine().addPassesToEmitFile(pass, dest, nullptr, ft)) {
         throw std::runtime_error("TargetMachine can't emit a file of this type");
     }

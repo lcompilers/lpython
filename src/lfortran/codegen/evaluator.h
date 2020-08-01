@@ -43,6 +43,7 @@ public:
     void add_module(std::unique_ptr<LLVMModule> m);
     int64_t intfn(const std::string &name);
     void voidfn(const std::string &name);
+    void save_asm_file(llvm::Module &m, const std::string &filename);
     void save_object_file(llvm::Module &m, const std::string &filename);
     static std::string module_to_string(llvm::Module &m);
     static void print_version_message();
