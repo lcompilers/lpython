@@ -206,22 +206,32 @@ public:
     void visit_If(const ASR::If_t &x) {
         this->visit_expr(*x.m_test);
         llvm::Value *cond=tmp;
-
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
-
         llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
         llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
         llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
-
         builder->CreateCondBr(cond, thenBB, elseBB);
-
+        builder->SetInsertPoint(thenBB);
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
         }
+        llvm::Value *thenV = llvm::ConstantInt::get(context, llvm::APInt(64, 1));
+        builder->CreateBr(mergeBB);
+        thenBB = builder->GetInsertBlock();
+        fn->getBasicBlockList().push_back(elseBB);
+        builder->SetInsertPoint(elseBB);
         for (size_t i=0; i<x.n_orelse; i++) {
             this->visit_stmt(*x.m_orelse[i]);
         }
-
+        llvm::Value *elseV = llvm::ConstantInt::get(context, llvm::APInt(64, 2));
+        builder->CreateBr(mergeBB);
+        elseBB = builder->GetInsertBlock();
+        fn->getBasicBlockList().push_back(mergeBB);
+        builder->SetInsertPoint(mergeBB);
+        llvm::PHINode *PN = builder->CreatePHI(llvm::Type::getInt64Ty(context), 2,
+                                        "iftmp");
+        PN->addIncoming(thenV, thenBB);
+        PN->addIncoming(elseV, elseBB);
     }
 
     void visit_BinOp(const ASR::BinOp_t &x) {
