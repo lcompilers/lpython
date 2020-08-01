@@ -308,12 +308,19 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
 
 // infile is an object file
 // outfile will become the executable
-int link_executable(const std::string &infile, const std::string &outfile)
+int link_executable(const std::string &infile, const std::string &outfile,
+    bool static_executable=false)
 {
-    std::string CC = "cc";
+    std::string CC = "gcc";
     std::string base_path = "src/runtime";
-    std::string cmd = CC + " -o " + outfile + " " + infile + " -L" + base_path
-        + " -Wl,-rpath=" + base_path + " -llfortran_runtime -lm";
+    std::string options;
+    std::string runtime_lib = "lfortran_runtime";
+    if (static_executable) {
+        options += " -static ";
+        runtime_lib = "lfortran_runtime_static";
+    }
+    std::string cmd = CC + options + " -o " + outfile + " " + infile + " -L"
+        + base_path + " -Wl,-rpath=" + base_path + " -l" + runtime_lib + " -lm";
     int err = system(cmd.c_str());
     if (err) {
         std::cout << "The command '" + cmd + "' failed." << std::endl;
