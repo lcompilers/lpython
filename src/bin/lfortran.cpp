@@ -312,21 +312,60 @@ int link_executable(const std::string &infile, const std::string &outfile,
     bool static_executable=false)
 {
     /*
-    The gcc line is equivalent to the following for dynamic linking:
+    The `gcc` line for dynamic linking that is constructed below:
 
-    ld -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o $outfile $infile \
+    gcc -o $outfile $infile \
+        -Lsrc/runtime -Wl,-rpath=src/runtime -llfortran_runtime
+
+    is equivalent to the following:
+
+    ld -o $outfile $infile \
         -Lsrc/runtime -rpath=src/runtime -llfortran_runtime \
+        -dynamic-linker /lib64/ld-linux-x86-64.so.2  \
         /usr/lib/x86_64-linux-gnu/Scrt1.o /usr/lib/x86_64-linux-gnu/libc.so
 
     and this for static linking:
 
-    ld -static -o $outfile $infile \
+    gcc -static -o $outfile $infile \
+        -Lsrc/runtime -Wl,-rpath=src/runtime -llfortran_runtime_static
+
+    is equivalent to:
+
+    ld -o $outfile $infile \
         -Lsrc/runtime -rpath=src/runtime -llfortran_runtime_static \
         /usr/lib/x86_64-linux-gnu/crt1.o /usr/lib/x86_64-linux-gnu/crti.o \
-        --start-group /usr/lib/gcc/x86_64-linux-gnu/7/libgcc.a \
-                      /usr/lib/gcc/x86_64-linux-gnu/7/libgcc_eh.a \
-                      /usr/lib/x86_64-linux-gnu/libc.a --end-group \
+        /usr/lib/x86_64-linux-gnu/libc.a \
+        /usr/lib/gcc/x86_64-linux-gnu/7/libgcc_eh.a \
+        /usr/lib/x86_64-linux-gnu/libc.a \
+        /usr/lib/gcc/x86_64-linux-gnu/7/libgcc.a \
         /usr/lib/x86_64-linux-gnu/crtn.o
+
+    This was tested on Ubuntu 18.04.
+
+    The `gcc` and `ld` approaches are equivalent except:
+
+    1. The `gcc` command knows how to find and link the `libc` library,
+       while in `ld` we must do that manually
+    2. For dynamic linking, we must also specify the dynamic linker for `ld`
+
+    Notes:
+
+    * We can use `lld` to do the linking via the `ld` approach, so `ld` is
+      preferable if we can mitigate the issues 1. and 2.
+    * If we ship our own libc (such as musl), then we know how to find it
+      and link it, which mitigates the issue 1.
+    * If we link `musl` statically, then issue 2. does not apply.
+    * If we link `musl` dynamically, then we have to find the dynamic
+      linker (doable), which mitigates the issue 2.
+
+    One way to find the default dynamic linker is by:
+
+        $ readelf -e /bin/bash | grep ld-linux
+            [Requesting program interpreter: /lib64/ld-linux-x86-64.so.2]
+
+    There are probably simpler ways.
+
+
     */
     std::string CC = "gcc";
     std::string base_path = "src/runtime";
