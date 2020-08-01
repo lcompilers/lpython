@@ -22,6 +22,11 @@ std::string remove_extension(const std::string& filename) {
     return filename.substr(0, lastdot);
 }
 
+bool ends_with(const std::string &s, const std::string &e) {
+    if (s.size() < e.size()) return false;
+    return s.substr(s.size()-e.size()) == e;
+}
+
 std::string read_file(const std::string &filename)
 {
     std::ifstream ifs(filename.c_str(), std::ios::in | std::ios::binary
@@ -253,7 +258,7 @@ int emit_llvm(const std::string &infile)
     return 0;
 }
 
-int emit_object_file(const std::string &infile, const std::string &outfile)
+int compile_to_object_file(const std::string &infile, const std::string &outfile)
 {
     std::string input = read_file(infile);
 
@@ -299,6 +304,12 @@ int emit_object_file(const std::string &infile, const std::string &outfile)
     return 0;
 }
 #endif
+
+int link_executable(const std::string &infile, const std::string &outfile)
+{
+    std::cout << "Linking object file " << infile << " to an executable " << outfile << std::endl;
+    return 0;
+}
 
 int main(int argc, char *argv[])
 {
@@ -397,13 +408,30 @@ int main(int argc, char *argv[])
     }
     if (arg_c) {
 #ifdef HAVE_LFORTRAN_LLVM
-        return emit_object_file(arg_file, outfile);
+        return compile_to_object_file(arg_file, outfile);
 #else
         std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
         return 1;
 #endif
     }
 
-    std::cerr << "The requested action not implemented." << std::endl;
-    return 1;
+    std::cout << arg_file << std::endl;
+    std::cout << outfile << std::endl;
+
+    if (ends_with(arg_file, ".f90")) {
+        std::string tmp_o = outfile + ".tmp.o";
+#ifdef HAVE_LFORTRAN_LLVM
+        int err = compile_to_object_file(arg_file, tmp_o);
+        if (err) return err;
+#else
+        std::cerr << "Compiling Fortran files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+        return 1;
+#endif
+        return link_executable(tmp_o, outfile);
+    } else if (ends_with(arg_file, ".o")) {
+        return link_executable(arg_file, outfile);
+    } else {
+        std::cerr << "Input filename extension not recognized." << std::endl;
+        return 1;
+    }
 }
