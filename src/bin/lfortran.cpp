@@ -265,7 +265,8 @@ int emit_llvm(const std::string &infile)
     return 0;
 }
 
-int compile_to_object_file(const std::string &infile, const std::string &outfile)
+int compile_to_object_file(const std::string &infile, const std::string &outfile,
+        bool assembly=false)
 {
     std::string input = read_file(infile);
 
@@ -306,9 +307,18 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
     }
 
     // LLVM -> Machine code (saves to an object file)
-    e.save_object_file(*(m->m_m), outfile);
+    if (assembly) {
+        e.save_asm_file(*(m->m_m), outfile);
+    } else {
+        e.save_object_file(*(m->m_m), outfile);
+    }
 
     return 0;
+}
+
+int compile_to_assembly_file(const std::string &infile, const std::string &outfile)
+{
+    return compile_to_object_file(infile, outfile, true);
 }
 #endif
 
@@ -498,6 +508,14 @@ int main(int argc, char *argv[])
         return compile_to_object_file(arg_file, outfile);
 #else
         std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+        return 1;
+#endif
+    }
+    if (arg_S) {
+#ifdef HAVE_LFORTRAN_LLVM
+        return compile_to_assembly_file(arg_file, outfile);
+#else
+        std::cerr << "The -S option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
         return 1;
 #endif
     }
