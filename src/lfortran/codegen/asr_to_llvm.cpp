@@ -185,6 +185,37 @@ public:
         builder->CreateStore(value, target);
 
     }
+
+    void visit_Compare(const ASR::Compare_t &x) {
+        this->visit_expr(*x.m_left);
+        llvm::Value *left = tmp;
+        this->visit_expr(*x.m_right);
+        llvm::Value *right = tmp;
+        switch (x.m_op) {
+            case (ASR::cmpopType::Eq) : {
+                tmp = builder->CreateICmpEQ(left, right);
+                break;
+            }
+            default : {
+                throw SemanticError("Comparison operator not implemented",
+                        x.base.base.loc);
+            }
+        }
+    }
+
+    void visit_If(const ASR::If_t &x) {
+        this->visit_expr(*x.m_test);
+        llvm::Value *cond=tmp;
+
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+        }
+        for (size_t i=0; i<x.n_orelse; i++) {
+            this->visit_stmt(*x.m_orelse[i]);
+        }
+
+    }
+
     void visit_BinOp(const ASR::BinOp_t &x) {
         this->visit_expr(*x.m_left);
         llvm::Value *left_val = tmp;
@@ -236,6 +267,18 @@ public:
         llvm::Value *arg1 = tmp;
         llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("%d\n");
         builder->CreateCall(fn_printf, {fmt_ptr, arg1});
+    }
+
+    void visit_ErrorStop(const ASR::ErrorStop_t &x) {
+        llvm::Function *fn_printf = module->getFunction("_lfortran_printf");
+        if (!fn_printf) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {llvm::Type::getInt8PtrTy(context)}, true);
+            fn_printf = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, "_lfortran_printf", module.get());
+        }
+        llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("ERROR STOP\n");
+        builder->CreateCall(fn_printf, {fmt_ptr});
     }
 
 };
