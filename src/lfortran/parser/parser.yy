@@ -5,7 +5,7 @@
 %locations
 %glr-parser
 %expect    40 // shift/reduce conflicts
-%expect-rr 17 // reduce/reduce conflicts
+%expect-rr 22 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -575,8 +575,13 @@ sep
     ;
 
 sep_one
-    : TK_NEWLINE
+    : comment_opt TK_NEWLINE
     | ";"
+    ;
+
+comment_opt
+    : TK_COMMENT
+    | %empty
     ;
 
 statement
