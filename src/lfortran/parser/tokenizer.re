@@ -45,6 +45,21 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
 	unsigned long u;
     for (;;) {
         tok = cur;
+        /*
+        Re2c has an excellent documentation at:
+
+        https://re2c.org/manual/manual_c.html
+
+        The first paragraph there explains the basics:
+
+        * If multiple rules match, the longest match takes precedence
+        * If multiple rules match the same string, the earlier rule takes
+          precedence
+        * Default rule `*` should always be defined, it has the lowest priority
+          regardless of its place and matches any code unit
+
+        See the manual for more details.
+        */
         /*!re2c
             re2c:define:YYCURSOR = cur;
             re2c:define:YYMARKER = mar;
@@ -287,6 +302,8 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
                         loc, t);
                 }
             }
+
+            "!" [^\n\x00]* / "\n" { token(yylval.string); RET(TK_COMMENT) }
 
             (kind "_")? '"' ('""'|[^"\x00])* '"' { token(yylval.string); RET(TK_STRING) }
             (kind "_")? "'" ("''"|[^'\x00])* "'" { token(yylval.string); RET(TK_STRING) }

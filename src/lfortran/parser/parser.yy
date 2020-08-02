@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    40 // shift/reduce conflicts
-%expect-rr 17 // reduce/reduce conflicts
+%expect    41 // shift/reduce conflicts
+%expect-rr 21 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -88,6 +88,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token TK_VBAR "|"
 
 %token <string> TK_STRING
+%token <string> TK_COMMENT
 
 %token TK_DBL_DOT ".."
 %token TK_DBL_COLON "::"
@@ -400,8 +401,13 @@ proc
 
 program
     : KW_PROGRAM id sep implicit_statement_opt var_decl_star statements
-        contains_block_opt KW_END KW_PROGRAM id_opt sep {
+        contains_block_opt KW_END end_program_opt sep {
             LLOC(@$, @9); $$ = PROGRAM($2, $5, $6, @$); }
+    ;
+
+end_program_opt
+    : KW_PROGRAM id_opt
+    | %empty
     ;
 
 subroutine
@@ -575,6 +581,7 @@ sep
 
 sep_one
     : TK_NEWLINE
+    | TK_COMMENT
     | ";"
     ;
 
