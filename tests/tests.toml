@@ -109,3 +109,7 @@ ast = true
 asr = true
 llvm = true
 obj = true
+
+[[test]]
+filename = "../old_tests/program_cmake_01.f90"
+ast = true
