@@ -89,6 +89,7 @@ static inline ASR::Var_t* EXPR_VAR(const ASR::asr_t *f)
     LFORTRAN_ASSERT(t->type == ASR::exprType::Var);
     return (ASR::Var_t*)t;
 }
+
 void printf(llvm::LLVMContext &context, llvm::Module &module,
     llvm::IRBuilder<> &builder, const std::vector<llvm::Value*> &args)
 {
@@ -100,6 +101,20 @@ void printf(llvm::LLVMContext &context, llvm::Module &module,
                 llvm::Function::ExternalLinkage, "_lfortran_printf", &module);
     }
     builder.CreateCall(fn_printf, args);
+}
+
+void exit(llvm::LLVMContext &context, llvm::Module &module,
+    llvm::IRBuilder<> &builder, llvm::Value* exit_code)
+{
+    llvm::Function *fn_exit = module.getFunction("exit");
+    if (!fn_exit) {
+        llvm::FunctionType *function_type = llvm::FunctionType::get(
+                llvm::Type::getVoidTy(context), {llvm::Type::getInt64Ty(context)},
+                false);
+        fn_exit = llvm::Function::Create(function_type,
+                llvm::Function::ExternalLinkage, "exit", &module);
+    }
+    builder.CreateCall(fn_exit, {exit_code});
 }
 
 class ASRToLLVMVisitor : public ASR::BaseVisitor<ASRToLLVMVisitor>
@@ -295,6 +310,10 @@ public:
     void visit_ErrorStop(const ASR::ErrorStop_t &x) {
         llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("ERROR STOP\n");
         printf(context, *module, *builder, {fmt_ptr});
+        int exit_code_int = 1;
+        llvm::Value *exit_code = llvm::ConstantInt::get(context,
+                llvm::APInt(64, exit_code_int));
+        exit(context, *module, *builder, exit_code);
     }
 
 };
