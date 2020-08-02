@@ -1,7 +1,7 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-@0 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
+@0 = private unnamed_addr constant [6 x i8] c"STOP\0A\00", align 1
 
 define i64 @main() {
 .entry:
@@ -12,8 +12,8 @@ define i64 @main() {
   br i1 %1, label %then, label %else
 
 then:                                             ; preds = %.entry
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @0, i32 0, i32 0))
-  call void @exit(i64 1)
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @0, i32 0, i32 0))
+  call void @exit(i64 0)
   br label %ifcont
 
 else:                                             ; preds = %.entry

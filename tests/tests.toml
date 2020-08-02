@@ -99,6 +99,11 @@ llvm = true
 obj = true
 
 [[test]]
+filename = "stop.f90"
+asr = true
+llvm = true
+
+[[test]]
 filename = "program1.f90"
 ast = true
 asr = true
