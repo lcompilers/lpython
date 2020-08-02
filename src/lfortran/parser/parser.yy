@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    40 // shift/reduce conflicts
-%expect-rr 22 // reduce/reduce conflicts
+%expect    41 // shift/reduce conflicts
+%expect-rr 21 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -580,13 +580,9 @@ sep
     ;
 
 sep_one
-    : comment_opt TK_NEWLINE
+    : TK_NEWLINE
+    | TK_COMMENT
     | ";"
-    ;
-
-comment_opt
-    : TK_COMMENT
-    | %empty
     ;
 
 statement
