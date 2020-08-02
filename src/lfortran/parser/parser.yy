@@ -88,6 +88,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token TK_VBAR "|"
 
 %token <string> TK_STRING
+%token <string> TK_COMMENT
 
 %token TK_DBL_DOT ".."
 %token TK_DBL_COLON "::"

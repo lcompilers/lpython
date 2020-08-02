@@ -288,6 +288,8 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
                 }
             }
 
+            "!" [^\n\x00]* / "\n" { token(yylval.string); RET(TK_COMMENT) }
+
             (kind "_")? '"' ('""'|[^"\x00])* '"' { token(yylval.string); RET(TK_STRING) }
             (kind "_")? "'" ("''"|[^'\x00])* "'" { token(yylval.string); RET(TK_STRING) }
 
