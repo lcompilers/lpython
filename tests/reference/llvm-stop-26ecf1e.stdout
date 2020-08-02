@@ -1,0 +1,30 @@
+; ModuleID = 'LFortran'
+source_filename = "LFortran"
+
+@0 = private unnamed_addr constant [6 x i8] c"STOP\0A\00", align 1
+
+define i64 @main() {
+.entry:
+  %x = alloca i64
+  store i64 25, i64* %x
+  %0 = load i64, i64* %x
+  %1 = icmp eq i64 %0, 25
+  br i1 %1, label %then, label %else
+
+then:                                             ; preds = %.entry
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @0, i32 0, i32 0))
+  call void @exit(i64 0)
+  br label %ifcont
+
+else:                                             ; preds = %.entry
+  br label %ifcont
+
+ifcont:                                           ; preds = %else, %then
+  %iftmp = phi i64 [ 1, %then ], [ 2, %else ]
+  ret i64 0
+}
+
+declare void @_lfortran_printf(i8*, ...)
+
+declare void @exit(i64)
+
