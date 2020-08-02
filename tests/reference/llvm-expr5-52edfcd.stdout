@@ -13,6 +13,7 @@ define i64 @main() {
 
 then:                                             ; preds = %.entry
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @0, i32 0, i32 0))
+  call void @exit(i64 1)
   br label %ifcont
 
 else:                                             ; preds = %.entry
@@ -24,4 +25,6 @@ ifcont:                                           ; preds = %else, %then
 }
 
 declare void @_lfortran_printf(i8*, ...)
+
+declare void @exit(i64)
 
