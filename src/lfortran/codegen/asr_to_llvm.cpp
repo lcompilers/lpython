@@ -89,6 +89,18 @@ static inline ASR::Var_t* EXPR_VAR(const ASR::asr_t *f)
     LFORTRAN_ASSERT(t->type == ASR::exprType::Var);
     return (ASR::Var_t*)t;
 }
+void printf(llvm::LLVMContext &context, llvm::Module &module,
+    llvm::IRBuilder<> &builder, const std::vector<llvm::Value*> &args)
+{
+    llvm::Function *fn_printf = module.getFunction("_lfortran_printf");
+    if (!fn_printf) {
+        llvm::FunctionType *function_type = llvm::FunctionType::get(
+                llvm::Type::getVoidTy(context), {llvm::Type::getInt8PtrTy(context)}, true);
+        fn_printf = llvm::Function::Create(function_type,
+                llvm::Function::ExternalLinkage, "_lfortran_printf", &module);
+    }
+    builder.CreateCall(fn_printf, args);
+}
 
 class ASRToLLVMVisitor : public ASR::BaseVisitor<ASRToLLVMVisitor>
 {
@@ -273,30 +285,16 @@ public:
     }
 
     void visit_Print(const ASR::Print_t &x) {
-        llvm::Function *fn_printf = module->getFunction("_lfortran_printf");
-        if (!fn_printf) {
-            llvm::FunctionType *function_type = llvm::FunctionType::get(
-                    llvm::Type::getVoidTy(context), {llvm::Type::getInt8PtrTy(context)}, true);
-            fn_printf = llvm::Function::Create(function_type,
-                    llvm::Function::ExternalLinkage, "_lfortran_printf", module.get());
-        }
+        llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("%d\n");
         LFORTRAN_ASSERT(x.n_values == 1);
         this->visit_expr(*x.m_values[0]);
         llvm::Value *arg1 = tmp;
-        llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("%d\n");
-        builder->CreateCall(fn_printf, {fmt_ptr, arg1});
+        printf(context, *module, *builder, {fmt_ptr, arg1});
     }
 
     void visit_ErrorStop(const ASR::ErrorStop_t &x) {
-        llvm::Function *fn_printf = module->getFunction("_lfortran_printf");
-        if (!fn_printf) {
-            llvm::FunctionType *function_type = llvm::FunctionType::get(
-                    llvm::Type::getVoidTy(context), {llvm::Type::getInt8PtrTy(context)}, true);
-            fn_printf = llvm::Function::Create(function_type,
-                    llvm::Function::ExternalLinkage, "_lfortran_printf", module.get());
-        }
         llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("ERROR STOP\n");
-        builder->CreateCall(fn_printf, {fmt_ptr});
+        printf(context, *module, *builder, {fmt_ptr});
     }
 
 };
