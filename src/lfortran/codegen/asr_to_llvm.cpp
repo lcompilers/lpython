@@ -307,6 +307,15 @@ public:
         printf(context, *module, *builder, {fmt_ptr, arg1});
     }
 
+    void visit_Stop(const ASR::Stop_t &x) {
+        llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("STOP\n");
+        printf(context, *module, *builder, {fmt_ptr});
+        int exit_code_int = 0;
+        llvm::Value *exit_code = llvm::ConstantInt::get(context,
+                llvm::APInt(64, exit_code_int));
+        exit(context, *module, *builder, exit_code);
+    }
+
     void visit_ErrorStop(const ASR::ErrorStop_t &x) {
         llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("ERROR STOP\n");
         printf(context, *module, *builder, {fmt_ptr});

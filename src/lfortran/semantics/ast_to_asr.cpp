@@ -512,6 +512,17 @@ public:
                 body.size(), orelse.p, orelse.size());
     }
 
+    void visit_Stop(const AST::Stop_t &x) {
+        ASR::expr_t *code;
+        if (x.m_code) {
+            visit_expr(*x.m_code);
+            code = EXPR(tmp);
+        } else {
+            code = nullptr;
+        }
+        tmp = ASR::make_Stop_t(al, x.base.base.loc, code);
+    }
+
     void visit_ErrorStop(const AST::ErrorStop_t &x) {
         ASR::expr_t *code;
         if (x.m_code) {
