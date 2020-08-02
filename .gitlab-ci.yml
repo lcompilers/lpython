@@ -267,3 +267,12 @@ jupyter:
       - share/lfortran/nb/Demo_out.ipynb
       - share/lfortran/nb/output1.png
     when: always
+
+# Test Bison grammar
+grammar:
+  stage: build
+  image: registry.gitlab.com/lfortran/ci-images:full2-1.7.0
+  script:
+    - sudo apt-get update
+    - sudo apt-get install -yq --no-install-recommends patch bison
+    - ci/grammar_conflicts.sh
