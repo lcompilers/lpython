@@ -401,8 +401,13 @@ proc
 
 program
     : KW_PROGRAM id sep implicit_statement_opt var_decl_star statements
-        contains_block_opt KW_END KW_PROGRAM id_opt sep {
+        contains_block_opt KW_END end_program_opt sep {
             LLOC(@$, @9); $$ = PROGRAM($2, $5, $6, @$); }
+    ;
+
+end_program_opt
+    : KW_PROGRAM id_opt
+    | %empty
     ;
 
 subroutine
