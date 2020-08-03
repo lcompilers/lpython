@@ -78,6 +78,7 @@ public:
     std::unique_ptr<llvm::IRBuilder<>> builder;
 
     llvm::Value *tmp;
+    llvm::BasicBlock *current_loophead, *current_loopend;
 
     // TODO: This is not scoped, should lookup by hashes instead:
     std::map<std::string, llvm::AllocaInst*> llvm_symtab;
@@ -246,6 +247,8 @@ public:
         llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head", fn);
         llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
         llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+        this->current_loophead = loophead;
+        this->current_loopend = loopend;
 
         // head
         builder->CreateBr(loophead);
@@ -265,6 +268,20 @@ public:
         // end
         fn->getBasicBlockList().push_back(loopend);
         builder->SetInsertPoint(loopend);
+    }
+
+    void visit_Exit(const ASR::Exit_t &x) {
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+        llvm::BasicBlock *after = llvm::BasicBlock::Create(context, "after", fn);
+        builder->CreateBr(current_loopend);
+        builder->SetInsertPoint(after);
+    }
+
+    void visit_Cycle(const ASR::Cycle_t &x) {
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+        llvm::BasicBlock *after = llvm::BasicBlock::Create(context, "after", fn);
+        builder->CreateBr(current_loophead);
+        builder->SetInsertPoint(after);
     }
 
     void visit_BinOp(const ASR::BinOp_t &x) {
