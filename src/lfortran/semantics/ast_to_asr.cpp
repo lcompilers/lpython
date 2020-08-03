@@ -370,6 +370,29 @@ public:
                 left, op, right, type);
     }
 
+    void visit_UnaryOp(const AST::UnaryOp_t &x) {
+        this->visit_expr(*x.m_operand);
+        ASR::expr_t *operand = EXPR(tmp);
+        ASR::unaryopType op;
+        switch (x.m_op) {
+            case (AST::unaryopType::Invert) :
+                op = ASR::unaryopType::Invert;
+                break;
+            case (AST::unaryopType::Not) :
+                op = ASR::unaryopType::Not;
+                break;
+            case (AST::unaryopType::UAdd) :
+                op = ASR::unaryopType::UAdd;
+                break;
+            case (AST::unaryopType::USub) :
+                op = ASR::unaryopType::USub;
+                break;
+        }
+        ASR::ttype_t *operand_type = expr_type(operand);
+        tmp = ASR::make_UnaryOp_t(al, x.base.base.loc,
+                op, operand, operand_type);
+    }
+
     void visit_Name(const AST::Name_t &x) {
         SymbolTable *scope = current_scope;
         std::string var_name = x.m_id;
