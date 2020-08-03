@@ -308,20 +308,32 @@ public:
     }
 
     void visit_Print(const ASR::Print_t &x) {
-        LFORTRAN_ASSERT(x.n_values == 1);
-        this->visit_expr(*x.m_values[0]);
-        llvm::Value *arg1 = tmp;
-        llvm::Value *fmt_ptr;
-        ASR::expr_t *v = x.m_values[0];
-        ASR::ttype_t *t = expr_type(v);
-        if (t->type == ASR::ttypeType::Integer) {
-            fmt_ptr = builder->CreateGlobalStringPtr("%d\n");
-        } else if (t->type == ASR::ttypeType::Character) {
-            fmt_ptr = builder->CreateGlobalStringPtr("%s\n");
-        } else {
-            throw LFortranException("Type not implemented");
+        std::vector<llvm::Value *> args;
+        std::vector<std::string> fmt;
+        for (size_t i=0; i<x.n_values; i++) {
+            this->visit_expr(*x.m_values[i]);
+            args.push_back(tmp);
+            ASR::expr_t *v = x.m_values[i];
+            ASR::ttype_t *t = expr_type(v);
+            if (t->type == ASR::ttypeType::Integer) {
+                fmt.push_back("%d");
+            } else if (t->type == ASR::ttypeType::Character) {
+                fmt.push_back("%s");
+            } else {
+                throw LFortranException("Type not implemented");
+            }
         }
-        printf(context, *module, *builder, {fmt_ptr, arg1});
+        std::string fmt_str;
+        for (size_t i=0; i<fmt.size(); i++) {
+            fmt_str += fmt[i];
+            if (i < fmt.size()-1) fmt_str += " ";
+        }
+        fmt_str += "\n";
+        llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(fmt_str);
+        std::vector<llvm::Value *> printf_args;
+        printf_args.push_back(fmt_ptr);
+        printf_args.insert(printf_args.end(), args.begin(), args.end());
+        printf(context, *module, *builder, printf_args);
     }
 
     void visit_Stop(const ASR::Stop_t &x) {
