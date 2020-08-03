@@ -149,9 +149,6 @@ int emit_tokens(const std::string &infile)
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
-    } catch (const LFortran::LFortranException &e) {
-        std::cerr << "Other LFortran exception: " << e.msg() << std::endl;
-        return 3;
     }
 
     for (size_t i=0; i < toks.size(); i++) {
@@ -174,9 +171,6 @@ int emit_ast(const std::string &infile)
     } catch (const LFortran::ParserError &e) {
         std::cerr << "Parsing error: " << e.msg() << std::endl;
         return 2;
-    } catch (const LFortran::LFortranException &e) {
-        std::cerr << "Other LFortran exception: " << e.msg() << std::endl;
-        return 3;
     }
 
     std::cout << LFortran::pickle(*ast) << std::endl;
@@ -198,9 +192,6 @@ int emit_asr(const std::string &infile)
     } catch (const LFortran::ParserError &e) {
         std::cerr << "Parsing error: " << e.msg() << std::endl;
         return 2;
-    } catch (const LFortran::LFortranException &e) {
-        std::cerr << "Other LFortran exception: " << e.msg() << std::endl;
-        return 3;
     }
 
     // AST -> ASR
@@ -211,9 +202,6 @@ int emit_asr(const std::string &infile)
     } catch (const LFortran::SemanticError &e) {
         std::cerr << "Semantic error: " << e.msg() << std::endl;
         return 2;
-    } catch (const LFortran::LFortranException &e) {
-        std::cerr << "Other LFortran exception: " << e.msg() << std::endl;
-        return 4;
     }
 
     std::cout << LFortran::pickle(*asr) << std::endl;
@@ -236,20 +224,10 @@ int emit_llvm(const std::string &infile)
     } catch (const LFortran::ParserError &e) {
         std::cerr << "Parsing error: " << e.msg() << std::endl;
         return 2;
-    } catch (const LFortran::LFortranException &e) {
-        std::cerr << "Other LFortran exception: " << e.msg() << std::endl;
-        return 3;
     }
 
     // AST -> ASR
-    LFortran::ASR::asr_t* asr;
-    try {
-        // FIXME: For now we only transform the first node in the list:
-        asr = LFortran::ast_to_asr(al, *ast);
-    } catch (const LFortran::LFortranException &e) {
-        std::cerr << "LFortran exception: " << e.msg() << std::endl;
-        return 4;
-    }
+    LFortran::ASR::asr_t* asr = LFortran::ast_to_asr(al, *ast);
 
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
@@ -281,20 +259,10 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
     } catch (const LFortran::ParserError &e) {
         std::cerr << "Parsing error: " << e.msg() << std::endl;
         return 2;
-    } catch (const LFortran::LFortranException &e) {
-        std::cerr << "Other LFortran exception: " << e.msg() << std::endl;
-        return 3;
     }
 
     // AST -> ASR
-    LFortran::ASR::asr_t* asr;
-    try {
-        // FIXME: For now we only transform the first node in the list:
-        asr = LFortran::ast_to_asr(al, *ast);
-    } catch (const LFortran::LFortranException &e) {
-        std::cerr << "LFortran exception: " << e.msg() << std::endl;
-        return 4;
-    }
+    LFortran::ASR::asr_t* asr = LFortran::ast_to_asr(al, *ast);
 
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
