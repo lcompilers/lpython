@@ -150,6 +150,8 @@ public:
                 s_type = 2;
             } else if (sym_type == "real") {
                 s_type = 1;
+            } else if (sym_type == "logical") {
+                s_type = 3;
             } else {
                 Location loc;
                 // TODO: decl_t does not have location information...
@@ -200,9 +202,12 @@ public:
             ASR::ttype_t *type;
             if (s_type == 1) {
                 type = TYPE(ASR::make_Real_t(al, loc, 4, nullptr, 0));
-            } else {
-                LFORTRAN_ASSERT(s_type == 2);
+            } else if (s_type == 2) {
                 type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+            } else if (s_type == 3) {
+                type = TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0));
+            } else {
+                LFORTRAN_ASSERT(false);
             }
             ASR::asr_t *v = ASR::make_Variable_t(al, loc, x.m_sym, s_intent, type);
             current_scope->scope[sym] = v;

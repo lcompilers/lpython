@@ -277,7 +277,13 @@ public:
             } else {
                 throw CodeGenError("Unary type not implemented yet");
             }
-
+        } else if (x.m_type->type == ASR::ttypeType::Logical) {
+            if (x.m_op == ASR::unaryopType::Not) {
+                tmp = builder ->CreateNot(tmp);
+                return;
+            } else {
+                throw CodeGenError("Unary type not implemented yet in Logical");
+            }
         } else {
             throw CodeGenError("UnaryOp: type not supported yet");
         }
