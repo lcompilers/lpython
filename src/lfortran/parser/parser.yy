@@ -717,7 +717,7 @@ do_statement
     ;
 
 reduce
-    : KW_REDUCE "(" "+" "," id ")" { $$ = REDUCE($5, @$); }
+    : KW_REDUCE "(" "+" ":" id_list ")" { $$ = REDUCE($5, @$); }
     ;
 
 enddo

@@ -119,6 +119,6 @@ case_stmt = CaseStmt(expr test, stmt* body)
 
 use_symbol = UseSymbol(identifier sym, identifier? rename)
 
-reduce = Reduce(identifier var)
+reduce = Reduce(identifier *vars)
 
 }
