@@ -263,6 +263,26 @@ public:
         }
     }
 
+    void visit_UnaryOp(const ASR::UnaryOp_t &x) {
+        this->visit_expr(*x.m_operand);
+        if (x.m_type->type == ASR::ttypeType::Integer) {
+            if (x.m_op == ASR::unaryopType::UAdd) {
+                // tmp = tmp;
+                return;
+            } else if (x.m_op == ASR::unaryopType::USub) {
+                llvm::Value *zero = llvm::ConstantInt::get(context,
+                    llvm::APInt(64, 0));
+                tmp = builder ->CreateSub(zero, tmp);
+                return;
+            } else {
+                throw CodeGenError("Unary type not implemented yet");
+            }
+
+        } else {
+            throw CodeGenError("UnaryOp: type not supported yet");
+        }
+    }
+
     void visit_Num(const ASR::Num_t &x) {
         tmp = llvm::ConstantInt::get(context, llvm::APInt(64, x.m_n));
     }
