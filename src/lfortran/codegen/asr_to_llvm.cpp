@@ -241,6 +241,32 @@ public:
         PN->addIncoming(elseV, elseBB);
     }
 
+    void visit_WhileLoop(const ASR::WhileLoop_t &x) {
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head", fn);
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+        // head
+        builder->CreateBr(loophead);
+        builder->SetInsertPoint(loophead);
+        this->visit_expr(*x.m_test);
+        llvm::Value *cond = tmp;
+        builder->CreateCondBr(cond, loopbody, loopend);
+
+        // body
+        fn->getBasicBlockList().push_back(loopbody);
+        builder->SetInsertPoint(loopbody);
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+        }
+        builder->CreateBr(loophead);
+
+        // end
+        fn->getBasicBlockList().push_back(loopend);
+        builder->SetInsertPoint(loopend);
+    }
+
     void visit_BinOp(const ASR::BinOp_t &x) {
         this->visit_expr(*x.m_left);
         llvm::Value *left_val = tmp;
