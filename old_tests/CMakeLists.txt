@@ -68,10 +68,11 @@ RUN(if_03 fail)
 
 RUN(print_01)
 
+RUN(while_01)
+
 if (NOT LFORTRAN_SUBSET)
     RUN(program_cmake_02)
 
-    RUN(while_01)
     RUN(while_02)
     RUN(doloop_01)
     RUN(doloop_02)

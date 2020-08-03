@@ -475,6 +475,19 @@ public:
                 body.size(), orelse.p, orelse.size());
     }
 
+    void visit_WhileLoop(const AST::WhileLoop_t &x) {
+        visit_expr(*x.m_test);
+        ASR::expr_t *test = EXPR(tmp);
+        Vec<ASR::stmt_t*> body;
+        body.reserve(al, x.n_body);
+        for (size_t i=0; i<x.n_body; i++) {
+            visit_stmt(*x.m_body[i]);
+            body.push_back(al, STMT(tmp));
+        }
+        tmp = ASR::make_WhileLoop_t(al, x.base.base.loc, test, body.p,
+                body.size());
+    }
+
     void visit_Stop(const AST::Stop_t &x) {
         ASR::expr_t *code;
         if (x.m_code) {
