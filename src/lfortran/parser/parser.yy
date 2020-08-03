@@ -300,8 +300,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> select_default_statement
 %type <ast> while_statement
 %type <ast> do_statement
-%type <ast> reduce
-%type <reduce_op_type> reduce_op
+//%type <ast> reduce
+//%type <reduce_op_type> reduce_op
 %type <ast> exit_statement
 %type <ast> return_statement
 %type <ast> cycle_statement
@@ -713,13 +713,15 @@ do_statement
             $$ = DO3($2, $4, $6, $8, $10, @$); }
     | KW_DO KW_CONCURRENT "(" id "=" expr ":" expr ")" sep statements enddo {
             $$ = DO_CONCURRENT($4, $6, $8, $11, @$); }
-// Uncomment the following two lines to enable reduce() do concurrent. It is
+// Uncomment the following two lines to enable reduce() do concurrent (also
+// uncomment `reduce` and `reduc_op` rules). It is
 // currently commented out because it slows down benchmarks:
 // https://gitlab.com/lfortran/lfortran/-/issues/183
 //    | KW_DO KW_CONCURRENT "(" id "=" expr ":" expr ")" reduce sep statements enddo {
 //            $$ = DO_CONCURRENT_REDUCE($4, $6, $8, $10, $12, @$); }
     ;
 
+/*
 reduce
     : KW_REDUCE "(" reduce_op ":" id_list ")" { $$ = REDUCE($3, $5, @$); }
     ;
@@ -729,6 +731,7 @@ reduce_op
     | "*" { $$ = REDUCE_OP_TYPE_MUL(@$); }
     | id  { $$ = REDUCE_OP_TYPE_ID($1, @$); }
     ;
+*/
 
 enddo
     : KW_END_DO
