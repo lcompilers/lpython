@@ -187,6 +187,15 @@ static inline LFortran::AST::reduce_t* REDUCE_TYPE(const ast_t *f)
     return (LFortran::AST::reduce_t*)f;
 }
 
+static inline char** REDUCE_ARGS(Allocator &al, const YYSTYPE::VecAST args)
+{
+    char **a = al.allocate<char*>(args.size());
+    for (size_t i=0; i < args.size(); i++) {
+        a[i] = name2char(args.p[i]);
+    }
+    return a;
+}
+
 #define TYPE ast_t*
 
 // Assign last_* location to `a` from `b`
@@ -385,8 +394,8 @@ static inline LFortran::AST::reduce_t* REDUCE_TYPE(const ast_t *f)
         /*body*/ STMTS(body), \
         /*n_body*/ body.size())
 
-#define REDUCE(var_name, l) make_Reduce_t(p.m_a, l, \
-        name2char(var_name))
+#define REDUCE(var_list, l) make_Reduce_t(p.m_a, l, \
+        REDUCE_ARGS(p.m_a, var_list), var_list.size())
 
 #define VAR_DECL(type, attrs, syms, l) make_Declaration_t(p.m_a, l, \
         DECL(p.m_a, syms, type, attrs), syms.size())
