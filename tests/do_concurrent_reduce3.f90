@@ -10,4 +10,7 @@ end do
 do concurrent (i = 1:N) reduce(MIN: s)
     s = s + a(i)
 end do
+do concurrent (i = 1:N) reduce(MAX: s)
+    s = s + a(i)
+end do
 end subroutine
