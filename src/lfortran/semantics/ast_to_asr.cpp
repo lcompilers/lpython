@@ -398,22 +398,19 @@ public:
                 op, operand, operand_type);
     }
 
-    void visit_Name(const AST::Name_t &x) {
+    ASR::asr_t* resolve_variable(const Location &loc, const char* id) {
         SymbolTable *scope = current_scope;
-        std::string var_name = x.m_id;
+        std::string var_name = id;
         if (scope->scope.find(var_name) == scope->scope.end()) {
-            throw SemanticError("Variable '" + var_name + "' not declared", x.base.base.loc);
+            throw SemanticError("Variable '" + var_name + "' not declared", loc);
         }
         ASR::Variable_t *v = VARIABLE(scope->scope[std::string(var_name)]);
         ASR::var_t *var = (ASR::var_t*)v;
-        ASR::asr_t *tmp2 = ASR::make_Var_t(al, x.base.base.loc, scope, var);
-        tmp = tmp2;
-        /*
-        ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                8, nullptr, 0));
-        tmp = ASR::make_VariableOld_t(al, x.base.base.loc,
-                x.m_id, nullptr, 1, type);
-        */
+        return ASR::make_Var_t(al, loc, scope, var);
+    }
+
+    void visit_Name(const AST::Name_t &x) {
+        tmp = resolve_variable(x.base.base.loc, x.m_id);
     }
 
     void visit_Num(const AST::Num_t &x) {
@@ -485,6 +482,47 @@ public:
             body.push_back(al, STMT(tmp));
         }
         tmp = ASR::make_WhileLoop_t(al, x.base.base.loc, test, body.p,
+                body.size());
+    }
+
+    void visit_DoLoop(const AST::DoLoop_t &x) {
+        if (! x.m_var) {
+            throw SemanticError("Do loop: loop variable is required for now",
+                x.base.base.loc);
+        }
+        if (! x.m_start) {
+            throw SemanticError("Do loop: start condition required for now",
+                x.base.base.loc);
+        }
+        if (! x.m_end) {
+            throw SemanticError("Do loop: end condition required for now",
+                x.base.base.loc);
+        }
+        ASR::expr_t *var = EXPR(resolve_variable(x.base.base.loc, x.m_var));
+        visit_expr(*x.m_start);
+        ASR::expr_t *start = EXPR(tmp);
+        visit_expr(*x.m_end);
+        ASR::expr_t *end = EXPR(tmp);
+        ASR::expr_t *increment;
+        if (x.m_increment) {
+            visit_expr(*x.m_increment);
+            increment = EXPR(tmp);
+        } else {
+            increment = nullptr;
+        }
+
+        Vec<ASR::stmt_t*> body;
+        body.reserve(al, x.n_body);
+        for (size_t i=0; i<x.n_body; i++) {
+            visit_stmt(*x.m_body[i]);
+            body.push_back(al, STMT(tmp));
+        }
+        ASR::do_loop_head_t head;
+        head.m_v = var;
+        head.m_start = start;
+        head.m_end = end;
+        head.m_increment = increment;
+        tmp = ASR::make_DoLoop_t(al, x.base.base.loc, head, body.p,
                 body.size());
     }
 

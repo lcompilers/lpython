@@ -147,3 +147,15 @@ llvm = true
 [[test]]
 filename = "../old_tests/program_cmake_02.f90"
 ast = true
+
+[[test]]
+filename = "../old_tests/doloop_01.f90"
+asr = true
+
+[[test]]
+filename = "../old_tests/doloop_02.f90"
+asr = true
+
+[[test]]
+filename = "../old_tests/doloop_03.f90"
+asr = true

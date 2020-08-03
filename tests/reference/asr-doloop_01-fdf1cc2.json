@@ -1,0 +1,13 @@
+{
+    "basename": "asr-doloop_01-fdf1cc2",
+    "cmd": "lfortran --show-asr {infile} -o {outfile}",
+    "infile": "tests/../old_tests/doloop_01.f90",
+    "infile_hash": "b356557ebc4c64ea9eeb6d1ebeed5c35ab2e7ad5673bb7bfb09af88c",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-doloop_01-fdf1cc2.stdout",
+    "stdout_hash": "71e6f327d776988cff72ae428fefdeead96dd40aa31694dba8841ff6",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
