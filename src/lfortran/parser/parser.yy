@@ -713,8 +713,11 @@ do_statement
             $$ = DO3($2, $4, $6, $8, $10, @$); }
     | KW_DO KW_CONCURRENT "(" id "=" expr ":" expr ")" sep statements enddo {
             $$ = DO_CONCURRENT($4, $6, $8, $11, @$); }
-    | KW_DO KW_CONCURRENT "(" id "=" expr ":" expr ")" reduce sep statements enddo {
-            $$ = DO_CONCURRENT_REDUCE($4, $6, $8, $10, $12, @$); }
+// Uncomment the following two lines to enable reduce() do concurrent. It is
+// currently commented out because it slows down benchmarks:
+// https://gitlab.com/lfortran/lfortran/-/issues/183
+//    | KW_DO KW_CONCURRENT "(" id "=" expr ":" expr ")" reduce sep statements enddo {
+//            $$ = DO_CONCURRENT_REDUCE($4, $6, $8, $10, $12, @$); }
     ;
 
 reduce
