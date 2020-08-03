@@ -197,6 +197,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             'read' { KW(READ) }
             'real' {KW(REAL) }
             'recursive' { KW(RECURSIVE) }
+            'reduce' { KW(REDUCE) }
             'result' { KW(RESULT) }
             'return' { KW(RETURN) }
             'rewind' { KW(REWIND) }

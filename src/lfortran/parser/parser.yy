@@ -222,6 +222,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_READ
 %token <string> KW_REAL
 %token <string> KW_RECURSIVE
+%token <string> KW_REDUCE
 %token <string> KW_RESULT
 %token <string> KW_RETURN
 %token <string> KW_REWIND
