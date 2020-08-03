@@ -398,22 +398,19 @@ public:
                 op, operand, operand_type);
     }
 
-    void visit_Name(const AST::Name_t &x) {
+    ASR::asr_t* resolve_variable(const Location &loc, const char* id) {
         SymbolTable *scope = current_scope;
-        std::string var_name = x.m_id;
+        std::string var_name = id;
         if (scope->scope.find(var_name) == scope->scope.end()) {
-            throw SemanticError("Variable '" + var_name + "' not declared", x.base.base.loc);
+            throw SemanticError("Variable '" + var_name + "' not declared", loc);
         }
         ASR::Variable_t *v = VARIABLE(scope->scope[std::string(var_name)]);
         ASR::var_t *var = (ASR::var_t*)v;
-        ASR::asr_t *tmp2 = ASR::make_Var_t(al, x.base.base.loc, scope, var);
-        tmp = tmp2;
-        /*
-        ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                8, nullptr, 0));
-        tmp = ASR::make_VariableOld_t(al, x.base.base.loc,
-                x.m_id, nullptr, 1, type);
-        */
+        return ASR::make_Var_t(al, loc, scope, var);
+    }
+
+    void visit_Name(const AST::Name_t &x) {
+        tmp = resolve_variable(x.base.base.loc, x.m_id);
     }
 
     void visit_Num(const AST::Num_t &x) {
