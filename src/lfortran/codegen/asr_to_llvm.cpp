@@ -294,6 +294,10 @@ public:
         tmp = llvm::ConstantInt::get(context, llvm::APInt(64, x.m_n));
     }
 
+    void visit_Str(const ASR::Str_t &x) {
+        tmp = builder->CreateGlobalStringPtr(x.m_s);
+    }
+
     void visit_Var(const ASR::Var_t &x) {
         llvm::Value *ptr = llvm_symtab[std::string(VARIABLE((ASR::asr_t*)(x.m_v))->m_name)];
         tmp = builder->CreateLoad(ptr);
