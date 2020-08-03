@@ -206,7 +206,7 @@ static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
         } else if (s_id == "MAX") {
                 return LFortran::AST::reduce_opType::ReduceMAX;
         } else {
-                throw LFortran::ParserError("Unsupported operation in reduction", loc, -1);
+                throw LFortran::SemanticError("Unsupported operation in reduction", loc);
         }
 }
 
