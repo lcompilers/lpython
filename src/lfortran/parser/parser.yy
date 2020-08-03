@@ -724,7 +724,7 @@ reduce
 reduce_op
     : "+"
     | "*"
-//    | KW_MIN
+    | id
     ;
 
 enddo
