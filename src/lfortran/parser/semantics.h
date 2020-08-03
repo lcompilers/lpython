@@ -394,9 +394,13 @@ static inline char** REDUCE_ARGS(Allocator &al, const YYSTYPE::VecAST args)
         /*body*/ STMTS(body), \
         /*n_body*/ body.size())
 
-#define REDUCE(var_list, l) make_Reduce_t(p.m_a, l, \
-        LFortran::AST::reduce_opType::ReduceAdd, \
+#define REDUCE(op, var_list, l) make_Reduce_t(p.m_a, l, \
+        op, \
         REDUCE_ARGS(p.m_a, var_list), var_list.size())
+
+#define REDUCE_OP_TYPE_ADD(l) LFortran::AST::reduce_opType::ReduceAdd
+#define REDUCE_OP_TYPE_MUL(l) LFortran::AST::reduce_opType::ReduceMul
+#define REDUCE_OP_TYPE_ID(id, l) LFortran::AST::reduce_opType::ReduceMIN
 
 #define VAR_DECL(type, attrs, syms, l) make_Declaration_t(p.m_a, l, \
         DECL(p.m_a, syms, type, attrs), syms.size())
