@@ -4,7 +4,7 @@ real, intent(out) :: s
 integer :: N, i
 N = size(a)
 s = 0
-do concurrent (i = 1:N) reduce(+, s)
+do concurrent (i = 1:N) reduce(+: s)
     s = s + a(i)
 end do
 end subroutine
