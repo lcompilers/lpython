@@ -60,6 +60,10 @@ filename = "do_concurrent_reduce2.f90"
 ast = true
 
 [[test]]
+filename = "do_concurrent_reduce3.f90"
+ast = true
+
+[[test]]
 filename = "subroutine5.f90"
 ast = true
 asr = true
