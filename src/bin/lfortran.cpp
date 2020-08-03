@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include <bin/CLI11.hpp>
+#include <bin/tpl/whereami/whereami.h>
 
 #include <lfortran/stacktrace.h>
 #include <lfortran/parser/parser.h>
@@ -293,7 +294,7 @@ int compile_to_assembly_file(const std::string &infile, const std::string &outfi
 // infile is an object file
 // outfile will become the executable
 int link_executable(const std::string &infile, const std::string &outfile,
-    bool static_executable=false)
+    const std::string &runtime_library_dir, bool static_executable=false)
 {
     /*
     The `gcc` line for dynamic linking that is constructed below:
@@ -352,11 +353,7 @@ int link_executable(const std::string &infile, const std::string &outfile,
 
     */
     std::string CC = "gcc";
-    std::string base_path = "src/runtime";
-    char *env_p = std::getenv("LFORTRAN_RUNTIME_LIBRARY_DIR");
-    if (env_p) {
-        base_path = env_p;
-    }
+    std::string base_path = runtime_library_dir;
     std::string options;
     std::string runtime_lib = "lfortran_runtime";
     if (static_executable) {
@@ -373,11 +370,45 @@ int link_executable(const std::string &infile, const std::string &outfile,
     return 0;
 }
 
+void get_executable_path(std::string &executable_path, int &dirname_length)
+{
+    int length;
+
+    length = wai_getExecutablePath(NULL, 0, &dirname_length);
+    if (length > 0) {
+        std::string path(length+1, '\0');
+        wai_getExecutablePath(&path[0], length, &dirname_length);
+        executable_path = path;
+    } else {
+        throw LFortran::LFortranException("Cannot determine executable path.");
+    }
+}
+
+std::string get_runtime_library_dir()
+{
+    char *env_p = std::getenv("LFORTRAN_RUNTIME_LIBRARY_DIR");
+    if (env_p) return env_p;
+
+    std::string path;
+    int dirname_length;
+    get_executable_path(path, dirname_length);
+    std::string dirname = path.substr(0,dirname_length);
+    if (ends_with(dirname, "src/bin")) {
+        // Development version
+        return dirname + "/../runtime";
+    } else {
+        // Installed version
+        return dirname + "/../share/lfortran/lib/";
+    }
+}
+
 int main(int argc, char *argv[])
 {
 #if defined(HAVE_LFORTRAN_STACKTRACE)
     LFortran::print_stack_on_segfault();
 #endif
+    std::string runtime_library_dir = get_runtime_library_dir();
+
     bool arg_S = false;
     bool arg_c = false;
     bool arg_v = false;
@@ -497,8 +528,8 @@ int main(int argc, char *argv[])
         std::cerr << "Compiling Fortran files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
         return 1;
 #endif
-        return link_executable(tmp_o, outfile, static_link);
+        return link_executable(tmp_o, outfile, runtime_library_dir, static_link);
     } else {
-        return link_executable(arg_file, outfile, static_link);
+        return link_executable(arg_file, outfile, runtime_library_dir, static_link);
     }
 }
