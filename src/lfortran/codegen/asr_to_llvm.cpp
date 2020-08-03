@@ -38,57 +38,10 @@
 #include <lfortran/containers.h>
 #include <lfortran/codegen/asr_to_llvm.h>
 #include <lfortran/exception.h>
+#include <lfortran/asr_utils.h>
 
 
 namespace LFortran {
-
-static inline ASR::TranslationUnit_t* TRANSLATION_UNIT(const ASR::asr_t *f)
-{
-    LFORTRAN_ASSERT(f->type == ASR::asrType::unit);
-    ASR::unit_t *t = (ASR::unit_t *)f;
-    LFORTRAN_ASSERT(t->type == ASR::unitType::TranslationUnit);
-    return (ASR::TranslationUnit_t*)t;
-}
-
-static inline ASR::ttype_t* TYPE(const ASR::asr_t *f)
-{
-    LFORTRAN_ASSERT(f->type == ASR::asrType::ttype);
-    return (ASR::ttype_t*)f;
-}
-
-static inline ASR::var_t* VAR(const ASR::asr_t *f)
-{
-    LFORTRAN_ASSERT(f->type == ASR::asrType::var);
-    return (ASR::var_t*)f;
-}
-
-static inline ASR::expr_t* EXPR(const ASR::asr_t *f)
-{
-    LFORTRAN_ASSERT(f->type == ASR::asrType::expr);
-    return (ASR::expr_t*)f;
-}
-
-static inline ASR::stmt_t* STMT(const ASR::asr_t *f)
-{
-    LFORTRAN_ASSERT(f->type == ASR::asrType::stmt);
-    return (ASR::stmt_t*)f;
-}
-
-static inline ASR::Variable_t* VARIABLE(const ASR::asr_t *f)
-{
-    LFORTRAN_ASSERT(f->type == ASR::asrType::var);
-    ASR::var_t *t = (ASR::var_t *)f;
-    LFORTRAN_ASSERT(t->type == ASR::varType::Variable);
-    return (ASR::Variable_t*)t;
-}
-
-static inline ASR::Var_t* EXPR_VAR(const ASR::asr_t *f)
-{
-    LFORTRAN_ASSERT(f->type == ASR::asrType::expr);
-    ASR::expr_t *t = (ASR::expr_t *)f;
-    LFORTRAN_ASSERT(t->type == ASR::exprType::Var);
-    return (ASR::Var_t*)t;
-}
 
 void printf(llvm::LLVMContext &context, llvm::Module &module,
     llvm::IRBuilder<> &builder, const std::vector<llvm::Value*> &args)
@@ -294,16 +247,29 @@ public:
         tmp = llvm::ConstantInt::get(context, llvm::APInt(64, x.m_n));
     }
 
+    void visit_Str(const ASR::Str_t &x) {
+        tmp = builder->CreateGlobalStringPtr(x.m_s);
+    }
+
     void visit_Var(const ASR::Var_t &x) {
         llvm::Value *ptr = llvm_symtab[std::string(VARIABLE((ASR::asr_t*)(x.m_v))->m_name)];
         tmp = builder->CreateLoad(ptr);
     }
 
     void visit_Print(const ASR::Print_t &x) {
-        llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("%d\n");
         LFORTRAN_ASSERT(x.n_values == 1);
         this->visit_expr(*x.m_values[0]);
         llvm::Value *arg1 = tmp;
+        llvm::Value *fmt_ptr;
+        ASR::expr_t *v = x.m_values[0];
+        ASR::ttype_t *t = expr_type(v);
+        if (t->type == ASR::ttypeType::Integer) {
+            fmt_ptr = builder->CreateGlobalStringPtr("%d\n");
+        } else if (t->type == ASR::ttypeType::Character) {
+            fmt_ptr = builder->CreateGlobalStringPtr("%s\n");
+        } else {
+            throw LFortranException("Type not implemented");
+        }
         printf(context, *module, *builder, {fmt_ptr, arg1});
     }
 

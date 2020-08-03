@@ -50,7 +50,6 @@ ast_f90 = true
 ast_cpp = true
 ast_cpp_hip = true
 ast_openmp = true
-asr = true
 
 [[test]]
 filename = "subroutine5.f90"
@@ -113,6 +112,9 @@ obj = true
 [[test]]
 filename = "../old_tests/program_cmake_01.f90"
 ast = true
+asr = true
+llvm = true
+obj = true
 
 [[test]]
 filename = "../old_tests/program_cmake_02.f90"
