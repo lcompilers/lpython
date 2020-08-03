@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-while_02-8719093",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../old_tests/while_02.f90",
+    "infile_hash": "a905fa7d48385e1df9ac039aabeadb0362aa1b11587096303c0839b2",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-while_02-8719093.stdout",
+    "stdout_hash": "5a6fd0ccf445ed585c7c423f420c2ff1a9e38b4eab261430c47fe172",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
