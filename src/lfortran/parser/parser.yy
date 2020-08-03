@@ -709,13 +709,14 @@ do_statement
             $$ = DO2($2, $4, $6, $8, @$); }
     | KW_DO id "=" expr "," expr "," expr sep statements enddo {
             $$ = DO3($2, $4, $6, $8, $10, @$); }
-    | KW_DO KW_CONCURRENT "(" id "=" expr ":" expr ")" reduce_opt sep statements enddo {
+    | KW_DO KW_CONCURRENT "(" id "=" expr ":" expr ")" sep statements enddo {
+            $$ = DO_CONCURRENT($4, $6, $8, $11, @$); }
+    | KW_DO KW_CONCURRENT "(" id "=" expr ":" expr ")" reduce sep statements enddo {
             $$ = DO_CONCURRENT($4, $6, $8, $12, @$); }
     ;
 
-reduce_opt
+reduce
     : KW_REDUCE "(" "+" "," id ")"
-    | %empty
     ;
 
 enddo
