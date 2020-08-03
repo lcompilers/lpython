@@ -38,57 +38,10 @@
 #include <lfortran/containers.h>
 #include <lfortran/codegen/asr_to_llvm.h>
 #include <lfortran/exception.h>
+#include <lfortran/asr_utils.h>
 
 
 namespace LFortran {
-
-static inline ASR::TranslationUnit_t* TRANSLATION_UNIT(const ASR::asr_t *f)
-{
-    LFORTRAN_ASSERT(f->type == ASR::asrType::unit);
-    ASR::unit_t *t = (ASR::unit_t *)f;
-    LFORTRAN_ASSERT(t->type == ASR::unitType::TranslationUnit);
-    return (ASR::TranslationUnit_t*)t;
-}
-
-static inline ASR::ttype_t* TYPE(const ASR::asr_t *f)
-{
-    LFORTRAN_ASSERT(f->type == ASR::asrType::ttype);
-    return (ASR::ttype_t*)f;
-}
-
-static inline ASR::var_t* VAR(const ASR::asr_t *f)
-{
-    LFORTRAN_ASSERT(f->type == ASR::asrType::var);
-    return (ASR::var_t*)f;
-}
-
-static inline ASR::expr_t* EXPR(const ASR::asr_t *f)
-{
-    LFORTRAN_ASSERT(f->type == ASR::asrType::expr);
-    return (ASR::expr_t*)f;
-}
-
-static inline ASR::stmt_t* STMT(const ASR::asr_t *f)
-{
-    LFORTRAN_ASSERT(f->type == ASR::asrType::stmt);
-    return (ASR::stmt_t*)f;
-}
-
-static inline ASR::Variable_t* VARIABLE(const ASR::asr_t *f)
-{
-    LFORTRAN_ASSERT(f->type == ASR::asrType::var);
-    ASR::var_t *t = (ASR::var_t *)f;
-    LFORTRAN_ASSERT(t->type == ASR::varType::Variable);
-    return (ASR::Variable_t*)t;
-}
-
-static inline ASR::Var_t* EXPR_VAR(const ASR::asr_t *f)
-{
-    LFORTRAN_ASSERT(f->type == ASR::asrType::expr);
-    ASR::expr_t *t = (ASR::expr_t *)f;
-    LFORTRAN_ASSERT(t->type == ASR::exprType::Var);
-    return (ASR::Var_t*)t;
-}
 
 void printf(llvm::LLVMContext &context, llvm::Module &module,
     llvm::IRBuilder<> &builder, const std::vector<llvm::Value*> &args)
