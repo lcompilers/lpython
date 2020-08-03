@@ -196,6 +196,20 @@ static inline char** REDUCE_ARGS(Allocator &al, const YYSTYPE::VecAST args)
     return a;
 }
 
+static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
+        const Location &loc, const ast_t *id)
+{
+        LFORTRAN_ASSERT(EXPR(id)->type == exprType::Name)
+        std::string s_id = ((Name_t*)id)->m_id;
+        if (s_id == "MIN" ) {
+                return LFortran::AST::reduce_opType::ReduceMIN;
+        } else if (s_id == "MAX") {
+                return LFortran::AST::reduce_opType::ReduceMAX;
+        } else {
+                throw LFortran::ParserError("Unsupported operation in reduction", loc, -1);
+        }
+}
+
 #define TYPE ast_t*
 
 // Assign last_* location to `a` from `b`
@@ -400,7 +414,7 @@ static inline char** REDUCE_ARGS(Allocator &al, const YYSTYPE::VecAST args)
 
 #define REDUCE_OP_TYPE_ADD(l) LFortran::AST::reduce_opType::ReduceAdd
 #define REDUCE_OP_TYPE_MUL(l) LFortran::AST::reduce_opType::ReduceMul
-#define REDUCE_OP_TYPE_ID(id, l) LFortran::AST::reduce_opType::ReduceMIN
+#define REDUCE_OP_TYPE_ID(id, l) convert_id_to_reduce_type(l, id)
 
 #define VAR_DECL(type, attrs, syms, l) make_Declaration_t(p.m_a, l, \
         DECL(p.m_a, syms, type, attrs), syms.size())
