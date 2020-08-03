@@ -471,6 +471,12 @@ public:
         tmp = ASR::make_Num_t(al, x.base.base.loc, x.m_n, type);
     }
 
+    void visit_Str(const AST::Str_t &x) {
+        ASR::ttype_t *type = TYPE(ASR::make_Character_t(al, x.base.base.loc,
+                8, nullptr, 0));
+        tmp = ASR::make_Str_t(al, x.base.base.loc, x.m_s, type);
+    }
+
     void visit_Real(const AST::Real_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Real_t(al, x.base.base.loc,
                 4, nullptr, 0));
