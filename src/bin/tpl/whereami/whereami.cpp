@@ -166,7 +166,8 @@ int WAI_PREFIX(getModulePath)(char* out, int capacity, int* dirname_length)
 #include <stdlib.h>
 #include <string.h>
 #if defined(__linux__)
-#include <linux/limits.h>
+//#include <linux/limits.h>
+#define PATH_MAX 1024
 #else
 #include <limits.h>
 #endif
