@@ -497,7 +497,23 @@ public:
         for (int i=0; i < indent_level; i++) r.append(" ");
         LFORTRAN_ASSERT(x.m_var)
         LFORTRAN_ASSERT(x.m_end)
-        r += "Kokkos::parallel_for(";
+        if (x.m_reduce) {
+            AST::Reduce_t *red = (AST::Reduce_t*) (x.m_reduce);
+            LFORTRAN_ASSERT(red->n_vars == 1)
+            r += "// Variable: ";
+            r.append(red->m_vars[0]);
+            r += "\n";
+            r += "// Operation: ";
+            if (red->m_op == AST::reduce_opType::ReduceAdd) {
+                r.append("+");
+            } else if (red->m_op == AST::reduce_opType::ReduceMIN) {
+                r.append("MIN");
+            }
+            r += "\n";
+            r += "Kokkos::parallel_reduce(";
+        } else {
+            r += "Kokkos::parallel_for(";
+        }
         this->visit_expr(*x.m_end);
         r.append(s);
 
