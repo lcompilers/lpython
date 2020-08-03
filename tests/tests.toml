@@ -121,5 +121,9 @@ filename = "../old_tests/print_01.f90"
 llvm = true
 
 [[test]]
+filename = "../old_tests/variables_03.f90"
+llvm = true
+
+[[test]]
 filename = "../old_tests/program_cmake_02.f90"
 ast = true

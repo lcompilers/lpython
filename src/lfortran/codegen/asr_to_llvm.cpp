@@ -111,10 +111,17 @@ public:
                 ASR::var_t *v2 = (ASR::var_t*)(item.second);
                 ASR::Variable_t *v = (ASR::Variable_t *)v2;
 
-                // TODO: we are assuming integer here:
-                llvm::AllocaInst *ptr = builder->CreateAlloca(
-                    llvm::Type::getInt64Ty(context), nullptr, v->m_name);
-                llvm_symtab[std::string(v->m_name)] = ptr;
+                if (v->m_type->type == ASR::ttypeType::Integer) {
+                    llvm::AllocaInst *ptr = builder->CreateAlloca(
+                        llvm::Type::getInt64Ty(context), nullptr, v->m_name);
+                    llvm_symtab[std::string(v->m_name)] = ptr;
+                } else if (v->m_type->type == ASR::ttypeType::Logical) {
+                    llvm::AllocaInst *ptr = builder->CreateAlloca(
+                        llvm::Type::getInt1Ty(context), nullptr, v->m_name);
+                    llvm_symtab[std::string(v->m_name)] = ptr;
+                } else {
+                    throw CodeGenError("Variable type not supported");
+                }
             }
         }
 
@@ -277,7 +284,13 @@ public:
             } else {
                 throw CodeGenError("Unary type not implemented yet");
             }
-
+        } else if (x.m_type->type == ASR::ttypeType::Logical) {
+            if (x.m_op == ASR::unaryopType::Not) {
+                tmp = builder ->CreateNot(tmp);
+                return;
+            } else {
+                throw CodeGenError("Unary type not implemented yet in Logical");
+            }
         } else {
             throw CodeGenError("UnaryOp: type not supported yet");
         }
