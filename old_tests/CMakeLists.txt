@@ -47,21 +47,25 @@ macro(COMPILE name)
     add_executable(${name} ${name}.f90)
 endmacro(COMPILE)
 
+
 RUN(program_cmake_01)
+
+RUN(abort_01 fail)
+
 RUN(cond_01)
+
 RUN(expr_01 fail)
 RUN(expr_02)
 RUN(expr_03)
+
+RUN(if_01)
+RUN(if_02 fail)
+RUN(if_03 fail)
+
+RUN(print_01)
+
 if (NOT LFORTRAN_SUBSET)
     RUN(program_cmake_02)
-
-    RUN(abort_01 fail)
-
-    RUN(if_01)
-    RUN(if_02 fail)
-    RUN(if_03 fail)
-
-    RUN(print_01)
 
     RUN(variables_01)
     RUN(variables_02)
