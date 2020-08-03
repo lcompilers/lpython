@@ -143,6 +143,10 @@ cxx_binary_tests:
     - cd ..
     - ./run_tests.py
     - PATH="`pwd`/src/bin:$PATH" ./test_lfort_cmdline lfortran
+    - cd old_tests
+    - FC=../src/bin/lfortran cmake -DLFORTRAN_SUBSET=on .
+    - make
+    - ctest
 
 # Test LFortran without the LLVM backend
 cxx_binary_min:
