@@ -48,11 +48,12 @@ macro(COMPILE name)
 endmacro(COMPILE)
 
 RUN(program_cmake_01)
+RUN(cond_01)
+RUN(expr_01 fail)
+RUN(expr_02)
 if (NOT LFORTRAN_SUBSET)
     RUN(program_cmake_02)
 
-    RUN(expr_01 fail)
-    RUN(expr_02)
     RUN(expr_03)
 
     RUN(abort_01 fail)
@@ -61,7 +62,6 @@ if (NOT LFORTRAN_SUBSET)
     RUN(if_02 fail)
     RUN(if_03 fail)
 
-    RUN(cond_01)
 
     RUN(print_01)
 

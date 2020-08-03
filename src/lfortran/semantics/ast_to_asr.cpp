@@ -320,17 +320,21 @@ public:
         LFORTRAN_ASSERT(left_type->type == right_type->type);
         ASR::ttype_t *type = TYPE(ASR::make_Logical_t(al, x.base.base.loc,
                 4, nullptr, 0));
+        ASR::cmpopType asr_op;
         switch (x.m_op) {
-            case (AST::cmpopType::Eq) : {
-                tmp = ASR::make_Compare_t(al, x.base.base.loc,
-                    left, ASR::cmpopType::Eq, right, type);
-                break;
-            }
+            case (AST::cmpopType::Eq) : { asr_op = ASR::cmpopType::Eq; break;}
+            case (AST::cmpopType::Gt) : { asr_op = ASR::cmpopType::Gt; break;}
+            case (AST::cmpopType::GtE) : { asr_op = ASR::cmpopType::GtE; break;}
+            case (AST::cmpopType::Lt) : { asr_op = ASR::cmpopType::Lt; break;}
+            case (AST::cmpopType::LtE) : { asr_op = ASR::cmpopType::LtE; break;}
+            case (AST::cmpopType::NotEq) : { asr_op = ASR::cmpopType::NotEq; break;}
             default : {
                 throw SemanticError("Comparison operator not implemented",
                         x.base.base.loc);
             }
         }
+        tmp = ASR::make_Compare_t(al, x.base.base.loc,
+            left, asr_op, right, type);
     }
 
     void visit_BinOp(const AST::BinOp_t &x) {
@@ -388,6 +392,12 @@ public:
         ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 8, nullptr, 0));
         tmp = ASR::make_Num_t(al, x.base.base.loc, x.m_n, type);
+    }
+
+    void visit_Constant(const AST::Constant_t &x) {
+        ASR::ttype_t *type = TYPE(ASR::make_Logical_t(al, x.base.base.loc,
+                4, nullptr, 0));
+        tmp = ASR::make_Constant_t(al, x.base.base.loc, x.m_value, type);
     }
 
     void visit_Str(const AST::Str_t &x) {

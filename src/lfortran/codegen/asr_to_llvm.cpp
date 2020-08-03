@@ -176,6 +176,26 @@ public:
                 tmp = builder->CreateICmpEQ(left, right);
                 break;
             }
+            case (ASR::cmpopType::Gt) : {
+                tmp = builder->CreateICmpUGT(left, right);
+                break;
+            }
+            case (ASR::cmpopType::GtE) : {
+                tmp = builder->CreateICmpUGE(left, right);
+                break;
+            }
+            case (ASR::cmpopType::Lt) : {
+                tmp = builder->CreateICmpULT(left, right);
+                break;
+            }
+            case (ASR::cmpopType::LtE) : {
+                tmp = builder->CreateICmpULE(left, right);
+                break;
+            }
+            case (ASR::cmpopType::NotEq) : {
+                tmp = builder->CreateICmpNE(left, right);
+                break;
+            }
             default : {
                 throw SemanticError("Comparison operator not implemented",
                         x.base.base.loc);
@@ -246,6 +266,17 @@ public:
     void visit_Num(const ASR::Num_t &x) {
         tmp = llvm::ConstantInt::get(context, llvm::APInt(64, x.m_n));
     }
+
+    void visit_Constant(const ASR::Constant_t &x) {
+        int val;
+        if (x.m_value == true) {
+            val = 1;
+        } else {
+            val = 0;
+        }
+        tmp = llvm::ConstantInt::get(context, llvm::APInt(1, val));
+    }
+
 
     void visit_Str(const ASR::Str_t &x) {
         tmp = builder->CreateGlobalStringPtr(x.m_s);
