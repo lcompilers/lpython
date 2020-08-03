@@ -488,6 +488,16 @@ public:
                 body.size());
     }
 
+    void visit_Exit(const AST::Exit_t &x) {
+        // TODO: add a check here that we are inside a While loop
+        tmp = ASR::make_Exit_t(al, x.base.base.loc);
+    }
+
+    void visit_Cycle(const AST::Cycle_t &x) {
+        // TODO: add a check here that we are inside a While loop
+        tmp = ASR::make_Cycle_t(al, x.base.base.loc);
+    }
+
     void visit_Stop(const AST::Stop_t &x) {
         ASR::expr_t *code;
         if (x.m_code) {
