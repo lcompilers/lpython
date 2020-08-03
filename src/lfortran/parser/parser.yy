@@ -222,6 +222,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_READ
 %token <string> KW_REAL
 %token <string> KW_RECURSIVE
+%token <string> KW_REDUCE
 %token <string> KW_RESULT
 %token <string> KW_RETURN
 %token <string> KW_REWIND
@@ -299,6 +300,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> select_default_statement
 %type <ast> while_statement
 %type <ast> do_statement
+%type <ast> reduce
 %type <ast> exit_statement
 %type <ast> return_statement
 %type <ast> cycle_statement
@@ -710,6 +712,12 @@ do_statement
             $$ = DO3($2, $4, $6, $8, $10, @$); }
     | KW_DO KW_CONCURRENT "(" id "=" expr ":" expr ")" sep statements enddo {
             $$ = DO_CONCURRENT($4, $6, $8, $11, @$); }
+    | KW_DO KW_CONCURRENT "(" id "=" expr ":" expr ")" reduce sep statements enddo {
+            $$ = DO_CONCURRENT_REDUCE($4, $6, $8, $10, $12, @$); }
+    ;
+
+reduce
+    : KW_REDUCE "(" "+" "," id ")" { $$ = REDUCE($5, @$); }
     ;
 
 enddo

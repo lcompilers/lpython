@@ -62,6 +62,7 @@ using LFortran::AST::make_UseSymbol_t;
 using LFortran::AST::make_Module_t;
 using LFortran::AST::make_Private_t;
 using LFortran::AST::make_Public_t;
+using LFortran::AST::make_Reduce_t;
 using LFortran::AST::make_Interface_t;
 
 
@@ -180,6 +181,11 @@ static inline arg_t* ARGS(Allocator &al, const YYSTYPE::VecAST args)
     return a;
 }
 
+static inline LFortran::AST::reduce_t* REDUCE_TYPE(const ast_t *f)
+{
+    LFORTRAN_ASSERT(f->type == astType::reduce);
+    return (LFortran::AST::reduce_t*)f;
+}
 
 #define TYPE ast_t*
 
@@ -369,8 +375,18 @@ static inline arg_t* ARGS(Allocator &al, const YYSTYPE::VecAST args)
 
 #define DO_CONCURRENT(i, a, b, body, l) make_DoConcurrentLoop_t(p.m_a, l, \
         name2char(i), EXPR(a), EXPR(b), nullptr, \
+        /*reduce*/ nullptr, \
         /*body*/ STMTS(body), \
         /*n_body*/ body.size())
+
+#define DO_CONCURRENT_REDUCE(i, a, b, reduce, body, l) make_DoConcurrentLoop_t(p.m_a, l, \
+        name2char(i), EXPR(a), EXPR(b), nullptr, \
+        /*reduce*/ REDUCE_TYPE(reduce), \
+        /*body*/ STMTS(body), \
+        /*n_body*/ body.size())
+
+#define REDUCE(var_name, l) make_Reduce_t(p.m_a, l, \
+        name2char(var_name))
 
 #define VAR_DECL(type, attrs, syms, l) make_Declaration_t(p.m_a, l, \
         DECL(p.m_a, syms, type, attrs), syms.size())
