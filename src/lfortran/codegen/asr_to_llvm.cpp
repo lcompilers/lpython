@@ -257,10 +257,19 @@ public:
     }
 
     void visit_Print(const ASR::Print_t &x) {
-        llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("%d\n");
         LFORTRAN_ASSERT(x.n_values == 1);
         this->visit_expr(*x.m_values[0]);
         llvm::Value *arg1 = tmp;
+        llvm::Value *fmt_ptr;
+        ASR::expr_t *v = x.m_values[0];
+        ASR::ttype_t *t = expr_type(v);
+        if (t->type == ASR::ttypeType::Integer) {
+            fmt_ptr = builder->CreateGlobalStringPtr("%d\n");
+        } else if (t->type == ASR::ttypeType::Character) {
+            fmt_ptr = builder->CreateGlobalStringPtr("%s\n");
+        } else {
+            throw LFortranException("Type not implemented");
+        }
         printf(context, *module, *builder, {fmt_ptr, arg1});
     }
 
