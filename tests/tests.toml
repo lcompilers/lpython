@@ -52,6 +52,10 @@ ast_cpp_hip = true
 ast_openmp = true
 
 [[test]]
+filename = "subroutine7.f90"
+ast = true
+
+[[test]]
 filename = "subroutine5.f90"
 ast = true
 asr = true
