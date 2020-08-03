@@ -301,6 +301,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> while_statement
 %type <ast> do_statement
 %type <ast> reduce
+%type <reduce_op_type> reduce_op
 %type <ast> exit_statement
 %type <ast> return_statement
 %type <ast> cycle_statement
@@ -717,7 +718,13 @@ do_statement
     ;
 
 reduce
-    : KW_REDUCE "(" "+" ":" id_list ")" { $$ = REDUCE($5, @$); }
+    : KW_REDUCE "(" reduce_op ":" id_list ")" { $$ = REDUCE($3, $5, @$); }
+    ;
+
+reduce_op
+    : "+" { $$ = REDUCE_OP_TYPE_ADD(@$); }
+    | "*" { $$ = REDUCE_OP_TYPE_MUL(@$); }
+    | id  { $$ = REDUCE_OP_TYPE_ID($1, @$); }
     ;
 
 enddo

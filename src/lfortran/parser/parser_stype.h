@@ -26,6 +26,8 @@ union YYSTYPE {
 
     LFortran::AST::dimension_t dim;
     VecDim vec_dim;
+
+    LFortran::AST::reduce_opType reduce_op_type;
 };
 
 static_assert(std::is_standard_layout<YYSTYPE>::value);
