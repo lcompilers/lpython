@@ -1,4 +1,5 @@
 #include <lfortran/ast_to_cpp.h>
+#include <vector>
 
 using LFortran::AST::expr_t;
 using LFortran::AST::Name_t;
@@ -32,6 +33,8 @@ class ASTToCPPVisitor : public BaseVisitor<ASTToCPPVisitor>
 {
 public:
     std::string s;
+    std::vector<std::string> pass_by_ref;
+    std::vector<std::string> replacevar;
     bool use_colors;
     int indent_level;
     int n_params, current_param;
@@ -112,6 +115,7 @@ public:
         s = r;
     }
     void visit_Subroutine(const Subroutine_t &x) {
+        pass_by_ref.clear();
         std::string r = "void ";
         n_params = x.n_args;
         current_param = 0;
@@ -493,14 +497,19 @@ public:
         s = r;
     }
     void visit_DoConcurrentLoop(const DoConcurrentLoop_t &x) {
+        //TODO: Need to make sure iterated values are passed by reference, and
+        //dereferenced in loop body.
+        replacevar.clear();
         std::string r;
         for (int i=0; i < indent_level; i++) r.append(" ");
         LFORTRAN_ASSERT(x.m_var)
         LFORTRAN_ASSERT(x.m_end)
+        AST::Reduce_t *red;
         if (x.m_reduce) {
-            AST::Reduce_t *red = (AST::Reduce_t*) (x.m_reduce);
+            red = (AST::Reduce_t*) (x.m_reduce);
             LFORTRAN_ASSERT(red->n_vars == 1)
-            r += "// Variable: ";
+            replacevar.push_back(red->m_vars[0]);
+            /*r += "// Variable: ";
             r.append(red->m_vars[0]);
             r += "\n";
             r += "// Operation: ";
@@ -509,16 +518,22 @@ public:
             } else if (red->m_op == AST::reduce_opType::ReduceMIN) {
                 r.append("MIN");
             }
-            r += "\n";
+            r += "\n";*/
             r += "Kokkos::parallel_reduce(";
+            this->visit_expr(*x.m_end);
         } else {
             r += "Kokkos::parallel_for(";
+            this->visit_expr(*x.m_end);
         }
-        this->visit_expr(*x.m_end);
         r.append(s);
-
         r.append(", KOKKOS_LAMBDA(const long ");
         r.append(x.m_var);
+        if (x.m_reduce) {
+            r += ", float & updatevar_";
+            //Will need to update the following when we can have multiple
+            //variables
+            r.append(std::to_string(0));
+        }
         r.append(") {\n");
         indent_level += 4;
         for (size_t i=0; i<x.n_body; i++) {
@@ -528,7 +543,13 @@ public:
         }
         indent_level -= 4;
         for (int i=0; i < indent_level; i++) r.append(" ");
-        r.append("});");
+        if (x.m_reduce) {
+            r.append("}, *");
+            r.append(red->m_vars[0]);
+            r.append(");");
+        } else {
+            r.append("});");
+        }
         s = r;
     }
     void visit_Select(const Select_t &x) {
@@ -828,7 +849,35 @@ public:
         s.append(")");
     }
     void visit_Name(const Name_t &x) {
-        s = std::string(x.m_id);
+        bool ref = false;
+        bool replace = false;
+        std::string newname;
+        for (size_t i=0; i<replacevar.size(); i++)
+        {
+            if (replacevar[i].compare(x.m_id) == 0)
+            {
+                replace = true;
+                newname = "updatevar_";
+                newname.append(std::to_string(i));
+            }
+        }
+        if (replace)
+        {
+            s = std::string(newname);
+        }
+        else
+        {
+            for (size_t i=0; i<pass_by_ref.size(); i++)
+            {
+                if (pass_by_ref[i].compare(x.m_id) == 0)
+                    ref = true;
+            }
+            if (ref)
+                s = "*";
+            else
+                s = "";
+            s.append(x.m_id);
+        }
     }
     void visit_Constant(const Constant_t &x) {
         s.append("(");
@@ -863,7 +912,13 @@ public:
                     r.append("const Kokkos::View<const float*> & ");
                 }
             } else {
-                r.append("const Kokkos::View<float*> & ");
+                //r.append("const Kokkos::View<float*> & ");
+                if (x.n_dims == 0) {
+                    r.append("float *");
+                    pass_by_ref.push_back(x.m_sym);
+                } else {
+                    r.append("const Kokkos::View<float*> & ");
+                }
             }
             r.append(x.m_sym);
         }
