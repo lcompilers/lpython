@@ -156,6 +156,7 @@ llvm = true
 [[test]]
 filename = "../old_tests/doloop_02.f90"
 asr = true
+llvm = true
 
 [[test]]
 filename = "../old_tests/doloop_03.f90"
