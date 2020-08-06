@@ -466,10 +466,8 @@ std::unique_ptr<LLVMModule> asr_to_llvm(ASR::asr_t &asr,
 {
     ASRToLLVMVisitor v(context);
     LFORTRAN_ASSERT(asr.type == ASR::asrType::unit);
-    ASR::asr_t *asr2 = &asr;
-    ASR::TranslationUnit_t *unit=TRANSLATION_UNIT(asr2);
-    wrap_global_stmts_into_function(al, *unit);
-    v.visit_asr(*asr2);
+    wrap_global_stmts_into_function(al, *TRANSLATION_UNIT(&asr));
+    v.visit_asr(asr);
     std::string msg;
     llvm::raw_string_ostream err(msg);
     if (llvm::verifyModule(*v.module, &err)) {
