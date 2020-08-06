@@ -561,31 +561,35 @@ public:
         }
     }
 
-    // TODO: Only Program is processed, we need to process all calls to
-    // visit_stmt().
-
-    void visit_Program(const ASR::Program_t &x) {
+    void transform_stmts(ASR::stmt_t **&m_body, size_t &n_body) {
         Vec<ASR::stmt_t*> body;
-        body.reserve(al, x.n_body);
-        for (size_t i=0; i<x.n_body; i++) {
+        body.reserve(al, n_body);
+        for (size_t i=0; i<n_body; i++) {
             // Not necessary after we check it after each visit_stmt in every
             // visitor method:
             do_loop_result.n = 0;
-            visit_stmt(*x.m_body[i]);
+            visit_stmt(*m_body[i]);
             if (do_loop_result.size() > 0) {
                 for (size_t j=0; j<do_loop_result.size(); j++) {
                     body.push_back(al, do_loop_result[j]);
                 }
                 do_loop_result.n = 0;
             } else {
-                body.push_back(al, x.m_body[i]);
+                body.push_back(al, m_body[i]);
             }
         }
+        m_body = body.p;
+        n_body = body.size();
+    }
+
+    // TODO: Only Program is processed, we need to process all calls to
+    // visit_stmt().
+
+    void visit_Program(const ASR::Program_t &x) {
         // FIXME: this is a hack, we need to pass in a non-const `x`,
         // which requires to generate a TransformVisitor.
         ASR::Program_t &xx = const_cast<ASR::Program_t&>(x);
-        xx.m_body = body.p;
-        xx.n_body = body.size();
+        transform_stmts(xx.m_body, xx.n_body);
     }
 
     void visit_DoLoop(const ASR::DoLoop_t &x) {
