@@ -548,8 +548,12 @@ class DoLoopVisitor : public ASR::BaseWalkVisitor<DoLoopVisitor>
 {
 private:
     Allocator &al;
+    Vec<ASR::stmt_t*> do_loop_result;
 public:
-    DoLoopVisitor(Allocator &al) : al{al} {}
+    DoLoopVisitor(Allocator &al) : al{al} {
+        do_loop_result.n = 0;
+
+    }
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         for (auto &a : x.m_global_scope->scope) {
@@ -557,8 +561,32 @@ public:
         }
     }
 
+    void visit_Program(const ASR::Program_t &x) {
+        Vec<ASR::stmt_t*> body;
+        body.reserve(al, x.n_body);
+        for (size_t i=0; i<x.n_body; i++) {
+            // Not necessary after we check it after each visit_stmt in every
+            // visitor method:
+            do_loop_result.n = 0;
+            visit_stmt(*x.m_body[i]);
+            if (do_loop_result.size() > 0) {
+                for (size_t j=0; j<do_loop_result.size(); j++) {
+                    body.push_back(al, do_loop_result[j]);
+                }
+                do_loop_result.n = 0;
+            } else {
+                body.push_back(al, x.m_body[i]);
+            }
+        }
+        // FIXME: this is a hack, we need to pass in a non-const `x`,
+        // which requires to generate a TransformVisitor.
+        ASR::Program_t &xx = const_cast<ASR::Program_t&>(x);
+        xx.m_body = body.p;
+        xx.n_body = body.size();
+    }
+
     void visit_DoLoop(const ASR::DoLoop_t &x) {
-        replace_doloop(al, x);
+        do_loop_result = replace_doloop(al, x);
     }
 };
 
