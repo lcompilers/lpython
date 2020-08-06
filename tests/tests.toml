@@ -122,43 +122,43 @@ llvm = true
 obj = true
 
 [[test]]
-filename = "../old_tests/program_cmake_01.f90"
+filename = "../integration_tests/program_cmake_01.f90"
 ast = true
 asr = true
 llvm = true
 obj = true
 
 [[test]]
-filename = "../old_tests/print_01.f90"
+filename = "../integration_tests/print_01.f90"
 llvm = true
 
 [[test]]
-filename = "../old_tests/variables_03.f90"
+filename = "../integration_tests/variables_03.f90"
 llvm = true
 
 [[test]]
-filename = "../old_tests/while_01.f90"
+filename = "../integration_tests/while_01.f90"
 llvm = true
 
 [[test]]
-filename = "../old_tests/while_02.f90"
+filename = "../integration_tests/while_02.f90"
 llvm = true
 
 [[test]]
-filename = "../old_tests/program_cmake_02.f90"
+filename = "../integration_tests/program_cmake_02.f90"
 ast = true
 
 [[test]]
-filename = "../old_tests/doloop_01.f90"
+filename = "../integration_tests/doloop_01.f90"
 asr = true
 llvm = true
 
 [[test]]
-filename = "../old_tests/doloop_02.f90"
+filename = "../integration_tests/doloop_02.f90"
 asr = true
 llvm = true
 
 [[test]]
-filename = "../old_tests/doloop_03.f90"
+filename = "../integration_tests/doloop_03.f90"
 asr = true
 llvm = true
