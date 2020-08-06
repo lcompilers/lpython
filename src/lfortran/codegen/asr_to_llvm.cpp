@@ -39,6 +39,7 @@
 #include <lfortran/codegen/asr_to_llvm.h>
 #include <lfortran/exception.h>
 #include <lfortran/asr_utils.h>
+//#include <lfortran/pickle.h>
 
 
 namespace LFortran {
@@ -530,6 +531,16 @@ Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop) {
         body.p, body.size()));
     result.push_back(al, stmt1);
     result.push_back(al, stmt2);
+
+    /*
+    std::cout << "Input:" << std::endl;
+    std::cout << pickle((ASR::asr_t&)loop);
+    std::cout << "Output:" << std::endl;
+    std::cout << pickle((ASR::asr_t&)*stmt1);
+    std::cout << pickle((ASR::asr_t&)*stmt2);
+    std::cout << "--------------" << std::endl;
+    */
+
     return result;
 }
 
