@@ -186,19 +186,19 @@ public:
                 break;
             }
             case (ASR::cmpopType::Gt) : {
-                tmp = builder->CreateICmpUGT(left, right);
+                tmp = builder->CreateICmpSGT(left, right);
                 break;
             }
             case (ASR::cmpopType::GtE) : {
-                tmp = builder->CreateICmpUGE(left, right);
+                tmp = builder->CreateICmpSGE(left, right);
                 break;
             }
             case (ASR::cmpopType::Lt) : {
-                tmp = builder->CreateICmpULT(left, right);
+                tmp = builder->CreateICmpSLT(left, right);
                 break;
             }
             case (ASR::cmpopType::LtE) : {
-                tmp = builder->CreateICmpULE(left, right);
+                tmp = builder->CreateICmpSLE(left, right);
                 break;
             }
             case (ASR::cmpopType::NotEq) : {
