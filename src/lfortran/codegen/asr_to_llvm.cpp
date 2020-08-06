@@ -412,20 +412,10 @@ public:
 
 };
 
-std::unique_ptr<LLVMModule> asr_to_llvm(ASR::asr_t &asr,
-        llvm::LLVMContext &context, Allocator &al)
-{
-    ASRToLLVMVisitor v(context);
-    LFORTRAN_ASSERT(asr.type == ASR::asrType::unit);
-    ASR::asr_t *asr2 = &asr;
-    ASR::TranslationUnit_t *unit=TRANSLATION_UNIT(asr2);
-    if (unit->n_items > 0) {
-        LFORTRAN_ASSERT(unit->n_items == 1);
-
-        // Must wrap the items into a function
-        SymbolTable *new_scope = al.make_new<SymbolTable>();
-        // Copy the old scope
-        new_scope->scope = unit->m_global_scope->scope;
+// Edits the ASR inplace.
+void wrap_global_stmts_into_function(Allocator &al, ASR::TranslationUnit_t &unit) {
+    if (unit.n_items > 0) {
+        LFORTRAN_ASSERT(unit.n_items == 1);
 
         // Add an anonymous function
         const char* fn_name_orig = "f";
@@ -443,7 +433,7 @@ std::unique_ptr<LLVMModule> asr_to_llvm(ASR::asr_t &asr,
             fn_scope, VAR(return_var));
 
         ASR::expr_t *target = EXPR(return_var_ref);
-        ASR::expr_t *value = EXPR(unit->m_items[0]);
+        ASR::expr_t *value = EXPR(unit.m_items[0]);
         Vec<ASR::stmt_t*> body;
         ASR::stmt_t* asr_stmt= STMT(ASR::make_Assignment_t(al, loc, target, value));
         body.reserve(al, 1);
@@ -462,14 +452,23 @@ std::unique_ptr<LLVMModule> asr_to_llvm(ASR::asr_t &asr,
             /* a_module */ nullptr,
             /* a_symtab */ fn_scope);
         std::string sym_name = fn_name;
-        if (new_scope->scope.find(sym_name) != new_scope->scope.end()) {
+        if (unit.m_global_scope->scope.find(sym_name) != unit.m_global_scope->scope.end()) {
             throw SemanticError("Function already defined", fn->loc);
         }
-        new_scope->scope[sym_name] = fn;
-
-        asr2 = ASR::make_TranslationUnit_t(al, asr.loc,
-            new_scope, nullptr, 0);
+        unit.m_global_scope->scope[sym_name] = fn;
+        unit.m_items = nullptr;
+        unit.n_items = 0;
     }
+}
+
+std::unique_ptr<LLVMModule> asr_to_llvm(ASR::asr_t &asr,
+        llvm::LLVMContext &context, Allocator &al)
+{
+    ASRToLLVMVisitor v(context);
+    LFORTRAN_ASSERT(asr.type == ASR::asrType::unit);
+    ASR::asr_t *asr2 = &asr;
+    ASR::TranslationUnit_t *unit=TRANSLATION_UNIT(asr2);
+    wrap_global_stmts_into_function(al, *unit);
     v.visit_asr(*asr2);
     std::string msg;
     llvm::raw_string_ostream err(msg);
