@@ -592,6 +592,13 @@ public:
         transform_stmts(xx.m_body, xx.n_body);
     }
 
+    void visit_WhileLoop(const ASR::WhileLoop_t &x) {
+        // FIXME: this is a hack, we need to pass in a non-const `x`,
+        // which requires to generate a TransformVisitor.
+        ASR::WhileLoop_t &xx = const_cast<ASR::WhileLoop_t&>(x);
+        transform_stmts(xx.m_body, xx.n_body);
+    }
+
     void visit_DoLoop(const ASR::DoLoop_t &x) {
         do_loop_result = replace_doloop(al, x);
     }
@@ -599,6 +606,7 @@ public:
 
 void replace_doloops(Allocator &al, ASR::TranslationUnit_t &unit) {
     DoLoopVisitor v(al);
+    v.visit_TranslationUnit(unit);
     v.visit_TranslationUnit(unit);
 }
 
