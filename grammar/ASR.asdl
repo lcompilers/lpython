@@ -6,8 +6,9 @@
 --   * string
 -- We extend these by:
 --   * object (any Python object)
---   * constant
+--   * constant (.true. / .false.)
 --   * symbol_table (scoped Symbol Table implementation)
+--   * node (any ASR node)
 --
 -- Note: `symbol_table` contains `Module`, `Subroutine`, `Function`, `Variable`.
 
