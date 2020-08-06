@@ -78,6 +78,22 @@ static inline ASR::Var_t* EXPR_VAR(const ASR::asr_t *f)
     return (ASR::Var_t*)t;
 }
 
+static inline ASR::Num_t* EXPR_NUM(const ASR::asr_t *f)
+{
+    LFORTRAN_ASSERT(f->type == ASR::asrType::expr);
+    ASR::expr_t *t = (ASR::expr_t *)f;
+    LFORTRAN_ASSERT(t->type == ASR::exprType::Num);
+    return (ASR::Num_t*)t;
+}
+
+static inline ASR::UnaryOp_t* EXPR_UNARYOP(const ASR::asr_t *f)
+{
+    LFORTRAN_ASSERT(f->type == ASR::asrType::expr);
+    ASR::expr_t *t = (ASR::expr_t *)f;
+    LFORTRAN_ASSERT(t->type == ASR::exprType::UnaryOp);
+    return (ASR::UnaryOp_t*)t;
+}
+
 
 static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
 {
