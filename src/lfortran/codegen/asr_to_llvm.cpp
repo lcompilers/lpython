@@ -582,8 +582,8 @@ public:
         n_body = body.size();
     }
 
-    // TODO: Only Program is processed, we need to process all calls to
-    // visit_stmt().
+    // TODO: Only Program and While is processed, we need to process all calls
+    // to visit_stmt().
 
     void visit_Program(const ASR::Program_t &x) {
         // FIXME: this is a hack, we need to pass in a non-const `x`,
@@ -606,6 +606,8 @@ public:
 
 void replace_doloops(Allocator &al, ASR::TranslationUnit_t &unit) {
     DoLoopVisitor v(al);
+    // Each call transforms only one layer of nested loops, so we call it twice
+    // to transform doubly nested loops:
     v.visit_TranslationUnit(unit);
     v.visit_TranslationUnit(unit);
 }
