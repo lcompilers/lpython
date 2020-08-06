@@ -75,6 +75,7 @@ ttype
 
 boolop = And | Or
 
+-- TODO: rename to binop:
 operator = Add | Sub | Mul | Div | Pow
 
 unaryop = Invert | Not | UAdd | USub

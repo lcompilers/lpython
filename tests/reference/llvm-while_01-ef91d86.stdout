@@ -18,7 +18,7 @@ define i64 @main() {
 
 loop.head:                                        ; preds = %loop.body, %.entry
   %0 = load i64, i64* %i
-  %1 = icmp ult i64 %0, 11
+  %1 = icmp slt i64 %0, 11
   br i1 %1, label %loop.body, label %loop.end
 
 loop.body:                                        ; preds = %loop.head
@@ -66,7 +66,7 @@ ifcont3:                                          ; preds = %else2, %then1
 
 loop.head5:                                       ; preds = %loop.body6, %ifcont3
   %11 = load i64, i64* %i
-  %12 = icmp ule i64 %11, 10
+  %12 = icmp sle i64 %11, 10
   br i1 %12, label %loop.body6, label %loop.end7
 
 loop.body6:                                       ; preds = %loop.head5
@@ -114,7 +114,7 @@ ifcont14:                                         ; preds = %else13, %then12
 
 loop.head16:                                      ; preds = %loop.body17, %ifcont14
   %22 = load i64, i64* %i
-  %23 = icmp ult i64 %22, 1
+  %23 = icmp slt i64 %22, 1
   br i1 %23, label %loop.body17, label %loop.end18
 
 loop.body17:                                      ; preds = %loop.head16
