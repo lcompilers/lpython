@@ -508,8 +508,6 @@ Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop) {
     } else {
         cmp_op = ASR::cmpopType::GtE;
     }
-    Vec<ASR::stmt_t*> result;
-    result.reserve(al, 2);
     ASR::expr_t *target = loop.m_head.m_v;
     ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
     ASR::stmt_t *stmt1 = STMT(ASR::make_Assignment_t(al, loc, target,
@@ -529,6 +527,8 @@ Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop) {
     }
     ASR::stmt_t *stmt2 = STMT(ASR::make_WhileLoop_t(al, loc, cond,
         body.p, body.size()));
+    Vec<ASR::stmt_t*> result;
+    result.reserve(al, 2);
     result.push_back(al, stmt1);
     result.push_back(al, stmt2);
 
