@@ -73,11 +73,10 @@ RUN(while_01)
 RUN(while_02)
 
 RUN(doloop_01)
+RUN(doloop_02)
 RUN(doloop_03)
 
 if (NOT LFORTRAN_SUBSET)
-    RUN(doloop_02)
-
     RUN(arrays_01)
     RUN(arrays_02)
 
