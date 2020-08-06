@@ -461,12 +461,108 @@ void wrap_global_stmts_into_function(Allocator &al, ASR::TranslationUnit_t &unit
     }
 }
 
+/*
+Converts:
+
+    do i = a, b, c
+        ...
+    end do
+
+to:
+
+    i = a-c
+    do while (i+c <= b)
+        i = i+c
+        ...
+    end do
+
+The comparison is >= for c<0.
+*/
+Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop) {
+    Location loc = loop.base.base.loc;
+    ASR::expr_t *a=loop.m_head.m_start;
+    ASR::expr_t *b=loop.m_head.m_end;
+    ASR::expr_t *c=loop.m_head.m_increment;
+    LFORTRAN_ASSERT(a);
+    LFORTRAN_ASSERT(b);
+    if (!c) {
+        ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+        c = EXPR(ASR::make_Num_t(al, loc, 1, type));
+    }
+    LFORTRAN_ASSERT(c);
+    int increment;
+    if (c->type == ASR::exprType::Num) {
+        increment = EXPR_NUM((ASR::asr_t*)c)->m_n;
+    } else if (c->type == ASR::exprType::UnaryOp) {
+        ASR::UnaryOp_t *u = EXPR_UNARYOP((ASR::asr_t*)c);
+        LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
+        LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::Num);
+        increment = - EXPR_NUM((ASR::asr_t*)u->m_operand)->m_n;
+    } else {
+        throw CodeGenError("Do loop increment type not supported");
+    }
+    ASR::cmpopType cmp_op;
+    if (increment > 0) {
+        cmp_op = ASR::cmpopType::LtE;
+    } else {
+        cmp_op = ASR::cmpopType::GtE;
+    }
+    Vec<ASR::stmt_t*> result;
+    result.reserve(al, 2);
+    ASR::expr_t *target = loop.m_head.m_v;
+    ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+    ASR::stmt_t *stmt1 = STMT(ASR::make_Assignment_t(al, loc, target,
+        EXPR(ASR::make_BinOp_t(al, loc, a, ASR::operatorType::Sub, c, type))
+    ));
+
+    ASR::expr_t *cond = EXPR(ASR::make_Compare_t(al, loc,
+        EXPR(ASR::make_BinOp_t(al, loc, target, ASR::operatorType::Add, c, type)),
+        cmp_op, b, type));
+    Vec<ASR::stmt_t*> body;
+    body.reserve(al, loop.n_body+1);
+    body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, target,
+        EXPR(ASR::make_BinOp_t(al, loc, target, ASR::operatorType::Add, c, type))
+    )));
+    for (size_t i=0; i<loop.n_body; i++) {
+        body.push_back(al, loop.m_body[i]);
+    }
+    ASR::stmt_t *stmt2 = STMT(ASR::make_WhileLoop_t(al, loc, cond,
+        body.p, body.size()));
+    result.push_back(al, stmt1);
+    result.push_back(al, stmt2);
+    return result;
+}
+
+class DoLoopVisitor : public ASR::BaseWalkVisitor<DoLoopVisitor>
+{
+private:
+    Allocator &al;
+public:
+    DoLoopVisitor(Allocator &al) : al{al} {}
+
+    void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
+        for (auto &a : x.m_global_scope->scope) {
+            this->visit_asr(*a.second);
+        }
+    }
+
+    void visit_DoLoop(const ASR::DoLoop_t &x) {
+        replace_doloop(al, x);
+    }
+};
+
+void replace_doloops(Allocator &al, ASR::TranslationUnit_t &unit) {
+    DoLoopVisitor v(al);
+    v.visit_TranslationUnit(unit);
+}
+
 std::unique_ptr<LLVMModule> asr_to_llvm(ASR::asr_t &asr,
         llvm::LLVMContext &context, Allocator &al)
 {
     ASRToLLVMVisitor v(context);
     LFORTRAN_ASSERT(asr.type == ASR::asrType::unit);
     wrap_global_stmts_into_function(al, *TRANSLATION_UNIT(&asr));
+    replace_doloops(al, *TRANSLATION_UNIT(&asr));
     v.visit_asr(asr);
     std::string msg;
     llvm::raw_string_ostream err(msg);
