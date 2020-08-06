@@ -561,6 +561,9 @@ public:
         }
     }
 
+    // TODO: Only Program is processed, we need to process all calls to
+    // visit_stmt().
+
     void visit_Program(const ASR::Program_t &x) {
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
