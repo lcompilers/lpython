@@ -10,7 +10,6 @@ prepare tarball:
   stage: tarball
   image: registry.gitlab.com/lfortran/ci-images:prepare-1.7.0
   script:
-    - export CLASSPATH="$HOME/antlr-4.7-complete.jar:$CLASSPATH"
     - ./build0.sh
     - python setup.py sdist
     - ci/upload_tarball.sh
@@ -41,31 +40,6 @@ azure:
   only:
     variables:
       - $SSH_PRIVATE_KEY_AZURE
-
-
-# Test full dependencies when a C compiler is available and used for linking
-full:
-  stage: build
-  image: registry.gitlab.com/lfortran/ci-images:full-1.7.0
-  script:
-    - export PATH="$HOME/conda_root/bin:$PATH"
-    - conda install -c conda-forge python-clang
-    - tar xzf dist/lfortran-${lfortran_version}.tar.gz
-    - cd lfortran-${lfortran_version}
-    - pip install --no-index -v .
-    - cd ..
-    - rm -r lfortran lfortran-${lfortran_version}
-    - rm lfort
-    - py.test --pyargs lfortran
-    - python show_ast.py
-    - lfort examples/expr2.f90 -o a.out
-    - ./a.out
-    - ./test_lfort_cmdline gfortran
-    - ./test_lfort_cmdline lfort
-    - ./test_lfort gfortran
-    - ./test_lfort lfort
-    - cd integration_tests/interop
-    - ./run.sh
 
 # Test the C++ version
 cxx:
@@ -185,27 +159,27 @@ build.xsh:
     - xonsh ci/build.xsh
 
 # Build and upload documentation
-documentation:
-  stage: build
-  image: registry.gitlab.com/lfortran/ci-images:jupyter-1.7.0
-  script:
-    - sudo apt-get update
-    - sudo apt-get install -yq --no-install-recommends openssh-client
-    - export PATH="$HOME/conda_root/bin:$PATH"
-    - pip install nbconvert mkdocs
-    - tar xzf dist/lfortran-${lfortran_version}.tar.gz
-    - cd lfortran-${lfortran_version}
-    - pip install --no-index -v .
-    - cd ..
-    - rm -r lfortran lfortran-${lfortran_version}
-    - cd doc
-    - python convert_nb.py
-    - mkdocs build -s
-    - ../ci/upload_docs.sh
-  artifacts:
-    paths:
-      - doc/site
-    when: always
+#documentation:
+#  stage: build
+#  image: registry.gitlab.com/lfortran/ci-images:jupyter-1.7.0
+#  script:
+#    - sudo apt-get update
+#    - sudo apt-get install -yq --no-install-recommends openssh-client
+#    - export PATH="$HOME/conda_root/bin:$PATH"
+#    - pip install nbconvert mkdocs
+#    - tar xzf dist/lfortran-${lfortran_version}.tar.gz
+#    - cd lfortran-${lfortran_version}
+#    - pip install --no-index -v .
+#    - cd ..
+#    - rm -r lfortran lfortran-${lfortran_version}
+#    - cd doc
+#    - python convert_nb.py
+#    - mkdocs build -s
+#    - ../ci/upload_docs.sh
+#  artifacts:
+#    paths:
+#      - doc/site
+#    when: always
 
 # Update the downloads page
 downloads_update:
@@ -226,39 +200,15 @@ minimal:
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
     - export CFLAGS="-I/usr/include/x86_64-linux-musl/"
-    - pip install --no-index -v .
-    - cd ..
-    - rm -r lfortran lfortran-${lfortran_version}
-    - rm lfort
+    #- pip install --no-index -v .
+    #- cd ..
+    #- rm -r lfortran lfortran-${lfortran_version}
+    #- rm lfort
     - sudo apt-get remove -yq gcc g++ libc6-dev
     - sudo apt-get autoremove -yq
-    - py.test --pyargs lfortran
-    - lfort --ld-musl examples/expr2.f90 -o a.out
-    - ./a.out
-
-# Test Jupyter notebooks
-jupyter:
-  stage: build
-  image: registry.gitlab.com/lfortran/ci-images:jupyter-1.7.0
-  script:
-    - export PATH="$HOME/conda_root/bin:$PATH"
-    - tar xzf dist/lfortran-${lfortran_version}.tar.gz
-    - cd lfortran-${lfortran_version}
-    - pip install --no-index -v .
-    - cd ..
-    - rm -r lfortran lfortran-${lfortran_version}
-    - (git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/lfortran/fortran_kernel && cd fortran_kernel && git checkout v0.1.4 && pip install --no-index . && cd .. && rm -r fortran_kernel)
-    - python -m fortran_kernel.install --sys-prefix
-    - jupyter kernelspec list --json
-    - cd share/lfortran/nb
-    - py.test --pyargs lfortran
-    - jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --output Demo_out.ipynb Demo.ipynb
-    - ls -l output1.png
-  artifacts:
-    paths:
-      - share/lfortran/nb/Demo_out.ipynb
-      - share/lfortran/nb/output1.png
-    when: always
+    #- py.test --pyargs lfortran
+    #- lfort --ld-musl examples/expr2.f90 -o a.out
+    #- ./a.out
 
 # Test Bison grammar
 grammar:

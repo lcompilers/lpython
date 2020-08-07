@@ -119,14 +119,6 @@ if (WITH_STACKTRACE)
     set(HAVE_LFORTRAN_STACKTRACE yes)
 endif()
 
-
-# Python
-set(WITH_PYTHON no CACHE BOOL "Build with Python wrappers")
-if (WITH_PYTHON)
-    cmake_minimum_required(VERSION 3.12.4 FATAL_ERROR)
-    find_package(Python REQUIRED COMPONENTS Interpreter Development)
-endif()
-
 enable_testing()
 
 message("\n")
@@ -151,10 +143,6 @@ message("WITH_STACKTRACE: ${WITH_STACKTRACE}")
 message("HAVE_LFORTRAN_DEMANGLE: ${HAVE_LFORTRAN_DEMANGLE}")
 message("WITH_LLVM: ${WITH_LLVM}")
 message("WITH_JSON: ${WITH_JSON}")
-message("WITH_PYTHON: ${WITH_PYTHON}")
 
 
 add_subdirectory(src)
-if (WITH_PYTHON)
-    add_subdirectory(lfortran/parser)
-endif()

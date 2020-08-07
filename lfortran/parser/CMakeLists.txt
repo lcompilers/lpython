@@ -1,7 +1,0 @@
-Python_add_library(cparser MODULE cparser.c)
-target_link_libraries(cparser PRIVATE lfortran_lib)
-if("${CMAKE_INSTALL_PREFIX}/lfortran/parser" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
-    message("Note: cparser already built in install directory")
-else()
-    install(TARGETS cparser DESTINATION lfortran/parser)
-endif()
