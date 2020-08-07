@@ -36,7 +36,7 @@ pushd src/lfortran/parser && re2c -W -b tokenizer.re -o tokenizer.cpp && popd
 pushd src/lfortran/parser && bison -Wall -d -r all parser.yy && popd
 
 $lfortran_version=$(cat version).strip()
-python setup.py sdist
+bash ci/create_source_tarball.sh @(lfortran_version)
 tar xzf dist/lfortran-$lfortran_version.tar.gz
 cd lfortran-$lfortran_version
 
