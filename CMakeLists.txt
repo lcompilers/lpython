@@ -31,12 +31,26 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(LFORTRAN_CXX_NO_RTTI_FLAG "/GR-")
 endif ()
 
-# build a CPack driven installer package
+# Build a CPack driven installer package
+#
+# To build a source package:
+#
+# cpack --config CPackSourceConfig.cmake
+#
+# To build a binary package:
+#
+# cpack
+#
 include(InstallRequiredSystemLibraries)
 set(CPACK_GENERATOR "TBZ2")
 set(CPACK_STRIP_FILES YES)
 if (LFORTRAN_VERSION STREQUAL "0.1.1")
     set(CPACK_PACKAGE_FILE_NAME lfortran-git-${CMAKE_SYSTEM_NAME})
+endif()
+set(CPACK_SOURCE_GENERATOR "TBZ2")
+set(CPACK_SOURCE_STRIP_FILES YES)
+if (LFORTRAN_VERSION STREQUAL "0.1.1")
+    set(CPACK_SOURCE_PACKAGE_FILE_NAME lfortran-git-Source)
 endif()
 include(CPack)
 # So that CPACK_PACKAGE_FILE_NAME prints the correct value below
@@ -126,6 +140,7 @@ message("Configuration results")
 message("---------------------")
 message("CMAKE_PROJECT_VERSION: ${CMAKE_PROJECT_VERSION}")
 message("CPACK_PACKAGE_FILE_NAME: ${CPACK_PACKAGE_FILE_NAME}")
+message("CPACK_SOURCE_PACKAGE_FILE_NAME: ${CPACK_SOURCE_PACKAGE_FILE_NAME}")
 message("C compiler      : ${CMAKE_C_COMPILER}")
 message("C++ compiler    : ${CMAKE_CXX_COMPILER}")
 message("Build type: ${CMAKE_BUILD_TYPE}")
