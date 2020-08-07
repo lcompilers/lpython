@@ -31,7 +31,12 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(LFORTRAN_CXX_NO_RTTI_FLAG "/GR-")
 endif ()
 
-# build a CPack driven installer package
+# Build a CPack driven installer package
+#
+# To build a binary package:
+#
+# cpack
+#
 include(InstallRequiredSystemLibraries)
 set(CPACK_GENERATOR "TBZ2")
 set(CPACK_STRIP_FILES YES)

@@ -11,7 +11,7 @@ prepare tarball:
   image: registry.gitlab.com/lfortran/ci-images:prepare-1.7.0
   script:
     - ./build0.sh
-    - python setup.py sdist
+    - ci/create_source_tarball.sh $lfortran_version
     - ci/upload_tarball.sh
   artifacts:
     paths:
@@ -156,6 +156,7 @@ build.xsh:
     - export LFORTRAN_CMAKE_GENERATOR="Unix Makefiles"
     - export WIN=0
     - export MACOS=0
+    - rm -rf dist
     - xonsh ci/build.xsh
 
 # Build and upload documentation

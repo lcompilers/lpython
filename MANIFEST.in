@@ -1,6 +1,0 @@
-recursive-include src *
-recursive-include cmake *
-include version
-include CMakeLists.txt
-include README.md
-include LICENSE
