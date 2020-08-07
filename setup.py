@@ -43,11 +43,4 @@ skbuild.setup(
         "Operating System :: OS Independent",
     ],
     cmake_languages=('C'),
-    install_requires=[
-        "pytest",
-        "llvmlite",
-        "prompt_toolkit",
-        "antlr4-python3-runtime",
-        "pygments",
-    ],
 )
