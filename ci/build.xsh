@@ -26,28 +26,14 @@ trace on
 echo "CONDA_PREFIX=$CONDA_PREFIX"
 llvm-config --components
 
-# Generate a Fortran AST from AST.asdl (Python)
-python grammar/asdl_py.py
 # Generate a Fortran AST from AST.asdl (C++)
 python grammar/asdl_cpp.py
-# Generate a Fortran ASR from ASR.asdl
-python grammar/asdl_py.py grammar/ASR.asdl lfortran/asr/asr.py ..ast.utils
 # Generate a Fortran ASR from ASR.asdl (C++)
 python grammar/asdl_cpp.py grammar/ASR.asdl src/lfortran/asr.h
 
 # Generate the tokenizer and parser
 pushd src/lfortran/parser && re2c -W -b tokenizer.re -o tokenizer.cpp && popd
 pushd src/lfortran/parser && bison -Wall -d -r all parser.yy && popd
-
-#grep -n "'" src/lfortran/parser/parser.yy && echo "Single quote not allowed" && exit 1
-
-pushd lfortran/parser && cython -3 -I. cparser.pyx && popd
-
-# Generate a parse tree from fortran.g4
-cd grammar
-curl -O https://www.antlr.org/download/antlr-4.7-complete.jar
-java -cp antlr-4.7-complete.jar org.antlr.v4.Tool -Dlanguage=Python3 -no-listener -visitor fortran.g4 -o ../lfortran/parser
-cd ..
 
 $lfortran_version=$(cat version).strip()
 python setup.py sdist
@@ -66,22 +52,9 @@ else:
 ./src/bin/lfortran < ../src/bin/example_input.txt
 ctest --output-on-failure
 cpack -V
-cd ..
-
-if $MACOS == "1":
-    # Temporary workaround: this test segfaults on import on macOS
-    from os import remove
-    remove("lfortran/ast/tests/test_cparser.py")
-pip install -v --no-index .
-cd ..
+cd ../..
 
 if $WIN != "1":
     cp lfortran-$lfortran_version/test-bld/src/bin/lfortran src/bin
     cp lfortran-$lfortran_version/test-bld/src/bin/cpptranslate src/bin
     ./run_tests.py
-
-from shutil import rmtree
-rmtree("lfortran")
-rmtree("dist")
-ls
-pytest --pyargs lfortran
