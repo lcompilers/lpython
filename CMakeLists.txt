@@ -52,6 +52,23 @@ set(CPACK_SOURCE_STRIP_FILES YES)
 if (LFORTRAN_VERSION STREQUAL "0.1.1")
     set(CPACK_SOURCE_PACKAGE_FILE_NAME lfortran-git-Source)
 endif()
+set(CPACK_SOURCE_IGNORE_FILES
+    /.git
+    /build
+    /grammar
+    /tests
+    /doc
+    /ci
+    /appveyor.yml
+    /azure-pipelines.yml
+    /test_lfort
+    /run_tests.py
+    /integration_tests
+    /compiler_tester
+    /setup.py    # remove from git
+    /show_ast.py # remove from git
+    /MANIFEST.in # remove from git
+)
 include(CPack)
 # So that CPACK_PACKAGE_FILE_NAME prints the correct value below
 if (LFORTRAN_VERSION STREQUAL "0.1.1")
