@@ -37,7 +37,7 @@ pushd src/lfortran/parser && bison -Wall -d -r all parser.yy && popd
 
 $lfortran_version=$(cat version).strip()
 $dest="lfortran-" + $lfortran_version
-xonsh ci/create_source_tarball0.sh
+bash ci/create_source_tarball0.sh
 tar xzf dist/lfortran-$lfortran_version.tar.gz
 cd lfortran-$lfortran_version
 
