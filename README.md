@@ -2,6 +2,7 @@
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gl/lfortran%2Fweb%2Flfortran-binder/master?filepath=Demo.ipynb)
 [![project chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://lfortran.zulipchat.com/)
+[![pipeline status](https://gitlab.com/lfortran/lfortran/badges/master/pipeline.svg)](https://gitlab.com/lfortran/lfortran/-/commits/master)
 
 LFortran is a modern open-source (BSD licensed) interactive Fortran compiler
 built on top of LLVM. It can execute user's code interactively to allow
@@ -35,9 +36,7 @@ https://groups.io/g/lfortran
 
 You can also chat with us on Zulip ([![project chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://lfortran.zulipchat.com/)).
 
-CI status on master:
-
-Linux: https://gitlab.com/lfortran/lfortran/pipelines
+CI status on master: [![pipeline status](https://gitlab.com/lfortran/lfortran/badges/master/pipeline.svg)](https://gitlab.com/lfortran/lfortran/-/commits/master)
 
 
 We maintain an official GitHub read-only
