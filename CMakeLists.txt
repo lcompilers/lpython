@@ -65,8 +65,6 @@ set(CPACK_SOURCE_IGNORE_FILES
     /run_tests.py
     /integration_tests
     /compiler_tester
-    /setup.py    # remove from git
-    /MANIFEST.in # remove from git
 )
 include(CPack)
 # So that CPACK_PACKAGE_FILE_NAME prints the correct value below
