@@ -156,6 +156,7 @@ build.xsh:
     - export LFORTRAN_CMAKE_GENERATOR="Unix Makefiles"
     - export WIN=0
     - export MACOS=0
+    - rm -rf dist
     - xonsh ci/build.xsh
 
 # Build and upload documentation
