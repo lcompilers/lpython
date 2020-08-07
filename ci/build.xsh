@@ -36,7 +36,7 @@ pushd src/lfortran/parser && re2c -W -b tokenizer.re -o tokenizer.cpp && popd
 pushd src/lfortran/parser && bison -Wall -d -r all parser.yy && popd
 
 $lfortran_version=$(cat version).strip()
-$dest=lfortran-$lfortran_version
+$dest="lfortran-" + $lfortran_version
 xonsh ci/create_source_tarball0.sh
 tar xzf dist/lfortran-$lfortran_version.tar.gz
 cd lfortran-$lfortran_version
