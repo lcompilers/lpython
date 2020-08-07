@@ -8,7 +8,7 @@ build_script:
 - call conda config --set always_yes yes --set changeps1 no
 - call conda info -a
 - call conda update -q conda
-- call conda install -c conda-forge python=3.7 re2c m2-bison xonsh llvmdev=8.0.0
+- call conda install -c conda-forge python=3.7 re2c m2-bison xonsh scikit-build llvmdev=8.0.0
 - set CONDA_PREFIX=C:\\Miniconda37-x64
 - set LFORTRAN_CMAKE_GENERATOR=Visual Studio 15 2017 Win64
 - set WIN=1
