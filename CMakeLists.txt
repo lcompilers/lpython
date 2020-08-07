@@ -66,7 +66,6 @@ set(CPACK_SOURCE_IGNORE_FILES
     /integration_tests
     /compiler_tester
     /setup.py    # remove from git
-    /show_ast.py # remove from git
     /MANIFEST.in # remove from git
 )
 include(CPack)
