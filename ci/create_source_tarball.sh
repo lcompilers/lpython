@@ -1,13 +1,7 @@
 #!/bin/bash
 
-set -e
-set -x
+set -ex
 
 lfortran_version=$1
-dest=lfortran-$lfortran_version
-
-mkdir $dest
-cp -r src cmake examples CMakeLists.txt README.md LICENSE version $dest
-mkdir dist
-tar czf dist/$dest.tar.gz $dest
-rm -r $dest
+export dest=lfortran-$lfortran_version
+bash -x -o errexit ci/create_source_tarball0.sh
