@@ -265,6 +265,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> interface_decl
 %type <ast> program
 %type <ast> subroutine
+%type <ast> sub_or_func
 %type <vec_ast> sub_args
 %type <ast> function
 %type <ast> use_statement
@@ -308,6 +309,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> stop_statement
 %type <ast> error_stop_statement
 %type <vec_ast> statements
+%type <vec_ast> contains_block_opt
+%type <vec_ast> sub_or_func_plus
 
 // Precedence
 
@@ -426,13 +429,13 @@ function
     ;
 
 contains_block_opt
-    : KW_CONTAINS sep sub_or_func_plus
-    | %empty
+    : KW_CONTAINS sep sub_or_func_plus { $$ = $3; }
+    | %empty { LIST_NEW($$); }
     ;
 
 sub_or_func_plus
-    : sub_or_func_plus sub_or_func
-    | sub_or_func
+    : sub_or_func_plus sub_or_func { LIST_ADD($$, $2); }
+    | sub_or_func { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 sub_or_func
