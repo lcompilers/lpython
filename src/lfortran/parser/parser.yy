@@ -408,7 +408,7 @@ proc
 program
     : KW_PROGRAM id sep implicit_statement_opt var_decl_star statements
         contains_block_opt KW_END end_program_opt sep {
-            LLOC(@$, @9); $$ = PROGRAM($2, $5, $6, @$); }
+            LLOC(@$, @9); $$ = PROGRAM($2, $5, $6, $7, @$); }
     ;
 
 end_program_opt

@@ -304,7 +304,7 @@ static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
         /*n_body*/ stmts.size(), \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
-#define PROGRAM(name, decl, stmts, l) make_Program_t(p.m_a, l, \
+#define PROGRAM(name, decl, stmts, contains, l) make_Program_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*use*/ nullptr, \
         /*n_use*/ 0, \
