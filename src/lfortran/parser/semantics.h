@@ -88,9 +88,10 @@ static inline T** vec_cast(const YYSTYPE::VecAST &x) {
     return s;
 }
 
-#define VEC_CAST(x, type) vec_cast<type##_t, astType::type>(x)
+#define VEC_CAST(x, type) vec_cast<LFortran::AST::type##_t, astType::type>(x)
 #define DECLS(x) VEC_CAST(x, unit_decl2)
 #define STMTS(x) VEC_CAST(x, stmt)
+#define CONTAINS(x) VEC_CAST(x, program_unit)
 #define ATTRS(x) VEC_CAST(x, attribute)
 #define EXPRS(x) VEC_CAST(x, expr)
 #define CASE_STMTS(x) VEC_CAST(x, case_stmt)
@@ -312,8 +313,8 @@ static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
         /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \
         /*n_body*/ stmts.size(), \
-        /*contains*/ nullptr, \
-        /*n_contains*/ 0)
+        /*contains*/ CONTAINS(contains), \
+        /*n_contains*/ contains.size())
 #define RESULT(x) p.result.push_back(p.m_a, x)
 
 #define IFSINGLE(cond, body, l) make_If_t(p.m_a, l, \
