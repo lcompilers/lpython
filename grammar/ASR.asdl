@@ -59,12 +59,12 @@ expr
     | UnaryOp(unaryop op, expr operand, ttype type)
     | Compare(expr left, cmpop op, expr right, ttype type)
     | FuncCall(fn func, expr* args, keyword* keywords, ttype type)
-    | ArrayRef(identifier name, array_index* args, ttype type)
     | ArrayInitializer(expr* args, ttype type)
     | Num(object n, ttype type)
     | Str(string s, ttype type)
     | VariableOld(identifier name, string? intent, int? dummy, ttype type)
     | Var(var v)
+    | ArrayRef(var v, array_index* args, ttype type)
     | Constant(constant value, ttype type)
 
 ttype

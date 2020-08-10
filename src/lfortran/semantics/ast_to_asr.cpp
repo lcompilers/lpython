@@ -492,13 +492,18 @@ public:
                     (ASR::fn_t*)v, args.p, args.size(), nullptr, 0, type);
                 break;
             }
-            /*
             case (ASR::asrType::var) : {
+                //Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
+                Vec<ASR::array_index_t*> args;
+                args.reserve(al, 4);
+                ASR::ttype_t *type;
+                type = VARIABLE(v)->m_type;
+                tmp = ASR::make_ArrayRef_t(al, x.base.base.loc,
+                    (ASR::var_t*)v, args.p, args.size(), type);
                 break;
             }
-            */
-            default : throw SemanticError("Not a function or array",
-                    x.base.base.loc);
+            default : throw SemanticError("Symbol '" + var_name
+                    + "' is not a function or an array", x.base.base.loc);
         }
     }
 
