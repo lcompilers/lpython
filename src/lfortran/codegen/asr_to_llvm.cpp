@@ -175,7 +175,10 @@ public:
     }
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
-        // TODO: generate arguments
+        for (size_t i=0; i<x.n_args; i++) {
+            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+            std::cout << "VAR: " << arg->m_name << std::endl;
+        }
         llvm::FunctionType *function_type = llvm::FunctionType::get(
                 llvm::Type::getVoidTy(context), {}, false);
         llvm::Function *F = llvm::Function::Create(function_type,
