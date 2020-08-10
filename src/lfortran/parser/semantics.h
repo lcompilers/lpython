@@ -250,7 +250,7 @@ static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
 #define STRING(x, l) make_Str_t(p.m_a, l, x.c_str(p.m_a))
 #define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, l, EXPR(x), EXPR(y))
 #define ASSOCIATE(x, y, l) make_Associate_t(p.m_a, l, EXPR(x), EXPR(y))
-#define CALL(x, l) make_SubroutineCall_t(p.m_a, l, \
+#define SUBROUTINE_CALL(x, l) make_SubroutineCall_t(p.m_a, l, \
         name2char(x), \
         nullptr, 0)
 
