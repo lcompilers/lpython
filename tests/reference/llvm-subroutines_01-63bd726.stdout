@@ -11,10 +11,8 @@ source_filename = "LFortran"
 @7 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
 @8 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
 
-define void @f() {
+define void @f(i64* %a, i64* %b) {
 .entry:
-  %a = alloca i64
-  %b = alloca i64
   %0 = load i64, i64* %a
   %1 = add i64 %0, 1
   store i64 %1, i64* %b
@@ -41,7 +39,7 @@ else:                                             ; preds = %.entry
 
 ifcont:                                           ; preds = %else, %then
   %iftmp = phi i64 [ 1, %then ], [ 2, %else ]
-  call void @f()
+  call void @f(i64* %i, i64* %j)
   %2 = load i64, i64* %i
   %3 = icmp ne i64 %2, 1
   br i1 %3, label %then1, label %else2
@@ -85,10 +83,12 @@ else10:                                           ; preds = %ifcont7
 
 ifcont11:                                         ; preds = %else10, %then9
   %iftmp12 = phi i64 [ 1, %then9 ], [ 2, %else10 ]
-  call void @f()
-  %8 = load i64, i64* %j
-  %9 = icmp ne i64 %8, 4
-  br i1 %9, label %then13, label %else14
+  %8 = alloca i64
+  store i64 3, i64* %8
+  call void @f(i64* %8, i64* %j)
+  %9 = load i64, i64* %j
+  %10 = icmp ne i64 %9, 4
+  br i1 %10, label %then13, label %else14
 
 then13:                                           ; preds = %ifcont11
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @4, i32 0, i32 0))
@@ -101,9 +101,9 @@ else14:                                           ; preds = %ifcont11
 ifcont15:                                         ; preds = %else14, %then13
   %iftmp16 = phi i64 [ 1, %then13 ], [ 2, %else14 ]
   store i64 1, i64* %j
-  %10 = load i64, i64* %j
-  %11 = icmp ne i64 %10, 1
-  br i1 %11, label %then17, label %else18
+  %11 = load i64, i64* %j
+  %12 = icmp ne i64 %11, 1
+  br i1 %12, label %then17, label %else18
 
 then17:                                           ; preds = %ifcont15
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @5, i32 0, i32 0))
@@ -115,10 +115,12 @@ else18:                                           ; preds = %ifcont15
 
 ifcont19:                                         ; preds = %else18, %then17
   %iftmp20 = phi i64 [ 1, %then17 ], [ 2, %else18 ]
-  call void @f()
-  %12 = load i64, i64* %j
-  %13 = icmp ne i64 %12, 4
-  br i1 %13, label %then21, label %else22
+  %13 = alloca i64
+  store i64 3, i64* %13
+  call void @f(i64* %13, i64* %j)
+  %14 = load i64, i64* %j
+  %15 = icmp ne i64 %14, 4
+  br i1 %15, label %then21, label %else22
 
 then21:                                           ; preds = %ifcont19
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @6, i32 0, i32 0))
@@ -131,9 +133,9 @@ else22:                                           ; preds = %ifcont19
 ifcont23:                                         ; preds = %else22, %then21
   %iftmp24 = phi i64 [ 1, %then21 ], [ 2, %else22 ]
   store i64 1, i64* %j
-  %14 = load i64, i64* %j
-  %15 = icmp ne i64 %14, 1
-  br i1 %15, label %then25, label %else26
+  %16 = load i64, i64* %j
+  %17 = icmp ne i64 %16, 1
+  br i1 %17, label %then25, label %else26
 
 then25:                                           ; preds = %ifcont23
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @7, i32 0, i32 0))
@@ -145,10 +147,14 @@ else26:                                           ; preds = %ifcont23
 
 ifcont27:                                         ; preds = %else26, %then25
   %iftmp28 = phi i64 [ 1, %then25 ], [ 2, %else26 ]
-  call void @f()
-  %16 = load i64, i64* %j
-  %17 = icmp ne i64 %16, 4
-  br i1 %17, label %then29, label %else30
+  %18 = load i64, i64* %i
+  %19 = add i64 %18, 2
+  %20 = alloca i64
+  store i64 %19, i64* %20
+  call void @f(i64* %20, i64* %j)
+  %21 = load i64, i64* %j
+  %22 = icmp ne i64 %21, 4
+  br i1 %22, label %then29, label %else30
 
 then29:                                           ; preds = %ifcont27
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @8, i32 0, i32 0))
