@@ -433,10 +433,11 @@ public:
     ASR::Subroutine_t* resolve_subroutine(const Location &loc, const char* id) {
         SymbolTable *scope = current_scope;
         std::string sub_name = id;
-        if (scope->scope.find(sub_name) == scope->scope.end()) {
+        ASR::asr_t *sub = scope->resolve_symbol(sub_name);
+        if (!sub) {
             throw SemanticError("Subroutine '" + sub_name + "' not declared", loc);
         }
-        return SUBROUTINE(scope->scope[std::string(sub_name)]);
+        return SUBROUTINE(sub);
     }
 
     void visit_Name(const AST::Name_t &x) {
