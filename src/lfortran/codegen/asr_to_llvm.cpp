@@ -100,6 +100,15 @@ public:
         }
     }
     void visit_Program(const ASR::Program_t &x) {
+        // Generate code for nesed subroutines and functions first:
+        for (auto &item : x.m_symtab->scope) {
+            if (item.second->type == ASR::asrType::sub) {
+                ASR::Subroutine_t *s = SUBROUTINE(item.second);
+                visit_Subroutine(*s);
+            }
+        }
+
+        // Generate code for the main program
         llvm::FunctionType *function_type = llvm::FunctionType::get(
                 llvm::Type::getInt64Ty(context), {}, false);
         llvm::Function *F = llvm::Function::Create(function_type,
