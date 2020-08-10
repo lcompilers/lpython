@@ -11,7 +11,9 @@ namespace ASR {
 
 struct SymbolTable {
     std::map<std::string, ASR::asr_t*> scope;
-    SymbolTable *parent=nullptr;
+    SymbolTable *parent;
+
+    SymbolTable(SymbolTable *parent) : parent{parent} {}
 
     // Determines a stable hash based on the content of the symbol table
     std::string get_hash();
