@@ -88,9 +88,10 @@ static inline T** vec_cast(const YYSTYPE::VecAST &x) {
     return s;
 }
 
-#define VEC_CAST(x, type) vec_cast<type##_t, astType::type>(x)
+#define VEC_CAST(x, type) vec_cast<LFortran::AST::type##_t, astType::type>(x)
 #define DECLS(x) VEC_CAST(x, unit_decl2)
 #define STMTS(x) VEC_CAST(x, stmt)
+#define CONTAINS(x) VEC_CAST(x, program_unit)
 #define ATTRS(x) VEC_CAST(x, attribute)
 #define EXPRS(x) VEC_CAST(x, expr)
 #define CASE_STMTS(x) VEC_CAST(x, case_stmt)
@@ -249,9 +250,9 @@ static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
 #define STRING(x, l) make_Str_t(p.m_a, l, x.c_str(p.m_a))
 #define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, l, EXPR(x), EXPR(y))
 #define ASSOCIATE(x, y, l) make_Associate_t(p.m_a, l, EXPR(x), EXPR(y))
-#define CALL(x, l) make_SubroutineCall_t(p.m_a, l, \
-        name2char(x), \
-        nullptr, 0)
+#define SUBROUTINE_CALL(name, args, l) make_SubroutineCall_t(p.m_a, l, \
+        name2char(name), \
+        DIMS2EXPRS(p.m_a, args), args.size())
 
 #define PRINT0(l) make_Print_t(p.m_a, l, nullptr, nullptr, 0)
 #define PRINT(args, l) make_Print_t(p.m_a, l, nullptr, EXPRS(args), args.size())
@@ -304,7 +305,7 @@ static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
         /*n_body*/ stmts.size(), \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
-#define PROGRAM(name, decl, stmts, l) make_Program_t(p.m_a, l, \
+#define PROGRAM(name, decl, stmts, contains, l) make_Program_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*use*/ nullptr, \
         /*n_use*/ 0, \
@@ -312,8 +313,8 @@ static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
         /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \
         /*n_body*/ stmts.size(), \
-        /*contains*/ nullptr, \
-        /*n_contains*/ 0)
+        /*contains*/ CONTAINS(contains), \
+        /*n_contains*/ contains.size())
 #define RESULT(x) p.result.push_back(p.m_a, x)
 
 #define IFSINGLE(cond, body, l) make_If_t(p.m_a, l, \

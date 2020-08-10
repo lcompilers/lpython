@@ -64,21 +64,24 @@ public:
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
         }
-        // TODO: save the arguments into `a_args` and `n_args`.
-        // We need to get Variables settled first, then it will be just a
-        // reference to a variable.
+        Vec<ASR::expr_t*> args;
+        args.reserve(al, x.n_args);
         for (size_t i=0; i<x.n_args; i++) {
             char *arg=x.m_args[i].m_arg;
-            std::string args = arg;
-            if (current_scope->scope.find(args) == current_scope->scope.end()) {
-                throw SemanticError("Dummy argument '" + args + "' not defined", x.base.base.loc);
+            std::string arg_s = arg;
+            if (current_scope->scope.find(arg_s) == current_scope->scope.end()) {
+                throw SemanticError("Dummy argument '" + arg_s + "' not defined", x.base.base.loc);
             }
+            ASR::asr_t *arg_asr = current_scope->scope[arg_s];
+            ASR::var_t *var = VAR(arg_asr);
+            args.push_back(al, EXPR(ASR::make_Var_t(al, x.base.base.loc,
+                current_scope, var)));
         }
         asr = ASR::make_Subroutine_t(
             al, x.base.base.loc,
             /* a_name */ x.m_name,
-            /* a_args */ nullptr,
-            /* n_args */ 0,
+            /* a_args */ args.p,
+            /* n_args */ args.size(),
             /* a_body */ nullptr,
             /* n_body */ 0,
             /* a_bind */ nullptr,
@@ -313,6 +316,24 @@ public:
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value);
     }
 
+    Vec<ASR::expr_t*> visit_expr_list(AST::expr_t **ast_list, size_t n) {
+        Vec<ASR::expr_t*> asr_list;
+        asr_list.reserve(al, n);
+        for (size_t i=0; i<n; i++) {
+            visit_expr(*ast_list[i]);
+            ASR::expr_t *expr = EXPR(tmp);
+            asr_list.push_back(al, expr);
+        }
+        return asr_list;
+    }
+
+    void visit_SubroutineCall(const AST::SubroutineCall_t &x) {
+        ASR::Subroutine_t *sub = resolve_subroutine(x.base.base.loc, x.m_name);
+        Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
+        tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc,
+                (ASR::sub_t*)sub, args.p, args.size());
+    }
+
     void visit_Compare(const AST::Compare_t &x) {
         this->visit_expr(*x.m_left);
         ASR::expr_t *left = EXPR(tmp);
@@ -407,6 +428,15 @@ public:
         ASR::Variable_t *v = VARIABLE(scope->scope[std::string(var_name)]);
         ASR::var_t *var = (ASR::var_t*)v;
         return ASR::make_Var_t(al, loc, scope, var);
+    }
+
+    ASR::Subroutine_t* resolve_subroutine(const Location &loc, const char* id) {
+        SymbolTable *scope = current_scope;
+        std::string sub_name = id;
+        if (scope->scope.find(sub_name) == scope->scope.end()) {
+            throw SemanticError("Subroutine '" + sub_name + "' not declared", loc);
+        }
+        return SUBROUTINE(scope->scope[std::string(sub_name)]);
     }
 
     void visit_Name(const AST::Name_t &x) {

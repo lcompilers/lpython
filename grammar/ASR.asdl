@@ -10,7 +10,10 @@
 --   * symbol_table (scoped Symbol Table implementation)
 --   * node (any ASR node)
 --
--- Note: `symbol_table` contains `Module`, `Subroutine`, `Function`, `Variable`.
+-- Note: `symbol_table` contains `Program`, `Module`, `Subroutine`, `Function`, `Variable`.
+-- TODO: add `parent_symbol_table` to `Variable`, and put it into the `symtab` also,
+-- since it needs to have that link, that covers the rest: Program/Module/Subroutine/Function
+-- Then one can get to the parent
 
 module ASR {
 

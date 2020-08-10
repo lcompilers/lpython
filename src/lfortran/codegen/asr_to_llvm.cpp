@@ -82,7 +82,7 @@ public:
     llvm::BasicBlock *current_loophead, *current_loopend;
 
     // TODO: This is not scoped, should lookup by hashes instead:
-    std::map<std::string, llvm::AllocaInst*> llvm_symtab;
+    std::map<std::string, llvm::Value*> llvm_symtab;
 
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context} {}
 
@@ -100,6 +100,15 @@ public:
         }
     }
     void visit_Program(const ASR::Program_t &x) {
+        // Generate code for nested subroutines and functions first:
+        for (auto &item : x.m_symtab->scope) {
+            if (item.second->type == ASR::asrType::sub) {
+                ASR::Subroutine_t *s = SUBROUTINE(item.second);
+                visit_Subroutine(*s);
+            }
+        }
+
+        // Generate code for the main program
         llvm::FunctionType *function_type = llvm::FunctionType::get(
                 llvm::Type::getInt64Ty(context), {}, false);
         llvm::Function *F = llvm::Function::Create(function_type,
@@ -163,6 +172,55 @@ public:
         llvm::Value *ret_val = llvm_symtab[std::string(x.m_name)];
         llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
         builder->CreateRet(ret_val2);
+    }
+
+    void visit_Subroutine(const ASR::Subroutine_t &x) {
+        std::vector<llvm::Type*> args;
+        for (size_t i=0; i<x.n_args; i++) {
+            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+            LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
+            // TODO: we are assuming integer here:
+            LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
+            // We pass all arguments as pointers for now
+            args.push_back(llvm::Type::getInt64PtrTy(context));
+        }
+
+        llvm::FunctionType *function_type = llvm::FunctionType::get(
+                llvm::Type::getVoidTy(context), args, false);
+        llvm::Function *F = llvm::Function::Create(function_type,
+                llvm::Function::ExternalLinkage, x.m_name, module.get());
+        llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
+                ".entry", F);
+        builder->SetInsertPoint(BB);
+
+        size_t i = 0;
+        for (llvm::Argument &llvm_arg : F->args()) {
+            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+            LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
+            std::string arg_s = arg->m_name;
+            llvm_arg.setName(arg_s);
+            llvm_symtab[arg_s] = &llvm_arg;
+            i++;
+        }
+
+        for (auto &item : x.m_symtab->scope) {
+            if (item.second->type == ASR::asrType::var) {
+                ASR::var_t *v2 = (ASR::var_t*)(item.second);
+                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+                if (!is_arg_dummy(v->m_intent)) {
+                    // TODO: we are assuming integer here:
+                    llvm::AllocaInst *ptr = builder->CreateAlloca(
+                        llvm::Type::getInt64Ty(context), nullptr, v->m_name);
+                    llvm_symtab[std::string(v->m_name)] = ptr;
+                }
+            }
+        }
+
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+        }
+
+        builder->CreateRetVoid();
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
@@ -409,6 +467,32 @@ public:
         llvm::Value *exit_code = llvm::ConstantInt::get(context,
                 llvm::APInt(64, exit_code_int));
         exit(context, *module, *builder, exit_code);
+    }
+
+    void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
+        ASR::Subroutine_t *s = SUBROUTINE((ASR::asr_t*)x.m_name);
+        llvm::Function *fn = module->getFunction(s->m_name);
+        if (!fn) {
+            throw CodeGenError("Subroutine code not generated for '"
+                + std::string(s->m_name) + "'");
+        }
+        std::vector<llvm::Value *> args;
+        for (size_t i=0; i<x.n_args; i++) {
+            if (x.m_args[i]->type == ASR::exprType::Var) {
+                ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+                std::string arg_name = arg->m_name;
+                tmp = llvm_symtab[arg_name];
+            } else {
+                this->visit_expr(*x.m_args[i]);
+                llvm::Value *value=tmp;
+                llvm::AllocaInst *target = builder->CreateAlloca(
+                    llvm::Type::getInt64Ty(context), nullptr);
+                builder->CreateStore(value, target);
+                tmp = target;
+            }
+            args.push_back(tmp);
+        }
+        builder->CreateCall(fn, args);
     }
 
 };
