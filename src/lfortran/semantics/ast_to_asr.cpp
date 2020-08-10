@@ -64,9 +64,6 @@ public:
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
         }
-        // TODO: save the arguments into `a_args` and `n_args`.
-        // We need to get Variables settled first, then it will be just a
-        // reference to a variable.
         Vec<ASR::expr_t*> args;
         args.reserve(al, x.n_args);
         for (size_t i=0; i<x.n_args; i++) {
