@@ -4,6 +4,7 @@
 #include <lfortran/pickle.h>
 #include <lfortran/parser/parser.h>
 #include <lfortran/parser/parser.tab.hh>
+#include <lfortran/asr_utils.h>
 
 using LFortran::AST::ast_t;
 using LFortran::AST::Declaration_t;
@@ -162,14 +163,6 @@ std::string pickle(AST::TranslationUnit_t &ast, bool colors) {
 /* -----------------------------------------------------------------------*/
 // ASR
 
-static inline ASR::Variable_t* VARIABLE(const ASR::asr_t *f)
-{
-    LFORTRAN_ASSERT(f->type == ASR::asrType::var);
-    ASR::var_t *t = (ASR::var_t *)f;
-    LFORTRAN_ASSERT(t->type == ASR::varType::Variable);
-    return (ASR::Variable_t*)t;
-}
-
 class ASRPickleVisitor :
     public LFortran::ASR::PickleBaseVisitor<ASRPickleVisitor>
 {
@@ -189,9 +182,33 @@ public:
             s.append(color(style::reset));
         }
         s.append(" ");
-        s.append(x.m_symtab->get_hash());
+        s.append(VARIABLE((ASR::asr_t*)x.m_v)->m_parent_symtab->get_hash());
         s.append(" ");
         s.append(VARIABLE((ASR::asr_t*)x.m_v)->m_name);
+        s.append(")");
+    }
+    void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
+        s.append("(");
+        if (use_colors) {
+            s.append(color(style::bold));
+            s.append(color(fg::magenta));
+        }
+        s.append("SubroutineCall");
+        if (use_colors) {
+            s.append(color(fg::reset));
+            s.append(color(style::reset));
+        }
+        s.append(" ");
+        s.append(SUBROUTINE((ASR::asr_t*)x.m_name)->m_symtab->get_hash());
+        s.append(" ");
+        s.append(SUBROUTINE((ASR::asr_t*)x.m_name)->m_name);
+        s.append(" ");
+        s.append("[");
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_expr(*x.m_args[i]);
+            if (i < x.n_args-1) s.append(" ");
+        }
+        s.append("]");
         s.append(")");
     }
     void visit_Num(const ASR::Num_t &x) {

@@ -11,9 +11,6 @@
 --   * node (any ASR node)
 --
 -- Note: `symbol_table` contains `Program`, `Module`, `Subroutine`, `Function`, `Variable`.
--- TODO: add `parent_symbol_table` to `Variable`, and put it into the `symtab` also,
--- since it needs to have that link, that covers the rest: Program/Module/Subroutine/Function
--- Then one can get to the parent
 
 module ASR {
 
@@ -24,7 +21,7 @@ prog
     = Program(identifier name, stmt* body, symbol_table symtab)
 
 mod
-    = Module(identifier name, object symtab)
+    = Module(identifier name, symbol_table symtab)
 
 sub
     = Subroutine(identifier name, expr* args, stmt* body, tbind? bind,
@@ -37,7 +34,8 @@ var
 -- intent:
 -- =0 ... local variable,
 -- >0 ... dummy argument: 1=in, 2=out, 3=inout
-    = Variable(identifier name, int intent, ttype type)
+    = Variable(identifier name, int intent, ttype type,
+            symbol_table parent_symtab)
 
 stmt
     = Assignment(expr target, expr value)
@@ -65,7 +63,7 @@ expr
     | Num(object n, ttype type)
     | Str(string s, ttype type)
     | VariableOld(identifier name, string? intent, int? dummy, ttype type)
-    | Var(symbol_table symtab, var v)
+    | Var(var v)
     | Constant(constant value, ttype type)
 
 ttype

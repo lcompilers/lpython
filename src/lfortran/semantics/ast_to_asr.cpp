@@ -75,7 +75,7 @@ public:
             ASR::asr_t *arg_asr = current_scope->scope[arg_s];
             ASR::var_t *var = VAR(arg_asr);
             args.push_back(al, EXPR(ASR::make_Var_t(al, x.base.base.loc,
-                current_scope, var)));
+                var)));
         }
         asr = ASR::make_Subroutine_t(
             al, x.base.base.loc,
@@ -113,11 +113,11 @@ public:
         ASR::ttype_t *type;
         type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
         ASR::asr_t *return_var = ASR::make_Variable_t(al, x.base.base.loc,
-            x.m_name, intent_return_var, type);
+            x.m_name, intent_return_var, type, current_scope);
         current_scope->scope[std::string(x.m_name)] = return_var;
 
         ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
-            current_scope, VAR(return_var));
+            VAR(return_var));
 
         asr = ASR::make_Function_t(
             al, x.base.base.loc,
@@ -212,7 +212,8 @@ public:
             } else {
                 LFORTRAN_ASSERT(false);
             }
-            ASR::asr_t *v = ASR::make_Variable_t(al, loc, x.m_sym, s_intent, type);
+            ASR::asr_t *v = ASR::make_Variable_t(al, loc, x.m_sym, s_intent,
+                type, current_scope);
             current_scope->scope[sym] = v;
 
         }
@@ -427,7 +428,7 @@ public:
         }
         ASR::Variable_t *v = VARIABLE(scope->scope[std::string(var_name)]);
         ASR::var_t *var = (ASR::var_t*)v;
-        return ASR::make_Var_t(al, loc, scope, var);
+        return ASR::make_Var_t(al, loc, var);
     }
 
     ASR::Subroutine_t* resolve_subroutine(const Location &loc, const char* id) {
