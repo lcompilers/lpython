@@ -77,6 +77,7 @@ RUN(doloop_02)
 RUN(doloop_03)
 
 RUN(subroutines_01)
+RUN(subroutines_02)
 
 if (NOT LFORTRAN_SUBSET)
     RUN(arrays_01)
