@@ -252,7 +252,7 @@ static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
 #define ASSOCIATE(x, y, l) make_Associate_t(p.m_a, l, EXPR(x), EXPR(y))
 #define SUBROUTINE_CALL(name, args, l) make_SubroutineCall_t(p.m_a, l, \
         name2char(name), \
-        nullptr, 0)
+        DIMS2EXPRS(p.m_a, args), args.size())
 
 #define PRINT0(l) make_Print_t(p.m_a, l, nullptr, nullptr, 0)
 #define PRINT(args, l) make_Print_t(p.m_a, l, nullptr, EXPRS(args), args.size())
