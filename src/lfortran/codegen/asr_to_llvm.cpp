@@ -175,10 +175,6 @@ public:
     }
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
-        for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
-            std::cout << "VAR: " << arg->m_name << std::endl;
-        }
         llvm::FunctionType *function_type = llvm::FunctionType::get(
                 llvm::Type::getVoidTy(context), {}, false);
         llvm::Function *F = llvm::Function::Create(function_type,
@@ -187,15 +183,26 @@ public:
                 ".entry", F);
         builder->SetInsertPoint(BB);
 
+        for (size_t i=0; i<x.n_args; i++) {
+            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+            LFORTRAN_ASSERT(arg->m_intent == intent_in || arg->m_intent == intent_out || arg->m_intent == intent_inout);
+            // TODO: we are assuming integer here:
+            std::string arg_s = arg->m_name;
+            llvm::AllocaInst *ptr = builder->CreateAlloca(
+                llvm::Type::getInt64Ty(context), nullptr, "ARG_" + arg_s);
+            llvm_symtab[arg_s] = ptr;
+        }
+
         for (auto &item : x.m_symtab->scope) {
             if (item.second->type == ASR::asrType::var) {
                 ASR::var_t *v2 = (ASR::var_t*)(item.second);
                 ASR::Variable_t *v = (ASR::Variable_t *)v2;
-
-                // TODO: we are assuming integer here:
-                llvm::AllocaInst *ptr = builder->CreateAlloca(
-                    llvm::Type::getInt64Ty(context), nullptr, v->m_name);
-                llvm_symtab[std::string(v->m_name)] = ptr;
+                if (v->m_intent == intent_local || v->m_intent == intent_return_var) {
+                    // TODO: we are assuming integer here:
+                    llvm::AllocaInst *ptr = builder->CreateAlloca(
+                        llvm::Type::getInt64Ty(context), nullptr, v->m_name);
+                    llvm_symtab[std::string(v->m_name)] = ptr;
+                }
             }
         }
 
