@@ -1,1 +1,1 @@
-(TranslationUnit (SymbolTable c56cda33 {TESTFortran: (Program TESTFortran [(Print () [(Str "'Hello'" (Character 8 []))])] (SymbolTable 00000003 {}))}) [])
+(TranslationUnit (SymbolTable c56cda33 {TESTFortran: (Program (SymbolTable 00000003 {}) TESTFortran [(Print () [(Str "'Hello'" (Character 8 []))])])}) [])

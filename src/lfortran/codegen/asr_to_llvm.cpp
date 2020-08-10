@@ -511,7 +511,7 @@ void wrap_global_stmts_into_function(Allocator &al, ASR::TranslationUnit_t &unit
         Location loc;
         type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
         ASR::asr_t *return_var = ASR::make_Variable_t(al, loc,
-            fn_name, intent_return_var, type, fn_scope);
+            fn_scope, fn_name, intent_return_var, type);
         fn_scope->scope[std::string(fn_name)] = return_var;
 
         ASR::asr_t *return_var_ref = ASR::make_Var_t(al, loc,
@@ -527,6 +527,7 @@ void wrap_global_stmts_into_function(Allocator &al, ASR::TranslationUnit_t &unit
 
         ASR::asr_t *fn = ASR::make_Function_t(
             al, loc,
+            /* a_symtab */ fn_scope,
             /* a_name */ fn_name,
             /* a_args */ nullptr,
             /* n_args */ 0,
@@ -534,8 +535,7 @@ void wrap_global_stmts_into_function(Allocator &al, ASR::TranslationUnit_t &unit
             /* n_body */ body.size(),
             /* a_bind */ nullptr,
             /* a_return_var */ EXPR(return_var_ref),
-            /* a_module */ nullptr,
-            /* a_symtab */ fn_scope);
+            /* a_module */ nullptr);
         std::string sym_name = fn_name;
         if (unit.m_global_scope->scope.find(sym_name) != unit.m_global_scope->scope.end()) {
             throw SemanticError("Function already defined", fn->loc);
