@@ -196,6 +196,24 @@ public:
                     }
                 }
             }
+            Vec<ASR::dimension_t> dims;
+            dims.reserve(al, x.n_dims);
+            for (size_t i=0; i<x.n_dims; i++) {
+                ASR::dimension_t dim;
+                if (x.m_dims[i].m_start) {
+                    this->visit_expr(*x.m_dims[i].m_start);
+                    dim.m_start = EXPR(asr);
+                } else {
+                    dim.m_start = nullptr;
+                }
+                if (x.m_dims[i].m_end) {
+                    this->visit_expr(*x.m_dims[i].m_end);
+                    dim.m_end = EXPR(asr);
+                } else {
+                    dim.m_end = nullptr;
+                }
+                dims.push_back(al, dim);
+            }
             Location loc;
             // TODO: decl_t does not have location information...
             loc.first_column = 0;
@@ -204,11 +222,11 @@ public:
             loc.last_line = 0;
             ASR::ttype_t *type;
             if (s_type == 1) {
-                type = TYPE(ASR::make_Real_t(al, loc, 4, nullptr, 0));
+                type = TYPE(ASR::make_Real_t(al, loc, 4, dims.p, dims.size()));
             } else if (s_type == 2) {
-                type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+                type = TYPE(ASR::make_Integer_t(al, loc, 4, dims.p, dims.size()));
             } else if (s_type == 3) {
-                type = TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0));
+                type = TYPE(ASR::make_Logical_t(al, loc, 4, dims.p, dims.size()));
             } else {
                 LFORTRAN_ASSERT(false);
             }
