@@ -100,7 +100,7 @@ public:
         }
     }
     void visit_Program(const ASR::Program_t &x) {
-        // Generate code for nesed subroutines and functions first:
+        // Generate code for nested subroutines and functions first:
         for (auto &item : x.m_symtab->scope) {
             if (item.second->type == ASR::asrType::sub) {
                 ASR::Subroutine_t *s = SUBROUTINE(item.second);
