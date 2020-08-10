@@ -11,9 +11,25 @@ namespace ASR {
 
 struct SymbolTable {
     std::map<std::string, ASR::asr_t*> scope;
+    SymbolTable *parent;
+
+    SymbolTable(SymbolTable *parent) : parent{parent} {}
 
     // Determines a stable hash based on the content of the symbol table
     std::string get_hash();
+
+    // Resolves the symbol `name` recursively in current and parent scopes.
+    // Returns `nullptr` if symbol not found.
+    ASR::asr_t* resolve_symbol(const std::string &name) {
+        if (scope.find(name) == scope.end()) {
+            if (parent) {
+                return parent->resolve_symbol(name);
+            } else {
+                return nullptr;
+            }
+        }
+        return scope[name];
+    }
 };
 
 const int intent_local=0; // local variable (not a dummy argument)

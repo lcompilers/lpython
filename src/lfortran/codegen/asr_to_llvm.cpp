@@ -505,7 +505,7 @@ void wrap_global_stmts_into_function(Allocator &al, ASR::TranslationUnit_t &unit
         // Add an anonymous function
         const char* fn_name_orig = "f";
         char *fn_name = (char*)fn_name_orig;
-        SymbolTable *fn_scope = al.make_new<SymbolTable>();
+        SymbolTable *fn_scope = al.make_new<SymbolTable>(unit.m_global_scope);
 
         ASR::ttype_t *type;
         Location loc;

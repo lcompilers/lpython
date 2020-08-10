@@ -24,7 +24,7 @@ public:
 
     void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
         LFORTRAN_ASSERT(current_scope == nullptr);
-        current_scope = al.make_new<SymbolTable>();
+        current_scope = al.make_new<SymbolTable>(nullptr);
         for (size_t i=0; i<x.n_items; i++) {
             visit_ast(*x.m_items[i]);
         }
@@ -34,7 +34,7 @@ public:
 
     void visit_Program(const AST::Program_t &x) {
         SymbolTable *parent_scope = current_scope;
-        current_scope = al.make_new<SymbolTable>();
+        current_scope = al.make_new<SymbolTable>(parent_scope);
         for (size_t i=0; i<x.n_use; i++) {
             visit_unit_decl1(*x.m_use[i]);
         }
@@ -60,7 +60,7 @@ public:
 
     void visit_Subroutine(const AST::Subroutine_t &x) {
         SymbolTable *parent_scope = current_scope;
-        current_scope = al.make_new<SymbolTable>();
+        current_scope = al.make_new<SymbolTable>(parent_scope);
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
         }
@@ -96,7 +96,7 @@ public:
 
     void visit_Function(const AST::Function_t &x) {
         SymbolTable *parent_scope = current_scope;
-        current_scope = al.make_new<SymbolTable>();
+        current_scope = al.make_new<SymbolTable>(parent_scope);
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
         }
@@ -433,10 +433,11 @@ public:
     ASR::Subroutine_t* resolve_subroutine(const Location &loc, const char* id) {
         SymbolTable *scope = current_scope;
         std::string sub_name = id;
-        if (scope->scope.find(sub_name) == scope->scope.end()) {
+        ASR::asr_t *sub = scope->resolve_symbol(sub_name);
+        if (!sub) {
             throw SemanticError("Subroutine '" + sub_name + "' not declared", loc);
         }
-        return SUBROUTINE(scope->scope[std::string(sub_name)]);
+        return SUBROUTINE(sub);
     }
 
     void visit_Name(const AST::Name_t &x) {

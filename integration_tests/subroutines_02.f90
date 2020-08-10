@@ -11,9 +11,9 @@ call g(i, j)
 if (i /= 1) error stop
 if (j /= 0) error stop
 
-!call h(i, j)
-!if (i /= 1) error stop
-!if (j /= 0) error stop
+call h(i, j)
+if (i /= 1) error stop
+if (j /= 0) error stop
 
 contains
 
@@ -29,10 +29,10 @@ contains
     b = a - 1
     end subroutine
 
-!    subroutine h(a, b)
-!    integer, intent(in) :: a
-!    integer, intent(out) :: b
-!    call g(a, b)
-!    end subroutine
+    subroutine h(a, b)
+    integer, intent(in) :: a
+    integer, intent(out) :: b
+    call g(a, b)
+    end subroutine
 
 end program
