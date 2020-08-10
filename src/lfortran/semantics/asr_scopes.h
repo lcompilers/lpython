@@ -16,7 +16,8 @@ struct SymbolTable {
     SymbolTable(SymbolTable *parent) : parent{parent} {}
 
     // Determines a stable hash based on the content of the symbol table
-    std::string get_hash();
+    uint32_t get_hash_uint32(); // Returns the hash as an integer
+    std::string get_hash();     // Returns the hash as a hex string
 
     // Resolves the symbol `name` recursively in current and parent scopes.
     // Returns `nullptr` if symbol not found.
