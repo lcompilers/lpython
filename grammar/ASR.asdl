@@ -96,7 +96,7 @@ keyword = (identifier? arg, expr value)
 
 tbind = Bind(string lang, string name)
 
-array_index = ArrayIndex(expr? left, expr? right, expr? step)
+array_index = (expr? left, expr? right, expr? step)
 
 do_loop_head = (expr v, expr start, expr end, expr? increment)
 

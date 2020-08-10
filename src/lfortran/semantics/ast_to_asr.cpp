@@ -494,7 +494,7 @@ public:
             }
             case (ASR::asrType::var) : {
                 //Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
-                Vec<ASR::array_index_t*> args;
+                Vec<ASR::array_index_t> args;
                 args.reserve(al, 4);
                 ASR::ttype_t *type;
                 type = VARIABLE(v)->m_type;
