@@ -445,6 +445,63 @@ public:
         tmp = resolve_variable(x.base.base.loc, x.m_id);
     }
 
+    void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
+        SymbolTable *scope = current_scope;
+        std::string var_name = x.m_func;
+        ASR::asr_t *v = scope->resolve_symbol(var_name);
+        if (!v) {
+            if (var_name == "size") {
+                // Intrinsic function size(), add it to the global scope
+                ASR::TranslationUnit_t *unit = (ASR::TranslationUnit_t*)asr;
+                const char* fn_name_orig = "size";
+                char *fn_name = (char*)fn_name_orig;
+                SymbolTable *fn_scope = al.make_new<SymbolTable>(unit->m_global_scope);
+                ASR::ttype_t *type;
+                Location loc;
+                type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+                ASR::asr_t *return_var = ASR::make_Variable_t(al, loc,
+                    fn_scope, fn_name, intent_return_var, type);
+                fn_scope->scope[std::string(fn_name)] = return_var;
+                ASR::asr_t *return_var_ref = ASR::make_Var_t(al, loc,
+                    VAR(return_var));
+                ASR::asr_t *fn = ASR::make_Function_t(
+                    al, loc,
+                    /* a_symtab */ fn_scope,
+                    /* a_name */ fn_name,
+                    /* a_args */ nullptr,
+                    /* n_args */ 0,
+                    /* a_body */ nullptr,
+                    /* n_body */ 0,
+                    /* a_bind */ nullptr,
+                    /* a_return_var */ EXPR(return_var_ref),
+                    /* a_module */ nullptr);
+                std::string sym_name = fn_name;
+                unit->m_global_scope->scope[sym_name] = fn;
+                v = fn;
+            } else {
+                throw SemanticError("Function or array '" + var_name
+                    + "' not declared", x.base.base.loc);
+            }
+        }
+        switch (v->type) {
+            case (ASR::asrType::fn) : {
+                Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
+                ASR::ttype_t *type;
+                type = VARIABLE((ASR::asr_t*)(EXPR_VAR((ASR::asr_t*)(FUNCTION(v)->m_return_var))->m_v))->m_type;
+                tmp = ASR::make_FuncCall_t(al, x.base.base.loc,
+                    (ASR::fn_t*)v, args.p, args.size(), nullptr, 0, type);
+                break;
+            }
+            /*
+            case (ASR::asrType::var) : {
+                break;
+            }
+            */
+            default : throw SemanticError("Not a function or array",
+                    x.base.base.loc);
+        }
+    }
+
     void visit_Num(const AST::Num_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 8, nullptr, 0));
