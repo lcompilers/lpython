@@ -165,6 +165,35 @@ public:
         builder->CreateRet(ret_val2);
     }
 
+    void visit_Subroutine(const ASR::Subroutine_t &x) {
+        // TODO: generate arguments
+        llvm::FunctionType *function_type = llvm::FunctionType::get(
+                llvm::Type::getVoidTy(context), {}, false);
+        llvm::Function *F = llvm::Function::Create(function_type,
+                llvm::Function::ExternalLinkage, x.m_name, module.get());
+        llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
+                ".entry", F);
+        builder->SetInsertPoint(BB);
+
+        for (auto &item : x.m_symtab->scope) {
+            if (item.second->type == ASR::asrType::var) {
+                ASR::var_t *v2 = (ASR::var_t*)(item.second);
+                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+
+                // TODO: we are assuming integer here:
+                llvm::AllocaInst *ptr = builder->CreateAlloca(
+                    llvm::Type::getInt64Ty(context), nullptr, v->m_name);
+                llvm_symtab[std::string(v->m_name)] = ptr;
+            }
+        }
+
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+        }
+
+        builder->CreateRetVoid();
+    }
+
     void visit_Assignment(const ASR::Assignment_t &x) {
         //this->visit_expr(*x.m_target);
         ASR::var_t *t1 = EXPR_VAR((ASR::asr_t*)(x.m_target))->m_v;
