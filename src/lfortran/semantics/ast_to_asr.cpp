@@ -46,10 +46,10 @@ public:
         }
         asr = ASR::make_Program_t(
             al, x.base.base.loc,
+            /* a_symtab */ current_scope,
             /* a_name */ x.m_name,
             /* a_body */ nullptr,
-            /* n_body */ 0,
-            /* a_symtab */ current_scope);
+            /* n_body */ 0);
         std::string sym_name = x.m_name;
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             throw SemanticError("Program already defined", asr->loc);
@@ -79,13 +79,13 @@ public:
         }
         asr = ASR::make_Subroutine_t(
             al, x.base.base.loc,
+            /* a_symtab */ current_scope,
             /* a_name */ x.m_name,
             /* a_args */ args.p,
             /* n_args */ args.size(),
             /* a_body */ nullptr,
             /* n_body */ 0,
-            /* a_bind */ nullptr,
-            /* a_symtab */ current_scope);
+            /* a_bind */ nullptr);
         std::string sym_name = x.m_name;
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             throw SemanticError("Subroutine already defined", asr->loc);
@@ -113,7 +113,7 @@ public:
         ASR::ttype_t *type;
         type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
         ASR::asr_t *return_var = ASR::make_Variable_t(al, x.base.base.loc,
-            x.m_name, intent_return_var, type, current_scope);
+            current_scope, x.m_name, intent_return_var, type);
         current_scope->scope[std::string(x.m_name)] = return_var;
 
         ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
@@ -121,6 +121,7 @@ public:
 
         asr = ASR::make_Function_t(
             al, x.base.base.loc,
+            /* a_symtab */ current_scope,
             /* a_name */ x.m_name,
             /* a_args */ nullptr,
             /* n_args */ 0,
@@ -128,8 +129,7 @@ public:
             /* n_body */ 0,
             /* a_bind */ nullptr,
             /* a_return_var */ EXPR(return_var_ref),
-            /* a_module */ nullptr,
-            /* a_symtab */ current_scope);
+            /* a_module */ nullptr);
         std::string sym_name = x.m_name;
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             throw SemanticError("Function already defined", asr->loc);
@@ -212,8 +212,8 @@ public:
             } else {
                 LFORTRAN_ASSERT(false);
             }
-            ASR::asr_t *v = ASR::make_Variable_t(al, loc, x.m_sym, s_intent,
-                type, current_scope);
+            ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
+                x.m_sym, s_intent, type);
             current_scope->scope[sym] = v;
 
         }

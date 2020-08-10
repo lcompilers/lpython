@@ -18,24 +18,24 @@ unit
     = TranslationUnit(symbol_table global_scope, node* items)
 
 prog
-    = Program(identifier name, stmt* body, symbol_table symtab)
+    = Program(symbol_table symtab, identifier name, stmt* body)
 
 mod
-    = Module(identifier name, symbol_table symtab)
+    = Module(symbol_table symtab, identifier name)
 
 sub
-    = Subroutine(identifier name, expr* args, stmt* body, tbind? bind,
-            symbol_table symtab)
+    = Subroutine(symbol_table symtab, identifier name, expr* args, stmt* body,
+        tbind? bind)
 
 fn
-    = Function(identifier name, expr* args, stmt* body, tbind? bind,
-            expr return_var, string? module, symbol_table symtab)
+    = Function(symbol_table symtab, identifier name, expr* args, stmt* body,
+        tbind? bind, expr return_var, string? module)
 var
 -- intent:
 -- =0 ... local variable,
 -- >0 ... dummy argument: 1=in, 2=out, 3=inout
-    = Variable(identifier name, int intent, ttype type,
-            symbol_table parent_symtab)
+    = Variable(symbol_table parent_symtab, identifier name, int intent,
+            ttype type)
 
 stmt
     = Assignment(expr target, expr value)
