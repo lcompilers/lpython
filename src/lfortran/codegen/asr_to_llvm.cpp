@@ -411,6 +411,21 @@ public:
         exit(context, *module, *builder, exit_code);
     }
 
+    void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
+        ASR::Subroutine_t *s = SUBROUTINE((ASR::asr_t*)x.m_name);
+        llvm::Function *fn = module->getFunction(s->m_name);
+        if (!fn) {
+            throw CodeGenError("Subroutine code not generated for '"
+                + std::string(s->m_name) + "'");
+        }
+        std::vector<llvm::Value *> args;
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_expr(*x.m_args[i]);
+            args.push_back(tmp);
+        }
+        builder->CreateCall(fn, args);
+    }
+
 };
 
 // Edits the ASR inplace.
