@@ -494,7 +494,7 @@ class PickleVisitorVisitor(ASDLVisitor):
                 assert not field.seq
                 if field.name == "parent_symtab":
                     level = 2
-                    self.emit('s.append("(SymbolTable)");', level)
+                    self.emit('s.append(x.m_%s->get_hash());' % field.name, level)
                 else:
                     level = 2
                     self.emit('s.append("(SymbolTable ");', level)
