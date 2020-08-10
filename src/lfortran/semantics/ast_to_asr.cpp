@@ -67,18 +67,22 @@ public:
         // TODO: save the arguments into `a_args` and `n_args`.
         // We need to get Variables settled first, then it will be just a
         // reference to a variable.
+        Vec<ASR::var_t*> args;
+        args.reserve(al, x.n_args);
         for (size_t i=0; i<x.n_args; i++) {
             char *arg=x.m_args[i].m_arg;
-            std::string args = arg;
-            if (current_scope->scope.find(args) == current_scope->scope.end()) {
-                throw SemanticError("Dummy argument '" + args + "' not defined", x.base.base.loc);
+            std::string arg_s = arg;
+            if (current_scope->scope.find(arg_s) == current_scope->scope.end()) {
+                throw SemanticError("Dummy argument '" + arg_s + "' not defined", x.base.base.loc);
             }
+            ASR::asr_t *arg_asr = current_scope->scope[arg_s];
+            args.push_back(al, VAR(arg_asr));
         }
         asr = ASR::make_Subroutine_t(
             al, x.base.base.loc,
             /* a_name */ x.m_name,
-            /* a_args */ nullptr,
-            /* n_args */ 0,
+            /* a_args */ args.p,
+            /* n_args */ args.size(),
             /* a_body */ nullptr,
             /* n_body */ 0,
             /* a_bind */ nullptr,
