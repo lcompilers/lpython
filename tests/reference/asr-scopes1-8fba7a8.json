@@ -1,0 +1,13 @@
+{
+    "basename": "asr-scopes1-8fba7a8",
+    "cmd": "lfortran --show-asr {infile} -o {outfile}",
+    "infile": "tests/scopes1.f90",
+    "infile_hash": "48ffe7d9bb1021077b7bec62634ec2682cbfc211123626d338ba0c9e",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-scopes1-8fba7a8.stdout",
+    "stdout_hash": "3d982e727b77d5962d2a745af10a67a17e5c0e4fd39b4e0201191371",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
