@@ -76,11 +76,11 @@ RUN(doloop_01)
 RUN(doloop_02)
 RUN(doloop_03)
 
+RUN(subroutines_01)
+
 if (NOT LFORTRAN_SUBSET)
     RUN(arrays_01)
     RUN(arrays_02)
-
-    RUN(subroutines_01)
 
     RUN(intrinsics_01)
 endif()
