@@ -181,7 +181,8 @@ public:
             LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
             // TODO: we are assuming integer here:
             LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
-            args.push_back(llvm::Type::getInt64Ty(context));
+            // We pass all arguments as pointers for now
+            args.push_back(llvm::Type::getInt64PtrTy(context));
         }
 
         llvm::FunctionType *function_type = llvm::FunctionType::get(
