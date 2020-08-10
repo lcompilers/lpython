@@ -27,11 +27,11 @@ mod
     = Module(identifier name, object symtab)
 
 sub
-    = Subroutine(identifier name, var* args, stmt* body, tbind? bind,
+    = Subroutine(identifier name, expr* args, stmt* body, tbind? bind,
             symbol_table symtab)
 
 fn
-    = Function(identifier name, var* args, stmt* body, tbind? bind,
+    = Function(identifier name, expr* args, stmt* body, tbind? bind,
             expr return_var, string? module, symbol_table symtab)
 var
 -- intent:
