@@ -511,7 +511,7 @@ void wrap_global_stmts_into_function(Allocator &al, ASR::TranslationUnit_t &unit
         Location loc;
         type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
         ASR::asr_t *return_var = ASR::make_Variable_t(al, loc,
-            fn_name, intent_return_var, type);
+            fn_name, intent_return_var, type, fn_scope);
         fn_scope->scope[std::string(fn_name)] = return_var;
 
         ASR::asr_t *return_var_ref = ASR::make_Var_t(al, loc,

@@ -492,20 +492,24 @@ class PickleVisitorVisitor(ASDLVisitor):
             elif field.type == "symbol_table":
                 assert not field.opt
                 assert not field.seq
-                level = 2
-                self.emit('s.append("(SymbolTable ");', level)
-                self.emit('s.append(x.m_%s->get_hash());' % field.name, level)
-                self.emit('s.append(" {");', level)
-                self.emit('{', level)
-                self.emit('    size_t i = 0;', level)
-                self.emit('    for (auto &a : x.m_%s->scope) {' % field.name, level)
-                self.emit('        s.append(a.first + ": ");', level)
-                self.emit('        this->visit_asr(*a.second);', level)
-                self.emit('        if (i < x.m_%s->scope.size()-1) s.append(", ");' % field.name, level)
-                self.emit('        i++;', level)
-                self.emit('    }', level)
-                self.emit('}', level)
-                self.emit('s.append("})");', level)
+                if field.name == "parent_symtab":
+                    level = 2
+                    self.emit('s.append("(SymbolTable)");', level)
+                else:
+                    level = 2
+                    self.emit('s.append("(SymbolTable ");', level)
+                    self.emit('s.append(x.m_%s->get_hash());' % field.name, level)
+                    self.emit('s.append(" {");', level)
+                    self.emit('{', level)
+                    self.emit('    size_t i = 0;', level)
+                    self.emit('    for (auto &a : x.m_%s->scope) {' % field.name, level)
+                    self.emit('        s.append(a.first + ": ");', level)
+                    self.emit('        this->visit_asr(*a.second);', level)
+                    self.emit('        if (i < x.m_%s->scope.size()-1) s.append(", ");' % field.name, level)
+                    self.emit('        i++;', level)
+                    self.emit('    }', level)
+                    self.emit('}', level)
+                    self.emit('s.append("})");', level)
             elif field.type == "string" and not field.seq:
                 if field.opt:
                     self.emit("if (x.m_%s) {" % field.name, 2)

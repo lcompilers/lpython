@@ -113,7 +113,7 @@ public:
         ASR::ttype_t *type;
         type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
         ASR::asr_t *return_var = ASR::make_Variable_t(al, x.base.base.loc,
-            x.m_name, intent_return_var, type);
+            x.m_name, intent_return_var, type, current_scope);
         current_scope->scope[std::string(x.m_name)] = return_var;
 
         ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
@@ -212,7 +212,8 @@ public:
             } else {
                 LFORTRAN_ASSERT(false);
             }
-            ASR::asr_t *v = ASR::make_Variable_t(al, loc, x.m_sym, s_intent, type);
+            ASR::asr_t *v = ASR::make_Variable_t(al, loc, x.m_sym, s_intent,
+                type, current_scope);
             current_scope->scope[sym] = v;
 
         }
