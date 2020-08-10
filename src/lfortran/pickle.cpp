@@ -189,7 +189,7 @@ public:
             s.append(color(style::reset));
         }
         s.append(" ");
-        s.append(x.m_symtab->get_hash());
+        s.append(VARIABLE((ASR::asr_t*)x.m_v)->m_parent_symtab->get_hash());
         s.append(" ");
         s.append(VARIABLE((ASR::asr_t*)x.m_v)->m_name);
         s.append(")");

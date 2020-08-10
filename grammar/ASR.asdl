@@ -63,7 +63,7 @@ expr
     | Num(object n, ttype type)
     | Str(string s, ttype type)
     | VariableOld(identifier name, string? intent, int? dummy, ttype type)
-    | Var(symbol_table symtab, var v)
+    | Var(var v)
     | Constant(constant value, ttype type)
 
 ttype

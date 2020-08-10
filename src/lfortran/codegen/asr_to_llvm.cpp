@@ -515,7 +515,7 @@ void wrap_global_stmts_into_function(Allocator &al, ASR::TranslationUnit_t &unit
         fn_scope->scope[std::string(fn_name)] = return_var;
 
         ASR::asr_t *return_var_ref = ASR::make_Var_t(al, loc,
-            fn_scope, VAR(return_var));
+            VAR(return_var));
 
         ASR::expr_t *target = EXPR(return_var_ref);
         ASR::expr_t *value = EXPR(unit.m_items[0]);
