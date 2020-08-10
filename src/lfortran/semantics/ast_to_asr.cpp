@@ -493,9 +493,17 @@ public:
                 break;
             }
             case (ASR::asrType::var) : {
-                //Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
                 Vec<ASR::array_index_t> args;
-                args.reserve(al, 4);
+                args.reserve(al, x.n_args);
+                for (size_t i=0; i<x.n_args; i++) {
+                    visit_expr(*x.m_args[i]);
+                    ASR::array_index_t ai;
+                    ai.m_left = nullptr;
+                    ai.m_right = EXPR(tmp);
+                    ai.m_step = nullptr;
+                    args.push_back(al, ai);
+                }
+
                 ASR::ttype_t *type;
                 type = VARIABLE(v)->m_type;
                 tmp = ASR::make_ArrayRef_t(al, x.base.base.loc,
