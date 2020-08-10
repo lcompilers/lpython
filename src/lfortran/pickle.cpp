@@ -199,7 +199,7 @@ public:
             s.append(color(style::reset));
         }
         s.append(" ");
-        s.append(SUBROUTINE((ASR::asr_t*)x.m_name)->m_symtab->get_hash());
+        s.append(SUBROUTINE((ASR::asr_t*)x.m_name)->m_symtab->parent->get_hash());
         s.append(" ");
         s.append(SUBROUTINE((ASR::asr_t*)x.m_name)->m_name);
         s.append(" ");
