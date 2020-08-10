@@ -178,7 +178,7 @@ public:
         std::vector<llvm::Type*> args;
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
-            LFORTRAN_ASSERT(arg->m_intent == intent_in || arg->m_intent == intent_out || arg->m_intent == intent_inout);
+            LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
             // TODO: we are assuming integer here:
             LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
             args.push_back(llvm::Type::getInt64Ty(context));
@@ -195,7 +195,7 @@ public:
         size_t i = 0;
         for (llvm::Argument &llvm_arg : F->args()) {
             ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
-            LFORTRAN_ASSERT(arg->m_intent == intent_in || arg->m_intent == intent_out || arg->m_intent == intent_inout);
+            LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
             std::string arg_s = arg->m_name;
             llvm_arg.setName(arg_s);
             llvm_symtab[arg_s] = &llvm_arg;
@@ -206,7 +206,7 @@ public:
             if (item.second->type == ASR::asrType::var) {
                 ASR::var_t *v2 = (ASR::var_t*)(item.second);
                 ASR::Variable_t *v = (ASR::Variable_t *)v2;
-                if (v->m_intent == intent_local || v->m_intent == intent_return_var) {
+                if (!is_arg_dummy(v->m_intent)) {
                     // TODO: we are assuming integer here:
                     llvm::AllocaInst *ptr = builder->CreateAlloca(
                         llvm::Type::getInt64Ty(context), nullptr, v->m_name);
