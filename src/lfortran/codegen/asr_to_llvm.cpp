@@ -82,7 +82,7 @@ public:
     llvm::BasicBlock *current_loophead, *current_loopend;
 
     // TODO: This is not scoped, should lookup by hashes instead:
-    std::map<std::string, llvm::AllocaInst*> llvm_symtab;
+    std::map<std::string, llvm::Value*> llvm_symtab;
 
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context} {}
 
@@ -175,22 +175,31 @@ public:
     }
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
+        std::vector<llvm::Type*> args;
+        for (size_t i=0; i<x.n_args; i++) {
+            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+            LFORTRAN_ASSERT(arg->m_intent == intent_in || arg->m_intent == intent_out || arg->m_intent == intent_inout);
+            // TODO: we are assuming integer here:
+            LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
+            args.push_back(llvm::Type::getInt64Ty(context));
+        }
+
         llvm::FunctionType *function_type = llvm::FunctionType::get(
-                llvm::Type::getVoidTy(context), {}, false);
+                llvm::Type::getVoidTy(context), args, false);
         llvm::Function *F = llvm::Function::Create(function_type,
                 llvm::Function::ExternalLinkage, x.m_name, module.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
                 ".entry", F);
         builder->SetInsertPoint(BB);
 
-        for (size_t i=0; i<x.n_args; i++) {
+        size_t i = 0;
+        for (llvm::Argument &llvm_arg : F->args()) {
             ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
             LFORTRAN_ASSERT(arg->m_intent == intent_in || arg->m_intent == intent_out || arg->m_intent == intent_inout);
-            // TODO: we are assuming integer here:
             std::string arg_s = arg->m_name;
-            llvm::AllocaInst *ptr = builder->CreateAlloca(
-                llvm::Type::getInt64Ty(context), nullptr, "ARG_" + arg_s);
-            llvm_symtab[arg_s] = ptr;
+            llvm_arg.setName(arg_s);
+            llvm_symtab[arg_s] = &llvm_arg;
+            i++;
         }
 
         for (auto &item : x.m_symtab->scope) {
