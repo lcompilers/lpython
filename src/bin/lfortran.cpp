@@ -14,6 +14,13 @@
 #include <lfortran/codegen/evaluator.h>
 #include <lfortran/config.h>
 
+namespace {
+
+enum Backend {
+    llvm, cpp
+};
+
+
 void section(const std::string &s)
 {
     std::cout << color(LFortran::style::bold) << color(LFortran::fg::blue) << s << color(LFortran::style::reset) << color(LFortran::fg::reset) << std::endl;
@@ -320,10 +327,64 @@ int compile_to_assembly_file(const std::string &infile, const std::string &outfi
 }
 #endif
 
+int compile_to_object_file_cpp(const std::string &infile, const std::string &outfile,
+        bool assembly=false)
+{
+    std::string input = read_file(infile);
+
+    // Src -> AST
+    Allocator al(64*1024*1024);
+    LFortran::AST::TranslationUnit_t* ast;
+    try {
+        ast = LFortran::parse2(al, input);
+    } catch (const LFortran::TokenizerError &e) {
+        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
+        return 1;
+    } catch (const LFortran::ParserError &e) {
+        std::cerr << "Parsing error: " << e.msg() << std::endl;
+        return 2;
+    }
+
+    // AST -> ASR
+    LFortran::ASR::asr_t* asr = LFortran::ast_to_asr(al, *ast);
+
+    // ASR -> C++
+    std::string src;
+    try {
+        src = LFortran::asr_to_cpp(*asr);
+    } catch (const LFortran::CodeGenError &e) {
+        std::cerr << "Code generation error: " << e.msg() << std::endl;
+        return 5;
+    }
+
+    // C++ -> Machine code (saves to an object file)
+    if (assembly) {
+        throw LFortran::LFortranException("Not implemented");
+    } else {
+        std::string cppfile = outfile + ".tmp.cpp";
+        {
+            std::ofstream out;
+            out.open(cppfile);
+            out << src;
+        }
+
+        std::string CXX = "g++";
+        std::string cmd = CXX + " -o " + outfile + " -c " + cppfile;
+        int err = system(cmd.c_str());
+        if (err) {
+            std::cout << "The command '" + cmd + "' failed." << std::endl;
+            return 11;
+        }
+    }
+
+    return 0;
+}
+
 // infile is an object file
 // outfile will become the executable
 int link_executable(const std::string &infile, const std::string &outfile,
-    const std::string &runtime_library_dir, bool static_executable=false)
+    const std::string &runtime_library_dir, Backend backend,
+    bool static_executable=false)
 {
     /*
     The `gcc` line for dynamic linking that is constructed below:
@@ -381,22 +442,39 @@ int link_executable(const std::string &infile, const std::string &outfile,
 
 
     */
-    std::string CC = "gcc";
-    std::string base_path = runtime_library_dir;
-    std::string options;
-    std::string runtime_lib = "lfortran_runtime";
-    if (static_executable) {
-        options += " -static ";
-        runtime_lib = "lfortran_runtime_static";
+    if (backend == Backend::llvm) {
+        std::string CC = "gcc";
+        std::string base_path = runtime_library_dir;
+        std::string options;
+        std::string runtime_lib = "lfortran_runtime";
+        if (static_executable) {
+            options += " -static ";
+            runtime_lib = "lfortran_runtime_static";
+        }
+        std::string cmd = CC + options + " -o " + outfile + " " + infile + " -L"
+            + base_path + " -Wl,-rpath=" + base_path + " -l" + runtime_lib + " -lm";
+        int err = system(cmd.c_str());
+        if (err) {
+            std::cout << "The command '" + cmd + "' failed." << std::endl;
+            return 10;
+        }
+        return 0;
+    } else if (backend == Backend::cpp) {
+        std::string CXX = "g++";
+        std::string options;
+        if (static_executable) {
+            options += " -static ";
+        }
+        std::string cmd = CXX + options + " -o " + outfile + " " + infile + " -lm";
+        int err = system(cmd.c_str());
+        if (err) {
+            std::cout << "The command '" + cmd + "' failed." << std::endl;
+            return 10;
+        }
+        return 0;
+    } else {
+        LFORTRAN_ASSERT(false);
     }
-    std::string cmd = CC + options + " -o " + outfile + " " + infile + " -L"
-        + base_path + " -Wl,-rpath=" + base_path + " -l" + runtime_lib + " -lm";
-    int err = system(cmd.c_str());
-    if (err) {
-        std::cout << "The command '" + cmd + "' failed." << std::endl;
-        return 10;
-    }
-    return 0;
 }
 
 void get_executable_path(std::string &executable_path, int &dirname_length)
@@ -431,12 +509,15 @@ std::string get_runtime_library_dir()
     }
 }
 
+} // anonymous namespace
+
 int main(int argc, char *argv[])
 {
 #if defined(HAVE_LFORTRAN_STACKTRACE)
     LFortran::print_stack_on_segfault();
 #endif
     std::string runtime_library_dir = get_runtime_library_dir();
+    Backend backend;
 
     bool arg_S = false;
     bool arg_c = false;
@@ -452,6 +533,7 @@ int main(int argc, char *argv[])
     bool show_cpp = false;
     bool show_asm = false;
     bool static_link = false;
+    std::string arg_backend = "llvm";
 
     CLI::App app{"LFortran: modern interactive LLVM-based Fortran compiler"};
     // Standard options compatible with gfortran, gcc or clang
@@ -472,6 +554,7 @@ int main(int argc, char *argv[])
     app.add_flag("--show-cpp", show_cpp, "Show C++ translation source for the given file and exit");
     app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
     app.add_flag("--static", static_link, "Create a static executable");
+    app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp)", true);
     CLI11_PARSE(app, argc, argv);
 
     if (arg_version) {
@@ -482,6 +565,15 @@ int main(int argc, char *argv[])
     }
 
     if (arg_E) {
+        return 1;
+    }
+
+    if (arg_backend == "llvm") {
+        backend = Backend::llvm;
+    } else if (arg_backend == "cpp") {
+        backend = Backend::cpp;
+    } else {
+        std::cerr << "The backend must be one of: llvm, cpp." << std::endl;
         return 1;
     }
 
@@ -537,33 +629,55 @@ int main(int argc, char *argv[])
         return emit_cpp(arg_file);
     }
     if (arg_S) {
+        if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-        return compile_to_assembly_file(arg_file, outfile);
+            return compile_to_assembly_file(arg_file, outfile);
 #else
-        std::cerr << "The -S option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
-        return 1;
+            std::cerr << "The -S option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+            return 1;
 #endif
+        } else if (backend == Backend::cpp) {
+            std::cerr << "The C++ backend does not work with the -S option yet." << std::endl;
+            return 1;
+        } else {
+            LFORTRAN_ASSERT(false);
+        }
     }
     if (arg_c) {
+        if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-        return compile_to_object_file(arg_file, outfile);
+            return compile_to_object_file(arg_file, outfile);
 #else
-        std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
-        return 1;
+            std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+            return 1;
 #endif
+        } else if (backend == Backend::cpp) {
+            return compile_to_object_file_cpp(arg_file, outfile);
+        } else {
+            LFORTRAN_ASSERT(false);
+        }
     }
 
     if (ends_with(arg_file, ".f90")) {
         std::string tmp_o = outfile + ".tmp.o";
+        int err;
+        if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-        int err = compile_to_object_file(arg_file, tmp_o);
-        if (err) return err;
+            err = compile_to_object_file(arg_file, tmp_o);
 #else
-        std::cerr << "Compiling Fortran files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
-        return 1;
+            std::cerr << "Compiling Fortran files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+            return 1;
 #endif
-        return link_executable(tmp_o, outfile, runtime_library_dir, static_link);
+        } else if (backend == Backend::cpp) {
+            err = compile_to_object_file_cpp(arg_file, tmp_o);
+        } else {
+            LFORTRAN_ASSERT(false);
+        }
+        if (err) return err;
+        return link_executable(tmp_o, outfile, runtime_library_dir,
+                backend, static_link);
     } else {
-        return link_executable(arg_file, outfile, runtime_library_dir, static_link);
+        return link_executable(arg_file, outfile, runtime_library_dir,
+                backend, static_link);
     }
 }

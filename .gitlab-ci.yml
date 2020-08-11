@@ -107,7 +107,21 @@ cxx_binary_tests:
     - ./run_tests.py
     - PATH="`pwd`/src/bin:$PATH" ./test_lfort_cmdline lfortran
     - cd integration_tests
-    - FC=../src/bin/lfortran cmake -DLFORTRAN_SUBSET=on .
+    - mkdir build-gfortran
+    - cd build-gfortran
+    - FC=gfortran cmake ..
+    - make
+    - ctest
+    - cd ..
+    - mkdir build-lfortran-llvm
+    - cd build-lfortran-llvm
+    - FC=../../src/bin/lfortran cmake -DLFORTRAN_BACKEND=llvm ..
+    - make
+    - ctest
+    - cd ..
+    - mkdir build-lfortran-cpp
+    - cd build-lfortran-cpp
+    - FC=../../src/bin/lfortran cmake -DLFORTRAN_BACKEND=cpp ..
     - make
     - ctest
 

@@ -12,7 +12,7 @@ if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
     message(FATAL_ERROR "CMAKE_BUILD_TYPE must be one of: Debug, Release (current value: '${CMAKE_BUILD_TYPE}')")
 endif ()
 
-set(LFORTRAN_SUBSET no CACHE STRING "Only compile the LFortran subset")
+set(LFORTRAN_BACKEND no CACHE STRING "Only compile the LFortran subset for the given backend")
 
 enable_testing()
 
@@ -30,12 +30,16 @@ else ()
     message("C compiler flags      : ${CMAKE_C_FLAGS_RELEASE}")
 endif ()
 message("Installation prefix: ${CMAKE_INSTALL_PREFIX}")
-message("LFORTRAN_SUBSET: ${LFORTRAN_SUBSET}")
+message("LFORTRAN_BACKEND: ${LFORTRAN_BACKEND}")
 
 
 
 macro(RUN name)
     add_executable(${name} ${name}.f90)
+    if (LFORTRAN_BACKEND STREQUAL "cpp")
+        target_compile_options(${name} PUBLIC --backend=${LFORTRAN_BACKEND})
+        target_link_options(${name} PUBLIC --backend=${LFORTRAN_BACKEND})
+    endif()
     add_test(${name} ${CURRENT_BINARY_DIR}/${name})
     set(extra_args ${ARGN})
     if (extra_args STREQUAL "fail")
@@ -43,43 +47,46 @@ macro(RUN name)
     endif()
 endmacro(RUN)
 
-macro(COMPILE name)
-    add_executable(${name} ${name}.f90)
-endmacro(COMPILE)
 
-
-RUN(program_cmake_01)
-RUN(program_cmake_02)
-
-RUN(abort_01 fail)
-
-RUN(cond_01)
-
-RUN(expr_01 fail)
-RUN(expr_02)
-RUN(expr_03)
-
-RUN(variables_01)
-RUN(variables_02)
-RUN(variables_03)
-
-RUN(if_01)
-RUN(if_02 fail)
-RUN(if_03 fail)
+# GFortran + LFortran LLVM + LFortran C++
 
 RUN(print_01)
 
-RUN(while_01)
-RUN(while_02)
+if (NOT LFORTRAN_BACKEND STREQUAL "cpp")
+    # GFortran + LFortran LLVM
+    RUN(program_cmake_01)
+    RUN(program_cmake_02)
 
-RUN(doloop_01)
-RUN(doloop_02)
-RUN(doloop_03)
+    RUN(abort_01 fail)
 
-RUN(subroutines_01)
-RUN(subroutines_02)
+    RUN(cond_01)
 
-if (NOT LFORTRAN_SUBSET)
+    RUN(expr_01 fail)
+    RUN(expr_02)
+    RUN(expr_03)
+
+    RUN(variables_01)
+    RUN(variables_02)
+    RUN(variables_03)
+
+    RUN(if_01)
+    RUN(if_02 fail)
+    RUN(if_03 fail)
+
+
+    RUN(while_01)
+    RUN(while_02)
+
+    RUN(doloop_01)
+    RUN(doloop_02)
+    RUN(doloop_03)
+
+    RUN(subroutines_01)
+    RUN(subroutines_02)
+endif()
+
+if (NOT LFORTRAN_BACKEND)
+    # GFortran
     RUN(arrays_01)
     RUN(arrays_02)
 
