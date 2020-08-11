@@ -36,16 +36,16 @@ message("LFORTRAN_BACKEND: ${LFORTRAN_BACKEND}")
 
 macro(RUN name)
     add_executable(${name} ${name}.f90)
+    if (LFORTRAN_BACKEND STREQUAL "cpp")
+        target_compile_options(${name} PUBLIC --backend=${LFORTRAN_BACKEND})
+        target_link_options(${name} PUBLIC --backend=${LFORTRAN_BACKEND})
+    endif()
     add_test(${name} ${CURRENT_BINARY_DIR}/${name})
     set(extra_args ${ARGN})
     if (extra_args STREQUAL "fail")
         set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
     endif()
 endmacro(RUN)
-
-macro(COMPILE name)
-    add_executable(${name} ${name}.f90)
-endmacro(COMPILE)
 
 
 # GFortran + LFortran LLVM + LFortran C++
