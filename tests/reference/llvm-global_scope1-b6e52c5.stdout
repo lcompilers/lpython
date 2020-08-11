@@ -1,0 +1,5 @@
+; ModuleID = 'LFortran'
+source_filename = "LFortran"
+
+@x = external global i64
+

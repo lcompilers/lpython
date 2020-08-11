@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-global_scope2-1f2da82",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
+    "infile": "tests/global_scope2.f90",
+    "infile_hash": "e511f118b9a040b5e7a3ff2ad75cd7942dee08d3a21bd4ca5cd668b3",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-global_scope2-1f2da82.stdout",
+    "stdout_hash": "2894c921ea219d6f8fcbe3c269827239911627822d2d4293a313eee5",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
