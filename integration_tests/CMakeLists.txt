@@ -71,10 +71,11 @@ RUN(if_01)
 RUN(if_02 fail)
 RUN(if_03 fail)
 
+RUN(while_01)
+
 if (NOT LFORTRAN_BACKEND STREQUAL "cpp")
     # GFortran + LFortran LLVM
 
-    RUN(while_01)
     RUN(while_02)
 
     RUN(doloop_01)
