@@ -29,6 +29,7 @@ public:
     std::string src;
     int indentation_level;
     int indentation_spaces;
+    bool last_unary_plus;
     bool last_binary_plus;
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
@@ -266,6 +267,7 @@ public:
             }
             src = fn_name + "(" + args + ")";
         }
+        last_unary_plus = false;
         last_binary_plus = false;
     }
 
@@ -288,11 +290,13 @@ public:
 
     void visit_Num(const ASR::Num_t &x) {
         src = std::to_string(x.m_n);
+        last_unary_plus = false;
         last_binary_plus = false;
     }
 
     void visit_Str(const ASR::Str_t &x) {
         src = "\"" + std::string(x.m_s) + "\"";
+        last_unary_plus = false;
         last_binary_plus = false;
     }
 
@@ -302,12 +306,14 @@ public:
         } else {
             src = "false";
         }
+        last_unary_plus = false;
         last_binary_plus = false;
     }
 
 
     void visit_Var(const ASR::Var_t &x) {
         src = VARIABLE((ASR::asr_t*)(x.m_v))->m_name;
+        last_unary_plus = false;
         last_binary_plus = false;
     }
 
@@ -321,6 +327,7 @@ public:
         }
         out += "]";
         src = out;
+        last_unary_plus = false;
         last_binary_plus = false;
     }
 
@@ -365,11 +372,12 @@ public:
         if (x.m_type->type == ASR::ttypeType::Integer) {
             if (x.m_op == ASR::unaryopType::UAdd) {
                 // src = src;
-                last_binary_plus = false;
+                last_unary_plus = false;
                 return;
             } else if (x.m_op == ASR::unaryopType::USub) {
                 src = "-" + src;
-                last_binary_plus = true;
+                last_unary_plus = true;
+                last_binary_plus = false;
                 return;
             } else {
                 throw CodeGenError("Unary type not implemented yet");
@@ -377,6 +385,7 @@ public:
         } else if (x.m_type->type == ASR::ttypeType::Logical) {
             if (x.m_op == ASR::unaryopType::Not) {
                 src = "!" + src;
+                last_unary_plus = false;
                 last_binary_plus = false;
                 return;
             } else {
@@ -390,14 +399,26 @@ public:
     void visit_BinOp(const ASR::BinOp_t &x) {
         this->visit_expr(*x.m_left);
         std::string left_val = src;
-        if (last_binary_plus && (x.m_op == ASR::operatorType::Mul
-                       || x.m_op == ASR::operatorType::Div)) {
+        if ((last_binary_plus || last_unary_plus)
+                    && (x.m_op == ASR::operatorType::Mul
+                     || x.m_op == ASR::operatorType::Div)) {
+            left_val = "(" + left_val + ")";
+        }
+        if (last_unary_plus
+                    && (x.m_op == ASR::operatorType::Add
+                     || x.m_op == ASR::operatorType::Sub)) {
             left_val = "(" + left_val + ")";
         }
         this->visit_expr(*x.m_right);
         std::string right_val = src;
-        if (last_binary_plus && (x.m_op == ASR::operatorType::Mul
-                       || x.m_op == ASR::operatorType::Div)) {
+        if ((last_binary_plus || last_unary_plus)
+                    && (x.m_op == ASR::operatorType::Mul
+                     || x.m_op == ASR::operatorType::Div)) {
+            right_val = "(" + right_val + ")";
+        }
+        if (last_unary_plus
+                    && (x.m_op == ASR::operatorType::Add
+                     || x.m_op == ASR::operatorType::Sub)) {
             right_val = "(" + right_val + ")";
         }
         switch (x.m_op) {
@@ -428,6 +449,7 @@ public:
             }
             default : throw CodeGenError("Unhandled switch case");
         }
+        last_unary_plus = false;
     }
 
 
