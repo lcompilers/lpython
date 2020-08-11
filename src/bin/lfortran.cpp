@@ -437,6 +437,8 @@ int main(int argc, char *argv[])
     LFortran::print_stack_on_segfault();
 #endif
     std::string runtime_library_dir = get_runtime_library_dir();
+    enum Backend { llvm, cpp };
+    Backend backend;
 
     bool arg_S = false;
     bool arg_c = false;
@@ -452,6 +454,7 @@ int main(int argc, char *argv[])
     bool show_cpp = false;
     bool show_asm = false;
     bool static_link = false;
+    std::string arg_backend = "llvm";
 
     CLI::App app{"LFortran: modern interactive LLVM-based Fortran compiler"};
     // Standard options compatible with gfortran, gcc or clang
@@ -472,6 +475,7 @@ int main(int argc, char *argv[])
     app.add_flag("--show-cpp", show_cpp, "Show C++ translation source for the given file and exit");
     app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
     app.add_flag("--static", static_link, "Create a static executable");
+    app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp)", true);
     CLI11_PARSE(app, argc, argv);
 
     if (arg_version) {
@@ -482,6 +486,15 @@ int main(int argc, char *argv[])
     }
 
     if (arg_E) {
+        return 1;
+    }
+
+    if (arg_backend == "llvm") {
+        backend = Backend::llvm;
+    } else if (arg_backend == "cpp") {
+        backend = Backend::cpp;
+    } else {
+        std::cerr << "The backend must be one of: llvm, cpp." << std::endl;
         return 1;
     }
 
@@ -537,33 +550,61 @@ int main(int argc, char *argv[])
         return emit_cpp(arg_file);
     }
     if (arg_S) {
+        if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-        return compile_to_assembly_file(arg_file, outfile);
+            return compile_to_assembly_file(arg_file, outfile);
 #else
-        std::cerr << "The -S option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
-        return 1;
+            std::cerr << "The -S option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+            return 1;
 #endif
+        } else if (backend == Backend::cpp) {
+            std::cerr << "The C++ backend does not work with the -S option yet." << std::endl;
+            return 1;
+        } else {
+            LFORTRAN_ASSERT(false);
+        }
     }
     if (arg_c) {
+        if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-        return compile_to_object_file(arg_file, outfile);
+            return compile_to_object_file(arg_file, outfile);
 #else
-        std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
-        return 1;
+            std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+            return 1;
 #endif
+        } else if (backend == Backend::cpp) {
+            std::cerr << "The C++ backend does not work with the -c option yet." << std::endl;
+            return 1;
+        } else {
+            LFORTRAN_ASSERT(false);
+        }
     }
 
     if (ends_with(arg_file, ".f90")) {
-        std::string tmp_o = outfile + ".tmp.o";
+        if (backend == Backend::llvm) {
+            std::string tmp_o = outfile + ".tmp.o";
 #ifdef HAVE_LFORTRAN_LLVM
-        int err = compile_to_object_file(arg_file, tmp_o);
-        if (err) return err;
+            int err = compile_to_object_file(arg_file, tmp_o);
+            if (err) return err;
 #else
-        std::cerr << "Compiling Fortran files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
-        return 1;
+            std::cerr << "Compiling Fortran files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+            return 1;
 #endif
-        return link_executable(tmp_o, outfile, runtime_library_dir, static_link);
+            return link_executable(tmp_o, outfile, runtime_library_dir, static_link);
+        } else if (backend == Backend::cpp) {
+            std::cerr << "The C++ backend does not work for linking yet." << std::endl;
+            return 1;
+        } else {
+            LFORTRAN_ASSERT(false);
+        }
     } else {
-        return link_executable(arg_file, outfile, runtime_library_dir, static_link);
+        if (backend == Backend::llvm) {
+            return link_executable(arg_file, outfile, runtime_library_dir, static_link);
+        } else if (backend == Backend::cpp) {
+            std::cerr << "The C++ backend does not work for linking yet." << std::endl;
+            return 1;
+        } else {
+            LFORTRAN_ASSERT(false);
+        }
     }
 }
