@@ -726,6 +726,9 @@ ASR::asr_t *ast_to_asr(Allocator &al, AST::TranslationUnit_t &ast)
     v.visit_TranslationUnit(ast);
     ASR::asr_t *unit = v.asr;
 
+    // Uncomment for debugging the ASR after SymbolTable building:
+    // std::cout << pickle(*unit) << std::endl;
+
     BodyVisitor b(al, unit);
     b.visit_TranslationUnit(ast);
     return unit;
