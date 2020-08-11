@@ -50,18 +50,20 @@ endmacro(RUN)
 
 # GFortran + LFortran LLVM + LFortran C++
 
+RUN(program_cmake_01)
+RUN(program_cmake_02)
+
+RUN(abort_01 fail)
+
 RUN(print_01)
+
+RUN(expr_01 fail)
 
 if (NOT LFORTRAN_BACKEND STREQUAL "cpp")
     # GFortran + LFortran LLVM
-    RUN(program_cmake_01)
-    RUN(program_cmake_02)
-
-    RUN(abort_01 fail)
 
     RUN(cond_01)
 
-    RUN(expr_01 fail)
     RUN(expr_02)
     RUN(expr_03)
 

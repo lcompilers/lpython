@@ -29,6 +29,7 @@ public:
     std::string src;
     int indentation_level;
     int indentation_spaces;
+    bool last_plus;
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         // All loose statements must be converted to a function, so the items
@@ -265,6 +266,7 @@ public:
             }
             src = fn_name + "(" + args + ")";
         }
+        last_plus = false;
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
@@ -286,10 +288,17 @@ public:
 
     void visit_Num(const ASR::Num_t &x) {
         src = std::to_string(x.m_n);
+        last_plus = false;
+    }
+
+    void visit_Str(const ASR::Str_t &x) {
+        src = "\"" + std::string(x.m_s) + "\"";
+        last_plus = false;
     }
 
     void visit_Var(const ASR::Var_t &x) {
         src = VARIABLE((ASR::asr_t*)(x.m_v))->m_name;
+        last_plus = false;
     }
 
     void visit_ArrayRef(const ASR::ArrayRef_t &x) {
@@ -302,32 +311,82 @@ public:
         }
         out += "]";
         src = out;
+        last_plus = false;
+    }
+
+    void visit_Compare(const ASR::Compare_t &x) {
+        this->visit_expr(*x.m_left);
+        std::string left = src;
+        this->visit_expr(*x.m_right);
+        std::string right = src;
+        switch (x.m_op) {
+            case (ASR::cmpopType::Eq) : {
+                src = left + " == " + right;
+                break;
+            }
+            case (ASR::cmpopType::Gt) : {
+                src = left + " > " + right;
+                break;
+            }
+            case (ASR::cmpopType::GtE) : {
+                src = left + " >= " + right;
+                break;
+            }
+            case (ASR::cmpopType::Lt) : {
+                src = left + " < " + right;
+                break;
+            }
+            case (ASR::cmpopType::LtE) : {
+                src = left + " <= " + right;
+                break;
+            }
+            case (ASR::cmpopType::NotEq) : {
+                src = left + " != " + right;
+                break;
+            }
+            default : {
+                throw CodeGenError("Comparison operator not implemented");
+            }
+        }
     }
 
     void visit_BinOp(const ASR::BinOp_t &x) {
         this->visit_expr(*x.m_left);
         std::string left_val = src;
+        if (last_plus && (x.m_op == ASR::operatorType::Mul
+                       || x.m_op == ASR::operatorType::Div)) {
+            left_val = "(" + left_val + ")";
+        }
         this->visit_expr(*x.m_right);
         std::string right_val = src;
+        if (last_plus && (x.m_op == ASR::operatorType::Mul
+                       || x.m_op == ASR::operatorType::Div)) {
+            right_val = "(" + right_val + ")";
+        }
         switch (x.m_op) {
             case ASR::operatorType::Add: {
                 src = left_val + " + " + right_val;
+                last_plus = true;
                 break;
             }
             case ASR::operatorType::Sub: {
                 src = left_val + " - " + right_val;
+                last_plus = true;
                 break;
             }
             case ASR::operatorType::Mul: {
                 src = left_val + "*" + right_val;
+                last_plus = false;
                 break;
             }
             case ASR::operatorType::Div: {
                 src = left_val + "/" + right_val;
+                last_plus = false;
                 break;
             }
             case ASR::operatorType::Pow: {
                 src = "std::pow(" + left_val + ", " + right_val + ")";
+                last_plus = false;
                 break;
             }
             default : throw CodeGenError("Unhandled switch case");
@@ -346,6 +405,21 @@ public:
         src = out;
     }
 
+    void visit_WhileLoop(const ASR::WhileLoop_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string out = indent + "while (";
+        visit_expr(*x.m_test);
+        out += src + ") {\n";
+        indentation_level += 1;
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            out += src;
+        }
+        out += indent + "};\n";
+        indentation_level -= 1;
+        src = out;
+    }
+
     void visit_DoConcurrentLoop(const ASR::DoConcurrentLoop_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "Kokkos::parallel_for(";
@@ -361,6 +435,37 @@ public:
             out += src;
         }
         out += indent + "});\n";
+        indentation_level -= 1;
+        src = out;
+    }
+
+    void visit_ErrorStop(const ASR::ErrorStop_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        src = indent + "std::cerr << \"ERROR STOP\" << std::endl;\n";
+        src += indent + "exit(1);\n";
+    }
+
+    void visit_If(const ASR::If_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string out = indent + "if (";
+        visit_expr(*x.m_test);
+        out += src + ") {\n";
+        indentation_level += 1;
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            out += src;
+        }
+        out += indent + "}";
+        if (x.n_orelse == 0) {
+            out += ";\n";
+        } else {
+            out += " else {\n";
+            for (size_t i=0; i<x.n_orelse; i++) {
+                this->visit_stmt(*x.m_orelse[i]);
+                out += src;
+            }
+            out += indent + "};\n";
+        }
         indentation_level -= 1;
         src = out;
     }
