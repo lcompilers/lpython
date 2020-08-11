@@ -106,6 +106,16 @@ cxx_binary_tests:
     - cd ..
     - ./run_tests.py
     - PATH="`pwd`/src/bin:$PATH" ./test_lfort_cmdline lfortran
+    - wget https://github.com/kokkos/kokkos/archive/3.1.01.tar.gz
+    - tar xaf 3.1.01.tar.gz
+    - cd kokkos-3.1.01
+    - mkdir build
+    - cd build
+    - cmake -DCMAKE_INSTALL_PREFIX=$HOME/ext/kokkos -DKokkos_ENABLE_OPENMP=On -DKokkos_ARCH_HSW=On ..
+    - make
+    - make install
+    - cd ..
+    - cd ..
     - cd integration_tests
     - mkdir build-gfortran
     - cd build-gfortran
