@@ -594,6 +594,25 @@ public:
         src = out;
     }
 
+    void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        ASR::Subroutine_t *s = SUBROUTINE((ASR::asr_t*)x.m_name);
+        std::string out = indent + s->m_name + "(";
+        for (size_t i=0; i<x.n_args; i++) {
+            if (x.m_args[i]->type == ASR::exprType::Var) {
+                ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+                std::string arg_name = arg->m_name;
+                out += arg_name;
+            } else {
+                this->visit_expr(*x.m_args[i]);
+                out += src;
+            }
+            if (i < x.n_args-1) out += ", ";
+        }
+        out += ");\n";
+        src = out;
+    }
+
 };
 
 std::string asr_to_cpp(ASR::asr_t &asr)
