@@ -111,7 +111,8 @@ cxx_binary_tests:
     - cd kokkos-3.1.01
     - mkdir build
     - cd build
-    - cmake -DCMAKE_INSTALL_PREFIX=$HOME/ext/kokkos -DKokkos_ENABLE_OPENMP=On -DKokkos_ARCH_HSW=On ..
+    - export LFORTRAN_KOKKOS_DIR=$HOME/ext/kokkos
+    - cmake -DCMAKE_INSTALL_PREFIX=$LFORTRAN_KOKKOS_DIR -DKokkos_ENABLE_OPENMP=On -DKokkos_ARCH_HSW=On ..
     - make
     - make install
     - cd ..
