@@ -26,12 +26,16 @@ class ASRToCPPVisitor : public ASR::BaseVisitor<ASRToCPPVisitor>
 public:
     std::map<uint64_t, SymbolInfo> sym_info;
     std::string src;
+    int indentation_level;
+    int indentation_spaces;
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         // All loose statements must be converted to a function, so the items
         // must be empty:
         LFORTRAN_ASSERT(x.n_items == 0);
         std::string unit_src = "";
+        indentation_level = 0;
+        indentation_spaces = 4;
         for (auto &item : x.m_global_scope->scope) {
             visit_asr(*item.second);
             unit_src += src;
@@ -40,16 +44,19 @@ public:
     }
 
     void visit_Program(const ASR::Program_t &x) {
+        indentation_level += 1;
         std::string decl;
         for (auto &item : x.m_symtab->scope) {
             if (item.second->type == ASR::asrType::var) {
                 ASR::var_t *v2 = (ASR::var_t*)(item.second);
                 ASR::Variable_t *v = (ASR::Variable_t *)v2;
+                std::string indent(indentation_level*indentation_spaces, ' ');
+                decl += indent;
 
                 if (v->m_type->type == ASR::ttypeType::Integer) {
-                    decl += "    int " + std::string(v->m_name) + ";\n";
+                    decl += "int " + std::string(v->m_name) + ";\n";
                 } else if (v->m_type->type == ASR::ttypeType::Logical) {
-                    decl += "    bool " + std::string(v->m_name) + ";\n";
+                    decl += "bool " + std::string(v->m_name) + ";\n";
                 } else {
                     throw CodeGenError("Variable type not supported");
                 }
@@ -59,15 +66,17 @@ public:
         std::string body;
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
-            body += "    " + src;
+            body += src;
         }
 
         std::string headers = "#include <iostream>\n\n";
 
         src = headers + "int main()\n{\n" + decl + body + "    return 0;\n}\n";
+        indentation_level -= 1;
     }
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
+        indentation_level += 1;
         std::string sub = "void " + std::string(x.m_name) + "(";
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
@@ -110,7 +119,7 @@ public:
         std::string body;
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
-            body += "    " + src;
+            body += src;
         }
 
         std::string decl;
@@ -120,10 +129,12 @@ public:
                 ASR::Variable_t *v = (ASR::Variable_t *)v2;
                 if (v->m_intent == intent_local) {
                     if (sym_info[get_hash((ASR::asr_t*) v)].needs_declaration) {
+                        std::string indent(indentation_level*indentation_spaces, ' ');
+                        decl += indent;
                         if (v->m_type->type == ASR::ttypeType::Integer) {
-                            decl += "    int " + std::string(v->m_name) + ";\n";
+                            decl += "int " + std::string(v->m_name) + ";\n";
                         } else if (v->m_type->type == ASR::ttypeType::Logical) {
-                            decl += "    bool " + std::string(v->m_name) + ";\n";
+                            decl += "bool " + std::string(v->m_name) + ";\n";
                         } else {
                             throw CodeGenError("Variable type not supported");
                         }
@@ -134,6 +145,7 @@ public:
 
         sub += "{\n" + decl + body + "}\n";
         src = sub;
+        indentation_level -= 1;
     }
 
     void visit_Function(const ASR::Function_t &x) {
@@ -213,7 +225,8 @@ public:
         }
         this->visit_expr(*x.m_value);
         std::string value = src;
-        src = target + " = " + value + ";\n";
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        src = indent + target + " = " + value + ";\n";
     }
 
     void visit_Num(const ASR::Num_t &x) {
@@ -268,7 +281,8 @@ public:
 
 
     void visit_Print(const ASR::Print_t &x) {
-        std::string out = "std::cout ";
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string out = indent + "std::cout ";
         for (size_t i=0; i<x.n_values; i++) {
             this->visit_expr(*x.m_values[i]);
             out += "<< " + src + " ";
@@ -278,18 +292,21 @@ public:
     }
 
     void visit_DoConcurrentLoop(const ASR::DoConcurrentLoop_t &x) {
-        std::string out = "Kokkos::parallel_for(";
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string out = indent + "Kokkos::parallel_for(";
         visit_expr(*x.m_head.m_end);
         out += src;
         ASR::Variable_t *loop_var = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_head.m_v)->m_v);
         sym_info[get_hash((ASR::asr_t*) loop_var)].needs_declaration = false;
         out += ", KOKKOS_LAMBDA(const long " + std::string(loop_var->m_name)
                 + ") {\n";
+        indentation_level += 1;
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
-            out += "    " + src;
+            out += src;
         }
-        out += "});\n";
+        out += indent + "});\n";
+        indentation_level -= 1;
         src = out;
     }
 
