@@ -59,6 +59,13 @@ std::string read_file(const std::string &filename)
     return std::string(&bytes[0], filesize);
 }
 
+std::string get_kokkos_dir()
+{
+    char *env_p = std::getenv("LFORTRAN_KOKKOS_DIR");
+    if (env_p) return env_p;
+    throw LFortran::LFortranException("Must define LFORTRAN_KOKKOS_DIR environment variable");
+}
+
 #ifdef HAVE_LFORTRAN_LLVM
 int prompt()
 {
