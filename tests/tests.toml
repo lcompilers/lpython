@@ -180,3 +180,15 @@ llvm = true
 [[test]]
 filename = "scopes1.f90"
 asr = true
+
+[[test]]
+filename = "global_scope1.f90"
+ast = true
+
+[[test]]
+filename = "global_scope2.f90"
+ast = true
+
+[[test]]
+filename = "global_scope3.f90"
+ast = true
