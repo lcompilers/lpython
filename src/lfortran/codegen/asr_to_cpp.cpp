@@ -426,6 +426,31 @@ public:
         src += indent + "exit(1);\n";
     }
 
+    void visit_If(const ASR::If_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string out = indent + "if (";
+        visit_expr(*x.m_test);
+        out += src + ") {\n";
+        indentation_level += 1;
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            out += src;
+        }
+        out += indent + "}";
+        if (x.n_orelse == 0) {
+            out += ";\n";
+        } else {
+            out += " else {\n";
+            for (size_t i=0; i<x.n_orelse; i++) {
+                this->visit_stmt(*x.m_orelse[i]);
+                out += src;
+            }
+            out += indent + "};\n";
+        }
+        indentation_level -= 1;
+        src = out;
+    }
+
 };
 
 std::string asr_to_cpp(ASR::asr_t &asr)
