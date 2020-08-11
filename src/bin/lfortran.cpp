@@ -672,7 +672,7 @@ int main(int argc, char *argv[])
             return 1;
 #endif
         } else if (backend == Backend::cpp) {
-            return compile_to_object_file_cpp(arg_file, outfile);
+            return compile_to_object_file_cpp(arg_file, outfile, false, true);
         } else {
             LFORTRAN_ASSERT(false);
         }
@@ -689,15 +689,15 @@ int main(int argc, char *argv[])
             return 1;
 #endif
         } else if (backend == Backend::cpp) {
-            err = compile_to_object_file_cpp(arg_file, tmp_o);
+            err = compile_to_object_file_cpp(arg_file, tmp_o, false, true);
         } else {
             LFORTRAN_ASSERT(false);
         }
         if (err) return err;
         return link_executable(tmp_o, outfile, runtime_library_dir,
-                backend, static_link);
+                backend, static_link, true);
     } else {
         return link_executable(arg_file, outfile, runtime_library_dir,
-                backend, static_link);
+                backend, static_link, true);
     }
 }
