@@ -85,6 +85,10 @@ if (NOT LFORTRAN_BACKEND STREQUAL "cpp")
     RUN(subroutines_02)
 endif()
 
+if (NOT LFORTRAN_BACKEND STREQUAL "llvm")
+    # GFortran + LFortran C++
+endif()
+
 if (NOT LFORTRAN_BACKEND)
     # GFortran
     RUN(arrays_01)
