@@ -238,6 +238,8 @@ public:
     }
 
     void visit_expr(const AST::expr_t &x) {}
+
+    void visit_stmt(const AST::stmt_t &x) {}
 };
 
 class BodyVisitor : public AST::BaseVisitor<BodyVisitor>
@@ -262,6 +264,10 @@ public:
         }
         unit->m_items = items.p;
         unit->n_items = items.size();
+    }
+
+    void visit_Declaration(const AST::Declaration_t &x) {
+        // This AST node was already visited in SymbolTableVisitor
     }
 
     void visit_Program(const AST::Program_t &x) {
@@ -725,6 +731,9 @@ ASR::asr_t *ast_to_asr(Allocator &al, AST::TranslationUnit_t &ast)
     SymbolTableVisitor v(al);
     v.visit_TranslationUnit(ast);
     ASR::asr_t *unit = v.asr;
+
+    // Uncomment for debugging the ASR after SymbolTable building:
+    // std::cout << pickle(*unit) << std::endl;
 
     BodyVisitor b(al, unit);
     b.visit_TranslationUnit(ast);

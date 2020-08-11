@@ -39,7 +39,7 @@
 #include <lfortran/codegen/asr_to_llvm.h>
 #include <lfortran/exception.h>
 #include <lfortran/asr_utils.h>
-//#include <lfortran/pickle.h>
+#include <lfortran/pickle.h>
 
 
 namespace LFortran {
@@ -95,10 +95,37 @@ public:
         // All loose statements must be converted to a function, so the items
         // must be empty:
         LFORTRAN_ASSERT(x.n_items == 0);
+
+        // Process Variables first:
         for (auto &item : x.m_global_scope->scope) {
-            visit_asr(*item.second);
+            if (item.second->type == ASR::asrType::var) {
+                visit_asr(*item.second);
+            }
+        }
+
+        // Then the rest:
+        for (auto &item : x.m_global_scope->scope) {
+            if (item.second->type != ASR::asrType::var) {
+                visit_asr(*item.second);
+            }
         }
     }
+
+    void visit_Variable(const ASR::Variable_t &x) {
+        // This hapens at global scope
+        if (x.m_type->type == ASR::ttypeType::Integer) {
+            llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
+                llvm::Type::getInt64Ty(context));
+            llvm_symtab[std::string(x.m_name)] = ptr;
+        } else if (x.m_type->type == ASR::ttypeType::Logical) {
+            llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
+                llvm::Type::getInt1Ty(context));
+            llvm_symtab[std::string(x.m_name)] = ptr;
+        } else {
+            throw CodeGenError("Variable type not supported");
+        }
+    }
+
     void visit_Program(const ASR::Program_t &x) {
         // Generate code for nested subroutines and functions first:
         for (auto &item : x.m_symtab->scope) {
@@ -500,8 +527,6 @@ public:
 // Edits the ASR inplace.
 void wrap_global_stmts_into_function(Allocator &al, ASR::TranslationUnit_t &unit) {
     if (unit.n_items > 0) {
-        LFORTRAN_ASSERT(unit.n_items == 1);
-
         // Add an anonymous function
         const char* fn_name_orig = "f";
         char *fn_name = (char*)fn_name_orig;
@@ -517,12 +542,21 @@ void wrap_global_stmts_into_function(Allocator &al, ASR::TranslationUnit_t &unit
         ASR::asr_t *return_var_ref = ASR::make_Var_t(al, loc,
             VAR(return_var));
 
-        ASR::expr_t *target = EXPR(return_var_ref);
-        ASR::expr_t *value = EXPR(unit.m_items[0]);
         Vec<ASR::stmt_t*> body;
-        ASR::stmt_t* asr_stmt= STMT(ASR::make_Assignment_t(al, loc, target, value));
-        body.reserve(al, 1);
-        body.push_back(al, asr_stmt);
+        body.reserve(al, unit.n_items);
+        for (size_t i=0; i<unit.n_items; i++) {
+            if (unit.m_items[i]->type == ASR::asrType::expr) {
+                ASR::expr_t *target = EXPR(return_var_ref);
+                ASR::expr_t *value = EXPR(unit.m_items[i]);
+                ASR::stmt_t* asr_stmt = STMT(ASR::make_Assignment_t(al, loc, target, value));
+                body.push_back(al, asr_stmt);
+            } else if (unit.m_items[i]->type == ASR::asrType::stmt) {
+                ASR::stmt_t* asr_stmt = STMT(unit.m_items[i]);
+                body.push_back(al, asr_stmt);
+            } else {
+                throw CodeGenError("Unsupported type of global scope node");
+            }
+        }
 
 
         ASR::asr_t *fn = ASR::make_Function_t(
@@ -702,6 +736,10 @@ std::unique_ptr<LLVMModule> asr_to_llvm(ASR::asr_t &asr,
     ASRToLLVMVisitor v(context);
     LFORTRAN_ASSERT(asr.type == ASR::asrType::unit);
     wrap_global_stmts_into_function(al, *TRANSLATION_UNIT(&asr));
+
+    // Uncomment for debugging the ASR after the transformation
+    // std::cout << pickle(asr) << std::endl;
+
     replace_doloops(al, *TRANSLATION_UNIT(&asr));
     v.visit_asr(asr);
     std::string msg;
