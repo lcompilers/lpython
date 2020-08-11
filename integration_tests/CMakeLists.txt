@@ -57,12 +57,13 @@ RUN(abort_01 fail)
 
 RUN(print_01)
 
+RUN(cond_01)
+
 RUN(expr_01 fail)
 
 if (NOT LFORTRAN_BACKEND STREQUAL "cpp")
     # GFortran + LFortran LLVM
 
-    RUN(cond_01)
 
     RUN(expr_02)
     RUN(expr_03)

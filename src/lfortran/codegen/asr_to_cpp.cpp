@@ -296,6 +296,16 @@ public:
         last_plus = false;
     }
 
+    void visit_Constant(const ASR::Constant_t &x) {
+        if (x.m_value == true) {
+            src = "true";
+        } else {
+            src = "false";
+        }
+        last_plus = false;
+    }
+
+
     void visit_Var(const ASR::Var_t &x) {
         src = VARIABLE((ASR::asr_t*)(x.m_v))->m_name;
         last_plus = false;
