@@ -99,6 +99,22 @@ public:
             visit_asr(*item.second);
         }
     }
+
+    void visit_Variable(const ASR::Variable_t &x) {
+        // This hapens at global scope
+        if (x.m_type->type == ASR::ttypeType::Integer) {
+            llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
+                llvm::Type::getInt64Ty(context));
+            llvm_symtab[std::string(x.m_name)] = ptr;
+        } else if (x.m_type->type == ASR::ttypeType::Logical) {
+            llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
+                llvm::Type::getInt1Ty(context));
+            llvm_symtab[std::string(x.m_name)] = ptr;
+        } else {
+            throw CodeGenError("Variable type not supported");
+        }
+    }
+
     void visit_Program(const ASR::Program_t &x) {
         // Generate code for nested subroutines and functions first:
         for (auto &item : x.m_symtab->scope) {
