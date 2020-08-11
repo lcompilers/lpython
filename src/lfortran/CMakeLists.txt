@@ -12,6 +12,7 @@ set(SRC
     ast_to_cpp.cpp
     ast_to_cpp_hip.cpp
     ast_to_openmp.cpp
+    codegen/asr_to_cpp.cpp
 )
 if (WITH_JSON)
     set(SRC ${SRC}
