@@ -68,6 +68,7 @@ ast = true
 filename = "subroutine5.f90"
 ast = true
 asr = true
+cpp = true
 
 [[test]]
 filename = "subroutine6.f90"
