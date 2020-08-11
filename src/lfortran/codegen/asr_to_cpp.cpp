@@ -225,8 +225,15 @@ public:
     }
 
     void visit_ArrayRef(const ASR::ArrayRef_t &x) {
-        src = VARIABLE((ASR::asr_t*)(x.m_v))->m_name;
-        src += "[]";
+        std::string out = VARIABLE((ASR::asr_t*)(x.m_v))->m_name;
+        out += "(";
+        for (size_t i=0; i<x.n_args; i++) {
+            visit_expr(*x.m_args[i].m_right);
+            out += src;
+            if (i < x.n_args-1) out += ",";
+        }
+        out += ")";
+        src = out;
     }
 
     void visit_BinOp(const ASR::BinOp_t &x) {
