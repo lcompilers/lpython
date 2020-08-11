@@ -1,4 +1,10 @@
+#include <iostream>
+
 int main()
 {
+    int i;
+    i = 5;
+    std::cout << i << std::endl;
+    std::cout << i + 1 << std::endl;
     return 0;
 }
