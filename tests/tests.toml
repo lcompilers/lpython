@@ -197,3 +197,4 @@ llvm = true
 filename = "global_scope3.f90"
 ast = true
 asr = true
+llvm = true

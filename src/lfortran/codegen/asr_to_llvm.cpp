@@ -527,8 +527,6 @@ public:
 // Edits the ASR inplace.
 void wrap_global_stmts_into_function(Allocator &al, ASR::TranslationUnit_t &unit) {
     if (unit.n_items > 0) {
-        LFORTRAN_ASSERT(unit.n_items == 1);
-
         // Add an anonymous function
         const char* fn_name_orig = "f";
         char *fn_name = (char*)fn_name_orig;
@@ -545,17 +543,19 @@ void wrap_global_stmts_into_function(Allocator &al, ASR::TranslationUnit_t &unit
             VAR(return_var));
 
         Vec<ASR::stmt_t*> body;
-        body.reserve(al, 1);
-        if (unit.m_items[0]->type == ASR::asrType::expr) {
-            ASR::expr_t *target = EXPR(return_var_ref);
-            ASR::expr_t *value = EXPR(unit.m_items[0]);
-            ASR::stmt_t* asr_stmt = STMT(ASR::make_Assignment_t(al, loc, target, value));
-            body.push_back(al, asr_stmt);
-        } else if (unit.m_items[0]->type == ASR::asrType::stmt) {
-            ASR::stmt_t* asr_stmt = STMT(unit.m_items[0]);
-            body.push_back(al, asr_stmt);
-        } else {
-            throw CodeGenError("Unsupported type of global scope node");
+        body.reserve(al, unit.n_items);
+        for (size_t i=0; i<unit.n_items; i++) {
+            if (unit.m_items[i]->type == ASR::asrType::expr) {
+                ASR::expr_t *target = EXPR(return_var_ref);
+                ASR::expr_t *value = EXPR(unit.m_items[i]);
+                ASR::stmt_t* asr_stmt = STMT(ASR::make_Assignment_t(al, loc, target, value));
+                body.push_back(al, asr_stmt);
+            } else if (unit.m_items[i]->type == ASR::asrType::stmt) {
+                ASR::stmt_t* asr_stmt = STMT(unit.m_items[i]);
+                body.push_back(al, asr_stmt);
+            } else {
+                throw CodeGenError("Unsupported type of global scope node");
+            }
         }
 
 
