@@ -320,6 +320,59 @@ int compile_to_assembly_file(const std::string &infile, const std::string &outfi
 }
 #endif
 
+int compile_to_object_file_cpp(const std::string &infile, const std::string &outfile,
+        bool assembly=false)
+{
+    std::string input = read_file(infile);
+
+    // Src -> AST
+    Allocator al(64*1024*1024);
+    LFortran::AST::TranslationUnit_t* ast;
+    try {
+        ast = LFortran::parse2(al, input);
+    } catch (const LFortran::TokenizerError &e) {
+        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
+        return 1;
+    } catch (const LFortran::ParserError &e) {
+        std::cerr << "Parsing error: " << e.msg() << std::endl;
+        return 2;
+    }
+
+    // AST -> ASR
+    LFortran::ASR::asr_t* asr = LFortran::ast_to_asr(al, *ast);
+
+    // ASR -> C++
+    std::string src;
+    try {
+        src = LFortran::asr_to_cpp(*asr);
+    } catch (const LFortran::CodeGenError &e) {
+        std::cerr << "Code generation error: " << e.msg() << std::endl;
+        return 5;
+    }
+
+    // C++ -> Machine code (saves to an object file)
+    if (assembly) {
+        throw LFortran::LFortranException("Not implemented");
+    } else {
+        std::string cppfile = outfile + ".tmp.cpp";
+        {
+            std::ofstream out;
+            out.open(cppfile);
+            out << src;
+        }
+
+        std::string CXX = "g++";
+        std::string cmd = CXX + " -o " + outfile + " -c " + cppfile;
+        int err = system(cmd.c_str());
+        if (err) {
+            std::cout << "The command '" + cmd + "' failed." << std::endl;
+            return 11;
+        }
+    }
+
+    return 0;
+}
+
 // infile is an object file
 // outfile will become the executable
 int link_executable(const std::string &infile, const std::string &outfile,
@@ -573,8 +626,7 @@ int main(int argc, char *argv[])
             return 1;
 #endif
         } else if (backend == Backend::cpp) {
-            std::cerr << "The C++ backend does not work with the -c option yet." << std::endl;
-            return 1;
+            return compile_to_object_file_cpp(arg_file, outfile);
         } else {
             LFORTRAN_ASSERT(false);
         }
