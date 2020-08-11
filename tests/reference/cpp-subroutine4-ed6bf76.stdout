@@ -2,7 +2,6 @@ int size();
 void triad(float a, float b, float scalar, float &c)
 {
     int N;
-    int i;
     N = size();
     Kokkos::parallel_for(N, KOKKOS_LAMBDA(const long i) {
     c[] = a[] + scalar*b[];
