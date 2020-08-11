@@ -203,3 +203,8 @@ llvm = true
 filename = "global_scope4.f90"
 asr = true
 llvm = true
+
+[[test]]
+filename = "global_scope5.f90"
+asr = true
+llvm = true
