@@ -1,4 +1,4 @@
-void triad(float a, float b, float scalar, float &c)
+void triad(const Kokkos::View<const float*> &a, const Kokkos::View<const float*> &b, float scalar, const Kokkos::View<float*> &c)
 {
     int N;
     N = a.extent(0);
