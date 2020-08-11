@@ -91,15 +91,26 @@ public:
                     LFORTRAN_ASSERT(false);
                 }
             } else if (arg->m_type->type == ASR::ttypeType::Real) {
-                if (arg->m_intent == intent_in) {
-                    sub += "float " + std::string(arg->m_name);
-                } else if (arg->m_intent == intent_out || arg->m_intent == intent_inout) {
-                    sub += "float &" + std::string(arg->m_name);
-                } else {
-                    LFORTRAN_ASSERT(false);
+                ASR::Real_t *t = TYPE_REAL((ASR::asr_t*)arg->m_type);
+                std::string dims;
+                for (size_t i=0; i<t->n_dims; i++) {
+                    ASR::expr_t *start = t->m_dims[i].m_start;
+                    ASR::expr_t *end = t->m_dims[i].m_end;
+                    if (!start && !end) {
+                        dims += "*";
+                    } else {
+                        throw CodeGenError("Dimension type not supported");
+                    }
                 }
-            } else {
-                throw CodeGenError("Type not supported yet.");
+                if (t->n_dims == 0) {
+                    std::string ref;
+                    if (arg->m_intent != intent_in) ref = "&";
+                    sub += "float " + ref + std::string(arg->m_name);
+                } else {
+                    std::string c;
+                    if (arg->m_intent == intent_in) c = "const ";
+                    sub += "const Kokkos::View<" + c + "float" + dims + "> &" + std::string(arg->m_name);
+                }
             }
             if (i < x.n_args-1) sub += ", ";
         }
