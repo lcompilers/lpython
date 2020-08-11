@@ -47,6 +47,17 @@ public:
     }
 
     void visit_Program(const ASR::Program_t &x) {
+        // Generate code for nested subroutines and functions first:
+        std::string contains;
+        for (auto &item : x.m_symtab->scope) {
+            if (item.second->type == ASR::asrType::sub) {
+                ASR::Subroutine_t *s = SUBROUTINE(item.second);
+                visit_Subroutine(*s);
+                contains += src + "\n";
+            }
+        }
+
+        // Generate code for the main program
         indentation_level += 1;
         std::string decl;
         for (auto &item : x.m_symtab->scope) {
@@ -74,7 +85,7 @@ public:
 
         std::string headers = "#include <iostream>\n\n";
 
-        src = headers + "int main()\n{\n" + decl + body + "    return 0;\n}\n";
+        src = headers + contains + "int main()\n{\n" + decl + body + "    return 0;\n}\n";
         indentation_level -= 1;
     }
 
