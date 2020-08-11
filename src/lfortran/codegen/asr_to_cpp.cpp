@@ -25,11 +25,23 @@ public:
     }
 
     void visit_Program(const ASR::Program_t &x) {
-        src =
-R"(int main()
-{
-    return 0;
-})";
+        std::string decl;
+        for (auto &item : x.m_symtab->scope) {
+            if (item.second->type == ASR::asrType::var) {
+                ASR::var_t *v2 = (ASR::var_t*)(item.second);
+                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+
+                if (v->m_type->type == ASR::ttypeType::Integer) {
+                    decl += "    int " + std::string(v->m_name) + ";\n";
+                } else if (v->m_type->type == ASR::ttypeType::Logical) {
+                    decl += "    bool " + std::string(v->m_name) + ";\n";
+                } else {
+                    throw CodeGenError("Variable type not supported");
+                }
+            }
+        }
+
+        src = "int main()\n{\n" + decl + "    return 0;\n}";
     }
 
 };
