@@ -10,9 +10,21 @@
 
 namespace LFortran {
 
+// Platform dependent fast unique hash:
+uint64_t get_hash(ASR::asr_t *node)
+{
+    return (uint64_t)node;
+}
+
+struct SymbolInfo
+{
+    bool needs_declaration;
+};
+
 class ASRToCPPVisitor : public ASR::BaseVisitor<ASRToCPPVisitor>
 {
 public:
+    std::map<uint64_t, SymbolInfo> sym_info;
     std::string src;
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
@@ -83,19 +95,14 @@ public:
         }
         sub += ")\n";
 
-        std::string decl;
         for (auto &item : x.m_symtab->scope) {
             if (item.second->type == ASR::asrType::var) {
                 ASR::var_t *v2 = (ASR::var_t*)(item.second);
                 ASR::Variable_t *v = (ASR::Variable_t *)v2;
-                if (!is_arg_dummy(v->m_intent)) {
-                    if (v->m_type->type == ASR::ttypeType::Integer) {
-                        decl += "    int " + std::string(v->m_name) + ";\n";
-                    } else if (v->m_type->type == ASR::ttypeType::Logical) {
-                        decl += "    bool " + std::string(v->m_name) + ";\n";
-                    } else {
-                        throw CodeGenError("Variable type not supported");
-                    }
+                if (v->m_intent == intent_local) {
+                    SymbolInfo s;
+                    s.needs_declaration = true;
+                    sym_info[get_hash((ASR::asr_t*)v)] = s;
                 }
             }
         }
@@ -104,6 +111,25 @@ public:
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
             body += "    " + src;
+        }
+
+        std::string decl;
+        for (auto &item : x.m_symtab->scope) {
+            if (item.second->type == ASR::asrType::var) {
+                ASR::var_t *v2 = (ASR::var_t*)(item.second);
+                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+                if (v->m_intent == intent_local) {
+                    if (sym_info[get_hash((ASR::asr_t*) v)].needs_declaration) {
+                        if (v->m_type->type == ASR::ttypeType::Integer) {
+                            decl += "    int " + std::string(v->m_name) + ";\n";
+                        } else if (v->m_type->type == ASR::ttypeType::Logical) {
+                            decl += "    bool " + std::string(v->m_name) + ";\n";
+                        } else {
+                            throw CodeGenError("Variable type not supported");
+                        }
+                    }
+                }
+            }
         }
 
         sub += "{\n" + decl + body + "}\n";
@@ -248,9 +274,10 @@ public:
         std::string out = "Kokkos::parallel_for(";
         visit_expr(*x.m_head.m_end);
         out += src;
-        out += ", KOKKOS_LAMBDA(const long "
-            + std::string(VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_head.m_v)->m_v)->m_name)
-            + ") {\n";
+        ASR::Variable_t *loop_var = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_head.m_v)->m_v);
+        sym_info[get_hash((ASR::asr_t*) loop_var)].needs_declaration = false;
+        out += ", KOKKOS_LAMBDA(const long " + std::string(loop_var->m_name)
+                + ") {\n";
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
             out += "    " + src;
