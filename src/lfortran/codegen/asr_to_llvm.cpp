@@ -39,7 +39,7 @@
 #include <lfortran/codegen/asr_to_llvm.h>
 #include <lfortran/exception.h>
 #include <lfortran/asr_utils.h>
-//#include <lfortran/pickle.h>
+#include <lfortran/pickle.h>
 
 
 namespace LFortran {
@@ -725,6 +725,10 @@ std::unique_ptr<LLVMModule> asr_to_llvm(ASR::asr_t &asr,
     ASRToLLVMVisitor v(context);
     LFORTRAN_ASSERT(asr.type == ASR::asrType::unit);
     wrap_global_stmts_into_function(al, *TRANSLATION_UNIT(&asr));
+
+    // Uncomment for debugging the ASR after the transformation
+    // std::cout << pickle(asr) << std::endl;
+
     replace_doloops(al, *TRANSLATION_UNIT(&asr));
     v.visit_asr(asr);
     std::string msg;
