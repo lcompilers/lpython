@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include <Kokkos_Core.hpp>
 int main()
 {
     int i;
