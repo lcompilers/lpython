@@ -95,8 +95,19 @@ public:
         // All loose statements must be converted to a function, so the items
         // must be empty:
         LFORTRAN_ASSERT(x.n_items == 0);
+
+        // Process Variables first:
         for (auto &item : x.m_global_scope->scope) {
-            visit_asr(*item.second);
+            if (item.second->type == ASR::asrType::var) {
+                visit_asr(*item.second);
+            }
+        }
+
+        // Then the rest:
+        for (auto &item : x.m_global_scope->scope) {
+            if (item.second->type != ASR::asrType::var) {
+                visit_asr(*item.second);
+            }
         }
     }
 
