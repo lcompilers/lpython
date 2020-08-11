@@ -239,13 +239,13 @@ public:
 
     void visit_ArrayRef(const ASR::ArrayRef_t &x) {
         std::string out = VARIABLE((ASR::asr_t*)(x.m_v))->m_name;
-        out += "(";
+        out += "[";
         for (size_t i=0; i<x.n_args; i++) {
             visit_expr(*x.m_args[i].m_right);
             out += src;
             if (i < x.n_args-1) out += ",";
         }
-        out += ")";
+        out += "]";
         src = out;
     }
 
