@@ -479,6 +479,16 @@ public:
         src = out;
     }
 
+    void visit_Exit(const ASR::Exit_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        src = indent + "break;\n";
+    }
+
+    void visit_Cycle(const ASR::Cycle_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        src = indent + "continue;\n";
+    }
+
     void visit_DoConcurrentLoop(const ASR::DoConcurrentLoop_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "Kokkos::parallel_for(";
