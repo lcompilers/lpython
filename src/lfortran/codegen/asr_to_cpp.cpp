@@ -49,7 +49,7 @@ public:
 
         std::string headers = "#include <iostream>\n\n";
 
-        src = headers + "int main()\n{\n" + decl + body + "    return 0;\n}";
+        src = headers + "int main()\n{\n" + decl + body + "    return 0;\n}\n";
     }
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {

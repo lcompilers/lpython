@@ -234,7 +234,7 @@ int emit_cpp(const std::string &infile)
     std::string cpp;
     cpp = LFortran::asr_to_cpp(*asr);
 
-    std::cout << cpp << std::endl;
+    std::cout << cpp;
     return 0;
 }
 
