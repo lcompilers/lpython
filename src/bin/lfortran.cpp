@@ -14,6 +14,13 @@
 #include <lfortran/codegen/evaluator.h>
 #include <lfortran/config.h>
 
+namespace {
+
+enum Backend {
+    llvm, cpp
+};
+
+
 void section(const std::string &s)
 {
     std::cout << color(LFortran::style::bold) << color(LFortran::fg::blue) << s << color(LFortran::style::reset) << color(LFortran::fg::reset) << std::endl;
@@ -376,7 +383,8 @@ int compile_to_object_file_cpp(const std::string &infile, const std::string &out
 // infile is an object file
 // outfile will become the executable
 int link_executable(const std::string &infile, const std::string &outfile,
-    const std::string &runtime_library_dir, bool static_executable=false)
+    const std::string &runtime_library_dir, Backend backend,
+    bool static_executable=false)
 {
     /*
     The `gcc` line for dynamic linking that is constructed below:
@@ -484,13 +492,14 @@ std::string get_runtime_library_dir()
     }
 }
 
+} // anonymous namespace
+
 int main(int argc, char *argv[])
 {
 #if defined(HAVE_LFORTRAN_STACKTRACE)
     LFortran::print_stack_on_segfault();
 #endif
     std::string runtime_library_dir = get_runtime_library_dir();
-    enum Backend { llvm, cpp };
     Backend backend;
 
     bool arg_S = false;
@@ -642,7 +651,8 @@ int main(int argc, char *argv[])
             std::cerr << "Compiling Fortran files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
             return 1;
 #endif
-            return link_executable(tmp_o, outfile, runtime_library_dir, static_link);
+            return link_executable(tmp_o, outfile, runtime_library_dir,
+                    backend, static_link);
         } else if (backend == Backend::cpp) {
             std::cerr << "The C++ backend does not work for linking yet." << std::endl;
             return 1;
@@ -651,7 +661,8 @@ int main(int argc, char *argv[])
         }
     } else {
         if (backend == Backend::llvm) {
-            return link_executable(arg_file, outfile, runtime_library_dir, static_link);
+            return link_executable(arg_file, outfile, runtime_library_dir,
+                    backend, static_link);
         } else if (backend == Backend::cpp) {
             std::cerr << "The C++ backend does not work for linking yet." << std::endl;
             return 1;
