@@ -360,6 +360,33 @@ public:
         }
     }
 
+    void visit_UnaryOp(const ASR::UnaryOp_t &x) {
+        this->visit_expr(*x.m_operand);
+        if (x.m_type->type == ASR::ttypeType::Integer) {
+            if (x.m_op == ASR::unaryopType::UAdd) {
+                // src = src;
+                last_binary_plus = false;
+                return;
+            } else if (x.m_op == ASR::unaryopType::USub) {
+                src = "-" + src;
+                last_binary_plus = true;
+                return;
+            } else {
+                throw CodeGenError("Unary type not implemented yet");
+            }
+        } else if (x.m_type->type == ASR::ttypeType::Logical) {
+            if (x.m_op == ASR::unaryopType::Not) {
+                src = "!" + src;
+                last_binary_plus = false;
+                return;
+            } else {
+                throw CodeGenError("Unary type not implemented yet in Logical");
+            }
+        } else {
+            throw CodeGenError("UnaryOp: type not supported yet");
+        }
+    }
+
     void visit_BinOp(const ASR::BinOp_t &x) {
         this->visit_expr(*x.m_left);
         std::string left_val = src;
