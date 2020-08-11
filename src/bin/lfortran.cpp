@@ -10,6 +10,7 @@
 #include <lfortran/pickle.h>
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/codegen/asr_to_llvm.h>
+#include <lfortran/codegen/asr_to_cpp.h>
 #include <lfortran/codegen/evaluator.h>
 #include <lfortran/config.h>
 
@@ -206,6 +207,34 @@ int emit_asr(const std::string &infile)
     }
 
     std::cout << LFortran::pickle(*asr) << std::endl;
+    return 0;
+}
+
+int emit_cpp(const std::string &infile)
+{
+    std::string input = read_file(infile);
+
+    // Src -> AST
+    Allocator al(64*1024*1024);
+    LFortran::AST::TranslationUnit_t* ast;
+    try {
+        ast = LFortran::parse2(al, input);
+    } catch (const LFortran::TokenizerError &e) {
+        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
+        return 1;
+    } catch (const LFortran::ParserError &e) {
+        std::cerr << "Parsing error: " << e.msg() << std::endl;
+        return 2;
+    }
+
+    // AST -> ASR
+    LFortran::ASR::asr_t* asr = LFortran::ast_to_asr(al, *ast);
+
+    // ASR -> CPP
+    std::string cpp;
+    cpp = LFortran::asr_to_cpp(*asr);
+
+    std::cout << cpp << std::endl;
     return 0;
 }
 
@@ -420,6 +449,7 @@ int main(int argc, char *argv[])
     bool show_ast = false;
     bool show_asr = false;
     bool show_llvm = false;
+    bool show_cpp = false;
     bool show_asm = false;
     bool static_link = false;
 
@@ -439,6 +469,7 @@ int main(int argc, char *argv[])
     app.add_flag("--show-ast", show_ast, "Show AST for the given file and exit");
     app.add_flag("--show-asr", show_asr, "Show ASR for the given file and exit");
     app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
+    app.add_flag("--show-cpp", show_cpp, "Show C++ translation source for the given file and exit");
     app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
     app.add_flag("--static", static_link, "Create a static executable");
     CLI11_PARSE(app, argc, argv);
@@ -501,6 +532,9 @@ int main(int argc, char *argv[])
         std::cerr << "The --show-llvm option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
         return 1;
 #endif
+    }
+    if (show_cpp) {
+        return emit_cpp(arg_file);
     }
     if (arg_S) {
 #ifdef HAVE_LFORTRAN_LLVM

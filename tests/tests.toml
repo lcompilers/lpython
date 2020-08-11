@@ -121,6 +121,7 @@ ast = true
 asr = true
 llvm = true
 obj = true
+cpp = true
 
 [[test]]
 filename = "../integration_tests/program_cmake_01.f90"
