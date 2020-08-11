@@ -29,7 +29,8 @@ public:
     std::string src;
     int indentation_level;
     int indentation_spaces;
-    bool last_plus;
+    bool last_unary_plus;
+    bool last_binary_plus;
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         // All loose statements must be converted to a function, so the items
@@ -46,6 +47,17 @@ public:
     }
 
     void visit_Program(const ASR::Program_t &x) {
+        // Generate code for nested subroutines and functions first:
+        std::string contains;
+        for (auto &item : x.m_symtab->scope) {
+            if (item.second->type == ASR::asrType::sub) {
+                ASR::Subroutine_t *s = SUBROUTINE(item.second);
+                visit_Subroutine(*s);
+                contains += src + "\n";
+            }
+        }
+
+        // Generate code for the main program
         indentation_level += 1;
         std::string decl;
         for (auto &item : x.m_symtab->scope) {
@@ -73,7 +85,7 @@ public:
 
         std::string headers = "#include <iostream>\n\n";
 
-        src = headers + "int main()\n{\n" + decl + body + "    return 0;\n}\n";
+        src = headers + contains + "int main()\n{\n" + decl + body + "    return 0;\n}\n";
         indentation_level -= 1;
     }
 
@@ -266,7 +278,8 @@ public:
             }
             src = fn_name + "(" + args + ")";
         }
-        last_plus = false;
+        last_unary_plus = false;
+        last_binary_plus = false;
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
@@ -288,17 +301,31 @@ public:
 
     void visit_Num(const ASR::Num_t &x) {
         src = std::to_string(x.m_n);
-        last_plus = false;
+        last_unary_plus = false;
+        last_binary_plus = false;
     }
 
     void visit_Str(const ASR::Str_t &x) {
         src = "\"" + std::string(x.m_s) + "\"";
-        last_plus = false;
+        last_unary_plus = false;
+        last_binary_plus = false;
     }
+
+    void visit_Constant(const ASR::Constant_t &x) {
+        if (x.m_value == true) {
+            src = "true";
+        } else {
+            src = "false";
+        }
+        last_unary_plus = false;
+        last_binary_plus = false;
+    }
+
 
     void visit_Var(const ASR::Var_t &x) {
         src = VARIABLE((ASR::asr_t*)(x.m_v))->m_name;
-        last_plus = false;
+        last_unary_plus = false;
+        last_binary_plus = false;
     }
 
     void visit_ArrayRef(const ASR::ArrayRef_t &x) {
@@ -311,7 +338,8 @@ public:
         }
         out += "]";
         src = out;
-        last_plus = false;
+        last_unary_plus = false;
+        last_binary_plus = false;
     }
 
     void visit_Compare(const ASR::Compare_t &x) {
@@ -350,47 +378,89 @@ public:
         }
     }
 
+    void visit_UnaryOp(const ASR::UnaryOp_t &x) {
+        this->visit_expr(*x.m_operand);
+        if (x.m_type->type == ASR::ttypeType::Integer) {
+            if (x.m_op == ASR::unaryopType::UAdd) {
+                // src = src;
+                last_unary_plus = false;
+                return;
+            } else if (x.m_op == ASR::unaryopType::USub) {
+                src = "-" + src;
+                last_unary_plus = true;
+                last_binary_plus = false;
+                return;
+            } else {
+                throw CodeGenError("Unary type not implemented yet");
+            }
+        } else if (x.m_type->type == ASR::ttypeType::Logical) {
+            if (x.m_op == ASR::unaryopType::Not) {
+                src = "!" + src;
+                last_unary_plus = false;
+                last_binary_plus = false;
+                return;
+            } else {
+                throw CodeGenError("Unary type not implemented yet in Logical");
+            }
+        } else {
+            throw CodeGenError("UnaryOp: type not supported yet");
+        }
+    }
+
     void visit_BinOp(const ASR::BinOp_t &x) {
         this->visit_expr(*x.m_left);
         std::string left_val = src;
-        if (last_plus && (x.m_op == ASR::operatorType::Mul
-                       || x.m_op == ASR::operatorType::Div)) {
+        if ((last_binary_plus || last_unary_plus)
+                    && (x.m_op == ASR::operatorType::Mul
+                     || x.m_op == ASR::operatorType::Div)) {
+            left_val = "(" + left_val + ")";
+        }
+        if (last_unary_plus
+                    && (x.m_op == ASR::operatorType::Add
+                     || x.m_op == ASR::operatorType::Sub)) {
             left_val = "(" + left_val + ")";
         }
         this->visit_expr(*x.m_right);
         std::string right_val = src;
-        if (last_plus && (x.m_op == ASR::operatorType::Mul
-                       || x.m_op == ASR::operatorType::Div)) {
+        if ((last_binary_plus || last_unary_plus)
+                    && (x.m_op == ASR::operatorType::Mul
+                     || x.m_op == ASR::operatorType::Div)) {
+            right_val = "(" + right_val + ")";
+        }
+        if (last_unary_plus
+                    && (x.m_op == ASR::operatorType::Add
+                     || x.m_op == ASR::operatorType::Sub)) {
             right_val = "(" + right_val + ")";
         }
         switch (x.m_op) {
             case ASR::operatorType::Add: {
                 src = left_val + " + " + right_val;
-                last_plus = true;
+                last_binary_plus = true;
                 break;
             }
             case ASR::operatorType::Sub: {
                 src = left_val + " - " + right_val;
-                last_plus = true;
+                last_binary_plus = true;
                 break;
             }
             case ASR::operatorType::Mul: {
                 src = left_val + "*" + right_val;
-                last_plus = false;
+                last_binary_plus = false;
                 break;
             }
             case ASR::operatorType::Div: {
                 src = left_val + "/" + right_val;
-                last_plus = false;
+                last_binary_plus = false;
                 break;
             }
             case ASR::operatorType::Pow: {
                 src = "std::pow(" + left_val + ", " + right_val + ")";
-                last_plus = false;
+                last_binary_plus = false;
                 break;
             }
             default : throw CodeGenError("Unhandled switch case");
         }
+        last_unary_plus = false;
     }
 
 
@@ -410,6 +480,71 @@ public:
         std::string out = indent + "while (";
         visit_expr(*x.m_test);
         out += src + ") {\n";
+        indentation_level += 1;
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            out += src;
+        }
+        out += indent + "};\n";
+        indentation_level -= 1;
+        src = out;
+    }
+
+    void visit_Exit(const ASR::Exit_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        src = indent + "break;\n";
+    }
+
+    void visit_Cycle(const ASR::Cycle_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        src = indent + "continue;\n";
+    }
+
+    void visit_DoLoop(const ASR::DoLoop_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string out = indent + "for (";
+        ASR::Variable_t *loop_var = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_head.m_v)->m_v);
+        std::string lvname=loop_var->m_name;
+        ASR::expr_t *a=x.m_head.m_start;
+        ASR::expr_t *b=x.m_head.m_end;
+        ASR::expr_t *c=x.m_head.m_increment;
+        LFORTRAN_ASSERT(a);
+        LFORTRAN_ASSERT(b);
+        int increment;
+        if (!c) {
+            increment = 1;
+        } else {
+            if (c->type == ASR::exprType::Num) {
+                increment = EXPR_NUM((ASR::asr_t*)c)->m_n;
+            } else if (c->type == ASR::exprType::UnaryOp) {
+                ASR::UnaryOp_t *u = EXPR_UNARYOP((ASR::asr_t*)c);
+                LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
+                LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::Num);
+                increment = - EXPR_NUM((ASR::asr_t*)u->m_operand)->m_n;
+            } else {
+                throw CodeGenError("Do loop increment type not supported");
+            }
+        }
+        std::string cmp_op;
+        if (increment > 0) {
+            cmp_op = "<=";
+        } else {
+            cmp_op = ">=";
+        }
+
+        out += lvname + "=";
+        visit_expr(*a);
+        out += src + "; " + lvname + cmp_op;
+        visit_expr(*b);
+        out += src + "; " + lvname;
+        if (increment == 1) {
+            out += "++";
+        } else if (increment == -1) {
+            out += "--";
+        } else {
+            out += "+=" + std::to_string(increment);
+        }
+        out += ") {\n";
         indentation_level += 1;
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
@@ -467,6 +602,25 @@ public:
             out += indent + "};\n";
         }
         indentation_level -= 1;
+        src = out;
+    }
+
+    void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        ASR::Subroutine_t *s = SUBROUTINE((ASR::asr_t*)x.m_name);
+        std::string out = indent + s->m_name + "(";
+        for (size_t i=0; i<x.n_args; i++) {
+            if (x.m_args[i]->type == ASR::exprType::Var) {
+                ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+                std::string arg_name = arg->m_name;
+                out += arg_name;
+            } else {
+                this->visit_expr(*x.m_args[i]);
+                out += src;
+            }
+            if (i < x.n_args-1) out += ", ";
+        }
+        out += ");\n";
         src = out;
     }
 

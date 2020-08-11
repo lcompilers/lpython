@@ -57,34 +57,36 @@ RUN(abort_01 fail)
 
 RUN(print_01)
 
+RUN(cond_01)
+
 RUN(expr_01 fail)
+RUN(expr_02)
+RUN(expr_03)
+
+RUN(variables_01)
+RUN(variables_02)
+RUN(variables_03)
+
+RUN(if_01)
+RUN(if_02 fail)
+RUN(if_03 fail)
+
+RUN(while_01)
+RUN(while_02)
+
+RUN(doloop_01)
+RUN(doloop_02)
+RUN(doloop_03)
+
+RUN(subroutines_01)
+RUN(subroutines_02)
 
 if (NOT LFORTRAN_BACKEND STREQUAL "cpp")
     # GFortran + LFortran LLVM
+endif()
 
-    RUN(cond_01)
-
-    RUN(expr_02)
-    RUN(expr_03)
-
-    RUN(variables_01)
-    RUN(variables_02)
-    RUN(variables_03)
-
-    RUN(if_01)
-    RUN(if_02 fail)
-    RUN(if_03 fail)
-
-
-    RUN(while_01)
-    RUN(while_02)
-
-    RUN(doloop_01)
-    RUN(doloop_02)
-    RUN(doloop_03)
-
-    RUN(subroutines_01)
-    RUN(subroutines_02)
+if (NOT LFORTRAN_BACKEND STREQUAL "llvm")
+    # GFortran + LFortran C++
 endif()
 
 if (NOT LFORTRAN_BACKEND)
