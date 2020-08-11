@@ -51,6 +51,7 @@ ast_cpp = true
 ast_cpp_hip = true
 ast_openmp = true
 asr = true
+cpp = true
 
 [[test]]
 filename = "do_concurrent_reduce.f90"

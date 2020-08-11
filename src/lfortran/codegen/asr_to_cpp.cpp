@@ -10,31 +10,54 @@
 
 namespace LFortran {
 
+// Platform dependent fast unique hash:
+uint64_t get_hash(ASR::asr_t *node)
+{
+    return (uint64_t)node;
+}
+
+struct SymbolInfo
+{
+    bool needs_declaration = true;
+    bool intrinsic_function = false;
+};
+
 class ASRToCPPVisitor : public ASR::BaseVisitor<ASRToCPPVisitor>
 {
 public:
+    std::map<uint64_t, SymbolInfo> sym_info;
     std::string src;
+    int indentation_level;
+    int indentation_spaces;
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         // All loose statements must be converted to a function, so the items
         // must be empty:
         LFORTRAN_ASSERT(x.n_items == 0);
+        std::string unit_src = "";
+        indentation_level = 0;
+        indentation_spaces = 4;
         for (auto &item : x.m_global_scope->scope) {
             visit_asr(*item.second);
+            unit_src += src;
         }
+        src = unit_src;
     }
 
     void visit_Program(const ASR::Program_t &x) {
+        indentation_level += 1;
         std::string decl;
         for (auto &item : x.m_symtab->scope) {
             if (item.second->type == ASR::asrType::var) {
                 ASR::var_t *v2 = (ASR::var_t*)(item.second);
                 ASR::Variable_t *v = (ASR::Variable_t *)v2;
+                std::string indent(indentation_level*indentation_spaces, ' ');
+                decl += indent;
 
                 if (v->m_type->type == ASR::ttypeType::Integer) {
-                    decl += "    int " + std::string(v->m_name) + ";\n";
+                    decl += "int " + std::string(v->m_name) + ";\n";
                 } else if (v->m_type->type == ASR::ttypeType::Logical) {
-                    decl += "    bool " + std::string(v->m_name) + ";\n";
+                    decl += "bool " + std::string(v->m_name) + ";\n";
                 } else {
                     throw CodeGenError("Variable type not supported");
                 }
@@ -44,16 +67,113 @@ public:
         std::string body;
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
-            body += "    " + src;
+            body += src;
         }
 
         std::string headers = "#include <iostream>\n\n";
 
         src = headers + "int main()\n{\n" + decl + body + "    return 0;\n}\n";
+        indentation_level -= 1;
     }
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
+        indentation_level += 1;
         std::string sub = "void " + std::string(x.m_name) + "(";
+        for (size_t i=0; i<x.n_args; i++) {
+            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+            LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
+            if (arg->m_type->type == ASR::ttypeType::Integer) {
+                if (arg->m_intent == intent_in) {
+                    sub += "int " + std::string(arg->m_name);
+                } else if (arg->m_intent == intent_out || arg->m_intent == intent_inout) {
+                    sub += "int &" + std::string(arg->m_name);
+                } else {
+                    LFORTRAN_ASSERT(false);
+                }
+            } else if (arg->m_type->type == ASR::ttypeType::Real) {
+                ASR::Real_t *t = TYPE_REAL((ASR::asr_t*)arg->m_type);
+                std::string dims;
+                for (size_t i=0; i<t->n_dims; i++) {
+                    ASR::expr_t *start = t->m_dims[i].m_start;
+                    ASR::expr_t *end = t->m_dims[i].m_end;
+                    if (!start && !end) {
+                        dims += "*";
+                    } else {
+                        throw CodeGenError("Dimension type not supported");
+                    }
+                }
+                if (t->n_dims == 0) {
+                    std::string ref;
+                    if (arg->m_intent != intent_in) ref = "&";
+                    sub += "float " + ref + std::string(arg->m_name);
+                } else {
+                    std::string c;
+                    if (arg->m_intent == intent_in) c = "const ";
+                    sub += "const Kokkos::View<" + c + "float" + dims + "> &" + std::string(arg->m_name);
+                }
+            }
+            if (i < x.n_args-1) sub += ", ";
+        }
+        sub += ")\n";
+
+        for (auto &item : x.m_symtab->scope) {
+            if (item.second->type == ASR::asrType::var) {
+                ASR::var_t *v2 = (ASR::var_t*)(item.second);
+                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+                if (v->m_intent == intent_local) {
+                    SymbolInfo s;
+                    s.needs_declaration = true;
+                    sym_info[get_hash((ASR::asr_t*)v)] = s;
+                }
+            }
+        }
+
+        std::string body;
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            body += src;
+        }
+
+        std::string decl;
+        for (auto &item : x.m_symtab->scope) {
+            if (item.second->type == ASR::asrType::var) {
+                ASR::var_t *v2 = (ASR::var_t*)(item.second);
+                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+                if (v->m_intent == intent_local) {
+                    if (sym_info[get_hash((ASR::asr_t*) v)].needs_declaration) {
+                        std::string indent(indentation_level*indentation_spaces, ' ');
+                        decl += indent;
+                        if (v->m_type->type == ASR::ttypeType::Integer) {
+                            decl += "int " + std::string(v->m_name) + ";\n";
+                        } else if (v->m_type->type == ASR::ttypeType::Logical) {
+                            decl += "bool " + std::string(v->m_name) + ";\n";
+                        } else {
+                            throw CodeGenError("Variable type not supported");
+                        }
+                    }
+                }
+            }
+        }
+
+        sub += "{\n" + decl + body + "}\n";
+        src = sub;
+        indentation_level -= 1;
+    }
+
+    void visit_Function(const ASR::Function_t &x) {
+        if (std::string(x.m_name) == "size" && x.n_body == 0) {
+            // Intrinsic function `size`
+            SymbolInfo s;
+            s.intrinsic_function = true;
+            sym_info[get_hash((ASR::asr_t*)&x)] = s;
+            src = "";
+            return;
+        } else {
+            SymbolInfo s;
+            s.intrinsic_function = false;
+            sym_info[get_hash((ASR::asr_t*)&x)] = s;
+        }
+        std::string sub = "int " + std::string(x.m_name) + "(";
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
             LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
@@ -85,7 +205,7 @@ public:
             if (item.second->type == ASR::asrType::var) {
                 ASR::var_t *v2 = (ASR::var_t*)(item.second);
                 ASR::Variable_t *v = (ASR::Variable_t *)v2;
-                if (!is_arg_dummy(v->m_intent)) {
+                if (v->m_intent == intent_local) {
                     if (v->m_type->type == ASR::ttypeType::Integer) {
                         decl += "    int " + std::string(v->m_name) + ";\n";
                     } else if (v->m_type->type == ASR::ttypeType::Logical) {
@@ -103,16 +223,65 @@ public:
             body += "    " + src;
         }
 
-        sub += "{\n" + decl + body + "}\n";
+        if (decl.size() > 0 || body.size() > 0) {
+            sub += "{\n" + decl + body + "}\n";
+        } else {
+            sub[sub.size()-1] = ';';
+            sub += "\n";
+        }
         src = sub;
     }
 
+    void visit_FuncCall(const ASR::FuncCall_t &x) {
+        ASR::Function_t *fn = FUNCTION((ASR::asr_t*)x.m_func);
+        std::string fn_name = fn->m_name;
+        if (sym_info[get_hash((ASR::asr_t*)x.m_func)].intrinsic_function) {
+            if (fn_name == "size") {
+                LFORTRAN_ASSERT(x.n_args > 0);
+                visit_expr(*x.m_args[0]);
+                std::string var_name = src;
+                std::string args;
+                if (x.n_args == 1) {
+                    args = "0";
+                } else {
+                    for (size_t i=1; i<x.n_args; i++) {
+                        visit_expr(*x.m_args[i]);
+                        args += src + "-1";
+                        if (i < x.n_args-1) args += ", ";
+                    }
+                }
+                src = var_name + ".extent(" + args + ")";
+            } else {
+                throw CodeGenError("Intrinsic function '" + fn_name
+                        + "' not implemented");
+            }
+
+        } else {
+            std::string args;
+            for (size_t i=0; i<x.n_args; i++) {
+                visit_expr(*x.m_args[i]);
+                args += src;
+                if (i < x.n_args-1) args += ", ";
+            }
+            src = fn_name + "(" + args + ")";
+        }
+    }
+
     void visit_Assignment(const ASR::Assignment_t &x) {
-        ASR::var_t *t1 = EXPR_VAR((ASR::asr_t*)(x.m_target))->m_v;
-        std::string target = VARIABLE((ASR::asr_t*)t1)->m_name;
+        std::string target;
+        if (x.m_target->type == ASR::exprType::Var) {
+            ASR::var_t *t1 = EXPR_VAR((ASR::asr_t*)(x.m_target))->m_v;
+            target = VARIABLE((ASR::asr_t*)t1)->m_name;
+        } else if (x.m_target->type == ASR::exprType::ArrayRef) {
+            visit_ArrayRef(*(ASR::ArrayRef_t*)x.m_target);
+            target = src;
+        } else {
+            LFORTRAN_ASSERT(false)
+        }
         this->visit_expr(*x.m_value);
         std::string value = src;
-        src = target + " = " + value + ";\n";
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        src = indent + target + " = " + value + ";\n";
     }
 
     void visit_Num(const ASR::Num_t &x) {
@@ -121,6 +290,18 @@ public:
 
     void visit_Var(const ASR::Var_t &x) {
         src = VARIABLE((ASR::asr_t*)(x.m_v))->m_name;
+    }
+
+    void visit_ArrayRef(const ASR::ArrayRef_t &x) {
+        std::string out = VARIABLE((ASR::asr_t*)(x.m_v))->m_name;
+        out += "[";
+        for (size_t i=0; i<x.n_args; i++) {
+            visit_expr(*x.m_args[i].m_right);
+            out += src;
+            if (i < x.n_args-1) out += ",";
+        }
+        out += "]";
+        src = out;
     }
 
     void visit_BinOp(const ASR::BinOp_t &x) {
@@ -155,12 +336,32 @@ public:
 
 
     void visit_Print(const ASR::Print_t &x) {
-        std::string out = "std::cout ";
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string out = indent + "std::cout ";
         for (size_t i=0; i<x.n_values; i++) {
             this->visit_expr(*x.m_values[i]);
             out += "<< " + src + " ";
         }
         out += "<< std::endl;\n";
+        src = out;
+    }
+
+    void visit_DoConcurrentLoop(const ASR::DoConcurrentLoop_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string out = indent + "Kokkos::parallel_for(";
+        visit_expr(*x.m_head.m_end);
+        out += src;
+        ASR::Variable_t *loop_var = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_head.m_v)->m_v);
+        sym_info[get_hash((ASR::asr_t*) loop_var)].needs_declaration = false;
+        out += ", KOKKOS_LAMBDA(const long " + std::string(loop_var->m_name)
+                + ") {\n";
+        indentation_level += 1;
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            out += src;
+        }
+        out += indent + "});\n";
+        indentation_level -= 1;
         src = out;
     }
 
