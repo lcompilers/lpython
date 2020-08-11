@@ -442,22 +442,39 @@ int link_executable(const std::string &infile, const std::string &outfile,
 
 
     */
-    std::string CC = "gcc";
-    std::string base_path = runtime_library_dir;
-    std::string options;
-    std::string runtime_lib = "lfortran_runtime";
-    if (static_executable) {
-        options += " -static ";
-        runtime_lib = "lfortran_runtime_static";
+    if (backend == Backend::llvm) {
+        std::string CC = "gcc";
+        std::string base_path = runtime_library_dir;
+        std::string options;
+        std::string runtime_lib = "lfortran_runtime";
+        if (static_executable) {
+            options += " -static ";
+            runtime_lib = "lfortran_runtime_static";
+        }
+        std::string cmd = CC + options + " -o " + outfile + " " + infile + " -L"
+            + base_path + " -Wl,-rpath=" + base_path + " -l" + runtime_lib + " -lm";
+        int err = system(cmd.c_str());
+        if (err) {
+            std::cout << "The command '" + cmd + "' failed." << std::endl;
+            return 10;
+        }
+        return 0;
+    } else if (backend == Backend::cpp) {
+        std::string CXX = "g++";
+        std::string options;
+        if (static_executable) {
+            options += " -static ";
+        }
+        std::string cmd = CXX + options + " -o " + outfile + " " + infile + " -lm";
+        int err = system(cmd.c_str());
+        if (err) {
+            std::cout << "The command '" + cmd + "' failed." << std::endl;
+            return 10;
+        }
+        return 0;
+    } else {
+        LFORTRAN_ASSERT(false);
     }
-    std::string cmd = CC + options + " -o " + outfile + " " + infile + " -L"
-        + base_path + " -Wl,-rpath=" + base_path + " -l" + runtime_lib + " -lm";
-    int err = system(cmd.c_str());
-    if (err) {
-        std::cout << "The command '" + cmd + "' failed." << std::endl;
-        return 10;
-    }
-    return 0;
 }
 
 void get_executable_path(std::string &executable_path, int &dirname_length)
@@ -642,32 +659,25 @@ int main(int argc, char *argv[])
     }
 
     if (ends_with(arg_file, ".f90")) {
+        std::string tmp_o = outfile + ".tmp.o";
+        int err;
         if (backend == Backend::llvm) {
-            std::string tmp_o = outfile + ".tmp.o";
 #ifdef HAVE_LFORTRAN_LLVM
-            int err = compile_to_object_file(arg_file, tmp_o);
-            if (err) return err;
+            err = compile_to_object_file(arg_file, tmp_o);
 #else
             std::cerr << "Compiling Fortran files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
             return 1;
 #endif
-            return link_executable(tmp_o, outfile, runtime_library_dir,
-                    backend, static_link);
         } else if (backend == Backend::cpp) {
-            std::cerr << "The C++ backend does not work for linking yet." << std::endl;
-            return 1;
+            err = compile_to_object_file_cpp(arg_file, tmp_o);
         } else {
             LFORTRAN_ASSERT(false);
         }
+        if (err) return err;
+        return link_executable(tmp_o, outfile, runtime_library_dir,
+                backend, static_link);
     } else {
-        if (backend == Backend::llvm) {
-            return link_executable(arg_file, outfile, runtime_library_dir,
-                    backend, static_link);
-        } else if (backend == Backend::cpp) {
-            std::cerr << "The C++ backend does not work for linking yet." << std::endl;
-            return 1;
-        } else {
-            LFORTRAN_ASSERT(false);
-        }
+        return link_executable(arg_file, outfile, runtime_library_dir,
+                backend, static_link);
     }
 }
