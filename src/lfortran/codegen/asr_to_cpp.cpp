@@ -489,6 +489,61 @@ public:
         src = indent + "continue;\n";
     }
 
+    void visit_DoLoop(const ASR::DoLoop_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string out = indent + "for (";
+        ASR::Variable_t *loop_var = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_head.m_v)->m_v);
+        std::string lvname=loop_var->m_name;
+        ASR::expr_t *a=x.m_head.m_start;
+        ASR::expr_t *b=x.m_head.m_end;
+        ASR::expr_t *c=x.m_head.m_increment;
+        LFORTRAN_ASSERT(a);
+        LFORTRAN_ASSERT(b);
+        int increment;
+        if (!c) {
+            increment = 1;
+        } else {
+            if (c->type == ASR::exprType::Num) {
+                increment = EXPR_NUM((ASR::asr_t*)c)->m_n;
+            } else if (c->type == ASR::exprType::UnaryOp) {
+                ASR::UnaryOp_t *u = EXPR_UNARYOP((ASR::asr_t*)c);
+                LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
+                LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::Num);
+                increment = - EXPR_NUM((ASR::asr_t*)u->m_operand)->m_n;
+            } else {
+                throw CodeGenError("Do loop increment type not supported");
+            }
+        }
+        std::string cmp_op;
+        if (increment > 0) {
+            cmp_op = "<=";
+        } else {
+            cmp_op = ">=";
+        }
+
+        out += lvname + "=";
+        visit_expr(*a);
+        out += src + "; " + lvname + cmp_op;
+        visit_expr(*b);
+        out += src + "; " + lvname;
+        if (increment == 1) {
+            out += "++";
+        } else if (increment == -1) {
+            out += "--";
+        } else {
+            out += "+=" + std::to_string(increment);
+        }
+        out += ") {\n";
+        indentation_level += 1;
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            out += src;
+        }
+        out += indent + "};\n";
+        indentation_level -= 1;
+        src = out;
+    }
+
     void visit_DoConcurrentLoop(const ASR::DoConcurrentLoop_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "Kokkos::parallel_for(";
