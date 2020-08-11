@@ -19,9 +19,12 @@ public:
         // All loose statements must be converted to a function, so the items
         // must be empty:
         LFORTRAN_ASSERT(x.n_items == 0);
+        std::string unit_src = "";
         for (auto &item : x.m_global_scope->scope) {
             visit_asr(*item.second);
+            unit_src += src;
         }
+        src = unit_src;
     }
 
     void visit_Program(const ASR::Program_t &x) {
@@ -107,9 +110,81 @@ public:
         src = sub;
     }
 
+    void visit_Function(const ASR::Function_t &x) {
+        std::string sub = "int " + std::string(x.m_name) + "(";
+        for (size_t i=0; i<x.n_args; i++) {
+            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+            LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
+            if (arg->m_type->type == ASR::ttypeType::Integer) {
+                if (arg->m_intent == intent_in) {
+                    sub += "int " + std::string(arg->m_name);
+                } else if (arg->m_intent == intent_out || arg->m_intent == intent_inout) {
+                    sub += "int &" + std::string(arg->m_name);
+                } else {
+                    LFORTRAN_ASSERT(false);
+                }
+            } else if (arg->m_type->type == ASR::ttypeType::Real) {
+                if (arg->m_intent == intent_in) {
+                    sub += "float " + std::string(arg->m_name);
+                } else if (arg->m_intent == intent_out || arg->m_intent == intent_inout) {
+                    sub += "float &" + std::string(arg->m_name);
+                } else {
+                    LFORTRAN_ASSERT(false);
+                }
+            } else {
+                throw CodeGenError("Type not supported yet.");
+            }
+            if (i < x.n_args-1) sub += ", ";
+        }
+        sub += ")\n";
+
+        std::string decl;
+        for (auto &item : x.m_symtab->scope) {
+            if (item.second->type == ASR::asrType::var) {
+                ASR::var_t *v2 = (ASR::var_t*)(item.second);
+                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+                if (v->m_intent == intent_local) {
+                    if (v->m_type->type == ASR::ttypeType::Integer) {
+                        decl += "    int " + std::string(v->m_name) + ";\n";
+                    } else if (v->m_type->type == ASR::ttypeType::Logical) {
+                        decl += "    bool " + std::string(v->m_name) + ";\n";
+                    } else {
+                        throw CodeGenError("Variable type not supported");
+                    }
+                }
+            }
+        }
+
+        std::string body;
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            body += "    " + src;
+        }
+
+        if (decl.size() > 0 || body.size() > 0) {
+            sub += "{\n" + decl + body + "}\n";
+        } else {
+            sub[sub.size()-1] = ';';
+            sub += "\n";
+        }
+        src = sub;
+    }
+
+    void visit_FuncCall(const ASR::FuncCall_t &x) {
+        src = std::string(FUNCTION((ASR::asr_t*)x.m_func)->m_name) + "()";
+    }
+
     void visit_Assignment(const ASR::Assignment_t &x) {
-        ASR::var_t *t1 = EXPR_VAR((ASR::asr_t*)(x.m_target))->m_v;
-        std::string target = VARIABLE((ASR::asr_t*)t1)->m_name;
+        std::string target;
+        if (x.m_target->type == ASR::exprType::Var) {
+            ASR::var_t *t1 = EXPR_VAR((ASR::asr_t*)(x.m_target))->m_v;
+            target = VARIABLE((ASR::asr_t*)t1)->m_name;
+        } else if (x.m_target->type == ASR::exprType::ArrayRef) {
+            visit_ArrayRef(*(ASR::ArrayRef_t*)x.m_target);
+            target = src;
+        } else {
+            LFORTRAN_ASSERT(false)
+        }
         this->visit_expr(*x.m_value);
         std::string value = src;
         src = target + " = " + value + ";\n";
@@ -121,6 +196,11 @@ public:
 
     void visit_Var(const ASR::Var_t &x) {
         src = VARIABLE((ASR::asr_t*)(x.m_v))->m_name;
+    }
+
+    void visit_ArrayRef(const ASR::ArrayRef_t &x) {
+        src = VARIABLE((ASR::asr_t*)(x.m_v))->m_name;
+        src += "[]";
     }
 
     void visit_BinOp(const ASR::BinOp_t &x) {
@@ -161,6 +241,21 @@ public:
             out += "<< " + src + " ";
         }
         out += "<< std::endl;\n";
+        src = out;
+    }
+
+    void visit_DoConcurrentLoop(const ASR::DoConcurrentLoop_t &x) {
+        std::string out = "Kokkos::parallel_for(";
+        visit_expr(*x.m_head.m_end);
+        out += src;
+        out += ", KOKKOS_LAMBDA(const long "
+            + std::string(VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_head.m_v)->m_v)->m_name)
+            + ") {\n";
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            out += "    " + src;
+        }
+        out += "});\n";
         src = out;
     }
 
