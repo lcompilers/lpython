@@ -18,7 +18,8 @@ uint64_t get_hash(ASR::asr_t *node)
 
 struct SymbolInfo
 {
-    bool needs_declaration;
+    bool needs_declaration = true;
+    bool intrinsic_function = false;
 };
 
 class ASRToCPPVisitor : public ASR::BaseVisitor<ASRToCPPVisitor>
@@ -149,6 +150,18 @@ public:
     }
 
     void visit_Function(const ASR::Function_t &x) {
+        if (std::string(x.m_name) == "size" && x.n_body == 0) {
+            // Intrinsic function `size`
+            SymbolInfo s;
+            s.intrinsic_function = true;
+            sym_info[get_hash((ASR::asr_t*)&x)] = s;
+            src = "";
+            return;
+        } else {
+            SymbolInfo s;
+            s.intrinsic_function = false;
+            sym_info[get_hash((ASR::asr_t*)&x)] = s;
+        }
         std::string sub = "int " + std::string(x.m_name) + "(";
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
@@ -209,7 +222,38 @@ public:
     }
 
     void visit_FuncCall(const ASR::FuncCall_t &x) {
-        src = std::string(FUNCTION((ASR::asr_t*)x.m_func)->m_name) + "()";
+        ASR::Function_t *fn = FUNCTION((ASR::asr_t*)x.m_func);
+        std::string fn_name = fn->m_name;
+        if (sym_info[get_hash((ASR::asr_t*)x.m_func)].intrinsic_function) {
+            if (fn_name == "size") {
+                LFORTRAN_ASSERT(x.n_args > 0);
+                visit_expr(*x.m_args[0]);
+                std::string var_name = src;
+                std::string args;
+                if (x.n_args == 1) {
+                    args = "0";
+                } else {
+                    for (size_t i=1; i<x.n_args; i++) {
+                        visit_expr(*x.m_args[i]);
+                        args += src + "-1";
+                        if (i < x.n_args-1) args += ", ";
+                    }
+                }
+                src = var_name + ".extent(" + args + ")";
+            } else {
+                throw CodeGenError("Intrinsic function '" + fn_name
+                        + "' not implemented");
+            }
+
+        } else {
+            std::string args;
+            for (size_t i=0; i<x.n_args; i++) {
+                visit_expr(*x.m_args[i]);
+                args += src;
+                if (i < x.n_args-1) args += ", ";
+            }
+            src = fn_name + "(" + args + ")";
+        }
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
