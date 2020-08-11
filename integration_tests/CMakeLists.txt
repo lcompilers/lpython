@@ -67,13 +67,12 @@ RUN(variables_01)
 RUN(variables_02)
 RUN(variables_03)
 
+RUN(if_01)
+RUN(if_02 fail)
+RUN(if_03 fail)
+
 if (NOT LFORTRAN_BACKEND STREQUAL "cpp")
     # GFortran + LFortran LLVM
-
-    RUN(if_01)
-    RUN(if_02 fail)
-    RUN(if_03 fail)
-
 
     RUN(while_01)
     RUN(while_02)
