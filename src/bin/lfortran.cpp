@@ -334,8 +334,9 @@ int compile_to_assembly_file(const std::string &infile, const std::string &outfi
 }
 #endif
 
-int compile_to_object_file_cpp(const std::string &infile, const std::string &outfile,
-        bool assembly=false)
+int compile_to_object_file_cpp(const std::string &infile,
+        const std::string &outfile,
+        bool assembly=false, bool kokkos=false)
 {
     std::string input = read_file(infile);
 
@@ -376,7 +377,12 @@ int compile_to_object_file_cpp(const std::string &infile, const std::string &out
         }
 
         std::string CXX = "g++";
-        std::string cmd = CXX + " -o " + outfile + " -c " + cppfile;
+        std::string options;
+        if (kokkos) {
+            std::string kokkos_dir = get_kokkos_dir();
+            options += "-fopenmp -I" + kokkos_dir + "/include";
+        }
+        std::string cmd = CXX + " " + options + " -o " + outfile + " -c " + cppfile;
         int err = system(cmd.c_str());
         if (err) {
             std::cout << "The command '" + cmd + "' failed." << std::endl;
@@ -391,7 +397,7 @@ int compile_to_object_file_cpp(const std::string &infile, const std::string &out
 // outfile will become the executable
 int link_executable(const std::string &infile, const std::string &outfile,
     const std::string &runtime_library_dir, Backend backend,
-    bool static_executable=false)
+    bool static_executable=false, bool kokkos=false)
 {
     /*
     The `gcc` line for dynamic linking that is constructed below:
@@ -468,11 +474,18 @@ int link_executable(const std::string &infile, const std::string &outfile,
         return 0;
     } else if (backend == Backend::cpp) {
         std::string CXX = "g++";
-        std::string options;
+        std::string options, post_options;
         if (static_executable) {
             options += " -static ";
         }
-        std::string cmd = CXX + options + " -o " + outfile + " " + infile + " -lm";
+        if (kokkos) {
+            std::string kokkos_dir = get_kokkos_dir();
+            options += " -fopenmp ";
+            post_options += kokkos_dir + "/lib/libkokkoscontainers.a "
+                + kokkos_dir + "/lib/libkokkoscore.a -ldl";
+        }
+        std::string cmd = CXX + options + " -o " + outfile + " " + infile
+            + " " + post_options + " -lm";
         int err = system(cmd.c_str());
         if (err) {
             std::cout << "The command '" + cmd + "' failed." << std::endl;
