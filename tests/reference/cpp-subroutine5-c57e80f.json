@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-subroutine5-c57e80f",
+    "cmd": "lfortran --show-cpp {infile}",
+    "infile": "tests/subroutine5.f90",
+    "infile_hash": "88c62ffd8f005d7a511511e43da68f25e8fe795a75fec462baa25885",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-subroutine5-c57e80f.stdout",
+    "stdout_hash": "432e8d3a60ee08e7bb92deea2954e26b11d6ee1f48c0784fdce5ffe9",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
