@@ -184,6 +184,7 @@ asr = true
 [[test]]
 filename = "global_scope1.f90"
 ast = true
+asr = true
 
 [[test]]
 filename = "global_scope2.f90"

@@ -264,6 +264,10 @@ public:
         unit->n_items = items.size();
     }
 
+    void visit_Declaration(const AST::Declaration_t &x) {
+        // This AST node was already visited in SymbolTableVisitor
+    }
+
     void visit_Program(const AST::Program_t &x) {
         SymbolTable *old_scope = current_scope;
         ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
