@@ -41,7 +41,72 @@ public:
             }
         }
 
-        src = "int main()\n{\n" + decl + "    return 0;\n}";
+        std::string body;
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            body += "    " + src;
+        }
+
+        std::string headers = "#include <iostream>\n\n";
+
+        src = headers + "int main()\n{\n" + decl + body + "    return 0;\n}";
+    }
+
+    void visit_Assignment(const ASR::Assignment_t &x) {
+        ASR::var_t *t1 = EXPR_VAR((ASR::asr_t*)(x.m_target))->m_v;
+        std::string target = VARIABLE((ASR::asr_t*)t1)->m_name;
+        this->visit_expr(*x.m_value);
+        std::string value = src;
+        src = target + " = " + value + ";\n";
+    }
+
+    void visit_Num(const ASR::Num_t &x) {
+        src = std::to_string(x.m_n);
+    }
+
+    void visit_Var(const ASR::Var_t &x) {
+        src = VARIABLE((ASR::asr_t*)(x.m_v))->m_name;
+    }
+
+    void visit_BinOp(const ASR::BinOp_t &x) {
+        this->visit_expr(*x.m_left);
+        std::string left_val = src;
+        this->visit_expr(*x.m_right);
+        std::string right_val = src;
+        switch (x.m_op) {
+            case ASR::operatorType::Add: {
+                src = left_val + " + " + right_val;
+                break;
+            }
+            case ASR::operatorType::Sub: {
+                src = left_val + " - " + right_val;
+                break;
+            }
+            case ASR::operatorType::Mul: {
+                src = left_val + "*" + right_val;
+                break;
+            }
+            case ASR::operatorType::Div: {
+                src = left_val + "/" + right_val;
+                break;
+            }
+            case ASR::operatorType::Pow: {
+                src = "std::pow(" + left_val + ", " + right_val + ")";
+                break;
+            }
+            default : throw CodeGenError("Unhandled switch case");
+        }
+    }
+
+
+    void visit_Print(const ASR::Print_t &x) {
+        std::string out = "std::cout ";
+        for (size_t i=0; i<x.n_values; i++) {
+            this->visit_expr(*x.m_values[i]);
+            out += "<< " + src + " ";
+        }
+        out += "<< std::endl;\n";
+        src = out;
     }
 
 };
