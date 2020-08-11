@@ -533,12 +533,19 @@ void wrap_global_stmts_into_function(Allocator &al, ASR::TranslationUnit_t &unit
         ASR::asr_t *return_var_ref = ASR::make_Var_t(al, loc,
             VAR(return_var));
 
-        ASR::expr_t *target = EXPR(return_var_ref);
-        ASR::expr_t *value = EXPR(unit.m_items[0]);
         Vec<ASR::stmt_t*> body;
-        ASR::stmt_t* asr_stmt= STMT(ASR::make_Assignment_t(al, loc, target, value));
         body.reserve(al, 1);
-        body.push_back(al, asr_stmt);
+        if (unit.m_items[0]->type == ASR::asrType::expr) {
+            ASR::expr_t *target = EXPR(return_var_ref);
+            ASR::expr_t *value = EXPR(unit.m_items[0]);
+            ASR::stmt_t* asr_stmt = STMT(ASR::make_Assignment_t(al, loc, target, value));
+            body.push_back(al, asr_stmt);
+        } else if (unit.m_items[0]->type == ASR::asrType::stmt) {
+            ASR::stmt_t* asr_stmt = STMT(unit.m_items[0]);
+            body.push_back(al, asr_stmt);
+        } else {
+            throw CodeGenError("Unsupported type of global scope node");
+        }
 
 
         ASR::asr_t *fn = ASR::make_Function_t(
