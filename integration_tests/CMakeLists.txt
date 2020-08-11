@@ -78,11 +78,11 @@ RUN(doloop_01)
 RUN(doloop_02)
 RUN(doloop_03)
 
+RUN(subroutines_01)
+RUN(subroutines_02)
+
 if (NOT LFORTRAN_BACKEND STREQUAL "cpp")
     # GFortran + LFortran LLVM
-
-    RUN(subroutines_01)
-    RUN(subroutines_02)
 endif()
 
 if (NOT LFORTRAN_BACKEND STREQUAL "llvm")
