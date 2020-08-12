@@ -6,10 +6,16 @@ int main(int argc, char* argv[])
     Kokkos::initialize(argc, argv); {
     bool a;
     Kokkos::View<bool[2]> b;
+    Kokkos::View<bool[3][2]> b2;
+    Kokkos::View<bool[2][1][2]> b3;
     float d;
     Kokkos::View<float[5]> e;
+    Kokkos::View<float[2][3]> e2;
+    Kokkos::View<float[1][2][3]> e3;
     int f;
     Kokkos::View<int[3]> g;
+    Kokkos::View<int[6][3]> g2;
+    Kokkos::View<int[4][3][2]> g3;
     } Kokkos::finalize();
     return 0;
 }
