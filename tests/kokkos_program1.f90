@@ -1,0 +1,16 @@
+program t
+implicit none
+
+contains
+
+    subroutine triad(a, b, scalar, c)
+    real, intent(in) :: a(:), b(:), scalar
+    real, intent(out) :: c(:)
+    integer :: N, i
+    N = size(a)
+    do concurrent (i = 1:N)
+        c(i) = a(i) + scalar * b(i)
+    end do
+    end subroutine
+
+end program

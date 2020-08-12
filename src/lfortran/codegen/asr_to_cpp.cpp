@@ -83,7 +83,11 @@ public:
             body += src;
         }
 
-        std::string headers = "#include <iostream>\n\n";
+        std::string headers =
+R"(#include <iostream>
+#include <Kokkos_Core.hpp>
+
+)";
 
         src = headers + contains + "int main()\n{\n" + decl + body + "    return 0;\n}\n";
         indentation_level -= 1;
