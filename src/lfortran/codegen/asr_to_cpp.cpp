@@ -121,16 +121,7 @@ public:
                 ASR::var_t *v2 = (ASR::var_t*)(item.second);
                 ASR::Variable_t *v = (ASR::Variable_t *)v2;
                 decl += indent;
-
-                if (v->m_type->type == ASR::ttypeType::Integer) {
-                    decl += "int " + std::string(v->m_name) + ";\n";
-                } else if (v->m_type->type == ASR::ttypeType::Real) {
-                    decl += "float " + std::string(v->m_name) + ";\n";
-                } else if (v->m_type->type == ASR::ttypeType::Logical) {
-                    decl += "bool " + std::string(v->m_name) + ";\n";
-                } else {
-                    throw CodeGenError("Variable type not supported");
-                }
+                decl += convert_variable_decl(*v) + ";\n";
             }
         }
 
