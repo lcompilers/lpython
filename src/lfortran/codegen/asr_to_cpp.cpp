@@ -84,9 +84,9 @@ std::string convert_variable_decl(const ASR::Variable_t &v)
         std::string dims = convert_dims(t->n_dims, t->m_dims);
         sub = format_type(dims, "float", v.m_name, use_ref, dummy);
     } else if (v.m_type->type == ASR::ttypeType::Logical) {
-        std::string ref;
-        if (use_ref) ref = "&";
-        sub += "bool " + ref + std::string(v.m_name);
+        ASR::Logical_t *t = TYPE_LOGICAL((ASR::asr_t*)v.m_type);
+        std::string dims = convert_dims(t->n_dims, t->m_dims);
+        sub = format_type(dims, "bool", v.m_name, use_ref, dummy);
     } else {
         throw CodeGenError("Type not supported");
     }
