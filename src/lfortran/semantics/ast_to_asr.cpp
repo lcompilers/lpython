@@ -26,7 +26,8 @@ public:
         LFORTRAN_ASSERT(current_scope == nullptr);
         current_scope = al.make_new<SymbolTable>(nullptr);
         for (size_t i=0; i<x.n_items; i++) {
-            if (x.m_items[i]->type != AST::astType::expr) {
+            AST::astType t = x.m_items[i]->type;
+            if (t != AST::astType::expr && t != AST::astType::stmt) {
                 visit_ast(*x.m_items[i]);
             }
         }
@@ -229,7 +230,6 @@ public:
         }
     }
 
-    void visit_stmt(const AST::stmt_t &x) {}
 };
 
 class BodyVisitor : public AST::BaseVisitor<BodyVisitor>
