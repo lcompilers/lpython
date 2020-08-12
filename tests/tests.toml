@@ -56,6 +56,8 @@ cpp = true
 [[test]]
 filename = "do_concurrent_reduce.f90"
 ast = true
+ast_cpp = true
+ast_openmp = true
 
 [[test]]
 filename = "do_concurrent_reduce2.f90"
