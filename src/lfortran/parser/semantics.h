@@ -434,12 +434,23 @@ static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
 #define VARMOD(a, l) make_Attribute_t(p.m_a, l, \
         a.c_str(p.m_a), \
         /*args*/ nullptr, \
-        /*n_args*/ 0)
+        /*n_args*/ 0, \
+        nullptr, \
+        0)
 
 #define VARMOD2(a, b, l) make_Attribute_t(p.m_a, l, \
         a.c_str(p.m_a), \
         /*args*/ ATTR_ARG(p.m_a, b), \
-        /*n_args*/ 1)
+        /*n_args*/ 1, \
+        nullptr, \
+        0)
+
+#define VARMOD_DIM(a, b, l) make_Attribute_t(p.m_a, l, \
+        a.c_str(p.m_a), \
+        /*args*/ nullptr, \
+        /*n_args*/ 0, \
+        b.p, \
+        b.size())
 
 #define FUNCCALLORARRAY(id, args, l) make_FuncCallOrArray_t(p.m_a, l, \
         /*char* a_func*/ name2char(id), \
