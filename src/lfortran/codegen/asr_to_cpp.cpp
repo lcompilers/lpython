@@ -27,11 +27,9 @@ std::string convert_variable_decl(const ASR::Variable_t &v)
     std::string sub;
     bool use_ref = (v.m_intent == intent_out || v.m_intent == intent_inout);
     if (v.m_type->type == ASR::ttypeType::Integer) {
-        if (use_ref) {
-            sub += "int &" + std::string(v.m_name);
-        } else {
-            sub += "int " + std::string(v.m_name);
-        }
+        std::string ref;
+        if (use_ref) ref = "&";
+        sub += "int " + ref + std::string(v.m_name);
     } else if (v.m_type->type == ASR::ttypeType::Real) {
         ASR::Real_t *t = TYPE_REAL((ASR::asr_t*)v.m_type);
         std::string dims;
