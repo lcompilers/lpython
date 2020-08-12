@@ -148,22 +148,6 @@ public:
         std::string sym = x.m_sym;
         std::string sym_type = x.m_sym_type;
         if (current_scope->scope.find(sym) == current_scope->scope.end()) {
-            int s_type;
-            if (sym_type == "integer") {
-                s_type = 2;
-            } else if (sym_type == "real") {
-                s_type = 1;
-            } else if (sym_type == "logical") {
-                s_type = 3;
-            } else {
-                Location loc;
-                // TODO: decl_t does not have location information...
-                loc.first_column = 0;
-                loc.first_line = 0;
-                loc.last_column = 0;
-                loc.last_line = 0;
-                throw SemanticError("Unsupported type", loc);
-            }
             int s_intent=intent_local;
             if (x.n_attrs > 0) {
                 AST::Attribute_t *a = (AST::Attribute_t*)(x.m_attrs[0]);
@@ -221,14 +205,20 @@ public:
             loc.last_column = 0;
             loc.last_line = 0;
             ASR::ttype_t *type;
-            if (s_type == 1) {
+            if (sym_type == "real") {
                 type = TYPE(ASR::make_Real_t(al, loc, 4, dims.p, dims.size()));
-            } else if (s_type == 2) {
+            } else if (sym_type == "integer") {
                 type = TYPE(ASR::make_Integer_t(al, loc, 4, dims.p, dims.size()));
-            } else if (s_type == 3) {
+            } else if (sym_type == "logical") {
                 type = TYPE(ASR::make_Logical_t(al, loc, 4, dims.p, dims.size()));
             } else {
-                LFORTRAN_ASSERT(false);
+                Location loc;
+                // TODO: decl_t does not have location information...
+                loc.first_column = 0;
+                loc.first_line = 0;
+                loc.last_column = 0;
+                loc.last_line = 0;
+                throw SemanticError("Unsupported type", loc);
             }
             ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
                 x.m_sym, s_intent, type);
