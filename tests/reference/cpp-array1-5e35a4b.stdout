@@ -4,6 +4,8 @@
 int main(int argc, char* argv[])
 {
     Kokkos::initialize(argc, argv); {
+    bool a;
+    Kokkos::View<bool[2]> b;
     float d;
     Kokkos::View<float[5]> e;
     int f;
