@@ -158,6 +158,8 @@ public:
         loc.last_line = 0;
         if (current_scope->scope.find(sym) == current_scope->scope.end()) {
             int s_intent=intent_local;
+            Vec<ASR::dimension_t> dims;
+            dims.reserve(al, x.n_dims);
             if (x.n_attrs > 0) {
                 AST::Attribute_t *a = (AST::Attribute_t*)(x.m_attrs[0]);
                 if (std::string(a->m_name) == "intent") {
@@ -176,9 +178,29 @@ public:
                         throw SemanticError("intent() is empty. Must specify intent", loc);
                     }
                 }
+                if (std::string(a->m_name) == "dimension") {
+                    if (x.n_dims > 0) {
+                        throw SemanticError("Cannot specify dimensions both ways", loc);
+                    }
+                    dims.reserve(al, a->n_dims);
+                    for (size_t i=0; i<a->n_dims; i++) {
+                        ASR::dimension_t dim;
+                        if (a->m_dims[i].m_start) {
+                            this->visit_expr(*a->m_dims[i].m_start);
+                            dim.m_start = EXPR(asr);
+                        } else {
+                            dim.m_start = nullptr;
+                        }
+                        if (a->m_dims[i].m_end) {
+                            this->visit_expr(*a->m_dims[i].m_end);
+                            dim.m_end = EXPR(asr);
+                        } else {
+                            dim.m_end = nullptr;
+                        }
+                        dims.push_back(al, dim);
+                    }
+                }
             }
-            Vec<ASR::dimension_t> dims;
-            dims.reserve(al, x.n_dims);
             for (size_t i=0; i<x.n_dims; i++) {
                 ASR::dimension_t dim;
                 if (x.m_dims[i].m_start) {
