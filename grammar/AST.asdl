@@ -102,7 +102,7 @@ decl = (identifier sym, string sym_type, dimension* dims, attribute *attrs,
 
 dimension = (expr? start, expr? end)
 
-attribute = Attribute(identifier name, attribute_arg *args)
+attribute = Attribute(identifier name, attribute_arg *args, dimension* dims)
 
 attribute_arg = (identifier arg)
 
