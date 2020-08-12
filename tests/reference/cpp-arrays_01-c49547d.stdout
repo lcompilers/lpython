@@ -8,61 +8,61 @@ int main(int argc, char* argv[])
     Kokkos::View<int[4]> b("b");
     int i;
     for (i=1; i<=3; i++) {
-        a[i] = i + 10;
+        a[i-1] = i + 10;
     };
-    if (a[1] != 11) {
+    if (a[1-1] != 11) {
         std::cerr << "ERROR STOP" << std::endl;
         exit(1);
     };
-    if (a[2] != 12) {
+    if (a[2-1] != 12) {
         std::cerr << "ERROR STOP" << std::endl;
         exit(1);
     };
-    if (a[3] != 13) {
+    if (a[3-1] != 13) {
         std::cerr << "ERROR STOP" << std::endl;
         exit(1);
     };
     for (i=11; i<=14; i++) {
-        b[i - 10] = i;
+        b[i - 10-1] = i;
     };
-    if (b[1] != 11) {
+    if (b[1-1] != 11) {
         std::cerr << "ERROR STOP" << std::endl;
         exit(1);
     };
-    if (b[2] != 12) {
+    if (b[2-1] != 12) {
         std::cerr << "ERROR STOP" << std::endl;
         exit(1);
     };
-    if (b[3] != 13) {
+    if (b[3-1] != 13) {
         std::cerr << "ERROR STOP" << std::endl;
         exit(1);
     };
-    if (b[4] != 14) {
+    if (b[4-1] != 14) {
         std::cerr << "ERROR STOP" << std::endl;
         exit(1);
     };
     for (i=1; i<=3; i++) {
-        b[i] = a[i] - 10;
+        b[i-1] = a[i-1] - 10;
     };
-    if (b[1] != 1) {
+    if (b[1-1] != 1) {
         std::cerr << "ERROR STOP" << std::endl;
         exit(1);
     };
-    if (b[2] != 2) {
+    if (b[2-1] != 2) {
         std::cerr << "ERROR STOP" << std::endl;
         exit(1);
     };
-    if (b[3] != 3) {
+    if (b[3-1] != 3) {
         std::cerr << "ERROR STOP" << std::endl;
         exit(1);
     };
-    b[4] = b[1] + b[2] + b[3] + a[1];
-    if (b[4] != 17) {
+    b[4-1] = b[1-1] + b[2-1] + b[3-1] + a[1-1];
+    if (b[4-1] != 17) {
         std::cerr << "ERROR STOP" << std::endl;
         exit(1);
     };
-    b[4] = a[1];
-    if (b[4] != 11) {
+    b[4-1] = a[1-1];
+    if (b[4-1] != 11) {
         std::cerr << "ERROR STOP" << std::endl;
         exit(1);
     };
