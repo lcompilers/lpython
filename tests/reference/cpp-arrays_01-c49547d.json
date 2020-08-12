@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-arrays_01-c49547d",
+    "cmd": "lfortran --show-cpp {infile}",
+    "infile": "tests/../integration_tests/arrays_01.f90",
+    "infile_hash": "f7df4142feb383f836dfa072a60673922e8873b5695f893be8329b89",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-arrays_01-c49547d.stdout",
+    "stdout_hash": "5e5159bd8613c77a2060c73d9e901fe1f379f21331b7841d2155d443",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

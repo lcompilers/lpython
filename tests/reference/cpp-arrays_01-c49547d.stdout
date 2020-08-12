@@ -1,0 +1,71 @@
+#include <iostream>
+#include <Kokkos_Core.hpp>
+
+int main(int argc, char* argv[])
+{
+    Kokkos::initialize(argc, argv); {
+    Kokkos::View<int[3]> a("a");
+    Kokkos::View<int[4]> b("b");
+    int i;
+    for (i=1; i<=3; i++) {
+        a[i] = i + 10;
+    };
+    if (a[1] != 11) {
+        std::cerr << "ERROR STOP" << std::endl;
+        exit(1);
+    };
+    if (a[2] != 12) {
+        std::cerr << "ERROR STOP" << std::endl;
+        exit(1);
+    };
+    if (a[3] != 13) {
+        std::cerr << "ERROR STOP" << std::endl;
+        exit(1);
+    };
+    for (i=11; i<=14; i++) {
+        b[i - 10] = i;
+    };
+    if (b[1] != 11) {
+        std::cerr << "ERROR STOP" << std::endl;
+        exit(1);
+    };
+    if (b[2] != 12) {
+        std::cerr << "ERROR STOP" << std::endl;
+        exit(1);
+    };
+    if (b[3] != 13) {
+        std::cerr << "ERROR STOP" << std::endl;
+        exit(1);
+    };
+    if (b[4] != 14) {
+        std::cerr << "ERROR STOP" << std::endl;
+        exit(1);
+    };
+    for (i=1; i<=3; i++) {
+        b[i] = a[i] - 10;
+    };
+    if (b[1] != 1) {
+        std::cerr << "ERROR STOP" << std::endl;
+        exit(1);
+    };
+    if (b[2] != 2) {
+        std::cerr << "ERROR STOP" << std::endl;
+        exit(1);
+    };
+    if (b[3] != 3) {
+        std::cerr << "ERROR STOP" << std::endl;
+        exit(1);
+    };
+    b[4] = b[1] + b[2] + b[3] + a[1];
+    if (b[4] != 17) {
+        std::cerr << "ERROR STOP" << std::endl;
+        exit(1);
+    };
+    b[4] = a[1];
+    if (b[4] != 11) {
+        std::cerr << "ERROR STOP" << std::endl;
+        exit(1);
+    };
+    } Kokkos::finalize();
+    return 0;
+}
