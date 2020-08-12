@@ -39,10 +39,26 @@ public:
         std::string unit_src = "";
         indentation_level = 0;
         indentation_spaces = 4;
+
+        // TODO: We need to pre-declare all functions first, then generate code
+        // Otherwise some function might not be found.
+
+        // Process procedures first:
         for (auto &item : x.m_global_scope->scope) {
-            visit_asr(*item.second);
-            unit_src += src;
+            if (item.second->type != ASR::asrType::prog) {
+                visit_asr(*item.second);
+                unit_src += src;
+            }
         }
+
+        // Then the main program:
+        for (auto &item : x.m_global_scope->scope) {
+            if (item.second->type == ASR::asrType::prog) {
+                visit_asr(*item.second);
+                unit_src += src;
+            }
+        }
+
         src = unit_src;
     }
 
