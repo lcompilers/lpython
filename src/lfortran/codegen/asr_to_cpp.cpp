@@ -64,7 +64,8 @@ std::string format_type(const std::string &dims, const std::string &type,
             if (!use_ref) c = "const ";
             fmt = "const Kokkos::View<" + c + type + dims + "> &" + name;
         } else {
-            fmt = "Kokkos::View<" + type + dims + "> " + name;
+            fmt = "Kokkos::View<" + type + dims + "> " + name
+                + "(\"" + name + "\")";
         }
     }
     return fmt;

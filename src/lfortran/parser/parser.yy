@@ -524,7 +524,7 @@ var_modifier_list
 
 var_modifier
     : KW_PARAMETER { $$ = VARMOD($1, @$); }
-    | KW_DIMENSION "(" array_comp_decl_list ")" { $$ = VARMOD($1, @$); }
+    | KW_DIMENSION "(" array_comp_decl_list ")" { $$ = VARMOD_DIM($1, $3, @$); }
     | KW_ALLOCATABLE { $$ = VARMOD($1, @$); }
     | KW_POINTER { $$ = VARMOD($1, @$); }
     | KW_PROTECTED { $$ = VARMOD($1, @$); }
