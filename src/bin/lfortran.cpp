@@ -339,7 +339,7 @@ int compile_to_assembly_file(const std::string &infile, const std::string &outfi
 
 int compile_to_object_file_cpp(const std::string &infile,
         const std::string &outfile,
-        bool assembly=false, bool kokkos=false)
+        bool assembly, bool kokkos)
 {
     std::string input = read_file(infile);
 
@@ -400,7 +400,7 @@ int compile_to_object_file_cpp(const std::string &infile,
 // outfile will become the executable
 int link_executable(const std::string &infile, const std::string &outfile,
     const std::string &runtime_library_dir, Backend backend,
-    bool static_executable=false, bool kokkos=false)
+    bool static_executable, bool kokkos)
 {
     /*
     The `gcc` line for dynamic linking that is constructed below:
