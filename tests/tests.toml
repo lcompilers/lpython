@@ -212,3 +212,7 @@ llvm = true
 [[test]]
 filename = "kokkos_program1.f90"
 cpp = true
+
+[[test]]
+filename = "kokkos_program2.f90"
+asr = true
