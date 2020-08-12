@@ -26,7 +26,7 @@ std::string convert_variable_decl(const ASR::Variable_t &v)
 {
     std::string sub;
     if (v.m_type->type == ASR::ttypeType::Integer) {
-        if (v.m_intent == intent_in) {
+        if (v.m_intent == intent_in || v.m_intent == intent_local) {
             sub += "int " + std::string(v.m_name);
         } else if (v.m_intent == intent_out || v.m_intent == intent_inout) {
             sub += "int &" + std::string(v.m_name);
@@ -191,13 +191,7 @@ R"(#include <iostream>
                     if (sym_info[get_hash((ASR::asr_t*) v)].needs_declaration) {
                         std::string indent(indentation_level*indentation_spaces, ' ');
                         decl += indent;
-                        if (v->m_type->type == ASR::ttypeType::Integer) {
-                            decl += "int " + std::string(v->m_name) + ";\n";
-                        } else if (v->m_type->type == ASR::ttypeType::Logical) {
-                            decl += "bool " + std::string(v->m_name) + ";\n";
-                        } else {
-                            throw CodeGenError("Variable type not supported");
-                        }
+                        decl += convert_variable_decl(*v) + ";\n";
                     }
                 }
             }
