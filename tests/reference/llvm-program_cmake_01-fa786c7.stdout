@@ -1,12 +1,12 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-@0 = private unnamed_addr constant [8 x i8] c"'Hello'\00", align 1
+@0 = private unnamed_addr constant [6 x i8] c"Hello\00", align 1
 @1 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 
 define i64 @main() {
 .entry:
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @1, i32 0, i32 0), i8* getelementptr inbounds ([8 x i8], [8 x i8]* @0, i32 0, i32 0))
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @1, i32 0, i32 0), i8* getelementptr inbounds ([6 x i8], [6 x i8]* @0, i32 0, i32 0))
   ret i64 0
 }
 

@@ -1,4 +1,4 @@
-program kokkos_program2
+program doconcurrentloop_01
 implicit none
 real, dimension(10000) :: a, b, c
 real :: scalar

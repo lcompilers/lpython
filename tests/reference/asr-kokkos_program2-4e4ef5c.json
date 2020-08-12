@@ -2,11 +2,11 @@
     "basename": "asr-kokkos_program2-4e4ef5c",
     "cmd": "lfortran --show-asr {infile} -o {outfile}",
     "infile": "tests/kokkos_program2.f90",
-    "infile_hash": "fa5e1511cdf852942b5cc9f034c7080f8054780e000df9cc17f2668c",
+    "infile_hash": "bba0b0329c504e01dd099058af96e20a7fe00294f66456fe3da634e0",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-kokkos_program2-4e4ef5c.stdout",
-    "stdout_hash": "0aca33d278b45ec18714584b2fa8d15a74fc86d43828a2f8f2c0886e",
+    "stdout_hash": "5c091d598a2ac399b463500b8aeadd694aef2c580837487f1f5fe5d0",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

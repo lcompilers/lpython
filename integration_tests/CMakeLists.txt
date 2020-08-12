@@ -87,6 +87,7 @@ endif()
 
 if (NOT LFORTRAN_BACKEND STREQUAL "llvm")
     # GFortran + LFortran C++
+    RUN(doconcurrentloop_01)
 endif()
 
 if (NOT LFORTRAN_BACKEND)
