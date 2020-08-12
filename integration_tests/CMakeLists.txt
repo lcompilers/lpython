@@ -88,11 +88,12 @@ endif()
 if (NOT LFORTRAN_BACKEND STREQUAL "llvm")
     # GFortran + LFortran C++
     RUN(doconcurrentloop_01)
+
+    RUN(arrays_01)
 endif()
 
 if (NOT LFORTRAN_BACKEND)
     # GFortran
-    RUN(arrays_01)
     RUN(arrays_02)
 
     RUN(intrinsics_01)
