@@ -1,4 +1,4 @@
-program t
+program kokkos_program1
 implicit none
 
 contains
