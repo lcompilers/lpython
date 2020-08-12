@@ -208,3 +208,7 @@ llvm = true
 filename = "global_scope5.f90"
 asr = true
 llvm = true
+
+[[test]]
+filename = "kokkos_program1.f90"
+cpp = true
