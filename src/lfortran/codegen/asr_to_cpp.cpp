@@ -366,7 +366,7 @@ R"(#include <iostream>
             out += src;
             if (i < x.n_args-1) out += ",";
         }
-        out += "]";
+        out += "-1]";
         src = out;
         last_unary_plus = false;
         last_binary_plus = false;
@@ -588,9 +588,9 @@ R"(#include <iostream>
     void visit_DoConcurrentLoop(const ASR::DoConcurrentLoop_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "Kokkos::parallel_for(";
-        out += "Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(0, ";
+        out += "Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(1, ";
         visit_expr(*x.m_head.m_end);
-        out += src + ")";
+        out += src + "+1)";
         ASR::Variable_t *loop_var = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_head.m_v)->m_v);
         sym_info[get_hash((ASR::asr_t*) loop_var)].needs_declaration = false;
         out += ", KOKKOS_LAMBDA(const long " + std::string(loop_var->m_name)
