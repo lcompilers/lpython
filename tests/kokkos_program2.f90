@@ -1,7 +1,7 @@
 program kokkos_program2
 implicit none
 real, dimension(30000000) :: a, b, c
-real :: scalar, timestart, timeend
+real :: scalar
 integer :: i, nsize
 scalar = 10
 nsize = size(a)
