@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-array2-4377656",
+    "cmd": "lfortran --show-cpp {infile}",
+    "infile": "tests/array2.f90",
+    "infile_hash": "ec67f153c5f506f6a12ef94b06d43c7e9e86b9fc33c9c196029183f0",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-array2-4377656.stdout",
+    "stdout_hash": "9152c5869db8d7b2cae114398ffd9d4b3560099679012eef3295dd8d",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

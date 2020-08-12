@@ -1,0 +1,19 @@
+#include <iostream>
+#include <Kokkos_Core.hpp>
+
+int main(int argc, char* argv[])
+{
+    Kokkos::initialize(argc, argv); {
+    Kokkos::View<float[5]> a;
+    Kokkos::View<float[5]> b;
+    Kokkos::View<int[3]> c;
+    Kokkos::View<bool[2]> d;
+    Kokkos::View<float[2][3]> e;
+    Kokkos::View<int[3][4]> f;
+    Kokkos::View<bool[5][2]> g;
+    Kokkos::View<float[2][3][4]> h;
+    Kokkos::View<int[3][4][3]> i;
+    Kokkos::View<bool[5][2][2]> j;
+    } Kokkos::finalize();
+    return 0;
+}
