@@ -115,8 +115,19 @@ public:
         }
         ASR::ttype_t *type;
         type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+        char *return_var_name;
+        if (x.m_return_var) {
+            if (x.m_return_var->type == AST::exprType::Name) {
+                return_var_name = ((AST::Name_t*)(x.m_return_var))->m_id;
+            } else {
+                throw SemanticError("Return variable must be an identifier",
+                    x.m_return_var->base.loc);
+            }
+        } else {
+            return_var_name = x.m_name;
+        }
         ASR::asr_t *return_var = ASR::make_Variable_t(al, x.base.base.loc,
-            current_scope, x.m_name, intent_return_var, type);
+            current_scope, return_var_name, intent_return_var, type);
         current_scope->scope[std::string(x.m_name)] = return_var;
 
         ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
