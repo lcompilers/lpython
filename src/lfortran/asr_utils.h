@@ -77,6 +77,22 @@ static inline ASR::Real_t* TYPE_REAL(const ASR::asr_t *f)
     return (ASR::Real_t*)t;
 }
 
+static inline ASR::Integer_t* TYPE_INTEGER(const ASR::asr_t *f)
+{
+    LFORTRAN_ASSERT(f->type == ASR::asrType::ttype);
+    ASR::ttype_t *t = (ASR::ttype_t*)f;
+    LFORTRAN_ASSERT(t->type == ASR::ttypeType::Integer);
+    return (ASR::Integer_t*)t;
+}
+
+static inline ASR::Logical_t* TYPE_LOGICAL(const ASR::asr_t *f)
+{
+    LFORTRAN_ASSERT(f->type == ASR::asrType::ttype);
+    ASR::ttype_t *t = (ASR::ttype_t*)f;
+    LFORTRAN_ASSERT(t->type == ASR::ttypeType::Logical);
+    return (ASR::Logical_t*)t;
+}
+
 static inline ASR::Var_t* EXPR_VAR(const ASR::asr_t *f)
 {
     LFORTRAN_ASSERT(f->type == ASR::asrType::expr);

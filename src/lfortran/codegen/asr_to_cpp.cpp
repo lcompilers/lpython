@@ -22,6 +22,77 @@ struct SymbolInfo
     bool intrinsic_function = false;
 };
 
+std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims)
+{
+    std::string dims;
+    for (size_t i=0; i<n_dims; i++) {
+        ASR::expr_t *start = m_dims[i].m_start;
+        ASR::expr_t *end = m_dims[i].m_end;
+        if (!start && !end) {
+            dims += "*";
+        } else if (start && end) {
+            if (start->type==ASR::exprType::Num ||
+                    end->type==ASR::exprType::Num) {
+                ASR::Num_t *s = EXPR_NUM((ASR::asr_t*)start);
+                ASR::Num_t *e = EXPR_NUM((ASR::asr_t*)end);
+                if (s->m_n == 1) {
+                    dims += "[" + std::to_string(e->m_n) + "]";
+                } else {
+                    throw CodeGenError("Lower dimension must be 1 for now");
+                }
+            } else {
+                throw CodeGenError("Only numerical dimensions supported for now");
+            }
+        } else {
+            throw CodeGenError("Dimension type not supported");
+        }
+    }
+    return dims;
+}
+
+std::string format_type(const std::string &dims, const std::string &type,
+        const std::string &name, bool use_ref, bool dummy)
+{
+    std::string fmt;
+    if (dims.size() == 0) {
+        std::string ref;
+        if (use_ref) ref = "&";
+        fmt = type + " " + ref + name;
+    } else {
+        if (dummy) {
+            std::string c;
+            if (!use_ref) c = "const ";
+            fmt = "const Kokkos::View<" + c + type + dims + "> &" + name;
+        } else {
+            fmt = "Kokkos::View<" + type + dims + "> " + name;
+        }
+    }
+    return fmt;
+}
+
+std::string convert_variable_decl(const ASR::Variable_t &v)
+{
+    std::string sub;
+    bool use_ref = (v.m_intent == intent_out || v.m_intent == intent_inout);
+    bool dummy = is_arg_dummy(v.m_intent);
+    if (v.m_type->type == ASR::ttypeType::Integer) {
+        ASR::Integer_t *t = TYPE_INTEGER((ASR::asr_t*)v.m_type);
+        std::string dims = convert_dims(t->n_dims, t->m_dims);
+        sub = format_type(dims, "int", v.m_name, use_ref, dummy);
+    } else if (v.m_type->type == ASR::ttypeType::Real) {
+        ASR::Real_t *t = TYPE_REAL((ASR::asr_t*)v.m_type);
+        std::string dims = convert_dims(t->n_dims, t->m_dims);
+        sub = format_type(dims, "float", v.m_name, use_ref, dummy);
+    } else if (v.m_type->type == ASR::ttypeType::Logical) {
+        ASR::Logical_t *t = TYPE_LOGICAL((ASR::asr_t*)v.m_type);
+        std::string dims = convert_dims(t->n_dims, t->m_dims);
+        sub = format_type(dims, "bool", v.m_name, use_ref, dummy);
+    } else {
+        throw CodeGenError("Type not supported");
+    }
+    return sub;
+}
+
 class ASRToCPPVisitor : public ASR::BaseVisitor<ASRToCPPVisitor>
 {
 public:
@@ -82,16 +153,7 @@ public:
                 ASR::var_t *v2 = (ASR::var_t*)(item.second);
                 ASR::Variable_t *v = (ASR::Variable_t *)v2;
                 decl += indent;
-
-                if (v->m_type->type == ASR::ttypeType::Integer) {
-                    decl += "int " + std::string(v->m_name) + ";\n";
-                } else if (v->m_type->type == ASR::ttypeType::Real) {
-                    decl += "float " + std::string(v->m_name) + ";\n";
-                } else if (v->m_type->type == ASR::ttypeType::Logical) {
-                    decl += "bool " + std::string(v->m_name) + ";\n";
-                } else {
-                    throw CodeGenError("Variable type not supported");
-                }
+                decl += convert_variable_decl(*v) + ";\n";
             }
         }
 
@@ -121,36 +183,7 @@ R"(#include <iostream>
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
             LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
-            if (arg->m_type->type == ASR::ttypeType::Integer) {
-                if (arg->m_intent == intent_in) {
-                    sub += "int " + std::string(arg->m_name);
-                } else if (arg->m_intent == intent_out || arg->m_intent == intent_inout) {
-                    sub += "int &" + std::string(arg->m_name);
-                } else {
-                    LFORTRAN_ASSERT(false);
-                }
-            } else if (arg->m_type->type == ASR::ttypeType::Real) {
-                ASR::Real_t *t = TYPE_REAL((ASR::asr_t*)arg->m_type);
-                std::string dims;
-                for (size_t i=0; i<t->n_dims; i++) {
-                    ASR::expr_t *start = t->m_dims[i].m_start;
-                    ASR::expr_t *end = t->m_dims[i].m_end;
-                    if (!start && !end) {
-                        dims += "*";
-                    } else {
-                        throw CodeGenError("Dimension type not supported");
-                    }
-                }
-                if (t->n_dims == 0) {
-                    std::string ref;
-                    if (arg->m_intent != intent_in) ref = "&";
-                    sub += "float " + ref + std::string(arg->m_name);
-                } else {
-                    std::string c;
-                    if (arg->m_intent == intent_in) c = "const ";
-                    sub += "const Kokkos::View<" + c + "float" + dims + "> &" + std::string(arg->m_name);
-                }
-            }
+            sub += convert_variable_decl(*arg);
             if (i < x.n_args-1) sub += ", ";
         }
         sub += ")\n";
@@ -182,13 +215,7 @@ R"(#include <iostream>
                     if (sym_info[get_hash((ASR::asr_t*) v)].needs_declaration) {
                         std::string indent(indentation_level*indentation_spaces, ' ');
                         decl += indent;
-                        if (v->m_type->type == ASR::ttypeType::Integer) {
-                            decl += "int " + std::string(v->m_name) + ";\n";
-                        } else if (v->m_type->type == ASR::ttypeType::Logical) {
-                            decl += "bool " + std::string(v->m_name) + ";\n";
-                        } else {
-                            throw CodeGenError("Variable type not supported");
-                        }
+                        decl += convert_variable_decl(*v) + ";\n";
                     }
                 }
             }
@@ -216,25 +243,7 @@ R"(#include <iostream>
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
             LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
-            if (arg->m_type->type == ASR::ttypeType::Integer) {
-                if (arg->m_intent == intent_in) {
-                    sub += "int " + std::string(arg->m_name);
-                } else if (arg->m_intent == intent_out || arg->m_intent == intent_inout) {
-                    sub += "int &" + std::string(arg->m_name);
-                } else {
-                    LFORTRAN_ASSERT(false);
-                }
-            } else if (arg->m_type->type == ASR::ttypeType::Real) {
-                if (arg->m_intent == intent_in) {
-                    sub += "float " + std::string(arg->m_name);
-                } else if (arg->m_intent == intent_out || arg->m_intent == intent_inout) {
-                    sub += "float &" + std::string(arg->m_name);
-                } else {
-                    LFORTRAN_ASSERT(false);
-                }
-            } else {
-                throw CodeGenError("Type not supported yet.");
-            }
+            sub += convert_variable_decl(*arg);
             if (i < x.n_args-1) sub += ", ";
         }
         sub += ")\n";
@@ -245,13 +254,7 @@ R"(#include <iostream>
                 ASR::var_t *v2 = (ASR::var_t*)(item.second);
                 ASR::Variable_t *v = (ASR::Variable_t *)v2;
                 if (v->m_intent == intent_local) {
-                    if (v->m_type->type == ASR::ttypeType::Integer) {
-                        decl += "    int " + std::string(v->m_name) + ";\n";
-                    } else if (v->m_type->type == ASR::ttypeType::Logical) {
-                        decl += "    bool " + std::string(v->m_name) + ";\n";
-                    } else {
-                        throw CodeGenError("Variable type not supported");
-                    }
+                   decl += "    " + convert_variable_decl(*v) + ";\n";
                 }
             }
         }
