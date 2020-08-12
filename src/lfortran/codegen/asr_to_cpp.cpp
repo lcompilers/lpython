@@ -85,6 +85,8 @@ public:
 
                 if (v->m_type->type == ASR::ttypeType::Integer) {
                     decl += "int " + std::string(v->m_name) + ";\n";
+                } else if (v->m_type->type == ASR::ttypeType::Real) {
+                    decl += "float " + std::string(v->m_name) + ";\n";
                 } else if (v->m_type->type == ASR::ttypeType::Logical) {
                     decl += "bool " + std::string(v->m_name) + ";\n";
                 } else {
