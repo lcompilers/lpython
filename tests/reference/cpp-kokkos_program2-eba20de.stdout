@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
         b[i] = 5;
     });
     triad(a, b, scalar, c);
-    std::cout << ""End Stream Triad"" << std::endl;
+    std::cout << "End Stream Triad" << std::endl;
     } Kokkos::finalize();
     return 0;
 }
