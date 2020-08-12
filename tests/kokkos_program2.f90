@@ -1,6 +1,6 @@
 program kokkos_program2
 implicit none
-real, dimension(30000000) :: a, b, c
+real, dimension(10000) :: a, b, c
 real :: scalar
 integer :: i, nsize
 scalar = 10
