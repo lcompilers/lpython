@@ -51,6 +51,10 @@ std::string convert_variable_decl(const ASR::Variable_t &v)
             if (!use_ref) c = "const ";
             sub += "const Kokkos::View<" + c + "float" + dims + "> &" + std::string(v.m_name);
         }
+    } else if (v.m_type->type == ASR::ttypeType::Logical) {
+        std::string ref;
+        if (use_ref) ref = "&";
+        sub += "bool " + ref + std::string(v.m_name);
     } else {
         throw CodeGenError("Type not supported");
     }
@@ -227,13 +231,7 @@ R"(#include <iostream>
                 ASR::var_t *v2 = (ASR::var_t*)(item.second);
                 ASR::Variable_t *v = (ASR::Variable_t *)v2;
                 if (v->m_intent == intent_local) {
-                    if (v->m_type->type == ASR::ttypeType::Integer) {
-                        decl += "    int " + std::string(v->m_name) + ";\n";
-                    } else if (v->m_type->type == ASR::ttypeType::Logical) {
-                        decl += "    bool " + std::string(v->m_name) + ";\n";
-                    } else {
-                        throw CodeGenError("Variable type not supported");
-                    }
+                   decl += "    " + convert_variable_decl(*v) + ";\n";
                 }
             }
         }
