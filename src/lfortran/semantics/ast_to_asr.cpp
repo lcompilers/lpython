@@ -150,6 +150,12 @@ public:
     void visit_decl(const AST::decl_t &x) {
         std::string sym = x.m_sym;
         std::string sym_type = x.m_sym_type;
+        Location loc;
+        // TODO: decl_t does not have location information...
+        loc.first_column = 0;
+        loc.first_line = 0;
+        loc.last_column = 0;
+        loc.last_line = 0;
         if (current_scope->scope.find(sym) == current_scope->scope.end()) {
             int s_intent=intent_local;
             if (x.n_attrs > 0) {
@@ -164,21 +170,9 @@ public:
                         } else if (intent == "inout") {
                             s_intent = intent_inout;
                         } else {
-                            Location loc;
-                            // TODO: decl_t does not have location information...
-                            loc.first_column = 0;
-                            loc.first_line = 0;
-                            loc.last_column = 0;
-                            loc.last_line = 0;
                             throw SemanticError("Incorrect intent specifier", loc);
                         }
                     } else {
-                        Location loc;
-                        // TODO: decl_t does not have location information...
-                        loc.first_column = 0;
-                        loc.first_line = 0;
-                        loc.last_column = 0;
-                        loc.last_line = 0;
                         throw SemanticError("intent() is empty. Must specify intent", loc);
                     }
                 }
@@ -201,12 +195,6 @@ public:
                 }
                 dims.push_back(al, dim);
             }
-            Location loc;
-            // TODO: decl_t does not have location information...
-            loc.first_column = 0;
-            loc.first_line = 0;
-            loc.last_column = 0;
-            loc.last_line = 0;
             ASR::ttype_t *type;
             if (sym_type == "real") {
                 type = TYPE(ASR::make_Real_t(al, loc, 4, dims.p, dims.size()));
@@ -215,12 +203,6 @@ public:
             } else if (sym_type == "logical") {
                 type = TYPE(ASR::make_Logical_t(al, loc, 4, dims.p, dims.size()));
             } else {
-                Location loc;
-                // TODO: decl_t does not have location information...
-                loc.first_column = 0;
-                loc.first_line = 0;
-                loc.last_column = 0;
-                loc.last_line = 0;
                 throw SemanticError("Unsupported type", loc);
             }
             ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
