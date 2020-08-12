@@ -5,7 +5,7 @@ void triad(const Kokkos::View<const float*> &a, const Kokkos::View<const float*>
 {
     int N;
     N = a.extent(0);
-    Kokkos::parallel_for(N, KOKKOS_LAMBDA(const long i) {
+    Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(0, N), KOKKOS_LAMBDA(const long i) {
         c[i] = a[i] + scalar*b[i];
     });
 }
@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
     float scalar;
     scalar = 10;
     nsize = a.extent(0);
-    Kokkos::parallel_for(nsize, KOKKOS_LAMBDA(const long i) {
+    Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(0, nsize), KOKKOS_LAMBDA(const long i) {
         a[i] = 5;
         b[i] = 5;
     });
