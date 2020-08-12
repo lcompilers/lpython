@@ -1,0 +1,13 @@
+{
+    "basename": "ast-array1-12cf93e",
+    "cmd": "lfortran --show-ast {infile} -o {outfile}",
+    "infile": "tests/array1.f90",
+    "infile_hash": "280d9957f5761ee5254413ed809b1cefb10b7402e5c9b43c3c4f1779",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast-array1-12cf93e.stdout",
+    "stdout_hash": "64e515629813608ef740626b4981ba297e6e25c28f8e3cf6bb16b535",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

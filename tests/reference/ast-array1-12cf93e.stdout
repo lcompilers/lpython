@@ -1,0 +1,1 @@
+(TranslationUnit [(Program array1 [] [(Declaration [(d "real" [] [] ()) (e "real" [(1 5)] [] ())]) (Declaration [(f "integer" [] [] ()) (g "integer" [(1 3)] [] ())])] [] [])])

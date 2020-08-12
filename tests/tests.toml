@@ -217,3 +217,7 @@ cpp = true
 filename = "kokkos_program2.f90"
 asr = true
 cpp = true
+
+[[test]]
+filename = "array1.f90"
+ast = true
