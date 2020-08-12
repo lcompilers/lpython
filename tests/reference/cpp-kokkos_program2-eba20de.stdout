@@ -13,9 +13,9 @@ void triad(const Kokkos::View<const float*> &a, const Kokkos::View<const float*>
 int main(int argc, char* argv[])
 {
     Kokkos::initialize(argc, argv); {
-    Kokkos::View<float[30000000]> a;
-    Kokkos::View<float[30000000]> b;
-    Kokkos::View<float[30000000]> c;
+    Kokkos::View<float[30000000]> a("a");
+    Kokkos::View<float[30000000]> b("b");
+    Kokkos::View<float[30000000]> c("c");
     int i;
     int nsize;
     float scalar;
