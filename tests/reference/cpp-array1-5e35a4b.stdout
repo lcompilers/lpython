@@ -7,7 +7,7 @@ int main(int argc, char* argv[])
     float d;
     Kokkos::View<float[5]> e;
     int f;
-    int g;
+    Kokkos::View<int[3]> g;
     } Kokkos::finalize();
     return 0;
 }
