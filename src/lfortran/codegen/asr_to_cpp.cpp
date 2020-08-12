@@ -76,9 +76,9 @@ std::string convert_variable_decl(const ASR::Variable_t &v)
     bool use_ref = (v.m_intent == intent_out || v.m_intent == intent_inout);
     bool dummy = is_arg_dummy(v.m_intent);
     if (v.m_type->type == ASR::ttypeType::Integer) {
-        std::string ref;
-        if (use_ref) ref = "&";
-        sub = "int " + ref + std::string(v.m_name);
+        ASR::Integer_t *t = TYPE_INTEGER((ASR::asr_t*)v.m_type);
+        std::string dims = convert_dims(t->n_dims, t->m_dims);
+        sub = format_type(dims, "int", v.m_name, use_ref, dummy);
     } else if (v.m_type->type == ASR::ttypeType::Real) {
         ASR::Real_t *t = TYPE_REAL((ASR::asr_t*)v.m_type);
         std::string dims = convert_dims(t->n_dims, t->m_dims);
