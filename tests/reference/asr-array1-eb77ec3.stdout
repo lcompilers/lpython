@@ -1,0 +1,1 @@
+(TranslationUnit (SymbolTable 417029fc {array1: (Program (SymbolTable f290029f {d: (Variable f290029f d 0 (Real 4 [])), e: (Variable f290029f e 0 (Real 4 [((Num 1 (Integer 8 [])) (Num 5 (Integer 8 [])))])), f: (Variable f290029f f 0 (Integer 4 [])), g: (Variable f290029f g 0 (Integer 4 [((Num 1 (Integer 8 [])) (Num 3 (Integer 8 [])))]))}) array1 [])}) [])
