@@ -223,3 +223,7 @@ filename = "array1.f90"
 ast = true
 asr = true
 cpp = true
+
+[[test]]
+filename = "array2.f90"
+ast = true
