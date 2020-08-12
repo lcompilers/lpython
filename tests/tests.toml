@@ -222,3 +222,4 @@ cpp = true
 filename = "array1.f90"
 ast = true
 asr = true
+cpp = true
