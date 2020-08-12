@@ -75,12 +75,12 @@ public:
 
         // Generate code for the main program
         indentation_level += 1;
+        std::string indent(indentation_level*indentation_spaces, ' ');
         std::string decl;
         for (auto &item : x.m_symtab->scope) {
             if (item.second->type == ASR::asrType::var) {
                 ASR::var_t *v2 = (ASR::var_t*)(item.second);
                 ASR::Variable_t *v = (ASR::Variable_t *)v2;
-                std::string indent(indentation_level*indentation_spaces, ' ');
                 decl += indent;
 
                 if (v->m_type->type == ASR::ttypeType::Integer) {
@@ -107,7 +107,11 @@ R"(#include <iostream>
 
 )";
 
-        src = headers + contains + "int main()\n{\n" + decl + body + "    return 0;\n}\n";
+        src = headers + contains + "int main(int argc, char* argv[])\n{\n"
+                + indent + "Kokkos::initialize(argc, argv); {\n"
+                + decl + body
+                + indent + "} Kokkos::finalize();\n"
+                + indent + "return 0;\n}\n";
         indentation_level -= 1;
     }
 
