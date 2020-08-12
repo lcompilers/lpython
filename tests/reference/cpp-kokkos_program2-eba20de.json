@@ -1,12 +1,12 @@
 {
-    "basename": "asr-kokkos_program2-4e4ef5c",
-    "cmd": "lfortran --show-asr {infile} -o {outfile}",
+    "basename": "cpp-kokkos_program2-eba20de",
+    "cmd": "lfortran --show-cpp {infile}",
     "infile": "tests/kokkos_program2.f90",
     "infile_hash": "fa5e1511cdf852942b5cc9f034c7080f8054780e000df9cc17f2668c",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "asr-kokkos_program2-4e4ef5c.stdout",
-    "stdout_hash": "1b68e282230cbc79c608ce20280894ada2b74fa670cfc1892593ae9a",
+    "stdout": "cpp-kokkos_program2-eba20de.stdout",
+    "stdout_hash": "ad69e8e549a3e56cda45eb69ebaba211e08c0471cc0c8585d5f6cbcb",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

@@ -216,3 +216,4 @@ cpp = true
 [[test]]
 filename = "kokkos_program2.f90"
 asr = true
+cpp = true
