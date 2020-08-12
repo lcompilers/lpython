@@ -50,21 +50,21 @@ std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims)
     return dims;
 }
 
-std::string format_type(const std::string &dims, const std::string &name,
-        bool use_ref, bool dummy)
+std::string format_type(const std::string &dims, const std::string &type,
+        const std::string &name, bool use_ref, bool dummy)
 {
     std::string fmt;
     if (dims.size() == 0) {
         std::string ref;
         if (use_ref) ref = "&";
-        fmt = "float " + ref + name;
+        fmt = type + " " + ref + name;
     } else {
         if (dummy) {
             std::string c;
             if (!use_ref) c = "const ";
-            fmt = "const Kokkos::View<" + c + "float" + dims + "> &" + name;
+            fmt = "const Kokkos::View<" + c + type + dims + "> &" + name;
         } else {
-            fmt = "Kokkos::View<float" + dims + "> " + name;
+            fmt = "Kokkos::View<" + type + dims + "> " + name;
         }
     }
     return fmt;
@@ -82,7 +82,7 @@ std::string convert_variable_decl(const ASR::Variable_t &v)
     } else if (v.m_type->type == ASR::ttypeType::Real) {
         ASR::Real_t *t = TYPE_REAL((ASR::asr_t*)v.m_type);
         std::string dims = convert_dims(t->n_dims, t->m_dims);
-        sub = format_type(dims, v.m_name, use_ref, dummy);
+        sub = format_type(dims, "float", v.m_name, use_ref, dummy);
     } else if (v.m_type->type == ASR::ttypeType::Logical) {
         std::string ref;
         if (use_ref) ref = "&";
