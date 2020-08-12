@@ -2,7 +2,7 @@
     "basename": "cpp-kokkos_program1-574ddd8",
     "cmd": "lfortran --show-cpp {infile}",
     "infile": "tests/kokkos_program1.f90",
-    "infile_hash": "92de2df2fe2f5524b8b832baf84880d6957297d97be9277e72d62de6",
+    "infile_hash": "81575b3ab7fd1a2dc16c67f0a5ff241d9057fed389befd1c3084d6ea",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "cpp-kokkos_program1-574ddd8.stdout",
