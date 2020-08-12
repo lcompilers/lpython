@@ -22,6 +22,34 @@ struct SymbolInfo
     bool intrinsic_function = false;
 };
 
+std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims)
+{
+    std::string dims;
+    for (size_t i=0; i<n_dims; i++) {
+        ASR::expr_t *start = m_dims[i].m_start;
+        ASR::expr_t *end = m_dims[i].m_end;
+        if (!start && !end) {
+            dims += "*";
+        } else if (start && end) {
+            if (start->type==ASR::exprType::Num ||
+                    end->type==ASR::exprType::Num) {
+                ASR::Num_t *s = EXPR_NUM((ASR::asr_t*)start);
+                ASR::Num_t *e = EXPR_NUM((ASR::asr_t*)end);
+                if (s->m_n == 1) {
+                    dims += "[" + std::to_string(e->m_n) + "]";
+                } else {
+                    throw CodeGenError("Lower dimension must be 1 for now");
+                }
+            } else {
+                throw CodeGenError("Only numerical dimensions supported for now");
+            }
+        } else {
+            throw CodeGenError("Dimension type not supported");
+        }
+    }
+    return dims;
+}
+
 std::string convert_variable_decl(const ASR::Variable_t &v)
 {
     std::string sub;
@@ -32,29 +60,7 @@ std::string convert_variable_decl(const ASR::Variable_t &v)
         sub += "int " + ref + std::string(v.m_name);
     } else if (v.m_type->type == ASR::ttypeType::Real) {
         ASR::Real_t *t = TYPE_REAL((ASR::asr_t*)v.m_type);
-        std::string dims;
-        for (size_t i=0; i<t->n_dims; i++) {
-            ASR::expr_t *start = t->m_dims[i].m_start;
-            ASR::expr_t *end = t->m_dims[i].m_end;
-            if (!start && !end) {
-                dims += "*";
-            } else if (start && end) {
-                if (start->type==ASR::exprType::Num ||
-                        end->type==ASR::exprType::Num) {
-                    ASR::Num_t *s = EXPR_NUM((ASR::asr_t*)start);
-                    ASR::Num_t *e = EXPR_NUM((ASR::asr_t*)end);
-                    if (s->m_n == 1) {
-                        dims += "[" + std::to_string(e->m_n) + "]";
-                    } else {
-                        throw CodeGenError("Lower dimension must be 1 for now");
-                    }
-                } else {
-                    throw CodeGenError("Only numerical dimensions supported for now");
-                }
-            } else {
-                throw CodeGenError("Dimension type not supported");
-            }
-        }
+        std::string dims = convert_dims(t->n_dims, t->m_dims);
         if (t->n_dims == 0) {
             std::string ref;
             if (use_ref) ref = "&";
