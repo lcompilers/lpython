@@ -39,10 +39,26 @@ public:
         std::string unit_src = "";
         indentation_level = 0;
         indentation_spaces = 4;
+
+        // TODO: We need to pre-declare all functions first, then generate code
+        // Otherwise some function might not be found.
+
+        // Process procedures first:
         for (auto &item : x.m_global_scope->scope) {
-            visit_asr(*item.second);
-            unit_src += src;
+            if (item.second->type != ASR::asrType::prog) {
+                visit_asr(*item.second);
+                unit_src += src;
+            }
         }
+
+        // Then the main program:
+        for (auto &item : x.m_global_scope->scope) {
+            if (item.second->type == ASR::asrType::prog) {
+                visit_asr(*item.second);
+                unit_src += src;
+            }
+        }
+
         src = unit_src;
     }
 
@@ -59,16 +75,18 @@ public:
 
         // Generate code for the main program
         indentation_level += 1;
+        std::string indent(indentation_level*indentation_spaces, ' ');
         std::string decl;
         for (auto &item : x.m_symtab->scope) {
             if (item.second->type == ASR::asrType::var) {
                 ASR::var_t *v2 = (ASR::var_t*)(item.second);
                 ASR::Variable_t *v = (ASR::Variable_t *)v2;
-                std::string indent(indentation_level*indentation_spaces, ' ');
                 decl += indent;
 
                 if (v->m_type->type == ASR::ttypeType::Integer) {
                     decl += "int " + std::string(v->m_name) + ";\n";
+                } else if (v->m_type->type == ASR::ttypeType::Real) {
+                    decl += "float " + std::string(v->m_name) + ";\n";
                 } else if (v->m_type->type == ASR::ttypeType::Logical) {
                     decl += "bool " + std::string(v->m_name) + ";\n";
                 } else {
@@ -89,7 +107,11 @@ R"(#include <iostream>
 
 )";
 
-        src = headers + contains + "int main()\n{\n" + decl + body + "    return 0;\n}\n";
+        src = headers + contains + "int main(int argc, char* argv[])\n{\n"
+                + indent + "Kokkos::initialize(argc, argv); {\n"
+                + decl + body
+                + indent + "} Kokkos::finalize();\n"
+                + indent + "return 0;\n}\n";
         indentation_level -= 1;
     }
 

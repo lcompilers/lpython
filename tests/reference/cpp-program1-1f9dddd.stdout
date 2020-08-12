@@ -1,11 +1,13 @@
 #include <iostream>
 #include <Kokkos_Core.hpp>
 
-int main()
+int main(int argc, char* argv[])
 {
+    Kokkos::initialize(argc, argv); {
     int i;
     i = 5;
     std::cout << i << std::endl;
     std::cout << i + 1 << std::endl;
+    } Kokkos::finalize();
     return 0;
 }

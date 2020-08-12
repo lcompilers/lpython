@@ -1,5 +1,16 @@
-program kokkos_program1
+program kokkos_program2
 implicit none
+real, dimension(30000000) :: a, b, c
+real :: scalar
+integer :: i, nsize
+scalar = 10
+nsize = size(a)
+do concurrent (i = 1:nsize)
+    a(i) = 5
+    b(i) = 5
+end do
+call triad(a, b, scalar, c)
+print *, "End Stream Triad"
 
 contains
 

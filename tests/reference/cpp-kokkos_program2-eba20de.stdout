@@ -13,6 +13,20 @@ void triad(const Kokkos::View<const float*> &a, const Kokkos::View<const float*>
 int main(int argc, char* argv[])
 {
     Kokkos::initialize(argc, argv); {
+    float a;
+    float b;
+    float c;
+    int i;
+    int nsize;
+    float scalar;
+    scalar = 10;
+    nsize = a.extent(0);
+    Kokkos::parallel_for(nsize, KOKKOS_LAMBDA(const long i) {
+        a[i] = 5;
+        b[i] = 5;
+    });
+    triad(a, b, scalar, c);
+    std::cout << ""End Stream Triad"" << std::endl;
     } Kokkos::finalize();
     return 0;
 }
