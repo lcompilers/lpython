@@ -477,8 +477,24 @@ public:
     }
     //Converts do concurrent to a regular do loop. Adds OpenMP pragmas.
     void visit_DoConcurrentLoop(const DoConcurrentLoop_t &x) {
-//        std::string r = "do concurrent";
-        std::string r = "!$OMP PARALLEL DO\n";
+        std::string r = "";
+        if (x.m_reduce)
+        {
+            AST::Reduce_t *red = (AST::Reduce_t*) (x.m_reduce);
+            LFORTRAN_ASSERT(red->n_vars == 1)
+            r.append("!$OMP DO REDUCTION(");
+            //This will need expanded
+            if (red->m_op == AST::reduce_opType::ReduceAdd) {
+                r.append("+");
+            } else if (red->m_op == AST::reduce_opType::ReduceMIN) {
+                r.append("MIN"); //Is this right? Check later.
+            }
+            r.append(":");
+            r.append(red->m_vars[0]);
+            r.append(")\n");
+        } else {
+            r.append("!$OMP PARALLEL DO\n");
+        }
         r.append("do ");
         if (x.m_var) {
 //            r.append(" (");
@@ -510,7 +526,10 @@ public:
         }
         indent_level -= 4;
         r.append("end do\n");
-        r.append("!$OMP END PARALLEL DO");
+        if (x.m_reduce)
+            r.append("!$OMP END DO");
+        else
+            r.append("!$OMP END PARALLEL DO");
         s = r;
     }
     void visit_Select(const Select_t &x) {
