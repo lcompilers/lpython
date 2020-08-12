@@ -60,9 +60,14 @@ std::string convert_variable_decl(const ASR::Variable_t &v)
             if (use_ref) ref = "&";
             sub += "float " + ref + std::string(v.m_name);
         } else {
-            std::string c;
-            if (!use_ref) c = "const ";
-            sub += "const Kokkos::View<" + c + "float" + dims + "> &" + std::string(v.m_name);
+            if (is_arg_dummy(v.m_intent)) {
+                std::string c;
+                if (!use_ref) c = "const ";
+                sub += "const Kokkos::View<" + c + "float" + dims + "> &" + std::string(v.m_name);
+            } else {
+                sub += "Kokkos::View<float" + dims + "> " + std::string(v.m_name);
+            }
+
         }
     } else if (v.m_type->type == ASR::ttypeType::Logical) {
         std::string ref;
