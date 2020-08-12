@@ -26,7 +26,9 @@ public:
         LFORTRAN_ASSERT(current_scope == nullptr);
         current_scope = al.make_new<SymbolTable>(nullptr);
         for (size_t i=0; i<x.n_items; i++) {
-            visit_ast(*x.m_items[i]);
+            if (x.m_items[i]->type != AST::astType::expr) {
+                visit_ast(*x.m_items[i]);
+            }
         }
         asr = ASR::make_TranslationUnit_t(al, x.base.base.loc,
             current_scope, nullptr, 0);
@@ -226,8 +228,6 @@ public:
 
         }
     }
-
-    void visit_expr(const AST::expr_t &x) {}
 
     void visit_stmt(const AST::stmt_t &x) {}
 };
