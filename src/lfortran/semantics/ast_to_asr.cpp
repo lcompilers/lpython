@@ -140,16 +140,30 @@ public:
         // or in local variables as
         //     integer :: f
         ASR::asr_t *return_var;
+        std::string return_type = x.m_return_type;
         if (current_scope->scope.find(std::string(return_var_name)) == current_scope->scope.end()) {
             // The variable is not defined among local variables, extract the
             // type from "integer function f()" and add the variable.
-            // For now assume integer.
-            ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+            ASR::ttype_t *type;
+            if (return_type == "integer") {
+                type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+            } else if (return_type == "real") {
+                type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
+            } else if (return_type == "logical") {
+                type = TYPE(ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
+            } else {
+                throw SemanticError("Return type not recognized",
+                        x.base.base.loc);
+            }
             // Add it as a local variable:
             return_var = ASR::make_Variable_t(al, x.base.base.loc,
                 current_scope, return_var_name, intent_return_var, type);
             current_scope->scope[std::string(return_var_name)] = return_var;
         } else {
+            if (return_type != "") {
+                throw SemanticError("Cannot specify the return type twice",
+                    x.base.base.loc);
+            }
             // Extract the variable from the local scope
             return_var = current_scope->scope[std::string(return_var_name)];
             VARIABLE(return_var)->m_intent = intent_return_var;
