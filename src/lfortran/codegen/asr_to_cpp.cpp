@@ -254,13 +254,15 @@ R"(#include <iostream>
         }
         sub += ")\n";
 
+        indentation_level += 1;
+        std::string indent(indentation_level*indentation_spaces, ' ');
         std::string decl;
         for (auto &item : x.m_symtab->scope) {
             if (item.second->type == ASR::asrType::var) {
                 ASR::var_t *v2 = (ASR::var_t*)(item.second);
                 ASR::Variable_t *v = (ASR::Variable_t *)v2;
                 if (v->m_intent == intent_local || v->m_intent == intent_return_var) {
-                   decl += "    " + convert_variable_decl(*v) + ";\n";
+                   decl += indent + convert_variable_decl(*v) + ";\n";
                 }
             }
         }
@@ -268,7 +270,7 @@ R"(#include <iostream>
         std::string body;
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
-            body += "    " + src;
+            body += src;
         }
 
         if (decl.size() > 0 || body.size() > 0) {
@@ -278,6 +280,7 @@ R"(#include <iostream>
             sub += "\n";
         }
         src = sub;
+        indentation_level -= 1;
     }
 
     void visit_FuncCall(const ASR::FuncCall_t &x) {
