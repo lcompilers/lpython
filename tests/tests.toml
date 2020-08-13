@@ -269,3 +269,9 @@ filename = "../integration_tests/types_05.f90"
 asr = true
 llvm = true
 cpp = true
+
+[[test]]
+filename = "../integration_tests/types_06.f90"
+asr = true
+llvm = true
+cpp = true

@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-types_06-856421a",
+    "cmd": "lfortran --show-cpp {infile}",
+    "infile": "tests/../integration_tests/types_06.f90",
+    "infile_hash": "821a3f29390ed022c7e72bdf2e4f9bace059d335abe1d1b729ac6d22",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-types_06-856421a.stdout",
+    "stdout_hash": "3b3f2034aca208489574f0e2b5936555cd51b6ede092d8ce8a09e57b",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
