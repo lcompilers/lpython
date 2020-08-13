@@ -1,0 +1,1 @@
+(TranslationUnit (SymbolTable 658d58e9 {types_01: (Program (SymbolTable 93b33066 {r: (Variable 93b33066 r 0 (Real 4 []))}) types_01 [(= (Var 93b33066 r) (ConstantReal "1.0" (Real 4 []))) (= (Var 93b33066 r) (ConstantReal "1.5" (Real 4 []))) (= (Var 93b33066 r) (ConstantReal "1." (Real 4 [])))])}) [])

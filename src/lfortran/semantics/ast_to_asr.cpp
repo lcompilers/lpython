@@ -350,8 +350,33 @@ public:
     void visit_Assignment(const AST::Assignment_t &x) {
         this->visit_expr(*x.m_target);
         ASR::expr_t *target = EXPR(tmp);
+        if (target->type == ASR::exprType::Var) {
+            // integer :: i
+            // i = ...
+        } else if (target->type == ASR::exprType::ArrayRef) {
+            // integer :: i(5)
+            // i(3) = ...
+        } else {
+            throw SemanticError("The LHS of assignment can only be a variable or an array reference",
+                x.base.base.loc);
+        }
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = EXPR(tmp);
+        if (target->type == ASR::exprType::Var) {
+            // integer :: i
+            // i = ...
+            if (expr_type(target)->type == ASR::ttypeType::Real) {
+                if (expr_type(value)->type == ASR::ttypeType::Real) {
+                    // TODO: convert/cast kinds if they differ
+                } else if (expr_type(value)->type == ASR::ttypeType::Integer) {
+                    value = (ASR::expr_t*)ASR::make_ImplicitCast_t(al, x.base.base.loc,
+                        value, ASR::cast_kindType::IntegerToReal, expr_type(target));
+                } else {
+                    throw SemanticError("Only Integer or Real can be assigned to Real",
+                        x.base.base.loc);
+                }
+            }
+        }
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value);
     }
 
@@ -555,7 +580,7 @@ public:
 
     void visit_Num(const AST::Num_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                8, nullptr, 0));
+                4, nullptr, 0));
         tmp = ASR::make_Num_t(al, x.base.base.loc, x.m_n, type);
     }
 
@@ -574,11 +599,7 @@ public:
     void visit_Real(const AST::Real_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Real_t(al, x.base.base.loc,
                 4, nullptr, 0));
-        std::string f = x.m_n;
-        float f2 = std::stof(f);
-        // TODO: represent Real numbers properly in ASR
-        int f3 = int(f2); // For now we cast floats to ints
-        tmp = ASR::make_Num_t(al, x.base.base.loc, f3, type);
+        tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, x.m_n, type);
     }
 
     void visit_Print(const AST::Print_t &x) {

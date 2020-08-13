@@ -73,6 +73,8 @@ expr
     | VariableOld(identifier name, string? intent, int? dummy, ttype type)
     | Var(var v)
     | ArrayRef(var v, array_index* args, ttype type)
+    | ImplicitCast(expr arg, cast_kind kind, ttype type)
+    | ExplicitCast(expr arg, cast_kind kind, ttype type)
 
 ttype
     = Integer(int kind, dimension* dims)
@@ -90,6 +92,8 @@ operator = Add | Sub | Mul | Div | Pow
 unaryop = Invert | Not | UAdd | USub
 
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
+
+cast_kind = RealToInteger | IntegerToReal | RealToReal | IntegerToInteger
 
 dimension = (expr? start, expr? end)
 
