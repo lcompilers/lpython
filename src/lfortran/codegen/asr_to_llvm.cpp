@@ -632,19 +632,20 @@ void wrap_global_stmts_into_function(Allocator &al,
 
         ASR::ttype_t *type;
         Location loc;
+
         type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
         ASR::asr_t *return_var = ASR::make_Variable_t(al, loc,
             fn_scope, fn_name, intent_return_var, type);
         fn_scope->scope[std::string(fn_name)] = return_var;
 
-        ASR::asr_t *return_var_ref = ASR::make_Var_t(al, loc,
-            VAR(return_var));
+        ASR::expr_t *return_var_ref = EXPR(ASR::make_Var_t(al, loc,
+            VAR(return_var)));
 
         Vec<ASR::stmt_t*> body;
         body.reserve(al, unit.n_items);
         for (size_t i=0; i<unit.n_items; i++) {
             if (unit.m_items[i]->type == ASR::asrType::expr) {
-                ASR::expr_t *target = EXPR(return_var_ref);
+                ASR::expr_t *target = return_var_ref;
                 ASR::expr_t *value = EXPR(unit.m_items[i]);
                 ASR::stmt_t* asr_stmt = STMT(ASR::make_Assignment_t(al, loc, target, value));
                 body.push_back(al, asr_stmt);
@@ -666,7 +667,7 @@ void wrap_global_stmts_into_function(Allocator &al,
             /* a_body */ body.p,
             /* n_body */ body.size(),
             /* a_bind */ nullptr,
-            /* a_return_var */ EXPR(return_var_ref),
+            /* a_return_var */ return_var_ref,
             /* a_module */ nullptr);
         std::string sym_name = fn_name;
         if (unit.m_global_scope->scope.find(sym_name) != unit.m_global_scope->scope.end()) {
