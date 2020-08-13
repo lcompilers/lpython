@@ -632,21 +632,44 @@ void wrap_global_stmts_into_function(Allocator &al,
 
         ASR::ttype_t *type;
         Location loc;
+        ASR::asr_t *return_var;
+        ASR::expr_t *return_var_ref;
+        char *var_name;
+        int idx = 0;
 
+        // Create an initial return value if there are only statements and
+        // no expressions. TODO: in that case this should become a subroutine
+        // not a function.
+        s.from_str(al, fn_name_s + std::to_string(idx));
+        var_name = s.c_str(al);
         type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-        ASR::asr_t *return_var = ASR::make_Variable_t(al, loc,
-            fn_scope, fn_name, intent_return_var, type);
-        fn_scope->scope[std::string(fn_name)] = return_var;
-
-        ASR::expr_t *return_var_ref = EXPR(ASR::make_Var_t(al, loc,
-            VAR(return_var)));
+        return_var = ASR::make_Variable_t(al, loc,
+            fn_scope, var_name, intent_local, type);
+        return_var_ref = EXPR(ASR::make_Var_t(al, loc, VAR(return_var)));
+        fn_scope->scope[std::string(var_name)] = return_var;
+        idx++;
 
         Vec<ASR::stmt_t*> body;
         body.reserve(al, unit.n_items);
         for (size_t i=0; i<unit.n_items; i++) {
             if (unit.m_items[i]->type == ASR::asrType::expr) {
-                ASR::expr_t *target = return_var_ref;
+                ASR::expr_t *target;
                 ASR::expr_t *value = EXPR(unit.m_items[i]);
+                // Create a new variable with the right type
+                if (expr_type(value)->type == ASR::ttypeType::Integer) {
+                    s.from_str(al, fn_name_s + std::to_string(idx));
+                    var_name = s.c_str(al);
+                    type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+                    return_var = ASR::make_Variable_t(al, loc,
+                        fn_scope, var_name, intent_local, type);
+                    return_var_ref = EXPR(ASR::make_Var_t(al, loc, VAR(return_var)));
+                    fn_scope->scope[std::string(var_name)] = return_var;
+                    target = return_var_ref;
+                    idx++;
+                } else {
+                    throw SemanticError("Return type not supported in interactive mode",
+                            loc);
+                }
                 ASR::stmt_t* asr_stmt = STMT(ASR::make_Assignment_t(al, loc, target, value));
                 body.push_back(al, asr_stmt);
             } else if (unit.m_items[i]->type == ASR::asrType::stmt) {
@@ -657,6 +680,9 @@ void wrap_global_stmts_into_function(Allocator &al,
             }
         }
 
+
+        // The last defined `return_var` is the actual return value
+        VARIABLE(return_var)->m_intent = intent_return_var;
 
         ASR::asr_t *fn = ASR::make_Function_t(
             al, loc,
