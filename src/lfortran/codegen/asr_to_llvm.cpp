@@ -621,11 +621,13 @@ public:
 };
 
 // Edits the ASR inplace.
-void wrap_global_stmts_into_function(Allocator &al, ASR::TranslationUnit_t &unit) {
+void wrap_global_stmts_into_function(Allocator &al,
+            ASR::TranslationUnit_t &unit, const std::string &fn_name_s) {
     if (unit.n_items > 0) {
         // Add an anonymous function
-        const char* fn_name_orig = "f";
-        char *fn_name = (char*)fn_name_orig;
+        Str s;
+        s.from_str(al, fn_name_s);
+        char *fn_name = s.c_str(al);
         SymbolTable *fn_scope = al.make_new<SymbolTable>(unit.m_global_scope);
 
         ASR::ttype_t *type;
@@ -831,7 +833,7 @@ std::unique_ptr<LLVMModule> asr_to_llvm(ASR::asr_t &asr,
 {
     ASRToLLVMVisitor v(context);
     LFORTRAN_ASSERT(asr.type == ASR::asrType::unit);
-    wrap_global_stmts_into_function(al, *TRANSLATION_UNIT(&asr));
+    wrap_global_stmts_into_function(al, *TRANSLATION_UNIT(&asr), "f");
 
     // Uncomment for debugging the ASR after the transformation
     // std::cout << pickle(asr) << std::endl;

@@ -104,6 +104,13 @@ struct Str {
     // Returns a copy of the string as a NULL terminated std::string
     std::string str() const { return std::string(p, n); }
 
+    // Initializes Str from std::string by making a copy excluding the null char
+    void from_str(Allocator &al, const std::string &s) {
+        n = s.size();
+        p = al.allocate<char>(n);
+        std::memcpy(p, &s[0], sizeof(char) * n);
+    }
+
     // Returns a copy of the string as a NULL terminated C string,
     // allocated using Allocator
     char* c_str(Allocator &al) const {
