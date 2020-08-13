@@ -384,27 +384,54 @@ public:
         llvm::Value *left_val = tmp;
         this->visit_expr(*x.m_right);
         llvm::Value *right_val = tmp;
-        switch (x.m_op) {
-            case ASR::operatorType::Add: { 
-                tmp = builder->CreateAdd(left_val, right_val);
-                break;
-            };
-            case ASR::operatorType::Sub: { 
-                tmp = builder->CreateSub(left_val, right_val);
-                break;
-            };
-            case ASR::operatorType::Mul: { 
-                tmp = builder->CreateMul(left_val, right_val);
-                break;
-            };
-            case ASR::operatorType::Div: { 
-                tmp = builder->CreateUDiv(left_val, right_val);
-                break;
-            };
-            case ASR::operatorType::Pow: { 
-                throw CodeGenError("Pow not implemented yet");
-                break;
-            };
+        if (x.m_type->type == ASR::ttypeType::Integer) {
+            switch (x.m_op) {
+                case ASR::operatorType::Add: {
+                    tmp = builder->CreateAdd(left_val, right_val);
+                    break;
+                };
+                case ASR::operatorType::Sub: {
+                    tmp = builder->CreateSub(left_val, right_val);
+                    break;
+                };
+                case ASR::operatorType::Mul: {
+                    tmp = builder->CreateMul(left_val, right_val);
+                    break;
+                };
+                case ASR::operatorType::Div: {
+                    tmp = builder->CreateUDiv(left_val, right_val);
+                    break;
+                };
+                case ASR::operatorType::Pow: {
+                    throw CodeGenError("Integer Pow not implemented yet");
+                    break;
+                };
+            }
+        } else if (x.m_type->type == ASR::ttypeType::Real) {
+            switch (x.m_op) {
+                case ASR::operatorType::Add: {
+                    tmp = builder->CreateFAdd(left_val, right_val);
+                    break;
+                };
+                case ASR::operatorType::Sub: {
+                    tmp = builder->CreateFSub(left_val, right_val);
+                    break;
+                };
+                case ASR::operatorType::Mul: {
+                    tmp = builder->CreateFMul(left_val, right_val);
+                    break;
+                };
+                case ASR::operatorType::Div: {
+                    tmp = builder->CreateFDiv(left_val, right_val);
+                    break;
+                };
+                case ASR::operatorType::Pow: {
+                    throw CodeGenError("Real Pow not implemented yet");
+                    break;
+                };
+            }
+        } else {
+            throw CodeGenError("Binop: Only Real and Integer types implemented");
         }
     }
 
