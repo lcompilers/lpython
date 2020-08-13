@@ -12,6 +12,12 @@
 --
 -- Note: `symbol_table` contains `Program`, `Module`, `Subroutine`, `Function`, `Variable`.
 
+-- TODO: Change the sum fn = Function(...) to product Function = (...)
+-- make all products subclass asr_t, thus including the location information
+-- product is represented by a value, unless it is optional or a sequence.
+-- Change to products: TranslationUnit, Program, Module, Subroutine, Function,
+--                     Variable, Attribute, Bind
+
 module ASR {
 
 unit
@@ -60,12 +66,13 @@ expr
     | Compare(expr left, cmpop op, expr right, ttype type)
     | FuncCall(fn func, expr* args, keyword* keywords, ttype type)
     | ArrayInitializer(expr* args, ttype type)
-    | Num(object n, ttype type)
+    | Num(object n, ttype type) -- TODO: rename to ConstantInteger
+    | ConstantReal(string r, ttype type)
+    | Constant(constant value, ttype type) -- TODO: rename to ConstantLogical
     | Str(string s, ttype type)
     | VariableOld(identifier name, string? intent, int? dummy, ttype type)
     | Var(var v)
     | ArrayRef(var v, array_index* args, ttype type)
-    | Constant(constant value, ttype type)
 
 ttype
     = Integer(int kind, dimension* dims)
