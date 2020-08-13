@@ -181,8 +181,17 @@ public:
     }
 
     void visit_Function(const ASR::Function_t &x) {
+        ASR::ttypeType return_var_type = VARIABLE((ASR::asr_t*)(EXPR_VAR((ASR::asr_t*)x.m_return_var)->m_v))->m_type->type;
+        llvm::Type *return_type;
+        if (return_var_type == ASR::ttypeType::Integer) {
+            return_type = llvm::Type::getInt64Ty(context);
+        } else if (return_var_type == ASR::ttypeType::Real) {
+            return_type = llvm::Type::getFloatTy(context);
+        } else {
+            throw CodeGenError("Function: return type not supported");
+        }
         llvm::FunctionType *function_type = llvm::FunctionType::get(
-                llvm::Type::getInt64Ty(context), {}, false);
+                return_type, {}, false);
         llvm::Function *F = llvm::Function::Create(function_type,
                 llvm::Function::ExternalLinkage, x.m_name, module.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
@@ -194,10 +203,19 @@ public:
                 ASR::var_t *v2 = (ASR::var_t*)(item.second);
                 ASR::Variable_t *v = (ASR::Variable_t *)v2;
 
-                // TODO: we are assuming integer here:
-                llvm::AllocaInst *ptr = builder->CreateAlloca(
-                    llvm::Type::getInt64Ty(context), nullptr, v->m_name);
-                llvm_symtab[std::string(v->m_name)] = ptr;
+                llvm::Type *type;
+                if (v->m_intent == intent_local || v->m_intent == intent_return_var) {
+                    if (v->m_type->type == ASR::ttypeType::Integer) {
+                        type = llvm::Type::getInt64Ty(context);
+                    } else if (v->m_type->type == ASR::ttypeType::Real) {
+                        type = llvm::Type::getFloatTy(context);
+                    } else {
+                        throw CodeGenError("Function: type not supported");
+                    }
+                    llvm::AllocaInst *ptr = builder->CreateAlloca(
+                        type, nullptr, v->m_name);
+                    llvm_symtab[std::string(v->m_name)] = ptr;
+                }
             }
         }
 
@@ -205,7 +223,8 @@ public:
             this->visit_stmt(*x.m_body[i]);
         }
 
-        llvm::Value *ret_val = llvm_symtab[std::string(x.m_name)];
+        std::string return_var_name = VARIABLE((ASR::asr_t*)(EXPR_VAR((ASR::asr_t*)x.m_return_var)->m_v))->m_name;
+        llvm::Value *ret_val = llvm_symtab[return_var_name];
         llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
         builder->CreateRet(ret_val2);
     }
@@ -660,6 +679,16 @@ void wrap_global_stmts_into_function(Allocator &al,
                     s.from_str(al, fn_name_s + std::to_string(idx));
                     var_name = s.c_str(al);
                     type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+                    return_var = ASR::make_Variable_t(al, loc,
+                        fn_scope, var_name, intent_local, type);
+                    return_var_ref = EXPR(ASR::make_Var_t(al, loc, VAR(return_var)));
+                    fn_scope->scope[std::string(var_name)] = return_var;
+                    target = return_var_ref;
+                    idx++;
+                } else if (expr_type(value)->type == ASR::ttypeType::Real) {
+                    s.from_str(al, fn_name_s + std::to_string(idx));
+                    var_name = s.c_str(al);
+                    type = TYPE(ASR::make_Real_t(al, loc, 4, nullptr, 0));
                     return_var = ASR::make_Variable_t(al, loc,
                         fn_scope, var_name, intent_local, type);
                     return_var_ref = EXPR(ASR::make_Var_t(al, loc, VAR(return_var)));
