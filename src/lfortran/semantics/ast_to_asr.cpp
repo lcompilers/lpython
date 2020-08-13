@@ -375,6 +375,16 @@ public:
                     throw SemanticError("Only Integer or Real can be assigned to Real",
                         x.base.base.loc);
                 }
+            } else if (expr_type(target)->type == ASR::ttypeType::Integer) {
+                if (expr_type(value)->type == ASR::ttypeType::Real) {
+                    value = (ASR::expr_t*)ASR::make_ImplicitCast_t(al, x.base.base.loc,
+                        value, ASR::cast_kindType::RealToInteger, expr_type(target));
+                } else if (expr_type(value)->type == ASR::ttypeType::Integer) {
+                    // TODO: convert/cast kinds if they differ
+                } else {
+                    throw SemanticError("Only Integer or Real can be assigned to Integer",
+                        x.base.base.loc);
+                }
             }
         }
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value);

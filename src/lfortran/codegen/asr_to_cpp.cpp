@@ -401,6 +401,10 @@ R"(#include <iostream>
                 src = "(float)" + src;
                 break;
             }
+            case (ASR::cast_kindType::RealToInteger) : {
+                src = "(int)" + src;
+                break;
+            }
             default : throw CodeGenError("Cast kind not implemented");
         }
     }
