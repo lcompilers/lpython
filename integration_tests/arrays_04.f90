@@ -1,11 +1,11 @@
 program arrays_04
 implicit none
 real :: a(3), b
-a(1) = 3.
-a(2) = 2.
-a(3) = 1.
+a(1) = 3
+a(2) = 2
+a(3) = 1
 b = sum(a)
-if (abs(b-6.) > 1e-5) error stop
+if (abs(b-6) > 1e-5) error stop
 
 contains
 
