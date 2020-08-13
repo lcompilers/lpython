@@ -103,21 +103,35 @@ public:
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
         }
-        // TODO: save the arguments into `a_args` and `n_args`.
-        // We need to get Variables settled first, then it will be just a
-        // reference to a variable.
+        Vec<ASR::expr_t*> args;
+        args.reserve(al, x.n_args);
         for (size_t i=0; i<x.n_args; i++) {
             char *arg=x.m_args[i].m_arg;
-            std::string args = arg;
-            if (current_scope->scope.find(args) == current_scope->scope.end()) {
-                throw SemanticError("Dummy argument '" + args + "' not defined", x.base.base.loc);
+            std::string arg_s = arg;
+            if (current_scope->scope.find(arg_s) == current_scope->scope.end()) {
+                throw SemanticError("Dummy argument '" + arg_s + "' not defined", x.base.base.loc);
             }
+            ASR::asr_t *arg_asr = current_scope->scope[arg_s];
+            ASR::var_t *var = VAR(arg_asr);
+            args.push_back(al, EXPR(ASR::make_Var_t(al, x.base.base.loc,
+                var)));
         }
         ASR::ttype_t *type;
         type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+        char *return_var_name;
+        if (x.m_return_var) {
+            if (x.m_return_var->type == AST::exprType::Name) {
+                return_var_name = ((AST::Name_t*)(x.m_return_var))->m_id;
+            } else {
+                throw SemanticError("Return variable must be an identifier",
+                    x.m_return_var->base.loc);
+            }
+        } else {
+            return_var_name = x.m_name;
+        }
         ASR::asr_t *return_var = ASR::make_Variable_t(al, x.base.base.loc,
-            current_scope, x.m_name, intent_return_var, type);
-        current_scope->scope[std::string(x.m_name)] = return_var;
+            current_scope, return_var_name, intent_return_var, type);
+        current_scope->scope[std::string(return_var_name)] = return_var;
 
         ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
             VAR(return_var));
@@ -126,8 +140,8 @@ public:
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
             /* a_name */ x.m_name,
-            /* a_args */ nullptr,
-            /* n_args */ 0,
+            /* a_args */ args.p,
+            /* n_args */ args.size(),
             /* a_body */ nullptr,
             /* n_body */ 0,
             /* a_bind */ nullptr,

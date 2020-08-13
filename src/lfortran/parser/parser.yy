@@ -311,6 +311,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> statements
 %type <vec_ast> contains_block_opt
 %type <vec_ast> sub_or_func_plus
+%type <ast> result_opt
 
 // Precedence
 
@@ -425,7 +426,7 @@ subroutine
 function
     : fn_type pure_opt recursive_opt KW_FUNCTION id "(" id_list_opt ")"
         result_opt sep var_decl_star statements KW_END KW_FUNCTION id_opt sep {
-            LLOC(@$, @15); $$ = FUNCTION($5, $7, $11, $12, @$); }
+            LLOC(@$, @15); $$ = FUNCTION($5, $7, $9, $11, $12, @$); }
     ;
 
 contains_block_opt
@@ -464,8 +465,8 @@ fn_type
     ;
 
 result_opt
-    : KW_RESULT "(" id ")"
-    | %empty
+    : KW_RESULT "(" id ")" { $$ = $3; }
+    | %empty { $$ = nullptr; }
     ;
 
 implicit_statement_opt

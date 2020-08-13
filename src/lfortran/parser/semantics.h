@@ -72,6 +72,16 @@ static inline expr_t* EXPR(const ast_t *f)
     return (expr_t*)f;
 }
 
+static inline expr_t* EXPR_OPT(const ast_t *f)
+{
+    if (f) {
+        LFORTRAN_ASSERT(f->type == astType::expr);
+        return (expr_t*)f;
+    } else {
+        return nullptr;
+    }
+}
+
 static inline char* name2char(const ast_t *n)
 {
     LFORTRAN_ASSERT(EXPR(n)->type == exprType::Name)
@@ -290,12 +300,12 @@ static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
         /*n_body*/ stmts.size(), \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
-#define FUNCTION(name, args, decl, stmts, l) make_Function_t(p.m_a, l, \
+#define FUNCTION(name, args, return_var, decl, stmts, l) make_Function_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, args), \
         /*n_args*/ args.size(), \
         /*return_type*/ nullptr, \
-        /*return_var*/ nullptr, \
+        /*return_var*/ EXPR_OPT(return_var), \
         /*bind*/ nullptr, \
         /*use*/ nullptr, \
         /*n_use*/ 0, \

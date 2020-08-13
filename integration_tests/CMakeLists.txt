@@ -90,6 +90,7 @@ if (NOT LFORTRAN_BACKEND STREQUAL "llvm")
     RUN(doconcurrentloop_01)
 
     RUN(arrays_01)
+    RUN(arrays_03)
 endif()
 
 if (NOT LFORTRAN_BACKEND)
