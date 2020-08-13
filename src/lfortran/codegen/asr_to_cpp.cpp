@@ -143,6 +143,11 @@ public:
                 visit_Subroutine(*s);
                 contains += src + "\n";
             }
+            if (item.second->type == ASR::asrType::fn) {
+                ASR::Function_t *s = FUNCTION(item.second);
+                visit_Function(*s);
+                contains += src + "\n";
+            }
         }
 
         // Generate code for the main program
