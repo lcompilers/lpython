@@ -259,7 +259,7 @@ R"(#include <iostream>
             if (item.second->type == ASR::asrType::var) {
                 ASR::var_t *v2 = (ASR::var_t*)(item.second);
                 ASR::Variable_t *v = (ASR::Variable_t *)v2;
-                if (v->m_intent == intent_local) {
+                if (v->m_intent == intent_local || v->m_intent == intent_return_var) {
                    decl += "    " + convert_variable_decl(*v) + ";\n";
                 }
             }
