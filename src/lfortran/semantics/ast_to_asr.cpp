@@ -555,7 +555,7 @@ public:
 
     void visit_Num(const AST::Num_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                8, nullptr, 0));
+                4, nullptr, 0));
         tmp = ASR::make_Num_t(al, x.base.base.loc, x.m_n, type);
     }
 
