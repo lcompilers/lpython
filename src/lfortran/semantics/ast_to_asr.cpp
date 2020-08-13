@@ -128,7 +128,7 @@ public:
         }
         ASR::asr_t *return_var = ASR::make_Variable_t(al, x.base.base.loc,
             current_scope, return_var_name, intent_return_var, type);
-        current_scope->scope[std::string(x.m_name)] = return_var;
+        current_scope->scope[std::string(return_var_name)] = return_var;
 
         ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
             VAR(return_var));
