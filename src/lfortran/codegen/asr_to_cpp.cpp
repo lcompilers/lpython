@@ -402,7 +402,7 @@ R"(#include <iostream>
                 break;
             }
             case (ASR::cast_kindType::RealToInteger) : {
-                src = "(int)" + src;
+                src = "(int)(" + src + ")";
                 break;
             }
             default : throw CodeGenError("Cast kind not implemented");
