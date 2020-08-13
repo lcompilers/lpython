@@ -161,9 +161,17 @@ int prompt()
 
         // LLVM -> Machine code -> Execution
         e.add_module(std::move(m));
-        int r = e.intfn("f");
-        section("Result:");
-        std::cout << r << std::endl;
+        if (return_type == "integer") {
+            int r = e.intfn("f");
+            section("Result:");
+            std::cout << r << std::endl;
+        } else if (return_type == "real") {
+            float r = e.floatfn("f");
+            section("Result:");
+            std::cout << r << std::endl;
+        } else {
+            throw LFortran::LFortranException("Return type not supported");
+        }
     }
     return 0;
 }

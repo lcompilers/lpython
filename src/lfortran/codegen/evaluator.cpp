@@ -153,6 +153,15 @@ int64_t LLVMEvaluator::intfn(const std::string &name) {
     return f();
 }
 
+float LLVMEvaluator::floatfn(const std::string &name) {
+    llvm::JITSymbol s = jit->findSymbol(name);
+    if (!s) {
+        throw std::runtime_error("Unable to get pointer to function");
+    }
+    float (*f)() = (float (*)())(intptr_t)cantFail(s.getAddress());
+    return f();
+}
+
 void LLVMEvaluator::voidfn(const std::string &name) {
     llvm::JITSymbol s = jit->findSymbol(name);
     if (!s) {
