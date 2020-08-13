@@ -489,6 +489,8 @@ public:
             ASR::ttype_t *t = expr_type(v);
             if (t->type == ASR::ttypeType::Integer) {
                 fmt.push_back("%d");
+            } else if (t->type == ASR::ttypeType::Real) {
+                fmt.push_back("%f");
             } else if (t->type == ASR::ttypeType::Character) {
                 fmt.push_back("%s");
             } else {
