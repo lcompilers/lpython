@@ -57,7 +57,7 @@ def main():
                     filename, update_reference)
 
         if ast:
-            run_test("ast", "lfortran --show-ast {infile} -o {outfile}",
+            run_test("ast", "lfortran --show-ast --no-color {infile} -o {outfile}",
                     filename, update_reference)
 
         if ast_f90:
@@ -77,7 +77,7 @@ def main():
                     filename, update_reference)
 
         if asr:
-            run_test("asr", "lfortran --show-asr {infile} -o {outfile}",
+            run_test("asr", "lfortran --show-asr --no-color {infile} -o {outfile}",
                     filename, update_reference)
 
         if llvm:
