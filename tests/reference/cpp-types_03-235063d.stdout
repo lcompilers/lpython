@@ -7,9 +7,10 @@ int main(int argc, char* argv[])
     {
         int i;
         float r;
-        i = 1;
-        r = 1;
-        r = i;
+        r = 1.5;
+        std::cout << r << std::endl;
+        i = (int)r;
+        std::cout << i << std::endl;
     }
     Kokkos::finalize();
     return 0;
