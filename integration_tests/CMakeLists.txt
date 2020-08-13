@@ -96,6 +96,7 @@ endif()
 if (NOT LFORTRAN_BACKEND)
     # GFortran
     RUN(arrays_02)
+    RUN(arrays_04)
 
     RUN(intrinsics_01)
 endif()
