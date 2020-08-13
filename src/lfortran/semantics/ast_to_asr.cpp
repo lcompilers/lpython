@@ -98,11 +98,14 @@ public:
     }
 
     void visit_Function(const AST::Function_t &x) {
+        // Extract local (including dummy) variables first
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
         }
+
+        // Convert and check arguments
         Vec<ASR::expr_t*> args;
         args.reserve(al, x.n_args);
         for (size_t i=0; i<x.n_args; i++) {
@@ -116,8 +119,10 @@ public:
             args.push_back(al, EXPR(ASR::make_Var_t(al, x.base.base.loc,
                 var)));
         }
-        ASR::ttype_t *type;
-        type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+
+        // Handle the return variable and type
+        // First determine the name of the variable: either the function name
+        // or result(...)
         char *return_var_name;
         if (x.m_return_var) {
             if (x.m_return_var->type == AST::exprType::Name) {
@@ -129,13 +134,30 @@ public:
         } else {
             return_var_name = x.m_name;
         }
-        ASR::asr_t *return_var = ASR::make_Variable_t(al, x.base.base.loc,
-            current_scope, return_var_name, intent_return_var, type);
-        current_scope->scope[std::string(return_var_name)] = return_var;
+
+        // Determine the type of the variable, the type is either specified as
+        //     integer function f()
+        // or in local variables as
+        //     integer :: f
+        ASR::asr_t *return_var;
+        if (current_scope->scope.find(std::string(return_var_name)) == current_scope->scope.end()) {
+            // The variable is not defined among local variables, extract the
+            // type from "integer function f()" and add the variable.
+            // For now assume integer.
+            ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+            // Add it as a local variable:
+            return_var = ASR::make_Variable_t(al, x.base.base.loc,
+                current_scope, return_var_name, intent_return_var, type);
+            current_scope->scope[std::string(return_var_name)] = return_var;
+        } else {
+            // Extract the variable from the local scope
+            return_var = current_scope->scope[std::string(return_var_name)];
+        }
 
         ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
             VAR(return_var));
 
+        // Create and register the function
         asr = ASR::make_Function_t(
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
