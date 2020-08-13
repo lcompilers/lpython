@@ -157,6 +157,11 @@ public:
                     llvm::AllocaInst *ptr = builder->CreateAlloca(
                         llvm::Type::getInt64Ty(context), nullptr, v->m_name);
                     llvm_symtab[std::string(v->m_name)] = ptr;
+                } else if (v->m_type->type == ASR::ttypeType::Real) {
+                    // TODO: Assuming single precision
+                    llvm::AllocaInst *ptr = builder->CreateAlloca(
+                        llvm::Type::getFloatTy(context), nullptr, v->m_name);
+                    llvm_symtab[std::string(v->m_name)] = ptr;
                 } else if (v->m_type->type == ASR::ttypeType::Logical) {
                     llvm::AllocaInst *ptr = builder->CreateAlloca(
                         llvm::Type::getInt1Ty(context), nullptr, v->m_name);
@@ -431,6 +436,12 @@ public:
 
     void visit_Num(const ASR::Num_t &x) {
         tmp = llvm::ConstantInt::get(context, llvm::APInt(64, x.m_n));
+    }
+
+    void visit_ConstantReal(const ASR::ConstantReal_t &x) {
+        double val = std::atof(x.m_r);
+        // TODO: assuming single precision
+        tmp = llvm::ConstantFP::get(context, llvm::APFloat((float)val));
     }
 
     void visit_Constant(const ASR::Constant_t &x) {
