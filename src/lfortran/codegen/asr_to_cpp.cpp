@@ -249,7 +249,18 @@ R"(#include <iostream>
             s.intrinsic_function = false;
             sym_info[get_hash((ASR::asr_t*)&x)] = s;
         }
-        std::string sub = "int " + std::string(x.m_name) + "(";
+        std::string sub;
+        ASR::Variable_t *return_var = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_return_var)->m_v);
+        if (return_var->m_type->type == ASR::ttypeType::Integer) {
+            sub = "int ";
+        } else if (return_var->m_type->type == ASR::ttypeType::Real) {
+            sub = "float ";
+        } else if (return_var->m_type->type == ASR::ttypeType::Logical) {
+            sub = "bool ";
+        } else {
+            throw CodeGenError("Return type not supported");
+        }
+        sub = sub + std::string(x.m_name) + "(";
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
             LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
