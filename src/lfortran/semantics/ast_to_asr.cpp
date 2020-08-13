@@ -460,12 +460,35 @@ public:
                 op = ASR::Pow;
                 break;
         }
-        // TODO: For now we require the types to match (implicit casting is not
-        // implemented yet)
+        // Cast LHS or RHS if necessary
         ASR::ttype_t *left_type = expr_type(left);
         ASR::ttype_t *right_type = expr_type(right);
-        LFORTRAN_ASSERT(left_type->type == right_type->type);
-        ASR::ttype_t *type = left_type;
+        ASR::ttype_t *type;
+        if (left_type->type == ASR::ttypeType::Real) {
+            if (right_type->type == ASR::ttypeType::Real) {
+                // TODO: convert/cast kinds if they differ
+                type = left_type;
+            } else if (right_type->type == ASR::ttypeType::Integer) {
+                right = (ASR::expr_t*)ASR::make_ImplicitCast_t(al, x.base.base.loc,
+                    right, ASR::cast_kindType::IntegerToReal, left_type);
+                type = left_type;
+            } else {
+                throw SemanticError("Binop: only Integer or Real can be on the RHS with Real as LHS",
+                    x.base.base.loc);
+            }
+        } else if (left_type->type == ASR::ttypeType::Integer) {
+            if (right_type->type == ASR::ttypeType::Real) {
+                left = (ASR::expr_t*)ASR::make_ImplicitCast_t(al, x.base.base.loc,
+                    left, ASR::cast_kindType::IntegerToReal, right_type);
+                type = right_type;
+            } else if (right_type->type == ASR::ttypeType::Integer) {
+                // TODO: convert/cast kinds if they differ
+                type = left_type;
+            } else {
+                throw SemanticError("BinOp: Only Integer or Real can be on the RHS with Integer as LHS",
+                    x.base.base.loc);
+            }
+        }
         tmp = ASR::make_BinOp_t(al, x.base.base.loc,
                 left, op, right, type);
     }
