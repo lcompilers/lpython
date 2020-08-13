@@ -1,0 +1,13 @@
+{
+    "basename": "asr-fn2-b585098",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/fn2.f90",
+    "infile_hash": "9f61561c47397aa03014fe07094ac838ada4865e513025e384edae00",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-fn2-b585098.stdout",
+    "stdout_hash": "f50a147475bb1468c3a5f621575d04187fc015993bb27a0b144c959f",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

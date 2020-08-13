@@ -75,7 +75,7 @@ int prompt()
     std::cout << "Interactive Fortran. Experimental prototype, not ready for end users." << std::endl;
     std::cout << "  * Use Ctrl-D to exit" << std::endl;
     std::cout << "  * Use Enter to submit" << std::endl;
-    std::cout << "Try: function f(); f = 42; end function" << std::endl;
+    std::cout << "Try: integer function f(); f = 42; end function" << std::endl;
     while (true) {
         std::cout << color(LFortran::style::bold) << color(LFortran::fg::green) << ">>> "
             << color(LFortran::style::reset) << color(LFortran::fg::reset);

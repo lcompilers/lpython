@@ -98,13 +98,13 @@ if (NOT LFORTRAN_BACKEND STREQUAL "llvm")
 
     RUN(arrays_01)
     RUN(arrays_03)
+    RUN(arrays_04)
 
 endif()
 
 if (NOT LFORTRAN_BACKEND)
     # GFortran
     RUN(arrays_02)
-    RUN(arrays_04)
 
     RUN(intrinsics_01)
 endif()
