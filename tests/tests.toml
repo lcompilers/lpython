@@ -249,3 +249,8 @@ cpp = true
 filename = "../integration_tests/types_02.f90"
 asr = true
 cpp = true
+
+[[test]]
+filename = "../integration_tests/types_03.f90"
+asr = true
+cpp = true
