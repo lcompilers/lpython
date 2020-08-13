@@ -14,19 +14,21 @@ int mysum(const Kokkos::View<const int*> &a)
 
 int main(int argc, char* argv[])
 {
-    Kokkos::initialize(argc, argv); {
-    int i;
-    int s;
-    Kokkos::View<int[10]> x("x");
-    for (i=1; i<=x.extent(0); i++) {
-        x[i-1] = i;
-    };
-    s = mysum(x);
-    std::cout << s << std::endl;
-    if (s != 55) {
-        std::cerr << "ERROR STOP" << std::endl;
-        exit(1);
-    };
-    } Kokkos::finalize();
+    Kokkos::initialize(argc, argv);
+    {
+        int i;
+        int s;
+        Kokkos::View<int[10]> x("x");
+        for (i=1; i<=x.extent(0); i++) {
+            x[i-1] = i;
+        };
+        s = mysum(x);
+        std::cout << s << std::endl;
+        if (s != 55) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+    }
+    Kokkos::finalize();
     return 0;
 }

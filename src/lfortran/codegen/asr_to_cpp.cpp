@@ -152,6 +152,8 @@ public:
 
         // Generate code for the main program
         indentation_level += 1;
+        std::string indent1(indentation_level*indentation_spaces, ' ');
+        indentation_level += 1;
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string decl;
         for (auto &item : x.m_symtab->scope) {
@@ -176,11 +178,13 @@ R"(#include <iostream>
 )";
 
         src = headers + contains + "int main(int argc, char* argv[])\n{\n"
-                + indent + "Kokkos::initialize(argc, argv); {\n"
+                + indent1 + "Kokkos::initialize(argc, argv);\n"
+                + indent1 + "{\n"
                 + decl + body
-                + indent + "} Kokkos::finalize();\n"
-                + indent + "return 0;\n}\n";
-        indentation_level -= 1;
+                + indent1 + "}\n"
+                + indent1 + "Kokkos::finalize();\n"
+                + indent1 + "return 0;\n}\n";
+        indentation_level -= 2;
     }
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
