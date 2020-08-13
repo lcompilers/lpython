@@ -1,0 +1,30 @@
+int a()
+{
+    int a;
+    return a;
+}
+float b()
+{
+    float b;
+    return b;
+}
+bool c()
+{
+    bool c;
+    return c;
+}
+int d()
+{
+    int r;
+    return r;
+}
+float e()
+{
+    float r;
+    return r;
+}
+bool f()
+{
+    bool r;
+    return r;
+}

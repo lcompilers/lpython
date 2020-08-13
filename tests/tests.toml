@@ -284,3 +284,4 @@ cpp = true
 [[test]]
 filename = "fn2.f90"
 asr = true
+cpp = true

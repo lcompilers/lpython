@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-fn2-0a8b037",
+    "cmd": "lfortran --show-cpp {infile}",
+    "infile": "tests/fn2.f90",
+    "infile_hash": "9f61561c47397aa03014fe07094ac838ada4865e513025e384edae00",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-fn2-0a8b037.stdout",
+    "stdout_hash": "873638c561fb1085e7d7344000064436d91f131d78140440e19a52a2",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
