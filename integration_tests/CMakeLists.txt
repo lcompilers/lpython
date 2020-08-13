@@ -91,6 +91,10 @@ if (NOT LFORTRAN_BACKEND STREQUAL "llvm")
 
     RUN(arrays_01)
     RUN(arrays_03)
+
+    RUN(types_01)
+    RUN(types_02)
+    RUN(types_03)
 endif()
 
 if (NOT LFORTRAN_BACKEND)
@@ -99,6 +103,4 @@ if (NOT LFORTRAN_BACKEND)
     RUN(arrays_04)
 
     RUN(intrinsics_01)
-
-    RUN(types_01)
 endif()
