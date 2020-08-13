@@ -351,6 +351,12 @@ R"(#include <iostream>
         last_binary_plus = false;
     }
 
+    void visit_ConstantReal(const ASR::ConstantReal_t &x) {
+        src = x.m_r;
+        last_unary_plus = false;
+        last_binary_plus = false;
+    }
+
     void visit_Str(const ASR::Str_t &x) {
         src = "\"" + std::string(x.m_s) + "\"";
         last_unary_plus = false;

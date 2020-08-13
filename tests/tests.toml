@@ -239,3 +239,8 @@ cpp = true
 [[test]]
 filename = "../integration_tests/arrays_03.f90"
 cpp = true
+
+[[test]]
+filename = "../integration_tests/types_01.f90"
+asr = true
+cpp = true
