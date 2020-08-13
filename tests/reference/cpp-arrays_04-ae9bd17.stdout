@@ -1,0 +1,45 @@
+#include <iostream>
+#include <Kokkos_Core.hpp>
+
+int abs(float a)
+{
+    int r;
+    std::cout << "abs" << std::endl;
+    if (a > 0) {
+        r = (int)(a);
+    } else {
+        r = (int)(-a);
+    };
+    return r;
+}
+
+int sum(const Kokkos::View<const float*> &a)
+{
+    int i;
+    int r;
+    std::cout << "sum" << std::endl;
+    r = 0;
+    for (i=1; i<=a.extent(0); i++) {
+        r = (int)(r + a[i-1]);
+    };
+    return r;
+}
+
+int main(int argc, char* argv[])
+{
+    Kokkos::initialize(argc, argv);
+    {
+        Kokkos::View<float[3]> a("a");
+        float b;
+        a[1-1] = 3;
+        a[2-1] = 2;
+        a[3-1] = 1;
+        b = sum(a);
+        if (abs(b - 6) > 1e-5) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+    }
+    Kokkos::finalize();
+    return 0;
+}
