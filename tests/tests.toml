@@ -280,3 +280,7 @@ filename = "../integration_tests/types_06.f90"
 asr = true
 llvm = true
 cpp = true
+
+[[test]]
+filename = "fn2.f90"
+asr = true
