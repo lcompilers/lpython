@@ -274,35 +274,72 @@ public:
         llvm::Value *left = tmp;
         this->visit_expr(*x.m_right);
         llvm::Value *right = tmp;
-        switch (x.m_op) {
-            case (ASR::cmpopType::Eq) : {
-                tmp = builder->CreateICmpEQ(left, right);
-                break;
+        LFORTRAN_ASSERT(expr_type(x.m_left)->type == expr_type(x.m_right)->type);
+        ASR::ttypeType optype = expr_type(x.m_left)->type;
+        if (optype == ASR::ttypeType::Integer) {
+            switch (x.m_op) {
+                case (ASR::cmpopType::Eq) : {
+                    tmp = builder->CreateICmpEQ(left, right);
+                    break;
+                }
+                case (ASR::cmpopType::Gt) : {
+                    tmp = builder->CreateICmpSGT(left, right);
+                    break;
+                }
+                case (ASR::cmpopType::GtE) : {
+                    tmp = builder->CreateICmpSGE(left, right);
+                    break;
+                }
+                case (ASR::cmpopType::Lt) : {
+                    tmp = builder->CreateICmpSLT(left, right);
+                    break;
+                }
+                case (ASR::cmpopType::LtE) : {
+                    tmp = builder->CreateICmpSLE(left, right);
+                    break;
+                }
+                case (ASR::cmpopType::NotEq) : {
+                    tmp = builder->CreateICmpNE(left, right);
+                    break;
+                }
+                default : {
+                    throw SemanticError("Comparison operator not implemented",
+                            x.base.base.loc);
+                }
             }
-            case (ASR::cmpopType::Gt) : {
-                tmp = builder->CreateICmpSGT(left, right);
-                break;
+        } else if (optype == ASR::ttypeType::Real) {
+            switch (x.m_op) {
+                case (ASR::cmpopType::Eq) : {
+                    tmp = builder->CreateFCmpUEQ(left, right);
+                    break;
+                }
+                case (ASR::cmpopType::Gt) : {
+                    tmp = builder->CreateFCmpUGT(left, right);
+                    break;
+                }
+                case (ASR::cmpopType::GtE) : {
+                    tmp = builder->CreateFCmpUGE(left, right);
+                    break;
+                }
+                case (ASR::cmpopType::Lt) : {
+                    tmp = builder->CreateFCmpULT(left, right);
+                    break;
+                }
+                case (ASR::cmpopType::LtE) : {
+                    tmp = builder->CreateFCmpULE(left, right);
+                    break;
+                }
+                case (ASR::cmpopType::NotEq) : {
+                    tmp = builder->CreateFCmpUNE(left, right);
+                    break;
+                }
+                default : {
+                    throw SemanticError("Comparison operator not implemented",
+                            x.base.base.loc);
+                }
             }
-            case (ASR::cmpopType::GtE) : {
-                tmp = builder->CreateICmpSGE(left, right);
-                break;
-            }
-            case (ASR::cmpopType::Lt) : {
-                tmp = builder->CreateICmpSLT(left, right);
-                break;
-            }
-            case (ASR::cmpopType::LtE) : {
-                tmp = builder->CreateICmpSLE(left, right);
-                break;
-            }
-            case (ASR::cmpopType::NotEq) : {
-                tmp = builder->CreateICmpNE(left, right);
-                break;
-            }
-            default : {
-                throw SemanticError("Comparison operator not implemented",
-                        x.base.base.loc);
-            }
+        } else {
+            throw CodeGenError("Only Integer and Real implemented in Compare");
         }
     }
 
