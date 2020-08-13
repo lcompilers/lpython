@@ -176,9 +176,12 @@ R"(#include <iostream>
 )";
 
         src = headers + contains + "int main(int argc, char* argv[])\n{\n"
-                + indent + "Kokkos::initialize(argc, argv); {\n"
+                + indent + "Kokkos::initialize(argc, argv);\n"
+                + indent + "{\n\n\n"
                 + decl + body
-                + indent + "} Kokkos::finalize();\n"
+                + "\n\n"
+                + indent + "}\n"
+                + indent + "Kokkos::finalize();\n"
                 + indent + "return 0;\n}\n";
         indentation_level -= 1;
     }
