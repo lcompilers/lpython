@@ -12,6 +12,7 @@
 #include <lfortran/codegen/asr_to_llvm.h>
 #include <lfortran/codegen/asr_to_cpp.h>
 #include <lfortran/codegen/evaluator.h>
+#include <lfortran/asr_utils.h>
 #include <lfortran/config.h>
 
 namespace {
@@ -133,6 +134,15 @@ int prompt()
         }
         section("ASR:");
         std::cout << LFortran::pickle(*asr, true) << std::endl;
+        /*
+        // TODO: apply the "wrap" phase here manually and extract the type
+        // of the generated function
+        x = ((LFortran::ASR::TranslationUnit_t*) asr)->m_global_scope["f"];
+        LFortran::ASR::ttypeType return_var_type = LFortran::VARIABLE(
+            (LFortran::ASR::asr_t*)(LFortran::EXPR_VAR((LFortran::ASR::asr_t*)
+            x.m_return_var)->m_v))->m_type->type;
+        */
+
 
         // ASR -> LLVM
         LFortran::LLVMEvaluator e;
