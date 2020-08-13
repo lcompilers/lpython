@@ -397,8 +397,8 @@ R"(#include <iostream>
         visit_expr(*x.m_arg);
         switch (x.m_kind) {
             case (ASR::cast_kindType::IntegerToReal) : {
-                // In C++, we do not need to cast this explicitly:
-                src = "(float)" + src;
+                // In C++, we do not need to cast int to float explicitly:
+                // src = src;
                 break;
             }
             case (ASR::cast_kindType::RealToInteger) : {

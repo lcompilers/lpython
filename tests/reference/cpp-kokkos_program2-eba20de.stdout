@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
         int i;
         int nsize;
         float scalar;
-        scalar = (float)10;
+        scalar = 10;
         nsize = a.extent(0);
         Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(1, nsize+1), KOKKOS_LAMBDA(const long i) {
             a[i-1] = 5;
