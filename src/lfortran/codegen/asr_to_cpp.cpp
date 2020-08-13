@@ -273,6 +273,10 @@ R"(#include <iostream>
             body += src;
         }
 
+        body += indent + "return "
+            + VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_return_var)->m_v)->m_name
+            + ";\n";
+
         if (decl.size() > 0 || body.size() > 0) {
             sub += "{\n" + decl + body + "}\n";
         } else {
