@@ -362,6 +362,20 @@ public:
         }
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = EXPR(tmp);
+        if (target->type == ASR::exprType::Var) {
+            // integer :: i
+            // i = ...
+            if (expr_type(target)->type == ASR::ttypeType::Real) {
+                if (expr_type(value)->type == ASR::ttypeType::Real) {
+                    // TODO: convert/cast kinds if they differ
+                } else if (expr_type(value)->type == ASR::ttypeType::Integer) {
+                    // std::cout << "CAST!" << std::endl;
+                } else {
+                    throw SemanticError("Only Integer or Real can be assigned to Real",
+                        x.base.base.loc);
+                }
+            }
+        }
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value);
     }
 
