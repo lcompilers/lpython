@@ -350,6 +350,16 @@ public:
     void visit_Assignment(const AST::Assignment_t &x) {
         this->visit_expr(*x.m_target);
         ASR::expr_t *target = EXPR(tmp);
+        if (target->type == ASR::exprType::Var) {
+            // integer :: i
+            // i = ...
+        } else if (target->type == ASR::exprType::ArrayRef) {
+            // integer :: i(5)
+            // i(3) = ...
+        } else {
+            throw SemanticError("The LHS of assignment can only be a variable or an array reference",
+                x.base.base.loc);
+        }
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = EXPR(tmp);
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value);
