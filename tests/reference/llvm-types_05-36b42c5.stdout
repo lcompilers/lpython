@@ -1,0 +1,24 @@
+; ModuleID = 'LFortran'
+source_filename = "LFortran"
+
+define i64 @main() {
+.entry:
+  %i = alloca i64
+  %r = alloca float
+  store float 2.000000e+00, float* %r
+  store float 2.000000e+00, float* %r
+  store float 8.000000e+00, float* %r
+  store float 4.000000e+00, float* %r
+  store float 0.000000e+00, float* %r
+  store float 5.000000e-01, float* %r
+  store float 5.000000e-01, float* %r
+  store i64 2, i64* %i
+  store i64 2, i64* %i
+  store i64 8, i64* %i
+  store i64 4, i64* %i
+  store i64 0, i64* %i
+  store i64 0, i64* %i
+  store i64 0, i64* %i
+  ret i64 0
+}
+

@@ -85,6 +85,7 @@ RUN(types_01)
 RUN(types_02)
 RUN(types_03)
 RUN(types_04)
+RUN(types_05)
 
 if (NOT LFORTRAN_BACKEND STREQUAL "cpp")
     # GFortran + LFortran LLVM

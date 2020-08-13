@@ -1,0 +1,27 @@
+#include <iostream>
+#include <Kokkos_Core.hpp>
+
+int main(int argc, char* argv[])
+{
+    Kokkos::initialize(argc, argv);
+    {
+        int i;
+        float r;
+        r = 1.*2;
+        r = 2*1.;
+        r = 2*(3 + 1.);
+        r = 2*(3. - 1);
+        r = 1/2;
+        r = 1./2;
+        r = 1/2.;
+        i = (int)1.*2;
+        i = (int)2*1.;
+        i = (int)2*(3 + 1.);
+        i = (int)2*(3. - 1);
+        i = 1/2;
+        i = (int)1./2;
+        i = (int)1/2.;
+    }
+    Kokkos::finalize();
+    return 0;
+}
