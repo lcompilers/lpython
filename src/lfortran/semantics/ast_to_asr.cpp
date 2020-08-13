@@ -152,6 +152,7 @@ public:
         } else {
             // Extract the variable from the local scope
             return_var = current_scope->scope[std::string(return_var_name)];
+            VARIABLE(return_var)->m_intent = intent_return_var;
         }
 
         ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
