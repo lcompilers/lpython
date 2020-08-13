@@ -464,6 +464,21 @@ public:
         tmp = builder->CreateLoad(ptr);
     }
 
+    void visit_ImplicitCast(const ASR::ImplicitCast_t &x) {
+        visit_expr(*x.m_arg);
+        switch (x.m_kind) {
+            case (ASR::cast_kindType::IntegerToReal) : {
+                tmp = builder->CreateSIToFP(tmp, llvm::Type::getFloatTy(context));
+                break;
+            }
+            case (ASR::cast_kindType::RealToInteger) : {
+                tmp = builder->CreateFPToSI(tmp, llvm::Type::getInt64Ty(context));
+                break;
+            }
+            default : throw CodeGenError("Cast kind not implemented");
+        }
+    }
+
     void visit_Print(const ASR::Print_t &x) {
         std::vector<llvm::Value *> args;
         std::vector<std::string> fmt;
