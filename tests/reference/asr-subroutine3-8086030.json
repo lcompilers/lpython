@@ -1,0 +1,13 @@
+{
+    "basename": "asr-subroutine3-8086030",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/subroutine3.f90",
+    "infile_hash": "a524604ef3f17ed8a7b81b5ac3b03932cbc3ec6f308982532b4d9900",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-subroutine3-8086030.stdout",
+    "stdout_hash": "eebc5b949e9324cc0ab64ee31e14e338ff402a094d7430ee281a4de2",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
