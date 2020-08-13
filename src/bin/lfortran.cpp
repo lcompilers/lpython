@@ -156,6 +156,9 @@ int prompt()
         section("LLVM IR:");
         std::cout << m->str() << std::endl;
 
+        std::string return_type = m->get_return_type("f");
+        std::cout << "Return type: " << return_type << std::endl;
+
         // LLVM -> Machine code -> Execution
         e.add_module(std::move(m));
         int r = e.intfn("f");
