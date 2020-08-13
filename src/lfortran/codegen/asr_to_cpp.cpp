@@ -460,6 +460,19 @@ R"(#include <iostream>
             } else {
                 throw CodeGenError("Unary type not implemented yet");
             }
+        } else if (x.m_type->type == ASR::ttypeType::Real) {
+            if (x.m_op == ASR::unaryopType::UAdd) {
+                // src = src;
+                last_unary_plus = false;
+                return;
+            } else if (x.m_op == ASR::unaryopType::USub) {
+                src = "-" + src;
+                last_unary_plus = true;
+                last_binary_plus = false;
+                return;
+            } else {
+                throw CodeGenError("Unary type not implemented yet");
+            }
         } else if (x.m_type->type == ASR::ttypeType::Logical) {
             if (x.m_op == ASR::unaryopType::Not) {
                 src = "!" + src;
