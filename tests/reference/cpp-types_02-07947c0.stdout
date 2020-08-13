@@ -1,0 +1,16 @@
+#include <iostream>
+#include <Kokkos_Core.hpp>
+
+int main(int argc, char* argv[])
+{
+    Kokkos::initialize(argc, argv);
+    {
+        int i;
+        float r;
+        i = 1;
+        r = 1;
+        r = i;
+    }
+    Kokkos::finalize();
+    return 0;
+}
