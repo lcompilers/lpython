@@ -300,11 +300,11 @@ static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
         /*n_body*/ stmts.size(), \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
-#define FUNCTION(name, args, return_var, decl, stmts, l) make_Function_t(p.m_a, l, \
+#define FUNCTION(fn_type, name, args, return_var, decl, stmts, l) make_Function_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, args), \
         /*n_args*/ args.size(), \
-        /*return_type*/ nullptr, \
+        /*return_type*/ fn_type.c_str(p.m_a), \
         /*return_var*/ EXPR_OPT(return_var), \
         /*bind*/ nullptr, \
         /*use*/ nullptr, \
