@@ -373,7 +373,6 @@ R"(#include <iostream>
         last_binary_plus = false;
     }
 
-
     void visit_Var(const ASR::Var_t &x) {
         src = VARIABLE((ASR::asr_t*)(x.m_v))->m_name;
         last_unary_plus = false;
@@ -392,6 +391,18 @@ R"(#include <iostream>
         src = out;
         last_unary_plus = false;
         last_binary_plus = false;
+    }
+
+    void visit_ImplicitCast(const ASR::ImplicitCast_t &x) {
+        visit_expr(*x.m_arg);
+        switch (x.m_kind) {
+            case (ASR::cast_kindType::IntegerToReal) : {
+                // In C++, we do not need to cast this explicitly:
+                src = "(float)" + src;
+                break;
+            }
+            default : throw CodeGenError("Cast kind not implemented");
+        }
     }
 
     void visit_Compare(const ASR::Compare_t &x) {
