@@ -369,7 +369,8 @@ public:
                 if (expr_type(value)->type == ASR::ttypeType::Real) {
                     // TODO: convert/cast kinds if they differ
                 } else if (expr_type(value)->type == ASR::ttypeType::Integer) {
-                    // std::cout << "CAST!" << std::endl;
+                    value = (ASR::expr_t*)ASR::make_ImplicitCast_t(al, x.base.base.loc,
+                        value, ASR::cast_kindType::IntegerToReal, expr_type(target));
                 } else {
                     throw SemanticError("Only Integer or Real can be assigned to Real",
                         x.base.base.loc);
