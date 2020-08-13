@@ -8,8 +8,8 @@ int main(int argc, char* argv[])
         int i;
         float r;
         i = 1;
-        r = 1;
-        r = i;
+        r = (float)1;
+        r = (float)i;
     }
     Kokkos::finalize();
     return 0;
