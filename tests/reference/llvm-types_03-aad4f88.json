@@ -1,12 +1,12 @@
 {
-    "basename": "cpp-types_03-235063d",
-    "cmd": "lfortran --show-cpp {infile}",
+    "basename": "llvm-types_03-aad4f88",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
     "infile": "tests/../integration_tests/types_03.f90",
     "infile_hash": "388683b8609d91d174ceb8c24787c982bf1ea22d342e94d44457b861",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "cpp-types_03-235063d.stdout",
-    "stdout_hash": "944fe657c62fbb091e21aeafa00829c492b8d2e67298f74d02d5faa8",
+    "stdout": "llvm-types_03-aad4f88.stdout",
+    "stdout_hash": "22ad29668e152ad1b66b2b36f2e63acab37ab28a285dbe9de17f141c",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

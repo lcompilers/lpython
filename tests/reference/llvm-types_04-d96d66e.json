@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-types_04-d96d66e",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/types_04.f90",
+    "infile_hash": "da21466af87608d5d323360a130e0a5542261d98fabaeebb5adc16d3",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-types_04-d96d66e.stdout",
+    "stdout_hash": "10dfffb7948118d03d3c4e54f98cb42c9d4f58dc749279c4716c6ebc",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

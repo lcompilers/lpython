@@ -81,6 +81,12 @@ RUN(doloop_03)
 RUN(subroutines_01)
 RUN(subroutines_02)
 
+RUN(types_01)
+RUN(types_02)
+RUN(types_03)
+RUN(types_04)
+RUN(types_05)
+
 if (NOT LFORTRAN_BACKEND STREQUAL "cpp")
     # GFortran + LFortran LLVM
 endif()
@@ -92,9 +98,6 @@ if (NOT LFORTRAN_BACKEND STREQUAL "llvm")
     RUN(arrays_01)
     RUN(arrays_03)
 
-    RUN(types_01)
-    RUN(types_02)
-    RUN(types_03)
 endif()
 
 if (NOT LFORTRAN_BACKEND)
