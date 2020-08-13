@@ -26,6 +26,8 @@ public:
     LLVMModule(std::unique_ptr<llvm::Module> m);
     ~LLVMModule();
     std::string str();
+    // Return a function return type as a string (real / integer)
+    std::string get_return_type(const std::string &fn_name);
 };
 
 class LLVMEvaluator

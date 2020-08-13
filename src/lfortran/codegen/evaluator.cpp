@@ -72,6 +72,20 @@ std::string LLVMModule::str()
     return LFortran::LLVMEvaluator::module_to_string(*m_m);
 }
 
+std::string LLVMModule::get_return_type(const std::string &fn_name)
+{
+    llvm::Module *m = m_m.get();
+    llvm::Function *fn = m->getFunction(fn_name);
+    llvm::Type *type = fn->getReturnType();
+    if (type->isFloatTy()) {
+        return "real";
+    } else if (type->isIntegerTy()) {
+        return "integer";
+    } else {
+        throw LFortranException("Return type not supported");
+    }
+}
+
 LLVMEvaluator::LLVMEvaluator()
 {
     llvm::InitializeNativeTarget();
