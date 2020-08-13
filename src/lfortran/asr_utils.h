@@ -131,6 +131,8 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
         case ASR::exprType::Num: { return ((ASR::Num_t*)f)->m_type; }
         case ASR::exprType::ConstantReal: { return ((ASR::ConstantReal_t*)f)->m_type; }
         case ASR::exprType::Str: { return ((ASR::Str_t*)f)->m_type; }
+        case ASR::exprType::ImplicitCast: { return ((ASR::ImplicitCast_t*)f)->m_type; }
+        case ASR::exprType::ExplicitCast: { return ((ASR::ExplicitCast_t*)f)->m_type; }
         case ASR::exprType::VariableOld: { return ((ASR::VariableOld_t*)f)->m_type; }
         case ASR::exprType::Var: { return VARIABLE((ASR::asr_t*)((ASR::Var_t*)f)->m_v)->m_type; }
         case ASR::exprType::Constant: { return ((ASR::Constant_t*)f)->m_type; }

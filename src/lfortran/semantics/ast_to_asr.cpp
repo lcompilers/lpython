@@ -413,11 +413,31 @@ public:
         ASR::expr_t *left = EXPR(tmp);
         this->visit_expr(*x.m_right);
         ASR::expr_t *right = EXPR(tmp);
-        // TODO: For now we require the types to match (implicit casting is not
-        // implemented yet)
+        // Cast LHS or RHS if necessary
         ASR::ttype_t *left_type = expr_type(left);
         ASR::ttype_t *right_type = expr_type(right);
-        LFORTRAN_ASSERT(left_type->type == right_type->type);
+        if (left_type->type == ASR::ttypeType::Real) {
+            if (right_type->type == ASR::ttypeType::Real) {
+                // TODO: convert/cast kinds if they differ
+            } else if (right_type->type == ASR::ttypeType::Integer) {
+                right = (ASR::expr_t*)ASR::make_ImplicitCast_t(al, x.base.base.loc,
+                    right, ASR::cast_kindType::IntegerToReal, left_type);
+            } else {
+                throw SemanticError("Compare: only Integer or Real can be on the RHS with Real as LHS",
+                    x.base.base.loc);
+            }
+        } else if (left_type->type == ASR::ttypeType::Integer) {
+            if (right_type->type == ASR::ttypeType::Real) {
+                left = (ASR::expr_t*)ASR::make_ImplicitCast_t(al, x.base.base.loc,
+                    left, ASR::cast_kindType::IntegerToReal, right_type);
+            } else if (right_type->type == ASR::ttypeType::Integer) {
+                // TODO: convert/cast kinds if they differ
+            } else {
+                throw SemanticError("Compare: Only Integer or Real can be on the RHS with Integer as LHS",
+                    x.base.base.loc);
+            }
+        }
+        LFORTRAN_ASSERT(expr_type(left)->type == expr_type(right)->type);
         ASR::ttype_t *type = TYPE(ASR::make_Logical_t(al, x.base.base.loc,
                 4, nullptr, 0));
         ASR::cmpopType asr_op;
@@ -489,6 +509,7 @@ public:
                     x.base.base.loc);
             }
         }
+        LFORTRAN_ASSERT(expr_type(left)->type == expr_type(right)->type);
         tmp = ASR::make_BinOp_t(al, x.base.base.loc,
                 left, op, right, type);
     }
