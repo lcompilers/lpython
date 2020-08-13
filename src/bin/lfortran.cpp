@@ -176,7 +176,7 @@ int emit_tokens(const std::string &infile)
     return 0;
 }
 
-int emit_ast(const std::string &infile)
+int emit_ast(const std::string &infile, bool colors)
 {
     std::string input = read_file(infile);
     // Src -> AST
@@ -192,11 +192,11 @@ int emit_ast(const std::string &infile)
         return 2;
     }
 
-    std::cout << LFortran::pickle(*ast) << std::endl;
+    std::cout << LFortran::pickle(*ast, colors) << std::endl;
     return 0;
 }
 
-int emit_asr(const std::string &infile)
+int emit_asr(const std::string &infile, bool colors)
 {
     std::string input = read_file(infile);
 
@@ -223,7 +223,7 @@ int emit_asr(const std::string &infile)
         return 2;
     }
 
-    std::cout << LFortran::pickle(*asr) << std::endl;
+    std::cout << LFortran::pickle(*asr, colors) << std::endl;
     return 0;
 }
 
@@ -552,6 +552,7 @@ int main(int argc, char *argv[])
     bool show_tokens = false;
     bool show_ast = false;
     bool show_asr = false;
+    bool arg_no_color = false;
     bool show_llvm = false;
     bool show_cpp = false;
     bool show_asm = false;
@@ -573,6 +574,7 @@ int main(int argc, char *argv[])
     app.add_flag("--show-tokens", show_tokens, "Show tokens for the given file and exit");
     app.add_flag("--show-ast", show_ast, "Show AST for the given file and exit");
     app.add_flag("--show-asr", show_asr, "Show ASR for the given file and exit");
+    app.add_flag("--no-color", arg_no_color, "Turn off colored AST/ASR");
     app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
     app.add_flag("--show-cpp", show_cpp, "Show C++ translation source for the given file and exit");
     app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
@@ -635,10 +637,10 @@ int main(int argc, char *argv[])
         return emit_tokens(arg_file);
     }
     if (show_ast) {
-        return emit_ast(arg_file);
+        return emit_ast(arg_file, !arg_no_color);
     }
     if (show_asr) {
-        return emit_asr(arg_file);
+        return emit_asr(arg_file, !arg_no_color);
     }
     if (show_llvm) {
 #ifdef HAVE_LFORTRAN_LLVM

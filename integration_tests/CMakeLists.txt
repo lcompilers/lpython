@@ -99,4 +99,6 @@ if (NOT LFORTRAN_BACKEND)
     RUN(arrays_04)
 
     RUN(intrinsics_01)
+
+    RUN(types_01)
 endif()

@@ -1,0 +1,13 @@
+{
+    "basename": "ast-subroutine3-d7c057c",
+    "cmd": "lfortran --show-ast --no-color {infile} -o {outfile}",
+    "infile": "tests/subroutine3.f90",
+    "infile_hash": "a524604ef3f17ed8a7b81b5ac3b03932cbc3ec6f308982532b4d9900",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast-subroutine3-d7c057c.stdout",
+    "stdout_hash": "56a58692bbb581fd71a7095eaf2a56a4a3150ee6a50b21ea1e734995",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
