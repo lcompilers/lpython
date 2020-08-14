@@ -620,12 +620,14 @@ int main(int argc, char *argv[])
     app.add_flag("--show-ast", show_ast, "Show AST for the given file and exit");
     app.add_flag("--show-asr", show_asr, "Show ASR for the given file and exit");
     app.add_flag("--no-color", arg_no_color, "Turn off colored AST/ASR");
-    app.add_option("--pass", arg_pass, "Apply the ASR pass TEXT before showing the ASR (implies --show-asr)");
+    app.add_option("--pass", arg_pass, "Apply the ASR pass and show ASR (implies --show-asr)");
     app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
     app.add_flag("--show-cpp", show_cpp, "Show C++ translation source for the given file and exit");
     app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
     app.add_flag("--static", static_link, "Create a static executable");
     app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp)", true);
+
+    app.get_formatter()->column_width(25);
     CLI11_PARSE(app, argc, argv);
 
     if (arg_version) {
