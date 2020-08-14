@@ -115,5 +115,17 @@ std::string SymbolTable::get_hash() {
     return hexify(hash);
 }
 
+void SymbolTable::mark_all_variables_external() {
+    for (auto &a : scope) {
+        switch (a.second->type) {
+            case (ASR::asrType::var) : {
+                ASR::Variable_t *v = VARIABLE(a.second);
+                v->m_intent = intent_external;
+                break;
+            }
+            default : {};
+        }
+    }
+}
 
 } // namespace LFortran
