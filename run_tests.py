@@ -49,6 +49,9 @@ def main():
         cpp = test.get("cpp", False)
         obj = test.get("obj", False)
         bin_ = test.get("bin", False)
+        pass_ = test.get("pass", None)
+        if pass_ and pass_ not in ["do_loops", "global_stmts"]:
+            raise Exception("Unknown pass: %s" % pass_)
 
         print(color(style.bold)+"TEST:"+color(style.reset), filename)
 
@@ -78,6 +81,14 @@ def main():
 
         if asr:
             run_test("asr", "lfortran --show-asr --no-color {infile} -o {outfile}",
+                    filename, update_reference)
+
+        if pass_ == "do_loops":
+            run_test("pass_do_loops", "lfortran --pass=do_loops --show-asr --no-color {infile} -o {outfile}",
+                    filename, update_reference)
+
+        if pass_ == "global_stmts":
+            run_test("pass_global_stmts", "lfortran --pass=global_stmts --show-asr --no-color {infile} -o {outfile}",
                     filename, update_reference)
 
         if llvm:

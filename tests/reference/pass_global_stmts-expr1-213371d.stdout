@@ -1,0 +1,1 @@
+(TranslationUnit (SymbolTable d05e4fd9 {f: (Function (SymbolTable a2546712 {f0: (Variable a2546712 f0 0 (Integer 4 [])), f1: (Variable a2546712 f1 4 (Integer 4 []))}) f [] [(= (Var a2546712 f1) (Num 5 (Integer 4 [])))] () (Var a2546712 f1) ())}) [])
