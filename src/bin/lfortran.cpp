@@ -77,7 +77,7 @@ std::string get_kokkos_dir()
 }
 
 #ifdef HAVE_LFORTRAN_LLVM
-int prompt()
+int prompt(bool verbose)
 {
     std::cout << "Interactive Fortran. Experimental prototype, not ready for end users." << std::endl;
     std::cout << "  * Use Ctrl-D to exit" << std::endl;
@@ -114,8 +114,10 @@ int prompt()
             std::cout << "Exiting." << std::endl;
             return 3;
         }
-        section("Input:");
-        std::cout << input << std::endl;
+        if (verbose) {
+            section("Input:");
+            std::cout << input << std::endl;
+        }
 
         // Src -> AST
         LFortran::AST::TranslationUnit_t* ast;
@@ -131,8 +133,10 @@ int prompt()
             std::cout << "Other LFortran exception: " << e.msg() << std::endl;
             continue;
         }
-        section("AST:");
-        std::cout << LFortran::pickle(*ast, true) << std::endl;
+        if (verbose) {
+            section("AST:");
+            std::cout << LFortran::pickle(*ast, true) << std::endl;
+        }
 
 
         // AST -> ASR
@@ -151,8 +155,10 @@ int prompt()
             continue;
         }
         if (!symbol_table) symbol_table = asr->m_global_scope;
-        section("ASR:");
-        std::cout << LFortran::pickle(*asr, true) << std::endl;
+        if (verbose) {
+            section("ASR:");
+            std::cout << LFortran::pickle(*asr, true) << std::endl;
+        }
         /*
         // TODO: apply the "wrap" phase here manually and extract the type
         // of the generated function
@@ -171,29 +177,35 @@ int prompt()
             std::cout << "Code generation error: " << e.msg() << std::endl;
             continue;
         }
-        section("LLVM IR:");
-        std::cout << m->str() << std::endl;
+        if (verbose) {
+            section("LLVM IR:");
+            std::cout << m->str() << std::endl;
+        }
 
         std::string return_type = m->get_return_type("f");
-        std::cout << "Return type: " << return_type << std::endl;
+        if (verbose) std::cout << "Return type: " << return_type << std::endl;
 
         // LLVM -> Machine code -> Execution
         e.add_module(std::move(m));
         if (return_type == "integer") {
             int r = e.intfn("f");
-            section("Result:");
+            if (verbose) section("Result:");
             std::cout << r << std::endl;
         } else if (return_type == "real") {
             float r = e.floatfn("f");
-            section("Result:");
+            if (verbose) section("Result:");
             std::cout << r << std::endl;
         } else if (return_type == "void") {
             e.voidfn("f");
-            section("Result");
-            std::cout << "(statement)" << std::endl;
+            if (verbose) {
+                section("Result");
+                std::cout << "(statement)" << std::endl;
+            }
         } else if (return_type == "none") {
-            section("Result");
-            std::cout << "(nothing to execute)" << std::endl;
+            if (verbose) {
+                section("Result");
+                std::cout << "(nothing to execute)" << std::endl;
+            }
         } else {
             throw LFortran::LFortranException("Return type not supported");
         }
@@ -669,7 +681,7 @@ int main(int argc, char *argv[])
 
     if (arg_file.size() == 0) {
 #ifdef HAVE_LFORTRAN_LLVM
-        return prompt();
+        return prompt(arg_v);
 #else
         std::cerr << "Interactive prompt requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
         return 1;
