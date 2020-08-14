@@ -119,6 +119,11 @@ llvm = true
 obj = true
 
 [[test]]
+filename = "expr6.f90"
+asr = true
+pass = "global_stmts"
+
+[[test]]
 filename = "stop.f90"
 asr = true
 llvm = true
@@ -193,28 +198,38 @@ filename = "global_scope1.f90"
 ast = true
 asr = true
 llvm = true
+pass = "global_stmts"
 
 [[test]]
 filename = "global_scope2.f90"
 ast = true
 asr = true
 llvm = true
+pass = "global_stmts"
 
 [[test]]
 filename = "global_scope3.f90"
 ast = true
 asr = true
 llvm = true
+pass = "global_stmts"
 
 [[test]]
 filename = "global_scope4.f90"
 asr = true
 llvm = true
+pass = "global_stmts"
 
 [[test]]
 filename = "global_scope5.f90"
 asr = true
 llvm = true
+pass = "global_stmts"
+
+[[test]]
+filename = "global_scope6.f90"
+asr = true
+pass = "global_stmts"
 
 [[test]]
 filename = "kokkos_program1.f90"
