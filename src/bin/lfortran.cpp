@@ -620,7 +620,7 @@ int main(int argc, char *argv[])
     app.add_flag("--show-ast", show_ast, "Show AST for the given file and exit");
     app.add_flag("--show-asr", show_asr, "Show ASR for the given file and exit");
     app.add_flag("--no-color", arg_no_color, "Turn off colored AST/ASR");
-    app.add_option("--pass", arg_pass, "Apply the ASR pass before showing it (implies --show-asr)");
+    app.add_option("--pass", arg_pass, "Apply the ASR pass TEXT before showing the ASR (implies --show-asr)");
     app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
     app.add_flag("--show-cpp", show_cpp, "Show C++ translation source for the given file and exit");
     app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
