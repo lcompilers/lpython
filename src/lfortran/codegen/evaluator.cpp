@@ -76,11 +76,16 @@ std::string LLVMModule::get_return_type(const std::string &fn_name)
 {
     llvm::Module *m = m_m.get();
     llvm::Function *fn = m->getFunction(fn_name);
+    if (!fn) {
+        return "none";
+    }
     llvm::Type *type = fn->getReturnType();
     if (type->isFloatTy()) {
         return "real";
     } else if (type->isIntegerTy()) {
         return "integer";
+    } else if (type->isVoidTy()) {
+        return "void";
     } else {
         throw LFortranException("Return type not supported");
     }
