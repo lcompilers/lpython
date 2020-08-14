@@ -85,6 +85,7 @@ int prompt()
     std::cout << "Try: integer function f(); f = 42; end function" << std::endl;
 
     Allocator al(64*1024*1024);
+    LFortran::LLVMEvaluator e;
     // persistent global SymbolTable across prompts
     LFortran::SymbolTable *symbol_table=nullptr;
 
@@ -163,7 +164,6 @@ int prompt()
 
 
         // ASR -> LLVM
-        LFortran::LLVMEvaluator e;
         std::unique_ptr<LFortran::LLVMModule> m;
         try {
             m = LFortran::asr_to_llvm(*asr, e.get_context(), al);
