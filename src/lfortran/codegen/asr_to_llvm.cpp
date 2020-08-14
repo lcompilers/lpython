@@ -484,7 +484,18 @@ public:
                     break;
                 };
                 case ASR::operatorType::Pow: {
-                    throw CodeGenError("Real Pow not implemented yet");
+                    llvm::Function *fn_pow = module->getFunction("llvm.pow.f32");
+                    if (!fn_pow) {
+                        llvm::FunctionType *function_type = llvm::FunctionType::get(
+                                llvm::Type::getFloatTy(context), {
+                                    llvm::Type::getFloatTy(context),
+                                    llvm::Type::getFloatTy(context)
+                                }, false);
+                        fn_pow = llvm::Function::Create(function_type,
+                                llvm::Function::ExternalLinkage, "llvm.pow.f32",
+                                module.get());
+                    }
+                    tmp = builder->CreateCall(fn_pow, {left_val, right_val});
                     break;
                 };
             }
