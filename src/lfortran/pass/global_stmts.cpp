@@ -26,19 +26,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
         ASR::asr_t *return_var;
         ASR::expr_t *return_var_ref;
         char *var_name;
-        int idx = 0;
-
-        // Create an initial return value if there are only statements and
-        // no expressions. TODO: in that case this should become a subroutine
-        // not a function.
-        s.from_str(al, fn_name_s + std::to_string(idx));
-        var_name = s.c_str(al);
-        type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-        return_var = ASR::make_Variable_t(al, loc,
-            fn_scope, var_name, intent_local, type);
-        return_var_ref = EXPR(ASR::make_Var_t(al, loc, VAR(return_var)));
-        fn_scope->scope[std::string(var_name)] = return_var;
-        idx++;
+        int idx = 1;
 
         Vec<ASR::stmt_t*> body;
         body.reserve(al, unit.n_items);
@@ -76,31 +64,52 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
             } else if (unit.m_items[i]->type == ASR::asrType::stmt) {
                 ASR::stmt_t* asr_stmt = STMT(unit.m_items[i]);
                 body.push_back(al, asr_stmt);
+                return_var = nullptr;
             } else {
                 throw CodeGenError("Unsupported type of global scope node");
             }
         }
 
+        if (return_var) {
+            // The last item was an expression, create a function returning it
 
-        // The last defined `return_var` is the actual return value
-        VARIABLE(return_var)->m_intent = intent_return_var;
+            // The last defined `return_var` is the actual return value
+            VARIABLE(return_var)->m_intent = intent_return_var;
 
-        ASR::asr_t *fn = ASR::make_Function_t(
-            al, loc,
-            /* a_symtab */ fn_scope,
-            /* a_name */ fn_name,
-            /* a_args */ nullptr,
-            /* n_args */ 0,
-            /* a_body */ body.p,
-            /* n_body */ body.size(),
-            /* a_bind */ nullptr,
-            /* a_return_var */ return_var_ref,
-            /* a_module */ nullptr);
-        std::string sym_name = fn_name;
-        if (unit.m_global_scope->scope.find(sym_name) != unit.m_global_scope->scope.end()) {
-            throw SemanticError("Function already defined", fn->loc);
+            ASR::asr_t *fn = ASR::make_Function_t(
+                al, loc,
+                /* a_symtab */ fn_scope,
+                /* a_name */ fn_name,
+                /* a_args */ nullptr,
+                /* n_args */ 0,
+                /* a_body */ body.p,
+                /* n_body */ body.size(),
+                /* a_bind */ nullptr,
+                /* a_return_var */ return_var_ref,
+                /* a_module */ nullptr);
+            std::string sym_name = fn_name;
+            if (unit.m_global_scope->scope.find(sym_name) != unit.m_global_scope->scope.end()) {
+                throw SemanticError("Function already defined", fn->loc);
+            }
+            unit.m_global_scope->scope[sym_name] = fn;
+        } else {
+            // The last item was a statement, create a subroutine (returing
+            // nothing)
+            ASR::asr_t *fn = ASR::make_Subroutine_t(
+                al, loc,
+                /* a_symtab */ fn_scope,
+                /* a_name */ fn_name,
+                /* a_args */ nullptr,
+                /* n_args */ 0,
+                /* a_body */ body.p,
+                /* n_body */ body.size(),
+                /* a_bind */ nullptr);
+            std::string sym_name = fn_name;
+            if (unit.m_global_scope->scope.find(sym_name) != unit.m_global_scope->scope.end()) {
+                throw SemanticError("Function already defined", fn->loc);
+            }
+            unit.m_global_scope->scope[sym_name] = fn;
         }
-        unit.m_global_scope->scope[sym_name] = fn;
         unit.m_items = nullptr;
         unit.n_items = 0;
     }
