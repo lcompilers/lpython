@@ -12,6 +12,8 @@
 #include <lfortran/codegen/asr_to_llvm.h>
 #include <lfortran/codegen/asr_to_cpp.h>
 #include <lfortran/codegen/evaluator.h>
+#include <lfortran/pass/do_loops.h>
+#include <lfortran/pass/global_stmts.h>
 #include <lfortran/asr_utils.h>
 #include <lfortran/config.h>
 
@@ -19,6 +21,10 @@ namespace {
 
 enum Backend {
     llvm, cpp
+};
+
+enum ASRPass {
+    do_loops, global_stmts
 };
 
 
@@ -217,7 +223,8 @@ int emit_ast(const std::string &infile, bool colors)
     return 0;
 }
 
-int emit_asr(const std::string &infile, bool colors)
+int emit_asr(const std::string &infile, bool colors,
+    const std::vector<ASRPass> &passes)
 {
     std::string input = read_file(infile);
 
@@ -242,6 +249,22 @@ int emit_asr(const std::string &infile, bool colors)
     } catch (const LFortran::SemanticError &e) {
         std::cerr << "Semantic error: " << e.msg() << std::endl;
         return 2;
+    }
+
+    for (size_t i=0; i < passes.size(); i++) {
+        switch (passes[i]) {
+            case (ASRPass::do_loops) : {
+                LFortran::pass_replace_do_loops(al,
+                    *LFortran::TRANSLATION_UNIT(asr));
+                break;
+            }
+            case (ASRPass::global_stmts) : {
+                LFortran::pass_wrap_global_stmts_into_function(al,
+                    *LFortran::TRANSLATION_UNIT(asr), "f");
+                break;
+            }
+            default : throw LFortran::LFortranException("Pass not implemened");
+        }
     }
 
     std::cout << LFortran::pickle(*asr, colors) << std::endl;
@@ -573,6 +596,7 @@ int main(int argc, char *argv[])
     bool show_tokens = false;
     bool show_ast = false;
     bool show_asr = false;
+    std::string arg_pass;
     bool arg_no_color = false;
     bool show_llvm = false;
     bool show_cpp = false;
@@ -596,6 +620,7 @@ int main(int argc, char *argv[])
     app.add_flag("--show-ast", show_ast, "Show AST for the given file and exit");
     app.add_flag("--show-asr", show_asr, "Show ASR for the given file and exit");
     app.add_flag("--no-color", arg_no_color, "Turn off colored AST/ASR");
+    app.add_option("--pass", arg_pass, "Apply the ASR pass before showing it (implies --show-asr)");
     app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
     app.add_flag("--show-cpp", show_cpp, "Show C++ translation source for the given file and exit");
     app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
@@ -660,8 +685,20 @@ int main(int argc, char *argv[])
     if (show_ast) {
         return emit_ast(arg_file, !arg_no_color);
     }
+    std::vector<ASRPass> passes;
+    if (arg_pass != "") {
+        if (arg_pass == "do_loops") {
+            passes.push_back(ASRPass::do_loops);
+        } else if (arg_pass == "global_stmts") {
+            passes.push_back(ASRPass::global_stmts);
+        } else {
+            std::cerr << "Pass must be one of: do_loops, global_stmts" << std::endl;
+            return 1;
+        }
+        show_asr = true;
+    }
     if (show_asr) {
-        return emit_asr(arg_file, !arg_no_color);
+        return emit_asr(arg_file, !arg_no_color, passes);
     }
     if (show_llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
