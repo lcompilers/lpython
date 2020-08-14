@@ -104,12 +104,14 @@ filename = "expr3.f90"
 ast = true
 asr = true
 pass = "global_stmts"
+llvm = true
 
 [[test]]
 filename = "expr4.f90"
 ast = true
 asr = true
 pass = "global_stmts"
+llvm = true
 
 [[test]]
 filename = "expr5.f90"
@@ -122,6 +124,7 @@ obj = true
 filename = "expr6.f90"
 asr = true
 pass = "global_stmts"
+llvm = true
 
 [[test]]
 filename = "stop.f90"

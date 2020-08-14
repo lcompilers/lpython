@@ -1,0 +1,13 @@
+; ModuleID = 'LFortran'
+source_filename = "LFortran"
+
+define float @f() {
+.entry:
+  %f1 = alloca i64
+  %f2 = alloca float
+  store i64 8, i64* %f1
+  store float 0x4015333340000000, float* %f2
+  %0 = load float, float* %f2
+  ret float %0
+}
+

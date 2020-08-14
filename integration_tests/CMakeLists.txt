@@ -62,6 +62,7 @@ RUN(cond_01)
 RUN(expr_01 fail)
 RUN(expr_02)
 RUN(expr_03)
+RUN(expr_04)
 
 RUN(variables_01)
 RUN(variables_02)

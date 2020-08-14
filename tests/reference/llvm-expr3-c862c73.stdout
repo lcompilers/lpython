@@ -1,0 +1,28 @@
+; ModuleID = 'LFortran'
+source_filename = "LFortran"
+
+define i64 @f() {
+.entry:
+  %f1 = alloca i64
+  %f2 = alloca i64
+  %f3 = alloca i64
+  %f4 = alloca i64
+  %f5 = alloca i64
+  %f6 = alloca i64
+  store i64 5, i64* %f1
+  store i64 8, i64* %f2
+  store i64 16, i64* %f3
+  store i64 11, i64* %f4
+  store i64 2, i64* %f5
+  %0 = call float @llvm.pow.f32(float 4.000000e+00, float 3.000000e+00)
+  %1 = fptosi float %0 to i64
+  store i64 %1, i64* %f6
+  %2 = load i64, i64* %f6
+  ret i64 %2
+}
+
+; Function Attrs: nounwind readnone speculatable
+declare float @llvm.pow.f32(float, float) #0
+
+attributes #0 = { nounwind readnone speculatable }
+
