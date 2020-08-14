@@ -89,6 +89,7 @@ filename = "expr1.f90"
 ast = true
 asr = true
 llvm = true
+pass = "global_stmts"
 
 [[test]]
 filename = "expr2.f90"
@@ -96,16 +97,19 @@ ast = true
 asr = true
 llvm = true
 obj = true
+pass = "global_stmts"
 
 [[test]]
 filename = "expr3.f90"
 ast = true
 asr = true
+pass = "global_stmts"
 
 [[test]]
 filename = "expr4.f90"
 ast = true
 asr = true
+pass = "global_stmts"
 
 [[test]]
 filename = "expr5.f90"
@@ -158,6 +162,7 @@ ast = true
 filename = "../integration_tests/doloop_01.f90"
 asr = true
 llvm = true
+pass = "do_loops"
 
 [[test]]
 filename = "../integration_tests/doloop_02.f90"
