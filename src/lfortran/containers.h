@@ -111,6 +111,22 @@ struct Str {
         std::memcpy(p, &s[0], sizeof(char) * n);
     }
 
+    // Initializes Str from std::string by setting the pointer to point
+    // to the std::string (no copy), and the length excluding the null char.
+    // The original std::string cannot go out of scope if you are still using
+    // Str. This function is helpful if you want to allocate a null terminated
+    // C string using Allocator as follows:
+    //
+    //    std::string s
+    //    ...
+    //    Str a;
+    //    a.from_str_view(s)
+    //    char* a.c_str(al);
+    void from_str_view(const std::string &s) {
+        n = s.size();
+        p = const_cast<char*>(&s[0]);
+    }
+
     // Returns a copy of the string as a NULL terminated C string,
     // allocated using Allocator
     char* c_str(Allocator &al) const {
