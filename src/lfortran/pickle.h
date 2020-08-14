@@ -16,6 +16,7 @@ namespace LFortran {
 
     // Pickle an ASR node
     std::string pickle(ASR::asr_t &asr, bool colors=false);
+    std::string pickle(ASR::TranslationUnit_t &asr, bool colors=false);
 
 }
 

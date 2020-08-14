@@ -718,11 +718,10 @@ R"(#include <iostream>
 
 };
 
-std::string asr_to_cpp(ASR::asr_t &asr)
+std::string asr_to_cpp(ASR::TranslationUnit_t &asr)
 {
     ASRToCPPVisitor v;
-    LFORTRAN_ASSERT(asr.type == ASR::asrType::unit);
-    v.visit_asr(asr);
+    v.visit_asr((ASR::asr_t &)asr);
     return v.src;
 }
 

@@ -856,7 +856,7 @@ public:
     }
 };
 
-ASR::asr_t *ast_to_asr(Allocator &al, AST::TranslationUnit_t &ast)
+ASR::TranslationUnit_t *ast_to_asr(Allocator &al, AST::TranslationUnit_t &ast)
 {
     SymbolTableVisitor v(al);
     v.visit_TranslationUnit(ast);
@@ -867,7 +867,7 @@ ASR::asr_t *ast_to_asr(Allocator &al, AST::TranslationUnit_t &ast)
 
     BodyVisitor b(al, unit);
     b.visit_TranslationUnit(ast);
-    return unit;
+    return TRANSLATION_UNIT(unit);
 }
 
 } // namespace LFortran

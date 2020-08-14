@@ -681,18 +681,17 @@ public:
 
 
 
-std::unique_ptr<LLVMModule> asr_to_llvm(ASR::asr_t &asr,
+std::unique_ptr<LLVMModule> asr_to_llvm(ASR::TranslationUnit_t &asr,
         llvm::LLVMContext &context, Allocator &al)
 {
     ASRToLLVMVisitor v(context);
-    LFORTRAN_ASSERT(asr.type == ASR::asrType::unit);
-    pass_wrap_global_stmts_into_function(al, *TRANSLATION_UNIT(&asr), "f");
+    pass_wrap_global_stmts_into_function(al, asr, "f");
 
     // Uncomment for debugging the ASR after the transformation
     // std::cout << pickle(asr) << std::endl;
 
-    pass_replace_do_loops(al, *TRANSLATION_UNIT(&asr));
-    v.visit_asr(asr);
+    pass_replace_do_loops(al, asr);
+    v.visit_asr((ASR::asr_t&)asr);
     std::string msg;
     llvm::raw_string_ostream err(msg);
     if (llvm::verifyModule(*v.module, &err)) {

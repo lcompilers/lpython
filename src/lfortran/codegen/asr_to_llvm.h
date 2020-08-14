@@ -6,7 +6,7 @@
 
 namespace LFortran {
 
-    std::unique_ptr<LLVMModule> asr_to_llvm(ASR::asr_t &asr,
+    std::unique_ptr<LLVMModule> asr_to_llvm(ASR::TranslationUnit_t &asr,
             llvm::LLVMContext &context, Allocator &al);
 
 } // namespace LFortran
