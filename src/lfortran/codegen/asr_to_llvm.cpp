@@ -181,8 +181,17 @@ public:
     }
 
     void visit_Function(const ASR::Function_t &x) {
+        ASR::ttypeType return_var_type = VARIABLE((ASR::asr_t*)(EXPR_VAR((ASR::asr_t*)x.m_return_var)->m_v))->m_type->type;
+        llvm::Type *return_type;
+        if (return_var_type == ASR::ttypeType::Integer) {
+            return_type = llvm::Type::getInt64Ty(context);
+        } else if (return_var_type == ASR::ttypeType::Real) {
+            return_type = llvm::Type::getFloatTy(context);
+        } else {
+            throw CodeGenError("Function: return type not supported");
+        }
         llvm::FunctionType *function_type = llvm::FunctionType::get(
-                llvm::Type::getInt64Ty(context), {}, false);
+                return_type, {}, false);
         llvm::Function *F = llvm::Function::Create(function_type,
                 llvm::Function::ExternalLinkage, x.m_name, module.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
@@ -194,10 +203,19 @@ public:
                 ASR::var_t *v2 = (ASR::var_t*)(item.second);
                 ASR::Variable_t *v = (ASR::Variable_t *)v2;
 
-                // TODO: we are assuming integer here:
-                llvm::AllocaInst *ptr = builder->CreateAlloca(
-                    llvm::Type::getInt64Ty(context), nullptr, v->m_name);
-                llvm_symtab[std::string(v->m_name)] = ptr;
+                llvm::Type *type;
+                if (v->m_intent == intent_local || v->m_intent == intent_return_var) {
+                    if (v->m_type->type == ASR::ttypeType::Integer) {
+                        type = llvm::Type::getInt64Ty(context);
+                    } else if (v->m_type->type == ASR::ttypeType::Real) {
+                        type = llvm::Type::getFloatTy(context);
+                    } else {
+                        throw CodeGenError("Function: type not supported");
+                    }
+                    llvm::AllocaInst *ptr = builder->CreateAlloca(
+                        type, nullptr, v->m_name);
+                    llvm_symtab[std::string(v->m_name)] = ptr;
+                }
             }
         }
 
@@ -205,7 +223,8 @@ public:
             this->visit_stmt(*x.m_body[i]);
         }
 
-        llvm::Value *ret_val = llvm_symtab[std::string(x.m_name)];
+        std::string return_var_name = VARIABLE((ASR::asr_t*)(EXPR_VAR((ASR::asr_t*)x.m_return_var)->m_v))->m_name;
+        llvm::Value *ret_val = llvm_symtab[return_var_name];
         llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
         builder->CreateRet(ret_val2);
     }
@@ -621,29 +640,65 @@ public:
 };
 
 // Edits the ASR inplace.
-void wrap_global_stmts_into_function(Allocator &al, ASR::TranslationUnit_t &unit) {
+void wrap_global_stmts_into_function(Allocator &al,
+            ASR::TranslationUnit_t &unit, const std::string &fn_name_s) {
     if (unit.n_items > 0) {
         // Add an anonymous function
-        const char* fn_name_orig = "f";
-        char *fn_name = (char*)fn_name_orig;
+        Str s;
+        s.from_str(al, fn_name_s);
+        char *fn_name = s.c_str(al);
         SymbolTable *fn_scope = al.make_new<SymbolTable>(unit.m_global_scope);
 
         ASR::ttype_t *type;
         Location loc;
-        type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-        ASR::asr_t *return_var = ASR::make_Variable_t(al, loc,
-            fn_scope, fn_name, intent_return_var, type);
-        fn_scope->scope[std::string(fn_name)] = return_var;
+        ASR::asr_t *return_var;
+        ASR::expr_t *return_var_ref;
+        char *var_name;
+        int idx = 0;
 
-        ASR::asr_t *return_var_ref = ASR::make_Var_t(al, loc,
-            VAR(return_var));
+        // Create an initial return value if there are only statements and
+        // no expressions. TODO: in that case this should become a subroutine
+        // not a function.
+        s.from_str(al, fn_name_s + std::to_string(idx));
+        var_name = s.c_str(al);
+        type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+        return_var = ASR::make_Variable_t(al, loc,
+            fn_scope, var_name, intent_local, type);
+        return_var_ref = EXPR(ASR::make_Var_t(al, loc, VAR(return_var)));
+        fn_scope->scope[std::string(var_name)] = return_var;
+        idx++;
 
         Vec<ASR::stmt_t*> body;
         body.reserve(al, unit.n_items);
         for (size_t i=0; i<unit.n_items; i++) {
             if (unit.m_items[i]->type == ASR::asrType::expr) {
-                ASR::expr_t *target = EXPR(return_var_ref);
+                ASR::expr_t *target;
                 ASR::expr_t *value = EXPR(unit.m_items[i]);
+                // Create a new variable with the right type
+                if (expr_type(value)->type == ASR::ttypeType::Integer) {
+                    s.from_str(al, fn_name_s + std::to_string(idx));
+                    var_name = s.c_str(al);
+                    type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+                    return_var = ASR::make_Variable_t(al, loc,
+                        fn_scope, var_name, intent_local, type);
+                    return_var_ref = EXPR(ASR::make_Var_t(al, loc, VAR(return_var)));
+                    fn_scope->scope[std::string(var_name)] = return_var;
+                    target = return_var_ref;
+                    idx++;
+                } else if (expr_type(value)->type == ASR::ttypeType::Real) {
+                    s.from_str(al, fn_name_s + std::to_string(idx));
+                    var_name = s.c_str(al);
+                    type = TYPE(ASR::make_Real_t(al, loc, 4, nullptr, 0));
+                    return_var = ASR::make_Variable_t(al, loc,
+                        fn_scope, var_name, intent_local, type);
+                    return_var_ref = EXPR(ASR::make_Var_t(al, loc, VAR(return_var)));
+                    fn_scope->scope[std::string(var_name)] = return_var;
+                    target = return_var_ref;
+                    idx++;
+                } else {
+                    throw SemanticError("Return type not supported in interactive mode",
+                            loc);
+                }
                 ASR::stmt_t* asr_stmt = STMT(ASR::make_Assignment_t(al, loc, target, value));
                 body.push_back(al, asr_stmt);
             } else if (unit.m_items[i]->type == ASR::asrType::stmt) {
@@ -655,6 +710,9 @@ void wrap_global_stmts_into_function(Allocator &al, ASR::TranslationUnit_t &unit
         }
 
 
+        // The last defined `return_var` is the actual return value
+        VARIABLE(return_var)->m_intent = intent_return_var;
+
         ASR::asr_t *fn = ASR::make_Function_t(
             al, loc,
             /* a_symtab */ fn_scope,
@@ -664,7 +722,7 @@ void wrap_global_stmts_into_function(Allocator &al, ASR::TranslationUnit_t &unit
             /* a_body */ body.p,
             /* n_body */ body.size(),
             /* a_bind */ nullptr,
-            /* a_return_var */ EXPR(return_var_ref),
+            /* a_return_var */ return_var_ref,
             /* a_module */ nullptr);
         std::string sym_name = fn_name;
         if (unit.m_global_scope->scope.find(sym_name) != unit.m_global_scope->scope.end()) {
@@ -831,7 +889,7 @@ std::unique_ptr<LLVMModule> asr_to_llvm(ASR::asr_t &asr,
 {
     ASRToLLVMVisitor v(context);
     LFORTRAN_ASSERT(asr.type == ASR::asrType::unit);
-    wrap_global_stmts_into_function(al, *TRANSLATION_UNIT(&asr));
+    wrap_global_stmts_into_function(al, *TRANSLATION_UNIT(&asr), "f");
 
     // Uncomment for debugging the ASR after the transformation
     // std::cout << pickle(asr) << std::endl;

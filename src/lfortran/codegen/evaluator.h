@@ -26,6 +26,8 @@ public:
     LLVMModule(std::unique_ptr<llvm::Module> m);
     ~LLVMModule();
     std::string str();
+    // Return a function return type as a string (real / integer)
+    std::string get_return_type(const std::string &fn_name);
 };
 
 class LLVMEvaluator
@@ -42,6 +44,7 @@ public:
     void add_module(std::unique_ptr<llvm::Module> mod);
     void add_module(std::unique_ptr<LLVMModule> m);
     int64_t intfn(const std::string &name);
+    float floatfn(const std::string &name);
     void voidfn(const std::string &name);
     void save_asm_file(llvm::Module &m, const std::string &filename);
     void save_object_file(llvm::Module &m, const std::string &filename);

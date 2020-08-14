@@ -12,6 +12,7 @@
 #include <lfortran/codegen/asr_to_llvm.h>
 #include <lfortran/codegen/asr_to_cpp.h>
 #include <lfortran/codegen/evaluator.h>
+#include <lfortran/asr_utils.h>
 #include <lfortran/config.h>
 
 namespace {
@@ -133,6 +134,15 @@ int prompt()
         }
         section("ASR:");
         std::cout << LFortran::pickle(*asr, true) << std::endl;
+        /*
+        // TODO: apply the "wrap" phase here manually and extract the type
+        // of the generated function
+        x = ((LFortran::ASR::TranslationUnit_t*) asr)->m_global_scope["f"];
+        LFortran::ASR::ttypeType return_var_type = LFortran::VARIABLE(
+            (LFortran::ASR::asr_t*)(LFortran::EXPR_VAR((LFortran::ASR::asr_t*)
+            x.m_return_var)->m_v))->m_type->type;
+        */
+
 
         // ASR -> LLVM
         LFortran::LLVMEvaluator e;
@@ -146,11 +156,22 @@ int prompt()
         section("LLVM IR:");
         std::cout << m->str() << std::endl;
 
+        std::string return_type = m->get_return_type("f");
+        std::cout << "Return type: " << return_type << std::endl;
+
         // LLVM -> Machine code -> Execution
         e.add_module(std::move(m));
-        int r = e.intfn("f");
-        section("Result:");
-        std::cout << r << std::endl;
+        if (return_type == "integer") {
+            int r = e.intfn("f");
+            section("Result:");
+            std::cout << r << std::endl;
+        } else if (return_type == "real") {
+            float r = e.floatfn("f");
+            section("Result:");
+            std::cout << r << std::endl;
+        } else {
+            throw LFortran::LFortranException("Return type not supported");
+        }
     }
     return 0;
 }
