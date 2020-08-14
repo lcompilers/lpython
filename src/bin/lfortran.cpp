@@ -83,6 +83,9 @@ int prompt()
     std::cout << "  * Use Ctrl-D to exit" << std::endl;
     std::cout << "  * Use Enter to submit" << std::endl;
     std::cout << "Try: integer function f(); f = 42; end function" << std::endl;
+
+    Allocator al(64*1024*1024);
+
     while (true) {
         std::cout << color(LFortran::style::bold) << color(LFortran::fg::green) << ">>> "
             << color(LFortran::style::reset) << color(LFortran::fg::reset);
@@ -112,7 +115,6 @@ int prompt()
         std::cout << input << std::endl;
 
         // Src -> AST
-        Allocator al(64*1024*1024);
         LFortran::AST::TranslationUnit_t* ast;
         try {
             ast = LFortran::parse2(al, input);
