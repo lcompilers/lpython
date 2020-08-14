@@ -11,6 +11,7 @@ set(SRC
     codegen/asr_to_cpp.cpp
 
     pass/do_loops.cpp
+    pass/global_stmts.cpp
 
     pickle.cpp
     cwrapper.cpp
