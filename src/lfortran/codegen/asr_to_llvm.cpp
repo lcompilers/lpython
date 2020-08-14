@@ -645,7 +645,7 @@ void wrap_global_stmts_into_function(Allocator &al,
     if (unit.n_items > 0) {
         // Add an anonymous function
         Str s;
-        s.from_str(al, fn_name_s);
+        s.from_str_view(fn_name_s);
         char *fn_name = s.c_str(al);
         SymbolTable *fn_scope = al.make_new<SymbolTable>(unit.m_global_scope);
 
