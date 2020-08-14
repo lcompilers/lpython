@@ -222,6 +222,10 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "global_scope6.f90"
+asr = true
+
+[[test]]
 filename = "kokkos_program1.f90"
 cpp = true
 
