@@ -37,6 +37,8 @@
 #include <lfortran/asr.h>
 #include <lfortran/containers.h>
 #include <lfortran/codegen/asr_to_llvm.h>
+#include <lfortran/pass/do_loops.h>
+#include <lfortran/pass/global_stmts.h>
 #include <lfortran/exception.h>
 #include <lfortran/asr_utils.h>
 #include <lfortran/pickle.h>
@@ -639,262 +641,19 @@ public:
 
 };
 
-// Edits the ASR inplace.
-void wrap_global_stmts_into_function(Allocator &al,
-            ASR::TranslationUnit_t &unit, const std::string &fn_name_s) {
-    if (unit.n_items > 0) {
-        // Add an anonymous function
-        Str s;
-        s.from_str_view(fn_name_s);
-        char *fn_name = s.c_str(al);
-        SymbolTable *fn_scope = al.make_new<SymbolTable>(unit.m_global_scope);
 
-        ASR::ttype_t *type;
-        Location loc;
-        ASR::asr_t *return_var;
-        ASR::expr_t *return_var_ref;
-        char *var_name;
-        int idx = 0;
-
-        // Create an initial return value if there are only statements and
-        // no expressions. TODO: in that case this should become a subroutine
-        // not a function.
-        s.from_str(al, fn_name_s + std::to_string(idx));
-        var_name = s.c_str(al);
-        type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-        return_var = ASR::make_Variable_t(al, loc,
-            fn_scope, var_name, intent_local, type);
-        return_var_ref = EXPR(ASR::make_Var_t(al, loc, VAR(return_var)));
-        fn_scope->scope[std::string(var_name)] = return_var;
-        idx++;
-
-        Vec<ASR::stmt_t*> body;
-        body.reserve(al, unit.n_items);
-        for (size_t i=0; i<unit.n_items; i++) {
-            if (unit.m_items[i]->type == ASR::asrType::expr) {
-                ASR::expr_t *target;
-                ASR::expr_t *value = EXPR(unit.m_items[i]);
-                // Create a new variable with the right type
-                if (expr_type(value)->type == ASR::ttypeType::Integer) {
-                    s.from_str(al, fn_name_s + std::to_string(idx));
-                    var_name = s.c_str(al);
-                    type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-                    return_var = ASR::make_Variable_t(al, loc,
-                        fn_scope, var_name, intent_local, type);
-                    return_var_ref = EXPR(ASR::make_Var_t(al, loc, VAR(return_var)));
-                    fn_scope->scope[std::string(var_name)] = return_var;
-                    target = return_var_ref;
-                    idx++;
-                } else if (expr_type(value)->type == ASR::ttypeType::Real) {
-                    s.from_str(al, fn_name_s + std::to_string(idx));
-                    var_name = s.c_str(al);
-                    type = TYPE(ASR::make_Real_t(al, loc, 4, nullptr, 0));
-                    return_var = ASR::make_Variable_t(al, loc,
-                        fn_scope, var_name, intent_local, type);
-                    return_var_ref = EXPR(ASR::make_Var_t(al, loc, VAR(return_var)));
-                    fn_scope->scope[std::string(var_name)] = return_var;
-                    target = return_var_ref;
-                    idx++;
-                } else {
-                    throw SemanticError("Return type not supported in interactive mode",
-                            loc);
-                }
-                ASR::stmt_t* asr_stmt = STMT(ASR::make_Assignment_t(al, loc, target, value));
-                body.push_back(al, asr_stmt);
-            } else if (unit.m_items[i]->type == ASR::asrType::stmt) {
-                ASR::stmt_t* asr_stmt = STMT(unit.m_items[i]);
-                body.push_back(al, asr_stmt);
-            } else {
-                throw CodeGenError("Unsupported type of global scope node");
-            }
-        }
-
-
-        // The last defined `return_var` is the actual return value
-        VARIABLE(return_var)->m_intent = intent_return_var;
-
-        ASR::asr_t *fn = ASR::make_Function_t(
-            al, loc,
-            /* a_symtab */ fn_scope,
-            /* a_name */ fn_name,
-            /* a_args */ nullptr,
-            /* n_args */ 0,
-            /* a_body */ body.p,
-            /* n_body */ body.size(),
-            /* a_bind */ nullptr,
-            /* a_return_var */ return_var_ref,
-            /* a_module */ nullptr);
-        std::string sym_name = fn_name;
-        if (unit.m_global_scope->scope.find(sym_name) != unit.m_global_scope->scope.end()) {
-            throw SemanticError("Function already defined", fn->loc);
-        }
-        unit.m_global_scope->scope[sym_name] = fn;
-        unit.m_items = nullptr;
-        unit.n_items = 0;
-    }
-}
-
-/*
-Converts:
-
-    do i = a, b, c
-        ...
-    end do
-
-to:
-
-    i = a-c
-    do while (i+c <= b)
-        i = i+c
-        ...
-    end do
-
-The comparison is >= for c<0.
-*/
-Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop) {
-    Location loc = loop.base.base.loc;
-    ASR::expr_t *a=loop.m_head.m_start;
-    ASR::expr_t *b=loop.m_head.m_end;
-    ASR::expr_t *c=loop.m_head.m_increment;
-    LFORTRAN_ASSERT(a);
-    LFORTRAN_ASSERT(b);
-    if (!c) {
-        ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-        c = EXPR(ASR::make_Num_t(al, loc, 1, type));
-    }
-    LFORTRAN_ASSERT(c);
-    int increment;
-    if (c->type == ASR::exprType::Num) {
-        increment = EXPR_NUM((ASR::asr_t*)c)->m_n;
-    } else if (c->type == ASR::exprType::UnaryOp) {
-        ASR::UnaryOp_t *u = EXPR_UNARYOP((ASR::asr_t*)c);
-        LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
-        LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::Num);
-        increment = - EXPR_NUM((ASR::asr_t*)u->m_operand)->m_n;
-    } else {
-        throw CodeGenError("Do loop increment type not supported");
-    }
-    ASR::cmpopType cmp_op;
-    if (increment > 0) {
-        cmp_op = ASR::cmpopType::LtE;
-    } else {
-        cmp_op = ASR::cmpopType::GtE;
-    }
-    ASR::expr_t *target = loop.m_head.m_v;
-    ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-    ASR::stmt_t *stmt1 = STMT(ASR::make_Assignment_t(al, loc, target,
-        EXPR(ASR::make_BinOp_t(al, loc, a, ASR::operatorType::Sub, c, type))
-    ));
-
-    ASR::expr_t *cond = EXPR(ASR::make_Compare_t(al, loc,
-        EXPR(ASR::make_BinOp_t(al, loc, target, ASR::operatorType::Add, c, type)),
-        cmp_op, b, type));
-    Vec<ASR::stmt_t*> body;
-    body.reserve(al, loop.n_body+1);
-    body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, target,
-        EXPR(ASR::make_BinOp_t(al, loc, target, ASR::operatorType::Add, c, type))
-    )));
-    for (size_t i=0; i<loop.n_body; i++) {
-        body.push_back(al, loop.m_body[i]);
-    }
-    ASR::stmt_t *stmt2 = STMT(ASR::make_WhileLoop_t(al, loc, cond,
-        body.p, body.size()));
-    Vec<ASR::stmt_t*> result;
-    result.reserve(al, 2);
-    result.push_back(al, stmt1);
-    result.push_back(al, stmt2);
-
-    /*
-    std::cout << "Input:" << std::endl;
-    std::cout << pickle((ASR::asr_t&)loop);
-    std::cout << "Output:" << std::endl;
-    std::cout << pickle((ASR::asr_t&)*stmt1);
-    std::cout << pickle((ASR::asr_t&)*stmt2);
-    std::cout << "--------------" << std::endl;
-    */
-
-    return result;
-}
-
-class DoLoopVisitor : public ASR::BaseWalkVisitor<DoLoopVisitor>
-{
-private:
-    Allocator &al;
-    Vec<ASR::stmt_t*> do_loop_result;
-public:
-    DoLoopVisitor(Allocator &al) : al{al} {
-        do_loop_result.n = 0;
-
-    }
-
-    void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
-        for (auto &a : x.m_global_scope->scope) {
-            this->visit_asr(*a.second);
-        }
-    }
-
-    void transform_stmts(ASR::stmt_t **&m_body, size_t &n_body) {
-        Vec<ASR::stmt_t*> body;
-        body.reserve(al, n_body);
-        for (size_t i=0; i<n_body; i++) {
-            // Not necessary after we check it after each visit_stmt in every
-            // visitor method:
-            do_loop_result.n = 0;
-            visit_stmt(*m_body[i]);
-            if (do_loop_result.size() > 0) {
-                for (size_t j=0; j<do_loop_result.size(); j++) {
-                    body.push_back(al, do_loop_result[j]);
-                }
-                do_loop_result.n = 0;
-            } else {
-                body.push_back(al, m_body[i]);
-            }
-        }
-        m_body = body.p;
-        n_body = body.size();
-    }
-
-    // TODO: Only Program and While is processed, we need to process all calls
-    // to visit_stmt().
-
-    void visit_Program(const ASR::Program_t &x) {
-        // FIXME: this is a hack, we need to pass in a non-const `x`,
-        // which requires to generate a TransformVisitor.
-        ASR::Program_t &xx = const_cast<ASR::Program_t&>(x);
-        transform_stmts(xx.m_body, xx.n_body);
-    }
-
-    void visit_WhileLoop(const ASR::WhileLoop_t &x) {
-        // FIXME: this is a hack, we need to pass in a non-const `x`,
-        // which requires to generate a TransformVisitor.
-        ASR::WhileLoop_t &xx = const_cast<ASR::WhileLoop_t&>(x);
-        transform_stmts(xx.m_body, xx.n_body);
-    }
-
-    void visit_DoLoop(const ASR::DoLoop_t &x) {
-        do_loop_result = replace_doloop(al, x);
-    }
-};
-
-void replace_doloops(Allocator &al, ASR::TranslationUnit_t &unit) {
-    DoLoopVisitor v(al);
-    // Each call transforms only one layer of nested loops, so we call it twice
-    // to transform doubly nested loops:
-    v.visit_TranslationUnit(unit);
-    v.visit_TranslationUnit(unit);
-}
 
 std::unique_ptr<LLVMModule> asr_to_llvm(ASR::asr_t &asr,
         llvm::LLVMContext &context, Allocator &al)
 {
     ASRToLLVMVisitor v(context);
     LFORTRAN_ASSERT(asr.type == ASR::asrType::unit);
-    wrap_global_stmts_into_function(al, *TRANSLATION_UNIT(&asr), "f");
+    pass_wrap_global_stmts_into_function(al, *TRANSLATION_UNIT(&asr), "f");
 
     // Uncomment for debugging the ASR after the transformation
     // std::cout << pickle(asr) << std::endl;
 
-    replace_doloops(al, *TRANSLATION_UNIT(&asr));
+    pass_replace_do_loops(al, *TRANSLATION_UNIT(&asr));
     v.visit_asr(asr);
     std::string msg;
     llvm::raw_string_ostream err(msg);

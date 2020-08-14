@@ -4,15 +4,22 @@ set(SRC
     parser/tokenizer.cpp
     parser/parser.tab.cc
     parser/parser.cpp
-    pickle.cpp
-    cwrapper.cpp
+
     semantics/ast_to_asr.cpp
     semantics/asr_scopes.cpp
+
+    codegen/asr_to_cpp.cpp
+
+    pass/do_loops.cpp
+    pass/global_stmts.cpp
+
+    pickle.cpp
+    cwrapper.cpp
+
     ast_to_src.cpp
     ast_to_cpp.cpp
     ast_to_cpp_hip.cpp
     ast_to_openmp.cpp
-    codegen/asr_to_cpp.cpp
 )
 if (WITH_JSON)
     set(SRC ${SRC}
