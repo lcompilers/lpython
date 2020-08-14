@@ -114,24 +114,36 @@ public:
     }
 
     void visit_Variable(const ASR::Variable_t &x) {
-        // This happens at global scope
+        // This happens at global scope, so the intent can only be either local
+        // (global variable declared/initialized in this translation unit), or
+        // external (global variable not declared/initialized in this
+        // translation unit, just referenced).
+        LFORTRAN_ASSERT(x.m_intent == intent_local
+            || x.m_intent == intent_external);
+        bool external = (x.m_intent == intent_external);
         if (x.m_type->type == ASR::ttypeType::Integer) {
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
                 llvm::Type::getInt64Ty(context));
-            module->getNamedGlobal(x.m_name)->setInitializer(
-                llvm::ConstantInt::get(context, llvm::APInt(64, 0)));
+            if (!external) {
+                module->getNamedGlobal(x.m_name)->setInitializer(
+                    llvm::ConstantInt::get(context, llvm::APInt(64, 0)));
+            }
             llvm_symtab[std::string(x.m_name)] = ptr;
         } else if (x.m_type->type == ASR::ttypeType::Real) {
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
                 llvm::Type::getFloatTy(context));
-            module->getNamedGlobal(x.m_name)->setInitializer(
-                llvm::ConstantFP::get(context, llvm::APFloat((float)0)));
+            if (!external) {
+                module->getNamedGlobal(x.m_name)->setInitializer(
+                    llvm::ConstantFP::get(context, llvm::APFloat((float)0)));
+            }
             llvm_symtab[std::string(x.m_name)] = ptr;
         } else if (x.m_type->type == ASR::ttypeType::Logical) {
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
                 llvm::Type::getInt1Ty(context));
-            module->getNamedGlobal(x.m_name)->setInitializer(
-                llvm::ConstantInt::get(context, llvm::APInt(1, 0)));
+            if (!external) {
+                module->getNamedGlobal(x.m_name)->setInitializer(
+                    llvm::ConstantInt::get(context, llvm::APInt(1, 0)));
+            }
             llvm_symtab[std::string(x.m_name)] = ptr;
         } else {
             throw CodeGenError("Variable type not supported");
