@@ -309,3 +309,10 @@ cpp = true
 filename = "fn2.f90"
 asr = true
 cpp = true
+
+[[test]]
+filename = "empty.f90"
+ast = true
+asr = true
+llvm = true
+obj = true
