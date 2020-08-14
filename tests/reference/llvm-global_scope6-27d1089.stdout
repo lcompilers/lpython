@@ -1,7 +1,7 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-@x = external global i64
+@x = global i64 0
 
 define void @f() {
 .entry:

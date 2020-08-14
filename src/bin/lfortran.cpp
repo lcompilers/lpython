@@ -175,6 +175,13 @@ int prompt()
             float r = e.floatfn("f");
             section("Result:");
             std::cout << r << std::endl;
+        } else if (return_type == "void") {
+            e.voidfn("f");
+            section("Result");
+            std::cout << "(statement)" << std::endl;
+        } else if (return_type == "none") {
+            section("Result");
+            std::cout << "(nothing to execute)" << std::endl;
         } else {
             throw LFortran::LFortranException("Return type not supported");
         }
