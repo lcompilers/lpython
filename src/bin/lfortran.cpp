@@ -131,7 +131,7 @@ int prompt()
 
 
         // AST -> ASR
-        LFortran::ASR::asr_t* asr;
+        LFortran::ASR::TranslationUnit_t* asr;
         try {
             asr = LFortran::ast_to_asr(al, *ast);
         } catch (const LFortran::LFortranException &e) {
@@ -249,7 +249,7 @@ int emit_asr(const std::string &infile, bool colors,
     }
 
     // AST -> ASR
-    LFortran::ASR::asr_t* asr;
+    LFortran::ASR::TranslationUnit_t* asr;
     try {
         // FIXME: For now we only transform the first node in the list:
         asr = LFortran::ast_to_asr(al, *ast);
@@ -261,13 +261,11 @@ int emit_asr(const std::string &infile, bool colors,
     for (size_t i=0; i < passes.size(); i++) {
         switch (passes[i]) {
             case (ASRPass::do_loops) : {
-                LFortran::pass_replace_do_loops(al,
-                    *LFortran::TRANSLATION_UNIT(asr));
+                LFortran::pass_replace_do_loops(al, *asr);
                 break;
             }
             case (ASRPass::global_stmts) : {
-                LFortran::pass_wrap_global_stmts_into_function(al,
-                    *LFortran::TRANSLATION_UNIT(asr), "f");
+                LFortran::pass_wrap_global_stmts_into_function(al, *asr, "f");
                 break;
             }
             default : throw LFortran::LFortranException("Pass not implemened");
@@ -296,7 +294,7 @@ int emit_cpp(const std::string &infile)
     }
 
     // AST -> ASR
-    LFortran::ASR::asr_t* asr = LFortran::ast_to_asr(al, *ast);
+    LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast);
 
     // ASR -> CPP
     std::string cpp;
@@ -325,7 +323,7 @@ int emit_llvm(const std::string &infile)
     }
 
     // AST -> ASR
-    LFortran::ASR::asr_t* asr = LFortran::ast_to_asr(al, *ast);
+    LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast);
 
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
@@ -360,7 +358,7 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
     }
 
     // AST -> ASR
-    LFortran::ASR::asr_t* asr = LFortran::ast_to_asr(al, *ast);
+    LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast);
 
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
@@ -408,7 +406,7 @@ int compile_to_object_file_cpp(const std::string &infile,
     }
 
     // AST -> ASR
-    LFortran::ASR::asr_t* asr = LFortran::ast_to_asr(al, *ast);
+    LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast);
 
     // ASR -> C++
     std::string src;

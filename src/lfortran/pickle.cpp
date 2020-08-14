@@ -237,4 +237,8 @@ std::string pickle(LFortran::ASR::asr_t &asr, bool colors) {
     return v.get_str();
 }
 
+std::string pickle(LFortran::ASR::TranslationUnit_t &asr, bool colors) {
+    return pickle((ASR::asr_t &)asr, colors);
+}
+
 }
