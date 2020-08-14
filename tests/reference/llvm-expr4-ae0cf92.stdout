@@ -1,0 +1,27 @@
+; ModuleID = 'LFortran'
+source_filename = "LFortran"
+
+define float @f() {
+.entry:
+  %f1 = alloca float
+  %f2 = alloca float
+  %f3 = alloca float
+  %f4 = alloca float
+  %f5 = alloca float
+  %f6 = alloca float
+  store float 5.000000e+00, float* %f1
+  store float 8.000000e+00, float* %f2
+  store float 1.600000e+01, float* %f3
+  store float 1.100000e+01, float* %f4
+  store float 2.000000e+00, float* %f5
+  %0 = call float @llvm.pow.f32(float 4.000000e+00, float 3.000000e+00)
+  store float %0, float* %f6
+  %1 = load float, float* %f6
+  ret float %1
+}
+
+; Function Attrs: nounwind readnone speculatable
+declare float @llvm.pow.f32(float, float) #0
+
+attributes #0 = { nounwind readnone speculatable }
+
