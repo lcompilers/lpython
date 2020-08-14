@@ -461,7 +461,24 @@ public:
                     break;
                 };
                 case ASR::operatorType::Pow: {
-                    throw CodeGenError("Integer Pow not implemented yet");
+                    llvm::Value *fleft = builder->CreateSIToFP(left_val,
+                            llvm::Type::getFloatTy(context));
+                    llvm::Value *fright = builder->CreateSIToFP(right_val,
+                            llvm::Type::getFloatTy(context));
+
+                    llvm::Function *fn_pow = module->getFunction("llvm.pow.f32");
+                    if (!fn_pow) {
+                        llvm::FunctionType *function_type = llvm::FunctionType::get(
+                                llvm::Type::getFloatTy(context), {
+                                    llvm::Type::getFloatTy(context),
+                                    llvm::Type::getFloatTy(context)
+                                }, false);
+                        fn_pow = llvm::Function::Create(function_type,
+                                llvm::Function::ExternalLinkage, "llvm.pow.f32",
+                                module.get());
+                    }
+                    tmp = builder->CreateCall(fn_pow, {fleft, fright});
+                    tmp = builder->CreateFPToSI(tmp, llvm::Type::getInt64Ty(context));
                     break;
                 };
             }
