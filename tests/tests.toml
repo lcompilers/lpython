@@ -97,16 +97,19 @@ ast = true
 asr = true
 llvm = true
 obj = true
+pass = "global_stmts"
 
 [[test]]
 filename = "expr3.f90"
 ast = true
 asr = true
+pass = "global_stmts"
 
 [[test]]
 filename = "expr4.f90"
 ast = true
 asr = true
+pass = "global_stmts"
 
 [[test]]
 filename = "expr5.f90"
