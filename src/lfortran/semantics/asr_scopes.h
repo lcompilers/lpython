@@ -31,6 +31,9 @@ struct SymbolTable {
         }
         return scope[name];
     }
+
+    // Marks all variables as external
+    void mark_all_variables_external();
 };
 
 const int intent_local=0; // local variable (not a dummy argument)
