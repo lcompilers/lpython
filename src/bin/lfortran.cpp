@@ -83,6 +83,11 @@ int prompt()
     std::cout << "  * Use Ctrl-D to exit" << std::endl;
     std::cout << "  * Use Enter to submit" << std::endl;
     std::cout << "Try: integer function f(); f = 42; end function" << std::endl;
+
+    Allocator al(64*1024*1024);
+    // persistent global SymbolTable across prompts
+    LFortran::SymbolTable *symbol_table=nullptr;
+
     while (true) {
         std::cout << color(LFortran::style::bold) << color(LFortran::fg::green) << ">>> "
             << color(LFortran::style::reset) << color(LFortran::fg::reset);
@@ -112,7 +117,6 @@ int prompt()
         std::cout << input << std::endl;
 
         // Src -> AST
-        Allocator al(64*1024*1024);
         LFortran::AST::TranslationUnit_t* ast;
         try {
             ast = LFortran::parse2(al, input);
@@ -132,12 +136,19 @@ int prompt()
 
         // AST -> ASR
         LFortran::ASR::TranslationUnit_t* asr;
+        // Remove the old executation function if it exists
+        if (symbol_table) {
+            if (symbol_table->scope.find("f") != symbol_table->scope.end()) {
+                symbol_table->scope.erase("f");
+            }
+        }
         try {
-            asr = LFortran::ast_to_asr(al, *ast);
+            asr = LFortran::ast_to_asr(al, *ast, symbol_table);
         } catch (const LFortran::LFortranException &e) {
             std::cout << "LFortran exception: " << e.msg() << std::endl;
             continue;
         }
+        if (!symbol_table) symbol_table = asr->m_global_scope;
         section("ASR:");
         std::cout << LFortran::pickle(*asr, true) << std::endl;
         /*

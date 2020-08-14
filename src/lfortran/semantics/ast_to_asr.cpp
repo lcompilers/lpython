@@ -20,11 +20,14 @@ public:
     Allocator &al;
     SymbolTable *current_scope;
 
-    SymbolTableVisitor(Allocator &al) : al{al}, current_scope{nullptr} { }
+    SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
+        : al{al}, current_scope{symbol_table} { }
 
     void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
-        LFORTRAN_ASSERT(current_scope == nullptr);
-        current_scope = al.make_new<SymbolTable>(nullptr);
+        if (!current_scope) {
+            current_scope = al.make_new<SymbolTable>(nullptr);
+        }
+        LFORTRAN_ASSERT(current_scope != nullptr);
         for (size_t i=0; i<x.n_items; i++) {
             AST::astType t = x.m_items[i]->type;
             if (t != AST::astType::expr && t != AST::astType::stmt) {
@@ -856,9 +859,10 @@ public:
     }
 };
 
-ASR::TranslationUnit_t *ast_to_asr(Allocator &al, AST::TranslationUnit_t &ast)
+ASR::TranslationUnit_t *ast_to_asr(Allocator &al, AST::TranslationUnit_t &ast,
+        SymbolTable *symbol_table)
 {
-    SymbolTableVisitor v(al);
+    SymbolTableVisitor v(al, symbol_table);
     v.visit_TranslationUnit(ast);
     ASR::asr_t *unit = v.asr;
 
