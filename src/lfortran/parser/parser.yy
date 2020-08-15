@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    41 // shift/reduce conflicts
+%expect    42 // shift/reduce conflicts
 %expect-rr 21 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -269,6 +269,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> sub_args
 %type <ast> function
 %type <ast> use_statement
+%type <vec_ast> use_statement_star
 %type <ast> use_symbol
 %type <vec_ast> use_symbol_list
 %type <vec_ast> var_decl_star
@@ -408,9 +409,9 @@ proc
 
 
 program
-    : KW_PROGRAM id sep implicit_statement_opt var_decl_star statements
+    : KW_PROGRAM id sep use_statement_star implicit_statement_opt var_decl_star statements
         contains_block_opt KW_END end_program_opt sep {
-            LLOC(@$, @9); $$ = PROGRAM($2, $5, $6, $7, @$); }
+            LLOC(@$, @10); $$ = PROGRAM($2, $6, $7, $8, @$); }
     ;
 
 end_program_opt
@@ -477,6 +478,11 @@ implicit_statement_opt
 
 implicit_statement
     : KW_IMPLICIT KW_NONE sep
+    ;
+
+use_statement_star
+    : use_statement_star use_statement { $$ = $1; LIST_ADD($$, $2); }
+    | %empty { LIST_NEW($$); }
     ;
 
 use_statement
