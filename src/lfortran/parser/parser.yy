@@ -370,7 +370,7 @@ script_unit
 module
     : KW_MODULE id sep use_statement_star implicit_statement_opt
         module_decl_star contains_block_opt KW_END KW_MODULE id_opt sep {
-            $$ = MODULE($2, @$); }
+            $$ = MODULE($2, $6, $7, @$); }
     ;
 
 module_decl_star
