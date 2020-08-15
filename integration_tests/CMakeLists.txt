@@ -108,4 +108,6 @@ if (NOT LFORTRAN_BACKEND)
     RUN(arrays_02)
 
     RUN(intrinsics_01)
+
+    RUN(modules_01)
 endif()
