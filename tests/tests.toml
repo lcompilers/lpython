@@ -316,3 +316,7 @@ ast = true
 asr = true
 llvm = true
 obj = true
+
+[[test]]
+filename = "../integration_tests/modules_01.f90"
+ast = true
