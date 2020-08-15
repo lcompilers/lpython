@@ -110,4 +110,5 @@ if (NOT LFORTRAN_BACKEND)
     RUN(intrinsics_01)
 
     RUN(modules_01)
+    RUN(modules_02)
 endif()
