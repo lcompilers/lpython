@@ -318,6 +318,10 @@ llvm = true
 obj = true
 
 [[test]]
+filename = "line_continuation1.f90"
+ast = true
+
+[[test]]
 filename = "../integration_tests/modules_01.f90"
 ast = true
 
