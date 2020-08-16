@@ -263,6 +263,9 @@ static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
 #define SUBROUTINE_CALL(name, args, l) make_SubroutineCall_t(p.m_a, l, \
         name2char(name), \
         DIMS2EXPRS(p.m_a, args), args.size())
+#define SUBROUTINE_CALL2(name, l) make_SubroutineCall_t(p.m_a, l, \
+        name2char(name), \
+        nullptr, 0)
 
 #define PRINT0(l) make_Print_t(p.m_a, l, nullptr, nullptr, 0)
 #define PRINT(args, l) make_Print_t(p.m_a, l, nullptr, EXPRS(args), args.size())
