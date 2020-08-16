@@ -140,6 +140,10 @@ obj = true
 cpp = true
 
 [[test]]
+filename = "program2.f90"
+ast = true
+
+[[test]]
 filename = "../integration_tests/program_cmake_01.f90"
 ast = true
 asr = true
