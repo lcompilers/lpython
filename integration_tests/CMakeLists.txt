@@ -117,4 +117,6 @@ if (NOT LFORTRAN_BACKEND)
     RUN(types_07)
 
     RUN(program_01)
+
+    RUN(allocate_01)
 endif()
