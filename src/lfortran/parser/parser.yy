@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    42 // shift/reduce conflicts
+%expect    46 // shift/reduce conflicts
 %expect-rr 21 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -363,7 +363,7 @@ script_unit
 //
 
 module
-    : KW_MODULE id sep implicit_statement_opt
+    : KW_MODULE id sep use_statement_star implicit_statement_opt
         module_decl_star contains_block_opt KW_END KW_MODULE id_opt sep {
             $$ = MODULE($2, @$); }
     ;
@@ -420,15 +420,15 @@ end_program_opt
     ;
 
 subroutine
-    : KW_SUBROUTINE id sub_args sep var_decl_star statements
+    : KW_SUBROUTINE id sub_args sep use_statement_star implicit_statement_opt var_decl_star statements
         KW_END KW_SUBROUTINE id_opt sep {
-            LLOC(@$, @9); $$ = SUBROUTINE($2, $3, $5, $6, @$); }
+            LLOC(@$, @11); $$ = SUBROUTINE($2, $3, $7, $8, @$); }
     ;
 
 function
     : fn_type pure_opt recursive_opt KW_FUNCTION id "(" id_list_opt ")"
-        result_opt sep var_decl_star statements KW_END KW_FUNCTION id_opt sep {
-            LLOC(@$, @15); $$ = FUNCTION($1, $5, $7, $9, $11, $12, @$); }
+        result_opt sep use_statement_star implicit_statement_opt var_decl_star statements KW_END KW_FUNCTION id_opt sep {
+            LLOC(@$, @17); $$ = FUNCTION($1, $5, $7, $9, $13, $14, @$); }
     ;
 
 contains_block_opt
@@ -486,9 +486,9 @@ use_statement_star
     ;
 
 use_statement
-    : KW_USE id sep { $$ = USE1($2, @$); }
-    | KW_USE id "," KW_ONLY ":" use_symbol_list sep {
-            $$ = USE2($2, $6, @$); }
+    : KW_USE use_modifiers id sep { $$ = USE1($3, @$); }
+    | KW_USE use_modifiers id "," KW_ONLY ":" use_symbol_list sep {
+            $$ = USE2($3, $7, @$); }
     ;
 
 use_symbol_list
@@ -499,6 +499,21 @@ use_symbol_list
 use_symbol
     : id          { $$ = USE_SYMBOL1($1, @$); }
     | id "=>" id  { $$ = USE_SYMBOL2($1, $3, @$); }
+    ;
+
+use_modifiers
+    : %empty
+    | "::"
+    | use_modifier_list "::"
+    ;
+
+use_modifier_list
+    : use_modifier_list "," use_modifier
+    | "," use_modifier
+    ;
+
+use_modifier
+    : KW_INTRINSIC
     ;
 
 // var_decl*
