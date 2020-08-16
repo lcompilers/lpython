@@ -529,7 +529,10 @@ var_decl
 
 kind_selector
     : "(" id "=" "*" ")"
+    | "(" id "=" ":" ")"
     | "(" id "=" id ")"
+    | "(" "*" ")"
+    | "(" ":" ")"
     | "(" id ")"
     | %empty
     ;
@@ -550,6 +553,7 @@ var_modifier
     | KW_DIMENSION "(" array_comp_decl_list ")" { $$ = VARMOD_DIM($1, $3, @$); }
     | KW_ALLOCATABLE { $$ = VARMOD($1, @$); }
     | KW_POINTER { $$ = VARMOD($1, @$); }
+    | KW_TARGET { $$ = VARMOD($1, @$); }
     | KW_PROTECTED { $$ = VARMOD($1, @$); }
     | KW_SAVE { $$ = VARMOD($1, @$); }
     | KW_CONTIGUOUS { $$ = VARMOD($1, @$); }
@@ -576,9 +580,12 @@ var_sym_decl_list
 var_sym_decl
     : id                                     { $$ = VAR_SYM_DECL1($1, @$); }
     | id "=" expr                            { $$ = VAR_SYM_DECL2($1, $3, @$); }
+    | id "=>" expr                           { $$ = VAR_SYM_DECL5($1, $3, @$); }
     | id "(" array_comp_decl_list ")"        { $$ = VAR_SYM_DECL3($1, $3, @$); }
     | id "(" array_comp_decl_list ")" "=" expr {
             $$ = VAR_SYM_DECL4($1, $3, $6, @$); }
+    | id "(" array_comp_decl_list ")" "=>" expr {
+            $$ = VAR_SYM_DECL6($1, $3, $6, @$); }
     ;
 
 array_comp_decl_list
@@ -817,6 +824,7 @@ expr
     | ".true."  { $$ = TRUE(@$); }
     | ".false." { $$ = FALSE(@$); }
     | "(" expr ")" { $$ = $2; }
+    | "(" expr "," expr ")" { $$ = $2; } // TODO: return a complex here
 
 // ### level-1
 

@@ -444,6 +444,10 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
 #define VAR_SYM_DECL2(id, e, l)      DECL3(p.m_a, id, nullptr, EXPR(e))
 #define VAR_SYM_DECL3(id, a, l)      DECL3(p.m_a, id, &a, nullptr)
 #define VAR_SYM_DECL4(id, a, e, l)   DECL3(p.m_a, id, &a, EXPR(e))
+// TODO: Extend AST to express a => b()
+#define VAR_SYM_DECL5(id, e, l)      DECL3(p.m_a, id, nullptr, EXPR(e))
+// TODO: Extend AST to express a(:) => b()
+#define VAR_SYM_DECL6(id, a, e, l)   DECL3(p.m_a, id, &a, EXPR(e))
 
 #define ARRAY_COMP_DECL1(a, l)       DIM1(EXPR(INTEGER(1, l)), EXPR(a))
 #define ARRAY_COMP_DECL2(a, b, l)    DIM1(EXPR(a), EXPR(b))
