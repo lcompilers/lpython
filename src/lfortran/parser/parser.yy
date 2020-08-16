@@ -831,12 +831,18 @@ while_statement
 
 // sr-conflict (2x): "KW_DO sep" being either a do_statement or an expr
 do_statement
-    : KW_DO sep statements enddo {
+    : KW_DO sep statements enddo id_opt {
             $$ = DO1($3, @$); }
-    | KW_DO id "=" expr "," expr sep statements enddo {
+    | id ":" KW_DO sep statements enddo id_opt {
+            $$ = DO1($5, @$); }
+    | KW_DO id "=" expr "," expr sep statements enddo id_opt {
             $$ = DO2($2, $4, $6, $8, @$); }
-    | KW_DO id "=" expr "," expr "," expr sep statements enddo {
+    | id ":" KW_DO id "=" expr "," expr sep statements enddo id_opt {
+            $$ = DO2($4, $6, $8, $10, @$); }
+    | KW_DO id "=" expr "," expr "," expr sep statements enddo id_opt {
             $$ = DO3($2, $4, $6, $8, $10, @$); }
+    | id ":" KW_DO id "=" expr "," expr "," expr sep statements enddo id_opt {
+            $$ = DO3($4, $6, $8, $10, $12, @$); }
     | KW_DO KW_CONCURRENT "(" id "=" expr ":" expr ")" sep statements enddo {
             $$ = DO_CONCURRENT($4, $6, $8, $11, @$); }
     | KW_DO KW_CONCURRENT "(" id "=" expr ":" expr ")" reduce sep statements enddo {
@@ -869,7 +875,7 @@ endwhere
     ;
 
 exit_statement
-    : KW_EXIT { $$ = EXIT(@$); }
+    : KW_EXIT id_opt { $$ = EXIT(@$); }
     ;
 
 return_statement
