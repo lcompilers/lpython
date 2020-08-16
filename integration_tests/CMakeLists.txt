@@ -120,4 +120,5 @@ if (NOT LFORTRAN_BACKEND)
 
     RUN(allocate_01)
     RUN(block_01)
+    RUN(associate_01)
 endif()

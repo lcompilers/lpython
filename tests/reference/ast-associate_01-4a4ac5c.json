@@ -1,0 +1,13 @@
+{
+    "basename": "ast-associate_01-4a4ac5c",
+    "cmd": "lfortran --show-ast --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/associate_01.f90",
+    "infile_hash": "08d039a665a042f2a1d20a71677e2a484073202ed7421a4eb7cf011f",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast-associate_01-4a4ac5c.stdout",
+    "stdout_hash": "2ff2353183b6b4a88990e4e3cd71ba5f0bfc91be2c71a8b0238a0152",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
