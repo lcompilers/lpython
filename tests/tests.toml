@@ -310,6 +310,10 @@ llvm = true
 cpp = true
 
 [[test]]
+filename = "../integration_tests/types_07.f90"
+ast = true
+
+[[test]]
 filename = "fn2.f90"
 asr = true
 cpp = true
