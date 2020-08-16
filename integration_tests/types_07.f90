@@ -1,5 +1,9 @@
 program types_07
 implicit none
+integer, target :: x
+integer, pointer :: y => x
+real, target :: a(5)
+real, pointer :: b(:) => a
 
 contains
 
