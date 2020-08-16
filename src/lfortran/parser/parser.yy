@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    57 // shift/reduce conflicts
-%expect-rr 21 // reduce/reduce conflicts
+%expect    63 // shift/reduce conflicts
+%expect-rr 15 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -465,7 +465,7 @@ recursive_opt
     ;
 
 fn_type
-    : var_type kind_selector { $$ = $1;}
+    : var_type { $$ = $1;}
     | %empty { $$.p = nullptr; $$.n = 0; }
     ;
 
@@ -526,8 +526,8 @@ var_decl_star
     ;
 
 var_decl
-    : var_type kind_selector var_modifiers var_sym_decl_list sep {
-            $$ = VAR_DECL($1, $3, $4, @$); }
+    : var_type var_modifiers var_sym_decl_list sep {
+            $$ = VAR_DECL($1, $2, $3, @$); }
     ;
 
 kind_selector
@@ -567,12 +567,12 @@ var_modifier
 
 
 var_type
-    : KW_INTEGER
-    | KW_CHARACTER
-    | KW_REAL
-    | KW_COMPLEX
-    | KW_LOGICAL
-    | KW_TYPE
+    : KW_INTEGER kind_selector
+    | KW_CHARACTER kind_selector
+    | KW_REAL kind_selector
+    | KW_COMPLEX kind_selector
+    | KW_LOGICAL kind_selector
+    | KW_TYPE "(" id ")"
     ;
 
 var_sym_decl_list
