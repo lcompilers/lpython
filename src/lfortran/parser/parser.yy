@@ -263,6 +263,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> private_decl
 %type <ast> public_decl
 %type <ast> interface_decl
+%type <ast> derived_type_decl
 %type <ast> program
 %type <ast> subroutine
 %type <ast> sub_or_func
@@ -380,6 +381,7 @@ module_decl
     | public_decl
     | var_decl
     | interface_decl
+    | derived_type_decl
     ;
 
 private_decl
@@ -405,6 +407,59 @@ proc_list
 proc
     : KW_MODULE KW_PROCEDURE id_list sep
 
+derived_type_decl
+    : KW_TYPE derived_type_modifiers id sep derived_type_private_opt var_decl_star derived_type_contains_opt KW_END KW_TYPE id_opt sep {
+        $$ = DERIVED_TYPE($3, @$); }
+    ;
+
+derived_type_private_opt
+    : KW_PRIVATE sep
+    | %empty
+    ;
+
+derived_type_modifiers
+    : "::"
+    | derived_type_modifier_list "::"
+    ;
+
+derived_type_modifier_list
+    : derived_type_modifier_list "," derived_type_modifier
+    | "," derived_type_modifier
+    ;
+
+derived_type_modifier
+    : KW_PUBLIC
+    | KW_EXTENDS "(" id ")"
+    ;
+
+derived_type_contains_opt
+    : KW_CONTAINS sep procedure_list
+    | %empty
+    ;
+
+procedure_list
+    : procedure_list procedure_decl
+    | procedure_decl
+    ;
+
+procedure_decl
+    : KW_PROCEDURE proc_modifiers id sep
+    ;
+
+proc_modifiers
+    : %empty
+    | "::"
+    | proc_modifier_list "::"
+    ;
+
+proc_modifier_list
+    : proc_modifier_list "," proc_modifier
+    | "," proc_modifier
+    ;
+
+proc_modifier
+    : KW_PRIVATE
+    ;
 
 
 // ----------------------------------------------------------------------------

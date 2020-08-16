@@ -513,4 +513,8 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
 #define INTERFACE(name, l) make_Interface_t(p.m_a, l, \
         name2char(name), nullptr, 0)
 
+// TODO: Add DerivedType AST node
+#define DERIVED_TYPE(name, l) make_Interface_t(p.m_a, l, \
+        name2char(name), nullptr, 0)
+
 #endif
