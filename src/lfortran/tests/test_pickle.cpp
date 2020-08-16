@@ -418,7 +418,7 @@ TEST_CASE("Lists of tests") {
         "real(c_double) :: f",
         "complex x",
         "logical x",
-        "type x",
+        "type(y) x",
         "type(xx), intent(inout) :: x, y",
 
         "integer x = 3",
