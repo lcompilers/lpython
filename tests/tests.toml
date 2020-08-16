@@ -348,3 +348,7 @@ ast = true
 [[test]]
 filename = "../integration_tests/allocate_01.f90"
 ast = true
+
+[[test]]
+filename = "../integration_tests/block_01.f90"
+ast = true
