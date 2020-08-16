@@ -114,5 +114,7 @@ if (NOT LFORTRAN_BACKEND)
     RUN(modules_03)
     RUN(modules_04)
 
+    RUN(types_07)
+
     RUN(program_01)
 endif()
