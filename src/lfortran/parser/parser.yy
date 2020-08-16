@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    46 // shift/reduce conflicts
+%expect    57 // shift/reduce conflicts
 %expect-rr 21 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -289,7 +289,10 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> statement
 %type <ast> assignment_statement
 %type <ast> associate_statement
+%type <ast> associate_block
+%type <ast> block_statement
 %type <ast> subroutine_call
+%type <ast> allocate_statement
 %type <ast> print_statement
 %type <ast> write_statement
 %type <ast> if_statement
@@ -624,6 +627,9 @@ sep_one
 statement
     : assignment_statement sep
     | associate_statement sep
+    | associate_block sep
+    | block_statement sep
+    | allocate_statement sep
     | subroutine_call sep
     | print_statement sep
     | write_statement sep
@@ -646,6 +652,20 @@ assignment_statement
 associate_statement
     : expr "=>" expr { $$ = ASSOCIATE($1, $3, @$); }
     ;
+
+associate_block
+    : KW_ASSOCIATE "(" var_sym_decl_list ")" sep statements KW_END KW_ASSOCIATE {
+        $$ = PRINT0(@$); }
+    ;
+
+block_statement
+    : KW_BLOCK sep var_decl_star statements KW_END KW_BLOCK {
+        $$ = PRINT0(@$); }
+    ;
+
+allocate_statement
+    : KW_ALLOCATE "(" fnarray_arg_list_opt ")" {
+            $$ = PRINT0(@$); }
 
 subroutine_call
     : KW_CALL id "(" fnarray_arg_list_opt ")" {
