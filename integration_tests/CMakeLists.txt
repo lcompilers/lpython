@@ -115,6 +115,7 @@ if (NOT LFORTRAN_BACKEND)
     RUN(modules_04)
 
     RUN(types_07)
+    RUN(types_08)
 
     RUN(derived_types_01)
     RUN(derived_types_02)

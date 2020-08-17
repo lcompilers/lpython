@@ -72,6 +72,12 @@ static inline expr_t* EXPR(const ast_t *f)
     return (expr_t*)f;
 }
 
+static inline attribute_t* ATTR(const ast_t *f)
+{
+    LFORTRAN_ASSERT(f->type == astType::attribute);
+    return (attribute_t*)f;
+}
+
 static inline expr_t* EXPR_OPT(const ast_t *f)
 {
     if (f) {
@@ -117,14 +123,29 @@ static inline stmt_t** IFSTMTS(Allocator &al, ast_t* x)
 }
 
 static inline decl_t* DECL(Allocator &al, const YYSTYPE::VecDecl &x,
-        const YYSTYPE::Str &type, const YYSTYPE::VecAST &attrs)
+        char *type, const YYSTYPE::VecAST &attrs)
 {
     decl_t *s = al.allocate<decl_t>(x.size());
     for (size_t i=0; i < x.size(); i++) {
         s[i] = x.p[i];
-        s[i].m_sym_type = type.c_str(al);
+        s[i].m_sym_type = type;
         s[i].m_attrs = ATTRS(attrs);
         s[i].n_attrs = attrs.size();
+    }
+    return s;
+}
+
+static inline decl_t* DECL2(Allocator &al, const YYSTYPE::VecDecl &x,
+        char *type, const ast_t *attr)
+{
+    decl_t *s = al.allocate<decl_t>(x.size());
+    attribute_t **a = al.allocate<attribute_t*>(1);
+    a[0] = ATTR(attr);
+    for (size_t i=0; i < x.size(); i++) {
+        s[i] = x.p[i];
+        s[i].m_sym_type = type;
+        s[i].m_attrs = a;
+        s[i].n_attrs = 1;
     }
     return s;
 }
@@ -438,7 +459,9 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
 #define REDUCE_OP_TYPE_ID(id, l) convert_id_to_reduce_type(l, id)
 
 #define VAR_DECL(type, attrs, syms, l) make_Declaration_t(p.m_a, l, \
-        DECL(p.m_a, syms, type, attrs), syms.size())
+        DECL(p.m_a, syms, type.c_str(p.m_a), attrs), syms.size())
+#define VAR_DECL2(attr, syms, l) make_Declaration_t(p.m_a, l, \
+        DECL2(p.m_a, syms, nullptr, attr), syms.size())
 
 #define VAR_SYM_DECL1(id, l)         DECL3(p.m_a, id, nullptr, nullptr)
 #define VAR_SYM_DECL2(id, e, l)      DECL3(p.m_a, id, nullptr, EXPR(e))
