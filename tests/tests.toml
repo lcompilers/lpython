@@ -187,6 +187,10 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "../integration_tests/doloop_04.f90"
+ast = true
+
+[[test]]
 filename = "../integration_tests/subroutines_01.f90"
 asr = true
 llvm = true
