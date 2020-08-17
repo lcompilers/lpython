@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    57 // shift/reduce conflicts
-%expect-rr 21 // reduce/reduce conflicts
+%expect    68 // shift/reduce conflicts
+%expect-rr 15 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -263,6 +263,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> private_decl
 %type <ast> public_decl
 %type <ast> interface_decl
+%type <ast> derived_type_decl
 %type <ast> program
 %type <ast> subroutine
 %type <ast> sub_or_func
@@ -380,6 +381,7 @@ module_decl
     | public_decl
     | var_decl
     | interface_decl
+    | derived_type_decl
     ;
 
 private_decl
@@ -405,6 +407,60 @@ proc_list
 proc
     : KW_MODULE KW_PROCEDURE id_list sep
 
+derived_type_decl
+    : KW_TYPE derived_type_modifiers id sep derived_type_private_opt var_decl_star derived_type_contains_opt KW_END KW_TYPE id_opt sep {
+        $$ = DERIVED_TYPE($3, @$); }
+    ;
+
+derived_type_private_opt
+    : KW_PRIVATE sep
+    | %empty
+    ;
+
+derived_type_modifiers
+    : %empty
+    | "::"
+    | derived_type_modifier_list "::"
+    ;
+
+derived_type_modifier_list
+    : derived_type_modifier_list "," derived_type_modifier
+    | "," derived_type_modifier
+    ;
+
+derived_type_modifier
+    : KW_PUBLIC
+    | KW_EXTENDS "(" id ")"
+    ;
+
+derived_type_contains_opt
+    : KW_CONTAINS sep procedure_list
+    | %empty
+    ;
+
+procedure_list
+    : procedure_list procedure_decl
+    | procedure_decl
+    ;
+
+procedure_decl
+    : KW_PROCEDURE proc_modifiers id sep
+    ;
+
+proc_modifiers
+    : %empty
+    | "::"
+    | proc_modifier_list "::"
+    ;
+
+proc_modifier_list
+    : proc_modifier_list "," proc_modifier
+    | "," proc_modifier
+    ;
+
+proc_modifier
+    : KW_PRIVATE
+    ;
 
 
 // ----------------------------------------------------------------------------
@@ -465,7 +521,7 @@ recursive_opt
     ;
 
 fn_type
-    : var_type kind_selector { $$ = $1;}
+    : var_type { $$ = $1;}
     | %empty { $$.p = nullptr; $$.n = 0; }
     ;
 
@@ -526,8 +582,8 @@ var_decl_star
     ;
 
 var_decl
-    : var_type kind_selector var_modifiers var_sym_decl_list sep {
-            $$ = VAR_DECL($1, $3, $4, @$); }
+    : var_type var_modifiers var_sym_decl_list sep {
+            $$ = VAR_DECL($1, $2, $3, @$); }
     ;
 
 kind_selector
@@ -567,12 +623,13 @@ var_modifier
 
 
 var_type
-    : KW_INTEGER
-    | KW_CHARACTER
-    | KW_REAL
-    | KW_COMPLEX
-    | KW_LOGICAL
-    | KW_TYPE
+    : KW_INTEGER kind_selector
+    | KW_CHARACTER kind_selector
+    | KW_REAL kind_selector
+    | KW_COMPLEX kind_selector
+    | KW_LOGICAL kind_selector
+    | KW_TYPE "(" id ")"
+    | KW_CLASS "(" id ")"
     ;
 
 var_sym_decl_list
