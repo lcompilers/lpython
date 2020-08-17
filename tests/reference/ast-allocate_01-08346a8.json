@@ -2,11 +2,11 @@
     "basename": "ast-allocate_01-08346a8",
     "cmd": "lfortran --show-ast --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/allocate_01.f90",
-    "infile_hash": "87a84c81a2b6f19f2eebb02def9cc4e2b9b6867f808255b99c2a1d6d",
+    "infile_hash": "6782e86a33c1a6e5bd90ee4274fe910d75018f128dd899351b32d3c6",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast-allocate_01-08346a8.stdout",
-    "stdout_hash": "47da27c65aa11a651a5c717cd167096c3d14ba78f026bcb818e4b74c",
+    "stdout_hash": "c6c6351416a8eeb5bbe51b0cdd72121e4bee7deff47f0f7bc49b11be",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
