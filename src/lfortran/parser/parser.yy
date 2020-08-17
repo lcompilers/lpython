@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    69 // shift/reduce conflicts
-%expect-rr 15 // reduce/reduce conflicts
+%expect    111 // shift/reduce conflicts
+%expect-rr 15  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -585,6 +585,10 @@ var_decl_star
 var_decl
     : var_type var_modifiers var_sym_decl_list sep {
             $$ = VAR_DECL($1, $2, $3, @$); }
+    | var_modifier var_sym_decl_list sep {
+            $$ = VAR_DECL2($1, $2, @$); }
+    | var_modifier "::" var_sym_decl_list sep {
+            $$ = VAR_DECL2($1, $3, @$); }
     ;
 
 kind_selector
