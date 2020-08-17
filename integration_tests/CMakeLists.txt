@@ -116,6 +116,9 @@ if (NOT LFORTRAN_BACKEND)
 
     RUN(types_07)
 
+    RUN(derived_types_01)
+    RUN(derived_types_02)
+
     RUN(program_01)
 
     RUN(allocate_01)
