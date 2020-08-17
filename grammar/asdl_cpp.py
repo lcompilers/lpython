@@ -513,7 +513,7 @@ class PickleVisitorVisitor(ASDLVisitor):
             elif field.type == "string" and not field.seq:
                 if field.opt:
                     self.emit("if (x.m_%s) {" % field.name, 2)
-                    self.emit(    's.append(x.m_%s);' % field.name, 3)
+                    self.emit(    's.append("\\"" + std::string(x.m_%s) + "\\"");' % field.name, 3)
                     self.emit("} else {", 2)
                     self.emit(    's.append("()");', 3)
                     self.emit("}", 2)
