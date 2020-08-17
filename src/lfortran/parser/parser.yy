@@ -614,6 +614,7 @@ var_modifier
     | KW_ALLOCATABLE { $$ = VARMOD($1, @$); }
     | KW_POINTER { $$ = VARMOD($1, @$); }
     | KW_TARGET { $$ = VARMOD($1, @$); }
+    | KW_OPTIONAL { $$ = VARMOD($1, @$); }
     | KW_PROTECTED { $$ = VARMOD($1, @$); }
     | KW_SAVE { $$ = VARMOD($1, @$); }
     | KW_CONTIGUOUS { $$ = VARMOD($1, @$); }
