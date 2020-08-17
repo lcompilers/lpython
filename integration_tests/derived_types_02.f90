@@ -6,7 +6,7 @@ integer, parameter :: r8 = kind(0.d0)
 type :: B
 end type
 
-type :: C
+type C
 end type
 
 type, extends(B), public :: X

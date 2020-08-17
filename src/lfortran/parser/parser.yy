@@ -418,7 +418,8 @@ derived_type_private_opt
     ;
 
 derived_type_modifiers
-    : "::"
+    : %empty
+    | "::"
     | derived_type_modifier_list "::"
     ;
 
