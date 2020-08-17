@@ -1,1 +1,1 @@
-(TranslationUnit [(Module a [] [] []) (Module c [] [] []) (Program modules_02 [] [] [(SubroutineCall b []) (SubroutineCall x [])] [])])
+(TranslationUnit [(Module a [] [] [(Subroutine b [] [] [] [(Print () [(Str "b()")])] [])]) (Module c [] [] [(Subroutine d [] [] [] [(Print () [(Str "d()")])] [])]) (Program modules_02 [] [] [(SubroutineCall b []) (SubroutineCall x [])] [])])

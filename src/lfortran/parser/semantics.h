@@ -524,11 +524,11 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
 #define USE_SYMBOL2(x, y, l) make_UseSymbol_t(p.m_a, l, \
         name2char(y), name2char(x))
 
-#define MODULE(name, l) make_Module_t(p.m_a, l, \
+#define MODULE(name, decl, contains, l) make_Module_t(p.m_a, l, \
         name2char(name), \
         /*unit_decl1_t** a_use*/ nullptr, /*size_t n_use*/ 0, \
         /*unit_decl2_t** a_decl*/ nullptr, /*size_t n_decl*/ 0, \
-        /*program_unit_t** a_contains*/ nullptr, /*size_t n_contains*/ 0)
+        /*program_unit_t** a_contains*/ CONTAINS(contains), /*size_t n_contains*/ contains.size())
 #define PRIVATE(syms, l) make_Private_t(p.m_a, l, \
         nullptr, 0)
 #define PUBLIC(syms, l) make_Public_t(p.m_a, l, \
