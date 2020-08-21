@@ -3,8 +3,9 @@
 #include <xeus/xinterpreter.hpp>
 #include <xeus/xkernel.hpp>
 #include <xeus/xkernel_configuration.hpp>
-
 #include <nlohmann/json.hpp>
+
+#include <lfortran/fortran_kernel.h>
 
 namespace nl = nlohmann;
 
