@@ -158,6 +158,7 @@ jupyter_kernel:
     - cd ..
     - python ci/install_fortran_kernel.py
     - jupyter kernelspec list --json
+    - python ci/test_fortran_kernel.py -v
 
 # Test LFortran without the LLVM backend
 cxx_binary_min:
