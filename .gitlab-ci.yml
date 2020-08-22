@@ -154,6 +154,10 @@ jupyter_kernel:
          -DWITH_XEUS=yes
          .
     - make
+    - cp src/bin/lfortran $CONDA_PREFIX/bin
+    - cd ..
+    - python ci/install_fortran_kernel.py
+    - jupyter kernelspec list --json
 
 # Test LFortran without the LLVM backend
 cxx_binary_min:
