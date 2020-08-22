@@ -166,7 +166,6 @@ namespace LFortran
             publish_execution_result(execution_counter, std::move(pub_data), nl::json::object());
         } else if (return_type == "real") {
             float r = e.floatfn("f");
-            std::cout << r << std::endl;
             nl::json pub_data;
             pub_data["text/plain"] = std::to_string(r);
             publish_execution_result(execution_counter, std::move(pub_data), nl::json::object());
