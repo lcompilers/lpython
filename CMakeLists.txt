@@ -96,6 +96,13 @@ if (WITH_LLVM)
     set(HAVE_LFORTRAN_LLVM yes)
 endif()
 
+# XEUS (Fortran kernel)
+set(WITH_XEUS no CACHE BOOL "Build with XEUS support")
+if (WITH_XEUS)
+    find_package(xeus 0.24.1 REQUIRED)
+    set(HAVE_LFORTRAN_XEUS yes)
+endif()
+
 # JSON
 set(WITH_JSON no CACHE BOOL "Build with JSON support")
 if (WITH_JSON)
@@ -147,6 +154,7 @@ message("LFORTRAN_STATIC_BIN: ${LFORTRAN_STATIC_BIN}")
 message("WITH_STACKTRACE: ${WITH_STACKTRACE}")
 message("HAVE_LFORTRAN_DEMANGLE: ${HAVE_LFORTRAN_DEMANGLE}")
 message("WITH_LLVM: ${WITH_LLVM}")
+message("WITH_XEUS: ${WITH_XEUS}")
 message("WITH_JSON: ${WITH_JSON}")
 
 

@@ -136,6 +136,30 @@ cxx_binary_tests:
     - make
     - ctest
 
+# Test Jupyter Kernel
+jupyter_kernel:
+  stage: build
+  image: registry.gitlab.com/lfortran/ci-images:full2-1.7.0
+  script:
+    - export CONDA_PREFIX="$HOME/conda_root"
+    - export PATH="$HOME/conda_root/bin:$PATH"
+    - conda install -c conda-forge llvmdev=9.0.1 jupyter xeus xtl nlohmann_json cppzmq jupyter_kernel_test
+    - sudo apt-get update
+    - sudo apt-get install -yq --no-install-recommends libtinfo-dev zlib1g-dev
+    - tar xzf dist/lfortran-${lfortran_version}.tar.gz
+    - cd lfortran-${lfortran_version}
+    - cmake
+         -DCMAKE_BUILD_TYPE=Debug
+         -DWITH_LLVM=yes
+         -DWITH_XEUS=yes
+         .
+    - make
+    - cp src/bin/lfortran $CONDA_PREFIX/bin
+    - cd ..
+    - python ci/install_fortran_kernel.py
+    - jupyter kernelspec list --json
+    - python ci/test_fortran_kernel.py -v
+
 # Test LFortran without the LLVM backend
 cxx_binary_min:
   stage: build

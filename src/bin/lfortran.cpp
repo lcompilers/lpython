@@ -16,6 +16,7 @@
 #include <lfortran/pass/global_stmts.h>
 #include <lfortran/asr_utils.h>
 #include <lfortran/config.h>
+#include <lfortran/fortran_kernel.h>
 
 namespace {
 
@@ -632,6 +633,7 @@ int main(int argc, char *argv[])
     bool show_asm = false;
     bool static_link = false;
     std::string arg_backend = "llvm";
+    std::string arg_kernel = "";
 
     CLI::App app{"LFortran: modern interactive LLVM-based Fortran compiler"};
     // Standard options compatible with gfortran, gcc or clang
@@ -655,6 +657,7 @@ int main(int argc, char *argv[])
     app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
     app.add_flag("--static", static_link, "Create a static executable");
     app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp)", true);
+    app.add_option("--kernel", arg_kernel, "Run in Jupyter kernel mode");
 
     app.get_formatter()->column_width(25);
     CLI11_PARSE(app, argc, argv);
@@ -664,6 +667,15 @@ int main(int argc, char *argv[])
         if (version == "0.1.1") version = "git";
         std::cout << "LFortran version: " << version << std::endl;
         return 0;
+    }
+
+    if (arg_kernel != "") {
+#ifdef HAVE_LFORTRAN_XEUS
+        return LFortran::run_kernel(arg_kernel);
+#else
+        std::cerr << "The --kernel option requires LFortran to be compiled with XEUS support. Recompile with `WITH_XEUS=yes`." << std::endl;
+        return 1;
+#endif
     }
 
     if (arg_E) {
