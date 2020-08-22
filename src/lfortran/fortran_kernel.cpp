@@ -65,11 +65,15 @@ namespace LFortran
             return result;
         }
 
-        // Use this method for publishing the execution result to the client,
-        // this method takes the ``execution_counter`` as first argument,
-        // the data to publish (mime type data) as second argument and metadata
-        // as third argument.
-        // Replace "Hello World !!" by what you want to be displayed under the execution cell
+        if (code == "print *, \"hello, world\"") {
+            publish_stream("stdout", "hello, world\n");
+            nl::json result;
+            result["status"] = "ok";
+            result["payload"] = nl::json::array();
+            result["user_expressions"] = nl::json::object();
+            return result;
+        }
+
         nl::json pub_data;
         //pub_data["text/plain"] = "Hello World !!";
         if (code == "1+2+3") {
