@@ -9,7 +9,7 @@ class IRKernelTests(jkt.KernelTests):
     file_extension = ".f90"
 
     code_hello_world = 'print *, "hello, world"'
-    #code_stderr = "error stop"
+    code_stderr = "error stop"
 
     #complete_code_samples = ['1', 'print *, "hello, world"',
     #        "integer :: i"]

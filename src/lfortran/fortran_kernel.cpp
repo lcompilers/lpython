@@ -74,6 +74,15 @@ namespace LFortran
             return result;
         }
 
+        if (code == "error stop") {
+            publish_stream("stderr", "ERROR STOP\n");
+            nl::json result;
+            result["status"] = "ok";
+            result["payload"] = nl::json::array();
+            result["user_expressions"] = nl::json::object();
+            return result;
+        }
+
         nl::json pub_data;
         //pub_data["text/plain"] = "Hello World !!";
         if (code == "1+2+3") {
