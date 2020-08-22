@@ -144,12 +144,17 @@ namespace LFortran
     nl::json custom_interpreter::kernel_info_request_impl()
     {
         nl::json result;
+        std::string banner = ""
+            "LFortran\n"
+            "Jupyter kernel for Fortran\n"
+            "Fortran";
+        result["banner"] = banner;
         result["implementation"] = "my_kernel";
         result["implementation_version"] = "0.1.0";
-        result["language_info"]["name"] = "python";
-        result["language_info"]["version"] = "3.7";
-        result["language_info"]["mimetype"] = "text/x-python";
-        result["language_info"]["file_extension"] = ".py";
+        result["language_info"]["name"] = "fortran";
+        result["language_info"]["version"] = "2018";
+        result["language_info"]["mimetype"] = "text/x-fortran";
+        result["language_info"]["file_extension"] = ".f90";
         return result;
     }
 
