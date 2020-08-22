@@ -61,16 +61,19 @@ namespace LFortran
         // as third argument.
         // Replace "Hello World !!" by what you want to be displayed under the execution cell
         nl::json pub_data;
-        pub_data["text/plain"] = "Hello World !!";
+        //pub_data["text/plain"] = "Hello World !!";
+        pub_data["text/plain"] = "3";
         publish_execution_result(execution_counter, std::move(pub_data), nl::json::object());
 
         // You can also use this method for publishing errors to the client, if the code
         // failed to execute
         // publish_execution_error(error_name, error_value, error_traceback);
-        publish_execution_error("TypeError", "123", {"!@#$", "*(*"});
+        //publish_execution_error("TypeError", "123", {"!@#$", "*(*"});
 
         nl::json result;
         result["status"] = "ok";
+        result["payload"] = nl::json::array();
+        result["user_expressions"] = nl::json::object();
         return result;
     }
 
