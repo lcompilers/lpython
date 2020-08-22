@@ -20,6 +20,7 @@ class IRKernelTests(jkt.KernelTests):
     code_execute_result = [
         {'code': "1+2+3", 'result': "6"},
         {'code': "1+2", 'result': "3"},
+        {'code': "integer :: x; x = 5; x*2", 'result': "10"},
     ]
 
 if __name__ == '__main__':
