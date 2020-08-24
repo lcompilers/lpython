@@ -344,9 +344,14 @@ class ASTWalkVisitorVisitor(ASDLVisitor):
 
     def make_visitor(self, name, fields):
         self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
+        self.used = False
         have_body = False
         for field in fields:
             self.visitField(field)
+        if not self.used:
+            # Note: a better solution would be to change `&x` to `& /* x */`
+            # above, but we would need to change emit to return a string.
+            self.emit("if ((bool&)x) { } // Suppress unused warning", 2)
         self.emit("}", 1)
 
     def visitField(self, field):
@@ -357,6 +362,7 @@ class ASTWalkVisitorVisitor(ASDLVisitor):
                 template = "self().visit_%s(x.m_%s);" % (field.type, field.name)
             else:
                 template = "self().visit_%s(*x.m_%s);" % (field.type, field.name)
+            self.used = True
             if field.seq:
                 self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
                 if field.type in products:
@@ -428,11 +434,16 @@ class PickleVisitorVisitor(ASDLVisitor):
             self.emit(    '}', 2)
             if len(fields) > 0:
                 self.emit(    's.append(" ");', 2)
+        self.used = False
         for n, field in enumerate(fields):
             self.visitField(field, cons)
             if n < len(fields) - 1:
                 self.emit(    's.append(" ");', 2)
         self.emit(    's.append(")");', 2)
+        if not self.used:
+            # Note: a better solution would be to change `&x` to `& /* x */`
+            # above, but we would need to change emit to return a string.
+            self.emit("if ((bool&)x) { } // Suppress unused warning", 2)
         self.emit("}", 1)
 
     def make_simple_sum_visitor(self, name, types):
@@ -455,6 +466,7 @@ class PickleVisitorVisitor(ASDLVisitor):
     def visitField(self, field, cons):
         if (field.type not in asdl.builtin_types and
             field.type not in self.data.simple_types):
+            self.used = True
             level = 2
             if field.type in products:
                 template = "this->visit_%s(x.m_%s);" % (field.type, field.name)
