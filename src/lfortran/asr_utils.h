@@ -140,6 +140,18 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
     }
 }
 
+const ASR::intentType intent_local=ASR::intentType::Local; // local variable (not a dummy argument)
+const ASR::intentType intent_in   =ASR::intentType::In; // dummy argument, intent(in)
+const ASR::intentType intent_out  =ASR::intentType::Out; // dummy argument, intent(out)
+const ASR::intentType intent_inout=ASR::intentType::InOut; // dummy argument, intent(inout)
+const ASR::intentType intent_return_var=ASR::intentType::ReturnVar; // return variable of a function
+const ASR::intentType intent_external=ASR::intentType::External; // external variable
+
+static inline bool is_arg_dummy(int intent) {
+    return intent == intent_in || intent == intent_out
+        || intent == intent_inout;
+}
+
 
 } // namespace LFortran
 
