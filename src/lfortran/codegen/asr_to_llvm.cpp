@@ -300,18 +300,7 @@ public:
 
         declare_args(x, *F);
 
-        for (auto &item : x.m_symtab->scope) {
-            if (item.second->type == ASR::asrType::var) {
-                ASR::var_t *v2 = (ASR::var_t*)(item.second);
-                ASR::Variable_t *v = (ASR::Variable_t *)v2;
-                if (!is_arg_dummy(v->m_intent)) {
-                    // TODO: we are assuming integer here:
-                    llvm::AllocaInst *ptr = builder->CreateAlloca(
-                        llvm::Type::getInt64Ty(context), nullptr, v->m_name);
-                    llvm_symtab[std::string(v->m_name)] = ptr;
-                }
-            }
-        }
+        declare_local_vars(x);
 
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
