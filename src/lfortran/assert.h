@@ -4,6 +4,7 @@
 // LFORTRAN_ASSERT uses internal functions to perform as assert
 // so that there is no effect with NDEBUG
 #include <lfortran/config.h>
+#include <lfortran/exception.h>
 #if defined(WITH_LFORTRAN_ASSERT)
 
 #include <iostream>
@@ -11,16 +12,25 @@
 #if !defined(LFORTRAN_ASSERT)
 #define stringize(s) #s
 #define XSTR(s) stringize(s)
-#define LFORTRAN_ASSERT(cond)                                                 \
+#if defined(HAVE_LFORTRAN_STACKTRACE)
+#define LFORTRAN_ASSERT(cond)                                                  \
     {                                                                          \
         if (!(cond)) {                                                         \
-            std::cerr << "LFORTRAN_ASSERT failed: " << __FILE__               \
+            throw LFortran::AssertFailed(XSTR(cond));                  \
+        }                                                                      \
+    }
+#else
+#define LFORTRAN_ASSERT(cond)                                                  \
+    {                                                                          \
+        if (!(cond)) {                                                         \
+            std::cerr << "LFORTRAN_ASSERT failed: " << __FILE__                \
                       << "\nfunction " << __func__ << "(), line number "       \
                       << __LINE__ << " at \n"                                  \
                       << XSTR(cond) << "\n";                                   \
             abort();                                                           \
         }                                                                      \
     }
+#endif // defined(HAVE_LFORTRAN_STACKTRACE)
 #endif // !defined(LFORTRAN_ASSERT)
 
 #if !defined(LFORTRAN_ASSERT_MSG)

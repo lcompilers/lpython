@@ -6,12 +6,14 @@ extern "C" {
 #endif
 
 typedef enum {
-    LFORTRAN_NO_EXCEPTION = 0,
-    LFORTRAN_RUNTIME_ERROR = 1,
-    LFORTRAN_TOKENIZER_ERROR = 2,
-    LFORTRAN_PARSER_ERROR = 3,
-    LFORTRAN_SEMANTIC_ERROR = 4,
-    LFORTRAN_CODEGEN_ERROR = 5,
+    LFORTRAN_NO_EXCEPTION    = 0,
+    LFORTRAN_RUNTIME_ERROR   = 1,
+    LFORTRAN_EXCEPTION       = 2,
+    LFORTRAN_TOKENIZER_ERROR = 3,
+    LFORTRAN_PARSER_ERROR    = 4,
+    LFORTRAN_SEMANTIC_ERROR  = 5,
+    LFORTRAN_CODEGEN_ERROR   = 6,
+    LFORTRAN_ASSERT_FAILED   = 7,
 } lfortran_exceptions_t;
 
 #ifdef __cplusplus
@@ -46,7 +48,7 @@ public:
 #endif
     }
     LFortranException(const std::string &msg)
-        : LFortranException(msg, LFORTRAN_RUNTIME_ERROR, 2)
+        : LFortranException(msg, LFORTRAN_EXCEPTION, 2)
     {
     }
     const char *what() const throw()
@@ -56,6 +58,24 @@ public:
     std::string msg() const
     {
         return m_msg;
+    }
+    std::string name() const
+    {
+        switch (ec) {
+            case (lfortran_exceptions_t::LFORTRAN_EXCEPTION) :
+                return "LFortranException";
+            case (lfortran_exceptions_t::LFORTRAN_TOKENIZER_ERROR) :
+                return "TokenizerError";
+            case (lfortran_exceptions_t::LFORTRAN_PARSER_ERROR) :
+                return "ParserError";
+            case (lfortran_exceptions_t::LFORTRAN_SEMANTIC_ERROR) :
+                return "SemanticError";
+            case (lfortran_exceptions_t::LFORTRAN_CODEGEN_ERROR) :
+                return "CodeGenError";
+            case (lfortran_exceptions_t::LFORTRAN_ASSERT_FAILED) :
+                return "AssertFailed";
+            default : return "Unknown Exception";
+        }
     }
     std::string stacktrace() const
     {
@@ -109,6 +129,15 @@ class CodeGenError : public LFortranException
 public:
     CodeGenError(const std::string &msg)
         : LFortranException(msg, LFORTRAN_CODEGEN_ERROR, 2)
+    {
+    }
+};
+
+class AssertFailed : public LFortranException
+{
+public:
+    AssertFailed(const std::string &msg)
+        : LFortranException(msg, LFORTRAN_ASSERT_FAILED, 2)
     {
     }
 };
