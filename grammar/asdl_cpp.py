@@ -390,9 +390,16 @@ class PickleVisitorVisitor(ASDLVisitor):
         self.emit("};")
 
     def visitType(self, tp):
-        if not (isinstance(tp.value, asdl.Sum) and
-                is_simple_sum(tp.value)):
-            super(PickleVisitorVisitor, self).visitType(tp, tp.name)
+        super(PickleVisitorVisitor, self).visitType(tp, tp.name)
+
+    def visitSum(self, sum, *args):
+        assert isinstance(sum, asdl.Sum)
+        if is_simple_sum(sum):
+            name = args[0] + "Type"
+            self.make_simple_sum_visitor(name, sum.types)
+        else:
+            for tp in sum.types:
+                self.visit(tp, *args)
 
     def visitProduct(self, prod, name):
         self.make_visitor(name, prod.fields, False)
@@ -426,6 +433,23 @@ class PickleVisitorVisitor(ASDLVisitor):
             if n < len(fields) - 1:
                 self.emit(    's.append(" ");', 2)
         self.emit(    's.append(")");', 2)
+        self.emit("}", 1)
+
+    def make_simple_sum_visitor(self, name, types):
+        self.emit("void visit_%s(const %s &x) {" % (name, name), 1)
+        self.emit(    'if (use_colors) {', 2)
+        self.emit(        's.append(color(style::bold));', 3)
+        self.emit(        's.append(color(fg::green));', 3)
+        self.emit(    '}', 2)
+        self.emit(    'switch (x) {', 2)
+        for tp in types:
+            self.emit(    'case (%s::%s) : { s.append("%s"); break; }' \
+                % (name, tp.name, tp.name), 3)
+        self.emit(    '}', 2)
+        self.emit(    'if (use_colors) {', 2)
+        self.emit(        's.append(color(fg::reset));', 3)
+        self.emit(        's.append(color(style::reset));', 3)
+        self.emit(    '}', 2)
         self.emit("}", 1)
 
     def visitField(self, field, cons):
@@ -532,7 +556,7 @@ class PickleVisitorVisitor(ASDLVisitor):
                 if field.opt:
                     self.emit('s.append("Unimplementedopt");', 2)
                 else:
-                    self.emit('s.append("%sType" + std::to_string(x.m_%s));' \
+                    self.emit('visit_%sType(x.m_%s);' \
                             % (field.type, field.name), 2)
             else:
                 self.emit('s.append("Unimplemented' + field.type + '");', 2)

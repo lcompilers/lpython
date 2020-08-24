@@ -1,1 +1,1 @@
-(TranslationUnit (SymbolTable 00000003 {}) [(BinOp (Num 5 (Integer 4 [])) operatorType0 (Num 3 (Integer 4 [])) (Integer 4 []))])
+(TranslationUnit (SymbolTable 00000003 {}) [(BinOp (Num 5 (Integer 4 [])) Add (Num 3 (Integer 4 [])) (Integer 4 []))])
