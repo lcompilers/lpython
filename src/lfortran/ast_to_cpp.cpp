@@ -522,6 +522,7 @@ public:
             r += "Kokkos::parallel_reduce(";
             this->visit_expr(*x.m_end);
         } else {
+            red = nullptr;
             r += "Kokkos::parallel_for(";
             this->visit_expr(*x.m_end);
         }
