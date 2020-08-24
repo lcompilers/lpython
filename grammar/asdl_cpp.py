@@ -312,7 +312,7 @@ class ASTVisitorVisitor2(ASDLVisitor):
             self.emit("void visit_%s(const %s_t &b) { visit_%s_t(b, self()); }"\
                     % (base, base, base), 1)
             for type_ in sum.types:
-                self.emit("""void visit_%s(const %s_t &x) { throw LFortran::LFortranException("visit_%s() not implemented"); }""" \
+                self.emit("""void visit_%s(const %s_t & /* x */) { throw LFortran::LFortranException("visit_%s() not implemented"); }""" \
                         % (type_.name, type_.name, type_.name), 2)
 
 
