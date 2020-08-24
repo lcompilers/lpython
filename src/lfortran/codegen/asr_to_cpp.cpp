@@ -581,12 +581,12 @@ R"(#include <iostream>
         src = out;
     }
 
-    void visit_Exit(const ASR::Exit_t &x) {
+    void visit_Exit(const ASR::Exit_t & /* x */) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         src = indent + "break;\n";
     }
 
-    void visit_Cycle(const ASR::Cycle_t &x) {
+    void visit_Cycle(const ASR::Cycle_t & /* x */) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         src = indent + "continue;\n";
     }
@@ -666,7 +666,7 @@ R"(#include <iostream>
         src = out;
     }
 
-    void visit_ErrorStop(const ASR::ErrorStop_t &x) {
+    void visit_ErrorStop(const ASR::ErrorStop_t & /* x */) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         src = indent + "std::cerr << \"ERROR STOP\" << std::endl;\n";
         src += indent + "exit(1);\n";

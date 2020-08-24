@@ -13,7 +13,7 @@ class CountVisitor : public BaseWalkVisitor<CountVisitor>
     int c_;
 public:
     CountVisitor() : c_{0} {}
-    void visit_Name(const Name_t &x) { c_ += 1; }
+    void visit_Name(const Name_t & /* x */) { c_ += 1; }
     int get_count() {
         return c_;
     }
@@ -25,7 +25,7 @@ int count(const ast_t &b) {
     return v.get_count();
 }
 
-int main(int argc, char *argv[])
+int main()
 {
     int N;
     N = 50000;

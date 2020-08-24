@@ -38,7 +38,7 @@ using LFortran::AST::PickleBaseVisitor;
 namespace LFortran {
 
 std::string pickle(int token, const LFortran::YYSTYPE &yystype,
-        bool colors)
+        bool /* colors */)
 {
     std::string t;
     t += "(token \"";

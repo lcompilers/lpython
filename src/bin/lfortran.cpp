@@ -571,6 +571,7 @@ int link_executable(const std::string &infile, const std::string &outfile,
         return 0;
     } else {
         LFORTRAN_ASSERT(false);
+        return 1;
     }
 }
 

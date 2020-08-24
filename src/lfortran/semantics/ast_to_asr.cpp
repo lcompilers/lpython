@@ -324,7 +324,7 @@ public:
         unit->n_items = items.size();
     }
 
-    void visit_Declaration(const AST::Declaration_t &x) {
+    void visit_Declaration(const AST::Declaration_t & /* x */) {
         // This AST node was already visited in SymbolTableVisitor
     }
 

@@ -4,7 +4,7 @@
 #include <lfortran/parser/parser.h>
 #include <lfortran/pickle.h>
 
-int main(int argc, char *argv[])
+int main()
 {
     int N;
     N = 10000;

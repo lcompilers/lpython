@@ -43,7 +43,7 @@ public:
     int n_params, current_param;
 public:
     ASTToCPPHIPVisitor() : use_colors{false}, indent_level{0} { }
-    void visit_TranslationUnit(const TranslationUnit_t &x) {
+    void visit_TranslationUnit(const TranslationUnit_t &/* x */) {
         s.append("(");
         if (use_colors) {
             s.append(color(style::bold));
@@ -253,7 +253,7 @@ public:
         }
         s = r;
     }
-    void visit_Private(const Private_t &x) {
+    void visit_Private(const Private_t &/* x */) {
         s.append("(");
         if (use_colors) {
             s.append(color(style::bold));
@@ -268,7 +268,7 @@ public:
         s.append("Unimplementedidentifier");
         s.append(")");
     }
-    void visit_Public(const Public_t &x) {
+    void visit_Public(const Public_t &/* x */) {
         s.append("(");
         if (use_colors) {
             s.append(color(style::bold));
@@ -456,7 +456,7 @@ public:
         }
         s.append(")");
     }
-    void visit_ErrorStop(const ErrorStop_t &x) {
+    void visit_ErrorStop(const ErrorStop_t &/* x */) {
         s.append("(");
         if (use_colors) {
             s.append(color(style::bold));
@@ -676,7 +676,7 @@ public:
         s.append("]");
         s.append(")");
     }
-    void visit_Cycle(const Cycle_t &x) {
+    void visit_Cycle(const Cycle_t &/* x */) {
         s.append("(");
         if (use_colors) {
             s.append(color(style::bold));
@@ -689,7 +689,7 @@ public:
         }
         s.append(")");
     }
-    void visit_Exit(const Exit_t &x) {
+    void visit_Exit(const Exit_t &/* x */) {
         s.append("(");
         if (use_colors) {
             s.append(color(style::bold));
@@ -702,7 +702,7 @@ public:
         }
         s.append(")");
     }
-    void visit_Return(const Return_t &x) {
+    void visit_Return(const Return_t &/*x*/) {
         s.append("(");
         if (use_colors) {
             s.append(color(style::bold));
@@ -950,7 +950,7 @@ public:
         s = std::string(x.m_id);
         pbvvars.push_back(s);
     }
-    void visit_Constant(const Constant_t &x) {
+    void visit_Constant(const Constant_t &/*x*/) {
         s.append("(");
         if (use_colors) {
             s.append(color(style::bold));
