@@ -218,6 +218,19 @@ public:
         return args;
     }
 
+    template <typename T>
+    void declare_args(const T &x, llvm::Function &F) {
+        size_t i = 0;
+        for (llvm::Argument &llvm_arg : F.args()) {
+            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+            LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
+            std::string arg_s = arg->m_name;
+            llvm_arg.setName(arg_s);
+            llvm_symtab[arg_s] = &llvm_arg;
+            i++;
+        }
+    }
+
     void visit_Function(const ASR::Function_t &x) {
         ASR::ttypeType return_var_type = VARIABLE((ASR::asr_t*)(EXPR_VAR((ASR::asr_t*)x.m_return_var)->m_v))->m_type->type;
         llvm::Type *return_type;
@@ -278,15 +291,7 @@ public:
                 ".entry", F);
         builder->SetInsertPoint(BB);
 
-        size_t i = 0;
-        for (llvm::Argument &llvm_arg : F->args()) {
-            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
-            LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
-            std::string arg_s = arg->m_name;
-            llvm_arg.setName(arg_s);
-            llvm_symtab[arg_s] = &llvm_arg;
-            i++;
-        }
+        declare_args(x, *F);
 
         for (auto &item : x.m_symtab->scope) {
             if (item.second->type == ASR::asrType::var) {
