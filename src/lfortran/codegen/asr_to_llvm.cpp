@@ -231,6 +231,30 @@ public:
         }
     }
 
+    template <typename T>
+    void declare_local_vars(const T &x) {
+        for (auto &item : x.m_symtab->scope) {
+            if (item.second->type == ASR::asrType::var) {
+                ASR::var_t *v2 = (ASR::var_t*)(item.second);
+                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+
+                llvm::Type *type;
+                if (v->m_intent == intent_local || v->m_intent == intent_return_var) {
+                    if (v->m_type->type == ASR::ttypeType::Integer) {
+                        type = llvm::Type::getInt64Ty(context);
+                    } else if (v->m_type->type == ASR::ttypeType::Real) {
+                        type = llvm::Type::getFloatTy(context);
+                    } else {
+                        throw CodeGenError("Function: type not supported");
+                    }
+                    llvm::AllocaInst *ptr = builder->CreateAlloca(
+                        type, nullptr, v->m_name);
+                    llvm_symtab[std::string(v->m_name)] = ptr;
+                }
+            }
+        }
+    }
+
     void visit_Function(const ASR::Function_t &x) {
         ASR::ttypeType return_var_type = VARIABLE((ASR::asr_t*)(EXPR_VAR((ASR::asr_t*)x.m_return_var)->m_v))->m_type->type;
         llvm::Type *return_type;
@@ -252,26 +276,7 @@ public:
 
         declare_args(x, *F);
 
-        for (auto &item : x.m_symtab->scope) {
-            if (item.second->type == ASR::asrType::var) {
-                ASR::var_t *v2 = (ASR::var_t*)(item.second);
-                ASR::Variable_t *v = (ASR::Variable_t *)v2;
-
-                llvm::Type *type;
-                if (v->m_intent == intent_local || v->m_intent == intent_return_var) {
-                    if (v->m_type->type == ASR::ttypeType::Integer) {
-                        type = llvm::Type::getInt64Ty(context);
-                    } else if (v->m_type->type == ASR::ttypeType::Real) {
-                        type = llvm::Type::getFloatTy(context);
-                    } else {
-                        throw CodeGenError("Function: type not supported");
-                    }
-                    llvm::AllocaInst *ptr = builder->CreateAlloca(
-                        type, nullptr, v->m_name);
-                    llvm_symtab[std::string(v->m_name)] = ptr;
-                }
-            }
-        }
+        declare_local_vars(x);
 
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
