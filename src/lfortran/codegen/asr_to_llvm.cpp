@@ -698,6 +698,32 @@ public:
         builder->CreateCall(fn, args);
     }
 
+    void visit_FuncCall(const ASR::FuncCall_t &x) {
+        ASR::Function_t *s = FUNCTION((ASR::asr_t*)x.m_func);
+        llvm::Function *fn = module->getFunction(s->m_name);
+        if (!fn) {
+            throw CodeGenError("Subroutine code not generated for '"
+                + std::string(s->m_name) + "'");
+        }
+        std::vector<llvm::Value *> args;
+        for (size_t i=0; i<x.n_args; i++) {
+            if (x.m_args[i]->type == ASR::exprType::Var) {
+                ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+                std::string arg_name = arg->m_name;
+                tmp = llvm_symtab[arg_name];
+            } else {
+                this->visit_expr(*x.m_args[i]);
+                llvm::Value *value=tmp;
+                llvm::AllocaInst *target = builder->CreateAlloca(
+                    llvm::Type::getInt64Ty(context), nullptr);
+                builder->CreateStore(value, target);
+                tmp = target;
+            }
+            args.push_back(tmp);
+        }
+        tmp = builder->CreateCall(fn, args);
+    }
+
 };
 
 
