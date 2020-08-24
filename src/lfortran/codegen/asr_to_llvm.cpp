@@ -250,6 +250,8 @@ public:
                 ".entry", F);
         builder->SetInsertPoint(BB);
 
+        declare_args(x, *F);
+
         for (auto &item : x.m_symtab->scope) {
             if (item.second->type == ASR::asrType::var) {
                 ASR::var_t *v2 = (ASR::var_t*)(item.second);
