@@ -24,6 +24,8 @@ typedef enum {
 #include <exception>
 #include <string>
 #include <lfortran/parser/location.h>
+#include <lfortran/config.h>
+#include <lfortran/stacktrace.h>
 
 namespace LFortran
 {
@@ -32,14 +34,19 @@ class LFortranException : public std::exception
 {
     std::string m_msg;
     lfortran_exceptions_t ec;
+    std::string m_stacktrace;
 
 public:
-    LFortranException(const std::string &msg, lfortran_exceptions_t error)
+    LFortranException(const std::string &msg, lfortran_exceptions_t error,
+        int stacktrace_dept)
         : m_msg(msg), ec(error)
     {
+#if defined(HAVE_LFORTRAN_STACKTRACE)
+        m_stacktrace = LFortran::get_stacktrace(stacktrace_dept);
+#endif
     }
     LFortranException(const std::string &msg)
-        : LFortranException(msg, LFORTRAN_RUNTIME_ERROR)
+        : LFortranException(msg, LFORTRAN_RUNTIME_ERROR, 2)
     {
     }
     const char *what() const throw()
@@ -49,6 +56,10 @@ public:
     std::string msg() const
     {
         return m_msg;
+    }
+    std::string stacktrace() const
+    {
+        return m_stacktrace;
     }
     lfortran_exceptions_t error_code()
     {
@@ -64,7 +75,7 @@ public:
 public:
     TokenizerError(const std::string &msg, const Location &loc,
             const std::string &token)
-        : LFortranException(msg, LFORTRAN_TOKENIZER_ERROR), loc{loc},
+        : LFortranException(msg, LFORTRAN_TOKENIZER_ERROR, 2), loc{loc},
             token{token}
     {
     }
@@ -77,7 +88,7 @@ public:
     int token;
 public:
     ParserError(const std::string &msg, const Location &loc, const int token)
-        : LFortranException(msg, LFORTRAN_PARSER_ERROR), loc{loc}, token{token}
+        : LFortranException(msg, LFORTRAN_PARSER_ERROR, 2), loc{loc}, token{token}
     {
     }
 };
@@ -88,7 +99,7 @@ public:
     Location loc;
 public:
     SemanticError(const std::string &msg, const Location &loc)
-        : LFortranException(msg, LFORTRAN_SEMANTIC_ERROR), loc{loc}
+        : LFortranException(msg, LFORTRAN_SEMANTIC_ERROR, 2), loc{loc}
     {
     }
 };
@@ -97,7 +108,7 @@ class CodeGenError : public LFortranException
 {
 public:
     CodeGenError(const std::string &msg)
-        : LFortranException(msg, LFORTRAN_CODEGEN_ERROR)
+        : LFortranException(msg, LFORTRAN_CODEGEN_ERROR, 2)
     {
     }
 };
