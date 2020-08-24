@@ -204,6 +204,20 @@ public:
         builder->CreateRet(ret_val2);
     }
 
+    template <typename T>
+    std::vector<llvm::Type*> convert_args(const T &x) {
+        std::vector<llvm::Type*> args;
+        for (size_t i=0; i<x.n_args; i++) {
+            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+            LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
+            // TODO: we are assuming integer here:
+            LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
+            // We pass all arguments as pointers for now
+            args.push_back(llvm::Type::getInt64PtrTy(context));
+        }
+        return args;
+    }
+
     void visit_Function(const ASR::Function_t &x) {
         ASR::ttypeType return_var_type = VARIABLE((ASR::asr_t*)(EXPR_VAR((ASR::asr_t*)x.m_return_var)->m_v))->m_type->type;
         llvm::Type *return_type;
@@ -254,16 +268,7 @@ public:
     }
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
-        std::vector<llvm::Type*> args;
-        for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
-            LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
-            // TODO: we are assuming integer here:
-            LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
-            // We pass all arguments as pointers for now
-            args.push_back(llvm::Type::getInt64PtrTy(context));
-        }
-
+        std::vector<llvm::Type*> args = convert_args(x);
         llvm::FunctionType *function_type = llvm::FunctionType::get(
                 llvm::Type::getVoidTy(context), args, false);
         llvm::Function *F = llvm::Function::Create(function_type,
