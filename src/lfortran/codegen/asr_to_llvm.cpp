@@ -595,7 +595,9 @@ public:
     }
 
     void visit_Var(const ASR::Var_t &x) {
-        llvm::Value *ptr = llvm_symtab[std::string(VARIABLE((ASR::asr_t*)(x.m_v))->m_name)];
+        std::string vname = VARIABLE((ASR::asr_t*)(x.m_v))->m_name;
+        LFORTRAN_ASSERT(llvm_symtab.find(vname) != llvm_symtab.end());
+        llvm::Value *ptr = llvm_symtab[vname];
         tmp = builder->CreateLoad(ptr);
     }
 
