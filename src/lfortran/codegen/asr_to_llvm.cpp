@@ -228,8 +228,9 @@ public:
         } else {
             throw CodeGenError("Function: return type not supported");
         }
+        std::vector<llvm::Type*> args = convert_args(x);
         llvm::FunctionType *function_type = llvm::FunctionType::get(
-                return_type, {}, false);
+                return_type, args, false);
         llvm::Function *F = llvm::Function::Create(function_type,
                 llvm::Function::ExternalLinkage, x.m_name, module.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
