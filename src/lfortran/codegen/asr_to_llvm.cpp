@@ -445,14 +445,14 @@ public:
         builder->SetInsertPoint(loopend);
     }
 
-    void visit_Exit(const ASR::Exit_t &x) {
+    void visit_Exit(const ASR::Exit_t & /* x */) {
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
         llvm::BasicBlock *after = llvm::BasicBlock::Create(context, "after", fn);
         builder->CreateBr(current_loopend);
         builder->SetInsertPoint(after);
     }
 
-    void visit_Cycle(const ASR::Cycle_t &x) {
+    void visit_Cycle(const ASR::Cycle_t & /* x */) {
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
         llvm::BasicBlock *after = llvm::BasicBlock::Create(context, "after", fn);
         builder->CreateBr(current_loophead);
@@ -645,7 +645,7 @@ public:
         printf(context, *module, *builder, printf_args);
     }
 
-    void visit_Stop(const ASR::Stop_t &x) {
+    void visit_Stop(const ASR::Stop_t & /* x */) {
         llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("STOP\n");
         printf(context, *module, *builder, {fmt_ptr});
         int exit_code_int = 0;
@@ -654,7 +654,7 @@ public:
         exit(context, *module, *builder, exit_code);
     }
 
-    void visit_ErrorStop(const ASR::ErrorStop_t &x) {
+    void visit_ErrorStop(const ASR::ErrorStop_t & /* x */) {
         llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("ERROR STOP\n");
         printf(context, *module, *builder, {fmt_ptr});
         int exit_code_int = 1;
