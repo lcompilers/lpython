@@ -533,7 +533,15 @@ class PickleVisitorVisitor(ASDLVisitor):
                     self.emit('s.append(x.m_%s->get_hash());' % field.name, level)
                 else:
                     level = 2
-                    self.emit('s.append("(SymbolTable ");', level)
+                    self.emit('s.append("(");', level)
+                    self.emit('if (use_colors) {', level)
+                    self.emit(    's.append(color(fg::yellow));', level+1)
+                    self.emit('}', level)
+                    self.emit('s.append("SymbolTable");', level)
+                    self.emit('if (use_colors) {', level)
+                    self.emit(    's.append(color(fg::reset));', level+1)
+                    self.emit('}', level)
+                    self.emit('s.append(" ");', level)
                     self.emit('s.append(x.m_%s->get_hash());' % field.name, level)
                     self.emit('s.append(" {");', level)
                     self.emit('{', level)
