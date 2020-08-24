@@ -215,7 +215,7 @@ public:
         loc.last_column = 0;
         loc.last_line = 0;
         if (current_scope->scope.find(sym) == current_scope->scope.end()) {
-            int s_intent=intent_local;
+            ASR::intentType s_intent=intent_local;
             Vec<ASR::dimension_t> dims;
             dims.reserve(al, x.n_dims);
             if (x.n_attrs > 0) {

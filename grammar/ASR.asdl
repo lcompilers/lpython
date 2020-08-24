@@ -40,7 +40,7 @@ var
 -- intent:
 -- =0 ... local variable,
 -- >0 ... dummy argument: 1=in, 2=out, 3=inout
-    = Variable(symbol_table parent_symtab, identifier name, int intent,
+    = Variable(symbol_table parent_symtab, identifier name, intent intent,
             ttype type)
 
 stmt
@@ -92,6 +92,8 @@ operator = Add | Sub | Mul | Div | Pow
 unaryop = Invert | Not | UAdd | USub
 
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
+
+intent = Local | In | Out | InOut | ReturnVar | External
 
 cast_kind = RealToInteger | IntegerToReal | RealToReal | IntegerToInteger
 
