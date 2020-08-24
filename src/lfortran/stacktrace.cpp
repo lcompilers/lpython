@@ -26,6 +26,11 @@
 #  include <execinfo.h>
 #endif
 
+#ifdef HAVE_LFORTRAN_UNWIND
+// For _Unwind_Backtrace() function
+#  include <unwind.h>
+#endif
+
 #if defined(HAVE_LFORTRAN_DEMANGLE)
 // For demangling function names
 #  include <cxxabi.h>
@@ -425,19 +430,41 @@ void loc_abort_callback_print_stack(int sig_num)
   std::cerr << "Abort: Signal SIGABRT (abort) received\n\n";
 }
 
+#ifdef HAVE_LFORTRAN_UNWIND
+struct unwind_callback_data {
+  std::vector<void*> stacktrace;
+};
+
+static _Unwind_Reason_Code unwind_callback(struct _Unwind_Context *context,
+  void *vdata)
+{
+  unwind_callback_data *data = (unwind_callback_data *) vdata;
+  uintptr_t pc;
+  pc = _Unwind_GetIP(context);
+  data->stacktrace.push_back((void*)pc);
+  return _URC_NO_REASON;
+}
+#endif
+
 
 StacktraceAddresses get_stacktrace_addresses(int impl_stacktrace_depth)
 {
-  const int STACKTRACE_ARRAY_SIZE = 100; // 2010/05/22: rabartl: Is this large enough?
-  void *stacktrace_array[STACKTRACE_ARRAY_SIZE];
+  void **stack=nullptr;
+  size_t stacktrace_size=0;
 #ifdef HAVE_LFORTRAN_EXECINFO
-  const size_t stacktrace_size = backtrace(stacktrace_array,
-    STACKTRACE_ARRAY_SIZE);
+  const int STACKTRACE_ARRAY_SIZE = 1024;
+  void *stacktrace_array[STACKTRACE_ARRAY_SIZE];
+  stacktrace_size = backtrace(stacktrace_array, STACKTRACE_ARRAY_SIZE);
+  stack = stacktrace_array;
 #else
-  const size_t stacktrace_size = 0;
+#  ifdef HAVE_LFORTRAN_UNWIND
+  unwind_callback_data data;
+  _Unwind_Backtrace(unwind_callback, &data);
+  stack = &data.stacktrace[0];
+  stacktrace_size = data.stacktrace.size()-1;
+#  endif
 #endif
-  return StacktraceAddresses(stacktrace_array, stacktrace_size,
-      impl_stacktrace_depth+1);
+  return StacktraceAddresses(stack, stacktrace_size, impl_stacktrace_depth+1);
 }
 
 
