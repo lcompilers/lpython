@@ -82,6 +82,8 @@ RUN(doloop_03)
 RUN(subroutines_01)
 RUN(subroutines_02)
 
+RUN(functions_01)
+
 RUN(types_01)
 RUN(types_02)
 RUN(types_03)
@@ -127,4 +129,5 @@ if (NOT LFORTRAN_BACKEND)
     RUN(allocate_01)
     RUN(block_01)
     RUN(associate_01)
+
 endif()

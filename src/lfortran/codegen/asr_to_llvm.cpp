@@ -204,24 +204,35 @@ public:
         builder->CreateRet(ret_val2);
     }
 
-    void visit_Function(const ASR::Function_t &x) {
-        ASR::ttypeType return_var_type = VARIABLE((ASR::asr_t*)(EXPR_VAR((ASR::asr_t*)x.m_return_var)->m_v))->m_type->type;
-        llvm::Type *return_type;
-        if (return_var_type == ASR::ttypeType::Integer) {
-            return_type = llvm::Type::getInt64Ty(context);
-        } else if (return_var_type == ASR::ttypeType::Real) {
-            return_type = llvm::Type::getFloatTy(context);
-        } else {
-            throw CodeGenError("Function: return type not supported");
+    template <typename T>
+    std::vector<llvm::Type*> convert_args(const T &x) {
+        std::vector<llvm::Type*> args;
+        for (size_t i=0; i<x.n_args; i++) {
+            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+            LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
+            // TODO: we are assuming integer here:
+            LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
+            // We pass all arguments as pointers for now
+            args.push_back(llvm::Type::getInt64PtrTy(context));
         }
-        llvm::FunctionType *function_type = llvm::FunctionType::get(
-                return_type, {}, false);
-        llvm::Function *F = llvm::Function::Create(function_type,
-                llvm::Function::ExternalLinkage, x.m_name, module.get());
-        llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
-                ".entry", F);
-        builder->SetInsertPoint(BB);
+        return args;
+    }
 
+    template <typename T>
+    void declare_args(const T &x, llvm::Function &F) {
+        size_t i = 0;
+        for (llvm::Argument &llvm_arg : F.args()) {
+            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+            LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
+            std::string arg_s = arg->m_name;
+            llvm_arg.setName(arg_s);
+            llvm_symtab[arg_s] = &llvm_arg;
+            i++;
+        }
+    }
+
+    template <typename T>
+    void declare_local_vars(const T &x) {
         for (auto &item : x.m_symtab->scope) {
             if (item.second->type == ASR::asrType::var) {
                 ASR::var_t *v2 = (ASR::var_t*)(item.second);
@@ -242,6 +253,30 @@ public:
                 }
             }
         }
+    }
+
+    void visit_Function(const ASR::Function_t &x) {
+        ASR::ttypeType return_var_type = VARIABLE((ASR::asr_t*)(EXPR_VAR((ASR::asr_t*)x.m_return_var)->m_v))->m_type->type;
+        llvm::Type *return_type;
+        if (return_var_type == ASR::ttypeType::Integer) {
+            return_type = llvm::Type::getInt64Ty(context);
+        } else if (return_var_type == ASR::ttypeType::Real) {
+            return_type = llvm::Type::getFloatTy(context);
+        } else {
+            throw CodeGenError("Function: return type not supported");
+        }
+        std::vector<llvm::Type*> args = convert_args(x);
+        llvm::FunctionType *function_type = llvm::FunctionType::get(
+                return_type, args, false);
+        llvm::Function *F = llvm::Function::Create(function_type,
+                llvm::Function::ExternalLinkage, x.m_name, module.get());
+        llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
+                ".entry", F);
+        builder->SetInsertPoint(BB);
+
+        declare_args(x, *F);
+
+        declare_local_vars(x);
 
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
@@ -254,16 +289,7 @@ public:
     }
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
-        std::vector<llvm::Type*> args;
-        for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
-            LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
-            // TODO: we are assuming integer here:
-            LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
-            // We pass all arguments as pointers for now
-            args.push_back(llvm::Type::getInt64PtrTy(context));
-        }
-
+        std::vector<llvm::Type*> args = convert_args(x);
         llvm::FunctionType *function_type = llvm::FunctionType::get(
                 llvm::Type::getVoidTy(context), args, false);
         llvm::Function *F = llvm::Function::Create(function_type,
@@ -272,28 +298,9 @@ public:
                 ".entry", F);
         builder->SetInsertPoint(BB);
 
-        size_t i = 0;
-        for (llvm::Argument &llvm_arg : F->args()) {
-            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
-            LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
-            std::string arg_s = arg->m_name;
-            llvm_arg.setName(arg_s);
-            llvm_symtab[arg_s] = &llvm_arg;
-            i++;
-        }
+        declare_args(x, *F);
 
-        for (auto &item : x.m_symtab->scope) {
-            if (item.second->type == ASR::asrType::var) {
-                ASR::var_t *v2 = (ASR::var_t*)(item.second);
-                ASR::Variable_t *v = (ASR::Variable_t *)v2;
-                if (!is_arg_dummy(v->m_intent)) {
-                    // TODO: we are assuming integer here:
-                    llvm::AllocaInst *ptr = builder->CreateAlloca(
-                        llvm::Type::getInt64Ty(context), nullptr, v->m_name);
-                    llvm_symtab[std::string(v->m_name)] = ptr;
-                }
-            }
-        }
+        declare_local_vars(x);
 
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
@@ -595,7 +602,9 @@ public:
     }
 
     void visit_Var(const ASR::Var_t &x) {
-        llvm::Value *ptr = llvm_symtab[std::string(VARIABLE((ASR::asr_t*)(x.m_v))->m_name)];
+        std::string vname = VARIABLE((ASR::asr_t*)(x.m_v))->m_name;
+        LFORTRAN_ASSERT(llvm_symtab.find(vname) != llvm_symtab.end());
+        llvm::Value *ptr = llvm_symtab[vname];
         tmp = builder->CreateLoad(ptr);
     }
 
@@ -663,13 +672,8 @@ public:
         exit(context, *module, *builder, exit_code);
     }
 
-    void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
-        ASR::Subroutine_t *s = SUBROUTINE((ASR::asr_t*)x.m_name);
-        llvm::Function *fn = module->getFunction(s->m_name);
-        if (!fn) {
-            throw CodeGenError("Subroutine code not generated for '"
-                + std::string(s->m_name) + "'");
-        }
+    template <typename T>
+    std::vector<llvm::Value*> convert_call_args(const T &x) {
         std::vector<llvm::Value *> args;
         for (size_t i=0; i<x.n_args; i++) {
             if (x.m_args[i]->type == ASR::exprType::Var) {
@@ -686,7 +690,29 @@ public:
             }
             args.push_back(tmp);
         }
+        return args;
+    }
+
+    void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
+        ASR::Subroutine_t *s = SUBROUTINE((ASR::asr_t*)x.m_name);
+        llvm::Function *fn = module->getFunction(s->m_name);
+        if (!fn) {
+            throw CodeGenError("Subroutine code not generated for '"
+                + std::string(s->m_name) + "'");
+        }
+        std::vector<llvm::Value *> args = convert_call_args(x);
         builder->CreateCall(fn, args);
+    }
+
+    void visit_FuncCall(const ASR::FuncCall_t &x) {
+        ASR::Function_t *s = FUNCTION((ASR::asr_t*)x.m_func);
+        llvm::Function *fn = module->getFunction(s->m_name);
+        if (!fn) {
+            throw CodeGenError("Function code not generated for '"
+                + std::string(s->m_name) + "'");
+        }
+        std::vector<llvm::Value *> args = convert_call_args(x);
+        tmp = builder->CreateCall(fn, args);
     }
 
 };
