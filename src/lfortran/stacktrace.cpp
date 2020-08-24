@@ -403,9 +403,8 @@ std::string stacktrace2str(const StacktraceAddresses &stacktrace_addresses)
 
 void loc_segfault_callback_print_stack(int sig_num)
 {
-  std::cout << "\nSegfault caught. Printing stacktrace:\n\n";
   LFortran::show_stacktrace();
-  std::cout << "\nDone. Exiting the program.\n";
+  std::cout << "Segfault: exiting the program\n\n";
   // Deregister our abort callback:
   signal(SIGABRT, SIG_DFL);
   abort();
@@ -414,9 +413,8 @@ void loc_segfault_callback_print_stack(int sig_num)
 
 void loc_abort_callback_print_stack(int sig_num)
 {
-  std::cout << "\nAbort caught. Printing stacktrace:\n\n";
   LFortran::show_stacktrace();
-  std::cout << "\nDone.\n";
+  std::cout << "Abort: exiting the program\n\n";
 }
 
 
