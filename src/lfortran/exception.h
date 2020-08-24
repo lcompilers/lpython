@@ -44,7 +44,11 @@ public:
         : m_msg(msg), ec(error)
     {
 #if defined(HAVE_LFORTRAN_STACKTRACE)
-        m_stacktrace = LFortran::get_stacktrace(stacktrace_dept);
+        if (ec != lfortran_exceptions_t::LFORTRAN_TOKENIZER_ERROR &&
+            ec != lfortran_exceptions_t::LFORTRAN_PARSER_ERROR &&
+            ec != lfortran_exceptions_t::LFORTRAN_SEMANTIC_ERROR) {
+            m_stacktrace = LFortran::get_stacktrace(stacktrace_dept);
+        }
 #endif
     }
     LFortranException(const std::string &msg)
