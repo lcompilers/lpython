@@ -614,197 +614,210 @@ int main(int argc, char *argv[])
 #if defined(HAVE_LFORTRAN_STACKTRACE)
     LFortran::print_stack_on_segfault();
 #endif
-    std::string runtime_library_dir = get_runtime_library_dir();
-    Backend backend;
+    try {
+        std::string runtime_library_dir = get_runtime_library_dir();
+        Backend backend;
 
-    bool arg_S = false;
-    bool arg_c = false;
-    bool arg_v = false;
-    bool arg_E = false;
-    std::string arg_o;
-    std::string arg_file;
-    bool arg_version = false;
-    bool show_tokens = false;
-    bool show_ast = false;
-    bool show_asr = false;
-    std::string arg_pass;
-    bool arg_no_color = false;
-    bool show_llvm = false;
-    bool show_cpp = false;
-    bool show_asm = false;
-    bool static_link = false;
-    std::string arg_backend = "llvm";
-    std::string arg_kernel = "";
+        bool arg_S = false;
+        bool arg_c = false;
+        bool arg_v = false;
+        bool arg_E = false;
+        std::string arg_o;
+        std::string arg_file;
+        bool arg_version = false;
+        bool show_tokens = false;
+        bool show_ast = false;
+        bool show_asr = false;
+        std::string arg_pass;
+        bool arg_no_color = false;
+        bool show_llvm = false;
+        bool show_cpp = false;
+        bool show_asm = false;
+        bool static_link = false;
+        std::string arg_backend = "llvm";
+        std::string arg_kernel = "";
 
-    CLI::App app{"LFortran: modern interactive LLVM-based Fortran compiler"};
-    // Standard options compatible with gfortran, gcc or clang
-    // We follow the established conventions
-    app.add_option("file", arg_file, "Source file");
-    app.add_flag("-S", arg_S, "Emit assembly, do not assemble or link");
-    app.add_flag("-c", arg_c, "Compile and assemble, do not link");
-    app.add_option("-o", arg_o, "Specify the file to place the output into");
-    app.add_flag("-v", arg_v, "Be more verbose");
-    app.add_flag("-E", arg_E, "Preprocess only; do not compile, assemble or link");
-    app.add_flag("--version", arg_version, "Display compiler version information");
+        CLI::App app{"LFortran: modern interactive LLVM-based Fortran compiler"};
+        // Standard options compatible with gfortran, gcc or clang
+        // We follow the established conventions
+        app.add_option("file", arg_file, "Source file");
+        app.add_flag("-S", arg_S, "Emit assembly, do not assemble or link");
+        app.add_flag("-c", arg_c, "Compile and assemble, do not link");
+        app.add_option("-o", arg_o, "Specify the file to place the output into");
+        app.add_flag("-v", arg_v, "Be more verbose");
+        app.add_flag("-E", arg_E, "Preprocess only; do not compile, assemble or link");
+        app.add_flag("--version", arg_version, "Display compiler version information");
 
-    // LFortran specific options
-    app.add_flag("--show-tokens", show_tokens, "Show tokens for the given file and exit");
-    app.add_flag("--show-ast", show_ast, "Show AST for the given file and exit");
-    app.add_flag("--show-asr", show_asr, "Show ASR for the given file and exit");
-    app.add_flag("--no-color", arg_no_color, "Turn off colored AST/ASR");
-    app.add_option("--pass", arg_pass, "Apply the ASR pass and show ASR (implies --show-asr)");
-    app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
-    app.add_flag("--show-cpp", show_cpp, "Show C++ translation source for the given file and exit");
-    app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
-    app.add_flag("--static", static_link, "Create a static executable");
-    app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp)", true);
-    app.add_option("--kernel", arg_kernel, "Run in Jupyter kernel mode");
+        // LFortran specific options
+        app.add_flag("--show-tokens", show_tokens, "Show tokens for the given file and exit");
+        app.add_flag("--show-ast", show_ast, "Show AST for the given file and exit");
+        app.add_flag("--show-asr", show_asr, "Show ASR for the given file and exit");
+        app.add_flag("--no-color", arg_no_color, "Turn off colored AST/ASR");
+        app.add_option("--pass", arg_pass, "Apply the ASR pass and show ASR (implies --show-asr)");
+        app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
+        app.add_flag("--show-cpp", show_cpp, "Show C++ translation source for the given file and exit");
+        app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
+        app.add_flag("--static", static_link, "Create a static executable");
+        app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp)", true);
+        app.add_option("--kernel", arg_kernel, "Run in Jupyter kernel mode");
 
-    app.get_formatter()->column_width(25);
-    CLI11_PARSE(app, argc, argv);
+        app.get_formatter()->column_width(25);
+        CLI11_PARSE(app, argc, argv);
 
-    if (arg_version) {
-        std::string version = LFORTRAN_VERSION;
-        if (version == "0.1.1") version = "git";
-        std::cout << "LFortran version: " << version << std::endl;
-        return 0;
-    }
+        if (arg_version) {
+            std::string version = LFORTRAN_VERSION;
+            if (version == "0.1.1") version = "git";
+            std::cout << "LFortran version: " << version << std::endl;
+            return 0;
+        }
 
-    if (arg_kernel != "") {
+        if (arg_kernel != "") {
 #ifdef HAVE_LFORTRAN_XEUS
-        return LFortran::run_kernel(arg_kernel);
+            return LFortran::run_kernel(arg_kernel);
 #else
-        std::cerr << "The --kernel option requires LFortran to be compiled with XEUS support. Recompile with `WITH_XEUS=yes`." << std::endl;
-        return 1;
+            std::cerr << "The --kernel option requires LFortran to be compiled with XEUS support. Recompile with `WITH_XEUS=yes`." << std::endl;
+            return 1;
 #endif
-    }
+        }
 
-    if (arg_E) {
-        return 1;
-    }
-
-    if (arg_backend == "llvm") {
-        backend = Backend::llvm;
-    } else if (arg_backend == "cpp") {
-        backend = Backend::cpp;
-    } else {
-        std::cerr << "The backend must be one of: llvm, cpp." << std::endl;
-        return 1;
-    }
-
-    if (arg_file.size() == 0) {
-#ifdef HAVE_LFORTRAN_LLVM
-        return prompt(arg_v);
-#else
-        std::cerr << "Interactive prompt requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
-        return 1;
-#endif
-    }
-
-    std::string outfile;
-    std::string basename;
-    basename = remove_extension(arg_file);
-    basename = remove_path(basename);
-    if (arg_o.size() > 0) {
-        outfile = arg_o;
-    } else if (arg_S) {
-        outfile = basename + ".s";
-    } else if (arg_c) {
-        outfile = basename + ".o";
-    } else if (show_tokens) {
-        outfile = basename + ".tokens";
-    } else if (show_ast) {
-        outfile = basename + ".ast";
-    } else if (show_asr) {
-        outfile = basename + ".asr";
-    } else if (show_llvm) {
-        outfile = basename + ".ll";
-    } else {
-        outfile = "a.out";
-    }
-
-    if (show_tokens) {
-        return emit_tokens(arg_file);
-    }
-    if (show_ast) {
-        return emit_ast(arg_file, !arg_no_color);
-    }
-    std::vector<ASRPass> passes;
-    if (arg_pass != "") {
-        if (arg_pass == "do_loops") {
-            passes.push_back(ASRPass::do_loops);
-        } else if (arg_pass == "global_stmts") {
-            passes.push_back(ASRPass::global_stmts);
-        } else {
-            std::cerr << "Pass must be one of: do_loops, global_stmts" << std::endl;
+        if (arg_E) {
             return 1;
         }
-        show_asr = true;
-    }
-    if (show_asr) {
-        return emit_asr(arg_file, !arg_no_color, passes);
-    }
-    if (show_llvm) {
-#ifdef HAVE_LFORTRAN_LLVM
-        return emit_llvm(arg_file);
-#else
-        std::cerr << "The --show-llvm option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
-        return 1;
-#endif
-    }
-    if (show_cpp) {
-        return emit_cpp(arg_file);
-    }
-    if (arg_S) {
-        if (backend == Backend::llvm) {
-#ifdef HAVE_LFORTRAN_LLVM
-            return compile_to_assembly_file(arg_file, outfile);
-#else
-            std::cerr << "The -S option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
-            return 1;
-#endif
-        } else if (backend == Backend::cpp) {
-            std::cerr << "The C++ backend does not work with the -S option yet." << std::endl;
-            return 1;
-        } else {
-            LFORTRAN_ASSERT(false);
-        }
-    }
-    if (arg_c) {
-        if (backend == Backend::llvm) {
-#ifdef HAVE_LFORTRAN_LLVM
-            return compile_to_object_file(arg_file, outfile);
-#else
-            std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
-            return 1;
-#endif
-        } else if (backend == Backend::cpp) {
-            return compile_to_object_file_cpp(arg_file, outfile, false, true);
-        } else {
-            LFORTRAN_ASSERT(false);
-        }
-    }
 
-    if (ends_with(arg_file, ".f90")) {
-        std::string tmp_o = outfile + ".tmp.o";
-        int err;
-        if (backend == Backend::llvm) {
+        if (arg_backend == "llvm") {
+            backend = Backend::llvm;
+        } else if (arg_backend == "cpp") {
+            backend = Backend::cpp;
+        } else {
+            std::cerr << "The backend must be one of: llvm, cpp." << std::endl;
+            return 1;
+        }
+
+        if (arg_file.size() == 0) {
 #ifdef HAVE_LFORTRAN_LLVM
-            err = compile_to_object_file(arg_file, tmp_o);
+            return prompt(arg_v);
 #else
-            std::cerr << "Compiling Fortran files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+            std::cerr << "Interactive prompt requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
             return 1;
 #endif
-        } else if (backend == Backend::cpp) {
-            err = compile_to_object_file_cpp(arg_file, tmp_o, false, true);
-        } else {
-            LFORTRAN_ASSERT(false);
         }
-        if (err) return err;
-        return link_executable(tmp_o, outfile, runtime_library_dir,
-                backend, static_link, true);
-    } else {
-        return link_executable(arg_file, outfile, runtime_library_dir,
-                backend, static_link, true);
+
+        std::string outfile;
+        std::string basename;
+        basename = remove_extension(arg_file);
+        basename = remove_path(basename);
+        if (arg_o.size() > 0) {
+            outfile = arg_o;
+        } else if (arg_S) {
+            outfile = basename + ".s";
+        } else if (arg_c) {
+            outfile = basename + ".o";
+        } else if (show_tokens) {
+            outfile = basename + ".tokens";
+        } else if (show_ast) {
+            outfile = basename + ".ast";
+        } else if (show_asr) {
+            outfile = basename + ".asr";
+        } else if (show_llvm) {
+            outfile = basename + ".ll";
+        } else {
+            outfile = "a.out";
+        }
+
+        if (show_tokens) {
+            return emit_tokens(arg_file);
+        }
+        if (show_ast) {
+            return emit_ast(arg_file, !arg_no_color);
+        }
+        std::vector<ASRPass> passes;
+        if (arg_pass != "") {
+            if (arg_pass == "do_loops") {
+                passes.push_back(ASRPass::do_loops);
+            } else if (arg_pass == "global_stmts") {
+                passes.push_back(ASRPass::global_stmts);
+            } else {
+                std::cerr << "Pass must be one of: do_loops, global_stmts" << std::endl;
+                return 1;
+            }
+            show_asr = true;
+        }
+        if (show_asr) {
+            return emit_asr(arg_file, !arg_no_color, passes);
+        }
+        if (show_llvm) {
+#ifdef HAVE_LFORTRAN_LLVM
+            return emit_llvm(arg_file);
+#else
+            std::cerr << "The --show-llvm option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+            return 1;
+#endif
+        }
+        if (show_cpp) {
+            return emit_cpp(arg_file);
+        }
+        if (arg_S) {
+            if (backend == Backend::llvm) {
+#ifdef HAVE_LFORTRAN_LLVM
+                return compile_to_assembly_file(arg_file, outfile);
+#else
+                std::cerr << "The -S option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+                return 1;
+#endif
+            } else if (backend == Backend::cpp) {
+                std::cerr << "The C++ backend does not work with the -S option yet." << std::endl;
+                return 1;
+            } else {
+                LFORTRAN_ASSERT(false);
+            }
+        }
+        if (arg_c) {
+            if (backend == Backend::llvm) {
+#ifdef HAVE_LFORTRAN_LLVM
+                return compile_to_object_file(arg_file, outfile);
+#else
+                std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+                return 1;
+#endif
+            } else if (backend == Backend::cpp) {
+                return compile_to_object_file_cpp(arg_file, outfile, false, true);
+            } else {
+                LFORTRAN_ASSERT(false);
+            }
+        }
+
+        if (ends_with(arg_file, ".f90")) {
+            std::string tmp_o = outfile + ".tmp.o";
+            int err;
+            if (backend == Backend::llvm) {
+#ifdef HAVE_LFORTRAN_LLVM
+                err = compile_to_object_file(arg_file, tmp_o);
+#else
+                std::cerr << "Compiling Fortran files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+                return 1;
+#endif
+            } else if (backend == Backend::cpp) {
+                err = compile_to_object_file_cpp(arg_file, tmp_o, false, true);
+            } else {
+                LFORTRAN_ASSERT(false);
+            }
+            if (err) return err;
+            return link_executable(tmp_o, outfile, runtime_library_dir,
+                    backend, static_link, true);
+        } else {
+            return link_executable(arg_file, outfile, runtime_library_dir,
+                    backend, static_link, true);
+        }
+    } catch(const std::runtime_error &e) {
+        std::cerr << "runtime_error: " << e.what() << std::endl;
+        return 1;
+    } catch(const LFortran::LFortranException &e) {
+        std::cerr << e.stacktrace();
+        std::cerr << e.name() + ": " << e.msg() << std::endl;
+        return 1;
+    } catch(...) {
+        std::cerr << "Unknown Exception" << std::endl;
+        return 1;
     }
+    return 0;
 }

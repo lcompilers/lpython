@@ -1,5 +1,6 @@
 #include <lfortran/stacktrace.h>
 #include <lfortran/config.h>
+#include <lfortran/colors.h>
 
 #include <fstream>
 #include <iostream>
@@ -43,6 +44,10 @@
 #else
 typedef long long unsigned bfd_vma;
 #endif
+
+using LFortran::color;
+using LFortran::style;
+using LFortran::fg;
 
 namespace {
 
@@ -272,8 +277,11 @@ std::string addr2str(std::string file_name, bfd_vma addr)
     std::string name = demangle_function_name(data.function_name);
     if (data.filename.length() > 0) {
       // Nicely format the filename + function name + line
-      s << "  File \"" << data.filename << "\", line "
-        << data.line << ", in " << name;
+      s << color(style::dim) << "  File \"" << color(style::reset)
+        << color(style::bold) << color(fg::magenta) << data.filename
+        << color(fg::reset) << color(style::reset)
+        << color(style::dim) << "\", line " << data.line << ", in " << name
+        << color(style::reset);
       const std::string line_text = remove_leading_whitespace(
         read_line_from_file(data.filename, data.line));
       if (line_text != "") {
@@ -282,7 +290,9 @@ std::string addr2str(std::string file_name, bfd_vma addr)
     } else {
       // The file is unknown (and data.line == 0 in this case), so the
       // only meaningful thing to print is the function name:
-      s << "  File unknown, in " << name;
+      s << color(style::dim) << "  File " + color(style::reset)
+        << color(style::dim) << "unknown" + color(style::reset)
+        << color(style::dim) << ", in " << name << color(style::reset);
     }
   }
   s << "\n";
@@ -403,20 +413,16 @@ std::string stacktrace2str(const StacktraceAddresses &stacktrace_addresses)
 
 void loc_segfault_callback_print_stack(int sig_num)
 {
-  std::cout << "\nSegfault caught. Printing stacktrace:\n\n";
-  LFortran::show_stacktrace();
-  std::cout << "\nDone. Exiting the program.\n";
-  // Deregister our abort callback:
-  signal(SIGABRT, SIG_DFL);
-  abort();
+  std::cerr << LFortran::get_stacktrace(1);
+  std::cerr << "Segfault: Signal SIGSEGV (segmentation fault) received\n";
+  exit(1);
 }
 
 
 void loc_abort_callback_print_stack(int sig_num)
 {
-  std::cout << "\nAbort caught. Printing stacktrace:\n\n";
-  LFortran::show_stacktrace();
-  std::cout << "\nDone.\n";
+  std::cerr << LFortran::get_stacktrace(1);
+  std::cerr << "Abort: Signal SIGABRT (abort) received\n\n";
 }
 
 
