@@ -6,6 +6,7 @@ cmake -E make_directory $dest
 
 # Directories:
 cmake -E copy_directory src $dest/src
+cmake -E copy_directory share $dest/share
 cmake -E copy_directory cmake $dest/cmake
 cmake -E copy_directory examples $dest/examples
 # Files:
