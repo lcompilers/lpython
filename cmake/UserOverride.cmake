@@ -8,17 +8,17 @@
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # g++
-    set(common "-Wall -Wextra -Wno-unused-parameter -fno-common")
+    set(common "-Wall -Wextra")
     set(CMAKE_CXX_FLAGS_RELEASE_INIT "${common} -O3 -march=native -funroll-loops -DNDEBUG")
     set(CMAKE_CXX_FLAGS_DEBUG_INIT   "${common} -g -ggdb")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
     # icpc
-    set(common "-Wall -fno-common")
+    set(common "-Wall")
     set(CMAKE_CXX_FLAGS_RELEASE_INIT "${common} -xHOST -O3")
     set(CMAKE_CXX_FLAGS_DEBUG_INIT   "${common} -g -O0")
 elseif (CMAKE_CXX_COMPILER_ID MATCHES Clang)
     # clang
-    set(common "-Wall -Wextra -Wno-unused-parameter")
+    set(common "-Wall -Wextra")
     set(CMAKE_CXX_FLAGS_RELEASE_INIT "${common} -O3 -march=native -funroll-loops -DNDEBUG")
     set(CMAKE_CXX_FLAGS_DEBUG_INIT   "${common} -g -ggdb")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "PGI")
