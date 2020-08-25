@@ -149,11 +149,11 @@ jupyter_kernel:
          -DCMAKE_BUILD_TYPE=Debug
          -DWITH_LLVM=yes
          -DWITH_XEUS=yes
+         -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX
          .
     - make
-    - cp src/bin/lfortran $CONDA_PREFIX/bin
+    - make install
     - cd ..
-    - python ci/install_fortran_kernel.py
     - jupyter kernelspec list --json
     - python ci/test_fortran_kernel.py -v
 
