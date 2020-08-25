@@ -51,7 +51,7 @@ cxx:
     - conda install -c conda-forge rapidjson
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
-    - cmake
+    - CXXFLAGS="-Werror" cmake
          -DCMAKE_PREFIX_PATH=$HOME/conda_root
          -DCMAKE_INSTALL_PREFIX=`pwd`
          -DCMAKE_BUILD_TYPE=Debug
@@ -164,7 +164,7 @@ cxx_binary_min:
   script:
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
-    - cmake
+    - CXXFLAGS="-Werror" cmake
          -DCMAKE_BUILD_TYPE=Debug
          .
     - make
@@ -180,7 +180,7 @@ cxx_binary_min_tests:
     - conda install -c conda-forge toml
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
-    - cmake
+    - CXXFLAGS="-Werror" cmake
          -DCMAKE_BUILD_TYPE=Debug
          .
     - make
