@@ -18,6 +18,10 @@ endif()
 # https://stackoverflow.com/a/56201564/479532
 set_target_properties(lfortran PROPERTIES RUNTIME_OUTPUT_DIRECTORY $<0:>)
 
+set_target_properties(lfortran PROPERTIES
+    INSTALL_RPATH_USE_LINK_PATH TRUE
+)
+
 install(TARGETS lfortran
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     ARCHIVE DESTINATION share/lfortran/lib
