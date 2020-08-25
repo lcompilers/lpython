@@ -19,7 +19,7 @@ endif()
 set_target_properties(lfortran PROPERTIES RUNTIME_OUTPUT_DIRECTORY $<0:>)
 
 install(TARGETS lfortran
-    RUNTIME DESTINATION bin
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     ARCHIVE DESTINATION share/lfortran/lib
     LIBRARY DESTINATION share/lfortran/lib
 )
