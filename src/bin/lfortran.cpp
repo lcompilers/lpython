@@ -28,12 +28,6 @@ enum ASRPass {
     do_loops, global_stmts
 };
 
-
-void section(const std::string &s)
-{
-    std::cout << color(LFortran::style::bold) << color(LFortran::fg::blue) << s << color(LFortran::style::reset) << color(LFortran::fg::reset) << std::endl;
-}
-
 std::string remove_extension(const std::string& filename) {
     size_t lastdot = filename.find_last_of(".");
     if (lastdot == std::string::npos) return filename;
@@ -78,6 +72,12 @@ std::string get_kokkos_dir()
 }
 
 #ifdef HAVE_LFORTRAN_LLVM
+
+void section(const std::string &s)
+{
+    std::cout << color(LFortran::style::bold) << color(LFortran::fg::blue) << s << color(LFortran::style::reset) << color(LFortran::fg::reset) << std::endl;
+}
+
 int prompt(bool verbose)
 {
     std::cout << "Interactive Fortran. Experimental prototype, not ready for end users." << std::endl;

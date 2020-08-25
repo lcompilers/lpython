@@ -40,14 +40,19 @@ class LFortranException : public std::exception
 
 public:
     LFortranException(const std::string &msg, lfortran_exceptions_t error,
-        int stacktrace_dept)
-        : m_msg(msg), ec(error)
+#if defined(HAVE_LFORTRAN_STACKTRACE)
+        int stacktrace_depth
+#else
+        int /* stacktrace_depth */
+#endif
+        )
+        : m_msg{msg}, ec{error}
     {
 #if defined(HAVE_LFORTRAN_STACKTRACE)
         if (ec != lfortran_exceptions_t::LFORTRAN_TOKENIZER_ERROR &&
             ec != lfortran_exceptions_t::LFORTRAN_PARSER_ERROR &&
             ec != lfortran_exceptions_t::LFORTRAN_SEMANTIC_ERROR) {
-            m_stacktrace = LFortran::get_stacktrace(stacktrace_dept);
+            m_stacktrace = LFortran::get_stacktrace(stacktrace_depth);
         }
 #endif
     }
