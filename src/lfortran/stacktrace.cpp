@@ -320,7 +320,7 @@ struct match_data {
    lib and the local address in the file.
 */
 int shared_lib_callback(struct dl_phdr_info *info,
-  size_t size, void *_data)
+  size_t /* size */, void *_data)
 {
   struct match_data *data = (struct match_data *)_data;
   for (int i=0; i < info->dlpi_phnum; i++) {
@@ -416,7 +416,7 @@ std::string stacktrace2str(const StacktraceAddresses &stacktrace_addresses)
 }
 
 
-void loc_segfault_callback_print_stack(int sig_num)
+void loc_segfault_callback_print_stack(int /* sig_num */)
 {
   std::cerr << LFortran::get_stacktrace(1);
   std::cerr << "Segfault: Signal SIGSEGV (segmentation fault) received\n";
@@ -424,7 +424,7 @@ void loc_segfault_callback_print_stack(int sig_num)
 }
 
 
-void loc_abort_callback_print_stack(int sig_num)
+void loc_abort_callback_print_stack(int /* sig_num */)
 {
   std::cerr << LFortran::get_stacktrace(1);
   std::cerr << "Abort: Signal SIGABRT (abort) received\n\n";

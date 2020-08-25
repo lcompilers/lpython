@@ -523,6 +523,8 @@ public:
             case (AST::Pow) :
                 op = ASR::Pow;
                 break;
+            // Fix compiler warning:
+            default : { LFORTRAN_ASSERT(false); op = ASR::operatorType::Pow; }
         }
         // Cast LHS or RHS if necessary
         ASR::ttype_t *left_type = expr_type(left);
@@ -552,6 +554,9 @@ public:
                 throw SemanticError("BinOp: Only Integer or Real can be on the RHS with Integer as LHS",
                     x.base.base.loc);
             }
+        } else {
+            LFORTRAN_ASSERT(false);
+            type = nullptr;
         }
         LFORTRAN_ASSERT(expr_type(left)->type == expr_type(right)->type);
         tmp = ASR::make_BinOp_t(al, x.base.base.loc,
@@ -575,6 +580,8 @@ public:
             case (AST::unaryopType::USub) :
                 op = ASR::unaryopType::USub;
                 break;
+            // Fix compiler warning:
+            default : { LFORTRAN_ASSERT(false); op = ASR::unaryopType::Invert; }
         }
         ASR::ttype_t *operand_type = expr_type(operand);
         tmp = ASR::make_UnaryOp_t(al, x.base.base.loc,

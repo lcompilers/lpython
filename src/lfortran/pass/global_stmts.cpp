@@ -23,8 +23,8 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
 
         ASR::ttype_t *type;
         Location loc;
-        ASR::asr_t *return_var;
-        ASR::expr_t *return_var_ref;
+        ASR::asr_t *return_var=nullptr;
+        ASR::expr_t *return_var_ref=nullptr;
         char *var_name;
         int idx = 1;
 
