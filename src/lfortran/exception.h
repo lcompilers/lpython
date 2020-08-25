@@ -37,12 +37,16 @@ class LFortranException : public std::exception
     std::string m_msg;
     lfortran_exceptions_t ec;
     std::string m_stacktrace;
-    int m_stacktrace_depth;
 
 public:
     LFortranException(const std::string &msg, lfortran_exceptions_t error,
-        int stacktrace_depth)
-        : m_msg{msg}, ec{error}, m_stacktrace_depth{stacktrace_depth}
+#if defined(HAVE_LFORTRAN_STACKTRACE)
+        int stacktrace_depth
+#else
+        int /* stacktrace_depth */
+#endif
+        )
+        : m_msg{msg}, ec{error}
     {
 #if defined(HAVE_LFORTRAN_STACKTRACE)
         if (ec != lfortran_exceptions_t::LFORTRAN_TOKENIZER_ERROR &&
