@@ -182,7 +182,7 @@ void process_section(bfd *abfd, asection *section, void *_data)
   }
 
   // Calculate the correct offset of our line in the section
-  bfd_vma offset = data->addr - section_vma - 1;
+  bfd_vma offset = data->addr - section_vma;
 
   // Finds the line corresponding to the offset
 
@@ -440,7 +440,7 @@ static _Unwind_Reason_Code unwind_callback(struct _Unwind_Context *context,
 {
   unwind_callback_data *data = (unwind_callback_data *) vdata;
   uintptr_t pc;
-  pc = _Unwind_GetIP(context);
+  pc = _Unwind_GetIP(context) - 1;
   data->stacktrace.push_back((void*)pc);
   return _URC_NO_REASON;
 }
@@ -451,17 +451,22 @@ StacktraceAddresses get_stacktrace_addresses(int impl_stacktrace_depth)
 {
   void **stack=nullptr;
   size_t stacktrace_size=0;
-#ifdef HAVE_LFORTRAN_EXECINFO
-  const int STACKTRACE_ARRAY_SIZE = 1024;
-  void *stacktrace_array[STACKTRACE_ARRAY_SIZE];
-  stacktrace_size = backtrace(stacktrace_array, STACKTRACE_ARRAY_SIZE);
-  stack = stacktrace_array;
-#else
-#  ifdef HAVE_LFORTRAN_UNWIND
+#ifdef HAVE_LFORTRAN_UNWIND
   unwind_callback_data data;
   _Unwind_Backtrace(unwind_callback, &data);
   stack = &data.stacktrace[0];
   stacktrace_size = data.stacktrace.size()-1;
+#else
+#  ifdef HAVE_LFORTRAN_EXECINFO
+  const int STACKTRACE_ARRAY_SIZE = 1024;
+  void *stacktrace_array[STACKTRACE_ARRAY_SIZE];
+  stacktrace_size = backtrace(stacktrace_array, STACKTRACE_ARRAY_SIZE);
+  for (size_t i = 0; i < stacktrace_size; i++) {
+    uintptr_t pc;
+    pc = (uintptr_t) stacktrace_array[i] - 1;
+    stacktrace_array[i] = (void*)pc;
+  }
+  stack = stacktrace_array;
 #  endif
 #endif
   return StacktraceAddresses(stack, stacktrace_size, impl_stacktrace_depth+1);
