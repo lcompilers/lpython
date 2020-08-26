@@ -242,8 +242,15 @@ int load_symbol_table(bfd *abfd, line_data *data)
    File "/home/ondrej/repos/rcp/src/Teuchos_RCP.hpp", line 428, in Teuchos::RCP<A>::assert_not_null() const
    throw_null_ptr_error(typeName(*this));
 */
+#ifdef HAVE_LFORTRAN_BFD
 std::string addr2str(std::string file_name, bfd_vma addr)
+#else
+std::string addr2str(std::string /* file_name */, bfd_vma addr)
+#endif
 {
+  line_data data;
+  data.addr = addr;
+  data.line_found = 0;
 #ifdef HAVE_LFORTRAN_BFD
   // Initialize 'abfd' and do some sanity checks
   bfd *abfd;
@@ -255,10 +262,7 @@ std::string addr2str(std::string file_name, bfd_vma addr)
   char **matching;
   if (!bfd_check_format_matches(abfd, bfd_object, &matching))
     return "Unknown format of the binary file '" + file_name + "'\n";
-  line_data data;
-  data.addr = addr;
   data.symbol_table = NULL;
-  data.line_found = false;
   // This allocates the symbol_table:
   if (load_symbol_table(abfd, &data) == 1)
     return "Failed to load the symbol table from '" + file_name + "'\n";
@@ -267,9 +271,6 @@ std::string addr2str(std::string file_name, bfd_vma addr)
   // Deallocates the symbol table
   if (data.symbol_table != NULL) free(data.symbol_table);
   bfd_close(abfd);
-#else
-  line_data data;
-  data.line_found = 0;
 #endif
 
   std::ostringstream s;
