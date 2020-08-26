@@ -20,6 +20,8 @@ set(SRC
     ast_to_cpp.cpp
     ast_to_cpp_hip.cpp
     ast_to_openmp.cpp
+
+    stacktrace.cpp
 )
 if (WITH_XEUS)
     set(SRC ${SRC}
@@ -29,11 +31,6 @@ endif()
 if (WITH_JSON)
     set(SRC ${SRC}
         ast_to_json.cpp
-    )
-endif()
-if (WITH_STACKTRACE)
-    set(SRC ${SRC}
-        stacktrace.cpp
     )
 endif()
 if (WITH_LLVM)
