@@ -146,7 +146,7 @@ set(WITH_STACKTRACE no
     CACHE BOOL "Build with stacktrace support (requires binutils-dev)")
 if (WITH_STACKTRACE)
     if (NOT (WITH_EXECINFO OR WITH_UNWIND))
-        set(WITH_EXECINFO yes)
+        set(WITH_UNWIND yes)
     endif ()
     find_package(BFD REQUIRED)
     find_package(LINKH REQUIRED)
