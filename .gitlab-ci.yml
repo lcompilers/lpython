@@ -97,6 +97,7 @@ cxx_binary_tests:
     - cmake
          -DCMAKE_BUILD_TYPE=Debug
          -DWITH_LLVM=yes
+         -DWITH_STACKTRACE=yes
          .
     - make
     - ctest --output-on-failure
