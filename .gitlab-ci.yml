@@ -91,7 +91,7 @@ cxx_binary_tests:
     - export PATH="$HOME/conda_root/bin:$PATH"
     - conda install -c conda-forge toml lld=9.0.1 llvmdev=9.0.1
     - sudo apt-get update
-    - sudo apt-get install -yq --no-install-recommends libtinfo-dev zlib1g-dev
+    - sudo apt-get install -yq --no-install-recommends libtinfo-dev zlib1g-dev binutils-dev
     - tar xzf dist/lfortran-${lfortran_version}.tar.gz
     - cd lfortran-${lfortran_version}
     - cmake
