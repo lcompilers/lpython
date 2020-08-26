@@ -393,7 +393,7 @@ std::string stacktrace2str(const StacktraceAddresses &stacktrace_addresses)
     // Linux man page for more documentation)
     struct match_data match;
     match.addr = stacktrace_addresses.get_address(i);
-#ifdef HAVE_LFORTRAN_BFD
+#ifdef HAVE_LFORTRAN_LINK
     if (dl_iterate_phdr(shared_lib_callback, &match) == 0)
       return "dl_iterate_phdr() didn't find a match\n";
 #else
