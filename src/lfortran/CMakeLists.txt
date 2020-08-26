@@ -20,6 +20,8 @@ set(SRC
     ast_to_cpp.cpp
     ast_to_cpp_hip.cpp
     ast_to_openmp.cpp
+
+    stacktrace.cpp
 )
 if (WITH_XEUS)
     set(SRC ${SRC}
@@ -29,11 +31,6 @@ endif()
 if (WITH_JSON)
     set(SRC ${SRC}
         ast_to_json.cpp
-    )
-endif()
-if (WITH_STACKTRACE)
-    set(SRC ${SRC}
-        stacktrace.cpp
     )
 endif()
 if (WITH_LLVM)
@@ -51,8 +48,11 @@ endif()
 if (WITH_JSON)
     target_link_libraries(lfortran_lib p::rapidjson)
 endif()
-if (WITH_STACKTRACE)
-    target_link_libraries(lfortran_lib p::bfd p::link)
+if (WITH_BFD)
+    target_link_libraries(lfortran_lib p::bfd)
+endif()
+if (WITH_LINK)
+    target_link_libraries(lfortran_lib p::link)
 endif()
 if (WITH_EXECINFO)
     target_link_libraries(lfortran_lib p::execinfo)

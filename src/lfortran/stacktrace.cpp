@@ -182,7 +182,7 @@ void process_section(bfd *abfd, asection *section, void *_data)
   }
 
   // Calculate the correct offset of our line in the section
-  bfd_vma offset = data->addr - section_vma - 1;
+  bfd_vma offset = data->addr - section_vma;
 
   // Finds the line corresponding to the offset
 
@@ -242,8 +242,15 @@ int load_symbol_table(bfd *abfd, line_data *data)
    File "/home/ondrej/repos/rcp/src/Teuchos_RCP.hpp", line 428, in Teuchos::RCP<A>::assert_not_null() const
    throw_null_ptr_error(typeName(*this));
 */
+#ifdef HAVE_LFORTRAN_BFD
 std::string addr2str(std::string file_name, bfd_vma addr)
+#else
+std::string addr2str(std::string /* file_name */, bfd_vma addr)
+#endif
 {
+  line_data data;
+  data.addr = addr;
+  data.line_found = 0;
 #ifdef HAVE_LFORTRAN_BFD
   // Initialize 'abfd' and do some sanity checks
   bfd *abfd;
@@ -255,10 +262,7 @@ std::string addr2str(std::string file_name, bfd_vma addr)
   char **matching;
   if (!bfd_check_format_matches(abfd, bfd_object, &matching))
     return "Unknown format of the binary file '" + file_name + "'\n";
-  line_data data;
-  data.addr = addr;
   data.symbol_table = NULL;
-  data.line_found = false;
   // This allocates the symbol_table:
   if (load_symbol_table(abfd, &data) == 1)
     return "Failed to load the symbol table from '" + file_name + "'\n";
@@ -267,9 +271,6 @@ std::string addr2str(std::string file_name, bfd_vma addr)
   // Deallocates the symbol table
   if (data.symbol_table != NULL) free(data.symbol_table);
   bfd_close(abfd);
-#else
-  line_data data;
-  data.line_found = 0;
 #endif
 
   std::ostringstream s;
@@ -392,7 +393,7 @@ std::string stacktrace2str(const StacktraceAddresses &stacktrace_addresses)
     // Linux man page for more documentation)
     struct match_data match;
     match.addr = stacktrace_addresses.get_address(i);
-#ifdef HAVE_LFORTRAN_BFD
+#ifdef HAVE_LFORTRAN_LINK
     if (dl_iterate_phdr(shared_lib_callback, &match) == 0)
       return "dl_iterate_phdr() didn't find a match\n";
 #else
@@ -440,7 +441,7 @@ static _Unwind_Reason_Code unwind_callback(struct _Unwind_Context *context,
 {
   unwind_callback_data *data = (unwind_callback_data *) vdata;
   uintptr_t pc;
-  pc = _Unwind_GetIP(context);
+  pc = _Unwind_GetIP(context) - 1;
   data->stacktrace.push_back((void*)pc);
   return _URC_NO_REASON;
 }
@@ -451,17 +452,22 @@ StacktraceAddresses get_stacktrace_addresses(int impl_stacktrace_depth)
 {
   void **stack=nullptr;
   size_t stacktrace_size=0;
-#ifdef HAVE_LFORTRAN_EXECINFO
-  const int STACKTRACE_ARRAY_SIZE = 1024;
-  void *stacktrace_array[STACKTRACE_ARRAY_SIZE];
-  stacktrace_size = backtrace(stacktrace_array, STACKTRACE_ARRAY_SIZE);
-  stack = stacktrace_array;
-#else
-#  ifdef HAVE_LFORTRAN_UNWIND
+#ifdef HAVE_LFORTRAN_UNWIND
   unwind_callback_data data;
   _Unwind_Backtrace(unwind_callback, &data);
   stack = &data.stacktrace[0];
   stacktrace_size = data.stacktrace.size()-1;
+#else
+#  ifdef HAVE_LFORTRAN_EXECINFO
+  const int STACKTRACE_ARRAY_SIZE = 1024;
+  void *stacktrace_array[STACKTRACE_ARRAY_SIZE];
+  stacktrace_size = backtrace(stacktrace_array, STACKTRACE_ARRAY_SIZE);
+  for (size_t i = 0; i < stacktrace_size; i++) {
+    uintptr_t pc;
+    pc = (uintptr_t) stacktrace_array[i] - 1;
+    stacktrace_array[i] = (void*)pc;
+  }
+  stack = stacktrace_array;
 #  endif
 #endif
   return StacktraceAddresses(stack, stacktrace_size, impl_stacktrace_depth+1);
