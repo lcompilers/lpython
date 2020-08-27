@@ -33,6 +33,10 @@
 #  include <link.h>
 #endif
 
+#ifdef HAVE_LFORTRAN_MACHO
+#  include <mach-o/dyld.h>
+#endif
+
 #ifdef HAVE_LFORTRAN_BFD
 // For bfd_* family of functions for loading debugging symbols from the binary
 // This is the only nonstandard header file and the binary needs to be linked
@@ -94,9 +98,13 @@ int shared_lib_callback(struct dl_phdr_info *info,
   return 0;
 }
 
+#endif // HAVE_LFORTRAN_LINK
+
+
 // Fills in `local_pc` and `binary_filename` of `item`
 void get_local_address(StacktraceItem &item)
 {
+#ifdef HAVE_LFORTRAN_LINK
     // Iterate over all loaded shared libraries (see dl_iterate_phdr(3) -
     // Linux man page for more documentation)
     if (dl_iterate_phdr(shared_lib_callback, &item) == 0) {
@@ -106,13 +114,55 @@ void get_local_address(StacktraceItem &item)
       // that the addresses are collected from a stacktrace, this should only
       // happen if the stacktrace is somehow corrupted. In that case, we simply
       // abort here.
+      // `dl_iterate_phdr` returns the last value returned by our
+      // `shared_lib_callback`. It will only be 0 if no shared library
+      // `dl_iterate_phdr` returns the last value returned by our
+      // `shared_lib_callback`. It will only be 0 if no shared library
+      // (including the main program) contains the address `match.addr`. Given
+      // that the addresses are collected from a stacktrace, this should only
+      // happen if the stacktrace is somehow corrupted. In that case, we simply
+      // abort here.
       std::cout << "The stack address was not found in any shared library or the main program, the stack is probably corrupted. Aborting." << std::endl;
       abort();
     }
+#else
+#ifdef HAVE_LFORTRAN_MACHO
+    for (uint32_t i = 0; i < _dyld_image_count(); i++) {
+        const struct mach_header *header = _dyld_get_image_header(i);
+        intptr_t offset = _dyld_get_image_vmaddr_slide(i);
+        struct load_command* cmd = (struct load_command*)((char *)header + sizeof(struct mach_header));
+        if(header->magic == MH_MAGIC_64) {
+            cmd = (struct load_command*)((char *)header + sizeof(struct mach_header_64));
+        }
+        for (uint32_t j = 0; j < header->ncmds; j++) {
+            if (cmd->cmd == LC_SEGMENT) {
+                struct segment_command* seg = (struct segment_command*)cmd;
+                if (((intptr_t)item.pc >= (seg->vmaddr+offset)) &&
+                    ((intptr_t)item.pc < (seg->vmaddr+offset + seg->vmsize))) {
+                    item.local_pc = item.pc - offset;
+                    item.binary_filename = _dyld_get_image_name(i);
+                    return;
+                }
+            }
+            if (cmd->cmd == LC_SEGMENT_64) {
+                struct segment_command_64* seg = (struct segment_command_64*)cmd;
+                if ((item.pc >= (seg->vmaddr + offset)) &&
+                    (item.pc < (seg->vmaddr + offset + seg->vmsize))) {
+                    item.local_pc = item.pc - offset;
+                    item.binary_filename = _dyld_get_image_name(i);
+                    return;
+                }
+            }
+            cmd = (struct load_command*)((char*)cmd + cmd->cmdsize);
+        }
+    }
+    std::cout << "The stack address was not found in any shared library or the main program, the stack is probably corrupted. Aborting." << std::endl;
+    abort();
+#endif // HAVE_LFORTRAN_MACHO
+#endif // HAVE_LFORTRAN_LINK
 }
 
 
-#endif // HAVE_LFORTRAN_LINK
 
 
 /* Demangles the function name if needed (if the 'name' is coming from C, it
@@ -457,9 +507,7 @@ std::vector<StacktraceItem> get_stacktrace_addresses()
 void get_local_addresses(std::vector<StacktraceItem> &d)
 {
   for (size_t i=0; i < d.size(); i++) {
-#ifdef HAVE_LFORTRAN_LINK
     get_local_address(d[i]);
-#endif
   }
 }
 
