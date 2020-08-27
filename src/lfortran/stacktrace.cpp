@@ -359,21 +359,19 @@ void loc_abort_callback_print_stack(int /* sig_num */)
   std::cerr << "Abort: Signal SIGABRT (abort) received\n\n";
 }
 
-struct unwind_callback_data {
-  std::vector<uintptr_t> stacktrace;
-};
-
 #ifdef HAVE_LFORTRAN_UNWIND
 
 static _Unwind_Reason_Code unwind_callback(struct _Unwind_Context *context,
   void *vdata)
 {
-  unwind_callback_data *data = (unwind_callback_data *) vdata;
+  std::vector<StacktraceItem> &d = *(std::vector<StacktraceItem> *)vdata;
   uintptr_t pc;
   pc = _Unwind_GetIP(context);
   if (pc != 0) {
     pc--;
-    data->stacktrace.push_back(pc);
+    StacktraceItem i;
+    i.pc = pc;
+    d.push_back(i);
   }
   return _URC_NO_REASON;
 }
@@ -382,16 +380,10 @@ static _Unwind_Reason_Code unwind_callback(struct _Unwind_Context *context,
 
 std::vector<StacktraceItem> get_stacktrace_addresses()
 {
-  unwind_callback_data data;
-#ifdef HAVE_LFORTRAN_UNWIND
-  _Unwind_Backtrace(unwind_callback, &data);
-#endif
   std::vector<StacktraceItem> d;
-  for (auto addr : data.stacktrace) {
-    StacktraceItem i;
-    i.pc = addr;
-    d.push_back(i);
-  }
+#ifdef HAVE_LFORTRAN_UNWIND
+  _Unwind_Backtrace(unwind_callback, &d);
+#endif
   return d;
 }
 
