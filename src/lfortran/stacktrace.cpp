@@ -349,12 +349,27 @@ std::string addr2str(const StacktraceItem &i)
   // find out
   if (i.function_name == "") {
     // If we didn't find the line, at least print the address itself
-    s << "  File unknown, address: 0x" << (long long unsigned int) i.local_pc;
+    if (i.local_pc == 0) {
+        s << color(style::dim);
+        s << "  File unknown, absolute address: " << (void*) i.pc;
+        s << color(style::reset);
+    } else {
+        s << color(style::dim);
+        s << "  Binary file \"";
+        s << color(style::reset);
+        s << color(style::bold) << color(fg::magenta);
+        s << i.binary_filename;
+        s << color(fg::reset) << color(style::reset);
+        s << color(style::dim);
+        s << "\", local address: " << (void*) i.local_pc;
+        s << color(style::reset);
+    }
   } else if (i.source_filename == "") {
       // The file is unknown (and data.line == 0 in this case), so the
       // only meaningful thing to print is the function name:
-      s << color(style::dim) << "  File " + color(style::reset)
-        << color(style::dim) << "unknown" + color(style::reset)
+      s << color(style::dim) << "  Binary file " + color(style::reset)
+        << color(style::bold) << color(fg::magenta) << i.binary_filename
+        << color(fg::reset) << color(style::reset)
         << color(style::dim) << ", in " << i.function_name
         << color(style::reset);
   } else {
