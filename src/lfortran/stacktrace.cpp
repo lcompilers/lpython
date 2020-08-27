@@ -66,13 +66,6 @@ static _Unwind_Reason_Code unwind_callback(struct _Unwind_Context *context,
 
 #ifdef HAVE_LFORTRAN_LINK
 
-struct match_data {
-  uintptr_t addr;
-
-  std::string filename;
-  uintptr_t addr_in_file;
-};
-
 /* Tries to find the 'data.addr' in the current shared lib (as passed in
    'info'). If it succeeds, returns (in the 'data') the full path to the shared
    lib and the local address in the file.
@@ -80,14 +73,15 @@ struct match_data {
 int shared_lib_callback(struct dl_phdr_info *info,
   size_t /* size */, void *_data)
 {
-  struct match_data *data = (struct match_data *)_data;
+  StacktraceItem &item = *(StacktraceItem *)_data;
   for (int i=0; i < info->dlpi_phnum; i++) {
     if (info->dlpi_phdr[i].p_type == PT_LOAD) {
       ElfW(Addr) min_addr = info->dlpi_addr + info->dlpi_phdr[i].p_vaddr;
       ElfW(Addr) max_addr = min_addr + info->dlpi_phdr[i].p_memsz;
-      if ((data->addr >= min_addr) && (data->addr < max_addr)) {
-        data->filename = info->dlpi_name;
-        data->addr_in_file = data->addr - info->dlpi_addr;
+      if ((item.pc >= min_addr) && (item.pc < max_addr)) {
+        item.binary_filename = info->dlpi_name;
+        if (item.binary_filename == "") item.binary_filename = "/proc/self/exe";
+        item.local_pc = item.pc - info->dlpi_addr;
         // We found a match, return a non-zero value
         return 1;
       }
@@ -100,11 +94,9 @@ int shared_lib_callback(struct dl_phdr_info *info,
 // Fills in `local_pc` and `binary_filename` of `item`
 void get_local_address(StacktraceItem &item)
 {
-    struct match_data match;
-    match.addr = item.pc;
     // Iterate over all loaded shared libraries (see dl_iterate_phdr(3) -
     // Linux man page for more documentation)
-    if (dl_iterate_phdr(shared_lib_callback, &match) == 0) {
+    if (dl_iterate_phdr(shared_lib_callback, &item) == 0) {
       // `dl_iterate_phdr` returns the last value returned by our
       // `shared_lib_callback`. It will only be 0 if no shared library
       // (including the main program) contains the address `match.addr`. Given
@@ -113,12 +105,6 @@ void get_local_address(StacktraceItem &item)
       // abort here.
       std::cout << "The stack address was not found in any shared library or the main program, the stack is probably corrupted. Aborting." << std::endl;
       abort();
-    }
-    item.local_pc = match.addr_in_file;
-    if (match.filename.length() > 0) {
-      item.binary_filename = match.filename;
-    } else {
-      item.binary_filename = "/proc/self/exe";
     }
 }
 
