@@ -446,6 +446,10 @@ void get_symbol_info(std::string binary_filename, bfd_vma addr,
   // Deallocates the symbol table
   if (data.symbol_table != NULL) free(data.symbol_table);
   bfd_close(abfd);
+#else
+  std::cout << "BFD is not enabled. Recompile with WITH_BFD=yes." << std::endl;
+  std::cout << "Cannot open the binary file '" + binary_filename + "'" << std::endl;
+  abort();
 #endif
 
   if (data.line_found) {
