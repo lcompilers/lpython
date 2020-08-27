@@ -615,6 +615,9 @@ int main(int argc, char *argv[])
     LFortran::print_stack_on_segfault();
 #endif
     try {
+        int dirname_length;
+        get_executable_path(LFortran::binary_executable_path, dirname_length);
+
         std::string runtime_library_dir = get_runtime_library_dir();
         Backend backend;
 

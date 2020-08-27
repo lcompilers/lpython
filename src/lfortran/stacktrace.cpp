@@ -42,6 +42,7 @@
 
 namespace LFortran {
 
+std::string binary_executable_path = "/proc/self/exe";
 
 #ifdef HAVE_LFORTRAN_UNWIND
 
@@ -80,7 +81,9 @@ int shared_lib_callback(struct dl_phdr_info *info,
       ElfW(Addr) max_addr = min_addr + info->dlpi_phdr[i].p_memsz;
       if ((item.pc >= min_addr) && (item.pc < max_addr)) {
         item.binary_filename = info->dlpi_name;
-        if (item.binary_filename == "") item.binary_filename = "/proc/self/exe";
+        if (item.binary_filename == "") {
+            item.binary_filename = binary_executable_path;
+        }
         item.local_pc = item.pc - info->dlpi_addr;
         // We found a match, return a non-zero value
         return 1;

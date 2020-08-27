@@ -20,6 +20,9 @@ void show_stacktrace();
 //  Prints the current stacktrace to stdout on segfault.
 void print_stack_on_segfault();
 
+// Path to the binary executable
+extern std::string binary_executable_path;
+
 struct StacktraceItem
 {
   // Always found
