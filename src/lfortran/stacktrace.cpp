@@ -370,10 +370,10 @@ std::string addr2str(const StacktraceItem &i)
   } else if (i.source_filename == "") {
       // The file is unknown (and data.line == 0 in this case), so the
       // only meaningful thing to print is the function name:
-      s << color(style::dim) << "  Binary file " + color(style::reset)
+      s << color(style::dim) << "  Binary file \"" + color(style::reset)
         << color(style::bold) << color(fg::magenta) << i.binary_filename
         << color(fg::reset) << color(style::reset)
-        << color(style::dim) << ", in " << i.function_name
+        << color(style::dim) << "\", in " << i.function_name
         << color(style::reset);
   } else {
       // Nicely format the filename + function name + line
