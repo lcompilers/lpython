@@ -158,6 +158,8 @@ void get_local_address(StacktraceItem &item)
     }
     std::cout << "The stack address was not found in any shared library or the main program, the stack is probably corrupted. Aborting." << std::endl;
     abort();
+#else
+    item.local_pc=0;
 #endif // HAVE_LFORTRAN_MACHO
 #endif // HAVE_LFORTRAN_LINK
 }
