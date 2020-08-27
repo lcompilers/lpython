@@ -380,6 +380,21 @@ static _Unwind_Reason_Code unwind_callback(struct _Unwind_Context *context,
 
 #endif
 
+std::vector<StacktraceItem> get_stacktrace_addresses()
+{
+  unwind_callback_data data;
+#ifdef HAVE_LFORTRAN_UNWIND
+  _Unwind_Backtrace(unwind_callback, &data);
+#endif
+  std::vector<StacktraceItem> d;
+  for (auto addr : data.stacktrace) {
+    StacktraceItem i;
+    i.pc = addr;
+    d.push_back(i);
+  }
+  return d;
+}
+
 
 
 std::string get_stacktrace(int skip)
@@ -401,21 +416,6 @@ void print_stack_on_segfault()
 {
   signal(SIGSEGV, loc_segfault_callback_print_stack);
   signal(SIGABRT, loc_abort_callback_print_stack);
-}
-
-std::vector<StacktraceItem> get_stacktrace_addresses()
-{
-  unwind_callback_data data;
-#ifdef HAVE_LFORTRAN_UNWIND
-  _Unwind_Backtrace(unwind_callback, &data);
-#endif
-  std::vector<StacktraceItem> d;
-  for (auto addr : data.stacktrace) {
-    StacktraceItem i;
-    i.pc = addr;
-    d.push_back(i);
-  }
-  return d;
 }
 
 void get_local_addresses(std::vector<StacktraceItem> &d)
