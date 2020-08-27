@@ -296,6 +296,31 @@ int shared_lib_callback(struct dl_phdr_info *info,
   return 0;
 }
 
+// Fills in `local_pc` and `binary_filename` of `item`
+void get_local_address(StacktraceItem &item)
+{
+    struct match_data match;
+    match.addr = item.pc;
+    // Iterate over all loaded shared libraries (see dl_iterate_phdr(3) -
+    // Linux man page for more documentation)
+    if (dl_iterate_phdr(shared_lib_callback, &match) == 0) {
+      // `dl_iterate_phdr` returns the last value returned by our
+      // `shared_lib_callback`. It will only be 0 if no shared library
+      // (including the main program) contains the address `match.addr`. Given
+      // that the addresses are collected from a stacktrace, this should only
+      // happen if the stacktrace is somehow corrupted. In that case, we simply
+      // abort here.
+      std::cout << "The stack address was not found in any shared library or the main program, the stack is probably corrupted. Aborting." << std::endl;
+      abort();
+    }
+    item.local_pc = match.addr_in_file;
+    if (match.filename.length() > 0) {
+      item.binary_filename = match.filename;
+    } else {
+      item.binary_filename = "/proc/self/exe";
+    }
+}
+
 
 #endif // HAVE_LFORTRAN_LINK
 
@@ -393,20 +418,7 @@ void get_local_addresses(std::vector<StacktraceItem> &d)
 {
   for (size_t i=0; i < d.size(); i++) {
 #ifdef HAVE_LFORTRAN_LINK
-    struct match_data match;
-    match.addr = d[i].pc;
-    // Iterate over all loaded shared libraries (see dl_iterate_phdr(3) -
-    // Linux man page for more documentation)
-    if (dl_iterate_phdr(shared_lib_callback, &match) == 0) {
-      std::cout << "dl_iterate_phdr() didn't find a match" << std::endl;
-      abort();
-    }
-    d[i].local_pc = match.addr_in_file;
-    if (match.filename.length() > 0) {
-      d[i].binary_filename = match.filename;
-    } else {
-      d[i].binary_filename = "/proc/self/exe";
-    }
+    get_local_address(d[i]);
 #endif
   }
 }
