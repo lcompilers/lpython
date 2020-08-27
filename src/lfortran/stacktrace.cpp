@@ -44,6 +44,70 @@ typedef long long unsigned bfd_vma;
 
 namespace LFortran {
 
+
+#ifdef HAVE_LFORTRAN_LINK
+
+struct match_data {
+  bfd_vma addr;
+
+  std::string filename;
+  bfd_vma addr_in_file;
+};
+
+/* Tries to find the 'data.addr' in the current shared lib (as passed in
+   'info'). If it succeeds, returns (in the 'data') the full path to the shared
+   lib and the local address in the file.
+*/
+int shared_lib_callback(struct dl_phdr_info *info,
+  size_t /* size */, void *_data)
+{
+  struct match_data *data = (struct match_data *)_data;
+  for (int i=0; i < info->dlpi_phnum; i++) {
+    if (info->dlpi_phdr[i].p_type == PT_LOAD) {
+      ElfW(Addr) min_addr = info->dlpi_addr + info->dlpi_phdr[i].p_vaddr;
+      ElfW(Addr) max_addr = min_addr + info->dlpi_phdr[i].p_memsz;
+      if ((data->addr >= min_addr) && (data->addr < max_addr)) {
+        data->filename = info->dlpi_name;
+        data->addr_in_file = data->addr - info->dlpi_addr;
+        // We found a match, return a non-zero value
+        return 1;
+      }
+    }
+  }
+  // We didn't find a match, return a zero value
+  return 0;
+}
+
+// Fills in `local_pc` and `binary_filename` of `item`
+void get_local_address(StacktraceItem &item)
+{
+    struct match_data match;
+    match.addr = item.pc;
+    // Iterate over all loaded shared libraries (see dl_iterate_phdr(3) -
+    // Linux man page for more documentation)
+    if (dl_iterate_phdr(shared_lib_callback, &match) == 0) {
+      // `dl_iterate_phdr` returns the last value returned by our
+      // `shared_lib_callback`. It will only be 0 if no shared library
+      // (including the main program) contains the address `match.addr`. Given
+      // that the addresses are collected from a stacktrace, this should only
+      // happen if the stacktrace is somehow corrupted. In that case, we simply
+      // abort here.
+      std::cout << "The stack address was not found in any shared library or the main program, the stack is probably corrupted. Aborting." << std::endl;
+      abort();
+    }
+    item.local_pc = match.addr_in_file;
+    if (match.filename.length() > 0) {
+      item.binary_filename = match.filename;
+    } else {
+      item.binary_filename = "/proc/self/exe";
+    }
+}
+
+
+#endif // HAVE_LFORTRAN_LINK
+
+
+
 /* This struct is used to pass information into process_section().
 */
 struct line_data {
@@ -261,68 +325,8 @@ std::string addr2str(const LFortran::StacktraceItem &i)
   return s.str();
 }
 
-struct match_data {
-  bfd_vma addr;
-
-  std::string filename;
-  bfd_vma addr_in_file;
-};
 
 
-#ifdef HAVE_LFORTRAN_LINK
-
-
-/* Tries to find the 'data.addr' in the current shared lib (as passed in
-   'info'). If it succeeds, returns (in the 'data') the full path to the shared
-   lib and the local address in the file.
-*/
-int shared_lib_callback(struct dl_phdr_info *info,
-  size_t /* size */, void *_data)
-{
-  struct match_data *data = (struct match_data *)_data;
-  for (int i=0; i < info->dlpi_phnum; i++) {
-    if (info->dlpi_phdr[i].p_type == PT_LOAD) {
-      ElfW(Addr) min_addr = info->dlpi_addr + info->dlpi_phdr[i].p_vaddr;
-      ElfW(Addr) max_addr = min_addr + info->dlpi_phdr[i].p_memsz;
-      if ((data->addr >= min_addr) && (data->addr < max_addr)) {
-        data->filename = info->dlpi_name;
-        data->addr_in_file = data->addr - info->dlpi_addr;
-        // We found a match, return a non-zero value
-        return 1;
-      }
-    }
-  }
-  // We didn't find a match, return a zero value
-  return 0;
-}
-
-// Fills in `local_pc` and `binary_filename` of `item`
-void get_local_address(StacktraceItem &item)
-{
-    struct match_data match;
-    match.addr = item.pc;
-    // Iterate over all loaded shared libraries (see dl_iterate_phdr(3) -
-    // Linux man page for more documentation)
-    if (dl_iterate_phdr(shared_lib_callback, &match) == 0) {
-      // `dl_iterate_phdr` returns the last value returned by our
-      // `shared_lib_callback`. It will only be 0 if no shared library
-      // (including the main program) contains the address `match.addr`. Given
-      // that the addresses are collected from a stacktrace, this should only
-      // happen if the stacktrace is somehow corrupted. In that case, we simply
-      // abort here.
-      std::cout << "The stack address was not found in any shared library or the main program, the stack is probably corrupted. Aborting." << std::endl;
-      abort();
-    }
-    item.local_pc = match.addr_in_file;
-    if (match.filename.length() > 0) {
-      item.binary_filename = match.filename;
-    } else {
-      item.binary_filename = "/proc/self/exe";
-    }
-}
-
-
-#endif // HAVE_LFORTRAN_LINK
 
 /*
   Returns a std::string with the stacktrace corresponding to the
