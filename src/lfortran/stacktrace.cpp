@@ -45,13 +45,34 @@ typedef long long unsigned bfd_vma;
 namespace LFortran {
 
 
+#ifdef HAVE_LFORTRAN_UNWIND
+
+static _Unwind_Reason_Code unwind_callback(struct _Unwind_Context *context,
+  void *vdata)
+{
+  std::vector<StacktraceItem> &d = *(std::vector<StacktraceItem> *)vdata;
+  uintptr_t pc;
+  pc = _Unwind_GetIP(context);
+  if (pc != 0) {
+    pc--;
+    StacktraceItem i;
+    i.pc = pc;
+    d.push_back(i);
+  }
+  return _URC_NO_REASON;
+}
+
+#endif // HAVE_LFORTRAN_UNWIND
+
+
+
 #ifdef HAVE_LFORTRAN_LINK
 
 struct match_data {
-  bfd_vma addr;
+  uintptr_t addr;
 
   std::string filename;
-  bfd_vma addr_in_file;
+  uintptr_t addr_in_file;
 };
 
 /* Tries to find the 'data.addr' in the current shared lib (as passed in
@@ -293,7 +314,7 @@ int load_symbol_table(bfd *abfd, line_data *data)
    File "/home/ondrej/repos/rcp/src/Teuchos_RCP.hpp", line 428, in Teuchos::RCP<A>::assert_not_null() const
    throw_null_ptr_error(typeName(*this));
 */
-std::string addr2str(const LFortran::StacktraceItem &i)
+std::string addr2str(const StacktraceItem &i)
 {
   std::ostringstream s;
   // Do the printing --- print as much information as we were able to
@@ -332,7 +353,7 @@ std::string addr2str(const LFortran::StacktraceItem &i)
   Returns a std::string with the stacktrace corresponding to the
   list of addresses (of functions on the stack) in 'buffer'.
 */
-std::string stacktrace2str(const std::vector<LFortran::StacktraceItem> &d, int skip)
+std::string stacktrace2str(const std::vector<StacktraceItem> &d, int skip)
 {
   std::string full_stacktrace_str("Traceback (most recent call last):\n");
 
@@ -347,7 +368,7 @@ std::string stacktrace2str(const std::vector<LFortran::StacktraceItem> &d, int s
 
 void loc_segfault_callback_print_stack(int /* sig_num */)
 {
-  std::cerr << LFortran::get_stacktrace(3);
+  std::cerr << get_stacktrace(3);
   std::cerr << "Segfault: Signal SIGSEGV (segmentation fault) received\n";
   exit(1);
 }
@@ -355,39 +376,15 @@ void loc_segfault_callback_print_stack(int /* sig_num */)
 
 void loc_abort_callback_print_stack(int /* sig_num */)
 {
-  std::cerr << LFortran::get_stacktrace(3);
+  std::cerr << get_stacktrace(3);
   std::cerr << "Abort: Signal SIGABRT (abort) received\n\n";
 }
 
-#ifdef HAVE_LFORTRAN_UNWIND
-
-static _Unwind_Reason_Code unwind_callback(struct _Unwind_Context *context,
-  void *vdata)
+void print_stack_on_segfault()
 {
-  std::vector<StacktraceItem> &d = *(std::vector<StacktraceItem> *)vdata;
-  uintptr_t pc;
-  pc = _Unwind_GetIP(context);
-  if (pc != 0) {
-    pc--;
-    StacktraceItem i;
-    i.pc = pc;
-    d.push_back(i);
-  }
-  return _URC_NO_REASON;
+  signal(SIGSEGV, loc_segfault_callback_print_stack);
+  signal(SIGABRT, loc_abort_callback_print_stack);
 }
-
-#endif
-
-std::vector<StacktraceItem> get_stacktrace_addresses()
-{
-  std::vector<StacktraceItem> d;
-#ifdef HAVE_LFORTRAN_UNWIND
-  _Unwind_Backtrace(unwind_callback, &d);
-#endif
-  return d;
-}
-
-
 
 std::string get_stacktrace(int skip)
 {
@@ -404,10 +401,13 @@ void show_stacktrace()
 }
 
 
-void print_stack_on_segfault()
+std::vector<StacktraceItem> get_stacktrace_addresses()
 {
-  signal(SIGSEGV, loc_segfault_callback_print_stack);
-  signal(SIGABRT, loc_abort_callback_print_stack);
+  std::vector<StacktraceItem> d;
+#ifdef HAVE_LFORTRAN_UNWIND
+  _Unwind_Backtrace(unwind_callback, &d);
+#endif
+  return d;
 }
 
 void get_local_addresses(std::vector<StacktraceItem> &d)
