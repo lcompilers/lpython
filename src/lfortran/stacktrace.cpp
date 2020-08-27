@@ -312,8 +312,17 @@ void get_symbol_info(std::string binary_filename, uintptr_t addr,
     abort();
   }
   if (bfd_check_format(abfd, bfd_archive)) {
+#ifdef __APPLE__
+    // On macOS this happens for a dynamic library such as
+    // /usr/lib/system/libsystem_c.dylib
+    // We simply exit, which will skip gathering symbol information for this
+    // file.
+    return;
+#else
+    // On Linux this should work for any file, so we generate an error
     std::cout << "Cannot get addresses from the archive '" + binary_filename + "'\n";
     abort();
+#endif
   }
   char **matching;
   if (!bfd_check_format_matches(abfd, bfd_object, &matching)) {
