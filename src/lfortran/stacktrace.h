@@ -2,6 +2,7 @@
 #define LFORTRAN_STACKTRACE_H
 
 #include <string>
+#include <vector>
 
 namespace LFortran {
 
@@ -18,6 +19,37 @@ void show_stacktrace();
 
 //  Prints the current stacktrace to stdout on segfault.
 void print_stack_on_segfault();
+
+struct StacktraceItem
+{
+  // Always found
+  uintptr_t pc;
+
+  // The following two are either both found, or not found
+  uintptr_t local_pc=0; // 0 if not found
+  std::string binary_filename; // "" if not found
+
+  // Sometimes this is found, but the next two are not
+  std::string function_name; // "" if not found
+
+  // The following two are either both found, or not found
+  std::string source_filename; // "" if not found
+  int line_number=-1; // -1 if not found
+};
+
+// Returns the stacktrace, fills in the `pc` member
+std::vector<StacktraceItem> get_stacktrace_addresses();
+
+// Fills in the `local_pc` and `binary_filename` members
+void get_local_addresses(std::vector<StacktraceItem> &d);
+
+// Fills in the `function_name` if available, and if so, also fills in
+// `source_filename` and `line_number` if available
+void get_local_info(std::vector<StacktraceItem> &d);
+
+// Converts the information stored in `d` into a string
+std::string stacktrace2str(const std::vector<LFortran::StacktraceItem> &d,
+    int skip);
 
 } // namespace LFortran
 

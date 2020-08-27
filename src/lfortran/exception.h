@@ -32,6 +32,8 @@ typedef enum {
 namespace LFortran
 {
 
+const int stacktrace_depth = 4;
+
 class LFortranException : public std::exception
 {
     std::string m_msg;
@@ -39,13 +41,7 @@ class LFortranException : public std::exception
     std::string m_stacktrace;
 
 public:
-    LFortranException(const std::string &msg, lfortran_exceptions_t error,
-#if defined(HAVE_LFORTRAN_STACKTRACE)
-        int stacktrace_depth
-#else
-        int /* stacktrace_depth */
-#endif
-        )
+    LFortranException(const std::string &msg, lfortran_exceptions_t error)
         : m_msg{msg}, ec{error}
     {
 #if defined(HAVE_LFORTRAN_STACKTRACE)
@@ -57,7 +53,7 @@ public:
 #endif
     }
     LFortranException(const std::string &msg)
-        : LFortranException(msg, LFORTRAN_EXCEPTION, 2)
+        : LFortranException(msg, LFORTRAN_EXCEPTION)
     {
     }
     const char *what() const throw()
@@ -104,7 +100,7 @@ public:
 public:
     TokenizerError(const std::string &msg, const Location &loc,
             const std::string &token)
-        : LFortranException(msg, LFORTRAN_TOKENIZER_ERROR, 2), loc{loc},
+        : LFortranException(msg, LFORTRAN_TOKENIZER_ERROR), loc{loc},
             token{token}
     {
     }
@@ -117,7 +113,7 @@ public:
     int token;
 public:
     ParserError(const std::string &msg, const Location &loc, const int token)
-        : LFortranException(msg, LFORTRAN_PARSER_ERROR, 2), loc{loc}, token{token}
+        : LFortranException(msg, LFORTRAN_PARSER_ERROR), loc{loc}, token{token}
     {
     }
 };
@@ -128,7 +124,7 @@ public:
     Location loc;
 public:
     SemanticError(const std::string &msg, const Location &loc)
-        : LFortranException(msg, LFORTRAN_SEMANTIC_ERROR, 2), loc{loc}
+        : LFortranException(msg, LFORTRAN_SEMANTIC_ERROR), loc{loc}
     {
     }
 };
@@ -137,7 +133,7 @@ class CodeGenError : public LFortranException
 {
 public:
     CodeGenError(const std::string &msg)
-        : LFortranException(msg, LFORTRAN_CODEGEN_ERROR, 2)
+        : LFortranException(msg, LFORTRAN_CODEGEN_ERROR)
     {
     }
 };
@@ -146,7 +142,7 @@ class AssertFailed : public LFortranException
 {
 public:
     AssertFailed(const std::string &msg)
-        : LFortranException(msg, LFORTRAN_ASSERT_FAILED, 2)
+        : LFortranException(msg, LFORTRAN_ASSERT_FAILED)
     {
     }
 };

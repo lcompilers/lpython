@@ -138,8 +138,6 @@ if (MSVC)
 endif()
 
 # Stacktrace
-set(WITH_EXECINFO no
-    CACHE BOOL "Build with execinfo support (requires glibc)")
 set(WITH_UNWIND no
     CACHE BOOL "Build with unwind support")
 set(WITH_BFD no
@@ -149,9 +147,7 @@ set(WITH_LINKH no
 set(WITH_STACKTRACE no
     CACHE BOOL "Build with stacktrace support (requires binutils-dev)")
 if (WITH_STACKTRACE)
-    if (NOT (WITH_EXECINFO OR WITH_UNWIND))
-        set(WITH_UNWIND yes)
-    endif ()
+    set(WITH_UNWIND yes)
     set(WITH_BFD yes)
     set(WITH_LINKH yes)
     set(HAVE_LFORTRAN_STACKTRACE yes)
@@ -163,10 +159,6 @@ endif()
 if (WITH_LINKH)
     find_package(LINKH REQUIRED)
     set(HAVE_LFORTRAN_LINK yes)
-endif()
-if (WITH_EXECINFO)
-    find_package(EXECINFO REQUIRED)
-    set(HAVE_LFORTRAN_EXECINFO yes)
 endif()
 if (WITH_UNWIND)
     set(HAVE_LFORTRAN_UNWIND yes)
@@ -194,7 +186,6 @@ message("WITH_LFORTRAN_ASSERT: ${WITH_LFORTRAN_ASSERT}")
 message("LFORTRAN_STATIC_BIN: ${LFORTRAN_STATIC_BIN}")
 message("WITH_STACKTRACE: ${WITH_STACKTRACE}")
 message("WITH_UNWIND: ${WITH_UNWIND}")
-message("WITH_EXECINFO: ${WITH_EXECINFO}")
 message("WITH_BFD: ${WITH_BFD}")
 message("WITH_LINKH: ${WITH_LINKH}")
 message("HAVE_LFORTRAN_DEMANGLE: ${HAVE_LFORTRAN_DEMANGLE}")

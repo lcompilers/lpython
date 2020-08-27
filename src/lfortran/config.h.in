@@ -14,7 +14,6 @@
 #cmakedefine HAVE_LFORTRAN_STACKTRACE
 #cmakedefine HAVE_LFORTRAN_BFD
 #cmakedefine HAVE_LFORTRAN_LINK
-#cmakedefine HAVE_LFORTRAN_EXECINFO
 #cmakedefine HAVE_LFORTRAN_UNWIND
 
 /* Define if cxxabi.h is present */
