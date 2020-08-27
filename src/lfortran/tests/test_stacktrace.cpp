@@ -22,9 +22,18 @@ int h()
     return 42;
 }
 
+int compare (const void * a, const void * b)
+{
+    h();
+    return ( *(int*)a - *(int*)b );
+}
+
 int g()
 {
-    return h();
+    std::vector<int> values = {50, 40};
+
+    qsort(&values[0], values.size(), sizeof(int), compare);
+    return values[0];
 }
 
 int f()
