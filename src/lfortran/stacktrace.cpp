@@ -41,6 +41,13 @@
 // For bfd_* family of functions for loading debugging symbols from the binary
 // This is the only nonstandard header file and the binary needs to be linked
 // with "-lbfd".
+// Note: on macOS, one must call `dsymutil` on any binary in order for BFD to
+// be able to find line number information. Example:
+//
+//     $ dsymutil ./test_stacktrace
+//
+// The bfd.h header file sometimes requires the PACKAGE define to be defined:
+#  define PACKAGE 1
 #  include <bfd.h>
 #endif
 
@@ -225,17 +232,17 @@ void process_section(bfd *abfd, asection *section, void *_data)
     // If we already found the line, exit
     return;
   }
-  if ((bfd_get_section_flags(abfd, section) & SEC_ALLOC) == 0) {
+  if ((section->flags & SEC_ALLOC) == 0) {
     return;
   }
 
-  bfd_vma section_vma = bfd_get_section_vma(abfd, section);
+  bfd_vma section_vma = section->vma;
   if (data->addr < section_vma) {
     // If the addr lies above the section, exit
     return;
   }
 
-  bfd_size_type section_size = bfd_section_size(abfd, section);
+  bfd_size_type section_size = section->size * 8;
   if (data->addr >= section_vma + section_size) {
     // If the addr lies below the section, exit
     return;
@@ -305,8 +312,17 @@ void get_symbol_info(std::string binary_filename, uintptr_t addr,
     abort();
   }
   if (bfd_check_format(abfd, bfd_archive)) {
+#ifdef __APPLE__
+    // On macOS this happens for a dynamic library such as
+    // /usr/lib/system/libsystem_c.dylib
+    // We simply exit, which will skip gathering symbol information for this
+    // file.
+    return;
+#else
+    // On Linux this should work for any file, so we generate an error
     std::cout << "Cannot get addresses from the archive '" + binary_filename + "'\n";
     abort();
+#endif
   }
   char **matching;
   if (!bfd_check_format_matches(abfd, bfd_object, &matching)) {
