@@ -389,11 +389,9 @@ std::string addr2str(const StacktraceItem &i)
 }
 
 
-
-
 /*
   Returns a std::string with the stacktrace corresponding to the
-  list of addresses (of functions on the stack) in 'buffer'.
+  list of addresses (of functions on the stack) in `d`.
 */
 std::string stacktrace2str(const std::vector<StacktraceItem> &d, int skip)
 {
