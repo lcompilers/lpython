@@ -38,8 +38,6 @@
 // This is the only nonstandard header file and the binary needs to be linked
 // with "-lbfd".
 #  include <bfd.h>
-#else
-typedef long long unsigned bfd_vma;
 #endif
 
 namespace LFortran {
@@ -128,68 +126,6 @@ void get_local_address(StacktraceItem &item)
 #endif // HAVE_LFORTRAN_LINK
 
 
-
-/* This struct is used to pass information into process_section().
-*/
-struct line_data {
-#ifdef HAVE_LFORTRAN_BFD
-  asymbol **symbol_table;     /* Symbol table.  */
-#endif
-  bfd_vma addr;
-  std::string filename;
-  std::string function_name;
-  unsigned int line;
-  int line_found;
-};
-
-
-/* Return if given char is whitespace or not. */
-bool is_whitespace_char(const char c)
-{
-  return c == ' ' || c == '\t';
-}
-
-
-/* Removes the leading whitespace from a string and returns the new
- * string.
- */
-std::string remove_leading_whitespace(const std::string &str)
-{
-  if (str.length() && is_whitespace_char(str[0])) {
-    int first_nonwhitespace_index = 0;
-    for (int i = 0; i < static_cast<int>(str.length()); ++i) {
-      if (!is_whitespace_char(str[i])) {
-        first_nonwhitespace_index = i;
-        break;
-      }
-    }
-    return str.substr(first_nonwhitespace_index);
-  }
-  return str;
-}
-
-
-/* Reads the 'line_number'th line from the file filename. */
-std::string read_line_from_file(std::string filename, unsigned int line_number)
-{
-  std::ifstream in(filename.c_str());
-  if (!in.is_open()) {
-    return "";
-  }
-  if (line_number == 0) {
-    return "Line number must be positive";
-  }
-  unsigned int n = 0;
-  std::string line;
-  while (n < line_number) {
-    if (in.eof())
-      return "Line not found";
-    getline(in, line);
-    n += 1; // loop update
-  }
-  return line;
-}
-
 /* Demangles the function name if needed (if the 'name' is coming from C, it
    doesn't have to be demangled, if it's coming from C++, it needs to be).
 
@@ -221,6 +157,17 @@ std::string demangle_function_name(std::string name)
 
 
 #ifdef HAVE_LFORTRAN_BFD
+
+/* This struct is used to pass information into process_section().
+*/
+struct line_data {
+  asymbol **symbol_table;     /* Symbol table.  */
+  uintptr_t addr;
+  std::string filename;
+  std::string function_name;
+  unsigned int line;
+  int line_found;
+};
 
 
 /* Look for an address in a section.  This is called via
@@ -302,8 +249,103 @@ int load_symbol_table(bfd *abfd, line_data *data)
   return 0;
 }
 
+void get_symbol_info(std::string binary_filename, uintptr_t addr,
+  std::string &source_filename, std::string &function_name,
+  int &line_number)
+{
+  line_data data;
+  data.addr = addr;
+  data.line_found = 0;
+  // Initialize 'abfd' and do some sanity checks
+  bfd *abfd;
+  abfd = bfd_openr(binary_filename.c_str(), NULL);
+  if (abfd == NULL) {
+    std::cout << "Cannot open the binary file '" + binary_filename + "'\n";
+    abort();
+  }
+  if (bfd_check_format(abfd, bfd_archive)) {
+    std::cout << "Cannot get addresses from the archive '" + binary_filename + "'\n";
+    abort();
+  }
+  char **matching;
+  if (!bfd_check_format_matches(abfd, bfd_object, &matching)) {
+    std::cout << "Unknown format of the binary file '" + binary_filename + "'\n";
+    abort();
+  }
+  data.symbol_table = NULL;
+  // This allocates the symbol_table:
+  if (load_symbol_table(abfd, &data) == 1) {
+    std::cout << "Failed to load the symbol table from '" + binary_filename + "'\n";
+    abort();
+  }
+  // Loops over all sections and try to find the line
+  bfd_map_over_sections(abfd, process_section, &data);
+  // Deallocates the symbol table
+  if (data.symbol_table != NULL) free(data.symbol_table);
+  bfd_close(abfd);
+
+  if (data.line_found) {
+    std::string name = demangle_function_name(data.function_name);
+    function_name = name;
+    if (data.filename.length() > 0) {
+      source_filename = data.filename;
+      line_number = data.line;
+    }
+  }
+}
 
 #endif // HAVE_LFORTRAN_BFD
+
+
+
+/* Return if given char is whitespace or not. */
+bool is_whitespace_char(const char c)
+{
+  return c == ' ' || c == '\t';
+}
+
+
+/* Removes the leading whitespace from a string and returns the new
+ * string.
+ */
+std::string remove_leading_whitespace(const std::string &str)
+{
+  if (str.length() && is_whitespace_char(str[0])) {
+    int first_nonwhitespace_index = 0;
+    for (int i = 0; i < static_cast<int>(str.length()); ++i) {
+      if (!is_whitespace_char(str[i])) {
+        first_nonwhitespace_index = i;
+        break;
+      }
+    }
+    return str.substr(first_nonwhitespace_index);
+  }
+  return str;
+}
+
+
+/* Reads the 'line_number'th line from the file filename. */
+std::string read_line_from_file(std::string filename, unsigned int line_number)
+{
+  std::ifstream in(filename.c_str());
+  if (!in.is_open()) {
+    return "";
+  }
+  if (line_number == 0) {
+    return "Line number must be positive";
+  }
+  unsigned int n = 0;
+  std::string line;
+  while (n < line_number) {
+    if (in.eof())
+      return "Line not found";
+    getline(in, line);
+    n += 1; // loop update
+  }
+  return line;
+}
+
+
 
 
 /* Returns a string of 2 lines for the function with address 'addr' in the file
@@ -419,56 +461,6 @@ void get_local_addresses(std::vector<StacktraceItem> &d)
   }
 }
 
-void get_symbol_info(std::string binary_filename, bfd_vma addr,
-  std::string &source_filename, std::string &function_name,
-  int &line_number)
-{
-  line_data data;
-  data.addr = addr;
-  data.line_found = 0;
-#ifdef HAVE_LFORTRAN_BFD
-  // Initialize 'abfd' and do some sanity checks
-  bfd *abfd;
-  abfd = bfd_openr(binary_filename.c_str(), NULL);
-  if (abfd == NULL) {
-    std::cout << "Cannot open the binary file '" + binary_filename + "'\n";
-    abort();
-  }
-  if (bfd_check_format(abfd, bfd_archive)) {
-    std::cout << "Cannot get addresses from the archive '" + binary_filename + "'\n";
-    abort();
-  }
-  char **matching;
-  if (!bfd_check_format_matches(abfd, bfd_object, &matching)) {
-    std::cout << "Unknown format of the binary file '" + binary_filename + "'\n";
-    abort();
-  }
-  data.symbol_table = NULL;
-  // This allocates the symbol_table:
-  if (load_symbol_table(abfd, &data) == 1) {
-    std::cout << "Failed to load the symbol table from '" + binary_filename + "'\n";
-    abort();
-  }
-  // Loops over all sections and try to find the line
-  bfd_map_over_sections(abfd, process_section, &data);
-  // Deallocates the symbol table
-  if (data.symbol_table != NULL) free(data.symbol_table);
-  bfd_close(abfd);
-#else
-  std::cout << "BFD is not enabled. Recompile with WITH_BFD=yes." << std::endl;
-  std::cout << "Cannot open the binary file '" + binary_filename + "'" << std::endl;
-  abort();
-#endif
-
-  if (data.line_found) {
-    std::string name = demangle_function_name(data.function_name);
-    function_name = name;
-    if (data.filename.length() > 0) {
-      source_filename = data.filename;
-      line_number = data.line;
-    }
-  }
-}
 
 void get_local_info(std::vector<StacktraceItem> &d)
 {
@@ -476,8 +468,10 @@ void get_local_info(std::vector<StacktraceItem> &d)
   bfd_init();
 #endif
   for (size_t i=0; i < d.size(); i++) {
+#ifdef HAVE_LFORTRAN_BFD
     get_symbol_info(d[i].binary_filename, d[i].local_pc,
       d[i].source_filename, d[i].function_name, d[i].line_number);
+#endif
   }
 }
 
