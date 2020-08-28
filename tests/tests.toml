@@ -201,6 +201,10 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "../integration_tests/subroutines_03.f90"
+ast = true
+
+[[test]]
 filename = "scopes1.f90"
 asr = true
 
