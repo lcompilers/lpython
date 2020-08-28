@@ -5,7 +5,7 @@
 %locations
 %glr-parser
 %expect    128 // shift/reduce conflicts
-%expect-rr 15  // reduce/reduce conflicts
+%expect-rr 42  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -395,12 +395,12 @@ module_decl
 
 private_decl
     : KW_PRIVATE id_list_opt sep { $$ = PRIVATE($2, @$); }
-    | KW_PRIVATE "::" id_list_opt sep { $$ = PRIVATE($3, @$); }
+    | KW_PRIVATE "::" id_list sep { $$ = PRIVATE($3, @$); }
     ;
 
 public_decl
     : KW_PUBLIC id_list_opt sep { $$ = PUBLIC($2, @$); }
-    | KW_PUBLIC "::" id_list_opt sep { $$ = PUBLIC($3, @$); }
+    | KW_PUBLIC "::" id_list sep { $$ = PUBLIC($3, @$); }
     ;
 
 interface_decl
@@ -608,6 +608,8 @@ var_decl_star
 var_decl
     : var_type var_modifiers var_sym_decl_list sep {
             $$ = VAR_DECL($1, $2, $3, @$); }
+    | var_modifier sep {
+            $$ = VAR_DECL3($1, @$); }
     | var_modifier var_sym_decl_list sep {
             $$ = VAR_DECL2($1, $2, @$); }
     | var_modifier "::" var_sym_decl_list sep {

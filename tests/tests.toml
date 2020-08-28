@@ -341,6 +341,10 @@ filename = "../integration_tests/types_09.f90"
 ast = true
 
 [[test]]
+filename = "../integration_tests/types_10.f90"
+ast = true
+
+[[test]]
 filename = "boz1.f90"
 tokens = true
 
