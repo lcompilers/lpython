@@ -669,7 +669,6 @@ int main(int argc, char *argv[])
 
         if (arg_version) {
             std::string version = LFORTRAN_VERSION;
-            if (version == "0.1.1") version = "git";
             std::cout << "LFortran version: " << version << std::endl;
             return 0;
         }
