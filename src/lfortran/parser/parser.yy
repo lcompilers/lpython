@@ -665,6 +665,9 @@ array_comp_decl
     | ":" expr       { $$ = ARRAY_COMP_DECL4($2, @$); }
     | ":"            { $$ = ARRAY_COMP_DECL5(@$); }
     | expr ":" expr ":" expr { $$ = ARRAY_COMP_DECL2($1, $3, @$); } // TODO
+    | expr "::" expr { $$ = ARRAY_COMP_DECL3($1, @$); } // TODO
+    | ":" expr ":" expr { $$ = ARRAY_COMP_DECL4($2, @$); } // TODO
+    | "::" expr { $$ = ARRAY_COMP_DECL5(@$); } // TODO
     ;
 
 
