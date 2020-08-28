@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    119 // shift/reduce conflicts
+%expect    123 // shift/reduce conflicts
 %expect-rr 15  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -656,6 +656,7 @@ var_modifier
     | KW_PROTECTED { $$ = VARMOD($1, @$); }
     | KW_SAVE { $$ = VARMOD($1, @$); }
     | KW_CONTIGUOUS { $$ = VARMOD($1, @$); }
+    | KW_NOPASS { $$ = VARMOD($1, @$); }
     | KW_INTENT "(" KW_IN ")" { $$ = VARMOD2($1, $3, @$); }
     | KW_INTENT "(" KW_OUT ")" { $$ = VARMOD2($1, $3, @$); }
     | KW_INTENT "(" KW_INOUT ")" { $$ = VARMOD2($1, $3, @$); }
