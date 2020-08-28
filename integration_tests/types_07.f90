@@ -17,4 +17,14 @@ contains
     character(*), intent(in) :: s2
     end subroutine
 
+    subroutine h(s, s2)
+    character(len=80), intent(in) :: s
+    character(80), intent(in) :: s2
+    end subroutine
+
+    subroutine m(s, s2)
+    character(len=40+40), intent(in) :: s
+    character(100-20), intent(in) :: s2
+    end subroutine
+
 end program
