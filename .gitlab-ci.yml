@@ -33,6 +33,7 @@ mirror:
   allow_failure: true
   only:
     - master
+    - tags
 
 # Azure
 azure:
