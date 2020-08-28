@@ -11,5 +11,7 @@ print *, x(:5)
 print *, x(3:5:2)
 print *, x(:5:2)
 print *, x(3::2)
+print *, x(3: :2)
 print *, x(::2)
+print *, x(: :2)
 end program
