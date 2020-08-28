@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    123 // shift/reduce conflicts
+%expect    128 // shift/reduce conflicts
 %expect-rr 15  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -670,6 +670,7 @@ var_type
     | KW_COMPLEX kind_selector
     | KW_LOGICAL kind_selector
     | KW_TYPE "(" id ")"
+    | KW_PROCEDURE "(" id ")"
     | KW_CLASS "(" id ")"
     ;
 
