@@ -757,18 +757,24 @@ print_statement
     | KW_PRINT TK_STRING "," expr_list { $$ = PRINTF($2, $4, @$); }
     ;
 
+write_arg_list
+    : write_arg_list "," write_arg2
+    | write_arg2
+    ;
+
+write_arg2
+    : write_arg
+    | id "=" write_arg
+    ;
+
+write_arg
+    : expr
+    | "*"
+    ;
+
 write_statement
-    : KW_WRITE "(" "*" "," "*" ")" expr_list { $$ = PRINT($7, @$); }
-    | KW_WRITE "(" "*" "," "*" ")" { $$ = PRINT0(@$); }
-    | KW_WRITE "(" "*" "," TK_STRING ")" expr_list { $$ = PRINTF($5, $7, @$); }
-    | KW_WRITE "(" "*" "," TK_STRING ")" { $$ = PRINTF0($5, @$); }
-    | KW_WRITE "(" expr "," "*" ")" expr_list { $$ = WRITE($3, $7, @$); }
-    | KW_WRITE "(" expr "," "*" ")" { $$ = WRITE0($3, @$); }
-    | KW_WRITE "(" expr "," TK_STRING ")" expr_list {
-            $$ = WRITEF($3, $5, $7, @$); }
-    | KW_WRITE "(" expr "," TK_STRING ")" { $$ = WRITEF0($3, $5, @$); }
-    | KW_WRITE "(" expr ")" expr_list { $$ = WRITEE($3, $5, @$); }
-    | KW_WRITE "(" expr ")" { $$ = WRITEE0($3, @$); }
+    : KW_WRITE "(" write_arg_list ")" expr_list { $$ = PRINT($5, @$); }
+    | KW_WRITE "(" write_arg_list ")" { $$ = PRINT0(@$); }
     ;
 
 // sr-conflict (2x): KW_ENDIF can be an "id" or end of "if_statement"
