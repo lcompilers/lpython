@@ -593,13 +593,24 @@ var_decl
             $$ = VAR_DECL2($1, $3, @$); }
     ;
 
+kind_arg_list
+    : kind_arg_list "," kind_arg2
+    | kind_arg2
+    ;
+
+kind_arg2
+    : kind_arg
+    | id "=" kind_arg
+    ;
+
+kind_arg
+    : expr
+    | "*"
+    | ":"
+    ;
+
 kind_selector
-    : "(" id "=" "*" ")"
-    | "(" id "=" ":" ")"
-    | "(" id "=" id ")"
-    | "(" "*" ")"
-    | "(" ":" ")"
-    | "(" id ")"
+    : "(" kind_arg_list ")"
     | %empty
     ;
 
