@@ -261,8 +261,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> id_list_opt
 %type <ast> script_unit
 %type <ast> module
-%type <ast> module_decl
-%type <vec_ast> module_decl_star
 %type <ast> prog_decl
 %type <vec_ast> prog_decl_star
 %type <ast> interface_decl
@@ -375,18 +373,8 @@ script_unit
 
 module
     : KW_MODULE id sep use_statement_star implicit_statement_opt
-        module_decl_star contains_block_opt KW_END KW_MODULE id_opt sep {
+        prog_decl_star contains_block_opt KW_END KW_MODULE id_opt sep {
             $$ = MODULE($2, $6, $7, @$); }
-    ;
-
-module_decl_star
-    : module_decl_star module_decl { $$ = $1; LIST_ADD($$, $2); }
-    | %empty { LIST_NEW($$); }
-
-module_decl
-    : var_decl
-    | interface_decl
-    | derived_type_decl
     ;
 
 interface_decl
