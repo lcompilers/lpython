@@ -119,6 +119,8 @@ if (NOT LFORTRAN_BACKEND)
     RUN(modules_04)
     RUN(modules_05)
 
+    RUN(if_04)
+
     RUN(subroutines_03)
 
     RUN(interface_01)
