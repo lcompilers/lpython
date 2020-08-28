@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    145 // shift/reduce conflicts
-%expect-rr 51  // reduce/reduce conflicts
+%expect    157 // shift/reduce conflicts
+%expect-rr 54  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -267,6 +267,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> decl_star
 %type <ast> interface_decl
 %type <ast> derived_type_decl
+%type <ast> enum_decl
 %type <ast> program
 %type <ast> subroutine
 %type <ast> sub_or_func
@@ -288,6 +289,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <string> var_type
 %type <string> fn_type
 %type <vec_ast> var_modifiers
+%type <vec_ast> enum_var_modifiers
 %type <vec_ast> var_modifier_list
 %type <ast> var_modifier
 %type <ast> statement
@@ -397,6 +399,16 @@ proc_list
 proc
     : KW_MODULE KW_PROCEDURE id_list sep
 
+enum_decl
+    : KW_ENUM enum_var_modifiers sep var_decl_star KW_END KW_ENUM sep {
+        $$ = PRIVATE0(@$); } // TODO: add enum AST node
+    ;
+
+enum_var_modifiers
+    : %empty { LIST_NEW($$); }
+    | var_modifier_list { $$ = $1; }
+    ;
+
 derived_type_decl
     : KW_TYPE var_modifiers id sep var_decl_star derived_type_contains_opt KW_END KW_TYPE id_opt sep {
         $$ = DERIVED_TYPE($3, @$); }
@@ -485,6 +497,7 @@ decl
     : var_decl
     | interface_decl
     | derived_type_decl
+    | enum_decl
     ;
 
 contains_block_opt
@@ -634,10 +647,12 @@ var_modifier
     | KW_NOPASS { $$ = VARMOD($1, @$); }
     | KW_PRIVATE { $$ = VARMOD($1, @$); }
     | KW_PUBLIC { $$ = VARMOD($1, @$); }
+    | KW_ENUMERATOR { $$ = VARMOD($1, @$); }
     | KW_INTENT "(" KW_IN ")" { $$ = VARMOD2($1, $3, @$); }
     | KW_INTENT "(" KW_OUT ")" { $$ = VARMOD2($1, $3, @$); }
     | KW_INTENT "(" KW_INOUT ")" { $$ = VARMOD2($1, $3, @$); }
     | KW_EXTENDS "(" id ")" { $$ = VARMOD($1, @$); }
+    | KW_BIND "(" id ")" { $$ = VARMOD($1, @$); }
     ;
 
 
