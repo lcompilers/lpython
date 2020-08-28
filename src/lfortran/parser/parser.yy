@@ -261,8 +261,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> id_list_opt
 %type <ast> script_unit
 %type <ast> module
-%type <ast> prog_decl
-%type <vec_ast> prog_decl_star
+%type <ast> decl
+%type <vec_ast> decl_star
 %type <ast> interface_decl
 %type <ast> derived_type_decl
 %type <ast> program
@@ -373,7 +373,7 @@ script_unit
 
 module
     : KW_MODULE id sep use_statement_star implicit_statement_opt
-        prog_decl_star contains_block_opt KW_END KW_MODULE id_opt sep {
+        decl_star contains_block_opt KW_END KW_MODULE id_opt sep {
             $$ = MODULE($2, $6, $7, @$); }
     ;
 
@@ -432,7 +432,7 @@ proc_modifier
 
 
 program
-    : KW_PROGRAM id sep use_statement_star implicit_statement_opt prog_decl_star statements
+    : KW_PROGRAM id sep use_statement_star implicit_statement_opt decl_star statements
         contains_block_opt KW_END end_program_opt sep {
             LLOC(@$, @10); $$ = PROGRAM($2, $6, $7, $8, @$); }
     ;
@@ -443,7 +443,7 @@ end_program_opt
     ;
 
 subroutine
-    : KW_SUBROUTINE id sub_args sep use_statement_star implicit_statement_opt prog_decl_star statements
+    : KW_SUBROUTINE id sub_args sep use_statement_star implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END KW_SUBROUTINE id_opt sep {
             LLOC(@$, @11); $$ = SUBROUTINE($2, $3, $7, $8, @$); }
@@ -451,17 +451,17 @@ subroutine
 
 function
     : fn_type pure_opt recursive_opt KW_FUNCTION id "(" id_list_opt ")"
-        result_opt sep use_statement_star implicit_statement_opt prog_decl_star statements
+        result_opt sep use_statement_star implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END KW_FUNCTION id_opt sep {
             LLOC(@$, @17); $$ = FUNCTION($1, $5, $7, $9, $13, $14, @$); }
     ;
 
-prog_decl_star
-    : prog_decl_star prog_decl { $$ = $1; LIST_ADD($$, $2); }
+decl_star
+    : decl_star decl { $$ = $1; LIST_ADD($$, $2); }
     | %empty { LIST_NEW($$); }
 
-prog_decl
+decl
     : var_decl
     | interface_decl
     | derived_type_decl
