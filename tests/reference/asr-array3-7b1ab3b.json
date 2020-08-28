@@ -1,0 +1,13 @@
+{
+    "basename": "asr-array3-7b1ab3b",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/array3.f90",
+    "infile_hash": "047ac01d7e3df52429d6889258f37213048937dae8611af6cbd9ecae",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-array3-7b1ab3b.stdout",
+    "stdout_hash": "03aef66d60620020493944b8f82d849de21b9ab0a7a3612db6ac2ca1",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
