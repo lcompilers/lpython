@@ -131,6 +131,7 @@ if (NOT LFORTRAN_BACKEND)
 
     RUN(derived_types_01)
     RUN(derived_types_02)
+    RUN(derived_types_03)
 
     RUN(program_01)
 
