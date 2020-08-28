@@ -825,6 +825,8 @@ where_block
             $$ = WHERE2($3, $6, $9, @$); }
     | KW_WHERE "(" expr ")" sep statements KW_ELSE KW_WHERE sep statements {
             $$ = WHERE2($3, $6, $10, @$); }
+    | KW_WHERE "(" expr ")" sep statements KW_ELSEWHERE sep statements {
+            $$ = WHERE2($3, $6, $9, @$); }
     | KW_WHERE "(" expr ")" sep statements KW_ELSE where_block {
             $$ = WHERE3($3, $6, $8, @$); }
     ;
