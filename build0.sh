@@ -3,6 +3,9 @@
 set -e
 set -x
 
+# Generate the `version` file
+ci/version.sh
+
 # Generate a Fortran AST from AST.asdl (C++)
 python grammar/asdl_cpp.py
 # Generate a Fortran ASR from ASR.asdl (C++)
