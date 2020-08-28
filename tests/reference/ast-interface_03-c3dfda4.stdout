@@ -1,1 +1,1 @@
-(TranslationUnit [(Program interface_03 [] [(Interface2 () []) (Interface2 () [])] [] [(Subroutine X [] [] [(Interface2 () [])] [] [])])])
+(TranslationUnit [(Program interface_03 [] [(Interface2 () []) (Interface2 () []) (Declaration [(sub "procedure" [] [] ())])] [] [(Subroutine X [] [] [(Interface2 () [])] [] [])])])
