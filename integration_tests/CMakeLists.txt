@@ -120,6 +120,7 @@ if (NOT LFORTRAN_BACKEND)
     RUN(modules_05)
 
     RUN(if_04)
+    RUN(case_01)
 
     RUN(where_01)
 
