@@ -845,7 +845,7 @@ case_statements
     ;
 
 case_statement
-    : KW_CASE "(" expr ")" sep statements { $$ = CASE_STMT($3, $6, @$); }
+    : KW_CASE "(" expr_list ")" sep statements { $$ = CASE_STMT($3, $6, @$); }
     ;
 
 select_default_statement_opt

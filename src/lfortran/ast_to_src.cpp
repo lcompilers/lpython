@@ -944,17 +944,14 @@ public:
     }
     void visit_CaseStmt(const CaseStmt_t &x) {
         s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("casestmt");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
+        s.append("CaseStmt");
         s.append(" ");
-        this->visit_expr(*x.m_test);
+        s.append("[");
+        for (size_t i=0; i<x.n_test; i++) {
+            this->visit_expr(*x.m_test[i]);
+            if (i < x.n_test-1) s.append(" ");
+        }
+        s.append("]");
         s.append(" ");
         s.append("[");
         for (size_t i=0; i<x.n_body; i++) {
