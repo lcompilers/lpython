@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    111 // shift/reduce conflicts
+%expect    116 // shift/reduce conflicts
 %expect-rr 15  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -263,6 +263,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> module
 %type <ast> module_decl
 %type <vec_ast> module_decl_star
+%type <ast> prog_decl
+%type <vec_ast> prog_decl_star
 %type <ast> private_decl
 %type <ast> public_decl
 %type <ast> interface_decl
@@ -474,7 +476,7 @@ proc_modifier
 
 
 program
-    : KW_PROGRAM id sep use_statement_star implicit_statement_opt var_decl_star statements
+    : KW_PROGRAM id sep use_statement_star implicit_statement_opt prog_decl_star statements
         contains_block_opt KW_END end_program_opt sep {
             LLOC(@$, @10); $$ = PROGRAM($2, $6, $7, $8, @$); }
     ;
@@ -485,15 +487,28 @@ end_program_opt
     ;
 
 subroutine
-    : KW_SUBROUTINE id sub_args sep use_statement_star implicit_statement_opt var_decl_star statements
+    : KW_SUBROUTINE id sub_args sep use_statement_star implicit_statement_opt prog_decl_star statements
+        contains_block_opt
         KW_END KW_SUBROUTINE id_opt sep {
             LLOC(@$, @11); $$ = SUBROUTINE($2, $3, $7, $8, @$); }
     ;
 
 function
     : fn_type pure_opt recursive_opt KW_FUNCTION id "(" id_list_opt ")"
-        result_opt sep use_statement_star implicit_statement_opt var_decl_star statements KW_END KW_FUNCTION id_opt sep {
+        result_opt sep use_statement_star implicit_statement_opt prog_decl_star statements
+        contains_block_opt
+        KW_END KW_FUNCTION id_opt sep {
             LLOC(@$, @17); $$ = FUNCTION($1, $5, $7, $9, $13, $14, @$); }
+    ;
+
+prog_decl_star
+    : prog_decl_star prog_decl { $$ = $1; LIST_ADD($$, $2); }
+    | %empty { LIST_NEW($$); }
+
+prog_decl
+    : var_decl
+    | interface_decl
+    | derived_type_decl
     ;
 
 contains_block_opt

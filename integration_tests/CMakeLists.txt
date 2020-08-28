@@ -121,6 +121,7 @@ if (NOT LFORTRAN_BACKEND)
 
     RUN(interface_01)
     RUN(interface_02)
+    RUN(interface_03)
 
     RUN(types_07)
     RUN(types_08)
@@ -130,6 +131,7 @@ if (NOT LFORTRAN_BACKEND)
 
     RUN(derived_types_01)
     RUN(derived_types_02)
+    RUN(derived_types_03)
 
     RUN(program_01)
 

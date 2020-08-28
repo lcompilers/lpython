@@ -349,6 +349,10 @@ filename = "../integration_tests/derived_types_02.f90"
 ast = true
 
 [[test]]
+filename = "../integration_tests/derived_types_03.f90"
+ast = true
+
+[[test]]
 filename = "fn2.f90"
 asr = true
 cpp = true
@@ -402,4 +406,8 @@ ast = true
 
 [[test]]
 filename = "../integration_tests/interface_02.f90"
+ast = true
+
+[[test]]
+filename = "../integration_tests/interface_03.f90"
 ast = true
