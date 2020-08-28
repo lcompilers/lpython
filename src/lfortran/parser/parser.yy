@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    128 // shift/reduce conflicts
-%expect-rr 42  // reduce/reduce conflicts
+%expect    141 // shift/reduce conflicts
+%expect-rr 48  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -261,12 +261,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> id_list_opt
 %type <ast> script_unit
 %type <ast> module
-%type <ast> module_decl
-%type <vec_ast> module_decl_star
-%type <ast> prog_decl
-%type <vec_ast> prog_decl_star
-%type <ast> private_decl
-%type <ast> public_decl
+%type <ast> decl
+%type <vec_ast> decl_star
 %type <ast> interface_decl
 %type <ast> derived_type_decl
 %type <ast> program
@@ -377,30 +373,8 @@ script_unit
 
 module
     : KW_MODULE id sep use_statement_star implicit_statement_opt
-        module_decl_star contains_block_opt KW_END KW_MODULE id_opt sep {
+        decl_star contains_block_opt KW_END KW_MODULE id_opt sep {
             $$ = MODULE($2, $6, $7, @$); }
-    ;
-
-module_decl_star
-    : module_decl_star module_decl { $$ = $1; LIST_ADD($$, $2); }
-    | %empty { LIST_NEW($$); }
-
-module_decl
-    : private_decl
-    | public_decl
-    | var_decl
-    | interface_decl
-    | derived_type_decl
-    ;
-
-private_decl
-    : KW_PRIVATE id_list_opt sep { $$ = PRIVATE($2, @$); }
-    | KW_PRIVATE "::" id_list sep { $$ = PRIVATE($3, @$); }
-    ;
-
-public_decl
-    : KW_PUBLIC id_list_opt sep { $$ = PUBLIC($2, @$); }
-    | KW_PUBLIC "::" id_list sep { $$ = PUBLIC($3, @$); }
     ;
 
 interface_decl
@@ -419,29 +393,8 @@ proc
     : KW_MODULE KW_PROCEDURE id_list sep
 
 derived_type_decl
-    : KW_TYPE derived_type_modifiers id sep derived_type_private_opt var_decl_star derived_type_contains_opt KW_END KW_TYPE id_opt sep {
+    : KW_TYPE var_modifiers id sep var_decl_star derived_type_contains_opt KW_END KW_TYPE id_opt sep {
         $$ = DERIVED_TYPE($3, @$); }
-    ;
-
-derived_type_private_opt
-    : KW_PRIVATE sep
-    | %empty
-    ;
-
-derived_type_modifiers
-    : %empty
-    | "::"
-    | derived_type_modifier_list "::"
-    ;
-
-derived_type_modifier_list
-    : derived_type_modifier_list "," derived_type_modifier
-    | "," derived_type_modifier
-    ;
-
-derived_type_modifier
-    : KW_PUBLIC
-    | KW_EXTENDS "(" id ")"
     ;
 
 derived_type_contains_opt
@@ -479,7 +432,7 @@ proc_modifier
 
 
 program
-    : KW_PROGRAM id sep use_statement_star implicit_statement_opt prog_decl_star statements
+    : KW_PROGRAM id sep use_statement_star implicit_statement_opt decl_star statements
         contains_block_opt KW_END end_program_opt sep {
             LLOC(@$, @10); $$ = PROGRAM($2, $6, $7, $8, @$); }
     ;
@@ -490,7 +443,7 @@ end_program_opt
     ;
 
 subroutine
-    : KW_SUBROUTINE id sub_args sep use_statement_star implicit_statement_opt prog_decl_star statements
+    : KW_SUBROUTINE id sub_args sep use_statement_star implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END KW_SUBROUTINE id_opt sep {
             LLOC(@$, @11); $$ = SUBROUTINE($2, $3, $7, $8, @$); }
@@ -498,17 +451,17 @@ subroutine
 
 function
     : fn_type pure_opt recursive_opt KW_FUNCTION id "(" id_list_opt ")"
-        result_opt sep use_statement_star implicit_statement_opt prog_decl_star statements
+        result_opt sep use_statement_star implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END KW_FUNCTION id_opt sep {
             LLOC(@$, @17); $$ = FUNCTION($1, $5, $7, $9, $13, $14, @$); }
     ;
 
-prog_decl_star
-    : prog_decl_star prog_decl { $$ = $1; LIST_ADD($$, $2); }
+decl_star
+    : decl_star decl { $$ = $1; LIST_ADD($$, $2); }
     | %empty { LIST_NEW($$); }
 
-prog_decl
+decl
     : var_decl
     | interface_decl
     | derived_type_decl
@@ -659,9 +612,12 @@ var_modifier
     | KW_SAVE { $$ = VARMOD($1, @$); }
     | KW_CONTIGUOUS { $$ = VARMOD($1, @$); }
     | KW_NOPASS { $$ = VARMOD($1, @$); }
+    | KW_PRIVATE { $$ = VARMOD($1, @$); }
+    | KW_PUBLIC { $$ = VARMOD($1, @$); }
     | KW_INTENT "(" KW_IN ")" { $$ = VARMOD2($1, $3, @$); }
     | KW_INTENT "(" KW_OUT ")" { $$ = VARMOD2($1, $3, @$); }
     | KW_INTENT "(" KW_INOUT ")" { $$ = VARMOD2($1, $3, @$); }
+    | KW_EXTENDS "(" id ")" { $$ = VARMOD($1, @$); }
     ;
 
 
