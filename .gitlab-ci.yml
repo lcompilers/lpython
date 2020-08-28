@@ -46,8 +46,8 @@ cxx:
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
     - conda install -c conda-forge rapidjson
-    - tar xzf dist/lfortran-${lfortran_version}.tar.gz
-    - cd lfortran-${lfortran_version}
+    - tar xzf dist/lfortran-*.tar.gz
+    - cd lfortran-*
     - CXXFLAGS="-Werror" cmake
          -DCMAKE_PREFIX_PATH=$HOME/conda_root
          -DCMAKE_INSTALL_PREFIX=`pwd`
@@ -63,8 +63,8 @@ cxx_binary:
   stage: build
   image: registry.gitlab.com/lfortran/ci-images:cxxbinary-1.8.0
   script:
-    - tar xzf dist/lfortran-${lfortran_version}.tar.gz
-    - cd lfortran-${lfortran_version}
+    - tar xzf dist/lfortran-*.tar.gz
+    - cd lfortran-*
     - cmake
          -DCMAKE_BUILD_TYPE=Release
          -DCMAKE_CXX_FLAGS_RELEASE="-Wall -Wextra -O3 -march=nehalem -funroll-loops -DNDEBUG"
@@ -89,8 +89,8 @@ cxx_binary_tests:
     - conda install -c conda-forge toml lld=9.0.1 llvmdev=9.0.1
     - sudo apt-get update
     - sudo apt-get install -yq --no-install-recommends libtinfo-dev zlib1g-dev binutils-dev
-    - tar xzf dist/lfortran-${lfortran_version}.tar.gz
-    - cd lfortran-${lfortran_version}
+    - tar xzf dist/lfortran-*.tar.gz
+    - cd lfortran-*
     - cmake
          -DCMAKE_BUILD_TYPE=Debug
          -DWITH_LLVM=yes
@@ -141,8 +141,8 @@ jupyter_kernel:
   script:
     - export CONDA_PREFIX="$HOME/conda_root"
     - export PATH="$HOME/conda_root/bin:$PATH"
-    - tar xzf dist/lfortran-${lfortran_version}.tar.gz
-    - cd lfortran-${lfortran_version}
+    - tar xzf dist/lfortran-*.tar.gz
+    - cd lfortran-*
     - cmake
          -DCMAKE_BUILD_TYPE=Debug
          -DWITH_LLVM=yes
@@ -160,8 +160,8 @@ cxx_binary_min:
   stage: build
   image: registry.gitlab.com/lfortran/ci-images:cxxbinary-1.8.0
   script:
-    - tar xzf dist/lfortran-${lfortran_version}.tar.gz
-    - cd lfortran-${lfortran_version}
+    - tar xzf dist/lfortran-*.tar.gz
+    - cd lfortran-*
     - CXXFLAGS="-Werror" cmake
          -DCMAKE_BUILD_TYPE=Debug
          .
@@ -176,8 +176,8 @@ cxx_binary_min_tests:
     - export CONDA_PREFIX="$HOME/conda_root"
     - export PATH="$HOME/conda_root/bin:$PATH"
     - conda install -c conda-forge toml
-    - tar xzf dist/lfortran-${lfortran_version}.tar.gz
-    - cd lfortran-${lfortran_version}
+    - tar xzf dist/lfortran-*.tar.gz
+    - cd lfortran-*
     - CXXFLAGS="-Werror" cmake
          -DCMAKE_BUILD_TYPE=Debug
          .
@@ -213,11 +213,11 @@ build.xsh:
 #    - sudo apt-get install -yq --no-install-recommends openssh-client
 #    - export PATH="$HOME/conda_root/bin:$PATH"
 #    - pip install nbconvert mkdocs
-#    - tar xzf dist/lfortran-${lfortran_version}.tar.gz
-#    - cd lfortran-${lfortran_version}
+#    - tar xzf dist/lfortran-*.tar.gz
+#    - cd lfortran-*
 #    - pip install --no-index -v .
 #    - cd ..
-#    - rm -r lfortran lfortran-${lfortran_version}
+#    - rm -r lfortran lfortran-*
 #    - cd doc
 #    - python convert_nb.py
 #    - mkdocs build -s
@@ -243,12 +243,12 @@ minimal:
   image: registry.gitlab.com/lfortran/ci-images:minimal-1.7.0
   script:
     - export PATH="$HOME/conda_root/bin:$PATH"
-    - tar xzf dist/lfortran-${lfortran_version}.tar.gz
-    - cd lfortran-${lfortran_version}
+    - tar xzf dist/lfortran-*.tar.gz
+    - cd lfortran-*
     - export CFLAGS="-I/usr/include/x86_64-linux-musl/"
     #- pip install --no-index -v .
     #- cd ..
-    #- rm -r lfortran lfortran-${lfortran_version}
+    #- rm -r lfortran lfortran-*
     #- rm lfort
     - sudo apt-get remove -yq gcc g++ libc6-dev
     - sudo apt-get autoremove -yq
