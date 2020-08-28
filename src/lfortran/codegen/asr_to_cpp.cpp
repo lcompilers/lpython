@@ -175,6 +175,16 @@ public:
 R"(#include <iostream>
 #include <Kokkos_Core.hpp>
 
+template <typename T>
+Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
+{
+    Kokkos::View<T*> r("r", v.size());
+    for (size_t i=0; i < v.size(); i++) {
+        r(i) = v[i];
+    }
+    return r;
+}
+
 )";
 
         src = headers + contains + "int main(int argc, char* argv[])\n{\n"
@@ -554,6 +564,16 @@ R"(#include <iostream>
         last_unary_plus = false;
     }
 
+    void visit_ArrayInitializer(const ASR::ArrayInitializer_t &x) {
+        std::string out = "from_std_vector<float>({";
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_expr(*x.m_args[i]);
+            out += src;
+            if (i < x.n_args-1) out += ", ";
+        }
+        out += "})";
+        src = out;
+    }
 
     void visit_Print(const ASR::Print_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
