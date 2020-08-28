@@ -123,6 +123,8 @@ if (NOT LFORTRAN_BACKEND)
 
     RUN(where_01)
 
+    RUN(forallloop_01)
+
     RUN(subroutines_03)
 
     RUN(interface_01)
