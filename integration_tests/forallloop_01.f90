@@ -19,9 +19,7 @@ contains
     real, intent(out) :: c(:)
     integer :: N, i
     N = size(a)
-    forall (i = 1:N)
-        c(i) = a(i) + scalar * b(i)
-    end forall
+    forall (i = 1:N) c(i) = a(i) + scalar * b(i)
     end subroutine
 
 end program
