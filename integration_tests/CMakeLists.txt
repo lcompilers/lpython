@@ -110,6 +110,7 @@ if (NOT LFORTRAN_BACKEND)
     # GFortran
     RUN(arrays_02)
     RUN(arrays_06)
+    RUN(arrays_07)
 
     RUN(intrinsics_01)
 
