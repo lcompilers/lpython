@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    142 // shift/reduce conflicts
+%expect    145 // shift/reduce conflicts
 %expect-rr 48  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -303,6 +303,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> write_statement
 %type <ast> if_statement
 %type <ast> if_block
+%type <ast> elseif_block
 %type <ast> where_statement
 %type <ast> where_block
 %type <ast> select_statement
@@ -797,6 +798,19 @@ if_block
             $$ = IF2($3, $7, $10, @$); }
     | KW_IF "(" expr ")" KW_THEN sep statements KW_ELSE if_block {
             $$ = IF3($3, $7, $9, @$); }
+    | KW_IF "(" expr ")" KW_THEN sep statements elseif_block {
+            $$ = IF3($3, $7, $8, @$); }
+    ;
+
+elseif_block
+    : KW_ELSEIF "(" expr ")" KW_THEN sep statements {
+            $$ = IF1($3, $7, @$); }
+    | KW_ELSEIF "(" expr ")" KW_THEN sep statements KW_ELSE sep statements {
+            $$ = IF2($3, $7, $10, @$); }
+    | KW_ELSEIF "(" expr ")" KW_THEN sep statements KW_ELSE if_block {
+            $$ = IF3($3, $7, $9, @$); }
+    | KW_ELSEIF "(" expr ")" KW_THEN sep statements elseif_block {
+            $$ = IF3($3, $7, $8, @$); }
     ;
 
 where_statement
