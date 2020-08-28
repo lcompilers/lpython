@@ -36,4 +36,4 @@ git checkout $CI_COMMIT_SHA
 git checkout -b ${bname}
 git show-ref
 git remote -v
-git push git@ssh.dev.azure.com:v3/lfortran/lfortran/lfortran +${bname}:${bname}
+git push git@ssh.dev.azure.com:v3/lfortran/lfortran/lfortran +${bname}:${bname} --tags

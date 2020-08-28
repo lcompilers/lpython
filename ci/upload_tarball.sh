@@ -46,10 +46,17 @@ git commit -m "${COMMIT_MESSAGE}"
 git show HEAD -p --stat
 dest_commit=$(git show HEAD -s --format=%H)
 
-if [[ ${CI_COMMIT_REF_NAME} != "master" && $CI_COMMIT_TAG == "" ]]; then
-    # We only execute the rest of master
-    echo "Not a master branch, not tagged, skipping..."
-    exit 0
+if [[ ${CI_COMMIT_REF_NAME} == "master" ]]; then
+    echo "The pipeline was triggered from the master branch"
+else
+    if [[ $CI_COMMIT_TAG != "" && ${CI_COMMIT_TAG:0:1} == "v" ]]; then
+        echo "The pipeline was triggered from a tag 'v*'"
+    else
+        # We are either on a non-master branch, or tagged with a tag that does
+        # not start with v*. We skip the upload.
+        echo "Not a master branch, not tagged with v*, skipping..."
+        exit 0
+    fi
 fi
 
 
