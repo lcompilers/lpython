@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    137 // shift/reduce conflicts
+%expect    141 // shift/reduce conflicts
 %expect-rr 48  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -405,29 +405,8 @@ proc
     : KW_MODULE KW_PROCEDURE id_list sep
 
 derived_type_decl
-    : KW_TYPE derived_type_modifiers id sep derived_type_private_opt var_decl_star derived_type_contains_opt KW_END KW_TYPE id_opt sep {
+    : KW_TYPE var_modifiers id sep var_decl_star derived_type_contains_opt KW_END KW_TYPE id_opt sep {
         $$ = DERIVED_TYPE($3, @$); }
-    ;
-
-derived_type_private_opt
-    : KW_PRIVATE sep
-    | %empty
-    ;
-
-derived_type_modifiers
-    : %empty
-    | "::"
-    | derived_type_modifier_list "::"
-    ;
-
-derived_type_modifier_list
-    : derived_type_modifier_list "," derived_type_modifier
-    | "," derived_type_modifier
-    ;
-
-derived_type_modifier
-    : KW_PUBLIC
-    | KW_EXTENDS "(" id ")"
     ;
 
 derived_type_contains_opt
@@ -650,6 +629,7 @@ var_modifier
     | KW_INTENT "(" KW_IN ")" { $$ = VARMOD2($1, $3, @$); }
     | KW_INTENT "(" KW_OUT ")" { $$ = VARMOD2($1, $3, @$); }
     | KW_INTENT "(" KW_INOUT ")" { $$ = VARMOD2($1, $3, @$); }
+    | KW_EXTENDS "(" id ")" { $$ = VARMOD($1, @$); }
     ;
 
 
