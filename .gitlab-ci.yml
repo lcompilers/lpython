@@ -240,6 +240,7 @@ downloads_update:
     - curl -X POST -F token=${DOWNLOAD_UPDATE_TOKEN} -F ref=master https://gitlab.com/api/v4/projects/11905898/trigger/pipeline
   only:
     - master
+    - tags
 
 # Test minimal dependencies needed to get things to run. No gcc or clang
 # compilers, just the linker `ld` and the musl C library.
