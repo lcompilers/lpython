@@ -401,6 +401,8 @@ public_decl
 interface_decl
     : KW_INTERFACE id sep proc_list KW_END KW_INTERFACE id_opt sep {
             $$ = INTERFACE($2, @$); }
+    | KW_INTERFACE sep sub_or_func_plus KW_END KW_INTERFACE sep {
+            $$ = INTERFACE2($3, @$); }
     ;
 
 proc_list
