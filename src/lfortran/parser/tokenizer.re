@@ -233,8 +233,8 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             // Single character symbols
             "(" { RET(TK_LPAREN) }
             ")" { RET(TK_RPAREN) }
-            "[" { RET(TK_LBRACKET) }
-            "]" { RET(TK_RBRACKET) }
+            "[" | "(/" { RET(TK_LBRACKET) }
+            "]" | "/)" { RET(TK_RBRACKET) }
             "+" { RET(TK_PLUS) }
             "-" { RET(TK_MINUS) }
             "=" { RET(TK_EQUAL) }
