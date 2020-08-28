@@ -1,0 +1,8 @@
+program open1
+! Tests for syntax (AST) only:
+open(file='p_cc', newunit=u)
+open (task_lun,file=taskfile)
+open (unit=gmv_lun, FILE=fname, IOSTAT=ier, POSITION='rewind')
+open(newunit=this%lun,file=outfile,status='replace',iostat=ios)
+open(unit=10,file='test1.inp',position='rewind',action='read',status='old')
+end program
