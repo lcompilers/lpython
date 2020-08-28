@@ -5,6 +5,11 @@ stages:
 prepare tarball:
   stage: tarball
   image: registry.gitlab.com/lfortran/ci-images:prepare-1.7.0
+  variables:
+    # Both of these variables are needed, so that `git describe` can see the
+    # recent tags
+    GIT_FETCH_EXTRA_FLAGS: --tags --prune --prune-tags
+    GIT_DEPTH: 0 # fetch all commits and tags
   script:
     - ./build0.sh
     - lfortran_version=$(<version)
