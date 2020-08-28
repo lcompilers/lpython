@@ -403,3 +403,7 @@ ast = true
 [[test]]
 filename = "../integration_tests/interface_02.f90"
 ast = true
+
+[[test]]
+filename = "../integration_tests/interface_03.f90"
+ast = true

@@ -121,6 +121,7 @@ if (NOT LFORTRAN_BACKEND)
 
     RUN(interface_01)
     RUN(interface_02)
+    RUN(interface_03)
 
     RUN(types_07)
     RUN(types_08)
