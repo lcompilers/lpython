@@ -139,6 +139,7 @@ if (NOT LFORTRAN_BACKEND)
     RUN(types_08)
     RUN(types_09)
     RUN(types_10)
+    RUN(types_11)
 
     RUN(doloop_04)
 
