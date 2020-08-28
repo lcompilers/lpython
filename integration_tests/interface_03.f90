@@ -17,6 +17,8 @@ interface
     end subroutine
 end interface
 
+procedure(a1) :: sub
+
 contains
 
     subroutine X()
