@@ -102,6 +102,7 @@ if (NOT LFORTRAN_BACKEND STREQUAL "llvm")
     RUN(arrays_01)
     RUN(arrays_03)
     RUN(arrays_04)
+    RUN(arrays_05)
 
 endif()
 
