@@ -1,0 +1,1 @@
+(TranslationUnit [(Print () [(Str "a") 2]) (Print () [a]) (Print () [index]) (Print () [(Str "Scalar_in = ") scalar_in]) (Print () [int_src int_given int_expected]) (Print () [max_angle]) (Print () [n n]) (Print () [(FuncCallOrArray trim [prog] [])]) (Print () [(Str "Assertion failed at ") line]) (Print () [(Str "exactly_conservative= ") exactly_conservative]) (Print () [vec])])
