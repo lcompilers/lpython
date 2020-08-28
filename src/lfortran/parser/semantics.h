@@ -528,7 +528,7 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         STMTS(def), def.size())
 
 #define CASE_STMT(cond, body, l) make_CaseStmt_t(p.m_a, l, \
-        EXPR(cond), STMTS(body), body.size())
+        EXPRS(cond), cond.size(), STMTS(body), body.size())
 
 #define USE1(mod, l) make_Use_t(p.m_a, l, \
         name2char(mod), \
