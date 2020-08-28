@@ -2,15 +2,12 @@ stages:
   - tarball
   - build
 
-before_script:
-  - ci/version.sh
-  - lfortran_version=$(<version)
-
 prepare tarball:
   stage: tarball
   image: registry.gitlab.com/lfortran/ci-images:prepare-1.7.0
   script:
     - ./build0.sh
+    - lfortran_version=$(<version)
     - sudo apk add --no-cache cmake
     - ci/create_source_tarball.sh $lfortran_version
     - ci/upload_tarball.sh
