@@ -48,6 +48,8 @@ std::string pickle(int token, const LFortran::YYSTYPE &yystype,
         t += " " + yystype.string.str();
     } else if (token == yytokentype::TK_INTEGER) {
         t += " " + std::to_string(yystype.n);
+    } else if (token == yytokentype::TK_BOZ_CONSTANT) {
+        t += " " + yystype.string.str();
     }
     t += ")";
     return t;

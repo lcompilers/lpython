@@ -103,6 +103,7 @@ std::string token2text(const int token)
         T(TK_DEF_OP, "defined operator")
         T(TK_INTEGER, "integer")
         T(TK_REAL, "real")
+        T(TK_BOZ_CONSTANT, "BOZ constant")
 
         T(TK_PLUS, "+")
         T(TK_MINUS, "-")
