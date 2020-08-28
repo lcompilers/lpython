@@ -122,6 +122,8 @@ if (NOT LFORTRAN_BACKEND)
     RUN(if_04)
     RUN(case_01)
 
+    RUN(program_02)
+
     RUN(where_01)
 
     RUN(forallloop_01)
