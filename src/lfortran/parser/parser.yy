@@ -395,12 +395,12 @@ module_decl
 
 private_decl
     : KW_PRIVATE id_list_opt sep { $$ = PRIVATE($2, @$); }
-    | KW_PRIVATE "::" id_list_opt sep { $$ = PRIVATE($3, @$); }
+    | KW_PRIVATE "::" id_list sep { $$ = PRIVATE($3, @$); }
     ;
 
 public_decl
     : KW_PUBLIC id_list_opt sep { $$ = PUBLIC($2, @$); }
-    | KW_PUBLIC "::" id_list_opt sep { $$ = PUBLIC($3, @$); }
+    | KW_PUBLIC "::" id_list sep { $$ = PUBLIC($3, @$); }
     ;
 
 interface_decl
