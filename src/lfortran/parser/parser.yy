@@ -377,7 +377,7 @@ script_unit
 
 module
     : KW_MODULE id sep use_statement_star implicit_statement_opt
-        decl_star contains_block_opt KW_END KW_MODULE id_opt sep {
+        decl_star contains_block_opt KW_END end_module_opt sep {
             $$ = MODULE($2, $6, $7, @$); }
     ;
 
@@ -446,10 +446,25 @@ end_program_opt
     | %empty
     ;
 
+end_module_opt
+    : KW_MODULE id_opt
+    | %empty
+    ;
+
+end_subroutine_opt
+    : KW_SUBROUTINE id_opt
+    | %empty
+    ;
+
+end_function_opt
+    : KW_FUNCTION id_opt
+    | %empty
+    ;
+
 subroutine
     : KW_SUBROUTINE id sub_args sep use_statement_star implicit_statement_opt decl_star statements
         contains_block_opt
-        KW_END KW_SUBROUTINE id_opt sep {
+        KW_END end_subroutine_opt sep {
             LLOC(@$, @11); $$ = SUBROUTINE($2, $3, $7, $8, @$); }
     ;
 
@@ -457,7 +472,7 @@ function
     : fn_type pure_opt recursive_opt KW_FUNCTION id "(" id_list_opt ")"
         result_opt sep use_statement_star implicit_statement_opt decl_star statements
         contains_block_opt
-        KW_END KW_FUNCTION id_opt sep {
+        KW_END end_function_opt sep {
             LLOC(@$, @17); $$ = FUNCTION($1, $5, $7, $9, $13, $14, @$); }
     ;
 
