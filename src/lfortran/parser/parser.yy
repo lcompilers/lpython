@@ -975,6 +975,7 @@ expr
     | ".false." { $$ = FALSE(@$); }
     | "(" expr ")" { $$ = $2; }
     | "(" expr "," expr ")" { $$ = $2; } // TODO: return a complex here
+    | "(" expr "," id "=" expr "," expr ")" { $$ = $2; } // TODO: return a generator expression
 
 // ### level-1
 
