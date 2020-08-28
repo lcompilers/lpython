@@ -103,6 +103,7 @@ std::string token2text(const int token)
         T(TK_DEF_OP, "defined operator")
         T(TK_INTEGER, "integer")
         T(TK_REAL, "real")
+        T(TK_BOZ_CONSTANT, "BOZ constant")
 
         T(TK_PLUS, "+")
         T(TK_MINUS, "-")
@@ -280,7 +281,7 @@ std::string token2text(const int token)
         T(KW_WRITE, "write")
         default : {
             std::cout << "TOKEN: " << token << std::endl;
-            throw std::runtime_error("Token conversion not implemented yet.");
+            throw LFortranException("Token conversion not implemented yet.");
         }
     }
 }

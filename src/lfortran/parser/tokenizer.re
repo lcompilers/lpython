@@ -306,6 +306,13 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
                 }
             }
 
+            [bB] '"' [01]+ '"' { token(yylval.string); RET(TK_BOZ_CONSTANT) }
+            [bB] "'" [01]+ "'" { token(yylval.string); RET(TK_BOZ_CONSTANT) }
+            [oO] '"' [0-7]+ '"' { token(yylval.string); RET(TK_BOZ_CONSTANT) }
+            [oO] "'" [0-7]+ "'" { token(yylval.string); RET(TK_BOZ_CONSTANT) }
+            [zZ] '"' [0-9a-f]+ '"' { token(yylval.string); RET(TK_BOZ_CONSTANT) }
+            [zZ] "'" [0-9a-f]+ "'" { token(yylval.string); RET(TK_BOZ_CONSTANT) }
+
             "&" [^\n\x00]* "\n" { line_num++; cur_line=cur; continue; }
             "!" [^\n\x00]* / "\n" { token(yylval.string); RET(TK_COMMENT) }
 
