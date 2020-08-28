@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    128 // shift/reduce conflicts
-%expect-rr 42  // reduce/reduce conflicts
+%expect    137 // shift/reduce conflicts
+%expect-rr 48  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -265,8 +265,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> module_decl_star
 %type <ast> prog_decl
 %type <vec_ast> prog_decl_star
-%type <ast> private_decl
-%type <ast> public_decl
 %type <ast> interface_decl
 %type <ast> derived_type_decl
 %type <ast> program
@@ -386,21 +384,9 @@ module_decl_star
     | %empty { LIST_NEW($$); }
 
 module_decl
-    : private_decl
-    | public_decl
-    | var_decl
+    : var_decl
     | interface_decl
     | derived_type_decl
-    ;
-
-private_decl
-    : KW_PRIVATE id_list_opt sep { $$ = PRIVATE($2, @$); }
-    | KW_PRIVATE "::" id_list sep { $$ = PRIVATE($3, @$); }
-    ;
-
-public_decl
-    : KW_PUBLIC id_list_opt sep { $$ = PUBLIC($2, @$); }
-    | KW_PUBLIC "::" id_list sep { $$ = PUBLIC($3, @$); }
     ;
 
 interface_decl
@@ -659,6 +645,8 @@ var_modifier
     | KW_SAVE { $$ = VARMOD($1, @$); }
     | KW_CONTIGUOUS { $$ = VARMOD($1, @$); }
     | KW_NOPASS { $$ = VARMOD($1, @$); }
+    | KW_PRIVATE { $$ = VARMOD($1, @$); }
+    | KW_PUBLIC { $$ = VARMOD($1, @$); }
     | KW_INTENT "(" KW_IN ")" { $$ = VARMOD2($1, $3, @$); }
     | KW_INTENT "(" KW_OUT ")" { $$ = VARMOD2($1, $3, @$); }
     | KW_INTENT "(" KW_INOUT ")" { $$ = VARMOD2($1, $3, @$); }
