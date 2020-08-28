@@ -154,6 +154,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_END
 %token <string> KW_END_IF
 %token <string> KW_ENDIF
+%token <string> KW_END_FORALL
+%token <string> KW_ENDFORALL
 %token <string> KW_END_DO
 %token <string> KW_ENDDO
 %token <string> KW_END_WHERE
@@ -883,6 +885,8 @@ do_statement
 forall_statement
     : KW_FORALL "(" id "=" expr ":" expr ")" assignment_statement {
             $$ = PRINT0(@$); }
+    | KW_FORALL "(" id "=" expr ":" expr ")" sep statements endforall {
+            $$ = DO_CONCURRENT($3, $5, $7, $10, @$); }
     ;
 
 reduce
@@ -898,6 +902,11 @@ reduce_op
 enddo
     : KW_END_DO
     | KW_ENDDO
+    ;
+
+endforall
+    : KW_END_FORALL
+    | KW_ENDFORALL
     ;
 
 endif
