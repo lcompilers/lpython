@@ -123,6 +123,8 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             'double' { KW(DOUBLE) }
             'elemental' { KW(ELEMENTAL) }
             'else' { KW(ELSE) }
+            'elseif' { KW(ELSEIF) }
+            'elsewhere' { KW(ELSEWHERE) }
             'end' { KW(END) }
             'end' whitespace 'if' { KW(END_IF) }
             'endif' { KW(ENDIF) }

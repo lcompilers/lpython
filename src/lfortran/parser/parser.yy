@@ -148,6 +148,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_DOUBLE
 %token <string> KW_ELEMENTAL
 %token <string> KW_ELSE
+%token <string> KW_ELSEIF
+%token <string> KW_ELSEWHERE
 %token <string> KW_END
 %token <string> KW_END_IF
 %token <string> KW_ENDIF
@@ -1030,6 +1032,8 @@ id
     | KW_DOUBLE { $$ = SYMBOL($1, @$); }
     | KW_ELEMENTAL { $$ = SYMBOL($1, @$); }
     | KW_ELSE { $$ = SYMBOL($1, @$); }
+    | KW_ELSEIF { $$ = SYMBOL($1, @$); }
+    | KW_ELSEWHERE { $$ = SYMBOL($1, @$); }
     | KW_END { $$ = SYMBOL($1, @$); }
     | KW_ENDDO { $$ = SYMBOL($1, @$); }
     | KW_ENDIF { $$ = SYMBOL($1, @$); }
