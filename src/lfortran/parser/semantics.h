@@ -150,6 +150,22 @@ static inline decl_t* DECL2(Allocator &al, const YYSTYPE::VecDecl &x,
     return s;
 }
 
+static inline decl_t* DECL2b(Allocator &al, const ast_t *attr)
+{
+    decl_t *s = al.allocate<decl_t>(1);
+    attribute_t **a = al.allocate<attribute_t*>(1);
+    a[0] = ATTR(attr);
+
+    s[0].m_sym = nullptr;
+    s[0].m_sym_type = nullptr;
+    s[0].m_dims = nullptr;
+    s[0].n_dims = 0;
+    s[0].m_attrs = a;
+    s[0].n_attrs = 1;
+    s[0].m_initializer = nullptr;
+    return s;
+}
+
 static inline decl_t* DECL3(Allocator &al, ast_t* n,
         const YYSTYPE::VecDim *d, expr_t *e)
 {
@@ -462,6 +478,8 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         DECL(p.m_a, syms, type.c_str(p.m_a), attrs), syms.size())
 #define VAR_DECL2(attr, syms, l) make_Declaration_t(p.m_a, l, \
         DECL2(p.m_a, syms, nullptr, attr), syms.size())
+#define VAR_DECL3(attr, l) make_Declaration_t(p.m_a, l, \
+        DECL2b(p.m_a, attr), 1)
 
 #define VAR_SYM_DECL1(id, l)         DECL3(p.m_a, id, nullptr, nullptr)
 #define VAR_SYM_DECL2(id, e, l)      DECL3(p.m_a, id, nullptr, EXPR(e))
