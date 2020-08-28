@@ -41,13 +41,29 @@ std::string pickle(int token, const LFortran::YYSTYPE &yystype,
         bool /* colors */)
 {
     std::string t;
-    t += "(token \"";
+    t += "(";
+    if (token >= yytokentype::TK_NAME && token <= TK_FALSE) {
+        t += "TOKEN";
+    } else if (token == yytokentype::TK_NEWLINE) {
+        t += "NEWLINE";
+        t += ")";
+        return t;
+    } else if (token == yytokentype::END_OF_FILE) {
+        t += "EOF";
+        t += ")";
+        return t;
+    } else {
+        t += "KEYWORD";
+    }
+    t += " \"";
     t += token2text(token);
     t += "\"";
     if (token == yytokentype::TK_NAME) {
         t += " " + yystype.string.str();
     } else if (token == yytokentype::TK_INTEGER) {
         t += " " + std::to_string(yystype.n);
+    } else if (token == yytokentype::TK_STRING) {
+        t = t + " " + "\"" + yystype.string.str() + "\"";
     } else if (token == yytokentype::TK_BOZ_CONSTANT) {
         t += " " + yystype.string.str();
     }
