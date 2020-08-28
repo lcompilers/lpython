@@ -148,6 +148,7 @@ if (NOT LFORTRAN_BACKEND)
     RUN(derived_types_03)
 
     RUN(program_01)
+    RUN(program_03)
 
     RUN(allocate_01)
     RUN(block_01)
