@@ -942,6 +942,25 @@ public:
         }
         s.append(")");
     }
+    void visit_CaseStmt(const CaseStmt_t &x) {
+        s.append("(");
+        s.append("CaseStmt");
+        s.append(" ");
+        s.append("[");
+        for (size_t i=0; i<x.n_test; i++) {
+            this->visit_expr(*x.m_test[i]);
+            if (i < x.n_test-1) s.append(" ");
+        }
+        s.append("]");
+        s.append(" ");
+        s.append("[");
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            if (i < x.n_body-1) s.append(" ");
+        }
+        s.append("]");
+        s.append(")");
+    }
     void visit_UseSymbol(const UseSymbol_t &x) {
         s = "";
         if (x.m_rename) {
