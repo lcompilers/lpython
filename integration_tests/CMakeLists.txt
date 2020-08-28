@@ -121,6 +121,8 @@ if (NOT LFORTRAN_BACKEND)
 
     RUN(if_04)
 
+    RUN(where_01)
+
     RUN(subroutines_03)
 
     RUN(interface_01)
