@@ -5,7 +5,7 @@
 %locations
 %glr-parser
 %expect    145 // shift/reduce conflicts
-%expect-rr 48  // reduce/reduce conflicts
+%expect-rr 51  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -321,6 +321,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> exit_statement
 %type <ast> return_statement
 %type <ast> cycle_statement
+%type <ast> continue_statement
 %type <ast> stop_statement
 %type <ast> error_stop_statement
 %type <vec_ast> statements
@@ -663,6 +664,7 @@ array_comp_decl
     | expr ":"       { $$ = ARRAY_COMP_DECL3($1, @$); }
     | ":" expr       { $$ = ARRAY_COMP_DECL4($2, @$); }
     | ":"            { $$ = ARRAY_COMP_DECL5(@$); }
+    | expr ":" expr ":" expr { $$ = ARRAY_COMP_DECL2($1, $3, @$); } // TODO
     ;
 
 
@@ -701,6 +703,7 @@ statement
     | exit_statement sep
     | return_statement sep
     | cycle_statement sep
+    | continue_statement sep
     | stop_statement sep
     | error_stop_statement sep
     | if_statement
@@ -929,6 +932,10 @@ return_statement
 
 cycle_statement
     : KW_CYCLE { $$ = CYCLE(@$); }
+    ;
+
+continue_statement
+    : KW_CONTINUE { $$ = CYCLE(@$); } // TODO: add CONTINUE AST node
     ;
 
 stop_statement
