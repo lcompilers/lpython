@@ -77,6 +77,50 @@ std::vector<int> tokens(const std::string &input,
     return tst;
 }
 
+void cont1(const std::string &s, size_t &pos, bool &ws_or_comment)
+{
+    ws_or_comment = true;
+    bool in_comment = false;
+    while (s[pos] != '\n') {
+        if (s[pos] == '!') in_comment = true;
+        if (!in_comment) {
+            if (s[pos] != ' ') {
+                ws_or_comment = false;
+                return;
+            }
+        }
+        pos++;
+    }
+    pos++;
+}
+
+std::string fix_continuation(const std::string &s)
+{
+    std::string out;
+    size_t pos = 0;
+    bool in_comment = false;
+    while (pos < s.size()) {
+        if (s[pos] == '!') in_comment = true;
+        if (in_comment && s[pos] == '\n') in_comment = false;
+        if (!in_comment && s[pos] == '&') {
+            size_t pos2=pos+1;
+            bool ws_or_comment;
+            cont1(s, pos2, ws_or_comment);
+            if (ws_or_comment) {
+                while (ws_or_comment) {
+                    cont1(s, pos2, ws_or_comment);
+                }
+                pos = pos2;
+                if (s[pos] == '&') pos++;
+            }
+        }
+        out += s[pos];
+        pos++;
+    }
+    return out;
+}
+
+
 
 std::string get_line(std::string str, int n)
 {
