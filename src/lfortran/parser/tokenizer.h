@@ -56,6 +56,8 @@ public:
     }
 };
 
+std::string fix_continuation(const std::string &s);
+
 } // namespace LFortran
 
 #endif

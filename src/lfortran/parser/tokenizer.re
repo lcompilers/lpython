@@ -37,6 +37,11 @@ bool lex_dec(const unsigned char *s, const unsigned char *e, unsigned long &u)
     return true;
 }
 
+std::string fix_continuation(const std::string &s)
+{
+    return s;
+}
+
 #define KW(x) token(yylval.string); RET(KW_##x);
 #define RET(x) token_loc(loc); return yytokentype::x;
 

@@ -733,7 +733,15 @@ int main(int argc, char *argv[])
                 std::cout << "The command '" + cmd + "' failed." << std::endl;
                 return 11;
             }
-            arg_file = file_cpp;
+            std::string file_cpp2 = file_cpp + "2";
+            std::string input = read_file(file_cpp);
+            std::string output = LFortran::fix_continuation(input);
+            {
+                std::ofstream out;
+                out.open(file_cpp2);
+                out << output;
+            }
+            arg_file = file_cpp2;
         }
 
         if (arg_E) {
