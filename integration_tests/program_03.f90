@@ -11,10 +11,11 @@ implicit none
 integer &
     :: j
 
-! If it is used between tokens, then one can, but does not have to put another &! on the next line:
+! If it is used between tokens, then one can, but does not have to put another &
+! on the next line:
 
 integer &
-    & :: k
+    &:: k
 
 ! If & is used to continue the line in the middle of a token, one must put
 ! another & at the next line:
