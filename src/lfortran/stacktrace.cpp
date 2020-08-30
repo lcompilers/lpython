@@ -148,6 +148,11 @@ void get_local_address(StacktraceItem &item)
                     ((intptr_t)item.pc < (seg->vmaddr+offset + seg->vmsize))) {
                     item.local_pc = item.pc - offset;
                     item.binary_filename = _dyld_get_image_name(i);
+                    // Resolve symlinks to a real path:
+                    char buffer[PATH_MAX];
+                    char* resolved;
+                    resolved = realpath(item.binary_filename.c_str(), buffer);
+                    if (resolved) item.binary_filename = resolved;
                     return;
                 }
             }
@@ -157,6 +162,11 @@ void get_local_address(StacktraceItem &item)
                     (item.pc < (seg->vmaddr + offset + seg->vmsize))) {
                     item.local_pc = item.pc - offset;
                     item.binary_filename = _dyld_get_image_name(i);
+                    // Resolve symlinks to a real path:
+                    char buffer[PATH_MAX];
+                    char* resolved;
+                    resolved = realpath(item.binary_filename.c_str(), buffer);
+                    if (resolved) item.binary_filename = resolved;
                     return;
                 }
             }
