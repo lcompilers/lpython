@@ -35,7 +35,7 @@ public:
     bool use_colors;
     int indent_level;
 public:
-    ASTToSRCisitor() : use_colors{false}, indent_level{0} { }
+    ASTToSRCisitor(bool color) : use_colors{color}, indent_level{0} { }
     void visit_TranslationUnit(const TranslationUnit_t &/*x*/) {
         s.append("(");
         if (use_colors) {
@@ -973,8 +973,8 @@ public:
 
 }
 
-std::string ast_to_src(LFortran::AST::ast_t &ast) {
-    AST::ASTToSRCisitor v;
+std::string ast_to_src(LFortran::AST::ast_t &ast, bool color) {
+    AST::ASTToSRCisitor v(color);
     v.visit_ast(ast);
     return v.s;
 }

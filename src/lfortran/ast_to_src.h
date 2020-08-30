@@ -6,7 +6,7 @@
 namespace LFortran {
 
     // Converts AST to Fortran source code
-    std::string ast_to_src(LFortran::AST::ast_t &ast);
+    std::string ast_to_src(LFortran::AST::ast_t &ast, bool color=false);
 
 }
 
