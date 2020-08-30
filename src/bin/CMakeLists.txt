@@ -13,6 +13,16 @@ if (LFORTRAN_STATIC_BIN)
         endif()
     endif()
 endif()
+if (WITH_STACKTRACE AND APPLE AND CMAKE_CXX_COMPILER_ID MATCHES Clang)
+    # On macOS we have to call dsymutil to create the dSYM bundle so that the
+    # stacktrace can find debugging information corresponding to the lfortran
+    # binary
+    add_custom_command(
+        TARGET lfortran
+        POST_BUILD
+        COMMAND dsymutil lfortran
+    )
+endif()
 
 # Ensure "Release" is not appended to the path on Windows:
 # https://stackoverflow.com/a/56201564/479532
