@@ -49,6 +49,7 @@ std::vector<int> tokens(const std::string &input,
 // Converts token number to text
 std::string token2text(const int token);
 
+std::string fix_continuation(const std::string &s);
 
 } // namespace LFortran
 

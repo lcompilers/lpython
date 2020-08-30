@@ -625,6 +625,7 @@ int main(int argc, char *argv[])
         bool arg_c = false;
         bool arg_v = false;
         bool arg_E = false;
+        bool arg_cpp = false;
         std::string arg_o;
         std::string arg_file;
         bool arg_version = false;
@@ -652,6 +653,7 @@ int main(int argc, char *argv[])
         app.add_flag("--version", arg_version, "Display compiler version information");
 
         // LFortran specific options
+        app.add_flag("--cpp", arg_cpp, "Enable preprocessing");
         app.add_flag("--show-tokens", show_tokens, "Show tokens for the given file and exit");
         app.add_flag("--show-ast", show_ast, "Show AST for the given file and exit");
         app.add_flag("--show-asr", show_asr, "Show ASR for the given file and exit");
@@ -680,10 +682,6 @@ int main(int argc, char *argv[])
             std::cerr << "The --kernel option requires LFortran to be compiled with XEUS support. Recompile with `WITH_XEUS=yes`." << std::endl;
             return 1;
 #endif
-        }
-
-        if (arg_E) {
-            return 1;
         }
 
         if (arg_backend == "llvm") {
@@ -725,6 +723,31 @@ int main(int argc, char *argv[])
         } else {
             outfile = "a.out";
         }
+
+        if (arg_cpp) {
+            std::string file_cpp = arg_file + ".preprocessed";
+            std::string cmd = "gfortran -cpp -E " + arg_file + " -o "
+                + file_cpp;
+            int err = system(cmd.c_str());
+            if (err) {
+                std::cout << "The command '" + cmd + "' failed." << std::endl;
+                return 11;
+            }
+            std::string file_cpp2 = file_cpp + "2";
+            std::string input = read_file(file_cpp);
+            std::string output = LFortran::fix_continuation(input);
+            {
+                std::ofstream out;
+                out.open(file_cpp2);
+                out << output;
+            }
+            arg_file = file_cpp2;
+        }
+
+        if (arg_E) {
+            return 0;
+        }
+
 
         if (show_tokens) {
             return emit_tokens(arg_file);
