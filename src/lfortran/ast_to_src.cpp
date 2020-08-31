@@ -134,20 +134,13 @@ public:
         indent = std::string(indent_level*indent_spaces, ' ');
     }
 
-    void visit_TranslationUnit(const TranslationUnit_t &/*x*/) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
+    void visit_TranslationUnit(const TranslationUnit_t &x) {
+        std::string r;
+        for (size_t i=0; i<x.n_items; i++) {
+            this->visit_ast(*x.m_items[i]);
+            r += s;
         }
-        s.append("translationunit");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        s.append("Unimplementedobject");
-        s.append(")");
+        s = r;
     }
     void visit_Module(const Module_t &x) {
         std::string r = "";
@@ -1084,10 +1077,10 @@ public:
 
 }
 
-std::string ast_to_src(LFortran::AST::ast_t &ast, bool color, int indent,
+std::string ast_to_src(AST::TranslationUnit_t &ast, bool color, int indent,
         bool indent_unit) {
     AST::ASTToSRCVisitor v(color, indent, indent_unit);
-    v.visit_ast(ast);
+    v.visit_ast((AST::ast_t &)ast);
     return v.s;
 }
 
