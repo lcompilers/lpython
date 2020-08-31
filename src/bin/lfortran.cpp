@@ -697,7 +697,7 @@ int main(int argc, char *argv[])
         bool show_asm = false;
         bool static_link = false;
         std::string arg_backend = "llvm";
-        std::string arg_kernel;
+        std::string arg_kernel_f;
 
         std::string arg_fmt_file;
         int arg_fmt_indent = 4;
@@ -729,16 +729,22 @@ int main(int argc, char *argv[])
         app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
         app.add_flag("--static", static_link, "Create a static executable");
         app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp)", true);
-        app.add_option("--kernel", arg_kernel, "Run in Jupyter kernel mode");
 
-        // Subcommands:
+        /*
+        * Subcommands:
+        */
 
+        // fmt
         CLI::App &fmt = *app.add_subcommand("fmt", "Format Fortran source files.");
         fmt.add_option("file", arg_fmt_file, "Fortran source file to format")->required();
         fmt.add_flag("-i", arg_fmt_inplace, "Modify <file> in-place (instead of writing to stdout)");
         fmt.add_option("--spaces", arg_fmt_indent, "Number of spaces to use for indentation", true);
         fmt.add_flag("--indent-unit", arg_fmt_indent_unit, "Indent contents of sub / fn / prog / mod");
         fmt.add_flag("--no-color", arg_fmt_no_color, "Turn off color when writing to stdout");
+
+        // fmt
+        CLI::App &kernel = *app.add_subcommand("kernel", "Run in Jupyter kernel mode.");
+        kernel.add_option("-f", arg_kernel_f, "The kernel connection file")->required();
 
         app.get_formatter()->column_width(25);
         app.require_subcommand(0, 1);
@@ -755,11 +761,11 @@ int main(int argc, char *argv[])
                 arg_fmt_indent, arg_fmt_indent_unit);
         }
 
-        if (arg_kernel != "") {
+        if (kernel) {
 #ifdef HAVE_LFORTRAN_XEUS
-            return LFortran::run_kernel(arg_kernel);
+            return LFortran::run_kernel(arg_kernel_f);
 #else
-            std::cerr << "The --kernel option requires LFortran to be compiled with XEUS support. Recompile with `WITH_XEUS=yes`." << std::endl;
+            std::cerr << "The kernel subcommand requires LFortran to be compiled with XEUS support. Recompile with `WITH_XEUS=yes`." << std::endl;
             return 1;
 #endif
         }
