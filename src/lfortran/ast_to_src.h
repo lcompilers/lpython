@@ -7,7 +7,7 @@ namespace LFortran {
 
     // Converts AST to Fortran source code
     std::string ast_to_src(LFortran::AST::ast_t &ast, bool color=false,
-        int indent=4, bool indent_in_subs=false, bool indent_in_mods=false);
+        int indent=4, bool indent_unit=false);
 
 }
 

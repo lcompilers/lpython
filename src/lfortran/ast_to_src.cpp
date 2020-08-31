@@ -35,8 +35,7 @@ public:
     bool use_colors;
     int indent_level;
     int indent_spaces;
-    bool indent_in_subs;
-    bool indent_in_mods;
+    bool indent_unit;
 
     // Syntax highlighting groups
     enum gr {
@@ -65,10 +64,9 @@ public:
     std::string syn_reset;
 
 public:
-    ASTToSRCisitor(bool color, int indent, bool indent_in_subs,
-        bool indent_in_mods) : use_colors{color}, indent_level{0},
-            indent_spaces{indent}, indent_in_subs{indent_in_subs},
-            indent_in_mods{indent_in_mods}
+    ASTToSRCisitor(bool color, int indent, bool indent_unit)
+            : use_colors{color}, indent_level{0},
+            indent_spaces{indent}, indent_unit{indent_unit}
         { }
 
     std::string syn(const gr &g=gr::Reset) {
@@ -146,7 +144,7 @@ public:
         r.append(" ");
         r.append(x.m_name);
         r.append("\n");
-        if (indent_in_mods) indent_level++;
+        if (indent_unit) indent_level++;
         for (size_t i=0; i<x.n_use; i++) {
             this->visit_unit_decl1(*x.m_use[i]);
             r.append(s);
@@ -164,7 +162,7 @@ public:
             r.append(s);
             if (i < x.n_contains-1) r.append("\n");
         }
-        if (indent_in_mods) indent_level--;
+        if (indent_unit) indent_level--;
         r.append("\nend module ");
         r.append(x.m_name);
         r.append("\n");
@@ -178,7 +176,7 @@ public:
         r += " ";
         r.append(x.m_name);
         r.append("\n");
-        if (indent_in_subs) indent_level++;
+        if (indent_unit) indent_level++;
         for (size_t i=0; i<x.n_use; i++) {
             this->visit_unit_decl1(*x.m_use[i]);
             r.append(s);
@@ -201,7 +199,7 @@ public:
                 r.append("\n");
             }
         }
-        if (indent_in_subs) indent_level--;
+        if (indent_unit) indent_level--;
         r += syn(gr::UnitHeader);
         r.append("end program ");
         r += syn();
@@ -1071,8 +1069,8 @@ public:
 }
 
 std::string ast_to_src(LFortran::AST::ast_t &ast, bool color, int indent,
-        bool indent_in_subs, bool indent_in_mods) {
-    AST::ASTToSRCisitor v(color, indent, indent_in_subs, indent_in_mods);
+        bool indent_unit) {
+    AST::ASTToSRCisitor v(color, indent, indent_unit);
     v.visit_ast(ast);
     return v.s;
 }
