@@ -278,11 +278,13 @@ public:
             r.append("contains");
             r += syn();
             r += "\n\n";
+            if (!indent_unit) inc_indent();
             for (size_t i=0; i<x.n_contains; i++) {
                 this->visit_program_unit(*x.m_contains[i]);
                 r.append(s);
                 r.append("\n");
             }
+            if (!indent_unit) dec_indent();
         }
         if (indent_unit) dec_indent();
         return r;
