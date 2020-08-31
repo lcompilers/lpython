@@ -34,8 +34,15 @@ public:
     std::string s;
     bool use_colors;
     int indent_level;
+    int indent_spaces;
+    bool indent_in_subs;
+    bool indent_in_mods;
 public:
-    ASTToSRCisitor(bool color) : use_colors{color}, indent_level{0} { }
+    ASTToSRCisitor(bool color, int indent, bool indent_in_subs,
+        bool indent_in_mods) : use_colors{color}, indent_level{0},
+            indent_spaces{indent}, indent_in_subs{indent_in_subs},
+            indent_in_mods{indent_in_mods}
+        { }
     void visit_TranslationUnit(const TranslationUnit_t &/*x*/) {
         s.append("(");
         if (use_colors) {
@@ -57,6 +64,7 @@ public:
         r.append(" ");
         r.append(x.m_name);
         r.append("\n");
+        if (indent_in_mods) indent_level++;
         for (size_t i=0; i<x.n_use; i++) {
             this->visit_unit_decl1(*x.m_use[i]);
             r.append(s);
@@ -74,6 +82,7 @@ public:
             r.append(s);
             if (i < x.n_contains-1) r.append("\n");
         }
+        if (indent_in_mods) indent_level--;
         r.append("\nend module ");
         r.append(x.m_name);
         r.append("\n");
@@ -83,6 +92,7 @@ public:
         std::string r = "program ";
         r.append(x.m_name);
         r.append("\n");
+        if (indent_in_subs) indent_level++;
         for (size_t i=0; i<x.n_use; i++) {
             this->visit_unit_decl1(*x.m_use[i]);
             r.append(s);
@@ -105,6 +115,7 @@ public:
                 r.append("\n");
             }
         }
+        if (indent_in_subs) indent_level--;
         r.append("end program ");
         r.append(x.m_name);
         r.append("\n");
@@ -301,7 +312,8 @@ public:
         s.append(")");
     }
     void visit_Assignment(const Assignment_t &x) {
-        std::string r = "";
+        std::string indent(indent_level*indent_spaces, ' ');
+        std::string r = indent;
         this->visit_expr(*x.m_target);
         r.append(s);
         r.append(" = ");
@@ -497,14 +509,13 @@ public:
             r.append(s);
         }
         r.append(")\n");
-        indent_level += 4;
+        indent_level += 1;
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
-            for (int i=0; i < indent_level; i++) r.append(" ");
             r.append(s);
             r.append("\n");
         }
-        indent_level -= 4;
+        indent_level -= 1;
         r.append("end do");
         s = r;
     }
@@ -973,8 +984,9 @@ public:
 
 }
 
-std::string ast_to_src(LFortran::AST::ast_t &ast, bool color) {
-    AST::ASTToSRCisitor v(color);
+std::string ast_to_src(LFortran::AST::ast_t &ast, bool color, int indent,
+        bool indent_in_subs, bool indent_in_mods) {
+    AST::ASTToSRCisitor v(color, indent, indent_in_subs, indent_in_mods);
     v.visit_ast(ast);
     return v.s;
 }
