@@ -10,6 +10,14 @@ using LFortran::AST::BaseVisitor;
 
 namespace LFortran {
 
+static inline AST::Num_t* EXPR_NUM(const AST::ast_t *f)
+{
+    LFORTRAN_ASSERT(f->type == AST::astType::expr);
+    AST::expr_t *t = (AST::expr_t *)f;
+    LFORTRAN_ASSERT(t->type == AST::exprType::Num);
+    return (AST::Num_t*)t;
+}
+
 namespace {
 
     std::string op2str(const operatorType type)
@@ -837,21 +845,25 @@ public:
     }
 
     void visit_dimension(const dimension_t &x) {
-        std::string r;
+        std::string left;
+        bool left_is_one=false;
         if (x.m_start) {
             this->visit_expr(*x.m_start);
-            r.append(s);
-        } else {
-            r.append("");
+            left = s;
+            if (x.m_start->type == AST::exprType::Num) {
+                left_is_one = (EXPR_NUM((AST::ast_t*)x.m_start)->m_n == 1);
+            };
         }
-        r.append(":");
+        std::string right;
         if (x.m_end) {
             this->visit_expr(*x.m_end);
-            r.append(s);
-        } else {
-            r.append("");
+            right = s;
         }
-        s = r;
+        if (left_is_one && right != "") {
+            s = right;
+        } else {
+            s = left + ":" + right;
+        }
     }
 
     void visit_Attribute(const Attribute_t &x) {
