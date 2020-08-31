@@ -34,6 +34,7 @@ public:
     std::string s;
     bool use_colors;
     int indent_level;
+    std::string indent;
     int indent_spaces;
     bool indent_unit;
 
@@ -123,6 +124,16 @@ public:
         return syn_color;
     }
 
+    void inc_indent() {
+        indent_level++;
+        indent = std::string(indent_level*indent_spaces, ' ');
+    }
+
+    void dec_indent() {
+        indent_level--;
+        indent = std::string(indent_level*indent_spaces, ' ');
+    }
+
     void visit_TranslationUnit(const TranslationUnit_t &/*x*/) {
         s.append("(");
         if (use_colors) {
@@ -144,7 +155,7 @@ public:
         r.append(" ");
         r.append(x.m_name);
         r.append("\n");
-        if (indent_unit) indent_level++;
+        if (indent_unit) inc_indent();
         for (size_t i=0; i<x.n_use; i++) {
             this->visit_unit_decl1(*x.m_use[i]);
             r.append(s);
@@ -162,7 +173,7 @@ public:
             r.append(s);
             if (i < x.n_contains-1) r.append("\n");
         }
-        if (indent_unit) indent_level--;
+        if (indent_unit) dec_indent();
         r.append("\nend module ");
         r.append(x.m_name);
         r.append("\n");
@@ -176,30 +187,31 @@ public:
         r += " ";
         r.append(x.m_name);
         r.append("\n");
-        if (indent_unit) indent_level++;
+        if (indent_unit) inc_indent();
         for (size_t i=0; i<x.n_use; i++) {
             this->visit_unit_decl1(*x.m_use[i]);
             r.append(s);
-            r.append("\n");
         }
         for (size_t i=0; i<x.n_decl; i++) {
             this->visit_unit_decl2(*x.m_decl[i]);
             r.append(s);
-            r.append("\n");
         }
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
             r.append(s);
-            r.append("\n");
         }
         if (x.n_contains > 0) {
+            r += "\n\n";
+            r += syn(gr::UnitHeader);
+            r.append("contains");
+            r += syn();
+            r += "\n";
             for (size_t i=0; i<x.n_contains; i++) {
                 this->visit_program_unit(*x.m_contains[i]);
                 r.append(s);
-                r.append("\n");
             }
         }
-        if (indent_unit) indent_level--;
+        if (indent_unit) dec_indent();
         r += syn(gr::UnitHeader);
         r.append("end program ");
         r += syn();
@@ -320,7 +332,6 @@ public:
         for (size_t i=0; i<x.n_vars; i++) {
             this->visit_decl(x.m_vars[i]);
             r.append(s);
-            if (i < x.n_vars-1) r.append("\n");
         }
         s = r;
     }
@@ -398,13 +409,13 @@ public:
         s.append(")");
     }
     void visit_Assignment(const Assignment_t &x) {
-        std::string indent(indent_level*indent_spaces, ' ');
         std::string r = indent;
         this->visit_expr(*x.m_target);
         r.append(s);
         r.append(" = ");
         this->visit_expr(*x.m_value);
         r.append(s);
+        r += "\n";
         s = r;
     }
     void visit_Associate(const Associate_t &x) {
@@ -562,15 +573,13 @@ public:
             r.append(s);
         }
         r.append("\n");
-        indent_level += 4;
+        inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
-            for (int i=0; i < indent_level; i++) r.append(" ");
             r.append(s);
-            r.append("\n");
         }
-        indent_level -= 4;
-        r.append("end do");
+        dec_indent();
+        r.append("end do\n");
         s = r;
     }
     void visit_DoConcurrentLoop(const DoConcurrentLoop_t &x) {
@@ -595,14 +604,13 @@ public:
             r.append(s);
         }
         r.append(")\n");
-        indent_level += 1;
+        inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
             r.append(s);
-            r.append("\n");
         }
-        indent_level -= 1;
-        r.append("end do");
+        dec_indent();
+        r.append("end do\n");
         s = r;
     }
     void visit_Select(const Select_t &x) {
@@ -696,7 +704,7 @@ public:
         s.append(")");
     }
     void visit_Print(const Print_t &x) {
-        std::string r;
+        std::string r=indent;
         r += syn(gr::Keyword);
         r += "print";
         r += syn();
@@ -714,6 +722,7 @@ public:
                 if (i < x.n_values-1) r += ", ";
             }
         }
+        r += "\n";
         s = r;
     }
     void visit_BoolOp(const BoolOp_t &x) {
@@ -908,7 +917,7 @@ public:
         s.append(")");
     }
     void visit_decl(const decl_t &x) {
-        std::string r = "";
+        std::string r = indent;
         r += syn(gr::Type);
         r += std::string(x.m_sym_type);
         r += syn();
@@ -936,6 +945,7 @@ public:
             this->visit_expr(*x.m_initializer);
             r.append(s);
         }
+        r += "\n";
         s = r;
     }
     void visit_dimension(const dimension_t &x) {
