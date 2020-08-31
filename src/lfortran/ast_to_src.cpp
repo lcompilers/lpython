@@ -28,7 +28,7 @@ namespace {
 
 namespace AST {
 
-class ASTToSRCisitor : public BaseVisitor<ASTToSRCisitor>
+class ASTToSRCVisitor : public BaseVisitor<ASTToSRCVisitor>
 {
 public:
     std::string s;
@@ -64,7 +64,7 @@ public:
     std::string syn_reset;
 
 public:
-    ASTToSRCisitor(bool color, int indent, bool indent_unit)
+    ASTToSRCVisitor(bool color, int indent, bool indent_unit)
             : use_colors{color}, indent_level{0},
             indent_spaces{indent}, indent_unit{indent_unit}
         { }
@@ -1070,7 +1070,7 @@ public:
 
 std::string ast_to_src(LFortran::AST::ast_t &ast, bool color, int indent,
         bool indent_unit) {
-    AST::ASTToSRCisitor v(color, indent, indent_unit);
+    AST::ASTToSRCVisitor v(color, indent, indent_unit);
     v.visit_ast(ast);
     return v.s;
 }
