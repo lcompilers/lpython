@@ -279,6 +279,36 @@ int emit_ast_f90(const std::string &infile, bool colors)
     std::cout << source << std::endl;
     return 0;
 }
+int format(const std::string &file, int indent,
+    bool indent_in_subs, bool indent_in_mods)
+{
+    std::string input = read_file(file);
+    // Src -> AST
+    Allocator al(64*1024*1024);
+    LFortran::AST::TranslationUnit_t* ast;
+    try {
+        ast = LFortran::parse2(al, input);
+    } catch (const LFortran::TokenizerError &e) {
+        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
+        return 1;
+    } catch (const LFortran::ParserError &e) {
+        std::cerr << "Parsing error: " << e.msg() << std::endl;
+        return 2;
+    }
+
+    // AST -> Source
+    // FIXME: For now we only transform the first node in the list:
+    std::string source = LFortran::ast_to_src(*ast->m_items[0], false,
+        indent, indent_in_subs, indent_in_mods);
+
+    {
+        std::ofstream out;
+        out.open(file);
+        out << source;
+    }
+
+    return 0;
+}
 
 int emit_asr(const std::string &infile, bool colors,
     const std::vector<ASRPass> &passes)
@@ -665,7 +695,12 @@ int main(int argc, char *argv[])
         bool show_asm = false;
         bool static_link = false;
         std::string arg_backend = "llvm";
-        std::string arg_kernel = "";
+        std::string arg_kernel;
+
+        std::string arg_fmt_file;
+        int arg_fmt_indent = 4;
+        bool arg_fmt_indent_in_subs = false;
+        bool arg_fmt_indent_in_mods = false;
 
         CLI::App app{"LFortran: modern interactive LLVM-based Fortran compiler"};
         // Standard options compatible with gfortran, gcc or clang
@@ -693,13 +728,27 @@ int main(int argc, char *argv[])
         app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp)", true);
         app.add_option("--kernel", arg_kernel, "Run in Jupyter kernel mode");
 
+        // Subcommands:
+
+        CLI::App &fmt = *app.add_subcommand("fmt", "Format the input files and modifies them in-place.");
+        fmt.add_option("file", arg_fmt_file, "Source file to format in-place")->required();
+        fmt.add_option("--spaces", arg_fmt_indent, "Number of spaces to use for indentation", true);
+        fmt.add_flag("--indent-in-sub", arg_fmt_indent_in_subs, "Indent statements in subroutines / functions");
+        fmt.add_flag("--indent-in-mod", arg_fmt_indent_in_mods, "Indent subroutines / functions in modules");
+
         app.get_formatter()->column_width(25);
+        app.require_subcommand(0, 1);
         CLI11_PARSE(app, argc, argv);
 
         if (arg_version) {
             std::string version = LFORTRAN_VERSION;
             std::cout << "LFortran version: " << version << std::endl;
             return 0;
+        }
+
+        if (fmt.parsed()) {
+            return format(arg_fmt_file, arg_fmt_indent, arg_fmt_indent_in_subs,
+                arg_fmt_indent_in_subs);
         }
 
         if (arg_kernel != "") {
