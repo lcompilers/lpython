@@ -13,7 +13,7 @@ contains
     subroutine rand(x)
     real, intent(out) :: x
     logical, save :: first=.true.
-    real, save :: u(1:2)
+    real, save :: u(2)
     real :: r2
     if (first) then
         do
