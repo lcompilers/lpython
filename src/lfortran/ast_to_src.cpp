@@ -37,12 +37,94 @@ public:
     int indent_spaces;
     bool indent_in_subs;
     bool indent_in_mods;
+
+    // Syntax highlighting groups
+    enum gr {
+        // Type
+        UnitHeader,  // program, end program
+        Type,        // integer, real, character
+
+        // Constant
+        String,      // "some string"
+        Integer,     // 234
+        Real,        // 5.5_dp
+        Logical,     // .true., .false.
+
+        // Functions
+        Call,        // call
+        Intrinsic,   // exp, sin, cos
+
+        // Statements
+        Conditional, // if, then, else, end if, where, select case
+        Repeat,      // do, while, forall
+        Keyword,     // any other keyword: print
+
+        // Reset
+        Reset,       // resets any previously set formatting
+    };
+    std::string syn_reset;
+
 public:
     ASTToSRCisitor(bool color, int indent, bool indent_in_subs,
         bool indent_in_mods) : use_colors{color}, indent_level{0},
             indent_spaces{indent}, indent_in_subs{indent_in_subs},
             indent_in_mods{indent_in_mods}
         { }
+
+    std::string syn(const gr &g=gr::Reset) {
+        std::string syn_color;
+        if (use_colors) {
+            switch (g) {
+                case (gr::UnitHeader) : {
+                    syn_color = color(fgB::cyan);
+                    syn_reset = color(fg::reset);
+                    break;
+                }
+
+                case (gr::Type) : {
+                    syn_color = color(fgB::green);
+                    syn_reset = color(fg::reset);
+                    break;
+                }
+
+                case (gr::String) :
+                case (gr::Integer) :
+                case (gr::Real) :
+                case (gr::Logical) : {
+                    syn_color = color(fg::magenta);
+                    syn_reset = color(fg::reset);
+                    break;
+                }
+
+                case (gr::Call) :
+                case (gr::Intrinsic) : {
+                    syn_color = color(fgB::cyan) + color(style::bold);
+                    syn_reset = color(fg::reset) + color(style::reset);
+                    break;
+                }
+
+                case (gr::Conditional) :
+                case (gr::Repeat) :
+                case (gr::Keyword) : {
+                    syn_color = color(fg::yellow);
+                    syn_reset = color(fg::reset);
+                    break;
+                }
+
+                case (gr::Reset) : {
+                    syn_color = syn_reset;
+                    syn_reset = "";
+                    break;
+                } ;
+
+                default : {
+                    throw LFortranException("Syntax Group not implemented");
+                }
+            }
+        }
+        return syn_color;
+    }
+
     void visit_TranslationUnit(const TranslationUnit_t &/*x*/) {
         s.append("(");
         if (use_colors) {
@@ -89,7 +171,11 @@ public:
         s = r;
     }
     void visit_Program(const Program_t &x) {
-        std::string r = "program ";
+        std::string r;
+        r += syn(gr::UnitHeader);
+        r.append("program");
+        r += syn();
+        r += " ";
         r.append(x.m_name);
         r.append("\n");
         if (indent_in_subs) indent_level++;
@@ -116,7 +202,9 @@ public:
             }
         }
         if (indent_in_subs) indent_level--;
+        r += syn(gr::UnitHeader);
         r.append("end program ");
+        r += syn();
         r.append(x.m_name);
         r.append("\n");
         s = r;
@@ -610,30 +698,25 @@ public:
         s.append(")");
     }
     void visit_Print(const Print_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("print");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
+        std::string r;
+        r += syn(gr::Keyword);
+        r += "print";
+        r += syn();
+        r += " ";
         if (x.m_fmt) {
-            s.append(x.m_fmt);
+            r += x.m_fmt;
         } else {
-            s.append("()");
+            r += "*";
         }
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_values; i++) {
-            this->visit_expr(*x.m_values[i]);
-            if (i < x.n_values-1) s.append(" ");
+        if (x.n_values > 0) {
+            r += ", ";
+            for (size_t i=0; i<x.n_values; i++) {
+                this->visit_expr(*x.m_values[i]);
+                r += s;
+                if (i < x.n_values-1) r += ", ";
+            }
         }
-        s.append("]");
-        s.append(")");
+        s = r;
     }
     void visit_BoolOp(const BoolOp_t &x) {
         s.append("(");
@@ -827,7 +910,10 @@ public:
         s.append(")");
     }
     void visit_decl(const decl_t &x) {
-        std::string r = std::string(x.m_sym_type);
+        std::string r = "";
+        r += syn(gr::Type);
+        r += std::string(x.m_sym_type);
+        r += syn();
         if (x.n_attrs > 0) {
             for (size_t i=0; i<x.n_attrs; i++) {
                 r.append(", ");
