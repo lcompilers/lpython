@@ -281,7 +281,7 @@ int emit_ast_f90(const std::string &infile, bool colors)
 }
 
 int format(const std::string &file, bool inplace, bool color, int indent,
-    bool indent_in_subs, bool indent_in_mods)
+    bool indent_unit)
 {
     if (inplace) color = false;
     std::string input = read_file(file);
@@ -301,7 +301,7 @@ int format(const std::string &file, bool inplace, bool color, int indent,
     // AST -> Source
     // FIXME: For now we only transform the first node in the list:
     std::string source = LFortran::ast_to_src(*ast->m_items[0], color,
-        indent, indent_in_subs, indent_in_mods);
+        indent, indent_unit);
 
     if (inplace) {
         std::ofstream out;
@@ -703,8 +703,7 @@ int main(int argc, char *argv[])
 
         std::string arg_fmt_file;
         int arg_fmt_indent = 4;
-        bool arg_fmt_indent_in_subs = false;
-        bool arg_fmt_indent_in_mods = false;
+        bool arg_fmt_indent_unit = false;
         bool arg_fmt_inplace = false;
         bool arg_fmt_no_color = false;
 
@@ -740,8 +739,7 @@ int main(int argc, char *argv[])
         fmt.add_option("file", arg_fmt_file, "Fortran source file to format")->required();
         fmt.add_flag("-i", arg_fmt_inplace, "Modify <file> in-place (instead of writing to stdout)");
         fmt.add_option("--spaces", arg_fmt_indent, "Number of spaces to use for indentation", true);
-        fmt.add_flag("--indent-in-sub", arg_fmt_indent_in_subs, "Indent statements in subroutines / functions");
-        fmt.add_flag("--indent-in-mod", arg_fmt_indent_in_mods, "Indent subroutines / functions in modules");
+        fmt.add_flag("--indent-unit", arg_fmt_indent_unit, "Indent contents of sub / fn / prog / mod");
         fmt.add_flag("--no-color", arg_fmt_no_color, "Turn off color when writing to stdout");
 
         app.get_formatter()->column_width(25);
@@ -756,7 +754,7 @@ int main(int argc, char *argv[])
 
         if (fmt) {
             return format(arg_fmt_file, arg_fmt_inplace, !arg_fmt_no_color,
-                arg_fmt_indent, arg_fmt_indent_in_subs, arg_fmt_indent_in_subs);
+                arg_fmt_indent, arg_fmt_indent_unit);
         }
 
         if (arg_kernel != "") {
