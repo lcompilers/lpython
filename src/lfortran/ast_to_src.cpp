@@ -150,31 +150,41 @@ public:
         s.append(")");
     }
     void visit_Module(const Module_t &x) {
-        std:: string r = "";
+        std::string r = "";
+        r += syn(gr::UnitHeader);
         r.append("module");
-        r.append(" ");
+        r += syn();
+        r += " ";
         r.append(x.m_name);
         r.append("\n");
         if (indent_unit) inc_indent();
         for (size_t i=0; i<x.n_use; i++) {
             this->visit_unit_decl1(*x.m_use[i]);
             r.append(s);
-            if (i < x.n_use-1) r.append("\n");
         }
         r.append("\n");
         for (size_t i=0; i<x.n_decl; i++) {
             this->visit_unit_decl2(*x.m_decl[i]);
             r.append(s);
-            if (i < x.n_decl-1) r.append("\n");
         }
         r.append("\n");
-        for (size_t i=0; i<x.n_contains; i++) {
-            this->visit_program_unit(*x.m_contains[i]);
-            r.append(s);
-            if (i < x.n_contains-1) r.append("\n");
+        if (x.n_contains > 0) {
+            r += "\n\n";
+            r += syn(gr::UnitHeader);
+            r.append("contains");
+            r += syn();
+            r += "\n\n";
+            for (size_t i=0; i<x.n_contains; i++) {
+                this->visit_program_unit(*x.m_contains[i]);
+                r.append(s);
+                r.append("\n");
+            }
         }
         if (indent_unit) dec_indent();
-        r.append("\nend module ");
+        r += syn(gr::UnitHeader);
+        r.append("end module");
+        r += syn();
+        r += " ";
         r.append(x.m_name);
         r.append("\n");
         s = r;
@@ -187,6 +197,47 @@ public:
         r += " ";
         r.append(x.m_name);
         r.append("\n");
+
+        r += format_unit_body(x);
+        r += syn(gr::UnitHeader);
+        r.append("end program");
+        r += syn();
+        r += " ";
+        r.append(x.m_name);
+        r.append("\n");
+
+        s = r;
+    }
+    void visit_Subroutine(const Subroutine_t &x) {
+        std::string r = indent;
+        r += syn(gr::UnitHeader);
+        r.append("subroutine");
+        r += syn();
+        r += " ";
+        r.append(x.m_name);
+        r.append("(");
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_arg(x.m_args[i]);
+            r.append(s);
+            if (i < x.n_args-1) r.append(", ");
+        }
+        r.append(")");
+        r.append("\n");
+
+        r += format_unit_body(x);
+        r += indent;
+        r += syn(gr::UnitHeader);
+        r.append("end subroutine");
+        r += syn();
+        r += " ";
+        r.append(x.m_name);
+        r.append("\n");
+        s = r;
+    }
+
+    template <typename T>
+    std::string format_unit_body(const T &x) {
+        std::string r;
         if (indent_unit) inc_indent();
         for (size_t i=0; i<x.n_use; i++) {
             this->visit_unit_decl1(*x.m_use[i]);
@@ -205,78 +256,43 @@ public:
             r += syn(gr::UnitHeader);
             r.append("contains");
             r += syn();
-            r += "\n";
-            for (size_t i=0; i<x.n_contains; i++) {
-                this->visit_program_unit(*x.m_contains[i]);
-                r.append(s);
-            }
-        }
-        if (indent_unit) dec_indent();
-        r += syn(gr::UnitHeader);
-        r.append("end program ");
-        r += syn();
-        r.append(x.m_name);
-        r.append("\n");
-        s = r;
-    }
-    void visit_Subroutine(const Subroutine_t &x) {
-        std::string r = "subroutine ";
-        r.append(x.m_name);
-        if (x.n_args > 0) {
-            r.append("(");
-            for (size_t i=0; i<x.n_args; i++) {
-                this->visit_arg(x.m_args[i]);
-                r.append(s);
-                if (i < x.n_args-1) r.append(", ");
-            }
-            r.append(")");
-        }
-        r.append("\n");
-        for (size_t i=0; i<x.n_use; i++) {
-            this->visit_unit_decl1(*x.m_use[i]);
-            r.append(s);
-            r.append("\n");
-        }
-        for (size_t i=0; i<x.n_decl; i++) {
-            this->visit_unit_decl2(*x.m_decl[i]);
-            r.append(s);
-            r.append("\n");
-        }
-        for (size_t i=0; i<x.n_body; i++) {
-            this->visit_stmt(*x.m_body[i]);
-            r.append(s);
-            r.append("\n");
-        }
-        if (x.n_contains > 0) {
-            r.append("contains\n");
+            r += "\n\n";
             for (size_t i=0; i<x.n_contains; i++) {
                 this->visit_program_unit(*x.m_contains[i]);
                 r.append(s);
                 r.append("\n");
             }
         }
-        r.append("end subroutine ");
-        r.append(x.m_name);
-        r.append("\n");
-        s = r;
+        if (indent_unit) dec_indent();
+        return r;
     }
+
     void visit_Function(const Function_t &x) {
-        std::string r = "";
+        std::string r = indent;
         if (x.m_return_type) {
+            r += syn(gr::Type);
             r.append(x.m_return_type);
+            r += syn();
             r.append(" ");
         }
-        r.append("function ");
+        r += syn(gr::UnitHeader);
+        r.append("function");
+        r += syn();
+        r += " ";
         r.append(x.m_name);
         r.append("(");
         for (size_t i=0; i<x.n_args; i++) {
             this->visit_arg(x.m_args[i]);
             r.append(s);
-            if (i < x.n_args-1) s.append(", ");
+            if (i < x.n_args-1) r.append(", ");
         }
         r.append(")");
         if (x.m_return_var) {
-            r.append(" result(");
+            r += " ";
+            r += syn(gr::UnitHeader);
+            r.append("result");
+            r += syn();
+            r += "(";
             this->visit_expr(*x.m_return_var);
             r.append(s);
             r.append(")");
@@ -288,27 +304,12 @@ public:
         }
         r.append("\n");
 
-        for (size_t i=0; i<x.n_use; i++) {
-            this->visit_unit_decl1(*x.m_use[i]);
-            r.append(s);
-            r.append("\n");
-        }
-        for (size_t i=0; i<x.n_decl; i++) {
-            this->visit_unit_decl2(*x.m_decl[i]);
-            r.append(s);
-            r.append("\n");
-        }
-        for (size_t i=0; i<x.n_body; i++) {
-            this->visit_stmt(*x.m_body[i]);
-            r.append(s);
-            r.append("\n");
-        }
-        for (size_t i=0; i<x.n_contains; i++) {
-            this->visit_program_unit(*x.m_contains[i]);
-            r.append(s);
-            r.append("\n");
-        }
-        r.append("end function ");
+        r += format_unit_body(x);
+        r += indent;
+        r += syn(gr::UnitHeader);
+        r.append("end function");
+        r += syn();
+        r += " ";
         r.append(x.m_name);
         r.append("\n");
 
@@ -967,20 +968,25 @@ public:
     }
     void visit_Attribute(const Attribute_t &x) {
         std::string r;
+        r += syn(gr::Type);
         r.append(x.m_name);
+        r += syn();
         if (x.n_args > 0) {
             r.append("(");
             for (size_t i=0; i<x.n_args; i++) {
                 this->visit_attribute_arg(x.m_args[i]);
                 r.append(s);
-                if (i < x.n_args-1) r.append(" ");
+                if (i < x.n_args-1) r.append(", ");
             }
             r.append(")");
         }
         s = r;
     }
     void visit_attribute_arg(const attribute_arg_t &x) {
-        s = std::string(x.m_arg);
+        s = syn(gr::Type);
+        s += x.m_arg;
+        s += syn();
+
     }
     void visit_arg(const arg_t &x) {
         s = std::string(x.m_arg);
