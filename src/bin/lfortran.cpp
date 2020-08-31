@@ -11,6 +11,7 @@
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/codegen/asr_to_llvm.h>
 #include <lfortran/codegen/asr_to_cpp.h>
+#include <lfortran/ast_to_src.h>
 #include <lfortran/codegen/evaluator.h>
 #include <lfortran/pass/do_loops.h>
 #include <lfortran/pass/global_stmts.h>
@@ -252,6 +253,30 @@ int emit_ast(const std::string &infile, bool colors)
     }
 
     std::cout << LFortran::pickle(*ast, colors) << std::endl;
+    return 0;
+}
+
+int emit_ast_f90(const std::string &infile, bool colors)
+{
+    std::string input = read_file(infile);
+    // Src -> AST
+    Allocator al(64*1024*1024);
+    LFortran::AST::TranslationUnit_t* ast;
+    try {
+        ast = LFortran::parse2(al, input);
+    } catch (const LFortran::TokenizerError &e) {
+        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
+        return 1;
+    } catch (const LFortran::ParserError &e) {
+        std::cerr << "Parsing error: " << e.msg() << std::endl;
+        return 2;
+    }
+
+    // AST -> Source
+    // FIXME: For now we only transform the first node in the list:
+    std::string source = LFortran::ast_to_src(*ast->m_items[0], colors);
+
+    std::cout << source << std::endl;
     return 0;
 }
 
@@ -632,6 +657,7 @@ int main(int argc, char *argv[])
         bool show_tokens = false;
         bool show_ast = false;
         bool show_asr = false;
+        bool show_ast_f90 = false;
         std::string arg_pass;
         bool arg_no_color = false;
         bool show_llvm = false;
@@ -657,6 +683,7 @@ int main(int argc, char *argv[])
         app.add_flag("--show-tokens", show_tokens, "Show tokens for the given file and exit");
         app.add_flag("--show-ast", show_ast, "Show AST for the given file and exit");
         app.add_flag("--show-asr", show_asr, "Show ASR for the given file and exit");
+        app.add_flag("--show-ast-f90", show_ast_f90, "Show Fortran from AST for the given file and exit");
         app.add_flag("--no-color", arg_no_color, "Turn off colored AST/ASR");
         app.add_option("--pass", arg_pass, "Apply the ASR pass and show ASR (implies --show-asr)");
         app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
@@ -754,6 +781,9 @@ int main(int argc, char *argv[])
         }
         if (show_ast) {
             return emit_ast(arg_file, !arg_no_color);
+        }
+        if (show_ast_f90) {
+            return emit_ast_f90(arg_file, !arg_no_color);
         }
         std::vector<ASRPass> passes;
         if (arg_pass != "") {
