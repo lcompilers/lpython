@@ -64,7 +64,7 @@ def main():
                     filename, update_reference)
 
         if ast_f90:
-            run_test("ast_f90", "cpptranslate --show-ast-f90 {infile}",
+            run_test("ast_f90", "lfortran --show-ast-f90 --no-color {infile}",
                     filename, update_reference)
 
         if ast_cpp:

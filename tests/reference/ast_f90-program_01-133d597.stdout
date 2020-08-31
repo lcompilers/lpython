@@ -1,0 +1,23 @@
+program program_01
+integer, parameter :: dp =kind(parameter(real "0.d0"))
+real :: a 
+integer :: i 
+print *, integer :: i 
+(str "Normal random numbers:")
+do i = 1, 10
+call rand(a)    print *, a
+end do
+
+
+contains
+
+subroutine rand(x)
+real, intent(out) :: x 
+logical, save :: first =save(constant Unimplementedconstant)
+real, save :: u(1:2) 
+real :: r2 
+x = u(2)
+])first = first)
+end subroutine rand
+
+end program program_01
