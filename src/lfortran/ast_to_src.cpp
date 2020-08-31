@@ -926,6 +926,50 @@ public:
         }
         s.append(x.m_sym);
     }
+
+    void visit_Select(const AST::Select_t &x) {
+        std::string r = indent;
+        r += syn(gr::Conditional);
+        r += "select case";
+        r += syn();
+        r += " (";
+        this->visit_expr(*x.m_test);
+        r += s;
+        r += ")\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_case_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        r += indent;
+        r += syn(gr::Conditional);
+        r += "end select";
+        r += syn();
+        r += "\n";
+        s = r;
+    }
+
+    void visit_CaseStmt(const AST::CaseStmt_t &x) {
+        std::string r = indent;
+        r += syn(gr::Conditional);
+        r += "case";
+        r += syn();
+        r += " (";
+        for (size_t i=0; i<x.n_test; i++) {
+            this->visit_expr(*x.m_test[i]);
+            r += s;
+            if (i < x.n_test-1) r += ", ";
+        }
+        r += ")\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        s = r;
+    }
 };
 
 }
