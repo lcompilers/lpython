@@ -136,8 +136,7 @@ int emit_ast_f90(const std::string &infile)
     }
 
     // AST -> Source
-    // FIXME: For now we only transform the first node in the list:
-    std::string source = LFortran::ast_to_src(*ast->m_items[0]);
+    std::string source = LFortran::ast_to_src(*ast);
 
     std::cout << source << std::endl;
     return 0;

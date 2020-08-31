@@ -21,7 +21,7 @@ std::string p(Allocator &al, const std::string &s)
         ast = (LFortran::AST::ast_t*)result;
     }
     std::string pickle = LFortran::pickle(*ast);
-    std::string src = LFortran::ast_to_src(*ast);
+    std::string src = LFortran::ast_to_src(*result);
 
     // Print the test nicely:
     section("--------------------------------------------------------------------------------");

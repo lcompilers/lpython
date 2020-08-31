@@ -21,7 +21,31 @@ namespace {
             case (operatorType::Div) : return "/";
             case (operatorType::Pow) : return "**";
         }
-        throw std::runtime_error("Unknown type");
+        throw LFortranException("Unknown type");
+    }
+
+    std::string boolop2str(const AST::boolopType type)
+    {
+        switch (type) {
+            case (AST::boolopType::And) : return ".and.";
+            case (AST::boolopType::Or) : return ".or.";
+            case (AST::boolopType::Eqv) : return ".eqv.";
+            case (AST::boolopType::NEqv) : return ".neqv.";
+        }
+        throw LFortranException("Unknown type");
+    }
+
+    std::string cmpop2str(const AST::cmpopType type)
+    {
+        switch (type) {
+            case (AST::cmpopType::Eq) : return "==";
+            case (AST::cmpopType::Gt) : return ">";
+            case (AST::cmpopType::GtE) : return ">=";
+            case (AST::cmpopType::Lt) : return "<";
+            case (AST::cmpopType::LtE) : return "<=";
+            case (AST::cmpopType::NotEq) : return "/=";
+        }
+        throw LFortranException("Unknown type");
     }
 
 }
@@ -134,21 +158,16 @@ public:
         indent = std::string(indent_level*indent_spaces, ' ');
     }
 
-    void visit_TranslationUnit(const TranslationUnit_t &/*x*/) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
+    void visit_TranslationUnit(const TranslationUnit_t &x) {
+        std::string r;
+        for (size_t i=0; i<x.n_items; i++) {
+            this->visit_ast(*x.m_items[i]);
+            r += s;
+            if (i < x.n_items-1) r.append("\n");
         }
-        s.append("translationunit");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        s.append("Unimplementedobject");
-        s.append(")");
+        s = r;
     }
+
     void visit_Module(const Module_t &x) {
         std::string r = "";
         r += syn(gr::UnitHeader);
@@ -189,6 +208,7 @@ public:
         r.append("\n");
         s = r;
     }
+
     void visit_Program(const Program_t &x) {
         std::string r;
         r += syn(gr::UnitHeader);
@@ -208,6 +228,7 @@ public:
 
         s = r;
     }
+
     void visit_Subroutine(const Subroutine_t &x) {
         std::string r = indent;
         r += syn(gr::UnitHeader);
@@ -252,16 +273,18 @@ public:
             r.append(s);
         }
         if (x.n_contains > 0) {
-            r += "\n\n";
+            r += "\n";
             r += syn(gr::UnitHeader);
             r.append("contains");
             r += syn();
             r += "\n\n";
+            if (!indent_unit) inc_indent();
             for (size_t i=0; i<x.n_contains; i++) {
                 this->visit_program_unit(*x.m_contains[i]);
                 r.append(s);
                 r.append("\n");
             }
+            if (!indent_unit) dec_indent();
         }
         if (indent_unit) dec_indent();
         return r;
@@ -315,19 +338,30 @@ public:
 
         s = r;
     }
+
     void visit_Use(const Use_t &x) {
-        std::string r = "use ";
+        std::string r = indent;
+        r += syn(gr::UnitHeader);
+        r += "use";
+        r += syn();
+        r += " ";
         r.append(x.m_module);
         if (x.n_symbols > 0) {
-            r.append(", only: ");
+            r.append(", ");
+            r += syn(gr::UnitHeader);
+            r += "only";
+            r += syn();
+            r += ": ";
             for (size_t i=0; i<x.n_symbols; i++) {
                 this->visit_use_symbol(*x.m_symbols[i]);
                 r.append(s);
                 if (i < x.n_symbols-1) r.append(", ");
             }
         }
+        r += "\n";
         s = r;
     }
+
     void visit_Declaration(const Declaration_t &x) {
         std::string r = "";
         for (size_t i=0; i<x.n_vars; i++) {
@@ -336,79 +370,7 @@ public:
         }
         s = r;
     }
-    void visit_Private(const Private_t &/*x*/) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("private");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        s.append("Unimplementedidentifier");
-        s.append(")");
-    }
-    void visit_Public(const Public_t &/*x*/) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("public");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        s.append("Unimplementedidentifier");
-        s.append(")");
-    }
-    void visit_Interface(const Interface_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("interface");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        s.append(x.m_name);
-        s.append(" ");
-        s.append("Unimplementedidentifier");
-        s.append(")");
-    }
-    void visit_Interface2(const Interface2_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("interface2");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        if (x.m_name) {
-            s.append(x.m_name);
-        } else {
-            s.append("()");
-        }
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_procs; i++) {
-            this->visit_program_unit(*x.m_procs[i]);
-            if (i < x.n_procs-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(")");
-    }
+
     void visit_Assignment(const Assignment_t &x) {
         std::string r = indent;
         this->visit_expr(*x.m_target);
@@ -419,141 +381,151 @@ public:
         r += "\n";
         s = r;
     }
+
     void visit_Associate(const Associate_t &x) {
-        std::string r = "";
+        std::string r = indent;
         this->visit_expr(*x.m_target);
         r.append(s);
         r.append(" => ");
         this->visit_expr(*x.m_value);
         r.append(s);
+        r += "\n";
         s = r;
     }
+
     void visit_SubroutineCall(const SubroutineCall_t &x) {
-        std::string r = "call ";
+        std::string r = indent;
+        r += syn(gr::Call);
+        r += "call";
+        r += syn();
+        r += " ";
         r.append(x.m_name);
         r.append("(");
         for (size_t i=0; i<x.n_args; i++) {
             this->visit_expr(*x.m_args[i]);
             r.append(s);
-            if (i < x.n_args-1) r.append(" ");
+            if (i < x.n_args-1) r.append(", ");
         }
-        r.append(")");
+        r.append(")\n");
         s = r;
     }
+
     void visit_BuiltinCall(const BuiltinCall_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("builtincall");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        s.append(x.m_name);
-        s.append(" ");
-        s.append("[");
+        std::string r = indent;
+        r += x.m_name;
+        r += "(";
         for (size_t i=0; i<x.n_args; i++) {
             this->visit_expr(*x.m_args[i]);
-            if (i < x.n_args-1) s.append(" ");
+            r += s;
+            if (i < x.n_args-1) s.append(", ");
         }
-        s.append("]");
-        s.append(")");
+        r += ")\n";
+        s = r;
     }
+
     void visit_If(const If_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("if");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
+        std::string r = indent;
+        r += syn(gr::Conditional);
+        r += "if";
+        r += syn();
+        r += " (";
         this->visit_expr(*x.m_test);
-        s.append(" ");
-        s.append("[");
+        r += s;
+        r += ") ";
+        r += syn(gr::Conditional);
+        r += "then";
+        r += syn();
+        r += "\n";
+        inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
-            if (i < x.n_body-1) s.append(" ");
+            r += s;
         }
-        s.append("]");
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_orelse; i++) {
-            this->visit_stmt(*x.m_orelse[i]);
-            if (i < x.n_orelse-1) s.append(" ");
+        dec_indent();
+        if (x.n_orelse > 0) {
+            r += indent;
+            r += syn(gr::Conditional);
+            r += "else";
+            r += syn();
+            r += "\n";
+            inc_indent();
+            for (size_t i=0; i<x.n_orelse; i++) {
+                this->visit_stmt(*x.m_orelse[i]);
+                r += s;
+            }
+            dec_indent();
         }
-        s.append("]");
-        s.append(")");
+        r += indent;
+        r += syn(gr::Conditional);
+        r += "end if";
+        r += syn();
+        r += "\n";
+        s = r;
     }
+
     void visit_Where(const Where_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("where");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
+        std::string r = indent;
+        r += syn(gr::Repeat);
+        r += "where";
+        r += syn();
+        r += " (";
         this->visit_expr(*x.m_test);
-        s.append(" ");
-        s.append("[");
+        r += s;
+        r += ")\n";
+        inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
-            if (i < x.n_body-1) s.append(" ");
+            r += s;
         }
-        s.append("]");
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_orelse; i++) {
-            this->visit_stmt(*x.m_orelse[i]);
-            if (i < x.n_orelse-1) s.append(" ");
+        dec_indent();
+        if (x.n_orelse > 0) {
+            r += indent;
+            r += syn(gr::Conditional);
+            r += "else where";
+            r += syn();
+            r += "\n";
+            inc_indent();
+            for (size_t i=0; i<x.n_orelse; i++) {
+                this->visit_stmt(*x.m_orelse[i]);
+                r += s;
+            }
+            dec_indent();
         }
-        s.append("]");
-        s.append(")");
+        r += indent;
+        r += syn(gr::Repeat);
+        r += "end where";
+        r += syn();
+        r += "\n";
+        s = r;
     }
+
     void visit_Stop(const Stop_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("stop");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
+        std::string r = indent;
+        r += syn(gr::Keyword);
+        r.append("stop");
+        r == syn();
         if (x.m_code) {
             this->visit_expr(*x.m_code);
-        } else {
-            s.append("()");
+            r += " " + s;
         }
-        s.append(")");
+        r += "\n";
+        s = r;
     }
+
     void visit_ErrorStop(const ErrorStop_t &/*x*/) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("errorstop");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(")");
+        std::string r = indent;
+        r += syn(gr::Keyword);
+        r.append("error stop");
+        r == syn();
+        r += "\n";
+        s = r;
     }
+
     void visit_DoLoop(const DoLoop_t &x) {
-        std::string r = "do";
+        std::string r = indent;
+        r += syn(gr::Repeat);
+        r += "do";
+        r += syn();
         if (x.m_var) {
             r.append(" ");
             r.append(x.m_var);
@@ -580,11 +552,19 @@ public:
             r.append(s);
         }
         dec_indent();
-        r.append("end do\n");
+        r += indent;
+        r += syn(gr::Repeat);
+        r.append("end do");
+        r += syn();
+        r += "\n";
         s = r;
     }
+
     void visit_DoConcurrentLoop(const DoConcurrentLoop_t &x) {
-        std::string r = "do concurrent";
+        std::string r = indent;
+        r += syn(gr::Repeat);
+        r += "do concurrent";
+        r += syn();
         if (x.m_var) {
             r.append(" (");
             r.append(x.m_var);
@@ -611,99 +591,64 @@ public:
             r.append(s);
         }
         dec_indent();
-        r.append("end do\n");
+        r += indent;
+        r += syn(gr::Repeat);
+        r.append("end do");
+        r += syn();
+        r += "\n";
         s = r;
     }
-    void visit_Select(const Select_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("select");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        this->visit_expr(*x.m_test);
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_body; i++) {
-            this->visit_case_stmt(*x.m_body[i]);
-            if (i < x.n_body-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_default; i++) {
-            this->visit_stmt(*x.m_default[i]);
-            if (i < x.n_default-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(")");
-    }
+
     void visit_Cycle(const Cycle_t &/*x*/) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("cycle");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(")");
+        std::string r = indent;
+        r += syn(gr::Keyword);
+        r.append("cycle");
+        r == syn();
+        r += "\n";
+        s = r;
     }
+
     void visit_Exit(const Exit_t &/*x*/) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("exit");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(")");
+        std::string r = indent;
+        r += syn(gr::Keyword);
+        r.append("exit");
+        r == syn();
+        r += "\n";
+        s = r;
     }
+
     void visit_Return(const Return_t &/*x*/) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("return");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(")");
+        std::string r = indent;
+        r += syn(gr::Keyword);
+        r.append("return");
+        r == syn();
+        r += "\n";
+        s = r;
     }
+
     void visit_WhileLoop(const WhileLoop_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("while");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
+        std::string r = indent;
+        r += syn(gr::Repeat);
+        r += "do while";
+        r += syn();
+        r += " (";
         this->visit_expr(*x.m_test);
-        s.append(" ");
-        s.append("[");
+        r += s;
+        r += ")\n";
+        inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
-            if (i < x.n_body-1) s.append(" ");
+            r += s;
         }
-        s.append("]");
-        s.append(")");
+        dec_indent();
+        r += indent;
+        r += syn(gr::Repeat);
+        r += "end do";
+        r += syn();
+        r += "\n";
+        s = r;
     }
+
     void visit_Print(const Print_t &x) {
         std::string r=indent;
         r += syn(gr::Keyword);
@@ -726,25 +671,15 @@ public:
         r += "\n";
         s = r;
     }
+
     void visit_BoolOp(const BoolOp_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("boolop");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
         this->visit_expr(*x.m_left);
-        s.append(" ");
-        s.append("boolopType" + std::to_string(x.m_op));
-        s.append(" ");
+        std::string left = std::move(s);
         this->visit_expr(*x.m_right);
-        s.append(")");
+        std::string right = std::move(s);
+        s = "(" + left + ")" + boolop2str(x.m_op) + "(" + right + ")";
     }
+
     void visit_BinOp(const BinOp_t &x) {
         this->visit_expr(*x.m_left);
         std::string left = std::move(s);
@@ -752,73 +687,31 @@ public:
         std::string right = std::move(s);
         s = "(" + left + ")" + op2str(x.m_op) + "(" + right + ")";
     }
+
     void visit_UnaryOp(const UnaryOp_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("unaryop");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        s.append("unaryopType" + std::to_string(x.m_op));
-        s.append(" ");
         this->visit_expr(*x.m_operand);
-        s.append(")");
+        if (x.m_op == AST::unaryopType::USub) {
+            s = "-(" + s + ")";
+        } else if (x.m_op == AST::unaryopType::UAdd) {
+            // pass
+            // s = s;
+        } else if (x.m_op == AST::unaryopType::Not) {
+            s = ".not.(" + s + ")";
+        } else {
+            throw LFortranException("Unary op type not implemented");
+        }
     }
+
     void visit_Compare(const Compare_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("compare");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
         this->visit_expr(*x.m_left);
-        s.append(" ");
-        s.append("cmpopType" + std::to_string(x.m_op));
-        s.append(" ");
+        std::string left = std::move(s);
         this->visit_expr(*x.m_right);
-        s.append(")");
+        std::string right = std::move(s);
+        s = "(" + left + ")" + cmpop2str(x.m_op) + "(" + right + ")";
     }
+
     void visit_FuncCall(const FuncCall_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("funccall");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        s.append(x.m_func);
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_args; i++) {
-            this->visit_expr(*x.m_args[i]);
-            if (i < x.n_args-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_keywords; i++) {
-            this->visit_keyword(x.m_keywords[i]);
-            if (i < x.n_keywords-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(")");
-    }
-    void visit_FuncCallOrArray(const FuncCallOrArray_t &x) {
-        std::string r = "";
+        std::string r;
         r.append(x.m_func);
         r.append("(");
         for (size_t i=0; i<x.n_args; i++) {
@@ -834,28 +727,38 @@ public:
         r.append(")");
         s = r;
     }
+
+    void visit_FuncCallOrArray(const FuncCallOrArray_t &x) {
+        std::string r;
+        r.append(x.m_func);
+        r.append("(");
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_expr(*x.m_args[i]);
+            r.append(s);
+            if (i < x.n_args-1) s.append(", ");
+        }
+        for (size_t i=0; i<x.n_keywords; i++) {
+            this->visit_keyword(x.m_keywords[i]);
+            r.append(s);
+            if (i < x.n_keywords-1) r.append(", ");
+        }
+        r.append(")");
+        s = r;
+    }
+
     void visit_Array(const Array_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("array");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        s.append(x.m_name);
-        s.append(" ");
-        s.append("[");
+        std::string r;
+        r.append(x.m_name);
+        r.append("(");
         for (size_t i=0; i<x.n_args; i++) {
             this->visit_array_index(*x.m_args[i]);
-            if (i < x.n_args-1) s.append(" ");
+            r.append(s);
+            if (i < x.n_args-1) s.append(", ");
         }
-        s.append("]");
-        s.append(")");
+        r.append(")");
+        s = r;
     }
+
     void visit_ArrayInitializer(const ArrayInitializer_t &x) {
         std::string r = "[";
         for (size_t i=0; i<x.n_args; i++) {
@@ -866,57 +769,41 @@ public:
         r.append("]");
         s = r;
     }
+
     void visit_Num(const Num_t &x) {
-        s = std::to_string(x.m_n);
+        s = syn(gr::Integer);
+        s += std::to_string(x.m_n);
+        s += syn();
     }
+
     void visit_Real(const Real_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("real");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        s.append("\"" + std::string(x.m_n) + "\"");
-        s.append(")");
+        s = syn(gr::Real);
+        s += x.m_n;
+        s += syn();
     }
+
     void visit_Str(const Str_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("str");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        s.append("\"" + std::string(x.m_s) + "\"");
-        s.append(")");
+        s = syn(gr::String);
+        s += "\"";
+        s += x.m_s;
+        s += "\"";
+        s += syn();
     }
+
     void visit_Name(const Name_t &x) {
         s = std::string(x.m_id);
     }
-    void visit_Constant(const Constant_t &/*x*/) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
+
+    void visit_Constant(const Constant_t &x) {
+        s = syn(gr::Logical);
+        if (x.m_value) {
+            s += ".true.";
+        } else {
+            s += ".false.";
         }
-        s.append("constant");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        s.append("Unimplementedconstant");
-        s.append(")");
+        s += syn();
     }
+
     void visit_decl(const decl_t &x) {
         std::string r = indent;
         r += syn(gr::Type);
@@ -940,7 +827,6 @@ public:
             }
             r.append(")");
         }
-        r.append(" ");
         if (x.m_initializer) {
             r.append("=");
             this->visit_expr(*x.m_initializer);
@@ -949,8 +835,9 @@ public:
         r += "\n";
         s = r;
     }
+
     void visit_dimension(const dimension_t &x) {
-        std::string r = "";
+        std::string r;
         if (x.m_start) {
             this->visit_expr(*x.m_start);
             r.append(s);
@@ -966,6 +853,7 @@ public:
         }
         s = r;
     }
+
     void visit_Attribute(const Attribute_t &x) {
         std::string r;
         r += syn(gr::Type);
@@ -982,96 +870,56 @@ public:
         }
         s = r;
     }
+
     void visit_attribute_arg(const attribute_arg_t &x) {
         s = syn(gr::Type);
         s += x.m_arg;
         s += syn();
 
     }
+
     void visit_arg(const arg_t &x) {
         s = std::string(x.m_arg);
     }
-    void visit_keyword(const keyword_t &x) {
-        s.append("(");
-        if (x.m_arg) {
-            s.append(x.m_arg);
-        } else {
-            s.append("()");
-        }
-        s.append(" ");
-        this->visit_expr(*x.m_value);
-        s.append(")");
+
+    void visit_keyword(const keyword_t &/*x*/) {
+        throw LFortranException("keyword not implemented");
     }
+
     void visit_Bind(const Bind_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("bind");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        s.append("[");
+        std::string r;
+        r += syn(gr::UnitHeader);
+        r.append("bind");
+        r += syn();
+        r += "(";
         for (size_t i=0; i<x.n_args; i++) {
             this->visit_keyword(x.m_args[i]);
-            if (i < x.n_args-1) s.append(" ");
+            r += s;
+            if (i < x.n_args-1) r.append(", ");
         }
-        s.append("]");
-        s.append(")");
+        r += ")";
+        s = r;
     }
+
     void visit_ArrayIndex(const ArrayIndex_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("arrayindex");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
+        std::string r;
         if (x.m_left) {
             this->visit_expr(*x.m_left);
-        } else {
-            s.append("()");
+            r += s;
         }
-        s.append(" ");
+        r.append(":");
         if (x.m_right) {
             this->visit_expr(*x.m_right);
-        } else {
-            s.append("()");
+            r += s;
         }
-        s.append(" ");
         if (x.m_step) {
+            r.append(":");
             this->visit_expr(*x.m_step);
-        } else {
-            s.append("()");
-        }
-        s.append(")");
+            r += s;
+        };
+        s = r;
     }
-    void visit_CaseStmt(const CaseStmt_t &x) {
-        s.append("(");
-        s.append("CaseStmt");
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_test; i++) {
-            this->visit_expr(*x.m_test[i]);
-            if (i < x.n_test-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_body; i++) {
-            this->visit_stmt(*x.m_body[i]);
-            if (i < x.n_body-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(")");
-    }
+
     void visit_UseSymbol(const UseSymbol_t &x) {
         s = "";
         if (x.m_rename) {
@@ -1080,14 +928,58 @@ public:
         }
         s.append(x.m_sym);
     }
+
+    void visit_Select(const AST::Select_t &x) {
+        std::string r = indent;
+        r += syn(gr::Conditional);
+        r += "select case";
+        r += syn();
+        r += " (";
+        this->visit_expr(*x.m_test);
+        r += s;
+        r += ")\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_case_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        r += indent;
+        r += syn(gr::Conditional);
+        r += "end select";
+        r += syn();
+        r += "\n";
+        s = r;
+    }
+
+    void visit_CaseStmt(const AST::CaseStmt_t &x) {
+        std::string r = indent;
+        r += syn(gr::Conditional);
+        r += "case";
+        r += syn();
+        r += " (";
+        for (size_t i=0; i<x.n_test; i++) {
+            this->visit_expr(*x.m_test[i]);
+            r += s;
+            if (i < x.n_test-1) r += ", ";
+        }
+        r += ")\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        s = r;
+    }
 };
 
 }
 
-std::string ast_to_src(LFortran::AST::ast_t &ast, bool color, int indent,
+std::string ast_to_src(AST::TranslationUnit_t &ast, bool color, int indent,
         bool indent_unit) {
     AST::ASTToSRCVisitor v(color, indent, indent_unit);
-    v.visit_ast(ast);
+    v.visit_ast((AST::ast_t &)ast);
     return v.s;
 }
 

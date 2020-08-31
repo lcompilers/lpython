@@ -273,8 +273,7 @@ int emit_ast_f90(const std::string &infile, bool colors)
     }
 
     // AST -> Source
-    // FIXME: For now we only transform the first node in the list:
-    std::string source = LFortran::ast_to_src(*ast->m_items[0], colors);
+    std::string source = LFortran::ast_to_src(*ast, colors);
 
     std::cout << source;
     return 0;
@@ -299,8 +298,7 @@ int format(const std::string &file, bool inplace, bool color, int indent,
     }
 
     // AST -> Source
-    // FIXME: For now we only transform the first node in the list:
-    std::string source = LFortran::ast_to_src(*ast->m_items[0], color,
+    std::string source = LFortran::ast_to_src(*ast, color,
         indent, indent_unit);
 
     if (inplace) {
