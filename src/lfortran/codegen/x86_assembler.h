@@ -252,6 +252,7 @@ struct Symbol {
     bool defined;
     Vec<uint32_t> undefined_positions;
     Vec<uint32_t> undefined_positions_imm16;
+    Vec<uint32_t> undefined_positions_rel;
 };
 
 class X86Assembler {
@@ -307,6 +308,10 @@ public:
                 uint32_t pos = s.undefined_positions[i];
                 insert_uint32(m_code, pos, s.value);
             }
+            for (size_t i=0; i < s.undefined_positions_rel.size(); i++) {
+                uint32_t pos = s.undefined_positions_rel[i];
+                insert_uint32(m_code, pos, s.value-pos-4);
+            }
             for (size_t i=0; i < s.undefined_positions_imm16.size(); i++) {
                 uint32_t pos = s.undefined_positions_imm16[i];
                 insert_uint16(m_code, pos, s.value);
@@ -315,7 +320,7 @@ public:
     }
 
     // Adds to undefined_positions, creates a symbol if needed
-    Symbol &reference_symbol(const std::string &name) {
+    Symbol &reference_symbol(const std::string &name, bool relative=false) {
         if (m_symbols.find(name) == m_symbols.end()) {
             Symbol s;
             s.defined = false;
@@ -323,11 +328,16 @@ public:
             s.name = name;
             s.undefined_positions.reserve(m_al, 8);
             s.undefined_positions_imm16.reserve(m_al, 8);
+            s.undefined_positions_rel.reserve(m_al, 8);
             m_symbols[name] = s;
         }
         Symbol &s = m_symbols[name];
         if (!s.defined) {
-            s.undefined_positions.push_back(m_al, pos());
+            if (relative) {
+                s.undefined_positions_rel.push_back(m_al, pos());
+            } else {
+                s.undefined_positions.push_back(m_al, pos());
+            }
         }
         return s;
     }
@@ -341,6 +351,7 @@ public:
             s.name = name;
             s.undefined_positions.reserve(m_al, 8);
             s.undefined_positions_imm16.reserve(m_al, 8);
+            s.undefined_positions_rel.reserve(m_al, 8);
             m_symbols[name] = s;
         }
         Symbol &s = m_symbols[name];
@@ -590,7 +601,7 @@ public:
 
     void asm_call_label(const std::string &label) {
         m_code.push_back(m_al, 0xe8);
-        uint32_t imm32 = reference_symbol(label).value;
+        uint32_t imm32 = reference_symbol(label, true).value;
         push_back_uint32(m_code, m_al, imm32);
         EMIT("call " + label);
     }
