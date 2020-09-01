@@ -267,6 +267,9 @@ class X86Assembler {
 public:
     X86Assembler(Allocator &al) : m_al{al} {
         m_code.reserve(m_al, 1024*128);
+#ifdef LFORTRAN_ASM_PRINT
+        m_asm_code = "BITS 32\n\n";
+#endif
     }
 
 #ifdef LFORTRAN_ASM_PRINT
@@ -275,6 +278,8 @@ public:
     }
 
     // Saves the generated assembly into a file
+    // Can be compiled with:
+    // nasm -f bin filename.asm
     void save_asm(const std::string &filename) {
         std::ofstream out;
         out.open(filename);
