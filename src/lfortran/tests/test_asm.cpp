@@ -45,6 +45,10 @@ namespace doctest {
     };
 }
 
+// Strips the first character (\n)
+std::string S(const std::string &s) {
+    return s.substr(1, s.size());
+}
 
 TEST_CASE("Store and get instructions") {
     Allocator al(1024);
@@ -57,7 +61,11 @@ TEST_CASE("Store and get instructions") {
 
 #ifdef LFORTRAN_ASM_PRINT
     std::string asm_code = a.get_asm();
-    CHECK(asm_code == "    pop eax\n    jz 0x0d\n");
+    std::string ref = S(R"""(
+    pop eax
+    jz 0x0d
+)""");
+    CHECK(asm_code == ref);
 #endif
 }
 
