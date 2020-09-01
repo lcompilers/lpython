@@ -579,6 +579,12 @@ public:
         EMIT("dd " + i2s(imm32));
     }
 
+    void asm_dd_label(const std::string &label) {
+        uint32_t imm32 = reference_symbol(label).value;
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("dd " + label);
+    }
+
     void asm_add_m32_r32(X86Reg *base, X86Reg *index,
                 uint8_t scale, int32_t disp, X86Reg r32) {
         m_code.push_back(m_al, 0x01);
@@ -655,8 +661,8 @@ void emit_elf32_header(X86Assembler &a, uint32_t origin) {
     a.asm_dw_imm16(2);  // e_type
     a.asm_dw_imm16(3);  // e_machine
     a.asm_dd_imm32(1);  // e_version
-    //a.asm_dd_imm32(e_entry);  // e_entry
-    //a.asm_dd_imm32(e_phoff);  // e_phoff
+    a.asm_dd_label("e_entry");  // e_entry
+    a.asm_dd_label("e_phoff");  // e_phoff
     a.asm_dd_imm32(0);  // e_shoff
     a.asm_dd_imm32(0);  // e_flags
     //a.asm_dw_imm16(ehdrsize);  // e_ehsize
@@ -674,8 +680,8 @@ void emit_elf32_header(X86Assembler &a, uint32_t origin) {
     a.asm_dd_imm32(0);        // p_offset
     a.asm_dd_imm32(origin);   // p_vaddr
     a.asm_dd_imm32(origin);   // p_paddr
-    //a.asm_dd_imm32(filesize); // p_filesz
-    //a.asm_dd_imm32(filesize); // p_memsz
+    a.asm_dd_label("filesize"); // p_filesz
+    a.asm_dd_label("filesize"); // p_memsz
     a.asm_dd_imm32(5);        // p_flags
     a.asm_dd_imm32(0x1000);   // p_align
 
