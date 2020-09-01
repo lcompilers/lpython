@@ -135,6 +135,11 @@ void push_back_uint16(Vec<uint8_t> &code, Allocator &al, uint16_t i16) {
     code.push_back(al, (i16 >>  8) & 0xFF);
 }
 
+void insert_uint16(Vec<uint8_t> &code, size_t pos, uint16_t i16) {
+    code.p[pos  ] = (i16      ) & 0xFF;
+    code.p[pos+1] = (i16 >>  8) & 0xFF;
+}
+
 // Implements table 2-2 in [1].
 uint8_t ModRM_byte(uint8_t mode, uint8_t reg, uint8_t rm) {
     LFORTRAN_ASSERT(mode <= 3);
@@ -245,6 +250,7 @@ struct Symbol {
     uint32_t value;
     bool defined;
     Vec<uint32_t> undefined_positions;
+    Vec<uint32_t> undefined_positions_imm16;
 };
 
 class X86Assembler {
@@ -288,6 +294,10 @@ public:
                 uint32_t pos = s.undefined_positions[i];
                 insert_uint32(m_code, pos, s.value);
             }
+            for (size_t i=0; i < s.undefined_positions_imm16.size(); i++) {
+                uint32_t pos = s.undefined_positions_imm16[i];
+                insert_uint16(m_code, pos, s.value);
+            }
         }
     }
 
@@ -299,11 +309,30 @@ public:
             s.value = 0;
             s.name = name;
             s.undefined_positions.reserve(m_al, 8);
+            s.undefined_positions_imm16.reserve(m_al, 8);
             m_symbols[name] = s;
         }
         Symbol &s = m_symbols[name];
         if (!s.defined) {
             s.undefined_positions.push_back(m_al, pos());
+        }
+        return s;
+    }
+
+    // Adds to undefined_positions, creates a symbol if needed
+    Symbol &reference_symbol_imm16(const std::string &name) {
+        if (m_symbols.find(name) == m_symbols.end()) {
+            Symbol s;
+            s.defined = false;
+            s.value = 0;
+            s.name = name;
+            s.undefined_positions.reserve(m_al, 8);
+            s.undefined_positions_imm16.reserve(m_al, 8);
+            m_symbols[name] = s;
+        }
+        Symbol &s = m_symbols[name];
+        if (!s.defined) {
+            s.undefined_positions_imm16.push_back(m_al, pos());
         }
         return s;
     }
@@ -579,6 +608,12 @@ public:
         EMIT("dd " + i2s(imm32));
     }
 
+    void asm_dw_label(const std::string &label) {
+        uint32_t imm16 = reference_symbol_imm16(label).value;
+        push_back_uint16(m_code, m_al, imm16);
+        EMIT("dw " + label);
+    }
+
     void asm_dd_label(const std::string &label) {
         uint32_t imm32 = reference_symbol(label).value;
         push_back_uint32(m_code, m_al, imm32);
@@ -665,8 +700,8 @@ void emit_elf32_header(X86Assembler &a, uint32_t origin) {
     a.asm_dd_label("e_phoff");  // e_phoff
     a.asm_dd_imm32(0);  // e_shoff
     a.asm_dd_imm32(0);  // e_flags
-    //a.asm_dw_imm16(ehdrsize);  // e_ehsize
-    //a.asm_dw_imm16(phdrsize);  // e_phentsize
+    a.asm_dw_label("ehdrsize");  // e_ehsize
+    a.asm_dw_label("phdrsize");  // e_phentsize
     a.asm_dw_imm16(1);  // e_phnum
     a.asm_dw_imm16(0);  // e_shentsize
     a.asm_dw_imm16(0);  // e_shnum
