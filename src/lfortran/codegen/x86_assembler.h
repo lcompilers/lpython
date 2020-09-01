@@ -26,6 +26,7 @@ https://www.systutorials.com/go/intel-x86-64-reference-manual/
 
 #include <iomanip>
 #include <sstream>
+#include <map>
 
 #include <lfortran/parser/alloc.h>
 #include <lfortran/containers.h>
@@ -120,6 +121,13 @@ void push_back_uint32(Vec<uint8_t> &code, Allocator &al, uint32_t i32) {
     code.push_back(al, (i32 >>  8) & 0xFF);
     code.push_back(al, (i32 >> 16) & 0xFF);
     code.push_back(al, (i32 >> 24) & 0xFF);
+}
+
+void insert_uint32(Vec<uint8_t> &code, size_t pos, uint32_t i32) {
+    code.p[pos  ] = (i32      ) & 0xFF;
+    code.p[pos+1] = (i32 >>  8) & 0xFF;
+    code.p[pos+2] = (i32 >> 16) & 0xFF;
+    code.p[pos+3] = (i32 >> 24) & 0xFF;
 }
 
 void push_back_uint16(Vec<uint8_t> &code, Allocator &al, uint16_t i16) {
@@ -232,9 +240,17 @@ void modrm_sib_disp(Vec<uint8_t> &code, Allocator &al,
             base, index, scale_index, disp);
 }
 
+struct Symbol {
+    std::string name;
+    uint32_t value;
+    bool defined;
+    Vec<uint32_t> undefined_positions;
+};
+
 class X86Assembler {
     Allocator &m_al;
     Vec<uint8_t> m_code;
+    std::map<std::string,Symbol> m_symbols;
 #ifdef LFORTRAN_ASM_PRINT
     std::string m_asm_code;
     void emit(const std::string &indent, const std::string &s) {
@@ -256,20 +272,69 @@ public:
         return m_code;
     }
 
+    void define_symbol(const std::string &name, uint32_t value) {
+        if (m_symbols.find(name) == m_symbols.end()) {
+            Symbol s;
+            s.defined = true;
+            s.value = value;
+            s.name = name;
+            m_symbols[name] = s;
+        } else {
+            Symbol &s = m_symbols[name];
+            s.defined = true;
+            s.value = value;
+            // Fix previous undefined positions
+            for (size_t i=0; i < s.undefined_positions.size(); i++) {
+                uint32_t pos = s.undefined_positions[i];
+                insert_uint32(m_code, pos, s.value);
+            }
+        }
+    }
+
+    // Adds to undefined_positions, creates a symbol if needed
+    Symbol &reference_symbol(const std::string &name) {
+        if (m_symbols.find(name) == m_symbols.end()) {
+            Symbol s;
+            s.defined = false;
+            s.value = 0;
+            s.name = name;
+            s.undefined_positions.reserve(m_al, 8);
+            m_symbols[name] = s;
+        }
+        Symbol &s = m_symbols[name];
+        if (!s.defined) {
+            s.undefined_positions.push_back(m_al, pos());
+        }
+        return s;
+    }
+
+    // Does not touch undefined_positions, symbol must be defined
+    Symbol &get_defined_symbol(const std::string &name) {
+        LFORTRAN_ASSERT(m_symbols.find(name) != m_symbols.end());
+        return m_symbols[name];
+    }
+
     void add_label(const std::string &label) {
+        define_symbol(label, pos());
         EMIT_LABEL(label + ":");
     }
 
-    uint32_t get_label(const std::string &/*label*/) {
-        return 0;
-    }
-
-    void set_var(const std::string &var, uint32_t val) {
+    void add_var(const std::string &var, uint32_t val) {
+        define_symbol(var, val);
         EMIT_VAR(var, val);
     }
 
     uint32_t pos() {
         return m_code.size();
+    }
+
+    // Verifies that all symbols are defined (and thus resolved).
+    void verify() {
+        for (auto &s : m_symbols) {
+            if (!s.second.defined) {
+                throw AssemblerError("The symbol '" + s.first + "' is undefined.");
+            }
+        }
     }
 
     void asm_pop_r32(X86Reg r32) {
@@ -474,6 +539,13 @@ public:
         EMIT("call " + i2s(imm32));
     }
 
+    void asm_call_label(const std::string &label) {
+        m_code.push_back(m_al, 0xe8);
+        uint32_t imm32 = reference_symbol(label).value;
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("call " + label);
+    }
+
     void asm_shl_r32_imm8(X86Reg r32, uint8_t imm8) {
         if (r32 == X86Reg::eax) {
             m_code.push_back(m_al, 0xc1);
@@ -555,9 +627,7 @@ public:
 };
 
 
-void emit_elf32_header(X86Assembler &a) {
-    uint32_t origin = 0x08048000;
-
+void emit_elf32_header(X86Assembler &a, uint32_t origin) {
     /* Elf32_Ehdr */
     a.add_label("ehdr");
     // e_ident
@@ -594,7 +664,7 @@ void emit_elf32_header(X86Assembler &a) {
     a.asm_dw_imm16(0);  // e_shnum
     a.asm_dw_imm16(0);  // e_shstrndx
 
-    a.set_var("ehdrsize", a.pos()-a.get_label("ehdr"));
+    a.add_var("ehdrsize", a.pos()-a.get_defined_symbol("ehdr").value);
 
     /* Elf32_Phdr */
     a.add_label("phdr");
@@ -607,9 +677,16 @@ void emit_elf32_header(X86Assembler &a) {
     a.asm_dd_imm32(5);        // p_flags
     a.asm_dd_imm32(0x1000);   // p_align
 
-    a.set_var("phdrsize", a.pos()-a.get_label("phdr"));
+    a.add_var("phdrsize", a.pos()-a.get_defined_symbol("phdr").value);
 }
 
+void emit_elf32_footer(X86Assembler &a, uint32_t origin) {
+    uint32_t section_start = 0;
+    a.add_var("e_entry", a.get_defined_symbol("_start").value
+        - section_start + origin);
+    a.add_var("e_phoff", a.get_defined_symbol("phdr").value - section_start);
+    a.add_var("filesize", a.pos() - section_start);
+}
 
 } // namespace LFortran
 
