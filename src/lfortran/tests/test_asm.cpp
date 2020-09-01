@@ -326,14 +326,14 @@ TEST_CASE("elf32 binary") {
     LFortran::emit_elf32_header(a, origin);
 
     std::string msg = "Hello World!\n";
-    uint32_t msg_pos = a.pos();
+    a.add_label("msg");
     a.asm_db_imm8(msg.c_str(), msg.size());
 
     a.add_label("_start");
     // ssize_t write(int fd, const void *buf, size_t count);
     a.asm_mov_r32_imm32(LFortran::X86Reg::eax, 4); // sys_write
     a.asm_mov_r32_imm32(LFortran::X86Reg::ebx, 1); // fd (stdout)
-    a.asm_mov_r32_imm32(LFortran::X86Reg::ecx, origin+msg_pos); // buf
+    a.asm_mov_r32_imm32(LFortran::X86Reg::ecx, origin+a.get_defined_symbol("msg").value); // buf
     a.asm_mov_r32_imm32(LFortran::X86Reg::ecx, msg.size()); // count
     a.asm_int_imm8(0x80);
     a.asm_call_label("exit");
