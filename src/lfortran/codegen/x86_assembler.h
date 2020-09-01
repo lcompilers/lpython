@@ -26,6 +26,7 @@ https://www.systutorials.com/go/intel-x86-64-reference-manual/
 
 #include <iomanip>
 #include <sstream>
+#include <fstream>
 #include <map>
 
 #include <lfortran/parser/alloc.h>
@@ -364,6 +365,13 @@ public:
                 throw AssemblerError("The symbol '" + s.first + "' is undefined.");
             }
         }
+    }
+
+    // Saves the generated machine code into a binary file
+    void save_binary(const std::string &filename) {
+        std::ofstream out;
+        out.open(filename);
+        out.write((const char*) m_code.p, m_code.size());
     }
 
     void asm_pop_r32(X86Reg r32) {

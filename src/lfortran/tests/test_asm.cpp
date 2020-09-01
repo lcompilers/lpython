@@ -348,6 +348,8 @@ TEST_CASE("elf32 binary") {
 
     a.verify();
 
+    a.save_binary("write32");
+
 #ifdef LFORTRAN_ASM_PRINT
     std::string asm_code = a.get_asm();
     std::string ref = S(R"""(
