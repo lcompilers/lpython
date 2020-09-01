@@ -14,6 +14,7 @@ typedef enum {
     LFORTRAN_SEMANTIC_ERROR  = 5,
     LFORTRAN_CODEGEN_ERROR   = 6,
     LFORTRAN_ASSERT_FAILED   = 7,
+    LFORTRAN_ASSEMBLER_ERROR = 8,
 } lfortran_exceptions_t;
 
 #ifdef __cplusplus
@@ -143,6 +144,15 @@ class AssertFailed : public LFortranException
 public:
     AssertFailed(const std::string &msg)
         : LFortranException(msg, LFORTRAN_ASSERT_FAILED)
+    {
+    }
+};
+
+class AssemblerError : public LFortranException
+{
+public:
+    AssemblerError(const std::string &msg)
+        : LFortranException(msg, LFORTRAN_ASSEMBLER_ERROR)
     {
     }
 };

@@ -42,3 +42,5 @@ if (WITH_LLVM)
 endif()
 
 ADDTEST(test_stacktrace)
+
+ADDTEST(test_asm p::doctest)
