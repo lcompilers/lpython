@@ -95,6 +95,14 @@ std::string hexify(T i)
     return buf.str();
 }
 
+std::string i2s(uint32_t imm32) {
+    return "0x" + hexify(imm32);
+}
+
+std::string i2s(uint16_t imm16) {
+    return "0x" + hexify(imm16);
+}
+
 std::string i2s(uint8_t imm8) {
     // hexify() for some reason does not work with uint8_t, only with longer
     // integers
@@ -108,6 +116,11 @@ void push_back_uint32(Vec<uint8_t> &code, Allocator &al, uint32_t i32) {
     code.push_back(al, (i32 >>  8) & 0xFF);
     code.push_back(al, (i32 >> 16) & 0xFF);
     code.push_back(al, (i32 >> 24) & 0xFF);
+}
+
+void push_back_uint16(Vec<uint8_t> &code, Allocator &al, uint16_t i16) {
+    code.push_back(al, (i16      ) & 0xFF);
+    code.push_back(al, (i16 >>  8) & 0xFF);
 }
 
 // Implements table 2-2 in [1].
@@ -315,6 +328,201 @@ public:
         modrm_sib_disp(m_code, m_al,
                 X86Reg::eax, base, index, scale, disp, true);
         EMIT("inc " + m2s(base, index, scale, disp));
+    }
+
+    void asm_int_imm8(uint8_t imm8) {
+        m_code.push_back(m_al, 0xcd);
+        m_code.push_back(m_al, imm8);
+        EMIT("int " + i2s(imm8));
+    }
+
+    void asm_ret() {
+        m_code.push_back(m_al, 0xc3);
+        EMIT("ret");
+    }
+
+    void asm_xor_r32_r32(X86Reg r32, X86Reg s32) {
+        m_code.push_back(m_al, 0x31);
+        modrm_sib_disp(m_code, m_al,
+                s32, &r32, nullptr, 1, 0, false);
+        EMIT("xor " + r2s(r32) + ", " + r2s(s32));
+    }
+
+    void asm_mov_r32_imm32(X86Reg r32, uint32_t imm32) {
+        m_code.push_back(m_al, 0xb8);
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("mov " + r2s(r32) + ", " + i2s(imm32));
+    }
+
+    void asm_mov_r32_r32(X86Reg r32, X86Reg s32) {
+        m_code.push_back(m_al, 0x89);
+        modrm_sib_disp(m_code, m_al,
+                s32, &r32, nullptr, 1, 0, false);
+        EMIT("mov " + r2s(r32) + ", " + r2s(s32));
+    }
+
+    void asm_mov_r32_m32(X86Reg r32, X86Reg *base, X86Reg *index,
+                uint8_t scale, int32_t disp) {
+        if (r32 == X86Reg::eax && !base && !index) {
+            m_code.push_back(m_al, 0xa1);
+            uint32_t disp32 = disp;
+            push_back_uint32(m_code, m_al, disp32);
+        } else {
+            m_code.push_back(m_al, 0x8b);
+            modrm_sib_disp(m_code, m_al,
+                    r32, base, index, scale, disp, true);
+        }
+        EMIT("mov " + r2s(r32) + ", " + m2s(base, index, scale, disp));
+    }
+
+    void asm_mov_m32_r32(X86Reg *base, X86Reg *index,
+                uint8_t scale, int32_t disp, X86Reg r32) {
+        if (r32 == X86Reg::eax && !base && !index) {
+            m_code.push_back(m_al, 0xa3);
+            uint32_t disp32 = disp;
+            push_back_uint32(m_code, m_al, disp32);
+        } else {
+            m_code.push_back(m_al, 0x89);
+            modrm_sib_disp(m_code, m_al,
+                    r32, base, index, scale, disp, true);
+        }
+        EMIT("mov " + m2s(base, index, scale, disp) + ", " + r2s(r32));
+    }
+
+    void asm_test_r32_r32(X86Reg r32, X86Reg s32) {
+        m_code.push_back(m_al, 0x85);
+        modrm_sib_disp(m_code, m_al,
+                s32, &r32, nullptr, 1, 0, false);
+        EMIT("test " + r2s(r32) + ", " + r2s(s32));
+    }
+
+    void asm_sub_r32_imm8(X86Reg r32, uint8_t imm8) {
+        if (r32 == X86Reg::eax) {
+            m_code.push_back(m_al, 0x83);
+            m_code.push_back(m_al, 0xe8);
+            m_code.push_back(m_al, imm8);
+        } else {
+            throw AssemblerError("Not implemented.");
+        }
+        EMIT("sub " + r2s(r32) + ", " + i2s(imm8));
+    }
+
+    void asm_sub_r32_r32(X86Reg r32, X86Reg s32) {
+        m_code.push_back(m_al, 0x29);
+        modrm_sib_disp(m_code, m_al,
+                s32, &r32, nullptr, 1, 0, false);
+        EMIT("sub " + r2s(r32) + ", " + r2s(s32));
+    }
+
+    void asm_sar_r32_imm8(X86Reg r32, uint8_t imm8) {
+        if (r32 == X86Reg::eax) {
+            m_code.push_back(m_al, 0xc1);
+            m_code.push_back(m_al, 0xf8);
+            m_code.push_back(m_al, imm8);
+        } else {
+            throw AssemblerError("Not implemented.");
+        }
+        EMIT("sar " + r2s(r32) + ", " + i2s(imm8));
+    }
+
+    void asm_cmp_r32_imm8(X86Reg r32, uint8_t imm8) {
+        if (r32 == X86Reg::eax) {
+            m_code.push_back(m_al, 0x83);
+            m_code.push_back(m_al, 0xf8);
+            m_code.push_back(m_al, imm8);
+        } else {
+            throw AssemblerError("Not implemented.");
+        }
+        EMIT("cmp " + r2s(r32) + ", " + i2s(imm8));
+    }
+
+    void asm_jmp_imm8(uint8_t imm8) {
+        m_code.push_back(m_al, 0xeb);
+        m_code.push_back(m_al, imm8);
+        EMIT("jmp " + i2s(imm8));
+    }
+
+    void asm_jmp_imm32(uint32_t imm32) {
+        m_code.push_back(m_al, 0xe9);
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("jmp " + i2s(imm32));
+    }
+
+    void asm_call_imm32(uint32_t imm32) {
+        m_code.push_back(m_al, 0xe8);
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("call " + i2s(imm32));
+    }
+
+    void asm_shl_r32_imm8(X86Reg r32, uint8_t imm8) {
+        if (r32 == X86Reg::eax) {
+            m_code.push_back(m_al, 0xc1);
+            m_code.push_back(m_al, 0xe0);
+            m_code.push_back(m_al, imm8);
+        } else {
+            throw AssemblerError("Not implemented.");
+        }
+        EMIT("shl " + r2s(r32) + ", " + i2s(imm8));
+    }
+
+    void asm_db_imm8(uint8_t imm8) {
+        m_code.push_back(m_al, imm8);
+        EMIT("db " + i2s(imm8));
+    }
+
+    void asm_dw_imm16(uint16_t imm16) {
+        push_back_uint16(m_code, m_al, imm16);
+        EMIT("dw " + i2s(imm16));
+    }
+
+    void asm_dd_imm32(uint32_t imm32) {
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("dd " + i2s(imm32));
+    }
+
+    void asm_add_m32_r32(X86Reg *base, X86Reg *index,
+                uint8_t scale, int32_t disp, X86Reg r32) {
+        m_code.push_back(m_al, 0x01);
+        modrm_sib_disp(m_code, m_al,
+                r32, base, index, scale, disp, true);
+        EMIT("add " + m2s(base, index, scale, disp) + ", " + r2s(r32));
+    }
+
+    void asm_add_r32_imm8(X86Reg r32, uint8_t imm8) {
+        m_code.push_back(m_al, 0x83);
+        X86Reg base = X86Reg::eax;
+        modrm_sib_disp(m_code, m_al,
+                r32, &base, nullptr, 1, 0, false);
+        m_code.push_back(m_al, imm8);
+        EMIT("add " + r2s(r32) + ", " + i2s(imm8));
+    }
+
+    void asm_add_r32_imm32(X86Reg r32, uint32_t imm32) {
+        if (r32 == X86Reg::eax) {
+            m_code.push_back(m_al, 0x05);
+            push_back_uint32(m_code, m_al, imm32);
+        } else {
+            throw AssemblerError("Not implemented.");
+        }
+        EMIT("add " + r2s(r32) + ", " + i2s(imm32));
+    }
+
+    void asm_lea_r32_m32(X86Reg r32, X86Reg *base, X86Reg *index,
+                uint8_t scale, int32_t disp) {
+        m_code.push_back(m_al, 0x8d);
+        modrm_sib_disp(m_code, m_al,
+                r32, base, index, scale, disp, true);
+        EMIT("lea " + r2s(r32) + ", " + m2s(base, index, scale, disp));
+    }
+
+    void asm_and_r32_imm32(X86Reg r32, uint32_t imm32) {
+        if (r32 == X86Reg::eax) {
+            m_code.push_back(m_al, 0x25);
+            push_back_uint32(m_code, m_al, imm32);
+        } else {
+            throw AssemblerError("Not implemented.");
+        }
+        EMIT("and " + r2s(r32) + ", " + i2s(imm32));
     }
 
 };
