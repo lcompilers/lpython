@@ -62,6 +62,8 @@ TEST_CASE("Store and get instructions") {
 #ifdef LFORTRAN_ASM_PRINT
     std::string asm_code = a.get_asm();
     std::string ref = S(R"""(
+BITS 32
+
     pop eax
     jz 0x0d
 )""");
@@ -295,6 +297,8 @@ TEST_CASE("Memory operand") {
 #ifdef LFORTRAN_ASM_PRINT
     std::string asm_code = a.get_asm();
     std::string ref = S(R"""(
+BITS 32
+
     inc [ebx]
     inc [ebx+3]
     inc [ebx-2]
