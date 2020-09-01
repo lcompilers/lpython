@@ -483,7 +483,7 @@ public:
     }
 
     void asm_mov_r32_imm32(X86Reg r32, uint32_t imm32) {
-        m_code.push_back(m_al, 0xb8);
+        m_code.push_back(m_al, 0xb8 + r32);
         push_back_uint32(m_code, m_al, imm32);
         EMIT("mov " + r2s(r32) + ", " + i2s(imm32));
     }
