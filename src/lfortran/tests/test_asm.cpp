@@ -354,6 +354,8 @@ TEST_CASE("elf32 binary") {
     a.save_asm("write32.asm");
     std::string asm_code = a.get_asm();
     std::string ref = S(R"""(
+BITS 32
+
 ehdr:
     db 0x7f
     db 0x45
@@ -374,24 +376,64 @@ ehdr:
     dw 0x0002
     dw 0x0003
     dd 0x00000001
+    dd e_entry
+    dd e_phoff
     dd 0x00000000
     dd 0x00000000
+    dw ehdrsize
+    dw phdrsize
     dw 0x0001
     dw 0x0000
     dw 0x0000
     dw 0x0000
 
-ehdrsize equ 0x00000028
+ehdrsize equ 0x00000034
 
 phdr:
     dd 0x00000001
     dd 0x00000000
     dd 0x08048000
     dd 0x08048000
+    dd filesize
+    dd filesize
     dd 0x00000005
     dd 0x00001000
 
-phdrsize equ 0x00000040
+phdrsize equ 0x00000020
+
+
+e_phoff equ 0x00000034
+
+msg:
+    db 0x48
+    db 0x65
+    db 0x6c
+    db 0x6c
+    db 0x6f
+    db 0x20
+    db 0x57
+    db 0x6f
+    db 0x72
+    db 0x6c
+    db 0x64
+    db 0x21
+    db 0x0a
+_start:
+    mov eax, 0x00000004
+    mov ebx, 0x00000001
+    mov ecx, 0x08048054
+    mov ecx, 0x0000000d
+    int 0x80
+    call exit
+exit:
+    mov eax, 0x00000001
+    mov ebx, 0x00000000
+    int 0x80
+
+e_entry equ 0x08048061
+
+
+filesize equ 0x00000088
 
 )""");
     CHECK(asm_code == ref);
