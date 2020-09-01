@@ -273,6 +273,13 @@ public:
     std::string get_asm() {
         return m_asm_code;
     }
+
+    // Saves the generated assembly into a file
+    void save_asm(const std::string &filename) {
+        std::ofstream out;
+        out.open(filename);
+        out << get_asm();
+    }
 #endif
 
     Vec<uint8_t>& get_machine_code() {
