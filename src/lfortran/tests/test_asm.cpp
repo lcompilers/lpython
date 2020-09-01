@@ -316,3 +316,56 @@ TEST_CASE("Memory operand") {
     CHECK(asm_code == ref);
 #endif
 }
+
+TEST_CASE("elf32 binary") {
+    Allocator al(1024);
+    LFortran::X86Assembler a(al);
+
+    LFortran::emit_elf32_header(a);
+
+#ifdef LFORTRAN_ASM_PRINT
+    std::string asm_code = a.get_asm();
+    std::string ref = S(R"""(
+ehdr:
+    db 0x7f
+    db 0x45
+    db 0x4c
+    db 0x46
+    db 0x01
+    db 0x01
+    db 0x01
+    db 0x00
+    db 0x00
+    db 0x00
+    db 0x00
+    db 0x00
+    db 0x00
+    db 0x00
+    db 0x00
+    db 0x00
+    dw 0x0002
+    dw 0x0003
+    dd 0x00000001
+    dd 0x00000000
+    dd 0x00000000
+    dw 0x0001
+    dw 0x0000
+    dw 0x0000
+    dw 0x0000
+
+ehdrsize equ 0x00000028
+
+phdr:
+    dd 0x00000001
+    dd 0x00000000
+    dd 0x08048000
+    dd 0x08048000
+    dd 0x00000005
+    dd 0x00001000
+
+phdrsize equ 0x00000040
+
+)""");
+    CHECK(asm_code == ref);
+#endif
+}

@@ -35,8 +35,12 @@ https://www.systutorials.com/go/intel-x86-64-reference-manual/
 
 #ifdef LFORTRAN_ASM_PRINT
 #    define EMIT(s) emit("    ", s)
+#    define EMIT_LABEL(s) emit("", s)
+#    define EMIT_VAR(a, b) emit("\n", a + " equ " + i2s(b) + "\n")
 #else
 #    define EMIT(s)
+#    define EMIT_LABEL(s)
+#    define EMIT_VAR(s)
 #endif
 
 namespace LFortran {
@@ -250,6 +254,22 @@ public:
 
     Vec<uint8_t>& get_machine_code() {
         return m_code;
+    }
+
+    void add_label(const std::string &label) {
+        EMIT_LABEL(label + ":");
+    }
+
+    uint32_t get_label(const std::string &/*label*/) {
+        return 0;
+    }
+
+    void set_var(const std::string &var, uint32_t val) {
+        EMIT_VAR(var, val);
+    }
+
+    uint32_t pos() {
+        return m_code.size();
     }
 
     void asm_pop_r32(X86Reg r32) {
@@ -527,6 +547,61 @@ public:
 
 };
 
+
+void emit_elf32_header(X86Assembler &a) {
+    uint32_t origin = 0x08048000;
+
+    /* Elf32_Ehdr */
+    a.add_label("ehdr");
+    // e_ident
+    a.asm_db_imm8(0x7F);
+    a.asm_db_imm8('E');
+    a.asm_db_imm8('L');
+    a.asm_db_imm8('F');
+    a.asm_db_imm8(1);
+    a.asm_db_imm8(1);
+    a.asm_db_imm8(1);
+    a.asm_db_imm8(0);
+
+    a.asm_db_imm8(0);
+    a.asm_db_imm8(0);
+    a.asm_db_imm8(0);
+    a.asm_db_imm8(0);
+
+    a.asm_db_imm8(0);
+    a.asm_db_imm8(0);
+    a.asm_db_imm8(0);
+    a.asm_db_imm8(0);
+
+    a.asm_dw_imm16(2);  // e_type
+    a.asm_dw_imm16(3);  // e_machine
+    a.asm_dd_imm32(1);  // e_version
+    //a.asm_dd_imm32(e_entry);  // e_entry
+    //a.asm_dd_imm32(e_phoff);  // e_phoff
+    a.asm_dd_imm32(0);  // e_shoff
+    a.asm_dd_imm32(0);  // e_flags
+    //a.asm_dw_imm16(ehdrsize);  // e_ehsize
+    //a.asm_dw_imm16(phdrsize);  // e_phentsize
+    a.asm_dw_imm16(1);  // e_phnum
+    a.asm_dw_imm16(0);  // e_shentsize
+    a.asm_dw_imm16(0);  // e_shnum
+    a.asm_dw_imm16(0);  // e_shstrndx
+
+    a.set_var("ehdrsize", a.pos()-a.get_label("ehdr"));
+
+    /* Elf32_Phdr */
+    a.add_label("phdr");
+    a.asm_dd_imm32(1);        // p_type
+    a.asm_dd_imm32(0);        // p_offset
+    a.asm_dd_imm32(origin);   // p_vaddr
+    a.asm_dd_imm32(origin);   // p_paddr
+    //a.asm_dd_imm32(filesize); // p_filesz
+    //a.asm_dd_imm32(filesize); // p_memsz
+    a.asm_dd_imm32(5);        // p_flags
+    a.asm_dd_imm32(0x1000);   // p_align
+
+    a.set_var("phdrsize", a.pos()-a.get_label("phdr"));
+}
 
 
 } // namespace LFortran
