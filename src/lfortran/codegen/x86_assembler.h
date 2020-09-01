@@ -66,6 +66,26 @@ std::string r2s(X86Reg r32) {
     }
 }
 
+std::string m2s(X86Reg *base, X86Reg *index, uint8_t scale, int32_t disp) {
+    std::string r;
+    r = "[";
+    if (base) r += r2s(*base);
+    if (index) {
+        if (base) r += "+";
+        if (scale == 1) {
+            r += r2s(*index);
+        } else {
+            r += std::to_string(scale) + "*" + r2s(*index);
+        }
+    }
+    if (disp) {
+        if ((base || index) && (disp > 0)) r += "+";
+        r += std::to_string(disp);
+    }
+    r += "]";
+    return r;
+}
+
 template< typename T >
 std::string hexify(T i)
 {
@@ -288,6 +308,13 @@ public:
             throw AssemblerError("Register not supported yet");
         }
         EMIT("inc " + r2s(r32));
+    }
+
+    void asm_inc_m32(X86Reg *base, X86Reg *index, uint8_t scale, int32_t disp) {
+        m_code.push_back(m_al, 0xff);
+        modrm_sib_disp(m_code, m_al,
+                X86Reg::eax, base, index, scale, disp, true);
+        EMIT("inc " + m2s(base, index, scale, disp));
     }
 
 };

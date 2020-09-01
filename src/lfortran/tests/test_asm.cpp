@@ -265,3 +265,54 @@ TEST_CASE("modrm_sib_disp") {
             LFortran::X86Reg::ecx, nullptr, nullptr, 1, 0, true),
         LFortran::AssemblerError);
 }
+
+TEST_CASE("Memory operand") {
+    Allocator al(1024);
+    LFortran::X86Assembler a(al);
+    LFortran::X86Reg base = LFortran::X86Reg::ebx;
+    LFortran::X86Reg index = LFortran::X86Reg::ecx;
+
+    a.asm_inc_m32(&base, nullptr, 1, 0);
+    a.asm_inc_m32(&base, nullptr, 1, 3);
+    a.asm_inc_m32(&base, nullptr, 1, -2);
+
+    a.asm_inc_m32(&base, &index, 1, 2);
+    a.asm_inc_m32(&base, &index, 2, 2);
+    a.asm_inc_m32(&base, &index, 4, 2);
+    a.asm_inc_m32(&base, &index, 8, 2);
+    a.asm_inc_m32(&base, &index, 1, -2);
+    a.asm_inc_m32(&base, &index, 1, 1024);
+    a.asm_inc_m32(&base, &index, 2, 0);
+
+    a.asm_inc_m32(nullptr, &index, 1, 2);
+    a.asm_inc_m32(nullptr, &index, 2, 2);
+    a.asm_inc_m32(nullptr, &index, 4, 2);
+    a.asm_inc_m32(nullptr, &index, 8, 2);
+    a.asm_inc_m32(nullptr, &index, 1, -2);
+    a.asm_inc_m32(nullptr, &index, 1, 1024);
+    a.asm_inc_m32(nullptr, &index, 2, 0);
+
+#ifdef LFORTRAN_ASM_PRINT
+    std::string asm_code = a.get_asm();
+    std::string ref = S(R"""(
+    inc [ebx]
+    inc [ebx+3]
+    inc [ebx-2]
+    inc [ebx+ecx+2]
+    inc [ebx+2*ecx+2]
+    inc [ebx+4*ecx+2]
+    inc [ebx+8*ecx+2]
+    inc [ebx+ecx-2]
+    inc [ebx+ecx+1024]
+    inc [ebx+2*ecx]
+    inc [ecx+2]
+    inc [2*ecx+2]
+    inc [4*ecx+2]
+    inc [8*ecx+2]
+    inc [ecx-2]
+    inc [ecx+1024]
+    inc [2*ecx]
+)""");
+    CHECK(asm_code == ref);
+#endif
+}
