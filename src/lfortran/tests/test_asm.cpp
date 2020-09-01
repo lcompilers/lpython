@@ -322,6 +322,9 @@ TEST_CASE("elf32 binary") {
     LFortran::X86Assembler a(al);
 
     LFortran::emit_elf32_header(a);
+    a.add_label("msg");
+    std::string msg = "Hello World!\n";
+    a.asm_db_imm8(msg.c_str(), msg.size());
 
 #ifdef LFORTRAN_ASM_PRINT
     std::string asm_code = a.get_asm();

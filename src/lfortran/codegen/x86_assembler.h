@@ -490,6 +490,13 @@ public:
         EMIT("db " + i2s(imm8));
     }
 
+    void asm_db_imm8(const void *data, size_t size) {
+        const uint8_t *data_char=(const uint8_t*)data;
+        for (size_t i=0; i < size; i++) {
+            asm_db_imm8(data_char[i]);
+        }
+    }
+
     void asm_dw_imm16(uint16_t imm16) {
         push_back_uint16(m_code, m_al, imm16);
         EMIT("dw " + i2s(imm16));
