@@ -480,8 +480,7 @@ TEST_CASE("print") {
     LFortran::emit_elf32_header(a, origin);
 
     std::string msg = "Hello World!\n";
-    a.add_label("msg");
-    a.asm_db_imm8(msg.c_str(), msg.size());
+    LFortran::emit_data_string(a, "msg", msg);
 
     a.add_label("_start");
     // ssize_t write(int fd, const void *buf, size_t count);

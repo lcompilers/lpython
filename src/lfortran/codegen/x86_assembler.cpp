@@ -74,4 +74,11 @@ void emit_exit(X86Assembler &a, const std::string &name)
     a.asm_int_imm8(0x80); // syscall
 }
 
+void emit_data_string(X86Assembler &a, const std::string &label,
+    const std::string &s)
+{
+    a.add_label(label);
+    a.asm_db_imm8(s.c_str(), s.size());
+}
+
 } // namespace LFortran
