@@ -476,7 +476,6 @@ TEST_CASE("print") {
     LFortran::emit_elf32_header(a);
 
     std::string msg = "Hello World!\n";
-    LFortran::emit_data_string(a, "msg", msg);
 
     a.add_label("_start");
     // ssize_t write(int fd, const void *buf, size_t count);
@@ -490,6 +489,8 @@ TEST_CASE("print") {
 
     LFortran::emit_exit(a, "exit");
     LFortran::emit_elf32_footer(a);
+
+    LFortran::emit_data_string(a, "msg", msg);
 
     a.verify();
 
