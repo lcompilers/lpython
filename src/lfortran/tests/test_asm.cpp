@@ -497,7 +497,7 @@ TEST_CASE("cmp") {
     a.add_label("_start");
     // if (3 >= 5) then
     a.asm_mov_r32_imm32(LFortran::X86Reg::eax, 3);
-    //a.asm_cmp_r32_imm8(LFortran::X86Reg::eax, 5);
+    a.asm_cmp_r32_imm8(LFortran::X86Reg::eax, 5);
     //a.asm_jge_label(".then");
     a.asm_jmp_label(".else");
     a.add_label(".then");
