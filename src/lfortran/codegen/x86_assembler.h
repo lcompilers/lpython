@@ -608,7 +608,7 @@ public:
 
     void asm_call_label(const std::string &label) {
         m_code.push_back(m_al, 0xe8);
-        uint32_t imm32 = reference_symbol(label, 2).value;
+        uint32_t imm32 = reference_symbol(label, 2).value-pos()-4;
         push_back_uint32(m_code, m_al, imm32);
         EMIT("call " + label);
     }
