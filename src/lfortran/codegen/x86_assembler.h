@@ -312,7 +312,7 @@ public:
             }
             for (size_t i=0; i < s.undefined_positions_rel.size(); i++) {
                 uint32_t pos = s.undefined_positions_rel[i];
-                insert_uint32(m_code, pos, s.value-pos);
+                insert_uint32(m_code, pos, s.value-pos-m_origin);
             }
             for (size_t i=0; i < s.undefined_positions_imm16.size(); i++) {
                 uint32_t pos = s.undefined_positions_imm16[i];
@@ -371,8 +371,7 @@ public:
     }
 
     void add_label(const std::string &label) {
-        // TODO: remove -m_origin
-        define_symbol(label, pos()-m_origin);
+        define_symbol(label, pos());
         EMIT_LABEL(label + ":");
     }
 
@@ -506,7 +505,7 @@ public:
     void asm_mov_r32_label(X86Reg r32, const std::string &label) {
         m_code.push_back(m_al, 0xb8 + r32);
         uint32_t imm32 = reference_symbol(label).value;
-        push_back_uint32(m_code, m_al, imm32+m_origin);
+        push_back_uint32(m_code, m_al, imm32);
         EMIT("mov " + r2s(r32) + ", " + label);
     }
 
