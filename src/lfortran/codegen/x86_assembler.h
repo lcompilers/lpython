@@ -337,9 +337,9 @@ public:
         Symbol &s = m_symbols[name];
         if (!s.defined) {
             if (relative) {
-                s.undefined_positions_rel.push_back(m_al, pos()+offset);
+                s.undefined_positions_rel.push_back(m_al, pos()-m_origin+offset);
             } else {
-                s.undefined_positions.push_back(m_al, pos()+offset);
+                s.undefined_positions.push_back(m_al, pos()-m_origin+offset);
             }
         }
         return s;
@@ -359,7 +359,7 @@ public:
         }
         Symbol &s = m_symbols[name];
         if (!s.defined) {
-            s.undefined_positions_imm16.push_back(m_al, pos());
+            s.undefined_positions_imm16.push_back(m_al, pos()-m_origin);
         }
         return s;
     }
@@ -371,7 +371,8 @@ public:
     }
 
     void add_label(const std::string &label) {
-        define_symbol(label, pos());
+        // TODO: remove -m_origin
+        define_symbol(label, pos()-m_origin);
         EMIT_LABEL(label + ":");
     }
 
@@ -381,7 +382,7 @@ public:
     }
 
     uint32_t pos() {
-        return m_code.size();
+        return m_origin + m_code.size();
     }
 
     uint32_t origin() {
