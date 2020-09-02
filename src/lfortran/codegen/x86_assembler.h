@@ -732,6 +732,13 @@ public:
         EMIT("add " + m2s(base, index, scale, disp) + ", " + r2s(r32));
     }
 
+    void asm_add_r32_r32(X86Reg s32, X86Reg r32) {
+        m_code.push_back(m_al, 0x01);
+        modrm_sib_disp(m_code, m_al,
+                r32, &s32, nullptr, 1, 0, false);
+        EMIT("add " + r2s(s32) + ", " + r2s(r32));
+    }
+
     void asm_add_r32_imm8(X86Reg r32, uint8_t imm8) {
         m_code.push_back(m_al, 0x83);
         modrm_sib_disp(m_code, m_al,
