@@ -83,19 +83,21 @@ public:
                     break;
                 };
                 case ASR::operatorType::Sub: {
-                    throw CodeGenError("Not implemented.");
+                    m_a.asm_sub_r32_r32(X86Reg::eax, X86Reg::ecx);
                     break;
                 };
                 case ASR::operatorType::Mul: {
-                    throw CodeGenError("Not implemented.");
+                    m_a.asm_mov_r32_imm32(X86Reg::edx, 0);
+                    m_a.asm_mul_r32(X86Reg::ecx);
                     break;
                 };
                 case ASR::operatorType::Div: {
-                    throw CodeGenError("Not implemented.");
+                    m_a.asm_mov_r32_imm32(X86Reg::edx, 0);
+                    m_a.asm_div_r32(X86Reg::ecx);
                     break;
                 };
                 case ASR::operatorType::Pow: {
-                    throw CodeGenError("Not implemented.");
+                    throw CodeGenError("Pow not implemented yet.");
                     break;
                 };
             }
