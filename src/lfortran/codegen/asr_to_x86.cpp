@@ -45,6 +45,7 @@ public:
 
         emit_elf32_header(m_a);
 
+        emit_print_int(m_a, "print_int");
         emit_exit(m_a, "exit");
 
         m_a.add_label("_start");
@@ -65,12 +66,26 @@ public:
     void visit_Print(const ASR::Print_t &x) {
         LFORTRAN_ASSERT(x.n_values == 1);
         ASR::expr_t *e = x.m_values[0];
-        ASR::Str_t *s = EXPR_STR((ASR::asr_t*)e);
-        std::string msg = s->m_s;
-        msg += "\n";
-        std::string id = "string" + std::to_string(get_hash((ASR::asr_t*)e));
-        emit_print(m_a, id, msg.size());
-        m_global_strings[id] = msg;
+        if (e->type == ASR::exprType::Str) {
+            ASR::Str_t *s = EXPR_STR((ASR::asr_t*)e);
+            std::string msg = s->m_s;
+            msg += "\n";
+            std::string id = "string" + std::to_string(get_hash((ASR::asr_t*)e));
+            emit_print(m_a, id, msg.size());
+            m_global_strings[id] = msg;
+        } else if (e->type == ASR::exprType::Num) {
+            uint32_t i = EXPR_NUM((ASR::asr_t*)e)->m_n;
+            m_a.asm_push_imm32(i);
+            m_a.asm_call_label("print_int");
+            m_a.asm_add_r32_imm8(LFortran::X86Reg::esp, 4);
+
+            std::string msg = "\n";
+            std::string id = "string" + std::to_string(get_hash((ASR::asr_t*)e));
+            emit_print(m_a, id, msg.size());
+            m_global_strings[id] = msg;
+        } else {
+            throw CodeGenError("Not implemented.");
+        }
     }
 
 
