@@ -718,6 +718,8 @@ void emit_elf32_footer(X86Assembler &a);
 void emit_exit(X86Assembler &a, const std::string &name);
 void emit_data_string(X86Assembler &a, const std::string &label,
     const std::string &s);
+void emit_print(X86Assembler &a, const std::string &msg_label,
+    uint32_t size);
 
 } // namespace LFortran
 

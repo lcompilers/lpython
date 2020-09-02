@@ -100,4 +100,15 @@ void emit_data_string(X86Assembler &a, const std::string &label,
     a.asm_db_imm8(s.c_str(), s.size());
 }
 
+void emit_print(X86Assembler &a, const std::string &msg_label,
+    uint32_t size)
+{
+    // ssize_t write(int fd, const void *buf, size_t count);
+    a.asm_mov_r32_imm32(LFortran::X86Reg::eax, 4); // sys_write
+    a.asm_mov_r32_imm32(LFortran::X86Reg::ebx, 1); // fd (stdout)
+    a.asm_mov_r32_label(LFortran::X86Reg::ecx, msg_label); // buf
+    a.asm_mov_r32_imm32(LFortran::X86Reg::edx, size); // count
+    a.asm_int_imm8(0x80);
+}
+
 } // namespace LFortran
