@@ -479,8 +479,8 @@ TEST_CASE("print") {
     LFortran::emit_print(a, "msg", msg.size());
     a.asm_call_label("exit");
     LFortran::emit_exit(a, "exit");
-    LFortran::emit_elf32_footer(a);
     LFortran::emit_data_string(a, "msg", msg);
+    LFortran::emit_elf32_footer(a);
 
     a.verify();
 
