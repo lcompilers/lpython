@@ -459,6 +459,52 @@ public:
         EMIT("jge " + i2s(imm32));
     }
 
+    // Jump if ==
+    void asm_je_label(const std::string &label) {
+        m_code.push_back(m_al, 0x0F);
+        m_code.push_back(m_al, 0x84);
+        uint32_t imm32 = relative_symbol(label);
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("je " + label);
+    }
+
+    // Jump if !=
+    void asm_jne_label(const std::string &label) {
+        m_code.push_back(m_al, 0x0F);
+        m_code.push_back(m_al, 0x85);
+        uint32_t imm32 = relative_symbol(label);
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("jne " + label);
+    }
+
+    // Jump if <
+    void asm_jl_label(const std::string &label) {
+        m_code.push_back(m_al, 0x0F);
+        m_code.push_back(m_al, 0x8C);
+        uint32_t imm32 = relative_symbol(label);
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("jl " + label);
+    }
+
+    // Jump if <=
+    void asm_jle_label(const std::string &label) {
+        m_code.push_back(m_al, 0x0F);
+        m_code.push_back(m_al, 0x8E);
+        uint32_t imm32 = relative_symbol(label);
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("jle " + label);
+    }
+
+    // Jump if >
+    void asm_jg_label(const std::string &label) {
+        m_code.push_back(m_al, 0x0F);
+        m_code.push_back(m_al, 0x8F);
+        uint32_t imm32 = relative_symbol(label);
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("jg " + label);
+    }
+
+    // Jump if >=
     void asm_jge_label(const std::string &label) {
         m_code.push_back(m_al, 0x0F);
         m_code.push_back(m_al, 0x8D);
