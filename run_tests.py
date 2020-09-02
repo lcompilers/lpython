@@ -48,6 +48,7 @@ def main():
         llvm = test.get("llvm", False)
         cpp = test.get("cpp", False)
         obj = test.get("obj", False)
+        x86 = test.get("x86", False)
         bin_ = test.get("bin", False)
         pass_ = test.get("pass", None)
         if pass_ and pass_ not in ["do_loops", "global_stmts"]:
@@ -108,6 +109,10 @@ def main():
             else:
                 run_test("obj", "lfortran -c {infile} -o output.o",
                         filename, update_reference)
+
+        if x86:
+            run_test("x86", "lfortran --backend=x86 {infile} -o output",
+                    filename, update_reference)
 
         if bin_:
             run_test("bin", "lfortran {infile} -o {outfile}",

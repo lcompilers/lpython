@@ -154,6 +154,7 @@ ast = true
 asr = true
 llvm = true
 obj = true
+x86 = true
 
 [[test]]
 filename = "../integration_tests/print_01.f90"
