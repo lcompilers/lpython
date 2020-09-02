@@ -566,8 +566,8 @@ TEST_CASE("subroutine args") {
     a.add_label("sub1");
     a.asm_push_r32(LFortran::X86Reg::ebp);
     a.asm_mov_r32_r32(LFortran::X86Reg::ebp, LFortran::X86Reg::esp);
-    //a.asm_sub_r32_imm8(LFortran::X86Reg::esp, 4);
     // sub esp, 4 // one local variable
+    a.asm_sub_r32_imm8(LFortran::X86Reg::esp, 4);
     // mov eax, [ebp+8] // first argument
     // mov ecx, [ebp+12] // second argument
     // mov [ebp-4], eax // move eax to a local variable
