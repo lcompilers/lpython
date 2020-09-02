@@ -312,7 +312,7 @@ public:
             }
             for (size_t i=0; i < s.undefined_positions_rel.size(); i++) {
                 uint32_t pos = s.undefined_positions_rel[i];
-                insert_uint32(m_code, pos, s.value-pos-m_origin);
+                insert_uint32(m_code, pos, s.value-pos-m_origin-4);
             }
             for (size_t i=0; i < s.undefined_positions_imm16.size(); i++) {
                 uint32_t pos = s.undefined_positions_imm16[i];
@@ -337,9 +337,9 @@ public:
         Symbol &s = m_symbols[name];
         if (!s.defined) {
             if (relative) {
-                s.undefined_positions_rel.push_back(m_al, pos()-m_origin+offset);
+                s.undefined_positions_rel.push_back(m_al, pos()-m_origin);
             } else {
-                s.undefined_positions.push_back(m_al, pos()-m_origin+offset);
+                s.undefined_positions.push_back(m_al, pos()-m_origin);
             }
         }
         return s;
