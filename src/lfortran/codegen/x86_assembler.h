@@ -738,12 +738,10 @@ public:
     }
 
     void asm_add_r32_imm32(X86Reg r32, uint32_t imm32) {
-        if (r32 == X86Reg::eax) {
-            m_code.push_back(m_al, 0x05);
-            push_back_uint32(m_code, m_al, imm32);
-        } else {
-            throw AssemblerError("Not implemented.");
-        }
+        m_code.push_back(m_al, 0x81);
+        modrm_sib_disp(m_code, m_al,
+                X86Reg::eax, &r32, nullptr, 1, 0, false);
+        push_back_uint32(m_code, m_al, imm32);
         EMIT("add " + r2s(r32) + ", " + i2s(imm32));
     }
 
