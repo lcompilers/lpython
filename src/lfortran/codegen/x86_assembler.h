@@ -42,7 +42,7 @@ https://www.systutorials.com/go/intel-x86-64-reference-manual/
 #else
 #    define EMIT(s)
 #    define EMIT_LABEL(s)
-#    define EMIT_VAR(s)
+#    define EMIT_VAR(a, b)
 #endif
 
 namespace LFortran {
@@ -422,6 +422,12 @@ public:
         EMIT("push " + i2s(imm8));
     }
 
+    void asm_push_imm32(uint32_t imm32) {
+        m_code.push_back(m_al, 0x68);
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("push " + i2s(imm32));
+    }
+
     void asm_jz_imm8(uint8_t imm8) {
         m_code.push_back(m_al, 0x74);
         m_code.push_back(m_al, imm8);
@@ -518,15 +524,12 @@ public:
     }
 
     void asm_inc_r32(X86Reg r32) {
-        if (r32 == X86Reg::eax) {
-            m_code.push_back(m_al, 0x40);
-        } else if (r32 == X86Reg::ebx) {
-            m_code.push_back(m_al, 0x43);
-        } else if (r32 == X86Reg::edx) {
-            m_code.push_back(m_al, 0x42);
-        } else {
-            throw AssemblerError("Register not supported yet");
-        }
+        m_code.push_back(m_al, 0x40+r32);
+        EMIT("inc " + r2s(r32));
+    }
+
+    void asm_dec_r32(X86Reg r32) {
+        m_code.push_back(m_al, 0x48+r32);
         EMIT("inc " + r2s(r32));
     }
 
@@ -637,13 +640,10 @@ public:
     }
 
     void asm_cmp_r32_imm8(X86Reg r32, uint8_t imm8) {
-        if (r32 == X86Reg::eax) {
-            m_code.push_back(m_al, 0x83);
-            m_code.push_back(m_al, 0xf8);
-            m_code.push_back(m_al, imm8);
-        } else {
-            throw AssemblerError("Not implemented.");
-        }
+        m_code.push_back(m_al, 0x83);
+        modrm_sib_disp(m_code, m_al,
+                X86Reg::edi, &r32, nullptr, 1, 0, false);
+        m_code.push_back(m_al, imm8);
         EMIT("cmp " + r2s(r32) + ", " + i2s(imm8));
     }
 
@@ -741,13 +741,18 @@ public:
     }
 
     void asm_add_r32_imm32(X86Reg r32, uint32_t imm32) {
-        if (r32 == X86Reg::eax) {
-            m_code.push_back(m_al, 0x05);
-            push_back_uint32(m_code, m_al, imm32);
-        } else {
-            throw AssemblerError("Not implemented.");
-        }
+        m_code.push_back(m_al, 0x81);
+        modrm_sib_disp(m_code, m_al,
+                X86Reg::eax, &r32, nullptr, 1, 0, false);
+        push_back_uint32(m_code, m_al, imm32);
         EMIT("add " + r2s(r32) + ", " + i2s(imm32));
+    }
+
+    void asm_div_r32(X86Reg r32) {
+        m_code.push_back(m_al, 0xF7);
+        modrm_sib_disp(m_code, m_al,
+                X86Reg::esi, &r32, nullptr, 1, 0, false);
+        EMIT("div " + r2s(r32));
     }
 
     void asm_lea_r32_m32(X86Reg r32, X86Reg *base, X86Reg *index,
@@ -782,6 +787,7 @@ void emit_data_string(X86Assembler &a, const std::string &label,
     const std::string &s);
 void emit_print(X86Assembler &a, const std::string &msg_label,
     uint32_t size);
+void emit_print_int(X86Assembler &a, const std::string &name);
 
 } // namespace LFortran
 

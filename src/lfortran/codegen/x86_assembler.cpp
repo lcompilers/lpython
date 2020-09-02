@@ -111,4 +111,68 @@ void emit_print(X86Assembler &a, const std::string &msg_label,
     a.asm_int_imm8(0x80);
 }
 
+void emit_print_int(X86Assembler &a, const std::string &name)
+{
+    // void print_int(uint32_t i);
+    a.add_label(name);
+
+    // Initialize stack
+    a.asm_push_r32(X86Reg::ebp);
+    a.asm_mov_r32_r32(X86Reg::ebp, X86Reg::esp);
+
+    X86Reg base = X86Reg::ebp;
+    // mov eax, [ebp+8]  // argument "i"
+    a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, 8);
+    a.asm_xor_r32_r32(X86Reg::esi, X86Reg::esi);
+
+    a.add_label(".loop");
+//    mov edx, 0
+    a.asm_mov_r32_imm32(X86Reg::edx, 0);
+//    mov ebx, 10
+    a.asm_mov_r32_imm32(X86Reg::ebx, 10);
+//    div ebx
+    a.asm_div_r32(X86Reg::ebx);
+//    add edx, 48
+    a.asm_add_r32_imm32(X86Reg::edx, 48);
+//    push edx
+    a.asm_push_r32(X86Reg::edx);
+//    inc esi
+    a.asm_inc_r32(X86Reg::esi);
+//    cmp eax, 0
+    a.asm_cmp_r32_imm8(X86Reg::eax, 0);
+//    jz .print
+    a.asm_je_label(".print");
+//    jmp .loop
+    a.asm_jmp_label(".loop");
+    
+    a.add_label(".print");
+//    cmp esi, 0
+    a.asm_cmp_r32_imm8(X86Reg::esi, 0);
+//    jz end 
+    a.asm_je_label(".end");
+//    dec esi
+    a.asm_dec_r32(X86Reg::esi);
+//    mov eax, 4
+    a.asm_mov_r32_imm32(X86Reg::eax, 4);
+//    mov ecx, esp
+    a.asm_mov_r32_r32(X86Reg::ecx, X86Reg::esp);
+//    mov ebx, 1
+    a.asm_mov_r32_imm32(X86Reg::ebx, 1);
+//    mov edx, 1
+    a.asm_mov_r32_imm32(X86Reg::edx, 1);
+//    int 0x80
+    a.asm_int_imm8(0x80);
+//    add esp, 4
+    a.asm_add_r32_imm32(X86Reg::esp, 4);
+//    jmp .print
+    a.asm_jmp_label(".print");
+
+    a.add_label(".end");
+
+    // Restore stack
+    a.asm_mov_r32_r32(X86Reg::esp, X86Reg::ebp);
+    a.asm_pop_r32(X86Reg::ebp);
+    a.asm_ret();
+}
+
 } // namespace LFortran

@@ -623,3 +623,29 @@ TEST_CASE("subroutine args") {
 
     a.save_binary("subroutines_args32");
 }
+
+TEST_CASE("print integer") {
+    Allocator al(1024);
+    LFortran::X86Assembler a(al);
+
+    LFortran::emit_elf32_header(a);
+    LFortran::emit_print_int(a, "print_int");
+    LFortran::emit_exit(a, "exit");
+    a.add_label("_start");
+
+    a.asm_push_imm32(1234);
+    a.asm_call_label("print_int");
+    a.asm_add_r32_imm8(LFortran::X86Reg::esp, 4);
+
+    a.asm_push_imm32(5678);
+    a.asm_call_label("print_int");
+    a.asm_add_r32_imm8(LFortran::X86Reg::esp, 4);
+
+    a.asm_call_label("exit");
+
+    LFortran::emit_elf32_footer(a);
+
+    a.verify();
+
+    a.save_binary("print_integer");
+}
