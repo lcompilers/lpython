@@ -712,8 +712,8 @@ public:
 // Generate an ELF 32 bit header and footer
 // With these two functions, one only has to generate a `_start` assembly
 // function to have a working binary on Linux.
-void emit_elf32_header(X86Assembler &a, uint32_t origin);
-void emit_elf32_footer(X86Assembler &a, uint32_t origin);
+void emit_elf32_header(X86Assembler &a);
+void emit_elf32_footer(X86Assembler &a);
 
 void emit_exit(X86Assembler &a, const std::string &name);
 void emit_data_string(X86Assembler &a, const std::string &label,

@@ -25,7 +25,7 @@ void X86Assembler::save_binary(const std::string &filename) {
 #endif
 }
 
-void emit_elf32_header(X86Assembler &a, uint32_t origin) {
+void emit_elf32_header(X86Assembler &a) {
     uint32_t section_start = 0;
 
     /* Elf32_Ehdr */
@@ -70,8 +70,8 @@ void emit_elf32_header(X86Assembler &a, uint32_t origin) {
     a.add_label("phdr");
     a.asm_dd_imm32(1);        // p_type
     a.asm_dd_imm32(0);        // p_offset
-    a.asm_dd_imm32(origin);   // p_vaddr
-    a.asm_dd_imm32(origin);   // p_paddr
+    a.asm_dd_imm32(a.origin());   // p_vaddr
+    a.asm_dd_imm32(a.origin());   // p_paddr
     a.asm_dd_label("filesize"); // p_filesz
     a.asm_dd_label("filesize"); // p_memsz
     a.asm_dd_imm32(5);        // p_flags
@@ -81,10 +81,10 @@ void emit_elf32_header(X86Assembler &a, uint32_t origin) {
     a.add_var("e_phoff", a.get_defined_symbol("phdr").value - section_start);
 }
 
-void emit_elf32_footer(X86Assembler &a, uint32_t origin) {
+void emit_elf32_footer(X86Assembler &a) {
     uint32_t section_start = 0;
     a.add_var("e_entry", a.get_defined_symbol("_start").value
-        - section_start + origin);
+        - section_start + a.origin());
     a.add_var("filesize", a.pos() - section_start);
 }
 
