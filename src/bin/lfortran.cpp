@@ -11,6 +11,7 @@
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/codegen/asr_to_llvm.h>
 #include <lfortran/codegen/asr_to_cpp.h>
+#include <lfortran/codegen/asr_to_x86.h>
 #include <lfortran/ast_to_src.h>
 #include <lfortran/codegen/evaluator.h>
 #include <lfortran/pass/do_loops.h>
@@ -22,7 +23,7 @@
 namespace {
 
 enum Backend {
-    llvm, cpp
+    llvm, cpp, x86
 };
 
 enum ASRPass {
@@ -468,6 +469,34 @@ int compile_to_assembly_file(const std::string &infile, const std::string &outfi
 }
 #endif
 
+
+int compile_to_binary_x86(const std::string &infile, const std::string &outfile)
+{
+    std::string input = read_file(infile);
+
+    // Src -> AST
+    Allocator al(64*1024*1024);
+    LFortran::AST::TranslationUnit_t* ast;
+    try {
+        ast = LFortran::parse2(al, input);
+    } catch (const LFortran::TokenizerError &e) {
+        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
+        return 1;
+    } catch (const LFortran::ParserError &e) {
+        std::cerr << "Parsing error: " << e.msg() << std::endl;
+        return 2;
+    }
+
+    // AST -> ASR
+    LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast);
+
+    // ASR -> x86 machine code
+    LFortran::asr_to_x86(*asr, al, outfile);
+
+    return 0;
+}
+
+
 int compile_to_object_file_cpp(const std::string &infile,
         const std::string &outfile,
         bool assembly, bool kokkos)
@@ -728,7 +757,7 @@ int main(int argc, char *argv[])
         app.add_flag("--show-cpp", show_cpp, "Show C++ translation source for the given file and exit");
         app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
         app.add_flag("--static", static_link, "Create a static executable");
-        app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp)", true);
+        app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp, x86)", true);
 
         /*
         * Subcommands:
@@ -774,8 +803,10 @@ int main(int argc, char *argv[])
             backend = Backend::llvm;
         } else if (arg_backend == "cpp") {
             backend = Backend::cpp;
+        } else if (arg_backend == "x86") {
+            backend = Backend::x86;
         } else {
-            std::cerr << "The backend must be one of: llvm, cpp." << std::endl;
+            std::cerr << "The backend must be one of: llvm, cpp, x86." << std::endl;
             return 1;
         }
 
@@ -901,6 +932,9 @@ int main(int argc, char *argv[])
         }
 
         if (ends_with(arg_file, ".f90")) {
+            if (backend == Backend::x86) {
+                return compile_to_binary_x86(arg_file, outfile);
+            }
             std::string tmp_o = outfile + ".tmp.o";
             int err;
             if (backend == Backend::llvm) {
