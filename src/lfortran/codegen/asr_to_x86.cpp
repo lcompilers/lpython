@@ -63,6 +63,46 @@ public:
         emit_elf32_footer(m_a);
     }
 
+    // Expressions leave integer values in eax
+
+    void visit_Num(const ASR::Num_t &x) {
+        m_a.asm_mov_r32_imm32(X86Reg::eax, x.m_n);
+    }
+
+    void visit_BinOp(const ASR::BinOp_t &x) {
+        this->visit_expr(*x.m_left);
+        m_a.asm_mov_r32_r32(X86Reg::ecx, X86Reg::eax);
+        this->visit_expr(*x.m_right);
+        m_a.asm_mov_r32_r32(X86Reg::edx, X86Reg::eax);
+        if (x.m_type->type == ASR::ttypeType::Integer) {
+            switch (x.m_op) {
+                case ASR::operatorType::Add: {
+                    m_a.asm_mov_r32_r32(X86Reg::eax, X86Reg::ecx);
+                    m_a.asm_add_r32_r32(X86Reg::eax, X86Reg::edx);
+                    break;
+                };
+                case ASR::operatorType::Sub: {
+                    throw CodeGenError("Not implemented.");
+                    break;
+                };
+                case ASR::operatorType::Mul: {
+                    throw CodeGenError("Not implemented.");
+                    break;
+                };
+                case ASR::operatorType::Div: {
+                    throw CodeGenError("Not implemented.");
+                    break;
+                };
+                case ASR::operatorType::Pow: {
+                    throw CodeGenError("Not implemented.");
+                    break;
+                };
+            }
+        } else {
+            throw CodeGenError("Binop: Only Integer types implemented so far");
+        }
+    }
+
     void visit_Print(const ASR::Print_t &x) {
         LFORTRAN_ASSERT(x.n_values == 1);
         ASR::expr_t *e = x.m_values[0];
@@ -73,18 +113,26 @@ public:
             std::string id = "string" + std::to_string(get_hash((ASR::asr_t*)e));
             emit_print(m_a, id, msg.size());
             m_global_strings[id] = msg;
-        } else if (e->type == ASR::exprType::Num) {
-            uint32_t i = EXPR_NUM((ASR::asr_t*)e)->m_n;
-            m_a.asm_push_imm32(i);
-            m_a.asm_call_label("print_int");
-            m_a.asm_add_r32_imm8(LFortran::X86Reg::esp, 4);
+        } else {
+            this->visit_expr(*e);
+            ASR::ttype_t *t = expr_type(e);
+            if (t->type == ASR::ttypeType::Integer) {
+                m_a.asm_push_r32(X86Reg::eax);
+                m_a.asm_call_label("print_int");
+                m_a.asm_add_r32_imm8(LFortran::X86Reg::esp, 4);
+            } else if (t->type == ASR::ttypeType::Real) {
+                throw LFortranException("Type not implemented");
+            } else if (t->type == ASR::ttypeType::Character) {
+                throw LFortranException("Type not implemented");
+            } else {
+                throw LFortranException("Type not implemented");
+            }
+
 
             std::string msg = "\n";
             std::string id = "string" + std::to_string(get_hash((ASR::asr_t*)e));
             emit_print(m_a, id, msg.size());
             m_global_strings[id] = msg;
-        } else {
-            throw CodeGenError("Not implemented.");
         }
     }
 
