@@ -1,11 +1,28 @@
+#ifdef __unix__
+#define LFORTRAN_LINUX
+#endif
+
+#ifdef LFORTRAN_LINUX
+#include <sys/stat.h>
+#endif
+
 #include <lfortran/codegen/x86_assembler.h>
 
 namespace LFortran {
 
 void X86Assembler::save_binary(const std::string &filename) {
-    std::ofstream out;
-    out.open(filename);
-    out.write((const char*) m_code.p, m_code.size());
+    {
+        std::ofstream out;
+        out.open(filename);
+        out.write((const char*) m_code.p, m_code.size());
+    }
+#ifdef LFORTRAN_LINUX
+    std::string mode = "0755";
+    int mod = strtol(mode.c_str(), 0, 8);
+    if (chmod(filename.c_str(),mod) < 0) {
+        throw AssemblerError("chmod failed");
+    }
+#endif
 }
 
 void emit_elf32_header(X86Assembler &a, uint32_t origin) {
