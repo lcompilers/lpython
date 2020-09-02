@@ -42,7 +42,7 @@ https://www.systutorials.com/go/intel-x86-64-reference-manual/
 #else
 #    define EMIT(s)
 #    define EMIT_LABEL(s)
-#    define EMIT_VAR(s)
+#    define EMIT_VAR(a, b)
 #endif
 
 namespace LFortran {
