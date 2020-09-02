@@ -259,6 +259,7 @@ class X86Assembler {
     Allocator &m_al;
     Vec<uint8_t> m_code;
     std::map<std::string,Symbol> m_symbols;
+    uint32_t m_origin;
 #ifdef LFORTRAN_ASM_PRINT
     std::string m_asm_code;
     void emit(const std::string &indent, const std::string &s) {
@@ -268,6 +269,7 @@ class X86Assembler {
 public:
     X86Assembler(Allocator &al) : m_al{al} {
         m_code.reserve(m_al, 1024*128);
+        m_origin = 0x08048000;
 #ifdef LFORTRAN_ASM_PRINT
         m_asm_code = "BITS 32\n\n";
 #endif
@@ -382,6 +384,10 @@ public:
         return m_code.size();
     }
 
+    uint32_t origin() {
+        return m_origin;
+    }
+
     // Verifies that all symbols are defined (and thus resolved).
     void verify() {
         for (auto &s : m_symbols) {
@@ -494,6 +500,13 @@ public:
         m_code.push_back(m_al, 0xb8 + r32);
         push_back_uint32(m_code, m_al, imm32);
         EMIT("mov " + r2s(r32) + ", " + i2s(imm32));
+    }
+
+    void asm_mov_r32_label(X86Reg r32, const std::string &label) {
+        m_code.push_back(m_al, 0xb8 + r32);
+        uint32_t imm32 = reference_symbol(label).value;
+        push_back_uint32(m_code, m_al, imm32+m_origin);
+        EMIT("mov " + r2s(r32) + ", " + label);
     }
 
     void asm_mov_r32_r32(X86Reg r32, X86Reg s32) {
