@@ -354,6 +354,10 @@ public:
         return s;
     }
 
+    uint32_t relative_symbol(const std::string &name) {
+        return reference_symbol(name, 2).value-pos()-4;
+    }
+
     // Does not touch undefined_positions, symbol must be defined
     Symbol &get_defined_symbol(const std::string &name) {
         LFORTRAN_ASSERT(m_symbols.find(name) != m_symbols.end());
@@ -595,7 +599,7 @@ public:
 
     void asm_jmp_label(const std::string &label) {
         m_code.push_back(m_al, 0xe9);
-        uint32_t imm32 = reference_symbol(label, 2).value;
+        uint32_t imm32 = relative_symbol(label);
         push_back_uint32(m_code, m_al, imm32);
         EMIT("jmp " + label);
     }
@@ -608,7 +612,7 @@ public:
 
     void asm_call_label(const std::string &label) {
         m_code.push_back(m_al, 0xe8);
-        uint32_t imm32 = reference_symbol(label, 2).value-pos()-4;
+        uint32_t imm32 = relative_symbol(label);
         push_back_uint32(m_code, m_al, imm32);
         EMIT("call " + label);
     }
