@@ -9,6 +9,7 @@ set(SRC
     semantics/asr_scopes.cpp
 
     codegen/asr_to_cpp.cpp
+    codegen/x86_assembler.cpp
 
     pass/do_loops.cpp
     pass/global_stmts.cpp

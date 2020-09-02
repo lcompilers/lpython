@@ -325,9 +325,7 @@ TEST_CASE("elf32 binary") {
     Allocator al(1024);
     LFortran::X86Assembler a(al);
 
-    uint32_t origin = 0x08048000;
-
-    LFortran::emit_elf32_header(a, origin);
+    LFortran::emit_elf32_header(a);
 
     std::string msg = "Hello World!\n";
     a.add_label("msg");
@@ -337,7 +335,7 @@ TEST_CASE("elf32 binary") {
     // ssize_t write(int fd, const void *buf, size_t count);
     a.asm_mov_r32_imm32(LFortran::X86Reg::eax, 4); // sys_write
     a.asm_mov_r32_imm32(LFortran::X86Reg::ebx, 1); // fd (stdout)
-    a.asm_mov_r32_imm32(LFortran::X86Reg::ecx, origin+a.get_defined_symbol("msg").value); // buf
+    a.asm_mov_r32_imm32(LFortran::X86Reg::ecx, a.get_defined_symbol("msg").value); // buf
     a.asm_mov_r32_imm32(LFortran::X86Reg::edx, msg.size()); // count
     a.asm_int_imm8(0x80);
     a.asm_call_label("exit");
@@ -348,7 +346,7 @@ TEST_CASE("elf32 binary") {
     a.asm_mov_r32_imm32(LFortran::X86Reg::ebx, 0); // exit code
     a.asm_int_imm8(0x80); // syscall
 
-    LFortran::emit_elf32_footer(a, origin);
+    LFortran::emit_elf32_footer(a);
 
     a.verify();
 
@@ -469,4 +467,22 @@ filesize equ 0x00000088
         0x00, 0x00, 0x00, 0xb8, 0x01, 0x00, 0x00, 0x00, 0xbb, 0x00, 0x00,
         0x00, 0x00, 0xcd, 0x80};
     CHECK( a.get_machine_code().as_vector() == cref );
+}
+
+TEST_CASE("print") {
+    Allocator al(1024);
+    LFortran::X86Assembler a(al);
+    std::string msg = "Hello World!\n";
+
+    LFortran::emit_elf32_header(a);
+    a.add_label("_start");
+    LFortran::emit_print(a, "msg", msg.size());
+    a.asm_call_label("exit");
+    LFortran::emit_exit(a, "exit");
+    LFortran::emit_data_string(a, "msg", msg);
+    LFortran::emit_elf32_footer(a);
+
+    a.verify();
+
+    a.save_binary("print32");
 }
