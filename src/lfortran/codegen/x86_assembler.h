@@ -395,20 +395,12 @@ public:
     void save_binary(const std::string &filename);
 
     void asm_pop_r32(X86Reg r32) {
-        if (r32 == X86Reg::eax) {
-            m_code.push_back(m_al, 0x58);
-        } else {
-            throw AssemblerError("Register not supported yet");
-        }
+        m_code.push_back(m_al, 0x58 + r32);
         EMIT("pop " + r2s(r32));
     }
 
     void asm_push_r32(X86Reg r32) {
-        if (r32 == X86Reg::eax) {
-            m_code.push_back(m_al, 0x50);
-        } else {
-            throw AssemblerError("Register not supported yet");
-        }
+        m_code.push_back(m_al, 0x50 + r32);
         EMIT("push " + r2s(r32));
     }
 
