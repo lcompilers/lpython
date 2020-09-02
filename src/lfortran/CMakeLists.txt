@@ -10,6 +10,7 @@ set(SRC
 
     codegen/asr_to_cpp.cpp
     codegen/x86_assembler.cpp
+    codegen/asr_to_x86.cpp
 
     pass/do_loops.cpp
     pass/global_stmts.cpp
