@@ -524,7 +524,7 @@ TEST_CASE("subroutines") {
     std::string msg1b = "Subroutine 1, done\n";
     std::string msg2 = "Subroutine 2, modifying a message\n";
 
-    LFortran::emit_elf32_header(a);
+    LFortran::emit_elf32_header(a, 7);
 
     a.add_label("sub1");
     LFortran::emit_print(a, "msg1", msg1.size());
@@ -536,9 +536,8 @@ TEST_CASE("subroutines") {
     LFortran::emit_print(a, "msg2", msg2.size());
     a.asm_mov_r32_imm32(LFortran::X86Reg::eax, 0x42414443);
     a.asm_mov_r32_label(LFortran::X86Reg::ebx, "msg1b");
-    //LFortran::X86Reg base = LFortran::X86Reg::ebx;
-    // Does not work to set the string:
-    //a.asm_mov_m32_r32(&base, nullptr, 1, 0, LFortran::X86Reg::eax);
+    LFortran::X86Reg base = LFortran::X86Reg::ebx;
+    a.asm_mov_m32_r32(&base, nullptr, 1, 5, LFortran::X86Reg::eax);
     a.asm_ret();
 
     LFortran::emit_exit(a, "exit");
