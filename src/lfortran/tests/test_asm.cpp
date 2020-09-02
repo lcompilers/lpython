@@ -5,6 +5,8 @@
 
 #include <lfortran/codegen/x86_assembler.h>
 
+using LFortran::X86Reg;
+
 // Print any vector like iterable to a string
 template <class T>
 inline std::ostream &print_vec(std::ostream &out, T &d)
@@ -554,4 +556,70 @@ TEST_CASE("subroutines") {
     a.verify();
 
     a.save_binary("subroutines32");
+}
+
+TEST_CASE("subroutine args") {
+    Allocator al(1024);
+    LFortran::X86Assembler a(al);
+    std::string msg1 = "Subroutine 1\n";
+    std::string msg2 = "Sum equal to 9\n";
+    std::string msg3 = "Sum not equal to 9\n";
+
+    LFortran::emit_elf32_header(a, 7);
+
+    a.add_label("sub1");
+    // Initialize stack
+    a.asm_push_r32(X86Reg::ebp);
+    a.asm_mov_r32_r32(X86Reg::ebp, X86Reg::esp);
+    a.asm_sub_r32_imm8(X86Reg::esp, 4); // one local variable
+
+    LFortran::emit_print(a, "msg1", msg1.size());
+
+    X86Reg base = X86Reg::ebp;
+    // mov eax, [ebp+8] // first argument
+    a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, 8);
+    // mov ecx, [ebp+12] // second argument
+    a.asm_mov_r32_m32(X86Reg::ecx, &base, nullptr, 1, 12);
+    // mov [ebp-4], eax // move eax to a local variable
+    a.asm_mov_m32_r32(&base, nullptr, 1, -4, X86Reg::eax);
+    // add [ebp-4], ecx // add ecx
+    a.asm_add_m32_r32(&base, nullptr, 1, -4, X86Reg::ecx);
+    // mov eax, [ebp-4] // move the sum into the return value (eax)
+    a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, -4);
+
+    // Restore stack
+    a.asm_mov_r32_r32(X86Reg::esp, X86Reg::ebp);
+    a.asm_pop_r32(X86Reg::ebp);
+    a.asm_ret();
+
+    LFortran::emit_exit(a, "exit");
+
+    a.add_label("_start");
+    // Push arguments to stack (last argument first)
+    a.asm_push_imm8(5); // second argument
+    a.asm_push_imm8(4); // first argument
+    a.asm_call_label("sub1");
+    // Remove arguments from stack: 2 arguments, 4 bytes each
+    a.asm_add_r32_imm8(LFortran::X86Reg::esp, 2*4);
+
+    a.asm_cmp_r32_imm8(LFortran::X86Reg::eax, 9);
+    a.asm_je_label(".then");
+    a.asm_jmp_label(".else");
+    a.add_label(".then");
+    LFortran::emit_print(a, "msg2", msg2.size());
+    a.asm_jmp_label(".endif");
+    a.add_label(".else");
+    LFortran::emit_print(a, "msg3", msg3.size());
+    a.add_label(".endif");
+
+    a.asm_call_label("exit");
+
+    LFortran::emit_data_string(a, "msg1", msg1);
+    LFortran::emit_data_string(a, "msg2", msg2);
+    LFortran::emit_data_string(a, "msg3", msg3);
+    LFortran::emit_elf32_footer(a);
+
+    a.verify();
+
+    a.save_binary("subroutines_args32");
 }

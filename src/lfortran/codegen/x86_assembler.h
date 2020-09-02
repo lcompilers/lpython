@@ -395,21 +395,25 @@ public:
     void save_binary(const std::string &filename);
 
     void asm_pop_r32(X86Reg r32) {
-        if (r32 == X86Reg::eax) {
-            m_code.push_back(m_al, 0x58);
-        } else {
-            throw AssemblerError("Register not supported yet");
-        }
+        m_code.push_back(m_al, 0x58 + r32);
         EMIT("pop " + r2s(r32));
     }
 
+    void asm_pop_r16(X86Reg r16) {
+        m_code.push_back(m_al, 0x66);
+        m_code.push_back(m_al, 0x58 + r16);
+        EMIT("popl " + r2s(r16));
+    }
+
     void asm_push_r32(X86Reg r32) {
-        if (r32 == X86Reg::eax) {
-            m_code.push_back(m_al, 0x50);
-        } else {
-            throw AssemblerError("Register not supported yet");
-        }
+        m_code.push_back(m_al, 0x50 + r32);
         EMIT("push " + r2s(r32));
+    }
+
+    void asm_push_r16(X86Reg r16) {
+        m_code.push_back(m_al, 0x66);
+        m_code.push_back(m_al, 0x50 + r16);
+        EMIT("pushl " + r2s(r16));
     }
 
     void asm_push_imm8(uint8_t imm8) {
@@ -607,13 +611,10 @@ public:
     }
 
     void asm_sub_r32_imm8(X86Reg r32, uint8_t imm8) {
-        if (r32 == X86Reg::eax) {
-            m_code.push_back(m_al, 0x83);
-            m_code.push_back(m_al, 0xe8);
-            m_code.push_back(m_al, imm8);
-        } else {
-            throw AssemblerError("Not implemented.");
-        }
+        m_code.push_back(m_al, 0x83);
+        modrm_sib_disp(m_code, m_al,
+                X86Reg::ebp, &r32, nullptr, 1, 0, false);
+        m_code.push_back(m_al, imm8);
         EMIT("sub " + r2s(r32) + ", " + i2s(imm8));
     }
 
@@ -733,9 +734,8 @@ public:
 
     void asm_add_r32_imm8(X86Reg r32, uint8_t imm8) {
         m_code.push_back(m_al, 0x83);
-        X86Reg base = X86Reg::eax;
         modrm_sib_disp(m_code, m_al,
-                r32, &base, nullptr, 1, 0, false);
+                X86Reg::eax, &r32, nullptr, 1, 0, false);
         m_code.push_back(m_al, imm8);
         EMIT("add " + r2s(r32) + ", " + i2s(imm8));
     }
