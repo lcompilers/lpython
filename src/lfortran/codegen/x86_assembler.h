@@ -322,8 +322,10 @@ public:
     }
 
     // Adds to undefined_positions, creates a symbol if needed
-    Symbol &reference_symbol(const std::string &name, bool relative=false,
-            int offset=0) {
+    // type = 0 imm32
+    // type = 1 imm16
+    // type = 2 relative
+    Symbol &reference_symbol(const std::string &name, int type=0) {
         if (m_symbols.find(name) == m_symbols.end()) {
             Symbol s;
             s.defined = false;
@@ -336,30 +338,18 @@ public:
         }
         Symbol &s = m_symbols[name];
         if (!s.defined) {
-            if (relative) {
-                s.undefined_positions_rel.push_back(m_al, pos()-m_origin);
-            } else {
-                s.undefined_positions.push_back(m_al, pos()-m_origin);
+            switch (type) {
+                case (0) :
+                    s.undefined_positions.push_back(m_al, pos()-m_origin);
+                    break;
+                case (1) :
+                    s.undefined_positions_imm16.push_back(m_al, pos()-m_origin);
+                    break;
+                case (2) :
+                    s.undefined_positions_rel.push_back(m_al, pos()-m_origin);
+                    break;
+                default : throw AssemblerError("Unknown label type");
             }
-        }
-        return s;
-    }
-
-    // Adds to undefined_positions, creates a symbol if needed
-    Symbol &reference_symbol_imm16(const std::string &name) {
-        if (m_symbols.find(name) == m_symbols.end()) {
-            Symbol s;
-            s.defined = false;
-            s.value = 0;
-            s.name = name;
-            s.undefined_positions.reserve(m_al, 8);
-            s.undefined_positions_imm16.reserve(m_al, 8);
-            s.undefined_positions_rel.reserve(m_al, 8);
-            m_symbols[name] = s;
-        }
-        Symbol &s = m_symbols[name];
-        if (!s.defined) {
-            s.undefined_positions_imm16.push_back(m_al, pos()-m_origin);
         }
         return s;
     }
@@ -605,7 +595,7 @@ public:
 
     void asm_jmp_label(const std::string &label) {
         m_code.push_back(m_al, 0xe9);
-        uint32_t imm32 = reference_symbol(label, true, 4).value;
+        uint32_t imm32 = reference_symbol(label, 2).value;
         push_back_uint32(m_code, m_al, imm32);
         EMIT("jmp " + label);
     }
@@ -618,7 +608,7 @@ public:
 
     void asm_call_label(const std::string &label) {
         m_code.push_back(m_al, 0xe8);
-        uint32_t imm32 = reference_symbol(label, true, 4).value;
+        uint32_t imm32 = reference_symbol(label, 2).value;
         push_back_uint32(m_code, m_al, imm32);
         EMIT("call " + label);
     }
@@ -657,7 +647,7 @@ public:
     }
 
     void asm_dw_label(const std::string &label) {
-        uint32_t imm16 = reference_symbol_imm16(label).value;
+        uint32_t imm16 = reference_symbol(label, 1).value;
         push_back_uint16(m_code, m_al, imm16);
         EMIT("dw " + label);
     }
