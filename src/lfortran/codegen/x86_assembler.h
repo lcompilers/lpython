@@ -734,9 +734,8 @@ public:
 
     void asm_add_r32_imm8(X86Reg r32, uint8_t imm8) {
         m_code.push_back(m_al, 0x83);
-        X86Reg base = X86Reg::eax;
         modrm_sib_disp(m_code, m_al,
-                r32, &base, nullptr, 1, 0, false);
+                X86Reg::eax, &r32, nullptr, 1, 0, false);
         m_code.push_back(m_al, imm8);
         EMIT("add " + r2s(r32) + ", " + i2s(imm8));
     }
