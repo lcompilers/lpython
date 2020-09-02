@@ -70,15 +70,16 @@ public:
     }
 
     void visit_BinOp(const ASR::BinOp_t &x) {
-        this->visit_expr(*x.m_left);
-        m_a.asm_mov_r32_r32(X86Reg::ecx, X86Reg::eax);
         this->visit_expr(*x.m_right);
-        m_a.asm_mov_r32_r32(X86Reg::edx, X86Reg::eax);
+        m_a.asm_push_r32(X86Reg::eax);
+        this->visit_expr(*x.m_left);
+        m_a.asm_pop_r32(X86Reg::ecx);
+        // The left operand is in eax, the right operand is in ecx
+        // Leave the result in eax.
         if (x.m_type->type == ASR::ttypeType::Integer) {
             switch (x.m_op) {
                 case ASR::operatorType::Add: {
-                    m_a.asm_mov_r32_r32(X86Reg::eax, X86Reg::ecx);
-                    m_a.asm_add_r32_r32(X86Reg::eax, X86Reg::edx);
+                    m_a.asm_add_r32_r32(X86Reg::eax, X86Reg::ecx);
                     break;
                 };
                 case ASR::operatorType::Sub: {
