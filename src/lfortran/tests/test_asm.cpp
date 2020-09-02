@@ -555,3 +555,44 @@ TEST_CASE("subroutines") {
 
     a.save_binary("subroutines32");
 }
+
+TEST_CASE("subroutine args") {
+    Allocator al(1024);
+    LFortran::X86Assembler a(al);
+    std::string msg1 = "Subroutine 1\n";
+
+    LFortran::emit_elf32_header(a, 7);
+
+    a.add_label("sub1");
+    a.asm_push_r32(LFortran::X86Reg::ebp);
+    a.asm_mov_r32_r32(LFortran::X86Reg::ebp, LFortran::X86Reg::esp);
+    //a.asm_sub_r32_imm8(LFortran::X86Reg::esp, 4);
+    // sub esp, 4 // one local variable
+    // mov eax, [ebp+8] // first argument
+    // mov ecx, [ebp+12] // second argument
+    // mov [ebp-4], eax // move eax to a local variable
+    // add [ebp-4], ecx // add ecx
+    // mov eax, [ebp-4] // move the sum into the return value (eax)
+    LFortran::emit_print(a, "msg1", msg1.size());
+    a.asm_mov_r32_r32(LFortran::X86Reg::esp, LFortran::X86Reg::ebp);
+    a.asm_pop_r32(LFortran::X86Reg::ebp);
+    a.asm_ret();
+
+    LFortran::emit_exit(a, "exit");
+
+    a.add_label("_start");
+    // Push arguments to stack (last argument first)
+    a.asm_push_imm8(5); // second argument
+    a.asm_push_imm8(3); // first argument
+    a.asm_call_label("sub1");
+    // Remove arguments from stack: 2 arguments, 4 bytes each
+    a.asm_add_r32_imm8(LFortran::X86Reg::esp, 2*4);
+    a.asm_call_label("exit");
+
+    LFortran::emit_data_string(a, "msg1", msg1);
+    LFortran::emit_elf32_footer(a);
+
+    a.verify();
+
+    a.save_binary("subroutines_args32");
+}
