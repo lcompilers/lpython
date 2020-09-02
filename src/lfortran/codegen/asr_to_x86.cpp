@@ -79,6 +79,15 @@ public:
         m_a.asm_mov_r32_imm32(X86Reg::eax, x.m_n);
     }
 
+    void visit_Var(const ASR::Var_t &/*x*/) {
+        //std::string vname = VARIABLE((ASR::asr_t*)(x.m_v))->m_name;
+        //LFORTRAN_ASSERT(x86_symtab.find(vname) != x86_symtab.end());
+        //*ptr = x86_symtab[vname];
+        // For now we assume the variable is in [ebp-4]
+        X86Reg base = X86Reg::ebp;
+        m_a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, -4);
+    }
+
     void visit_BinOp(const ASR::BinOp_t &x) {
         this->visit_expr(*x.m_right);
         m_a.asm_push_r32(X86Reg::eax);
@@ -114,6 +123,17 @@ public:
         } else {
             throw CodeGenError("Binop: Only Integer types implemented so far");
         }
+    }
+
+    void visit_Assignment(const ASR::Assignment_t &x) {
+        //ASR::var_t *t1 = EXPR_VAR((ASR::asr_t*)(x.m_target))->m_v;
+        // Lookup where the variable lives
+        //target= x86_symtab[std::string(VARIABLE((ASR::asr_t*)t1)->m_name)];
+        // We assume [ebp-4] for now
+        this->visit_expr(*x.m_value);
+        // RHS is in eax
+        X86Reg base = X86Reg::ebp;
+        m_a.asm_mov_m32_r32(&base, nullptr, 1, -4, X86Reg::eax);
     }
 
     void visit_Print(const ASR::Print_t &x) {
