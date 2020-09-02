@@ -2,6 +2,12 @@
 
 namespace LFortran {
 
+void X86Assembler::save_binary(const std::string &filename) {
+    std::ofstream out;
+    out.open(filename);
+    out.write((const char*) m_code.p, m_code.size());
+}
+
 void emit_elf32_header(X86Assembler &a, uint32_t origin) {
     uint32_t section_start = 0;
 

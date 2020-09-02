@@ -392,11 +392,7 @@ public:
     }
 
     // Saves the generated machine code into a binary file
-    void save_binary(const std::string &filename) {
-        std::ofstream out;
-        out.open(filename);
-        out.write((const char*) m_code.p, m_code.size());
-    }
+    void save_binary(const std::string &filename);
 
     void asm_pop_r32(X86Reg r32) {
         if (r32 == X86Reg::eax) {
