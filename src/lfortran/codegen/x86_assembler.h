@@ -603,6 +603,13 @@ public:
         EMIT("jmp " + i2s(imm32));
     }
 
+    void asm_jmp_label(const std::string &label) {
+        m_code.push_back(m_al, 0xe9);
+        uint32_t imm32 = reference_symbol(label, true, 4).value;
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("jmp " + label);
+    }
+
     void asm_call_imm32(uint32_t imm32) {
         m_code.push_back(m_al, 0xe8);
         push_back_uint32(m_code, m_al, imm32);
