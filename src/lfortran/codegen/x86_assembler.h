@@ -787,6 +787,7 @@ void emit_data_string(X86Assembler &a, const std::string &label,
     const std::string &s);
 void emit_print(X86Assembler &a, const std::string &msg_label,
     uint32_t size);
+void emit_print_int(X86Assembler &a, const std::string &name);
 
 } // namespace LFortran
 
