@@ -634,13 +634,10 @@ public:
     }
 
     void asm_cmp_r32_imm8(X86Reg r32, uint8_t imm8) {
-        if (r32 == X86Reg::eax) {
-            m_code.push_back(m_al, 0x83);
-            m_code.push_back(m_al, 0xf8);
-            m_code.push_back(m_al, imm8);
-        } else {
-            throw AssemblerError("Not implemented.");
-        }
+        m_code.push_back(m_al, 0x83);
+        modrm_sib_disp(m_code, m_al,
+                X86Reg::edi, &r32, nullptr, 1, 0, false);
+        m_code.push_back(m_al, imm8);
         EMIT("cmp " + r2s(r32) + ", " + i2s(imm8));
     }
 
