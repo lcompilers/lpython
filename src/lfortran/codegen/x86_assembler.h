@@ -399,9 +399,21 @@ public:
         EMIT("pop " + r2s(r32));
     }
 
+    void asm_pop_r16(X86Reg r16) {
+        m_code.push_back(m_al, 0x66);
+        m_code.push_back(m_al, 0x58 + r16);
+        EMIT("popl " + r2s(r16));
+    }
+
     void asm_push_r32(X86Reg r32) {
         m_code.push_back(m_al, 0x50 + r32);
         EMIT("push " + r2s(r32));
+    }
+
+    void asm_push_r16(X86Reg r16) {
+        m_code.push_back(m_al, 0x66);
+        m_code.push_back(m_al, 0x50 + r16);
+        EMIT("pushl " + r2s(r16));
     }
 
     void asm_push_imm8(uint8_t imm8) {
