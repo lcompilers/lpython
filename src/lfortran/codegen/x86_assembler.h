@@ -452,6 +452,21 @@ public:
         EMIT("jge " + i2s(imm8));
     }
 
+    void asm_jge_imm32(uint32_t imm32) {
+        m_code.push_back(m_al, 0x0F);
+        m_code.push_back(m_al, 0x8D);
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("jge " + i2s(imm32));
+    }
+
+    void asm_jge_label(const std::string &label) {
+        m_code.push_back(m_al, 0x0F);
+        m_code.push_back(m_al, 0x8D);
+        uint32_t imm32 = relative_symbol(label);
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("jge " + label);
+    }
+
     void asm_inc_r32(X86Reg r32) {
         if (r32 == X86Reg::eax) {
             m_code.push_back(m_al, 0x40);
