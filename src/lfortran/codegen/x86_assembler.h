@@ -310,7 +310,7 @@ public:
             }
             for (size_t i=0; i < s.undefined_positions_rel.size(); i++) {
                 uint32_t pos = s.undefined_positions_rel[i];
-                insert_uint32(m_code, pos, s.value-pos-4);
+                insert_uint32(m_code, pos, s.value-pos);
             }
             for (size_t i=0; i < s.undefined_positions_imm16.size(); i++) {
                 uint32_t pos = s.undefined_positions_imm16[i];
@@ -320,7 +320,8 @@ public:
     }
 
     // Adds to undefined_positions, creates a symbol if needed
-    Symbol &reference_symbol(const std::string &name, bool relative=false) {
+    Symbol &reference_symbol(const std::string &name, bool relative=false,
+            int offset=0) {
         if (m_symbols.find(name) == m_symbols.end()) {
             Symbol s;
             s.defined = false;
@@ -334,9 +335,9 @@ public:
         Symbol &s = m_symbols[name];
         if (!s.defined) {
             if (relative) {
-                s.undefined_positions_rel.push_back(m_al, pos());
+                s.undefined_positions_rel.push_back(m_al, pos()+offset);
             } else {
-                s.undefined_positions.push_back(m_al, pos());
+                s.undefined_positions.push_back(m_al, pos()+offset);
             }
         }
         return s;
@@ -601,7 +602,7 @@ public:
 
     void asm_call_label(const std::string &label) {
         m_code.push_back(m_al, 0xe8);
-        uint32_t imm32 = reference_symbol(label, true).value;
+        uint32_t imm32 = reference_symbol(label, true, 4).value;
         push_back_uint32(m_code, m_al, imm32);
         EMIT("call " + label);
     }
