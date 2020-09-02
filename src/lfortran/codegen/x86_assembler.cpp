@@ -25,7 +25,7 @@ void X86Assembler::save_binary(const std::string &filename) {
 #endif
 }
 
-void emit_elf32_header(X86Assembler &a) {
+void emit_elf32_header(X86Assembler &a, uint32_t p_flags) {
     /* Elf32_Ehdr */
     a.add_label("ehdr");
     // e_ident
@@ -72,7 +72,7 @@ void emit_elf32_header(X86Assembler &a) {
     a.asm_dd_imm32(a.origin());   // p_paddr
     a.asm_dd_label("filesize"); // p_filesz
     a.asm_dd_label("filesize"); // p_memsz
-    a.asm_dd_imm32(5);        // p_flags
+    a.asm_dd_imm32(p_flags);        // p_flags
     a.asm_dd_imm32(0x1000);   // p_align
 
     a.add_var("phdrsize", a.pos()-a.get_defined_symbol("phdr").value);
