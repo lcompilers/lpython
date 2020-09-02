@@ -312,7 +312,7 @@ public:
             }
             for (size_t i=0; i < s.undefined_positions_rel.size(); i++) {
                 uint32_t pos = s.undefined_positions_rel[i];
-                insert_uint32(m_code, pos, s.value-pos-m_origin);
+                insert_uint32(m_code, pos, s.value-pos-m_origin-4);
             }
             for (size_t i=0; i < s.undefined_positions_imm16.size(); i++) {
                 uint32_t pos = s.undefined_positions_imm16[i];
@@ -322,8 +322,10 @@ public:
     }
 
     // Adds to undefined_positions, creates a symbol if needed
-    Symbol &reference_symbol(const std::string &name, bool relative=false,
-            int offset=0) {
+    // type = 0 imm32
+    // type = 1 imm16
+    // type = 2 relative
+    Symbol &reference_symbol(const std::string &name, int type=0) {
         if (m_symbols.find(name) == m_symbols.end()) {
             Symbol s;
             s.defined = false;
@@ -336,32 +338,24 @@ public:
         }
         Symbol &s = m_symbols[name];
         if (!s.defined) {
-            if (relative) {
-                s.undefined_positions_rel.push_back(m_al, pos()-m_origin+offset);
-            } else {
-                s.undefined_positions.push_back(m_al, pos()-m_origin+offset);
+            switch (type) {
+                case (0) :
+                    s.undefined_positions.push_back(m_al, pos()-m_origin);
+                    break;
+                case (1) :
+                    s.undefined_positions_imm16.push_back(m_al, pos()-m_origin);
+                    break;
+                case (2) :
+                    s.undefined_positions_rel.push_back(m_al, pos()-m_origin);
+                    break;
+                default : throw AssemblerError("Unknown label type");
             }
         }
         return s;
     }
 
-    // Adds to undefined_positions, creates a symbol if needed
-    Symbol &reference_symbol_imm16(const std::string &name) {
-        if (m_symbols.find(name) == m_symbols.end()) {
-            Symbol s;
-            s.defined = false;
-            s.value = 0;
-            s.name = name;
-            s.undefined_positions.reserve(m_al, 8);
-            s.undefined_positions_imm16.reserve(m_al, 8);
-            s.undefined_positions_rel.reserve(m_al, 8);
-            m_symbols[name] = s;
-        }
-        Symbol &s = m_symbols[name];
-        if (!s.defined) {
-            s.undefined_positions_imm16.push_back(m_al, pos()-m_origin);
-        }
-        return s;
+    uint32_t relative_symbol(const std::string &name) {
+        return reference_symbol(name, 2).value-pos()-4;
     }
 
     // Does not touch undefined_positions, symbol must be defined
@@ -456,6 +450,67 @@ public:
         m_code.push_back(m_al, 0x7d);
         m_code.push_back(m_al, imm8);
         EMIT("jge " + i2s(imm8));
+    }
+
+    void asm_jge_imm32(uint32_t imm32) {
+        m_code.push_back(m_al, 0x0F);
+        m_code.push_back(m_al, 0x8D);
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("jge " + i2s(imm32));
+    }
+
+    // Jump if ==
+    void asm_je_label(const std::string &label) {
+        m_code.push_back(m_al, 0x0F);
+        m_code.push_back(m_al, 0x84);
+        uint32_t imm32 = relative_symbol(label);
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("je " + label);
+    }
+
+    // Jump if !=
+    void asm_jne_label(const std::string &label) {
+        m_code.push_back(m_al, 0x0F);
+        m_code.push_back(m_al, 0x85);
+        uint32_t imm32 = relative_symbol(label);
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("jne " + label);
+    }
+
+    // Jump if <
+    void asm_jl_label(const std::string &label) {
+        m_code.push_back(m_al, 0x0F);
+        m_code.push_back(m_al, 0x8C);
+        uint32_t imm32 = relative_symbol(label);
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("jl " + label);
+    }
+
+    // Jump if <=
+    void asm_jle_label(const std::string &label) {
+        m_code.push_back(m_al, 0x0F);
+        m_code.push_back(m_al, 0x8E);
+        uint32_t imm32 = relative_symbol(label);
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("jle " + label);
+    }
+
+    // Jump if >
+    void asm_jg_label(const std::string &label) {
+        m_code.push_back(m_al, 0x0F);
+        m_code.push_back(m_al, 0x8F);
+        uint32_t imm32 = relative_symbol(label);
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("jg " + label);
+    }
+
+    // Jump if >=
+    void asm_jge_label(const std::string &label) {
+        m_code.push_back(m_al, 0x0F);
+        m_code.push_back(m_al, 0x8D);
+        uint32_t imm32 = relative_symbol(label);
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("jge " + label);
     }
 
     void asm_inc_r32(X86Reg r32) {
@@ -603,6 +658,13 @@ public:
         EMIT("jmp " + i2s(imm32));
     }
 
+    void asm_jmp_label(const std::string &label) {
+        m_code.push_back(m_al, 0xe9);
+        uint32_t imm32 = relative_symbol(label);
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("jmp " + label);
+    }
+
     void asm_call_imm32(uint32_t imm32) {
         m_code.push_back(m_al, 0xe8);
         push_back_uint32(m_code, m_al, imm32);
@@ -611,7 +673,7 @@ public:
 
     void asm_call_label(const std::string &label) {
         m_code.push_back(m_al, 0xe8);
-        uint32_t imm32 = reference_symbol(label, true, 4).value;
+        uint32_t imm32 = relative_symbol(label);
         push_back_uint32(m_code, m_al, imm32);
         EMIT("call " + label);
     }
@@ -650,7 +712,7 @@ public:
     }
 
     void asm_dw_label(const std::string &label) {
-        uint32_t imm16 = reference_symbol_imm16(label).value;
+        uint32_t imm16 = reference_symbol(label, 1).value;
         push_back_uint16(m_code, m_al, imm16);
         EMIT("dw " + label);
     }
