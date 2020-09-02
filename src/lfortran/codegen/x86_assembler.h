@@ -518,15 +518,12 @@ public:
     }
 
     void asm_inc_r32(X86Reg r32) {
-        if (r32 == X86Reg::eax) {
-            m_code.push_back(m_al, 0x40);
-        } else if (r32 == X86Reg::ebx) {
-            m_code.push_back(m_al, 0x43);
-        } else if (r32 == X86Reg::edx) {
-            m_code.push_back(m_al, 0x42);
-        } else {
-            throw AssemblerError("Register not supported yet");
-        }
+        m_code.push_back(m_al, 0x40+r32);
+        EMIT("inc " + r2s(r32));
+    }
+
+    void asm_dec_r32(X86Reg r32) {
+        m_code.push_back(m_al, 0x48+r32);
         EMIT("inc " + r2s(r32));
     }
 
