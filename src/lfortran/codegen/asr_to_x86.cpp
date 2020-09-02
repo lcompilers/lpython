@@ -50,11 +50,21 @@ public:
 
         m_a.add_label("_start");
 
+        // Initialize the stack
+        m_a.asm_push_r32(X86Reg::ebp);
+        m_a.asm_mov_r32_r32(X86Reg::ebp, X86Reg::esp);
+        m_a.asm_sub_r32_imm8(X86Reg::esp, 4); // one local variable
+
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
         }
 
         m_a.asm_call_label("exit");
+
+        // Restore stack
+        m_a.asm_mov_r32_r32(X86Reg::esp, X86Reg::ebp);
+        m_a.asm_pop_r32(X86Reg::ebp);
+        //m_a.asm_ret();
 
         for (auto &s : m_global_strings) {
             emit_data_string(m_a, s.first, s.second);
