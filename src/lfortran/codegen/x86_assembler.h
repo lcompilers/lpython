@@ -58,7 +58,7 @@ enum X86Reg : uint8_t {
     edi = 7,
 };
 
-std::string r2s(X86Reg r32) {
+static std::string r2s(X86Reg r32) {
     switch (r32) {
         case (X86Reg::eax) : return "eax";
         case (X86Reg::ecx) : return "ecx";
@@ -72,7 +72,7 @@ std::string r2s(X86Reg r32) {
     }
 }
 
-std::string m2s(X86Reg *base, X86Reg *index, uint8_t scale, int32_t disp) {
+static std::string m2s(X86Reg *base, X86Reg *index, uint8_t scale, int32_t disp) {
     std::string r;
     r = "[";
     if (base) r += r2s(*base);
@@ -93,7 +93,7 @@ std::string m2s(X86Reg *base, X86Reg *index, uint8_t scale, int32_t disp) {
 }
 
 template< typename T >
-std::string hexify(T i)
+static std::string hexify(T i)
 {
     std::stringbuf buf;
     std::ostream os(&buf);
@@ -101,15 +101,15 @@ std::string hexify(T i)
     return buf.str();
 }
 
-std::string i2s(uint32_t imm32) {
+static std::string i2s(uint32_t imm32) {
     return "0x" + hexify(imm32);
 }
 
-std::string i2s(uint16_t imm16) {
+static std::string i2s(uint16_t imm16) {
     return "0x" + hexify(imm16);
 }
 
-std::string i2s(uint8_t imm8) {
+static std::string i2s(uint8_t imm8) {
     // hexify() for some reason does not work with uint8_t, only with longer
     // integers
     std::string s = hexify((uint16_t)imm8);
@@ -117,32 +117,32 @@ std::string i2s(uint8_t imm8) {
     return "0x" + s.substr(2,4);
 }
 
-void push_back_uint32(Vec<uint8_t> &code, Allocator &al, uint32_t i32) {
+static void push_back_uint32(Vec<uint8_t> &code, Allocator &al, uint32_t i32) {
     code.push_back(al, (i32      ) & 0xFF);
     code.push_back(al, (i32 >>  8) & 0xFF);
     code.push_back(al, (i32 >> 16) & 0xFF);
     code.push_back(al, (i32 >> 24) & 0xFF);
 }
 
-void insert_uint32(Vec<uint8_t> &code, size_t pos, uint32_t i32) {
+static void insert_uint32(Vec<uint8_t> &code, size_t pos, uint32_t i32) {
     code.p[pos  ] = (i32      ) & 0xFF;
     code.p[pos+1] = (i32 >>  8) & 0xFF;
     code.p[pos+2] = (i32 >> 16) & 0xFF;
     code.p[pos+3] = (i32 >> 24) & 0xFF;
 }
 
-void push_back_uint16(Vec<uint8_t> &code, Allocator &al, uint16_t i16) {
+static void push_back_uint16(Vec<uint8_t> &code, Allocator &al, uint16_t i16) {
     code.push_back(al, (i16      ) & 0xFF);
     code.push_back(al, (i16 >>  8) & 0xFF);
 }
 
-void insert_uint16(Vec<uint8_t> &code, size_t pos, uint16_t i16) {
+static void insert_uint16(Vec<uint8_t> &code, size_t pos, uint16_t i16) {
     code.p[pos  ] = (i16      ) & 0xFF;
     code.p[pos+1] = (i16 >>  8) & 0xFF;
 }
 
 // Implements table 2-2 in [1].
-uint8_t ModRM_byte(uint8_t mode, uint8_t reg, uint8_t rm) {
+static uint8_t ModRM_byte(uint8_t mode, uint8_t reg, uint8_t rm) {
     LFORTRAN_ASSERT(mode <= 3);
     LFORTRAN_ASSERT(reg <= 7);
     LFORTRAN_ASSERT(rm <= 7);
@@ -150,7 +150,7 @@ uint8_t ModRM_byte(uint8_t mode, uint8_t reg, uint8_t rm) {
 }
 
 // Implements table 2-3 in [1].
-uint8_t SIB_byte(uint8_t base, uint8_t index, uint8_t scale_index) {
+static uint8_t SIB_byte(uint8_t base, uint8_t index, uint8_t scale_index) {
     LFORTRAN_ASSERT(base <= 7);
     LFORTRAN_ASSERT(index <= 7);
     LFORTRAN_ASSERT(scale_index <= 3);
@@ -159,7 +159,7 @@ uint8_t SIB_byte(uint8_t base, uint8_t index, uint8_t scale_index) {
 
 // Implements the logic of tables 2-2 and 2-3 in [1] and correctly appends the
 // SIB and displacement bytes as appropriate.
-void ModRM_SIB_disp_bytes(Vec<uint8_t> &code, Allocator &al,
+static void ModRM_SIB_disp_bytes(Vec<uint8_t> &code, Allocator &al,
         uint8_t mod, uint8_t reg, uint8_t rm,
         uint8_t base, uint8_t index, uint8_t scale_index, int32_t disp) {
     code.push_back(al, ModRM_byte(mod, reg, rm));
@@ -179,7 +179,7 @@ void ModRM_SIB_disp_bytes(Vec<uint8_t> &code, Allocator &al,
     }
 }
 
-void modrm_sib_disp(Vec<uint8_t> &code, Allocator &al,
+static void modrm_sib_disp(Vec<uint8_t> &code, Allocator &al,
         X86Reg reg,
         X86Reg *base_opt, // nullptr if None
         X86Reg *index_opt, // nullptr if None
