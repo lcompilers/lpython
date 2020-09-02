@@ -706,6 +706,8 @@ public:
 void emit_elf32_header(X86Assembler &a, uint32_t origin);
 void emit_elf32_footer(X86Assembler &a, uint32_t origin);
 
+void emit_exit(X86Assembler &a, const std::string &name);
+
 } // namespace LFortran
 
 #endif // LFORTRAN_CODEGEN_X86_ASSEMBER_H

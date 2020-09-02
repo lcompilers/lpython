@@ -492,12 +492,7 @@ TEST_CASE("print") {
     a.asm_int_imm8(0x80);
     a.asm_call_label("exit");
 
-    a.add_label("exit");
-    // void exit(int status);
-    a.asm_mov_r32_imm32(LFortran::X86Reg::eax, 1); // sys_exit
-    a.asm_mov_r32_imm32(LFortran::X86Reg::ebx, 0); // exit code
-    a.asm_int_imm8(0x80); // syscall
-
+    LFortran::emit_exit(a, "exit");
     LFortran::emit_elf32_footer(a, origin);
 
     a.verify();
