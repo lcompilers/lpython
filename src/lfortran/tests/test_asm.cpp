@@ -486,3 +486,24 @@ TEST_CASE("print") {
 
     a.save_binary("print32");
 }
+
+TEST_CASE("cmp") {
+    Allocator al(1024);
+    LFortran::X86Assembler a(al);
+    std::string msg1 = "Branch 1\n";
+    std::string msg2 = "Branch 2\n";
+
+    LFortran::emit_elf32_header(a);
+    a.add_label("_start");
+    LFortran::emit_print(a, "msg1", msg1.size());
+    LFortran::emit_print(a, "msg2", msg2.size());
+    a.asm_call_label("exit");
+    LFortran::emit_exit(a, "exit");
+    LFortran::emit_data_string(a, "msg1", msg1);
+    LFortran::emit_data_string(a, "msg2", msg2);
+    LFortran::emit_elf32_footer(a);
+
+    a.verify();
+
+    a.save_binary("cmp32");
+}
