@@ -422,6 +422,12 @@ public:
         EMIT("push " + i2s(imm8));
     }
 
+    void asm_push_imm32(uint32_t imm32) {
+        m_code.push_back(m_al, 0x68);
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("push " + i2s(imm32));
+    }
+
     void asm_jz_imm8(uint8_t imm8) {
         m_code.push_back(m_al, 0x74);
         m_code.push_back(m_al, imm8);
