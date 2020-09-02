@@ -572,6 +572,9 @@ TEST_CASE("subroutine args") {
     a.asm_mov_r32_r32(X86Reg::ebp, X86Reg::esp);
     // sub esp, 4 // one local variable
     a.asm_sub_r32_imm8(X86Reg::esp, 4);
+
+    LFortran::emit_print(a, "msg1", msg1.size());
+
     // mov eax, [ebp+8] // first argument
     X86Reg base = X86Reg::ebp;
     a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, 8);
@@ -583,7 +586,6 @@ TEST_CASE("subroutine args") {
     a.asm_add_m32_r32(&base, nullptr, 1, -4, X86Reg::ecx);
     // mov eax, [ebp-4] // move the sum into the return value (eax)
     a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, -4);
-    LFortran::emit_print(a, "msg1", msg1.size());
     a.asm_mov_r32_r32(X86Reg::esp, X86Reg::ebp);
     a.asm_pop_r32(X86Reg::ebp);
     a.asm_ret();
