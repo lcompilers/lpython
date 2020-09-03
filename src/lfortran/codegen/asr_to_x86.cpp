@@ -487,16 +487,15 @@ public:
     }
 
     // Push arguments to stack (last argument first)
-    template <typename T>
-    uint8_t push_call_args(const T &x) {
-        ASR::Subroutine_t *sub = SUBROUTINE((ASR::asr_t*)x.m_name);
-        LFORTRAN_ASSERT(sub->n_args == x.n_args);
+    template <typename T, typename T2>
+    uint8_t push_call_args(const T &x, const T2 &sub) {
+        LFORTRAN_ASSERT(sub.n_args == x.n_args);
         // Note: when counting down in a loop, we have to use signed ints
         // for `i`, so that it can become negative and fail the i>=0 condition.
         for (int i=x.n_args-1; i>=0; i--) {
             bool pass_as_pointer;
             {
-                ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)sub->m_args[i])->m_v);
+                ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)sub.m_args[i])->m_v);
                 LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
                 // TODO: we are assuming integer here:
                 LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
@@ -559,7 +558,7 @@ public:
         }
         Sym &sym = x86_symtab[h];
         // Push arguments to stack (last argument first)
-        uint8_t arg_offset = push_call_args(x);
+        uint8_t arg_offset = push_call_args(x, *s);
         // Call the subroutine
         m_a.asm_call_label(sym.fn_label);
         // Remove arguments from stack
