@@ -108,7 +108,7 @@ RUN(NAME doloop_02 LABELS gfortran llvm cpp x86)
 RUN(NAME doloop_03 LABELS gfortran llvm cpp)
 
 RUN(NAME subroutines_01 LABELS gfortran llvm cpp x86)
-RUN(NAME subroutines_02 LABELS gfortran llvm cpp)
+RUN(NAME subroutines_02 LABELS gfortran llvm cpp x86)
 
 RUN(NAME functions_01 LABELS gfortran llvm cpp)
 
