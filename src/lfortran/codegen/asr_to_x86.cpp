@@ -204,6 +204,7 @@ public:
         m_a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, -s.stack_offset);
         if (s.pointer) {
             base = X86Reg::eax;
+            // Dereference a pointer
             // mov eax, [eax]
             m_a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, 0);
         }
@@ -444,7 +445,22 @@ public:
                 Sym s = x86_symtab[h];
                 X86Reg base = X86Reg::ebp;
                 if (s.pointer) {
-                    throw CodeGenError("Not implemented yet.");
+                    if (pass_as_pointer) {
+                        // Copy over the stack variable (already a pointer)
+                        // mov eax, [ebp-s.stack_offset]
+                        m_a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, -s.stack_offset);
+                    } else {
+                        // Copy and dereference the stack variable
+
+                        // Copy
+                        // mov eax, [ebp-s.stack_offset]
+                        m_a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, -s.stack_offset);
+
+                        // Dereference a pointer
+                        // mov eax, [eax]
+                        m_a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, 0);
+                    }
+                    m_a.asm_push_r32(X86Reg::eax);
                 } else {
                     if (pass_as_pointer) {
                         // Get a pointer to the stack variable
