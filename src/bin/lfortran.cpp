@@ -655,6 +655,14 @@ int link_executable(const std::string &infile, const std::string &outfile,
             return 10;
         }
         return 0;
+    } else if (backend == Backend::x86) {
+        std::string cmd = "cp " + infile + " " + outfile;
+        int err = system(cmd.c_str());
+        if (err) {
+            std::cout << "The command '" + cmd + "' failed." << std::endl;
+            return 10;
+        }
+        return 0;
     } else {
         LFORTRAN_ASSERT(false);
         return 1;
@@ -926,8 +934,10 @@ int main(int argc, char *argv[])
 #endif
             } else if (backend == Backend::cpp) {
                 return compile_to_object_file_cpp(arg_file, outfile, false, true);
+            } else if (backend == Backend::x86) {
+                return compile_to_binary_x86(arg_file, outfile);
             } else {
-                LFORTRAN_ASSERT(false);
+                throw LFortran::LFortranException("Unsupported backend.");
             }
         }
 
