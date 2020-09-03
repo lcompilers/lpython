@@ -329,7 +329,7 @@ public:
             m_a.asm_mov_r32_m32(X86Reg::ecx, &base, nullptr, 1, -s.stack_offset);
             // mov [ecx], eax
             base = X86Reg::ecx;
-            m_a.asm_mov_m32_r32(&base, nullptr, 1, -s.stack_offset, X86Reg::eax);
+            m_a.asm_mov_m32_r32(&base, nullptr, 1, 0, X86Reg::eax);
         } else {
             // mov [ebp-s.stack_offset], eax
             m_a.asm_mov_m32_r32(&base, nullptr, 1, -s.stack_offset, X86Reg::eax);
