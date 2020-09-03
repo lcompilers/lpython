@@ -776,6 +776,13 @@ public:
         EMIT("div " + r2s(r32));
     }
 
+    void asm_neg_r32(X86Reg r32) {
+        m_code.push_back(m_al, 0xF7);
+        modrm_sib_disp(m_code, m_al,
+                X86Reg::ebx, &r32, nullptr, 1, 0, false);
+        EMIT("neg " + r2s(r32));
+    }
+
     void asm_lea_r32_m32(X86Reg r32, X86Reg *base, X86Reg *index,
                 uint8_t scale, int32_t disp) {
         m_code.push_back(m_al, 0x8d);
