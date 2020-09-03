@@ -647,6 +647,13 @@ public:
         EMIT("cmp " + r2s(r32) + ", " + i2s(imm8));
     }
 
+    void asm_cmp_r32_r32(X86Reg r32, X86Reg s32) {
+        m_code.push_back(m_al, 0x39);
+        modrm_sib_disp(m_code, m_al,
+                s32, &r32, nullptr, 1, 0, false);
+        EMIT("cmp " + r2s(r32) + ", " + r2s(s32));
+    }
+
     void asm_jmp_imm8(uint8_t imm8) {
         m_code.push_back(m_al, 0xeb);
         m_code.push_back(m_al, imm8);
