@@ -287,6 +287,28 @@ public:
         m_a.add_label(".endif" + id);
     }
 
+    void visit_WhileLoop(const ASR::WhileLoop_t &x) {
+        std::string id = std::to_string(get_hash((ASR::asr_t*)&x));
+
+        // head
+        m_a.add_label(".loop.head" + id);
+        this->visit_expr(*x.m_test);
+        // eax contains the logical value (true=1, false=0) of the while condition
+        m_a.asm_cmp_r32_imm8(LFortran::X86Reg::eax, 1);
+        m_a.asm_je_label(".loop.body" + id);
+        m_a.asm_jmp_label(".loop.end" + id);
+
+        // body
+        m_a.add_label(".loop.body" + id);
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+        }
+        m_a.asm_jmp_label(".loop.head" + id);
+
+        // end
+        m_a.add_label(".loop.end" + id);
+    }
+
 };
 
 
