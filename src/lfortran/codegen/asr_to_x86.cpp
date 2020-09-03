@@ -427,6 +427,16 @@ public:
         // Note: when counting down in a loop, we have to use signed ints
         // for `i`, so that it can become negative and fail the i>=0 condition.
         for (int i=x.n_args-1; i>=0; i--) {
+            bool pass_as_pointer;
+            {
+                ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)sub->m_args[i])->m_v);
+                LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
+                // TODO: we are assuming integer here:
+                LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
+                uint32_t h = get_hash((ASR::asr_t*)arg);
+                Sym &s = x86_symtab[h];
+                pass_as_pointer = s.pointer;
+            }
             if (x.m_args[i]->type == ASR::exprType::Var) {
                 ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
                 uint32_t h = get_hash((ASR::asr_t*)arg);
@@ -436,16 +446,6 @@ public:
                 if (s.pointer) {
                     throw CodeGenError("Not implemented yet.");
                 } else {
-                    bool pass_as_pointer;
-                    {
-                        ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)sub->m_args[i])->m_v);
-                        LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
-                        // TODO: we are assuming integer here:
-                        LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
-                        uint32_t h = get_hash((ASR::asr_t*)arg);
-                        Sym &s = x86_symtab[h];
-                        pass_as_pointer = s.pointer;
-                    }
                     if (pass_as_pointer) {
                         // Get a pointer to the stack variable
                         // lea eax, [ebp-s.stack_offset]
@@ -458,7 +458,10 @@ public:
                     m_a.asm_push_r32(X86Reg::eax);
                 }
             } else {
-                throw CodeGenError("Values not implemented yet.");
+                LFORTRAN_ASSERT(!pass_as_pointer);
+                this->visit_expr(*x.m_args[i]);
+                // The value of the argument is in eax, push it onto the stack
+                m_a.asm_push_r32(X86Reg::eax);
             }
         }
         return x.n_args*4;
