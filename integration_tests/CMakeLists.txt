@@ -34,15 +34,28 @@ message("LFORTRAN_BACKEND: ${LFORTRAN_BACKEND}")
 
 
 
-macro(RUN name)
+macro(RUN)
+    set(options FAIL)
+    set(oneValueArgs NAME)
+    set(multiValueArgs LABELS)
+    cmake_parse_arguments(RUN "${options}" "${oneValueArgs}"
+                          "${multiValueArgs}" ${ARGN} )
+    set(name ${RUN_NAME})
+    if (NOT name)
+        message(FATAL_ERROR "Must specify the NAME argument")
+    endif()
     add_executable(${name} ${name}.f90)
-    if (LFORTRAN_BACKEND STREQUAL "cpp")
+    if ((LFORTRAN_BACKEND STREQUAL "cpp") OR (LFORTRAN_BACKEND STREQUAL "x86"))
         target_compile_options(${name} PUBLIC --backend=${LFORTRAN_BACKEND})
         target_link_options(${name} PUBLIC --backend=${LFORTRAN_BACKEND})
     endif()
     add_test(${name} ${CURRENT_BINARY_DIR}/${name})
-    set(extra_args ${ARGN})
-    if (extra_args STREQUAL "fail")
+
+    if (RUN_LABELS)
+        set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
+    endif()
+
+    if (${RUN_FAIL})
         set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
     endif()
 endmacro(RUN)
@@ -50,108 +63,98 @@ endmacro(RUN)
 
 # GFortran + LFortran LLVM + LFortran C++
 
-RUN(program_cmake_01)
-RUN(program_cmake_02)
+RUN(NAME program_cmake_01 LABELS gfortran llvm cpp x86)
+RUN(NAME program_cmake_02 LABELS gfortran llvm cpp)
 
-RUN(abort_01 fail)
+RUN(NAME abort_01 FAIL LABELS gfortran llvm cpp)
 
-RUN(print_01)
+RUN(NAME print_01 LABELS gfortran llvm cpp)
 
-RUN(cond_01)
+RUN(NAME cond_01 LABELS gfortran llvm cpp)
 
-RUN(expr_01 fail)
-RUN(expr_02)
-RUN(expr_03)
-RUN(expr_04)
+RUN(NAME expr_01 FAIL LABELS gfortran llvm cpp)
+RUN(NAME expr_02 LABELS gfortran llvm cpp)
+RUN(NAME expr_03 LABELS gfortran llvm cpp)
+RUN(NAME expr_04 LABELS gfortran llvm cpp)
 
-RUN(variables_01)
-RUN(variables_02)
-RUN(variables_03)
+RUN(NAME variables_01 LABELS gfortran llvm cpp)
+RUN(NAME variables_02 LABELS gfortran llvm cpp)
+RUN(NAME variables_03 LABELS gfortran llvm cpp)
 
-RUN(if_01)
-RUN(if_02 fail)
-RUN(if_03 fail)
+RUN(NAME if_01 LABELS gfortran llvm cpp)
+RUN(NAME if_02 FAIL LABELS gfortran llvm cpp)
+RUN(NAME if_03 FAIL LABELS gfortran llvm cpp)
 
-RUN(while_01)
-RUN(while_02)
+RUN(NAME while_01 LABELS gfortran llvm cpp)
+RUN(NAME while_02 LABELS gfortran llvm cpp)
 
-RUN(doloop_01)
-RUN(doloop_02)
-RUN(doloop_03)
+RUN(NAME doloop_01 LABELS gfortran llvm cpp)
+RUN(NAME doloop_02 LABELS gfortran llvm cpp)
+RUN(NAME doloop_03 LABELS gfortran llvm cpp)
 
-RUN(subroutines_01)
-RUN(subroutines_02)
+RUN(NAME subroutines_01 LABELS gfortran llvm cpp)
+RUN(NAME subroutines_02 LABELS gfortran llvm cpp)
 
-RUN(functions_01)
+RUN(NAME functions_01 LABELS gfortran llvm cpp)
 
-RUN(types_01)
-RUN(types_02)
-RUN(types_03)
-RUN(types_04)
-RUN(types_05)
-RUN(types_06)
+RUN(NAME types_01 LABELS gfortran llvm cpp)
+RUN(NAME types_02 LABELS gfortran llvm cpp)
+RUN(NAME types_03 LABELS gfortran llvm cpp)
+RUN(NAME types_04 LABELS gfortran llvm cpp)
+RUN(NAME types_05 LABELS gfortran llvm cpp)
+RUN(NAME types_06 LABELS gfortran llvm cpp)
 
-if (NOT LFORTRAN_BACKEND STREQUAL "cpp")
-    # GFortran + LFortran LLVM
-endif()
+# GFortran + LFortran C++
+RUN(NAME doconcurrentloop_01 LABELS gfortran cpp)
 
-if (NOT LFORTRAN_BACKEND STREQUAL "llvm")
-    # GFortran + LFortran C++
-    RUN(doconcurrentloop_01)
+RUN(NAME arrays_01 LABELS gfortran cpp)
+RUN(NAME arrays_03 LABELS gfortran cpp)
+RUN(NAME arrays_04 LABELS gfortran cpp)
+RUN(NAME arrays_05 LABELS gfortran cpp)
 
-    RUN(arrays_01)
-    RUN(arrays_03)
-    RUN(arrays_04)
-    RUN(arrays_05)
+# GFortran
+RUN(NAME arrays_02 LABELS gfortran)
+RUN(NAME arrays_06 LABELS gfortran)
+RUN(NAME arrays_07 LABELS gfortran)
 
-endif()
+RUN(NAME intrinsics_01 LABELS gfortran)
 
-if (NOT LFORTRAN_BACKEND)
-    # GFortran
-    RUN(arrays_02)
-    RUN(arrays_06)
-    RUN(arrays_07)
+RUN(NAME modules_01 LABELS gfortran)
+RUN(NAME modules_02 LABELS gfortran)
+RUN(NAME modules_03 LABELS gfortran)
+RUN(NAME modules_04 LABELS gfortran)
+RUN(NAME modules_05 LABELS gfortran)
 
-    RUN(intrinsics_01)
+RUN(NAME if_04 LABELS gfortran)
+RUN(NAME case_01 LABELS gfortran)
 
-    RUN(modules_01)
-    RUN(modules_02)
-    RUN(modules_03)
-    RUN(modules_04)
-    RUN(modules_05)
+RUN(NAME program_02 LABELS gfortran)
 
-    RUN(if_04)
-    RUN(case_01)
+RUN(NAME where_01 LABELS gfortran)
 
-    RUN(program_02)
+RUN(NAME forallloop_01 LABELS gfortran)
 
-    RUN(where_01)
+RUN(NAME subroutines_03 LABELS gfortran)
 
-    RUN(forallloop_01)
+RUN(NAME interface_01 LABELS gfortran)
+RUN(NAME interface_02 LABELS gfortran)
+RUN(NAME interface_03 LABELS gfortran)
 
-    RUN(subroutines_03)
+RUN(NAME types_07 LABELS gfortran)
+RUN(NAME types_08 LABELS gfortran)
+RUN(NAME types_09 LABELS gfortran)
+RUN(NAME types_10 LABELS gfortran)
+RUN(NAME types_11 LABELS gfortran)
 
-    RUN(interface_01)
-    RUN(interface_02)
-    RUN(interface_03)
+RUN(NAME doloop_04 LABELS gfortran)
 
-    RUN(types_07)
-    RUN(types_08)
-    RUN(types_09)
-    RUN(types_10)
-    RUN(types_11)
+RUN(NAME derived_types_01 LABELS gfortran)
+RUN(NAME derived_types_02 LABELS gfortran)
+RUN(NAME derived_types_03 LABELS gfortran)
 
-    RUN(doloop_04)
+RUN(NAME program_01 LABELS gfortran)
+RUN(NAME program_03 LABELS gfortran)
 
-    RUN(derived_types_01)
-    RUN(derived_types_02)
-    RUN(derived_types_03)
-
-    RUN(program_01)
-    RUN(program_03)
-
-    RUN(allocate_01)
-    RUN(block_01)
-    RUN(associate_01)
-
-endif()
+RUN(NAME allocate_01 LABELS gfortran)
+RUN(NAME block_01 LABELS gfortran)
+RUN(NAME associate_01 LABELS gfortran)
