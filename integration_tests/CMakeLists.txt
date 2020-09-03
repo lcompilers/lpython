@@ -79,32 +79,32 @@ endmacro(RUN)
 # GFortran + LFortran LLVM + LFortran C++
 
 RUN(NAME program_cmake_01 LABELS gfortran llvm cpp x86)
-RUN(NAME program_cmake_02 LABELS gfortran llvm cpp)
+RUN(NAME program_cmake_02 LABELS gfortran llvm cpp x86)
 
-RUN(NAME abort_01 FAIL LABELS gfortran llvm cpp)
+RUN(NAME abort_01 FAIL LABELS gfortran llvm cpp x86)
 
 RUN(NAME print_01 LABELS gfortran llvm cpp)
 
-RUN(NAME cond_01 LABELS gfortran llvm cpp)
+RUN(NAME cond_01 LABELS gfortran llvm cpp x86)
 
-RUN(NAME expr_01 FAIL LABELS gfortran llvm cpp)
-RUN(NAME expr_02 LABELS gfortran llvm cpp)
-RUN(NAME expr_03 LABELS gfortran llvm cpp)
+RUN(NAME expr_01 FAIL LABELS gfortran llvm cpp x86)
+RUN(NAME expr_02 LABELS gfortran llvm cpp x86)
+RUN(NAME expr_03 LABELS gfortran llvm cpp x86)
 RUN(NAME expr_04 LABELS gfortran llvm cpp)
 
-RUN(NAME variables_01 LABELS gfortran llvm cpp)
-RUN(NAME variables_02 LABELS gfortran llvm cpp)
+RUN(NAME variables_01 LABELS gfortran llvm cpp x86)
+RUN(NAME variables_02 LABELS gfortran llvm cpp x86)
 RUN(NAME variables_03 LABELS gfortran llvm cpp)
 
-RUN(NAME if_01 LABELS gfortran llvm cpp)
-RUN(NAME if_02 FAIL LABELS gfortran llvm cpp)
-RUN(NAME if_03 FAIL LABELS gfortran llvm cpp)
+RUN(NAME if_01 LABELS gfortran llvm cpp x86)
+RUN(NAME if_02 FAIL LABELS gfortran llvm cpp x86)
+RUN(NAME if_03 FAIL LABELS gfortran llvm cpp x86)
 
-RUN(NAME while_01 LABELS gfortran llvm cpp)
+RUN(NAME while_01 LABELS gfortran llvm cpp x86)
 RUN(NAME while_02 LABELS gfortran llvm cpp)
 
-RUN(NAME doloop_01 LABELS gfortran llvm cpp)
-RUN(NAME doloop_02 LABELS gfortran llvm cpp)
+RUN(NAME doloop_01 LABELS gfortran llvm cpp x86)
+RUN(NAME doloop_02 LABELS gfortran llvm cpp x86)
 RUN(NAME doloop_03 LABELS gfortran llvm cpp)
 
 RUN(NAME subroutines_01 LABELS gfortran llvm cpp)
@@ -140,7 +140,7 @@ RUN(NAME modules_03 LABELS gfortran)
 RUN(NAME modules_04 LABELS gfortran)
 RUN(NAME modules_05 LABELS gfortran)
 
-RUN(NAME if_04 LABELS gfortran)
+RUN(NAME if_04 LABELS gfortran x86)
 RUN(NAME case_01 LABELS gfortran)
 
 RUN(NAME program_02 LABELS gfortran)
