@@ -21,10 +21,14 @@ uint64_t static get_hash(ASR::asr_t *node)
 
 class ASRToX86Visitor : public ASR::BaseVisitor<ASRToX86Visitor>
 {
+    struct Sym {
+        uint32_t stack_offset; // The local variable is [ebp-stack_offset]
+    };
 public:
     Allocator &m_al;
     X86Assembler m_a;
     std::map<std::string,std::string> m_global_strings;
+    std::map<uint64_t, Sym> x86_symtab;
 public:
 
     ASRToX86Visitor(Allocator &al) : m_al{al}, m_a{al} {}
@@ -53,7 +57,25 @@ public:
         // Initialize the stack
         m_a.asm_push_r32(X86Reg::ebp);
         m_a.asm_mov_r32_r32(X86Reg::ebp, X86Reg::esp);
-        m_a.asm_sub_r32_imm8(X86Reg::esp, 4); // one local variable
+
+        // Allocate stack space for local variables
+        uint32_t total_offset = 0;
+        for (auto &item : x.m_symtab->scope) {
+            if (item.second->type == ASR::asrType::var) {
+                ASR::var_t *v2 = (ASR::var_t*)(item.second);
+                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+
+                if (v->m_type->type == ASR::ttypeType::Integer) {
+                    total_offset += 4;
+                    Sym s;
+                    s.stack_offset = total_offset;
+                    x86_symtab[get_hash((ASR::asr_t*)v)] = s;
+                } else {
+                    throw CodeGenError("Variable type not supported");
+                }
+            }
+        }
+        m_a.asm_sub_r32_imm8(X86Reg::esp, total_offset);
 
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
