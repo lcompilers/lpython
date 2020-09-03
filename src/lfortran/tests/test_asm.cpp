@@ -480,7 +480,7 @@ TEST_CASE("print") {
     a.add_label("_start");
     LFortran::emit_print(a, "msg", msg.size());
     a.asm_call_label("exit");
-    LFortran::emit_exit(a, "exit");
+    LFortran::emit_exit(a, "exit", 0);
     LFortran::emit_data_string(a, "msg", msg);
     LFortran::emit_elf32_footer(a);
 
@@ -509,7 +509,7 @@ TEST_CASE("cmp") {
     LFortran::emit_print(a, "msg2", msg2.size());
     a.add_label(".endif");
     a.asm_call_label("exit");
-    LFortran::emit_exit(a, "exit");
+    LFortran::emit_exit(a, "exit", 0);
     LFortran::emit_data_string(a, "msg1", msg1);
     LFortran::emit_data_string(a, "msg2", msg2);
     LFortran::emit_elf32_footer(a);
@@ -542,7 +542,7 @@ TEST_CASE("subroutines") {
     a.asm_mov_m32_r32(&base, nullptr, 1, 5, LFortran::X86Reg::eax);
     a.asm_ret();
 
-    LFortran::emit_exit(a, "exit");
+    LFortran::emit_exit(a, "exit", 0);
 
     a.add_label("_start");
     a.asm_call_label("sub1");
@@ -592,7 +592,7 @@ TEST_CASE("subroutine args") {
     a.asm_pop_r32(X86Reg::ebp);
     a.asm_ret();
 
-    LFortran::emit_exit(a, "exit");
+    LFortran::emit_exit(a, "exit", 0);
 
     a.add_label("_start");
     // Push arguments to stack (last argument first)
@@ -630,7 +630,7 @@ TEST_CASE("print integer") {
 
     LFortran::emit_elf32_header(a);
     LFortran::emit_print_int(a, "print_int");
-    LFortran::emit_exit(a, "exit");
+    LFortran::emit_exit(a, "exit", 0);
     a.add_label("_start");
 
     a.asm_push_imm32(1234);

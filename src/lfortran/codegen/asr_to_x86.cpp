@@ -50,7 +50,8 @@ public:
         emit_elf32_header(m_a);
 
         emit_print_int(m_a, "print_int");
-        emit_exit(m_a, "exit");
+        emit_exit(m_a, "exit", 0);
+        emit_exit(m_a, "exit_error_stop", 1);
 
         m_a.add_label("_start");
 
@@ -102,6 +103,17 @@ public:
         m_a.asm_mov_r32_imm32(X86Reg::eax, x.m_n);
     }
 
+    // TODO: rename to LogicalConstant
+    void visit_Constant(const ASR::Constant_t &x) {
+        int val;
+        if (x.m_value == true) {
+            val = 1;
+        } else {
+            val = 0;
+        }
+        m_a.asm_mov_r32_imm32(X86Reg::eax, val);
+    }
+
     void visit_Var(const ASR::Var_t &x) {
         ASR::Variable_t *v = VARIABLE((ASR::asr_t*)(x.m_v));
         uint32_t h = get_hash((ASR::asr_t*)v);
@@ -146,6 +158,57 @@ public:
             }
         } else {
             throw CodeGenError("Binop: Only Integer types implemented so far");
+        }
+    }
+
+    void visit_Compare(const ASR::Compare_t &x) {
+        std::string id = std::to_string(get_hash((ASR::asr_t*)&x));
+        this->visit_expr(*x.m_right);
+        m_a.asm_push_r32(X86Reg::eax);
+        this->visit_expr(*x.m_left);
+        m_a.asm_pop_r32(X86Reg::ecx);
+        // The left operand is in eax, the right operand is in ecx
+        // Leave the result in eax.
+        m_a.asm_cmp_r32_r32(X86Reg::eax, X86Reg::ecx);
+        LFORTRAN_ASSERT(expr_type(x.m_left)->type == expr_type(x.m_right)->type);
+        ASR::ttypeType optype = expr_type(x.m_left)->type;
+        if (optype == ASR::ttypeType::Integer) {
+            switch (x.m_op) {
+                case (ASR::cmpopType::Eq) : {
+                    m_a.asm_je_label(".compare1" + id);
+                    break;
+                }
+                case (ASR::cmpopType::Gt) : {
+                    m_a.asm_jg_label(".compare1" + id);
+                    break;
+                }
+                case (ASR::cmpopType::GtE) : {
+                    m_a.asm_jge_label(".compare1" + id);
+                    break;
+                }
+                case (ASR::cmpopType::Lt) : {
+                    m_a.asm_jl_label(".compare1" + id);
+                    break;
+                }
+                case (ASR::cmpopType::LtE) : {
+                    m_a.asm_jle_label(".compare1" + id);
+                    break;
+                }
+                case (ASR::cmpopType::NotEq) : {
+                    m_a.asm_jne_label(".compare1" + id);
+                    break;
+                }
+                default : {
+                    throw CodeGenError("Comparison operator not implemented");
+                }
+            }
+            m_a.asm_mov_r32_imm32(X86Reg::eax, 0);
+            m_a.asm_jmp_label(".compareend" + id);
+            m_a.add_label(".compare1" + id);
+            m_a.asm_mov_r32_imm32(X86Reg::eax, 1);
+            m_a.add_label(".compareend" + id);
+        } else {
+            throw CodeGenError("Only Integer implemented in Compare");
         }
     }
 
@@ -196,6 +259,33 @@ public:
         }
     }
 
+    void visit_ErrorStop(const ASR::ErrorStop_t &x) {
+        std::string id = "err" + std::to_string(get_hash((ASR::asr_t*)&x));
+        std::string msg = "ERROR STOP\n";
+        emit_print(m_a, id, msg.size());
+        m_global_strings[id] = msg;
+
+        m_a.asm_call_label("exit_error_stop");
+    }
+
+    void visit_If(const ASR::If_t &x) {
+        std::string id = std::to_string(get_hash((ASR::asr_t*)&x));
+        this->visit_expr(*x.m_test);
+        // eax contains the logical value (true=1, false=0) of the if condition
+        m_a.asm_cmp_r32_imm8(LFortran::X86Reg::eax, 1);
+        m_a.asm_je_label(".then" + id);
+        m_a.asm_jmp_label(".else" + id);
+        m_a.add_label(".then" + id);
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+        }
+        m_a.asm_jmp_label(".endif" +id);
+        m_a.add_label(".else" + id);
+        for (size_t i=0; i<x.n_orelse; i++) {
+            this->visit_stmt(*x.m_orelse[i]);
+        }
+        m_a.add_label(".endif" + id);
+    }
 
 };
 

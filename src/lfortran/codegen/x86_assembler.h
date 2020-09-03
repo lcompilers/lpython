@@ -647,6 +647,13 @@ public:
         EMIT("cmp " + r2s(r32) + ", " + i2s(imm8));
     }
 
+    void asm_cmp_r32_r32(X86Reg r32, X86Reg s32) {
+        m_code.push_back(m_al, 0x39);
+        modrm_sib_disp(m_code, m_al,
+                s32, &r32, nullptr, 1, 0, false);
+        EMIT("cmp " + r2s(r32) + ", " + r2s(s32));
+    }
+
     void asm_jmp_imm8(uint8_t imm8) {
         m_code.push_back(m_al, 0xeb);
         m_code.push_back(m_al, imm8);
@@ -796,7 +803,8 @@ public:
 void emit_elf32_header(X86Assembler &a, uint32_t p_flags=5);
 void emit_elf32_footer(X86Assembler &a);
 
-void emit_exit(X86Assembler &a, const std::string &name);
+void emit_exit(X86Assembler &a, const std::string &name,
+    uint32_t exit_code);
 void emit_data_string(X86Assembler &a, const std::string &label,
     const std::string &s);
 void emit_print(X86Assembler &a, const std::string &msg_label,
