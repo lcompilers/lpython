@@ -796,7 +796,8 @@ public:
 void emit_elf32_header(X86Assembler &a, uint32_t p_flags=5);
 void emit_elf32_footer(X86Assembler &a);
 
-void emit_exit(X86Assembler &a, const std::string &name);
+void emit_exit(X86Assembler &a, const std::string &name,
+    uint32_t exit_code);
 void emit_data_string(X86Assembler &a, const std::string &label,
     const std::string &s);
 void emit_print(X86Assembler &a, const std::string &msg_label,

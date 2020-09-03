@@ -50,7 +50,8 @@ public:
         emit_elf32_header(m_a);
 
         emit_print_int(m_a, "print_int");
-        emit_exit(m_a, "exit");
+        emit_exit(m_a, "exit", 0);
+        emit_exit(m_a, "exit_error_stop", 1);
 
         m_a.add_label("_start");
 

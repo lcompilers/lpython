@@ -84,12 +84,13 @@ void emit_elf32_footer(X86Assembler &a) {
     a.add_var("filesize", a.pos()-a.origin());
 }
 
-void emit_exit(X86Assembler &a, const std::string &name)
+void emit_exit(X86Assembler &a, const std::string &name,
+    uint32_t exit_code)
 {
     a.add_label(name);
     // void exit(int status);
     a.asm_mov_r32_imm32(LFortran::X86Reg::eax, 1); // sys_exit
-    a.asm_mov_r32_imm32(LFortran::X86Reg::ebx, 0); // exit code
+    a.asm_mov_r32_imm32(LFortran::X86Reg::ebx, exit_code); // exit code
     a.asm_int_imm8(0x80); // syscall
 }
 
