@@ -132,10 +132,10 @@ public:
             LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
             // TODO: we are assuming integer here:
             LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
-            // We pass all arguments as pointers for now
             Sym s;
             s.stack_offset = -(i*4+8); // TODO: reverse the sign of offset
-            s.pointer = true;
+            // We pass intent(in) as value, otherwise as pointer
+            s.pointer = (arg->m_intent != ASR::intentType::In);
             uint32_t h = get_hash((ASR::asr_t*)arg);
             x86_symtab[h] = s;
         }
@@ -422,6 +422,8 @@ public:
     // Push arguments to stack (last argument first)
     template <typename T>
     uint8_t push_call_args(const T &x) {
+        ASR::Subroutine_t *sub = SUBROUTINE((ASR::asr_t*)x.m_name);
+        LFORTRAN_ASSERT(sub->n_args == x.n_args);
         // Note: when counting down in a loop, we have to use signed ints
         // for `i`, so that it can become negative and fail the i>=0 condition.
         for (int i=x.n_args-1; i>=0; i--) {
@@ -434,8 +436,25 @@ public:
                 if (s.pointer) {
                     throw CodeGenError("Not implemented yet.");
                 } else {
-                    // lea eax, [ebp-s.stack_offset]
-                    m_a.asm_lea_r32_m32(X86Reg::eax, &base, nullptr, 1, -s.stack_offset);
+                    bool pass_as_pointer;
+                    {
+                        ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)sub->m_args[i])->m_v);
+                        LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
+                        // TODO: we are assuming integer here:
+                        LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
+                        uint32_t h = get_hash((ASR::asr_t*)arg);
+                        Sym &s = x86_symtab[h];
+                        pass_as_pointer = s.pointer;
+                    }
+                    if (pass_as_pointer) {
+                        // Get a pointer to the stack variable
+                        // lea eax, [ebp-s.stack_offset]
+                        m_a.asm_lea_r32_m32(X86Reg::eax, &base, nullptr, 1, -s.stack_offset);
+                    } else {
+                        // Copy over the stack variable
+                        // mov eax, [ebp-s.stack_offset]
+                        m_a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, -s.stack_offset);
+                    }
                     m_a.asm_push_r32(X86Reg::eax);
                 }
             } else {
