@@ -138,6 +138,7 @@ asr = true
 llvm = true
 obj = true
 cpp = true
+x86 = true
 
 [[test]]
 filename = "program2.f90"
