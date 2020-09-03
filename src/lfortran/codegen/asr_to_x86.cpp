@@ -103,6 +103,17 @@ public:
         m_a.asm_mov_r32_imm32(X86Reg::eax, x.m_n);
     }
 
+    // TODO: rename to LogicalConstant
+    void visit_Constant(const ASR::Constant_t &x) {
+        int val;
+        if (x.m_value == true) {
+            val = 1;
+        } else {
+            val = 0;
+        }
+        m_a.asm_mov_r32_imm32(X86Reg::eax, val);
+    }
+
     void visit_Var(const ASR::Var_t &x) {
         ASR::Variable_t *v = VARIABLE((ASR::asr_t*)(x.m_v));
         uint32_t h = get_hash((ASR::asr_t*)v);
@@ -197,6 +208,33 @@ public:
         }
     }
 
+    void visit_ErrorStop(const ASR::ErrorStop_t &x) {
+        std::string id = "err" + std::to_string(get_hash((ASR::asr_t*)&x));
+        std::string msg = "ERROR STOP\n";
+        emit_print(m_a, id, msg.size());
+        m_global_strings[id] = msg;
+
+        m_a.asm_call_label("exit_error_stop");
+    }
+
+    void visit_If(const ASR::If_t &x) {
+        std::string id = std::to_string(get_hash((ASR::asr_t*)&x));
+        this->visit_expr(*x.m_test);
+        // eax contains the logical value (true=1, false=0) of the if condition
+        m_a.asm_cmp_r32_imm8(LFortran::X86Reg::eax, 1);
+        m_a.asm_je_label(".then" + id);
+        m_a.asm_jmp_label(".else" + id);
+        m_a.add_label(".then" + id);
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+        }
+        m_a.asm_jmp_label(".endif" +id);
+        m_a.add_label(".else" + id);
+        for (size_t i=0; i<x.n_orelse; i++) {
+            this->visit_stmt(*x.m_orelse[i]);
+        }
+        m_a.add_label(".endif" + id);
+    }
 
 };
 
