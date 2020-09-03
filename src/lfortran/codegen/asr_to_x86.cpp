@@ -235,7 +235,17 @@ public:
         }
 
         // Leave return value in eax
-        m_a.asm_mov_r32_imm32(X86Reg::eax, 5);
+        {
+            ASR::Variable_t *retv = VARIABLE((ASR::asr_t*)(EXPR_VAR((ASR::asr_t*)x.m_return_var)->m_v));
+
+            uint32_t h = get_hash((ASR::asr_t*)retv);
+            LFORTRAN_ASSERT(x86_symtab.find(h) != x86_symtab.end());
+            Sym s = x86_symtab[h];
+            X86Reg base = X86Reg::ebp;
+            // mov eax, [ebp-s.stack_offset]
+            m_a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, -s.stack_offset);
+            LFORTRAN_ASSERT(!s.pointer);
+        }
 
         // Restore stack
         m_a.asm_mov_r32_r32(X86Reg::esp, X86Reg::ebp);
