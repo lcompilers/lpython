@@ -177,6 +177,72 @@ public:
         m_a.asm_ret();
     }
 
+    void visit_Function(const ASR::Function_t &x) {
+        uint32_t h = get_hash((ASR::asr_t*)&x);
+        std::string id = std::to_string(h);
+
+        // Generate code for the subroutine
+        Sym s;
+        s.stack_offset = 0;
+        s.pointer = false;
+        s.fn_label = x.m_name + id;
+        x86_symtab[h] = s;
+        m_a.add_label(s.fn_label);
+
+        // Add arguments to x86_symtab with their correct offset
+        for (size_t i=0; i<x.n_args; i++) {
+            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+            LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
+            // TODO: we are assuming integer here:
+            LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
+            Sym s;
+            s.stack_offset = -(i*4+8); // TODO: reverse the sign of offset
+            // We pass intent(in) as value, otherwise as pointer
+            s.pointer = (arg->m_intent != ASR::intentType::In);
+            uint32_t h = get_hash((ASR::asr_t*)arg);
+            x86_symtab[h] = s;
+        }
+
+        // Initialize the stack
+        m_a.asm_push_r32(X86Reg::ebp);
+        m_a.asm_mov_r32_r32(X86Reg::ebp, X86Reg::esp);
+
+        // Allocate stack space for local variables
+        uint32_t total_offset = 0;
+        for (auto &item : x.m_symtab->scope) {
+            if (item.second->type == ASR::asrType::var) {
+                ASR::var_t *v2 = (ASR::var_t*)(item.second);
+                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+
+                if (v->m_intent == intent_local || v->m_intent == intent_return_var) {
+                    if (v->m_type->type == ASR::ttypeType::Integer) {
+                        total_offset += 4;
+                        Sym s;
+                        s.stack_offset = total_offset;
+                        s.pointer = false;
+                        uint32_t h = get_hash((ASR::asr_t*)v);
+                        x86_symtab[h] = s;
+                    } else {
+                        throw CodeGenError("Variable type not supported");
+                    }
+                }
+            }
+        }
+        m_a.asm_sub_r32_imm8(X86Reg::esp, total_offset);
+
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+        }
+
+        // Leave return value in eax
+        m_a.asm_mov_r32_imm32(X86Reg::eax, 5);
+
+        // Restore stack
+        m_a.asm_mov_r32_r32(X86Reg::esp, X86Reg::ebp);
+        m_a.asm_pop_r32(X86Reg::ebp);
+        m_a.asm_ret();
+    }
+
     // Expressions leave integer values in eax
 
     void visit_Num(const ASR::Num_t &x) {
