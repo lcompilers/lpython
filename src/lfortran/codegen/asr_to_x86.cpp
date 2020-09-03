@@ -174,7 +174,7 @@ public:
         // Restore stack
         m_a.asm_mov_r32_r32(X86Reg::esp, X86Reg::ebp);
         m_a.asm_pop_r32(X86Reg::ebp);
-        //m_a.asm_ret();
+        m_a.asm_ret();
     }
 
     // Expressions leave integer values in eax
