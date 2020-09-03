@@ -69,7 +69,8 @@ public:
                     total_offset += 4;
                     Sym s;
                     s.stack_offset = total_offset;
-                    x86_symtab[get_hash((ASR::asr_t*)v)] = s;
+                    uint32_t h = get_hash((ASR::asr_t*)v);
+                    x86_symtab[h] = s;
                 } else {
                     throw CodeGenError("Variable type not supported");
                 }
