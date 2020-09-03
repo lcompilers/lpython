@@ -565,6 +565,23 @@ public:
         m_a.asm_add_r32_imm8(LFortran::X86Reg::esp, arg_offset);
     }
 
+    void visit_FuncCall(const ASR::FuncCall_t &x) {
+        ASR::Function_t *s = FUNCTION((ASR::asr_t*)x.m_func);
+
+        uint32_t h = get_hash((ASR::asr_t*)s);
+        if (x86_symtab.find(h) == x86_symtab.end()) {
+            throw CodeGenError("Function code not generated for '"
+                + std::string(s->m_name) + "'");
+        }
+        Sym &sym = x86_symtab[h];
+        // Push arguments to stack (last argument first)
+        uint8_t arg_offset = push_call_args(x, *s);
+        // Call the function (the result is in eax, we leave it there)
+        m_a.asm_call_label(sym.fn_label);
+        // Remove arguments from stack
+        m_a.asm_add_r32_imm8(LFortran::X86Reg::esp, arg_offset);
+    }
+
 };
 
 
