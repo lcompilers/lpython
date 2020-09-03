@@ -101,13 +101,14 @@ public:
         m_a.asm_mov_r32_imm32(X86Reg::eax, x.m_n);
     }
 
-    void visit_Var(const ASR::Var_t &/*x*/) {
-        //std::string vname = VARIABLE((ASR::asr_t*)(x.m_v))->m_name;
-        //LFORTRAN_ASSERT(x86_symtab.find(vname) != x86_symtab.end());
-        //*ptr = x86_symtab[vname];
-        // For now we assume the variable is in [ebp-4]
+    void visit_Var(const ASR::Var_t &x) {
+        ASR::Variable_t *v = VARIABLE((ASR::asr_t*)(x.m_v));
+        uint32_t h = get_hash((ASR::asr_t*)v);
+        LFORTRAN_ASSERT(x86_symtab.find(h) != x86_symtab.end());
+        Sym s = x86_symtab[h];
         X86Reg base = X86Reg::ebp;
-        m_a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, -4);
+        // mov eax, [ebp-s.stack_offset]
+        m_a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, -s.stack_offset);
     }
 
     void visit_BinOp(const ASR::BinOp_t &x) {
