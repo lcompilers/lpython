@@ -21,10 +21,14 @@ uint64_t static get_hash(ASR::asr_t *node)
 
 class ASRToX86Visitor : public ASR::BaseVisitor<ASRToX86Visitor>
 {
+    struct Sym {
+        uint32_t stack_offset; // The local variable is [ebp-stack_offset]
+    };
 public:
     Allocator &m_al;
     X86Assembler m_a;
     std::map<std::string,std::string> m_global_strings;
+    std::map<uint64_t, Sym> x86_symtab;
 public:
 
     ASRToX86Visitor(Allocator &al) : m_al{al}, m_a{al} {}
@@ -50,11 +54,40 @@ public:
 
         m_a.add_label("_start");
 
+        // Initialize the stack
+        m_a.asm_push_r32(X86Reg::ebp);
+        m_a.asm_mov_r32_r32(X86Reg::ebp, X86Reg::esp);
+
+        // Allocate stack space for local variables
+        uint32_t total_offset = 0;
+        for (auto &item : x.m_symtab->scope) {
+            if (item.second->type == ASR::asrType::var) {
+                ASR::var_t *v2 = (ASR::var_t*)(item.second);
+                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+
+                if (v->m_type->type == ASR::ttypeType::Integer) {
+                    total_offset += 4;
+                    Sym s;
+                    s.stack_offset = total_offset;
+                    uint32_t h = get_hash((ASR::asr_t*)v);
+                    x86_symtab[h] = s;
+                } else {
+                    throw CodeGenError("Variable type not supported");
+                }
+            }
+        }
+        m_a.asm_sub_r32_imm8(X86Reg::esp, total_offset);
+
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
         }
 
         m_a.asm_call_label("exit");
+
+        // Restore stack
+        m_a.asm_mov_r32_r32(X86Reg::esp, X86Reg::ebp);
+        m_a.asm_pop_r32(X86Reg::ebp);
+        //m_a.asm_ret();
 
         for (auto &s : m_global_strings) {
             emit_data_string(m_a, s.first, s.second);
@@ -67,6 +100,16 @@ public:
 
     void visit_Num(const ASR::Num_t &x) {
         m_a.asm_mov_r32_imm32(X86Reg::eax, x.m_n);
+    }
+
+    void visit_Var(const ASR::Var_t &x) {
+        ASR::Variable_t *v = VARIABLE((ASR::asr_t*)(x.m_v));
+        uint32_t h = get_hash((ASR::asr_t*)v);
+        LFORTRAN_ASSERT(x86_symtab.find(h) != x86_symtab.end());
+        Sym s = x86_symtab[h];
+        X86Reg base = X86Reg::ebp;
+        // mov eax, [ebp-s.stack_offset]
+        m_a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, -s.stack_offset);
     }
 
     void visit_BinOp(const ASR::BinOp_t &x) {
@@ -104,6 +147,20 @@ public:
         } else {
             throw CodeGenError("Binop: Only Integer types implemented so far");
         }
+    }
+
+    void visit_Assignment(const ASR::Assignment_t &x) {
+        this->visit_expr(*x.m_value);
+        // RHS is in eax
+
+        ASR::var_t *t1 = EXPR_VAR((ASR::asr_t*)(x.m_target))->m_v;
+        ASR::Variable_t *v = VARIABLE((ASR::asr_t*)t1);
+        uint32_t h = get_hash((ASR::asr_t*)v);
+        LFORTRAN_ASSERT(x86_symtab.find(h) != x86_symtab.end());
+        Sym s = x86_symtab[h];
+        X86Reg base = X86Reg::ebp;
+        // mov [ebp-s.stack_offset], eax
+        m_a.asm_mov_m32_r32(&base, nullptr, 1, -s.stack_offset, X86Reg::eax);
     }
 
     void visit_Print(const ASR::Print_t &x) {
