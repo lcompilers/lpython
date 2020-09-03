@@ -111,18 +111,28 @@ cxx_binary_tests:
     - ./run_tests.py
     - PATH="`pwd`/src/bin:$PATH" ./test_lfort_cmdline lfortran
     - cd integration_tests
+
     - mkdir build-gfortran
     - cd build-gfortran
     - FC=gfortran cmake ..
     - make
-    - ctest
+    - ctest -L gfortran
     - cd ..
+
     - mkdir build-lfortran-llvm
     - cd build-lfortran-llvm
     - FC=../../src/bin/lfortran cmake -DLFORTRAN_BACKEND=llvm ..
     - make
-    - ctest
+    - ctest -L llvm
     - cd ..
+
+    - mkdir build-lfortran-x86
+    - cd build-lfortran-x86
+    - FC=../../src/bin/lfortran cmake -DLFORTRAN_BACKEND=x86 ..
+    - make
+    - ctest -L x86
+    - cd ..
+
     - mkdir build-lfortran-cpp
     - cd build-lfortran-cpp
     - wget https://github.com/kokkos/kokkos/archive/3.1.01.tar.gz
@@ -138,7 +148,7 @@ cxx_binary_tests:
     - cd ..
     - FC=../../src/bin/lfortran cmake -DLFORTRAN_BACKEND=cpp ..
     - make
-    - ctest
+    - ctest -L cpp
 
 # Test Jupyter Kernel
 jupyter_kernel:
