@@ -150,14 +150,17 @@ public:
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
-        //ASR::var_t *t1 = EXPR_VAR((ASR::asr_t*)(x.m_target))->m_v;
-        // Lookup where the variable lives
-        //target= x86_symtab[std::string(VARIABLE((ASR::asr_t*)t1)->m_name)];
-        // We assume [ebp-4] for now
         this->visit_expr(*x.m_value);
         // RHS is in eax
+
+        ASR::var_t *t1 = EXPR_VAR((ASR::asr_t*)(x.m_target))->m_v;
+        ASR::Variable_t *v = VARIABLE((ASR::asr_t*)t1);
+        uint32_t h = get_hash((ASR::asr_t*)v);
+        LFORTRAN_ASSERT(x86_symtab.find(h) != x86_symtab.end());
+        Sym s = x86_symtab[h];
         X86Reg base = X86Reg::ebp;
-        m_a.asm_mov_m32_r32(&base, nullptr, 1, -4, X86Reg::eax);
+        // mov [ebp-s.stack_offset], eax
+        m_a.asm_mov_m32_r32(&base, nullptr, 1, -s.stack_offset, X86Reg::eax);
     }
 
     void visit_Print(const ASR::Print_t &x) {
