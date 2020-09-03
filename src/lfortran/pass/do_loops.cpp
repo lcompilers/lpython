@@ -139,6 +139,18 @@ public:
         // which requires to generate a TransformVisitor.
         ASR::Program_t &xx = const_cast<ASR::Program_t&>(x);
         transform_stmts(xx.m_body, xx.n_body);
+
+        // Transform nested functions and subroutines
+        for (auto &item : x.m_symtab->scope) {
+            if (item.second->type == ASR::asrType::sub) {
+                ASR::Subroutine_t *s = SUBROUTINE(item.second);
+                visit_Subroutine(*s);
+            }
+            if (item.second->type == ASR::asrType::fn) {
+                ASR::Function_t *s = FUNCTION(item.second);
+                visit_Function(*s);
+            }
+        }
     }
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
