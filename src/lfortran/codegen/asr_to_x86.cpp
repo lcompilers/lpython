@@ -23,6 +23,7 @@ class ASRToX86Visitor : public ASR::BaseVisitor<ASRToX86Visitor>
 {
     struct Sym {
         uint32_t stack_offset; // The local variable is [ebp-stack_offset]
+        std::string fn_label; // Subroutine / Function assembly label
     };
 public:
     Allocator &m_al;
@@ -324,6 +325,43 @@ public:
 
         // end
         m_a.add_label(".loop.end" + id);
+    }
+
+    // Push arguments to stack (last argument first)
+    template <typename T>
+    uint8_t push_call_args(const T &x) {
+        for (size_t i=x.n_args-1; i>=0; i--) {
+            if (x.m_args[i]->type == ASR::exprType::Var) {
+                ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+                uint32_t h = get_hash((ASR::asr_t*)arg);
+                LFORTRAN_ASSERT(x86_symtab.find(h) != x86_symtab.end());
+                Sym s = x86_symtab[h];
+                X86Reg base = X86Reg::ebp;
+                // lea eax, [ebp-s.stack_offset]
+                m_a.asm_lea_r32_m32(X86Reg::eax, &base, nullptr, 1, -s.stack_offset);
+                m_a.asm_push_r32(X86Reg::eax);
+            } else {
+                throw CodeGenError("Values not implemented yet.");
+            }
+        }
+        return x.n_args*4;
+    }
+
+    void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
+        ASR::Subroutine_t *s = SUBROUTINE((ASR::asr_t*)x.m_name);
+
+        uint32_t h = get_hash((ASR::asr_t*)s);
+        if (x86_symtab.find(h) == x86_symtab.end()) {
+            throw CodeGenError("Subroutine code not generated for '"
+                + std::string(s->m_name) + "'");
+        }
+        Sym &sym = x86_symtab[h];
+        // Push arguments to stack (last argument first)
+        uint8_t arg_offset = push_call_args(x);
+        // Call the subroutine
+        m_a.asm_call_label(sym.fn_label);
+        // Remove arguments from stack
+        m_a.asm_add_r32_imm8(LFortran::X86Reg::esp, arg_offset);
     }
 
 };
