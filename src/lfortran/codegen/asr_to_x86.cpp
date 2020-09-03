@@ -177,6 +177,82 @@ public:
         m_a.asm_ret();
     }
 
+    void visit_Function(const ASR::Function_t &x) {
+        uint32_t h = get_hash((ASR::asr_t*)&x);
+        std::string id = std::to_string(h);
+
+        // Generate code for the subroutine
+        Sym s;
+        s.stack_offset = 0;
+        s.pointer = false;
+        s.fn_label = x.m_name + id;
+        x86_symtab[h] = s;
+        m_a.add_label(s.fn_label);
+
+        // Add arguments to x86_symtab with their correct offset
+        for (size_t i=0; i<x.n_args; i++) {
+            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+            LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
+            // TODO: we are assuming integer here:
+            LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
+            Sym s;
+            s.stack_offset = -(i*4+8); // TODO: reverse the sign of offset
+            // We pass intent(in) as value, otherwise as pointer
+            s.pointer = (arg->m_intent != ASR::intentType::In);
+            uint32_t h = get_hash((ASR::asr_t*)arg);
+            x86_symtab[h] = s;
+        }
+
+        // Initialize the stack
+        m_a.asm_push_r32(X86Reg::ebp);
+        m_a.asm_mov_r32_r32(X86Reg::ebp, X86Reg::esp);
+
+        // Allocate stack space for local variables
+        uint32_t total_offset = 0;
+        for (auto &item : x.m_symtab->scope) {
+            if (item.second->type == ASR::asrType::var) {
+                ASR::var_t *v2 = (ASR::var_t*)(item.second);
+                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+
+                if (v->m_intent == intent_local || v->m_intent == intent_return_var) {
+                    if (v->m_type->type == ASR::ttypeType::Integer) {
+                        total_offset += 4;
+                        Sym s;
+                        s.stack_offset = total_offset;
+                        s.pointer = false;
+                        uint32_t h = get_hash((ASR::asr_t*)v);
+                        x86_symtab[h] = s;
+                    } else {
+                        throw CodeGenError("Variable type not supported");
+                    }
+                }
+            }
+        }
+        m_a.asm_sub_r32_imm8(X86Reg::esp, total_offset);
+
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+        }
+
+        // Leave return value in eax
+        {
+            ASR::Variable_t *retv = VARIABLE((ASR::asr_t*)(EXPR_VAR((ASR::asr_t*)x.m_return_var)->m_v));
+
+            uint32_t h = get_hash((ASR::asr_t*)retv);
+            LFORTRAN_ASSERT(x86_symtab.find(h) != x86_symtab.end());
+            Sym s = x86_symtab[h];
+            X86Reg base = X86Reg::ebp;
+            // mov eax, [ebp-s.stack_offset]
+            m_a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, -s.stack_offset);
+            LFORTRAN_ASSERT(!s.pointer);
+        }
+
+        // Restore stack
+        m_a.asm_mov_r32_r32(X86Reg::esp, X86Reg::ebp);
+        m_a.asm_pop_r32(X86Reg::ebp);
+        m_a.asm_ret();
+    }
+
     // Expressions leave integer values in eax
 
     void visit_Num(const ASR::Num_t &x) {
@@ -421,16 +497,15 @@ public:
     }
 
     // Push arguments to stack (last argument first)
-    template <typename T>
-    uint8_t push_call_args(const T &x) {
-        ASR::Subroutine_t *sub = SUBROUTINE((ASR::asr_t*)x.m_name);
-        LFORTRAN_ASSERT(sub->n_args == x.n_args);
+    template <typename T, typename T2>
+    uint8_t push_call_args(const T &x, const T2 &sub) {
+        LFORTRAN_ASSERT(sub.n_args == x.n_args);
         // Note: when counting down in a loop, we have to use signed ints
         // for `i`, so that it can become negative and fail the i>=0 condition.
         for (int i=x.n_args-1; i>=0; i--) {
             bool pass_as_pointer;
             {
-                ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)sub->m_args[i])->m_v);
+                ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)sub.m_args[i])->m_v);
                 LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
                 // TODO: we are assuming integer here:
                 LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
@@ -493,8 +568,25 @@ public:
         }
         Sym &sym = x86_symtab[h];
         // Push arguments to stack (last argument first)
-        uint8_t arg_offset = push_call_args(x);
+        uint8_t arg_offset = push_call_args(x, *s);
         // Call the subroutine
+        m_a.asm_call_label(sym.fn_label);
+        // Remove arguments from stack
+        m_a.asm_add_r32_imm8(LFortran::X86Reg::esp, arg_offset);
+    }
+
+    void visit_FuncCall(const ASR::FuncCall_t &x) {
+        ASR::Function_t *s = FUNCTION((ASR::asr_t*)x.m_func);
+
+        uint32_t h = get_hash((ASR::asr_t*)s);
+        if (x86_symtab.find(h) == x86_symtab.end()) {
+            throw CodeGenError("Function code not generated for '"
+                + std::string(s->m_name) + "'");
+        }
+        Sym &sym = x86_symtab[h];
+        // Push arguments to stack (last argument first)
+        uint8_t arg_offset = push_call_args(x, *s);
+        // Call the function (the result is in eax, we leave it there)
         m_a.asm_call_label(sym.fn_label);
         // Remove arguments from stack
         m_a.asm_add_r32_imm8(LFortran::X86Reg::esp, arg_offset);

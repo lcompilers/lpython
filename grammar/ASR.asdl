@@ -64,6 +64,7 @@ expr
     | BinOp(expr left, operator op, expr right, ttype type)
     | UnaryOp(unaryop op, expr operand, ttype type)
     | Compare(expr left, cmpop op, expr right, ttype type)
+-- TODO: rename func -> name, as in SubroutineCall:
     | FuncCall(fn func, expr* args, keyword* keywords, ttype type)
     | ArrayInitializer(expr* args, ttype type)
     | Num(object n, ttype type) -- TODO: rename to ConstantInteger
