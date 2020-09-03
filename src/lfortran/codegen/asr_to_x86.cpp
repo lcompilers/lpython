@@ -422,7 +422,9 @@ public:
     // Push arguments to stack (last argument first)
     template <typename T>
     uint8_t push_call_args(const T &x) {
-        for (size_t i=x.n_args-1; i>=0; i--) {
+        // Note: when counting down in a loop, we have to use signed ints
+        // for `i`, so that it can become negative and fail the i>=0 condition.
+        for (int i=x.n_args-1; i>=0; i--) {
             if (x.m_args[i]->type == ASR::exprType::Var) {
                 ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
                 uint32_t h = get_hash((ASR::asr_t*)arg);
