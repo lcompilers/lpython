@@ -1,39 +1,65 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
+
+#include <fmt/core.h>
+
 #include <lfortran/parser/parser.h>
 #include <lfortran/pickle.h>
+
+std::string construct_fortran(size_t N) {
+    std::string sub_template = R"(
+subroutine g{num1}(x)
+    integer, intent(inout) :: x
+    integer :: i
+    x = 0
+    do i = {num1}, {num2}
+        x = x+i
+    end do
+end subroutine
+)";
+
+    std::string call_template = R"(call g{num1}(c)
+)";
+
+    std::string text;
+    std::string st0 = R"(program bench3
+implicit none
+integer :: c
+c = 0
+)";
+    std::string st1 = R"(
+print *, c
+
+contains
+)";
+    std::string st3 = R"(
+end program
+)";
+    text.reserve(2250042);
+    text = st0;
+    for (size_t i = 0; i < N; i++) {
+        text += fmt::format(call_template,
+                fmt::arg("num1", i+1)
+                );
+    }
+    text += st1;
+    for (size_t i = 0; i < N; i++) {
+        text += fmt::format(sub_template,
+                fmt::arg("num1", i+1),
+                fmt::arg("num2", i+10)
+                );
+    }
+    text += st3;
+    return text;
+}
 
 int main()
 {
     int N;
-    N = 10000;
-    std::string text;
-    std::string st0 = R"(program bench3
-implicit none
+    N = 500;
 
-contains
-
-)";
-    std::string st1 = "subroutine g";
-    std::string st2 = R"(
-    integer :: x, i
-    x = 1
-    do i = 1, 10
-        x = x*i
-    end do
-end subroutine)";
-    std::string st3 = R"(
-
-end program
-)";
-    text.reserve(2250042);
-    text = st0 + st1 + std::to_string(0) + st2;
-    std::cout << "Construct" << std::endl;
-    for (int i = 0; i < N-1; i++) {
-        text.append("\n\n" + st1 + std::to_string(i+1) + st2);
-    }
-    text += st3;
+    std::string text = construct_fortran(N);
     {
         std::ofstream file;
         file.open("bench3.f90");
