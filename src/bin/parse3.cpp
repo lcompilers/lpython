@@ -54,6 +54,50 @@ end program
     return text;
 }
 
+std::string construct_c(size_t N) {
+    std::string sub_template = R"(
+void g{num1}(int *x)
+{{
+    int i;
+    *x = 0;
+    for (i = {num1}; i <= {num2}; i++) {{
+        *x = *x+i;
+    }}
+}}
+)";
+
+    std::string call_template = R"(    g{num1}(&c);
+)";
+
+    std::string text;
+    std::string st0 = R"(
+int main()
+{
+    int c;
+    c = 0;
+)";
+    std::string st1 = R"(
+    printf("%d\n", c);
+}
+)";
+    text.reserve(2250042);
+    text = "#include <stdio.h>\n";
+    for (size_t i = 0; i < N; i++) {
+        text += fmt::format(sub_template,
+                fmt::arg("num1", i+1),
+                fmt::arg("num2", i+10)
+                );
+    }
+    text += st0;
+    for (size_t i = 0; i < N; i++) {
+        text += fmt::format(call_template,
+                fmt::arg("num1", i+1)
+                );
+    }
+    text += st1;
+    return text;
+}
+
 int main()
 {
     int N;
@@ -63,6 +107,12 @@ int main()
     {
         std::ofstream file;
         file.open("bench3.f90");
+        file << text;
+    }
+    {
+        std::string text = construct_c(N);
+        std::ofstream file;
+        file.open("bench3.c");
         file << text;
     }
 
