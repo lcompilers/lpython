@@ -101,7 +101,7 @@ int main()
 int main()
 {
     int N;
-    N = 500;
+    N = 10000;
 
     std::string text = construct_fortran(N);
     {
