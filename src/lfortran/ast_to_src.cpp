@@ -511,7 +511,7 @@ public:
         std::string r = indent;
         r += syn(gr::Keyword);
         r.append("stop");
-        r == syn();
+        r += syn();
         if (x.m_code) {
             this->visit_expr(*x.m_code);
             r += " " + s;
@@ -524,7 +524,7 @@ public:
         std::string r = indent;
         r += syn(gr::Keyword);
         r.append("error stop");
-        r == syn();
+        r += syn();
         r += "\n";
         s = r;
     }
@@ -611,7 +611,7 @@ public:
         std::string r = indent;
         r += syn(gr::Keyword);
         r.append("cycle");
-        r == syn();
+        r += syn();
         r += "\n";
         s = r;
     }
@@ -620,7 +620,7 @@ public:
         std::string r = indent;
         r += syn(gr::Keyword);
         r.append("exit");
-        r == syn();
+        r += syn();
         r += "\n";
         s = r;
     }
@@ -629,7 +629,7 @@ public:
         std::string r = indent;
         r += syn(gr::Keyword);
         r.append("return");
-        r == syn();
+        r += syn();
         r += "\n";
         s = r;
     }
