@@ -1,7 +1,6 @@
 #include <chrono>
 #include <iostream>
 #include <stdlib.h>
-#include <chrono>
 
 #include <bin/CLI11.hpp>
 #include <bin/tpl/whereami/whereami.h>
@@ -474,50 +473,52 @@ int compile_to_assembly_file(const std::string &infile, const std::string &outfi
 int compile_to_binary_x86(const std::string &infile, const std::string &outfile,
         bool time_report)
 {
-    std::chrono::system_clock::time_point t1, t2;
     int time_file_read=0;
     int time_src_to_ast=0;
     int time_ast_to_asr=0;
     int time_asr_to_x86=0;
 
-    if (time_report) t1 = std::chrono::high_resolution_clock::now();
-    std::string input = read_file(infile);
-    if (time_report) {
-        t2 = std::chrono::high_resolution_clock::now();
+    std::string input;
+    Allocator al(64*1024*1024); // Allocate 64 MB
+    LFortran::AST::TranslationUnit_t* ast;
+    LFortran::ASR::TranslationUnit_t* asr;
+
+    {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        input = read_file(infile);
+        auto t2 = std::chrono::high_resolution_clock::now();
         time_file_read = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
     }
 
     // Src -> AST
-    if (time_report) t1 = std::chrono::high_resolution_clock::now();
-    Allocator al(64*1024*1024); // Allocate 64 MB
-    LFortran::AST::TranslationUnit_t* ast;
-    try {
-        ast = LFortran::parse2(al, input);
-    } catch (const LFortran::TokenizerError &e) {
-        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
-        return 1;
-    } catch (const LFortran::ParserError &e) {
-        std::cerr << "Parsing error: " << e.msg() << std::endl;
-        return 2;
-    }
-    if (time_report) {
-        t2 = std::chrono::high_resolution_clock::now();
+    {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        try {
+            ast = LFortran::parse2(al, input);
+        } catch (const LFortran::TokenizerError &e) {
+            std::cerr << "Tokenizing error: " << e.msg() << std::endl;
+            return 1;
+        } catch (const LFortran::ParserError &e) {
+            std::cerr << "Parsing error: " << e.msg() << std::endl;
+            return 2;
+        }
+        auto t2 = std::chrono::high_resolution_clock::now();
         time_src_to_ast = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
     }
 
     // AST -> ASR
-    if (time_report) t1 = std::chrono::high_resolution_clock::now();
-    LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast);
-    if (time_report) {
-        t2 = std::chrono::high_resolution_clock::now();
+    {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        asr = LFortran::ast_to_asr(al, *ast);
+        auto t2 = std::chrono::high_resolution_clock::now();
         time_ast_to_asr = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
     }
 
     // ASR -> x86 machine code
-    if (time_report) t1 = std::chrono::high_resolution_clock::now();
-    LFortran::asr_to_x86(*asr, al, outfile, time_report);
-    if (time_report) {
-        t2 = std::chrono::high_resolution_clock::now();
+    {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        LFortran::asr_to_x86(*asr, al, outfile, time_report);
+        auto t2 = std::chrono::high_resolution_clock::now();
         time_asr_to_x86 = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
     }
 
@@ -1003,7 +1004,7 @@ int main(int argc, char *argv[])
             } else if (backend == Backend::cpp) {
                 err = compile_to_object_file_cpp(arg_file, tmp_o, false, true);
             } else {
-                LFORTRAN_ASSERT(false);
+                throw LFortran::LFortranException("Backend not supported");
             }
             if (err) return err;
             return link_executable(tmp_o, outfile, runtime_library_dir,
