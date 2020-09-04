@@ -599,7 +599,6 @@ public:
 void asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
         const std::string &filename, bool time_report)
 {
-    std::chrono::system_clock::time_point t1, t2;
     int time_pass_global=0;
     int time_pass_do_loops=0;
     int time_visit_asr=0;
@@ -608,38 +607,38 @@ void asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
 
     ASRToX86Visitor v(al);
 
-    if (time_report) t1 = std::chrono::high_resolution_clock::now();
-    pass_wrap_global_stmts_into_function(al, asr, "f");
-    if (time_report) {
-        t2 = std::chrono::high_resolution_clock::now();
+    {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        pass_wrap_global_stmts_into_function(al, asr, "f");
+        auto t2 = std::chrono::high_resolution_clock::now();
         time_pass_global = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
     }
 
-    if (time_report) t1 = std::chrono::high_resolution_clock::now();
-    pass_replace_do_loops(al, asr);
-    if (time_report) {
-        t2 = std::chrono::high_resolution_clock::now();
+    {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        pass_replace_do_loops(al, asr);
+        auto t2 = std::chrono::high_resolution_clock::now();
         time_pass_do_loops = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
     }
 
-    if (time_report) t1 = std::chrono::high_resolution_clock::now();
-    v.visit_asr((ASR::asr_t&)asr);
-    if (time_report) {
-        t2 = std::chrono::high_resolution_clock::now();
+    {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        v.visit_asr((ASR::asr_t&)asr);
+        auto t2 = std::chrono::high_resolution_clock::now();
         time_visit_asr = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
     }
 
-    if (time_report) t1 = std::chrono::high_resolution_clock::now();
-    v.m_a.verify();
-    if (time_report) {
-        t2 = std::chrono::high_resolution_clock::now();
+    {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        v.m_a.verify();
+        auto t2 = std::chrono::high_resolution_clock::now();
         time_verify = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
     }
 
-    if (time_report) t1 = std::chrono::high_resolution_clock::now();
-    v.m_a.save_binary(filename);
-    if (time_report) {
-        t2 = std::chrono::high_resolution_clock::now();
+    {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        v.m_a.save_binary(filename);
+        auto t2 = std::chrono::high_resolution_clock::now();
         time_save = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
     }
 
