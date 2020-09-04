@@ -1,5 +1,6 @@
 #include <iostream>
 #include <memory>
+#include <chrono>
 
 #include <lfortran/asr.h>
 #include <lfortran/containers.h>
@@ -596,16 +597,61 @@ public:
 
 
 void asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
-        const std::string &filename)
+        const std::string &filename, bool time_report)
 {
+    int time_pass_global=0;
+    int time_pass_do_loops=0;
+    int time_visit_asr=0;
+    int time_verify=0;
+    int time_save=0;
+
     ASRToX86Visitor v(al);
-    pass_wrap_global_stmts_into_function(al, asr, "f");
-    pass_replace_do_loops(al, asr);
-    v.visit_asr((ASR::asr_t&)asr);
 
-    v.m_a.verify();
+    {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        pass_wrap_global_stmts_into_function(al, asr, "f");
+        auto t2 = std::chrono::high_resolution_clock::now();
+        time_pass_global = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+    }
 
-    v.m_a.save_binary(filename);
+    {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        pass_replace_do_loops(al, asr);
+        auto t2 = std::chrono::high_resolution_clock::now();
+        time_pass_do_loops = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+    }
+
+    {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        v.visit_asr((ASR::asr_t&)asr);
+        auto t2 = std::chrono::high_resolution_clock::now();
+        time_visit_asr = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+    }
+
+    {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        v.m_a.verify();
+        auto t2 = std::chrono::high_resolution_clock::now();
+        time_verify = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+    }
+
+    {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        v.m_a.save_binary(filename);
+        auto t2 = std::chrono::high_resolution_clock::now();
+        time_save = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+    }
+
+    if (time_report) {
+        std::cout << "Codegen Time report:" << std::endl;
+        std::cout << "Global:     " << std::setw(5) << time_pass_global << std::endl;
+        std::cout << "Do loops:   " << std::setw(5) << time_pass_do_loops << std::endl;
+        std::cout << "ASR -> x86: " << std::setw(5) << time_visit_asr << std::endl;
+        std::cout << "Verify:     " << std::setw(5) << time_verify << std::endl;
+        std::cout << "Save:       " << std::setw(5) << time_save << std::endl;
+        int total = time_pass_global + time_pass_do_loops + time_visit_asr + time_verify + time_verify + time_save;
+        std::cout << "Total:      " << std::setw(5) << total << std::endl;
+    }
 }
 
 } // namespace LFortran

@@ -470,28 +470,72 @@ int compile_to_assembly_file(const std::string &infile, const std::string &outfi
 #endif
 
 
-int compile_to_binary_x86(const std::string &infile, const std::string &outfile)
+int compile_to_binary_x86(const std::string &infile, const std::string &outfile,
+        bool time_report)
 {
-    std::string input = read_file(infile);
+    int time_file_read=0;
+    int time_src_to_ast=0;
+    int time_ast_to_asr=0;
+    int time_asr_to_x86=0;
+
+    std::string input;
+    Allocator al(64*1024*1024); // Allocate 64 MB
+    LFortran::AST::TranslationUnit_t* ast;
+    LFortran::ASR::TranslationUnit_t* asr;
+
+    {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        input = read_file(infile);
+        auto t2 = std::chrono::high_resolution_clock::now();
+        time_file_read = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+    }
 
     // Src -> AST
-    Allocator al(64*1024*1024);
-    LFortran::AST::TranslationUnit_t* ast;
-    try {
-        ast = LFortran::parse2(al, input);
-    } catch (const LFortran::TokenizerError &e) {
-        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
-        return 1;
-    } catch (const LFortran::ParserError &e) {
-        std::cerr << "Parsing error: " << e.msg() << std::endl;
-        return 2;
+    {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        try {
+            ast = LFortran::parse2(al, input);
+        } catch (const LFortran::TokenizerError &e) {
+            std::cerr << "Tokenizing error: " << e.msg() << std::endl;
+            return 1;
+        } catch (const LFortran::ParserError &e) {
+            std::cerr << "Parsing error: " << e.msg() << std::endl;
+            return 2;
+        }
+        auto t2 = std::chrono::high_resolution_clock::now();
+        time_src_to_ast = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
     }
 
     // AST -> ASR
-    LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast);
+    {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        asr = LFortran::ast_to_asr(al, *ast);
+        auto t2 = std::chrono::high_resolution_clock::now();
+        time_ast_to_asr = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+    }
 
     // ASR -> x86 machine code
-    LFortran::asr_to_x86(*asr, al, outfile);
+    {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        LFortran::asr_to_x86(*asr, al, outfile, time_report);
+        auto t2 = std::chrono::high_resolution_clock::now();
+        time_asr_to_x86 = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+    }
+
+    if (time_report) {
+        std::cout << "Allocator usage of last chunk (MB): "
+            << al.size_current() / (1024. * 1024) << std::endl;
+        std::cout << "Allocator chunks: " << al.num_chunks() << std::endl;
+        std::cout << std::endl;
+        std::cout << "Time report:" << std::endl;
+        std::cout << "File reading:" << std::setw(5) << time_file_read << std::endl;
+        std::cout << "Src -> AST:  " << std::setw(5) << time_src_to_ast << std::endl;
+        std::cout << "AST -> ASR:  " << std::setw(5) << time_ast_to_asr << std::endl;
+        std::cout << "ASR -> x86:  " << std::setw(5) << time_asr_to_x86 << std::endl;
+        int total = time_file_read + time_src_to_ast + time_ast_to_asr
+                + time_asr_to_x86;
+        std::cout << "Total:       " << std::setw(5) << total << std::endl;
+    }
 
     return 0;
 }
@@ -732,6 +776,7 @@ int main(int argc, char *argv[])
         bool show_llvm = false;
         bool show_cpp = false;
         bool show_asm = false;
+        bool time_report = false;
         bool static_link = false;
         std::string arg_backend = "llvm";
         std::string arg_kernel_f;
@@ -764,6 +809,7 @@ int main(int argc, char *argv[])
         app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
         app.add_flag("--show-cpp", show_cpp, "Show C++ translation source for the given file and exit");
         app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
+        app.add_flag("--time-report", time_report, "Show compilation time report");
         app.add_flag("--static", static_link, "Create a static executable");
         app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp, x86)", true);
 
@@ -935,7 +981,7 @@ int main(int argc, char *argv[])
             } else if (backend == Backend::cpp) {
                 return compile_to_object_file_cpp(arg_file, outfile, false, true);
             } else if (backend == Backend::x86) {
-                return compile_to_binary_x86(arg_file, outfile);
+                return compile_to_binary_x86(arg_file, outfile, time_report);
             } else {
                 throw LFortran::LFortranException("Unsupported backend.");
             }
@@ -943,7 +989,8 @@ int main(int argc, char *argv[])
 
         if (ends_with(arg_file, ".f90")) {
             if (backend == Backend::x86) {
-                return compile_to_binary_x86(arg_file, outfile);
+                return compile_to_binary_x86(arg_file, outfile,
+                        time_report);
             }
             std::string tmp_o = outfile + ".tmp.o";
             int err;
@@ -957,7 +1004,7 @@ int main(int argc, char *argv[])
             } else if (backend == Backend::cpp) {
                 err = compile_to_object_file_cpp(arg_file, tmp_o, false, true);
             } else {
-                LFORTRAN_ASSERT(false);
+                throw LFortran::LFortranException("Backend not supported");
             }
             if (err) return err;
             return link_executable(tmp_o, outfile, runtime_library_dir,
