@@ -128,6 +128,12 @@ if (MSVC)
     set(HAVE_LFORTRAN_DEMANGLE no)
 endif()
 
+# fmt
+set(WITH_FMT no CACHE BOOL "Build with `fmt` support")
+if (WITH_FMT)
+    find_package(fmt)
+endif()
+
 # Stacktrace
 set(WITH_UNWIND no
     CACHE BOOL "Build with unwind support")
@@ -194,6 +200,7 @@ message("HAVE_LFORTRAN_DEMANGLE: ${HAVE_LFORTRAN_DEMANGLE}")
 message("WITH_LLVM: ${WITH_LLVM}")
 message("WITH_XEUS: ${WITH_XEUS}")
 message("WITH_JSON: ${WITH_JSON}")
+message("WITH_FMT: ${WITH_FMT}")
 
 
 add_subdirectory(src)
