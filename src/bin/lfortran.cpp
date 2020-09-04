@@ -514,7 +514,7 @@ int compile_to_binary_x86(const std::string &infile, const std::string &outfile,
 
     // ASR -> x86 machine code
     if (time_report) t1 = std::chrono::high_resolution_clock::now();
-    LFortran::asr_to_x86(*asr, al, outfile);
+    LFortran::asr_to_x86(*asr, al, outfile, time_report);
     if (time_report) {
         t2 = std::chrono::high_resolution_clock::now();
         time_asr_to_x86 = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
