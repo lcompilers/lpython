@@ -14,7 +14,7 @@ contains
     end subroutine
 
     subroutine a2(a)
-    real, intent(inout) :: a
+    real, intent(in out) :: a
     a = a + 1
     end subroutine
 
