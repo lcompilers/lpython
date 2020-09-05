@@ -441,6 +441,9 @@ proc_modifier_list
 
 proc_modifier
     : KW_PRIVATE
+    | KW_PUBLIC
+    | KW_PASS "(" id ")"
+    | KW_NOPASS
     ;
 
 
