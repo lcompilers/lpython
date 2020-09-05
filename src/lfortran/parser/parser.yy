@@ -154,6 +154,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_END
 %token <string> KW_END_IF
 %token <string> KW_ENDIF
+%token <string> KW_END_INTERFACE
+%token <string> KW_ENDINTERFACE
 %token <string> KW_END_FORALL
 %token <string> KW_ENDFORALL
 %token <string> KW_END_DO
@@ -385,9 +387,9 @@ module
     ;
 
 interface_decl
-    : KW_INTERFACE id sep proc_list KW_END KW_INTERFACE id_opt sep {
+    : KW_INTERFACE id sep proc_list endinterface id_opt sep {
             $$ = INTERFACE($2, @$); }
-    | KW_INTERFACE sep sub_or_func_plus KW_END KW_INTERFACE sep {
+    | KW_INTERFACE sep sub_or_func_plus endinterface sep {
             $$ = INTERFACE2($3, @$); }
     ;
 
@@ -969,6 +971,11 @@ endif
     | KW_ENDIF
     ;
 
+endinterface
+    : KW_END_INTERFACE
+    | KW_ENDINTERFACE
+    ;
+
 endwhere
     : KW_END_WHERE
     | KW_ENDWHERE
@@ -1142,6 +1149,7 @@ id
     | KW_END { $$ = SYMBOL($1, @$); }
     | KW_ENDDO { $$ = SYMBOL($1, @$); }
     | KW_ENDIF { $$ = SYMBOL($1, @$); }
+    | KW_ENDINTERFACE { $$ = SYMBOL($1, @$); }
     | KW_ENTRY { $$ = SYMBOL($1, @$); }
     | KW_ENUM { $$ = SYMBOL($1, @$); }
     | KW_ENUMERATOR { $$ = SYMBOL($1, @$); }
