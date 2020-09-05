@@ -426,6 +426,18 @@ procedure_list
 
 procedure_decl
     : KW_PROCEDURE proc_modifiers id sep
+    | KW_GENERIC "::" KW_OPERATOR "(" operator_type ")" "=>" id_list sep
+    ;
+
+operator_type
+    : "+"
+    | "-"
+    | "=="
+    | "/="
+    | ">"
+    | ">="
+    | "<"
+    | "<="
     ;
 
 proc_modifiers
