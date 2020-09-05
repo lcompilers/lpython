@@ -710,6 +710,7 @@ var_sym_decl
     | id "(" array_comp_decl_list ")" "=>" expr {
             $$ = VAR_SYM_DECL6($1, $3, $6, @$); }
     | id "(" "*" ")" { $$ = VAR_SYM_DECL1($1, @$); }
+    | id "(" "*" ")" "=" expr { $$ = VAR_SYM_DECL1($1, @$); }
     ;
 
 array_comp_decl_list
