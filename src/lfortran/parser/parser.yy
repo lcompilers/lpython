@@ -678,7 +678,7 @@ var_modifier
     | KW_ENUMERATOR { $$ = VARMOD($1, @$); }
     | KW_INTENT "(" KW_IN ")" { $$ = VARMOD2($1, $3, @$); }
     | KW_INTENT "(" KW_OUT ")" { $$ = VARMOD2($1, $3, @$); }
-    | KW_INTENT "(" inout ")" { $$ = VARMOD2($1, $3, @$); }
+    | KW_INTENT "(" inout ")" { $$ = VARMOD3($1, @$); }
     | KW_EXTENDS "(" id ")" { $$ = VARMOD($1, @$); }
     | KW_BIND "(" id ")" { $$ = VARMOD($1, @$); }
     ;
