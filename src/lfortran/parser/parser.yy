@@ -398,6 +398,8 @@ proc_list
 
 proc
     : KW_MODULE KW_PROCEDURE id_list sep
+    | KW_MODULE KW_PROCEDURE "::" id_list sep
+    ;
 
 enum_decl
     : KW_ENUM enum_var_modifiers sep var_decl_star KW_END KW_ENUM sep {
