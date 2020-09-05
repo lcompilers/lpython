@@ -389,7 +389,7 @@ exit
 (Declaration [(a "REAL" [] [] ())])
 (Declaration [(a "real" [(() ()) (() ())] [(Attribute aLLocatable [] [])] ())])
 (Declaration [(c "cHAracter" [] [] ())])
-(Declaration [(x "tYPe" [] [(Attribute inTEnt [(inOUt)] [])] ()) (y "tYPe" [] [(Attribute inTEnt [(inOUt)] [])] ())])
+(Declaration [(x "tYPe" [] [(Attribute inTEnt [(inout)] [])] ()) (y "tYPe" [] [(Attribute inTEnt [(inout)] [])] ())])
 (= a 5)
 (= a 5)
 (= a 5)
