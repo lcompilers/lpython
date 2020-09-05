@@ -502,10 +502,11 @@ subroutine
 
 function
     : fn_type pure_opt recursive_opt KW_FUNCTION id "(" id_list_opt ")"
+        bind_opt
         result_opt sep use_statement_star implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_function_opt sep {
-            LLOC(@$, @17); $$ = FUNCTION($1, $5, $7, $9, $13, $14, @$); }
+            LLOC(@$, @18); $$ = FUNCTION($1, $5, $7, $10, $14, $15, @$); }
     ;
 
 decl_star
@@ -552,6 +553,12 @@ recursive_opt
 fn_type
     : var_type { $$ = $1;}
     | %empty { $$.p = nullptr; $$.n = 0; }
+    ;
+
+bind_opt
+    : KW_BIND "(" id ")"
+    | KW_BIND "(" id "," id "=" expr ")"
+    | %empty
     ;
 
 result_opt
