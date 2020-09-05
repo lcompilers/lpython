@@ -1013,12 +1013,15 @@ int main(int argc, char *argv[])
             return link_executable(arg_file, outfile, runtime_library_dir,
                     backend, static_link, true);
         }
-    } catch(const std::runtime_error &e) {
-        std::cerr << "runtime_error: " << e.what() << std::endl;
-        return 1;
     } catch(const LFortran::LFortranException &e) {
         std::cerr << e.stacktrace();
         std::cerr << e.name() + ": " << e.msg() << std::endl;
+        return 1;
+    } catch(const std::runtime_error &e) {
+        std::cerr << "runtime_error: " << e.what() << std::endl;
+        return 1;
+    } catch(const std::exception &e) {
+        std::cerr << "std::exception: " << e.what() << std::endl;
         return 1;
     } catch(...) {
         std::cerr << "Unknown Exception" << std::endl;
