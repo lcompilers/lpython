@@ -236,6 +236,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
 
             // Single character symbols
             "(" { RET(TK_LPAREN) }
+            "(" / "/=" { RET(TK_LPAREN) } // To parse "operator(/=)" correctly
             ")" { RET(TK_RPAREN) }
             "[" | "(/" { RET(TK_LBRACKET) }
             "]" | "/)" { RET(TK_RBRACKET) }
