@@ -187,6 +187,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_IN
 %token <string> KW_INCLUDE
 %token <string> KW_INOUT
+%token <string> KW_IN_OUT
 %token <string> KW_INQUIRE
 %token <string> KW_INTEGER
 %token <string> KW_INTENT
@@ -332,6 +333,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> contains_block_opt
 %type <vec_ast> sub_or_func_plus
 %type <ast> result_opt
+%type <string> inout
 
 // Precedence
 
@@ -676,7 +678,7 @@ var_modifier
     | KW_ENUMERATOR { $$ = VARMOD($1, @$); }
     | KW_INTENT "(" KW_IN ")" { $$ = VARMOD2($1, $3, @$); }
     | KW_INTENT "(" KW_OUT ")" { $$ = VARMOD2($1, $3, @$); }
-    | KW_INTENT "(" KW_INOUT ")" { $$ = VARMOD2($1, $3, @$); }
+    | KW_INTENT "(" inout ")" { $$ = VARMOD2($1, $3, @$); }
     | KW_EXTENDS "(" id ")" { $$ = VARMOD($1, @$); }
     | KW_BIND "(" id ")" { $$ = VARMOD($1, @$); }
     ;
@@ -962,6 +964,11 @@ reduce_op
     : "+" { $$ = REDUCE_OP_TYPE_ADD(@$); }
     | "*" { $$ = REDUCE_OP_TYPE_MUL(@$); }
     | id  { $$ = REDUCE_OP_TYPE_ID($1, @$); }
+    ;
+
+inout
+    : KW_IN_OUT
+    | KW_INOUT
     ;
 
 enddo

@@ -161,6 +161,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             'in' { KW(IN) }
             'include' { KW(INCLUDE) }
             'inout' { KW(INOUT) }
+            'in' whitespace 'out' { KW(IN_OUT) }
             'inquire' { KW(INQUIRE) }
             'integer' { KW(INTEGER) }
             'intent' { KW(INTENT) }
