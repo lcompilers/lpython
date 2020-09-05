@@ -17,7 +17,7 @@ type, extends(B), public :: X
     real(r8), pointer :: r2(:) => null(), r3(:) => null()
 contains
     procedure, private :: p1
-    procedure :: p2
+    procedure, pass(self) :: p2
     generic :: operator(/=) => p5, p6
     generic :: operator(+) => p8
 end type X
