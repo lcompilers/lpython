@@ -445,6 +445,10 @@ filename = "write1.f90"
 ast = true
 
 [[test]]
+filename = "read1.f90"
+ast = true
+
+[[test]]
 filename = "open1.f90"
 ast = true
 
