@@ -394,6 +394,10 @@ asr = true
 cpp = true
 
 [[test]]
+filename = "fn3.f90"
+ast = true
+
+[[test]]
 filename = "empty.f90"
 ast = true
 asr = true
