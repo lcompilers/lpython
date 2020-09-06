@@ -398,6 +398,10 @@ filename = "fn3.f90"
 ast = true
 
 [[test]]
+filename = "subroutine8.f90"
+ast = true
+
+[[test]]
 filename = "empty.f90"
 ast = true
 asr = true
