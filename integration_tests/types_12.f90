@@ -1,0 +1,13 @@
+program types_12
+use iso_c_binding, only: c_int, c_double
+implicit none
+
+interface
+    integer(c_int) function f(a, b) result(r)
+    import :: c_int, c_double
+    integer(c_int), value, intent(in) :: a
+    real(c_double), value, intent(in) :: b
+    end function
+end interface
+
+end program
