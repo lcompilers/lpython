@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    186 // shift/reduce conflicts
-%expect-rr 57  // reduce/reduce conflicts
+%expect    237 // shift/reduce conflicts
+%expect-rr 72  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -291,7 +291,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <dim> array_comp_decl
 %type <string> var_type
 %type <ast> fn_mod
-%type <vec_ast> fn_mod_star
+%type <vec_ast> fn_mod_plus
 %type <vec_ast> var_modifiers
 %type <vec_ast> enum_var_modifiers
 %type <vec_ast> var_modifier_list
@@ -498,14 +498,24 @@ end_function_opt
     ;
 
 subroutine
-    : fn_mod_star KW_SUBROUTINE id sub_args sep use_statement_star implicit_statement_opt decl_star statements
+    : KW_SUBROUTINE id sub_args sep use_statement_star implicit_statement_opt decl_star statements
+        contains_block_opt
+        KW_END end_subroutine_opt sep {
+            LLOC(@$, @11); $$ = SUBROUTINE($2, $3, $7, $8, @$); }
+    | fn_mod_plus KW_SUBROUTINE id sub_args sep use_statement_star implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_subroutine_opt sep {
             LLOC(@$, @12); $$ = SUBROUTINE($3, $4, $8, $9, @$); }
     ;
 
 function
-    : fn_mod_star KW_FUNCTION id "(" id_list_opt ")"
+    : KW_FUNCTION id "(" id_list_opt ")"
+        bind_opt
+        result_opt sep use_statement_star implicit_statement_opt decl_star statements
+        contains_block_opt
+        KW_END end_function_opt sep {
+            LLOC(@$, @15); $$ = FUNCTION0($2, $4, $7, $11, $12, @$); }
+    | fn_mod_plus KW_FUNCTION id "(" id_list_opt ")"
         bind_opt
         result_opt sep use_statement_star implicit_statement_opt decl_star statements
         contains_block_opt
@@ -513,15 +523,17 @@ function
             LLOC(@$, @16); $$ = FUNCTION($1, $3, $5, $8, $12, $13, @$); }
     ;
 
-fn_mod_star
-    : fn_mod_star fn_mod { $$ = $1; LIST_ADD($$, $2); }
-    | %empty { LIST_NEW($$); }
+fn_mod_plus
+    : fn_mod_plus fn_mod { $$ = $1; LIST_ADD($$, $2); }
+    | fn_mod { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 fn_mod
     : var_type { $$ = FN_MOD1($1, @$); }
-    | KW_PURE { $$ = FN_MOD_PURE(@$); }
     | KW_ELEMENTAL { $$ = FN_MOD_ELEMENTAL(@$); }
+    | KW_IMPURE { $$ = FN_MOD_IMPURE(@$); }
+    | KW_MODULE { $$ = FN_MOD_MODULE(@$); }
+    | KW_PURE { $$ = FN_MOD_PURE(@$); }
     | KW_RECURSIVE {  $$ = FN_MOD_RECURSIVE(@$); }
     ;
 
