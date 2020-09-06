@@ -130,6 +130,8 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             'endforall' { KW(ENDFORALL) }
             'end' whitespace 'if' { KW(END_IF) }
             'endif' { KW(ENDIF) }
+            'end' whitespace 'interface' { KW(END_INTERFACE) }
+            'endinterface' { KW(ENDINTERFACE) }
             'end' whitespace 'do' { KW(END_DO) }
             'enddo' { KW(ENDDO) }
             'end' whitespace 'where' { KW(END_WHERE) }
@@ -159,6 +161,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             'in' { KW(IN) }
             'include' { KW(INCLUDE) }
             'inout' { KW(INOUT) }
+            'in' whitespace 'out' { KW(IN_OUT) }
             'inquire' { KW(INQUIRE) }
             'integer' { KW(INTEGER) }
             'intent' { KW(INTENT) }
@@ -236,6 +239,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
 
             // Single character symbols
             "(" { RET(TK_LPAREN) }
+            "(" / "/=" { RET(TK_LPAREN) } // To parse "operator(/=)" correctly
             ")" { RET(TK_RPAREN) }
             "[" | "(/" { RET(TK_LBRACKET) }
             "]" | "/)" { RET(TK_RBRACKET) }

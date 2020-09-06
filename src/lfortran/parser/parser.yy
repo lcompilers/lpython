@@ -154,6 +154,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_END
 %token <string> KW_END_IF
 %token <string> KW_ENDIF
+%token <string> KW_END_INTERFACE
+%token <string> KW_ENDINTERFACE
 %token <string> KW_END_FORALL
 %token <string> KW_ENDFORALL
 %token <string> KW_END_DO
@@ -185,6 +187,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_IN
 %token <string> KW_INCLUDE
 %token <string> KW_INOUT
+%token <string> KW_IN_OUT
 %token <string> KW_INQUIRE
 %token <string> KW_INTEGER
 %token <string> KW_INTENT
@@ -330,6 +333,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> contains_block_opt
 %type <vec_ast> sub_or_func_plus
 %type <ast> result_opt
+%type <string> inout
 
 // Precedence
 
@@ -385,9 +389,9 @@ module
     ;
 
 interface_decl
-    : KW_INTERFACE id sep proc_list KW_END KW_INTERFACE id_opt sep {
+    : KW_INTERFACE id sep proc_list endinterface id_opt sep {
             $$ = INTERFACE($2, @$); }
-    | KW_INTERFACE sep sub_or_func_plus KW_END KW_INTERFACE sep {
+    | KW_INTERFACE sep sub_or_func_plus endinterface sep {
             $$ = INTERFACE2($3, @$); }
     ;
 
@@ -398,6 +402,8 @@ proc_list
 
 proc
     : KW_MODULE KW_PROCEDURE id_list sep
+    | KW_MODULE KW_PROCEDURE "::" id_list sep
+    ;
 
 enum_decl
     : KW_ENUM enum_var_modifiers sep var_decl_star KW_END KW_ENUM sep {
@@ -426,6 +432,18 @@ procedure_list
 
 procedure_decl
     : KW_PROCEDURE proc_modifiers id sep
+    | KW_GENERIC "::" KW_OPERATOR "(" operator_type ")" "=>" id_list sep
+    ;
+
+operator_type
+    : "+"
+    | "-"
+    | "=="
+    | "/="
+    | ">"
+    | ">="
+    | "<"
+    | "<="
     ;
 
 proc_modifiers
@@ -441,6 +459,9 @@ proc_modifier_list
 
 proc_modifier
     : KW_PRIVATE
+    | KW_PUBLIC
+    | KW_PASS "(" id ")"
+    | KW_NOPASS
     ;
 
 
@@ -483,10 +504,11 @@ subroutine
 
 function
     : fn_type pure_opt recursive_opt KW_FUNCTION id "(" id_list_opt ")"
+        bind_opt
         result_opt sep use_statement_star implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_function_opt sep {
-            LLOC(@$, @17); $$ = FUNCTION($1, $5, $7, $9, $13, $14, @$); }
+            LLOC(@$, @18); $$ = FUNCTION($1, $5, $7, $10, $14, $15, @$); }
     ;
 
 decl_star
@@ -533,6 +555,12 @@ recursive_opt
 fn_type
     : var_type { $$ = $1;}
     | %empty { $$.p = nullptr; $$.n = 0; }
+    ;
+
+bind_opt
+    : KW_BIND "(" id ")"
+    | KW_BIND "(" id "," id "=" expr ")"
+    | %empty
     ;
 
 result_opt
@@ -650,7 +678,7 @@ var_modifier
     | KW_ENUMERATOR { $$ = VARMOD($1, @$); }
     | KW_INTENT "(" KW_IN ")" { $$ = VARMOD2($1, $3, @$); }
     | KW_INTENT "(" KW_OUT ")" { $$ = VARMOD2($1, $3, @$); }
-    | KW_INTENT "(" KW_INOUT ")" { $$ = VARMOD2($1, $3, @$); }
+    | KW_INTENT "(" inout ")" { $$ = VARMOD3($1, @$); }
     | KW_EXTENDS "(" id ")" { $$ = VARMOD($1, @$); }
     | KW_BIND "(" id ")" { $$ = VARMOD($1, @$); }
     ;
@@ -681,6 +709,8 @@ var_sym_decl
             $$ = VAR_SYM_DECL4($1, $3, $6, @$); }
     | id "(" array_comp_decl_list ")" "=>" expr {
             $$ = VAR_SYM_DECL6($1, $3, $6, @$); }
+    | id "(" "*" ")" { $$ = VAR_SYM_DECL1($1, @$); }
+    | id "(" "*" ")" "=" expr { $$ = VAR_SYM_DECL1($1, @$); }
     ;
 
 array_comp_decl_list
@@ -937,6 +967,11 @@ reduce_op
     | id  { $$ = REDUCE_OP_TYPE_ID($1, @$); }
     ;
 
+inout
+    : KW_IN_OUT
+    | KW_INOUT
+    ;
+
 enddo
     : KW_END_DO
     | KW_ENDDO
@@ -950,6 +985,11 @@ endforall
 endif
     : KW_END_IF
     | KW_ENDIF
+    ;
+
+endinterface
+    : KW_END_INTERFACE
+    | KW_ENDINTERFACE
     ;
 
 endwhere
@@ -1125,6 +1165,7 @@ id
     | KW_END { $$ = SYMBOL($1, @$); }
     | KW_ENDDO { $$ = SYMBOL($1, @$); }
     | KW_ENDIF { $$ = SYMBOL($1, @$); }
+    | KW_ENDINTERFACE { $$ = SYMBOL($1, @$); }
     | KW_ENTRY { $$ = SYMBOL($1, @$); }
     | KW_ENUM { $$ = SYMBOL($1, @$); }
     | KW_ENUMERATOR { $$ = SYMBOL($1, @$); }

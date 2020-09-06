@@ -1,8 +1,8 @@
 diff --git a/src/lfortran/parser/parser.yy b/src/lfortran/parser/parser.yy
-index 5fad282b..3511ca9d 100644
+index c22df599..c6f107c3 100644
 --- a/src/lfortran/parser/parser.yy
 +++ b/src/lfortran/parser/parser.yy
-@@ -998,136 +998,4 @@ id_opt
+@@ -1126,137 +1126,4 @@ id_opt
  
  id
      : TK_NAME { $$ = SYMBOL($1, @$); }
@@ -45,6 +45,7 @@ index 5fad282b..3511ca9d 100644
 -    | KW_END { $$ = SYMBOL($1, @$); }
 -    | KW_ENDDO { $$ = SYMBOL($1, @$); }
 -    | KW_ENDIF { $$ = SYMBOL($1, @$); }
+-    | KW_ENDINTERFACE { $$ = SYMBOL($1, @$); }
 -    | KW_ENTRY { $$ = SYMBOL($1, @$); }
 -    | KW_ENUM { $$ = SYMBOL($1, @$); }
 -    | KW_ENUMERATOR { $$ = SYMBOL($1, @$); }

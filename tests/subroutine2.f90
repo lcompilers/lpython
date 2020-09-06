@@ -60,7 +60,7 @@ end subroutine
 
 subroutine f(a, b, c, d)
 integer, intent(out) :: a, b
-integer, intent(inout) :: c, d
+integer, intent(in out) :: c, d
 integer :: z
 integer::y
 end subroutine

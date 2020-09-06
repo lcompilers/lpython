@@ -15,7 +15,7 @@ interface
     subroutine a3(a)
     real, intent(inout) :: a
     end subroutine
-end interface
+endinterface
 
 end module
 

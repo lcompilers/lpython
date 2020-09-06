@@ -510,6 +510,19 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         nullptr, \
         0)
 
+LFortran::Str Str_from_string(Allocator &al, const std::string &s) {
+        LFortran::Str r;
+        r.from_str(al, s);
+        return r;
+}
+
+#define VARMOD3(a, l) make_Attribute_t(p.m_a, l, \
+        a.c_str(p.m_a), \
+        /*args*/ ATTR_ARG(p.m_a, Str_from_string(p.m_a, "inout")), \
+        /*n_args*/ 1, \
+        nullptr, \
+        0)
+
 #define VARMOD_DIM(a, b, l) make_Attribute_t(p.m_a, l, \
         a.c_str(p.m_a), \
         /*args*/ nullptr, \
