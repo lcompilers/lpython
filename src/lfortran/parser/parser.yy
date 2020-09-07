@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    261 // shift/reduce conflicts
-%expect-rr 73  // reduce/reduce conflicts
+%expect    259 // shift/reduce conflicts
+%expect-rr 70  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -504,29 +504,31 @@ end_function_opt
     ;
 
 subroutine
-    : KW_SUBROUTINE id sub_args bind_opt sep use_statement_star implicit_statement_opt decl_star statements
+    : KW_SUBROUTINE id sub_args bind_opt sep use_statement_star
+    import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_subroutine_opt sep {
-            LLOC(@$, @12); $$ = SUBROUTINE($2, $3, $8, $9, @$); }
-    | fn_mod_plus KW_SUBROUTINE id sub_args bind_opt sep use_statement_star implicit_statement_opt decl_star statements
+            LLOC(@$, @13); $$ = SUBROUTINE($2, $3, $9, $10, @$); }
+    | fn_mod_plus KW_SUBROUTINE id sub_args bind_opt sep use_statement_star
+    import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_subroutine_opt sep {
-            LLOC(@$, @13); $$ = SUBROUTINE($3, $4, $9, $10, @$); }
+            LLOC(@$, @14); $$ = SUBROUTINE($3, $4, $10, $11, @$); }
     ;
 
 function
     : KW_FUNCTION id "(" id_list_opt ")"
         bind_opt
-        result_opt sep use_statement_star implicit_statement_opt decl_star statements
+        result_opt sep use_statement_star import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_function_opt sep {
-            LLOC(@$, @15); $$ = FUNCTION0($2, $4, $7, $11, $12, @$); }
+            LLOC(@$, @16); $$ = FUNCTION0($2, $4, $7, $12, $13, @$); }
     | fn_mod_plus KW_FUNCTION id "(" id_list_opt ")"
         bind_opt
-        result_opt sep use_statement_star implicit_statement_opt decl_star statements
+        result_opt sep use_statement_star import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_function_opt sep {
-            LLOC(@$, @16); $$ = FUNCTION($1, $3, $5, $8, $12, $13, @$); }
+            LLOC(@$, @17); $$ = FUNCTION($1, $3, $5, $8, $13, $14, @$); }
     ;
 
 fn_mod_plus
@@ -604,6 +606,15 @@ use_statement
     : KW_USE use_modifiers id sep { $$ = USE1($3, @$); }
     | KW_USE use_modifiers id "," KW_ONLY ":" use_symbol_list sep {
             $$ = USE2($3, $7, @$); }
+    ;
+
+import_statement_opt
+    : KW_IMPORT id_list sep
+    | KW_IMPORT "::" id_list sep
+    | KW_IMPORT "," KW_ONLY ":" id_list sep
+    | KW_IMPORT "," KW_NONE sep
+    | KW_IMPORT "," KW_ALL sep
+    | %empty
     ;
 
 use_symbol_list
@@ -694,7 +705,6 @@ var_modifier
     | KW_PRIVATE { $$ = VARMOD($1, @$); }
     | KW_PUBLIC { $$ = VARMOD($1, @$); }
     | KW_ENUMERATOR { $$ = VARMOD($1, @$); }
-    | KW_IMPORT { $$ = VARMOD($1, @$); }
     | KW_INTENT "(" KW_IN ")" { $$ = VARMOD2($1, $3, @$); }
     | KW_INTENT "(" KW_OUT ")" { $$ = VARMOD2($1, $3, @$); }
     | KW_INTENT "(" inout ")" { $$ = VARMOD3($1, @$); }
