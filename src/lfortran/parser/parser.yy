@@ -446,8 +446,7 @@ procedure_list
     ;
 
 procedure_decl
-    : KW_PROCEDURE proc_paren proc_modifiers id sep
-    | KW_PROCEDURE proc_paren proc_modifiers id "=>" id sep
+    : KW_PROCEDURE proc_paren proc_modifiers use_symbol_list sep
     | KW_GENERIC "::" KW_OPERATOR "(" operator_type ")" "=>" id_list sep
     | KW_GENERIC "::" id "=>" id_list sep
     | KW_FINAL "::" id sep
