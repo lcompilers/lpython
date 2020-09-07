@@ -553,6 +553,7 @@ decl
 
 contains_block_opt
     : KW_CONTAINS sep sub_or_func_plus { $$ = $3; }
+    | KW_CONTAINS sep { LIST_NEW($$); }
     | %empty { LIST_NEW($$); }
     ;
 
