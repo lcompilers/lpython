@@ -339,6 +339,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> contains_block_opt
 %type <vec_ast> sub_or_func_plus
 %type <ast> result_opt
+%type <ast> result
 %type <string> inout
 %type <vec_ast> concurrent_control_list
 %type <ast> concurrent_control
@@ -578,14 +579,22 @@ sub_args
     ;
 
 bind_opt
-    : KW_BIND "(" id ")"
-    | KW_BIND "(" id "," id "=" expr ")"
+    : bind
     | %empty
     ;
 
+bind
+    : KW_BIND "(" id ")"
+    | KW_BIND "(" id "," id "=" expr ")"
+    ;
+
 result_opt
-    : KW_RESULT "(" id ")" { $$ = $3; }
+    : result { $$ = $1; }
     | %empty { $$ = nullptr; }
+    ;
+
+result
+    : KW_RESULT "(" id ")" { $$ = $3; }
     ;
 
 implicit_statement_opt
