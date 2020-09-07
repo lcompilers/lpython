@@ -161,6 +161,7 @@ RUN(NAME types_09 LABELS gfortran)
 RUN(NAME types_10 LABELS gfortran)
 RUN(NAME types_11 LABELS gfortran)
 RUN(NAME types_12 LABELS gfortran)
+RUN(NAME types_13 LABELS gfortran)
 
 RUN(NAME doloop_04 LABELS gfortran)
 
