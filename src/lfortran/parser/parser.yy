@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    237 // shift/reduce conflicts
+%expect    239 // shift/reduce conflicts
 %expect-rr 72  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -310,6 +310,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> close_statement
 %type <ast> write_statement
 %type <ast> read_statement
+%type <ast> inquire_statement
+%type <ast> rewind_statement
 %type <ast> if_statement
 %type <ast> if_block
 %type <ast> elseif_block
@@ -778,6 +780,8 @@ statement
     | open_statement sep
     | close_statement sep
     | read_statement sep
+    | inquire_statement sep
+    | rewind_statement sep
     | write_statement sep
     | exit_statement sep
     | return_statement sep
@@ -871,6 +875,14 @@ write_statement
 
 read_statement
     : KW_READ "(" write_arg_list ")" expr_list { $$ = PRINT($5, @$); }
+    ;
+
+inquire_statement
+    : KW_INQUIRE "(" write_arg_list ")" { $$ = PRINT0(@$); }
+    ;
+
+rewind_statement
+    : KW_REWIND "(" write_arg_list ")" { $$ = PRINT0(@$); }
     ;
 
 // sr-conflict (2x): KW_ENDIF can be an "id" or end of "if_statement"
