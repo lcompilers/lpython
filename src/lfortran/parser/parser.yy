@@ -501,14 +501,14 @@ end_function_opt
     ;
 
 subroutine
-    : KW_SUBROUTINE id sub_args sep use_statement_star implicit_statement_opt decl_star statements
+    : KW_SUBROUTINE id sub_args bind_opt sep use_statement_star implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_subroutine_opt sep {
-            LLOC(@$, @11); $$ = SUBROUTINE($2, $3, $7, $8, @$); }
-    | fn_mod_plus KW_SUBROUTINE id sub_args sep use_statement_star implicit_statement_opt decl_star statements
+            LLOC(@$, @12); $$ = SUBROUTINE($2, $3, $8, $9, @$); }
+    | fn_mod_plus KW_SUBROUTINE id sub_args bind_opt sep use_statement_star implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_subroutine_opt sep {
-            LLOC(@$, @12); $$ = SUBROUTINE($3, $4, $8, $9, @$); }
+            LLOC(@$, @13); $$ = SUBROUTINE($3, $4, $9, $10, @$); }
     ;
 
 function
