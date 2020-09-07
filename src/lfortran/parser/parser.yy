@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    323 // shift/reduce conflicts
+%expect    387 // shift/reduce conflicts
 %expect-rr 70  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -538,11 +538,24 @@ function
         KW_END end_function_opt sep {
             LLOC(@$, @16); $$ = FUNCTION0($2, $4, $6, $12, $13, @$); }
     | fn_mod_plus KW_FUNCTION id "(" id_list_opt ")"
-        bind_opt
-        result_opt sep use_statement_star import_statement_opt implicit_statement_opt decl_star statements
+        sep use_statement_star import_statement_opt implicit_statement_opt decl_star statements
+        contains_block_opt
+        KW_END end_function_opt sep {
+            LLOC(@$, @15); $$ = FUNCTION($1, $3, $5, nullptr, $11, $12, @$); }
+    | fn_mod_plus KW_FUNCTION id "(" id_list_opt ")"
+        bind
+        result_opt
+        sep use_statement_star import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_function_opt sep {
             LLOC(@$, @17); $$ = FUNCTION($1, $3, $5, $8, $13, $14, @$); }
+    | fn_mod_plus KW_FUNCTION id "(" id_list_opt ")"
+        result
+        bind_opt
+        sep use_statement_star import_statement_opt implicit_statement_opt decl_star statements
+        contains_block_opt
+        KW_END end_function_opt sep {
+            LLOC(@$, @17); $$ = FUNCTION($1, $3, $5, $7, $13, $14, @$); }
     ;
 
 fn_mod_plus
