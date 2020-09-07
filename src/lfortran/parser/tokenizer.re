@@ -327,6 +327,10 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             // Macros are ignored for now:
             "#" [^\n\x00]* "\n" { line_num++; cur_line=cur; continue; }
 
+            // Include statements are ignored for now
+            'include' whitespace string1 { continue; }
+            'include' whitespace string2 { continue; }
+
             string1 { token_str(yylval.string); RET(TK_STRING) }
             string2 { token_str(yylval.string); RET(TK_STRING) }
 
