@@ -535,6 +535,8 @@ char *fn_type2return_type(const YYSTYPE::VecAST &v) {
         DECL2(p.m_a, syms, nullptr, attr), syms.size())
 #define VAR_DECL3(attr, l) make_Declaration_t(p.m_a, l, \
         DECL2b(p.m_a, attr), 1)
+#define VAR_DECL4(id, l) LFortran::AST::make_Declaration_t(p.m_a, l, \
+        nullptr, 0)
 
 #define VAR_SYM_DECL1(id, l)         DECL3(p.m_a, id, nullptr, nullptr)
 #define VAR_SYM_DECL2(id, e, l)      DECL3(p.m_a, id, nullptr, EXPR(e))
