@@ -412,6 +412,8 @@ proc_list
 proc
     : KW_MODULE KW_PROCEDURE id_list sep
     | KW_MODULE KW_PROCEDURE "::" id_list sep
+    | KW_PROCEDURE id_list sep
+    | KW_PROCEDURE "::" id_list sep
     ;
 
 enum_decl
