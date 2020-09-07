@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    253 // shift/reduce conflicts
+%expect    251 // shift/reduce conflicts
 %expect-rr 73  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -702,15 +702,15 @@ var_modifier
 
 var_type
     : KW_INTEGER kind_selector
-    | KW_INTEGER "*" expr kind_selector
+    | KW_INTEGER "*" TK_INTEGER kind_selector
     | KW_CHARACTER kind_selector
     | KW_CHARACTER "*" kind_selector
     | KW_REAL kind_selector
-    | KW_REAL "*" expr kind_selector
+    | KW_REAL "*" TK_INTEGER kind_selector
     | KW_COMPLEX kind_selector
-    | KW_COMPLEX "*" expr kind_selector
+    | KW_COMPLEX "*" TK_INTEGER kind_selector
     | KW_LOGICAL kind_selector
-    | KW_LOGICAL "*" expr kind_selector
+    | KW_LOGICAL "*" TK_INTEGER kind_selector
     | KW_DOUBLE KW_PRECISION
     | KW_TYPE "(" id ")"
     | KW_PROCEDURE "(" id ")"
