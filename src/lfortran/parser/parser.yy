@@ -723,8 +723,6 @@ var_sym_decl
             $$ = VAR_SYM_DECL4($1, $3, $6, @$); }
     | id "(" array_comp_decl_list ")" "=>" expr {
             $$ = VAR_SYM_DECL6($1, $3, $6, @$); }
-    | id "(" "*" ")" { $$ = VAR_SYM_DECL1($1, @$); }
-    | id "(" "*" ")" "=" expr { $$ = VAR_SYM_DECL1($1, @$); }
     ;
 
 array_comp_decl_list
@@ -744,6 +742,7 @@ array_comp_decl
     | ":" expr ":" expr { $$ = ARRAY_COMP_DECL4($2, @$); } // TODO
     | "::" expr { $$ = ARRAY_COMP_DECL5(@$); } // TODO
     | ":" ":" expr { $$ = ARRAY_COMP_DECL5(@$); } // TODO
+    | "*"            { $$ = ARRAY_COMP_DECL5(@$); } // TODO
     ;
 
 
