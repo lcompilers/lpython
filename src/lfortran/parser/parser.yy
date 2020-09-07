@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    251 // shift/reduce conflicts
+%expect    256 // shift/reduce conflicts
 %expect-rr 73  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -326,7 +326,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> while_statement
 %type <ast> do_statement
 %type <ast> forall_statement
-%type <ast> reduce
+%type <vec_ast> concurrent_locality_star
+%type <ast> concurrent_locality
 %type <reduce_op_type> reduce_op
 %type <ast> exit_statement
 %type <ast> return_statement
@@ -339,6 +340,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> sub_or_func_plus
 %type <ast> result_opt
 %type <string> inout
+%type <vec_ast> concurrent_control_list
+%type <ast> concurrent_control
 
 // Precedence
 
@@ -993,21 +996,48 @@ do_statement
             $$ = DO3($2, $4, $6, $8, $10, @$); }
     | id ":" KW_DO id "=" expr "," expr "," expr sep statements enddo id_opt {
             $$ = DO3($4, $6, $8, $10, $12, @$); }
-    | KW_DO KW_CONCURRENT "(" id "=" expr ":" expr ")" sep statements enddo {
-            $$ = DO_CONCURRENT($4, $6, $8, $11, @$); }
-    | KW_DO KW_CONCURRENT "(" id "=" expr ":" expr ")" reduce sep statements enddo {
-            $$ = DO_CONCURRENT_REDUCE($4, $6, $8, $10, $12, @$); }
+    | KW_DO KW_CONCURRENT "(" concurrent_control_list ")"
+        concurrent_locality_star sep statements enddo {
+            $$ = DO_CONCURRENT1($4, $6, $8, @$); }
+    | KW_DO KW_CONCURRENT "(" concurrent_control_list "," expr ")"
+        concurrent_locality_star sep statements enddo {
+            $$ = DO_CONCURRENT2($4, $6, $8, $10, @$); }
+    ;
+
+concurrent_control_list
+    : concurrent_control_list "," concurrent_control {
+        $$ = $1; LIST_ADD($$, $3); }
+    | concurrent_control { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+concurrent_control
+    : id "=" expr ":" expr {
+            $$ = CONCURRENT_CONTROL1($1, $3, $5,     @$); }
+    | id "=" expr ":" expr ":" expr {
+            $$ = CONCURRENT_CONTROL2($1, $3, $5, $7, @$); }
+    ;
+
+concurrent_locality_star
+    : concurrent_locality_star concurrent_locality {
+        $$ = $1; LIST_ADD($$, $2); }
+    | %empty { LIST_NEW($$); }
+    ;
+
+concurrent_locality
+    : KW_LOCAL "(" id_list ")" { $$ = CONCURRENT_LOCAL($3, @$); }
+    | KW_LOCAL_INIT "(" id_list ")" { $$ = CONCURRENT_LOCAL_INIT($3, @$); }
+    | KW_SHARED "(" id_list ")" { $$ = CONCURRENT_SHARED($3, @$); }
+    | KW_DEFAULT "(" KW_NONE ")" { $$ = CONCURRENT_DEFAULT(@$); }
+    | KW_REDUCE "(" reduce_op ":" id_list ")" {
+        $$ = CONCURRENT_REDUCE($3, $5, @$); }
     ;
 
 forall_statement
-    : KW_FORALL "(" id "=" expr ":" expr ")" assignment_statement {
-            $$ = PRINT0(@$); }
-    | KW_FORALL "(" id "=" expr ":" expr ")" sep statements endforall {
-            $$ = DO_CONCURRENT($3, $5, $7, $10, @$); }
-    ;
-
-reduce
-    : KW_REDUCE "(" reduce_op ":" id_list ")" { $$ = REDUCE($3, $5, @$); }
+    : KW_FORALL "(" concurrent_control_list ")"
+        assignment_statement { $$ = PRINT0(@$); }
+    | KW_FORALL "(" concurrent_control_list ")"
+        concurrent_locality_star sep statements endforall {
+            $$ = DO_CONCURRENT1($3, $5, $7, @$); }
     ;
 
 reduce_op

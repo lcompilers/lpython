@@ -814,26 +814,31 @@ public:
     }
 
     void visit_DoConcurrentLoop(const AST::DoConcurrentLoop_t &x) {
-        if (! x.m_var) {
+        if (x.n_control != 1) {
+            throw SemanticError("Do concurrent: exactly one control statement is required for now",
+            x.base.base.loc);
+        }
+        AST::ConcurrentControl_t &h = *(AST::ConcurrentControl_t*) x.m_control[0];
+        if (! h.m_var) {
             throw SemanticError("Do loop: loop variable is required for now",
                 x.base.base.loc);
         }
-        if (! x.m_start) {
+        if (! h.m_start) {
             throw SemanticError("Do loop: start condition required for now",
                 x.base.base.loc);
         }
-        if (! x.m_end) {
+        if (! h.m_end) {
             throw SemanticError("Do loop: end condition required for now",
                 x.base.base.loc);
         }
-        ASR::expr_t *var = EXPR(resolve_variable(x.base.base.loc, x.m_var));
-        visit_expr(*x.m_start);
+        ASR::expr_t *var = EXPR(resolve_variable(x.base.base.loc, h.m_var));
+        visit_expr(*h.m_start);
         ASR::expr_t *start = EXPR(tmp);
-        visit_expr(*x.m_end);
+        visit_expr(*h.m_end);
         ASR::expr_t *end = EXPR(tmp);
         ASR::expr_t *increment;
-        if (x.m_increment) {
-            visit_expr(*x.m_increment);
+        if (h.m_increment) {
+            visit_expr(*h.m_increment);
             increment = EXPR(tmp);
         } else {
             increment = nullptr;

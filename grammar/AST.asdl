@@ -63,8 +63,8 @@ stmt
     | ErrorStop(expr? code)
     | DoLoop(identifier? var, expr? start, expr? end, expr? increment,
             stmt* body)
-    | DoConcurrentLoop(identifier? var, expr? start, expr? end, expr? increment,
-            reduce? reduce, stmt* body)
+    | DoConcurrentLoop(concurrent_control *control, expr? mask,
+        concurrent_locality* locality, stmt* body)
     | Select(expr test, case_stmt* body, stmt* default)
     | Cycle()
     | Exit()
@@ -121,7 +121,14 @@ case_stmt = CaseStmt(expr* test, stmt* body)
 
 use_symbol = UseSymbol(identifier sym, identifier? rename)
 
-reduce = Reduce(reduce_op op, identifier *vars)
+concurrent_control = ConcurrentControl(identifier? var, expr? start, expr? end, expr? increment)
+
+concurrent_locality
+    = ConcurrentLocal(identifier *vars)
+    | ConcurrentLocalInit(identifier *vars)
+    | ConcurrentShared(identifier *vars)
+    | ConcurrentDefault()
+    | ConcurrentReduce(reduce_op op, identifier *vars)
 
 reduce_op = ReduceAdd | ReduceMul | ReduceMIN | ReduceMAX
 

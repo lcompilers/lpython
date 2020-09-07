@@ -62,7 +62,6 @@ using LFortran::AST::make_UseSymbol_t;
 using LFortran::AST::make_Module_t;
 using LFortran::AST::make_Private_t;
 using LFortran::AST::make_Public_t;
-using LFortran::AST::make_Reduce_t;
 using LFortran::AST::make_Interface_t;
 
 
@@ -112,6 +111,8 @@ static inline T** vec_cast(const YYSTYPE::VecAST &x) {
 #define EXPRS(x) VEC_CAST(x, expr)
 #define CASE_STMTS(x) VEC_CAST(x, case_stmt)
 #define USE_SYMBOLS(x) VEC_CAST(x, use_symbol)
+#define CONCURRENT_CONTROLS(x) VEC_CAST(x, concurrent_control)
+#define CONCURRENT_LOCALITIES(x) VEC_CAST(x, concurrent_locality)
 
 static inline stmt_t** IFSTMTS(Allocator &al, ast_t* x)
 {
@@ -229,11 +230,13 @@ static inline arg_t* ARGS(Allocator &al, const YYSTYPE::VecAST args)
     return a;
 }
 
+/*
 static inline LFortran::AST::reduce_t* REDUCE_TYPE(const ast_t *f)
 {
     LFORTRAN_ASSERT(f->type == astType::reduce);
     return (LFortran::AST::reduce_t*)f;
 }
+*/
 
 static inline char** REDUCE_ARGS(Allocator &al, const YYSTYPE::VecAST args)
 {
@@ -481,11 +484,18 @@ char *fn_type2return_type(const YYSTYPE::VecAST &v) {
         /*body*/ STMTS(body), \
         /*n_body*/ body.size())
 
-#define DO_CONCURRENT(i, a, b, body, l) make_DoConcurrentLoop_t(p.m_a, l, \
-        name2char(i), EXPR(a), EXPR(b), nullptr, \
-        /*reduce*/ nullptr, \
-        /*body*/ STMTS(body), \
-        /*n_body*/ body.size())
+#define DO_CONCURRENT1(h, loc, body, l) make_DoConcurrentLoop_t(p.m_a, l, \
+        CONCURRENT_CONTROLS(h), h.size(), \
+        nullptr, \
+        CONCURRENT_LOCALITIES(loc), loc.size(), \
+        STMTS(body), body.size())
+
+#define DO_CONCURRENT2(h, m, loc, body, l) make_DoConcurrentLoop_t(p.m_a, l, \
+        CONCURRENT_CONTROLS(h), h.size(), \
+        EXPR(m), \
+        CONCURRENT_LOCALITIES(loc), loc.size(), \
+        STMTS(body), body.size())
+
 
 #define DO_CONCURRENT_REDUCE(i, a, b, reduce, body, l) make_DoConcurrentLoop_t(p.m_a, l, \
         name2char(i), EXPR(a), EXPR(b), nullptr, \
@@ -493,7 +503,25 @@ char *fn_type2return_type(const YYSTYPE::VecAST &v) {
         /*body*/ STMTS(body), \
         /*n_body*/ body.size())
 
-#define REDUCE(op, var_list, l) make_Reduce_t(p.m_a, l, \
+#define CONCURRENT_CONTROL1(i, a, b, l) LFortran::AST::make_ConcurrentControl_t(p.m_a, l, \
+        name2char(i), EXPR(a), EXPR(b), nullptr)
+
+#define CONCURRENT_CONTROL2(i, a, b, c, l) LFortran::AST::make_ConcurrentControl_t(p.m_a, l, \
+        name2char(i), EXPR(a), EXPR(b), EXPR(c))
+
+
+#define CONCURRENT_LOCAL(var_list, l) LFortran::AST::make_ConcurrentLocal_t(p.m_a, l, \
+        REDUCE_ARGS(p.m_a, var_list), var_list.size())
+
+#define CONCURRENT_LOCAL_INIT(var_list, l) LFortran::AST::make_ConcurrentLocalInit_t(p.m_a, l,\
+        REDUCE_ARGS(p.m_a, var_list), var_list.size())
+
+#define CONCURRENT_SHARED(var_list, l) LFortran::AST::make_ConcurrentShared_t(p.m_a, l,\
+        REDUCE_ARGS(p.m_a, var_list), var_list.size())
+
+#define CONCURRENT_DEFAULT(l) LFortran::AST::make_ConcurrentDefault_t(p.m_a, l)
+
+#define CONCURRENT_REDUCE(op, var_list, l) LFortran::AST::make_ConcurrentReduce_t(p.m_a, l, \
         op, \
         REDUCE_ARGS(p.m_a, var_list), var_list.size())
 

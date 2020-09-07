@@ -569,27 +569,32 @@ public:
     }
 
     void visit_DoConcurrentLoop(const DoConcurrentLoop_t &x) {
+        if (x.n_control != 1) {
+            throw SemanticError("Do concurrent: exactly one control statement is required for now",
+            x.base.base.loc);
+        }
+        AST::ConcurrentControl_t &h = *(AST::ConcurrentControl_t*) x.m_control[0];
         std::string r = indent;
         r += syn(gr::Repeat);
         r += "do concurrent";
         r += syn();
-        if (x.m_var) {
+        if (h.m_var) {
             r.append(" (");
-            r.append(x.m_var);
+            r.append(h.m_var);
             r.append(" = ");
         }
-        if (x.m_start) {
-            this->visit_expr(*x.m_start);
+        if (h.m_start) {
+            this->visit_expr(*h.m_start);
             r.append(s);
             r.append(":");
         }
-        if (x.m_end) {
-            this->visit_expr(*x.m_end);
+        if (h.m_end) {
+            this->visit_expr(*h.m_end);
             r.append(s);
         }
-        if (x.m_increment) {
+        if (h.m_increment) {
             r.append(":");
-            this->visit_expr(*x.m_increment);
+            this->visit_expr(*h.m_increment);
             r.append(s);
         }
         r.append(")\n");
