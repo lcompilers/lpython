@@ -340,6 +340,7 @@ static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
         /*n_body*/ stmts.size(), \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
+
 char *str_or_null(Allocator &al, const LFortran::Str &s) {
     if (s.size() == 0) {
         return nullptr;
@@ -347,11 +348,37 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         return s.c_str(al);
     }
 }
+
+char *fn_type2return_type(const YYSTYPE::VecAST &v) {
+    for (size_t i=0; i < v.size(); i++) {
+        if (v[i]->type == LFortran::AST::astType::fn_mod) {
+            LFortran::AST::FnMod_t *t = (LFortran::AST::FnMod_t*)v[i];
+            return t->m_s;
+        }
+    }
+    return nullptr;
+}
+
 #define FUNCTION(fn_type, name, args, return_var, decl, stmts, l) make_Function_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, args), \
         /*n_args*/ args.size(), \
-        /*return_type*/ str_or_null(p.m_a, fn_type), \
+        /*return_type*/ fn_type2return_type(fn_type), \
+        /*return_var*/ EXPR_OPT(return_var), \
+        /*bind*/ nullptr, \
+        /*use*/ nullptr, \
+        /*n_use*/ 0, \
+        /*decl*/ DECLS(decl), \
+        /*n_decl*/ decl.size(), \
+        /*body*/ STMTS(stmts), \
+        /*n_body*/ stmts.size(), \
+        /*contains*/ nullptr, \
+        /*n_contains*/ 0)
+#define FUNCTION0(name, args, return_var, decl, stmts, l) make_Function_t(p.m_a, l, \
+        /*name*/ name2char(name), \
+        /*args*/ ARGS(p.m_a, args), \
+        /*n_args*/ args.size(), \
+        /*return_type*/ nullptr, \
         /*return_var*/ EXPR_OPT(return_var), \
         /*bind*/ nullptr, \
         /*use*/ nullptr, \
@@ -507,6 +534,44 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         a.c_str(p.m_a), \
         /*args*/ ATTR_ARG(p.m_a, b), \
         /*n_args*/ 1, \
+        nullptr, \
+        0)
+
+#define FN_MOD1(a, l) LFortran::AST::make_FnMod_t(p.m_a, l, \
+        a.c_str(p.m_a))
+
+#define FN_MOD_PURE(l) make_Attribute_t(p.m_a, l, \
+        nullptr, \
+        /*args*/ nullptr, \
+        /*n_args*/ 0, \
+        nullptr, \
+        0)
+
+#define FN_MOD_ELEMENTAL(l) make_Attribute_t(p.m_a, l, \
+        nullptr, \
+        /*args*/ nullptr, \
+        /*n_args*/ 0, \
+        nullptr, \
+        0)
+
+#define FN_MOD_RECURSIVE(l) make_Attribute_t(p.m_a, l, \
+        nullptr, \
+        /*args*/ nullptr, \
+        /*n_args*/ 0, \
+        nullptr, \
+        0)
+
+#define FN_MOD_MODULE(l) make_Attribute_t(p.m_a, l, \
+        nullptr, \
+        /*args*/ nullptr, \
+        /*n_args*/ 0, \
+        nullptr, \
+        0)
+
+#define FN_MOD_IMPURE(l) make_Attribute_t(p.m_a, l, \
+        nullptr, \
+        /*args*/ nullptr, \
+        /*n_args*/ 0, \
         nullptr, \
         0)
 

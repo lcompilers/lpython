@@ -106,6 +106,8 @@ attribute = Attribute(identifier name, attribute_arg *args, dimension* dims)
 
 attribute_arg = (identifier arg)
 
+fn_mod = FnMod(string s)
+
 arg = (identifier arg)
         attributes (int lineno, int col_offset)
 
