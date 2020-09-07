@@ -485,6 +485,7 @@ proc_modifier
     | KW_PASS "(" id ")"
     | KW_NOPASS
     | KW_DEFERRED
+    | KW_NON_OVERRIDABLE
     ;
 
 
