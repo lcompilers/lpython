@@ -956,6 +956,7 @@ write_statement
 read_statement
     : KW_READ "(" write_arg_list ")" expr_list { $$ = PRINT($5, @$); }
     | KW_READ "(" write_arg_list ")" "," expr_list { $$ = PRINT($6, @$); }
+    | KW_READ "(" write_arg_list ")" { $$ = PRINT0(@$); }
     ;
 
 inquire_statement
@@ -964,6 +965,7 @@ inquire_statement
 
 rewind_statement
     : KW_REWIND "(" write_arg_list ")" { $$ = PRINT0(@$); }
+    | KW_REWIND id { $$ = PRINT0(@$); }
     ;
 
 // sr-conflict (2x): KW_ENDIF can be an "id" or end of "if_statement"
