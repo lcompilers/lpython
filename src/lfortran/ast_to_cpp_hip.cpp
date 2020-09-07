@@ -513,6 +513,12 @@ public:
         return endingnumber == 0 ? name : (name + std::to_string(endingnumber));
     }
     void visit_DoConcurrentLoop(const DoConcurrentLoop_t &x) {
+        if (x.n_control != 1) {
+            throw SemanticError("Do concurrent: exactly one control statement is required for now",
+            x.base.base.loc);
+        }
+        AST::ConcurrentControl_t &h = *(AST::ConcurrentControl_t*) x.m_control[0];
+
         std::string r;
         std::string body = "";
         std::string newkernel = "";
@@ -537,7 +543,7 @@ public:
         std::vector<std::string> pbvvariables;
         std::vector<std::string> variables;
         std::unordered_set<std::string> :: iterator itr;
-        std::string iteratorvar = x.m_var;
+        std::string iteratorvar = h.m_var;
         for (itr = pbvvars_set.begin(); itr != pbvvars_set.end(); itr++)
         {
             if (iteratorvar.compare(*itr) != 0)
@@ -567,9 +573,9 @@ public:
         //Will be placed at the start
         std::string kernel_name = CreateVariable("Tempkernelname");
         newkernel += "__global__ void " + kernel_name + "(";
-        LFORTRAN_ASSERT(x.m_var)
-        LFORTRAN_ASSERT(x.m_end)
-        this->visit_expr(*x.m_end);
+        LFORTRAN_ASSERT(h.m_var)
+        LFORTRAN_ASSERT(h.m_end)
+        this->visit_expr(*h.m_end);
         std::string loopsize = s;
         newkernel.append("int ");
         newkernel.append(loopsize);
@@ -586,10 +592,10 @@ public:
         newkernel += "){\n";
         //WIP assuming the index must be defined this way.
         newkernel += "    int ";
-        newkernel.append(x.m_var);
+        newkernel.append(h.m_var);
         newkernel += " = blockIDx.x*blockDim.x+threadIdx.x;\n";
         newkernel += "    if (";
-        newkernel.append(x.m_var);
+        newkernel.append(h.m_var);
         newkernel += " >= ";
         newkernel.append(loopsize);
         newkernel += ") return;\n";

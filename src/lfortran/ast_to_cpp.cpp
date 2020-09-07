@@ -497,16 +497,27 @@ public:
         s = r;
     }
     void visit_DoConcurrentLoop(const DoConcurrentLoop_t &x) {
+        if (x.n_control != 1) {
+            throw SemanticError("Do concurrent: exactly one control statement is required for now",
+            x.base.base.loc);
+        }
+        AST::ConcurrentControl_t &h = *(AST::ConcurrentControl_t*) x.m_control[0];
+
         //TODO: Need to make sure iterated values are passed by reference, and
         //dereferenced in loop body.
         replacevar.clear();
         std::string r;
         for (int i=0; i < indent_level; i++) r.append(" ");
-        LFORTRAN_ASSERT(x.m_var)
-        LFORTRAN_ASSERT(x.m_end)
-        AST::Reduce_t *red;
-        if (x.m_reduce) {
-            red = (AST::Reduce_t*) (x.m_reduce);
+        LFORTRAN_ASSERT(h.m_var)
+        LFORTRAN_ASSERT(h.m_end)
+        AST::ConcurrentReduce_t *red=nullptr;
+        for (size_t i=0; i < x.n_locality; i++) {
+            if (x.m_locality[i]->type == AST::concurrent_localityType::ConcurrentReduce) {
+                red = (AST::ConcurrentReduce_t*) x.m_locality[i];
+                break;
+            }
+        }
+        if (red) {
             LFORTRAN_ASSERT(red->n_vars == 1)
             replacevar.push_back(red->m_vars[0]);
             /*r += "// Variable: ";
@@ -520,16 +531,16 @@ public:
             }
             r += "\n";*/
             r += "Kokkos::parallel_reduce(";
-            this->visit_expr(*x.m_end);
+            this->visit_expr(*h.m_end);
         } else {
             red = nullptr;
             r += "Kokkos::parallel_for(";
-            this->visit_expr(*x.m_end);
+            this->visit_expr(*h.m_end);
         }
         r.append(s);
         r.append(", KOKKOS_LAMBDA(const long ");
-        r.append(x.m_var);
-        if (x.m_reduce) {
+        r.append(h.m_var);
+        if (red) {
             r += ", float & updatevar_";
             //Will need to update the following when we can have multiple
             //variables
@@ -544,7 +555,7 @@ public:
         }
         indent_level -= 4;
         for (int i=0; i < indent_level; i++) r.append(" ");
-        if (x.m_reduce) {
+        if (red) {
             r.append("}, *");
             r.append(red->m_vars[0]);
             r.append(");");

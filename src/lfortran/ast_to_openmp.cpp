@@ -477,10 +477,22 @@ public:
     }
     //Converts do concurrent to a regular do loop. Adds OpenMP pragmas.
     void visit_DoConcurrentLoop(const DoConcurrentLoop_t &x) {
+        if (x.n_control != 1) {
+            throw SemanticError("Do concurrent: exactly one control statement is required for now",
+            x.base.base.loc);
+        }
+        AST::ConcurrentControl_t &h = *(AST::ConcurrentControl_t*) x.m_control[0];
+        AST::ConcurrentReduce_t *red=nullptr;
+        for (size_t i=0; i < x.n_locality; i++) {
+            if (x.m_locality[i]->type == AST::concurrent_localityType::ConcurrentReduce) {
+                red = (AST::ConcurrentReduce_t*) x.m_locality[i];
+                break;
+            }
+        }
+
         std::string r = "";
-        if (x.m_reduce)
+        if (red)
         {
-            AST::Reduce_t *red = (AST::Reduce_t*) (x.m_reduce);
             LFORTRAN_ASSERT(red->n_vars == 1)
             r.append("!$OMP DO REDUCTION(");
             //This will need expanded
@@ -496,23 +508,23 @@ public:
             r.append("!$OMP PARALLEL DO\n");
         }
         r.append("do ");
-        if (x.m_var) {
+        if (h.m_var) {
 //            r.append(" (");
-            r.append(x.m_var);
+            r.append(h.m_var);
             r.append(" = ");
         }
-        if (x.m_start) {
-            this->visit_expr(*x.m_start);
+        if (h.m_start) {
+            this->visit_expr(*h.m_start);
             r.append(s);
             r.append(":");
         }
-        if (x.m_end) {
-            this->visit_expr(*x.m_end);
+        if (h.m_end) {
+            this->visit_expr(*h.m_end);
             r.append(s);
         }
-        if (x.m_increment) {
+        if (h.m_increment) {
             r.append(":");
-            this->visit_expr(*x.m_increment);
+            this->visit_expr(*h.m_increment);
             r.append(s);
         }
 //        r.append(")\n");
@@ -526,7 +538,7 @@ public:
         }
         indent_level -= 4;
         r.append("end do\n");
-        if (x.m_reduce)
+        if (red)
             r.append("!$OMP END DO");
         else
             r.append("!$OMP END PARALLEL DO");

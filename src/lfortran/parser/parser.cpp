@@ -84,7 +84,7 @@ void cont1(const std::string &s, size_t &pos, bool &ws_or_comment)
     while (s[pos] != '\n') {
         if (s[pos] == '!') in_comment = true;
         if (!in_comment) {
-            if (s[pos] != ' ') {
+            if (s[pos] != ' ' && s[pos] != '\t') {
                 ws_or_comment = false;
                 return;
             }

@@ -79,6 +79,8 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             exp = [edED][-+]? digit+;
             integer = digit+ ("_" kind)?;
             real = ((significand exp?) | (digit+ exp)) ("_" kind)?;
+            string1 = (kind "_")? '"' ('""'|[^"\x00])* '"';
+            string2 = (kind "_")? "'" ("''"|[^'\x00])* "'";
 
             * { token_loc(loc);
                 std::string t = token();
@@ -262,24 +264,24 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             "=>" { RET(TK_ARROW) }
 
             // Relational operators
-            ".eq." | "==" { RET(TK_EQ) }
-            ".ne." | "/=" { RET(TK_NE) }
-            ".lt." | "<"  { RET(TK_LT) }
-            ".le." | "<=" { RET(TK_LE) }
-            ".gt." | ">"  { RET(TK_GT) }
-            ".ge." | ">=" { RET(TK_GE) }
+            '.eq.' | "==" { RET(TK_EQ) }
+            '.ne.' | "/=" { RET(TK_NE) }
+            '.lt.' | "<"  { RET(TK_LT) }
+            '.le.' | "<=" { RET(TK_LE) }
+            '.gt.' | ">"  { RET(TK_GT) }
+            '.ge.' | ">=" { RET(TK_GE) }
 
             // Logical operators
-            ".not."  { RET(TK_NOT) }
-            ".and."  { RET(TK_AND) }
-            ".or."   { RET(TK_OR) }
-            ".eqv."  { RET(TK_EQV) }
-            ".neqv." { RET(TK_NEQV) }
+            '.not.'  { RET(TK_NOT) }
+            '.and.'  { RET(TK_AND) }
+            '.or.'   { RET(TK_OR) }
+            '.eqv.'  { RET(TK_EQV) }
+            '.neqv.' { RET(TK_NEQV) }
 
             // True/False
 
-            ".true." ("_" kind)? { RET(TK_TRUE) }
-            ".false." ("_" kind)? { RET(TK_FALSE) }
+            '.true.' ("_" kind)? { RET(TK_TRUE) }
+            '.false.' ("_" kind)? { RET(TK_FALSE) }
 
             // This is needed to ensure that 2.op.3 gets tokenized as
             // TK_INTEGER(2), TK_DEFOP(.op.), TK_INTEGER(3), and not
@@ -320,13 +322,20 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             [zZ] "'" [0-9a-f]+ "'" { token(yylval.string); RET(TK_BOZ_CONSTANT) }
 
             "&" [^\n\x00]* "\n" { line_num++; cur_line=cur; continue; }
+            "&" [^\n\x00]* "\n" whitespace "!" [^\n\x00]* "\n" {
+                line_num+=2; cur_line=cur; continue;
+            }
             "!" [^\n\x00]* / "\n" { token(yylval.string); RET(TK_COMMENT) }
 
             // Macros are ignored for now:
             "#" [^\n\x00]* "\n" { line_num++; cur_line=cur; continue; }
 
-            (kind "_")? '"' ('""'|[^"\x00])* '"' { token_str(yylval.string); RET(TK_STRING) }
-            (kind "_")? "'" ("''"|[^'\x00])* "'" { token_str(yylval.string); RET(TK_STRING) }
+            // Include statements are ignored for now
+            'include' whitespace string1 { continue; }
+            'include' whitespace string2 { continue; }
+
+            string1 { token_str(yylval.string); RET(TK_STRING) }
+            string2 { token_str(yylval.string); RET(TK_STRING) }
 
             defop { token(yylval.string); RET(TK_DEF_OP) }
             name { token(yylval.string); RET(TK_NAME) }
