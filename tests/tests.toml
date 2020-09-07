@@ -507,3 +507,7 @@ ast = true
 [[test]]
 filename = "do_concurrent1.f90"
 ast = true
+
+[[test]]
+filename = "subroutine9.f90"
+ast = true
