@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    397 // shift/reduce conflicts
+%expect    398 // shift/reduce conflicts
 %expect-rr 73  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -402,6 +402,8 @@ interface_decl
             $$ = INTERFACE($2, @$); }
     | KW_INTERFACE sep sub_or_func_plus endinterface sep {
             $$ = INTERFACE2($3, @$); }
+    | KW_ABSTRACT KW_INTERFACE sep sub_or_func_plus endinterface sep {
+            $$ = INTERFACE2($4, @$); }
     ;
 
 proc_list
