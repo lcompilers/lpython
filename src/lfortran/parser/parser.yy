@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    409 // shift/reduce conflicts
+%expect    418 // shift/reduce conflicts
 %expect-rr 78  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -320,6 +320,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> where_statement
 %type <ast> where_block
 %type <ast> select_statement
+%type <ast> select_type_statement
 %type <vec_ast> case_statements
 %type <ast> case_statement
 %type <vec_ast> select_default_statement_opt
@@ -874,6 +875,7 @@ statement
     | if_statement
     | where_statement
     | select_statement sep
+    | select_type_statement sep
     | while_statement sep
     | do_statement sep
     | forall_statement sep
@@ -1039,6 +1041,22 @@ select_default_statement_opt
 
 select_default_statement
     : KW_CASE KW_DEFAULT sep statements { $$ = $4; }
+    ;
+
+select_type_statement
+    : KW_SELECT KW_TYPE "(" expr ")" sep select_type_body_statements
+        KW_END KW_SELECT {
+                $$ = PRINT0(@$); }
+
+select_type_body_statements
+    : select_type_body_statements select_type_body_statement
+    | %empty
+    ;
+
+select_type_body_statement
+    : KW_TYPE KW_IS "(" expr ")" sep statements
+    | KW_CLASS KW_IS "(" expr ")" sep statements
+    | KW_CLASS KW_DEFAULT sep statements
     ;
 
 
