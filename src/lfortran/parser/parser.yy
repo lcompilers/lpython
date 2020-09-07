@@ -261,6 +261,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 
 %type <ast> expr
 %type <vec_ast> expr_list
+%type <vec_ast> expr_list_opt
 %type <ast> id
 %type <vec_ast> id_list
 %type <vec_ast> id_list_opt
@@ -1173,6 +1174,11 @@ error_stop_statement
 // -----------------------------------------------------------------------------
 // Fortran expression
 
+expr_list_opt
+    : expr_list { $$ = $1; }
+    | %empty { LIST_NEW($$); }
+    ;
+
 expr_list
     : expr_list "," expr { $$ = $1; LIST_ADD($$, $3); }
     | expr { LIST_NEW($$); LIST_ADD($$, $1); }
@@ -1185,8 +1191,8 @@ expr
     | id "(" fnarray_arg_list_opt ")" { $$ = FUNCCALLORARRAY($1, $3, @$); }
     | struct_member_star id "(" fnarray_arg_list_opt ")" {
             $$ = FUNCCALLORARRAY($2, $4, @$); }
-    | "[" expr_list "]" { $$ = ARRAY_IN($2, @$); }
-    | "[" var_type "::" expr_list "]" { $$ = ARRAY_IN($4, @$); }
+    | "[" expr_list_opt "]" { $$ = ARRAY_IN($2, @$); }
+    | "[" var_type "::" expr_list_opt "]" { $$ = ARRAY_IN($4, @$); }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
     | TK_REAL { $$ = REAL($1, @$); }
     | TK_STRING { $$ = STRING($1, @$); }
