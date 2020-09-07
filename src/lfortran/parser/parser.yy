@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    418 // shift/reduce conflicts
+%expect    424 // shift/reduce conflicts
 %expect-rr 78  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -1031,6 +1031,10 @@ case_statements
 
 case_statement
     : KW_CASE "(" expr_list ")" sep statements { $$ = CASE_STMT($3, $6, @$); }
+    | KW_CASE "(" expr ":" ")" sep statements { $$ = CASE_STMT2($3, $7, @$); }
+    | KW_CASE "(" ":" expr ")" sep statements { $$ = CASE_STMT3($4, $7, @$); }
+    | KW_CASE "(" expr ":" expr ")" sep statements {
+        $$ = CASE_STMT4($3, $5, $8, @$); }
     ;
 
 select_default_statement_opt

@@ -637,6 +637,12 @@ LFortran::Str Str_from_string(Allocator &al, const std::string &s) {
 
 #define CASE_STMT(cond, body, l) make_CaseStmt_t(p.m_a, l, \
         EXPRS(cond), cond.size(), STMTS(body), body.size())
+#define CASE_STMT2(cond, body, l) make_CaseStmt_t(p.m_a, l, \
+        nullptr, 0, STMTS(body), body.size())
+#define CASE_STMT3(cond, body, l) make_CaseStmt_t(p.m_a, l, \
+        nullptr, 0, STMTS(body), body.size())
+#define CASE_STMT4(cond1, cond2, body, l) make_CaseStmt_t(p.m_a, l, \
+        nullptr, 0, STMTS(body), body.size())
 
 #define USE1(mod, l) make_Use_t(p.m_a, l, \
         name2char(mod), \
