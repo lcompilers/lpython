@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    239 // shift/reduce conflicts
-%expect-rr 72  // reduce/reduce conflicts
+%expect    246 // shift/reduce conflicts
+%expect-rr 73  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -705,6 +705,7 @@ var_type
     | KW_REAL kind_selector
     | KW_COMPLEX kind_selector
     | KW_LOGICAL kind_selector
+    | KW_DOUBLE KW_PRECISION
     | KW_TYPE "(" id ")"
     | KW_PROCEDURE "(" id ")"
     | KW_CLASS "(" id ")"
