@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    256 // shift/reduce conflicts
+%expect    261 // shift/reduce conflicts
 %expect-rr 73  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -1035,9 +1035,14 @@ concurrent_locality
 forall_statement
     : KW_FORALL "(" concurrent_control_list ")"
         assignment_statement { $$ = PRINT0(@$); }
+    | KW_FORALL "(" concurrent_control_list "," expr ")"
+        assignment_statement { $$ = PRINT0(@$); }
     | KW_FORALL "(" concurrent_control_list ")"
         concurrent_locality_star sep statements endforall {
             $$ = DO_CONCURRENT1($3, $5, $7, @$); }
+    | KW_FORALL "(" concurrent_control_list "," expr ")"
+        concurrent_locality_star sep statements endforall {
+            $$ = DO_CONCURRENT2($3, $5, $7, $9, @$); }
     ;
 
 reduce_op
