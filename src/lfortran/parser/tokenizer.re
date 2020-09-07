@@ -262,24 +262,24 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             "=>" { RET(TK_ARROW) }
 
             // Relational operators
-            ".eq." | "==" { RET(TK_EQ) }
-            ".ne." | "/=" { RET(TK_NE) }
-            ".lt." | "<"  { RET(TK_LT) }
-            ".le." | "<=" { RET(TK_LE) }
-            ".gt." | ">"  { RET(TK_GT) }
-            ".ge." | ">=" { RET(TK_GE) }
+            '.eq.' | "==" { RET(TK_EQ) }
+            '.ne.' | "/=" { RET(TK_NE) }
+            '.lt.' | "<"  { RET(TK_LT) }
+            '.le.' | "<=" { RET(TK_LE) }
+            '.gt.' | ">"  { RET(TK_GT) }
+            '.ge.' | ">=" { RET(TK_GE) }
 
             // Logical operators
-            ".not."  { RET(TK_NOT) }
-            ".and."  { RET(TK_AND) }
-            ".or."   { RET(TK_OR) }
-            ".eqv."  { RET(TK_EQV) }
-            ".neqv." { RET(TK_NEQV) }
+            '.not.'  { RET(TK_NOT) }
+            '.and.'  { RET(TK_AND) }
+            '.or.'   { RET(TK_OR) }
+            '.eqv.'  { RET(TK_EQV) }
+            '.neqv.' { RET(TK_NEQV) }
 
             // True/False
 
-            ".true." ("_" kind)? { RET(TK_TRUE) }
-            ".false." ("_" kind)? { RET(TK_FALSE) }
+            '.true.' ("_" kind)? { RET(TK_TRUE) }
+            '.false.' ("_" kind)? { RET(TK_FALSE) }
 
             // This is needed to ensure that 2.op.3 gets tokenized as
             // TK_INTEGER(2), TK_DEFOP(.op.), TK_INTEGER(3), and not
