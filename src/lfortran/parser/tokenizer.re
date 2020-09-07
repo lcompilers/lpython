@@ -79,6 +79,8 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             exp = [edED][-+]? digit+;
             integer = digit+ ("_" kind)?;
             real = ((significand exp?) | (digit+ exp)) ("_" kind)?;
+            string1 = (kind "_")? '"' ('""'|[^"\x00])* '"';
+            string2 = (kind "_")? "'" ("''"|[^'\x00])* "'";
 
             * { token_loc(loc);
                 std::string t = token();
@@ -325,8 +327,8 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             // Macros are ignored for now:
             "#" [^\n\x00]* "\n" { line_num++; cur_line=cur; continue; }
 
-            (kind "_")? '"' ('""'|[^"\x00])* '"' { token_str(yylval.string); RET(TK_STRING) }
-            (kind "_")? "'" ("''"|[^'\x00])* "'" { token_str(yylval.string); RET(TK_STRING) }
+            string1 { token_str(yylval.string); RET(TK_STRING) }
+            string2 { token_str(yylval.string); RET(TK_STRING) }
 
             defop { token(yylval.string); RET(TK_DEF_OP) }
             name { token(yylval.string); RET(TK_NAME) }
