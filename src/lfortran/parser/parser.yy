@@ -5,7 +5,7 @@
 %locations
 %glr-parser
 %expect    409 // shift/reduce conflicts
-%expect-rr 73  // reduce/reduce conflicts
+%expect-rr 78  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -1186,6 +1186,7 @@ expr
     | struct_member_star id "(" fnarray_arg_list_opt ")" {
             $$ = FUNCCALLORARRAY($2, $4, @$); }
     | "[" expr_list "]" { $$ = ARRAY_IN($2, @$); }
+    | "[" var_type "::" expr_list "]" { $$ = ARRAY_IN($4, @$); }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
     | TK_REAL { $$ = REAL($1, @$); }
     | TK_STRING { $$ = STRING($1, @$); }
