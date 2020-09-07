@@ -887,11 +887,13 @@ write_arg
 
 write_statement
     : KW_WRITE "(" write_arg_list ")" expr_list { $$ = PRINT($5, @$); }
+    | KW_WRITE "(" write_arg_list ")" "," expr_list { $$ = PRINT($6, @$); }
     | KW_WRITE "(" write_arg_list ")" { $$ = PRINT0(@$); }
     ;
 
 read_statement
     : KW_READ "(" write_arg_list ")" expr_list { $$ = PRINT($5, @$); }
+    | KW_READ "(" write_arg_list ")" "," expr_list { $$ = PRINT($6, @$); }
     ;
 
 inquire_statement
