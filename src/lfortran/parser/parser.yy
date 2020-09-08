@@ -1163,18 +1163,18 @@ format_items
 
 
 format_item
-    : data_edit_desc
-    | TK_INTEGER data_edit_desc
-//    | control_edit_desc
+    : format_item0
+    | TK_INTEGER format_item0
+    | ":"
     | TK_STRING
-    | "(" format_items ")"
-    | TK_INTEGER "(" format_items ")"
     ;
 
-data_edit_desc
+format_item0
     : TK_NAME
     | TK_NAME TK_REAL
     | TK_NAME TK_REAL TK_NAME
+    | "/"
+    | "(" format_items ")"
     ;
 
 reduce_op
