@@ -523,3 +523,7 @@ ast = true
 [[test]]
 filename = "namelist1.f90"
 ast = true
+
+[[test]]
+filename = "select_type1.f90"
+ast = true
