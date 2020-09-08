@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    424 // shift/reduce conflicts
+%expect    427 // shift/reduce conflicts
 %expect-rr 78  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -1053,6 +1053,10 @@ select_type_statement
     : KW_SELECT KW_TYPE "(" expr ")" sep select_type_body_statements
         KW_END KW_SELECT {
                 $$ = PRINT0(@$); }
+    | KW_SELECT KW_TYPE "(" id "=>" expr ")" sep select_type_body_statements
+        KW_END KW_SELECT {
+                $$ = PRINT0(@$); }
+    ;
 
 select_type_body_statements
     : select_type_body_statements select_type_body_statement
@@ -1060,8 +1064,9 @@ select_type_body_statements
     ;
 
 select_type_body_statement
-    : KW_TYPE KW_IS "(" expr ")" sep statements
-    | KW_CLASS KW_IS "(" expr ")" sep statements
+    : KW_TYPE KW_IS "(" TK_NAME ")" sep statements
+    | KW_TYPE KW_IS "(" var_type ")" sep statements
+    | KW_CLASS KW_IS "(" id ")" sep statements
     | KW_CLASS KW_DEFAULT sep statements
     ;
 
