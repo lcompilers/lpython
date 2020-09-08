@@ -292,6 +292,10 @@ filename = "array4.f90"
 ast = true
 
 [[test]]
+filename = "array5.f90"
+ast = true
+
+[[test]]
 filename = "../integration_tests/arrays_01.f90"
 cpp = true
 
