@@ -9,4 +9,8 @@ abstract interface
     end subroutine read_params
 end interface
 
+INTERFACE ASSIGNMENT(=)
+    MODULE PROCEDURE SomeProc
+END INTERFACE
+
 end module
