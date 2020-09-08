@@ -337,6 +337,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> continue_statement
 %type <ast> stop_statement
 %type <ast> error_stop_statement
+%type <ast> format_statement
 %type <vec_ast> statements
 %type <vec_ast> contains_block_opt
 %type <vec_ast> sub_or_func_plus
@@ -885,6 +886,7 @@ statement
     | while_statement sep
     | do_statement sep
     | forall_statement sep
+    | format_statement sep
     ;
 
 assignment_statement
@@ -1141,6 +1143,34 @@ forall_statement
     | KW_FORALL "(" concurrent_control_list "," expr ")"
         concurrent_locality_star sep statements endforall {
             $$ = DO_CONCURRENT2($3, $5, $7, $9, @$); }
+    ;
+
+format_statement
+    : TK_INTEGER KW_FORMAT "(" format_items ")" { $$ = PRINT0(@$); }
+    | TK_INTEGER KW_FORMAT "(" format_items "," "*" "(" format_items ")" ")" {
+            $$ = PRINT0(@$); }
+    | TK_INTEGER KW_FORMAT "(" "*" "(" format_items ")" ")" { $$ = PRINT0(@$); }
+    ;
+
+format_items
+    : format_items "," format_item
+    | format_item
+    ;
+
+
+format_item
+    : data_edit_desc
+    | TK_INTEGER data_edit_desc
+//    | control_edit_desc
+    | TK_STRING
+    | "(" format_items ")"
+    | TK_INTEGER "(" format_items ")"
+    ;
+
+data_edit_desc
+    : TK_NAME
+    | TK_NAME TK_REAL
+    | TK_NAME TK_REAL TK_NAME
     ;
 
 reduce_op
