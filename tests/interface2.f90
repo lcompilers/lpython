@@ -11,6 +11,8 @@ end interface
 
 INTERFACE ASSIGNMENT(=)
     MODULE PROCEDURE SomeProc
+    PROCEDURE SomeProc2
+    PROCEDURE :: SomeProc3
 END INTERFACE
 
 end module
