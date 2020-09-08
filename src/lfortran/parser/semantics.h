@@ -683,6 +683,8 @@ LFortran::Str Str_from_string(Allocator &al, const std::string &s) {
         nullptr, 0)
 #define INTERFACE(name, l) make_Interface_t(p.m_a, l, \
         name2char(name), nullptr, 0)
+#define INTERFACE3(l) make_Interface_t(p.m_a, l, \
+        nullptr, nullptr, 0)
 
 #define INTERFACE2(contains, l) LFortran::AST::make_Interface2_t(p.m_a, l, \
         nullptr, nullptr, 0)

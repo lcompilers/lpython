@@ -402,6 +402,8 @@ module
 interface_decl
     : KW_INTERFACE id sep proc_list endinterface id_opt sep {
             $$ = INTERFACE($2, @$); }
+    | KW_INTERFACE KW_ASSIGNMENT "(" "=" ")" sep proc_list endinterface id_opt sep {
+            $$ = INTERFACE3(@$); }
     | KW_INTERFACE sep sub_or_func_plus endinterface sep {
             $$ = INTERFACE2($3, @$); }
     | KW_ABSTRACT KW_INTERFACE sep sub_or_func_plus endinterface sep {
