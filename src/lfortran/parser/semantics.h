@@ -669,6 +669,8 @@ LFortran::Str Str_from_string(Allocator &al, const std::string &s) {
         name2char(x), nullptr)
 #define USE_SYMBOL2(x, y, l) make_UseSymbol_t(p.m_a, l, \
         name2char(y), name2char(x))
+#define USE_SYMBOL3(l) make_UseSymbol_t(p.m_a, l, \
+        nullptr, nullptr)
 
 #define MODULE(name, decl, contains, l) make_Module_t(p.m_a, l, \
         name2char(name), \
