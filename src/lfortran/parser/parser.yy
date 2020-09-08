@@ -1197,6 +1197,8 @@ endforall
 endif
     : KW_END_IF
     | KW_ENDIF
+    | KW_END_IF id
+    | KW_ENDIF id
     ;
 
 endinterface
