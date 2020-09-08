@@ -982,6 +982,7 @@ rewind_statement
 // sr-conflict (2x): KW_ENDIF can be an "id" or end of "if_statement"
 if_statement
     : if_block endif sep {}
+    | id ":" if_block endif sep {}
     | KW_IF "(" expr ")" statement { $$ = IFSINGLE($3, $5, @$); }
     ;
 
