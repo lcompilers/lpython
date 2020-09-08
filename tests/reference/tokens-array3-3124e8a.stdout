@@ -35,7 +35,7 @@
 (TOKEN "integer" 2)
 (TOKEN ",")
 (TOKEN "integer" 3)
-(TOKEN "]")
+(TOKEN "/)")
 (NEWLINE)
 (NEWLINE)
 (KEYWORD "end")

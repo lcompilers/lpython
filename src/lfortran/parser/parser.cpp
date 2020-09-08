@@ -161,6 +161,7 @@ std::string token2text(const int token)
         T(TK_RPAREN, ")")
         T(TK_LBRACKET, "[")
         T(TK_RBRACKET, "]")
+        T(TK_RBRACKET_OLD, "/)")
         T(TK_PERCENT, "%")
         T(TK_VBAR, "|")
 

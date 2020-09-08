@@ -85,6 +85,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token TK_RPAREN ")"
 %token TK_LBRACKET "["
 %token TK_RBRACKET "]"
+%token TK_RBRACKET_OLD "/)"
 %token TK_PERCENT "%"
 %token TK_VBAR "|"
 
@@ -1154,6 +1155,8 @@ format_statement
     | TK_INTEGER KW_FORMAT "(" format_items "," "*" "(" format_items ")" ")" {
             $$ = PRINT0(@$); }
     | TK_INTEGER KW_FORMAT "(" "*" "(" format_items ")" ")" { $$ = PRINT0(@$); }
+    | TK_INTEGER KW_FORMAT "(" "/)" { $$ = PRINT0(@$); }
+    | TK_INTEGER KW_FORMAT "(" format_items "," "/)" { $$ = PRINT0(@$); }
     ;
 
 format_items
@@ -1254,6 +1257,11 @@ expr_list
     | expr { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
+rbracket
+    : "]"
+    | "/)"
+    ;
+
 expr
 // ### primary
     : id { $$ = $1; }
@@ -1261,8 +1269,8 @@ expr
     | id "(" fnarray_arg_list_opt ")" { $$ = FUNCCALLORARRAY($1, $3, @$); }
     | struct_member_star id "(" fnarray_arg_list_opt ")" {
             $$ = FUNCCALLORARRAY($2, $4, @$); }
-    | "[" expr_list_opt "]" { $$ = ARRAY_IN($2, @$); }
-    | "[" var_type "::" expr_list_opt "]" { $$ = ARRAY_IN($4, @$); }
+    | "[" expr_list_opt rbracket { $$ = ARRAY_IN($2, @$); }
+    | "[" var_type "::" expr_list_opt rbracket { $$ = ARRAY_IN($4, @$); }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
     | TK_REAL { $$ = REAL($1, @$); }
     | TK_STRING { $$ = STRING($1, @$); }

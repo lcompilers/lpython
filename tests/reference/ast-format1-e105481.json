@@ -2,11 +2,11 @@
     "basename": "ast-format1-e105481",
     "cmd": "lfortran --show-ast --no-color {infile} -o {outfile}",
     "infile": "tests/format1.f90",
-    "infile_hash": "096f05bd5794a12fb839912661ce3979f6036edb1ec35812ad7db802",
+    "infile_hash": "b279f894a62a72c7c0745bb633c9b6408ce3a112fc23b2a01f392b7d",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast-format1-e105481.stdout",
-    "stdout_hash": "bc7ba8501b1f5ebbec849058e48af0441c1a6c8edba88ce4688fd1cb",
+    "stdout_hash": "d07405206e5e202814f77fbf0ad02cfd12071701cdbd0f14c5de6d1b",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
