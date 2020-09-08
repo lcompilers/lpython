@@ -1079,8 +1079,11 @@ select_type_body_statement
 
 
 while_statement
-    : KW_DO KW_WHILE "(" expr ")" sep statements enddo {
+    : KW_DO KW_WHILE "(" expr ")" sep statements enddo id_opt {
             $$ = WHILE($4, $7, @$); }
+    | id ":" KW_DO KW_WHILE "(" expr ")" sep statements enddo id_opt {
+            $$ = WHILE($6, $9, @$); }
+    ;
 
 // sr-conflict (2x): "KW_DO sep" being either a do_statement or an expr
 do_statement
