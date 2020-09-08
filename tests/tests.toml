@@ -519,3 +519,7 @@ ast = true
 [[test]]
 filename = "../integration_tests/types_13.f90"
 ast = true
+
+[[test]]
+filename = "namelist1.f90"
+ast = true
