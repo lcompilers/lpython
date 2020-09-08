@@ -663,7 +663,8 @@ use_statement
     ;
 
 import_statement_opt
-    : KW_IMPORT id_list sep
+    : KW_IMPORT sep
+    | KW_IMPORT id_list sep
     | KW_IMPORT "::" id_list sep
     | KW_IMPORT "," KW_ONLY ":" id_list sep
     | KW_IMPORT "," KW_NONE sep
