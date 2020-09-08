@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    387 // shift/reduce conflicts
-%expect-rr 70  // reduce/reduce conflicts
+%expect    428 // shift/reduce conflicts
+%expect-rr 78  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -85,6 +85,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token TK_RPAREN ")"
 %token TK_LBRACKET "["
 %token TK_RBRACKET "]"
+%token TK_RBRACKET_OLD "/)"
 %token TK_PERCENT "%"
 %token TK_VBAR "|"
 
@@ -261,6 +262,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 
 %type <ast> expr
 %type <vec_ast> expr_list
+%type <vec_ast> expr_list_opt
 %type <ast> id
 %type <vec_ast> id_list
 %type <vec_ast> id_list_opt
@@ -319,6 +321,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> where_statement
 %type <ast> where_block
 %type <ast> select_statement
+%type <ast> select_type_statement
 %type <vec_ast> case_statements
 %type <ast> case_statement
 %type <vec_ast> select_default_statement_opt
@@ -335,6 +338,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> continue_statement
 %type <ast> stop_statement
 %type <ast> error_stop_statement
+%type <ast> format_statement
 %type <vec_ast> statements
 %type <vec_ast> contains_block_opt
 %type <vec_ast> sub_or_func_plus
@@ -400,8 +404,12 @@ module
 interface_decl
     : KW_INTERFACE id sep proc_list endinterface id_opt sep {
             $$ = INTERFACE($2, @$); }
+    | KW_INTERFACE KW_ASSIGNMENT "(" "=" ")" sep proc_list endinterface id_opt sep {
+            $$ = INTERFACE3(@$); }
     | KW_INTERFACE sep sub_or_func_plus endinterface sep {
             $$ = INTERFACE2($3, @$); }
+    | KW_ABSTRACT KW_INTERFACE sep sub_or_func_plus endinterface sep {
+            $$ = INTERFACE2($4, @$); }
     ;
 
 proc_list
@@ -412,6 +420,8 @@ proc_list
 proc
     : KW_MODULE KW_PROCEDURE id_list sep
     | KW_MODULE KW_PROCEDURE "::" id_list sep
+    | KW_PROCEDURE id_list sep
+    | KW_PROCEDURE "::" id_list sep
     ;
 
 enum_decl
@@ -440,8 +450,11 @@ procedure_list
     ;
 
 procedure_decl
-    : KW_PROCEDURE proc_modifiers id sep
+    : KW_PROCEDURE proc_paren proc_modifiers use_symbol_list sep
     | KW_GENERIC "::" KW_OPERATOR "(" operator_type ")" "=>" id_list sep
+    | KW_GENERIC "::" KW_ASSIGNMENT "(" "=" ")" "=>" id_list sep
+    | KW_GENERIC "::" id "=>" id_list sep
+    | KW_FINAL "::" id sep
     ;
 
 operator_type
@@ -453,6 +466,11 @@ operator_type
     | ">="
     | "<"
     | "<="
+    ;
+
+proc_paren
+    : %empty
+    | "(" id ")"
     ;
 
 proc_modifiers
@@ -471,6 +489,8 @@ proc_modifier
     | KW_PUBLIC
     | KW_PASS "(" id ")"
     | KW_NOPASS
+    | KW_DEFERRED
+    | KW_NON_OVERRIDABLE
     ;
 
 
@@ -644,7 +664,8 @@ use_statement
     ;
 
 import_statement_opt
-    : KW_IMPORT id_list sep
+    : KW_IMPORT sep
+    | KW_IMPORT id_list sep
     | KW_IMPORT "::" id_list sep
     | KW_IMPORT "," KW_ONLY ":" id_list sep
     | KW_IMPORT "," KW_NONE sep
@@ -660,6 +681,7 @@ use_symbol_list
 use_symbol
     : id          { $$ = USE_SYMBOL1($1, @$); }
     | id "=>" id  { $$ = USE_SYMBOL2($1, $3, @$); }
+    | KW_ASSIGNMENT "(" "=" ")"  { $$ = USE_SYMBOL3(@$); }
     ;
 
 use_modifiers
@@ -692,6 +714,8 @@ var_decl
             $$ = VAR_DECL2($1, $2, @$); }
     | var_modifier "::" var_sym_decl_list sep {
             $$ = VAR_DECL2($1, $3, @$); }
+    | KW_NAMELIST "/" id "/" id_list sep {
+            $$ = VAR_DECL4($3, @$); }
     ;
 
 kind_arg_list
@@ -739,6 +763,7 @@ var_modifier
     | KW_NOPASS { $$ = VARMOD($1, @$); }
     | KW_PRIVATE { $$ = VARMOD($1, @$); }
     | KW_PUBLIC { $$ = VARMOD($1, @$); }
+    | KW_ABSTRACT { $$ = VARMOD($1, @$); }
     | KW_ENUMERATOR { $$ = VARMOD($1, @$); }
     | KW_INTENT "(" KW_IN ")" { $$ = VARMOD2($1, $3, @$); }
     | KW_INTENT "(" KW_OUT ")" { $$ = VARMOD2($1, $3, @$); }
@@ -764,6 +789,7 @@ var_type
     | KW_TYPE "(" id ")"
     | KW_PROCEDURE "(" id ")"
     | KW_CLASS "(" id ")"
+    | KW_CLASS "(" "*" ")"
     ;
 
 var_sym_decl_list
@@ -781,6 +807,7 @@ var_sym_decl
             $$ = VAR_SYM_DECL4($1, $3, $6, @$); }
     | id "(" array_comp_decl_list ")" "=>" expr {
             $$ = VAR_SYM_DECL6($1, $3, $6, @$); }
+    | KW_ASSIGNMENT "(" "=" ")"              { $$ = VAR_SYM_DECL7(@$); }
     ;
 
 array_comp_decl_list
@@ -857,9 +884,11 @@ statement
     | if_statement
     | where_statement
     | select_statement sep
+    | select_type_statement sep
     | while_statement sep
     | do_statement sep
     | forall_statement sep
+    | format_statement sep
     ;
 
 assignment_statement
@@ -942,6 +971,7 @@ write_statement
 read_statement
     : KW_READ "(" write_arg_list ")" expr_list { $$ = PRINT($5, @$); }
     | KW_READ "(" write_arg_list ")" "," expr_list { $$ = PRINT($6, @$); }
+    | KW_READ "(" write_arg_list ")" { $$ = PRINT0(@$); }
     ;
 
 inquire_statement
@@ -950,11 +980,13 @@ inquire_statement
 
 rewind_statement
     : KW_REWIND "(" write_arg_list ")" { $$ = PRINT0(@$); }
+    | KW_REWIND id { $$ = PRINT0(@$); }
     ;
 
 // sr-conflict (2x): KW_ENDIF can be an "id" or end of "if_statement"
 if_statement
     : if_block endif sep {}
+    | id ":" if_block endif sep { $$ = $3; }
     | KW_IF "(" expr ")" statement { $$ = IFSINGLE($3, $5, @$); }
     ;
 
@@ -1011,6 +1043,10 @@ case_statements
 
 case_statement
     : KW_CASE "(" expr_list ")" sep statements { $$ = CASE_STMT($3, $6, @$); }
+    | KW_CASE "(" expr ":" ")" sep statements { $$ = CASE_STMT2($3, $7, @$); }
+    | KW_CASE "(" ":" expr ")" sep statements { $$ = CASE_STMT3($4, $7, @$); }
+    | KW_CASE "(" expr ":" expr ")" sep statements {
+        $$ = CASE_STMT4($3, $5, $8, @$); }
     ;
 
 select_default_statement_opt
@@ -1022,10 +1058,34 @@ select_default_statement
     : KW_CASE KW_DEFAULT sep statements { $$ = $4; }
     ;
 
+select_type_statement
+    : KW_SELECT KW_TYPE "(" expr ")" sep select_type_body_statements
+        KW_END KW_SELECT {
+                $$ = PRINT0(@$); }
+    | KW_SELECT KW_TYPE "(" id "=>" expr ")" sep select_type_body_statements
+        KW_END KW_SELECT {
+                $$ = PRINT0(@$); }
+    ;
+
+select_type_body_statements
+    : select_type_body_statements select_type_body_statement
+    | %empty
+    ;
+
+select_type_body_statement
+    : KW_TYPE KW_IS "(" TK_NAME ")" sep statements
+    | KW_TYPE KW_IS "(" var_type ")" sep statements
+    | KW_CLASS KW_IS "(" id ")" sep statements
+    | KW_CLASS KW_DEFAULT sep statements
+    ;
+
 
 while_statement
-    : KW_DO KW_WHILE "(" expr ")" sep statements enddo {
+    : KW_DO KW_WHILE "(" expr ")" sep statements enddo id_opt {
             $$ = WHILE($4, $7, @$); }
+    | id ":" KW_DO KW_WHILE "(" expr ")" sep statements enddo id_opt {
+            $$ = WHILE($6, $9, @$); }
+    ;
 
 // sr-conflict (2x): "KW_DO sep" being either a do_statement or an expr
 do_statement
@@ -1090,6 +1150,36 @@ forall_statement
             $$ = DO_CONCURRENT2($3, $5, $7, $9, @$); }
     ;
 
+format_statement
+    : TK_INTEGER KW_FORMAT "(" format_items ")" { $$ = PRINT0(@$); }
+    | TK_INTEGER KW_FORMAT "(" format_items "," "*" "(" format_items ")" ")" {
+            $$ = PRINT0(@$); }
+    | TK_INTEGER KW_FORMAT "(" "*" "(" format_items ")" ")" { $$ = PRINT0(@$); }
+    | TK_INTEGER KW_FORMAT "(" "/)" { $$ = PRINT0(@$); }
+    | TK_INTEGER KW_FORMAT "(" format_items "," "/)" { $$ = PRINT0(@$); }
+    ;
+
+format_items
+    : format_items "," format_item
+    | format_item
+    ;
+
+
+format_item
+    : format_item0
+    | TK_INTEGER format_item0
+    | ":"
+    | TK_STRING
+    ;
+
+format_item0
+    : TK_NAME
+    | TK_NAME TK_REAL
+    | TK_NAME TK_REAL TK_NAME
+    | "/"
+    | "(" format_items ")"
+    ;
+
 reduce_op
     : "+" { $$ = REDUCE_OP_TYPE_ADD(@$); }
     | "*" { $$ = REDUCE_OP_TYPE_MUL(@$); }
@@ -1114,6 +1204,8 @@ endforall
 endif
     : KW_END_IF
     | KW_ENDIF
+    | KW_END_IF id
+    | KW_ENDIF id
     ;
 
 endinterface
@@ -1155,9 +1247,19 @@ error_stop_statement
 // -----------------------------------------------------------------------------
 // Fortran expression
 
+expr_list_opt
+    : expr_list { $$ = $1; }
+    | %empty { LIST_NEW($$); }
+    ;
+
 expr_list
     : expr_list "," expr { $$ = $1; LIST_ADD($$, $3); }
     | expr { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+rbracket
+    : "]"
+    | "/)"
     ;
 
 expr
@@ -1167,7 +1269,8 @@ expr
     | id "(" fnarray_arg_list_opt ")" { $$ = FUNCCALLORARRAY($1, $3, @$); }
     | struct_member_star id "(" fnarray_arg_list_opt ")" {
             $$ = FUNCCALLORARRAY($2, $4, @$); }
-    | "[" expr_list "]" { $$ = ARRAY_IN($2, @$); }
+    | "[" expr_list_opt rbracket { $$ = ARRAY_IN($2, @$); }
+    | "[" var_type "::" expr_list_opt rbracket { $$ = ARRAY_IN($4, @$); }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
     | TK_REAL { $$ = REAL($1, @$); }
     | TK_STRING { $$ = STRING($1, @$); }

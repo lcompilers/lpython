@@ -292,6 +292,10 @@ filename = "array4.f90"
 ast = true
 
 [[test]]
+filename = "array5.f90"
+ast = true
+
+[[test]]
 filename = "../integration_tests/arrays_01.f90"
 cpp = true
 
@@ -421,6 +425,10 @@ filename = "interface1.f90"
 ast = true
 
 [[test]]
+filename = "interface2.f90"
+ast = true
+
+[[test]]
 filename = "../integration_tests/modules_01.f90"
 ast = true
 
@@ -514,4 +522,16 @@ ast = true
 
 [[test]]
 filename = "../integration_tests/types_13.f90"
+ast = true
+
+[[test]]
+filename = "namelist1.f90"
+ast = true
+
+[[test]]
+filename = "select_type1.f90"
+ast = true
+
+[[test]]
+filename = "format1.f90"
 ast = true

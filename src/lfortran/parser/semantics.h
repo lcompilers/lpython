@@ -167,6 +167,19 @@ static inline decl_t* DECL2b(Allocator &al, const ast_t *attr)
     return s;
 }
 
+static inline decl_t* DECL2c(Allocator &al)
+{
+    decl_t *s = al.allocate<decl_t>(1);
+    s[0].m_sym = nullptr;
+    s[0].m_sym_type = nullptr;
+    s[0].m_dims = nullptr;
+    s[0].n_dims = 0;
+    s[0].m_attrs = nullptr;
+    s[0].n_attrs = 0;
+    s[0].m_initializer = nullptr;
+    return s;
+}
+
 static inline decl_t* DECL3(Allocator &al, ast_t* n,
         const YYSTYPE::VecDim *d, expr_t *e)
 {
@@ -535,6 +548,8 @@ char *fn_type2return_type(const YYSTYPE::VecAST &v) {
         DECL2(p.m_a, syms, nullptr, attr), syms.size())
 #define VAR_DECL3(attr, l) make_Declaration_t(p.m_a, l, \
         DECL2b(p.m_a, attr), 1)
+#define VAR_DECL4(id, l) LFortran::AST::make_Declaration_t(p.m_a, l, \
+        nullptr, 0)
 
 #define VAR_SYM_DECL1(id, l)         DECL3(p.m_a, id, nullptr, nullptr)
 #define VAR_SYM_DECL2(id, e, l)      DECL3(p.m_a, id, nullptr, EXPR(e))
@@ -544,6 +559,7 @@ char *fn_type2return_type(const YYSTYPE::VecAST &v) {
 #define VAR_SYM_DECL5(id, e, l)      DECL3(p.m_a, id, nullptr, EXPR(e))
 // TODO: Extend AST to express a(:) => b()
 #define VAR_SYM_DECL6(id, a, e, l)   DECL3(p.m_a, id, &a, EXPR(e))
+#define VAR_SYM_DECL7(l)             DECL2c(p.m_a)
 
 #define ARRAY_COMP_DECL1(a, l)       DIM1(EXPR(INTEGER(1, l)), EXPR(a))
 #define ARRAY_COMP_DECL2(a, b, l)    DIM1(EXPR(a), EXPR(b))
@@ -635,6 +651,12 @@ LFortran::Str Str_from_string(Allocator &al, const std::string &s) {
 
 #define CASE_STMT(cond, body, l) make_CaseStmt_t(p.m_a, l, \
         EXPRS(cond), cond.size(), STMTS(body), body.size())
+#define CASE_STMT2(cond, body, l) make_CaseStmt_t(p.m_a, l, \
+        nullptr, 0, STMTS(body), body.size())
+#define CASE_STMT3(cond, body, l) make_CaseStmt_t(p.m_a, l, \
+        nullptr, 0, STMTS(body), body.size())
+#define CASE_STMT4(cond1, cond2, body, l) make_CaseStmt_t(p.m_a, l, \
+        nullptr, 0, STMTS(body), body.size())
 
 #define USE1(mod, l) make_Use_t(p.m_a, l, \
         name2char(mod), \
@@ -647,6 +669,8 @@ LFortran::Str Str_from_string(Allocator &al, const std::string &s) {
         name2char(x), nullptr)
 #define USE_SYMBOL2(x, y, l) make_UseSymbol_t(p.m_a, l, \
         name2char(y), name2char(x))
+#define USE_SYMBOL3(l) make_UseSymbol_t(p.m_a, l, \
+        nullptr, nullptr)
 
 #define MODULE(name, decl, contains, l) make_Module_t(p.m_a, l, \
         name2char(name), \
@@ -661,6 +685,8 @@ LFortran::Str Str_from_string(Allocator &al, const std::string &s) {
         nullptr, 0)
 #define INTERFACE(name, l) make_Interface_t(p.m_a, l, \
         name2char(name), nullptr, 0)
+#define INTERFACE3(l) make_Interface_t(p.m_a, l, \
+        nullptr, nullptr, 0)
 
 #define INTERFACE2(contains, l) LFortran::AST::make_Interface2_t(p.m_a, l, \
         nullptr, nullptr, 0)
