@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    427 // shift/reduce conflicts
+%expect    428 // shift/reduce conflicts
 %expect-rr 78  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -801,6 +801,7 @@ var_sym_decl
             $$ = VAR_SYM_DECL4($1, $3, $6, @$); }
     | id "(" array_comp_decl_list ")" "=>" expr {
             $$ = VAR_SYM_DECL6($1, $3, $6, @$); }
+    | KW_ASSIGNMENT "(" "=" ")"              { $$ = VAR_SYM_DECL7(@$); }
     ;
 
 array_comp_decl_list

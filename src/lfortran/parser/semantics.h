@@ -167,6 +167,19 @@ static inline decl_t* DECL2b(Allocator &al, const ast_t *attr)
     return s;
 }
 
+static inline decl_t* DECL2c(Allocator &al)
+{
+    decl_t *s = al.allocate<decl_t>(1);
+    s[0].m_sym = nullptr;
+    s[0].m_sym_type = nullptr;
+    s[0].m_dims = nullptr;
+    s[0].n_dims = 0;
+    s[0].m_attrs = nullptr;
+    s[0].n_attrs = 0;
+    s[0].m_initializer = nullptr;
+    return s;
+}
+
 static inline decl_t* DECL3(Allocator &al, ast_t* n,
         const YYSTYPE::VecDim *d, expr_t *e)
 {
@@ -546,6 +559,7 @@ char *fn_type2return_type(const YYSTYPE::VecAST &v) {
 #define VAR_SYM_DECL5(id, e, l)      DECL3(p.m_a, id, nullptr, EXPR(e))
 // TODO: Extend AST to express a(:) => b()
 #define VAR_SYM_DECL6(id, a, e, l)   DECL3(p.m_a, id, &a, EXPR(e))
+#define VAR_SYM_DECL7(l)             DECL2c(p.m_a)
 
 #define ARRAY_COMP_DECL1(a, l)       DIM1(EXPR(INTEGER(1, l)), EXPR(a))
 #define ARRAY_COMP_DECL2(a, b, l)    DIM1(EXPR(a), EXPR(b))
