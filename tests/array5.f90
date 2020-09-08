@@ -1,4 +1,4 @@
-program array3
+program array5
 implicit none
 
 real, dimension(3) :: a, b, c
