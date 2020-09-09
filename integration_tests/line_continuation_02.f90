@@ -1,4 +1,4 @@
-program program_03
+program line_continuation_02
 implicit none
 
 ! Here are the rules for & based on the § 6.3.2.4 ("Free form statement
