@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    428 // shift/reduce conflicts
+%expect    429 // shift/reduce conflicts
 %expect-rr 78  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -268,6 +268,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> id_list_opt
 %type <ast> script_unit
 %type <ast> module
+%type <ast> submodule
 %type <ast> decl
 %type <vec_ast> decl_star
 %type <ast> interface_decl
@@ -379,6 +380,7 @@ units
 
 script_unit
     : module
+    | submodule
     | program
     | subroutine
     | function
@@ -401,27 +403,50 @@ module
             $$ = MODULE($2, $6, $7, @$); }
     ;
 
-interface_decl
-    : KW_INTERFACE id sep proc_list endinterface id_opt sep {
-            $$ = INTERFACE($2, @$); }
-    | KW_INTERFACE KW_ASSIGNMENT "(" "=" ")" sep proc_list endinterface id_opt sep {
-            $$ = INTERFACE3(@$); }
-    | KW_INTERFACE sep sub_or_func_plus endinterface sep {
-            $$ = INTERFACE2($3, @$); }
-    | KW_ABSTRACT KW_INTERFACE sep sub_or_func_plus endinterface sep {
-            $$ = INTERFACE2($4, @$); }
+submodule
+    : KW_SUBMODULE "(" id ")" id sep use_statement_star implicit_statement_opt
+        decl_star contains_block_opt KW_END end_submodule_opt sep {
+            $$ = MODULE($5, $9, $10, @$); }
     ;
 
-proc_list
-    : proc_list proc
+interface_decl
+    : interface_stmt sep interface_body endinterface sep {
+            $$ = INTERFACE3(@$); }
+    ;
+
+interface_stmt
+    : KW_INTERFACE
+    | KW_INTERFACE id
+    | KW_INTERFACE KW_ASSIGNMENT "(" "=" ")"
+    | KW_INTERFACE KW_OPERATOR "(" operator_type ")"
+    | KW_ABSTRACT KW_INTERFACE
+    ;
+
+endinterface
+    : endinterface0
+    | endinterface0 id
+    | endinterface0 KW_ASSIGNMENT "(" "=" ")"
+    | endinterface0 KW_OPERATOR "(" operator_type ")"
+    ;
+
+endinterface0
+    : KW_END_INTERFACE
+    | KW_ENDINTERFACE
+    ;
+
+
+interface_body
+    : interface_body interface_item
     | %empty
     ;
 
-proc
-    : KW_MODULE KW_PROCEDURE id_list sep
-    | KW_MODULE KW_PROCEDURE "::" id_list sep
+interface_item
+    : fn_mod_plus KW_PROCEDURE id_list sep
+    | fn_mod_plus KW_PROCEDURE "::" id_list sep
     | KW_PROCEDURE id_list sep
     | KW_PROCEDURE "::" id_list sep
+    | subroutine
+    | function
     ;
 
 enum_decl
@@ -511,6 +536,11 @@ end_program_opt
 
 end_module_opt
     : KW_MODULE id_opt
+    | %empty
+    ;
+
+end_submodule_opt
+    : KW_SUBMODULE id_opt
     | %empty
     ;
 
@@ -1206,11 +1236,6 @@ endif
     | KW_ENDIF
     | KW_END_IF id
     | KW_ENDIF id
-    ;
-
-endinterface
-    : KW_END_INTERFACE
-    | KW_ENDINTERFACE
     ;
 
 endwhere

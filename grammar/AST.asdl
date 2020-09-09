@@ -48,7 +48,7 @@ unit_decl2
     = Declaration(decl* vars)
     | Private(identifier* vars)
     | Public(identifier* vars)
-    | Interface(identifier name, identifier* procs)
+    | Interface(identifier? name, identifier* procs)
     | Interface2(identifier? name, program_unit* procs)
         attributes (int lineno, int col_offset)
 
