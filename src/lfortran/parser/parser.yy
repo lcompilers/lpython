@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    428 // shift/reduce conflicts
+%expect    429 // shift/reduce conflicts
 %expect-rr 78  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -268,6 +268,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> id_list_opt
 %type <ast> script_unit
 %type <ast> module
+%type <ast> submodule
 %type <ast> decl
 %type <vec_ast> decl_star
 %type <ast> interface_decl
@@ -379,6 +380,7 @@ units
 
 script_unit
     : module
+    | submodule
     | program
     | subroutine
     | function
@@ -399,6 +401,12 @@ module
     : KW_MODULE id sep use_statement_star implicit_statement_opt
         decl_star contains_block_opt KW_END end_module_opt sep {
             $$ = MODULE($2, $6, $7, @$); }
+    ;
+
+submodule
+    : KW_SUBMODULE "(" id ")" id sep use_statement_star implicit_statement_opt
+        decl_star contains_block_opt KW_END end_submodule_opt sep {
+            $$ = MODULE($5, $9, $10, @$); }
     ;
 
 interface_decl
@@ -511,6 +519,11 @@ end_program_opt
 
 end_module_opt
     : KW_MODULE id_opt
+    | %empty
+    ;
+
+end_submodule_opt
+    : KW_SUBMODULE id_opt
     | %empty
     ;
 
