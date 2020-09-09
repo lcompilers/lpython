@@ -81,6 +81,8 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             real = ((significand exp?) | (digit+ exp)) ("_" kind)?;
             string1 = (kind "_")? '"' ('""'|[^"\x00])* '"';
             string2 = (kind "_")? "'" ("''"|[^'\x00])* "'";
+            comment = "!" [^\n\x00]*;
+            ws_comment = whitespace? comment? "\n";
 
             * { token_loc(loc);
                 std::string t = token();
@@ -326,12 +328,11 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             [zZ] '"' [0-9a-f]+ '"' { token(yylval.string); RET(TK_BOZ_CONSTANT) }
             [zZ] "'" [0-9a-f]+ "'" { token(yylval.string); RET(TK_BOZ_CONSTANT) }
 
-            ws_comment = whitespace? ("!" [^\n\x00]*)? "\n";
             "&" ws_comment+ whitespace? "&"? {
                 line_num++; cur_line=cur; continue;
             }
 
-            "!" [^\n\x00]* / "\n" { token(yylval.string); RET(TK_COMMENT) }
+            comment / "\n" { token(yylval.string); RET(TK_COMMENT) }
 
             // Macros are ignored for now:
             "#" [^\n\x00]* "\n" { line_num++; cur_line=cur; continue; }
