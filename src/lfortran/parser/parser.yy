@@ -410,26 +410,43 @@ submodule
     ;
 
 interface_decl
-    : KW_INTERFACE id sep proc_list endinterface id_opt sep {
-            $$ = INTERFACE($2, @$); }
-    | KW_INTERFACE KW_ASSIGNMENT "(" "=" ")" sep proc_list endinterface id_opt sep {
+    : interface_stmt sep interface_body endinterface sep {
             $$ = INTERFACE3(@$); }
-    | KW_INTERFACE sep sub_or_func_plus endinterface sep {
-            $$ = INTERFACE2($3, @$); }
-    | KW_ABSTRACT KW_INTERFACE sep sub_or_func_plus endinterface sep {
-            $$ = INTERFACE2($4, @$); }
     ;
 
-proc_list
-    : proc_list proc
+interface_stmt
+    : KW_INTERFACE
+    | KW_INTERFACE id
+    | KW_INTERFACE KW_ASSIGNMENT "(" "=" ")"
+    | KW_INTERFACE KW_OPERATOR "(" operator_type ")"
+    | KW_ABSTRACT KW_INTERFACE
+    ;
+
+endinterface
+    : endinterface0
+    | endinterface0 id
+    | endinterface0 KW_ASSIGNMENT "(" "=" ")"
+    | endinterface0 KW_OPERATOR "(" operator_type ")"
+    ;
+
+endinterface0
+    : KW_END_INTERFACE
+    | KW_ENDINTERFACE
+    ;
+
+
+interface_body
+    : interface_body interface_item
     | %empty
     ;
 
-proc
-    : KW_MODULE KW_PROCEDURE id_list sep
-    | KW_MODULE KW_PROCEDURE "::" id_list sep
+interface_item
+    : fn_mod_plus KW_PROCEDURE id_list sep
+    | fn_mod_plus KW_PROCEDURE "::" id_list sep
     | KW_PROCEDURE id_list sep
     | KW_PROCEDURE "::" id_list sep
+    | subroutine
+    | function
     ;
 
 enum_decl
@@ -1219,11 +1236,6 @@ endif
     | KW_ENDIF
     | KW_END_IF id
     | KW_ENDIF id
-    ;
-
-endinterface
-    : KW_END_INTERFACE
-    | KW_ENDINTERFACE
     ;
 
 endwhere
