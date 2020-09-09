@@ -1,4 +1,4 @@
-program line_continuation1
+program line_continuation_01
 implicit none
 integer :: i
 i = 5

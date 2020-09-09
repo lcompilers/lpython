@@ -169,8 +169,11 @@ RUN(NAME derived_types_01 LABELS gfortran)
 RUN(NAME derived_types_02 LABELS gfortran)
 RUN(NAME derived_types_03 LABELS gfortran)
 
+RUN(NAME line_continuation_01 LABELS gfortran)
+RUN(NAME line_continuation_02 LABELS gfortran)
+RUN(NAME line_continuation_03 LABELS gfortran)
+
 RUN(NAME program_01 LABELS gfortran)
-RUN(NAME program_03 LABELS gfortran)
 
 RUN(NAME allocate_01 LABELS gfortran)
 RUN(NAME block_01 LABELS gfortran)

@@ -1,4 +1,5 @@
-program program_03
+program line_continuation_03
+! The same as line_continuation_02, but we do use & to split a token
 implicit none
 
 ! Here are the rules for & based on the § 6.3.2.4 ("Free form statement
@@ -9,7 +10,7 @@ implicit none
 ! The & character can be used to continue a line like this:
 
 integer &
-    :: j
+    :: i
 
 ! If it is used between tokens, then one can, but does not have to put another &
 ! on the next line:
@@ -17,18 +18,11 @@ integer &
 integer &
     &:: k
 
-! If & is used to continue the line in the middle of a token, one must put
-! another & at the next line:
-
-inte&
-    &ger :: i
-
 
 i = 5
 
-pr&
-&i&
-        &nt *, i
+print * &
+    , i
 
 ! One can continue strings also by treating them as tokens:
 

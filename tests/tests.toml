@@ -413,7 +413,11 @@ llvm = true
 obj = true
 
 [[test]]
-filename = "line_continuation1.f90"
+filename = "../integration_tests/line_continuation_01.f90"
+ast = true
+
+[[test]]
+filename = "../integration_tests/line_continuation_03.f90"
 ast = true
 
 [[test]]
