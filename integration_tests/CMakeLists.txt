@@ -171,6 +171,7 @@ RUN(NAME derived_types_03 LABELS gfortran)
 
 RUN(NAME line_continuation_01 LABELS gfortran)
 RUN(NAME line_continuation_02 LABELS gfortran)
+RUN(NAME line_continuation_03 LABELS gfortran)
 
 RUN(NAME program_01 LABELS gfortran)
 
