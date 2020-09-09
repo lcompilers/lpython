@@ -326,11 +326,8 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             [zZ] '"' [0-9a-f]+ '"' { token(yylval.string); RET(TK_BOZ_CONSTANT) }
             [zZ] "'" [0-9a-f]+ "'" { token(yylval.string); RET(TK_BOZ_CONSTANT) }
 
-            "&" [^\n\x00]* "\n" { line_num++; cur_line=cur; continue; }
-            "&" [^\n\x00]* "\n" whitespace "!" [^\n\x00]* "\n" {
-                line_num+=2; cur_line=cur; continue;
-            }
-            "&" [^\n\x00]* "\n" ( whitespace? "\n" | whitespace? "!" [^\n\x00]* "\n" )* whitespace? "&"? {
+            ws_comment = whitespace? ("!" [^\n\x00]*)? "\n";
+            "&" ws_comment+ whitespace? "&"? {
                 line_num++; cur_line=cur; continue;
             }
 
