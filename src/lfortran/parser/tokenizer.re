@@ -330,6 +330,10 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             "&" [^\n\x00]* "\n" whitespace "!" [^\n\x00]* "\n" {
                 line_num+=2; cur_line=cur; continue;
             }
+            "&" [^\n\x00]* "\n" whitespace "&" {
+                line_num++; cur_line=cur; continue;
+            }
+
             "!" [^\n\x00]* / "\n" { token(yylval.string); RET(TK_COMMENT) }
 
             // Macros are ignored for now:
