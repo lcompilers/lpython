@@ -38,11 +38,9 @@ program_unit
     | Function(identifier name, arg* args, string? return_type,
             expr? return_var, tbind? bind, unit_decl1* use, unit_decl2* decl,
             stmt* body, program_unit* contains)
-        attributes (int lineno, int col_offset)
 
 unit_decl1
     = Use(identifier module, use_symbol* symbols)
-        attributes (int lineno, int col_offset)
 
 unit_decl2
     = Declaration(decl* vars)
@@ -50,7 +48,6 @@ unit_decl2
     | Public(identifier* vars)
     | Interface(identifier? name, identifier* procs)
     | Interface2(identifier? name, program_unit* procs)
-        attributes (int lineno, int col_offset)
 
 stmt
     = Assignment(expr target, expr value)
@@ -71,7 +68,6 @@ stmt
     | Return()
     | WhileLoop(expr test, stmt* body)
     | Print(string? fmt, expr* values)
-        attributes (int lineno, int col_offset)
 
 expr
     = BoolOp(expr left, boolop op, expr right)
@@ -87,7 +83,6 @@ expr
     | Str(string s)
     | Name(identifier id)
     | Constant(constant value)
-        attributes (int lineno, int col_offset)
 
 boolop = And | Or | Eqv | NEqv
 
@@ -109,7 +104,6 @@ attribute_arg = (identifier arg)
 fn_mod = FnMod(string s)
 
 arg = (identifier arg)
-        attributes (int lineno, int col_offset)
 
 keyword = (identifier? arg, expr value)
 
