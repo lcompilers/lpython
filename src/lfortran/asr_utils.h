@@ -25,7 +25,10 @@ static inline ASR::ttype_t* TYPE(const ASR::asr_t *f)
     return ASR::down_cast<ASR::ttype_t>(f);
 }
 
-
+static inline ASR::Variable_t* EXPR2VAR(const ASR::expr_t *f)
+{
+    return ASR::down_cast<ASR::Variable_t>(ASR::down_cast<ASR::Var_t>(f)->m_v);
+}
 
 
 static inline ASR::Variable_t* VARIABLE(const ASR::asr_t *f)

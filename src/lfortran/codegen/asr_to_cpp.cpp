@@ -203,7 +203,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         indentation_level += 1;
         std::string sub = "void " + std::string(x.m_name) + "(";
         for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = down_cast<ASR::Variable_t>(down_cast<ASR::Var_t>(x.m_args[i])->m_v);
+            ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
             sub += convert_variable_decl(*arg);
             if (i < x.n_args-1) sub += ", ";
