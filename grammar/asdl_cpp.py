@@ -226,6 +226,8 @@ class ASTNodeVisitor(ASDLVisitor):
     def visitConstructor(self, cons, base, extra_attributes):
         self.emit("struct %s_t // Constructor" % cons.name, 1)
         self.emit("{", 1);
+        self.emit(    "const static %sType class_type = %sType::%s;" \
+                % (base, base, cons.name), 2)
         self.emit(    "%s_t base;" % base, 2);
         args = ["Allocator &al", "const Location &a_loc"]
         lines = []
@@ -664,6 +666,13 @@ struct %(mod)s_t
     %(mod)sType type;
     Location loc;
 };
+
+template <class T, class U>
+inline bool is_a(const U &x)
+{
+    return T::class_type == x.base.type;
+}
+
 
 """
 
