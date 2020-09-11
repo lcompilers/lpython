@@ -11,6 +11,7 @@
 namespace LFortran {
 
 using ASR::is_a;
+using ASR::down_cast;
 using ASR::down_cast3;
 
 // Platform dependent fast unique hash:
@@ -79,15 +80,15 @@ std::string convert_variable_decl(const ASR::Variable_t &v)
     bool use_ref = (v.m_intent == intent_out || v.m_intent == intent_inout);
     bool dummy = is_arg_dummy(v.m_intent);
     if (v.m_type->type == ASR::ttypeType::Integer) {
-        ASR::Integer_t *t = TYPE_INTEGER((ASR::asr_t*)v.m_type);
+        ASR::Integer_t *t = down_cast3<ASR::Integer_t>(v.m_type);
         std::string dims = convert_dims(t->n_dims, t->m_dims);
         sub = format_type(dims, "int", v.m_name, use_ref, dummy);
     } else if (v.m_type->type == ASR::ttypeType::Real) {
-        ASR::Real_t *t = TYPE_REAL((ASR::asr_t*)v.m_type);
+        ASR::Real_t *t = down_cast3<ASR::Real_t>(v.m_type);
         std::string dims = convert_dims(t->n_dims, t->m_dims);
         sub = format_type(dims, "float", v.m_name, use_ref, dummy);
     } else if (v.m_type->type == ASR::ttypeType::Logical) {
-        ASR::Logical_t *t = TYPE_LOGICAL((ASR::asr_t*)v.m_type);
+        ASR::Logical_t *t = down_cast3<ASR::Logical_t>(v.m_type);
         std::string dims = convert_dims(t->n_dims, t->m_dims);
         sub = format_type(dims, "bool", v.m_name, use_ref, dummy);
     } else {
