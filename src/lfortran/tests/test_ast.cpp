@@ -23,8 +23,7 @@ inline bool is_a2(const U &x)
 template <class T>
 static inline T* down_cast2(const AST::ast_t *f)
 {
-    LFORTRAN_ASSERT(f->type == AST::astType::expr);
-    //LFORTRAN_ASSERT(is_a2<AST::expr_t>(*f));
+    LFORTRAN_ASSERT(is_a2<AST::expr_t>(*f));
     AST::expr_t *t = (AST::expr_t *)f;
     LFORTRAN_ASSERT(is_a2<T>(*t));
     return (T*)t;
