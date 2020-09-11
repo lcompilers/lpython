@@ -20,12 +20,12 @@ TEST_CASE("Test types") {
     Location loc;
 
     AST::ast_t &a = *AST::make_Num_t(al, loc, 5);
-    CHECK(AST::is_a2<AST::expr_t>(a));
-    CHECK(! AST::is_a2<AST::stmt_t>(a));
+    CHECK(AST::is_a<AST::expr_t>(a));
+    CHECK(! AST::is_a<AST::stmt_t>(a));
 
-    AST::Num_t &x = *AST::down_cast2<AST::Num_t>(&a);
-    CHECK(AST::is_a<AST::Num_t>(x));
-    CHECK(! AST::is_a<AST::BinOp_t>(x));
+    AST::Num_t &x = *AST::down_cast<AST::Num_t>(&a);
+    CHECK(AST::is_a2<AST::Num_t>(x));
+    CHECK(! AST::is_a2<AST::BinOp_t>(x));
 
 }
 

@@ -672,24 +672,24 @@ struct %(mod)s_t
 };
 
 template <class T, class U>
-inline bool is_a(const U &x)
+inline bool is_a2(const U &x)
 {
     return T::class_type == x.base.type;
 }
 
 template <class T, class U>
-inline bool is_a2(const U &x)
+inline bool is_a(const U &x)
 {
     return T::class_type == x.type;
 }
 
 template <class T>
-static inline T* down_cast2(const %(mod)s_t *f)
+static inline T* down_cast(const %(mod)s_t *f)
 {
     typedef typename T::parent_type ptype;
-    LFORTRAN_ASSERT(is_a2<ptype>(*f));
+    LFORTRAN_ASSERT(is_a<ptype>(*f));
     ptype *t = (ptype *)f;
-    LFORTRAN_ASSERT(is_a2<T>(*t));
+    LFORTRAN_ASSERT(is_a<T>(*t));
     return (T*)t;
 }
 
