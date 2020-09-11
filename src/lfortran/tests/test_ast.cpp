@@ -39,6 +39,9 @@ TEST_CASE("Test types") {
 
     CHECK(AST::is_a<AST::Num_t>(x));
     CHECK(! AST::is_a<AST::BinOp_t>(x));
+
+    CHECK(is_a2<AST::expr_t>(a));
+    CHECK(! is_a2<AST::stmt_t>(a));
 }
 
 } // namespace LFortran
