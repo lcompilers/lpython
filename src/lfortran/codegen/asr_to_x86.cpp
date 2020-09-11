@@ -14,6 +14,8 @@
 
 namespace LFortran {
 
+using ASR::down_cast3;
+
 // Platform dependent fast unique hash:
 uint64_t static get_hash(ASR::asr_t *node)
 {
@@ -418,7 +420,7 @@ public:
         LFORTRAN_ASSERT(x.n_values == 1);
         ASR::expr_t *e = x.m_values[0];
         if (e->type == ASR::exprType::Str) {
-            ASR::Str_t *s = EXPR_STR((ASR::asr_t*)e);
+            ASR::Str_t *s = down_cast3<ASR::Str_t>(e);
             std::string msg = s->m_s;
             msg += "\n";
             std::string id = "string" + std::to_string(get_hash((ASR::asr_t*)e));

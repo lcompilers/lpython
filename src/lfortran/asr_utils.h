@@ -58,11 +58,6 @@ static inline ASR::Var_t* EXPR_VAR(const ASR::asr_t *f)
     return ASR::down_cast<ASR::Var_t>(f);
 }
 
-static inline ASR::Str_t* EXPR_STR(const ASR::asr_t *f)
-{
-    return ASR::down_cast<ASR::Str_t>(f);
-}
-
 
 static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
 {
