@@ -27,7 +27,7 @@ endmacro(COPYFILE)
 
 
 ADDTEST(test_parse p::doctest)
-ADDTEST(test_ast)
+ADDTEST(test_ast p::doctest)
 ADDTESTC(test_cwrapper)
 
 ADDTEST(test_pickle p::doctest)

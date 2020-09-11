@@ -1,3 +1,5 @@
+#include <tests/doctest.h>
+
 #include <iostream>
 
 #include <lfortran/parser/alloc.h>
@@ -5,9 +7,21 @@
 #include <lfortran/ast.h>
 #include <lfortran/asr.h>
 
-int main()
-{
-    std::cout << "OK: " << LFortran::AST::operatorType::Pow  << std::endl;
-    std::cout << "OK: " << LFortran::ASR::operatorType::Pow  << std::endl;
-    return 0;
+namespace LFortran {
+
+TEST_CASE("Operator types") {
+    std::cout << "OK: " << AST::operatorType::Pow  << std::endl;
+    std::cout << "OK: " << ASR::operatorType::Pow  << std::endl;
 }
+
+TEST_CASE("Test types") {
+    Allocator al(1024*1024);
+    Location loc;
+    AST::ast_t &a = *AST::make_Num_t(al, loc, 5);
+    AST::Num_t &x = (AST::Num_t &)a;
+
+    CHECK(AST::is_a<AST::Num_t>(x));
+    CHECK(! AST::is_a<AST::BinOp_t>(x));
+}
+
+} // namespace LFortran
