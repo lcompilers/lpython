@@ -131,7 +131,7 @@ public:
 
         // Add arguments to x86_symtab with their correct offset
         for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+            ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
             // TODO: we are assuming integer here:
             LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
@@ -194,7 +194,7 @@ public:
 
         // Add arguments to x86_symtab with their correct offset
         for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+            ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
             // TODO: we are assuming integer here:
             LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
@@ -239,7 +239,7 @@ public:
 
         // Leave return value in eax
         {
-            ASR::Variable_t *retv = VARIABLE((ASR::asr_t*)(EXPR_VAR((ASR::asr_t*)x.m_return_var)->m_v));
+            ASR::Variable_t *retv = EXPR2VAR(x.m_return_var);
 
             uint32_t h = get_hash((ASR::asr_t*)retv);
             LFORTRAN_ASSERT(x86_symtab.find(h) != x86_symtab.end());
@@ -398,8 +398,7 @@ public:
         this->visit_expr(*x.m_value);
         // RHS is in eax
 
-        ASR::var_t *t1 = EXPR_VAR((ASR::asr_t*)(x.m_target))->m_v;
-        ASR::Variable_t *v = VARIABLE((ASR::asr_t*)t1);
+        ASR::Variable_t *v = EXPR2VAR(x.m_target);
         uint32_t h = get_hash((ASR::asr_t*)v);
         LFORTRAN_ASSERT(x86_symtab.find(h) != x86_symtab.end());
         Sym s = x86_symtab[h];
@@ -508,7 +507,7 @@ public:
         for (int i=x.n_args-1; i>=0; i--) {
             bool pass_as_pointer;
             {
-                ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)sub.m_args[i])->m_v);
+                ASR::Variable_t *arg = EXPR2VAR(sub.m_args[i]);
                 LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
                 // TODO: we are assuming integer here:
                 LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
@@ -517,7 +516,7 @@ public:
                 pass_as_pointer = s.pointer;
             }
             if (x.m_args[i]->type == ASR::exprType::Var) {
-                ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+                ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 LFORTRAN_ASSERT(x86_symtab.find(h) != x86_symtab.end());
                 Sym s = x86_symtab[h];

@@ -262,7 +262,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             sym_info[get_hash((ASR::asr_t*)&x)] = s;
         }
         std::string sub;
-        ASR::Variable_t *return_var = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_return_var)->m_v);
+        ASR::Variable_t *return_var = EXPR2VAR(x.m_return_var);
         if (return_var->m_type->type == ASR::ttypeType::Integer) {
             sub = "int ";
         } else if (return_var->m_type->type == ASR::ttypeType::Real) {
@@ -274,7 +274,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
         sub = sub + std::string(x.m_name) + "(";
         for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+            ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
             sub += convert_variable_decl(*arg);
             if (i < x.n_args-1) sub += ", ";
@@ -301,7 +301,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
 
         body += indent + "return "
-            + VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_return_var)->m_v)->m_name
+            + EXPR2VAR(x.m_return_var)->m_name
             + ";\n";
 
         if (decl.size() > 0 || body.size() > 0) {
@@ -354,8 +354,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     void visit_Assignment(const ASR::Assignment_t &x) {
         std::string target;
         if (x.m_target->type == ASR::exprType::Var) {
-            ASR::var_t *t1 = EXPR_VAR((ASR::asr_t*)(x.m_target))->m_v;
-            target = VARIABLE((ASR::asr_t*)t1)->m_name;
+            target = EXPR2VAR(x.m_target)->m_name;
         } else if (x.m_target->type == ASR::exprType::ArrayRef) {
             visit_ArrayRef(*(ASR::ArrayRef_t*)x.m_target);
             target = src;
@@ -616,7 +615,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     void visit_DoLoop(const ASR::DoLoop_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "for (";
-        ASR::Variable_t *loop_var = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_head.m_v)->m_v);
+        ASR::Variable_t *loop_var = EXPR2VAR(x.m_head.m_v);
         std::string lvname=loop_var->m_name;
         ASR::expr_t *a=x.m_head.m_start;
         ASR::expr_t *b=x.m_head.m_end;
@@ -674,7 +673,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         out += "Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(1, ";
         visit_expr(*x.m_head.m_end);
         out += src + "+1)";
-        ASR::Variable_t *loop_var = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_head.m_v)->m_v);
+        ASR::Variable_t *loop_var = EXPR2VAR(x.m_head.m_v);
         sym_info[get_hash((ASR::asr_t*) loop_var)].needs_declaration = false;
         out += ", KOKKOS_LAMBDA(const long " + std::string(loop_var->m_name)
                 + ") {\n";
@@ -725,7 +724,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         std::string out = indent + s->m_name + "(";
         for (size_t i=0; i<x.n_args; i++) {
             if (x.m_args[i]->type == ASR::exprType::Var) {
-                ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+                ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
                 std::string arg_name = arg->m_name;
                 out += arg_name;
             } else {

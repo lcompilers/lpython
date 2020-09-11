@@ -655,7 +655,7 @@ public:
             case (ASR::asrType::fn) : {
                 Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
                 ASR::ttype_t *type;
-                type = VARIABLE((ASR::asr_t*)(EXPR_VAR((ASR::asr_t*)(FUNCTION(v)->m_return_var))->m_v))->m_type;
+                type = EXPR2VAR(FUNCTION(v)->m_return_var)->m_type;
                 tmp = ASR::make_FuncCall_t(al, x.base.base.loc,
                     (ASR::fn_t*)v, args.p, args.size(), nullptr, 0, type);
                 break;

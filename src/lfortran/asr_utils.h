@@ -56,11 +56,6 @@ static inline ASR::TranslationUnit_t* TRANSLATION_UNIT(const ASR::asr_t *f)
     return ASR::down_cast4<ASR::TranslationUnit_t>(f);
 }
 
-static inline ASR::Var_t* EXPR_VAR(const ASR::asr_t *f)
-{
-    return ASR::down_cast4<ASR::Var_t>(f);
-}
-
 
 static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
 {

@@ -208,7 +208,7 @@ public:
     std::vector<llvm::Type*> convert_args(const T &x) {
         std::vector<llvm::Type*> args;
         for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+            ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
             // TODO: we are assuming integer here:
             LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
@@ -222,7 +222,7 @@ public:
     void declare_args(const T &x, llvm::Function &F) {
         size_t i = 0;
         for (llvm::Argument &llvm_arg : F.args()) {
-            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+            ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
             std::string arg_s = arg->m_name;
             llvm_arg.setName(arg_s);
@@ -256,7 +256,7 @@ public:
     }
 
     void visit_Function(const ASR::Function_t &x) {
-        ASR::ttypeType return_var_type = VARIABLE((ASR::asr_t*)(EXPR_VAR((ASR::asr_t*)x.m_return_var)->m_v))->m_type->type;
+        ASR::ttypeType return_var_type = EXPR2VAR(x.m_return_var)->m_type->type;
         llvm::Type *return_type;
         if (return_var_type == ASR::ttypeType::Integer) {
             return_type = llvm::Type::getInt64Ty(context);
@@ -282,7 +282,7 @@ public:
             this->visit_stmt(*x.m_body[i]);
         }
 
-        std::string return_var_name = VARIABLE((ASR::asr_t*)(EXPR_VAR((ASR::asr_t*)x.m_return_var)->m_v))->m_name;
+        std::string return_var_name = EXPR2VAR(x.m_return_var)->m_name;
         llvm::Value *ret_val = llvm_symtab[return_var_name];
         llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
         builder->CreateRet(ret_val2);
@@ -311,8 +311,7 @@ public:
 
     void visit_Assignment(const ASR::Assignment_t &x) {
         //this->visit_expr(*x.m_target);
-        ASR::var_t *t1 = EXPR_VAR((ASR::asr_t*)(x.m_target))->m_v;
-        llvm::Value *target= llvm_symtab[std::string(VARIABLE((ASR::asr_t*)t1)->m_name)];
+        llvm::Value *target= llvm_symtab[std::string(EXPR2VAR(x.m_target)->m_name)];
         this->visit_expr(*x.m_value);
         llvm::Value *value=tmp;
         builder->CreateStore(value, target);
@@ -677,7 +676,7 @@ public:
         std::vector<llvm::Value *> args;
         for (size_t i=0; i<x.n_args; i++) {
             if (x.m_args[i]->type == ASR::exprType::Var) {
-                ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+                ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
                 std::string arg_name = arg->m_name;
                 tmp = llvm_symtab[arg_name];
             } else {
