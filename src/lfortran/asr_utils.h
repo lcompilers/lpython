@@ -63,11 +63,6 @@ static inline ASR::Str_t* EXPR_STR(const ASR::asr_t *f)
     return ASR::down_cast<ASR::Str_t>(f);
 }
 
-static inline ASR::UnaryOp_t* EXPR_UNARYOP(const ASR::asr_t *f)
-{
-    return ASR::down_cast<ASR::UnaryOp_t>(f);
-}
-
 
 static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
 {
