@@ -23,7 +23,7 @@ TEST_CASE("Test types") {
     CHECK(AST::is_a<AST::expr_t>(a));
     CHECK(! AST::is_a<AST::stmt_t>(a));
 
-    AST::Num_t &x = *AST::down_cast<AST::Num_t>(&a);
+    AST::Num_t &x = *AST::down_cast4<AST::Num_t>(&a);
     CHECK(AST::is_a2<AST::Num_t>(x));
     CHECK(! AST::is_a2<AST::BinOp_t>(x));
 

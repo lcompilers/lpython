@@ -30,32 +30,32 @@ static inline ASR::ttype_t* TYPE(const ASR::asr_t *f)
 
 static inline ASR::Variable_t* VARIABLE(const ASR::asr_t *f)
 {
-    return ASR::down_cast<ASR::Variable_t>(f);
+    return ASR::down_cast4<ASR::Variable_t>(f);
 }
 
 static inline ASR::Subroutine_t* SUBROUTINE(const ASR::asr_t *f)
 {
-    return ASR::down_cast<ASR::Subroutine_t>(f);
+    return ASR::down_cast4<ASR::Subroutine_t>(f);
 }
 
 static inline ASR::Function_t* FUNCTION(const ASR::asr_t *f)
 {
-    return ASR::down_cast<ASR::Function_t>(f);
+    return ASR::down_cast4<ASR::Function_t>(f);
 }
 
 static inline ASR::Program_t* PROGRAM(const ASR::asr_t *f)
 {
-    return ASR::down_cast<ASR::Program_t>(f);
+    return ASR::down_cast4<ASR::Program_t>(f);
 }
 
 static inline ASR::TranslationUnit_t* TRANSLATION_UNIT(const ASR::asr_t *f)
 {
-    return ASR::down_cast<ASR::TranslationUnit_t>(f);
+    return ASR::down_cast4<ASR::TranslationUnit_t>(f);
 }
 
 static inline ASR::Var_t* EXPR_VAR(const ASR::asr_t *f)
 {
-    return ASR::down_cast<ASR::Var_t>(f);
+    return ASR::down_cast4<ASR::Var_t>(f);
 }
 
 

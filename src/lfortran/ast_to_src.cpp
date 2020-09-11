@@ -12,7 +12,7 @@ namespace LFortran {
 
 static inline AST::Num_t* EXPR_NUM(const AST::ast_t *f)
 {
-    return AST::down_cast<AST::Num_t>(f);
+    return AST::down_cast4<AST::Num_t>(f);
 }
 
 namespace {

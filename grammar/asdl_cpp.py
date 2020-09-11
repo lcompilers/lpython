@@ -684,7 +684,7 @@ inline bool is_a(const U &x)
 }
 
 template <class T>
-static inline T* down_cast(const %(mod)s_t *f)
+static inline T* down_cast4(const %(mod)s_t *f)
 {
     typedef typename T::parent_type ptype;
     LFORTRAN_ASSERT(is_a<ptype>(*f));
