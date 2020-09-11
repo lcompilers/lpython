@@ -10,6 +10,8 @@
 
 namespace LFortran {
 
+using ASR::is_a;
+
 // Platform dependent fast unique hash:
 uint64_t get_hash(ASR::asr_t *node)
 {
@@ -31,8 +33,7 @@ std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims)
         if (!start && !end) {
             dims += "*";
         } else if (start && end) {
-            if (start->type==ASR::exprType::Num ||
-                    end->type==ASR::exprType::Num) {
+            if (is_a<ASR::Num_t>(*start) || is_a<ASR::Num_t>(*end)) {
                 ASR::Num_t *s = EXPR_NUM((ASR::asr_t*)start);
                 ASR::Num_t *e = EXPR_NUM((ASR::asr_t*)end);
                 if (s->m_n == 1) {
