@@ -214,6 +214,9 @@ class ASTNodeVisitor(ASDLVisitor):
             self.emit("")
             self.emit("struct %s_t // Sum" % base)
             self.emit("{")
+            mod = subs["mod"]
+            self.emit(    "const static %sType class_type = %sType::%s;" \
+                    % (mod, mod, base), 1)
             self.emit(    "%(mod)s_t base;" % subs, 1)
             self.emit(    "%sType type;" % base, 1)
             self.emit("};")
