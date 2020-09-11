@@ -11,7 +11,6 @@
 namespace LFortran {
 
 using ASR::is_a;
-using ASR::down_cast;
 using ASR::down_cast3;
 
 // Platform dependent fast unique hash:
