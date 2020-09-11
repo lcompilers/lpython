@@ -652,7 +652,6 @@ HEAD = r"""#ifndef LFORTRAN_%(MOD)s_H
 
 #include <lfortran/parser/alloc.h>
 #include <lfortran/parser/location.h>
-#include <lfortran/casts.h>
 #include <lfortran/colors.h>
 #include <lfortran/exception.h>
 #include <lfortran/semantics/asr_scopes.h>
@@ -701,7 +700,7 @@ static inline T* down_cast2(const %(mod)s_t *f)
 }
 
 template <class T, class U>
-static inline T* down_cast3(const U *f)
+static inline T* down_cast(const U *f)
 {
     LFORTRAN_ASSERT(is_a<T>(*f));
     return (T*)f;

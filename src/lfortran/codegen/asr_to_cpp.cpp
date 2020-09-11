@@ -11,7 +11,7 @@
 namespace LFortran {
 
 using ASR::is_a;
-using ASR::down_cast3;
+using ASR::down_cast;
 
 // Platform dependent fast unique hash:
 uint64_t get_hash(ASR::asr_t *node)
@@ -35,8 +35,8 @@ std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims)
             dims += "*";
         } else if (start && end) {
             if (is_a<ASR::Num_t>(*start) || is_a<ASR::Num_t>(*end)) {
-                ASR::Num_t *s = down_cast3<ASR::Num_t>(start);
-                ASR::Num_t *e = down_cast3<ASR::Num_t>(end);
+                ASR::Num_t *s = down_cast<ASR::Num_t>(start);
+                ASR::Num_t *e = down_cast<ASR::Num_t>(end);
                 if (s->m_n == 1) {
                     dims += "[" + std::to_string(e->m_n) + "]";
                 } else {
@@ -79,15 +79,15 @@ std::string convert_variable_decl(const ASR::Variable_t &v)
     bool use_ref = (v.m_intent == intent_out || v.m_intent == intent_inout);
     bool dummy = is_arg_dummy(v.m_intent);
     if (v.m_type->type == ASR::ttypeType::Integer) {
-        ASR::Integer_t *t = down_cast3<ASR::Integer_t>(v.m_type);
+        ASR::Integer_t *t = down_cast<ASR::Integer_t>(v.m_type);
         std::string dims = convert_dims(t->n_dims, t->m_dims);
         sub = format_type(dims, "int", v.m_name, use_ref, dummy);
     } else if (v.m_type->type == ASR::ttypeType::Real) {
-        ASR::Real_t *t = down_cast3<ASR::Real_t>(v.m_type);
+        ASR::Real_t *t = down_cast<ASR::Real_t>(v.m_type);
         std::string dims = convert_dims(t->n_dims, t->m_dims);
         sub = format_type(dims, "float", v.m_name, use_ref, dummy);
     } else if (v.m_type->type == ASR::ttypeType::Logical) {
-        ASR::Logical_t *t = down_cast3<ASR::Logical_t>(v.m_type);
+        ASR::Logical_t *t = down_cast<ASR::Logical_t>(v.m_type);
         std::string dims = convert_dims(t->n_dims, t->m_dims);
         sub = format_type(dims, "bool", v.m_name, use_ref, dummy);
     } else {
@@ -628,12 +628,12 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             increment = 1;
         } else {
             if (c->type == ASR::exprType::Num) {
-                increment = down_cast3<ASR::Num_t>(c)->m_n;
+                increment = down_cast<ASR::Num_t>(c)->m_n;
             } else if (c->type == ASR::exprType::UnaryOp) {
-                ASR::UnaryOp_t *u = down_cast3<ASR::UnaryOp_t>(c);
+                ASR::UnaryOp_t *u = down_cast<ASR::UnaryOp_t>(c);
                 LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
                 LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::Num);
-                increment = - down_cast3<ASR::Num_t>(u->m_operand)->m_n;
+                increment = - down_cast<ASR::Num_t>(u->m_operand)->m_n;
             } else {
                 throw CodeGenError("Do loop increment type not supported");
             }

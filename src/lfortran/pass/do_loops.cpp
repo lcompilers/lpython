@@ -7,7 +7,7 @@
 
 namespace LFortran {
 
-using ASR::down_cast3;
+using ASR::down_cast;
 
 /*
 
@@ -44,12 +44,12 @@ Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop) {
     LFORTRAN_ASSERT(c);
     int increment;
     if (c->type == ASR::exprType::Num) {
-        increment = down_cast3<ASR::Num_t>(c)->m_n;
+        increment = down_cast<ASR::Num_t>(c)->m_n;
     } else if (c->type == ASR::exprType::UnaryOp) {
-        ASR::UnaryOp_t *u = down_cast3<ASR::UnaryOp_t>(c);
+        ASR::UnaryOp_t *u = down_cast<ASR::UnaryOp_t>(c);
         LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
         LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::Num);
-        increment = - down_cast3<ASR::Num_t>(u->m_operand)->m_n;
+        increment = - down_cast<ASR::Num_t>(u->m_operand)->m_n;
     } else {
         throw CodeGenError("Do loop increment type not supported");
     }

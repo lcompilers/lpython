@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include <lfortran/parser/alloc.h>
-#include <lfortran/casts.h>
 #include <lfortran/ast.h>
 #include <lfortran/asr.h>
 
