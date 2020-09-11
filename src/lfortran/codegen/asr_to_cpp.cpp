@@ -629,12 +629,12 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             increment = 1;
         } else {
             if (c->type == ASR::exprType::Num) {
-                increment = EXPR_NUM((ASR::asr_t*)c)->m_n;
+                increment = down_cast3<ASR::Num_t>(c)->m_n;
             } else if (c->type == ASR::exprType::UnaryOp) {
                 ASR::UnaryOp_t *u = EXPR_UNARYOP((ASR::asr_t*)c);
                 LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
                 LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::Num);
-                increment = - EXPR_NUM((ASR::asr_t*)u->m_operand)->m_n;
+                increment = - down_cast3<ASR::Num_t>(u->m_operand)->m_n;
             } else {
                 throw CodeGenError("Do loop increment type not supported");
             }

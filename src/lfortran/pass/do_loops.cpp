@@ -7,6 +7,8 @@
 
 namespace LFortran {
 
+using ASR::down_cast3;
+
 /*
 
 This ASR pass replaces do loops with while loops. The function
@@ -42,12 +44,12 @@ Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop) {
     LFORTRAN_ASSERT(c);
     int increment;
     if (c->type == ASR::exprType::Num) {
-        increment = EXPR_NUM((ASR::asr_t*)c)->m_n;
+        increment = down_cast3<ASR::Num_t>(c)->m_n;
     } else if (c->type == ASR::exprType::UnaryOp) {
         ASR::UnaryOp_t *u = EXPR_UNARYOP((ASR::asr_t*)c);
         LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
         LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::Num);
-        increment = - EXPR_NUM((ASR::asr_t*)u->m_operand)->m_n;
+        increment = - down_cast3<ASR::Num_t>(u->m_operand)->m_n;
     } else {
         throw CodeGenError("Do loop increment type not supported");
     }
