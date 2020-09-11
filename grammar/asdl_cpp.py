@@ -85,7 +85,7 @@ sums = []
 products = []
 subs = {}
 
-def convert_type(asdl_type, seq, mod_name):
+def convert_type(asdl_type, seq, opt, mod_name):
     if asdl_type in simple_sums:
         type_ = asdl_type + "Type"
         assert not seq
@@ -184,7 +184,7 @@ class ASTNodeVisitor1(ASDLVisitor):
         self.emit("struct %s_t // Product" % name)
         self.emit("{");
         for f in product.fields:
-            type_ = convert_type(f.type, f.seq, self.mod.name.lower())
+            type_ = convert_type(f.type, f.seq, f.opt, self.mod.name.lower())
             if f.seq:
                 seq = " size_t n_%s; // Sequence" % f.name
             else:
@@ -231,7 +231,7 @@ class ASTNodeVisitor(ASDLVisitor):
         args = ["Allocator &al", "const Location &a_loc"]
         lines = []
         for f in cons.fields:
-            type_ = convert_type(f.type, f.seq, self.mod.name.lower())
+            type_ = convert_type(f.type, f.seq, f.opt, self.mod.name.lower())
             if f.seq:
                 seq = " size_t n_%s; // Sequence" % f.name
             else:
