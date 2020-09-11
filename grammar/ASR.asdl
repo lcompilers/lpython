@@ -51,7 +51,7 @@ stmt
     | Where(expr test, stmt* body, stmt* orelse)
     | Stop(expr? code)
     | ErrorStop(expr? code)
-    | DoLoop(do_loop_head? head, stmt* body)
+    | DoLoop(do_loop_head head, stmt* body)
     | DoConcurrentLoop(do_loop_head head, stmt* body)
     | Select(expr test, case_stmt* body, case_default? default)
     | Cycle()
