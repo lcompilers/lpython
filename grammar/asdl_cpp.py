@@ -85,7 +85,7 @@ sums = []
 products = []
 subs = {}
 
-def convert_type(asdl_type, seq, mod_name):
+def convert_type(asdl_type, seq, opt, mod_name):
     if asdl_type in simple_sums:
         type_ = asdl_type + "Type"
         assert not seq
@@ -116,12 +116,19 @@ def convert_type(asdl_type, seq, mod_name):
         assert not seq
     else:
         type_ = asdl_type + "_t"
-        if not asdl_type in products:
+        if asdl_type in products:
+            # Product type
+            # Not a pointer by default
+            if seq or opt:
+                # Sequence or an optional argument must be a pointer
+                type_ = type_ + "*"
+        else:
+            # Sum type
             # Sum type is polymorphic, must be a pointer
             type_ = type_ + "*"
-        if seq:
-            # Sequence of polymorphic types must be a pointer also
-            type_ = type_ + "*"
+            if seq:
+                # Sequence of polymorphic types must be a double pointer
+                type_ = type_ + "*"
     return type_
 
 class CollectVisitor(ASDLVisitor):
@@ -176,7 +183,7 @@ class ASTNodeVisitor1(ASDLVisitor):
         self.emit("struct %s_t // Product" % name)
         self.emit("{");
         for f in product.fields:
-            type_ = convert_type(f.type, f.seq, self.mod.name.lower())
+            type_ = convert_type(f.type, f.seq, f.opt, self.mod.name.lower())
             if f.seq:
                 seq = " size_t n_%s; // Sequence" % f.name
             else:
@@ -223,7 +230,7 @@ class ASTNodeVisitor(ASDLVisitor):
         args = ["Allocator &al", "const Location &a_loc"]
         lines = []
         for f in cons.fields:
-            type_ = convert_type(f.type, f.seq, self.mod.name.lower())
+            type_ = convert_type(f.type, f.seq, f.opt, self.mod.name.lower())
             if f.seq:
                 seq = " size_t n_%s; // Sequence" % f.name
             else:
@@ -359,7 +366,10 @@ class ASTWalkVisitorVisitor(ASDLVisitor):
             field.type not in self.data.simple_types):
             level = 2
             if field.type in products:
-                template = "self().visit_%s(x.m_%s);" % (field.type, field.name)
+                if field.opt:
+                    template = "self().visit_%s(*x.m_%s);" % (field.type, field.name)
+                else:
+                    template = "self().visit_%s(x.m_%s);" % (field.type, field.name)
             else:
                 template = "self().visit_%s(*x.m_%s);" % (field.type, field.name)
             self.used = True
@@ -371,7 +381,7 @@ class ASTWalkVisitorVisitor(ASDLVisitor):
                     self.emit("    self().visit_%s(*x.m_%s[i]);" % (field.type, field.name), level)
                 self.emit("}", level)
                 return
-            elif field.opt and field.type not in products:
+            elif field.opt:
                 self.emit("if (x.m_%s)" % field.name, 2)
                 level = 3
             self.emit(template, level)
@@ -469,7 +479,10 @@ class PickleVisitorVisitor(ASDLVisitor):
             self.used = True
             level = 2
             if field.type in products:
-                template = "this->visit_%s(x.m_%s);" % (field.type, field.name)
+                if field.opt:
+                    template = "this->visit_%s(*x.m_%s);" % (field.type, field.name)
+                else:
+                    template = "this->visit_%s(x.m_%s);" % (field.type, field.name)
             else:
                 template = "this->visit_%s(*x.m_%s);" % (field.type, field.name)
             if field.seq:
@@ -483,15 +496,11 @@ class PickleVisitorVisitor(ASDLVisitor):
                 self.emit("}", level)
                 self.emit('s.append("]");', level)
             elif field.opt:
-                if field.type in products:
-                    self.emit("// Optional products not implemented yet:", 2)
-                    self.emit(template, 3)
-                else:
-                    self.emit("if (x.m_%s) {" % field.name, 2)
-                    self.emit(template, 3)
-                    self.emit("} else {", 2)
-                    self.emit(    's.append("()");', 3)
-                    self.emit("}", 2)
+                self.emit("if (x.m_%s) {" % field.name, 2)
+                self.emit(template, 3)
+                self.emit("} else {", 2)
+                self.emit(    's.append("()");', 3)
+                self.emit("}", 2)
             else:
                 self.emit(template, level)
         else:
