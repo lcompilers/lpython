@@ -116,12 +116,20 @@ def convert_type(asdl_type, seq, mod_name):
         assert not seq
     else:
         type_ = asdl_type + "_t"
-        if not asdl_type in products:
+        if asdl_type in products:
+            # Product type
+            # Not a pointer by default
+            opt = False
+            if seq or opt:
+                # Sequence or an optional argument must be a pointer
+                type_ = type_ + "*"
+        else:
+            # Sum type
             # Sum type is polymorphic, must be a pointer
             type_ = type_ + "*"
-        if seq:
-            # Sequence of polymorphic types must be a pointer also
-            type_ = type_ + "*"
+            if seq:
+                # Sequence of polymorphic types must be a double pointer
+                type_ = type_ + "*"
     return type_
 
 class CollectVisitor(ASDLVisitor):
