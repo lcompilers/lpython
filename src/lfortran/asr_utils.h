@@ -17,46 +17,6 @@ static inline ASR::var_t* VAR(const ASR::asr_t *f)
     return (ASR::var_t*)f;
 }
 
-static inline ASR::Variable_t* VARIABLE(const ASR::asr_t *f)
-{
-    LFORTRAN_ASSERT(f->type == ASR::asrType::var);
-    ASR::var_t *t = (ASR::var_t *)f;
-    LFORTRAN_ASSERT(t->type == ASR::varType::Variable);
-    return (ASR::Variable_t*)t;
-}
-
-static inline ASR::Subroutine_t* SUBROUTINE(const ASR::asr_t *f)
-{
-    LFORTRAN_ASSERT(f->type == ASR::asrType::sub);
-    ASR::sub_t *t = (ASR::sub_t *)f;
-    LFORTRAN_ASSERT(t->type == ASR::subType::Subroutine);
-    return (ASR::Subroutine_t*)t;
-}
-
-static inline ASR::Function_t* FUNCTION(const ASR::asr_t *f)
-{
-    LFORTRAN_ASSERT(f->type == ASR::asrType::fn);
-    ASR::fn_t *t = (ASR::fn_t *)f;
-    LFORTRAN_ASSERT(t->type == ASR::fnType::Function);
-    return (ASR::Function_t*)t;
-}
-
-static inline ASR::Program_t* PROGRAM(const ASR::asr_t *f)
-{
-    LFORTRAN_ASSERT(f->type == ASR::asrType::prog);
-    ASR::prog_t *t = (ASR::prog_t *)f;
-    LFORTRAN_ASSERT(t->type == ASR::progType::Program);
-    return (ASR::Program_t*)t;
-}
-
-static inline ASR::TranslationUnit_t* TRANSLATION_UNIT(const ASR::asr_t *f)
-{
-    LFORTRAN_ASSERT(f->type == ASR::asrType::unit);
-    ASR::unit_t *t = (ASR::unit_t *)f;
-    LFORTRAN_ASSERT(t->type == ASR::unitType::TranslationUnit);
-    return (ASR::TranslationUnit_t*)t;
-}
-
 static inline ASR::stmt_t* STMT(const ASR::asr_t *f)
 {
     LFORTRAN_ASSERT(f->type == ASR::asrType::stmt);
@@ -69,60 +29,67 @@ static inline ASR::ttype_t* TYPE(const ASR::asr_t *f)
     return (ASR::ttype_t*)f;
 }
 
+
+
+
+static inline ASR::Variable_t* VARIABLE(const ASR::asr_t *f)
+{
+    return ASR::down_cast<ASR::Variable_t>(f);
+}
+
+static inline ASR::Subroutine_t* SUBROUTINE(const ASR::asr_t *f)
+{
+    return ASR::down_cast<ASR::Subroutine_t>(f);
+}
+
+static inline ASR::Function_t* FUNCTION(const ASR::asr_t *f)
+{
+    return ASR::down_cast<ASR::Function_t>(f);
+}
+
+static inline ASR::Program_t* PROGRAM(const ASR::asr_t *f)
+{
+    return ASR::down_cast<ASR::Program_t>(f);
+}
+
+static inline ASR::TranslationUnit_t* TRANSLATION_UNIT(const ASR::asr_t *f)
+{
+    return ASR::down_cast<ASR::TranslationUnit_t>(f);
+}
+
 static inline ASR::Real_t* TYPE_REAL(const ASR::asr_t *f)
 {
-    LFORTRAN_ASSERT(f->type == ASR::asrType::ttype);
-    ASR::ttype_t *t = (ASR::ttype_t*)f;
-    LFORTRAN_ASSERT(t->type == ASR::ttypeType::Real);
-    return (ASR::Real_t*)t;
+    return ASR::down_cast<ASR::Real_t>(f);
 }
 
 static inline ASR::Integer_t* TYPE_INTEGER(const ASR::asr_t *f)
 {
-    LFORTRAN_ASSERT(f->type == ASR::asrType::ttype);
-    ASR::ttype_t *t = (ASR::ttype_t*)f;
-    LFORTRAN_ASSERT(t->type == ASR::ttypeType::Integer);
-    return (ASR::Integer_t*)t;
+    return ASR::down_cast<ASR::Integer_t>(f);
 }
 
 static inline ASR::Logical_t* TYPE_LOGICAL(const ASR::asr_t *f)
 {
-    LFORTRAN_ASSERT(f->type == ASR::asrType::ttype);
-    ASR::ttype_t *t = (ASR::ttype_t*)f;
-    LFORTRAN_ASSERT(t->type == ASR::ttypeType::Logical);
-    return (ASR::Logical_t*)t;
+    return ASR::down_cast<ASR::Logical_t>(f);
 }
 
 static inline ASR::Var_t* EXPR_VAR(const ASR::asr_t *f)
 {
-    LFORTRAN_ASSERT(f->type == ASR::asrType::expr);
-    ASR::expr_t *t = (ASR::expr_t *)f;
-    LFORTRAN_ASSERT(t->type == ASR::exprType::Var);
-    return (ASR::Var_t*)t;
+    return ASR::down_cast<ASR::Var_t>(f);
 }
 
 static inline ASR::Num_t* EXPR_NUM(const ASR::asr_t *f)
 {
-    LFORTRAN_ASSERT(f->type == ASR::asrType::expr);
-    ASR::expr_t *t = (ASR::expr_t *)f;
-    LFORTRAN_ASSERT(t->type == ASR::exprType::Num);
-    return (ASR::Num_t*)t;
+    return ASR::down_cast<ASR::Num_t>(f);
 }
 
 static inline ASR::Str_t* EXPR_STR(const ASR::asr_t *f)
 {
-    LFORTRAN_ASSERT(f->type == ASR::asrType::expr);
-    ASR::expr_t *t = (ASR::expr_t *)f;
-    LFORTRAN_ASSERT(t->type == ASR::exprType::Str);
-    return (ASR::Str_t*)t;
+    return ASR::down_cast<ASR::Str_t>(f);
 }
 
 static inline ASR::UnaryOp_t* EXPR_UNARYOP(const ASR::asr_t *f)
 {
-    LFORTRAN_ASSERT(f->type == ASR::asrType::expr);
-    ASR::expr_t *t = (ASR::expr_t *)f;
-    LFORTRAN_ASSERT(t->type == ASR::exprType::UnaryOp);
-    return (ASR::UnaryOp_t*)t;
+    return ASR::down_cast<ASR::UnaryOp_t>(f);
 }
 
 
