@@ -692,13 +692,6 @@ static inline T* down_cast4(const %(mod)s_t *f)
     return (T*)t;
 }
 
-template <class T>
-static inline T* down_cast2(const %(mod)s_t *f)
-{
-    LFORTRAN_ASSERT(is_a<T>(*f));
-    return (T*)f;
-}
-
 template <class T, class U>
 static inline T* down_cast(const U *f)
 {
