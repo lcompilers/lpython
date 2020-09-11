@@ -231,6 +231,7 @@ class ASTNodeVisitor(ASDLVisitor):
         self.emit("{", 1);
         self.emit(    "const static %sType class_type = %sType::%s;" \
                 % (base, base, cons.name), 2)
+        self.emit(    "typedef %s_t parent_type;" % base, 2)
         self.emit(    "%s_t base;" % base, 2);
         args = ["Allocator &al", "const Location &a_loc"]
         lines = []
