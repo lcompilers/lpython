@@ -12,10 +12,7 @@ namespace LFortran {
 
 static inline AST::Num_t* EXPR_NUM(const AST::ast_t *f)
 {
-    LFORTRAN_ASSERT(f->type == AST::astType::expr);
-    AST::expr_t *t = (AST::expr_t *)f;
-    LFORTRAN_ASSERT(t->type == AST::exprType::Num);
-    return (AST::Num_t*)t;
+    return AST::down_cast<AST::Num_t>(f);
 }
 
 namespace {
