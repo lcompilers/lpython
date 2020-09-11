@@ -53,21 +53,6 @@ static inline ASR::TranslationUnit_t* TRANSLATION_UNIT(const ASR::asr_t *f)
     return ASR::down_cast<ASR::TranslationUnit_t>(f);
 }
 
-static inline ASR::Real_t* TYPE_REAL(const ASR::asr_t *f)
-{
-    return ASR::down_cast<ASR::Real_t>(f);
-}
-
-static inline ASR::Integer_t* TYPE_INTEGER(const ASR::asr_t *f)
-{
-    return ASR::down_cast<ASR::Integer_t>(f);
-}
-
-static inline ASR::Logical_t* TYPE_LOGICAL(const ASR::asr_t *f)
-{
-    return ASR::down_cast<ASR::Logical_t>(f);
-}
-
 static inline ASR::Var_t* EXPR_VAR(const ASR::asr_t *f)
 {
     return ASR::down_cast<ASR::Var_t>(f);
