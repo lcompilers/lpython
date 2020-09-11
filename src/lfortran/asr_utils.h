@@ -7,26 +7,22 @@ namespace LFortran  {
 
 static inline ASR::expr_t* EXPR(const ASR::asr_t *f)
 {
-    LFORTRAN_ASSERT(f->type == ASR::asrType::expr);
-    return (ASR::expr_t*)f;
+    return ASR::down_cast2<ASR::expr_t>(f);
 }
 
 static inline ASR::var_t* VAR(const ASR::asr_t *f)
 {
-    LFORTRAN_ASSERT(f->type == ASR::asrType::var);
-    return (ASR::var_t*)f;
+    return ASR::down_cast2<ASR::var_t>(f);
 }
 
 static inline ASR::stmt_t* STMT(const ASR::asr_t *f)
 {
-    LFORTRAN_ASSERT(f->type == ASR::asrType::stmt);
-    return (ASR::stmt_t*)f;
+    return ASR::down_cast2<ASR::stmt_t>(f);
 }
 
 static inline ASR::ttype_t* TYPE(const ASR::asr_t *f)
 {
-    LFORTRAN_ASSERT(f->type == ASR::asrType::ttype);
-    return (ASR::ttype_t*)f;
+    return ASR::down_cast2<ASR::ttype_t>(f);
 }
 
 
