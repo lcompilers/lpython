@@ -173,7 +173,7 @@ public:
             }
             // Extract the variable from the local scope
             return_var = current_scope->scope[std::string(return_var_name)];
-            VARIABLE(return_var)->m_intent = intent_return_var;
+            ASR::down_cast4<ASR::Variable_t>(return_var)->m_intent = intent_return_var;
         }
 
         ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
@@ -673,7 +673,7 @@ public:
                 }
 
                 ASR::ttype_t *type;
-                type = VARIABLE(v)->m_type;
+                type = ASR::down_cast4<ASR::Variable_t>(v)->m_type;
                 tmp = ASR::make_ArrayRef_t(al, x.base.base.loc,
                     (ASR::var_t*)v, args.p, args.size(), type);
                 break;

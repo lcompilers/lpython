@@ -77,7 +77,7 @@ uint32_t SymbolTable::get_hash_uint32() {
         hash = murmur_hash_int(a.second->type, hash);
         switch (a.second->type) {
             case (ASR::asrType::var) : {
-                ASR::Variable_t *v = VARIABLE(a.second);
+                ASR::Variable_t *v = ASR::down_cast4<ASR::Variable_t>(a.second);
                 hash = murmur_hash_str(v->m_name, hash);
                 hash = murmur_hash_int(v->m_intent, hash);
                 hash = murmur_hash_int(v->m_type->type, hash);
@@ -119,7 +119,7 @@ void SymbolTable::mark_all_variables_external() {
     for (auto &a : scope) {
         switch (a.second->type) {
             case (ASR::asrType::var) : {
-                ASR::Variable_t *v = VARIABLE(a.second);
+                ASR::Variable_t *v = ASR::down_cast4<ASR::Variable_t>(a.second);
                 v->m_intent = intent_external;
                 break;
             }

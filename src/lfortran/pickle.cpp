@@ -200,12 +200,12 @@ public:
             s.append(color(style::reset));
         }
         s.append(" ");
-        s.append(VARIABLE((ASR::asr_t*)x.m_v)->m_parent_symtab->get_hash());
+        s.append(ASR::down_cast<ASR::Variable_t>(x.m_v)->m_parent_symtab->get_hash());
         s.append(" ");
         if (use_colors) {
             s.append(color(fg::yellow));
         }
-        s.append(VARIABLE((ASR::asr_t*)x.m_v)->m_name);
+        s.append(ASR::down_cast<ASR::Variable_t>(x.m_v)->m_name);
         if (use_colors) {
             s.append(color(fg::reset));
         }

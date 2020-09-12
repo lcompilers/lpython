@@ -274,7 +274,7 @@ public:
     }
 
     void visit_Var(const ASR::Var_t &x) {
-        ASR::Variable_t *v = VARIABLE((ASR::asr_t*)(x.m_v));
+        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(x.m_v);
         uint32_t h = get_hash((ASR::asr_t*)v);
         LFORTRAN_ASSERT(x86_symtab.find(h) != x86_symtab.end());
         Sym s = x86_symtab[h];

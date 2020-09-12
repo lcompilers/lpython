@@ -396,13 +396,13 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     }
 
     void visit_Var(const ASR::Var_t &x) {
-        src = VARIABLE((ASR::asr_t*)(x.m_v))->m_name;
+        src = ASR::down_cast<ASR::Variable_t>(x.m_v)->m_name;
         last_unary_plus = false;
         last_binary_plus = false;
     }
 
     void visit_ArrayRef(const ASR::ArrayRef_t &x) {
-        std::string out = VARIABLE((ASR::asr_t*)(x.m_v))->m_name;
+        std::string out = ASR::down_cast<ASR::Variable_t>(x.m_v)->m_name;
         out += "[";
         for (size_t i=0; i<x.n_args; i++) {
             visit_expr(*x.m_args[i].m_right);
