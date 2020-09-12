@@ -99,7 +99,7 @@ uint32_t SymbolTable::get_hash_uint32() {
                 break;
             }
             case (ASR::asrType::fn) : {
-                ASR::Function_t *v = FUNCTION(a.second);
+                ASR::Function_t *v = ASR::down_cast4<ASR::Function_t>(a.second);
                 hash = murmur_hash_str(v->m_name, hash);
                 hash = murmur_hash_int(v->m_symtab->get_hash_uint32(), hash);
                 break;

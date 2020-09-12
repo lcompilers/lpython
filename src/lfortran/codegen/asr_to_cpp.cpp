@@ -146,7 +146,7 @@ public:
                 contains += src + "\n";
             }
             if (item.second->type == ASR::asrType::fn) {
-                ASR::Function_t *s = FUNCTION(item.second);
+                ASR::Function_t *s = ASR::down_cast4<ASR::Function_t>(item.second);
                 visit_Function(*s);
                 contains += src + "\n";
             }
@@ -315,7 +315,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     }
 
     void visit_FuncCall(const ASR::FuncCall_t &x) {
-        ASR::Function_t *fn = FUNCTION((ASR::asr_t*)x.m_func);
+        ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(x.m_func);
         std::string fn_name = fn->m_name;
         if (sym_info[get_hash((ASR::asr_t*)x.m_func)].intrinsic_function) {
             if (fn_name == "size") {

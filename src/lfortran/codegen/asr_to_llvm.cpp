@@ -158,7 +158,7 @@ public:
                 visit_Subroutine(*s);
             }
             if (item.second->type == ASR::asrType::fn) {
-                ASR::Function_t *s = FUNCTION(item.second);
+                ASR::Function_t *s = ASR::down_cast4<ASR::Function_t>(item.second);
                 visit_Function(*s);
             }
         }
@@ -704,7 +704,7 @@ public:
     }
 
     void visit_FuncCall(const ASR::FuncCall_t &x) {
-        ASR::Function_t *s = FUNCTION((ASR::asr_t*)x.m_func);
+        ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(x.m_func);
         llvm::Function *fn = module->getFunction(s->m_name);
         if (!fn) {
             throw CodeGenError("Function code not generated for '"

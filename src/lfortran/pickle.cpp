@@ -253,12 +253,12 @@ public:
             s.append(color(style::reset));
         }
         s.append(" ");
-        s.append(FUNCTION((ASR::asr_t*)x.m_func)->m_symtab->parent->get_hash());
+        s.append(ASR::down_cast<ASR::Function_t>(x.m_func)->m_symtab->parent->get_hash());
         s.append(" ");
         if (use_colors) {
             s.append(color(fg::yellow));
         }
-        s.append(FUNCTION((ASR::asr_t*)x.m_func)->m_name);
+        s.append(ASR::down_cast<ASR::Function_t>(x.m_func)->m_name);
         if (use_colors) {
             s.append(color(fg::reset));
         }

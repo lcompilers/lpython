@@ -61,12 +61,12 @@ public:
 
         // Generate code for nested subroutines and functions first:
         for (auto &item : x.m_symtab->scope) {
-            if (item.second->type == ASR::asrType::sub) {
-                ASR::Subroutine_t *s = SUBROUTINE(item.second);
+            if (ASR::is_a<ASR::sub_t>(*item.second)) {
+                ASR::Subroutine_t *s = ASR::down_cast4<ASR::Subroutine_t>(item.second);
                 visit_Subroutine(*s);
             }
-            if (item.second->type == ASR::asrType::fn) {
-                ASR::Function_t *s = FUNCTION(item.second);
+            if (ASR::is_a<ASR::fn_t>(*item.second)) {
+                ASR::Function_t *s = ASR::down_cast4<ASR::Function_t>(item.second);
                 visit_Function(*s);
             }
         }
@@ -578,7 +578,7 @@ public:
     }
 
     void visit_FuncCall(const ASR::FuncCall_t &x) {
-        ASR::Function_t *s = FUNCTION((ASR::asr_t*)x.m_func);
+        ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(x.m_func);
 
         uint32_t h = get_hash((ASR::asr_t*)s);
         if (x86_symtab.find(h) == x86_symtab.end()) {

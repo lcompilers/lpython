@@ -149,7 +149,7 @@ public:
                 visit_Subroutine(*s);
             }
             if (item.second->type == ASR::asrType::fn) {
-                ASR::Function_t *s = FUNCTION(item.second);
+                ASR::Function_t *s = ASR::down_cast4<ASR::Function_t>(item.second);
                 visit_Function(*s);
             }
         }

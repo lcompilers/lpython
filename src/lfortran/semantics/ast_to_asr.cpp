@@ -376,7 +376,7 @@ public:
     void visit_Function(const AST::Function_t &x) {
         SymbolTable *old_scope = current_scope;
         ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
-        ASR::Function_t *v = FUNCTION(t);
+        ASR::Function_t *v = ASR::down_cast4<ASR::Function_t>(t);
         current_scope = v->m_symtab;
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
@@ -655,7 +655,7 @@ public:
             case (ASR::asrType::fn) : {
                 Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
                 ASR::ttype_t *type;
-                type = EXPR2VAR(FUNCTION(v)->m_return_var)->m_type;
+                type = EXPR2VAR(ASR::down_cast4<ASR::Function_t>(v)->m_return_var)->m_type;
                 tmp = ASR::make_FuncCall_t(al, x.base.base.loc,
                     (ASR::fn_t*)v, args.p, args.size(), nullptr, 0, type);
                 break;
