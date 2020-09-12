@@ -561,7 +561,7 @@ public:
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
-        ASR::Subroutine_t *s = SUBROUTINE((ASR::asr_t*)x.m_name);
+        ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(x.m_name);
 
         uint32_t h = get_hash((ASR::asr_t*)s);
         if (x86_symtab.find(h) == x86_symtab.end()) {

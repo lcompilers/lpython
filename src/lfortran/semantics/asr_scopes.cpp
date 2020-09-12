@@ -93,7 +93,7 @@ uint32_t SymbolTable::get_hash_uint32() {
                 break;
             }
             case (ASR::asrType::sub) : {
-                ASR::Subroutine_t *v = SUBROUTINE(a.second);
+                ASR::Subroutine_t *v = ASR::down_cast4<ASR::Subroutine_t>(a.second);
                 hash = murmur_hash_str(v->m_name, hash);
                 hash = murmur_hash_int(v->m_symtab->get_hash_uint32(), hash);
                 break;

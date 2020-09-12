@@ -36,11 +36,6 @@ static inline ASR::Variable_t* VARIABLE(const ASR::asr_t *f)
     return ASR::down_cast4<ASR::Variable_t>(f);
 }
 
-static inline ASR::Subroutine_t* SUBROUTINE(const ASR::asr_t *f)
-{
-    return ASR::down_cast4<ASR::Subroutine_t>(f);
-}
-
 
 static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
 {

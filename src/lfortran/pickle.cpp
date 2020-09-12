@@ -223,12 +223,12 @@ public:
             s.append(color(style::reset));
         }
         s.append(" ");
-        s.append(SUBROUTINE((ASR::asr_t*)x.m_name)->m_symtab->parent->get_hash());
+        s.append(ASR::down_cast<ASR::Subroutine_t>(x.m_name)->m_symtab->parent->get_hash());
         s.append(" ");
         if (use_colors) {
             s.append(color(fg::yellow));
         }
-        s.append(SUBROUTINE((ASR::asr_t*)x.m_name)->m_name);
+        s.append(ASR::down_cast<ASR::Subroutine_t>(x.m_name)->m_name);
         if (use_colors) {
             s.append(color(fg::reset));
         }

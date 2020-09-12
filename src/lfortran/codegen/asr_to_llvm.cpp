@@ -154,7 +154,7 @@ public:
         // Generate code for nested subroutines and functions first:
         for (auto &item : x.m_symtab->scope) {
             if (item.second->type == ASR::asrType::sub) {
-                ASR::Subroutine_t *s = SUBROUTINE(item.second);
+                ASR::Subroutine_t *s = ASR::down_cast4<ASR::Subroutine_t>(item.second);
                 visit_Subroutine(*s);
             }
             if (item.second->type == ASR::asrType::fn) {
@@ -693,7 +693,7 @@ public:
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
-        ASR::Subroutine_t *s = SUBROUTINE((ASR::asr_t*)x.m_name);
+        ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(x.m_name);
         llvm::Function *fn = module->getFunction(s->m_name);
         if (!fn) {
             throw CodeGenError("Subroutine code not generated for '"

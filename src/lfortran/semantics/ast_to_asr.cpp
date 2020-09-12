@@ -358,7 +358,7 @@ public:
     // TODO: add SymbolTable::get_symbol(), which will only check in Debug mode
         SymbolTable *old_scope = current_scope;
         ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
-        ASR::Subroutine_t *v = SUBROUTINE(t);
+        ASR::Subroutine_t *v = ASR::down_cast4<ASR::Subroutine_t>(t);
         current_scope = v->m_symtab;
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
@@ -606,7 +606,7 @@ public:
         if (!sub) {
             throw SemanticError("Subroutine '" + sub_name + "' not declared", loc);
         }
-        return SUBROUTINE(sub);
+        return ASR::down_cast4<ASR::Subroutine_t>(sub);
     }
 
     void visit_Name(const AST::Name_t &x) {
