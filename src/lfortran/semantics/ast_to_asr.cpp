@@ -331,7 +331,7 @@ public:
     void visit_Program(const AST::Program_t &x) {
         SymbolTable *old_scope = current_scope;
         ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
-        ASR::Program_t *v = PROGRAM(t);
+        ASR::Program_t *v = ASR::down_cast4<ASR::Program_t>(t);
         current_scope = v->m_symtab;
 
         Vec<ASR::stmt_t*> body;
