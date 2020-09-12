@@ -692,10 +692,8 @@ template <class T>
 static inline T* down_cast2(const %(mod)s_t *f)
 {
     typedef typename T::parent_type ptype;
-    LFORTRAN_ASSERT(is_a<ptype>(*f));
-    ptype *t = (ptype *)f;
-    LFORTRAN_ASSERT(is_a<T>(*t));
-    return (T*)t;
+    ptype *t = down_cast<ptype>(f);
+    return down_cast<T>(t);
 }
 
 
