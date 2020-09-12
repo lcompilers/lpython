@@ -10,11 +10,6 @@ static inline ASR::expr_t* EXPR(const ASR::asr_t *f)
     return ASR::down_cast<ASR::expr_t>(f);
 }
 
-static inline ASR::var_t* VAR(const ASR::asr_t *f)
-{
-    return ASR::down_cast<ASR::var_t>(f);
-}
-
 static inline ASR::stmt_t* STMT(const ASR::asr_t *f)
 {
     return ASR::down_cast<ASR::stmt_t>(f);

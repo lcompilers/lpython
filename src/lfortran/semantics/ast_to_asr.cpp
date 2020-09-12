@@ -79,7 +79,7 @@ public:
                 throw SemanticError("Dummy argument '" + arg_s + "' not defined", x.base.base.loc);
             }
             ASR::asr_t *arg_asr = current_scope->scope[arg_s];
-            ASR::var_t *var = VAR(arg_asr);
+            ASR::var_t *var = ASR::down_cast<ASR::var_t>(arg_asr);
             args.push_back(al, EXPR(ASR::make_Var_t(al, x.base.base.loc,
                 var)));
         }
@@ -118,7 +118,7 @@ public:
                 throw SemanticError("Dummy argument '" + arg_s + "' not defined", x.base.base.loc);
             }
             ASR::asr_t *arg_asr = current_scope->scope[arg_s];
-            ASR::var_t *var = VAR(arg_asr);
+            ASR::var_t *var = ASR::down_cast<ASR::var_t>(arg_asr);
             args.push_back(al, EXPR(ASR::make_Var_t(al, x.base.base.loc,
                 var)));
         }
@@ -177,7 +177,7 @@ public:
         }
 
         ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
-            VAR(return_var));
+            ASR::down_cast<ASR::var_t>(return_var));
 
         // Create and register the function
         asr = ASR::make_Function_t(
@@ -595,7 +595,7 @@ public:
         if (!v) {
             throw SemanticError("Variable '" + var_name + "' not declared", loc);
         }
-        ASR::var_t *var = VAR(v);
+        ASR::var_t *var = ASR::down_cast<ASR::var_t>(v);
         return ASR::make_Var_t(al, loc, var);
     }
 
@@ -631,7 +631,7 @@ public:
                     fn_scope, fn_name, intent_return_var, type);
                 fn_scope->scope[std::string(fn_name)] = return_var;
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(al, loc,
-                    VAR(return_var));
+                    ASR::down_cast<ASR::var_t>(return_var));
                 ASR::asr_t *fn = ASR::make_Function_t(
                     al, loc,
                     /* a_symtab */ fn_scope,

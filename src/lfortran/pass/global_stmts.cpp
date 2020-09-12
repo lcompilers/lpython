@@ -41,7 +41,8 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                     type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
                     return_var = ASR::make_Variable_t(al, loc,
                         fn_scope, var_name, intent_local, type);
-                    return_var_ref = EXPR(ASR::make_Var_t(al, loc, VAR(return_var)));
+                    return_var_ref = EXPR(ASR::make_Var_t(al, loc,
+                        ASR::down_cast<ASR::var_t>(return_var)));
                     fn_scope->scope[std::string(var_name)] = return_var;
                     target = return_var_ref;
                     idx++;
@@ -51,7 +52,8 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                     type = TYPE(ASR::make_Real_t(al, loc, 4, nullptr, 0));
                     return_var = ASR::make_Variable_t(al, loc,
                         fn_scope, var_name, intent_local, type);
-                    return_var_ref = EXPR(ASR::make_Var_t(al, loc, VAR(return_var)));
+                    return_var_ref = EXPR(ASR::make_Var_t(al, loc,
+                        ASR::down_cast<ASR::var_t>(return_var)));
                     fn_scope->scope[std::string(var_name)] = return_var;
                     target = return_var_ref;
                     idx++;
