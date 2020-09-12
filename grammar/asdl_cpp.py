@@ -214,6 +214,9 @@ class ASTNodeVisitor(ASDLVisitor):
             self.emit("")
             self.emit("struct %s_t // Sum" % base)
             self.emit("{")
+            mod = subs["mod"]
+            self.emit(    "const static %sType class_type = %sType::%s;" \
+                    % (mod, mod, base), 1)
             self.emit(    "%(mod)s_t base;" % subs, 1)
             self.emit(    "%sType type;" % base, 1)
             self.emit("};")
@@ -226,6 +229,9 @@ class ASTNodeVisitor(ASDLVisitor):
     def visitConstructor(self, cons, base, extra_attributes):
         self.emit("struct %s_t // Constructor" % cons.name, 1)
         self.emit("{", 1);
+        self.emit(    "const static %sType class_type = %sType::%s;" \
+                % (base, base, cons.name), 2)
+        self.emit(    "typedef %s_t parent_type;" % base, 2)
         self.emit(    "%s_t base;" % base, 2);
         args = ["Allocator &al", "const Location &a_loc"]
         lines = []
@@ -646,7 +652,6 @@ HEAD = r"""#ifndef LFORTRAN_%(MOD)s_H
 
 #include <lfortran/parser/alloc.h>
 #include <lfortran/parser/location.h>
-#include <lfortran/casts.h>
 #include <lfortran/colors.h>
 #include <lfortran/exception.h>
 #include <lfortran/semantics/asr_scopes.h>
@@ -664,6 +669,33 @@ struct %(mod)s_t
     %(mod)sType type;
     Location loc;
 };
+
+
+template <class T, class U>
+inline bool is_a(const U &x)
+{
+    return T::class_type == x.type;
+}
+
+// Cast one level down
+
+template <class T, class U>
+static inline T* down_cast(const U *f)
+{
+    LFORTRAN_ASSERT(is_a<T>(*f));
+    return (T*)f;
+}
+
+// Cast two levels down
+
+template <class T>
+static inline T* down_cast2(const %(mod)s_t *f)
+{
+    typedef typename T::parent_type ptype;
+    ptype *t = down_cast<ptype>(f);
+    return down_cast<T>(t);
+}
+
 
 """
 

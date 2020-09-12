@@ -10,14 +10,6 @@ using LFortran::AST::BaseVisitor;
 
 namespace LFortran {
 
-static inline AST::Num_t* EXPR_NUM(const AST::ast_t *f)
-{
-    LFORTRAN_ASSERT(f->type == AST::astType::expr);
-    AST::expr_t *t = (AST::expr_t *)f;
-    LFORTRAN_ASSERT(t->type == AST::exprType::Num);
-    return (AST::Num_t*)t;
-}
-
 namespace {
 
     std::string op2str(const operatorType type)
@@ -856,7 +848,7 @@ public:
             this->visit_expr(*x.m_start);
             left = s;
             if (x.m_start->type == AST::exprType::Num) {
-                left_is_one = (EXPR_NUM((AST::ast_t*)x.m_start)->m_n == 1);
+                left_is_one = (AST::down_cast<AST::Num_t>(x.m_start)->m_n == 1);
             };
         }
         std::string right;

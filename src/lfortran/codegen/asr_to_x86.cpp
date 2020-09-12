@@ -14,6 +14,8 @@
 
 namespace LFortran {
 
+using ASR::down_cast;
+
 // Platform dependent fast unique hash:
 uint64_t static get_hash(ASR::asr_t *node)
 {
@@ -59,12 +61,12 @@ public:
 
         // Generate code for nested subroutines and functions first:
         for (auto &item : x.m_symtab->scope) {
-            if (item.second->type == ASR::asrType::sub) {
-                ASR::Subroutine_t *s = SUBROUTINE(item.second);
+            if (ASR::is_a<ASR::sub_t>(*item.second)) {
+                ASR::Subroutine_t *s = ASR::down_cast2<ASR::Subroutine_t>(item.second);
                 visit_Subroutine(*s);
             }
-            if (item.second->type == ASR::asrType::fn) {
-                ASR::Function_t *s = FUNCTION(item.second);
+            if (ASR::is_a<ASR::fn_t>(*item.second)) {
+                ASR::Function_t *s = ASR::down_cast2<ASR::Function_t>(item.second);
                 visit_Function(*s);
             }
         }
@@ -129,7 +131,7 @@ public:
 
         // Add arguments to x86_symtab with their correct offset
         for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+            ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
             // TODO: we are assuming integer here:
             LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
@@ -192,7 +194,7 @@ public:
 
         // Add arguments to x86_symtab with their correct offset
         for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+            ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
             // TODO: we are assuming integer here:
             LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
@@ -237,7 +239,7 @@ public:
 
         // Leave return value in eax
         {
-            ASR::Variable_t *retv = VARIABLE((ASR::asr_t*)(EXPR_VAR((ASR::asr_t*)x.m_return_var)->m_v));
+            ASR::Variable_t *retv = EXPR2VAR(x.m_return_var);
 
             uint32_t h = get_hash((ASR::asr_t*)retv);
             LFORTRAN_ASSERT(x86_symtab.find(h) != x86_symtab.end());
@@ -272,7 +274,7 @@ public:
     }
 
     void visit_Var(const ASR::Var_t &x) {
-        ASR::Variable_t *v = VARIABLE((ASR::asr_t*)(x.m_v));
+        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(x.m_v);
         uint32_t h = get_hash((ASR::asr_t*)v);
         LFORTRAN_ASSERT(x86_symtab.find(h) != x86_symtab.end());
         Sym s = x86_symtab[h];
@@ -396,8 +398,7 @@ public:
         this->visit_expr(*x.m_value);
         // RHS is in eax
 
-        ASR::var_t *t1 = EXPR_VAR((ASR::asr_t*)(x.m_target))->m_v;
-        ASR::Variable_t *v = VARIABLE((ASR::asr_t*)t1);
+        ASR::Variable_t *v = EXPR2VAR(x.m_target);
         uint32_t h = get_hash((ASR::asr_t*)v);
         LFORTRAN_ASSERT(x86_symtab.find(h) != x86_symtab.end());
         Sym s = x86_symtab[h];
@@ -418,7 +419,7 @@ public:
         LFORTRAN_ASSERT(x.n_values == 1);
         ASR::expr_t *e = x.m_values[0];
         if (e->type == ASR::exprType::Str) {
-            ASR::Str_t *s = EXPR_STR((ASR::asr_t*)e);
+            ASR::Str_t *s = down_cast<ASR::Str_t>(e);
             std::string msg = s->m_s;
             msg += "\n";
             std::string id = "string" + std::to_string(get_hash((ASR::asr_t*)e));
@@ -506,7 +507,7 @@ public:
         for (int i=x.n_args-1; i>=0; i--) {
             bool pass_as_pointer;
             {
-                ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)sub.m_args[i])->m_v);
+                ASR::Variable_t *arg = EXPR2VAR(sub.m_args[i]);
                 LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
                 // TODO: we are assuming integer here:
                 LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
@@ -515,7 +516,7 @@ public:
                 pass_as_pointer = s.pointer;
             }
             if (x.m_args[i]->type == ASR::exprType::Var) {
-                ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+                ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 LFORTRAN_ASSERT(x86_symtab.find(h) != x86_symtab.end());
                 Sym s = x86_symtab[h];
@@ -560,7 +561,7 @@ public:
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
-        ASR::Subroutine_t *s = SUBROUTINE((ASR::asr_t*)x.m_name);
+        ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(x.m_name);
 
         uint32_t h = get_hash((ASR::asr_t*)s);
         if (x86_symtab.find(h) == x86_symtab.end()) {
@@ -577,7 +578,7 @@ public:
     }
 
     void visit_FuncCall(const ASR::FuncCall_t &x) {
-        ASR::Function_t *s = FUNCTION((ASR::asr_t*)x.m_func);
+        ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(x.m_func);
 
         uint32_t h = get_hash((ASR::asr_t*)s);
         if (x86_symtab.find(h) == x86_symtab.end()) {

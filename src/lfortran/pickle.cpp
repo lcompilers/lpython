@@ -200,12 +200,12 @@ public:
             s.append(color(style::reset));
         }
         s.append(" ");
-        s.append(VARIABLE((ASR::asr_t*)x.m_v)->m_parent_symtab->get_hash());
+        s.append(ASR::down_cast<ASR::Variable_t>(x.m_v)->m_parent_symtab->get_hash());
         s.append(" ");
         if (use_colors) {
             s.append(color(fg::yellow));
         }
-        s.append(VARIABLE((ASR::asr_t*)x.m_v)->m_name);
+        s.append(ASR::down_cast<ASR::Variable_t>(x.m_v)->m_name);
         if (use_colors) {
             s.append(color(fg::reset));
         }
@@ -223,12 +223,12 @@ public:
             s.append(color(style::reset));
         }
         s.append(" ");
-        s.append(SUBROUTINE((ASR::asr_t*)x.m_name)->m_symtab->parent->get_hash());
+        s.append(ASR::down_cast<ASR::Subroutine_t>(x.m_name)->m_symtab->parent->get_hash());
         s.append(" ");
         if (use_colors) {
             s.append(color(fg::yellow));
         }
-        s.append(SUBROUTINE((ASR::asr_t*)x.m_name)->m_name);
+        s.append(ASR::down_cast<ASR::Subroutine_t>(x.m_name)->m_name);
         if (use_colors) {
             s.append(color(fg::reset));
         }
@@ -253,12 +253,12 @@ public:
             s.append(color(style::reset));
         }
         s.append(" ");
-        s.append(FUNCTION((ASR::asr_t*)x.m_func)->m_symtab->parent->get_hash());
+        s.append(ASR::down_cast<ASR::Function_t>(x.m_func)->m_symtab->parent->get_hash());
         s.append(" ");
         if (use_colors) {
             s.append(color(fg::yellow));
         }
-        s.append(FUNCTION((ASR::asr_t*)x.m_func)->m_name);
+        s.append(ASR::down_cast<ASR::Function_t>(x.m_func)->m_name);
         if (use_colors) {
             s.append(color(fg::reset));
         }

@@ -10,6 +10,10 @@
 
 namespace LFortran {
 
+using ASR::is_a;
+using ASR::down_cast;
+using ASR::down_cast2;
+
 // Platform dependent fast unique hash:
 uint64_t get_hash(ASR::asr_t *node)
 {
@@ -31,10 +35,9 @@ std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims)
         if (!start && !end) {
             dims += "*";
         } else if (start && end) {
-            if (start->type==ASR::exprType::Num ||
-                    end->type==ASR::exprType::Num) {
-                ASR::Num_t *s = EXPR_NUM((ASR::asr_t*)start);
-                ASR::Num_t *e = EXPR_NUM((ASR::asr_t*)end);
+            if (is_a<ASR::Num_t>(*start) || is_a<ASR::Num_t>(*end)) {
+                ASR::Num_t *s = down_cast<ASR::Num_t>(start);
+                ASR::Num_t *e = down_cast<ASR::Num_t>(end);
                 if (s->m_n == 1) {
                     dims += "[" + std::to_string(e->m_n) + "]";
                 } else {
@@ -76,16 +79,16 @@ std::string convert_variable_decl(const ASR::Variable_t &v)
     std::string sub;
     bool use_ref = (v.m_intent == intent_out || v.m_intent == intent_inout);
     bool dummy = is_arg_dummy(v.m_intent);
-    if (v.m_type->type == ASR::ttypeType::Integer) {
-        ASR::Integer_t *t = TYPE_INTEGER((ASR::asr_t*)v.m_type);
+    if (is_a<ASR::Integer_t>(*v.m_type)) {
+        ASR::Integer_t *t = down_cast<ASR::Integer_t>(v.m_type);
         std::string dims = convert_dims(t->n_dims, t->m_dims);
         sub = format_type(dims, "int", v.m_name, use_ref, dummy);
-    } else if (v.m_type->type == ASR::ttypeType::Real) {
-        ASR::Real_t *t = TYPE_REAL((ASR::asr_t*)v.m_type);
+    } else if (is_a<ASR::Real_t>(*v.m_type)) {
+        ASR::Real_t *t = down_cast<ASR::Real_t>(v.m_type);
         std::string dims = convert_dims(t->n_dims, t->m_dims);
         sub = format_type(dims, "float", v.m_name, use_ref, dummy);
-    } else if (v.m_type->type == ASR::ttypeType::Logical) {
-        ASR::Logical_t *t = TYPE_LOGICAL((ASR::asr_t*)v.m_type);
+    } else if (is_a<ASR::Logical_t>(*v.m_type)) {
+        ASR::Logical_t *t = down_cast<ASR::Logical_t>(v.m_type);
         std::string dims = convert_dims(t->n_dims, t->m_dims);
         sub = format_type(dims, "bool", v.m_name, use_ref, dummy);
     } else {
@@ -117,7 +120,7 @@ public:
 
         // Process procedures first:
         for (auto &item : x.m_global_scope->scope) {
-            if (item.second->type != ASR::asrType::prog) {
+            if (!is_a<ASR::prog_t>(*item.second)) {
                 visit_asr(*item.second);
                 unit_src += src;
             }
@@ -125,7 +128,7 @@ public:
 
         // Then the main program:
         for (auto &item : x.m_global_scope->scope) {
-            if (item.second->type == ASR::asrType::prog) {
+            if (is_a<ASR::prog_t>(*item.second)) {
                 visit_asr(*item.second);
                 unit_src += src;
             }
@@ -138,13 +141,13 @@ public:
         // Generate code for nested subroutines and functions first:
         std::string contains;
         for (auto &item : x.m_symtab->scope) {
-            if (item.second->type == ASR::asrType::sub) {
-                ASR::Subroutine_t *s = SUBROUTINE(item.second);
+            if (is_a<ASR::sub_t>(*item.second)) {
+                ASR::Subroutine_t *s = ASR::down_cast2<ASR::Subroutine_t>(item.second);
                 visit_Subroutine(*s);
                 contains += src + "\n";
             }
-            if (item.second->type == ASR::asrType::fn) {
-                ASR::Function_t *s = FUNCTION(item.second);
+            if (is_a<ASR::fn_t>(*item.second)) {
+                ASR::Function_t *s = ASR::down_cast2<ASR::Function_t>(item.second);
                 visit_Function(*s);
                 contains += src + "\n";
             }
@@ -157,9 +160,8 @@ public:
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string decl;
         for (auto &item : x.m_symtab->scope) {
-            if (item.second->type == ASR::asrType::var) {
-                ASR::var_t *v2 = (ASR::var_t*)(item.second);
-                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+            if (is_a<ASR::var_t>(*item.second)) {
+                ASR::Variable_t *v = down_cast2<ASR::Variable_t>(item.second);
                 decl += indent;
                 decl += convert_variable_decl(*v) + ";\n";
             }
@@ -201,7 +203,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         indentation_level += 1;
         std::string sub = "void " + std::string(x.m_name) + "(";
         for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+            ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
             sub += convert_variable_decl(*arg);
             if (i < x.n_args-1) sub += ", ";
@@ -209,9 +211,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         sub += ")\n";
 
         for (auto &item : x.m_symtab->scope) {
-            if (item.second->type == ASR::asrType::var) {
-                ASR::var_t *v2 = (ASR::var_t*)(item.second);
-                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+            if (is_a<ASR::var_t>(*item.second)) {
+                ASR::Variable_t *v = down_cast2<ASR::Variable_t>(item.second);
                 if (v->m_intent == intent_local) {
                     SymbolInfo s;
                     s.needs_declaration = true;
@@ -228,9 +229,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
         std::string decl;
         for (auto &item : x.m_symtab->scope) {
-            if (item.second->type == ASR::asrType::var) {
-                ASR::var_t *v2 = (ASR::var_t*)(item.second);
-                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+            if (is_a<ASR::var_t>(*item.second)) {
+                ASR::Variable_t *v = down_cast2<ASR::Variable_t>(item.second);
                 if (v->m_intent == intent_local) {
                     if (sym_info[get_hash((ASR::asr_t*) v)].needs_declaration) {
                         std::string indent(indentation_level*indentation_spaces, ' ');
@@ -260,19 +260,19 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             sym_info[get_hash((ASR::asr_t*)&x)] = s;
         }
         std::string sub;
-        ASR::Variable_t *return_var = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_return_var)->m_v);
-        if (return_var->m_type->type == ASR::ttypeType::Integer) {
+        ASR::Variable_t *return_var = EXPR2VAR(x.m_return_var);
+        if (is_a<ASR::Integer_t>(*return_var->m_type)) {
             sub = "int ";
-        } else if (return_var->m_type->type == ASR::ttypeType::Real) {
+        } else if (is_a<ASR::Real_t>(*return_var->m_type)) {
             sub = "float ";
-        } else if (return_var->m_type->type == ASR::ttypeType::Logical) {
+        } else if (is_a<ASR::Logical_t>(*return_var->m_type)) {
             sub = "bool ";
         } else {
             throw CodeGenError("Return type not supported");
         }
         sub = sub + std::string(x.m_name) + "(";
         for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+            ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
             sub += convert_variable_decl(*arg);
             if (i < x.n_args-1) sub += ", ";
@@ -283,9 +283,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string decl;
         for (auto &item : x.m_symtab->scope) {
-            if (item.second->type == ASR::asrType::var) {
-                ASR::var_t *v2 = (ASR::var_t*)(item.second);
-                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+            if (is_a<ASR::var_t>(*item.second)) {
+                ASR::Variable_t *v = down_cast2<ASR::Variable_t>(item.second);
                 if (v->m_intent == intent_local || v->m_intent == intent_return_var) {
                    decl += indent + convert_variable_decl(*v) + ";\n";
                 }
@@ -299,7 +298,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
 
         body += indent + "return "
-            + VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_return_var)->m_v)->m_name
+            + EXPR2VAR(x.m_return_var)->m_name
             + ";\n";
 
         if (decl.size() > 0 || body.size() > 0) {
@@ -313,7 +312,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     }
 
     void visit_FuncCall(const ASR::FuncCall_t &x) {
-        ASR::Function_t *fn = FUNCTION((ASR::asr_t*)x.m_func);
+        ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(x.m_func);
         std::string fn_name = fn->m_name;
         if (sym_info[get_hash((ASR::asr_t*)x.m_func)].intrinsic_function) {
             if (fn_name == "size") {
@@ -351,11 +350,10 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
     void visit_Assignment(const ASR::Assignment_t &x) {
         std::string target;
-        if (x.m_target->type == ASR::exprType::Var) {
-            ASR::var_t *t1 = EXPR_VAR((ASR::asr_t*)(x.m_target))->m_v;
-            target = VARIABLE((ASR::asr_t*)t1)->m_name;
-        } else if (x.m_target->type == ASR::exprType::ArrayRef) {
-            visit_ArrayRef(*(ASR::ArrayRef_t*)x.m_target);
+        if (is_a<ASR::Var_t>(*x.m_target)) {
+            target = EXPR2VAR(x.m_target)->m_name;
+        } else if (is_a<ASR::ArrayRef_t>(*x.m_target)) {
+            visit_ArrayRef(*down_cast<ASR::ArrayRef_t>(x.m_target));
             target = src;
         } else {
             LFORTRAN_ASSERT(false)
@@ -395,13 +393,13 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     }
 
     void visit_Var(const ASR::Var_t &x) {
-        src = VARIABLE((ASR::asr_t*)(x.m_v))->m_name;
+        src = ASR::down_cast<ASR::Variable_t>(x.m_v)->m_name;
         last_unary_plus = false;
         last_binary_plus = false;
     }
 
     void visit_ArrayRef(const ASR::ArrayRef_t &x) {
-        std::string out = VARIABLE((ASR::asr_t*)(x.m_v))->m_name;
+        std::string out = ASR::down_cast<ASR::Variable_t>(x.m_v)->m_name;
         out += "[";
         for (size_t i=0; i<x.n_args; i++) {
             visit_expr(*x.m_args[i].m_right);
@@ -614,7 +612,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     void visit_DoLoop(const ASR::DoLoop_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "for (";
-        ASR::Variable_t *loop_var = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_head.m_v)->m_v);
+        ASR::Variable_t *loop_var = EXPR2VAR(x.m_head.m_v);
         std::string lvname=loop_var->m_name;
         ASR::expr_t *a=x.m_head.m_start;
         ASR::expr_t *b=x.m_head.m_end;
@@ -626,12 +624,12 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             increment = 1;
         } else {
             if (c->type == ASR::exprType::Num) {
-                increment = EXPR_NUM((ASR::asr_t*)c)->m_n;
+                increment = down_cast<ASR::Num_t>(c)->m_n;
             } else if (c->type == ASR::exprType::UnaryOp) {
-                ASR::UnaryOp_t *u = EXPR_UNARYOP((ASR::asr_t*)c);
+                ASR::UnaryOp_t *u = down_cast<ASR::UnaryOp_t>(c);
                 LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
                 LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::Num);
-                increment = - EXPR_NUM((ASR::asr_t*)u->m_operand)->m_n;
+                increment = - down_cast<ASR::Num_t>(u->m_operand)->m_n;
             } else {
                 throw CodeGenError("Do loop increment type not supported");
             }
@@ -672,7 +670,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         out += "Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(1, ";
         visit_expr(*x.m_head.m_end);
         out += src + "+1)";
-        ASR::Variable_t *loop_var = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_head.m_v)->m_v);
+        ASR::Variable_t *loop_var = EXPR2VAR(x.m_head.m_v);
         sym_info[get_hash((ASR::asr_t*) loop_var)].needs_declaration = false;
         out += ", KOKKOS_LAMBDA(const long " + std::string(loop_var->m_name)
                 + ") {\n";
@@ -719,11 +717,11 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
-        ASR::Subroutine_t *s = SUBROUTINE((ASR::asr_t*)x.m_name);
+        ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(x.m_name);
         std::string out = indent + s->m_name + "(";
         for (size_t i=0; i<x.n_args; i++) {
             if (x.m_args[i]->type == ASR::exprType::Var) {
-                ASR::Variable_t *arg = VARIABLE((ASR::asr_t*)EXPR_VAR((ASR::asr_t*)x.m_args[i])->m_v);
+                ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
                 std::string arg_name = arg->m_name;
                 out += arg_name;
             } else {

@@ -67,21 +67,18 @@ using LFortran::AST::make_Interface_t;
 
 static inline expr_t* EXPR(const ast_t *f)
 {
-    LFORTRAN_ASSERT(f->type == astType::expr);
-    return (expr_t*)f;
+    return LFortran::AST::down_cast<expr_t>(f);
 }
 
 static inline attribute_t* ATTR(const ast_t *f)
 {
-    LFORTRAN_ASSERT(f->type == astType::attribute);
-    return (attribute_t*)f;
+    return LFortran::AST::down_cast<attribute_t>(f);
 }
 
 static inline expr_t* EXPR_OPT(const ast_t *f)
 {
     if (f) {
-        LFORTRAN_ASSERT(f->type == astType::expr);
-        return (expr_t*)f;
+        return EXPR(f);
     } else {
         return nullptr;
     }
@@ -89,9 +86,7 @@ static inline expr_t* EXPR_OPT(const ast_t *f)
 
 static inline char* name2char(const ast_t *n)
 {
-    LFORTRAN_ASSERT(EXPR(n)->type == exprType::Name)
-    char *s = ((Name_t*)n)->m_id;
-    return s;
+    return LFortran::AST::down_cast2<Name_t>(n)->m_id;
 }
 
 template <typename T, astType type>
@@ -117,9 +112,7 @@ static inline T** vec_cast(const YYSTYPE::VecAST &x) {
 static inline stmt_t** IFSTMTS(Allocator &al, ast_t* x)
 {
     stmt_t **s = al.allocate<stmt_t*>();
-    LFORTRAN_ASSERT(x->type == astType::stmt);
-    *s = (stmt_t*)x;
-    LFORTRAN_ASSERT((*s)->base.type == astType::stmt)
+    *s = LFortran::AST::down_cast<stmt_t>(x);
     return s;
 }
 
@@ -263,8 +256,7 @@ static inline char** REDUCE_ARGS(Allocator &al, const YYSTYPE::VecAST args)
 static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
         const Location &loc, const ast_t *id)
 {
-        LFORTRAN_ASSERT(EXPR(id)->type == exprType::Name)
-        std::string s_id = ((Name_t*)id)->m_id;
+        std::string s_id = LFortran::AST::down_cast2<Name_t>(id)->m_id;
         if (s_id == "MIN" ) {
                 return LFortran::AST::reduce_opType::ReduceMIN;
         } else if (s_id == "MAX") {

@@ -7,6 +7,8 @@
 
 namespace LFortran {
 
+using ASR::down_cast;
+
 /*
 
 This ASR pass replaces do loops with while loops. The function
@@ -42,12 +44,12 @@ Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop) {
     LFORTRAN_ASSERT(c);
     int increment;
     if (c->type == ASR::exprType::Num) {
-        increment = EXPR_NUM((ASR::asr_t*)c)->m_n;
+        increment = down_cast<ASR::Num_t>(c)->m_n;
     } else if (c->type == ASR::exprType::UnaryOp) {
-        ASR::UnaryOp_t *u = EXPR_UNARYOP((ASR::asr_t*)c);
+        ASR::UnaryOp_t *u = down_cast<ASR::UnaryOp_t>(c);
         LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
         LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::Num);
-        increment = - EXPR_NUM((ASR::asr_t*)u->m_operand)->m_n;
+        increment = - down_cast<ASR::Num_t>(u->m_operand)->m_n;
     } else {
         throw CodeGenError("Do loop increment type not supported");
     }
@@ -143,11 +145,11 @@ public:
         // Transform nested functions and subroutines
         for (auto &item : x.m_symtab->scope) {
             if (item.second->type == ASR::asrType::sub) {
-                ASR::Subroutine_t *s = SUBROUTINE(item.second);
+                ASR::Subroutine_t *s = ASR::down_cast2<ASR::Subroutine_t>(item.second);
                 visit_Subroutine(*s);
             }
             if (item.second->type == ASR::asrType::fn) {
-                ASR::Function_t *s = FUNCTION(item.second);
+                ASR::Function_t *s = ASR::down_cast2<ASR::Function_t>(item.second);
                 visit_Function(*s);
             }
         }
