@@ -309,7 +309,7 @@ public:
     BodyVisitor(Allocator &al, ASR::asr_t *unit) : al{al}, asr{unit} {}
 
     void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
-        ASR::TranslationUnit_t *unit = TRANSLATION_UNIT(asr);
+        ASR::TranslationUnit_t *unit = ASR::down_cast4<ASR::TranslationUnit_t>(asr);
         current_scope = unit->m_global_scope;
         Vec<ASR::asr_t*> items;
         items.reserve(al, x.n_items);
@@ -904,7 +904,7 @@ ASR::TranslationUnit_t *ast_to_asr(Allocator &al, AST::TranslationUnit_t &ast,
 
     BodyVisitor b(al, unit);
     b.visit_TranslationUnit(ast);
-    return TRANSLATION_UNIT(unit);
+    return ASR::down_cast4<ASR::TranslationUnit_t>(unit);
 }
 
 } // namespace LFortran

@@ -51,11 +51,6 @@ static inline ASR::Program_t* PROGRAM(const ASR::asr_t *f)
     return ASR::down_cast4<ASR::Program_t>(f);
 }
 
-static inline ASR::TranslationUnit_t* TRANSLATION_UNIT(const ASR::asr_t *f)
-{
-    return ASR::down_cast4<ASR::TranslationUnit_t>(f);
-}
-
 
 static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
 {
