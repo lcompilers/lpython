@@ -677,6 +677,8 @@ inline bool is_a(const U &x)
     return T::class_type == x.type;
 }
 
+// Cast one level down
+
 template <class T, class U>
 static inline T* down_cast(const U *f)
 {
@@ -684,8 +686,10 @@ static inline T* down_cast(const U *f)
     return (T*)f;
 }
 
+// Cast two levels down
+
 template <class T>
-static inline T* down_cast4(const %(mod)s_t *f)
+static inline T* down_cast2(const %(mod)s_t *f)
 {
     typedef typename T::parent_type ptype;
     LFORTRAN_ASSERT(is_a<ptype>(*f));

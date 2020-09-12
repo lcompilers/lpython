@@ -76,7 +76,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
             // The last item was an expression, create a function returning it
 
             // The last defined `return_var` is the actual return value
-            ASR::down_cast4<ASR::Variable_t>(return_var)->m_intent = intent_return_var;
+            ASR::down_cast2<ASR::Variable_t>(return_var)->m_intent = intent_return_var;
 
             ASR::asr_t *fn = ASR::make_Function_t(
                 al, loc,

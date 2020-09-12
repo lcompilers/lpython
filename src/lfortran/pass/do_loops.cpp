@@ -145,11 +145,11 @@ public:
         // Transform nested functions and subroutines
         for (auto &item : x.m_symtab->scope) {
             if (item.second->type == ASR::asrType::sub) {
-                ASR::Subroutine_t *s = ASR::down_cast4<ASR::Subroutine_t>(item.second);
+                ASR::Subroutine_t *s = ASR::down_cast2<ASR::Subroutine_t>(item.second);
                 visit_Subroutine(*s);
             }
             if (item.second->type == ASR::asrType::fn) {
-                ASR::Function_t *s = ASR::down_cast4<ASR::Function_t>(item.second);
+                ASR::Function_t *s = ASR::down_cast2<ASR::Function_t>(item.second);
                 visit_Function(*s);
             }
         }

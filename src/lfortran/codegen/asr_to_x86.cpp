@@ -62,11 +62,11 @@ public:
         // Generate code for nested subroutines and functions first:
         for (auto &item : x.m_symtab->scope) {
             if (ASR::is_a<ASR::sub_t>(*item.second)) {
-                ASR::Subroutine_t *s = ASR::down_cast4<ASR::Subroutine_t>(item.second);
+                ASR::Subroutine_t *s = ASR::down_cast2<ASR::Subroutine_t>(item.second);
                 visit_Subroutine(*s);
             }
             if (ASR::is_a<ASR::fn_t>(*item.second)) {
-                ASR::Function_t *s = ASR::down_cast4<ASR::Function_t>(item.second);
+                ASR::Function_t *s = ASR::down_cast2<ASR::Function_t>(item.second);
                 visit_Function(*s);
             }
         }

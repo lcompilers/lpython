@@ -173,7 +173,7 @@ public:
             }
             // Extract the variable from the local scope
             return_var = current_scope->scope[std::string(return_var_name)];
-            ASR::down_cast4<ASR::Variable_t>(return_var)->m_intent = intent_return_var;
+            ASR::down_cast2<ASR::Variable_t>(return_var)->m_intent = intent_return_var;
         }
 
         ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
@@ -309,7 +309,7 @@ public:
     BodyVisitor(Allocator &al, ASR::asr_t *unit) : al{al}, asr{unit} {}
 
     void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
-        ASR::TranslationUnit_t *unit = ASR::down_cast4<ASR::TranslationUnit_t>(asr);
+        ASR::TranslationUnit_t *unit = ASR::down_cast2<ASR::TranslationUnit_t>(asr);
         current_scope = unit->m_global_scope;
         Vec<ASR::asr_t*> items;
         items.reserve(al, x.n_items);
@@ -331,7 +331,7 @@ public:
     void visit_Program(const AST::Program_t &x) {
         SymbolTable *old_scope = current_scope;
         ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
-        ASR::Program_t *v = ASR::down_cast4<ASR::Program_t>(t);
+        ASR::Program_t *v = ASR::down_cast2<ASR::Program_t>(t);
         current_scope = v->m_symtab;
 
         Vec<ASR::stmt_t*> body;
@@ -358,7 +358,7 @@ public:
     // TODO: add SymbolTable::get_symbol(), which will only check in Debug mode
         SymbolTable *old_scope = current_scope;
         ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
-        ASR::Subroutine_t *v = ASR::down_cast4<ASR::Subroutine_t>(t);
+        ASR::Subroutine_t *v = ASR::down_cast2<ASR::Subroutine_t>(t);
         current_scope = v->m_symtab;
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
@@ -376,7 +376,7 @@ public:
     void visit_Function(const AST::Function_t &x) {
         SymbolTable *old_scope = current_scope;
         ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
-        ASR::Function_t *v = ASR::down_cast4<ASR::Function_t>(t);
+        ASR::Function_t *v = ASR::down_cast2<ASR::Function_t>(t);
         current_scope = v->m_symtab;
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
@@ -606,7 +606,7 @@ public:
         if (!sub) {
             throw SemanticError("Subroutine '" + sub_name + "' not declared", loc);
         }
-        return ASR::down_cast4<ASR::Subroutine_t>(sub);
+        return ASR::down_cast2<ASR::Subroutine_t>(sub);
     }
 
     void visit_Name(const AST::Name_t &x) {
@@ -655,7 +655,7 @@ public:
             case (ASR::asrType::fn) : {
                 Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
                 ASR::ttype_t *type;
-                type = EXPR2VAR(ASR::down_cast4<ASR::Function_t>(v)->m_return_var)->m_type;
+                type = EXPR2VAR(ASR::down_cast2<ASR::Function_t>(v)->m_return_var)->m_type;
                 tmp = ASR::make_FuncCall_t(al, x.base.base.loc,
                     (ASR::fn_t*)v, args.p, args.size(), nullptr, 0, type);
                 break;
@@ -673,7 +673,7 @@ public:
                 }
 
                 ASR::ttype_t *type;
-                type = ASR::down_cast4<ASR::Variable_t>(v)->m_type;
+                type = ASR::down_cast2<ASR::Variable_t>(v)->m_type;
                 tmp = ASR::make_ArrayRef_t(al, x.base.base.loc,
                     (ASR::var_t*)v, args.p, args.size(), type);
                 break;
@@ -904,7 +904,7 @@ ASR::TranslationUnit_t *ast_to_asr(Allocator &al, AST::TranslationUnit_t &ast,
 
     BodyVisitor b(al, unit);
     b.visit_TranslationUnit(ast);
-    return ASR::down_cast4<ASR::TranslationUnit_t>(unit);
+    return ASR::down_cast2<ASR::TranslationUnit_t>(unit);
 }
 
 } // namespace LFortran
