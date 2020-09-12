@@ -10,11 +10,6 @@ using LFortran::AST::BaseVisitor;
 
 namespace LFortran {
 
-static inline AST::Num_t* EXPR_NUM(const AST::ast_t *f)
-{
-    return AST::down_cast2<AST::Num_t>(f);
-}
-
 namespace {
 
     std::string op2str(const operatorType type)
@@ -853,7 +848,7 @@ public:
             this->visit_expr(*x.m_start);
             left = s;
             if (x.m_start->type == AST::exprType::Num) {
-                left_is_one = (EXPR_NUM((AST::ast_t*)x.m_start)->m_n == 1);
+                left_is_one = (AST::down_cast<AST::Num_t>(x.m_start)->m_n == 1);
             };
         }
         std::string right;
