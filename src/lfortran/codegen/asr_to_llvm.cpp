@@ -92,6 +92,7 @@ public:
 
     llvm::Value *tmp;
     llvm::BasicBlock *current_loophead, *current_loopend;
+    std::string mangle_prefix;
 
     std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
     std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
@@ -163,6 +164,7 @@ public:
 
     void visit_Module(const ASR::Module_t &x) {
         // TODO: mangle all subroutine / function names with a module prefix
+        mangle_prefix = "__module_" + std::string(x.m_name) + "_";
         for (auto &item : x.m_symtab->scope) {
             if (item.second->type == ASR::asrType::sub) {
                 ASR::Subroutine_t *s = ASR::down_cast2<ASR::Subroutine_t>(item.second);
@@ -173,6 +175,7 @@ public:
                 visit_Function(*s);
             }
         }
+        mangle_prefix = "";
     }
 
     void visit_Program(const ASR::Program_t &x) {
@@ -324,7 +327,8 @@ public:
         llvm::FunctionType *function_type = llvm::FunctionType::get(
                 llvm::Type::getVoidTy(context), args, false);
         llvm::Function *F = llvm::Function::Create(function_type,
-                llvm::Function::ExternalLinkage, x.m_name, module.get());
+                llvm::Function::ExternalLinkage, mangle_prefix+x.m_name,
+                module.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
                 ".entry", F);
         builder->SetInsertPoint(BB);
