@@ -93,7 +93,8 @@ public:
     llvm::Value *tmp;
     llvm::BasicBlock *current_loophead, *current_loopend;
 
-    std::map<uint64_t, llvm::Value*> llvm_symtab;
+    std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
+    std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
 
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context} {}
 
@@ -337,6 +338,13 @@ public:
         }
 
         builder->CreateRetVoid();
+
+        uint32_t h = get_hash((ASR::asr_t*)&x);
+        if (llvm_symtab_fn.find(h) != llvm_symtab_fn.end()) {
+            throw CodeGenError("Subroutine code already generated for '"
+                + std::string(x.m_name) + "'");
+        }
+        llvm_symtab_fn[h] = F;
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
@@ -727,11 +735,17 @@ public:
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
         ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(x.m_name);
-        llvm::Function *fn = module->getFunction(s->m_name);
-        if (!fn) {
+        uint32_t h;
+        if (s->m_external) {
+            h = get_hash((ASR::asr_t*)s->m_external->m_module_sub);
+        } else {
+            h = get_hash((ASR::asr_t*)s);
+        }
+        if (llvm_symtab_fn.find(h) == llvm_symtab_fn.end()) {
             throw CodeGenError("Subroutine code not generated for '"
                 + std::string(s->m_name) + "'");
         }
+        llvm::Function *fn = llvm_symtab_fn[h];
         std::vector<llvm::Value *> args = convert_call_args(x);
         builder->CreateCall(fn, args);
     }
