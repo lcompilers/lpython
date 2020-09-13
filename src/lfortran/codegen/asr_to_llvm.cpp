@@ -46,6 +46,12 @@
 
 namespace LFortran {
 
+// Platform dependent fast unique hash:
+uint64_t static get_hash(ASR::asr_t *node)
+{
+    return (uint64_t)node;
+}
+
 void printf(llvm::LLVMContext &context, llvm::Module &module,
     llvm::IRBuilder<> &builder, const std::vector<llvm::Value*> &args)
 {
@@ -83,8 +89,7 @@ public:
     llvm::Value *tmp;
     llvm::BasicBlock *current_loophead, *current_loopend;
 
-    // TODO: This is not scoped, should lookup by hashes instead:
-    std::map<std::string, llvm::Value*> llvm_symtab;
+    std::map<uint64_t, llvm::Value*> llvm_symtab;
 
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context} {}
 
@@ -114,6 +119,7 @@ public:
     }
 
     void visit_Variable(const ASR::Variable_t &x) {
+        uint32_t h = get_hash((ASR::asr_t*)&x);
         // This happens at global scope, so the intent can only be either local
         // (global variable declared/initialized in this translation unit), or
         // external (global variable not declared/initialized in this
@@ -128,7 +134,7 @@ public:
                 module->getNamedGlobal(x.m_name)->setInitializer(
                     llvm::ConstantInt::get(context, llvm::APInt(64, 0)));
             }
-            llvm_symtab[std::string(x.m_name)] = ptr;
+            llvm_symtab[h] = ptr;
         } else if (x.m_type->type == ASR::ttypeType::Real) {
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
                 llvm::Type::getFloatTy(context));
@@ -136,7 +142,7 @@ public:
                 module->getNamedGlobal(x.m_name)->setInitializer(
                     llvm::ConstantFP::get(context, llvm::APFloat((float)0)));
             }
-            llvm_symtab[std::string(x.m_name)] = ptr;
+            llvm_symtab[h] = ptr;
         } else if (x.m_type->type == ASR::ttypeType::Logical) {
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
                 llvm::Type::getInt1Ty(context));
@@ -144,7 +150,7 @@ public:
                 module->getNamedGlobal(x.m_name)->setInitializer(
                     llvm::ConstantInt::get(context, llvm::APInt(1, 0)));
             }
-            llvm_symtab[std::string(x.m_name)] = ptr;
+            llvm_symtab[h] = ptr;
         } else {
             throw CodeGenError("Variable type not supported");
         }
@@ -176,20 +182,21 @@ public:
             if (item.second->type == ASR::asrType::var) {
                 ASR::var_t *v2 = (ASR::var_t*)(item.second);
                 ASR::Variable_t *v = (ASR::Variable_t *)v2;
+                uint32_t h = get_hash((ASR::asr_t*)v);
 
                 if (v->m_type->type == ASR::ttypeType::Integer) {
                     llvm::AllocaInst *ptr = builder->CreateAlloca(
                         llvm::Type::getInt64Ty(context), nullptr, v->m_name);
-                    llvm_symtab[std::string(v->m_name)] = ptr;
+                    llvm_symtab[h] = ptr;
                 } else if (v->m_type->type == ASR::ttypeType::Real) {
                     // TODO: Assuming single precision
                     llvm::AllocaInst *ptr = builder->CreateAlloca(
                         llvm::Type::getFloatTy(context), nullptr, v->m_name);
-                    llvm_symtab[std::string(v->m_name)] = ptr;
+                    llvm_symtab[h] = ptr;
                 } else if (v->m_type->type == ASR::ttypeType::Logical) {
                     llvm::AllocaInst *ptr = builder->CreateAlloca(
                         llvm::Type::getInt1Ty(context), nullptr, v->m_name);
-                    llvm_symtab[std::string(v->m_name)] = ptr;
+                    llvm_symtab[h] = ptr;
                 } else {
                     throw CodeGenError("Variable type not supported");
                 }
@@ -224,9 +231,10 @@ public:
         for (llvm::Argument &llvm_arg : F.args()) {
             ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
+            uint32_t h = get_hash((ASR::asr_t*)arg);
             std::string arg_s = arg->m_name;
             llvm_arg.setName(arg_s);
-            llvm_symtab[arg_s] = &llvm_arg;
+            llvm_symtab[h] = &llvm_arg;
             i++;
         }
     }
@@ -237,6 +245,7 @@ public:
             if (item.second->type == ASR::asrType::var) {
                 ASR::var_t *v2 = (ASR::var_t*)(item.second);
                 ASR::Variable_t *v = (ASR::Variable_t *)v2;
+                uint32_t h = get_hash((ASR::asr_t*)v);
 
                 llvm::Type *type;
                 if (v->m_intent == intent_local || v->m_intent == intent_return_var) {
@@ -249,7 +258,7 @@ public:
                     }
                     llvm::AllocaInst *ptr = builder->CreateAlloca(
                         type, nullptr, v->m_name);
-                    llvm_symtab[std::string(v->m_name)] = ptr;
+                    llvm_symtab[h] = ptr;
                 }
             }
         }
@@ -282,8 +291,9 @@ public:
             this->visit_stmt(*x.m_body[i]);
         }
 
-        std::string return_var_name = EXPR2VAR(x.m_return_var)->m_name;
-        llvm::Value *ret_val = llvm_symtab[return_var_name];
+        ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
+        uint32_t h = get_hash((ASR::asr_t*)asr_retval);
+        llvm::Value *ret_val = llvm_symtab[h];
         llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
         builder->CreateRet(ret_val2);
     }
@@ -311,7 +321,9 @@ public:
 
     void visit_Assignment(const ASR::Assignment_t &x) {
         //this->visit_expr(*x.m_target);
-        llvm::Value *target= llvm_symtab[std::string(EXPR2VAR(x.m_target)->m_name)];
+        ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
+        uint32_t h = get_hash((ASR::asr_t*)asr_target);
+        llvm::Value *target = llvm_symtab[h];
         this->visit_expr(*x.m_value);
         llvm::Value *value=tmp;
         builder->CreateStore(value, target);
@@ -601,9 +613,10 @@ public:
     }
 
     void visit_Var(const ASR::Var_t &x) {
-        std::string vname = ASR::down_cast<ASR::Variable_t>(x.m_v)->m_name;
-        LFORTRAN_ASSERT(llvm_symtab.find(vname) != llvm_symtab.end());
-        llvm::Value *ptr = llvm_symtab[vname];
+        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(x.m_v);
+        uint32_t h = get_hash((ASR::asr_t*)v);
+        LFORTRAN_ASSERT(llvm_symtab.find(h) != llvm_symtab.end());
+        llvm::Value *ptr = llvm_symtab[h];
         tmp = builder->CreateLoad(ptr);
     }
 
@@ -677,8 +690,8 @@ public:
         for (size_t i=0; i<x.n_args; i++) {
             if (x.m_args[i]->type == ASR::exprType::Var) {
                 ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
-                std::string arg_name = arg->m_name;
-                tmp = llvm_symtab[arg_name];
+                uint32_t h = get_hash((ASR::asr_t*)arg);
+                tmp = llvm_symtab[h];
             } else {
                 this->visit_expr(*x.m_args[i]);
                 llvm::Value *value=tmp;
