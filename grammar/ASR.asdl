@@ -31,7 +31,9 @@ mod
 
 sub
     = Subroutine(symbol_table symtab, identifier name, expr* args, stmt* body,
-        tbind? bind)
+        tbind? bind, sub_info? external)
+sub_info = (sub_external_type type, mod? module)
+sub_external_type = LFortranModule | GFortranModule
 
 fn
     = Function(symbol_table symtab, identifier name, expr* args, stmt* body,

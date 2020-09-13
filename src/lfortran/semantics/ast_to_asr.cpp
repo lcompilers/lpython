@@ -115,7 +115,8 @@ public:
             /* n_args */ args.size(),
             /* a_body */ nullptr,
             /* n_body */ 0,
-            /* a_bind */ nullptr);
+            /* a_bind */ nullptr,
+            nullptr);
         std::string sym_name = x.m_name;
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             throw SemanticError("Subroutine already defined", asr->loc);
