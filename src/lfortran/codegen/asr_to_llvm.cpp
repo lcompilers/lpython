@@ -156,6 +156,20 @@ public:
         }
     }
 
+    void visit_Module(const ASR::Module_t &x) {
+        // TODO: mangle all subroutine / function names with a module prefix
+        for (auto &item : x.m_symtab->scope) {
+            if (item.second->type == ASR::asrType::sub) {
+                ASR::Subroutine_t *s = ASR::down_cast2<ASR::Subroutine_t>(item.second);
+                visit_Subroutine(*s);
+            }
+            if (item.second->type == ASR::asrType::fn) {
+                ASR::Function_t *s = ASR::down_cast2<ASR::Function_t>(item.second);
+                visit_Function(*s);
+            }
+        }
+    }
+
     void visit_Program(const ASR::Program_t &x) {
         // Generate code for nested subroutines and functions first:
         for (auto &item : x.m_symtab->scope) {
