@@ -179,7 +179,9 @@ public:
         for (auto &item : x.m_symtab->scope) {
             if (is_a<ASR::sub_t>(*item.second)) {
                 ASR::Subroutine_t *s = down_cast2<ASR::Subroutine_t>(item.second);
-                visit_Subroutine(*s);
+                if (!s->m_external) {
+                    visit_Subroutine(*s);
+                }
             }
             if (is_a<ASR::fn_t>(*item.second)) {
                 ASR::Function_t *s = down_cast2<ASR::Function_t>(item.second);
