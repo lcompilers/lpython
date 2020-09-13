@@ -38,6 +38,30 @@ public:
             current_scope, nullptr, 0);
     }
 
+    void visit_Module(const AST::Module_t &x) {
+        SymbolTable *parent_scope = current_scope;
+        current_scope = al.make_new<SymbolTable>(parent_scope);
+        for (size_t i=0; i<x.n_use; i++) {
+            visit_unit_decl1(*x.m_use[i]);
+        }
+        for (size_t i=0; i<x.n_decl; i++) {
+            visit_unit_decl2(*x.m_decl[i]);
+        }
+        for (size_t i=0; i<x.n_contains; i++) {
+            visit_program_unit(*x.m_contains[i]);
+        }
+        asr = ASR::make_Module_t(
+            al, x.base.base.loc,
+            /* a_symtab */ current_scope,
+            /* a_name */ x.m_name);
+        std::string sym_name = x.m_name;
+        if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
+            throw SemanticError("Module already defined", asr->loc);
+        }
+        parent_scope->scope[sym_name] = asr;
+        current_scope = parent_scope;
+    }
+
     void visit_Program(const AST::Program_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
@@ -205,6 +229,9 @@ public:
         }
     }
 
+    void visit_Use(const AST::Use_t &x) {
+    }
+
     void visit_decl(const AST::decl_t &x) {
         std::string sym = x.m_sym;
         std::string sym_type = x.m_sym_type;
@@ -320,6 +347,20 @@ public:
 
     void visit_Declaration(const AST::Declaration_t & /* x */) {
         // This AST node was already visited in SymbolTableVisitor
+    }
+
+    void visit_Module(const AST::Module_t &x) {
+        SymbolTable *old_scope = current_scope;
+        ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
+        ASR::Module_t *v = ASR::down_cast2<ASR::Module_t>(t);
+        current_scope = v->m_symtab;
+
+        for (size_t i=0; i<x.n_contains; i++) {
+            visit_program_unit(*x.m_contains[i]);
+        }
+
+        current_scope = old_scope;
+        tmp = nullptr;
     }
 
     void visit_Program(const AST::Program_t &x) {
