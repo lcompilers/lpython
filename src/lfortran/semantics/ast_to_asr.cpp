@@ -230,6 +230,34 @@ public:
     }
 
     void visit_Use(const AST::Use_t &x) {
+        std::string msym = x.m_module;
+        ASR::asr_t *t = current_scope->parent->resolve_symbol(msym);
+        if (!t) {
+            throw SemanticError("Module '" + msym + "' not declared",
+                x.base.base.loc);
+        }
+        if (!ASR::is_a<ASR::mod_t>(*t)) {
+            throw SemanticError("The symbol '" + msym + "' must be a module",
+                x.base.base.loc);
+        }
+        ASR::Module_t *m = ASR::down_cast2<ASR::Module_t>(t);
+        for (size_t i = 0; i < x.n_symbols; i++) {
+            std::string sym = AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_sym;
+            ASR::asr_t *t = m->m_symtab->resolve_symbol(sym);
+            if (!t) {
+                throw SemanticError("The symbol '" + sym + "' not found in the module '" + msym + "'",
+                    x.base.base.loc);
+            }
+            if (!ASR::is_a<ASR::sub_t>(*t)) {
+                throw LFortranException("Only Subroutines supported in 'use'");
+            }
+            if (current_scope->scope.find(sym) != current_scope->scope.end()) {
+                throw SemanticError("Subroutine already defined",
+                    x.base.base.loc);
+            }
+            // TODO: import it as an interface
+            current_scope->scope[sym] = t;
+        }
     }
 
     void visit_decl(const AST::decl_t &x) {
