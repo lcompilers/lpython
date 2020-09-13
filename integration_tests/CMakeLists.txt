@@ -134,8 +134,8 @@ RUN(NAME arrays_07 LABELS gfortran)
 
 RUN(NAME intrinsics_01 LABELS gfortran)
 
-RUN(NAME modules_01 LABELS gfortran)
-RUN(NAME modules_02 LABELS gfortran llvm)
+RUN(NAME modules_01 LABELS gfortran llvm)
+RUN(NAME modules_02 LABELS gfortran)
 RUN(NAME modules_03 LABELS gfortran)
 RUN(NAME modules_04 LABELS gfortran)
 RUN(NAME modules_05 LABELS gfortran)
