@@ -256,8 +256,25 @@ public:
                 throw SemanticError("Subroutine already defined",
                     x.base.base.loc);
             }
-            // TODO: import it as an interface
-            current_scope->scope[sym] = t;
+            ASR::Subroutine_t *msub = ASR::down_cast2<ASR::Subroutine_t>(t);
+            // `msub` is the Subroutine in a module. Now we construct
+            // a new Subroutine that is just the prototype, and that links to
+            // `msub` via the `external` field.
+            ASR::sub_info_t *external = al.make_new<ASR::sub_info_t>();
+            external->m_type = ASR::sub_external_typeType::LFortranModule;
+            external->m_module = (ASR::mod_t*)m;
+            ASR::asr_t *sub = ASR::make_Subroutine_t(
+                al, msub->base.base.loc,
+                /* a_symtab */ msub->m_symtab,
+                /* a_name */ msub->m_name,
+                /* a_args */ msub->m_args,
+                /* n_args */ msub->n_args,
+                /* a_body */ nullptr,
+                /* n_body */ 0,
+                /* a_bind */ msub->m_bind,
+                /* a_external */ external
+                );
+            current_scope->scope[sym] = sub;
         }
     }
 
