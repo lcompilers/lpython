@@ -208,12 +208,6 @@ public:
     void visit_decl(const AST::decl_t &x) {
         std::string sym = x.m_sym;
         std::string sym_type = x.m_sym_type;
-        Location loc;
-        // TODO: decl_t does not have location information...
-        loc.first_column = 0;
-        loc.first_line = 0;
-        loc.last_column = 0;
-        loc.last_line = 0;
         if (current_scope->scope.find(sym) == current_scope->scope.end()) {
             ASR::intentType s_intent=intent_local;
             Vec<ASR::dimension_t> dims;
@@ -230,15 +224,15 @@ public:
                         } else if (intent == "inout") {
                             s_intent = intent_inout;
                         } else {
-                            throw SemanticError("Incorrect intent specifier", loc);
+                            throw SemanticError("Incorrect intent specifier", x.loc);
                         }
                     } else {
-                        throw SemanticError("intent() is empty. Must specify intent", loc);
+                        throw SemanticError("intent() is empty. Must specify intent", x.loc);
                     }
                 }
                 if (std::string(a->m_name) == "dimension") {
                     if (x.n_dims > 0) {
-                        throw SemanticError("Cannot specify dimensions both ways", loc);
+                        throw SemanticError("Cannot specify dimensions both ways", x.loc);
                     }
                     dims.reserve(al, a->n_dims);
                     for (size_t i=0; i<a->n_dims; i++) {
@@ -277,15 +271,15 @@ public:
             }
             ASR::ttype_t *type;
             if (sym_type == "real") {
-                type = TYPE(ASR::make_Real_t(al, loc, 4, dims.p, dims.size()));
+                type = TYPE(ASR::make_Real_t(al, x.loc, 4, dims.p, dims.size()));
             } else if (sym_type == "integer") {
-                type = TYPE(ASR::make_Integer_t(al, loc, 4, dims.p, dims.size()));
+                type = TYPE(ASR::make_Integer_t(al, x.loc, 4, dims.p, dims.size()));
             } else if (sym_type == "logical") {
-                type = TYPE(ASR::make_Logical_t(al, loc, 4, dims.p, dims.size()));
+                type = TYPE(ASR::make_Logical_t(al, x.loc, 4, dims.p, dims.size()));
             } else {
-                throw SemanticError("Unsupported type", loc);
+                throw SemanticError("Unsupported type", x.loc);
             }
-            ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
+            ASR::asr_t *v = ASR::make_Variable_t(al, x.loc, current_scope,
                 x.m_sym, s_intent, type);
             current_scope->scope[sym] = v;
 
@@ -625,15 +619,14 @@ public:
                 char *fn_name = (char*)fn_name_orig;
                 SymbolTable *fn_scope = al.make_new<SymbolTable>(unit->m_global_scope);
                 ASR::ttype_t *type;
-                Location loc;
-                type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-                ASR::asr_t *return_var = ASR::make_Variable_t(al, loc,
+                type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+                ASR::asr_t *return_var = ASR::make_Variable_t(al, x.base.base.loc,
                     fn_scope, fn_name, intent_return_var, type);
                 fn_scope->scope[std::string(fn_name)] = return_var;
-                ASR::asr_t *return_var_ref = ASR::make_Var_t(al, loc,
+                ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
                     ASR::down_cast<ASR::var_t>(return_var));
                 ASR::asr_t *fn = ASR::make_Function_t(
-                    al, loc,
+                    al, x.base.base.loc,
                     /* a_symtab */ fn_scope,
                     /* a_name */ fn_name,
                     /* a_args */ nullptr,

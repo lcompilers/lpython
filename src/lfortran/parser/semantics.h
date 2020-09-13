@@ -160,9 +160,10 @@ static inline decl_t* DECL2b(Allocator &al, const ast_t *attr)
     return s;
 }
 
-static inline decl_t* DECL2c(Allocator &al)
+static inline decl_t* DECL2c(Allocator &al, Location &l)
 {
     decl_t *s = al.allocate<decl_t>(1);
+    s[0].loc = l;
     s[0].m_sym = nullptr;
     s[0].m_sym_type = nullptr;
     s[0].m_dims = nullptr;
@@ -212,25 +213,30 @@ static inline expr_t** DIMS2EXPRS(Allocator &al, const YYSTYPE::VecDim &d)
     }
 }
 
-static inline dimension_t DIM1(expr_t *a, expr_t *b)
+static inline dimension_t DIM1(Location &l, expr_t *a, expr_t *b)
 {
     dimension_t s;
+    s.loc = l;
     s.m_start = a;
     s.m_end = b;
     return s;
 }
 
-static inline attribute_arg_t* ATTR_ARG(Allocator &al, const YYSTYPE::Str arg)
+static inline attribute_arg_t* ATTR_ARG(Allocator &al, Location &l,
+        const YYSTYPE::Str arg)
 {
     attribute_arg_t *s = al.allocate<attribute_arg_t>();
+    s->loc = l;
     s->m_arg = arg.c_str(al);
     return s;
 }
 
-static inline arg_t* ARGS(Allocator &al, const YYSTYPE::VecAST args)
+static inline arg_t* ARGS(Allocator &al, Location &l,
+    const YYSTYPE::VecAST args)
 {
     arg_t *a = al.allocate<arg_t>(args.size());
     for (size_t i=0; i < args.size(); i++) {
+        a[i].loc = l;
         a[i].m_arg = name2char(args.p[i]);
     }
     return a;
@@ -338,7 +344,7 @@ static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
 #define CYCLE(l) make_Cycle_t(p.m_a, l)
 #define SUBROUTINE(name, args, decl, stmts, l) make_Subroutine_t(p.m_a, l, \
         /*name*/ name2char(name), \
-        /*args*/ ARGS(p.m_a, args), \
+        /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
         /*use*/ nullptr, \
         /*n_use*/ 0, \
@@ -369,7 +375,7 @@ char *fn_type2return_type(const YYSTYPE::VecAST &v) {
 
 #define FUNCTION(fn_type, name, args, return_var, decl, stmts, l) make_Function_t(p.m_a, l, \
         /*name*/ name2char(name), \
-        /*args*/ ARGS(p.m_a, args), \
+        /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
         /*return_type*/ fn_type2return_type(fn_type), \
         /*return_var*/ EXPR_OPT(return_var), \
@@ -384,7 +390,7 @@ char *fn_type2return_type(const YYSTYPE::VecAST &v) {
         /*n_contains*/ 0)
 #define FUNCTION0(name, args, return_var, decl, stmts, l) make_Function_t(p.m_a, l, \
         /*name*/ name2char(name), \
-        /*args*/ ARGS(p.m_a, args), \
+        /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
         /*return_type*/ nullptr, \
         /*return_var*/ EXPR_OPT(return_var), \
@@ -551,13 +557,13 @@ char *fn_type2return_type(const YYSTYPE::VecAST &v) {
 #define VAR_SYM_DECL5(id, e, l)      DECL3(p.m_a, id, nullptr, EXPR(e))
 // TODO: Extend AST to express a(:) => b()
 #define VAR_SYM_DECL6(id, a, e, l)   DECL3(p.m_a, id, &a, EXPR(e))
-#define VAR_SYM_DECL7(l)             DECL2c(p.m_a)
+#define VAR_SYM_DECL7(l)             DECL2c(p.m_a, l)
 
-#define ARRAY_COMP_DECL1(a, l)       DIM1(EXPR(INTEGER(1, l)), EXPR(a))
-#define ARRAY_COMP_DECL2(a, b, l)    DIM1(EXPR(a), EXPR(b))
-#define ARRAY_COMP_DECL3(a, l)       DIM1(EXPR(a), nullptr)
-#define ARRAY_COMP_DECL4(b, l)       DIM1(nullptr, EXPR(b))
-#define ARRAY_COMP_DECL5(l)          DIM1(nullptr, nullptr)
+#define ARRAY_COMP_DECL1(a, l)       DIM1(l, EXPR(INTEGER(1, l)), EXPR(a))
+#define ARRAY_COMP_DECL2(a, b, l)    DIM1(l, EXPR(a), EXPR(b))
+#define ARRAY_COMP_DECL3(a, l)       DIM1(l, EXPR(a), nullptr)
+#define ARRAY_COMP_DECL4(b, l)       DIM1(l, nullptr, EXPR(b))
+#define ARRAY_COMP_DECL5(l)          DIM1(l, nullptr, nullptr)
 
 #define VARMOD(a, l) make_Attribute_t(p.m_a, l, \
         a.c_str(p.m_a), \
@@ -568,7 +574,7 @@ char *fn_type2return_type(const YYSTYPE::VecAST &v) {
 
 #define VARMOD2(a, b, l) make_Attribute_t(p.m_a, l, \
         a.c_str(p.m_a), \
-        /*args*/ ATTR_ARG(p.m_a, b), \
+        /*args*/ ATTR_ARG(p.m_a, l, b), \
         /*n_args*/ 1, \
         nullptr, \
         0)
@@ -619,7 +625,7 @@ LFortran::Str Str_from_string(Allocator &al, const std::string &s) {
 
 #define VARMOD3(a, l) make_Attribute_t(p.m_a, l, \
         a.c_str(p.m_a), \
-        /*args*/ ATTR_ARG(p.m_a, Str_from_string(p.m_a, "inout")), \
+        /*args*/ ATTR_ARG(p.m_a, l, Str_from_string(p.m_a, "inout")), \
         /*n_args*/ 1, \
         nullptr, \
         0)
