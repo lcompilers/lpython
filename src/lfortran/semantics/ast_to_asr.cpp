@@ -619,15 +619,14 @@ public:
                 char *fn_name = (char*)fn_name_orig;
                 SymbolTable *fn_scope = al.make_new<SymbolTable>(unit->m_global_scope);
                 ASR::ttype_t *type;
-                Location loc;
-                type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-                ASR::asr_t *return_var = ASR::make_Variable_t(al, loc,
+                type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+                ASR::asr_t *return_var = ASR::make_Variable_t(al, x.base.base.loc,
                     fn_scope, fn_name, intent_return_var, type);
                 fn_scope->scope[std::string(fn_name)] = return_var;
-                ASR::asr_t *return_var_ref = ASR::make_Var_t(al, loc,
+                ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
                     ASR::down_cast<ASR::var_t>(return_var));
                 ASR::asr_t *fn = ASR::make_Function_t(
-                    al, loc,
+                    al, x.base.base.loc,
                     /* a_symtab */ fn_scope,
                     /* a_name */ fn_name,
                     /* a_args */ nullptr,
