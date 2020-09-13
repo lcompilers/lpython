@@ -526,7 +526,7 @@ proc_modifier
 program
     : KW_PROGRAM id sep use_statement_star implicit_statement_opt decl_star statements
         contains_block_opt KW_END end_program_opt sep {
-            LLOC(@$, @10); $$ = PROGRAM($2, $6, $7, $8, @$); }
+            LLOC(@$, @10); $$ = PROGRAM($2, $4, $6, $7, $8, @$); }
     ;
 
 end_program_opt

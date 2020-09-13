@@ -100,6 +100,7 @@ static inline T** vec_cast(const YYSTYPE::VecAST &x) {
 
 #define VEC_CAST(x, type) vec_cast<LFortran::AST::type##_t, astType::type>(x)
 #define DECLS(x) VEC_CAST(x, unit_decl2)
+#define USES(x) VEC_CAST(x, unit_decl1)
 #define STMTS(x) VEC_CAST(x, stmt)
 #define CONTAINS(x) VEC_CAST(x, program_unit)
 #define ATTRS(x) VEC_CAST(x, attribute)
@@ -403,10 +404,10 @@ char *fn_type2return_type(const YYSTYPE::VecAST &v) {
         /*n_body*/ stmts.size(), \
         /*contains*/ nullptr, \
         /*n_contains*/ 0)
-#define PROGRAM(name, decl, stmts, contains, l) make_Program_t(p.m_a, l, \
+#define PROGRAM(name, use, decl, stmts, contains, l) make_Program_t(p.m_a, l, \
         /*name*/ name2char(name), \
-        /*use*/ nullptr, \
-        /*n_use*/ 0, \
+        /*use*/ USES(use), \
+        /*n_use*/ use.size(), \
         /*decl*/ DECLS(decl), \
         /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \
