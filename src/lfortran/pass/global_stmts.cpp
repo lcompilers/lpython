@@ -105,7 +105,8 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                 /* n_args */ 0,
                 /* a_body */ body.p,
                 /* n_body */ body.size(),
-                /* a_bind */ nullptr);
+                /* a_bind */ nullptr,
+                nullptr);
             std::string sym_name = fn_name;
             if (unit.m_global_scope->scope.find(sym_name) != unit.m_global_scope->scope.end()) {
                 throw SemanticError("Function already defined", fn->loc);

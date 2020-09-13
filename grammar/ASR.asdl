@@ -1,5 +1,10 @@
 -- Abstract Semantic Representation (ASR) definition
 
+-- The aim of ASR is to represent all semantics in a non-redundant way,
+-- and that has all the information available locally, so that the backend
+-- can do a single pass over ASR and have all the information at hand to
+-- generate code.
+
 -- ASDL's builtin types are:
 --   * identifier
 --   * int (signed integers of infinite precision)
@@ -31,7 +36,9 @@ mod
 
 sub
     = Subroutine(symbol_table symtab, identifier name, expr* args, stmt* body,
-        tbind? bind)
+        tbind? bind, sub_info? external)
+sub_info = (sub_external_type type, sub? module_sub)
+sub_external_type = LFortranModule | GFortranModule
 
 fn
     = Function(symbol_table symtab, identifier name, expr* args, stmt* body,

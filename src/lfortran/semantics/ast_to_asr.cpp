@@ -38,6 +38,30 @@ public:
             current_scope, nullptr, 0);
     }
 
+    void visit_Module(const AST::Module_t &x) {
+        SymbolTable *parent_scope = current_scope;
+        current_scope = al.make_new<SymbolTable>(parent_scope);
+        for (size_t i=0; i<x.n_use; i++) {
+            visit_unit_decl1(*x.m_use[i]);
+        }
+        for (size_t i=0; i<x.n_decl; i++) {
+            visit_unit_decl2(*x.m_decl[i]);
+        }
+        for (size_t i=0; i<x.n_contains; i++) {
+            visit_program_unit(*x.m_contains[i]);
+        }
+        asr = ASR::make_Module_t(
+            al, x.base.base.loc,
+            /* a_symtab */ current_scope,
+            /* a_name */ x.m_name);
+        std::string sym_name = x.m_name;
+        if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
+            throw SemanticError("Module already defined", asr->loc);
+        }
+        parent_scope->scope[sym_name] = asr;
+        current_scope = parent_scope;
+    }
+
     void visit_Program(const AST::Program_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
@@ -91,7 +115,8 @@ public:
             /* n_args */ args.size(),
             /* a_body */ nullptr,
             /* n_body */ 0,
-            /* a_bind */ nullptr);
+            /* a_bind */ nullptr,
+            nullptr);
         std::string sym_name = x.m_name;
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             throw SemanticError("Subroutine already defined", asr->loc);
@@ -202,6 +227,54 @@ public:
     void visit_Declaration(const AST::Declaration_t &x) {
         for (size_t i=0; i<x.n_vars; i++) {
             this->visit_decl(x.m_vars[i]);
+        }
+    }
+
+    void visit_Use(const AST::Use_t &x) {
+        std::string msym = x.m_module;
+        ASR::asr_t *t = current_scope->parent->resolve_symbol(msym);
+        if (!t) {
+            throw SemanticError("Module '" + msym + "' not declared",
+                x.base.base.loc);
+        }
+        if (!ASR::is_a<ASR::mod_t>(*t)) {
+            throw SemanticError("The symbol '" + msym + "' must be a module",
+                x.base.base.loc);
+        }
+        ASR::Module_t *m = ASR::down_cast2<ASR::Module_t>(t);
+        for (size_t i = 0; i < x.n_symbols; i++) {
+            std::string sym = AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_sym;
+            ASR::asr_t *t = m->m_symtab->resolve_symbol(sym);
+            if (!t) {
+                throw SemanticError("The symbol '" + sym + "' not found in the module '" + msym + "'",
+                    x.base.base.loc);
+            }
+            if (!ASR::is_a<ASR::sub_t>(*t)) {
+                throw LFortranException("Only Subroutines supported in 'use'");
+            }
+            if (current_scope->scope.find(sym) != current_scope->scope.end()) {
+                throw SemanticError("Subroutine already defined",
+                    x.base.base.loc);
+            }
+            ASR::Subroutine_t *msub = ASR::down_cast2<ASR::Subroutine_t>(t);
+            // `msub` is the Subroutine in a module. Now we construct
+            // a new Subroutine that is just the prototype, and that links to
+            // `msub` via the `external` field.
+            ASR::sub_info_t *external = al.make_new<ASR::sub_info_t>();
+            external->m_type = ASR::sub_external_typeType::LFortranModule;
+            external->m_module_sub = (ASR::sub_t*)msub;
+            ASR::asr_t *sub = ASR::make_Subroutine_t(
+                al, msub->base.base.loc,
+                /* a_symtab */ msub->m_symtab,
+                /* a_name */ msub->m_name,
+                /* a_args */ msub->m_args,
+                /* n_args */ msub->n_args,
+                /* a_body */ nullptr,
+                /* n_body */ 0,
+                /* a_bind */ msub->m_bind,
+                /* a_external */ external
+                );
+            current_scope->scope[sym] = sub;
         }
     }
 
@@ -320,6 +393,20 @@ public:
 
     void visit_Declaration(const AST::Declaration_t & /* x */) {
         // This AST node was already visited in SymbolTableVisitor
+    }
+
+    void visit_Module(const AST::Module_t &x) {
+        SymbolTable *old_scope = current_scope;
+        ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
+        ASR::Module_t *v = ASR::down_cast2<ASR::Module_t>(t);
+        current_scope = v->m_symtab;
+
+        for (size_t i=0; i<x.n_contains; i++) {
+            visit_program_unit(*x.m_contains[i]);
+        }
+
+        current_scope = old_scope;
+        tmp = nullptr;
     }
 
     void visit_Program(const AST::Program_t &x) {

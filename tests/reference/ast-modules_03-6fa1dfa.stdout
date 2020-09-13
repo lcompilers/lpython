@@ -1,1 +1,1 @@
-(TranslationUnit [(Module types [] [] []) (Module constants [] [] []) (Program modules_03 [] [] [(Print () [Ha2eV])] [])])
+(TranslationUnit [(Module types [] [] []) (Module constants [] [] []) (Program modules_03 [(Use constants [(UseSymbol Ha2eV ())])] [] [(Print () [Ha2eV])] [])])
