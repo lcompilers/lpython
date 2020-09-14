@@ -46,6 +46,16 @@
 
 namespace LFortran {
 
+using ASR::is_a;
+using ASR::down_cast;
+using ASR::down_cast2;
+
+// Platform dependent fast unique hash:
+uint64_t static get_hash(ASR::asr_t *node)
+{
+    return (uint64_t)node;
+}
+
 void printf(llvm::LLVMContext &context, llvm::Module &module,
     llvm::IRBuilder<> &builder, const std::vector<llvm::Value*> &args)
 {
@@ -82,9 +92,10 @@ public:
 
     llvm::Value *tmp;
     llvm::BasicBlock *current_loophead, *current_loopend;
+    std::string mangle_prefix;
 
-    // TODO: This is not scoped, should lookup by hashes instead:
-    std::map<std::string, llvm::Value*> llvm_symtab;
+    std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
+    std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
 
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context} {}
 
@@ -114,6 +125,7 @@ public:
     }
 
     void visit_Variable(const ASR::Variable_t &x) {
+        uint32_t h = get_hash((ASR::asr_t*)&x);
         // This happens at global scope, so the intent can only be either local
         // (global variable declared/initialized in this translation unit), or
         // external (global variable not declared/initialized in this
@@ -128,7 +140,7 @@ public:
                 module->getNamedGlobal(x.m_name)->setInitializer(
                     llvm::ConstantInt::get(context, llvm::APInt(64, 0)));
             }
-            llvm_symtab[std::string(x.m_name)] = ptr;
+            llvm_symtab[h] = ptr;
         } else if (x.m_type->type == ASR::ttypeType::Real) {
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
                 llvm::Type::getFloatTy(context));
@@ -136,7 +148,7 @@ public:
                 module->getNamedGlobal(x.m_name)->setInitializer(
                     llvm::ConstantFP::get(context, llvm::APFloat((float)0)));
             }
-            llvm_symtab[std::string(x.m_name)] = ptr;
+            llvm_symtab[h] = ptr;
         } else if (x.m_type->type == ASR::ttypeType::Logical) {
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
                 llvm::Type::getInt1Ty(context));
@@ -144,14 +156,15 @@ public:
                 module->getNamedGlobal(x.m_name)->setInitializer(
                     llvm::ConstantInt::get(context, llvm::APInt(1, 0)));
             }
-            llvm_symtab[std::string(x.m_name)] = ptr;
+            llvm_symtab[h] = ptr;
         } else {
             throw CodeGenError("Variable type not supported");
         }
     }
 
-    void visit_Program(const ASR::Program_t &x) {
-        // Generate code for nested subroutines and functions first:
+    void visit_Module(const ASR::Module_t &x) {
+        // TODO: mangle all subroutine / function names with a module prefix
+        mangle_prefix = "__module_" + std::string(x.m_name) + "_";
         for (auto &item : x.m_symtab->scope) {
             if (item.second->type == ASR::asrType::sub) {
                 ASR::Subroutine_t *s = ASR::down_cast2<ASR::Subroutine_t>(item.second);
@@ -159,6 +172,23 @@ public:
             }
             if (item.second->type == ASR::asrType::fn) {
                 ASR::Function_t *s = ASR::down_cast2<ASR::Function_t>(item.second);
+                visit_Function(*s);
+            }
+        }
+        mangle_prefix = "";
+    }
+
+    void visit_Program(const ASR::Program_t &x) {
+        // Generate code for nested subroutines and functions first:
+        for (auto &item : x.m_symtab->scope) {
+            if (is_a<ASR::sub_t>(*item.second)) {
+                ASR::Subroutine_t *s = down_cast2<ASR::Subroutine_t>(item.second);
+                if (!s->m_external) {
+                    visit_Subroutine(*s);
+                }
+            }
+            if (is_a<ASR::fn_t>(*item.second)) {
+                ASR::Function_t *s = down_cast2<ASR::Function_t>(item.second);
                 visit_Function(*s);
             }
         }
@@ -176,20 +206,21 @@ public:
             if (item.second->type == ASR::asrType::var) {
                 ASR::var_t *v2 = (ASR::var_t*)(item.second);
                 ASR::Variable_t *v = (ASR::Variable_t *)v2;
+                uint32_t h = get_hash((ASR::asr_t*)v);
 
                 if (v->m_type->type == ASR::ttypeType::Integer) {
                     llvm::AllocaInst *ptr = builder->CreateAlloca(
                         llvm::Type::getInt64Ty(context), nullptr, v->m_name);
-                    llvm_symtab[std::string(v->m_name)] = ptr;
+                    llvm_symtab[h] = ptr;
                 } else if (v->m_type->type == ASR::ttypeType::Real) {
                     // TODO: Assuming single precision
                     llvm::AllocaInst *ptr = builder->CreateAlloca(
                         llvm::Type::getFloatTy(context), nullptr, v->m_name);
-                    llvm_symtab[std::string(v->m_name)] = ptr;
+                    llvm_symtab[h] = ptr;
                 } else if (v->m_type->type == ASR::ttypeType::Logical) {
                     llvm::AllocaInst *ptr = builder->CreateAlloca(
                         llvm::Type::getInt1Ty(context), nullptr, v->m_name);
-                    llvm_symtab[std::string(v->m_name)] = ptr;
+                    llvm_symtab[h] = ptr;
                 } else {
                     throw CodeGenError("Variable type not supported");
                 }
@@ -224,9 +255,10 @@ public:
         for (llvm::Argument &llvm_arg : F.args()) {
             ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
+            uint32_t h = get_hash((ASR::asr_t*)arg);
             std::string arg_s = arg->m_name;
             llvm_arg.setName(arg_s);
-            llvm_symtab[arg_s] = &llvm_arg;
+            llvm_symtab[h] = &llvm_arg;
             i++;
         }
     }
@@ -237,6 +269,7 @@ public:
             if (item.second->type == ASR::asrType::var) {
                 ASR::var_t *v2 = (ASR::var_t*)(item.second);
                 ASR::Variable_t *v = (ASR::Variable_t *)v2;
+                uint32_t h = get_hash((ASR::asr_t*)v);
 
                 llvm::Type *type;
                 if (v->m_intent == intent_local || v->m_intent == intent_return_var) {
@@ -249,7 +282,7 @@ public:
                     }
                     llvm::AllocaInst *ptr = builder->CreateAlloca(
                         type, nullptr, v->m_name);
-                    llvm_symtab[std::string(v->m_name)] = ptr;
+                    llvm_symtab[h] = ptr;
                 }
             }
         }
@@ -282,8 +315,9 @@ public:
             this->visit_stmt(*x.m_body[i]);
         }
 
-        std::string return_var_name = EXPR2VAR(x.m_return_var)->m_name;
-        llvm::Value *ret_val = llvm_symtab[return_var_name];
+        ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
+        uint32_t h = get_hash((ASR::asr_t*)asr_retval);
+        llvm::Value *ret_val = llvm_symtab[h];
         llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
         builder->CreateRet(ret_val2);
     }
@@ -293,7 +327,8 @@ public:
         llvm::FunctionType *function_type = llvm::FunctionType::get(
                 llvm::Type::getVoidTy(context), args, false);
         llvm::Function *F = llvm::Function::Create(function_type,
-                llvm::Function::ExternalLinkage, x.m_name, module.get());
+                llvm::Function::ExternalLinkage, mangle_prefix+x.m_name,
+                module.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
                 ".entry", F);
         builder->SetInsertPoint(BB);
@@ -307,11 +342,20 @@ public:
         }
 
         builder->CreateRetVoid();
+
+        uint32_t h = get_hash((ASR::asr_t*)&x);
+        if (llvm_symtab_fn.find(h) != llvm_symtab_fn.end()) {
+            throw CodeGenError("Subroutine code already generated for '"
+                + std::string(x.m_name) + "'");
+        }
+        llvm_symtab_fn[h] = F;
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
         //this->visit_expr(*x.m_target);
-        llvm::Value *target= llvm_symtab[std::string(EXPR2VAR(x.m_target)->m_name)];
+        ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
+        uint32_t h = get_hash((ASR::asr_t*)asr_target);
+        llvm::Value *target = llvm_symtab[h];
         this->visit_expr(*x.m_value);
         llvm::Value *value=tmp;
         builder->CreateStore(value, target);
@@ -601,9 +645,10 @@ public:
     }
 
     void visit_Var(const ASR::Var_t &x) {
-        std::string vname = ASR::down_cast<ASR::Variable_t>(x.m_v)->m_name;
-        LFORTRAN_ASSERT(llvm_symtab.find(vname) != llvm_symtab.end());
-        llvm::Value *ptr = llvm_symtab[vname];
+        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(x.m_v);
+        uint32_t h = get_hash((ASR::asr_t*)v);
+        LFORTRAN_ASSERT(llvm_symtab.find(h) != llvm_symtab.end());
+        llvm::Value *ptr = llvm_symtab[h];
         tmp = builder->CreateLoad(ptr);
     }
 
@@ -677,8 +722,8 @@ public:
         for (size_t i=0; i<x.n_args; i++) {
             if (x.m_args[i]->type == ASR::exprType::Var) {
                 ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
-                std::string arg_name = arg->m_name;
-                tmp = llvm_symtab[arg_name];
+                uint32_t h = get_hash((ASR::asr_t*)arg);
+                tmp = llvm_symtab[h];
             } else {
                 this->visit_expr(*x.m_args[i]);
                 llvm::Value *value=tmp;
@@ -694,11 +739,17 @@ public:
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
         ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(x.m_name);
-        llvm::Function *fn = module->getFunction(s->m_name);
-        if (!fn) {
+        uint32_t h;
+        if (s->m_external) {
+            h = get_hash((ASR::asr_t*)s->m_external->m_module_sub);
+        } else {
+            h = get_hash((ASR::asr_t*)s);
+        }
+        if (llvm_symtab_fn.find(h) == llvm_symtab_fn.end()) {
             throw CodeGenError("Subroutine code not generated for '"
                 + std::string(s->m_name) + "'");
         }
+        llvm::Function *fn = llvm_symtab_fn[h];
         std::vector<llvm::Value *> args = convert_call_args(x);
         builder->CreateCall(fn, args);
     }
