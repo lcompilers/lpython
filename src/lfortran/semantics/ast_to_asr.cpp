@@ -260,8 +260,8 @@ public:
             // `msub` is the Subroutine in a module. Now we construct
             // a new Subroutine that is just the prototype, and that links to
             // `msub` via the `external` field.
-            ASR::sub_info_t *external = al.make_new<ASR::sub_info_t>();
-            external->m_type = ASR::sub_external_typeType::LFortranModule;
+            ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
+            external->m_type = ASR::proc_external_typeType::LFortranModule;
             external->m_module_sub = (ASR::sub_t*)msub;
             ASR::asr_t *sub = ASR::make_Subroutine_t(
                 al, msub->base.base.loc,
