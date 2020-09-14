@@ -249,32 +249,58 @@ public:
                 throw SemanticError("The symbol '" + sym + "' not found in the module '" + msym + "'",
                     x.base.base.loc);
             }
-            if (!ASR::is_a<ASR::sub_t>(*t)) {
-                throw LFortranException("Only Subroutines supported in 'use'");
+            if (ASR::is_a<ASR::sub_t>(*t)) {
+                if (current_scope->scope.find(sym) != current_scope->scope.end()) {
+                    throw SemanticError("Subroutine already defined",
+                        x.base.base.loc);
+                }
+                ASR::Subroutine_t *msub = ASR::down_cast2<ASR::Subroutine_t>(t);
+                // `msub` is the Subroutine in a module. Now we construct
+                // a new Subroutine that is just the prototype, and that links to
+                // `msub` via the `external` field.
+                ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
+                external->m_type = ASR::proc_external_typeType::LFortranModule;
+                external->m_module_sub = (ASR::sub_t*)msub;
+                ASR::asr_t *sub = ASR::make_Subroutine_t(
+                    al, msub->base.base.loc,
+                    /* a_symtab */ msub->m_symtab,
+                    /* a_name */ msub->m_name,
+                    /* a_args */ msub->m_args,
+                    /* n_args */ msub->n_args,
+                    /* a_body */ nullptr,
+                    /* n_body */ 0,
+                    /* a_bind */ msub->m_bind,
+                    /* a_external */ external
+                    );
+                current_scope->scope[sym] = sub;
+            } else if (ASR::is_a<ASR::fn_t>(*t)) {
+                if (current_scope->scope.find(sym) != current_scope->scope.end()) {
+                    throw SemanticError("Function already defined",
+                        x.base.base.loc);
+                }
+                ASR::Function_t *mfn = ASR::down_cast2<ASR::Function_t>(t);
+                // `msub` is the Function in a module. Now we construct
+                // a new Function that is just the prototype, and that links to
+                // `mfn` via the `external` field.
+                ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
+                external->m_type = ASR::proc_external_typeType::LFortranModule;
+                external->m_module_fn = (ASR::fn_t*)mfn;
+                ASR::asr_t *fn = ASR::make_Function_t(
+                    al, mfn->base.base.loc,
+                    /* a_symtab */ mfn->m_symtab,
+                    /* a_name */ mfn->m_name,
+                    /* a_args */ mfn->m_args,
+                    /* n_args */ mfn->n_args,
+                    /* a_body */ nullptr,
+                    /* n_body */ 0,
+                    /* a_bind */ mfn->m_bind,
+                    /* a_return_var */ mfn->m_return_var,
+                    /* a_external */ external
+                    );
+                current_scope->scope[sym] = fn;
+            } else {
+                throw LFortranException("Only Subroutines and Functions supported in 'use'");
             }
-            if (current_scope->scope.find(sym) != current_scope->scope.end()) {
-                throw SemanticError("Subroutine already defined",
-                    x.base.base.loc);
-            }
-            ASR::Subroutine_t *msub = ASR::down_cast2<ASR::Subroutine_t>(t);
-            // `msub` is the Subroutine in a module. Now we construct
-            // a new Subroutine that is just the prototype, and that links to
-            // `msub` via the `external` field.
-            ASR::sub_info_t *external = al.make_new<ASR::sub_info_t>();
-            external->m_type = ASR::sub_external_typeType::LFortranModule;
-            external->m_module_sub = (ASR::sub_t*)msub;
-            ASR::asr_t *sub = ASR::make_Subroutine_t(
-                al, msub->base.base.loc,
-                /* a_symtab */ msub->m_symtab,
-                /* a_name */ msub->m_name,
-                /* a_args */ msub->m_args,
-                /* n_args */ msub->n_args,
-                /* a_body */ nullptr,
-                /* n_body */ 0,
-                /* a_bind */ msub->m_bind,
-                /* a_external */ external
-                );
-            current_scope->scope[sym] = sub;
         }
     }
 

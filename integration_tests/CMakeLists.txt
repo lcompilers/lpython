@@ -139,6 +139,7 @@ RUN(NAME modules_02 LABELS gfortran)
 RUN(NAME modules_03 LABELS gfortran)
 RUN(NAME modules_04 LABELS gfortran)
 RUN(NAME modules_05 LABELS gfortran)
+RUN(NAME modules_06 LABELS gfortran llvm)
 
 RUN(NAME if_04 LABELS gfortran x86)
 RUN(NAME case_01 LABELS gfortran)

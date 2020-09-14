@@ -36,19 +36,21 @@ mod
 
 sub
     = Subroutine(symbol_table symtab, identifier name, expr* args, stmt* body,
-        tbind? bind, sub_info? external)
-sub_info = (sub_external_type type, sub? module_sub)
-sub_external_type = LFortranModule | GFortranModule
+        tbind? bind, proc_external? external)
 
 fn
     = Function(symbol_table symtab, identifier name, expr* args, stmt* body,
-        tbind? bind, expr return_var, string? module)
+        tbind? bind, expr return_var, proc_external? external)
+
 var
 -- intent:
 -- =0 ... local variable,
 -- >0 ... dummy argument: 1=in, 2=out, 3=inout
     = Variable(symbol_table parent_symtab, identifier name, intent intent,
             ttype type)
+
+proc_external = (proc_external_type type, sub? module_sub, fn? module_fn)
+proc_external_type = LFortranModule | GFortranModule
 
 stmt
     = Assignment(expr target, expr value)

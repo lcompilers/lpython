@@ -163,7 +163,6 @@ public:
     }
 
     void visit_Module(const ASR::Module_t &x) {
-        // TODO: mangle all subroutine / function names with a module prefix
         mangle_prefix = "__module_" + std::string(x.m_name) + "_";
         for (auto &item : x.m_symtab->scope) {
             if (item.second->type == ASR::asrType::sub) {
@@ -183,9 +182,7 @@ public:
         for (auto &item : x.m_symtab->scope) {
             if (is_a<ASR::sub_t>(*item.second)) {
                 ASR::Subroutine_t *s = down_cast2<ASR::Subroutine_t>(item.second);
-                if (!s->m_external) {
-                    visit_Subroutine(*s);
-                }
+                visit_Subroutine(*s);
             }
             if (is_a<ASR::fn_t>(*item.second)) {
                 ASR::Function_t *s = down_cast2<ASR::Function_t>(item.second);
@@ -289,6 +286,7 @@ public:
     }
 
     void visit_Function(const ASR::Function_t &x) {
+        if (x.m_external) return;
         ASR::ttypeType return_var_type = EXPR2VAR(x.m_return_var)->m_type->type;
         llvm::Type *return_type;
         if (return_var_type == ASR::ttypeType::Integer) {
@@ -302,7 +300,7 @@ public:
         llvm::FunctionType *function_type = llvm::FunctionType::get(
                 return_type, args, false);
         llvm::Function *F = llvm::Function::Create(function_type,
-                llvm::Function::ExternalLinkage, x.m_name, module.get());
+                llvm::Function::ExternalLinkage, mangle_prefix + x.m_name, module.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
                 ".entry", F);
         builder->SetInsertPoint(BB);
@@ -320,9 +318,17 @@ public:
         llvm::Value *ret_val = llvm_symtab[h];
         llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
         builder->CreateRet(ret_val2);
+
+        h = get_hash((ASR::asr_t*)&x);
+        if (llvm_symtab_fn.find(h) != llvm_symtab_fn.end()) {
+            throw CodeGenError("Function code already generated for '"
+                + std::string(x.m_name) + "'");
+        }
+        llvm_symtab_fn[h] = F;
     }
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
+        if (x.m_external) return;
         std::vector<llvm::Type*> args = convert_args(x);
         llvm::FunctionType *function_type = llvm::FunctionType::get(
                 llvm::Type::getVoidTy(context), args, false);
@@ -756,11 +762,17 @@ public:
 
     void visit_FuncCall(const ASR::FuncCall_t &x) {
         ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(x.m_func);
-        llvm::Function *fn = module->getFunction(s->m_name);
-        if (!fn) {
+        uint32_t h;
+        if (s->m_external) {
+            h = get_hash((ASR::asr_t*)s->m_external->m_module_fn);
+        } else {
+            h = get_hash((ASR::asr_t*)s);
+        }
+        if (llvm_symtab_fn.find(h) == llvm_symtab_fn.end()) {
             throw CodeGenError("Function code not generated for '"
                 + std::string(s->m_name) + "'");
         }
+        llvm::Function *fn = llvm_symtab_fn[h];
         std::vector<llvm::Value *> args = convert_call_args(x);
         tmp = builder->CreateCall(fn, args);
     }
