@@ -197,21 +197,27 @@ public:
 #endif
     }
 
-    void get_term_size(int& rows, int& cols) const
+    bool get_term_size(int& rows, int& cols) const
     {
 #ifdef _WIN32
         CONSOLE_SCREEN_BUFFER_INFO inf;
-        GetConsoleScreenBufferInfo(hout, &inf);
-        cols = inf.srWindow.Right - inf.srWindow.Left + 1;
-        rows = inf.srWindow.Bottom - inf.srWindow.Top + 1;
+        if (GetConsoleScreenBufferInfo(hout, &inf)) {
+            cols = inf.srWindow.Right - inf.srWindow.Left + 1;
+            rows = inf.srWindow.Bottom - inf.srWindow.Top + 1;
+            return true;
+        } else {
+            // This happens when we are not connected to a terminal
+            return false;
+        }
 #else
         struct winsize ws;
         if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {
-            throw std::runtime_error(
-                    "get_term_size() failed, probably not a terminal");
+            // This happens when we are not connected to a terminal
+            return false;
         } else {
             cols = ws.ws_col;
             rows = ws.ws_row;
+            return true;
         }
 #endif
     }

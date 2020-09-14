@@ -130,7 +130,10 @@ std::string prompt0(const Terminal &term, const std::string &prompt_string,
         col = 1;
     }
     int rows, cols;
-    term.get_term_size(rows, cols);
+    if (!term.get_term_size(rows, cols)) {
+        rows = 25;
+        cols = 80;
+    }
 
     Model m;
     m.prompt_string = prompt_string;
