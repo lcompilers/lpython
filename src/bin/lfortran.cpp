@@ -387,6 +387,23 @@ int emit_cpp(const std::string &infile)
     return 0;
 }
 
+int save_mod_files(const LFortran::ASR::TranslationUnit_t &u)
+{
+    for (auto &item : u.m_global_scope->scope) {
+        if (LFortran::ASR::is_a<LFortran::ASR::mod_t>(*item.second)) {
+            LFortran::ASR::Module_t *m = LFortran::ASR::down_cast2<LFortran::ASR::Module_t>(item.second);
+            std::string modfile = std::string(m->m_name) + ".mod";
+            std::string cmd = "touch " + modfile;
+            int err = system(cmd.c_str());
+            if (err) {
+                std::cout << "The command '" + cmd + "' failed." << std::endl;
+                return 11;
+            }
+        }
+    }
+    return 0;
+}
+
 #ifdef HAVE_LFORTRAN_LLVM
 int emit_llvm(const std::string &infile)
 {
@@ -442,6 +459,12 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
 
     // AST -> ASR
     LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast);
+
+    // Save .mod files
+    {
+        int err = save_mod_files(*asr);
+        if (err) return err;
+    }
 
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
