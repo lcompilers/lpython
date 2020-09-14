@@ -345,11 +345,13 @@ public:
             return -4;
         } else {
             switch (c) {
-            case '\x09':
+            case '\x09': // TAB
                 return Key::TAB;
-            case '\x0d':
+            case '\x0a': // LF
                 return Key::ENTER;
-            case '\x7f':
+            case '\x0d': // CR
+                return Key::ENTER;
+            case '\x7f': // DEL
                 return Key::BACKSPACE;
             }
             if (c == '\xc3') {
