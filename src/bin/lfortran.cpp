@@ -2,8 +2,6 @@
 #include <iostream>
 #include <stdlib.h>
 
-#include <cpp-terminal/terminal.h>
-
 #include <bin/CLI11.hpp>
 #include <bin/tpl/whereami/whereami.h>
 
@@ -21,6 +19,8 @@
 #include <lfortran/asr_utils.h>
 #include <lfortran/config.h>
 #include <lfortran/fortran_kernel.h>
+
+#include <cpp-terminal/terminal.h>
 
 namespace {
 
