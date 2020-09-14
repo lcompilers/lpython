@@ -49,7 +49,7 @@ var
     = Variable(symbol_table parent_symtab, identifier name, intent intent,
             ttype type)
 
-proc_external = (proc_external_type type, sub? module_sub)
+proc_external = (proc_external_type type, sub? module_sub, fn? module_fn)
 proc_external_type = LFortranModule | GFortranModule
 
 stmt
