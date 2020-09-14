@@ -396,10 +396,10 @@ public:
             throw std::runtime_error("get_cursor_position(): too short response");
         }
         if (buf[0] != '\x1b' || buf[1] != '[') {
-            throw std::runtime_error("get_cursor_position(): Invalid response");
+            throw std::runtime_error("get_cursor_position(): result not found in the response");
         }
         if (sscanf(&buf[2], "%d;%d", &rows, &cols) != 2) {
-            throw std::runtime_error("get_cursor_position(): Invalid response");
+            throw std::runtime_error("get_cursor_position(): result could not be parsed");
         }
     }
 
