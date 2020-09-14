@@ -292,14 +292,20 @@ public:
             // Only import individual symbols from the module, e.g.:
             //     use a, only: x, y, z
             for (size_t i = 0; i < x.n_symbols; i++) {
-                std::string sym = AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_sym;
-                ASR::asr_t *t = m->m_symtab->resolve_symbol(sym);
+                std::string remote_sym = AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_sym;
+                std::string local_sym;
+                if (AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_rename) {
+                    local_sym = AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_rename;
+                } else {
+                    local_sym = remote_sym;
+                }
+                ASR::asr_t *t = m->m_symtab->resolve_symbol(remote_sym);
                 if (!t) {
-                    throw SemanticError("The symbol '" + sym + "' not found in the module '" + msym + "'",
+                    throw SemanticError("The symbol '" + remote_sym + "' not found in the module '" + msym + "'",
                         x.base.base.loc);
                 }
                 if (ASR::is_a<ASR::sub_t>(*t)) {
-                    if (current_scope->scope.find(sym) != current_scope->scope.end()) {
+                    if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
                         throw SemanticError("Subroutine already defined",
                             x.base.base.loc);
                     }
@@ -310,10 +316,12 @@ public:
                     ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
                     external->m_type = ASR::proc_external_typeType::LFortranModule;
                     external->m_module_sub = (ASR::sub_t*)msub;
+                    Str name;
+                    name.from_str(al, local_sym);
                     ASR::asr_t *sub = ASR::make_Subroutine_t(
                         al, msub->base.base.loc,
                         /* a_symtab */ msub->m_symtab,
-                        /* a_name */ msub->m_name,
+                        /* a_name */ name.c_str(al),
                         /* a_args */ msub->m_args,
                         /* n_args */ msub->n_args,
                         /* a_body */ nullptr,
@@ -321,9 +329,9 @@ public:
                         /* a_bind */ msub->m_bind,
                         /* a_external */ external
                         );
-                    current_scope->scope[sym] = sub;
+                    current_scope->scope[local_sym] = sub;
                 } else if (ASR::is_a<ASR::fn_t>(*t)) {
-                    if (current_scope->scope.find(sym) != current_scope->scope.end()) {
+                    if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
                         throw SemanticError("Function already defined",
                             x.base.base.loc);
                     }
@@ -334,10 +342,12 @@ public:
                     ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
                     external->m_type = ASR::proc_external_typeType::LFortranModule;
                     external->m_module_fn = (ASR::fn_t*)mfn;
+                    Str name;
+                    name.from_str(al, local_sym);
                     ASR::asr_t *fn = ASR::make_Function_t(
                         al, mfn->base.base.loc,
                         /* a_symtab */ mfn->m_symtab,
-                        /* a_name */ mfn->m_name,
+                        /* a_name */ name.c_str(al),
                         /* a_args */ mfn->m_args,
                         /* n_args */ mfn->n_args,
                         /* a_body */ nullptr,
@@ -346,7 +356,7 @@ public:
                         /* a_return_var */ mfn->m_return_var,
                         /* a_external */ external
                         );
-                    current_scope->scope[sym] = fn;
+                    current_scope->scope[local_sym] = fn;
                 } else {
                     throw LFortranException("Only Subroutines and Functions supported in 'use'");
                 }
