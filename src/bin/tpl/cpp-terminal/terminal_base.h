@@ -172,6 +172,20 @@ public:
     // Returns true if a character is read, otherwise immediately returns false
     bool read_raw(char* s) const
     {
+        if (!keyboard_enabled) {
+            int c = getchar();
+            if (c >= 0) {
+                *s = c;
+            } else if (c == EOF) {
+                // In non-raw (blocking) mode this happens when the input file
+                // ends. In such a case, return the End of Transmission (EOT)
+                // character (Ctrl-D)
+                *s = 0x04;
+            } else {
+                throw std::runtime_error("getchar() failed");
+            }
+            return true;
+        }
 #ifdef _WIN32
         char buf[1];
         DWORD nread;
