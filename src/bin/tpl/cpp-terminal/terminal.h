@@ -395,12 +395,20 @@ public:
         if (i < 5) {
             throw std::runtime_error("get_cursor_position(): too short response");
         }
-        if (buf[0] != '\x1b' || buf[1] != '[') {
-            throw std::runtime_error("get_cursor_position(): result not found in the response");
+        // Find the result in the response, drop the rest:
+        i = 0;
+        while (i < sizeof(buf) - 1 - 5) {
+            if (buf[i] == '\x1b' && buf[i+1] == '[') {
+                if (sscanf(&buf[i+2], "%d;%d", &rows, &cols) == 2) {
+                    return;
+                } else {
+                    throw std::runtime_error("get_cursor_position(): result could not be parsed");
+                }
+            }
+            if (buf[i] == '\0') break;
+            i++;
         }
-        if (sscanf(&buf[2], "%d;%d", &rows, &cols) != 2) {
-            throw std::runtime_error("get_cursor_position(): result could not be parsed");
-        }
+        throw std::runtime_error("get_cursor_position(): result not found in the response");
     }
 
     // This function takes about 23ms, so it should only be used as a fallback
