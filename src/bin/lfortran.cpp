@@ -103,7 +103,10 @@ std::string render(const Model &m, int prompt_row, int term_cols, bool term) {
         out = cursor_off();
         out += move_cursor(prompt_row, 1);
     }
-    out += m.prompt_string + m.input;
+    out += color(LFortran::style::bold) + color(LFortran::fg::green);
+    out += m.prompt_string;
+    out += color(LFortran::style::reset) + color(LFortran::fg::reset);
+    out += m.input;
     size_t last_col = m.prompt_string.size() + m.input.size();
     for (size_t i=0; i < term_cols-last_col; i++) {
         out.append(" ");
@@ -223,8 +226,6 @@ int prompt(bool verbose)
 
     std::vector<std::string> history;
     while (true) {
-        //std::cout << color(LFortran::style::bold) << color(LFortran::fg::green) << ">>> "
-        //    << color(LFortran::style::reset) << color(LFortran::fg::reset);
         std::string input = prompt0(term, ">>> ", history);
         if (input.size() == 1 && input[0] == CTRL_KEY('d')) {
             std::cout << std::endl;
