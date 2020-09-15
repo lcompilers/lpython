@@ -154,24 +154,6 @@ void LLVMEvaluator::add_module(std::unique_ptr<LLVMModule> m) {
     add_module(std::move(m->m_m));
 }
 
-int64_t LLVMEvaluator::intfn(const std::string &name) {
-    llvm::JITSymbol s = jit->findSymbol(name);
-    if (!s) {
-        throw std::runtime_error("Unable to get pointer to function");
-    }
-    int64_t (*f)() = (int64_t (*)())(intptr_t)cantFail(s.getAddress());
-    return f();
-}
-
-float LLVMEvaluator::floatfn(const std::string &name) {
-    llvm::JITSymbol s = jit->findSymbol(name);
-    if (!s) {
-        throw std::runtime_error("Unable to get pointer to function");
-    }
-    float (*f)() = (float (*)())(intptr_t)cantFail(s.getAddress());
-    return f();
-}
-
 intptr_t LLVMEvaluator::get_symbol_address(const std::string &name) {
     llvm::JITSymbol s = jit->findSymbol(name);
     if (!s) {
@@ -189,6 +171,18 @@ intptr_t LLVMEvaluator::get_symbol_address(const std::string &name) {
         throw LFortranException("JITSymbol::getAddress() returned an error: " + msg);
     }
     return (intptr_t)cantFail(std::move(addr0));
+}
+
+int64_t LLVMEvaluator::intfn(const std::string &name) {
+    intptr_t addr = get_symbol_address(name);
+    int64_t (*f)() = (int64_t (*)())addr;
+    return f();
+}
+
+float LLVMEvaluator::floatfn(const std::string &name) {
+    intptr_t addr = get_symbol_address(name);
+    float (*f)() = (float (*)())addr;
+    return f();
 }
 
 void LLVMEvaluator::voidfn(const std::string &name) {
