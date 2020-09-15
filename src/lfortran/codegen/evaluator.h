@@ -46,6 +46,7 @@ public:
     void add_module(const std::string &source);
     void add_module(std::unique_ptr<llvm::Module> mod);
     void add_module(std::unique_ptr<LLVMModule> m);
+    intptr_t get_symbol_address(const std::string &name);
     int64_t intfn(const std::string &name);
     float floatfn(const std::string &name);
     void voidfn(const std::string &name);

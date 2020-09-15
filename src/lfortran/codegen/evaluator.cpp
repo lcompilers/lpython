@@ -154,30 +154,40 @@ void LLVMEvaluator::add_module(std::unique_ptr<LLVMModule> m) {
     add_module(std::move(m->m_m));
 }
 
-int64_t LLVMEvaluator::intfn(const std::string &name) {
+intptr_t LLVMEvaluator::get_symbol_address(const std::string &name) {
     llvm::JITSymbol s = jit->findSymbol(name);
     if (!s) {
-        throw std::runtime_error("Unable to get pointer to function");
+        throw std::runtime_error("findSymbol() failed to find the symbol '"
+            + name + "'");
     }
-    int64_t (*f)() = (int64_t (*)())(intptr_t)cantFail(s.getAddress());
+    llvm::Expected<uint64_t> addr0 = s.getAddress();
+    if (!addr0) {
+        llvm::Error e = addr0.takeError();
+        llvm::SmallVector<char, 128> buf;
+        llvm::raw_svector_ostream dest(buf);
+        llvm::logAllUnhandledErrors(std::move(e), dest, "");
+        std::string msg = std::string(dest.str().data(), dest.str().size());
+        if (msg[msg.size()-1] == '\n') msg = msg.substr(0, msg.size()-1);
+        throw LFortranException("JITSymbol::getAddress() returned an error: " + msg);
+    }
+    return (intptr_t)cantFail(std::move(addr0));
+}
+
+int64_t LLVMEvaluator::intfn(const std::string &name) {
+    intptr_t addr = get_symbol_address(name);
+    int64_t (*f)() = (int64_t (*)())addr;
     return f();
 }
 
 float LLVMEvaluator::floatfn(const std::string &name) {
-    llvm::JITSymbol s = jit->findSymbol(name);
-    if (!s) {
-        throw std::runtime_error("Unable to get pointer to function");
-    }
-    float (*f)() = (float (*)())(intptr_t)cantFail(s.getAddress());
+    intptr_t addr = get_symbol_address(name);
+    float (*f)() = (float (*)())addr;
     return f();
 }
 
 void LLVMEvaluator::voidfn(const std::string &name) {
-    llvm::JITSymbol s = jit->findSymbol(name);
-    if (!s) {
-        throw std::runtime_error("Unable to get pointer to function");
-    }
-    void (*f)() = (void (*)())(intptr_t)cantFail(s.getAddress());
+    intptr_t addr = get_symbol_address(name);
+    void (*f)() = (void (*)())addr;
     f();
 }
 
