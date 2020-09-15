@@ -180,7 +180,13 @@ void LLVMEvaluator::voidfn(const std::string &name) {
     }
     llvm::Expected<uint64_t> addr0 = s.getAddress();
     if (!addr0) {
-        throw LFortranException("getAddress() failed to return an address");
+        llvm::Error e = addr0.takeError();
+        llvm::SmallVector<char, 128> buf;
+        llvm::raw_svector_ostream dest(buf);
+        llvm::logAllUnhandledErrors(std::move(e), dest, "");
+        std::string msg = std::string(dest.str().data(), dest.str().size());
+        if (msg[msg.size()-1] == '\n') msg = msg.substr(0, msg.size()-1);
+        throw LFortranException("JITSymbol::getAddress() returned an error: " + msg);
     }
     void (*f)() = (void (*)())(intptr_t)cantFail(std::move(addr0));
     f();
