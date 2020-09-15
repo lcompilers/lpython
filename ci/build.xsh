@@ -51,12 +51,8 @@ cd test-bld
 # modes:
 BUILD_TYPE = "Release"
 cmake -G $LFORTRAN_CMAKE_GENERATOR -DCMAKE_VERBOSE_MAKEFILE=ON -DWITH_LLVM=yes -DCMAKE_PREFIX_PATH=$CONDA_PREFIX -DCMAKE_BUILD_TYPE=@(BUILD_TYPE) ..
-if $WIN == "1":
-    cmake --build . --config @(BUILD_TYPE)
-    ./src/lfortran/tests/@(BUILD_TYPE)/test_llvm -s
-else:
-    cmake --build .
-    ./src/lfortran/tests/test_llvm -s
+cmake --build .
+./src/lfortran/tests/test_llvm -s
 ./src/bin/lfortran < ../src/bin/example_input.txt
 ctest --output-on-failure
 cpack -V
