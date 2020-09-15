@@ -97,6 +97,12 @@ std::string LLVMModule::get_return_type(const std::string &fn_name)
     }
 }
 
+extern "C" {
+
+void _lfortran_printf(const char* format, ...);
+
+}
+
 LLVMEvaluator::LLVMEvaluator()
 {
     llvm::InitializeNativeTarget();
@@ -107,6 +113,10 @@ LLVMEvaluator::LLVMEvaluator()
 
     target_triple = llvm::sys::getDefaultTargetTriple();
     jit = std::make_unique<llvm::orc::KaleidoscopeJIT>();
+
+    llvm::sys::DynamicLibrary::AddSymbol("_lfortran_printf",
+        (void*)
+        reinterpret_cast<std::uintptr_t>(_lfortran_printf));
 }
 
 LLVMEvaluator::~LLVMEvaluator()
