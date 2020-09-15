@@ -124,6 +124,9 @@ public:
             if (is_a<ASR::fn_t>(*item.second)) {
                 visit_Function(*ASR::down_cast2<ASR::Function_t>(item.second));
             }
+            if (is_a<ASR::sub_t>(*item.second)) {
+                visit_Subroutine(*ASR::down_cast2<ASR::Subroutine_t>(item.second));
+            }
         }
         prototype_only = false;
 
@@ -357,33 +360,50 @@ public:
     }
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
-        if (x.m_external) return;
-        std::vector<llvm::Type*> args = convert_args(x);
-        llvm::FunctionType *function_type = llvm::FunctionType::get(
-                llvm::Type::getVoidTy(context), args, false);
-        llvm::Function *F = llvm::Function::Create(function_type,
-                llvm::Function::ExternalLinkage, mangle_prefix+x.m_name,
-                module.get());
-        llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
-                ".entry", F);
-        builder->SetInsertPoint(BB);
-
-        declare_args(x, *F);
-
-        declare_local_vars(x);
-
-        for (size_t i=0; i<x.n_body; i++) {
-            this->visit_stmt(*x.m_body[i]);
+        bool interactive = false;
+        if (x.m_external) {
+            if (x.m_external->m_type == ASR::proc_external_typeType::Interactive) {
+                interactive = true;
+            } else {
+                return;
+            }
         }
-
-        builder->CreateRetVoid();
 
         uint32_t h = get_hash((ASR::asr_t*)&x);
+        llvm::Function *F = nullptr;
         if (llvm_symtab_fn.find(h) != llvm_symtab_fn.end()) {
+            /*
             throw CodeGenError("Subroutine code already generated for '"
                 + std::string(x.m_name) + "'");
+            */
+            F = llvm_symtab_fn[h];
+        } else {
+            std::vector<llvm::Type*> args = convert_args(x);
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), args, false);
+            F = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, mangle_prefix + x.m_name, module.get());
+            llvm_symtab_fn[h] = F;
         }
-        llvm_symtab_fn[h] = F;
+
+        if (interactive) return;
+
+        if (!prototype_only) {
+            llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
+                    ".entry", F);
+            builder->SetInsertPoint(BB);
+
+            declare_args(x, *F);
+
+            declare_local_vars(x);
+
+            for (size_t i=0; i<x.n_body; i++) {
+                this->visit_stmt(*x.m_body[i]);
+            }
+
+            builder->CreateRetVoid();
+        }
+
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
@@ -776,7 +796,13 @@ public:
         ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(x.m_name);
         uint32_t h;
         if (s->m_external) {
-            h = get_hash((ASR::asr_t*)s->m_external->m_module_sub);
+            if (s->m_external->m_type == ASR::proc_external_typeType::LFortranModule) {
+                h = get_hash((ASR::asr_t*)s->m_external->m_module_sub);
+            } else if (s->m_external->m_type == ASR::proc_external_typeType::Interactive) {
+                h = get_hash((ASR::asr_t*)s);
+            } else {
+                throw CodeGenError("External type not implemented yet.");
+            }
         } else {
             h = get_hash((ASR::asr_t*)s);
         }

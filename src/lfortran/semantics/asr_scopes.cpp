@@ -134,6 +134,17 @@ void SymbolTable::mark_all_variables_external(Allocator &al) {
                 v->n_body = 0;
                 break;
             }
+            case (ASR::asrType::sub) : {
+                ASR::Subroutine_t *v = ASR::down_cast2<ASR::Subroutine_t>(a.second);
+                ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
+                external->m_type = ASR::proc_external_typeType::Interactive;
+                external->m_module_sub = nullptr;
+                external->m_module_fn = nullptr;
+                v->m_external = external;
+                v->m_body = nullptr;
+                v->n_body = 0;
+                break;
+            }
             default : {};
         }
     }

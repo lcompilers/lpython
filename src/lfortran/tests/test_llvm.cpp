@@ -459,3 +459,32 @@ end function
     CHECK(r.type == FortranEvaluator::ResultType::integer);
     CHECK(r.i == -1);
 }
+
+TEST_CASE("FortranEvaluator 5") {
+    FortranEvaluator e;
+    e.evaluate(R"(
+integer subroutine fn(i, j, r)
+integer, intent(in) :: i, j
+integer, intent(out) :: r
+r = i + j
+end subroutine
+)");
+    FortranEvaluator::Result r;
+    e.evaluate("integer :: r");
+    e.evaluate("call fn(2, 3, r)");
+    r = e.evaluate("r");
+    CHECK(r.type == FortranEvaluator::ResultType::integer);
+    CHECK(r.i == 5);
+
+    e.evaluate(R"(
+integer subroutine fn(i, j, r)
+integer, intent(in) :: i, j
+integer, intent(out) :: r
+r = i - j
+end subroutine
+)");
+    e.evaluate("call fn(2, 3, r)");
+    r = e.evaluate("r");
+    CHECK(r.type == FortranEvaluator::ResultType::integer);
+    CHECK(r.i == -1);
+}
