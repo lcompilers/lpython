@@ -93,11 +93,13 @@ public:
     llvm::Value *tmp;
     llvm::BasicBlock *current_loophead, *current_loopend;
     std::string mangle_prefix;
+    bool prototype_only;
 
     std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
     std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
 
-    ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context} {}
+    ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context},
+        prototype_only{false} {}
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         module = std::make_unique<llvm::Module>("LFortran", context);
@@ -115,6 +117,15 @@ public:
                 visit_asr(*item.second);
             }
         }
+
+        prototype_only = true;
+        // Generate function prototypes
+        for (auto &item : x.m_global_scope->scope) {
+            if (is_a<ASR::fn_t>(*item.second)) {
+                visit_Function(*ASR::down_cast2<ASR::Function_t>(item.second));
+            }
+        }
+        prototype_only = false;
 
         // Then the rest:
         for (auto &item : x.m_global_scope->scope) {
@@ -287,44 +298,53 @@ public:
 
     void visit_Function(const ASR::Function_t &x) {
         if (x.m_external) return;
-        ASR::ttypeType return_var_type = EXPR2VAR(x.m_return_var)->m_type->type;
-        llvm::Type *return_type;
-        if (return_var_type == ASR::ttypeType::Integer) {
-            return_type = llvm::Type::getInt64Ty(context);
-        } else if (return_var_type == ASR::ttypeType::Real) {
-            return_type = llvm::Type::getFloatTy(context);
-        } else {
-            throw CodeGenError("Function: return type not supported");
-        }
-        std::vector<llvm::Type*> args = convert_args(x);
-        llvm::FunctionType *function_type = llvm::FunctionType::get(
-                return_type, args, false);
-        llvm::Function *F = llvm::Function::Create(function_type,
-                llvm::Function::ExternalLinkage, mangle_prefix + x.m_name, module.get());
-        llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
-                ".entry", F);
-        builder->SetInsertPoint(BB);
 
-        declare_args(x, *F);
-
-        declare_local_vars(x);
-
-        for (size_t i=0; i<x.n_body; i++) {
-            this->visit_stmt(*x.m_body[i]);
-        }
-
-        ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
-        uint32_t h = get_hash((ASR::asr_t*)asr_retval);
-        llvm::Value *ret_val = llvm_symtab[h];
-        llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
-        builder->CreateRet(ret_val2);
-
-        h = get_hash((ASR::asr_t*)&x);
+        uint32_t h = get_hash((ASR::asr_t*)&x);
+        llvm::Function *F = nullptr;
         if (llvm_symtab_fn.find(h) != llvm_symtab_fn.end()) {
+            /*
             throw CodeGenError("Function code already generated for '"
                 + std::string(x.m_name) + "'");
+            */
+            F = llvm_symtab_fn[h];
+        } else {
+            ASR::ttypeType return_var_type = EXPR2VAR(x.m_return_var)->m_type->type;
+            llvm::Type *return_type;
+            if (return_var_type == ASR::ttypeType::Integer) {
+                return_type = llvm::Type::getInt64Ty(context);
+            } else if (return_var_type == ASR::ttypeType::Real) {
+                return_type = llvm::Type::getFloatTy(context);
+            } else {
+                throw CodeGenError("Function: return type not supported");
+            }
+            std::vector<llvm::Type*> args = convert_args(x);
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    return_type, args, false);
+            F = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, mangle_prefix + x.m_name, module.get());
+            llvm_symtab_fn[h] = F;
         }
-        llvm_symtab_fn[h] = F;
+
+        if (!prototype_only) {
+            llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
+                    ".entry", F);
+            builder->SetInsertPoint(BB);
+
+            declare_args(x, *F);
+
+            declare_local_vars(x);
+
+            for (size_t i=0; i<x.n_body; i++) {
+                this->visit_stmt(*x.m_body[i]);
+            }
+
+            ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
+            uint32_t h = get_hash((ASR::asr_t*)asr_retval);
+            llvm::Value *ret_val = llvm_symtab[h];
+            llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
+            builder->CreateRet(ret_val2);
+        }
+
     }
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
