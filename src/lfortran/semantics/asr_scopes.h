@@ -3,6 +3,8 @@
 
 #include <map>
 
+#include <lfortran/parser/alloc.h>
+
 namespace LFortran  {
 
 namespace ASR {
@@ -33,7 +35,7 @@ struct SymbolTable {
     }
 
     // Marks all variables as external
-    void mark_all_variables_external();
+    void mark_all_variables_external(Allocator &al);
 };
 
 } // namespace LFortran

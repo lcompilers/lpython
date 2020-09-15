@@ -50,7 +50,7 @@ var
             ttype type)
 
 proc_external = (proc_external_type type, sub? module_sub, fn? module_fn)
-proc_external_type = LFortranModule | GFortranModule
+proc_external_type = LFortranModule | GFortranModule | Interactive
 
 stmt
     = Assignment(expr target, expr value)

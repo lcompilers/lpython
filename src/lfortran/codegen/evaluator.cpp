@@ -258,7 +258,7 @@ FortranEvaluator::Result FortranEvaluator::evaluate(const std::string &code)
         if (symbol_table->scope.find("f") != symbol_table->scope.end()) {
             symbol_table->scope.erase("f");
         }
-        symbol_table->mark_all_variables_external();
+        symbol_table->mark_all_variables_external(al);
     }
     asr = LFortran::ast_to_asr(al, *ast, symbol_table);
     if (!symbol_table) symbol_table = asr->m_global_scope;
