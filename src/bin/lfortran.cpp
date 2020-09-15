@@ -172,6 +172,13 @@ std::string prompt0(const Terminal &term, const std::string &prompt_string,
                         m.cursor_col--;
                     }
                     break;
+                case Key::DEL:
+                    if (m.cursor_col <= m.input.size()) {
+                        std::string before = m.input.substr(0, m.cursor_col-1);
+                        std::string after = m.input.substr(m.cursor_col);
+                        m.input = before + after;
+                    }
+                    break;
                 case Key::ARROW_LEFT:
                     if (m.cursor_col > 1) {
                         m.cursor_col--;
@@ -219,7 +226,7 @@ int prompt(bool verbose)
     std::cout << "Interactive Fortran. Experimental prototype, not ready for end users." << std::endl;
     std::cout << "  * Use Ctrl-D to exit" << std::endl;
     std::cout << "  * Use Enter to submit" << std::endl;
-    std::cout << "    - Editing (Keys: Left, Right, Home, End, Backspace)" << std::endl;
+    std::cout << "    - Editing (Keys: Left, Right, Home, End, Backspace, Delete)" << std::endl;
     std::cout << "    - History (Keys: Up, Down)" << std::endl;
 
     Allocator al(64*1024*1024);
