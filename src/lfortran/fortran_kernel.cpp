@@ -128,7 +128,7 @@ namespace LFortran
             if (symbol_table->scope.find("f") != symbol_table->scope.end()) {
                 symbol_table->scope.erase("f");
             }
-            symbol_table->mark_all_variables_external();
+            symbol_table->mark_all_variables_external(al);
         }
         try {
             asr = ast_to_asr(al, *ast, symbol_table);
