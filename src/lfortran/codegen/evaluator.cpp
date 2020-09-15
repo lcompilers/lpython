@@ -172,7 +172,7 @@ float LLVMEvaluator::floatfn(const std::string &name) {
     return f();
 }
 
-void LLVMEvaluator::voidfn(const std::string &name) {
+intptr_t LLVMEvaluator::get_symbol_address(const std::string &name) {
     llvm::JITSymbol s = jit->findSymbol(name);
     if (!s) {
         throw std::runtime_error("findSymbol() failed to find the symbol '"
@@ -188,7 +188,12 @@ void LLVMEvaluator::voidfn(const std::string &name) {
         if (msg[msg.size()-1] == '\n') msg = msg.substr(0, msg.size()-1);
         throw LFortranException("JITSymbol::getAddress() returned an error: " + msg);
     }
-    void (*f)() = (void (*)())(intptr_t)cantFail(std::move(addr0));
+    return (intptr_t)cantFail(std::move(addr0));
+}
+
+void LLVMEvaluator::voidfn(const std::string &name) {
+    intptr_t addr = get_symbol_address(name);
+    void (*f)() = (void (*)())addr;
     f();
 }
 
