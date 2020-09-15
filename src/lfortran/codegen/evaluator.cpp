@@ -175,9 +175,14 @@ float LLVMEvaluator::floatfn(const std::string &name) {
 void LLVMEvaluator::voidfn(const std::string &name) {
     llvm::JITSymbol s = jit->findSymbol(name);
     if (!s) {
-        throw std::runtime_error("Unable to get pointer to function");
+        throw std::runtime_error("findSymbol() failed to find the symbol '"
+            + name + "'");
     }
-    void (*f)() = (void (*)())(intptr_t)cantFail(s.getAddress());
+    llvm::Expected<uint64_t> addr0 = s.getAddress();
+    if (!addr0) {
+        throw LFortranException("getAddress() failed to return an address");
+    }
+    void (*f)() = (void (*)())(intptr_t)cantFail(std::move(addr0));
     f();
 }
 
