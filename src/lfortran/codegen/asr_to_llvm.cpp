@@ -297,7 +297,14 @@ public:
     }
 
     void visit_Function(const ASR::Function_t &x) {
-        if (x.m_external) return;
+        bool interactive = false;
+        if (x.m_external) {
+            if (x.m_external->m_type == ASR::proc_external_typeType::Interactive) {
+                interactive = true;
+            } else {
+                return;
+            }
+        }
 
         uint32_t h = get_hash((ASR::asr_t*)&x);
         llvm::Function *F = nullptr;
@@ -324,6 +331,8 @@ public:
                     llvm::Function::ExternalLinkage, mangle_prefix + x.m_name, module.get());
             llvm_symtab_fn[h] = F;
         }
+
+        if (interactive) return;
 
         if (!prototype_only) {
             llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
