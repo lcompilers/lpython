@@ -218,7 +218,13 @@ public:
             /* a_module */ nullptr);
         std::string sym_name = x.m_name;
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
-            throw SemanticError("Function already defined", asr->loc);
+            ASR::asr_t *f1 = parent_scope->scope[sym_name];
+            ASR::Function_t *f2 = ASR::down_cast2<ASR::Function_t>(f1);
+            if (f2->m_external && f2->m_external->m_type == ASR::proc_external_typeType::Interactive) {
+                // Previous declaration will be shadowed
+            } else {
+                throw SemanticError("Function already defined", asr->loc);
+            }
         }
         parent_scope->scope[sym_name] = asr;
         current_scope = parent_scope;
