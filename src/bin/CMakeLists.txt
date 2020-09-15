@@ -1,4 +1,5 @@
 add_executable(lfortran lfortran.cpp tpl/whereami/whereami.cpp)
+target_include_directories(lfortran PRIVATE "tpl")
 target_link_libraries(lfortran lfortran_lib)
 if (UNIX AND NOT APPLE)
     # This is sometimes needed to fix link errors for CLI11

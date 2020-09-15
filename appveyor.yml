@@ -16,3 +16,9 @@ build_script:
 - set LFORTRAN_CMAKE_GENERATOR=Ninja
 - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd" -arch=x64
 - xonsh ci\build.xsh
+
+# Uncomment the following two lines to be able to login to the build worker. You
+# can use the `remmina` program in Ubuntu, use the login information that the
+# line below prints into the log.
+#on_finish:
+#- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
