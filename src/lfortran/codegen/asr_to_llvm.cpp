@@ -793,7 +793,13 @@ public:
         ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(x.m_func);
         uint32_t h;
         if (s->m_external) {
-            h = get_hash((ASR::asr_t*)s->m_external->m_module_fn);
+            if (s->m_external->m_type == ASR::proc_external_typeType::LFortranModule) {
+                h = get_hash((ASR::asr_t*)s->m_external->m_module_fn);
+            } else if (s->m_external->m_type == ASR::proc_external_typeType::Interactive) {
+                h = get_hash((ASR::asr_t*)s);
+            } else {
+                throw CodeGenError("External type not implemented yet.");
+            }
         } else {
             h = get_hash((ASR::asr_t*)s);
         }
