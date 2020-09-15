@@ -4,6 +4,9 @@
 #include <iostream>
 #include <memory>
 
+#include <lfortran/parser/alloc.h>
+#include <lfortran/semantics/asr_scopes.h>
+
 // Forward declare all needed LLVM classes without importing any LLVM header
 // files. Those are only imported in evaluator.cpp and nowhere else, to speed
 // up compilation.
@@ -51,6 +54,28 @@ public:
     static std::string module_to_string(llvm::Module &m);
     static void print_version_message();
     llvm::LLVMContext &get_context();
+};
+
+class FortranEvaluator
+{
+private:
+    Allocator al;
+    LLVMEvaluator e;
+    SymbolTable *symbol_table;
+public:
+    enum ResultType {
+        integer, real, none
+    };
+    struct Result {
+        ResultType type;
+        union {
+            int64_t i;
+            float f;
+        };
+    };
+    FortranEvaluator();
+    ~FortranEvaluator();
+    Result evaluate(const std::string &code);
 };
 
 } // namespace LFortran

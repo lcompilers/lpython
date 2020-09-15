@@ -43,7 +43,12 @@
 #include <lfortran/codegen/KaleidoscopeJIT.h>
 
 #include <lfortran/codegen/evaluator.h>
+#include <lfortran/codegen/asr_to_llvm.h>
 #include <lfortran/exception.h>
+#include <lfortran/ast.h>
+#include <lfortran/asr.h>
+#include <lfortran/semantics/ast_to_asr.h>
+#include <lfortran/parser/parser.h>
 
 
 namespace LFortran {
@@ -227,6 +232,63 @@ void LLVMEvaluator::print_version_message()
 llvm::LLVMContext &LLVMEvaluator::get_context()
 {
     return *context;
+}
+
+/* ------------------------------------------------------------------------- */
+// FortranEvaluator
+
+FortranEvaluator::FortranEvaluator() : al{1024*1024}, symbol_table{nullptr}
+{
+}
+
+FortranEvaluator::~FortranEvaluator()
+{
+}
+
+FortranEvaluator::Result FortranEvaluator::evaluate(const std::string &code)
+{
+    // Src -> AST
+    LFortran::AST::TranslationUnit_t* ast;
+    ast = LFortran::parse2(al, code);
+
+    // AST -> ASR
+    LFortran::ASR::TranslationUnit_t* asr;
+    // Remove the old execution function if it exists
+    if (symbol_table) {
+        if (symbol_table->scope.find("f") != symbol_table->scope.end()) {
+            symbol_table->scope.erase("f");
+        }
+        symbol_table->mark_all_variables_external();
+    }
+    asr = LFortran::ast_to_asr(al, *ast, symbol_table);
+    if (!symbol_table) symbol_table = asr->m_global_scope;
+
+    // ASR -> LLVM
+    std::unique_ptr<LFortran::LLVMModule> m;
+    m = LFortran::asr_to_llvm(*asr, e.get_context(), al);
+
+    std::string return_type = m->get_return_type("f");
+
+    // LLVM -> Machine code -> Execution
+    e.add_module(std::move(m));
+    Result result;
+    if (return_type == "integer") {
+        int r = e.intfn("f");
+        result.type = ResultType::integer;
+        result.i = r;
+    } else if (return_type == "real") {
+        float r = e.floatfn("f");
+        result.type = ResultType::real;
+        result.f = r;
+    } else if (return_type == "void") {
+        e.voidfn("f");
+        result.type = ResultType::none;
+    } else if (return_type == "none") {
+        result.type = ResultType::none;
+    } else {
+        throw LFortran::LFortranException("Return type not supported");
+    }
+    return result;
 }
 
 } // namespace LFortran

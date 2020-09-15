@@ -9,6 +9,8 @@
 #include <lfortran/codegen/asr_to_llvm.h>
 #include <lfortran/pickle.h>
 
+using LFortran::FortranEvaluator;
+
 
 TEST_CASE("llvm 1") {
     std::cout << "LLVM Version:" << std::endl;
@@ -395,4 +397,41 @@ end function)";
     // LLVM -> Machine code -> Execution
     e.add_module(std::move(m));
     CHECK(e.intfn("f") == 4);
+}
+
+TEST_CASE("FortranEvaluator 1") {
+    FortranEvaluator e;
+    FortranEvaluator::Result r;
+    r = e.evaluate("integer :: i");
+    CHECK(r.type == FortranEvaluator::ResultType::none);
+    r = e.evaluate("i = 5");
+    CHECK(r.type == FortranEvaluator::ResultType::none);
+    r = e.evaluate("i");
+    CHECK(r.type == FortranEvaluator::ResultType::integer);
+    CHECK(r.i == 5);
+}
+
+TEST_CASE("FortranEvaluator 2") {
+    FortranEvaluator e;
+    FortranEvaluator::Result r;
+    r = e.evaluate(R"(real :: r
+r = 3
+r
+)");
+    CHECK(r.type == FortranEvaluator::ResultType::real);
+    CHECK(r.f == 3);
+}
+
+TEST_CASE("FortranEvaluator 3") {
+    FortranEvaluator e;
+    e.evaluate("integer :: i, j");
+    e.evaluate(R"(j = 0
+do i = 1, 5
+    j = j + i
+end do
+)");
+    FortranEvaluator::Result r;
+    r = e.evaluate("j");
+    CHECK(r.type == FortranEvaluator::ResultType::integer);
+    CHECK(r.i == 15);
 }
