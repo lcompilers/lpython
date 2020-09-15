@@ -435,3 +435,27 @@ end do
     CHECK(r.type == FortranEvaluator::ResultType::integer);
     CHECK(r.i == 15);
 }
+
+TEST_CASE("FortranEvaluator 4") {
+    FortranEvaluator e;
+    e.evaluate(R"(
+integer function fn(i, j)
+integer, intent(in) :: i, j
+fn = i + j
+end function
+)");
+    FortranEvaluator::Result r;
+    r = e.evaluate("fn(2, 3)");
+    CHECK(r.type == FortranEvaluator::ResultType::integer);
+    CHECK(r.i == 5);
+
+    e.evaluate(R"(
+integer function fn(i, j)
+integer, intent(in) :: i, j
+fn = i - j
+end function
+)");
+    r = e.evaluate("fn(2, 3)");
+    CHECK(r.type == FortranEvaluator::ResultType::integer);
+    CHECK(r.i == -1);
+}
