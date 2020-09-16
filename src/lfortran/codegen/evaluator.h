@@ -59,15 +59,12 @@ public:
 
 class FortranEvaluator
 {
-private:
-    Allocator al;
-    LLVMEvaluator e;
-    SymbolTable *symbol_table;
-    int eval_count;
-    std::string run_fn;
 public:
+    FortranEvaluator();
+    ~FortranEvaluator();
+
     enum ResultType {
-        integer, real, none
+        integer, real, statement, none
     };
     struct Result {
         ResultType type;
@@ -75,10 +72,21 @@ public:
             int64_t i;
             float f;
         };
+        std::string ast;
+        std::string asr;
+        std::string llvm_ir;
     };
-    FortranEvaluator();
-    ~FortranEvaluator();
-    Result evaluate(const std::string &code);
+
+    // Evaluates `code`.
+    // If `verbose=true`, it saves ast, asr and llvm_ir in Result.
+    Result evaluate(const std::string &code, bool verbose=false);
+
+private:
+    Allocator al;
+    LLVMEvaluator e;
+    SymbolTable *symbol_table;
+    int eval_count;
+    std::string run_fn;
 };
 
 } // namespace LFortran
