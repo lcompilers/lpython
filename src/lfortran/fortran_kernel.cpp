@@ -1,5 +1,9 @@
 #include <iostream>
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
 #include <xeus/xinterpreter.hpp>
 #include <xeus/xkernel.hpp>
 #include <xeus/xkernel_configuration.hpp>
@@ -16,6 +20,35 @@ namespace nl = nlohmann;
 
 namespace LFortran
 {
+    class RedirectStdout
+    {
+    public:
+        RedirectStdout(std::string &out) : _out{out} {
+            std::cout << std::flush;
+            fflush(stdout);
+            saved_stdout = dup(STDOUT_FILENO);
+            if(pipe(out_pipe) != 0) {
+                throw LFortranException("pipe() failed");
+            }
+            dup2(out_pipe[1], STDOUT_FILENO);
+            close(out_pipe[1]);
+            printf("X");
+        }
+
+        ~RedirectStdout() {
+            fflush(stdout);
+            read(out_pipe[0], buffer, MAX_LEN);
+            dup2(saved_stdout, STDOUT_FILENO);
+            _out = std::string(&buffer[1]);
+        }
+    private:
+        std::string &_out;
+        static const size_t MAX_LEN=1024;
+        char buffer[MAX_LEN+1] = {0};
+        int out_pipe[2];
+        int saved_stdout;
+    };
+
     class custom_interpreter : public xeus::xinterpreter
     {
     private:
@@ -53,45 +86,15 @@ namespace LFortran
 
     nl::json custom_interpreter::execute_request_impl(int execution_counter, // Typically the cell number
                                                       const std::string& code, // Code to execute
-                                                      bool silent,
+                                                      bool /*silent*/,
                                                       bool /*store_history*/,
                                                       nl::json /*user_expressions*/,
                                                       bool /*allow_stdin*/)
     {
-        if (code == "1x") {
-            // publish_execution_error(error_name, error_value, error_traceback);
-            if (!silent) {
-                publish_execution_error("ParseError", "1x cannot be parsed", {"a", "b"});
-            }
-
-            nl::json result;
-            result["status"] = "error";
-            result["ename"] = "ParseError";
-            result["evalue"] = "1x cannot be parsed";
-            result["traceback"] = {"a", "b"};
-            return result;
-        }
-
-        if (code == "print *, \"hello, world\"") {
-            publish_stream("stdout", "hello, world\n");
-            nl::json result;
-            result["status"] = "ok";
-            result["payload"] = nl::json::array();
-            result["user_expressions"] = nl::json::object();
-            return result;
-        }
-
-        if (code == "error stop") {
-            publish_stream("stderr", "ERROR STOP\n");
-            nl::json result;
-            result["status"] = "ok";
-            result["payload"] = nl::json::array();
-            result["user_expressions"] = nl::json::object();
-            return result;
-        }
-
         FortranEvaluator::Result r;
+        std::string std_out;
         try {
+            RedirectStdout s(std_out);
             r = e.evaluate(code);
         } catch (const TokenizerError &e) {
             std::string error;
@@ -145,6 +148,10 @@ namespace LFortran
             result["evalue"] = e.msg();
             result["traceback"] = {};
             return result;
+        }
+
+        if (std_out.size() > 0) {
+            publish_stream("stdout", std_out);
         }
 
         switch (r.type) {

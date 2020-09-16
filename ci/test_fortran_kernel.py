@@ -9,13 +9,13 @@ class IRKernelTests(jkt.KernelTests):
     file_extension = ".f90"
 
     code_hello_world = 'print *, "hello, world"'
-    code_stderr = "error stop"
+    #code_stderr = "1x"
 
     #complete_code_samples = ['1', 'print *, "hello, world"',
     #        "integer :: i"]
     #incomplete_code_samples = ["subroutine f("]
 
-    code_generate_error = "1x"
+    #code_generate_error = "1x"
 
     code_execute_result = [
         {'code': "1+2+3", 'result': "6"},
