@@ -256,6 +256,9 @@ int prompt(bool verbose)
         } catch (const LFortran::ParserError &e) {
             std::cout << "Parsing error: " << e.msg() << std::endl;
             continue;
+        } catch (const LFortran::SemanticError &e) {
+            std::cout << "Semantic error: " << e.msg() << std::endl;
+            continue;
         } catch (const LFortran::CodeGenError &e) {
             std::cout << "Code generation error: " << e.msg() << std::endl;
             continue;
