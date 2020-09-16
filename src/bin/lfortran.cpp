@@ -233,6 +233,8 @@ int prompt(bool verbose)
     LFortran::LLVMEvaluator e;
     // persistent global SymbolTable across prompts
     LFortran::SymbolTable *symbol_table=nullptr;
+    int eval_count = 0;
+    std::string run_fn;
 
     std::vector<std::string> history;
     while (true) {
@@ -272,8 +274,8 @@ int prompt(bool verbose)
         LFortran::ASR::TranslationUnit_t* asr;
         // Remove the old executation function if it exists
         if (symbol_table) {
-            if (symbol_table->scope.find("f") != symbol_table->scope.end()) {
-                symbol_table->scope.erase("f");
+            if (symbol_table->scope.find(run_fn) != symbol_table->scope.end()) {
+                symbol_table->scope.erase(run_fn);
             }
             symbol_table->mark_all_variables_external(al);
         }
@@ -297,11 +299,14 @@ int prompt(bool verbose)
             x.m_return_var)->m_v))->m_type->type;
         */
 
+        eval_count++;
+        run_fn = "__lfortran_evaluate_" + std::to_string(eval_count);
+
 
         // ASR -> LLVM
         std::unique_ptr<LFortran::LLVMModule> m;
         try {
-            m = LFortran::asr_to_llvm(*asr, e.get_context(), al);
+            m = LFortran::asr_to_llvm(*asr, e.get_context(), al, run_fn);
         } catch (const LFortran::CodeGenError &e) {
             std::cout << "Code generation error: " << e.msg() << std::endl;
             continue;
@@ -311,21 +316,21 @@ int prompt(bool verbose)
             std::cout << m->str() << std::endl;
         }
 
-        std::string return_type = m->get_return_type("f");
+        std::string return_type = m->get_return_type(run_fn);
         if (verbose) std::cout << "Return type: " << return_type << std::endl;
 
         // LLVM -> Machine code -> Execution
         e.add_module(std::move(m));
         if (return_type == "integer") {
-            int r = e.intfn("f");
+            int r = e.intfn(run_fn);
             if (verbose) section("Result:");
             std::cout << r << std::endl;
         } else if (return_type == "real") {
-            float r = e.floatfn("f");
+            float r = e.floatfn(run_fn);
             if (verbose) section("Result:");
             std::cout << r << std::endl;
         } else if (return_type == "void") {
-            e.voidfn("f");
+            e.voidfn(run_fn);
             if (verbose) {
                 section("Result");
                 std::cout << "(statement)" << std::endl;

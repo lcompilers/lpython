@@ -247,7 +247,8 @@ llvm::LLVMContext &LLVMEvaluator::get_context()
 /* ------------------------------------------------------------------------- */
 // FortranEvaluator
 
-FortranEvaluator::FortranEvaluator() : al{1024*1024}, symbol_table{nullptr}
+FortranEvaluator::FortranEvaluator() : al{1024*1024}, symbol_table{nullptr},
+    eval_count{0}
 {
 }
 
@@ -265,33 +266,36 @@ FortranEvaluator::Result FortranEvaluator::evaluate(const std::string &code)
     LFortran::ASR::TranslationUnit_t* asr;
     // Remove the old execution function if it exists
     if (symbol_table) {
-        if (symbol_table->scope.find("f") != symbol_table->scope.end()) {
-            symbol_table->scope.erase("f");
+        if (symbol_table->scope.find(run_fn) != symbol_table->scope.end()) {
+            symbol_table->scope.erase(run_fn);
         }
         symbol_table->mark_all_variables_external(al);
     }
     asr = LFortran::ast_to_asr(al, *ast, symbol_table);
     if (!symbol_table) symbol_table = asr->m_global_scope;
 
+    eval_count++;
+    run_fn = "__lfortran_evaluate_" + std::to_string(eval_count);
+
     // ASR -> LLVM
     std::unique_ptr<LFortran::LLVMModule> m;
-    m = LFortran::asr_to_llvm(*asr, e.get_context(), al);
+    m = LFortran::asr_to_llvm(*asr, e.get_context(), al, run_fn);
 
-    std::string return_type = m->get_return_type("f");
+    std::string return_type = m->get_return_type(run_fn);
 
     // LLVM -> Machine code -> Execution
     e.add_module(std::move(m));
     Result result;
     if (return_type == "integer") {
-        int r = e.intfn("f");
+        int r = e.intfn(run_fn);
         result.type = ResultType::integer;
         result.i = r;
     } else if (return_type == "real") {
-        float r = e.floatfn("f");
+        float r = e.floatfn(run_fn);
         result.type = ResultType::real;
         result.f = r;
     } else if (return_type == "void") {
-        e.voidfn("f");
+        e.voidfn(run_fn);
         result.type = ResultType::none;
     } else if (return_type == "none") {
         result.type = ResultType::none;
