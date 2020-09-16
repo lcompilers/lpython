@@ -254,6 +254,13 @@ int prompt(bool verbose)
             std::cout << "Tokenizing error: " << e.msg() << std::endl;
             continue;
         } catch (const LFortran::ParserError &e) {
+            int token;
+            if (e.msg() == "syntax is ambiguous") {
+                token = -2;
+            } else {
+                token = e.token;
+            }
+            show_syntax_error("input", input, e.loc, token);
             std::cout << "Parsing error: " << e.msg() << std::endl;
             continue;
         } catch (const LFortran::SemanticError &e) {
