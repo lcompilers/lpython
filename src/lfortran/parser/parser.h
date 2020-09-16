@@ -43,6 +43,10 @@ std::string format_syntax_error(const std::string &filename,
         const std::string &input, const Location &loc, const int token,
         const std::string *tstr=nullptr);
 
+std::string format_semantic_error(const std::string &filename,
+        const std::string &input, const Location &loc,
+        const std::string msg);
+
 // Tokenizes the `input` and return a list of tokens
 std::vector<int> tokens(const std::string &input,
         std::vector<LFortran::YYSTYPE> *stypes=nullptr);

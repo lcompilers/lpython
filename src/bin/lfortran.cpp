@@ -264,7 +264,7 @@ int prompt(bool verbose)
             std::cout << format_syntax_error("input", input, e.loc, token);
             continue;
         } catch (const LFortran::SemanticError &e) {
-            std::cout << "Semantic error: " << e.msg() << std::endl;
+            std::cout << format_semantic_error("input", input, e.loc, e.msg());
             continue;
         } catch (const LFortran::CodeGenError &e) {
             std::cout << "Code generation error: " << e.msg() << std::endl;

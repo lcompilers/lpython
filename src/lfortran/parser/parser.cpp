@@ -405,4 +405,31 @@ std::string format_syntax_error(const std::string &filename,
     return out.str();
 }
 
+std::string format_semantic_error(const std::string &filename,
+        const std::string &input, const Location &loc,
+        const std::string msg)
+{
+    std::stringstream out;
+    out << filename << ":" << loc.first_line << ":" << loc.first_column;
+    if (loc.first_line != loc.last_line) {
+        out << " - " << loc.last_line << ":" << loc.last_column;
+    }
+    out << " " << redon << "semantic error:" << redoff << " ";
+    out << msg << std::endl;
+    if (loc.first_line == loc.last_line) {
+        std::string line = get_line(input, loc.first_line);
+        out << highlight_line(line, loc.first_column, loc.last_column);
+    } else {
+        out << "first (" << loc.first_line << ":" << loc.first_column;
+        out << ")" << std::endl;
+        std::string line = get_line(input, loc.first_line);
+        out << highlight_line(line, loc.first_column, line.size());
+        out << "last (" << loc.last_line << ":" << loc.last_column;
+        out << ")" << std::endl;
+        line = get_line(input, loc.last_line);
+        out << highlight_line(line, 1, loc.last_column);
+    }
+    return out.str();
+}
+
 }
