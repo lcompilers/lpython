@@ -58,31 +58,8 @@ namespace LFortran
                                                       nl::json /*user_expressions*/,
                                                       bool /*allow_stdin*/)
     {
-        if (code == "1x") {
-            // publish_execution_error(error_name, error_value, error_traceback);
-            if (!silent) {
-                publish_execution_error("ParseError", "1x cannot be parsed", {"a", "b"});
-            }
-
-            nl::json result;
-            result["status"] = "error";
-            result["ename"] = "ParseError";
-            result["evalue"] = "1x cannot be parsed";
-            result["traceback"] = {"a", "b"};
-            return result;
-        }
-
         if (code == "print *, \"hello, world\"") {
             publish_stream("stdout", "hello, world\n");
-            nl::json result;
-            result["status"] = "ok";
-            result["payload"] = nl::json::array();
-            result["user_expressions"] = nl::json::object();
-            return result;
-        }
-
-        if (code == "error stop") {
-            publish_stream("stderr", "ERROR STOP\n");
             nl::json result;
             result["status"] = "ok";
             result["payload"] = nl::json::array();
