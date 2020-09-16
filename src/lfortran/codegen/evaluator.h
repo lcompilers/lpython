@@ -63,6 +63,8 @@ private:
     Allocator al;
     LLVMEvaluator e;
     SymbolTable *symbol_table;
+    int eval_count;
+    std::string run_fn;
 public:
     enum ResultType {
         integer, real, none
