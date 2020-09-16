@@ -19,13 +19,10 @@ namespace LFortran
     class custom_interpreter : public xeus::xinterpreter
     {
     private:
-        Allocator al;
-        LLVMEvaluator e;
-        SymbolTable *symbol_table;
+        FortranEvaluator e;
 
     public:
-        custom_interpreter() : al{Allocator(64*1024*1024)},
-            symbol_table{nullptr} { }
+        custom_interpreter() = default;
         virtual ~custom_interpreter() = default;
 
     private:
@@ -93,10 +90,9 @@ namespace LFortran
             return result;
         }
 
-        // Src -> AST
-        AST::TranslationUnit_t* ast;
+        FortranEvaluator::Result r;
         try {
-            ast = parse2(al, code);
+            r = e.evaluate(code);
         } catch (const TokenizerError &e) {
             nl::json result;
             result["status"] = "error";
@@ -111,41 +107,6 @@ namespace LFortran
             result["evalue"] = e.msg();
             result["traceback"] = {};
             return result;
-        } catch (const LFortranException &e) {
-            nl::json result;
-            result["status"] = "error";
-            result["ename"] = "LFortranException";
-            result["evalue"] = e.msg();
-            result["traceback"] = {};
-            return result;
-        }
-
-
-        // AST -> ASR
-        ASR::TranslationUnit_t* asr;
-        // Remove the old executation function if it exists
-        if (symbol_table) {
-            if (symbol_table->scope.find("f") != symbol_table->scope.end()) {
-                symbol_table->scope.erase("f");
-            }
-            symbol_table->mark_all_variables_external(al);
-        }
-        try {
-            asr = ast_to_asr(al, *ast, symbol_table);
-        } catch (const LFortranException &e) {
-            nl::json result;
-            result["status"] = "error";
-            result["ename"] = "LFortranException";
-            result["evalue"] = e.msg();
-            result["traceback"] = {};
-            return result;
-        }
-        if (!symbol_table) symbol_table = asr->m_global_scope;
-
-        // ASR -> LLVM
-        std::unique_ptr<LLVMModule> m;
-        try {
-            m = asr_to_llvm(*asr, e.get_context(), al);
         } catch (const CodeGenError &e) {
             nl::json result;
             result["status"] = "error";
@@ -153,30 +114,36 @@ namespace LFortran
             result["evalue"] = e.msg();
             result["traceback"] = {};
             return result;
+        } catch (const LFortranException &e) {
+            nl::json result;
+            result["status"] = "error";
+            result["ename"] = "LFortranException";
+            result["evalue"] = e.msg();
+            result["traceback"] = {};
+            return result;
         }
 
-        std::string return_type = m->get_return_type("f");
-
-        // LLVM -> Machine code -> Execution
-        e.add_module(std::move(m));
-        if (return_type == "integer") {
-            int r = e.intfn("f");
-            nl::json pub_data;
-            pub_data["text/plain"] = std::to_string(r);
-            publish_execution_result(execution_counter, std::move(pub_data), nl::json::object());
-        } else if (return_type == "real") {
-            float r = e.floatfn("f");
-            nl::json pub_data;
-            pub_data["text/plain"] = std::to_string(r);
-            publish_execution_result(execution_counter, std::move(pub_data), nl::json::object());
-        } else if (return_type == "void") {
-            e.voidfn("f");
-        } else if (return_type == "none") {
-        } else {
-            throw LFortranException("Return type not supported");
+        switch (r.type) {
+            case (LFortran::FortranEvaluator::ResultType::integer) : {
+                nl::json pub_data;
+                pub_data["text/plain"] = std::to_string(r.i);
+                publish_execution_result(execution_counter, std::move(pub_data), nl::json::object());
+                break;
+            }
+            case (LFortran::FortranEvaluator::ResultType::real) : {
+                nl::json pub_data;
+                pub_data["text/plain"] = std::to_string(r.f);
+                publish_execution_result(execution_counter, std::move(pub_data), nl::json::object());
+                break;
+            }
+            case (LFortran::FortranEvaluator::ResultType::statement) : {
+                break;
+            }
+            case (LFortran::FortranEvaluator::ResultType::none) : {
+                break;
+            }
+            default : throw LFortranException("Return type not supported");
         }
-
-
 
         nl::json result;
         result["status"] = "ok";
