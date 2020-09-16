@@ -15,8 +15,10 @@
 
 #include <cpp-terminal/terminal_base.h>
 
+#include <chrono>
 #include <iostream>
 #include <string>
+#include <thread>
 #include <vector>
 
 #define CTRL_KEY(k) (char)(((unsigned char)(k) & 0x1f))
@@ -201,7 +203,9 @@ public:
     int read_key() const
     {
         int key;
-        while ((key = read_key0()) == 0) { }
+        while ((key = read_key0()) == 0) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
         return key;
     }
 
