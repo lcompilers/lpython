@@ -274,7 +274,7 @@ FortranEvaluator::Result FortranEvaluator::evaluate(const std::string &code,
 
     // Src -> AST
     LFortran::AST::TranslationUnit_t* ast;
-    ast = LFortran::parse2(al, code);
+    ast = LFortran::parse(al, code);
 
     if (verbose) {
         result.ast = LFortran::pickle(*ast, true);
