@@ -38,9 +38,10 @@ AST::TranslationUnit_t* parse(Allocator &al, const std::string &s);
 // syntax error happens:
 AST::TranslationUnit_t* parse2(Allocator &al, const std::string &s);
 
-// Prints a nice error message to std::cout
-void show_syntax_error(const std::string &filename, const std::string &input,
-        const Location &loc, const int token, const std::string *tstr=nullptr);
+// Returns a nice error message as a string
+std::string format_syntax_error(const std::string &filename,
+        const std::string &input, const Location &loc, const int token,
+        const std::string *tstr=nullptr);
 
 // Tokenizes the `input` and return a list of tokens
 std::vector<int> tokens(const std::string &input,

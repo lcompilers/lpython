@@ -40,10 +40,10 @@ AST::TranslationUnit_t* parse2(Allocator &al, const std::string &s)
         } else {
             token = e.token;
         }
-        show_syntax_error("input", s, e.loc, token);
+        std::cerr << format_syntax_error("input", s, e.loc, token);
         throw;
     } catch (const LFortran::TokenizerError &e) {
-        show_syntax_error("input", s, e.loc, -1, &e.token);
+        std::cerr << format_syntax_error("input", s, e.loc, -1, &e.token);
         throw;
     }
     return result;
@@ -403,12 +403,6 @@ std::string format_syntax_error(const std::string &filename,
         out << highlight_line(line, 1, loc.last_column);
     }
     return out.str();
-}
-
-void show_syntax_error(const std::string &filename, const std::string &input,
-        const Location &loc, const int token, const std::string *tstr)
-{
-    std::cerr << format_syntax_error(filename, input, loc, token, tstr);
 }
 
 }

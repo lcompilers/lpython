@@ -1191,7 +1191,7 @@ TEST_CASE("Errors") {
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
         CHECK(e.token == yytokentype::TK_NEWLINE);
-        show_syntax_error("input", input, e.loc, e.token);
+        std::cerr << format_syntax_error("input", input, e.loc, e.token);
         CHECK(e.loc.first_line == 1);
         CHECK(e.loc.first_column == 6);
         CHECK(e.loc.last_line == 1);
@@ -1208,7 +1208,7 @@ TEST_CASE("Errors") {
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
         CHECK(e.token == tt::TK_STAR);
-        show_syntax_error("input", input, e.loc, e.token);
+        std::cerr << format_syntax_error("input", input, e.loc, e.token);
         CHECK(e.loc.first_line == 3);
         CHECK(e.loc.first_column == 16);
         CHECK(e.loc.last_line == 3);
@@ -1225,7 +1225,7 @@ TEST_CASE("Errors") {
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
         CHECK(e.token == tt::TK_STAR);
-        show_syntax_error("input", input, e.loc, e.token);
+        std::cerr << format_syntax_error("input", input, e.loc, e.token);
         CHECK(e.loc.first_line == 3);
         CHECK(e.loc.first_column == 13);
         CHECK(e.loc.last_line == 3);
@@ -1242,7 +1242,7 @@ TEST_CASE("Errors") {
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
         CHECK(e.token == yytokentype::TK_NAME);
-        show_syntax_error("input", input, e.loc, e.token);
+        std::cerr << format_syntax_error("input", input, e.loc, e.token);
         CHECK(e.loc.first_line == 2);
         CHECK(e.loc.first_column == 11);
         CHECK(e.loc.last_line == 2);
@@ -1256,7 +1256,7 @@ TEST_CASE("Errors") {
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
         CHECK(e.token == yytokentype::TK_DEF_OP);
-        show_syntax_error("input", input, e.loc, e.token);
+        std::cerr << format_syntax_error("input", input, e.loc, e.token);
         CHECK(e.loc.first_line == 1);
         CHECK(e.loc.first_column == 5);
         CHECK(e.loc.last_line == 1);
@@ -1270,7 +1270,7 @@ TEST_CASE("Errors") {
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
         CHECK(e.token == yytokentype::KW_ALLOCATE);
-        show_syntax_error("input", input, e.loc, e.token);
+        std::cerr << format_syntax_error("input", input, e.loc, e.token);
         CHECK(e.loc.first_line == 1);
         CHECK(e.loc.first_column == 7);
         CHECK(e.loc.last_line == 1);
@@ -1284,7 +1284,7 @@ TEST_CASE("Errors") {
         CHECK(false);
     } catch (const LFortran::TokenizerError &e) {
         CHECK(e.token == "@");
-        show_syntax_error("input", input, e.loc, -1, &e.token);
+        std::cerr << format_syntax_error("input", input, e.loc, -1, &e.token);
         CHECK(e.loc.first_line == 1);
         CHECK(e.loc.first_column == 3);
         CHECK(e.loc.last_line == 1);

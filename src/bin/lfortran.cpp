@@ -260,7 +260,7 @@ int prompt(bool verbose)
             } else {
                 token = e.token;
             }
-            show_syntax_error("input", input, e.loc, token);
+            std::cout << format_syntax_error("input", input, e.loc, token);
             std::cout << "Parsing error: " << e.msg() << std::endl;
             continue;
         } catch (const LFortran::SemanticError &e) {
