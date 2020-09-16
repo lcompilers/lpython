@@ -94,7 +94,9 @@ namespace LFortran
         try {
             r = e.evaluate(code);
         } catch (const TokenizerError &e) {
-            publish_stream("stderr", "Tokenizer Error: " + e.msg());
+            std::string error;
+            error = format_syntax_error("input", code, e.loc, -1, &e.token);
+            publish_stream("stderr", error);
             nl::json result;
             result["status"] = "error";
             result["ename"] = "TokenizerError";
@@ -102,7 +104,15 @@ namespace LFortran
             result["traceback"] = {};
             return result;
         } catch (const ParserError &e) {
-            publish_stream("stderr", "Parser Error: " + e.msg());
+            int token;
+            if (e.msg() == "syntax is ambiguous") {
+                token = -2;
+            } else {
+                token = e.token;
+            }
+            std::string error;
+            error = format_syntax_error("input", code, e.loc, token);
+            publish_stream("stderr", error);
             nl::json result;
             result["status"] = "error";
             result["ename"] = "ParserError";
@@ -110,7 +120,9 @@ namespace LFortran
             result["traceback"] = {};
             return result;
         } catch (const SemanticError &e) {
-            publish_stream("stderr", "Semantic Error: " + e.msg());
+            std::string error;
+            error = format_semantic_error("input", code, e.loc, e.msg());
+            publish_stream("stderr", error);
             nl::json result;
             result["status"] = "error";
             result["ename"] = "SemanticError";
