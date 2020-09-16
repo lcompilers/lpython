@@ -107,6 +107,13 @@ namespace LFortran
             result["evalue"] = e.msg();
             result["traceback"] = {};
             return result;
+        } catch (const SemanticError &e) {
+            nl::json result;
+            result["status"] = "error";
+            result["ename"] = "SemanticError";
+            result["evalue"] = e.msg();
+            result["traceback"] = {};
+            return result;
         } catch (const CodeGenError &e) {
             nl::json result;
             result["status"] = "error";
