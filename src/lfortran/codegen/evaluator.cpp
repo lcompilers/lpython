@@ -49,6 +49,7 @@
 #include <lfortran/asr.h>
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/parser/parser.h>
+#include <lfortran/pickle.h>
 
 
 namespace LFortran {
@@ -247,8 +248,8 @@ llvm::LLVMContext &LLVMEvaluator::get_context()
 /* ------------------------------------------------------------------------- */
 // FortranEvaluator
 
-FortranEvaluator::FortranEvaluator() : al{1024*1024}, symbol_table{nullptr},
-    eval_count{0}
+FortranEvaluator::FortranEvaluator() : al{1024*1024},
+    symbol_table{nullptr}, eval_count{0}
 {
 }
 
@@ -256,11 +257,18 @@ FortranEvaluator::~FortranEvaluator()
 {
 }
 
-FortranEvaluator::Result FortranEvaluator::evaluate(const std::string &code)
+FortranEvaluator::Result FortranEvaluator::evaluate(const std::string &code,
+    bool verbose)
 {
+    Result result;
+
     // Src -> AST
     LFortran::AST::TranslationUnit_t* ast;
     ast = LFortran::parse2(al, code);
+
+    if (verbose) {
+        result.ast = LFortran::pickle(*ast, true);
+    }
 
     // AST -> ASR
     LFortran::ASR::TranslationUnit_t* asr;
@@ -274,6 +282,10 @@ FortranEvaluator::Result FortranEvaluator::evaluate(const std::string &code)
     asr = LFortran::ast_to_asr(al, *ast, symbol_table);
     if (!symbol_table) symbol_table = asr->m_global_scope;
 
+    if (verbose) {
+        result.asr = LFortran::pickle(*asr, true);
+    }
+
     eval_count++;
     run_fn = "__lfortran_evaluate_" + std::to_string(eval_count);
 
@@ -281,11 +293,14 @@ FortranEvaluator::Result FortranEvaluator::evaluate(const std::string &code)
     std::unique_ptr<LFortran::LLVMModule> m;
     m = LFortran::asr_to_llvm(*asr, e.get_context(), al, run_fn);
 
+    if (verbose) {
+        result.llvm_ir = m->str();
+    }
+
     std::string return_type = m->get_return_type(run_fn);
 
     // LLVM -> Machine code -> Execution
     e.add_module(std::move(m));
-    Result result;
     if (return_type == "integer") {
         int r = e.intfn(run_fn);
         result.type = ResultType::integer;
@@ -296,7 +311,7 @@ FortranEvaluator::Result FortranEvaluator::evaluate(const std::string &code)
         result.f = r;
     } else if (return_type == "void") {
         e.voidfn(run_fn);
-        result.type = ResultType::none;
+        result.type = ResultType::statement;
     } else if (return_type == "none") {
         result.type = ResultType::none;
     } else {

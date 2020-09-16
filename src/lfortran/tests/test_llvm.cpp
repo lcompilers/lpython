@@ -405,7 +405,7 @@ TEST_CASE("FortranEvaluator 1") {
     r = e.evaluate("integer :: i");
     CHECK(r.type == FortranEvaluator::ResultType::none);
     r = e.evaluate("i = 5");
-    CHECK(r.type == FortranEvaluator::ResultType::none);
+    CHECK(r.type == FortranEvaluator::ResultType::statement);
     r = e.evaluate("i");
     CHECK(r.type == FortranEvaluator::ResultType::integer);
     CHECK(r.i == 5);

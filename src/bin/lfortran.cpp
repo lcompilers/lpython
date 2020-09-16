@@ -230,11 +230,7 @@ int prompt(bool verbose)
     std::cout << "    - History (Keys: Up, Down)" << std::endl;
 
     Allocator al(64*1024*1024);
-    LFortran::LLVMEvaluator e;
-    // persistent global SymbolTable across prompts
-    LFortran::SymbolTable *symbol_table=nullptr;
-    int eval_count = 0;
-    std::string run_fn;
+    LFortran::FortranEvaluator e;
 
     std::vector<std::string> history;
     while (true) {
@@ -250,98 +246,63 @@ int prompt(bool verbose)
             std::cout << input << std::endl;
         }
 
-        // Src -> AST
-        LFortran::AST::TranslationUnit_t* ast;
+        LFortran::FortranEvaluator::Result r;
+
         try {
-            ast = LFortran::parse2(al, input);
+            r = e.evaluate(input, verbose);
         } catch (const LFortran::TokenizerError &e) {
             std::cout << "Tokenizing error: " << e.msg() << std::endl;
             continue;
         } catch (const LFortran::ParserError &e) {
             std::cout << "Parsing error: " << e.msg() << std::endl;
             continue;
+        } catch (const LFortran::CodeGenError &e) {
+            std::cout << "Code generation error: " << e.msg() << std::endl;
+            continue;
         } catch (const LFortran::LFortranException &e) {
             std::cout << "Other LFortran exception: " << e.msg() << std::endl;
             continue;
         }
+
         if (verbose) {
             section("AST:");
-            std::cout << LFortran::pickle(*ast, true) << std::endl;
-        }
-
-
-        // AST -> ASR
-        LFortran::ASR::TranslationUnit_t* asr;
-        // Remove the old executation function if it exists
-        if (symbol_table) {
-            if (symbol_table->scope.find(run_fn) != symbol_table->scope.end()) {
-                symbol_table->scope.erase(run_fn);
-            }
-            symbol_table->mark_all_variables_external(al);
-        }
-        try {
-            asr = LFortran::ast_to_asr(al, *ast, symbol_table);
-        } catch (const LFortran::LFortranException &e) {
-            std::cout << "LFortran exception: " << e.msg() << std::endl;
-            continue;
-        }
-        if (!symbol_table) symbol_table = asr->m_global_scope;
-        if (verbose) {
+            std::cout << r.ast  << std::endl;
             section("ASR:");
-            std::cout << LFortran::pickle(*asr, true) << std::endl;
-        }
-        /*
-        // TODO: apply the "wrap" phase here manually and extract the type
-        // of the generated function
-        x = ((LFortran::ASR::TranslationUnit_t*) asr)->m_global_scope["f"];
-        LFortran::ASR::ttypeType return_var_type = LFortran::VARIABLE(
-            (LFortran::ASR::asr_t*)(LFortran::EXPR_VAR((LFortran::ASR::asr_t*)
-            x.m_return_var)->m_v))->m_type->type;
-        */
-
-        eval_count++;
-        run_fn = "__lfortran_evaluate_" + std::to_string(eval_count);
-
-
-        // ASR -> LLVM
-        std::unique_ptr<LFortran::LLVMModule> m;
-        try {
-            m = LFortran::asr_to_llvm(*asr, e.get_context(), al, run_fn);
-        } catch (const LFortran::CodeGenError &e) {
-            std::cout << "Code generation error: " << e.msg() << std::endl;
-            continue;
-        }
-        if (verbose) {
+            std::cout << r.asr << std::endl;
             section("LLVM IR:");
-            std::cout << m->str() << std::endl;
+            std::cout << r.llvm_ir << std::endl;
         }
 
-        std::string return_type = m->get_return_type(run_fn);
-        if (verbose) std::cout << "Return type: " << return_type << std::endl;
-
-        // LLVM -> Machine code -> Execution
-        e.add_module(std::move(m));
-        if (return_type == "integer") {
-            int r = e.intfn(run_fn);
-            if (verbose) section("Result:");
-            std::cout << r << std::endl;
-        } else if (return_type == "real") {
-            float r = e.floatfn(run_fn);
-            if (verbose) section("Result:");
-            std::cout << r << std::endl;
-        } else if (return_type == "void") {
-            e.voidfn(run_fn);
-            if (verbose) {
-                section("Result");
-                std::cout << "(statement)" << std::endl;
+        switch (r.type) {
+            case (LFortran::FortranEvaluator::ResultType::integer) : {
+                if (verbose) std::cout << "Return type: integer" << std::endl;
+                if (verbose) section("Result:");
+                std::cout << r.i << std::endl;
+                break;
             }
-        } else if (return_type == "none") {
-            if (verbose) {
-                section("Result");
-                std::cout << "(nothing to execute)" << std::endl;
+            case (LFortran::FortranEvaluator::ResultType::real) : {
+                if (verbose) std::cout << "Return type: real" << std::endl;
+                if (verbose) section("Result:");
+                std::cout << r.f << std::endl;
+                break;
             }
-        } else {
-            throw LFortran::LFortranException("Return type not supported");
+            case (LFortran::FortranEvaluator::ResultType::statement) : {
+                if (verbose) {
+                    std::cout << "Return type: none" << std::endl;
+                    section("Result:");
+                    std::cout << "(statement)" << std::endl;
+                }
+                break;
+            }
+            case (LFortran::FortranEvaluator::ResultType::none) : {
+                if (verbose) {
+                    std::cout << "Return type: none" << std::endl;
+                    section("Result:");
+                    std::cout << "(nothing to execute)" << std::endl;
+                }
+                break;
+            }
+            default : throw LFortran::LFortranException("Return type not supported");
         }
     }
     return 0;
