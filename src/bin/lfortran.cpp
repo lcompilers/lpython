@@ -251,7 +251,8 @@ int prompt(bool verbose)
         try {
             r = e.evaluate(input, verbose);
         } catch (const LFortran::TokenizerError &e) {
-            std::cout << "Tokenizing error: " << e.msg() << std::endl;
+            std::cerr << format_syntax_error("input", input, e.loc, -1,
+                &e.token);
             continue;
         } catch (const LFortran::ParserError &e) {
             int token;
@@ -261,7 +262,6 @@ int prompt(bool verbose)
                 token = e.token;
             }
             std::cout << format_syntax_error("input", input, e.loc, token);
-            std::cout << "Parsing error: " << e.msg() << std::endl;
             continue;
         } catch (const LFortran::SemanticError &e) {
             std::cout << "Semantic error: " << e.msg() << std::endl;
