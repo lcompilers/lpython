@@ -94,6 +94,7 @@ namespace LFortran
         try {
             r = e.evaluate(code);
         } catch (const TokenizerError &e) {
+            publish_stream("stderr", "Tokenizer Error: " + e.msg());
             nl::json result;
             result["status"] = "error";
             result["ename"] = "TokenizerError";
@@ -101,6 +102,7 @@ namespace LFortran
             result["traceback"] = {};
             return result;
         } catch (const ParserError &e) {
+            publish_stream("stderr", "Parser Error: " + e.msg());
             nl::json result;
             result["status"] = "error";
             result["ename"] = "ParserError";
@@ -108,6 +110,7 @@ namespace LFortran
             result["traceback"] = {};
             return result;
         } catch (const SemanticError &e) {
+            publish_stream("stderr", "Semantic Error: " + e.msg());
             nl::json result;
             result["status"] = "error";
             result["ename"] = "SemanticError";
@@ -115,6 +118,7 @@ namespace LFortran
             result["traceback"] = {};
             return result;
         } catch (const CodeGenError &e) {
+            publish_stream("stderr", "Code Generation Error: " + e.msg());
             nl::json result;
             result["status"] = "error";
             result["ename"] = "CodeGenException";
@@ -122,6 +126,7 @@ namespace LFortran
             result["traceback"] = {};
             return result;
         } catch (const LFortranException &e) {
+            publish_stream("stderr", "LFortran Exception: " + e.msg());
             nl::json result;
             result["status"] = "error";
             result["ename"] = "LFortranException";
