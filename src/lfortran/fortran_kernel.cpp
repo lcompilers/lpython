@@ -2,7 +2,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+
+#ifndef _WIN32
+#    include <unistd.h>
+#endif
 
 #include <xeus/xinterpreter.hpp>
 #include <xeus/xkernel.hpp>
@@ -30,6 +33,7 @@ namespace LFortran
     {
     public:
         RedirectStdout(std::string &out) : _out{out} {
+#ifndef _WIN32
             std::cout << std::flush;
             fflush(stdout);
             saved_stdout = dup(STDOUT_FILENO);
@@ -39,13 +43,16 @@ namespace LFortran
             dup2(out_pipe[1], STDOUT_FILENO);
             close(out_pipe[1]);
             printf("X");
+#endif
         }
 
         ~RedirectStdout() {
+#ifndef _WIN32
             fflush(stdout);
             read(out_pipe[0], buffer, MAX_LEN);
             dup2(saved_stdout, STDOUT_FILENO);
             _out = std::string(&buffer[1]);
+#endif
         }
     private:
         std::string &_out;
