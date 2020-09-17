@@ -20,6 +20,12 @@ namespace nl = nlohmann;
 
 namespace LFortran
 {
+
+    bool startswith(const std::string &s, const std::string &e) {
+        if (s.size() < e.size()) return false;
+        return s.substr(0, e.size()) == e;
+    }
+
     class RedirectStdout
     {
     public:
@@ -93,12 +99,59 @@ namespace LFortran
     {
         FortranEvaluator::Result r;
         std::string std_out;
+        std::string code0;
         try {
+            if (startswith(code, "%%showast")) {
+                std::string s;
+                code0 = code.substr(code.find("\n")+1);
+                s = e.get_ast(code0);
+                publish_stream("stdout", s);
+                nl::json result;
+                result["status"] = "ok";
+                result["payload"] = nl::json::array();
+                result["user_expressions"] = nl::json::object();
+                return result;
+            }
+            if (startswith(code, "%%showasr")) {
+                std::string s;
+                code0 = code.substr(code.find("\n")+1);
+                s = e.get_asr(code0);
+                publish_stream("stdout", s);
+                nl::json result;
+                result["status"] = "ok";
+                result["payload"] = nl::json::array();
+                result["user_expressions"] = nl::json::object();
+                return result;
+            }
+            if (startswith(code, "%%showllvm")) {
+                std::string s;
+                code0 = code.substr(code.find("\n")+1);
+                s = e.get_llvm(code0);
+                publish_stream("stdout", s);
+                nl::json result;
+                result["status"] = "ok";
+                result["payload"] = nl::json::array();
+                result["user_expressions"] = nl::json::object();
+                return result;
+            }
+            if (startswith(code, "%%showasm")) {
+                std::string s;
+                code0 = code.substr(code.find("\n")+1);
+                s = e.get_asm(code0);
+                publish_stream("stdout", s);
+                nl::json result;
+                result["status"] = "ok";
+                result["payload"] = nl::json::array();
+                result["user_expressions"] = nl::json::object();
+                return result;
+            }
+
             RedirectStdout s(std_out);
-            r = e.evaluate(code);
+            code0 = code;
+            r = e.evaluate(code0);
         } catch (const TokenizerError &e) {
             std::string error;
-            error = format_syntax_error("input", code, e.loc, -1, &e.token);
+            error = format_syntax_error("input", code0, e.loc, -1, &e.token);
             publish_stream("stderr", error);
             nl::json result;
             result["status"] = "error";
@@ -114,7 +167,7 @@ namespace LFortran
                 token = e.token;
             }
             std::string error;
-            error = format_syntax_error("input", code, e.loc, token);
+            error = format_syntax_error("input", code0, e.loc, token);
             publish_stream("stderr", error);
             nl::json result;
             result["status"] = "error";
@@ -124,7 +177,7 @@ namespace LFortran
             return result;
         } catch (const SemanticError &e) {
             std::string error;
-            error = format_semantic_error("input", code, e.loc, e.msg());
+            error = format_semantic_error("input", code0, e.loc, e.msg());
             publish_stream("stderr", error);
             nl::json result;
             result["status"] = "error";

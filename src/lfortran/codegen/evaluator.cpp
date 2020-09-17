@@ -209,7 +209,7 @@ void write_file(const std::string &filename, const std::string &contents)
     out << contents << std::endl;
 }
 
-void LLVMEvaluator::save_asm_file(llvm::Module &m, const std::string &filename)
+std::string LLVMEvaluator::get_asm(llvm::Module &m)
 {
     llvm::legacy::PassManager pass;
     llvm::TargetMachine::CodeGenFileType ft = llvm::TargetMachine::CGFT_AssemblyFile;
@@ -219,7 +219,12 @@ void LLVMEvaluator::save_asm_file(llvm::Module &m, const std::string &filename)
         throw std::runtime_error("TargetMachine can't emit a file of this type");
     }
     pass.run(m);
-    write_file(filename, dest.str().data());
+    return std::string(dest.str().data(), dest.str().size());
+}
+
+void LLVMEvaluator::save_asm_file(llvm::Module &m, const std::string &filename)
+{
+    write_file(filename, get_asm(m));
 }
 
 void LLVMEvaluator::save_object_file(llvm::Module &m, const std::string &filename) {
@@ -328,6 +333,92 @@ FortranEvaluator::Result FortranEvaluator::evaluate(const std::string &code,
         throw LFortran::LFortranException("Return type not supported");
     }
     return result;
+}
+
+std::string FortranEvaluator::get_ast(const std::string &code)
+{
+    // Src -> AST
+    LFortran::AST::TranslationUnit_t* ast;
+    ast = LFortran::parse(al, code);
+
+    return LFortran::pickle(*ast, true);
+}
+
+std::string FortranEvaluator::get_asr(const std::string &code)
+{
+    // Src -> AST
+    LFortran::AST::TranslationUnit_t* ast;
+    ast = LFortran::parse(al, code);
+
+    // AST -> ASR
+    LFortran::ASR::TranslationUnit_t* asr;
+    // Remove the old execution function if it exists
+    if (symbol_table) {
+        if (symbol_table->scope.find(run_fn) != symbol_table->scope.end()) {
+            symbol_table->scope.erase(run_fn);
+        }
+        symbol_table->mark_all_variables_external(al);
+    }
+    asr = LFortran::ast_to_asr(al, *ast, symbol_table);
+    if (!symbol_table) symbol_table = asr->m_global_scope;
+
+    return LFortran::pickle(*asr, true);
+}
+
+std::string FortranEvaluator::get_llvm(const std::string &code)
+{
+    // Src -> AST
+    LFortran::AST::TranslationUnit_t* ast;
+    ast = LFortran::parse(al, code);
+
+    // AST -> ASR
+    LFortran::ASR::TranslationUnit_t* asr;
+    // Remove the old execution function if it exists
+    if (symbol_table) {
+        if (symbol_table->scope.find(run_fn) != symbol_table->scope.end()) {
+            symbol_table->scope.erase(run_fn);
+        }
+        symbol_table->mark_all_variables_external(al);
+    }
+    asr = LFortran::ast_to_asr(al, *ast, symbol_table);
+    if (!symbol_table) symbol_table = asr->m_global_scope;
+
+    eval_count++;
+    run_fn = "__lfortran_evaluate_" + std::to_string(eval_count);
+
+    // ASR -> LLVM
+    std::unique_ptr<LFortran::LLVMModule> m;
+    m = LFortran::asr_to_llvm(*asr, e.get_context(), al, run_fn);
+
+    return m->str();
+}
+
+std::string FortranEvaluator::get_asm(const std::string &code)
+{
+    // Src -> AST
+    LFortran::AST::TranslationUnit_t* ast;
+    ast = LFortran::parse(al, code);
+
+    // AST -> ASR
+    LFortran::ASR::TranslationUnit_t* asr;
+    // Remove the old execution function if it exists
+    if (symbol_table) {
+        if (symbol_table->scope.find(run_fn) != symbol_table->scope.end()) {
+            symbol_table->scope.erase(run_fn);
+        }
+        symbol_table->mark_all_variables_external(al);
+    }
+    asr = LFortran::ast_to_asr(al, *ast, symbol_table);
+    if (!symbol_table) symbol_table = asr->m_global_scope;
+
+    eval_count++;
+    run_fn = "__lfortran_evaluate_" + std::to_string(eval_count);
+
+    // ASR -> LLVM
+    std::unique_ptr<LFortran::LLVMModule> m;
+    m = LFortran::asr_to_llvm(*asr, e.get_context(), al, run_fn);
+
+    return e.get_asm(*m->m_m);
 }
 
 } // namespace LFortran
