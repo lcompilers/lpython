@@ -156,6 +156,17 @@ namespace LFortran
                 result["user_expressions"] = nl::json::object();
                 return result;
             }
+            if (startswith(code, "%%showfmt")) {
+                std::string s;
+                code0 = code.substr(code.find("\n")+1);
+                s = e.get_fmt(code0);
+                publish_stream("stdout", s);
+                nl::json result;
+                result["status"] = "ok";
+                result["payload"] = nl::json::array();
+                result["user_expressions"] = nl::json::object();
+                return result;
+            }
 
             RedirectStdout s(std_out);
             code0 = code;
