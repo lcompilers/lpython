@@ -219,7 +219,7 @@ std::string LLVMEvaluator::get_asm(llvm::Module &m)
         throw std::runtime_error("TargetMachine can't emit a file of this type");
     }
     pass.run(m);
-    return dest.str().data();
+    return std::string(dest.str().data(), dest.str().size());
 }
 
 void LLVMEvaluator::save_asm_file(llvm::Module &m, const std::string &filename)
