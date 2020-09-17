@@ -81,6 +81,10 @@ public:
     // If `verbose=true`, it saves ast, asr and llvm_ir in Result.
     Result evaluate(const std::string &code, bool verbose=false);
 
+    std::string get_ast(const std::string &code);
+    std::string get_asr(const std::string &code);
+    std::string get_llvm(const std::string &code);
+
 private:
     Allocator al;
     LLVMEvaluator e;
