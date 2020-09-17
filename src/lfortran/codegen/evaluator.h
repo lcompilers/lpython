@@ -86,6 +86,7 @@ public:
     std::string get_asr(const std::string &code);
     std::string get_llvm(const std::string &code);
     std::string get_asm(const std::string &code);
+    std::string get_cpp(const std::string &code);
 
 private:
     Allocator al;

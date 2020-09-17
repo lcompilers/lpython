@@ -44,6 +44,7 @@
 
 #include <lfortran/codegen/evaluator.h>
 #include <lfortran/codegen/asr_to_llvm.h>
+#include <lfortran/codegen/asr_to_cpp.h>
 #include <lfortran/exception.h>
 #include <lfortran/ast.h>
 #include <lfortran/asr.h>
@@ -419,6 +420,23 @@ std::string FortranEvaluator::get_asm(const std::string &code)
     m = LFortran::asr_to_llvm(*asr, e.get_context(), al, run_fn);
 
     return e.get_asm(*m->m_m);
+}
+
+std::string FortranEvaluator::get_cpp(const std::string &code)
+{
+    // Src -> AST
+    LFortran::AST::TranslationUnit_t* ast;
+    ast = LFortran::parse(al, code);
+
+    // AST -> ASR
+    LFortran::ASR::TranslationUnit_t* asr;
+    asr = LFortran::ast_to_asr(al, *ast);
+
+    // ASR -> C++
+    std::string cpp_src;
+    cpp_src = LFortran::asr_to_cpp(*asr);
+
+    return cpp_src;
 }
 
 } // namespace LFortran
