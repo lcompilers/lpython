@@ -173,9 +173,11 @@ jupyter_kernel:
     - python ci/test_fortran_kernel.py -v
     - cd share/lfortran/nb
     - jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --output Demo1_out.ipynb Demo1.ipynb
+    - jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --output Demo2_out.ipynb Demo2.ipynb
   artifacts:
     paths:
       - share/lfortran/nb/Demo1_out.ipynb
+      - share/lfortran/nb/Demo2_out.ipynb
     when: always
 
 # Test LFortran without the LLVM backend
