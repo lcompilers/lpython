@@ -76,30 +76,30 @@ uint32_t SymbolTable::get_hash_uint32() {
         hash = murmur_hash(&a.first[0], a.first.length(), hash);
         hash = murmur_hash_int(a.second->type, hash);
         switch (a.second->type) {
-            case (ASR::asrType::var) : {
-                ASR::Variable_t *v = ASR::down_cast2<ASR::Variable_t>(a.second);
+            case (ASR::symbolType::Variable) : {
+                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(a.second);
                 hash = murmur_hash_str(v->m_name, hash);
                 hash = murmur_hash_int(v->m_intent, hash);
                 hash = murmur_hash_int(v->m_type->type, hash);
                 break;
             }
-            case (ASR::asrType::mod) : {
+            case (ASR::symbolType::Module) : {
                 break;
             }
-            case (ASR::asrType::prog) : {
-                ASR::Program_t *v = ASR::down_cast2<ASR::Program_t>(a.second);
+            case (ASR::symbolType::Program) : {
+                ASR::Program_t *v = ASR::down_cast<ASR::Program_t>(a.second);
                 hash = murmur_hash_str(v->m_name, hash);
                 hash = murmur_hash_int(v->m_symtab->get_hash_uint32(), hash);
                 break;
             }
-            case (ASR::asrType::sub) : {
-                ASR::Subroutine_t *v = ASR::down_cast2<ASR::Subroutine_t>(a.second);
+            case (ASR::symbolType::Subroutine) : {
+                ASR::Subroutine_t *v = ASR::down_cast<ASR::Subroutine_t>(a.second);
                 hash = murmur_hash_str(v->m_name, hash);
                 hash = murmur_hash_int(v->m_symtab->get_hash_uint32(), hash);
                 break;
             }
-            case (ASR::asrType::fn) : {
-                ASR::Function_t *v = ASR::down_cast2<ASR::Function_t>(a.second);
+            case (ASR::symbolType::Function) : {
+                ASR::Function_t *v = ASR::down_cast<ASR::Function_t>(a.second);
                 hash = murmur_hash_str(v->m_name, hash);
                 hash = murmur_hash_int(v->m_symtab->get_hash_uint32(), hash);
                 break;
@@ -118,28 +118,26 @@ std::string SymbolTable::get_hash() {
 void SymbolTable::mark_all_variables_external(Allocator &al) {
     for (auto &a : scope) {
         switch (a.second->type) {
-            case (ASR::asrType::var) : {
-                ASR::Variable_t *v = ASR::down_cast2<ASR::Variable_t>(a.second);
+            case (ASR::symbolType::Variable) : {
+                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(a.second);
                 v->m_intent = intent_external;
                 break;
             }
-            case (ASR::asrType::fn) : {
-                ASR::Function_t *v = ASR::down_cast2<ASR::Function_t>(a.second);
+            case (ASR::symbolType::Function) : {
+                ASR::Function_t *v = ASR::down_cast<ASR::Function_t>(a.second);
                 ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
                 external->m_type = ASR::proc_external_typeType::Interactive;
-                external->m_module_sub = nullptr;
-                external->m_module_fn = nullptr;
+                external->m_module_proc = nullptr;
                 v->m_external = external;
                 v->m_body = nullptr;
                 v->n_body = 0;
                 break;
             }
-            case (ASR::asrType::sub) : {
-                ASR::Subroutine_t *v = ASR::down_cast2<ASR::Subroutine_t>(a.second);
+            case (ASR::symbolType::Subroutine) : {
+                ASR::Subroutine_t *v = ASR::down_cast<ASR::Subroutine_t>(a.second);
                 ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
                 external->m_type = ASR::proc_external_typeType::Interactive;
-                external->m_module_sub = nullptr;
-                external->m_module_fn = nullptr;
+                external->m_module_proc = nullptr;
                 v->m_external = external;
                 v->m_body = nullptr;
                 v->n_body = 0;

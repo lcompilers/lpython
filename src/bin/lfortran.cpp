@@ -495,8 +495,8 @@ int emit_cpp(const std::string &infile)
 int save_mod_files(const LFortran::ASR::TranslationUnit_t &u)
 {
     for (auto &item : u.m_global_scope->scope) {
-        if (LFortran::ASR::is_a<LFortran::ASR::mod_t>(*item.second)) {
-            LFortran::ASR::Module_t *m = LFortran::ASR::down_cast2<LFortran::ASR::Module_t>(item.second);
+        if (LFortran::ASR::is_a<LFortran::ASR::Module_t>(*item.second)) {
+            LFortran::ASR::Module_t *m = LFortran::ASR::down_cast<LFortran::ASR::Module_t>(item.second);
             std::string modfile = std::string(m->m_name) + ".mod";
             std::string cmd = "touch " + modfile;
             int err = system(cmd.c_str());

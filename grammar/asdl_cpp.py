@@ -564,7 +564,7 @@ class PickleVisitorVisitor(ASDLVisitor):
                     self.emit('    size_t i = 0;', level)
                     self.emit('    for (auto &a : x.m_%s->scope) {' % field.name, level)
                     self.emit('        s.append(a.first + ": ");', level)
-                    self.emit('        this->visit_asr(*a.second);', level)
+                    self.emit('        this->visit_symbol(*a.second);', level)
                     self.emit('        if (i < x.m_%s->scope.size()-1) s.append(", ");' % field.name, level)
                     self.emit('        i++;', level)
                     self.emit('    }', level)

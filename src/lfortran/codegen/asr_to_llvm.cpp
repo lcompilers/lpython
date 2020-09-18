@@ -113,27 +113,27 @@ public:
 
         // Process Variables first:
         for (auto &item : x.m_global_scope->scope) {
-            if (item.second->type == ASR::asrType::var) {
-                visit_asr(*item.second);
+            if (is_a<ASR::Variable_t>(*item.second)) {
+                visit_symbol(*item.second);
             }
         }
 
         prototype_only = true;
         // Generate function prototypes
         for (auto &item : x.m_global_scope->scope) {
-            if (is_a<ASR::fn_t>(*item.second)) {
-                visit_Function(*ASR::down_cast2<ASR::Function_t>(item.second));
+            if (is_a<ASR::Function_t>(*item.second)) {
+                visit_Function(*ASR::down_cast<ASR::Function_t>(item.second));
             }
-            if (is_a<ASR::sub_t>(*item.second)) {
-                visit_Subroutine(*ASR::down_cast2<ASR::Subroutine_t>(item.second));
+            if (is_a<ASR::Subroutine_t>(*item.second)) {
+                visit_Subroutine(*ASR::down_cast<ASR::Subroutine_t>(item.second));
             }
         }
         prototype_only = false;
 
         // Then the rest:
         for (auto &item : x.m_global_scope->scope) {
-            if (item.second->type != ASR::asrType::var) {
-                visit_asr(*item.second);
+            if (!is_a<ASR::Variable_t>(*item.second)) {
+                visit_symbol(*item.second);
             }
         }
     }
@@ -179,12 +179,12 @@ public:
     void visit_Module(const ASR::Module_t &x) {
         mangle_prefix = "__module_" + std::string(x.m_name) + "_";
         for (auto &item : x.m_symtab->scope) {
-            if (item.second->type == ASR::asrType::sub) {
-                ASR::Subroutine_t *s = ASR::down_cast2<ASR::Subroutine_t>(item.second);
+            if (is_a<ASR::Subroutine_t>(*item.second)) {
+                ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
                 visit_Subroutine(*s);
             }
-            if (item.second->type == ASR::asrType::fn) {
-                ASR::Function_t *s = ASR::down_cast2<ASR::Function_t>(item.second);
+            if (is_a<ASR::Function_t>(*item.second)) {
+                ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
                 visit_Function(*s);
             }
         }
@@ -194,12 +194,12 @@ public:
     void visit_Program(const ASR::Program_t &x) {
         // Generate code for nested subroutines and functions first:
         for (auto &item : x.m_symtab->scope) {
-            if (is_a<ASR::sub_t>(*item.second)) {
-                ASR::Subroutine_t *s = down_cast2<ASR::Subroutine_t>(item.second);
+            if (is_a<ASR::Subroutine_t>(*item.second)) {
+                ASR::Subroutine_t *s = down_cast<ASR::Subroutine_t>(item.second);
                 visit_Subroutine(*s);
             }
-            if (is_a<ASR::fn_t>(*item.second)) {
-                ASR::Function_t *s = down_cast2<ASR::Function_t>(item.second);
+            if (is_a<ASR::Function_t>(*item.second)) {
+                ASR::Function_t *s = down_cast<ASR::Function_t>(item.second);
                 visit_Function(*s);
             }
         }
@@ -214,9 +214,8 @@ public:
         builder->SetInsertPoint(BB);
 
         for (auto &item : x.m_symtab->scope) {
-            if (item.second->type == ASR::asrType::var) {
-                ASR::var_t *v2 = (ASR::var_t*)(item.second);
-                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+            if (is_a<ASR::Variable_t>(*item.second)) {
+                ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
                 uint32_t h = get_hash((ASR::asr_t*)v);
 
                 if (v->m_type->type == ASR::ttypeType::Integer) {
@@ -277,9 +276,8 @@ public:
     template <typename T>
     void declare_local_vars(const T &x) {
         for (auto &item : x.m_symtab->scope) {
-            if (item.second->type == ASR::asrType::var) {
-                ASR::var_t *v2 = (ASR::var_t*)(item.second);
-                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+            if (is_a<ASR::Variable_t>(*item.second)) {
+                ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
                 uint32_t h = get_hash((ASR::asr_t*)v);
 
                 llvm::Type *type;
@@ -797,7 +795,7 @@ public:
         uint32_t h;
         if (s->m_external) {
             if (s->m_external->m_type == ASR::proc_external_typeType::LFortranModule) {
-                h = get_hash((ASR::asr_t*)s->m_external->m_module_sub);
+                h = get_hash((ASR::asr_t*)s->m_external->m_module_proc);
             } else if (s->m_external->m_type == ASR::proc_external_typeType::Interactive) {
                 h = get_hash((ASR::asr_t*)s);
             } else {
@@ -820,7 +818,7 @@ public:
         uint32_t h;
         if (s->m_external) {
             if (s->m_external->m_type == ASR::proc_external_typeType::LFortranModule) {
-                h = get_hash((ASR::asr_t*)s->m_external->m_module_fn);
+                h = get_hash((ASR::asr_t*)s->m_external->m_module_proc);
             } else if (s->m_external->m_type == ASR::proc_external_typeType::Interactive) {
                 h = get_hash((ASR::asr_t*)s);
             } else {

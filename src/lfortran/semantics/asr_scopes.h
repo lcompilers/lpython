@@ -8,11 +8,11 @@
 namespace LFortran  {
 
 namespace ASR {
-    struct asr_t;
+    struct symbol_t;
 }
 
 struct SymbolTable {
-    std::map<std::string, ASR::asr_t*> scope;
+    std::map<std::string, ASR::symbol_t*> scope;
     SymbolTable *parent;
 
     SymbolTable(SymbolTable *parent) : parent{parent} {}
@@ -23,7 +23,7 @@ struct SymbolTable {
 
     // Resolves the symbol `name` recursively in current and parent scopes.
     // Returns `nullptr` if symbol not found.
-    ASR::asr_t* resolve_symbol(const std::string &name) {
+    ASR::symbol_t* resolve_symbol(const std::string &name) {
         if (scope.find(name) == scope.end()) {
             if (parent) {
                 return parent->resolve_symbol(name);

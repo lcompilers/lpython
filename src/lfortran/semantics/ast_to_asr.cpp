@@ -58,7 +58,7 @@ public:
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             throw SemanticError("Module already defined", asr->loc);
         }
-        parent_scope->scope[sym_name] = asr;
+        parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
         current_scope = parent_scope;
     }
 
@@ -84,7 +84,7 @@ public:
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             throw SemanticError("Program already defined", asr->loc);
         }
-        parent_scope->scope[sym_name] = asr;
+        parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
         current_scope = parent_scope;
     }
 
@@ -102,8 +102,7 @@ public:
             if (current_scope->scope.find(arg_s) == current_scope->scope.end()) {
                 throw SemanticError("Dummy argument '" + arg_s + "' not defined", x.base.base.loc);
             }
-            ASR::asr_t *arg_asr = current_scope->scope[arg_s];
-            ASR::var_t *var = ASR::down_cast<ASR::var_t>(arg_asr);
+            ASR::symbol_t *var = current_scope->scope[arg_s];
             args.push_back(al, EXPR(ASR::make_Var_t(al, x.base.base.loc,
                 var)));
         }
@@ -119,15 +118,15 @@ public:
             nullptr);
         std::string sym_name = x.m_name;
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
-            ASR::asr_t *f1 = parent_scope->scope[sym_name];
-            ASR::Subroutine_t *f2 = ASR::down_cast2<ASR::Subroutine_t>(f1);
+            ASR::symbol_t *f1 = parent_scope->scope[sym_name];
+            ASR::Subroutine_t *f2 = ASR::down_cast<ASR::Subroutine_t>(f1);
             if (f2->m_external && f2->m_external->m_type == ASR::proc_external_typeType::Interactive) {
                 // Previous declaration will be shadowed
             } else {
                 throw SemanticError("Subroutine already defined", asr->loc);
             }
         }
-        parent_scope->scope[sym_name] = asr;
+        parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
         current_scope = parent_scope;
     }
 
@@ -148,8 +147,7 @@ public:
             if (current_scope->scope.find(arg_s) == current_scope->scope.end()) {
                 throw SemanticError("Dummy argument '" + arg_s + "' not defined", x.base.base.loc);
             }
-            ASR::asr_t *arg_asr = current_scope->scope[arg_s];
-            ASR::var_t *var = ASR::down_cast<ASR::var_t>(arg_asr);
+            ASR::symbol_t *var = current_scope->scope[arg_s];
             args.push_back(al, EXPR(ASR::make_Var_t(al, x.base.base.loc,
                 var)));
         }
@@ -196,19 +194,20 @@ public:
             // Add it as a local variable:
             return_var = ASR::make_Variable_t(al, x.base.base.loc,
                 current_scope, return_var_name, intent_return_var, type);
-            current_scope->scope[std::string(return_var_name)] = return_var;
+            current_scope->scope[std::string(return_var_name)]
+                = ASR::down_cast<ASR::symbol_t>(return_var);
         } else {
             if (x.m_return_type) {
                 throw SemanticError("Cannot specify the return type twice",
                     x.base.base.loc);
             }
             // Extract the variable from the local scope
-            return_var = current_scope->scope[std::string(return_var_name)];
+            return_var = (ASR::asr_t*) current_scope->scope[std::string(return_var_name)];
             ASR::down_cast2<ASR::Variable_t>(return_var)->m_intent = intent_return_var;
         }
 
         ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
-            ASR::down_cast<ASR::var_t>(return_var));
+            ASR::down_cast<ASR::symbol_t>(return_var));
 
         // Create and register the function
         asr = ASR::make_Function_t(
@@ -224,15 +223,15 @@ public:
             /* a_module */ nullptr);
         std::string sym_name = x.m_name;
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
-            ASR::asr_t *f1 = parent_scope->scope[sym_name];
-            ASR::Function_t *f2 = ASR::down_cast2<ASR::Function_t>(f1);
+            ASR::symbol_t *f1 = parent_scope->scope[sym_name];
+            ASR::Function_t *f2 = ASR::down_cast<ASR::Function_t>(f1);
             if (f2->m_external && f2->m_external->m_type == ASR::proc_external_typeType::Interactive) {
                 // Previous declaration will be shadowed
             } else {
                 throw SemanticError("Function already defined", asr->loc);
             }
         }
-        parent_scope->scope[sym_name] = asr;
+        parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
         current_scope = parent_scope;
     }
 
@@ -244,26 +243,26 @@ public:
 
     void visit_Use(const AST::Use_t &x) {
         std::string msym = x.m_module;
-        ASR::asr_t *t = current_scope->parent->resolve_symbol(msym);
+        ASR::symbol_t *t = current_scope->parent->resolve_symbol(msym);
         if (!t) {
             throw SemanticError("Module '" + msym + "' not declared",
                 x.base.base.loc);
         }
-        if (!ASR::is_a<ASR::mod_t>(*t)) {
+        if (!ASR::is_a<ASR::Module_t>(*t)) {
             throw SemanticError("The symbol '" + msym + "' must be a module",
                 x.base.base.loc);
         }
-        ASR::Module_t *m = ASR::down_cast2<ASR::Module_t>(t);
+        ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
         if (x.n_symbols == 0) {
             // Import all symbols from the module, e.g.:
             //     use a
             for (auto &item : m->m_symtab->scope) {
                 // TODO: only import "public" symbols from the module
-                if (ASR::is_a<ASR::sub_t>(*item.second)) {
-                    ASR::Subroutine_t *msub = ASR::down_cast2<ASR::Subroutine_t>(item.second);
+                if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
+                    ASR::Subroutine_t *msub = ASR::down_cast<ASR::Subroutine_t>(item.second);
                     ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
                     external->m_type = ASR::proc_external_typeType::LFortranModule;
-                    external->m_module_sub = (ASR::sub_t*)msub;
+                    external->m_module_proc = (ASR::symbol_t*)msub;
                     ASR::asr_t *sub = ASR::make_Subroutine_t(
                         al, msub->base.base.loc,
                         /* a_symtab */ msub->m_symtab,
@@ -276,12 +275,12 @@ public:
                         /* a_external */ external
                         );
                     std::string sym = msub->m_name;
-                    current_scope->scope[sym] = sub;
-                } else if (ASR::is_a<ASR::fn_t>(*item.second)) {
-                    ASR::Function_t *mfn = ASR::down_cast2<ASR::Function_t>(item.second);
+                    current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(sub);
+                } else if (ASR::is_a<ASR::Function_t>(*item.second)) {
+                    ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(item.second);
                     ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
                     external->m_type = ASR::proc_external_typeType::LFortranModule;
-                    external->m_module_fn = (ASR::fn_t*)mfn;
+                    external->m_module_proc = (ASR::symbol_t*)mfn;
                     ASR::asr_t *fn = ASR::make_Function_t(
                         al, mfn->base.base.loc,
                         /* a_symtab */ mfn->m_symtab,
@@ -295,7 +294,7 @@ public:
                         /* a_external */ external
                         );
                     std::string sym = mfn->m_name;
-                    current_scope->scope[sym] = fn;
+                    current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
                 } else {
                     throw LFortranException("Only function / subroutine implemented");
                 }
@@ -311,23 +310,23 @@ public:
                 } else {
                     local_sym = remote_sym;
                 }
-                ASR::asr_t *t = m->m_symtab->resolve_symbol(remote_sym);
+                ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
                 if (!t) {
                     throw SemanticError("The symbol '" + remote_sym + "' not found in the module '" + msym + "'",
                         x.base.base.loc);
                 }
-                if (ASR::is_a<ASR::sub_t>(*t)) {
+                if (ASR::is_a<ASR::Subroutine_t>(*t)) {
                     if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
                         throw SemanticError("Subroutine already defined",
                             x.base.base.loc);
                     }
-                    ASR::Subroutine_t *msub = ASR::down_cast2<ASR::Subroutine_t>(t);
+                    ASR::Subroutine_t *msub = ASR::down_cast<ASR::Subroutine_t>(t);
                     // `msub` is the Subroutine in a module. Now we construct
                     // a new Subroutine that is just the prototype, and that links to
                     // `msub` via the `external` field.
                     ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
                     external->m_type = ASR::proc_external_typeType::LFortranModule;
-                    external->m_module_sub = (ASR::sub_t*)msub;
+                    external->m_module_proc = (ASR::symbol_t*)msub;
                     Str name;
                     name.from_str(al, local_sym);
                     ASR::asr_t *sub = ASR::make_Subroutine_t(
@@ -341,19 +340,19 @@ public:
                         /* a_bind */ msub->m_bind,
                         /* a_external */ external
                         );
-                    current_scope->scope[local_sym] = sub;
-                } else if (ASR::is_a<ASR::fn_t>(*t)) {
+                    current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(sub);
+                } else if (ASR::is_a<ASR::Function_t>(*t)) {
                     if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
                         throw SemanticError("Function already defined",
                             x.base.base.loc);
                     }
-                    ASR::Function_t *mfn = ASR::down_cast2<ASR::Function_t>(t);
+                    ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
                     // `msub` is the Function in a module. Now we construct
                     // a new Function that is just the prototype, and that links to
                     // `mfn` via the `external` field.
                     ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
                     external->m_type = ASR::proc_external_typeType::LFortranModule;
-                    external->m_module_fn = (ASR::fn_t*)mfn;
+                    external->m_module_proc = (ASR::symbol_t*)mfn;
                     Str name;
                     name.from_str(al, local_sym);
                     ASR::asr_t *fn = ASR::make_Function_t(
@@ -368,7 +367,7 @@ public:
                         /* a_return_var */ mfn->m_return_var,
                         /* a_external */ external
                         );
-                    current_scope->scope[local_sym] = fn;
+                    current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(fn);
                 } else {
                     throw LFortranException("Only Subroutines and Functions supported in 'use'");
                 }
@@ -452,7 +451,7 @@ public:
             }
             ASR::asr_t *v = ASR::make_Variable_t(al, x.loc, current_scope,
                 x.m_sym, s_intent, type);
-            current_scope->scope[sym] = v;
+            current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(v);
 
         }
     }
@@ -495,8 +494,8 @@ public:
 
     void visit_Module(const AST::Module_t &x) {
         SymbolTable *old_scope = current_scope;
-        ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
-        ASR::Module_t *v = ASR::down_cast2<ASR::Module_t>(t);
+        ASR::symbol_t *t = current_scope->scope[std::string(x.m_name)];
+        ASR::Module_t *v = ASR::down_cast<ASR::Module_t>(t);
         current_scope = v->m_symtab;
 
         for (size_t i=0; i<x.n_contains; i++) {
@@ -509,8 +508,8 @@ public:
 
     void visit_Program(const AST::Program_t &x) {
         SymbolTable *old_scope = current_scope;
-        ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
-        ASR::Program_t *v = ASR::down_cast2<ASR::Program_t>(t);
+        ASR::symbol_t *t = current_scope->scope[std::string(x.m_name)];
+        ASR::Program_t *v = ASR::down_cast<ASR::Program_t>(t);
         current_scope = v->m_symtab;
 
         Vec<ASR::stmt_t*> body;
@@ -536,8 +535,8 @@ public:
     // an error
     // TODO: add SymbolTable::get_symbol(), which will only check in Debug mode
         SymbolTable *old_scope = current_scope;
-        ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
-        ASR::Subroutine_t *v = ASR::down_cast2<ASR::Subroutine_t>(t);
+        ASR::symbol_t *t = current_scope->scope[std::string(x.m_name)];
+        ASR::Subroutine_t *v = ASR::down_cast<ASR::Subroutine_t>(t);
         current_scope = v->m_symtab;
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
@@ -554,8 +553,8 @@ public:
 
     void visit_Function(const AST::Function_t &x) {
         SymbolTable *old_scope = current_scope;
-        ASR::asr_t *t = current_scope->scope[std::string(x.m_name)];
-        ASR::Function_t *v = ASR::down_cast2<ASR::Function_t>(t);
+        ASR::symbol_t *t = current_scope->scope[std::string(x.m_name)];
+        ASR::Function_t *v = ASR::down_cast<ASR::Function_t>(t);
         current_scope = v->m_symtab;
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
@@ -628,7 +627,7 @@ public:
         ASR::Subroutine_t *sub = resolve_subroutine(x.base.base.loc, x.m_name);
         Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
         tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc,
-                (ASR::sub_t*)sub, args.p, args.size());
+                (ASR::symbol_t*)sub, args.p, args.size());
     }
 
     void visit_Compare(const AST::Compare_t &x) {
@@ -770,22 +769,21 @@ public:
     ASR::asr_t* resolve_variable(const Location &loc, const char* id) {
         SymbolTable *scope = current_scope;
         std::string var_name = id;
-        ASR::asr_t *v = scope->resolve_symbol(var_name);
+        ASR::symbol_t *v = scope->resolve_symbol(var_name);
         if (!v) {
             throw SemanticError("Variable '" + var_name + "' not declared", loc);
         }
-        ASR::var_t *var = ASR::down_cast<ASR::var_t>(v);
-        return ASR::make_Var_t(al, loc, var);
+        return ASR::make_Var_t(al, loc, v);
     }
 
     ASR::Subroutine_t* resolve_subroutine(const Location &loc, const char* id) {
         SymbolTable *scope = current_scope;
         std::string sub_name = id;
-        ASR::asr_t *sub = scope->resolve_symbol(sub_name);
+        ASR::symbol_t *sub = scope->resolve_symbol(sub_name);
         if (!sub) {
             throw SemanticError("Subroutine '" + sub_name + "' not declared", loc);
         }
-        return ASR::down_cast2<ASR::Subroutine_t>(sub);
+        return ASR::down_cast<ASR::Subroutine_t>(sub);
     }
 
     void visit_Name(const AST::Name_t &x) {
@@ -795,7 +793,7 @@ public:
     void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
         SymbolTable *scope = current_scope;
         std::string var_name = x.m_func;
-        ASR::asr_t *v = scope->resolve_symbol(var_name);
+        ASR::symbol_t *v = scope->resolve_symbol(var_name);
         if (!v) {
             if (var_name == "size") {
                 // Intrinsic function size(), add it to the global scope
@@ -807,9 +805,9 @@ public:
                 type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
                 ASR::asr_t *return_var = ASR::make_Variable_t(al, x.base.base.loc,
                     fn_scope, fn_name, intent_return_var, type);
-                fn_scope->scope[std::string(fn_name)] = return_var;
+                fn_scope->scope[std::string(fn_name)] = ASR::down_cast<ASR::symbol_t>(return_var);
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
-                    ASR::down_cast<ASR::var_t>(return_var));
+                    ASR::down_cast<ASR::symbol_t>(return_var));
                 ASR::asr_t *fn = ASR::make_Function_t(
                     al, x.base.base.loc,
                     /* a_symtab */ fn_scope,
@@ -822,23 +820,23 @@ public:
                     /* a_return_var */ EXPR(return_var_ref),
                     /* a_module */ nullptr);
                 std::string sym_name = fn_name;
-                unit->m_global_scope->scope[sym_name] = fn;
-                v = fn;
+                unit->m_global_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(fn);
+                v = ASR::down_cast<ASR::symbol_t>(fn);
             } else {
                 throw SemanticError("Function or array '" + var_name
                     + "' not declared", x.base.base.loc);
             }
         }
         switch (v->type) {
-            case (ASR::asrType::fn) : {
+            case (ASR::symbolType::Function) : {
                 Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
                 ASR::ttype_t *type;
-                type = EXPR2VAR(ASR::down_cast2<ASR::Function_t>(v)->m_return_var)->m_type;
+                type = EXPR2VAR(ASR::down_cast<ASR::Function_t>(v)->m_return_var)->m_type;
                 tmp = ASR::make_FuncCall_t(al, x.base.base.loc,
-                    (ASR::fn_t*)v, args.p, args.size(), nullptr, 0, type);
+                    v, args.p, args.size(), nullptr, 0, type);
                 break;
             }
-            case (ASR::asrType::var) : {
+            case (ASR::symbolType::Variable) : {
                 Vec<ASR::array_index_t> args;
                 args.reserve(al, x.n_args);
                 for (size_t i=0; i<x.n_args; i++) {
@@ -851,9 +849,9 @@ public:
                 }
 
                 ASR::ttype_t *type;
-                type = ASR::down_cast2<ASR::Variable_t>(v)->m_type;
+                type = ASR::down_cast<ASR::Variable_t>(v)->m_type;
                 tmp = ASR::make_ArrayRef_t(al, x.base.base.loc,
-                    (ASR::var_t*)v, args.p, args.size(), type);
+                    v, args.p, args.size(), type);
                 break;
             }
             default : throw SemanticError("Symbol '" + var_name
