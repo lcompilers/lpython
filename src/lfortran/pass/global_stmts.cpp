@@ -7,6 +7,8 @@
 
 namespace LFortran {
 
+using ASR::down_cast;
+
 /*
  * This ASR pass transforms (in-place) the ASR tree and wras all global
  * statements and expressions into a function.
@@ -42,8 +44,8 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                     return_var = ASR::make_Variable_t(al, loc,
                         fn_scope, var_name, intent_local, type);
                     return_var_ref = EXPR(ASR::make_Var_t(al, loc,
-                        ASR::down_cast<ASR::var_t>(return_var)));
-                    fn_scope->scope[std::string(var_name)] = return_var;
+                        down_cast<ASR::symbol_t>(return_var)));
+                    fn_scope->scope[std::string(var_name)] = down_cast<ASR::symbol_t>(return_var);
                     target = return_var_ref;
                     idx++;
                 } else if (expr_type(value)->type == ASR::ttypeType::Real) {
@@ -53,8 +55,8 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                     return_var = ASR::make_Variable_t(al, loc,
                         fn_scope, var_name, intent_local, type);
                     return_var_ref = EXPR(ASR::make_Var_t(al, loc,
-                        ASR::down_cast<ASR::var_t>(return_var)));
-                    fn_scope->scope[std::string(var_name)] = return_var;
+                        down_cast<ASR::symbol_t>(return_var)));
+                    fn_scope->scope[std::string(var_name)] = down_cast<ASR::symbol_t>(return_var);
                     target = return_var_ref;
                     idx++;
                 } else {
@@ -93,7 +95,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
             if (unit.m_global_scope->scope.find(sym_name) != unit.m_global_scope->scope.end()) {
                 throw SemanticError("Function already defined", fn->loc);
             }
-            unit.m_global_scope->scope[sym_name] = fn;
+            unit.m_global_scope->scope[sym_name] = down_cast<ASR::symbol_t>(fn);
         } else {
             // The last item was a statement, create a subroutine (returing
             // nothing)
@@ -111,7 +113,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
             if (unit.m_global_scope->scope.find(sym_name) != unit.m_global_scope->scope.end()) {
                 throw SemanticError("Function already defined", fn->loc);
             }
-            unit.m_global_scope->scope[sym_name] = fn;
+            unit.m_global_scope->scope[sym_name] = down_cast<ASR::symbol_t>(fn);
         }
         unit.m_items = nullptr;
         unit.n_items = 0;

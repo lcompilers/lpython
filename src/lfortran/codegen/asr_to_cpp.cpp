@@ -120,16 +120,16 @@ public:
 
         // Process procedures first:
         for (auto &item : x.m_global_scope->scope) {
-            if (!is_a<ASR::prog_t>(*item.second)) {
-                visit_asr(*item.second);
+            if (!is_a<ASR::Program_t>(*item.second)) {
+                visit_symbol(*item.second);
                 unit_src += src;
             }
         }
 
         // Then the main program:
         for (auto &item : x.m_global_scope->scope) {
-            if (is_a<ASR::prog_t>(*item.second)) {
-                visit_asr(*item.second);
+            if (is_a<ASR::Program_t>(*item.second)) {
+                visit_symbol(*item.second);
                 unit_src += src;
             }
         }
@@ -141,13 +141,13 @@ public:
         // Generate code for nested subroutines and functions first:
         std::string contains;
         for (auto &item : x.m_symtab->scope) {
-            if (is_a<ASR::sub_t>(*item.second)) {
-                ASR::Subroutine_t *s = ASR::down_cast2<ASR::Subroutine_t>(item.second);
+            if (is_a<ASR::Subroutine_t>(*item.second)) {
+                ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
                 visit_Subroutine(*s);
                 contains += src + "\n";
             }
-            if (is_a<ASR::fn_t>(*item.second)) {
-                ASR::Function_t *s = ASR::down_cast2<ASR::Function_t>(item.second);
+            if (is_a<ASR::Function_t>(*item.second)) {
+                ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
                 visit_Function(*s);
                 contains += src + "\n";
             }
@@ -160,8 +160,8 @@ public:
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string decl;
         for (auto &item : x.m_symtab->scope) {
-            if (is_a<ASR::var_t>(*item.second)) {
-                ASR::Variable_t *v = down_cast2<ASR::Variable_t>(item.second);
+            if (is_a<ASR::Variable_t>(*item.second)) {
+                ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
                 decl += indent;
                 decl += convert_variable_decl(*v) + ";\n";
             }
@@ -211,8 +211,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         sub += ")\n";
 
         for (auto &item : x.m_symtab->scope) {
-            if (is_a<ASR::var_t>(*item.second)) {
-                ASR::Variable_t *v = down_cast2<ASR::Variable_t>(item.second);
+            if (is_a<ASR::Variable_t>(*item.second)) {
+                ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
                 if (v->m_intent == intent_local) {
                     SymbolInfo s;
                     s.needs_declaration = true;
@@ -229,8 +229,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
         std::string decl;
         for (auto &item : x.m_symtab->scope) {
-            if (is_a<ASR::var_t>(*item.second)) {
-                ASR::Variable_t *v = down_cast2<ASR::Variable_t>(item.second);
+            if (is_a<ASR::Variable_t>(*item.second)) {
+                ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
                 if (v->m_intent == intent_local) {
                     if (sym_info[get_hash((ASR::asr_t*) v)].needs_declaration) {
                         std::string indent(indentation_level*indentation_spaces, ' ');
@@ -283,8 +283,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string decl;
         for (auto &item : x.m_symtab->scope) {
-            if (is_a<ASR::var_t>(*item.second)) {
-                ASR::Variable_t *v = down_cast2<ASR::Variable_t>(item.second);
+            if (is_a<ASR::Variable_t>(*item.second)) {
+                ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
                 if (v->m_intent == intent_local || v->m_intent == intent_return_var) {
                    decl += indent + convert_variable_decl(*v) + ";\n";
                 }

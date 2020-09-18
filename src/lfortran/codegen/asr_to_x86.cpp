@@ -15,6 +15,7 @@
 namespace LFortran {
 
 using ASR::down_cast;
+using ASR::is_a;
 
 // Platform dependent fast unique hash:
 uint64_t static get_hash(ASR::asr_t *node)
@@ -44,8 +45,8 @@ public:
         LFORTRAN_ASSERT(x.n_items == 0);
 
         for (auto &item : x.m_global_scope->scope) {
-            if (item.second->type != ASR::asrType::var) {
-                visit_asr(*item.second);
+            if (!is_a<ASR::Variable_t>(*item.second)) {
+                visit_symbol(*item.second);
             }
         }
     }
@@ -61,12 +62,12 @@ public:
 
         // Generate code for nested subroutines and functions first:
         for (auto &item : x.m_symtab->scope) {
-            if (ASR::is_a<ASR::sub_t>(*item.second)) {
-                ASR::Subroutine_t *s = ASR::down_cast2<ASR::Subroutine_t>(item.second);
+            if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
+                ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
                 visit_Subroutine(*s);
             }
-            if (ASR::is_a<ASR::fn_t>(*item.second)) {
-                ASR::Function_t *s = ASR::down_cast2<ASR::Function_t>(item.second);
+            if (ASR::is_a<ASR::Function_t>(*item.second)) {
+                ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
                 visit_Function(*s);
             }
         }
@@ -81,9 +82,8 @@ public:
         // Allocate stack space for local variables
         uint32_t total_offset = 0;
         for (auto &item : x.m_symtab->scope) {
-            if (item.second->type == ASR::asrType::var) {
-                ASR::var_t *v2 = (ASR::var_t*)(item.second);
-                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+            if (is_a<ASR::Variable_t>(*item.second)) {
+                ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
 
                 if (v->m_type->type == ASR::ttypeType::Integer) {
                     total_offset += 4;
@@ -150,9 +150,8 @@ public:
         // Allocate stack space for local variables
         uint32_t total_offset = 0;
         for (auto &item : x.m_symtab->scope) {
-            if (item.second->type == ASR::asrType::var) {
-                ASR::var_t *v2 = (ASR::var_t*)(item.second);
-                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+            if (is_a<ASR::Variable_t>(*item.second)) {
+                ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
 
                 if (v->m_intent == intent_local || v->m_intent == intent_return_var) {
                     if (v->m_type->type == ASR::ttypeType::Integer) {
@@ -213,9 +212,8 @@ public:
         // Allocate stack space for local variables
         uint32_t total_offset = 0;
         for (auto &item : x.m_symtab->scope) {
-            if (item.second->type == ASR::asrType::var) {
-                ASR::var_t *v2 = (ASR::var_t*)(item.second);
-                ASR::Variable_t *v = (ASR::Variable_t *)v2;
+            if (is_a<ASR::Variable_t>(*item.second)) {
+                ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
 
                 if (v->m_intent == intent_local || v->m_intent == intent_return_var) {
                     if (v->m_type->type == ASR::ttypeType::Integer) {

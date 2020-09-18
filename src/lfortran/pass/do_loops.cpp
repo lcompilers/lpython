@@ -8,6 +8,7 @@
 namespace LFortran {
 
 using ASR::down_cast;
+using ASR::is_a;
 
 /*
 
@@ -108,7 +109,7 @@ public:
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         for (auto &a : x.m_global_scope->scope) {
-            this->visit_asr(*a.second);
+            this->visit_symbol(*a.second);
         }
     }
 
@@ -144,12 +145,12 @@ public:
 
         // Transform nested functions and subroutines
         for (auto &item : x.m_symtab->scope) {
-            if (item.second->type == ASR::asrType::sub) {
-                ASR::Subroutine_t *s = ASR::down_cast2<ASR::Subroutine_t>(item.second);
+            if (is_a<ASR::Subroutine_t>(*item.second)) {
+                ASR::Subroutine_t *s = down_cast<ASR::Subroutine_t>(item.second);
                 visit_Subroutine(*s);
             }
-            if (item.second->type == ASR::asrType::fn) {
-                ASR::Function_t *s = ASR::down_cast2<ASR::Function_t>(item.second);
+            if (is_a<ASR::Function_t>(*item.second)) {
+                ASR::Function_t *s = down_cast<ASR::Function_t>(item.second);
                 visit_Function(*s);
             }
         }

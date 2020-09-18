@@ -15,46 +15,29 @@
 --   * symbol_table (scoped Symbol Table implementation)
 --   * node (any ASR node)
 --
--- Note: `symbol_table` contains `Program`, `Module`, `Subroutine`, `Function`, `Variable`.
-
--- TODO: Change the sum fn = Function(...) to product Function = (...)
--- make all products subclass asr_t, thus including the location information
--- product is represented by a value, unless it is optional or a sequence.
--- Change to products: TranslationUnit, Program, Module, Subroutine, Function,
---                     Variable, Attribute, Bind
+-- Note: `symbol_table` contains `identifier` -> `symbol` mappings.
 
 module ASR {
 
 unit
     = TranslationUnit(symbol_table global_scope, node* items)
 
-prog
+symbol
     = Program(symbol_table symtab, identifier name, stmt* body)
-
-mod
-    = Module(symbol_table symtab, identifier name)
-
-sub
-    = Subroutine(symbol_table symtab, identifier name, expr* args, stmt* body,
+    | Module(symbol_table symtab, identifier name)
+    | Subroutine(symbol_table symtab, identifier name, expr* args, stmt* body,
         tbind? bind, proc_external? external)
-
-fn
-    = Function(symbol_table symtab, identifier name, expr* args, stmt* body,
+    | Function(symbol_table symtab, identifier name, expr* args, stmt* body,
         tbind? bind, expr return_var, proc_external? external)
-
-var
--- intent:
--- =0 ... local variable,
--- >0 ... dummy argument: 1=in, 2=out, 3=inout
-    = Variable(symbol_table parent_symtab, identifier name, intent intent,
+    | Variable(symbol_table parent_symtab, identifier name, intent intent,
             ttype type)
 
-proc_external = (proc_external_type type, sub? module_sub, fn? module_fn)
+proc_external = (proc_external_type type, symbol module_proc)
 proc_external_type = LFortranModule | GFortranModule | Interactive
 
 stmt
     = Assignment(expr target, expr value)
-    | SubroutineCall(sub name, expr* args)
+    | SubroutineCall(symbol name, expr* args)
     | BuiltinCall(identifier name, expr* args)
     | If(expr test, stmt* body, stmt* orelse)
     | Where(expr test, stmt* body, stmt* orelse)
@@ -74,15 +57,16 @@ expr
     | UnaryOp(unaryop op, expr operand, ttype type)
     | Compare(expr left, cmpop op, expr right, ttype type)
 -- TODO: rename func -> name, as in SubroutineCall:
-    | FuncCall(fn func, expr* args, keyword* keywords, ttype type)
+    | FuncCall(symbol func, expr* args, keyword* keywords, ttype type)
     | ArrayInitializer(expr* args, ttype type)
     | Num(object n, ttype type) -- TODO: rename to ConstantInteger
     | ConstantReal(string r, ttype type)
     | Constant(constant value, ttype type) -- TODO: rename to ConstantLogical
     | Str(string s, ttype type)
+-- TODO: remove:
     | VariableOld(identifier name, string? intent, int? dummy, ttype type)
-    | Var(var v)
-    | ArrayRef(var v, array_index* args, ttype type)
+    | Var(symbol v)
+    | ArrayRef(symbol v, array_index* args, ttype type)
     | ImplicitCast(expr arg, cast_kind kind, ttype type)
     | ExplicitCast(expr arg, cast_kind kind, ttype type)
 
