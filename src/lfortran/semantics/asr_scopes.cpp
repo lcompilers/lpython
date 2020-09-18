@@ -74,7 +74,7 @@ uint32_t SymbolTable::get_hash_uint32() {
     uint32_t hash = 3;
     for (auto &a : scope) {
         hash = murmur_hash(&a.first[0], a.first.length(), hash);
-        hash = murmur_hash_int(a.second->type, hash);
+        hash = murmur_hash_int(a.second->type+1, hash);
         switch (a.second->type) {
             case (ASR::symbolType::Variable) : {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(a.second);
