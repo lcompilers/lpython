@@ -6,6 +6,7 @@
 
 #include <lfortran/parser/alloc.h>
 #include <lfortran/semantics/asr_scopes.h>
+#include <lfortran/asr.h>
 
 // Forward declare all needed LLVM classes without importing any LLVM header
 // files. Those are only imported in evaluator.cpp and nowhere else, to speed
@@ -84,6 +85,7 @@ public:
 
     std::string get_ast(const std::string &code);
     std::string get_asr(const std::string &code);
+    ASR::TranslationUnit_t* get_asr2(const std::string &code);
     std::string get_llvm(const std::string &code);
     std::unique_ptr<LLVMModule> get_llvm2(const std::string &code);
     std::string get_asm(const std::string &code);
