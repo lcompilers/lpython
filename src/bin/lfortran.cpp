@@ -548,11 +548,12 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
 {
     std::string input = read_file(infile);
 
+    LFortran::FortranEvaluator fe;
+    LFortran::ASR::TranslationUnit_t* asr;
+
     // Src -> AST
-    Allocator al(64*1024*1024);
-    LFortran::AST::TranslationUnit_t* ast;
     try {
-        ast = LFortran::parse2(al, input);
+        asr = fe.get_asr2(input);
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
@@ -560,9 +561,6 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
         std::cerr << "Parsing error: " << e.msg() << std::endl;
         return 2;
     }
-
-    // AST -> ASR
-    LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast);
 
     // Save .mod files
     {
@@ -573,6 +571,7 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
     std::unique_ptr<LFortran::LLVMModule> m;
+    Allocator al(64*1024*1024);
     try {
         m = LFortran::asr_to_llvm(*asr, e.get_context(), al);
     } catch (const LFortran::CodeGenError &e) {
