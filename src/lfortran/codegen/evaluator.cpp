@@ -395,6 +395,34 @@ std::string FortranEvaluator::get_llvm(const std::string &code)
     return m->str();
 }
 
+std::unique_ptr<LLVMModule> FortranEvaluator::get_llvm2(const std::string &code)
+{
+    // Src -> AST
+    LFortran::AST::TranslationUnit_t* ast;
+    ast = LFortran::parse(al, code);
+
+    // AST -> ASR
+    LFortran::ASR::TranslationUnit_t* asr;
+    // Remove the old execution function if it exists
+    if (symbol_table) {
+        if (symbol_table->scope.find(run_fn) != symbol_table->scope.end()) {
+            symbol_table->scope.erase(run_fn);
+        }
+        symbol_table->mark_all_variables_external(al);
+    }
+    asr = LFortran::ast_to_asr(al, *ast, symbol_table);
+    if (!symbol_table) symbol_table = asr->m_global_scope;
+
+    eval_count++;
+    run_fn = "__lfortran_evaluate_" + std::to_string(eval_count);
+
+    // ASR -> LLVM
+    std::unique_ptr<LFortran::LLVMModule> m;
+    m = LFortran::asr_to_llvm(*asr, e.get_context(), al, run_fn);
+
+    return std::move(m);
+}
+
 std::string FortranEvaluator::get_asm(const std::string &code)
 {
     // Src -> AST

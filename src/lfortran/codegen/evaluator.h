@@ -85,6 +85,7 @@ public:
     std::string get_ast(const std::string &code);
     std::string get_asr(const std::string &code);
     std::string get_llvm(const std::string &code);
+    std::unique_ptr<LLVMModule> get_llvm2(const std::string &code);
     std::string get_asm(const std::string &code);
     std::string get_cpp(const std::string &code);
     std::string get_fmt(const std::string &code);
