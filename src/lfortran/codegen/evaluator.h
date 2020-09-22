@@ -6,6 +6,7 @@
 
 #include <lfortran/parser/alloc.h>
 #include <lfortran/semantics/asr_scopes.h>
+#include <lfortran/ast.h>
 #include <lfortran/asr.h>
 
 // Forward declare all needed LLVM classes without importing any LLVM header
@@ -127,6 +128,7 @@ public:
     Result<EvalResult> evaluate(const std::string &code, bool verbose=false);
 
     std::string get_ast(const std::string &code);
+    Result<AST::TranslationUnit_t*> get_ast2(const std::string &code);
     Result<std::string> get_asr(const std::string &code);
     Result<ASR::TranslationUnit_t*> get_asr2(const std::string &code);
     Result<std::string> get_llvm(const std::string &code);

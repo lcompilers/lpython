@@ -375,11 +375,42 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(const std::strin
 
 std::string FortranEvaluator::get_ast(const std::string &code)
 {
-    // Src -> AST
-    LFortran::AST::TranslationUnit_t* ast;
-    ast = LFortran::parse(al, code);
+    Result<AST::TranslationUnit_t*> ast = get_ast2(code);
+    if (ast.ok) {
+        return LFortran::pickle(*ast.result, true);
+    } else {
+        return ast.error;
+    }
+}
 
-    return LFortran::pickle(*ast, true);
+Result<AST::TranslationUnit_t*> FortranEvaluator::get_ast2(const std::string &code)
+{
+    try {
+        // Src -> AST
+        LFortran::AST::TranslationUnit_t* ast;
+        ast = LFortran::parse(al, code);
+        return ast;
+    } catch (const TokenizerError &e) {
+        FortranEvaluator::Error error;
+        error.type = FortranEvaluator::Error::Tokenizer;
+        error.loc = e.loc;
+        error.msg = e.msg();
+        error.token_str = e.token;
+        return error;
+    } catch (const ParserError &e) {
+        int token;
+        if (e.msg() == "syntax is ambiguous") {
+            token = -2;
+        } else {
+            token = e.token;
+        }
+        FortranEvaluator::Error error;
+        error.type = FortranEvaluator::Error::Parser;
+        error.loc = e.loc;
+        error.token = token;
+        error.msg = e.msg();
+        return error;
+    }
 }
 
 Result<std::string> FortranEvaluator::get_asr(const std::string &code)
