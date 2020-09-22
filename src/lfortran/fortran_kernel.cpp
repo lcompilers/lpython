@@ -109,14 +109,23 @@ namespace LFortran
         std::string code0;
         try {
             if (startswith(code, "%%showast")) {
-                std::string s;
+                FortranEvaluator::Result<std::string> res;
                 code0 = code.substr(code.find("\n")+1);
-                s = e.get_ast(code0);
-                publish_stream("stdout", s);
+                res = e.get_ast(code0);
                 nl::json result;
-                result["status"] = "ok";
-                result["payload"] = nl::json::array();
-                result["user_expressions"] = nl::json::object();
+                if (res.ok) {
+                    publish_stream("stdout", res.result);
+                    result["status"] = "ok";
+                    result["payload"] = nl::json::array();
+                    result["user_expressions"] = nl::json::object();
+                } else {
+                    std::string msg = e.format_error(res.error, code0);
+                    publish_stream("stderr", msg);
+                    result["status"] = "error";
+                    result["ename"] = "CompilerError";
+                    result["evalue"] = msg;
+                    result["traceback"] = {};
+                }
                 return result;
             }
             if (startswith(code, "%%showasr")) {

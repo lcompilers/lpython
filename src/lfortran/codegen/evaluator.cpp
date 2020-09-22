@@ -373,7 +373,7 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(const std::strin
     }
 }
 
-std::string FortranEvaluator::get_ast(const std::string &code)
+Result<std::string> FortranEvaluator::get_ast(const std::string &code)
 {
     Result<AST::TranslationUnit_t*> ast = get_ast2(code);
     if (ast.ok) {
