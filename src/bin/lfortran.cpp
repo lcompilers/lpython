@@ -554,28 +554,30 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
     LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*> result;
 
     // Src -> AST
-    try {
-        result = fe.get_asr2(input);
+    result = fe.get_asr2(input);
+    if (result.ok) {
         asr = result.result;
-    } catch (const LFortran::TokenizerError &e) {
-        std::cerr << format_syntax_error("input", input, e.loc, -1,
-            &e.token);
-        return 1;
-    } catch (const LFortran::ParserError &e) {
-        int token;
-        if (e.msg() == "syntax is ambiguous") {
-            token = -2;
-        } else {
-            token = e.token;
+    } else {
+        LFortran::FortranEvaluator::Error e = result.error;
+        switch (e.type) {
+            case (LFortran::FortranEvaluator::Error::Tokenizer) : {
+                std::cerr << format_syntax_error("input", input, e.loc, -1,
+                    &e.token_str);
+                return 1;
+            }
+            case (LFortran::FortranEvaluator::Error::Parser) : {
+                std::cout << format_syntax_error("input", input, e.loc, e.token);
+                return 1;
+            }
+            case (LFortran::FortranEvaluator::Error::Semantic) : {
+                std::cout << format_semantic_error("input", input, e.loc, e.msg);
+                return 1;
+            }
+            case (LFortran::FortranEvaluator::Error::CodeGen) : {
+                std::cout << "Code generation error: " << e.msg << std::endl;
+                return 1;
+            }
         }
-        std::cout << format_syntax_error("input", input, e.loc, token);
-        return 1;
-    } catch (const LFortran::SemanticError &e) {
-        std::cout << format_semantic_error("input", input, e.loc, e.msg());
-        return 1;
-    } catch (const LFortran::CodeGenError &e) {
-        std::cout << "Code generation error: " << e.msg() << std::endl;
-        return 1;
     }
 
     // Save .mod files

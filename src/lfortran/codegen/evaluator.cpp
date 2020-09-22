@@ -369,21 +369,54 @@ std::string FortranEvaluator::get_asr(const std::string &code)
 
 FortranEvaluator::Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(const std::string &code)
 {
-    // Src -> AST
-    LFortran::AST::TranslationUnit_t* ast;
-    ast = LFortran::parse(al, code);
-
-    // AST -> ASR
     LFortran::ASR::TranslationUnit_t* asr;
-    // Remove the old execution function if it exists
-    if (symbol_table) {
-        if (symbol_table->scope.find(run_fn) != symbol_table->scope.end()) {
-            symbol_table->scope.erase(run_fn);
+    try {
+        // Src -> AST
+        LFortran::AST::TranslationUnit_t* ast;
+        ast = LFortran::parse(al, code);
+
+        // AST -> ASR
+        // Remove the old execution function if it exists
+        if (symbol_table) {
+            if (symbol_table->scope.find(run_fn) != symbol_table->scope.end()) {
+                symbol_table->scope.erase(run_fn);
+            }
+            symbol_table->mark_all_variables_external(al);
         }
-        symbol_table->mark_all_variables_external(al);
+        asr = LFortran::ast_to_asr(al, *ast, symbol_table);
+        if (!symbol_table) symbol_table = asr->m_global_scope;
+    } catch (const LFortran::TokenizerError &e) {
+        FortranEvaluator::Error error;
+        error.type = FortranEvaluator::Error::Tokenizer;
+        error.loc = e.loc;
+        error.msg = e.msg();
+        error.token_str = e.token;
+        return FortranEvaluator::Result<ASR::TranslationUnit_t*>(error);
+    } catch (const LFortran::ParserError &e) {
+        int token;
+        if (e.msg() == "syntax is ambiguous") {
+            token = -2;
+        } else {
+            token = e.token;
+        }
+        FortranEvaluator::Error error;
+        error.type = FortranEvaluator::Error::Parser;
+        error.loc = e.loc;
+        error.token = token;
+        error.msg = e.msg();
+        return FortranEvaluator::Result<ASR::TranslationUnit_t*>(error);
+    } catch (const LFortran::SemanticError &e) {
+        FortranEvaluator::Error error;
+        error.type = FortranEvaluator::Error::Semantic;
+        error.loc = e.loc;
+        error.msg = e.msg();
+        return FortranEvaluator::Result<ASR::TranslationUnit_t*>(error);
+    } catch (const LFortran::CodeGenError &e) {
+        FortranEvaluator::Error error;
+        error.type = FortranEvaluator::Error::CodeGen;
+        error.msg = e.msg();
+        return FortranEvaluator::Result<ASR::TranslationUnit_t*>(error);
     }
-    asr = LFortran::ast_to_asr(al, *ast, symbol_table);
-    if (!symbol_table) symbol_table = asr->m_global_scope;
 
     return FortranEvaluator::Result(asr);
 }

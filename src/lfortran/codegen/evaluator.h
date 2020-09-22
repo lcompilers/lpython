@@ -83,35 +83,36 @@ public:
             Tokenizer, Parser, Semantic, CodeGen
         } type;
         Location loc;
+        int token;
         std::string msg;
+        std::string token_str;
     };
 
     template<typename T>
     struct Result {
-        enum {
-            ok, error
-        } type;
+        bool ok;
         union {
             T result;
-            Error err;
+            Error error;
         };
         Result() {}
-        Result(const T &r) : result{r} {}
+        Result(const T &result) : ok{true}, result{result} {}
+        Result(const Error &error) : ok{false}, error{error} {}
         ~Result() {}
         Result(const Result<T> &other) {
-            type = other.type;
-            if (other.type == ok) {
+            ok = other.ok;
+            if (ok) {
                 result = other.result;
             } else {
-                err = other.err;
+                error = other.error;
             }
         }
         Result<T>& operator=(const Result<T> &other) {
-            type = other.type;
-            if (other.type == ok) {
+            ok = other.ok;
+            if (ok) {
                 result = other.result;
             } else {
-                err = other.err;
+                error = other.error;
             }
             return *this;
         }
