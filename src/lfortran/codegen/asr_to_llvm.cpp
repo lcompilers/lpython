@@ -672,7 +672,7 @@ public:
         }
     }
 
-    void visit_Num(const ASR::Num_t &x) {
+    void visit_ConstantInteger(const ASR::ConstantInteger_t &x) {
         tmp = llvm::ConstantInt::get(context, llvm::APInt(64, x.m_n));
     }
 

@@ -459,7 +459,7 @@ public:
     void visit_Num(const AST::Num_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 8, nullptr, 0));
-        asr = ASR::make_Num_t(al, x.base.base.loc, x.m_n, type);
+        asr = ASR::make_ConstantInteger_t(al, x.base.base.loc, x.m_n, type);
     }
 
 };
@@ -862,7 +862,7 @@ public:
     void visit_Num(const AST::Num_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 4, nullptr, 0));
-        tmp = ASR::make_Num_t(al, x.base.base.loc, x.m_n, type);
+        tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, x.m_n, type);
     }
 
     void visit_Constant(const AST::Constant_t &x) {

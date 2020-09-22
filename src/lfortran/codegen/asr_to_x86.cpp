@@ -256,7 +256,7 @@ public:
 
     // Expressions leave integer values in eax
 
-    void visit_Num(const ASR::Num_t &x) {
+    void visit_ConstantInteger(const ASR::ConstantInteger_t &x) {
         m_a.asm_mov_r32_imm32(X86Reg::eax, x.m_n);
     }
 

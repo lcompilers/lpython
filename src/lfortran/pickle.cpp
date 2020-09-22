@@ -280,13 +280,13 @@ public:
         this->visit_ttype(*x.m_type);
         s.append(")");
     }
-    void visit_Num(const ASR::Num_t &x) {
+    void visit_ConstantInteger(const ASR::ConstantInteger_t &x) {
         s.append("(");
         if (use_colors) {
             s.append(color(style::bold));
             s.append(color(fg::magenta));
         }
-        s.append("Num");
+        s.append("ConstantInteger");
         if (use_colors) {
             s.append(color(fg::reset));
             s.append(color(style::reset));

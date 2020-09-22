@@ -35,9 +35,9 @@ std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims)
         if (!start && !end) {
             dims += "*";
         } else if (start && end) {
-            if (is_a<ASR::Num_t>(*start) || is_a<ASR::Num_t>(*end)) {
-                ASR::Num_t *s = down_cast<ASR::Num_t>(start);
-                ASR::Num_t *e = down_cast<ASR::Num_t>(end);
+            if (is_a<ASR::ConstantInteger_t>(*start) || is_a<ASR::ConstantInteger_t>(*end)) {
+                ASR::ConstantInteger_t *s = down_cast<ASR::ConstantInteger_t>(start);
+                ASR::ConstantInteger_t *e = down_cast<ASR::ConstantInteger_t>(end);
                 if (s->m_n == 1) {
                     dims += "[" + std::to_string(e->m_n) + "]";
                 } else {
@@ -364,7 +364,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         src = indent + target + " = " + value + ";\n";
     }
 
-    void visit_Num(const ASR::Num_t &x) {
+    void visit_ConstantInteger(const ASR::ConstantInteger_t &x) {
         src = std::to_string(x.m_n);
         last_unary_plus = false;
         last_binary_plus = false;
@@ -623,13 +623,13 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         if (!c) {
             increment = 1;
         } else {
-            if (c->type == ASR::exprType::Num) {
-                increment = down_cast<ASR::Num_t>(c)->m_n;
+            if (c->type == ASR::exprType::ConstantInteger) {
+                increment = down_cast<ASR::ConstantInteger_t>(c)->m_n;
             } else if (c->type == ASR::exprType::UnaryOp) {
                 ASR::UnaryOp_t *u = down_cast<ASR::UnaryOp_t>(c);
                 LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
-                LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::Num);
-                increment = - down_cast<ASR::Num_t>(u->m_operand)->m_n;
+                LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::ConstantInteger);
+                increment = - down_cast<ASR::ConstantInteger_t>(u->m_operand)->m_n;
             } else {
                 throw CodeGenError("Do loop increment type not supported");
             }
