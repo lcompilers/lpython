@@ -63,8 +63,6 @@ expr
     | ConstantReal(string r, ttype type)
     | Constant(constant value, ttype type) -- TODO: rename to ConstantLogical
     | Str(string s, ttype type)
--- TODO: remove:
-    | VariableOld(identifier name, string? intent, int? dummy, ttype type)
     | Var(symbol v)
     | ArrayRef(symbol v, array_index* args, ttype type)
     | ImplicitCast(expr arg, cast_kind kind, ttype type)
