@@ -277,7 +277,7 @@ FortranEvaluator::~FortranEvaluator()
 {
 }
 
-FortranEvaluator::EvalResult FortranEvaluator::evaluate(const std::string &code,
+Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(const std::string &code,
     bool verbose)
 {
     EvalResult result;

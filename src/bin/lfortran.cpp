@@ -249,7 +249,10 @@ int prompt(bool verbose)
         LFortran::FortranEvaluator::EvalResult r;
 
         try {
-            r = e.evaluate(input, verbose);
+            LFortran::FortranEvaluator::Result<LFortran::FortranEvaluator::EvalResult> res;
+            res = e.evaluate(input, verbose);
+            LFORTRAN_ASSERT(res.ok);
+            r = res.result;
         } catch (const LFortran::TokenizerError &e) {
             std::cerr << format_syntax_error("input", input, e.loc, -1,
                 &e.token);

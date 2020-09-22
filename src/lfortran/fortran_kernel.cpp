@@ -177,7 +177,10 @@ namespace LFortran
 
             RedirectStdout s(std_out);
             code0 = code;
-            r = e.evaluate(code0);
+            FortranEvaluator::Result<FortranEvaluator::EvalResult> res;
+            res = e.evaluate(code0);
+            LFORTRAN_ASSERT(res.ok);
+            r = res.result;
         } catch (const TokenizerError &e) {
             std::string error;
             error = format_syntax_error("input", code0, e.loc, -1, &e.token);
