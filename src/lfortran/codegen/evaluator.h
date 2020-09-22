@@ -127,7 +127,7 @@ public:
     Result<EvalResult> evaluate(const std::string &code, bool verbose=false);
 
     std::string get_ast(const std::string &code);
-    std::string get_asr(const std::string &code);
+    Result<std::string> get_asr(const std::string &code);
     Result<ASR::TranslationUnit_t*> get_asr2(const std::string &code);
     std::string get_llvm(const std::string &code);
     Result<std::unique_ptr<LLVMModule>> get_llvm2(const std::string &code);

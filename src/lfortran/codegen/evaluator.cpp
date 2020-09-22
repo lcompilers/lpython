@@ -382,7 +382,7 @@ std::string FortranEvaluator::get_ast(const std::string &code)
     return LFortran::pickle(*ast, true);
 }
 
-std::string FortranEvaluator::get_asr(const std::string &code)
+Result<std::string> FortranEvaluator::get_asr(const std::string &code)
 {
     // Src -> AST
     LFortran::AST::TranslationUnit_t* ast;
