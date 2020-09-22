@@ -367,7 +367,7 @@ std::string FortranEvaluator::get_asr(const std::string &code)
     return LFortran::pickle(*asr, true);
 }
 
-ASR::TranslationUnit_t* FortranEvaluator::get_asr2(const std::string &code)
+FortranEvaluator::Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(const std::string &code)
 {
     // Src -> AST
     LFortran::AST::TranslationUnit_t* ast;
@@ -385,7 +385,7 @@ ASR::TranslationUnit_t* FortranEvaluator::get_asr2(const std::string &code)
     asr = LFortran::ast_to_asr(al, *ast, symbol_table);
     if (!symbol_table) symbol_table = asr->m_global_scope;
 
-    return asr;
+    return FortranEvaluator::Result(asr);
 }
 
 std::string FortranEvaluator::get_llvm(const std::string &code)

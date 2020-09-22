@@ -78,13 +78,52 @@ public:
         std::string llvm_ir;
     };
 
+    struct Error {
+        enum {
+            Tokenizer, Parser, Semantic, CodeGen
+        } type;
+        Location loc;
+        std::string msg;
+    };
+
+    template<typename T>
+    struct Result {
+        enum {
+            ok, error
+        } type;
+        union {
+            T result;
+            Error err;
+        };
+        Result() {}
+        Result(const T &r) : result{r} {}
+        ~Result() {}
+        Result(const Result<T> &other) {
+            type = other.type;
+            if (other.type == ok) {
+                result = other.result;
+            } else {
+                err = other.err;
+            }
+        }
+        Result<T>& operator=(const Result<T> &other) {
+            type = other.type;
+            if (other.type == ok) {
+                result = other.result;
+            } else {
+                err = other.err;
+            }
+            return *this;
+        }
+    };
+
     // Evaluates `code`.
     // If `verbose=true`, it saves ast, asr and llvm_ir in Result.
     EvalResult evaluate(const std::string &code, bool verbose=false);
 
     std::string get_ast(const std::string &code);
     std::string get_asr(const std::string &code);
-    ASR::TranslationUnit_t* get_asr2(const std::string &code);
+    Result<ASR::TranslationUnit_t*> get_asr2(const std::string &code);
     std::string get_llvm(const std::string &code);
     std::unique_ptr<LLVMModule> get_llvm2(const std::string &code);
     std::string get_asm(const std::string &code);

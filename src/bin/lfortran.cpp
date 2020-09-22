@@ -551,9 +551,12 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
     LFortran::FortranEvaluator fe;
     LFortran::ASR::TranslationUnit_t* asr;
 
+    LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*> result;
+
     // Src -> AST
     try {
-        asr = fe.get_asr2(input);
+        result = fe.get_asr2(input);
+        asr = result.result;
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << format_syntax_error("input", input, e.loc, -1,
             &e.token);
