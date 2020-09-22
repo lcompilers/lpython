@@ -6,6 +6,8 @@
 
 #include <lfortran/parser/alloc.h>
 #include <lfortran/semantics/asr_scopes.h>
+#include <lfortran/ast.h>
+#include <lfortran/asr.h>
 
 // Forward declare all needed LLVM classes without importing any LLVM header
 // files. Those are only imported in evaluator.cpp and nowhere else, to speed
@@ -64,11 +66,10 @@ public:
     FortranEvaluator();
     ~FortranEvaluator();
 
-    enum ResultType {
-        integer, real, statement, none
-    };
-    struct Result {
-        ResultType type;
+    struct EvalResult {
+        enum {
+            integer, real, statement, none
+        } type;
         union {
             int64_t i;
             float f;
@@ -78,16 +79,65 @@ public:
         std::string llvm_ir;
     };
 
+    struct Error {
+        enum {
+            Tokenizer, Parser, Semantic, CodeGen
+        } type;
+        Location loc;
+        int token;
+        std::string msg;
+        std::string token_str;
+    };
+
+    template<typename T>
+    struct Result {
+        bool ok;
+        union {
+            T result;
+            Error error;
+        };
+        Result() {}
+        Result(const T &result) : ok{true}, result{result} {}
+        Result(T &&result) : ok{true}, result{std::move(result)} {}
+        Result(const Error &error) : ok{false}, error{error} {}
+        ~Result() {
+            if (!ok) {
+                error.~Error();
+            }
+        }
+        Result(const Result<T> &other) : ok{other.ok} {
+            if (ok) {
+                new(&result) T(other.result);
+            } else {
+                new(&error) Error(other.error);
+            }
+        }
+        Result<T>& operator=(const Result<T> &other) {
+            ok = other.ok;
+            if (ok) {
+                new(&result) T(other.result);
+            } else {
+                new(&error) Error(other.error);
+            }
+            return *this;
+        }
+    };
+
     // Evaluates `code`.
     // If `verbose=true`, it saves ast, asr and llvm_ir in Result.
-    Result evaluate(const std::string &code, bool verbose=false);
+    Result<EvalResult> evaluate(const std::string &code, bool verbose=false);
 
-    std::string get_ast(const std::string &code);
-    std::string get_asr(const std::string &code);
-    std::string get_llvm(const std::string &code);
-    std::string get_asm(const std::string &code);
-    std::string get_cpp(const std::string &code);
-    std::string get_fmt(const std::string &code);
+    Result<std::string> get_ast(const std::string &code);
+    Result<AST::TranslationUnit_t*> get_ast2(const std::string &code);
+    Result<std::string> get_asr(const std::string &code);
+    Result<ASR::TranslationUnit_t*> get_asr2(const std::string &code);
+    Result<std::string> get_llvm(const std::string &code);
+    Result<std::unique_ptr<LLVMModule>> get_llvm2(const std::string &code);
+    Result<std::string> get_asm(const std::string &code);
+    Result<std::string> get_cpp(const std::string &code);
+    Result<std::string> get_fmt(const std::string &code);
+
+    std::string format_error(const Error &e, const std::string &input) const;
 
 private:
     Allocator al;

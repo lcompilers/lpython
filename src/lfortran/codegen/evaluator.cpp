@@ -56,6 +56,9 @@
 
 namespace LFortran {
 
+template<typename T>
+using Result = FortranEvaluator::Result<T>;
+
 // Extracts the integer from APInt.
 // APInt does not seem to have this functionality, so we implement it here.
 uint64_t APInt_getint(const llvm::APInt &i) {
@@ -274,183 +277,296 @@ FortranEvaluator::~FortranEvaluator()
 {
 }
 
-FortranEvaluator::Result FortranEvaluator::evaluate(const std::string &code,
+Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(const std::string &code,
     bool verbose)
 {
-    Result result;
+    try {
+        EvalResult result;
 
-    // Src -> AST
-    LFortran::AST::TranslationUnit_t* ast;
-    ast = LFortran::parse(al, code);
+        // Src -> AST
+        LFortran::AST::TranslationUnit_t* ast;
+        ast = LFortran::parse(al, code);
 
-    if (verbose) {
-        result.ast = LFortran::pickle(*ast, true);
-    }
-
-    // AST -> ASR
-    LFortran::ASR::TranslationUnit_t* asr;
-    // Remove the old execution function if it exists
-    if (symbol_table) {
-        if (symbol_table->scope.find(run_fn) != symbol_table->scope.end()) {
-            symbol_table->scope.erase(run_fn);
+        if (verbose) {
+            result.ast = LFortran::pickle(*ast, true);
         }
-        symbol_table->mark_all_variables_external(al);
+
+        // AST -> ASR
+        LFortran::ASR::TranslationUnit_t* asr;
+        // Remove the old execution function if it exists
+        if (symbol_table) {
+            if (symbol_table->scope.find(run_fn) != symbol_table->scope.end()) {
+                symbol_table->scope.erase(run_fn);
+            }
+            symbol_table->mark_all_variables_external(al);
+        }
+        asr = LFortran::ast_to_asr(al, *ast, symbol_table);
+        if (!symbol_table) symbol_table = asr->m_global_scope;
+
+        if (verbose) {
+            result.asr = LFortran::pickle(*asr, true);
+        }
+
+        eval_count++;
+        run_fn = "__lfortran_evaluate_" + std::to_string(eval_count);
+
+        // ASR -> LLVM
+        std::unique_ptr<LFortran::LLVMModule> m;
+        m = LFortran::asr_to_llvm(*asr, e.get_context(), al, run_fn);
+
+        if (verbose) {
+            result.llvm_ir = m->str();
+        }
+
+        std::string return_type = m->get_return_type(run_fn);
+
+        // LLVM -> Machine code -> Execution
+        e.add_module(std::move(m));
+        if (return_type == "integer") {
+            int r = e.intfn(run_fn);
+            result.type = EvalResult::integer;
+            result.i = r;
+        } else if (return_type == "real") {
+            float r = e.floatfn(run_fn);
+            result.type = EvalResult::real;
+            result.f = r;
+        } else if (return_type == "void") {
+            e.voidfn(run_fn);
+            result.type = EvalResult::statement;
+        } else if (return_type == "none") {
+            result.type = EvalResult::none;
+        } else {
+            throw LFortran::LFortranException("Return type not supported");
+        }
+        return result;
+    } catch (const TokenizerError &e) {
+        FortranEvaluator::Error error;
+        error.type = FortranEvaluator::Error::Tokenizer;
+        error.loc = e.loc;
+        error.msg = e.msg();
+        error.token_str = e.token;
+        return error;
+    } catch (const ParserError &e) {
+        int token;
+        if (e.msg() == "syntax is ambiguous") {
+            token = -2;
+        } else {
+            token = e.token;
+        }
+        FortranEvaluator::Error error;
+        error.type = FortranEvaluator::Error::Parser;
+        error.loc = e.loc;
+        error.token = token;
+        error.msg = e.msg();
+        return error;
+    } catch (const SemanticError &e) {
+        FortranEvaluator::Error error;
+        error.type = FortranEvaluator::Error::Semantic;
+        error.loc = e.loc;
+        error.msg = e.msg();
+        return error;
+    } catch (const CodeGenError &e) {
+        FortranEvaluator::Error error;
+        error.type = FortranEvaluator::Error::CodeGen;
+        error.msg = e.msg();
+        return error;
     }
-    asr = LFortran::ast_to_asr(al, *ast, symbol_table);
-    if (!symbol_table) symbol_table = asr->m_global_scope;
+}
 
-    if (verbose) {
-        result.asr = LFortran::pickle(*asr, true);
-    }
-
-    eval_count++;
-    run_fn = "__lfortran_evaluate_" + std::to_string(eval_count);
-
-    // ASR -> LLVM
-    std::unique_ptr<LFortran::LLVMModule> m;
-    m = LFortran::asr_to_llvm(*asr, e.get_context(), al, run_fn);
-
-    if (verbose) {
-        result.llvm_ir = m->str();
-    }
-
-    std::string return_type = m->get_return_type(run_fn);
-
-    // LLVM -> Machine code -> Execution
-    e.add_module(std::move(m));
-    if (return_type == "integer") {
-        int r = e.intfn(run_fn);
-        result.type = ResultType::integer;
-        result.i = r;
-    } else if (return_type == "real") {
-        float r = e.floatfn(run_fn);
-        result.type = ResultType::real;
-        result.f = r;
-    } else if (return_type == "void") {
-        e.voidfn(run_fn);
-        result.type = ResultType::statement;
-    } else if (return_type == "none") {
-        result.type = ResultType::none;
+Result<std::string> FortranEvaluator::get_ast(const std::string &code)
+{
+    Result<AST::TranslationUnit_t*> ast = get_ast2(code);
+    if (ast.ok) {
+        return LFortran::pickle(*ast.result, true);
     } else {
-        throw LFortran::LFortranException("Return type not supported");
+        return ast.error;
     }
-    return result;
 }
 
-std::string FortranEvaluator::get_ast(const std::string &code)
+Result<AST::TranslationUnit_t*> FortranEvaluator::get_ast2(const std::string &code)
 {
-    // Src -> AST
-    LFortran::AST::TranslationUnit_t* ast;
-    ast = LFortran::parse(al, code);
-
-    return LFortran::pickle(*ast, true);
-}
-
-std::string FortranEvaluator::get_asr(const std::string &code)
-{
-    // Src -> AST
-    LFortran::AST::TranslationUnit_t* ast;
-    ast = LFortran::parse(al, code);
-
-    // AST -> ASR
-    LFortran::ASR::TranslationUnit_t* asr;
-    // Remove the old execution function if it exists
-    if (symbol_table) {
-        if (symbol_table->scope.find(run_fn) != symbol_table->scope.end()) {
-            symbol_table->scope.erase(run_fn);
+    try {
+        // Src -> AST
+        LFortran::AST::TranslationUnit_t* ast;
+        ast = LFortran::parse(al, code);
+        return ast;
+    } catch (const TokenizerError &e) {
+        FortranEvaluator::Error error;
+        error.type = FortranEvaluator::Error::Tokenizer;
+        error.loc = e.loc;
+        error.msg = e.msg();
+        error.token_str = e.token;
+        return error;
+    } catch (const ParserError &e) {
+        int token;
+        if (e.msg() == "syntax is ambiguous") {
+            token = -2;
+        } else {
+            token = e.token;
         }
-        symbol_table->mark_all_variables_external(al);
+        FortranEvaluator::Error error;
+        error.type = FortranEvaluator::Error::Parser;
+        error.loc = e.loc;
+        error.token = token;
+        error.msg = e.msg();
+        return error;
     }
-    asr = LFortran::ast_to_asr(al, *ast, symbol_table);
-    if (!symbol_table) symbol_table = asr->m_global_scope;
-
-    return LFortran::pickle(*asr, true);
 }
 
-std::string FortranEvaluator::get_llvm(const std::string &code)
+Result<std::string> FortranEvaluator::get_asr(const std::string &code)
 {
-    // Src -> AST
-    LFortran::AST::TranslationUnit_t* ast;
-    ast = LFortran::parse(al, code);
-
-    // AST -> ASR
-    LFortran::ASR::TranslationUnit_t* asr;
-    // Remove the old execution function if it exists
-    if (symbol_table) {
-        if (symbol_table->scope.find(run_fn) != symbol_table->scope.end()) {
-            symbol_table->scope.erase(run_fn);
-        }
-        symbol_table->mark_all_variables_external(al);
+    Result<ASR::TranslationUnit_t*> asr = get_asr2(code);
+    if (asr.ok) {
+        return LFortran::pickle(*asr.result, true);
+    } else {
+        return asr.error;
     }
-    asr = LFortran::ast_to_asr(al, *ast, symbol_table);
-    if (!symbol_table) symbol_table = asr->m_global_scope;
+}
+
+Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(const std::string &code)
+{
+    ASR::TranslationUnit_t* asr;
+    try {
+        // Src -> AST
+        AST::TranslationUnit_t* ast;
+        ast = parse(al, code);
+
+        // AST -> ASR
+        // Remove the old execution function if it exists
+        if (symbol_table) {
+            if (symbol_table->scope.find(run_fn) != symbol_table->scope.end()) {
+                symbol_table->scope.erase(run_fn);
+            }
+            symbol_table->mark_all_variables_external(al);
+        }
+        asr = ast_to_asr(al, *ast, symbol_table);
+        if (!symbol_table) symbol_table = asr->m_global_scope;
+    } catch (const TokenizerError &e) {
+        FortranEvaluator::Error error;
+        error.type = FortranEvaluator::Error::Tokenizer;
+        error.loc = e.loc;
+        error.msg = e.msg();
+        error.token_str = e.token;
+        return error;
+    } catch (const ParserError &e) {
+        int token;
+        if (e.msg() == "syntax is ambiguous") {
+            token = -2;
+        } else {
+            token = e.token;
+        }
+        FortranEvaluator::Error error;
+        error.type = FortranEvaluator::Error::Parser;
+        error.loc = e.loc;
+        error.token = token;
+        error.msg = e.msg();
+        return error;
+    } catch (const SemanticError &e) {
+        FortranEvaluator::Error error;
+        error.type = FortranEvaluator::Error::Semantic;
+        error.loc = e.loc;
+        error.msg = e.msg();
+        return error;
+    } catch (const CodeGenError &e) {
+        FortranEvaluator::Error error;
+        error.type = FortranEvaluator::Error::CodeGen;
+        error.msg = e.msg();
+        return error;
+    }
+
+    return asr;
+}
+
+Result<std::string> FortranEvaluator::get_llvm(const std::string &code)
+{
+    Result<std::unique_ptr<LLVMModule>> res = get_llvm2(code);
+    if (res.ok) {
+        return res.result->str();
+    } else {
+        return res.error;
+    }
+}
+
+Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(const std::string &code)
+{
+    Result<ASR::TranslationUnit_t*> asr = get_asr2(code);
+    if (!asr.ok) {
+        return asr.error;
+    }
 
     eval_count++;
     run_fn = "__lfortran_evaluate_" + std::to_string(eval_count);
 
     // ASR -> LLVM
     std::unique_ptr<LFortran::LLVMModule> m;
-    m = LFortran::asr_to_llvm(*asr, e.get_context(), al, run_fn);
-
-    return m->str();
-}
-
-std::string FortranEvaluator::get_asm(const std::string &code)
-{
-    // Src -> AST
-    LFortran::AST::TranslationUnit_t* ast;
-    ast = LFortran::parse(al, code);
-
-    // AST -> ASR
-    LFortran::ASR::TranslationUnit_t* asr;
-    // Remove the old execution function if it exists
-    if (symbol_table) {
-        if (symbol_table->scope.find(run_fn) != symbol_table->scope.end()) {
-            symbol_table->scope.erase(run_fn);
-        }
-        symbol_table->mark_all_variables_external(al);
+    try {
+        m = LFortran::asr_to_llvm(*asr.result, e.get_context(), al, run_fn);
+    } catch (const CodeGenError &e) {
+        FortranEvaluator::Error error;
+        error.type = FortranEvaluator::Error::CodeGen;
+        error.msg = e.msg();
+        return error;
     }
-    asr = LFortran::ast_to_asr(al, *ast, symbol_table);
-    if (!symbol_table) symbol_table = asr->m_global_scope;
 
-    eval_count++;
-    run_fn = "__lfortran_evaluate_" + std::to_string(eval_count);
-
-    // ASR -> LLVM
-    std::unique_ptr<LFortran::LLVMModule> m;
-    m = LFortran::asr_to_llvm(*asr, e.get_context(), al, run_fn);
-
-    return e.get_asm(*m->m_m);
+    return std::move(m);
 }
 
-std::string FortranEvaluator::get_cpp(const std::string &code)
+Result<std::string> FortranEvaluator::get_asm(const std::string &code)
 {
-    // Src -> AST
-    LFortran::AST::TranslationUnit_t* ast;
-    ast = LFortran::parse(al, code);
-
-    // AST -> ASR
-    LFortran::ASR::TranslationUnit_t* asr;
-    asr = LFortran::ast_to_asr(al, *ast);
-
-    // ASR -> C++
-    std::string cpp_src;
-    cpp_src = LFortran::asr_to_cpp(*asr);
-
-    return cpp_src;
+    Result<std::unique_ptr<LLVMModule>> res = get_llvm2(code);
+    if (res.ok) {
+        return e.get_asm(*res.result->m_m);
+    } else {
+        return res.error;
+    }
 }
 
-std::string FortranEvaluator::get_fmt(const std::string &code)
+Result<std::string> FortranEvaluator::get_cpp(const std::string &code)
+{
+    // Src -> AST -> ASR
+    SymbolTable *old_symbol_table = symbol_table;
+    symbol_table = nullptr;
+    Result<ASR::TranslationUnit_t*> asr = get_asr2(code);
+    symbol_table = old_symbol_table;
+    if (asr.ok) {
+        // ASR -> C++
+        return LFortran::asr_to_cpp(*asr.result);
+    } else {
+        return asr.error;
+    }
+}
+
+Result<std::string> FortranEvaluator::get_fmt(const std::string &code)
 {
     // Src -> AST
-    LFortran::AST::TranslationUnit_t* ast;
-    ast = LFortran::parse(al, code);
+    Result<AST::TranslationUnit_t*> ast = get_ast2(code);
+    if (ast.ok) {
+        // AST -> Fortran
+        return LFortran::ast_to_src(*ast.result, true);
+    } else {
+        return ast.error;
+    }
+}
 
-    // AST -> Fortran
-    std::string src;
-    src = LFortran::ast_to_src(*ast, true);
-
-    return src;
+std::string FortranEvaluator::format_error(const Error &e, const std::string &input) const
+{
+    switch (e.type) {
+        case (LFortran::FortranEvaluator::Error::Tokenizer) : {
+            return format_syntax_error("input", input, e.loc, -1, &e.token_str);
+        }
+        case (LFortran::FortranEvaluator::Error::Parser) : {
+            return format_syntax_error("input", input, e.loc, e.token);
+        }
+        case (LFortran::FortranEvaluator::Error::Semantic) : {
+            return format_semantic_error("input", input, e.loc, e.msg);
+        }
+        case (LFortran::FortranEvaluator::Error::CodeGen) : {
+            return "Code generation error: " + e.msg + "\n";
+        }
+        default : {
+            throw LFortranException("Unknown error type");
+        }
+    }
 }
 
 } // namespace LFortran

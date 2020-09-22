@@ -104,124 +104,147 @@ namespace LFortran
                                                       nl::json /*user_expressions*/,
                                                       bool /*allow_stdin*/)
     {
-        FortranEvaluator::Result r;
+        FortranEvaluator::EvalResult r;
         std::string std_out;
         std::string code0;
         try {
             if (startswith(code, "%%showast")) {
-                std::string s;
+                FortranEvaluator::Result<std::string> res;
                 code0 = code.substr(code.find("\n")+1);
-                s = e.get_ast(code0);
-                publish_stream("stdout", s);
+                res = e.get_ast(code0);
                 nl::json result;
-                result["status"] = "ok";
-                result["payload"] = nl::json::array();
-                result["user_expressions"] = nl::json::object();
+                if (res.ok) {
+                    publish_stream("stdout", res.result);
+                    result["status"] = "ok";
+                    result["payload"] = nl::json::array();
+                    result["user_expressions"] = nl::json::object();
+                } else {
+                    std::string msg = e.format_error(res.error, code0);
+                    publish_stream("stderr", msg);
+                    result["status"] = "error";
+                    result["ename"] = "CompilerError";
+                    result["evalue"] = msg;
+                    result["traceback"] = {};
+                }
                 return result;
             }
             if (startswith(code, "%%showasr")) {
-                std::string s;
+                FortranEvaluator::Result<std::string> res;
                 code0 = code.substr(code.find("\n")+1);
-                s = e.get_asr(code0);
-                publish_stream("stdout", s);
+                res = e.get_asr(code0);
                 nl::json result;
-                result["status"] = "ok";
-                result["payload"] = nl::json::array();
-                result["user_expressions"] = nl::json::object();
+                if (res.ok) {
+                    publish_stream("stdout", res.result);
+                    result["status"] = "ok";
+                    result["payload"] = nl::json::array();
+                    result["user_expressions"] = nl::json::object();
+                } else {
+                    std::string msg = e.format_error(res.error, code0);
+                    publish_stream("stderr", msg);
+                    result["status"] = "error";
+                    result["ename"] = "CompilerError";
+                    result["evalue"] = msg;
+                    result["traceback"] = {};
+                }
                 return result;
             }
             if (startswith(code, "%%showllvm")) {
-                std::string s;
+                FortranEvaluator::Result<std::string> res;
                 code0 = code.substr(code.find("\n")+1);
-                s = e.get_llvm(code0);
-                publish_stream("stdout", s);
+                res = e.get_llvm(code0);
                 nl::json result;
-                result["status"] = "ok";
-                result["payload"] = nl::json::array();
-                result["user_expressions"] = nl::json::object();
+                if (res.ok) {
+                    publish_stream("stdout", res.result);
+                    result["status"] = "ok";
+                    result["payload"] = nl::json::array();
+                    result["user_expressions"] = nl::json::object();
+                } else {
+                    std::string msg = e.format_error(res.error, code0);
+                    publish_stream("stderr", msg);
+                    result["status"] = "error";
+                    result["ename"] = "CompilerError";
+                    result["evalue"] = msg;
+                    result["traceback"] = {};
+                }
                 return result;
             }
             if (startswith(code, "%%showasm")) {
-                std::string s;
+                FortranEvaluator::Result<std::string> res;
                 code0 = code.substr(code.find("\n")+1);
-                s = e.get_asm(code0);
-                publish_stream("stdout", s);
+                res = e.get_asm(code0);
                 nl::json result;
-                result["status"] = "ok";
-                result["payload"] = nl::json::array();
-                result["user_expressions"] = nl::json::object();
+                if (res.ok) {
+                    publish_stream("stdout", res.result);
+                    result["status"] = "ok";
+                    result["payload"] = nl::json::array();
+                    result["user_expressions"] = nl::json::object();
+                } else {
+                    std::string msg = e.format_error(res.error, code0);
+                    publish_stream("stderr", msg);
+                    result["status"] = "error";
+                    result["ename"] = "CompilerError";
+                    result["evalue"] = msg;
+                    result["traceback"] = {};
+                }
                 return result;
             }
             if (startswith(code, "%%showcpp")) {
-                std::string s;
+                FortranEvaluator::Result<std::string> res;
                 code0 = code.substr(code.find("\n")+1);
-                s = e.get_cpp(code0);
-                publish_stream("stdout", s);
+                res = e.get_cpp(code0);
                 nl::json result;
-                result["status"] = "ok";
-                result["payload"] = nl::json::array();
-                result["user_expressions"] = nl::json::object();
+                if (res.ok) {
+                    publish_stream("stdout", res.result);
+                    result["status"] = "ok";
+                    result["payload"] = nl::json::array();
+                    result["user_expressions"] = nl::json::object();
+                } else {
+                    std::string msg = e.format_error(res.error, code0);
+                    publish_stream("stderr", msg);
+                    result["status"] = "error";
+                    result["ename"] = "CompilerError";
+                    result["evalue"] = msg;
+                    result["traceback"] = {};
+                }
                 return result;
             }
             if (startswith(code, "%%showfmt")) {
-                std::string s;
+                FortranEvaluator::Result<std::string> res;
                 code0 = code.substr(code.find("\n")+1);
-                s = e.get_fmt(code0);
-                publish_stream("stdout", s);
+                res = e.get_fmt(code0);
                 nl::json result;
-                result["status"] = "ok";
-                result["payload"] = nl::json::array();
-                result["user_expressions"] = nl::json::object();
+                if (res.ok) {
+                    publish_stream("stdout", res.result);
+                    result["status"] = "ok";
+                    result["payload"] = nl::json::array();
+                    result["user_expressions"] = nl::json::object();
+                } else {
+                    std::string msg = e.format_error(res.error, code0);
+                    publish_stream("stderr", msg);
+                    result["status"] = "error";
+                    result["ename"] = "CompilerError";
+                    result["evalue"] = msg;
+                    result["traceback"] = {};
+                }
                 return result;
             }
 
             RedirectStdout s(std_out);
             code0 = code;
-            r = e.evaluate(code0);
-        } catch (const TokenizerError &e) {
-            std::string error;
-            error = format_syntax_error("input", code0, e.loc, -1, &e.token);
-            publish_stream("stderr", error);
-            nl::json result;
-            result["status"] = "error";
-            result["ename"] = "TokenizerError";
-            result["evalue"] = e.msg();
-            result["traceback"] = {};
-            return result;
-        } catch (const ParserError &e) {
-            int token;
-            if (e.msg() == "syntax is ambiguous") {
-                token = -2;
+            FortranEvaluator::Result<FortranEvaluator::EvalResult> res;
+            res = e.evaluate(code0);
+            if (res.ok) {
+                r = res.result;
             } else {
-                token = e.token;
+                std::string msg = e.format_error(res.error, code0);
+                publish_stream("stderr", msg);
+                nl::json result;
+                result["status"] = "error";
+                result["ename"] = "CompilerError";
+                result["evalue"] = msg;
+                result["traceback"] = {};
+                return result;
             }
-            std::string error;
-            error = format_syntax_error("input", code0, e.loc, token);
-            publish_stream("stderr", error);
-            nl::json result;
-            result["status"] = "error";
-            result["ename"] = "ParserError";
-            result["evalue"] = e.msg();
-            result["traceback"] = {};
-            return result;
-        } catch (const SemanticError &e) {
-            std::string error;
-            error = format_semantic_error("input", code0, e.loc, e.msg());
-            publish_stream("stderr", error);
-            nl::json result;
-            result["status"] = "error";
-            result["ename"] = "SemanticError";
-            result["evalue"] = e.msg();
-            result["traceback"] = {};
-            return result;
-        } catch (const CodeGenError &e) {
-            publish_stream("stderr", "Code Generation Error: " + e.msg());
-            nl::json result;
-            result["status"] = "error";
-            result["ename"] = "CodeGenException";
-            result["evalue"] = e.msg();
-            result["traceback"] = {};
-            return result;
         } catch (const LFortranException &e) {
             publish_stream("stderr", "LFortran Exception: " + e.msg());
             nl::json result;
@@ -237,22 +260,22 @@ namespace LFortran
         }
 
         switch (r.type) {
-            case (LFortran::FortranEvaluator::ResultType::integer) : {
+            case (LFortran::FortranEvaluator::EvalResult::integer) : {
                 nl::json pub_data;
                 pub_data["text/plain"] = std::to_string(r.i);
                 publish_execution_result(execution_counter, std::move(pub_data), nl::json::object());
                 break;
             }
-            case (LFortran::FortranEvaluator::ResultType::real) : {
+            case (LFortran::FortranEvaluator::EvalResult::real) : {
                 nl::json pub_data;
                 pub_data["text/plain"] = std::to_string(r.f);
                 publish_execution_result(execution_counter, std::move(pub_data), nl::json::object());
                 break;
             }
-            case (LFortran::FortranEvaluator::ResultType::statement) : {
+            case (LFortran::FortranEvaluator::EvalResult::statement) : {
                 break;
             }
-            case (LFortran::FortranEvaluator::ResultType::none) : {
+            case (LFortran::FortranEvaluator::EvalResult::none) : {
                 break;
             }
             default : throw LFortranException("Return type not supported");

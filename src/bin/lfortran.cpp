@@ -246,29 +246,17 @@ int prompt(bool verbose)
             std::cout << input << std::endl;
         }
 
-        LFortran::FortranEvaluator::Result r;
+        LFortran::FortranEvaluator::EvalResult r;
 
         try {
-            r = e.evaluate(input, verbose);
-        } catch (const LFortran::TokenizerError &e) {
-            std::cerr << format_syntax_error("input", input, e.loc, -1,
-                &e.token);
-            continue;
-        } catch (const LFortran::ParserError &e) {
-            int token;
-            if (e.msg() == "syntax is ambiguous") {
-                token = -2;
+            LFortran::FortranEvaluator::Result<LFortran::FortranEvaluator::EvalResult> res;
+            res = e.evaluate(input, verbose);
+            if (res.ok) {
+                r = res.result;
             } else {
-                token = e.token;
+                std::cerr << e.format_error(res.error, input);
+                continue;
             }
-            std::cout << format_syntax_error("input", input, e.loc, token);
-            continue;
-        } catch (const LFortran::SemanticError &e) {
-            std::cout << format_semantic_error("input", input, e.loc, e.msg());
-            continue;
-        } catch (const LFortran::CodeGenError &e) {
-            std::cout << "Code generation error: " << e.msg() << std::endl;
-            continue;
         } catch (const LFortran::LFortranException &e) {
             std::cout << "Other LFortran exception: " << e.msg() << std::endl;
             continue;
@@ -284,19 +272,19 @@ int prompt(bool verbose)
         }
 
         switch (r.type) {
-            case (LFortran::FortranEvaluator::ResultType::integer) : {
+            case (LFortran::FortranEvaluator::EvalResult::integer) : {
                 if (verbose) std::cout << "Return type: integer" << std::endl;
                 if (verbose) section("Result:");
                 std::cout << r.i << std::endl;
                 break;
             }
-            case (LFortran::FortranEvaluator::ResultType::real) : {
+            case (LFortran::FortranEvaluator::EvalResult::real) : {
                 if (verbose) std::cout << "Return type: real" << std::endl;
                 if (verbose) section("Result:");
                 std::cout << r.f << std::endl;
                 break;
             }
-            case (LFortran::FortranEvaluator::ResultType::statement) : {
+            case (LFortran::FortranEvaluator::EvalResult::statement) : {
                 if (verbose) {
                     std::cout << "Return type: none" << std::endl;
                     section("Result:");
@@ -304,7 +292,7 @@ int prompt(bool verbose)
                 }
                 break;
             }
-            case (LFortran::FortranEvaluator::ResultType::none) : {
+            case (LFortran::FortranEvaluator::EvalResult::none) : {
                 if (verbose) {
                     std::cout << "Return type: none" << std::endl;
                     section("Result:");
@@ -548,21 +536,19 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
 {
     std::string input = read_file(infile);
 
-    // Src -> AST
-    Allocator al(64*1024*1024);
-    LFortran::AST::TranslationUnit_t* ast;
-    try {
-        ast = LFortran::parse2(al, input);
-    } catch (const LFortran::TokenizerError &e) {
-        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
-        return 1;
-    } catch (const LFortran::ParserError &e) {
-        std::cerr << "Parsing error: " << e.msg() << std::endl;
-        return 2;
-    }
+    LFortran::FortranEvaluator fe;
+    LFortran::ASR::TranslationUnit_t* asr;
 
-    // AST -> ASR
-    LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast);
+    LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*> result;
+
+    // Src -> AST
+    result = fe.get_asr2(input);
+    if (result.ok) {
+        asr = result.result;
+    } else {
+        std::cerr << fe.format_error(result.error, input);
+        return 1;
+    }
 
     // Save .mod files
     {
@@ -573,6 +559,7 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
     std::unique_ptr<LFortran::LLVMModule> m;
+    Allocator al(64*1024*1024);
     try {
         m = LFortran::asr_to_llvm(*asr, e.get_context(), al);
     } catch (const LFortran::CodeGenError &e) {
