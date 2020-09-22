@@ -497,3 +497,19 @@ end subroutine
     CHECK(r.result.type == FortranEvaluator::EvalResult::integer);
     CHECK(r.result.i == -1);
 }
+
+TEST_CASE("FortranEvaluator 6") {
+    FortranEvaluator e;
+    FortranEvaluator::Result<FortranEvaluator::EvalResult> r;
+    r = e.evaluate("$");
+    CHECK(!r.ok);
+    CHECK(r.error.type == FortranEvaluator::Error::Tokenizer);
+
+    r = e.evaluate("1x");
+    CHECK(!r.ok);
+    CHECK(r.error.type == FortranEvaluator::Error::Parser);
+
+    r = e.evaluate("x = 'x'");
+    CHECK(!r.ok);
+    CHECK(r.error.type == FortranEvaluator::Error::Semantic);
+}
