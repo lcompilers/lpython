@@ -251,27 +251,12 @@ int prompt(bool verbose)
         try {
             LFortran::FortranEvaluator::Result<LFortran::FortranEvaluator::EvalResult> res;
             res = e.evaluate(input, verbose);
-            LFORTRAN_ASSERT(res.ok);
-            r = res.result;
-        } catch (const LFortran::TokenizerError &e) {
-            std::cerr << format_syntax_error("input", input, e.loc, -1,
-                &e.token);
-            continue;
-        } catch (const LFortran::ParserError &e) {
-            int token;
-            if (e.msg() == "syntax is ambiguous") {
-                token = -2;
+            if (res.ok) {
+                r = res.result;
             } else {
-                token = e.token;
+                std::cerr << e.format_error(res.error, input);
+                continue;
             }
-            std::cout << format_syntax_error("input", input, e.loc, token);
-            continue;
-        } catch (const LFortran::SemanticError &e) {
-            std::cout << format_semantic_error("input", input, e.loc, e.msg());
-            continue;
-        } catch (const LFortran::CodeGenError &e) {
-            std::cout << "Code generation error: " << e.msg() << std::endl;
-            continue;
         } catch (const LFortran::LFortranException &e) {
             std::cout << "Other LFortran exception: " << e.msg() << std::endl;
             continue;

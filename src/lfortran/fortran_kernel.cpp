@@ -179,52 +179,18 @@ namespace LFortran
             code0 = code;
             FortranEvaluator::Result<FortranEvaluator::EvalResult> res;
             res = e.evaluate(code0);
-            LFORTRAN_ASSERT(res.ok);
-            r = res.result;
-        } catch (const TokenizerError &e) {
-            std::string error;
-            error = format_syntax_error("input", code0, e.loc, -1, &e.token);
-            publish_stream("stderr", error);
-            nl::json result;
-            result["status"] = "error";
-            result["ename"] = "TokenizerError";
-            result["evalue"] = e.msg();
-            result["traceback"] = {};
-            return result;
-        } catch (const ParserError &e) {
-            int token;
-            if (e.msg() == "syntax is ambiguous") {
-                token = -2;
+            if (res.ok) {
+                r = res.result;
             } else {
-                token = e.token;
+                std::string msg = e.format_error(res.error, code0);
+                publish_stream("stderr", msg);
+                nl::json result;
+                result["status"] = "error";
+                result["ename"] = "CompilerError";
+                result["evalue"] = msg;
+                result["traceback"] = {};
+                return result;
             }
-            std::string error;
-            error = format_syntax_error("input", code0, e.loc, token);
-            publish_stream("stderr", error);
-            nl::json result;
-            result["status"] = "error";
-            result["ename"] = "ParserError";
-            result["evalue"] = e.msg();
-            result["traceback"] = {};
-            return result;
-        } catch (const SemanticError &e) {
-            std::string error;
-            error = format_semantic_error("input", code0, e.loc, e.msg());
-            publish_stream("stderr", error);
-            nl::json result;
-            result["status"] = "error";
-            result["ename"] = "SemanticError";
-            result["evalue"] = e.msg();
-            result["traceback"] = {};
-            return result;
-        } catch (const CodeGenError &e) {
-            publish_stream("stderr", "Code Generation Error: " + e.msg());
-            nl::json result;
-            result["status"] = "error";
-            result["ename"] = "CodeGenException";
-            result["evalue"] = e.msg();
-            result["traceback"] = {};
-            return result;
         } catch (const LFortranException &e) {
             publish_stream("stderr", "LFortran Exception: " + e.msg());
             nl::json result;
