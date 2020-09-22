@@ -260,8 +260,7 @@ public:
         m_a.asm_mov_r32_imm32(X86Reg::eax, x.m_n);
     }
 
-    // TODO: rename to LogicalConstant
-    void visit_Constant(const ASR::Constant_t &x) {
+    void visit_ConstantLogical(const ASR::ConstantLogical_t &x) {
         int val;
         if (x.m_value == true) {
             val = 1;

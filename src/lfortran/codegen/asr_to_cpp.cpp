@@ -382,7 +382,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         last_binary_plus = false;
     }
 
-    void visit_Constant(const ASR::Constant_t &x) {
+    void visit_ConstantLogical(const ASR::ConstantLogical_t &x) {
         if (x.m_value == true) {
             src = "true";
         } else {

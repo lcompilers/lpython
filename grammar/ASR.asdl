@@ -60,7 +60,7 @@ expr
     | ArrayInitializer(expr* args, ttype type)
     | Num(object n, ttype type) -- TODO: rename to ConstantInteger
     | ConstantReal(string r, ttype type)
-    | Constant(constant value, ttype type) -- TODO: rename to ConstantLogical
+    | ConstantLogical(constant value, ttype type)
     | Str(string s, ttype type)
     | Var(symbol v)
     | ArrayRef(symbol v, array_index* args, ttype type)

@@ -868,7 +868,7 @@ public:
     void visit_Constant(const AST::Constant_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Logical_t(al, x.base.base.loc,
                 4, nullptr, 0));
-        tmp = ASR::make_Constant_t(al, x.base.base.loc, x.m_value, type);
+        tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, x.m_value, type);
     }
 
     void visit_Str(const AST::Str_t &x) {

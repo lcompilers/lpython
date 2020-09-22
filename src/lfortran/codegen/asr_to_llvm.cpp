@@ -682,7 +682,7 @@ public:
         tmp = llvm::ConstantFP::get(context, llvm::APFloat((float)val));
     }
 
-    void visit_Constant(const ASR::Constant_t &x) {
+    void visit_ConstantLogical(const ASR::ConstantLogical_t &x) {
         int val;
         if (x.m_value == true) {
             val = 1;
