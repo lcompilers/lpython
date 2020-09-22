@@ -320,17 +320,17 @@ FortranEvaluator::Result FortranEvaluator::evaluate(const std::string &code,
     e.add_module(std::move(m));
     if (return_type == "integer") {
         int r = e.intfn(run_fn);
-        result.type = ResultType::integer;
+        result.type = Result::integer;
         result.i = r;
     } else if (return_type == "real") {
         float r = e.floatfn(run_fn);
-        result.type = ResultType::real;
+        result.type = Result::real;
         result.f = r;
     } else if (return_type == "void") {
         e.voidfn(run_fn);
-        result.type = ResultType::statement;
+        result.type = Result::statement;
     } else if (return_type == "none") {
-        result.type = ResultType::none;
+        result.type = Result::none;
     } else {
         throw LFortran::LFortranException("Return type not supported");
     }

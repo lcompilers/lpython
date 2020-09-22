@@ -403,11 +403,11 @@ TEST_CASE("FortranEvaluator 1") {
     FortranEvaluator e;
     FortranEvaluator::Result r;
     r = e.evaluate("integer :: i");
-    CHECK(r.type == FortranEvaluator::ResultType::none);
+    CHECK(r.type == FortranEvaluator::Result::none);
     r = e.evaluate("i = 5");
-    CHECK(r.type == FortranEvaluator::ResultType::statement);
+    CHECK(r.type == FortranEvaluator::Result::statement);
     r = e.evaluate("i");
-    CHECK(r.type == FortranEvaluator::ResultType::integer);
+    CHECK(r.type == FortranEvaluator::Result::integer);
     CHECK(r.i == 5);
 }
 
@@ -418,7 +418,7 @@ TEST_CASE("FortranEvaluator 2") {
 r = 3
 r
 )");
-    CHECK(r.type == FortranEvaluator::ResultType::real);
+    CHECK(r.type == FortranEvaluator::Result::real);
     CHECK(r.f == 3);
 }
 
@@ -432,7 +432,7 @@ end do
 )");
     FortranEvaluator::Result r;
     r = e.evaluate("j");
-    CHECK(r.type == FortranEvaluator::ResultType::integer);
+    CHECK(r.type == FortranEvaluator::Result::integer);
     CHECK(r.i == 15);
 }
 
@@ -446,7 +446,7 @@ end function
 )");
     FortranEvaluator::Result r;
     r = e.evaluate("fn(2, 3)");
-    CHECK(r.type == FortranEvaluator::ResultType::integer);
+    CHECK(r.type == FortranEvaluator::Result::integer);
     CHECK(r.i == 5);
 
     e.evaluate(R"(
@@ -456,7 +456,7 @@ fn = i - j
 end function
 )");
     r = e.evaluate("fn(2, 3)");
-    CHECK(r.type == FortranEvaluator::ResultType::integer);
+    CHECK(r.type == FortranEvaluator::Result::integer);
     CHECK(r.i == -1);
 }
 
@@ -473,7 +473,7 @@ end subroutine
     e.evaluate("integer :: r");
     e.evaluate("call fn(2, 3, r)");
     r = e.evaluate("r");
-    CHECK(r.type == FortranEvaluator::ResultType::integer);
+    CHECK(r.type == FortranEvaluator::Result::integer);
     CHECK(r.i == 5);
 
     e.evaluate(R"(
@@ -485,6 +485,6 @@ end subroutine
 )");
     e.evaluate("call fn(2, 3, r)");
     r = e.evaluate("r");
-    CHECK(r.type == FortranEvaluator::ResultType::integer);
+    CHECK(r.type == FortranEvaluator::Result::integer);
     CHECK(r.i == -1);
 }

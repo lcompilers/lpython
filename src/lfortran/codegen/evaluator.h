@@ -65,11 +65,10 @@ public:
     FortranEvaluator();
     ~FortranEvaluator();
 
-    enum ResultType {
-        integer, real, statement, none
-    };
     struct Result {
-        ResultType type;
+        enum {
+            integer, real, statement, none
+        } type;
         union {
             int64_t i;
             float f;

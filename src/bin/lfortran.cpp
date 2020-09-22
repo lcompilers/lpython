@@ -284,19 +284,19 @@ int prompt(bool verbose)
         }
 
         switch (r.type) {
-            case (LFortran::FortranEvaluator::ResultType::integer) : {
+            case (LFortran::FortranEvaluator::Result::integer) : {
                 if (verbose) std::cout << "Return type: integer" << std::endl;
                 if (verbose) section("Result:");
                 std::cout << r.i << std::endl;
                 break;
             }
-            case (LFortran::FortranEvaluator::ResultType::real) : {
+            case (LFortran::FortranEvaluator::Result::real) : {
                 if (verbose) std::cout << "Return type: real" << std::endl;
                 if (verbose) section("Result:");
                 std::cout << r.f << std::endl;
                 break;
             }
-            case (LFortran::FortranEvaluator::ResultType::statement) : {
+            case (LFortran::FortranEvaluator::Result::statement) : {
                 if (verbose) {
                     std::cout << "Return type: none" << std::endl;
                     section("Result:");
@@ -304,7 +304,7 @@ int prompt(bool verbose)
                 }
                 break;
             }
-            case (LFortran::FortranEvaluator::ResultType::none) : {
+            case (LFortran::FortranEvaluator::Result::none) : {
                 if (verbose) {
                     std::cout << "Return type: none" << std::endl;
                     section("Result:");
