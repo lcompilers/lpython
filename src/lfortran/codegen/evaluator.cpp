@@ -534,4 +534,25 @@ std::string FortranEvaluator::get_fmt(const std::string &code)
     return src;
 }
 
+std::string FortranEvaluator::format_error(const Error &e, const std::string &input) const
+{
+    switch (e.type) {
+        case (LFortran::FortranEvaluator::Error::Tokenizer) : {
+            return format_syntax_error("input", input, e.loc, -1, &e.token_str);
+        }
+        case (LFortran::FortranEvaluator::Error::Parser) : {
+            return format_syntax_error("input", input, e.loc, e.token);
+        }
+        case (LFortran::FortranEvaluator::Error::Semantic) : {
+            return format_semantic_error("input", input, e.loc, e.msg);
+        }
+        case (LFortran::FortranEvaluator::Error::CodeGen) : {
+            return "Code generation error: " + e.msg + "\n";
+        }
+        default : {
+            throw LFortranException("Unknown error type");
+        }
+    }
+}
+
 } // namespace LFortran

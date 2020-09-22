@@ -135,6 +135,8 @@ public:
     std::string get_cpp(const std::string &code);
     std::string get_fmt(const std::string &code);
 
+    std::string format_error(const Error &e, const std::string &input) const;
+
 private:
     Allocator al;
     LLVMEvaluator e;
