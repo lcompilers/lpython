@@ -98,13 +98,16 @@ public:
         Result() {}
         Result(const T &result) : ok{true}, result{result} {}
         Result(const Error &error) : ok{false}, error{error} {}
-        ~Result() {}
-        Result(const Result<T> &other) {
-            ok = other.ok;
+        ~Result() {
+            if (!ok) {
+                error.~Error();
+            }
+        }
+        Result(const Result<T> &other) : ok{other.ok} {
             if (ok) {
                 result = other.result;
             } else {
-                error = other.error;
+                new(&error) Error(other.error);
             }
         }
         Result<T>& operator=(const Result<T> &other) {
@@ -112,7 +115,7 @@ public:
             if (ok) {
                 result = other.result;
             } else {
-                error = other.error;
+                new(&error) Error(other.error);
             }
             return *this;
         }
