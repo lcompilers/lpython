@@ -97,6 +97,7 @@ public:
         };
         Result() {}
         Result(const T &result) : ok{true}, result{result} {}
+        Result(T &&result) : ok{true}, result{std::move(result)} {}
         Result(const Error &error) : ok{false}, error{error} {}
         ~Result() {
             if (!ok) {
@@ -129,7 +130,7 @@ public:
     std::string get_asr(const std::string &code);
     Result<ASR::TranslationUnit_t*> get_asr2(const std::string &code);
     std::string get_llvm(const std::string &code);
-    std::unique_ptr<LLVMModule> get_llvm2(const std::string &code);
+    Result<std::unique_ptr<LLVMModule>> get_llvm2(const std::string &code);
     std::string get_asm(const std::string &code);
     std::string get_cpp(const std::string &code);
     std::string get_fmt(const std::string &code);
