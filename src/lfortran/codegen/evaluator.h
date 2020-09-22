@@ -106,7 +106,7 @@ public:
         }
         Result(const Result<T> &other) : ok{other.ok} {
             if (ok) {
-                result = other.result;
+                new(&result) T(other.result);
             } else {
                 new(&error) Error(other.error);
             }
@@ -114,7 +114,7 @@ public:
         Result<T>& operator=(const Result<T> &other) {
             ok = other.ok;
             if (ok) {
-                result = other.result;
+                new(&result) T(other.result);
             } else {
                 new(&error) Error(other.error);
             }
