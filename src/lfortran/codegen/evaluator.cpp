@@ -394,7 +394,7 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(const std::string &co
         error.loc = e.loc;
         error.msg = e.msg();
         error.token_str = e.token;
-        return Result<ASR::TranslationUnit_t*>(error);
+        return error;
     } catch (const ParserError &e) {
         int token;
         if (e.msg() == "syntax is ambiguous") {
@@ -407,21 +407,21 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(const std::string &co
         error.loc = e.loc;
         error.token = token;
         error.msg = e.msg();
-        return Result<ASR::TranslationUnit_t*>(error);
+        return error;
     } catch (const SemanticError &e) {
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::Semantic;
         error.loc = e.loc;
         error.msg = e.msg();
-        return Result<ASR::TranslationUnit_t*>(error);
+        return error;
     } catch (const CodeGenError &e) {
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::CodeGen;
         error.msg = e.msg();
-        return Result<ASR::TranslationUnit_t*>(error);
+        return error;
     }
 
-    return Result(asr);
+    return asr;
 }
 
 std::string FortranEvaluator::get_llvm(const std::string &code)
@@ -456,7 +456,7 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(const std::strin
 {
     Result<ASR::TranslationUnit_t*> asr = get_asr2(code);
     if (!asr.ok) {
-        Result<std::unique_ptr<LLVMModule>>(asr.error);
+        return asr.error;
     }
 
     eval_count++;
@@ -470,10 +470,10 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(const std::strin
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::CodeGen;
         error.msg = e.msg();
-        return Result<std::unique_ptr<LLVMModule>>(error);
+        return error;
     }
 
-    return Result(std::move(m));
+    return std::move(m);
 }
 
 std::string FortranEvaluator::get_asm(const std::string &code)
