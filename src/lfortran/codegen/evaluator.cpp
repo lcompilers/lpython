@@ -521,21 +521,16 @@ Result<std::string> FortranEvaluator::get_asm(const std::string &code)
     }
 }
 
-std::string FortranEvaluator::get_cpp(const std::string &code)
+Result<std::string> FortranEvaluator::get_cpp(const std::string &code)
 {
-    // Src -> AST
-    LFortran::AST::TranslationUnit_t* ast;
-    ast = LFortran::parse(al, code);
-
-    // AST -> ASR
-    LFortran::ASR::TranslationUnit_t* asr;
-    asr = LFortran::ast_to_asr(al, *ast);
-
-    // ASR -> C++
-    std::string cpp_src;
-    cpp_src = LFortran::asr_to_cpp(*asr);
-
-    return cpp_src;
+    // Src -> AST -> ASR
+    Result<ASR::TranslationUnit_t*> asr = get_asr2(code);
+    if (asr.ok) {
+        // ASR -> C++
+        return LFortran::asr_to_cpp(*asr.result);
+    } else {
+        return asr.error;
+    }
 }
 
 std::string FortranEvaluator::get_fmt(const std::string &code)
