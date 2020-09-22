@@ -814,7 +814,7 @@ public:
     }
 
     void visit_FuncCall(const ASR::FuncCall_t &x) {
-        ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(x.m_func);
+        ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(x.m_name);
         uint32_t h;
         if (s->m_external) {
             if (s->m_external->m_type == ASR::proc_external_typeType::LFortranModule) {

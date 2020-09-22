@@ -312,9 +312,9 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     }
 
     void visit_FuncCall(const ASR::FuncCall_t &x) {
-        ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(x.m_func);
+        ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(x.m_name);
         std::string fn_name = fn->m_name;
-        if (sym_info[get_hash((ASR::asr_t*)x.m_func)].intrinsic_function) {
+        if (sym_info[get_hash((ASR::asr_t*)x.m_name)].intrinsic_function) {
             if (fn_name == "size") {
                 LFORTRAN_ASSERT(x.n_args > 0);
                 visit_expr(*x.m_args[0]);

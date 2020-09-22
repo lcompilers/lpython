@@ -576,7 +576,7 @@ public:
     }
 
     void visit_FuncCall(const ASR::FuncCall_t &x) {
-        ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(x.m_func);
+        ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(x.m_name);
 
         uint32_t h = get_hash((ASR::asr_t*)s);
         if (x86_symtab.find(h) == x86_symtab.end()) {
