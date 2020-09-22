@@ -256,12 +256,11 @@ public:
 
     // Expressions leave integer values in eax
 
-    void visit_Num(const ASR::Num_t &x) {
+    void visit_ConstantInteger(const ASR::ConstantInteger_t &x) {
         m_a.asm_mov_r32_imm32(X86Reg::eax, x.m_n);
     }
 
-    // TODO: rename to LogicalConstant
-    void visit_Constant(const ASR::Constant_t &x) {
+    void visit_ConstantLogical(const ASR::ConstantLogical_t &x) {
         int val;
         if (x.m_value == true) {
             val = 1;
@@ -296,25 +295,25 @@ public:
         // Leave the result in eax.
         if (x.m_type->type == ASR::ttypeType::Integer) {
             switch (x.m_op) {
-                case ASR::operatorType::Add: {
+                case ASR::binopType::Add: {
                     m_a.asm_add_r32_r32(X86Reg::eax, X86Reg::ecx);
                     break;
                 };
-                case ASR::operatorType::Sub: {
+                case ASR::binopType::Sub: {
                     m_a.asm_sub_r32_r32(X86Reg::eax, X86Reg::ecx);
                     break;
                 };
-                case ASR::operatorType::Mul: {
+                case ASR::binopType::Mul: {
                     m_a.asm_mov_r32_imm32(X86Reg::edx, 0);
                     m_a.asm_mul_r32(X86Reg::ecx);
                     break;
                 };
-                case ASR::operatorType::Div: {
+                case ASR::binopType::Div: {
                     m_a.asm_mov_r32_imm32(X86Reg::edx, 0);
                     m_a.asm_div_r32(X86Reg::ecx);
                     break;
                 };
-                case ASR::operatorType::Pow: {
+                case ASR::binopType::Pow: {
                     throw CodeGenError("Pow not implemented yet.");
                     break;
                 };
@@ -576,7 +575,7 @@ public:
     }
 
     void visit_FuncCall(const ASR::FuncCall_t &x) {
-        ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(x.m_func);
+        ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(x.m_name);
 
         uint32_t h = get_hash((ASR::asr_t*)s);
         if (x86_symtab.find(h) == x86_symtab.end()) {

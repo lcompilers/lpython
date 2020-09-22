@@ -40,17 +40,17 @@ Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop) {
     LFORTRAN_ASSERT(b);
     if (!c) {
         ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-        c = EXPR(ASR::make_Num_t(al, loc, 1, type));
+        c = EXPR(ASR::make_ConstantInteger_t(al, loc, 1, type));
     }
     LFORTRAN_ASSERT(c);
     int increment;
-    if (c->type == ASR::exprType::Num) {
-        increment = down_cast<ASR::Num_t>(c)->m_n;
+    if (c->type == ASR::exprType::ConstantInteger) {
+        increment = down_cast<ASR::ConstantInteger_t>(c)->m_n;
     } else if (c->type == ASR::exprType::UnaryOp) {
         ASR::UnaryOp_t *u = down_cast<ASR::UnaryOp_t>(c);
         LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
-        LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::Num);
-        increment = - down_cast<ASR::Num_t>(u->m_operand)->m_n;
+        LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::ConstantInteger);
+        increment = - down_cast<ASR::ConstantInteger_t>(u->m_operand)->m_n;
     } else {
         throw CodeGenError("Do loop increment type not supported");
     }
@@ -63,16 +63,16 @@ Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop) {
     ASR::expr_t *target = loop.m_head.m_v;
     ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
     ASR::stmt_t *stmt1 = STMT(ASR::make_Assignment_t(al, loc, target,
-        EXPR(ASR::make_BinOp_t(al, loc, a, ASR::operatorType::Sub, c, type))
+        EXPR(ASR::make_BinOp_t(al, loc, a, ASR::binopType::Sub, c, type))
     ));
 
     ASR::expr_t *cond = EXPR(ASR::make_Compare_t(al, loc,
-        EXPR(ASR::make_BinOp_t(al, loc, target, ASR::operatorType::Add, c, type)),
+        EXPR(ASR::make_BinOp_t(al, loc, target, ASR::binopType::Add, c, type)),
         cmp_op, b, type));
     Vec<ASR::stmt_t*> body;
     body.reserve(al, loop.n_body+1);
     body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, target,
-        EXPR(ASR::make_BinOp_t(al, loc, target, ASR::operatorType::Add, c, type))
+        EXPR(ASR::make_BinOp_t(al, loc, target, ASR::binopType::Add, c, type))
     )));
     for (size_t i=0; i<loop.n_body; i++) {
         body.push_back(al, loop.m_body[i]);

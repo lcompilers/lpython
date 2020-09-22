@@ -35,9 +35,9 @@ std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims)
         if (!start && !end) {
             dims += "*";
         } else if (start && end) {
-            if (is_a<ASR::Num_t>(*start) || is_a<ASR::Num_t>(*end)) {
-                ASR::Num_t *s = down_cast<ASR::Num_t>(start);
-                ASR::Num_t *e = down_cast<ASR::Num_t>(end);
+            if (is_a<ASR::ConstantInteger_t>(*start) || is_a<ASR::ConstantInteger_t>(*end)) {
+                ASR::ConstantInteger_t *s = down_cast<ASR::ConstantInteger_t>(start);
+                ASR::ConstantInteger_t *e = down_cast<ASR::ConstantInteger_t>(end);
                 if (s->m_n == 1) {
                     dims += "[" + std::to_string(e->m_n) + "]";
                 } else {
@@ -312,9 +312,9 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     }
 
     void visit_FuncCall(const ASR::FuncCall_t &x) {
-        ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(x.m_func);
+        ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(x.m_name);
         std::string fn_name = fn->m_name;
-        if (sym_info[get_hash((ASR::asr_t*)x.m_func)].intrinsic_function) {
+        if (sym_info[get_hash((ASR::asr_t*)x.m_name)].intrinsic_function) {
             if (fn_name == "size") {
                 LFORTRAN_ASSERT(x.n_args > 0);
                 visit_expr(*x.m_args[0]);
@@ -364,7 +364,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         src = indent + target + " = " + value + ";\n";
     }
 
-    void visit_Num(const ASR::Num_t &x) {
+    void visit_ConstantInteger(const ASR::ConstantInteger_t &x) {
         src = std::to_string(x.m_n);
         last_unary_plus = false;
         last_binary_plus = false;
@@ -382,7 +382,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         last_binary_plus = false;
     }
 
-    void visit_Constant(const ASR::Constant_t &x) {
+    void visit_ConstantLogical(const ASR::ConstantLogical_t &x) {
         if (x.m_value == true) {
             src = "true";
         } else {
@@ -510,49 +510,49 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         this->visit_expr(*x.m_left);
         std::string left_val = src;
         if ((last_binary_plus || last_unary_plus)
-                    && (x.m_op == ASR::operatorType::Mul
-                     || x.m_op == ASR::operatorType::Div)) {
+                    && (x.m_op == ASR::binopType::Mul
+                     || x.m_op == ASR::binopType::Div)) {
             left_val = "(" + left_val + ")";
         }
         if (last_unary_plus
-                    && (x.m_op == ASR::operatorType::Add
-                     || x.m_op == ASR::operatorType::Sub)) {
+                    && (x.m_op == ASR::binopType::Add
+                     || x.m_op == ASR::binopType::Sub)) {
             left_val = "(" + left_val + ")";
         }
         this->visit_expr(*x.m_right);
         std::string right_val = src;
         if ((last_binary_plus || last_unary_plus)
-                    && (x.m_op == ASR::operatorType::Mul
-                     || x.m_op == ASR::operatorType::Div)) {
+                    && (x.m_op == ASR::binopType::Mul
+                     || x.m_op == ASR::binopType::Div)) {
             right_val = "(" + right_val + ")";
         }
         if (last_unary_plus
-                    && (x.m_op == ASR::operatorType::Add
-                     || x.m_op == ASR::operatorType::Sub)) {
+                    && (x.m_op == ASR::binopType::Add
+                     || x.m_op == ASR::binopType::Sub)) {
             right_val = "(" + right_val + ")";
         }
         switch (x.m_op) {
-            case ASR::operatorType::Add: {
+            case ASR::binopType::Add: {
                 src = left_val + " + " + right_val;
                 last_binary_plus = true;
                 break;
             }
-            case ASR::operatorType::Sub: {
+            case ASR::binopType::Sub: {
                 src = left_val + " - " + right_val;
                 last_binary_plus = true;
                 break;
             }
-            case ASR::operatorType::Mul: {
+            case ASR::binopType::Mul: {
                 src = left_val + "*" + right_val;
                 last_binary_plus = false;
                 break;
             }
-            case ASR::operatorType::Div: {
+            case ASR::binopType::Div: {
                 src = left_val + "/" + right_val;
                 last_binary_plus = false;
                 break;
             }
-            case ASR::operatorType::Pow: {
+            case ASR::binopType::Pow: {
                 src = "std::pow(" + left_val + ", " + right_val + ")";
                 last_binary_plus = false;
                 break;
@@ -623,13 +623,13 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         if (!c) {
             increment = 1;
         } else {
-            if (c->type == ASR::exprType::Num) {
-                increment = down_cast<ASR::Num_t>(c)->m_n;
+            if (c->type == ASR::exprType::ConstantInteger) {
+                increment = down_cast<ASR::ConstantInteger_t>(c)->m_n;
             } else if (c->type == ASR::exprType::UnaryOp) {
                 ASR::UnaryOp_t *u = down_cast<ASR::UnaryOp_t>(c);
                 LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
-                LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::Num);
-                increment = - down_cast<ASR::Num_t>(u->m_operand)->m_n;
+                LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::ConstantInteger);
+                increment = - down_cast<ASR::ConstantInteger_t>(u->m_operand)->m_n;
             } else {
                 throw CodeGenError("Do loop increment type not supported");
             }

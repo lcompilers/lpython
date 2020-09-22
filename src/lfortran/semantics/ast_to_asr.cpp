@@ -459,7 +459,7 @@ public:
     void visit_Num(const AST::Num_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 8, nullptr, 0));
-        asr = ASR::make_Num_t(al, x.base.base.loc, x.m_n, type);
+        asr = ASR::make_ConstantInteger_t(al, x.base.base.loc, x.m_n, type);
     }
 
 };
@@ -684,7 +684,7 @@ public:
         ASR::expr_t *left = EXPR(tmp);
         this->visit_expr(*x.m_right);
         ASR::expr_t *right = EXPR(tmp);
-        ASR::operatorType op;
+        ASR::binopType op;
         switch (x.m_op) {
             case (AST::Add) :
                 op = ASR::Add;
@@ -702,7 +702,7 @@ public:
                 op = ASR::Pow;
                 break;
             // Fix compiler warning:
-            default : { LFORTRAN_ASSERT(false); op = ASR::operatorType::Pow; }
+            default : { LFORTRAN_ASSERT(false); op = ASR::binopType::Pow; }
         }
         // Cast LHS or RHS if necessary
         ASR::ttype_t *left_type = expr_type(left);
@@ -862,13 +862,13 @@ public:
     void visit_Num(const AST::Num_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 4, nullptr, 0));
-        tmp = ASR::make_Num_t(al, x.base.base.loc, x.m_n, type);
+        tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, x.m_n, type);
     }
 
     void visit_Constant(const AST::Constant_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Logical_t(al, x.base.base.loc,
                 4, nullptr, 0));
-        tmp = ASR::make_Constant_t(al, x.base.base.loc, x.m_value, type);
+        tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, x.m_value, type);
     }
 
     void visit_Str(const AST::Str_t &x) {

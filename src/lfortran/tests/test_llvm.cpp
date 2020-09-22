@@ -357,7 +357,7 @@ end function)";
 
     // AST -> ASR
     LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *tu);
-    CHECK(LFortran::pickle(*asr) == "(TranslationUnit (SymbolTable ba2818a1 {f: (Function (SymbolTable 917424ce {f: (Variable 917424ce f ReturnVar (Integer 4 []))}) f [] [(= (Var 917424ce f) (Num 5 (Integer 4 [])))] () (Var 917424ce f) ())}) [])");
+    CHECK(LFortran::pickle(*asr) == "(TranslationUnit (SymbolTable ba2818a1 {f: (Function (SymbolTable 917424ce {f: (Variable 917424ce f ReturnVar (Integer 4 []))}) f [] [(= (Var 917424ce f) (ConstantInteger 5 (Integer 4 [])))] () (Var 917424ce f) ())}) [])");
 
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
@@ -385,7 +385,7 @@ end function)";
 
     // AST -> ASR
     LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *tu);
-    CHECK(LFortran::pickle(*asr) == "(TranslationUnit (SymbolTable ba2818a1 {f: (Function (SymbolTable 917424ce {f: (Variable 917424ce f ReturnVar (Integer 4 []))}) f [] [(= (Var 917424ce f) (Num 4 (Integer 4 [])))] () (Var 917424ce f) ())}) [])");
+    CHECK(LFortran::pickle(*asr) == "(TranslationUnit (SymbolTable ba2818a1 {f: (Function (SymbolTable 917424ce {f: (Variable 917424ce f ReturnVar (Integer 4 []))}) f [] [(= (Var 917424ce f) (ConstantInteger 4 (Integer 4 [])))] () (Var 917424ce f) ())}) [])");
 
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;

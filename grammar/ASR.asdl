@@ -53,18 +53,15 @@ stmt
 
 expr
     = BoolOp(expr left, boolop op, expr right, ttype type)
-    | BinOp(expr left, operator op, expr right, ttype type)
+    | BinOp(expr left, binop op, expr right, ttype type)
     | UnaryOp(unaryop op, expr operand, ttype type)
     | Compare(expr left, cmpop op, expr right, ttype type)
--- TODO: rename func -> name, as in SubroutineCall:
-    | FuncCall(symbol func, expr* args, keyword* keywords, ttype type)
+    | FuncCall(symbol name, expr* args, keyword* keywords, ttype type)
     | ArrayInitializer(expr* args, ttype type)
-    | Num(object n, ttype type) -- TODO: rename to ConstantInteger
+    | ConstantInteger(object n, ttype type)
     | ConstantReal(string r, ttype type)
-    | Constant(constant value, ttype type) -- TODO: rename to ConstantLogical
+    | ConstantLogical(constant value, ttype type)
     | Str(string s, ttype type)
--- TODO: remove:
-    | VariableOld(identifier name, string? intent, int? dummy, ttype type)
     | Var(symbol v)
     | ArrayRef(symbol v, array_index* args, ttype type)
     | ImplicitCast(expr arg, cast_kind kind, ttype type)
@@ -80,8 +77,7 @@ ttype
 
 boolop = And | Or
 
--- TODO: rename to binop:
-operator = Add | Sub | Mul | Div | Pow
+binop = Add | Sub | Mul | Div | Pow
 
 unaryop = Invert | Not | UAdd | USub
 
