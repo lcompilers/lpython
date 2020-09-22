@@ -56,6 +56,8 @@
 
 namespace LFortran {
 
+using Result = FortranEvaluator::Result;
+
 // Extracts the integer from APInt.
 // APInt does not seem to have this functionality, so we implement it here.
 uint64_t APInt_getint(const llvm::APInt &i) {
@@ -367,13 +369,13 @@ std::string FortranEvaluator::get_asr(const std::string &code)
     return LFortran::pickle(*asr, true);
 }
 
-FortranEvaluator::Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(const std::string &code)
+Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(const std::string &code)
 {
-    LFortran::ASR::TranslationUnit_t* asr;
+    ASR::TranslationUnit_t* asr;
     try {
         // Src -> AST
-        LFortran::AST::TranslationUnit_t* ast;
-        ast = LFortran::parse(al, code);
+        AST::TranslationUnit_t* ast;
+        ast = parse(al, code);
 
         // AST -> ASR
         // Remove the old execution function if it exists
@@ -383,16 +385,16 @@ FortranEvaluator::Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(con
             }
             symbol_table->mark_all_variables_external(al);
         }
-        asr = LFortran::ast_to_asr(al, *ast, symbol_table);
+        asr = ast_to_asr(al, *ast, symbol_table);
         if (!symbol_table) symbol_table = asr->m_global_scope;
-    } catch (const LFortran::TokenizerError &e) {
+    } catch (const TokenizerError &e) {
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::Tokenizer;
         error.loc = e.loc;
         error.msg = e.msg();
         error.token_str = e.token;
-        return FortranEvaluator::Result<ASR::TranslationUnit_t*>(error);
-    } catch (const LFortran::ParserError &e) {
+        return Result<ASR::TranslationUnit_t*>(error);
+    } catch (const ParserError &e) {
         int token;
         if (e.msg() == "syntax is ambiguous") {
             token = -2;
@@ -404,21 +406,21 @@ FortranEvaluator::Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(con
         error.loc = e.loc;
         error.token = token;
         error.msg = e.msg();
-        return FortranEvaluator::Result<ASR::TranslationUnit_t*>(error);
-    } catch (const LFortran::SemanticError &e) {
+        return Result<ASR::TranslationUnit_t*>(error);
+    } catch (const SemanticError &e) {
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::Semantic;
         error.loc = e.loc;
         error.msg = e.msg();
-        return FortranEvaluator::Result<ASR::TranslationUnit_t*>(error);
-    } catch (const LFortran::CodeGenError &e) {
+        return Result<ASR::TranslationUnit_t*>(error);
+    } catch (const CodeGenError &e) {
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::CodeGen;
         error.msg = e.msg();
-        return FortranEvaluator::Result<ASR::TranslationUnit_t*>(error);
+        return Result<ASR::TranslationUnit_t*>(error);
     }
 
-    return FortranEvaluator::Result(asr);
+    return Result(asr);
 }
 
 std::string FortranEvaluator::get_llvm(const std::string &code)
