@@ -237,22 +237,22 @@ namespace LFortran
         }
 
         switch (r.type) {
-            case (LFortran::FortranEvaluator::ResultType::integer) : {
+            case (LFortran::FortranEvaluator::EvalResult::integer) : {
                 nl::json pub_data;
                 pub_data["text/plain"] = std::to_string(r.i);
                 publish_execution_result(execution_counter, std::move(pub_data), nl::json::object());
                 break;
             }
-            case (LFortran::FortranEvaluator::ResultType::real) : {
+            case (LFortran::FortranEvaluator::EvalResult::real) : {
                 nl::json pub_data;
                 pub_data["text/plain"] = std::to_string(r.f);
                 publish_execution_result(execution_counter, std::move(pub_data), nl::json::object());
                 break;
             }
-            case (LFortran::FortranEvaluator::ResultType::statement) : {
+            case (LFortran::FortranEvaluator::EvalResult::statement) : {
                 break;
             }
-            case (LFortran::FortranEvaluator::ResultType::none) : {
+            case (LFortran::FortranEvaluator::EvalResult::none) : {
                 break;
             }
             default : throw LFortranException("Return type not supported");
