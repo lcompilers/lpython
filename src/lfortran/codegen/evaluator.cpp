@@ -533,17 +533,16 @@ Result<std::string> FortranEvaluator::get_cpp(const std::string &code)
     }
 }
 
-std::string FortranEvaluator::get_fmt(const std::string &code)
+Result<std::string> FortranEvaluator::get_fmt(const std::string &code)
 {
     // Src -> AST
-    LFortran::AST::TranslationUnit_t* ast;
-    ast = LFortran::parse(al, code);
-
-    // AST -> Fortran
-    std::string src;
-    src = LFortran::ast_to_src(*ast, true);
-
-    return src;
+    Result<AST::TranslationUnit_t*> ast = get_ast2(code);
+    if (ast.ok) {
+        // AST -> Fortran
+        return LFortran::ast_to_src(*ast.result, true);
+    } else {
+        return ast.error;
+    }
 }
 
 std::string FortranEvaluator::format_error(const Error &e, const std::string &input) const

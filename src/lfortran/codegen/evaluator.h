@@ -135,7 +135,7 @@ public:
     Result<std::unique_ptr<LLVMModule>> get_llvm2(const std::string &code);
     Result<std::string> get_asm(const std::string &code);
     Result<std::string> get_cpp(const std::string &code);
-    std::string get_fmt(const std::string &code);
+    Result<std::string> get_fmt(const std::string &code);
 
     std::string format_error(const Error &e, const std::string &input) const;
 
