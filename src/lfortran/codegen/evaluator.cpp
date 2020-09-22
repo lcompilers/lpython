@@ -524,7 +524,10 @@ Result<std::string> FortranEvaluator::get_asm(const std::string &code)
 Result<std::string> FortranEvaluator::get_cpp(const std::string &code)
 {
     // Src -> AST -> ASR
+    SymbolTable *old_symbol_table = symbol_table;
+    symbol_table = nullptr;
     Result<ASR::TranslationUnit_t*> asr = get_asr2(code);
+    symbol_table = old_symbol_table;
     if (asr.ok) {
         // ASR -> C++
         return LFortran::asr_to_cpp(*asr.result);
