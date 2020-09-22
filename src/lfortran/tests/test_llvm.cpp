@@ -401,24 +401,24 @@ end function)";
 
 TEST_CASE("FortranEvaluator 1") {
     FortranEvaluator e;
-    FortranEvaluator::Result r;
+    FortranEvaluator::EvalResult r;
     r = e.evaluate("integer :: i");
-    CHECK(r.type == FortranEvaluator::Result::none);
+    CHECK(r.type == FortranEvaluator::EvalResult::none);
     r = e.evaluate("i = 5");
-    CHECK(r.type == FortranEvaluator::Result::statement);
+    CHECK(r.type == FortranEvaluator::EvalResult::statement);
     r = e.evaluate("i");
-    CHECK(r.type == FortranEvaluator::Result::integer);
+    CHECK(r.type == FortranEvaluator::EvalResult::integer);
     CHECK(r.i == 5);
 }
 
 TEST_CASE("FortranEvaluator 2") {
     FortranEvaluator e;
-    FortranEvaluator::Result r;
+    FortranEvaluator::EvalResult r;
     r = e.evaluate(R"(real :: r
 r = 3
 r
 )");
-    CHECK(r.type == FortranEvaluator::Result::real);
+    CHECK(r.type == FortranEvaluator::EvalResult::real);
     CHECK(r.f == 3);
 }
 
@@ -430,9 +430,9 @@ do i = 1, 5
     j = j + i
 end do
 )");
-    FortranEvaluator::Result r;
+    FortranEvaluator::EvalResult r;
     r = e.evaluate("j");
-    CHECK(r.type == FortranEvaluator::Result::integer);
+    CHECK(r.type == FortranEvaluator::EvalResult::integer);
     CHECK(r.i == 15);
 }
 
@@ -444,9 +444,9 @@ integer, intent(in) :: i, j
 fn = i + j
 end function
 )");
-    FortranEvaluator::Result r;
+    FortranEvaluator::EvalResult r;
     r = e.evaluate("fn(2, 3)");
-    CHECK(r.type == FortranEvaluator::Result::integer);
+    CHECK(r.type == FortranEvaluator::EvalResult::integer);
     CHECK(r.i == 5);
 
     e.evaluate(R"(
@@ -456,7 +456,7 @@ fn = i - j
 end function
 )");
     r = e.evaluate("fn(2, 3)");
-    CHECK(r.type == FortranEvaluator::Result::integer);
+    CHECK(r.type == FortranEvaluator::EvalResult::integer);
     CHECK(r.i == -1);
 }
 
@@ -469,11 +469,11 @@ integer, intent(out) :: r
 r = i + j
 end subroutine
 )");
-    FortranEvaluator::Result r;
+    FortranEvaluator::EvalResult r;
     e.evaluate("integer :: r");
     e.evaluate("call fn(2, 3, r)");
     r = e.evaluate("r");
-    CHECK(r.type == FortranEvaluator::Result::integer);
+    CHECK(r.type == FortranEvaluator::EvalResult::integer);
     CHECK(r.i == 5);
 
     e.evaluate(R"(
@@ -485,6 +485,6 @@ end subroutine
 )");
     e.evaluate("call fn(2, 3, r)");
     r = e.evaluate("r");
-    CHECK(r.type == FortranEvaluator::Result::integer);
+    CHECK(r.type == FortranEvaluator::EvalResult::integer);
     CHECK(r.i == -1);
 }

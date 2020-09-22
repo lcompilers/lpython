@@ -274,10 +274,10 @@ FortranEvaluator::~FortranEvaluator()
 {
 }
 
-FortranEvaluator::Result FortranEvaluator::evaluate(const std::string &code,
+FortranEvaluator::EvalResult FortranEvaluator::evaluate(const std::string &code,
     bool verbose)
 {
-    Result result;
+    EvalResult result;
 
     // Src -> AST
     LFortran::AST::TranslationUnit_t* ast;
@@ -320,17 +320,17 @@ FortranEvaluator::Result FortranEvaluator::evaluate(const std::string &code,
     e.add_module(std::move(m));
     if (return_type == "integer") {
         int r = e.intfn(run_fn);
-        result.type = Result::integer;
+        result.type = EvalResult::integer;
         result.i = r;
     } else if (return_type == "real") {
         float r = e.floatfn(run_fn);
-        result.type = Result::real;
+        result.type = EvalResult::real;
         result.f = r;
     } else if (return_type == "void") {
         e.voidfn(run_fn);
-        result.type = Result::statement;
+        result.type = EvalResult::statement;
     } else if (return_type == "none") {
-        result.type = Result::none;
+        result.type = EvalResult::none;
     } else {
         throw LFortran::LFortranException("Return type not supported");
     }

@@ -104,7 +104,7 @@ namespace LFortran
                                                       nl::json /*user_expressions*/,
                                                       bool /*allow_stdin*/)
     {
-        FortranEvaluator::Result r;
+        FortranEvaluator::EvalResult r;
         std::string std_out;
         std::string code0;
         try {
