@@ -280,64 +280,97 @@ FortranEvaluator::~FortranEvaluator()
 Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(const std::string &code,
     bool verbose)
 {
-    EvalResult result;
+    try {
+        EvalResult result;
 
-    // Src -> AST
-    LFortran::AST::TranslationUnit_t* ast;
-    ast = LFortran::parse(al, code);
+        // Src -> AST
+        LFortran::AST::TranslationUnit_t* ast;
+        ast = LFortran::parse(al, code);
 
-    if (verbose) {
-        result.ast = LFortran::pickle(*ast, true);
-    }
-
-    // AST -> ASR
-    LFortran::ASR::TranslationUnit_t* asr;
-    // Remove the old execution function if it exists
-    if (symbol_table) {
-        if (symbol_table->scope.find(run_fn) != symbol_table->scope.end()) {
-            symbol_table->scope.erase(run_fn);
+        if (verbose) {
+            result.ast = LFortran::pickle(*ast, true);
         }
-        symbol_table->mark_all_variables_external(al);
+
+        // AST -> ASR
+        LFortran::ASR::TranslationUnit_t* asr;
+        // Remove the old execution function if it exists
+        if (symbol_table) {
+            if (symbol_table->scope.find(run_fn) != symbol_table->scope.end()) {
+                symbol_table->scope.erase(run_fn);
+            }
+            symbol_table->mark_all_variables_external(al);
+        }
+        asr = LFortran::ast_to_asr(al, *ast, symbol_table);
+        if (!symbol_table) symbol_table = asr->m_global_scope;
+
+        if (verbose) {
+            result.asr = LFortran::pickle(*asr, true);
+        }
+
+        eval_count++;
+        run_fn = "__lfortran_evaluate_" + std::to_string(eval_count);
+
+        // ASR -> LLVM
+        std::unique_ptr<LFortran::LLVMModule> m;
+        m = LFortran::asr_to_llvm(*asr, e.get_context(), al, run_fn);
+
+        if (verbose) {
+            result.llvm_ir = m->str();
+        }
+
+        std::string return_type = m->get_return_type(run_fn);
+
+        // LLVM -> Machine code -> Execution
+        e.add_module(std::move(m));
+        if (return_type == "integer") {
+            int r = e.intfn(run_fn);
+            result.type = EvalResult::integer;
+            result.i = r;
+        } else if (return_type == "real") {
+            float r = e.floatfn(run_fn);
+            result.type = EvalResult::real;
+            result.f = r;
+        } else if (return_type == "void") {
+            e.voidfn(run_fn);
+            result.type = EvalResult::statement;
+        } else if (return_type == "none") {
+            result.type = EvalResult::none;
+        } else {
+            throw LFortran::LFortranException("Return type not supported");
+        }
+        return result;
+    } catch (const TokenizerError &e) {
+        FortranEvaluator::Error error;
+        error.type = FortranEvaluator::Error::Tokenizer;
+        error.loc = e.loc;
+        error.msg = e.msg();
+        error.token_str = e.token;
+        return error;
+    } catch (const ParserError &e) {
+        int token;
+        if (e.msg() == "syntax is ambiguous") {
+            token = -2;
+        } else {
+            token = e.token;
+        }
+        FortranEvaluator::Error error;
+        error.type = FortranEvaluator::Error::Parser;
+        error.loc = e.loc;
+        error.token = token;
+        error.msg = e.msg();
+        return error;
+    } catch (const SemanticError &e) {
+        FortranEvaluator::Error error;
+        error.type = FortranEvaluator::Error::Semantic;
+        error.loc = e.loc;
+        error.msg = e.msg();
+        return error;
+    } catch (const CodeGenError &e) {
+        FortranEvaluator::Error error;
+        error.type = FortranEvaluator::Error::CodeGen;
+        error.msg = e.msg();
+        return error;
     }
-    asr = LFortran::ast_to_asr(al, *ast, symbol_table);
-    if (!symbol_table) symbol_table = asr->m_global_scope;
-
-    if (verbose) {
-        result.asr = LFortran::pickle(*asr, true);
-    }
-
-    eval_count++;
-    run_fn = "__lfortran_evaluate_" + std::to_string(eval_count);
-
-    // ASR -> LLVM
-    std::unique_ptr<LFortran::LLVMModule> m;
-    m = LFortran::asr_to_llvm(*asr, e.get_context(), al, run_fn);
-
-    if (verbose) {
-        result.llvm_ir = m->str();
-    }
-
-    std::string return_type = m->get_return_type(run_fn);
-
-    // LLVM -> Machine code -> Execution
-    e.add_module(std::move(m));
-    if (return_type == "integer") {
-        int r = e.intfn(run_fn);
-        result.type = EvalResult::integer;
-        result.i = r;
-    } else if (return_type == "real") {
-        float r = e.floatfn(run_fn);
-        result.type = EvalResult::real;
-        result.f = r;
-    } else if (return_type == "void") {
-        e.voidfn(run_fn);
-        result.type = EvalResult::statement;
-    } else if (return_type == "none") {
-        result.type = EvalResult::none;
-    } else {
-        throw LFortran::LFortranException("Return type not supported");
-    }
-    return result;
 }
 
 std::string FortranEvaluator::get_ast(const std::string &code)
