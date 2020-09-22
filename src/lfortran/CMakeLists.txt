@@ -23,6 +23,8 @@ set(SRC
     ast_to_cpp_hip.cpp
     ast_to_openmp.cpp
 
+    mod_to_asr.cpp
+
     stacktrace.cpp
 )
 if (WITH_XEUS)

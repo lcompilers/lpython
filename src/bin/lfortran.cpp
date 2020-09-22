@@ -9,6 +9,7 @@
 #include <lfortran/parser/parser.h>
 #include <lfortran/pickle.h>
 #include <lfortran/semantics/ast_to_asr.h>
+#include <lfortran/mod_to_asr.h>
 #include <lfortran/codegen/asr_to_llvm.h>
 #include <lfortran/codegen/asr_to_cpp.h>
 #include <lfortran/codegen/asr_to_x86.h>
@@ -901,6 +902,10 @@ int main(int argc, char *argv[])
         bool arg_fmt_inplace = false;
         bool arg_fmt_no_color = false;
 
+        std::string arg_mod_file;
+        bool arg_mod_show_asr = false;
+        bool arg_mod_no_color = false;
+
         CLI::App app{"LFortran: modern interactive LLVM-based Fortran compiler"};
         // Standard options compatible with gfortran, gcc or clang
         // We follow the established conventions
@@ -939,9 +944,16 @@ int main(int argc, char *argv[])
         fmt.add_flag("--indent-unit", arg_fmt_indent_unit, "Indent contents of sub / fn / prog / mod");
         fmt.add_flag("--no-color", arg_fmt_no_color, "Turn off color when writing to stdout");
 
-        // fmt
+        // kernel
         CLI::App &kernel = *app.add_subcommand("kernel", "Run in Jupyter kernel mode.");
         kernel.add_option("-f", arg_kernel_f, "The kernel connection file")->required();
+
+        // mod
+        CLI::App &mod = *app.add_subcommand("mod", "Fortran mod file utilities.");
+        mod.add_option("file", arg_mod_file, "Mod file (*.mod)")->required();
+        mod.add_flag("--show-asr", arg_mod_show_asr, "Show ASR for the module");
+        mod.add_flag("--no-color", arg_mod_no_color, "Turn off colored ASR");
+
 
         app.get_formatter()->column_width(25);
         app.require_subcommand(0, 1);
@@ -965,6 +977,17 @@ int main(int argc, char *argv[])
             std::cerr << "The kernel subcommand requires LFortran to be compiled with XEUS support. Recompile with `WITH_XEUS=yes`." << std::endl;
             return 1;
 #endif
+        }
+
+        if (mod) {
+            if (arg_mod_show_asr) {
+                Allocator al(1024*1024);
+                LFortran::ASR::TranslationUnit_t *asr;
+                asr = LFortran::mod_to_asr(al, arg_mod_file);
+                std::cout << LFortran::pickle(*asr, !arg_mod_no_color) << std::endl;
+                return 0;
+            }
+            return 0;
         }
 
         if (arg_backend == "llvm") {
