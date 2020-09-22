@@ -684,7 +684,7 @@ public:
         ASR::expr_t *left = EXPR(tmp);
         this->visit_expr(*x.m_right);
         ASR::expr_t *right = EXPR(tmp);
-        ASR::operatorType op;
+        ASR::binopType op;
         switch (x.m_op) {
             case (AST::Add) :
                 op = ASR::Add;
@@ -702,7 +702,7 @@ public:
                 op = ASR::Pow;
                 break;
             // Fix compiler warning:
-            default : { LFORTRAN_ASSERT(false); op = ASR::operatorType::Pow; }
+            default : { LFORTRAN_ASSERT(false); op = ASR::binopType::Pow; }
         }
         // Cast LHS or RHS if necessary
         ASR::ttype_t *left_type = expr_type(left);

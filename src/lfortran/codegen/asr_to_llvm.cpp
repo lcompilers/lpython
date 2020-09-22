@@ -569,23 +569,23 @@ public:
         llvm::Value *right_val = tmp;
         if (x.m_type->type == ASR::ttypeType::Integer) {
             switch (x.m_op) {
-                case ASR::operatorType::Add: {
+                case ASR::binopType::Add: {
                     tmp = builder->CreateAdd(left_val, right_val);
                     break;
                 };
-                case ASR::operatorType::Sub: {
+                case ASR::binopType::Sub: {
                     tmp = builder->CreateSub(left_val, right_val);
                     break;
                 };
-                case ASR::operatorType::Mul: {
+                case ASR::binopType::Mul: {
                     tmp = builder->CreateMul(left_val, right_val);
                     break;
                 };
-                case ASR::operatorType::Div: {
+                case ASR::binopType::Div: {
                     tmp = builder->CreateUDiv(left_val, right_val);
                     break;
                 };
-                case ASR::operatorType::Pow: {
+                case ASR::binopType::Pow: {
                     llvm::Value *fleft = builder->CreateSIToFP(left_val,
                             llvm::Type::getFloatTy(context));
                     llvm::Value *fright = builder->CreateSIToFP(right_val,
@@ -609,23 +609,23 @@ public:
             }
         } else if (x.m_type->type == ASR::ttypeType::Real) {
             switch (x.m_op) {
-                case ASR::operatorType::Add: {
+                case ASR::binopType::Add: {
                     tmp = builder->CreateFAdd(left_val, right_val);
                     break;
                 };
-                case ASR::operatorType::Sub: {
+                case ASR::binopType::Sub: {
                     tmp = builder->CreateFSub(left_val, right_val);
                     break;
                 };
-                case ASR::operatorType::Mul: {
+                case ASR::binopType::Mul: {
                     tmp = builder->CreateFMul(left_val, right_val);
                     break;
                 };
-                case ASR::operatorType::Div: {
+                case ASR::binopType::Div: {
                     tmp = builder->CreateFDiv(left_val, right_val);
                     break;
                 };
-                case ASR::operatorType::Pow: {
+                case ASR::binopType::Pow: {
                     llvm::Function *fn_pow = module->getFunction("llvm.pow.f32");
                     if (!fn_pow) {
                         llvm::FunctionType *function_type = llvm::FunctionType::get(

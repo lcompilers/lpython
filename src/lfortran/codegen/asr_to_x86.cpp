@@ -296,25 +296,25 @@ public:
         // Leave the result in eax.
         if (x.m_type->type == ASR::ttypeType::Integer) {
             switch (x.m_op) {
-                case ASR::operatorType::Add: {
+                case ASR::binopType::Add: {
                     m_a.asm_add_r32_r32(X86Reg::eax, X86Reg::ecx);
                     break;
                 };
-                case ASR::operatorType::Sub: {
+                case ASR::binopType::Sub: {
                     m_a.asm_sub_r32_r32(X86Reg::eax, X86Reg::ecx);
                     break;
                 };
-                case ASR::operatorType::Mul: {
+                case ASR::binopType::Mul: {
                     m_a.asm_mov_r32_imm32(X86Reg::edx, 0);
                     m_a.asm_mul_r32(X86Reg::ecx);
                     break;
                 };
-                case ASR::operatorType::Div: {
+                case ASR::binopType::Div: {
                     m_a.asm_mov_r32_imm32(X86Reg::edx, 0);
                     m_a.asm_div_r32(X86Reg::ecx);
                     break;
                 };
-                case ASR::operatorType::Pow: {
+                case ASR::binopType::Pow: {
                     throw CodeGenError("Pow not implemented yet.");
                     break;
                 };

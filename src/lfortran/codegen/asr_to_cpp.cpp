@@ -510,49 +510,49 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         this->visit_expr(*x.m_left);
         std::string left_val = src;
         if ((last_binary_plus || last_unary_plus)
-                    && (x.m_op == ASR::operatorType::Mul
-                     || x.m_op == ASR::operatorType::Div)) {
+                    && (x.m_op == ASR::binopType::Mul
+                     || x.m_op == ASR::binopType::Div)) {
             left_val = "(" + left_val + ")";
         }
         if (last_unary_plus
-                    && (x.m_op == ASR::operatorType::Add
-                     || x.m_op == ASR::operatorType::Sub)) {
+                    && (x.m_op == ASR::binopType::Add
+                     || x.m_op == ASR::binopType::Sub)) {
             left_val = "(" + left_val + ")";
         }
         this->visit_expr(*x.m_right);
         std::string right_val = src;
         if ((last_binary_plus || last_unary_plus)
-                    && (x.m_op == ASR::operatorType::Mul
-                     || x.m_op == ASR::operatorType::Div)) {
+                    && (x.m_op == ASR::binopType::Mul
+                     || x.m_op == ASR::binopType::Div)) {
             right_val = "(" + right_val + ")";
         }
         if (last_unary_plus
-                    && (x.m_op == ASR::operatorType::Add
-                     || x.m_op == ASR::operatorType::Sub)) {
+                    && (x.m_op == ASR::binopType::Add
+                     || x.m_op == ASR::binopType::Sub)) {
             right_val = "(" + right_val + ")";
         }
         switch (x.m_op) {
-            case ASR::operatorType::Add: {
+            case ASR::binopType::Add: {
                 src = left_val + " + " + right_val;
                 last_binary_plus = true;
                 break;
             }
-            case ASR::operatorType::Sub: {
+            case ASR::binopType::Sub: {
                 src = left_val + " - " + right_val;
                 last_binary_plus = true;
                 break;
             }
-            case ASR::operatorType::Mul: {
+            case ASR::binopType::Mul: {
                 src = left_val + "*" + right_val;
                 last_binary_plus = false;
                 break;
             }
-            case ASR::operatorType::Div: {
+            case ASR::binopType::Div: {
                 src = left_val + "/" + right_val;
                 last_binary_plus = false;
                 break;
             }
-            case ASR::operatorType::Pow: {
+            case ASR::binopType::Pow: {
                 src = "std::pow(" + left_val + ", " + right_val + ")";
                 last_binary_plus = false;
                 break;

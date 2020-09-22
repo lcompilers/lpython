@@ -10,7 +10,7 @@ namespace LFortran {
 
 TEST_CASE("Operator types") {
     std::cout << "OK: " << AST::operatorType::Pow  << std::endl;
-    std::cout << "OK: " << ASR::operatorType::Pow  << std::endl;
+    std::cout << "OK: " << ASR::binopType::Pow  << std::endl;
 }
 
 

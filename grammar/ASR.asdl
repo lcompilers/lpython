@@ -53,7 +53,7 @@ stmt
 
 expr
     = BoolOp(expr left, boolop op, expr right, ttype type)
-    | BinOp(expr left, operator op, expr right, ttype type)
+    | BinOp(expr left, binop op, expr right, ttype type)
     | UnaryOp(unaryop op, expr operand, ttype type)
     | Compare(expr left, cmpop op, expr right, ttype type)
 -- TODO: rename func -> name, as in SubroutineCall:
@@ -78,8 +78,7 @@ ttype
 
 boolop = And | Or
 
--- TODO: rename to binop:
-operator = Add | Sub | Mul | Div | Pow
+binop = Add | Sub | Mul | Div | Pow
 
 unaryop = Invert | Not | UAdd | USub
 
