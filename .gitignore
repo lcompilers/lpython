@@ -1,3 +1,28 @@
+# LFortran
+
+src/bin/lfortran
+src/bin/cpptranslate
+src/bin/parse
+src/bin/parse2
+src/lfortran/parser/parser.output
+tests/output
+src/lfortran/tests/test_asm
+src/lfortran/tests/test_ast
+src/lfortran/tests/test_llvm
+src/lfortran/tests/test_parse
+src/lfortran/tests/test_pickle
+src/lfortran/tests/test_stacktrace
+src/lfortran/tests/test_cwrapper
+src/lfortran/tests/write32
+src/lfortran/tests/write32.asm
+src/lfortran/tests/subroutines32
+src/lfortran/tests/subroutines_args32
+src/lfortran/tests/print32
+src/lfortran/tests/print_integer
+src/lfortran/tests/cmp32
+src/lfortran/tests/x
+src/lfortran/tests/ref_pickle.txt.new
+
 # fortran_parser
 
 build-gfortran
@@ -10,6 +35,9 @@ Makefile
 CTestTestfile.cmake
 cmake_install.cmake
 install_manifest.txt
+Testing/Temporary
+CPackConfig.cmake
+CPackSourceConfig.cmake
 
 
 ## libraries
@@ -17,6 +45,7 @@ install_manifest.txt
 *.so
 
 ## Generated files
+version
 lfortran/ast/ast.py
 lfortran/asr/asr.py
 lfortran/parser/fortran.tokens
@@ -29,6 +58,10 @@ lfortran/parser/fortranVisitor.py
 src/lfortran/parser/parser.tab.cc
 src/lfortran/parser/parser.tab.hh
 src/lfortran/parser/tokenizer.cpp
+src/lfortran/ast.h
+src/lfortran/asr.h
+src/lfortran/config.h
+share/jupyter/kernels/fortran/kernel.json
 
 
 # Python
