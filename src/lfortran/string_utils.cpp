@@ -30,6 +30,16 @@ std::vector<std::string> split(const std::string &s)
     return result;
 }
 
+std::string join(const std::string j, const std::vector<std::string> &l)
+{
+    std::string result;
+    for (size_t i=0; i<l.size(); i++) {
+        result += l[i];
+        if (i < l.size()-1) result += j;
+    }
+    return result;
+}
+
 std::vector<std::string> slice(const std::vector<std::string>& v, int start, int end)
 {
     int oldlen = v.size();
