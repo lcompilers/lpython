@@ -25,6 +25,8 @@ set(SRC
 
     mod_to_asr.cpp
 
+    string_utils.cpp
+
     stacktrace.cpp
 )
 if (WITH_XEUS)

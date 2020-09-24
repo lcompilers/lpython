@@ -18,16 +18,13 @@
 #include <lfortran/codegen/asr_to_llvm.h>
 #include <lfortran/codegen/evaluator.h>
 #include <lfortran/asr_utils.h>
+#include <lfortran/string_utils.h>
 
 namespace nl = nlohmann;
 
 namespace LFortran
 {
 
-    bool startswith(const std::string &s, const std::string &e) {
-        if (s.size() < e.size()) return false;
-        return s.substr(0, e.size()) == e;
-    }
 
     class RedirectStdout
     {

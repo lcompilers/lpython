@@ -20,10 +20,13 @@
 #include <lfortran/asr_utils.h>
 #include <lfortran/config.h>
 #include <lfortran/fortran_kernel.h>
+#include <lfortran/string_utils.h>
 
 #include <cpp-terminal/terminal.h>
 
 namespace {
+
+using LFortran::endswith;
 
 enum Backend {
     llvm, cpp, x86
@@ -43,11 +46,6 @@ std::string remove_path(const std::string& filename) {
     size_t lastslash = filename.find_last_of("/");
     if (lastslash == std::string::npos) return filename;
     return filename.substr(lastslash+1);
-}
-
-bool ends_with(const std::string &s, const std::string &e) {
-    if (s.size() < e.size()) return false;
-    return s.substr(s.size()-e.size()) == e;
 }
 
 std::string read_file(const std::string &filename)
@@ -851,7 +849,7 @@ std::string get_runtime_library_dir()
     int dirname_length;
     get_executable_path(path, dirname_length);
     std::string dirname = path.substr(0,dirname_length);
-    if (ends_with(dirname, "src/bin")) {
+    if (endswith(dirname, "src/bin")) {
         // Development version
         return dirname + "/../runtime";
     } else {
@@ -1124,7 +1122,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (ends_with(arg_file, ".f90")) {
+        if (endswith(arg_file, ".f90")) {
             if (backend == Backend::x86) {
                 return compile_to_binary_x86(arg_file, outfile,
                         time_report);
