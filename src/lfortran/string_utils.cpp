@@ -30,4 +30,23 @@ std::vector<std::string> split(const std::string &s)
     return result;
 }
 
+std::vector<std::string> slice(const std::vector<std::string>& v, int start, int end)
+{
+    int oldlen = v.size();
+    int newlen;
+
+    if (end == -1 or end >= oldlen){
+        newlen = oldlen-start;
+    } else {
+        newlen = end-start;
+    }
+
+    std::vector<std::string> nv(newlen);
+
+    for (int i=0; i<newlen; i++) {
+        nv[i] = v[start+i];
+    }
+    return nv;
+}
+
 } // namespace LFortran
