@@ -1,0 +1,13 @@
+{
+    "basename": "mod_to_asr-mod1-14-4253040",
+    "cmd": "lfortran mod --show-asr --no-color {infile}",
+    "infile": "tests/interop/mod1-14.mod",
+    "infile_hash": "00dfd17351427824dd19adcb6958a8bbbd932547448a184c8ad952bc",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "mod_to_asr-mod1-14-4253040.stdout",
+    "stdout_hash": "c9cc5ad3b14f358f0b6ea49d86468c4341d8c8738c104b226e73e173",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
