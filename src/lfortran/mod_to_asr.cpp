@@ -40,15 +40,10 @@ int uncompress_gzip(uint8_t *out, uint64_t *out_size, uint8_t *in,
     return zlib_status;
 }
 
-ASR::TranslationUnit_t *mod_to_asr(Allocator &al, std::string filename)
+std::string extract_gzip(std::vector<uint8_t> &buffer)
 {
-    std::ifstream in(filename, std::ios::binary);
-    std::vector<uint8_t> buffer(std::istreambuf_iterator<char>(in), {});
-    // TODO: check the type of the module file here
-    // For now we assume GFortran 14 or 15, which is ZLIB compressed
     std::vector<uint8_t> data(1024*1024);
     uint64_t data_size = data.size();
-    std::cout << "Compressed data size: " << buffer.size() << std::endl;
     int res = uncompress_gzip(&data[0], &data_size, &buffer[0], buffer.size());
     switch(res) {
         case Z_OK:
@@ -63,7 +58,22 @@ ASR::TranslationUnit_t *mod_to_asr(Allocator &al, std::string filename)
         default:
             throw LFortranException("ZLIB: unknown error (" + std::to_string(res) + ")");
     }
-    std::cout << "Uncompressed data size: " << data_size << std::endl;
+    return std::string((char*) &data[0], data_size);
+}
+
+ASR::TranslationUnit_t *mod_to_asr(Allocator &al, std::string filename)
+{
+    std::ifstream in(filename, std::ios::binary);
+    std::vector<uint8_t> buffer(std::istreambuf_iterator<char>(in), {});
+    std::string s;
+    if (buffer.size() > 2 && buffer[0] == 0x1f && buffer[1] == 0x8b) {
+        // GZip format
+        s = extract_gzip(buffer);
+    } else {
+        // Assuming plain text
+        s = std::string((char*) &buffer[0], buffer.size());
+    }
+    //std::cout << s;
 
     SymbolTable *symtab = al.make_new<SymbolTable>(nullptr);
     ASR::asr_t *asr;
