@@ -1,5 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include <iterator>
+#include <vector>
 #include <map>
 #include <memory>
 
@@ -15,10 +17,8 @@ using ASR::down_cast2;
 
 ASR::TranslationUnit_t *mod_to_asr(Allocator &al, std::string filename)
 {
-    std::ifstream in;
-    in.open(filename);
-    std::string s;
-    in >> s;
+    std::ifstream in(filename, std::ios::binary);
+    std::vector<uint8_t> buffer(std::istreambuf_iterator<char>(in), {});
 
     SymbolTable *symtab = al.make_new<SymbolTable>(nullptr);
     ASR::asr_t *asr;
