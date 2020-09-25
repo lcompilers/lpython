@@ -48,7 +48,7 @@ std::vector<std::string> slice(const std::vector<std::string>& v, int start, int
     int oldlen = v.size();
     int newlen;
 
-    if (end == -1 or end >= oldlen){
+    if ((end == -1) || (end >= oldlen)) {
         newlen = oldlen-start;
     } else {
         newlen = end-start;
