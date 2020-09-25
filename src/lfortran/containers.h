@@ -120,8 +120,8 @@ struct Str {
     //    std::string s
     //    ...
     //    Str a;
-    //    a.from_str_view(s)
-    //    char* a.c_str(al);
+    //    a.from_str_view(s);
+    //    char *s2 = a.c_str(al);
     void from_str_view(const std::string &s) {
         n = s.size();
         p = const_cast<char*>(&s[0]);

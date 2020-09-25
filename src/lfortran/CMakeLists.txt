@@ -23,6 +23,10 @@ set(SRC
     ast_to_cpp_hip.cpp
     ast_to_openmp.cpp
 
+    mod_to_asr.cpp
+
+    string_utils.cpp
+
     stacktrace.cpp
 )
 if (WITH_XEUS)
@@ -42,7 +46,7 @@ if (WITH_LLVM)
     )
 endif()
 add_library(lfortran_lib ${SRC})
-target_link_libraries(lfortran_lib lfortran_runtime_static)
+target_link_libraries(lfortran_lib lfortran_runtime_static p::zlib)
 target_include_directories(lfortran_lib BEFORE PUBLIC ${lfortran_SOURCE_DIR}/src)
 target_include_directories(lfortran_lib BEFORE PUBLIC ${lfortran_BINARY_DIR}/src)
 if (WITH_XEUS)

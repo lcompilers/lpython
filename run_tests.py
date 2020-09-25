@@ -45,6 +45,7 @@ def main():
         ast_cpp_hip = test.get("ast_cpp_hip", False)
         ast_openmp = test.get("ast_openmp", False)
         asr = test.get("asr", False)
+        mod_to_asr = test.get("mod_to_asr", False)
         llvm = test.get("llvm", False)
         cpp = test.get("cpp", False)
         obj = test.get("obj", False)
@@ -82,6 +83,10 @@ def main():
 
         if asr:
             run_test("asr", "lfortran --show-asr --no-color {infile} -o {outfile}",
+                    filename, update_reference)
+
+        if mod_to_asr:
+            run_test("mod_to_asr", "lfortran mod --show-asr --no-color {infile}",
                     filename, update_reference)
 
         if pass_ == "do_loops":
