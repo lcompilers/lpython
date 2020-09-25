@@ -189,6 +189,7 @@ struct GSymbol {
         int intent;
         bool dummy;
         ASR::ttype_t *type;
+        ASR::symbol_t *var;
     } v;
     struct {
         // type
@@ -246,6 +247,13 @@ ASR::TranslationUnit_t* parse_gfortran_mod_file(Allocator &al, const std::string
                 s.kind = GSymbol::variable;
                 std::vector<Item> sym_type = item_list(info[2]);
                 s.v.type = parse_type(al, sym_type);
+                Str a;
+                a.from_str_view(s.name);
+                char *name = a.c_str(al);
+                Location loc;
+                ASR::asr_t *asr = ASR::make_Variable_t(al, loc, nullptr,
+                    name, ASR::intentType::In, s.v.type);
+                s.v.var = down_cast<ASR::symbol_t>(asr);
             } else if (kind == "PROCEDURE") {
                 s.kind = GSymbol::procedure;
                 Location loc;
@@ -262,6 +270,11 @@ ASR::TranslationUnit_t* parse_gfortran_mod_file(Allocator &al, const std::string
                     throw SemanticError("Procedure already defined", asr->loc);
                 }
                 parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
+
+                std::vector<Item> args = item_list(info[5]);
+                for (auto &arg : args) {
+                    s.p.arg_ids.push_back(item_integer(arg));
+                }
             } else if (kind == "MODULE") {
                 s.kind = GSymbol::module;
             } else {
@@ -297,20 +310,27 @@ ASR::TranslationUnit_t* parse_gfortran_mod_file(Allocator &al, const std::string
         throw LFortranException("Unexpected number of items");
     }
 
-    ASR::asr_t *asr;
-    Location loc;
-    asr = ASR::make_TranslationUnit_t(al, loc,
-        parent_scope, nullptr, 0);
-    return down_cast2<ASR::TranslationUnit_t>(asr);
-
     /*
     std::cout << "Symbol table" << std::endl;
     for (auto &item : gsymtab) {
         std::cout << item.second.id << " " << item.second.name << " " << item.second.module_name << " " << item.second.is_public << " ";
         std::cout << format_item(item.second.info) << std::endl;
         //std::cout << item.second.kind << std::endl;
+        if (item.second.kind == GSymbol::procedure) {
+            for (auto &arg : item.second.p.arg_ids) {
+                std::cout << arg << " " << gsymtab[arg].name << " ";
+            }
+            std::cout << std::endl;
+        }
     }
     */
+
+
+    ASR::asr_t *asr;
+    Location loc;
+    asr = ASR::make_TranslationUnit_t(al, loc,
+        parent_scope, nullptr, 0);
+    return down_cast2<ASR::TranslationUnit_t>(asr);
 
     //std::cout << format_item(mod);
 
