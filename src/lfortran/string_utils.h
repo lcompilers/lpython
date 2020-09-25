@@ -15,6 +15,11 @@ std::string join(const std::string j, const std::vector<std::string> &v);
 std::vector<std::string> slice(const std::vector<std::string> &v,
         int start=0, int end=-1);
 
+// Replaces all occurrences of `regex` (a regular expression, must escape
+// special characters) with `replace`
+std::string replace(const std::string &s,
+    const std::string &regex, const std::string &replace);
+
 
 } // namespace LFortran
 

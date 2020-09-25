@@ -1,3 +1,5 @@
+#include <regex>
+
 #include <lfortran/string_utils.h>
 
 namespace LFortran
@@ -58,6 +60,12 @@ std::vector<std::string> slice(const std::vector<std::string>& v, int start, int
         nv[i] = v[start+i];
     }
     return nv;
+}
+
+std::string replace(const std::string &s,
+    const std::string &regex, const std::string &replace)
+{
+    return std::regex_replace(s, std::regex(regex), replace);
 }
 
 } // namespace LFortran
