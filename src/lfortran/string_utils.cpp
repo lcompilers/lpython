@@ -23,7 +23,8 @@ std::vector<std::string> split(const std::string &s)
     size_t old_pos = 0;
     size_t new_pos;
     while ((new_pos = s.find_first_of(split_chars, old_pos)) != std::string::npos) {
-        result.push_back(s.substr(old_pos, new_pos-old_pos));
+        std::string substr = s.substr(old_pos, new_pos-old_pos);
+        if (substr.size() > 0) result.push_back(substr);
         old_pos = new_pos+1;
     }
     result.push_back(s.substr(old_pos));
