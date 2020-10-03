@@ -1,0 +1,1 @@
+(TranslationUnit [(Program parameter_01 [] [(Declaration [(i "integer" [] [] ()) (j "integer" [] [] ()) (k "integer" [] [] ())]) (Declaration []) (Declaration [])] [(Print () [i j k])] [])])

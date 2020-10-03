@@ -1,0 +1,19 @@
+subroutine a_proc
+implicit none
+integer :: i
+parameter(i = 1)
+print *, i
+end subroutine a_proc
+
+module a_mod
+implicit none
+integer :: i
+parameter(i = 2)
+end module a_mod
+
+program parameter_02
+use a_mod, only: i
+implicit none
+call a_proc()
+print *, i
+end program

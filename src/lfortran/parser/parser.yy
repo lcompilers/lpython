@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    429 // shift/reduce conflicts
+%expect    430 // shift/reduce conflicts
 %expect-rr 78  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -744,8 +744,19 @@ var_decl
             $$ = VAR_DECL2($1, $2, @$); }
     | var_modifier "::" var_sym_decl_list sep {
             $$ = VAR_DECL2($1, $3, @$); }
+    | KW_PARAMETER "(" named_constant_def_list ")" sep {
+            $$ = VAR_DECL5(@$); }
     | KW_NAMELIST "/" id "/" id_list sep {
             $$ = VAR_DECL4($3, @$); }
+    ;
+
+named_constant_def_list
+    : named_constant_def_list "," named_constant_def
+    | named_constant_def
+    ;
+
+named_constant_def
+    : id "=" expr
     ;
 
 kind_arg_list

@@ -525,6 +525,14 @@ filename = "../integration_tests/forallloop_01.f90"
 ast = true
 
 [[test]]
+filename = "../integration_tests/parameter_01.f90"
+ast = true
+
+[[test]]
+filename = "../integration_tests/parameter_02.f90"
+ast = true
+
+[[test]]
 filename = "do_concurrent1.f90"
 ast = true
 
