@@ -16,6 +16,9 @@
 
 using LFortran::Location;
 
+using LFortran::AST::down_cast;
+using LFortran::AST::down_cast2;
+
 using LFortran::AST::astType;
 using LFortran::AST::exprType;
 using LFortran::AST::operatorType;
@@ -67,12 +70,12 @@ using LFortran::AST::make_Interface_t;
 
 static inline expr_t* EXPR(const ast_t *f)
 {
-    return LFortran::AST::down_cast<expr_t>(f);
+    return down_cast<expr_t>(f);
 }
 
 static inline attribute_t* ATTR(const ast_t *f)
 {
-    return LFortran::AST::down_cast<attribute_t>(f);
+    return down_cast<attribute_t>(f);
 }
 
 static inline expr_t* EXPR_OPT(const ast_t *f)
@@ -86,7 +89,7 @@ static inline expr_t* EXPR_OPT(const ast_t *f)
 
 static inline char* name2char(const ast_t *n)
 {
-    return LFortran::AST::down_cast2<Name_t>(n)->m_id;
+    return down_cast2<Name_t>(n)->m_id;
 }
 
 template <typename T, astType type>
@@ -113,7 +116,7 @@ static inline T** vec_cast(const YYSTYPE::VecAST &x) {
 static inline stmt_t** IFSTMTS(Allocator &al, ast_t* x)
 {
     stmt_t **s = al.allocate<stmt_t*>();
-    *s = LFortran::AST::down_cast<stmt_t>(x);
+    *s = down_cast<stmt_t>(x);
     return s;
 }
 
@@ -223,6 +226,16 @@ static inline dimension_t DIM1(Location &l, expr_t *a, expr_t *b)
     return s;
 }
 
+static inline LFortran::AST::parameter_item_t make_parameter_item_t(Location &l,
+    char *name, expr_t *value)
+{
+    LFortran::AST::parameter_item_t s;
+    s.loc = l;
+    s.m_name = name;
+    s.m_value = value;
+    return s;
+}
+
 static inline attribute_arg_t* ATTR_ARG(Allocator &al, Location &l,
         const YYSTYPE::Str arg)
 {
@@ -263,7 +276,7 @@ static inline char** REDUCE_ARGS(Allocator &al, const YYSTYPE::VecAST args)
 static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
         const Location &loc, const ast_t *id)
 {
-        std::string s_id = LFortran::AST::down_cast2<Name_t>(id)->m_id;
+        std::string s_id = down_cast2<Name_t>(id)->m_id;
         if (s_id == "MIN" ) {
                 return LFortran::AST::reduce_opType::ReduceMIN;
         } else if (s_id == "MAX") {
@@ -549,6 +562,10 @@ char *fn_type2return_type(const YYSTYPE::VecAST &v) {
         DECL2b(p.m_a, attr), 1)
 #define VAR_DECL4(id, l) LFortran::AST::make_Declaration_t(p.m_a, l, \
         nullptr, 0)
+#define PARAMETER_ITEM(name, value, l) make_parameter_item_t(l, \
+        name2char(name), down_cast<LFortran::AST::expr_t>(value))
+#define VAR_DECL5(items, l) LFortran::AST::make_ParameterStatement_t(p.m_a, l, \
+        items.p, items.size())
 
 #define VAR_SYM_DECL1(id, l)         DECL3(p.m_a, id, nullptr, nullptr)
 #define VAR_SYM_DECL2(id, e, l)      DECL3(p.m_a, id, nullptr, EXPR(e))

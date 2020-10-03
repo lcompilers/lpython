@@ -371,6 +371,23 @@ public:
         s = r;
     }
 
+    void visit_ParameterStatement(const ParameterStatement_t &x) {
+        std::string r;
+        r += syn(gr::Type);
+        r += "parameter";
+        r += syn();
+        r += "(";
+        for (size_t i=0; i<x.n_items; i++) {
+            r += x.m_items[i].m_name;
+            r += " = ";
+            this->visit_expr(*x.m_items[i].m_value);
+            r += s;
+            if (i < x.n_items-1) r += ", ";
+        }
+        r += ")\n";
+        s = r;
+    }
+
     void visit_Assignment(const Assignment_t &x) {
         std::string r = indent;
         this->visit_expr(*x.m_target);

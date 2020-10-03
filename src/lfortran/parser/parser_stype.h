@@ -11,23 +11,26 @@ namespace LFortran
 
 union YYSTYPE {
     using Str = LFortran::Str;
-    using VecAST = LFortran::Vec<LFortran::AST::ast_t*>;
-    using VecDecl = LFortran::Vec<LFortran::AST::decl_t>;
-    using VecDim = LFortran::Vec<LFortran::AST::dimension_t>;
+    using VecAST = Vec<AST::ast_t*>;
+    using VecDecl = Vec<AST::decl_t>;
+    using VecDim = Vec<AST::dimension_t>;
 
     unsigned long n;
     Str string;
 
-    LFortran::AST::ast_t* ast;
+    AST::ast_t* ast;
     VecAST vec_ast;
 
-    LFortran::AST::decl_t *decl; // Pointer, to reduce size of YYSTYPE
+    AST::decl_t *decl; // Pointer, to reduce size of YYSTYPE
     VecDecl vec_decl;
 
-    LFortran::AST::dimension_t dim;
+    AST::dimension_t dim;
     VecDim vec_dim;
 
-    LFortran::AST::reduce_opType reduce_op_type;
+    AST::reduce_opType reduce_op_type;
+
+    AST::parameter_item_t parameter_item;
+    Vec<AST::parameter_item_t> vec_parameter_item;
 };
 
 static_assert(std::is_standard_layout<YYSTYPE>::value);

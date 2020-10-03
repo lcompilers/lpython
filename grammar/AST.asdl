@@ -44,6 +44,7 @@ unit_decl1
 
 unit_decl2
     = Declaration(decl* vars)
+    | ParameterStatement(parameter_item* items)
     | Private(identifier* vars)
     | Public(identifier* vars)
     | Interface(identifier? name, identifier* procs)
@@ -94,6 +95,8 @@ cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 
 decl = (identifier? sym, string? sym_type, dimension* dims, attribute *attrs,
         expr? initializer)
+
+parameter_item = (identifier name, expr value)
 
 dimension = (expr? start, expr? end)
 
