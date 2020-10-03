@@ -1,1 +1,1 @@
-(TranslationUnit [(Subroutine a_proc [] [] [(Declaration [(i "integer" [] [] ())]) (Declaration [])] [(Print () [i])] []) (Module a_mod [] [] []) (Program parameter_02 [(Use a_mod [(UseSymbol i ())])] [] [(SubroutineCall a_proc []) (Print () [i])] [])])
+(TranslationUnit [(Subroutine a_proc [] [] [(Declaration [(i "integer" [] [] ())]) (ParameterStatement [(i 1)])] [(Print () [i])] []) (Module a_mod [] [] []) (Program parameter_02 [(Use a_mod [(UseSymbol i ())])] [] [(SubroutineCall a_proc []) (Print () [i])] [])])
