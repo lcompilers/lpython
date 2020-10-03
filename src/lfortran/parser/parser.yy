@@ -293,7 +293,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_dim> fnarray_arg_list_opt
 %type <dim> array_comp_decl
 %type <dim> array_comp_call
-%type <string> var_type
+%type <var_type> var_type
 %type <ast> fn_mod
 %type <vec_ast> fn_mod_plus
 %type <vec_ast> var_modifiers
@@ -819,21 +819,21 @@ var_modifier
 
 
 var_type
-    : KW_INTEGER kind_selector
-    | KW_INTEGER "*" TK_INTEGER kind_selector
-    | KW_CHARACTER kind_selector
-    | KW_CHARACTER "*" kind_selector
-    | KW_REAL kind_selector
-    | KW_REAL "*" TK_INTEGER kind_selector
-    | KW_COMPLEX kind_selector
-    | KW_COMPLEX "*" TK_INTEGER kind_selector
-    | KW_LOGICAL kind_selector
-    | KW_LOGICAL "*" TK_INTEGER kind_selector
-    | KW_DOUBLE KW_PRECISION
-    | KW_TYPE "(" id ")"
-    | KW_PROCEDURE "(" id ")"
-    | KW_CLASS "(" id ")"
-    | KW_CLASS "(" "*" ")"
+    : KW_INTEGER kind_selector { $$ = VARTYPE0($1, @$); }
+    | KW_INTEGER "*" TK_INTEGER kind_selector { $$ = VARTYPE0($1, @$); }
+    | KW_CHARACTER kind_selector { $$ = VARTYPE0($1, @$); }
+    | KW_CHARACTER "*" kind_selector { $$ = VARTYPE0($1, @$); }
+    | KW_REAL kind_selector { $$ = VARTYPE0($1, @$); }
+    | KW_REAL "*" TK_INTEGER kind_selector { $$ = VARTYPE0($1, @$); }
+    | KW_COMPLEX kind_selector { $$ = VARTYPE0($1, @$); }
+    | KW_COMPLEX "*" TK_INTEGER kind_selector { $$ = VARTYPE0($1, @$); }
+    | KW_LOGICAL kind_selector { $$ = VARTYPE0($1, @$); }
+    | KW_LOGICAL "*" TK_INTEGER kind_selector { $$ = VARTYPE0($1, @$); }
+    | KW_DOUBLE KW_PRECISION { $$ = VARTYPE0($1, @$); }
+    | KW_TYPE "(" id ")" { $$ = VARTYPE0($1, @$); }
+    | KW_PROCEDURE "(" id ")" { $$ = VARTYPE0($1, @$); }
+    | KW_CLASS "(" id ")" { $$ = VARTYPE0($1, @$); }
+    | KW_CLASS "(" "*" ")" { $$ = VARTYPE0($1, @$); }
     ;
 
 var_sym_decl_list

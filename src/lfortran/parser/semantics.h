@@ -219,6 +219,18 @@ static inline expr_t** DIMS2EXPRS(Allocator &al, const YYSTYPE::VecDim &d)
     }
 }
 
+static inline LFortran::VarType* VARTYPE0_(Allocator &al,
+        const LFortran::Str &s, Location &l)
+{
+    LFortran::VarType *r = al.allocate<LFortran::VarType>(1);
+    r->loc = l;
+    r->string = s;
+    r->kind = nullptr;
+    return r;
+}
+
+#define VARTYPE0(s, l) VARTYPE0_(p.m_a, s, l)
+
 static inline dimension_t DIM1(Location &l, expr_t *a, expr_t *b)
 {
     dimension_t s;
@@ -557,7 +569,7 @@ char *fn_type2return_type(const YYSTYPE::VecAST &v) {
 #define REDUCE_OP_TYPE_ID(id, l) convert_id_to_reduce_type(l, id)
 
 #define VAR_DECL(type, kind, attrs, syms, l) make_Declaration_t(p.m_a, l, \
-        DECL(p.m_a, syms, type.c_str(p.m_a), kind, attrs), syms.size())
+        DECL(p.m_a, syms, type->string.c_str(p.m_a), kind, attrs), syms.size())
 #define VAR_DECL2(attr, syms, l) make_Declaration_t(p.m_a, l, \
         DECL2(p.m_a, syms, nullptr, attr), syms.size())
 #define VAR_DECL3(attr, l) make_Declaration_t(p.m_a, l, \
@@ -600,7 +612,7 @@ char *fn_type2return_type(const YYSTYPE::VecAST &v) {
         0)
 
 #define FN_MOD1(a, l) LFortran::AST::make_FnMod_t(p.m_a, l, \
-        a.c_str(p.m_a))
+        a->string.c_str(p.m_a))
 
 #define FN_MOD_PURE(l) make_Attribute_t(p.m_a, l, \
         nullptr, \

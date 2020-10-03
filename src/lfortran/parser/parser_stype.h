@@ -9,6 +9,12 @@
 namespace LFortran
 {
 
+struct VarType {
+    Location loc;
+    Str string;
+    AST::expr_t *kind;
+};
+
 union YYSTYPE {
     using Str = LFortran::Str;
     using VecAST = Vec<AST::ast_t*>;
@@ -31,6 +37,8 @@ union YYSTYPE {
 
     AST::parameter_item_t parameter_item;
     Vec<AST::parameter_item_t> vec_parameter_item;
+
+    VarType *var_type;
 };
 
 static_assert(std::is_standard_layout<YYSTYPE>::value);
