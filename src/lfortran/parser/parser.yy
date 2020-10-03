@@ -348,6 +348,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <string> inout
 %type <vec_ast> concurrent_control_list
 %type <ast> concurrent_control
+%type <vec_parameter_item> named_constant_def_list
+%type <parameter_item> named_constant_def
 
 // Precedence
 
@@ -745,18 +747,19 @@ var_decl
     | var_modifier "::" var_sym_decl_list sep {
             $$ = VAR_DECL2($1, $3, @$); }
     | KW_PARAMETER "(" named_constant_def_list ")" sep {
-            $$ = VAR_DECL5(@$); }
+            $$ = VAR_DECL5($3, @$); }
     | KW_NAMELIST "/" id "/" id_list sep {
             $$ = VAR_DECL4($3, @$); }
     ;
 
 named_constant_def_list
-    : named_constant_def_list "," named_constant_def
-    | named_constant_def
+    : named_constant_def_list "," named_constant_def {
+            $$ = $1; LIST_ADD($$, $3); }
+    | named_constant_def { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 named_constant_def
-    : id "=" expr
+    : id "=" expr { $$ = PARAMETER_ITEM($1, $3, @$); }
     ;
 
 kind_arg_list
