@@ -739,7 +739,7 @@ var_decl_star
 
 var_decl
     : var_type var_modifiers var_sym_decl_list sep {
-            $$ = VAR_DECL($1, $2, $3, @$); }
+            $$ = VAR_DECL($1, nullptr, $2, $3, @$); }
     | var_modifier sep {
             $$ = VAR_DECL3($1, @$); }
     | var_modifier var_sym_decl_list sep {

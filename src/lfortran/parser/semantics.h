@@ -121,12 +121,14 @@ static inline stmt_t** IFSTMTS(Allocator &al, ast_t* x)
 }
 
 static inline decl_t* DECL(Allocator &al, const YYSTYPE::VecDecl &x,
-        char *type, const YYSTYPE::VecAST &attrs)
+        char *type, LFortran::AST::expr_t *kind,
+        const YYSTYPE::VecAST &attrs)
 {
     decl_t *s = al.allocate<decl_t>(x.size());
     for (size_t i=0; i < x.size(); i++) {
         s[i] = x.p[i];
         s[i].m_sym_type = type;
+        s[i].m_kind = kind;
         s[i].m_attrs = ATTRS(attrs);
         s[i].n_attrs = attrs.size();
     }
@@ -554,8 +556,8 @@ char *fn_type2return_type(const YYSTYPE::VecAST &v) {
 #define REDUCE_OP_TYPE_MUL(l) LFortran::AST::reduce_opType::ReduceMul
 #define REDUCE_OP_TYPE_ID(id, l) convert_id_to_reduce_type(l, id)
 
-#define VAR_DECL(type, attrs, syms, l) make_Declaration_t(p.m_a, l, \
-        DECL(p.m_a, syms, type.c_str(p.m_a), attrs), syms.size())
+#define VAR_DECL(type, kind, attrs, syms, l) make_Declaration_t(p.m_a, l, \
+        DECL(p.m_a, syms, type.c_str(p.m_a), kind, attrs), syms.size())
 #define VAR_DECL2(attr, syms, l) make_Declaration_t(p.m_a, l, \
         DECL2(p.m_a, syms, nullptr, attr), syms.size())
 #define VAR_DECL3(attr, l) make_Declaration_t(p.m_a, l, \
