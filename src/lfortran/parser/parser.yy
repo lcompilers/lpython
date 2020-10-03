@@ -350,6 +350,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> concurrent_control
 %type <vec_parameter_item> named_constant_def_list
 %type <parameter_item> named_constant_def
+%type <vec_kind_arg> kind_arg_list
+%type <kind_arg> kind_arg2
 
 // Precedence
 
@@ -739,7 +741,7 @@ var_decl_star
 
 var_decl
     : var_type var_modifiers var_sym_decl_list sep {
-            $$ = VAR_DECL($1, nullptr, $2, $3, @$); }
+            $$ = VAR_DECL($1, $2, $3, @$); }
     | var_modifier sep {
             $$ = VAR_DECL3($1, @$); }
     | var_modifier var_sym_decl_list sep {
@@ -763,19 +765,17 @@ named_constant_def
     ;
 
 kind_arg_list
-    : kind_arg_list "," kind_arg2
-    | kind_arg2
+    : kind_arg_list "," kind_arg2 { $$ = $1; LIST_ADD($$, *$3); }
+    | kind_arg2 { LIST_NEW($$); LIST_ADD($$, *$1); }
     ;
 
 kind_arg2
-    : kind_arg
-    | id "=" kind_arg
-    ;
-
-kind_arg
-    : expr
-    | "*"
-    | ":"
+    : expr { $$ = KIND_ARG1($1, @$); }
+    | "*" { $$ = KIND_ARG1S(@$); }
+    | ":" { $$ = KIND_ARG1C(@$); }
+    | id "=" expr { $$ = KIND_ARG2($1, $3, @$); }
+    | id "=" "*" { $$ = KIND_ARG2S($1, @$); }
+    | id "=" ":" { $$ = KIND_ARG2C($1, @$); }
     ;
 
 kind_selector
@@ -823,7 +823,8 @@ var_type
     | KW_INTEGER "*" TK_INTEGER kind_selector { $$ = VARTYPE0($1, @$); }
     | KW_CHARACTER kind_selector { $$ = VARTYPE0($1, @$); }
     | KW_CHARACTER "*" kind_selector { $$ = VARTYPE0($1, @$); }
-    | KW_REAL kind_selector { $$ = VARTYPE0($1, @$); }
+    | KW_REAL { $$ = VARTYPE0($1, @$); }
+    | KW_REAL "(" kind_arg_list ")" { $$ = VARTYPE3($1, $3, @$); }
     | KW_REAL "*" TK_INTEGER kind_selector { $$ = VARTYPE0($1, @$); }
     | KW_COMPLEX kind_selector { $$ = VARTYPE0($1, @$); }
     | KW_COMPLEX "*" TK_INTEGER kind_selector { $$ = VARTYPE0($1, @$); }
