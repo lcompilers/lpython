@@ -126,7 +126,11 @@ static inline LFortran::AST::kind_item_t *make_kind_item_t(Allocator &al,
     LFortran::AST::kind_item_t *r = al.allocate<LFortran::AST::kind_item_t>(1);
     r->loc = loc;
     r->m_id = id;
-    r->m_value = down_cast<LFortran::AST::expr_t>(value);
+    if (value) {
+        r->m_value = down_cast<LFortran::AST::expr_t>(value);
+    } else {
+        r->m_value = nullptr;
+    }
     r->m_type = type;
     return r;
 }

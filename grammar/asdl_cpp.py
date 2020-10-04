@@ -683,6 +683,7 @@ inline bool is_a(const U &x)
 template <class T, class U>
 static inline T* down_cast(const U *f)
 {
+    LFORTRAN_ASSERT(f != nullptr);
     LFORTRAN_ASSERT(is_a<T>(*f));
     return (T*)f;
 }
