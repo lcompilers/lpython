@@ -1,1 +1,1 @@
-(TranslationUnit [(Module a [] [] [(Subroutine p1 [(this)] [] [(Declaration [(this "class" [] [(Attribute intent [(out)] [])] ())])] [] []) (Subroutine p2 [(this)] [] [(Declaration [(this "class" [] [(Attribute intent [(inout)] [])] ())])] [] [])])])
+(TranslationUnit [(Module a [] [] [(Subroutine p1 [(this)] [] [(Declaration [(this "class" [] [] [(Attribute intent [(out)] [])] ())])] [] []) (Subroutine p2 [(this)] [] [(Declaration [(this "class" [] [] [(Attribute intent [(inout)] [])] ())])] [] [])])])
