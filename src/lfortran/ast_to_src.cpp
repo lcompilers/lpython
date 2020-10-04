@@ -831,6 +831,31 @@ public:
         r += syn(gr::Type);
         r += std::string(x.m_sym_type);
         r += syn();
+        if (x.n_kind > 0) {
+            r += "(";
+            for (size_t i=0; i<x.n_kind; i++) {
+                if (x.m_kind[i].m_id) {
+                    r += x.m_kind[i].m_id;
+                    r += "=";
+                }
+                switch (x.m_kind[i].m_type) {
+                    case (AST::kind_item_typeType::Value) :
+                        this->visit_expr(*x.m_kind[i].m_value);
+                        r.append(s);
+                        break;
+                    case (AST::kind_item_typeType::Colon) :
+                        r += ":";
+                        break;
+                    case (AST::kind_item_typeType::Star) :
+                        r += "*";
+                        break;
+                    default :
+                        throw LFortranException("Unknown type");
+                }
+                if (i < x.n_kind-1) r.append(", ");
+            }
+            r += ")";
+        }
         if (x.n_attrs > 0) {
             for (size_t i=0; i<x.n_attrs; i++) {
                 r.append(", ");
