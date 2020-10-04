@@ -149,20 +149,15 @@ static inline LFortran::AST::kind_item_t *make_kind_item_t(Allocator &al,
         LFortran::AST::kind_item_typeType::Value)
 
 static inline decl_t* DECL(Allocator &al, const YYSTYPE::VecDecl &x,
-        char *type, LFortran::Vec<LFortran::AST::kind_item_t> *kind,
+        char *type, LFortran::Vec<LFortran::AST::kind_item_t> kind,
         const YYSTYPE::VecAST &attrs)
 {
     decl_t *s = al.allocate<decl_t>(x.size());
     for (size_t i=0; i < x.size(); i++) {
         s[i] = x.p[i];
         s[i].m_sym_type = type;
-        if (kind) {
-            s[i].n_kind = kind->size();
-            s[i].m_kind = kind->p;
-        } else {
-            s[i].n_kind = 0;
-            s[i].m_kind = nullptr;
-        }
+        s[i].n_kind = kind.size();
+        s[i].m_kind = kind.p;
         s[i].m_attrs = ATTRS(attrs);
         s[i].n_attrs = attrs.size();
     }
@@ -612,7 +607,7 @@ char *fn_type2return_type(const YYSTYPE::VecAST &v) {
 #define REDUCE_OP_TYPE_ID(id, l) convert_id_to_reduce_type(l, id)
 
 #define VAR_DECL(type, attrs, syms, l) make_Declaration_t(p.m_a, l, \
-        DECL(p.m_a, syms, type->string.c_str(p.m_a), &type->kind, attrs), syms.size())
+        DECL(p.m_a, syms, type->string.c_str(p.m_a), type->kind, attrs), syms.size())
 #define VAR_DECL2(attr, syms, l) make_Declaration_t(p.m_a, l, \
         DECL2(p.m_a, syms, nullptr, attr), syms.size())
 #define VAR_DECL3(attr, l) make_Declaration_t(p.m_a, l, \
