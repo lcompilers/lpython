@@ -253,22 +253,25 @@ static inline expr_t** DIMS2EXPRS(Allocator &al, const YYSTYPE::VecDim &d)
     }
 }
 
+static inline LFortran::Vec<LFortran::AST::kind_item_t> empty()
+{
+    LFortran::Vec<LFortran::AST::kind_item_t> r;
+    r.from_pointer_n(nullptr, 0);
+    return r;
+}
+
 static inline LFortran::VarType* VARTYPE0_(Allocator &al,
-        const LFortran::Str &s, const LFortran::Vec<LFortran::AST::kind_item_t> *kind, Location &l)
+        const LFortran::Str &s, const LFortran::Vec<LFortran::AST::kind_item_t> kind, Location &l)
 {
     LFortran::VarType *r = al.allocate<LFortran::VarType>(1);
     r->loc = l;
     r->string = s;
-    if (kind) {
-        r->kind = *kind;
-    } else {
-        r->kind.from_pointer_n(nullptr, 0);
-    }
+    r->kind = kind;
     return r;
 }
 
-#define VARTYPE0(s, l) VARTYPE0_(p.m_a, s, nullptr, l)
-#define VARTYPE3(s, k, l) VARTYPE0_(p.m_a, s, &k, l)
+#define VARTYPE0(s, l) VARTYPE0_(p.m_a, s, empty(), l)
+#define VARTYPE3(s, k, l) VARTYPE0_(p.m_a, s, k, l)
 
 static inline dimension_t DIM1(Location &l, expr_t *a, expr_t *b)
 {
