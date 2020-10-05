@@ -163,7 +163,12 @@ public:
         for (size_t i=0; i<x.n_items; i++) {
             this->visit_ast(*x.m_items[i]);
             r += s;
-            if (i < x.n_items-1) r.append("\n");
+            if (i < x.n_items-1 && (
+                    !is_a<unit_decl2_t>(*x.m_items[i]) &&
+                    !is_a<unit_decl2_t>(*x.m_items[i+1])
+                )) {
+                r.append("\n");
+            }
         }
         s = r;
     }
