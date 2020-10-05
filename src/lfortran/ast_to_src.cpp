@@ -834,18 +834,15 @@ public:
     void visit_decl(const decl_t &x) {
         std::string r = indent;
         r += syn(gr::Type);
-        r += std::string(x.m_sym_type);
+        std::string sym_type = x.m_sym_type;
+        r += sym_type;
         r += syn();
         if (x.n_kind > 0) {
             r += "(";
-            for (size_t i=0; i<x.n_kind; i++) {
-                if (x.m_kind[i].m_id) {
-                    r += x.m_kind[i].m_id;
-                    r += "=";
-                }
-                switch (x.m_kind[i].m_type) {
+            if (x.n_kind == 1 && (sym_type == "real" || sym_type == "integer" || sym_type == "logical") && (!x.m_kind[0].m_id || std::string(x.m_kind[0].m_id) == "kind")) {
+                switch (x.m_kind[0].m_type) {
                     case (AST::kind_item_typeType::Value) :
-                        this->visit_expr(*x.m_kind[i].m_value);
+                        this->visit_expr(*x.m_kind[0].m_value);
                         r.append(s);
                         break;
                     case (AST::kind_item_typeType::Colon) :
@@ -857,7 +854,43 @@ public:
                     default :
                         throw LFortranException("Unknown type");
                 }
-                if (i < x.n_kind-1) r.append(", ");
+            } else if (x.n_kind == 1 && (sym_type == "character") && (!x.m_kind[0].m_id || std::string(x.m_kind[0].m_id) == "len")) {
+                switch (x.m_kind[0].m_type) {
+                    case (AST::kind_item_typeType::Value) :
+                        this->visit_expr(*x.m_kind[0].m_value);
+                        r.append(s);
+                        break;
+                    case (AST::kind_item_typeType::Colon) :
+                        r += ":";
+                        break;
+                    case (AST::kind_item_typeType::Star) :
+                        r += "*";
+                        break;
+                    default :
+                        throw LFortranException("Unknown type");
+                }
+            } else {
+                for (size_t i=0; i<x.n_kind; i++) {
+                    if (x.m_kind[i].m_id) {
+                        r += x.m_kind[i].m_id;
+                        r += "=";
+                    }
+                    switch (x.m_kind[i].m_type) {
+                        case (AST::kind_item_typeType::Value) :
+                            this->visit_expr(*x.m_kind[i].m_value);
+                            r.append(s);
+                            break;
+                        case (AST::kind_item_typeType::Colon) :
+                            r += ":";
+                            break;
+                        case (AST::kind_item_typeType::Star) :
+                            r += "*";
+                            break;
+                        default :
+                            throw LFortranException("Unknown type");
+                    }
+                    if (i < x.n_kind-1) r.append(", ");
+                }
             }
             r += ")";
         }
