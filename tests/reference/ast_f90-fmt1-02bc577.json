@@ -2,11 +2,11 @@
     "basename": "ast_f90-fmt1-02bc577",
     "cmd": "lfortran --show-ast-f90 --no-color {infile}",
     "infile": "tests/fmt1.f90",
-    "infile_hash": "fb24f9d2cefff16f5c27de7f19e5fb7727b5d76c47cd526ebaa63577",
+    "infile_hash": "cc416a9bdea43f7844e35c44673a53dda17f3037acfc76ddef6f7c48",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast_f90-fmt1-02bc577.stdout",
-    "stdout_hash": "edf84fce533322a673bcfaad3c64ddfafc1d2c84dd056ec3e1106434",
+    "stdout_hash": "4b47747485cc5a69996dccc540bf3ea28d8f1e4ea01f5cbc2ec737c1",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
