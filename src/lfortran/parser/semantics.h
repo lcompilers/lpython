@@ -120,13 +120,44 @@ static inline stmt_t** IFSTMTS(Allocator &al, ast_t* x)
     return s;
 }
 
+static inline LFortran::AST::kind_item_t *make_kind_item_t(Allocator &al,
+    Location &loc, char *id, LFortran::AST::ast_t *value, LFortran::AST::kind_item_typeType type)
+{
+    LFortran::AST::kind_item_t *r = al.allocate<LFortran::AST::kind_item_t>(1);
+    r->loc = loc;
+    r->m_id = id;
+    if (value) {
+        r->m_value = down_cast<LFortran::AST::expr_t>(value);
+    } else {
+        r->m_value = nullptr;
+    }
+    r->m_type = type;
+    return r;
+}
+
+#define KIND_ARG1(k, l) make_kind_item_t(p.m_a, l, nullptr, k, \
+        LFortran::AST::kind_item_typeType::Value)
+#define KIND_ARG1S(l) make_kind_item_t(p.m_a, l, nullptr, nullptr, \
+        LFortran::AST::kind_item_typeType::Star)
+#define KIND_ARG1C(l) make_kind_item_t(p.m_a, l, nullptr, nullptr, \
+        LFortran::AST::kind_item_typeType::Colon)
+#define KIND_ARG2(id, k, l) make_kind_item_t(p.m_a, l, name2char(id), k, \
+        LFortran::AST::kind_item_typeType::Value)
+#define KIND_ARG2S(id, l) make_kind_item_t(p.m_a, l, name2char(id), nullptr, \
+        LFortran::AST::kind_item_typeType::Star)
+#define KIND_ARG2C(id, l) make_kind_item_t(p.m_a, l, name2char(id), nullptr, \
+        LFortran::AST::kind_item_typeType::Colon)
+
 static inline decl_t* DECL(Allocator &al, const YYSTYPE::VecDecl &x,
-        char *type, const YYSTYPE::VecAST &attrs)
+        char *type, LFortran::Vec<LFortran::AST::kind_item_t> kind,
+        const YYSTYPE::VecAST &attrs)
 {
     decl_t *s = al.allocate<decl_t>(x.size());
     for (size_t i=0; i < x.size(); i++) {
         s[i] = x.p[i];
         s[i].m_sym_type = type;
+        s[i].n_kind = kind.size();
+        s[i].m_kind = kind.p;
         s[i].m_attrs = ATTRS(attrs);
         s[i].n_attrs = attrs.size();
     }
@@ -217,6 +248,26 @@ static inline expr_t** DIMS2EXPRS(Allocator &al, const YYSTYPE::VecDim &d)
     }
 }
 
+static inline LFortran::Vec<LFortran::AST::kind_item_t> empty()
+{
+    LFortran::Vec<LFortran::AST::kind_item_t> r;
+    r.from_pointer_n(nullptr, 0);
+    return r;
+}
+
+static inline LFortran::VarType* VARTYPE0_(Allocator &al,
+        const LFortran::Str &s, const LFortran::Vec<LFortran::AST::kind_item_t> kind, Location &l)
+{
+    LFortran::VarType *r = al.allocate<LFortran::VarType>(1);
+    r->loc = l;
+    r->string = s;
+    r->kind = kind;
+    return r;
+}
+
+#define VARTYPE0(s, l) VARTYPE0_(p.m_a, s, empty(), l)
+#define VARTYPE3(s, k, l) VARTYPE0_(p.m_a, s, k, l)
+
 static inline dimension_t DIM1(Location &l, expr_t *a, expr_t *b)
 {
     dimension_t s;
@@ -226,6 +277,7 @@ static inline dimension_t DIM1(Location &l, expr_t *a, expr_t *b)
     return s;
 }
 
+// TODO: generate this, and DIM1 above and others automatically
 static inline LFortran::AST::parameter_item_t make_parameter_item_t(Location &l,
     char *name, expr_t *value)
 {
@@ -555,7 +607,7 @@ char *fn_type2return_type(const YYSTYPE::VecAST &v) {
 #define REDUCE_OP_TYPE_ID(id, l) convert_id_to_reduce_type(l, id)
 
 #define VAR_DECL(type, attrs, syms, l) make_Declaration_t(p.m_a, l, \
-        DECL(p.m_a, syms, type.c_str(p.m_a), attrs), syms.size())
+        DECL(p.m_a, syms, type->string.c_str(p.m_a), type->kind, attrs), syms.size())
 #define VAR_DECL2(attr, syms, l) make_Declaration_t(p.m_a, l, \
         DECL2(p.m_a, syms, nullptr, attr), syms.size())
 #define VAR_DECL3(attr, l) make_Declaration_t(p.m_a, l, \
@@ -598,7 +650,7 @@ char *fn_type2return_type(const YYSTYPE::VecAST &v) {
         0)
 
 #define FN_MOD1(a, l) LFortran::AST::make_FnMod_t(p.m_a, l, \
-        a.c_str(p.m_a))
+        a->string.c_str(p.m_a))
 
 #define FN_MOD_PURE(l) make_Attribute_t(p.m_a, l, \
         nullptr, \

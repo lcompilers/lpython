@@ -93,8 +93,12 @@ unaryop = Invert | Not | UAdd | USub
 
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 
-decl = (identifier? sym, string? sym_type, dimension* dims, attribute *attrs,
-        expr? initializer)
+decl = (identifier? sym, string? sym_type, kind_item* kind, dimension* dims,
+        attribute *attrs, expr? initializer)
+
+kind_item = (identifier? id, expr? value, kind_item_type type)
+
+kind_item_type = Star | Colon | Value
 
 parameter_item = (identifier name, expr value)
 

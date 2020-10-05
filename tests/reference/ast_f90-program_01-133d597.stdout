@@ -1,6 +1,6 @@
 program program_01
 integer, parameter :: dp=kind(0.d0)
-real :: a
+real(dp) :: a
 integer :: i
 print *, "Normal random numbers:"
 do i = 1, 10
@@ -11,10 +11,10 @@ end do
 contains
 
     subroutine rand(x)
-    real, intent(out) :: x
+    real(dp), intent(out) :: x
     logical, save :: first=.true.
-    real, save :: u(2)
-    real :: r2
+    real(dp), save :: u(2)
+    real(dp) :: r2
     if (first) then
         do
             call random_number(u)
