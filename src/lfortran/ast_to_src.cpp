@@ -831,6 +831,23 @@ public:
         s += syn();
     }
 
+    std::string kind_value(const AST::kind_item_typeType &type,
+            const AST::expr_t *value)
+    {
+        switch (type) {
+            case (AST::kind_item_typeType::Value) :
+                this->visit_expr(*value);
+                return s;
+            case (AST::kind_item_typeType::Colon) :
+                return ":";
+            case (AST::kind_item_typeType::Star) :
+                return "*";
+            default :
+                throw LFortranException("Unknown type");
+        }
+    }
+
+
     void visit_decl(const decl_t &x) {
         std::string r = indent;
         r += syn(gr::Type);
@@ -840,34 +857,22 @@ public:
         if (x.n_kind > 0) {
             r += "(";
             if (x.n_kind == 1 && (sym_type == "real" || sym_type == "integer" || sym_type == "logical") && (!x.m_kind[0].m_id || std::string(x.m_kind[0].m_id) == "kind")) {
-                switch (x.m_kind[0].m_type) {
-                    case (AST::kind_item_typeType::Value) :
-                        this->visit_expr(*x.m_kind[0].m_value);
-                        r.append(s);
-                        break;
-                    case (AST::kind_item_typeType::Colon) :
-                        r += ":";
-                        break;
-                    case (AST::kind_item_typeType::Star) :
-                        r += "*";
-                        break;
-                    default :
-                        throw LFortranException("Unknown type");
-                }
+                r += kind_value(x.m_kind[0].m_type, x.m_kind[0].m_value);
             } else if (x.n_kind == 1 && (sym_type == "character") && (!x.m_kind[0].m_id || std::string(x.m_kind[0].m_id) == "len")) {
-                switch (x.m_kind[0].m_type) {
-                    case (AST::kind_item_typeType::Value) :
-                        this->visit_expr(*x.m_kind[0].m_value);
-                        r.append(s);
-                        break;
-                    case (AST::kind_item_typeType::Colon) :
-                        r += ":";
-                        break;
-                    case (AST::kind_item_typeType::Star) :
-                        r += "*";
-                        break;
-                    default :
-                        throw LFortranException("Unknown type");
+                r += kind_value(x.m_kind[0].m_type, x.m_kind[0].m_value);
+            } else if (x.n_kind == 2 && (sym_type == "character") && (x.m_kind[0].m_id && x.m_kind[1].m_id)) {
+                if (std::string(x.m_kind[0].m_id) == "len") {
+                    r += kind_value(x.m_kind[0].m_type, x.m_kind[0].m_value);
+                    r += ", ";
+                    r += x.m_kind[1].m_id;
+                    r += "=";
+                    r += kind_value(x.m_kind[1].m_type, x.m_kind[1].m_value);
+                } else if (std::string(x.m_kind[1].m_id) == "len") {
+                    r += kind_value(x.m_kind[1].m_type, x.m_kind[1].m_value);
+                    r += ", ";
+                    r += x.m_kind[0].m_id;
+                    r += "=";
+                    r += kind_value(x.m_kind[0].m_type, x.m_kind[0].m_value);
                 }
             } else {
                 for (size_t i=0; i<x.n_kind; i++) {
@@ -875,20 +880,7 @@ public:
                         r += x.m_kind[i].m_id;
                         r += "=";
                     }
-                    switch (x.m_kind[i].m_type) {
-                        case (AST::kind_item_typeType::Value) :
-                            this->visit_expr(*x.m_kind[i].m_value);
-                            r.append(s);
-                            break;
-                        case (AST::kind_item_typeType::Colon) :
-                            r += ":";
-                            break;
-                        case (AST::kind_item_typeType::Star) :
-                            r += "*";
-                            break;
-                        default :
-                            throw LFortranException("Unknown type");
-                    }
+                    r += kind_value(x.m_kind[i].m_type, x.m_kind[i].m_value);
                     if (i < x.n_kind-1) r.append(", ");
                 }
             }
