@@ -138,15 +138,15 @@ static inline LFortran::AST::kind_item_t *make_kind_item_t(Allocator &al,
 #define KIND_ARG1(k, l) make_kind_item_t(p.m_a, l, nullptr, k, \
         LFortran::AST::kind_item_typeType::Value)
 #define KIND_ARG1S(l) make_kind_item_t(p.m_a, l, nullptr, nullptr, \
-        LFortran::AST::kind_item_typeType::Value)
+        LFortran::AST::kind_item_typeType::Star)
 #define KIND_ARG1C(l) make_kind_item_t(p.m_a, l, nullptr, nullptr, \
-        LFortran::AST::kind_item_typeType::Value)
+        LFortran::AST::kind_item_typeType::Colon)
 #define KIND_ARG2(id, k, l) make_kind_item_t(p.m_a, l, name2char(id), k, \
         LFortran::AST::kind_item_typeType::Value)
 #define KIND_ARG2S(id, l) make_kind_item_t(p.m_a, l, name2char(id), nullptr, \
-        LFortran::AST::kind_item_typeType::Value)
+        LFortran::AST::kind_item_typeType::Star)
 #define KIND_ARG2C(id, l) make_kind_item_t(p.m_a, l, name2char(id), nullptr, \
-        LFortran::AST::kind_item_typeType::Value)
+        LFortran::AST::kind_item_typeType::Colon)
 
 static inline decl_t* DECL(Allocator &al, const YYSTYPE::VecDecl &x,
         char *type, LFortran::Vec<LFortran::AST::kind_item_t> kind,
