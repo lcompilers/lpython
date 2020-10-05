@@ -778,11 +778,6 @@ kind_arg2
     | id "=" ":" { $$ = KIND_ARG2C($1, @$); }
     ;
 
-kind_selector
-    : "(" kind_arg_list ")"
-    | %empty
-    ;
-
 var_modifiers
     : %empty { LIST_NEW($$); }
     | "::" { LIST_NEW($$); }
@@ -819,17 +814,22 @@ var_modifier
 
 
 var_type
-    : KW_INTEGER kind_selector { $$ = VARTYPE0($1, @$); }
-    | KW_INTEGER "*" TK_INTEGER kind_selector { $$ = VARTYPE0($1, @$); }
-    | KW_CHARACTER kind_selector { $$ = VARTYPE0($1, @$); }
-    | KW_CHARACTER "*" kind_selector { $$ = VARTYPE0($1, @$); }
+    : KW_INTEGER { $$ = VARTYPE0($1, @$); }
+    | KW_INTEGER "(" kind_arg_list ")" { $$ = VARTYPE3($1, $3, @$); }
+    | KW_INTEGER "*" TK_INTEGER { $$ = VARTYPE0($1, @$); }
+    | KW_CHARACTER { $$ = VARTYPE0($1, @$); }
+    | KW_CHARACTER "(" kind_arg_list ")" { $$ = VARTYPE3($1, $3, @$); }
+    | KW_CHARACTER "*" TK_INTEGER { $$ = VARTYPE0($1, @$); }
+    | KW_CHARACTER "*" "(" "*" ")" { $$ = VARTYPE0($1, @$); }
     | KW_REAL { $$ = VARTYPE0($1, @$); }
     | KW_REAL "(" kind_arg_list ")" { $$ = VARTYPE3($1, $3, @$); }
-    | KW_REAL "*" TK_INTEGER kind_selector { $$ = VARTYPE0($1, @$); }
-    | KW_COMPLEX kind_selector { $$ = VARTYPE0($1, @$); }
-    | KW_COMPLEX "*" TK_INTEGER kind_selector { $$ = VARTYPE0($1, @$); }
-    | KW_LOGICAL kind_selector { $$ = VARTYPE0($1, @$); }
-    | KW_LOGICAL "*" TK_INTEGER kind_selector { $$ = VARTYPE0($1, @$); }
+    | KW_REAL "*" TK_INTEGER { $$ = VARTYPE0($1, @$); }
+    | KW_COMPLEX { $$ = VARTYPE0($1, @$); }
+    | KW_COMPLEX "(" kind_arg_list ")" { $$ = VARTYPE3($1, $3, @$); }
+    | KW_COMPLEX "*" TK_INTEGER { $$ = VARTYPE0($1, @$); }
+    | KW_LOGICAL { $$ = VARTYPE0($1, @$); }
+    | KW_LOGICAL "(" kind_arg_list ")" { $$ = VARTYPE3($1, $3, @$); }
+    | KW_LOGICAL "*" TK_INTEGER { $$ = VARTYPE0($1, @$); }
     | KW_DOUBLE KW_PRECISION { $$ = VARTYPE0($1, @$); }
     | KW_TYPE "(" id ")" { $$ = VARTYPE0($1, @$); }
     | KW_PROCEDURE "(" id ")" { $$ = VARTYPE0($1, @$); }
