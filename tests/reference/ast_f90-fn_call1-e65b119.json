@@ -1,0 +1,13 @@
+{
+    "basename": "ast_f90-fn_call1-e65b119",
+    "cmd": "lfortran --show-ast-f90 --no-color {infile}",
+    "infile": "tests/fn_call1.f90",
+    "infile_hash": "734b71292f6dc8ea73b211bbddc7438c34a8a3bd72ccbffa35f19e0e",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_f90-fn_call1-e65b119.stdout",
+    "stdout_hash": "e8179b6d7f2cdc99e5a845f200b1e911a7ae994212c6a0bf0e722ae5",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
