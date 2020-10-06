@@ -762,7 +762,7 @@ public:
         for (size_t i=0; i<x.n_args; i++) {
             this->visit_expr(*x.m_args[i]);
             r.append(s);
-            if (i < x.n_args-1) s.append(", ");
+            if (i < x.n_args-1) r.append(", ");
         }
         for (size_t i=0; i<x.n_keywords; i++) {
             this->visit_keyword(x.m_keywords[i]);

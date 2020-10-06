@@ -1,0 +1,1 @@
+(TranslationUnit [(FuncCallOrArray size [tvec 2] []) (FuncCallOrArray min [(FuncCallOrArray tvec [2 i] []) (FuncCallOrArray tvec [1 i] [])] []) (FuncCallOrArray a [1 2 3] []) (FuncCallOrArray A [i j k] [])])
