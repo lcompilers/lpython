@@ -859,15 +859,18 @@ public:
             if (x.n_kind == 1 && (sym_type == "real" || sym_type == "integer" || sym_type == "logical") && (!x.m_kind[0].m_id || std::string(x.m_kind[0].m_id) == "kind")) {
                 r += kind_value(x.m_kind[0].m_type, x.m_kind[0].m_value);
             } else if (x.n_kind == 1 && (sym_type == "character") && (!x.m_kind[0].m_id || std::string(x.m_kind[0].m_id) == "len")) {
+                r += "len=";
                 r += kind_value(x.m_kind[0].m_type, x.m_kind[0].m_value);
             } else if (x.n_kind == 2 && (sym_type == "character") && (x.m_kind[0].m_id && x.m_kind[1].m_id)) {
                 if (std::string(x.m_kind[0].m_id) == "len") {
+                    r += "len=";
                     r += kind_value(x.m_kind[0].m_type, x.m_kind[0].m_value);
                     r += ", ";
                     r += x.m_kind[1].m_id;
                     r += "=";
                     r += kind_value(x.m_kind[1].m_type, x.m_kind[1].m_value);
                 } else if (std::string(x.m_kind[1].m_id) == "len") {
+                    r += "len=";
                     r += kind_value(x.m_kind[1].m_type, x.m_kind[1].m_value);
                     r += ", ";
                     r += x.m_kind[0].m_id;
@@ -879,6 +882,10 @@ public:
                     if (x.m_kind[i].m_id) {
                         r += x.m_kind[i].m_id;
                         r += "=";
+                    } else {
+                        if (sym_type == "character" && i == 0) {
+                            r += "len=";
+                        }
                     }
                     r += kind_value(x.m_kind[i].m_type, x.m_kind[i].m_value);
                     if (i < x.n_kind-1) r.append(", ");
