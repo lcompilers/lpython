@@ -93,7 +93,7 @@ static inline char* name2char(const ast_t *n)
 }
 
 template <typename T, astType type>
-static inline T** vec_cast(const YYSTYPE::VecAST &x) {
+static inline T** vec_cast(const LFortran::Vec<ast_t*> &x) {
     T **s = (T**)x.p;
     for (size_t i=0; i < x.size(); i++) {
         LFORTRAN_ASSERT((s[i]->base.type == type))
@@ -148,9 +148,9 @@ static inline LFortran::AST::kind_item_t *make_kind_item_t(Allocator &al,
 #define KIND_ARG2C(id, l) make_kind_item_t(p.m_a, l, name2char(id), nullptr, \
         LFortran::AST::kind_item_typeType::Colon)
 
-static inline decl_t* DECL(Allocator &al, const YYSTYPE::VecDecl &x,
+static inline decl_t* DECL(Allocator &al, const LFortran::Vec<decl_t> &x,
         char *type, LFortran::Vec<LFortran::AST::kind_item_t> kind,
-        const YYSTYPE::VecAST &attrs)
+        const LFortran::Vec<ast_t*> &attrs)
 {
     decl_t *s = al.allocate<decl_t>(x.size());
     for (size_t i=0; i < x.size(); i++) {
@@ -164,7 +164,7 @@ static inline decl_t* DECL(Allocator &al, const YYSTYPE::VecDecl &x,
     return s;
 }
 
-static inline decl_t* DECL2(Allocator &al, const YYSTYPE::VecDecl &x,
+static inline decl_t* DECL2(Allocator &al, const LFortran::Vec<decl_t> &x,
         char *type, const ast_t *attr)
 {
     decl_t *s = al.allocate<decl_t>(x.size());
@@ -210,7 +210,7 @@ static inline decl_t* DECL2c(Allocator &al, Location &l)
 }
 
 static inline decl_t* DECL3(Allocator &al, ast_t* n,
-        const YYSTYPE::VecDim *d, expr_t *e)
+        const LFortran::Vec<dimension_t> *d, expr_t *e)
 {
     decl_t *s = al.allocate<decl_t>();
     s->m_sym = name2char(n);
@@ -228,7 +228,7 @@ static inline decl_t* DECL3(Allocator &al, ast_t* n,
     return s;
 }
 
-static inline expr_t** DIMS2EXPRS(Allocator &al, const YYSTYPE::VecDim &d)
+static inline expr_t** DIMS2EXPRS(Allocator &al, const LFortran::Vec<dimension_t> &d)
 {
     if (d.size() == 0) {
         return nullptr;
@@ -298,7 +298,7 @@ static inline attribute_arg_t* ATTR_ARG(Allocator &al, Location &l,
 }
 
 static inline arg_t* ARGS(Allocator &al, Location &l,
-    const YYSTYPE::VecAST args)
+    const LFortran::Vec<ast_t*> args)
 {
     arg_t *a = al.allocate<arg_t>(args.size());
     for (size_t i=0; i < args.size(); i++) {
@@ -316,7 +316,7 @@ static inline LFortran::AST::reduce_t* REDUCE_TYPE(const ast_t *f)
 }
 */
 
-static inline char** REDUCE_ARGS(Allocator &al, const YYSTYPE::VecAST args)
+static inline char** REDUCE_ARGS(Allocator &al, const LFortran::Vec<ast_t*> args)
 {
     char **a = al.allocate<char*>(args.size());
     for (size_t i=0; i < args.size(); i++) {
@@ -429,7 +429,7 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
     }
 }
 
-char *fn_type2return_type(const YYSTYPE::VecAST &v) {
+char *fn_type2return_type(const LFortran::Vec<ast_t*> &v) {
     for (size_t i=0; i < v.size(); i++) {
         if (v[i]->type == LFortran::AST::astType::fn_mod) {
             LFortran::AST::FnMod_t *t = (LFortran::AST::FnMod_t*)v[i];

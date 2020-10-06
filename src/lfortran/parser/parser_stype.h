@@ -16,21 +16,17 @@ struct VarType {
 };
 
 union YYSTYPE {
-    using VecAST = Vec<AST::ast_t*>;
-    using VecDecl = Vec<AST::decl_t>;
-    using VecDim = Vec<AST::dimension_t>;
-
     unsigned long n;
     Str string;
 
     AST::ast_t* ast;
-    VecAST vec_ast;
+    Vec<AST::ast_t*> vec_ast;
 
     AST::decl_t *decl; // Pointer, to reduce size of YYSTYPE
-    VecDecl vec_decl;
+    Vec<AST::decl_t> vec_decl;
 
     AST::dimension_t dim;
-    VecDim vec_dim;
+    Vec<AST::dimension_t> vec_dim;
 
     AST::reduce_opType reduce_op_type;
 
@@ -48,10 +44,10 @@ union YYSTYPE {
 
 static_assert(std::is_standard_layout<YYSTYPE>::value);
 static_assert(std::is_trivial<YYSTYPE>::value);
-// Ensure the YYSTYPE size is equal to VecAST, which is a required member, so
+// Ensure the YYSTYPE size is equal to Vec<AST::ast_t*>, which is a required member, so
 // YYSTYPE has to be at least as big, but it should not be bigger, otherwise it
 // would reduce performance.
-static_assert(sizeof(YYSTYPE) == sizeof(YYSTYPE::VecAST));
+static_assert(sizeof(YYSTYPE) == sizeof(Vec<AST::ast_t*>));
 
 } // namespace LFortran
 
