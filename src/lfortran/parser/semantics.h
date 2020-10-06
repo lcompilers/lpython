@@ -228,7 +228,7 @@ static inline decl_t* DECL3(Allocator &al, ast_t* n,
     return s;
 }
 
-static inline expr_t** DIMS2EXPRS(Allocator &al, const LFortran::Vec<dimension_t> &d)
+static inline expr_t** DIMS2EXPRS(Allocator &al, const LFortran::Vec<LFortran::FnArg> &d)
 {
     if (d.size() == 0) {
         return nullptr;
@@ -237,11 +237,20 @@ static inline expr_t** DIMS2EXPRS(Allocator &al, const LFortran::Vec<dimension_t
         for (size_t i=0; i < d.size(); i++) {
             // TODO: we need to change this to allow both array and fn arguments
             // Right now we assume everything is a function argument
-            if (d[i].m_end) {
-                s[i] = d[i].m_end;
+            if (d[i].keyword) {
+                if (d[i].kw.m_value.m_end) {
+                    s[i] = d[i].kw.m_value.m_end;
+                } else {
+                    Location l;
+                    s[i] = EXPR(make_Num_t(al, l, 1));
+                }
             } else {
-                Location l;
-                s[i] = EXPR(make_Num_t(al, l, 1));
+                if (d[i].arg.m_end) {
+                    s[i] = d[i].arg.m_end;
+                } else {
+                    Location l;
+                    s[i] = EXPR(make_Num_t(al, l, 1));
+                }
             }
         }
         return s;
@@ -268,7 +277,18 @@ static inline LFortran::VarType* VARTYPE0_(Allocator &al,
 #define VARTYPE0(s, l) VARTYPE0_(p.m_a, s, empty(), l)
 #define VARTYPE3(s, k, l) VARTYPE0_(p.m_a, s, k, l)
 
-static inline dimension_t DIM1(Location &l, expr_t *a, expr_t *b)
+static inline LFortran::FnArg* DIM1(Allocator &al, Location &l, expr_t *a, expr_t *b)
+{
+    LFortran::FnArg *s = al.allocate<LFortran::FnArg>();
+    s->keyword = false;
+    s->arg.loc = l;
+    s->arg.m_start = a;
+    s->arg.m_end = b;
+    s->arg.m_step = nullptr;
+    return s;
+}
+
+static inline dimension_t DIM1d(Location &l, expr_t *a, expr_t *b)
 {
     dimension_t s;
     s.loc = l;
@@ -377,12 +397,27 @@ static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
 #define STRING(x, l) make_Str_t(p.m_a, l, x.c_str(p.m_a))
 #define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, l, EXPR(x), EXPR(y))
 #define ASSOCIATE(x, y, l) make_Associate_t(p.m_a, l, EXPR(x), EXPR(y))
-#define SUBROUTINE_CALL(name, args, l) make_SubroutineCall_t(p.m_a, l, \
-        name2char(name), \
-        DIMS2EXPRS(p.m_a, args), args.size())
+ast_t* SUBROUTINE_CALL0(Allocator &al, const ast_t *id,
+        const LFortran::Vec<LFortran::FnArg> &args, Location &l) {
+    LFortran::Vec<LFortran::AST::fnarg_t> v;
+    v.reserve(al, args.size());
+    for (auto &item : args) {
+        if (item.keyword) {
+            // TODO
+        } else {
+            v.push_back(al, item.arg);
+        }
+    }
+    return make_SubroutineCall_t(al, l,
+        /*char* a_func*/ name2char(id),
+        /*expr_t** a_args*/ v.p, /*size_t n_args*/ v.size(),
+        /*keyword_t* a_keywords*/ nullptr, /*size_t n_keywords*/ 0);
+}
+#define SUBROUTINE_CALL(name, args, l) SUBROUTINE_CALL0(p.m_a, \
+        name, args, l)
 #define SUBROUTINE_CALL2(name, l) make_SubroutineCall_t(p.m_a, l, \
         name2char(name), \
-        nullptr, 0)
+        nullptr, 0, nullptr, 0)
 
 #define PRINT0(l) make_Print_t(p.m_a, l, nullptr, nullptr, 0)
 #define PRINT(args, l) make_Print_t(p.m_a, l, nullptr, EXPRS(args), args.size())
@@ -629,11 +664,17 @@ char *fn_type2return_type(const LFortran::Vec<ast_t*> &v) {
 #define VAR_SYM_DECL6(id, a, e, l)   DECL3(p.m_a, id, &a, EXPR(e))
 #define VAR_SYM_DECL7(l)             DECL2c(p.m_a, l)
 
-#define ARRAY_COMP_DECL1(a, l)       DIM1(l, EXPR(INTEGER(1, l)), EXPR(a))
-#define ARRAY_COMP_DECL2(a, b, l)    DIM1(l, EXPR(a), EXPR(b))
-#define ARRAY_COMP_DECL3(a, l)       DIM1(l, EXPR(a), nullptr)
-#define ARRAY_COMP_DECL4(b, l)       DIM1(l, nullptr, EXPR(b))
-#define ARRAY_COMP_DECL5(l)          DIM1(l, nullptr, nullptr)
+#define ARRAY_COMP_DECL1(a, l)       DIM1(p.m_a, l, EXPR(INTEGER(1, l)), EXPR(a))
+#define ARRAY_COMP_DECL2(a, b, l)    DIM1(p.m_a, l, EXPR(a), EXPR(b))
+#define ARRAY_COMP_DECL3(a, l)       DIM1(p.m_a, l, EXPR(a), nullptr)
+#define ARRAY_COMP_DECL4(b, l)       DIM1(p.m_a, l, nullptr, EXPR(b))
+#define ARRAY_COMP_DECL5(l)          DIM1(p.m_a, l, nullptr, nullptr)
+
+#define ARRAY_COMP_DECL1d(a, l)       DIM1d(l, EXPR(INTEGER(1, l)), EXPR(a))
+#define ARRAY_COMP_DECL2d(a, b, l)    DIM1d(l, EXPR(a), EXPR(b))
+#define ARRAY_COMP_DECL3d(a, l)       DIM1d(l, EXPR(a), nullptr)
+#define ARRAY_COMP_DECL4d(b, l)       DIM1d(l, nullptr, EXPR(b))
+#define ARRAY_COMP_DECL5d(l)          DIM1d(l, nullptr, nullptr)
 
 #define VARMOD(a, l) make_Attribute_t(p.m_a, l, \
         a.c_str(p.m_a), \
@@ -707,10 +748,24 @@ LFortran::Str Str_from_string(Allocator &al, const std::string &s) {
         b.p, \
         b.size())
 
-#define FUNCCALLORARRAY(id, args, l) make_FuncCallOrArray_t(p.m_a, l, \
-        /*char* a_func*/ name2char(id), \
-        /*expr_t** a_args*/ DIMS2EXPRS(p.m_a, args), /*size_t n_args*/ args.size(), \
-        /*keyword_t* a_keywords*/ nullptr, /*size_t n_keywords*/ 0)
+ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
+        const LFortran::Vec<LFortran::FnArg> &args, Location &l) {
+    LFortran::Vec<LFortran::AST::fnarg_t> v;
+    v.reserve(al, args.size());
+    for (auto &item : args) {
+        if (item.keyword) {
+            // TODO
+        } else {
+            v.push_back(al, item.arg);
+        }
+    }
+    return make_FuncCallOrArray_t(al, l,
+        /*char* a_func*/ name2char(id),
+        /*expr_t** a_args*/ v.p, /*size_t n_args*/ v.size(),
+        /*keyword_t* a_keywords*/ nullptr, /*size_t n_keywords*/ 0);
+}
+
+#define FUNCCALLORARRAY(id, args, l) FUNCCALLORARRAY0(p.m_a, id, args, l)
 
 #define SELECT(cond, body, def, l) make_Select_t(p.m_a, l, \
         EXPR(cond), \

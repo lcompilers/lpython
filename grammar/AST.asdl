@@ -53,7 +53,7 @@ unit_decl2
 stmt
     = Assignment(expr target, expr value)
     | Associate(expr target, expr value)
-    | SubroutineCall(identifier name, expr* args)
+    | SubroutineCall(identifier name, fnarg* args, keyword* keywords)
     | BuiltinCall(identifier name, expr* args)
     | If(expr test, stmt* body, stmt* orelse)
     | Where(expr test, stmt* body, stmt* orelse)
@@ -75,8 +75,8 @@ expr
     | BinOp(expr left, operator op, expr right)
     | UnaryOp(unaryop op, expr operand)
     | Compare(expr left, cmpop op, expr right)
-    | FuncCall(identifier func, expr* args, keyword* keywords)
-    | FuncCallOrArray(identifier func, expr* args, keyword* keywords)
+    | FuncCall(identifier func, fnarg* args, keyword* keywords)
+    | FuncCallOrArray(identifier func, fnarg* args, keyword* keywords)
     | Array(identifier name, array_index* args)
     | ArrayInitializer(expr* args)
     | Num(object n)
@@ -112,7 +112,9 @@ fn_mod = FnMod(string s)
 
 arg = (identifier arg)
 
-keyword = (identifier arg, expr value)
+fnarg = (expr? start, expr? end, expr? step)
+
+keyword = (identifier arg, fnarg value)
 
 tbind = Bind(keyword* args)
 

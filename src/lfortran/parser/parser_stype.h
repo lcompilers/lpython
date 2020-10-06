@@ -15,6 +15,14 @@ struct VarType {
     Vec<AST::kind_item_t> kind;
 };
 
+struct FnArg {
+    bool keyword;
+    union {
+        AST::fnarg_t arg;
+        AST::keyword_t kw;
+    };
+};
+
 union YYSTYPE {
     unsigned long n;
     Str string;
@@ -38,8 +46,8 @@ union YYSTYPE {
     AST::kind_item_t *kind_arg;
     Vec<AST::kind_item_t> vec_kind_arg;
 
-    AST::dimension_t fnarg;
-    Vec<AST::dimension_t> vec_fnarg;
+    FnArg *fnarg;
+    Vec<FnArg> vec_fnarg;
 };
 
 static_assert(std::is_standard_layout<YYSTYPE>::value);

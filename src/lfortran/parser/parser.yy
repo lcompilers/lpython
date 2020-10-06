@@ -289,7 +289,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <decl> var_sym_decl
 %type <vec_dim> array_comp_decl_list
 %type <fnarg> fnarray_arg
-%type <vec_fnarg> fnarray_arg_list
 %type <vec_fnarg> fnarray_arg_list_opt
 %type <dim> array_comp_decl
 %type <var_type> var_type
@@ -860,13 +859,13 @@ array_comp_decl_list
     ;
 
 array_comp_decl
-    : expr           { $$ = ARRAY_COMP_DECL1($1, @$); }
-    | expr ":" expr  { $$ = ARRAY_COMP_DECL2($1, $3, @$); }
-    | expr ":"       { $$ = ARRAY_COMP_DECL3($1, @$); }
-    | ":" expr       { $$ = ARRAY_COMP_DECL4($2, @$); }
-    | ":"            { $$ = ARRAY_COMP_DECL5(@$); }
-    | "*"            { $$ = ARRAY_COMP_DECL5(@$); } // TODO
-    | expr ":" "*"   { $$ = ARRAY_COMP_DECL5(@$); } // TODO
+    : expr           { $$ = ARRAY_COMP_DECL1d($1, @$); }
+    | expr ":" expr  { $$ = ARRAY_COMP_DECL2d($1, $3, @$); }
+    | expr ":"       { $$ = ARRAY_COMP_DECL3d($1, @$); }
+    | ":" expr       { $$ = ARRAY_COMP_DECL4d($2, @$); }
+    | ":"            { $$ = ARRAY_COMP_DECL5d(@$); }
+    | "*"            { $$ = ARRAY_COMP_DECL5d(@$); } // TODO
+    | expr ":" "*"   { $$ = ARRAY_COMP_DECL5d(@$); } // TODO
     ;
 
 
@@ -1347,13 +1346,9 @@ struct_member
     ;
 
 fnarray_arg_list_opt
-    : fnarray_arg_list
+    : fnarray_arg_list_opt "," fnarray_arg { $$ = $1; PLIST_ADD($$, $3); }
+    | fnarray_arg { LIST_NEW($$); PLIST_ADD($$, $1); }
     | %empty { LIST_NEW($$); }
-    ;
-
-fnarray_arg_list
-    : fnarray_arg_list "," fnarray_arg {$$ = $1; LIST_ADD($$, $3); }
-    | fnarray_arg { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 fnarray_arg
