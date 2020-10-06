@@ -289,7 +289,7 @@ static inline LFortran::AST::parameter_item_t make_parameter_item_t(Location &l,
 }
 
 static inline attribute_arg_t* ATTR_ARG(Allocator &al, Location &l,
-        const YYSTYPE::Str arg)
+        const LFortran::Str arg)
 {
     attribute_arg_t *s = al.allocate<attribute_arg_t>();
     s->loc = l;

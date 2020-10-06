@@ -33,14 +33,14 @@ public:
     }
 
     // Return the current token as YYSTYPE::Str
-    void token(YYSTYPE::Str &s) const
+    void token(Str &s) const
     {
         s.p = (char*) tok;
         s.n = cur-tok;
     }
 
     // Return the current token as YYSTYPE::Str, strips first and last character
-    void token_str(YYSTYPE::Str &s) const
+    void token_str(Str &s) const
     {
         s.p = (char*) tok + 1;
         s.n = cur-tok-2;

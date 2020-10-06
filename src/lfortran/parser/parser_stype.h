@@ -16,7 +16,6 @@ struct VarType {
 };
 
 union YYSTYPE {
-    using Str = LFortran::Str;
     using VecAST = Vec<AST::ast_t*>;
     using VecDecl = Vec<AST::decl_t>;
     using VecDim = Vec<AST::dimension_t>;
