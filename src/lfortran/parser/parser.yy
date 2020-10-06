@@ -288,9 +288,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> var_decl
 %type <decl> var_sym_decl
 %type <vec_dim> array_comp_decl_list
-%type <dim> fnarray_arg
-%type <vec_dim> fnarray_arg_list
-%type <vec_dim> fnarray_arg_list_opt
+%type <fnarg> fnarray_arg
+%type <vec_fnarg> fnarray_arg_list
+%type <vec_fnarg> fnarray_arg_list_opt
 %type <dim> array_comp_decl
 %type <var_type> var_type
 %type <ast> fn_mod
