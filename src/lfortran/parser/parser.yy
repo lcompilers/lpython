@@ -292,7 +292,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_dim> fnarray_arg_list
 %type <vec_dim> fnarray_arg_list_opt
 %type <dim> array_comp_decl
-%type <dim> array_comp_call
 %type <var_type> var_type
 %type <ast> fn_mod
 %type <vec_ast> fn_mod_plus
@@ -870,20 +869,6 @@ array_comp_decl
     | expr ":" "*"   { $$ = ARRAY_COMP_DECL5(@$); } // TODO
     ;
 
-array_comp_call
-    : expr           { $$ = ARRAY_COMP_DECL1($1, @$); }
-    | expr ":" expr  { $$ = ARRAY_COMP_DECL2($1, $3, @$); }
-    | expr ":"       { $$ = ARRAY_COMP_DECL3($1, @$); }
-    | ":" expr       { $$ = ARRAY_COMP_DECL4($2, @$); }
-    | ":"            { $$ = ARRAY_COMP_DECL5(@$); }
-    | expr ":" expr ":" expr { $$ = ARRAY_COMP_DECL2($1, $3, @$); } // TODO
-    | expr "::" expr { $$ = ARRAY_COMP_DECL3($1, @$); } // TODO
-    | expr ":" ":" expr { $$ = ARRAY_COMP_DECL3($1, @$); } // TODO
-    | ":" expr ":" expr { $$ = ARRAY_COMP_DECL4($2, @$); } // TODO
-    | "::" expr { $$ = ARRAY_COMP_DECL5(@$); } // TODO
-    | ":" ":" expr { $$ = ARRAY_COMP_DECL5(@$); } // TODO
-    ;
-
 
 // -----------------------------------------------------------------------------
 // Control flow
@@ -1372,10 +1357,17 @@ fnarray_arg_list
     ;
 
 fnarray_arg
-    : array_comp_call
-    // TODO: extend "dim" to also include the keyword argument "id"
-    // This can be done by adding a flag "keyword",
-    // and encoding start=id, end=expr
+    : expr           { $$ = ARRAY_COMP_DECL1($1, @$); }
+    | expr ":" expr  { $$ = ARRAY_COMP_DECL2($1, $3, @$); }
+    | expr ":"       { $$ = ARRAY_COMP_DECL3($1, @$); }
+    | ":" expr       { $$ = ARRAY_COMP_DECL4($2, @$); }
+    | ":"            { $$ = ARRAY_COMP_DECL5(@$); }
+    | expr ":" expr ":" expr { $$ = ARRAY_COMP_DECL2($1, $3, @$); } // TODO
+    | expr "::" expr { $$ = ARRAY_COMP_DECL3($1, @$); } // TODO
+    | expr ":" ":" expr { $$ = ARRAY_COMP_DECL3($1, @$); } // TODO
+    | ":" expr ":" expr { $$ = ARRAY_COMP_DECL4($2, @$); } // TODO
+    | "::" expr { $$ = ARRAY_COMP_DECL5(@$); } // TODO
+    | ":" ":" expr { $$ = ARRAY_COMP_DECL5(@$); } // TODO
     | id "=" expr { $$ = ARRAY_COMP_DECL1($3, @$); }
     ;
 
