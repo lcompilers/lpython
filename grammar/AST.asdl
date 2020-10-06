@@ -112,7 +112,7 @@ fn_mod = FnMod(string s)
 
 arg = (identifier arg)
 
-keyword = (identifier? arg, expr value)
+keyword = (identifier arg, expr value)
 
 tbind = Bind(keyword* args)
 
