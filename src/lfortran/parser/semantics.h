@@ -288,6 +288,19 @@ static inline LFortran::FnArg* DIM1(Allocator &al, Location &l, expr_t *a, expr_
     return s;
 }
 
+static inline LFortran::FnArg* DIM1k(Allocator &al, Location &l,
+        ast_t *id, expr_t *a, expr_t *b)
+{
+    LFortran::FnArg *s = al.allocate<LFortran::FnArg>();
+    s->keyword = true;
+    s->kw.loc = l;
+    s->kw.m_arg = name2char(id);
+    s->kw.m_value.m_start = a;
+    s->kw.m_value.m_end = b;
+    s->kw.m_value.m_step = nullptr;
+    return s;
+}
+
 static inline dimension_t DIM1d(Location &l, expr_t *a, expr_t *b)
 {
     dimension_t s;
@@ -401,9 +414,11 @@ ast_t* SUBROUTINE_CALL0(Allocator &al, const ast_t *id,
         const LFortran::Vec<LFortran::FnArg> &args, Location &l) {
     LFortran::Vec<LFortran::AST::fnarg_t> v;
     v.reserve(al, args.size());
+    LFortran::Vec<LFortran::AST::keyword_t> v2;
+    v2.reserve(al, args.size());
     for (auto &item : args) {
         if (item.keyword) {
-            // TODO
+            v2.push_back(al, item.kw);
         } else {
             v.push_back(al, item.arg);
         }
@@ -411,7 +426,7 @@ ast_t* SUBROUTINE_CALL0(Allocator &al, const ast_t *id,
     return make_SubroutineCall_t(al, l,
         /*char* a_func*/ name2char(id),
         /*expr_t** a_args*/ v.p, /*size_t n_args*/ v.size(),
-        /*keyword_t* a_keywords*/ nullptr, /*size_t n_keywords*/ 0);
+        /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size());
 }
 #define SUBROUTINE_CALL(name, args, l) SUBROUTINE_CALL0(p.m_a, \
         name, args, l)
@@ -665,6 +680,7 @@ char *fn_type2return_type(const LFortran::Vec<ast_t*> &v) {
 #define VAR_SYM_DECL7(l)             DECL2c(p.m_a, l)
 
 #define ARRAY_COMP_DECL1(a, l)       DIM1(p.m_a, l, EXPR(INTEGER(1, l)), EXPR(a))
+#define ARRAY_COMP_DECL1k(id, a, l)       DIM1k(p.m_a, l, id, EXPR(INTEGER(1, l)), EXPR(a))
 #define ARRAY_COMP_DECL2(a, b, l)    DIM1(p.m_a, l, EXPR(a), EXPR(b))
 #define ARRAY_COMP_DECL3(a, l)       DIM1(p.m_a, l, EXPR(a), nullptr)
 #define ARRAY_COMP_DECL4(b, l)       DIM1(p.m_a, l, nullptr, EXPR(b))
@@ -752,9 +768,11 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
         const LFortran::Vec<LFortran::FnArg> &args, Location &l) {
     LFortran::Vec<LFortran::AST::fnarg_t> v;
     v.reserve(al, args.size());
+    LFortran::Vec<LFortran::AST::keyword_t> v2;
+    v2.reserve(al, args.size());
     for (auto &item : args) {
         if (item.keyword) {
-            // TODO
+            v2.push_back(al, item.kw);
         } else {
             v.push_back(al, item.arg);
         }
@@ -762,7 +780,7 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
     return make_FuncCallOrArray_t(al, l,
         /*char* a_func*/ name2char(id),
         /*expr_t** a_args*/ v.p, /*size_t n_args*/ v.size(),
-        /*keyword_t* a_keywords*/ nullptr, /*size_t n_keywords*/ 0);
+        /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size());
 }
 
 #define FUNCCALLORARRAY(id, args, l) FUNCCALLORARRAY0(p.m_a, id, args, l)
