@@ -424,8 +424,12 @@ public:
         r.append(x.m_name);
         r.append("(");
         for (size_t i=0; i<x.n_args; i++) {
-            this->visit_expr(*x.m_args[i]);
-            r.append(s);
+            if (x.m_args[i].m_end) {
+                this->visit_expr(*x.m_args[i].m_end);
+                r.append(s);
+            } else {
+                r += ":";
+            }
             if (i < x.n_args-1) r.append(", ");
         }
         r.append(")\n");
@@ -742,8 +746,12 @@ public:
         r.append(x.m_func);
         r.append("(");
         for (size_t i=0; i<x.n_args; i++) {
-            this->visit_expr(*x.m_args[i]);
-            r.append(s);
+            if (x.m_args[i].m_end) {
+                this->visit_expr(*x.m_args[i].m_end);
+                r.append(s);
+            } else {
+                r += ":";
+            }
             if (i < x.n_args-1) s.append(", ");
         }
         for (size_t i=0; i<x.n_keywords; i++) {
@@ -760,8 +768,12 @@ public:
         r.append(x.m_func);
         r.append("(");
         for (size_t i=0; i<x.n_args; i++) {
-            this->visit_expr(*x.m_args[i]);
-            r.append(s);
+            if (x.m_args[i].m_end) {
+                this->visit_expr(*x.m_args[i].m_end);
+                r.append(s);
+            } else {
+                r += ":";
+            }
             if (i < x.n_args-1) r.append(", ");
         }
         for (size_t i=0; i<x.n_keywords; i++) {

@@ -323,7 +323,7 @@ public:
         r.append(x.m_name);
         r.append("(");
         for (size_t i=0; i<x.n_args; i++) {
-            this->visit_expr(*x.m_args[i]);
+            this->visit_expr(*x.m_args[i].m_end);
             r.append(s);
             if (i < x.n_args-1) r.append(" ");
         }
@@ -738,7 +738,7 @@ public:
         s.append(" ");
         s.append("[");
         for (size_t i=0; i<x.n_args; i++) {
-            this->visit_expr(*x.m_args[i]);
+            this->visit_expr(*x.m_args[i].m_end);
             if (i < x.n_args-1) s.append(" ");
         }
         s.append("]");
@@ -756,7 +756,7 @@ public:
         r.append(x.m_func);
         r.append("(");
         for (size_t i=0; i<x.n_args; i++) {
-            this->visit_expr(*x.m_args[i]);
+            this->visit_expr(*x.m_args[i].m_end);
             r.append(s);
             if (i < x.n_args-1) s.append(", ");
         }
@@ -924,7 +924,7 @@ public:
             s.append("()");
         }
         s.append(" ");
-        this->visit_expr(*x.m_value);
+        this->visit_expr(*x.m_value.m_end);
         s.append(")");
     }
     void visit_Bind(const Bind_t &x) {

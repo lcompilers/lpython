@@ -612,11 +612,11 @@ public:
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value);
     }
 
-    Vec<ASR::expr_t*> visit_expr_list(AST::expr_t **ast_list, size_t n) {
+    Vec<ASR::expr_t*> visit_expr_list(AST::fnarg_t *ast_list, size_t n) {
         Vec<ASR::expr_t*> asr_list;
         asr_list.reserve(al, n);
         for (size_t i=0; i<n; i++) {
-            visit_expr(*ast_list[i]);
+            visit_expr(*ast_list[i].m_end);
             ASR::expr_t *expr = EXPR(tmp);
             asr_list.push_back(al, expr);
         }
@@ -840,7 +840,7 @@ public:
                 Vec<ASR::array_index_t> args;
                 args.reserve(al, x.n_args);
                 for (size_t i=0; i<x.n_args; i++) {
-                    visit_expr(*x.m_args[i]);
+                    visit_expr(*x.m_args[i].m_end);
                     ASR::array_index_t ai;
                     ai.m_left = nullptr;
                     ai.m_right = EXPR(tmp);
