@@ -988,7 +988,7 @@ public:
         std::string r;
         r += x.m_arg;
         r += "=";
-        this->visit_fnarg(x.m_value);
+        this->visit_expr(*x.m_value);
         r += s;
         s = r;
     }

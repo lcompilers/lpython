@@ -129,7 +129,7 @@ arg = (identifier arg)
 --
 fnarg = (expr? start, expr? end, expr? step)
 
-keyword = (identifier arg, fnarg value)
+keyword = (identifier arg, expr value)
 
 tbind = Bind(keyword* args)
 

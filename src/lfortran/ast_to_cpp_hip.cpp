@@ -1077,7 +1077,7 @@ public:
             s.append("()");
         }
         s.append(" ");
-        this->visit_expr(*x.m_value.m_end);
+        this->visit_expr(*x.m_value);
         s.append(")");
     }
     void visit_Bind(const Bind_t &x) {

@@ -238,8 +238,8 @@ static inline expr_t** DIMS2EXPRS(Allocator &al, const LFortran::Vec<LFortran::F
             // TODO: we need to change this to allow both array and fn arguments
             // Right now we assume everything is a function argument
             if (d[i].keyword) {
-                if (d[i].kw.m_value.m_end) {
-                    s[i] = d[i].kw.m_value.m_end;
+                if (d[i].kw.m_value) {
+                    s[i] = d[i].kw.m_value;
                 } else {
                     Location l;
                     s[i] = EXPR(make_Num_t(al, l, 1));
@@ -289,15 +289,13 @@ static inline LFortran::FnArg* DIM1(Allocator &al, Location &l, expr_t *a, expr_
 }
 
 static inline LFortran::FnArg* DIM1k(Allocator &al, Location &l,
-        ast_t *id, expr_t *a, expr_t *b)
+        ast_t *id, expr_t */*a*/, expr_t *b)
 {
     LFortran::FnArg *s = al.allocate<LFortran::FnArg>();
     s->keyword = true;
     s->kw.loc = l;
     s->kw.m_arg = name2char(id);
-    s->kw.m_value.m_start = a;
-    s->kw.m_value.m_end = b;
-    s->kw.m_value.m_step = nullptr;
+    s->kw.m_value = b;
     return s;
 }
 
