@@ -350,7 +350,7 @@ public:
         r.append(x.m_name);
         r.append("(");
         for (size_t i=0; i<x.n_args; i++) {
-            this->visit_expr(*x.m_args[i]);
+            this->visit_expr(*x.m_args[i].m_end);
             r.append(s);
             if (i < x.n_args-1) r.append(" ");
         }
@@ -847,7 +847,7 @@ public:
         s.append(" ");
         s.append("[");
         for (size_t i=0; i<x.n_args; i++) {
-            this->visit_expr(*x.m_args[i]);
+            this->visit_expr(*x.m_args[i].m_end);
             if (i < x.n_args-1) s.append(" ");
         }
         s.append("]");
@@ -874,7 +874,7 @@ public:
             vars.push_back(x.m_func);
             r.append("[");
             for (size_t i=0; i<x.n_args; i++) {
-                this->visit_expr(*x.m_args[i]);
+                this->visit_expr(*x.m_args[i].m_end);
                 r.append(s);
                 if (i < x.n_args-1) s.append(", ");
             }

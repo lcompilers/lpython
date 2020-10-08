@@ -2,11 +2,11 @@
     "basename": "ast-fn_call1-7e6ba0b",
     "cmd": "lfortran --show-ast --no-color {infile} -o {outfile}",
     "infile": "tests/fn_call1.f90",
-    "infile_hash": "734b71292f6dc8ea73b211bbddc7438c34a8a3bd72ccbffa35f19e0e",
+    "infile_hash": "fd319232dcd65e8f2c7722a5f8da034557658cb0a081224347fd1de6",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast-fn_call1-7e6ba0b.stdout",
-    "stdout_hash": "f40788d7b1682acb151b97bff70b111b05328996514bd6f599e8af19",
+    "stdout_hash": "c51327425ef2305f0e4b1ff8a5586a59bf630402b8753388a5f812a1",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

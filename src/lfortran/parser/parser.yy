@@ -288,11 +288,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> var_decl
 %type <decl> var_sym_decl
 %type <vec_dim> array_comp_decl_list
-%type <dim> fnarray_arg
-%type <vec_dim> fnarray_arg_list
-%type <vec_dim> fnarray_arg_list_opt
+%type <fnarg> fnarray_arg
+%type <vec_fnarg> fnarray_arg_list_opt
 %type <dim> array_comp_decl
-%type <dim> array_comp_call
 %type <var_type> var_type
 %type <ast> fn_mod
 %type <vec_ast> fn_mod_plus
@@ -861,27 +859,13 @@ array_comp_decl_list
     ;
 
 array_comp_decl
-    : expr           { $$ = ARRAY_COMP_DECL1($1, @$); }
-    | expr ":" expr  { $$ = ARRAY_COMP_DECL2($1, $3, @$); }
-    | expr ":"       { $$ = ARRAY_COMP_DECL3($1, @$); }
-    | ":" expr       { $$ = ARRAY_COMP_DECL4($2, @$); }
-    | ":"            { $$ = ARRAY_COMP_DECL5(@$); }
-    | "*"            { $$ = ARRAY_COMP_DECL5(@$); } // TODO
-    | expr ":" "*"   { $$ = ARRAY_COMP_DECL5(@$); } // TODO
-    ;
-
-array_comp_call
-    : expr           { $$ = ARRAY_COMP_DECL1($1, @$); }
-    | expr ":" expr  { $$ = ARRAY_COMP_DECL2($1, $3, @$); }
-    | expr ":"       { $$ = ARRAY_COMP_DECL3($1, @$); }
-    | ":" expr       { $$ = ARRAY_COMP_DECL4($2, @$); }
-    | ":"            { $$ = ARRAY_COMP_DECL5(@$); }
-    | expr ":" expr ":" expr { $$ = ARRAY_COMP_DECL2($1, $3, @$); } // TODO
-    | expr "::" expr { $$ = ARRAY_COMP_DECL3($1, @$); } // TODO
-    | expr ":" ":" expr { $$ = ARRAY_COMP_DECL3($1, @$); } // TODO
-    | ":" expr ":" expr { $$ = ARRAY_COMP_DECL4($2, @$); } // TODO
-    | "::" expr { $$ = ARRAY_COMP_DECL5(@$); } // TODO
-    | ":" ":" expr { $$ = ARRAY_COMP_DECL5(@$); } // TODO
+    : expr           { $$ = ARRAY_COMP_DECL1d($1, @$); }
+    | expr ":" expr  { $$ = ARRAY_COMP_DECL2d($1, $3, @$); }
+    | expr ":"       { $$ = ARRAY_COMP_DECL3d($1, @$); }
+    | ":" expr       { $$ = ARRAY_COMP_DECL4d($2, @$); }
+    | ":"            { $$ = ARRAY_COMP_DECL5d(@$); }
+    | "*"            { $$ = ARRAY_COMP_DECL5d(@$); } // TODO
+    | expr ":" "*"   { $$ = ARRAY_COMP_DECL5d(@$); } // TODO
     ;
 
 
@@ -1362,21 +1346,27 @@ struct_member
     ;
 
 fnarray_arg_list_opt
-    : fnarray_arg_list
+    : fnarray_arg_list_opt "," fnarray_arg { $$ = $1; PLIST_ADD($$, $3); }
+    | fnarray_arg { LIST_NEW($$); PLIST_ADD($$, $1); }
     | %empty { LIST_NEW($$); }
     ;
 
-fnarray_arg_list
-    : fnarray_arg_list "," fnarray_arg {$$ = $1; LIST_ADD($$, $3); }
-    | fnarray_arg { LIST_NEW($$); LIST_ADD($$, $1); }
-    ;
-
 fnarray_arg
-    : array_comp_call
-    // TODO: extend "dim" to also include the keyword argument "id"
-    // This can be done by adding a flag "keyword",
-    // and encoding start=id, end=expr
-    | id "=" expr { $$ = ARRAY_COMP_DECL1($3, @$); }
+// array element / function argument
+    : expr                   { $$ = ARRAY_COMP_DECL_0i0($1, @$); }
+// array section
+    | ":"                    { $$ = ARRAY_COMP_DECL_001(@$); }
+    | expr ":"               { $$ = ARRAY_COMP_DECL_a01($1, @$); }
+    | ":" expr               { $$ = ARRAY_COMP_DECL_0b1($2, @$); }
+    | expr ":" expr          { $$ = ARRAY_COMP_DECL_ab1($1, $3, @$); }
+    | "::" expr              { $$ = ARRAY_COMP_DECL_00c($2, @$); }
+    | ":" ":" expr           { $$ = ARRAY_COMP_DECL_00c($3, @$); }
+    | expr "::" expr         { $$ = ARRAY_COMP_DECL_a0c($1, $3, @$); }
+    | expr ":" ":" expr      { $$ = ARRAY_COMP_DECL_a0c($1, $4, @$); }
+    | ":" expr ":" expr      { $$ = ARRAY_COMP_DECL_0bc($2, $4, @$); }
+    | expr ":" expr ":" expr { $$ = ARRAY_COMP_DECL_abc($1, $3, $5, @$); }
+// keyword function argument
+    | id "=" expr            { $$ = ARRAY_COMP_DECL1k($1, $3, @$); }
     ;
 
 id_list_opt
