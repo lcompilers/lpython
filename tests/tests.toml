@@ -576,3 +576,11 @@ ast_f90 = true
 filename = "fn_call1.f90"
 ast = true
 ast_f90 = true
+
+[[test]]
+filename = "../integration_tests/reserved_01.f90"
+ast_f90 = true
+
+[[test]]
+filename = "../integration_tests/reserved_02.f90"
+ast_f90 = true
