@@ -752,8 +752,9 @@ public:
             } else {
                 r += ":";
             }
-            if (i < x.n_args-1) s.append(", ");
+            if (i < x.n_args-1) r.append(", ");
         }
+        if (x.n_keywords > 0) r.append(", ");
         for (size_t i=0; i<x.n_keywords; i++) {
             this->visit_keyword(x.m_keywords[i]);
             r.append(s);
@@ -776,6 +777,7 @@ public:
             }
             if (i < x.n_args-1) r.append(", ");
         }
+        if (x.n_keywords > 0) r.append(", ");
         for (size_t i=0; i<x.n_keywords; i++) {
             this->visit_keyword(x.m_keywords[i]);
             r.append(s);
@@ -792,7 +794,7 @@ public:
         for (size_t i=0; i<x.n_args; i++) {
             this->visit_array_index(*x.m_args[i]);
             r.append(s);
-            if (i < x.n_args-1) s.append(", ");
+            if (i < x.n_args-1) r.append(", ");
         }
         r.append(")");
         s = r;
@@ -982,8 +984,27 @@ public:
         s = std::string(x.m_arg);
     }
 
-    void visit_keyword(const keyword_t &/*x*/) {
-        throw LFortranException("keyword not implemented");
+    void visit_keyword(const keyword_t &x) {
+        std::string r;
+        r += x.m_arg;
+        r += "=";
+        this->visit_fnarg(x.m_value);
+        r += s;
+        s = r;
+    }
+
+    void visit_fnarg(const fnarg_t &x) {
+        std::string r;
+        if (x.m_step) {
+            // Array section
+            r = "section";
+        } else {
+            // Array element
+            LFORTRAN_ASSERT(x.m_end);
+            this->visit_expr(*x.m_end);
+            r = s;
+        }
+        s = r;
     }
 
     void visit_Bind(const Bind_t &x) {
