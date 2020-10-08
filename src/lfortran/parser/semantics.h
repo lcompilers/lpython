@@ -277,14 +277,15 @@ static inline LFortran::VarType* VARTYPE0_(Allocator &al,
 #define VARTYPE0(s, l) VARTYPE0_(p.m_a, s, empty(), l)
 #define VARTYPE3(s, k, l) VARTYPE0_(p.m_a, s, k, l)
 
-static inline LFortran::FnArg* DIM1(Allocator &al, Location &l, expr_t *a, expr_t *b)
+static inline LFortran::FnArg* DIM1(Allocator &al, Location &l,
+    expr_t *a, expr_t *b, expr_t *c)
 {
     LFortran::FnArg *s = al.allocate<LFortran::FnArg>();
     s->keyword = false;
     s->arg.loc = l;
     s->arg.m_start = a;
     s->arg.m_end = b;
-    s->arg.m_step = nullptr;
+    s->arg.m_step = c;
     return s;
 }
 
@@ -677,12 +678,17 @@ char *fn_type2return_type(const LFortran::Vec<ast_t*> &v) {
 #define VAR_SYM_DECL6(id, a, e, l)   DECL3(p.m_a, id, &a, EXPR(e))
 #define VAR_SYM_DECL7(l)             DECL2c(p.m_a, l)
 
-#define ARRAY_COMP_DECL1(a, l)       DIM1(p.m_a, l, EXPR(INTEGER(1, l)), EXPR(a))
-#define ARRAY_COMP_DECL1k(id, a, l)       DIM1k(p.m_a, l, id, EXPR(INTEGER(1, l)), EXPR(a))
-#define ARRAY_COMP_DECL2(a, b, l)    DIM1(p.m_a, l, EXPR(a), EXPR(b))
-#define ARRAY_COMP_DECL3(a, l)       DIM1(p.m_a, l, EXPR(a), nullptr)
-#define ARRAY_COMP_DECL4(b, l)       DIM1(p.m_a, l, nullptr, EXPR(b))
-#define ARRAY_COMP_DECL5(l)          DIM1(p.m_a, l, nullptr, nullptr)
+#define ARRAY_COMP_DECL_0i0(a,l)     DIM1(p.m_a, l, nullptr, EXPR(a), nullptr)
+#define ARRAY_COMP_DECL_001(l)       DIM1(p.m_a, l, nullptr, nullptr, EXPR(INTEGER(1,l)))
+#define ARRAY_COMP_DECL_a01(a,l)     DIM1(p.m_a, l, EXPR(a), nullptr, EXPR(INTEGER(1,l)))
+#define ARRAY_COMP_DECL_0b1(b,l)     DIM1(p.m_a, l, nullptr, EXPR(b), EXPR(INTEGER(1,l)))
+#define ARRAY_COMP_DECL_ab1(a,b,l)   DIM1(p.m_a, l, EXPR(a), EXPR(b), EXPR(INTEGER(1,l)))
+#define ARRAY_COMP_DECL_00c(c,l)     DIM1(p.m_a, l, nullptr, nullptr, EXPR(c))
+#define ARRAY_COMP_DECL_a0c(a,c,l)   DIM1(p.m_a, l, EXPR(a), nullptr, EXPR(c))
+#define ARRAY_COMP_DECL_0bc(b,c,l)   DIM1(p.m_a, l, nullptr, EXPR(b), EXPR(c))
+#define ARRAY_COMP_DECL_abc(a,b,c,l) DIM1(p.m_a, l, EXPR(a), EXPR(b), EXPR(c))
+
+#define ARRAY_COMP_DECL1k(id, a, l)   DIM1k(p.m_a, l, id, EXPR(INTEGER(1, l)), EXPR(a))
 
 #define ARRAY_COMP_DECL1d(a, l)       DIM1d(l, EXPR(INTEGER(1, l)), EXPR(a))
 #define ARRAY_COMP_DECL2d(a, b, l)    DIM1d(l, EXPR(a), EXPR(b))
