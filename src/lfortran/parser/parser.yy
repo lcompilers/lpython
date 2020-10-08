@@ -1363,7 +1363,6 @@ fnarray_arg
     | ":" expr ":" expr { $$ = ARRAY_COMP_DECL4($2, @$); } // TODO
     | "::" expr { $$ = ARRAY_COMP_DECL5(@$); } // TODO
     | ":" ":" expr { $$ = ARRAY_COMP_DECL5(@$); } // TODO
-    // TODO: keyword arguments can be all of the above options also
     | id "=" expr { $$ = ARRAY_COMP_DECL1k($1, $3, @$); }
     ;
 
