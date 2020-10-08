@@ -8,7 +8,9 @@ contains
 
 subroutine integer
 integer subroutine
-endsubroutine = subroutine/subroutine
-endsubroutine
+endsubroutine &
+= subroutine/subroutine
+endsubroutine &
 
-end program
+
+; end program
