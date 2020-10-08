@@ -1,0 +1,21 @@
+program reserved_01
+if ((end(1, 2))/=(2)) then
+    error stop
+end if
+if ((end(2, 1))/=(2)) then
+    error stop
+end if
+
+contains
+
+    integer function end(return, integer) result(function) 
+    integer :: integer
+    integer :: return
+    function = return
+    if ((return)>(integer)) then
+        return
+    end if
+    function = integer
+    end function end
+
+end program reserved_01
