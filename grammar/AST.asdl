@@ -112,6 +112,21 @@ fn_mod = FnMod(string s)
 
 arg = (identifier arg)
 
+
+-- Encoding of array elements and sections in fnarg:
+--           start      end     step
+-- element:
+-- X(i)       ()         i       ()
+-- section:
+-- X(:)       ()         ()      1
+-- X(a:)      a          ()      1
+-- X(:b)      ()         b       1
+-- X(a:b)     a          b       1
+-- X(::c)     ()         ()      c
+-- X(a::c)    a          ()      c
+-- X(:b:c)    ()         b       c
+-- X(a:b:c)   a          b       c
+--
 fnarg = (expr? start, expr? end, expr? step)
 
 keyword = (identifier arg, fnarg value)
