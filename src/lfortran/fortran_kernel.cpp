@@ -5,6 +5,10 @@
 
 #ifdef _WIN32
 #    include <io.h>
+#    define fileno _fileno
+#    define dup _dup
+#    define dup2 _dup2
+#    define close _close
 #    include <fcntl.h>
 #else
 #    include <unistd.h>
@@ -33,40 +37,26 @@ namespace LFortran
     {
     public:
         RedirectStdout(std::string &out) : _out{out} {
-#ifdef _WIN32
-            stdout_fileno = _fileno(stdout);
-#else
             stdout_fileno = fileno(stdout);
-#endif
             std::cout << std::flush;
             fflush(stdout);
+            saved_stdout = dup(stdout_fileno);
 #ifdef _WIN32
-            saved_stdout = _dup(stdout_fileno);
             if (_pipe(out_pipe, 65536, O_BINARY) != 0) {
 #else
-            saved_stdout = dup(stdout_fileno);
             if (pipe(out_pipe) != 0) {
 #endif
                 throw LFortranException("pipe() failed");
             }
-#ifdef _WIN32
-            _dup2(out_pipe[1], stdout_fileno);
-            _close(out_pipe[1]);
-#else
             dup2(out_pipe[1], stdout_fileno);
             close(out_pipe[1]);
-#endif
             printf("X");
         }
 
         ~RedirectStdout() {
             fflush(stdout);
             read(out_pipe[0], buffer, MAX_LEN);
-#ifdef _WIN32
-            _dup2(saved_stdout, stdout_fileno);
-#else
             dup2(saved_stdout, stdout_fileno);
-#endif
             _out = std::string(&buffer[1]);
         }
     private:
