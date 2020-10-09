@@ -3,7 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifndef _WIN32
+#ifdef _WIN32
+#    include <io.h>
+#    include <fcntl.h>
+#else
 #    include <unistd.h>
 #endif
 
@@ -30,26 +33,41 @@ namespace LFortran
     {
     public:
         RedirectStdout(std::string &out) : _out{out} {
-#ifndef _WIN32
+#ifdef _WIN32
+            stdout_fileno = _fileno(stdout);
+#else
+            stdout_fileno = fileno(stdout);
+#endif
             std::cout << std::flush;
             fflush(stdout);
-            saved_stdout = dup(STDOUT_FILENO);
-            if(pipe(out_pipe) != 0) {
+#ifdef _WIN32
+            saved_stdout = _dup(stdout_fileno);
+            if (_pipe(out_pipe, 65536, O_BINARY) != 0) {
+#else
+            saved_stdout = dup(stdout_fileno);
+            if (pipe(out_pipe) != 0) {
+#endif
                 throw LFortranException("pipe() failed");
             }
-            dup2(out_pipe[1], STDOUT_FILENO);
+#ifdef _WIN32
+            _dup2(out_pipe[1], stdout_fileno);
+            _close(out_pipe[1]);
+#else
+            dup2(out_pipe[1], stdout_fileno);
             close(out_pipe[1]);
-            printf("X");
 #endif
+            printf("X");
         }
 
         ~RedirectStdout() {
-#ifndef _WIN32
             fflush(stdout);
             read(out_pipe[0], buffer, MAX_LEN);
-            dup2(saved_stdout, STDOUT_FILENO);
-            _out = std::string(&buffer[1]);
+#ifdef _WIN32
+            _dup2(saved_stdout, stdout_fileno);
+#else
+            dup2(saved_stdout, stdout_fileno);
 #endif
+            _out = std::string(&buffer[1]);
         }
     private:
         std::string &_out;
@@ -57,6 +75,7 @@ namespace LFortran
         char buffer[MAX_LEN+1] = {0};
         int out_pipe[2];
         int saved_stdout;
+        int stdout_fileno;
     };
 
     class custom_interpreter : public xeus::xinterpreter
