@@ -64,6 +64,7 @@ jupyter kernelspec list --json
 cd share/lfortran/nb
 jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --output Demo1_out.ipynb Demo1.ipynb
 jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --output Demo2_out.ipynb Demo2.ipynb
+cat Demo1_out.ipynb
 cd ../../..
 
 if $WIN != "1":
