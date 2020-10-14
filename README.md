@@ -24,11 +24,13 @@ Which is generated using the files in the `doc` directory.
 
 # Development
 
+We welcome all contributions.
 The main development repository is at GitLab:
 
 https://gitlab.com/lfortran/lfortran
 
 Please use it to open issues or send merge requests.
+See the [CONTRIBUTING](CONTRIBUTING.md) document for more information.
 
 Main mailinglist:
 
