@@ -883,6 +883,7 @@ int main(int argc, char *argv[])
         bool arg_c = false;
         bool arg_v = false;
         bool arg_E = false;
+        std::vector<std::string> arg_I;
         bool arg_cpp = false;
         std::string arg_o;
         std::string arg_file;
@@ -921,6 +922,7 @@ int main(int argc, char *argv[])
         app.add_option("-o", arg_o, "Specify the file to place the output into");
         app.add_flag("-v", arg_v, "Be more verbose");
         app.add_flag("-E", arg_E, "Preprocess only; do not compile, assemble or link");
+        app.add_option("-I", arg_I, "Include path");
         app.add_flag("--version", arg_version, "Display compiler version information");
 
         // LFortran specific options
