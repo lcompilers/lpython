@@ -343,17 +343,21 @@ std::string highlight_line(const std::string &line,
         )
 {
     std::stringstream out;
-    out << line.substr(0, first_column-1);
-    if (last_column <= line.size()) {
-        out << redon;
-        out << line.substr(first_column-1,
-                last_column-first_column+1);
-        out << redoff;
-        out << line.substr(last_column);
+    if (line.size() > 0) {
+        out << line.substr(0, first_column-1);
+        if (last_column <= line.size()) {
+            out << redon;
+            out << line.substr(first_column-1,
+                    last_column-first_column+1);
+            out << redoff;
+            out << line.substr(last_column);
+        }
     }
-    out << std::endl;;
-    for (size_t i=0; i < first_column-1; i++) {
-        out << " ";
+    out << std::endl;
+    if (first_column > 0) {
+        for (size_t i=0; i < first_column-1; i++) {
+            out << " ";
+        }
     }
     out << redon << "^";
     for (size_t i=first_column; i < last_column; i++) {
