@@ -446,8 +446,12 @@ public:
                 type = TYPE(ASR::make_Integer_t(al, x.loc, 4, dims.p, dims.size()));
             } else if (sym_type == "logical") {
                 type = TYPE(ASR::make_Logical_t(al, x.loc, 4, dims.p, dims.size()));
+            } else if (sym_type == "complex") {
+                type = TYPE(ASR::make_Complex_t(al, x.loc, 4, dims.p, dims.size()));
+            } else if (sym_type == "character") {
+                type = TYPE(ASR::make_Character_t(al, x.loc, 4, dims.p, dims.size()));
             } else {
-                throw SemanticError("Unsupported type", x.loc);
+                throw SemanticError("Unsupported type: " + sym_type, x.loc);
             }
             ASR::asr_t *v = ASR::make_Variable_t(al, x.loc, current_scope,
                 x.m_sym, s_intent, type);
