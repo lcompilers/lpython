@@ -217,23 +217,31 @@ public:
             if (is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
                 uint32_t h = get_hash((ASR::asr_t*)v);
-
-                if (v->m_type->type == ASR::ttypeType::Integer) {
-                    llvm::AllocaInst *ptr = builder->CreateAlloca(
-                        llvm::Type::getInt64Ty(context), nullptr, v->m_name);
-                    llvm_symtab[h] = ptr;
-                } else if (v->m_type->type == ASR::ttypeType::Real) {
-                    // TODO: Assuming single precision
-                    llvm::AllocaInst *ptr = builder->CreateAlloca(
-                        llvm::Type::getFloatTy(context), nullptr, v->m_name);
-                    llvm_symtab[h] = ptr;
-                } else if (v->m_type->type == ASR::ttypeType::Logical) {
-                    llvm::AllocaInst *ptr = builder->CreateAlloca(
-                        llvm::Type::getInt1Ty(context), nullptr, v->m_name);
-                    llvm_symtab[h] = ptr;
-                } else {
-                    throw CodeGenError("Variable type not supported");
+                llvm::AllocaInst *ptr;
+                switch (v->m_type->type) {
+                    case (ASR::ttypeType::Integer) :
+                        ptr = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, v->m_name);
+                        break;
+                    case (ASR::ttypeType::Real) :
+                        // TODO: Assuming single precision
+                        ptr = builder->CreateAlloca(llvm::Type::getFloatTy(context), nullptr, v->m_name);
+                        break;
+                    case (ASR::ttypeType::Complex) :
+                        throw CodeGenError("Complex argument type not implemented yet in conversion");
+                        break;
+                    case (ASR::ttypeType::Character) :
+                        throw CodeGenError("Character argument type not implemented yet in conversion");
+                        break;
+                    case (ASR::ttypeType::Logical) :
+                        ptr = builder->CreateAlloca(llvm::Type::getInt1Ty(context), nullptr, v->m_name);
+                        break;
+                    case (ASR::ttypeType::Derived) :
+                        throw CodeGenError("Derived type argument not implemented yet in conversion");
+                        break;
+                    default :
+                        LFORTRAN_ASSERT(false);
                 }
+                llvm_symtab[h] = ptr;
             }
         }
 
@@ -251,10 +259,29 @@ public:
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
-            // TODO: we are assuming integer here:
-            LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
             // We pass all arguments as pointers for now
-            args.push_back(llvm::Type::getInt64PtrTy(context));
+            switch (arg->m_type->type) {
+                case (ASR::ttypeType::Integer) :
+                    args.push_back(llvm::Type::getInt64PtrTy(context));
+                    break;
+                case (ASR::ttypeType::Real) :
+                    args.push_back(llvm::Type::getFloatPtrTy(context));
+                    break;
+                case (ASR::ttypeType::Complex) :
+                    throw CodeGenError("Complex argument type not implemented yet in conversion");
+                    break;
+                case (ASR::ttypeType::Character) :
+                    throw CodeGenError("Character argument type not implemented yet in conversion");
+                    break;
+                case (ASR::ttypeType::Logical) :
+                    args.push_back(llvm::Type::getInt1PtrTy(context));
+                    break;
+                case (ASR::ttypeType::Derived) :
+                    throw CodeGenError("Derived type argument not implemented yet in conversion");
+                    break;
+                default :
+                    LFORTRAN_ASSERT(false);
+            }
         }
         return args;
     }
@@ -282,12 +309,27 @@ public:
 
                 llvm::Type *type;
                 if (v->m_intent == intent_local || v->m_intent == intent_return_var) {
-                    if (v->m_type->type == ASR::ttypeType::Integer) {
-                        type = llvm::Type::getInt64Ty(context);
-                    } else if (v->m_type->type == ASR::ttypeType::Real) {
-                        type = llvm::Type::getFloatTy(context);
-                    } else {
-                        throw CodeGenError("Function: type not supported");
+                    switch (v->m_type->type) {
+                        case (ASR::ttypeType::Integer) :
+                            type = llvm::Type::getInt64Ty(context);
+                            break;
+                        case (ASR::ttypeType::Real) :
+                            type = llvm::Type::getFloatTy(context);
+                            break;
+                        case (ASR::ttypeType::Complex) :
+                            throw CodeGenError("Complex type not implemented yet");
+                            break;
+                        case (ASR::ttypeType::Character) :
+                            throw CodeGenError("Character type not implemented yet");
+                            break;
+                        case (ASR::ttypeType::Logical) :
+                            type = llvm::Type::getInt1Ty(context);
+                            break;
+                        case (ASR::ttypeType::Derived) :
+                            throw CodeGenError("Derived type not implemented yet");
+                            break;
+                        default :
+                            LFORTRAN_ASSERT(false);
                     }
                     llvm::AllocaInst *ptr = builder->CreateAlloca(
                         type, nullptr, v->m_name);
@@ -318,12 +360,27 @@ public:
         } else {
             ASR::ttypeType return_var_type = EXPR2VAR(x.m_return_var)->m_type->type;
             llvm::Type *return_type;
-            if (return_var_type == ASR::ttypeType::Integer) {
-                return_type = llvm::Type::getInt64Ty(context);
-            } else if (return_var_type == ASR::ttypeType::Real) {
-                return_type = llvm::Type::getFloatTy(context);
-            } else {
-                throw CodeGenError("Function: return type not supported");
+            switch (return_var_type) {
+                case (ASR::ttypeType::Integer) :
+                    return_type = llvm::Type::getInt64Ty(context);
+                    break;
+                case (ASR::ttypeType::Real) :
+                    return_type = llvm::Type::getFloatTy(context);
+                    break;
+                case (ASR::ttypeType::Complex) :
+                    throw CodeGenError("Complex return type not implemented yet");
+                    break;
+                case (ASR::ttypeType::Character) :
+                    throw CodeGenError("Character return type not implemented yet");
+                    break;
+                case (ASR::ttypeType::Logical) :
+                    return_type = llvm::Type::getInt1Ty(context);
+                    break;
+                case (ASR::ttypeType::Derived) :
+                    throw CodeGenError("Derived return type not implemented yet");
+                    break;
+                default :
+                    LFORTRAN_ASSERT(false);
             }
             std::vector<llvm::Type*> args = convert_args(x);
             llvm::FunctionType *function_type = llvm::FunctionType::get(
