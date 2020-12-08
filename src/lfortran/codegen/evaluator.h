@@ -97,15 +97,19 @@ public:
             T result;
             Error error;
         };
+        // Default constructor
         Result() = delete;
+        // Success result constructor
         Result(const T &result) : ok{true}, result{result} {}
-        Result(T &&result) : ok{true}, result{std::move(result)} {}
+        // Error result constructor
         Result(const Error &error) : ok{false}, error{error} {}
+        // Destructor
         ~Result() {
             if (!ok) {
                 error.~Error();
             }
         }
+        // Copy constructor
         Result(const Result<T> &other) : ok{other.ok} {
             if (ok) {
                 new(&result) T(other.result);
@@ -113,6 +117,7 @@ public:
                 new(&error) Error(other.error);
             }
         }
+        // Copy assignment
         Result<T>& operator=(const Result<T> &other) {
             ok = other.ok;
             if (ok) {
@@ -122,6 +127,10 @@ public:
             }
             return *this;
         }
+        // Move constructor
+        Result(T &&result) : ok{true}, result{std::move(result)} {}
+        // Move assignment
+        Result<T>&& operator=(T &&other) = delete;
     };
 
     // Evaluates `code`.
