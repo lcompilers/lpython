@@ -248,7 +248,7 @@ int prompt(bool verbose)
         LFortran::FortranEvaluator::EvalResult r;
 
         try {
-            LFortran::FortranEvaluator::Result<LFortran::FortranEvaluator::EvalResult> res;
+            LFortran::FortranEvaluator::Result<LFortran::FortranEvaluator::EvalResult>
             res = e.evaluate(input, verbose);
             if (res.ok) {
                 r = res.result;
@@ -539,9 +539,9 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
     LFortran::FortranEvaluator fe;
     LFortran::ASR::TranslationUnit_t* asr;
 
-    LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*> result;
 
     // Src -> AST
+    LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
     result = fe.get_asr2(input);
     if (result.ok) {
         asr = result.result;

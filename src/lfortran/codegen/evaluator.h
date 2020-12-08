@@ -97,7 +97,7 @@ public:
             T result;
             Error error;
         };
-        Result() {}
+        Result() = delete;
         Result(const T &result) : ok{true}, result{result} {}
         Result(T &&result) : ok{true}, result{std::move(result)} {}
         Result(const Error &error) : ok{false}, error{error} {}
