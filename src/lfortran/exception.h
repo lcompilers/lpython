@@ -40,6 +40,7 @@ class LFortranException : public std::exception
     std::string m_msg;
     lfortran_exceptions_t ec;
     std::string m_stacktrace;
+    std::vector<StacktraceItem> m_stacktrace_addresses;
 
 public:
     LFortranException(const std::string &msg, lfortran_exceptions_t error)
@@ -49,8 +50,9 @@ public:
         if (ec != lfortran_exceptions_t::LFORTRAN_TOKENIZER_ERROR &&
             ec != lfortran_exceptions_t::LFORTRAN_PARSER_ERROR &&
             ec != lfortran_exceptions_t::LFORTRAN_SEMANTIC_ERROR) {
-            m_stacktrace = LFortran::get_stacktrace(stacktrace_depth);
+            m_stacktrace = get_stacktrace(stacktrace_depth);
         }
+        m_stacktrace_addresses = get_stacktrace_addresses();
 #endif
     }
     LFortranException(const std::string &msg)
@@ -86,6 +88,10 @@ public:
     std::string stacktrace() const
     {
         return m_stacktrace;
+    }
+    std::vector<StacktraceItem> stacktrace_addresses() const
+    {
+        return m_stacktrace_addresses;
     }
     lfortran_exceptions_t error_code()
     {

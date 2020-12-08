@@ -447,6 +447,7 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(const std::string &co
         error.loc = e.loc;
         error.msg = e.msg();
         error.token_str = e.token;
+        error.stacktrace_addresses = e.stacktrace_addresses();
         return error;
     } catch (const ParserError &e) {
         int token;
@@ -460,17 +461,20 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(const std::string &co
         error.loc = e.loc;
         error.token = token;
         error.msg = e.msg();
+        error.stacktrace_addresses = e.stacktrace_addresses();
         return error;
     } catch (const SemanticError &e) {
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::Semantic;
         error.loc = e.loc;
         error.msg = e.msg();
+        error.stacktrace_addresses = e.stacktrace_addresses();
         return error;
     } catch (const CodeGenError &e) {
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::CodeGen;
         error.msg = e.msg();
+        error.stacktrace_addresses = e.stacktrace_addresses();
         return error;
     }
 
@@ -567,6 +571,14 @@ std::string FortranEvaluator::format_error(const Error &e, const std::string &in
             throw LFortranException("Unknown error type");
         }
     }
+}
+
+std::string FortranEvaluator::error_stacktrace(const Error &e) const
+{
+    std::vector<StacktraceItem> d = e.stacktrace_addresses;
+    get_local_addresses(d);
+    get_local_info(d);
+    return stacktrace2str(d, stacktrace_depth-1);
 }
 
 } // namespace LFortran

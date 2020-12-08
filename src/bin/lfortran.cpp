@@ -248,7 +248,7 @@ int prompt(bool verbose)
         LFortran::FortranEvaluator::EvalResult r;
 
         try {
-            LFortran::FortranEvaluator::Result<LFortran::FortranEvaluator::EvalResult> res;
+            LFortran::FortranEvaluator::Result<LFortran::FortranEvaluator::EvalResult>
             res = e.evaluate(input, verbose);
             if (res.ok) {
                 r = res.result;
@@ -531,20 +531,24 @@ int emit_llvm(const std::string &infile)
 }
 
 int compile_to_object_file(const std::string &infile, const std::string &outfile,
-        bool assembly=false)
+        bool assembly=false,
+        bool show_stacktrace=false)
 {
     std::string input = read_file(infile);
 
     LFortran::FortranEvaluator fe;
     LFortran::ASR::TranslationUnit_t* asr;
 
-    LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*> result;
 
     // Src -> AST
+    LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
     result = fe.get_asr2(input);
     if (result.ok) {
         asr = result.result;
     } else {
+        if (show_stacktrace) {
+            std::cerr << fe.error_stacktrace(result.error);
+        }
         std::cerr << fe.format_error(result.error, input);
         return 1;
     }
@@ -562,6 +566,9 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
     try {
         m = LFortran::asr_to_llvm(*asr, e.get_context(), al);
     } catch (const LFortran::CodeGenError &e) {
+        if (show_stacktrace) {
+            std::cerr << e.stacktrace();
+        }
         std::cerr << "Code generation error: " << e.msg() << std::endl;
         return 5;
     }
@@ -578,7 +585,7 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
 
 int compile_to_assembly_file(const std::string &infile, const std::string &outfile)
 {
-    return compile_to_object_file(infile, outfile, true);
+    return compile_to_object_file(infile, outfile, true, false);
 }
 #endif
 
@@ -890,6 +897,7 @@ int main(int argc, char *argv[])
         bool show_cpp = false;
         bool show_asm = false;
         bool time_report = false;
+        bool show_stacktrace = false;
         bool static_link = false;
         std::string arg_backend = "llvm";
         std::string arg_kernel_f;
@@ -926,6 +934,7 @@ int main(int argc, char *argv[])
         app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
         app.add_flag("--show-cpp", show_cpp, "Show C++ translation source for the given file and exit");
         app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
+        app.add_flag("--show-stacktrace", show_stacktrace, "Show internal stacktrace on compiler errors");
         app.add_flag("--time-report", time_report, "Show compilation time report");
         app.add_flag("--static", static_link, "Create a static executable");
         app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp, x86)", true);
@@ -1108,7 +1117,8 @@ int main(int argc, char *argv[])
         if (arg_c) {
             if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-                return compile_to_object_file(arg_file, outfile);
+                return compile_to_object_file(arg_file, outfile, false,
+                    show_stacktrace);
 #else
                 std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;
@@ -1131,7 +1141,8 @@ int main(int argc, char *argv[])
             int err;
             if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-                err = compile_to_object_file(arg_file, tmp_o);
+                err = compile_to_object_file(arg_file, tmp_o, false,
+                    show_stacktrace);
 #else
                 std::cerr << "Compiling Fortran files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;

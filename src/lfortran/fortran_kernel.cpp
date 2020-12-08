@@ -115,8 +115,8 @@ namespace LFortran
         std::string code0;
         try {
             if (startswith(code, "%%showast")) {
-                FortranEvaluator::Result<std::string> res;
                 code0 = code.substr(code.find("\n")+1);
+                FortranEvaluator::Result<std::string>
                 res = e.get_ast(code0);
                 nl::json result;
                 if (res.ok) {
@@ -135,8 +135,8 @@ namespace LFortran
                 return result;
             }
             if (startswith(code, "%%showasr")) {
-                FortranEvaluator::Result<std::string> res;
                 code0 = code.substr(code.find("\n")+1);
+                FortranEvaluator::Result<std::string>
                 res = e.get_asr(code0);
                 nl::json result;
                 if (res.ok) {
@@ -155,8 +155,8 @@ namespace LFortran
                 return result;
             }
             if (startswith(code, "%%showllvm")) {
-                FortranEvaluator::Result<std::string> res;
                 code0 = code.substr(code.find("\n")+1);
+                FortranEvaluator::Result<std::string>
                 res = e.get_llvm(code0);
                 nl::json result;
                 if (res.ok) {
@@ -175,8 +175,8 @@ namespace LFortran
                 return result;
             }
             if (startswith(code, "%%showasm")) {
-                FortranEvaluator::Result<std::string> res;
                 code0 = code.substr(code.find("\n")+1);
+                FortranEvaluator::Result<std::string>
                 res = e.get_asm(code0);
                 nl::json result;
                 if (res.ok) {
@@ -195,8 +195,8 @@ namespace LFortran
                 return result;
             }
             if (startswith(code, "%%showcpp")) {
-                FortranEvaluator::Result<std::string> res;
                 code0 = code.substr(code.find("\n")+1);
+                FortranEvaluator::Result<std::string>
                 res = e.get_cpp(code0);
                 nl::json result;
                 if (res.ok) {
@@ -215,8 +215,8 @@ namespace LFortran
                 return result;
             }
             if (startswith(code, "%%showfmt")) {
-                FortranEvaluator::Result<std::string> res;
                 code0 = code.substr(code.find("\n")+1);
+                FortranEvaluator::Result<std::string>
                 res = e.get_fmt(code0);
                 nl::json result;
                 if (res.ok) {
@@ -237,7 +237,7 @@ namespace LFortran
 
             RedirectStdout s(std_out);
             code0 = code;
-            FortranEvaluator::Result<FortranEvaluator::EvalResult> res;
+            FortranEvaluator::Result<FortranEvaluator::EvalResult>
             res = e.evaluate(code0);
             if (res.ok) {
                 r = res.result;

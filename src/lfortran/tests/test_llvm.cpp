@@ -401,7 +401,7 @@ end function)";
 
 TEST_CASE("FortranEvaluator 1") {
     FortranEvaluator e;
-    FortranEvaluator::Result<FortranEvaluator::EvalResult> r;
+    FortranEvaluator::Result<FortranEvaluator::EvalResult>
     r = e.evaluate("integer :: i");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::none);
@@ -416,7 +416,7 @@ TEST_CASE("FortranEvaluator 1") {
 
 TEST_CASE("FortranEvaluator 2") {
     FortranEvaluator e;
-    FortranEvaluator::Result<FortranEvaluator::EvalResult> r;
+    FortranEvaluator::Result<FortranEvaluator::EvalResult>
     r = e.evaluate(R"(real :: r
 r = 3
 r
@@ -434,7 +434,7 @@ do i = 1, 5
     j = j + i
 end do
 )");
-    FortranEvaluator::Result<FortranEvaluator::EvalResult> r;
+    FortranEvaluator::Result<FortranEvaluator::EvalResult>
     r = e.evaluate("j");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::integer);
@@ -449,7 +449,7 @@ integer, intent(in) :: i, j
 fn = i + j
 end function
 )");
-    FortranEvaluator::Result<FortranEvaluator::EvalResult> r;
+    FortranEvaluator::Result<FortranEvaluator::EvalResult>
     r = e.evaluate("fn(2, 3)");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::integer);
@@ -476,9 +476,9 @@ integer, intent(out) :: r
 r = i + j
 end subroutine
 )");
-    FortranEvaluator::Result<FortranEvaluator::EvalResult> r;
     e.evaluate("integer :: r");
     e.evaluate("call fn(2, 3, r)");
+    FortranEvaluator::Result<FortranEvaluator::EvalResult>
     r = e.evaluate("r");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::integer);
@@ -500,7 +500,7 @@ end subroutine
 
 TEST_CASE("FortranEvaluator 6") {
     FortranEvaluator e;
-    FortranEvaluator::Result<FortranEvaluator::EvalResult> r;
+    FortranEvaluator::Result<FortranEvaluator::EvalResult>
     r = e.evaluate("$");
     CHECK(!r.ok);
     CHECK(r.error.type == FortranEvaluator::Error::Tokenizer);
