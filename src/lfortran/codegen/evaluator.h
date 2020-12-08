@@ -87,6 +87,7 @@ public:
         int token;
         std::string msg;
         std::string token_str;
+        std::vector<StacktraceItem> stacktrace_addresses;
     };
 
     template<typename T>
@@ -138,6 +139,7 @@ public:
     Result<std::string> get_fmt(const std::string &code);
 
     std::string format_error(const Error &e, const std::string &input) const;
+    std::string error_stacktrace(const Error &e) const;
 
 private:
     Allocator al;
