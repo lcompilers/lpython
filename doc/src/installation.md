@@ -70,9 +70,19 @@ pip install .
 
 ## From Git
 
-Prepare the environment:
+We assume you have C++ compilers installed, as well as `git` and `wget`.
+In Ubuntu, you can also install `binutils-dev`.
+
+If you do not have Conda installed, you can do so on Linux (and similarly on
+other platforms):
 ```bash
-conda create -n lf python=3.7 pytest llvmlite prompt_toolkit antlr-python-runtime scikit-build antlr cmake make -c conda-forge
+wget --no-check-certificate https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+bash miniconda.sh -b -p $HOME/conda_root
+export PATH="$HOME/conda_root/bin:$PATH"
+```
+Then prepare the environment:
+```bash
+conda create -n lf -c conda-forge llvmdev=9.0.1 bison re2c python cmake make toml
 conda activate lf
 ```
 Clone the LFortran git repository:
@@ -86,11 +96,12 @@ Build:
 ```
 Run tests:
 ```bash
-pytest
+ctest
+./run_tests.py
 ```
 Run an interactive prompt:
 ```bash
-./lfort
+./src/bin/lfortran
 ```
 
 ## Note About Dependencies
