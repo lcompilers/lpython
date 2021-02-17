@@ -121,3 +121,13 @@ translator (requires Python). The Java requirement is only needed when using
 git directly, the tarball does not depend on Java in any way.
 
 The same tarball is accessible from our Downloads page as well as from PyPI.
+
+## Note for users who do not use Conda
+
+Following are the dependencies necessary for installing this
+repository in development mode,
+
+- [Bison - 3.5.1](https://ftp.gnu.org/gnu/bison/bison-3.5.1.tar.xz)
+- [LLVM - 9.0.1](https://github.com/llvm/llvm-project/releases/download/llvmorg-9.0.1/llvm-9.0.1.src.tar.xz)
+- [re2c - 2.0.3](https://re2c.org/install/install.html)
+- [binutils - 2.31.90](ftp://sourceware.org/pub/binutils/snapshots/binutils-2.31.90.tar.xz) - Make sure that you should enable the required options related to this dependency to build the dynamic libraries (the ones ending with `.so`).
