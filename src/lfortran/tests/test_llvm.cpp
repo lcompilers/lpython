@@ -532,6 +532,22 @@ define float @sum2(%complex* %a)
     ret float %r
 }
 
+; This is how to pass by value
+define float @sum2_value(%complex %a_value)
+{
+    %a = alloca %complex
+    store %complex %a_value, %complex* %a
+
+    %a1addr = getelementptr %complex, %complex* %a, i32 0, i32 0
+    %a1 = load float, float* %a1addr
+
+    %a2addr = getelementptr %complex, %complex* %a, i32 0, i32 1
+    %a2 = load float, float* %a2addr
+
+    %r = fadd float %a2, %a1
+    ret float %r
+}
+
 define float @f()
 {
     %a = alloca %complex
