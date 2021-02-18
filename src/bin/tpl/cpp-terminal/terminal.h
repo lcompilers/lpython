@@ -103,6 +103,7 @@ inline std::string cursor_on()
 
 // If an attempt is made to move the cursor out of the window, the result is
 // undefined.
+// TODO: switch col/row
 inline std::string move_cursor(size_t row, size_t col)
 {
     return "\x1b[" + std::to_string(row) + ";" + std::to_string(col) + "H";
@@ -383,6 +384,7 @@ public:
         }
     }
 
+    // TODO: switch rows, cols
     void get_cursor_position(int& rows, int& cols) const
     {
         char buf[32];
@@ -536,6 +538,13 @@ inline std::string utf32_to_utf8(const std::u32string &s)
 }
 
 
+// TODO:
+// * Rename Window to Screen, as it really is a model of the terminal screen,
+// and should only be used once per application. If an application has windows,
+// those should be built on top, and they should render to Screen.
+// * Remember cursor position also (and if it is on or off)
+// * Implement screen diffing (taking another Window instance as an argument in
+// render())
 
 
 /* Represents a rectangular window, as a 2D array of characters and their
@@ -550,15 +559,15 @@ inline std::string utf32_to_utf8(const std::u32string &s)
 class Window
 {
 private:
-    size_t x0, y0; // top-left corner of the window on the screen
     size_t w, h; // width and height of the window
+    size_t cursor_x, cursor_y; // current cursor position
     std::vector<char32_t> chars; // the characters in row first order
     std::vector<fg> m_fg;
     std::vector<bg> m_bg;
     std::vector<style> m_style;
 public:
-    Window(size_t x0, size_t y0, size_t w, size_t h)
-        : x0{x0}, y0{y0}, w{w}, h{h}, chars(w*h, ' '),
+    Window(size_t w, size_t h)
+        : w{w}, h{h}, cursor_x{1}, cursor_y{1}, chars(w*h, ' '),
           m_fg(w*h, fg::reset), m_bg(w*h, bg::reset),
           m_style(w*h, style::reset) {}
 
@@ -567,7 +576,11 @@ public:
     }
 
     void set_char(size_t x, size_t y, char32_t c) {
-        chars[(y-1)*w+(x-1)] = c;
+        if (x >= 1 && y >= 1 && x <= w && y <= h) {
+            chars[(y-1)*w+(x-1)] = c;
+        } else {
+            throw std::runtime_error("set_char(): (x,y) out of bounds");
+        }
     }
 
     fg get_fg(size_t x, size_t y) {
@@ -594,16 +607,64 @@ public:
         m_style[(y-1)*w+(x-1)] = c;
     }
 
-    void print_str(int x, int y, const std::string &s) {
+    void set_cursor_pos(int x, int y) {
+        cursor_x = x;
+        cursor_y = y;
+    }
+
+    size_t get_w() {
+        return w;
+    }
+
+    size_t get_h() {
+        return h;
+    }
+
+    void set_h(size_t new_h) {
+        if (new_h == h) {
+            return;
+        } else if (new_h > h) {
+            int dc = (new_h-h) * w;
+            chars.insert(chars.end(), dc, ' ');
+            m_fg.insert(m_fg.end(), dc, fg::reset);
+            m_bg.insert(m_bg.end(), dc, bg::reset);
+            m_style.insert(m_style.end(), dc, style::reset);
+            h = new_h;
+        } else {
+            throw std::runtime_error("Shrinking height not supported.");
+        }
+    }
+
+    void print_str(int x, int y, const std::string &s, int indent=0,
+            bool move_cursor=false) {
         std::u32string s2 = utf8_to_utf32(s);
+        size_t xpos = x;
+        size_t ypos = y;
         for (size_t i=0; i < s2.size(); i++) {
-            size_t xpos = x+i;
-            if (xpos < w) {
-                set_char(xpos, y, s2[i]);
+            if (s2[i] == U'\n') {
+                xpos = x+indent;
+                ypos++;
+                if (xpos <= w && ypos <= h) {
+                    for (int j=0; j < indent; j++) {
+                        set_char(x+j, ypos, '.');
+                    }
+                } else {
+                    // String is out of the window
+                    return;
+                }
             } else {
-                // String is out of the window
-                return;
+                if (xpos <= w && ypos <= h) {
+                    set_char(xpos, y, s2[i]);
+                } else {
+                    // String is out of the window
+                    return;
+                }
+                xpos++;
             }
+        }
+        if (move_cursor) {
+            cursor_x = xpos;
+            cursor_y = ypos;
         }
     }
 
@@ -678,7 +739,11 @@ public:
         }
     }
 
-    std::string render() {
+    // TODO: add Window/Screen parameter here, to be used like this:
+    // old_scr = scr;
+    // scr.print_str(...)
+    // scr.render(1, 1, old_scr)
+    std::string render(int x0, int y0) {
         std::string out;
         out.append(cursor_off());
         fg current_fg = fg::reset;
@@ -716,10 +781,12 @@ public:
                 if (update_bg) out.append(color(get_bg(i,j)));
                 codepoint_to_utf8(out, get_char(i,j));
             }
+            if (j < h) out.append("\n");
         }
         if (current_fg != fg::reset) out.append(color(fg::reset));
         if (current_bg != bg::reset) out.append(color(bg::reset));
         if (current_style != style::reset) out.append(color(style::reset));
+        out.append(move_cursor(y0+cursor_y-1, x0+cursor_x-1));
         out.append(cursor_on());
         return out;
     }
