@@ -514,6 +514,7 @@ TEST_CASE("FortranEvaluator 6") {
     CHECK(r.error.type == FortranEvaluator::Error::Semantic);
 }
 
+// Tests passing the complex struct by reference
 TEST_CASE("llvm complex type") {
     LFortran::LLVMEvaluator e;
     e.add_module(R"""(
@@ -532,8 +533,30 @@ define float @sum2(%complex* %a)
     ret float %r
 }
 
-; This is how to pass by value
-define float @sum2_value(%complex %a_value)
+define float @f()
+{
+    %a = alloca %complex
+
+    %a1 = getelementptr %complex, %complex* %a, i32 0, i32 0
+    store float 3.5, float* %a1
+
+    %a2 = getelementptr %complex, %complex* %a, i32 0, i32 1
+    store float 4.5, float* %a2
+
+    %r = call float @sum2(%complex* %a)
+    ret float %r
+}
+    )""");
+    CHECK(std::abs(e.floatfn("f") - 8) < 1e-6);
+}
+
+// Tests passing the complex struct by value
+TEST_CASE("llvm complex type value") {
+    LFortran::LLVMEvaluator e;
+    e.add_module(R"""(
+%complex = type { float, float }
+
+define float @sum2(%complex %a_value)
 {
     %a = alloca %complex
     store %complex %a_value, %complex* %a
@@ -558,7 +581,8 @@ define float @f()
     %a2 = getelementptr %complex, %complex* %a, i32 0, i32 1
     store float 4.5, float* %a2
 
-    %r = call float @sum2(%complex* %a)
+    %ap = load %complex, %complex* %a
+    %r = call float @sum2(%complex %ap)
     ret float %r
 }
     )""");
