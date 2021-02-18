@@ -129,6 +129,12 @@ std::string prompt0(const Terminal &term, const std::string &prompt_string,
                                 .substr(m.cursor_col-1);
                         m.lines[m.cursor_row-1] = before + after;
                         m.cursor_col--;
+                    } else if (m.cursor_col == 1 && m.cursor_row > 1) {
+                        m.cursor_col = m.lines[m.cursor_row-2].size() + 1;
+                        m.lines[m.cursor_row-2] += m.lines[m.cursor_row-1];
+                        m.lines.erase(m.lines.begin() + m.cursor_row-1);
+                        m.cursor_row--;
+                        rows--;
                     }
                     break;
                 case Key::ARROW_LEFT:
