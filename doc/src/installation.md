@@ -70,9 +70,19 @@ pip install .
 
 ## From Git
 
-Prepare the environment:
+We assume you have C++ compilers installed, as well as `git` and `wget`.
+In Ubuntu, you can also install `binutils-dev`.
+
+If you do not have Conda installed, you can do so on Linux (and similarly on
+other platforms):
 ```bash
-conda create -n lf python=3.7 pytest llvmlite prompt_toolkit antlr-python-runtime scikit-build antlr cmake make -c conda-forge
+wget --no-check-certificate https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+bash miniconda.sh -b -p $HOME/conda_root
+export PATH="$HOME/conda_root/bin:$PATH"
+```
+Then prepare the environment:
+```bash
+conda create -n lf -c conda-forge llvmdev=9.0.1 bison re2c python cmake make toml
 conda activate lf
 ```
 Clone the LFortran git repository:
@@ -86,11 +96,12 @@ Build:
 ```
 Run tests:
 ```bash
-pytest
+ctest
+./run_tests.py
 ```
 Run an interactive prompt:
 ```bash
-./lfort
+./src/bin/lfortran
 ```
 
 ## Note About Dependencies
@@ -110,3 +121,13 @@ translator (requires Python). The Java requirement is only needed when using
 git directly, the tarball does not depend on Java in any way.
 
 The same tarball is accessible from our Downloads page as well as from PyPI.
+
+## Note for users who do not use Conda
+
+Following are the dependencies necessary for installing this
+repository in development mode,
+
+- [Bison - 3.5.1](https://ftp.gnu.org/gnu/bison/bison-3.5.1.tar.xz)
+- [LLVM - 9.0.1](https://github.com/llvm/llvm-project/releases/download/llvmorg-9.0.1/llvm-9.0.1.src.tar.xz)
+- [re2c - 2.0.3](https://re2c.org/install/install.html)
+- [binutils - 2.31.90](ftp://sourceware.org/pub/binutils/snapshots/binutils-2.31.90.tar.xz) - Make sure that you should enable the required options related to this dependency to build the dynamic libraries (the ones ending with `.so`).
