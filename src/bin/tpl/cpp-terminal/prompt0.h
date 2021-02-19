@@ -134,7 +134,6 @@ std::string prompt0(const Terminal &term, const std::string &prompt_string,
                         m.lines[m.cursor_row-2] += m.lines[m.cursor_row-1];
                         m.lines.erase(m.lines.begin() + m.cursor_row-1);
                         m.cursor_row--;
-                        rows--;
                     }
                     break;
                 case Key::ARROW_LEFT:
@@ -202,8 +201,13 @@ std::string prompt0(const Terminal &term, const std::string &prompt_string,
                     std::string after = m.lines[m.cursor_row-1]
                             .substr(m.cursor_col-1);
                     m.lines[m.cursor_row-1] = before;
-                    m.lines.push_back(after);
-                    m.cursor_col = after.size()+1;
+                    if (m.cursor_row < m.lines.size()) {
+                        // Not at the bottom row, can't push back
+                        m.lines.insert(m.lines.begin() + m.cursor_row, after);
+                    } else {
+                        m.lines.push_back(after);
+                    }
+                    m.cursor_col = 1;
                     m.cursor_row++;
                     scr.set_h(scr.get_h()+1);
             }
