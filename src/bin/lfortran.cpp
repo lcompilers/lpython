@@ -89,6 +89,7 @@ int prompt(bool verbose)
     std::cout << "Interactive Fortran. Experimental prototype, not ready for end users." << std::endl;
     std::cout << "  * Use Ctrl-D to exit" << std::endl;
     std::cout << "  * Use Enter to submit" << std::endl;
+    std::cout << "  * Use Alt-Enter to make a new line" << std::endl;
     std::cout << "    - Editing (Keys: Left, Right, Home, End, Backspace, Delete)" << std::endl;
     std::cout << "    - History (Keys: Up, Down)" << std::endl;
 

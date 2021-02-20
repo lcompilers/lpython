@@ -209,7 +209,9 @@ std::string prompt0(const Terminal &term, const std::string &prompt_string,
                     }
                     m.cursor_col = 1;
                     m.cursor_row++;
-                    scr.set_h(scr.get_h()+1);
+                    if (m.lines.size() > scr.get_h()) {
+                        scr.set_h(m.lines.size());
+                    }
             }
         }
         render(scr, m, cols);
@@ -218,7 +220,13 @@ std::string prompt0(const Terminal &term, const std::string &prompt_string,
             row = rows - ((int)scr.get_h()-1);
         }
     }
-    std::cout << "\n" << std::flush;
+    // REPL currently supports pressing enter at any cursor position, so
+    // correctly draw if the user presses enter at a line other than the bottom
+    std::string line_skips;
+    for (int i = 0; i <= m.lines.size() - m.cursor_row; i++){
+        line_skips += "\n";
+    }
+    std::cout << line_skips << std::flush;
     history.push_back(concat(m.lines));
     return concat(m.lines);
 }
