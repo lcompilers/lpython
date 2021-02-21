@@ -232,7 +232,7 @@ std::string prompt0(const Terminal &term, const std::string &prompt_string,
     // REPL currently supports pressing enter at any cursor position, so
     // correctly draw if the user presses enter at a line other than the bottom
     std::string line_skips;
-    for (int i = 0; i <= m.lines.size() - m.cursor_row; i++){
+    for (size_t i=0; i <= m.lines.size() - m.cursor_row; i++){
         line_skips += "\n";
     }
     std::cout << line_skips << std::flush;
