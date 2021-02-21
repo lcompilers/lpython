@@ -743,14 +743,18 @@ public:
     // old_scr = scr;
     // scr.print_str(...)
     // scr.render(1, 1, old_scr)
-    std::string render(int x0, int y0) {
+    std::string render(int x0, int y0, bool term) {
         std::string out;
-        out.append(cursor_off());
+        if (term){
+          out.append(cursor_off());
+        }
         fg current_fg = fg::reset;
         bg current_bg = bg::reset;
         style current_style = style::reset;
         for (size_t j=1; j <= h; j++) {
-            out.append(move_cursor(y0+j-1, x0));
+            if (term){
+              out.append(move_cursor(y0+j-1, x0));
+            }
             for (size_t i=1; i <= w; i++) {
                 bool update_fg = false;
                 bool update_bg = false;
@@ -786,8 +790,10 @@ public:
         if (current_fg != fg::reset) out.append(color(fg::reset));
         if (current_bg != bg::reset) out.append(color(bg::reset));
         if (current_style != style::reset) out.append(color(style::reset));
-        out.append(move_cursor(y0+cursor_y-1, x0+cursor_x-1));
-        out.append(cursor_on());
+        if (term) {
+          out.append(move_cursor(y0+cursor_y-1, x0+cursor_x-1));
+          out.append(cursor_on());
+        }
         return out;
     }
 };
