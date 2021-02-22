@@ -57,6 +57,7 @@ using LFortran::AST::make_Name_t;
 using LFortran::AST::make_Num_t;
 using LFortran::AST::make_Str_t;
 using LFortran::AST::make_Real_t;
+using LFortran::AST::make_Complex_t;
 using LFortran::AST::make_SubroutineCall_t;
 using LFortran::AST::make_WhileLoop_t;
 using LFortran::AST::make_FuncCallOrArray_t;
@@ -403,9 +404,10 @@ static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
 #define ARRAY_IN(a, l) make_ArrayInitializer_t(p.m_a, l, \
         EXPRS(a), a.size())
 
-#define SYMBOL(x, l) make_Name_t(p.m_a, l, x.c_str(p.m_a));
+#define SYMBOL(x, l) make_Name_t(p.m_a, l, x.c_str(p.m_a))
 #define INTEGER(x, l) make_Num_t(p.m_a, l, x)
 #define REAL(x, l) make_Real_t(p.m_a, l, x.c_str(p.m_a))
+#define COMPLEX(x, y, l) make_Complex_t(p.m_a, l, EXPR(x), EXPR(y))
 #define STRING(x, l) make_Str_t(p.m_a, l, x.c_str(p.m_a))
 #define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, l, EXPR(x), EXPR(y))
 #define ASSOCIATE(x, y, l) make_Associate_t(p.m_a, l, EXPR(x), EXPR(y))
