@@ -81,6 +81,7 @@ expr
     | ArrayInitializer(expr* args)
     | Num(object n)
     | Real(string n)
+    | Complex(expr re, expr im)
     | Str(string s)
     | Name(identifier id)
     | Constant(constant value)

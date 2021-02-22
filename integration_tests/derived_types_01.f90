@@ -1,4 +1,4 @@
-module a
+module a_01
 implicit none
 
 type :: X
@@ -8,7 +8,7 @@ end type
 end module
 
 program derived_types_01
-use a, only: X
+use a_01, only: X
 implicit none
 type(X) :: b
 end
