@@ -86,7 +86,12 @@ cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 
 intent = Local | In | Out | InOut | ReturnVar | External
 
-cast_kind = RealToInteger | IntegerToReal | RealToReal | IntegerToInteger
+cast_kind
+    = RealToInteger
+    | IntegerToReal
+    | RealToReal
+    | IntegerToInteger
+    | RealToComplex
 
 dimension = (expr? start, expr? end)
 

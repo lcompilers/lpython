@@ -720,8 +720,12 @@ public:
                 right = (ASR::expr_t*)ASR::make_ImplicitCast_t(al, x.base.base.loc,
                     right, ASR::cast_kindType::IntegerToReal, left_type);
                 type = left_type;
+            } else if (right_type->type == ASR::ttypeType::Complex) {
+                left = (ASR::expr_t*)ASR::make_ImplicitCast_t(al, x.base.base.loc,
+                    left, ASR::cast_kindType::RealToComplex, right_type);
+                type = right_type;
             } else {
-                throw SemanticError("Binop: only Integer or Real can be on the RHS with Real as LHS",
+                throw SemanticError("Binop: only Integer, Real or Complex can be on the RHS with Real as LHS",
                     x.base.base.loc);
             }
         } else if (left_type->type == ASR::ttypeType::Integer) {
@@ -737,7 +741,11 @@ public:
                     x.base.base.loc);
             }
         } else if (left_type->type == ASR::ttypeType::Complex) {
-            if (right_type->type == ASR::ttypeType::Complex) {
+            if (right_type->type == ASR::ttypeType::Real) {
+                right = (ASR::expr_t*)ASR::make_ImplicitCast_t(al, x.base.base.loc,
+                    right, ASR::cast_kindType::RealToComplex, left_type);
+                type = left_type;
+            } else if (right_type->type == ASR::ttypeType::Complex) {
                 // TODO: convert/cast kinds if they differ
                 type = left_type;
             } else {
