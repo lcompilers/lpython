@@ -213,6 +213,11 @@ public:
                 ".entry", F);
         builder->SetInsertPoint(BB);
 
+        llvm::ArrayRef<llvm::Type*> els = {
+            llvm::Type::getFloatTy(context),
+            llvm::Type::getFloatTy(context)};
+        llvm::StructType* complex_type = llvm::StructType::get(context, els);
+
         for (auto &item : x.m_symtab->scope) {
             if (is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
@@ -227,7 +232,7 @@ public:
                         ptr = builder->CreateAlloca(llvm::Type::getFloatTy(context), nullptr, v->m_name);
                         break;
                     case (ASR::ttypeType::Complex) :
-                        throw CodeGenError("Complex argument type not implemented yet in conversion");
+                        ptr = builder->CreateAlloca(complex_type, nullptr, v->m_name);
                         break;
                     case (ASR::ttypeType::Character) :
                         throw CodeGenError("Character argument type not implemented yet in conversion");
