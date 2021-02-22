@@ -216,7 +216,8 @@ public:
         llvm::ArrayRef<llvm::Type*> els = {
             llvm::Type::getFloatTy(context),
             llvm::Type::getFloatTy(context)};
-        llvm::StructType* complex_type = llvm::StructType::get(context, els);
+        llvm::StructType* complex_type = llvm::StructType::create(context,
+                els, "complex");
 
         for (auto &item : x.m_symtab->scope) {
             if (is_a<ASR::Variable_t>(*item.second)) {
