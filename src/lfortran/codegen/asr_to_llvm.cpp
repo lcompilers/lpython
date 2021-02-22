@@ -236,6 +236,7 @@ public:
                         ptr = builder->CreateAlloca(llvm::Type::getFloatTy(context), nullptr, v->m_name);
                         break;
                     case (ASR::ttypeType::Complex) :
+                        // TODO: Assuming single precision
                         ptr = builder->CreateAlloca(complex_type, nullptr, v->m_name);
                         break;
                     case (ASR::ttypeType::Character) :
