@@ -102,6 +102,20 @@ public:
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context},
         prototype_only{false} {}
 
+    llvm::Value* lfortran_float_to_complex(llvm::Value* arg)
+    {
+        std::vector<llvm::Value*> args = {arg};
+        llvm::Function *fn = module->getFunction("_lfortran_float_to_complex");
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    complex_type, {llvm::Type::getFloatTy(context)}, true);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, "_lfortran_float_to_complex", *module);
+        }
+        return builder->CreateCall(fn, args);
+    }
+
+
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         module = std::make_unique<llvm::Module>("LFortran", context);
         module->setDataLayout("");
@@ -781,6 +795,10 @@ public:
             }
             case (ASR::cast_kindType::RealToInteger) : {
                 tmp = builder->CreateFPToSI(tmp, llvm::Type::getInt64Ty(context));
+                break;
+            }
+            case (ASR::cast_kindType::RealToComplex) : {
+                tmp = lfortran_float_to_complex(tmp);
                 break;
             }
             default : throw CodeGenError("Cast kind not implemented");
