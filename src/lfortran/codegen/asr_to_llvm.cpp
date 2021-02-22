@@ -94,6 +94,7 @@ public:
     llvm::BasicBlock *current_loophead, *current_loopend;
     std::string mangle_prefix;
     bool prototype_only;
+    llvm::StructType *complex_type;
 
     std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
     std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
@@ -110,6 +111,14 @@ public:
         // All loose statements must be converted to a function, so the items
         // must be empty:
         LFORTRAN_ASSERT(x.n_items == 0);
+
+        // Define LLVM types that we might need
+        // Complex type is represented as an identified struct in LLVM
+        // %complex = type { float, float }
+        llvm::ArrayRef<llvm::Type*> els = {
+            llvm::Type::getFloatTy(context),
+            llvm::Type::getFloatTy(context)};
+        complex_type = llvm::StructType::create(context, els, "complex");
 
         // Process Variables first:
         for (auto &item : x.m_global_scope->scope) {
@@ -212,12 +221,6 @@ public:
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
                 ".entry", F);
         builder->SetInsertPoint(BB);
-
-        llvm::ArrayRef<llvm::Type*> els = {
-            llvm::Type::getFloatTy(context),
-            llvm::Type::getFloatTy(context)};
-        llvm::StructType* complex_type = llvm::StructType::create(context,
-                els, "complex");
 
         for (auto &item : x.m_symtab->scope) {
             if (is_a<ASR::Variable_t>(*item.second)) {
