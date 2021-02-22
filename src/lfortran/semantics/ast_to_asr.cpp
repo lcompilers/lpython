@@ -736,6 +736,14 @@ public:
                 throw SemanticError("BinOp: Only Integer or Real can be on the RHS with Integer as LHS",
                     x.base.base.loc);
             }
+        } else if (left_type->type == ASR::ttypeType::Complex) {
+            if (right_type->type == ASR::ttypeType::Complex) {
+                // TODO: convert/cast kinds if they differ
+                type = left_type;
+            } else {
+                throw SemanticError("BinOp: Only Complex, Complex binary operation is implemented for now",
+                    x.base.base.loc);
+            }
         } else {
             LFORTRAN_ASSERT(false);
             type = nullptr;
