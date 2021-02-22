@@ -60,6 +60,7 @@ expr
     | ArrayInitializer(expr* args, ttype type)
     | ConstantInteger(object n, ttype type)
     | ConstantReal(string r, ttype type)
+    | ConstantComplex(expr re, expr im, ttype type)
     | ConstantLogical(constant value, ttype type)
     | Str(string s, ttype type)
     | Var(symbol v)
@@ -85,7 +86,12 @@ cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 
 intent = Local | In | Out | InOut | ReturnVar | External
 
-cast_kind = RealToInteger | IntegerToReal | RealToReal | IntegerToInteger
+cast_kind
+    = RealToInteger
+    | IntegerToReal
+    | RealToReal
+    | IntegerToInteger
+    | RealToComplex
 
 dimension = (expr? start, expr? end)
 
