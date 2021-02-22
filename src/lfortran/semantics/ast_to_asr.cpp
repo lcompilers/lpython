@@ -915,6 +915,18 @@ public:
         tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, x.m_n, type);
     }
 
+    void visit_Complex(const AST::Complex_t &x) {
+        ASR::ttype_t *type = TYPE(ASR::make_Complex_t(al, x.base.base.loc,
+                4, nullptr, 0));
+        this->visit_expr(*x.m_re);
+        ASR::expr_t *re = EXPR(tmp);
+        this->visit_expr(*x.m_im);
+        ASR::expr_t *im = EXPR(tmp);
+        tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc,
+                re, im, type);
+    }
+
+
     void visit_ArrayInitializer(const AST::ArrayInitializer_t &x) {
         Vec<ASR::expr_t*> body;
         body.reserve(al, x.n_args);
