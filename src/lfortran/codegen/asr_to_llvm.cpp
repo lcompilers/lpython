@@ -94,12 +94,27 @@ public:
     llvm::BasicBlock *current_loophead, *current_loopend;
     std::string mangle_prefix;
     bool prototype_only;
+    llvm::StructType *complex_type;
 
     std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
     std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
 
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context},
         prototype_only{false} {}
+
+    llvm::Value* lfortran_float_to_complex(llvm::Value* arg)
+    {
+        std::vector<llvm::Value*> args = {arg};
+        llvm::Function *fn = module->getFunction("_lfortran_float_to_complex");
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    complex_type, {llvm::Type::getFloatTy(context)}, true);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, "_lfortran_float_to_complex", *module);
+        }
+        return builder->CreateCall(fn, args);
+    }
+
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         module = std::make_unique<llvm::Module>("LFortran", context);
@@ -110,6 +125,14 @@ public:
         // All loose statements must be converted to a function, so the items
         // must be empty:
         LFORTRAN_ASSERT(x.n_items == 0);
+
+        // Define LLVM types that we might need
+        // Complex type is represented as an identified struct in LLVM
+        // %complex = type { float, float }
+        llvm::ArrayRef<llvm::Type*> els = {
+            llvm::Type::getFloatTy(context),
+            llvm::Type::getFloatTy(context)};
+        complex_type = llvm::StructType::create(context, els, "complex");
 
         // Process Variables first:
         for (auto &item : x.m_global_scope->scope) {
@@ -227,7 +250,8 @@ public:
                         ptr = builder->CreateAlloca(llvm::Type::getFloatTy(context), nullptr, v->m_name);
                         break;
                     case (ASR::ttypeType::Complex) :
-                        throw CodeGenError("Complex argument type not implemented yet in conversion");
+                        // TODO: Assuming single precision
+                        ptr = builder->CreateAlloca(complex_type, nullptr, v->m_name);
                         break;
                     case (ASR::ttypeType::Character) :
                         throw CodeGenError("Character argument type not implemented yet in conversion");
@@ -771,6 +795,10 @@ public:
             }
             case (ASR::cast_kindType::RealToInteger) : {
                 tmp = builder->CreateFPToSI(tmp, llvm::Type::getInt64Ty(context));
+                break;
+            }
+            case (ASR::cast_kindType::RealToComplex) : {
+                tmp = lfortran_float_to_complex(tmp);
                 break;
             }
             default : throw CodeGenError("Cast kind not implemented");
