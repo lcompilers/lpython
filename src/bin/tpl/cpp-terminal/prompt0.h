@@ -1,3 +1,6 @@
+#ifndef TERMINAL_PROMPT0_H
+#define TERMINAL_PROMPT0_H
+
 #include "terminal.h"
 
 #include <vector>
@@ -239,3 +242,5 @@ std::string prompt0(const Terminal &term, const std::string &prompt_string,
     history.push_back(concat(m.lines));
     return concat(m.lines);
 }
+
+#endif // TERMINAL_PROMPT0_H
