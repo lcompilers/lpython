@@ -72,6 +72,7 @@ void render(Term::Window &scr, const Model &m, size_t cols) {
     for (size_t j=0; j < m.lines.size(); j++) {
         if (j == 0) {
             scr.print_str(1, j+1, m.prompt_string);
+            scr.fill_fg(1, j+1, 1, j+1+3, Term::fg::green);
         } else {
             for (size_t i=0; i < m.prompt_string.size()-1; i++) {
                 scr.set_char(i+1, j+1, '.');
