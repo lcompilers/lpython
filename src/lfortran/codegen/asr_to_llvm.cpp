@@ -129,7 +129,7 @@ public:
         // Define LLVM types that we might need
         // Complex type is represented as an identified struct in LLVM
         // %complex = type { float, float }
-        llvm::ArrayRef<llvm::Type*> els = {
+        std::vector<llvm::Type*> els = {
             llvm::Type::getFloatTy(context),
             llvm::Type::getFloatTy(context)};
         complex_type = llvm::StructType::create(context, els, "complex");
