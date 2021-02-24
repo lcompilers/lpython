@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+struct complex {
+    float re, im;
+};
+
 double _lfort_sum(int n, double *v)
 {
     int i, r;
@@ -27,4 +31,11 @@ void _lfortran_printf(const char* format, ...)
     vfprintf(stdout, format, args);
     fflush(stdout);
     va_end(args);
+}
+
+void _lfortran_complex_add(struct complex* a, struct complex* b,
+    struct complex *result)
+{
+    result->re = a->re + b->re;
+    result->im = a->im + b->im;
 }

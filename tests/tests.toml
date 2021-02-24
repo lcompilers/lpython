@@ -598,3 +598,8 @@ asr = true
 filename = "complex1.f90"
 asr = true
 llvm = true
+
+[[test]]
+filename = "complex2.f90"
+asr = true
+llvm = true

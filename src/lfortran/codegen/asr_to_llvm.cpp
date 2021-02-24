@@ -102,19 +102,74 @@ public:
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context},
         prototype_only{false} {}
 
-    llvm::Value* lfortran_float_to_complex(llvm::Value* arg)
+    // This function is called as:
+    // complex lfortran_complex_add(complex a, complex b)
+    // Internally it get transformed into a runtime call:
+    // void _lfortran_complex_add(complex* a, complex* b, complex *result)
+    llvm::Value* lfortran_complex_add(llvm::Value* a, llvm::Value* b)
     {
-        std::vector<llvm::Value*> args = {arg};
-        llvm::Function *fn = module->getFunction("_lfortran_float_to_complex");
+        llvm::Function *fn = module->getFunction("_lfortran_complex_add");
         if (!fn) {
             llvm::FunctionType *function_type = llvm::FunctionType::get(
-                    complex_type, {llvm::Type::getFloatTy(context)}, true);
+                    llvm::Type::getVoidTy(context), {
+                        complex_type->getPointerTo(),
+                        complex_type->getPointerTo(),
+                        complex_type->getPointerTo()
+                    }, true);
             fn = llvm::Function::Create(function_type,
-                    llvm::Function::ExternalLinkage, "_lfortran_float_to_complex", *module);
+                    llvm::Function::ExternalLinkage, "_lfortran_complex_add", *module);
         }
-        return builder->CreateCall(fn, args);
+
+        llvm::AllocaInst *pa = builder->CreateAlloca(complex_type,
+            nullptr);
+        builder->CreateStore(a, pa);
+        llvm::AllocaInst *pb = builder->CreateAlloca(complex_type,
+            nullptr);
+        builder->CreateStore(b, pb);
+        llvm::AllocaInst *presult = builder->CreateAlloca(complex_type,
+            nullptr);
+        std::vector<llvm::Value*> args = {pa, pb, presult};
+        builder->CreateCall(fn, args);
+        return builder->CreateLoad(presult);
     }
 
+    // This function is called as:
+    // float complex_re(complex a)
+    // And it extracts the real part of the complex number
+    llvm::Value *complex_re(llvm::Value *c) {
+        llvm::AllocaInst *pc = builder->CreateAlloca(complex_type, nullptr);
+        builder->CreateStore(c, pc);
+        std::vector<llvm::Value *> idx = {
+            llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
+            llvm::ConstantInt::get(context, llvm::APInt(32, 0))};
+        llvm::Value *pim = builder->CreateGEP(pc, idx);
+        return builder->CreateLoad(pim);
+    }
+
+    llvm::Value *complex_im(llvm::Value *c) {
+        llvm::AllocaInst *pc = builder->CreateAlloca(complex_type, nullptr);
+        builder->CreateStore(c, pc);
+        std::vector<llvm::Value *> idx = {
+            llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
+            llvm::ConstantInt::get(context, llvm::APInt(32, 1))};
+        llvm::Value *pim = builder->CreateGEP(pc, idx);
+        return builder->CreateLoad(pim);
+    }
+
+    llvm::Value *complex_from_floats(llvm::Value *re, llvm::Value *im) {
+        llvm::AllocaInst *pres = builder->CreateAlloca(complex_type, nullptr);
+        std::vector<llvm::Value *> idx1 = {
+            llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
+            llvm::ConstantInt::get(context, llvm::APInt(32, 0))};
+        std::vector<llvm::Value *> idx2 = {
+            llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
+            llvm::ConstantInt::get(context, llvm::APInt(32, 1))};
+        llvm::Value *pre = builder->CreateGEP(pres, idx1);
+        llvm::Value *pim = builder->CreateGEP(pres, idx2);
+        builder->CreateStore(re, pre);
+        builder->CreateStore(im, pim);
+        return builder->CreateLoad(pres);
+    }
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         module = std::make_unique<llvm::Module>("LFortran", context);
@@ -722,6 +777,29 @@ public:
                     break;
                 };
             }
+        } else if (x.m_type->type == ASR::ttypeType::Complex) {
+            switch (x.m_op) {
+                case ASR::binopType::Add: {
+                    tmp = lfortran_complex_add(left_val, right_val);
+                    break;
+                };
+                case ASR::binopType::Sub: {
+                    throw CodeGenError("Binop: Sub not implemened for Complex yet");
+                    break;
+                };
+                case ASR::binopType::Mul: {
+                    throw CodeGenError("Binop: Mul not implemened for Complex yet");
+                    break;
+                };
+                case ASR::binopType::Div: {
+                    throw CodeGenError("Binop: Div not implemened for Complex yet");
+                    break;
+                };
+                case ASR::binopType::Pow: {
+                    throw CodeGenError("Binop: Pow not implemened for Complex yet");
+                    break;
+                };
+            }
         } else {
             throw CodeGenError("Binop: Only Real and Integer types implemented");
         }
@@ -773,18 +851,7 @@ public:
         // TODO: assuming single precision
         llvm::Value *re2 = llvm::ConstantFP::get(context, llvm::APFloat((float)re));
         llvm::Value *im2 = llvm::ConstantFP::get(context, llvm::APFloat((float)im));
-        llvm::AllocaInst *ptr = builder->CreateAlloca(complex_type, nullptr);
-        std::vector<llvm::Value *> idx1 = {
-            llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
-            llvm::ConstantInt::get(context, llvm::APInt(32, 0))};
-        std::vector<llvm::Value *> idx2 = {
-            llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
-            llvm::ConstantInt::get(context, llvm::APInt(32, 1))};
-        llvm::Value *ptr_re = builder->CreateGEP(ptr, idx1);
-        llvm::Value *ptr_im = builder->CreateGEP(ptr, idx2);
-        builder->CreateStore(re2, ptr_re);
-        builder->CreateStore(im2, ptr_im);
-        tmp = builder->CreateLoad(ptr);
+        tmp = complex_from_floats(re2, im2);
     }
 
     void visit_ConstantLogical(const ASR::ConstantLogical_t &x) {
@@ -822,7 +889,9 @@ public:
                 break;
             }
             case (ASR::cast_kindType::RealToComplex) : {
-                tmp = lfortran_float_to_complex(tmp);
+                llvm::Value *zero = llvm::ConstantFP::get(context,
+                        llvm::APFloat((float)0.0));
+                tmp = complex_from_floats(tmp, zero);
                 break;
             }
             default : throw CodeGenError("Cast kind not implemented");
@@ -850,6 +919,14 @@ public:
             } else if (t->type == ASR::ttypeType::Character) {
                 fmt.push_back("%s");
                 args.push_back(tmp);
+            } else if (t->type == ASR::ttypeType::Complex) {
+                fmt.push_back("(%f,%f)");
+                llvm::Value *d = builder->CreateFPExt(complex_re(tmp),
+                        llvm::Type::getDoubleTy(context));
+                args.push_back(d);
+                d = builder->CreateFPExt(complex_im(tmp),
+                        llvm::Type::getDoubleTy(context));
+                args.push_back(d);
             } else {
                 throw LFortranException("Type not implemented");
             }
