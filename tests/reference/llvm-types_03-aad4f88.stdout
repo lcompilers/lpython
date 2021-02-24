@@ -10,12 +10,13 @@ define i64 @main() {
   %r = alloca float
   store float 1.500000e+00, float* %r
   %0 = load float, float* %r
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0), float %0)
-  %1 = load float, float* %r
-  %2 = fptosi float %1 to i64
-  store i64 %2, i64* %i
-  %3 = load i64, i64* %i
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @1, i32 0, i32 0), i64 %3)
+  %1 = fpext float %0 to double
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0), double %1)
+  %2 = load float, float* %r
+  %3 = fptosi float %2 to i64
+  store i64 %3, i64* %i
+  %4 = load i64, i64* %i
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @1, i32 0, i32 0), i64 %4)
   ret i64 0
 }
 
