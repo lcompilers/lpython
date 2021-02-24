@@ -1,0 +1,18 @@
+; ModuleID = 'LFortran'
+source_filename = "LFortran"
+
+%complex = type { float, float }
+
+define i64 @main() {
+.entry:
+  %x = alloca %complex
+  %0 = alloca %complex
+  %1 = getelementptr %complex, %complex* %0, i32 0, i32 0
+  %2 = getelementptr %complex, %complex* %0, i32 0, i32 1
+  store float 3.000000e+00, float* %1
+  store float 4.000000e+00, float* %2
+  %3 = load %complex, %complex* %0
+  store %complex %3, %complex* %x
+  ret i64 0
+}
+

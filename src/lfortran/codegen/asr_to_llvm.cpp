@@ -129,7 +129,7 @@ public:
         // Define LLVM types that we might need
         // Complex type is represented as an identified struct in LLVM
         // %complex = type { float, float }
-        llvm::ArrayRef<llvm::Type*> els = {
+        std::vector<llvm::Type*> els = {
             llvm::Type::getFloatTy(context),
             llvm::Type::getFloatTy(context)};
         complex_type = llvm::StructType::create(context, els, "complex");
@@ -761,6 +761,30 @@ public:
         double val = std::atof(x.m_r);
         // TODO: assuming single precision
         tmp = llvm::ConstantFP::get(context, llvm::APFloat((float)val));
+    }
+
+    void visit_ConstantComplex(const ASR::ConstantComplex_t &x) {
+        LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantReal_t>(*x.m_re));
+        LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantReal_t>(*x.m_im));
+        double re = std::atof(
+            ASR::down_cast<ASR::ConstantReal_t>(x.m_re)->m_r);
+        double im = std::atof(
+            ASR::down_cast<ASR::ConstantReal_t>(x.m_im)->m_r);
+        // TODO: assuming single precision
+        llvm::Value *re2 = llvm::ConstantFP::get(context, llvm::APFloat((float)re));
+        llvm::Value *im2 = llvm::ConstantFP::get(context, llvm::APFloat((float)im));
+        llvm::AllocaInst *ptr = builder->CreateAlloca(complex_type, nullptr);
+        std::vector<llvm::Value *> idx1 = {
+            llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
+            llvm::ConstantInt::get(context, llvm::APInt(32, 0))};
+        std::vector<llvm::Value *> idx2 = {
+            llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
+            llvm::ConstantInt::get(context, llvm::APInt(32, 1))};
+        llvm::Value *ptr_re = builder->CreateGEP(ptr, idx1);
+        llvm::Value *ptr_im = builder->CreateGEP(ptr, idx2);
+        builder->CreateStore(re2, ptr_re);
+        builder->CreateStore(im2, ptr_im);
+        tmp = builder->CreateLoad(ptr);
     }
 
     void visit_ConstantLogical(const ASR::ConstantLogical_t &x) {

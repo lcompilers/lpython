@@ -1,0 +1,1 @@
+(TranslationUnit (SymbolTable 06902550 {complex1: (Program (SymbolTable 8475e1d1 {x: (Variable 8475e1d1 x Local (Complex 4 []))}) complex1 [(= (Var 8475e1d1 x) (ConstantComplex (ConstantReal "3.0" (Real 4 [])) (ConstantReal "4.0" (Real 4 [])) (Complex 4 [])))])}) [])

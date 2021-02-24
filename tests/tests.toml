@@ -593,3 +593,8 @@ ast = true
 filename = "../integration_tests/complex_02.f90"
 ast = true
 asr = true
+
+[[test]]
+filename = "complex1.f90"
+asr = true
+llvm = true
