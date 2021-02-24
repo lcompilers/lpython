@@ -870,6 +870,33 @@ public:
                 std::string sym_name = fn_name;
                 unit->m_global_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(fn);
                 v = ASR::down_cast<ASR::symbol_t>(fn);
+            } else if (var_name == "sin") {
+                // Intrinsic function sin(x), add it to the global scope
+                ASR::TranslationUnit_t *unit = (ASR::TranslationUnit_t*)asr;
+                const char* fn_name_orig = "sin";
+                char *fn_name = (char*)fn_name_orig;
+                SymbolTable *fn_scope = al.make_new<SymbolTable>(unit->m_global_scope);
+                ASR::ttype_t *type;
+                type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
+                ASR::asr_t *return_var = ASR::make_Variable_t(al, x.base.base.loc,
+                    fn_scope, fn_name, intent_return_var, type);
+                fn_scope->scope[std::string(fn_name)] = ASR::down_cast<ASR::symbol_t>(return_var);
+                ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
+                    ASR::down_cast<ASR::symbol_t>(return_var));
+                ASR::asr_t *fn = ASR::make_Function_t(
+                    al, x.base.base.loc,
+                    /* a_symtab */ fn_scope,
+                    /* a_name */ fn_name,
+                    /* a_args */ nullptr,
+                    /* n_args */ 0,
+                    /* a_body */ nullptr,
+                    /* n_body */ 0,
+                    /* a_bind */ nullptr,
+                    /* a_return_var */ EXPR(return_var_ref),
+                    /* a_module */ nullptr);
+                std::string sym_name = fn_name;
+                unit->m_global_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(fn);
+                v = ASR::down_cast<ASR::symbol_t>(fn);
             } else {
                 throw SemanticError("Function or array '" + var_name
                     + "' not declared", x.base.base.loc);
