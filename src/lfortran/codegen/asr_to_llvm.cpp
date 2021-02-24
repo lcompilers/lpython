@@ -810,15 +810,22 @@ public:
         std::vector<std::string> fmt;
         for (size_t i=0; i<x.n_values; i++) {
             this->visit_expr(*x.m_values[i]);
-            args.push_back(tmp);
             ASR::expr_t *v = x.m_values[i];
             ASR::ttype_t *t = expr_type(v);
             if (t->type == ASR::ttypeType::Integer) {
                 fmt.push_back("%d");
+                args.push_back(tmp);
             } else if (t->type == ASR::ttypeType::Real) {
                 fmt.push_back("%f");
+                // Cast float to double as a workaround for the fact that
+                // vprintf() seems to cast to double even for %f, which
+                // causes it to print 0.000000.
+                llvm::Value *d = builder->CreateFPExt(tmp,
+                        llvm::Type::getDoubleTy(context));
+                args.push_back(d);
             } else if (t->type == ASR::ttypeType::Character) {
                 fmt.push_back("%s");
+                args.push_back(tmp);
             } else {
                 throw LFortranException("Type not implemented");
             }
