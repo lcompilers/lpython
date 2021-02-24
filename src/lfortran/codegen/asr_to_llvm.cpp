@@ -819,6 +819,18 @@ public:
             } else {
                 throw CodeGenError("Unary type not implemented yet");
             }
+        } else if (x.m_type->type == ASR::ttypeType::Real) {
+            if (x.m_op == ASR::unaryopType::UAdd) {
+                // tmp = tmp;
+                return;
+            } else if (x.m_op == ASR::unaryopType::USub) {
+                llvm::Value *zero = llvm::ConstantFP::get(context,
+                        llvm::APFloat((float)0.0));
+                tmp = builder ->CreateFSub(zero, tmp);
+                return;
+            } else {
+                throw CodeGenError("Unary type not implemented yet");
+            }
         } else if (x.m_type->type == ASR::ttypeType::Logical) {
             if (x.m_op == ASR::unaryopType::Not) {
                 tmp = builder ->CreateNot(tmp);
