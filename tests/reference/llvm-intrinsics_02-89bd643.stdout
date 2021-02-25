@@ -1,0 +1,27 @@
+; ModuleID = 'LFortran'
+source_filename = "LFortran"
+
+@0 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
+
+define float @sin(float* %x) {
+.entry:
+  %sin = alloca float
+  %0 = load float, float* %sin
+  ret float %0
+}
+
+define i64 @main() {
+.entry:
+  %x = alloca float
+  %0 = alloca float
+  store float 1.500000e+00, float* %0
+  %1 = call float @sin(float* %0)
+  store float %1, float* %x
+  %2 = load float, float* %x
+  %3 = fpext float %2 to double
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0), double %3)
+  ret i64 0
+}
+
+declare void @_lfortran_printf(i8*, ...)
+
