@@ -1049,6 +1049,13 @@ public:
                 h = get_hash((ASR::asr_t*)s->m_external->m_module_proc);
             } else if (s->m_external->m_type == ASR::proc_external_typeType::Interactive) {
                 h = get_hash((ASR::asr_t*)s);
+            } else if (s->m_external->m_type == ASR::proc_external_typeType::Intrinsic) {
+                if (std::string(s->m_name) == "sin") {
+                    throw CodeGenError("Intrinsic sin() not implemented yet.");
+                } else {
+                    throw CodeGenError("Intrinsic not implemented yet.");
+                }
+                h = get_hash((ASR::asr_t*)s);
             } else {
                 throw CodeGenError("External type not implemented yet.");
             }
