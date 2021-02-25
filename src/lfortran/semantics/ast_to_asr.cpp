@@ -898,6 +898,11 @@ public:
                 fn_scope->scope[std::string(fn_name)] = ASR::down_cast<ASR::symbol_t>(return_var);
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
                     ASR::down_cast<ASR::symbol_t>(return_var));
+
+                ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
+                external->m_type = ASR::proc_external_typeType::Intrinsic;
+                external->m_module_proc = nullptr;
+
                 ASR::asr_t *fn = ASR::make_Function_t(
                     al, x.base.base.loc,
                     /* a_symtab */ fn_scope,
@@ -908,7 +913,7 @@ public:
                     /* n_body */ 0,
                     /* a_bind */ nullptr,
                     /* a_return_var */ EXPR(return_var_ref),
-                    /* a_module */ nullptr);
+                    /* a_external */ external);
                 std::string sym_name = fn_name;
                 unit->m_global_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(fn);
                 v = ASR::down_cast<ASR::symbol_t>(fn);

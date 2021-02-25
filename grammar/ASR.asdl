@@ -32,7 +32,7 @@ symbol
     | Variable(symbol_table parent_symtab, identifier name, intent intent,
             ttype type)
 
-proc_external = (proc_external_type type, symbol module_proc)
+proc_external = (proc_external_type type, symbol? module_proc)
 proc_external_type
     = LFortranModule
     | GFortranModule
