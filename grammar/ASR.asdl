@@ -33,7 +33,11 @@ symbol
             ttype type)
 
 proc_external = (proc_external_type type, symbol module_proc)
-proc_external_type = LFortranModule | GFortranModule | Interactive
+proc_external_type
+    = LFortranModule
+    | GFortranModule
+    | Interactive
+    | Intrinsic
 
 stmt
     = Assignment(expr target, expr value)
