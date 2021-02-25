@@ -1,8 +1,9 @@
-#include <stdlib.h>
-#include <stdio.h>
 #include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 
-struct complex {
+struct _lfortran_complex {
     float re, im;
 };
 
@@ -33,9 +34,14 @@ void _lfortran_printf(const char* format, ...)
     va_end(args);
 }
 
-void _lfortran_complex_add(struct complex* a, struct complex* b,
-    struct complex *result)
+void _lfortran_complex_add(struct _lfortran_complex* a,
+        struct _lfortran_complex* b, struct _lfortran_complex *result)
 {
     result->re = a->re + b->re;
     result->im = a->im + b->im;
+}
+
+void _lfortran_sin(float x, float *result)
+{
+    *result = sin(x);
 }
