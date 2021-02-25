@@ -819,6 +819,18 @@ public:
             } else {
                 throw CodeGenError("Unary type not implemented yet");
             }
+        } else if (x.m_type->type == ASR::ttypeType::Real) {
+            if (x.m_op == ASR::unaryopType::UAdd) {
+                // tmp = tmp;
+                return;
+            } else if (x.m_op == ASR::unaryopType::USub) {
+                llvm::Value *zero = llvm::ConstantFP::get(context,
+                        llvm::APFloat((float)0.0));
+                tmp = builder ->CreateFSub(zero, tmp);
+                return;
+            } else {
+                throw CodeGenError("Unary type not implemented yet");
+            }
         } else if (x.m_type->type == ASR::ttypeType::Logical) {
             if (x.m_op == ASR::unaryopType::Not) {
                 tmp = builder ->CreateNot(tmp);
@@ -973,8 +985,31 @@ public:
             } else {
                 this->visit_expr(*x.m_args[i]);
                 llvm::Value *value=tmp;
+                llvm::Type *target_type;
+                switch (expr_type(x.m_args[i])->type) {
+                    case (ASR::ttypeType::Integer) :
+                        target_type = llvm::Type::getInt64Ty(context);
+                        break;
+                    case (ASR::ttypeType::Real) :
+                        target_type = llvm::Type::getFloatTy(context);
+                        break;
+                    case (ASR::ttypeType::Complex) :
+                        target_type = complex_type;
+                        break;
+                    case (ASR::ttypeType::Character) :
+                        throw CodeGenError("Character argument type not implemented yet in conversion");
+                        break;
+                    case (ASR::ttypeType::Logical) :
+                        target_type = llvm::Type::getInt1Ty(context);
+                        break;
+                    case (ASR::ttypeType::Derived) :
+                        throw CodeGenError("Derived type argument not implemented yet in conversion");
+                        break;
+                    default :
+                        LFORTRAN_ASSERT(false);
+                }
                 llvm::AllocaInst *target = builder->CreateAlloca(
-                    llvm::Type::getInt64Ty(context), nullptr);
+                    target_type, nullptr);
                 builder->CreateStore(value, target);
                 tmp = target;
             }
