@@ -1,6 +1,7 @@
-#include <stdlib.h>
-#include <stdio.h>
 #include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 
 struct complex {
     float re, im;
@@ -38,4 +39,9 @@ void _lfortran_complex_add(struct complex* a, struct complex* b,
 {
     result->re = a->re + b->re;
     result->im = a->im + b->im;
+}
+
+void _lfortran_sin(float x, float *result)
+{
+    *result = sin(x);
 }
