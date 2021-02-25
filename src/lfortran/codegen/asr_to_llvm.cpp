@@ -171,6 +171,32 @@ public:
         return builder->CreateLoad(pres);
     }
 
+    // This function is called as:
+    // float lfortran_sin(float *x)
+    // Internally it get transformed into a runtime call:
+    // void _lfortran_sin(float x, float *result)
+    llvm::Value* lfortran_sin(llvm::Value* pa)
+    {
+        llvm::Function *fn = module->getFunction("_lfortran_sin");
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {
+                        llvm::Type::getFloatTy(context),
+                        llvm::Type::getFloatPtrTy(context)
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, "_lfortran_sin", *module);
+        }
+
+        llvm::AllocaInst *presult = builder->CreateAlloca(
+            llvm::Type::getFloatTy(context),
+            nullptr);
+        llvm::Value *a = builder->CreateLoad(pa);
+        std::vector<llvm::Value*> args = {a, presult};
+        builder->CreateCall(fn, args);
+        return builder->CreateLoad(presult);
+    }
+
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         module = std::make_unique<llvm::Module>("LFortran", context);
         module->setDataLayout("");
