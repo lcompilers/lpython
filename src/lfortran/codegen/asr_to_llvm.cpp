@@ -1077,7 +1077,10 @@ public:
                 h = get_hash((ASR::asr_t*)s);
             } else if (s->m_external->m_type == ASR::proc_external_typeType::Intrinsic) {
                 if (std::string(s->m_name) == "sin") {
-                    throw CodeGenError("Intrinsic sin() not implemented yet.");
+                    std::vector<llvm::Value *> args = convert_call_args(x);
+                    LFORTRAN_ASSERT(args.size() == 1);
+                    tmp = lfortran_sin(args[0]);
+                    return;
                 } else {
                     throw CodeGenError("Intrinsic not implemented yet.");
                 }
