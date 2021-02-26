@@ -45,3 +45,23 @@ void _lfortran_sin(float x, float *result)
 {
     *result = sin(x);
 }
+
+float _lfortran_ssin(float x)
+{
+    return sin(x);
+}
+
+double _lfortran_dsin(double x)
+{
+    return sin(x);
+}
+
+float _Complex _lfortran_csin(float _Complex x)
+{
+    return sin(x);
+}
+
+double _Complex _lfortran_zsin(double _Complex x)
+{
+    return sin(x);
+}
