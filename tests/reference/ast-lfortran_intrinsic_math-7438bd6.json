@@ -2,11 +2,11 @@
     "basename": "ast-lfortran_intrinsic_math-7438bd6",
     "cmd": "lfortran --show-ast --no-color {infile} -o {outfile}",
     "infile": "tests/../src/runtime/lfortran_intrinsic_math.f90",
-    "infile_hash": "515bd60f38efb33ef6b6be0ebe0037a20d3805d454d0ccbc08b873a0",
+    "infile_hash": "dbb6e7e5a676e34e578c2a649bf34754c22990ce6d2f4b76dd6e9f70",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast-lfortran_intrinsic_math-7438bd6.stdout",
-    "stdout_hash": "e31f1ba746c9b8edd74fa25f3e6a804f669034fb63cd1318bbba1955",
+    "stdout_hash": "b59ee8760c2827a28bccf65e0d2c59a490a7a4ea9e407875008309cd",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
