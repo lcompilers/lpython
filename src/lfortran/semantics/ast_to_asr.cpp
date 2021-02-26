@@ -73,7 +73,7 @@ namespace LFortran {
             * 
             * @param al Allocator&
             * @param a_loc Location&
-            * @param convertCan ASR::expr_t** Address of the pointer to 
+            * @param convert_can ASR::expr_t** Address of the pointer to 
             *                                 conversion candidate.
             * @param source_type ASR::ttype_t* Source type.
             * @param dest_type AST::ttype_t* Destination type.
