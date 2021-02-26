@@ -105,3 +105,5 @@ MANIFEST
 ## Build Files
 */bin/lfortran
 output
+*.o
+*.out

@@ -125,10 +125,10 @@ public:
     * _lfortran_complex_div
     * _lfortran_complex_mul
     */
-    llvm::Value* lfortran_complex_bin_op(llvm::Value* left_arg, llvm::Value* righ_arg, 
+    llvm::Value* lfortran_complex_bin_op(llvm::Value* left_arg, llvm::Value* right_arg, 
                                          std::string runtime_func_name)
     {
-        llvm::Function *fn = module->getFunction(func_name);
+        llvm::Function *fn = module->getFunction(runtime_func_name);
         if (!fn) {
             llvm::FunctionType *function_type = llvm::FunctionType::get(
                     llvm::Type::getVoidTy(context), {
@@ -137,15 +137,15 @@ public:
                         complex_type->getPointerTo()
                     }, true);
             fn = llvm::Function::Create(function_type,
-                    llvm::Function::ExternalLinkage, func_name, *module);
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
         }
 
         llvm::AllocaInst *pleft_arg = builder->CreateAlloca(complex_type,
             nullptr);
-        builder->CreateStore(left_arg, pa);
+        builder->CreateStore(left_arg, pleft_arg);
         llvm::AllocaInst *pright_arg = builder->CreateAlloca(complex_type,
             nullptr);
-        builder->CreateStore(right_arg, pb);
+        builder->CreateStore(right_arg, pright_arg);
         llvm::AllocaInst *presult = builder->CreateAlloca(complex_type,
             nullptr);
         std::vector<llvm::Value*> args = {pleft_arg, pright_arg, presult};
