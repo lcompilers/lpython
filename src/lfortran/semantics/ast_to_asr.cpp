@@ -8,10 +8,145 @@
 #include <lfortran/pickle.h>
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/parser/parser_stype.h>
+#include <string>
 
+#define num_types 6
 
 namespace LFortran {
 
+    class ImplicitCastRules {
+
+        private:
+
+            //! Default case when no conversion is needed.
+            static const int defaultCase = -1;
+            //! Error case when conversion is not possible or is illegal.
+            static const int errorCase = -2;
+            static const int integerToReal = ASR::cast_kindType::IntegerToReal;
+            static const int realToInteger = ASR::cast_kindType::RealToInteger;
+            static const int realToComplex = ASR::cast_kindType::RealToComplex;
+
+            //! Stores the variable part of error messages to be passed to SemanticError.
+            static constexpr const char* type_names[num_types][2] = {
+                {"Integer", ""}, 
+                {"Real", "Integer or Real"}, 
+                {"Complex", ""},
+                {"Character", ""},
+                {"Logical", ""},
+                {"Derived", ""}
+            }; 
+
+            /*
+            * Rule map for performing implicit cast represented by a 2D integer array.
+            * 
+            * Key is the pair of indices with row index denoting the source type
+            * and column index denoting the destination type.
+            */
+            static constexpr const int ruleMap[num_types][num_types] = {
+
+                {defaultCase, integerToReal, errorCase, errorCase, errorCase, errorCase},
+                {realToInteger, defaultCase, realToComplex, defaultCase, defaultCase, defaultCase},
+                {defaultCase, defaultCase, defaultCase, defaultCase, defaultCase, defaultCase},
+                {defaultCase, defaultCase, defaultCase, defaultCase, defaultCase, defaultCase},
+                {defaultCase, defaultCase, defaultCase, defaultCase, defaultCase, defaultCase},
+                {defaultCase, defaultCase, defaultCase, defaultCase, defaultCase, defaultCase}
+
+            };
+
+            /*
+            * Priority of different types to be used in conversion
+            * when source and destination are directly not deducible.
+            */
+            static constexpr const int typePriority[num_types] = {
+                4, // Integer
+                5, // Real
+                6, // Complex
+                -1, // Character
+                -1, // Logical
+                -1 // Derived
+            };
+
+        public:
+
+            /*
+            * Adds ImplicitCast node if necessary.
+            * 
+            * @param al Allocator&
+            * @param a_loc Location&
+            * @param convertCan ASR::expr_t** Address of the pointer to 
+            *                                 conversion candidate.
+            * @param sourceType ASR::ttype_t* Source type.
+            * @param destType AST::ttype_t* Destination type.
+            */
+            static void setConvertedValue
+            (Allocator &al, const Location &a_loc, 
+             ASR::expr_t** convertCan, ASR::ttype_t* sourceType, ASR::ttype_t* destType) {
+                int cast_kind = ruleMap[sourceType->type][destType->type];
+                if( cast_kind == errorCase )
+                {
+                    std::string allowed_types_str = type_names[destType->type][1];
+                    std::string dest_type_str = type_names[destType->type][0];
+                    std::string error_msg = "Only " + allowed_types_str + 
+                                            " can be assigned to " + dest_type_str;
+                    throw SemanticError(error_msg, a_loc);
+                }
+                else if( cast_kind != defaultCase )
+                {
+                    *convertCan = (ASR::expr_t*) ASR::make_ImplicitCast_t(
+                        al, a_loc, *convertCan, (ASR::cast_kindType) cast_kind, 
+                        destType
+                    );
+                }
+            }
+
+            /*
+            * Deduces the candidate which is to be casted
+            * based on the priority of types.
+            * 
+            * @param left ASR::expr_t** Address of the pointer to left 
+            *                           element in the operation.
+            * @param right ASR::expr_t** Address of the pointer to right
+            *                            element in the operation.
+            * @param left_type ASR::ttype_t* Pointer to the type of left element.
+            * @param right_type ASR::ttype_t* Pointer to the type of right element.
+            * @param conversionCand ASR::expr_t**& Reference to the address of
+            *                                      the pointer of conversion
+            *                                      candidate.
+            * @param sourceType ASR::ttype_t** For storing the address of pointer
+            *                                  to source type.
+            * @param destType ASR::ttype_t** For stroing the address of pointer to
+            *                                destination type.
+            * 
+            * Note
+            * ====
+            * 
+            * Address of pointer have been used so that the contents 
+            * of the pointer variables are modified which are then 
+            * used in making the node of different operations. If directly
+            * the pointer values are used, then no effect on left or right
+            * is observed and ASR construction fails.
+            */
+            static void findConversionCandidate
+            (ASR::expr_t** left, ASR::expr_t** right,
+             ASR::ttype_t* left_type, ASR::ttype_t* right_type,
+             ASR::expr_t** &conversionCand, 
+             ASR::ttype_t** sourceType, ASR::ttype_t** destType) {
+
+                int left_type_p = typePriority[left_type->type];
+                int right_type_p = typePriority[right_type->type];
+                if( left_type_p >= right_type_p ) {
+                    conversionCand = right;
+                    *sourceType = right_type;
+                    *destType = left_type;
+                }
+                else {
+                    conversionCand = left;
+                    *sourceType = left_type;
+                    *destType = right_type;
+                }
+            }
+
+    };
 
 class SymbolTableVisitor : public AST::BaseVisitor<SymbolTableVisitor>
 {
@@ -576,42 +711,24 @@ public:
     void visit_Assignment(const AST::Assignment_t &x) {
         this->visit_expr(*x.m_target);
         ASR::expr_t *target = EXPR(tmp);
-        if (target->type == ASR::exprType::Var) {
-            // integer :: i
-            // i = ...
-        } else if (target->type == ASR::exprType::ArrayRef) {
-            // integer :: i(5)
-            // i(3) = ...
-        } else {
-            throw SemanticError("The LHS of assignment can only be a variable or an array reference",
-                x.base.base.loc);
+        ASR::ttype_t *target_type = expr_type(target);
+        if( target->type != ASR::exprType::Var && 
+            target->type != ASR::exprType::ArrayRef )
+        {
+            throw SemanticError(
+                "The LHS of assignment can only be a variable or an array reference",
+                x.base.base.loc
+            );
         }
+
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = EXPR(tmp);
+        ASR::ttype_t *value_type = expr_type(value);
         if (target->type == ASR::exprType::Var) {
-            // integer :: i
-            // i = ...
-            if (expr_type(target)->type == ASR::ttypeType::Real) {
-                if (expr_type(value)->type == ASR::ttypeType::Real) {
-                    // TODO: convert/cast kinds if they differ
-                } else if (expr_type(value)->type == ASR::ttypeType::Integer) {
-                    value = (ASR::expr_t*)ASR::make_ImplicitCast_t(al, x.base.base.loc,
-                        value, ASR::cast_kindType::IntegerToReal, expr_type(target));
-                } else {
-                    throw SemanticError("Only Integer or Real can be assigned to Real",
-                        x.base.base.loc);
-                }
-            } else if (expr_type(target)->type == ASR::ttypeType::Integer) {
-                if (expr_type(value)->type == ASR::ttypeType::Real) {
-                    value = (ASR::expr_t*)ASR::make_ImplicitCast_t(al, x.base.base.loc,
-                        value, ASR::cast_kindType::RealToInteger, expr_type(target));
-                } else if (expr_type(value)->type == ASR::ttypeType::Integer) {
-                    // TODO: convert/cast kinds if they differ
-                } else {
-                    throw SemanticError("Only Integer or Real can be assigned to Integer",
-                        x.base.base.loc);
-                }
-            }
+
+            ImplicitCastRules::setConvertedValue(al, x.base.base.loc, &value, 
+                                                 value_type, target_type);
+
         }
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value);
     }
@@ -642,27 +759,28 @@ public:
         // Cast LHS or RHS if necessary
         ASR::ttype_t *left_type = expr_type(left);
         ASR::ttype_t *right_type = expr_type(right);
-        if (left_type->type == ASR::ttypeType::Real) {
-            if (right_type->type == ASR::ttypeType::Real) {
-                // TODO: convert/cast kinds if they differ
-            } else if (right_type->type == ASR::ttypeType::Integer) {
-                right = (ASR::expr_t*)ASR::make_ImplicitCast_t(al, x.base.base.loc,
-                    right, ASR::cast_kindType::IntegerToReal, left_type);
-            } else {
-                throw SemanticError("Compare: only Integer or Real can be on the RHS with Real as LHS",
-                    x.base.base.loc);
-            }
-        } else if (left_type->type == ASR::ttypeType::Integer) {
-            if (right_type->type == ASR::ttypeType::Real) {
-                left = (ASR::expr_t*)ASR::make_ImplicitCast_t(al, x.base.base.loc,
-                    left, ASR::cast_kindType::IntegerToReal, right_type);
-            } else if (right_type->type == ASR::ttypeType::Integer) {
-                // TODO: convert/cast kinds if they differ
-            } else {
-                throw SemanticError("Compare: Only Integer or Real can be on the RHS with Integer as LHS",
-                    x.base.base.loc);
-            }
+        if( (left_type->type != ASR::ttypeType::Real && 
+            left_type->type != ASR::ttypeType::Integer) &&
+            (right_type->type != ASR::ttypeType::Real &&
+             right_type->type != ASR::ttypeType::Integer) ) {
+            throw SemanticError(
+                "Compare: only Integer or Real can be on the LHS and RHS", 
+            x.base.base.loc);
         }
+        else
+        {
+            ASR::expr_t **conversionCand = &left;
+            ASR::ttype_t *destType = right_type;
+            ASR::ttype_t *sourceType = left_type;
+            ImplicitCastRules::findConversionCandidate
+            (&left, &right, left_type, right_type, 
+             conversionCand, &sourceType, &destType);
+
+            ImplicitCastRules::setConvertedValue
+            (al, x.base.base.loc, conversionCand, 
+             sourceType, destType);
+        }
+
         LFORTRAN_ASSERT(expr_type(left)->type == expr_type(right)->type);
         ASR::ttype_t *type = TYPE(ASR::make_Logical_t(al, x.base.base.loc,
                 4, nullptr, 0));
@@ -708,57 +826,24 @@ public:
             // Fix compiler warning:
             default : { LFORTRAN_ASSERT(false); op = ASR::binopType::Pow; }
         }
+
         // Cast LHS or RHS if necessary
         ASR::ttype_t *left_type = expr_type(left);
         ASR::ttype_t *right_type = expr_type(right);
-        ASR::ttype_t *type;
-        if (left_type->type == ASR::ttypeType::Real) {
-            if (right_type->type == ASR::ttypeType::Real) {
-                // TODO: convert/cast kinds if they differ
-                type = left_type;
-            } else if (right_type->type == ASR::ttypeType::Integer) {
-                right = (ASR::expr_t*)ASR::make_ImplicitCast_t(al, x.base.base.loc,
-                    right, ASR::cast_kindType::IntegerToReal, left_type);
-                type = left_type;
-            } else if (right_type->type == ASR::ttypeType::Complex) {
-                left = (ASR::expr_t*)ASR::make_ImplicitCast_t(al, x.base.base.loc,
-                    left, ASR::cast_kindType::RealToComplex, right_type);
-                type = right_type;
-            } else {
-                throw SemanticError("Binop: only Integer, Real or Complex can be on the RHS with Real as LHS",
-                    x.base.base.loc);
-            }
-        } else if (left_type->type == ASR::ttypeType::Integer) {
-            if (right_type->type == ASR::ttypeType::Real) {
-                left = (ASR::expr_t*)ASR::make_ImplicitCast_t(al, x.base.base.loc,
-                    left, ASR::cast_kindType::IntegerToReal, right_type);
-                type = right_type;
-            } else if (right_type->type == ASR::ttypeType::Integer) {
-                // TODO: convert/cast kinds if they differ
-                type = left_type;
-            } else {
-                throw SemanticError("BinOp: Only Integer or Real can be on the RHS with Integer as LHS",
-                    x.base.base.loc);
-            }
-        } else if (left_type->type == ASR::ttypeType::Complex) {
-            if (right_type->type == ASR::ttypeType::Real) {
-                right = (ASR::expr_t*)ASR::make_ImplicitCast_t(al, x.base.base.loc,
-                    right, ASR::cast_kindType::RealToComplex, left_type);
-                type = left_type;
-            } else if (right_type->type == ASR::ttypeType::Complex) {
-                // TODO: convert/cast kinds if they differ
-                type = left_type;
-            } else {
-                throw SemanticError("BinOp: Only Complex, Complex binary operation is implemented for now",
-                    x.base.base.loc);
-            }
-        } else {
-            LFORTRAN_ASSERT(false);
-            type = nullptr;
-        }
+        ASR::expr_t **conversionCand = &left;
+        ASR::ttype_t *sourceType = left_type;
+        ASR::ttype_t *destType = right_type;
+
+        ImplicitCastRules::findConversionCandidate(
+            &left, &right, left_type, right_type, 
+            conversionCand, &sourceType, &destType);
+        ImplicitCastRules::setConvertedValue(
+            al, x.base.base.loc, conversionCand,
+            sourceType, destType);
+
         LFORTRAN_ASSERT(expr_type(left)->type == expr_type(right)->type);
         tmp = ASR::make_BinOp_t(al, x.base.base.loc,
-                left, op, right, type);
+                left, op, right, destType);
     }
 
     void visit_UnaryOp(const AST::UnaryOp_t &x) {
