@@ -41,6 +41,22 @@ void _lfortran_complex_add(struct _lfortran_complex* a,
     result->im = a->im + b->im;
 }
 
+void _lfortran_complex_sub(struct _lfortran_complex* a,
+        struct _lfortran_complex* b, struct _lfortran_complex *result)
+{
+    result->re = a->re - b->re;
+    result->im = a->im - b->im;
+}
+
+void _lfortran_complex_mul(struct _lfortran_complex* a,
+        struct _lfortran_complex* b, struct _lfortran_complex *result)
+{
+    float p = a->re, q = a->im;
+    float r = b->re, s = b->im;
+    result->re = (p*r - q*s);
+    result->im = (p*s + q*r);
+}
+
 void _lfortran_sin(float x, float *result)
 {
     *result = sin(x);

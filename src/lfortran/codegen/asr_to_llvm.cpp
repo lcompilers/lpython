@@ -102,13 +102,33 @@ public:
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context},
         prototype_only{false} {}
 
-    // This function is called as:
-    // complex lfortran_complex_add(complex a, complex b)
-    // Internally it get transformed into a runtime call:
-    // void _lfortran_complex_add(complex* a, complex* b, complex *result)
-    llvm::Value* lfortran_complex_add(llvm::Value* a, llvm::Value* b)
+    /*
+    * Dispatches the required function from runtime library to 
+    * perform the specified binary operation.
+    * 
+    * @param left_arg llvm::Value* The left argument of the binary operator.
+    * @param right_arg llvm::Value* The right argument of the binary operator.
+    * @param runtime_func_name std::string The name of the function to be dispatched
+    *                                      from runtime library.
+    * @returns llvm::Value* The result of the operation.
+    * 
+    * Note
+    * ====
+    * 
+    * Internally the call to this function gets transformed into a runtime call:
+    * void _lfortran_complex_add(complex* a, complex* b, complex *result)
+    * 
+    * As of now the following values for func_name are supported,
+    * 
+    * _lfortran_complex_add
+    * _lfortran_complex_sub
+    * _lfortran_complex_div
+    * _lfortran_complex_mul
+    */
+    llvm::Value* lfortran_complex_bin_op(llvm::Value* left_arg, llvm::Value* righ_arg, 
+                                         std::string runtime_func_name)
     {
-        llvm::Function *fn = module->getFunction("_lfortran_complex_add");
+        llvm::Function *fn = module->getFunction(func_name);
         if (!fn) {
             llvm::FunctionType *function_type = llvm::FunctionType::get(
                     llvm::Type::getVoidTy(context), {
@@ -117,18 +137,18 @@ public:
                         complex_type->getPointerTo()
                     }, true);
             fn = llvm::Function::Create(function_type,
-                    llvm::Function::ExternalLinkage, "_lfortran_complex_add", *module);
+                    llvm::Function::ExternalLinkage, func_name, *module);
         }
 
-        llvm::AllocaInst *pa = builder->CreateAlloca(complex_type,
+        llvm::AllocaInst *pleft_arg = builder->CreateAlloca(complex_type,
             nullptr);
-        builder->CreateStore(a, pa);
-        llvm::AllocaInst *pb = builder->CreateAlloca(complex_type,
+        builder->CreateStore(left_arg, pa);
+        llvm::AllocaInst *pright_arg = builder->CreateAlloca(complex_type,
             nullptr);
-        builder->CreateStore(b, pb);
+        builder->CreateStore(right_arg, pb);
         llvm::AllocaInst *presult = builder->CreateAlloca(complex_type,
             nullptr);
-        std::vector<llvm::Value*> args = {pa, pb, presult};
+        std::vector<llvm::Value*> args = {pleft_arg, pright_arg, presult};
         builder->CreateCall(fn, args);
         return builder->CreateLoad(presult);
     }
@@ -806,19 +826,19 @@ public:
         } else if (x.m_type->type == ASR::ttypeType::Complex) {
             switch (x.m_op) {
                 case ASR::binopType::Add: {
-                    tmp = lfortran_complex_add(left_val, right_val);
+                    tmp = lfortran_complex_bin_op(left_val, right_val, "_lfortran_complex_add");
                     break;
                 };
                 case ASR::binopType::Sub: {
-                    throw CodeGenError("Binop: Sub not implemened for Complex yet");
+                    tmp = lfortran_complex_bin_op(left_val, right_val, "_lfortran_complex_sub");
                     break;
                 };
                 case ASR::binopType::Mul: {
-                    throw CodeGenError("Binop: Mul not implemened for Complex yet");
+                    tmp = lfortran_complex_bin_op(left_val, right_val, "_lfortran_complex_mul");
                     break;
                 };
                 case ASR::binopType::Div: {
-                    throw CodeGenError("Binop: Div not implemened for Complex yet");
+                    tmp = lfortran_complex_bin_op(left_val, right_val, "_lfortran_complex_div");
                     break;
                 };
                 case ASR::binopType::Pow: {
@@ -827,7 +847,7 @@ public:
                 };
             }
         } else {
-            throw CodeGenError("Binop: Only Real and Integer types implemented");
+            throw CodeGenError("Binop: Only Real, Integer and Complex types implemented");
         }
     }
 
