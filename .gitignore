@@ -98,3 +98,7 @@ MANIFEST
 
 ## Jupyter
 *-checkpoint.ipynb
+
+## Editor Files
+.vscode/
+*/bin/*
