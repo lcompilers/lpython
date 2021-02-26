@@ -74,6 +74,8 @@ void render(Term::Window &scr, const Model &m, size_t cols) {
             scr.print_str(1, j+1, m.prompt_string);
             scr.fill_fg(1, j+1, m.prompt_string.size(), m.lines.size(),
                 Term::fg::green);
+            scr.fill_style(1, j+1, m.prompt_string.size(), m.lines.size(),
+                Term::style::bold);
         } else {
             for (size_t i=0; i < m.prompt_string.size()-1; i++) {
                 scr.set_char(i+1, j+1, '.');
