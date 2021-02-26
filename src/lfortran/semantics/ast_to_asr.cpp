@@ -19,12 +19,12 @@ namespace LFortran {
         private:
 
             //! Default case when no conversion is needed.
-            static const int defaultCase = -1;
+            static const int default_case = -1;
             //! Error case when conversion is not possible or is illegal.
-            static const int errorCase = -2;
-            static const int integerToReal = ASR::cast_kindType::IntegerToReal;
-            static const int realToInteger = ASR::cast_kindType::RealToInteger;
-            static const int realToComplex = ASR::cast_kindType::RealToComplex;
+            static const int error_case = -2;
+            static const int integer_to_real = ASR::cast_kindType::IntegerToReal;
+            static const int real_to_integer = ASR::cast_kindType::RealToInteger;
+            static const int real_to_complex = ASR::cast_kindType::RealToComplex;
 
             //! Stores the variable part of error messages to be passed to SemanticError.
             static constexpr const char* type_names[num_types][2] = {
@@ -42,14 +42,14 @@ namespace LFortran {
             * Key is the pair of indices with row index denoting the source type
             * and column index denoting the destination type.
             */
-            static constexpr const int ruleMap[num_types][num_types] = {
+            static constexpr const int rule_map[num_types][num_types] = {
 
-                {defaultCase, integerToReal, errorCase, errorCase, errorCase, errorCase},
-                {realToInteger, defaultCase, realToComplex, defaultCase, defaultCase, defaultCase},
-                {defaultCase, defaultCase, defaultCase, defaultCase, defaultCase, defaultCase},
-                {defaultCase, defaultCase, defaultCase, defaultCase, defaultCase, defaultCase},
-                {defaultCase, defaultCase, defaultCase, defaultCase, defaultCase, defaultCase},
-                {defaultCase, defaultCase, defaultCase, defaultCase, defaultCase, defaultCase}
+                {default_case, integer_to_real, error_case, error_case, error_case, error_case},
+                {real_to_integer, default_case, real_to_complex, default_case, default_case, default_case},
+                {default_case, default_case, default_case, default_case, default_case, default_case},
+                {default_case, default_case, default_case, default_case, default_case, default_case},
+                {default_case, default_case, default_case, default_case, default_case, default_case},
+                {default_case, default_case, default_case, default_case, default_case, default_case}
 
             };
 
@@ -57,7 +57,7 @@ namespace LFortran {
             * Priority of different types to be used in conversion
             * when source and destination are directly not deducible.
             */
-            static constexpr const int typePriority[num_types] = {
+            static constexpr const int type_priority[num_types] = {
                 4, // Integer
                 5, // Real
                 6, // Complex
@@ -75,26 +75,26 @@ namespace LFortran {
             * @param a_loc Location&
             * @param convertCan ASR::expr_t** Address of the pointer to 
             *                                 conversion candidate.
-            * @param sourceType ASR::ttype_t* Source type.
-            * @param destType AST::ttype_t* Destination type.
+            * @param source_type ASR::ttype_t* Source type.
+            * @param dest_type AST::ttype_t* Destination type.
             */
-            static void setConvertedValue
+            static void set_converted_value
             (Allocator &al, const Location &a_loc, 
-             ASR::expr_t** convertCan, ASR::ttype_t* sourceType, ASR::ttype_t* destType) {
-                int cast_kind = ruleMap[sourceType->type][destType->type];
-                if( cast_kind == errorCase )
+             ASR::expr_t** convert_can, ASR::ttype_t* source_type, ASR::ttype_t* dest_type) {
+                int cast_kind = rule_map[source_type->type][dest_type->type];
+                if( cast_kind == error_case )
                 {
-                    std::string allowed_types_str = type_names[destType->type][1];
-                    std::string dest_type_str = type_names[destType->type][0];
+                    std::string allowed_types_str = type_names[dest_type->type][1];
+                    std::string dest_type_str = type_names[dest_type->type][0];
                     std::string error_msg = "Only " + allowed_types_str + 
                                             " can be assigned to " + dest_type_str;
                     throw SemanticError(error_msg, a_loc);
                 }
-                else if( cast_kind != defaultCase )
+                else if( cast_kind != default_case )
                 {
-                    *convertCan = (ASR::expr_t*) ASR::make_ImplicitCast_t(
-                        al, a_loc, *convertCan, (ASR::cast_kindType) cast_kind, 
-                        destType
+                    *convert_can = (ASR::expr_t*) ASR::make_ImplicitCast_t(
+                        al, a_loc, *convert_can, (ASR::cast_kindType) cast_kind, 
+                        dest_type
                     );
                 }
             }
@@ -109,12 +109,12 @@ namespace LFortran {
             *                            element in the operation.
             * @param left_type ASR::ttype_t* Pointer to the type of left element.
             * @param right_type ASR::ttype_t* Pointer to the type of right element.
-            * @param conversionCand ASR::expr_t**& Reference to the address of
+            * @param conversion_cand ASR::expr_t**& Reference to the address of
             *                                      the pointer of conversion
             *                                      candidate.
-            * @param sourceType ASR::ttype_t** For storing the address of pointer
+            * @param source_type ASR::ttype_t** For storing the address of pointer
             *                                  to source type.
-            * @param destType ASR::ttype_t** For stroing the address of pointer to
+            * @param dest_type ASR::ttype_t** For stroing the address of pointer to
             *                                destination type.
             * 
             * Note
@@ -126,23 +126,23 @@ namespace LFortran {
             * the pointer values are used, then no effect on left or right
             * is observed and ASR construction fails.
             */
-            static void findConversionCandidate
+            static void find_conversion_candidate
             (ASR::expr_t** left, ASR::expr_t** right,
              ASR::ttype_t* left_type, ASR::ttype_t* right_type,
-             ASR::expr_t** &conversionCand, 
-             ASR::ttype_t** sourceType, ASR::ttype_t** destType) {
+             ASR::expr_t** &conversion_cand, 
+             ASR::ttype_t** source_type, ASR::ttype_t** dest_type) {
 
-                int left_type_p = typePriority[left_type->type];
-                int right_type_p = typePriority[right_type->type];
+                int left_type_p = type_priority[left_type->type];
+                int right_type_p = type_priority[right_type->type];
                 if( left_type_p >= right_type_p ) {
-                    conversionCand = right;
-                    *sourceType = right_type;
-                    *destType = left_type;
+                    conversion_cand = right;
+                    *source_type = right_type;
+                    *dest_type = left_type;
                 }
                 else {
-                    conversionCand = left;
-                    *sourceType = left_type;
-                    *destType = right_type;
+                    conversion_cand = left;
+                    *source_type = left_type;
+                    *dest_type = right_type;
                 }
             }
 
@@ -726,7 +726,7 @@ public:
         ASR::ttype_t *value_type = expr_type(value);
         if (target->type == ASR::exprType::Var) {
 
-            ImplicitCastRules::setConvertedValue(al, x.base.base.loc, &value, 
+            ImplicitCastRules::set_converted_value(al, x.base.base.loc, &value, 
                                                  value_type, target_type);
 
         }
@@ -769,16 +769,16 @@ public:
         }
         else
         {
-            ASR::expr_t **conversionCand = &left;
-            ASR::ttype_t *destType = right_type;
-            ASR::ttype_t *sourceType = left_type;
-            ImplicitCastRules::findConversionCandidate
+            ASR::expr_t **conversion_cand = &left;
+            ASR::ttype_t *dest_type = right_type;
+            ASR::ttype_t *source_type = left_type;
+            ImplicitCastRules::find_conversion_candidate
             (&left, &right, left_type, right_type, 
-             conversionCand, &sourceType, &destType);
+             conversion_cand, &source_type, &dest_type);
 
-            ImplicitCastRules::setConvertedValue
-            (al, x.base.base.loc, conversionCand, 
-             sourceType, destType);
+            ImplicitCastRules::set_converted_value
+            (al, x.base.base.loc, conversion_cand, 
+             source_type, dest_type);
         }
 
         LFORTRAN_ASSERT(expr_type(left)->type == expr_type(right)->type);
@@ -830,20 +830,20 @@ public:
         // Cast LHS or RHS if necessary
         ASR::ttype_t *left_type = expr_type(left);
         ASR::ttype_t *right_type = expr_type(right);
-        ASR::expr_t **conversionCand = &left;
-        ASR::ttype_t *sourceType = left_type;
-        ASR::ttype_t *destType = right_type;
+        ASR::expr_t **conversion_cand = &left;
+        ASR::ttype_t *source_type = left_type;
+        ASR::ttype_t *dest_type = right_type;
 
-        ImplicitCastRules::findConversionCandidate(
+        ImplicitCastRules::find_conversion_candidate(
             &left, &right, left_type, right_type, 
-            conversionCand, &sourceType, &destType);
-        ImplicitCastRules::setConvertedValue(
-            al, x.base.base.loc, conversionCand,
-            sourceType, destType);
+            conversion_cand, &source_type, &dest_type);
+        ImplicitCastRules::set_converted_value(
+            al, x.base.base.loc, conversion_cand,
+            source_type, dest_type);
 
         LFORTRAN_ASSERT(expr_type(left)->type == expr_type(right)->type);
         tmp = ASR::make_BinOp_t(al, x.base.base.loc,
-                left, op, right, destType);
+                left, op, right, dest_type);
     }
 
     void visit_UnaryOp(const AST::UnaryOp_t &x) {

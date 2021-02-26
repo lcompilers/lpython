@@ -101,4 +101,4 @@ MANIFEST
 
 ## Editor Files
 .vscode/
-*/bin/*
+*/bin/lfortran
