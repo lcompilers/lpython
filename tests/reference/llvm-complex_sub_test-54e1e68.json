@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-complex_sub_test-54e1e68",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/complex_sub_test.f90",
+    "infile_hash": "9f572986fbed1d55d70fd8cd6941a7aaff7a29b92b0b8eada122ac20",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "llvm-complex_sub_test-54e1e68.stderr",
+    "stderr_hash": "ba4a562ab57653c5b98abb5a3d6173eaf3ced3f5c238b64ac30920f0",
+    "returncode": 1
+}

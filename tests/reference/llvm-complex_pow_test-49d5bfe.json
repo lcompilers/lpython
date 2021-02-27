@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-complex_pow_test-49d5bfe",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/complex_pow_test.f90",
+    "infile_hash": "cc3e566ed81771c2b1c24916ac5bcd29fde8fef80826cc84d56d72fa",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "llvm-complex_pow_test-49d5bfe.stderr",
+    "stderr_hash": "54e8a52be232d1f0c91e8e5cae2e53aae1b46fec47801c61b5a628c9",
+    "returncode": 5
+}
