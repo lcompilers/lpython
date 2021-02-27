@@ -3,6 +3,14 @@
 #include <stdlib.h>
 #include <math.h>
 
+#if _WIN32
+typedef _Fcomplex float_complex_t;
+typedef _Dcomplex double_complex_t;
+#else
+typedef float _Complex float_complex_t;
+typedef double _Complex double_complex_t;
+#endif
+
 struct _lfortran_complex {
     float re, im;
 };
@@ -56,12 +64,12 @@ double _lfortran_dsin(double x)
     return sin(x);
 }
 
-float _Complex _lfortran_csin(float _Complex x)
+float_complex_t _lfortran_csin(float_complex_t x)
 {
     return sin(x);
 }
 
-double _Complex _lfortran_zsin(double _Complex x)
+double_complex_t _lfortran_zsin(double_complex_t x)
 {
     return sin(x);
 }
