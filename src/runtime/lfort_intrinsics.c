@@ -80,11 +80,17 @@ void _lfortran_complex_div(struct _lfortran_complex* a,
 void _lfortran_complex_pow(struct _lfortran_complex* a,
         struct _lfortran_complex* b, struct _lfortran_complex *result)
 {
-    float complex ca = CMPLXF(a->re, a->im);
-    float complex cb = CMPLXF(b->re, b->im);
-    float complex cr = cpowf(ca, cb);
-    result->re = crealf(cr);
-    result->im = cimagf(cr);
+    #ifdef _WIN32
+        result->re = 0.0;
+        result->im = 0.0;
+    #else
+        float complex ca = CMPLXF(a->re, a->im);
+        float complex cb = CMPLXF(b->re, b->im);
+        float complex cr = cpowf(ca, cb);
+        result->re = crealf(cr);
+        result->im = cimagf(cr);
+    #endif
+
 }
 
 void _lfortran_sin(float x, float *result)
