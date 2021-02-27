@@ -67,10 +67,20 @@ double _lfortran_dsin(double x)
 
 float_complex_t _lfortran_csin(float_complex_t x)
 {
+#ifdef _WIN32
+    float_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
     return sin(x);
+#endif
 }
 
 double_complex_t _lfortran_zsin(double_complex_t x)
 {
+#ifdef _WIN32
+    double_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
     return sin(x);
+#endif
 }
