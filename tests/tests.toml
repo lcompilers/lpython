@@ -632,3 +632,7 @@ llvm = true
 filename = "../integration_tests/intrinsics_02.f90"
 asr = true
 llvm = true
+
+[[test]]
+filename = "../src/runtime/lfortran_intrinsic_math.f90"
+ast = true

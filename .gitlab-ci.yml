@@ -110,6 +110,13 @@ cxx_binary_tests:
     - cd ..
     - ./run_tests.py
     - PATH="`pwd`/src/bin:$PATH" ./test_lfort_cmdline lfortran
+
+    - cd src/runtime/tests
+    - cmake .
+    - make
+    - ctest
+    - cd ../../..
+
     - cd integration_tests
 
     - mkdir build-gfortran

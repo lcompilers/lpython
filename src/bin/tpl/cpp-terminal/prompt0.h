@@ -72,6 +72,10 @@ void render(Term::Window &scr, const Model &m, size_t cols) {
     for (size_t j=0; j < m.lines.size(); j++) {
         if (j == 0) {
             scr.print_str(1, j+1, m.prompt_string);
+            scr.fill_fg(1, j+1, m.prompt_string.size(), m.lines.size(),
+                Term::fg::green);
+            scr.fill_style(1, j+1, m.prompt_string.size(), m.lines.size(),
+                Term::style::bold);
         } else {
             for (size_t i=0; i < m.prompt_string.size()-1; i++) {
                 scr.set_char(i+1, j+1, '.');
@@ -230,6 +234,7 @@ std::string prompt0(const Terminal &term, const std::string &prompt_string,
         std::cout << scr.render(1, row, term_attached) << std::flush;
         if (row+(int)scr.get_h()-1 > rows) {
             row = rows - ((int)scr.get_h()-1);
+            std::cout << scr.render(1, row, term_attached) << std::flush;
         }
     }
     // REPL currently supports pressing enter at any cursor position, so
