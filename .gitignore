@@ -107,3 +107,6 @@ MANIFEST
 output
 *.o
 *.out
+
+## Error Files
+*.stderr

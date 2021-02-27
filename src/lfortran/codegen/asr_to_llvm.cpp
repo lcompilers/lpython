@@ -842,7 +842,7 @@ public:
                     break;
                 };
                 case ASR::binopType::Pow: {
-                    throw CodeGenError("Binop: Pow not implemened for Complex yet");
+                    tmp = lfortran_complex_bin_op(left_val, right_val, "_lfortran_complex_pow");
                     break;
                 };
             }
@@ -947,6 +947,13 @@ public:
                 break;
             }
             case (ASR::cast_kindType::RealToComplex) : {
+                llvm::Value *zero = llvm::ConstantFP::get(context,
+                        llvm::APFloat((float)0.0));
+                tmp = complex_from_floats(tmp, zero);
+                break;
+            }
+            case (ASR::cast_kindType::IntegerToComplex) : {
+                tmp = builder->CreateSIToFP(tmp, llvm::Type::getFloatTy(context));
                 llvm::Value *zero = llvm::ConstantFP::get(context,
                         llvm::APFloat((float)0.0));
                 tmp = complex_from_floats(tmp, zero);
