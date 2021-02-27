@@ -39,12 +39,12 @@ end function
 
 elemental real(sp) function cabs(x) result(r)
 complex(sp), intent(in) :: x
-r = sqrt(x%re**2 + x%im**2)
+r = sqrt(real(x,sp)**2 + aimag(x)**2)
 end function
 
 elemental real(dp) function zabs(x) result(r)
 complex(dp), intent(in) :: x
-r = sqrt(x%re**2 + x%im**2)
+r = sqrt(real(x,dp)**2 + aimag(x)**2)
 end function
 
 !-------------------------------------------------------------------------------
