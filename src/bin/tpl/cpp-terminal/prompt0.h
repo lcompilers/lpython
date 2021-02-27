@@ -234,6 +234,7 @@ std::string prompt0(const Terminal &term, const std::string &prompt_string,
         std::cout << scr.render(1, row, term_attached) << std::flush;
         if (row+(int)scr.get_h()-1 > rows) {
             row = rows - ((int)scr.get_h()-1);
+            std::cout << scr.render(1, row, term_attached) << std::flush;
         }
     }
     // REPL currently supports pressing enter at any cursor position, so
