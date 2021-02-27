@@ -1,1 +1,0 @@
-(TranslationUnit [(Program complex2 [] [(Declaration [(x "complex" [] [] [] ())])] [(= x (Complex (Real "3.0") (Real "4.0"))) (= x (/ x (Real "4.0"))) (Print () [x]) (= x (/ 2 x)) (Print () [x]) (= x (/ 1 (+ x (Complex (Real "0.0") (Real "3.0"))))) (Print () [x])] [])])
