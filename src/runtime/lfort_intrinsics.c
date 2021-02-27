@@ -71,7 +71,8 @@ void _lfortran_complex_div(struct _lfortran_complex* a,
 void _lfortran_complex_pow(struct _lfortran_complex* a,
         struct _lfortran_complex* b, struct _lfortran_complex *result)
 {
-    float complex ca = CMPLXF(a->re, a->im), cb = CMPLXF(b->re, b->im);
+    float complex ca = CMPLXF(a->re, a->im);
+    float complex cb = CMPLXF(b->re, b->im);
     float complex cr = cpowf(ca, cb);
     result->re = crealf(cr);
     result->im = cimagf(cr);
