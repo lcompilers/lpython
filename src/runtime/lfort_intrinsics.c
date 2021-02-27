@@ -3,17 +3,18 @@
 #include <stdlib.h>
 #include <math.h>
 
+struct _lfortran_complex {
+    float re, im;
+};
+
 #if _WIN32
-typedef _Fcomplex float_complex_t;
-typedef _Dcomplex double_complex_t;
+typedef struct _lfortran_complex float_complex_t;
+typedef struct _lfortran_complex double_complex_t;
 #else
 typedef float _Complex float_complex_t;
 typedef double _Complex double_complex_t;
 #endif
 
-struct _lfortran_complex {
-    float re, im;
-};
 
 double _lfort_sum(int n, double *v)
 {
