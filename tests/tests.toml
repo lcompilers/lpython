@@ -595,6 +595,26 @@ ast = true
 asr = true
 
 [[test]]
+filename = "../integration_tests/complex_sub_test.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/complex_mul_test.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/complex_div_test.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/complex_pow_test.f90"
+asr = true
+llvm = true
+
+[[test]]
 filename = "complex1.f90"
 asr = true
 llvm = true

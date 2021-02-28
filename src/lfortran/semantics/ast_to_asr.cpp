@@ -25,12 +25,13 @@ namespace LFortran {
             static const int integer_to_real = ASR::cast_kindType::IntegerToReal;
             static const int real_to_integer = ASR::cast_kindType::RealToInteger;
             static const int real_to_complex = ASR::cast_kindType::RealToComplex;
+            static const int integer_to_complex = ASR::cast_kindType::IntegerToComplex;
 
             //! Stores the variable part of error messages to be passed to SemanticError.
             static constexpr const char* type_names[num_types][2] = {
                 {"Integer", ""}, 
                 {"Real", "Integer or Real"}, 
-                {"Complex", ""},
+                {"Complex", "Integer, Real or Complex"},
                 {"Character", ""},
                 {"Logical", ""},
                 {"Derived", ""}
@@ -44,7 +45,7 @@ namespace LFortran {
             */
             static constexpr const int rule_map[num_types][num_types] = {
 
-                {default_case, integer_to_real, error_case, error_case, error_case, error_case},
+                {default_case, integer_to_real, integer_to_complex, error_case, error_case, error_case},
                 {real_to_integer, default_case, real_to_complex, default_case, default_case, default_case},
                 {default_case, default_case, default_case, default_case, default_case, default_case},
                 {default_case, default_case, default_case, default_case, default_case, default_case},
