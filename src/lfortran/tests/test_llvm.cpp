@@ -588,3 +588,68 @@ define float @f()
     )""");
     CHECK(std::abs(e.floatfn("f") - 8) < 1e-6);
 }
+
+// Tests passing boolean by reference
+TEST_CASE("llvm boolean type") {
+    LFortran::LLVMEvaluator e;
+    e.add_module(R"""(
+
+%bool = type i8
+
+define %bool @and_func(%bool* %p, %bool* %q)
+{
+    %pval = load %bool, %bool* %p
+    %qval = load %bool, %bool* %q
+
+    %r = and %bool %pval, %qval
+    ret %bool %r
+}
+
+define %bool @b()
+{
+    %p = alloca %bool
+    %q = alloca %bool
+
+    store %bool 1, %bool* %p
+    store %bool 0, %bool* %q
+
+    %r = call %bool @and_func(%bool* %p, %bool* %q)
+
+    ret %bool %r
+}
+    )""");
+    CHECK(e.boolfn("b") == false);
+}
+
+// Tests passing boolean by value
+TEST_CASE("llvm boolean type") {
+    LFortran::LLVMEvaluator e;
+    e.add_module(R"""(
+
+%bool = type i8
+
+define %bool @and_func(%bool %p, %bool %q)
+{
+    %r = and %bool %p, %q
+    ret %bool %r
+}
+
+define %bool @b()
+{
+    %p = alloca %bool
+    %q = alloca %bool
+
+    store %bool 1, %bool* %p
+    store %bool 0, %bool* %q
+
+    %pval = load %bool, %bool* %p
+    %qval = load %bool, %bool* %q
+
+    %r = call %bool @and_func(%bool %pval, %bool %qval)
+
+    ret %bool %r
+}
+    )""");
+    CHECK(e.boolfn("b") == false);
+}
+
