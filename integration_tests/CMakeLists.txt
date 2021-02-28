@@ -175,10 +175,10 @@ RUN(NAME types_13 LABELS gfortran)
 
 RUN(NAME complex_01 LABELS gfortran)
 RUN(NAME complex_02 LABELS gfortran)
-RUN(NAME complex_sub_test LABELS gfortran)
-RUN(NAME complex_mul_test LABELS gfortran)
-RUN(NAME complex_div_test LABELS gfortran)
-RUN(NAME complex_pow_test LABELS gfortran)
+RUN(NAME complex_sub_test LABELS gfortran llvm)
+RUN(NAME complex_mul_test LABELS gfortran llvm)
+RUN(NAME complex_div_test LABELS gfortran llvm)
+RUN(NAME complex_pow_test LABELS gfortran llvm)
 
 RUN(NAME doloop_04 LABELS gfortran)
 
