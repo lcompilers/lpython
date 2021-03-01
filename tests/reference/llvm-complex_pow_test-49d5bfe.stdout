@@ -1,0 +1,55 @@
+; ModuleID = 'LFortran'
+source_filename = "LFortran"
+
+%complex = type { float, float }
+
+@0 = private unnamed_addr constant [9 x i8] c"(%f,%f)\0A\00", align 1
+
+define i64 @main() {
+.entry:
+  %x = alloca %complex
+  %y = alloca %complex
+  %z = alloca %complex
+  %0 = alloca %complex
+  %1 = getelementptr %complex, %complex* %0, i32 0, i32 0
+  %2 = getelementptr %complex, %complex* %0, i32 0, i32 1
+  store float 3.000000e+00, float* %1
+  store float 4.000000e+00, float* %2
+  %3 = load %complex, %complex* %0
+  store %complex %3, %complex* %x
+  %4 = alloca %complex
+  %5 = getelementptr %complex, %complex* %4, i32 0, i32 0
+  %6 = getelementptr %complex, %complex* %4, i32 0, i32 1
+  store float 3.000000e+00, float* %5
+  store float 2.000000e+00, float* %6
+  %7 = load %complex, %complex* %4
+  store %complex %7, %complex* %y
+  %8 = load %complex, %complex* %x
+  %9 = load %complex, %complex* %y
+  %10 = alloca %complex
+  store %complex %8, %complex* %10
+  %11 = alloca %complex
+  store %complex %9, %complex* %11
+  %12 = alloca %complex
+  call void (%complex*, %complex*, %complex*, ...) @_lfortran_complex_pow(%complex* %10, %complex* %11, %complex* %12)
+  %13 = load %complex, %complex* %12
+  store %complex %13, %complex* %z
+  %14 = load %complex, %complex* %z
+  %15 = alloca %complex
+  store %complex %14, %complex* %15
+  %16 = getelementptr %complex, %complex* %15, i32 0, i32 0
+  %17 = load float, float* %16
+  %18 = fpext float %17 to double
+  %19 = alloca %complex
+  store %complex %14, %complex* %19
+  %20 = getelementptr %complex, %complex* %19, i32 0, i32 1
+  %21 = load float, float* %20
+  %22 = fpext float %21 to double
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @0, i32 0, i32 0), double %18, double %22)
+  ret i64 0
+}
+
+declare void @_lfortran_complex_pow(%complex*, %complex*, %complex*, ...)
+
+declare void @_lfortran_printf(i8*, ...)
+

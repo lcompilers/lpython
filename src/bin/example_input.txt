@@ -1,1 +1,34 @@
-integer function f(); f = 42; end function
+integer a
+a = 500
+if (a .GT. 100) then
+if (a .GT. 200) print *, ">200"
+endif
+
+integer function f(g); 
+integer, intent(in) :: g
+integer :: a
+f = 42
+if (f .GT. 0) then
+if (g .LT. 0) then
+do a = 1, 42
+if (f .EQ. a) print *, "The answer is: "
+enddo
+endif
+end if
+end function
+f(-42)
+
+subroutine h(r)
+real(dp), intent(out) :: r
+integer :: n, i
+n = 42
+do i = 1, n
+    if (i .LT. 100) then
+        if (i .EQ. 42) r = (n**2)**(0.5)
+        if (i .EQ. 42) then
+            print *, "To be more precise, the answer is: ", r
+        endif
+    endif
+enddo
+end subroutine
+call h(42.0)

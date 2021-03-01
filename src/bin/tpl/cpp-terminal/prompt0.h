@@ -87,7 +87,8 @@ void render(Term::Window &scr, const Model &m, size_t cols) {
 }
 
 std::string prompt0(const Terminal &term, const std::string &prompt_string,
-        std::vector<std::string> &history) {
+        std::vector<std::string> &history, std::function<bool(std::string)>
+        &iscomplete) {
     int row, col;
     bool term_attached = term.is_stdin_a_tty();
     if (term_attached) {
@@ -118,7 +119,9 @@ std::string prompt0(const Terminal &term, const std::string &prompt_string,
     int key;
     render(scr, m, cols);
     std::cout << scr.render(1, row, term_attached) << std::flush;
-    while ((key = term.read_key()) != Key::ENTER) {
+    bool not_complete = true;
+    while (not_complete) {
+        key = term.read_key();
         if (  (key >= 'a' && key <= 'z') ||
               (key >= 'A' && key <= 'Z') ||
               (!iscntrl(key) && key < 128)  ) {
@@ -210,6 +213,14 @@ std::string prompt0(const Terminal &term, const std::string &prompt_string,
                         }
                     }
                     break;
+                case Key::ENTER:
+                    not_complete = !iscomplete(concat(m.lines));
+                    if (not_complete) {
+                        key = Key::ALT_ENTER;
+                    } else {
+                        break;
+                    }
+                    [[fallthrough]];
                 case ALT_KEY('n'):
                 case Key::ALT_ENTER:
                     std::string before = m.lines[m.cursor_row-1].substr(0,

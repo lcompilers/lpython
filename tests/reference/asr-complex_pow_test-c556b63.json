@@ -1,0 +1,13 @@
+{
+    "basename": "asr-complex_pow_test-c556b63",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/complex_pow_test.f90",
+    "infile_hash": "cc3e566ed81771c2b1c24916ac5bcd29fde8fef80826cc84d56d72fa",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-complex_pow_test-c556b63.stdout",
+    "stdout_hash": "680efa0e8b2c03c5c594f792f2e7248398cef8e3ad561451d313f870",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

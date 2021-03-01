@@ -21,6 +21,7 @@
 #include <lfortran/config.h>
 #include <lfortran/fortran_kernel.h>
 #include <lfortran/string_utils.h>
+#include <lfortran/parser/parser.tab.hh>
 
 #include <cpp-terminal/terminal.h>
 #include <cpp-terminal/prompt0.h>
@@ -82,6 +83,145 @@ void section(const std::string &s)
     std::cout << color(LFortran::style::bold) << color(LFortran::fg::blue) << s << color(LFortran::style::reset) << color(LFortran::fg::reset) << std::endl;
 }
 
+int emit_tokens(const std::string &input, std::vector<std::string> 
+    &tok_strings, std::vector<int> &toks, std::vector<LFortran::YYSTYPE>
+    &stypes)
+{
+    // Overload for the case where we want all the token information to use
+    // elsewhere
+    // Src -> Tokens
+    Allocator al(64*1024*1024);
+    //std::vector<int> toks;
+    //std::vector<LFortran::YYSTYPE> stypes;
+    try {
+        toks = LFortran::tokens(input, &stypes);
+    } catch (const LFortran::TokenizerError &e) {
+        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
+        return 1;
+    }
+
+    for (size_t i=0; i < toks.size(); i++) {
+        tok_strings.push_back(LFortran::pickle(toks[i], stypes[i]));
+        //std::cout << LFortran::pickle(toks[i], stypes[i]) << std::endl;
+    }
+    return 0;
+}
+
+bool determine_completeness(std::string command)
+{
+    // Determine if the statement is complete
+    // Get the tokens
+    bool complete;
+    std::vector<int> toks;
+    std::vector<LFortran::YYSTYPE> stypes;
+    std::vector<std::string> token_strings;
+    int tok_ret = emit_tokens(command, token_strings, toks, stypes);
+    // The token enumerators are in parser.tab.hh
+    int do_blnc = 0;
+    if (std::find(toks.begin(), toks.end(), KW_DO)!=toks.end()
+        || std::find(toks.begin(), toks.end(), KW_DOWHILE)!=toks.end()) {
+        // Statement contains do loop
+        for (size_t i = 0; i < toks.size(); i++) {
+            if (toks[i] == KW_DO || toks[i] == KW_DOWHILE) {
+                do_blnc++;
+            } else if (toks[i] == KW_END_DO || toks[i] == KW_ENDDO) {
+                do_blnc--;
+            }
+        }
+    }
+    int sr_blnc = 0;
+    if (std::find(toks.begin(), toks.end(), KW_SUBROUTINE)!=toks.end()) {
+        // Statement contains subroutine 
+        for (size_t i = 0; i < toks.size(); i++) {
+            if (toks[i] == KW_SUBROUTINE) {
+                sr_blnc++;
+            } else if (toks[i] == KW_END) {
+                // Need another subroutine token for this to be properly
+                // terminated
+                if (toks[i+1] == KW_SUBROUTINE) {
+                    sr_blnc--;
+                    i++;
+                }
+            }
+        }
+    }
+    int fn_blnc = 0;
+    if (std::find(toks.begin(), toks.end(), KW_FUNCTION)!=toks.end()) {
+        // Statement contains function 
+        for (size_t i = 0; i < toks.size(); i++) {
+            if (toks[i] == KW_FUNCTION) {
+                fn_blnc++;
+            } else if (toks[i] == KW_END) {
+                // Need another function token for this to be properly
+                // terminated
+                if (toks[i+1] == KW_FUNCTION) {
+                    fn_blnc--;
+                    i++;
+                }
+            }
+        }
+    }
+    int if_blnc = 0;
+    size_t endif_loc = toks.size() - 1;
+    // If statements need more involved checks due to the potential for deep
+    // nesting of block and logical if's.
+    if (std::find(toks.begin(), toks.end(), KW_IF)!=toks.end()) {
+        // Statement contains if 
+        for (size_t i = 0; i < toks.size(); i++) {
+            if (toks[i] == KW_IF) {
+                if_blnc++;
+                // Determine if this is a logical or block if by checking for 
+                // then token.
+                // Block if balance is decremented on an end if token.
+                // An apparent logical if is decremented arbitrarily since we
+                // aren't checking syntax here.
+                if (std::find(toks.begin() + i, toks.begin() + endif_loc, 
+                            KW_THEN)!=toks.begin() + endif_loc) {
+                    // The statement contains block ifs, check for end if
+                    for (size_t j = i+1; j < endif_loc; j++) {
+                        if (toks[j] == KW_THEN) {
+                            bool then_found = true;
+                            for (size_t k = endif_loc; k > j; k--) {
+                                if (toks[k] == KW_ENDIF || toks[k] == 
+                                        KW_END_IF) {
+                                    if_blnc--;
+                                    // Make sure to not double count this end
+                                    // if by not looping to this far again
+                                    endif_loc = k - 1;
+                                 }
+                            } 
+                            if (then_found) {
+                                // We hit a then and no end if so this must be
+                                // incomplete
+                                break;
+                            }
+                        } else if (toks[j] == KW_IF) {
+                            // We've encountered another if before a then, so
+                            // this appears to be a logical if in a statement
+                            // with other block ifs.
+                            if_blnc--;
+                            break;
+                        }
+                    }
+                } else {
+                    // No associated then, assume logical if
+                    if_blnc--;
+                }
+            }
+        }
+    }
+    if (do_blnc > 0 || sr_blnc > 0 || fn_blnc > 0 || if_blnc > 0) {
+        complete = false;
+    } else {
+        // If there are excess end statements just return error eventually
+        complete = true;
+    }
+    if (tok_ret == 1) {
+        // Tokenizer error, assume complete and return error eventually
+        complete = true;
+    }
+    return complete;
+}
 
 int prompt(bool verbose)
 {
@@ -97,8 +237,9 @@ int prompt(bool verbose)
     LFortran::FortranEvaluator e;
 
     std::vector<std::string> history;
+    std::function<bool(std::string)> iscomplete = determine_completeness;
     while (true) {
-        std::string input = prompt0(term, ">>> ", history);
+        std::string input = prompt0(term, ">>> ", history, iscomplete);
         if (input.size() == 1 && input[0] == CTRL_KEY('d')) {
             std::cout << std::endl;
             std::cout << "Exiting." << std::endl;
