@@ -970,7 +970,8 @@ public:
             this->visit_expr(*x.m_values[i]);
             ASR::expr_t *v = x.m_values[i];
             ASR::ttype_t *t = expr_type(v);
-            if (t->type == ASR::ttypeType::Integer) {
+            if (t->type == ASR::ttypeType::Integer || 
+                t->type == ASR::ttypeType::Logical) {
                 fmt.push_back("%d");
                 args.push_back(tmp);
             } else if (t->type == ASR::ttypeType::Real) {
