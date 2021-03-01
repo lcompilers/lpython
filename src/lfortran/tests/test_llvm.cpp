@@ -588,3 +588,64 @@ define float @f()
     )""");
     CHECK(std::abs(e.floatfn("f") - 8) < 1e-6);
 }
+
+// Tests passing boolean by reference
+TEST_CASE("llvm boolean type") {
+    LFortran::LLVMEvaluator e;
+    e.add_module(R"""(
+
+define i1 @and_func(i1* %p, i1* %q)
+{
+    %pval = load i1, i1* %p
+    %qval = load i1, i1* %q
+
+    %r = and i1 %pval, %qval
+    ret i1 %r
+}
+
+define i1 @b()
+{
+    %p = alloca i1
+    %q = alloca i1
+
+    store i1 1, i1* %p
+    store i1 0, i1* %q
+
+    %r = call i1 @and_func(i1* %p, i1* %q)
+
+    ret i1 %r
+}
+    )""");
+    CHECK(e.boolfn("b") == false);
+}
+
+// Tests passing boolean by value
+TEST_CASE("llvm boolean type") {
+    LFortran::LLVMEvaluator e;
+    e.add_module(R"""(
+
+define i1 @and_func(i1 %p, i1 %q)
+{
+    %r = and i1 %p, %q
+    ret i1 %r
+}
+
+define i1 @b()
+{
+    %p = alloca i1
+    %q = alloca i1
+
+    store i1 1, i1* %p
+    store i1 0, i1* %q
+
+    %pval = load i1, i1* %p
+    %qval = load i1, i1* %q
+
+    %r = call i1 @and_func(i1 %pval, i1 %qval)
+
+    ret i1 %r
+}
+    )""");
+    CHECK(e.boolfn("b") == false);
+}
+

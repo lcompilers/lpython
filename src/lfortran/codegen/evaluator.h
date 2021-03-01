@@ -50,6 +50,7 @@ public:
     void add_module(std::unique_ptr<LLVMModule> m);
     intptr_t get_symbol_address(const std::string &name);
     int64_t intfn(const std::string &name);
+    bool boolfn(const std::string &name);
     float floatfn(const std::string &name);
     void voidfn(const std::string &name);
     std::string get_asm(llvm::Module &m);

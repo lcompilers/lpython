@@ -744,6 +744,35 @@ public:
         builder->SetInsertPoint(after);
     }
 
+    void visit_BoolOp(const ASR::BoolOp_t &x) {
+        this->visit_expr(*x.m_left);
+        llvm::Value *left_val = tmp;
+        this->visit_expr(*x.m_right);
+        llvm::Value *right_val = tmp;
+        if (x.m_type->type == ASR::ttypeType::Logical) {
+            switch (x.m_op) {
+                case ASR::boolopType::And: {
+                    tmp = builder->CreateAnd(left_val, right_val);
+                    break;
+                };
+                case ASR::boolopType::Or: {
+                    tmp = builder->CreateOr(left_val, right_val);
+                    break;
+                };
+                case ASR::boolopType::NEqv: {
+                    tmp = builder->CreateXor(left_val, right_val);
+                    break;
+                };
+                case ASR::boolopType::Eqv: {
+                    tmp = builder->CreateXor(left_val, right_val);
+                    tmp = builder->CreateNot(tmp);
+                };
+            } 
+        } else {
+            throw CodeGenError("Boolop: Only Logical types can be used with logical operators.");
+        }
+    }
+
     void visit_BinOp(const ASR::BinOp_t &x) {
         this->visit_expr(*x.m_left);
         llvm::Value *left_val = tmp;
@@ -959,6 +988,10 @@ public:
                 tmp = complex_from_floats(tmp, zero);
                 break;
             }
+            case (ASR::cast_kindType::IntegerToLogical) : {
+                tmp = builder->CreateICmpNE(tmp, builder->getInt64(0));
+                break;
+            }
             default : throw CodeGenError("Cast kind not implemented");
         }
     }
@@ -970,7 +1003,8 @@ public:
             this->visit_expr(*x.m_values[i]);
             ASR::expr_t *v = x.m_values[i];
             ASR::ttype_t *t = expr_type(v);
-            if (t->type == ASR::ttypeType::Integer) {
+            if (t->type == ASR::ttypeType::Integer || 
+                t->type == ASR::ttypeType::Logical) {
                 fmt.push_back("%d");
                 args.push_back(tmp);
             } else if (t->type == ASR::ttypeType::Real) {

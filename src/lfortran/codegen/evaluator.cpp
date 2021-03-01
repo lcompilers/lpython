@@ -198,6 +198,12 @@ int64_t LLVMEvaluator::intfn(const std::string &name) {
     return f();
 }
 
+bool LLVMEvaluator::boolfn(const std::string &name) {
+    intptr_t addr = get_symbol_address(name);
+    bool (*f)() = (bool (*)())addr;
+    return f();
+}
+
 float LLVMEvaluator::floatfn(const std::string &name) {
     intptr_t addr = get_symbol_address(name);
     float (*f)() = (float (*)())addr;
