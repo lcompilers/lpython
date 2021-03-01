@@ -402,13 +402,13 @@ script_unit
 module
     : KW_MODULE id sep use_statement_star implicit_statement_opt
         decl_star contains_block_opt KW_END end_module_opt sep {
-            $$ = MODULE($2, $6, $7, @$); }
+            $$ = MODULE($2, $4, $6, $7, @$); }
     ;
 
 submodule
     : KW_SUBMODULE "(" id ")" id sep use_statement_star implicit_statement_opt
         decl_star contains_block_opt KW_END end_submodule_opt sep {
-            $$ = MODULE($5, $9, $10, @$); }
+            $$ = MODULE($5, $7, $9, $10, @$); }
     ;
 
 interface_decl

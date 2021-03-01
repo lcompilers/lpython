@@ -819,7 +819,7 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
 #define USE_SYMBOL3(l) make_UseSymbol_t(p.m_a, l, \
         nullptr, nullptr)
 
-#define MODULE(name, decl, contains, l) make_Module_t(p.m_a, l, \
+#define MODULE(name, use, decl, contains, l) make_Module_t(p.m_a, l, \
         name2char(name), \
         /*unit_decl1_t** a_use*/ nullptr, /*size_t n_use*/ 0, \
         /*unit_decl2_t** a_decl*/ DECLS(decl), /*size_t n_decl*/ decl.size(), \
