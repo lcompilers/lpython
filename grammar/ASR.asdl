@@ -97,6 +97,7 @@ cast_kind
     | IntegerToInteger
     | RealToComplex
     | IntegerToComplex
+    | IntegerToLogical
 
 dimension = (expr? start, expr? end)
 

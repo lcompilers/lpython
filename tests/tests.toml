@@ -640,6 +640,11 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "../integration_tests/logical4.f90"
+asr = true
+llvm = true
+
+[[test]]
 filename = "../integration_tests/intrinsics_02.f90"
 asr = true
 llvm = true

@@ -1,4 +1,4 @@
-program logical1
+program logical3
     ! this program checks logical operators
     implicit none
     

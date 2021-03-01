@@ -1,4 +1,4 @@
-program logical1
+program logical2
     ! this program checks logical operators
     implicit none
     
@@ -15,4 +15,4 @@ program logical1
           print *, "Line 1 - Condition is false"
        end if
        
-end program logical1
+end program logical2

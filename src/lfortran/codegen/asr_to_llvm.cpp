@@ -988,6 +988,10 @@ public:
                 tmp = complex_from_floats(tmp, zero);
                 break;
             }
+            case (ASR::cast_kindType::IntegerToLogical) : {
+                tmp = builder->CreateICmpNE(tmp, builder->getInt64(0));
+                break;
+            }
             default : throw CodeGenError("Cast kind not implemented");
         }
     }
