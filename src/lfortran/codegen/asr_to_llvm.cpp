@@ -744,7 +744,7 @@ public:
         builder->SetInsertPoint(after);
     }
 
-        void visit_BoolOp(const ASR::BoolOp_t &x) {
+    void visit_BoolOp(const ASR::BoolOp_t &x) {
         this->visit_expr(*x.m_left);
         llvm::Value *left_val = tmp;
         this->visit_expr(*x.m_right);
