@@ -594,28 +594,26 @@ TEST_CASE("llvm boolean type") {
     LFortran::LLVMEvaluator e;
     e.add_module(R"""(
 
-%bool = type i8
-
-define %bool @and_func(%bool* %p, %bool* %q)
+define i1 @and_func(i1* %p, i1* %q)
 {
-    %pval = load %bool, %bool* %p
-    %qval = load %bool, %bool* %q
+    %pval = load i1, i1* %p
+    %qval = load i1, i1* %q
 
-    %r = and %bool %pval, %qval
-    ret %bool %r
+    %r = and i1 %pval, %qval
+    ret i1 %r
 }
 
-define %bool @b()
+define i1 @b()
 {
-    %p = alloca %bool
-    %q = alloca %bool
+    %p = alloca i1
+    %q = alloca i1
 
-    store %bool 1, %bool* %p
-    store %bool 0, %bool* %q
+    store i1 1, i1* %p
+    store i1 0, i1* %q
 
-    %r = call %bool @and_func(%bool* %p, %bool* %q)
+    %r = call i1 @and_func(i1* %p, i1* %q)
 
-    ret %bool %r
+    ret i1 %r
 }
     )""");
     CHECK(e.boolfn("b") == false);
@@ -626,28 +624,26 @@ TEST_CASE("llvm boolean type") {
     LFortran::LLVMEvaluator e;
     e.add_module(R"""(
 
-%bool = type i8
-
-define %bool @and_func(%bool %p, %bool %q)
+define i1 @and_func(i1 %p, i1 %q)
 {
-    %r = and %bool %p, %q
-    ret %bool %r
+    %r = and i1 %p, %q
+    ret i1 %r
 }
 
-define %bool @b()
+define i1 @b()
 {
-    %p = alloca %bool
-    %q = alloca %bool
+    %p = alloca i1
+    %q = alloca i1
 
-    store %bool 1, %bool* %p
-    store %bool 0, %bool* %q
+    store i1 1, i1* %p
+    store i1 0, i1* %q
 
-    %pval = load %bool, %bool* %p
-    %qval = load %bool, %bool* %q
+    %pval = load i1, i1* %p
+    %qval = load i1, i1* %q
 
-    %r = call %bool @and_func(%bool %pval, %bool %qval)
+    %r = call i1 @and_func(i1 %pval, i1 %qval)
 
-    ret %bool %r
+    ret i1 %r
 }
     )""");
     CHECK(e.boolfn("b") == false);
