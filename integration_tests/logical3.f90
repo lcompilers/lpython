@@ -43,4 +43,4 @@ program logical3
           print *, "Line 5 - Condition is false"
        end if
        
-end program logical1
+end program logical3
