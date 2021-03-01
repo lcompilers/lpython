@@ -321,6 +321,8 @@ public:
                 type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
             } else if (return_type == "real") {
                 type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
+            } else if (return_type == "complex") {
+                type = TYPE(ASR::make_Complex_t(al, x.base.base.loc, 4, nullptr, 0));
             } else if (return_type == "logical") {
                 type = TYPE(ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
             } else {
