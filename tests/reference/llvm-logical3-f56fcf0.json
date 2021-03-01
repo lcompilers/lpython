@@ -2,7 +2,7 @@
     "basename": "llvm-logical3-f56fcf0",
     "cmd": "lfortran --show-llvm {infile} -o {outfile}",
     "infile": "tests/../integration_tests/logical3.f90",
-    "infile_hash": "0d2f82feac3008444bb29a6281761086cca0a277e9fe9af5cb3d0da6",
+    "infile_hash": "0fe31f19bbe9c3e25bdb7e14810763077e59df886cdf7720ac044f63",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "llvm-logical3-f56fcf0.stdout",

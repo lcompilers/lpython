@@ -2,11 +2,11 @@
     "basename": "asr-logical2-e35f19c",
     "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/logical2.f90",
-    "infile_hash": "c2dfd80534106ae87b724fcec3cf5785cf97f78bd8a6807894bcedd5",
+    "infile_hash": "7efb2fb2352ed7c8d81b56547300d3653a2f796950815393a0fae0ab",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-logical2-e35f19c.stdout",
-    "stdout_hash": "a2ea6eec6a746be5214857104b8d9f44c4fe35286d87c448fd41f786",
+    "stdout_hash": "952ad80e9517ffd8fa61ac52ad4a1d68d1d940f42b7db26e63fadd95",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
