@@ -6,6 +6,8 @@ end subroutine a_proc
 
 module a_mod
 
+integer :: i
+parameter(i = 2)
 
 end module a_mod
 
