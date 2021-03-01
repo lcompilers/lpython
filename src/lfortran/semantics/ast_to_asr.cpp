@@ -380,6 +380,10 @@ public:
         }
     }
 
+    void visit_Interface(const AST::Interface_t &/*x*/) {
+        // TODO
+    }
+
     void visit_Use(const AST::Use_t &x) {
         std::string msym = x.m_module;
         ASR::symbol_t *t = current_scope->parent->resolve_symbol(msym);
