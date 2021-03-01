@@ -802,6 +802,40 @@ public:
             left, asr_op, right, type);
     }
 
+    void visit_BoolOp(const AST::BoolOp_t &x) {
+        this->visit_expr(*x.m_left);
+        ASR::expr_t *left = EXPR(tmp);
+        this->visit_expr(*x.m_right);
+        ASR::expr_t *right = EXPR(tmp);
+        ASR::boolopType op;
+        switch (x.m_op) {
+            case (AST::And):
+                op = ASR::And;
+                break;
+            case (AST::Or):
+                op = ASR::Or;
+                break;
+        }
+
+        // Cast LHS or RHS if necessary
+        ASR::ttype_t *left_type = expr_type(left);
+        ASR::ttype_t *right_type = expr_type(right);
+        ASR::expr_t **conversion_cand = &left;
+        ASR::ttype_t *source_type = left_type;
+        ASR::ttype_t *dest_type = right_type;
+
+        ImplicitCastRules::find_conversion_candidate(
+            &left, &right, left_type, right_type, 
+            conversion_cand, &source_type, &dest_type);
+        ImplicitCastRules::set_converted_value(
+            al, x.base.base.loc, conversion_cand,
+            source_type, dest_type);
+
+        LFORTRAN_ASSERT(expr_type(left)->type == expr_type(right)->type);
+        tmp = ASR::make_BoolOp_t(al, x.base.base.loc,
+                left, op, right, dest_type);
+    }
+
     void visit_BinOp(const AST::BinOp_t &x) {
         this->visit_expr(*x.m_left);
         ASR::expr_t *left = EXPR(tmp);

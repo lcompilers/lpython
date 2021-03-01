@@ -181,7 +181,7 @@ RUN(NAME complex_div_test LABELS gfortran llvm)
 RUN(NAME complex_pow_test LABELS gfortran llvm)
 
 RUN(NAME logical1 LABELS gfortran llvm)
-RUN(NAME logical2 LABELS gfortran)
+RUN(NAME logical2 LABELS gfortran llvm)
 RUN(NAME logical3 LABELS gfortran)
 
 RUN(NAME doloop_04 LABELS gfortran)

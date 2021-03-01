@@ -744,6 +744,27 @@ public:
         builder->SetInsertPoint(after);
     }
 
+        void visit_BoolOp(const ASR::BoolOp_t &x) {
+        this->visit_expr(*x.m_left);
+        llvm::Value *left_val = tmp;
+        this->visit_expr(*x.m_right);
+        llvm::Value *right_val = tmp;
+        if (x.m_type->type == ASR::ttypeType::Logical) {
+            switch (x.m_op) {
+                case ASR::boolopType::And: {
+                    tmp = builder->CreateAnd(left_val, right_val);
+                    break;
+                };
+                case ASR::boolopType::Or: {
+                    tmp = builder->CreateOr(left_val, right_val);
+                    break;
+                };
+            } 
+        } else {
+            throw CodeGenError("Boolop: Only Logical types can be used with logical operators.");
+        }
+    }
+
     void visit_BinOp(const ASR::BinOp_t &x) {
         this->visit_expr(*x.m_left);
         llvm::Value *left_val = tmp;
