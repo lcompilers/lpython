@@ -830,8 +830,8 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
         nullptr, 0)
 #define PUBLIC(syms, l) make_Public_t(p.m_a, l, \
         nullptr, 0)
-#define INTERFACE(name, l) make_Interface_t(p.m_a, l, \
-        name2char(name), nullptr, 0)
+#define INTERFACE(contains, l) make_Interface_t(p.m_a, l, \
+        nullptr, nullptr, 0)
 #define INTERFACE3(l) make_Interface_t(p.m_a, l, \
         nullptr, nullptr, 0)
 
