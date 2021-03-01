@@ -815,6 +815,16 @@ public:
             case (AST::Or):
                 op = ASR::Or;
                 break;
+            case (AST::NEqv):
+                op = ASR::NEqv;
+                break;
+            case (AST::Eqv):
+                op = ASR::Eqv;
+                break;
+            default:
+                throw SemanticError(R"""(Only .and., .or., .neqv., .eqv. 
+                                    implemented for logical type operands.)""", 
+                                    x.base.base.loc);
         }
 
         // Cast LHS or RHS if necessary
