@@ -261,7 +261,7 @@ public:
         s = r;
     }
 
-    void visit_Interface(const Interface_t &x) {
+    void visit_Interface(const Interface_t &/*x*/) {
         // TODO:
         s = "Interface // TODO\n";
     }
