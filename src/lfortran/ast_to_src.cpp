@@ -261,6 +261,11 @@ public:
         s = r;
     }
 
+    void visit_Interface(const Interface_t &x) {
+        // TODO:
+        s = "Interface // TODO\n";
+    }
+
     template <typename T>
     std::string format_unit_body(const T &x) {
         std::string r;
