@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-logical1-419ed6c",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/logical1.f90",
+    "infile_hash": "d0f4b064d238380619d6802ebc84c91c684869a8ffb6d4fc807bf2d9",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-logical1-419ed6c.stdout",
+    "stdout_hash": "8d8b0737aea710da5748c177fd8a9dc66b23918125cb91c4c2b3c3fe",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
