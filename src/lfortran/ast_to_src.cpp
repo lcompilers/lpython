@@ -866,7 +866,10 @@ public:
     void visit_decl(const decl_t &x) {
         std::string r = indent;
         r += syn(gr::Type);
-        std::string sym_type = x.m_sym_type;
+        std::string sym_type;
+        if (x.m_sym_type) {
+            sym_type = x.m_sym_type;
+        }
         r += sym_type;
         r += syn();
         if (x.n_kind > 0) {
@@ -915,21 +918,23 @@ public:
                 r.append(s);
             }
         }
-        r.append(" :: ");
-        r.append(x.m_sym);
-        if (x.n_dims > 0) {
-            r.append("(");
-            for (size_t i=0; i<x.n_dims; i++) {
-                this->visit_dimension(x.m_dims[i]);
-                r.append(s);
-                if (i < x.n_dims-1) r.append(",");
+        if (x.m_sym) {
+            r.append(" :: ");
+            r.append(x.m_sym);
+            if (x.n_dims > 0) {
+                r.append("(");
+                for (size_t i=0; i<x.n_dims; i++) {
+                    this->visit_dimension(x.m_dims[i]);
+                    r.append(s);
+                    if (i < x.n_dims-1) r.append(",");
+                }
+                r.append(")");
             }
-            r.append(")");
-        }
-        if (x.m_initializer) {
-            r.append("=");
-            this->visit_expr(*x.m_initializer);
-            r.append(s);
+            if (x.m_initializer) {
+                r.append("=");
+                this->visit_expr(*x.m_initializer);
+                r.append(s);
+            }
         }
         r += "\n";
         s = r;
