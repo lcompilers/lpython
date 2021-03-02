@@ -96,8 +96,8 @@ public:
     bool prototype_only;
     llvm::StructType *complex_type;
 
-    std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
-    std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
+    std::unordered_map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
+    std::unordered_map<uint64_t, llvm::Function*> llvm_symtab_fn;
 
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context},
         prototype_only{false} {}
@@ -342,6 +342,8 @@ public:
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
                 uint32_t h = get_hash((ASR::asr_t*)v);
                 llvm::AllocaInst *ptr;
+                // Fix for ASR to LLVM for Real and Complex kind should be made here.
+                // Will make in comming commits.
                 switch (v->m_type->type) {
                     case (ASR::ttypeType::Integer) :
                         ptr = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, v->m_name);
@@ -427,6 +429,7 @@ public:
 
     template <typename T>
     void declare_local_vars(const T &x) {
+        std::cout<<"Inside local vars"<<std::endl;
         for (auto &item : x.m_symtab->scope) {
             if (is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
