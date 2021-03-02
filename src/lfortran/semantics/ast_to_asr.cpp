@@ -583,14 +583,20 @@ public:
                 dims.push_back(al, dim);
             }
             ASR::ttype_t *type;
+            int a_kind = 4;
+            if( x.m_kind != nullptr )
+            {
+                this->visit_expr(*x.m_kind->m_value);
+                a_kind = ((ASR::ConstantInteger_t*)asr)->m_n;
+            }
             if (sym_type == "real") {
-                type = TYPE(ASR::make_Real_t(al, x.loc, 4, dims.p, dims.size()));
+                type = TYPE(ASR::make_Real_t(al, x.loc, a_kind, dims.p, dims.size()));
             } else if (sym_type == "integer") {
-                type = TYPE(ASR::make_Integer_t(al, x.loc, 4, dims.p, dims.size()));
+                type = TYPE(ASR::make_Integer_t(al, x.loc, a_kind, dims.p, dims.size()));
             } else if (sym_type == "logical") {
                 type = TYPE(ASR::make_Logical_t(al, x.loc, 4, dims.p, dims.size()));
             } else if (sym_type == "complex") {
-                type = TYPE(ASR::make_Complex_t(al, x.loc, 4, dims.p, dims.size()));
+                type = TYPE(ASR::make_Complex_t(al, x.loc, a_kind, dims.p, dims.size()));
             } else if (sym_type == "character") {
                 type = TYPE(ASR::make_Character_t(al, x.loc, 4, dims.p, dims.size()));
             } else {
@@ -607,6 +613,20 @@ public:
         ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 8, nullptr, 0));
         asr = ASR::make_ConstantInteger_t(al, x.base.base.loc, x.m_n, type);
+    }
+
+    ASR::asr_t* resolve_variable(const Location &loc, const char* id) {
+        SymbolTable *scope = current_scope;
+        std::string var_name = id;
+        ASR::symbol_t *v = scope->resolve_symbol(var_name);
+        if (!v) {
+            throw SemanticError("Variable '" + var_name + "' not declared", loc);
+        }
+        return ASR::make_Var_t(al, loc, v);
+    }
+
+    void visit_Name(const AST::Name_t &x) {
+        asr = resolve_variable(x.base.base.loc, x.m_id);
     }
 
 };
