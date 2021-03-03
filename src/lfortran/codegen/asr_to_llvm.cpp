@@ -342,16 +342,28 @@ public:
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
                 uint32_t h = get_hash((ASR::asr_t*)v);
                 llvm::AllocaInst *ptr;
-                // Fix for ASR to LLVM for Real and Complex kind should be made here.
-                // Will make in comming commits.
                 switch (v->m_type->type) {
                     case (ASR::ttypeType::Integer) :
                         ptr = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, v->m_name);
                         break;
-                    case (ASR::ttypeType::Real) :
-                        // TODO: Assuming single precision
-                        ptr = builder->CreateAlloca(llvm::Type::getFloatTy(context), nullptr, v->m_name);
+                    case (ASR::ttypeType::Real) : {
+                        llvm::Type* typeByKind = nullptr;
+                        int a_kind = ((ASR::Real_t*)(&(v->m_type->base)))->m_kind;
+                        switch( a_kind )
+                        {
+                            case 4:
+                                typeByKind = llvm::Type::getFloatTy(context);
+                                break;
+                            case 8:
+                                typeByKind = llvm::Type::getDoubleTy(context);
+                                break;
+                            default:
+                                throw SemanticError("Only 32 and 64 bits real kinds are supported.", 
+                                                    x.base.base.loc);
+                        }
+                        ptr = builder->CreateAlloca(typeByKind, nullptr, v->m_name);
                         break;
+                    }
                     case (ASR::ttypeType::Complex) :
                         // TODO: Assuming single precision
                         ptr = builder->CreateAlloca(complex_type, nullptr, v->m_name);
@@ -429,7 +441,6 @@ public:
 
     template <typename T>
     void declare_local_vars(const T &x) {
-        std::cout<<"Inside local vars"<<std::endl;
         for (auto &item : x.m_symtab->scope) {
             if (is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);

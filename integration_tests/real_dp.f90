@@ -1,10 +1,9 @@
 program real_dp
 
-    real(4) :: u = 1.05
-    real(8) :: v = 1.05
-    real(16) :: w = 1.05
+    complex :: c = (3.0, 4.0)
     real(4) :: zero = 0.0
-    real :: x = 1.0
-    print *, u, v, w, zero, x
+    real(8) :: v = 1.05
+    real :: x = 1.05
+    print *, zero, v, x, c
 
 end program
