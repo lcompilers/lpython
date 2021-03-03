@@ -1,5 +1,7 @@
 #include <tests/doctest.h>
 
+#include <cmath>
+
 #include <lfortran/codegen/evaluator.h>
 #include <lfortran/exception.h>
 #include <lfortran/ast.h>
@@ -648,4 +650,3 @@ define i1 @b()
     )""");
     CHECK(e.boolfn("b") == false);
 }
-
