@@ -1006,6 +1006,24 @@ public:
                 tmp = builder->CreateICmpNE(tmp, builder->getInt64(0));
                 break;
             }
+            case (ASR::cast_kindType::RealToReal) : {
+                ASR::ttype_t* curr_type = ((ASR::ConstantReal_t*)(&(x.m_arg->base)))->m_type;
+                int arg_kind = ((ASR::Real_t*)(&(curr_type->base)))->m_kind;
+                int dest_kind = ((ASR::Real_t*)(&(x.m_type->base)))->m_kind;
+                if( arg_kind != dest_kind )
+                {
+                    if( arg_kind == 4 && dest_kind == 8 ) {
+                        tmp = builder->CreateFPExt(tmp, llvm::Type::getDoubleTy(context));
+                    } else if( arg_kind == 8 && dest_kind == 4 ) {
+                        tmp = builder->CreateFPTrunc(tmp, llvm::Type::getFloatTy(context));
+                    } else {
+                        std::string msg = "Conversion from " + std::to_string(arg_kind) + 
+                                          " to " + std::to_string(dest_kind) + " not implemented yet.";
+                        throw CodeGenError(msg);
+                    }
+                }
+                break;
+            }
             default : throw CodeGenError("Cast kind not implemented");
         }
     }
