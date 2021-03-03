@@ -155,6 +155,15 @@ std::string prompt0(const Terminal &term, const std::string &prompt_string,
                         m.cursor_row--;
                     }
                     break;
+                case Key::DEL:
+                    if (m.cursor_col <= m.lines[m.cursor_row-1].size()) {
+                        std::string before = m.lines[m.cursor_row-1].substr(0,
+                                m.cursor_col-1);
+                        std::string after = m.lines[m.cursor_row-1]
+                                .substr(m.cursor_col);
+                        m.lines[m.cursor_row-1] = before + after;
+                    }
+                    break;
                 case Key::ARROW_LEFT:
                     if (m.cursor_col > 1) {
                         m.cursor_col--;
