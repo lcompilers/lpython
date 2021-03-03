@@ -222,6 +222,7 @@ std::string prompt0(const Terminal &term, const std::string &prompt_string,
                     }
                     [[fallthrough]];
                 case ALT_KEY('n'):
+                case CTRL_KEY('n'):
                 case Key::ALT_ENTER:
                     std::string before = m.lines[m.cursor_row-1].substr(0,
                             m.cursor_col-1);
