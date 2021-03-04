@@ -97,6 +97,13 @@ if (WITH_LLVM)
         $<$<COMPILE_LANGUAGE:CXX>:${LFORTRAN_CXX_NO_RTTI_FLAG}>)
     set_property(TARGET p::llvm PROPERTY INTERFACE_LINK_LIBRARIES
         ${llvm_libs})
+    if (MSVC)
+        # LLVM on Windows appends zlib shared library and we must provide
+        # a path to find it:
+        get_filename_component(mypath ${ZLIB_LIBRARY} DIRECTORY)
+        target_link_directories(p::llvm BEFORE INTERFACE ${mypath})
+        message(STATUS "ZLIB LIBRARY PATH: ${mypath}")
+    endif()
     set(HAVE_LFORTRAN_LLVM yes)
 endif()
 
