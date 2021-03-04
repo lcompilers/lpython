@@ -117,7 +117,8 @@ LLVMEvaluator::LLVMEvaluator()
     context = std::make_unique<llvm::LLVMContext>();
 
     target_triple = llvm::sys::getDefaultTargetTriple();
-    jit = std::make_unique<llvm::orc::KaleidoscopeJIT>();
+    llvm::TargetMachine *TM2 = llvm::EngineBuilder().selectTarget();
+    jit = std::make_unique<llvm::orc::KaleidoscopeJIT>(TM2);
 
     llvm::sys::DynamicLibrary::AddSymbol("_lfortran_printf",
         (void*)
