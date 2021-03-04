@@ -34,6 +34,10 @@ enum Backend {
     llvm, cpp, x86
 };
 
+enum Platform {
+    Linux, macOS, Windows
+};
+
 enum ASRPass {
     do_loops, global_stmts
 };
@@ -871,6 +875,19 @@ std::string get_runtime_library_dir()
     }
 }
 
+Platform get_platform()
+{
+#ifdef _WIN32
+    return Platform::Windows;
+#else
+#    ifdef __APPLE__
+    return Platform::macOS;
+#    else
+    return Platform::Linux;
+#    endif
+#endif
+}
+
 } // anonymous namespace
 
 int main(int argc, char *argv[])
@@ -884,6 +901,7 @@ int main(int argc, char *argv[])
 
         std::string runtime_library_dir = get_runtime_library_dir();
         Backend backend;
+        Platform platform = get_platform();
 
         bool arg_S = false;
         bool arg_c = false;
@@ -977,6 +995,13 @@ int main(int argc, char *argv[])
         if (arg_version) {
             std::string version = LFORTRAN_VERSION;
             std::cout << "LFortran version: " << version << std::endl;
+            std::cout << "Platform: ";
+            switch (platform) {
+                case (Platform::Linux) : std::cout << "Linux"; break;
+                case (Platform::macOS) : std::cout << "macOS"; break;
+                case (Platform::Windows) : std::cout << "Windows"; break;
+            }
+            std::cout << std::endl;
             return 0;
         }
 
