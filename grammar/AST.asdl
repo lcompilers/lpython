@@ -20,6 +20,12 @@
 -- Specific tools may choose to produce language interfaces that represent
 -- these types and the ASDL tree in a language specific way (e.g. use finite
 -- precision integers and signal an error otherwise).
+--
+-- At the AST level we strictly only represent local syntax (no semantics). That
+-- way each syntax construct is parsed locally, no need to do any non-local
+-- lookups to figure out what AST node to construct. That is the job of the AST
+-- to ASR conversion to do non-local lookups to figure out what is what (i.e.,
+-- disambiguate) and report any errors.
 
 module AST {
 
@@ -47,8 +53,11 @@ unit_decl2
     | ParameterStatement(parameter_item* items)
     | Private(identifier* vars)
     | Public(identifier* vars)
-    | Interface(identifier? name, identifier* procs)
-    | Interface2(identifier? name, program_unit* procs)
+    | Interface(identifier? name, interface_item* items)
+
+interface_item
+    = InterfaceProc(program_unit proc)
+    | InterfaceModuleProcedure(identifier* name)
 
 stmt
     = Assignment(expr target, expr value)

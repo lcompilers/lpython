@@ -350,6 +350,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <parameter_item> named_constant_def
 %type <vec_kind_arg> kind_arg_list
 %type <kind_arg> kind_arg2
+%type <vec_ast> interface_body
+%type <ast> interface_item
 
 // Precedence
 
@@ -413,7 +415,7 @@ submodule
 
 interface_decl
     : interface_stmt sep interface_body endinterface sep {
-            $$ = INTERFACE3(@$); }
+            $$ = INTERFACE($3, @$); }
     ;
 
 interface_stmt
@@ -438,17 +440,23 @@ endinterface0
 
 
 interface_body
-    : interface_body interface_item
-    | %empty
+    : interface_body interface_item { $$ = $1; LIST_ADD($$, $2); }
+    | %empty { LIST_NEW($$); }
     ;
 
 interface_item
-    : fn_mod_plus KW_PROCEDURE id_list sep
-    | fn_mod_plus KW_PROCEDURE "::" id_list sep
-    | KW_PROCEDURE id_list sep
-    | KW_PROCEDURE "::" id_list sep
-    | subroutine
-    | function
+    : fn_mod_plus KW_PROCEDURE id_list sep {
+        $$ = INTERFACE_MODULE_PROC($3, @$); }
+    | fn_mod_plus KW_PROCEDURE "::" id_list sep {
+        $$ = INTERFACE_MODULE_PROC($4, @$); }
+    | KW_PROCEDURE id_list sep {
+        $$ = INTERFACE_MODULE_PROC($2, @$); }
+    | KW_PROCEDURE "::" id_list sep {
+        $$ = INTERFACE_MODULE_PROC($3, @$); }
+    | subroutine {
+        $$ = INTERFACE_PROC($1, @$); }
+    | function {
+        $$ = INTERFACE_PROC($1, @$); }
     ;
 
 enum_decl

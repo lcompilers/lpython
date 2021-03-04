@@ -113,6 +113,7 @@ static inline T** vec_cast(const LFortran::Vec<ast_t*> &x) {
 #define USE_SYMBOLS(x) VEC_CAST(x, use_symbol)
 #define CONCURRENT_CONTROLS(x) VEC_CAST(x, concurrent_control)
 #define CONCURRENT_LOCALITIES(x) VEC_CAST(x, concurrent_locality)
+#define INTERFACE_ITEMS(x) VEC_CAST(x, interface_item)
 
 static inline stmt_t** IFSTMTS(Allocator &al, ast_t* x)
 {
@@ -830,13 +831,15 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
         nullptr, 0)
 #define PUBLIC(syms, l) make_Public_t(p.m_a, l, \
         nullptr, 0)
-#define INTERFACE(name, l) make_Interface_t(p.m_a, l, \
-        name2char(name), nullptr, 0)
-#define INTERFACE3(l) make_Interface_t(p.m_a, l, \
-        nullptr, nullptr, 0)
 
-#define INTERFACE2(contains, l) LFortran::AST::make_Interface2_t(p.m_a, l, \
-        nullptr, nullptr, 0)
+#define INTERFACE(contains, l) LFortran::AST::make_Interface_t(p.m_a, l, \
+        nullptr, INTERFACE_ITEMS(contains), contains.size())
+#define INTERFACE_MODULE_PROC(names, l) \
+        LFortran::AST::make_InterfaceModuleProcedure_t(p.m_a, l, \
+        REDUCE_ARGS(p.m_a, names), names.size())
+#define INTERFACE_PROC(proc, l) \
+        LFortran::AST::make_InterfaceProc_t(p.m_a, l, \
+        down_cast<LFortran::AST::program_unit_t>(proc))
 
 // TODO: Add DerivedType AST node
 #define DERIVED_TYPE(name, l) make_Interface_t(p.m_a, l, \
