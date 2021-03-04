@@ -34,6 +34,10 @@ enum Backend {
     llvm, cpp, x86
 };
 
+enum Platform {
+    Linux, macOS, Windows
+};
+
 enum ASRPass {
     do_loops, global_stmts
 };
@@ -730,7 +734,7 @@ int compile_to_object_file_cpp(const std::string &infile,
 // outfile will become the executable
 int link_executable(const std::string &infile, const std::string &outfile,
     const std::string &runtime_library_dir, Backend backend,
-    bool static_executable, bool kokkos)
+    bool static_executable, bool kokkos, Platform platform)
 {
     /*
     The `gcc` line for dynamic linking that is constructed below:
@@ -789,12 +793,19 @@ int link_executable(const std::string &infile, const std::string &outfile,
 
     */
     if (backend == Backend::llvm) {
-        std::string CC = "gcc";
+        std::string CC;
+        if (platform == Platform::macOS) {
+            CC = "clang";
+        } else {
+            CC = "gcc";
+        }
         std::string base_path = runtime_library_dir;
         std::string options;
         std::string runtime_lib = "lfortran_runtime";
         if (static_executable) {
-            options += " -static ";
+            if (platform != Platform::macOS) {
+                options += " -static ";
+            }
             runtime_lib = "lfortran_runtime_static";
         }
         std::string cmd = CC + options + " -o " + outfile + " " + infile + " -L"
@@ -871,6 +882,19 @@ std::string get_runtime_library_dir()
     }
 }
 
+Platform get_platform()
+{
+#ifdef _WIN32
+    return Platform::Windows;
+#else
+#    ifdef __APPLE__
+    return Platform::macOS;
+#    else
+    return Platform::Linux;
+#    endif
+#endif
+}
+
 } // anonymous namespace
 
 int main(int argc, char *argv[])
@@ -884,6 +908,7 @@ int main(int argc, char *argv[])
 
         std::string runtime_library_dir = get_runtime_library_dir();
         Backend backend;
+        Platform platform = get_platform();
 
         bool arg_S = false;
         bool arg_c = false;
@@ -977,6 +1002,13 @@ int main(int argc, char *argv[])
         if (arg_version) {
             std::string version = LFORTRAN_VERSION;
             std::cout << "LFortran version: " << version << std::endl;
+            std::cout << "Platform: ";
+            switch (platform) {
+                case (Platform::Linux) : std::cout << "Linux"; break;
+                case (Platform::macOS) : std::cout << "macOS"; break;
+                case (Platform::Windows) : std::cout << "Windows"; break;
+            }
+            std::cout << std::endl;
             return 0;
         }
 
@@ -1162,10 +1194,10 @@ int main(int argc, char *argv[])
             }
             if (err) return err;
             return link_executable(tmp_o, outfile, runtime_library_dir,
-                    backend, static_link, true);
+                    backend, static_link, true, platform);
         } else {
             return link_executable(arg_file, outfile, runtime_library_dir,
-                    backend, static_link, true);
+                    backend, static_link, true, platform);
         }
     } catch(const LFortran::LFortranException &e) {
         std::cerr << e.stacktrace();
