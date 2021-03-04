@@ -256,6 +256,9 @@ void LLVMEvaluator::save_asm_file(llvm::Module &m, const std::string &filename)
 }
 
 void LLVMEvaluator::save_object_file(llvm::Module &m, const std::string &filename) {
+    m.setTargetTriple(target_triple);
+    m.setDataLayout(TM->createDataLayout());
+
     llvm::legacy::PassManager pass;
     llvm::TargetMachine::CodeGenFileType ft = llvm::TargetMachine::CGFT_ObjectFile;
     std::error_code EC;
