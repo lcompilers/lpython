@@ -117,6 +117,19 @@ LLVMEvaluator::LLVMEvaluator()
     context = std::make_unique<llvm::LLVMContext>();
 
     target_triple = llvm::sys::getDefaultTargetTriple();
+
+    std::string Error;
+    const llvm::Target *target = llvm::TargetRegistry::lookupTarget(target_triple, Error);
+    if (!target) {
+        throw LFortran::CodeGenError(Error);
+    }
+    std::string CPU = "generic";
+    std::string features = "";
+    llvm::TargetOptions opt;
+    llvm::Optional<llvm::Reloc::Model> RM;
+    TM = target->createTargetMachine(target_triple, CPU, features, opt, RM);
+
+    // For some reason the JIT requires a different TargetMachine
     llvm::TargetMachine *TM2 = llvm::EngineBuilder().selectTarget();
     jit = std::make_unique<llvm::orc::KaleidoscopeJIT>(TM2);
 
@@ -250,7 +263,7 @@ void LLVMEvaluator::save_object_file(llvm::Module &m, const std::string &filenam
     if (EC) {
         throw std::runtime_error("raw_fd_ostream failed");
     }
-    if (jit->getTargetMachine().addPassesToEmitFile(pass, dest, nullptr, ft)) {
+    if (TM->addPassesToEmitFile(pass, dest, nullptr, ft)) {
         throw std::runtime_error("TargetMachine can't emit a file of this type");
     }
     pass.run(m);
