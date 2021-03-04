@@ -45,8 +45,8 @@ public:
   KaleidoscopeJIT(TargetMachine *TM)
       : Resolver(createLegacyLookupResolver(
             ES,
-            [this](const std::string &Name) {
-              return findMangledSymbol(Name);
+            [this](llvm::StringRef Name) {
+              return findMangledSymbol(std::string(Name));
             },
             [](Error Err) { cantFail(std::move(Err), "lookupFlags failed"); })),
         TM(TM), DL(TM->createDataLayout()),
