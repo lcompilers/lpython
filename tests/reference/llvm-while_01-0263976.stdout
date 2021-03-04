@@ -10,29 +10,29 @@ source_filename = "LFortran"
 
 define i64 @main() {
 .entry:
-  %i = alloca i64
-  %j = alloca i64
-  store i64 1, i64* %i
-  store i64 0, i64* %j
+  %i = alloca i64, align 8
+  %j = alloca i64, align 8
+  store i64 1, i64* %i, align 4
+  store i64 0, i64* %j, align 4
   br label %loop.head
 
 loop.head:                                        ; preds = %loop.body, %.entry
-  %0 = load i64, i64* %i
+  %0 = load i64, i64* %i, align 4
   %1 = icmp slt i64 %0, 11
   br i1 %1, label %loop.body, label %loop.end
 
 loop.body:                                        ; preds = %loop.head
-  %2 = load i64, i64* %j
-  %3 = load i64, i64* %i
+  %2 = load i64, i64* %j, align 4
+  %3 = load i64, i64* %i, align 4
   %4 = add i64 %2, %3
-  store i64 %4, i64* %j
-  %5 = load i64, i64* %i
+  store i64 %4, i64* %j, align 4
+  %5 = load i64, i64* %i, align 4
   %6 = add i64 %5, 1
-  store i64 %6, i64* %i
+  store i64 %6, i64* %i, align 4
   br label %loop.head
 
 loop.end:                                         ; preds = %loop.head
-  %7 = load i64, i64* %j
+  %7 = load i64, i64* %j, align 4
   %8 = icmp ne i64 %7, 55
   br i1 %8, label %then, label %else
 
@@ -46,7 +46,7 @@ else:                                             ; preds = %loop.end
 
 ifcont:                                           ; preds = %else, %then
   %iftmp = phi i64 [ 1, %then ], [ 2, %else ]
-  %9 = load i64, i64* %i
+  %9 = load i64, i64* %i, align 4
   %10 = icmp ne i64 %9, 11
   br i1 %10, label %then1, label %else2
 
@@ -60,27 +60,27 @@ else2:                                            ; preds = %ifcont
 
 ifcont3:                                          ; preds = %else2, %then1
   %iftmp4 = phi i64 [ 1, %then1 ], [ 2, %else2 ]
-  store i64 1, i64* %i
-  store i64 0, i64* %j
+  store i64 1, i64* %i, align 4
+  store i64 0, i64* %j, align 4
   br label %loop.head5
 
 loop.head5:                                       ; preds = %loop.body6, %ifcont3
-  %11 = load i64, i64* %i
+  %11 = load i64, i64* %i, align 4
   %12 = icmp sle i64 %11, 10
   br i1 %12, label %loop.body6, label %loop.end7
 
 loop.body6:                                       ; preds = %loop.head5
-  %13 = load i64, i64* %j
-  %14 = load i64, i64* %i
+  %13 = load i64, i64* %j, align 4
+  %14 = load i64, i64* %i, align 4
   %15 = add i64 %13, %14
-  store i64 %15, i64* %j
-  %16 = load i64, i64* %i
+  store i64 %15, i64* %j, align 4
+  %16 = load i64, i64* %i, align 4
   %17 = add i64 %16, 1
-  store i64 %17, i64* %i
+  store i64 %17, i64* %i, align 4
   br label %loop.head5
 
 loop.end7:                                        ; preds = %loop.head5
-  %18 = load i64, i64* %j
+  %18 = load i64, i64* %j, align 4
   %19 = icmp ne i64 %18, 55
   br i1 %19, label %then8, label %else9
 
@@ -94,7 +94,7 @@ else9:                                            ; preds = %loop.end7
 
 ifcont10:                                         ; preds = %else9, %then8
   %iftmp11 = phi i64 [ 1, %then8 ], [ 2, %else9 ]
-  %20 = load i64, i64* %i
+  %20 = load i64, i64* %i, align 4
   %21 = icmp ne i64 %20, 11
   br i1 %21, label %then12, label %else13
 
@@ -108,27 +108,27 @@ else13:                                           ; preds = %ifcont10
 
 ifcont14:                                         ; preds = %else13, %then12
   %iftmp15 = phi i64 [ 1, %then12 ], [ 2, %else13 ]
-  store i64 1, i64* %i
-  store i64 0, i64* %j
+  store i64 1, i64* %i, align 4
+  store i64 0, i64* %j, align 4
   br label %loop.head16
 
 loop.head16:                                      ; preds = %loop.body17, %ifcont14
-  %22 = load i64, i64* %i
+  %22 = load i64, i64* %i, align 4
   %23 = icmp slt i64 %22, 1
   br i1 %23, label %loop.body17, label %loop.end18
 
 loop.body17:                                      ; preds = %loop.head16
-  %24 = load i64, i64* %j
-  %25 = load i64, i64* %i
+  %24 = load i64, i64* %j, align 4
+  %25 = load i64, i64* %i, align 4
   %26 = add i64 %24, %25
-  store i64 %26, i64* %j
-  %27 = load i64, i64* %i
+  store i64 %26, i64* %j, align 4
+  %27 = load i64, i64* %i, align 4
   %28 = add i64 %27, 1
-  store i64 %28, i64* %i
+  store i64 %28, i64* %i, align 4
   br label %loop.head16
 
 loop.end18:                                       ; preds = %loop.head16
-  %29 = load i64, i64* %j
+  %29 = load i64, i64* %j, align 4
   %30 = icmp ne i64 %29, 0
   br i1 %30, label %then19, label %else20
 
@@ -142,7 +142,7 @@ else20:                                           ; preds = %loop.end18
 
 ifcont21:                                         ; preds = %else20, %then19
   %iftmp22 = phi i64 [ 1, %then19 ], [ 2, %else20 ]
-  %31 = load i64, i64* %i
+  %31 = load i64, i64* %i, align 4
   %32 = icmp ne i64 %31, 1
   br i1 %32, label %then23, label %else24
 

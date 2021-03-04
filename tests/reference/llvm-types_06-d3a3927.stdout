@@ -28,12 +28,12 @@ source_filename = "LFortran"
 
 define i64 @main() {
 .entry:
-  %i = alloca i64
-  %r = alloca float
-  store float 2.000000e+00, float* %r
-  store i64 2, i64* %i
-  %0 = load i64, i64* %i
-  %1 = load i64, i64* %i
+  %i = alloca i64, align 8
+  %r = alloca float, align 4
+  store float 2.000000e+00, float* %r, align 4
+  store i64 2, i64* %i, align 4
+  %0 = load i64, i64* %i, align 4
+  %1 = load i64, i64* %i, align 4
   %2 = icmp slt i64 %0, %1
   br i1 %2, label %then, label %else
 
@@ -47,8 +47,8 @@ else:                                             ; preds = %.entry
 
 ifcont:                                           ; preds = %else, %then
   %iftmp = phi i64 [ 1, %then ], [ 2, %else ]
-  %3 = load float, float* %r
-  %4 = load float, float* %r
+  %3 = load float, float* %r, align 4
+  %4 = load float, float* %r, align 4
   %5 = fcmp ult float %3, %4
   br i1 %5, label %then1, label %else2
 
@@ -62,8 +62,8 @@ else2:                                            ; preds = %ifcont
 
 ifcont3:                                          ; preds = %else2, %then1
   %iftmp4 = phi i64 [ 1, %then1 ], [ 2, %else2 ]
-  %6 = load float, float* %r
-  %7 = load i64, i64* %i
+  %6 = load float, float* %r, align 4
+  %7 = load i64, i64* %i, align 4
   %8 = sitofp i64 %7 to float
   %9 = fcmp ult float %6, %8
   br i1 %9, label %then5, label %else6
@@ -78,9 +78,9 @@ else6:                                            ; preds = %ifcont3
 
 ifcont7:                                          ; preds = %else6, %then5
   %iftmp8 = phi i64 [ 1, %then5 ], [ 2, %else6 ]
-  %10 = load i64, i64* %i
+  %10 = load i64, i64* %i, align 4
   %11 = sitofp i64 %10 to float
-  %12 = load float, float* %r
+  %12 = load float, float* %r, align 4
   %13 = fcmp ult float %11, %12
   br i1 %13, label %then9, label %else10
 
@@ -94,8 +94,8 @@ else10:                                           ; preds = %ifcont7
 
 ifcont11:                                         ; preds = %else10, %then9
   %iftmp12 = phi i64 [ 1, %then9 ], [ 2, %else10 ]
-  %14 = load i64, i64* %i
-  %15 = load i64, i64* %i
+  %14 = load i64, i64* %i, align 4
+  %15 = load i64, i64* %i, align 4
   %16 = icmp sgt i64 %14, %15
   br i1 %16, label %then13, label %else14
 
@@ -109,8 +109,8 @@ else14:                                           ; preds = %ifcont11
 
 ifcont15:                                         ; preds = %else14, %then13
   %iftmp16 = phi i64 [ 1, %then13 ], [ 2, %else14 ]
-  %17 = load float, float* %r
-  %18 = load float, float* %r
+  %17 = load float, float* %r, align 4
+  %18 = load float, float* %r, align 4
   %19 = fcmp ugt float %17, %18
   br i1 %19, label %then17, label %else18
 
@@ -124,8 +124,8 @@ else18:                                           ; preds = %ifcont15
 
 ifcont19:                                         ; preds = %else18, %then17
   %iftmp20 = phi i64 [ 1, %then17 ], [ 2, %else18 ]
-  %20 = load float, float* %r
-  %21 = load i64, i64* %i
+  %20 = load float, float* %r, align 4
+  %21 = load i64, i64* %i, align 4
   %22 = sitofp i64 %21 to float
   %23 = fcmp ugt float %20, %22
   br i1 %23, label %then21, label %else22
@@ -140,9 +140,9 @@ else22:                                           ; preds = %ifcont19
 
 ifcont23:                                         ; preds = %else22, %then21
   %iftmp24 = phi i64 [ 1, %then21 ], [ 2, %else22 ]
-  %24 = load i64, i64* %i
+  %24 = load i64, i64* %i, align 4
   %25 = sitofp i64 %24 to float
-  %26 = load float, float* %r
+  %26 = load float, float* %r, align 4
   %27 = fcmp ugt float %25, %26
   br i1 %27, label %then25, label %else26
 
@@ -156,8 +156,8 @@ else26:                                           ; preds = %ifcont23
 
 ifcont27:                                         ; preds = %else26, %then25
   %iftmp28 = phi i64 [ 1, %then25 ], [ 2, %else26 ]
-  %28 = load i64, i64* %i
-  %29 = load i64, i64* %i
+  %28 = load i64, i64* %i, align 4
+  %29 = load i64, i64* %i, align 4
   %30 = icmp ne i64 %28, %29
   br i1 %30, label %then29, label %else30
 
@@ -171,8 +171,8 @@ else30:                                           ; preds = %ifcont27
 
 ifcont31:                                         ; preds = %else30, %then29
   %iftmp32 = phi i64 [ 1, %then29 ], [ 2, %else30 ]
-  %31 = load float, float* %r
-  %32 = load float, float* %r
+  %31 = load float, float* %r, align 4
+  %32 = load float, float* %r, align 4
   %33 = fcmp une float %31, %32
   br i1 %33, label %then33, label %else34
 
@@ -186,8 +186,8 @@ else34:                                           ; preds = %ifcont31
 
 ifcont35:                                         ; preds = %else34, %then33
   %iftmp36 = phi i64 [ 1, %then33 ], [ 2, %else34 ]
-  %34 = load float, float* %r
-  %35 = load i64, i64* %i
+  %34 = load float, float* %r, align 4
+  %35 = load i64, i64* %i, align 4
   %36 = sitofp i64 %35 to float
   %37 = fcmp une float %34, %36
   br i1 %37, label %then37, label %else38
@@ -202,9 +202,9 @@ else38:                                           ; preds = %ifcont35
 
 ifcont39:                                         ; preds = %else38, %then37
   %iftmp40 = phi i64 [ 1, %then37 ], [ 2, %else38 ]
-  %38 = load i64, i64* %i
+  %38 = load i64, i64* %i, align 4
   %39 = sitofp i64 %38 to float
-  %40 = load float, float* %r
+  %40 = load float, float* %r, align 4
   %41 = fcmp une float %39, %40
   br i1 %41, label %then41, label %else42
 
@@ -218,9 +218,9 @@ else42:                                           ; preds = %ifcont39
 
 ifcont43:                                         ; preds = %else42, %then41
   %iftmp44 = phi i64 [ 1, %then41 ], [ 2, %else42 ]
-  %42 = load i64, i64* %i
+  %42 = load i64, i64* %i, align 4
   %43 = add i64 %42, 1
-  %44 = load i64, i64* %i
+  %44 = load i64, i64* %i, align 4
   %45 = icmp sle i64 %43, %44
   br i1 %45, label %then45, label %else46
 
@@ -234,9 +234,9 @@ else46:                                           ; preds = %ifcont43
 
 ifcont47:                                         ; preds = %else46, %then45
   %iftmp48 = phi i64 [ 1, %then45 ], [ 2, %else46 ]
-  %46 = load float, float* %r
+  %46 = load float, float* %r, align 4
   %47 = fadd float %46, 1.000000e+00
-  %48 = load float, float* %r
+  %48 = load float, float* %r, align 4
   %49 = fcmp ule float %47, %48
   br i1 %49, label %then49, label %else50
 
@@ -250,9 +250,9 @@ else50:                                           ; preds = %ifcont47
 
 ifcont51:                                         ; preds = %else50, %then49
   %iftmp52 = phi i64 [ 1, %then49 ], [ 2, %else50 ]
-  %50 = load float, float* %r
+  %50 = load float, float* %r, align 4
   %51 = fadd float %50, 1.000000e+00
-  %52 = load i64, i64* %i
+  %52 = load i64, i64* %i, align 4
   %53 = sitofp i64 %52 to float
   %54 = fcmp ule float %51, %53
   br i1 %54, label %then53, label %else54
@@ -267,10 +267,10 @@ else54:                                           ; preds = %ifcont51
 
 ifcont55:                                         ; preds = %else54, %then53
   %iftmp56 = phi i64 [ 1, %then53 ], [ 2, %else54 ]
-  %55 = load i64, i64* %i
+  %55 = load i64, i64* %i, align 4
   %56 = add i64 %55, 1
   %57 = sitofp i64 %56 to float
-  %58 = load float, float* %r
+  %58 = load float, float* %r, align 4
   %59 = fcmp ule float %57, %58
   br i1 %59, label %then57, label %else58
 
@@ -284,8 +284,8 @@ else58:                                           ; preds = %ifcont55
 
 ifcont59:                                         ; preds = %else58, %then57
   %iftmp60 = phi i64 [ 1, %then57 ], [ 2, %else58 ]
-  %60 = load i64, i64* %i
-  %61 = load i64, i64* %i
+  %60 = load i64, i64* %i, align 4
+  %61 = load i64, i64* %i, align 4
   %62 = add i64 %61, 1
   %63 = icmp sge i64 %60, %62
   br i1 %63, label %then61, label %else62
@@ -300,8 +300,8 @@ else62:                                           ; preds = %ifcont59
 
 ifcont63:                                         ; preds = %else62, %then61
   %iftmp64 = phi i64 [ 1, %then61 ], [ 2, %else62 ]
-  %64 = load float, float* %r
-  %65 = load float, float* %r
+  %64 = load float, float* %r, align 4
+  %65 = load float, float* %r, align 4
   %66 = fadd float %65, 1.000000e+00
   %67 = fcmp uge float %64, %66
   br i1 %67, label %then65, label %else66
@@ -316,8 +316,8 @@ else66:                                           ; preds = %ifcont63
 
 ifcont67:                                         ; preds = %else66, %then65
   %iftmp68 = phi i64 [ 1, %then65 ], [ 2, %else66 ]
-  %68 = load float, float* %r
-  %69 = load i64, i64* %i
+  %68 = load float, float* %r, align 4
+  %69 = load i64, i64* %i, align 4
   %70 = add i64 %69, 1
   %71 = sitofp i64 %70 to float
   %72 = fcmp uge float %68, %71
@@ -333,9 +333,9 @@ else70:                                           ; preds = %ifcont67
 
 ifcont71:                                         ; preds = %else70, %then69
   %iftmp72 = phi i64 [ 1, %then69 ], [ 2, %else70 ]
-  %73 = load i64, i64* %i
+  %73 = load i64, i64* %i, align 4
   %74 = sitofp i64 %73 to float
-  %75 = load float, float* %r
+  %75 = load float, float* %r, align 4
   %76 = fadd float %75, 1.000000e+00
   %77 = fcmp uge float %74, %76
   br i1 %77, label %then73, label %else74
@@ -350,8 +350,8 @@ else74:                                           ; preds = %ifcont71
 
 ifcont75:                                         ; preds = %else74, %then73
   %iftmp76 = phi i64 [ 1, %then73 ], [ 2, %else74 ]
-  %78 = load i64, i64* %i
-  %79 = load i64, i64* %i
+  %78 = load i64, i64* %i, align 4
+  %79 = load i64, i64* %i, align 4
   %80 = add i64 %79, 1
   %81 = icmp eq i64 %78, %80
   br i1 %81, label %then77, label %else78
@@ -366,8 +366,8 @@ else78:                                           ; preds = %ifcont75
 
 ifcont79:                                         ; preds = %else78, %then77
   %iftmp80 = phi i64 [ 1, %then77 ], [ 2, %else78 ]
-  %82 = load float, float* %r
-  %83 = load float, float* %r
+  %82 = load float, float* %r, align 4
+  %83 = load float, float* %r, align 4
   %84 = fadd float %83, 1.000000e+00
   %85 = fcmp ueq float %82, %84
   br i1 %85, label %then81, label %else82
@@ -382,8 +382,8 @@ else82:                                           ; preds = %ifcont79
 
 ifcont83:                                         ; preds = %else82, %then81
   %iftmp84 = phi i64 [ 1, %then81 ], [ 2, %else82 ]
-  %86 = load float, float* %r
-  %87 = load i64, i64* %i
+  %86 = load float, float* %r, align 4
+  %87 = load i64, i64* %i, align 4
   %88 = add i64 %87, 1
   %89 = sitofp i64 %88 to float
   %90 = fcmp ueq float %86, %89
@@ -399,9 +399,9 @@ else86:                                           ; preds = %ifcont83
 
 ifcont87:                                         ; preds = %else86, %then85
   %iftmp88 = phi i64 [ 1, %then85 ], [ 2, %else86 ]
-  %91 = load i64, i64* %i
+  %91 = load i64, i64* %i, align 4
   %92 = sitofp i64 %91 to float
-  %93 = load float, float* %r
+  %93 = load float, float* %r, align 4
   %94 = fadd float %93, 1.000000e+00
   %95 = fcmp ueq float %92, %94
   br i1 %95, label %then89, label %else90

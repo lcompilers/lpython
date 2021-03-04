@@ -10,17 +10,17 @@ source_filename = "LFortran"
 
 define void @f(i64* %a, i64* %b) {
 .entry:
-  %0 = load i64, i64* %a
+  %0 = load i64, i64* %a, align 4
   %1 = add i64 %0, 1
-  store i64 %1, i64* %b
+  store i64 %1, i64* %b, align 4
   ret void
 }
 
 define void @g(i64* %a, i64* %b) {
 .entry:
-  %0 = load i64, i64* %a
+  %0 = load i64, i64* %a, align 4
   %1 = sub i64 %0, 1
-  store i64 %1, i64* %b
+  store i64 %1, i64* %b, align 4
   ret void
 }
 
@@ -32,12 +32,12 @@ define void @h(i64* %a, i64* %b) {
 
 define i64 @main() {
 .entry:
-  %i = alloca i64
-  %j = alloca i64
-  store i64 1, i64* %i
-  store i64 1, i64* %j
+  %i = alloca i64, align 8
+  %j = alloca i64, align 8
+  store i64 1, i64* %i, align 4
+  store i64 1, i64* %j, align 4
   call void @f(i64* %i, i64* %j)
-  %0 = load i64, i64* %i
+  %0 = load i64, i64* %i, align 4
   %1 = icmp ne i64 %0, 1
   br i1 %1, label %then, label %else
 
@@ -51,7 +51,7 @@ else:                                             ; preds = %.entry
 
 ifcont:                                           ; preds = %else, %then
   %iftmp = phi i64 [ 1, %then ], [ 2, %else ]
-  %2 = load i64, i64* %j
+  %2 = load i64, i64* %j, align 4
   %3 = icmp ne i64 %2, 2
   br i1 %3, label %then1, label %else2
 
@@ -66,7 +66,7 @@ else2:                                            ; preds = %ifcont
 ifcont3:                                          ; preds = %else2, %then1
   %iftmp4 = phi i64 [ 1, %then1 ], [ 2, %else2 ]
   call void @g(i64* %i, i64* %j)
-  %4 = load i64, i64* %i
+  %4 = load i64, i64* %i, align 4
   %5 = icmp ne i64 %4, 1
   br i1 %5, label %then5, label %else6
 
@@ -80,7 +80,7 @@ else6:                                            ; preds = %ifcont3
 
 ifcont7:                                          ; preds = %else6, %then5
   %iftmp8 = phi i64 [ 1, %then5 ], [ 2, %else6 ]
-  %6 = load i64, i64* %j
+  %6 = load i64, i64* %j, align 4
   %7 = icmp ne i64 %6, 0
   br i1 %7, label %then9, label %else10
 
@@ -95,7 +95,7 @@ else10:                                           ; preds = %ifcont7
 ifcont11:                                         ; preds = %else10, %then9
   %iftmp12 = phi i64 [ 1, %then9 ], [ 2, %else10 ]
   call void @h(i64* %i, i64* %j)
-  %8 = load i64, i64* %i
+  %8 = load i64, i64* %i, align 4
   %9 = icmp ne i64 %8, 1
   br i1 %9, label %then13, label %else14
 
@@ -109,7 +109,7 @@ else14:                                           ; preds = %ifcont11
 
 ifcont15:                                         ; preds = %else14, %then13
   %iftmp16 = phi i64 [ 1, %then13 ], [ 2, %else14 ]
-  %10 = load i64, i64* %j
+  %10 = load i64, i64* %j, align 4
   %11 = icmp ne i64 %10, 0
   br i1 %11, label %then17, label %else18
 

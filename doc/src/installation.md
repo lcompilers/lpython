@@ -82,7 +82,7 @@ export PATH="$HOME/conda_root/bin:$PATH"
 ```
 Then prepare the environment:
 ```bash
-conda create -n lf -c conda-forge llvmdev=9.0.1 bison=3.4 re2c python cmake make toml
+conda create -n lf -c conda-forge llvmdev=11.0.1 bison=3.4 re2c python cmake make toml
 conda activate lf
 ```
 Clone the LFortran git repository:
@@ -128,6 +128,6 @@ Following are the dependencies necessary for installing this
 repository in development mode,
 
 - [Bison - 3.5.1](https://ftp.gnu.org/gnu/bison/bison-3.5.1.tar.xz)
-- [LLVM - 9.0.1](https://github.com/llvm/llvm-project/releases/download/llvmorg-9.0.1/llvm-9.0.1.src.tar.xz)
+- [LLVM - 11.0.1](https://github.com/llvm/llvm-project/releases/download/llvmorg-11.0.1/llvm-11.0.1.src.tar.xz)
 - [re2c - 2.0.3](https://re2c.org/install/install.html)
 - [binutils - 2.31.90](ftp://sourceware.org/pub/binutils/snapshots/binutils-2.31.90.tar.xz) - Make sure that you should enable the required options related to this dependency to build the dynamic libraries (the ones ending with `.so`).

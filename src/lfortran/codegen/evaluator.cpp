@@ -32,6 +32,7 @@
 #include <llvm/Transforms/Scalar/GVN.h>
 #include <llvm/Transforms/Vectorize.h>
 #include <llvm/ExecutionEngine/ObjectCache.h>
+#include <llvm/Support/CommandLine.h>
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/Path.h>
 #include <llvm/AsmParser/Parser.h>
@@ -116,7 +117,7 @@ LLVMEvaluator::LLVMEvaluator()
 
     context = std::make_unique<llvm::LLVMContext>();
 
-    target_triple = llvm::sys::getDefaultTargetTriple();
+    target_triple = LLVMGetDefaultTargetTriple();
 
     std::string Error;
     const llvm::Target *target = llvm::TargetRegistry::lookupTarget(target_triple, Error);
@@ -240,7 +241,7 @@ void write_file(const std::string &filename, const std::string &contents)
 std::string LLVMEvaluator::get_asm(llvm::Module &m)
 {
     llvm::legacy::PassManager pass;
-    llvm::TargetMachine::CodeGenFileType ft = llvm::TargetMachine::CGFT_AssemblyFile;
+    llvm::CodeGenFileType ft = llvm::CGFT_AssemblyFile;
     llvm::SmallVector<char, 128> buf;
     llvm::raw_svector_ostream dest(buf);
     if (jit->getTargetMachine().addPassesToEmitFile(pass, dest, nullptr, ft)) {
@@ -260,7 +261,7 @@ void LLVMEvaluator::save_object_file(llvm::Module &m, const std::string &filenam
     m.setDataLayout(TM->createDataLayout());
 
     llvm::legacy::PassManager pass;
-    llvm::TargetMachine::CodeGenFileType ft = llvm::TargetMachine::CGFT_ObjectFile;
+    llvm::CodeGenFileType ft = llvm::CGFT_ObjectFile;
     std::error_code EC;
     llvm::raw_fd_ostream dest(filename, EC, llvm::sys::fs::OF_None);
     if (EC) {

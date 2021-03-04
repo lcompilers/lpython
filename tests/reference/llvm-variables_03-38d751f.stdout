@@ -8,13 +8,13 @@ source_filename = "LFortran"
 
 define i64 @main() {
 .entry:
-  %b = alloca i1
-  %x = alloca i64
-  store i64 2, i64* %x
-  %0 = load i64, i64* %x
+  %b = alloca i1, align 1
+  %x = alloca i64, align 8
+  store i64 2, i64* %x, align 4
+  %0 = load i64, i64* %x, align 4
   %1 = icmp ne i64 %0, 2
-  store i1 %1, i1* %b
-  %2 = load i1, i1* %b
+  store i1 %1, i1* %b, align 1
+  %2 = load i1, i1* %b, align 1
   br i1 %2, label %then, label %else
 
 then:                                             ; preds = %.entry
@@ -27,10 +27,10 @@ else:                                             ; preds = %.entry
 
 ifcont:                                           ; preds = %else, %then
   %iftmp = phi i64 [ 1, %then ], [ 2, %else ]
-  %3 = load i64, i64* %x
+  %3 = load i64, i64* %x, align 4
   %4 = icmp eq i64 %3, 2
-  store i1 %4, i1* %b
-  %5 = load i1, i1* %b
+  store i1 %4, i1* %b, align 1
+  %5 = load i1, i1* %b, align 1
   %6 = xor i1 %5, true
   br i1 %6, label %then1, label %else2
 
@@ -44,11 +44,11 @@ else2:                                            ; preds = %ifcont
 
 ifcont3:                                          ; preds = %else2, %then1
   %iftmp4 = phi i64 [ 1, %then1 ], [ 2, %else2 ]
-  %7 = load i64, i64* %x
+  %7 = load i64, i64* %x, align 4
   %8 = icmp eq i64 %7, 2
   %9 = xor i1 %8, true
-  store i1 %9, i1* %b
-  %10 = load i1, i1* %b
+  store i1 %9, i1* %b, align 1
+  %10 = load i1, i1* %b, align 1
   br i1 %10, label %then5, label %else6
 
 then5:                                            ; preds = %ifcont3
@@ -61,13 +61,13 @@ else6:                                            ; preds = %ifcont3
 
 ifcont7:                                          ; preds = %else6, %then5
   %iftmp8 = phi i64 [ 1, %then5 ], [ 2, %else6 ]
-  %11 = load i64, i64* %x
+  %11 = load i64, i64* %x, align 4
   %12 = icmp eq i64 %11, 2
-  store i1 %12, i1* %b
-  %13 = load i1, i1* %b
+  store i1 %12, i1* %b, align 1
+  %13 = load i1, i1* %b, align 1
   %14 = xor i1 %13, true
-  store i1 %14, i1* %b
-  %15 = load i1, i1* %b
+  store i1 %14, i1* %b, align 1
+  %15 = load i1, i1* %b, align 1
   br i1 %15, label %then9, label %else10
 
 then9:                                            ; preds = %ifcont7
