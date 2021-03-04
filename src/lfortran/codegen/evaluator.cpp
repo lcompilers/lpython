@@ -126,7 +126,7 @@ LLVMEvaluator::LLVMEvaluator()
     std::string CPU = "generic";
     std::string features = "";
     llvm::TargetOptions opt;
-    llvm::Optional<llvm::Reloc::Model> RM;
+    llvm::Optional<llvm::Reloc::Model> RM = llvm::Reloc::Model::PIC_;
     TM = target->createTargetMachine(target_triple, CPU, features, opt, RM);
 
     // For some reason the JIT requires a different TargetMachine
