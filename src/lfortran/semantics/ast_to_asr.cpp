@@ -84,6 +84,21 @@ namespace LFortran {
             static void set_converted_value
             (Allocator &al, const Location &a_loc, 
              ASR::expr_t** convert_can, ASR::ttype_t* source_type, ASR::ttype_t* dest_type) {
+                if( source_type->type == dest_type->type ) {
+                    int source_kind = 0, dest_kind = 1;
+                    switch (source_type->type) {
+                        
+                        case ASR::ttypeType::Real : {
+                            source_kind = ((ASR::Real_t*)(&(source_type->base)))->m_kind;
+                            dest_kind = ((ASR::Real_t*)(&(dest_type->base)))->m_kind;
+                            break;
+                        }
+
+                    }
+                    if( source_kind == dest_kind ) {
+                        return ;
+                    }
+                }
                 int cast_kind = rule_map[source_type->type][dest_type->type];
                 if( cast_kind == error_case )
                 {
@@ -1116,9 +1131,28 @@ public:
         tmp = ASR::make_Str_t(al, x.base.base.loc, x.m_s, type);
     }
 
+    inline int extract_kind(char* m_n) {
+        bool is_under_score = false;
+        char kind_str[2] = {'0', '0'};
+        for( int i = 1, j = 0; m_n[i] != '\0'; i++ ) {
+            is_under_score = m_n[i-1] == '_' && !is_under_score ? true : is_under_score;
+            if( is_under_score ) {
+                kind_str[j] = m_n[i];
+                j++;
+            }
+        }
+        if( kind_str[0] != '0' && kind_str[1] == '0'  ) {
+            return kind_str[0] - '0';
+        } else if( kind_str[0] != '0' && kind_str[0] != '0' ) {
+            return (kind_str[0] - '0')*10 + (kind_str[1] - '0');
+        }
+        return 4;
+    }
+
     void visit_Real(const AST::Real_t &x) {
+        int a_kind = extract_kind(x.m_n);
         ASR::ttype_t *type = TYPE(ASR::make_Real_t(al, x.base.base.loc,
-                4, nullptr, 0));
+                a_kind, nullptr, 0));
         tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, x.m_n, type);
     }
 
