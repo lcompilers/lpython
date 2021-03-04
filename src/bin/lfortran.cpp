@@ -798,7 +798,7 @@ int link_executable(const std::string &infile, const std::string &outfile,
             runtime_lib = "lfortran_runtime_static";
         }
         std::string cmd = CC + options + " -o " + outfile + " " + infile + " -L"
-            + base_path + " -Wl,-rpath=" + base_path + " -l" + runtime_lib + " -lm";
+            + base_path + " -Wl,-rpath," + base_path + " -l" + runtime_lib + " -lm";
         int err = system(cmd.c_str());
         if (err) {
             std::cout << "The command '" + cmd + "' failed." << std::endl;
