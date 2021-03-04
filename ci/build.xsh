@@ -72,6 +72,7 @@ $FC="../../src/bin/lfortran"
 if $WIN != "1":
     cp lfortran-$lfortran_version/test-bld/src/bin/lfortran src/bin
     cp lfortran-$lfortran_version/test-bld/src/bin/cpptranslate src/bin
+    cp lfortran-$lfortran_version/test-bld/src/runtime/liblfortran_runtime* src/runtime/
     ./run_tests.py
 
     cd integration_tests
