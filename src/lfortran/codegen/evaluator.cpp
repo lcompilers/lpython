@@ -32,6 +32,7 @@
 #include <llvm/Transforms/Scalar/GVN.h>
 #include <llvm/Transforms/Vectorize.h>
 #include <llvm/ExecutionEngine/ObjectCache.h>
+#include <llvm/Support/CommandLine.h>
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/Path.h>
 #include <llvm/AsmParser/Parser.h>
@@ -283,7 +284,7 @@ std::string LLVMEvaluator::module_to_string(llvm::Module &m) {
 
 void LLVMEvaluator::print_version_message()
 {
-    print_version_message();
+    llvm::cl::PrintVersionMessage();
 }
 
 llvm::LLVMContext &LLVMEvaluator::get_context()
