@@ -616,20 +616,6 @@ public:
         asr = ASR::make_ConstantInteger_t(al, x.base.base.loc, x.m_n, type);
     }
 
-    ASR::asr_t* resolve_variable(const Location &loc, const char* id) {
-        SymbolTable *scope = current_scope;
-        std::string var_name = id;
-        ASR::symbol_t *v = scope->resolve_symbol(var_name);
-        if (!v) {
-            throw SemanticError("Variable '" + var_name + "' not declared", loc);
-        }
-        return ASR::make_Var_t(al, loc, v);
-    }
-
-    void visit_Name(const AST::Name_t &x) {
-        asr = resolve_variable(x.base.base.loc, x.m_id);
-    }
-
 };
 
 class BodyVisitor : public AST::BaseVisitor<BodyVisitor>
