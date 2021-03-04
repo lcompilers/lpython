@@ -734,7 +734,7 @@ int compile_to_object_file_cpp(const std::string &infile,
 // outfile will become the executable
 int link_executable(const std::string &infile, const std::string &outfile,
     const std::string &runtime_library_dir, Backend backend,
-    bool static_executable, bool kokkos)
+    bool static_executable, bool kokkos, Platform platform)
 {
     /*
     The `gcc` line for dynamic linking that is constructed below:
@@ -793,12 +793,19 @@ int link_executable(const std::string &infile, const std::string &outfile,
 
     */
     if (backend == Backend::llvm) {
-        std::string CC = "gcc";
+        std::string CC;
+        if (platform == Platform::macOS) {
+            CC = "clang";
+        } else {
+            CC = "gcc";
+        }
         std::string base_path = runtime_library_dir;
         std::string options;
         std::string runtime_lib = "lfortran_runtime";
         if (static_executable) {
-            options += " -static ";
+            if (platform != Platform::macOS) {
+                options += " -static ";
+            }
             runtime_lib = "lfortran_runtime_static";
         }
         std::string cmd = CC + options + " -o " + outfile + " " + infile + " -L"
@@ -1187,10 +1194,10 @@ int main(int argc, char *argv[])
             }
             if (err) return err;
             return link_executable(tmp_o, outfile, runtime_library_dir,
-                    backend, static_link, true);
+                    backend, static_link, true, platform);
         } else {
             return link_executable(arg_file, outfile, runtime_library_dir,
-                    backend, static_link, true);
+                    backend, static_link, true, platform);
         }
     } catch(const LFortran::LFortranException &e) {
         std::cerr << e.stacktrace();
