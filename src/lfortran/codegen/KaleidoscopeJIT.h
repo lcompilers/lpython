@@ -42,14 +42,14 @@ public:
   using ObjLayerT = LegacyRTDyldObjectLinkingLayer;
   using CompileLayerT = LegacyIRCompileLayer<ObjLayerT, SimpleCompiler>;
 
-  KaleidoscopeJIT()
+  KaleidoscopeJIT(TargetMachine *TM)
       : Resolver(createLegacyLookupResolver(
             ES,
             [this](const std::string &Name) {
               return findMangledSymbol(Name);
             },
             [](Error Err) { cantFail(std::move(Err), "lookupFlags failed"); })),
-        TM(EngineBuilder().selectTarget()), DL(TM->createDataLayout()),
+        TM(TM), DL(TM->createDataLayout()),
         ObjectLayer(ES,
                     [this](VModuleKey) {
                       return ObjLayerT::Resources{
