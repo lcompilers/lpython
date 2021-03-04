@@ -71,3 +71,11 @@ if $WIN != "1":
     cp lfortran-$lfortran_version/test-bld/src/bin/lfortran src/bin
     cp lfortran-$lfortran_version/test-bld/src/bin/cpptranslate src/bin
     ./run_tests.py
+
+    cd integration_tests
+    mkdir build-lfortran-llvm
+    cd build-lfortran-llvm
+    FC=../../src/bin/lfortran cmake -DLFORTRAN_BACKEND=llvm ..
+    make
+    ctest -L llvm
+    cd ../..
