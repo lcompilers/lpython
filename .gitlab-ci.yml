@@ -92,7 +92,7 @@ cxx_binary_tests:
   script:
     - export CONDA_PREFIX="$HOME/conda_root"
     - export PATH="$HOME/conda_root/bin:$PATH"
-    - conda install -c conda-forge toml lld=9.0.1 llvmdev=9.0.1
+    - conda install -c conda-forge toml lld=11.0.1 llvmdev=11.0.1
     - sudo apt-get update
     - sudo apt-get install -yq --no-install-recommends libtinfo-dev zlib1g-dev binutils-dev
     - tar xzf dist/lfortran-*.tar.gz
@@ -229,7 +229,7 @@ build.xsh:
     - export PATH="$HOME/conda_root/bin:$PATH"
     - sudo apt-get update
     - sudo apt-get install -yq --no-install-recommends zlib1g-dev git
-    - conda install -c conda-forge llvmdev=9.0.1 toml pytest jupyter xeus xtl nlohmann_json cppzmq jupyter_kernel_test
+    - conda install -c conda-forge llvmdev=11.0.1 toml pytest jupyter xeus xtl nlohmann_json cppzmq jupyter_kernel_test
     - export LFORTRAN_CMAKE_GENERATOR="Unix Makefiles"
     - export WIN=0
     - export MACOS=0
