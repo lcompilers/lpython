@@ -445,12 +445,18 @@ interface_body
     ;
 
 interface_item
-    : fn_mod_plus KW_PROCEDURE id_list sep
-    | fn_mod_plus KW_PROCEDURE "::" id_list sep
-    | KW_PROCEDURE id_list sep
-    | KW_PROCEDURE "::" id_list sep
-    | subroutine
-    | function
+    : fn_mod_plus KW_PROCEDURE id_list sep {
+        $$ = INTERFACE_MODULE_PROC($3, @$); }
+    | fn_mod_plus KW_PROCEDURE "::" id_list sep {
+        $$ = INTERFACE_MODULE_PROC($4, @$); }
+    | KW_PROCEDURE id_list sep {
+        $$ = INTERFACE_MODULE_PROC($2, @$); }
+    | KW_PROCEDURE "::" id_list sep {
+        $$ = INTERFACE_MODULE_PROC($3, @$); }
+    | subroutine {
+        $$ = INTERFACE_PROC($1, @$); }
+    | function {
+        $$ = INTERFACE_PROC($1, @$); }
     ;
 
 enum_decl

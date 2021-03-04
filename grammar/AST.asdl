@@ -47,8 +47,11 @@ unit_decl2
     | ParameterStatement(parameter_item* items)
     | Private(identifier* vars)
     | Public(identifier* vars)
-    | Interface(identifier? name, identifier* procs)
-    | Interface2(identifier? name, program_unit* procs)
+    | Interface(identifier? name, interface_item* items)
+
+interface_item
+    = InterfaceProc(program_unit proc)
+    | InterfaceModuleProcedure(identifier* name)
 
 stmt
     = Assignment(expr target, expr value)

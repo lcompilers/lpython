@@ -274,32 +274,6 @@ public:
         s.append("Unimplementedidentifier");
         s.append(")");
     }
-    void visit_Interface2(const Interface2_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("interface2");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        if (x.m_name) {
-            s.append(x.m_name);
-        } else {
-            s.append("()");
-        }
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_procs; i++) {
-            this->visit_program_unit(*x.m_procs[i]);
-            if (i < x.n_procs-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(")");
-    }
     void visit_Assignment(const Assignment_t &x) {
         std::string r = "";
         this->visit_expr(*x.m_target);
