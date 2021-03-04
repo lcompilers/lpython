@@ -75,7 +75,7 @@ if $WIN != "1":
     cd integration_tests
     mkdir build-lfortran-llvm
     cd build-lfortran-llvm
-    FC=../../src/bin/lfortran cmake -DLFORTRAN_BACKEND=llvm ..
+    $FC="../../src/bin/lfortran" cmake -DLFORTRAN_BACKEND=llvm ..
     make
     ctest -L llvm
     cd ../..
