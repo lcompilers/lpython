@@ -5,7 +5,7 @@ source_filename = "LFortran"
 
 define void @f() {
 .entry:
-  store i64 6, i64* @x
+  store i64 6, i64* @x, align 4
   ret void
 }
 

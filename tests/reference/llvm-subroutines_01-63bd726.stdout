@@ -13,19 +13,19 @@ source_filename = "LFortran"
 
 define void @f(i64* %a, i64* %b) {
 .entry:
-  %0 = load i64, i64* %a
+  %0 = load i64, i64* %a, align 4
   %1 = add i64 %0, 1
-  store i64 %1, i64* %b
+  store i64 %1, i64* %b, align 4
   ret void
 }
 
 define i64 @main() {
 .entry:
-  %i = alloca i64
-  %j = alloca i64
-  store i64 1, i64* %i
-  store i64 1, i64* %j
-  %0 = load i64, i64* %j
+  %i = alloca i64, align 8
+  %j = alloca i64, align 8
+  store i64 1, i64* %i, align 4
+  store i64 1, i64* %j, align 4
+  %0 = load i64, i64* %j, align 4
   %1 = icmp ne i64 %0, 1
   br i1 %1, label %then, label %else
 
@@ -40,7 +40,7 @@ else:                                             ; preds = %.entry
 ifcont:                                           ; preds = %else, %then
   %iftmp = phi i64 [ 1, %then ], [ 2, %else ]
   call void @f(i64* %i, i64* %j)
-  %2 = load i64, i64* %i
+  %2 = load i64, i64* %i, align 4
   %3 = icmp ne i64 %2, 1
   br i1 %3, label %then1, label %else2
 
@@ -54,7 +54,7 @@ else2:                                            ; preds = %ifcont
 
 ifcont3:                                          ; preds = %else2, %then1
   %iftmp4 = phi i64 [ 1, %then1 ], [ 2, %else2 ]
-  %4 = load i64, i64* %j
+  %4 = load i64, i64* %j, align 4
   %5 = icmp ne i64 %4, 2
   br i1 %5, label %then5, label %else6
 
@@ -68,8 +68,8 @@ else6:                                            ; preds = %ifcont3
 
 ifcont7:                                          ; preds = %else6, %then5
   %iftmp8 = phi i64 [ 1, %then5 ], [ 2, %else6 ]
-  store i64 1, i64* %j
-  %6 = load i64, i64* %j
+  store i64 1, i64* %j, align 4
+  %6 = load i64, i64* %j, align 4
   %7 = icmp ne i64 %6, 1
   br i1 %7, label %then9, label %else10
 
@@ -83,10 +83,10 @@ else10:                                           ; preds = %ifcont7
 
 ifcont11:                                         ; preds = %else10, %then9
   %iftmp12 = phi i64 [ 1, %then9 ], [ 2, %else10 ]
-  %8 = alloca i64
-  store i64 3, i64* %8
+  %8 = alloca i64, align 8
+  store i64 3, i64* %8, align 4
   call void @f(i64* %8, i64* %j)
-  %9 = load i64, i64* %j
+  %9 = load i64, i64* %j, align 4
   %10 = icmp ne i64 %9, 4
   br i1 %10, label %then13, label %else14
 
@@ -100,8 +100,8 @@ else14:                                           ; preds = %ifcont11
 
 ifcont15:                                         ; preds = %else14, %then13
   %iftmp16 = phi i64 [ 1, %then13 ], [ 2, %else14 ]
-  store i64 1, i64* %j
-  %11 = load i64, i64* %j
+  store i64 1, i64* %j, align 4
+  %11 = load i64, i64* %j, align 4
   %12 = icmp ne i64 %11, 1
   br i1 %12, label %then17, label %else18
 
@@ -115,10 +115,10 @@ else18:                                           ; preds = %ifcont15
 
 ifcont19:                                         ; preds = %else18, %then17
   %iftmp20 = phi i64 [ 1, %then17 ], [ 2, %else18 ]
-  %13 = alloca i64
-  store i64 3, i64* %13
+  %13 = alloca i64, align 8
+  store i64 3, i64* %13, align 4
   call void @f(i64* %13, i64* %j)
-  %14 = load i64, i64* %j
+  %14 = load i64, i64* %j, align 4
   %15 = icmp ne i64 %14, 4
   br i1 %15, label %then21, label %else22
 
@@ -132,8 +132,8 @@ else22:                                           ; preds = %ifcont19
 
 ifcont23:                                         ; preds = %else22, %then21
   %iftmp24 = phi i64 [ 1, %then21 ], [ 2, %else22 ]
-  store i64 1, i64* %j
-  %16 = load i64, i64* %j
+  store i64 1, i64* %j, align 4
+  %16 = load i64, i64* %j, align 4
   %17 = icmp ne i64 %16, 1
   br i1 %17, label %then25, label %else26
 
@@ -147,12 +147,12 @@ else26:                                           ; preds = %ifcont23
 
 ifcont27:                                         ; preds = %else26, %then25
   %iftmp28 = phi i64 [ 1, %then25 ], [ 2, %else26 ]
-  %18 = load i64, i64* %i
+  %18 = load i64, i64* %i, align 4
   %19 = add i64 %18, 2
-  %20 = alloca i64
-  store i64 %19, i64* %20
+  %20 = alloca i64, align 8
+  store i64 %19, i64* %20, align 4
   call void @f(i64* %20, i64* %j)
-  %21 = load i64, i64* %j
+  %21 = load i64, i64* %j, align 4
   %22 = icmp ne i64 %21, 4
   br i1 %22, label %then29, label %else30
 

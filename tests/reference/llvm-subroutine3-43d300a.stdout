@@ -3,9 +3,9 @@ source_filename = "LFortran"
 
 define i64 @f() {
 .entry:
-  %f = alloca i64
-  store i64 42, i64* %f
-  %0 = load i64, i64* %f
+  %f = alloca i64, align 8
+  store i64 42, i64* %f, align 4
+  %0 = load i64, i64* %f, align 4
   ret i64 %0
 }
 

@@ -5,9 +5,9 @@ source_filename = "LFortran"
 
 define i64 @main() {
 .entry:
-  %x = alloca i64
-  store i64 25, i64* %x
-  %0 = load i64, i64* %x
+  %x = alloca i64, align 8
+  store i64 25, i64* %x, align 4
+  %0 = load i64, i64* %x, align 4
   %1 = icmp eq i64 %0, 25
   br i1 %1, label %then, label %else
 

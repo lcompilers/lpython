@@ -5,11 +5,11 @@ source_filename = "LFortran"
 
 define i64 @main() {
 .entry:
-  %x = alloca i64
-  store i64 25, i64* %x
-  %0 = load i64, i64* %x
-  %1 = load i64, i64* %x
-  %2 = load i64, i64* %x
+  %x = alloca i64, align 8
+  store i64 25, i64* %x, align 4
+  %0 = load i64, i64* %x, align 4
+  %1 = load i64, i64* %x, align 4
+  %2 = load i64, i64* %x, align 4
   %3 = add i64 25, %2
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @0, i32 0, i32 0), i64 %0, i64 1, i64 3, i64 %1, i64 %3)
   ret i64 0

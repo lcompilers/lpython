@@ -24,12 +24,12 @@ source_filename = "LFortran"
 
 define i64 @main() {
 .entry:
-  %a = alloca i1
-  %b = alloca i1
-  store i1 true, i1* %a
-  store i1 false, i1* %b
-  %0 = load i1, i1* %a
-  %1 = load i1, i1* %b
+  %a = alloca i1, align 1
+  %b = alloca i1, align 1
+  store i1 true, i1* %a, align 1
+  store i1 false, i1* %b, align 1
+  %0 = load i1, i1* %a, align 1
+  %1 = load i1, i1* %b, align 1
   %2 = and i1 %0, %1
   br i1 %2, label %then, label %else
 
@@ -43,8 +43,8 @@ else:                                             ; preds = %.entry
 
 ifcont:                                           ; preds = %else, %then
   %iftmp = phi i64 [ 1, %then ], [ 2, %else ]
-  %3 = load i1, i1* %a
-  %4 = load i1, i1* %b
+  %3 = load i1, i1* %a, align 1
+  %4 = load i1, i1* %b, align 1
   %5 = or i1 %3, %4
   br i1 %5, label %then1, label %else2
 
@@ -58,10 +58,10 @@ else2:                                            ; preds = %ifcont
 
 ifcont3:                                          ; preds = %else2, %then1
   %iftmp4 = phi i64 [ 1, %then1 ], [ 2, %else2 ]
-  store i1 false, i1* %a
-  store i1 true, i1* %b
-  %6 = load i1, i1* %a
-  %7 = load i1, i1* %b
+  store i1 false, i1* %a, align 1
+  store i1 true, i1* %b, align 1
+  %6 = load i1, i1* %a, align 1
+  %7 = load i1, i1* %b, align 1
   %8 = and i1 %6, %7
   %9 = xor i1 %8, true
   br i1 %9, label %then5, label %else6
@@ -76,8 +76,8 @@ else6:                                            ; preds = %ifcont3
 
 ifcont7:                                          ; preds = %else6, %then5
   %iftmp8 = phi i64 [ 1, %then5 ], [ 2, %else6 ]
-  %10 = load i1, i1* %b
-  %11 = load i1, i1* %a
+  %10 = load i1, i1* %b, align 1
+  %11 = load i1, i1* %a, align 1
   %12 = xor i1 %10, %11
   br i1 %12, label %then9, label %else10
 
@@ -91,8 +91,8 @@ else10:                                           ; preds = %ifcont7
 
 ifcont11:                                         ; preds = %else10, %then9
   %iftmp12 = phi i64 [ 1, %then9 ], [ 2, %else10 ]
-  %13 = load i1, i1* %b
-  %14 = load i1, i1* %a
+  %13 = load i1, i1* %b, align 1
+  %14 = load i1, i1* %a, align 1
   %15 = xor i1 %13, %14
   %16 = xor i1 %15, true
   br i1 %16, label %then13, label %else14
