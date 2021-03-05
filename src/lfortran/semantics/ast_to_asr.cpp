@@ -156,6 +156,7 @@ public:
     ASR::asr_t *asr;
     Allocator &al;
     SymbolTable *current_scope;
+    std::map<std::string, std::vector<std::string>> generic_procedures;
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
         : al{al}, current_scope{symbol_table} { }
@@ -380,8 +381,27 @@ public:
         }
     }
 
-    void visit_Interface(const AST::Interface_t &/*x*/) {
-        // TODO
+    void visit_Interface(const AST::Interface_t &x) {
+        if (AST::is_a<AST::InterfaceHeader2_t>(*x.m_header)) {
+            char *generic_name = AST::down_cast<AST::InterfaceHeader2_t>(x.m_header)->m_name;
+            std::vector<std::string> proc_names;
+            for (size_t i = 0; i < x.n_items; i++) {
+                AST::interface_item_t *item = x.m_items[i];
+                if (AST::is_a<AST::InterfaceModuleProcedure_t>(*item)) {
+                    AST::InterfaceModuleProcedure_t *proc
+                        = AST::down_cast<AST::InterfaceModuleProcedure_t>(item);
+                    for (size_t i = 0; i < proc->n_names; i++) {
+                        char *proc_name = proc->m_names[i];
+                        proc_names.push_back(std::string(proc_name));
+                    }
+                } else {
+                    throw SemanticError("Interface procedure type not imlemented yet", item->base.loc);
+                }
+            }
+            generic_procedures[std::string(generic_name)] = proc_names;
+        } else {
+            throw SemanticError("Interface type not imlemented yet", x.base.base.loc);
+        }
     }
 
     void visit_Use(const AST::Use_t &x) {

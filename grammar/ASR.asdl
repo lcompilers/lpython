@@ -38,6 +38,7 @@ symbol
         tbind? bind, proc_external? external)
     | Function(symbol_table symtab, identifier name, expr* args, stmt* body,
         tbind? bind, expr return_var, proc_external? external)
+    | GenericProcedure(identifier name, symbol* procs)
     | Variable(symbol_table parent_symtab, identifier name, intent intent,
             ttype type)
 

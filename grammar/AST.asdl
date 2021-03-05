@@ -64,7 +64,7 @@ interface_header
 
 interface_item
     = InterfaceProc(program_unit proc)
-    | InterfaceModuleProcedure(identifier* name)
+    | InterfaceModuleProcedure(identifier* names)
 
 stmt
     = Assignment(expr target, expr value)
