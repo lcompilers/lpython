@@ -53,7 +53,14 @@ unit_decl2
     | ParameterStatement(parameter_item* items)
     | Private(identifier* vars)
     | Public(identifier* vars)
-    | Interface(identifier? name, interface_item* items)
+    | Interface(interface_header header, interface_item* items)
+
+interface_header
+    = InterfaceHeader1()
+    | InterfaceHeader2(identifier name)
+    | InterfaceHeader3()
+    | InterfaceHeader4()
+    | InterfaceHeader5()
 
 interface_item
     = InterfaceProc(program_unit proc)

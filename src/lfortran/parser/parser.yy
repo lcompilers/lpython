@@ -272,6 +272,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> decl
 %type <vec_ast> decl_star
 %type <ast> interface_decl
+%type <ast> interface_stmt
 %type <ast> derived_type_decl
 %type <ast> enum_decl
 %type <ast> program
@@ -415,15 +416,16 @@ submodule
 
 interface_decl
     : interface_stmt sep interface_body endinterface sep {
-            $$ = INTERFACE($3, @$); }
+            $$ = INTERFACE($1, $3, @$); }
     ;
 
 interface_stmt
-    : KW_INTERFACE
-    | KW_INTERFACE id
-    | KW_INTERFACE KW_ASSIGNMENT "(" "=" ")"
-    | KW_INTERFACE KW_OPERATOR "(" operator_type ")"
-    | KW_ABSTRACT KW_INTERFACE
+    : KW_INTERFACE { $$ = INTERFACE_HEADER1(@$); }
+    | KW_INTERFACE id { $$ = INTERFACE_HEADER2($2, @$); }
+    | KW_INTERFACE KW_ASSIGNMENT "(" "=" ")" { $$ = INTERFACE_HEADER3(@$); }
+    | KW_INTERFACE KW_OPERATOR "(" operator_type ")" {
+        $$ = INTERFACE_HEADER4(@$); }
+    | KW_ABSTRACT KW_INTERFACE { $$ = INTERFACE_HEADER5(@$); }
     ;
 
 endinterface
