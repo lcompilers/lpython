@@ -156,9 +156,20 @@ public:
     ASR::asr_t *asr;
     Allocator &al;
     SymbolTable *current_scope;
+    std::map<std::string, std::vector<std::string>> generic_procedures;
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
         : al{al}, current_scope{symbol_table} { }
+
+    ASR::symbol_t* resolve_symbol(const Location &loc, const char* id) {
+        SymbolTable *scope = current_scope;
+        std::string sub_name = id;
+        ASR::symbol_t *sub = scope->resolve_symbol(sub_name);
+        if (!sub) {
+            throw SemanticError("Symbol '" + sub_name + "' not declared", loc);
+        }
+        return sub;
+    }
 
     void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
         if (!current_scope) {
@@ -187,6 +198,7 @@ public:
         for (size_t i=0; i<x.n_contains; i++) {
             visit_program_unit(*x.m_contains[i]);
         }
+        add_generic_procedures();
         asr = ASR::make_Module_t(
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
@@ -380,8 +392,53 @@ public:
         }
     }
 
-    void visit_Interface(const AST::Interface_t &/*x*/) {
-        // TODO
+    void visit_Interface(const AST::Interface_t &x) {
+        if (AST::is_a<AST::InterfaceHeader2_t>(*x.m_header)) {
+            char *generic_name = AST::down_cast<AST::InterfaceHeader2_t>(x.m_header)->m_name;
+            std::vector<std::string> proc_names;
+            for (size_t i = 0; i < x.n_items; i++) {
+                AST::interface_item_t *item = x.m_items[i];
+                if (AST::is_a<AST::InterfaceModuleProcedure_t>(*item)) {
+                    AST::InterfaceModuleProcedure_t *proc
+                        = AST::down_cast<AST::InterfaceModuleProcedure_t>(item);
+                    for (size_t i = 0; i < proc->n_names; i++) {
+                        char *proc_name = proc->m_names[i];
+                        proc_names.push_back(std::string(proc_name));
+                    }
+                } else {
+                    throw SemanticError("Interface procedure type not imlemented yet", item->base.loc);
+                }
+            }
+            generic_procedures[std::string(generic_name)] = proc_names;
+        } else {
+            throw SemanticError("Interface type not imlemented yet", x.base.base.loc);
+        }
+    }
+
+    void add_generic_procedures() {
+        for (auto &proc : generic_procedures) {
+            Location loc;
+            loc.first_line = 1;
+            loc.last_line = 1;
+            loc.first_column = 1;
+            loc.last_column = 1;
+            Str s;
+            s.from_str_view(proc.first);
+            char *generic_name = s.c_str(al);
+            Vec<ASR::symbol_t*> symbols;
+            symbols.reserve(al, proc.second.size());
+            for (auto &pname : proc.second) {
+                ASR::symbol_t *x;
+                Str s;
+                s.from_str_view(pname);
+                char *name = s.c_str(al);
+                x = resolve_symbol(loc, name);
+                symbols.push_back(al, x);
+            }
+            ASR::asr_t *v = ASR::make_GenericProcedure_t(al, loc,
+                generic_name, symbols.p, symbols.size());
+            current_scope->scope[proc.first] = ASR::down_cast<ASR::symbol_t>(v);
+        }
     }
 
     void visit_Use(const AST::Use_t &x) {
@@ -484,6 +541,22 @@ public:
                         /* a_external */ external
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(sub);
+                } else if (ASR::is_a<ASR::GenericProcedure_t>(*t)) {
+                    if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
+                        throw SemanticError("Symbol already defined",
+                            x.base.base.loc);
+                    }
+                    ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
+                    external->m_type = ASR::proc_external_typeType::LFortranModule;
+                    external->m_module_proc = t;
+                    Str name;
+                    name.from_str(al, local_sym);
+                    ASR::asr_t *ep = ASR::make_ExternalProc_t(
+                        al, t->base.loc,
+                        /* a_name */ name.c_str(al),
+                        /* a_external */ *external
+                        );
+                    current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(ep);
                 } else if (ASR::is_a<ASR::Function_t>(*t)) {
                     if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
                         throw SemanticError("Function already defined",
@@ -753,10 +826,59 @@ public:
     }
 
     void visit_SubroutineCall(const AST::SubroutineCall_t &x) {
-        ASR::Subroutine_t *sub = resolve_subroutine(x.base.base.loc, x.m_name);
+        ASR::symbol_t *sym = resolve_subroutine(x.base.base.loc, x.m_name);
         Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
+        ASR::Subroutine_t *sub;
+        switch (sym->type) {
+            case (ASR::symbolType::Subroutine) : {
+                sub = ASR::down_cast<ASR::Subroutine_t>(sym);
+                break;
+            }
+            case (ASR::symbolType::GenericProcedure) : {
+                ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(sym);
+                int idx = select_generic_procedure(args, *p, x.base.base.loc);
+                sub = ASR::down_cast<ASR::Subroutine_t>(p->m_procs[idx]);
+                break;
+            }
+            default : {
+                throw SemanticError("Symbol type not supported", x.base.base.loc);
+            }
+        }
         tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc,
                 (ASR::symbol_t*)sub, args.p, args.size());
+    }
+
+    int select_generic_procedure(const Vec<ASR::expr_t*> &args,
+            const ASR::GenericProcedure_t &p, Location loc) {
+        for (size_t i=0; i < p.n_procs; i++) {
+            ASR::Subroutine_t *sub
+                = ASR::down_cast<ASR::Subroutine_t>(p.m_procs[i]);
+            if (argument_types_match(args, *sub)) {
+                return i;
+            }
+        }
+        throw SemanticError("Arguments do not match", loc);
+    }
+
+    bool argument_types_match(const Vec<ASR::expr_t*> &args,
+            const ASR::Subroutine_t &sub) {
+        if (args.size() == sub.n_args) {
+            for (size_t i=0; i < args.size(); i++) {
+                ASR::Variable_t *v = EXPR2VAR(sub.m_args[i]);
+                ASR::ttype_t *arg1 = expr_type(args[i]);
+                ASR::ttype_t *arg2 = v->m_type;
+                if (!types_equal(*arg1, *arg2)) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    bool types_equal(const ASR::ttype_t &a, const ASR::ttype_t &b) {
+        return (a.type == b.type);
     }
 
     void visit_Compare(const AST::Compare_t &x) {
@@ -933,14 +1055,42 @@ public:
         return ASR::make_Var_t(al, loc, v);
     }
 
-    ASR::Subroutine_t* resolve_subroutine(const Location &loc, const char* id) {
+    ASR::symbol_t* resolve_subroutine(const Location &loc, const char* id) {
         SymbolTable *scope = current_scope;
         std::string sub_name = id;
         ASR::symbol_t *sub = scope->resolve_symbol(sub_name);
         if (!sub) {
             throw SemanticError("Subroutine '" + sub_name + "' not declared", loc);
         }
-        return ASR::down_cast<ASR::Subroutine_t>(sub);
+        switch (sub->type) {
+            case (ASR::symbolType::Subroutine) : {
+                return sub;
+                break;
+            }
+            case (ASR::symbolType::ExternalProc) : {
+                ASR::ExternalProc_t *p = ASR::down_cast<ASR::ExternalProc_t>(sub);
+                ASR::symbol_t *s = p->m_external.m_module_proc;
+                switch (s->type) {
+                    case (ASR::symbolType::Subroutine) : {
+                        return s;
+                        break;
+                    }
+                    case (ASR::symbolType::GenericProcedure) : {
+                        return s;
+                        break;
+                    }
+                    default : {
+                        throw SemanticError("Symbol type not supported", loc);
+                    }
+                }
+                LFORTRAN_ASSERT(false);
+                break;
+            }
+            default : {
+                throw SemanticError("Symbol type not supported", loc);
+            }
+        }
+        throw SemanticError("Symbol type not supported", loc);
     }
 
     void visit_Name(const AST::Name_t &x) {
