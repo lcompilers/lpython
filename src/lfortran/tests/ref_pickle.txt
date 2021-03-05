@@ -378,7 +378,7 @@ exit
 (Module test [] [] [(Subroutine a [(b)] [] [(Declaration [(b "integer" [] [] [(Attribute intent [(in)] [])] ())])] [] []) (Subroutine f [(b)] [] [(Declaration [(b "integer" [] [] [(Attribute intent [(in)] [])] ())])] [] [])])
 (Module test [] [(Declaration [(x "integer" [] [] [] ())])] [(Subroutine a [(b)] [] [(Declaration [(b "integer" [] [] [(Attribute intent [(in)] [])] ())])] [] [])])
 (Module test [] [] [(Function f [] () y () [] [] [(= y 0)] [])])
-(Module test [] [(Interface () [(InterfaceModuleProcedure [a]) (InterfaceModuleProcedure [b]) (InterfaceModuleProcedure [c])])] [])
+(Module test [] [(Interface (InterfaceHeader2 name) [(InterfaceModuleProcedure [a]) (InterfaceModuleProcedure [b]) (InterfaceModuleProcedure [c])])] [])
 (Declaration [(x "Integer" [] [] [] ())])
 (Declaration [(x "INTEGER" [] [] [] ())])
 (Declaration [(x "iNteger" [] [] [] ())])
