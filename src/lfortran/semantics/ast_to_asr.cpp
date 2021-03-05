@@ -826,8 +826,24 @@ public:
     }
 
     void visit_SubroutineCall(const AST::SubroutineCall_t &x) {
-        ASR::Subroutine_t *sub = resolve_subroutine(x.base.base.loc, x.m_name);
+        ASR::symbol_t *sym = resolve_subroutine(x.base.base.loc, x.m_name);
         Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
+        ASR::Subroutine_t *sub;
+        switch (sym->type) {
+            case (ASR::symbolType::Subroutine) : {
+                sub = ASR::down_cast<ASR::Subroutine_t>(sym);
+                break;
+            }
+            case (ASR::symbolType::GenericProcedure) : {
+                ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(sym);
+                // FIXME: pick the first for now
+                sub = ASR::down_cast<ASR::Subroutine_t>(p->m_procs[0]);
+                break;
+            }
+            default : {
+                throw SemanticError("Symbol type not supported", x.base.base.loc);
+            }
+        }
         tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc,
                 (ASR::symbol_t*)sub, args.p, args.size());
     }
@@ -1006,14 +1022,41 @@ public:
         return ASR::make_Var_t(al, loc, v);
     }
 
-    ASR::Subroutine_t* resolve_subroutine(const Location &loc, const char* id) {
+    ASR::symbol_t* resolve_subroutine(const Location &loc, const char* id) {
         SymbolTable *scope = current_scope;
         std::string sub_name = id;
         ASR::symbol_t *sub = scope->resolve_symbol(sub_name);
         if (!sub) {
             throw SemanticError("Subroutine '" + sub_name + "' not declared", loc);
         }
-        return ASR::down_cast<ASR::Subroutine_t>(sub);
+        switch (sub->type) {
+            case (ASR::symbolType::Subroutine) : {
+                return sub;
+                break;
+            }
+            case (ASR::symbolType::ExternalProc) : {
+                ASR::ExternalProc_t *p = ASR::down_cast<ASR::ExternalProc_t>(sub);
+                ASR::symbol_t *s = p->m_external.m_module_proc;
+                switch (s->type) {
+                    case (ASR::symbolType::Subroutine) : {
+                        return s;
+                        break;
+                    }
+                    case (ASR::symbolType::GenericProcedure) : {
+                        return s;
+                        break;
+                    }
+                    default : {
+                        throw SemanticError("Symbol type not supported", loc);
+                    }
+                }
+                LFORTRAN_ASSERT(false);
+                break;
+            }
+            default : {
+                throw SemanticError("Symbol type not supported", loc);
+            }
+        }
     }
 
     void visit_Name(const AST::Name_t &x) {
