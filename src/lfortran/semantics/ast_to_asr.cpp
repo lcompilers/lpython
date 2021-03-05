@@ -608,11 +608,11 @@ public:
             if (sym_type == "real") {
                 type = TYPE(ASR::make_Real_t(al, x.loc, a_kind, dims.p, dims.size()));
             } else if (sym_type == "integer") {
-                type = TYPE(ASR::make_Integer_t(al, x.loc, a_kind, dims.p, dims.size()));
+                type = TYPE(ASR::make_Integer_t(al, x.loc, 4, dims.p, dims.size()));
             } else if (sym_type == "logical") {
                 type = TYPE(ASR::make_Logical_t(al, x.loc, 4, dims.p, dims.size()));
             } else if (sym_type == "complex") {
-                type = TYPE(ASR::make_Complex_t(al, x.loc, a_kind, dims.p, dims.size()));
+                type = TYPE(ASR::make_Complex_t(al, x.loc, 4, dims.p, dims.size()));
             } else if (sym_type == "character") {
                 type = TYPE(ASR::make_Character_t(al, x.loc, 4, dims.p, dims.size()));
             } else {
