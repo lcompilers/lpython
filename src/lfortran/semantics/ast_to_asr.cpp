@@ -541,6 +541,22 @@ public:
                         /* a_external */ external
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(sub);
+                } else if (ASR::is_a<ASR::GenericProcedure_t>(*t)) {
+                    if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
+                        throw SemanticError("Symbol already defined",
+                            x.base.base.loc);
+                    }
+                    ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
+                    external->m_type = ASR::proc_external_typeType::LFortranModule;
+                    external->m_module_proc = t;
+                    Str name;
+                    name.from_str(al, local_sym);
+                    ASR::asr_t *ep = ASR::make_ExternalProc_t(
+                        al, t->base.loc,
+                        /* a_name */ name.c_str(al),
+                        /* a_external */ *external
+                        );
+                    current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(ep);
                 } else if (ASR::is_a<ASR::Function_t>(*t)) {
                     if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
                         throw SemanticError("Function already defined",
