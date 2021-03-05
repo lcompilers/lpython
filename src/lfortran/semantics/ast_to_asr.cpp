@@ -1090,6 +1090,7 @@ public:
                 throw SemanticError("Symbol type not supported", loc);
             }
         }
+        throw SemanticError("Symbol type not supported", loc);
     }
 
     void visit_Name(const AST::Name_t &x) {
