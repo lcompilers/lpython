@@ -949,6 +949,9 @@ public:
                 tmp = llvm::ConstantFP::get(context, llvm::APFloat(val));
                 break;
             }
+            default : {
+                break;
+            }
 
         }
         
@@ -999,6 +1002,9 @@ public:
                 dest_kind = ((ASR::Real_t*)(&(x.m_type->base)))->m_kind;
                 break;
             }
+            default : {
+                break;
+            }
         }
         
         ASR::ttype_t* curr_type;
@@ -1006,6 +1012,9 @@ public:
             case ASR::exprType::ConstantReal : {
                 curr_type = ((ASR::ConstantReal_t*)(&(x.m_arg->base)))->m_type;
                 arg_kind = ((ASR::Real_t*)(&(curr_type->base)))->m_kind;
+                break;
+            }
+            default : {
                 break;
             }
         }
