@@ -836,8 +836,8 @@ public:
             }
             case (ASR::symbolType::GenericProcedure) : {
                 ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(sym);
-                // FIXME: pick the first for now
-                sub = ASR::down_cast<ASR::Subroutine_t>(p->m_procs[0]);
+                int idx = select_generic_procedure(args, *p, x.base.base.loc);
+                sub = ASR::down_cast<ASR::Subroutine_t>(p->m_procs[idx]);
                 break;
             }
             default : {
@@ -846,6 +846,39 @@ public:
         }
         tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc,
                 (ASR::symbol_t*)sub, args.p, args.size());
+    }
+
+    int select_generic_procedure(const Vec<ASR::expr_t*> &args,
+            const ASR::GenericProcedure_t &p, Location loc) {
+        for (size_t i=0; i < p.n_procs; i++) {
+            ASR::Subroutine_t *sub
+                = ASR::down_cast<ASR::Subroutine_t>(p.m_procs[i]);
+            if (argument_types_match(args, *sub)) {
+                return i;
+            }
+        }
+        throw SemanticError("Arguments do not match", loc);
+    }
+
+    bool argument_types_match(const Vec<ASR::expr_t*> &args,
+            const ASR::Subroutine_t &sub) {
+        if (args.size() == sub.n_args) {
+            for (size_t i=0; i < args.size(); i++) {
+                ASR::Variable_t *v = EXPR2VAR(sub.m_args[i]);
+                ASR::ttype_t *arg1 = expr_type(args[i]);
+                ASR::ttype_t *arg2 = v->m_type;
+                if (!types_equal(*arg1, *arg2)) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    bool types_equal(const ASR::ttype_t &a, const ASR::ttype_t &b) {
+        return (a.type == b.type);
     }
 
     void visit_Compare(const AST::Compare_t &x) {
