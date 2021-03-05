@@ -500,6 +500,7 @@ ast = true
 [[test]]
 filename = "../integration_tests/interface_01.f90"
 ast = true
+asr = true
 
 [[test]]
 filename = "../integration_tests/interface_02.f90"
