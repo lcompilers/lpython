@@ -1044,16 +1044,11 @@ public:
                 extract_kinds(x, arg_kind, dest_kind);
                 if( arg_kind > 0 && dest_kind > 0 )
                 {
-                    if( arg_kind == 4 && dest_kind == 4 ) {
-                        tmp = builder->CreateFPExt(tmp, llvm::Type::getFloatTy(context));
-                    } else if( arg_kind == 4 && dest_kind == 8 ) {
+                    if( arg_kind == 4 && dest_kind == 8 ) {
                         tmp = builder->CreateFPExt(tmp, llvm::Type::getDoubleTy(context));
                     } else if( arg_kind == 8 && dest_kind == 4 ) {
                         tmp = builder->CreateFPTrunc(tmp, llvm::Type::getFloatTy(context));
-                    } else if( arg_kind == 8 && dest_kind == 8 ) {
-                        tmp = builder->CreateFPExt(tmp, llvm::Type::getDoubleTy(context));
-                    }
-                    else {
+                    } else {
                         std::string msg = "Conversion from " + std::to_string(arg_kind) + 
                                           " to " + std::to_string(dest_kind) + " not implemented yet.";
                         throw CodeGenError(msg);
@@ -1095,15 +1090,9 @@ public:
                         llvm::Type::getDoubleTy(context));
                         break;
                     }
-                    case 16: {
-                        fmt.push_back("%Lf");
-                        d = builder->CreateFPExt(tmp,
-                        llvm::Type::getFP128Ty(context));
-                        break;
-                    }
                     default: {
                         throw SemanticError(R"""(Printing support is available only 
-                                            for 32, 64 and 128 bit real kinds.)""", 
+                                            for 32, and 64 bit real kinds.)""", 
                                             x.base.base.loc);
                     }
                 }
