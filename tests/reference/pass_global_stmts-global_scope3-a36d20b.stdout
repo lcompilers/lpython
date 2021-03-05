@@ -1,1 +1,1 @@
-(TranslationUnit (SymbolTable 87e9d7c3 {f: (Subroutine (SymbolTable 00000003 {}) f [] [(= (Var 87e9d7c3 x) (ConstantInteger 6 (Integer 4 []))) (= (Var 87e9d7c3 x) (BinOp (Var 87e9d7c3 x) Add (ConstantInteger 1 (Integer 4 [])) (Integer 4 [])))] () ()), x: (Variable 87e9d7c3 x Local (Integer 4 []))}) [])
+(TranslationUnit (SymbolTable 1 {f: (Subroutine (SymbolTable 2 {}) f [] [(= (Var 1 x) (ConstantInteger 6 (Integer 4 []))) (= (Var 1 x) (BinOp (Var 1 x) Add (ConstantInteger 1 (Integer 4 [])) (Integer 4 [])))] () ()), x: (Variable 1 x Local (Integer 4 []))}) [])
