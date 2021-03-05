@@ -1134,7 +1134,8 @@ public:
     inline int extract_kind(char* m_n) {
         bool is_under_score = false;
         char kind_str[2] = {'0', '0'};
-        for( int i = 1, j = 0; m_n[i] != '\0'; i++ ) {
+        int i = 1, j = 0, k = 0;
+        for( ; m_n[i] != '\0'; i++ ) {
             is_under_score = m_n[i-1] == '_' && !is_under_score ? true : is_under_score;
             if( is_under_score ) {
                 kind_str[j] = m_n[i];

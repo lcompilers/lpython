@@ -938,8 +938,20 @@ public:
 
     void visit_ConstantReal(const ASR::ConstantReal_t &x) {
         double val = std::atof(x.m_r);
-        // TODO: assuming single precision
-        tmp = llvm::ConstantFP::get(context, llvm::APFloat((float)val));
+        int a_kind = ((ASR::Real_t*)(&(x.m_type->base)))->m_kind;
+        switch( a_kind ) {
+            
+            case 4 : {
+                tmp = llvm::ConstantFP::get(context, llvm::APFloat((float)val));
+                break;
+            }
+            case 8 : {
+                tmp = llvm::ConstantFP::get(context, llvm::APFloat(val));
+                break;
+            }
+
+        }
+        
     }
 
     void visit_ConstantComplex(const ASR::ConstantComplex_t &x) {
