@@ -1,1 +1,1 @@
-(TranslationUnit (SymbolTable ba2818a1 {f: (Function (SymbolTable 917424ce {f: (Variable 917424ce f ReturnVar (Integer 4 []))}) f [] [(= (Var 917424ce f) (ConstantInteger 42 (Integer 4 [])))] () (Var 917424ce f) ())}) [])
+(TranslationUnit (SymbolTable 1 {f: (Function (SymbolTable 2 {f: (Variable 2 f ReturnVar (Integer 4 []))}) f [] [(= (Var 2 f) (ConstantInteger 42 (Integer 4 [])))] () (Var 2 f) ())}) [])

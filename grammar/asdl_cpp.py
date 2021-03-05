@@ -546,7 +546,7 @@ class PickleVisitorVisitor(ASDLVisitor):
                 assert not field.seq
                 if field.name == "parent_symtab":
                     level = 2
-                    self.emit('s.append(x.m_%s->get_hash());' % field.name, level)
+                    self.emit('s.append(x.m_%s->get_counter());' % field.name, level)
                 else:
                     level = 2
                     self.emit('s.append("(");', level)
@@ -558,7 +558,7 @@ class PickleVisitorVisitor(ASDLVisitor):
                     self.emit(    's.append(color(fg::reset));', level+1)
                     self.emit('}', level)
                     self.emit('s.append(" ");', level)
-                    self.emit('s.append(x.m_%s->get_hash());' % field.name, level)
+                    self.emit('s.append(x.m_%s->get_counter());' % field.name, level)
                     self.emit('s.append(" {");', level)
                     self.emit('{', level)
                     self.emit('    size_t i = 0;', level)

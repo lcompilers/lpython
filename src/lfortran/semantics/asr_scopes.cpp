@@ -65,6 +65,13 @@ std::string hexify(T i)
     return buf.str();
 }
 
+unsigned int symbol_table_counter = 0;
+
+SymbolTable::SymbolTable(SymbolTable *parent) : parent{parent} {
+    symbol_table_counter++;
+    counter = symbol_table_counter;
+}
+
 // TODO: Calculate the hash more robustly and using all the fields and for
 // any ASR node:
 // https://gitlab.com/lfortran/lfortran/-/issues/189
