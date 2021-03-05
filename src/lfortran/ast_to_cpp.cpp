@@ -289,7 +289,7 @@ public:
             s.append(color(style::reset));
         }
         s.append(" ");
-        s.append(x.m_name);
+        s.append(AST::down_cast<AST::InterfaceHeader2_t>(x.m_header)->m_name);
         s.append(" ");
         s.append("Unimplementedidentifier");
         s.append(")");

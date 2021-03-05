@@ -832,8 +832,15 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
 #define PUBLIC(syms, l) make_Public_t(p.m_a, l, \
         nullptr, 0)
 
-#define INTERFACE(contains, l) LFortran::AST::make_Interface_t(p.m_a, l, \
-        nullptr, INTERFACE_ITEMS(contains), contains.size())
+#define INTERFACE_HEADER1(l) LFortran::AST::make_InterfaceHeader1_t(p.m_a, l)
+#define INTERFACE_HEADER2(id, l) LFortran::AST::make_InterfaceHeader2_t(p.m_a, l, \
+        name2char(id))
+#define INTERFACE_HEADER3(l) LFortran::AST::make_InterfaceHeader3_t(p.m_a, l)
+#define INTERFACE_HEADER4(l) LFortran::AST::make_InterfaceHeader4_t(p.m_a, l)
+#define INTERFACE_HEADER5(l) LFortran::AST::make_InterfaceHeader5_t(p.m_a, l)
+
+#define INTERFACE(header, contains, l) LFortran::AST::make_Interface_t(p.m_a, l, \
+        down_cast<LFortran::AST::interface_header_t>(header), INTERFACE_ITEMS(contains), contains.size())
 #define INTERFACE_MODULE_PROC(names, l) \
         LFortran::AST::make_InterfaceModuleProcedure_t(p.m_a, l, \
         REDUCE_ARGS(p.m_a, names), names.size())
@@ -843,6 +850,7 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
 
 // TODO: Add DerivedType AST node
 #define DERIVED_TYPE(name, l) make_Interface_t(p.m_a, l, \
-        name2char(name), nullptr, 0)
+        down_cast<LFortran::AST::interface_header_t>(INTERFACE_HEADER2(name, l)), \
+        nullptr, 0)
 
 #endif
