@@ -96,8 +96,8 @@ public:
     bool prototype_only;
     llvm::StructType *complex_type;
 
-    std::unordered_map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
-    std::unordered_map<uint64_t, llvm::Function*> llvm_symtab_fn;
+    std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
+    std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
 
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context},
         prototype_only{false} {}
