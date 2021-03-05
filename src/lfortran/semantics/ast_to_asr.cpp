@@ -93,6 +93,9 @@ namespace LFortran {
                             dest_kind = ((ASR::Real_t*)(&(dest_type->base)))->m_kind;
                             break;
                         }
+                        default : {
+                            break;
+                        }
 
                     }
                     if( source_kind == dest_kind ) {

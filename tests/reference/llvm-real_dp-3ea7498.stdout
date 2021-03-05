@@ -8,7 +8,7 @@ define i64 @main() {
   %v = alloca double, align 8
   %x = alloca float, align 4
   %zero = alloca float, align 4
-  store float 1.000000e+00, float* %zero, align 4
+  store float 0.000000e+00, float* %zero, align 4
   store double 0x3FF0CCCCC0000000, double* %v, align 8
   store float 0x3FF0CCCCC0000000, float* %x, align 4
   %0 = load float, float* %x, align 4
