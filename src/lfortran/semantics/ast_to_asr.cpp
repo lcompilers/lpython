@@ -27,6 +27,7 @@ namespace LFortran {
             static const int real_to_complex = ASR::cast_kindType::RealToComplex;
             static const int integer_to_complex = ASR::cast_kindType::IntegerToComplex;
             static const int integer_to_logical = ASR::cast_kindType::IntegerToLogical;
+            static const int real_to_real = ASR::cast_kindType::RealToReal;
 
             //! Stores the variable part of error messages to be passed to SemanticError.
             static constexpr const char* type_names[num_types][2] = {
@@ -47,7 +48,7 @@ namespace LFortran {
             static constexpr const int rule_map[num_types][num_types] = {
 
                 {default_case, integer_to_real, integer_to_complex, error_case, integer_to_logical, error_case},
-                {real_to_integer, default_case, real_to_complex, default_case, default_case, default_case},
+                {real_to_integer, real_to_real, real_to_complex, default_case, default_case, default_case},
                 {default_case, default_case, default_case, default_case, default_case, default_case},
                 {default_case, default_case, default_case, default_case, default_case, default_case},
                 {default_case, default_case, default_case, default_case, default_case, default_case},
@@ -83,6 +84,24 @@ namespace LFortran {
             static void set_converted_value
             (Allocator &al, const Location &a_loc, 
              ASR::expr_t** convert_can, ASR::ttype_t* source_type, ASR::ttype_t* dest_type) {
+                if( source_type->type == dest_type->type ) {
+                    int source_kind = 0, dest_kind = 1;
+                    switch (source_type->type) {
+                        
+                        case ASR::ttypeType::Real : {
+                            source_kind = ((ASR::Real_t*)(&(source_type->base)))->m_kind;
+                            dest_kind = ((ASR::Real_t*)(&(dest_type->base)))->m_kind;
+                            break;
+                        }
+                        default : {
+                            break;
+                        }
+
+                    }
+                    if( source_kind == dest_kind ) {
+                        return ;
+                    }
+                }
                 int cast_kind = rule_map[source_type->type][dest_type->type];
                 if( cast_kind == error_case )
                 {
@@ -656,8 +675,14 @@ public:
                 dims.push_back(al, dim);
             }
             ASR::ttype_t *type;
+            int a_kind = 4;
+            if( x.m_kind != nullptr )
+            {
+                this->visit_expr(*x.m_kind->m_value);
+                a_kind = ((ASR::ConstantInteger_t*)asr)->m_n;
+            }
             if (sym_type == "real") {
-                type = TYPE(ASR::make_Real_t(al, x.loc, 4, dims.p, dims.size()));
+                type = TYPE(ASR::make_Real_t(al, x.loc, a_kind, dims.p, dims.size()));
             } else if (sym_type == "integer") {
                 type = TYPE(ASR::make_Integer_t(al, x.loc, 4, dims.p, dims.size()));
             } else if (sym_type == "logical") {
@@ -1259,9 +1284,29 @@ public:
         tmp = ASR::make_Str_t(al, x.base.base.loc, x.m_s, type);
     }
 
+    inline int extract_kind(char* m_n) {
+        bool is_under_score = false;
+        char kind_str[2] = {'0', '0'};
+        int i = 1, j = 0;
+        for( ; m_n[i] != '\0'; i++ ) {
+            is_under_score = m_n[i-1] == '_' && !is_under_score ? true : is_under_score;
+            if( is_under_score ) {
+                kind_str[j] = m_n[i];
+                j++;
+            }
+        }
+        if( kind_str[0] != '0' && kind_str[1] == '0'  ) {
+            return kind_str[0] - '0';
+        } else if( kind_str[0] != '0' && kind_str[0] != '0' ) {
+            return (kind_str[0] - '0')*10 + (kind_str[1] - '0');
+        }
+        return 4;
+    }
+
     void visit_Real(const AST::Real_t &x) {
+        int a_kind = extract_kind(x.m_n);
         ASR::ttype_t *type = TYPE(ASR::make_Real_t(al, x.base.base.loc,
-                4, nullptr, 0));
+                a_kind, nullptr, 0));
         tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, x.m_n, type);
     }
 

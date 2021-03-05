@@ -200,3 +200,7 @@ RUN(NAME program_01 LABELS gfortran)
 RUN(NAME allocate_01 LABELS gfortran)
 RUN(NAME block_01 LABELS gfortran)
 RUN(NAME associate_01 LABELS gfortran)
+
+RUN(NAME real_dp LABELS gfortran llvm)
+RUN(NAME const_real_dp LABELS gfortran llvm)
+RUN(NAME real_dp_param LABELS gfortran)

@@ -646,6 +646,16 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "../integration_tests/real_dp.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/const_real_dp.f90"
+asr = true
+llvm = true
+
+[[test]]
 filename = "../integration_tests/intrinsics_02.f90"
 asr = true
 llvm = true

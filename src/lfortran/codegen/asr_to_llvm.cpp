@@ -346,10 +346,24 @@ public:
                     case (ASR::ttypeType::Integer) :
                         ptr = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, v->m_name);
                         break;
-                    case (ASR::ttypeType::Real) :
-                        // TODO: Assuming single precision
-                        ptr = builder->CreateAlloca(llvm::Type::getFloatTy(context), nullptr, v->m_name);
+                    case (ASR::ttypeType::Real) : {
+                        llvm::Type* typeByKind = nullptr;
+                        int a_kind = ((ASR::Real_t*)(&(v->m_type->base)))->m_kind;
+                        switch( a_kind )
+                        {
+                            case 4:
+                                typeByKind = llvm::Type::getFloatTy(context);
+                                break;
+                            case 8:
+                                typeByKind = llvm::Type::getDoubleTy(context);
+                                break;
+                            default:
+                                throw SemanticError("Only 32 and 64 bits real kinds are supported.", 
+                                                    x.base.base.loc);
+                        }
+                        ptr = builder->CreateAlloca(typeByKind, nullptr, v->m_name);
                         break;
+                    }
                     case (ASR::ttypeType::Complex) :
                         // TODO: Assuming single precision
                         ptr = builder->CreateAlloca(complex_type, nullptr, v->m_name);
@@ -924,8 +938,23 @@ public:
 
     void visit_ConstantReal(const ASR::ConstantReal_t &x) {
         double val = std::atof(x.m_r);
-        // TODO: assuming single precision
-        tmp = llvm::ConstantFP::get(context, llvm::APFloat((float)val));
+        int a_kind = ((ASR::Real_t*)(&(x.m_type->base)))->m_kind;
+        switch( a_kind ) {
+            
+            case 4 : {
+                tmp = llvm::ConstantFP::get(context, llvm::APFloat((float)val));
+                break;
+            }
+            case 8 : {
+                tmp = llvm::ConstantFP::get(context, llvm::APFloat(val));
+                break;
+            }
+            default : {
+                break;
+            }
+
+        }
+        
     }
 
     void visit_ConstantComplex(const ASR::ConstantComplex_t &x) {
@@ -964,6 +993,33 @@ public:
         tmp = builder->CreateLoad(ptr);
     }
 
+    void extract_kinds(const ASR::ImplicitCast_t& x, 
+                       int& arg_kind, int& dest_kind)
+    {
+        switch (x.m_type->type) {
+
+            case ASR::ttypeType::Real : {
+                dest_kind = ((ASR::Real_t*)(&(x.m_type->base)))->m_kind;
+                break;
+            }
+            default : {
+                break;
+            }
+        }
+        
+        ASR::ttype_t* curr_type;
+        switch( x.m_arg->type ) {
+            case ASR::exprType::ConstantReal : {
+                curr_type = ((ASR::ConstantReal_t*)(&(x.m_arg->base)))->m_type;
+                arg_kind = ((ASR::Real_t*)(&(curr_type->base)))->m_kind;
+                break;
+            }
+            default : {
+                break;
+            }
+        }
+    }
+
     void visit_ImplicitCast(const ASR::ImplicitCast_t &x) {
         visit_expr(*x.m_arg);
         switch (x.m_kind) {
@@ -992,6 +1048,23 @@ public:
                 tmp = builder->CreateICmpNE(tmp, builder->getInt64(0));
                 break;
             }
+            case (ASR::cast_kindType::RealToReal) : {
+                int arg_kind = -1, dest_kind = -1;
+                extract_kinds(x, arg_kind, dest_kind);
+                if( arg_kind > 0 && dest_kind > 0 )
+                {
+                    if( arg_kind == 4 && dest_kind == 8 ) {
+                        tmp = builder->CreateFPExt(tmp, llvm::Type::getDoubleTy(context));
+                    } else if( arg_kind == 8 && dest_kind == 4 ) {
+                        tmp = builder->CreateFPTrunc(tmp, llvm::Type::getFloatTy(context));
+                    } else {
+                        std::string msg = "Conversion from " + std::to_string(arg_kind) + 
+                                          " to " + std::to_string(dest_kind) + " not implemented yet.";
+                        throw CodeGenError(msg);
+                    }
+                }
+                break;
+            }
             default : throw CodeGenError("Cast kind not implemented");
         }
     }
@@ -1008,12 +1081,30 @@ public:
                 fmt.push_back("%d");
                 args.push_back(tmp);
             } else if (t->type == ASR::ttypeType::Real) {
-                fmt.push_back("%f");
-                // Cast float to double as a workaround for the fact that
-                // vprintf() seems to cast to double even for %f, which
-                // causes it to print 0.000000.
-                llvm::Value *d = builder->CreateFPExt(tmp,
+                int a_kind = ((ASR::Real_t*)(&(t->base)))->m_kind;
+                llvm::Value *d;
+                switch( a_kind ) {
+                    case 4 : {
+                        // Cast float to double as a workaround for the fact that
+                        // vprintf() seems to cast to double even for %f, which
+                        // causes it to print 0.000000.
+                        fmt.push_back("%f");
+                        d = builder->CreateFPExt(tmp,
                         llvm::Type::getDoubleTy(context));
+                        break;
+                    }
+                    case 8 : {
+                        fmt.push_back("%lf");
+                        d = builder->CreateFPExt(tmp,
+                        llvm::Type::getDoubleTy(context));
+                        break;
+                    }
+                    default: {
+                        throw SemanticError(R"""(Printing support is available only 
+                                            for 32, and 64 bit real kinds.)""", 
+                                            x.base.base.loc);
+                    }
+                }
                 args.push_back(d);
             } else if (t->type == ASR::ttypeType::Character) {
                 fmt.push_back("%s");

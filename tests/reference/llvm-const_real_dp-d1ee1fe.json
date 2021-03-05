@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-const_real_dp-d1ee1fe",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/const_real_dp.f90",
+    "infile_hash": "636cd3c6b6c703b943b251bba6439b2675cd69fb82cd65a43513e971",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-const_real_dp-d1ee1fe.stdout",
+    "stdout_hash": "2e7c955baadd95046842b65c82a9b36a68f9b3c61dea75794925ca76",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
