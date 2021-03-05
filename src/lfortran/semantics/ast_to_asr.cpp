@@ -161,6 +161,16 @@ public:
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
         : al{al}, current_scope{symbol_table} { }
 
+    ASR::symbol_t* resolve_symbol(const Location &loc, const char* id) {
+        SymbolTable *scope = current_scope;
+        std::string sub_name = id;
+        ASR::symbol_t *sub = scope->resolve_symbol(sub_name);
+        if (!sub) {
+            throw SemanticError("Symbol '" + sub_name + "' not declared", loc);
+        }
+        return sub;
+    }
+
     void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
         if (!current_scope) {
             current_scope = al.make_new<SymbolTable>(nullptr);
@@ -188,6 +198,7 @@ public:
         for (size_t i=0; i<x.n_contains; i++) {
             visit_program_unit(*x.m_contains[i]);
         }
+        add_generic_procedures();
         asr = ASR::make_Module_t(
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
@@ -401,6 +412,32 @@ public:
             generic_procedures[std::string(generic_name)] = proc_names;
         } else {
             throw SemanticError("Interface type not imlemented yet", x.base.base.loc);
+        }
+    }
+
+    void add_generic_procedures() {
+        for (auto &proc : generic_procedures) {
+            Location loc;
+            loc.first_line = 1;
+            loc.last_line = 1;
+            loc.first_column = 1;
+            loc.last_column = 1;
+            Str s;
+            s.from_str_view(proc.first);
+            char *generic_name = s.c_str(al);
+            Vec<ASR::symbol_t*> symbols;
+            symbols.reserve(al, proc.second.size());
+            for (auto &pname : proc.second) {
+                ASR::symbol_t *x;
+                Str s;
+                s.from_str_view(pname);
+                char *name = s.c_str(al);
+                x = resolve_symbol(loc, name);
+                symbols.push_back(al, x);
+            }
+            ASR::asr_t *v = ASR::make_GenericProcedure_t(al, loc,
+                generic_name, symbols.p, symbols.size());
+            current_scope->scope[proc.first] = ASR::down_cast<ASR::symbol_t>(v);
         }
     }
 
