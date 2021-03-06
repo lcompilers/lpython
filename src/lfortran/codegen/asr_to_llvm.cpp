@@ -1008,8 +1008,8 @@ public:
     }
 
     inline ASR::ttype_t* extract_ttype_t_from_expr(ASR::expr_t* expr) {
-        ASR::asr_t* base = &(x.m_arg->base);
-        switch( x.m_arg->type ) {
+        ASR::asr_t* base = &(expr->base);
+        switch( expr->type ) {
             case ASR::exprType::ConstantReal : {
                 return ((ASR::ConstantReal_t*)base)->m_type;
             }
