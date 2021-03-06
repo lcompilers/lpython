@@ -107,3 +107,4 @@ MANIFEST
 output
 *.o
 *.out
+/.ccls-cache/
