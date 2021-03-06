@@ -993,31 +993,41 @@ public:
         tmp = builder->CreateLoad(ptr);
     }
 
-    void extract_kinds(const ASR::ImplicitCast_t& x, 
-                       int& arg_kind, int& dest_kind)
-    {
-        switch (x.m_type->type) {
-
+    inline int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {
+        if( curr_type == nullptr ) {
+            return -1;
+        }
+        switch (curr_type->type) {
             case ASR::ttypeType::Real : {
-                dest_kind = ((ASR::Real_t*)(&(x.m_type->base)))->m_kind;
-                break;
+                return ((ASR::Real_t*)(&(curr_type->base)))->m_kind;
             }
             default : {
-                break;
+                return -1;
             }
         }
-        
-        ASR::ttype_t* curr_type;
+    }
+
+    inline ASR::ttype_t* extract_ttype_t_from_expr(ASR::expr_t* expr) {
+        ASR::asr_t* base = &(x.m_arg->base);
         switch( x.m_arg->type ) {
             case ASR::exprType::ConstantReal : {
-                curr_type = ((ASR::ConstantReal_t*)(&(x.m_arg->base)))->m_type;
-                arg_kind = ((ASR::Real_t*)(&(curr_type->base)))->m_kind;
-                break;
+                return ((ASR::ConstantReal_t*)base)->m_type;
+            }
+            case ASR::exprType::BinOp : {
+                return ((ASR::BinOp_t*)base)->m_type;
             }
             default : {
-                break;
+                return nullptr;
             }
         }
+    }
+
+    void extract_kinds(const ASR::ImplicitCast_t& x, 
+                       int& arg_kind, int& dest_kind)
+    {   
+        dest_kind = extract_kind_from_ttype_t(x.m_type);
+        ASR::ttype_t* curr_type = extract_ttype_t_from_expr(x.m_arg);
+        arg_kind = extract_kind_from_ttype_t(curr_type);
     }
 
     void visit_ImplicitCast(const ASR::ImplicitCast_t &x) {
