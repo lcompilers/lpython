@@ -1034,7 +1034,21 @@ public:
         visit_expr(*x.m_arg);
         switch (x.m_kind) {
             case (ASR::cast_kindType::IntegerToReal) : {
-                tmp = builder->CreateSIToFP(tmp, llvm::Type::getFloatTy(context));
+                int a_kind = extract_kind_from_ttype_t(x.m_type);
+                switch (a_kind) {
+                    case 4 : {
+                        tmp = builder->CreateSIToFP(tmp, llvm::Type::getFloatTy(context));
+                        break;
+                    }
+                    case 8 : {
+                        tmp = builder->CreateSIToFP(tmp, llvm::Type::getDoubleTy(context));
+                        break;
+                    }
+                    default : {
+                        throw SemanticError(R"""(Only 32 and 64 bit real kinds are implemented)""", 
+                                            x.base.base.loc);
+                    }
+                }
                 break;
             }
             case (ASR::cast_kindType::RealToInteger) : {

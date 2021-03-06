@@ -651,6 +651,11 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "../integration_tests/bin_op_real_dp.f90"
+asr = true
+llvm = true
+
+[[test]]
 filename = "../integration_tests/const_real_dp.f90"
 asr = true
 llvm = true
