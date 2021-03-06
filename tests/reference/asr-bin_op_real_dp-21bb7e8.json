@@ -1,0 +1,13 @@
+{
+    "basename": "asr-bin_op_real_dp-21bb7e8",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/bin_op_real_dp.f90",
+    "infile_hash": "051ba0744595dc6c3079fa4dd5b8cf1ee0504f434ee5dd8eb64ad7cc",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-bin_op_real_dp-21bb7e8.stdout",
+    "stdout_hash": "5e9aa0bdfec9ea8be60518ba930bb2d1e26b18954caf7bb75e27602e",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
