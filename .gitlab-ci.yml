@@ -245,7 +245,7 @@ documentation:
     - sudo apt-get install -yq --no-install-recommends openssh-client
     - export CONDA_PREFIX="$HOME/conda_root"
     - export PATH="$HOME/conda_root/bin:$PATH"
-    - conda install nbconvert=5.6.0 mkdocs
+    - conda install -c conda-forge nbconvert=5.6.0 mkdocs
     - tar xzf dist/lfortran-*.tar.gz
     - cd lfortran-*
     - cmake
