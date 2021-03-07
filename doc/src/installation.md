@@ -6,7 +6,7 @@ All the instructions below work on Linux, macOS and Windows.
 
 The recommended way to install LFortran is using Conda.
 Install Conda for example by installing the
-[Miniconda](https://conda.io/en/latest/miniconda.html) installation.
+[Miniconda](https://conda.io/en/latest/miniconda.html) installation by following instructions there for your platform.
 Then create a new environment (you can choose any name, here we chose `lf`) and
 activate it:
 ```bash
@@ -17,61 +17,50 @@ Then install LFortran by:
 ```bash
 conda install lfortran -c conda-forge
 ```
-Now the `lf` environment has the `lfort` compiler available, you can start the
-interactive prompt by executing `lfort`, or see the command line options using
-`lfort -h`.
+Now the `lf` environment has the `lfortran` compiler available, you can start the
+interactive prompt by executing `lfortran`, or see the command line options using
+`lfortran -h`.
 
-To install the Jupyter kernel, do:
+The Jupyter kernel is automatically installed by the above command, so after installing Jupyter itself:
 ```bash
-conda install jupyter fortran_kernel -c conda-forge
+conda install jupyter -c conda-forge
 ```
-Now you can create a Fortran based Jupyter notebook by executing:
+You can create a Fortran based Jupyter notebook by executing:
 ```bash
 jupyter notebook
 ```
 and selecting `New->Fortran`.
 
 
-## From a Tarball Using Pip
+## Build From a Source Tarball
 
-One can install from source by `pip` installing LFortran. An example:
+This method is the recommended method if you just want to install LFortran, either yourself or in a package manager (Spack, Conda, Debian, etc.). The source tarball has all the generated files included and has minimal dependencies.
+
+First we have to install dependencies, for example using Conda:
 ```bash
-conda create -n lf python=3.7
+conda create -n lf python cmake llvmdev
 conda activate lf
-pip install lfortran
 ```
-Pip will automatically download all build and run time dependencies, compile
-and install LFortran. The only prerequisite that you have to have is a working
-C compiler.
-
-Now the `lf` environment has the `lfort` compiler available, you can
-start the interactive prompt by executing `lfort`, or see the command line
-options using `lfort -h`.
-
-Optional: run tests:
-```bash
-pytest --pyargs lfortran
-```
-
-You can also install any tarball from
-[https://lfortran.org/download/](https://lfortran.org/download/) directly,
+Then download a tarball from 
+[https://lfortran.org/download/](https://lfortran.org/download/), 
 e.g.:
 ```bash
-pip install https://lfortran.github.io/tarballs/release/lfortran-0.1.14.tar.gz
+wget https://lfortran.github.io/tarballs/dev/lfortran-0.9.0.tar.gz
+tar xzf lfortran-0.9.0.tar.gz
+cd lfortran-0.9.0
 ```
-or equivalently by:
-```bash
-wget https://lfortran.github.io/tarballs/release/lfortran-0.1.14.tar.gz
-tar xzf lfortran-0.1.14.tar.gz
-cd lfortran-0.1.14
-pip install .
+And build:
 ```
+cmake -DWITH_LLVM=yes -DCMAKE_INSTALL_PREFIX=`pwd`/inst .
+make -j8
+make install
+```
+This will install the `lfortran` into the `inst/bin`.
 
-
-## From Git
+## Build From Git
 
 We assume you have C++ compilers installed, as well as `git` and `wget`.
-In Ubuntu, you can also install `binutils-dev`.
+In Ubuntu, you can also install `binutils-dev` for stacktraces.
 
 If you do not have Conda installed, you can do so on Linux (and similarly on
 other platforms):
@@ -87,14 +76,19 @@ conda activate lf
 ```
 Clone the LFortran git repository:
 ```
-git clone https://gitlab.com/lfortran/lfortran
+git clone https://gitlab.com/lfortran/lfortran.git
 cd lfortran
 ```
-Build:
+Generate files that are needed for the build (this step depends on `re2c`, `bison` and `python`):
 ```bash
 ./build0.sh
-./build1.sh
 ```
+Now the process is the same as installing from the source tarball. For example to build in Debug mode:
+```
+cmake -DCMAKE_BUILD_TYPE=Debug -DWITH_LLVM=yes -DCMAKE_INSTALL_PREFIX=`pwd`/inst .
+make -j8
+```
+
 Run tests:
 ```bash
 ctest
@@ -105,15 +99,18 @@ Run an interactive prompt:
 ./src/bin/lfortran
 ```
 
-## From Git with Nix
+## Build From Git with Nix
+
 One of the ways to ensure exact environment and dependencies is with `nix`. This will ensure that system dependencies do not interfere with the development environment. If you want, you can report bugs in a `nix-shell` environment to make it easier for others to reproduce.
 
 ### With Root
+
 We start by getting `nix`. The following multi-user intstallation will work on any machine with a Linux distribution, MacOS or Windows (via WSL):
 ```bash
 sh <(curl -L https://nixos.org/nix/install) --daemon
 ```
 ### Without Root
+
 If you would like to not provide `nix` with root access to your machine, on Linux distributions we can use [nix-portable](https://github.com/DavHau/nix-portable).
 ```bash
 wget https://github.com/DavHau/nix-portable/releases/download/v003/nix-portable
@@ -125,7 +122,9 @@ nix-shell --run "bash"
 # Do
 NP_RUNTIME=bwrap ./nix-portable nix-shell --run "bash"
 ```
+
 ### Development
+
 Now we can enter the development environment:
 ```bash
 nix-shell --run "bash" --cores 4 -j4 --pure ci/shell.nix
@@ -142,23 +141,18 @@ To change the compilation environment from `gcc` (default) to `clang` we can use
 ```bash
 nix-shell --run "bash" --cores 4 -j4 --pure ci/shell.nix --argstr clangOnly "yes"
 ```
+
 ## Note About Dependencies
 
 End users (and distributions) are encouraged to use the tarball
 from [https://lfortran.org/download/](https://lfortran.org/download/),
-which only depends on Python and a few Python packages (`llvmlite`, `pytest`,
-`prompt_toolkit` and `antlr4-python3-runtime`). The LFortran standard library
-needs to be compiled and it needs a C compiler. Down the road (see our
-[roadmap](index.md)), LFortran will be gradually rewritten in C++, so it will
-also depend on a C++ compiler.
+which only depends on LLVM, CMake and a C++ compiler.
 
 The tarball is generated automatically by our CI (continuous integration) and
-contains some autogenerated files: the parser, which is generated by ANTLR4
-(requires Java) and the AST and ASR nodes, which is generated by an ASDL
-translator (requires Python). The Java requirement is only needed when using
-git directly, the tarball does not depend on Java in any way.
+contains some autogenerated files: the parser, the AST and ASR nodes, which is generated by an ASDL
+translator (requires Python).
 
-The same tarball is accessible from our Downloads page as well as from PyPI.
+The instructions from git are to be used when developing LFortran itself.
 
 ## Note for users who do not use Conda
 
