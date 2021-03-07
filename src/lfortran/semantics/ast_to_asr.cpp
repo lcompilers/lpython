@@ -644,6 +644,7 @@ public:
     void visit_decl(const AST::decl_t &x) {
         std::string sym = x.m_sym;
         std::string sym_type = x.m_sym_type;
+        ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
         if (current_scope->scope.find(sym) == current_scope->scope.end()) {
             ASR::intentType s_intent=intent_local;
             Vec<ASR::dimension_t> dims;
@@ -665,8 +666,7 @@ public:
                     } else {
                         throw SemanticError("intent() is empty. Must specify intent", x.loc);
                     }
-                }
-                if (std::string(a->m_name) == "dimension") {
+                } else if (std::string(a->m_name) == "dimension") {
                     if (x.n_dims > 0) {
                         throw SemanticError("Cannot specify dimensions both ways", x.loc);
                     }
@@ -687,6 +687,8 @@ public:
                         }
                         dims.push_back(al, dim);
                     }
+                } else if( std::string(a->m_name) == "parameter" ) {
+                    storage_type = ASR::storage_typeType::Parameter;
                 }
             }
             for (size_t i=0; i<x.n_dims; i++) {
@@ -720,7 +722,13 @@ public:
                         ASR::asr_t* base_ptr = &(kind_expr->base);
                         ASR::Var_t* kind_var = (ASR::Var_t*)base_ptr;
                         ASR::Variable_t* kind_variable = (ASR::Variable_t*)(&(kind_var->m_v->base));
-                        a_kind = ((ASR::ConstantInteger_t*)(kind_variable->m_value))->m_n;
+                        if( kind_variable->m_storage == ASR::storage_typeType::Parameter ) {
+                            a_kind = ((ASR::ConstantInteger_t*)(kind_variable->m_value))->m_n;
+                        } else {
+                            std::string msg = "Parameter " + std::string(kind_variable->m_name) + 
+                                              " is a variable, which does not reduce to a constant expression";
+                            throw SemanticError(msg, x.loc);
+                        }
                         break;
                     }
                 }
@@ -740,8 +748,10 @@ public:
             }
             this->visit_expr(*x.m_initializer);
             ASR::expr_t* init_expr = EXPR(asr);
+            ASR::ttype_t *init_type = expr_type(init_expr);
+            ImplicitCastRules::set_converted_value(al, x.loc, &init_expr, init_type, type);
             ASR::asr_t *v = ASR::make_Variable_t(al, x.loc, current_scope,
-                x.m_sym, s_intent, init_expr, ASR::storage_typeType::Default, type);
+                x.m_sym, s_intent, init_expr, storage_type, type);
             current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(v);
 
         }
