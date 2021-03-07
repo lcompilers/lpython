@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-bin_op_real_dp-2d90744",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/bin_op_real_dp.f90",
+    "infile_hash": "051ba0744595dc6c3079fa4dd5b8cf1ee0504f434ee5dd8eb64ad7cc",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-bin_op_real_dp-2d90744.stdout",
+    "stdout_hash": "eea431dd0ec63e2183fc698e2b41e5eba3b2994256d254e3342efc89",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

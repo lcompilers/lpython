@@ -993,38 +993,62 @@ public:
         tmp = builder->CreateLoad(ptr);
     }
 
+    inline int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {
+        if( curr_type == nullptr ) {
+            return -1;
+        }
+        switch (curr_type->type) {
+            case ASR::ttypeType::Real : {
+                return ((ASR::Real_t*)(&(curr_type->base)))->m_kind;
+            }
+            default : {
+                return -1;
+            }
+        }
+    }
+
+    inline ASR::ttype_t* extract_ttype_t_from_expr(ASR::expr_t* expr) {
+        ASR::asr_t* base = &(expr->base);
+        switch( expr->type ) {
+            case ASR::exprType::ConstantReal : {
+                return ((ASR::ConstantReal_t*)base)->m_type;
+            }
+            case ASR::exprType::BinOp : {
+                return ((ASR::BinOp_t*)base)->m_type;
+            }
+            default : {
+                return nullptr;
+            }
+        }
+    }
+
     void extract_kinds(const ASR::ImplicitCast_t& x, 
                        int& arg_kind, int& dest_kind)
-    {
-        switch (x.m_type->type) {
-
-            case ASR::ttypeType::Real : {
-                dest_kind = ((ASR::Real_t*)(&(x.m_type->base)))->m_kind;
-                break;
-            }
-            default : {
-                break;
-            }
-        }
-        
-        ASR::ttype_t* curr_type;
-        switch( x.m_arg->type ) {
-            case ASR::exprType::ConstantReal : {
-                curr_type = ((ASR::ConstantReal_t*)(&(x.m_arg->base)))->m_type;
-                arg_kind = ((ASR::Real_t*)(&(curr_type->base)))->m_kind;
-                break;
-            }
-            default : {
-                break;
-            }
-        }
+    {   
+        dest_kind = extract_kind_from_ttype_t(x.m_type);
+        ASR::ttype_t* curr_type = extract_ttype_t_from_expr(x.m_arg);
+        arg_kind = extract_kind_from_ttype_t(curr_type);
     }
 
     void visit_ImplicitCast(const ASR::ImplicitCast_t &x) {
         visit_expr(*x.m_arg);
         switch (x.m_kind) {
             case (ASR::cast_kindType::IntegerToReal) : {
-                tmp = builder->CreateSIToFP(tmp, llvm::Type::getFloatTy(context));
+                int a_kind = extract_kind_from_ttype_t(x.m_type);
+                switch (a_kind) {
+                    case 4 : {
+                        tmp = builder->CreateSIToFP(tmp, llvm::Type::getFloatTy(context));
+                        break;
+                    }
+                    case 8 : {
+                        tmp = builder->CreateSIToFP(tmp, llvm::Type::getDoubleTy(context));
+                        break;
+                    }
+                    default : {
+                        throw SemanticError(R"""(Only 32 and 64 bit real kinds are implemented)""", 
+                                            x.base.base.loc);
+                    }
+                }
                 break;
             }
             case (ASR::cast_kindType::RealToInteger) : {
