@@ -260,7 +260,7 @@ documentation:
     - ctest
     - cd ..
     - jupyter kernelspec list --json
-    - rm -r lfortran lfortran-*
+    - rm -r lfortran-*
     - cd doc
     - python convert_nb.py
     - mkdocs build -s
