@@ -611,6 +611,9 @@ public:
     }
 
     void visit_decl(const AST::decl_t &x) {
+        if(!x.m_sym_type){
+            return;
+        }
         std::string sym = x.m_sym;
         std::string sym_type = x.m_sym_type;
         if (current_scope->scope.find(sym) == current_scope->scope.end()) {
