@@ -621,43 +621,45 @@ public:
             Vec<ASR::dimension_t> dims;
             dims.reserve(al, x.n_dims);
             if (x.n_attrs > 0) {
-                AST::Attribute_t *a = (AST::Attribute_t*)(x.m_attrs[0]);
-                if (std::string(a->m_name) == "intent") {
-                    if (a->n_args > 0) {
-                        std::string intent = std::string(a->m_args[0].m_arg);
-                        if (intent == "in") {
-                            s_intent = intent_in;
-                        } else if (intent == "out") {
-                            s_intent = intent_out;
-                        } else if (intent == "inout") {
-                            s_intent = intent_inout;
+                for (size_t i = 0; i < x.n_attrs; i++){
+                    AST::Attribute_t *a = (AST::Attribute_t*)(x.m_attrs[i]);
+                    if (std::string(a->m_name) == "intent") {
+                        if (a->n_args > 0) {
+                            std::string intent = std::string(a->m_args[0].m_arg);
+                            if (intent == "in") {
+                                s_intent = intent_in;
+                            } else if (intent == "out") {
+                                s_intent = intent_out;
+                            } else if (intent == "inout") {
+                                s_intent = intent_inout;
+                            } else {
+                                throw SemanticError("Incorrect intent specifier", x.loc);
+                            }
                         } else {
-                            throw SemanticError("Incorrect intent specifier", x.loc);
+                            throw SemanticError("intent() is empty. Must specify intent", x.loc);
                         }
-                    } else {
-                        throw SemanticError("intent() is empty. Must specify intent", x.loc);
                     }
-                }
-                if (std::string(a->m_name) == "dimension") {
-                    if (x.n_dims > 0) {
-                        throw SemanticError("Cannot specify dimensions both ways", x.loc);
-                    }
-                    dims.reserve(al, a->n_dims);
-                    for (size_t i=0; i<a->n_dims; i++) {
-                        ASR::dimension_t dim;
-                        if (a->m_dims[i].m_start) {
-                            this->visit_expr(*a->m_dims[i].m_start);
-                            dim.m_start = EXPR(asr);
-                        } else {
-                            dim.m_start = nullptr;
+                    if (std::string(a->m_name) == "dimension") {
+                        if (x.n_dims > 0) {
+                            throw SemanticError("Cannot specify dimensions both ways", x.loc);
                         }
-                        if (a->m_dims[i].m_end) {
-                            this->visit_expr(*a->m_dims[i].m_end);
-                            dim.m_end = EXPR(asr);
-                        } else {
-                            dim.m_end = nullptr;
+                        dims.reserve(al, a->n_dims);
+                        for (size_t i=0; i<a->n_dims; i++) {
+                            ASR::dimension_t dim;
+                            if (a->m_dims[i].m_start) {
+                                this->visit_expr(*a->m_dims[i].m_start);
+                                dim.m_start = EXPR(asr);
+                            } else {
+                                dim.m_start = nullptr;
+                            }
+                            if (a->m_dims[i].m_end) {
+                                this->visit_expr(*a->m_dims[i].m_end);
+                                dim.m_end = EXPR(asr);
+                            } else {
+                                dim.m_end = nullptr;
+                            }
+                            dims.push_back(al, dim);
                         }
-                        dims.push_back(al, dim);
                     }
                 }
             }
