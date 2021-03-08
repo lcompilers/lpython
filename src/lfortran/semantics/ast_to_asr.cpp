@@ -757,12 +757,15 @@ public:
             } else {
                 throw SemanticError("Unsupported type: " + sym_type, x.loc);
             }
-            this->visit_expr(*x.m_initializer);
-            ASR::expr_t* init_expr = EXPR(asr);
-            ASR::ttype_t *init_type = expr_type(init_expr);
-            ImplicitCastRules::set_converted_value(al, x.loc, &init_expr, init_type, type);
+            ASR::expr_t* init_expr = nullptr;
+            if( x.m_initializer != nullptr ) {
+                this->visit_expr(*x.m_initializer);
+                init_expr = EXPR(asr);
+                ASR::ttype_t *init_type = expr_type(init_expr);
+                ImplicitCastRules::set_converted_value(al, x.loc, &init_expr, init_type, type);
+            }
             ASR::asr_t *v = ASR::make_Variable_t(al, x.loc, current_scope,
-                x.m_sym, s_intent, init_expr, storage_type, type);
+                    x.m_sym, s_intent, init_expr, storage_type, type);
             current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(v);
 
         }
