@@ -1,0 +1,13 @@
+{
+    "basename": "asr-dim_assgn_test-4df3c08",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/dim_assgn_test.f90",
+    "infile_hash": "8d5acf5415caca22569d4324570f311972a6eac0a1cff02a8242a868",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-dim_assgn_test-4df3c08.stderr",
+    "stderr_hash": "4872261fe08061c7ba214df35aa52dd01a5d39b1ac396b79cf500258",
+    "returncode": 2
+}
