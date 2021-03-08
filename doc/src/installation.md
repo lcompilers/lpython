@@ -174,7 +174,7 @@ and compile LFortran with the `-DWITH_STACKTRACE=yes` cmake option.
 
 In Ubuntu, `apt install binutils-dev`.
 
-On macOS, you can install [spack](https://spack.io/), then:
+On macOS, you can install [Spack](https://spack.io/), then:
 ```
 spack install binutils
 spack find -p binutils
