@@ -163,3 +163,28 @@ repository in development mode,
 - [LLVM - 11.0.1](https://github.com/llvm/llvm-project/releases/download/llvmorg-11.0.1/llvm-11.0.1.src.tar.xz)
 - [re2c - 2.0.3](https://re2c.org/install/install.html)
 - [binutils - 2.31.90](ftp://sourceware.org/pub/binutils/snapshots/binutils-2.31.90.tar.xz) - Make sure that you should enable the required options related to this dependency to build the dynamic libraries (the ones ending with `.so`).
+
+## Stacktraces
+
+LFortran can print stacktraces when there is an unhandled exception, as well as
+on any compiler error with the `--show-stacktrace` option. This is very helpful
+for developing the compiler itself to see where in LFortran the problem is. The
+stacktrace support is turned off by default, to enable it, install `binutils`
+and compile LFortran with the `-DWITH_STACKTRACE=yes` cmake option.
+
+In Ubuntu, `apt install binutils-dev`.
+
+On macOS, you can install [spack](https://spack.io/), then:
+```
+spack install binutils
+spack find -p binutils
+```
+The last command will show a full path to the installed `binutils` package. Add
+this path to your shell config file, e.g.:
+```
+export CMAKE_PREFIX_PATH_LFORTRAN=/Users/ondrej/repos/spack/opt/spack/darwin-catalina-broadwell/apple-clang-11.0.0/binutils-2.36.1-wy6osfm6bp2323g3jpv2sjuttthwx3gd
+```
+and compile LFortran with the
+`-DCMAKE_PREFIX_PATH="$CMAKE_PREFIX_PATH_LFORTRAN;$CONDA_PREFIX"` cmake option.
+The `$CONDA_PREFIX` is there if you install some other dependencies (such as
+`llvm`) using Conda, otherwise you can remove it.
