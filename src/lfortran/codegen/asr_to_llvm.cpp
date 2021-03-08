@@ -381,6 +381,10 @@ public:
                         LFORTRAN_ASSERT(false);
                 }
                 llvm_symtab[h] = ptr;
+                llvm::Value *target_var = ptr;
+                this->visit_expr(*v->m_value);
+                llvm::Value *init_value = tmp;
+                builder->CreateStore(init_value, target_var);
             }
         }
 
