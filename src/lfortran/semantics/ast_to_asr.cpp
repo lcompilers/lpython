@@ -734,13 +734,24 @@ public:
                         ASR::Var_t* kind_var = (ASR::Var_t*)base_ptr;
                         ASR::Variable_t* kind_variable = (ASR::Variable_t*)(&(kind_var->m_v->base));
                         if( kind_variable->m_storage == ASR::storage_typeType::Parameter ) {
-                            a_kind = ((ASR::ConstantInteger_t*)(kind_variable->m_value))->m_n;
+                            if( kind_variable->m_type->type == ASR::ttypeType::Integer ) {
+                                a_kind = ((ASR::ConstantInteger_t*)(kind_variable->m_value))->m_n;
+                            } else {
+                                std::string msg = "Integer variable required. " + std::string(kind_variable->m_name) + 
+                                                  " is not an Integer variable.";
+                                throw SemanticError(msg, x.loc);
+                            }
                         } else {
                             std::string msg = "Parameter " + std::string(kind_variable->m_name) + 
                                               " is a variable, which does not reduce to a constant expression";
                             throw SemanticError(msg, x.loc);
                         }
                         break;
+                    }
+                    default: {
+                        throw SemanticError(R"""(Only Integer literals or expressions which 
+                                            reduce to constant Integer are accepted as kind parameters.)""", 
+                                            x.loc);
                     }
                 }
             }
