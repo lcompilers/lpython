@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-real_dp_param-6f50100",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/real_dp_param.f90",
+    "infile_hash": "c3f349aae44d8efd8afc0b6bd017d9fdc88a0e652d6f7b3c35622828",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-real_dp_param-6f50100.stdout",
+    "stdout_hash": "8c147ac67508bc0455815481c2fdc14cc68b99fe608d08c85fb58260",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

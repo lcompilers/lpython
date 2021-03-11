@@ -1,0 +1,41 @@
+; ModuleID = 'LFortran'
+source_filename = "LFortran"
+
+%complex = type { float, float }
+
+@0 = private unnamed_addr constant [15 x i8] c"%d %f (%f,%f)\0A\00", align 1
+
+define i64 @main() {
+.entry:
+  %c = alloca %complex, align 8
+  %0 = alloca %complex, align 8
+  %1 = getelementptr %complex, %complex* %0, i32 0, i32 0
+  %2 = getelementptr %complex, %complex* %0, i32 0, i32 1
+  store float 3.000000e+00, float* %1, align 4
+  store float 4.000000e+00, float* %2, align 4
+  %3 = load %complex, %complex* %0, align 4
+  store %complex %3, %complex* %c, align 4
+  %i = alloca i64, align 8
+  store i64 1, i64* %i, align 4
+  %r = alloca float, align 4
+  store float 4.000000e+00, float* %r, align 4
+  %4 = load i64, i64* %i, align 4
+  %5 = load float, float* %r, align 4
+  %6 = fpext float %5 to double
+  %7 = load %complex, %complex* %c, align 4
+  %8 = alloca %complex, align 8
+  store %complex %7, %complex* %8, align 4
+  %9 = getelementptr %complex, %complex* %8, i32 0, i32 0
+  %10 = load float, float* %9, align 4
+  %11 = fpext float %10 to double
+  %12 = alloca %complex, align 8
+  store %complex %7, %complex* %12, align 4
+  %13 = getelementptr %complex, %complex* %12, i32 0, i32 1
+  %14 = load float, float* %13, align 4
+  %15 = fpext float %14 to double
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([15 x i8], [15 x i8]* @0, i32 0, i32 0), i64 %4, double %6, double %11, double %15)
+  ret i64 0
+}
+
+declare void @_lfortran_printf(i8*, ...)
+
