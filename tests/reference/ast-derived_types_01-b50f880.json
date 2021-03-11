@@ -2,11 +2,11 @@
     "basename": "ast-derived_types_01-b50f880",
     "cmd": "lfortran --show-ast --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/derived_types_01.f90",
-    "infile_hash": "fa5695b9d58593385bc29dfc03767b0e36da2a99f4999ea18b77315b",
+    "infile_hash": "9df75d909b3817d1e068868d9a81526ea56e66405d834df322f04c8b",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast-derived_types_01-b50f880.stdout",
-    "stdout_hash": "d19673f20eaccf90f1351e76a2fce158021e4a06f47c5e191b3c2966",
+    "stdout_hash": "13bef35fc880e906f3c67670da2e5ab14ce37ac6c5b58e19f6f01a30",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
