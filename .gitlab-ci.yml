@@ -237,27 +237,38 @@ build.xsh:
     - xonsh ci/build.xsh
 
 # Build and upload documentation
-#documentation:
-#  stage: build
-#  image: registry.gitlab.com/lfortran/ci-images:jupyter-1.7.0
-#  script:
-#    - sudo apt-get update
-#    - sudo apt-get install -yq --no-install-recommends openssh-client
-#    - export PATH="$HOME/conda_root/bin:$PATH"
-#    - pip install nbconvert mkdocs
-#    - tar xzf dist/lfortran-*.tar.gz
-#    - cd lfortran-*
-#    - pip install --no-index -v .
-#    - cd ..
-#    - rm -r lfortran lfortran-*
-#    - cd doc
-#    - python convert_nb.py
-#    - mkdocs build -s
-#    - ../ci/upload_docs.sh
-#  artifacts:
-#    paths:
-#      - doc/site
-#    when: always
+documentation:
+  stage: build
+  image: registry.gitlab.com/lfortran/ci-images:full3-1.10.0
+  script:
+    - sudo apt-get update
+    - sudo apt-get install -yq --no-install-recommends openssh-client git
+    - export CONDA_PREFIX="$HOME/conda_root"
+    - export PATH="$HOME/conda_root/bin:$PATH"
+    - conda install -c conda-forge nbconvert=5.6.0 mkdocs
+    - tar xzf dist/lfortran-*.tar.gz
+    - cd lfortran-*
+    - cmake
+         -DCMAKE_BUILD_TYPE=Debug
+         -DWITH_LLVM=yes
+         -DWITH_XEUS=yes
+         -DCMAKE_PREFIX_PATH=$CONDA_PREFIX
+         -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX
+         .
+    - make
+    - make install
+    - ctest
+    - cd ..
+    - jupyter kernelspec list --json
+    - rm -r lfortran-*
+    - cd doc
+    - python convert_nb.py
+    - mkdocs build -s
+    - ../ci/upload_docs.sh
+  artifacts:
+    paths:
+      - doc/site
+    when: always
 
 # Update the downloads page
 downloads_update:

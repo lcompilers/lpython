@@ -46,6 +46,9 @@
 //
 //     $ dsymutil ./test_stacktrace
 //
+// This is done automatically by our CMake build system for the `lfortran`
+// binary.
+//
 // The bfd.h header file sometimes requires the PACKAGE define to be defined:
 #  define PACKAGE 1
 #  include <bfd.h>

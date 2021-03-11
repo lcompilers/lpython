@@ -678,3 +678,7 @@ llvm = true
 [[test]]
 filename = "../src/runtime/lfortran_intrinsic_math.f90"
 ast = true
+
+[[test]]
+filename = "errors/dim_assgn_test.f90"
+asr = true
