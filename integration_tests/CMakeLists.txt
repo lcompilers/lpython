@@ -196,6 +196,7 @@ RUN(NAME line_continuation_02 LABELS gfortran)
 RUN(NAME line_continuation_03 LABELS gfortran)
 
 RUN(NAME program_01 LABELS gfortran)
+RUN(NAME init_values LABELS gfortran llvm)
 
 RUN(NAME allocate_01 LABELS gfortran)
 RUN(NAME block_01 LABELS gfortran)
@@ -204,4 +205,4 @@ RUN(NAME associate_01 LABELS gfortran)
 RUN(NAME real_dp LABELS gfortran llvm)
 RUN(NAME bin_op_real_dp LABELS gfortran llvm)
 RUN(NAME const_real_dp LABELS gfortran llvm)
-RUN(NAME real_dp_param LABELS gfortran)
+RUN(NAME real_dp_param LABELS gfortran llvm)

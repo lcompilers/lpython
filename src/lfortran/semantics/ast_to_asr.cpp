@@ -169,6 +169,30 @@ namespace LFortran {
 
     };
 
+class HelperMethods {
+
+    public: 
+
+        inline static int extract_kind(char* m_n) {
+            bool is_under_score = false;
+            char kind_str[2] = {'0', '0'};
+            int i = 1, j = 0;
+            for( ; m_n[i] != '\0'; i++ ) {
+                is_under_score = m_n[i-1] == '_' && !is_under_score ? true : is_under_score;
+                if( is_under_score ) {
+                    kind_str[j] = m_n[i];
+                    j++;
+                }
+            }
+            if( kind_str[0] != '0' && kind_str[1] == '0'  ) {
+                return kind_str[0] - '0';
+            } else if( kind_str[0] != '0' && kind_str[0] != '0' ) {
+                return (kind_str[0] - '0')*10 + (kind_str[1] - '0');
+            }
+            return 4;
+        }
+};
+
 class SymbolTableVisitor : public AST::BaseVisitor<SymbolTableVisitor>
 {
 public:
@@ -363,7 +387,7 @@ public:
             }
             // Add it as a local variable:
             return_var = ASR::make_Variable_t(al, x.base.base.loc,
-                current_scope, return_var_name, intent_return_var, type);
+                current_scope, return_var_name, intent_return_var, nullptr, ASR::storage_typeType::Default, type);
             current_scope->scope[std::string(return_var_name)]
                 = ASR::down_cast<ASR::symbol_t>(return_var);
         } else {
@@ -403,6 +427,17 @@ public:
         }
         parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
         current_scope = parent_scope;
+    }
+
+    void visit_Complex(const AST::Complex_t &x) {
+        ASR::ttype_t *type = TYPE(ASR::make_Complex_t(al, x.base.base.loc,
+                4, nullptr, 0));
+        this->visit_expr(*x.m_re);
+        ASR::expr_t *re = EXPR(asr);
+        this->visit_expr(*x.m_im);
+        ASR::expr_t *im = EXPR(asr);
+        asr = ASR::make_ConstantComplex_t(al, x.base.base.loc,
+                re, im, type);
     }
 
     void visit_Declaration(const AST::Declaration_t &x) {
@@ -610,18 +645,26 @@ public:
         }
     }
 
+    void visit_Real(const AST::Real_t &x) {
+        int a_kind = HelperMethods::extract_kind(x.m_n);
+        ASR::ttype_t *type = TYPE(ASR::make_Real_t(al, x.base.base.loc,
+                a_kind, nullptr, 0));
+        asr = ASR::make_ConstantReal_t(al, x.base.base.loc, x.m_n, type);
+    }
+
     void visit_decl(const AST::decl_t &x) {
         if(!x.m_sym_type){
             return;
         }
         std::string sym = x.m_sym;
         std::string sym_type = x.m_sym_type;
+        ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
         if (current_scope->scope.find(sym) == current_scope->scope.end()) {
             ASR::intentType s_intent=intent_local;
             Vec<ASR::dimension_t> dims;
             dims.reserve(al, x.n_dims);
             if (x.n_attrs > 0) {
-                for (size_t i = 0; i < x.n_attrs; i++){
+                for (size_t i = 0; i < x.n_attrs; i++) {
                     AST::Attribute_t *a = (AST::Attribute_t*)(x.m_attrs[i]);
                     if (std::string(a->m_name) == "intent") {
                         if (a->n_args > 0) {
@@ -638,8 +681,7 @@ public:
                         } else {
                             throw SemanticError("intent() is empty. Must specify intent", x.loc);
                         }
-                    }
-                    if (std::string(a->m_name) == "dimension") {
+                    } else if (std::string(a->m_name) == "dimension") {
                         if (x.n_dims > 0) {
                             throw SemanticError("Cannot specify dimensions both ways", x.loc);
                         }
@@ -660,6 +702,8 @@ public:
                             }
                             dims.push_back(al, dim);
                         }
+                    } else if( std::string(a->m_name) == "parameter" ) {
+                        storage_type = ASR::storage_typeType::Parameter;
                     }
                 }
             }
@@ -684,7 +728,37 @@ public:
             if( x.m_kind != nullptr )
             {
                 this->visit_expr(*x.m_kind->m_value);
-                a_kind = ((ASR::ConstantInteger_t*)asr)->m_n;
+                ASR::expr_t* kind_expr = EXPR(asr);
+                switch( kind_expr->type ) {
+                    case ASR::exprType::ConstantInteger: {
+                        a_kind = ((ASR::ConstantInteger_t*)asr)->m_n;
+                        break;
+                    }
+                    case ASR::exprType::Var: {
+                        ASR::asr_t* base_ptr = &(kind_expr->base);
+                        ASR::Var_t* kind_var = (ASR::Var_t*)base_ptr;
+                        ASR::Variable_t* kind_variable = (ASR::Variable_t*)(&(kind_var->m_v->base));
+                        if( kind_variable->m_storage == ASR::storage_typeType::Parameter ) {
+                            if( kind_variable->m_type->type == ASR::ttypeType::Integer ) {
+                                a_kind = ((ASR::ConstantInteger_t*)(kind_variable->m_value))->m_n;
+                            } else {
+                                std::string msg = "Integer variable required. " + std::string(kind_variable->m_name) + 
+                                                  " is not an Integer variable.";
+                                throw SemanticError(msg, x.loc);
+                            }
+                        } else {
+                            std::string msg = "Parameter " + std::string(kind_variable->m_name) + 
+                                              " is a variable, which does not reduce to a constant expression";
+                            throw SemanticError(msg, x.loc);
+                        }
+                        break;
+                    }
+                    default: {
+                        throw SemanticError(R"""(Only Integer literals or expressions which 
+                                            reduce to constant Integer are accepted as kind parameters.)""", 
+                                            x.loc);
+                    }
+                }
             }
             if (sym_type == "real") {
                 type = TYPE(ASR::make_Real_t(al, x.loc, a_kind, dims.p, dims.size()));
@@ -699,11 +773,32 @@ public:
             } else {
                 throw SemanticError("Unsupported type: " + sym_type, x.loc);
             }
+            ASR::expr_t* init_expr = nullptr;
+            if( x.m_initializer != nullptr ) {
+                this->visit_expr(*x.m_initializer);
+                init_expr = EXPR(asr);
+                ASR::ttype_t *init_type = expr_type(init_expr);
+                ImplicitCastRules::set_converted_value(al, x.loc, &init_expr, init_type, type);
+            }
             ASR::asr_t *v = ASR::make_Variable_t(al, x.loc, current_scope,
-                x.m_sym, s_intent, type);
+                    x.m_sym, s_intent, init_expr, storage_type, type);
             current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(v);
 
         }
+    }
+
+    ASR::asr_t* resolve_variable(const Location &loc, const char* id) {
+        SymbolTable *scope = current_scope;
+        std::string var_name = id;
+        ASR::symbol_t *v = scope->resolve_symbol(var_name);
+        if (!v) {
+            throw SemanticError("Variable '" + var_name + "' not declared", loc);
+        }
+        return ASR::make_Var_t(al, loc, v);
+    }
+
+    void visit_Name(const AST::Name_t &x) {
+        asr = resolve_variable(x.base.base.loc, x.m_id);
     }
 
     void visit_Num(const AST::Num_t &x) {
@@ -1142,7 +1237,7 @@ public:
                 ASR::ttype_t *type;
                 type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
                 ASR::asr_t *return_var = ASR::make_Variable_t(al, x.base.base.loc,
-                    fn_scope, fn_name, intent_return_var, type);
+                    fn_scope, fn_name, intent_return_var, nullptr, ASR::storage_typeType::Default,  type);
                 fn_scope->scope[std::string(fn_name)] = ASR::down_cast<ASR::symbol_t>(return_var);
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
                     ASR::down_cast<ASR::symbol_t>(return_var));
@@ -1169,7 +1264,7 @@ public:
                 ASR::ttype_t *type;
                 type = TYPE(ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
                 ASR::asr_t *return_var = ASR::make_Variable_t(al, x.base.base.loc,
-                    fn_scope, fn_name, intent_return_var, type);
+                    fn_scope, fn_name, intent_return_var, nullptr, ASR::storage_typeType::Default,  type);
                 fn_scope->scope[std::string(fn_name)] = ASR::down_cast<ASR::symbol_t>(return_var);
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
                     ASR::down_cast<ASR::symbol_t>(return_var));
@@ -1202,7 +1297,7 @@ public:
                 const char* arg0_s_orig = "x";
                 char *arg0_s = (char*)arg0_s_orig;
                 ASR::asr_t *arg0 = ASR::make_Variable_t(al, x.base.base.loc,
-                    fn_scope, arg0_s, intent_in, type);
+                    fn_scope, arg0_s, intent_in, nullptr, ASR::storage_typeType::Default,  type);
                 ASR::symbol_t *var = ASR::down_cast<ASR::symbol_t>(arg0);
                 fn_scope->scope[std::string(arg0_s)] = var;
                 args.push_back(al, EXPR(ASR::make_Var_t(al, x.base.base.loc,
@@ -1211,7 +1306,7 @@ public:
                 // Return value
                 type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
                 ASR::asr_t *return_var = ASR::make_Variable_t(al, x.base.base.loc,
-                    fn_scope, fn_name, intent_return_var, type);
+                    fn_scope, fn_name, intent_return_var, nullptr, ASR::storage_typeType::Default,  type);
                 fn_scope->scope[std::string(fn_name)] = ASR::down_cast<ASR::symbol_t>(return_var);
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
                     ASR::down_cast<ASR::symbol_t>(return_var));
@@ -1289,27 +1384,8 @@ public:
         tmp = ASR::make_Str_t(al, x.base.base.loc, x.m_s, type);
     }
 
-    inline int extract_kind(char* m_n) {
-        bool is_under_score = false;
-        char kind_str[2] = {'0', '0'};
-        int i = 1, j = 0;
-        for( ; m_n[i] != '\0'; i++ ) {
-            is_under_score = m_n[i-1] == '_' && !is_under_score ? true : is_under_score;
-            if( is_under_score ) {
-                kind_str[j] = m_n[i];
-                j++;
-            }
-        }
-        if( kind_str[0] != '0' && kind_str[1] == '0'  ) {
-            return kind_str[0] - '0';
-        } else if( kind_str[0] != '0' && kind_str[0] != '0' ) {
-            return (kind_str[0] - '0')*10 + (kind_str[1] - '0');
-        }
-        return 4;
-    }
-
     void visit_Real(const AST::Real_t &x) {
-        int a_kind = extract_kind(x.m_n);
+        int a_kind = HelperMethods::extract_kind(x.m_n);
         ASR::ttype_t *type = TYPE(ASR::make_Real_t(al, x.base.base.loc,
                 a_kind, nullptr, 0));
         tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, x.m_n, type);

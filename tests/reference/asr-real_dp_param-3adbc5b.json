@@ -1,0 +1,13 @@
+{
+    "basename": "asr-real_dp_param-3adbc5b",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/real_dp_param.f90",
+    "infile_hash": "c3f349aae44d8efd8afc0b6bd017d9fdc88a0e652d6f7b3c35622828",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-real_dp_param-3adbc5b.stdout",
+    "stdout_hash": "2d9d48ad096526b6944495ca0b9072ac6d9fc3d9e9a99fc859529685",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
