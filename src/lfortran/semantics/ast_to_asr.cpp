@@ -200,6 +200,8 @@ public:
     Allocator &al;
     SymbolTable *current_scope;
     std::map<std::string, std::vector<std::string>> generic_procedures;
+    ASR::accessType dflt_access = ASR::Public;
+    std::map<std::string, ASR::accessType> assgnd_access;
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
         : al{al}, current_scope{symbol_table} { }
@@ -281,6 +283,7 @@ public:
     }
 
     void visit_Subroutine(const AST::Subroutine_t &x) {
+        ASR::accessType s_access = dflt_access;
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
         for (size_t i=0; i<x.n_decl; i++) {
@@ -298,6 +301,10 @@ public:
             args.push_back(al, EXPR(ASR::make_Var_t(al, x.base.base.loc,
                 var)));
         }
+        std::string sym_name = x.m_name;
+        if (assgnd_access.count(sym_name)) {
+            s_access = assgnd_access[sym_name];
+        }
         asr = ASR::make_Subroutine_t(
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
@@ -307,8 +314,7 @@ public:
             /* a_body */ nullptr,
             /* n_body */ 0,
             /* a_bind */ nullptr,
-            nullptr);
-        std::string sym_name = x.m_name;
+            nullptr, s_access);
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             ASR::symbol_t *f1 = parent_scope->scope[sym_name];
             ASR::Subroutine_t *f2 = ASR::down_cast<ASR::Subroutine_t>(f1);
@@ -324,6 +330,7 @@ public:
 
     void visit_Function(const AST::Function_t &x) {
         // Extract local (including dummy) variables first
+        ASR::accessType s_access = dflt_access;
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
         for (size_t i=0; i<x.n_decl; i++) {
@@ -387,7 +394,8 @@ public:
             }
             // Add it as a local variable:
             return_var = ASR::make_Variable_t(al, x.base.base.loc,
-                current_scope, return_var_name, intent_return_var, nullptr, ASR::storage_typeType::Default, type);
+                current_scope, return_var_name, intent_return_var, nullptr,
+                ASR::storage_typeType::Default, type, ASR::Public);
             current_scope->scope[std::string(return_var_name)]
                 = ASR::down_cast<ASR::symbol_t>(return_var);
         } else {
@@ -404,6 +412,10 @@ public:
             ASR::down_cast<ASR::symbol_t>(return_var));
 
         // Create and register the function
+        std::string sym_name = x.m_name;
+        if (assgnd_access.count(sym_name)) {
+            s_access = assgnd_access[sym_name];
+        }
         asr = ASR::make_Function_t(
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
@@ -414,8 +426,7 @@ public:
             /* n_body */ 0,
             /* a_bind */ nullptr,
             /* a_return_var */ EXPR(return_var_ref),
-            /* a_module */ nullptr);
-        std::string sym_name = x.m_name;
+            /* a_module */ nullptr, s_access);
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             ASR::symbol_t *f1 = parent_scope->scope[sym_name];
             ASR::Function_t *f2 = ASR::down_cast<ASR::Function_t>(f1);
@@ -490,7 +501,7 @@ public:
                 symbols.push_back(al, x);
             }
             ASR::asr_t *v = ASR::make_GenericProcedure_t(al, loc,
-                generic_name, symbols.p, symbols.size());
+                generic_name, symbols.p, symbols.size(), ASR::Public);
             current_scope->scope[proc.first] = ASR::down_cast<ASR::symbol_t>(v);
         }
     }
@@ -526,7 +537,8 @@ public:
                         /* a_body */ nullptr,
                         /* n_body */ 0,
                         /* a_bind */ msub->m_bind,
-                        /* a_external */ external
+                        /* a_external */ external,
+                        ASR::Public
                         );
                     std::string sym = msub->m_name;
                     current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(sub);
@@ -545,7 +557,8 @@ public:
                         /* n_body */ 0,
                         /* a_bind */ mfn->m_bind,
                         /* a_return_var */ mfn->m_return_var,
-                        /* a_external */ external
+                        /* a_external */ external,
+                        ASR::Public
                         );
                     std::string sym = mfn->m_name;
                     current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
@@ -592,7 +605,8 @@ public:
                         /* a_body */ nullptr,
                         /* n_body */ 0,
                         /* a_bind */ msub->m_bind,
-                        /* a_external */ external
+                        /* a_external */ external,
+                        ASR::Public
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(sub);
                 } else if (ASR::is_a<ASR::GenericProcedure_t>(*t)) {
@@ -635,7 +649,8 @@ public:
                         /* n_body */ 0,
                         /* a_bind */ mfn->m_bind,
                         /* a_return_var */ mfn->m_return_var,
-                        /* a_external */ external
+                        /* a_external */ external,
+                        ASR::Public
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(fn);
                 } else {
@@ -653,10 +668,43 @@ public:
     }
 
     void visit_decl(const AST::decl_t &x) {
-        if(!x.m_sym_type){
+        ASR::accessType s_access = dflt_access;
+        std::string sym;
+        if (!x.m_sym_type) {
+            // This is an attribute declaration
+            // Check if there is an associated symbol
+            if (x.m_sym) { 
+                // This declaration applies to a specific non-variable entity, 
+                // which is not yet supported
+                if (x.n_attrs > 0) {
+                    // TODO: Simply assuming this will be public/private
+                    AST::Attribute_t *a = (AST::Attribute_t*)(x.m_attrs[0]);
+                    if (std::string(a->m_name) == "private") {
+                            s_access = ASR::Private;
+                        } else if (std::string(a->m_name) == "public") {
+                            s_access = ASR::Public;
+                        } else {
+                            throw SemanticError("Attribute declaration not "
+                                    "supported", x.loc);
+                    }
+                }
+                sym = x.m_sym;
+                assgnd_access[sym] = s_access;
+                return;
+            } else if (x.n_attrs > 0) {
+                // TODO: Check for cases that can hit this other than
+                // public/private declaration
+                AST::Attribute_t *a = (AST::Attribute_t*)(x.m_attrs[0]);
+                if (std::string(a->m_name) == "private") {
+                    dflt_access = ASR::Private;
+                }
+            }
             return;
         }
-        std::string sym = x.m_sym;
+        sym = x.m_sym;
+        if (assgnd_access.count(sym)) {
+            s_access = assgnd_access[sym];
+        }
         std::string sym_type = x.m_sym_type;
         ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
         if (current_scope->scope.find(sym) == current_scope->scope.end()) {
@@ -666,6 +714,11 @@ public:
             if (x.n_attrs > 0) {
                 for (size_t i = 0; i < x.n_attrs; i++) {
                     AST::Attribute_t *a = (AST::Attribute_t*)(x.m_attrs[i]);
+                    if (std::string(a->m_name) == "private") {
+                        s_access = ASR::Private;
+                    } else if (std::string(a->m_name) == "public") {
+                        s_access = ASR::Public;
+                    }
                     if (std::string(a->m_name) == "intent") {
                         if (a->n_args > 0) {
                             std::string intent = std::string(a->m_args[0].m_arg);
@@ -781,7 +834,7 @@ public:
                 ImplicitCastRules::set_converted_value(al, x.loc, &init_expr, init_type, type);
             }
             ASR::asr_t *v = ASR::make_Variable_t(al, x.loc, current_scope,
-                    x.m_sym, s_intent, init_expr, storage_type, type);
+                    x.m_sym, s_intent, init_expr, storage_type, type, s_access);
             current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(v);
 
         }
@@ -1236,8 +1289,9 @@ public:
                 SymbolTable *fn_scope = al.make_new<SymbolTable>(unit->m_global_scope);
                 ASR::ttype_t *type;
                 type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
-                ASR::asr_t *return_var = ASR::make_Variable_t(al, x.base.base.loc,
-                    fn_scope, fn_name, intent_return_var, nullptr, ASR::storage_typeType::Default,  type);
+                ASR::asr_t *return_var = ASR::make_Variable_t(al,
+                    x.base.base.loc, fn_scope, fn_name, intent_return_var,
+                    nullptr, ASR::storage_typeType::Default, type, ASR::Public);
                 fn_scope->scope[std::string(fn_name)] = ASR::down_cast<ASR::symbol_t>(return_var);
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
                     ASR::down_cast<ASR::symbol_t>(return_var));
@@ -1251,7 +1305,7 @@ public:
                     /* n_body */ 0,
                     /* a_bind */ nullptr,
                     /* a_return_var */ EXPR(return_var_ref),
-                    /* a_module */ nullptr);
+                    /* a_module */ nullptr, ASR::Public);
                 std::string sym_name = fn_name;
                 unit->m_global_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(fn);
                 v = ASR::down_cast<ASR::symbol_t>(fn);
@@ -1263,8 +1317,9 @@ public:
                 SymbolTable *fn_scope = al.make_new<SymbolTable>(unit->m_global_scope);
                 ASR::ttype_t *type;
                 type = TYPE(ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
-                ASR::asr_t *return_var = ASR::make_Variable_t(al, x.base.base.loc,
-                    fn_scope, fn_name, intent_return_var, nullptr, ASR::storage_typeType::Default,  type);
+                ASR::asr_t *return_var = ASR::make_Variable_t(al,
+                    x.base.base.loc, fn_scope, fn_name, intent_return_var,
+                    nullptr, ASR::storage_typeType::Default, type, ASR::Public);
                 fn_scope->scope[std::string(fn_name)] = ASR::down_cast<ASR::symbol_t>(return_var);
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
                     ASR::down_cast<ASR::symbol_t>(return_var));
@@ -1278,7 +1333,7 @@ public:
                     /* n_body */ 0,
                     /* a_bind */ nullptr,
                     /* a_return_var */ EXPR(return_var_ref),
-                    /* a_module */ nullptr);
+                    /* a_module */ nullptr, ASR::Public);
                 std::string sym_name = fn_name;
                 unit->m_global_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(fn);
                 v = ASR::down_cast<ASR::symbol_t>(fn);
@@ -1297,7 +1352,8 @@ public:
                 const char* arg0_s_orig = "x";
                 char *arg0_s = (char*)arg0_s_orig;
                 ASR::asr_t *arg0 = ASR::make_Variable_t(al, x.base.base.loc,
-                    fn_scope, arg0_s, intent_in, nullptr, ASR::storage_typeType::Default,  type);
+                    fn_scope, arg0_s, intent_in, nullptr,
+                    ASR::storage_typeType::Default, type, ASR::Public);
                 ASR::symbol_t *var = ASR::down_cast<ASR::symbol_t>(arg0);
                 fn_scope->scope[std::string(arg0_s)] = var;
                 args.push_back(al, EXPR(ASR::make_Var_t(al, x.base.base.loc,
@@ -1305,8 +1361,9 @@ public:
 
                 // Return value
                 type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
-                ASR::asr_t *return_var = ASR::make_Variable_t(al, x.base.base.loc,
-                    fn_scope, fn_name, intent_return_var, nullptr, ASR::storage_typeType::Default,  type);
+                ASR::asr_t *return_var = ASR::make_Variable_t(al,
+                    x.base.base.loc, fn_scope, fn_name, intent_return_var,
+                    nullptr, ASR::storage_typeType::Default, type, ASR::Public);
                 fn_scope->scope[std::string(fn_name)] = ASR::down_cast<ASR::symbol_t>(return_var);
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
                     ASR::down_cast<ASR::symbol_t>(return_var));
@@ -1325,7 +1382,7 @@ public:
                     /* n_body */ 0,
                     /* a_bind */ nullptr,
                     /* a_return_var */ EXPR(return_var_ref),
-                    /* a_external */ external);
+                    /* a_external */ external, ASR::Public);
                 std::string sym_name = fn_name;
                 unit->m_global_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(fn);
                 v = ASR::down_cast<ASR::symbol_t>(fn);

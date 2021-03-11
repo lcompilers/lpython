@@ -35,15 +35,16 @@ symbol
     = Program(symbol_table symtab, identifier name, stmt* body)
     | Module(symbol_table symtab, identifier name)
     | Subroutine(symbol_table symtab, identifier name, expr* args, stmt* body,
-        tbind? bind, proc_external? external)
+        tbind? bind, proc_external? external, access access)
     | Function(symbol_table symtab, identifier name, expr* args, stmt* body,
-        tbind? bind, expr return_var, proc_external? external)
-    | GenericProcedure(identifier name, symbol* procs)
+        tbind? bind, expr return_var, proc_external? external, access access)
+    | GenericProcedure(identifier name, symbol* procs, access access)
     | ExternalProc(identifier name, proc_external external)
-    | Variable(symbol_table parent_symtab, identifier name, intent intent, expr? value, storage_type storage,
-            ttype type)
+    | Variable(symbol_table parent_symtab, identifier name, intent intent,
+        expr? value, storage_type storage, ttype type, access access)
 
 storage_type = Default | Save | Parameter
+access = Public | Private
 
 proc_external = (proc_external_type type, symbol? module_proc)
 proc_external_type

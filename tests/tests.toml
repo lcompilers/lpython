@@ -682,3 +682,15 @@ ast = true
 [[test]]
 filename = "errors/dim_assgn_test.f90"
 asr = true
+
+[[test]]
+filename = "modules_03.f90"
+asr = true
+
+[[test]]
+filename = "modules_04.f90"
+asr = true
+
+[[test]]
+filename = "modules_05.f90"
+asr = true
