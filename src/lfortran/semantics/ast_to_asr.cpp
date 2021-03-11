@@ -664,7 +664,7 @@ public:
             Vec<ASR::dimension_t> dims;
             dims.reserve(al, x.n_dims);
             if (x.n_attrs > 0) {
-                for (size_t i = 0; i < x.n_attrs; i++){
+                for (size_t i = 0; i < x.n_attrs; i++) {
                     AST::Attribute_t *a = (AST::Attribute_t*)(x.m_attrs[i]);
                     if (std::string(a->m_name) == "intent") {
                         if (a->n_args > 0) {
@@ -681,8 +681,7 @@ public:
                         } else {
                             throw SemanticError("intent() is empty. Must specify intent", x.loc);
                         }
-                    }
-                    if (std::string(a->m_name) == "dimension") {
+                    } else if (std::string(a->m_name) == "dimension") {
                         if (x.n_dims > 0) {
                             throw SemanticError("Cannot specify dimensions both ways", x.loc);
                         }
@@ -703,9 +702,9 @@ public:
                             }
                             dims.push_back(al, dim);
                         }
+                    } else if( std::string(a->m_name) == "parameter" ) {
+                        storage_type = ASR::storage_typeType::Parameter;
                     }
-                } else if( std::string(a->m_name) == "parameter" ) {
-                    storage_type = ASR::storage_typeType::Parameter;
                 }
             }
             for (size_t i=0; i<x.n_dims; i++) {
