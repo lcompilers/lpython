@@ -839,7 +839,7 @@ var_type
     | KW_LOGICAL "(" kind_arg_list ")" { $$ = VARTYPE3($1, $3, @$); }
     | KW_LOGICAL "*" TK_INTEGER { $$ = VARTYPE0($1, @$); }
     | KW_DOUBLE KW_PRECISION { $$ = VARTYPE0($1, @$); }
-    | KW_TYPE "(" id ")" { $$ = VARTYPE0($1, @$); }
+    | KW_TYPE "(" id ")" { $$ = VARTYPE4($1, $3, @$); }
     | KW_PROCEDURE "(" id ")" { $$ = VARTYPE0($1, @$); }
     | KW_CLASS "(" id ")" { $$ = VARTYPE0($1, @$); }
     | KW_CLASS "(" "*" ")" { $$ = VARTYPE0($1, @$); }
