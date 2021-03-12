@@ -15,6 +15,16 @@ static inline ASR::stmt_t* STMT(const ASR::asr_t *f)
     return ASR::down_cast<ASR::stmt_t>(f);
 }
 
+static inline ASR::case_default_t* CASE_DEFAULT(const ASR::asr_t *f)
+{
+    return ASR::down_cast<ASR::case_default_t>(f);
+}
+
+static inline ASR::case_stmt_t* CASE_STMT(const ASR::asr_t *f)
+{
+    return ASR::down_cast<ASR::case_stmt_t>(f);
+}
+
 static inline ASR::ttype_t* TYPE(const ASR::asr_t *f)
 {
     return ASR::down_cast<ASR::ttype_t>(f);
