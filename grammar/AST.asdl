@@ -54,6 +54,7 @@ unit_decl2
     | Private(identifier* vars)
     | Public(identifier* vars)
     | Interface(interface_header header, interface_item* items)
+    | DerivedType(identifier name, unit_decl2* items)
 
 interface_header
     = InterfaceHeader1()

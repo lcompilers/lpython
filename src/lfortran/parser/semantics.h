@@ -849,8 +849,7 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
         down_cast<LFortran::AST::program_unit_t>(proc))
 
 // TODO: Add DerivedType AST node
-#define DERIVED_TYPE(name, l) make_Interface_t(p.m_a, l, \
-        down_cast<LFortran::AST::interface_header_t>(INTERFACE_HEADER2(name, l)), \
-        nullptr, 0)
+#define DERIVED_TYPE(name, decl, l) LFortran::AST::make_DerivedType_t(p.m_a, l, \
+        name2char(name), DECLS(decl), decl.size())
 
 #endif
