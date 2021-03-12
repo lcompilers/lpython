@@ -40,6 +40,7 @@ symbol
         tbind? bind, expr return_var, proc_external? external, access access)
     | GenericProcedure(identifier name, symbol* procs, access access)
     | ExternalProc(identifier name, proc_external external)
+    | DerivedType(symbol_table symtab, identifier name)
     | Variable(symbol_table parent_symtab, identifier name, intent intent,
         expr? value, storage_type storage, ttype type, access access)
 
@@ -92,7 +93,7 @@ ttype
     | Complex(int kind, dimension* dims)
     | Character(int kind, dimension* dims)
     | Logical(int kind, dimension* dims)
-    | Derived(string name, dimension* dims, string? module)
+    | Derived(symbol derived_type, dimension* dims)
 
 boolop = And | Or | NEqv | Eqv
 
