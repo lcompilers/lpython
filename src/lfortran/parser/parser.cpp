@@ -52,7 +52,11 @@ AST::TranslationUnit_t* parse2(Allocator &al, const std::string &s)
 void Parser::parse(const std::string &input)
 {
     inp = input;
-    if (inp[inp.size()-1] != '\n') inp.append("\n");
+    if (inp.size() > 0) {
+        if (inp[inp.size()-1] != '\n') inp.append("\n");
+    } else {
+        inp.append("\n");
+    }
     m_tokenizer.set_string(inp);
     if (yyparse(*this) == 0) {
         return;
