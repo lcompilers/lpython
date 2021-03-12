@@ -396,6 +396,7 @@ ast = true
 [[test]]
 filename = "../integration_tests/derived_types_03.f90"
 ast = true
+asr = true
 
 [[test]]
 filename = "fn2.f90"
