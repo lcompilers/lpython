@@ -152,6 +152,7 @@ static inline LFortran::AST::kind_item_t *make_kind_item_t(Allocator &al,
 
 static inline decl_t* DECL(Allocator &al, const LFortran::Vec<decl_t> &x,
         char *type, LFortran::Vec<LFortran::AST::kind_item_t> kind,
+        char *derived_type_name,
         const LFortran::Vec<ast_t*> &attrs)
 {
     decl_t *s = al.allocate<decl_t>(x.size());
@@ -162,6 +163,7 @@ static inline decl_t* DECL(Allocator &al, const LFortran::Vec<decl_t> &x,
         s[i].m_kind = kind.p;
         s[i].m_attrs = ATTRS(attrs);
         s[i].n_attrs = attrs.size();
+        s[i].m_derived_type_name = derived_type_name;
     }
     return s;
 }
@@ -272,12 +274,28 @@ static inline LFortran::VarType* VARTYPE0_(Allocator &al,
     LFortran::VarType *r = al.allocate<LFortran::VarType>(1);
     r->loc = l;
     r->string = s;
+    r->identifier = nullptr;
+    r->kind = kind;
+    return r;
+}
+
+static inline LFortran::VarType* VARTYPE4_(Allocator &al,
+        const LFortran::Str &s, const LFortran::AST::ast_t *id, Location &l)
+{
+    LFortran::VarType *r = al.allocate<LFortran::VarType>(1);
+    r->loc = l;
+    r->string = s;
+    char *derived_type_name = name2char(id);
+    r->identifier = derived_type_name;
+    LFortran::Vec<LFortran::AST::kind_item_t> kind;
+    kind.reserve(al, 1);
     r->kind = kind;
     return r;
 }
 
 #define VARTYPE0(s, l) VARTYPE0_(p.m_a, s, empty(), l)
 #define VARTYPE3(s, k, l) VARTYPE0_(p.m_a, s, k, l)
+#define VARTYPE4(s, k, l) VARTYPE4_(p.m_a, s, k, l)
 
 static inline LFortran::FnArg* DIM1(Allocator &al, Location &l,
     expr_t *a, expr_t *b, expr_t *c)
@@ -659,7 +677,7 @@ char *fn_type2return_type(const LFortran::Vec<ast_t*> &v) {
 #define REDUCE_OP_TYPE_ID(id, l) convert_id_to_reduce_type(l, id)
 
 #define VAR_DECL(type, attrs, syms, l) make_Declaration_t(p.m_a, l, \
-        DECL(p.m_a, syms, type->string.c_str(p.m_a), type->kind, attrs), syms.size())
+        DECL(p.m_a, syms, type->string.c_str(p.m_a), type->kind, type->identifier, attrs), syms.size())
 #define VAR_DECL2(attr, syms, l) make_Declaration_t(p.m_a, l, \
         DECL2(p.m_a, syms, nullptr, attr), syms.size())
 #define VAR_DECL3(attr, l) make_Declaration_t(p.m_a, l, \

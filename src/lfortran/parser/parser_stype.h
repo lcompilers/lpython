@@ -13,6 +13,7 @@ struct VarType {
     Location loc;
     Str string;
     Vec<AST::kind_item_t> kind;
+    char *identifier;
 };
 
 struct FnArg {
