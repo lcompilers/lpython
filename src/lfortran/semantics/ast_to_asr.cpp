@@ -457,6 +457,22 @@ public:
         }
     }
 
+    void visit_DerivedType(const AST::DerivedType_t &x) {
+        SymbolTable *parent_scope = current_scope;
+        current_scope = al.make_new<SymbolTable>(parent_scope);
+
+        // TODO: loop over items in derived type, put them into current_scope
+
+        std::string sym_name = x.m_name;
+        if (current_scope->scope.find(sym_name) != current_scope->scope.end()) {
+            throw SemanticError("DerivedType already defined", x.base.base.loc);
+        }
+        asr = ASR::make_DerivedType_t(al, x.base.base.loc, current_scope, x.m_name);
+        parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
+
+        current_scope = parent_scope;
+    }
+
     void visit_Interface(const AST::Interface_t &x) {
         if (AST::is_a<AST::InterfaceHeader2_t>(*x.m_header)) {
             char *generic_name = AST::down_cast<AST::InterfaceHeader2_t>(x.m_header)->m_name;
@@ -823,6 +839,14 @@ public:
                 type = TYPE(ASR::make_Complex_t(al, x.loc, 4, dims.p, dims.size()));
             } else if (sym_type == "character") {
                 type = TYPE(ASR::make_Character_t(al, x.loc, 4, dims.p, dims.size()));
+            } else if (sym_type == "type") {
+                LFORTRAN_ASSERT(x.m_derived_type_name);
+                std::string derived_type_name = x.m_derived_type_name;
+                ASR::symbol_t *v = current_scope->resolve_symbol(derived_type_name);
+                if (!v) {
+                    throw SemanticError("Derived type '" + derived_type_name + "' not declared", x.loc);
+                }
+                type = TYPE(ASR::make_Derived_t(al, x.loc, v, dims.p, dims.size()));
             } else {
                 throw SemanticError("Unsupported type: " + sym_type, x.loc);
             }
