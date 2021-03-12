@@ -160,7 +160,11 @@ static inline decl_t* DECL(Allocator &al, const LFortran::Vec<decl_t> &x,
         s[i] = x.p[i];
         s[i].m_sym_type = type;
         s[i].n_kind = kind.size();
-        s[i].m_kind = kind.p;
+        if (kind.size() == 0) {
+                s[i].m_kind = nullptr;
+        } else {
+                s[i].m_kind = kind.p;
+        }
         s[i].m_attrs = ATTRS(attrs);
         s[i].n_attrs = attrs.size();
         s[i].m_derived_type_name = derived_type_name;
