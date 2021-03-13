@@ -695,3 +695,8 @@ asr = true
 [[test]]
 filename = "modules_05.f90"
 asr = true
+
+[[test]]
+filename = "string1.f90"
+ast = true
+asr = true
