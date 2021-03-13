@@ -460,9 +460,9 @@ public:
     void visit_DerivedType(const AST::DerivedType_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
-
-        // TODO: loop over items in derived type, put them into current_scope
-
+        for (size_t i=0; i<x.n_items; i++) {
+            this->visit_unit_decl2(*x.m_items[i]);
+        }
         std::string sym_name = x.m_name;
         if (current_scope->scope.find(sym_name) != current_scope->scope.end()) {
             throw SemanticError("DerivedType already defined", x.base.base.loc);
