@@ -217,6 +217,32 @@ public:
         return builder->CreateLoad(presult);
     }
 
+    // This function is called as:
+    // float lfortran_cos(float *x)
+    // Internally it get transformed into a runtime call:
+    // void _lfortran_cos(float x, float *result)
+    llvm::Value* lfortran_cos(llvm::Value* pa)
+    {
+        llvm::Function *fn = module->getFunction("_lfortran_cos");
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {
+                        llvm::Type::getFloatTy(context),
+                        llvm::Type::getFloatPtrTy(context)
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, "_lfortran_cos", *module);
+        }
+
+        llvm::AllocaInst *presult = builder->CreateAlloca(
+            llvm::Type::getFloatTy(context),
+            nullptr);
+        llvm::Value *a = builder->CreateLoad(pa);
+        std::vector<llvm::Value*> args = {a, presult};
+        builder->CreateCall(fn, args);
+        return builder->CreateLoad(presult);
+    }
+
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         module = std::make_unique<llvm::Module>("LFortran", context);
         module->setDataLayout("");
@@ -1262,6 +1288,11 @@ public:
                     std::vector<llvm::Value *> args = convert_call_args(x);
                     LFORTRAN_ASSERT(args.size() == 1);
                     tmp = lfortran_sin(args[0]);
+                    return;
+                } else if (std::string(s->m_name) == "cos"){
+                    std::vector<llvm::Value *> args = convert_call_args(x);
+                    LFORTRAN_ASSERT(args.size() == 1);
+                    tmp = lfortran_cos(args[0]);
                     return;
                 } else {
                     throw CodeGenError("Intrinsic not implemented yet.");

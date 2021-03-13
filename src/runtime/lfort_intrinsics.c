@@ -127,3 +127,38 @@ double_complex_t _lfortran_zsin(double_complex_t x)
     return sin(x);
 #endif
 }
+
+void _lfortran_cos(float x, float *result)
+{
+    *result = cos(x);
+}
+
+float _lfortran_scos(float x)
+{
+    return cos(x);
+}
+
+double _lfortran_dcos(double x)
+{
+    return cos(x);
+}
+
+float_complex_t _lfortran_ccos(float_complex_t x)
+{
+#ifdef _WIN32
+    float_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return cos(x);
+#endif
+}
+
+double_complex_t _lfortran_zcos(double_complex_t x)
+{
+#ifdef _WIN32
+    double_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return cos(x);
+#endif
+}

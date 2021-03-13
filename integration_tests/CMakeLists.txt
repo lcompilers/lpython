@@ -139,6 +139,7 @@ RUN(NAME reserved_03 LABELS gfortran)
 
 RUN(NAME intrinsics_01 LABELS gfortran)
 RUN(NAME intrinsics_02 LABELS gfortran llvm)
+RUN(NAME intrinsics_03 LABELS gfortran llvm)
 
 RUN(NAME parameter_01 LABELS gfortran)
 RUN(NAME parameter_02 LABELS gfortran)

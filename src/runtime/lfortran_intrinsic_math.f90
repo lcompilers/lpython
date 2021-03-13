@@ -11,6 +11,10 @@ interface sin
     module procedure ssin, dsin, csin, zsin
 end interface
 
+interface cos
+    module procedure scos, dcos, ccos, zcos
+end interface
+
 interface sqrt
     module procedure ssqrt, dsqrt
 end interface
@@ -45,6 +49,52 @@ end function
 elemental real(dp) function zabs(x) result(r)
 complex(dp), intent(in) :: x
 r = sqrt(real(x,dp)**2 + aimag(x)**2)
+end function
+
+!-------------------------------------------------------------------------------
+
+elemental real(sp) function scos(x) result(r)
+real(sp), intent(in) :: x
+interface
+    pure real(c_float) function c_scos(x) bind(c, name="_lfortran_scos")
+    import :: c_float
+    real(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_scos(x)
+end function
+
+elemental real(dp) function dcos(x) result(r)
+real(dp), intent(in) :: x
+interface
+    pure real(c_double) function c_dcos(x) bind(c, name="_lfortran_dcos")
+    import :: c_double
+    real(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_dcos(x)
+end function
+
+elemental complex(sp) function ccos(x) result(r)
+complex(sp), intent(in) :: x
+interface
+    pure complex(c_float) function c_ccos(x) bind(c, name="_lfortran_ccos")
+    import :: c_float
+    complex(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_ccos(x)
+end function
+
+elemental complex(dp) function zcos(x) result(r)
+complex(dp), intent(in) :: x
+interface
+    pure complex(c_double) function c_zcos(x) bind(c, name="_lfortran_zcos")
+    import :: c_double
+    complex(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_zcos(x)
 end function
 
 !-------------------------------------------------------------------------------
