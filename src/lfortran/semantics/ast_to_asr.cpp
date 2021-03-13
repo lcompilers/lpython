@@ -927,17 +927,19 @@ public:
             case AST::case_stmtType::CaseStmt: {
                 AST::CaseStmt_t* Case_Stmt = (AST::CaseStmt_t*)(&(x.base));
                 Vec<ASR::expr_t*> a_test_vec;
-                for( int i = 0; i < Case_Stmt->n_test; i++ ) {
+                a_test_vec.reserve(al, Case_Stmt->n_test);
+                for( uint i = 0; i < Case_Stmt->n_test; i++ ) {
                     this->visit_expr(*(Case_Stmt->m_test[i]));
                     a_test_vec.push_back(al, EXPR(tmp));
                 }
                 Vec<ASR::stmt_t*> case_body_vec;
-                for( int i = 0; i < Case_Stmt->n_body; i++ ) {
+                case_body_vec.reserve(al, Case_Stmt->n_body);
+                for( uint i = 0; i < Case_Stmt->n_body; i++ ) {
                     this->visit_stmt(*(Case_Stmt->m_body[i]));
                     case_body_vec.push_back(al, STMT(tmp));
                 }
-                ASR::make_CaseStmt_t(al, x.base.base.loc, a_test_vec.p, a_test_vec.size(), 
-                                     case_body_vec, case_body_vec.size());
+                tmp = ASR::make_CaseStmt_t(al, x.base.loc, a_test_vec.p, a_test_vec.size(), 
+                                     case_body_vec.p, case_body_vec.size());
             } 
             case AST::case_stmtType::CaseStmt_Range : {
                 break; // Comming Soon
@@ -952,16 +954,18 @@ public:
         this->visit_expr(*(x.m_test));
         ASR::expr_t* a_test = EXPR(tmp);
         Vec<ASR::case_stmt_t*> a_body_vec;
-        for( int i = 0; i < x.n_body; i++ ) {
+        a_body_vec.reserve(al, x.n_body);
+        for( uint i = 0; i < x.n_body; i++ ) {
             this->visit_case_stmt(*(x.m_body[i]));
             a_body_vec.push_back(al, CASE_STMT(tmp));
         }
         Vec<ASR::stmt_t*> def_body;
-        for( int i = 0; i < x.n_default; i++ ) {
+        def_body.reserve(al, x.n_default);
+        for( uint i = 0; i < x.n_default; i++ ) {
             this->visit_stmt(*(x.m_default[i]));
             def_body.push_back(al, STMT(tmp));
         }
-        ASR::make_Select_t(al, x.base.base.loc, a_test, a_body_vec.p, 
+        tmp = ASR::make_Select_t(al, x.base.base.loc, a_test, a_body_vec.p, 
                            a_body_vec.size(), def_body.p, def_body.size());
     }
 

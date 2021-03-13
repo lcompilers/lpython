@@ -135,6 +135,6 @@ array_index = (expr? left, expr? right, expr? step)
 
 do_loop_head = (expr v, expr start, expr end, expr? increment)
 
-case_stmt = CaseStmt(expr* test, stmt* body) | CaseStmt_Range(expr start, expr end, stmt* body)
+case_stmt = CaseStmt(expr* test, stmt* body) | CaseStmt_Range(expr? start, expr? end, stmt* body)
 
 }
