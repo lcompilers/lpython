@@ -93,6 +93,8 @@ void _lfortran_complex_pow(struct _lfortran_complex* a,
 
 }
 
+// sin -------------------------------------------------------------------------
+
 void _lfortran_sin(float x, float *result)
 {
     *result = sin(x);
@@ -128,6 +130,8 @@ double_complex_t _lfortran_zsin(double_complex_t x)
 #endif
 }
 
+// cos -------------------------------------------------------------------------
+
 void _lfortran_cos(float x, float *result)
 {
     *result = cos(x);
@@ -160,5 +164,42 @@ double_complex_t _lfortran_zcos(double_complex_t x)
     return r; // TODO: implement in MSVC
 #else
     return cos(x);
+#endif
+}
+
+// tan -------------------------------------------------------------------------
+
+void _lfortran_tan(float x, float *result)
+{
+    *result = tan(x);
+}
+
+float _lfortran_stan(float x)
+{
+    return tan(x);
+}
+
+double _lfortran_dtan(double x)
+{
+    return tan(x);
+}
+
+float_complex_t _lfortran_ctan(float_complex_t x)
+{
+#ifdef _WIN32
+    float_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return tan(x);
+#endif
+}
+
+double_complex_t _lfortran_ztan(double_complex_t x)
+{
+#ifdef _WIN32
+    double_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return tan(x);
 #endif
 }

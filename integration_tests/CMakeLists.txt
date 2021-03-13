@@ -137,9 +137,10 @@ RUN(NAME reserved_01 LABELS gfortran)
 RUN(NAME reserved_02 LABELS gfortran llvm)
 RUN(NAME reserved_03 LABELS gfortran)
 
-RUN(NAME intrinsics_01 LABELS gfortran)
-RUN(NAME intrinsics_02 LABELS gfortran llvm)
-RUN(NAME intrinsics_03 LABELS gfortran llvm)
+RUN(NAME intrinsics_01 LABELS gfortran) # sqrt, abs, log
+RUN(NAME intrinsics_02 LABELS gfortran llvm) # sin
+RUN(NAME intrinsics_03 LABELS gfortran llvm) # cos
+RUN(NAME intrinsics_04 LABELS gfortran llvm) # tan
 
 RUN(NAME parameter_01 LABELS gfortran)
 RUN(NAME parameter_02 LABELS gfortran)
