@@ -440,6 +440,12 @@ public:
         current_scope = parent_scope;
     }
 
+    void visit_Str(const AST::Str_t &x) {
+        ASR::ttype_t *type = TYPE(ASR::make_Character_t(al, x.base.base.loc,
+                8, nullptr, 0));
+        asr = ASR::make_Str_t(al, x.base.base.loc, x.m_s, type);
+    }
+
     void visit_Complex(const AST::Complex_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Complex_t(al, x.base.base.loc,
                 4, nullptr, 0));
