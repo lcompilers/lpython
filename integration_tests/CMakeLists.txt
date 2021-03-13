@@ -141,6 +141,7 @@ RUN(NAME intrinsics_01 LABELS gfortran) # sqrt, abs, log
 RUN(NAME intrinsics_02 LABELS gfortran llvm) # sin
 RUN(NAME intrinsics_03 LABELS gfortran llvm) # cos
 RUN(NAME intrinsics_04 LABELS gfortran llvm) # tan
+RUN(NAME intrinsics_05 LABELS gfortran llvm) # hyperbolics
 
 RUN(NAME parameter_01 LABELS gfortran)
 RUN(NAME parameter_02 LABELS gfortran)

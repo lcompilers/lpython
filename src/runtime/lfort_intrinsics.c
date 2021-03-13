@@ -203,3 +203,114 @@ double_complex_t _lfortran_ztan(double_complex_t x)
     return tan(x);
 #endif
 }
+
+// sinh ------------------------------------------------------------------------
+
+void _lfortran_sinh(float x, float *result)
+{
+    *result = sinh(x);
+}
+
+float _lfortran_ssinh(float x)
+{
+    return sinh(x);
+}
+
+double _lfortran_dsinh(double x)
+{
+    return sinh(x);
+}
+
+float_complex_t _lfortran_csinh(float_complex_t x)
+{
+#ifdef _WIN32
+    float_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return sinh(x);
+#endif
+}
+
+double_complex_t _lfortran_zsinh(double_complex_t x)
+{
+#ifdef _WIN32
+    double_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return sinh(x);
+#endif
+}
+
+// cosh -------------------------------------------------------------------------
+
+void _lfortran_cosh(float x, float *result)
+{
+    *result = cosh(x);
+}
+
+float _lfortran_scosh(float x)
+{
+    return cosh(x);
+}
+
+double _lfortran_dcosh(double x)
+{
+    return cosh(x);
+}
+
+float_complex_t _lfortran_ccosh(float_complex_t x)
+{
+#ifdef _WIN32
+    float_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return cosh(x);
+#endif
+}
+
+double_complex_t _lfortran_zcosh(double_complex_t x)
+{
+#ifdef _WIN32
+    double_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return cosh(x);
+#endif
+}
+
+// tanh -------------------------------------------------------------------------
+
+void _lfortran_tanh(float x, float *result)
+{
+    *result = tanh(x);
+}
+
+float _lfortran_stanh(float x)
+{
+    return tanh(x);
+}
+
+double _lfortran_dtanh(double x)
+{
+    return tanh(x);
+}
+
+float_complex_t _lfortran_ctanh(float_complex_t x)
+{
+#ifdef _WIN32
+    float_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return tanh(x);
+#endif
+}
+
+double_complex_t _lfortran_ztanh(double_complex_t x)
+{
+#ifdef _WIN32
+    double_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return tanh(x);
+#endif
+}

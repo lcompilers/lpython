@@ -689,6 +689,12 @@ filename = "../integration_tests/intrinsics_04.f90"
 asr = true
 llvm = true
 
+# hyperbolics
+[[test]]
+filename = "../integration_tests/intrinsics_05.f90"
+asr = true
+llvm = true
+
 [[test]]
 filename = "../src/runtime/lfortran_intrinsic_math.f90"
 ast = true
