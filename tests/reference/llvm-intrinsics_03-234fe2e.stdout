@@ -19,7 +19,17 @@ define i64 @main() {
   ret i64 0
 }
 
+declare void @_lfortran_sin(float, float*)
+
 declare void @_lfortran_cos(float, float*)
+
+declare void @_lfortran_tan(float, float*)
+
+declare void @_lfortran_sinh(float, float*)
+
+declare void @_lfortran_cosh(float, float*)
+
+declare void @_lfortran_tanh(float, float*)
 
 declare void @_lfortran_printf(i8*, ...)
 

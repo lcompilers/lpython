@@ -1300,6 +1300,8 @@ public:
     }
 
     void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
+        std::vector<std::string> all_intrinsics = {"sin", "cos", "tan",
+                                                 "sinh", "cosh", "tanh"};
         SymbolTable *scope = current_scope;
         std::string var_name = x.m_func;
         ASR::symbol_t *v = scope->resolve_symbol(var_name);
@@ -1361,303 +1363,65 @@ public:
                 std::string sym_name = fn_name;
                 unit->m_global_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(fn);
                 v = ASR::down_cast<ASR::symbol_t>(fn);
-            } else if (var_name == "sin") {
-                // Intrinsic function sin(x), add it to the global scope
-                ASR::TranslationUnit_t *unit = (ASR::TranslationUnit_t*)asr;
-                const char* fn_name_orig = "sin";
-                char *fn_name = (char*)fn_name_orig;
-                SymbolTable *fn_scope = al.make_new<SymbolTable>(unit->m_global_scope);
-                ASR::ttype_t *type;
-
-                // Arguments
-                Vec<ASR::expr_t*> args;
-                args.reserve(al, 1);
-                type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
-                const char* arg0_s_orig = "x";
-                char *arg0_s = (char*)arg0_s_orig;
-                ASR::asr_t *arg0 = ASR::make_Variable_t(al, x.base.base.loc,
-                    fn_scope, arg0_s, intent_in, nullptr,
-                    ASR::storage_typeType::Default, type, ASR::Public);
-                ASR::symbol_t *var = ASR::down_cast<ASR::symbol_t>(arg0);
-                fn_scope->scope[std::string(arg0_s)] = var;
-                args.push_back(al, EXPR(ASR::make_Var_t(al, x.base.base.loc,
-                    var)));
-
-                // Return value
-                type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
-                ASR::asr_t *return_var = ASR::make_Variable_t(al,
-                    x.base.base.loc, fn_scope, fn_name, intent_return_var,
-                    nullptr, ASR::storage_typeType::Default, type, ASR::Public);
-                fn_scope->scope[std::string(fn_name)] = ASR::down_cast<ASR::symbol_t>(return_var);
-                ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
-                    ASR::down_cast<ASR::symbol_t>(return_var));
-
-                ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
-                external->m_type = ASR::proc_external_typeType::Intrinsic;
-                external->m_module_proc = nullptr;
-
-                ASR::asr_t *fn = ASR::make_Function_t(
-                    al, x.base.base.loc,
-                    /* a_symtab */ fn_scope,
-                    /* a_name */ fn_name,
-                    /* a_args */ args.p,
-                    /* n_args */ args.n,
-                    /* a_body */ nullptr,
-                    /* n_body */ 0,
-                    /* a_bind */ nullptr,
-                    /* a_return_var */ EXPR(return_var_ref),
-                    /* a_external */ external, ASR::Public);
-                std::string sym_name = fn_name;
-                unit->m_global_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(fn);
-                v = ASR::down_cast<ASR::symbol_t>(fn);
-            } else if (var_name == "cos") {
-                // Intrinsic function cos(x), add it to the global scope
-                ASR::TranslationUnit_t *unit = (ASR::TranslationUnit_t*)asr;
-                const char* fn_name_orig = "cos";
-                char *fn_name = (char*)fn_name_orig;
-                SymbolTable *fn_scope = al.make_new<SymbolTable>(unit->m_global_scope);
-                ASR::ttype_t *type;
-
-                // Arguments
-                Vec<ASR::expr_t*> args;
-                args.reserve(al, 1);
-                type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
-                const char* arg0_s_orig = "x";
-                char *arg0_s = (char*)arg0_s_orig;
-                ASR::asr_t *arg0 = ASR::make_Variable_t(al, x.base.base.loc,
-                    fn_scope, arg0_s, intent_in, nullptr,
-                    ASR::storage_typeType::Default, type, ASR::Public);
-                ASR::symbol_t *var = ASR::down_cast<ASR::symbol_t>(arg0);
-                fn_scope->scope[std::string(arg0_s)] = var;
-                args.push_back(al, EXPR(ASR::make_Var_t(al, x.base.base.loc,
-                    var)));
-
-                // Return value
-                type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
-                ASR::asr_t *return_var = ASR::make_Variable_t(al,
-                    x.base.base.loc, fn_scope, fn_name, intent_return_var,
-                    nullptr, ASR::storage_typeType::Default, type, ASR::Public);
-                fn_scope->scope[std::string(fn_name)] = ASR::down_cast<ASR::symbol_t>(return_var);
-                ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
-                    ASR::down_cast<ASR::symbol_t>(return_var));
-
-                ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
-                external->m_type = ASR::proc_external_typeType::Intrinsic;
-                external->m_module_proc = nullptr;
-
-                ASR::asr_t *fn = ASR::make_Function_t(
-                    al, x.base.base.loc,
-                    /* a_symtab */ fn_scope,
-                    /* a_name */ fn_name,
-                    /* a_args */ args.p,
-                    /* n_args */ args.n,
-                    /* a_body */ nullptr,
-                    /* n_body */ 0,
-                    /* a_bind */ nullptr,
-                    /* a_return_var */ EXPR(return_var_ref),
-                    /* a_external */ external, ASR::Public);
-                std::string sym_name = fn_name;
-                unit->m_global_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(fn);
-                v = ASR::down_cast<ASR::symbol_t>(fn);
-            } else if (var_name == "tan") {
-                // Intrinsic function tan(x), add it to the global scope
-                ASR::TranslationUnit_t *unit = (ASR::TranslationUnit_t*)asr;
-                const char* fn_name_orig = "tan";
-                char *fn_name = (char*)fn_name_orig;
-                SymbolTable *fn_scope = al.make_new<SymbolTable>(unit->m_global_scope);
-                ASR::ttype_t *type;
-
-                // Arguments
-                Vec<ASR::expr_t*> args;
-                args.reserve(al, 1);
-                type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
-                const char* arg0_s_orig = "x";
-                char *arg0_s = (char*)arg0_s_orig;
-                ASR::asr_t *arg0 = ASR::make_Variable_t(al, x.base.base.loc,
-                    fn_scope, arg0_s, intent_in, nullptr,
-                    ASR::storage_typeType::Default, type, ASR::Public);
-                ASR::symbol_t *var = ASR::down_cast<ASR::symbol_t>(arg0);
-                fn_scope->scope[std::string(arg0_s)] = var;
-                args.push_back(al, EXPR(ASR::make_Var_t(al, x.base.base.loc,
-                    var)));
-
-                // Return value
-                type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
-                ASR::asr_t *return_var = ASR::make_Variable_t(al,
-                    x.base.base.loc, fn_scope, fn_name, intent_return_var,
-                    nullptr, ASR::storage_typeType::Default, type, ASR::Public);
-                fn_scope->scope[std::string(fn_name)] = ASR::down_cast<ASR::symbol_t>(return_var);
-                ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
-                    ASR::down_cast<ASR::symbol_t>(return_var));
-
-                ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
-                external->m_type = ASR::proc_external_typeType::Intrinsic;
-                external->m_module_proc = nullptr;
-
-                ASR::asr_t *fn = ASR::make_Function_t(
-                    al, x.base.base.loc,
-                    /* a_symtab */ fn_scope,
-                    /* a_name */ fn_name,
-                    /* a_args */ args.p,
-                    /* n_args */ args.n,
-                    /* a_body */ nullptr,
-                    /* n_body */ 0,
-                    /* a_bind */ nullptr,
-                    /* a_return_var */ EXPR(return_var_ref),
-                    /* a_external */ external, ASR::Public);
-                std::string sym_name = fn_name;
-                unit->m_global_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(fn);
-                v = ASR::down_cast<ASR::symbol_t>(fn);
-            } else if (var_name == "sinh") {
-                // Intrinsic function sinh(x), add it to the global scope
-                ASR::TranslationUnit_t *unit = (ASR::TranslationUnit_t*)asr;
-                const char* fn_name_orig = "sinh";
-                char *fn_name = (char*)fn_name_orig;
-                SymbolTable *fn_scope = al.make_new<SymbolTable>(unit->m_global_scope);
-                ASR::ttype_t *type;
-
-                // Arguments
-                Vec<ASR::expr_t*> args;
-                args.reserve(al, 1);
-                type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
-                const char* arg0_s_orig = "x";
-                char *arg0_s = (char*)arg0_s_orig;
-                ASR::asr_t *arg0 = ASR::make_Variable_t(al, x.base.base.loc,
-                    fn_scope, arg0_s, intent_in, nullptr,
-                    ASR::storage_typeType::Default, type, ASR::Public);
-                ASR::symbol_t *var = ASR::down_cast<ASR::symbol_t>(arg0);
-                fn_scope->scope[std::string(arg0_s)] = var;
-                args.push_back(al, EXPR(ASR::make_Var_t(al, x.base.base.loc,
-                    var)));
-
-                // Return value
-                type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
-                ASR::asr_t *return_var = ASR::make_Variable_t(al,
-                    x.base.base.loc, fn_scope, fn_name, intent_return_var,
-                    nullptr, ASR::storage_typeType::Default, type, ASR::Public);
-                fn_scope->scope[std::string(fn_name)] = ASR::down_cast<ASR::symbol_t>(return_var);
-                ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
-                    ASR::down_cast<ASR::symbol_t>(return_var));
-
-                ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
-                external->m_type = ASR::proc_external_typeType::Intrinsic;
-                external->m_module_proc = nullptr;
-
-                ASR::asr_t *fn = ASR::make_Function_t(
-                    al, x.base.base.loc,
-                    /* a_symtab */ fn_scope,
-                    /* a_name */ fn_name,
-                    /* a_args */ args.p,
-                    /* n_args */ args.n,
-                    /* a_body */ nullptr,
-                    /* n_body */ 0,
-                    /* a_bind */ nullptr,
-                    /* a_return_var */ EXPR(return_var_ref),
-                    /* a_external */ external, ASR::Public);
-                std::string sym_name = fn_name;
-                unit->m_global_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(fn);
-                v = ASR::down_cast<ASR::symbol_t>(fn);
-            } else if (var_name == "cosh") {
-                // Intrinsic function cosh(x), add it to the global scope
-                ASR::TranslationUnit_t *unit = (ASR::TranslationUnit_t*)asr;
-                const char* fn_name_orig = "cosh";
-                char *fn_name = (char*)fn_name_orig;
-                SymbolTable *fn_scope = al.make_new<SymbolTable>(unit->m_global_scope);
-                ASR::ttype_t *type;
-
-                // Arguments
-                Vec<ASR::expr_t*> args;
-                args.reserve(al, 1);
-                type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
-                const char* arg0_s_orig = "x";
-                char *arg0_s = (char*)arg0_s_orig;
-                ASR::asr_t *arg0 = ASR::make_Variable_t(al, x.base.base.loc,
-                    fn_scope, arg0_s, intent_in, nullptr,
-                    ASR::storage_typeType::Default, type, ASR::Public);
-                ASR::symbol_t *var = ASR::down_cast<ASR::symbol_t>(arg0);
-                fn_scope->scope[std::string(arg0_s)] = var;
-                args.push_back(al, EXPR(ASR::make_Var_t(al, x.base.base.loc,
-                    var)));
-
-                // Return value
-                type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
-                ASR::asr_t *return_var = ASR::make_Variable_t(al,
-                    x.base.base.loc, fn_scope, fn_name, intent_return_var,
-                    nullptr, ASR::storage_typeType::Default, type, ASR::Public);
-                fn_scope->scope[std::string(fn_name)] = ASR::down_cast<ASR::symbol_t>(return_var);
-                ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
-                    ASR::down_cast<ASR::symbol_t>(return_var));
-
-                ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
-                external->m_type = ASR::proc_external_typeType::Intrinsic;
-                external->m_module_proc = nullptr;
-
-                ASR::asr_t *fn = ASR::make_Function_t(
-                    al, x.base.base.loc,
-                    /* a_symtab */ fn_scope,
-                    /* a_name */ fn_name,
-                    /* a_args */ args.p,
-                    /* n_args */ args.n,
-                    /* a_body */ nullptr,
-                    /* n_body */ 0,
-                    /* a_bind */ nullptr,
-                    /* a_return_var */ EXPR(return_var_ref),
-                    /* a_external */ external, ASR::Public);
-                std::string sym_name = fn_name;
-                unit->m_global_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(fn);
-                v = ASR::down_cast<ASR::symbol_t>(fn);
-            } else if (var_name == "tanh") {
-                // Intrinsic function tanh(x), add it to the global scope
-                ASR::TranslationUnit_t *unit = (ASR::TranslationUnit_t*)asr;
-                const char* fn_name_orig = "tanh";
-                char *fn_name = (char*)fn_name_orig;
-                SymbolTable *fn_scope = al.make_new<SymbolTable>(unit->m_global_scope);
-                ASR::ttype_t *type;
-
-                // Arguments
-                Vec<ASR::expr_t*> args;
-                args.reserve(al, 1);
-                type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
-                const char* arg0_s_orig = "x";
-                char *arg0_s = (char*)arg0_s_orig;
-                ASR::asr_t *arg0 = ASR::make_Variable_t(al, x.base.base.loc,
-                    fn_scope, arg0_s, intent_in, nullptr,
-                    ASR::storage_typeType::Default, type, ASR::Public);
-                ASR::symbol_t *var = ASR::down_cast<ASR::symbol_t>(arg0);
-                fn_scope->scope[std::string(arg0_s)] = var;
-                args.push_back(al, EXPR(ASR::make_Var_t(al, x.base.base.loc,
-                    var)));
-
-                // Return value
-                type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
-                ASR::asr_t *return_var = ASR::make_Variable_t(al,
-                    x.base.base.loc, fn_scope, fn_name, intent_return_var,
-                    nullptr, ASR::storage_typeType::Default, type, ASR::Public);
-                fn_scope->scope[std::string(fn_name)] = ASR::down_cast<ASR::symbol_t>(return_var);
-                ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
-                    ASR::down_cast<ASR::symbol_t>(return_var));
-
-                ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
-                external->m_type = ASR::proc_external_typeType::Intrinsic;
-                external->m_module_proc = nullptr;
-
-                ASR::asr_t *fn = ASR::make_Function_t(
-                    al, x.base.base.loc,
-                    /* a_symtab */ fn_scope,
-                    /* a_name */ fn_name,
-                    /* a_args */ args.p,
-                    /* n_args */ args.n,
-                    /* a_body */ nullptr,
-                    /* n_body */ 0,
-                    /* a_bind */ nullptr,
-                    /* a_return_var */ EXPR(return_var_ref),
-                    /* a_external */ external, ASR::Public);
-                std::string sym_name = fn_name;
-                unit->m_global_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(fn);
-                v = ASR::down_cast<ASR::symbol_t>(fn);
             } else {
-                throw SemanticError("Function or array '" + var_name
-                    + "' not declared", x.base.base.loc);
+              auto find_intrinsic = std::find(all_intrinsics.begin(),
+                                              all_intrinsics.end(), var_name);
+              if (find_intrinsic == all_intrinsics.end()) {
+                throw SemanticError("Function or array '" + var_name +
+                                        "' not declared",
+                                    x.base.base.loc);
+              } else {
+                int intrinsic_index =
+                    std::distance(all_intrinsics.begin(), find_intrinsic);
+                // Intrinsic function, add it to the global scope
+                ASR::TranslationUnit_t *unit = (ASR::TranslationUnit_t *)asr;
+                char *fn_name = (char *)all_intrinsics[intrinsic_index].c_str();
+                SymbolTable *fn_scope =
+                    al.make_new<SymbolTable>(unit->m_global_scope);
+                ASR::ttype_t *type;
+
+                // Arguments
+                Vec<ASR::expr_t*> args;
+                args.reserve(al, 1);
+                type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
+                const char* arg0_s_orig = "x";
+                char *arg0_s = (char*)arg0_s_orig;
+                ASR::asr_t *arg0 = ASR::make_Variable_t(al, x.base.base.loc,
+                    fn_scope, arg0_s, intent_in, nullptr,
+                    ASR::storage_typeType::Default, type, ASR::Public);
+                ASR::symbol_t *var = ASR::down_cast<ASR::symbol_t>(arg0);
+                fn_scope->scope[std::string(arg0_s)] = var;
+                args.push_back(al, EXPR(ASR::make_Var_t(al, x.base.base.loc,
+                    var)));
+
+                // Return value
+                type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
+                ASR::asr_t *return_var = ASR::make_Variable_t(al,
+                    x.base.base.loc, fn_scope, fn_name, intent_return_var,
+                    nullptr, ASR::storage_typeType::Default, type, ASR::Public);
+                fn_scope->scope[std::string(fn_name)] = ASR::down_cast<ASR::symbol_t>(return_var);
+                ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
+                    ASR::down_cast<ASR::symbol_t>(return_var));
+
+                ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
+                external->m_type = ASR::proc_external_typeType::Intrinsic;
+                external->m_module_proc = nullptr;
+
+                ASR::asr_t *fn = ASR::make_Function_t(
+                    al, x.base.base.loc,
+                    /* a_symtab */ fn_scope,
+                    /* a_name */ fn_name,
+                    /* a_args */ args.p,
+                    /* n_args */ args.n,
+                    /* a_body */ nullptr,
+                    /* n_body */ 0,
+                    /* a_bind */ nullptr,
+                    /* a_return_var */ EXPR(return_var_ref),
+                    /* a_external */ external, ASR::Public);
+                std::string sym_name = fn_name;
+                unit->m_global_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(fn);
+                v = ASR::down_cast<ASR::symbol_t>(fn);
+              }
             }
         }
         switch (v->type) {
@@ -1689,7 +1453,7 @@ public:
             }
             default : throw SemanticError("Symbol '" + var_name
                     + "' is not a function or an array", x.base.base.loc);
-        }
+            }
     }
 
     void visit_Num(const AST::Num_t &x) {

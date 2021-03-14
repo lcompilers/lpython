@@ -1,5 +1,8 @@
 #include <iostream>
 #include <memory>
+#include <unordered_map>
+#include <functional>
+#include <string_view>
 
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/Analysis/Passes.h>
@@ -85,6 +88,9 @@ void exit(llvm::LLVMContext &context, llvm::Module &module,
 
 class ASRToLLVMVisitor : public ASR::BaseVisitor<ASRToLLVMVisitor>
 {
+private:
+  //!< A map from sin, cos, etc. to the corresponding functions
+  std::unordered_map<std::string, llvm::Function *> all_intrinsics;
 public:
     llvm::LLVMContext &context;
     std::unique_ptr<llvm::Module> module;
@@ -191,153 +197,19 @@ public:
         return builder->CreateLoad(pres);
     }
 
-    // This function is called as:
-    // float lfortran_sin(float *x)
-    // Internally it get transformed into a runtime call:
-    // void _lfortran_sin(float x, float *result)
-    llvm::Value* lfortran_sin(llvm::Value* pa)
+    /**
+     * @brief This function generates the
+     * @detail This is converted to
+     *
+     *     float lfortran_KEY(float *x)
+     *
+     *   Where KEY can be any of the supported intrinsics; this is then
+     *   transformed into a runtime call:
+     *
+     *     void _lfortran_KEY(float x, float *result)
+     */
+    llvm::Value* lfortran_intrinsic(llvm::Function *fn, llvm::Value* pa)
     {
-        llvm::Function *fn = module->getFunction("_lfortran_sin");
-        if (!fn) {
-            llvm::FunctionType *function_type = llvm::FunctionType::get(
-                    llvm::Type::getVoidTy(context), {
-                        llvm::Type::getFloatTy(context),
-                        llvm::Type::getFloatPtrTy(context)
-                    }, false);
-            fn = llvm::Function::Create(function_type,
-                    llvm::Function::ExternalLinkage, "_lfortran_sin", *module);
-        }
-
-        llvm::AllocaInst *presult = builder->CreateAlloca(
-            llvm::Type::getFloatTy(context),
-            nullptr);
-        llvm::Value *a = builder->CreateLoad(pa);
-        std::vector<llvm::Value*> args = {a, presult};
-        builder->CreateCall(fn, args);
-        return builder->CreateLoad(presult);
-    }
-
-    // This function is called as:
-    // float lfortran_cos(float *x)
-    // Internally it get transformed into a runtime call:
-    // void _lfortran_cos(float x, float *result)
-    llvm::Value* lfortran_cos(llvm::Value* pa)
-    {
-        llvm::Function *fn = module->getFunction("_lfortran_cos");
-        if (!fn) {
-            llvm::FunctionType *function_type = llvm::FunctionType::get(
-                    llvm::Type::getVoidTy(context), {
-                        llvm::Type::getFloatTy(context),
-                        llvm::Type::getFloatPtrTy(context)
-                    }, false);
-            fn = llvm::Function::Create(function_type,
-                    llvm::Function::ExternalLinkage, "_lfortran_cos", *module);
-        }
-
-        llvm::AllocaInst *presult = builder->CreateAlloca(
-            llvm::Type::getFloatTy(context),
-            nullptr);
-        llvm::Value *a = builder->CreateLoad(pa);
-        std::vector<llvm::Value*> args = {a, presult};
-        builder->CreateCall(fn, args);
-        return builder->CreateLoad(presult);
-    }
-
-    // This function is called as:
-    // float lfortran_tan(float *x)
-    // Internally it get transformed into a runtime call:
-    // void _lfortran_tan(float x, float *result)
-    llvm::Value* lfortran_tan(llvm::Value* pa)
-    {
-        llvm::Function *fn = module->getFunction("_lfortran_tan");
-        if (!fn) {
-            llvm::FunctionType *function_type = llvm::FunctionType::get(
-                    llvm::Type::getVoidTy(context), {
-                        llvm::Type::getFloatTy(context),
-                        llvm::Type::getFloatPtrTy(context)
-                    }, false);
-            fn = llvm::Function::Create(function_type,
-                    llvm::Function::ExternalLinkage, "_lfortran_tan", *module);
-        }
-
-        llvm::AllocaInst *presult = builder->CreateAlloca(
-            llvm::Type::getFloatTy(context),
-            nullptr);
-        llvm::Value *a = builder->CreateLoad(pa);
-        std::vector<llvm::Value*> args = {a, presult};
-        builder->CreateCall(fn, args);
-        return builder->CreateLoad(presult);
-    }
-
-    // This function is called as:
-    // float lfortran_sinh(float *x)
-    // Internally it get transformed into a runtime call:
-    // void _lfortran_sinh(float x, float *result)
-    llvm::Value* lfortran_sinh(llvm::Value* pa)
-    {
-        llvm::Function *fn = module->getFunction("_lfortran_sinh");
-        if (!fn) {
-            llvm::FunctionType *function_type = llvm::FunctionType::get(
-                    llvm::Type::getVoidTy(context), {
-                        llvm::Type::getFloatTy(context),
-                        llvm::Type::getFloatPtrTy(context)
-                    }, false);
-            fn = llvm::Function::Create(function_type,
-                    llvm::Function::ExternalLinkage, "_lfortran_sinh", *module);
-        }
-
-        llvm::AllocaInst *presult = builder->CreateAlloca(
-            llvm::Type::getFloatTy(context),
-            nullptr);
-        llvm::Value *a = builder->CreateLoad(pa);
-        std::vector<llvm::Value*> args = {a, presult};
-        builder->CreateCall(fn, args);
-        return builder->CreateLoad(presult);
-    }
-
-    // This function is called as:
-    // float lfortran_cosh(float *x)
-    // Internally it get transformed into a runtime call:
-    // void _lfortran_cosh(float x, float *result)
-    llvm::Value* lfortran_cosh(llvm::Value* pa)
-    {
-        llvm::Function *fn = module->getFunction("_lfortran_cosh");
-        if (!fn) {
-            llvm::FunctionType *function_type = llvm::FunctionType::get(
-                    llvm::Type::getVoidTy(context), {
-                        llvm::Type::getFloatTy(context),
-                        llvm::Type::getFloatPtrTy(context)
-                    }, false);
-            fn = llvm::Function::Create(function_type,
-                    llvm::Function::ExternalLinkage, "_lfortran_cosh", *module);
-        }
-
-        llvm::AllocaInst *presult = builder->CreateAlloca(
-            llvm::Type::getFloatTy(context),
-            nullptr);
-        llvm::Value *a = builder->CreateLoad(pa);
-        std::vector<llvm::Value*> args = {a, presult};
-        builder->CreateCall(fn, args);
-        return builder->CreateLoad(presult);
-    }
-
-    // This function is called as:
-    // float lfortran_tanh(float *x)
-    // Internally it get transformed into a runtime call:
-    // void _lfortran_tanh(float x, float *result)
-    llvm::Value* lfortran_tanh(llvm::Value* pa)
-    {
-        llvm::Function *fn = module->getFunction("_lfortran_tanh");
-        if (!fn) {
-            llvm::FunctionType *function_type = llvm::FunctionType::get(
-                    llvm::Type::getVoidTy(context), {
-                        llvm::Type::getFloatTy(context),
-                        llvm::Type::getFloatPtrTy(context)
-                    }, false);
-            fn = llvm::Function::Create(function_type,
-                    llvm::Function::ExternalLinkage, "_lfortran_tanh", *module);
-        }
-
         llvm::AllocaInst *presult = builder->CreateAlloca(
             llvm::Type::getFloatTy(context),
             nullptr);
@@ -1388,40 +1260,20 @@ public:
             } else if (s->m_external->m_type == ASR::proc_external_typeType::Interactive) {
                 h = get_hash((ASR::asr_t*)s);
             } else if (s->m_external->m_type == ASR::proc_external_typeType::Intrinsic) {
-                if (std::string(s->m_name) == "sin") {
-                    std::vector<llvm::Value *> args = convert_call_args(x);
-                    LFORTRAN_ASSERT(args.size() == 1);
-                    tmp = lfortran_sin(args[0]);
-                    return;
-                } else if (std::string(s->m_name) == "cos"){
-                    std::vector<llvm::Value *> args = convert_call_args(x);
-                    LFORTRAN_ASSERT(args.size() == 1);
-                    tmp = lfortran_cos(args[0]);
-                    return;
-                } else if (std::string(s->m_name) == "tan"){
-                    std::vector<llvm::Value *> args = convert_call_args(x);
-                    LFORTRAN_ASSERT(args.size() == 1);
-                    tmp = lfortran_tan(args[0]);
-                    return;
-                } else if (std::string(s->m_name) == "sinh"){
-                    std::vector<llvm::Value *> args = convert_call_args(x);
-                    LFORTRAN_ASSERT(args.size() == 1);
-                    tmp = lfortran_sinh(args[0]);
-                    return;
-                } else if (std::string(s->m_name) == "cosh"){
-                    std::vector<llvm::Value *> args = convert_call_args(x);
-                    LFORTRAN_ASSERT(args.size() == 1);
-                    tmp = lfortran_cosh(args[0]);
-                    return;
-                } else if (std::string(s->m_name) == "tanh"){
-                    std::vector<llvm::Value *> args = convert_call_args(x);
-                    LFORTRAN_ASSERT(args.size() == 1);
-                    tmp = lfortran_tanh(args[0]);
-                    return;
-                } else {
-                    throw CodeGenError("Intrinsic not implemented yet.");
-                }
-                h = get_hash((ASR::asr_t*)s);
+              if (all_intrinsics.empty()) {
+                populate_intrinsics();
+              }
+              // We use an unordered map to get the O(n) operation time
+              auto find_intrinsic = all_intrinsics.find(s->m_name);
+              if (find_intrinsic == all_intrinsics.end()) {
+                throw CodeGenError("Intrinsic not implemented yet.");
+              } else {
+                std::vector<llvm::Value *> args = convert_call_args(x);
+                LFORTRAN_ASSERT(args.size() == 1);
+                tmp = lfortran_intrinsic(find_intrinsic->second, args[0]);
+                return;
+              }
+              h = get_hash((ASR::asr_t *)s);
             } else {
                 throw CodeGenError("External type not implemented yet.");
             }
@@ -1437,6 +1289,26 @@ public:
         tmp = builder->CreateCall(fn, args);
     }
 
+    //!< Meant to be called only once
+    void populate_intrinsics() {
+      std::vector<std::string> supported = {"sin",  "cos",  "tan",
+                                            "sinh", "cosh", "tanh"};
+      for (auto sv : supported) {
+        auto fname = "_lfortran_" + sv;
+        llvm::Function *fn = module->getFunction(fname);
+        if (!fn) {
+          llvm::FunctionType *function_type =
+              llvm::FunctionType::get(llvm::Type::getVoidTy(context),
+                                      {llvm::Type::getFloatTy(context),
+                                       llvm::Type::getFloatPtrTy(context)},
+                                      false);
+          fn = llvm::Function::Create(
+              function_type, llvm::Function::ExternalLinkage, fname, *module);
+        }
+        all_intrinsics[sv] = fn;
+      }
+      return;
+    }
 };
 
 
