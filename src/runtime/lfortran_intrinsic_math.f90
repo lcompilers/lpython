@@ -7,6 +7,10 @@ interface abs
     module procedure sabs, dabs, cabs, zabs
 end interface
 
+interface sqrt
+    module procedure ssqrt, dsqrt
+end interface
+
 interface sin
     module procedure ssin, dsin, csin, zsin
 end interface
@@ -31,8 +35,28 @@ interface tanh
     module procedure stanh, dtanh, ctanh, ztanh
 end interface
 
-interface sqrt
-    module procedure ssqrt, dsqrt
+interface asin
+    module procedure sasin, dasin, casin, zasin
+end interface
+
+interface acos
+    module procedure sacos, dacos, cacos, zacos
+end interface
+
+interface atan
+    module procedure satan, datan, catan, zatan
+end interface
+
+interface asinh
+    module procedure sasinh, dasinh, casinh, zasinh
+end interface
+
+interface acosh
+    module procedure sacosh, dacosh, cacosh, zacosh
+end interface
+
+interface atanh
+    module procedure satanh, datanh, catanh, zatanh
 end interface
 
 contains
@@ -65,6 +89,26 @@ end function
 elemental real(dp) function zabs(x) result(r)
 complex(dp), intent(in) :: x
 r = sqrt(real(x,dp)**2 + aimag(x)**2)
+end function
+
+! sqrt -------------------------------------------------------------------------
+
+elemental real(sp) function ssqrt(x) result(r)
+real(sp), intent(in) :: x
+if (x >= 0) then
+    r = x**(1._sp/2)
+else
+    error stop "sqrt(x) for x < 0 is not allowed"
+end if
+end function
+
+elemental real(dp) function dsqrt(x) result(r)
+real(dp), intent(in) :: x
+if (x >= 0) then
+    r = x**(1._dp/2)
+else
+    error stop "sqrt(x) for x < 0 is not allowed"
+end if
 end function
 
 ! sin --------------------------------------------------------------------------
@@ -343,24 +387,280 @@ end interface
 r = c_ztanh(x)
 end function
 
-! sqrt -------------------------------------------------------------------------
+! asin --------------------------------------------------------------------------
 
-elemental real(sp) function ssqrt(x) result(r)
+elemental real(sp) function sasin(x) result(r)
 real(sp), intent(in) :: x
-if (x >= 0) then
-    r = x**(1._sp/2)
-else
-    error stop "sqrt(x) for x < 0 is not allowed"
-end if
+interface
+    pure real(c_float) function c_sasin(x) bind(c, name="_lfortran_sasin")
+    import :: c_float
+    real(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_sasin(x)
 end function
 
-elemental real(dp) function dsqrt(x) result(r)
+elemental real(dp) function dasin(x) result(r)
 real(dp), intent(in) :: x
-if (x >= 0) then
-    r = x**(1._dp/2)
-else
-    error stop "sqrt(x) for x < 0 is not allowed"
-end if
+interface
+    pure real(c_double) function c_dasin(x) bind(c, name="_lfortran_dasin")
+    import :: c_double
+    real(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_dasin(x)
+end function
+
+elemental complex(sp) function casin(x) result(r)
+complex(sp), intent(in) :: x
+interface
+    pure complex(c_float) function c_casin(x) bind(c, name="_lfortran_casin")
+    import :: c_float
+    complex(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_casin(x)
+end function
+
+elemental complex(dp) function zasin(x) result(r)
+complex(dp), intent(in) :: x
+interface
+    pure complex(c_double) function c_zasin(x) bind(c, name="_lfortran_zasin")
+    import :: c_double
+    complex(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_zasin(x)
+end function
+
+! acos --------------------------------------------------------------------------
+
+elemental real(sp) function sacos(x) result(r)
+real(sp), intent(in) :: x
+interface
+    pure real(c_float) function c_sacos(x) bind(c, name="_lfortran_sacos")
+    import :: c_float
+    real(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_sacos(x)
+end function
+
+elemental real(dp) function dacos(x) result(r)
+real(dp), intent(in) :: x
+interface
+    pure real(c_double) function c_dacos(x) bind(c, name="_lfortran_dacos")
+    import :: c_double
+    real(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_dacos(x)
+end function
+
+elemental complex(sp) function cacos(x) result(r)
+complex(sp), intent(in) :: x
+interface
+    pure complex(c_float) function c_cacos(x) bind(c, name="_lfortran_cacos")
+    import :: c_float
+    complex(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_cacos(x)
+end function
+
+elemental complex(dp) function zacos(x) result(r)
+complex(dp), intent(in) :: x
+interface
+    pure complex(c_double) function c_zacos(x) bind(c, name="_lfortran_zacos")
+    import :: c_double
+    complex(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_zacos(x)
+end function
+
+! atan --------------------------------------------------------------------------
+
+elemental real(sp) function satan(x) result(r)
+real(sp), intent(in) :: x
+interface
+    pure real(c_float) function c_satan(x) bind(c, name="_lfortran_satan")
+    import :: c_float
+    real(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_satan(x)
+end function
+
+elemental real(dp) function datan(x) result(r)
+real(dp), intent(in) :: x
+interface
+    pure real(c_double) function c_datan(x) bind(c, name="_lfortran_datan")
+    import :: c_double
+    real(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_datan(x)
+end function
+
+elemental complex(sp) function catan(x) result(r)
+complex(sp), intent(in) :: x
+interface
+    pure complex(c_float) function c_catan(x) bind(c, name="_lfortran_catan")
+    import :: c_float
+    complex(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_catan(x)
+end function
+
+elemental complex(dp) function zatan(x) result(r)
+complex(dp), intent(in) :: x
+interface
+    pure complex(c_double) function c_zatan(x) bind(c, name="_lfortran_zatan")
+    import :: c_double
+    complex(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_zatan(x)
+end function
+
+! asinh --------------------------------------------------------------------------
+
+elemental real(sp) function sasinh(x) result(r)
+real(sp), intent(in) :: x
+interface
+    pure real(c_float) function c_sasinh(x) bind(c, name="_lfortran_sasinh")
+    import :: c_float
+    real(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_sasinh(x)
+end function
+
+elemental real(dp) function dasinh(x) result(r)
+real(dp), intent(in) :: x
+interface
+    pure real(c_double) function c_dasinh(x) bind(c, name="_lfortran_dasinh")
+    import :: c_double
+    real(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_dasinh(x)
+end function
+
+elemental complex(sp) function casinh(x) result(r)
+complex(sp), intent(in) :: x
+interface
+    pure complex(c_float) function c_casinh(x) bind(c, name="_lfortran_casinh")
+    import :: c_float
+    complex(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_casinh(x)
+end function
+
+elemental complex(dp) function zasinh(x) result(r)
+complex(dp), intent(in) :: x
+interface
+    pure complex(c_double) function c_zasinh(x) bind(c, name="_lfortran_zasinh")
+    import :: c_double
+    complex(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_zasinh(x)
+end function
+
+! acosh --------------------------------------------------------------------------
+
+elemental real(sp) function sacosh(x) result(r)
+real(sp), intent(in) :: x
+interface
+    pure real(c_float) function c_sacosh(x) bind(c, name="_lfortran_sacosh")
+    import :: c_float
+    real(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_sacosh(x)
+end function
+
+elemental real(dp) function dacosh(x) result(r)
+real(dp), intent(in) :: x
+interface
+    pure real(c_double) function c_dacosh(x) bind(c, name="_lfortran_dacosh")
+    import :: c_double
+    real(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_dacosh(x)
+end function
+
+elemental complex(sp) function cacosh(x) result(r)
+complex(sp), intent(in) :: x
+interface
+    pure complex(c_float) function c_cacosh(x) bind(c, name="_lfortran_cacosh")
+    import :: c_float
+    complex(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_cacosh(x)
+end function
+
+elemental complex(dp) function zacosh(x) result(r)
+complex(dp), intent(in) :: x
+interface
+    pure complex(c_double) function c_zacosh(x) bind(c, name="_lfortran_zacosh")
+    import :: c_double
+    complex(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_zacosh(x)
+end function
+
+! atanh --------------------------------------------------------------------------
+
+elemental real(sp) function satanh(x) result(r)
+real(sp), intent(in) :: x
+interface
+    pure real(c_float) function c_satanh(x) bind(c, name="_lfortran_satanh")
+    import :: c_float
+    real(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_satanh(x)
+end function
+
+elemental real(dp) function datanh(x) result(r)
+real(dp), intent(in) :: x
+interface
+    pure real(c_double) function c_datanh(x) bind(c, name="_lfortran_datanh")
+    import :: c_double
+    real(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_datanh(x)
+end function
+
+elemental complex(sp) function catanh(x) result(r)
+complex(sp), intent(in) :: x
+interface
+    pure complex(c_float) function c_catanh(x) bind(c, name="_lfortran_catanh")
+    import :: c_float
+    complex(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_catanh(x)
+end function
+
+elemental complex(dp) function zatanh(x) result(r)
+complex(dp), intent(in) :: x
+interface
+    pure complex(c_double) function c_zatanh(x) bind(c, name="_lfortran_zatanh")
+    import :: c_double
+    complex(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_zatanh(x)
 end function
 
 end module

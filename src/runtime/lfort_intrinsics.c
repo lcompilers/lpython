@@ -314,3 +314,226 @@ double_complex_t _lfortran_ztanh(double_complex_t x)
     return tanh(x);
 #endif
 }
+
+// asin -------------------------------------------------------------------------
+
+void _lfortran_asin(float x, float *result)
+{
+    *result = asin(x);
+}
+
+float _lfortran_sasin(float x)
+{
+    return asin(x);
+}
+
+double _lfortran_dasin(double x)
+{
+    return asin(x);
+}
+
+float_complex_t _lfortran_casin(float_complex_t x)
+{
+#ifdef _WIN32
+    float_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return asin(x);
+#endif
+}
+
+double_complex_t _lfortran_zasin(double_complex_t x)
+{
+#ifdef _WIN32
+    double_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return asin(x);
+#endif
+}
+
+// acos -------------------------------------------------------------------------
+
+void _lfortran_acos(float x, float *result)
+{
+    *result = acos(x);
+}
+
+float _lfortran_sacos(float x)
+{
+    return acos(x);
+}
+
+double _lfortran_dacos(double x)
+{
+    return acos(x);
+}
+
+float_complex_t _lfortran_cacos(float_complex_t x)
+{
+#ifdef _WIN32
+    float_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return acos(x);
+#endif
+}
+
+double_complex_t _lfortran_zacos(double_complex_t x)
+{
+#ifdef _WIN32
+    double_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return acos(x);
+#endif
+}
+
+// atan -------------------------------------------------------------------------
+// TODO: Handle atan(Y,X) and atan2(Y,X)
+
+void _lfortran_atan(float x, float *result)
+{
+    *result = atan(x);
+}
+
+float _lfortran_satan(float x)
+{
+    return atan(x);
+}
+
+double _lfortran_datan(double x)
+{
+    return atan(x);
+}
+
+float_complex_t _lfortran_catan(float_complex_t x)
+{
+#ifdef _WIN32
+    float_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return atan(x);
+#endif
+}
+
+double_complex_t _lfortran_zatan(double_complex_t x)
+{
+#ifdef _WIN32
+    double_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return atan(x);
+#endif
+}
+
+// asinh ------------------------------------------------------------------------
+
+void _lfortran_asinh(float x, float *result)
+{
+    *result = asinh(x);
+}
+
+float _lfortran_sasinh(float x)
+{
+    return asinh(x);
+}
+
+double _lfortran_dasinh(double x)
+{
+    return asinh(x);
+}
+
+float_complex_t _lfortran_casinh(float_complex_t x)
+{
+#ifdef _WIN32
+    float_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return asinh(x);
+#endif
+}
+
+double_complex_t _lfortran_zasinh(double_complex_t x)
+{
+#ifdef _WIN32
+    double_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return asinh(x);
+#endif
+}
+
+// acosh -------------------------------------------------------------------------
+
+void _lfortran_acosh(float x, float *result)
+{
+    *result = acosh(x);
+}
+
+float _lfortran_sacosh(float x)
+{
+    return acosh(x);
+}
+
+double _lfortran_dacosh(double x)
+{
+    return acosh(x);
+}
+
+float_complex_t _lfortran_cacosh(float_complex_t x)
+{
+#ifdef _WIN32
+    float_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return acosh(x);
+#endif
+}
+
+double_complex_t _lfortran_zacosh(double_complex_t x)
+{
+#ifdef _WIN32
+    double_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return acosh(x);
+#endif
+}
+
+// atanh -------------------------------------------------------------------------
+
+void _lfortran_atanh(float x, float *result)
+{
+    *result = atanh(x);
+}
+
+float _lfortran_satanh(float x)
+{
+    return atanh(x);
+}
+
+double _lfortran_datanh(double x)
+{
+    return atanh(x);
+}
+
+float_complex_t _lfortran_catanh(float_complex_t x)
+{
+#ifdef _WIN32
+    float_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return atanh(x);
+#endif
+}
+
+double_complex_t _lfortran_zatanh(double_complex_t x)
+{
+#ifdef _WIN32
+    double_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return atanh(x);
+#endif
+}

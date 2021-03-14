@@ -31,5 +31,17 @@ declare void @_lfortran_cosh(float, float*)
 
 declare void @_lfortran_tanh(float, float*)
 
+declare void @_lfortran_asin(float, float*)
+
+declare void @_lfortran_acos(float, float*)
+
+declare void @_lfortran_atan(float, float*)
+
+declare void @_lfortran_asinh(float, float*)
+
+declare void @_lfortran_acosh(float, float*)
+
+declare void @_lfortran_atanh(float, float*)
+
 declare void @_lfortran_printf(i8*, ...)
 

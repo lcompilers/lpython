@@ -1291,8 +1291,10 @@ public:
 
     //!< Meant to be called only once
     void populate_intrinsics() {
-      std::vector<std::string> supported = {"sin",  "cos",  "tan",
-                                            "sinh", "cosh", "tanh"};
+      std::vector<std::string> supported = {
+          "sin",  "cos",  "tan",  "sinh",  "cosh",  "tanh",
+          "asin", "acos", "atan", "asinh", "acosh", "atanh"};
+
       for (auto sv : supported) {
         auto fname = "_lfortran_" + sv;
         llvm::Function *fn = module->getFunction(fname);

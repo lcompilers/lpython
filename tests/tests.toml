@@ -695,6 +695,12 @@ filename = "../integration_tests/intrinsics_05.f90"
 asr = true
 llvm = true
 
+# inverse trignometric functions
+[[test]]
+filename = "../integration_tests/intrinsics_06.f90"
+asr = true
+llvm = true
+
 [[test]]
 filename = "../src/runtime/lfortran_intrinsic_math.f90"
 ast = true
