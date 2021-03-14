@@ -95,6 +95,7 @@ public:
     std::string mangle_prefix;
     bool prototype_only;
     llvm::StructType *complex_type;
+    llvm::PointerType *character_type;
 
     std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
     std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
@@ -234,6 +235,7 @@ public:
             llvm::Type::getFloatTy(context),
             llvm::Type::getFloatTy(context)};
         complex_type = llvm::StructType::create(context, els, "complex");
+        character_type = llvm::Type::getInt8PtrTy(context);
 
         // Process Variables first:
         for (auto &item : x.m_global_scope->scope) {
@@ -369,7 +371,7 @@ public:
                         ptr = builder->CreateAlloca(complex_type, nullptr, v->m_name);
                         break;
                     case (ASR::ttypeType::Character) :
-                        throw CodeGenError("Character argument type not implemented yet in conversion");
+                        ptr = builder->CreateAlloca(character_type, nullptr, v->m_name);
                         break;
                     case (ASR::ttypeType::Logical) :
                         ptr = builder->CreateAlloca(llvm::Type::getInt1Ty(context), nullptr, v->m_name);

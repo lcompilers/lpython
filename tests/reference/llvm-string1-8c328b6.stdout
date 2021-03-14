@@ -1,0 +1,18 @@
+; ModuleID = 'LFortran'
+source_filename = "LFortran"
+
+@0 = private unnamed_addr constant [8 x i8] c"Dominic\00", align 1
+@1 = private unnamed_addr constant [12 x i8] c"My name is \00", align 1
+@2 = private unnamed_addr constant [7 x i8] c"%s %s\0A\00", align 1
+
+define i64 @main() {
+.entry:
+  %my_name = alloca i8*, align 8
+  store i8* getelementptr inbounds ([8 x i8], [8 x i8]* @0, i32 0, i32 0), i8** %my_name, align 8
+  %0 = load i8*, i8** %my_name, align 8
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @2, i32 0, i32 0), i8* getelementptr inbounds ([12 x i8], [12 x i8]* @1, i32 0, i32 0), i8* %0)
+  ret i64 0
+}
+
+declare void @_lfortran_printf(i8*, ...)
+
