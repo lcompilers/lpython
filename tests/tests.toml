@@ -697,6 +697,13 @@ filename = "modules_05.f90"
 asr = true
 
 [[test]]
-filename = "string1.f90"
+filename = "../integration_tests/string1.f90"
 ast = true
 asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/string2.f90"
+ast = true
+asr = true
+llvm = true
