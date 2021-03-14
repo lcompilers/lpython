@@ -1264,7 +1264,8 @@ public:
                 populate_intrinsics();
               }
               // We use an unordered map to get the O(n) operation time
-              auto find_intrinsic = all_intrinsics.find(s->m_name);
+              std::unordered_map<std::string, llvm::Function *>::const_iterator
+                  find_intrinsic = all_intrinsics.find(s->m_name);
               if (find_intrinsic == all_intrinsics.end()) {
                 throw CodeGenError("Intrinsic not implemented yet.");
               } else {
