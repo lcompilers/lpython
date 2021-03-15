@@ -859,6 +859,9 @@ void get_executable_path(std::string &executable_path, int &dirname_length)
         std::string path(length+1, '\0');
         wai_getExecutablePath(&path[0], length, &dirname_length);
         executable_path = path;
+        if (executable_path[executable_path.size()-1] == '\0') {
+            executable_path = executable_path.substr(0,executable_path.size()-1);
+        }
     } else {
         throw LFortran::LFortranException("Cannot determine executable path.");
     }

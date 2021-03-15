@@ -23,6 +23,18 @@ if (WITH_STACKTRACE AND APPLE AND CMAKE_CXX_COMPILER_ID MATCHES Clang)
         POST_BUILD
         COMMAND dsymutil lfortran
     )
+    if (WITH_DWARFDUMP)
+        add_custom_command(
+            TARGET lfortran
+            POST_BUILD
+            COMMAND llvm-dwarfdump --debug-line lfortran.dSYM > lfortran.dSYM/raw.txt
+        )
+        add_custom_command(
+            TARGET lfortran
+            POST_BUILD
+            COMMAND ./dwarf_convert.py lfortran.dSYM/raw.txt lfortran.dSYM/lines.txt lfortran.dSYM/lines.dat
+        )
+    endif()
 endif()
 
 # Ensure "Release" is not appended to the path on Windows:
