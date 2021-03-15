@@ -940,12 +940,33 @@ public:
                 }
                 tmp = ASR::make_CaseStmt_t(al, x.base.loc, a_test_vec.p, a_test_vec.size(), 
                                      case_body_vec.p, case_body_vec.size());
+                break;
             } 
             case AST::case_stmtType::CaseStmt_Range : {
-                break; // Comming Soon
+                AST::CaseStmt_Range_t* Case_Stmt = (AST::CaseStmt_Range_t*)(&(x.base));
+                ASR::expr_t *m_start = nullptr, *m_end = nullptr;
+                if( Case_Stmt->m_start != nullptr ) {
+                    this->visit_expr(*(Case_Stmt->m_start));
+                    m_start = EXPR(tmp);
+                }
+                if( Case_Stmt->m_end != nullptr ) {
+                    this->visit_expr(*(Case_Stmt->m_end));
+                    m_end = EXPR(tmp);
+                }
+                Vec<ASR::stmt_t*> case_body_vec;
+                case_body_vec.reserve(al, Case_Stmt->n_body);
+                for( uint i = 0; i < Case_Stmt->n_body; i++ ) {
+                    this->visit_stmt(*(Case_Stmt->m_body[i]));
+                    case_body_vec.push_back(al, STMT(tmp));
+                }
+                tmp = ASR::make_CaseStmt_Range_t(al, x.base.loc, m_start, m_end, 
+                                     case_body_vec.p, case_body_vec.size());
+                break;
             }
             default: {
-                break;
+                throw SemanticError(R"""(Case statement can only support a valid expression 
+                                    that reduces to a constant or range defined by : separator)""", 
+                                    x.base.loc);
             }
         }
     }
