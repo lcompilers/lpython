@@ -6,6 +6,7 @@ using LFortran::AST::Num_t;
 using LFortran::AST::BinOp_t;
 using LFortran::AST::operatorType;
 using LFortran::AST::BaseVisitor;
+using LFortran::AST::StrOp_t;
 
 
 namespace LFortran {
@@ -48,6 +49,13 @@ namespace {
         throw LFortranException("Unknown type");
     }
 
+    std::string strop2str(const AST::stroperatorType type)
+    {
+        switch (type) {
+            case (AST::stroperatorType::Concat) : return "\\";
+        }
+        throw LFortranException("Unknown type");
+    }
 }
 
 namespace AST {
@@ -722,6 +730,14 @@ public:
         this->visit_expr(*x.m_right);
         std::string right = std::move(s);
         s = "(" + left + ")" + op2str(x.m_op) + "(" + right + ")";
+    }
+
+    void visit_StrOp(const StrOp_t &x) {
+        this->visit_expr(*x.m_left);
+        std::string left = std::move(s);
+        this->visit_expr(*x.m_right);
+        std::string right = std::move(s);
+        s = "(" + left + ")" + strop2str(x.m_op) + "(" + right + ")";
     }
 
     void visit_UnaryOp(const UnaryOp_t &x) {

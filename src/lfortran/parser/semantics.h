@@ -22,6 +22,7 @@ using LFortran::AST::down_cast2;
 using LFortran::AST::astType;
 using LFortran::AST::exprType;
 using LFortran::AST::operatorType;
+using LFortran::AST::stroperatorType;
 using LFortran::AST::unaryopType;
 using LFortran::AST::boolopType;
 using LFortran::AST::cmpopType;
@@ -67,6 +68,7 @@ using LFortran::AST::make_Module_t;
 using LFortran::AST::make_Private_t;
 using LFortran::AST::make_Public_t;
 using LFortran::AST::make_Interface_t;
+using LFortran::AST::make_StrOp_t;
 
 
 static inline expr_t* EXPR(const ast_t *f)
@@ -409,7 +411,7 @@ static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
 #define TRUE(l) make_Constant_t(p.m_a, l, true)
 #define FALSE(l) make_Constant_t(p.m_a, l, false)
 
-#define STRCONCAT(x, y, l) x /* TODO: concacenate */
+#define STRCONCAT(x, y, l) make_StrOp_t(p.m_a, l, EXPR(x), stroperatorType::Concat, EXPR(y))
 
 #define EQ(x, y, l)  make_Compare_t(p.m_a, l, EXPR(x), cmpopType::Eq, EXPR(y))
 #define NE(x, y, l)  make_Compare_t(p.m_a, l, EXPR(x), cmpopType::NotEq, EXPR(y))
