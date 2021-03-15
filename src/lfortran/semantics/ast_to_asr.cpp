@@ -1383,7 +1383,9 @@ public:
                 std::distance(all_intrinsics.begin(), find_intrinsic);
             // Intrinsic function, add it to the global scope
             ASR::TranslationUnit_t *unit = (ASR::TranslationUnit_t *)asr;
-            char *fn_name = (char *)all_intrinsics[intrinsic_index].c_str();
+            Str s;
+            s.from_str_view(all_intrinsics[intrinsic_index]);
+            char *fn_name = s.c_str(al);
             SymbolTable *fn_scope =
                 al.make_new<SymbolTable>(unit->m_global_scope);
             ASR::ttype_t *type;
