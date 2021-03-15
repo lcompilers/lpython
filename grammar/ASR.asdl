@@ -38,8 +38,10 @@ symbol
         tbind? bind, proc_external? external, access access)
     | Function(symbol_table symtab, identifier name, expr* args, stmt* body,
         tbind? bind, expr return_var, proc_external? external, access access)
-    | GenericProcedure(identifier name, symbol* procs, access access)
-    | ExternalProc(identifier name, proc_external external)
+    | GenericProcedure(symbol_table parent_symtab, identifier name,
+        symbol* procs, access access)
+    | ExternalProc(symbol_table parent_symtab, identifier name,
+        proc_external external)
     | DerivedType(symbol_table symtab, identifier name)
     | Variable(symbol_table parent_symtab, identifier name, intent intent,
         expr? value, storage_type storage, ttype type, access access)

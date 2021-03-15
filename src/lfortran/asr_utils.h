@@ -72,8 +72,8 @@ static inline char *symbol_name(const ASR::symbol_t *f)
         case ASR::symbolType::Variable: {
             return ASR::down_cast<ASR::Variable_t>(f)->m_name;
         }
-        case ASR::symbolType::ExternalSymbol: {
-            return ASR::down_cast<ASR::ExternalSymbol_t>(f)->m_name;
+        case ASR::symbolType::ExternalProc: {
+            return ASR::down_cast<ASR::ExternalProc_t>(f)->m_name;
         }
         default : throw LFortranException("Not implemented");
     }
@@ -103,8 +103,8 @@ static inline SymbolTable *symbol_parent_symtab(const ASR::symbol_t *f)
         case ASR::symbolType::Variable: {
             return ASR::down_cast<ASR::Variable_t>(f)->m_parent_symtab;
         }
-        case ASR::symbolType::ExternalSymbol: {
-            return ASR::down_cast<ASR::ExternalSymbol_t>(f)->m_parent_symtab;
+        case ASR::symbolType::ExternalProc: {
+            return ASR::down_cast<ASR::ExternalProc_t>(f)->m_parent_symtab;
         }
         default : throw LFortranException("Not implemented");
     }
