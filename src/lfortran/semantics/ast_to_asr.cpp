@@ -523,6 +523,7 @@ public:
                 symbols.push_back(al, x);
             }
             ASR::asr_t *v = ASR::make_GenericProcedure_t(al, loc,
+                current_scope,
                 generic_name, symbols.p, symbols.size(), ASR::Public);
             current_scope->scope[proc.first] = ASR::down_cast<ASR::symbol_t>(v);
         }
@@ -643,6 +644,7 @@ public:
                     name.from_str(al, local_sym);
                     ASR::asr_t *ep = ASR::make_ExternalProc_t(
                         al, t->base.loc,
+                        current_scope,
                         /* a_name */ name.c_str(al),
                         /* a_external */ *external
                         );

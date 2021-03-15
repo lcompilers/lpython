@@ -188,97 +188,16 @@ public:
     std::string get_str() {
         return s;
     }
-    void visit_Var(const ASR::Var_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("Var");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        s.append(ASR::down_cast<ASR::Variable_t>(x.m_v)->m_parent_symtab->get_counter());
+    void visit_symbol(const ASR::symbol_t &x) {
+        s.append(symbol_parent_symtab(&x)->get_counter());
         s.append(" ");
         if (use_colors) {
             s.append(color(fg::yellow));
         }
-        s.append(ASR::down_cast<ASR::Variable_t>(x.m_v)->m_name);
+        s.append(symbol_name(&x));
         if (use_colors) {
             s.append(color(fg::reset));
         }
-        s.append(")");
-    }
-    void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("SubroutineCall");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        s.append(ASR::down_cast<ASR::Subroutine_t>(x.m_name)->m_symtab->parent->get_counter());
-        s.append(" ");
-        if (use_colors) {
-            s.append(color(fg::yellow));
-        }
-        s.append(ASR::down_cast<ASR::Subroutine_t>(x.m_name)->m_name);
-        if (use_colors) {
-            s.append(color(fg::reset));
-        }
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_args; i++) {
-            this->visit_expr(*x.m_args[i]);
-            if (i < x.n_args-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(")");
-    }
-    void visit_FuncCall(const ASR::FuncCall_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("FuncCall");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        s.append(ASR::down_cast<ASR::Function_t>(x.m_name)->m_symtab->parent->get_counter());
-        s.append(" ");
-        if (use_colors) {
-            s.append(color(fg::yellow));
-        }
-        s.append(ASR::down_cast<ASR::Function_t>(x.m_name)->m_name);
-        if (use_colors) {
-            s.append(color(fg::reset));
-        }
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_args; i++) {
-            this->visit_expr(*x.m_args[i]);
-            if (i < x.n_args-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_keywords; i++) {
-            this->visit_keyword(x.m_keywords[i]);
-            if (i < x.n_keywords-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(" ");
-        this->visit_ttype(*x.m_type);
-        s.append(")");
     }
     void visit_ConstantInteger(const ASR::ConstantInteger_t &x) {
         s.append("(");
