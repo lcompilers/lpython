@@ -73,6 +73,7 @@ stmt
 expr
     = BoolOp(expr left, boolop op, expr right, ttype type)
     | BinOp(expr left, binop op, expr right, ttype type)
+    | StrOp(expr left, strop op, expr right, ttype type)
     | UnaryOp(unaryop op, expr operand, ttype type)
     | Compare(expr left, cmpop op, expr right, ttype type)
     | FuncCall(symbol name, expr* args, keyword* keywords, ttype type)
@@ -100,6 +101,8 @@ boolop = And | Or | NEqv | Eqv
 binop = Add | Sub | Mul | Div | Pow
 
 unaryop = Invert | Not | UAdd | USub
+
+strop = Concat
 
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 

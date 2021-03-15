@@ -1228,6 +1228,23 @@ public:
                 left, op, right, dest_type);
     }
 
+    void visit_StrOp(const AST::StrOp_t &x) { 
+        this->visit_expr(*x.m_left);
+        ASR::expr_t *left = EXPR(tmp);
+        this->visit_expr(*x.m_right);
+        ASR::expr_t *right = EXPR(tmp);
+        ASR::stropType op;
+        switch (x.m_op) {
+            case (AST::Concat) :
+                op = ASR::Concat;
+        }
+        ASR::ttype_t *right_type = expr_type(right);
+        ASR::ttype_t *dest_type = right_type;
+        // TODO: Type check here?
+        tmp = ASR::make_StrOp_t(al, x.base.base.loc,
+                left, op, right, dest_type);
+    }
+
     void visit_UnaryOp(const AST::UnaryOp_t &x) {
         this->visit_expr(*x.m_operand);
         ASR::expr_t *operand = EXPR(tmp);
