@@ -403,6 +403,8 @@ class PickleVisitorVisitor(ASDLVisitor):
         self.emit("template <class Derived>")
         self.emit("class PickleBaseVisitor : public BaseVisitor<Derived>")
         self.emit("{")
+        self.emit("private:")
+        self.emit(  "Derived& self() { return static_cast<Derived&>(*this); }", 1)
         self.emit("public:")
         self.emit(  "std::string s;", 1)
         self.emit(  "bool use_colors;", 1)
@@ -487,18 +489,18 @@ class PickleVisitorVisitor(ASDLVisitor):
             level = 2
             if field.type in products:
                 if field.opt:
-                    template = "this->visit_%s(*x.m_%s);" % (field.type, field.name)
+                    template = "self().visit_%s(*x.m_%s);" % (field.type, field.name)
                 else:
-                    template = "this->visit_%s(x.m_%s);" % (field.type, field.name)
+                    template = "self().visit_%s(x.m_%s);" % (field.type, field.name)
             else:
-                template = "this->visit_%s(*x.m_%s);" % (field.type, field.name)
+                template = "self().visit_%s(*x.m_%s);" % (field.type, field.name)
             if field.seq:
                 self.emit('s.append("[");', level)
                 self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
                 if field.type in sums:
-                    self.emit("this->visit_%s(*x.m_%s[i]);" % (field.type, field.name), level+1)
+                    self.emit("self().visit_%s(*x.m_%s[i]);" % (field.type, field.name), level+1)
                 else:
-                    self.emit("this->visit_%s(x.m_%s[i]);" % (field.type, field.name), level+1)
+                    self.emit("self().visit_%s(x.m_%s[i]);" % (field.type, field.name), level+1)
                 self.emit(    'if (i < x.n_%s-1) s.append(" ");' % (field.name), level+1)
                 self.emit("}", level)
                 self.emit('s.append("]");', level)
@@ -537,7 +539,7 @@ class PickleVisitorVisitor(ASDLVisitor):
                 self.emit('s.append("[");', level)
                 self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
                 mod_name = self.mod.name.lower()
-                self.emit("this->visit_%s(*x.m_%s[i]);" % (mod_name, field.name), level+1)
+                self.emit("self().visit_%s(*x.m_%s[i]);" % (mod_name, field.name), level+1)
                 self.emit(    'if (i < x.n_%s-1) s.append(" ");' % (field.name), level+1)
                 self.emit("}", level)
                 self.emit('s.append("]");', level)
