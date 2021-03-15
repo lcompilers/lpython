@@ -48,6 +48,68 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
     }
 }
 
+static inline char *symbol_name(const ASR::symbol_t *f)
+{
+    switch (f->type) {
+        case ASR::symbolType::Program: {
+            return ASR::down_cast<ASR::Program_t>(f)->m_name;
+        }
+        case ASR::symbolType::Module: {
+            return ASR::down_cast<ASR::Module_t>(f)->m_name;
+        }
+        case ASR::symbolType::Subroutine: {
+            return ASR::down_cast<ASR::Subroutine_t>(f)->m_name;
+        }
+        case ASR::symbolType::Function: {
+            return ASR::down_cast<ASR::Function_t>(f)->m_name;
+        }
+        case ASR::symbolType::GenericProcedure: {
+            return ASR::down_cast<ASR::GenericProcedure_t>(f)->m_name;
+        }
+        case ASR::symbolType::DerivedType: {
+            return ASR::down_cast<ASR::DerivedType_t>(f)->m_name;
+        }
+        case ASR::symbolType::Variable: {
+            return ASR::down_cast<ASR::Variable_t>(f)->m_name;
+        }
+        case ASR::symbolType::ExternalSymbol: {
+            return ASR::down_cast<ASR::ExternalSymbol_t>(f)->m_name;
+        }
+        default : throw LFortranException("Not implemented");
+    }
+}
+
+static inline SymbolTable *symbol_parent_symtab(const ASR::symbol_t *f)
+{
+    switch (f->type) {
+        case ASR::symbolType::Program: {
+            return ASR::down_cast<ASR::Program_t>(f)->m_symtab->parent;
+        }
+        case ASR::symbolType::Module: {
+            return ASR::down_cast<ASR::Module_t>(f)->m_symtab->parent;
+        }
+        case ASR::symbolType::Subroutine: {
+            return ASR::down_cast<ASR::Subroutine_t>(f)->m_symtab->parent;
+        }
+        case ASR::symbolType::Function: {
+            return ASR::down_cast<ASR::Function_t>(f)->m_symtab->parent;
+        }
+        case ASR::symbolType::GenericProcedure: {
+            return ASR::down_cast<ASR::GenericProcedure_t>(f)->m_parent_symtab;
+        }
+        case ASR::symbolType::DerivedType: {
+            return ASR::down_cast<ASR::DerivedType_t>(f)->m_symtab->parent;
+        }
+        case ASR::symbolType::Variable: {
+            return ASR::down_cast<ASR::Variable_t>(f)->m_parent_symtab;
+        }
+        case ASR::symbolType::ExternalSymbol: {
+            return ASR::down_cast<ASR::ExternalSymbol_t>(f)->m_parent_symtab;
+        }
+        default : throw LFortranException("Not implemented");
+    }
+}
+
 const ASR::intentType intent_local=ASR::intentType::Local; // local variable (not a dummy argument)
 const ASR::intentType intent_in   =ASR::intentType::In; // dummy argument, intent(in)
 const ASR::intentType intent_out  =ASR::intentType::Out; // dummy argument, intent(out)
