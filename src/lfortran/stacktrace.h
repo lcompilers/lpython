@@ -32,7 +32,7 @@ struct StacktraceItem
   uintptr_t local_pc=0; // 0 if not found
   std::string binary_filename; // "" if not found
 
-  // Sometimes this is found, but the next two are not
+  // This can be found or not
   std::string function_name; // "" if not found
 
   // The following two are either both found, or not found

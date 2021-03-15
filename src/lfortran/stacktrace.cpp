@@ -310,7 +310,7 @@ int load_symbol_table(bfd *abfd, line_data *data)
   return 0;
 }
 
-void get_symbol_info(std::string binary_filename, uintptr_t addr,
+void get_symbol_info_bfd(std::string binary_filename, uintptr_t addr,
   std::string &source_filename, std::string &function_name,
   int &line_number)
 {
@@ -438,15 +438,29 @@ std::string addr2str(const StacktraceItem &i)
         s << "  File unknown, absolute address: " << (void*) i.pc;
         s << color(style::reset);
     } else {
-        s << color(style::dim);
-        s << "  Binary file \"";
-        s << color(style::reset);
-        s << color(style::bold) << color(fg::magenta);
-        s << i.binary_filename;
-        s << color(fg::reset) << color(style::reset);
-        s << color(style::dim);
-        s << "\", local address: " << (void*) i.local_pc;
-        s << color(style::reset);
+        if (i.source_filename == "") {
+            s << color(style::dim);
+            s << "  Binary file \"";
+            s << color(style::reset);
+            s << color(style::bold) << color(fg::magenta);
+            s << i.binary_filename;
+            s << color(fg::reset) << color(style::reset);
+            s << color(style::dim);
+            s << "\", local address: " << (void*) i.local_pc;
+            s << color(style::reset);
+        } else {
+          // Nicely format the filename + line
+          s << color(style::dim) << "  File \"" << color(style::reset)
+            << color(style::bold) << color(fg::magenta) << i.source_filename
+            << color(fg::reset) << color(style::reset)
+            << color(style::dim) << "\", line " << i.line_number
+            << color(style::reset);
+          const std::string line_text = remove_leading_whitespace(
+            read_line_from_file(i.source_filename, i.line_number));
+          if (line_text != "") {
+            s << "\n    " << line_text;
+          }
+        }
     }
   } else if (i.source_filename == "") {
       // The file is unknown (and data.line == 0 in this case), so the
@@ -542,18 +556,76 @@ void get_local_addresses(std::vector<StacktraceItem> &d)
   }
 }
 
+void address_to_line_number(const std::vector<std::string> &filenames,
+          const std::vector<uint64_t> &addresses,
+          uintptr_t address,
+          std::string &filename,
+          int &line_number) {
+    int n = addresses.size() / 3;
+    // TODO: Using a bisection would be a lot faster: O(log(n) instead of O(n)
+    for (int i=0; i < n; i++) {
+      uint64_t addr, line, fileid;
+      addr = addresses[3*i+0];
+      line = addresses[3*i+1];
+      fileid = addresses[3*i+2];
+      if (addr > (address-8)) {
+        filename = filenames[fileid];
+        line_number = line;
+        return;
+      }
+    }
+    filename = "";
+    line_number = -1;
+}
+
+void get_local_info_dwarfdump(std::vector<StacktraceItem> &d)
+{
+  std::vector<std::string> filenames;
+  std::vector<uint64_t> addresses;
+  {
+    std::string filename = binary_executable_path + ".dSYM/lines.txt";
+    std::ifstream in;
+    in.open(filename);
+    if (!in.is_open()) {
+        return;
+    }
+    std::string s;
+    std::getline(in, s);
+    int n = std::stoi(s);
+    for (int i=0; i < n; i++) {
+      std::getline(in, s);
+      filenames.push_back(s);
+    }
+    std::getline(in, s);
+    n = std::stoi(s);
+
+    filename = binary_executable_path + ".dSYM/lines.dat";
+    std::ifstream in2;
+    in2.open(filename, std::ios::binary);
+    addresses.resize(3*n);
+    in2.read((char*)&addresses[0], 3*n*sizeof(uint64_t));
+  }
+  for (size_t i=0; i < d.size(); i++) {
+    address_to_line_number(filenames, addresses, d[i].local_pc,
+      d[i].source_filename, d[i].line_number);
+  }
+}
 
 void get_local_info(std::vector<StacktraceItem> &d)
 {
-#ifdef HAVE_LFORTRAN_BFD
+#ifdef HAVE_LFORTRAN_DWARFDUMP
+  get_local_info_dwarfdump(d);
+#else
+#  ifdef HAVE_LFORTRAN_BFD
   bfd_init();
-#endif
+#  endif
   for (size_t i=0; i < d.size(); i++) {
-#ifdef HAVE_LFORTRAN_BFD
-    get_symbol_info(d[i].binary_filename, d[i].local_pc,
+#  ifdef HAVE_LFORTRAN_BFD
+    get_symbol_info_bfd(d[i].binary_filename, d[i].local_pc,
       d[i].source_filename, d[i].function_name, d[i].line_number);
-#endif
+#  endif
   }
+#endif
 }
 
 } // namespace LFortran
