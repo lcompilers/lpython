@@ -188,6 +188,29 @@ public:
     std::string get_str() {
         return s;
     }
+    void visit_symbol(const ASR::symbol_t &x) {
+        s.append("(");
+        if (use_colors) {
+            s.append(color(style::bold));
+            s.append(color(fg::magenta));
+        }
+        s.append("symbol");
+        if (use_colors) {
+            s.append(color(fg::reset));
+            s.append(color(style::reset));
+        }
+        s.append(" ");
+        s.append(symbol_parent_symtab(&x)->get_counter());
+        s.append(" ");
+        if (use_colors) {
+            s.append(color(fg::yellow));
+        }
+        s.append(symbol_name(&x));
+        if (use_colors) {
+            s.append(color(fg::reset));
+        }
+        s.append(")");
+    }
     void visit_Var(const ASR::Var_t &x) {
         s.append("(");
         if (use_colors) {
