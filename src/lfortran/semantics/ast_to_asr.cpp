@@ -610,24 +610,19 @@ public:
                             x.base.base.loc);
                     }
                     ASR::Subroutine_t *msub = ASR::down_cast<ASR::Subroutine_t>(t);
-                    // TODO: use ExternalSymbol
                     // `msub` is the Subroutine in a module. Now we construct
                     // a new Subroutine that is just the prototype, and that links to
                     // `msub` via the `external` field.
-                    //external->m_module_proc = (ASR::symbol_t*)msub;
+                    ASR::proc_external_t external;
+                    external.m_abi = ASR::abiType::LFortranModule;
+                    external.m_module_proc = (ASR::symbol_t*)msub;
                     Str name;
                     name.from_str(al, local_sym);
-                    ASR::asr_t *sub = ASR::make_Subroutine_t(
+                    ASR::asr_t *sub = ASR::make_ExternalProc_t(
                         al, msub->base.base.loc,
-                        /* a_symtab */ msub->m_symtab,
+                        /* a_symtab */ current_scope,
                         /* a_name */ name.c_str(al),
-                        /* a_args */ msub->m_args,
-                        /* n_args */ msub->n_args,
-                        /* a_body */ nullptr,
-                        /* n_body */ 0,
-                        /* a_bind */ msub->m_bind,
-                        ASR::abiType::LFortranModule,
-                        ASR::Public
+                        external
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(sub);
                 } else if (ASR::is_a<ASR::GenericProcedure_t>(*t)) {
