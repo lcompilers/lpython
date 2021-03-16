@@ -318,7 +318,7 @@ public:
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             ASR::symbol_t *f1 = parent_scope->scope[sym_name];
             ASR::Subroutine_t *f2 = ASR::down_cast<ASR::Subroutine_t>(f1);
-            if (f2->m_external && f2->m_external->m_type == ASR::proc_external_typeType::Interactive) {
+            if (f2->m_external && f2->m_external->m_abi == ASR::abiType::Interactive) {
                 // Previous declaration will be shadowed
             } else {
                 throw SemanticError("Subroutine already defined", asr->loc);
@@ -430,7 +430,7 @@ public:
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             ASR::symbol_t *f1 = parent_scope->scope[sym_name];
             ASR::Function_t *f2 = ASR::down_cast<ASR::Function_t>(f1);
-            if (f2->m_external && f2->m_external->m_type == ASR::proc_external_typeType::Interactive) {
+            if (f2->m_external && f2->m_external->m_abi == ASR::abiType::Interactive) {
                 // Previous declaration will be shadowed
             } else {
                 throw SemanticError("Function already defined", asr->loc);
@@ -549,7 +549,7 @@ public:
                 if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
                     ASR::Subroutine_t *msub = ASR::down_cast<ASR::Subroutine_t>(item.second);
                     ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
-                    external->m_type = ASR::proc_external_typeType::LFortranModule;
+                    external->m_abi = ASR::abiType::LFortranModule;
                     external->m_module_proc = (ASR::symbol_t*)msub;
                     ASR::asr_t *sub = ASR::make_Subroutine_t(
                         al, msub->base.base.loc,
@@ -568,7 +568,7 @@ public:
                 } else if (ASR::is_a<ASR::Function_t>(*item.second)) {
                     ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(item.second);
                     ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
-                    external->m_type = ASR::proc_external_typeType::LFortranModule;
+                    external->m_abi = ASR::abiType::LFortranModule;
                     external->m_module_proc = (ASR::symbol_t*)mfn;
                     ASR::asr_t *fn = ASR::make_Function_t(
                         al, mfn->base.base.loc,
@@ -615,7 +615,7 @@ public:
                     // a new Subroutine that is just the prototype, and that links to
                     // `msub` via the `external` field.
                     ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
-                    external->m_type = ASR::proc_external_typeType::LFortranModule;
+                    external->m_abi = ASR::abiType::LFortranModule;
                     external->m_module_proc = (ASR::symbol_t*)msub;
                     Str name;
                     name.from_str(al, local_sym);
@@ -638,7 +638,7 @@ public:
                             x.base.base.loc);
                     }
                     ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
-                    external->m_type = ASR::proc_external_typeType::LFortranModule;
+                    external->m_abi = ASR::abiType::LFortranModule;
                     external->m_module_proc = t;
                     Str name;
                     name.from_str(al, local_sym);
@@ -659,7 +659,7 @@ public:
                     // a new Function that is just the prototype, and that links to
                     // `mfn` via the `external` field.
                     ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
-                    external->m_type = ASR::proc_external_typeType::LFortranModule;
+                    external->m_abi = ASR::abiType::LFortranModule;
                     external->m_module_proc = (ASR::symbol_t*)mfn;
                     Str name;
                     name.from_str(al, local_sym);
@@ -1524,7 +1524,7 @@ public:
 
                     ASR::proc_external_t *external =
                         al.make_new<ASR::proc_external_t>();
-                    external->m_type = ASR::proc_external_typeType::Intrinsic;
+                    external->m_abi = ASR::abiType::Intrinsic;
                     external->m_module_proc = nullptr;
 
                     ASR::asr_t *fn =

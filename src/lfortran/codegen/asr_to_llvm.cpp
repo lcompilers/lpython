@@ -492,7 +492,7 @@ public:
     void visit_Function(const ASR::Function_t &x) {
         bool interactive = false;
         if (x.m_external) {
-            if (x.m_external->m_type == ASR::proc_external_typeType::Interactive) {
+            if (x.m_external->m_abi == ASR::abiType::Interactive) {
                 interactive = true;
             } else {
                 return;
@@ -567,7 +567,7 @@ public:
     void visit_Subroutine(const ASR::Subroutine_t &x) {
         bool interactive = false;
         if (x.m_external) {
-            if (x.m_external->m_type == ASR::proc_external_typeType::Interactive) {
+            if (x.m_external->m_abi == ASR::abiType::Interactive) {
                 interactive = true;
             } else {
                 return;
@@ -1235,9 +1235,9 @@ public:
         ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(x.m_name);
         uint32_t h;
         if (s->m_external) {
-            if (s->m_external->m_type == ASR::proc_external_typeType::LFortranModule) {
+            if (s->m_external->m_abi == ASR::abiType::LFortranModule) {
                 h = get_hash((ASR::asr_t*)s->m_external->m_module_proc);
-            } else if (s->m_external->m_type == ASR::proc_external_typeType::Interactive) {
+            } else if (s->m_external->m_abi == ASR::abiType::Interactive) {
                 h = get_hash((ASR::asr_t*)s);
             } else {
                 throw CodeGenError("External type not implemented yet.");
@@ -1258,14 +1258,14 @@ public:
         ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(x.m_name);
         uint32_t h;
         if (s->m_external) {
-            if (s->m_external->m_type ==
-                    ASR::proc_external_typeType::LFortranModule) {
+            if (s->m_external->m_abi ==
+                    ASR::abiType::LFortranModule) {
                 h = get_hash((ASR::asr_t*)s->m_external->m_module_proc);
-            } else if (s->m_external->m_type ==
-                    ASR::proc_external_typeType::Interactive) {
+            } else if (s->m_external->m_abi ==
+                    ASR::abiType::Interactive) {
                 h = get_hash((ASR::asr_t*)s);
-            } else if (s->m_external->m_type ==
-                    ASR::proc_external_typeType::Intrinsic) {
+            } else if (s->m_external->m_abi ==
+                    ASR::abiType::Intrinsic) {
                 if (all_intrinsics.empty()) {
                   populate_intrinsics();
                 }
