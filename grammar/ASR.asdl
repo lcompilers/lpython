@@ -35,9 +35,9 @@ symbol
     = Program(symbol_table symtab, identifier name, stmt* body)
     | Module(symbol_table symtab, identifier name)
     | Subroutine(symbol_table symtab, identifier name, expr* args, stmt* body,
-        tbind? bind, proc_external? external, access access)
+        tbind? bind, abi abi, access access)
     | Function(symbol_table symtab, identifier name, expr* args, stmt* body,
-        tbind? bind, expr return_var, proc_external? external, access access)
+        tbind? bind, expr return_var, abi abi, access access)
     | GenericProcedure(symbol_table parent_symtab, identifier name,
         symbol* procs, access access)
     | ExternalProc(symbol_table parent_symtab, identifier name,
@@ -49,10 +49,13 @@ symbol
 storage_type = Default | Save | Parameter
 access = Public | Private
 
-proc_external = (proc_external_type type, symbol? module_proc)
-proc_external_type
-    = LFortranModule
+proc_external = (abi abi, symbol? module_proc)
+
+abi
+    = Source
+    | LFortranModule
     | GFortranModule
+    | BindC
     | Interactive
     | Intrinsic
 

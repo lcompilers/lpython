@@ -132,7 +132,7 @@ std::string SymbolTable::get_hash() {
     return hexify(hash);
 }
 
-void SymbolTable::mark_all_variables_external(Allocator &al) {
+void SymbolTable::mark_all_variables_external(Allocator &/*al*/) {
     for (auto &a : scope) {
         switch (a.second->type) {
             case (ASR::symbolType::Variable) : {
@@ -142,20 +142,14 @@ void SymbolTable::mark_all_variables_external(Allocator &al) {
             }
             case (ASR::symbolType::Function) : {
                 ASR::Function_t *v = ASR::down_cast<ASR::Function_t>(a.second);
-                ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
-                external->m_type = ASR::proc_external_typeType::Interactive;
-                external->m_module_proc = nullptr;
-                v->m_external = external;
+                v->m_abi = ASR::abiType::Interactive;
                 v->m_body = nullptr;
                 v->n_body = 0;
                 break;
             }
             case (ASR::symbolType::Subroutine) : {
                 ASR::Subroutine_t *v = ASR::down_cast<ASR::Subroutine_t>(a.second);
-                ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
-                external->m_type = ASR::proc_external_typeType::Interactive;
-                external->m_module_proc = nullptr;
-                v->m_external = external;
+                v->m_abi = ASR::abiType::Interactive;
                 v->m_body = nullptr;
                 v->n_body = 0;
                 break;
