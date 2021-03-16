@@ -1,7 +1,7 @@
 program case_01
 implicit none
 integer :: i
-i = 2
+i = 4
 
 select case(i)
     case (1)

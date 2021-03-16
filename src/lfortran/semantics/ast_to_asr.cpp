@@ -922,6 +922,90 @@ public:
         // This AST node was already visited in SymbolTableVisitor
     }
 
+    void visit_case_stmt(const AST::case_stmt_t& x) {
+        switch(x.type) {
+            case AST::case_stmtType::CaseStmt: {
+                AST::CaseStmt_t* Case_Stmt = (AST::CaseStmt_t*)(&(x.base));
+                Vec<ASR::expr_t*> a_test_vec;
+                a_test_vec.reserve(al, Case_Stmt->n_test);
+                for( std::uint32_t i = 0; i < Case_Stmt->n_test; i++ ) {
+                    this->visit_expr(*(Case_Stmt->m_test[i]));
+                    ASR::expr_t* m_test_i = EXPR(tmp);
+                    if( expr_type(m_test_i)->type != ASR::ttypeType::Integer ) {
+                        throw SemanticError(R"""(Expression in Case selector can only be an Integer)""", 
+                                            x.base.loc);
+                    }
+                    a_test_vec.push_back(al, EXPR(tmp));
+                }
+                Vec<ASR::stmt_t*> case_body_vec;
+                case_body_vec.reserve(al, Case_Stmt->n_body);
+                for( std::uint32_t i = 0; i < Case_Stmt->n_body; i++ ) {
+                    this->visit_stmt(*(Case_Stmt->m_body[i]));
+                    case_body_vec.push_back(al, STMT(tmp));
+                }
+                tmp = ASR::make_CaseStmt_t(al, x.base.loc, a_test_vec.p, a_test_vec.size(), 
+                                     case_body_vec.p, case_body_vec.size());
+                break;
+            } 
+            case AST::case_stmtType::CaseStmt_Range : {
+                AST::CaseStmt_Range_t* Case_Stmt = (AST::CaseStmt_Range_t*)(&(x.base));
+                ASR::expr_t *m_start = nullptr, *m_end = nullptr;
+                if( Case_Stmt->m_start != nullptr ) {
+                    this->visit_expr(*(Case_Stmt->m_start));
+                    m_start = EXPR(tmp);
+                    if( expr_type(m_start)->type != ASR::ttypeType::Integer ) {
+                        throw SemanticError(R"""(Expression in Case selector can only be an Integer)""", 
+                                            x.base.loc);
+                    }
+                }
+                if( Case_Stmt->m_end != nullptr ) {
+                    this->visit_expr(*(Case_Stmt->m_end));
+                    m_end = EXPR(tmp);
+                    if( expr_type(m_end)->type != ASR::ttypeType::Integer ) {
+                        throw SemanticError(R"""(Expression in Case selector can only be an Integer)""", 
+                                            x.base.loc);
+                    }
+                }
+                Vec<ASR::stmt_t*> case_body_vec;
+                case_body_vec.reserve(al, Case_Stmt->n_body);
+                for( std::uint32_t i = 0; i < Case_Stmt->n_body; i++ ) {
+                    this->visit_stmt(*(Case_Stmt->m_body[i]));
+                    case_body_vec.push_back(al, STMT(tmp));
+                }
+                tmp = ASR::make_CaseStmt_Range_t(al, x.base.loc, m_start, m_end, 
+                                     case_body_vec.p, case_body_vec.size());
+                break;
+            }
+            default: {
+                throw SemanticError(R"""(Case statement can only support a valid expression 
+                                    that reduces to a constant or range defined by : separator)""", 
+                                    x.base.loc);
+            }
+        }
+    }
+
+    void visit_Select(const AST::Select_t& x) {
+        this->visit_expr(*(x.m_test));
+        ASR::expr_t* a_test = EXPR(tmp);
+        if( expr_type(a_test)->type != ASR::ttypeType::Integer ) {
+            throw SemanticError(R"""(Expression in Case selector can only be an Integer)""", x.base.base.loc);
+        }
+        Vec<ASR::case_stmt_t*> a_body_vec;
+        a_body_vec.reserve(al, x.n_body);
+        for( std::uint32_t i = 0; i < x.n_body; i++ ) {
+            this->visit_case_stmt(*(x.m_body[i]));
+            a_body_vec.push_back(al, CASE_STMT(tmp));
+        }
+        Vec<ASR::stmt_t*> def_body;
+        def_body.reserve(al, x.n_default);
+        for( std::uint32_t i = 0; i < x.n_default; i++ ) {
+            this->visit_stmt(*(x.m_default[i]));
+            def_body.push_back(al, STMT(tmp));
+        }
+        tmp = ASR::make_Select_t(al, x.base.base.loc, a_test, a_body_vec.p, 
+                           a_body_vec.size(), def_body.p, def_body.size());
+    }
+
     void visit_Module(const AST::Module_t &x) {
         SymbolTable *old_scope = current_scope;
         ASR::symbol_t *t = current_scope->scope[std::string(x.m_name)];

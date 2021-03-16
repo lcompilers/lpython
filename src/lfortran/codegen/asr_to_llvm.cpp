@@ -41,6 +41,7 @@
 #include <lfortran/containers.h>
 #include <lfortran/codegen/asr_to_llvm.h>
 #include <lfortran/pass/do_loops.h>
+#include <lfortran/pass/select_case.h>
 #include <lfortran/pass/global_stmts.h>
 #include <lfortran/exception.h>
 #include <lfortran/asr_utils.h>
@@ -1331,6 +1332,7 @@ std::unique_ptr<LLVMModule> asr_to_llvm(ASR::TranslationUnit_t &asr,
     // std::cout << pickle(asr) << std::endl;
 
     pass_replace_do_loops(al, asr);
+    pass_replace_select_case(al, asr);
     v.visit_asr((ASR::asr_t&)asr);
     std::string msg;
     llvm::raw_string_ostream err(msg);

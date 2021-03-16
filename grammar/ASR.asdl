@@ -66,7 +66,7 @@ stmt
     | ErrorStop(expr? code)
     | DoLoop(do_loop_head head, stmt* body)
     | DoConcurrentLoop(do_loop_head head, stmt* body)
-    | Select(expr test, case_stmt* body, case_default? default)
+    | Select(expr test, case_stmt* body, stmt* default)
     | Cycle()
     | Exit()
     | WhileLoop(expr test, stmt* body)
@@ -135,8 +135,6 @@ array_index = (expr? left, expr? right, expr? step)
 
 do_loop_head = (expr v, expr start, expr end, expr? increment)
 
-case_stmt = (expr test, stmt* body)
-
-case_default = (stmt* body)
+case_stmt = CaseStmt(expr* test, stmt* body) | CaseStmt_Range(expr? start, expr? end, stmt* body)
 
 }

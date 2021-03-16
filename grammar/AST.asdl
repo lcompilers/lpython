@@ -156,7 +156,7 @@ tbind = Bind(keyword* args)
 
 array_index = ArrayIndex(expr? left, expr? right, expr? step)
 
-case_stmt = CaseStmt(expr* test, stmt* body)
+case_stmt = CaseStmt(expr* test, stmt* body) | CaseStmt_Range(expr? start, expr? end, stmt* body)
 
 use_symbol = UseSymbol(identifier sym, identifier? rename)
 
