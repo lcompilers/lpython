@@ -49,10 +49,13 @@ symbol
 storage_type = Default | Save | Parameter
 access = Public | Private
 
-proc_external = (proc_external_type type, symbol? module_proc)
-proc_external_type
-    = LFortranModule
+proc_external = (abi abi, symbol? module_proc)
+
+abi
+    = Source
+    | LFortranModule
     | GFortranModule
+    | BindC
     | Interactive
     | Intrinsic
 
