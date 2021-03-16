@@ -490,14 +490,11 @@ public:
     }
 
     void visit_Function(const ASR::Function_t &x) {
-        bool interactive = false;
-        if (x.m_external) {
-            if (x.m_external->m_abi == ASR::abiType::Interactive) {
-                interactive = true;
-            } else {
+        if (x.m_abi != ASR::abiType::Source &&
+            x.m_abi != ASR::abiType::Interactive) {
                 return;
-            }
         }
+        bool interactive = (x.m_abi == ASR::abiType::Interactive);
 
         uint32_t h = get_hash((ASR::asr_t*)&x);
         llvm::Function *F = nullptr;
@@ -565,14 +562,11 @@ public:
     }
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
-        bool interactive = false;
-        if (x.m_external) {
-            if (x.m_external->m_abi == ASR::abiType::Interactive) {
-                interactive = true;
-            } else {
+        if (x.m_abi != ASR::abiType::Source &&
+            x.m_abi != ASR::abiType::Interactive) {
                 return;
-            }
         }
+        bool interactive = (x.m_abi == ASR::abiType::Interactive);
 
         uint32_t h = get_hash((ASR::asr_t*)&x);
         llvm::Function *F = nullptr;
@@ -1234,16 +1228,14 @@ public:
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
         ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(x.m_name);
         uint32_t h;
-        if (s->m_external) {
-            if (s->m_external->m_abi == ASR::abiType::LFortranModule) {
-                h = get_hash((ASR::asr_t*)s->m_external->m_module_proc);
-            } else if (s->m_external->m_abi == ASR::abiType::Interactive) {
-                h = get_hash((ASR::asr_t*)s);
-            } else {
-                throw CodeGenError("External type not implemented yet.");
-            }
-        } else {
+        if (s->m_abi == ASR::abiType::LFortranModule) {
+            throw CodeGenError("Subroutine LFortran interfaces not implemented yet");
+        } else if (s->m_abi == ASR::abiType::Interactive) {
             h = get_hash((ASR::asr_t*)s);
+        } else if (s->m_abi == ASR::abiType::Source) {
+            h = get_hash((ASR::asr_t*)s);
+        } else {
+            throw CodeGenError("External type not implemented yet.");
         }
         if (llvm_symtab_fn.find(h) == llvm_symtab_fn.end()) {
             throw CodeGenError("Subroutine code not generated for '"
@@ -1257,35 +1249,30 @@ public:
     void visit_FuncCall(const ASR::FuncCall_t &x) {
         ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(x.m_name);
         uint32_t h;
-        if (s->m_external) {
-            if (s->m_external->m_abi ==
-                    ASR::abiType::LFortranModule) {
-                h = get_hash((ASR::asr_t*)s->m_external->m_module_proc);
-            } else if (s->m_external->m_abi ==
-                    ASR::abiType::Interactive) {
-                h = get_hash((ASR::asr_t*)s);
-            } else if (s->m_external->m_abi ==
-                    ASR::abiType::Intrinsic) {
-                if (all_intrinsics.empty()) {
-                  populate_intrinsics();
-                }
-                // We use an unordered map to get the O(n) operation time
-                std::unordered_map<std::string, llvm::Function *>::const_iterator
-                    find_intrinsic = all_intrinsics.find(s->m_name);
-                if (find_intrinsic == all_intrinsics.end()) {
-                    throw CodeGenError("Intrinsic not implemented yet.");
-                } else {
-                    std::vector<llvm::Value *> args = convert_call_args(x);
-                    LFORTRAN_ASSERT(args.size() == 1);
-                    tmp = lfortran_intrinsic(find_intrinsic->second, args[0]);
-                    return;
-                }
-                h = get_hash((ASR::asr_t *)s);
-            } else {
-                throw CodeGenError("External type not implemented yet.");
-            }
-        } else {
+        if (s->m_abi == ASR::abiType::Source) {
             h = get_hash((ASR::asr_t*)s);
+        } else if (s->m_abi == ASR::abiType::LFortranModule) {
+            throw CodeGenError("Function LFortran interfaces not implemented yet");
+        } else if (s->m_abi == ASR::abiType::Interactive) {
+            h = get_hash((ASR::asr_t*)s);
+        } else if (s->m_abi == ASR::abiType::Intrinsic) {
+            if (all_intrinsics.empty()) {
+                populate_intrinsics();
+            }
+            // We use an unordered map to get the O(n) operation time
+            std::unordered_map<std::string, llvm::Function *>::const_iterator
+                find_intrinsic = all_intrinsics.find(s->m_name);
+            if (find_intrinsic == all_intrinsics.end()) {
+                throw CodeGenError("Intrinsic not implemented yet.");
+            } else {
+                std::vector<llvm::Value *> args = convert_call_args(x);
+                LFORTRAN_ASSERT(args.size() == 1);
+                tmp = lfortran_intrinsic(find_intrinsic->second, args[0]);
+                return;
+            }
+            h = get_hash((ASR::asr_t *)s);
+        } else {
+            throw CodeGenError("External type not implemented yet.");
         }
         if (llvm_symtab_fn.find(h) == llvm_symtab_fn.end()) {
             throw CodeGenError("Function code not generated for '"
