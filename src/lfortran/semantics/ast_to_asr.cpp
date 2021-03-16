@@ -313,7 +313,6 @@ public:
             /* n_args */ args.size(),
             /* a_body */ nullptr,
             /* n_body */ 0,
-            /* a_bind */ nullptr,
             ASR::abiType::Source,
             s_access);
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
@@ -425,7 +424,6 @@ public:
             /* n_args */ args.size(),
             /* a_body */ nullptr,
             /* n_body */ 0,
-            /* a_bind */ nullptr,
             /* a_return_var */ EXPR(return_var_ref),
             ASR::abiType::Source, s_access);
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
@@ -1417,7 +1415,6 @@ public:
                                        /* n_args */ 0,
                                        /* a_body */ nullptr,
                                        /* n_body */ 0,
-                                       /* a_bind */ nullptr,
                                        /* a_return_var */ EXPR(return_var_ref),
                                        ASR::abiType::Source,
                                        ASR::Public);
@@ -1449,7 +1446,6 @@ public:
                                        /* n_args */ 0,
                                        /* a_body */ nullptr,
                                        /* n_body */ 0,
-                                       /* a_bind */ nullptr,
                                        /* a_return_var */ EXPR(return_var_ref),
                                        ASR::abiType::Source,
                                        ASR::Public);
@@ -1506,7 +1502,6 @@ public:
                                              /* n_args */ args.n,
                                              /* a_body */ nullptr,
                                              /* n_body */ 0,
-                                             /* a_bind */ nullptr,
                                              /* a_return_var */ EXPR(return_var_ref),
                                              ASR::abiType::Intrinsic,
                                              ASR::Public);
