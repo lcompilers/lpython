@@ -44,3 +44,6 @@ endmacro(ADDTEST)
 
 ADDTEST(test_abs)
 ADDTEST(test_sin)
+ADDTEST(test_cos)
+ADDTEST(test_tan)
+ADDTEST(test_hyperbolics)

@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-intrinsics_04-a26f62c",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/intrinsics_04.f90",
+    "infile_hash": "e95a117d6bed3b82021acbe884a3fe41b77347785a619d231e54b9c7",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-intrinsics_04-a26f62c.stdout",
+    "stdout_hash": "b451443163113ab792e0586952278401154cfff6da584968cdcc8885",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

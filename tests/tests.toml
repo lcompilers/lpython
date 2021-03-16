@@ -671,8 +671,33 @@ filename = "../integration_tests/const_real_dp.f90"
 asr = true
 llvm = true
 
+# sin
 [[test]]
 filename = "../integration_tests/intrinsics_02.f90"
+asr = true
+llvm = true
+
+# cos
+[[test]]
+filename = "../integration_tests/intrinsics_03.f90"
+asr = true
+llvm = true
+
+# tan
+[[test]]
+filename = "../integration_tests/intrinsics_04.f90"
+asr = true
+llvm = true
+
+# hyperbolics
+[[test]]
+filename = "../integration_tests/intrinsics_05.f90"
+asr = true
+llvm = true
+
+# inverse trignometric functions
+[[test]]
+filename = "../integration_tests/intrinsics_06.f90"
 asr = true
 llvm = true
 

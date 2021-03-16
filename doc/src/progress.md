@@ -7,7 +7,7 @@
 
 ## Fortran Standards Supported
 
-LFortran currently supports a subset of the latest Fortran standard Fortran 2018. This document describes details about which features are supported and which are not.
+LFortran currently supports a subset of the latest Fortran standard [Fortran 2018 standard](https://j3-fortran.org/doc/year/18/18-007r1.pdf). This document describes details about which features are supported and which are not.
 
 ### Related Issues:
 
@@ -38,11 +38,11 @@ LFortran is currently in development and you might find some unsupported feature
 - ASR not created for a few features supported by LFortran
     - Conditional and iterative statements
     - Function Calls
-    - Arithmatic assignment(like a = 10)
+    - Arithmetic assignment(like a = 10)
     - Assignments with binary operations including any number
     - Logical Variables
     - Print Statements
-    - Intrinsic Fortran Functions like abs, sin, cos etc.
+    - Some intrinsic Fortran Functions (see below)
 
 ### Related Issues
 
@@ -59,14 +59,17 @@ LFortran does not support some of the standard intrinsic functions for the Fortr
 ### Currently Supported:
 
 - log
-
-### Not Suported/Currently in Development:
-
-- abs
-- sqrt
 - sin
 - cos
 - tan
+- sinh
+- cosh
+- tanh
+
+### Not Supported/Currently in Development:
+
+- abs
+- sqrt
 - asin
 - acos
 - atan
@@ -80,3 +83,6 @@ LFortran does not support some of the standard intrinsic functions for the Fortr
 - max
 - min
 - mod
+
+### Implementation Details
+This section is still subject to change. At the moment; the intrinsic functions are dispatched to `libm` and `glibc`. However, all functions are also being implemented so as to be usable from the Fortran runtime as well.
