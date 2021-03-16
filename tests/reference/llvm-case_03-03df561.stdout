@@ -21,7 +21,9 @@ source_filename = "LFortran"
 define i64 @main() {
 .entry:
   %a = alloca i64, align 8
+  store i64 1, i64* %a, align 4
   %b = alloca i64, align 8
+  store i64 2, i64* %b, align 4
   %marks = alloca i64, align 8
   store i64 94, i64* %marks, align 4
   %0 = load i64, i64* %b, align 4
