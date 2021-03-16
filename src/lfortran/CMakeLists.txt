@@ -14,6 +14,7 @@ set(SRC
 
     pass/do_loops.cpp
     pass/global_stmts.cpp
+    pass/select_case.cpp
 
     pickle.cpp
     cwrapper.cpp
