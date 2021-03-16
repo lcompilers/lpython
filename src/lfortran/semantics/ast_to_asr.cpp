@@ -548,39 +548,28 @@ public:
             for (auto &item : m->m_symtab->scope) {
                 // TODO: only import "public" symbols from the module
                 if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
-                    // TODO: use ExternalSymbol here
                     ASR::Subroutine_t *msub = ASR::down_cast<ASR::Subroutine_t>(item.second);
-                    //external->m_module_proc = (ASR::symbol_t*)msub;
-                    ASR::asr_t *sub = ASR::make_Subroutine_t(
+                    ASR::proc_external_t external;
+                    external.m_abi = ASR::abiType::LFortranModule;
+                    external.m_module_proc = (ASR::symbol_t*)msub;
+                    ASR::asr_t *sub = ASR::make_ExternalProc_t(
                         al, msub->base.base.loc,
-                        /* a_symtab */ msub->m_symtab,
+                        /* a_symtab */ current_scope,
                         /* a_name */ msub->m_name,
-                        /* a_args */ msub->m_args,
-                        /* n_args */ msub->n_args,
-                        /* a_body */ nullptr,
-                        /* n_body */ 0,
-                        /* a_bind */ msub->m_bind,
-                        ASR::abiType::LFortranModule,
-                        ASR::Public
+                        external
                         );
                     std::string sym = msub->m_name;
                     current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(sub);
                 } else if (ASR::is_a<ASR::Function_t>(*item.second)) {
-                    // TODO: use ExternalSymbol here
                     ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(item.second);
-                    //external->m_module_proc = (ASR::symbol_t*)mfn;
-                    ASR::asr_t *fn = ASR::make_Function_t(
+                    ASR::proc_external_t external;
+                    external.m_abi = ASR::abiType::LFortranModule;
+                    external.m_module_proc = (ASR::symbol_t*)mfn;
+                    ASR::asr_t *fn = ASR::make_ExternalProc_t(
                         al, mfn->base.base.loc,
-                        /* a_symtab */ mfn->m_symtab,
+                        /* a_symtab */ current_scope,
                         /* a_name */ mfn->m_name,
-                        /* a_args */ mfn->m_args,
-                        /* n_args */ mfn->n_args,
-                        /* a_body */ nullptr,
-                        /* n_body */ 0,
-                        /* a_bind */ mfn->m_bind,
-                        /* a_return_var */ mfn->m_return_var,
-                        ASR::abiType::LFortranModule,
-                        ASR::Public
+                        external
                         );
                     std::string sym = mfn->m_name;
                     current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
