@@ -35,9 +35,9 @@ symbol
     = Program(symbol_table symtab, identifier name, stmt* body)
     | Module(symbol_table symtab, identifier name)
     | Subroutine(symbol_table symtab, identifier name, expr* args, stmt* body,
-        tbind? bind, proc_external? external, access access)
+        tbind? bind, abi abi, access access)
     | Function(symbol_table symtab, identifier name, expr* args, stmt* body,
-        tbind? bind, expr return_var, proc_external? external, access access)
+        tbind? bind, expr return_var, abi abi, access access)
     | GenericProcedure(symbol_table parent_symtab, identifier name,
         symbol* procs, access access)
     | ExternalProc(symbol_table parent_symtab, identifier name,
