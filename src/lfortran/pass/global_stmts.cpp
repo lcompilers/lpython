@@ -90,7 +90,6 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                 /* n_args */ 0,
                 /* a_body */ body.p,
                 /* n_body */ body.size(),
-                /* a_bind */ nullptr,
                 /* a_return_var */ return_var_ref,
                 ASR::abiType::Source,
                 ASR::Public);
@@ -110,7 +109,6 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                 /* n_args */ 0,
                 /* a_body */ body.p,
                 /* n_body */ body.size(),
-                /* a_bind */ nullptr,
                 ASR::abiType::Source,
                 ASR::Public);
             std::string sym_name = fn_name;
