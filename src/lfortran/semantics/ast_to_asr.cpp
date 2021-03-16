@@ -928,7 +928,7 @@ public:
                 AST::CaseStmt_t* Case_Stmt = (AST::CaseStmt_t*)(&(x.base));
                 Vec<ASR::expr_t*> a_test_vec;
                 a_test_vec.reserve(al, Case_Stmt->n_test);
-                for( uint i = 0; i < Case_Stmt->n_test; i++ ) {
+                for( std::uint32_t i = 0; i < Case_Stmt->n_test; i++ ) {
                     this->visit_expr(*(Case_Stmt->m_test[i]));
                     ASR::expr_t* m_test_i = EXPR(tmp);
                     if( expr_type(m_test_i)->type != ASR::ttypeType::Integer ) {
@@ -939,7 +939,7 @@ public:
                 }
                 Vec<ASR::stmt_t*> case_body_vec;
                 case_body_vec.reserve(al, Case_Stmt->n_body);
-                for( uint i = 0; i < Case_Stmt->n_body; i++ ) {
+                for( std::uint32_t i = 0; i < Case_Stmt->n_body; i++ ) {
                     this->visit_stmt(*(Case_Stmt->m_body[i]));
                     case_body_vec.push_back(al, STMT(tmp));
                 }
@@ -968,7 +968,7 @@ public:
                 }
                 Vec<ASR::stmt_t*> case_body_vec;
                 case_body_vec.reserve(al, Case_Stmt->n_body);
-                for( uint i = 0; i < Case_Stmt->n_body; i++ ) {
+                for( std::uint32_t i = 0; i < Case_Stmt->n_body; i++ ) {
                     this->visit_stmt(*(Case_Stmt->m_body[i]));
                     case_body_vec.push_back(al, STMT(tmp));
                 }
@@ -992,13 +992,13 @@ public:
         }
         Vec<ASR::case_stmt_t*> a_body_vec;
         a_body_vec.reserve(al, x.n_body);
-        for( uint i = 0; i < x.n_body; i++ ) {
+        for( std::uint32_t i = 0; i < x.n_body; i++ ) {
             this->visit_case_stmt(*(x.m_body[i]));
             a_body_vec.push_back(al, CASE_STMT(tmp));
         }
         Vec<ASR::stmt_t*> def_body;
         def_body.reserve(al, x.n_default);
-        for( uint i = 0; i < x.n_default; i++ ) {
+        for( std::uint32_t i = 0; i < x.n_default; i++ ) {
             this->visit_stmt(*(x.m_default[i]));
             def_body.push_back(al, STMT(tmp));
         }

@@ -58,7 +58,7 @@ inline ASR::expr_t* gen_test_expr_CaseStmt(Allocator& al, const Location& loc, A
         ASR::expr_t* left = EXPR(ASR::make_Compare_t(al, loc, a_test, ASR::cmpopType::Eq, Case_Stmt->m_test[0], expr_type(a_test)));
         ASR::expr_t* right = EXPR(ASR::make_Compare_t(al, loc, a_test, ASR::cmpopType::Eq, Case_Stmt->m_test[1], expr_type(a_test)));
         test_expr = EXPR(ASR::make_BinOp_t(al, loc, left, ASR::binopType::Add, right, expr_type(left)));
-        for( uint j = 2; j < Case_Stmt->n_test; j++ ) {
+        for( std::uint32_t j = 2; j < Case_Stmt->n_test; j++ ) {
             ASR::expr_t* newExpr = EXPR(ASR::make_Compare_t(al, loc, a_test, ASR::cmpopType::Eq, Case_Stmt->m_test[j], expr_type(a_test)));
             test_expr = EXPR(ASR::make_BinOp_t(al, loc, test_expr, ASR::binopType::Add, newExpr, expr_type(newExpr)));
         }
