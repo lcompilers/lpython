@@ -1537,6 +1537,16 @@ public:
                     v, args.p, args.size(), nullptr, 0, type);
                 break;
             }
+            case (ASR::symbolType::ExternalProc) : {
+                Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
+                ASR::ttype_t *type;
+                ASR::symbol_t *f2 = ASR::down_cast<ASR::ExternalProc_t>(v)->m_external.m_module_proc;
+                LFORTRAN_ASSERT(f2);
+                type = EXPR2VAR(ASR::down_cast<ASR::Function_t>(f2)->m_return_var)->m_type;
+                tmp = ASR::make_FuncCall_t(al, x.base.base.loc,
+                    f2, args.p, args.size(), nullptr, 0, type);
+                break;
+            }
             case (ASR::symbolType::Variable) : {
                 Vec<ASR::array_index_t> args;
                 args.reserve(al, x.n_args);
