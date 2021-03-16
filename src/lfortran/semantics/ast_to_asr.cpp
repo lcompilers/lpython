@@ -648,24 +648,19 @@ public:
                             x.base.base.loc);
                     }
                     ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
-                    // TODO: Use ExternalSymbol
                     // `msub` is the Function in a module. Now we construct
                     // a new Function that is just the prototype, and that links to
                     // `mfn` via the `external` field.
+                    ASR::proc_external_t external;
+                    external.m_abi = ASR::abiType::LFortranModule;
+                    external.m_module_proc = (ASR::symbol_t*)mfn;
                     Str name;
                     name.from_str(al, local_sym);
-                    ASR::asr_t *fn = ASR::make_Function_t(
+                    ASR::asr_t *fn = ASR::make_ExternalProc_t(
                         al, mfn->base.base.loc,
-                        /* a_symtab */ mfn->m_symtab,
+                        /* a_symtab */ current_scope,
                         /* a_name */ name.c_str(al),
-                        /* a_args */ mfn->m_args,
-                        /* n_args */ mfn->n_args,
-                        /* a_body */ nullptr,
-                        /* n_body */ 0,
-                        /* a_bind */ mfn->m_bind,
-                        /* a_return_var */ mfn->m_return_var,
-                        ASR::abiType::LFortranModule,
-                        ASR::Public
+                        external
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(fn);
                 } else {
