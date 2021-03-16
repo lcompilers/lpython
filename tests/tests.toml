@@ -273,12 +273,14 @@ filename = "array1.f90"
 ast = true
 asr = true
 cpp = true
+llvm = true
 
 [[test]]
 filename = "array2.f90"
 ast = true
 asr = true
 cpp = true
+llvm = true
 
 [[test]]
 filename = "array3.f90"
@@ -286,36 +288,46 @@ tokens = true
 ast = true
 asr = true
 cpp = true
+llvm = true
 
 [[test]]
 filename = "array4.f90"
-ast = true
+asr = true
+llvm = true
 
 [[test]]
 filename = "array5.f90"
-ast = true
+asr = true
+llvm = true
 
 [[test]]
 filename = "../integration_tests/arrays_01.f90"
 cpp = true
+asr = true
+llvm = true
 
 [[test]]
 filename = "../integration_tests/arrays_02.f90"
-ast = true
 ast_f90 = true
+asr = true
+llvm = true
 
 [[test]]
 filename = "../integration_tests/arrays_03.f90"
 cpp = true
+asr = true
+llvm = true
 
 [[test]]
 filename = "../integration_tests/arrays_04.f90"
 asr = true
 cpp = true
+llvm = true
 
 [[test]]
 filename = "../integration_tests/arrays_07.f90"
-ast = true
+asr = true
+llvm = true
 
 [[test]]
 filename = "../integration_tests/types_01.f90"
