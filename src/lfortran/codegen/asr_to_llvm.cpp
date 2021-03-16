@@ -1257,26 +1257,29 @@ public:
         ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(x.m_name);
         uint32_t h;
         if (s->m_external) {
-            if (s->m_external->m_type == ASR::proc_external_typeType::LFortranModule) {
+            if (s->m_external->m_type ==
+                    ASR::proc_external_typeType::LFortranModule) {
                 h = get_hash((ASR::asr_t*)s->m_external->m_module_proc);
-            } else if (s->m_external->m_type == ASR::proc_external_typeType::Interactive) {
+            } else if (s->m_external->m_type ==
+                    ASR::proc_external_typeType::Interactive) {
                 h = get_hash((ASR::asr_t*)s);
-            } else if (s->m_external->m_type == ASR::proc_external_typeType::Intrinsic) {
-              if (all_intrinsics.empty()) {
-                populate_intrinsics();
-              }
-              // We use an unordered map to get the O(n) operation time
-              std::unordered_map<std::string, llvm::Function *>::const_iterator
-                  find_intrinsic = all_intrinsics.find(s->m_name);
-              if (find_intrinsic == all_intrinsics.end()) {
-                throw CodeGenError("Intrinsic not implemented yet.");
-              } else {
-                std::vector<llvm::Value *> args = convert_call_args(x);
-                LFORTRAN_ASSERT(args.size() == 1);
-                tmp = lfortran_intrinsic(find_intrinsic->second, args[0]);
-                return;
-              }
-              h = get_hash((ASR::asr_t *)s);
+            } else if (s->m_external->m_type ==
+                    ASR::proc_external_typeType::Intrinsic) {
+                if (all_intrinsics.empty()) {
+                  populate_intrinsics();
+                }
+                // We use an unordered map to get the O(n) operation time
+                std::unordered_map<std::string, llvm::Function *>::const_iterator
+                    find_intrinsic = all_intrinsics.find(s->m_name);
+                if (find_intrinsic == all_intrinsics.end()) {
+                    throw CodeGenError("Intrinsic not implemented yet.");
+                } else {
+                    std::vector<llvm::Value *> args = convert_call_args(x);
+                    LFORTRAN_ASSERT(args.size() == 1);
+                    tmp = lfortran_intrinsic(find_intrinsic->second, args[0]);
+                    return;
+                }
+                h = get_hash((ASR::asr_t *)s);
             } else {
                 throw CodeGenError("External type not implemented yet.");
             }
@@ -1294,25 +1297,25 @@ public:
 
     //!< Meant to be called only once
     void populate_intrinsics() {
-      std::vector<std::string> supported = {
-          "sin",  "cos",  "tan",  "sinh",  "cosh",  "tanh",
-          "asin", "acos", "atan", "asinh", "acosh", "atanh"};
+        std::vector<std::string> supported = {
+            "sin",  "cos",  "tan",  "sinh",  "cosh",  "tanh",
+            "asin", "acos", "atan", "asinh", "acosh", "atanh"};
 
-      for (auto sv : supported) {
-        auto fname = "_lfortran_" + sv;
-        llvm::Function *fn = module->getFunction(fname);
-        if (!fn) {
-          llvm::FunctionType *function_type =
-              llvm::FunctionType::get(llvm::Type::getVoidTy(context),
-                                      {llvm::Type::getFloatTy(context),
-                                       llvm::Type::getFloatPtrTy(context)},
-                                      false);
-          fn = llvm::Function::Create(
-              function_type, llvm::Function::ExternalLinkage, fname, *module);
+        for (auto sv : supported) {
+            auto fname = "_lfortran_" + sv;
+            llvm::Function *fn = module->getFunction(fname);
+            if (!fn) {
+              llvm::FunctionType *function_type =
+                  llvm::FunctionType::get(llvm::Type::getVoidTy(context),
+                                          {llvm::Type::getFloatTy(context),
+                                           llvm::Type::getFloatPtrTy(context)},
+                                          false);
+              fn = llvm::Function::Create(
+                  function_type, llvm::Function::ExternalLinkage, fname, *module);
+            }
+            all_intrinsics[sv] = fn;
         }
-        all_intrinsics[sv] = fn;
-      }
-      return;
+        return;
     }
 };
 
