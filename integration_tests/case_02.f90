@@ -2,7 +2,8 @@ program case_02
     implicit none
 
     ! local variable declaration
-    integer :: marks = 78
+    integer :: marks
+    marks = 81
  
     select case (marks)
     

@@ -930,6 +930,11 @@ public:
                 a_test_vec.reserve(al, Case_Stmt->n_test);
                 for( uint i = 0; i < Case_Stmt->n_test; i++ ) {
                     this->visit_expr(*(Case_Stmt->m_test[i]));
+                    ASR::expr_t* m_test_i = EXPR(tmp);
+                    if( expr_type(m_test_i)->type != ASR::ttypeType::Integer ) {
+                        throw SemanticError(R"""(Expression in Case selector can only be an Integer)""", 
+                                            x.base.loc);
+                    }
                     a_test_vec.push_back(al, EXPR(tmp));
                 }
                 Vec<ASR::stmt_t*> case_body_vec;
@@ -948,10 +953,18 @@ public:
                 if( Case_Stmt->m_start != nullptr ) {
                     this->visit_expr(*(Case_Stmt->m_start));
                     m_start = EXPR(tmp);
+                    if( expr_type(m_start)->type != ASR::ttypeType::Integer ) {
+                        throw SemanticError(R"""(Expression in Case selector can only be an Integer)""", 
+                                            x.base.loc);
+                    }
                 }
                 if( Case_Stmt->m_end != nullptr ) {
                     this->visit_expr(*(Case_Stmt->m_end));
                     m_end = EXPR(tmp);
+                    if( expr_type(m_end)->type != ASR::ttypeType::Integer ) {
+                        throw SemanticError(R"""(Expression in Case selector can only be an Integer)""", 
+                                            x.base.loc);
+                    }
                 }
                 Vec<ASR::stmt_t*> case_body_vec;
                 case_body_vec.reserve(al, Case_Stmt->n_body);
@@ -974,6 +987,9 @@ public:
     void visit_Select(const AST::Select_t& x) {
         this->visit_expr(*(x.m_test));
         ASR::expr_t* a_test = EXPR(tmp);
+        if( expr_type(a_test)->type != ASR::ttypeType::Integer ) {
+            throw SemanticError(R"""(Expression in Case selector can only be an Integer)""", x.base.base.loc);
+        }
         Vec<ASR::case_stmt_t*> a_body_vec;
         a_body_vec.reserve(al, x.n_body);
         for( uint i = 0; i < x.n_body; i++ ) {
