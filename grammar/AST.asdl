@@ -101,7 +101,7 @@ expr
     | Complex(expr re, expr im)
     | Str(string s)
     | Name(identifier id)
-    | Constant(bool value)
+    | Logical(bool value)
 
 boolop = And | Or | Eqv | NEqv
 

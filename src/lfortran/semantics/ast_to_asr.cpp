@@ -1544,7 +1544,7 @@ public:
         tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, x.m_n, type);
     }
 
-    void visit_Constant(const AST::Constant_t &x) {
+    void visit_Logical(const AST::Logical_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Logical_t(al, x.base.base.loc,
                 4, nullptr, 0));
         tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, x.m_value, type);
