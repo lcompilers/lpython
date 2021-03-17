@@ -116,8 +116,8 @@ uint32_t SymbolTable::get_hash_uint32() {
                 hash = murmur_hash_str(v->m_name, hash);
                 break;
             }
-            case (ASR::symbolType::ExternalProc) : {
-                ASR::ExternalProc_t *v = ASR::down_cast<ASR::ExternalProc_t>(a.second);
+            case (ASR::symbolType::ExternalSymbol) : {
+                ASR::ExternalSymbol_t *v = ASR::down_cast<ASR::ExternalSymbol_t>(a.second);
                 hash = murmur_hash_str(v->m_name, hash);
                 break;
             }

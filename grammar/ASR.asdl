@@ -40,7 +40,7 @@ symbol
         expr return_var, abi abi, access access)
     | GenericProcedure(symbol_table parent_symtab, identifier name,
         symbol* procs, access access)
-    | ExternalProc(symbol_table parent_symtab, identifier name,
+    | ExternalSymbol(symbol_table parent_symtab, identifier name,
         symbol external, access acess)
     | DerivedType(symbol_table symtab, identifier name, abi abi, access access)
     | Variable(symbol_table parent_symtab, identifier name, intent intent,
