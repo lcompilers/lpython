@@ -395,7 +395,8 @@ public:
             // Add it as a local variable:
             return_var = ASR::make_Variable_t(al, x.base.base.loc,
                 current_scope, return_var_name, intent_return_var, nullptr,
-                ASR::storage_typeType::Default, type, ASR::Public);
+                ASR::storage_typeType::Default, type,
+                ASR::abiType::Source, ASR::Public);
             current_scope->scope[std::string(return_var_name)]
                 = ASR::down_cast<ASR::symbol_t>(return_var);
         } else {
@@ -472,7 +473,8 @@ public:
         if (current_scope->scope.find(sym_name) != current_scope->scope.end()) {
             throw SemanticError("DerivedType already defined", x.base.base.loc);
         }
-        asr = ASR::make_DerivedType_t(al, x.base.base.loc, current_scope, x.m_name);
+        asr = ASR::make_DerivedType_t(al, x.base.base.loc, current_scope,
+            x.m_name, ASR::abiType::Source, dflt_access);
         parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
 
         current_scope = parent_scope;
@@ -554,7 +556,8 @@ public:
                         al, msub->base.base.loc,
                         /* a_symtab */ current_scope,
                         /* a_name */ msub->m_name,
-                        external
+                        external,
+                        dflt_access
                         );
                     std::string sym = msub->m_name;
                     current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(sub);
@@ -567,7 +570,8 @@ public:
                         al, mfn->base.base.loc,
                         /* a_symtab */ current_scope,
                         /* a_name */ mfn->m_name,
-                        external
+                        external,
+                        dflt_access
                         );
                     std::string sym = mfn->m_name;
                     current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
@@ -609,7 +613,8 @@ public:
                         al, msub->base.base.loc,
                         /* a_symtab */ current_scope,
                         /* a_name */ name.c_str(al),
-                        external
+                        external,
+                        dflt_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(sub);
                 } else if (ASR::is_a<ASR::GenericProcedure_t>(*t)) {
@@ -626,7 +631,8 @@ public:
                         al, t->base.loc,
                         current_scope,
                         /* a_name */ name.c_str(al),
-                        /* a_external */ *external
+                        /* a_external */ *external,
+                        dflt_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(ep);
                 } else if (ASR::is_a<ASR::Function_t>(*t)) {
@@ -647,7 +653,8 @@ public:
                         al, mfn->base.base.loc,
                         /* a_symtab */ current_scope,
                         /* a_name */ name.c_str(al),
-                        external
+                        external,
+                        dflt_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(fn);
                 } else {
@@ -839,7 +846,8 @@ public:
                 ImplicitCastRules::set_converted_value(al, x.loc, &init_expr, init_type, type);
             }
             ASR::asr_t *v = ASR::make_Variable_t(al, x.loc, current_scope,
-                    x.m_sym, s_intent, init_expr, storage_type, type, s_access);
+                    x.m_sym, s_intent, init_expr, storage_type, type,
+                    ASR::abiType::Source, s_access);
             current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(v);
 
         }
@@ -1402,7 +1410,9 @@ public:
                 type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
                 ASR::asr_t *return_var = ASR::make_Variable_t(
                     al, x.base.base.loc, fn_scope, fn_name, intent_return_var,
-                    nullptr, ASR::storage_typeType::Default, type, ASR::Public);
+                    nullptr, ASR::storage_typeType::Default, type,
+                    ASR::abiType::Source,
+                    ASR::Public);
                 fn_scope->scope[std::string(fn_name)] =
                     ASR::down_cast<ASR::symbol_t>(return_var);
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(
@@ -1433,7 +1443,9 @@ public:
                 type = TYPE(ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
                 ASR::asr_t *return_var = ASR::make_Variable_t(
                     al, x.base.base.loc, fn_scope, fn_name, intent_return_var,
-                    nullptr, ASR::storage_typeType::Default, type, ASR::Public);
+                    nullptr, ASR::storage_typeType::Default, type,
+                    ASR::abiType::Source,
+                    ASR::Public);
                 fn_scope->scope[std::string(fn_name)] =
                     ASR::down_cast<ASR::symbol_t>(return_var);
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(
@@ -1480,7 +1492,9 @@ public:
                     char *arg0_s = (char *)arg0_s_orig;
                     ASR::asr_t *arg0 = ASR::make_Variable_t(
                         al, x.base.base.loc, fn_scope, arg0_s, intent_in, nullptr,
-                        ASR::storage_typeType::Default, type, ASR::Public);
+                        ASR::storage_typeType::Default, type,
+                        ASR::abiType::Source,
+                        ASR::Public);
                     ASR::symbol_t *var = ASR::down_cast<ASR::symbol_t>(arg0);
                     fn_scope->scope[std::string(arg0_s)] = var;
                     args.push_back(al, EXPR(ASR::make_Var_t(al, x.base.base.loc, var)));
@@ -1489,7 +1503,9 @@ public:
                     type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
                     ASR::asr_t *return_var = ASR::make_Variable_t(
                         al, x.base.base.loc, fn_scope, fn_name, intent_return_var,
-                        nullptr, ASR::storage_typeType::Default, type, ASR::Public);
+                        nullptr, ASR::storage_typeType::Default, type,
+                        ASR::abiType::Source,
+                        ASR::Public);
                     fn_scope->scope[std::string(fn_name)] =
                         ASR::down_cast<ASR::symbol_t>(return_var);
                     ASR::asr_t *return_var_ref = ASR::make_Var_t(
