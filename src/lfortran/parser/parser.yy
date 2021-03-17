@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    430 // shift/reduce conflicts
+%expect    465 // shift/reduce conflicts
 %expect-rr 78  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -561,6 +561,11 @@ end_subroutine_opt
     | %empty
     ;
 
+end_procedure_opt
+    : KW_PROCEDURE id_opt
+    | %empty
+    ;
+
 end_function_opt
     : KW_FUNCTION id_opt
     | %empty
@@ -577,6 +582,11 @@ subroutine
         contains_block_opt
         KW_END end_subroutine_opt sep {
             LLOC(@$, @14); $$ = SUBROUTINE($3, $4, $10, $11, @$); }
+    | KW_MODULE KW_PROCEDURE id sub_args sep use_statement_star
+    import_statement_opt implicit_statement_opt decl_star statements
+        contains_block_opt
+        KW_END end_procedure_opt sep {
+            LLOC(@$, @14); $$ = SUBROUTINE($3, $4, $9, $10, @$); }
     ;
 
 function
