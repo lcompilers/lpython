@@ -549,28 +549,22 @@ public:
                 // TODO: only import "public" symbols from the module
                 if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
                     ASR::Subroutine_t *msub = ASR::down_cast<ASR::Subroutine_t>(item.second);
-                    ASR::proc_external_t external;
-                    external.m_abi = ASR::abiType::LFortranModule;
-                    external.m_module_proc = (ASR::symbol_t*)msub;
                     ASR::asr_t *sub = ASR::make_ExternalProc_t(
                         al, msub->base.base.loc,
                         /* a_symtab */ current_scope,
                         /* a_name */ msub->m_name,
-                        external,
+                        (ASR::symbol_t*)msub,
                         dflt_access
                         );
                     std::string sym = msub->m_name;
                     current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(sub);
                 } else if (ASR::is_a<ASR::Function_t>(*item.second)) {
                     ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(item.second);
-                    ASR::proc_external_t external;
-                    external.m_abi = ASR::abiType::LFortranModule;
-                    external.m_module_proc = (ASR::symbol_t*)mfn;
                     ASR::asr_t *fn = ASR::make_ExternalProc_t(
                         al, mfn->base.base.loc,
                         /* a_symtab */ current_scope,
                         /* a_name */ mfn->m_name,
-                        external,
+                        (ASR::symbol_t*)mfn,
                         dflt_access
                         );
                     std::string sym = mfn->m_name;
@@ -604,16 +598,13 @@ public:
                     // `msub` is the Subroutine in a module. Now we construct
                     // a new Subroutine that is just the prototype, and that links to
                     // `msub` via the `external` field.
-                    ASR::proc_external_t external;
-                    external.m_abi = ASR::abiType::LFortranModule;
-                    external.m_module_proc = (ASR::symbol_t*)msub;
                     Str name;
                     name.from_str(al, local_sym);
                     ASR::asr_t *sub = ASR::make_ExternalProc_t(
                         al, msub->base.base.loc,
                         /* a_symtab */ current_scope,
                         /* a_name */ name.c_str(al),
-                        external,
+                        (ASR::symbol_t*)msub,
                         dflt_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(sub);
@@ -622,16 +613,13 @@ public:
                         throw SemanticError("Symbol already defined",
                             x.base.base.loc);
                     }
-                    ASR::proc_external_t *external = al.make_new<ASR::proc_external_t>();
-                    external->m_abi = ASR::abiType::LFortranModule;
-                    external->m_module_proc = t;
                     Str name;
                     name.from_str(al, local_sym);
                     ASR::asr_t *ep = ASR::make_ExternalProc_t(
                         al, t->base.loc,
                         current_scope,
                         /* a_name */ name.c_str(al),
-                        /* a_external */ *external,
+                        t,
                         dflt_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(ep);
@@ -644,16 +632,13 @@ public:
                     // `msub` is the Function in a module. Now we construct
                     // a new Function that is just the prototype, and that links to
                     // `mfn` via the `external` field.
-                    ASR::proc_external_t external;
-                    external.m_abi = ASR::abiType::LFortranModule;
-                    external.m_module_proc = (ASR::symbol_t*)mfn;
                     Str name;
                     name.from_str(al, local_sym);
                     ASR::asr_t *fn = ASR::make_ExternalProc_t(
                         al, mfn->base.base.loc,
                         /* a_symtab */ current_scope,
                         /* a_name */ name.c_str(al),
-                        external,
+                        (ASR::symbol_t*)mfn,
                         dflt_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(fn);
@@ -1361,7 +1346,7 @@ public:
             }
             case (ASR::symbolType::ExternalProc) : {
                 ASR::ExternalProc_t *p = ASR::down_cast<ASR::ExternalProc_t>(sub);
-                ASR::symbol_t *s = p->m_external.m_module_proc;
+                ASR::symbol_t *s = p->m_external;
                 switch (s->type) {
                     case (ASR::symbolType::Subroutine) : {
                         return s;
@@ -1540,7 +1525,7 @@ public:
             case (ASR::symbolType::ExternalProc) : {
                 Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
                 ASR::ttype_t *type;
-                ASR::symbol_t *f2 = ASR::down_cast<ASR::ExternalProc_t>(v)->m_external.m_module_proc;
+                ASR::symbol_t *f2 = ASR::down_cast<ASR::ExternalProc_t>(v)->m_external;
                 LFORTRAN_ASSERT(f2);
                 type = EXPR2VAR(ASR::down_cast<ASR::Function_t>(f2)->m_return_var)->m_type;
                 tmp = ASR::make_FuncCall_t(al, x.base.base.loc,
