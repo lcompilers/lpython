@@ -100,11 +100,6 @@ def convert_type(asdl_type, seq, opt, mod_name):
     elif asdl_type == "constant":
         type_ = "bool"
         assert not seq
-    elif asdl_type == "object":
-        # FIXME: this should use some other type that we actually need
-        type_ = "int /* object */"
-        if seq:
-            type_ = type_ + "*"
     elif asdl_type == "node":
         type_ = "%s_t*" % mod_name
         if seq:

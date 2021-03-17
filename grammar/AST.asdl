@@ -13,7 +13,6 @@
 --   * int (signed integers of infinite precision)
 --   * string
 -- We extend these by:
---   * object (any Python object)
 --   * node (any ASDL node)
 --   * constant
 --
@@ -97,7 +96,7 @@ expr
     | FuncCallOrArray(identifier func, fnarg* args, keyword* keywords)
     | Array(identifier name, array_index* args)
     | ArrayInitializer(expr* args)
-    | Num(object n)
+    | Num(int n)
     | Real(string n)
     | Complex(expr re, expr im)
     | Str(string s)
