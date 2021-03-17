@@ -274,8 +274,8 @@ public:
         // external (global variable not declared/initialized in this
         // translation unit, just referenced).
         LFORTRAN_ASSERT(x.m_intent == intent_local
-            || x.m_intent == intent_external);
-        bool external = (x.m_intent == intent_external);
+            || x.m_abi == ASR::abiType::Interactive);
+        bool external = (x.m_abi != ASR::abiType::Source);
         if (x.m_type->type == ASR::ttypeType::Integer) {
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
                 llvm::Type::getInt64Ty(context));
