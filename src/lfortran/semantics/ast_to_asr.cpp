@@ -696,6 +696,7 @@ public:
         }
         std::string sym_type = x.m_sym_type;
         ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
+        bool is_pointer = false;
         if (current_scope->scope.find(sym) == current_scope->scope.end()) {
             ASR::intentType s_intent=intent_local;
             Vec<ASR::dimension_t> dims;
@@ -707,8 +708,7 @@ public:
                         s_access = ASR::Private;
                     } else if (std::string(a->m_name) == "public") {
                         s_access = ASR::Public;
-                    }
-                    if (std::string(a->m_name) == "intent") {
+                    } else if (std::string(a->m_name) == "intent") {
                         if (a->n_args > 0) {
                             std::string intent = std::string(a->m_args[0].m_arg);
                             if (intent == "in") {
@@ -746,6 +746,8 @@ public:
                         }
                     } else if( std::string(a->m_name) == "parameter" ) {
                         storage_type = ASR::storage_typeType::Parameter;
+                    } else if( std::string(a->m_name) == "pointer" ) {
+                        is_pointer = true;
                     }
                 }
             }
@@ -805,7 +807,11 @@ public:
             if (sym_type == "real") {
                 type = TYPE(ASR::make_Real_t(al, x.loc, a_kind, dims.p, dims.size()));
             } else if (sym_type == "integer") {
-                type = TYPE(ASR::make_Integer_t(al, x.loc, 4, dims.p, dims.size()));
+                if( is_pointer ) {
+                    type = TYPE(ASR::make_IntegerPointer_t(al, x.loc, a_kind, dims.p, dims.size()));
+                } else {
+                    type = TYPE(ASR::make_Integer_t(al, x.loc, a_kind, dims.p, dims.size()));
+                }
             } else if (sym_type == "logical") {
                 type = TYPE(ASR::make_Logical_t(al, x.loc, 4, dims.p, dims.size()));
             } else if (sym_type == "complex") {
@@ -887,6 +893,13 @@ public:
     void visit_Declaration(const AST::Declaration_t & /* x */) {
         // This AST node was already visited in SymbolTableVisitor
     }
+
+    void visit_Associate(const AST::Associate_t& x) {
+        this->visit_expr(*(x.m_target));
+        ASR::expr_t* target = EXPR(tmp);
+        this->visit_expr(*(x.m_value));
+        ASR::expr_t* value = EXPR(tmp);
+    } 
 
     void visit_case_stmt(const AST::case_stmt_t& x) {
         switch(x.type) {

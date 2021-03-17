@@ -126,6 +126,7 @@ abi                   -- External     ABI
 
 stmt
     = Assignment(expr target, expr value)
+    | Associate(expr target, expr value)
     | SubroutineCall(symbol name, symbol? original_name, expr* args)
     | BuiltinCall(identifier name, expr* args)
     | If(expr test, stmt* body, stmt* orelse)
@@ -161,6 +162,7 @@ expr
 
 ttype
     = Integer(int kind, dimension* dims)
+    | IntegerPointer(int kind, dimension* dims)
     | Real(int kind, dimension* dims)
     | Complex(int kind, dimension* dims)
     | Character(int kind, dimension* dims)
