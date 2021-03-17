@@ -761,3 +761,7 @@ filename = "../integration_tests/subroutines_04.f90"
 ast = true
 asr = true
 llvm = true
+
+[[test]]
+filename = "../integration_tests/parsing_01.f90"
+ast = true
