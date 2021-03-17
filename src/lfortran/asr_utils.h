@@ -15,6 +15,11 @@ static inline ASR::stmt_t* STMT(const ASR::asr_t *f)
     return ASR::down_cast<ASR::stmt_t>(f);
 }
 
+static inline ASR::case_stmt_t* CASE_STMT(const ASR::asr_t *f)
+{
+    return ASR::down_cast<ASR::case_stmt_t>(f);
+}
+
 static inline ASR::ttype_t* TYPE(const ASR::asr_t *f)
 {
     return ASR::down_cast<ASR::ttype_t>(f);
@@ -73,8 +78,8 @@ static inline char *symbol_name(const ASR::symbol_t *f)
         case ASR::symbolType::Variable: {
             return ASR::down_cast<ASR::Variable_t>(f)->m_name;
         }
-        case ASR::symbolType::ExternalProc: {
-            return ASR::down_cast<ASR::ExternalProc_t>(f)->m_name;
+        case ASR::symbolType::ExternalSymbol: {
+            return ASR::down_cast<ASR::ExternalSymbol_t>(f)->m_name;
         }
         default : throw LFortranException("Not implemented");
     }
@@ -104,8 +109,8 @@ static inline SymbolTable *symbol_parent_symtab(const ASR::symbol_t *f)
         case ASR::symbolType::Variable: {
             return ASR::down_cast<ASR::Variable_t>(f)->m_parent_symtab;
         }
-        case ASR::symbolType::ExternalProc: {
-            return ASR::down_cast<ASR::ExternalProc_t>(f)->m_parent_symtab;
+        case ASR::symbolType::ExternalSymbol: {
+            return ASR::down_cast<ASR::ExternalSymbol_t>(f)->m_parent_symtab;
         }
         default : throw LFortranException("Not implemented");
     }
@@ -116,7 +121,6 @@ const ASR::intentType intent_in   =ASR::intentType::In; // dummy argument, inten
 const ASR::intentType intent_out  =ASR::intentType::Out; // dummy argument, intent(out)
 const ASR::intentType intent_inout=ASR::intentType::InOut; // dummy argument, intent(inout)
 const ASR::intentType intent_return_var=ASR::intentType::ReturnVar; // return variable of a function
-const ASR::intentType intent_external=ASR::intentType::External; // external variable
 
 static inline bool is_arg_dummy(int intent) {
     return intent == intent_in || intent == intent_out

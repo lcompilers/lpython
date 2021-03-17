@@ -852,7 +852,7 @@ public:
         s = std::string(x.m_id);
     }
 
-    void visit_Constant(const Constant_t &x) {
+    void visit_Logical(const Logical_t &x) {
         s = syn(gr::Logical);
         if (x.m_value) {
             s += ".true.";

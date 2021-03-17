@@ -46,7 +46,6 @@ using LFortran::AST::Num_t;
 
 using LFortran::AST::make_BinOp_t;
 using LFortran::AST::make_Attribute_t;
-using LFortran::AST::make_Constant_t;
 using LFortran::AST::make_DoLoop_t;
 using LFortran::AST::make_Exit_t;
 using LFortran::AST::make_Cycle_t;
@@ -408,8 +407,8 @@ static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
 #define POW(x, y, l) make_BinOp_t(p.m_a, l, EXPR(x), operatorType::Pow, EXPR(y))
 #define UNARY_MINUS(x, l) make_UnaryOp_t(p.m_a, l, unaryopType::USub, EXPR(x))
 #define UNARY_PLUS(x, l) make_UnaryOp_t(p.m_a, l, unaryopType::UAdd, EXPR(x))
-#define TRUE(l) make_Constant_t(p.m_a, l, true)
-#define FALSE(l) make_Constant_t(p.m_a, l, false)
+#define TRUE(l) LFortran::AST::make_Logical_t(p.m_a, l, true)
+#define FALSE(l) LFortran::AST::make_Logical_t(p.m_a, l, false)
 
 #define STRCONCAT(x, y, l) make_StrOp_t(p.m_a, l, EXPR(x), stroperatorType::Concat, EXPR(y))
 
@@ -823,12 +822,12 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
 
 #define CASE_STMT(cond, body, l) make_CaseStmt_t(p.m_a, l, \
         EXPRS(cond), cond.size(), STMTS(body), body.size())
-#define CASE_STMT2(cond, body, l) make_CaseStmt_t(p.m_a, l, \
-        nullptr, 0, STMTS(body), body.size())
-#define CASE_STMT3(cond, body, l) make_CaseStmt_t(p.m_a, l, \
-        nullptr, 0, STMTS(body), body.size())
-#define CASE_STMT4(cond1, cond2, body, l) make_CaseStmt_t(p.m_a, l, \
-        nullptr, 0, STMTS(body), body.size())
+#define CASE_STMT2(cond, body, l) make_CaseStmt_Range_t(p.m_a, l, \
+        EXPR(cond), nullptr, STMTS(body), body.size())
+#define CASE_STMT3(cond, body, l) make_CaseStmt_Range_t(p.m_a, l, \
+        nullptr, EXPR(cond), STMTS(body), body.size())
+#define CASE_STMT4(cond1, cond2, body, l) make_CaseStmt_Range_t(p.m_a, l, \
+        EXPR(cond1), EXPR(cond2), STMTS(body), body.size())
 
 #define USE1(mod, l) make_Use_t(p.m_a, l, \
         name2char(mod), \

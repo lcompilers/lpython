@@ -865,7 +865,7 @@ public:
             s.append(x.m_id);
         }
     }
-    void visit_Constant(const Constant_t &/*x*/) {
+    void visit_Logical(const Logical_t &/*x*/) {
         s.append("(");
         if (use_colors) {
             s.append(color(style::bold));

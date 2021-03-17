@@ -19,8 +19,7 @@
 --   * int (signed integers of infinite precision)
 --   * string
 -- We extend these by:
---   * object (any Python object)
---   * constant (.true. / .false.)
+--   * bool (.true. / .false.)
 --   * symbol_table (scoped Symbol Table implementation)
 --   * node (any ASR node)
 --
@@ -31,34 +30,103 @@ module ASR {
 unit
     = TranslationUnit(symbol_table global_scope, node* items)
 
+-- # Documentation for the symbol type
+
+-- Each symbol has either `symtab` (local symbol table) or `parent_symtab`
+-- (where this symbol is stored). One can get to parent_symtab via symtab, so
+-- only one is present.
+
+-- Each symbol has a `name` for easy lookup of the name of the symbol when only
+-- having a pointer to it.
+
+-- abi=Source means the symbol's implementation is included (full ASR),
+-- otherwise it is external (interface ASR, such as procedure interface).
+
+-- SubroutineCall/FuncCall store the actual final resolved subroutine or
+-- function (`name` member). They also store the original symbol
+-- (`original_name`), which can be one of: null, GenericProcedure or
+-- ExternalSymbol.
+
+-- When a module is compiled, it is parsed into full ASR, an object file is
+-- produced, the full ASR (abi=Source, "body" is non-empty) is transformed into
+-- interface ASR (abi=LFortran, "body" is empty). Both interface and full ASR
+-- is saved into the mod file.
+
+-- When a module is used, it is first looked up in the symbol table (as either
+-- full or interface ASR) and used if it is present. Otherwise a mod file is
+-- found on the disk, loaded (as either full or interface ASR for LFortran's
+-- mod file, depending on LFortran's compiler options; or for GFortran's mod
+-- file the corresponding interface ASR is constructed with abi=GFortran) and
+-- used. After the ASR is loaded, the symbols that are used are represented as
+-- ExternalSymbols in the current scope of the symbol table.
+
+-- REPL: each cell is parsed into full ASR, compiled + executed, the full ASR
+-- is transformed into interface ASR (abi=LFortran) and kept in the symbol
+-- table. A new cell starts with an empty symbol table, whose parent symbol
+-- table is the previous cell. That allows function / declaration shadowing.
+
+
 symbol
     = Program(symbol_table symtab, identifier name, stmt* body)
     | Module(symbol_table symtab, identifier name)
     | Subroutine(symbol_table symtab, identifier name, expr* args, stmt* body,
-        tbind? bind, proc_external? external, access access)
+        abi abi, access access)
     | Function(symbol_table symtab, identifier name, expr* args, stmt* body,
-        tbind? bind, expr return_var, proc_external? external, access access)
+        expr return_var, abi abi, access access)
     | GenericProcedure(symbol_table parent_symtab, identifier name,
         symbol* procs, access access)
-    | ExternalProc(symbol_table parent_symtab, identifier name,
-        proc_external external)
-    | DerivedType(symbol_table symtab, identifier name)
+    | ExternalSymbol(symbol_table parent_symtab, identifier name,
+        symbol external, access acess)
+    | DerivedType(symbol_table symtab, identifier name, abi abi, access access)
     | Variable(symbol_table parent_symtab, identifier name, intent intent,
-        expr? value, storage_type storage, ttype type, access access)
+        expr? value, storage_type storage, ttype type, abi abi, access access)
 
 storage_type = Default | Save | Parameter
 access = Public | Private
+intent = Local | In | Out | InOut | ReturnVar
 
-proc_external = (proc_external_type type, symbol? module_proc)
-proc_external_type
-    = LFortranModule
-    | GFortranModule
-    | Interactive
-    | Intrinsic
+-- # Documentation for the ABI type
+
+-- External Yes: the symbol's implementation is not part of ASR, the
+-- symbol is just an interface (e.g., subroutine/function interface, or variable
+-- marked as external, not allocated by this ASR).
+
+-- External No:  the symbol's implementation is part of ASR (e.g.,
+-- subroutine/function body is included, variables must be allocated).
+
+-- abi=Source: The symbol's implementation is included in ASR, the backend is
+-- free to use any ABI it wants (it might also decide to inline or eliminate
+-- the code in optimizations).
+
+-- abi=LFortranModule/GFortranModule/BindC: the symbol's implementation is
+-- stored as machine code in some object file that needs to be linked in. It
+-- uses the specified ABI (one of LFortran module, GFortran module or C ABI).
+-- An interface that uses `iso_c_binding` and `bind(c)` is represented using
+-- abi=BindC.
+
+-- abi=Interactive: the symbol's implementation has been provided by the
+-- previous REPL execution (e.g., if LLVM backend is used for the interactive
+-- mode, the previous execution generated machine code for this symbol's
+-- implementation that was loaded into memory). Note: this option might be
+-- converted/eliminated to just use LFortran ABI in the future.
+
+-- abi=Intrinsic: the symbol's implementation is implicitly provided by the
+-- language itself as an intrinsic function. That means the backend is free to
+-- implement it in any way it wants. The function does not have a body, it is
+-- just an interface.
+
+abi                   -- External     ABI
+    = Source          --   No         Unspecified
+    | LFortranModule  --   Yes        LFortran
+    | GFortranModule  --   Yes        GFortran
+    | BindC           --   Yes        C
+    | Interactive     --   Yes        Unspecified
+    | Intrinsic       --   Yes        Unspecified
+
 
 stmt
     = Assignment(expr target, expr value)
-    | SubroutineCall(symbol name, expr* args)
+    | SubroutineCall(symbol name, symbol? original_name, expr* args)
     | BuiltinCall(identifier name, expr* args)
     | If(expr test, stmt* body, stmt* orelse)
     | Where(expr test, stmt* body, stmt* orelse)
@@ -66,7 +134,7 @@ stmt
     | ErrorStop(expr? code)
     | DoLoop(do_loop_head head, stmt* body)
     | DoConcurrentLoop(do_loop_head head, stmt* body)
-    | Select(expr test, case_stmt* body, case_default? default)
+    | Select(expr test, case_stmt* body, stmt* default)
     | Cycle()
     | Exit()
     | WhileLoop(expr test, stmt* body)
@@ -78,12 +146,13 @@ expr
     | StrOp(expr left, strop op, expr right, ttype type)
     | UnaryOp(unaryop op, expr operand, ttype type)
     | Compare(expr left, cmpop op, expr right, ttype type)
-    | FuncCall(symbol name, expr* args, keyword* keywords, ttype type)
+    | FuncCall(symbol name, symbol? original_name, expr* args,
+            keyword* keywords, ttype type)
     | ArrayInitializer(expr* args, ttype type)
-    | ConstantInteger(object n, ttype type)
+    | ConstantInteger(int n, ttype type)
     | ConstantReal(string r, ttype type)
     | ConstantComplex(expr re, expr im, ttype type)
-    | ConstantLogical(constant value, ttype type)
+    | ConstantLogical(bool value, ttype type)
     | Str(string s, ttype type)
     | Var(symbol v)
     | ArrayRef(symbol v, array_index* args, ttype type)
@@ -107,8 +176,6 @@ unaryop = Invert | Not | UAdd | USub
 strop = Concat
 
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
-
-intent = Local | In | Out | InOut | ReturnVar | External
 
 cast_kind
     = RealToInteger
@@ -135,8 +202,6 @@ array_index = (expr? left, expr? right, expr? step)
 
 do_loop_head = (expr v, expr start, expr end, expr? increment)
 
-case_stmt = (expr test, stmt* body)
-
-case_default = (stmt* body)
+case_stmt = CaseStmt(expr* test, stmt* body) | CaseStmt_Range(expr? start, expr? end, stmt* body)
 
 }
