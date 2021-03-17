@@ -1089,7 +1089,7 @@ public:
         ASR::symbol_t *sym = resolve_subroutine(x.base.base.loc, x.m_name);
         Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
         ASR::Subroutine_t *sub;
-        ASR::symbol_t *generic_procedure = nullptr;
+        ASR::symbol_t *original_name = nullptr;
         switch (sym->type) {
             case (ASR::symbolType::Subroutine) : {
                 sub = ASR::down_cast<ASR::Subroutine_t>(sym);
@@ -1099,7 +1099,7 @@ public:
                 ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(sym);
                 int idx = select_generic_procedure(args, *p, x.base.base.loc);
                 sub = ASR::down_cast<ASR::Subroutine_t>(p->m_procs[idx]);
-                generic_procedure = sym;
+                original_name = sym;
                 break;
             }
             default : {
@@ -1107,7 +1107,7 @@ public:
             }
         }
         tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc,
-                (ASR::symbol_t*)sub, generic_procedure, args.p, args.size());
+                (ASR::symbol_t*)sub, original_name, args.p, args.size());
     }
 
     int select_generic_procedure(const Vec<ASR::expr_t*> &args,
@@ -1531,7 +1531,7 @@ public:
                 LFORTRAN_ASSERT(f2);
                 type = EXPR2VAR(ASR::down_cast<ASR::Function_t>(f2)->m_return_var)->m_type;
                 tmp = ASR::make_FuncCall_t(al, x.base.base.loc,
-                    f2, nullptr, args.p, args.size(), nullptr, 0, type);
+                    f2, v, args.p, args.size(), nullptr, 0, type);
                 break;
             }
             case (ASR::symbolType::Variable) : {
