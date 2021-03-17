@@ -1086,20 +1086,39 @@ public:
     }
 
     void visit_SubroutineCall(const AST::SubroutineCall_t &x) {
-        ASR::symbol_t *sym = resolve_subroutine(x.base.base.loc, x.m_name);
+        std::string sub_name = x.m_name;
+        ASR::symbol_t *original_sym = current_scope->resolve_symbol(sub_name);
+        if (!original_sym) {
+            throw SemanticError("Subroutine '" + sub_name + "' not declared", x.base.base.loc);
+        }
         Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
-        ASR::Subroutine_t *sub;
-        ASR::symbol_t *generic_procedure = nullptr;
-        switch (sym->type) {
+        ASR::symbol_t *final_sym=nullptr;
+        switch (original_sym->type) {
             case (ASR::symbolType::Subroutine) : {
-                sub = ASR::down_cast<ASR::Subroutine_t>(sym);
+                final_sym=original_sym;
+                original_sym = nullptr;
                 break;
             }
             case (ASR::symbolType::GenericProcedure) : {
-                ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(sym);
+                ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(original_sym);
                 int idx = select_generic_procedure(args, *p, x.base.base.loc);
-                sub = ASR::down_cast<ASR::Subroutine_t>(p->m_procs[idx]);
-                generic_procedure = sym;
+                final_sym = p->m_procs[idx];
+                break;
+            }
+            case (ASR::symbolType::ExternalSymbol) : {
+                ASR::ExternalSymbol_t *p = ASR::down_cast<ASR::ExternalSymbol_t>(original_sym);
+                final_sym = p->m_external;
+                if (ASR::is_a<ASR::ExternalSymbol_t>(*final_sym)) {
+                    throw SemanticError("Chained ExternalSymbols not supported yet", x.base.base.loc);
+                }
+                if (ASR::is_a<ASR::GenericProcedure_t>(*final_sym)) {
+                    ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(final_sym);
+                    int idx = select_generic_procedure(args, *p, x.base.base.loc);
+                    final_sym = p->m_procs[idx];
+                }
+                if (!ASR::is_a<ASR::Subroutine_t>(*final_sym)) {
+                    throw SemanticError("ExternalSymbol must point to a Subroutine", x.base.base.loc);
+                }
                 break;
             }
             default : {
@@ -1107,7 +1126,7 @@ public:
             }
         }
         tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc,
-                (ASR::symbol_t*)sub, generic_procedure, args.p, args.size());
+                final_sym, original_sym, args.p, args.size());
     }
 
     int select_generic_procedure(const Vec<ASR::expr_t*> &args,
@@ -1334,44 +1353,6 @@ public:
         return ASR::make_Var_t(al, loc, v);
     }
 
-    ASR::symbol_t* resolve_subroutine(const Location &loc, const char* id) {
-        SymbolTable *scope = current_scope;
-        std::string sub_name = id;
-        ASR::symbol_t *sub = scope->resolve_symbol(sub_name);
-        if (!sub) {
-            throw SemanticError("Subroutine '" + sub_name + "' not declared", loc);
-        }
-        switch (sub->type) {
-            case (ASR::symbolType::Subroutine) : {
-                return sub;
-                break;
-            }
-            case (ASR::symbolType::ExternalSymbol) : {
-                ASR::ExternalSymbol_t *p = ASR::down_cast<ASR::ExternalSymbol_t>(sub);
-                ASR::symbol_t *s = p->m_external;
-                switch (s->type) {
-                    case (ASR::symbolType::Subroutine) : {
-                        return s;
-                        break;
-                    }
-                    case (ASR::symbolType::GenericProcedure) : {
-                        return s;
-                        break;
-                    }
-                    default : {
-                        throw SemanticError("Symbol type not supported", loc);
-                    }
-                }
-                LFORTRAN_ASSERT(false);
-                break;
-            }
-            default : {
-                throw SemanticError("Symbol type not supported", loc);
-            }
-        }
-        throw SemanticError("Symbol type not supported", loc);
-    }
-
     void visit_Name(const AST::Name_t &x) {
         tmp = resolve_variable(x.base.base.loc, x.m_id);
     }
@@ -1531,7 +1512,7 @@ public:
                 LFORTRAN_ASSERT(f2);
                 type = EXPR2VAR(ASR::down_cast<ASR::Function_t>(f2)->m_return_var)->m_type;
                 tmp = ASR::make_FuncCall_t(al, x.base.base.loc,
-                    f2, nullptr, args.p, args.size(), nullptr, 0, type);
+                    f2, v, args.p, args.size(), nullptr, 0, type);
                 break;
             }
             case (ASR::symbolType::Variable) : {

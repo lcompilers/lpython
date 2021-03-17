@@ -59,7 +59,7 @@ abi
 
 stmt
     = Assignment(expr target, expr value)
-    | SubroutineCall(symbol name, symbol? generic_procedure, expr* args)
+    | SubroutineCall(symbol name, symbol? original_name, expr* args)
     | BuiltinCall(identifier name, expr* args)
     | If(expr test, stmt* body, stmt* orelse)
     | Where(expr test, stmt* body, stmt* orelse)
@@ -79,7 +79,7 @@ expr
     | StrOp(expr left, strop op, expr right, ttype type)
     | UnaryOp(unaryop op, expr operand, ttype type)
     | Compare(expr left, cmpop op, expr right, ttype type)
-    | FuncCall(symbol name, symbol? generic_procedure, expr* args,
+    | FuncCall(symbol name, symbol? original_name, expr* args,
             keyword* keywords, ttype type)
     | ArrayInitializer(expr* args, ttype type)
     | ConstantInteger(object n, ttype type)
