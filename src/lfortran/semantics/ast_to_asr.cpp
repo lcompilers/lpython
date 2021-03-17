@@ -549,7 +549,7 @@ public:
                 // TODO: only import "public" symbols from the module
                 if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
                     ASR::Subroutine_t *msub = ASR::down_cast<ASR::Subroutine_t>(item.second);
-                    ASR::asr_t *sub = ASR::make_ExternalProc_t(
+                    ASR::asr_t *sub = ASR::make_ExternalSymbol_t(
                         al, msub->base.base.loc,
                         /* a_symtab */ current_scope,
                         /* a_name */ msub->m_name,
@@ -560,7 +560,7 @@ public:
                     current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(sub);
                 } else if (ASR::is_a<ASR::Function_t>(*item.second)) {
                     ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(item.second);
-                    ASR::asr_t *fn = ASR::make_ExternalProc_t(
+                    ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
                         al, mfn->base.base.loc,
                         /* a_symtab */ current_scope,
                         /* a_name */ mfn->m_name,
@@ -600,7 +600,7 @@ public:
                     // `msub` via the `external` field.
                     Str name;
                     name.from_str(al, local_sym);
-                    ASR::asr_t *sub = ASR::make_ExternalProc_t(
+                    ASR::asr_t *sub = ASR::make_ExternalSymbol_t(
                         al, msub->base.base.loc,
                         /* a_symtab */ current_scope,
                         /* a_name */ name.c_str(al),
@@ -615,7 +615,7 @@ public:
                     }
                     Str name;
                     name.from_str(al, local_sym);
-                    ASR::asr_t *ep = ASR::make_ExternalProc_t(
+                    ASR::asr_t *ep = ASR::make_ExternalSymbol_t(
                         al, t->base.loc,
                         current_scope,
                         /* a_name */ name.c_str(al),
@@ -634,7 +634,7 @@ public:
                     // `mfn` via the `external` field.
                     Str name;
                     name.from_str(al, local_sym);
-                    ASR::asr_t *fn = ASR::make_ExternalProc_t(
+                    ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
                         al, mfn->base.base.loc,
                         /* a_symtab */ current_scope,
                         /* a_name */ name.c_str(al),
@@ -1344,8 +1344,8 @@ public:
                 return sub;
                 break;
             }
-            case (ASR::symbolType::ExternalProc) : {
-                ASR::ExternalProc_t *p = ASR::down_cast<ASR::ExternalProc_t>(sub);
+            case (ASR::symbolType::ExternalSymbol) : {
+                ASR::ExternalSymbol_t *p = ASR::down_cast<ASR::ExternalSymbol_t>(sub);
                 ASR::symbol_t *s = p->m_external;
                 switch (s->type) {
                     case (ASR::symbolType::Subroutine) : {
@@ -1522,10 +1522,10 @@ public:
                     v, args.p, args.size(), nullptr, 0, type);
                 break;
             }
-            case (ASR::symbolType::ExternalProc) : {
+            case (ASR::symbolType::ExternalSymbol) : {
                 Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
                 ASR::ttype_t *type;
-                ASR::symbol_t *f2 = ASR::down_cast<ASR::ExternalProc_t>(v)->m_external;
+                ASR::symbol_t *f2 = ASR::down_cast<ASR::ExternalSymbol_t>(v)->m_external;
                 LFORTRAN_ASSERT(f2);
                 type = EXPR2VAR(ASR::down_cast<ASR::Function_t>(f2)->m_return_var)->m_type;
                 tmp = ASR::make_FuncCall_t(al, x.base.base.loc,
