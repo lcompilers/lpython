@@ -137,7 +137,7 @@ void SymbolTable::mark_all_variables_external(Allocator &/*al*/) {
         switch (a.second->type) {
             case (ASR::symbolType::Variable) : {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(a.second);
-                v->m_intent = intent_external;
+                v->m_abi = ASR::abiType::Interactive;
                 break;
             }
             case (ASR::symbolType::Function) : {

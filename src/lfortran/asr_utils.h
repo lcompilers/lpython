@@ -121,7 +121,6 @@ const ASR::intentType intent_in   =ASR::intentType::In; // dummy argument, inten
 const ASR::intentType intent_out  =ASR::intentType::Out; // dummy argument, intent(out)
 const ASR::intentType intent_inout=ASR::intentType::InOut; // dummy argument, intent(inout)
 const ASR::intentType intent_return_var=ASR::intentType::ReturnVar; // return variable of a function
-const ASR::intentType intent_external=ASR::intentType::External; // external variable
 
 static inline bool is_arg_dummy(int intent) {
     return intent == intent_in || intent == intent_out
