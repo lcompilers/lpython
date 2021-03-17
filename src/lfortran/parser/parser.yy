@@ -951,6 +951,8 @@ associate_statement
 associate_block
     : KW_ASSOCIATE "(" var_sym_decl_list ")" sep statements KW_END KW_ASSOCIATE {
         $$ = PRINT0(@$); }
+    | id ":" KW_ASSOCIATE "(" var_sym_decl_list ")" sep statements KW_END KW_ASSOCIATE id_opt {
+        $$ = PRINT0(@$); }
     ;
 
 block_statement
