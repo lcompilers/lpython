@@ -585,6 +585,12 @@ class PickleVisitorVisitor(ASDLVisitor):
                     self.emit("}", 2)
                 else:
                     self.emit('s.append(std::to_string(x.m_%s));' % field.name, 2)
+            elif field.type == "bool" and not field.seq and not field.opt:
+                self.emit("if (x.m_%s) {" % field.name, 2)
+                self.emit(    's.append(".true.");', 3)
+                self.emit("} else {", 2)
+                self.emit(    's.append(".false.");', 3)
+                self.emit("}", 2)
             elif field.type in self.data.simple_types:
                 if field.opt:
                     self.emit('s.append("Unimplementedopt");', 2)
