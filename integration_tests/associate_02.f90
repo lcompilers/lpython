@@ -1,4 +1,4 @@
-program pointer_01
+program associate_02
     implicit none
 
     integer, pointer :: p1

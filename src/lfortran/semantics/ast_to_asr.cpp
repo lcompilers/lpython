@@ -899,6 +899,12 @@ public:
         ASR::expr_t* target = EXPR(tmp);
         this->visit_expr(*(x.m_value));
         ASR::expr_t* value = EXPR(tmp);
+        ASR::ttype_t* target_type = expr_type(target);
+        ASR::ttype_t* value_type = expr_type(value);
+        if( target_type->type == ASR::ttypeType::IntegerPointer && 
+            value_type->type == ASR::ttypeType::Integer ) {
+            tmp = ASR::make_Associate_t(al, x.base.base.loc, target, value);
+        }
     } 
 
     void visit_case_stmt(const AST::case_stmt_t& x) {
