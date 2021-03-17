@@ -14,7 +14,7 @@
 --   * string
 -- We extend these by:
 --   * node (any ASDL node)
---   * constant
+--   * bool
 --
 -- Specific tools may choose to produce language interfaces that represent
 -- these types and the ASDL tree in a language specific way (e.g. use finite
@@ -101,7 +101,7 @@ expr
     | Complex(expr re, expr im)
     | Str(string s)
     | Name(identifier id)
-    | Constant(constant value)
+    | Constant(bool value)
 
 boolop = And | Or | Eqv | NEqv
 

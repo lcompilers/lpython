@@ -97,7 +97,7 @@ def convert_type(asdl_type, seq, opt, mod_name):
         if seq:
             # List of strings is **
             type_ = type_ + "*"
-    elif asdl_type == "constant":
+    elif asdl_type == "bool":
         type_ = "bool"
         assert not seq
     elif asdl_type == "node":
