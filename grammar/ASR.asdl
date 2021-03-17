@@ -48,7 +48,7 @@ symbol
 
 storage_type = Default | Save | Parameter
 access = Public | Private
-
+intent = Local | In | Out | InOut | ReturnVar
 abi
     = Source
     | LFortranModule
@@ -108,8 +108,6 @@ unaryop = Invert | Not | UAdd | USub
 strop = Concat
 
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
-
-intent = Local | In | Out | InOut | ReturnVar | External
 
 cast_kind
     = RealToInteger
