@@ -46,7 +46,6 @@ using LFortran::AST::Num_t;
 
 using LFortran::AST::make_BinOp_t;
 using LFortran::AST::make_Attribute_t;
-using LFortran::AST::make_Constant_t;
 using LFortran::AST::make_DoLoop_t;
 using LFortran::AST::make_Exit_t;
 using LFortran::AST::make_Cycle_t;
@@ -408,8 +407,8 @@ static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
 #define POW(x, y, l) make_BinOp_t(p.m_a, l, EXPR(x), operatorType::Pow, EXPR(y))
 #define UNARY_MINUS(x, l) make_UnaryOp_t(p.m_a, l, unaryopType::USub, EXPR(x))
 #define UNARY_PLUS(x, l) make_UnaryOp_t(p.m_a, l, unaryopType::UAdd, EXPR(x))
-#define TRUE(l) make_Constant_t(p.m_a, l, true)
-#define FALSE(l) make_Constant_t(p.m_a, l, false)
+#define TRUE(l) LFortran::AST::make_Logical_t(p.m_a, l, true)
+#define FALSE(l) LFortran::AST::make_Logical_t(p.m_a, l, false)
 
 #define STRCONCAT(x, y, l) make_StrOp_t(p.m_a, l, EXPR(x), stroperatorType::Concat, EXPR(y))
 

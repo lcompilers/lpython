@@ -97,14 +97,9 @@ def convert_type(asdl_type, seq, opt, mod_name):
         if seq:
             # List of strings is **
             type_ = type_ + "*"
-    elif asdl_type == "constant":
+    elif asdl_type == "bool":
         type_ = "bool"
         assert not seq
-    elif asdl_type == "object":
-        # FIXME: this should use some other type that we actually need
-        type_ = "int /* object */"
-        if seq:
-            type_ = type_ + "*"
     elif asdl_type == "node":
         type_ = "%s_t*" % mod_name
         if seq:
@@ -590,6 +585,12 @@ class PickleVisitorVisitor(ASDLVisitor):
                     self.emit("}", 2)
                 else:
                     self.emit('s.append(std::to_string(x.m_%s));' % field.name, 2)
+            elif field.type == "bool" and not field.seq and not field.opt:
+                self.emit("if (x.m_%s) {" % field.name, 2)
+                self.emit(    's.append(".true.");', 3)
+                self.emit("} else {", 2)
+                self.emit(    's.append(".false.");', 3)
+                self.emit("}", 2)
             elif field.type in self.data.simple_types:
                 if field.opt:
                     self.emit('s.append("Unimplementedopt");', 2)

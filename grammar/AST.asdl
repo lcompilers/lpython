@@ -13,9 +13,8 @@
 --   * int (signed integers of infinite precision)
 --   * string
 -- We extend these by:
---   * object (any Python object)
 --   * node (any ASDL node)
---   * constant
+--   * bool
 --
 -- Specific tools may choose to produce language interfaces that represent
 -- these types and the ASDL tree in a language specific way (e.g. use finite
@@ -97,12 +96,12 @@ expr
     | FuncCallOrArray(identifier func, fnarg* args, keyword* keywords)
     | Array(identifier name, array_index* args)
     | ArrayInitializer(expr* args)
-    | Num(object n)
+    | Num(int n)
     | Real(string n)
     | Complex(expr re, expr im)
     | Str(string s)
     | Name(identifier id)
-    | Constant(constant value)
+    | Logical(bool value)
 
 boolop = And | Or | Eqv | NEqv
 

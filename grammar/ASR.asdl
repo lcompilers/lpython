@@ -19,8 +19,7 @@
 --   * int (signed integers of infinite precision)
 --   * string
 -- We extend these by:
---   * object (any Python object)
---   * constant (.true. / .false.)
+--   * bool (.true. / .false.)
 --   * symbol_table (scoped Symbol Table implementation)
 --   * node (any ASR node)
 --
@@ -150,10 +149,10 @@ expr
     | FuncCall(symbol name, symbol? original_name, expr* args,
             keyword* keywords, ttype type)
     | ArrayInitializer(expr* args, ttype type)
-    | ConstantInteger(object n, ttype type)
+    | ConstantInteger(int n, ttype type)
     | ConstantReal(string r, ttype type)
     | ConstantComplex(expr re, expr im, ttype type)
-    | ConstantLogical(constant value, ttype type)
+    | ConstantLogical(bool value, ttype type)
     | Str(string s, ttype type)
     | Var(symbol v)
     | ArrayRef(symbol v, array_index* args, ttype type)
