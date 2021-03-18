@@ -2,9 +2,12 @@ program associate_02
     implicit none
 
     integer, pointer :: p1
+    integer, pointer :: p2
     integer, target :: t1 = 2
 
+
     p1=>t1
+    p2 = p1
     p1 = 1
 
     print *, p1

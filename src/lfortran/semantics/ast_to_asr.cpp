@@ -200,6 +200,38 @@ class HelperMethods {
             }
             return 4;
         }
+
+        inline static bool check_equal_type(ASR::ttype_t* x, ASR::ttype_t* y) {
+            if( x->type == y->type ) {
+                return true;
+            }
+
+            bool is_x_pointer = false, is_y_pointer = false;
+            switch( x->type ) {
+                case ASR::IntegerPointer:
+                    is_x_pointer = true;
+                    break;
+                default:
+                    break;
+            }
+            switch( y->type ) {
+                case ASR::IntegerPointer:
+                    is_y_pointer = true;
+                    break;
+                default:
+                    break;
+            }
+            if( (is_x_pointer && is_y_pointer) || (!is_x_pointer && !is_y_pointer) ) {
+                return false;
+            } else if( !is_x_pointer && is_y_pointer ) {
+                ASR::ttype_t* temp = x;
+                x = y;
+                y = temp;
+            }
+            bool cond1 =  x->type == ASR::ttypeType::IntegerPointer && 
+                          y->type == ASR::ttypeType::Integer;
+            return cond1;
+        }
 };
 
 class SymbolTableVisitor : public AST::BaseVisitor<SymbolTableVisitor>
@@ -1220,7 +1252,10 @@ public:
              source_type, dest_type);
         }
 
-        LFORTRAN_ASSERT(expr_type(left)->type == expr_type(right)->type);
+        bool res = HelperMethods::check_equal_type(expr_type(left), expr_type(right));
+        if( !res ) {
+            LFORTRAN_ASSERT(false);
+        }
         ASR::ttype_t *type = TYPE(ASR::make_Logical_t(al, x.base.base.loc,
                 4, nullptr, 0));
         ASR::cmpopType asr_op;
@@ -1279,7 +1314,10 @@ public:
             al, x.base.base.loc, conversion_cand,
             source_type, dest_type);
 
-        LFORTRAN_ASSERT(expr_type(left)->type == expr_type(right)->type);
+        bool res = HelperMethods::check_equal_type(expr_type(left), expr_type(right));
+        if( !res ) {
+            LFORTRAN_ASSERT(false);
+        }
         tmp = ASR::make_BoolOp_t(al, x.base.base.loc,
                 left, op, right, dest_type);
     }
@@ -1324,7 +1362,10 @@ public:
             al, x.base.base.loc, conversion_cand,
             source_type, dest_type);
 
-        LFORTRAN_ASSERT(expr_type(left)->type == expr_type(right)->type);
+        bool res = HelperMethods::check_equal_type(expr_type(left), expr_type(right));
+        if( !res ) {
+            LFORTRAN_ASSERT(false);
+        }
         tmp = ASR::make_BinOp_t(al, x.base.base.loc,
                 left, op, right, dest_type);
     }
