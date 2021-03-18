@@ -15,9 +15,9 @@ TEST_CASE("Address to line number"){
     std::string filename = "";
     int line_number = -1;
 
-    LFortran::address_to_line_number(filenames, addresses, 500, filename, line_number ); //addresses[6], filename=filenames[7]=bar, line_number=890
-    CHECK(filename=="bar");
-    CHECK(line_number==890);
+    LFortran::address_to_line_number(filenames, addresses, 500, filename, line_number ); //addresses[8], filename=filenames[7]=bar, line_number=890
+    CHECK(filename=="bar1");
+    CHECK(line_number==901);
 
     //when address is not in addresses vector
     LFortran::address_to_line_number(filenames, addresses, 1500, filename="", line_number=-1);
