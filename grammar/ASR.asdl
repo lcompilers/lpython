@@ -162,12 +162,12 @@ expr
 
 ttype
     = Integer(int kind, dimension* dims)
-    | IntegerPointer(int kind, dimension* dims)
     | Real(int kind, dimension* dims)
     | Complex(int kind, dimension* dims)
     | Character(int kind, dimension* dims)
     | Logical(int kind, dimension* dims)
     | Derived(symbol derived_type, dimension* dims)
+    | IntegerPointer(int kind, dimension* dims)
 
 boolop = And | Or | NEqv | Eqv
 

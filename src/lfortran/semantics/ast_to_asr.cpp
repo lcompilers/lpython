@@ -10,7 +10,7 @@
 #include <lfortran/parser/parser_stype.h>
 #include <string>
 
-#define num_types 6
+#define num_types 7
 
 namespace LFortran {
 
@@ -31,12 +31,13 @@ namespace LFortran {
 
             //! Stores the variable part of error messages to be passed to SemanticError.
             static constexpr const char* type_names[num_types][2] = {
-                {"Integer", ""}, 
+                {"Integer", "Integer Pointer"}, 
                 {"Real", "Integer or Real"}, 
                 {"Complex", "Integer, Real or Complex"},
                 {"Character", ""},
                 {"Logical", "Integer"},
-                {"Derived", ""}
+                {"Derived", ""},
+                {"Integer Pointer", "Integer"}
             }; 
 
             /*
@@ -47,12 +48,20 @@ namespace LFortran {
             */
             static constexpr const int rule_map[num_types][num_types] = {
 
-                {default_case, integer_to_real, integer_to_complex, error_case, integer_to_logical, error_case},
-                {real_to_integer, real_to_real, real_to_complex, default_case, default_case, default_case},
-                {default_case, default_case, default_case, default_case, default_case, default_case},
-                {default_case, default_case, default_case, default_case, default_case, default_case},
-                {default_case, default_case, default_case, default_case, default_case, default_case},
-                {default_case, default_case, default_case, default_case, default_case, default_case}
+                {default_case, integer_to_real, integer_to_complex, error_case, integer_to_logical, error_case,
+                 default_case},
+                {real_to_integer, real_to_real, real_to_complex, default_case, default_case, default_case,
+                 real_to_integer},
+                {default_case, default_case, default_case, default_case, default_case, default_case,
+                 default_case},
+                {default_case, default_case, default_case, default_case, default_case, default_case,
+                 default_case},
+                {default_case, default_case, default_case, default_case, default_case, default_case,
+                 default_case},
+                {default_case, default_case, default_case, default_case, default_case, default_case,
+                 default_case},
+                {default_case, integer_to_real, integer_to_complex, error_case, integer_to_logical, error_case,
+                 default_case}
 
             };
 

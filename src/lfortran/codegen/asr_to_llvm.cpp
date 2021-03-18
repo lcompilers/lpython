@@ -54,12 +54,6 @@ using ASR::is_a;
 using ASR::down_cast;
 using ASR::down_cast2;
 
-// Platform dependent fast unique hash:
-uint64_t static get_hash(ASR::asr_t *node)
-{
-    return (uint64_t)node;
-}
-
 void printf(llvm::LLVMContext &context, llvm::Module &module,
     llvm::IRBuilder<> &builder, const std::vector<llvm::Value*> &args)
 {
@@ -106,9 +100,20 @@ public:
 
     std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
     std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
+    std::map<uint64_t, uint64_t> ptr2var;
 
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context},
         prototype_only{false} {}
+
+    // Platform dependent fast unique hash:
+    uint64_t get_hash(ASR::asr_t *node)
+    {
+        uint64_t curr_h = (uint64_t)node;
+        if( ptr2var.find(curr_h) != ptr2var.end() ) {
+            curr_h = ptr2var[curr_h];
+        }
+        return curr_h;
+    }
 
     /*
     * Dispatches the required function from runtime library to 
@@ -379,6 +384,9 @@ public:
                     case (ASR::ttypeType::Logical) :
                         ptr = builder->CreateAlloca(llvm::Type::getInt1Ty(context), nullptr, v->m_name);
                         break;
+                    case (ASR::ttypeType::IntegerPointer) : {
+                        break;
+                    }
                     case (ASR::ttypeType::Derived) :
                         throw CodeGenError("Derived type argument not implemented yet in conversion");
                         break;
@@ -603,6 +611,14 @@ public:
             builder->CreateRetVoid();
         }
 
+    }
+
+    void visit_Associate(const ASR::Associate_t& x) {
+        ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
+        ASR::Variable_t *asr_value = EXPR2VAR(x.m_value);
+        uint64_t value_h = get_hash((ASR::asr_t*)asr_value);
+        uint64_t target_h = get_hash((ASR::asr_t*)asr_target);
+        ptr2var[target_h] = value_h;
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
