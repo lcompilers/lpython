@@ -55,7 +55,7 @@ using ASR::down_cast;
 using ASR::down_cast2;
 
 // Platform dependent fast unique hash:
-uint64_t get_hash(ASR::asr_t *node)
+uint64_t static get_hash(ASR::asr_t *node)
 {
     return (uint64_t)node;
 }
@@ -106,7 +106,6 @@ public:
 
     std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
     std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
-    std::map<uint64_t, uint64_t> ptr2var;
 
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context},
         prototype_only{false} {}
@@ -613,8 +612,8 @@ public:
     void visit_Associate(const ASR::Associate_t& x) {
         ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
         ASR::Variable_t *asr_value = EXPR2VAR(x.m_value);
-        uint64_t value_h = get_hash((ASR::asr_t*)asr_value);
-        uint64_t target_h = get_hash((ASR::asr_t*)asr_target);
+        uint32_t value_h = get_hash((ASR::asr_t*)asr_value);
+        uint32_t target_h = get_hash((ASR::asr_t*)asr_target);
         llvm_symtab[target_h] = llvm_symtab[value_h];
     }
 
