@@ -10,8 +10,20 @@
 TEST_CASE("Address to line number"){
     Allocator al(4*1024);
 
-    std::vector<std::string> filenames = {"foo", "foo1", "foo2", "foo3", "foo4", "foo5", "bar", "bar1", "bar2", "bar3", "bar4", "bar5", "bar6"};
-    std::vector<uint64_t> addresses = {123, 234, 345, 456, 567, 678, 789, 890, 901, 1000, 1100, 1150, 1200};
+    std::vector<std::string> filenames = {
+        "foo",
+        "foo1",
+        "foo2",
+        "foo3"
+    };
+    std::vector<uint64_t> addresses = {
+        // address, line_number, filename_id
+        123, 45, 0,
+        456, 50, 1,
+        789, 1, 3,
+        1000, 15, 2,
+        1200, 20, 1
+    };
     std::string filename = "";
     int line_number = -1;
 
