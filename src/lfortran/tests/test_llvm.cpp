@@ -708,7 +708,9 @@ define float @f()
     %pointer = alloca i64
     store i64 %raddr, i64* %pointer
 
-    %pointer2 = inttoptr i64 %raddr to float*
+    ; Extract value out of the pointer %pointer
+    %pointer_val = load i64, i64* %pointer
+    %pointer2 = inttoptr i64 %pointer_val to float*
     %ret = load float, float* %pointer2
 
     ret float %ret
