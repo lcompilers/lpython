@@ -409,9 +409,13 @@ public:
                     case (ASR::ttypeType::Logical) :
                         ptr = builder->CreateAlloca(llvm::Type::getInt1Ty(context), nullptr, v->m_name);
                         break;
-                    case (ASR::ttypeType::IntegerPointer) : {
+                    case (ASR::ttypeType::IntegerPointer) : 
+                    case (ASR::ttypeType::RealPointer) : 
+                    case (ASR::ttypeType::ComplexPointer) : 
+                    case (ASR::ttypeType::CharacterPointer) :
+                    case (ASR::ttypeType::DerivedPointer) :
+                    case (ASR::ttypeType::LogicalPointer) :
                         break;
-                    }
                     case (ASR::ttypeType::Derived) :
                         throw CodeGenError("Derived type argument not implemented yet in conversion");
                         break;
@@ -1060,6 +1064,15 @@ public:
             case ASR::ttypeType::Real : {
                 return ((ASR::Real_t*)(&(curr_type->base)))->m_kind;
             }
+            case ASR::ttypeType::RealPointer : {
+                return ((ASR::RealPointer_t*)(&(curr_type->base)))->m_kind;
+            }
+            case ASR::ttypeType::Integer : {
+                return ((ASR::Integer_t*)(&(curr_type->base)))->m_kind;
+            } 
+            case ASR::ttypeType::IntegerPointer : {
+                return ((ASR::IntegerPointer_t*)(&(curr_type->base)))->m_kind;
+            }
             default : {
                 return -1;
             }
@@ -1148,6 +1161,23 @@ public:
                 }
                 break;
             }
+            case (ASR::cast_kindType::IntegerToInteger) : {
+                int arg_kind = -1, dest_kind = -1;
+                extract_kinds(x, arg_kind, dest_kind);
+                if( arg_kind > 0 && dest_kind > 0 )
+                {
+                    if( arg_kind == 4 && dest_kind == 8 ) {
+                        tmp = builder->CreateSExt(tmp, llvm::Type::getInt64Ty(context));
+                    } else if( arg_kind == 8 && dest_kind == 4 ) {
+                        tmp = builder->CreateTrunc(tmp, llvm::Type::getInt32Ty(context));
+                    } else {
+                        std::string msg = "Conversion from " + std::to_string(arg_kind) + 
+                                          " to " + std::to_string(dest_kind) + " not implemented yet.";
+                        throw CodeGenError(msg);
+                    }
+                }
+                break;
+            }
             default : throw CodeGenError("Cast kind not implemented");
         }
     }
@@ -1164,7 +1194,8 @@ public:
                 t->type == ASR::ttypeType::IntegerPointer) {
                 fmt.push_back("%d");
                 args.push_back(tmp);
-            } else if (t->type == ASR::ttypeType::Real) {
+            } else if (t->type == ASR::ttypeType::Real || 
+                       t->type == ASR::ttypeType::RealPointer ) {
                 int a_kind = ((ASR::Real_t*)(&(t->base)))->m_kind;
                 llvm::Value *d;
                 switch( a_kind ) {
