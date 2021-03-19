@@ -32,8 +32,8 @@ TEST_CASE("Address to line number"){
     CHECK(line_number==50);
 
     //when address is not in addresses vector
-    LFortran::address_to_line_number(filenames, addresses, 1500, filename="", line_number=-1);
-    CHECK(filename=="");
-    CHECK(line_number==-1);
+    LFortran::address_to_line_number(filenames, addresses, 1100, filename, line_number);
+    CHECK(filename=="foo2");
+    CHECK(line_number==15);
 
 }
