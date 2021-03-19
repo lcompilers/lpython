@@ -743,3 +743,9 @@ filename = "../integration_tests/string2.f90"
 ast = true
 asr = true
 llvm = true
+
+[[test]]
+filename = "../integration_tests/string3.f90"
+ast = true
+asr = true
+llvm = true
