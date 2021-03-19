@@ -305,28 +305,51 @@ public:
         LFORTRAN_ASSERT(x.m_intent == intent_local
             || x.m_abi == ASR::abiType::Interactive);
         bool external = (x.m_abi != ASR::abiType::Source);
+        llvm::Constant* init_value = nullptr;
+        if (x.m_value != nullptr){
+            this->visit_expr(*x.m_value);
+            init_value = llvm::dyn_cast<llvm::Constant>(tmp);
+        }
         if (x.m_type->type == ASR::ttypeType::Integer) {
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
                 llvm::Type::getInt64Ty(context));
             if (!external) {
-                module->getNamedGlobal(x.m_name)->setInitializer(
-                    llvm::ConstantInt::get(context, llvm::APInt(64, 0)));
+                if (init_value) {
+                    module->getNamedGlobal(x.m_name)->setInitializer(
+                            init_value);
+                } else {
+                    module->getNamedGlobal(x.m_name)->setInitializer(
+                            llvm::ConstantInt::get(context, 
+                                llvm::APInt(64, 0)));
+                }
             }
             llvm_symtab[h] = ptr;
         } else if (x.m_type->type == ASR::ttypeType::Real) {
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
                 llvm::Type::getFloatTy(context));
             if (!external) {
-                module->getNamedGlobal(x.m_name)->setInitializer(
-                    llvm::ConstantFP::get(context, llvm::APFloat((float)0)));
+                if (init_value) {
+                    module->getNamedGlobal(x.m_name)->setInitializer(
+                            init_value);
+                } else {
+                    module->getNamedGlobal(x.m_name)->setInitializer(
+                            llvm::ConstantFP::get(context, 
+                                llvm::APFloat((float)0)));
+                }
             }
             llvm_symtab[h] = ptr;
         } else if (x.m_type->type == ASR::ttypeType::Logical) {
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
                 llvm::Type::getInt1Ty(context));
             if (!external) {
-                module->getNamedGlobal(x.m_name)->setInitializer(
-                    llvm::ConstantInt::get(context, llvm::APInt(1, 0)));
+                if (init_value) {
+                    module->getNamedGlobal(x.m_name)->setInitializer(
+                            init_value);
+                } else {
+                    module->getNamedGlobal(x.m_name)->setInitializer(
+                            llvm::ConstantInt::get(context, 
+                                llvm::APInt(1, 0)));
+                }
             }
             llvm_symtab[h] = ptr;
         } else {
