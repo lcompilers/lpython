@@ -219,7 +219,7 @@ namespace LFortran {
                         return ;
                     }
                 }
-                int cast_kind = rule_map[source_type->type%num_types][dest_type->type];
+                int cast_kind = rule_map[source_type->type%(num_types/2)][dest_type->type];
                 if( cast_kind == error_case )
                 {
                     std::string allowed_types_str = type_names[dest_type->type][1];
@@ -270,8 +270,8 @@ namespace LFortran {
              ASR::expr_t** &conversion_cand, 
              ASR::ttype_t** source_type, ASR::ttype_t** dest_type) {
 
-                int left_type_p = type_priority[left_type->type%num_types];
-                int right_type_p = type_priority[right_type->type%num_types];
+                int left_type_p = type_priority[left_type->type%(num_types/2)];
+                int right_type_p = type_priority[right_type->type%(num_types/2)];
                 if( left_type_p >= right_type_p ) {
                     conversion_cand = right;
                     *source_type = right_type;

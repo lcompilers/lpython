@@ -855,7 +855,8 @@ public:
         llvm::Value *left_val = tmp;
         this->visit_expr(*x.m_right);
         llvm::Value *right_val = tmp;
-        if (x.m_type->type == ASR::ttypeType::Integer) {
+        if (x.m_type->type == ASR::ttypeType::Integer || 
+            x.m_type->type == ASR::ttypeType::IntegerPointer) {
             switch (x.m_op) {
                 case ASR::binopType::Add: {
                     tmp = builder->CreateAdd(left_val, right_val);
@@ -895,7 +896,8 @@ public:
                     break;
                 };
             }
-        } else if (x.m_type->type == ASR::ttypeType::Real) {
+        } else if (x.m_type->type == ASR::ttypeType::Real || 
+                   x.m_type->type == ASR::ttypeType::RealPointer) {
             switch (x.m_op) {
                 case ASR::binopType::Add: {
                     tmp = builder->CreateFAdd(left_val, right_val);
@@ -929,7 +931,8 @@ public:
                     break;
                 };
             }
-        } else if (x.m_type->type == ASR::ttypeType::Complex) {
+        } else if (x.m_type->type == ASR::ttypeType::Complex ||
+                   x.m_type->type == ASR::ttypeType::ComplexPointer) {
             switch (x.m_op) {
                 case ASR::binopType::Add: {
                     tmp = lfortran_complex_bin_op(left_val, right_val, "_lfortran_complex_add");
