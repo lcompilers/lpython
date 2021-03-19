@@ -162,6 +162,35 @@ public:
         return builder->CreateLoad(presult);
     }
 
+
+    llvm::Value* lfortran_strop(llvm::Value* left_arg, llvm::Value* right_arg, 
+                                         std::string runtime_func_name)
+    {
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {
+                        character_type->getPointerTo(),
+                        character_type->getPointerTo(),
+                        character_type->getPointerTo()
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        llvm::AllocaInst *pleft_arg = builder->CreateAlloca(character_type,
+            nullptr);
+        builder->CreateStore(left_arg, pleft_arg);
+        llvm::AllocaInst *pright_arg = builder->CreateAlloca(character_type,
+            nullptr);
+        builder->CreateStore(right_arg, pright_arg);
+        llvm::AllocaInst *presult = builder->CreateAlloca(character_type,
+            nullptr);
+        std::vector<llvm::Value*> args = {pleft_arg, pright_arg, presult};
+        builder->CreateCall(fn, args);
+        return builder->CreateLoad(presult);
+    }
+
+
     // This function is called as:
     // float complex_re(complex a)
     // And it extracts the real part of the complex number
@@ -801,6 +830,19 @@ public:
             } 
         } else {
             throw CodeGenError("Boolop: Only Logical types can be used with logical operators.");
+        }
+    }
+
+    void visit_StrOp(const ASR::StrOp_t &x) {
+        this->visit_expr(*x.m_left);
+        llvm::Value *left_val = tmp;
+        this->visit_expr(*x.m_right);
+        llvm::Value *right_val = tmp;
+        switch (x.m_op) {
+            case ASR::stropType::Concat: {
+                tmp = lfortran_strop(left_val, right_val, "_lfortran_strcat");
+                break;
+            };
         }
     }
 
