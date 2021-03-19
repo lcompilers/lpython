@@ -662,14 +662,11 @@ define i64 @f()
     store i64 8, i64* @r
 
     ; Dereferences the pointer %r
-    ;%rval = load i64, i64* %r
+    ;%rval = load i64, i64* @r
 
-    ; Copy the pointer address itself
-    %raddr = getelementptr i64, i64* @r, i64 0
+    %raddr = ptrtoint i64* @r to i64
 
-    %rval2 = ptrtoint i64* %raddr to i64
-
-    ret i64 %rval2
+    ret i64 %raddr
 }
     )""");
     int64_t r = e.intfn("f");
@@ -687,12 +684,9 @@ define i64 @f()
 {
     store float 8.0, float* @r
 
-    ; Copy the pointer address itself
-    %raddr = getelementptr float, float* @r, i32 0
+    %raddr = ptrtoint float* @r to i64
 
-    %rval2 = ptrtoint float* %raddr to i64
-
-    ret i64 %rval2
+    ret i64 %raddr
 }
     )""");
     int64_t r = e.intfn("f");
