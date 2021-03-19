@@ -19,7 +19,7 @@ LFortran is currently in development and you might find some unsupported feature
 
 ### Currently Supported:
 
-- AST Genreation
+- AST Generation
 - ASR Generation for most nodes
 - Fortran Modules
 - Functions

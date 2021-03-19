@@ -18,7 +18,7 @@ on top:
 
 The LFortran compiler is then composed of the following independent stages:
 
-* Parsing: converts Fotran source code to an AST
+* Parsing: converts Fortran source code to an AST
 * Semantic: converts an AST to an ASR
 * High level optimizations: optimize ASR to a possibly faster/simpler ASR
   (things like inlining functions, eliminating redundant expressions or
