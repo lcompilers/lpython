@@ -563,22 +563,21 @@ void address_to_line_number(const std::vector<std::string> &filenames,
           int &line_number) {
     int n = addresses.size() / 3;
     // Bisection-Search 
-    int start_ind =0, end_ind = n;
+    int start_ind =0, end_ind = n-1;
 
-    while ( end_ind - start_ind >= 1) {
+    int mid = (start_ind + end_ind)/2;
 
-      int mid = (start_ind + end_ind)/2;
+    while (start_ind <= end_ind) {
+
       if ( addresses[3*mid] > (address-8) ) {
         filename = filenames[addresses[3*mid+2]];
         line_number = addresses[3*mid + 1];
         return;
       }
-      else if(addresses[3*mid] < (address-8)){
+      else{
         start_ind = mid+1;
       }
-      else{
-        end_ind = mid-1;
-      }
+      mid = (start_ind + end_ind)/2;
     }
     filename = "";
     line_number = -1;
