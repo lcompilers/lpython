@@ -569,8 +569,8 @@ void address_to_line_number(const std::vector<std::string> &filenames,
 
       int mid = (start_ind + end_ind)/2;
       if ( addresses[3*mid] > (address-8) ) {
-        filename = filenames[addresses[3*mid+1]];
-        line_number = addresses[3*mid + 2];
+        filename = filenames[addresses[3*mid+2]];
+        line_number = addresses[3*mid + 1];
         return;
       }
       else if(addresses[3*mid] < (address-8)){
