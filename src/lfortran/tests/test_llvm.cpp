@@ -650,3 +650,52 @@ define i1 @b()
     )""");
     CHECK(e.boolfn("b") == false);
 }
+
+// Tests pointers
+TEST_CASE("llvm pointers 1") {
+    LFortran::LLVMEvaluator e;
+    e.add_module(R"""(
+@r = global i64 0
+
+define i64 @f()
+{
+    store i64 8, i64* @r
+
+    ; Dereferences the pointer %r
+    ;%rval = load i64, i64* %r
+
+    ; Copy the pointer address itself
+    %raddr = getelementptr i64, i64* @r, i64 0
+
+    %rval2 = ptrtoint i64* %raddr to i64
+
+    ret i64 %rval2
+}
+    )""");
+    int64_t r = e.intfn("f");
+    CHECK(r != 8);
+    int64_t *p = (int64_t*)r;
+    CHECK(*p == 8);
+}
+
+TEST_CASE("llvm pointers 2") {
+    LFortran::LLVMEvaluator e;
+    e.add_module(R"""(
+@r = global float 0.0
+
+define i64 @f()
+{
+    store float 8.0, float* @r
+
+    ; Copy the pointer address itself
+    %raddr = getelementptr float, float* @r, i32 0
+
+    %rval2 = ptrtoint float* %raddr to i64
+
+    ret i64 %rval2
+}
+    )""");
+    int64_t r = e.intfn("f");
+    float *p = (float *)r;
+    CHECK(std::abs(*p - 8) < 1e-6);
+}
