@@ -585,29 +585,6 @@ void address_to_line_number(const std::vector<std::string> &filenames,
     line_number = addresses[3*end_ind+1];
     filename = filenames[addresses[3*end_ind+2]];
 }
-// address_to_line_number_l this is linear search
-void address_to_line_number_l(const std::vector<std::string> &filenames,
-          const std::vector<uint64_t> &addresses,
-          uintptr_t address,
-          std::string &filename,
-          int &line_number) {
-    int n = addresses.size() / 3;
-    for (int i=0; i < n; i++) {
-      uint64_t addr, line, fileid;
-      addr = addresses[3*i+0];
-      line = addresses[3*i+1];
-      fileid = addresses[3*i+2];
-      if (addr > (address-8)) {
-        filename = filenames[fileid];
-        line_number = line;
-        return;
-      }
-    }
-
-    filename = "";
-    line_number = -1;
-}
-
 
 
 void get_local_info_dwarfdump(std::vector<StacktraceItem> &d)
