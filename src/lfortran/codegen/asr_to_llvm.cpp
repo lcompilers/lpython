@@ -414,8 +414,11 @@ public:
                     case (ASR::ttypeType::ComplexPointer) : 
                     case (ASR::ttypeType::CharacterPointer) :
                     case (ASR::ttypeType::DerivedPointer) :
-                    case (ASR::ttypeType::LogicalPointer) :
+                    case (ASR::ttypeType::LogicalPointer) : {
+                        ptr = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, v->m_name);
+                        std::cout<<ptr<<std::endl;
                         break;
+                    }
                     case (ASR::ttypeType::Derived) :
                         throw CodeGenError("Derived type argument not implemented yet in conversion");
                         break;
@@ -647,7 +650,9 @@ public:
         ASR::Variable_t *asr_value = EXPR2VAR(x.m_value);
         uint32_t value_h = get_hash((ASR::asr_t*)asr_value);
         uint32_t target_h = get_hash((ASR::asr_t*)asr_target);
-        llvm_symtab[target_h] = llvm_symtab[value_h];
+        llvm::Value* addr = builder->CreatePtrToInt(llvm_symtab[value_h], 
+                                                    llvm::Type::getInt64Ty(context));
+        builder->CreateStore(addr, llvm_symtab[target_h]);
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
@@ -850,11 +855,43 @@ public:
         }
     }
 
+    inline llvm::Value* fetch_val(ASR::expr_t* x, llvm::PointerType* ptr_type) {
+        ASR::Variable_t *x_var = EXPR2VAR(x);
+        uint32_t x_h = get_hash((ASR::asr_t*)x_var);
+        llvm::Value* x_v = llvm_symtab[x_h];
+        tmp = builder->CreateLoad(x_v);
+        llvm::Value* ptr = builder->CreateIntToPtr(tmp, ptr_type);
+        return builder->CreateLoad(ptr);
+    }
+
+    inline llvm::Value* fetch_val(ASR::expr_t* x) {
+        llvm::Value* res = nullptr;
+        switch( expr_type(x)->type ) {
+            case ASR::ttypeType::IntegerPointer: {
+                res = fetch_val(x, llvm::Type::getInt64PtrTy(context));
+                break;
+            }
+            case ASR::ttypeType::RealPointer: {
+                res = fetch_val(x, llvm::Type::getFloatPtrTy(context));
+            }
+            case ASR::ttypeType::ComplexPointer:
+            case ASR::ttypeType::CharacterPointer:
+            case ASR::ttypeType::LogicalPointer:
+            case ASR::ttypeType::DerivedPointer: {
+                break;
+            }
+            default: {
+                this->visit_expr(*x);
+                res = tmp;
+                break;
+            }
+        }
+        return res;
+    }
+
     void visit_BinOp(const ASR::BinOp_t &x) {
-        this->visit_expr(*x.m_left);
-        llvm::Value *left_val = tmp;
-        this->visit_expr(*x.m_right);
-        llvm::Value *right_val = tmp;
+        llvm::Value *left_val = fetch_val(x.m_left);
+        llvm::Value *right_val = fetch_val(x.m_right);
         if (x.m_type->type == ASR::ttypeType::Integer || 
             x.m_type->type == ASR::ttypeType::IntegerPointer) {
             switch (x.m_op) {
