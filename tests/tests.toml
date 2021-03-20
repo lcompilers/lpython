@@ -749,3 +749,9 @@ filename = "../integration_tests/string3.f90"
 ast = true
 asr = true
 llvm = true
+
+[[test]]
+filename = "global_scope7.f90"
+asr = true
+llvm = true
+pass = "global_stmts"
