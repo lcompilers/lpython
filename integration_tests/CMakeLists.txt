@@ -155,7 +155,9 @@ RUN(NAME modules_05 LABELS gfortran)
 RUN(NAME modules_06 LABELS gfortran llvm)
 
 RUN(NAME if_04 LABELS gfortran x86)
-RUN(NAME case_01 LABELS gfortran)
+RUN(NAME case_01 LABELS gfortran llvm)
+RUN(NAME case_02 LABELS gfortran llvm)
+RUN(NAME case_03 LABELS gfortran llvm)
 
 RUN(NAME program_02 LABELS gfortran)
 
@@ -213,3 +215,4 @@ RUN(NAME real_dp_param LABELS gfortran llvm)
 
 RUN(NAME string1 LABELS gfortran llvm)
 RUN(NAME string2 LABELS gfortran llvm)
+RUN(NAME string3 LABELS gfortran llvm)

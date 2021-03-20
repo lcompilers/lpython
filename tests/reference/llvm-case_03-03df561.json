@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-case_03-03df561",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/case_03.f90",
+    "infile_hash": "4fc1bb48b2136f22bb44b7c69aaa05a43b4ed2e4b8464c433340295d",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-case_03-03df561.stdout",
+    "stdout_hash": "3e220ca8bbad493147ca29d3f3bccae70050910f7675cd029f5811df",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

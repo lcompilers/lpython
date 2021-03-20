@@ -41,6 +41,7 @@
 #include <lfortran/containers.h>
 #include <lfortran/codegen/asr_to_llvm.h>
 #include <lfortran/pass/do_loops.h>
+#include <lfortran/pass/select_case.h>
 #include <lfortran/pass/global_stmts.h>
 #include <lfortran/exception.h>
 #include <lfortran/asr_utils.h>
@@ -160,6 +161,35 @@ public:
         return builder->CreateLoad(presult);
     }
 
+
+    llvm::Value* lfortran_strop(llvm::Value* left_arg, llvm::Value* right_arg, 
+                                         std::string runtime_func_name)
+    {
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {
+                        character_type->getPointerTo(),
+                        character_type->getPointerTo(),
+                        character_type->getPointerTo()
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        llvm::AllocaInst *pleft_arg = builder->CreateAlloca(character_type,
+            nullptr);
+        builder->CreateStore(left_arg, pleft_arg);
+        llvm::AllocaInst *pright_arg = builder->CreateAlloca(character_type,
+            nullptr);
+        builder->CreateStore(right_arg, pright_arg);
+        llvm::AllocaInst *presult = builder->CreateAlloca(character_type,
+            nullptr);
+        std::vector<llvm::Value*> args = {pleft_arg, pright_arg, presult};
+        builder->CreateCall(fn, args);
+        return builder->CreateLoad(presult);
+    }
+
+
     // This function is called as:
     // float complex_re(complex a)
     // And it extracts the real part of the complex number
@@ -273,30 +303,53 @@ public:
         // external (global variable not declared/initialized in this
         // translation unit, just referenced).
         LFORTRAN_ASSERT(x.m_intent == intent_local
-            || x.m_intent == intent_external);
-        bool external = (x.m_intent == intent_external);
+            || x.m_abi == ASR::abiType::Interactive);
+        bool external = (x.m_abi != ASR::abiType::Source);
+        llvm::Constant* init_value = nullptr;
+        if (x.m_value != nullptr){
+            this->visit_expr(*x.m_value);
+            init_value = llvm::dyn_cast<llvm::Constant>(tmp);
+        }
         if (x.m_type->type == ASR::ttypeType::Integer) {
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
                 llvm::Type::getInt64Ty(context));
             if (!external) {
-                module->getNamedGlobal(x.m_name)->setInitializer(
-                    llvm::ConstantInt::get(context, llvm::APInt(64, 0)));
+                if (init_value) {
+                    module->getNamedGlobal(x.m_name)->setInitializer(
+                            init_value);
+                } else {
+                    module->getNamedGlobal(x.m_name)->setInitializer(
+                            llvm::ConstantInt::get(context, 
+                                llvm::APInt(64, 0)));
+                }
             }
             llvm_symtab[h] = ptr;
         } else if (x.m_type->type == ASR::ttypeType::Real) {
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
                 llvm::Type::getFloatTy(context));
             if (!external) {
-                module->getNamedGlobal(x.m_name)->setInitializer(
-                    llvm::ConstantFP::get(context, llvm::APFloat((float)0)));
+                if (init_value) {
+                    module->getNamedGlobal(x.m_name)->setInitializer(
+                            init_value);
+                } else {
+                    module->getNamedGlobal(x.m_name)->setInitializer(
+                            llvm::ConstantFP::get(context, 
+                                llvm::APFloat((float)0)));
+                }
             }
             llvm_symtab[h] = ptr;
         } else if (x.m_type->type == ASR::ttypeType::Logical) {
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
                 llvm::Type::getInt1Ty(context));
             if (!external) {
-                module->getNamedGlobal(x.m_name)->setInitializer(
-                    llvm::ConstantInt::get(context, llvm::APInt(1, 0)));
+                if (init_value) {
+                    module->getNamedGlobal(x.m_name)->setInitializer(
+                            init_value);
+                } else {
+                    module->getNamedGlobal(x.m_name)->setInitializer(
+                            llvm::ConstantInt::get(context, 
+                                llvm::APInt(1, 0)));
+                }
             }
             llvm_symtab[h] = ptr;
         } else {
@@ -489,14 +542,11 @@ public:
     }
 
     void visit_Function(const ASR::Function_t &x) {
-        bool interactive = false;
-        if (x.m_external) {
-            if (x.m_external->m_type == ASR::proc_external_typeType::Interactive) {
-                interactive = true;
-            } else {
+        if (x.m_abi != ASR::abiType::Source &&
+            x.m_abi != ASR::abiType::Interactive) {
                 return;
-            }
         }
+        bool interactive = (x.m_abi == ASR::abiType::Interactive);
 
         uint32_t h = get_hash((ASR::asr_t*)&x);
         llvm::Function *F = nullptr;
@@ -564,14 +614,11 @@ public:
     }
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
-        bool interactive = false;
-        if (x.m_external) {
-            if (x.m_external->m_type == ASR::proc_external_typeType::Interactive) {
-                interactive = true;
-            } else {
+        if (x.m_abi != ASR::abiType::Source &&
+            x.m_abi != ASR::abiType::Interactive) {
                 return;
-            }
         }
+        bool interactive = (x.m_abi == ASR::abiType::Interactive);
 
         uint32_t h = get_hash((ASR::asr_t*)&x);
         llvm::Function *F = nullptr;
@@ -794,6 +841,19 @@ public:
             } 
         } else {
             throw CodeGenError("Boolop: Only Logical types can be used with logical operators.");
+        }
+    }
+
+    void visit_StrOp(const ASR::StrOp_t &x) {
+        this->visit_expr(*x.m_left);
+        llvm::Value *left_val = tmp;
+        this->visit_expr(*x.m_right);
+        llvm::Value *right_val = tmp;
+        switch (x.m_op) {
+            case ASR::stropType::Concat: {
+                tmp = lfortran_strop(left_val, right_val, "_lfortran_strcat");
+                break;
+            };
         }
     }
 
@@ -1233,16 +1293,14 @@ public:
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
         ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(x.m_name);
         uint32_t h;
-        if (s->m_external) {
-            if (s->m_external->m_type == ASR::proc_external_typeType::LFortranModule) {
-                h = get_hash((ASR::asr_t*)s->m_external->m_module_proc);
-            } else if (s->m_external->m_type == ASR::proc_external_typeType::Interactive) {
-                h = get_hash((ASR::asr_t*)s);
-            } else {
-                throw CodeGenError("External type not implemented yet.");
-            }
-        } else {
+        if (s->m_abi == ASR::abiType::LFortranModule) {
+            throw CodeGenError("Subroutine LFortran interfaces not implemented yet");
+        } else if (s->m_abi == ASR::abiType::Interactive) {
             h = get_hash((ASR::asr_t*)s);
+        } else if (s->m_abi == ASR::abiType::Source) {
+            h = get_hash((ASR::asr_t*)s);
+        } else {
+            throw CodeGenError("External type not implemented yet.");
         }
         if (llvm_symtab_fn.find(h) == llvm_symtab_fn.end()) {
             throw CodeGenError("Subroutine code not generated for '"
@@ -1256,32 +1314,30 @@ public:
     void visit_FuncCall(const ASR::FuncCall_t &x) {
         ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(x.m_name);
         uint32_t h;
-        if (s->m_external) {
-            if (s->m_external->m_type == ASR::proc_external_typeType::LFortranModule) {
-                h = get_hash((ASR::asr_t*)s->m_external->m_module_proc);
-            } else if (s->m_external->m_type == ASR::proc_external_typeType::Interactive) {
-                h = get_hash((ASR::asr_t*)s);
-            } else if (s->m_external->m_type == ASR::proc_external_typeType::Intrinsic) {
-              if (all_intrinsics.empty()) {
+        if (s->m_abi == ASR::abiType::Source) {
+            h = get_hash((ASR::asr_t*)s);
+        } else if (s->m_abi == ASR::abiType::LFortranModule) {
+            throw CodeGenError("Function LFortran interfaces not implemented yet");
+        } else if (s->m_abi == ASR::abiType::Interactive) {
+            h = get_hash((ASR::asr_t*)s);
+        } else if (s->m_abi == ASR::abiType::Intrinsic) {
+            if (all_intrinsics.empty()) {
                 populate_intrinsics();
-              }
-              // We use an unordered map to get the O(n) operation time
-              std::unordered_map<std::string, llvm::Function *>::const_iterator
-                  find_intrinsic = all_intrinsics.find(s->m_name);
-              if (find_intrinsic == all_intrinsics.end()) {
+            }
+            // We use an unordered map to get the O(n) operation time
+            std::unordered_map<std::string, llvm::Function *>::const_iterator
+                find_intrinsic = all_intrinsics.find(s->m_name);
+            if (find_intrinsic == all_intrinsics.end()) {
                 throw CodeGenError("Intrinsic not implemented yet.");
-              } else {
+            } else {
                 std::vector<llvm::Value *> args = convert_call_args(x);
                 LFORTRAN_ASSERT(args.size() == 1);
                 tmp = lfortran_intrinsic(find_intrinsic->second, args[0]);
                 return;
-              }
-              h = get_hash((ASR::asr_t *)s);
-            } else {
-                throw CodeGenError("External type not implemented yet.");
             }
+            h = get_hash((ASR::asr_t *)s);
         } else {
-            h = get_hash((ASR::asr_t*)s);
+            throw CodeGenError("External type not implemented yet.");
         }
         if (llvm_symtab_fn.find(h) == llvm_symtab_fn.end()) {
             throw CodeGenError("Function code not generated for '"
@@ -1294,25 +1350,25 @@ public:
 
     //!< Meant to be called only once
     void populate_intrinsics() {
-      std::vector<std::string> supported = {
-          "sin",  "cos",  "tan",  "sinh",  "cosh",  "tanh",
-          "asin", "acos", "atan", "asinh", "acosh", "atanh"};
+        std::vector<std::string> supported = {
+            "sin",  "cos",  "tan",  "sinh",  "cosh",  "tanh",
+            "asin", "acos", "atan", "asinh", "acosh", "atanh"};
 
-      for (auto sv : supported) {
-        auto fname = "_lfortran_" + sv;
-        llvm::Function *fn = module->getFunction(fname);
-        if (!fn) {
-          llvm::FunctionType *function_type =
-              llvm::FunctionType::get(llvm::Type::getVoidTy(context),
-                                      {llvm::Type::getFloatTy(context),
-                                       llvm::Type::getFloatPtrTy(context)},
-                                      false);
-          fn = llvm::Function::Create(
-              function_type, llvm::Function::ExternalLinkage, fname, *module);
+        for (auto sv : supported) {
+            auto fname = "_lfortran_" + sv;
+            llvm::Function *fn = module->getFunction(fname);
+            if (!fn) {
+              llvm::FunctionType *function_type =
+                  llvm::FunctionType::get(llvm::Type::getVoidTy(context),
+                                          {llvm::Type::getFloatTy(context),
+                                           llvm::Type::getFloatPtrTy(context)},
+                                          false);
+              fn = llvm::Function::Create(
+                  function_type, llvm::Function::ExternalLinkage, fname, *module);
+            }
+            all_intrinsics[sv] = fn;
         }
-        all_intrinsics[sv] = fn;
-      }
-      return;
+        return;
     }
 };
 
@@ -1328,6 +1384,7 @@ std::unique_ptr<LLVMModule> asr_to_llvm(ASR::TranslationUnit_t &asr,
     // std::cout << pickle(asr) << std::endl;
 
     pass_replace_do_loops(al, asr);
+    pass_replace_select_case(al, asr);
     v.visit_asr((ASR::asr_t&)asr);
     std::string msg;
     llvm::raw_string_ostream err(msg);

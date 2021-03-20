@@ -105,7 +105,7 @@ One of the ways to ensure exact environment and dependencies is with `nix`. This
 
 ### With Root
 
-We start by getting `nix`. The following multi-user intstallation will work on any machine with a Linux distribution, MacOS or Windows (via WSL):
+We start by getting `nix`. The following multi-user installation will work on any machine with a Linux distribution, MacOS or Windows (via WSL):
 ```bash
 sh <(curl -L https://nixos.org/nix/install) --daemon
 ```

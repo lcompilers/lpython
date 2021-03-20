@@ -517,7 +517,18 @@ ast = true
 
 [[test]]
 filename = "../integration_tests/case_01.f90"
-ast = true
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/case_02.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/case_03.f90"
+asr = true
+llvm = true
 
 [[test]]
 filename = "../integration_tests/program_02.f90"
@@ -732,3 +743,15 @@ filename = "../integration_tests/string2.f90"
 ast = true
 asr = true
 llvm = true
+
+[[test]]
+filename = "../integration_tests/string3.f90"
+ast = true
+asr = true
+llvm = true
+
+[[test]]
+filename = "global_scope7.f90"
+asr = true
+llvm = true
+pass = "global_stmts"
