@@ -650,3 +650,72 @@ define i1 @b()
     )""");
     CHECK(e.boolfn("b") == false);
 }
+
+// Tests pointers
+TEST_CASE("llvm pointers 1") {
+    LFortran::LLVMEvaluator e;
+    e.add_module(R"""(
+@r = global i64 0
+
+define i64 @f()
+{
+    store i64 8, i64* @r
+
+    ; Dereferences the pointer %r
+    ;%rval = load i64, i64* @r
+
+    %raddr = ptrtoint i64* @r to i64
+
+    ret i64 %raddr
+}
+    )""");
+    int64_t r = e.intfn("f");
+    CHECK(r != 8);
+    int64_t *p = (int64_t*)r;
+    CHECK(*p == 8);
+}
+
+TEST_CASE("llvm pointers 2") {
+    LFortran::LLVMEvaluator e;
+    e.add_module(R"""(
+@r = global float 0.0
+
+define i64 @f()
+{
+    store float 8.0, float* @r
+
+    %raddr = ptrtoint float* @r to i64
+
+    ret i64 %raddr
+}
+    )""");
+    int64_t r = e.intfn("f");
+    float *p = (float *)r;
+    CHECK(std::abs(*p - 8) < 1e-6);
+}
+
+TEST_CASE("llvm pointers 3") {
+    LFortran::LLVMEvaluator e;
+    e.add_module(R"""(
+@r = global float 0.0
+
+define float @f()
+{
+    store float 8.0, float* @r
+
+    %raddr = ptrtoint float* @r to i64
+
+    %pointer = alloca i64
+    store i64 %raddr, i64* %pointer
+
+    ; Extract value out of the pointer %pointer
+    %pointer_val = load i64, i64* %pointer
+    %pointer2 = inttoptr i64 %pointer_val to float*
+    %ret = load float, float* %pointer2
+
+    ret float %ret
+}
+    )""");
+    float r = e.floatfn("f");
+    CHECK(std::abs(r - 8) < 1e-6);
+}
