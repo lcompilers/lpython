@@ -734,6 +734,43 @@ define float @f()
     CHECK(std::abs(r - 8) < 1e-6);
 }
 
+TEST_CASE("llvm pointers 4") {
+    LFortran::LLVMEvaluator e;
+    e.add_module(R"""(
+; Takes a variable and returns a pointer to it
+define float* @pointer_reference(float* %var)
+{
+    ret float* %var
+}
+
+define float @pointer_dereference(float* %var)
+{
+    %ret = load float, float* %var
+    ret float %ret
+}
+
+define float @f()
+{
+    %var = alloca float
+    store float 8.0, float* %var
+
+    %pointer_val = call float* @pointer_reference(float* %var)
+
+    ; Save the pointer to a variable
+    %pointer_var = alloca float*
+    store float* %pointer_val, float** %pointer_var
+    ; Extract value out of the pointer %pointer_var
+    %pointer_val2 = load float*, float** %pointer_var
+
+    %ret = call float @pointer_dereference(float* %pointer_val2)
+
+    ret float %ret
+}
+    )""");
+    float r = e.floatfn("f");
+    CHECK(std::abs(r - 8) < 1e-6);
+}
+
 TEST_CASE("FortranEvaluator 7") {
     FortranEvaluator e;
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
