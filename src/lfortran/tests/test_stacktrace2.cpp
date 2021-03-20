@@ -60,8 +60,8 @@ TEST_CASE("Address to line number"){
     CHECK(line_number==20);
 
     LFortran::address_to_line_number(filenames, addresses, 100, filename, line_number);
-    CHECK(filename=="foo3");
-    CHECK(line_number==1);
+    CHECK(filename=="foo");
+    CHECK(line_number==45);
 
     LFortran::address_to_line_number(filenames, addresses, 900, filename, line_number);
     CHECK(filename=="foo2");
