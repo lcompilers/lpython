@@ -27,17 +27,17 @@ TEST_CASE("Address to line number"){
     std::string filename = "";
     int line_number = -1;
 
-    LFortran::address_to_line_number_l(filenames, addresses, 500, filename, line_number );
-    CHECK(filename=="foo3");
-    CHECK(line_number==1);
-
-    LFortran::address_to_line_number_l(filenames, addresses, 1100, filename, line_number);
-    CHECK(filename=="foo1");
-    CHECK(line_number==20);
-
     LFortran::address_to_line_number_l(filenames, addresses, 100, filename, line_number);
     CHECK(filename=="foo");
     CHECK(line_number==45);
+
+    LFortran::address_to_line_number_l(filenames, addresses, 140, filename, line_number);
+    CHECK(filename=="foo1");
+    CHECK(line_number==50);
+
+    LFortran::address_to_line_number_l(filenames, addresses, 500, filename, line_number );
+    CHECK(filename=="foo3");
+    CHECK(line_number==1);
 
     LFortran::address_to_line_number_l(filenames, addresses, 900, filename, line_number);
     CHECK(filename=="foo2");
@@ -51,21 +51,26 @@ TEST_CASE("Address to line number"){
     CHECK(filename=="foo1");
     CHECK(line_number==20);
 
+    LFortran::address_to_line_number_l(filenames, addresses, 1100, filename, line_number);
+    CHECK(filename=="foo1");
+    CHECK(line_number==20);
+
     LFortran::address_to_line_number_l(filenames, addresses, 1300, filename, line_number);
     CHECK(filename=="");
     CHECK(line_number==-1);
 
-    LFortran::address_to_line_number(filenames, addresses, 500, filename, line_number );
-    CHECK(filename=="foo3");
-    CHECK(line_number==1);
-
-    LFortran::address_to_line_number(filenames, addresses, 1100, filename, line_number);
-    CHECK(filename=="foo1");
-    CHECK(line_number==20);
 
     LFortran::address_to_line_number(filenames, addresses, 100, filename, line_number);
     CHECK(filename=="foo");
     CHECK(line_number==45);
+
+    LFortran::address_to_line_number(filenames, addresses, 140, filename, line_number);
+    CHECK(filename=="foo1");
+    CHECK(line_number==50);
+
+    LFortran::address_to_line_number(filenames, addresses, 500, filename, line_number );
+    CHECK(filename=="foo3");
+    CHECK(line_number==1);
 
     LFortran::address_to_line_number(filenames, addresses, 900, filename, line_number);
     CHECK(filename=="foo2");
@@ -76,6 +81,10 @@ TEST_CASE("Address to line number"){
     CHECK(line_number==15);
 
     LFortran::address_to_line_number(filenames, addresses, 1008, filename, line_number);
+    CHECK(filename=="foo1");
+    CHECK(line_number==20);
+
+    LFortran::address_to_line_number(filenames, addresses, 1100, filename, line_number);
     CHECK(filename=="foo1");
     CHECK(line_number==20);
 
