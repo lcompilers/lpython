@@ -1094,12 +1094,11 @@ public:
         tmp = builder->CreateGlobalStringPtr(x.m_s);
     }
 
-    inline void fetch_ptr(ASR::Variable_t* x, llvm::PointerType* ptr_type) {
+    inline void fetch_ptr(ASR::Variable_t* x) {
         uint32_t x_h = get_hash((ASR::asr_t*)x);
         LFORTRAN_ASSERT(llvm_symtab.find(x_h) != llvm_symtab.end());
         llvm::Value* x_v = llvm_symtab[x_h];
         tmp = builder->CreateLoad(x_v);
-        // llvm::Value* ptr = builder->CreateIntToPtr(tmp, ptr_type);
         tmp = builder->CreateLoad(tmp);
     }
 
@@ -1113,11 +1112,11 @@ public:
     inline void fetch_var(ASR::Variable_t* x) {
         switch( x->m_type->type ) {
             case ASR::ttypeType::IntegerPointer: {
-                fetch_ptr(x, llvm::Type::getInt64PtrTy(context));
+                fetch_ptr(x);
                 break;
             }
             case ASR::ttypeType::RealPointer: {
-                fetch_ptr(x, llvm::Type::getFloatPtrTy(context));
+                fetch_ptr(x);
             }
             case ASR::ttypeType::ComplexPointer:
             case ASR::ttypeType::CharacterPointer:
