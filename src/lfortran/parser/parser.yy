@@ -332,6 +332,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> while_statement
 %type <ast> do_statement
 %type <ast> forall_statement
+%type <ast> forall_statement_single
 %type <vec_ast> concurrent_locality_star
 %type <ast> concurrent_locality
 %type <reduce_op_type> reduce_op
@@ -926,7 +927,7 @@ statement
     | deallocate_statement sep
     | error_stop_statement sep
     | exit_statement sep
-    | forall_statement sep
+    | forall_statement_single sep
     | format_statement sep
     | if_statement_single
     | inquire_statement sep
@@ -945,6 +946,7 @@ statement
     | associate_block sep
     | block_statement sep
     | do_statement sep
+    | forall_statement sep
     | if_statement
     | select_statement sep
     | select_type_statement sep
@@ -1210,15 +1212,18 @@ concurrent_locality
 
 forall_statement
     : KW_FORALL "(" concurrent_control_list ")"
-        assignment_statement { $$ = PRINT0(@$); }
-    | KW_FORALL "(" concurrent_control_list "," expr ")"
-        assignment_statement { $$ = PRINT0(@$); }
-    | KW_FORALL "(" concurrent_control_list ")"
         concurrent_locality_star sep statements endforall {
             $$ = DO_CONCURRENT1($3, $5, $7, @$); }
     | KW_FORALL "(" concurrent_control_list "," expr ")"
         concurrent_locality_star sep statements endforall {
             $$ = DO_CONCURRENT2($3, $5, $7, $9, @$); }
+    ;
+
+forall_statement_single
+    : KW_FORALL "(" concurrent_control_list ")"
+        assignment_statement { $$ = PRINT0(@$); }
+    | KW_FORALL "(" concurrent_control_list "," expr ")"
+        assignment_statement { $$ = PRINT0(@$); }
     ;
 
 format_statement
