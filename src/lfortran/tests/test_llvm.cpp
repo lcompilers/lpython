@@ -719,3 +719,27 @@ define float @f()
     float r = e.floatfn("f");
     CHECK(std::abs(r - 8) < 1e-6);
 }
+
+TEST_CASE("FortranEvaluator 7") {
+    FortranEvaluator e;
+    FortranEvaluator::Result<FortranEvaluator::EvalResult>
+    r = e.evaluate("integer :: i = 5");
+    CHECK(r.ok);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::none);
+    r = e.evaluate("i");
+    CHECK(r.ok);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::integer);
+    CHECK(r.result.i == 5);
+}
+
+TEST_CASE("FortranEvaluator 8") {
+    FortranEvaluator e;
+    FortranEvaluator::Result<FortranEvaluator::EvalResult>
+    r = e.evaluate("real :: a = 3.5");
+    CHECK(r.ok);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::none);
+    r = e.evaluate("a");
+    CHECK(r.ok);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::real);
+    CHECK(r.result.f == 3.5);
+}
