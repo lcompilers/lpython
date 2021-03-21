@@ -277,6 +277,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> enum_decl
 %type <ast> program
 %type <ast> subroutine
+%type <ast> procedure
 %type <ast> sub_or_func
 %type <vec_ast> sub_args
 %type <ast> function
@@ -582,7 +583,10 @@ subroutine
         contains_block_opt
         KW_END end_subroutine_opt sep {
             LLOC(@$, @14); $$ = SUBROUTINE($3, $4, $10, $11, @$); }
-    | KW_MODULE KW_PROCEDURE id sub_args sep use_statement_star
+    ;
+
+procedure
+    : fn_mod_plus KW_PROCEDURE id sub_args sep use_statement_star
     import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_procedure_opt sep {
@@ -669,6 +673,7 @@ sub_or_func_plus
 sub_or_func
     : subroutine
     | function
+    | procedure
     ;
 
 sub_args
