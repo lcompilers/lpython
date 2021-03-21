@@ -372,6 +372,9 @@ public:
         mangle_prefix = "";
     }
 
+
+
+
     void visit_Program(const ASR::Program_t &x) {
         // Generate code for nested subroutines and functions first:
         for (auto &item : x.m_symtab->scope) {
@@ -393,66 +396,72 @@ public:
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
                 ".entry", F);
         builder->SetInsertPoint(BB);
-
-        for (auto &item : x.m_symtab->scope) {
-            if (is_a<ASR::Variable_t>(*item.second)) {
-                ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
-                uint32_t h = get_hash((ASR::asr_t*)v);
-                llvm::AllocaInst *ptr;
-                switch (v->m_type->type) {
-                    case (ASR::ttypeType::Integer) :
-                        ptr = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, v->m_name);
-                        break;
-                    case (ASR::ttypeType::Real) : {
-                        llvm::Type* typeByKind = nullptr;
-                        int a_kind = ((ASR::Real_t*)(&(v->m_type->base)))->m_kind;
-                        switch( a_kind )
-                        {
-                            case 4:
-                                typeByKind = llvm::Type::getFloatTy(context);
-                                break;
-                            case 8:
-                                typeByKind = llvm::Type::getDoubleTy(context);
-                                break;
-                            default:
-                                throw SemanticError("Only 32 and 64 bits real kinds are supported.", 
-                                                    x.base.base.loc);
-                        }
-                        ptr = builder->CreateAlloca(typeByKind, nullptr, v->m_name);
-                        break;
-                    }
-                    case (ASR::ttypeType::Complex) :
-                        // TODO: Assuming single precision
-                        ptr = builder->CreateAlloca(complex_type, nullptr, v->m_name);
-                        break;
-                    case (ASR::ttypeType::Character) :
-                        ptr = builder->CreateAlloca(character_type, nullptr, v->m_name);
-                        break;
-                    case (ASR::ttypeType::Logical) :
-                        ptr = builder->CreateAlloca(llvm::Type::getInt1Ty(context), nullptr, v->m_name);
-                        break;
-                    case (ASR::ttypeType::Derived) :
-                        throw CodeGenError("Derived type argument not implemented yet in conversion");
-                        break;
-                    default :
-                        LFORTRAN_ASSERT(false);
-                }
-                llvm_symtab[h] = ptr;
-                if( v->m_value != nullptr ) {
-                    llvm::Value *target_var = ptr;
-                    this->visit_expr(*v->m_value);
-                    llvm::Value *init_value = tmp;
-                    builder->CreateStore(init_value, target_var);
-                }
-            }
-        }
-
+        declare_vars(x);
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
         }
         llvm::Value *ret_val2 = llvm::ConstantInt::get(context,
             llvm::APInt(64, 0));
         builder->CreateRet(ret_val2);
+    }
+
+    template<typename T>
+    void declare_vars(const T &x) {
+        for (auto &item : x.m_symtab->scope) {
+            if (is_a<ASR::Variable_t>(*item.second)) {
+                ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
+                uint32_t h = get_hash((ASR::asr_t*)v);
+                llvm::Type *type;
+                if (v->m_intent == intent_local || v->m_intent == 
+                        intent_return_var || !v->m_intent) { 
+                    switch (v->m_type->type) {
+                        case (ASR::ttypeType::Integer) :
+                            type = llvm::Type::getInt64Ty(context);
+                            break;
+                        case (ASR::ttypeType::Real) : {
+                            int a_kind = ((ASR::Real_t*)(&(v->m_type->base)))->m_kind;
+                            switch( a_kind )
+                            {
+                                case 4:
+                                    type = llvm::Type::getFloatTy(context);
+                                    break;
+                                case 8:
+                                    type = llvm::Type::getDoubleTy(context);
+                                    break;
+                                default:
+                                    throw SemanticError("Only 32 and 64 bits real kinds are supported.", 
+                                                        x.base.base.loc);
+                            }
+                            break;
+                        }
+                        case (ASR::ttypeType::Complex) :
+                            // TODO: Assuming single precision
+                            type = complex_type;
+                            break;
+                        case (ASR::ttypeType::Character) :
+                            type = character_type;
+                            break;
+                        case (ASR::ttypeType::Logical) :
+                            type = llvm::Type::getInt1Ty(context);
+                            break;
+                        case (ASR::ttypeType::Derived) :
+                            throw CodeGenError("Derived type argument not implemented yet in conversion");
+                            break;
+                        default :
+                            LFORTRAN_ASSERT(false);
+                    }
+                    llvm::AllocaInst *ptr = builder->CreateAlloca(
+                        type, nullptr, v->m_name);
+                    llvm_symtab[h] = ptr;
+                    if( v->m_value != nullptr ) {
+                        llvm::Value *target_var = ptr;
+                        this->visit_expr(*v->m_value);
+                        llvm::Value *init_value = tmp;
+                        builder->CreateStore(init_value, target_var);
+                    }
+                }
+            }
+        }
     }
 
     template <typename T>
@@ -504,41 +513,7 @@ public:
 
     template <typename T>
     void declare_local_vars(const T &x) {
-        for (auto &item : x.m_symtab->scope) {
-            if (is_a<ASR::Variable_t>(*item.second)) {
-                ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
-                uint32_t h = get_hash((ASR::asr_t*)v);
-
-                llvm::Type *type;
-                if (v->m_intent == intent_local || v->m_intent == intent_return_var) {
-                    switch (v->m_type->type) {
-                        case (ASR::ttypeType::Integer) :
-                            type = llvm::Type::getInt64Ty(context);
-                            break;
-                        case (ASR::ttypeType::Real) :
-                            type = llvm::Type::getFloatTy(context);
-                            break;
-                        case (ASR::ttypeType::Complex) :
-                            throw CodeGenError("Complex type not implemented yet");
-                            break;
-                        case (ASR::ttypeType::Character) :
-                            throw CodeGenError("Character type not implemented yet");
-                            break;
-                        case (ASR::ttypeType::Logical) :
-                            type = llvm::Type::getInt1Ty(context);
-                            break;
-                        case (ASR::ttypeType::Derived) :
-                            throw CodeGenError("Derived type not implemented yet");
-                            break;
-                        default :
-                            LFORTRAN_ASSERT(false);
-                    }
-                    llvm::AllocaInst *ptr = builder->CreateAlloca(
-                        type, nullptr, v->m_name);
-                    llvm_symtab[h] = ptr;
-                }
-            }
-        }
+        declare_vars(x);
     }
 
     void visit_Function(const ASR::Function_t &x) {
