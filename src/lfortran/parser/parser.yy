@@ -317,6 +317,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> inquire_statement
 %type <ast> rewind_statement
 %type <ast> if_statement
+%type <ast> if_statement_single
 %type <ast> if_block
 %type <ast> elseif_block
 %type <ast> where_statement
@@ -936,6 +937,7 @@ statement
     | stop_statement sep
     | error_stop_statement sep
     | if_statement
+    | if_statement_single
     | where_statement
     | select_statement sep
     | select_type_statement sep
@@ -1045,7 +1047,10 @@ rewind_statement
 if_statement
     : if_block endif sep {}
     | id ":" if_block endif sep { $$ = $3; }
-    | KW_IF "(" expr ")" statement { $$ = IFSINGLE($3, $5, @$); }
+    ;
+
+if_statement_single
+    : KW_IF "(" expr ")" statement { $$ = IFSINGLE($3, $5, @$); }
     ;
 
 if_block
