@@ -917,37 +917,39 @@ sep_one
 
 statement
     // Single line statements
-    : assignment_statement sep
+    : allocate_statement sep
+    | assignment_statement sep
     | associate_statement sep
-    | associate_block sep
-    | block_statement sep
-    | allocate_statement sep
-    | deallocate_statement sep
-    | nullify_statement sep
-    | subroutine_call sep
-    | print_statement sep
-    | open_statement sep
     | close_statement sep
-    | read_statement sep
-    | inquire_statement sep
-    | rewind_statement sep
-    | write_statement sep
-    | exit_statement sep
-    | return_statement sep
-    | cycle_statement sep
     | continue_statement sep
-    | stop_statement sep
+    | cycle_statement sep
+    | deallocate_statement sep
     | error_stop_statement sep
-    | if_statement
-    | if_statement_single
-    | where_statement
-    | where_statement_single
-    | select_statement sep
-    | select_type_statement sep
-    | while_statement sep
-    | do_statement sep
+    | exit_statement sep
     | forall_statement sep
     | format_statement sep
+    | if_statement_single
+    | inquire_statement sep
+    | nullify_statement sep
+    | open_statement sep
+    | print_statement sep
+    | read_statement sep
+    | return_statement sep
+    | rewind_statement sep
+    | stop_statement sep
+    | subroutine_call sep
+    | where_statement_single
+    | write_statement sep
+
+    // Multi-line statements (blocks)
+    | associate_block sep
+    | block_statement sep
+    | do_statement sep
+    | if_statement
+    | select_statement sep
+    | select_type_statement sep
+    | where_statement
+    | while_statement sep
     ;
 
 assignment_statement
