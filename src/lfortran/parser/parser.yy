@@ -321,6 +321,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> if_block
 %type <ast> elseif_block
 %type <ast> where_statement
+%type <ast> where_statement_single
 %type <ast> where_block
 %type <ast> select_statement
 %type <ast> select_type_statement
@@ -915,6 +916,7 @@ sep_one
     ;
 
 statement
+    // Single line statements
     : assignment_statement sep
     | associate_statement sep
     | associate_block sep
@@ -939,6 +941,7 @@ statement
     | if_statement
     | if_statement_single
     | where_statement
+    | where_statement_single
     | select_statement sep
     | select_type_statement sep
     | while_statement sep
@@ -1077,7 +1080,10 @@ elseif_block
 
 where_statement
     : where_block endwhere sep {}
-    | KW_WHERE "(" expr ")" statement { $$ = WHERESINGLE($3, $5, @$); }
+    ;
+
+where_statement_single
+    : KW_WHERE "(" expr ")" statement { $$ = WHERESINGLE($3, $5, @$); }
     ;
 
 where_block
