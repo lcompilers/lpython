@@ -947,7 +947,7 @@ statement
     | block_statement sep
     | do_statement sep
     | forall_statement sep
-    | if_statement
+    | if_statement sep
     | select_statement sep
     | select_type_statement sep
     | where_statement
@@ -1052,8 +1052,8 @@ rewind_statement
 
 // sr-conflict (2x): KW_ENDIF can be an "id" or end of "if_statement"
 if_statement
-    : if_block endif sep {}
-    | id ":" if_block endif sep { $$ = $3; }
+    : if_block endif {}
+    | id ":" if_block endif { $$ = $3; }
     ;
 
 if_statement_single
