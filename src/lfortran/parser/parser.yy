@@ -950,7 +950,7 @@ statement
     | if_statement sep
     | select_statement sep
     | select_type_statement sep
-    | where_statement
+    | where_statement sep
     | while_statement sep
     ;
 
@@ -1083,7 +1083,7 @@ elseif_block
     ;
 
 where_statement
-    : where_block endwhere sep {}
+    : where_block endwhere {}
     ;
 
 where_statement_single
