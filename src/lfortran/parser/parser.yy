@@ -301,6 +301,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> var_modifier_list
 %type <ast> var_modifier
 %type <ast> statement
+%type <ast> single_line_statement
+%type <ast> multi_line_statement
 %type <ast> assignment_statement
 %type <ast> associate_statement
 %type <ast> associate_block
@@ -917,7 +919,11 @@ sep_one
     ;
 
 statement
-    // Single line statements
+    : single_line_statement
+    | multi_line_statement
+    ;
+
+single_line_statement
     : allocate_statement sep
     | assignment_statement sep
     | associate_statement sep
@@ -941,9 +947,10 @@ statement
     | subroutine_call sep
     | where_statement_single sep
     | write_statement sep
+    ;
 
-    // Multi-line statements (blocks)
-    | associate_block sep
+multi_line_statement
+    : associate_block sep
     | block_statement sep
     | do_statement sep
     | forall_statement sep
