@@ -534,12 +534,19 @@ class PickleVisitorVisitor(ASDLVisitor):
                         self.emit(    's.append("()");', 3)
                         self.emit("}", 2)
                     else:
-                        self.emit('s.append(x.m_%s);' % field.name, 2)
+                        self.emit('if(indent) {',2)
+                        self.emit(  's.append("\\n");', 3)
+                        self.emit(  's.append(x.m_%s);' % field.name, 3)
+                        self.emit('} else', 2)
+                        self.emit(  's.append(x.m_%s);' % field.name, 3)
             elif field.type == "node":
                 assert not field.opt
                 assert field.seq
                 level = 2
-                self.emit('s.append("[");', level)
+                self.emit('if(indent)',level)
+                self.emit(  's.append("\\n[");', level+1)
+                self.emit('else', level)
+                self.emit(  's.append("[");', level+1)
                 self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
                 mod_name = self.mod.name.lower()
                 self.emit("self().visit_%s(*x.m_%s[i]);" % (mod_name, field.name), level+1)
@@ -551,7 +558,10 @@ class PickleVisitorVisitor(ASDLVisitor):
                 assert not field.seq
                 if field.name == "parent_symtab":
                     level = 2
-                    self.emit('s.append(x.m_%s->get_counter());' % field.name, level)
+                    self.emit('if(indent)',level)
+                    self.emit(  's.append("\\n"+x.m_%s->get_counter());' % field.name, level+1)
+                    self.emit('else', level)
+                    self.emit(  's.append(x.m_%s->get_counter());' % field.name, level+1)
                 else:
                     level = 2
                     self.emit(      'if(indent)',level)
