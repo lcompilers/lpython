@@ -1091,6 +1091,7 @@ elseif_block
 
 where_statement
     : where_block endwhere {}
+    | id ":" where_block endwhere id {}
     ;
 
 where_statement_single
