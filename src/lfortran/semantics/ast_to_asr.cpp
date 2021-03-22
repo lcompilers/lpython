@@ -10,9 +10,94 @@
 #include <lfortran/parser/parser_stype.h>
 #include <string>
 
-#define num_types 6
+#define num_types 12
 
 namespace LFortran {
+
+    class HelperMethods {
+
+        public: 
+
+            inline static bool is_pointer(ASR::ttype_t* x) {
+                switch( x->type ) {
+                    case ASR::ttypeType::IntegerPointer:
+                    case ASR::ttypeType::RealPointer:
+                    case ASR::ttypeType::ComplexPointer:
+                    case ASR::ttypeType::CharacterPointer:
+                    case ASR::ttypeType::LogicalPointer:
+                    case ASR::ttypeType::DerivedPointer:
+                        return true;
+                        break;
+                    default:
+                        break;
+                }
+                return false;
+            }
+
+            inline static bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
+                bool is_source_pointer = is_pointer(source), is_dest_pointer = is_pointer(dest);
+                if( (!is_source_pointer && !is_dest_pointer) || 
+                    (is_source_pointer && is_dest_pointer) ) {
+                    return false;
+                }
+                if( is_source_pointer && !is_dest_pointer ) {
+                    ASR::ttype_t* temp = source;
+                    source = dest;
+                    dest = temp;
+                }
+                bool res = false;
+                switch( dest->type ) {
+                    case ASR::ttypeType::IntegerPointer:
+                        res = source->type == ASR::ttypeType::Integer;
+                        break;
+                    case ASR::ttypeType::RealPointer:
+                        res = source->type == ASR::ttypeType::Real;
+                        break;
+                    case ASR::ttypeType::ComplexPointer:
+                        res = source->type == ASR::ttypeType::Complex;
+                        break;
+                    case ASR::ttypeType::CharacterPointer:
+                        res = source->type == ASR::ttypeType::Character;
+                        break;
+                    case ASR::ttypeType::LogicalPointer:
+                        return source->type == ASR::ttypeType::Logical;
+                        break;
+                    case ASR::ttypeType::DerivedPointer:
+                        res = source->type == ASR::ttypeType::Derived;
+                        break;
+                    default:
+                        break;
+                }
+                return res;
+            }
+
+            inline static int extract_kind(char* m_n) {
+                bool is_under_score = false;
+                char kind_str[2] = {'0', '0'};
+                int i = 1, j = 0;
+                for( ; m_n[i] != '\0'; i++ ) {
+                    is_under_score = m_n[i-1] == '_' && !is_under_score ? true : is_under_score;
+                    if( is_under_score ) {
+                        kind_str[j] = m_n[i];
+                        j++;
+                    }
+                }
+                if( kind_str[0] != '0' && kind_str[1] == '0'  ) {
+                    return kind_str[0] - '0';
+                } else if( kind_str[0] != '0' && kind_str[0] != '0' ) {
+                    return (kind_str[0] - '0')*10 + (kind_str[1] - '0');
+                }
+                return 4;
+            }
+
+            inline static bool check_equal_type(ASR::ttype_t* x, ASR::ttype_t* y) {
+                if( x->type == y->type ) {
+                    return true;
+                }
+
+                return HelperMethods::is_same_type_pointer(x, y);
+            }
+    };
 
     class ImplicitCastRules {
 
@@ -23,6 +108,7 @@ namespace LFortran {
             //! Error case when conversion is not possible or is illegal.
             static const int error_case = -2;
             static const int integer_to_real = ASR::cast_kindType::IntegerToReal;
+            static const int integer_to_integer = ASR::cast_kindType::IntegerToInteger;
             static const int real_to_integer = ASR::cast_kindType::RealToInteger;
             static const int real_to_complex = ASR::cast_kindType::RealToComplex;
             static const int integer_to_complex = ASR::cast_kindType::IntegerToComplex;
@@ -31,12 +117,18 @@ namespace LFortran {
 
             //! Stores the variable part of error messages to be passed to SemanticError.
             static constexpr const char* type_names[num_types][2] = {
-                {"Integer", ""}, 
-                {"Real", "Integer or Real"}, 
-                {"Complex", "Integer, Real or Complex"},
-                {"Character", ""},
-                {"Logical", "Integer"},
-                {"Derived", ""}
+                {"Integer", "Integer Pointer"}, 
+                {"Real", "Integer or Real or Real Pointer"}, 
+                {"Complex", "Integer, Real or Complex or Complex Pointer"},
+                {"Character", "Character Pointer"},
+                {"Logical", "Integer or Logical Pointer"},
+                {"Derived", "Derived Pointer"},
+                {"Integer Pointer", "Integer"},
+                {"Real Pointer", "Integer"},
+                {"Complex Pointer", "Integer"},
+                {"Character Pointer", "Integer"},
+                {"Logical Pointer", "Integer"},
+                {"Derived Pointer", "Integer"}
             }; 
 
             /*
@@ -45,14 +137,20 @@ namespace LFortran {
             * Key is the pair of indices with row index denoting the source type
             * and column index denoting the destination type.
             */
-            static constexpr const int rule_map[num_types][num_types] = {
+            static constexpr const int rule_map[num_types/2][num_types] = {
 
-                {default_case, integer_to_real, integer_to_complex, error_case, integer_to_logical, error_case},
-                {real_to_integer, real_to_real, real_to_complex, default_case, default_case, default_case},
-                {default_case, default_case, default_case, default_case, default_case, default_case},
-                {default_case, default_case, default_case, default_case, default_case, default_case},
-                {default_case, default_case, default_case, default_case, default_case, default_case},
-                {default_case, default_case, default_case, default_case, default_case, default_case}
+                {integer_to_integer, integer_to_real, integer_to_complex, error_case, integer_to_logical, error_case,
+                 integer_to_integer, integer_to_real, integer_to_complex, error_case, integer_to_logical, error_case},
+                {real_to_integer, real_to_real, real_to_complex, default_case, default_case, default_case,
+                 real_to_integer, real_to_real, real_to_complex, default_case, default_case, default_case},
+                {default_case, default_case, default_case, default_case, default_case, default_case,
+                 default_case, default_case, default_case, default_case, default_case, default_case},
+                {default_case, default_case, default_case, default_case, default_case, default_case,
+                 default_case, default_case, default_case, default_case, default_case, default_case},
+                {default_case, default_case, default_case, default_case, default_case, default_case,
+                 default_case, default_case, default_case, default_case, default_case, default_case},
+                {default_case, default_case, default_case, default_case, default_case, default_case,
+                 default_case, default_case, default_case, default_case, default_case, default_case}
 
             };
 
@@ -60,15 +158,15 @@ namespace LFortran {
             * Priority of different types to be used in conversion
             * when source and destination are directly not deducible.
             */
-            static constexpr const int type_priority[num_types] = {
-                4, // Integer
-                5, // Real
-                6, // Complex
-                -1, // Character
-                -1, // Logical
-                -1 // Derived
+            static constexpr const int type_priority[num_types/2] = {
+                4, // Integer or IntegerPointer
+                5, // Real or RealPointer
+                6, // Complex or ComplexPointer
+                -1, // Character or CharacterPointer
+                -1, // Logical or LogicalPointer
+                -1 // Derived or DerivedPointer
             };
-
+    
         public:
 
             /*
@@ -84,13 +182,32 @@ namespace LFortran {
             static void set_converted_value
             (Allocator &al, const Location &a_loc, 
              ASR::expr_t** convert_can, ASR::ttype_t* source_type, ASR::ttype_t* dest_type) {
-                if( source_type->type == dest_type->type ) {
+                if( source_type->type == dest_type->type || HelperMethods::is_same_type_pointer(source_type, dest_type) ) {
+                    bool is_source_pointer = HelperMethods::is_pointer(source_type);
+                    bool is_dest_pointer = HelperMethods::is_pointer(dest_type);
+                    if( is_source_pointer && !is_dest_pointer ) {
+                        ASR::ttype_t* temp = source_type;
+                        source_type = dest_type;
+                        dest_type = temp;
+                    }
                     int source_kind = 0, dest_kind = 1;
-                    switch (source_type->type) {
+                    switch (dest_type->type) {
                         
                         case ASR::ttypeType::Real : {
                             source_kind = ((ASR::Real_t*)(&(source_type->base)))->m_kind;
                             dest_kind = ((ASR::Real_t*)(&(dest_type->base)))->m_kind;
+                            break;
+                        } case ASR::ttypeType::RealPointer : {
+                            source_kind = ((ASR::Real_t*)(&(source_type->base)))->m_kind;
+                            dest_kind = ((ASR::RealPointer_t*)(&(dest_type->base)))->m_kind;
+                            break;
+                        } case ASR::ttypeType::Integer : {
+                            source_kind = ((ASR::Integer_t*)(&(source_type->base)))->m_kind;
+                            dest_kind = ((ASR::Integer_t*)(&(dest_type->base)))->m_kind;
+                            break;
+                        } case ASR::ttypeType::IntegerPointer : {
+                            source_kind = ((ASR::Integer_t*)(&(source_type->base)))->m_kind;
+                            dest_kind = ((ASR::IntegerPointer_t*)(&(dest_type->base)))->m_kind;
                             break;
                         }
                         default : {
@@ -102,7 +219,7 @@ namespace LFortran {
                         return ;
                     }
                 }
-                int cast_kind = rule_map[source_type->type][dest_type->type];
+                int cast_kind = rule_map[source_type->type%(num_types/2)][dest_type->type];
                 if( cast_kind == error_case )
                 {
                     std::string allowed_types_str = type_names[dest_type->type][1];
@@ -153,8 +270,8 @@ namespace LFortran {
              ASR::expr_t** &conversion_cand, 
              ASR::ttype_t** source_type, ASR::ttype_t** dest_type) {
 
-                int left_type_p = type_priority[left_type->type];
-                int right_type_p = type_priority[right_type->type];
+                int left_type_p = type_priority[left_type->type%(num_types/2)];
+                int right_type_p = type_priority[right_type->type%(num_types/2)];
                 if( left_type_p >= right_type_p ) {
                     conversion_cand = right;
                     *source_type = right_type;
@@ -168,30 +285,6 @@ namespace LFortran {
             }
 
     };
-
-class HelperMethods {
-
-    public: 
-
-        inline static int extract_kind(char* m_n) {
-            bool is_under_score = false;
-            char kind_str[2] = {'0', '0'};
-            int i = 1, j = 0;
-            for( ; m_n[i] != '\0'; i++ ) {
-                is_under_score = m_n[i-1] == '_' && !is_under_score ? true : is_under_score;
-                if( is_under_score ) {
-                    kind_str[j] = m_n[i];
-                    j++;
-                }
-            }
-            if( kind_str[0] != '0' && kind_str[1] == '0'  ) {
-                return kind_str[0] - '0';
-            } else if( kind_str[0] != '0' && kind_str[0] != '0' ) {
-                return (kind_str[0] - '0')*10 + (kind_str[1] - '0');
-            }
-            return 4;
-        }
-};
 
 class SymbolTableVisitor : public AST::BaseVisitor<SymbolTableVisitor>
 {
@@ -696,6 +789,7 @@ public:
         }
         std::string sym_type = x.m_sym_type;
         ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
+        bool is_pointer = false;
         if (current_scope->scope.find(sym) == current_scope->scope.end()) {
             ASR::intentType s_intent=intent_local;
             Vec<ASR::dimension_t> dims;
@@ -707,8 +801,7 @@ public:
                         s_access = ASR::Private;
                     } else if (std::string(a->m_name) == "public") {
                         s_access = ASR::Public;
-                    }
-                    if (std::string(a->m_name) == "intent") {
+                    } else if (std::string(a->m_name) == "intent") {
                         if (a->n_args > 0) {
                             std::string intent = std::string(a->m_args[0].m_arg);
                             if (intent == "in") {
@@ -746,6 +839,8 @@ public:
                         }
                     } else if( std::string(a->m_name) == "parameter" ) {
                         storage_type = ASR::storage_typeType::Parameter;
+                    } else if( std::string(a->m_name) == "pointer" ) {
+                        is_pointer = true;
                     }
                 }
             }
@@ -803,9 +898,17 @@ public:
                 }
             }
             if (sym_type == "real") {
-                type = TYPE(ASR::make_Real_t(al, x.loc, a_kind, dims.p, dims.size()));
+                if( is_pointer ) {
+                    type = TYPE(ASR::make_RealPointer_t(al, x.loc, a_kind, dims.p, dims.size()));
+                } else {
+                    type = TYPE(ASR::make_Real_t(al, x.loc, a_kind, dims.p, dims.size()));
+                }
             } else if (sym_type == "integer") {
-                type = TYPE(ASR::make_Integer_t(al, x.loc, 4, dims.p, dims.size()));
+                if( is_pointer ) {
+                    type = TYPE(ASR::make_IntegerPointer_t(al, x.loc, a_kind, dims.p, dims.size()));
+                } else {
+                    type = TYPE(ASR::make_Integer_t(al, x.loc, a_kind, dims.p, dims.size()));
+                }
             } else if (sym_type == "logical") {
                 type = TYPE(ASR::make_Logical_t(al, x.loc, 4, dims.p, dims.size()));
             } else if (sym_type == "complex") {
@@ -854,7 +957,7 @@ public:
 
     void visit_Num(const AST::Num_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                8, nullptr, 0));
+                4, nullptr, 0));
         asr = ASR::make_ConstantInteger_t(al, x.base.base.loc, x.m_n, type);
     }
 
@@ -887,6 +990,23 @@ public:
     void visit_Declaration(const AST::Declaration_t & /* x */) {
         // This AST node was already visited in SymbolTableVisitor
     }
+
+    void visit_Associate(const AST::Associate_t& x) {
+        this->visit_expr(*(x.m_target));
+        ASR::expr_t* target = EXPR(tmp);
+        this->visit_expr(*(x.m_value));
+        ASR::expr_t* value = EXPR(tmp);
+        ASR::ttype_t* target_type = expr_type(target);
+        ASR::ttype_t* value_type = expr_type(value);
+        bool is_target_pointer = HelperMethods::is_pointer(target_type);
+        bool is_value_pointer = HelperMethods::is_pointer(value_type);
+        if( !(is_target_pointer && !is_value_pointer) ) {
+            throw SemanticError("Only a pointer variable can be associated with a non-pointer variable.", x.base.base.loc);
+        }
+        if( HelperMethods::is_same_type_pointer(target_type, value_type) ) {
+            tmp = ASR::make_Associate_t(al, x.base.base.loc, target, value);
+        }
+    } 
 
     void visit_case_stmt(const AST::case_stmt_t& x) {
         switch(x.type) {
@@ -1192,7 +1312,10 @@ public:
              source_type, dest_type);
         }
 
-        LFORTRAN_ASSERT(expr_type(left)->type == expr_type(right)->type);
+        bool res = HelperMethods::check_equal_type(expr_type(left), expr_type(right));
+        if( !res ) {
+            LFORTRAN_ASSERT(false);
+        }
         ASR::ttype_t *type = TYPE(ASR::make_Logical_t(al, x.base.base.loc,
                 4, nullptr, 0));
         ASR::cmpopType asr_op;
@@ -1251,7 +1374,10 @@ public:
             al, x.base.base.loc, conversion_cand,
             source_type, dest_type);
 
-        LFORTRAN_ASSERT(expr_type(left)->type == expr_type(right)->type);
+        bool res = HelperMethods::check_equal_type(expr_type(left), expr_type(right));
+        if( !res ) {
+            LFORTRAN_ASSERT(false);
+        }
         tmp = ASR::make_BoolOp_t(al, x.base.base.loc,
                 left, op, right, dest_type);
     }
@@ -1296,7 +1422,10 @@ public:
             al, x.base.base.loc, conversion_cand,
             source_type, dest_type);
 
-        LFORTRAN_ASSERT(expr_type(left)->type == expr_type(right)->type);
+        bool res = HelperMethods::check_equal_type(expr_type(left), expr_type(right));
+        if( !res ) {
+            LFORTRAN_ASSERT(false);
+        }
         tmp = ASR::make_BinOp_t(al, x.base.base.loc,
                 left, op, right, dest_type);
     }

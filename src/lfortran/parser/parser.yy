@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    430 // shift/reduce conflicts
+%expect    467 // shift/reduce conflicts
 %expect-rr 78  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -277,6 +277,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> enum_decl
 %type <ast> program
 %type <ast> subroutine
+%type <ast> procedure
 %type <ast> sub_or_func
 %type <vec_ast> sub_args
 %type <ast> function
@@ -300,6 +301,10 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> var_modifier_list
 %type <ast> var_modifier
 %type <ast> statement
+%type <ast> single_line_statement
+%type <ast> single_line_statement0
+%type <ast> multi_line_statement
+%type <ast> multi_line_statement0
 %type <ast> assignment_statement
 %type <ast> associate_statement
 %type <ast> associate_block
@@ -316,9 +321,11 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> inquire_statement
 %type <ast> rewind_statement
 %type <ast> if_statement
+%type <ast> if_statement_single
 %type <ast> if_block
 %type <ast> elseif_block
 %type <ast> where_statement
+%type <ast> where_statement_single
 %type <ast> where_block
 %type <ast> select_statement
 %type <ast> select_type_statement
@@ -329,6 +336,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> while_statement
 %type <ast> do_statement
 %type <ast> forall_statement
+%type <ast> forall_statement_single
 %type <vec_ast> concurrent_locality_star
 %type <ast> concurrent_locality
 %type <reduce_op_type> reduce_op
@@ -561,6 +569,11 @@ end_subroutine_opt
     | %empty
     ;
 
+end_procedure_opt
+    : KW_PROCEDURE id_opt
+    | %empty
+    ;
+
 end_function_opt
     : KW_FUNCTION id_opt
     | %empty
@@ -577,6 +590,14 @@ subroutine
         contains_block_opt
         KW_END end_subroutine_opt sep {
             LLOC(@$, @14); $$ = SUBROUTINE($3, $4, $10, $11, @$); }
+    ;
+
+procedure
+    : fn_mod_plus KW_PROCEDURE id sub_args sep use_statement_star
+    import_statement_opt implicit_statement_opt decl_star statements
+        contains_block_opt
+        KW_END end_procedure_opt sep {
+            LLOC(@$, @14); $$ = SUBROUTINE($3, $4, $9, $10, @$); }
     ;
 
 function
@@ -659,6 +680,7 @@ sub_or_func_plus
 sub_or_func
     : subroutine
     | function
+    | procedure
     ;
 
 sub_args
@@ -899,35 +921,55 @@ sep_one
     ;
 
 statement
-    : assignment_statement sep
-    | associate_statement sep
-    | associate_block sep
-    | block_statement sep
-    | allocate_statement sep
-    | deallocate_statement sep
-    | nullify_statement sep
-    | subroutine_call sep
-    | print_statement sep
-    | open_statement sep
-    | close_statement sep
-    | read_statement sep
-    | inquire_statement sep
-    | rewind_statement sep
-    | write_statement sep
-    | exit_statement sep
-    | return_statement sep
-    | cycle_statement sep
-    | continue_statement sep
-    | stop_statement sep
-    | error_stop_statement sep
+    : single_line_statement
+    | multi_line_statement
+    ;
+
+single_line_statement
+    : single_line_statement0 sep
+    ;
+
+single_line_statement0
+    : allocate_statement
+    | assignment_statement
+    | associate_statement
+    | close_statement
+    | continue_statement
+    | cycle_statement
+    | deallocate_statement
+    | error_stop_statement
+    | exit_statement
+    | forall_statement_single
+    | format_statement
+    | if_statement_single
+    | inquire_statement
+    | nullify_statement
+    | open_statement
+    | print_statement
+    | read_statement
+    | return_statement
+    | rewind_statement
+    | stop_statement
+    | subroutine_call
+    | where_statement_single
+    | write_statement
+    ;
+
+multi_line_statement
+    : multi_line_statement0 sep
+    | id ":" multi_line_statement0 id sep { $$ = $3; }
+    ;
+
+multi_line_statement0
+    : associate_block
+    | block_statement
+    | do_statement
+    | forall_statement
     | if_statement
+    | select_statement
+    | select_type_statement
     | where_statement
-    | select_statement sep
-    | select_type_statement sep
-    | while_statement sep
-    | do_statement sep
-    | forall_statement sep
-    | format_statement sep
+    | while_statement
     ;
 
 assignment_statement
@@ -1024,9 +1066,11 @@ rewind_statement
 
 // sr-conflict (2x): KW_ENDIF can be an "id" or end of "if_statement"
 if_statement
-    : if_block endif sep {}
-    | id ":" if_block endif sep { $$ = $3; }
-    | KW_IF "(" expr ")" statement { $$ = IFSINGLE($3, $5, @$); }
+    : if_block endif {}
+    ;
+
+if_statement_single
+    : KW_IF "(" expr ")" single_line_statement0 { $$ = IFSINGLE($3, $5, @$); }
     ;
 
 if_block
@@ -1052,8 +1096,11 @@ elseif_block
     ;
 
 where_statement
-    : where_block endwhere sep {}
-    | KW_WHERE "(" expr ")" statement { $$ = WHERESINGLE($3, $5, @$); }
+    : where_block endwhere {}
+    ;
+
+where_statement_single
+    : KW_WHERE "(" expr ")" assignment_statement { $$ = WHERESINGLE($3, $5, @$); }
     ;
 
 where_block
@@ -1120,26 +1167,18 @@ select_type_body_statement
 
 
 while_statement
-    : KW_DO KW_WHILE "(" expr ")" sep statements enddo id_opt {
+    : KW_DO KW_WHILE "(" expr ")" sep statements enddo {
             $$ = WHILE($4, $7, @$); }
-    | id ":" KW_DO KW_WHILE "(" expr ")" sep statements enddo id_opt {
-            $$ = WHILE($6, $9, @$); }
     ;
 
 // sr-conflict (2x): "KW_DO sep" being either a do_statement or an expr
 do_statement
-    : KW_DO sep statements enddo id_opt {
+    : KW_DO sep statements enddo {
             $$ = DO1($3, @$); }
-    | id ":" KW_DO sep statements enddo id_opt {
-            $$ = DO1($5, @$); }
-    | KW_DO id "=" expr "," expr sep statements enddo id_opt {
+    | KW_DO id "=" expr "," expr sep statements enddo {
             $$ = DO2($2, $4, $6, $8, @$); }
-    | id ":" KW_DO id "=" expr "," expr sep statements enddo id_opt {
-            $$ = DO2($4, $6, $8, $10, @$); }
-    | KW_DO id "=" expr "," expr "," expr sep statements enddo id_opt {
+    | KW_DO id "=" expr "," expr "," expr sep statements enddo {
             $$ = DO3($2, $4, $6, $8, $10, @$); }
-    | id ":" KW_DO id "=" expr "," expr "," expr sep statements enddo id_opt {
-            $$ = DO3($4, $6, $8, $10, $12, @$); }
     | KW_DO KW_CONCURRENT "(" concurrent_control_list ")"
         concurrent_locality_star sep statements enddo {
             $$ = DO_CONCURRENT1($4, $6, $8, @$); }
@@ -1178,15 +1217,18 @@ concurrent_locality
 
 forall_statement
     : KW_FORALL "(" concurrent_control_list ")"
-        assignment_statement { $$ = PRINT0(@$); }
-    | KW_FORALL "(" concurrent_control_list "," expr ")"
-        assignment_statement { $$ = PRINT0(@$); }
-    | KW_FORALL "(" concurrent_control_list ")"
         concurrent_locality_star sep statements endforall {
             $$ = DO_CONCURRENT1($3, $5, $7, @$); }
     | KW_FORALL "(" concurrent_control_list "," expr ")"
         concurrent_locality_star sep statements endforall {
             $$ = DO_CONCURRENT2($3, $5, $7, $9, @$); }
+    ;
+
+forall_statement_single
+    : KW_FORALL "(" concurrent_control_list ")"
+        assignment_statement { $$ = PRINT0(@$); }
+    | KW_FORALL "(" concurrent_control_list "," expr ")"
+        assignment_statement { $$ = PRINT0(@$); }
     ;
 
 format_statement
@@ -1243,8 +1285,6 @@ endforall
 endif
     : KW_END_IF
     | KW_ENDIF
-    | KW_END_IF id
-    | KW_ENDIF id
     ;
 
 endwhere
