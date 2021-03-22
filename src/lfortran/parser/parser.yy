@@ -939,7 +939,7 @@ statement
     | rewind_statement sep
     | stop_statement sep
     | subroutine_call sep
-    | where_statement_single
+    | where_statement_single sep
     | write_statement sep
 
     // Multi-line statements (blocks)
@@ -1087,7 +1087,7 @@ where_statement
     ;
 
 where_statement_single
-    : KW_WHERE "(" expr ")" statement { $$ = WHERESINGLE($3, $5, @$); }
+    : KW_WHERE "(" expr ")" assignment_statement { $$ = WHERESINGLE($3, $5, @$); }
     ;
 
 where_block
