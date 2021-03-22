@@ -1064,7 +1064,7 @@ if_statement
     ;
 
 if_statement_single
-    : KW_IF "(" expr ")" statement { $$ = IFSINGLE($3, $5, @$); }
+    : KW_IF "(" expr ")" single_line_statement { $$ = IFSINGLE($3, $5, @$); }
     ;
 
 if_block
