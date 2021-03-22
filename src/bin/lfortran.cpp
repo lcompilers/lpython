@@ -352,26 +352,26 @@ int emit_ast(const std::string &infile, bool colors, bool indent)
         return 2;
     }
 
-    std::string ast_after_indented,indt = "    ", ast_not_indented = LFortran::pickle(*ast, colors);
+    /*std::string ast_after_indented,indt = "    ", ast_not_indented = LFortran::pickle(*ast, colors);
     if(!indent)
         std::cout << ast_not_indented << std::endl;
     else {
-      /**************Converts and Prints Indented AST************************/
+
       int j = 0;
       bool str_check = false;
       for(int i = 0;i < (int)ast_not_indented.length();i++){
           if(ast_not_indented[i] == '(' || ast_not_indented[i] == '{') j++;
           else if(ast_not_indented[i] == ')' || ast_not_indented[i] == '}') j--;
           if(ast_not_indented[i] == '\"') str_check = !str_check;
-          if(ast_not_indented[i] == ' ' && str_check == false/*||ast_not_indented[i] == ')'||ast_not_indented[i] == '}'*/) {
+          if(ast_not_indented[i] == ' ' && str_check == false||ast_not_indented[i] == ')'||ast_not_indented[i] == '}') {
               ast_after_indented.append("\n");
               for (int k = 0; k < j;k++)
                       ast_after_indented.append(indt);
           }
           ast_after_indented += ast_not_indented[i];
       }
-      std::cout << ast_after_indented << std::endl;
-    }
+    }*/
+    std::cout << LFortran::pickle(*ast, colors, indent)/*ast_after_indented*/ << std::endl;
     return 0;
 }
 
@@ -472,24 +472,23 @@ int emit_asr(const std::string &infile, bool colors,
             default : throw LFortran::LFortranException("Pass not implemened");
         }
     }
-    std::string asr_after_indented,indt = "    ", asr_not_indented = LFortran::pickle(*asr, colors);
+    /*std::string asr_after_indented,indt = "    ", asr_not_indented = LFortran::pickle(*asr, colors);
     if(!indent)
         std::cout << asr_not_indented << std::endl;
     else {
-      /**************Converts and Prints Indented ASR************************/
       int j = 0;
       for(int i = 0;i < (int)asr_not_indented.length();i++){
           if(asr_not_indented[i] == '(' || asr_not_indented[i] == '{') j++;
           else if(asr_not_indented[i] == ')' || asr_not_indented[i] == '}') j--;
-          if(asr_not_indented[i] == ' '/*||asr_not_indented[i] == ')'||asr_not_indented[i] == '}'*/) {
+          if(asr_not_indented[i] == ' '||asr_not_indented[i] == ')'||asr_not_indented[i] == '}') {
               asr_after_indented.append("\n");
               for (int k = 0; k < j;k++)
                       asr_after_indented.append(indt);
           }
           asr_after_indented += asr_not_indented[i];
       }
-      std::cout << asr_after_indented << std::endl;
-    }
+    }*/
+    std::cout << LFortran::pickle(*asr, colors, indent) /*asr_after_indented*/ << std::endl;
     return 0;
 }
 

@@ -403,8 +403,9 @@ class PickleVisitorVisitor(ASDLVisitor):
         self.emit("public:")
         self.emit(  "std::string s;", 1)
         self.emit(  "bool use_colors;", 1)
+        self.emit(  "bool indent;", 1)
         self.emit("public:")
-        self.emit(  "PickleBaseVisitor() : use_colors(false) { s.reserve(100000); }", 1)
+        self.emit(  "PickleBaseVisitor() : use_colors(false), indent(false) { s.reserve(100000); }", 1)
         self.mod = mod
         super(PickleVisitorVisitor, self).visitModule(mod)
         self.emit("};")
@@ -429,7 +430,10 @@ class PickleVisitorVisitor(ASDLVisitor):
 
     def make_visitor(self, name, fields, cons):
         self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
-        self.emit(    's.append("(");', 2)
+        self.emit(      'if(indent)',2)
+        self.emit(          's.append("\\n(");', 3)
+        self.emit(      'else', 2)
+        self.emit(          's.append("(");', 3)
         subs = {
             "Assignment": "=",
             "Associate": "=>",
