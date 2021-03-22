@@ -1,9 +1,11 @@
 program arrays_01
 implicit none
-integer :: i, a(3), b(4)
+integer :: i, a(5), b(4)
+a = 20
 do i = 1, 3
     a(i) = i+10
 end do
+print *, a(0)
 if (a(1) /= 11) error stop
 if (a(2) /= 12) error stop
 if (a(3) /= 13) error stop

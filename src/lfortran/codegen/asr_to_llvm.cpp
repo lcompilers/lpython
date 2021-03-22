@@ -406,6 +406,24 @@ public:
         builder->CreateRet(ret_val2);
     }
 
+    template <typename T>
+    inline llvm::Value* get_array(ASR::Variable_t* x, llvm::Type*& type) {
+        T* x_type = down_cast<T>(x->m_type);
+        int n_dims = x_type->n_dims;
+        llvm::Value *prod = nullptr;
+        for( int i = n_dims - 1; i >= 0; i-- ) {
+            this->visit_expr(*(x_type->m_dims[i].m_end));
+            if( prod == nullptr ) {
+                prod = llvm::ConstantInt::get(context, llvm::APInt(64, 1));
+            }
+            prod = builder->CreateMul(prod, tmp);
+        }
+        if( prod != nullptr ) {
+            type = type->getPointerTo();
+        }
+        return prod;
+    }
+
     template<typename T>
     void declare_vars(const T &x) {
         for (auto &item : x.m_symtab->scope) {
@@ -413,13 +431,16 @@ public:
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
                 uint32_t h = get_hash((ASR::asr_t*)v);
                 llvm::Type *type;
+                llvm::Value* array_size = nullptr;
                 if (v->m_intent == intent_local || 
                     v->m_intent == intent_return_var || 
                     !v->m_intent) { 
                     switch (v->m_type->type) {
-                        case (ASR::ttypeType::Integer) :
+                        case (ASR::ttypeType::Integer) : {
                             type = llvm::Type::getInt64Ty(context);
+                            array_size = get_array<ASR::Integer_t>(v, type);
                             break;
+                        }
                         case (ASR::ttypeType::Real) : {
                             int a_kind = ((ASR::Real_t*)(&(v->m_type->base)))->m_kind;
                             switch( a_kind )
@@ -487,7 +508,7 @@ public:
                         default :
                             LFORTRAN_ASSERT(false);
                     }
-                    llvm::AllocaInst *ptr = builder->CreateAlloca(type, nullptr, v->m_name);
+                    llvm::AllocaInst *ptr = builder->CreateAlloca(type, array_size, v->m_name);
                     llvm_symtab[h] = ptr;
                     if( v->m_value != nullptr ) {
                         llvm::Value *target_var = ptr;
