@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    495 // shift/reduce conflicts
+%expect    467 // shift/reduce conflicts
 %expect-rr 78  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -957,6 +957,7 @@ single_line_statement0
 
 multi_line_statement
     : multi_line_statement0 sep
+    | id ":" multi_line_statement0 id sep { $$ = $3; }
     ;
 
 multi_line_statement0
@@ -982,14 +983,10 @@ associate_statement
 associate_block
     : KW_ASSOCIATE "(" var_sym_decl_list ")" sep statements KW_END KW_ASSOCIATE {
         $$ = PRINT0(@$); }
-    | id ":" KW_ASSOCIATE "(" var_sym_decl_list ")" sep statements KW_END KW_ASSOCIATE id_opt {
-        $$ = PRINT0(@$); }
     ;
 
 block_statement
     : KW_BLOCK sep var_decl_star statements KW_END KW_BLOCK {
-        $$ = PRINT0(@$); }
-    | id ":" KW_BLOCK sep var_decl_star statements KW_END KW_BLOCK id {
         $$ = PRINT0(@$); }
     ;
 
@@ -1070,7 +1067,6 @@ rewind_statement
 // sr-conflict (2x): KW_ENDIF can be an "id" or end of "if_statement"
 if_statement
     : if_block endif {}
-    | id ":" if_block endif { $$ = $3; }
     ;
 
 if_statement_single
@@ -1101,7 +1097,6 @@ elseif_block
 
 where_statement
     : where_block endwhere {}
-    | id ":" where_block endwhere id {}
     ;
 
 where_statement_single
@@ -1172,26 +1167,18 @@ select_type_body_statement
 
 
 while_statement
-    : KW_DO KW_WHILE "(" expr ")" sep statements enddo id_opt {
+    : KW_DO KW_WHILE "(" expr ")" sep statements enddo {
             $$ = WHILE($4, $7, @$); }
-    | id ":" KW_DO KW_WHILE "(" expr ")" sep statements enddo id_opt {
-            $$ = WHILE($6, $9, @$); }
     ;
 
 // sr-conflict (2x): "KW_DO sep" being either a do_statement or an expr
 do_statement
-    : KW_DO sep statements enddo id_opt {
+    : KW_DO sep statements enddo {
             $$ = DO1($3, @$); }
-    | id ":" KW_DO sep statements enddo id_opt {
-            $$ = DO1($5, @$); }
-    | KW_DO id "=" expr "," expr sep statements enddo id_opt {
+    | KW_DO id "=" expr "," expr sep statements enddo {
             $$ = DO2($2, $4, $6, $8, @$); }
-    | id ":" KW_DO id "=" expr "," expr sep statements enddo id_opt {
-            $$ = DO2($4, $6, $8, $10, @$); }
-    | KW_DO id "=" expr "," expr "," expr sep statements enddo id_opt {
+    | KW_DO id "=" expr "," expr "," expr sep statements enddo {
             $$ = DO3($2, $4, $6, $8, $10, @$); }
-    | id ":" KW_DO id "=" expr "," expr "," expr sep statements enddo id_opt {
-            $$ = DO3($4, $6, $8, $10, $12, @$); }
     | KW_DO KW_CONCURRENT "(" concurrent_control_list ")"
         concurrent_locality_star sep statements enddo {
             $$ = DO_CONCURRENT1($4, $6, $8, @$); }
@@ -1298,8 +1285,6 @@ endforall
 endif
     : KW_END_IF
     | KW_ENDIF
-    | KW_END_IF id
-    | KW_ENDIF id
     ;
 
 endwhere
