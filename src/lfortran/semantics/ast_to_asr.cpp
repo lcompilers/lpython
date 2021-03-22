@@ -382,6 +382,9 @@ public:
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
         }
+        for (size_t i=0; i<x.n_contains; i++) {
+            visit_program_unit(*x.m_contains[i]);
+        }
         Vec<ASR::expr_t*> args;
         args.reserve(al, x.n_args);
         for (size_t i=0; i<x.n_args; i++) {
@@ -429,7 +432,9 @@ public:
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
         }
-
+        for (size_t i=0; i<x.n_contains; i++) {
+            visit_program_unit(*x.m_contains[i]);
+        }
         // Convert and check arguments
         Vec<ASR::expr_t*> args;
         args.reserve(al, x.n_args);
@@ -1147,6 +1152,11 @@ public:
         }
         v->m_body = body.p;
         v->n_body = body.size();
+
+        for (size_t i=0; i<x.n_contains; i++) {
+            visit_program_unit(*x.m_contains[i]);
+        }
+
         current_scope = old_scope;
         tmp = nullptr;
     }
@@ -1165,6 +1175,11 @@ public:
         }
         v->m_body = body.p;
         v->n_body = body.size();
+
+        for (size_t i=0; i<x.n_contains; i++) {
+            visit_program_unit(*x.m_contains[i]);
+        }
+
         current_scope = old_scope;
         tmp = nullptr;
     }
