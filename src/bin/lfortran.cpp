@@ -87,7 +87,7 @@ void section(const std::string &s)
     std::cout << color(LFortran::style::bold) << color(LFortran::fg::blue) << s << color(LFortran::style::reset) << color(LFortran::fg::reset) << std::endl;
 }
 
-int emit_tokens(const std::string &input, std::vector<std::string> 
+int emit_tokens(const std::string &input, std::vector<std::string>
     &tok_strings, std::vector<int> &toks, std::vector<LFortran::YYSTYPE>
     &stypes)
 {
@@ -135,7 +135,7 @@ bool determine_completeness(std::string command)
     }
     int sr_blnc = 0;
     if (std::find(toks.begin(), toks.end(), KW_SUBROUTINE)!=toks.end()) {
-        // Statement contains subroutine 
+        // Statement contains subroutine
         for (size_t i = 0; i < toks.size(); i++) {
             if (toks[i] == KW_SUBROUTINE) {
                 sr_blnc++;
@@ -151,7 +151,7 @@ bool determine_completeness(std::string command)
     }
     int fn_blnc = 0;
     if (std::find(toks.begin(), toks.end(), KW_FUNCTION)!=toks.end()) {
-        // Statement contains function 
+        // Statement contains function
         for (size_t i = 0; i < toks.size(); i++) {
             if (toks[i] == KW_FUNCTION) {
                 fn_blnc++;
@@ -170,30 +170,30 @@ bool determine_completeness(std::string command)
     // If statements need more involved checks due to the potential for deep
     // nesting of block and logical if's.
     if (std::find(toks.begin(), toks.end(), KW_IF)!=toks.end()) {
-        // Statement contains if 
+        // Statement contains if
         for (size_t i = 0; i < toks.size(); i++) {
             if (toks[i] == KW_IF) {
                 if_blnc++;
-                // Determine if this is a logical or block if by checking for 
+                // Determine if this is a logical or block if by checking for
                 // then token.
                 // Block if balance is decremented on an end if token.
                 // An apparent logical if is decremented arbitrarily since we
                 // aren't checking syntax here.
-                if (std::find(toks.begin() + i, toks.begin() + endif_loc, 
+                if (std::find(toks.begin() + i, toks.begin() + endif_loc,
                             KW_THEN)!=toks.begin() + endif_loc) {
                     // The statement contains block ifs, check for end if
                     for (size_t j = i+1; j < endif_loc; j++) {
                         if (toks[j] == KW_THEN) {
                             bool then_found = true;
                             for (size_t k = endif_loc; k > j; k--) {
-                                if (toks[k] == KW_ENDIF || toks[k] == 
+                                if (toks[k] == KW_ENDIF || toks[k] ==
                                         KW_END_IF) {
                                     if_blnc--;
                                     // Make sure to not double count this end
                                     // if by not looping to this far again
                                     endif_loc = k - 1;
                                  }
-                            } 
+                            }
                             if (then_found) {
                                 // We hit a then and no end if so this must be
                                 // incomplete
@@ -336,7 +336,7 @@ int emit_tokens(const std::string &infile)
     return 0;
 }
 
-int emit_ast(const std::string &infile, bool colors)
+int emit_ast(const std::string &infile, bool colors, bool indent)
 {
     std::string input = read_file(infile);
     // Src -> AST
@@ -352,7 +352,24 @@ int emit_ast(const std::string &infile, bool colors)
         return 2;
     }
 
-    std::cout << LFortran::pickle(*ast, colors) << std::endl;
+    std::string ast_after_indented,indt = "    ", ast_not_indented = LFortran::pickle(*ast, colors);
+    if(!indent)
+        std::cout << ast_not_indented << std::endl;
+    else {
+      /**************Converts and Prints Indented AST************************/
+      int j = 0;
+      for(int i = 0;i < (int)ast_not_indented.length();i++){
+          if(ast_not_indented[i] == '(' || ast_not_indented[i] == '{') j++;
+          else if(ast_not_indented[i] == ')' || ast_not_indented[i] == '}') j--;
+          if(ast_not_indented[i] == ' '/*||ast_not_indented[i] == ')'||ast_not_indented[i] == '}'*/) {
+              ast_after_indented.append("\n");
+              for (int k = 0; k < j;k++)
+                      ast_after_indented.append(indt);
+          }
+          ast_after_indented += ast_not_indented[i];
+      }
+      std::cout << ast_after_indented << std::endl;
+    }
     return 0;
 }
 
@@ -413,7 +430,7 @@ int format(const std::string &file, bool inplace, bool color, int indent,
 }
 
 int emit_asr(const std::string &infile, bool colors,
-    const std::vector<ASRPass> &passes)
+    const std::vector<ASRPass> &passes, bool indent)
 {
     std::string input = read_file(infile);
 
@@ -453,8 +470,24 @@ int emit_asr(const std::string &infile, bool colors,
             default : throw LFortran::LFortranException("Pass not implemened");
         }
     }
-
-    std::cout << LFortran::pickle(*asr, colors) << std::endl;
+    std::string asr_after_indented,indt = "    ", asr_not_indented = LFortran::pickle(*asr, colors);
+    if(!indent)
+        std::cout << asr_not_indented << std::endl;
+    else {
+      /**************Converts and Prints Indented ASR************************/
+      int j = 0;
+      for(int i = 0;i < (int)asr_not_indented.length();i++){
+          if(asr_not_indented[i] == '(' || asr_not_indented[i] == '{') j++;
+          else if(asr_not_indented[i] == ')' || asr_not_indented[i] == '}') j--;
+          if(asr_not_indented[i] == ' '/*||asr_not_indented[i] == ')'||asr_not_indented[i] == '}'*/) {
+              asr_after_indented.append("\n");
+              for (int k = 0; k < j;k++)
+                      asr_after_indented.append(indt);
+          }
+          asr_after_indented += asr_not_indented[i];
+      }
+      std::cout << asr_after_indented << std::endl;
+    }
     return 0;
 }
 
@@ -928,6 +961,7 @@ int main(int argc, char *argv[])
         bool show_ast_f90 = false;
         std::string arg_pass;
         bool arg_no_color = false;
+        bool arg_indent = false;
         bool show_llvm = false;
         bool show_cpp = false;
         bool show_asm = false;
@@ -966,6 +1000,7 @@ int main(int argc, char *argv[])
         app.add_flag("--show-asr", show_asr, "Show ASR for the given file and exit");
         app.add_flag("--show-ast-f90", show_ast_f90, "Show Fortran from AST for the given file and exit");
         app.add_flag("--no-color", arg_no_color, "Turn off colored AST/ASR");
+        app.add_flag("--indent", arg_indent, "Indented print ASR/AST");
         app.add_option("--pass", arg_pass, "Apply the ASR pass and show ASR (implies --show-asr)");
         app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
         app.add_flag("--show-cpp", show_cpp, "Show C++ translation source for the given file and exit");
@@ -1111,7 +1146,7 @@ int main(int argc, char *argv[])
             return emit_tokens(arg_file);
         }
         if (show_ast) {
-            return emit_ast(arg_file, !arg_no_color);
+            return emit_ast(arg_file, !arg_no_color, arg_indent);
         }
         if (show_ast_f90) {
             return emit_ast_f90(arg_file, !arg_no_color);
@@ -1129,7 +1164,7 @@ int main(int argc, char *argv[])
             show_asr = true;
         }
         if (show_asr) {
-            return emit_asr(arg_file, !arg_no_color, passes);
+            return emit_asr(arg_file, !arg_no_color, passes, arg_indent);
         }
         if (show_llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
