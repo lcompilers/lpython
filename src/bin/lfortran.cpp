@@ -358,10 +358,12 @@ int emit_ast(const std::string &infile, bool colors, bool indent)
     else {
       /**************Converts and Prints Indented AST************************/
       int j = 0;
+      bool str_check = false;
       for(int i = 0;i < (int)ast_not_indented.length();i++){
           if(ast_not_indented[i] == '(' || ast_not_indented[i] == '{') j++;
           else if(ast_not_indented[i] == ')' || ast_not_indented[i] == '}') j--;
-          if(ast_not_indented[i] == ' '/*||ast_not_indented[i] == ')'||ast_not_indented[i] == '}'*/) {
+          if(ast_not_indented[i] == '\"') str_check = !str_check;
+          if(ast_not_indented[i] == ' ' && str_check == false/*||ast_not_indented[i] == ')'||ast_not_indented[i] == '}'*/) {
               ast_after_indented.append("\n");
               for (int k = 0; k < j;k++)
                       ast_after_indented.append(indt);
