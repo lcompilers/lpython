@@ -302,6 +302,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> var_modifier
 %type <ast> statement
 %type <ast> single_line_statement
+%type <ast> single_line_statement0
 %type <ast> multi_line_statement
 %type <ast> assignment_statement
 %type <ast> associate_statement
@@ -924,29 +925,33 @@ statement
     ;
 
 single_line_statement
-    : allocate_statement sep
-    | assignment_statement sep
-    | associate_statement sep
-    | close_statement sep
-    | continue_statement sep
-    | cycle_statement sep
-    | deallocate_statement sep
-    | error_stop_statement sep
-    | exit_statement sep
-    | forall_statement_single sep
-    | format_statement sep
+    : single_line_statement0 sep
+    ;
+
+single_line_statement0
+    : allocate_statement
+    | assignment_statement
+    | associate_statement
+    | close_statement
+    | continue_statement
+    | cycle_statement
+    | deallocate_statement
+    | error_stop_statement
+    | exit_statement
+    | forall_statement_single
+    | format_statement
     | if_statement_single
-    | inquire_statement sep
-    | nullify_statement sep
-    | open_statement sep
-    | print_statement sep
-    | read_statement sep
-    | return_statement sep
-    | rewind_statement sep
-    | stop_statement sep
-    | subroutine_call sep
-    | where_statement_single sep
-    | write_statement sep
+    | inquire_statement
+    | nullify_statement
+    | open_statement
+    | print_statement
+    | read_statement
+    | return_statement
+    | rewind_statement
+    | stop_statement
+    | subroutine_call
+    | where_statement_single
+    | write_statement
     ;
 
 multi_line_statement
@@ -1064,7 +1069,7 @@ if_statement
     ;
 
 if_statement_single
-    : KW_IF "(" expr ")" single_line_statement { $$ = IFSINGLE($3, $5, @$); }
+    : KW_IF "(" expr ")" single_line_statement0 { $$ = IFSINGLE($3, $5, @$); }
     ;
 
 if_block
