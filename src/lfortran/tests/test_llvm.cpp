@@ -359,7 +359,7 @@ end function)";
 
     // AST -> ASR
     LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *tu);
-    CHECK(LFortran::pickle(*asr) == "(TranslationUnit (SymbolTable 1 {f: (Function (SymbolTable 2 {f: (Variable 2 f ReturnVar () Default (Integer 4 []) Public)}) f [] [(= (Var 2 f) (ConstantInteger 5 (Integer 4 [])))] () (Var 2 f) () Public)}) [])");
+    CHECK(LFortran::pickle(*asr) == "(TranslationUnit (SymbolTable 1 {f: (Function (SymbolTable 2 {f: (Variable 2 f ReturnVar () Default (Integer 4 []) Source Public)}) f [] [(= (Var 2 f) (ConstantInteger 5 (Integer 4 [])))] (Var 2 f) Source Public)}) [])");
 
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
@@ -387,7 +387,7 @@ end function)";
 
     // AST -> ASR
     LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *tu);
-    CHECK(LFortran::pickle(*asr) == "(TranslationUnit (SymbolTable 3 {f: (Function (SymbolTable 4 {f: (Variable 4 f ReturnVar () Default (Integer 4 []) Public)}) f [] [(= (Var 4 f) (ConstantInteger 4 (Integer 4 [])))] () (Var 4 f) () Public)}) [])");
+    CHECK(LFortran::pickle(*asr) == "(TranslationUnit (SymbolTable 3 {f: (Function (SymbolTable 4 {f: (Variable 4 f ReturnVar () Default (Integer 4 []) Source Public)}) f [] [(= (Var 4 f) (ConstantInteger 4 (Integer 4 [])))] (Var 4 f) Source Public)}) [])");
 
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
@@ -649,4 +649,97 @@ define i1 @b()
 }
     )""");
     CHECK(e.boolfn("b") == false);
+}
+
+// Tests pointers
+TEST_CASE("llvm pointers 1") {
+    LFortran::LLVMEvaluator e;
+    e.add_module(R"""(
+@r = global i64 0
+
+define i64 @f()
+{
+    store i64 8, i64* @r
+
+    ; Dereferences the pointer %r
+    ;%rval = load i64, i64* @r
+
+    %raddr = ptrtoint i64* @r to i64
+
+    ret i64 %raddr
+}
+    )""");
+    int64_t r = e.intfn("f");
+    CHECK(r != 8);
+    int64_t *p = (int64_t*)r;
+    CHECK(*p == 8);
+}
+
+TEST_CASE("llvm pointers 2") {
+    LFortran::LLVMEvaluator e;
+    e.add_module(R"""(
+@r = global float 0.0
+
+define i64 @f()
+{
+    store float 8.0, float* @r
+
+    %raddr = ptrtoint float* @r to i64
+
+    ret i64 %raddr
+}
+    )""");
+    int64_t r = e.intfn("f");
+    float *p = (float *)r;
+    CHECK(std::abs(*p - 8) < 1e-6);
+}
+
+TEST_CASE("llvm pointers 3") {
+    LFortran::LLVMEvaluator e;
+    e.add_module(R"""(
+@r = global float 0.0
+
+define float @f()
+{
+    store float 8.0, float* @r
+
+    %raddr = ptrtoint float* @r to i64
+
+    %pointer = alloca i64
+    store i64 %raddr, i64* %pointer
+
+    ; Extract value out of the pointer %pointer
+    %pointer_val = load i64, i64* %pointer
+    %pointer2 = inttoptr i64 %pointer_val to float*
+    %ret = load float, float* %pointer2
+
+    ret float %ret
+}
+    )""");
+    float r = e.floatfn("f");
+    CHECK(std::abs(r - 8) < 1e-6);
+}
+
+TEST_CASE("FortranEvaluator 7") {
+    FortranEvaluator e;
+    FortranEvaluator::Result<FortranEvaluator::EvalResult>
+    r = e.evaluate("integer :: i = 5");
+    CHECK(r.ok);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::none);
+    r = e.evaluate("i");
+    CHECK(r.ok);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::integer);
+    CHECK(r.result.i == 5);
+}
+
+TEST_CASE("FortranEvaluator 8") {
+    FortranEvaluator e;
+    FortranEvaluator::Result<FortranEvaluator::EvalResult>
+    r = e.evaluate("real :: a = 3.5");
+    CHECK(r.ok);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::none);
+    r = e.evaluate("a");
+    CHECK(r.ok);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::real);
+    CHECK(r.result.f == 3.5);
 }

@@ -54,6 +54,13 @@ void get_local_info(std::vector<StacktraceItem> &d);
 std::string stacktrace2str(const std::vector<LFortran::StacktraceItem> &d,
     int skip);
 
+// Returns line number information from address
+void address_to_line_number(const std::vector<std::string> &filenames,
+          const std::vector<uint64_t> &addresses,
+          uintptr_t address,
+          std::string &filename,
+          int &line_number);
+
 } // namespace LFortran
 
 #endif // LFORTRAN_STACKTRACE_H

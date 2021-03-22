@@ -480,7 +480,7 @@ llvm = true
 
 [[test]]
 filename = "../integration_tests/allocate_01.f90"
-ast = true
+asr = true
 
 [[test]]
 filename = "../integration_tests/block_01.f90"
@@ -488,7 +488,17 @@ ast = true
 
 [[test]]
 filename = "../integration_tests/associate_01.f90"
-ast = true
+asr = true
+
+[[test]]
+filename = "../integration_tests/associate_02.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/associate_03.f90"
+asr = true
+llvm = true
 
 [[test]]
 filename = "write1.f90"
@@ -529,7 +539,18 @@ ast = true
 
 [[test]]
 filename = "../integration_tests/case_01.f90"
-ast = true
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/case_02.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/case_03.f90"
+asr = true
+llvm = true
 
 [[test]]
 filename = "../integration_tests/program_02.f90"
@@ -744,3 +765,29 @@ filename = "../integration_tests/string2.f90"
 ast = true
 asr = true
 llvm = true
+
+[[test]]
+filename = "../integration_tests/string3.f90"
+ast = true
+asr = true
+llvm = true
+
+[[test]]
+filename = "global_scope7.f90"
+asr = true
+llvm = true
+pass = "global_stmts"
+
+[[test]]
+filename = "../integration_tests/subroutines_04.f90"
+ast = true
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/parsing_01.f90"
+ast = true
+
+[[test]]
+filename = "../integration_tests/parsing_02.f90"
+ast = true

@@ -109,6 +109,7 @@ RUN(NAME doloop_03 LABELS gfortran llvm cpp)
 
 RUN(NAME subroutines_01 LABELS gfortran llvm cpp x86)
 RUN(NAME subroutines_02 LABELS gfortran llvm cpp x86)
+RUN(NAME subroutines_04 LABELS gfortran llvm)
 
 RUN(NAME functions_01 LABELS gfortran llvm cpp x86)
 RUN(NAME functions_02 LABELS gfortran llvm)
@@ -155,7 +156,9 @@ RUN(NAME modules_05 LABELS gfortran)
 RUN(NAME modules_06 LABELS gfortran llvm)
 
 RUN(NAME if_04 LABELS gfortran x86)
-RUN(NAME case_01 LABELS gfortran)
+RUN(NAME case_01 LABELS gfortran llvm)
+RUN(NAME case_02 LABELS gfortran llvm)
+RUN(NAME case_03 LABELS gfortran llvm)
 
 RUN(NAME program_02 LABELS gfortran)
 
@@ -164,6 +167,9 @@ RUN(NAME where_01 LABELS gfortran)
 RUN(NAME forallloop_01 LABELS gfortran)
 
 RUN(NAME subroutines_03 LABELS gfortran)
+
+RUN(NAME parsing_01 LABELS gfortran)
+RUN(NAME parsing_02 LABELS gfortran)
 
 RUN(NAME interface_01 LABELS gfortran)
 RUN(NAME interface_02 LABELS gfortran)
@@ -205,6 +211,8 @@ RUN(NAME init_values LABELS gfortran llvm)
 RUN(NAME allocate_01 LABELS gfortran)
 RUN(NAME block_01 LABELS gfortran)
 RUN(NAME associate_01 LABELS gfortran)
+RUN(NAME associate_02 LABELS gfortran llvm)
+RUN(NAME associate_03 LABELS gfortran llvm)
 
 RUN(NAME real_dp LABELS gfortran llvm)
 RUN(NAME bin_op_real_dp LABELS gfortran llvm)
@@ -213,3 +221,4 @@ RUN(NAME real_dp_param LABELS gfortran llvm)
 
 RUN(NAME string1 LABELS gfortran llvm)
 RUN(NAME string2 LABELS gfortran llvm)
+RUN(NAME string3 LABELS gfortran llvm)
