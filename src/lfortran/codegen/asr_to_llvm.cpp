@@ -421,7 +421,7 @@ public:
                             type = llvm::Type::getInt64Ty(context);
                             break;
                         case (ASR::ttypeType::Real) : {
-                            int a_kind = ((ASR::Real_t*)(&(v->m_type->base)))->m_kind;
+                            int a_kind = down_cast<ASR::Real_t>(v->m_type)->m_kind;
                             switch( a_kind )
                             {
                                 case 4:
@@ -454,7 +454,7 @@ public:
                             break;
                         } 
                         case (ASR::ttypeType::RealPointer) : {
-                            int a_kind = ((ASR::RealPointer_t*)(&(v->m_type->base)))->m_kind;
+                            int a_kind = down_cast<ASR::RealPointer_t>(v->m_type)->m_kind;
                             switch( a_kind )
                             {
                                 case 4:
