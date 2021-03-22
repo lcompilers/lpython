@@ -110,6 +110,7 @@ public:
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context},
         prototype_only{false} {}
 
+
     /*
     * Dispatches the required function from runtime library to 
     * perform the specified binary operation.
@@ -412,8 +413,9 @@ public:
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
                 uint32_t h = get_hash((ASR::asr_t*)v);
                 llvm::Type *type;
-                if (v->m_intent == intent_local || v->m_intent == 
-                        intent_return_var || !v->m_intent) { 
+                if (v->m_intent == intent_local || 
+                    v->m_intent == intent_return_var || 
+                    !v->m_intent) { 
                     switch (v->m_type->type) {
                         case (ASR::ttypeType::Integer) :
                             type = llvm::Type::getInt64Ty(context);
@@ -447,11 +449,45 @@ public:
                         case (ASR::ttypeType::Derived) :
                             throw CodeGenError("Derived type argument not implemented yet in conversion");
                             break;
+                        case (ASR::ttypeType::IntegerPointer) : {
+                            type = llvm::Type::getInt64PtrTy(context);
+                            break;
+                        } 
+                        case (ASR::ttypeType::RealPointer) : {
+                            int a_kind = ((ASR::RealPointer_t*)(&(v->m_type->base)))->m_kind;
+                            switch( a_kind )
+                            {
+                                case 4:
+                                    type = llvm::Type::getFloatPtrTy(context);
+                                    break;
+                                case 8:
+                                    type = llvm::Type::getDoublePtrTy(context);
+                                    break;
+                                default:
+                                    throw SemanticError("Only 32 and 64 bits real kinds are supported.", 
+                                                        x.base.base.loc);
+                            }
+                            break;
+                        }
+                        case (ASR::ttypeType::ComplexPointer) : {
+                            throw CodeGenError("Pointers for Complex type not implemented yet in conversion");
+                            break;
+                        }
+                        case (ASR::ttypeType::CharacterPointer) : {
+                            type = llvm::Type::getInt8PtrTy(context);
+                            break;
+                        }
+                        case (ASR::ttypeType::DerivedPointer) : {
+                            throw CodeGenError("Pointers for Derived type not implemented yet in conversion");
+                            break;
+                        }
+                        case (ASR::ttypeType::LogicalPointer) :
+                            type = llvm::Type::getInt1Ty(context);
+                            break;
                         default :
                             LFORTRAN_ASSERT(false);
                     }
-                    llvm::AllocaInst *ptr = builder->CreateAlloca(
-                        type, nullptr, v->m_name);
+                    llvm::AllocaInst *ptr = builder->CreateAlloca(type, nullptr, v->m_name);
                     llvm_symtab[h] = ptr;
                     if( v->m_value != nullptr ) {
                         llvm::Value *target_var = ptr;
@@ -632,11 +668,36 @@ public:
 
     }
 
+    void visit_Associate(const ASR::Associate_t& x) {
+        ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
+        ASR::Variable_t *asr_value = EXPR2VAR(x.m_value);
+        uint32_t value_h = get_hash((ASR::asr_t*)asr_value);
+        uint32_t target_h = get_hash((ASR::asr_t*)asr_target);
+        // llvm::Value* addr = builder->CreatePtrToInt(llvm_symtab[value_h], 
+        //                                             llvm::Type::getInt64Ty(context));
+        builder->CreateStore(llvm_symtab[value_h], llvm_symtab[target_h]);
+    }
+
     void visit_Assignment(const ASR::Assignment_t &x) {
         //this->visit_expr(*x.m_target);
         ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
         uint32_t h = get_hash((ASR::asr_t*)asr_target);
-        llvm::Value *target = llvm_symtab[h];
+        llvm::Value *target;
+        switch( asr_target->m_type->type ) {
+            case ASR::ttypeType::IntegerPointer:
+            case ASR::ttypeType::RealPointer:
+            case ASR::ttypeType::ComplexPointer:
+            case ASR::ttypeType::CharacterPointer:
+            case ASR::ttypeType::LogicalPointer:
+            case ASR::ttypeType::DerivedPointer: {
+                target = builder->CreateLoad(llvm_symtab[h]);
+                break;
+            }
+            default: {
+                target = llvm_symtab[h];
+                break;
+            }
+        }
         this->visit_expr(*x.m_value);
         llvm::Value *value=tmp;
         builder->CreateStore(value, target);
@@ -837,7 +898,8 @@ public:
         llvm::Value *left_val = tmp;
         this->visit_expr(*x.m_right);
         llvm::Value *right_val = tmp;
-        if (x.m_type->type == ASR::ttypeType::Integer) {
+        if (x.m_type->type == ASR::ttypeType::Integer || 
+            x.m_type->type == ASR::ttypeType::IntegerPointer) {
             switch (x.m_op) {
                 case ASR::binopType::Add: {
                     tmp = builder->CreateAdd(left_val, right_val);
@@ -877,7 +939,8 @@ public:
                     break;
                 };
             }
-        } else if (x.m_type->type == ASR::ttypeType::Real) {
+        } else if (x.m_type->type == ASR::ttypeType::Real || 
+                   x.m_type->type == ASR::ttypeType::RealPointer) {
             switch (x.m_op) {
                 case ASR::binopType::Add: {
                     tmp = builder->CreateFAdd(left_val, right_val);
@@ -911,7 +974,8 @@ public:
                     break;
                 };
             }
-        } else if (x.m_type->type == ASR::ttypeType::Complex) {
+        } else if (x.m_type->type == ASR::ttypeType::Complex ||
+                   x.m_type->type == ASR::ttypeType::ComplexPointer) {
             switch (x.m_op) {
                 case ASR::binopType::Add: {
                     tmp = lfortran_complex_bin_op(left_val, right_val, "_lfortran_complex_add");
@@ -1030,12 +1094,46 @@ public:
         tmp = builder->CreateGlobalStringPtr(x.m_s);
     }
 
+    inline void fetch_ptr(ASR::Variable_t* x) {
+        uint32_t x_h = get_hash((ASR::asr_t*)x);
+        LFORTRAN_ASSERT(llvm_symtab.find(x_h) != llvm_symtab.end());
+        llvm::Value* x_v = llvm_symtab[x_h];
+        tmp = builder->CreateLoad(x_v);
+        tmp = builder->CreateLoad(tmp);
+    }
+
+    inline void fetch_val(ASR::Variable_t* x) {
+        uint32_t x_h = get_hash((ASR::asr_t*)x);
+        LFORTRAN_ASSERT(llvm_symtab.find(x_h) != llvm_symtab.end());
+        llvm::Value* x_v = llvm_symtab[x_h];
+        tmp = builder->CreateLoad(x_v);
+    }
+
+    inline void fetch_var(ASR::Variable_t* x) {
+        switch( x->m_type->type ) {
+            case ASR::ttypeType::IntegerPointer: {
+                fetch_ptr(x);
+                break;
+            }
+            case ASR::ttypeType::RealPointer: {
+                fetch_ptr(x);
+            }
+            case ASR::ttypeType::ComplexPointer:
+            case ASR::ttypeType::CharacterPointer:
+            case ASR::ttypeType::LogicalPointer:
+            case ASR::ttypeType::DerivedPointer: {
+                break;
+            }
+            default: {
+                fetch_val(x);
+                break;
+            }
+        }
+    }
+
     void visit_Var(const ASR::Var_t &x) {
         ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(x.m_v);
-        uint32_t h = get_hash((ASR::asr_t*)v);
-        LFORTRAN_ASSERT(llvm_symtab.find(h) != llvm_symtab.end());
-        llvm::Value *ptr = llvm_symtab[h];
-        tmp = builder->CreateLoad(ptr);
+        fetch_var(v);
     }
 
     inline int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {
@@ -1045,6 +1143,15 @@ public:
         switch (curr_type->type) {
             case ASR::ttypeType::Real : {
                 return ((ASR::Real_t*)(&(curr_type->base)))->m_kind;
+            }
+            case ASR::ttypeType::RealPointer : {
+                return ((ASR::RealPointer_t*)(&(curr_type->base)))->m_kind;
+            }
+            case ASR::ttypeType::Integer : {
+                return ((ASR::Integer_t*)(&(curr_type->base)))->m_kind;
+            } 
+            case ASR::ttypeType::IntegerPointer : {
+                return ((ASR::IntegerPointer_t*)(&(curr_type->base)))->m_kind;
             }
             default : {
                 return -1;
@@ -1134,6 +1241,23 @@ public:
                 }
                 break;
             }
+            case (ASR::cast_kindType::IntegerToInteger) : {
+                int arg_kind = -1, dest_kind = -1;
+                extract_kinds(x, arg_kind, dest_kind);
+                if( arg_kind > 0 && dest_kind > 0 )
+                {
+                    if( arg_kind == 4 && dest_kind == 8 ) {
+                        tmp = builder->CreateSExt(tmp, llvm::Type::getInt64Ty(context));
+                    } else if( arg_kind == 8 && dest_kind == 4 ) {
+                        tmp = builder->CreateTrunc(tmp, llvm::Type::getInt32Ty(context));
+                    } else {
+                        std::string msg = "Conversion from " + std::to_string(arg_kind) + 
+                                          " to " + std::to_string(dest_kind) + " not implemented yet.";
+                        throw CodeGenError(msg);
+                    }
+                }
+                break;
+            }
             default : throw CodeGenError("Cast kind not implemented");
         }
     }
@@ -1146,10 +1270,12 @@ public:
             ASR::expr_t *v = x.m_values[i];
             ASR::ttype_t *t = expr_type(v);
             if (t->type == ASR::ttypeType::Integer || 
-                t->type == ASR::ttypeType::Logical) {
+                t->type == ASR::ttypeType::Logical || 
+                t->type == ASR::ttypeType::IntegerPointer) {
                 fmt.push_back("%d");
                 args.push_back(tmp);
-            } else if (t->type == ASR::ttypeType::Real) {
+            } else if (t->type == ASR::ttypeType::Real || 
+                       t->type == ASR::ttypeType::RealPointer ) {
                 int a_kind = ((ASR::Real_t*)(&(t->base)))->m_kind;
                 llvm::Value *d;
                 switch( a_kind ) {

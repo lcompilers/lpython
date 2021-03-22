@@ -126,6 +126,7 @@ abi                   -- External     ABI
 
 stmt
     = Assignment(expr target, expr value)
+    | Associate(expr target, expr value)
     | SubroutineCall(symbol name, symbol? original_name, expr* args)
     | BuiltinCall(identifier name, expr* args)
     | If(expr test, stmt* body, stmt* orelse)
@@ -166,6 +167,12 @@ ttype
     | Character(int kind, dimension* dims)
     | Logical(int kind, dimension* dims)
     | Derived(symbol derived_type, dimension* dims)
+    | IntegerPointer(int kind, dimension* dims)
+    | RealPointer(int kind, dimension* dims)
+    | ComplexPointer(int kind, dimension* dims)
+    | CharacterPointer(int kind, dimension* dims)
+    | LogicalPointer(int kind, dimension* dims)
+    | DerivedPointer(symbol derived_type, dimension* dims)
 
 boolop = And | Or | NEqv | Eqv
 
