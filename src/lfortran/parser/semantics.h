@@ -55,6 +55,7 @@ using LFortran::AST::make_Stop_t;
 using LFortran::AST::make_ErrorStop_t;
 using LFortran::AST::make_Name_t;
 using LFortran::AST::make_Num_t;
+using LFortran::AST::make_NumWithKind_t;
 using LFortran::AST::make_Str_t;
 using LFortran::AST::make_Real_t;
 using LFortran::AST::make_Complex_t;
@@ -430,6 +431,7 @@ static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
 
 #define SYMBOL(x, l) make_Name_t(p.m_a, l, x.c_str(p.m_a))
 #define INTEGER(x, l) make_Num_t(p.m_a, l, x)
+#define INTEGER_WITH_KIND(x, y, l) make_NumWithKind_t(p.m_a, l, x, y);
 #define REAL(x, l) make_Real_t(p.m_a, l, x.c_str(p.m_a))
 #define COMPLEX(x, y, l) make_Complex_t(p.m_a, l, EXPR(x), EXPR(y))
 #define STRING(x, l) make_Str_t(p.m_a, l, x.c_str(p.m_a))

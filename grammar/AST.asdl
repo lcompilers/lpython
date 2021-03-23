@@ -97,6 +97,7 @@ expr
     | Array(identifier name, array_index* args)
     | ArrayInitializer(expr* args)
     | Num(int64_t n)
+    | NumWithKind(int64_t n, int kind)
     | Real(string n)
     | Complex(expr re, expr im)
     | Str(string s)
