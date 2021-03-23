@@ -79,7 +79,7 @@ void exit(llvm::LLVMContext &context, llvm::Module &module,
     llvm::Function *fn_exit = module.getFunction("exit");
     if (!fn_exit) {
         llvm::FunctionType *function_type = llvm::FunctionType::get(
-                llvm::Type::getVoidTy(context), {llvm::Type::getInt64Ty(context)},
+                llvm::Type::getVoidTy(context), {llvm::Type::getInt32Ty(context)},
                 false);
         fn_exit = llvm::Function::Create(function_type,
                 llvm::Function::ExternalLinkage, "exit", &module);
@@ -313,7 +313,7 @@ public:
         }
         if (x.m_type->type == ASR::ttypeType::Integer) {
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
-                llvm::Type::getInt64Ty(context));
+                llvm::Type::getInt32Ty(context));
             if (!external) {
                 if (init_value) {
                     module->getNamedGlobal(x.m_name)->setInitializer(
@@ -321,7 +321,7 @@ public:
                 } else {
                     module->getNamedGlobal(x.m_name)->setInitializer(
                             llvm::ConstantInt::get(context, 
-                                llvm::APInt(64, 0)));
+                                llvm::APInt(32, 0)));
                 }
             }
             llvm_symtab[h] = ptr;
@@ -373,7 +373,7 @@ public:
 
         // Generate code for the main program
         llvm::FunctionType *function_type = llvm::FunctionType::get(
-                llvm::Type::getInt64Ty(context), {}, false);
+                llvm::Type::getInt32Ty(context), {}, false);
         llvm::Function *F = llvm::Function::Create(function_type,
                 llvm::Function::ExternalLinkage, "main", module.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
@@ -384,7 +384,7 @@ public:
             this->visit_stmt(*x.m_body[i]);
         }
         llvm::Value *ret_val2 = llvm::ConstantInt::get(context,
-            llvm::APInt(64, 0));
+            llvm::APInt(32, 0));
         builder->CreateRet(ret_val2);
     }
 
@@ -516,7 +516,7 @@ public:
             // We pass all arguments as pointers for now
             switch (arg->m_type->type) {
                 case (ASR::ttypeType::Integer) :
-                    args.push_back(llvm::Type::getInt64PtrTy(context));
+                    args.push_back(llvm::Type::getInt32PtrTy(context));
                     break;
                 case (ASR::ttypeType::Real) :
                     args.push_back(llvm::Type::getFloatPtrTy(context));
@@ -580,7 +580,7 @@ public:
             llvm::Type *return_type;
             switch (return_var_type) {
                 case (ASR::ttypeType::Integer) :
-                    return_type = llvm::Type::getInt64Ty(context);
+                    return_type = llvm::Type::getInt32Ty(context);
                     break;
                 case (ASR::ttypeType::Real) :
                     return_type = llvm::Type::getFloatTy(context);
@@ -695,8 +695,6 @@ public:
         ASR::Variable_t *asr_value = EXPR2VAR(x.m_value);
         uint32_t value_h = get_hash((ASR::asr_t*)asr_value);
         uint32_t target_h = get_hash((ASR::asr_t*)asr_target);
-        // llvm::Value* addr = builder->CreatePtrToInt(llvm_symtab[value_h], 
-        //                                             llvm::Type::getInt64Ty(context));
         builder->CreateStore(llvm_symtab[value_h], llvm_symtab[target_h]);
     }
 
@@ -825,7 +823,7 @@ public:
         elseBB = builder->GetInsertBlock();
         fn->getBasicBlockList().push_back(mergeBB);
         builder->SetInsertPoint(mergeBB);
-        llvm::PHINode *PN = builder->CreatePHI(llvm::Type::getInt64Ty(context), 2,
+        llvm::PHINode *PN = builder->CreatePHI(llvm::Type::getInt32Ty(context), 2,
                                         "iftmp");
         PN->addIncoming(thenV, thenBB);
         PN->addIncoming(elseV, elseBB);
@@ -957,7 +955,7 @@ public:
                                 module.get());
                     }
                     tmp = builder->CreateCall(fn_pow, {fleft, fright});
-                    tmp = builder->CreateFPToSI(tmp, llvm::Type::getInt64Ty(context));
+                    tmp = builder->CreateFPToSI(tmp, llvm::Type::getInt32Ty(context));
                     break;
                 };
             }
@@ -1064,7 +1062,23 @@ public:
     }
 
     void visit_ConstantInteger(const ASR::ConstantInteger_t &x) {
-        tmp = llvm::ConstantInt::get(context, llvm::APInt(64, x.m_n));
+        long long val = x.m_n;
+        int a_kind = ((ASR::Integer_t*)(&(x.m_type->base)))->m_kind;
+        switch( a_kind ) {
+            
+            case 4 : {
+                tmp = llvm::ConstantInt::get(context, llvm::APInt(32, (int)val, true));
+                break;
+            }
+            case 8 : {
+                tmp = llvm::ConstantInt::get(context, llvm::APInt(64, val, true));
+                break;
+            }
+            default : {
+                break;
+            }
+
+        }
     }
 
     void visit_ConstantReal(const ASR::ConstantReal_t &x) {
@@ -1187,6 +1201,9 @@ public:
             case ASR::exprType::ConstantReal : {
                 return ((ASR::ConstantReal_t*)base)->m_type;
             }
+            case ASR::exprType::ConstantInteger : {
+                return ((ASR::ConstantInteger_t*)base)->m_type;
+            }
             case ASR::exprType::BinOp : {
                 return ((ASR::BinOp_t*)base)->m_type;
             }
@@ -1226,7 +1243,7 @@ public:
                 break;
             }
             case (ASR::cast_kindType::RealToInteger) : {
-                tmp = builder->CreateFPToSI(tmp, llvm::Type::getInt64Ty(context));
+                tmp = builder->CreateFPToSI(tmp, llvm::Type::getInt32Ty(context));
                 break;
             }
             case (ASR::cast_kindType::RealToComplex) : {
@@ -1243,7 +1260,7 @@ public:
                 break;
             }
             case (ASR::cast_kindType::IntegerToLogical) : {
-                tmp = builder->CreateICmpNE(tmp, builder->getInt64(0));
+                tmp = builder->CreateICmpNE(tmp, builder->getInt32(0));
                 break;
             }
             case (ASR::cast_kindType::RealToReal) : {
@@ -1294,7 +1311,25 @@ public:
             if (t->type == ASR::ttypeType::Integer || 
                 t->type == ASR::ttypeType::Logical || 
                 t->type == ASR::ttypeType::IntegerPointer) {
-                fmt.push_back("%d");
+                int a_kind = ((ASR::Integer_t*)(&(t->base)))->m_kind;
+                switch( a_kind ) {
+                    case 4 : {
+                        // Cast float to double as a workaround for the fact that
+                        // vprintf() seems to cast to double even for %f, which
+                        // causes it to print 0.000000.
+                        fmt.push_back("%d");
+                        break;
+                    }
+                    case 8 : {
+                        fmt.push_back("%lld");
+                        break;
+                    }
+                    default: {
+                        throw SemanticError(R"""(Printing support is available only 
+                                            for 32, and 64 bit real kinds.)""", 
+                                            x.base.base.loc);
+                    }
+                }
                 args.push_back(tmp);
             } else if (t->type == ASR::ttypeType::Real || 
                        t->type == ASR::ttypeType::RealPointer ) {
@@ -1356,7 +1391,7 @@ public:
         printf(context, *module, *builder, {fmt_ptr});
         int exit_code_int = 0;
         llvm::Value *exit_code = llvm::ConstantInt::get(context,
-                llvm::APInt(64, exit_code_int));
+                llvm::APInt(32, exit_code_int));
         exit(context, *module, *builder, exit_code);
     }
 
@@ -1365,7 +1400,7 @@ public:
         printf(context, *module, *builder, {fmt_ptr});
         int exit_code_int = 1;
         llvm::Value *exit_code = llvm::ConstantInt::get(context,
-                llvm::APInt(64, exit_code_int));
+                llvm::APInt(32, exit_code_int));
         exit(context, *module, *builder, exit_code);
     }
 
@@ -1383,7 +1418,7 @@ public:
                 llvm::Type *target_type;
                 switch (expr_type(x.m_args[i])->type) {
                     case (ASR::ttypeType::Integer) :
-                        target_type = llvm::Type::getInt64Ty(context);
+                        target_type = llvm::Type::getInt32Ty(context);
                         break;
                     case (ASR::ttypeType::Real) :
                         target_type = llvm::Type::getFloatTy(context);
