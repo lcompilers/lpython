@@ -794,7 +794,7 @@ public:
         if (assgnd_access.count(sym)) {
             s_access = assgnd_access[sym];
         }
-        std::string sym_type = convert_To_Lower(x.m_sym_type);
+        std::string sym_type = convert_to_lower(x.m_sym_type);
         ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
         bool is_pointer = false;
         if (current_scope->scope.find(sym) == current_scope->scope.end()) {
