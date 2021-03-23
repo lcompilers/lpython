@@ -417,9 +417,22 @@ public:
                     v->m_intent == intent_return_var || 
                     !v->m_intent) { 
                     switch (v->m_type->type) {
-                        case (ASR::ttypeType::Integer) :
-                            type = llvm::Type::getInt64Ty(context);
+                        case (ASR::ttypeType::Integer) : {
+                            int a_kind = ((ASR::Integer_t*)(&(v->m_type->base)))->m_kind;
+                            switch( a_kind )
+                            {
+                                case 4:
+                                    type = llvm::Type::getInt32Ty(context);
+                                    break;
+                                case 8:
+                                    type = llvm::Type::getInt64Ty(context);
+                                    break;
+                                default:
+                                    throw SemanticError("Only 32 and 64 bits real kinds are supported.", 
+                                                        x.base.base.loc);
+                            }
                             break;
+                        }
                         case (ASR::ttypeType::Real) : {
                             int a_kind = ((ASR::Real_t*)(&(v->m_type->base)))->m_kind;
                             switch( a_kind )
@@ -450,7 +463,19 @@ public:
                             throw CodeGenError("Derived type argument not implemented yet in conversion");
                             break;
                         case (ASR::ttypeType::IntegerPointer) : {
-                            type = llvm::Type::getInt64PtrTy(context);
+                            int a_kind = ((ASR::IntegerPointer_t*)(&(v->m_type->base)))->m_kind;
+                            switch( a_kind )
+                            {
+                                case 4:
+                                    type = llvm::Type::getInt32PtrTy(context);
+                                    break;
+                                case 8:
+                                    type = llvm::Type::getInt64PtrTy(context);
+                                    break;
+                                default:
+                                    throw SemanticError("Only 32 and 64 bits real kinds are supported.", 
+                                                        x.base.base.loc);
+                            }
                             break;
                         } 
                         case (ASR::ttypeType::RealPointer) : {
