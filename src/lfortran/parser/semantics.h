@@ -483,7 +483,7 @@ ast_t* SUBROUTINE_CALL0(Allocator &al, const ast_t *id,
 #define EXIT(l) make_Exit_t(p.m_a, l)
 #define RETURN(l) make_Return_t(p.m_a, l)
 #define CYCLE(l) make_Cycle_t(p.m_a, l)
-#define SUBROUTINE(name, args, decl, stmts, l) make_Subroutine_t(p.m_a, l, \
+#define SUBROUTINE(name, args, decl, stmts, contains, l) make_Subroutine_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
@@ -493,8 +493,8 @@ ast_t* SUBROUTINE_CALL0(Allocator &al, const ast_t *id,
         /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \
         /*n_body*/ stmts.size(), \
-        /*contains*/ nullptr, \
-        /*n_contains*/ 0)
+        /*contains*/ CONTAINS(contains), \
+        /*n_contains*/ contains.size())
 
 char *str_or_null(Allocator &al, const LFortran::Str &s) {
     if (s.size() == 0) {
@@ -514,7 +514,7 @@ char *fn_type2return_type(const LFortran::Vec<ast_t*> &v) {
     return nullptr;
 }
 
-#define FUNCTION(fn_type, name, args, return_var, decl, stmts, l) make_Function_t(p.m_a, l, \
+#define FUNCTION(fn_type, name, args, return_var, decl, stmts, contains, l) make_Function_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
@@ -527,9 +527,9 @@ char *fn_type2return_type(const LFortran::Vec<ast_t*> &v) {
         /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \
         /*n_body*/ stmts.size(), \
-        /*contains*/ nullptr, \
-        /*n_contains*/ 0)
-#define FUNCTION0(name, args, return_var, decl, stmts, l) make_Function_t(p.m_a, l, \
+        /*contains*/ CONTAINS(contains), \
+        /*n_contains*/ contains.size())
+#define FUNCTION0(name, args, return_var, decl, stmts, contains, l) make_Function_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
@@ -542,8 +542,8 @@ char *fn_type2return_type(const LFortran::Vec<ast_t*> &v) {
         /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \
         /*n_body*/ stmts.size(), \
-        /*contains*/ nullptr, \
-        /*n_contains*/ 0)
+        /*contains*/ CONTAINS(contains), \
+        /*n_contains*/ contains.size())
 #define PROGRAM(name, use, decl, stmts, contains, l) make_Program_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*use*/ USES(use), \

@@ -190,6 +190,9 @@ std::string prompt0(const Terminal &term, const std::string &prompt_string,
                             if (m.cursor_col>m.lines[m.cursor_row-1].size()+1) {
                                 m.cursor_col = m.lines[m.cursor_row-1].size()+1;
                             }
+                            if (hist[history_pos+1] == "\n") {
+                                m.cursor_col = m.lines[m.cursor_row-1].size()+1;
+                            }
                             if (m.lines.size() > scr.get_h()) {
                                 scr.set_h(m.lines.size());
                             }
