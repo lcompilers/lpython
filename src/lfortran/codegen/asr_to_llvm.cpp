@@ -400,7 +400,7 @@ public:
                     !v->m_intent) { 
                     switch (v->m_type->type) {
                         case (ASR::ttypeType::Integer) : {
-                            int a_kind = ((ASR::Integer_t*)(&(v->m_type->base)))->m_kind;
+                            int a_kind = down_cast<ASR::Integer_t>(v->m_type)->m_kind;
                             switch( a_kind )
                             {
                                 case 4:
@@ -445,7 +445,7 @@ public:
                             throw CodeGenError("Derived type argument not implemented yet in conversion");
                             break;
                         case (ASR::ttypeType::IntegerPointer) : {
-                            int a_kind = ((ASR::IntegerPointer_t*)(&(v->m_type->base)))->m_kind;
+                            int a_kind = down_cast<ASR::IntegerPointer_t>(v->m_type)->m_kind;
                             switch( a_kind )
                             {
                                 case 4:
