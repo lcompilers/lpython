@@ -360,16 +360,7 @@ public:
 
     void visit_Module(const ASR::Module_t &x) {
         mangle_prefix = "__module_" + std::string(x.m_name) + "_";
-        for (auto &item : x.m_symtab->scope) {
-            if (is_a<ASR::Subroutine_t>(*item.second)) {
-                ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
-                visit_Subroutine(*s);
-            }
-            if (is_a<ASR::Function_t>(*item.second)) {
-                ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
-                visit_Function(*s);
-            }
-        }
+        visit_procedures(x);
         mangle_prefix = "";
     }
 
@@ -378,16 +369,7 @@ public:
 
     void visit_Program(const ASR::Program_t &x) {
         // Generate code for nested subroutines and functions first:
-        for (auto &item : x.m_symtab->scope) {
-            if (is_a<ASR::Subroutine_t>(*item.second)) {
-                ASR::Subroutine_t *s = down_cast<ASR::Subroutine_t>(item.second);
-                visit_Subroutine(*s);
-            }
-            if (is_a<ASR::Function_t>(*item.second)) {
-                ASR::Function_t *s = down_cast<ASR::Function_t>(item.second);
-                visit_Function(*s);
-            }
-        }
+        visit_procedures(x);
 
         // Generate code for the main program
         llvm::FunctionType *function_type = llvm::FunctionType::get(
@@ -442,7 +424,7 @@ public:
                             break;
                         }
                         case (ASR::ttypeType::Real) : {
-                            int a_kind = ((ASR::Real_t*)(&(v->m_type->base)))->m_kind;
+                            int a_kind = down_cast<ASR::Real_t>(v->m_type)->m_kind;
                             switch( a_kind )
                             {
                                 case 4:
@@ -475,7 +457,7 @@ public:
                             break;
                         } 
                         case (ASR::ttypeType::RealPointer) : {
-                            int a_kind = ((ASR::RealPointer_t*)(&(v->m_type->base)))->m_kind;
+                            int a_kind = down_cast<ASR::RealPointer_t>(v->m_type)->m_kind;
                             switch( a_kind )
                             {
                                 case 4:
@@ -578,6 +560,7 @@ public:
             x.m_abi != ASR::abiType::Interactive) {
                 return;
         }
+        visit_procedures(x);
         bool interactive = (x.m_abi == ASR::abiType::Interactive);
 
         uint32_t h = get_hash((ASR::asr_t*)&x);
@@ -651,7 +634,7 @@ public:
                 return;
         }
         bool interactive = (x.m_abi == ASR::abiType::Interactive);
-
+        visit_procedures(x);
         uint32_t h = get_hash((ASR::asr_t*)&x);
         llvm::Function *F = nullptr;
         if (llvm_symtab_fn.find(h) != llvm_symtab_fn.end()) {
@@ -686,7 +669,21 @@ public:
 
             builder->CreateRetVoid();
         }
+    }
 
+
+    template<typename T>
+    void visit_procedures(const T &x) {
+        for (auto &item : x.m_symtab->scope) {
+            if (is_a<ASR::Subroutine_t>(*item.second)) {
+                ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
+                visit_Subroutine(*s);
+            }
+            if (is_a<ASR::Function_t>(*item.second)) {
+                ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
+                visit_Function(*s);
+            }
+        }
     }
 
     void visit_Associate(const ASR::Associate_t& x) {

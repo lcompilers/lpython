@@ -584,12 +584,12 @@ subroutine
     import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_subroutine_opt sep {
-            LLOC(@$, @13); $$ = SUBROUTINE($2, $3, $9, $10, @$); }
+            LLOC(@$, @13); $$ = SUBROUTINE($2, $3, $9, $10, $11, @$); }
     | fn_mod_plus KW_SUBROUTINE id sub_args bind_opt sep use_statement_star
     import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_subroutine_opt sep {
-            LLOC(@$, @14); $$ = SUBROUTINE($3, $4, $10, $11, @$); }
+            LLOC(@$, @14); $$ = SUBROUTINE($3, $4, $10, $11, $12, @$); }
     ;
 
 procedure
@@ -597,7 +597,7 @@ procedure
     import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_procedure_opt sep {
-            LLOC(@$, @14); $$ = SUBROUTINE($3, $4, $9, $10, @$); }
+            LLOC(@$, @14); $$ = SUBROUTINE($3, $4, $9, $10, $11, @$); }
     ;
 
 function
@@ -605,40 +605,40 @@ function
         sep use_statement_star import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_function_opt sep {
-            LLOC(@$, @14); $$ = FUNCTION0($2, $4, nullptr, $10, $11, @$); }
+            LLOC(@$, @14); $$ = FUNCTION0($2, $4, nullptr, $10, $11, $12, @$); }
     | KW_FUNCTION id "(" id_list_opt ")"
         bind
         result_opt
         sep use_statement_star import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_function_opt sep {
-            LLOC(@$, @16); $$ = FUNCTION0($2, $4, $7, $12, $13, @$); }
+            LLOC(@$, @16); $$ = FUNCTION0($2, $4, $7, $12, $13, $14, @$); }
     | KW_FUNCTION id "(" id_list_opt ")"
         result
         bind_opt
         sep use_statement_star import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_function_opt sep {
-            LLOC(@$, @16); $$ = FUNCTION0($2, $4, $6, $12, $13, @$); }
+            LLOC(@$, @16); $$ = FUNCTION0($2, $4, $6, $12, $13, $14, @$); }
     | fn_mod_plus KW_FUNCTION id "(" id_list_opt ")"
         sep use_statement_star import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_function_opt sep {
-            LLOC(@$, @15); $$ = FUNCTION($1, $3, $5, nullptr, $11, $12, @$); }
+            LLOC(@$, @15); $$ = FUNCTION($1, $3, $5, nullptr, $11, $12, $13, @$); }
     | fn_mod_plus KW_FUNCTION id "(" id_list_opt ")"
         bind
         result_opt
         sep use_statement_star import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_function_opt sep {
-            LLOC(@$, @17); $$ = FUNCTION($1, $3, $5, $8, $13, $14, @$); }
+            LLOC(@$, @17); $$ = FUNCTION($1, $3, $5, $8, $13, $14, $15, @$); }
     | fn_mod_plus KW_FUNCTION id "(" id_list_opt ")"
         result
         bind_opt
         sep use_statement_star import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_function_opt sep {
-            LLOC(@$, @17); $$ = FUNCTION($1, $3, $5, $7, $13, $14, @$); }
+            LLOC(@$, @17); $$ = FUNCTION($1, $3, $5, $7, $13, $14, $15, @$); }
     ;
 
 fn_mod_plus
