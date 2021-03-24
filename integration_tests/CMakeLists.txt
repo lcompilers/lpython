@@ -218,6 +218,8 @@ RUN(NAME real_dp LABELS gfortran llvm)
 RUN(NAME bin_op_real_dp LABELS gfortran llvm)
 RUN(NAME const_real_dp LABELS gfortran llvm)
 RUN(NAME real_dp_param LABELS gfortran llvm)
+RUN(NAME int_dp LABELS gfortran llvm)
+RUN(NAME int_dp_param LABELS gfortran llvm)
 
 RUN(NAME string1 LABELS gfortran llvm)
 RUN(NAME string2 LABELS gfortran llvm)

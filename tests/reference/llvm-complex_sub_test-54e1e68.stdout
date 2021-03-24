@@ -7,7 +7,7 @@ source_filename = "LFortran"
 @1 = private unnamed_addr constant [9 x i8] c"(%f,%f)\0A\00", align 1
 @2 = private unnamed_addr constant [9 x i8] c"(%f,%f)\0A\00", align 1
 
-define i64 @main() {
+define i32 @main() {
 .entry:
   %x = alloca %complex, align 8
   %0 = alloca %complex, align 8
@@ -113,7 +113,7 @@ define i64 @main() {
   %65 = load float, float* %64, align 4
   %66 = fpext float %65 to double
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @2, i32 0, i32 0), double %62, double %66)
-  ret i64 0
+  ret i32 0
 }
 
 declare void @_lfortran_complex_sub(%complex*, %complex*, %complex*, ...)

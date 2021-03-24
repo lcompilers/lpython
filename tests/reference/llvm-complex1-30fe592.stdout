@@ -3,7 +3,7 @@ source_filename = "LFortran"
 
 %complex = type { float, float }
 
-define i64 @main() {
+define i32 @main() {
 .entry:
   %x = alloca %complex, align 8
   %0 = alloca %complex, align 8
@@ -13,6 +13,6 @@ define i64 @main() {
   store float 4.000000e+00, float* %2, align 4
   %3 = load %complex, %complex* %0, align 4
   store %complex %3, %complex* %x, align 4
-  ret i64 0
+  ret i32 0
 }
 

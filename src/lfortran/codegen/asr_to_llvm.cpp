@@ -810,7 +810,7 @@ public:
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
         }
-        llvm::Value *thenV = llvm::ConstantInt::get(context, llvm::APInt(64, 1));
+        llvm::Value *thenV = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
         builder->CreateBr(mergeBB);
         thenBB = builder->GetInsertBlock();
         fn->getBasicBlockList().push_back(elseBB);
@@ -818,7 +818,7 @@ public:
         for (size_t i=0; i<x.n_orelse; i++) {
             this->visit_stmt(*x.m_orelse[i]);
         }
-        llvm::Value *elseV = llvm::ConstantInt::get(context, llvm::APInt(64, 2));
+        llvm::Value *elseV = llvm::ConstantInt::get(context, llvm::APInt(32, 2));
         builder->CreateBr(mergeBB);
         elseBB = builder->GetInsertBlock();
         fn->getBasicBlockList().push_back(mergeBB);
@@ -1031,7 +1031,7 @@ public:
                 return;
             } else if (x.m_op == ASR::unaryopType::USub) {
                 llvm::Value *zero = llvm::ConstantInt::get(context,
-                    llvm::APInt(64, 0));
+                    llvm::APInt(32, 0));
                 tmp = builder ->CreateSub(zero, tmp);
                 return;
             } else {
