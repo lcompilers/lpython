@@ -748,7 +748,7 @@ public:
                 a_kind, nullptr, 0));
         asr = ASR::make_ConstantReal_t(al, x.base.base.loc, x.m_n, type);
     }
-    std::string convert_to_lower(const std::string &s) {
+    inline std::string convert_to_lower(const std::string &s) {
        std::string res;
        for(auto x: s) res.push_back(std::tolower(x));
        return res;
