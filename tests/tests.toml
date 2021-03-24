@@ -692,6 +692,16 @@ filename = "../integration_tests/const_real_dp.f90"
 asr = true
 llvm = true
 
+[[test]]
+filename = "../integration_tests/int_dp.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/int_dp_param.f90"
+asr = true
+llvm = true
+
 # sin
 [[test]]
 filename = "../integration_tests/intrinsics_02.f90"
