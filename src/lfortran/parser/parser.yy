@@ -88,7 +88,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token TK_RBRACKET_OLD "/)"
 %token TK_PERCENT "%"
 %token TK_VBAR "|"
-%token TK_UNDERSCORE "_"
 
 %token <string> TK_STRING
 %token <string> TK_COMMENT
@@ -1346,7 +1345,6 @@ expr
             $$ = FUNCCALLORARRAY($2, $4, @$); }
     | "[" expr_list_opt rbracket { $$ = ARRAY_IN($2, @$); }
     | "[" var_type "::" expr_list_opt rbracket { $$ = ARRAY_IN($4, @$); }
-    | TK_INTEGER TK_UNDERSCORE TK_INTEGER { $$ = INTEGER_WITH_KIND($1, $3, @$); }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
     | TK_REAL { $$ = REAL($1, @$); }
     | TK_STRING { $$ = STRING($1, @$); }

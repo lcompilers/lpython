@@ -83,7 +83,6 @@ def attr_to_args(attrs):
 simple_sums = []
 sums = []
 products = []
-additional_builtin_types = set()
 subs = {}
 
 def convert_type(asdl_type, seq, opt, mod_name):
@@ -108,11 +107,7 @@ def convert_type(asdl_type, seq, opt, mod_name):
     elif asdl_type == "symbol_table":
         type_ = "SymbolTable*"
     elif asdl_type == "int":
-        type_ = "int"
-        assert not seq
-    elif asdl_type == "int64_t":
-        additional_builtin_types.add("int64_t")
-        type_ = "long long int"
+        type_ = "int64_t"
         assert not seq
     else:
         type_ = asdl_type + "_t"
@@ -370,7 +365,6 @@ class ASTWalkVisitorVisitor(ASDLVisitor):
 
     def visitField(self, field):
         if (field.type not in asdl.builtin_types and
-            field.type not in additional_builtin_types and
             field.type not in self.data.simple_types):
             level = 2
             if field.type in products:
@@ -485,7 +479,6 @@ class PickleVisitorVisitor(ASDLVisitor):
 
     def visitField(self, field, cons):
         if (field.type not in asdl.builtin_types and
-            field.type not in additional_builtin_types and
             field.type not in self.data.simple_types):
             self.used = True
             level = 2
