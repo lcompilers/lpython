@@ -12,9 +12,9 @@ define void @__module_a_b() {
 
 declare void @_lfortran_printf(i8*, ...)
 
-define i64 @main() {
+define i32 @main() {
 .entry:
   call void @__module_a_b()
-  ret i64 0
+  ret i32 0
 }
 

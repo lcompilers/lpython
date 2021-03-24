@@ -8,7 +8,7 @@ source_filename = "LFortran"
 @4 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
 @5 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
 
-define i64 @main() {
+define i32 @main() {
 .entry:
   %x = alloca float, align 4
   %0 = alloca float, align 4
@@ -71,7 +71,7 @@ define i64 @main() {
   %34 = load float, float* %x, align 4
   %35 = fpext float %34 to double
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @5, i32 0, i32 0), double %35)
-  ret i64 0
+  ret i32 0
 }
 
 declare void @_lfortran_sin(float, float*)

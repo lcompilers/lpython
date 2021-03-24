@@ -107,7 +107,7 @@ def convert_type(asdl_type, seq, opt, mod_name):
     elif asdl_type == "symbol_table":
         type_ = "SymbolTable*"
     elif asdl_type == "int":
-        type_ = "int"
+        type_ = "int64_t"
         assert not seq
     else:
         type_ = asdl_type + "_t"

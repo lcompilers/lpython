@@ -3,16 +3,16 @@ source_filename = "LFortran"
 
 @0 = private unnamed_addr constant [16 x i8] c"%d %d %d %d %d\0A\00", align 1
 
-define i64 @main() {
+define i32 @main() {
 .entry:
-  %x = alloca i64, align 8
-  store i64 25, i64* %x, align 4
-  %0 = load i64, i64* %x, align 4
-  %1 = load i64, i64* %x, align 4
-  %2 = load i64, i64* %x, align 4
-  %3 = add i64 25, %2
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @0, i32 0, i32 0), i64 %0, i64 1, i64 3, i64 %1, i64 %3)
-  ret i64 0
+  %x = alloca i32, align 4
+  store i32 25, i32* %x, align 4
+  %0 = load i32, i32* %x, align 4
+  %1 = load i32, i32* %x, align 4
+  %2 = load i32, i32* %x, align 4
+  %3 = add i32 25, %2
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @0, i32 0, i32 0), i32 %0, i32 1, i32 3, i32 %1, i32 %3)
+  ret i32 0
 }
 
 declare void @_lfortran_printf(i8*, ...)

@@ -6,7 +6,7 @@ source_filename = "LFortran"
 @2 = private unnamed_addr constant [28 x i8] c"Line 1 - Condition is false\00", align 1
 @3 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 
-define i64 @main() {
+define i32 @main() {
 .entry:
   %a = alloca i1, align 1
   %b = alloca i1, align 1
@@ -26,8 +26,8 @@ else:                                             ; preds = %.entry
   br label %ifcont
 
 ifcont:                                           ; preds = %else, %then
-  %iftmp = phi i64 [ 1, %then ], [ 2, %else ]
-  ret i64 0
+  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
+  ret i32 0
 }
 
 declare void @_lfortran_printf(i8*, ...)

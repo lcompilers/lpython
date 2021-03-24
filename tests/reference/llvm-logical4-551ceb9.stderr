@@ -1,0 +1,60 @@
+lfortran: /home/czgdp1807ssd/lfortran_project/deps/llvm-project-llvmorg-11.0.1/llvm/lib/IR/Constants.cpp:2095: static llvm::Constant* llvm::ConstantExpr::get(unsigned int, llvm::Constant*, llvm::Constant*, unsigned int, llvm::Type*): Assertion `C1->getType() == C2->getType() && "Operand types in binary constant expression should match"' failed.
+Traceback (most recent call last):
+[2m  Binary file "[0m[1m[35m$DIR/src/bin/lfortran[39m[0m[2m", in _start()[0m
+[2m  File "[0m[1m[35m/build/glibc-S9d2JN/glibc-2.27/csu/../csu/libc-start.c[39m[0m[2m", line 310, in __libc_start_main()[0m
+[2m  File "[0m[1m[35m$DIR/src/bin/lfortran.cpp[39m[0m[2m", line 1136, in main()[0m
+    return emit_llvm(arg_file);
+[2m  File "[0m[1m[35m$DIR/src/bin/lfortran.cpp[39m[0m[2m", line 533, in emit_llvm()[0m
+    m = LFortran::asr_to_llvm(*asr, e.get_context(), al);
+[2m  File "[0m[1m[35m$DIR/src/lfortran/codegen/asr_to_llvm.cpp[39m[0m[2m", line 1546, in LFortran::asr_to_llvm(LFortran::ASR::TranslationUnit_t&, llvm::LLVMContext&, Allocator&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >)[0m
+    v.visit_asr((ASR::asr_t&)asr);
+[2m  File "[0m[1m[35m$DIR/src/lfortran/asr.h[39m[0m[2m", line 1589, in LFortran::ASR::BaseVisitor<LFortran::ASRToLLVMVisitor>::visit_asr(LFortran::ASR::asr_t const&)[0m
+    void visit_asr(const asr_t &b) { visit_asr_t(b, self()); }
+[2m  File "[0m[1m[35m$DIR/src/lfortran/asr.h[39m[0m[2m", line 1567, in visit_asr_t<LFortran::ASRToLLVMVisitor>()[0m
+    case asrType::unit: { v.visit_unit((const unit_t &)x); return; }
+[2m  File "[0m[1m[35m$DIR/src/lfortran/asr.h[39m[0m[2m", line 1590, in LFortran::ASR::BaseVisitor<LFortran::ASRToLLVMVisitor>::visit_unit(LFortran::ASR::unit_t const&)[0m
+    void visit_unit(const unit_t &b) { visit_unit_t(b, self()); }
+[2m  File "[0m[1m[35m$DIR/src/lfortran/asr.h[39m[0m[2m", line 1454, in visit_unit_t<LFortran::ASRToLLVMVisitor>()[0m
+    case unitType::TranslationUnit: { v.visit_TranslationUnit((const TranslationUnit_t &)x); return; }
+[2m  File "[0m[1m[35m$DIR/src/lfortran/codegen/asr_to_llvm.cpp[39m[0m[2m", line 295, in LFortran::ASRToLLVMVisitor::visit_TranslationUnit(LFortran::ASR::TranslationUnit_t const&)[0m
+    visit_symbol(*item.second);
+[2m  File "[0m[1m[35m$DIR/src/lfortran/asr.h[39m[0m[2m", line 1592, in LFortran::ASR::BaseVisitor<LFortran::ASRToLLVMVisitor>::visit_symbol(LFortran::ASR::symbol_t const&)[0m
+    void visit_symbol(const symbol_t &b) { visit_symbol_t(b, self()); }
+[2m  File "[0m[1m[35m$DIR/src/lfortran/asr.h[39m[0m[2m", line 1462, in visit_symbol_t<LFortran::ASRToLLVMVisitor>()[0m
+    case symbolType::Program: { v.visit_Program((const Program_t &)x); return; }
+[2m  File "[0m[1m[35m$DIR/src/lfortran/codegen/asr_to_llvm.cpp[39m[0m[2m", line 384, in LFortran::ASRToLLVMVisitor::visit_Program(LFortran::ASR::Program_t const&)[0m
+    this->visit_stmt(*x.m_body[i]);
+[2m  File "[0m[1m[35m$DIR/src/lfortran/asr.h[39m[0m[2m", line 1601, in LFortran::ASR::BaseVisitor<LFortran::ASRToLLVMVisitor>::visit_stmt(LFortran::ASR::stmt_t const&)[0m
+    void visit_stmt(const stmt_t &b) { visit_stmt_t(b, self()); }
+[2m  File "[0m[1m[35m$DIR/src/lfortran/asr.h[39m[0m[2m", line 1477, in visit_stmt_t<LFortran::ASRToLLVMVisitor>()[0m
+    case stmtType::Assignment: { v.visit_Assignment((const Assignment_t &)x); return; }
+[2m  File "[0m[1m[35m$DIR/src/lfortran/codegen/asr_to_llvm.cpp[39m[0m[2m", line 721, in LFortran::ASRToLLVMVisitor::visit_Assignment(LFortran::ASR::Assignment_t const&)[0m
+    this->visit_expr(*x.m_value);
+[2m  File "[0m[1m[35m$DIR/src/lfortran/asr.h[39m[0m[2m", line 1617, in LFortran::ASR::BaseVisitor<LFortran::ASRToLLVMVisitor>::visit_expr(LFortran::ASR::expr_t const&)[0m
+    void visit_expr(const expr_t &b) { visit_expr_t(b, self()); }
+[2m  File "[0m[1m[35m$DIR/src/lfortran/asr.h[39m[0m[2m", line 1513, in visit_expr_t<LFortran::ASRToLLVMVisitor>()[0m
+    case exprType::ImplicitCast: { v.visit_ImplicitCast((const ImplicitCast_t &)x); return; }
+[2m  File "[0m[1m[35m$DIR/src/lfortran/codegen/asr_to_llvm.cpp[39m[0m[2m", line 1225, in LFortran::ASRToLLVMVisitor::visit_ImplicitCast(LFortran::ASR::ImplicitCast_t const&)[0m
+    visit_expr(*x.m_arg);
+[2m  File "[0m[1m[35m$DIR/src/lfortran/asr.h[39m[0m[2m", line 1617, in LFortran::ASR::BaseVisitor<LFortran::ASRToLLVMVisitor>::visit_expr(LFortran::ASR::expr_t const&)[0m
+    void visit_expr(const expr_t &b) { visit_expr_t(b, self()); }
+[2m  File "[0m[1m[35m$DIR/src/lfortran/asr.h[39m[0m[2m", line 1502, in visit_expr_t<LFortran::ASRToLLVMVisitor>()[0m
+    case exprType::UnaryOp: { v.visit_UnaryOp((const UnaryOp_t &)x); return; }
+[2m  File "[0m[1m[35m$DIR/src/lfortran/codegen/asr_to_llvm.cpp[39m[0m[2m", line 1035, in LFortran::ASRToLLVMVisitor::visit_UnaryOp(LFortran::ASR::UnaryOp_t const&)[0m
+    tmp = builder ->CreateSub(zero, tmp);
+[2m  File "[0m[1m[35m/home/czgdp1807ssd/lfortran_project/deps/llvm-project-llvmorg-11.0.1/llvm/include/llvm/IR/IRBuilder.h[39m[0m[2m", line 1191, in llvm::IRBuilderBase::CreateSub(llvm::Value*, llvm::Value*, llvm::Twine const&, bool, bool)[0m
+    return Insert(Folder.CreateSub(LC, RC, HasNUW, HasNSW), Name);
+[2m  File "[0m[1m[35m/home/czgdp1807ssd/lfortran_project/deps/llvm-project-llvmorg-11.0.1/llvm/include/llvm/IR/ConstantFolder.h[39m[0m[2m", line 49, in llvm::ConstantFolder::CreateSub(llvm::Constant*, llvm::Constant*, bool, bool) const[0m
+    return ConstantExpr::getSub(LHS, RHS, HasNUW, HasNSW);
+[2m  File "[0m[1m[35m/home/czgdp1807ssd/lfortran_project/deps/llvm-project-llvmorg-11.0.1/llvm/lib/IR/Constants.cpp[39m[0m[2m", line 2496, in llvm::ConstantExpr::getSub(llvm::Constant*, llvm::Constant*, bool, bool)[0m
+    return get(Instruction::Sub, C1, C2, Flags);
+[2m  File "[0m[1m[35m/home/czgdp1807ssd/lfortran_project/deps/llvm-project-llvmorg-11.0.1/llvm/lib/IR/Constants.cpp[39m[0m[2m", line 2094, in llvm::ConstantExpr::get(unsigned int, llvm::Constant*, llvm::Constant*, unsigned int, llvm::Type*)[0m
+    assert(C1->getType() == C2->getType() &&
+[2m  File "[0m[1m[35m/build/glibc-S9d2JN/glibc-2.27/assert/assert.c[39m[0m[2m", line 101, in __GI___assert_fail()[0m
+[2m  File "[0m[1m[35m/build/glibc-S9d2JN/glibc-2.27/assert/assert.c[39m[0m[2m", line 92, in __assert_fail_base()[0m
+[2m  File "[0m[1m[35m/build/glibc-S9d2JN/glibc-2.27/stdlib/abort.c[39m[0m[2m", line 79, in __GI_abort()[0m
+[2m  File "[0m[1m[35m/build/glibc-S9d2JN/glibc-2.27/signal/../sysdeps/unix/sysv/linux/nptl-signals.h[39m[0m[2m", line 80, in __libc_signal_restore_set()[0m
+[2m  Binary file "[0m[1m[35m/lib/x86_64-linux-gnu/libc.so.6[39m[0m[2m", in killpg()[0m
+Abort: Signal SIGABRT (abort) received
+
+Aborted (core dumped)
