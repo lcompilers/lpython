@@ -401,10 +401,20 @@ class PickleVisitorVisitor(ASDLVisitor):
         self.emit("private:")
         self.emit(  "Derived& self() { return static_cast<Derived&>(*this); }", 1)
         self.emit("public:")
-        self.emit(  "std::string s;", 1)
+        self.emit(  "std::string s, indtd;", 1)
         self.emit(  "bool use_colors;", 1)
+        self.emit(  "bool indent;", 1)
+        self.emit(  "int indent_level = 0, indent_spaces = 3;", 1)
         self.emit("public:")
-        self.emit(  "PickleBaseVisitor() : use_colors(false) { s.reserve(100000); }", 1)
+        self.emit(  "PickleBaseVisitor() : use_colors(false), indent(false) { s.reserve(100000); }", 1)
+        self.emit(  "void inc_indent() {", 1)
+        self.emit(      "indent_level++;", 2)
+        self.emit(      "indtd = std::string(indent_level*indent_spaces, ' ');",2)
+        self.emit(  "}",1)
+        self.emit(  "void dec_indent() {", 1)
+        self.emit(      "indent_level--;", 2)
+        self.emit(      "indtd = std::string(indent_level*indent_spaces, ' ');",2)
+        self.emit(  "}",1)
         self.mod = mod
         super(PickleVisitorVisitor, self).visitModule(mod)
         self.emit("};")
@@ -429,7 +439,11 @@ class PickleVisitorVisitor(ASDLVisitor):
 
     def make_visitor(self, name, fields, cons):
         self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
-        self.emit(    's.append("(");', 2)
+        self.emit(      'if(indent) {',2)
+        self.emit(          's.append("\\n"+indtd+"(");', 3)
+        self.emit(          'inc_indent();',3)
+        self.emit(      '} else', 2)
+        self.emit(          's.append("(");', 3)
         subs = {
             "Assignment": "=",
             "Associate": "=>",
@@ -468,8 +482,13 @@ class PickleVisitorVisitor(ASDLVisitor):
         self.emit(    '}', 2)
         self.emit(    'switch (x) {', 2)
         for tp in types:
-            self.emit(    'case (%s::%s) : { s.append("%s"); break; }' \
-                % (name, tp.name, tp.name), 3)
+            self.emit(    'case (%s::%s) : {' % (name, tp.name), 3)
+            self.emit(      'if(indent) {',4)
+            self.emit(          'dec_indent();',5)
+            self.emit(          's.append("\\n"+indtd+"%s");' % (tp.name), 5)
+            self.emit(      '} else', 4)
+            self.emit(          's.append("%s");' % (tp.name), 5)
+            self.emit(     ' break; }',3)
         self.emit(    '}', 2)
         self.emit(    'if (use_colors) {', 2)
         self.emit(        's.append(color(fg::reset));', 3)
@@ -526,12 +545,19 @@ class PickleVisitorVisitor(ASDLVisitor):
                         self.emit(    's.append("()");', 3)
                         self.emit("}", 2)
                     else:
-                        self.emit('s.append(x.m_%s);' % field.name, 2)
+                        self.emit('if(indent) {',2)
+                        self.emit(  's.append("\\n"+indtd);', 3)
+                        self.emit(  's.append(x.m_%s);' % field.name, 3)
+                        self.emit('} else', 2)
+                        self.emit(  's.append(x.m_%s);' % field.name, 3)
             elif field.type == "node":
                 assert not field.opt
                 assert field.seq
                 level = 2
-                self.emit('s.append("[");', level)
+                self.emit('if(indent)',level)
+                self.emit(  's.append("\\n"+indtd+"[");', level+1)
+                self.emit('else', level)
+                self.emit(  's.append("[");', level+1)
                 self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
                 mod_name = self.mod.name.lower()
                 self.emit("self().visit_%s(*x.m_%s[i]);" % (mod_name, field.name), level+1)
@@ -543,10 +569,17 @@ class PickleVisitorVisitor(ASDLVisitor):
                 assert not field.seq
                 if field.name == "parent_symtab":
                     level = 2
-                    self.emit('s.append(x.m_%s->get_counter());' % field.name, level)
+                    self.emit('if(indent)',level)
+                    self.emit(  's.append("\\n"+indtd+x.m_%s->get_counter());' % field.name, level+1)
+                    self.emit('else', level)
+                    self.emit(  's.append(x.m_%s->get_counter());' % field.name, level+1)
                 else:
                     level = 2
-                    self.emit('s.append("(");', level)
+                    self.emit(      'if(indent) {',level)
+                    self.emit(          's.append("\\n"+indtd+"(");', level+1)
+                    self.emit(          'inc_indent();',level+1)
+                    self.emit(      '} else', level)
+                    self.emit(          's.append("(");', level+1)
                     self.emit('if (use_colors) {', level)
                     self.emit(    's.append(color(fg::yellow));', level+1)
                     self.emit('}', level)
@@ -555,18 +588,33 @@ class PickleVisitorVisitor(ASDLVisitor):
                     self.emit(    's.append(color(fg::reset));', level+1)
                     self.emit('}', level)
                     self.emit('s.append(" ");', level)
-                    self.emit('s.append(x.m_%s->get_counter());' % field.name, level)
-                    self.emit('s.append(" {");', level)
+                    self.emit(      'if(indent)',level)
+                    self.emit(          's.append("\\n"+indtd+x.m_%s->get_counter());' % field.name, level+1)
+                    self.emit(      'else', level)
+                    self.emit(          's.append(x.m_%s->get_counter());' % field.name, level+1)
+                    self.emit(      'if(indent){',level)
+                    self.emit(          's.append("\\n"+indtd+"{");', level+1)
+                    self.emit(          'inc_indent();',level+1)
+                    self.emit(      '} else', level)
+                    self.emit(          's.append(" {");', level+1)
                     self.emit('{', level)
                     self.emit('    size_t i = 0;', level)
                     self.emit('    for (auto &a : x.m_%s->scope) {' % field.name, level)
-                    self.emit('        s.append(a.first + ": ");', level)
+                    self.emit(      'if(indent) {',level)
+                    self.emit(          's.append("\\n"+indtd+a.first + ": ");', level+1)
+                    self.emit(          'inc_indent();',level+1)
+                    self.emit(      '} else', level)
+                    self.emit('          s.append(a.first + ": ");', level+1)
                     self.emit('        this->visit_symbol(*a.second);', level)
                     self.emit('        if (i < x.m_%s->scope.size()-1) s.append(", ");' % field.name, level)
                     self.emit('        i++;', level)
                     self.emit('    }', level)
                     self.emit('}', level)
-                    self.emit('s.append("})");', level)
+                    self.emit(      'if(indent){',level)
+                    self.emit(          'dec_indent();', level+1)
+                    self.emit(          's.append("\\n"+indtd+"})");', level+1)
+                    self.emit(      '} else', level)
+                    self.emit(          's.append("})");', level+1)
             elif field.type == "string" and not field.seq:
                 if field.opt:
                     self.emit("if (x.m_%s) {" % field.name, 2)
