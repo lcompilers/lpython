@@ -882,8 +882,10 @@ public:
     void visit_decl(const decl_t &x) {
         std::string r = indent;
         r += syn(gr::Type);
+        bool sep=false;
         std::string sym_type;
         if (x.m_sym_type) {
+            sep = true;
             sym_type = x.m_sym_type;
         }
         r += sym_type;
@@ -929,9 +931,13 @@ public:
         }
         if (x.n_attrs > 0) {
             for (size_t i=0; i<x.n_attrs; i++) {
-                r.append(", ");
                 this->visit_attribute(*x.m_attrs[i]);
-                r.append(s);
+                if(sep) {
+                    r.append(", ");
+                    r.append(s);
+                } else {
+                    r.append(s);
+                }
             }
         }
         if (x.m_sym) {

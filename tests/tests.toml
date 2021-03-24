@@ -747,6 +747,7 @@ asr = true
 [[test]]
 filename = "modules_04.f90"
 asr = true
+ast_f90 = true
 
 [[test]]
 filename = "modules_05.f90"
