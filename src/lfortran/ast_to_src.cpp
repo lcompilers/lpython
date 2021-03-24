@@ -935,9 +935,9 @@ public:
                 if(sep) {
                     r.append(", ");
                     r.append(s);
-                }
-                else
+                } else {
                     r.append(s);
+                }
             }
         }
         if (x.m_sym) {
