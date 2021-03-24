@@ -1062,12 +1062,12 @@ public:
     }
 
     void visit_ConstantInteger(const ASR::ConstantInteger_t &x) {
-        long long val = x.m_n;
+        int64_t val = x.m_n;
         int a_kind = ((ASR::Integer_t*)(&(x.m_type->base)))->m_kind;
         switch( a_kind ) {
             
             case 4 : {
-                tmp = llvm::ConstantInt::get(context, llvm::APInt(32, (int)val, true));
+                tmp = llvm::ConstantInt::get(context, llvm::APInt(32, static_cast<int32_t>(val), true));
                 break;
             }
             case 8 : {
@@ -1314,9 +1314,6 @@ public:
                 int a_kind = ((ASR::Integer_t*)(&(t->base)))->m_kind;
                 switch( a_kind ) {
                     case 4 : {
-                        // Cast float to double as a workaround for the fact that
-                        // vprintf() seems to cast to double even for %f, which
-                        // causes it to print 0.000000.
                         fmt.push_back("%d");
                         break;
                     }
@@ -1326,7 +1323,7 @@ public:
                     }
                     default: {
                         throw SemanticError(R"""(Printing support is available only 
-                                            for 32, and 64 bit real kinds.)""", 
+                                            for 32, and 64 bit integer kinds.)""", 
                                             x.base.base.loc);
                     }
                 }
