@@ -170,6 +170,7 @@ RUN(NAME subroutines_03 LABELS gfortran)
 
 RUN(NAME parsing_01 LABELS gfortran)
 RUN(NAME parsing_02 LABELS gfortran)
+RUN(NAME parsing_03 LABELS gfortran llvm)
 
 RUN(NAME interface_01 LABELS gfortran)
 RUN(NAME interface_02 LABELS gfortran)
