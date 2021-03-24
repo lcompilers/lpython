@@ -113,8 +113,8 @@ class Parser:
         return d
 
 def ast_to_asr(ast):
-    local_files = glob("../../**/*.cpp", recursive=True) + \
-                  glob("../../**/*.h", recursive=True)
+    local_files = glob("../**/*.cpp", recursive=True) + \
+                  glob("../**/*.h", recursive=True)
     for i in range(len(local_files)):
         local_files[i] = os.path.abspath(local_files[i])
     def make_abs(end_path):
