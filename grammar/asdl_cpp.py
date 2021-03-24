@@ -588,7 +588,7 @@ class PickleVisitorVisitor(ASDLVisitor):
                     self.emit(          's.append("\\n"+indtd);', level+1)
                     self.emit(          'inc_indent();',level+1)
                     self.emit(      '}', level)
-                    self.emit(      's.append(" {");', level)
+                    self.emit(      's.append("{");', level)
                     self.emit('{', level)
                     self.emit('    size_t i = 0;', level)
                     self.emit('    for (auto &a : x.m_%s->scope) {' % field.name, level)
