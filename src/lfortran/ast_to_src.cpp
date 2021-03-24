@@ -882,7 +882,7 @@ public:
     void visit_decl(const decl_t &x) {
         std::string r = indent;
         r += syn(gr::Type);
-        bool sep;
+        bool sep=false;
         std::string sym_type;
         if (x.m_sym_type) {
             sep = true;
