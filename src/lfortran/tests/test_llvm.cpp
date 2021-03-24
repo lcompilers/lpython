@@ -697,21 +697,72 @@ define i64 @f()
 TEST_CASE("llvm pointers 3") {
     LFortran::LLVMEvaluator e;
     e.add_module(R"""(
-@r = global float 0.0
+; Takes a variable and returns a pointer to it
+define i64 @pointer_reference(float* %var)
+{
+    %ret = ptrtoint float* %var to i64
+    ret i64 %ret
+}
+
+; Takes a pointer and returns the value of what it points to
+define float @pointer_dereference(i64 %p)
+{
+    %p2 = inttoptr i64 %p to float*
+    %ret = load float, float* %p2
+    ret float %ret
+}
 
 define float @f()
 {
-    store float 8.0, float* @r
+    %var = alloca float
+    store float 8.0, float* %var
 
-    %raddr = ptrtoint float* @r to i64
+    %pointer_val = call i64 @pointer_reference(float* %var)
 
-    %pointer = alloca i64
-    store i64 %raddr, i64* %pointer
+    ; Save the pointer to a variable
+    %pointer_var = alloca i64
+    store i64 %pointer_val, i64* %pointer_var
+    ; Extract value out of the pointer %pointer_var
+    %pointer_val2 = load i64, i64* %pointer_var
 
-    ; Extract value out of the pointer %pointer
-    %pointer_val = load i64, i64* %pointer
-    %pointer2 = inttoptr i64 %pointer_val to float*
-    %ret = load float, float* %pointer2
+    %ret = call float @pointer_dereference(i64 %pointer_val2)
+
+    ret float %ret
+}
+    )""");
+    float r = e.floatfn("f");
+    CHECK(std::abs(r - 8) < 1e-6);
+}
+
+TEST_CASE("llvm pointers 4") {
+    LFortran::LLVMEvaluator e;
+    e.add_module(R"""(
+; Takes a variable and returns a pointer to it
+define float* @pointer_reference(float* %var)
+{
+    ret float* %var
+}
+
+define float @pointer_dereference(float* %var)
+{
+    %ret = load float, float* %var
+    ret float %ret
+}
+
+define float @f()
+{
+    %var = alloca float
+    store float 8.0, float* %var
+
+    %pointer_val = call float* @pointer_reference(float* %var)
+
+    ; Save the pointer to a variable
+    %pointer_var = alloca float*
+    store float* %pointer_val, float** %pointer_var
+    ; Extract value out of the pointer %pointer_var
+    %pointer_val2 = load float*, float** %pointer_var
+
+    %ret = call float @pointer_dereference(float* %pointer_val2)
 
     ret float %ret
 }
