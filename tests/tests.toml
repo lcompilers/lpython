@@ -801,3 +801,9 @@ filename = "../integration_tests/nested_02.f90"
 ast = true
 asr = true
 llvm = true
+
+[[test]]
+filename = "../integration_tests/expr_05.f90"
+ast = true
+cpp = true
+ast_f90 = true
