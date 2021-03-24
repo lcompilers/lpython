@@ -1,0 +1,13 @@
+{
+    "basename": "ast_f90-modules_04-00154c9",
+    "cmd": "lfortran --show-ast-f90 --no-color {infile}",
+    "infile": "tests/modules_04.f90",
+    "infile_hash": "001166d3ec02d038539957e7b333b2f02902687e96980e325831c745",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_f90-modules_04-00154c9.stdout",
+    "stdout_hash": "a9ac8bf2787099baa0a7c0173d1ca16e73a6f7d5410a6114ce4a3702",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
