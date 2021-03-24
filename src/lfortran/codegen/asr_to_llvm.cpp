@@ -87,6 +87,57 @@ void exit(llvm::LLVMContext &context, llvm::Module &module,
     builder.CreateCall(fn_exit, {exit_code});
 }
 
+class ArrayInfo {
+
+    public:
+
+        llvm::LLVMContext &context;
+
+        ArrayInfo(llvm::LLVMContext& _context):
+        context(_context) 
+        {}
+
+        inline llvm::ArrayType* get_dim_des_array(int rank) {
+            std::vector<llvm::Type*> dim_des_vec = {
+                llvm::Type::getInt32Ty(context),
+                llvm::Type::getInt32Ty(context),
+                llvm::Type::getInt32Ty(context)
+            };
+            llvm::StructType* dim_des = llvm::StructType::create(context, dim_des_vec, "dimension_descriptor");
+            return llvm::ArrayType::get(dim_des, rank);
+        }
+
+        inline llvm::StructType* get_array_type
+        (ASR::ttypeType type_, int a_kind, int rank) {
+            llvm::ArrayType* dim_des_array = get_dim_des_array(rank);
+            llvm::Type* el_type = nullptr;
+            switch(type_) {
+                case ASR::ttypeType::Integer: {
+                    switch(a_kind) {
+                        case 4:
+                            el_type = llvm::Type::getInt32Ty(context);
+                            break;
+                        case 8:
+                            el_type = llvm::Type::getInt64Ty(context);
+                            break;
+                        default:
+                            throw SemanticError("Only 32 and 64 bits real kinds are supported.", 
+                                                 x.base.base.loc);
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+            std::vector<llvm::Type*> array_type_vec = {
+                el_type, 
+                llvm::getInt32Ty(context),
+                dim_des_array};
+            return llvm::StructType::create(context, array_type_vec, "array");
+        }
+
+};
+
 class ASRToLLVMVisitor : public ASR::BaseVisitor<ASRToLLVMVisitor>
 {
 private:
@@ -103,6 +154,7 @@ public:
     bool prototype_only;
     llvm::StructType *complex_type;
     llvm::PointerType *character_type;
+    llvm::StructType *int_array_type;
 
     std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
     std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
@@ -270,6 +322,8 @@ public:
         complex_type = llvm::StructType::create(context, els, "complex");
         character_type = llvm::Type::getInt8PtrTy(context);
 
+        ArrayInfo array_info(context);
+
         // Process Variables first:
         for (auto &item : x.m_global_scope->scope) {
             if (is_a<ASR::Variable_t>(*item.second)) {
@@ -388,24 +442,6 @@ public:
         builder->CreateRet(ret_val2);
     }
 
-    template <typename T>
-    inline llvm::Value* get_array(ASR::Variable_t* x, llvm::Type*& type) {
-        T* x_type = down_cast<T>(x->m_type);
-        int n_dims = x_type->n_dims;
-        llvm::Value *prod = nullptr;
-        for( int i = n_dims - 1; i >= 0; i-- ) {
-            this->visit_expr(*(x_type->m_dims[i].m_end));
-            if( prod == nullptr ) {
-                prod = llvm::ConstantInt::get(context, llvm::APInt(64, 1));
-            }
-            prod = builder->CreateMul(prod, tmp);
-        }
-        if( prod != nullptr ) {
-            type = type->getPointerTo();
-        }
-        return prod;
-    }
-
     template<typename T>
     void declare_vars(const T &x) {
         for (auto &item : x.m_symtab->scope) {
@@ -419,8 +455,14 @@ public:
                     !v->m_intent) { 
                     switch (v->m_type->type) {
                         case (ASR::ttypeType::Integer) : {
-                            type = llvm::Type::getInt64Ty(context);
-                            array_size = get_array<ASR::Integer_t>(v, type);
+                            T* x_type = down_cast<T>(x->m_type);
+                            int n_dims = x_type->n_dims;
+                            if( n_dims > 0 ) {
+                                int a_kind = down_cast<T>(x->m_type)->m_kind;
+                                type = array_info.get_array_type(x->m_type->type, a_kind, n_dims)
+                            } else {
+                                type = llvm::Type::getFloatInt64Ty(context);
+                            }
                             break;
                         }
                         case (ASR::ttypeType::Real) : {
