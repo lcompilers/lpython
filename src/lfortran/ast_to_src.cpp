@@ -906,7 +906,7 @@ public:
         r += syn();
         if (x.n_kind > 0) {
             r += "(";
-            if (x.n_kind == 1 && (sym_type == "real" || sym_type == "integer" || sym_type == "logical" || sym_type == "Complex")
+            if (x.n_kind == 1 && (sym_type == "real" || sym_type == "integer" || sym_type == "logical" || sym_type == "complex")
                     && (!x.m_kind[0].m_id || std::string(x.m_kind[0].m_id) == "kind")) {
                 r += kind_value(x.m_kind[0].m_type, x.m_kind[0].m_value);
             } else if (x.n_kind == 1 && (sym_type == "character") && (!x.m_kind[0].m_id || std::string(x.m_kind[0].m_id) == "len")) {
