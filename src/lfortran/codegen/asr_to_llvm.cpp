@@ -115,14 +115,13 @@ class ArrayInfo {
                 case ASR::ttypeType::Integer: {
                     switch(a_kind) {
                         case 4:
-                            el_type = llvm::Type::getInt32Ty(context);
+                            el_type = llvm::Type::getInt32PtrTy(context);
                             break;
                         case 8:
-                            el_type = llvm::Type::getInt64Ty(context);
+                            el_type = llvm::Type::getInt64PtrTy(context);
                             break;
                         default:
-                            throw SemanticError("Only 32 and 64 bits real kinds are supported.", 
-                                                 x.base.base.loc);
+                            throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
                     }
                     break;
                 }
@@ -131,7 +130,7 @@ class ArrayInfo {
             }
             std::vector<llvm::Type*> array_type_vec = {
                 el_type, 
-                llvm::getInt32Ty(context),
+                llvm::Type::getInt32Ty(context),
                 dim_des_array};
             return llvm::StructType::create(context, array_type_vec, "array");
         }
@@ -154,7 +153,6 @@ public:
     bool prototype_only;
     llvm::StructType *complex_type;
     llvm::PointerType *character_type;
-    llvm::StructType *int_array_type;
 
     std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
     std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
@@ -322,8 +320,6 @@ public:
         complex_type = llvm::StructType::create(context, els, "complex");
         character_type = llvm::Type::getInt8PtrTy(context);
 
-        ArrayInfo array_info(context);
-
         // Process Variables first:
         for (auto &item : x.m_global_scope->scope) {
             if (is_a<ASR::Variable_t>(*item.second)) {
@@ -450,18 +446,19 @@ public:
                 uint32_t h = get_hash((ASR::asr_t*)v);
                 llvm::Type *type;
                 llvm::Value* array_size = nullptr;
+                ArrayInfo array_info(context);
                 if (v->m_intent == intent_local || 
                     v->m_intent == intent_return_var || 
                     !v->m_intent) { 
                     switch (v->m_type->type) {
                         case (ASR::ttypeType::Integer) : {
-                            T* x_type = down_cast<T>(x->m_type);
-                            int n_dims = x_type->n_dims;
+                            ASR::Integer_t* v_type = down_cast<ASR::Integer_t>(v->m_type);
+                            int n_dims = v_type->n_dims;
                             if( n_dims > 0 ) {
-                                int a_kind = down_cast<T>(x->m_type)->m_kind;
-                                type = array_info.get_array_type(x->m_type->type, a_kind, n_dims)
+                                int a_kind = v_type->m_kind;
+                                type = array_info.get_array_type(ASR::ttypeType::Integer, a_kind, n_dims);
                             } else {
-                                int a_kind = down_cast<ASR::Integer_t>(v->m_type)->m_kind;
+                                int a_kind = v_type->m_kind;
                                 switch( a_kind )
                                 {
                                     case 4:
@@ -471,8 +468,7 @@ public:
                                         type = llvm::Type::getInt64Ty(context);
                                         break;
                                     default:
-                                        throw SemanticError("Only 32 and 64 bits real kinds are supported.", 
-                                                            x.base.base.loc);
+                                        throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
                                 }
                             }
                             break;
