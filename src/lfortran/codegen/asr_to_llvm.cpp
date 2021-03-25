@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <functional>
 #include <string_view>
+#include <utility>
 
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/Analysis/Passes.h>
@@ -89,26 +90,41 @@ void exit(llvm::LLVMContext &context, llvm::Module &module,
 
 class ArrayInfo {
 
-    public:
+    private:
 
         llvm::LLVMContext &context;
+        llvm::StructType* dim_des;
+        std::map<int, llvm::ArrayType*> rank2desc;
+        std::map<std::pair<int, std::pair<int, int>>, llvm::StructType*> tkr2array;
+
+    public:
 
         ArrayInfo(llvm::LLVMContext& _context):
-        context(_context) 
+        context(_context), 
+        dim_des(llvm::StructType::create(
+            context, 
+            std::vector<llvm::Type*>(
+                {llvm::Type::getInt32Ty(context), 
+                 llvm::Type::getInt32Ty(context), 
+                 llvm::Type::getInt32Ty(context)}), 
+                 "dimension_descriptor")
+        )
         {}
 
         inline llvm::ArrayType* get_dim_des_array(int rank) {
-            std::vector<llvm::Type*> dim_des_vec = {
-                llvm::Type::getInt32Ty(context),
-                llvm::Type::getInt32Ty(context),
-                llvm::Type::getInt32Ty(context)
-            };
-            llvm::StructType* dim_des = llvm::StructType::create(context, dim_des_vec, "dimension_descriptor");
-            return llvm::ArrayType::get(dim_des, rank);
+            if( rank2desc.find(rank) != rank2desc.end() ) {
+                return rank2desc[rank];
+            } 
+            rank2desc[rank] = llvm::ArrayType::get(dim_des, rank);
+            return rank2desc[rank];
         }
 
         inline llvm::StructType* get_array_type
         (ASR::ttypeType type_, int a_kind, int rank) {
+            std::pair<int, std::pair<int, int>> array_key = std::make_pair((int)type_, std::make_pair(a_kind, rank));
+            if( tkr2array.find(array_key) != tkr2array.end() ) {
+                return tkr2array[array_key];
+            }
             llvm::ArrayType* dim_des_array = get_dim_des_array(rank);
             llvm::Type* el_type = nullptr;
             switch(type_) {
@@ -132,7 +148,8 @@ class ArrayInfo {
                 el_type, 
                 llvm::Type::getInt32Ty(context),
                 dim_des_array};
-            return llvm::StructType::create(context, array_type_vec, "array");
+            tkr2array[array_key] = llvm::StructType::create(context, array_type_vec, "array");
+            return tkr2array[array_key];
         }
 
 };
@@ -153,12 +170,13 @@ public:
     bool prototype_only;
     llvm::StructType *complex_type;
     llvm::PointerType *character_type;
+    ArrayInfo array_info;
 
     std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
     std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
 
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context},
-        prototype_only{false} {}
+        prototype_only{false}, array_info{ArrayInfo(context)} {}
 
 
     /*
@@ -446,7 +464,6 @@ public:
                 uint32_t h = get_hash((ASR::asr_t*)v);
                 llvm::Type *type;
                 llvm::Value* array_size = nullptr;
-                ArrayInfo array_info(context);
                 if (v->m_intent == intent_local || 
                     v->m_intent == intent_return_var || 
                     !v->m_intent) { 

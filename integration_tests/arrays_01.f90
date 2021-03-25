@@ -1,6 +1,6 @@
 program arrays_01
 implicit none
-integer(8) :: i, a(5), b(4)
+integer(8) :: i, a(5,4), b(4)
 ! a = 20
 ! do i = 1, 3
 !     a(i) = i+10
