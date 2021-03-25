@@ -88,72 +88,6 @@ void exit(llvm::LLVMContext &context, llvm::Module &module,
     builder.CreateCall(fn_exit, {exit_code});
 }
 
-class ArrayInfo {
-
-    private:
-
-        llvm::LLVMContext &context;
-        llvm::StructType* dim_des;
-        std::map<int, llvm::ArrayType*> rank2desc;
-        std::map<std::pair<int, std::pair<int, int>>, llvm::StructType*> tkr2array;
-
-    public:
-
-        ArrayInfo(llvm::LLVMContext& _context):
-        context(_context), 
-        dim_des(llvm::StructType::create(
-            context, 
-            std::vector<llvm::Type*>(
-                {llvm::Type::getInt32Ty(context), 
-                 llvm::Type::getInt32Ty(context), 
-                 llvm::Type::getInt32Ty(context)}), 
-                 "dimension_descriptor")
-        )
-        {}
-
-        inline llvm::ArrayType* get_dim_des_array(int rank) {
-            if( rank2desc.find(rank) != rank2desc.end() ) {
-                return rank2desc[rank];
-            } 
-            rank2desc[rank] = llvm::ArrayType::get(dim_des, rank);
-            return rank2desc[rank];
-        }
-
-        inline llvm::StructType* get_array_type
-        (ASR::ttypeType type_, int a_kind, int rank) {
-            std::pair<int, std::pair<int, int>> array_key = std::make_pair((int)type_, std::make_pair(a_kind, rank));
-            if( tkr2array.find(array_key) != tkr2array.end() ) {
-                return tkr2array[array_key];
-            }
-            llvm::ArrayType* dim_des_array = get_dim_des_array(rank);
-            llvm::Type* el_type = nullptr;
-            switch(type_) {
-                case ASR::ttypeType::Integer: {
-                    switch(a_kind) {
-                        case 4:
-                            el_type = llvm::Type::getInt32PtrTy(context);
-                            break;
-                        case 8:
-                            el_type = llvm::Type::getInt64PtrTy(context);
-                            break;
-                        default:
-                            throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
-                    }
-                    break;
-                }
-                default:
-                    break;
-            }
-            std::vector<llvm::Type*> array_type_vec = {
-                el_type, 
-                llvm::Type::getInt32Ty(context),
-                dim_des_array};
-            tkr2array[array_key] = llvm::StructType::create(context, array_type_vec, "array");
-            return tkr2array[array_key];
-        }
-
-};
-
 class ASRToLLVMVisitor : public ASR::BaseVisitor<ASRToLLVMVisitor>
 {
 private:
@@ -170,13 +104,109 @@ public:
     bool prototype_only;
     llvm::StructType *complex_type;
     llvm::PointerType *character_type;
-    ArrayInfo array_info;
+    
+    // Data Members for handling arrays
+    llvm::StructType* dim_des;
+    std::map<int, llvm::ArrayType*> rank2desc;
+    std::map<std::pair<int, std::pair<int, int>>, llvm::StructType*> tkr2array;
 
     std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
     std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
 
-    ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context},
-        prototype_only{false}, array_info{ArrayInfo(context)} {}
+    ASRToLLVMVisitor(llvm::LLVMContext &context) : context(context),
+        prototype_only(false), dim_des(llvm::StructType::create(
+            context, 
+            std::vector<llvm::Type*>(
+                {llvm::Type::getInt32Ty(context), 
+                 llvm::Type::getInt32Ty(context), 
+                 llvm::Type::getInt32Ty(context)}), 
+                 "dimension_descriptor")
+        )
+        {}
+
+    inline llvm::ArrayType* get_dim_des_array(int rank) {
+        if( rank2desc.find(rank) != rank2desc.end() ) {
+            return rank2desc[rank];
+        } 
+        rank2desc[rank] = llvm::ArrayType::get(dim_des, rank);
+        return rank2desc[rank];
+    }
+
+    inline llvm::StructType* get_array_type
+    (ASR::ttypeType type_, int a_kind, int rank) {
+        std::pair<int, std::pair<int, int>> array_key = std::make_pair((int)type_, std::make_pair(a_kind, rank));
+        if( tkr2array.find(array_key) != tkr2array.end() ) {
+            return tkr2array[array_key];
+        }
+        llvm::ArrayType* dim_des_array = get_dim_des_array(rank);
+        llvm::Type* el_type = nullptr;
+        switch(type_) {
+            case ASR::ttypeType::Integer: {
+                switch(a_kind) {
+                    case 4:
+                        el_type = llvm::Type::getInt32PtrTy(context);
+                        break;
+                    case 8:
+                        el_type = llvm::Type::getInt64PtrTy(context);
+                        break;
+                    default:
+                        throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
+                }
+                break;
+            }
+            default:
+                break;
+        }
+        std::vector<llvm::Type*> array_type_vec = {
+            el_type, 
+            llvm::Type::getInt32Ty(context),
+            dim_des_array};
+        tkr2array[array_key] = llvm::StructType::create(context, array_type_vec, "array");
+        return tkr2array[array_key];
+    }
+
+    inline llvm::Value* create_gep(llvm::Value* ds, int idx) {
+        std::vector<llvm::Value*> idx_vec = {
+        llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
+        llvm::ConstantInt::get(context, llvm::APInt(32, idx))};
+        return builder->CreateGEP(ds, idx_vec);
+    }
+
+    inline bool verify_dimensions_t(ASR::dimension_t* m_dims, int n_dims) {
+        if( n_dims <= 0 ) {
+            return false;
+        }
+        bool is_ok = true;
+        for( int r = 0; r < n_dims; r++ ) {
+            if( m_dims[r].m_end == nullptr ) {
+                is_ok = false;
+                break;
+            }
+        }
+        return is_ok;
+    }
+
+    inline void fill_array_details(llvm::Value* arr, ASR::dimension_t* m_dims, 
+                                       int n_dims, int a_kind, ASR::ttypeType type_) 
+    {
+        if( verify_dimensions_t(m_dims, n_dims) ) {
+            llvm::Value* offset_val = create_gep(arr, 1);
+            builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), offset_val);
+            llvm::Value* dim_des_val = create_gep(arr, 2);
+            for( int r = 0; r < n_dims; r++ ) {
+                ASR::dimension_t m_dim = m_dims[r];
+                llvm::Value* dim_val = create_gep(dim_des_val, r);
+                llvm::Value* s_val = create_gep(dim_val, 0);
+                llvm::Value* l_val = create_gep(dim_val, 1);
+                llvm::Value* u_val = create_gep(dim_val, 2);
+                builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 1)), s_val);
+                visit_expr(*(m_dim.m_start));
+                builder->CreateStore(tmp, l_val);
+                visit_expr(*(m_dim.m_end));
+                builder->CreateStore(tmp, u_val);
+            }
+        }
+    }
 
 
     /*
@@ -464,18 +494,22 @@ public:
                 uint32_t h = get_hash((ASR::asr_t*)v);
                 llvm::Type *type;
                 llvm::Value* array_size = nullptr;
+                ASR::ttypeType type_;
+                int n_dims, a_kind;
+                ASR::dimension_t* m_dims;
                 if (v->m_intent == intent_local || 
                     v->m_intent == intent_return_var || 
                     !v->m_intent) { 
                     switch (v->m_type->type) {
                         case (ASR::ttypeType::Integer) : {
                             ASR::Integer_t* v_type = down_cast<ASR::Integer_t>(v->m_type);
-                            int n_dims = v_type->n_dims;
+                            type_ = v_type->class_type;
+                            m_dims = v_type->m_dims;
+                            n_dims = v_type->n_dims;
+                            a_kind = v_type->m_kind;
                             if( n_dims > 0 ) {
-                                int a_kind = v_type->m_kind;
-                                type = array_info.get_array_type(ASR::ttypeType::Integer, a_kind, n_dims);
+                                type = get_array_type(type_, a_kind, n_dims);
                             } else {
-                                int a_kind = v_type->m_kind;
                                 switch( a_kind )
                                 {
                                     case 4:
@@ -491,7 +525,7 @@ public:
                             break;
                         }
                         case (ASR::ttypeType::Real) : {
-                            int a_kind = down_cast<ASR::Real_t>(v->m_type)->m_kind;
+                            a_kind = down_cast<ASR::Real_t>(v->m_type)->m_kind;
                             switch( a_kind )
                             {
                                 case 4:
@@ -520,7 +554,7 @@ public:
                             throw CodeGenError("Derived type argument not implemented yet in conversion");
                             break;
                         case (ASR::ttypeType::IntegerPointer) : {
-                            int a_kind = down_cast<ASR::IntegerPointer_t>(v->m_type)->m_kind;
+                            a_kind = down_cast<ASR::IntegerPointer_t>(v->m_type)->m_kind;
                             switch( a_kind )
                             {
                                 case 4:
@@ -536,7 +570,7 @@ public:
                             break;
                         } 
                         case (ASR::ttypeType::RealPointer) : {
-                            int a_kind = down_cast<ASR::RealPointer_t>(v->m_type)->m_kind;
+                            a_kind = down_cast<ASR::RealPointer_t>(v->m_type)->m_kind;
                             switch( a_kind )
                             {
                                 case 4:
@@ -571,6 +605,7 @@ public:
                     }
                     llvm::AllocaInst *ptr = builder->CreateAlloca(type, array_size, v->m_name);
                     llvm_symtab[h] = ptr;
+                    fill_array_details(ptr, m_dims, n_dims, a_kind, type_);
                     if( v->m_value != nullptr ) {
                         llvm::Value *target_var = ptr;
                         this->visit_expr(*v->m_value);
