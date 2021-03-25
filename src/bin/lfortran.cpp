@@ -798,7 +798,7 @@ int link_executable(const std::string &infile, const std::string &outfile,
         } else {
             CC = "gcc";
         }
-        std::string base_path = runtime_library_dir;
+        std::string base_path = "\"" + runtime_library_dir + "\"";
         std::string options;
         std::string runtime_lib = "lfortran_runtime";
         if (static_executable) {
