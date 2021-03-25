@@ -473,6 +473,7 @@ class PickleVisitorVisitor(ASDLVisitor):
             self.visitField(field, cons)
             if n < len(fields) - 1:
                 self.emit(    's.append(" ");', 2)
+        self.emit(    'dec_indent();', 2)
         self.emit(    's.append(")");', 2)
         if not self.used:
             # Note: a better solution would be to change `&x` to `& /* x */`
@@ -591,7 +592,7 @@ class PickleVisitorVisitor(ASDLVisitor):
                     self.emit(          's.append("\\n"+indtd);', level+1)
                     self.emit(          'inc_indent();',level+1)
                     self.emit(      '}', level)
-                    self.emit(      's.append("{");', level)
+                    self.emit(      's.append(" {");', level)
                     self.emit('{', level)
                     self.emit('    size_t i = 0;', level)
                     self.emit('    for (auto &a : x.m_%s->scope) {' % field.name, level)
@@ -609,6 +610,7 @@ class PickleVisitorVisitor(ASDLVisitor):
                     self.emit(          'dec_indent();', level+1)
                     self.emit(          's.append("\\n"+indtd);', level+1)
                     self.emit(      '}', level)
+                    self.emit(      'dec_indent();', level)
                     self.emit(      's.append("})");', level)
             elif field.type == "string" and not field.seq:
                 if field.opt:
