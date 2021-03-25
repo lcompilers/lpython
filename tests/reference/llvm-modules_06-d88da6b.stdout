@@ -5,24 +5,24 @@ source_filename = "LFortran"
 @1 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @2 = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
 
-define i64 @__module_a_b() {
+define i32 @__module_a_b() {
 .entry:
-  %r = alloca i64, align 8
+  %r = alloca i32, align 4
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @1, i32 0, i32 0), i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0))
-  store i64 5, i64* %r, align 4
-  %0 = load i64, i64* %r, align 4
-  ret i64 %0
+  store i32 5, i32* %r, align 4
+  %0 = load i32, i32* %r, align 4
+  ret i32 %0
 }
 
 declare void @_lfortran_printf(i8*, ...)
 
-define i64 @main() {
+define i32 @main() {
 .entry:
-  %i = alloca i64, align 8
-  %0 = call i64 @__module_a_b()
-  store i64 %0, i64* %i, align 4
-  %1 = load i64, i64* %i, align 4
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @2, i32 0, i32 0), i64 %1)
-  ret i64 0
+  %i = alloca i32, align 4
+  %0 = call i32 @__module_a_b()
+  store i32 %0, i32* %i, align 4
+  %1 = load i32, i32* %i, align 4
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @2, i32 0, i32 0), i32 %1)
+  ret i32 0
 }
 

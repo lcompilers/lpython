@@ -3,28 +3,28 @@ source_filename = "LFortran"
 
 @0 = private unnamed_addr constant [6 x i8] c"STOP\0A\00", align 1
 
-define i64 @main() {
+define i32 @main() {
 .entry:
-  %x = alloca i64, align 8
-  store i64 25, i64* %x, align 4
-  %0 = load i64, i64* %x, align 4
-  %1 = icmp eq i64 %0, 25
+  %x = alloca i32, align 4
+  store i32 25, i32* %x, align 4
+  %0 = load i32, i32* %x, align 4
+  %1 = icmp eq i32 %0, 25
   br i1 %1, label %then, label %else
 
 then:                                             ; preds = %.entry
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @0, i32 0, i32 0))
-  call void @exit(i64 0)
+  call void @exit(i32 0)
   br label %ifcont
 
 else:                                             ; preds = %.entry
   br label %ifcont
 
 ifcont:                                           ; preds = %else, %then
-  %iftmp = phi i64 [ 1, %then ], [ 2, %else ]
-  ret i64 0
+  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
+  ret i32 0
 }
 
 declare void @_lfortran_printf(i8*, ...)
 
-declare void @exit(i64)
+declare void @exit(i32)
 

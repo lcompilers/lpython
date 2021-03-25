@@ -74,13 +74,14 @@ public:
     enum gr {
         // Type
         UnitHeader,  // program, end program
-        Type,        // integer, real, character
+        Type,        // integer, real, character, complex
 
         // Constant
         String,      // "some string"
         Integer,     // 234
         Real,        // 5.5_dp
         Logical,     // .true., .false.
+        Complex,     // (7,8)
 
         // Functions
         Call,        // call
@@ -121,7 +122,8 @@ public:
                 case (gr::String) :
                 case (gr::Integer) :
                 case (gr::Real) :
-                case (gr::Logical) : {
+                case (gr::Logical) :
+                case (gr::Complex) : {
                     syn_color = color(fg::magenta);
                     syn_reset = color(fg::reset);
                     break;
@@ -848,6 +850,20 @@ public:
         s += syn();
     }
 
+    void visit_Complex(const Complex_t &x){
+        std::string r;
+        s = syn(gr::Complex);
+        r += "(";
+        this->visit_expr(*x.m_re);
+        r.append(s);
+        r += ", ";
+        this->visit_expr(*x.m_im);
+        r.append(s);
+        r += ")";
+        r += syn();
+        s = r;
+    }
+
     void visit_Name(const Name_t &x) {
         s = std::string(x.m_id);
     }
@@ -882,15 +898,18 @@ public:
     void visit_decl(const decl_t &x) {
         std::string r = indent;
         r += syn(gr::Type);
+        bool sep=false;
         std::string sym_type;
         if (x.m_sym_type) {
+            sep = true;
             sym_type = x.m_sym_type;
         }
         r += sym_type;
         r += syn();
         if (x.n_kind > 0) {
             r += "(";
-            if (x.n_kind == 1 && (sym_type == "real" || sym_type == "integer" || sym_type == "logical") && (!x.m_kind[0].m_id || std::string(x.m_kind[0].m_id) == "kind")) {
+            if (x.n_kind == 1 && (sym_type == "real" || sym_type == "integer" || sym_type == "logical" || sym_type == "complex")
+                    && (!x.m_kind[0].m_id || std::string(x.m_kind[0].m_id) == "kind")) {
                 r += kind_value(x.m_kind[0].m_type, x.m_kind[0].m_value);
             } else if (x.n_kind == 1 && (sym_type == "character") && (!x.m_kind[0].m_id || std::string(x.m_kind[0].m_id) == "len")) {
                 r += "len=";
@@ -929,9 +948,13 @@ public:
         }
         if (x.n_attrs > 0) {
             for (size_t i=0; i<x.n_attrs; i++) {
-                r.append(", ");
                 this->visit_attribute(*x.m_attrs[i]);
-                r.append(s);
+                if(sep) {
+                    r.append(", ");
+                    r.append(s);
+                } else {
+                    r.append(s);
+                }
             }
         }
         if (x.m_sym) {

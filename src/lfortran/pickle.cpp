@@ -164,16 +164,18 @@ public:
     }
 };
 
-std::string pickle(LFortran::AST::ast_t &ast, bool colors) {
+std::string pickle(LFortran::AST::ast_t &ast, bool colors, bool indent) {
     PickleVisitor v;
     v.use_colors = colors;
+    v.indent = indent;
     v.visit_ast(ast);
     return v.get_str();
 }
 
-std::string pickle(AST::TranslationUnit_t &ast, bool colors) {
+std::string pickle(AST::TranslationUnit_t &ast, bool colors,bool indent) {
     PickleVisitor v;
     v.use_colors = colors;
+    v.indent = indent;
     v.visit_ast((AST::ast_t&)(ast));
     return v.get_str();
 }
@@ -224,15 +226,16 @@ public:
     }
 };
 
-std::string pickle(LFortran::ASR::asr_t &asr, bool colors) {
+std::string pickle(LFortran::ASR::asr_t &asr, bool colors, bool indent) {
     ASRPickleVisitor v;
     v.use_colors = colors;
+    v.indent = indent;
     v.visit_asr(asr);
     return v.get_str();
 }
 
-std::string pickle(LFortran::ASR::TranslationUnit_t &asr, bool colors) {
-    return pickle((ASR::asr_t &)asr, colors);
+std::string pickle(LFortran::ASR::TranslationUnit_t &asr, bool colors, bool indent) {
+    return pickle((ASR::asr_t &)asr, colors, indent);
 }
 
 }

@@ -1,3 +1,4 @@
+#include <cctype>
 #include <iostream>
 #include <map>
 #include <memory>
@@ -753,10 +754,17 @@ public:
                 a_kind, nullptr, 0));
         asr = ASR::make_ConstantReal_t(al, x.base.base.loc, x.m_n, type);
     }
+    inline std::string convert_to_lower(const std::string &s) {
+       std::string res;
+       for(auto x: s) res.push_back(std::tolower(x));
+       return res;
+    }
+
 
     void visit_decl(const AST::decl_t &x) {
         ASR::accessType s_access = dflt_access;
         std::string sym;
+
         if (!x.m_sym_type) {
             // This is an attribute declaration
             // Check if there is an associated symbol
@@ -792,7 +800,7 @@ public:
         if (assgnd_access.count(sym)) {
             s_access = assgnd_access[sym];
         }
-        std::string sym_type = x.m_sym_type;
+        std::string sym_type = convert_to_lower(x.m_sym_type);
         ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
         bool is_pointer = false;
         if (current_scope->scope.find(sym) == current_scope->scope.end()) {

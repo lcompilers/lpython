@@ -5,163 +5,163 @@ source_filename = "LFortran"
 @1 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
 @2 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
 
-define i64 @main() {
+define i32 @main() {
 .entry:
-  %a = alloca i64, align 8
-  %b = alloca i64, align 8
-  %i = alloca i64, align 8
-  %j = alloca i64, align 8
-  store i64 0, i64* %j, align 4
-  store i64 1, i64* %a, align 4
-  store i64 10, i64* %b, align 4
-  %0 = load i64, i64* %a, align 4
-  %1 = sub i64 %0, 1
-  store i64 %1, i64* %i, align 4
+  %a = alloca i32, align 4
+  %b = alloca i32, align 4
+  %i = alloca i32, align 4
+  %j = alloca i32, align 4
+  store i32 0, i32* %j, align 4
+  store i32 1, i32* %a, align 4
+  store i32 10, i32* %b, align 4
+  %0 = load i32, i32* %a, align 4
+  %1 = sub i32 %0, 1
+  store i32 %1, i32* %i, align 4
   br label %loop.head
 
 loop.head:                                        ; preds = %loop.body, %.entry
-  %2 = load i64, i64* %i, align 4
-  %3 = add i64 %2, 1
-  %4 = load i64, i64* %b, align 4
-  %5 = icmp sle i64 %3, %4
+  %2 = load i32, i32* %i, align 4
+  %3 = add i32 %2, 1
+  %4 = load i32, i32* %b, align 4
+  %5 = icmp sle i32 %3, %4
   br i1 %5, label %loop.body, label %loop.end
 
 loop.body:                                        ; preds = %loop.head
-  %6 = load i64, i64* %i, align 4
-  %7 = add i64 %6, 1
-  store i64 %7, i64* %i, align 4
-  %8 = load i64, i64* %j, align 4
-  %9 = load i64, i64* %i, align 4
-  %10 = add i64 %8, %9
-  store i64 %10, i64* %j, align 4
+  %6 = load i32, i32* %i, align 4
+  %7 = add i32 %6, 1
+  store i32 %7, i32* %i, align 4
+  %8 = load i32, i32* %j, align 4
+  %9 = load i32, i32* %i, align 4
+  %10 = add i32 %8, %9
+  store i32 %10, i32* %j, align 4
   br label %loop.head
 
 loop.end:                                         ; preds = %loop.head
-  %11 = load i64, i64* %j, align 4
-  %12 = icmp ne i64 %11, 55
+  %11 = load i32, i32* %j, align 4
+  %12 = icmp ne i32 %11, 55
   br i1 %12, label %then, label %else
 
 then:                                             ; preds = %loop.end
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @0, i32 0, i32 0))
-  call void @exit(i64 1)
+  call void @exit(i32 1)
   br label %ifcont
 
 else:                                             ; preds = %loop.end
   br label %ifcont
 
 ifcont:                                           ; preds = %else, %then
-  %iftmp = phi i64 [ 1, %then ], [ 2, %else ]
-  store i64 0, i64* %a, align 4
-  store i64 0, i64* %i, align 4
+  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
+  store i32 0, i32* %a, align 4
+  store i32 0, i32* %i, align 4
   br label %loop.head1
 
 loop.head1:                                       ; preds = %loop.end5, %ifcont
-  %13 = load i64, i64* %i, align 4
-  %14 = add i64 %13, 1
-  %15 = icmp sle i64 %14, 10
+  %13 = load i32, i32* %i, align 4
+  %14 = add i32 %13, 1
+  %15 = icmp sle i32 %14, 10
   br i1 %15, label %loop.body2, label %loop.end6
 
 loop.body2:                                       ; preds = %loop.head1
-  %16 = load i64, i64* %i, align 4
-  %17 = add i64 %16, 1
-  store i64 %17, i64* %i, align 4
-  store i64 0, i64* %j, align 4
+  %16 = load i32, i32* %i, align 4
+  %17 = add i32 %16, 1
+  store i32 %17, i32* %i, align 4
+  store i32 0, i32* %j, align 4
   br label %loop.head3
 
 loop.head3:                                       ; preds = %loop.body4, %loop.body2
-  %18 = load i64, i64* %j, align 4
-  %19 = add i64 %18, 1
-  %20 = icmp sle i64 %19, 10
+  %18 = load i32, i32* %j, align 4
+  %19 = add i32 %18, 1
+  %20 = icmp sle i32 %19, 10
   br i1 %20, label %loop.body4, label %loop.end5
 
 loop.body4:                                       ; preds = %loop.head3
-  %21 = load i64, i64* %j, align 4
-  %22 = add i64 %21, 1
-  store i64 %22, i64* %j, align 4
-  %23 = load i64, i64* %a, align 4
-  %24 = load i64, i64* %i, align 4
-  %25 = sub i64 %24, 1
-  %26 = mul i64 %25, 10
-  %27 = add i64 %23, %26
-  %28 = load i64, i64* %j, align 4
-  %29 = add i64 %27, %28
-  store i64 %29, i64* %a, align 4
+  %21 = load i32, i32* %j, align 4
+  %22 = add i32 %21, 1
+  store i32 %22, i32* %j, align 4
+  %23 = load i32, i32* %a, align 4
+  %24 = load i32, i32* %i, align 4
+  %25 = sub i32 %24, 1
+  %26 = mul i32 %25, 10
+  %27 = add i32 %23, %26
+  %28 = load i32, i32* %j, align 4
+  %29 = add i32 %27, %28
+  store i32 %29, i32* %a, align 4
   br label %loop.head3
 
 loop.end5:                                        ; preds = %loop.head3
   br label %loop.head1
 
 loop.end6:                                        ; preds = %loop.head1
-  %30 = load i64, i64* %a, align 4
-  %31 = icmp ne i64 %30, 5050
+  %30 = load i32, i32* %a, align 4
+  %31 = icmp ne i32 %30, 5050
   br i1 %31, label %then7, label %else8
 
 then7:                                            ; preds = %loop.end6
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @1, i32 0, i32 0))
-  call void @exit(i64 1)
+  call void @exit(i32 1)
   br label %ifcont9
 
 else8:                                            ; preds = %loop.end6
   br label %ifcont9
 
 ifcont9:                                          ; preds = %else8, %then7
-  %iftmp10 = phi i64 [ 1, %then7 ], [ 2, %else8 ]
-  store i64 0, i64* %a, align 4
-  store i64 0, i64* %i, align 4
+  %iftmp10 = phi i32 [ 1, %then7 ], [ 2, %else8 ]
+  store i32 0, i32* %a, align 4
+  store i32 0, i32* %i, align 4
   br label %loop.head11
 
 loop.head11:                                      ; preds = %loop.end15, %ifcont9
-  %32 = load i64, i64* %i, align 4
-  %33 = add i64 %32, 1
-  %34 = icmp sle i64 %33, 10
+  %32 = load i32, i32* %i, align 4
+  %33 = add i32 %32, 1
+  %34 = icmp sle i32 %33, 10
   br i1 %34, label %loop.body12, label %loop.end16
 
 loop.body12:                                      ; preds = %loop.head11
-  %35 = load i64, i64* %i, align 4
-  %36 = add i64 %35, 1
-  store i64 %36, i64* %i, align 4
-  store i64 0, i64* %j, align 4
+  %35 = load i32, i32* %i, align 4
+  %36 = add i32 %35, 1
+  store i32 %36, i32* %i, align 4
+  store i32 0, i32* %j, align 4
   br label %loop.head13
 
 loop.head13:                                      ; preds = %loop.body14, %loop.body12
-  %37 = load i64, i64* %j, align 4
-  %38 = add i64 %37, 1
-  %39 = load i64, i64* %i, align 4
-  %40 = icmp sle i64 %38, %39
+  %37 = load i32, i32* %j, align 4
+  %38 = add i32 %37, 1
+  %39 = load i32, i32* %i, align 4
+  %40 = icmp sle i32 %38, %39
   br i1 %40, label %loop.body14, label %loop.end15
 
 loop.body14:                                      ; preds = %loop.head13
-  %41 = load i64, i64* %j, align 4
-  %42 = add i64 %41, 1
-  store i64 %42, i64* %j, align 4
-  %43 = load i64, i64* %a, align 4
-  %44 = load i64, i64* %j, align 4
-  %45 = add i64 %43, %44
-  store i64 %45, i64* %a, align 4
+  %41 = load i32, i32* %j, align 4
+  %42 = add i32 %41, 1
+  store i32 %42, i32* %j, align 4
+  %43 = load i32, i32* %a, align 4
+  %44 = load i32, i32* %j, align 4
+  %45 = add i32 %43, %44
+  store i32 %45, i32* %a, align 4
   br label %loop.head13
 
 loop.end15:                                       ; preds = %loop.head13
   br label %loop.head11
 
 loop.end16:                                       ; preds = %loop.head11
-  %46 = load i64, i64* %a, align 4
-  %47 = icmp ne i64 %46, 220
+  %46 = load i32, i32* %a, align 4
+  %47 = icmp ne i32 %46, 220
   br i1 %47, label %then17, label %else18
 
 then17:                                           ; preds = %loop.end16
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @2, i32 0, i32 0))
-  call void @exit(i64 1)
+  call void @exit(i32 1)
   br label %ifcont19
 
 else18:                                           ; preds = %loop.end16
   br label %ifcont19
 
 ifcont19:                                         ; preds = %else18, %then17
-  %iftmp20 = phi i64 [ 1, %then17 ], [ 2, %else18 ]
-  ret i64 0
+  %iftmp20 = phi i32 [ 1, %then17 ], [ 2, %else18 ]
+  ret i32 0
 }
 
 declare void @_lfortran_printf(i8*, ...)
 
-declare void @exit(i64)
+declare void @exit(i32)
 

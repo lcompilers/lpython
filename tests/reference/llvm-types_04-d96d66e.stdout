@@ -1,89 +1,89 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-define i64 @main() {
+define i32 @main() {
 .entry:
-  %i = alloca i64, align 8
+  %i = alloca i32, align 4
   %r = alloca float, align 4
   %x = alloca float, align 4
   store float 1.500000e+00, float* %r, align 4
-  store i64 2, i64* %i, align 4
-  %0 = load i64, i64* %i, align 4
-  %1 = load i64, i64* %i, align 4
-  %2 = mul i64 %0, %1
-  %3 = sitofp i64 %2 to float
+  store i32 2, i32* %i, align 4
+  %0 = load i32, i32* %i, align 4
+  %1 = load i32, i32* %i, align 4
+  %2 = mul i32 %0, %1
+  %3 = sitofp i32 %2 to float
   store float %3, float* %x, align 4
   %4 = load float, float* %r, align 4
   %5 = load float, float* %r, align 4
   %6 = fmul float %4, %5
   store float %6, float* %x, align 4
-  %7 = load i64, i64* %i, align 4
-  %8 = sitofp i64 %7 to float
+  %7 = load i32, i32* %i, align 4
+  %8 = sitofp i32 %7 to float
   %9 = load float, float* %r, align 4
   %10 = fmul float %8, %9
   store float %10, float* %x, align 4
   %11 = load float, float* %r, align 4
-  %12 = load i64, i64* %i, align 4
-  %13 = sitofp i64 %12 to float
+  %12 = load i32, i32* %i, align 4
+  %13 = sitofp i32 %12 to float
   %14 = fmul float %11, %13
   store float %14, float* %x, align 4
-  %15 = load i64, i64* %i, align 4
-  %16 = load i64, i64* %i, align 4
-  %17 = add i64 %15, %16
-  %18 = sitofp i64 %17 to float
+  %15 = load i32, i32* %i, align 4
+  %16 = load i32, i32* %i, align 4
+  %17 = add i32 %15, %16
+  %18 = sitofp i32 %17 to float
   store float %18, float* %x, align 4
   %19 = load float, float* %r, align 4
   %20 = load float, float* %r, align 4
   %21 = fadd float %19, %20
   store float %21, float* %x, align 4
   %22 = load float, float* %r, align 4
-  %23 = load i64, i64* %i, align 4
-  %24 = sitofp i64 %23 to float
+  %23 = load i32, i32* %i, align 4
+  %24 = sitofp i32 %23 to float
   %25 = fadd float %22, %24
   store float %25, float* %x, align 4
-  %26 = load i64, i64* %i, align 4
-  %27 = sitofp i64 %26 to float
+  %26 = load i32, i32* %i, align 4
+  %27 = sitofp i32 %26 to float
   %28 = load float, float* %r, align 4
   %29 = fadd float %27, %28
   store float %29, float* %x, align 4
-  %30 = load i64, i64* %i, align 4
-  %31 = load i64, i64* %i, align 4
-  %32 = sub i64 %30, %31
-  %33 = sitofp i64 %32 to float
+  %30 = load i32, i32* %i, align 4
+  %31 = load i32, i32* %i, align 4
+  %32 = sub i32 %30, %31
+  %33 = sitofp i32 %32 to float
   store float %33, float* %x, align 4
   %34 = load float, float* %r, align 4
   %35 = load float, float* %r, align 4
   %36 = fsub float %34, %35
   store float %36, float* %x, align 4
   %37 = load float, float* %r, align 4
-  %38 = load i64, i64* %i, align 4
-  %39 = sitofp i64 %38 to float
+  %38 = load i32, i32* %i, align 4
+  %39 = sitofp i32 %38 to float
   %40 = fsub float %37, %39
   store float %40, float* %x, align 4
-  %41 = load i64, i64* %i, align 4
-  %42 = sitofp i64 %41 to float
+  %41 = load i32, i32* %i, align 4
+  %42 = sitofp i32 %41 to float
   %43 = load float, float* %r, align 4
   %44 = fsub float %42, %43
   store float %44, float* %x, align 4
-  %45 = load i64, i64* %i, align 4
-  %46 = load i64, i64* %i, align 4
-  %47 = udiv i64 %45, %46
-  %48 = sitofp i64 %47 to float
+  %45 = load i32, i32* %i, align 4
+  %46 = load i32, i32* %i, align 4
+  %47 = udiv i32 %45, %46
+  %48 = sitofp i32 %47 to float
   store float %48, float* %x, align 4
   %49 = load float, float* %r, align 4
   %50 = load float, float* %r, align 4
   %51 = fdiv float %49, %50
   store float %51, float* %x, align 4
-  %52 = load i64, i64* %i, align 4
-  %53 = sitofp i64 %52 to float
+  %52 = load i32, i32* %i, align 4
+  %53 = sitofp i32 %52 to float
   %54 = load float, float* %r, align 4
   %55 = fdiv float %53, %54
   store float %55, float* %x, align 4
   %56 = load float, float* %r, align 4
-  %57 = load i64, i64* %i, align 4
-  %58 = sitofp i64 %57 to float
+  %57 = load i32, i32* %i, align 4
+  %58 = sitofp i32 %57 to float
   %59 = fdiv float %56, %58
   store float %59, float* %x, align 4
-  ret i64 0
+  ret i32 0
 }
 

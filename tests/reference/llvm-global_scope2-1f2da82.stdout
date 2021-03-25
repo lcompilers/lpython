@@ -1,11 +1,11 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-@x = global i64 0
+@x = global i32 0
 
 define void @f() {
 .entry:
-  store i64 6, i64* @x, align 4
+  store i32 6, i32* @x, align 4
   ret void
 }
 
