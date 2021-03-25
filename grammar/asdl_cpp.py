@@ -403,7 +403,7 @@ class PickleVisitorVisitor(ASDLVisitor):
         self.emit("public:")
         self.emit(  "std::string s, indtd;", 1)
         self.emit(  "bool use_colors;", 1)
-        self.emit(  "bool indent;", 1)
+        self.emit(  "bool indent, start_line = true;", 1)
         self.emit(  "int indent_level = 0, indent_spaces = 3;", 1)
         self.emit("public:")
         self.emit(  "PickleBaseVisitor() : use_colors(false), indent(false) { s.reserve(100000); }", 1)
@@ -439,10 +439,16 @@ class PickleVisitorVisitor(ASDLVisitor):
 
     def make_visitor(self, name, fields, cons):
         self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
-        self.emit(      'if(indent) {',2)
-        self.emit(          's.append("\\n"+indtd);', 3)
-        self.emit(          'inc_indent();',3)
-        self.emit(      '}', 2)
+        self.emit(      'if(start_line) {',2)
+        self.emit(          'if(indent) {',3)
+        self.emit(              'start_line = false;', 4)
+        self.emit(              's.append(indtd);', 4)
+        self.emit(              'inc_indent();',4)
+        self.emit(          '}', 3)
+        self.emit(      '} else {', 2)
+        self.emit(              's.append("\\n"+indtd);', 4)
+        self.emit(              'inc_indent();',4)
+        self.emit(          '}', 3)
         self.emit(      's.append("(");', 2)
         subs = {
             "Assignment": "=",
@@ -483,10 +489,7 @@ class PickleVisitorVisitor(ASDLVisitor):
         self.emit(    'switch (x) {', 2)
         for tp in types:
             self.emit(    'case (%s::%s) : {' % (name, tp.name), 3)
-            self.emit(      'if(indent) {',4)
-            self.emit(          'dec_indent();',5)
-            self.emit(          's.append("\\n"+indtd);', 5)
-            self.emit(      '}', 4)
+            self.emit(      'if(indent) s.append("\\n"+indtd);',4)
             self.emit(      's.append("%s");' % (tp.name), 4)
             self.emit(     ' break; }',3)
         self.emit(    '}', 2)
