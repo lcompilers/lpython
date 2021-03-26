@@ -1,0 +1,13 @@
+{
+    "basename": "pass_global_stmts-global_scope9-4cbbc3e",
+    "cmd": "lfortran --pass=global_stmts --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/global_scope9.f90",
+    "infile_hash": "29e87c62bbe7f9efedd2e3cf348e80153367ecc0369b16de6f4db296",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "pass_global_stmts-global_scope9-4cbbc3e.stdout",
+    "stdout_hash": "e0efee2489f7251a553e2cec65d15b05fc3c6a325ca75225da93ea68",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
