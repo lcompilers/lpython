@@ -819,10 +819,8 @@ TEST_CASE("FortranEvaluator integer kind 2") {
     r = e.evaluate("i = 5");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::statement);
-    /*
     r = e.evaluate("i");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::integer);
     CHECK(r.result.i == 5);
-    */
 }
