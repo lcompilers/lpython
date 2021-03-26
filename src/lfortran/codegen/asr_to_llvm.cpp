@@ -119,6 +119,7 @@ public:
             std::vector<llvm::Type*>(
                 {llvm::Type::getInt32Ty(context), 
                  llvm::Type::getInt32Ty(context), 
+                 llvm::Type::getInt32Ty(context),
                  llvm::Type::getInt32Ty(context)}), 
                  "dimension_descriptor")
         )
@@ -172,6 +173,13 @@ public:
         return builder->CreateGEP(ds, idx_vec);
     }
 
+    inline llvm::Value* create_gep(llvm::Value* ds, llvm::Value* idx) {
+        std::vector<llvm::Value*> idx_vec = {
+        llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
+        idx};
+        return builder->CreateGEP(ds, idx_vec);
+    }
+
     inline bool verify_dimensions_t(ASR::dimension_t* m_dims, int n_dims) {
         if( n_dims <= 0 ) {
             return false;
@@ -200,6 +208,7 @@ public:
                 llvm::Value* s_val = create_gep(dim_val, 0);
                 llvm::Value* l_val = create_gep(dim_val, 1);
                 llvm::Value* u_val = create_gep(dim_val, 2);
+                llvm::Value* dim_size_ptr = create_gep(dim_val, 3);
                 builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 1)), s_val);
                 visit_expr(*(m_dim.m_start));
                 builder->CreateStore(tmp, l_val);
@@ -209,6 +218,7 @@ public:
                 l_val = builder->CreateLoad(l_val);
                 llvm::Value* dim_size = builder->CreateAdd(builder->CreateSub(u_val, l_val), 
                                                            llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+                builder->CreateStore(dim_size, dim_size_ptr);
                 prod = builder->CreateMul(dim_size, prod);
             }
             llvm::Value* array_ptr = create_gep(arr, 0);
@@ -404,6 +414,51 @@ public:
                 visit_symbol(*item.second);
             }
         }
+    }
+
+    void check_single_element(llvm::Value* curr_idx, llvm::Value* arr) {
+
+    }
+
+    inline llvm::Value* cmo_convertor_single_element(
+        llvm::Value* arr, ASR::array_index_t* m_args, 
+        int n_args, bool check_for_bounds) {
+        llvm::Value* prod = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
+        llvm::Value* idx = llvm::ConstantInt::get(context, llvm::APInt(32, 0));
+        for( int r = 0; r < n_args; r++ ) {
+            ASR::array_index_t curr_idx = m_args[r];
+            this->visit_expr(*curr_idx.m_right);
+            llvm::Value* curr_llvm_idx = tmp;
+            if( check_for_bounds ) {
+                check_single_element(curr_llvm_idx, arr);
+            }
+            idx = builder->CreateAdd(idx, builder->CreateMul(prod, curr_llvm_idx));
+            llvm::Value* dim_des_ptr = create_gep(arr, 2);
+            llvm::Value* dim_size = builder->CreateLoad(create_gep(dim_des_ptr, 3));
+            //prod = builder->CreateMul(prod, dim_size);
+        }
+        return idx;
+    }
+
+    inline bool is_explicit_shape(ASR::symbol_t* m_v) {
+        return false;
+    }
+
+    inline void get_single_element(const ASR::ArrayRef_t& x) {
+        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(x.m_v);
+        uint32_t v_h = get_hash((ASR::asr_t*)v);
+        LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
+        llvm::Value* array = llvm_symtab[v_h];
+        bool check_for_bounds = is_explicit_shape(x.m_v);
+        llvm::Value* idx = cmo_convertor_single_element(array, x.m_args, (int) x.n_args, check_for_bounds);
+        llvm::Value* array_ptr = builder->CreateLoad(create_gep(array, 0));
+        llvm::Value* array_ptr_int = builder->CreatePtrToInt(array_ptr, llvm::Type::getInt32Ty(context));
+        llvm::Value* ptr_to_array_idx = builder->CreateIntToPtr(builder->CreateAdd(array_ptr_int, idx), array_ptr->getType());
+        tmp = ptr_to_array_idx;
+    }
+
+    void visit_ArrayRef(const ASR::ArrayRef_t& x) {
+        get_single_element(x);
     }
 
     void visit_Variable(const ASR::Variable_t &x) {
