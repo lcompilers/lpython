@@ -193,6 +193,7 @@ public:
             llvm::Value* offset_val = create_gep(arr, 1);
             builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), offset_val);
             llvm::Value* dim_des_val = create_gep(arr, 2);
+            llvm::Value* prod = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
             for( int r = 0; r < n_dims; r++ ) {
                 ASR::dimension_t m_dim = m_dims[r];
                 llvm::Value* dim_val = create_gep(dim_des_val, r);
@@ -204,7 +205,17 @@ public:
                 builder->CreateStore(tmp, l_val);
                 visit_expr(*(m_dim.m_end));
                 builder->CreateStore(tmp, u_val);
+                u_val = builder->CreateLoad(u_val);
+                l_val = builder->CreateLoad(l_val);
+                llvm::Value* dim_size = builder->CreateAdd(builder->CreateSub(u_val, l_val), 
+                                                           llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+                prod = builder->CreateMul(dim_size, prod);
             }
+            llvm::Value* array_ptr = create_gep(arr, 0);
+            llvm::Value* array_ptr_val = builder->CreateLoad(array_ptr);
+            llvm::Value* ptr = builder->CreateAlloca(array_ptr_val->getType(), prod);
+            llvm::Value* ptr_val = builder->CreateLoad(ptr);
+            builder->CreateStore(ptr_val, array_ptr); 
         }
     }
 
