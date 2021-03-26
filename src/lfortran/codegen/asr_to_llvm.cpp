@@ -312,8 +312,24 @@ public:
             init_value = llvm::dyn_cast<llvm::Constant>(tmp);
         }
         if (x.m_type->type == ASR::ttypeType::Integer) {
+            int a_kind = down_cast<ASR::Integer_t>(x.m_type)->m_kind;
+            llvm::Type *type;
+            int init_value_bits;
+            switch(a_kind)
+            {
+                case 4:
+                    type = llvm::Type::getInt32Ty(context);
+                    init_value_bits = 32;
+                    break;
+                case 8:
+                    type = llvm::Type::getInt64Ty(context);
+                    init_value_bits = 64;
+                    break;
+                default:
+                    throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
+            }
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
-                llvm::Type::getInt32Ty(context));
+                type);
             if (!external) {
                 if (init_value) {
                     module->getNamedGlobal(x.m_name)->setInitializer(
@@ -321,7 +337,7 @@ public:
                 } else {
                     module->getNamedGlobal(x.m_name)->setInitializer(
                             llvm::ConstantInt::get(context, 
-                                llvm::APInt(32, 0)));
+                                llvm::APInt(init_value_bits, 0)));
                 }
             }
             llvm_symtab[h] = ptr;
@@ -576,12 +592,28 @@ public:
             */
             F = llvm_symtab_fn[h];
         } else {
-            ASR::ttypeType return_var_type = EXPR2VAR(x.m_return_var)->m_type->type;
+            ASR::ttype_t *return_var_type0 = EXPR2VAR(x.m_return_var)->m_type;
+            ASR::ttypeType return_var_type = return_var_type0->type;
             llvm::Type *return_type;
             switch (return_var_type) {
-                case (ASR::ttypeType::Integer) :
-                    return_type = llvm::Type::getInt32Ty(context);
+                case (ASR::ttypeType::Integer) : {
+                    int a_kind = down_cast<ASR::Integer_t>(return_var_type0)->m_kind;
+                    switch( a_kind ) {
+                        case 4 : {
+                            return_type = llvm::Type::getInt32Ty(context);
+                            break;
+                        }
+                        case 8 : {
+                            return_type = llvm::Type::getInt64Ty(context);
+                            break;
+                        }
+                        default : {
+                            throw CodeGenError("Only integer kinds 4 and 8 are implemented");
+                            break;
+                        }
+                    }
                     break;
+                }
                 case (ASR::ttypeType::Real) :
                     return_type = llvm::Type::getFloatTy(context);
                     break;

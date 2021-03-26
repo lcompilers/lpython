@@ -260,6 +260,18 @@ llvm = true
 pass = "global_stmts"
 
 [[test]]
+filename = "global_scope8.f90"
+asr = true
+llvm = true
+pass = "global_stmts"
+
+[[test]]
+filename = "global_scope9.f90"
+asr = true
+llvm = true
+pass = "global_stmts"
+
+[[test]]
 filename = "kokkos_program1.f90"
 cpp = true
 

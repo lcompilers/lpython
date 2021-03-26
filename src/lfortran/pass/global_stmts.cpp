@@ -40,7 +40,10 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                 if (expr_type(value)->type == ASR::ttypeType::Integer) {
                     s.from_str(al, fn_name_s + std::to_string(idx));
                     var_name = s.c_str(al);
-                    type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+
+                    int a_kind = down_cast<ASR::Integer_t>(expr_type(value))->m_kind;
+
+                    type = TYPE(ASR::make_Integer_t(al, loc, a_kind, nullptr, 0));
                     return_var = ASR::make_Variable_t(al, loc,
                         fn_scope, var_name, intent_local, nullptr,
                         ASR::storage_typeType::Default, type,

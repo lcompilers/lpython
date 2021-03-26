@@ -1,0 +1,13 @@
+{
+    "basename": "asr-global_scope8-67fff8d",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/global_scope8.f90",
+    "infile_hash": "899df30dee274279a699110fb9af2afad0b826c0abc886f9e2460627",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-global_scope8-67fff8d.stdout",
+    "stdout_hash": "d9b72b9c17ce9bbfb843541b3ce11d9a69c3f0665790d22c11c5afe9",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
