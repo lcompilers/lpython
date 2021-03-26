@@ -592,12 +592,28 @@ public:
             */
             F = llvm_symtab_fn[h];
         } else {
-            ASR::ttypeType return_var_type = EXPR2VAR(x.m_return_var)->m_type->type;
+            ASR::ttype_t *return_var_type0 = EXPR2VAR(x.m_return_var)->m_type;
+            ASR::ttypeType return_var_type = return_var_type0->type;
             llvm::Type *return_type;
             switch (return_var_type) {
-                case (ASR::ttypeType::Integer) :
-                    return_type = llvm::Type::getInt32Ty(context);
+                case (ASR::ttypeType::Integer) : {
+                    int a_kind = down_cast<ASR::Integer_t>(return_var_type0)->m_kind;
+                    switch( a_kind ) {
+                        case 4 : {
+                            return_type = llvm::Type::getInt32Ty(context);
+                            break;
+                        }
+                        case 8 : {
+                            return_type = llvm::Type::getInt64Ty(context);
+                            break;
+                        }
+                        default : {
+                            throw CodeGenError("Only integer kinds 4 and 8 are implemented");
+                            break;
+                        }
+                    }
                     break;
+                }
                 case (ASR::ttypeType::Real) :
                     return_type = llvm::Type::getFloatTy(context);
                     break;
