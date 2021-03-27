@@ -17,6 +17,7 @@ set(SRC
     pass/select_case.cpp
 
     pickle.cpp
+    serialization.cpp
     cwrapper.cpp
 
     ast_to_src.cpp

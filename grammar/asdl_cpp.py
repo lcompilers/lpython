@@ -393,7 +393,7 @@ class PickleVisitorVisitor(ASDLVisitor):
 
     def visitModule(self, mod):
         self.emit("/" + "*"*78 + "/")
-        self.emit("// Walk Visitor base class")
+        self.emit("// Pickle Visitor base class")
         self.emit("")
         self.emit("template <class Derived>")
         self.emit("class PickleBaseVisitor : public BaseVisitor<Derived>")
@@ -642,6 +642,405 @@ class PickleVisitorVisitor(ASDLVisitor):
 
 
 
+class SerializationVisitorVisitor(ASDLVisitor):
+
+    def visitModule(self, mod):
+        self.emit("/" + "*"*78 + "/")
+        self.emit("// Serialization Visitor base class")
+        self.emit("")
+        self.emit("template <class Derived>")
+        self.emit("class SerializationBaseVisitor : public BaseVisitor<Derived>")
+        self.emit("{")
+        self.emit("private:")
+        self.emit(  "Derived& self() { return static_cast<Derived&>(*this); }", 1)
+        self.emit("public:")
+        self.mod = mod
+        super(SerializationVisitorVisitor, self).visitModule(mod)
+        self.emit("};")
+
+    def visitType(self, tp):
+        super(SerializationVisitorVisitor, self).visitType(tp, tp.name)
+
+    def visitSum(self, sum, *args):
+        assert isinstance(sum, asdl.Sum)
+        if is_simple_sum(sum):
+            name = args[0] + "Type"
+            self.make_simple_sum_visitor(name, sum.types)
+        else:
+            for tp in sum.types:
+                self.visit(tp, *args)
+
+    def visitProduct(self, prod, name):
+        self.make_visitor(name, prod.fields, False)
+
+    def visitConstructor(self, cons, _):
+        self.make_visitor(cons.name, cons.fields, True)
+
+    def make_visitor(self, name, fields, cons):
+        self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
+        if cons:
+            self.emit(    'self().write_int8(x.base.type);', 2)
+        self.used = False
+        for n, field in enumerate(fields):
+            self.visitField(field, cons)
+        if not self.used:
+            # Note: a better solution would be to change `&x` to `& /* x */`
+            # above, but we would need to change emit to return a string.
+            self.emit("if ((bool&)x) { } // Suppress unused warning", 2)
+        self.emit("}", 1)
+
+    def make_simple_sum_visitor(self, name, types):
+        self.emit("void visit_%s(const %s &x) {" % (name, name), 1)
+        self.emit(    'self().write_int8(x);', 2)
+        self.emit("}", 1)
+
+    def visitField(self, field, cons):
+        if (field.type not in asdl.builtin_types and
+            field.type not in self.data.simple_types):
+            self.used = True
+            level = 2
+            if field.type in products:
+                if field.opt:
+                    template = "self().visit_%s(*x.m_%s);" % (field.type, field.name)
+                else:
+                    template = "self().visit_%s(x.m_%s);" % (field.type, field.name)
+            else:
+                template = "self().visit_%s(*x.m_%s);" % (field.type, field.name)
+            if field.seq:
+                self.emit('self().write_int64(x.n_%s);' % field.name, level)
+                self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
+                if field.type in sums:
+                    self.emit("self().visit_%s(*x.m_%s[i]);" % (field.type, field.name), level+1)
+                else:
+                    self.emit("self().visit_%s(x.m_%s[i]);" % (field.type, field.name), level+1)
+                self.emit("}", level)
+            elif field.opt:
+                self.emit("if (x.m_%s) {" % field.name, 2)
+                self.emit(    'self().write_bool(true);', 3)
+                self.emit(template, 3)
+                self.emit("} else {", 2)
+                self.emit(    'self().write_bool(false);', 3)
+                self.emit("}", 2)
+            else:
+                self.emit(template, level)
+        else:
+            if field.type == "identifier":
+                if field.seq:
+                    assert not field.opt
+                    level = 2
+                    self.emit('self().write_int64(x.n_%s);' % field.name, level)
+                    self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
+                    self.emit("self().write_string(x.m_%s[i]);" % (field.name), level+1)
+                    self.emit("}", level)
+                else:
+                    if field.opt:
+                        self.emit("if (x.m_%s) {" % field.name, 2)
+                        self.emit(    'self().write_bool(true);', 3)
+                        self.emit(    'self().write_string(x.m_%s);' % field.name, 3)
+                        self.emit("} else {", 2)
+                        self.emit(    'self().write_bool(false);', 3)
+                        self.emit("}", 2)
+                    else:
+                        self.emit('self().write_string(x.m_%s);' % field.name, 2)
+            elif field.type == "node":
+                assert not field.opt
+                assert field.seq
+                level = 2
+                self.emit('self().write_int64(x.n_%s);' % field.name, level)
+                self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
+                mod_name = self.mod.name.lower()
+                self.emit("self().write_int8(x.m_%s[i]->type);" % \
+                        field.name, level+1)
+                self.emit("self().visit_%s(*x.m_%s[i]);" % (mod_name, field.name), level+1)
+                self.emit("}", level)
+            elif field.type == "symbol_table":
+                assert not field.opt
+                assert not field.seq
+                if field.name == "parent_symtab":
+                    level = 2
+                    self.emit('self().write_int64(x.m_%s->get_counter());' % field.name, level)
+                else:
+                    level = 2
+                    self.emit('self().write_int64(x.m_%s->get_counter());' % field.name, level)
+                    self.emit('self().write_int64(x.m_%s->scope.size());' % field.name, level)
+                    self.emit('for (auto &a : x.m_%s->scope) {' % field.name, level)
+                    self.emit('    self().write_string(a.first);', level)
+                    self.emit('    this->visit_symbol(*a.second);', level)
+                    self.emit('}', level)
+            elif field.type == "string" and not field.seq:
+                if field.opt:
+                    self.emit("if (x.m_%s) {" % field.name, 2)
+                    self.emit(    'self().write_bool(true);', 3)
+                    self.emit(    'self().write_string(x.m_%s);' % field.name, 3)
+                    self.emit("} else {", 2)
+                    self.emit(    'self().write_bool(false);', 3)
+                    self.emit("}", 2)
+                else:
+                    self.emit('self().write_string(x.m_%s);' % field.name, 2)
+            elif field.type == "int" and not field.seq:
+                if field.opt:
+                    self.emit("if (x.m_%s) {" % field.name, 2)
+                    self.emit(    'self().write_bool(true);', 3)
+                    self.emit(    'self().write_int64(x.m_%s);' % field.name, 3)
+                    self.emit("} else {", 2)
+                    self.emit(    'self().write_bool(false);', 3)
+                    self.emit("}", 2)
+                else:
+                    self.emit('self().write_int64(x.m_%s);' % field.name, 2)
+            elif field.type == "bool" and not field.seq and not field.opt:
+                self.emit("if (x.m_%s) {" % field.name, 2)
+                self.emit(    'self().write_bool(true);', 3)
+                self.emit("} else {", 2)
+                self.emit(    'self().write_bool(false);', 3)
+                self.emit("}", 2)
+            elif field.type in self.data.simple_types:
+                if field.opt:
+                    raise Exception("Unimplemented opt for field type: " + field.type);
+                else:
+                    self.emit('visit_%sType(x.m_%s);' \
+                            % (field.type, field.name), 2)
+            else:
+                raise Exception("Unimplemented field type: " + field.type);
+
+class DeserializationVisitorVisitor(ASDLVisitor):
+
+    def visitModule(self, mod):
+        self.emit("/" + "*"*78 + "/")
+        self.emit("// Deserialization Visitor base class")
+        self.emit("")
+        self.emit("template <class Derived>")
+        self.emit("class DeserializationBaseVisitor : public BaseVisitor<Derived>")
+        self.emit("{")
+        self.emit("private:")
+        self.emit(  "Derived& self() { return static_cast<Derived&>(*this); }", 1)
+        self.emit("public:")
+        self.emit(  "Allocator &al;", 1)
+        self.emit(  r"DeserializationBaseVisitor(Allocator &al) : al{al} {}", 1)
+        self.emit_deserialize_node();
+        self.mod = mod
+        super(DeserializationVisitorVisitor, self).visitModule(mod)
+        self.emit("};")
+
+    def visitType(self, tp):
+        super(DeserializationVisitorVisitor, self).visitType(tp, tp.name)
+
+    def visitSum(self, sum, *args):
+        assert isinstance(sum, asdl.Sum)
+        if is_simple_sum(sum):
+            self.emit("%sType deserialize_%s() {" % (args[0], args[0]), 1)
+            self.emit(  'uint8_t t = self().read_int8();', 2)
+            self.emit(  '%sType ty = static_cast<%sType>(t);' % (args[0], args[0]), 2)
+            self.emit(  'return ty;', 2)
+            self.emit("}", 1)
+        else:
+            for tp in sum.types:
+                self.visit(tp, *args)
+            self.emit("%s_t* deserialize_%s() {" % (subs["mod"], args[0]), 1)
+            self.emit(  'uint8_t t = self().read_int8();', 2)
+            self.emit(  '%s::%sType ty = static_cast<%s::%sType>(t);' % (subs["mod"].upper(), args[0],
+                subs["mod"].upper(), args[0]), 2)
+            self.emit(  'switch (ty) {', 2)
+            for tp in sum.types:
+                self.emit(    'case (%s::%sType::%s) : return self().deserialize_%s();' \
+                    % (subs["mod"].upper(), args[0], tp.name, tp.name), 3)
+            self.emit(    'default : throw LFortranException("Unknown type in deserialize_%s()");' % args[0], 3)
+            self.emit(  '}', 2)
+            self.emit(  'throw LFortranException("Switch statement above was not exhaustive.");', 2)
+
+            self.emit("}", 1)
+
+    def emit_deserialize_node(self):
+        name = "node"
+        self.emit("%s_t* deserialize_%s() {" % (subs["mod"], name), 1)
+        self.emit(  'uint8_t t = self().read_int8();', 2)
+        self.emit(  '%s::%sType ty = static_cast<%s::%sType>(t);' % (subs["mod"].upper(), subs["mod"],
+            subs["mod"].upper(), subs["mod"]), 2)
+        self.emit(  'switch (ty) {', 2)
+        for tp in sums:
+            self.emit(    'case (%s::%sType::%s) : return self().deserialize_%s();' \
+                % (subs["mod"].upper(), subs["mod"], tp, tp), 3)
+        self.emit(    'default : throw LFortranException("Unknown type in deserialize_%s()");' % name, 3)
+        self.emit(  '}', 2)
+        self.emit(  'throw LFortranException("Switch statement above was not exhaustive.");', 2)
+        self.emit(  '}', 1)
+
+    def visitProduct(self, prod, name):
+        self.emit("%s_t deserialize_%s() {" % (name, name), 1)
+        self.emit(  '%s_t x;' % (name), 2)
+        for field in prod.fields:
+            if field.seq:
+                assert not field.opt
+                assert field.type not in asdl.builtin_types
+                assert field.type not in simple_sums
+                self.emit('{', 2)
+                self.emit('uint64_t n = self().read_int64();', 3)
+                if field.type in products:
+                    self.emit("Vec<%s_t> v;" % (field.type), 3)
+                else:
+                    self.emit("Vec<%s_t*> v;" % (field.type), 3)
+                self.emit("v.reserve(al, n);", 3)
+                self.emit("for (uint64_t i=0; i<n; i++) {", 3)
+                if field.type in products:
+                    self.emit("v.push_back(al, self().deserialize_%s());" \
+                         % (field.type), 4)
+                else:
+                    self.emit("v.push_back(al, down_cast<%s_t>(self().deserialize_%s()));" % (field.type, field.type), 4)
+                self.emit('}', 3)
+                self.emit('x.m_%s = v.p;' % (field.name), 3)
+                self.emit('x.n_%s = v.n;' % (field.name), 3)
+                self.emit('}', 2)
+            else:
+                self.emit('{', 2)
+                if field.opt:
+                    self.emit("bool present=self().read_bool();", 3)
+                if field.type in asdl.builtin_types:
+                    if field.type == "identifier":
+                        rhs = "self().read_cstring()"
+                    elif field.type == "string":
+                        rhs = "self().read_cstring()"
+                    else:
+                        print(field.type)
+                        assert False
+                elif field.type in simple_sums:
+                    rhs = "deserialize_%s()" % (field.type)
+                else:
+                    assert field.type not in products
+                    rhs = "down_cast<%s_t>(deserialize_%s())" % (field.type,
+                        field.type)
+                if field.opt:
+                    self.emit('if (present) {', 3)
+                self.emit('x.m_%s = %s;' % (field.name, rhs), 4)
+                if field.opt:
+                    self.emit('} else {', 3)
+                    self.emit(  'x.m_%s = nullptr;' % (field.name), 4)
+                    self.emit('}', 3)
+                self.emit('}', 2)
+        self.emit(  'return x;', 2)
+        self.emit("}", 1)
+
+    def visitConstructor(self, cons, _):
+        name = cons.name
+        self.emit("%s_t* deserialize_%s() {" % (subs["mod"], name), 1)
+        lines = []
+        args = ["al", "loc"]
+        for f in cons.fields:
+            #type_ = convert_type(f.type, f.seq, f.opt, self.mod.name.lower())
+            if f.seq:
+                seq = "size_t n_%s; // Sequence" % f.name
+                self.emit("%s" % seq, 2)
+            else:
+                seq = ""
+            if f.seq:
+                assert f.type not in self.data.simple_types
+                if f.type not in asdl.builtin_types:
+                    lines.append("n_%s = self().read_int64();" % (f.name))
+                    if f.type in products:
+                        lines.append("Vec<%s_t> v_%s;" % (f.type, f.name))
+                    else:
+                        lines.append("Vec<%s_t*> v_%s;" % (f.type, f.name))
+                    lines.append("v_%s.reserve(al, n_%s);" % (f.name, f.name))
+                    lines.append("for (size_t i=0; i<n_%s; i++) {" % (f.name))
+                    if f.type in products:
+                        lines.append("    v_%s.push_back(al, self().deserialize_%s());" % (f.name, f.type))
+                    else:
+                        lines.append("    v_%s.push_back(al, %s::down_cast<%s::%s_t>(self().deserialize_%s()));" % (f.name,
+                            subs["mod"].upper(), subs["mod"].upper(), f.type, f.type))
+                    lines.append("}")
+                else:
+                    if f.type == "node":
+                        lines.append("n_%s = self().read_int64();" % (f.name))
+                        lines.append("Vec<%s_t*> v_%s;" % (subs["mod"], f.name))
+                        lines.append("v_%s.reserve(al, n_%s);" % (f.name, f.name))
+                        lines.append("for (size_t i=0; i<n_%s; i++) {" % (f.name))
+                        lines.append("    v_%s.push_back(al, self().deserialize_node());" % (f.name))
+                        lines.append("}")
+                    elif f.type == "identifier":
+                        lines.append("n_%s = self().read_int64();" % (f.name))
+                        lines.append("Vec<char*> v_%s;" % (f.name))
+                        lines.append("v_%s.reserve(al, n_%s);" % (f.name, f.name))
+                        lines.append("for (size_t i=0; i<n_%s; i++) {" % (f.name))
+                        lines.append("    v_%s.push_back(al, self().read_cstring());" % (f.name))
+                        lines.append("}")
+                    else:
+                        print(f.type)
+                        assert False
+                args.append("v_%s.p" % (f.name))
+                args.append("v_%s.n" % (f.name))
+            else:
+                # if builtin or simple types, handle appropriately
+                if f.type in asdl.builtin_types:
+                    if f.type == "identifier":
+                        lines.append("char *m_%s;" % (f.name))
+                        if f.opt:
+                            lines.append("bool m_%s_present = self().read_bool();" \
+                                % f.name)
+                            lines.append("if (m_%s_present) {" % f.name)
+                        lines.append("m_%s = self().read_cstring();" % (f.name))
+                        if f.opt:
+                            lines.append("} else {")
+                            lines.append("m_%s = nullptr;" % (f.name))
+                            lines.append("}")
+                        args.append("m_%s" % (f.name))
+                    elif f.type == "string":
+                        lines.append("char *m_%s;" % (f.name))
+                        if f.opt:
+                            lines.append("bool m_%s_present = self().read_bool();" \
+                                % f.name)
+                            lines.append("if (m_%s_present) {" % f.name)
+                        lines.append("m_%s = self().read_cstring();" % (f.name))
+                        if f.opt:
+                            lines.append("} else {")
+                            lines.append("m_%s = nullptr;" % (f.name))
+                            lines.append("}")
+                        args.append("m_%s" % (f.name))
+                    elif f.type == "int":
+                        assert not f.opt
+                        lines.append("int64_t m_%s = self().read_int64();" % (f.name))
+                        args.append("m_%s" % (f.name))
+                    elif f.type == "bool":
+                        assert not f.opt
+                        lines.append("bool m_%s = self().read_bool();" % (f.name))
+                        args.append("m_%s" % (f.name))
+                    elif f.type == "symbol_table":
+                        assert not f.opt
+                        # TODO: read the symbol table:
+                        lines.append("SymbolTable *m_%s=nullptr;" % (f.name))
+                        lines.append('throw LFortranException("SymbolTable not implemented");')
+                        args.append("m_%s" % (f.name))
+                    else:
+                        print(f.type)
+                        assert False
+                else:
+                    if f.type in products:
+                        assert not f.opt
+                        lines.append("%s::%s_t m_%s = self().deserialize_%s();" % (subs["mod"].upper(), f.type, f.name, f.type))
+                    else:
+                        if f.type in simple_sums:
+                            assert not f.opt
+                            lines.append("%s::%sType m_%s = self().deserialize_%s();" % (subs["mod"].upper(),
+                                f.type, f.name, f.type))
+                        else:
+                            lines.append("%s::%s_t *m_%s;" % (subs["mod"].upper(),
+                                f.type, f.name))
+                            if f.opt:
+                                lines.append("if (self().read_bool()) {")
+                                lines.append("m_%s = %s::down_cast<%s::%s_t>(self().deserialize_%s());" % (
+                                    f.name, subs["mod"].upper(), subs["mod"].upper(), f.type, f.type))
+                                lines.append("} else {")
+                                lines.append("m_%s = nullptr;" % f.name)
+                                lines.append("}")
+                            else:
+                                lines.append("m_%s = %s::down_cast<%s::%s_t>(self().deserialize_%s());" % (
+                                    f.name, subs["mod"].upper(), subs["mod"].upper(), f.type, f.type))
+                    args.append("m_%s" % (f.name))
+        for line in lines:
+            self.emit(line, 2)
+
+        self.emit(    'Location loc;', 2)
+        self.emit(    'return %s::make_%s_t(%s);' % (subs["mod"].upper(), name, ", ".join(args)), 2)
+        self.emit("}", 1)
+
+
 class ASDLData(object):
 
     def __init__(self, tree):
@@ -697,6 +1096,7 @@ HEAD = r"""#ifndef LFORTRAN_%(MOD)s_H
 #include <lfortran/parser/alloc.h>
 #include <lfortran/parser/location.h>
 #include <lfortran/colors.h>
+#include <lfortran/containers.h>
 #include <lfortran/exception.h>
 #include <lfortran/semantics/asr_scopes.h>
 
@@ -751,7 +1151,8 @@ FOOT = r"""} // namespace LFortran::%(MOD)s
 
 visitors = [ASTNodeVisitor0, ASTNodeVisitor1, ASTNodeVisitor,
         ASTVisitorVisitor1, ASTVisitorVisitor1b, ASTVisitorVisitor2,
-        ASTWalkVisitorVisitor, PickleVisitorVisitor]
+        ASTWalkVisitorVisitor, PickleVisitorVisitor,
+        SerializationVisitorVisitor, DeserializationVisitorVisitor]
 
 
 def main(argv):
