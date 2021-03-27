@@ -756,17 +756,18 @@ class SerializationVisitorVisitor(ASDLVisitor):
             elif field.type == "symbol_table":
                 assert not field.opt
                 assert not field.seq
+                # TODO: write the symbol table consistent with the reader:
                 if field.name == "parent_symtab":
                     level = 2
                     self.emit('self().write_int64(x.m_%s->counter);' % field.name, level)
                 else:
                     level = 2
                     self.emit('self().write_int64(x.m_%s->counter);' % field.name, level)
-                    self.emit('self().write_int64(x.m_%s->scope.size());' % field.name, level)
-                    self.emit('for (auto &a : x.m_%s->scope) {' % field.name, level)
-                    self.emit('    self().write_string(a.first);', level)
-                    self.emit('    this->visit_symbol(*a.second);', level)
-                    self.emit('}', level)
+                    #self.emit('self().write_int64(x.m_%s->scope.size());' % field.name, level)
+                    #self.emit('for (auto &a : x.m_%s->scope) {' % field.name, level)
+                    #self.emit('    self().write_string(a.first);', level)
+                    #self.emit('    this->visit_symbol(*a.second);', level)
+                    #self.emit('}', level)
             elif field.type == "string" and not field.seq:
                 if field.opt:
                     self.emit("if (x.m_%s) {" % field.name, 2)
@@ -1004,8 +1005,9 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                     elif f.type == "symbol_table":
                         assert not f.opt
                         # TODO: read the symbol table:
-                        lines.append("SymbolTable *m_%s=nullptr;" % (f.name))
-                        lines.append('throw LFortranException("SymbolTable not implemented");')
+                        lines.append("SymbolTable *m_%s = al.make_new<SymbolTable>(nullptr);" % (f.name))
+                        #lines.append("uint64_t *m_%s_counter = self().read_int64();" % (f.name))
+                        lines.append("self().read_int64();")
                         args.append("m_%s" % (f.name))
                     else:
                         print(f.type)

@@ -56,9 +56,9 @@ void asr_ser(const std::string &src) {
 
     LFortran::ASR::asr_t *asr_new0;
     asr_new0 = LFortran::deserialize_asr(al, binary);
-    //CHECK(LFortran::ASR::is_a<LFortran::ASR::unit_t>(*asr_new0));
+    CHECK(LFortran::ASR::is_a<LFortran::ASR::unit_t>(*asr_new0));
 
-    //std::string asr_new = LFortran::pickle(*asr_new0);
+    std::string asr_new = LFortran::pickle(*asr_new0);
 
     //CHECK(asr_orig == asr_new);
 }
