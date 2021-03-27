@@ -1,8 +1,11 @@
 program arrays_01
 implicit none
-integer :: i, b(4), a(5:6, 7:8)
-integer, allocatable :: c(:,:)
-print *, b(6)
+integer, parameter :: i = 20 
+integer :: a(i)
+!, a(5:6, 7:8)
+!integer, allocatable :: c(:,:)
+!b(6) = 20
+! print *, b(4)
 ! a = 20
 ! do i = 1, 3
 !     a(i) = i+10

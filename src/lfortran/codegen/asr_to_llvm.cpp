@@ -417,7 +417,7 @@ public:
     }
 
     void check_single_element(llvm::Value* curr_idx, llvm::Value* arr) {
-
+        
     }
 
     inline llvm::Value* cmo_convertor_single_element(
@@ -441,8 +441,21 @@ public:
         return idx;
     }
 
-    inline bool is_explicit_shape(ASR::symbol_t* m_v) {
-        return false;
+    inline bool is_explicit_shape(ASR::Variable_t* v) {
+        ASR::dimension_t* m_dims;
+        int n_dims;
+        switch( v->m_type->type ) {
+            case ASR::ttypeType::Integer: {
+                ASR::Integer_t* v_type = down_cast<ASR::Integer_t>(v->m_type);
+                m_dims = v_type->m_dims;
+                n_dims = v_type->n_dims;
+                break;
+            }
+            default: {
+                throw CodeGenError("Explicit shape checking supported only for integers.");
+            }
+        }
+        return verify_dimensions_t(m_dims, n_dims);
     }
 
     inline void get_single_element(const ASR::ArrayRef_t& x) {
@@ -450,12 +463,12 @@ public:
         uint32_t v_h = get_hash((ASR::asr_t*)v);
         LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
         llvm::Value* array = llvm_symtab[v_h];
-        bool check_for_bounds = is_explicit_shape(x.m_v);
+        bool check_for_bounds = is_explicit_shape(v);
         llvm::Value* idx = cmo_convertor_single_element(array, x.m_args, (int) x.n_args, check_for_bounds);
         llvm::Value* array_ptr = builder->CreateLoad(create_gep(array, 0));
-        llvm::Value* array_ptr_int = builder->CreatePtrToInt(array_ptr, llvm::Type::getInt32Ty(context));
-        llvm::Value* ptr_to_array_idx = builder->CreateIntToPtr(builder->CreateAdd(array_ptr_int, idx), array_ptr->getType());
-        tmp = ptr_to_array_idx;
+        // llvm::Value* array_ptr_int = builder->CreatePtrToInt(array_ptr, llvm::Type::getInt32Ty(context));
+        // llvm::Value* ptr_to_array_idx = builder->CreateIntToPtr(builder->CreateAdd(array_ptr_int, idx), array_ptr->getType());
+        tmp = create_gep(array_ptr, idx);
     }
 
     void visit_ArrayRef(const ASR::ArrayRef_t& x) {
@@ -875,30 +888,51 @@ public:
         builder->CreateStore(llvm_symtab[value_h], llvm_symtab[target_h]);
     }
 
+    bool is_array(llvm::Value* v) {
+        return false;
+    }
+
+    void element_wise_assign(llvm::Value* arr, llvm::Value* val) {
+
+    }
+
     void visit_Assignment(const ASR::Assignment_t &x) {
-        //this->visit_expr(*x.m_target);
-        ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
-        uint32_t h = get_hash((ASR::asr_t*)asr_target);
-        llvm::Value *target;
-        switch( asr_target->m_type->type ) {
-            case ASR::ttypeType::IntegerPointer:
-            case ASR::ttypeType::RealPointer:
-            case ASR::ttypeType::ComplexPointer:
-            case ASR::ttypeType::CharacterPointer:
-            case ASR::ttypeType::LogicalPointer:
-            case ASR::ttypeType::DerivedPointer: {
-                target = builder->CreateLoad(llvm_symtab[h]);
-                break;
-            }
-            default: {
-                target = llvm_symtab[h];
-                break;
+        llvm::Value *target = nullptr, *value = nullptr;
+        if( x.m_target->type == ASR::exprType::ArrayRef ) {
+            this->visit_expr(*x.m_target);
+            target = tmp;   
+        } else {
+            ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
+            uint32_t h = get_hash((ASR::asr_t*)asr_target);
+            switch( asr_target->m_type->type ) {
+                case ASR::ttypeType::IntegerPointer:
+                case ASR::ttypeType::RealPointer:
+                case ASR::ttypeType::ComplexPointer:
+                case ASR::ttypeType::CharacterPointer:
+                case ASR::ttypeType::LogicalPointer:
+                case ASR::ttypeType::DerivedPointer: {
+                    target = builder->CreateLoad(llvm_symtab[h]);
+                    break;
+                }
+                default: {
+                    target = llvm_symtab[h];
+                    break;
+                }
             }
         }
         this->visit_expr(*x.m_value);
-        llvm::Value *value=tmp;
-        builder->CreateStore(value, target);
-
+        if( x.m_value->type == ASR::exprType::ArrayRef ) {
+            value = builder->CreateLoad(tmp);
+        } else {
+            value = tmp;
+        }
+        bool is_target_arr = is_array(target);
+        bool is_value_arr = is_array(value);
+        if( is_target_arr && !is_value_arr ) {
+            element_wise_assign(target, value);
+        } else {
+            builder->CreateStore(value, target);
+        }
     }
 
     void visit_Compare(const ASR::Compare_t &x) {
@@ -1503,6 +1537,9 @@ public:
                                             for 32, and 64 bit integer kinds.)""", 
                                             x.base.base.loc);
                     }
+                }
+                if( v->type == ASR::exprType::ArrayRef ) {
+                    tmp = builder->CreateLoad(tmp);
                 }
                 args.push_back(tmp);
             } else if (t->type == ASR::ttypeType::Real || 
