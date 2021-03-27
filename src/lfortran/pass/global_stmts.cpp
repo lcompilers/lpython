@@ -2,6 +2,7 @@
 #include <lfortran/containers.h>
 #include <lfortran/exception.h>
 #include <lfortran/asr_utils.h>
+#include <lfortran/asr_verify.h>
 #include <lfortran/pass/global_stmts.h>
 
 
@@ -126,6 +127,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
         }
         unit.m_items = nullptr;
         unit.n_items = 0;
+        LFORTRAN_ASSERT(asr_verify(unit));
     }
 }
 
