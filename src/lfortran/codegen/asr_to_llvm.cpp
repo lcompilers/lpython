@@ -531,9 +531,22 @@ public:
             LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
             // We pass all arguments as pointers for now
             switch (arg->m_type->type) {
-                case (ASR::ttypeType::Integer) :
-                    args.push_back(llvm::Type::getInt32PtrTy(context));
+                case (ASR::ttypeType::Integer) : {
+                    int a_kind = down_cast<ASR::Integer_t>(arg->m_type)->m_kind;
+                    switch( a_kind )
+                    {
+                        case 4:
+                            type = llvm::Type::getInt32PtrTy(context);
+                            break;
+                        case 8:
+                            type = llvm::Type::getInt64PtrTy(context);
+                            break;
+                        default:
+                            throw SemanticError("Only 32 and 64 bits real kinds are supported.", 
+                                                x.base.base.loc);
+                    }
                     break;
+                }
                 case (ASR::ttypeType::Real) :
                     args.push_back(llvm::Type::getFloatPtrTy(context));
                     break;
@@ -971,9 +984,9 @@ public:
                 };
                 case ASR::binopType::Pow: {
                     llvm::Value *fleft = builder->CreateSIToFP(left_val,
-                            llvm::Type::getFloatTy(context));
+                            llvm::Type::getFloatTy(context)); // Should kind be introduced here?
                     llvm::Value *fright = builder->CreateSIToFP(right_val,
-                            llvm::Type::getFloatTy(context));
+                            llvm::Type::getFloatTy(context)); // Should kind be introduced here?
 
                     llvm::Function *fn_pow = module->getFunction("llvm.pow.f32");
                     if (!fn_pow) {
@@ -987,7 +1000,7 @@ public:
                                 module.get());
                     }
                     tmp = builder->CreateCall(fn_pow, {fleft, fright});
-                    tmp = builder->CreateFPToSI(tmp, llvm::Type::getInt32Ty(context));
+                    tmp = builder->CreateFPToSI(tmp, llvm::Type::getInt32Ty(context)); // Should kind be introduced here?
                     break;
                 };
             }
@@ -1275,7 +1288,7 @@ public:
                 break;
             }
             case (ASR::cast_kindType::RealToInteger) : {
-                tmp = builder->CreateFPToSI(tmp, llvm::Type::getInt32Ty(context));
+                tmp = builder->CreateFPToSI(tmp, llvm::Type::getInt32Ty(context)); // Should kind be introduced here?
                 break;
             }
             case (ASR::cast_kindType::RealToComplex) : {
@@ -1447,7 +1460,7 @@ public:
                 llvm::Type *target_type;
                 switch (expr_type(x.m_args[i])->type) {
                     case (ASR::ttypeType::Integer) :
-                        target_type = llvm::Type::getInt32Ty(context);
+                        target_type = llvm::Type::getInt32Ty(context); // Should kind be introduced here?
                         break;
                     case (ASR::ttypeType::Real) :
                         target_type = llvm::Type::getFloatTy(context);
