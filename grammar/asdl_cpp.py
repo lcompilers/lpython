@@ -756,12 +756,13 @@ class SerializationVisitorVisitor(ASDLVisitor):
             elif field.type == "symbol_table":
                 assert not field.opt
                 assert not field.seq
+                # TODO: write the symbol table consistent with the reader:
                 if field.name == "parent_symtab":
                     level = 2
-                    self.emit('self().write_int64(x.m_%s->get_counter());' % field.name, level)
+                    self.emit('self().write_int64(x.m_%s->counter);' % field.name, level)
                 else:
                     level = 2
-                    self.emit('self().write_int64(x.m_%s->get_counter());' % field.name, level)
+                    self.emit('self().write_int64(x.m_%s->counter);' % field.name, level)
                     self.emit('self().write_int64(x.m_%s->scope.size());' % field.name, level)
                     self.emit('for (auto &a : x.m_%s->scope) {' % field.name, level)
                     self.emit('    self().write_string(a.first);', level)
@@ -1004,9 +1005,20 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                     elif f.type == "symbol_table":
                         assert not f.opt
                         # TODO: read the symbol table:
-                        lines.append("SymbolTable *m_%s=nullptr;" % (f.name))
-                        lines.append('throw LFortranException("SymbolTable not implemented");')
+                        lines.append("SymbolTable *m_%s = al.make_new<SymbolTable>(nullptr);" % (f.name))
                         args.append("m_%s" % (f.name))
+                        lines.append("m_%s->counter = self().read_int64();" % (f.name))
+                        if f.name == "parent_symtab":
+                            pass
+                        else:
+                            lines.append("{")
+                            lines.append("    size_t n = self().read_int64();")
+                            lines.append("    for (size_t i=0; i<n; i++) {")
+                            lines.append("        std::string name = self().read_string();")
+                            lines.append("        symbol_t *sym = down_cast<symbol_t>(deserialize_symbol());")
+                            lines.append("        m_%s->scope[name] = sym;" % f.name)
+                            lines.append("    }")
+                            lines.append("}")
                     else:
                         print(f.type)
                         assert False
