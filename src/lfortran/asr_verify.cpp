@@ -47,6 +47,25 @@ public:
         current_symtab = parent_symtab;
     }
 
+    void visit_Subroutine(const Subroutine_t &x) {
+        SymbolTable *parent_symtab = current_symtab;
+        current_symtab = x.m_symtab;
+        require(x.m_symtab != nullptr,
+            "The Subroutine::m_symtab cannot not be nullptr");
+        require(x.m_symtab->parent == parent_symtab,
+            "The Subroutine::m_symtab->parent is not the right parent");
+        for (auto &a : x.m_symtab->scope) {
+            this->visit_symbol(*a.second);
+        }
+        for (size_t i=0; i<x.n_args; i++) {
+            visit_expr(*x.m_args[i]);
+        }
+        for (size_t i=0; i<x.n_body; i++) {
+            visit_stmt(*x.m_body[i]);
+        }
+        current_symtab = parent_symtab;
+    }
+
     void visit_Var(const Var_t &x) {
         require(x.m_v != nullptr,
             "Var_t::m_v cannot be a nullptr");
