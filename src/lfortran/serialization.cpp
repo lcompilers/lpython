@@ -172,8 +172,61 @@ std::string serialize(ASR::TranslationUnit_t &unit) {
     return serialize((ASR::asr_t&)(unit));
 }
 
-ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s) {
+class ASRDeserializationVisitor : public
+                             ASR::DeserializationBaseVisitor<ASRDeserializationVisitor>
+{
+private:
+    std::string s;
+    size_t pos;
+public:
+    ASRDeserializationVisitor(Allocator &al, const std::string &s) :
+            DeserializationBaseVisitor(al), s{s}, pos{0} {}
 
+    uint8_t read_int8() {
+        if (pos+1 > s.size()) {
+            throw LFortranException("String is too short for deserialization.");
+        }
+        uint8_t n = s[pos];
+        pos += 1;
+        return n;
+    }
+
+    uint64_t read_int64() {
+        if (pos+4 > s.size()) {
+            throw LFortranException("String is too short for deserialization.");
+        }
+        uint64_t n = string_to_uint64(&s[pos]);
+        pos += 4;
+        return n;
+    }
+
+    bool read_bool() {
+        uint8_t b = read_int8();
+        return (b == 1);
+    }
+
+    std::string read_string() {
+        size_t n = read_int64();
+        if (pos+n > s.size()) {
+            throw LFortranException("String is too short for deserialization.");
+        }
+        std::string r = std::string(&s[pos], n);
+        pos += n;
+        return r;
+    }
+
+    char* read_cstring() {
+        std::string s = read_string();
+        LFortran::Str cs;
+        cs.from_str_view(s);
+        char* p = cs.c_str(al);
+        return p;
+    }
+};
+
+ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s) {
+    ASRDeserializationVisitor v(al, s);
+    return v.deserialize_node();
 }
 
 }
