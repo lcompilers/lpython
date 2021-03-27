@@ -262,6 +262,11 @@ public:
         ASR::symbol_t *sym = symtab->scope[symbol_name];
         return sym;
     }
+
+    void symtab_insert_symbol(SymbolTable &symtab, const std::string &name,
+        ASR::symbol_t *sym) {
+        symtab.scope[name] = sym;
+    }
 };
 
 ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s) {

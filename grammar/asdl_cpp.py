@@ -1031,7 +1031,7 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                             lines.append("    for (size_t i=0; i<n; i++) {")
                             lines.append("        std::string name = self().read_string();")
                             lines.append("        symbol_t *sym = down_cast<symbol_t>(deserialize_symbol());")
-                            lines.append("        m_%s->scope[name] = sym;" % f.name)
+                            lines.append("        self().symtab_insert_symbol(*m_%s, name, sym);" % f.name)
                             lines.append("    }")
                             lines.append("}")
                     else:
