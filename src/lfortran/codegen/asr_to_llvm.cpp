@@ -243,7 +243,7 @@ public:
     llvm::Value* lfortran_intrinsic(llvm::Function *fn, llvm::Value* pa)
     {
         llvm::AllocaInst *presult = builder->CreateAlloca(
-            llvm::Type::getFloatTy(context),
+            llvm::Type::getFloatTy(context), // Should kind be introduced here?
             nullptr);
         llvm::Value *a = builder->CreateLoad(pa);
         std::vector<llvm::Value*> args = {a, presult};
@@ -265,8 +265,8 @@ public:
         // Complex type is represented as an identified struct in LLVM
         // %complex = type { float, float }
         std::vector<llvm::Type*> els = {
-            llvm::Type::getFloatTy(context),
-            llvm::Type::getFloatTy(context)};
+            llvm::Type::getFloatTy(context), // Should kind be introduced here?
+            llvm::Type::getFloatTy(context)}; // Should kind be introduced here?
         complex_type = llvm::StructType::create(context, els, "complex");
         character_type = llvm::Type::getInt8PtrTy(context);
 
@@ -326,7 +326,7 @@ public:
                     init_value_bits = 64;
                     break;
                 default:
-                    throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
+                    throw CodeGenError("Only 32 and 64 bits integer kinds are supported.");
             }
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
                 type);
@@ -342,6 +342,22 @@ public:
             }
             llvm_symtab[h] = ptr;
         } else if (x.m_type->type == ASR::ttypeType::Real) {
+            int a_kind = down_cast<ASR::Real_t>(x.m_type)->m_kind;
+            llvm::Type *type;
+            int init_value_bits;
+            switch(a_kind)
+            {
+                case 4:
+                    type = llvm::Type::getFloatTy(context);
+                    init_value_bits = 32;
+                    break;
+                case 8:
+                    type = llvm::Type::getDoubleTy(context);
+                    init_value_bits = 64;
+                    break;
+                default:
+                    throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
+            }
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
                 llvm::Type::getFloatTy(context));
             if (!external) {
@@ -349,9 +365,15 @@ public:
                     module->getNamedGlobal(x.m_name)->setInitializer(
                             init_value);
                 } else {
-                    module->getNamedGlobal(x.m_name)->setInitializer(
-                            llvm::ConstantFP::get(context, 
-                                llvm::APFloat((float)0)));
+                    if( init_value_bits == 32 ) {
+                        module->getNamedGlobal(x.m_name)->setInitializer(
+                                llvm::ConstantFP::get(context, 
+                                    llvm::APFloat((float)0)));
+                    } else if( init_value_bits == 64 ) {
+                        module->getNamedGlobal(x.m_name)->setInitializer(
+                                llvm::ConstantFP::get(context, 
+                                    llvm::APDouble(0)));
+                    }
                 }
             }
             llvm_symtab[h] = ptr;
@@ -548,7 +570,7 @@ public:
                     break;
                 }
                 case (ASR::ttypeType::Real) :
-                    args.push_back(llvm::Type::getFloatPtrTy(context));
+                    args.push_back(llvm::Type::getFloatPtrTy(context)); // Should kinds be introduced here?
                     break;
                 case (ASR::ttypeType::Complex) :
                     throw CodeGenError("Complex argument type not implemented yet in conversion");
@@ -627,9 +649,23 @@ public:
                     }
                     break;
                 }
-                case (ASR::ttypeType::Real) :
-                    return_type = llvm::Type::getFloatTy(context);
+                case (ASR::ttypeType::Real) : {
+                    int a_kind = down_cast<ASR::Integer_t>(return_var_type0)->m_kind;
+                    switch( a_kind ) {
+                        case 4 : {
+                            return_type = llvm::Type::getFloatTy(context);
+                            break;
+                        }
+                        case 8 : {
+                            return_type = llvm::Type::getDoubleTy(context);
+                            break;
+                        }
+                        default : {
+                            throw CodeGenError("Only real kinds 4 and 8 are implemented");
+                        }
+                    }
                     break;
+                }
                 case (ASR::ttypeType::Complex) :
                     throw CodeGenError("Complex return type not implemented yet");
                     break;
@@ -991,9 +1027,9 @@ public:
                     llvm::Function *fn_pow = module->getFunction("llvm.pow.f32");
                     if (!fn_pow) {
                         llvm::FunctionType *function_type = llvm::FunctionType::get(
-                                llvm::Type::getFloatTy(context), {
-                                    llvm::Type::getFloatTy(context),
-                                    llvm::Type::getFloatTy(context)
+                                llvm::Type::getFloatTy(context), { // Should kind be introduced here?
+                                    llvm::Type::getFloatTy(context), // Should kind be introduced here?
+                                    llvm::Type::getFloatTy(context) // Should kind be introduced here?
                                 }, false);
                         fn_pow = llvm::Function::Create(function_type,
                                 llvm::Function::ExternalLinkage, "llvm.pow.f32",
@@ -1027,9 +1063,9 @@ public:
                     llvm::Function *fn_pow = module->getFunction("llvm.pow.f32");
                     if (!fn_pow) {
                         llvm::FunctionType *function_type = llvm::FunctionType::get(
-                                llvm::Type::getFloatTy(context), {
-                                    llvm::Type::getFloatTy(context),
-                                    llvm::Type::getFloatTy(context)
+                                llvm::Type::getFloatTy(context), { // Should kind be introduced here?
+                                    llvm::Type::getFloatTy(context), // Should kind be introduced here?
+                                    llvm::Type::getFloatTy(context) // Should kind be introduced here?
                                 }, false);
                         fn_pow = llvm::Function::Create(function_type,
                                 llvm::Function::ExternalLinkage, "llvm.pow.f32",
@@ -1298,7 +1334,7 @@ public:
                 break;
             }
             case (ASR::cast_kindType::IntegerToComplex) : {
-                tmp = builder->CreateSIToFP(tmp, llvm::Type::getFloatTy(context));
+                tmp = builder->CreateSIToFP(tmp, llvm::Type::getFloatTy(context)); // Should kind be introduced here?
                 llvm::Value *zero = llvm::ConstantFP::get(context,
                         llvm::APFloat((float)0.0));
                 tmp = complex_from_floats(tmp, zero);
@@ -1463,7 +1499,7 @@ public:
                         target_type = llvm::Type::getInt32Ty(context); // Should kind be introduced here?
                         break;
                     case (ASR::ttypeType::Real) :
-                        target_type = llvm::Type::getFloatTy(context);
+                        target_type = llvm::Type::getFloatTy(context); // Should kind be introduced here?
                         break;
                     case (ASR::ttypeType::Complex) :
                         target_type = complex_type;
@@ -1560,8 +1596,8 @@ public:
             if (!fn) {
               llvm::FunctionType *function_type =
                   llvm::FunctionType::get(llvm::Type::getVoidTy(context),
-                                          {llvm::Type::getFloatTy(context),
-                                           llvm::Type::getFloatPtrTy(context)},
+                                          {llvm::Type::getFloatTy(context), // Should kind be introduced here?
+                                           llvm::Type::getFloatPtrTy(context)}, // Should kind be introduced here?
                                           false);
               fn = llvm::Function::Create(
                   function_type, llvm::Function::ExternalLinkage, fname, *module);
