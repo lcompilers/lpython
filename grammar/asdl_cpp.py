@@ -441,16 +441,16 @@ class PickleVisitorVisitor(ASDLVisitor):
 
     def make_visitor(self, name, fields, cons):
         self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
-        self.emit(      'if(start_line) {',2)
-        self.emit(          'if(indent) {',3)
+        self.emit(      'if(indent) {',2)
+        self.emit(          'if(start_line) {',3)
         self.emit(              'start_line = false;', 4)
         self.emit(              's.append(indtd);', 4)
         self.emit(              'inc_indent();',4)
-        self.emit(          '}', 3)
-        self.emit(      '} else {', 2)
+        self.emit(          '} else {', 3)
         self.emit(              's.append("\\n"+indtd);', 4)
         self.emit(              'inc_indent();',4)
         self.emit(          '}', 3)
+        self.emit(      '}', 2)
         self.emit(      's.append("(");', 2)
         subs = {
             "Assignment": "=",
@@ -475,7 +475,7 @@ class PickleVisitorVisitor(ASDLVisitor):
             self.visitField(field, cons)
             if n < len(fields) - 1:
                 self.emit(    's.append(" ");', 2)
-        self.emit(    'dec_indent();', 2)
+        self.emit(    'if(indent) dec_indent();', 2)
         self.emit(    's.append(")");', 2)
         if not self.used:
             # Note: a better solution would be to change `&x` to `& /* x */`
@@ -610,9 +610,10 @@ class PickleVisitorVisitor(ASDLVisitor):
                     self.emit('}', level)
                     self.emit(      'if(indent){',level)
                     self.emit(          'dec_indent();', level+1)
+                    self.emit(          'dec_indent();', level+1)
                     self.emit(          's.append("\\n"+indtd);', level+1)
+                    self.emit(          'dec_indent();', level+1)
                     self.emit(      '}', level)
-                    self.emit(      'dec_indent();', level)
                     self.emit(      's.append("})");', level)
             elif field.type == "string" and not field.seq:
                 if field.opt:
