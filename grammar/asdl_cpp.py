@@ -1006,14 +1006,22 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                     elif f.type == "symbol_table":
                         assert not f.opt
                         # TODO: read the symbol table:
-                        lines.append("SymbolTable *m_%s = al.make_new<SymbolTable>(nullptr);" % (f.name))
                         args.append("m_%s" % (f.name))
-                        lines.append("m_%s->counter = self().read_int64();" % (f.name))
+                        lines.append("uint64_t m_%s_counter = self().read_int64();" % (f.name))
                         if f.name == "parent_symtab":
-                            pass
+                            # If this fails, it means we are referencing a
+                            # symbol table that was not constructed yet. If
+                            # that ever happens, we would have to remember
+                            # this and come back later to fix the pointer.
+                            lines.append("LFORTRAN_ASSERT(id_symtab_map.find(m_%s_counter) != id_symtab_map.end());" % f.name)
+                            lines.append("SymbolTable *m_%s = id_symtab_map[m_%s_counter];" % (f.name, f.name))
                         else:
-                            lines.append("LFORTRAN_ASSERT(id_symtab_map.find(m_%s->counter) == id_symtab_map.end());" % f.name)
-                            lines.append("id_symtab_map[m_%s->counter] = m_%s;" % (f.name, f.name))
+                            # We construct a new table. It should not
+                            # be present:
+                            lines.append("LFORTRAN_ASSERT(id_symtab_map.find(m_%s_counter) == id_symtab_map.end());" % f.name)
+                            lines.append("SymbolTable *m_%s = al.make_new<SymbolTable>(nullptr);" % (f.name))
+                            lines.append("m_%s->counter = m_%s_counter;" % (f.name, f.name))
+                            lines.append("id_symtab_map[m_%s_counter] = m_%s;" % (f.name, f.name))
                             lines.append("{")
                             lines.append("    size_t n = self().read_int64();")
                             lines.append("    for (size_t i=0; i<n; i++) {")
