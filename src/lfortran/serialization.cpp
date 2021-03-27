@@ -265,7 +265,34 @@ public:
 
     void symtab_insert_symbol(SymbolTable &symtab, const std::string &name,
         ASR::symbol_t *sym) {
-        symtab.scope[name] = sym;
+        if (symtab.scope.find(name) == symtab.scope.end()) {
+            symtab.scope[name] = sym;
+        } else {
+            // We have to copy the contents of `sym` into `sym2` without
+            // changing the `sym2` pointer already in the table
+            ASR::symbol_t *sym2 = symtab.scope[name];
+            LFORTRAN_ASSERT(sym2->type == sym->type);
+            switch (sym2->type) {
+                case (ASR::symbolType::Function) : {
+                    ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(sym);
+                    ASR::Function_t *f2 = ASR::down_cast<ASR::Function_t>(sym2);
+                    f2->base.type = f->base.type;
+                    f2->base.base.type = f->base.base.type;
+                    f2->base.base.loc = f->base.base.loc;
+                    f2->m_symtab = f->m_symtab;
+                    f2->m_name = f->m_name;
+                    f2->m_args = f->m_args;
+                    f2->n_args = f->n_args;
+                    f2->m_body = f->m_body;
+                    f2->n_body = f->n_body;
+                    f2->m_return_var = f->m_return_var;
+                    f2->m_abi = f->m_abi;
+                    f2->m_access = f->m_access;
+                    break;
+                }
+                default : throw LFortranException("Symbol type not supported");
+            }
+        }
     }
 };
 
