@@ -157,4 +157,37 @@ r = a + b
 end function
 )""");
 
+// Does not work yet:
+/*
+    asr_ser(R"""(
+program doconcurrentloop_01
+implicit none
+real, dimension(10000) :: a, b, c
+real :: scalar
+integer :: i, nsize
+scalar = 10
+nsize = size(a)
+do concurrent (i = 1:nsize)
+    a(i) = 5
+    b(i) = 5
+end do
+call triad(a, b, scalar, c)
+print *, "End Stream Triad"
+
+contains
+
+    subroutine triad(a, b, scalar, c)
+    real, intent(in) :: a(:), b(:), scalar
+    real, intent(out) :: c(:)
+    integer :: N, i
+    N = size(a)
+    do concurrent (i = 1:N)
+        c(i) = a(i) + scalar * b(i)
+    end do
+    end subroutine
+
+end program
+)""");
+*/
+
 }
