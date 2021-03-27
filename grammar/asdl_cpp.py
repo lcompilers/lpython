@@ -1053,6 +1053,7 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                                 lines.append("if (self().read_bool()) {")
                             if f.type == "symbol":
                                 lines.append("uint64_t symtab_id_%s = self().read_int64();" % f.name)
+                                lines.append("uint64_t symbol_id_%s = self().read_int8();" % f.name)
                                 lines.append("std::string symbol_name_%s  = self().read_string();" % f.name)
                                 # This assumes the symbol table was constructed
                                 # before the symbol was encountered

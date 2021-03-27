@@ -163,6 +163,7 @@ public:
 
     void write_symbol(const ASR::symbol_t &x) {
         write_int64(symbol_parent_symtab(&x)->counter);
+        write_int8(x.type);
         write_string(symbol_name(&x));
     }
 };
