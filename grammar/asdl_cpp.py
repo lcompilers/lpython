@@ -763,7 +763,7 @@ class SerializationVisitorVisitor(ASDLVisitor):
                 else:
                     level = 2
                     self.emit('self().write_int64(x.m_%s->counter);' % field.name, level)
-                    #self.emit('self().write_int64(x.m_%s->scope.size());' % field.name, level)
+                    self.emit('self().write_int64(x.m_%s->scope.size());' % field.name, level)
                     #self.emit('for (auto &a : x.m_%s->scope) {' % field.name, level)
                     #self.emit('    self().write_string(a.first);', level)
                     #self.emit('    this->visit_symbol(*a.second);', level)
@@ -1006,8 +1006,12 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                         assert not f.opt
                         # TODO: read the symbol table:
                         lines.append("SymbolTable *m_%s = al.make_new<SymbolTable>(nullptr);" % (f.name))
-                        lines.append("m_%s->counter = self().read_int64();" % (f.name))
                         args.append("m_%s" % (f.name))
+                        lines.append("m_%s->counter = self().read_int64();" % (f.name))
+                        if f.name == "parent_symtab":
+                            pass
+                        else:
+                            lines.append("self().read_int64();")
                     else:
                         print(f.type)
                         assert False
