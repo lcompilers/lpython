@@ -10,7 +10,9 @@ namespace ASR {
 class VerifyVisitor : public BaseWalkVisitor<VerifyVisitor>
 {
 public:
-    void check(bool cond, const std::string &error_msg) {
+
+    // Requires the condition `cond` to be true. Raise an exception otherwise.
+    void require(bool cond, const std::string &error_msg) {
         if (!cond) {
             throw LFortranException("ASR verify failed: " + error_msg);
         }
@@ -23,22 +25,22 @@ public:
     }
 
     void visit_Var(const Var_t &x) {
-        check(x.m_v != nullptr,
+        require(x.m_v != nullptr,
             "Var_t::m_v cannot be a nullptr");
-        check(is_a<Variable_t>(*x.m_v),
+        require(is_a<Variable_t>(*x.m_v),
             "Var_t::m_v does not point to a Variable_t");
         visit_symbol(*x.m_v);
     }
 
     void visit_Variable(const Variable_t &x) {
         SymbolTable *symtab = x.m_parent_symtab;
-        check(symtab != nullptr,
+        require(symtab != nullptr,
             "Variable::m_parent_symtab cannot be a nullptr");
-        check(symtab->scope.find(std::string(x.m_name)) != symtab->scope.end(),
+        require(symtab->scope.find(std::string(x.m_name)) != symtab->scope.end(),
             "Variable not found in parent_symtab symbol table");
         symbol_t *symtab_sym = symtab->scope[std::string(x.m_name)];
         const symbol_t *current_sym = &x.base;
-        check(symtab_sym == current_sym,
+        require(symtab_sym == current_sym,
             "Variable's parent symbol table does not point to it");
 
         if (x.m_value)
