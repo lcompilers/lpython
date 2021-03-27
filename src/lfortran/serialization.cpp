@@ -229,6 +229,17 @@ public:
         char* p = cs.c_str(al);
         return p;
     }
+
+    ASR::symbol_t *read_symbol() {
+        uint64_t symtab_id = read_int64();
+        uint64_t symbol_type = read_int8();
+        std::string symbol_name  = read_string();
+        LFORTRAN_ASSERT(id_symtab_map.find(symtab_id) != id_symtab_map.end());
+        SymbolTable *symtab = id_symtab_map[symtab_id];
+        LFORTRAN_ASSERT(symtab->scope.find(symbol_name) != symtab->scope.end());
+        ASR::symbol_t *sym = symtab->scope[symbol_name];
+        return sym;
+    }
 };
 
 ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s) {
