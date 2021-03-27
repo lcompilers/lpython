@@ -1059,6 +1059,7 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                                 lines.append("LFORTRAN_ASSERT(id_symtab_map.find(symtab_id_%s) != id_symtab_map.end());" % f.name)
                                 # look the symbol up
                                 lines.append("{SymbolTable *symtab = id_symtab_map[symtab_id_%s];" % (f.name))
+                                lines.append("LFORTRAN_ASSERT(symtab->scope.find(symbol_name_%s) != symtab->scope.end());" % f.name)
                                 lines.append("m_%s = symtab->scope[symbol_name_%s];}" % (f.name, f.name))
                             else:
                                 lines.append("m_%s = %s::down_cast<%s::%s_t>(self().deserialize_%s());" % (
