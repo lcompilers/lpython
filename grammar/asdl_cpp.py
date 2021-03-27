@@ -1006,8 +1006,7 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                         assert not f.opt
                         # TODO: read the symbol table:
                         lines.append("SymbolTable *m_%s = al.make_new<SymbolTable>(nullptr);" % (f.name))
-                        #lines.append("uint64_t *m_%s_counter = self().read_int64();" % (f.name))
-                        lines.append("self().read_int64();")
+                        lines.append("m_%s->counter = self().read_int64();" % (f.name))
                         args.append("m_%s" % (f.name))
                     else:
                         print(f.type)
