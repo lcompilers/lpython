@@ -1,0 +1,121 @@
+#include <tests/doctest.h>
+#include <iostream>
+
+#include <lfortran/serialization.h>
+#include <lfortran/pickle.h>
+#include <lfortran/parser/parser.h>
+
+using LFortran::string_to_uint64;
+using LFortran::uint64_to_string;
+
+TEST_CASE("Integer conversion") {
+    uint64_t i;
+    i = 1;
+    CHECK(string_to_uint64(uint64_to_string(i)) == i);
+
+    i = 256;
+    CHECK(string_to_uint64(uint64_to_string(i)) == i);
+
+    i = 65537;
+    CHECK(string_to_uint64(uint64_to_string(i)) == i);
+
+    i = 16777217;
+    CHECK(string_to_uint64(uint64_to_string(i)) == i);
+
+    i = 18446744073709551615LLU;
+    CHECK(string_to_uint64(uint64_to_string(i)) == i);
+}
+
+void ser(const std::string &src) {
+    Allocator al(4*1024);
+
+    LFortran::AST::TranslationUnit_t* result;
+    result = LFortran::parse2(al, src);
+    std::string ast_orig = LFortran::pickle(*result);
+    std::string binary = LFortran::serialize(*result);
+
+    LFortran::AST::ast_t *ast;
+    ast = LFortran::deserialize(al, binary);
+    CHECK(LFortran::AST::is_a<LFortran::AST::unit_t>(*ast));
+
+    std::string ast_new = LFortran::pickle(*ast);
+
+    CHECK(ast_orig == ast_new);
+}
+
+TEST_CASE("Tests") {
+    ser("x = 2+2**2");
+
+    ser(R"""(
+x = 2+2**2
+)""");
+
+    ser("r = a - 2*x");
+
+    ser("r = f(a) - 2*x");
+
+    ser(R"""(
+program expr2
+implicit none
+integer :: x
+x = (2+3)*5
+print *, x
+end program
+)""");
+
+    ser(R"""(
+integer function f(a, b) result(r)
+integer, intent(in) :: a, b
+r = a + b
+end function
+)""");
+
+    ser(R"""(
+module modules_05_mod
+implicit none
+! TODO: the following line does not work yet
+!private
+integer, parameter, public :: a = 5
+integer, parameter :: b = 6
+integer, parameter :: c = 7
+public :: c
+end module
+
+
+program modules_05
+use modules_05_mod, only: a, c
+print *, a, c
+end program
+)""");
+
+    ser(R"""(
+program doconcurrentloop_01
+implicit none
+real, dimension(10000) :: a, b, c
+real :: scalar
+integer :: i, nsize
+scalar = 10
+nsize = size(a)
+do concurrent (i = 1:nsize)
+    a(i) = 5
+    b(i) = 5
+end do
+call triad(a, b, scalar, c)
+print *, "End Stream Triad"
+
+contains
+
+    subroutine triad(a, b, scalar, c)
+    real, intent(in) :: a(:), b(:), scalar
+    real, intent(out) :: c(:)
+    integer :: N, i
+    N = size(a)
+    do concurrent (i = 1:N)
+        c(i) = a(i) + scalar * b(i)
+    end do
+    end subroutine
+
+end program
+)""");
+
+}

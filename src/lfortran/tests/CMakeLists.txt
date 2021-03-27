@@ -47,3 +47,4 @@ ADDTEST(test_stacktrace2 p::doctest)
 
 ADDTEST(test_asm p::doctest)
 
+ADDTEST(test_serialization p::doctest)
