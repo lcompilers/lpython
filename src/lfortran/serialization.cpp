@@ -160,6 +160,11 @@ public:
         write_int64(t.size());
         s.append(t);
     }
+
+    void write_symbol(const ASR::symbol_t &x) {
+        write_int64(symbol_parent_symtab(&x)->counter);
+        write_string(symbol_name(&x));
+    }
 };
 
 std::string serialize(ASR::asr_t &asr) {

@@ -705,7 +705,11 @@ class SerializationVisitorVisitor(ASDLVisitor):
                 else:
                     template = "self().visit_%s(x.m_%s);" % (field.type, field.name)
             else:
-                template = "self().visit_%s(*x.m_%s);" % (field.type, field.name)
+                if field.type == "symbol":
+                    template = "self().write_symbol(*x.m_%s);" \
+                        % field.name
+                else:
+                    template = "self().visit_%s(*x.m_%s);" % (field.type, field.name)
             if field.seq:
                 self.emit('self().write_int64(x.n_%s);' % field.name, level)
                 self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
