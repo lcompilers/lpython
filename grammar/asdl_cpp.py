@@ -764,10 +764,10 @@ class SerializationVisitorVisitor(ASDLVisitor):
                     level = 2
                     self.emit('self().write_int64(x.m_%s->counter);' % field.name, level)
                     self.emit('self().write_int64(x.m_%s->scope.size());' % field.name, level)
-                    #self.emit('for (auto &a : x.m_%s->scope) {' % field.name, level)
-                    #self.emit('    self().write_string(a.first);', level)
-                    #self.emit('    this->visit_symbol(*a.second);', level)
-                    #self.emit('}', level)
+                    self.emit('for (auto &a : x.m_%s->scope) {' % field.name, level)
+                    self.emit('    self().write_string(a.first);', level)
+                    self.emit('    this->visit_symbol(*a.second);', level)
+                    self.emit('}', level)
             elif field.type == "string" and not field.seq:
                 if field.opt:
                     self.emit("if (x.m_%s) {" % field.name, 2)
@@ -1011,7 +1011,14 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                         if f.name == "parent_symtab":
                             pass
                         else:
-                            lines.append("self().read_int64();")
+                            lines.append("{")
+                            lines.append("    size_t n = self().read_int64();")
+                            lines.append("    for (size_t i=0; i<n; i++) {")
+                            lines.append("        std::string name = self().read_string();")
+                            lines.append("        symbol_t *sym = down_cast<symbol_t>(deserialize_symbol());")
+                            lines.append("        m_%s->scope[name] = sym;" % f.name)
+                            lines.append("    }")
+                            lines.append("}")
                     else:
                         print(f.type)
                         assert False

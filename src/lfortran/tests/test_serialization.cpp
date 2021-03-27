@@ -60,7 +60,7 @@ void asr_ser(const std::string &src) {
 
     std::string asr_new = LFortran::pickle(*asr_new0);
 
-    //CHECK(asr_orig == asr_new);
+    CHECK(asr_orig == asr_new);
 }
 
 TEST_CASE("AST Tests") {
