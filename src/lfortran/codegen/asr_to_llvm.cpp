@@ -423,6 +423,7 @@ public:
     inline llvm::Value* cmo_convertor_single_element(
         llvm::Value* arr, ASR::array_index_t* m_args, 
         int n_args, bool check_for_bounds) {
+        llvm::Value* dim_des_arr_ptr = create_gep(arr, 2);
         llvm::Value* prod = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
         llvm::Value* idx = llvm::ConstantInt::get(context, llvm::APInt(32, 0));
         for( int r = 0; r < n_args; r++ ) {
@@ -433,9 +434,9 @@ public:
                 check_single_element(curr_llvm_idx, arr);
             }
             idx = builder->CreateAdd(idx, builder->CreateMul(prod, curr_llvm_idx));
-            llvm::Value* dim_des_ptr = create_gep(arr, 2);
+            llvm::Value* dim_des_ptr = create_gep(dim_des_arr_ptr, r);
             llvm::Value* dim_size = builder->CreateLoad(create_gep(dim_des_ptr, 3));
-            //prod = builder->CreateMul(prod, dim_size);
+            prod = builder->CreateMul(prod, dim_size);
         }
         return idx;
     }
