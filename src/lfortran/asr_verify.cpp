@@ -9,6 +9,8 @@ namespace ASR {
 
 class VerifyVisitor : public BaseWalkVisitor<VerifyVisitor>
 {
+private:
+    SymbolTable *current_symtab;
 public:
 
     // Requires the condition `cond` to be true. Raise an exception otherwise.
@@ -19,9 +21,30 @@ public:
     }
 
     void visit_TranslationUnit(const TranslationUnit_t &x) {
+        current_symtab = x.m_global_scope;
+        require(x.m_global_scope != nullptr,
+            "The TranslationUnit::m_global_scope cannot be nullptr");
+        require(x.m_global_scope->parent == nullptr,
+            "The TranslationUnit::m_global_scope->parent must be nullptr");
         for (auto &a : x.m_global_scope->scope) {
             this->visit_symbol(*a.second);
         }
+    }
+
+    void visit_Program(const Program_t &x) {
+        SymbolTable *parent_symtab = current_symtab;
+        current_symtab = x.m_symtab;
+        require(x.m_symtab != nullptr,
+            "The Program::m_symtab cannot not be nullptr");
+        require(x.m_symtab->parent == parent_symtab,
+            "The Program::m_symtab->parent is not the right parent");
+        for (auto &a : x.m_symtab->scope) {
+            this->visit_symbol(*a.second);
+        }
+        for (size_t i=0; i<x.n_body; i++) {
+            visit_stmt(*x.m_body[i]);
+        }
+        current_symtab = parent_symtab;
     }
 
     void visit_Var(const Var_t &x) {
