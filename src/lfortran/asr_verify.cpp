@@ -23,6 +23,8 @@ public:
     }
 
     void visit_Var(const Var_t &x) {
+        check(x.m_v != nullptr,
+            "Var_t::m_v cannot be a nullptr");
         check(is_a<Variable_t>(*x.m_v),
             "Var_t::m_v does not point to a Variable_t");
         visit_symbol(*x.m_v);
@@ -30,6 +32,8 @@ public:
 
     void visit_Variable(const Variable_t &x) {
         SymbolTable *symtab = x.m_parent_symtab;
+        check(symtab != nullptr,
+            "Variable::m_parent_symtab cannot be a nullptr");
         check(symtab->scope.find(std::string(x.m_name)) != symtab->scope.end(),
             "Variable not found in parent_symtab symbol table");
         symbol_t *symtab_sym = symtab->scope[std::string(x.m_name)];
