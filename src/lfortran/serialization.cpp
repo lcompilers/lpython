@@ -236,7 +236,29 @@ public:
         std::string symbol_name  = read_string();
         LFORTRAN_ASSERT(id_symtab_map.find(symtab_id) != id_symtab_map.end());
         SymbolTable *symtab = id_symtab_map[symtab_id];
-        LFORTRAN_ASSERT(symtab->scope.find(symbol_name) != symtab->scope.end());
+        if (symtab->scope.find(symbol_name) == symtab->scope.end()) {
+            // Symbol is not in the symbol table yet. We construct an empty
+            // symbol of the correct type and put it in the symbol table.
+            // Later when constructing the symbol table, we will check for this
+            // and fill it in correctly.
+            ASR::symbolType ty = static_cast<ASR::symbolType>(symbol_type);
+            ASR::symbol_t *s;
+            switch (ty) {
+                case (ASR::symbolType::Function) : {
+                    Location loc;
+                    s = ASR::down_cast<ASR::symbol_t>(ASR::make_Function_t(al,
+                        loc,
+                        nullptr, nullptr,
+                        nullptr, 0,
+                        nullptr, 0,
+                        nullptr, ASR::abiType::Source,
+                        ASR::accessType::Public));
+                    break;
+                }
+                default : throw LFortranException("Symbol type not supported");
+            }
+            symtab->scope[symbol_name] = s;
+        }
         ASR::symbol_t *sym = symtab->scope[symbol_name];
         return sym;
     }
