@@ -9,8 +9,11 @@ namespace LFortran {
 
     std::string serialize(AST::ast_t &ast);
     std::string serialize(AST::TranslationUnit_t &unit);
+    AST::ast_t* deserialize_ast(Allocator &al, const std::string &s);
 
-    AST::ast_t* deserialize(Allocator &al, const std::string &s);
+    std::string serialize(ASR::asr_t &asr);
+    std::string serialize(ASR::TranslationUnit_t &unit);
+    ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s);
 
     std::string uint64_to_string(uint64_t i);
     uint64_t string_to_uint64(const std::string &s);

@@ -758,10 +758,10 @@ class SerializationVisitorVisitor(ASDLVisitor):
                 assert not field.seq
                 if field.name == "parent_symtab":
                     level = 2
-                    self.emit('self().write_int64(x.m_%s->get_counter());' % field.name, level)
+                    self.emit('self().write_int64(x.m_%s->counter);' % field.name, level)
                 else:
                     level = 2
-                    self.emit('self().write_int64(x.m_%s->get_counter());' % field.name, level)
+                    self.emit('self().write_int64(x.m_%s->counter);' % field.name, level)
                     self.emit('self().write_int64(x.m_%s->scope.size());' % field.name, level)
                     self.emit('for (auto &a : x.m_%s->scope) {' % field.name, level)
                     self.emit('    self().write_string(a.first);', level)
