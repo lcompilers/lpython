@@ -9,6 +9,7 @@
 
 #include <lfortran/asr.h>
 #include <lfortran/asr_utils.h>
+#include <lfortran/asr_verify.h>
 #include <lfortran/mod_to_asr.h>
 #include <lfortran/string_utils.h>
 #include <lfortran/containers.h>
@@ -333,7 +334,9 @@ ASR::TranslationUnit_t* parse_gfortran_mod_file(Allocator &al, const std::string
     Location loc;
     asr = ASR::make_TranslationUnit_t(al, loc,
         parent_scope, nullptr, 0);
-    return down_cast2<ASR::TranslationUnit_t>(asr);
+    ASR::TranslationUnit_t *tu = down_cast2<ASR::TranslationUnit_t>(asr);
+    LFORTRAN_ASSERT(asr_verify(*tu));
+    return tu;
 
     //std::cout << format_item(mod);
 

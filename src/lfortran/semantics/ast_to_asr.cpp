@@ -6,6 +6,7 @@
 #include <lfortran/ast.h>
 #include <lfortran/asr.h>
 #include <lfortran/asr_utils.h>
+#include <lfortran/asr_verify.h>
 #include <lfortran/pickle.h>
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/parser/parser_stype.h>
@@ -1924,7 +1925,9 @@ ASR::TranslationUnit_t *ast_to_asr(Allocator &al, AST::TranslationUnit_t &ast,
 
     BodyVisitor b(al, unit);
     b.visit_TranslationUnit(ast);
-    return ASR::down_cast2<ASR::TranslationUnit_t>(unit);
+    ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
+    LFORTRAN_ASSERT(asr_verify(*tu));
+    return tu;
 }
 
 } // namespace LFortran

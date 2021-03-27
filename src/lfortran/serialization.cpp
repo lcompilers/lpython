@@ -4,6 +4,7 @@
 #include <lfortran/parser/parser.h>
 #include <lfortran/parser/parser.tab.hh>
 #include <lfortran/asr_utils.h>
+#include <lfortran/asr_verify.h>
 
 
 namespace LFortran {
@@ -226,7 +227,13 @@ public:
 
 ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s) {
     ASRDeserializationVisitor v(al, s);
-    return v.deserialize_node();
+    ASR::asr_t *node = v.deserialize_node();
+    //ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(node);
+    // FIXME: This fails currently, the symbol table handling must be fixed in
+    // deserialization:
+    //LFORTRAN_ASSERT(asr_verify(*tu));
+
+    return node;
 }
 
 }

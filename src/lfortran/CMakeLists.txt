@@ -16,6 +16,7 @@ set(SRC
     pass/global_stmts.cpp
     pass/select_case.cpp
 
+    asr_verify.cpp
     pickle.cpp
     serialization.cpp
     cwrapper.cpp
