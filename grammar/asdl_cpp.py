@@ -393,7 +393,7 @@ class PickleVisitorVisitor(ASDLVisitor):
 
     def visitModule(self, mod):
         self.emit("/" + "*"*78 + "/")
-        self.emit("// Walk Visitor base class")
+        self.emit("// Pickle Visitor base class")
         self.emit("")
         self.emit("template <class Derived>")
         self.emit("class PickleBaseVisitor : public BaseVisitor<Derived>")
