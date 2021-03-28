@@ -68,7 +68,7 @@ unit
 
 symbol
     = Program(symbol_table symtab, identifier name, stmt* body)
-    | Module(symbol_table symtab, identifier name)
+    | Module(symbol_table symtab, identifier name, bool loaded_from_mod)
     | Subroutine(symbol_table symtab, identifier name, expr* args, stmt* body,
         abi abi, access access)
     | Function(symbol_table symtab, identifier name, expr* args, stmt* body,
