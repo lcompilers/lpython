@@ -44,6 +44,8 @@ public:
             "The Program::m_symtab cannot be nullptr");
         require(x.m_symtab->parent == parent_symtab,
             "The Program::m_symtab->parent is not the right parent");
+        require(x.m_symtab->parent->parent == nullptr,
+            "The Program::m_symtab's parent must be TranslationUnit");
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
         }
@@ -60,6 +62,8 @@ public:
             "The Module::m_symtab cannot be nullptr");
         require(x.m_symtab->parent == parent_symtab,
             "The Module::m_symtab->parent is not the right parent");
+        require(x.m_symtab->parent->parent == nullptr,
+            "The Module::m_symtab's parent must be TranslationUnit");
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
         }
