@@ -108,12 +108,6 @@ public:
 
     }
 
-    void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
-        for (auto &a : x.m_global_scope->scope) {
-            this->visit_symbol(*a.second);
-        }
-    }
-
     void transform_stmts(ASR::stmt_t **&m_body, size_t &n_body) {
         Vec<ASR::stmt_t*> body;
         body.reserve(al, n_body);
