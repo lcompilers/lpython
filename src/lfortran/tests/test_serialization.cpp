@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include <lfortran/serialization.h>
+#include <lfortran/modfile.h>
 #include <lfortran/pickle.h>
 #include <lfortran/parser/parser.h>
 #include <lfortran/semantics/ast_to_asr.h>
@@ -61,6 +62,19 @@ void asr_ser(const std::string &src) {
     std::string asr_new = LFortran::pickle(*asr_new0);
 
     CHECK(asr_orig == asr_new);
+}
+
+void asr_mod(const std::string &src) {
+    Allocator al(4*1024);
+
+    LFortran::AST::TranslationUnit_t* ast0;
+    ast0 = LFortran::parse2(al, src);
+    LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast0);
+
+    std::string modfile = LFortran::save_modfile(*asr);
+    LFortran::ASR::TranslationUnit_t *asr2 = LFortran::load_modfile(al, modfile);
+
+    CHECK(LFortran::pickle(*asr) == LFortran::pickle(*asr2));
 }
 
 TEST_CASE("AST Tests") {
@@ -236,6 +250,22 @@ contains
     end function
 
 end
+)""");
+
+}
+
+TEST_CASE("ASR modfile handling") {
+    asr_mod(R"""(
+module a
+implicit none
+
+contains
+
+subroutine b()
+print *, "b()"
+end subroutine
+
+end module
 )""");
 
 }
