@@ -18,23 +18,6 @@ public:
         return s;
     }
 
-    std::string uint64_to_string(uint64_t i) {
-        char bytes[4];
-        bytes[0] = (i >> 24) & 0xFF;
-        bytes[1] = (i >> 16) & 0xFF;
-        bytes[2] = (i >>  8) & 0xFF;
-        bytes[3] =  i        & 0xFF;
-        return std::string(bytes, 4);
-    }
-
-    uint64_t string_to_uint64(const char *p) {
-        return (p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3];
-    }
-
-    uint64_t string_to_uint64(const std::string &s) {
-        return string_to_uint64(&s[0]);
-    }
-
     void write_int8(uint8_t i) {
         char c=i;
         s.append(std::string(&c, 1));
@@ -65,14 +48,6 @@ private:
     size_t pos;
 public:
     BinaryReader(const std::string &s) : s{s}, pos{0} {}
-
-    uint64_t string_to_uint64(const char *p) {
-        return (p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3];
-    }
-
-    uint64_t string_to_uint64(const std::string &s) {
-        return string_to_uint64(&s[0]);
-    }
 
     uint8_t read_int8() {
         if (pos+1 > s.size()) {
