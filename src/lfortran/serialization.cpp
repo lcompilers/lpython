@@ -350,6 +350,16 @@ public:
         current_symtab = parent_symtab;
     }
 
+    void visit_DerivedType(const DerivedType_t &x) {
+        SymbolTable *parent_symtab = current_symtab;
+        current_symtab = x.m_symtab;
+        x.m_symtab->parent = parent_symtab;
+        for (auto &a : x.m_symtab->scope) {
+            this->visit_symbol(*a.second);
+        }
+        current_symtab = parent_symtab;
+    }
+
 };
 
 } // namespace ASR

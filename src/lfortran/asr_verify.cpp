@@ -105,6 +105,19 @@ public:
         current_symtab = parent_symtab;
     }
 
+    void visit_DerivedType(const DerivedType_t &x) {
+        SymbolTable *parent_symtab = current_symtab;
+        current_symtab = x.m_symtab;
+        require(x.m_symtab != nullptr,
+            "The DerivedType::m_symtab cannot be nullptr");
+        require(x.m_symtab->parent == parent_symtab,
+            "The DerivedType::m_symtab->parent is not the right parent");
+        for (auto &a : x.m_symtab->scope) {
+            this->visit_symbol(*a.second);
+        }
+        current_symtab = parent_symtab;
+    }
+
     void visit_Var(const Var_t &x) {
         require(x.m_v != nullptr,
             "Var_t::m_v cannot be nullptr");
