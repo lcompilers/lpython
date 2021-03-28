@@ -240,11 +240,21 @@ public:
      *
      *     void _lfortran_KEY(float x, float *result)
      */
-    llvm::Value* lfortran_intrinsic(llvm::Function *fn, llvm::Value* pa)
+    llvm::Value* lfortran_intrinsic(llvm::Function *fn, llvm::Value* pa, int a_kind)
     {
-        llvm::AllocaInst *presult = builder->CreateAlloca(
-            llvm::Type::getFloatTy(context), // Should kind be introduced here?
-            nullptr);
+        llvm::Type *presult_type;
+        switch(a_kind)
+        {
+            case 4:
+                presult_type = llvm::Type::getFloatTy(context);
+                break;
+            case 8:
+                presult_type = llvm::Type::getDoubleTy(context);
+                break;
+            default:
+                throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
+        }
+        llvm::AllocaInst *presult = builder->CreateAlloca(presult_type, nullptr);
         llvm::Value *a = builder->CreateLoad(pa);
         std::vector<llvm::Value*> args = {a, presult};
         builder->CreateCall(fn, args);
@@ -552,6 +562,7 @@ public:
             ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
             // We pass all arguments as pointers for now
+            llvm::Type *type;
             switch (arg->m_type->type) {
                 case (ASR::ttypeType::Integer) : {
                     int a_kind = down_cast<ASR::Integer_t>(arg->m_type)->m_kind;
@@ -569,9 +580,21 @@ public:
                     }
                     break;
                 }
-                case (ASR::ttypeType::Real) :
-                    args.push_back(llvm::Type::getFloatPtrTy(context)); // Should kinds be introduced here?
+                case (ASR::ttypeType::Real) : {
+                    int a_kind = down_cast<ASR::Real_t>(x.m_type)->m_kind;
+                    switch(a_kind)
+                    {
+                        case 4:
+                            type = llvm::Type::getFloatTy(context);
+                            break;
+                        case 8:
+                            type = llvm::Type::getDoubleTy(context);
+                            break;
+                        default:
+                            throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
+                    }
                     break;
+                }
                 case (ASR::ttypeType::Complex) :
                     throw CodeGenError("Complex argument type not implemented yet in conversion");
                     break;
@@ -587,6 +610,7 @@ public:
                 default :
                     LFORTRAN_ASSERT(false);
             }
+            args.push_back(type);
         }
         return args;
     }
@@ -1019,24 +1043,48 @@ public:
                     break;
                 };
                 case ASR::binopType::Pow: {
+                    llvm::Type *type;
+                    int a_kind_l, a_kind_r, a_kind;
+                    a_kind_l = down_cast<ASR::Integer_t>(expr_type(x.m_left))->m_kind;
+                    a_kind_r = down_cast<ASR::Integer_t>(expr_type(x.m_right))->m_kind;
+                    a_kind = max(a_kind_l, a_kind_r);
+                    switch(a_kind)
+                    {
+                        case 4:
+                            type = llvm::Type::getFloatTy(context);
+                            break;
+                        case 8:
+                            type = llvm::Type::getDoubleTy(context);
+                            break;
+                        default:
+                            throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
+                    }
                     llvm::Value *fleft = builder->CreateSIToFP(left_val,
-                            llvm::Type::getFloatTy(context)); // Should kind be introduced here?
+                            type);
                     llvm::Value *fright = builder->CreateSIToFP(right_val,
-                            llvm::Type::getFloatTy(context)); // Should kind be introduced here?
-
-                    llvm::Function *fn_pow = module->getFunction("llvm.pow.f32");
+                            type);
+                    std::string func_name = a_kind == 4 ? "llvm.pow.f32" : "llvm.pow.f64";
+                    llvm::Function *fn_pow = module->getFunction(func_name);
                     if (!fn_pow) {
                         llvm::FunctionType *function_type = llvm::FunctionType::get(
-                                llvm::Type::getFloatTy(context), { // Should kind be introduced here?
-                                    llvm::Type::getFloatTy(context), // Should kind be introduced here?
-                                    llvm::Type::getFloatTy(context) // Should kind be introduced here?
-                                }, false);
+                                type, { type, type}, false);
                         fn_pow = llvm::Function::Create(function_type,
-                                llvm::Function::ExternalLinkage, "llvm.pow.f32",
+                                llvm::Function::ExternalLinkage, func_name,
                                 module.get());
                     }
                     tmp = builder->CreateCall(fn_pow, {fleft, fright});
-                    tmp = builder->CreateFPToSI(tmp, llvm::Type::getInt32Ty(context)); // Should kind be introduced here?
+                    switch(a_kind)
+                    {
+                        case 4:
+                            type = llvm::Type::getInt32Ty(context);
+                            break;
+                        case 8:
+                            type = llvm::Type::getInt64Ty(context);
+                            break;
+                        default:
+                            throw CodeGenError("Only 32 and 64 bits integer kinds are supported.");
+                    }
+                    tmp = builder->CreateFPToSI(tmp, type);
                     break;
                 };
             }
@@ -1060,15 +1108,36 @@ public:
                     break;
                 };
                 case ASR::binopType::Pow: {
-                    llvm::Function *fn_pow = module->getFunction("llvm.pow.f32");
+                    llvm::Type *type;
+                    llvm::Value *fleft, *fright;
+                    int a_kind_l, a_kind_r, a_kind;
+                    a_kind_l = down_cast<ASR::Real_t>(expr_type(x.m_left))->m_kind;
+                    a_kind_r = down_cast<ASR::Real_t>(expr_type(x.m_right))->m_kind;
+                    a_kind = max(a_kind_l, a_kind_r);
+                    switch(a_kind)
+                    {
+                        case 4:
+                            type = llvm::Type::getFloatTy(context);
+                            break;
+                        case 8:
+                            type = llvm::Type::getDoubleTy(context);
+                            break;
+                        default:
+                            throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
+                    }
+                    if( a_kind_l < a_kind ) {
+                        fleft = builder->CreateFPExt(left_val, type);
+                    }
+                    if( a_kind_r < a_kind ) {
+                        fright = builder->CreateFPExt(right_val, type);
+                    }
+                    std::string func_name = a_kind == 4 ? "llvm.pow.f32" : "llvm.pow.f64";
+                    llvm::Function *fn_pow = module->getFunction(func_name);
                     if (!fn_pow) {
                         llvm::FunctionType *function_type = llvm::FunctionType::get(
-                                llvm::Type::getFloatTy(context), { // Should kind be introduced here?
-                                    llvm::Type::getFloatTy(context), // Should kind be introduced here?
-                                    llvm::Type::getFloatTy(context) // Should kind be introduced here?
-                                }, false);
+                                type, { type, type }, false);
                         fn_pow = llvm::Function::Create(function_type,
-                                llvm::Function::ExternalLinkage, "llvm.pow.f32",
+                                llvm::Function::ExternalLinkage, func_name,
                                 module.get());
                     }
                     tmp = builder->CreateCall(fn_pow, {left_val, right_val});
@@ -1324,7 +1393,20 @@ public:
                 break;
             }
             case (ASR::cast_kindType::RealToInteger) : {
-                tmp = builder->CreateFPToSI(tmp, llvm::Type::getInt32Ty(context)); // Should kind be introduced here?
+                llvm::Type *target_type;
+                int a_kind = down_cast<ASR::Integer_t>(x.m_type)->m_kind;
+                switch(a_kind)
+                {
+                    case 4:
+                        target_type = llvm::Type::getInt32Ty(context);
+                        break;
+                    case 8:
+                        target_type = llvm::Type::getInt64Ty(context);
+                        break;
+                    default:
+                        throw CodeGenError("Only 32 and 64 bits integer kinds are supported.");
+                }
+                tmp = builder->CreateFPToSI(tmp, target_type);
                 break;
             }
             case (ASR::cast_kindType::RealToComplex) : {
@@ -1334,9 +1416,23 @@ public:
                 break;
             }
             case (ASR::cast_kindType::IntegerToComplex) : {
-                tmp = builder->CreateSIToFP(tmp, llvm::Type::getFloatTy(context)); // Should kind be introduced here?
-                llvm::Value *zero = llvm::ConstantFP::get(context,
-                        llvm::APFloat((float)0.0));
+                int a_kind = down_cast<ASR::Real_t>(x.m_type)->m_kind;
+                llvm::Type *target_type;
+                llvm::Value *zero;
+                switch(a_kind)
+                {
+                    case 4:
+                        target_type = llvm::Type::getFloatTy(context);
+                        zero = llvm::ConstantFP::get(context, llvm::APFloat((float)0.0));
+                        break;
+                    case 8:
+                        target_type = llvm::Type::getDoubleTy(context);
+                        zero = llvm::ConstantFP::get(context, llvm::APDouble(0.0));
+                        break;
+                    default:
+                        throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
+                }
+                tmp = builder->CreateSIToFP(tmp, target_type);
                 tmp = complex_from_floats(tmp, zero);
                 break;
             }
@@ -1495,12 +1591,36 @@ public:
                 llvm::Value *value=tmp;
                 llvm::Type *target_type;
                 switch (expr_type(x.m_args[i])->type) {
-                    case (ASR::ttypeType::Integer) :
-                        target_type = llvm::Type::getInt32Ty(context); // Should kind be introduced here?
+                    case (ASR::ttypeType::Integer) : {
+                        int a_kind = down_cast<ASR::Integer_t>(x.m_type)->m_kind;
+                        switch(a_kind)
+                        {
+                            case 4:
+                                target_type = llvm::Type::getInt32Ty(context);
+                                break;
+                            case 8:
+                                target_type = llvm::Type::getInt64Ty(context);
+                                break;
+                            default:
+                                throw CodeGenError("Only 32 and 64 bits integer kinds are supported.");
+                        }
                         break;
-                    case (ASR::ttypeType::Real) :
-                        target_type = llvm::Type::getFloatTy(context); // Should kind be introduced here?
+                    }
+                    case (ASR::ttypeType::Real) : {
+                        int a_kind = down_cast<ASR::Integer_t>(x.m_type)->m_kind;
+                        switch(a_kind)
+                        {
+                            case 4:
+                                target_type = llvm::Type::getFloatTy(context);
+                                break;
+                            case 8:
+                                target_type = llvm::Type::getDoubleTy(context);
+                                break;
+                            default:
+                                throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
+                        }
                         break;
+                    }
                     case (ASR::ttypeType::Complex) :
                         target_type = complex_type;
                         break;

@@ -926,7 +926,7 @@ public:
             } else if (sym_type == "logical") {
                 type = TYPE(ASR::make_Logical_t(al, x.loc, 4, dims.p, dims.size()));
             } else if (sym_type == "complex") {
-                type = TYPE(ASR::make_Complex_t(al, x.loc, 4, dims.p, dims.size()));
+                type = TYPE(ASR::make_Complex_t(al, x.loc, a_kind, dims.p, dims.size()));
             } else if (sym_type == "character") {
                 type = TYPE(ASR::make_Character_t(al, x.loc, 4, dims.p, dims.size()));
             } else if (sym_type == "type") {
@@ -1718,7 +1718,7 @@ public:
 
     void visit_Complex(const AST::Complex_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Complex_t(al, x.base.base.loc,
-                4, nullptr, 0));
+                4, nullptr, 0)); // Extract kind here.
         this->visit_expr(*x.m_re);
         ASR::expr_t *re = EXPR(tmp);
         this->visit_expr(*x.m_im);
