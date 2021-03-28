@@ -111,6 +111,10 @@ public:
 const std::string lfortran_modfile_type_string = "LFortran Modfile";
 
 std::string save_modfile(const ASR::TranslationUnit_t &m) {
+    LFORTRAN_ASSERT(m.m_global_scope->scope.size()== 1);
+    for (auto &a : m.m_global_scope->scope) {
+        LFORTRAN_ASSERT(ASR::is_a<ASR::Module_t>(*a.second));
+    }
     BinaryWriter b;
     b.write_string(lfortran_modfile_type_string);
     b.write_string(LFORTRAN_VERSION);
