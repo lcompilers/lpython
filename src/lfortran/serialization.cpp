@@ -296,13 +296,66 @@ public:
     }
 };
 
+namespace ASR {
+
+class FixParentSymtabVisitor : public BaseWalkVisitor<FixParentSymtabVisitor>
+{
+private:
+    SymbolTable *current_symtab;
+public:
+    void visit_TranslationUnit(const TranslationUnit_t &x) {
+        current_symtab = x.m_global_scope;
+        for (auto &a : x.m_global_scope->scope) {
+            this->visit_symbol(*a.second);
+        }
+    }
+
+    void visit_Program(const Program_t &x) {
+        SymbolTable *parent_symtab = current_symtab;
+        current_symtab = x.m_symtab;
+        x.m_symtab->parent = parent_symtab;
+        for (auto &a : x.m_symtab->scope) {
+            this->visit_symbol(*a.second);
+        }
+        current_symtab = parent_symtab;
+    }
+
+    void visit_Subroutine(const Subroutine_t &x) {
+        SymbolTable *parent_symtab = current_symtab;
+        current_symtab = x.m_symtab;
+        x.m_symtab->parent = parent_symtab;
+        for (auto &a : x.m_symtab->scope) {
+            this->visit_symbol(*a.second);
+        }
+        current_symtab = parent_symtab;
+    }
+
+    void visit_Function(const Function_t &x) {
+        SymbolTable *parent_symtab = current_symtab;
+        current_symtab = x.m_symtab;
+        x.m_symtab->parent = parent_symtab;
+        for (auto &a : x.m_symtab->scope) {
+            this->visit_symbol(*a.second);
+        }
+        current_symtab = parent_symtab;
+    }
+
+};
+
+} // namespace ASR
+
 ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s) {
     ASRDeserializationVisitor v(al, s);
     ASR::asr_t *node = v.deserialize_node();
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(node);
+
+    // Connect the `parent` member of symbol tables
+    ASR::FixParentSymtabVisitor p;
+    p.visit_TranslationUnit(*tu);
+
     LFORTRAN_ASSERT(asr_verify(*tu));
 
     return node;
 }
 
-}
+} // namespace LFortran
