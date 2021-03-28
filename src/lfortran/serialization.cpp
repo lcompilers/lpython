@@ -18,7 +18,10 @@ std::string uint64_to_string(uint64_t i) {
     return std::string(bytes, 4);
 }
 
-uint64_t string_to_uint64(const char *p) {
+uint64_t string_to_uint64(const char *s) {
+    // The cast from signed char to unsigned char is important,
+    // otherwise the signed char shifts return wrong value for negative numbers
+    const uint8_t *p = (const unsigned char*)s;
     return (p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3];
 }
 

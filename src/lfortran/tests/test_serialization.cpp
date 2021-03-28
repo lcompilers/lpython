@@ -15,6 +15,9 @@ TEST_CASE("Integer conversion") {
     i = 1;
     CHECK(string_to_uint64(uint64_to_string(i)) == i);
 
+    i = 150;
+    CHECK(string_to_uint64(uint64_to_string(i)) == i);
+
     i = 256;
     CHECK(string_to_uint64(uint64_to_string(i)) == i);
 
