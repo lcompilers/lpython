@@ -230,6 +230,21 @@ public:
         return p;
     }
 
+#define READ_SYMBOL_CASE(x)                                \
+    case (ASR::symbolType::x) : {                          \
+        s = (ASR::symbol_t*)al.make_new<ASR::x##_t>();     \
+        s->type = ASR::symbolType::x;                      \
+        s->base.type = ASR::asrType::symbol;               \
+        s->base.loc.first_line = 123;                      \
+        break;                                             \
+    }
+
+#define INSERT_SYMBOL_CASE(x)                              \
+    case (ASR::symbolType::x) : {                          \
+        memcpy(sym2, sym, sizeof(ASR::x##_t));             \
+        break;                                             \
+    }
+
     ASR::symbol_t *read_symbol() {
         uint64_t symtab_id = read_int64();
         uint64_t symbol_type = read_int8();
@@ -244,17 +259,14 @@ public:
             ASR::symbolType ty = static_cast<ASR::symbolType>(symbol_type);
             ASR::symbol_t *s;
             switch (ty) {
-                case (ASR::symbolType::Function) : {
-                    Location loc;
-                    s = ASR::down_cast<ASR::symbol_t>(ASR::make_Function_t(al,
-                        loc,
-                        nullptr, nullptr,
-                        nullptr, 0,
-                        nullptr, 0,
-                        nullptr, ASR::abiType::Source,
-                        ASR::accessType::Public));
-                    break;
-                }
+                READ_SYMBOL_CASE(Program)
+                READ_SYMBOL_CASE(Module)
+                READ_SYMBOL_CASE(Subroutine)
+                READ_SYMBOL_CASE(Function)
+                READ_SYMBOL_CASE(GenericProcedure)
+                READ_SYMBOL_CASE(ExternalSymbol)
+                READ_SYMBOL_CASE(DerivedType)
+                READ_SYMBOL_CASE(Variable)
                 default : throw LFortranException("Symbol type not supported");
             }
             symtab->scope[symbol_name] = s;
@@ -271,25 +283,16 @@ public:
             // We have to copy the contents of `sym` into `sym2` without
             // changing the `sym2` pointer already in the table
             ASR::symbol_t *sym2 = symtab.scope[name];
-            LFORTRAN_ASSERT(sym2->type == sym->type);
-            switch (sym2->type) {
-                case (ASR::symbolType::Function) : {
-                    ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(sym);
-                    ASR::Function_t *f2 = ASR::down_cast<ASR::Function_t>(sym2);
-                    f2->base.type = f->base.type;
-                    f2->base.base.type = f->base.base.type;
-                    f2->base.base.loc = f->base.base.loc;
-                    f2->m_symtab = f->m_symtab;
-                    f2->m_name = f->m_name;
-                    f2->m_args = f->m_args;
-                    f2->n_args = f->n_args;
-                    f2->m_body = f->m_body;
-                    f2->n_body = f->n_body;
-                    f2->m_return_var = f->m_return_var;
-                    f2->m_abi = f->m_abi;
-                    f2->m_access = f->m_access;
-                    break;
-                }
+            LFORTRAN_ASSERT(sym2->base.loc.first_line == 123);
+            switch (sym->type) {
+                INSERT_SYMBOL_CASE(Program)
+                INSERT_SYMBOL_CASE(Module)
+                INSERT_SYMBOL_CASE(Subroutine)
+                INSERT_SYMBOL_CASE(Function)
+                INSERT_SYMBOL_CASE(GenericProcedure)
+                INSERT_SYMBOL_CASE(ExternalSymbol)
+                INSERT_SYMBOL_CASE(DerivedType)
+                INSERT_SYMBOL_CASE(Variable)
                 default : throw LFortranException("Symbol type not supported");
             }
         }
