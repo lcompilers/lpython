@@ -3,7 +3,8 @@ implicit none
 integer, parameter :: i = 20 
 integer :: a(20)
 a(4) = 3
-print *, a(4)
+a(5) = 7
+print *, a(4), a(5)
 !, a(5:6, 7:8)
 !integer, allocatable :: c(:,:)
 !b(6) = 20

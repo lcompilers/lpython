@@ -468,7 +468,7 @@ public:
         bool check_for_bounds = is_explicit_shape(v);
         llvm::Value* idx = cmo_convertor_single_element(array, x.m_args, (int) x.n_args, check_for_bounds);
         idx = builder->CreateSExt(idx, llvm::Type::getInt64Ty(context));
-        idx = builder->CreateMul(idx, llvm::ConstantInt::get(context, llvm::APInt(64, sizeof(void*))));
+        idx = builder->CreateMul(idx, llvm::ConstantInt::get(context, llvm::APInt(64, 8*sizeof(void*))));
         llvm::Value* array_ptr = builder->CreateLoad(create_gep(array, 0));
         llvm::Value* array_ptr_int = builder->CreatePtrToInt(array_ptr, llvm::Type::getInt64Ty(context));
         llvm::Value* ptr_to_array_idx = builder->CreateIntToPtr(builder->CreateAdd(array_ptr_int, idx), array_ptr->getType());
