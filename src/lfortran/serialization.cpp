@@ -163,6 +163,7 @@ public:
 
     void write_symbol(const ASR::symbol_t &x) {
         write_int64(symbol_parent_symtab(&x)->counter);
+        write_int8(x.type);
         write_string(symbol_name(&x));
     }
 };
@@ -227,6 +228,71 @@ public:
         cs.from_str_view(s);
         char* p = cs.c_str(al);
         return p;
+    }
+
+    ASR::symbol_t *read_symbol() {
+        uint64_t symtab_id = read_int64();
+        uint64_t symbol_type = read_int8();
+        std::string symbol_name  = read_string();
+        LFORTRAN_ASSERT(id_symtab_map.find(symtab_id) != id_symtab_map.end());
+        SymbolTable *symtab = id_symtab_map[symtab_id];
+        if (symtab->scope.find(symbol_name) == symtab->scope.end()) {
+            // Symbol is not in the symbol table yet. We construct an empty
+            // symbol of the correct type and put it in the symbol table.
+            // Later when constructing the symbol table, we will check for this
+            // and fill it in correctly.
+            ASR::symbolType ty = static_cast<ASR::symbolType>(symbol_type);
+            ASR::symbol_t *s;
+            switch (ty) {
+                case (ASR::symbolType::Function) : {
+                    Location loc;
+                    s = ASR::down_cast<ASR::symbol_t>(ASR::make_Function_t(al,
+                        loc,
+                        nullptr, nullptr,
+                        nullptr, 0,
+                        nullptr, 0,
+                        nullptr, ASR::abiType::Source,
+                        ASR::accessType::Public));
+                    break;
+                }
+                default : throw LFortranException("Symbol type not supported");
+            }
+            symtab->scope[symbol_name] = s;
+        }
+        ASR::symbol_t *sym = symtab->scope[symbol_name];
+        return sym;
+    }
+
+    void symtab_insert_symbol(SymbolTable &symtab, const std::string &name,
+        ASR::symbol_t *sym) {
+        if (symtab.scope.find(name) == symtab.scope.end()) {
+            symtab.scope[name] = sym;
+        } else {
+            // We have to copy the contents of `sym` into `sym2` without
+            // changing the `sym2` pointer already in the table
+            ASR::symbol_t *sym2 = symtab.scope[name];
+            LFORTRAN_ASSERT(sym2->type == sym->type);
+            switch (sym2->type) {
+                case (ASR::symbolType::Function) : {
+                    ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(sym);
+                    ASR::Function_t *f2 = ASR::down_cast<ASR::Function_t>(sym2);
+                    f2->base.type = f->base.type;
+                    f2->base.base.type = f->base.base.type;
+                    f2->base.base.loc = f->base.base.loc;
+                    f2->m_symtab = f->m_symtab;
+                    f2->m_name = f->m_name;
+                    f2->m_args = f->m_args;
+                    f2->n_args = f->n_args;
+                    f2->m_body = f->m_body;
+                    f2->n_body = f->n_body;
+                    f2->m_return_var = f->m_return_var;
+                    f2->m_abi = f->m_abi;
+                    f2->m_access = f->m_access;
+                    break;
+                }
+                default : throw LFortranException("Symbol type not supported");
+            }
+        }
     }
 };
 

@@ -1031,7 +1031,7 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                             lines.append("    for (size_t i=0; i<n; i++) {")
                             lines.append("        std::string name = self().read_string();")
                             lines.append("        symbol_t *sym = down_cast<symbol_t>(deserialize_symbol());")
-                            lines.append("        m_%s->scope[name] = sym;" % f.name)
+                            lines.append("        self().symtab_insert_symbol(*m_%s, name, sym);" % f.name)
                             lines.append("    }")
                             lines.append("}")
                     else:
@@ -1052,15 +1052,7 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                             if f.opt:
                                 lines.append("if (self().read_bool()) {")
                             if f.type == "symbol":
-                                lines.append("uint64_t symtab_id_%s = self().read_int64();" % f.name)
-                                lines.append("std::string symbol_name_%s  = self().read_string();" % f.name)
-                                # This assumes the symbol table was constructed
-                                # before the symbol was encountered
-                                lines.append("LFORTRAN_ASSERT(id_symtab_map.find(symtab_id_%s) != id_symtab_map.end());" % f.name)
-                                # look the symbol up
-                                lines.append("{SymbolTable *symtab = id_symtab_map[symtab_id_%s];" % (f.name))
-                                lines.append("LFORTRAN_ASSERT(symtab->scope.find(symbol_name_%s) != symtab->scope.end());" % f.name)
-                                lines.append("m_%s = symtab->scope[symbol_name_%s];}" % (f.name, f.name))
+                                lines.append("m_%s = self().read_symbol();" % (f.name))
                             else:
                                 lines.append("m_%s = %s::down_cast<%s::%s_t>(self().deserialize_%s());" % (
                                     f.name, subs["mod"].upper(), subs["mod"].upper(), f.type, f.type))
