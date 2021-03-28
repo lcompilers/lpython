@@ -430,11 +430,13 @@ public:
             ASR::array_index_t curr_idx = m_args[r];
             this->visit_expr(*curr_idx.m_right);
             llvm::Value* curr_llvm_idx = tmp;
+            llvm::Value* dim_des_ptr = create_gep(dim_des_arr_ptr, r);
             if( check_for_bounds ) {
+                llvm::Value* lval = builder->CreateLoad(create_gep(dim_des_ptr, 1));
+                curr_llvm_idx = builder->CreateSub(curr_llvm_idx, lval);
                 check_single_element(curr_llvm_idx, arr);
             }
             idx = builder->CreateAdd(idx, builder->CreateMul(prod, curr_llvm_idx));
-            llvm::Value* dim_des_ptr = create_gep(dim_des_arr_ptr, r);
             llvm::Value* dim_size = builder->CreateLoad(create_gep(dim_des_ptr, 3));
             prod = builder->CreateMul(prod, dim_size);
         }
@@ -465,10 +467,12 @@ public:
         llvm::Value* array = llvm_symtab[v_h];
         bool check_for_bounds = is_explicit_shape(v);
         llvm::Value* idx = cmo_convertor_single_element(array, x.m_args, (int) x.n_args, check_for_bounds);
+        idx = builder->CreateSExt(idx, llvm::Type::getInt64Ty(context));
+        idx = builder->CreateMul(idx, llvm::ConstantInt::get(context, llvm::APInt(64, sizeof(void*))));
         llvm::Value* array_ptr = builder->CreateLoad(create_gep(array, 0));
-        // llvm::Value* array_ptr_int = builder->CreatePtrToInt(array_ptr, llvm::Type::getInt32Ty(context));
-        // llvm::Value* ptr_to_array_idx = builder->CreateIntToPtr(builder->CreateAdd(array_ptr_int, idx), array_ptr->getType());
-        tmp = create_gep(array_ptr, idx);
+        llvm::Value* array_ptr_int = builder->CreatePtrToInt(array_ptr, llvm::Type::getInt64Ty(context));
+        llvm::Value* ptr_to_array_idx = builder->CreateIntToPtr(builder->CreateAdd(array_ptr_int, idx), array_ptr->getType());
+        tmp = ptr_to_array_idx;
     }
 
     void visit_ArrayRef(const ASR::ArrayRef_t& x) {
@@ -888,14 +892,6 @@ public:
         builder->CreateStore(llvm_symtab[value_h], llvm_symtab[target_h]);
     }
 
-    bool is_array(llvm::Value* v) {
-        return false;
-    }
-
-    void element_wise_assign(llvm::Value* arr, llvm::Value* val) {
-
-    }
-
     void visit_Assignment(const ASR::Assignment_t &x) {
         llvm::Value *target = nullptr, *value = nullptr;
         if( x.m_target->type == ASR::exprType::ArrayRef ) {
@@ -926,13 +922,7 @@ public:
         } else {
             value = tmp;
         }
-        bool is_target_arr = is_array(target);
-        bool is_value_arr = is_array(value);
-        if( is_target_arr && !is_value_arr ) {
-            element_wise_assign(target, value);
-        } else {
-            builder->CreateStore(value, target);
-        }
+        builder->CreateStore(value, target);
     }
 
     void visit_Compare(const ASR::Compare_t &x) {
