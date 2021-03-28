@@ -393,6 +393,12 @@ class ASTWalkVisitorVisitor(ASDLVisitor):
                             self.emit("if (x.m_%s)" % field.name, 2)
                             level = 3
                         self.emit("self().visit_%s(*x.m_%s);" % (field.type, field.name), level)
+        elif field.type == "symbol_table" and field.name in["symtab",
+                "global_scope"]:
+            self.used = True
+            self.emit("for (auto &a : x.m_%s->scope) {" % field.name, 2)
+            self.emit(  "this->visit_symbol(*a.second);", 3)
+            self.emit("}", 2)
 
 
 class PickleVisitorVisitor(ASDLVisitor):
