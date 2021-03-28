@@ -59,14 +59,14 @@ public:
     }
 };
 
-std::string serialize(AST::ast_t &ast) {
+std::string serialize(const AST::ast_t &ast) {
     ASTSerializationVisitor v;
     v.write_int8(ast.type);
     v.visit_ast(ast);
     return v.get_str();
 }
 
-std::string serialize(AST::TranslationUnit_t &unit) {
+std::string serialize(const AST::TranslationUnit_t &unit) {
     return serialize((AST::ast_t&)(unit));
 }
 
@@ -168,14 +168,14 @@ public:
     }
 };
 
-std::string serialize(ASR::asr_t &asr) {
+std::string serialize(const ASR::asr_t &asr) {
     ASRSerializationVisitor v;
     v.write_int8(asr.type);
     v.visit_asr(asr);
     return v.get_str();
 }
 
-std::string serialize(ASR::TranslationUnit_t &unit) {
+std::string serialize(const ASR::TranslationUnit_t &unit) {
     return serialize((ASR::asr_t&)(unit));
 }
 
