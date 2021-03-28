@@ -230,6 +230,15 @@ public:
         return p;
     }
 
+#define READ_SYMBOL_CASE(x)                                \
+    case (ASR::symbolType::x) : {                          \
+        s = (ASR::symbol_t*)al.make_new<ASR::x##_t>();     \
+        s->type = ASR::symbolType::x;                      \
+        s->base.type = ASR::asrType::symbol;               \
+        s->base.loc.first_line = 123;                      \
+        break;                                             \
+    }
+
     ASR::symbol_t *read_symbol() {
         uint64_t symtab_id = read_int64();
         uint64_t symbol_type = read_int8();
@@ -244,13 +253,14 @@ public:
             ASR::symbolType ty = static_cast<ASR::symbolType>(symbol_type);
             ASR::symbol_t *s;
             switch (ty) {
-                case (ASR::symbolType::Function) : {
-                    s = (ASR::symbol_t*)al.make_new<ASR::Function_t>();
-                    s->type = ASR::symbolType::Function;
-                    s->base.type = ASR::asrType::symbol;
-                    s->base.loc.first_line = 123;
-                    break;
-                }
+                READ_SYMBOL_CASE(Program)
+                READ_SYMBOL_CASE(Module)
+                READ_SYMBOL_CASE(Subroutine)
+                READ_SYMBOL_CASE(Function)
+                READ_SYMBOL_CASE(GenericProcedure)
+                READ_SYMBOL_CASE(ExternalSymbol)
+                READ_SYMBOL_CASE(DerivedType)
+                READ_SYMBOL_CASE(Variable)
                 default : throw LFortranException("Symbol type not supported");
             }
             symtab->scope[symbol_name] = s;
