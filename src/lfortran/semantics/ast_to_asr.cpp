@@ -1,5 +1,6 @@
 #include <cctype>
 #include <iostream>
+#include <fstream>
 #include <map>
 #include <memory>
 
@@ -8,6 +9,7 @@
 #include <lfortran/asr_utils.h>
 #include <lfortran/asr_verify.h>
 #include <lfortran/pickle.h>
+#include <lfortran/modfile.h>
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/parser/parser_stype.h>
 #include <string>
@@ -630,12 +632,55 @@ public:
         }
     }
 
+    std::string read_file(const std::string &filename)
+    {
+        std::ifstream ifs(filename.c_str(), std::ios::in | std::ios::binary
+                | std::ios::ate);
+
+        std::ifstream::pos_type filesize = ifs.tellg();
+        if (filesize < 0) return std::string();
+
+        ifs.seekg(0, std::ios::beg);
+
+        std::vector<char> bytes(filesize);
+        ifs.read(&bytes[0], filesize);
+
+        return std::string(&bytes[0], filesize);
+    }
+
+    ASR::TranslationUnit_t* find_and_load_module(const std::string &msym) {
+        std::string modfile = read_file(msym + ".mod");
+        if (modfile == "") return nullptr;
+        ASR::TranslationUnit_t *asr = load_modfile(al, modfile);
+        return asr;
+    }
+
+    ASR::Module_t* extract_module(const ASR::TranslationUnit_t &m) {
+        LFORTRAN_ASSERT(m.m_global_scope->scope.size()== 1);
+        for (auto &a : m.m_global_scope->scope) {
+            LFORTRAN_ASSERT(ASR::is_a<ASR::Module_t>(*a.second));
+            return ASR::down_cast<ASR::Module_t>(a.second);
+        }
+        throw LFortranException("ICE: Module not found");
+    }
+
     void visit_Use(const AST::Use_t &x) {
         std::string msym = x.m_module;
         ASR::symbol_t *t = current_scope->parent->resolve_symbol(msym);
         if (!t) {
-            throw SemanticError("Module '" + msym + "' not declared",
-                x.base.base.loc);
+            // TODO: symbol table IDs must be adjusted:
+            ASR::TranslationUnit_t *mod1 = find_and_load_module(msym);
+            if (mod1 == nullptr) {
+                throw SemanticError("Module '" + msym + "' not declared in the current source and the modfile was not found",
+                    x.base.base.loc);
+            }
+            ASR::Module_t *mod2 = extract_module(*mod1);
+            current_scope->parent->scope[msym] = (ASR::symbol_t*)mod2;
+            mod2->m_symtab->parent = current_scope->parent;
+            //ASR::TranslationUnit_t *tu = current_scope->parent->symbol;
+            //LFORTRAN_ASSERT(LFortran::asr_verify(*tu));
+            t = current_scope->parent->resolve_symbol(msym);
+            LFORTRAN_ASSERT(t != nullptr);
         }
         if (!ASR::is_a<ASR::Module_t>(*t)) {
             throw SemanticError("The symbol '" + msym + "' must be a module",
