@@ -496,6 +496,10 @@ int save_mod_files(const LFortran::ASR::TranslationUnit_t &u)
         if (LFortran::ASR::is_a<LFortran::ASR::Module_t>(*item.second)) {
             LFortran::ASR::Module_t *m = LFortran::ASR::down_cast<LFortran::ASR::Module_t>(item.second);
 
+            // Do not save modfiles for modules that were already loaded
+            // from modfiles (as full ASR)
+            if (m->m_loaded_from_mod) continue;
+
             Allocator al(4*1024);
             LFortran::SymbolTable *symtab =
                 al.make_new<LFortran::SymbolTable>(nullptr);

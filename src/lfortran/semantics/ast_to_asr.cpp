@@ -344,7 +344,8 @@ public:
         asr = ASR::make_Module_t(
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
-            /* a_name */ x.m_name);
+            /* a_name */ x.m_name,
+            false);
         std::string sym_name = x.m_name;
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             throw SemanticError("Module already defined", asr->loc);
@@ -677,6 +678,7 @@ public:
             ASR::Module_t *mod2 = extract_module(*mod1);
             current_scope->parent->scope[msym] = (ASR::symbol_t*)mod2;
             mod2->m_symtab->parent = current_scope->parent;
+            mod2->m_loaded_from_mod = true;
             //ASR::TranslationUnit_t *tu = current_scope->parent->symbol;
             //LFORTRAN_ASSERT(LFortran::asr_verify(*tu));
             t = current_scope->parent->resolve_symbol(msym);
