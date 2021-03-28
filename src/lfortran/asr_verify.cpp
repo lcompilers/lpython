@@ -29,6 +29,11 @@ public:
         for (auto &a : x.m_global_scope->scope) {
             this->visit_symbol(*a.second);
         }
+        for (size_t i=0; i<x.n_items; i++) {
+            asr_t *item = x.m_items[i];
+            require(is_a<stmt_t>(*item) || is_a<expr_t>(*item),
+                "TranslationUnit::m_items must be either stmt or expr");
+        }
         current_symtab = nullptr;
     }
 
