@@ -110,11 +110,43 @@ public:
 
 const std::string lfortran_modfile_type_string = "LFortran Modfile";
 
+// The save_modfile() and load_modfile() must stay consistent. What is saved
+// must be loaded in exactly the same order.
+
+/*
+    Saves the module into a binary stream.
+
+    That stream can be saved to a mod file by the caller.
+    The sections in the file/stream are saved using write_string(), so they
+    can be efficiently read by the loader and ignored if needed.
+
+    Comments below show some possible future improvements to the mod format.
+*/
 std::string save_modfile(const ASR::TranslationUnit_t &m) {
+    LFORTRAN_ASSERT(m.m_global_scope->scope.size()== 1);
+    for (auto &a : m.m_global_scope->scope) {
+        LFORTRAN_ASSERT(ASR::is_a<ASR::Module_t>(*a.second));
+    }
     BinaryWriter b;
+    // Header
     b.write_string(lfortran_modfile_type_string);
     b.write_string(LFORTRAN_VERSION);
+
+    // AST section: Original module source code:
+    // Currently empty.
+    // Note: in the future we can save here:
+    // * A path to the original source code
+    // * Hash of the orig source code
+    // * AST binary export of it (this AST only changes if the hash changes)
+
+    // ASR section:
+
+    // Export ASR:
+    // Currently empty.
+
+    // Full ASR:
     b.write_string(serialize(m));
+
     return b.get_str();
 }
 

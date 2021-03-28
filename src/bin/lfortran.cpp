@@ -18,6 +18,8 @@
 #include <lfortran/pass/do_loops.h>
 #include <lfortran/pass/global_stmts.h>
 #include <lfortran/asr_utils.h>
+#include <lfortran/asr_verify.h>
+#include <lfortran/modfile.h>
 #include <lfortran/config.h>
 #include <lfortran/fortran_kernel.h>
 #include <lfortran/string_utils.h>
@@ -493,12 +495,33 @@ int save_mod_files(const LFortran::ASR::TranslationUnit_t &u)
     for (auto &item : u.m_global_scope->scope) {
         if (LFortran::ASR::is_a<LFortran::ASR::Module_t>(*item.second)) {
             LFortran::ASR::Module_t *m = LFortran::ASR::down_cast<LFortran::ASR::Module_t>(item.second);
+
+            Allocator al(4*1024);
+            LFortran::SymbolTable *symtab =
+                al.make_new<LFortran::SymbolTable>(nullptr);
+            symtab->scope[std::string(m->m_name)] = item.second;
+            LFortran::SymbolTable *orig_symtab = m->m_symtab->parent;
+            m->m_symtab->parent = symtab;
+
+            LFortran::Location loc;
+            LFortran::ASR::asr_t *asr = LFortran::ASR::make_TranslationUnit_t(al, loc,
+                symtab, nullptr, 0);
+            LFortran::ASR::TranslationUnit_t *tu =
+                LFortran::ASR::down_cast2<LFortran::ASR::TranslationUnit_t>(asr);
+            LFORTRAN_ASSERT(LFortran::asr_verify(*tu));
+
+            std::string modfile_binary = LFortran::save_modfile(*tu);
+
+            m->m_symtab->parent = orig_symtab;
+
+            LFORTRAN_ASSERT(LFortran::asr_verify(u));
+
+
             std::string modfile = std::string(m->m_name) + ".mod";
-            std::string cmd = "touch " + modfile;
-            int err = system(cmd.c_str());
-            if (err) {
-                std::cout << "The command '" + cmd + "' failed." << std::endl;
-                return 11;
+            {
+                std::ofstream out;
+                out.open(modfile);
+                out << modfile_binary;
             }
         }
     }
@@ -549,7 +572,7 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
     LFortran::ASR::TranslationUnit_t* asr;
 
 
-    // Src -> AST
+    // Src -> AST -> ASR
     LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
     result = fe.get_asr2(input);
     if (result.ok) {
