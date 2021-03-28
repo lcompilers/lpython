@@ -2,6 +2,7 @@
 #include <lfortran/containers.h>
 #include <lfortran/exception.h>
 #include <lfortran/asr_utils.h>
+#include <lfortran/asr_verify.h>
 #include <lfortran/pass/do_loops.h>
 
 
@@ -107,12 +108,6 @@ public:
 
     }
 
-    void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
-        for (auto &a : x.m_global_scope->scope) {
-            this->visit_symbol(*a.second);
-        }
-    }
-
     void transform_stmts(ASR::stmt_t **&m_body, size_t &n_body) {
         Vec<ASR::stmt_t*> body;
         body.reserve(al, n_body);
@@ -188,6 +183,7 @@ void pass_replace_do_loops(Allocator &al, ASR::TranslationUnit_t &unit) {
     // to transform doubly nested loops:
     v.visit_TranslationUnit(unit);
     v.visit_TranslationUnit(unit);
+    LFORTRAN_ASSERT(asr_verify(unit));
 }
 
 

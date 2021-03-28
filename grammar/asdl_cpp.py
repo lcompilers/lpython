@@ -367,26 +367,38 @@ class ASTWalkVisitorVisitor(ASDLVisitor):
         if (field.type not in asdl.builtin_types and
             field.type not in self.data.simple_types):
             level = 2
-            if field.type in products:
-                if field.opt:
-                    template = "self().visit_%s(*x.m_%s);" % (field.type, field.name)
-                else:
-                    template = "self().visit_%s(x.m_%s);" % (field.type, field.name)
-            else:
-                template = "self().visit_%s(*x.m_%s);" % (field.type, field.name)
-            self.used = True
             if field.seq:
+                self.used = True
                 self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
                 if field.type in products:
                     self.emit("    self().visit_%s(x.m_%s[i]);" % (field.type, field.name), level)
                 else:
-                    self.emit("    self().visit_%s(*x.m_%s[i]);" % (field.type, field.name), level)
+                    if field.type != "symbol":
+                        self.emit("    self().visit_%s(*x.m_%s[i]);" % (field.type, field.name), level)
                 self.emit("}", level)
-                return
-            elif field.opt:
-                self.emit("if (x.m_%s)" % field.name, 2)
-                level = 3
-            self.emit(template, level)
+            else:
+                if field.type in products:
+                    self.used = True
+                    if field.opt:
+                        self.emit("if (x.m_%s)" % field.name, 2)
+                        level = 3
+                    if field.opt:
+                        self.emit("self().visit_%s(*x.m_%s);" % (field.type, field.name), level)
+                    else:
+                        self.emit("self().visit_%s(x.m_%s);" % (field.type, field.name), level)
+                else:
+                    if field.type != "symbol":
+                        self.used = True
+                        if field.opt:
+                            self.emit("if (x.m_%s)" % field.name, 2)
+                            level = 3
+                        self.emit("self().visit_%s(*x.m_%s);" % (field.type, field.name), level)
+        elif field.type == "symbol_table" and field.name in["symtab",
+                "global_scope"]:
+            self.used = True
+            self.emit("for (auto &a : x.m_%s->scope) {" % field.name, 2)
+            self.emit(  "this->visit_symbol(*a.second);", 3)
+            self.emit("}", 2)
 
 
 class PickleVisitorVisitor(ASDLVisitor):
@@ -705,7 +717,11 @@ class SerializationVisitorVisitor(ASDLVisitor):
                 else:
                     template = "self().visit_%s(x.m_%s);" % (field.type, field.name)
             else:
-                template = "self().visit_%s(*x.m_%s);" % (field.type, field.name)
+                if field.type == "symbol":
+                    template = "self().write_symbol(*x.m_%s);" \
+                        % field.name
+                else:
+                    template = "self().visit_%s(*x.m_%s);" % (field.type, field.name)
             if field.seq:
                 self.emit('self().write_int64(x.n_%s);' % field.name, level)
                 self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
@@ -816,6 +832,7 @@ class DeserializationVisitorVisitor(ASDLVisitor):
         self.emit(  "Derived& self() { return static_cast<Derived&>(*this); }", 1)
         self.emit("public:")
         self.emit(  "Allocator &al;", 1)
+        self.emit(  "std::map<uint64_t,SymbolTable*> id_symtab_map;", 1)
         self.emit(  r"DeserializationBaseVisitor(Allocator &al) : al{al} {}", 1)
         self.emit_deserialize_node();
         self.mod = mod
@@ -1005,18 +1022,28 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                     elif f.type == "symbol_table":
                         assert not f.opt
                         # TODO: read the symbol table:
-                        lines.append("SymbolTable *m_%s = al.make_new<SymbolTable>(nullptr);" % (f.name))
                         args.append("m_%s" % (f.name))
-                        lines.append("m_%s->counter = self().read_int64();" % (f.name))
+                        lines.append("uint64_t m_%s_counter = self().read_int64();" % (f.name))
                         if f.name == "parent_symtab":
-                            pass
+                            # If this fails, it means we are referencing a
+                            # symbol table that was not constructed yet. If
+                            # that ever happens, we would have to remember
+                            # this and come back later to fix the pointer.
+                            lines.append("LFORTRAN_ASSERT(id_symtab_map.find(m_%s_counter) != id_symtab_map.end());" % f.name)
+                            lines.append("SymbolTable *m_%s = id_symtab_map[m_%s_counter];" % (f.name, f.name))
                         else:
+                            # We construct a new table. It should not
+                            # be present:
+                            lines.append("LFORTRAN_ASSERT(id_symtab_map.find(m_%s_counter) == id_symtab_map.end());" % f.name)
+                            lines.append("SymbolTable *m_%s = al.make_new<SymbolTable>(nullptr);" % (f.name))
+                            lines.append("m_%s->counter = m_%s_counter;" % (f.name, f.name))
+                            lines.append("id_symtab_map[m_%s_counter] = m_%s;" % (f.name, f.name))
                             lines.append("{")
                             lines.append("    size_t n = self().read_int64();")
                             lines.append("    for (size_t i=0; i<n; i++) {")
                             lines.append("        std::string name = self().read_string();")
                             lines.append("        symbol_t *sym = down_cast<symbol_t>(deserialize_symbol());")
-                            lines.append("        m_%s->scope[name] = sym;" % f.name)
+                            lines.append("        self().symtab_insert_symbol(*m_%s, name, sym);" % f.name)
                             lines.append("    }")
                             lines.append("}")
                     else:
@@ -1036,14 +1063,15 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                                 f.type, f.name))
                             if f.opt:
                                 lines.append("if (self().read_bool()) {")
-                                lines.append("m_%s = %s::down_cast<%s::%s_t>(self().deserialize_%s());" % (
-                                    f.name, subs["mod"].upper(), subs["mod"].upper(), f.type, f.type))
-                                lines.append("} else {")
-                                lines.append("m_%s = nullptr;" % f.name)
-                                lines.append("}")
+                            if f.type == "symbol":
+                                lines.append("m_%s = self().read_symbol();" % (f.name))
                             else:
                                 lines.append("m_%s = %s::down_cast<%s::%s_t>(self().deserialize_%s());" % (
                                     f.name, subs["mod"].upper(), subs["mod"].upper(), f.type, f.type))
+                            if f.opt:
+                                lines.append("} else {")
+                                lines.append("m_%s = nullptr;" % f.name)
+                                lines.append("}")
                     args.append("m_%s" % (f.name))
         for line in lines:
             self.emit(line, 2)
