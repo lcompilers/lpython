@@ -942,7 +942,7 @@ int main(int argc, char *argv[])
         std::vector<std::string> arg_I;
         bool arg_cpp = false;
         std::string arg_o;
-        std::string arg_file;
+        std::vector<std::string> arg_files;
         bool arg_version = false;
         bool show_tokens = false;
         bool show_ast = false;
@@ -973,7 +973,7 @@ int main(int argc, char *argv[])
         CLI::App app{"LFortran: modern interactive LLVM-based Fortran compiler"};
         // Standard options compatible with gfortran, gcc or clang
         // We follow the established conventions
-        app.add_option("file", arg_file, "Source file");
+        app.add_option("files", arg_files, "Source files");
         app.add_flag("-S", arg_S, "Emit assembly, do not assemble or link");
         app.add_flag("-c", arg_c, "Compile and assemble, do not link");
         app.add_option("-o", arg_o, "Specify the file to place the output into");
@@ -1075,7 +1075,7 @@ int main(int argc, char *argv[])
             return 1;
         }
 
-        if (arg_file.size() == 0) {
+        if (arg_files.size() == 0) {
 #ifdef HAVE_LFORTRAN_LLVM
             return prompt(arg_v);
 #else
@@ -1083,6 +1083,10 @@ int main(int argc, char *argv[])
             return 1;
 #endif
         }
+
+        // TODO: for now we ignore the other filenames, only handle
+        // the first:
+        std::string arg_file = arg_files[0];
 
         std::string outfile;
         std::string basename;
