@@ -245,14 +245,10 @@ public:
             ASR::symbol_t *s;
             switch (ty) {
                 case (ASR::symbolType::Function) : {
-                    Location loc;
-                    s = ASR::down_cast<ASR::symbol_t>(ASR::make_Function_t(al,
-                        loc,
-                        nullptr, nullptr,
-                        nullptr, 0,
-                        nullptr, 0,
-                        nullptr, ASR::abiType::Source,
-                        ASR::accessType::Public));
+                    s = (ASR::symbol_t*)al.make_new<ASR::Function_t>();
+                    s->type = ASR::symbolType::Function;
+                    s->base.type = ASR::asrType::symbol;
+                    s->base.loc.first_line = 123;
                     break;
                 }
                 default : throw LFortranException("Symbol type not supported");
@@ -271,8 +267,8 @@ public:
             // We have to copy the contents of `sym` into `sym2` without
             // changing the `sym2` pointer already in the table
             ASR::symbol_t *sym2 = symtab.scope[name];
-            LFORTRAN_ASSERT(sym2->type == sym->type);
-            switch (sym2->type) {
+            LFORTRAN_ASSERT(sym2->base.loc.first_line == 123);
+            switch (sym->type) {
                 case (ASR::symbolType::Function) : {
                     ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(sym);
                     ASR::Function_t *f2 = ASR::down_cast<ASR::Function_t>(sym2);
