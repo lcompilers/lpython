@@ -289,9 +289,19 @@ public:
         }
         prototype_only = false;
 
-        // Then the rest:
+        // TODO: handle depencencies across modules and main program
+
+        // Then the rest except the main program:
         for (auto &item : x.m_global_scope->scope) {
-            if (!is_a<ASR::Variable_t>(*item.second)) {
+            if (!is_a<ASR::Variable_t>(*item.second) &&
+                !is_a<ASR::Program_t>(*item.second)) {
+                visit_symbol(*item.second);
+            }
+        }
+
+        // Then the main program:
+        for (auto &item : x.m_global_scope->scope) {
+            if (is_a<ASR::Program_t>(*item.second)) {
                 visit_symbol(*item.second);
             }
         }
