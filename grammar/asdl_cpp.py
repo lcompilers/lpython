@@ -367,26 +367,32 @@ class ASTWalkVisitorVisitor(ASDLVisitor):
         if (field.type not in asdl.builtin_types and
             field.type not in self.data.simple_types):
             level = 2
-            if field.type in products:
-                if field.opt:
-                    template = "self().visit_%s(*x.m_%s);" % (field.type, field.name)
-                else:
-                    template = "self().visit_%s(x.m_%s);" % (field.type, field.name)
-            else:
-                template = "self().visit_%s(*x.m_%s);" % (field.type, field.name)
-            self.used = True
             if field.seq:
+                self.used = True
                 self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
                 if field.type in products:
                     self.emit("    self().visit_%s(x.m_%s[i]);" % (field.type, field.name), level)
                 else:
-                    self.emit("    self().visit_%s(*x.m_%s[i]);" % (field.type, field.name), level)
+                    if field.type != "symbol":
+                        self.emit("    self().visit_%s(*x.m_%s[i]);" % (field.type, field.name), level)
                 self.emit("}", level)
-                return
-            elif field.opt:
-                self.emit("if (x.m_%s)" % field.name, 2)
-                level = 3
-            self.emit(template, level)
+            else:
+                if field.type in products:
+                    self.used = True
+                    if field.opt:
+                        self.emit("if (x.m_%s)" % field.name, 2)
+                        level = 3
+                    if field.opt:
+                        self.emit("self().visit_%s(*x.m_%s);" % (field.type, field.name), level)
+                    else:
+                        self.emit("self().visit_%s(x.m_%s);" % (field.type, field.name), level)
+                else:
+                    if field.type != "symbol":
+                        self.used = True
+                        if field.opt:
+                            self.emit("if (x.m_%s)" % field.name, 2)
+                            level = 3
+                        self.emit("self().visit_%s(*x.m_%s);" % (field.type, field.name), level)
 
 
 class PickleVisitorVisitor(ASDLVisitor):
