@@ -866,7 +866,7 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
 
 #define MODULE(name, use, decl, contains, l) make_Module_t(p.m_a, l, \
         name2char(name), \
-        /*unit_decl1_t** a_use*/ nullptr, /*size_t n_use*/ 0, \
+        /*unit_decl1_t** a_use*/ USES(use), /*size_t n_use*/ use.size(), \
         /*unit_decl2_t** a_decl*/ DECLS(decl), /*size_t n_decl*/ decl.size(), \
         /*program_unit_t** a_contains*/ CONTAINS(contains), /*size_t n_contains*/ contains.size())
 #define PRIVATE0(l) make_Private_t(p.m_a, l, \
