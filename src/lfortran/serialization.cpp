@@ -81,7 +81,7 @@ private:
     size_t pos;
 public:
     ASTDeserializationVisitor(Allocator &al, const std::string &s) :
-            DeserializationBaseVisitor(al), s{s}, pos{0} {}
+            DeserializationBaseVisitor(al, true), s{s}, pos{0} {}
 
     uint8_t read_int8() {
         if (pos+1 > s.size()) {
@@ -189,8 +189,9 @@ private:
     std::string s;
     size_t pos;
 public:
-    ASRDeserializationVisitor(Allocator &al, const std::string &s) :
-            DeserializationBaseVisitor(al), s{s}, pos{0} {}
+    ASRDeserializationVisitor(Allocator &al, const std::string &s,
+        bool load_symtab_id) :
+            DeserializationBaseVisitor(al, load_symtab_id), s{s}, pos{0} {}
 
     uint8_t read_int8() {
         if (pos+1 > s.size()) {
@@ -370,8 +371,9 @@ public:
 
 } // namespace ASR
 
-ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s) {
-    ASRDeserializationVisitor v(al, s);
+ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s,
+        bool load_symtab_id) {
+    ASRDeserializationVisitor v(al, s, load_symtab_id);
     ASR::asr_t *node = v.deserialize_node();
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(node);
 

@@ -13,7 +13,8 @@ namespace LFortran {
 
     std::string serialize(const ASR::asr_t &asr);
     std::string serialize(const ASR::TranslationUnit_t &unit);
-    ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s);
+    ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s,
+            bool load_symtab_id);
 
     std::string uint64_to_string(uint64_t i);
     uint64_t string_to_uint64(const std::string &s);

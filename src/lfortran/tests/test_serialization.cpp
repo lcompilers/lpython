@@ -59,7 +59,7 @@ void asr_ser(const std::string &src) {
     std::string binary = LFortran::serialize(*asr);
 
     LFortran::ASR::asr_t *asr_new0;
-    asr_new0 = LFortran::deserialize_asr(al, binary);
+    asr_new0 = LFortran::deserialize_asr(al, binary, true);
     CHECK(LFortran::ASR::is_a<LFortran::ASR::unit_t>(*asr_new0));
 
     std::string asr_new = LFortran::pickle(*asr_new0);
@@ -75,7 +75,8 @@ void asr_mod(const std::string &src) {
     LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast0);
 
     std::string modfile = LFortran::save_modfile(*asr);
-    LFortran::ASR::TranslationUnit_t *asr2 = LFortran::load_modfile(al, modfile);
+    LFortran::ASR::TranslationUnit_t *asr2 = LFortran::load_modfile(al,
+            modfile, true);
 
     CHECK(LFortran::pickle(*asr) == LFortran::pickle(*asr2));
 }

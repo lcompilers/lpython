@@ -125,7 +125,8 @@ std::string save_modfile(const ASR::TranslationUnit_t &m) {
     return b.get_str();
 }
 
-ASR::TranslationUnit_t* load_modfile(Allocator &al, const std::string &s) {
+ASR::TranslationUnit_t* load_modfile(Allocator &al, const std::string &s,
+        bool load_symtab_id) {
     BinaryReader b(s);
     std::string file_type = b.read_string();
     if (file_type != lfortran_modfile_type_string) {
@@ -136,7 +137,7 @@ ASR::TranslationUnit_t* load_modfile(Allocator &al, const std::string &s) {
         throw LFortranException("Incompatible format: LFortran Modfile was generated using version '" + version + "', but current LFortran version is '" + LFORTRAN_VERSION + "'");
     }
     std::string asr_binary = b.read_string();
-    ASR::asr_t *asr = deserialize_asr(al, asr_binary);
+    ASR::asr_t *asr = deserialize_asr(al, asr_binary, load_symtab_id);
     return ASR::down_cast2<ASR::TranslationUnit_t>(asr);
 }
 
