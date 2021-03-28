@@ -29,6 +29,11 @@ public:
         for (auto &a : x.m_global_scope->scope) {
             this->visit_symbol(*a.second);
         }
+        for (size_t i=0; i<x.n_items; i++) {
+            asr_t *item = x.m_items[i];
+            require(is_a<stmt_t>(*item) || is_a<expr_t>(*item),
+                "TranslationUnit::m_items must be either stmt or expr");
+        }
         current_symtab = nullptr;
     }
 
@@ -97,6 +102,19 @@ public:
             visit_stmt(*x.m_body[i]);
         }
         visit_expr(*x.m_return_var);
+        current_symtab = parent_symtab;
+    }
+
+    void visit_DerivedType(const DerivedType_t &x) {
+        SymbolTable *parent_symtab = current_symtab;
+        current_symtab = x.m_symtab;
+        require(x.m_symtab != nullptr,
+            "The DerivedType::m_symtab cannot be nullptr");
+        require(x.m_symtab->parent == parent_symtab,
+            "The DerivedType::m_symtab->parent is not the right parent");
+        for (auto &a : x.m_symtab->scope) {
+            this->visit_symbol(*a.second);
+        }
         current_symtab = parent_symtab;
     }
 
