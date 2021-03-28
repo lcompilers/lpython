@@ -549,7 +549,7 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
     LFortran::ASR::TranslationUnit_t* asr;
 
 
-    // Src -> AST
+    // Src -> AST -> ASR
     LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
     result = fe.get_asr2(input);
     if (result.ok) {
