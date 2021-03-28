@@ -157,8 +157,6 @@ r = a + b
 end function
 )""");
 
-// Does not work yet:
-/*
     asr_ser(R"""(
 program doconcurrentloop_01
 implicit none
@@ -188,6 +186,5 @@ contains
 
 end program
 )""");
-*/
 
 }

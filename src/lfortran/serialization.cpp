@@ -317,9 +317,6 @@ public:
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
         }
-        for (size_t i=0; i<x.n_body; i++) {
-            visit_stmt(*x.m_body[i]);
-        }
         current_symtab = parent_symtab;
     }
 
@@ -330,11 +327,15 @@ public:
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
         }
-        for (size_t i=0; i<x.n_args; i++) {
-            visit_expr(*x.m_args[i]);
-        }
-        for (size_t i=0; i<x.n_body; i++) {
-            visit_stmt(*x.m_body[i]);
+        current_symtab = parent_symtab;
+    }
+
+    void visit_Function(const Function_t &x) {
+        SymbolTable *parent_symtab = current_symtab;
+        current_symtab = x.m_symtab;
+        x.m_symtab->parent = parent_symtab;
+        for (auto &a : x.m_symtab->scope) {
+            this->visit_symbol(*a.second);
         }
         current_symtab = parent_symtab;
     }
