@@ -48,6 +48,7 @@ public:
             this->visit_symbol(*a.second);
             symbol_enter_ok = false;
         }
+        symbol_enter_ok = false;
         for (size_t i=0; i<x.n_body; i++) {
             visit_stmt(*x.m_body[i]);
         }
@@ -67,6 +68,7 @@ public:
             this->visit_symbol(*a.second);
             symbol_enter_ok = false;
         }
+        symbol_enter_ok = false;
         current_symtab = parent_symtab;
     }
 
@@ -83,6 +85,7 @@ public:
             this->visit_symbol(*a.second);
             symbol_enter_ok = false;
         }
+        symbol_enter_ok = false;
         for (size_t i=0; i<x.n_args; i++) {
             visit_expr(*x.m_args[i]);
         }
