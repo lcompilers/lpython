@@ -1,4 +1,4 @@
-module a
+module a_02
 implicit none
 
 contains
@@ -9,7 +9,7 @@ end subroutine
 
 end module
 
-module c
+module c_02
 implicit none
 
 contains
@@ -21,8 +21,8 @@ end subroutine
 end module
 
 program modules_02
-use a
-use c, only: x=>d
+use a_02
+use c_02, only: x=>d
 implicit none
 
 call b()
