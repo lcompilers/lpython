@@ -1719,7 +1719,7 @@ public:
                 LFORTRAN_ASSERT(f2);
                 type = EXPR2VAR(ASR::down_cast<ASR::Function_t>(f2)->m_return_var)->m_type;
                 tmp = ASR::make_FunctionCall_t(al, x.base.base.loc,
-                    f2, v, args.p, args.size(), nullptr, 0, type);
+                    v, nullptr, args.p, args.size(), nullptr, 0, type);
                 break;
             }
             case (ASR::symbolType::Variable) : {

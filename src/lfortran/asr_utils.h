@@ -127,6 +127,16 @@ static inline bool is_arg_dummy(int intent) {
         || intent == intent_inout;
 }
 
+static inline const ASR::symbol_t *symbol_get_past_external(const ASR::symbol_t *f)
+{
+    if (f->type == ASR::symbolType::ExternalSymbol) {
+        ASR::ExternalSymbol_t *e = ASR::down_cast<ASR::ExternalSymbol_t>(f);
+        LFORTRAN_ASSERT(!ASR::is_a<ASR::ExternalSymbol_t>(*e->m_external));
+        return e->m_external;
+    } else {
+        return f;
+    }
+}
 
 } // namespace LFortran
 
