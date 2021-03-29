@@ -1508,7 +1508,7 @@ public:
         builder->CreateCall(fn, args);
     }
 
-    void visit_FuncCall(const ASR::FuncCall_t &x) {
+    void visit_FunctionCall(const ASR::FunctionCall_t &x) {
         ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(x.m_name);
         uint32_t h;
         if (s->m_abi == ASR::abiType::Source) {
