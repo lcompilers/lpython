@@ -35,4 +35,8 @@ r = 6
 call a(r)
 if (r /= 7) error stop
 
+i = 7
+call a(i)
+if (i /= 8) error stop
+
 end program
