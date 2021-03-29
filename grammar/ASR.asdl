@@ -60,6 +60,14 @@ unit
 -- used. After the ASR is loaded, the symbols that are used are represented as
 -- ExternalSymbols in the current scope of the symbol table.
 
+-- ExternalSymbol represents symbols that cannot be looked up in the current
+-- scoped symbol table. As an example, if a variable is defined in a module,
+-- but used in a nested subroutine, that is not an external symbol
+-- because it can be resolved in the current symbol table (nested subroutine)
+-- by following the parents. However if a symbol is used from a different
+-- module, then it is an external symbol, because usual symbol resolution by
+-- going to the parents will not find the definition.
+
 -- REPL: each cell is parsed into full ASR, compiled + executed, the full ASR
 -- is transformed into interface ASR (abi=LFortran) and kept in the symbol
 -- table. A new cell starts with an empty symbol table, whose parent symbol
