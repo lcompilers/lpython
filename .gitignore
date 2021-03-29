@@ -13,6 +13,7 @@ src/lfortran/tests/test_parse
 src/lfortran/tests/test_pickle
 src/lfortran/tests/test_stacktrace*
 src/lfortran/tests/test_cwrapper
+src/lfortran/tests/test_serialization
 src/lfortran/tests/write32
 src/lfortran/tests/write32.asm
 src/lfortran/tests/subroutines32
