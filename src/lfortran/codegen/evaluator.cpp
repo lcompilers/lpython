@@ -149,7 +149,7 @@ std::unique_ptr<llvm::Module> LLVMEvaluator::parse_module(const std::string &sou
 {
     llvm::SMDiagnostic err;
     std::unique_ptr<llvm::Module> module
-        = llvm::parseAssemblyString(source, err, *context);
+        = llvm::parseAssemblyFile(source, err, *context);
     if (!module) {
         throw CodeGenError("Invalid LLVM IR");
     }

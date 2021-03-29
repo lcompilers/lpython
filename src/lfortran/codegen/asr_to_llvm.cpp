@@ -166,18 +166,18 @@ public:
         return tkr2array[array_key];
     }
 
-    inline llvm::Value* create_gep(llvm::Value* ds, int idx) {
+    inline llvm::Value* create_gep(llvm::Value* ds, int idx, const std::string& name="") {
         std::vector<llvm::Value*> idx_vec = {
         llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
         llvm::ConstantInt::get(context, llvm::APInt(32, idx))};
-        return builder->CreateGEP(ds, idx_vec);
+        return builder->CreateGEP(ds, idx_vec, name);
     }
 
-    inline llvm::Value* create_gep(llvm::Value* ds, llvm::Value* idx) {
+    inline llvm::Value* create_gep(llvm::Value* ds, llvm::Value* idx, const std::string& name="") {
         std::vector<llvm::Value*> idx_vec = {
         llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
         idx};
-        return builder->CreateGEP(ds, idx_vec);
+        return builder->CreateGEP(ds, idx_vec, name);
     }
 
     inline bool verify_dimensions_t(ASR::dimension_t* m_dims, int n_dims) {
