@@ -173,6 +173,15 @@ public:
         visit_ttype(*x.m_type);
     }
 
+    void visit_ExternalSymbol(const ExternalSymbol_t &x) {
+        require(x.m_external != nullptr,
+            "ExternalSymbol::m_external cannot be nullptr");
+        char *orig_name = symbol_name(x.m_external);
+        require(std::string(x.m_original_name) == std::string(orig_name),
+            "ExternalSymbol::m_original_name must match external->m_name");
+        // TODO: check that module name matches x.m_module_name
+    }
+
 };
 
 
