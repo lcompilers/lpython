@@ -832,8 +832,9 @@ class DeserializationVisitorVisitor(ASDLVisitor):
         self.emit(  "Derived& self() { return static_cast<Derived&>(*this); }", 1)
         self.emit("public:")
         self.emit(  "Allocator &al;", 1)
+        self.emit(  "bool load_symtab_id;", 1)
         self.emit(  "std::map<uint64_t,SymbolTable*> id_symtab_map;", 1)
-        self.emit(  r"DeserializationBaseVisitor(Allocator &al) : al{al} {}", 1)
+        self.emit(  r"DeserializationBaseVisitor(Allocator &al, bool load_symtab_id) : al{al}, load_symtab_id{load_symtab_id} {}", 1)
         self.emit_deserialize_node();
         self.mod = mod
         super(DeserializationVisitorVisitor, self).visitModule(mod)
@@ -1036,7 +1037,7 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                             # be present:
                             lines.append("LFORTRAN_ASSERT(id_symtab_map.find(m_%s_counter) == id_symtab_map.end());" % f.name)
                             lines.append("SymbolTable *m_%s = al.make_new<SymbolTable>(nullptr);" % (f.name))
-                            lines.append("m_%s->counter = m_%s_counter;" % (f.name, f.name))
+                            lines.append("if (load_symtab_id) m_%s->counter = m_%s_counter;" % (f.name, f.name))
                             lines.append("id_symtab_map[m_%s_counter] = m_%s;" % (f.name, f.name))
                             lines.append("{")
                             lines.append("    size_t n = self().read_int64();")

@@ -10,7 +10,14 @@ namespace ASR {
 class VerifyVisitor : public BaseWalkVisitor<VerifyVisitor>
 {
 private:
+    // For checking correct parent symbtab relationship
     SymbolTable *current_symtab;
+
+    // For checking that all symtabs have a unique ID.
+    // We first walk all symtabs, and then we check that everything else
+    // points to them (i.e., that nothing points to some symbol table that
+    // is not part of this ASR).
+    std::map<uint64_t,SymbolTable*> id_symtab_map;
 public:
 
     // Requires the condition `cond` to be true. Raise an exception otherwise.
@@ -26,6 +33,9 @@ public:
             "The TranslationUnit::m_global_scope cannot be nullptr");
         require(x.m_global_scope->parent == nullptr,
             "The TranslationUnit::m_global_scope->parent must be nullptr");
+        require(id_symtab_map.find(x.m_global_scope->counter) == id_symtab_map.end(),
+            "TranslationUnit::m_global_scope->counter must be unique");
+        id_symtab_map[x.m_global_scope->counter] = x.m_global_scope;
         for (auto &a : x.m_global_scope->scope) {
             this->visit_symbol(*a.second);
         }
@@ -46,6 +56,9 @@ public:
             "The Program::m_symtab->parent is not the right parent");
         require(x.m_symtab->parent->parent == nullptr,
             "The Program::m_symtab's parent must be TranslationUnit");
+        require(id_symtab_map.find(x.m_symtab->counter) == id_symtab_map.end(),
+            "Program::m_symtab->counter must be unique");
+        id_symtab_map[x.m_symtab->counter] = x.m_symtab;
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
         }
@@ -64,6 +77,9 @@ public:
             "The Module::m_symtab->parent is not the right parent");
         require(x.m_symtab->parent->parent == nullptr,
             "The Module::m_symtab's parent must be TranslationUnit");
+        require(id_symtab_map.find(x.m_symtab->counter) == id_symtab_map.end(),
+            "Module::m_symtab->counter must be unique");
+        id_symtab_map[x.m_symtab->counter] = x.m_symtab;
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
         }
@@ -77,6 +93,9 @@ public:
             "The Subroutine::m_symtab cannot be nullptr");
         require(x.m_symtab->parent == parent_symtab,
             "The Subroutine::m_symtab->parent is not the right parent");
+        require(id_symtab_map.find(x.m_symtab->counter) == id_symtab_map.end(),
+            "Subroutine::m_symtab->counter must be unique");
+        id_symtab_map[x.m_symtab->counter] = x.m_symtab;
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
         }
@@ -96,6 +115,9 @@ public:
             "The Function::m_symtab cannot be nullptr");
         require(x.m_symtab->parent == parent_symtab,
             "The Function::m_symtab->parent is not the right parent");
+        require(id_symtab_map.find(x.m_symtab->counter) == id_symtab_map.end(),
+            "Function::m_symtab->counter must be unique");
+        id_symtab_map[x.m_symtab->counter] = x.m_symtab;
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
         }
@@ -116,6 +138,9 @@ public:
             "The DerivedType::m_symtab cannot be nullptr");
         require(x.m_symtab->parent == parent_symtab,
             "The DerivedType::m_symtab->parent is not the right parent");
+        require(id_symtab_map.find(x.m_symtab->counter) == id_symtab_map.end(),
+            "Derivedtype::m_symtab->counter must be unique");
+        id_symtab_map[x.m_symtab->counter] = x.m_symtab;
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
         }
@@ -140,6 +165,8 @@ public:
         const symbol_t *current_sym = &x.base;
         require(symtab_sym == current_sym,
             "Variable's parent symbol table does not point to it");
+        require(id_symtab_map.find(symtab->counter) != id_symtab_map.end(),
+            "Variable::m_parent_symtab must be present in the ASR");
 
         if (x.m_value)
             visit_expr(*x.m_value);
