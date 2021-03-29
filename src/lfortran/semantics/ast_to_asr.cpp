@@ -1323,23 +1323,24 @@ public:
                     //     specific_procedure_remote_name
                     std::string local_sym = std::string(p->m_name) + "@"
                         + symbol_name(final_sym);
-                    Str name;
-                    name.from_str(al, local_sym);
-                    char *cname = name.c_str(al);
-                    ASR::asr_t *sub = ASR::make_ExternalSymbol_t(
-                        al, p->base.base.loc,
-                        /* a_symtab */ current_scope,
-                        /* a_name */ cname,
-                        final_sym,
-                        p->m_module_name, symbol_name(final_sym),
-                        ASR::accessType::Private
-                        );
-                    final_sym = ASR::down_cast<ASR::symbol_t>(sub);
-                    // TODO: reuse the declaration if it has already
-                    // been made:
-                    LFORTRAN_ASSERT(current_scope->scope.find(local_sym)
-                        == current_scope->scope.end());
-                    current_scope->scope[local_sym] = final_sym;
+                    if (current_scope->scope.find(local_sym)
+                        == current_scope->scope.end()) {
+                        Str name;
+                        name.from_str(al, local_sym);
+                        char *cname = name.c_str(al);
+                        ASR::asr_t *sub = ASR::make_ExternalSymbol_t(
+                            al, p->base.base.loc,
+                            /* a_symtab */ current_scope,
+                            /* a_name */ cname,
+                            final_sym,
+                            p->m_module_name, symbol_name(final_sym),
+                            ASR::accessType::Private
+                            );
+                        final_sym = ASR::down_cast<ASR::symbol_t>(sub);
+                        current_scope->scope[local_sym] = final_sym;
+                    } else {
+                        final_sym = current_scope->scope[local_sym];
+                    }
                 } else {
                     if (!ASR::is_a<ASR::Subroutine_t>(*final_sym)) {
                         throw SemanticError("ExternalSymbol must point to a Subroutine", x.base.base.loc);
