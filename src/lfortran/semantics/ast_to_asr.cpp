@@ -1307,15 +1307,24 @@ public:
                 ASR::ExternalSymbol_t *p = ASR::down_cast<ASR::ExternalSymbol_t>(original_sym);
                 final_sym = p->m_external;
                 if (ASR::is_a<ASR::ExternalSymbol_t>(*final_sym)) {
-                    throw SemanticError("Chained ExternalSymbols not supported yet", x.base.base.loc);
+                    throw SemanticError("Chained ExternalSymbols not supported", x.base.base.loc);
                 }
                 if (ASR::is_a<ASR::GenericProcedure_t>(*final_sym)) {
                     ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(final_sym);
                     int idx = select_generic_procedure(args, *p, x.base.base.loc);
+                    // FIXME
+                    // Create ExternalSymbol for the final subroutine here
                     final_sym = p->m_procs[idx];
-                }
-                if (!ASR::is_a<ASR::Subroutine_t>(*final_sym)) {
-                    throw SemanticError("ExternalSymbol must point to a Subroutine", x.base.base.loc);
+                    if (!ASR::is_a<ASR::Subroutine_t>(*final_sym)) {
+                        throw SemanticError("ExternalSymbol must point to a Subroutine", x.base.base.loc);
+                    }
+                    final_sym=original_sym;
+                } else {
+                    if (!ASR::is_a<ASR::Subroutine_t>(*final_sym)) {
+                        throw SemanticError("ExternalSymbol must point to a Subroutine", x.base.base.loc);
+                    }
+                    final_sym=original_sym;
+                    original_sym = nullptr;
                 }
                 break;
             }

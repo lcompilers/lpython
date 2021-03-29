@@ -213,11 +213,9 @@ public:
     }
 
     void visit_SubroutineCall(const SubroutineCall_t &x) {
-        /*
         require(symtab_in_scope(current_symtab,
              symbol_parent_symtab(x.m_name)->counter),
             "SubroutineCall::m_name cannot point outside of its symbol table");
-            */
         for (size_t i=0; i<x.n_args; i++) {
             visit_expr(*x.m_args[i]);
         }
