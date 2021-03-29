@@ -84,7 +84,8 @@ symbol
     | GenericProcedure(symbol_table parent_symtab, identifier name,
         symbol* procs, access access)
     | ExternalSymbol(symbol_table parent_symtab, identifier name,
-        symbol external, access acess)
+        symbol external, identifier module_name, identifier original_name,
+        access acess)
     | DerivedType(symbol_table symtab, identifier name, abi abi, access access)
     | Variable(symbol_table parent_symtab, identifier name, intent intent,
         expr? value, storage_type storage, ttype type, abi abi, access access)

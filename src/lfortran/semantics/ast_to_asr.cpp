@@ -701,6 +701,7 @@ public:
                         /* a_symtab */ current_scope,
                         /* a_name */ msub->m_name,
                         (ASR::symbol_t*)msub,
+                        m->m_name, msub->m_name,
                         dflt_access
                         );
                     std::string sym = msub->m_name;
@@ -712,6 +713,7 @@ public:
                         /* a_symtab */ current_scope,
                         /* a_name */ mfn->m_name,
                         (ASR::symbol_t*)mfn,
+                        m->m_name, mfn->m_name,
                         dflt_access
                         );
                     std::string sym = mfn->m_name;
@@ -743,7 +745,7 @@ public:
                     }
                     ASR::Subroutine_t *msub = ASR::down_cast<ASR::Subroutine_t>(t);
                     // `msub` is the Subroutine in a module. Now we construct
-                    // a new Subroutine that is just the prototype, and that links to
+                    // an ExternalSymbol that points to
                     // `msub` via the `external` field.
                     Str name;
                     name.from_str(al, local_sym);
@@ -752,6 +754,7 @@ public:
                         /* a_symtab */ current_scope,
                         /* a_name */ name.c_str(al),
                         (ASR::symbol_t*)msub,
+                        m->m_name, msub->m_name,
                         dflt_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(sub);
@@ -760,13 +763,16 @@ public:
                         throw SemanticError("Symbol already defined",
                             x.base.base.loc);
                     }
+                    ASR::GenericProcedure_t *gp = ASR::down_cast<ASR::GenericProcedure_t>(t);
                     Str name;
                     name.from_str(al, local_sym);
+                    char *cname = name.c_str(al);
                     ASR::asr_t *ep = ASR::make_ExternalSymbol_t(
                         al, t->base.loc,
                         current_scope,
-                        /* a_name */ name.c_str(al),
+                        /* a_name */ cname,
                         t,
+                        m->m_name, gp->m_name,
                         dflt_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(ep);
@@ -777,15 +783,16 @@ public:
                     }
                     ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
                     // `msub` is the Function in a module. Now we construct
-                    // a new Function that is just the prototype, and that links to
-                    // `mfn` via the `external` field.
+                    // an ExternalSymbol that points to it.
                     Str name;
                     name.from_str(al, local_sym);
+                    char *cname = name.c_str(al);
                     ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
                         al, mfn->base.base.loc,
                         /* a_symtab */ current_scope,
-                        /* a_name */ name.c_str(al),
+                        /* a_name */ cname,
                         (ASR::symbol_t*)mfn,
+                        m->m_name, mfn->m_name,
                         dflt_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(fn);
