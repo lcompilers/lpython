@@ -595,6 +595,17 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
         if (err) return err;
     }
 
+    if (!LFortran::main_program_present(*asr)) {
+        // Create an empty object file (things will be actually
+        // compiled and linked when the main program is present):
+        {
+            std::ofstream out;
+            out.open(outfile);
+            out << " ";
+        }
+        return 0;
+    }
+
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
     std::unique_ptr<LFortran::LLVMModule> m;
