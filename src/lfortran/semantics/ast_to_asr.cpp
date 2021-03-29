@@ -701,6 +701,7 @@ public:
                         /* a_symtab */ current_scope,
                         /* a_name */ msub->m_name,
                         (ASR::symbol_t*)msub,
+                        m->m_name, msub->m_name,
                         dflt_access
                         );
                     std::string sym = msub->m_name;
@@ -712,6 +713,7 @@ public:
                         /* a_symtab */ current_scope,
                         /* a_name */ mfn->m_name,
                         (ASR::symbol_t*)mfn,
+                        m->m_name, mfn->m_name,
                         dflt_access
                         );
                     std::string sym = mfn->m_name;
@@ -743,7 +745,7 @@ public:
                     }
                     ASR::Subroutine_t *msub = ASR::down_cast<ASR::Subroutine_t>(t);
                     // `msub` is the Subroutine in a module. Now we construct
-                    // a new Subroutine that is just the prototype, and that links to
+                    // an ExternalSymbol that points to
                     // `msub` via the `external` field.
                     Str name;
                     name.from_str(al, local_sym);
@@ -752,6 +754,7 @@ public:
                         /* a_symtab */ current_scope,
                         /* a_name */ name.c_str(al),
                         (ASR::symbol_t*)msub,
+                        m->m_name, msub->m_name,
                         dflt_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(sub);
@@ -760,13 +763,16 @@ public:
                         throw SemanticError("Symbol already defined",
                             x.base.base.loc);
                     }
+                    ASR::GenericProcedure_t *gp = ASR::down_cast<ASR::GenericProcedure_t>(t);
                     Str name;
                     name.from_str(al, local_sym);
+                    char *cname = name.c_str(al);
                     ASR::asr_t *ep = ASR::make_ExternalSymbol_t(
                         al, t->base.loc,
                         current_scope,
-                        /* a_name */ name.c_str(al),
+                        /* a_name */ cname,
                         t,
+                        m->m_name, gp->m_name,
                         dflt_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(ep);
@@ -777,15 +783,16 @@ public:
                     }
                     ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
                     // `msub` is the Function in a module. Now we construct
-                    // a new Function that is just the prototype, and that links to
-                    // `mfn` via the `external` field.
+                    // an ExternalSymbol that points to it.
                     Str name;
                     name.from_str(al, local_sym);
+                    char *cname = name.c_str(al);
                     ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
                         al, mfn->base.base.loc,
                         /* a_symtab */ current_scope,
-                        /* a_name */ name.c_str(al),
+                        /* a_name */ cname,
                         (ASR::symbol_t*)mfn,
+                        m->m_name, mfn->m_name,
                         dflt_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(fn);
@@ -1299,16 +1306,47 @@ public:
             case (ASR::symbolType::ExternalSymbol) : {
                 ASR::ExternalSymbol_t *p = ASR::down_cast<ASR::ExternalSymbol_t>(original_sym);
                 final_sym = p->m_external;
-                if (ASR::is_a<ASR::ExternalSymbol_t>(*final_sym)) {
-                    throw SemanticError("Chained ExternalSymbols not supported yet", x.base.base.loc);
-                }
+                // Enforced by verify(), but we ensure anyway that
+                // ExternalSymbols are not chained:
+                LFORTRAN_ASSERT(!ASR::is_a<ASR::ExternalSymbol_t>(*final_sym))
                 if (ASR::is_a<ASR::GenericProcedure_t>(*final_sym)) {
-                    ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(final_sym);
-                    int idx = select_generic_procedure(args, *p, x.base.base.loc);
-                    final_sym = p->m_procs[idx];
-                }
-                if (!ASR::is_a<ASR::Subroutine_t>(*final_sym)) {
-                    throw SemanticError("ExternalSymbol must point to a Subroutine", x.base.base.loc);
+                    ASR::GenericProcedure_t *g = ASR::down_cast<ASR::GenericProcedure_t>(final_sym);
+                    int idx = select_generic_procedure(args, *g, x.base.base.loc);
+                    // FIXME
+                    // Create ExternalSymbol for the final subroutine here
+                    final_sym = g->m_procs[idx];
+                    if (!ASR::is_a<ASR::Subroutine_t>(*final_sym)) {
+                        throw SemanticError("ExternalSymbol must point to a Subroutine", x.base.base.loc);
+                    }
+                    // We mangle the new ExternalSymbol's local name as:
+                    //   generic_procedure_local_name @
+                    //     specific_procedure_remote_name
+                    std::string local_sym = std::string(p->m_name) + "@"
+                        + symbol_name(final_sym);
+                    if (current_scope->scope.find(local_sym)
+                        == current_scope->scope.end()) {
+                        Str name;
+                        name.from_str(al, local_sym);
+                        char *cname = name.c_str(al);
+                        ASR::asr_t *sub = ASR::make_ExternalSymbol_t(
+                            al, p->base.base.loc,
+                            /* a_symtab */ current_scope,
+                            /* a_name */ cname,
+                            final_sym,
+                            p->m_module_name, symbol_name(final_sym),
+                            ASR::accessType::Private
+                            );
+                        final_sym = ASR::down_cast<ASR::symbol_t>(sub);
+                        current_scope->scope[local_sym] = final_sym;
+                    } else {
+                        final_sym = current_scope->scope[local_sym];
+                    }
+                } else {
+                    if (!ASR::is_a<ASR::Subroutine_t>(*final_sym)) {
+                        throw SemanticError("ExternalSymbol must point to a Subroutine", x.base.base.loc);
+                    }
+                    final_sym=original_sym;
+                    original_sym = nullptr;
                 }
                 break;
             }
@@ -1712,7 +1750,7 @@ public:
                 LFORTRAN_ASSERT(f2);
                 type = EXPR2VAR(ASR::down_cast<ASR::Function_t>(f2)->m_return_var)->m_type;
                 tmp = ASR::make_FunctionCall_t(al, x.base.base.loc,
-                    f2, v, args.p, args.size(), nullptr, 0, type);
+                    v, nullptr, args.p, args.size(), nullptr, 0, type);
                 break;
             }
             case (ASR::symbolType::Variable) : {
