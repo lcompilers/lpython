@@ -138,6 +138,14 @@ static inline const ASR::symbol_t *symbol_get_past_external(const ASR::symbol_t 
     }
 }
 
+static inline bool main_program_present(const ASR::TranslationUnit_t &unit)
+{
+    for (auto &a : unit.m_global_scope->scope) {
+        if (ASR::is_a<ASR::Program_t>(*a.second)) return true;
+    }
+    return false;
+}
+
 } // namespace LFortran
 
 #endif // LFORTRAN_ASR_UTILS_H
