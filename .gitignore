@@ -43,6 +43,7 @@ CPackSourceConfig.cmake
 ## libraries
 *.a
 *.so
+*.s
 
 ## Generated files
 version

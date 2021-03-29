@@ -166,18 +166,24 @@ public:
         return tkr2array[array_key];
     }
 
-    inline llvm::Value* create_gep(llvm::Value* ds, int idx, const std::string& name="") {
+    inline llvm::Value* create_gep(llvm::Value* ds, int idx) {
         std::vector<llvm::Value*> idx_vec = {
         llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
         llvm::ConstantInt::get(context, llvm::APInt(32, idx))};
         return builder->CreateGEP(ds, idx_vec, name);
     }
 
-    inline llvm::Value* create_gep(llvm::Value* ds, llvm::Value* idx, const std::string& name="") {
+    inline llvm::Value* create_gep(llvm::Value* ds, llvm::Value* idx) {
         std::vector<llvm::Value*> idx_vec = {
         llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
         idx};
         return builder->CreateGEP(ds, idx_vec, name);
+    }
+
+    inline llvm::Value* create_gep_for_array(llvm::Value* ds, llvm::Value* idx) {
+        std::vector<llvm::Value*> idx_vec = {
+        idx};
+        return builder->CreateGEP(ds, idx, name);
     }
 
     inline bool verify_dimensions_t(ASR::dimension_t* m_dims, int n_dims) {
@@ -467,11 +473,8 @@ public:
         llvm::Value* array = llvm_symtab[v_h];
         bool check_for_bounds = is_explicit_shape(v);
         llvm::Value* idx = cmo_convertor_single_element(array, x.m_args, (int) x.n_args, check_for_bounds);
-        idx = builder->CreateSExt(idx, llvm::Type::getInt64Ty(context));
-        idx = builder->CreateMul(idx, llvm::ConstantInt::get(context, llvm::APInt(64, 8*sizeof(void*))));
         llvm::Value* array_ptr = builder->CreateLoad(create_gep(array, 0));
-        llvm::Value* array_ptr_int = builder->CreatePtrToInt(array_ptr, llvm::Type::getInt64Ty(context));
-        llvm::Value* ptr_to_array_idx = builder->CreateIntToPtr(builder->CreateAdd(array_ptr_int, idx), array_ptr->getType());
+        llvm::Value* ptr_to_array_idx = create_gep_for_array(array_ptr, idx);
         tmp = ptr_to_array_idx;
     }
 
