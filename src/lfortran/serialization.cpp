@@ -372,7 +372,7 @@ public:
 } // namespace ASR
 
 ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s,
-        bool load_symtab_id) {
+        bool load_symtab_id, SymbolTable &external_symtab) {
     ASRDeserializationVisitor v(al, s, load_symtab_id);
     ASR::asr_t *node = v.deserialize_node();
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(node);
@@ -380,6 +380,8 @@ ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s,
     // Connect the `parent` member of symbol tables
     ASR::FixParentSymtabVisitor p;
     p.visit_TranslationUnit(*tu);
+
+    // Fix ExternalSymbol's symbol to point to symbols from `external_symtab` /// or from `tu`.
 
     LFORTRAN_ASSERT(asr_verify(*tu));
 
