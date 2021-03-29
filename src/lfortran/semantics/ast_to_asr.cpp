@@ -1319,8 +1319,9 @@ public:
                         throw SemanticError("ExternalSymbol must point to a Subroutine", x.base.base.loc);
                     }
                     // We mangle the new ExternalSymbol's local name as:
-                    // generic_procedure@specific_procedure
-                    std::string local_sym = std::string(g->m_name) + "@"
+                    //   generic_procedure_local_name @
+                    //     specific_procedure_remote_name
+                    std::string local_sym = std::string(p->m_name) + "@"
                         + symbol_name(final_sym);
                     Str name;
                     name.from_str(al, local_sym);
