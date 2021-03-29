@@ -1310,15 +1310,35 @@ public:
                     throw SemanticError("Chained ExternalSymbols not supported", x.base.base.loc);
                 }
                 if (ASR::is_a<ASR::GenericProcedure_t>(*final_sym)) {
-                    ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(final_sym);
-                    int idx = select_generic_procedure(args, *p, x.base.base.loc);
+                    ASR::GenericProcedure_t *g = ASR::down_cast<ASR::GenericProcedure_t>(final_sym);
+                    int idx = select_generic_procedure(args, *g, x.base.base.loc);
                     // FIXME
                     // Create ExternalSymbol for the final subroutine here
-                    final_sym = p->m_procs[idx];
+                    final_sym = g->m_procs[idx];
                     if (!ASR::is_a<ASR::Subroutine_t>(*final_sym)) {
                         throw SemanticError("ExternalSymbol must point to a Subroutine", x.base.base.loc);
                     }
-                    final_sym=original_sym;
+                    // We mangle the new ExternalSymbol's local name as:
+                    // generic_procedure@specific_procedure
+                    std::string local_sym = std::string(g->m_name) + "@"
+                        + symbol_name(final_sym);
+                    Str name;
+                    name.from_str(al, local_sym);
+                    char *cname = name.c_str(al);
+                    ASR::asr_t *sub = ASR::make_ExternalSymbol_t(
+                        al, p->base.base.loc,
+                        /* a_symtab */ current_scope,
+                        /* a_name */ cname,
+                        final_sym,
+                        p->m_module_name, symbol_name(final_sym),
+                        ASR::accessType::Private
+                        );
+                    final_sym = ASR::down_cast<ASR::symbol_t>(sub);
+                    // TODO: reuse the declaration if it has already
+                    // been made:
+                    LFORTRAN_ASSERT(current_scope->scope.find(local_sym)
+                        == current_scope->scope.end());
+                    current_scope->scope[local_sym] = final_sym;
                 } else {
                     if (!ASR::is_a<ASR::Subroutine_t>(*final_sym)) {
                         throw SemanticError("ExternalSymbol must point to a Subroutine", x.base.base.loc);
