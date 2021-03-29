@@ -42,7 +42,7 @@ unit
 -- abi=Source means the symbol's implementation is included (full ASR),
 -- otherwise it is external (interface ASR, such as procedure interface).
 
--- SubroutineCall/FuncCall store the actual final resolved subroutine or
+-- SubroutineCall/FunctionCall store the actual final resolved subroutine or
 -- function (`name` member). They also store the original symbol
 -- (`original_name`), which can be one of: null, GenericProcedure or
 -- ExternalSymbol.
@@ -147,7 +147,7 @@ expr
     | StrOp(expr left, strop op, expr right, ttype type)
     | UnaryOp(unaryop op, expr operand, ttype type)
     | Compare(expr left, cmpop op, expr right, ttype type)
-    | FuncCall(symbol name, symbol? original_name, expr* args,
+    | FunctionCall(symbol name, symbol? original_name, expr* args,
             keyword* keywords, ttype type)
     | ArrayInitializer(expr* args, ttype type)
     | ConstantInteger(int n, ttype type)

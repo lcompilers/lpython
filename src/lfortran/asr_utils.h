@@ -38,7 +38,7 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
         case ASR::exprType::BinOp: { return ((ASR::BinOp_t*)f)->m_type; }
         case ASR::exprType::UnaryOp: { return ((ASR::UnaryOp_t*)f)->m_type; }
         case ASR::exprType::Compare: { return ((ASR::Compare_t*)f)->m_type; }
-        case ASR::exprType::FuncCall: { return ((ASR::FuncCall_t*)f)->m_type; }
+        case ASR::exprType::FunctionCall: { return ((ASR::FunctionCall_t*)f)->m_type; }
         case ASR::exprType::ArrayRef: { return ((ASR::ArrayRef_t*)f)->m_type; }
         case ASR::exprType::ArrayInitializer: { return ((ASR::ArrayInitializer_t*)f)->m_type; }
         case ASR::exprType::ConstantInteger: { return ((ASR::ConstantInteger_t*)f)->m_type; }

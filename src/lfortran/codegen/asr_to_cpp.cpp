@@ -311,7 +311,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         indentation_level -= 1;
     }
 
-    void visit_FuncCall(const ASR::FuncCall_t &x) {
+    void visit_FunctionCall(const ASR::FunctionCall_t &x) {
         ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(x.m_name);
         std::string fn_name = fn->m_name;
         if (sym_info[get_hash((ASR::asr_t*)x.m_name)].intrinsic_function) {
