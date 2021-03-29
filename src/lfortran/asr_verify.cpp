@@ -183,6 +183,8 @@ public:
     void visit_ExternalSymbol(const ExternalSymbol_t &x) {
         require(x.m_external != nullptr,
             "ExternalSymbol::m_external cannot be nullptr");
+        require(!is_a<ExternalSymbol_t>(*x.m_external),
+            "ExternalSymbol::m_external cannot be an ExternalSymbol");
         char *orig_name = symbol_name(x.m_external);
         require(std::string(x.m_original_name) == std::string(orig_name),
             "ExternalSymbol::m_original_name must match external->m_name");

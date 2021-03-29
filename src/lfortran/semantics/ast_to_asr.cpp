@@ -1306,9 +1306,9 @@ public:
             case (ASR::symbolType::ExternalSymbol) : {
                 ASR::ExternalSymbol_t *p = ASR::down_cast<ASR::ExternalSymbol_t>(original_sym);
                 final_sym = p->m_external;
-                if (ASR::is_a<ASR::ExternalSymbol_t>(*final_sym)) {
-                    throw SemanticError("Chained ExternalSymbols not supported", x.base.base.loc);
-                }
+                // Enforced by verify(), but we ensure anyway that
+                // ExternalSymbols are not chained:
+                LFORTRAN_ASSERT(!ASR::is_a<ASR::ExternalSymbol_t>(*final_sym))
                 if (ASR::is_a<ASR::GenericProcedure_t>(*final_sym)) {
                     ASR::GenericProcedure_t *g = ASR::down_cast<ASR::GenericProcedure_t>(final_sym);
                     int idx = select_generic_procedure(args, *g, x.base.base.loc);
