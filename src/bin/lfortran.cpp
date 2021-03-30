@@ -730,6 +730,23 @@ int compile_to_object_file_cpp(const std::string &infile,
     // AST -> ASR
     LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast);
 
+    // Save .mod files
+    {
+        int err = save_mod_files(*asr);
+        if (err) return err;
+    }
+
+    if (!LFortran::main_program_present(*asr)) {
+        // Create an empty object file (things will be actually
+        // compiled and linked when the main program is present):
+        {
+            std::ofstream out;
+            out.open(outfile);
+            out << " ";
+        }
+        return 0;
+    }
+
     // ASR -> C++
     std::string src;
     try {
