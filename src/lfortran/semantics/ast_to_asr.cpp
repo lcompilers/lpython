@@ -713,10 +713,31 @@ public:
             std::vector<std::string> modules_list
                 = determine_module_dependencies(*tu);
             for (auto &item : modules_list) {
-                LFORTRAN_ASSERT(current_scope->scope.find(item)
-                    != current_scope->scope.end());
-                //ASR::symbol_t *mod = x.m_global_scope->scope[item];
-                //visit_symbol(*mod);
+                if (current_scope->parent->scope.find(item)
+                        == current_scope->parent->scope.end()) {
+                    // A module that was loaded requires to load another
+                    // module
+                    ASR::TranslationUnit_t *mod1 = find_and_load_module(item,
+                            *current_scope->parent);
+                    if (mod1 == nullptr) {
+                        throw SemanticError("Module '" + item + "' modfile was not found",
+                            x.base.base.loc);
+                    }
+                    ASR::Module_t *mod2 = extract_module(*mod1);
+                    current_scope->parent->scope[item] = (ASR::symbol_t*)mod2;
+                    mod2->m_symtab->parent = current_scope->parent;
+                    mod2->m_loaded_from_mod = true;
+                }
+            }
+
+            // Check that all modules are included in ASR now
+            modules_list = determine_module_dependencies(*tu);
+            for (auto &item : modules_list) {
+                if (current_scope->parent->scope.find(item)
+                        == current_scope->parent->scope.end()) {
+                        throw SemanticError("ICE: Module '" + item + "' modfile was not found, but should have",
+                            x.base.base.loc);
+                }
             }
 
             // Fix all external symbols
