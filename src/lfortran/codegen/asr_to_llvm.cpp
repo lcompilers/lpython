@@ -291,15 +291,22 @@ public:
 
         // TODO: handle depencencies across modules and main program
 
-        // Then the rest except the main program:
+        // Then do all the procedures
         for (auto &item : x.m_global_scope->scope) {
-            if (!is_a<ASR::Variable_t>(*item.second) &&
-                !is_a<ASR::Program_t>(*item.second)) {
+            if (is_a<ASR::Function_t>(*item.second)
+                || is_a<ASR::Subroutine_t>(*item.second)) {
                 visit_symbol(*item.second);
             }
         }
 
-        // Then the main program:
+        // Then do all the modules
+        for (auto &item : x.m_global_scope->scope) {
+            if (is_a<ASR::Module_t>(*item.second)) {
+                visit_symbol(*item.second);
+            }
+        }
+
+        // Then the main program
         for (auto &item : x.m_global_scope->scope) {
             if (is_a<ASR::Program_t>(*item.second)) {
                 visit_symbol(*item.second);
