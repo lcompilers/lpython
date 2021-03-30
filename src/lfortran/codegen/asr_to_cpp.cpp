@@ -341,7 +341,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     }
 
     void visit_FunctionCall(const ASR::FunctionCall_t &x) {
-        ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(x.m_name);
+        ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(
+            symbol_get_past_external(x.m_name));
         std::string fn_name = fn->m_name;
         if (sym_info[get_hash((ASR::asr_t*)x.m_name)].intrinsic_function) {
             if (fn_name == "size") {
@@ -746,7 +747,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
-        ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(x.m_name);
+        ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(
+            symbol_get_past_external(x.m_name));
         std::string out = indent + s->m_name + "(";
         for (size_t i=0; i<x.n_args; i++) {
             if (x.m_args[i]->type == ASR::exprType::Var) {
