@@ -123,6 +123,7 @@ public:
             if (is_a<ASR::Function_t>(*item.second)
                 || is_a<ASR::Subroutine_t>(*item.second)) {
                 visit_symbol(*item.second);
+                unit_src += src;
             }
         }
 
@@ -134,6 +135,7 @@ public:
                 != x.m_global_scope->scope.end());
             ASR::symbol_t *mod = x.m_global_scope->scope[item];
             visit_symbol(*mod);
+                unit_src += src;
         }
 
         // Then the main program:
