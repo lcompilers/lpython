@@ -147,6 +147,8 @@ static inline bool main_program_present(const ASR::TranslationUnit_t &unit)
 }
 
 std::vector<int> order_deps(std::map<int, std::vector<int>> &deps);
+std::vector<std::string> order_deps(std::map<std::string,
+        std::vector<std::string>> &deps);
 
 } // namespace LFortran
 

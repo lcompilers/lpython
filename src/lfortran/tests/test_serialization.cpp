@@ -277,7 +277,7 @@ end module
 
 }
 
-TEST_CASE("Topological sorting") {
+TEST_CASE("Topological sorting int") {
     std::map<int, std::vector<int>> deps;
     deps[1].push_back(2);
     deps[3].push_back(1);
@@ -298,4 +298,21 @@ TEST_CASE("Topological sorting") {
     deps[3].push_back(4);
     deps[4].push_back(1);
     CHECK(LFortran::order_deps(deps) == std::vector<int>({3, 4, 1, 2}));
+}
+
+TEST_CASE("Topological sorting string") {
+    std::map<std::string, std::vector<std::string>> deps;
+    deps["A"].push_back("B");
+    deps["C"].push_back("A");
+    deps["B"].push_back("D");
+    deps["C"].push_back("D");
+    CHECK(LFortran::order_deps(deps) == std::vector<std::string>({"C", "A", "B", "D"}));
+
+    deps.clear();
+    deps["module_a"].push_back("module_b");
+    deps["module_c"].push_back("module_a");
+    deps["module_c"].push_back("module_d");
+    deps["module_d"].push_back("module_a");
+    CHECK(LFortran::order_deps(deps) == std::vector<std::string>({"module_c",
+                "module_d", "module_a", "module_b"}));
 }
