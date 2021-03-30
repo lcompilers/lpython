@@ -120,10 +120,20 @@ public:
 
         // Process procedures first:
         for (auto &item : x.m_global_scope->scope) {
-            if (!is_a<ASR::Program_t>(*item.second)) {
+            if (is_a<ASR::Function_t>(*item.second)
+                || is_a<ASR::Subroutine_t>(*item.second)) {
                 visit_symbol(*item.second);
-                unit_src += src;
             }
+        }
+
+        // Then do all the modules in the right order
+        std::vector<std::string> build_order
+            = determine_module_dependencies(x);
+        for (auto &item : build_order) {
+            LFORTRAN_ASSERT(x.m_global_scope->scope.find(item)
+                != x.m_global_scope->scope.end());
+            ASR::symbol_t *mod = x.m_global_scope->scope[item];
+            visit_symbol(*mod);
         }
 
         // Then the main program:
