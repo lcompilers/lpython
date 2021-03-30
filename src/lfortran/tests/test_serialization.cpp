@@ -7,6 +7,7 @@
 #include <lfortran/parser/parser.h>
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/asr_utils.h>
+#include <lfortran/asr_verify.h>
 
 using LFortran::string_to_uint64;
 using LFortran::uint64_to_string;
@@ -63,6 +64,10 @@ void asr_ser(const std::string &src) {
     LFortran::SymbolTable symtab(nullptr);
     asr_new0 = LFortran::deserialize_asr(al, binary, true, symtab);
     CHECK(LFortran::ASR::is_a<LFortran::ASR::unit_t>(*asr_new0));
+    LFortran::ASR::TranslationUnit_t *tu
+        = LFortran::ASR::down_cast2<LFortran::ASR::TranslationUnit_t>(asr_new0);
+    fix_external_symbols(*tu, symtab);
+    LFORTRAN_ASSERT(LFortran::asr_verify(*tu));
 
     std::string asr_new = LFortran::pickle(*asr_new0);
 
@@ -80,6 +85,8 @@ void asr_mod(const std::string &src) {
     LFortran::SymbolTable symtab(nullptr);
     LFortran::ASR::TranslationUnit_t *asr2 = LFortran::load_modfile(al,
             modfile, true, symtab);
+    fix_external_symbols(*asr2, symtab);
+    LFORTRAN_ASSERT(LFortran::asr_verify(*asr2));
 
     CHECK(LFortran::pickle(*asr) == LFortran::pickle(*asr2));
 }

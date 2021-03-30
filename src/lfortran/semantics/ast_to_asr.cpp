@@ -10,6 +10,7 @@
 #include <lfortran/asr_verify.h>
 #include <lfortran/pickle.h>
 #include <lfortran/modfile.h>
+#include <lfortran/serialization.h>
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/parser/parser_stype.h>
 #include <string>
@@ -700,10 +701,48 @@ public:
             current_scope->parent->scope[msym] = (ASR::symbol_t*)mod2;
             mod2->m_symtab->parent = current_scope->parent;
             mod2->m_loaded_from_mod = true;
-            //ASR::TranslationUnit_t *tu = current_scope->parent->symbol;
-            //LFORTRAN_ASSERT(LFortran::asr_verify(*tu));
             t = current_scope->parent->resolve_symbol(msym);
             LFORTRAN_ASSERT(t != nullptr);
+
+            // Create a temporary TranslationUnit just for fixing the symbols
+            ASR::TranslationUnit_t *tu
+                = ASR::down_cast2<ASR::TranslationUnit_t>(ASR::make_TranslationUnit_t(al, x.base.base.loc,
+                    current_scope->parent, nullptr, 0));
+
+            // Load any dependent modules
+            std::vector<std::string> modules_list
+                = determine_module_dependencies(*tu);
+            for (auto &item : modules_list) {
+                if (current_scope->parent->scope.find(item)
+                        == current_scope->parent->scope.end()) {
+                    // A module that was loaded requires to load another
+                    // module
+                    ASR::TranslationUnit_t *mod1 = find_and_load_module(item,
+                            *current_scope->parent);
+                    if (mod1 == nullptr) {
+                        throw SemanticError("Module '" + item + "' modfile was not found",
+                            x.base.base.loc);
+                    }
+                    ASR::Module_t *mod2 = extract_module(*mod1);
+                    current_scope->parent->scope[item] = (ASR::symbol_t*)mod2;
+                    mod2->m_symtab->parent = current_scope->parent;
+                    mod2->m_loaded_from_mod = true;
+                }
+            }
+
+            // Check that all modules are included in ASR now
+            modules_list = determine_module_dependencies(*tu);
+            for (auto &item : modules_list) {
+                if (current_scope->parent->scope.find(item)
+                        == current_scope->parent->scope.end()) {
+                        throw SemanticError("ICE: Module '" + item + "' modfile was not found, but should have",
+                            x.base.base.loc);
+                }
+            }
+
+            // Fix all external symbols
+            fix_external_symbols(*tu, *current_scope->parent);
+            LFORTRAN_ASSERT(asr_verify(*tu));
         }
         if (!ASR::is_a<ASR::Module_t>(*t)) {
             throw SemanticError("The symbol '" + msym + "' must be a module",

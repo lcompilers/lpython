@@ -415,6 +415,14 @@ public:
 
 } // namespace ASR
 
+// Fix ExternalSymbol's symbol to point to symbols from `external_symtab`
+// or from `unit`.
+void fix_external_symbols(ASR::TranslationUnit_t &unit,
+        SymbolTable &external_symtab) {
+    ASR::FixExternalSymbolsVisitor e(external_symtab);
+    e.visit_TranslationUnit(unit);
+}
+
 ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s,
         bool load_symtab_id, SymbolTable &external_symtab) {
     ASRDeserializationVisitor v(al, s, load_symtab_id);
@@ -425,11 +433,10 @@ ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s,
     ASR::FixParentSymtabVisitor p;
     p.visit_TranslationUnit(*tu);
 
-    // Fix ExternalSymbol's symbol to point to symbols from `external_symtab` /// or from `tu`.
-    ASR::FixExternalSymbolsVisitor e(external_symtab);
-    e.visit_TranslationUnit(*tu);
+    LFORTRAN_ASSERT(asr_verify(*tu, false));
 
-    LFORTRAN_ASSERT(asr_verify(*tu));
+    // Suppress a warning for now
+    if ((bool&)external_symtab) {}
 
     return node;
 }

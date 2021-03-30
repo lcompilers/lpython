@@ -19,6 +19,9 @@ namespace LFortran {
     std::string uint64_to_string(uint64_t i);
     uint64_t string_to_uint64(const std::string &s);
     uint64_t string_to_uint64(const char *s);
+
+    void fix_external_symbols(ASR::TranslationUnit_t &unit,
+            SymbolTable &external_symtab);
 }
 
 #endif // LFORTRAN_SERIALIZATION_H
