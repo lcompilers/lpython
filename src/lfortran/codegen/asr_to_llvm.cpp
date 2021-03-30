@@ -854,8 +854,6 @@ public:
         }
         this->visit_expr(*x.m_value);
         llvm::Value *value=tmp;
-        // std::cout<<target->getType()->isPointerTy()<<std::endl;
-        // std::cout<<value->getType()->isPointerTy()<<std::endl;
         builder->CreateStore(value, target);
     }
 
@@ -1293,7 +1291,6 @@ public:
         double im = std::atof(
             ASR::down_cast<ASR::ConstantReal_t>(x.m_im)->m_r);
         int a_kind = extract_kind_from_ttype_t(x.m_type);
-        std::cout<<a_kind<<std::endl;
         llvm::Value *re2, *im2;
         llvm::Type *type;
         switch( a_kind ) {
@@ -1569,7 +1566,6 @@ public:
                 int arg_kind = -1, dest_kind = -1;
                 extract_kinds(x, arg_kind, dest_kind);
                 llvm::Value *re, *im;
-                std::cout<<arg_kind<<" "<<dest_kind<<std::endl;
                 if( arg_kind > 0 && dest_kind > 0 )
                 {
                     if( arg_kind == 4 && dest_kind == 8 ) {
