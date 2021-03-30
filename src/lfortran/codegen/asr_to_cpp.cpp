@@ -115,6 +115,25 @@ public:
         indentation_level = 0;
         indentation_spaces = 4;
 
+        std::string headers =
+R"(#include <iostream>
+#include <vector>
+#include <Kokkos_Core.hpp>
+
+template <typename T>
+Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
+{
+    Kokkos::View<T*> r("r", v.size());
+    for (size_t i=0; i < v.size(); i++) {
+        r(i) = v[i];
+    }
+    return r;
+}
+
+)";
+        unit_src += headers;
+
+
         // TODO: We need to pre-declare all functions first, then generate code
         // Otherwise some function might not be found.
 
@@ -203,24 +222,7 @@ public:
             body += src;
         }
 
-        std::string headers =
-R"(#include <iostream>
-#include <vector>
-#include <Kokkos_Core.hpp>
-
-template <typename T>
-Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
-{
-    Kokkos::View<T*> r("r", v.size());
-    for (size_t i=0; i < v.size(); i++) {
-        r(i) = v[i];
-    }
-    return r;
-}
-
-)";
-
-        src = headers + contains + "int main(int argc, char* argv[])\n{\n"
+        src = contains + "int main(int argc, char* argv[])\n{\n"
                 + indent1 + "Kokkos::initialize(argc, argv);\n"
                 + indent1 + "{\n"
                 + decl + body
