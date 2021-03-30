@@ -6,6 +6,7 @@
 #include <lfortran/pickle.h>
 #include <lfortran/parser/parser.h>
 #include <lfortran/semantics/ast_to_asr.h>
+#include <lfortran/asr_utils.h>
 
 using LFortran::string_to_uint64;
 using LFortran::uint64_to_string;
@@ -276,44 +277,25 @@ end module
 
 }
 
-void visit(int a, std::map<int,std::vector<int>> &deps,
-        std::vector<bool> &visited, std::vector<int> &result) {
-    visited[a] = true;
-    for (auto n : deps[a]) {
-        if (!visited[n]) visit(n, deps, visited, result);
-    }
-    result.push_back(a);
-}
-
-std::vector<int> order_deps(std::map<int, std::vector<int>> &deps) {
-    std::vector<bool> visited(deps.size(), false);
-    std::vector<int> result;
-    for (auto d : deps) {
-        if (!visited[d.first]) visit(d.first, deps, visited, result);
-    }
-    std::reverse(result.begin(), result.end());
-    return result;
-}
-
 TEST_CASE("Topological sorting") {
     std::map<int, std::vector<int>> deps;
     deps[1].push_back(2);
     deps[3].push_back(1);
     deps[2].push_back(4);
     deps[3].push_back(4);
-    CHECK(order_deps(deps) == std::vector<int>({3, 1, 2, 4}));
+    CHECK(LFortran::order_deps(deps) == std::vector<int>({3, 1, 2, 4}));
 
     deps.clear();
     deps[1].push_back(2);
     deps[1].push_back(3);
     deps[2].push_back(4);
     deps[3].push_back(4);
-    CHECK(order_deps(deps) == std::vector<int>({1, 3, 2, 4}));
+    CHECK(LFortran::order_deps(deps) == std::vector<int>({1, 3, 2, 4}));
 
     deps.clear();
     deps[1].push_back(2);
     deps[3].push_back(1);
     deps[3].push_back(4);
     deps[4].push_back(1);
-    CHECK(order_deps(deps) == std::vector<int>({3, 4, 1, 2}));
+    CHECK(LFortran::order_deps(deps) == std::vector<int>({3, 4, 1, 2}));
 }

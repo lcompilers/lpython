@@ -146,6 +146,8 @@ static inline bool main_program_present(const ASR::TranslationUnit_t &unit)
     return false;
 }
 
+std::vector<int> order_deps(std::map<int, std::vector<int>> &deps);
+
 } // namespace LFortran
 
 #endif // LFORTRAN_ASR_UTILS_H

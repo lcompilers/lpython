@@ -17,6 +17,7 @@ set(SRC
     pass/select_case.cpp
 
     asr_verify.cpp
+    asr_utils.cpp
     modfile.cpp
     pickle.cpp
     serialization.cpp
