@@ -299,11 +299,14 @@ public:
             }
         }
 
-        // Then do all the modules
-        for (auto &item : x.m_global_scope->scope) {
-            if (is_a<ASR::Module_t>(*item.second)) {
-                visit_symbol(*item.second);
-            }
+        // Then do all the modules in the right order
+        std::vector<std::string> build_order
+            = determine_module_dependencies(x);
+        for (auto &item : build_order) {
+            LFORTRAN_ASSERT(x.m_global_scope->scope.find(item)
+                != x.m_global_scope->scope.end());
+            ASR::symbol_t *mod = x.m_global_scope->scope[item];
+            visit_symbol(*mod);
         }
 
         // Then the main program
