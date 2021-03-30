@@ -146,6 +146,13 @@ static inline bool main_program_present(const ASR::TranslationUnit_t &unit)
     return false;
 }
 
+// Accepts dependencies in the form A -> [B, D, ...], B -> [C, D]
+// Returns a list of dependencies in the order that they should be built:
+// [D, C, B, A]
+std::vector<int> order_deps(std::map<int, std::vector<int>> &deps);
+std::vector<std::string> order_deps(std::map<std::string,
+        std::vector<std::string>> &deps);
+
 } // namespace LFortran
 
 #endif // LFORTRAN_ASR_UTILS_H
