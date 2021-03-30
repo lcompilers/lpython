@@ -694,7 +694,7 @@ class SerializationVisitorVisitor(ASDLVisitor):
             self.emit(    'self().write_int8(x.base.type);', 2)
         self.used = False
         for n, field in enumerate(fields):
-            self.visitField(field, cons)
+            self.visitField(field, cons, name)
         if not self.used:
             # Note: a better solution would be to change `&x` to `& /* x */`
             # above, but we would need to change emit to return a string.
@@ -706,7 +706,7 @@ class SerializationVisitorVisitor(ASDLVisitor):
         self.emit(    'self().write_int8(x);', 2)
         self.emit("}", 1)
 
-    def visitField(self, field, cons):
+    def visitField(self, field, cons, cons_name):
         if (field.type not in asdl.builtin_types and
             field.type not in self.data.simple_types):
             self.used = True
@@ -718,8 +718,11 @@ class SerializationVisitorVisitor(ASDLVisitor):
                     template = "self().visit_%s(x.m_%s);" % (field.type, field.name)
             else:
                 if field.type == "symbol":
-                    template = "self().write_symbol(*x.m_%s);" \
-                        % field.name
+                    if cons_name == "ExternalSymbol":
+                        template = "// We skip the symbol for ExternalSymbol"
+                    else:
+                        template = "self().write_symbol(*x.m_%s);" \
+                            % field.name
                 else:
                     template = "self().visit_%s(*x.m_%s);" % (field.type, field.name)
             if field.seq:
@@ -1065,7 +1068,11 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                             if f.opt:
                                 lines.append("if (self().read_bool()) {")
                             if f.type == "symbol":
-                                lines.append("m_%s = self().read_symbol();" % (f.name))
+                                if name == "ExternalSymbol":
+                                    lines.append("// We skip the symbol for ExternalSymbol")
+                                    lines.append("m_%s = nullptr;" % (f.name))
+                                else:
+                                    lines.append("m_%s = self().read_symbol();" % (f.name))
                             else:
                                 lines.append("m_%s = %s::down_cast<%s::%s_t>(self().deserialize_%s());" % (
                                     f.name, subs["mod"].upper(), subs["mod"].upper(), f.type, f.type))

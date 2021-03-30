@@ -10,7 +10,7 @@ namespace LFortran {
 
     // Load a module from a modfile
     ASR::TranslationUnit_t* load_modfile(Allocator &al, const std::string &s,
-        bool load_symtab_id=false);
+        bool load_symtab_id, SymbolTable &symtab);
 
 }
 

@@ -649,10 +649,12 @@ public:
         return std::string(&bytes[0], filesize);
     }
 
-    ASR::TranslationUnit_t* find_and_load_module(const std::string &msym) {
+    ASR::TranslationUnit_t* find_and_load_module(const std::string &msym,
+            SymbolTable &symtab) {
         std::string modfile = read_file(msym + ".mod");
         if (modfile == "") return nullptr;
-        ASR::TranslationUnit_t *asr = load_modfile(al, modfile);
+        ASR::TranslationUnit_t *asr = load_modfile(al, modfile, false,
+            symtab);
         return asr;
     }
 
@@ -670,7 +672,8 @@ public:
         ASR::symbol_t *t = current_scope->parent->resolve_symbol(msym);
         if (!t) {
             // TODO: symbol table IDs must be adjusted:
-            ASR::TranslationUnit_t *mod1 = find_and_load_module(msym);
+            ASR::TranslationUnit_t *mod1 = find_and_load_module(msym,
+                    *current_scope->parent);
             if (mod1 == nullptr) {
                 throw SemanticError("Module '" + msym + "' not declared in the current source and the modfile was not found",
                     x.base.base.loc);
