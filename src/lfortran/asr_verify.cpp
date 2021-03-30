@@ -18,7 +18,9 @@ private:
     // points to them (i.e., that nothing points to some symbol table that
     // is not part of this ASR).
     std::map<uint64_t,SymbolTable*> id_symtab_map;
+    bool check_external;
 public:
+    VerifyVisitor(bool check_external) : check_external{check_external} {}
 
     // Requires the condition `cond` to be true. Raise an exception otherwise.
     void require(bool cond, const std::string &error_msg) {
@@ -181,14 +183,16 @@ public:
     }
 
     void visit_ExternalSymbol(const ExternalSymbol_t &x) {
-        require(x.m_external != nullptr,
-            "ExternalSymbol::m_external cannot be nullptr");
-        require(!is_a<ExternalSymbol_t>(*x.m_external),
-            "ExternalSymbol::m_external cannot be an ExternalSymbol");
-        char *orig_name = symbol_name(x.m_external);
-        require(std::string(x.m_original_name) == std::string(orig_name),
-            "ExternalSymbol::m_original_name must match external->m_name");
-        // TODO: check that module name matches x.m_module_name
+        if (check_external) {
+            require(x.m_external != nullptr,
+                "ExternalSymbol::m_external cannot be nullptr");
+            require(!is_a<ExternalSymbol_t>(*x.m_external),
+                "ExternalSymbol::m_external cannot be an ExternalSymbol");
+            char *orig_name = symbol_name(x.m_external);
+            require(std::string(x.m_original_name) == std::string(orig_name),
+                "ExternalSymbol::m_original_name must match external->m_name");
+            // TODO: check that module name matches x.m_module_name
+        }
     }
 
     // --------------------------------------------------------
@@ -259,8 +263,8 @@ public:
 
 } // namespace ASR
 
-bool asr_verify(const ASR::TranslationUnit_t &unit) {
-    ASR::VerifyVisitor v;
+bool asr_verify(const ASR::TranslationUnit_t &unit, bool check_external) {
+    ASR::VerifyVisitor v(check_external);
     v.visit_TranslationUnit(unit);
     return true;
 }
