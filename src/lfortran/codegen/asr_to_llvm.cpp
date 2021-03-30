@@ -136,8 +136,11 @@ public:
     */
     llvm::Value* lfortran_complex_bin_op(llvm::Value* left_arg, llvm::Value* right_arg, 
                                          std::string runtime_func_name, 
-                                         llvm::Type* complex_type=complex_type_4)
+                                         llvm::Type* complex_type=nullptr)
     {
+        if( complex_type == nullptr ) {
+            complex_type = complex_type_4;
+        }
         llvm::Function *fn = module->getFunction(runtime_func_name);
         if (!fn) {
             llvm::FunctionType *function_type = llvm::FunctionType::get(
@@ -195,7 +198,10 @@ public:
     // This function is called as:
     // float complex_re(complex a)
     // And it extracts the real part of the complex number
-    llvm::Value *complex_re(llvm::Value *c, llvm::Type* complex_type=complex_type_4) {
+    llvm::Value *complex_re(llvm::Value *c, llvm::Type* complex_type=nullptr) {
+        if( complex_type == nullptr ) {
+            complex_type = complex_type_4;
+        }
         llvm::AllocaInst *pc = builder->CreateAlloca(complex_type, nullptr);
         builder->CreateStore(c, pc);
         std::vector<llvm::Value *> idx = {
@@ -205,7 +211,10 @@ public:
         return builder->CreateLoad(pim);
     }
 
-    llvm::Value *complex_im(llvm::Value *c, llvm::Type* complex_type=complex_type_4) {
+    llvm::Value *complex_im(llvm::Value *c, llvm::Type* complex_type=nullptr) {
+        if( complex_type == nullptr ) {
+            complex_type = complex_type_4;
+        }
         llvm::AllocaInst *pc = builder->CreateAlloca(complex_type, nullptr);
         builder->CreateStore(c, pc);
         std::vector<llvm::Value *> idx = {
@@ -216,7 +225,10 @@ public:
     }
 
     llvm::Value *complex_from_floats(llvm::Value *re, llvm::Value *im, 
-                                     llvm::Type* complex_type=complex_type_4) {
+                                     llvm::Type* complex_type=nullptr) {
+        if( complex_type == nullptr ) {
+            complex_type = complex_type_4;
+        }
         llvm::AllocaInst *pres = builder->CreateAlloca(complex_type, nullptr);
         std::vector<llvm::Value *> idx1 = {
             llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
@@ -374,8 +386,7 @@ public:
                 default:
                     throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
             }
-            llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
-                llvm::Type::getFloatTy(context));
+            llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name, type);
             if (!external) {
                 if (init_value) {
                     module->getNamedGlobal(x.m_name)->setInitializer(
@@ -388,7 +399,7 @@ public:
                     } else if( init_value_bits == 64 ) {
                         module->getNamedGlobal(x.m_name)->setInitializer(
                                 llvm::ConstantFP::get(context, 
-                                    llvm::APDouble(0)));
+                                    llvm::APFloat((double)0)));
                     }
                 }
             }
@@ -599,7 +610,7 @@ public:
                     break;
                 }
                 case (ASR::ttypeType::Real) : {
-                    int a_kind = down_cast<ASR::Real_t>(x.m_type)->m_kind;
+                    int a_kind = down_cast<ASR::Real_t>(arg->m_type)->m_kind;
                     switch(a_kind)
                     {
                         case 4:
@@ -843,8 +854,9 @@ public:
         }
         this->visit_expr(*x.m_value);
         llvm::Value *value=tmp;
+        // std::cout<<target->getType()->isPointerTy()<<std::endl;
+        // std::cout<<value->getType()->isPointerTy()<<std::endl;
         builder->CreateStore(value, target);
-
     }
 
     void visit_Compare(const ASR::Compare_t &x) {
@@ -1062,10 +1074,8 @@ public:
                 };
                 case ASR::binopType::Pow: {
                     llvm::Type *type;
-                    int a_kind_l, a_kind_r, a_kind;
-                    a_kind_l = down_cast<ASR::Integer_t>(expr_type(x.m_left))->m_kind;
-                    a_kind_r = down_cast<ASR::Integer_t>(expr_type(x.m_right))->m_kind;
-                    a_kind = max(a_kind_l, a_kind_r);
+                    int a_kind;
+                    a_kind = down_cast<ASR::Integer_t>(x.m_type)->m_kind;
                     switch(a_kind)
                     {
                         case 4:
@@ -1282,8 +1292,8 @@ public:
             ASR::down_cast<ASR::ConstantReal_t>(x.m_re)->m_r);
         double im = std::atof(
             ASR::down_cast<ASR::ConstantReal_t>(x.m_im)->m_r);
-        // TODO: assuming single precision
         int a_kind = extract_kind_from_ttype_t(x.m_type);
+        std::cout<<a_kind<<std::endl;
         llvm::Value *re2, *im2;
         llvm::Type *type;
         switch( a_kind ) {
@@ -1314,7 +1324,6 @@ public:
                 break;
             }
         }
-        llvm::Value *im2 = llvm::ConstantFP::get(context, llvm::APFloat((float)im));
         tmp = complex_from_floats(re2, im2, type);
     }
 
@@ -1392,6 +1401,12 @@ public:
             case ASR::ttypeType::IntegerPointer : {
                 return ((ASR::IntegerPointer_t*)(&(curr_type->base)))->m_kind;
             }
+            case ASR::ttypeType::Complex: {
+                return ((ASR::Complex_t*)(&(curr_type->base)))->m_kind;
+            }
+            case ASR::ttypeType::ComplexPointer: {
+                return ((ASR::ComplexPointer_t*)(&(curr_type->base)))->m_kind;
+            }
             default : {
                 return -1;
             }
@@ -1409,6 +1424,9 @@ public:
             }
             case ASR::exprType::BinOp : {
                 return ((ASR::BinOp_t*)base)->m_type;
+            } 
+            case ASR::exprType::ConstantComplex: {
+                return ((ASR::ConstantComplex_t*)base)->m_type;
             }
             default : {
                 return nullptr;
@@ -1447,7 +1465,7 @@ public:
             }
             case (ASR::cast_kindType::RealToInteger) : {
                 llvm::Type *target_type;
-                int a_kind = down_cast<ASR::Integer_t>(x.m_type)->m_kind;
+                int a_kind = extract_kind_from_ttype_t(x.m_type);
                 switch(a_kind)
                 {
                     case 4:
@@ -1463,30 +1481,49 @@ public:
                 break;
             }
             case (ASR::cast_kindType::RealToComplex) : {
-                llvm::Value *zero = llvm::ConstantFP::get(context,
-                        llvm::APFloat((float)0.0));
-                tmp = complex_from_floats(tmp, zero);
+                llvm::Type *target_type;
+                llvm::Value *zero;
+                int a_kind = extract_kind_from_ttype_t(x.m_type);
+                switch(a_kind)
+                {
+                    case 4:
+                        target_type = complex_type_4;
+                        tmp = builder->CreateFPTrunc(tmp, llvm::Type::getFloatTy(context));
+                        zero = llvm::ConstantFP::get(context, llvm::APFloat((float)0.0));
+                        break;
+                    case 8:
+                        target_type = complex_type_8;
+                        tmp = builder->CreateFPExt(tmp, llvm::Type::getDoubleTy(context));
+                        zero = llvm::ConstantFP::get(context, llvm::APFloat(0.0));
+                        break;
+                    default:
+                        throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
+                }
+                tmp = complex_from_floats(tmp, zero, target_type);
                 break;
             }
             case (ASR::cast_kindType::IntegerToComplex) : {
-                int a_kind = down_cast<ASR::Real_t>(x.m_type)->m_kind;
+                int a_kind = extract_kind_from_ttype_t(x.m_type);
                 llvm::Type *target_type;
+                llvm::Type *complex_type;
                 llvm::Value *zero;
                 switch(a_kind)
                 {
                     case 4:
                         target_type = llvm::Type::getFloatTy(context);
+                        complex_type = complex_type_4;
                         zero = llvm::ConstantFP::get(context, llvm::APFloat((float)0.0));
                         break;
                     case 8:
                         target_type = llvm::Type::getDoubleTy(context);
-                        zero = llvm::ConstantFP::get(context, llvm::APDouble(0.0));
+                        complex_type = complex_type_8;
+                        zero = llvm::ConstantFP::get(context, llvm::APFloat(0.0));
                         break;
                     default:
                         throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
                 }
                 tmp = builder->CreateSIToFP(tmp, target_type);
-                tmp = complex_from_floats(tmp, zero);
+                tmp = complex_from_floats(tmp, zero, complex_type);
                 break;
             }
             case (ASR::cast_kindType::IntegerToLogical) : {
@@ -1525,6 +1562,35 @@ public:
                         throw CodeGenError(msg);
                     }
                 }
+                break;
+            }
+            case (ASR::cast_kindType::ComplexToComplex) : {
+                llvm::Type *target_type;
+                int arg_kind = -1, dest_kind = -1;
+                extract_kinds(x, arg_kind, dest_kind);
+                llvm::Value *re, *im;
+                std::cout<<arg_kind<<" "<<dest_kind<<std::endl;
+                if( arg_kind > 0 && dest_kind > 0 )
+                {
+                    if( arg_kind == 4 && dest_kind == 8 ) {
+                        target_type = complex_type_8;
+                        re = complex_re(tmp, complex_type_4);
+                        re = builder->CreateFPExt(re, llvm::Type::getDoubleTy(context));
+                        im = complex_im(tmp, complex_type_4);
+                        im = builder->CreateFPExt(im, llvm::Type::getDoubleTy(context));
+                    } else if( arg_kind == 8 && dest_kind == 4 ) {
+                        target_type = complex_type_4;
+                        re = complex_re(tmp, complex_type_8);
+                        re = builder->CreateFPTrunc(re, llvm::Type::getFloatTy(context));
+                        im = complex_im(tmp, complex_type_8);
+                        im = builder->CreateFPTrunc(im, llvm::Type::getFloatTy(context));
+                    } else {
+                        std::string msg = "Conversion from " + std::to_string(arg_kind) + 
+                                          " to " + std::to_string(dest_kind) + " not implemented yet.";
+                        throw CodeGenError(msg);
+                    }
+                }
+                tmp = complex_from_floats(re, im, target_type);
                 break;
             }
             default : throw CodeGenError("Cast kind not implemented");
@@ -1590,7 +1656,7 @@ public:
                 args.push_back(tmp);
             } else if (t->type == ASR::ttypeType::Complex) {
                 int a_kind = ((ASR::Complex_t*)(&(t->base)))->m_kind;
-                llvm::Type* type;
+                llvm::Type *type, *complex_type;
                 switch( a_kind ) {
                     case 4 : {
                         // Cast float to double as a workaround for the fact that
@@ -1598,11 +1664,13 @@ public:
                         // causes it to print 0.000000.
                         fmt.push_back("(%f,%f)");
                         type = llvm::Type::getDoubleTy(context);
+                        complex_type = complex_type_4;
                         break;
                     }
                     case 8 : {
                         fmt.push_back("(%lf,%lf)");
                         type = llvm::Type::getDoubleTy(context);
+                        complex_type = complex_type_8;
                         break;
                     }
                     default: {
@@ -1612,9 +1680,9 @@ public:
                     }
                 }
                 llvm::Value *d;
-                d = builder->CreateFPExt(complex_re(tmp, type), type);
+                d = builder->CreateFPExt(complex_re(tmp, complex_type), type);
                 args.push_back(d);
-                d = builder->CreateFPExt(complex_im(tmp, type), type);
+                d = builder->CreateFPExt(complex_im(tmp, complex_type), type);
                 args.push_back(d);
             } else {
                 throw LFortranException("Type not implemented");
@@ -1663,9 +1731,10 @@ public:
                 this->visit_expr(*x.m_args[i]);
                 llvm::Value *value=tmp;
                 llvm::Type *target_type;
-                switch (expr_type(x.m_args[i])->type) {
+                ASR::ttype_t* arg_type = expr_type(x.m_args[i]);
+                switch (arg_type->type) {
                     case (ASR::ttypeType::Integer) : {
-                        int a_kind = down_cast<ASR::Integer_t>(x.m_type)->m_kind;
+                        int a_kind = down_cast<ASR::Integer_t>(arg_type)->m_kind;
                         switch(a_kind)
                         {
                             case 4:
@@ -1680,7 +1749,7 @@ public:
                         break;
                     }
                     case (ASR::ttypeType::Real) : {
-                        int a_kind = down_cast<ASR::Integer_t>(x.m_type)->m_kind;
+                        int a_kind = down_cast<ASR::Real_t>(arg_type)->m_kind;
                         switch(a_kind)
                         {
                             case 4:
@@ -1694,9 +1763,21 @@ public:
                         }
                         break;
                     }
-                    case (ASR::ttypeType::Complex) :
-                        target_type = complex_type;
+                    case (ASR::ttypeType::Complex) : {
+                        int a_kind = down_cast<ASR::Complex_t>(arg_type)->m_kind;
+                        switch(a_kind)
+                        {
+                            case 4:
+                                target_type = complex_type_4;
+                                break;
+                            case 8:
+                                target_type = complex_type_8;
+                                break;
+                            default:
+                                throw CodeGenError("Only 32 and 64 bits complex kinds are supported.");
+                        }
                         break;
+                    }
                     case (ASR::ttypeType::Character) :
                         throw CodeGenError("Character argument type not implemented yet in conversion");
                         break;
@@ -1750,8 +1831,9 @@ public:
         } else if (s->m_abi == ASR::abiType::Interactive) {
             h = get_hash((ASR::asr_t*)s);
         } else if (s->m_abi == ASR::abiType::Intrinsic) {
+            int a_kind = extract_kind_from_ttype_t(x.m_type);
             if (all_intrinsics.empty()) {
-                populate_intrinsics();
+                populate_intrinsics(x.m_type);
             }
             // We use an unordered map to get the O(n) operation time
             std::unordered_map<std::string, llvm::Function *>::const_iterator
@@ -1761,7 +1843,7 @@ public:
             } else {
                 std::vector<llvm::Value *> args = convert_call_args(x);
                 LFORTRAN_ASSERT(args.size() == 1);
-                tmp = lfortran_intrinsic(find_intrinsic->second, args[0]);
+                tmp = lfortran_intrinsic(find_intrinsic->second, args[0], a_kind);
                 return;
             }
             h = get_hash((ASR::asr_t *)s);
@@ -1778,7 +1860,7 @@ public:
     }
 
     //!< Meant to be called only once
-    void populate_intrinsics(ASR::ttype_t _type) {
+    void populate_intrinsics(ASR::ttype_t* _type) {
         std::vector<std::string> supported = {
             "sin",  "cos",  "tan",  "sinh",  "cosh",  "tanh",
             "asin", "acos", "atan", "asinh", "acosh", "atanh"};
