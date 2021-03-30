@@ -170,20 +170,20 @@ public:
         std::vector<llvm::Value*> idx_vec = {
         llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
         llvm::ConstantInt::get(context, llvm::APInt(32, idx))};
-        return builder->CreateGEP(ds, idx_vec, name);
+        return builder->CreateGEP(ds, idx_vec);
     }
 
     inline llvm::Value* create_gep(llvm::Value* ds, llvm::Value* idx) {
         std::vector<llvm::Value*> idx_vec = {
         llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
         idx};
-        return builder->CreateGEP(ds, idx_vec, name);
+        return builder->CreateGEP(ds, idx_vec);
     }
 
     inline llvm::Value* create_gep_for_array(llvm::Value* ds, llvm::Value* idx) {
         std::vector<llvm::Value*> idx_vec = {
         idx};
-        return builder->CreateGEP(ds, idx, name);
+        return builder->CreateGEP(ds, idx);
     }
 
     inline bool verify_dimensions_t(ASR::dimension_t* m_dims, int n_dims) {

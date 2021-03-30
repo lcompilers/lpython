@@ -1,9 +1,9 @@
 program arrays_01
 implicit none
 !integer, parameter :: i = 20 
-integer :: a(20)
-a(2) = 4
-print *, a(2)
+integer :: a(7)
+a(6) = 4
+print *, a(6)
 !, a(5:6, 7:8)
 !integer, allocatable :: c(:,:)
 !b(6) = 20
