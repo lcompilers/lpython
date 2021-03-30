@@ -674,9 +674,20 @@ public:
         throw LFortranException("ICE: Module not found");
     }
 
+    bool present(Vec<char*> &v, const char* name) {
+        for (auto &a : v) {
+            if (std::string(a) == std::string(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     void visit_Use(const AST::Use_t &x) {
         std::string msym = x.m_module;
-        current_module_dependencies.push_back(al, x.m_module);
+        if (!present(current_module_dependencies, x.m_module)) {
+            current_module_dependencies.push_back(al, x.m_module);
+        }
         ASR::symbol_t *t = current_scope->parent->resolve_symbol(msym);
         if (!t) {
             ASR::TranslationUnit_t *mod1 = find_and_load_module(msym,
