@@ -10,6 +10,7 @@
 #include <lfortran/asr_verify.h>
 #include <lfortran/pickle.h>
 #include <lfortran/modfile.h>
+#include <lfortran/serialization.h>
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/parser/parser_stype.h>
 #include <string>
@@ -696,6 +697,9 @@ public:
                 throw SemanticError("Module '" + msym + "' not declared in the current source and the modfile was not found",
                     x.base.base.loc);
             }
+            fix_external_symbols(*mod1, *current_scope->parent);
+            LFORTRAN_ASSERT(asr_verify(*mod1));
+
             ASR::Module_t *mod2 = extract_module(*mod1);
             current_scope->parent->scope[msym] = (ASR::symbol_t*)mod2;
             mod2->m_symtab->parent = current_scope->parent;

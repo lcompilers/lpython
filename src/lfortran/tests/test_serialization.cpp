@@ -85,6 +85,8 @@ void asr_mod(const std::string &src) {
     LFortran::SymbolTable symtab(nullptr);
     LFortran::ASR::TranslationUnit_t *asr2 = LFortran::load_modfile(al,
             modfile, true, symtab);
+    fix_external_symbols(*asr2, symtab);
+    LFORTRAN_ASSERT(LFortran::asr_verify(*asr2));
 
     CHECK(LFortran::pickle(*asr) == LFortran::pickle(*asr2));
 }
