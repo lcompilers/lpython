@@ -43,11 +43,11 @@ TEST_CASE("Address to line number"){
     CHECK(filename=="foo2");
     CHECK(line_number==15);
 
-    LFortran::address_to_line_number(filenames, addresses, 1007, filename, line_number);
+    LFortran::address_to_line_number(filenames, addresses, 1015, filename, line_number);
     CHECK(filename=="foo2");
     CHECK(line_number==15);
 
-    LFortran::address_to_line_number(filenames, addresses, 1008, filename, line_number);
+    LFortran::address_to_line_number(filenames, addresses, 1016, filename, line_number);
     CHECK(filename=="foo1");
     CHECK(line_number==20);
 
