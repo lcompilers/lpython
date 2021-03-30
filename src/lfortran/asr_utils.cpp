@@ -17,7 +17,6 @@ std::vector<int> order_deps(std::map<int, std::vector<int>> &deps) {
     for (auto d : deps) {
         if (!visited[d.first]) visit(d.first, deps, visited, result);
     }
-    std::reverse(result.begin(), result.end());
     return result;
 }
 
