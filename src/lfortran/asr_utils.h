@@ -153,6 +153,9 @@ std::vector<int> order_deps(std::map<int, std::vector<int>> &deps);
 std::vector<std::string> order_deps(std::map<std::string,
         std::vector<std::string>> &deps);
 
+std::vector<std::string> determine_module_dependencies(
+        const ASR::TranslationUnit_t &unit);
+
 } // namespace LFortran
 
 #endif // LFORTRAN_ASR_UTILS_H

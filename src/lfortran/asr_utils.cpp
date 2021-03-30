@@ -57,4 +57,21 @@ std::vector<std::string> order_deps(std::map<std::string, std::vector<std::strin
     return result;
 }
 
+std::vector<std::string> determine_module_dependencies(
+        const ASR::TranslationUnit_t &unit)
+{
+    std::map<std::string, std::vector<std::string>> deps;
+    for (auto &item : unit.m_global_scope->scope) {
+        if (ASR::is_a<ASR::Module_t>(*item.second)) {
+            std::string name = item.first;
+            ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(item.second);
+            for (size_t i=0; i < m->n_dependencies; i++) {
+                std::string dep = m->m_dependencies[i];
+                deps[name].push_back(dep);
+            }
+        }
+    }
+    return order_deps(deps);
+}
+
 } // namespace LFortran
