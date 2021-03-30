@@ -701,19 +701,25 @@ public:
             current_scope->parent->scope[msym] = (ASR::symbol_t*)mod2;
             mod2->m_symtab->parent = current_scope->parent;
             mod2->m_loaded_from_mod = true;
-            //ASR::TranslationUnit_t *tu = current_scope->parent->symbol;
-            //LFORTRAN_ASSERT(LFortran::asr_verify(*tu));
             t = current_scope->parent->resolve_symbol(msym);
             LFORTRAN_ASSERT(t != nullptr);
 
-            // Load any dependent modules
-            // TODO
-
-            // Fix all external symbols
             // Create a temporary TranslationUnit just for fixing the symbols
             ASR::TranslationUnit_t *tu
                 = ASR::down_cast2<ASR::TranslationUnit_t>(ASR::make_TranslationUnit_t(al, x.base.base.loc,
-                    current_scope, nullptr, 0));
+                    current_scope->parent, nullptr, 0));
+
+            // Load any dependent modules
+            std::vector<std::string> modules_list
+                = determine_module_dependencies(*tu);
+            for (auto &item : modules_list) {
+                LFORTRAN_ASSERT(current_scope->scope.find(item)
+                    != current_scope->scope.end());
+                //ASR::symbol_t *mod = x.m_global_scope->scope[item];
+                //visit_symbol(*mod);
+            }
+
+            // Fix all external symbols
             fix_external_symbols(*tu, *current_scope->parent);
             LFORTRAN_ASSERT(asr_verify(*tu));
         }
