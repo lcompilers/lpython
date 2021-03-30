@@ -299,6 +299,7 @@ public:
     std::map<std::string, std::vector<std::string>> generic_procedures;
     ASR::accessType dflt_access = ASR::Public;
     std::map<std::string, ASR::accessType> assgnd_access;
+    Vec<char*> current_module_dependencies;
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
         : al{al}, current_scope{symbol_table} { }
@@ -331,6 +332,7 @@ public:
     void visit_Module(const AST::Module_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
+        current_module_dependencies.reserve(al, 4);
         for (size_t i=0; i<x.n_use; i++) {
             visit_unit_decl1(*x.m_use[i]);
         }
@@ -345,6 +347,8 @@ public:
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
             /* a_name */ x.m_name,
+            current_module_dependencies.p,
+            current_module_dependencies.n,
             false);
         std::string sym_name = x.m_name;
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
@@ -357,6 +361,7 @@ public:
     void visit_Program(const AST::Program_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
+        current_module_dependencies.reserve(al, 4);
         for (size_t i=0; i<x.n_use; i++) {
             visit_unit_decl1(*x.m_use[i]);
         }
@@ -370,6 +375,8 @@ public:
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
             /* a_name */ x.m_name,
+            current_module_dependencies.p,
+            current_module_dependencies.n,
             /* a_body */ nullptr,
             /* n_body */ 0);
         std::string sym_name = x.m_name;
@@ -669,9 +676,9 @@ public:
 
     void visit_Use(const AST::Use_t &x) {
         std::string msym = x.m_module;
+        current_module_dependencies.push_back(al, x.m_module);
         ASR::symbol_t *t = current_scope->parent->resolve_symbol(msym);
         if (!t) {
-            // TODO: symbol table IDs must be adjusted:
             ASR::TranslationUnit_t *mod1 = find_and_load_module(msym,
                     *current_scope->parent);
             if (mod1 == nullptr) {
