@@ -435,9 +435,8 @@ ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s,
 
     LFORTRAN_ASSERT(asr_verify(*tu, false));
 
-    fix_external_symbols(*tu, external_symtab);
-
-    LFORTRAN_ASSERT(asr_verify(*tu, true));
+    // Suppress a warning for now
+    if ((bool&)external_symtab) {}
 
     return node;
 }

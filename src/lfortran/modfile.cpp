@@ -138,7 +138,12 @@ ASR::TranslationUnit_t* load_modfile(Allocator &al, const std::string &s,
     }
     std::string asr_binary = b.read_string();
     ASR::asr_t *asr = deserialize_asr(al, asr_binary, load_symtab_id, symtab);
-    return ASR::down_cast2<ASR::TranslationUnit_t>(asr);
+
+    ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(asr);
+    fix_external_symbols(*tu, symtab);
+    LFORTRAN_ASSERT(asr_verify(*tu));
+
+    return tu;
 }
 
 } // namespace LFortran
