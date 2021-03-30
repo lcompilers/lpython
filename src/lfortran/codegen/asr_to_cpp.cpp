@@ -147,6 +147,24 @@ public:
         src = unit_src;
     }
 
+    void visit_Module(const ASR::Module_t &x) {
+        // Generate code for nested subroutines and functions first:
+        std::string contains;
+        for (auto &item : x.m_symtab->scope) {
+            if (is_a<ASR::Subroutine_t>(*item.second)) {
+                ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
+                visit_Subroutine(*s);
+                contains += src + "\n";
+            }
+            if (is_a<ASR::Function_t>(*item.second)) {
+                ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
+                visit_Function(*s);
+                contains += src + "\n";
+            }
+        }
+        src = contains;
+    }
+
     void visit_Program(const ASR::Program_t &x) {
         // Generate code for nested subroutines and functions first:
         std::string contains;
