@@ -697,9 +697,6 @@ public:
                 throw SemanticError("Module '" + msym + "' not declared in the current source and the modfile was not found",
                     x.base.base.loc);
             }
-            fix_external_symbols(*mod1, *current_scope->parent);
-            LFORTRAN_ASSERT(asr_verify(*mod1));
-
             ASR::Module_t *mod2 = extract_module(*mod1);
             current_scope->parent->scope[msym] = (ASR::symbol_t*)mod2;
             mod2->m_symtab->parent = current_scope->parent;
@@ -708,6 +705,17 @@ public:
             //LFORTRAN_ASSERT(LFortran::asr_verify(*tu));
             t = current_scope->parent->resolve_symbol(msym);
             LFORTRAN_ASSERT(t != nullptr);
+
+            // Load any dependent modules
+            // TODO
+
+            // Fix all external symbols
+            // Create a temporary TranslationUnit just for fixing the symbols
+            ASR::TranslationUnit_t *tu
+                = ASR::down_cast2<ASR::TranslationUnit_t>(ASR::make_TranslationUnit_t(al, x.base.base.loc,
+                    current_scope, nullptr, 0));
+            fix_external_symbols(*tu, *current_scope->parent);
+            LFORTRAN_ASSERT(asr_verify(*tu));
         }
         if (!ASR::is_a<ASR::Module_t>(*t)) {
             throw SemanticError("The symbol '" + msym + "' must be a module",
