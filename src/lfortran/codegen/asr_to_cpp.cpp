@@ -175,6 +175,7 @@ public:
 
         std::string headers =
 R"(#include <iostream>
+#include <vector>
 #include <Kokkos_Core.hpp>
 
 template <typename T>
