@@ -397,8 +397,15 @@ public:
                 xx.m_external = sym;
                 return;
             }
-        } else {
-            // TODO: search external_symtab also
+        } else if (external_symtab->scope.find(module_name) != external_symtab->scope.end()) {
+            Module_t *m = down_cast<Module_t>(external_symtab->scope[module_name]);
+            if (m->m_symtab->scope.find(original_name) != m->m_symtab->scope.end()) {
+                symbol_t *sym = m->m_symtab->scope[original_name];
+                // FIXME: this is a hack, we need to pass in a non-const `x`.
+                ExternalSymbol_t &xx = const_cast<ExternalSymbol_t&>(x);
+                xx.m_external = sym;
+                return;
+            }
         }
         throw LFortranException("ExternalSymbol cannot be resolved");
     }
