@@ -361,6 +361,7 @@ public:
     void visit_Program(const AST::Program_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
+        current_module_dependencies.reserve(al, 4);
         for (size_t i=0; i<x.n_use; i++) {
             visit_unit_decl1(*x.m_use[i]);
         }
@@ -374,6 +375,8 @@ public:
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
             /* a_name */ x.m_name,
+            current_module_dependencies.p,
+            current_module_dependencies.n,
             /* a_body */ nullptr,
             /* n_body */ 0);
         std::string sym_name = x.m_name;
