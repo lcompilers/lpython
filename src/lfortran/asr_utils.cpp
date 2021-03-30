@@ -40,6 +40,7 @@ std::vector<std::string> order_deps(std::map<std::string, std::vector<std::strin
     // Transform dep -> dep_int
     std::map<int, std::vector<int>> deps_int;
     for (auto d : deps) {
+        deps_int[string2int[d.first]] = std::vector<int>();
         for (auto n : d.second) {
             deps_int[string2int[d.first]].push_back(string2int[n]);
         }
@@ -65,6 +66,7 @@ std::vector<std::string> determine_module_dependencies(
         if (ASR::is_a<ASR::Module_t>(*item.second)) {
             std::string name = item.first;
             ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(item.second);
+            deps[name] = std::vector<std::string>();
             for (size_t i=0; i < m->n_dependencies; i++) {
                 std::string dep = m->m_dependencies[i];
                 deps[name].push_back(dep);
