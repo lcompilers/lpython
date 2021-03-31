@@ -715,6 +715,21 @@ filename = "../integration_tests/int_dp_param.f90"
 asr = true
 llvm = true
 
+[[test]]
+filename = "../integration_tests/complex_dp.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/complex_dp_param.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/bin_op_complex_dp.f90"
+asr = true
+llvm = true
+
 # sin
 [[test]]
 filename = "../integration_tests/intrinsics_02.f90"
