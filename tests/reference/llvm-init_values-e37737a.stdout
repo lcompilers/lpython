@@ -1,20 +1,20 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-%complex = type { float, float }
+%complex_4 = type { float, float }
 
 @0 = private unnamed_addr constant [15 x i8] c"%d %f (%f,%f)\0A\00", align 1
 
 define i32 @main() {
 .entry:
-  %c = alloca %complex, align 8
-  %0 = alloca %complex, align 8
-  %1 = getelementptr %complex, %complex* %0, i32 0, i32 0
-  %2 = getelementptr %complex, %complex* %0, i32 0, i32 1
+  %c = alloca %complex_4, align 8
+  %0 = alloca %complex_4, align 8
+  %1 = getelementptr %complex_4, %complex_4* %0, i32 0, i32 0
+  %2 = getelementptr %complex_4, %complex_4* %0, i32 0, i32 1
   store float 3.000000e+00, float* %1, align 4
   store float 4.000000e+00, float* %2, align 4
-  %3 = load %complex, %complex* %0, align 4
-  store %complex %3, %complex* %c, align 4
+  %3 = load %complex_4, %complex_4* %0, align 4
+  store %complex_4 %3, %complex_4* %c, align 4
   %i = alloca i32, align 4
   store i32 1, i32* %i, align 4
   %r = alloca float, align 4
@@ -22,15 +22,15 @@ define i32 @main() {
   %4 = load i32, i32* %i, align 4
   %5 = load float, float* %r, align 4
   %6 = fpext float %5 to double
-  %7 = load %complex, %complex* %c, align 4
-  %8 = alloca %complex, align 8
-  store %complex %7, %complex* %8, align 4
-  %9 = getelementptr %complex, %complex* %8, i32 0, i32 0
+  %7 = load %complex_4, %complex_4* %c, align 4
+  %8 = alloca %complex_4, align 8
+  store %complex_4 %7, %complex_4* %8, align 4
+  %9 = getelementptr %complex_4, %complex_4* %8, i32 0, i32 0
   %10 = load float, float* %9, align 4
   %11 = fpext float %10 to double
-  %12 = alloca %complex, align 8
-  store %complex %7, %complex* %12, align 4
-  %13 = getelementptr %complex, %complex* %12, i32 0, i32 1
+  %12 = alloca %complex_4, align 8
+  store %complex_4 %7, %complex_4* %12, align 4
+  %13 = getelementptr %complex_4, %complex_4* %12, i32 0, i32 1
   %14 = load float, float* %13, align 4
   %15 = fpext float %14 to double
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([15 x i8], [15 x i8]* @0, i32 0, i32 0), i32 %4, double %6, double %11, double %15)

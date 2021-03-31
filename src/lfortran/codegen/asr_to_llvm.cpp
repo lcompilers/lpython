@@ -155,6 +155,7 @@ public:
 
         llvm::AllocaInst *pleft_arg = builder->CreateAlloca(complex_type,
             nullptr);
+
         builder->CreateStore(left_arg, pleft_arg);
         llvm::AllocaInst *pright_arg = builder->CreateAlloca(complex_type,
             nullptr);
@@ -723,7 +724,7 @@ public:
                     break;
                 }
                 case (ASR::ttypeType::Real) : {
-                    int a_kind = down_cast<ASR::Integer_t>(return_var_type0)->m_kind;
+                    int a_kind = down_cast<ASR::Real_t>(return_var_type0)->m_kind;
                     switch( a_kind ) {
                         case 4 : {
                             return_type = llvm::Type::getFloatTy(context);
@@ -1189,10 +1190,10 @@ public:
             switch(a_kind)
             {
                 case 4:
-                    type = llvm::Type::getFloatTy(context);
+                    type = complex_type_4;
                     break;
                 case 8:
-                    type = llvm::Type::getDoubleTy(context);
+                    type = complex_type_8;
                     break;
                 default:
                     throw CodeGenError("Only 32 and 64 bits complex kinds are supported.");

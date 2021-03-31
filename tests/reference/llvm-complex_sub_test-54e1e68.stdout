@@ -1,7 +1,7 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-%complex = type { float, float }
+%complex_4 = type { float, float }
 
 @0 = private unnamed_addr constant [9 x i8] c"(%f,%f)\0A\00", align 1
 @1 = private unnamed_addr constant [9 x i8] c"(%f,%f)\0A\00", align 1
@@ -9,114 +9,114 @@ source_filename = "LFortran"
 
 define i32 @main() {
 .entry:
-  %x = alloca %complex, align 8
-  %0 = alloca %complex, align 8
-  %1 = getelementptr %complex, %complex* %0, i32 0, i32 0
-  %2 = getelementptr %complex, %complex* %0, i32 0, i32 1
+  %x = alloca %complex_4, align 8
+  %0 = alloca %complex_4, align 8
+  %1 = getelementptr %complex_4, %complex_4* %0, i32 0, i32 0
+  %2 = getelementptr %complex_4, %complex_4* %0, i32 0, i32 1
   store float 3.000000e+00, float* %1, align 4
   store float 4.000000e+00, float* %2, align 4
-  %3 = load %complex, %complex* %0, align 4
-  store %complex %3, %complex* %x, align 4
-  %4 = load %complex, %complex* %x, align 4
-  %5 = alloca %complex, align 8
-  %6 = getelementptr %complex, %complex* %5, i32 0, i32 0
-  %7 = getelementptr %complex, %complex* %5, i32 0, i32 1
+  %3 = load %complex_4, %complex_4* %0, align 4
+  store %complex_4 %3, %complex_4* %x, align 4
+  %4 = load %complex_4, %complex_4* %x, align 4
+  %5 = alloca %complex_4, align 8
+  %6 = getelementptr %complex_4, %complex_4* %5, i32 0, i32 0
+  %7 = getelementptr %complex_4, %complex_4* %5, i32 0, i32 1
   store float 4.000000e+00, float* %6, align 4
   store float 0.000000e+00, float* %7, align 4
-  %8 = load %complex, %complex* %5, align 4
-  %9 = alloca %complex, align 8
-  store %complex %4, %complex* %9, align 4
-  %10 = alloca %complex, align 8
-  store %complex %8, %complex* %10, align 4
-  %11 = alloca %complex, align 8
-  call void (%complex*, %complex*, %complex*, ...) @_lfortran_complex_sub(%complex* %9, %complex* %10, %complex* %11)
-  %12 = load %complex, %complex* %11, align 4
-  store %complex %12, %complex* %x, align 4
-  %13 = alloca %complex, align 8
-  %14 = getelementptr %complex, %complex* %13, i32 0, i32 0
-  %15 = getelementptr %complex, %complex* %13, i32 0, i32 1
+  %8 = load %complex_4, %complex_4* %5, align 4
+  %9 = alloca %complex_4, align 8
+  store %complex_4 %4, %complex_4* %9, align 4
+  %10 = alloca %complex_4, align 8
+  store %complex_4 %8, %complex_4* %10, align 4
+  %11 = alloca %complex_4, align 8
+  call void (%complex_4*, %complex_4*, %complex_4*, ...) @_lfortran_complex_sub(%complex_4* %9, %complex_4* %10, %complex_4* %11)
+  %12 = load %complex_4, %complex_4* %11, align 4
+  store %complex_4 %12, %complex_4* %x, align 4
+  %13 = alloca %complex_4, align 8
+  %14 = getelementptr %complex_4, %complex_4* %13, i32 0, i32 0
+  %15 = getelementptr %complex_4, %complex_4* %13, i32 0, i32 1
   store float 4.000000e+00, float* %14, align 4
   store float 0.000000e+00, float* %15, align 4
-  %16 = load %complex, %complex* %13, align 4
-  %17 = load %complex, %complex* %x, align 4
-  %18 = alloca %complex, align 8
-  store %complex %16, %complex* %18, align 4
-  %19 = alloca %complex, align 8
-  store %complex %17, %complex* %19, align 4
-  %20 = alloca %complex, align 8
-  call void (%complex*, %complex*, %complex*, ...) @_lfortran_complex_sub(%complex* %18, %complex* %19, %complex* %20)
-  %21 = load %complex, %complex* %20, align 4
-  store %complex %21, %complex* %x, align 4
-  %22 = load %complex, %complex* %x, align 4
-  %23 = alloca %complex, align 8
-  store %complex %22, %complex* %23, align 4
-  %24 = getelementptr %complex, %complex* %23, i32 0, i32 0
+  %16 = load %complex_4, %complex_4* %13, align 4
+  %17 = load %complex_4, %complex_4* %x, align 4
+  %18 = alloca %complex_4, align 8
+  store %complex_4 %16, %complex_4* %18, align 4
+  %19 = alloca %complex_4, align 8
+  store %complex_4 %17, %complex_4* %19, align 4
+  %20 = alloca %complex_4, align 8
+  call void (%complex_4*, %complex_4*, %complex_4*, ...) @_lfortran_complex_sub(%complex_4* %18, %complex_4* %19, %complex_4* %20)
+  %21 = load %complex_4, %complex_4* %20, align 4
+  store %complex_4 %21, %complex_4* %x, align 4
+  %22 = load %complex_4, %complex_4* %x, align 4
+  %23 = alloca %complex_4, align 8
+  store %complex_4 %22, %complex_4* %23, align 4
+  %24 = getelementptr %complex_4, %complex_4* %23, i32 0, i32 0
   %25 = load float, float* %24, align 4
   %26 = fpext float %25 to double
-  %27 = alloca %complex, align 8
-  store %complex %22, %complex* %27, align 4
-  %28 = getelementptr %complex, %complex* %27, i32 0, i32 1
+  %27 = alloca %complex_4, align 8
+  store %complex_4 %22, %complex_4* %27, align 4
+  %28 = getelementptr %complex_4, %complex_4* %27, i32 0, i32 1
   %29 = load float, float* %28, align 4
   %30 = fpext float %29 to double
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @0, i32 0, i32 0), double %26, double %30)
-  %31 = alloca %complex, align 8
-  %32 = getelementptr %complex, %complex* %31, i32 0, i32 0
-  %33 = getelementptr %complex, %complex* %31, i32 0, i32 1
+  %31 = alloca %complex_4, align 8
+  %32 = getelementptr %complex_4, %complex_4* %31, i32 0, i32 0
+  %33 = getelementptr %complex_4, %complex_4* %31, i32 0, i32 1
   store float 2.000000e+00, float* %32, align 4
   store float 0.000000e+00, float* %33, align 4
-  %34 = load %complex, %complex* %31, align 4
-  %35 = load %complex, %complex* %x, align 4
-  %36 = alloca %complex, align 8
-  store %complex %34, %complex* %36, align 4
-  %37 = alloca %complex, align 8
-  store %complex %35, %complex* %37, align 4
-  %38 = alloca %complex, align 8
-  call void (%complex*, %complex*, %complex*, ...) @_lfortran_complex_sub(%complex* %36, %complex* %37, %complex* %38)
-  %39 = load %complex, %complex* %38, align 4
-  store %complex %39, %complex* %x, align 4
-  %40 = load %complex, %complex* %x, align 4
-  %41 = alloca %complex, align 8
-  store %complex %40, %complex* %41, align 4
-  %42 = getelementptr %complex, %complex* %41, i32 0, i32 0
+  %34 = load %complex_4, %complex_4* %31, align 4
+  %35 = load %complex_4, %complex_4* %x, align 4
+  %36 = alloca %complex_4, align 8
+  store %complex_4 %34, %complex_4* %36, align 4
+  %37 = alloca %complex_4, align 8
+  store %complex_4 %35, %complex_4* %37, align 4
+  %38 = alloca %complex_4, align 8
+  call void (%complex_4*, %complex_4*, %complex_4*, ...) @_lfortran_complex_sub(%complex_4* %36, %complex_4* %37, %complex_4* %38)
+  %39 = load %complex_4, %complex_4* %38, align 4
+  store %complex_4 %39, %complex_4* %x, align 4
+  %40 = load %complex_4, %complex_4* %x, align 4
+  %41 = alloca %complex_4, align 8
+  store %complex_4 %40, %complex_4* %41, align 4
+  %42 = getelementptr %complex_4, %complex_4* %41, i32 0, i32 0
   %43 = load float, float* %42, align 4
   %44 = fpext float %43 to double
-  %45 = alloca %complex, align 8
-  store %complex %40, %complex* %45, align 4
-  %46 = getelementptr %complex, %complex* %45, i32 0, i32 1
+  %45 = alloca %complex_4, align 8
+  store %complex_4 %40, %complex_4* %45, align 4
+  %46 = getelementptr %complex_4, %complex_4* %45, i32 0, i32 1
   %47 = load float, float* %46, align 4
   %48 = fpext float %47 to double
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @1, i32 0, i32 0), double %44, double %48)
-  %49 = load %complex, %complex* %x, align 4
-  %50 = alloca %complex, align 8
-  %51 = getelementptr %complex, %complex* %50, i32 0, i32 0
-  %52 = getelementptr %complex, %complex* %50, i32 0, i32 1
+  %49 = load %complex_4, %complex_4* %x, align 4
+  %50 = alloca %complex_4, align 8
+  %51 = getelementptr %complex_4, %complex_4* %50, i32 0, i32 0
+  %52 = getelementptr %complex_4, %complex_4* %50, i32 0, i32 1
   store float 0.000000e+00, float* %51, align 4
   store float 3.000000e+00, float* %52, align 4
-  %53 = load %complex, %complex* %50, align 4
-  %54 = alloca %complex, align 8
-  store %complex %49, %complex* %54, align 4
-  %55 = alloca %complex, align 8
-  store %complex %53, %complex* %55, align 4
-  %56 = alloca %complex, align 8
-  call void (%complex*, %complex*, %complex*, ...) @_lfortran_complex_sub(%complex* %54, %complex* %55, %complex* %56)
-  %57 = load %complex, %complex* %56, align 4
-  store %complex %57, %complex* %x, align 4
-  %58 = load %complex, %complex* %x, align 4
-  %59 = alloca %complex, align 8
-  store %complex %58, %complex* %59, align 4
-  %60 = getelementptr %complex, %complex* %59, i32 0, i32 0
+  %53 = load %complex_4, %complex_4* %50, align 4
+  %54 = alloca %complex_4, align 8
+  store %complex_4 %49, %complex_4* %54, align 4
+  %55 = alloca %complex_4, align 8
+  store %complex_4 %53, %complex_4* %55, align 4
+  %56 = alloca %complex_4, align 8
+  call void (%complex_4*, %complex_4*, %complex_4*, ...) @_lfortran_complex_sub(%complex_4* %54, %complex_4* %55, %complex_4* %56)
+  %57 = load %complex_4, %complex_4* %56, align 4
+  store %complex_4 %57, %complex_4* %x, align 4
+  %58 = load %complex_4, %complex_4* %x, align 4
+  %59 = alloca %complex_4, align 8
+  store %complex_4 %58, %complex_4* %59, align 4
+  %60 = getelementptr %complex_4, %complex_4* %59, i32 0, i32 0
   %61 = load float, float* %60, align 4
   %62 = fpext float %61 to double
-  %63 = alloca %complex, align 8
-  store %complex %58, %complex* %63, align 4
-  %64 = getelementptr %complex, %complex* %63, i32 0, i32 1
+  %63 = alloca %complex_4, align 8
+  store %complex_4 %58, %complex_4* %63, align 4
+  %64 = getelementptr %complex_4, %complex_4* %63, i32 0, i32 1
   %65 = load float, float* %64, align 4
   %66 = fpext float %65 to double
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @2, i32 0, i32 0), double %62, double %66)
   ret i32 0
 }
 
-declare void @_lfortran_complex_sub(%complex*, %complex*, %complex*, ...)
+declare void @_lfortran_complex_sub(%complex_4*, %complex_4*, %complex_4*, ...)
 
 declare void @_lfortran_printf(i8*, ...)
 
