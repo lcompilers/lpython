@@ -1,0 +1,1 @@
+(TranslationUnit [(Program arrays_06 [] [(Declaration [(x "real" () [] [] [(Attribute dimension [] [(1 6)])] ())]) (Declaration [(i "integer" () [] [] [] ())])] [(= x (ArrayInitializer [(* i 2)])) (Print () [x]) (= x (ArrayInitializer [(+ i 1)])) (Print () [x]) (= x (ArrayInitializer [(+ i 1)])) (Print () [x]) (= x (ArrayInitializer [(* 2 i)])) (Print () [x])] [])])
