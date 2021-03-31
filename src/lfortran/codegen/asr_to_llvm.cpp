@@ -635,10 +635,10 @@ public:
                     switch(a_kind)
                     {
                         case 4:
-                            type = llvm::Type::getFloatTy(context);
+                            type = llvm::Type::getFloatPtrTy(context);
                             break;
                         case 8:
-                            type = llvm::Type::getDoubleTy(context);
+                            type = llvm::Type::getDoublePtrTy(context);
                             break;
                         default:
                             throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
@@ -652,7 +652,7 @@ public:
                     throw CodeGenError("Character argument type not implemented yet in conversion");
                     break;
                 case (ASR::ttypeType::Logical) :
-                    args.push_back(llvm::Type::getInt1PtrTy(context));
+                    type = llvm::Type::getInt1PtrTy(context);
                     break;
                 case (ASR::ttypeType::Derived) :
                     throw CodeGenError("Derived type argument not implemented yet in conversion");
