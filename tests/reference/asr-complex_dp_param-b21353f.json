@@ -1,0 +1,13 @@
+{
+    "basename": "asr-complex_dp_param-b21353f",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/complex_dp_param.f90",
+    "infile_hash": "0d4d9eaf5bcc2cee6a8b57ee6a66b5a10ced2edf6d64b5d2e2a0bcb8",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-complex_dp_param-b21353f.stdout",
+    "stdout_hash": "faa707f24d4faa6586972cf2839a8c8476372906f17b5ff31b5e8ba1",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

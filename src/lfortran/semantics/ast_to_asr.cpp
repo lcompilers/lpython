@@ -102,6 +102,35 @@ namespace LFortran {
 
                 return HelperMethods::is_same_type_pointer(x, y);
             }
+
+            inline static int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {
+                if( curr_type == nullptr ) {
+                    return -1;
+                }
+                switch (curr_type->type) {
+                    case ASR::ttypeType::Real : {
+                        return ((ASR::Real_t*)(&(curr_type->base)))->m_kind;
+                    }
+                    case ASR::ttypeType::RealPointer : {
+                        return ((ASR::RealPointer_t*)(&(curr_type->base)))->m_kind;
+                    }
+                    case ASR::ttypeType::Integer : {
+                        return ((ASR::Integer_t*)(&(curr_type->base)))->m_kind;
+                    } 
+                    case ASR::ttypeType::IntegerPointer : {
+                        return ((ASR::IntegerPointer_t*)(&(curr_type->base)))->m_kind;
+                    }
+                    case ASR::ttypeType::Complex: {
+                        return ((ASR::Complex_t*)(&(curr_type->base)))->m_kind;
+                    }
+                    case ASR::ttypeType::ComplexPointer: {
+                        return ((ASR::ComplexPointer_t*)(&(curr_type->base)))->m_kind;
+                    }
+                    default : {
+                        return -1;
+                    }
+                }
+            }
     };
 
     class ImplicitCastRules {
@@ -118,6 +147,7 @@ namespace LFortran {
             static const int real_to_complex = ASR::cast_kindType::RealToComplex;
             static const int integer_to_complex = ASR::cast_kindType::IntegerToComplex;
             static const int integer_to_logical = ASR::cast_kindType::IntegerToLogical;
+            static const int complex_to_complex = ASR::cast_kindType::ComplexToComplex;
             static const int real_to_real = ASR::cast_kindType::RealToReal;
 
             //! Stores the variable part of error messages to be passed to SemanticError.
@@ -148,8 +178,8 @@ namespace LFortran {
                  integer_to_integer, integer_to_real, integer_to_complex, error_case, integer_to_logical, error_case},
                 {real_to_integer, real_to_real, real_to_complex, default_case, default_case, default_case,
                  real_to_integer, real_to_real, real_to_complex, default_case, default_case, default_case},
-                {default_case, default_case, default_case, default_case, default_case, default_case,
-                 default_case, default_case, default_case, default_case, default_case, default_case},
+                {default_case, default_case, complex_to_complex, default_case, default_case, default_case,
+                 default_case, default_case, complex_to_complex, default_case, default_case, default_case},
                 {default_case, default_case, default_case, default_case, default_case, default_case,
                  default_case, default_case, default_case, default_case, default_case, default_case},
                 {default_case, default_case, default_case, default_case, default_case, default_case,
@@ -196,30 +226,8 @@ namespace LFortran {
                         dest_type = temp;
                     }
                     int source_kind = 0, dest_kind = 1;
-                    switch (dest_type->type) {
-                        
-                        case ASR::ttypeType::Real : {
-                            source_kind = ((ASR::Real_t*)(&(source_type->base)))->m_kind;
-                            dest_kind = ((ASR::Real_t*)(&(dest_type->base)))->m_kind;
-                            break;
-                        } case ASR::ttypeType::RealPointer : {
-                            source_kind = ((ASR::Real_t*)(&(source_type->base)))->m_kind;
-                            dest_kind = ((ASR::RealPointer_t*)(&(dest_type->base)))->m_kind;
-                            break;
-                        } case ASR::ttypeType::Integer : {
-                            source_kind = ((ASR::Integer_t*)(&(source_type->base)))->m_kind;
-                            dest_kind = ((ASR::Integer_t*)(&(dest_type->base)))->m_kind;
-                            break;
-                        } case ASR::ttypeType::IntegerPointer : {
-                            source_kind = ((ASR::Integer_t*)(&(source_type->base)))->m_kind;
-                            dest_kind = ((ASR::IntegerPointer_t*)(&(dest_type->base)))->m_kind;
-                            break;
-                        }
-                        default : {
-                            break;
-                        }
-
-                    }
+                    source_kind = HelperMethods::extract_kind_from_ttype_t(source_type);
+                    dest_kind = HelperMethods::extract_kind_from_ttype_t(dest_type);
                     if( source_kind == dest_kind ) {
                         return ;
                     }
@@ -1040,7 +1048,7 @@ public:
             } else if (sym_type == "logical") {
                 type = TYPE(ASR::make_Logical_t(al, x.loc, 4, dims.p, dims.size()));
             } else if (sym_type == "complex") {
-                type = TYPE(ASR::make_Complex_t(al, x.loc, 4, dims.p, dims.size()));
+                type = TYPE(ASR::make_Complex_t(al, x.loc, a_kind, dims.p, dims.size()));
             } else if (sym_type == "character") {
                 type = TYPE(ASR::make_Character_t(al, x.loc, 4, dims.p, dims.size()));
             } else if (sym_type == "type") {
@@ -1862,12 +1870,14 @@ public:
     }
 
     void visit_Complex(const AST::Complex_t &x) {
-        ASR::ttype_t *type = TYPE(ASR::make_Complex_t(al, x.base.base.loc,
-                4, nullptr, 0));
         this->visit_expr(*x.m_re);
         ASR::expr_t *re = EXPR(tmp);
+        int a_kind_r = HelperMethods::extract_kind_from_ttype_t(expr_type(re));
         this->visit_expr(*x.m_im);
         ASR::expr_t *im = EXPR(tmp);
+        int a_kind_i = HelperMethods::extract_kind_from_ttype_t(expr_type(im));
+        ASR::ttype_t *type = TYPE(ASR::make_Complex_t(al, x.base.base.loc,
+                std::max(a_kind_r, a_kind_i), nullptr, 0)); // Extract kind here.
         tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc,
                 re, im, type);
     }

@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-bin_op_complex_dp-e3d6511",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/bin_op_complex_dp.f90",
+    "infile_hash": "9be1b396941b73e1466a46963ee3ade085440ce077b444ce7e2f6baf",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-bin_op_complex_dp-e3d6511.stdout",
+    "stdout_hash": "48abf113a3fad0b9c4aad3df55a418ae2b5f72fea1c5d52af025fba1",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
