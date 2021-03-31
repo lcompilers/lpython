@@ -18,7 +18,10 @@ std::string uint64_to_string(uint64_t i) {
     return std::string(bytes, 4);
 }
 
-uint64_t string_to_uint64(const char *p) {
+uint64_t string_to_uint64(const char *s) {
+    // The cast from signed char to unsigned char is important,
+    // otherwise the signed char shifts return wrong value for negative numbers
+    const uint8_t *p = (const unsigned char*)s;
     return (p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3];
 }
 
@@ -59,14 +62,14 @@ public:
     }
 };
 
-std::string serialize(AST::ast_t &ast) {
+std::string serialize(const AST::ast_t &ast) {
     ASTSerializationVisitor v;
     v.write_int8(ast.type);
     v.visit_ast(ast);
     return v.get_str();
 }
 
-std::string serialize(AST::TranslationUnit_t &unit) {
+std::string serialize(const AST::TranslationUnit_t &unit) {
     return serialize((AST::ast_t&)(unit));
 }
 
@@ -78,7 +81,7 @@ private:
     size_t pos;
 public:
     ASTDeserializationVisitor(Allocator &al, const std::string &s) :
-            DeserializationBaseVisitor(al), s{s}, pos{0} {}
+            DeserializationBaseVisitor(al, true), s{s}, pos{0} {}
 
     uint8_t read_int8() {
         if (pos+1 > s.size()) {
@@ -168,14 +171,14 @@ public:
     }
 };
 
-std::string serialize(ASR::asr_t &asr) {
+std::string serialize(const ASR::asr_t &asr) {
     ASRSerializationVisitor v;
     v.write_int8(asr.type);
     v.visit_asr(asr);
     return v.get_str();
 }
 
-std::string serialize(ASR::TranslationUnit_t &unit) {
+std::string serialize(const ASR::TranslationUnit_t &unit) {
     return serialize((ASR::asr_t&)(unit));
 }
 
@@ -186,8 +189,9 @@ private:
     std::string s;
     size_t pos;
 public:
-    ASRDeserializationVisitor(Allocator &al, const std::string &s) :
-            DeserializationBaseVisitor(al), s{s}, pos{0} {}
+    ASRDeserializationVisitor(Allocator &al, const std::string &s,
+        bool load_symtab_id) :
+            DeserializationBaseVisitor(al, load_symtab_id), s{s}, pos{0} {}
 
     uint8_t read_int8() {
         if (pos+1 > s.size()) {
@@ -365,10 +369,63 @@ public:
 
 };
 
+class FixExternalSymbolsVisitor : public BaseWalkVisitor<FixExternalSymbolsVisitor>
+{
+private:
+    SymbolTable *global_symtab;
+    SymbolTable *external_symtab;
+public:
+    FixExternalSymbolsVisitor(SymbolTable &symtab) : external_symtab{&symtab} {}
+
+    void visit_TranslationUnit(const TranslationUnit_t &x) {
+        global_symtab = x.m_global_scope;
+        for (auto &a : x.m_global_scope->scope) {
+            this->visit_symbol(*a.second);
+        }
+    }
+
+    void visit_ExternalSymbol(const ExternalSymbol_t &x) {
+        LFORTRAN_ASSERT(x.m_external == nullptr);
+        std::string module_name = x.m_module_name;
+        std::string original_name = x.m_original_name;
+        if (global_symtab->scope.find(module_name) != global_symtab->scope.end()) {
+            Module_t *m = down_cast<Module_t>(global_symtab->scope[module_name]);
+            if (m->m_symtab->scope.find(original_name) != m->m_symtab->scope.end()) {
+                symbol_t *sym = m->m_symtab->scope[original_name];
+                // FIXME: this is a hack, we need to pass in a non-const `x`.
+                ExternalSymbol_t &xx = const_cast<ExternalSymbol_t&>(x);
+                xx.m_external = sym;
+                return;
+            }
+        } else if (external_symtab->scope.find(module_name) != external_symtab->scope.end()) {
+            Module_t *m = down_cast<Module_t>(external_symtab->scope[module_name]);
+            if (m->m_symtab->scope.find(original_name) != m->m_symtab->scope.end()) {
+                symbol_t *sym = m->m_symtab->scope[original_name];
+                // FIXME: this is a hack, we need to pass in a non-const `x`.
+                ExternalSymbol_t &xx = const_cast<ExternalSymbol_t&>(x);
+                xx.m_external = sym;
+                return;
+            }
+        }
+        throw LFortranException("ExternalSymbol cannot be resolved");
+    }
+
+
+};
+
 } // namespace ASR
 
-ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s) {
-    ASRDeserializationVisitor v(al, s);
+// Fix ExternalSymbol's symbol to point to symbols from `external_symtab`
+// or from `unit`.
+void fix_external_symbols(ASR::TranslationUnit_t &unit,
+        SymbolTable &external_symtab) {
+    ASR::FixExternalSymbolsVisitor e(external_symtab);
+    e.visit_TranslationUnit(unit);
+}
+
+ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s,
+        bool load_symtab_id, SymbolTable &external_symtab) {
+    ASRDeserializationVisitor v(al, s, load_symtab_id);
     ASR::asr_t *node = v.deserialize_node();
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(node);
 
@@ -376,7 +433,10 @@ ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s) {
     ASR::FixParentSymtabVisitor p;
     p.visit_TranslationUnit(*tu);
 
-    LFORTRAN_ASSERT(asr_verify(*tu));
+    LFORTRAN_ASSERT(asr_verify(*tu, false));
+
+    // Suppress a warning for now
+    if ((bool&)external_symtab) {}
 
     return node;
 }

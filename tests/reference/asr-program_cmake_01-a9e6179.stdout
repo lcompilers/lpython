@@ -1,1 +1,1 @@
-(TranslationUnit (SymbolTable 1 {TESTFortran: (Program (SymbolTable 2 {}) TESTFortran [(Print () [(Str "Hello" (Character 8 []))])])}) [])
+(TranslationUnit (SymbolTable 1 {TESTFortran: (Program (SymbolTable 2 {}) TESTFortran [] [(Print () [(Str "Hello" (Character 8 []))])])}) [])

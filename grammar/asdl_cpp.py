@@ -694,7 +694,7 @@ class SerializationVisitorVisitor(ASDLVisitor):
             self.emit(    'self().write_int8(x.base.type);', 2)
         self.used = False
         for n, field in enumerate(fields):
-            self.visitField(field, cons)
+            self.visitField(field, cons, name)
         if not self.used:
             # Note: a better solution would be to change `&x` to `& /* x */`
             # above, but we would need to change emit to return a string.
@@ -706,7 +706,7 @@ class SerializationVisitorVisitor(ASDLVisitor):
         self.emit(    'self().write_int8(x);', 2)
         self.emit("}", 1)
 
-    def visitField(self, field, cons):
+    def visitField(self, field, cons, cons_name):
         if (field.type not in asdl.builtin_types and
             field.type not in self.data.simple_types):
             self.used = True
@@ -718,8 +718,11 @@ class SerializationVisitorVisitor(ASDLVisitor):
                     template = "self().visit_%s(x.m_%s);" % (field.type, field.name)
             else:
                 if field.type == "symbol":
-                    template = "self().write_symbol(*x.m_%s);" \
-                        % field.name
+                    if cons_name == "ExternalSymbol":
+                        template = "// We skip the symbol for ExternalSymbol"
+                    else:
+                        template = "self().write_symbol(*x.m_%s);" \
+                            % field.name
                 else:
                     template = "self().visit_%s(*x.m_%s);" % (field.type, field.name)
             if field.seq:
@@ -832,8 +835,9 @@ class DeserializationVisitorVisitor(ASDLVisitor):
         self.emit(  "Derived& self() { return static_cast<Derived&>(*this); }", 1)
         self.emit("public:")
         self.emit(  "Allocator &al;", 1)
+        self.emit(  "bool load_symtab_id;", 1)
         self.emit(  "std::map<uint64_t,SymbolTable*> id_symtab_map;", 1)
-        self.emit(  r"DeserializationBaseVisitor(Allocator &al) : al{al} {}", 1)
+        self.emit(  r"DeserializationBaseVisitor(Allocator &al, bool load_symtab_id) : al{al}, load_symtab_id{load_symtab_id} {}", 1)
         self.emit_deserialize_node();
         self.mod = mod
         super(DeserializationVisitorVisitor, self).visitModule(mod)
@@ -1036,7 +1040,7 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                             # be present:
                             lines.append("LFORTRAN_ASSERT(id_symtab_map.find(m_%s_counter) == id_symtab_map.end());" % f.name)
                             lines.append("SymbolTable *m_%s = al.make_new<SymbolTable>(nullptr);" % (f.name))
-                            lines.append("m_%s->counter = m_%s_counter;" % (f.name, f.name))
+                            lines.append("if (load_symtab_id) m_%s->counter = m_%s_counter;" % (f.name, f.name))
                             lines.append("id_symtab_map[m_%s_counter] = m_%s;" % (f.name, f.name))
                             lines.append("{")
                             lines.append("    size_t n = self().read_int64();")
@@ -1064,7 +1068,11 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                             if f.opt:
                                 lines.append("if (self().read_bool()) {")
                             if f.type == "symbol":
-                                lines.append("m_%s = self().read_symbol();" % (f.name))
+                                if name == "ExternalSymbol":
+                                    lines.append("// We skip the symbol for ExternalSymbol")
+                                    lines.append("m_%s = nullptr;" % (f.name))
+                                else:
+                                    lines.append("m_%s = self().read_symbol();" % (f.name))
                             else:
                                 lines.append("m_%s = %s::down_cast<%s::%s_t>(self().deserialize_%s());" % (
                                     f.name, subs["mod"].upper(), subs["mod"].upper(), f.type, f.type))

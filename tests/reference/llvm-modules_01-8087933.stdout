@@ -4,7 +4,7 @@ source_filename = "LFortran"
 @0 = private unnamed_addr constant [4 x i8] c"b()\00", align 1
 @1 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 
-define void @__module_a_b() {
+define void @__module_a_01_b() {
 .entry:
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @1, i32 0, i32 0), i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0))
   ret void
@@ -14,7 +14,7 @@ declare void @_lfortran_printf(i8*, ...)
 
 define i32 @main() {
 .entry:
-  call void @__module_a_b()
+  call void @__module_a_01_b()
   ret i32 0
 }
 

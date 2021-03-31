@@ -317,9 +317,29 @@ public:
         }
         prototype_only = false;
 
-        // Then the rest:
+        // TODO: handle depencencies across modules and main program
+
+        // Then do all the procedures
         for (auto &item : x.m_global_scope->scope) {
-            if (!is_a<ASR::Variable_t>(*item.second)) {
+            if (is_a<ASR::Function_t>(*item.second)
+                || is_a<ASR::Subroutine_t>(*item.second)) {
+                visit_symbol(*item.second);
+            }
+        }
+
+        // Then do all the modules in the right order
+        std::vector<std::string> build_order
+            = determine_module_dependencies(x);
+        for (auto &item : build_order) {
+            LFORTRAN_ASSERT(x.m_global_scope->scope.find(item)
+                != x.m_global_scope->scope.end());
+            ASR::symbol_t *mod = x.m_global_scope->scope[item];
+            visit_symbol(*mod);
+        }
+
+        // Then the main program
+        for (auto &item : x.m_global_scope->scope) {
+            if (is_a<ASR::Program_t>(*item.second)) {
                 visit_symbol(*item.second);
             }
         }
@@ -1797,7 +1817,8 @@ public:
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
-        ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(x.m_name);
+        ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(
+                symbol_get_past_external(x.m_name));
         uint32_t h;
         if (s->m_abi == ASR::abiType::LFortranModule) {
             throw CodeGenError("Subroutine LFortran interfaces not implemented yet");
@@ -1817,8 +1838,8 @@ public:
         builder->CreateCall(fn, args);
     }
 
-    void visit_FuncCall(const ASR::FuncCall_t &x) {
-        ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(x.m_name);
+    void visit_FunctionCall(const ASR::FunctionCall_t &x) {
+        ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(symbol_get_past_external(x.m_name));
         uint32_t h;
         if (s->m_abi == ASR::abiType::Source) {
             h = get_hash((ASR::asr_t*)s);

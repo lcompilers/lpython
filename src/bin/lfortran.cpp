@@ -18,6 +18,8 @@
 #include <lfortran/pass/do_loops.h>
 #include <lfortran/pass/global_stmts.h>
 #include <lfortran/asr_utils.h>
+#include <lfortran/asr_verify.h>
+#include <lfortran/modfile.h>
 #include <lfortran/config.h>
 #include <lfortran/fortran_kernel.h>
 #include <lfortran/string_utils.h>
@@ -493,12 +495,37 @@ int save_mod_files(const LFortran::ASR::TranslationUnit_t &u)
     for (auto &item : u.m_global_scope->scope) {
         if (LFortran::ASR::is_a<LFortran::ASR::Module_t>(*item.second)) {
             LFortran::ASR::Module_t *m = LFortran::ASR::down_cast<LFortran::ASR::Module_t>(item.second);
+
+            // Do not save modfiles for modules that were already loaded
+            // from modfiles (as full ASR)
+            if (m->m_loaded_from_mod) continue;
+
+            Allocator al(4*1024);
+            LFortran::SymbolTable *symtab =
+                al.make_new<LFortran::SymbolTable>(nullptr);
+            symtab->scope[std::string(m->m_name)] = item.second;
+            LFortran::SymbolTable *orig_symtab = m->m_symtab->parent;
+            m->m_symtab->parent = symtab;
+
+            LFortran::Location loc;
+            LFortran::ASR::asr_t *asr = LFortran::ASR::make_TranslationUnit_t(al, loc,
+                symtab, nullptr, 0);
+            LFortran::ASR::TranslationUnit_t *tu =
+                LFortran::ASR::down_cast2<LFortran::ASR::TranslationUnit_t>(asr);
+            LFORTRAN_ASSERT(LFortran::asr_verify(*tu));
+
+            std::string modfile_binary = LFortran::save_modfile(*tu);
+
+            m->m_symtab->parent = orig_symtab;
+
+            LFORTRAN_ASSERT(LFortran::asr_verify(u));
+
+
             std::string modfile = std::string(m->m_name) + ".mod";
-            std::string cmd = "touch " + modfile;
-            int err = system(cmd.c_str());
-            if (err) {
-                std::cout << "The command '" + cmd + "' failed." << std::endl;
-                return 11;
+            {
+                std::ofstream out;
+                out.open(modfile);
+                out << modfile_binary;
             }
         }
     }
@@ -549,7 +576,7 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
     LFortran::ASR::TranslationUnit_t* asr;
 
 
-    // Src -> AST
+    // Src -> AST -> ASR
     LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
     result = fe.get_asr2(input);
     if (result.ok) {
@@ -566,6 +593,17 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
     {
         int err = save_mod_files(*asr);
         if (err) return err;
+    }
+
+    if (!LFortran::main_program_present(*asr)) {
+        // Create an empty object file (things will be actually
+        // compiled and linked when the main program is present):
+        {
+            std::ofstream out;
+            out.open(outfile);
+            out << " ";
+        }
+        return 0;
     }
 
     // ASR -> LLVM
@@ -919,7 +957,7 @@ int main(int argc, char *argv[])
         std::vector<std::string> arg_I;
         bool arg_cpp = false;
         std::string arg_o;
-        std::string arg_file;
+        std::vector<std::string> arg_files;
         bool arg_version = false;
         bool show_tokens = false;
         bool show_ast = false;
@@ -950,7 +988,7 @@ int main(int argc, char *argv[])
         CLI::App app{"LFortran: modern interactive LLVM-based Fortran compiler"};
         // Standard options compatible with gfortran, gcc or clang
         // We follow the established conventions
-        app.add_option("file", arg_file, "Source file");
+        app.add_option("files", arg_files, "Source files");
         app.add_flag("-S", arg_S, "Emit assembly, do not assemble or link");
         app.add_flag("-c", arg_c, "Compile and assemble, do not link");
         app.add_option("-o", arg_o, "Specify the file to place the output into");
@@ -1052,7 +1090,7 @@ int main(int argc, char *argv[])
             return 1;
         }
 
-        if (arg_file.size() == 0) {
+        if (arg_files.size() == 0) {
 #ifdef HAVE_LFORTRAN_LLVM
             return prompt(arg_v);
 #else
@@ -1060,6 +1098,10 @@ int main(int argc, char *argv[])
             return 1;
 #endif
         }
+
+        // TODO: for now we ignore the other filenames, only handle
+        // the first:
+        std::string arg_file = arg_files[0];
 
         std::string outfile;
         std::string basename;
