@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    468 // shift/reduce conflicts
+%expect    467 // shift/reduce conflicts
 %expect-rr 78  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -1353,7 +1353,9 @@ expr
     | ".false." { $$ = FALSE(@$); }
     | "(" expr ")" { $$ = $2; }
     | "(" expr "," expr ")" { $$ = COMPLEX($2, $4, @$); }
-    | "(" expr_list "," id "=" expr "," expr ")" { $$ = $6; } // TODO: return a generator expression
+    | "(" expr "," id "=" expr "," expr ")" { $$ = $2; } // TODO: return a generator expression
+    | "(" expr "," expr "," id "=" expr "," expr ")" { $$ = $2; } // TODO: return a generator expression
+    | "(" expr "," expr "," expr_list "," id "=" expr "," expr ")" { $$ = $2; } // TODO: return a generator expression
 
 // ### level-1
 
