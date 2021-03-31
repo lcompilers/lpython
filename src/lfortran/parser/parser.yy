@@ -1354,6 +1354,8 @@ expr
     | "(" expr ")" { $$ = $2; }
     | "(" expr "," expr ")" { $$ = COMPLEX($2, $4, @$); }
     | "(" expr "," id "=" expr "," expr ")" { $$ = $2; } // TODO: return a generator expression
+    | "(" expr "," expr "," id "=" expr "," expr ")" { $$ = $2; } // TODO: return a generator expression
+    | "(" expr "," expr "," expr_list "," id "=" expr "," expr ")" { $$ = $2; } // TODO: return a generator expression
 
 // ### level-1
 

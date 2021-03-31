@@ -326,6 +326,10 @@ asr = true
 cpp = true
 
 [[test]]
+filename = "../integration_tests/arrays_06.f90"
+ast = true
+
+[[test]]
 filename = "../integration_tests/arrays_07.f90"
 ast = true
 
