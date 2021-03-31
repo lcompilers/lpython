@@ -1301,7 +1301,7 @@ return_statement
     ;
 
 cycle_statement
-    : KW_CYCLE { $$ = CYCLE(@$); }
+    : KW_CYCLE id_opt { $$ = CYCLE(@$); }
     ;
 
 continue_statement
