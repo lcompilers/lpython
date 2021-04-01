@@ -498,6 +498,8 @@ LFortran::Vec<LFortran::AST::fnarg_t> FNARGS(Allocator &al,
 }
 #define ALLOCATE_STMT(args, l) LFortran::AST::make_Allocate_t(p.m_a, l, \
         FNARGS(p.m_a, args).p, args.size())
+#define DEALLOCATE_STMT(args, l) LFortran::AST::make_Deallocate_t(p.m_a, l, \
+        FNARGS(p.m_a, args).p, args.size())
 
 #define PRINT0(l) make_Print_t(p.m_a, l, nullptr, nullptr, 0)
 #define PRINT(args, l) make_Print_t(p.m_a, l, nullptr, EXPRS(args), args.size())

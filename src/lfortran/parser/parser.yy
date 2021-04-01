@@ -996,7 +996,7 @@ allocate_statement
 
 deallocate_statement
     : KW_DEALLOCATE "(" fnarray_arg_list_opt ")" {
-            $$ = PRINT0(@$); }
+            $$ = DEALLOCATE_STMT($3, @$); }
 
 nullify_statement
     : KW_NULLIFY "(" fnarray_arg_list_opt ")" {
