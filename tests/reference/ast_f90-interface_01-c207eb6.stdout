@@ -1,9 +1,8 @@
 module interface_01_mod
 
 interface a
-module procedure a1
-
-module procedure a2
+    module procedure a1
+    module procedure a2
 end interface
 
 
