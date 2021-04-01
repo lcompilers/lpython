@@ -605,8 +605,9 @@ filename = "select_type1.f90"
 ast = true
 
 [[test]]
-filename = "format1.f90"
+filename = "../integration_tests/format_01.f90"
 ast = true
+ast_f90 = true
 
 [[test]]
 filename = "interop/mod1-14.mod"
