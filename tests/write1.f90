@@ -1,3 +1,6 @@
+program write_01
+implicit none
+
 write(*,*) "a", 2
 write(*,*)
 write(*) a
@@ -19,3 +22,5 @@ WRITE( ounit, * )
 print *, "2"
 print *
 print "(a, es22.14)", "Ekin:     ", Ekin
+
+end program
