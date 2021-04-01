@@ -37,6 +37,7 @@ implicit none
     422 FORMAT( /, 4X, 'Manufactured/Computed Solutions Max Diff=',    &
                  ES13.6 )
     500 format( "IARRAY =", *( I0, :, ","))
+    501 format(*( I0, :, ","))
     510 FORMAT (1X, F10.3, I5, F10.3, I5/F10.3, I5, F10.3, I5)
     511 FORMAT (3/,I5)
     512 format(3/)
