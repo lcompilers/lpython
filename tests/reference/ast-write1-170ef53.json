@@ -2,11 +2,11 @@
     "basename": "ast-write1-170ef53",
     "cmd": "lfortran --show-ast --no-color {infile} -o {outfile}",
     "infile": "tests/write1.f90",
-    "infile_hash": "5489ab0ef56a5dc63218aab5a3bb89b307fd9cb46be7ca782cb816fa",
+    "infile_hash": "75eba9b93bd747fb18efbf173e1d35340019e1c62f38efc3a4cbcf22",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast-write1-170ef53.stdout",
-    "stdout_hash": "dc1113be69fdcf485d020121016bf97f7da82ae34b0fac0a16472459",
+    "stdout_hash": "19e01e6c3099e5b008762842848d6a32e05806237dc62e78eb55747c",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
