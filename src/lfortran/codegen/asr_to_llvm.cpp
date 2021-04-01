@@ -145,10 +145,23 @@ public:
             case ASR::ttypeType::Integer: {
                 switch(a_kind) {
                     case 4:
-                        el_type = llvm::Type::getInt32PtrTy(context);
+                        el_type = llvm::Type::getInt32Ty(context);
                         break;
                     case 8:
-                        el_type = llvm::Type::getInt64PtrTy(context);
+                        el_type = llvm::Type::getInt64Ty(context);
+                        break;
+                    default:
+                        throw CodeGenError("Only 32 and 64 bits integer kinds are supported.");
+                }
+                break;
+            }
+            case ASR::ttypeType::Real: {
+                switch(a_kind) {
+                    case 4:
+                        el_type = llvm::Type::getFloatPtrTy(context);
+                        break;
+                    case 8:
+                        el_type = llvm::Type::getDoublePtrTy(context);
                         break;
                     default:
                         throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
@@ -159,7 +172,7 @@ public:
                 break;
         }
         std::vector<llvm::Type*> array_type_vec = {
-            el_type, 
+            llvm::ArrayType::get(el_type, 0), 
             llvm::Type::getInt32Ty(context),
             dim_des_array};
         tkr2array[array_key] = llvm::StructType::create(context, array_type_vec, "array");
@@ -183,7 +196,7 @@ public:
     inline llvm::Value* create_gep_for_array(llvm::Value* ds, llvm::Value* idx) {
         std::vector<llvm::Value*> idx_vec = {
         idx};
-        return builder->CreateGEP(ds, idx);
+        return builder->CreateInBoundsGEP(ds, idx);
     }
 
     inline bool verify_dimensions_t(ASR::dimension_t* m_dims, int n_dims) {
@@ -227,11 +240,16 @@ public:
                 builder->CreateStore(dim_size, dim_size_ptr);
                 prod = builder->CreateMul(dim_size, prod);
             }
-            llvm::Value* array_ptr = create_gep(arr, 0);
-            llvm::Value* array_ptr_val = builder->CreateLoad(array_ptr);
-            llvm::Value* ptr = builder->CreateAlloca(array_ptr_val->getType(), prod);
-            llvm::Value* ptr_val = builder->CreateLoad(ptr);
-            builder->CreateStore(ptr_val, array_ptr); 
+            // llvm::Value* array_ptr = create_gep(arr, 0);
+            // llvm::Value* array_ptr_val = builder->CreateLoad(array_ptr);
+            // print_util(prod, "%d");
+            // llvm::Value* ptr = builder->CreateAlloca(((llvm::PointerType*)(array_ptr_val->getType())), prod);
+            // llvm::Value* ptr_val = builder->CreateLoad(ptr);
+            // llvm::Value* element_size = llvm::ConstantInt::get(context, llvm::APInt(32, ((llvm::PointerType*)(array_ptr_val->getType()))->getElementType()->getScalarSizeInBits()/8));
+            // llvm::Value* alloc_size = builder->CreateMul(element_size, prod);
+            // llvm::Value* ptr = llvm::CallInst::CreateMalloc(builder->GetInsertBlock(), array_ptr_val->getType(), ((llvm::PointerType*)(array_ptr_val->getType()))->getElementType(), alloc_size, nullptr, nullptr);
+            // llvm::Value* ptr_val = builder->CreateLoad(ptr);
+            // builder->CreateStore(ptr_val, array_ptr); 
         }
     }
 
@@ -495,6 +513,7 @@ public:
             llvm::Value* dim_size = builder->CreateLoad(create_gep(dim_des_ptr, 3));
             prod = builder->CreateMul(prod, dim_size);
         }
+        // print_util(idx, "%d");
         return idx;
     }
 
@@ -504,6 +523,12 @@ public:
         switch( v->m_type->type ) {
             case ASR::ttypeType::Integer: {
                 ASR::Integer_t* v_type = down_cast<ASR::Integer_t>(v->m_type);
+                m_dims = v_type->m_dims;
+                n_dims = v_type->n_dims;
+                break;
+            }
+            case ASR::ttypeType::Real: {
+                ASR::Real_t* v_type = down_cast<ASR::Real_t>(v->m_type);
                 m_dims = v_type->m_dims;
                 n_dims = v_type->n_dims;
                 break;
@@ -522,8 +547,10 @@ public:
         llvm::Value* array = llvm_symtab[v_h];
         bool check_for_bounds = is_explicit_shape(v);
         llvm::Value* idx = cmo_convertor_single_element(array, x.m_args, (int) x.n_args, check_for_bounds);
-        llvm::Value* array_ptr = builder->CreateLoad(create_gep(array, 0));
-        llvm::Value* ptr_to_array_idx = create_gep_for_array(array_ptr, idx);
+        // llvm::Value* array_ptr = builder->CreateLoad(create_gep(array, 0));
+        // llvm::Value* ptr_to_array_idx = create_gep_for_array(array_ptr, idx);
+        llvm::Value* array_ptr = create_gep(array, 0);
+        llvm::Value* ptr_to_array_idx = create_gep(array_ptr, idx);
         tmp = ptr_to_array_idx;
     }
 
@@ -1817,6 +1844,24 @@ public:
             }
             default : throw CodeGenError("Cast kind not implemented");
         }
+    }
+
+    void print_util(llvm::Value* v, std::string fmt_chars) {
+        std::vector<llvm::Value *> args;
+        std::vector<std::string> fmt;
+        args.push_back(v);
+        fmt.push_back(fmt_chars);
+        std::string fmt_str;
+        for (size_t i=0; i<fmt.size(); i++) {
+            fmt_str += fmt[i];
+            if (i < fmt.size()-1) fmt_str += " ";
+        }
+        fmt_str += "\n";
+        llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(fmt_str);
+        std::vector<llvm::Value *> printf_args;
+        printf_args.push_back(fmt_ptr);
+        printf_args.insert(printf_args.end(), args.begin(), args.end());
+        printf(context, *module, *builder, printf_args);
     }
 
     void visit_Print(const ASR::Print_t &x) {
