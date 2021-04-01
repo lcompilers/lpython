@@ -1015,6 +1015,15 @@ public:
             }
             r.append(")");
         }
+        if (x.n_dims > 0) {
+            r.append("(");
+            for (size_t i=0; i<x.n_dims; i++) {
+                this->visit_dimension(x.m_dims[i]);
+                r.append(s);
+                if (i < x.n_dims-1) r.append(", ");
+            }
+            r.append(")");
+        }
         s = r;
     }
 
