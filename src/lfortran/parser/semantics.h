@@ -523,6 +523,15 @@ ast_t* ALLOCATE_STMT0(Allocator &al,
 #define PRINTF(fmt, args, l) make_Print_t(p.m_a, l, fmt.c_str(p.m_a), \
         EXPRS(args), args.size())
 
+char* format_to_str(Allocator &al) {
+    LFortran::Str s;
+    s.from_str_view("Something");
+    return s.c_str(al);
+}
+
+#define FORMAT(n, l) LFortran::AST::make_Format_t(p.m_a, l, n, \
+        format_to_str(p.m_a))
+
 #define WRITE0(u, l) make_Print_t(p.m_a, l, nullptr, nullptr, 0)
 #define WRITE(u, args, l) make_Print_t(p.m_a, l, nullptr, \
         EXPRS(args), args.size())
