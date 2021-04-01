@@ -1269,7 +1269,6 @@ format_item1
 format_item0
     : TK_NAME
     | TK_NAME TK_REAL
-    | TK_NAME TK_REAL TK_NAME
     | TK_REAL TK_REAL
     | TK_STRING
     | "(" format_items ")"
