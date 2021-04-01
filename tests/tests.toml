@@ -508,6 +508,7 @@ llvm = true
 [[test]]
 filename = "write1.f90"
 ast = true
+ast_f90 = true
 
 [[test]]
 filename = "read1.f90"
