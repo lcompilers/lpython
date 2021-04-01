@@ -583,6 +583,10 @@ filename = "do_concurrent1.f90"
 ast = true
 
 [[test]]
+filename = "../integration_tests/doconcurrentloop_01.f90"
+ast_f90 = true
+
+[[test]]
 filename = "subroutine9.f90"
 ast = true
 
