@@ -480,6 +480,43 @@ ast_t* SUBROUTINE_CALL0(Allocator &al, const ast_t *id,
         name2char(name), \
         nullptr, 0, nullptr, 0)
 
+LFortran::Vec<LFortran::AST::fnarg_t> FNARGS(Allocator &al,
+        const LFortran::Vec<LFortran::FnArg> &args) {
+    LFortran::Vec<LFortran::AST::fnarg_t> v;
+    v.reserve(al, args.size());
+    LFortran::Vec<LFortran::AST::keyword_t> v2;
+    v2.reserve(al, args.size());
+    for (auto &item : args) {
+        if (item.keyword) {
+            v2.push_back(al, item.kw);
+            LFORTRAN_ASSERT(false);
+        } else {
+            v.push_back(al, item.arg);
+        }
+    }
+    return v;
+}
+ast_t* ALLOCATE_STMT0(Allocator &al,
+        const LFortran::Vec<LFortran::FnArg> &args, Location &l) {
+    LFortran::Vec<LFortran::AST::fnarg_t> v;
+    v.reserve(al, args.size());
+    LFortran::Vec<LFortran::AST::keyword_t> v2;
+    v2.reserve(al, args.size());
+    for (auto &item : args) {
+        if (item.keyword) {
+            v2.push_back(al, item.kw);
+        } else {
+            v.push_back(al, item.arg);
+        }
+    }
+    return make_Allocate_t(al, l,
+        /*expr_t** a_args*/ v.p, /*size_t n_args*/ v.size(),
+        /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size());
+}
+#define ALLOCATE_STMT(args, l) ALLOCATE_STMT0(p.m_a, args, l)
+#define DEALLOCATE_STMT(args, l) LFortran::AST::make_Deallocate_t(p.m_a, l, \
+        FNARGS(p.m_a, args).p, args.size())
+
 #define PRINT0(l) make_Print_t(p.m_a, l, nullptr, nullptr, 0)
 #define PRINT(args, l) make_Print_t(p.m_a, l, nullptr, EXPRS(args), args.size())
 #define PRINTF0(fmt, l) make_Print_t(p.m_a, l, fmt.c_str(p.m_a), nullptr, 0)

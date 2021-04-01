@@ -70,6 +70,8 @@ stmt
     = Assignment(expr target, expr value)
     | Associate(expr target, expr value)
     | SubroutineCall(identifier name, fnarg* args, keyword* keywords)
+    | Allocate(fnarg* args, keyword* keywords)
+    | Deallocate(fnarg* args)
     | BuiltinCall(identifier name, expr* args)
     | If(expr test, stmt* body, stmt* orelse)
     | Where(expr test, stmt* body, stmt* orelse)
