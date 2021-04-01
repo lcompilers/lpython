@@ -88,6 +88,7 @@ stmt
     | Return()
     | WhileLoop(expr test, stmt* body)
     | Print(string? fmt, expr* values)
+    | Write(expr? unit, string? fmt, expr* values)
 
 expr
     = BoolOp(expr left, boolop op, expr right)

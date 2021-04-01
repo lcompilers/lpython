@@ -533,6 +533,11 @@ char* print_format_to_str(Allocator &al, const std::string &fmt) {
 #define PRINTF(fmt, args, l) make_Print_t(p.m_a, l, \
         print_format_to_str(p.m_a, fmt.str()), EXPRS(args), args.size())
 
+#define WRITE0(l) LFortran::AST::make_Write_t(p.m_a, l, nullptr, \
+        nullptr, nullptr, 0)
+#define WRITE(args, l) LFortran::AST::make_Write_t(p.m_a, l, nullptr, \
+        nullptr, EXPRS(args), args.size())
+
 // Converts (line, col) to a linear position.
 uint64_t linecol_to_pos(const std::string &s, uint16_t line, uint16_t col) {
     uint64_t pos = 0;
@@ -573,16 +578,6 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
 
 #define FORMAT(n, l) LFortran::AST::make_Format_t(p.m_a, l, n, \
         format_to_str(p.m_a, l, p.inp))
-
-#define WRITE0(u, l) make_Print_t(p.m_a, l, nullptr, nullptr, 0)
-#define WRITE(u, args, l) make_Print_t(p.m_a, l, nullptr, \
-        EXPRS(args), args.size())
-#define WRITEF0(u, fmt, l) make_Print_t(p.m_a, l, fmt.c_str(p.m_a), nullptr, 0)
-#define WRITEF(u, fmt, args, l) make_Print_t(p.m_a, l, fmt.c_str(p.m_a), \
-        EXPRS(args), args.size())
-#define WRITEE0(u, l) make_Print_t(p.m_a, l, nullptr, nullptr, 0)
-#define WRITEE(u, args, l) make_Print_t(p.m_a, l, nullptr, \
-        EXPRS(args), args.size())
 
 #define STOP(l) make_Stop_t(p.m_a, l, nullptr)
 #define STOP1(e, l) make_Stop_t(p.m_a, l, EXPR(e))
