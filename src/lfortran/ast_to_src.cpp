@@ -290,9 +290,16 @@ public:
         s = r;
     }
 
-    void visit_InterfaceModuleProcedure(const InterfaceModuleProcedure_t & /* x */) {
-        //TODO
-        s = "InterfaceModuleProcedure //TODO\n";
+    void visit_InterfaceModuleProcedure(const InterfaceModuleProcedure_t &x) {
+        std::string r;
+        r += syn(gr::UnitHeader);
+        r.append("module procedure ");
+        r += syn();
+        for (size_t i=0; i<x.n_names; i++) {
+            r.append(x.m_names[i]);
+        }
+        r.append("\n");
+        s = r;
     }
 
     void visit_InterfaceProc(const InterfaceProc_t &x) {
