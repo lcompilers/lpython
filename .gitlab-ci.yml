@@ -41,6 +41,7 @@ azure:
   image: registry.gitlab.com/lfortran/ci-images:mirror-1.7.0
   script:
     - ci/azure_mirror.sh
+  allow_failure: true
   only:
     variables:
       - $SSH_PRIVATE_KEY_AZURE
