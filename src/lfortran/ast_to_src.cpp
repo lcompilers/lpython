@@ -451,6 +451,40 @@ public:
         s = r;
     }
 
+    void visit_Allocate(const Allocate_t &x) {
+        std::string r = indent;
+        r.append("allocate");
+        r.append("(");
+        for (size_t i=0; i<x.n_args; i++) {
+            if (x.m_args[i].m_end) {
+                this->visit_expr(*x.m_args[i].m_end);
+                r.append(s);
+            } else {
+                r += ":";
+            }
+            if (i < x.n_args-1) r.append(", ");
+        }
+        r.append(")\n");
+        s = r;
+    }
+
+    void visit_Deallocate(const Deallocate_t &x) {
+        std::string r = indent;
+        r.append("deallocate");
+        r.append("(");
+        for (size_t i=0; i<x.n_args; i++) {
+            if (x.m_args[i].m_end) {
+                this->visit_expr(*x.m_args[i].m_end);
+                r.append(s);
+            } else {
+                r += ":";
+            }
+            if (i < x.n_args-1) r.append(", ");
+        }
+        r.append(")\n");
+        s = r;
+    }
+
     void visit_BuiltinCall(const BuiltinCall_t &x) {
         std::string r = indent;
         r += x.m_name;
