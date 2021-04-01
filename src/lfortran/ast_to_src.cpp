@@ -52,7 +52,7 @@ namespace {
     std::string strop2str(const AST::stroperatorType type)
     {
         switch (type) {
-            case (AST::stroperatorType::Concat) : return "\\";
+            case (AST::stroperatorType::Concat) : return " // ";
         }
         throw LFortranException("Unknown type");
     }
@@ -271,9 +271,51 @@ public:
         s = r;
     }
 
-    void visit_Interface(const Interface_t &/*x*/) {
-        // TODO:
-        s = "Interface // TODO\n";
+    void visit_Interface(const Interface_t &x) {
+        std::string r;
+        r += syn(gr::UnitHeader);
+        r.append("interface");
+        r += syn();
+        r += " ";
+        this->visit_interface_header(*x.m_header);
+        r.append(s);
+        r.append("\n");
+        inc_indent();
+        for (size_t i=0; i<x.n_items; i++) {
+            this->visit_interface_item(*x.m_items[i]);
+            r.append(s);
+        }
+        dec_indent();
+        r += syn(gr::UnitHeader);
+        r.append("end interface");
+        r += syn();
+        r.append("\n");
+
+        s = r;
+    }
+
+    void visit_InterfaceHeader2(const InterfaceHeader2_t &x) {
+        s = x.m_name;
+    }
+
+    void visit_InterfaceModuleProcedure(const InterfaceModuleProcedure_t &x) {
+        std::string r = indent;
+        r += syn(gr::UnitHeader);
+        r.append("module procedure ");
+        r += syn();
+        for (size_t i=0; i<x.n_names; i++) {
+            r.append(x.m_names[i]);
+            if (i < x.n_names-1) r.append(", ");
+        }
+        r.append("\n");
+        s = r;
+    }
+
+    void visit_InterfaceProc(const InterfaceProc_t &x) {
+        std::string r;
+        this->visit_program_unit(*x.m_proc);
+        r.append(s);
+        s = r;
     }
 
     template <typename T>
@@ -781,7 +823,7 @@ public:
         std::string left = std::move(s);
         this->visit_expr(*x.m_right);
         std::string right = std::move(s);
-        s = "(" + left + ")" + strop2str(x.m_op) + "(" + right + ")";
+        s = left + strop2str(x.m_op) + right;
     }
 
     void visit_UnaryOp(const UnaryOp_t &x) {

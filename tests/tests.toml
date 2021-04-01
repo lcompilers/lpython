@@ -529,6 +529,7 @@ ast = true
 filename = "../integration_tests/interface_01.f90"
 ast = true
 asr = true
+ast_f90 = true
 
 [[test]]
 filename = "../integration_tests/interface_02.f90"
@@ -810,6 +811,7 @@ llvm = true
 [[test]]
 filename = "../integration_tests/string3.f90"
 ast = true
+ast_f90 = true
 asr = true
 llvm = true
 
