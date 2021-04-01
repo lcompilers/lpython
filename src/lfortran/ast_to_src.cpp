@@ -277,6 +277,8 @@ public:
         r.append("interface");
         r += syn();
         r += " ";
+        this->visit_interface_header(*x.m_header);
+        r.append(s);
         for (size_t i=0; i<x.n_items; i++) {
             r.append("\n");
             this->visit_interface_item(*x.m_items[i]);
@@ -288,6 +290,10 @@ public:
         r.append("\n");
 
         s = r;
+    }
+
+    void visit_InterfaceHeader2(const InterfaceHeader2_t &x) {
+        s.append(x.m_name);
     }
 
     void visit_InterfaceModuleProcedure(const InterfaceModuleProcedure_t &x) {
