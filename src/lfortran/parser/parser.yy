@@ -1237,6 +1237,7 @@ format_statement
             $$ = PRINT0(@$); }
     | TK_INTEGER KW_FORMAT "(" "*" "(" format_items ")" ")" { $$ = PRINT0(@$); }
     | TK_INTEGER KW_FORMAT "(" "/)" { $$ = PRINT0(@$); }
+    | TK_INTEGER KW_FORMAT "(" TK_INTEGER "/)" { $$ = PRINT0(@$); }
     | TK_INTEGER KW_FORMAT "(" format_items "," "/)" { $$ = PRINT0(@$); }
     ;
 
@@ -1247,17 +1248,30 @@ format_items
 
 
 format_item
+    : format_item1
+    | format_item_slash
+    | format_item_slash format_item1
+    | format_item1 format_item_slash format_item1
+    | ":"
+    ;
+
+format_item_slash
+    : "/"
+    | TK_INTEGER "/"
+    | "//"
+    ;
+
+format_item1
     : format_item0
     | TK_INTEGER format_item0
-    | ":"
-    | TK_STRING
     ;
 
 format_item0
     : TK_NAME
     | TK_NAME TK_REAL
     | TK_NAME TK_REAL TK_NAME
-    | "/"
+    | TK_REAL TK_REAL
+    | TK_STRING
     | "(" format_items ")"
     ;
 
