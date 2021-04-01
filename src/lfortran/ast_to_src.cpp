@@ -808,7 +808,7 @@ public:
         r += syn(gr::Keyword);
         r += "format";
         r += syn();
-        r += "()\n";
+        r += "(" + std::string(x.m_fmt) + ")\n";
         s = r;
     }
 

@@ -1234,11 +1234,12 @@ forall_statement_single
 format_statement
     : TK_INTEGER KW_FORMAT "(" format_items ")" { $$ = FORMAT($1, @$); }
     | TK_INTEGER KW_FORMAT "(" format_items "," "*" "(" format_items ")" ")" {
-            $$ = PRINT0(@$); }
-    | TK_INTEGER KW_FORMAT "(" "*" "(" format_items ")" ")" { $$ = PRINT0(@$); }
-    | TK_INTEGER KW_FORMAT "(" "/)" { $$ = PRINT0(@$); }
-    | TK_INTEGER KW_FORMAT "(" TK_INTEGER "/)" { $$ = PRINT0(@$); }
-    | TK_INTEGER KW_FORMAT "(" format_items "," "/)" { $$ = PRINT0(@$); }
+            $$ = FORMAT($1, @$); }
+    | TK_INTEGER KW_FORMAT "(" "*" "(" format_items ")" ")" {
+            $$ = FORMAT($1, @$); }
+    | TK_INTEGER KW_FORMAT "(" "/)" { $$ = FORMAT($1, @$); }
+    | TK_INTEGER KW_FORMAT "(" TK_INTEGER "/)" { $$ = FORMAT($1, @$); }
+    | TK_INTEGER KW_FORMAT "(" format_items "," "/)" { $$ = FORMAT($1, @$); }
     ;
 
 format_items
