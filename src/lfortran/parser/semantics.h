@@ -496,8 +496,24 @@ LFortran::Vec<LFortran::AST::fnarg_t> FNARGS(Allocator &al,
     }
     return v;
 }
-#define ALLOCATE_STMT(args, l) LFortran::AST::make_Allocate_t(p.m_a, l, \
-        FNARGS(p.m_a, args).p, args.size())
+ast_t* ALLOCATE_STMT0(Allocator &al,
+        const LFortran::Vec<LFortran::FnArg> &args, Location &l) {
+    LFortran::Vec<LFortran::AST::fnarg_t> v;
+    v.reserve(al, args.size());
+    LFortran::Vec<LFortran::AST::keyword_t> v2;
+    v2.reserve(al, args.size());
+    for (auto &item : args) {
+        if (item.keyword) {
+            v2.push_back(al, item.kw);
+        } else {
+            v.push_back(al, item.arg);
+        }
+    }
+    return make_Allocate_t(al, l,
+        /*expr_t** a_args*/ v.p, /*size_t n_args*/ v.size(),
+        /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size());
+}
+#define ALLOCATE_STMT(args, l) ALLOCATE_STMT0(p.m_a, args, l)
 #define DEALLOCATE_STMT(args, l) LFortran::AST::make_Deallocate_t(p.m_a, l, \
         FNARGS(p.m_a, args).p, args.size())
 
