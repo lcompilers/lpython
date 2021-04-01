@@ -786,7 +786,7 @@ public:
         r += syn();
         r += " ";
         if (x.m_fmt) {
-            r += x.m_fmt;
+            r += "\"(" + std::string(x.m_fmt) + ")\"";
         } else {
             r += "*";
         }
