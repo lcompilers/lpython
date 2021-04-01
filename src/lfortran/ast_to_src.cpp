@@ -802,6 +802,16 @@ public:
         s = r;
     }
 
+    void visit_Format(const Format_t &x) {
+        std::string r=indent;
+        r += std::to_string(x.m_n) + " ";
+        r += syn(gr::Keyword);
+        r += "format";
+        r += syn();
+        r += "(" + std::string(x.m_fmt) + ")\n";
+        s = r;
+    }
+
     void visit_BoolOp(const BoolOp_t &x) {
         this->visit_expr(*x.m_left);
         std::string left = std::move(s);
