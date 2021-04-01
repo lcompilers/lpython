@@ -293,7 +293,7 @@ public:
     }
 
     void visit_InterfaceHeader2(const InterfaceHeader2_t &x) {
-        s.append(x.m_name);
+        s = x.m_name;
     }
 
     void visit_InterfaceModuleProcedure(const InterfaceModuleProcedure_t &x) {
