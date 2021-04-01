@@ -279,11 +279,13 @@ public:
         r += " ";
         this->visit_interface_header(*x.m_header);
         r.append(s);
+        r.append("\n");
+        inc_indent();
         for (size_t i=0; i<x.n_items; i++) {
-            r.append("\n");
             this->visit_interface_item(*x.m_items[i]);
             r.append(s);
         }
+        dec_indent();
         r += syn(gr::UnitHeader);
         r.append("end interface");
         r += syn();
@@ -297,7 +299,7 @@ public:
     }
 
     void visit_InterfaceModuleProcedure(const InterfaceModuleProcedure_t &x) {
-        std::string r;
+        std::string r = indent;
         r += syn(gr::UnitHeader);
         r.append("module procedure ");
         r += syn();
