@@ -303,6 +303,7 @@ public:
         r += syn();
         for (size_t i=0; i<x.n_names; i++) {
             r.append(x.m_names[i]);
+            if (i < x.n_names-1) r.append(", ");
         }
         r.append("\n");
         s = r;
