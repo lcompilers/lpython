@@ -992,11 +992,11 @@ block_statement
 
 allocate_statement
     : KW_ALLOCATE "(" fnarray_arg_list_opt ")" {
-            $$ = PRINT0(@$); }
+            $$ = ALLOCATE_STMT($3, @$); }
 
 deallocate_statement
     : KW_DEALLOCATE "(" fnarray_arg_list_opt ")" {
-            $$ = PRINT0(@$); }
+            $$ = DEALLOCATE_STMT($3, @$); }
 
 nullify_statement
     : KW_NULLIFY "(" fnarray_arg_list_opt ")" {
@@ -1301,7 +1301,7 @@ return_statement
     ;
 
 cycle_statement
-    : KW_CYCLE { $$ = CYCLE(@$); }
+    : KW_CYCLE id_opt { $$ = CYCLE(@$); }
     ;
 
 continue_statement
@@ -1354,6 +1354,8 @@ expr
     | "(" expr ")" { $$ = $2; }
     | "(" expr "," expr ")" { $$ = COMPLEX($2, $4, @$); }
     | "(" expr "," id "=" expr "," expr ")" { $$ = $2; } // TODO: return a generator expression
+    | "(" expr "," expr "," id "=" expr "," expr ")" { $$ = $2; } // TODO: return a generator expression
+    | "(" expr "," expr "," expr_list "," id "=" expr "," expr ")" { $$ = $2; } // TODO: return a generator expression
 
 // ### level-1
 

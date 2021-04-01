@@ -1,18 +1,18 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-%complex = type { float, float }
+%complex_4 = type { float, float }
 
 define i32 @main() {
 .entry:
-  %x = alloca %complex, align 8
-  %0 = alloca %complex, align 8
-  %1 = getelementptr %complex, %complex* %0, i32 0, i32 0
-  %2 = getelementptr %complex, %complex* %0, i32 0, i32 1
+  %x = alloca %complex_4, align 8
+  %0 = alloca %complex_4, align 8
+  %1 = getelementptr %complex_4, %complex_4* %0, i32 0, i32 0
+  %2 = getelementptr %complex_4, %complex_4* %0, i32 0, i32 1
   store float 3.000000e+00, float* %1, align 4
   store float 4.000000e+00, float* %2, align 4
-  %3 = load %complex, %complex* %0, align 4
-  store %complex %3, %complex* %x, align 4
+  %3 = load %complex_4, %complex_4* %0, align 4
+  store %complex_4 %3, %complex_4* %x, align 4
   ret i32 0
 }
 

@@ -1,12 +1,16 @@
 #include <cctype>
 #include <iostream>
+#include <fstream>
 #include <map>
 #include <memory>
 
 #include <lfortran/ast.h>
 #include <lfortran/asr.h>
 #include <lfortran/asr_utils.h>
+#include <lfortran/asr_verify.h>
 #include <lfortran/pickle.h>
+#include <lfortran/modfile.h>
+#include <lfortran/serialization.h>
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/parser/parser_stype.h>
 #include <string>
@@ -98,6 +102,35 @@ namespace LFortran {
 
                 return HelperMethods::is_same_type_pointer(x, y);
             }
+
+            inline static int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {
+                if( curr_type == nullptr ) {
+                    return -1;
+                }
+                switch (curr_type->type) {
+                    case ASR::ttypeType::Real : {
+                        return ((ASR::Real_t*)(&(curr_type->base)))->m_kind;
+                    }
+                    case ASR::ttypeType::RealPointer : {
+                        return ((ASR::RealPointer_t*)(&(curr_type->base)))->m_kind;
+                    }
+                    case ASR::ttypeType::Integer : {
+                        return ((ASR::Integer_t*)(&(curr_type->base)))->m_kind;
+                    } 
+                    case ASR::ttypeType::IntegerPointer : {
+                        return ((ASR::IntegerPointer_t*)(&(curr_type->base)))->m_kind;
+                    }
+                    case ASR::ttypeType::Complex: {
+                        return ((ASR::Complex_t*)(&(curr_type->base)))->m_kind;
+                    }
+                    case ASR::ttypeType::ComplexPointer: {
+                        return ((ASR::ComplexPointer_t*)(&(curr_type->base)))->m_kind;
+                    }
+                    default : {
+                        return -1;
+                    }
+                }
+            }
     };
 
     class ImplicitCastRules {
@@ -114,6 +147,7 @@ namespace LFortran {
             static const int real_to_complex = ASR::cast_kindType::RealToComplex;
             static const int integer_to_complex = ASR::cast_kindType::IntegerToComplex;
             static const int integer_to_logical = ASR::cast_kindType::IntegerToLogical;
+            static const int complex_to_complex = ASR::cast_kindType::ComplexToComplex;
             static const int real_to_real = ASR::cast_kindType::RealToReal;
 
             //! Stores the variable part of error messages to be passed to SemanticError.
@@ -144,8 +178,8 @@ namespace LFortran {
                  integer_to_integer, integer_to_real, integer_to_complex, error_case, integer_to_logical, error_case},
                 {real_to_integer, real_to_real, real_to_complex, default_case, default_case, default_case,
                  real_to_integer, real_to_real, real_to_complex, default_case, default_case, default_case},
-                {default_case, default_case, default_case, default_case, default_case, default_case,
-                 default_case, default_case, default_case, default_case, default_case, default_case},
+                {default_case, default_case, complex_to_complex, default_case, default_case, default_case,
+                 default_case, default_case, complex_to_complex, default_case, default_case, default_case},
                 {default_case, default_case, default_case, default_case, default_case, default_case,
                  default_case, default_case, default_case, default_case, default_case, default_case},
                 {default_case, default_case, default_case, default_case, default_case, default_case,
@@ -192,30 +226,8 @@ namespace LFortran {
                         dest_type = temp;
                     }
                     int source_kind = 0, dest_kind = 1;
-                    switch (dest_type->type) {
-                        
-                        case ASR::ttypeType::Real : {
-                            source_kind = ((ASR::Real_t*)(&(source_type->base)))->m_kind;
-                            dest_kind = ((ASR::Real_t*)(&(dest_type->base)))->m_kind;
-                            break;
-                        } case ASR::ttypeType::RealPointer : {
-                            source_kind = ((ASR::Real_t*)(&(source_type->base)))->m_kind;
-                            dest_kind = ((ASR::RealPointer_t*)(&(dest_type->base)))->m_kind;
-                            break;
-                        } case ASR::ttypeType::Integer : {
-                            source_kind = ((ASR::Integer_t*)(&(source_type->base)))->m_kind;
-                            dest_kind = ((ASR::Integer_t*)(&(dest_type->base)))->m_kind;
-                            break;
-                        } case ASR::ttypeType::IntegerPointer : {
-                            source_kind = ((ASR::Integer_t*)(&(source_type->base)))->m_kind;
-                            dest_kind = ((ASR::IntegerPointer_t*)(&(dest_type->base)))->m_kind;
-                            break;
-                        }
-                        default : {
-                            break;
-                        }
-
-                    }
+                    source_kind = HelperMethods::extract_kind_from_ttype_t(source_type);
+                    dest_kind = HelperMethods::extract_kind_from_ttype_t(dest_type);
                     if( source_kind == dest_kind ) {
                         return ;
                     }
@@ -296,6 +308,7 @@ public:
     std::map<std::string, std::vector<std::string>> generic_procedures;
     ASR::accessType dflt_access = ASR::Public;
     std::map<std::string, ASR::accessType> assgnd_access;
+    Vec<char*> current_module_dependencies;
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
         : al{al}, current_scope{symbol_table} { }
@@ -328,6 +341,7 @@ public:
     void visit_Module(const AST::Module_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
+        current_module_dependencies.reserve(al, 4);
         for (size_t i=0; i<x.n_use; i++) {
             visit_unit_decl1(*x.m_use[i]);
         }
@@ -341,7 +355,10 @@ public:
         asr = ASR::make_Module_t(
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
-            /* a_name */ x.m_name);
+            /* a_name */ x.m_name,
+            current_module_dependencies.p,
+            current_module_dependencies.n,
+            false);
         std::string sym_name = x.m_name;
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             throw SemanticError("Module already defined", asr->loc);
@@ -353,6 +370,7 @@ public:
     void visit_Program(const AST::Program_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
+        current_module_dependencies.reserve(al, 4);
         for (size_t i=0; i<x.n_use; i++) {
             visit_unit_decl1(*x.m_use[i]);
         }
@@ -366,6 +384,8 @@ public:
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
             /* a_name */ x.m_name,
+            current_module_dependencies.p,
+            current_module_dependencies.n,
             /* a_body */ nullptr,
             /* n_body */ 0);
         std::string sym_name = x.m_name;
@@ -629,12 +649,108 @@ public:
         }
     }
 
+    std::string read_file(const std::string &filename)
+    {
+        std::ifstream ifs(filename.c_str(), std::ios::in | std::ios::binary
+                | std::ios::ate);
+
+        std::ifstream::pos_type filesize = ifs.tellg();
+        if (filesize < 0) return std::string();
+
+        ifs.seekg(0, std::ios::beg);
+
+        std::vector<char> bytes(filesize);
+        ifs.read(&bytes[0], filesize);
+
+        return std::string(&bytes[0], filesize);
+    }
+
+    ASR::TranslationUnit_t* find_and_load_module(const std::string &msym,
+            SymbolTable &symtab) {
+        std::string modfile = read_file(msym + ".mod");
+        if (modfile == "") return nullptr;
+        ASR::TranslationUnit_t *asr = load_modfile(al, modfile, false,
+            symtab);
+        return asr;
+    }
+
+    ASR::Module_t* extract_module(const ASR::TranslationUnit_t &m) {
+        LFORTRAN_ASSERT(m.m_global_scope->scope.size()== 1);
+        for (auto &a : m.m_global_scope->scope) {
+            LFORTRAN_ASSERT(ASR::is_a<ASR::Module_t>(*a.second));
+            return ASR::down_cast<ASR::Module_t>(a.second);
+        }
+        throw LFortranException("ICE: Module not found");
+    }
+
+    bool present(Vec<char*> &v, const char* name) {
+        for (auto &a : v) {
+            if (std::string(a) == std::string(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     void visit_Use(const AST::Use_t &x) {
         std::string msym = x.m_module;
+        if (!present(current_module_dependencies, x.m_module)) {
+            current_module_dependencies.push_back(al, x.m_module);
+        }
         ASR::symbol_t *t = current_scope->parent->resolve_symbol(msym);
         if (!t) {
-            throw SemanticError("Module '" + msym + "' not declared",
-                x.base.base.loc);
+            ASR::TranslationUnit_t *mod1 = find_and_load_module(msym,
+                    *current_scope->parent);
+            if (mod1 == nullptr) {
+                throw SemanticError("Module '" + msym + "' not declared in the current source and the modfile was not found",
+                    x.base.base.loc);
+            }
+            ASR::Module_t *mod2 = extract_module(*mod1);
+            current_scope->parent->scope[msym] = (ASR::symbol_t*)mod2;
+            mod2->m_symtab->parent = current_scope->parent;
+            mod2->m_loaded_from_mod = true;
+            t = current_scope->parent->resolve_symbol(msym);
+            LFORTRAN_ASSERT(t != nullptr);
+
+            // Create a temporary TranslationUnit just for fixing the symbols
+            ASR::TranslationUnit_t *tu
+                = ASR::down_cast2<ASR::TranslationUnit_t>(ASR::make_TranslationUnit_t(al, x.base.base.loc,
+                    current_scope->parent, nullptr, 0));
+
+            // Load any dependent modules
+            std::vector<std::string> modules_list
+                = determine_module_dependencies(*tu);
+            for (auto &item : modules_list) {
+                if (current_scope->parent->scope.find(item)
+                        == current_scope->parent->scope.end()) {
+                    // A module that was loaded requires to load another
+                    // module
+                    ASR::TranslationUnit_t *mod1 = find_and_load_module(item,
+                            *current_scope->parent);
+                    if (mod1 == nullptr) {
+                        throw SemanticError("Module '" + item + "' modfile was not found",
+                            x.base.base.loc);
+                    }
+                    ASR::Module_t *mod2 = extract_module(*mod1);
+                    current_scope->parent->scope[item] = (ASR::symbol_t*)mod2;
+                    mod2->m_symtab->parent = current_scope->parent;
+                    mod2->m_loaded_from_mod = true;
+                }
+            }
+
+            // Check that all modules are included in ASR now
+            modules_list = determine_module_dependencies(*tu);
+            for (auto &item : modules_list) {
+                if (current_scope->parent->scope.find(item)
+                        == current_scope->parent->scope.end()) {
+                        throw SemanticError("ICE: Module '" + item + "' modfile was not found, but should have",
+                            x.base.base.loc);
+                }
+            }
+
+            // Fix all external symbols
+            fix_external_symbols(*tu, *current_scope->parent);
+            LFORTRAN_ASSERT(asr_verify(*tu));
         }
         if (!ASR::is_a<ASR::Module_t>(*t)) {
             throw SemanticError("The symbol '" + msym + "' must be a module",
@@ -653,6 +769,7 @@ public:
                         /* a_symtab */ current_scope,
                         /* a_name */ msub->m_name,
                         (ASR::symbol_t*)msub,
+                        m->m_name, msub->m_name,
                         dflt_access
                         );
                     std::string sym = msub->m_name;
@@ -664,6 +781,7 @@ public:
                         /* a_symtab */ current_scope,
                         /* a_name */ mfn->m_name,
                         (ASR::symbol_t*)mfn,
+                        m->m_name, mfn->m_name,
                         dflt_access
                         );
                     std::string sym = mfn->m_name;
@@ -695,7 +813,7 @@ public:
                     }
                     ASR::Subroutine_t *msub = ASR::down_cast<ASR::Subroutine_t>(t);
                     // `msub` is the Subroutine in a module. Now we construct
-                    // a new Subroutine that is just the prototype, and that links to
+                    // an ExternalSymbol that points to
                     // `msub` via the `external` field.
                     Str name;
                     name.from_str(al, local_sym);
@@ -704,6 +822,7 @@ public:
                         /* a_symtab */ current_scope,
                         /* a_name */ name.c_str(al),
                         (ASR::symbol_t*)msub,
+                        m->m_name, msub->m_name,
                         dflt_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(sub);
@@ -712,13 +831,16 @@ public:
                         throw SemanticError("Symbol already defined",
                             x.base.base.loc);
                     }
+                    ASR::GenericProcedure_t *gp = ASR::down_cast<ASR::GenericProcedure_t>(t);
                     Str name;
                     name.from_str(al, local_sym);
+                    char *cname = name.c_str(al);
                     ASR::asr_t *ep = ASR::make_ExternalSymbol_t(
                         al, t->base.loc,
                         current_scope,
-                        /* a_name */ name.c_str(al),
+                        /* a_name */ cname,
                         t,
+                        m->m_name, gp->m_name,
                         dflt_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(ep);
@@ -729,15 +851,16 @@ public:
                     }
                     ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
                     // `msub` is the Function in a module. Now we construct
-                    // a new Function that is just the prototype, and that links to
-                    // `mfn` via the `external` field.
+                    // an ExternalSymbol that points to it.
                     Str name;
                     name.from_str(al, local_sym);
+                    char *cname = name.c_str(al);
                     ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
                         al, mfn->base.base.loc,
                         /* a_symtab */ current_scope,
-                        /* a_name */ name.c_str(al),
+                        /* a_name */ cname,
                         (ASR::symbol_t*)mfn,
+                        m->m_name, mfn->m_name,
                         dflt_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(fn);
@@ -925,7 +1048,7 @@ public:
             } else if (sym_type == "logical") {
                 type = TYPE(ASR::make_Logical_t(al, x.loc, 4, dims.p, dims.size()));
             } else if (sym_type == "complex") {
-                type = TYPE(ASR::make_Complex_t(al, x.loc, 4, dims.p, dims.size()));
+                type = TYPE(ASR::make_Complex_t(al, x.loc, a_kind, dims.p, dims.size()));
             } else if (sym_type == "character") {
                 type = TYPE(ASR::make_Character_t(al, x.loc, 4, dims.p, dims.size()));
             } else if (sym_type == "type") {
@@ -1251,16 +1374,47 @@ public:
             case (ASR::symbolType::ExternalSymbol) : {
                 ASR::ExternalSymbol_t *p = ASR::down_cast<ASR::ExternalSymbol_t>(original_sym);
                 final_sym = p->m_external;
-                if (ASR::is_a<ASR::ExternalSymbol_t>(*final_sym)) {
-                    throw SemanticError("Chained ExternalSymbols not supported yet", x.base.base.loc);
-                }
+                // Enforced by verify(), but we ensure anyway that
+                // ExternalSymbols are not chained:
+                LFORTRAN_ASSERT(!ASR::is_a<ASR::ExternalSymbol_t>(*final_sym))
                 if (ASR::is_a<ASR::GenericProcedure_t>(*final_sym)) {
-                    ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(final_sym);
-                    int idx = select_generic_procedure(args, *p, x.base.base.loc);
-                    final_sym = p->m_procs[idx];
-                }
-                if (!ASR::is_a<ASR::Subroutine_t>(*final_sym)) {
-                    throw SemanticError("ExternalSymbol must point to a Subroutine", x.base.base.loc);
+                    ASR::GenericProcedure_t *g = ASR::down_cast<ASR::GenericProcedure_t>(final_sym);
+                    int idx = select_generic_procedure(args, *g, x.base.base.loc);
+                    // FIXME
+                    // Create ExternalSymbol for the final subroutine here
+                    final_sym = g->m_procs[idx];
+                    if (!ASR::is_a<ASR::Subroutine_t>(*final_sym)) {
+                        throw SemanticError("ExternalSymbol must point to a Subroutine", x.base.base.loc);
+                    }
+                    // We mangle the new ExternalSymbol's local name as:
+                    //   generic_procedure_local_name @
+                    //     specific_procedure_remote_name
+                    std::string local_sym = std::string(p->m_name) + "@"
+                        + symbol_name(final_sym);
+                    if (current_scope->scope.find(local_sym)
+                        == current_scope->scope.end()) {
+                        Str name;
+                        name.from_str(al, local_sym);
+                        char *cname = name.c_str(al);
+                        ASR::asr_t *sub = ASR::make_ExternalSymbol_t(
+                            al, p->base.base.loc,
+                            /* a_symtab */ current_scope,
+                            /* a_name */ cname,
+                            final_sym,
+                            p->m_module_name, symbol_name(final_sym),
+                            ASR::accessType::Private
+                            );
+                        final_sym = ASR::down_cast<ASR::symbol_t>(sub);
+                        current_scope->scope[local_sym] = final_sym;
+                    } else {
+                        final_sym = current_scope->scope[local_sym];
+                    }
+                } else {
+                    if (!ASR::is_a<ASR::Subroutine_t>(*final_sym)) {
+                        throw SemanticError("ExternalSymbol must point to a Subroutine", x.base.base.loc);
+                    }
+                    final_sym=original_sym;
+                    original_sym = nullptr;
                 }
                 break;
             }
@@ -1653,7 +1807,7 @@ public:
                 Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
                 ASR::ttype_t *type;
                 type = EXPR2VAR(ASR::down_cast<ASR::Function_t>(v)->m_return_var)->m_type;
-                tmp = ASR::make_FuncCall_t(al, x.base.base.loc,
+                tmp = ASR::make_FunctionCall_t(al, x.base.base.loc,
                     v, nullptr, args.p, args.size(), nullptr, 0, type);
                 break;
             }
@@ -1663,8 +1817,8 @@ public:
                 ASR::symbol_t *f2 = ASR::down_cast<ASR::ExternalSymbol_t>(v)->m_external;
                 LFORTRAN_ASSERT(f2);
                 type = EXPR2VAR(ASR::down_cast<ASR::Function_t>(f2)->m_return_var)->m_type;
-                tmp = ASR::make_FuncCall_t(al, x.base.base.loc,
-                    f2, v, args.p, args.size(), nullptr, 0, type);
+                tmp = ASR::make_FunctionCall_t(al, x.base.base.loc,
+                    v, nullptr, args.p, args.size(), nullptr, 0, type);
                 break;
             }
             case (ASR::symbolType::Variable) : {
@@ -1716,12 +1870,14 @@ public:
     }
 
     void visit_Complex(const AST::Complex_t &x) {
-        ASR::ttype_t *type = TYPE(ASR::make_Complex_t(al, x.base.base.loc,
-                4, nullptr, 0));
         this->visit_expr(*x.m_re);
         ASR::expr_t *re = EXPR(tmp);
+        int a_kind_r = HelperMethods::extract_kind_from_ttype_t(expr_type(re));
         this->visit_expr(*x.m_im);
         ASR::expr_t *im = EXPR(tmp);
+        int a_kind_i = HelperMethods::extract_kind_from_ttype_t(expr_type(im));
+        ASR::ttype_t *type = TYPE(ASR::make_Complex_t(al, x.base.base.loc,
+                std::max(a_kind_r, a_kind_i), nullptr, 0)); // Extract kind here.
         tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc,
                 re, im, type);
     }
@@ -1924,7 +2080,9 @@ ASR::TranslationUnit_t *ast_to_asr(Allocator &al, AST::TranslationUnit_t &ast,
 
     BodyVisitor b(al, unit);
     b.visit_TranslationUnit(ast);
-    return ASR::down_cast2<ASR::TranslationUnit_t>(unit);
+    ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
+    LFORTRAN_ASSERT(asr_verify(*tu));
+    return tu;
 }
 
 } // namespace LFortran

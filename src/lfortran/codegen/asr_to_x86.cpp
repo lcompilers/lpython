@@ -574,7 +574,7 @@ public:
         m_a.asm_add_r32_imm8(LFortran::X86Reg::esp, arg_offset);
     }
 
-    void visit_FuncCall(const ASR::FuncCall_t &x) {
+    void visit_FunctionCall(const ASR::FunctionCall_t &x) {
         ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(x.m_name);
 
         uint32_t h = get_hash((ASR::asr_t*)s);

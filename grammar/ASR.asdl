@@ -42,7 +42,7 @@ unit
 -- abi=Source means the symbol's implementation is included (full ASR),
 -- otherwise it is external (interface ASR, such as procedure interface).
 
--- SubroutineCall/FuncCall store the actual final resolved subroutine or
+-- SubroutineCall/FunctionCall store the actual final resolved subroutine or
 -- function (`name` member). They also store the original symbol
 -- (`original_name`), which can be one of: null, GenericProcedure or
 -- ExternalSymbol.
@@ -60,6 +60,14 @@ unit
 -- used. After the ASR is loaded, the symbols that are used are represented as
 -- ExternalSymbols in the current scope of the symbol table.
 
+-- ExternalSymbol represents symbols that cannot be looked up in the current
+-- scoped symbol table. As an example, if a variable is defined in a module,
+-- but used in a nested subroutine, that is not an external symbol
+-- because it can be resolved in the current symbol table (nested subroutine)
+-- by following the parents. However if a symbol is used from a different
+-- module, then it is an external symbol, because usual symbol resolution by
+-- going to the parents will not find the definition.
+
 -- REPL: each cell is parsed into full ASR, compiled + executed, the full ASR
 -- is transformed into interface ASR (abi=LFortran) and kept in the symbol
 -- table. A new cell starts with an empty symbol table, whose parent symbol
@@ -67,8 +75,10 @@ unit
 
 
 symbol
-    = Program(symbol_table symtab, identifier name, stmt* body)
-    | Module(symbol_table symtab, identifier name)
+    = Program(symbol_table symtab, identifier name, identifier* dependencies,
+        stmt* body)
+    | Module(symbol_table symtab, identifier name, identifier* dependencies,
+        bool loaded_from_mod)
     | Subroutine(symbol_table symtab, identifier name, expr* args, stmt* body,
         abi abi, access access)
     | Function(symbol_table symtab, identifier name, expr* args, stmt* body,
@@ -76,7 +86,8 @@ symbol
     | GenericProcedure(symbol_table parent_symtab, identifier name,
         symbol* procs, access access)
     | ExternalSymbol(symbol_table parent_symtab, identifier name,
-        symbol external, access acess)
+        symbol external, identifier module_name, identifier original_name,
+        access access)
     | DerivedType(symbol_table symtab, identifier name, abi abi, access access)
     | Variable(symbol_table parent_symtab, identifier name, intent intent,
         expr? value, storage_type storage, ttype type, abi abi, access access)
@@ -147,7 +158,7 @@ expr
     | StrOp(expr left, strop op, expr right, ttype type)
     | UnaryOp(unaryop op, expr operand, ttype type)
     | Compare(expr left, cmpop op, expr right, ttype type)
-    | FuncCall(symbol name, symbol? original_name, expr* args,
+    | FunctionCall(symbol name, symbol? original_name, expr* args,
             keyword* keywords, ttype type)
     | ArrayInitializer(expr* args, ttype type)
     | ConstantInteger(int n, ttype type)
@@ -192,6 +203,7 @@ cast_kind
     | RealToComplex
     | IntegerToComplex
     | IntegerToLogical
+    | ComplexToComplex
 
 dimension = (expr? start, expr? end)
 

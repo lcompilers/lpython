@@ -794,3 +794,33 @@ TEST_CASE("FortranEvaluator 8") {
     CHECK(r.result.type == FortranEvaluator::EvalResult::real);
     CHECK(r.result.f == 3.5);
 }
+
+TEST_CASE("FortranEvaluator integer kind 1") {
+    FortranEvaluator e;
+    FortranEvaluator::Result<FortranEvaluator::EvalResult>
+    r = e.evaluate("integer(4) :: i");
+    CHECK(r.ok);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::none);
+    r = e.evaluate("i = 5");
+    CHECK(r.ok);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::statement);
+    r = e.evaluate("i");
+    CHECK(r.ok);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::integer);
+    CHECK(r.result.i == 5);
+}
+
+TEST_CASE("FortranEvaluator integer kind 2") {
+    FortranEvaluator e;
+    FortranEvaluator::Result<FortranEvaluator::EvalResult>
+    r = e.evaluate("integer(8) :: i");
+    CHECK(r.ok);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::none);
+    r = e.evaluate("i = 5");
+    CHECK(r.ok);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::statement);
+    r = e.evaluate("i");
+    CHECK(r.ok);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::integer);
+    CHECK(r.result.i == 5);
+}

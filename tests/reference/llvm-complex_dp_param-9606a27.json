@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-complex_dp_param-9606a27",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/complex_dp_param.f90",
+    "infile_hash": "0d4d9eaf5bcc2cee6a8b57ee6a66b5a10ced2edf6d64b5d2e2a0bcb8",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-complex_dp_param-9606a27.stdout",
+    "stdout_hash": "dbc1e08b51b8b5648acf45094428d3c452b0c0a8659b61a67f489a11",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

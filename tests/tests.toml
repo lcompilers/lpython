@@ -260,6 +260,18 @@ llvm = true
 pass = "global_stmts"
 
 [[test]]
+filename = "global_scope8.f90"
+asr = true
+llvm = true
+pass = "global_stmts"
+
+[[test]]
+filename = "global_scope9.f90"
+asr = true
+llvm = true
+pass = "global_stmts"
+
+[[test]]
 filename = "kokkos_program1.f90"
 cpp = true
 
@@ -323,6 +335,10 @@ filename = "../integration_tests/arrays_04.f90"
 asr = true
 cpp = true
 llvm = true
+
+[[test]]
+filename = "../integration_tests/arrays_06.f90"
+ast = true
 
 [[test]]
 filename = "../integration_tests/arrays_07.f90"
@@ -480,7 +496,8 @@ llvm = true
 
 [[test]]
 filename = "../integration_tests/allocate_01.f90"
-asr = true
+ast = true
+ast_f90 = true
 
 [[test]]
 filename = "../integration_tests/block_01.f90"
@@ -488,7 +505,7 @@ ast = true
 
 [[test]]
 filename = "../integration_tests/associate_01.f90"
-asr = true
+ast = true
 
 [[test]]
 filename = "../integration_tests/associate_02.f90"
@@ -577,6 +594,10 @@ ast_f90 = true
 [[test]]
 filename = "do_concurrent1.f90"
 ast = true
+
+[[test]]
+filename = "../integration_tests/doconcurrentloop_01.f90"
+ast_f90 = true
 
 [[test]]
 filename = "subroutine9.f90"
@@ -715,6 +736,21 @@ filename = "../integration_tests/int_dp_param.f90"
 asr = true
 llvm = true
 
+[[test]]
+filename = "../integration_tests/complex_dp.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/complex_dp_param.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/bin_op_complex_dp.f90"
+asr = true
+llvm = true
+
 # sin
 [[test]]
 filename = "../integration_tests/intrinsics_02.f90"
@@ -764,6 +800,11 @@ ast_f90 = true
 
 [[test]]
 filename = "modules_05.f90"
+asr = true
+
+[[test]]
+filename = "modules_06.f90"
+ast = true
 asr = true
 
 [[test]]

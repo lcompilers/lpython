@@ -38,7 +38,7 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
         case ASR::exprType::BinOp: { return ((ASR::BinOp_t*)f)->m_type; }
         case ASR::exprType::UnaryOp: { return ((ASR::UnaryOp_t*)f)->m_type; }
         case ASR::exprType::Compare: { return ((ASR::Compare_t*)f)->m_type; }
-        case ASR::exprType::FuncCall: { return ((ASR::FuncCall_t*)f)->m_type; }
+        case ASR::exprType::FunctionCall: { return ((ASR::FunctionCall_t*)f)->m_type; }
         case ASR::exprType::ArrayRef: { return ((ASR::ArrayRef_t*)f)->m_type; }
         case ASR::exprType::ArrayInitializer: { return ((ASR::ArrayInitializer_t*)f)->m_type; }
         case ASR::exprType::ConstantInteger: { return ((ASR::ConstantInteger_t*)f)->m_type; }
@@ -127,6 +127,34 @@ static inline bool is_arg_dummy(int intent) {
         || intent == intent_inout;
 }
 
+static inline const ASR::symbol_t *symbol_get_past_external(const ASR::symbol_t *f)
+{
+    if (f->type == ASR::symbolType::ExternalSymbol) {
+        ASR::ExternalSymbol_t *e = ASR::down_cast<ASR::ExternalSymbol_t>(f);
+        LFORTRAN_ASSERT(!ASR::is_a<ASR::ExternalSymbol_t>(*e->m_external));
+        return e->m_external;
+    } else {
+        return f;
+    }
+}
+
+static inline bool main_program_present(const ASR::TranslationUnit_t &unit)
+{
+    for (auto &a : unit.m_global_scope->scope) {
+        if (ASR::is_a<ASR::Program_t>(*a.second)) return true;
+    }
+    return false;
+}
+
+// Accepts dependencies in the form A -> [B, D, ...], B -> [C, D]
+// Returns a list of dependencies in the order that they should be built:
+// [D, C, B, A]
+std::vector<int> order_deps(std::map<int, std::vector<int>> &deps);
+std::vector<std::string> order_deps(std::map<std::string,
+        std::vector<std::string>> &deps);
+
+std::vector<std::string> determine_module_dependencies(
+        const ASR::TranslationUnit_t &unit);
 
 } // namespace LFortran
 
