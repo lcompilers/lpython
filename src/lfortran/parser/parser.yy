@@ -1029,7 +1029,7 @@ open_statement
     : KW_OPEN "(" write_arg_list ")" { $$ = PRINT0(@$); }
 
 close_statement
-    : KW_CLOSE "(" write_arg_list ")" { $$ = PRINT0(@$); }
+    : KW_CLOSE "(" write_arg_list ")" { $$ = CLOSE($3, @$); }
 
 write_arg_list
     : write_arg_list "," write_arg2 { $$ = $1; PLIST_ADD($$, $3); }
