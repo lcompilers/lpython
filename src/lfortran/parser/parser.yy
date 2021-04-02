@@ -1026,7 +1026,7 @@ print_statement
     ;
 
 open_statement
-    : KW_OPEN "(" write_arg_list ")" { $$ = PRINT0(@$); }
+    : KW_OPEN "(" write_arg_list ")" { $$ = OPEN($3, @$); }
 
 close_statement
     : KW_CLOSE "(" write_arg_list ")" { $$ = CLOSE($3, @$); }

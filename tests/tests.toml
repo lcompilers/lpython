@@ -518,6 +518,7 @@ ast_f90 = true
 [[test]]
 filename = "open1.f90"
 ast = true
+ast_f90 = true
 
 [[test]]
 filename = "close1.f90"
