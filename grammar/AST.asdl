@@ -90,6 +90,7 @@ stmt
     | Print(string? fmt, expr* values)
     | Write(argstar* args, kw_argstar* kwargs, expr* values)
     | Read(argstar* args, kw_argstar* kwargs, expr* values)
+    | Open(expr* args, keyword* kwargs)
     | Close(expr* args, keyword* kwargs)
 
 expr
