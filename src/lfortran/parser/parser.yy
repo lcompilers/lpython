@@ -1053,9 +1053,9 @@ write_statement
     ;
 
 read_statement
-    : KW_READ "(" write_arg_list ")" expr_list { $$ = PRINT($5, @$); }
-    | KW_READ "(" write_arg_list ")" "," expr_list { $$ = PRINT($6, @$); }
-    | KW_READ "(" write_arg_list ")" { $$ = PRINT0(@$); }
+    : KW_READ "(" write_arg_list ")" expr_list { $$ = READ($3, $5, @$); }
+    | KW_READ "(" write_arg_list ")" "," expr_list { $$ = READ($3, $6, @$); }
+    | KW_READ "(" write_arg_list ")" { $$ = READ0($3, @$); }
     ;
 
 inquire_statement

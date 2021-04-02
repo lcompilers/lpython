@@ -1,12 +1,12 @@
 {
-    "basename": "ast-read1-fd137ad",
-    "cmd": "lfortran --show-ast --no-color {infile} -o {outfile}",
+    "basename": "ast_f90-read1-71b2b83",
+    "cmd": "lfortran --show-ast-f90 --no-color {infile}",
     "infile": "tests/read1.f90",
     "infile_hash": "4f1b270c03dbd1104dae11dfcf0f57cf762c2534ed38f8fcf16a54a1",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "ast-read1-fd137ad.stdout",
-    "stdout_hash": "bde093154b464aba9deda09faa2693e2336022e7bc09a2e993bb5713",
+    "stdout": "ast_f90-read1-71b2b83.stdout",
+    "stdout_hash": "4aff2aee3a21cb4fb9c54f1df498f9fc2dcb8dedb14373a649e8fa71",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

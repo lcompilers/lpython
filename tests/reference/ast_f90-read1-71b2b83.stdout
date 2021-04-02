@@ -1,0 +1,12 @@
+program read1
+read(*,*) a, b
+read(unit=*,fmt=*) a, b
+read(*,fmt=*) a, b
+read(*) b
+read(zone(1:3),"(i3)") hour
+read(u) b
+read(u,fmt=x) b, c, e
+read(*,fmt=x) b, c, e
+read(iunit,NML=invar,IOSTAT=ierr)
+read(UNIT=iunit,NML=invar,IOSTAT=ierr)
+end program read1
