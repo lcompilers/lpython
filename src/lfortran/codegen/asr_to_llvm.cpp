@@ -699,8 +699,8 @@ public:
                 uint32_t h = get_hash((ASR::asr_t*)v);
                 llvm::Type *type;
                 ASR::ttypeType type_;
-                int n_dims, a_kind;
-                ASR::dimension_t* m_dims;
+                int n_dims = 0, a_kind = 4;
+                ASR::dimension_t* m_dims = nullptr;
                 if (v->m_intent == intent_local || 
                     v->m_intent == intent_return_var || 
                     !v->m_intent) { 
@@ -1082,7 +1082,7 @@ public:
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
-        llvm::Value *target = nullptr, *value = nullptr;
+        llvm::Value *target, *value;
         if( x.m_target->type == ASR::exprType::ArrayRef ) {
             this->visit_expr(*x.m_target);
             target = tmp;   
