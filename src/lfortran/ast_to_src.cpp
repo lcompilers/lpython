@@ -807,7 +807,7 @@ public:
         r += syn(gr::Keyword);
         r += "write";
         r += syn();
-        r += " (";
+        r += "(";
         for (size_t i=0; i<x.n_args; i++) {
             if (x.m_args[i].m_value == nullptr) {
                 r += "*";
