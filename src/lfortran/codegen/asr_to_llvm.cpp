@@ -238,7 +238,7 @@ public:
     }
 
     inline void fill_array_details(llvm::Value* arr, ASR::dimension_t* m_dims, 
-                                   int n_dims, int a_kind, ASR::ttypeType type_) {
+                                   int n_dims) {
         if( verify_dimensions_t(m_dims, n_dims) ) {
             llvm::Value* offset_val = create_gep(arr, 1);
             builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), offset_val);
@@ -500,9 +500,9 @@ public:
         }
     }
 
-    void check_single_element(llvm::Value* curr_idx, llvm::Value* arr) {
-        
-    }
+    // TODO: Uncomment and implement later
+    // void check_single_element(llvm::Value* curr_idx, llvm::Value* arr) {
+    // }
 
     inline llvm::Value* cmo_convertor_single_element(
         llvm::Value* arr, ASR::array_index_t* m_args, 
@@ -518,7 +518,7 @@ public:
             if( check_for_bounds ) {
                 llvm::Value* lval = builder->CreateLoad(create_gep(dim_des_ptr, 1));
                 curr_llvm_idx = builder->CreateSub(curr_llvm_idx, lval);
-                check_single_element(curr_llvm_idx, arr);
+                // check_single_element(curr_llvm_idx, arr); TODO: To be implemented
             }
             idx = builder->CreateAdd(idx, builder->CreateMul(prod, curr_llvm_idx));
             llvm::Value* dim_size = builder->CreateLoad(create_gep(dim_des_ptr, 3));
@@ -821,7 +821,7 @@ public:
                     }
                     llvm::AllocaInst *ptr = builder->CreateAlloca(type, nullptr, v->m_name);
                     llvm_symtab[h] = ptr;
-                    fill_array_details(ptr, m_dims, n_dims, a_kind, type_);
+                    fill_array_details(ptr, m_dims, n_dims);
                     if( v->m_value != nullptr ) {
                         llvm::Value *target_var = ptr;
                         this->visit_expr_wrapper(v->m_value, true);

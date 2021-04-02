@@ -1,0 +1,13 @@
+{
+    "basename": "asr-array4-c8ff1e8",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/array4.f90",
+    "infile_hash": "b2300c4e8589cce700b9cd43cbfb88576774e3262afa4c469c09b7d0",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-array4-c8ff1e8.stderr",
+    "stderr_hash": "2c0c4599866a4d4a0157928b4eca23e01e7e49c48c1be7b6f6d57fb1",
+    "returncode": 2
+}
