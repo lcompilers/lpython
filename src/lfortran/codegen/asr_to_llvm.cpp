@@ -93,6 +93,26 @@ class ASRToLLVMVisitor : public ASR::BaseVisitor<ASRToLLVMVisitor>
 private:
   //!< A map from sin, cos, etc. to the corresponding functions
   std::unordered_map<std::string, llvm::Function *> all_intrinsics;
+
+  //! Helpful for debugging while testing LLVM code
+  void print_util(llvm::Value* v, std::string fmt_chars) {
+        std::vector<llvm::Value *> args;
+        std::vector<std::string> fmt;
+        args.push_back(v);
+        fmt.push_back(fmt_chars);
+        std::string fmt_str;
+        for (size_t i=0; i<fmt.size(); i++) {
+            fmt_str += fmt[i];
+            if (i < fmt.size()-1) fmt_str += " ";
+        }
+        fmt_str += "\n";
+        llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(fmt_str);
+        std::vector<llvm::Value *> printf_args;
+        printf_args.push_back(fmt_ptr);
+        printf_args.insert(printf_args.end(), args.begin(), args.end());
+        printf(context, *module, *builder, printf_args);
+    }
+
 public:
     llvm::LLVMContext &context;
     std::unique_ptr<llvm::Module> module;
@@ -108,7 +128,7 @@ public:
     // Data Members for handling arrays
     llvm::StructType* dim_des;
     std::map<int, llvm::ArrayType*> rank2desc;
-    std::map<std::pair<int, std::pair<int, int>>, llvm::StructType*> tkr2array;
+    std::map<std::pair<std::pair<int, int>, std::pair<int, int>>, llvm::StructType*> tkr2array;
 
     std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
     std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
@@ -135,7 +155,17 @@ public:
 
     inline llvm::StructType* get_array_type
     (ASR::ttypeType type_, int a_kind, int rank, ASR::dimension_t* m_dims) {
-        std::pair<int, std::pair<int, int>> array_key = std::make_pair((int)type_, std::make_pair(a_kind, rank));
+        int size = 0;
+        if( verify_dimensions_t(m_dims, rank) ) {
+            size = 1;
+            for( int r = 0; r < rank; r++ ) {
+                ASR::dimension_t m_dim = m_dims[r];
+                int start = ((ASR::ConstantInteger_t*)(m_dim.m_start))->m_n;
+                int end = ((ASR::ConstantInteger_t*)(m_dim.m_end))->m_n;
+                size *= (end - start + 1);
+            }
+        }
+        std::pair<std::pair<int, int>, std::pair<int, int>> array_key = std::make_pair(std::make_pair((int)type_, a_kind), std::make_pair(rank, size));
         if( tkr2array.find(array_key) != tkr2array.end() ) {
             return tkr2array[array_key];
         }
@@ -170,16 +200,6 @@ public:
             }
             default:
                 break;
-        }
-        int size = 0;
-        if( verify_dimensions_t(m_dims, rank) ) {
-            size = 1;
-            for( int r = 0; r < rank; r++ ) {
-                ASR::dimension_t m_dim = m_dims[r];
-                int start = ((ASR::ConstantInteger_t*)(m_dim.m_start))->m_n;
-                int end = ((ASR::ConstantInteger_t*)(m_dim.m_end))->m_n;
-                size *= (end - start + 1);
-            }
         }
         std::vector<llvm::Type*> array_type_vec = {
             llvm::ArrayType::get(el_type, size), 
@@ -492,7 +512,7 @@ public:
         llvm::Value* idx = llvm::ConstantInt::get(context, llvm::APInt(32, 0));
         for( int r = 0; r < n_args; r++ ) {
             ASR::array_index_t curr_idx = m_args[r];
-            this->visit_expr(*curr_idx.m_right);
+            this->visit_expr_wrapper(curr_idx.m_right, true);
             llvm::Value* curr_llvm_idx = tmp;
             llvm::Value* dim_des_ptr = create_gep(dim_des_arr_ptr, r);
             if( check_for_bounds ) {
@@ -504,7 +524,6 @@ public:
             llvm::Value* dim_size = builder->CreateLoad(create_gep(dim_des_ptr, 3));
             prod = builder->CreateMul(prod, dim_size);
         }
-        // print_util(idx, "%d");
         return idx;
     }
 
@@ -558,7 +577,7 @@ public:
         bool external = (x.m_abi != ASR::abiType::Source);
         llvm::Constant* init_value = nullptr;
         if (x.m_value != nullptr){
-            this->visit_expr(*x.m_value);
+            this->visit_expr_wrapper(x.m_value, true);
             init_value = llvm::dyn_cast<llvm::Constant>(tmp);
         }
         if (x.m_type->type == ASR::ttypeType::Integer) {
@@ -650,9 +669,6 @@ public:
         visit_procedures(x);
         mangle_prefix = "";
     }
-
-
-
 
     void visit_Program(const ASR::Program_t &x) {
         // Generate code for nested subroutines and functions first:
@@ -808,7 +824,7 @@ public:
                     fill_array_details(ptr, m_dims, n_dims, a_kind, type_);
                     if( v->m_value != nullptr ) {
                         llvm::Value *target_var = ptr;
-                        this->visit_expr(*v->m_value);
+                        this->visit_expr_wrapper(v->m_value, true);
                         llvm::Value *init_value = tmp;
                         builder->CreateStore(init_value, target_var);
                     }
@@ -1089,19 +1105,24 @@ public:
                 }
             }
         }
-        this->visit_expr(*x.m_value);
-        if( x.m_value->type == ASR::exprType::ArrayRef ) {
-            value = builder->CreateLoad(tmp);
-        } else {
-            value = tmp;
-        }
+        this->visit_expr_wrapper(x.m_value, true);
+        value = tmp;
         builder->CreateStore(value, target);
     }
 
+    inline void visit_expr_wrapper(const ASR::expr_t* x, bool load_array_ref=false) {
+        this->visit_expr(*x);
+        if( x->type == ASR::exprType::ArrayRef ) {
+            if( load_array_ref ) {
+                tmp = builder->CreateLoad(tmp);
+            }
+        }
+    }
+
     void visit_Compare(const ASR::Compare_t &x) {
-        this->visit_expr(*x.m_left);
+        this->visit_expr_wrapper(x.m_left, true);
         llvm::Value *left = tmp;
-        this->visit_expr(*x.m_right);
+        this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right = tmp;
         LFORTRAN_ASSERT(expr_type(x.m_left)->type == expr_type(x.m_right)->type);
         ASR::ttypeType optype = expr_type(x.m_left)->type;
@@ -1173,7 +1194,7 @@ public:
     }
 
     void visit_If(const ASR::If_t &x) {
-        this->visit_expr(*x.m_test);
+        this->visit_expr_wrapper(x.m_test, true);
         llvm::Value *cond=tmp;
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
         llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
@@ -1214,7 +1235,7 @@ public:
         // head
         builder->CreateBr(loophead);
         builder->SetInsertPoint(loophead);
-        this->visit_expr(*x.m_test);
+        this->visit_expr_wrapper(x.m_test, true);
         llvm::Value *cond = tmp;
         builder->CreateCondBr(cond, loopbody, loopend);
 
@@ -1246,9 +1267,9 @@ public:
     }
 
     void visit_BoolOp(const ASR::BoolOp_t &x) {
-        this->visit_expr(*x.m_left);
+        this->visit_expr_wrapper(x.m_left, true);
         llvm::Value *left_val = tmp;
-        this->visit_expr(*x.m_right);
+        this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right_val = tmp;
         if (x.m_type->type == ASR::ttypeType::Logical) {
             switch (x.m_op) {
@@ -1275,9 +1296,9 @@ public:
     }
 
     void visit_StrOp(const ASR::StrOp_t &x) {
-        this->visit_expr(*x.m_left);
+        this->visit_expr_wrapper(x.m_left, true);
         llvm::Value *left_val = tmp;
-        this->visit_expr(*x.m_right);
+        this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right_val = tmp;
         switch (x.m_op) {
             case ASR::stropType::Concat: {
@@ -1288,9 +1309,9 @@ public:
     }
 
     void visit_BinOp(const ASR::BinOp_t &x) {
-        this->visit_expr(*x.m_left);
+        this->visit_expr_wrapper(x.m_left, true);
         llvm::Value *left_val = tmp;
-        this->visit_expr(*x.m_right);
+        this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right_val = tmp;
         if (x.m_type->type == ASR::ttypeType::Integer || 
             x.m_type->type == ASR::ttypeType::IntegerPointer) {
@@ -1446,7 +1467,7 @@ public:
     }
 
     void visit_UnaryOp(const ASR::UnaryOp_t &x) {
-        this->visit_expr(*x.m_operand);
+        this->visit_expr_wrapper(x.m_operand, true);
         if (x.m_type->type == ASR::ttypeType::Integer) {
             if (x.m_op == ASR::unaryopType::UAdd) {
                 // tmp = tmp;
@@ -1681,7 +1702,7 @@ public:
     }
 
     void visit_ImplicitCast(const ASR::ImplicitCast_t &x) {
-        visit_expr(*x.m_arg);
+        this->visit_expr_wrapper(x.m_arg, true);
         switch (x.m_kind) {
             case (ASR::cast_kindType::IntegerToReal) : {
                 int a_kind = extract_kind_from_ttype_t(x.m_type);
@@ -1834,29 +1855,11 @@ public:
         }
     }
 
-    void print_util(llvm::Value* v, std::string fmt_chars) {
-        std::vector<llvm::Value *> args;
-        std::vector<std::string> fmt;
-        args.push_back(v);
-        fmt.push_back(fmt_chars);
-        std::string fmt_str;
-        for (size_t i=0; i<fmt.size(); i++) {
-            fmt_str += fmt[i];
-            if (i < fmt.size()-1) fmt_str += " ";
-        }
-        fmt_str += "\n";
-        llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(fmt_str);
-        std::vector<llvm::Value *> printf_args;
-        printf_args.push_back(fmt_ptr);
-        printf_args.insert(printf_args.end(), args.begin(), args.end());
-        printf(context, *module, *builder, printf_args);
-    }
-
     void visit_Print(const ASR::Print_t &x) {
         std::vector<llvm::Value *> args;
         std::vector<std::string> fmt;
         for (size_t i=0; i<x.n_values; i++) {
-            this->visit_expr(*x.m_values[i]);
+            this->visit_expr_wrapper(x.m_values[i], true);
             ASR::expr_t *v = x.m_values[i];
             ASR::ttype_t *t = expr_type(v);
             if (t->type == ASR::ttypeType::Integer || 
@@ -1877,9 +1880,6 @@ public:
                                             for 32, and 64 bit integer kinds.)""", 
                                             x.base.base.loc);
                     }
-                }
-                if( v->type == ASR::exprType::ArrayRef ) {
-                    tmp = builder->CreateLoad(tmp);
                 }
                 args.push_back(tmp);
             } else if (t->type == ASR::ttypeType::Real || 
@@ -1986,7 +1986,7 @@ public:
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 tmp = llvm_symtab[h];
             } else {
-                this->visit_expr(*x.m_args[i]);
+                this->visit_expr_wrapper(x.m_args[i], true);
                 llvm::Value *value=tmp;
                 llvm::Type *target_type;
                 ASR::ttype_t* arg_type = expr_type(x.m_args[i]);
