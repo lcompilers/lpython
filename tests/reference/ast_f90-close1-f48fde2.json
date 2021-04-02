@@ -1,12 +1,12 @@
 {
-    "basename": "ast-close1-d682580",
-    "cmd": "lfortran --show-ast --no-color {infile} -o {outfile}",
+    "basename": "ast_f90-close1-f48fde2",
+    "cmd": "lfortran --show-ast-f90 --no-color {infile}",
     "infile": "tests/close1.f90",
     "infile_hash": "b6174b7e66a7b9dea6c59e0e40b1786dc0721bf2b248b292f3576c9c",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "ast-close1-d682580.stdout",
-    "stdout_hash": "e061f5df661cf2e5901a8db085a52475cf93b59a8d0fdef782241be1",
+    "stdout": "ast_f90-close1-f48fde2.stdout",
+    "stdout_hash": "66c313f74e4a9447745937a80aa7b3cfb56dc36131c8b93546e9d395",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

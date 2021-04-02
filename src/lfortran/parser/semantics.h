@@ -582,6 +582,30 @@ ast_t* READ1(Allocator &al,
         EXPRS(args), args.size());
 }
 
+ast_t* CLOSE1(Allocator &al,
+        const LFortran::Vec<LFortran::ArgStarKw> &args0,
+        Location &l) {
+    LFortran::Vec<LFortran::AST::expr_t*> v;
+    v.reserve(al, args0.size());
+    LFortran::Vec<LFortran::AST::keyword_t> v2;
+    v2.reserve(al, args0.size());
+    for (auto &item : args0) {
+        if (item.keyword) {
+            LFortran::AST::keyword_t kw;
+            LFORTRAN_ASSERT(item.kw.m_value != nullptr);
+            kw.m_value = item.kw.m_value;
+            kw.m_arg = item.kw.m_arg;
+            v2.push_back(al, kw);
+        } else {
+            LFORTRAN_ASSERT(item.arg.m_value != nullptr);
+            v.push_back(al, item.arg.m_value);
+        }
+    }
+    return LFortran::AST::make_Close_t(al, l,
+        v.p, v.size(),
+        v2.p, v2.size());
+}
+
 #define WRITE_ARG1(out, arg0) \
         out = p.m_a.make_new<LFortran::ArgStarKw>(); \
         out->keyword = false; \
@@ -608,6 +632,8 @@ ast_t* READ1(Allocator &al,
 
 #define READ0(args0, l) READ1(p.m_a, args0, empty_vecast(), l)
 #define READ(args0, args, l) READ1(p.m_a, args0, args, l)
+
+#define CLOSE(args0, l) CLOSE1(p.m_a, args0, l)
 
 
 // Converts (line, col) to a linear position.

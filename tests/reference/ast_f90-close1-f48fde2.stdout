@@ -1,0 +1,6 @@
+program close1
+close(u)
+close(unit=gmv_lun)
+close(unit=dunit,status="delete")
+close(UNIT=funit,IOSTAT=ierr)
+end program close1
