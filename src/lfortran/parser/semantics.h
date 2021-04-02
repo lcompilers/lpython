@@ -561,8 +561,26 @@ ast_t* WRITE1(Allocator &al,
         EXPRS(args), args.size());
 }
 
-#define WRITE0(args0, l) WRITE1(p.m_a, args0, empty_vecast(), l)
-#define WRITE(args0, args, l) WRITE1(p.m_a, args0, args, l)
+ast_t* READ1(Allocator &al,
+        const LFortran::Vec<LFortran::ArgStarKw> &args0,
+        const LFortran::Vec<LFortran::AST::ast_t*> &args,
+        Location &l) {
+    LFortran::Vec<LFortran::AST::argstar_t> v;
+    v.reserve(al, args0.size());
+    LFortran::Vec<LFortran::AST::kw_argstar_t> v2;
+    v2.reserve(al, args0.size());
+    for (auto &item : args0) {
+        if (item.keyword) {
+            v2.push_back(al, item.kw);
+        } else {
+            v.push_back(al, item.arg);
+        }
+    }
+    return LFortran::AST::make_Read_t(al, l,
+        v.p, v.size(),
+        v2.p, v2.size(),
+        EXPRS(args), args.size());
+}
 
 #define WRITE_ARG1(out, arg0) \
         out = p.m_a.make_new<LFortran::ArgStarKw>(); \
@@ -583,6 +601,14 @@ ast_t* WRITE1(Allocator &al,
         } else { \
             out->kw.m_value = LFortran::AST::down_cast<LFortran::AST::expr_t>(arg0); \
         }
+
+
+#define WRITE0(args0, l) WRITE1(p.m_a, args0, empty_vecast(), l)
+#define WRITE(args0, args, l) WRITE1(p.m_a, args0, args, l)
+
+#define READ0(args0, l) READ1(p.m_a, args0, empty_vecast(), l)
+#define READ(args0, args, l) READ1(p.m_a, args0, args, l)
+
 
 // Converts (line, col) to a linear position.
 uint64_t linecol_to_pos(const std::string &s, uint16_t line, uint16_t col) {
