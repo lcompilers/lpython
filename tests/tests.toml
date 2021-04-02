@@ -310,8 +310,6 @@ ast = true
 [[test]]
 filename = "../integration_tests/arrays_01.f90"
 cpp = true
-asr = true
-llvm = true
 
 [[test]]
 filename = "../integration_tests/arrays_02.f90"
