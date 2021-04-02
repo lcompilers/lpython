@@ -1,8 +1,8 @@
 program arrays_01
 implicit none
-integer :: a(219)
-a(4) = 25
-a(218) = 3
-print *, a(4), a(218)
+integer :: a(240)
+integer, allocatable :: b(:, :)
+a(218) = 25
+print *, a(218)
 end program
     

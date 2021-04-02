@@ -134,7 +134,7 @@ public:
     }
 
     inline llvm::StructType* get_array_type
-    (ASR::ttypeType type_, int a_kind, int rank) {
+    (ASR::ttypeType type_, int a_kind, int rank, ASR::dimension_t* m_dims) {
         std::pair<int, std::pair<int, int>> array_key = std::make_pair((int)type_, std::make_pair(a_kind, rank));
         if( tkr2array.find(array_key) != tkr2array.end() ) {
             return tkr2array[array_key];
@@ -171,8 +171,18 @@ public:
             default:
                 break;
         }
+        int size = 0;
+        if( verify_dimensions_t(m_dims, rank) ) {
+            size = 1;
+            for( int r = 0; r < rank; r++ ) {
+                ASR::dimension_t m_dim = m_dims[r];
+                int start = ((ASR::ConstantInteger_t*)(m_dim.m_start))->m_n;
+                int end = ((ASR::ConstantInteger_t*)(m_dim.m_end))->m_n;
+                size *= (end - start + 1);
+            }
+        }
         std::vector<llvm::Type*> array_type_vec = {
-            llvm::ArrayType::get(el_type, 0), 
+            llvm::ArrayType::get(el_type, size), 
             llvm::Type::getInt32Ty(context),
             dim_des_array};
         tkr2array[array_key] = llvm::StructType::create(context, array_type_vec, "array");
@@ -193,12 +203,6 @@ public:
         return builder->CreateGEP(ds, idx_vec);
     }
 
-    inline llvm::Value* create_gep_for_array(llvm::Value* ds, llvm::Value* idx) {
-        std::vector<llvm::Value*> idx_vec = {
-        idx};
-        return builder->CreateInBoundsGEP(ds, idx);
-    }
-
     inline bool verify_dimensions_t(ASR::dimension_t* m_dims, int n_dims) {
         if( n_dims <= 0 ) {
             return false;
@@ -214,13 +218,11 @@ public:
     }
 
     inline void fill_array_details(llvm::Value* arr, ASR::dimension_t* m_dims, 
-                                       int n_dims, int a_kind, ASR::ttypeType type_) 
-    {
+                                   int n_dims, int a_kind, ASR::ttypeType type_) {
         if( verify_dimensions_t(m_dims, n_dims) ) {
             llvm::Value* offset_val = create_gep(arr, 1);
             builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), offset_val);
             llvm::Value* dim_des_val = create_gep(arr, 2);
-            llvm::Value* prod = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
             for( int r = 0; r < n_dims; r++ ) {
                 ASR::dimension_t m_dim = m_dims[r];
                 llvm::Value* dim_val = create_gep(dim_des_val, r);
@@ -238,18 +240,7 @@ public:
                 llvm::Value* dim_size = builder->CreateAdd(builder->CreateSub(u_val, l_val), 
                                                            llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
                 builder->CreateStore(dim_size, dim_size_ptr);
-                prod = builder->CreateMul(dim_size, prod);
             }
-            // llvm::Value* array_ptr = create_gep(arr, 0);
-            // llvm::Value* array_ptr_val = builder->CreateLoad(array_ptr);
-            // print_util(prod, "%d");
-            // llvm::Value* ptr = builder->CreateAlloca(((llvm::PointerType*)(array_ptr_val->getType())), prod);
-            // llvm::Value* ptr_val = builder->CreateLoad(ptr);
-            // llvm::Value* element_size = llvm::ConstantInt::get(context, llvm::APInt(32, ((llvm::PointerType*)(array_ptr_val->getType()))->getElementType()->getScalarSizeInBits()/8));
-            // llvm::Value* alloc_size = builder->CreateMul(element_size, prod);
-            // llvm::Value* ptr = llvm::CallInst::CreateMalloc(builder->GetInsertBlock(), array_ptr_val->getType(), ((llvm::PointerType*)(array_ptr_val->getType()))->getElementType(), alloc_size, nullptr, nullptr);
-            // llvm::Value* ptr_val = builder->CreateLoad(ptr);
-            // builder->CreateStore(ptr_val, array_ptr); 
         }
     }
 
@@ -547,8 +538,6 @@ public:
         llvm::Value* array = llvm_symtab[v_h];
         bool check_for_bounds = is_explicit_shape(v);
         llvm::Value* idx = cmo_convertor_single_element(array, x.m_args, (int) x.n_args, check_for_bounds);
-        // llvm::Value* array_ptr = builder->CreateLoad(create_gep(array, 0));
-        // llvm::Value* ptr_to_array_idx = create_gep_for_array(array_ptr, idx);
         llvm::Value* array_ptr = create_gep(array, 0);
         llvm::Value* ptr_to_array_idx = create_gep(array_ptr, idx);
         tmp = ptr_to_array_idx;
@@ -693,7 +682,6 @@ public:
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
                 uint32_t h = get_hash((ASR::asr_t*)v);
                 llvm::Type *type;
-                llvm::Value* array_size = nullptr;
                 ASR::ttypeType type_;
                 int n_dims, a_kind;
                 ASR::dimension_t* m_dims;
@@ -708,7 +696,7 @@ public:
                             n_dims = v_type->n_dims;
                             a_kind = v_type->m_kind;
                             if( n_dims > 0 ) {
-                                type = get_array_type(type_, a_kind, n_dims);
+                                type = get_array_type(type_, a_kind, n_dims, m_dims);
                             } else {
                                 switch( a_kind )
                                 {
@@ -815,7 +803,7 @@ public:
                         default :
                             LFORTRAN_ASSERT(false);
                     }
-                    llvm::AllocaInst *ptr = builder->CreateAlloca(type, array_size, v->m_name);
+                    llvm::AllocaInst *ptr = builder->CreateAlloca(type, nullptr, v->m_name);
                     llvm_symtab[h] = ptr;
                     fill_array_details(ptr, m_dims, n_dims, a_kind, type_);
                     if( v->m_value != nullptr ) {
