@@ -1,0 +1,22 @@
+program write_01
+write (*,*) "a", 2
+write (*,*)
+write (*,*) a
+write (*,*) index
+write (*,*) "Scalar_in = ", scalar_in
+write (*,*) int_src, int_given, int_expected
+write (*,*) max_angle
+write (*,*) n, n
+write (*,*) trim(prog) // ": " // message
+write (*,*) "Assertion failed at " // file // ":", line
+write (*,*) "exactly_conservative= ", exactly_conservative
+write (*,*) vec
+write (*,*) trim(input_string), ": "
+write (*,*)
+write (*,*) star
+write (*,*) "Success!"
+write (*,*)
+print *, "2"
+print *
+print "(a, es22.14)", "Ekin:     ", Ekin
+end program write_01

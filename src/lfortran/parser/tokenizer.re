@@ -246,6 +246,8 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             "(" / "/=" { RET(TK_LPAREN) } // To parse "operator(/=)" correctly
             "(" / "/," { RET(TK_LPAREN) } // To parse "format(/,'xx')" correctly
             "(" / ("/" whitespace ",") { RET(TK_LPAREN) } // To parse "format(/ ,'xx')" correctly
+            "(" / "//," { RET(TK_LPAREN) } // To parse "format(//,'xx')" correctly
+            "(" / ("//" whitespace ",") { RET(TK_LPAREN) } // To parse "format(// ,'xx')" correctly
             "(" / "/)" { RET(TK_LPAREN) } // To parse "format(/)" correctly
             "(" / ("/" whitespace ")") { RET(TK_LPAREN) } // To parse "format(/ )" correctly
             ")" { RET(TK_RPAREN) }

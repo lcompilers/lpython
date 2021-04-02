@@ -1044,9 +1044,9 @@ write_arg
     ;
 
 write_statement
-    : KW_WRITE "(" write_arg_list ")" expr_list { $$ = PRINT($5, @$); }
-    | KW_WRITE "(" write_arg_list ")" "," expr_list { $$ = PRINT($6, @$); }
-    | KW_WRITE "(" write_arg_list ")" { $$ = PRINT0(@$); }
+    : KW_WRITE "(" write_arg_list ")" expr_list { $$ = WRITE($5, @$); }
+    | KW_WRITE "(" write_arg_list ")" "," expr_list { $$ = WRITE($6, @$); }
+    | KW_WRITE "(" write_arg_list ")" { $$ = WRITE0(@$); }
     ;
 
 read_statement
@@ -1232,12 +1232,14 @@ forall_statement_single
     ;
 
 format_statement
-    : TK_INTEGER KW_FORMAT "(" format_items ")" { $$ = PRINT0(@$); }
+    : TK_INTEGER KW_FORMAT "(" format_items ")" { $$ = FORMAT($1, @$); }
     | TK_INTEGER KW_FORMAT "(" format_items "," "*" "(" format_items ")" ")" {
-            $$ = PRINT0(@$); }
-    | TK_INTEGER KW_FORMAT "(" "*" "(" format_items ")" ")" { $$ = PRINT0(@$); }
-    | TK_INTEGER KW_FORMAT "(" "/)" { $$ = PRINT0(@$); }
-    | TK_INTEGER KW_FORMAT "(" format_items "," "/)" { $$ = PRINT0(@$); }
+            $$ = FORMAT($1, @$); }
+    | TK_INTEGER KW_FORMAT "(" "*" "(" format_items ")" ")" {
+            $$ = FORMAT($1, @$); }
+    | TK_INTEGER KW_FORMAT "(" "/)" { $$ = FORMAT($1, @$); }
+    | TK_INTEGER KW_FORMAT "(" TK_INTEGER "/)" { $$ = FORMAT($1, @$); }
+    | TK_INTEGER KW_FORMAT "(" format_items "," "/)" { $$ = FORMAT($1, @$); }
     ;
 
 format_items
@@ -1247,17 +1249,29 @@ format_items
 
 
 format_item
+    : format_item1
+    | format_item_slash
+    | format_item_slash format_item1
+    | format_item1 format_item_slash format_item1
+    | ":"
+    ;
+
+format_item_slash
+    : "/"
+    | TK_INTEGER "/"
+    | "//"
+    ;
+
+format_item1
     : format_item0
     | TK_INTEGER format_item0
-    | ":"
-    | TK_STRING
     ;
 
 format_item0
     : TK_NAME
     | TK_NAME TK_REAL
-    | TK_NAME TK_REAL TK_NAME
-    | "/"
+    | TK_REAL TK_REAL
+    | TK_STRING
     | "(" format_items ")"
     ;
 

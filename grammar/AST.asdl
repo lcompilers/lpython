@@ -72,6 +72,7 @@ stmt
     | SubroutineCall(identifier name, fnarg* args, keyword* keywords)
     | Allocate(fnarg* args, keyword* keywords)
     | Deallocate(fnarg* args)
+    | Format(int n, string fmt)
     | BuiltinCall(identifier name, expr* args)
     | If(expr test, stmt* body, stmt* orelse)
     | Where(expr test, stmt* body, stmt* orelse)
@@ -87,6 +88,7 @@ stmt
     | Return()
     | WhileLoop(expr test, stmt* body)
     | Print(string? fmt, expr* values)
+    | Write(expr? unit, string? fmt, expr* values)
 
 expr
     = BoolOp(expr left, boolop op, expr right)

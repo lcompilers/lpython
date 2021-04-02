@@ -13,6 +13,7 @@ namespace LFortran
 
 class Parser
 {
+public:
     std::string inp;
 
 public:
