@@ -1141,6 +1141,9 @@ public:
         }
         r += sym_type;
         r += syn();
+        if (x.m_derived_type_name != nullptr) {
+            r += "(" + std::string(x.m_derived_type_name) + ")";
+        }
         if (x.n_kind > 0) {
             r += "(";
             if (x.n_kind == 1 && (sym_type == "real" || sym_type == "integer" || sym_type == "logical" || sym_type == "complex")
