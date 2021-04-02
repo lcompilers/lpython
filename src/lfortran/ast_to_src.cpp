@@ -807,7 +807,28 @@ public:
         r += syn(gr::Keyword);
         r += "write";
         r += syn();
-        r += " (*,*)";
+        r += " (";
+        for (size_t i=0; i<x.n_args; i++) {
+            if (x.m_args[i].m_value == nullptr) {
+                r += "*";
+            } else {
+                this->visit_expr(*x.m_args[i].m_value);
+                r += s;
+            }
+            if (i < x.n_args-1 || x.n_kwargs > 0) r += ",";
+        }
+        for (size_t i=0; i<x.n_kwargs; i++) {
+            r += x.m_kwargs[i].m_arg;
+            r += "=";
+            if (x.m_kwargs[i].m_value == nullptr) {
+                r += "*";
+            } else {
+                this->visit_expr(*x.m_kwargs[i].m_value);
+                r += s;
+            }
+            if (i < x.n_kwargs-1) r += ",";
+        }
+        r += ")";
         if (x.n_values > 0) {
             r += " ";
             for (size_t i=0; i<x.n_values; i++) {

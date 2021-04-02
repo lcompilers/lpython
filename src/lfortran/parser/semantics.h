@@ -294,6 +294,13 @@ static inline LFortran::Vec<LFortran::AST::kind_item_t> empty()
     return r;
 }
 
+static inline LFortran::Vec<LFortran::AST::ast_t*> empty_vecast()
+{
+    LFortran::Vec<LFortran::AST::ast_t*> r;
+    r.from_pointer_n(nullptr, 0);
+    return r;
+}
+
 static inline LFortran::VarType* VARTYPE0_(Allocator &al,
         const LFortran::Str &s, const LFortran::Vec<LFortran::AST::kind_item_t> kind, Location &l)
 {
@@ -533,10 +540,49 @@ char* print_format_to_str(Allocator &al, const std::string &fmt) {
 #define PRINTF(fmt, args, l) make_Print_t(p.m_a, l, \
         print_format_to_str(p.m_a, fmt.str()), EXPRS(args), args.size())
 
-#define WRITE0(l) LFortran::AST::make_Write_t(p.m_a, l, nullptr, \
-        nullptr, nullptr, 0)
-#define WRITE(args, l) LFortran::AST::make_Write_t(p.m_a, l, nullptr, \
-        nullptr, EXPRS(args), args.size())
+ast_t* WRITE1(Allocator &al,
+        const LFortran::Vec<LFortran::ArgStarKw> &args0,
+        const LFortran::Vec<LFortran::AST::ast_t*> &args,
+        Location &l) {
+    LFortran::Vec<LFortran::AST::argstar_t> v;
+    v.reserve(al, args0.size());
+    LFortran::Vec<LFortran::AST::kw_argstar_t> v2;
+    v2.reserve(al, args0.size());
+    for (auto &item : args0) {
+        if (item.keyword) {
+            v2.push_back(al, item.kw);
+        } else {
+            v.push_back(al, item.arg);
+        }
+    }
+    return LFortran::AST::make_Write_t(al, l,
+        v.p, v.size(),
+        v2.p, v2.size(),
+        EXPRS(args), args.size());
+}
+
+#define WRITE0(args0, l) WRITE1(p.m_a, args0, empty_vecast(), l)
+#define WRITE(args0, args, l) WRITE1(p.m_a, args0, args, l)
+
+#define WRITE_ARG1(out, arg0) \
+        out = p.m_a.make_new<LFortran::ArgStarKw>(); \
+        out->keyword = false; \
+        if (arg0 == nullptr) { \
+            out->arg.m_value = nullptr; \
+        } else { \
+            out->arg.m_value = LFortran::AST::down_cast< \
+                    LFortran::AST::expr_t>(arg0); \
+        }
+
+#define WRITE_ARG2(out, id0, arg0) \
+        out = p.m_a.make_new<LFortran::ArgStarKw>(); \
+        out->keyword = true; \
+        out->kw.m_arg = name2char(id0); \
+        if (arg0 == nullptr) { \
+            out->kw.m_value = nullptr; \
+        } else { \
+            out->kw.m_value = LFortran::AST::down_cast<LFortran::AST::expr_t>(arg0); \
+        }
 
 // Converts (line, col) to a linear position.
 uint64_t linecol_to_pos(const std::string &s, uint16_t line, uint16_t col) {

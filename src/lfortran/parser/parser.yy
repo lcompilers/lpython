@@ -361,6 +361,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <kind_arg> kind_arg2
 %type <vec_ast> interface_body
 %type <ast> interface_item
+%type <ast> write_arg
+%type <argstarkw> write_arg2
+%type <vec_argstarkw> write_arg_list
 
 // Precedence
 
@@ -1029,24 +1032,24 @@ close_statement
     : KW_CLOSE "(" write_arg_list ")" { $$ = PRINT0(@$); }
 
 write_arg_list
-    : write_arg_list "," write_arg2
-    | write_arg2
+    : write_arg_list "," write_arg2 { $$ = $1; PLIST_ADD($$, $3); }
+    | write_arg2 { LIST_NEW($$); PLIST_ADD($$, $1); }
     ;
 
 write_arg2
-    : write_arg
-    | id "=" write_arg
+    : write_arg { WRITE_ARG1($$, $1); }
+    | id "=" write_arg { WRITE_ARG2($$, $1, $3); }
     ;
 
 write_arg
-    : expr
-    | "*"
+    : expr { $$ = $1; }
+    | "*" { $$ = nullptr; }
     ;
 
 write_statement
-    : KW_WRITE "(" write_arg_list ")" expr_list { $$ = WRITE($5, @$); }
-    | KW_WRITE "(" write_arg_list ")" "," expr_list { $$ = WRITE($6, @$); }
-    | KW_WRITE "(" write_arg_list ")" { $$ = WRITE0(@$); }
+    : KW_WRITE "(" write_arg_list ")" expr_list { $$ = WRITE($3, $5, @$); }
+    | KW_WRITE "(" write_arg_list ")" "," expr_list { $$ = WRITE($3, $6, @$); }
+    | KW_WRITE "(" write_arg_list ")" { $$ = WRITE0($3, @$); }
     ;
 
 read_statement
