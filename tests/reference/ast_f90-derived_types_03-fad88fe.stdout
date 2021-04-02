@@ -2,7 +2,7 @@ program derived_types_03
 type :: X
     integer :: i
 end type
-type :: b
+type(X) :: b
 
 contains
 
@@ -10,14 +10,14 @@ contains
     type :: A
         integer :: i
     end type
-    type :: b
+    type(A) :: b
     end subroutine Y
 
     integer function Z() 
     type :: A
         integer :: i
     end type
-    type :: b
+    type(A) :: b
     Z = 5
     end function Z
 
