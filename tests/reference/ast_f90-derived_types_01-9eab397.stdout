@@ -1,0 +1,28 @@
+module a_01
+
+type :: X
+    integer :: i
+    real :: r
+end type
+
+
+
+contains
+
+subroutine set(a)
+type(X), intent(out) :: a
+i = 1
+r = 1.5
+end subroutine set
+
+end module a_01
+
+program derived_types_01
+use a_01, only: X, set
+type(X) :: b
+i = 5
+r = 3.5
+print *, i, r
+call set(b)
+print *, i, r
+end program derived_types_01
