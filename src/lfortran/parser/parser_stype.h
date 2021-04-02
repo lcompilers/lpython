@@ -24,6 +24,14 @@ struct FnArg {
     };
 };
 
+struct ArgStarKw {
+    bool keyword;
+    union {
+        AST::argstar_t arg;
+        AST::kw_argstar_t kw;
+    };
+};
+
 union YYSTYPE {
     unsigned long n;
     Str string;
@@ -49,6 +57,9 @@ union YYSTYPE {
 
     FnArg *fnarg;
     Vec<FnArg> vec_fnarg;
+
+    ArgStarKw *argstarkw;
+    Vec<ArgStarKw> vec_argstarkw;
 };
 
 static_assert(std::is_standard_layout<YYSTYPE>::value);

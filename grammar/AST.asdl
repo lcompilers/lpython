@@ -88,7 +88,7 @@ stmt
     | Return()
     | WhileLoop(expr test, stmt* body)
     | Print(string? fmt, expr* values)
-    | Write(expr? unit, string? fmt, expr* values)
+    | Write(argstar* args, kw_argstar* kwargs, expr* values)
 
 expr
     = BoolOp(expr left, boolop op, expr right)
@@ -133,6 +133,10 @@ attribute = Attribute(identifier name, attribute_arg *args, dimension* dims)
 attribute_arg = (identifier arg)
 
 fn_mod = FnMod(string s)
+
+-- Null for `expr` means it's a star
+kw_argstar = (identifier arg, expr? value)
+argstar = (expr? value)
 
 arg = (identifier arg)
 
