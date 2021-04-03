@@ -611,8 +611,9 @@ filename = "../integration_tests/types_13.f90"
 ast = true
 
 [[test]]
-filename = "namelist1.f90"
+filename = "../integration_tests/namelist_01.f90"
 ast = true
+ast_f90 = true
 
 [[test]]
 filename = "select_type1.f90"

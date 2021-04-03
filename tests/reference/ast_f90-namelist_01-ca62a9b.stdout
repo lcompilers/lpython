@@ -1,0 +1,6 @@
+program namelist1
+integer :: N
+real :: t
+real :: x
+real :: Ecut
+end program namelist1
