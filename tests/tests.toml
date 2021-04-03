@@ -393,6 +393,7 @@ ast = true
 [[test]]
 filename = "../integration_tests/types_12.f90"
 ast = true
+ast_f90 = true
 
 [[test]]
 filename = "boz1.f90"
