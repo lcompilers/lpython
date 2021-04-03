@@ -1,4 +1,5 @@
 program reserved_01
+implicit none
 if ((end(1, 2))/=(2)) then
     error stop
 end if

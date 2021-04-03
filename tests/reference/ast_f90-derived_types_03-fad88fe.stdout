@@ -1,4 +1,5 @@
 program derived_types_03
+implicit none
 type :: X
     integer :: i
 end type

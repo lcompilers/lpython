@@ -1,4 +1,5 @@
 program complex_01
+implicit none
 complex :: x=(1.0, -(3.0))
 real, parameter :: a=3.0
 real, parameter :: b=4.0

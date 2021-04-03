@@ -196,6 +196,7 @@ public:
             this->visit_unit_decl1(*x.m_use[i]);
             r.append(s);
         }
+        r.append("implicit none\n");
         r.append("\n");
         for (size_t i=0; i<x.n_decl; i++) {
             this->visit_unit_decl2(*x.m_decl[i]);
@@ -281,7 +282,7 @@ public:
         r.append(x.m_name);
         r.append("\n");
 
-        r += format_unit_body(x);
+        r += format_unit_body(x, true);
         r += syn(gr::UnitHeader);
         r.append("end program");
         r += syn();
@@ -433,13 +434,14 @@ public:
     }
 
     template <typename T>
-    std::string format_unit_body(const T &x) {
+    std::string format_unit_body(const T &x, bool implicit_none=false) {
         std::string r;
         if (indent_unit) inc_indent();
         for (size_t i=0; i<x.n_use; i++) {
             this->visit_unit_decl1(*x.m_use[i]);
             r.append(s);
         }
+        if (implicit_none) r.append("implicit none\n");
         for (size_t i=0; i<x.n_decl; i++) {
             this->visit_unit_decl2(*x.m_decl[i]);
             r.append(s);

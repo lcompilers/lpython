@@ -1,4 +1,5 @@
 module a_04
+implicit none
 
 
 
@@ -13,6 +14,7 @@ end module a_04
 
 program modules_04
 use iso_fortran_env
+implicit none
 call f()
 
 contains
