@@ -480,6 +480,7 @@ ast = true
 [[test]]
 filename = "../integration_tests/modules_04.f90"
 ast = true
+ast_f90 = true
 
 [[test]]
 filename = "../integration_tests/modules_05.f90"
