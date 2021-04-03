@@ -589,12 +589,12 @@ subroutine
     import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_subroutine_opt sep {
-            LLOC(@$, @13); $$ = SUBROUTINE($2, $3, $9, $10, $11, @$); }
+            LLOC(@$, @13); $$ = SUBROUTINE($2, $3, $6, $9, $10, $11, @$); }
     | fn_mod_plus KW_SUBROUTINE id sub_args bind_opt sep use_statement_star
     import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_subroutine_opt sep {
-            LLOC(@$, @14); $$ = SUBROUTINE($3, $4, $10, $11, $12, @$); }
+            LLOC(@$, @14); $$ = SUBROUTINE($3, $4, $7, $10, $11, $12, @$); }
     ;
 
 procedure
@@ -602,7 +602,7 @@ procedure
     import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_procedure_opt sep {
-            LLOC(@$, @14); $$ = SUBROUTINE($3, $4, $9, $10, $11, @$); }
+            LLOC(@$, @14); $$ = SUBROUTINE($3, $4, $6, $9, $10, $11, @$); }
     ;
 
 function
