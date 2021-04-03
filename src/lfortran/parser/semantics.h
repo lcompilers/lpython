@@ -759,12 +759,12 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
         /*n_body*/ stmts.size(), \
         /*contains*/ CONTAINS(contains), \
         /*n_contains*/ contains.size())
-#define PROCEDURE(name, args, decl, stmts, contains, l) make_Procedure_t(p.m_a, l, \
+#define PROCEDURE(name, args, use, decl, stmts, contains, l) make_Procedure_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
-        /*use*/ nullptr, \
-        /*n_use*/ 0, \
+        /*use*/ USES(use), \
+        /*n_use*/ use.size(), \
         /*decl*/ DECLS(decl), \
         /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \
