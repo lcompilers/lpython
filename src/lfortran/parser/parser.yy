@@ -787,7 +787,7 @@ var_decl
     | KW_PARAMETER "(" named_constant_def_list ")" sep {
             $$ = VAR_DECL5($3, @$); }
     | KW_NAMELIST "/" id "/" id_list sep {
-            $$ = VAR_DECL4($3, @$); }
+            $$ = VAR_DECL6($3, $5, @$); }
     ;
 
 named_constant_def_list

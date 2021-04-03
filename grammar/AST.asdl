@@ -127,8 +127,10 @@ unaryop = Invert | Not | UAdd | USub
 
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 
-decl = (identifier? sym, string? sym_type, string? derived_type_name, kind_item* kind, dimension* dims,
-        attribute *attrs, expr? initializer)
+decl = (identifier? sym, string? sym_type, string? derived_type_name,
+    kind_item* kind, dimension* dims, attribute *attrs, expr? initializer,
+    identifier* namelist
+    )
 
 kind_item = (identifier? id, expr? value, kind_item_type type)
 
