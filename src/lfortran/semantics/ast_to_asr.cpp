@@ -1175,7 +1175,9 @@ public:
                 case_body_vec.reserve(al, Case_Stmt->n_body);
                 for( std::uint32_t i = 0; i < Case_Stmt->n_body; i++ ) {
                     this->visit_stmt(*(Case_Stmt->m_body[i]));
-                    case_body_vec.push_back(al, STMT(tmp));
+                    if (tmp != nullptr) {
+                        case_body_vec.push_back(al, STMT(tmp));
+                    }
                 }
                 tmp = ASR::make_CaseStmt_t(al, x.base.loc, a_test_vec.p, a_test_vec.size(), 
                                      case_body_vec.p, case_body_vec.size());
@@ -1204,7 +1206,9 @@ public:
                 case_body_vec.reserve(al, Case_Stmt->n_body);
                 for( std::uint32_t i = 0; i < Case_Stmt->n_body; i++ ) {
                     this->visit_stmt(*(Case_Stmt->m_body[i]));
-                    case_body_vec.push_back(al, STMT(tmp));
+                    if (tmp != nullptr) {
+                        case_body_vec.push_back(al, STMT(tmp));
+                    }
                 }
                 tmp = ASR::make_CaseStmt_Range_t(al, x.base.loc, m_start, m_end, 
                                      case_body_vec.p, case_body_vec.size());
@@ -1234,7 +1238,9 @@ public:
         def_body.reserve(al, x.n_default);
         for( std::uint32_t i = 0; i < x.n_default; i++ ) {
             this->visit_stmt(*(x.m_default[i]));
-            def_body.push_back(al, STMT(tmp));
+            if (tmp != nullptr) {
+                def_body.push_back(al, STMT(tmp));
+            }
         }
         tmp = ASR::make_Select_t(al, x.base.base.loc, a_test, a_body_vec.p, 
                            a_body_vec.size(), def_body.p, def_body.size());
@@ -1264,8 +1270,9 @@ public:
         body.reserve(al, x.n_body);
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
-            ASR::stmt_t *stmt = STMT(tmp);
-            body.push_back(al, stmt);
+            if (tmp != nullptr) {
+                body.push_back(al, STMT(tmp));
+            }
         }
         v->m_body = body.p;
         v->n_body = body.size();
@@ -1290,8 +1297,9 @@ public:
         body.reserve(al, x.n_body);
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
-            ASR::stmt_t *stmt = STMT(tmp);
-            body.push_back(al, stmt);
+            if (tmp != nullptr) {
+                body.push_back(al, STMT(tmp));
+            }
         }
         v->m_body = body.p;
         v->n_body = body.size();
@@ -1313,8 +1321,9 @@ public:
         body.reserve(al, x.n_body);
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
-            ASR::stmt_t *stmt = STMT(tmp);
-            body.push_back(al, stmt);
+            if (tmp != nullptr) {
+                body.push_back(al, STMT(tmp));
+            }
         }
         v->m_body = body.p;
         v->n_body = body.size();
@@ -1935,13 +1944,17 @@ public:
         body.reserve(al, x.n_body);
         for (size_t i=0; i<x.n_body; i++) {
             visit_stmt(*x.m_body[i]);
-            body.push_back(al, STMT(tmp));
+            if (tmp != nullptr) {
+                body.push_back(al, STMT(tmp));
+            }
         }
         Vec<ASR::stmt_t*> orelse;
         orelse.reserve(al, x.n_orelse);
         for (size_t i=0; i<x.n_orelse; i++) {
             visit_stmt(*x.m_orelse[i]);
-            orelse.push_back(al, STMT(tmp));
+            if (tmp != nullptr) {
+                orelse.push_back(al, STMT(tmp));
+            }
         }
         tmp = ASR::make_If_t(al, x.base.base.loc, test, body.p,
                 body.size(), orelse.p, orelse.size());
@@ -1954,7 +1967,9 @@ public:
         body.reserve(al, x.n_body);
         for (size_t i=0; i<x.n_body; i++) {
             visit_stmt(*x.m_body[i]);
-            body.push_back(al, STMT(tmp));
+            if (tmp != nullptr) {
+                body.push_back(al, STMT(tmp));
+            }
         }
         tmp = ASR::make_WhileLoop_t(al, x.base.base.loc, test, body.p,
                 body.size());
@@ -1990,7 +2005,9 @@ public:
         body.reserve(al, x.n_body);
         for (size_t i=0; i<x.n_body; i++) {
             visit_stmt(*x.m_body[i]);
-            body.push_back(al, STMT(tmp));
+            if (tmp != nullptr) {
+                body.push_back(al, STMT(tmp));
+            }
         }
         ASR::do_loop_head_t head;
         head.m_v = var;
@@ -2036,7 +2053,9 @@ public:
         body.reserve(al, x.n_body);
         for (size_t i=0; i<x.n_body; i++) {
             visit_stmt(*x.m_body[i]);
-            body.push_back(al, STMT(tmp));
+            if (tmp != nullptr) {
+                body.push_back(al, STMT(tmp));
+            }
         }
         ASR::do_loop_head_t head;
         head.m_v = var;
@@ -2055,6 +2074,12 @@ public:
     void visit_Cycle(const AST::Cycle_t &x) {
         // TODO: add a check here that we are inside a While loop
         tmp = ASR::make_Cycle_t(al, x.base.base.loc);
+    }
+
+    void visit_Continue(const AST::Continue_t &/*x*/) {
+        // TODO: add a check here that we are inside a While loop
+        // Nothing to generate, we return a null pointer
+        tmp = nullptr;
     }
 
     void visit_Stop(const AST::Stop_t &x) {

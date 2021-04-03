@@ -835,6 +835,7 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
 #define EXIT(l) make_Exit_t(p.m_a, l)
 #define RETURN(l) make_Return_t(p.m_a, l)
 #define CYCLE(l) make_Cycle_t(p.m_a, l)
+#define CONTINUE(l) LFortran::AST::make_Continue_t(p.m_a, l)
 #define SUBROUTINE(name, args, use, decl, stmts, contains, l) make_Subroutine_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
