@@ -463,6 +463,67 @@ static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
 #define ARRAY_IN(a, l) make_ArrayInitializer_t(p.m_a, l, \
         EXPRS(a), a.size())
 
+ast_t* implied_do_loop(Allocator &al, Location &loc,
+        LFortran::Vec<ast_t*> &ex_list,
+        ast_t* i,
+        ast_t* low,
+        ast_t* high) {
+    return LFortran::AST::make_ImpliedDoLoop_t(al, loc,
+            EXPRS(ex_list), ex_list.size(),
+            name2char(i),
+            EXPR(low),
+            EXPR(high),
+            nullptr);
+}
+
+ast_t* implied_do1(Allocator &al, Location &loc,
+        ast_t* ex,
+        ast_t* i,
+        ast_t* low,
+        ast_t* high) {
+    LFortran::Vec<ast_t*> v;
+    v.reserve(al, 1);
+    v.push_back(al, ex);
+    return implied_do_loop(al, loc, v, i, low, high);
+}
+
+ast_t* implied_do2(Allocator &al, Location &loc,
+        ast_t* ex1,
+        ast_t* ex2,
+        ast_t* i,
+        ast_t* low,
+        ast_t* high) {
+    LFortran::Vec<ast_t*> v;
+    v.reserve(al, 2);
+    v.push_back(al, ex1);
+    v.push_back(al, ex2);
+    return implied_do_loop(al, loc, v, i, low, high);
+}
+
+ast_t* implied_do3(Allocator &al, Location &loc,
+        ast_t* ex1,
+        ast_t* ex2,
+        LFortran::Vec<ast_t*> ex_list,
+        ast_t* i,
+        ast_t* low,
+        ast_t* high) {
+    LFortran::Vec<ast_t*> v;
+    v.reserve(al, 2+ex_list.size());
+    v.push_back(al, ex1);
+    v.push_back(al, ex2);
+    for (size_t i=0; i<ex_list.size(); i++) {
+        v.push_back(al, ex_list[i]);
+    }
+    return implied_do_loop(al, loc, v, i, low, high);
+}
+
+#define IMPLIED_DO_LOOP1(ex, i, low, high, l) \
+    implied_do1(p.m_a, l, ex, i, low, high)
+#define IMPLIED_DO_LOOP2(ex1, ex2, i, low, high, l) \
+    implied_do2(p.m_a, l, ex1, ex2, i, low, high)
+#define IMPLIED_DO_LOOP3(ex1, ex2, ex_list, i, low, high, l) \
+    implied_do3(p.m_a, l, ex1, ex2, ex_list, i, low, high)
+
 #define SYMBOL(x, l) make_Name_t(p.m_a, l, x.c_str(p.m_a), nullptr, 0)
 #define INTEGER(x, l) make_Num_t(p.m_a, l, x)
 #define REAL(x, l) make_Real_t(p.m_a, l, x.c_str(p.m_a))

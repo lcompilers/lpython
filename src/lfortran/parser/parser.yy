@@ -1373,9 +1373,12 @@ expr
     | ".false." { $$ = FALSE(@$); }
     | "(" expr ")" { $$ = $2; }
     | "(" expr "," expr ")" { $$ = COMPLEX($2, $4, @$); }
-    | "(" expr "," id "=" expr "," expr ")" { $$ = $2; } // TODO: return a generator expression
-    | "(" expr "," expr "," id "=" expr "," expr ")" { $$ = $2; } // TODO: return a generator expression
-    | "(" expr "," expr "," expr_list "," id "=" expr "," expr ")" { $$ = $2; } // TODO: return a generator expression
+    | "(" expr "," id "=" expr "," expr ")" {
+            $$ = IMPLIED_DO_LOOP1($2, $4, $6, $8, @$); }
+    | "(" expr "," expr "," id "=" expr "," expr ")" {
+            $$ = IMPLIED_DO_LOOP2($2, $4, $6, $8, $10, @$); }
+    | "(" expr "," expr "," expr_list "," id "=" expr "," expr ")" {
+            $$ = IMPLIED_DO_LOOP3($2, $4, $6, $8, $10, $12, @$); }
 
 // ### level-1
 

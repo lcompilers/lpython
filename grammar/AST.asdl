@@ -108,6 +108,8 @@ expr
         fnarg* args, keyword* keywords)
     | Array(identifier name, array_index* args)
     | ArrayInitializer(expr* args)
+    | ImpliedDoLoop(expr* values, identifier var, expr start, expr end,
+        expr? increment)
     | Num(int n)
     | Real(string n)
     | Complex(expr re, expr im)
