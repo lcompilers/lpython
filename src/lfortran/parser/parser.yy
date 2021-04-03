@@ -401,6 +401,7 @@ script_unit
     | submodule
     | program
     | subroutine
+    | procedure
     | function
     | use_statement
     | var_decl
@@ -545,7 +546,7 @@ proc_modifier
 
 
 // ----------------------------------------------------------------------------
-// Subroutine/functions/program definitions
+// Subroutine/Procedure/functions/program definitions
 
 
 program
@@ -602,7 +603,7 @@ procedure
     import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_procedure_opt sep {
-            LLOC(@$, @14); $$ = SUBROUTINE($3, $4, $6, $9, $10, $11, @$); }
+            LLOC(@$, @14); $$ = PROCEDURE($3, $4, $6, $9, $10, $11, @$); }
     ;
 
 function

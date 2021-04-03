@@ -319,6 +319,33 @@ public:
         s = r;
     }
 
+    void visit_Procedure(const Procedure_t &x) {
+        std::string r = indent;
+        r += syn(gr::UnitHeader);
+        r.append("module procedure");
+        r += syn();
+        r += " ";
+        r.append(x.m_name);
+        r.append("(");
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_arg(x.m_args[i]);
+            r.append(s);
+            if (i < x.n_args-1) r.append(", ");
+        }
+        r.append(")");
+        r.append("\n");
+
+        r += format_unit_body(x);
+        r += indent;
+        r += syn(gr::UnitHeader);
+        r.append("end procedure");
+        r += syn();
+        r += " ";
+        r.append(x.m_name);
+        r.append("\n");
+        s = r;
+    }
+
     void visit_DerivedType(const DerivedType_t &x) {
         std::string r = indent;
         r += syn(gr::UnitHeader);
