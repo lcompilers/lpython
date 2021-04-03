@@ -364,6 +364,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> write_arg
 %type <argstarkw> write_arg2
 %type <vec_argstarkw> write_arg_list
+%type <struct_member> struct_member
+%type <vec_struct_member> struct_member_star
 
 // Precedence
 
@@ -1356,10 +1358,10 @@ rbracket
 expr
 // ### primary
     : id { $$ = $1; }
-    | struct_member_star id { $$ = $2; }
+    | struct_member_star id { NAME1($$, $2, $1, @$); }
     | id "(" fnarray_arg_list_opt ")" { $$ = FUNCCALLORARRAY($1, $3, @$); }
     | struct_member_star id "(" fnarray_arg_list_opt ")" {
-            $$ = FUNCCALLORARRAY($2, $4, @$); }
+            $$ = FUNCCALLORARRAY2($1, $2, $4, @$); }
     | "[" expr_list_opt rbracket { $$ = ARRAY_IN($2, @$); }
     | "[" var_type "::" expr_list_opt rbracket { $$ = ARRAY_IN($4, @$); }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
@@ -1405,13 +1407,13 @@ expr
     ;
 
 struct_member_star
-    : struct_member_star struct_member
-    | struct_member
+    : struct_member_star struct_member { $$ = $1; PLIST_ADD($$, $2); }
+    | struct_member { LIST_NEW($$); PLIST_ADD($$, $1); }
     ;
 
 struct_member
-    : id "%"
-    | id "(" fnarray_arg_list_opt ")" "%"
+    : id "%" { STRUCT_MEMBER1($$, $1); }
+    | id "(" fnarray_arg_list_opt ")" "%" { STRUCT_MEMBER2($$, $1, $3); }
     ;
 
 fnarray_arg_list_opt

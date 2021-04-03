@@ -100,14 +100,15 @@ expr
     | UnaryOp(unaryop op, expr operand)
     | Compare(expr left, cmpop op, expr right)
     | FuncCall(identifier func, fnarg* args, keyword* keywords)
-    | FuncCallOrArray(identifier func, fnarg* args, keyword* keywords)
+    | FuncCallOrArray(identifier func, struct_member* member,
+        fnarg* args, keyword* keywords)
     | Array(identifier name, array_index* args)
     | ArrayInitializer(expr* args)
     | Num(int n)
     | Real(string n)
     | Complex(expr re, expr im)
     | Str(string s)
-    | Name(identifier id)
+    | Name(identifier id, struct_member* member)
     | Logical(bool value)
 
 boolop = And | Or | Eqv | NEqv
@@ -161,6 +162,8 @@ arg = (identifier arg)
 fnarg = (expr? start, expr? end, expr? step)
 
 keyword = (identifier arg, expr value)
+
+struct_member = (identifier name, fnarg* args)
 
 tbind = Bind(keyword* args)
 
