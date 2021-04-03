@@ -301,6 +301,13 @@ static inline LFortran::Vec<LFortran::AST::ast_t*> empty_vecast()
     return r;
 }
 
+static inline LFortran::Vec<LFortran::AST::struct_member_t> empty5()
+{
+    LFortran::Vec<LFortran::AST::struct_member_t> r;
+    r.from_pointer_n(nullptr, 0);
+    return r;
+}
+
 static inline LFortran::VarType* VARTYPE0_(Allocator &al,
         const LFortran::Str &s, const LFortran::Vec<LFortran::AST::kind_item_t> kind, Location &l)
 {
@@ -456,7 +463,7 @@ static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
 #define ARRAY_IN(a, l) make_ArrayInitializer_t(p.m_a, l, \
         EXPRS(a), a.size())
 
-#define SYMBOL(x, l) make_Name_t(p.m_a, l, x.c_str(p.m_a))
+#define SYMBOL(x, l) make_Name_t(p.m_a, l, x.c_str(p.m_a), nullptr, 0)
 #define INTEGER(x, l) make_Num_t(p.m_a, l, x)
 #define REAL(x, l) make_Real_t(p.m_a, l, x.c_str(p.m_a))
 #define COMPLEX(x, y, l) make_Complex_t(p.m_a, l, EXPR(x), EXPR(y))
@@ -660,6 +667,36 @@ ast_t* CLOSE1(Allocator &al,
 #define OPEN(args0, l) OPEN1(p.m_a, args0, l)
 #define CLOSE(args0, l) CLOSE1(p.m_a, args0, l)
 
+
+void CONVERT_FNARRAYARG_FNARG(Allocator &al,
+        LFortran::AST::struct_member_t &s,
+        const LFortran::Vec<LFortran::FnArg> &args)
+{
+    LFortran::Vec<LFortran::AST::fnarg_t> v;
+    v.reserve(al, args.size());
+    for (auto &item : args) {
+        LFORTRAN_ASSERT(!item.keyword);
+        v.push_back(al, item.arg);
+    }
+    s.m_args = v.p;
+    s.n_args = v.size();
+}
+
+#define STRUCT_MEMBER1(out, id) \
+            out = p.m_a.make_new<LFortran::AST::struct_member_t>(); \
+            out->m_name = name2char(id); \
+            out->m_args = nullptr; \
+            out->n_args = 0;
+
+#define STRUCT_MEMBER2(out, id, member) \
+            out = p.m_a.make_new<LFortran::AST::struct_member_t>(); \
+            out->m_name = name2char(id); \
+            CONVERT_FNARRAYARG_FNARG(p.m_a, *out, member);
+
+#define NAME1(out, id, member, l) \
+            out = LFortran::AST::make_Name_t(p.m_a, l, \
+                name2char(id), \
+                member.p, member.n);
 
 // Converts (line, col) to a linear position.
 uint64_t linecol_to_pos(const std::string &s, uint16_t line, uint16_t col) {
@@ -1022,7 +1059,9 @@ LFortran::Str Str_from_string(Allocator &al, const std::string &s) {
         b.size())
 
 ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
-        const LFortran::Vec<LFortran::FnArg> &args, Location &l) {
+        const LFortran::Vec<LFortran::FnArg> &args,
+        const LFortran::Vec<LFortran::AST::struct_member_t> &member,
+        Location &l) {
     LFortran::Vec<LFortran::AST::fnarg_t> v;
     v.reserve(al, args.size());
     LFortran::Vec<LFortran::AST::keyword_t> v2;
@@ -1036,11 +1075,15 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
     }
     return make_FuncCallOrArray_t(al, l,
         /*char* a_func*/ name2char(id),
+        member.p, member.size(),
         /*expr_t** a_args*/ v.p, /*size_t n_args*/ v.size(),
         /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size());
 }
 
-#define FUNCCALLORARRAY(id, args, l) FUNCCALLORARRAY0(p.m_a, id, args, l)
+#define FUNCCALLORARRAY(id, args, l) FUNCCALLORARRAY0(p.m_a, id, args, \
+        empty5(), l)
+#define FUNCCALLORARRAY2(members, id, args, l) FUNCCALLORARRAY0(p.m_a, id, \
+        args, members, l)
 
 #define SELECT(cond, body, def, l) make_Select_t(p.m_a, l, \
         EXPR(cond), \

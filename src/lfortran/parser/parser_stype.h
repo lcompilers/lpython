@@ -60,6 +60,9 @@ union YYSTYPE {
 
     ArgStarKw *argstarkw;
     Vec<ArgStarKw> vec_argstarkw;
+
+    AST::struct_member_t *struct_member;
+    Vec<AST::struct_member_t> vec_struct_member;
 };
 
 static_assert(std::is_standard_layout<YYSTYPE>::value);
