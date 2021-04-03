@@ -161,7 +161,9 @@ void set_decl_t(decl_t &d,
     LFortran::AST::kind_item_t* m_kind, size_t n_kind,
     dimension_t* m_dims, size_t n_dims,
     attribute_t** m_attrs, size_t n_attrs,
-    expr_t* m_initializer) {
+    expr_t* m_initializer,
+    char** m_namelist, size_t n_namelist
+    ) {
         d.m_sym = m_sym;
         d.m_sym_type = m_sym_type;
         d.m_derived_type_name = m_derived_type_name;
@@ -172,6 +174,8 @@ void set_decl_t(decl_t &d,
         d.m_attrs = m_attrs;
         d.n_attrs = n_attrs;
         d.m_initializer = m_initializer;
+        d.m_namelist = m_namelist;
+        d.n_namelist = n_namelist;
 }
 
 static inline decl_t* DECL(Allocator &al, const LFortran::Vec<decl_t> &x,
@@ -220,7 +224,8 @@ static inline decl_t* DECL2b(Allocator &al, const ast_t *attr)
         nullptr, 0,
         nullptr, 0,
         a, 1,
-        nullptr
+        nullptr,
+        nullptr, 0
         );
     return s;
 }
@@ -233,7 +238,8 @@ static inline decl_t* DECL2c(Allocator &al, Location &l)
         nullptr, 0,
         nullptr, 0,
         nullptr, 0,
-        nullptr
+        nullptr,
+        nullptr, 0
         );
     return s;
 }
@@ -253,9 +259,30 @@ static inline decl_t* DECL3(Allocator &al, ast_t* n,
         nullptr, 0,
         s[0].m_dims, s[0].n_dims,
         nullptr, 0,
-        e
+        e,
+        nullptr, 0
         );
     return s;
+}
+
+static inline decl_t* DECL6(Allocator &al, char *id,
+        const LFortran::Vec<ast_t*> id_list)
+{
+    decl_t *s = al.allocate<decl_t>(1);
+    LFortran::Vec<char*> v;
+    v.reserve(al, id_list.size());
+    for (size_t i=0; i<id_list.size(); i++) {
+        v.push_back(al, name2char(id_list[i]));
+    }
+    set_decl_t(s[0], id, nullptr, nullptr,
+        nullptr, 0,
+        nullptr, 0,
+        nullptr, 0,
+        nullptr,
+        v.p, v.size()
+        );
+    return s;
+
 }
 
 static inline expr_t** DIMS2EXPRS(Allocator &al, const LFortran::Vec<LFortran::FnArg> &d)
@@ -1030,6 +1057,8 @@ char *fn_type2return_type(const LFortran::Vec<ast_t*> &v) {
         name2char(name), down_cast<LFortran::AST::expr_t>(value))
 #define VAR_DECL5(items, l) LFortran::AST::make_ParameterStatement_t(p.m_a, l, \
         items.p, items.size())
+#define VAR_DECL6(id, id_list, l) LFortran::AST::make_Declaration_t(p.m_a, l, \
+        DECL6(p.m_a, name2char(id), id_list), 1)
 
 #define VAR_SYM_DECL1(id, l)         DECL3(p.m_a, id, nullptr, nullptr)
 #define VAR_SYM_DECL2(id, e, l)      DECL3(p.m_a, id, nullptr, EXPR(e))

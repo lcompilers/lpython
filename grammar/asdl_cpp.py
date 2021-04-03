@@ -892,25 +892,39 @@ class DeserializationVisitorVisitor(ASDLVisitor):
         for field in prod.fields:
             if field.seq:
                 assert not field.opt
-                assert field.type not in asdl.builtin_types
                 assert field.type not in simple_sums
-                self.emit('{', 2)
-                self.emit('uint64_t n = self().read_int64();', 3)
-                if field.type in products:
-                    self.emit("Vec<%s_t> v;" % (field.type), 3)
+                if field.type in asdl.builtin_types:
+                    if field.type == "identifier":
+                        self.emit('{', 2)
+                        self.emit('uint64_t n = self().read_int64();', 3)
+                        self.emit("Vec<char*> v;", 3)
+                        self.emit("v.reserve(al, n);", 3)
+                        self.emit("for (uint64_t i=0; i<n; i++) {", 3)
+                        self.emit("v.push_back(al, self().read_cstring());", 4)
+                        self.emit('}', 3)
+                        self.emit('x.m_%s = v.p;' % (field.name), 3)
+                        self.emit('x.n_%s = v.n;' % (field.name), 3)
+                        self.emit('}', 2)
+                    else:
+                        assert False
                 else:
-                    self.emit("Vec<%s_t*> v;" % (field.type), 3)
-                self.emit("v.reserve(al, n);", 3)
-                self.emit("for (uint64_t i=0; i<n; i++) {", 3)
-                if field.type in products:
-                    self.emit("v.push_back(al, self().deserialize_%s());" \
-                         % (field.type), 4)
-                else:
-                    self.emit("v.push_back(al, down_cast<%s_t>(self().deserialize_%s()));" % (field.type, field.type), 4)
-                self.emit('}', 3)
-                self.emit('x.m_%s = v.p;' % (field.name), 3)
-                self.emit('x.n_%s = v.n;' % (field.name), 3)
-                self.emit('}', 2)
+                    self.emit('{', 2)
+                    self.emit('uint64_t n = self().read_int64();', 3)
+                    if field.type in products:
+                        self.emit("Vec<%s_t> v;" % (field.type), 3)
+                    else:
+                        self.emit("Vec<%s_t*> v;" % (field.type), 3)
+                    self.emit("v.reserve(al, n);", 3)
+                    self.emit("for (uint64_t i=0; i<n; i++) {", 3)
+                    if field.type in products:
+                        self.emit("v.push_back(al, self().deserialize_%s());" \
+                             % (field.type), 4)
+                    else:
+                        self.emit("v.push_back(al, down_cast<%s_t>(self().deserialize_%s()));" % (field.type, field.type), 4)
+                    self.emit('}', 3)
+                    self.emit('x.m_%s = v.p;' % (field.name), 3)
+                    self.emit('x.n_%s = v.n;' % (field.name), 3)
+                    self.emit('}', 2)
             else:
                 self.emit('{', 2)
                 if field.opt:

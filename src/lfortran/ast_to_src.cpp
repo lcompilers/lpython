@@ -1298,9 +1298,23 @@ public:
         }
     }
 
-
     void visit_decl(const decl_t &x) {
         std::string r = indent;
+        if (x.n_namelist > 0) {
+            r += syn(gr::Type);
+            r.append("namelist");
+            r += syn();
+            r.append(" /");
+            r.append(x.m_sym);
+            r.append("/ ");
+            for (size_t i=0; i<x.n_namelist; i++) {
+                r.append(x.m_namelist[i]);
+                if (i < x.n_namelist-1) r.append(", ");
+            }
+            r.append("\n");
+            s = r;
+            return;
+        }
         r += syn(gr::Type);
         bool sep=false;
         std::string sym_type;
