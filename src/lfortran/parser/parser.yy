@@ -401,6 +401,7 @@ script_unit
     | submodule
     | program
     | subroutine
+    | procedure
     | function
     | use_statement
     | var_decl
@@ -424,7 +425,7 @@ module
 submodule
     : KW_SUBMODULE "(" id ")" id sep use_statement_star implicit_statement_opt
         decl_star contains_block_opt KW_END end_submodule_opt sep {
-            $$ = MODULE($5, $7, $9, $10, @$); }
+            $$ = SUBMODULE($3, $5, $7, $9, $10, @$); }
     ;
 
 interface_decl
@@ -545,7 +546,7 @@ proc_modifier
 
 
 // ----------------------------------------------------------------------------
-// Subroutine/functions/program definitions
+// Subroutine/Procedure/functions/program definitions
 
 
 program
@@ -602,7 +603,7 @@ procedure
     import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_procedure_opt sep {
-            LLOC(@$, @14); $$ = SUBROUTINE($3, $4, $6, $9, $10, $11, @$); }
+            LLOC(@$, @14); $$ = PROCEDURE($3, $4, $6, $9, $10, $11, @$); }
     ;
 
 function
@@ -867,7 +868,7 @@ var_type
     | KW_LOGICAL "*" TK_INTEGER { $$ = VARTYPE0($1, @$); }
     | KW_DOUBLE KW_PRECISION { $$ = VARTYPE0($1, @$); }
     | KW_TYPE "(" id ")" { $$ = VARTYPE4($1, $3, @$); }
-    | KW_PROCEDURE "(" id ")" { $$ = VARTYPE0($1, @$); }
+    | KW_PROCEDURE "(" id ")" { $$ = VARTYPE4($1, $3, @$); }
     | KW_CLASS "(" id ")" { $$ = VARTYPE0($1, @$); }
     | KW_CLASS "(" "*" ")" { $$ = VARTYPE0($1, @$); }
     ;

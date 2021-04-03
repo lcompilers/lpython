@@ -34,12 +34,16 @@ unit
 mod
     = Module(identifier name, unit_decl1* use, unit_decl2* decl,
         program_unit* contains)
+    | Submodule(identifier id,identifier name, unit_decl1* use, unit_decl2* decl,
+        program_unit* contains)
     | Program(identifier name, unit_decl1* use, unit_decl2* decl,
         stmt* body, program_unit* contains)
 
 program_unit
     = Subroutine(identifier name, arg* args, unit_decl1* use, unit_decl2* decl,
         stmt* body, program_unit* contains)
+    | Procedure(identifier name, arg* args, unit_decl1* use, unit_decl2* decl,
+            stmt* body, program_unit* contains)
     | Function(identifier name, arg* args, string? return_type,
             expr? return_var, tbind? bind, unit_decl1* use, unit_decl2* decl,
             stmt* body, program_unit* contains)

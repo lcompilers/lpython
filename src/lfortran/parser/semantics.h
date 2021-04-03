@@ -759,6 +759,18 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
         /*n_body*/ stmts.size(), \
         /*contains*/ CONTAINS(contains), \
         /*n_contains*/ contains.size())
+#define PROCEDURE(name, args, use, decl, stmts, contains, l) make_Procedure_t(p.m_a, l, \
+        /*name*/ name2char(name), \
+        /*args*/ ARGS(p.m_a, l, args), \
+        /*n_args*/ args.size(), \
+        /*use*/ USES(use), \
+        /*n_use*/ use.size(), \
+        /*decl*/ DECLS(decl), \
+        /*n_decl*/ decl.size(), \
+        /*body*/ STMTS(stmts), \
+        /*n_body*/ stmts.size(), \
+        /*contains*/ CONTAINS(contains), \
+        /*n_contains*/ contains.size())
 
 char *str_or_null(Allocator &al, const LFortran::Str &s) {
     if (s.size() == 0) {
@@ -1114,6 +1126,12 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
         nullptr, nullptr)
 
 #define MODULE(name, use, decl, contains, l) make_Module_t(p.m_a, l, \
+        name2char(name), \
+        /*unit_decl1_t** a_use*/ USES(use), /*size_t n_use*/ use.size(), \
+        /*unit_decl2_t** a_decl*/ DECLS(decl), /*size_t n_decl*/ decl.size(), \
+        /*program_unit_t** a_contains*/ CONTAINS(contains), /*size_t n_contains*/ contains.size())
+#define SUBMODULE(id ,name, use, decl, contains, l) make_Submodule_t(p.m_a, l, \
+        name2char(id), \
         name2char(name), \
         /*unit_decl1_t** a_use*/ USES(use), /*size_t n_use*/ use.size(), \
         /*unit_decl2_t** a_decl*/ DECLS(decl), /*size_t n_decl*/ decl.size(), \
