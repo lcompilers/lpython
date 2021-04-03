@@ -799,6 +799,30 @@ public:
         s = r;
     }
 
+    void visit_ImpliedDoLoop(const ImpliedDoLoop_t &x) {
+        std::string r = "";
+        r += "(";
+        for (size_t i=0; i<x.n_values; i++) {
+            this->visit_expr(*x.m_values[i]);
+            r.append(s);
+            r.append(", ");
+        }
+        r.append(x.m_var);
+        r.append(" = ");
+        this->visit_expr(*x.m_start);
+        r.append(s);
+        r.append(", ");
+        this->visit_expr(*x.m_end);
+        r.append(s);
+        if (x.m_increment) {
+            r.append(", ");
+            this->visit_expr(*x.m_increment);
+            r.append(s);
+        }
+        r.append(")");
+        s = r;
+    }
+
     void visit_DoConcurrentLoop(const DoConcurrentLoop_t &x) {
         if (x.n_control != 1) {
             throw SemanticError("Do concurrent: exactly one control statement is required for now",

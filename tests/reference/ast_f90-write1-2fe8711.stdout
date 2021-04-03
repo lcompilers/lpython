@@ -13,7 +13,7 @@ write(*,fmt="(a,l1)") "exactly_conservative= ", exactly_conservative
 write(unit=lun) vec
 write(*,"(a,a)",advance="no") trim(input_string), ": "
 write(ounit,FMT=303,ADVANCE="NO")
-write(*,201) star
+write(*,201) (star, i = 1, 80)
 write(*,"(1X,A)") "Success!"
 write(ounit,*)
 print *, "2"
