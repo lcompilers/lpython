@@ -1,4 +1,5 @@
 module interface_01_mod
+implicit none
 
 interface a
     module procedure a1
@@ -23,6 +24,7 @@ end module interface_01_mod
 
 program interface_01
 use interface_01_mod, only: a
+implicit none
 integer :: i
 real :: r
 i = 5

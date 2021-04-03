@@ -1,4 +1,5 @@
 program arrays_06
+implicit none
 real, dimension(6) :: x
 real, dimension(10, 10) :: A
 integer :: i

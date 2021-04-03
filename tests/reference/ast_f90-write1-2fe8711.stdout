@@ -1,4 +1,5 @@
 program write_01
+implicit none
 write(*,*) "a", 2
 write(*,*)
 write(*) a

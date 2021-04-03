@@ -1,4 +1,5 @@
 program namelist1
+implicit none
 integer :: N
 real :: t
 real :: x

@@ -1,4 +1,5 @@
 program parameter_01
+implicit none
 integer :: i
 integer :: j
 integer :: k

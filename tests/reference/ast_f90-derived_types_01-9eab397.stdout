@@ -1,4 +1,5 @@
 module a_01
+implicit none
 
 type :: X
     integer :: i
@@ -19,6 +20,7 @@ end module a_01
 
 program derived_types_01
 use a_01, only: X, set
+implicit none
 type(X) :: b
 b%i = 5
 b%r = 3.5

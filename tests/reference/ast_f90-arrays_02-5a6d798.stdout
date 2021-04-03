@@ -1,4 +1,5 @@
 program arrays_02
+implicit none
 integer, parameter :: dp=kind(0.d0)
 real(dp) :: a(3)
 real(dp) :: b

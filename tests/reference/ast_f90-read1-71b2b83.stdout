@@ -1,4 +1,5 @@
 program read1
+implicit none
 read(*,*) a, b
 read(unit=*,fmt=*) a, b
 read(*,fmt=*) a, b

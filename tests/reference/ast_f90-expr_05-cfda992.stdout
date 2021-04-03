@@ -1,4 +1,5 @@
 program expr_05
+implicit none
 integer :: x
 integer :: a
 integer :: b

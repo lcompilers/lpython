@@ -1,4 +1,5 @@
 program allocate_01
+implicit none
 real, allocatable :: a(:)
 real, allocatable :: b(:,:)
 real, allocatable :: c(:,:,:)

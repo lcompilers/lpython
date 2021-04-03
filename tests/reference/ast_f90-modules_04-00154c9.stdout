@@ -1,4 +1,5 @@
 module access_vars
+implicit none
 
 private
 public :: print_vars

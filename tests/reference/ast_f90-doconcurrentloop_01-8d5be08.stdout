@@ -1,4 +1,5 @@
 program doconcurrentloop_01
+implicit none
 real, dimension(10000) :: a
 real, dimension(10000) :: b
 real, dimension(10000) :: c

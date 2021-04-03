@@ -1,4 +1,5 @@
 program dr_fortran
+implicit none
 character(len=5) :: intro
 character(len=8) :: verb
 character(len=5) :: posit
