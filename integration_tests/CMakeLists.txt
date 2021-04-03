@@ -162,6 +162,7 @@ RUN(NAME modules_08 LABELS gfortran llvm EXTRAFILES
 RUN(NAME modules_09 LABELS gfortran llvm EXTRAFILES
         modules_09_a.f90 modules_09_b.f90)
 RUN(NAME modules_10 LABELS gfortran llvm)
+RUN(NAME modules_11 LABELS gfortran llvm)
 
 RUN(NAME if_04 LABELS gfortran x86)
 RUN(NAME case_01 LABELS gfortran llvm)
@@ -236,7 +237,6 @@ RUN(NAME complex_dp_param LABELS gfortran llvm)
 RUN(NAME string1 LABELS gfortran llvm)
 RUN(NAME string2 LABELS gfortran llvm)
 RUN(NAME string3 LABELS gfortran llvm)
-
 
 RUN(NAME nested_01 LABELS gfortran llvm)
 RUN(NAME nested_02 LABELS gfortran llvm)

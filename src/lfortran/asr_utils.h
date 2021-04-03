@@ -25,9 +25,21 @@ static inline ASR::ttype_t* TYPE(const ASR::asr_t *f)
     return ASR::down_cast<ASR::ttype_t>(f);
 }
 
+static inline const ASR::symbol_t *symbol_get_past_external(const ASR::symbol_t *f)
+{
+    if (f->type == ASR::symbolType::ExternalSymbol) {
+        ASR::ExternalSymbol_t *e = ASR::down_cast<ASR::ExternalSymbol_t>(f);
+        LFORTRAN_ASSERT(!ASR::is_a<ASR::ExternalSymbol_t>(*e->m_external));
+        return e->m_external;
+    } else {
+        return f;
+    }
+}
+
 static inline ASR::Variable_t* EXPR2VAR(const ASR::expr_t *f)
 {
-    return ASR::down_cast<ASR::Variable_t>(ASR::down_cast<ASR::Var_t>(f)->m_v);
+    return ASR::down_cast<ASR::Variable_t>(symbol_get_past_external(
+                ASR::down_cast<ASR::Var_t>(f)->m_v));
 }
 
 
@@ -125,17 +137,6 @@ const ASR::intentType intent_return_var=ASR::intentType::ReturnVar; // return va
 static inline bool is_arg_dummy(int intent) {
     return intent == intent_in || intent == intent_out
         || intent == intent_inout;
-}
-
-static inline const ASR::symbol_t *symbol_get_past_external(const ASR::symbol_t *f)
-{
-    if (f->type == ASR::symbolType::ExternalSymbol) {
-        ASR::ExternalSymbol_t *e = ASR::down_cast<ASR::ExternalSymbol_t>(f);
-        LFORTRAN_ASSERT(!ASR::is_a<ASR::ExternalSymbol_t>(*e->m_external));
-        return e->m_external;
-    } else {
-        return f;
-    }
 }
 
 static inline bool main_program_present(const ASR::TranslationUnit_t &unit)

@@ -786,6 +786,18 @@ public:
                         );
                     std::string sym = mfn->m_name;
                     current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
+                } else if (ASR::is_a<ASR::Variable_t>(*item.second)) {
+                    ASR::Variable_t *mvar = ASR::down_cast<ASR::Variable_t>(item.second);
+                    ASR::asr_t *var = ASR::make_ExternalSymbol_t(
+                        al, mvar->base.base.loc,
+                        /* a_symtab */ current_scope,
+                        /* a_name */ mvar->m_name,
+                        (ASR::symbol_t*)mvar,
+                        m->m_name, mvar->m_name,
+                        dflt_access
+                        );
+                    std::string sym = mvar->m_name;
+                    current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(var);
                 } else {
                     throw LFortranException("Only function / subroutine implemented");
                 }

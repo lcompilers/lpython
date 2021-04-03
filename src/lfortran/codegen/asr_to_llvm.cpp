@@ -446,6 +446,13 @@ public:
 
     void visit_Module(const ASR::Module_t &x) {
         mangle_prefix = "__module_" + std::string(x.m_name) + "_";
+        for (auto &item : x.m_symtab->scope) {
+            if (is_a<ASR::Variable_t>(*item.second)) {
+                ASR::Variable_t *v = down_cast<ASR::Variable_t>(
+                        item.second);
+                visit_Variable(*v);
+            }
+        }
         visit_procedures(x);
         mangle_prefix = "";
     }
@@ -1398,7 +1405,8 @@ public:
     }
 
     void visit_Var(const ASR::Var_t &x) {
-        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(x.m_v);
+        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(
+                symbol_get_past_external(x.m_v));
         fetch_var(v);
     }
 
