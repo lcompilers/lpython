@@ -223,6 +223,54 @@ public:
         r.append("\n");
         s = r;
     }
+    void visit_Submodule(const Submodule_t &x) {
+        std::string r = "";
+        r += syn(gr::UnitHeader);
+        r.append("submodule");
+        r += syn();
+        r += " (";
+        r.append(x.m_id);
+        r += ") ";
+        r.append(x.m_name);
+        r += "\n";
+        if (indent_unit) inc_indent();
+        if(x.n_use > 0) {
+            for (size_t i=0; i<x.n_use; i++) {
+                this->visit_unit_decl1(*x.m_use[i]);
+                r.append(s);
+            }
+            r.append("\n");
+        }
+        if(x.n_decl > 0) {
+            for (size_t i=0; i<x.n_decl; i++) {
+                this->visit_unit_decl2(*x.m_decl[i]);
+                r.append(s);
+            }
+            r.append("\n");
+        }
+        if (x.n_contains > 0) {
+            r += "\n";
+            r += syn(gr::UnitHeader);
+            r.append("contains");
+            r += syn();
+            r += "\n\n";
+            inc_indent();
+            for (size_t i=0; i<x.n_contains; i++) {
+                this->visit_program_unit(*x.m_contains[i]);
+                r.append(s);
+                r.append("\n");
+            }
+            dec_indent();
+        }
+        if (indent_unit) dec_indent();
+        r += syn(gr::UnitHeader);
+        r.append("end submodule");
+        r += syn();
+        r += " ";
+        r.append(x.m_name);
+        r.append("\n");
+        s = r;
+    }
 
     void visit_Program(const Program_t &x) {
         std::string r;
@@ -313,8 +361,28 @@ public:
         s = r;
     }
 
+    void visit_InterfaceHeader1(const InterfaceHeader1_t &/* x */) {
+        //TODO
+        s = "";
+    }
+
     void visit_InterfaceHeader2(const InterfaceHeader2_t &x) {
         s = x.m_name;
+    }
+
+    void visit_InterfaceHeader3(const InterfaceHeader3_t &/* x */) {
+        //TODO
+        s = "";
+    }
+
+    void visit_InterfaceHeader4(const InterfaceHeader4_t &/* x */) {
+        //TODO
+        s = "";
+    }
+
+    void visit_InterfaceHeader5(const InterfaceHeader5_t &/* x */) {
+        //TODO
+        s = "";
     }
 
     void visit_InterfaceModuleProcedure(const InterfaceModuleProcedure_t &x) {

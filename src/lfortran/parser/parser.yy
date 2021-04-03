@@ -424,7 +424,7 @@ module
 submodule
     : KW_SUBMODULE "(" id ")" id sep use_statement_star implicit_statement_opt
         decl_star contains_block_opt KW_END end_submodule_opt sep {
-            $$ = MODULE($5, $7, $9, $10, @$); }
+            $$ = SUBMODULE($3, $5, $7, $9, $10, @$); }
     ;
 
 interface_decl
