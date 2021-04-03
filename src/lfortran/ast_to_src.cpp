@@ -876,6 +876,15 @@ public:
         s = r;
     }
 
+    void visit_Continue(const Continue_t &/*x*/) {
+        std::string r = indent;
+        r += syn(gr::Keyword);
+        r.append("continue");
+        r += syn();
+        r += "\n";
+        s = r;
+    }
+
     void visit_Exit(const Exit_t &/*x*/) {
         std::string r = indent;
         r += syn(gr::Keyword);

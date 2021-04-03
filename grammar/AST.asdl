@@ -87,6 +87,7 @@ stmt
     | DoConcurrentLoop(concurrent_control *control, expr? mask,
         concurrent_locality* locality, stmt* body)
     | Select(expr test, case_stmt* body, stmt* default)
+    | Continue()
     | Cycle()
     | Exit()
     | Return()
