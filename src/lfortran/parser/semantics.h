@@ -790,30 +790,30 @@ char *fn_type2return_type(const LFortran::Vec<ast_t*> &v) {
     return nullptr;
 }
 
-#define FUNCTION(fn_type, name, args, return_var, decl, stmts, contains, l) make_Function_t(p.m_a, l, \
+#define FUNCTION(fn_type, name, args, return_var, use, decl, stmts, contains, l) make_Function_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
         /*return_type*/ fn_type2return_type(fn_type), \
         /*return_var*/ EXPR_OPT(return_var), \
         /*bind*/ nullptr, \
-        /*use*/ nullptr, \
-        /*n_use*/ 0, \
+        /*use*/ USES(use), \
+        /*n_use*/ use.size(), \
         /*decl*/ DECLS(decl), \
         /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \
         /*n_body*/ stmts.size(), \
         /*contains*/ CONTAINS(contains), \
         /*n_contains*/ contains.size())
-#define FUNCTION0(name, args, return_var, decl, stmts, contains, l) make_Function_t(p.m_a, l, \
+#define FUNCTION0(name, args, return_var, use, decl, stmts, contains, l) make_Function_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
         /*return_type*/ nullptr, \
         /*return_var*/ EXPR_OPT(return_var), \
         /*bind*/ nullptr, \
-        /*use*/ nullptr, \
-        /*n_use*/ 0, \
+        /*use*/ USES(use), \
+        /*n_use*/ use.size(), \
         /*decl*/ DECLS(decl), \
         /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \
