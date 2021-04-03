@@ -23,6 +23,7 @@ contains
     end subroutine f
 
     integer function g() 
+    use a_04, only: b
     call b()
     g = 5
     end function g
