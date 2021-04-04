@@ -111,29 +111,63 @@ public:
         prototype_only{false} {}
 
     inline llvm::Type* getIntType(int a_kind, bool get_pointer=false) {
-        switch(a_kind)
-        {
-            case 4:
-                return get_pointer ? (llvm::Type*) llvm::Type::getInt32PtrTy(context) : llvm::Type::getInt32Ty(context);
-            case 8:
-                return get_pointer ? (llvm::Type*) llvm::Type::getInt64PtrTy(context) : llvm::Type::getInt64Ty(context);
-            default:
-                throw CodeGenError("Only 32 and 64 bits integer kinds are supported.");
+        llvm::Type* type_ptr = nullptr;
+        if( get_pointer ) {
+            switch(a_kind)
+            {
+                case 4:
+                    type_ptr = llvm::Type::getInt32PtrTy(context);
+                    break;
+                case 8:
+                    type_ptr = llvm::Type::getInt64PtrTy(context);
+                    break;
+                default:
+                    throw CodeGenError("Only 32 and 64 bits integer kinds are supported.");
+            }
+        } else {
+            switch(a_kind)
+            {
+                case 4:
+                    type_ptr = llvm::Type::getInt32Ty(context);
+                    break;
+                case 8:
+                    type_ptr = llvm::Type::getInt64Ty(context);
+                    break;
+                default:
+                    throw CodeGenError("Only 32 and 64 bits integer kinds are supported.");
+            }
         }
-        return nullptr;
+        return type_ptr;
     }
 
     inline llvm::Type* getFPType(int a_kind, bool get_pointer=false) {
-        switch(a_kind)
-        {
-            case 4:
-                return get_pointer ? (llvm::Type*) llvm::Type::getFloatPtrTy(context) : llvm::Type::getFloatTy(context);
-            case 8:
-                return get_pointer ? (llvm::Type*) llvm::Type::getDoublePtrTy(context) : llvm::Type::getDoubleTy(context);
-            default:
-                throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
+        llvm::Type* type_ptr = nullptr;
+        if( get_pointer ) {
+            switch(a_kind)
+            {
+                case 4:
+                    type_ptr = llvm::Type::getFloatPtrTy(context);
+                    break;
+                case 8:
+                    type_ptr =  llvm::Type::getDoublePtrTy(context);
+                    break;
+                default:
+                    throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
+            }
+        } else {
+            switch(a_kind)
+            {
+                case 4:
+                    type_ptr = llvm::Type::getFloatTy(context);
+                    break;
+                case 8:
+                    type_ptr = llvm::Type::getDoubleTy(context);
+                    break;
+                default:
+                    throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
+            }
         }
-        return nullptr;
+        return type_ptr;
     }
 
     inline llvm::Type* getComplexType(int a_kind) {
