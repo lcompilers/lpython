@@ -56,16 +56,19 @@ cpp = true
 [[test]]
 filename = "do_concurrent_reduce.f90"
 ast = true
+ast_f90 = true
 ast_cpp = true
 ast_openmp = true
 
 [[test]]
 filename = "do_concurrent_reduce2.f90"
 ast = true
+ast_f90 = true
 
 [[test]]
 filename = "do_concurrent_reduce3.f90"
 ast = true
+ast_f90 = true
 
 [[test]]
 filename = "subroutine5.f90"
@@ -181,6 +184,11 @@ llvm = true
 [[test]]
 filename = "../integration_tests/program_cmake_02.f90"
 ast = true
+
+[[test]]
+filename = "../integration_tests/doconcurrentloop_02.f90"
+ast = true
+ast_f90 = true
 
 [[test]]
 filename = "../integration_tests/doloop_01.f90"
@@ -606,6 +614,11 @@ ast_f90 = true
 [[test]]
 filename = "do_concurrent1.f90"
 ast = true
+
+[[test]]
+filename = "do_concurrent2.f90"
+ast = true
+ast_f90 = true
 
 [[test]]
 filename = "../integration_tests/doconcurrentloop_01.f90"
