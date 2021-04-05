@@ -562,16 +562,22 @@ ast = true
 
 [[test]]
 filename = "../integration_tests/case_01.f90"
+ast = true
+ast_f90 = true
 asr = true
 llvm = true
 
 [[test]]
 filename = "../integration_tests/case_02.f90"
+ast = true
+ast_f90 = true
 asr = true
 llvm = true
 
 [[test]]
 filename = "../integration_tests/case_03.f90"
+ast = true
+ast_f90 = true
 asr = true
 llvm = true
 
