@@ -855,7 +855,7 @@ public:
             this->visit_expr(*h.m_increment);
             r.append(s);
         }
-        r.append(") ");
+        r.append(")");
         if (x.m_mask) {
             this->visit_expr(*x.m_mask);
             r += s;
@@ -864,6 +864,7 @@ public:
             this->visit_concurrent_locality(*x.m_locality[i]);
             r.append(s);
         }
+        r.append("\n");
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
@@ -880,12 +881,12 @@ public:
 
     void visit_ConcurrentReduce(const ConcurrentReduce_t &x) {
         std::string r;
-        r += "reduce(" + visit_reduce_opType(x.m_op) + ": ";
+        r += " reduce(" + visit_reduce_opType(x.m_op) + ": ";
         for (size_t i=0; i<x.n_vars; i++) {
             r.append(x.m_vars[i]);
             if (i < x.n_vars-1) r.append(", ");
         }
-        r += ")\n";
+        r += ")";
         s = r;
     }
 
