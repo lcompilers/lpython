@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <functional>
 #include <string_view>
+#include <utility>
 
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/Analysis/Passes.h>
@@ -92,6 +93,26 @@ class ASRToLLVMVisitor : public ASR::BaseVisitor<ASRToLLVMVisitor>
 private:
   //!< A map from sin, cos, etc. to the corresponding functions
   std::unordered_map<std::string, llvm::Function *> all_intrinsics;
+
+  //! Helpful for debugging while testing LLVM code
+  void print_util(llvm::Value* v, std::string fmt_chars) {
+        std::vector<llvm::Value *> args;
+        std::vector<std::string> fmt;
+        args.push_back(v);
+        fmt.push_back(fmt_chars);
+        std::string fmt_str;
+        for (size_t i=0; i<fmt.size(); i++) {
+            fmt_str += fmt[i];
+            if (i < fmt.size()-1) fmt_str += " ";
+        }
+        fmt_str += "\n";
+        llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(fmt_str);
+        std::vector<llvm::Value *> printf_args;
+        printf_args.push_back(fmt_ptr);
+        printf_args.insert(printf_args.end(), args.begin(), args.end());
+        printf(context, *module, *builder, printf_args);
+    }
+
 public:
     llvm::LLVMContext &context;
     std::unique_ptr<llvm::Module> module;
@@ -103,12 +124,145 @@ public:
     bool prototype_only;
     llvm::StructType *complex_type_4, *complex_type_8;
     llvm::PointerType *character_type;
+    
+    // Data Members for handling arrays
+    llvm::StructType* dim_des;
+    std::map<int, llvm::ArrayType*> rank2desc;
+    std::map<std::pair<std::pair<int, int>, std::pair<int, int>>, llvm::StructType*> tkr2array;
 
     std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
     std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
 
-    ASRToLLVMVisitor(llvm::LLVMContext &context) : context{context},
-        prototype_only{false} {}
+    ASRToLLVMVisitor(llvm::LLVMContext &context) : context(context),
+        prototype_only(false), dim_des(llvm::StructType::create(
+            context, 
+            std::vector<llvm::Type*>(
+                {llvm::Type::getInt32Ty(context), 
+                 llvm::Type::getInt32Ty(context), 
+                 llvm::Type::getInt32Ty(context),
+                 llvm::Type::getInt32Ty(context)}), 
+                 "dimension_descriptor")
+        )
+        {}
+
+    inline llvm::ArrayType* get_dim_des_array(int rank) {
+        if( rank2desc.find(rank) != rank2desc.end() ) {
+            return rank2desc[rank];
+        } 
+        rank2desc[rank] = llvm::ArrayType::get(dim_des, rank);
+        return rank2desc[rank];
+    }
+
+    inline llvm::StructType* get_array_type
+    (ASR::ttypeType type_, int a_kind, int rank, ASR::dimension_t* m_dims) {
+        int size = 0;
+        if( verify_dimensions_t(m_dims, rank) ) {
+            size = 1;
+            for( int r = 0; r < rank; r++ ) {
+                ASR::dimension_t m_dim = m_dims[r];
+                int start = ((ASR::ConstantInteger_t*)(m_dim.m_start))->m_n;
+                int end = ((ASR::ConstantInteger_t*)(m_dim.m_end))->m_n;
+                size *= (end - start + 1);
+            }
+        }
+        std::pair<std::pair<int, int>, std::pair<int, int>> array_key = std::make_pair(std::make_pair((int)type_, a_kind), std::make_pair(rank, size));
+        if( tkr2array.find(array_key) != tkr2array.end() ) {
+            return tkr2array[array_key];
+        }
+        llvm::ArrayType* dim_des_array = get_dim_des_array(rank);
+        llvm::Type* el_type = nullptr;
+        switch(type_) {
+            case ASR::ttypeType::Integer: {
+                switch(a_kind) {
+                    case 4:
+                        el_type = llvm::Type::getInt32Ty(context);
+                        break;
+                    case 8:
+                        el_type = llvm::Type::getInt64Ty(context);
+                        break;
+                    default:
+                        throw CodeGenError("Only 32 and 64 bits integer kinds are supported.");
+                }
+                break;
+            }
+            case ASR::ttypeType::Real: {
+                switch(a_kind) {
+                    case 4:
+                        el_type = llvm::Type::getFloatPtrTy(context);
+                        break;
+                    case 8:
+                        el_type = llvm::Type::getDoublePtrTy(context);
+                        break;
+                    default:
+                        throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
+                }
+                break;
+            }
+            default:
+                break;
+        }
+        std::vector<llvm::Type*> array_type_vec = {
+            llvm::ArrayType::get(el_type, size), 
+            llvm::Type::getInt32Ty(context),
+            dim_des_array};
+        tkr2array[array_key] = llvm::StructType::create(context, array_type_vec, "array");
+        return tkr2array[array_key];
+    }
+
+    inline llvm::Value* create_gep(llvm::Value* ds, int idx) {
+        std::vector<llvm::Value*> idx_vec = {
+        llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
+        llvm::ConstantInt::get(context, llvm::APInt(32, idx))};
+        return builder->CreateGEP(ds, idx_vec);
+    }
+
+    inline llvm::Value* create_gep(llvm::Value* ds, llvm::Value* idx) {
+        std::vector<llvm::Value*> idx_vec = {
+        llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
+        idx};
+        return builder->CreateGEP(ds, idx_vec);
+    }
+
+    inline bool verify_dimensions_t(ASR::dimension_t* m_dims, int n_dims) {
+        if( n_dims <= 0 ) {
+            return false;
+        }
+        bool is_ok = true;
+        for( int r = 0; r < n_dims; r++ ) {
+            if( m_dims[r].m_end == nullptr ) {
+                is_ok = false;
+                break;
+            }
+        }
+        return is_ok;
+    }
+
+    inline void fill_array_details(llvm::Value* arr, ASR::dimension_t* m_dims, 
+                                   int n_dims) {
+        if( verify_dimensions_t(m_dims, n_dims) ) {
+            llvm::Value* offset_val = create_gep(arr, 1);
+            builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), offset_val);
+            llvm::Value* dim_des_val = create_gep(arr, 2);
+            for( int r = 0; r < n_dims; r++ ) {
+                ASR::dimension_t m_dim = m_dims[r];
+                llvm::Value* dim_val = create_gep(dim_des_val, r);
+                llvm::Value* s_val = create_gep(dim_val, 0);
+                llvm::Value* l_val = create_gep(dim_val, 1);
+                llvm::Value* u_val = create_gep(dim_val, 2);
+                llvm::Value* dim_size_ptr = create_gep(dim_val, 3);
+                builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 1)), s_val);
+                visit_expr(*(m_dim.m_start));
+                builder->CreateStore(tmp, l_val);
+                visit_expr(*(m_dim.m_end));
+                builder->CreateStore(tmp, u_val);
+                u_val = builder->CreateLoad(u_val);
+                l_val = builder->CreateLoad(l_val);
+                llvm::Value* dim_size = builder->CreateAdd(builder->CreateSub(u_val, l_val), 
+                                                           llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+                builder->CreateStore(dim_size, dim_size_ptr);
+            }
+        }
+    }
 
     inline llvm::Type* getIntType(int a_kind, bool get_pointer=false) {
         llvm::Type* type_ptr = nullptr;
@@ -408,6 +562,72 @@ public:
         }
     }
 
+    // TODO: Uncomment and implement later
+    // void check_single_element(llvm::Value* curr_idx, llvm::Value* arr) {
+    // }
+
+    inline llvm::Value* cmo_convertor_single_element(
+        llvm::Value* arr, ASR::array_index_t* m_args, 
+        int n_args, bool check_for_bounds) {
+        llvm::Value* dim_des_arr_ptr = create_gep(arr, 2);
+        llvm::Value* prod = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
+        llvm::Value* idx = llvm::ConstantInt::get(context, llvm::APInt(32, 0));
+        for( int r = 0; r < n_args; r++ ) {
+            ASR::array_index_t curr_idx = m_args[r];
+            this->visit_expr_wrapper(curr_idx.m_right, true);
+            llvm::Value* curr_llvm_idx = tmp;
+            llvm::Value* dim_des_ptr = create_gep(dim_des_arr_ptr, r);
+            if( check_for_bounds ) {
+                llvm::Value* lval = builder->CreateLoad(create_gep(dim_des_ptr, 1));
+                curr_llvm_idx = builder->CreateSub(curr_llvm_idx, lval);
+                // check_single_element(curr_llvm_idx, arr); TODO: To be implemented
+            }
+            idx = builder->CreateAdd(idx, builder->CreateMul(prod, curr_llvm_idx));
+            llvm::Value* dim_size = builder->CreateLoad(create_gep(dim_des_ptr, 3));
+            prod = builder->CreateMul(prod, dim_size);
+        }
+        return idx;
+    }
+
+    inline bool is_explicit_shape(ASR::Variable_t* v) {
+        ASR::dimension_t* m_dims;
+        int n_dims;
+        switch( v->m_type->type ) {
+            case ASR::ttypeType::Integer: {
+                ASR::Integer_t* v_type = down_cast<ASR::Integer_t>(v->m_type);
+                m_dims = v_type->m_dims;
+                n_dims = v_type->n_dims;
+                break;
+            }
+            case ASR::ttypeType::Real: {
+                ASR::Real_t* v_type = down_cast<ASR::Real_t>(v->m_type);
+                m_dims = v_type->m_dims;
+                n_dims = v_type->n_dims;
+                break;
+            }
+            default: {
+                throw CodeGenError("Explicit shape checking supported only for integers.");
+            }
+        }
+        return verify_dimensions_t(m_dims, n_dims);
+    }
+
+    inline void get_single_element(const ASR::ArrayRef_t& x) {
+        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(x.m_v);
+        uint32_t v_h = get_hash((ASR::asr_t*)v);
+        LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
+        llvm::Value* array = llvm_symtab[v_h];
+        bool check_for_bounds = is_explicit_shape(v);
+        llvm::Value* idx = cmo_convertor_single_element(array, x.m_args, (int) x.n_args, check_for_bounds);
+        llvm::Value* array_ptr = create_gep(array, 0);
+        llvm::Value* ptr_to_array_idx = create_gep(array_ptr, idx);
+        tmp = ptr_to_array_idx;
+    }
+
+    void visit_ArrayRef(const ASR::ArrayRef_t& x) {
+        get_single_element(x);
+    }
+
     void visit_Variable(const ASR::Variable_t &x) {
         uint32_t h = get_hash((ASR::asr_t*)&x);
         // This happens at global scope, so the intent can only be either local
@@ -419,7 +639,7 @@ public:
         bool external = (x.m_abi != ASR::abiType::Source);
         llvm::Constant* init_value = nullptr;
         if (x.m_value != nullptr){
-            this->visit_expr(*x.m_value);
+            this->visit_expr_wrapper(x.m_value, true);
             init_value = llvm::dyn_cast<llvm::Constant>(tmp);
         }
         if (x.m_type->type == ASR::ttypeType::Integer) {
@@ -495,9 +715,6 @@ public:
         mangle_prefix = "";
     }
 
-
-
-
     void visit_Program(const ASR::Program_t &x) {
         // Generate code for nested subroutines and functions first:
         visit_procedures(x);
@@ -526,13 +743,25 @@ public:
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
                 uint32_t h = get_hash((ASR::asr_t*)v);
                 llvm::Type *type;
+                ASR::ttypeType type_;
+                int n_dims = 0, a_kind = 4;
+                ASR::dimension_t* m_dims = nullptr;
                 if (v->m_intent == intent_local || 
                     v->m_intent == intent_return_var || 
                     !v->m_intent) { 
                     switch (v->m_type->type) {
                         case (ASR::ttypeType::Integer) : {
-                            int a_kind = down_cast<ASR::Integer_t>(v->m_type)->m_kind;
-                            type = getIntType(a_kind);
+                            ASR::Integer_t* v_type = down_cast<ASR::Integer_t>(v->m_type);
+                            type_ = v_type->class_type;
+                            m_dims = v_type->m_dims;
+                            n_dims = v_type->n_dims;
+                            a_kind = v_type->m_kind;
+                            if( n_dims > 0 ) {
+                                type = get_array_type(type_, a_kind, n_dims, m_dims);
+                            } else {
+                                int a_kind = down_cast<ASR::Integer_t>(v->m_type)->m_kind;
+                                type = getIntType(a_kind);
+                            }
                             break;
                         }
                         case (ASR::ttypeType::Real) : {
@@ -584,9 +813,10 @@ public:
                     }
                     llvm::AllocaInst *ptr = builder->CreateAlloca(type, nullptr, v->m_name);
                     llvm_symtab[h] = ptr;
+                    fill_array_details(ptr, m_dims, n_dims);
                     if( v->m_value != nullptr ) {
                         llvm::Value *target_var = ptr;
-                        this->visit_expr(*v->m_value);
+                        this->visit_expr_wrapper(v->m_value, true);
                         llvm::Value *init_value = tmp;
                         builder->CreateStore(init_value, target_var);
                     }
@@ -798,34 +1028,47 @@ public:
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
-        //this->visit_expr(*x.m_target);
-        ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
-        uint32_t h = get_hash((ASR::asr_t*)asr_target);
-        llvm::Value *target;
-        switch( asr_target->m_type->type ) {
-            case ASR::ttypeType::IntegerPointer:
-            case ASR::ttypeType::RealPointer:
-            case ASR::ttypeType::ComplexPointer:
-            case ASR::ttypeType::CharacterPointer:
-            case ASR::ttypeType::LogicalPointer:
-            case ASR::ttypeType::DerivedPointer: {
-                target = builder->CreateLoad(llvm_symtab[h]);
-                break;
-            }
-            default: {
-                target = llvm_symtab[h];
-                break;
+        llvm::Value *target, *value;
+        if( x.m_target->type == ASR::exprType::ArrayRef ) {
+            this->visit_expr(*x.m_target);
+            target = tmp;   
+        } else {
+            ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
+            uint32_t h = get_hash((ASR::asr_t*)asr_target);
+            switch( asr_target->m_type->type ) {
+                case ASR::ttypeType::IntegerPointer:
+                case ASR::ttypeType::RealPointer:
+                case ASR::ttypeType::ComplexPointer:
+                case ASR::ttypeType::CharacterPointer:
+                case ASR::ttypeType::LogicalPointer:
+                case ASR::ttypeType::DerivedPointer: {
+                    target = builder->CreateLoad(llvm_symtab[h]);
+                    break;
+                }
+                default: {
+                    target = llvm_symtab[h];
+                    break;
+                }
             }
         }
-        this->visit_expr(*x.m_value);
-        llvm::Value *value=tmp;
+        this->visit_expr_wrapper(x.m_value, true);
+        value = tmp;
         builder->CreateStore(value, target);
     }
 
+    inline void visit_expr_wrapper(const ASR::expr_t* x, bool load_array_ref=false) {
+        this->visit_expr(*x);
+        if( x->type == ASR::exprType::ArrayRef ) {
+            if( load_array_ref ) {
+                tmp = builder->CreateLoad(tmp);
+            }
+        }
+    }
+
     void visit_Compare(const ASR::Compare_t &x) {
-        this->visit_expr(*x.m_left);
+        this->visit_expr_wrapper(x.m_left, true);
         llvm::Value *left = tmp;
-        this->visit_expr(*x.m_right);
+        this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right = tmp;
         LFORTRAN_ASSERT(expr_type(x.m_left)->type == expr_type(x.m_right)->type);
         ASR::ttypeType optype = expr_type(x.m_left)->type;
@@ -897,7 +1140,7 @@ public:
     }
 
     void visit_If(const ASR::If_t &x) {
-        this->visit_expr(*x.m_test);
+        this->visit_expr_wrapper(x.m_test, true);
         llvm::Value *cond=tmp;
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
         llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
@@ -938,7 +1181,7 @@ public:
         // head
         builder->CreateBr(loophead);
         builder->SetInsertPoint(loophead);
-        this->visit_expr(*x.m_test);
+        this->visit_expr_wrapper(x.m_test, true);
         llvm::Value *cond = tmp;
         builder->CreateCondBr(cond, loopbody, loopend);
 
@@ -970,9 +1213,9 @@ public:
     }
 
     void visit_BoolOp(const ASR::BoolOp_t &x) {
-        this->visit_expr(*x.m_left);
+        this->visit_expr_wrapper(x.m_left, true);
         llvm::Value *left_val = tmp;
-        this->visit_expr(*x.m_right);
+        this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right_val = tmp;
         if (x.m_type->type == ASR::ttypeType::Logical) {
             switch (x.m_op) {
@@ -999,9 +1242,9 @@ public:
     }
 
     void visit_StrOp(const ASR::StrOp_t &x) {
-        this->visit_expr(*x.m_left);
+        this->visit_expr_wrapper(x.m_left, true);
         llvm::Value *left_val = tmp;
-        this->visit_expr(*x.m_right);
+        this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right_val = tmp;
         switch (x.m_op) {
             case ASR::stropType::Concat: {
@@ -1012,9 +1255,9 @@ public:
     }
 
     void visit_BinOp(const ASR::BinOp_t &x) {
-        this->visit_expr(*x.m_left);
+        this->visit_expr_wrapper(x.m_left, true);
         llvm::Value *left_val = tmp;
-        this->visit_expr(*x.m_right);
+        this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right_val = tmp;
         if (x.m_type->type == ASR::ttypeType::Integer || 
             x.m_type->type == ASR::ttypeType::IntegerPointer) {
@@ -1130,7 +1373,7 @@ public:
     }
 
     void visit_UnaryOp(const ASR::UnaryOp_t &x) {
-        this->visit_expr(*x.m_operand);
+        this->visit_expr_wrapper(x.m_operand, true);
         if (x.m_type->type == ASR::ttypeType::Integer) {
             if (x.m_op == ASR::unaryopType::UAdd) {
                 // tmp = tmp;
@@ -1366,7 +1609,7 @@ public:
     }
 
     void visit_ImplicitCast(const ASR::ImplicitCast_t &x) {
-        visit_expr(*x.m_arg);
+        this->visit_expr_wrapper(x.m_arg, true);
         switch (x.m_kind) {
             case (ASR::cast_kindType::IntegerToReal) : {
                 int a_kind = extract_kind_from_ttype_t(x.m_type);
@@ -1513,7 +1756,7 @@ public:
         std::vector<llvm::Value *> args;
         std::vector<std::string> fmt;
         for (size_t i=0; i<x.n_values; i++) {
-            this->visit_expr(*x.m_values[i]);
+            this->visit_expr_wrapper(x.m_values[i], true);
             ASR::expr_t *v = x.m_values[i];
             ASR::ttype_t *t = expr_type(v);
             if (t->type == ASR::ttypeType::Integer || 
@@ -1640,7 +1883,7 @@ public:
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 tmp = llvm_symtab[h];
             } else {
-                this->visit_expr(*x.m_args[i]);
+                this->visit_expr_wrapper(x.m_args[i], true);
                 llvm::Value *value=tmp;
                 llvm::Type *target_type;
                 ASR::ttype_t* arg_type = expr_type(x.m_args[i]);
