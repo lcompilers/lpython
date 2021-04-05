@@ -1552,7 +1552,7 @@ public:
         s.append(x.m_sym);
     }
 
-    void visit_Select(const AST::Select_t &x) {
+    void visit_Select(const Select_t &x) {
         std::string r = indent;
         r += syn(gr::Conditional);
         r += "select case";
@@ -1588,7 +1588,7 @@ public:
         s = r;
     }
 
-    void visit_CaseStmt(const AST::CaseStmt_t &x) {
+    void visit_CaseStmt(const CaseStmt_t &x) {
         std::string r = indent;
         r += syn(gr::Conditional);
         r += "case";
@@ -1599,6 +1599,31 @@ public:
             r += s;
             if (i < x.n_test-1) r += ", ";
         }
+        r += ")\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        s = r;
+    }
+
+    void visit_CaseStmt_Range(const CaseStmt_Range_t &x) {
+        std::string r = indent;
+        r += syn(gr::Conditional);
+        r += "case";
+        r += syn();
+        r += " (";
+        if (x.m_start) {
+            this->visit_expr(*x.m_start);
+            r += s;
+        }
+        r.append(":");
+        if (x.m_end) {
+            this->visit_expr(*x.m_end);
+            r += s;
+        } 
         r += ")\n";
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
