@@ -20,7 +20,6 @@ contains
         real, intent(out) :: sum
         do concurrent (i = 1:N) reduce(+: s)
             sum = sum + a(i)
-            print *, sum
         end do
     end subroutine
 end program

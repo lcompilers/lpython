@@ -879,6 +879,45 @@ public:
         s = r;
     }
 
+    void visit_ConcurrentLocal(const ConcurrentLocal_t &x) {
+        std::string r;
+        r += " local(";
+        for (size_t i=0; i<x.n_vars; i++) {
+            r.append(x.m_vars[i]);
+            if (i < x.n_vars-1) r.append(", ");
+        }
+        r += ")";
+        s = r;
+    }
+
+    void visit_ConcurrentLocalInit(const ConcurrentLocalInit_t &x) {
+        std::string r;
+        r += " localinit(";
+        for (size_t i=0; i<x.n_vars; i++) {
+            r.append(x.m_vars[i]);
+            if (i < x.n_vars-1) r.append(", ");
+        }
+        r += ")";
+        s = r;
+    }
+
+    void visit_ConcurrentShared(const ConcurrentShared_t &x) {
+        std::string r;
+        r += " shared(";
+        for (size_t i=0; i<x.n_vars; i++) {
+            r.append(x.m_vars[i]);
+            if (i < x.n_vars-1) r.append(", ");
+        }
+        r += ")";
+        s = r;
+    }
+
+    void visit_ConcurrentDefault(const ConcurrentDefault_t &/* x */ ) {
+        std::string r;
+        r += " default(none)";
+        s = r;
+    }
+
     void visit_ConcurrentReduce(const ConcurrentReduce_t &x) {
         std::string r;
         r += " reduce(" + visit_reduce_opType(x.m_op) + ": ";
