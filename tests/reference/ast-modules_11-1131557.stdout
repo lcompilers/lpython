@@ -1,0 +1,1 @@
+(TranslationUnit [(Module module_11 [] [(Declaration [(i "integer" () [] [] [] 1 [])]) (Declaration [(j "integer" () [] [] [] 2 [])])] [(Subroutine access_internally [] [] [] [(Print () [(Str "i = ") i])] [])]) (Program access_externally [(Use module_11 [])] [] [(Print () [(Str "j = ") j]) (SubroutineCall access_internally [] [])] [])])

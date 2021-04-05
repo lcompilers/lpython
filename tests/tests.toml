@@ -330,6 +330,7 @@ cpp = true
 [[test]]
 filename = "../integration_tests/arrays_06.f90"
 ast = true
+ast_f90 = true
 
 [[test]]
 filename = "../integration_tests/arrays_07.f90"
@@ -394,6 +395,7 @@ ast = true
 [[test]]
 filename = "../integration_tests/types_12.f90"
 ast = true
+ast_f90 = true
 
 [[test]]
 filename = "boz1.f90"
@@ -404,8 +406,14 @@ filename = "derived_types_02.f90"
 ast = true
 
 [[test]]
+filename = "derived_types_03.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
 filename = "../integration_tests/derived_types_01.f90"
 ast = true
+ast_f90 = true
 
 [[test]]
 filename = "../integration_tests/derived_types_02.f90"
@@ -415,6 +423,8 @@ ast = true
 filename = "../integration_tests/derived_types_03.f90"
 ast = true
 asr = true
+ast_f90 = true
+
 
 [[test]]
 filename = "fn2.f90"
@@ -474,6 +484,7 @@ ast = true
 [[test]]
 filename = "../integration_tests/modules_04.f90"
 ast = true
+ast_f90 = true
 
 [[test]]
 filename = "../integration_tests/modules_05.f90"
@@ -515,14 +526,17 @@ ast_f90 = true
 [[test]]
 filename = "read1.f90"
 ast = true
+ast_f90 = true
 
 [[test]]
 filename = "open1.f90"
 ast = true
+ast_f90 = true
 
 [[test]]
 filename = "close1.f90"
 ast = true
+ast_f90 = true
 
 [[test]]
 filename = "nullify1.f90"
@@ -600,8 +614,9 @@ filename = "../integration_tests/types_13.f90"
 ast = true
 
 [[test]]
-filename = "namelist1.f90"
+filename = "../integration_tests/namelist_01.f90"
 ast = true
+ast_f90 = true
 
 [[test]]
 filename = "select_type1.f90"
@@ -856,3 +871,9 @@ filename = "../integration_tests/expr_05.f90"
 ast = true
 cpp = true
 ast_f90 = true
+
+[[test]]
+filename = "../integration_tests/modules_11.f90"
+ast = true
+asr = true
+llvm = true

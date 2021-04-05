@@ -1,1 +1,0 @@
-(TranslationUnit [(Program namelist1 [] [(Declaration [(N "integer" () [] [] [] ())]) (Declaration [(t "real" () [] [] [] ()) (x "real" () [] [] [] ()) (Ecut "real" () [] [] [] ())]) (Declaration [])] [] [])])

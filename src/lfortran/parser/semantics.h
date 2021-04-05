@@ -161,7 +161,9 @@ void set_decl_t(decl_t &d,
     LFortran::AST::kind_item_t* m_kind, size_t n_kind,
     dimension_t* m_dims, size_t n_dims,
     attribute_t** m_attrs, size_t n_attrs,
-    expr_t* m_initializer) {
+    expr_t* m_initializer,
+    char** m_namelist, size_t n_namelist
+    ) {
         d.m_sym = m_sym;
         d.m_sym_type = m_sym_type;
         d.m_derived_type_name = m_derived_type_name;
@@ -172,6 +174,8 @@ void set_decl_t(decl_t &d,
         d.m_attrs = m_attrs;
         d.n_attrs = n_attrs;
         d.m_initializer = m_initializer;
+        d.m_namelist = m_namelist;
+        d.n_namelist = n_namelist;
 }
 
 static inline decl_t* DECL(Allocator &al, const LFortran::Vec<decl_t> &x,
@@ -220,7 +224,8 @@ static inline decl_t* DECL2b(Allocator &al, const ast_t *attr)
         nullptr, 0,
         nullptr, 0,
         a, 1,
-        nullptr
+        nullptr,
+        nullptr, 0
         );
     return s;
 }
@@ -233,7 +238,8 @@ static inline decl_t* DECL2c(Allocator &al, Location &l)
         nullptr, 0,
         nullptr, 0,
         nullptr, 0,
-        nullptr
+        nullptr,
+        nullptr, 0
         );
     return s;
 }
@@ -253,9 +259,30 @@ static inline decl_t* DECL3(Allocator &al, ast_t* n,
         nullptr, 0,
         s[0].m_dims, s[0].n_dims,
         nullptr, 0,
-        e
+        e,
+        nullptr, 0
         );
     return s;
+}
+
+static inline decl_t* DECL6(Allocator &al, char *id,
+        const LFortran::Vec<ast_t*> id_list)
+{
+    decl_t *s = al.allocate<decl_t>(1);
+    LFortran::Vec<char*> v;
+    v.reserve(al, id_list.size());
+    for (size_t i=0; i<id_list.size(); i++) {
+        v.push_back(al, name2char(id_list[i]));
+    }
+    set_decl_t(s[0], id, nullptr, nullptr,
+        nullptr, 0,
+        nullptr, 0,
+        nullptr, 0,
+        nullptr,
+        v.p, v.size()
+        );
+    return s;
+
 }
 
 static inline expr_t** DIMS2EXPRS(Allocator &al, const LFortran::Vec<LFortran::FnArg> &d)
@@ -290,6 +317,20 @@ static inline expr_t** DIMS2EXPRS(Allocator &al, const LFortran::Vec<LFortran::F
 static inline LFortran::Vec<LFortran::AST::kind_item_t> empty()
 {
     LFortran::Vec<LFortran::AST::kind_item_t> r;
+    r.from_pointer_n(nullptr, 0);
+    return r;
+}
+
+static inline LFortran::Vec<LFortran::AST::ast_t*> empty_vecast()
+{
+    LFortran::Vec<LFortran::AST::ast_t*> r;
+    r.from_pointer_n(nullptr, 0);
+    return r;
+}
+
+static inline LFortran::Vec<LFortran::AST::struct_member_t> empty5()
+{
+    LFortran::Vec<LFortran::AST::struct_member_t> r;
     r.from_pointer_n(nullptr, 0);
     return r;
 }
@@ -449,7 +490,68 @@ static inline LFortran::AST::reduce_opType convert_id_to_reduce_type(
 #define ARRAY_IN(a, l) make_ArrayInitializer_t(p.m_a, l, \
         EXPRS(a), a.size())
 
-#define SYMBOL(x, l) make_Name_t(p.m_a, l, x.c_str(p.m_a))
+ast_t* implied_do_loop(Allocator &al, Location &loc,
+        LFortran::Vec<ast_t*> &ex_list,
+        ast_t* i,
+        ast_t* low,
+        ast_t* high) {
+    return LFortran::AST::make_ImpliedDoLoop_t(al, loc,
+            EXPRS(ex_list), ex_list.size(),
+            name2char(i),
+            EXPR(low),
+            EXPR(high),
+            nullptr);
+}
+
+ast_t* implied_do1(Allocator &al, Location &loc,
+        ast_t* ex,
+        ast_t* i,
+        ast_t* low,
+        ast_t* high) {
+    LFortran::Vec<ast_t*> v;
+    v.reserve(al, 1);
+    v.push_back(al, ex);
+    return implied_do_loop(al, loc, v, i, low, high);
+}
+
+ast_t* implied_do2(Allocator &al, Location &loc,
+        ast_t* ex1,
+        ast_t* ex2,
+        ast_t* i,
+        ast_t* low,
+        ast_t* high) {
+    LFortran::Vec<ast_t*> v;
+    v.reserve(al, 2);
+    v.push_back(al, ex1);
+    v.push_back(al, ex2);
+    return implied_do_loop(al, loc, v, i, low, high);
+}
+
+ast_t* implied_do3(Allocator &al, Location &loc,
+        ast_t* ex1,
+        ast_t* ex2,
+        LFortran::Vec<ast_t*> ex_list,
+        ast_t* i,
+        ast_t* low,
+        ast_t* high) {
+    LFortran::Vec<ast_t*> v;
+    v.reserve(al, 2+ex_list.size());
+    v.push_back(al, ex1);
+    v.push_back(al, ex2);
+    for (size_t i=0; i<ex_list.size(); i++) {
+        v.push_back(al, ex_list[i]);
+    }
+    return implied_do_loop(al, loc, v, i, low, high);
+}
+
+#define IMPLIED_DO_LOOP1(ex, i, low, high, l) \
+    implied_do1(p.m_a, l, ex, i, low, high)
+#define IMPLIED_DO_LOOP2(ex1, ex2, i, low, high, l) \
+    implied_do2(p.m_a, l, ex1, ex2, i, low, high)
+#define IMPLIED_DO_LOOP3(ex1, ex2, ex_list, i, low, high, l) \
+    implied_do3(p.m_a, l, ex1, ex2, ex_list, i, low, high)
+
+#define SYMBOL(x, l) make_Name_t(p.m_a, l, x.c_str(p.m_a), nullptr, 0)
 #define INTEGER(x, l) make_Num_t(p.m_a, l, x)
 #define REAL(x, l) make_Real_t(p.m_a, l, x.c_str(p.m_a))
 #define COMPLEX(x, y, l) make_Complex_t(p.m_a, l, EXPR(x), EXPR(y))
@@ -533,10 +635,156 @@ char* print_format_to_str(Allocator &al, const std::string &fmt) {
 #define PRINTF(fmt, args, l) make_Print_t(p.m_a, l, \
         print_format_to_str(p.m_a, fmt.str()), EXPRS(args), args.size())
 
-#define WRITE0(l) LFortran::AST::make_Write_t(p.m_a, l, nullptr, \
-        nullptr, nullptr, 0)
-#define WRITE(args, l) LFortran::AST::make_Write_t(p.m_a, l, nullptr, \
-        nullptr, EXPRS(args), args.size())
+ast_t* WRITE1(Allocator &al,
+        const LFortran::Vec<LFortran::ArgStarKw> &args0,
+        const LFortran::Vec<LFortran::AST::ast_t*> &args,
+        Location &l) {
+    LFortran::Vec<LFortran::AST::argstar_t> v;
+    v.reserve(al, args0.size());
+    LFortran::Vec<LFortran::AST::kw_argstar_t> v2;
+    v2.reserve(al, args0.size());
+    for (auto &item : args0) {
+        if (item.keyword) {
+            v2.push_back(al, item.kw);
+        } else {
+            v.push_back(al, item.arg);
+        }
+    }
+    return LFortran::AST::make_Write_t(al, l,
+        v.p, v.size(),
+        v2.p, v2.size(),
+        EXPRS(args), args.size());
+}
+
+ast_t* READ1(Allocator &al,
+        const LFortran::Vec<LFortran::ArgStarKw> &args0,
+        const LFortran::Vec<LFortran::AST::ast_t*> &args,
+        Location &l) {
+    LFortran::Vec<LFortran::AST::argstar_t> v;
+    v.reserve(al, args0.size());
+    LFortran::Vec<LFortran::AST::kw_argstar_t> v2;
+    v2.reserve(al, args0.size());
+    for (auto &item : args0) {
+        if (item.keyword) {
+            v2.push_back(al, item.kw);
+        } else {
+            v.push_back(al, item.arg);
+        }
+    }
+    return LFortran::AST::make_Read_t(al, l,
+        v.p, v.size(),
+        v2.p, v2.size(),
+        EXPRS(args), args.size());
+}
+
+ast_t* OPEN1(Allocator &al,
+        const LFortran::Vec<LFortran::ArgStarKw> &args0,
+        Location &l) {
+    LFortran::Vec<LFortran::AST::expr_t*> v;
+    v.reserve(al, args0.size());
+    LFortran::Vec<LFortran::AST::keyword_t> v2;
+    v2.reserve(al, args0.size());
+    for (auto &item : args0) {
+        if (item.keyword) {
+            LFortran::AST::keyword_t kw;
+            LFORTRAN_ASSERT(item.kw.m_value != nullptr);
+            kw.m_value = item.kw.m_value;
+            kw.m_arg = item.kw.m_arg;
+            v2.push_back(al, kw);
+        } else {
+            LFORTRAN_ASSERT(item.arg.m_value != nullptr);
+            v.push_back(al, item.arg.m_value);
+        }
+    }
+    return LFortran::AST::make_Open_t(al, l,
+        v.p, v.size(),
+        v2.p, v2.size());
+}
+
+ast_t* CLOSE1(Allocator &al,
+        const LFortran::Vec<LFortran::ArgStarKw> &args0,
+        Location &l) {
+    LFortran::Vec<LFortran::AST::expr_t*> v;
+    v.reserve(al, args0.size());
+    LFortran::Vec<LFortran::AST::keyword_t> v2;
+    v2.reserve(al, args0.size());
+    for (auto &item : args0) {
+        if (item.keyword) {
+            LFortran::AST::keyword_t kw;
+            LFORTRAN_ASSERT(item.kw.m_value != nullptr);
+            kw.m_value = item.kw.m_value;
+            kw.m_arg = item.kw.m_arg;
+            v2.push_back(al, kw);
+        } else {
+            LFORTRAN_ASSERT(item.arg.m_value != nullptr);
+            v.push_back(al, item.arg.m_value);
+        }
+    }
+    return LFortran::AST::make_Close_t(al, l,
+        v.p, v.size(),
+        v2.p, v2.size());
+}
+
+#define WRITE_ARG1(out, arg0) \
+        out = p.m_a.make_new<LFortran::ArgStarKw>(); \
+        out->keyword = false; \
+        if (arg0 == nullptr) { \
+            out->arg.m_value = nullptr; \
+        } else { \
+            out->arg.m_value = LFortran::AST::down_cast< \
+                    LFortran::AST::expr_t>(arg0); \
+        }
+
+#define WRITE_ARG2(out, id0, arg0) \
+        out = p.m_a.make_new<LFortran::ArgStarKw>(); \
+        out->keyword = true; \
+        out->kw.m_arg = name2char(id0); \
+        if (arg0 == nullptr) { \
+            out->kw.m_value = nullptr; \
+        } else { \
+            out->kw.m_value = LFortran::AST::down_cast<LFortran::AST::expr_t>(arg0); \
+        }
+
+
+#define WRITE0(args0, l) WRITE1(p.m_a, args0, empty_vecast(), l)
+#define WRITE(args0, args, l) WRITE1(p.m_a, args0, args, l)
+
+#define READ0(args0, l) READ1(p.m_a, args0, empty_vecast(), l)
+#define READ(args0, args, l) READ1(p.m_a, args0, args, l)
+
+#define OPEN(args0, l) OPEN1(p.m_a, args0, l)
+#define CLOSE(args0, l) CLOSE1(p.m_a, args0, l)
+
+
+void CONVERT_FNARRAYARG_FNARG(Allocator &al,
+        LFortran::AST::struct_member_t &s,
+        const LFortran::Vec<LFortran::FnArg> &args)
+{
+    LFortran::Vec<LFortran::AST::fnarg_t> v;
+    v.reserve(al, args.size());
+    for (auto &item : args) {
+        LFORTRAN_ASSERT(!item.keyword);
+        v.push_back(al, item.arg);
+    }
+    s.m_args = v.p;
+    s.n_args = v.size();
+}
+
+#define STRUCT_MEMBER1(out, id) \
+            out = p.m_a.make_new<LFortran::AST::struct_member_t>(); \
+            out->m_name = name2char(id); \
+            out->m_args = nullptr; \
+            out->n_args = 0;
+
+#define STRUCT_MEMBER2(out, id, member) \
+            out = p.m_a.make_new<LFortran::AST::struct_member_t>(); \
+            out->m_name = name2char(id); \
+            CONVERT_FNARRAYARG_FNARG(p.m_a, *out, member);
+
+#define NAME1(out, id, member, l) \
+            out = LFortran::AST::make_Name_t(p.m_a, l, \
+                name2char(id), \
+                member.p, member.n);
 
 // Converts (line, col) to a linear position.
 uint64_t linecol_to_pos(const std::string &s, uint16_t line, uint16_t col) {
@@ -587,12 +835,25 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
 #define EXIT(l) make_Exit_t(p.m_a, l)
 #define RETURN(l) make_Return_t(p.m_a, l)
 #define CYCLE(l) make_Cycle_t(p.m_a, l)
-#define SUBROUTINE(name, args, decl, stmts, contains, l) make_Subroutine_t(p.m_a, l, \
+#define CONTINUE(l) LFortran::AST::make_Continue_t(p.m_a, l)
+#define SUBROUTINE(name, args, use, decl, stmts, contains, l) make_Subroutine_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
-        /*use*/ nullptr, \
-        /*n_use*/ 0, \
+        /*use*/ USES(use), \
+        /*n_use*/ use.size(), \
+        /*decl*/ DECLS(decl), \
+        /*n_decl*/ decl.size(), \
+        /*body*/ STMTS(stmts), \
+        /*n_body*/ stmts.size(), \
+        /*contains*/ CONTAINS(contains), \
+        /*n_contains*/ contains.size())
+#define PROCEDURE(name, args, use, decl, stmts, contains, l) make_Procedure_t(p.m_a, l, \
+        /*name*/ name2char(name), \
+        /*args*/ ARGS(p.m_a, l, args), \
+        /*n_args*/ args.size(), \
+        /*use*/ USES(use), \
+        /*n_use*/ use.size(), \
         /*decl*/ DECLS(decl), \
         /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \
@@ -618,30 +879,30 @@ char *fn_type2return_type(const LFortran::Vec<ast_t*> &v) {
     return nullptr;
 }
 
-#define FUNCTION(fn_type, name, args, return_var, decl, stmts, contains, l) make_Function_t(p.m_a, l, \
+#define FUNCTION(fn_type, name, args, return_var, use, decl, stmts, contains, l) make_Function_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
         /*return_type*/ fn_type2return_type(fn_type), \
         /*return_var*/ EXPR_OPT(return_var), \
         /*bind*/ nullptr, \
-        /*use*/ nullptr, \
-        /*n_use*/ 0, \
+        /*use*/ USES(use), \
+        /*n_use*/ use.size(), \
         /*decl*/ DECLS(decl), \
         /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \
         /*n_body*/ stmts.size(), \
         /*contains*/ CONTAINS(contains), \
         /*n_contains*/ contains.size())
-#define FUNCTION0(name, args, return_var, decl, stmts, contains, l) make_Function_t(p.m_a, l, \
+#define FUNCTION0(name, args, return_var, use, decl, stmts, contains, l) make_Function_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
         /*return_type*/ nullptr, \
         /*return_var*/ EXPR_OPT(return_var), \
         /*bind*/ nullptr, \
-        /*use*/ nullptr, \
-        /*n_use*/ 0, \
+        /*use*/ USES(use), \
+        /*n_use*/ use.size(), \
         /*decl*/ DECLS(decl), \
         /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \
@@ -797,6 +1058,8 @@ char *fn_type2return_type(const LFortran::Vec<ast_t*> &v) {
         name2char(name), down_cast<LFortran::AST::expr_t>(value))
 #define VAR_DECL5(items, l) LFortran::AST::make_ParameterStatement_t(p.m_a, l, \
         items.p, items.size())
+#define VAR_DECL6(id, id_list, l) LFortran::AST::make_Declaration_t(p.m_a, l, \
+        DECL6(p.m_a, name2char(id), id_list), 1)
 
 #define VAR_SYM_DECL1(id, l)         DECL3(p.m_a, id, nullptr, nullptr)
 #define VAR_SYM_DECL2(id, e, l)      DECL3(p.m_a, id, nullptr, EXPR(e))
@@ -899,7 +1162,9 @@ LFortran::Str Str_from_string(Allocator &al, const std::string &s) {
         b.size())
 
 ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
-        const LFortran::Vec<LFortran::FnArg> &args, Location &l) {
+        const LFortran::Vec<LFortran::FnArg> &args,
+        const LFortran::Vec<LFortran::AST::struct_member_t> &member,
+        Location &l) {
     LFortran::Vec<LFortran::AST::fnarg_t> v;
     v.reserve(al, args.size());
     LFortran::Vec<LFortran::AST::keyword_t> v2;
@@ -913,11 +1178,15 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
     }
     return make_FuncCallOrArray_t(al, l,
         /*char* a_func*/ name2char(id),
+        member.p, member.size(),
         /*expr_t** a_args*/ v.p, /*size_t n_args*/ v.size(),
         /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size());
 }
 
-#define FUNCCALLORARRAY(id, args, l) FUNCCALLORARRAY0(p.m_a, id, args, l)
+#define FUNCCALLORARRAY(id, args, l) FUNCCALLORARRAY0(p.m_a, id, args, \
+        empty5(), l)
+#define FUNCCALLORARRAY2(members, id, args, l) FUNCCALLORARRAY0(p.m_a, id, \
+        args, members, l)
 
 #define SELECT(cond, body, def, l) make_Select_t(p.m_a, l, \
         EXPR(cond), \
@@ -948,6 +1217,12 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
         nullptr, nullptr)
 
 #define MODULE(name, use, decl, contains, l) make_Module_t(p.m_a, l, \
+        name2char(name), \
+        /*unit_decl1_t** a_use*/ USES(use), /*size_t n_use*/ use.size(), \
+        /*unit_decl2_t** a_decl*/ DECLS(decl), /*size_t n_decl*/ decl.size(), \
+        /*program_unit_t** a_contains*/ CONTAINS(contains), /*size_t n_contains*/ contains.size())
+#define SUBMODULE(id ,name, use, decl, contains, l) make_Submodule_t(p.m_a, l, \
+        name2char(id), \
         name2char(name), \
         /*unit_decl1_t** a_use*/ USES(use), /*size_t n_use*/ use.size(), \
         /*unit_decl2_t** a_decl*/ DECLS(decl), /*size_t n_decl*/ decl.size(), \

@@ -1,1 +1,1 @@
-(TranslationUnit [(Function a [] "integer" () () [] [] [] []) (Function b [] "integer" () () [] [] [] []) (Function c [] "integer" () () [] [] [] []) (Function cb [] () () () [] [(Declaration [(cb "integer" () [] [] [] ())])] [] []) (Function d [] "integer" () () [] [] [] [])])
+(TranslationUnit [(Function a [] "integer" () () [] [] [] []) (Function b [] "integer" () () [] [] [] []) (Function c [] "integer" () () [] [] [] []) (Function cb [] () () () [] [(Declaration [(cb "integer" () [] [] [] () [])])] [] []) (Function d [] "integer" () () [] [] [] [])])

@@ -361,6 +361,11 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <kind_arg> kind_arg2
 %type <vec_ast> interface_body
 %type <ast> interface_item
+%type <ast> write_arg
+%type <argstarkw> write_arg2
+%type <vec_argstarkw> write_arg_list
+%type <struct_member> struct_member
+%type <vec_struct_member> struct_member_star
 
 // Precedence
 
@@ -396,6 +401,7 @@ script_unit
     | submodule
     | program
     | subroutine
+    | procedure
     | function
     | use_statement
     | var_decl
@@ -419,7 +425,7 @@ module
 submodule
     : KW_SUBMODULE "(" id ")" id sep use_statement_star implicit_statement_opt
         decl_star contains_block_opt KW_END end_submodule_opt sep {
-            $$ = MODULE($5, $7, $9, $10, @$); }
+            $$ = SUBMODULE($3, $5, $7, $9, $10, @$); }
     ;
 
 interface_decl
@@ -540,7 +546,7 @@ proc_modifier
 
 
 // ----------------------------------------------------------------------------
-// Subroutine/functions/program definitions
+// Subroutine/Procedure/functions/program definitions
 
 
 program
@@ -584,12 +590,12 @@ subroutine
     import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_subroutine_opt sep {
-            LLOC(@$, @13); $$ = SUBROUTINE($2, $3, $9, $10, $11, @$); }
+            LLOC(@$, @13); $$ = SUBROUTINE($2, $3, $6, $9, $10, $11, @$); }
     | fn_mod_plus KW_SUBROUTINE id sub_args bind_opt sep use_statement_star
     import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_subroutine_opt sep {
-            LLOC(@$, @14); $$ = SUBROUTINE($3, $4, $10, $11, $12, @$); }
+            LLOC(@$, @14); $$ = SUBROUTINE($3, $4, $7, $10, $11, $12, @$); }
     ;
 
 procedure
@@ -597,7 +603,7 @@ procedure
     import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_procedure_opt sep {
-            LLOC(@$, @14); $$ = SUBROUTINE($3, $4, $9, $10, $11, @$); }
+            LLOC(@$, @14); $$ = PROCEDURE($3, $4, $6, $9, $10, $11, @$); }
     ;
 
 function
@@ -605,40 +611,40 @@ function
         sep use_statement_star import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_function_opt sep {
-            LLOC(@$, @14); $$ = FUNCTION0($2, $4, nullptr, $10, $11, $12, @$); }
+            LLOC(@$, @14); $$ = FUNCTION0($2, $4, nullptr, $7, $10, $11, $12, @$); }
     | KW_FUNCTION id "(" id_list_opt ")"
         bind
         result_opt
         sep use_statement_star import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_function_opt sep {
-            LLOC(@$, @16); $$ = FUNCTION0($2, $4, $7, $12, $13, $14, @$); }
+            LLOC(@$, @16); $$ = FUNCTION0($2, $4, $7, $9, $12, $13, $14, @$); }
     | KW_FUNCTION id "(" id_list_opt ")"
         result
         bind_opt
         sep use_statement_star import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_function_opt sep {
-            LLOC(@$, @16); $$ = FUNCTION0($2, $4, $6, $12, $13, $14, @$); }
+            LLOC(@$, @16); $$ = FUNCTION0($2, $4, $6, $9, $12, $13, $14, @$); }
     | fn_mod_plus KW_FUNCTION id "(" id_list_opt ")"
         sep use_statement_star import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_function_opt sep {
-            LLOC(@$, @15); $$ = FUNCTION($1, $3, $5, nullptr, $11, $12, $13, @$); }
+            LLOC(@$, @15); $$ = FUNCTION($1, $3, $5, nullptr, $8, $11, $12, $13, @$); }
     | fn_mod_plus KW_FUNCTION id "(" id_list_opt ")"
         bind
         result_opt
         sep use_statement_star import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_function_opt sep {
-            LLOC(@$, @17); $$ = FUNCTION($1, $3, $5, $8, $13, $14, $15, @$); }
+            LLOC(@$, @17); $$ = FUNCTION($1, $3, $5, $8, $10, $13, $14, $15, @$); }
     | fn_mod_plus KW_FUNCTION id "(" id_list_opt ")"
         result
         bind_opt
         sep use_statement_star import_statement_opt implicit_statement_opt decl_star statements
         contains_block_opt
         KW_END end_function_opt sep {
-            LLOC(@$, @17); $$ = FUNCTION($1, $3, $5, $7, $13, $14, $15, @$); }
+            LLOC(@$, @17); $$ = FUNCTION($1, $3, $5, $7, $10, $13, $14, $15, @$); }
     ;
 
 fn_mod_plus
@@ -781,7 +787,7 @@ var_decl
     | KW_PARAMETER "(" named_constant_def_list ")" sep {
             $$ = VAR_DECL5($3, @$); }
     | KW_NAMELIST "/" id "/" id_list sep {
-            $$ = VAR_DECL4($3, @$); }
+            $$ = VAR_DECL6($3, $5, @$); }
     ;
 
 named_constant_def_list
@@ -862,7 +868,7 @@ var_type
     | KW_LOGICAL "*" TK_INTEGER { $$ = VARTYPE0($1, @$); }
     | KW_DOUBLE KW_PRECISION { $$ = VARTYPE0($1, @$); }
     | KW_TYPE "(" id ")" { $$ = VARTYPE4($1, $3, @$); }
-    | KW_PROCEDURE "(" id ")" { $$ = VARTYPE0($1, @$); }
+    | KW_PROCEDURE "(" id ")" { $$ = VARTYPE4($1, $3, @$); }
     | KW_CLASS "(" id ")" { $$ = VARTYPE0($1, @$); }
     | KW_CLASS "(" "*" ")" { $$ = VARTYPE0($1, @$); }
     ;
@@ -1023,36 +1029,36 @@ print_statement
     ;
 
 open_statement
-    : KW_OPEN "(" write_arg_list ")" { $$ = PRINT0(@$); }
+    : KW_OPEN "(" write_arg_list ")" { $$ = OPEN($3, @$); }
 
 close_statement
-    : KW_CLOSE "(" write_arg_list ")" { $$ = PRINT0(@$); }
+    : KW_CLOSE "(" write_arg_list ")" { $$ = CLOSE($3, @$); }
 
 write_arg_list
-    : write_arg_list "," write_arg2
-    | write_arg2
+    : write_arg_list "," write_arg2 { $$ = $1; PLIST_ADD($$, $3); }
+    | write_arg2 { LIST_NEW($$); PLIST_ADD($$, $1); }
     ;
 
 write_arg2
-    : write_arg
-    | id "=" write_arg
+    : write_arg { WRITE_ARG1($$, $1); }
+    | id "=" write_arg { WRITE_ARG2($$, $1, $3); }
     ;
 
 write_arg
-    : expr
-    | "*"
+    : expr { $$ = $1; }
+    | "*" { $$ = nullptr; }
     ;
 
 write_statement
-    : KW_WRITE "(" write_arg_list ")" expr_list { $$ = WRITE($5, @$); }
-    | KW_WRITE "(" write_arg_list ")" "," expr_list { $$ = WRITE($6, @$); }
-    | KW_WRITE "(" write_arg_list ")" { $$ = WRITE0(@$); }
+    : KW_WRITE "(" write_arg_list ")" expr_list { $$ = WRITE($3, $5, @$); }
+    | KW_WRITE "(" write_arg_list ")" "," expr_list { $$ = WRITE($3, $6, @$); }
+    | KW_WRITE "(" write_arg_list ")" { $$ = WRITE0($3, @$); }
     ;
 
 read_statement
-    : KW_READ "(" write_arg_list ")" expr_list { $$ = PRINT($5, @$); }
-    | KW_READ "(" write_arg_list ")" "," expr_list { $$ = PRINT($6, @$); }
-    | KW_READ "(" write_arg_list ")" { $$ = PRINT0(@$); }
+    : KW_READ "(" write_arg_list ")" expr_list { $$ = READ($3, $5, @$); }
+    | KW_READ "(" write_arg_list ")" "," expr_list { $$ = READ($3, $6, @$); }
+    | KW_READ "(" write_arg_list ")" { $$ = READ0($3, @$); }
     ;
 
 inquire_statement
@@ -1319,7 +1325,7 @@ cycle_statement
     ;
 
 continue_statement
-    : KW_CONTINUE { $$ = CYCLE(@$); } // TODO: add CONTINUE AST node
+    : KW_CONTINUE { $$ = CONTINUE(@$); }
     ;
 
 stop_statement
@@ -1353,10 +1359,10 @@ rbracket
 expr
 // ### primary
     : id { $$ = $1; }
-    | struct_member_star id { $$ = $2; }
+    | struct_member_star id { NAME1($$, $2, $1, @$); }
     | id "(" fnarray_arg_list_opt ")" { $$ = FUNCCALLORARRAY($1, $3, @$); }
     | struct_member_star id "(" fnarray_arg_list_opt ")" {
-            $$ = FUNCCALLORARRAY($2, $4, @$); }
+            $$ = FUNCCALLORARRAY2($1, $2, $4, @$); }
     | "[" expr_list_opt rbracket { $$ = ARRAY_IN($2, @$); }
     | "[" var_type "::" expr_list_opt rbracket { $$ = ARRAY_IN($4, @$); }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
@@ -1367,9 +1373,12 @@ expr
     | ".false." { $$ = FALSE(@$); }
     | "(" expr ")" { $$ = $2; }
     | "(" expr "," expr ")" { $$ = COMPLEX($2, $4, @$); }
-    | "(" expr "," id "=" expr "," expr ")" { $$ = $2; } // TODO: return a generator expression
-    | "(" expr "," expr "," id "=" expr "," expr ")" { $$ = $2; } // TODO: return a generator expression
-    | "(" expr "," expr "," expr_list "," id "=" expr "," expr ")" { $$ = $2; } // TODO: return a generator expression
+    | "(" expr "," id "=" expr "," expr ")" {
+            $$ = IMPLIED_DO_LOOP1($2, $4, $6, $8, @$); }
+    | "(" expr "," expr "," id "=" expr "," expr ")" {
+            $$ = IMPLIED_DO_LOOP2($2, $4, $6, $8, $10, @$); }
+    | "(" expr "," expr "," expr_list "," id "=" expr "," expr ")" {
+            $$ = IMPLIED_DO_LOOP3($2, $4, $6, $8, $10, $12, @$); }
 
 // ### level-1
 
@@ -1402,13 +1411,13 @@ expr
     ;
 
 struct_member_star
-    : struct_member_star struct_member
-    | struct_member
+    : struct_member_star struct_member { $$ = $1; PLIST_ADD($$, $2); }
+    | struct_member { LIST_NEW($$); PLIST_ADD($$, $1); }
     ;
 
 struct_member
-    : id "%"
-    | id "(" fnarray_arg_list_opt ")" "%"
+    : id "%" { STRUCT_MEMBER1($$, $1); }
+    | id "(" fnarray_arg_list_opt ")" "%" { STRUCT_MEMBER2($$, $1, $3); }
     ;
 
 fnarray_arg_list_opt

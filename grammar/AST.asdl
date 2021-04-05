@@ -34,12 +34,16 @@ unit
 mod
     = Module(identifier name, unit_decl1* use, unit_decl2* decl,
         program_unit* contains)
+    | Submodule(identifier id,identifier name, unit_decl1* use, unit_decl2* decl,
+        program_unit* contains)
     | Program(identifier name, unit_decl1* use, unit_decl2* decl,
         stmt* body, program_unit* contains)
 
 program_unit
     = Subroutine(identifier name, arg* args, unit_decl1* use, unit_decl2* decl,
         stmt* body, program_unit* contains)
+    | Procedure(identifier name, arg* args, unit_decl1* use, unit_decl2* decl,
+            stmt* body, program_unit* contains)
     | Function(identifier name, arg* args, string? return_type,
             expr? return_var, tbind? bind, unit_decl1* use, unit_decl2* decl,
             stmt* body, program_unit* contains)
@@ -83,12 +87,16 @@ stmt
     | DoConcurrentLoop(concurrent_control *control, expr? mask,
         concurrent_locality* locality, stmt* body)
     | Select(expr test, case_stmt* body, stmt* default)
+    | Continue()
     | Cycle()
     | Exit()
     | Return()
     | WhileLoop(expr test, stmt* body)
     | Print(string? fmt, expr* values)
-    | Write(expr? unit, string? fmt, expr* values)
+    | Write(argstar* args, kw_argstar* kwargs, expr* values)
+    | Read(argstar* args, kw_argstar* kwargs, expr* values)
+    | Open(expr* args, keyword* kwargs)
+    | Close(expr* args, keyword* kwargs)
 
 expr
     = BoolOp(expr left, boolop op, expr right)
@@ -97,14 +105,17 @@ expr
     | UnaryOp(unaryop op, expr operand)
     | Compare(expr left, cmpop op, expr right)
     | FuncCall(identifier func, fnarg* args, keyword* keywords)
-    | FuncCallOrArray(identifier func, fnarg* args, keyword* keywords)
+    | FuncCallOrArray(identifier func, struct_member* member,
+        fnarg* args, keyword* keywords)
     | Array(identifier name, array_index* args)
     | ArrayInitializer(expr* args)
+    | ImpliedDoLoop(expr* values, identifier var, expr start, expr end,
+        expr? increment)
     | Num(int n)
     | Real(string n)
     | Complex(expr re, expr im)
     | Str(string s)
-    | Name(identifier id)
+    | Name(identifier id, struct_member* member)
     | Logical(bool value)
 
 boolop = And | Or | Eqv | NEqv
@@ -117,8 +128,10 @@ unaryop = Invert | Not | UAdd | USub
 
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 
-decl = (identifier? sym, string? sym_type, string? derived_type_name, kind_item* kind, dimension* dims,
-        attribute *attrs, expr? initializer)
+decl = (identifier? sym, string? sym_type, string? derived_type_name,
+    kind_item* kind, dimension* dims, attribute *attrs, expr? initializer,
+    identifier* namelist
+    )
 
 kind_item = (identifier? id, expr? value, kind_item_type type)
 
@@ -133,6 +146,10 @@ attribute = Attribute(identifier name, attribute_arg *args, dimension* dims)
 attribute_arg = (identifier arg)
 
 fn_mod = FnMod(string s)
+
+-- Null for `expr` means it's a star
+kw_argstar = (identifier arg, expr? value)
+argstar = (expr? value)
 
 arg = (identifier arg)
 
@@ -154,6 +171,8 @@ arg = (identifier arg)
 fnarg = (expr? start, expr? end, expr? step)
 
 keyword = (identifier arg, expr value)
+
+struct_member = (identifier name, fnarg* args)
 
 tbind = Bind(keyword* args)
 

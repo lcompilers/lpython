@@ -196,6 +196,7 @@ public:
             this->visit_unit_decl1(*x.m_use[i]);
             r.append(s);
         }
+        r.append("implicit none\n");
         r.append("\n");
         for (size_t i=0; i<x.n_decl; i++) {
             this->visit_unit_decl2(*x.m_decl[i]);
@@ -223,6 +224,54 @@ public:
         r.append("\n");
         s = r;
     }
+    void visit_Submodule(const Submodule_t &x) {
+        std::string r = "";
+        r += syn(gr::UnitHeader);
+        r.append("submodule");
+        r += syn();
+        r += " (";
+        r.append(x.m_id);
+        r += ") ";
+        r.append(x.m_name);
+        r += "\n";
+        if (indent_unit) inc_indent();
+        if(x.n_use > 0) {
+            for (size_t i=0; i<x.n_use; i++) {
+                this->visit_unit_decl1(*x.m_use[i]);
+                r.append(s);
+            }
+            r.append("\n");
+        }
+        if(x.n_decl > 0) {
+            for (size_t i=0; i<x.n_decl; i++) {
+                this->visit_unit_decl2(*x.m_decl[i]);
+                r.append(s);
+            }
+            r.append("\n");
+        }
+        if (x.n_contains > 0) {
+            r += "\n";
+            r += syn(gr::UnitHeader);
+            r.append("contains");
+            r += syn();
+            r += "\n\n";
+            inc_indent();
+            for (size_t i=0; i<x.n_contains; i++) {
+                this->visit_program_unit(*x.m_contains[i]);
+                r.append(s);
+                r.append("\n");
+            }
+            dec_indent();
+        }
+        if (indent_unit) dec_indent();
+        r += syn(gr::UnitHeader);
+        r.append("end submodule");
+        r += syn();
+        r += " ";
+        r.append(x.m_name);
+        r.append("\n");
+        s = r;
+    }
 
     void visit_Program(const Program_t &x) {
         std::string r;
@@ -233,7 +282,7 @@ public:
         r.append(x.m_name);
         r.append("\n");
 
-        r += format_unit_body(x);
+        r += format_unit_body(x, true);
         r += syn(gr::UnitHeader);
         r.append("end program");
         r += syn();
@@ -271,6 +320,52 @@ public:
         s = r;
     }
 
+    void visit_Procedure(const Procedure_t &x) {
+        std::string r = indent;
+        r += syn(gr::UnitHeader);
+        r.append("module procedure");
+        r += syn();
+        r += " ";
+        r.append(x.m_name);
+        r.append("(");
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_arg(x.m_args[i]);
+            r.append(s);
+            if (i < x.n_args-1) r.append(", ");
+        }
+        r.append(")");
+        r.append("\n");
+
+        r += format_unit_body(x);
+        r += indent;
+        r += syn(gr::UnitHeader);
+        r.append("end procedure");
+        r += syn();
+        r += " ";
+        r.append(x.m_name);
+        r.append("\n");
+        s = r;
+    }
+
+    void visit_DerivedType(const DerivedType_t &x) {
+        std::string r = indent;
+        r += syn(gr::UnitHeader);
+        r.append("type :: ");
+        r += syn();
+        r.append(x.m_name);
+        r.append("\n");
+        inc_indent();
+        for (size_t i=0; i<x.n_items; i++) {
+            visit_unit_decl2(*x.m_items[i]);
+            r.append(s);
+        }
+        dec_indent();
+        r += syn(gr::UnitHeader);
+        r.append(indent + "end type\n");
+        r += syn();
+        s = r;
+    }
+
     void visit_Interface(const Interface_t &x) {
         std::string r;
         r += syn(gr::UnitHeader);
@@ -294,8 +389,28 @@ public:
         s = r;
     }
 
+    void visit_InterfaceHeader1(const InterfaceHeader1_t &/* x */) {
+        //TODO
+        s = "";
+    }
+
     void visit_InterfaceHeader2(const InterfaceHeader2_t &x) {
         s = x.m_name;
+    }
+
+    void visit_InterfaceHeader3(const InterfaceHeader3_t &/* x */) {
+        //TODO
+        s = "";
+    }
+
+    void visit_InterfaceHeader4(const InterfaceHeader4_t &/* x */) {
+        //TODO
+        s = "";
+    }
+
+    void visit_InterfaceHeader5(const InterfaceHeader5_t &/* x */) {
+        //TODO
+        s = "";
     }
 
     void visit_InterfaceModuleProcedure(const InterfaceModuleProcedure_t &x) {
@@ -319,13 +434,14 @@ public:
     }
 
     template <typename T>
-    std::string format_unit_body(const T &x) {
+    std::string format_unit_body(const T &x, bool implicit_none=false) {
         std::string r;
         if (indent_unit) inc_indent();
         for (size_t i=0; i<x.n_use; i++) {
             this->visit_unit_decl1(*x.m_use[i]);
             r.append(s);
         }
+        if (implicit_none) r.append("implicit none\n");
         for (size_t i=0; i<x.n_decl; i++) {
             this->visit_unit_decl2(*x.m_decl[i]);
             r.append(s);
@@ -685,6 +801,30 @@ public:
         s = r;
     }
 
+    void visit_ImpliedDoLoop(const ImpliedDoLoop_t &x) {
+        std::string r = "";
+        r += "(";
+        for (size_t i=0; i<x.n_values; i++) {
+            this->visit_expr(*x.m_values[i]);
+            r.append(s);
+            r.append(", ");
+        }
+        r.append(x.m_var);
+        r.append(" = ");
+        this->visit_expr(*x.m_start);
+        r.append(s);
+        r.append(", ");
+        this->visit_expr(*x.m_end);
+        r.append(s);
+        if (x.m_increment) {
+            r.append(", ");
+            this->visit_expr(*x.m_increment);
+            r.append(s);
+        }
+        r.append(")");
+        s = r;
+    }
+
     void visit_DoConcurrentLoop(const DoConcurrentLoop_t &x) {
         if (x.n_control != 1) {
             throw SemanticError("Do concurrent: exactly one control statement is required for now",
@@ -733,6 +873,15 @@ public:
         std::string r = indent;
         r += syn(gr::Keyword);
         r.append("cycle");
+        r += syn();
+        r += "\n";
+        s = r;
+    }
+
+    void visit_Continue(const Continue_t &/*x*/) {
+        std::string r = indent;
+        r += syn(gr::Keyword);
+        r.append("continue");
         r += syn();
         r += "\n";
         s = r;
@@ -807,7 +956,28 @@ public:
         r += syn(gr::Keyword);
         r += "write";
         r += syn();
-        r += " (*,*)";
+        r += "(";
+        for (size_t i=0; i<x.n_args; i++) {
+            if (x.m_args[i].m_value == nullptr) {
+                r += "*";
+            } else {
+                this->visit_expr(*x.m_args[i].m_value);
+                r += s;
+            }
+            if (i < x.n_args-1 || x.n_kwargs > 0) r += ",";
+        }
+        for (size_t i=0; i<x.n_kwargs; i++) {
+            r += x.m_kwargs[i].m_arg;
+            r += "=";
+            if (x.m_kwargs[i].m_value == nullptr) {
+                r += "*";
+            } else {
+                this->visit_expr(*x.m_kwargs[i].m_value);
+                r += s;
+            }
+            if (i < x.n_kwargs-1) r += ",";
+        }
+        r += ")";
         if (x.n_values > 0) {
             r += " ";
             for (size_t i=0; i<x.n_values; i++) {
@@ -817,6 +987,89 @@ public:
             }
         }
         r += "\n";
+        s = r;
+    }
+
+    void visit_Read(const Read_t &x) {
+        std::string r=indent;
+        r += syn(gr::Keyword);
+        r += "read";
+        r += syn();
+        r += "(";
+        for (size_t i=0; i<x.n_args; i++) {
+            if (x.m_args[i].m_value == nullptr) {
+                r += "*";
+            } else {
+                this->visit_expr(*x.m_args[i].m_value);
+                r += s;
+            }
+            if (i < x.n_args-1 || x.n_kwargs > 0) r += ",";
+        }
+        for (size_t i=0; i<x.n_kwargs; i++) {
+            r += x.m_kwargs[i].m_arg;
+            r += "=";
+            if (x.m_kwargs[i].m_value == nullptr) {
+                r += "*";
+            } else {
+                this->visit_expr(*x.m_kwargs[i].m_value);
+                r += s;
+            }
+            if (i < x.n_kwargs-1) r += ",";
+        }
+        r += ")";
+        if (x.n_values > 0) {
+            r += " ";
+            for (size_t i=0; i<x.n_values; i++) {
+                this->visit_expr(*x.m_values[i]);
+                r += s;
+                if (i < x.n_values-1) r += ", ";
+            }
+        }
+        r += "\n";
+        s = r;
+    }
+
+    void visit_Close(const Close_t &x) {
+        std::string r=indent;
+        r += syn(gr::Keyword);
+        r += "close";
+        r += syn();
+        r += "(";
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_expr(*x.m_args[i]);
+            r += s;
+            if (i < x.n_args-1 || x.n_kwargs > 0) r += ",";
+        }
+        for (size_t i=0; i<x.n_kwargs; i++) {
+            r += x.m_kwargs[i].m_arg;
+            r += "=";
+            this->visit_expr(*x.m_kwargs[i].m_value);
+            r += s;
+            if (i < x.n_kwargs-1) r += ",";
+        }
+        r += ")\n";
+        s = r;
+    }
+
+    void visit_Open(const Open_t &x) {
+        std::string r=indent;
+        r += syn(gr::Keyword);
+        r += "open";
+        r += syn();
+        r += "(";
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_expr(*x.m_args[i]);
+            r += s;
+            if (i < x.n_args-1 || x.n_kwargs > 0) r += ",";
+        }
+        for (size_t i=0; i<x.n_kwargs; i++) {
+            r += x.m_kwargs[i].m_arg;
+            r += "=";
+            this->visit_expr(*x.m_kwargs[i].m_value);
+            r += s;
+            if (i < x.n_kwargs-1) r += ",";
+        }
+        r += ")\n";
         s = r;
     }
 
@@ -901,6 +1154,30 @@ public:
 
     void visit_FuncCallOrArray(const FuncCallOrArray_t &x) {
         std::string r;
+        if (x.n_member > 0) {
+            for (size_t i=0; i<x.n_member; i++) {
+                r.append(x.m_member[i].m_name);
+                if (x.m_member[i].n_args > 0) {
+                    r.append("(");
+                    for (size_t j=0; j<x.m_member[i].n_args; j++) {
+                        expr_t *start = x.m_member[i].m_args[j].m_start;
+                        expr_t *end = x.m_member[i].m_args[j].m_end;
+                        expr_t *step = x.m_member[i].m_args[j].m_step;
+                        // TODO: Also show start, and step correctly
+                        LFORTRAN_ASSERT(start == nullptr);
+                        LFORTRAN_ASSERT(end != nullptr);
+                        LFORTRAN_ASSERT(step == nullptr);
+                        if (end) {
+                            this->visit_expr(*end);
+                            r.append(s);
+                        }
+                        if (i < x.m_member[i].n_args-1) r.append(",");
+                    }
+                    r.append(")");
+                }
+                r.append("%");
+            }
+        }
         r.append(x.m_func);
         r.append("(");
         for (size_t i=0; i<x.n_args; i++) {
@@ -977,7 +1254,33 @@ public:
     }
 
     void visit_Name(const Name_t &x) {
-        s = std::string(x.m_id);
+        std::string r = "";
+        if (x.n_member > 0) {
+            for (size_t i=0; i<x.n_member; i++) {
+                r.append(x.m_member[i].m_name);
+                if (x.m_member[i].n_args > 0) {
+                    r.append("(");
+                    for (size_t j=0; j<x.m_member[i].n_args; j++) {
+                        expr_t *start = x.m_member[i].m_args[j].m_start;
+                        expr_t *end = x.m_member[i].m_args[j].m_end;
+                        expr_t *step = x.m_member[i].m_args[j].m_step;
+                        // TODO: Also show start, and step correctly
+                        LFORTRAN_ASSERT(start == nullptr);
+                        LFORTRAN_ASSERT(end != nullptr);
+                        LFORTRAN_ASSERT(step == nullptr);
+                        if (end) {
+                            this->visit_expr(*end);
+                            r.append(s);
+                        }
+                        if (i < x.m_member[i].n_args-1) r.append(",");
+                    }
+                    r.append(")");
+                }
+                r.append("%");
+            }
+        }
+        r.append(std::string(x.m_id));
+        s = r;
     }
 
     void visit_Logical(const Logical_t &x) {
@@ -1006,9 +1309,23 @@ public:
         }
     }
 
-
     void visit_decl(const decl_t &x) {
         std::string r = indent;
+        if (x.n_namelist > 0) {
+            r += syn(gr::Type);
+            r.append("namelist");
+            r += syn();
+            r.append(" /");
+            r.append(x.m_sym);
+            r.append("/ ");
+            for (size_t i=0; i<x.n_namelist; i++) {
+                r.append(x.m_namelist[i]);
+                if (i < x.n_namelist-1) r.append(", ");
+            }
+            r.append("\n");
+            s = r;
+            return;
+        }
         r += syn(gr::Type);
         bool sep=false;
         std::string sym_type;
@@ -1018,6 +1335,9 @@ public:
         }
         r += sym_type;
         r += syn();
+        if (x.m_derived_type_name != nullptr) {
+            r += "(" + std::string(x.m_derived_type_name) + ")";
+        }
         if (x.n_kind > 0) {
             r += "(";
             if (x.n_kind == 1 && (sym_type == "real" || sym_type == "integer" || sym_type == "logical" || sym_type == "complex")

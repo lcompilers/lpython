@@ -1,0 +1,8 @@
+program namelist1
+implicit none
+integer :: N
+real :: t
+real :: x
+real :: Ecut
+namelist /domain/ N, t, x, Ecut
+end program namelist1

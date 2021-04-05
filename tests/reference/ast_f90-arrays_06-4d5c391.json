@@ -1,0 +1,13 @@
+{
+    "basename": "ast_f90-arrays_06-4d5c391",
+    "cmd": "lfortran --show-ast-f90 --no-color {infile}",
+    "infile": "tests/../integration_tests/arrays_06.f90",
+    "infile_hash": "b15b31ffc6953fa782feaa475e8a500e0a75b89817d79282de855cdb",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_f90-arrays_06-4d5c391.stdout",
+    "stdout_hash": "c7f7eb3b06204825c3b888b678d294661b2f2781f149d42df07d9814",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
