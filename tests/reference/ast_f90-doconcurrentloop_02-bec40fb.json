@@ -1,0 +1,13 @@
+{
+    "basename": "ast_f90-doconcurrentloop_02-bec40fb",
+    "cmd": "lfortran --show-ast-f90 --no-color {infile}",
+    "infile": "tests/../integration_tests/doconcurrentloop_02.f90",
+    "infile_hash": "977d73058efbb76feaa900f51a782e2f187264c1a38d62c41ca5178d",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_f90-doconcurrentloop_02-bec40fb.stdout",
+    "stdout_hash": "2894587f184fa4bfc1a8beb61b68590cfc92a6085414b62a7289d650",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
