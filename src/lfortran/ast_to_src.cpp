@@ -897,9 +897,9 @@ public:
             case (reduce_opType::ReduceMul) :
                 return "*";
             case (reduce_opType::ReduceMIN) :
-                return "MIN";
+                return "min";
             case (reduce_opType::ReduceMAX) :
-                return "MAX";
+                return "max";
             default:
                 return "";
         }
