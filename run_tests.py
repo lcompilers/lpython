@@ -69,10 +69,6 @@ def main():
             run_test("ast_f90", "lfortran --show-ast-f90 --no-color {infile}",
                     filename, update_reference)
 
-        if ast_cpp_hip:
-            run_test("ast_cpp_hip", "cpptranslate --show-ast-cpp-hip {infile}",
-                    filename, update_reference)
-
         if ast_openmp:
             run_test("ast_openmp", "cpptranslate --show-ast-openmp {infile}",
                     filename, update_reference)

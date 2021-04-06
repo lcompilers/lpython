@@ -8,7 +8,6 @@
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/ast_to_src.h>
 #include <lfortran/ast_to_openmp.h>
-#include <lfortran/ast_to_cpp_hip.h>
 #include <lfortran/config.h>
 
 
@@ -169,34 +168,6 @@ int emit_ast_openmp(const std::string &infile)
     return 0;
 }
 
-int emit_ast_cpp_hip(const std::string &infile)
-{
-    std::string input = read_file(infile);
-
-    // Src -> AST
-    Allocator al(64*1024*1024);
-    LFortran::AST::TranslationUnit_t* ast;
-    try {
-        ast = LFortran::parse2(al, input);
-    } catch (const LFortran::TokenizerError &e) {
-        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
-        return 1;
-    } catch (const LFortran::ParserError &e) {
-        std::cerr << "Parsing error: " << e.msg() << std::endl;
-        return 2;
-    } catch (const LFortran::LFortranException &e) {
-        std::cerr << "Other LFortran exception: " << e.msg() << std::endl;
-        return 3;
-    }
-
-    // AST -> C++
-    // FIXME: For now we only transform the first node in the list:
-    std::string source = LFortran::ast_to_cpp_hip(*ast->m_items[0]);
-
-    std::cout << source << std::endl;
-    return 0;
-}
-
 int main(int argc, char *argv[])
 {
     std::string arg_file;
@@ -206,7 +177,6 @@ int main(int argc, char *argv[])
     bool show_asr = false;
     bool show_ast_f90 = false;
     bool show_ast_openmp = false;
-    bool show_ast_cpp_hip = false;
 
     CLI::App app{"cpptranslate: Fortran to C++ translation"};
     app.add_option("file", arg_file, "Source file");
@@ -217,7 +187,6 @@ int main(int argc, char *argv[])
     app.add_flag("--show-asr", show_asr, "Show ASR for the given file and exit");
     app.add_flag("--show-ast-f90", show_ast_f90, "Show AST -> Fortran for the given file and exit");
     app.add_flag("--show-ast-openmp", show_ast_openmp, "Show AST -> Fortran with OpenMP for the given file and exit");
-    app.add_flag("--show-ast-cpp-hip", show_ast_cpp_hip, "Show AST -> C++ with HIP for the given file and exit");
     CLI11_PARSE(app, argc, argv);
 
     if (arg_version) {
@@ -245,9 +214,6 @@ int main(int argc, char *argv[])
     }
     if (show_ast_openmp) {
         return emit_ast_openmp(arg_file);
-    }
-    if (show_ast_cpp_hip) {
-        return emit_ast_cpp_hip(arg_file);
     }
 
     return 0;
