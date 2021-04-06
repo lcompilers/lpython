@@ -22,6 +22,7 @@ float *c, size_t c_size)
     size_t N;
     size_t N2;
     size_t i;
+    size_t j;
     N = a_size;
     N2 = a_size;
     int gridsize = (N + blocksize - 1)/blocksize;

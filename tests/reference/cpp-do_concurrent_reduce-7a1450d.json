@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-do_concurrent_reduce-7a1450d",
+    "cmd": "lfortran --show-cpp {infile}",
+    "infile": "tests/do_concurrent_reduce.f90",
+    "infile_hash": "44ebdebb05b853f4680c203c3b2b0e98e9285d1f3923ecbc255bc105",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-do_concurrent_reduce-7a1450d.stdout",
+    "stdout_hash": "17a18550684b405f19d6787d6022008a4f00e9248ca20bf2679f70c5",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

@@ -2,11 +2,11 @@
     "basename": "ast-subroutine6-a3aec97",
     "cmd": "lfortran --show-ast --no-color {infile} -o {outfile}",
     "infile": "tests/subroutine6.f90",
-    "infile_hash": "f8ec950010d371814e56760730d8389b36e180cc2abbc2037bc7d76f",
+    "infile_hash": "1987bc648e7f4c6205190248a296d000e0f33cb57a996b6c2a6c4804",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast-subroutine6-a3aec97.stdout",
-    "stdout_hash": "6c82f098232c44e3cf18488c3894b9a0f1cb1a0e01746868b6bc80c8",
+    "stdout_hash": "7f1e3d6e909f52392b3c6383264ed405d61e89636157fdb73b6de020",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
