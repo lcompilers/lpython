@@ -2,11 +2,11 @@
     "basename": "ast_cpp_hip-subroutine6-40e7576",
     "cmd": "cpptranslate --show-ast-cpp-hip {infile}",
     "infile": "tests/subroutine6.f90",
-    "infile_hash": "f8ec950010d371814e56760730d8389b36e180cc2abbc2037bc7d76f",
+    "infile_hash": "1987bc648e7f4c6205190248a296d000e0f33cb57a996b6c2a6c4804",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast_cpp_hip-subroutine6-40e7576.stdout",
-    "stdout_hash": "19ba72f4ca4a7116064e2b1cbe414f768a7c7dbefeef903af87339a7",
+    "stdout_hash": "683f21800a9cfad5d4e8db4fddbd97a32a0af91456071ee0bbba2793",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

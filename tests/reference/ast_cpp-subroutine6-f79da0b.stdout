@@ -4,6 +4,7 @@ const Kokkos::View<float*> & c)
     size_t N;
     size_t N2;
     size_t i;
+    size_t j;
     N = a.extent(0);
     N2 = a.extent(0);
     Kokkos::parallel_for(N, KOKKOS_LAMBDA(const long i) {

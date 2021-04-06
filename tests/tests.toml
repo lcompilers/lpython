@@ -59,6 +59,7 @@ ast = true
 ast_f90 = true
 ast_cpp = true
 ast_openmp = true
+cpp = true
 
 [[test]]
 filename = "do_concurrent_reduce2.f90"
@@ -82,6 +83,7 @@ ast = true
 ast_cpp = true
 ast_cpp_hip = true
 ast_openmp = true
+cpp = true
 
 [[test]]
 filename = "subroutine7.f90"
