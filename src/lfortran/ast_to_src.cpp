@@ -1,3 +1,4 @@
+#include <cctype>
 #include <lfortran/ast_to_src.h>
 
 using LFortran::AST::expr_t;
@@ -12,6 +13,12 @@ using LFortran::AST::StrOp_t;
 namespace LFortran {
 
 namespace {
+
+    inline std::string convert_to_lowercase(const std::string &s) {
+       std::string res;
+       for(auto x: s) res.push_back(std::tolower(x));
+       return res;
+    }
 
     std::string op2str(const operatorType type)
     {
@@ -470,10 +477,9 @@ public:
 
     void visit_Function(const Function_t &x) {
         std::string r = indent;
-        if (x.m_return_type) {
-            r += syn(gr::Type);
-            r.append(x.m_return_type);
-            r += syn();
+        for (size_t i=0; i<x.n_attributes; i++) {
+            visit_decl_attribute(*x.m_attributes[i]);
+            r += s;
             r.append(" ");
         }
         r += syn(gr::UnitHeader);
@@ -541,28 +547,240 @@ public:
     }
 
     void visit_Declaration(const Declaration_t &x) {
+        std::string r = indent;
+        if (x.m_vartype == nullptr &&
+                x.n_attributes == 1 &&
+                is_a<SimpleAttribute_t>(*x.m_attributes[0]) &&
+                down_cast<SimpleAttribute_t>(x.m_attributes[0])->m_attr ==
+                    simple_attributeType::AttrParameter) {
+            // The parameter statement is printed differently than other
+            // attributes
+            r += syn(gr::Type);
+            r += "parameter";
+            r += syn();
+            r += "(";
+            for (size_t i=0; i<x.n_syms; i++) {
+                visit_var_sym(x.m_syms[i]);
+                r += s;
+                if (i < x.n_syms-1) r.append(", ");
+            }
+            r += ")";
+        } else if (x.m_vartype == nullptr &&
+                x.n_attributes == 1 &&
+                is_a<AttrNamelist_t>(*x.m_attributes[0])) {
+            // The namelist statement is printed differently than other
+            // atttributes
+            r += syn(gr::Type);
+            r.append("namelist");
+            r += syn();
+            r.append(" /");
+            r += down_cast<AttrNamelist_t>(x.m_attributes[0])->m_name;
+            r.append("/ ");
+            for (size_t i=0; i<x.n_syms; i++) {
+                visit_var_sym(x.m_syms[i]);
+                r += s;
+                if (i < x.n_syms-1) r.append(", ");
+            }
+        } else {
+            if (x.m_vartype) {
+                visit_decl_attribute(*x.m_vartype);
+                r += s;
+                if (x.n_attributes > 0) r.append(", ");
+            }
+            for (size_t i=0; i<x.n_attributes; i++) {
+                visit_decl_attribute(*x.m_attributes[i]);
+                r += s;
+                if (i < x.n_attributes-1) r.append(", ");
+            }
+            if (x.n_syms > 0) {
+                r.append(" :: ");
+                for (size_t i=0; i<x.n_syms; i++) {
+                    visit_var_sym(x.m_syms[i]);
+                    r += s;
+                    if (i < x.n_syms-1) r.append(", ");
+                }
+            }
+        }
+        r += "\n";
+        s = r;
+    }
+
+    void visit_var_sym(const var_sym_t &x) {
         std::string r = "";
-        for (size_t i=0; i<x.n_vars; i++) {
-            this->visit_decl(x.m_vars[i]);
-            r.append(s);
+        r.append(x.m_name);
+        if (x.n_dim > 0) {
+            r.append("(");
+            for (size_t i=0; i<x.n_dim; i++) {
+                visit_dimension(x.m_dim[i]);
+                r += s;
+                if (i < x.n_dim-1) r.append(",");
+            }
+            r.append(")");
+        }
+        if (x.m_initializer) {
+            visit_expr(*x.m_initializer);
+            r += "=" + s;
         }
         s = r;
     }
 
-    void visit_ParameterStatement(const ParameterStatement_t &x) {
+#define ATTRTYPE(x) \
+            case (simple_attributeType::Attr##x) : \
+                r.append(convert_to_lowercase(#x)); \
+                break;
+
+    void visit_SimpleAttribute(const SimpleAttribute_t &x) {
         std::string r;
         r += syn(gr::Type);
-        r += "parameter";
+        switch (x.m_attr) {
+            ATTRTYPE(Abstract)
+            ATTRTYPE(Allocatable)
+            ATTRTYPE(Contiguous)
+            ATTRTYPE(Elemental)
+            ATTRTYPE(Enumerator)
+            ATTRTYPE(Impure)
+            ATTRTYPE(Module)
+            ATTRTYPE(NoPass)
+            ATTRTYPE(Optional)
+            ATTRTYPE(Parameter)
+            ATTRTYPE(Pointer)
+            ATTRTYPE(Private)
+            ATTRTYPE(Protected)
+            ATTRTYPE(Public)
+            ATTRTYPE(Pure)
+            ATTRTYPE(Recursive)
+            ATTRTYPE(Save)
+            ATTRTYPE(Target)
+            ATTRTYPE(Value)
+            default :
+                throw LFortranException("Attribute type not implemented");
+        }
+        r += syn();
+        s = r;
+    }
+
+#define ATTRTYPE2(x, y) \
+            case (decl_typeType::Type##x) : \
+                r.append(y); \
+                break;
+
+    void visit_AttrType(const AttrType_t &x) {
+        std::string r;
+        r += syn(gr::Type);
+        switch (x.m_type) {
+            ATTRTYPE2(Class, "class")
+            ATTRTYPE2(Character, "character")
+            ATTRTYPE2(Complex, "complex")
+            ATTRTYPE2(DoublePrecision, "double precision")
+            ATTRTYPE2(Integer, "integer")
+            ATTRTYPE2(Logical, "logical")
+            ATTRTYPE2(Procedure, "procedure")
+            ATTRTYPE2(Real, "real")
+            ATTRTYPE2(Type, "type")
+            default :
+                throw LFortranException("Attribute type not implemented");
+        }
+        r += syn();
+        if (x.n_kind > 0) {
+            r.append("(");
+
+            // Determine proper canonical printing of kinds
+            // TODO: Move this part into a separate AST pass
+            kind_item_t k[2];
+            LFORTRAN_ASSERT(x.n_kind <= 2);
+            for (size_t i=0; i<x.n_kind; i++) {
+                k[i] = x.m_kind[i];
+            }
+            if (x.n_kind == 1 && (
+                    x.m_type == decl_typeType::TypeReal ||
+                    x.m_type == decl_typeType::TypeInteger ||
+                    x.m_type == decl_typeType::TypeLogical ||
+                    x.m_type == decl_typeType::TypeComplex
+                ) && (
+                    k[0].m_id == nullptr || std::string(k[0].m_id) == "kind"
+                )) {
+                k[0].m_id = nullptr;
+            } else if (x.n_kind == 1 &&
+                    x.m_type == decl_typeType::TypeCharacter
+                && (
+                    k[0].m_id == nullptr || std::string(k[0].m_id) == "len"
+                )) {
+                k[0].m_id = (char*)"len";
+            } else if (x.n_kind == 2 &&
+                    x.m_type == decl_typeType::TypeCharacter
+                && (
+                    k[0].m_id != nullptr && k[1].m_id != nullptr
+                ) && std::string(k[1].m_id) == "len") {
+                    std::swap(k[0], k[1]);
+            }
+            if (x.m_type == decl_typeType::TypeCharacter &&
+                k[0].m_id == nullptr) {
+                    k[0].m_id = (char*)"len";
+            }
+
+            for (size_t i=0; i<x.n_kind; i++) {
+                visit_kind_item(k[i]);
+                r += s;
+                if (i < x.n_kind-1) r.append(", ");
+            }
+            r.append(")");
+        }
+        if (x.m_name) {
+            r.append("(");
+            r.append(x.m_name);
+            r.append(")");
+        }
+        s = r;
+    }
+
+    void visit_kind_item(const kind_item_t &x) {
+        std::string r;
+        if (x.m_id) {
+            r.append(x.m_id);
+            r.append("=");
+        }
+        r += kind_value(x.m_type, x.m_value);
+        s = r;
+    }
+
+    void visit_AttrIntent(const AttrIntent_t &x) {
+        std::string r;
+        r += syn(gr::Type);
+        r += "intent";
         r += syn();
         r += "(";
-        for (size_t i=0; i<x.n_items; i++) {
-            r += x.m_items[i].m_name;
-            r += " = ";
-            this->visit_expr(*x.m_items[i].m_value);
-            r += s;
-            if (i < x.n_items-1) r += ", ";
+        r += syn(gr::Type);
+        switch (x.m_intent) {
+            case (attr_intentType::In) : {
+                r.append("in");
+                break;
+            }
+            case (attr_intentType::Out) : {
+                r.append("out");
+                break;
+            }
+            case (attr_intentType::InOut) : {
+                r.append("inout");
+                break;
+            }
         }
-        r += ")\n";
+        r += syn();
+        r += ")";
+        s = r;
+    }
+
+    void visit_AttrDimension(const AttrDimension_t &x) {
+        std::string r;
+        r += syn(gr::Type);
+        r += "dimension";
+        r += syn();
+        r += "(";
+        for (size_t i=0; i<x.n_dim; i++) {
+            visit_dimension(x.m_dim[i]);
+            r += s;
+            if (i < x.n_dim-1) r.append(", ");
+        }
+        r += ")";
         s = r;
     }
 
@@ -1373,6 +1591,7 @@ public:
     {
         switch (type) {
             case (AST::kind_item_typeType::Value) :
+                LFORTRAN_ASSERT(value != nullptr);
                 this->visit_expr(*value);
                 return s;
             case (AST::kind_item_typeType::Colon) :
@@ -1382,108 +1601,6 @@ public:
             default :
                 throw LFortranException("Unknown type");
         }
-    }
-
-    void visit_decl(const decl_t &x) {
-        std::string r = indent;
-        if (x.n_namelist > 0) {
-            r += syn(gr::Type);
-            r.append("namelist");
-            r += syn();
-            r.append(" /");
-            r.append(x.m_sym);
-            r.append("/ ");
-            for (size_t i=0; i<x.n_namelist; i++) {
-                r.append(x.m_namelist[i]);
-                if (i < x.n_namelist-1) r.append(", ");
-            }
-            r.append("\n");
-            s = r;
-            return;
-        }
-        r += syn(gr::Type);
-        bool sep=false;
-        std::string sym_type;
-        if (x.m_sym_type) {
-            sep = true;
-            sym_type = x.m_sym_type;
-        }
-        r += sym_type;
-        r += syn();
-        if (x.m_derived_type_name != nullptr) {
-            r += "(" + std::string(x.m_derived_type_name) + ")";
-        }
-        if (x.n_kind > 0) {
-            r += "(";
-            if (x.n_kind == 1 && (sym_type == "real" || sym_type == "integer" || sym_type == "logical" || sym_type == "complex")
-                    && (!x.m_kind[0].m_id || std::string(x.m_kind[0].m_id) == "kind")) {
-                r += kind_value(x.m_kind[0].m_type, x.m_kind[0].m_value);
-            } else if (x.n_kind == 1 && (sym_type == "character") && (!x.m_kind[0].m_id || std::string(x.m_kind[0].m_id) == "len")) {
-                r += "len=";
-                r += kind_value(x.m_kind[0].m_type, x.m_kind[0].m_value);
-            } else if (x.n_kind == 2 && (sym_type == "character") && (x.m_kind[0].m_id && x.m_kind[1].m_id)) {
-                if (std::string(x.m_kind[0].m_id) == "len") {
-                    r += "len=";
-                    r += kind_value(x.m_kind[0].m_type, x.m_kind[0].m_value);
-                    r += ", ";
-                    r += x.m_kind[1].m_id;
-                    r += "=";
-                    r += kind_value(x.m_kind[1].m_type, x.m_kind[1].m_value);
-                } else if (std::string(x.m_kind[1].m_id) == "len") {
-                    r += "len=";
-                    r += kind_value(x.m_kind[1].m_type, x.m_kind[1].m_value);
-                    r += ", ";
-                    r += x.m_kind[0].m_id;
-                    r += "=";
-                    r += kind_value(x.m_kind[0].m_type, x.m_kind[0].m_value);
-                }
-            } else {
-                for (size_t i=0; i<x.n_kind; i++) {
-                    if (x.m_kind[i].m_id) {
-                        r += x.m_kind[i].m_id;
-                        r += "=";
-                    } else {
-                        if (sym_type == "character" && i == 0) {
-                            r += "len=";
-                        }
-                    }
-                    r += kind_value(x.m_kind[i].m_type, x.m_kind[i].m_value);
-                    if (i < x.n_kind-1) r.append(", ");
-                }
-            }
-            r += ")";
-        }
-        if (x.n_attrs > 0) {
-            for (size_t i=0; i<x.n_attrs; i++) {
-                this->visit_attribute(*x.m_attrs[i]);
-                if(sep) {
-                    r.append(", ");
-                    r.append(s);
-                } else {
-                    r.append(s);
-                }
-            }
-        }
-        if (x.m_sym) {
-            r.append(" :: ");
-            r.append(x.m_sym);
-            if (x.n_dims > 0) {
-                r.append("(");
-                for (size_t i=0; i<x.n_dims; i++) {
-                    this->visit_dimension(x.m_dims[i]);
-                    r.append(s);
-                    if (i < x.n_dims-1) r.append(",");
-                }
-                r.append(")");
-            }
-            if (x.m_initializer) {
-                r.append("=");
-                this->visit_expr(*x.m_initializer);
-                r.append(s);
-            }
-        }
-        r += "\n";
-        s = r;
     }
 
     void visit_dimension(const dimension_t &x) {
@@ -1506,39 +1623,6 @@ public:
         } else {
             s = left + ":" + right;
         }
-    }
-
-    void visit_Attribute(const Attribute_t &x) {
-        std::string r;
-        r += syn(gr::Type);
-        r.append(x.m_name);
-        r += syn();
-        if (x.n_args > 0) {
-            r.append("(");
-            for (size_t i=0; i<x.n_args; i++) {
-                this->visit_attribute_arg(x.m_args[i]);
-                r.append(s);
-                if (i < x.n_args-1) r.append(", ");
-            }
-            r.append(")");
-        }
-        if (x.n_dims > 0) {
-            r.append("(");
-            for (size_t i=0; i<x.n_dims; i++) {
-                this->visit_dimension(x.m_dims[i]);
-                r.append(s);
-                if (i < x.n_dims-1) r.append(", ");
-            }
-            r.append(")");
-        }
-        s = r;
-    }
-
-    void visit_attribute_arg(const attribute_arg_t &x) {
-        s = syn(gr::Type);
-        s += x.m_arg;
-        s += syn();
-
     }
 
     void visit_arg(const arg_t &x) {
