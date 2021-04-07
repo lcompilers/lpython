@@ -1,9 +1,6 @@
 program expr_05
 implicit none
-integer :: x
-integer :: a
-integer :: b
-integer :: c
+integer :: x, a, b, c
 a = 3
 b = 4
 c = 5

@@ -1,4 +1,4 @@
-(TranslationUnit [(Program line_continuation_03 [] [(Declaration [(i "integer" () [] [] [] () [])]) (Declaration [(k "integer" () [] [] [] () [])])] [(= i 5) (Print () [i]) (Print () [(Str "some string &
+(TranslationUnit [(Program line_continuation_03 [] [(Declaration (AttrType TypeInteger [] ()) [] [(i [] ())]) (Declaration (AttrType TypeInteger [] ()) [] [(k [] ())])] [(= i 5) (Print () [i]) (Print () [(Str "some string &
     &is continued")]) (Print () [(Str "some string can contain & as a regular character &
     &is continued")]) (Print () [(Str "Even here: &&
     && <- there will be two &")]) (Print () [i]) (Print () [i]) (Print () [i]) (Print () [(Str "some string &

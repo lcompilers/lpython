@@ -2,8 +2,7 @@ program doconcurrentloop_02
 implicit none
 real, dimension(10) :: a
 real :: sum
-integer :: N
-integer :: i
+integer :: N, i
 N = size(a)
 sum = 0
 do concurrent (i = 1:N)
