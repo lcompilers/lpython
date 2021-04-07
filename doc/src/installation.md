@@ -99,6 +99,39 @@ Run an interactive prompt:
 ./src/bin/lfortran
 ```
 
+## Enabling the Jupyter Kernel
+
+To install the Jupyter kernel, install the following Conda packages also:
+```
+conda install xeus xtl nlohmann_json cppzmq
+```
+and enable the kernel by `-DWITH_XEUS=yes` and install into `$CONDA_PREFIX`. For
+example:
+```
+cmake \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DWITH_LLVM=yes \
+    -DWITH_XEUS=yes \
+    -DCMAKE_PREFIX_PATH="$CONDA_PREFIX" \
+    -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX" \
+    .
+cmake --build . -j4 --target install
+```
+To use it, install Jupyter (`conda install jupyter`) and test that the LFortran
+kernel was found:
+```
+jupyter kernelspec list --json
+```
+Then launch a Jupyter notebook as follows:
+```
+jupyter notebook
+```
+Click `New->Fortran`. To launch a terminal jupyter LFortran console:
+```
+jupyter console --kernel=fortran
+```
+
+
 ## Build From Git with Nix
 
 One of the ways to ensure exact environment and dependencies is with `nix`. This will ensure that system dependencies do not interfere with the development environment. If you want, you can report bugs in a `nix-shell` environment to make it easier for others to reproduce.
