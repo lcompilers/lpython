@@ -1,0 +1,5 @@
+program nullify1
+implicit none
+nullify(a)
+nullify(a, b, c, d)
+end program nullify1

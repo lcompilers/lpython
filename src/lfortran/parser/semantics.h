@@ -66,6 +66,13 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 #define CONCURRENT_LOCALITIES(x) VEC_CAST(x, concurrent_locality)
 #define INTERFACE_ITEMS(x) VEC_CAST(x, interface_item)
 
+Vec<ast_t*> A2LIST(Allocator &al, ast_t *x) {
+    Vec<ast_t*> v;
+    v.reserve(al, 1);
+    v.push_back(al, x);
+    return v;
+}
+
 static inline stmt_t** IFSTMTS(Allocator &al, ast_t* x)
 {
     stmt_t **s = al.allocate<stmt_t*>();
@@ -587,12 +594,11 @@ ast_t* READ1(Allocator &al,
         EXPRS(args), args.size());
 }
 
-ast_t* OPEN1(Allocator &al,
-        const Vec<ArgStarKw> &args0,
-        Location &l) {
-    Vec<expr_t*> v;
+void extract_args1(Allocator &al,
+        Vec<expr_t*> &v,
+        Vec<keyword_t> &v2,
+        const Vec<ArgStarKw> &args0) {
     v.reserve(al, args0.size());
-    Vec<keyword_t> v2;
     v2.reserve(al, args0.size());
     for (auto &item : args0) {
         if (item.keyword) {
@@ -606,33 +612,31 @@ ast_t* OPEN1(Allocator &al,
             v.push_back(al, item.arg.m_value);
         }
     }
-    return make_Open_t(al, l,
+}
+
+template <typename ASTConstructor>
+ast_t* builtin1(Allocator &al,
+        const Vec<ArgStarKw> &args0,
+        Location &l, ASTConstructor cons) {
+    Vec<expr_t*> v;
+    Vec<keyword_t> v2;
+    extract_args1(al, v, v2, args0);
+    return cons(al, l,
         v.p, v.size(),
         v2.p, v2.size());
 }
 
-ast_t* CLOSE1(Allocator &al,
+template <typename ASTConstructor>
+ast_t* builtin2(Allocator &al,
         const Vec<ArgStarKw> &args0,
-        Location &l) {
+        const Vec<ast_t*> &ex_list,
+        Location &l, ASTConstructor cons) {
     Vec<expr_t*> v;
-    v.reserve(al, args0.size());
     Vec<keyword_t> v2;
-    v2.reserve(al, args0.size());
-    for (auto &item : args0) {
-        if (item.keyword) {
-            keyword_t kw;
-            LFORTRAN_ASSERT(item.kw.m_value != nullptr);
-            kw.m_value = item.kw.m_value;
-            kw.m_arg = item.kw.m_arg;
-            v2.push_back(al, kw);
-        } else {
-            LFORTRAN_ASSERT(item.arg.m_value != nullptr);
-            v.push_back(al, item.arg.m_value);
-        }
-    }
-    return make_Close_t(al, l,
+    extract_args1(al, v, v2, args0);
+    return cons(al, l,
         v.p, v.size(),
-        v2.p, v2.size());
+        v2.p, v2.size(), EXPRS(ex_list), ex_list.size());
 }
 
 #define WRITE_ARG1(out, arg0) \
@@ -662,8 +666,18 @@ ast_t* CLOSE1(Allocator &al,
 #define READ0(args0, l) READ1(p.m_a, args0, empty_vecast(), l)
 #define READ(args0, args, l) READ1(p.m_a, args0, args, l)
 
-#define OPEN(args0, l) OPEN1(p.m_a, args0, l)
-#define CLOSE(args0, l) CLOSE1(p.m_a, args0, l)
+#define OPEN(args0, l) builtin1(p.m_a, args0, l, make_Open_t)
+#define CLOSE(args0, l) builtin1(p.m_a, args0, l, make_Close_t)
+#define REWIND(args0, l) builtin1(p.m_a, args0, l, make_Rewind_t)
+#define NULLIFY(args0, l) builtin1(p.m_a, args0, l, make_Nullify_t)
+
+#define INQUIRE0(args0, l) builtin2(p.m_a, args0, empty_vecast(), l, \
+            make_Inquire_t)
+#define INQUIRE(args0, args, l) builtin2(p.m_a, args0, args, l, make_Inquire_t)
+#define REWIND2(arg, l) make_Rewind_t(p.m_a, l, \
+            EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
+#define REWIND3(arg, l) make_Rewind_t(p.m_a, l, \
+            EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
 
 
 void CONVERT_FNARRAYARG_FNARG(Allocator &al,
