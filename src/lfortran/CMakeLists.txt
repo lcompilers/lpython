@@ -24,7 +24,6 @@ set(SRC
     cwrapper.cpp
 
     ast_to_src.cpp
-    ast_to_cpp_hip.cpp
     ast_to_openmp.cpp
 
     mod_to_asr.cpp
