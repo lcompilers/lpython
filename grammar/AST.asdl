@@ -44,7 +44,7 @@ program_unit
         stmt* body, program_unit* contains)
     | Procedure(identifier name, arg* args, unit_decl1* use, unit_decl2* decl,
             stmt* body, program_unit* contains)
-    | Function(identifier name, arg* args, string? return_type,
+    | Function(identifier name, arg* args, decl_attribute* attributes,
             expr? return_var, tbind? bind, unit_decl1* use, unit_decl2* decl,
             stmt* body, program_unit* contains)
 
@@ -52,12 +52,11 @@ unit_decl1
     = Use(identifier module, use_symbol* symbols)
 
 unit_decl2
-    = Declaration(decl* vars)
-    | ParameterStatement(parameter_item* items)
-    | Private(identifier* vars)
-    | Public(identifier* vars)
+    = Declaration(decl_attribute? vartype, decl_attribute* attributes,
+        var_sym* syms)
     | Interface(interface_header header, interface_item* items)
     | DerivedType(identifier name, unit_decl2* items)
+    | Enum()
 
 interface_header
     = InterfaceHeader1()
@@ -128,29 +127,63 @@ unaryop = Invert | Not | UAdd | USub
 
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 
-decl = (identifier? sym, string? sym_type, string? derived_type_name,
-    kind_item* kind, dimension* dims, attribute *attrs, expr? initializer,
-    identifier* namelist
-    )
+decl_attribute
+    = AttrBind(identifier name)
+    | AttrDimension(dimension* dim)
+    | AttrExtends(identifier name)
+    | AttrIntent(attr_intent intent)
+    | AttrNamelist(identifier name)
+    | SimpleAttribute(simple_attribute attr)
+    | AttrType(decl_type type, kind_item* kind, identifier? name)
+
+simple_attribute
+    = AttrAbstract
+    | AttrAllocatable
+    | AttrContiguous
+    | AttrElemental
+    | AttrEnumerator
+    | AttrImpure
+    | AttrModule
+    | AttrNoPass
+    | AttrOptional
+    | AttrParameter
+    | AttrPointer
+    | AttrPrivate
+    | AttrProtected
+    | AttrPublic
+    | AttrPure
+    | AttrRecursive
+    | AttrSave
+    | AttrTarget
+    | AttrValue
+
+attr_intent = In | Out | InOut
+
+decl_type
+    = TypeClass
+    | TypeCharacter
+    | TypeComplex
+    | TypeDoublePrecision
+    | TypeInteger
+    | TypeLogical
+    | TypeProcedure
+    | TypeReal
+    | TypeType
+
+var_sym = (identifier name, dimension* dim, expr? initializer)
 
 kind_item = (identifier? id, expr? value, kind_item_type type)
 
 kind_item_type = Star | Colon | Value
 
-parameter_item = (identifier name, expr value)
-
 dimension = (expr? start, expr? end)
-
-attribute = Attribute(identifier name, attribute_arg *args, dimension* dims)
-
-attribute_arg = (identifier arg)
-
-fn_mod = FnMod(string s)
 
 -- Null for `expr` means it's a star
 kw_argstar = (identifier arg, expr? value)
 argstar = (expr? value)
 
+-- The identifier is wrapped up in a product type so that location information
+-- is included:
 arg = (identifier arg)
 
 
