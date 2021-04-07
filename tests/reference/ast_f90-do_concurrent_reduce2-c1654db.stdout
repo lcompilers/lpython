@@ -1,9 +1,7 @@
 subroutine sum_reduce(a, s, t)
 real, intent(in) :: a(:)
-real, intent(out) :: s
-real, intent(out) :: t
-integer :: N
-integer :: i
+real, intent(out) :: s, t
+integer :: N, i
 N = size(a)
 s = 0
 t = 0

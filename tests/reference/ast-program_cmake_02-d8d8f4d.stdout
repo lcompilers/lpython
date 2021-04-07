@@ -1,1 +1,1 @@
-(TranslationUnit [(Program TESTFortran90 [] [(Declaration [(stop "integer" () [] [] [] () [])])] [(= stop 1) (WhileLoop (== stop 0) [])] [])])
+(TranslationUnit [(Program TESTFortran90 [] [(Declaration (AttrType TypeInteger [] ()) [] [(stop [] ())])] [(= stop 1) (WhileLoop (== stop 0) [])] [])])

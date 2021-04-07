@@ -39,16 +39,13 @@ union YYSTYPE {
     AST::ast_t* ast;
     Vec<AST::ast_t*> vec_ast;
 
-    AST::decl_t *decl; // Pointer, to reduce size of YYSTYPE
-    Vec<AST::decl_t> vec_decl;
+    AST::var_sym_t *var_sym;
+    Vec<AST::var_sym_t> vec_var_sym;
 
     AST::dimension_t dim;
     Vec<AST::dimension_t> vec_dim;
 
     AST::reduce_opType reduce_op_type;
-
-    AST::parameter_item_t parameter_item;
-    Vec<AST::parameter_item_t> vec_parameter_item;
 
     VarType *var_type;
 

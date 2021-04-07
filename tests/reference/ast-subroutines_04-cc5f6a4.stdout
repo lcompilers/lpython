@@ -1,1 +1,1 @@
-(TranslationUnit [(Program print_it [] [] [(SubroutineCall print_int [] [])] [(Subroutine print_int [] [] [(Declaration [(a "integer" () [] [] [] 5 [])])] [(Print () [a])] [])])])
+(TranslationUnit [(Program print_it [] [] [(SubroutineCall print_int [] [])] [(Subroutine print_int [] [] [(Declaration (AttrType TypeInteger [] ()) [] [(a [] 5)])] [(Print () [a])] [])])])

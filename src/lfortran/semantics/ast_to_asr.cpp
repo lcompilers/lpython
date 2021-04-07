@@ -445,6 +445,23 @@ public:
         current_scope = parent_scope;
     }
 
+    AST::AttrType_t* find_return_type(AST::decl_attribute_t** attributes,
+            size_t n, const Location &loc) {
+        AST::AttrType_t* r = nullptr;
+        bool found = false;
+        for (size_t i=0; i<n; i++) {
+            if (AST::is_a<AST::AttrType_t>(*attributes[i])) {
+                if (found) {
+                    throw SemanticError("Return type declared twice", loc);
+                } else {
+                    r = AST::down_cast<AST::AttrType_t>(attributes[i]);
+                    found = true;
+                }
+            }
+        }
+        return r;
+    }
+
     void visit_Function(const AST::Function_t &x) {
         // Extract local (including dummy) variables first
         ASR::accessType s_access = dflt_access;
@@ -490,26 +507,36 @@ public:
         // or in local variables as
         //     integer :: f
         ASR::asr_t *return_var;
+        AST::AttrType_t *return_type = find_return_type(x.m_attributes,
+            x.n_attributes, x.base.base.loc);
         if (current_scope->scope.find(std::string(return_var_name)) == current_scope->scope.end()) {
             // The variable is not defined among local variables, extract the
             // type from "integer function f()" and add the variable.
             ASR::ttype_t *type;
-            if (!x.m_return_type) {
+            if (!return_type) {
                 throw SemanticError("Return type not specified",
                         x.base.base.loc);
             }
-            std::string return_type = x.m_return_type;
-            if (return_type == "integer") {
-                type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
-            } else if (return_type == "real") {
-                type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
-            } else if (return_type == "complex") {
-                type = TYPE(ASR::make_Complex_t(al, x.base.base.loc, 4, nullptr, 0));
-            } else if (return_type == "logical") {
-                type = TYPE(ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
-            } else {
-                throw SemanticError("Return type not supported",
-                        x.base.base.loc);
+            switch (return_type->m_type) {
+                case (AST::decl_typeType::TypeInteger) : {
+                    type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+                    break;
+                }
+                case (AST::decl_typeType::TypeReal) : {
+                    type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
+                    break;
+                }
+                case (AST::decl_typeType::TypeComplex) : {
+                    type = TYPE(ASR::make_Complex_t(al, x.base.base.loc, 4, nullptr, 0));
+                    break;
+                }
+                case (AST::decl_typeType::TypeLogical) : {
+                    type = TYPE(ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
+                    break;
+                }
+                default :
+                    throw SemanticError("Return type not supported",
+                            x.base.base.loc);
             }
             // Add it as a local variable:
             return_var = ASR::make_Variable_t(al, x.base.base.loc,
@@ -519,7 +546,7 @@ public:
             current_scope->scope[std::string(return_var_name)]
                 = ASR::down_cast<ASR::symbol_t>(return_var);
         } else {
-            if (x.m_return_type) {
+            if (return_type) {
                 throw SemanticError("Cannot specify the return type twice",
                     x.base.base.loc);
             }
@@ -576,9 +603,272 @@ public:
                 re, im, type);
     }
 
+    void process_dims(Allocator &al, Vec<ASR::dimension_t> &dims,
+        AST::dimension_t *m_dim, size_t n_dim) {
+        LFORTRAN_ASSERT(dims.size() == 0);
+        dims.reserve(al, n_dim);
+        for (size_t i=0; i<n_dim; i++) {
+            ASR::dimension_t dim;
+            if (m_dim[i].m_start) {
+                this->visit_expr(*m_dim[i].m_start);
+                dim.m_start = EXPR(asr);
+            } else {
+                dim.m_start = nullptr;
+            }
+            if (m_dim[i].m_end) {
+                this->visit_expr(*m_dim[i].m_end);
+                dim.m_end = EXPR(asr);
+            } else {
+                dim.m_end = nullptr;
+            }
+            dims.push_back(al, dim);
+        }
+    }
+
     void visit_Declaration(const AST::Declaration_t &x) {
-        for (size_t i=0; i<x.n_vars; i++) {
-            this->visit_decl(x.m_vars[i]);
+        if (x.m_vartype == nullptr &&
+                x.n_attributes == 1 &&
+                AST::is_a<AST::AttrNamelist_t>(*x.m_attributes[0])) {
+            //char *name = down_cast<AttrNamelist_t>(x.m_attributes[0])->m_name;
+            throw SemanticError("Namelists not implemented yet", x.base.base.loc);
+        }
+        for (size_t i=0; i<x.n_attributes; i++) {
+            if (AST::is_a<AST::AttrType_t>(*x.m_attributes[i])) {
+                throw SemanticError("Type must be declared first",
+                    x.base.base.loc);
+            };
+        }
+        if (x.m_vartype == nullptr) {
+            // Examples:
+            // private
+            // public
+            // private :: x, y, z
+            if (x.n_attributes == 0) {
+                throw SemanticError("No attribute specified",
+                    x.base.base.loc);
+            }
+            if (x.n_attributes > 1) {
+                throw SemanticError("Only one attribute can be specified if type is missing",
+                    x.base.base.loc);
+            }
+            LFORTRAN_ASSERT(x.n_attributes == 1);
+            if (AST::is_a<AST::SimpleAttribute_t>(*x.m_attributes[0])) {
+                AST::SimpleAttribute_t *sa =
+                    AST::down_cast<AST::SimpleAttribute_t>(x.m_attributes[0]);
+                if (x.n_syms == 0) {
+                    // Example:
+                    // private
+                    if (sa->m_attr == AST::simple_attributeType
+                            ::AttrPrivate) {
+                        dflt_access = ASR::accessType::Private;
+                    } else if (sa->m_attr == AST::simple_attributeType
+                            ::AttrPublic) {
+                        // Do nothing (public access is the default)
+                        LFORTRAN_ASSERT(dflt_access == ASR::accessType::Public);
+                    } else {
+                        throw SemanticError("Attribute declaration not "
+                                "supported", x.base.base.loc);
+                    }
+                } else {
+                    // Example:
+                    // private :: x, y, z
+                    for (size_t i=0; i<x.n_syms; i++) {
+                        AST::var_sym_t &s = x.m_syms[i];
+                        std::string sym = s.m_name;
+                        if (sa->m_attr == AST::simple_attributeType
+                                ::AttrPrivate) {
+                            assgnd_access[sym] = ASR::accessType::Private;
+                        } else if (sa->m_attr == AST::simple_attributeType
+                                ::AttrPublic) {
+                            assgnd_access[sym] = ASR::accessType::Public;
+                        } else {
+                            throw SemanticError("Attribute declaration not "
+                                    "supported", x.base.base.loc);
+                        }
+                    }
+                }
+            } else {
+                throw SemanticError("Attribute declaration not supported",
+                    x.base.base.loc);
+            }
+        } else {
+            // Example
+            // real(dp), private :: x, y(3), z
+            for (size_t i=0; i<x.n_syms; i++) {
+                AST::var_sym_t &s = x.m_syms[i];
+                std::string sym = s.m_name;
+                ASR::accessType s_access = dflt_access;
+                AST::AttrType_t *sym_type =
+                    AST::down_cast<AST::AttrType_t>(x.m_vartype);
+                if (assgnd_access.count(sym)) {
+                    s_access = assgnd_access[sym];
+                }
+                ASR::storage_typeType storage_type =
+                        ASR::storage_typeType::Default;
+                bool is_pointer = false;
+                if (current_scope->scope.find(sym) !=
+                        current_scope->scope.end()) {
+                    if (current_scope->parent != nullptr) {
+                        // re-declaring a global scope variable is allowed
+                        // Otherwise raise an error
+                        throw SemanticError("Symbol already declared",
+                                x.base.base.loc);
+                    }
+                }
+                ASR::intentType s_intent=intent_local;
+                Vec<ASR::dimension_t> dims;
+                dims.reserve(al, 0);
+                if (x.n_attributes > 0) {
+                    for (size_t i=0; i < x.n_attributes; i++) {
+                        AST::decl_attribute_t *a = x.m_attributes[i];
+                        if (AST::is_a<AST::SimpleAttribute_t>(*a)) {
+                            AST::SimpleAttribute_t *sa =
+                                AST::down_cast<AST::SimpleAttribute_t>(a);
+                            if (sa->m_attr == AST::simple_attributeType
+                                    ::AttrPrivate) {
+                                s_access = ASR::accessType::Private;
+                            } else if (sa->m_attr == AST::simple_attributeType
+                                    ::AttrPublic) {
+                                s_access = ASR::accessType::Public;
+                            } else if (sa->m_attr == AST::simple_attributeType
+                                    ::AttrParameter) {
+                                storage_type = ASR::storage_typeType::Parameter;
+                            } else if (sa->m_attr == AST::simple_attributeType
+                                    ::AttrPointer) {
+                                is_pointer = true;
+                            } else if (sa->m_attr == AST::simple_attributeType
+                                    ::AttrTarget) {
+                                // Do nothing for now
+                            } else {
+                                throw SemanticError("Attribute type not implemented yet",
+                                        x.base.base.loc);
+                            }
+                        } else if (AST::is_a<AST::AttrIntent_t>(*a)) {
+                            AST::AttrIntent_t *ai =
+                                AST::down_cast<AST::AttrIntent_t>(a);
+                            switch (ai->m_intent) {
+                                case (AST::attr_intentType::In) : {
+                                    s_intent = intent_in;
+                                    break;
+                                }
+                                case (AST::attr_intentType::Out) : {
+                                    s_intent = intent_out;
+                                    break;
+                                }
+                                case (AST::attr_intentType::InOut) : {
+                                    s_intent = intent_inout;
+                                    break;
+                                }
+                            }
+                        } else if (AST::is_a<AST::AttrDimension_t>(*a)) {
+                            AST::AttrDimension_t *ad =
+                                AST::down_cast<AST::AttrDimension_t>(a);
+                            if (dims.size() > 0) {
+                                throw SemanticError("Dimensions specified twice",
+                                        x.base.base.loc);
+                            }
+                            process_dims(al, dims, ad->m_dim, ad->n_dim);
+                        } else {
+                            throw SemanticError("Attribute type not implemented yet",
+                                    x.base.base.loc);
+                        }
+                    }
+                }
+                if (s.n_dim > 0) {
+                    if (dims.size() > 0) {
+                        throw SemanticError("Cannot specify dimensions both ways",
+                                x.base.base.loc);
+                    }
+                    process_dims(al, dims, s.m_dim, s.n_dim);
+                }
+                ASR::ttype_t *type;
+                int a_kind = 4;
+                if (sym_type->m_kind != nullptr) {
+                    visit_expr(*sym_type->m_kind->m_value);
+                    ASR::expr_t* kind_expr = EXPR(asr);
+                    switch( kind_expr->type ) {
+                        case ASR::exprType::ConstantInteger: {
+                            a_kind = ASR::down_cast<ASR::ConstantInteger_t>
+                                    (kind_expr)->m_n;
+                            break;
+                        }
+                        case ASR::exprType::Var: {
+                            ASR::Var_t* kind_var =
+                                ASR::down_cast<ASR::Var_t>(kind_expr);
+                            ASR::Variable_t* kind_variable =
+                                ASR::down_cast<ASR::Variable_t>(kind_var->m_v);
+                            if( kind_variable->m_storage == ASR::storage_typeType::Parameter ) {
+                                if( kind_variable->m_type->type == ASR::ttypeType::Integer ) {
+                                    a_kind = ASR::down_cast
+                                        <ASR::ConstantInteger_t>
+                                        (kind_variable->m_value)->m_n;
+                                } else {
+                                    std::string msg = "Integer variable required. " + std::string(kind_variable->m_name) + 
+                                                    " is not an Integer variable.";
+                                    throw SemanticError(msg, x.base.base.loc);
+                                }
+                            } else {
+                                std::string msg = "Parameter " + std::string(kind_variable->m_name) + 
+                                                " is a variable, which does not reduce to a constant expression";
+                                throw SemanticError(msg, x.base.base.loc);
+                            }
+                            break;
+                        }
+                        default: {
+                            throw SemanticError(R"""(Only Integer literals or expressions which reduce to constant Integer are accepted as kind parameters.)""", 
+                                                x.base.base.loc);
+                        }
+                    }
+                }
+                if (sym_type->m_type == AST::decl_typeType::TypeReal) {
+                    if (is_pointer) {
+                        type = TYPE(ASR::make_RealPointer_t(al, x.base.base.loc,
+                            a_kind, dims.p, dims.size()));
+                    } else {
+                        type = TYPE(ASR::make_Real_t(al, x.base.base.loc,
+                            a_kind, dims.p, dims.size()));
+                    }
+                } else if (sym_type->m_type == AST::decl_typeType::TypeInteger) {
+                    if (is_pointer) {
+                        type = TYPE(ASR::make_IntegerPointer_t(al, x.base.base.loc, a_kind, dims.p, dims.size()));
+                    } else {
+                        type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, a_kind, dims.p, dims.size()));
+                    }
+                } else if (sym_type->m_type == AST::decl_typeType::TypeLogical) {
+                    type = TYPE(ASR::make_Logical_t(al, x.base.base.loc, 4,
+                        dims.p, dims.size()));
+                } else if (sym_type->m_type == AST::decl_typeType::TypeComplex) {
+                    type = TYPE(ASR::make_Complex_t(al, x.base.base.loc, a_kind,
+                        dims.p, dims.size()));
+                } else if (sym_type->m_type == AST::decl_typeType::TypeCharacter) {
+                    type = TYPE(ASR::make_Character_t(al, x.base.base.loc, 4,
+                        dims.p, dims.size()));
+                } else if (sym_type->m_type == AST::decl_typeType::TypeType) {
+                    LFORTRAN_ASSERT(sym_type->m_name);
+                    std::string derived_type_name = sym_type->m_name;
+                    ASR::symbol_t *v = current_scope->resolve_symbol(derived_type_name);
+                    if (!v) {
+                        throw SemanticError("Derived type '"
+                            + derived_type_name + "' not declared", x.base.base.loc);
+                    }
+                    type = TYPE(ASR::make_Derived_t(al, x.base.base.loc, v,
+                        dims.p, dims.size()));
+                } else {
+                    throw SemanticError("Type not implemented yet.",
+                         x.base.base.loc);
+                }
+                ASR::expr_t* init_expr = nullptr;
+                if (s.m_initializer != nullptr) {
+                    this->visit_expr(*s.m_initializer);
+                    init_expr = EXPR(asr);
+                    ASR::ttype_t *init_type = expr_type(init_expr);
+                    ImplicitCastRules::set_converted_value(al, x.base.base.loc, &init_expr, init_type, type);
+                }
+                ASR::asr_t *v = ASR::make_Variable_t(al, x.base.base.loc, current_scope,
+                        s.m_name, s_intent, init_expr, storage_type, type,
+                        ASR::abiType::Source, s_access);
+                current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(v);
+            } // for m_syms
         }
     }
 
@@ -896,6 +1186,7 @@ public:
     }
 
 
+    /*
     void visit_decl(const AST::decl_t &x) {
         ASR::accessType s_access = dflt_access;
         std::string sym;
@@ -1088,6 +1379,7 @@ public:
 
         }
     }
+    */
 
     ASR::asr_t* resolve_variable(const Location &loc, const char* id) {
         SymbolTable *scope = current_scope;

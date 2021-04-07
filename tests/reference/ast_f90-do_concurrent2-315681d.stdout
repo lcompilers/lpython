@@ -1,6 +1,5 @@
 subroutine do_concurrent2(a, b)
-real, intent(inout) :: a(:)
-real, intent(inout) :: b(:)
+real, intent(inout) :: a(:), b(:)
 integer :: i
 real :: x
 x = 1.0

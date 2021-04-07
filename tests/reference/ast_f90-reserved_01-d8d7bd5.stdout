@@ -10,8 +10,7 @@ end if
 contains
 
     integer function end(return, integer) result(function) 
-    integer :: integer
-    integer :: return
+    integer :: integer, return
     function = return
     if ((return)>(integer)) then
         return

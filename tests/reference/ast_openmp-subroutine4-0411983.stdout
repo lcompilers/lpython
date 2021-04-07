@@ -1,10 +1,7 @@
 subroutine triad(a, b, scalar, c)
-real, intent(in) :: a(:) 
-real, intent(in) :: b(:) 
-real, intent(in) :: scalar 
-real, intent(out) :: c(:) 
-integer :: N 
-integer :: i 
+real, intent(in) :: a(:), b(:), scalar
+real, intent(out) :: c(:)
+integer :: N, i
 N = size(a)
 !$OMP PARALLEL DO
 do i = 1:N

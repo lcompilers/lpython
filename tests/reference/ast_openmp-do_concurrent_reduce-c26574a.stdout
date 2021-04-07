@@ -1,8 +1,7 @@
 subroutine sum_reduce(a, s)
-real, intent(in) :: a(:) 
-real, intent(out) :: s 
-integer :: N 
-integer :: i 
+real, intent(in) :: a(:)
+real, intent(out) :: s
+integer :: N, i
 N = size(a)
 s = 0
 !$OMP DO REDUCTION(+:s)
