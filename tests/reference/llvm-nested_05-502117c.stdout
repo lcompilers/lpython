@@ -11,26 +11,6 @@ source_filename = "LFortran"
 @4 = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
 @5 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
 
-define void @__module_nested_05_a_c() {
-.entry:
-  %0 = load i32*, i32** getelementptr inbounds (%b, %b* @b_nstd_strct, i32 0, i32 0), align 8
-  %1 = load i32, i32* %0, align 4
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0), i32 %1)
-  %2 = load float*, float** getelementptr inbounds (%b, %b* @b_nstd_strct, i32 0, i32 1), align 8
-  %3 = load float, float* %2, align 4
-  %4 = fpext float %3 to double
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @1, i32 0, i32 0), double %4)
-  %5 = load i32*, i32** getelementptr inbounds (%b, %b* @b_nstd_strct, i32 0, i32 0), align 8
-  store i32 4, i32* %5, align 4
-  store i32* %5, i32** getelementptr inbounds (%b, %b* @b_nstd_strct, i32 0, i32 0), align 8
-  %6 = load float*, float** getelementptr inbounds (%b, %b* @b_nstd_strct, i32 0, i32 1), align 8
-  store float 3.500000e+00, float* %6, align 4
-  store float* %6, float** getelementptr inbounds (%b, %b* @b_nstd_strct, i32 0, i32 1), align 8
-  ret void
-}
-
-declare void @_lfortran_printf(i8*, ...)
-
 define void @__module_nested_05_a_b() {
 .entry:
   %x = alloca i32, align 4
@@ -52,6 +32,26 @@ define void @__module_nested_05_a_b() {
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @5, i32 0, i32 0), double %5)
   ret void
 }
+
+define void @__module_nested_05_a_c() {
+.entry:
+  %0 = load i32*, i32** getelementptr inbounds (%b, %b* @b_nstd_strct, i32 0, i32 0), align 8
+  %1 = load i32, i32* %0, align 4
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0), i32 %1)
+  %2 = load float*, float** getelementptr inbounds (%b, %b* @b_nstd_strct, i32 0, i32 1), align 8
+  %3 = load float, float* %2, align 4
+  %4 = fpext float %3 to double
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @1, i32 0, i32 0), double %4)
+  %5 = load i32*, i32** getelementptr inbounds (%b, %b* @b_nstd_strct, i32 0, i32 0), align 8
+  store i32 4, i32* %5, align 4
+  store i32* %5, i32** getelementptr inbounds (%b, %b* @b_nstd_strct, i32 0, i32 0), align 8
+  %6 = load float*, float** getelementptr inbounds (%b, %b* @b_nstd_strct, i32 0, i32 1), align 8
+  store float 3.500000e+00, float* %6, align 4
+  store float* %6, float** getelementptr inbounds (%b, %b* @b_nstd_strct, i32 0, i32 1), align 8
+  ret void
+}
+
+declare void @_lfortran_printf(i8*, ...)
 
 define i32 @main() {
 .entry:
