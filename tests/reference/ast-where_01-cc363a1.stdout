@@ -1,1 +1,1 @@
-(TranslationUnit [(Program where_01 [] [(Declaration (AttrType TypeReal [] ()) [] [(a [(1 10)] ()) (b [(1 10)] ())])] [(Where (>= a 0) [(= b 1)] [(= b 0)]) (Where (>= a 0) [(= b 1)] [(= b 0)]) (Where (>= a 0) [(= b 1)] [(= b 0)])] [])])
+(TranslationUnit [(Program where_01 [] [(Declaration (AttrType TypeReal [] ()) [] [(a [(1 10 DimensionExpr)] ()) (b [(1 10 DimensionExpr)] ())])] [(Where (>= a 0) [(= b 1)] [(= b 0)]) (Where (>= a 0) [(= b 1)] [(= b 0)]) (Where (>= a 0) [(= b 1)] [(= b 0)])] [])])

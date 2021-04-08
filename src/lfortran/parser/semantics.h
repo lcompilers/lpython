@@ -364,12 +364,23 @@ static inline FnArg* DIM1k(Allocator &al, Location &l,
     return s;
 }
 
-static inline dimension_t DIM1d(Location &l, expr_t *a, expr_t *b)
+static inline dimension_t* DIM1d(Allocator &al, Location &l, expr_t *a, expr_t *b)
 {
-    dimension_t s;
-    s.loc = l;
-    s.m_start = a;
-    s.m_end = b;
+    dimension_t *s = al.allocate<dimension_t>();
+    s->loc = l;
+    s->m_start = a;
+    s->m_end = b;
+    s->m_end_star = dimension_typeType::DimensionExpr;
+    return s;
+}
+
+static inline dimension_t* DIM1d_star(Allocator &al, Location &l, expr_t *a)
+{
+    dimension_t *s = al.allocate<dimension_t>();
+    s->loc = l;
+    s->m_start = a;
+    s->m_end = nullptr;
+    s->m_end_star = dimension_typeType::DimensionStar;
     return s;
 }
 
@@ -1029,11 +1040,13 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
 
 #define ARRAY_COMP_DECL1k(id, a, l)   DIM1k(p.m_a, l, id, EXPR(INTEGER(1, l)), EXPR(a))
 
-#define ARRAY_COMP_DECL1d(a, l)       DIM1d(l, EXPR(INTEGER(1, l)), EXPR(a))
-#define ARRAY_COMP_DECL2d(a, b, l)    DIM1d(l, EXPR(a), EXPR(b))
-#define ARRAY_COMP_DECL3d(a, l)       DIM1d(l, EXPR(a), nullptr)
-#define ARRAY_COMP_DECL4d(b, l)       DIM1d(l, nullptr, EXPR(b))
-#define ARRAY_COMP_DECL5d(l)          DIM1d(l, nullptr, nullptr)
+#define ARRAY_COMP_DECL1d(a, l)       DIM1d(p.m_a, l, EXPR(INTEGER(1, l)), EXPR(a))
+#define ARRAY_COMP_DECL2d(a, b, l)    DIM1d(p.m_a, l, EXPR(a), EXPR(b))
+#define ARRAY_COMP_DECL3d(a, l)       DIM1d(p.m_a, l, EXPR(a), nullptr)
+#define ARRAY_COMP_DECL4d(b, l)       DIM1d(p.m_a, l, nullptr, EXPR(b))
+#define ARRAY_COMP_DECL5d(l)          DIM1d(p.m_a, l, nullptr, nullptr)
+#define ARRAY_COMP_DECL6d(l)          DIM1d_star(p.m_a, l, nullptr)
+#define ARRAY_COMP_DECL7d(a, l)       DIM1d_star(p.m_a, l, EXPR(a))
 
 #define VARMOD(a, l) make_Attribute_t(p.m_a, l, \
         a.c_str(p.m_a), \
