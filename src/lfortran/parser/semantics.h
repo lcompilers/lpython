@@ -167,6 +167,16 @@ static inline Vec<kind_item_t> a2kind_list(Allocator &al,
             nullptr, 0, \
             name2char(name))
 
+#define IMPORT0(x, l) make_Import_t( \
+            p.m_a, l, \
+            nullptr, 0, \
+            import_modifierType::Import##x)
+#define IMPORT1(args, x, l) make_Import_t( \
+            p.m_a, l, \
+            REDUCE_ARGS(p.m_a, args), args.size(), \
+            import_modifierType::Import##x)
+
+
 #define VAR_DECL1(vartype, xattr, varsym, l) \
         make_Declaration_t(p.m_a, l, \
         down_cast<decl_attribute_t>(vartype), \
@@ -786,20 +796,24 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
 #define RETURN(l) make_Return_t(p.m_a, l)
 #define CYCLE(l) make_Cycle_t(p.m_a, l)
 #define CONTINUE(l) make_Continue_t(p.m_a, l)
-#define SUBROUTINE(name, args, bind, use, decl, stmts, contains, l) make_Subroutine_t(p.m_a, l, \
+#define SUBROUTINE(name, args, bind, use, import, decl, stmts, contains, l) \
+    make_Subroutine_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
         /*bind*/ bind_opt(bind), \
         /*use*/ USES(use), \
         /*n_use*/ use.size(), \
+        /*m_import*/ VEC_CAST(import, import_statement), \
+        /*n_import*/ import.size(), \
         /*decl*/ DECLS(decl), \
         /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \
         /*n_body*/ stmts.size(), \
         /*contains*/ CONTAINS(contains), \
         /*n_contains*/ contains.size())
-#define PROCEDURE(name, args, use, decl, stmts, contains, l) make_Procedure_t(p.m_a, l, \
+#define PROCEDURE(name, args, use, decl, stmts, contains, l) \
+    make_Procedure_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
@@ -820,7 +834,7 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
     }
 }
 
-#define FUNCTION(fn_type, name, args, return_var, bind, use, decl, stmts, contains, l) make_Function_t(p.m_a, l, \
+#define FUNCTION(fn_type, name, args, return_var, bind, use, import, decl, stmts, contains, l) make_Function_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
@@ -830,13 +844,15 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*bind*/ bind_opt(bind), \
         /*use*/ USES(use), \
         /*n_use*/ use.size(), \
+        /*m_import*/ VEC_CAST(import, import_statement), \
+        /*n_import*/ import.size(), \
         /*decl*/ DECLS(decl), \
         /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \
         /*n_body*/ stmts.size(), \
         /*contains*/ CONTAINS(contains), \
         /*n_contains*/ contains.size())
-#define FUNCTION0(name, args, return_var, bind, use, decl, stmts, contains, l) make_Function_t(p.m_a, l, \
+#define FUNCTION0(name, args, return_var, bind, use, import, decl, stmts, contains, l) make_Function_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
@@ -846,6 +862,8 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*bind*/ bind_opt(bind), \
         /*use*/ USES(use), \
         /*n_use*/ use.size(), \
+        /*m_import*/ VEC_CAST(import, import_statement), \
+        /*n_import*/ import.size(), \
         /*decl*/ DECLS(decl), \
         /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \

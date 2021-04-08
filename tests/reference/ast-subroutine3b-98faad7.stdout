@@ -1,1 +1,1 @@
-(TranslationUnit [(Function f [] [(AttrType TypeInteger [] ())] () () [] [] [(= f 42)] []) (Function g [] [(AttrType TypeInteger [] ())] () () [] [] [(= g 42)] []) (Function h [] [(AttrType TypeInteger [] ())] () () [] [] [(= h 42)] [])])
+(TranslationUnit [(Function f [] [(AttrType TypeInteger [] ())] () () [] [] [] [(= f 42)] []) (Function g [] [(AttrType TypeInteger [] ())] () () [] [] [] [(= g 42)] []) (Function h [] [(AttrType TypeInteger [] ())] () () [] [] [] [(= h 42)] [])])

@@ -1,1 +1,1 @@
-(TranslationUnit [(Subroutine a [] () [] [] [] []) (Subroutine b [] () [] [] [] []) (Subroutine c [] () [] [] [] []) (Subroutine d [] () [] [] [] []) (Subroutine e [] () [] [] [] [])])
+(TranslationUnit [(Subroutine a [] () [] [(Import [] ImportNone)] [] [] []) (Subroutine b [] () [] [(Import [] ImportAll)] [] [] []) (Subroutine c [] () [] [(Import [a b] ImportDefault)] [] [] []) (Subroutine d [] () [] [(Import [a b] ImportDefault)] [] [] []) (Subroutine e [] () [] [(Import [a b] ImportOnly)] [] [] [])])
