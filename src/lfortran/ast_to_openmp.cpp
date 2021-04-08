@@ -1015,26 +1015,6 @@ public:
         this->visit_expr(*x.m_value);
         s.append(")");
     }
-    void visit_Bind(const Bind_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("bind");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_args; i++) {
-            this->visit_keyword(x.m_args[i]);
-            if (i < x.n_args-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(")");
-    }
     void visit_ArrayIndex(const ArrayIndex_t &x) {
         s.append("(");
         if (use_colors) {

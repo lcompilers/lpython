@@ -39,6 +39,15 @@ static inline expr_t* EXPR_OPT(const ast_t *f)
     }
 }
 
+static inline bind_t* bind_opt(const ast_t *f)
+{
+    if (f) {
+        return down_cast<bind_t>(f);
+    } else {
+        return nullptr;
+    }
+}
+
 static inline char* name2char(const ast_t *n)
 {
     return down_cast2<Name_t>(n)->m_id;
@@ -694,6 +703,8 @@ ast_t* builtin2(Allocator &al,
 #define REWIND3(arg, l) make_Rewind_t(p.m_a, l, \
             EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
 
+#define BIND2(args0, l) builtin1(p.m_a, args0, l, make_Bind_t)
+
 
 void CONVERT_FNARRAYARG_FNARG(Allocator &al,
         struct_member_t &s,
@@ -775,10 +786,11 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
 #define RETURN(l) make_Return_t(p.m_a, l)
 #define CYCLE(l) make_Cycle_t(p.m_a, l)
 #define CONTINUE(l) make_Continue_t(p.m_a, l)
-#define SUBROUTINE(name, args, use, decl, stmts, contains, l) make_Subroutine_t(p.m_a, l, \
+#define SUBROUTINE(name, args, bind, use, decl, stmts, contains, l) make_Subroutine_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
+        /*bind*/ bind_opt(bind), \
         /*use*/ USES(use), \
         /*n_use*/ use.size(), \
         /*decl*/ DECLS(decl), \
@@ -808,14 +820,14 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
     }
 }
 
-#define FUNCTION(fn_type, name, args, return_var, use, decl, stmts, contains, l) make_Function_t(p.m_a, l, \
+#define FUNCTION(fn_type, name, args, return_var, bind, use, decl, stmts, contains, l) make_Function_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
         /*m_attributes*/ VEC_CAST(fn_type, decl_attribute), \
         /*n_attributes*/ fn_type.size(), \
         /*return_var*/ EXPR_OPT(return_var), \
-        /*bind*/ nullptr, \
+        /*bind*/ bind_opt(bind), \
         /*use*/ USES(use), \
         /*n_use*/ use.size(), \
         /*decl*/ DECLS(decl), \
@@ -824,14 +836,14 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*n_body*/ stmts.size(), \
         /*contains*/ CONTAINS(contains), \
         /*n_contains*/ contains.size())
-#define FUNCTION0(name, args, return_var, use, decl, stmts, contains, l) make_Function_t(p.m_a, l, \
+#define FUNCTION0(name, args, return_var, bind, use, decl, stmts, contains, l) make_Function_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
         /*return_type*/ nullptr, \
         /*return_type*/ 0, \
         /*return_var*/ EXPR_OPT(return_var), \
-        /*bind*/ nullptr, \
+        /*bind*/ bind_opt(bind), \
         /*use*/ USES(use), \
         /*n_use*/ use.size(), \
         /*decl*/ DECLS(decl), \
