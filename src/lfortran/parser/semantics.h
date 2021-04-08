@@ -142,6 +142,9 @@ static inline Vec<kind_item_t> a2kind_list(Allocator &al,
 #define DIMENSION(x, l) make_AttrDimension_t( \
             p.m_a, l, \
             x.p, x.size())
+#define DIMENSION0(l) make_AttrDimension_t( \
+            p.m_a, l, \
+            nullptr, 0)
 
 #define ATTR_TYPE(x, l) make_AttrType_t( \
             p.m_a, l, \

@@ -5,7 +5,7 @@
 %locations
 %glr-parser
 %expect    467 // shift/reduce conflicts
-%expect-rr 78  // reduce/reduce conflicts
+%expect-rr 81  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -798,8 +798,6 @@ var_decl
             $$ = VAR_DECL_PARAMETER($3, @$); }
     | KW_NAMELIST "/" id "/" id_list sep {
             $$ = VAR_DECL_NAMELIST($3, $5, @$); }
-    | KW_DIMENSION var_sym_decl_list sep {
-            $$ = VAR_DECL_DIMENSION($2, @$); }
     ;
 
 named_constant_def_list
@@ -841,6 +839,7 @@ var_modifier_list
 var_modifier
     : KW_PARAMETER { $$ = SIMPLE_ATTR(Parameter, @$); }
     | KW_DIMENSION "(" array_comp_decl_list ")" { $$ = DIMENSION($3, @$); }
+    | KW_DIMENSION { $$ = DIMENSION0(@$); }
     | KW_ALLOCATABLE { $$ = SIMPLE_ATTR(Allocatable, @$); }
     | KW_POINTER { $$ = SIMPLE_ATTR(Pointer, @$); }
     | KW_TARGET { $$ = SIMPLE_ATTR(Target, @$); }
