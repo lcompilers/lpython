@@ -22,3 +22,10 @@ subroutine e()
 import, only: a, b
 implicit none
 end subroutine
+
+subroutine f()
+import :: a, b
+import :: c
+import :: d, e, f
+implicit none
+end subroutine
