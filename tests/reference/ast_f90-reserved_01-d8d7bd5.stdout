@@ -9,7 +9,7 @@ end if
 
 contains
 
-    integer function end(return, integer) result(function) 
+    integer function end(return, integer) result(function)
     integer :: integer, return
     function = return
     if ((return)>(integer)) then
