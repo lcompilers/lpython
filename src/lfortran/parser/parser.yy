@@ -798,6 +798,8 @@ var_decl
             $$ = VAR_DECL_PARAMETER($3, @$); }
     | KW_NAMELIST "/" id "/" id_list sep {
             $$ = VAR_DECL_NAMELIST($3, $5, @$); }
+    | KW_DIMENSION var_sym_decl_list sep {
+            $$ = VAR_DECL_DIMENSION($2, @$); }
     ;
 
 named_constant_def_list
