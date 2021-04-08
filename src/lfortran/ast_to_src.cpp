@@ -1539,6 +1539,8 @@ public:
                             this->visit_expr(*end);
                             r.append(s);
                         }
+                        if (start) {}
+                        if (step) {}
                         if (i < x.m_member[i].n_args-1) r.append(",");
                     }
                     r.append(")");
@@ -1640,6 +1642,8 @@ public:
                             this->visit_expr(*end);
                             r.append(s);
                         }
+                        if (start) {}
+                        if (step) {}
                         if (i < x.m_member[i].n_args-1) r.append(",");
                     }
                     r.append(")");

@@ -618,6 +618,7 @@ void extract_args1(Allocator &al,
         if (item.keyword) {
             keyword_t kw;
             LFORTRAN_ASSERT(item.kw.m_value != nullptr);
+            kw.loc = item.kw.loc;
             kw.m_value = item.kw.m_value;
             kw.m_arg = item.kw.m_arg;
             v2.push_back(al, kw);

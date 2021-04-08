@@ -609,6 +609,7 @@ public:
         dims.reserve(al, n_dim);
         for (size_t i=0; i<n_dim; i++) {
             ASR::dimension_t dim;
+            dim.loc = m_dim[i].loc;
             if (m_dim[i].m_start) {
                 this->visit_expr(*m_dim[i].m_start);
                 dim.m_start = EXPR(asr);
@@ -2143,6 +2144,7 @@ public:
                     ai.m_left = nullptr;
                     ai.m_right = EXPR(tmp);
                     ai.m_step = nullptr;
+                    ai.loc = ai.m_right->base.loc;
                     args.push_back(al, ai);
                 }
 
@@ -2306,6 +2308,7 @@ public:
         head.m_start = start;
         head.m_end = end;
         head.m_increment = increment;
+        head.loc = head.m_v->base.loc;
         tmp = ASR::make_DoLoop_t(al, x.base.base.loc, head, body.p,
                 body.size());
     }
@@ -2354,6 +2357,7 @@ public:
         head.m_start = start;
         head.m_end = end;
         head.m_increment = increment;
+        head.loc = head.m_v->base.loc;
         tmp = ASR::make_DoConcurrentLoop_t(al, x.base.base.loc, head, body.p,
                 body.size());
     }
