@@ -45,7 +45,7 @@ program_unit
     | Procedure(identifier name, arg* args, unit_decl1* use, unit_decl2* decl,
             stmt* body, program_unit* contains)
     | Function(identifier name, arg* args, decl_attribute* attributes,
-            expr? return_var, tbind? bind, unit_decl1* use, unit_decl2* decl,
+            expr? return_var, bind? bind, unit_decl1* use, unit_decl2* decl,
             stmt* body, program_unit* contains)
 
 unit_decl1
@@ -210,7 +210,7 @@ keyword = (identifier arg, expr value)
 
 struct_member = (identifier name, fnarg* args)
 
-tbind = Bind(keyword* args)
+bind = Bind(keyword* args)
 
 array_index = ArrayIndex(expr? left, expr? right, expr? step)
 

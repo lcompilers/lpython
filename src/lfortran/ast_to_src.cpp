@@ -506,7 +506,7 @@ public:
         }
         r.append(" ");
         if (x.m_bind) {
-            this->visit_tbind(*x.m_bind);
+            this->visit_bind(*x.m_bind);
             r.append(s);
         }
         r.append("\n");
