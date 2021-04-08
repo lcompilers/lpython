@@ -834,13 +834,15 @@ public:
         r += syn(gr::Type);
         r += "dimension";
         r += syn();
-        r += "(";
-        for (size_t i=0; i<x.n_dim; i++) {
-            visit_dimension(x.m_dim[i]);
-            r += s;
-            if (i < x.n_dim-1) r.append(",");
+        if (x.n_dim > 0) {
+            r += "(";
+            for (size_t i=0; i<x.n_dim; i++) {
+                visit_dimension(x.m_dim[i]);
+                r += s;
+                if (i < x.n_dim-1) r.append(",");
+            }
+            r += ")";
         }
-        r += ")";
         s = r;
     }
 
