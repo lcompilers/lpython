@@ -47,6 +47,13 @@ if (WITH_LLVM)
         codegen/evaluator.cpp
         codegen/asr_to_llvm.cpp
     )
+    # We use deprecated API in LLVM, so we disable the warning until we upgrade
+    if (NOT MSVC)
+        set_source_files_properties(codegen/evaluator.cpp PROPERTIES
+            COMPILE_FLAGS -Wno-deprecated-declarations)
+        set_source_files_properties(codegen/asr_to_llvm.cpp PROPERTIES
+            COMPILE_FLAGS -Wno-deprecated-declarations)
+    endif()
 endif()
 add_library(lfortran_lib ${SRC})
 target_link_libraries(lfortran_lib lfortran_runtime_static p::zlib)
