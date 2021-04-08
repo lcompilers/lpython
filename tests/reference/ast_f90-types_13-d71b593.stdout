@@ -1,7 +1,7 @@
 program types_13
 use iso_c_binding, only: c_int, c_double, c_char
 implicit none
-interface 
+interface
     subroutine g(d)
     character :: d
     end subroutine g
