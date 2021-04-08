@@ -1010,10 +1010,6 @@ deallocate_statement
     : KW_DEALLOCATE "(" fnarray_arg_list_opt ")" {
             $$ = DEALLOCATE_STMT($3, @$); }
 
-nullify_statement
-    : KW_NULLIFY "(" fnarray_arg_list_opt ")" {
-            $$ = PRINT0(@$); }
-
 subroutine_call
     : KW_CALL id "(" fnarray_arg_list_opt ")" {
             $$ = SUBROUTINE_CALL($2, $4, @$); }
@@ -1067,13 +1063,19 @@ read_statement
     | KW_READ "(" write_arg_list ")" { $$ = READ0($3, @$); }
     ;
 
+nullify_statement
+    : KW_NULLIFY "(" write_arg_list ")" {
+            $$ = NULLIFY($3, @$); }
+
 inquire_statement
-    : KW_INQUIRE "(" write_arg_list ")" { $$ = PRINT0(@$); }
+    : KW_INQUIRE "(" write_arg_list ")" expr_list { $$ = INQUIRE($3, $5, @$); }
+    | KW_INQUIRE "(" write_arg_list ")" { $$ = INQUIRE0($3, @$); }
     ;
 
 rewind_statement
-    : KW_REWIND "(" write_arg_list ")" { $$ = PRINT0(@$); }
-    | KW_REWIND id { $$ = PRINT0(@$); }
+    : KW_REWIND "(" write_arg_list ")" { $$ = REWIND($3, @$); }
+    | KW_REWIND id { $$ = REWIND2($2, @$); }
+    | KW_REWIND TK_INTEGER { $$ = REWIND3($2, @$); }
     ;
 
 // sr-conflict (2x): KW_ENDIF can be an "id" or end of "if_statement"

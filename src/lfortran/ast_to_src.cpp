@@ -1366,6 +1366,81 @@ public:
         s = r;
     }
 
+    void visit_Inquire(const Inquire_t &x) {
+        std::string r=indent;
+        r += syn(gr::Keyword);
+        r += "inquire";
+        r += syn();
+        r += "(";
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_expr(*x.m_args[i]);
+            r += s;
+            if (i < x.n_args-1 || x.n_kwargs > 0) r += ", ";
+        }
+        for (size_t i=0; i<x.n_kwargs; i++) {
+            r += x.m_kwargs[i].m_arg;
+            r += "=";
+            this->visit_expr(*x.m_kwargs[i].m_value);
+            r += s;
+            if (i < x.n_kwargs-1) r += ", ";
+        }
+        r += ")";
+        if (x.n_values > 0) {
+            r += " ";
+            for (size_t i=0; i<x.n_values; i++) {
+                this->visit_expr(*x.m_values[i]);
+                r += s;
+                if (i < x.n_values-1) r += ", ";
+            }
+        }
+        r += "\n";
+        s = r;
+    }
+
+    void visit_Rewind(const Rewind_t &x) {
+        std::string r=indent;
+        r += syn(gr::Keyword);
+        r += "rewind";
+        r += syn();
+        r += "(";
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_expr(*x.m_args[i]);
+            r += s;
+            if (i < x.n_args-1 || x.n_kwargs > 0) r += ", ";
+        }
+        for (size_t i=0; i<x.n_kwargs; i++) {
+            r += x.m_kwargs[i].m_arg;
+            r += "=";
+            this->visit_expr(*x.m_kwargs[i].m_value);
+            r += s;
+            if (i < x.n_kwargs-1) r += ", ";
+        }
+        r += ")\n";
+        s = r;
+    }
+
+    void visit_Nullify(const Nullify_t &x) {
+        std::string r=indent;
+        r += syn(gr::Keyword);
+        r += "nullify";
+        r += syn();
+        r += "(";
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_expr(*x.m_args[i]);
+            r += s;
+            if (i < x.n_args-1 || x.n_kwargs > 0) r += ", ";
+        }
+        for (size_t i=0; i<x.n_kwargs; i++) {
+            r += x.m_kwargs[i].m_arg;
+            r += "=";
+            this->visit_expr(*x.m_kwargs[i].m_value);
+            r += s;
+            if (i < x.n_kwargs-1) r += ", ";
+        }
+        r += ")\n";
+        s = r;
+    }
+
     void visit_Format(const Format_t &x) {
         std::string r=indent;
         r += std::to_string(x.m_n) + " ";
