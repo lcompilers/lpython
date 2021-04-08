@@ -95,6 +95,20 @@ static inline kind_item_t *make_kind_item_t(Allocator &al,
     return r;
 }
 
+static inline Vec<kind_item_t> a2kind_list(Allocator &al,
+    Location &loc, ast_t *value)
+{
+    kind_item_t r;
+    r.loc = loc;
+    r.m_id = nullptr;
+    r.m_value = down_cast<expr_t>(value);
+    r.m_type = kind_item_typeType::Value;
+    Vec<kind_item_t> v;
+    v.reserve(al, 1);
+    v.push_back(al, r);
+    return v;
+}
+
 #define KIND_ARG1(k, l) make_kind_item_t(p.m_a, l, nullptr, k, \
         kind_item_typeType::Value)
 #define KIND_ARG1S(l) make_kind_item_t(p.m_a, l, nullptr, nullptr, \
@@ -129,7 +143,7 @@ static inline kind_item_t *make_kind_item_t(Allocator &al,
 #define ATTR_TYPE_INT(x, n, l) make_AttrType_t( \
             p.m_a, l, \
             decl_typeType::Type##x, \
-            nullptr, 0, \
+            a2kind_list(p.m_a, l, INTEGER(n, l)).p, 1, \
             nullptr)
 
 #define ATTR_TYPE_KIND(x, kind, l) make_AttrType_t( \
