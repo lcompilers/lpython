@@ -446,6 +446,25 @@ public:
     }
 
     template <typename T>
+    std::string format_import(const T &x) {
+        std::string r;
+        for (size_t i=0; i<x.n_import; i++) {
+            this->visit_import_statement(*x.m_import[i]);
+            r.append(s);
+        }
+        return r;
+    }
+
+    std::string format_import(const Program_t &/*x*/) {
+        return "";
+    }
+
+    std::string format_import(const Procedure_t &/*x*/) {
+        return "";
+    }
+
+
+    template <typename T>
     std::string format_unit_body(const T &x, bool implicit_none=false) {
         std::string r;
         if (indent_unit) inc_indent();
@@ -453,6 +472,7 @@ public:
             this->visit_unit_decl1(*x.m_use[i]);
             r.append(s);
         }
+        r += format_import(x);
         if (implicit_none) r.append("implicit none\n");
         for (size_t i=0; i<x.n_decl; i++) {
             this->visit_unit_decl2(*x.m_decl[i]);
@@ -544,6 +564,41 @@ public:
             for (size_t i=0; i<x.n_symbols; i++) {
                 this->visit_use_symbol(*x.m_symbols[i]);
                 r.append(s);
+                if (i < x.n_symbols-1) r.append(", ");
+            }
+        }
+        r += "\n";
+        s = r;
+    }
+
+    void visit_Import(const Import_t &x) {
+        std::string r = indent;
+        r += syn(gr::UnitHeader);
+        r += "import";
+        r += syn();
+        if (x.m_mod == import_modifierType::ImportNone) {
+            r.append(", ");
+            r += syn(gr::UnitHeader);
+            r += "none";
+            r += syn();
+        } else if (x.m_mod == import_modifierType::ImportOnly) {
+            r.append(", ");
+            r += syn(gr::UnitHeader);
+            r += "only";
+            r += syn();
+            r += ":";
+        } else if (x.m_mod == import_modifierType::ImportAll) {
+            r.append(", ");
+            r += syn(gr::UnitHeader);
+            r += "all";
+            r += syn();
+        } else if (x.m_mod == import_modifierType::ImportDefault) {
+            r += " ::";
+        }
+        if (x.n_symbols > 0) {
+            r += " ";
+            for (size_t i=0; i<x.n_symbols; i++) {
+                r.append(x.m_symbols[i]);
                 if (i < x.n_symbols-1) r.append(", ");
             }
         }
