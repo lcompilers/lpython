@@ -1,0 +1,25 @@
+subroutine a()
+import, none
+end subroutine a
+
+subroutine b()
+import, all
+end subroutine b
+
+subroutine c()
+import :: a, b
+end subroutine c
+
+subroutine d()
+import :: a, b
+end subroutine d
+
+subroutine e()
+import, only: a, b
+end subroutine e
+
+subroutine f()
+import :: a, b
+import :: c
+import :: d, e, f
+end subroutine f
