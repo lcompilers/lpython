@@ -838,7 +838,7 @@ public:
         for (size_t i=0; i<x.n_dim; i++) {
             visit_dimension(x.m_dim[i]);
             r += s;
-            if (i < x.n_dim-1) r.append(", ");
+            if (i < x.n_dim-1) r.append(",");
         }
         r += ")";
         s = r;

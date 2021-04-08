@@ -1,7 +1,7 @@
 program arrays_06
 implicit none
 real, dimension(6) :: x
-real, dimension(10, 10) :: A
+real, dimension(10,10) :: A
 integer :: i, j
 x = [((i)*(2), i = 1, 6)]
 print *, x
