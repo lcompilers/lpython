@@ -370,6 +370,17 @@ static inline dimension_t DIM1d(Location &l, expr_t *a, expr_t *b)
     s.loc = l;
     s.m_start = a;
     s.m_end = b;
+    s.m_end_star = dimension_typeType::DimensionExpr;
+    return s;
+}
+
+static inline dimension_t DIM1d_star(Location &l, expr_t *a)
+{
+    dimension_t s;
+    s.loc = l;
+    s.m_start = a;
+    s.m_end = nullptr;
+    s.m_end_star = dimension_typeType::DimensionStar;
     return s;
 }
 
@@ -1034,6 +1045,8 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
 #define ARRAY_COMP_DECL3d(a, l)       DIM1d(l, EXPR(a), nullptr)
 #define ARRAY_COMP_DECL4d(b, l)       DIM1d(l, nullptr, EXPR(b))
 #define ARRAY_COMP_DECL5d(l)          DIM1d(l, nullptr, nullptr)
+#define ARRAY_COMP_DECL6d(l)          DIM1d_star(l, nullptr)
+#define ARRAY_COMP_DECL7d(a, l)       DIM1d_star(l, EXPR(a))
 
 #define VARMOD(a, l) make_Attribute_t(p.m_a, l, \
         a.c_str(p.m_a), \

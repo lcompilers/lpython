@@ -190,7 +190,20 @@ kind_item = (identifier? id, expr? value, kind_item_type type)
 
 kind_item_type = Star | Colon | Value
 
-dimension = (expr? start, expr? end)
+dimension = (expr? start, expr? end, dimension_type end_star)
+dimension_type = DimensionExpr | DimensionStar
+
+-- Encoding of an array dimension declaration:
+--           start      end     end_star
+-- Declaration:
+-- X(n)       1          n       Expr   # Note: X(n) is equivalent to X(1:n)
+-- X(:)       ()         ()      Expr
+-- X(a:)      a          ()      Expr
+-- X(:b)      ()         b       Expr
+-- X(a:b)     a          b       Expr
+-- X(*)       ()         ()      Star
+-- X(a:*)     a          ()      Star
+
 
 -- Null for `expr` means it's a star
 kw_argstar = (identifier arg, expr? value)

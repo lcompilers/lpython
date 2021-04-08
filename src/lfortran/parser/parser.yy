@@ -915,8 +915,8 @@ array_comp_decl
     | expr ":"       { $$ = ARRAY_COMP_DECL3d($1, @$); }
     | ":" expr       { $$ = ARRAY_COMP_DECL4d($2, @$); }
     | ":"            { $$ = ARRAY_COMP_DECL5d(@$); }
-    | "*"            { $$ = ARRAY_COMP_DECL5d(@$); } // TODO
-    | expr ":" "*"   { $$ = ARRAY_COMP_DECL5d(@$); } // TODO
+    | "*"            { $$ = ARRAY_COMP_DECL6d(@$); }
+    | expr ":" "*"   { $$ = ARRAY_COMP_DECL7d($1, @$); }
     ;
 
 
