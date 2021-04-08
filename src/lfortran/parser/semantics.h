@@ -715,6 +715,7 @@ ast_t* builtin2(Allocator &al,
 #define CLOSE(args0, l) builtin1(p.m_a, args0, l, make_Close_t)
 #define REWIND(args0, l) builtin1(p.m_a, args0, l, make_Rewind_t)
 #define NULLIFY(args0, l) builtin1(p.m_a, args0, l, make_Nullify_t)
+#define BACKSPACE(args0, l) builtin1(p.m_a, args0, l, make_Backspace_t)
 
 #define INQUIRE0(args0, l) builtin2(p.m_a, args0, empty_vecast(), l, \
             make_Inquire_t)
