@@ -34,6 +34,10 @@ filename = "do2.f90"
 ast = true
 
 [[test]]
+filename = "do3.f90"
+ast = true
+
+[[test]]
 filename = "errors/esub1.f90"
 tokens = true
 ast = true
