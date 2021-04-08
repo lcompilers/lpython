@@ -61,7 +61,7 @@ interface
     logical*4 :: c
     end function
 
-    subroutine f5(a, b, c) bind(C)
+    subroutine f5(a, b, c) bind(C, name="_cf5")
     import :: c_int, c_double
     integer(c_int) :: r
     integer(c_int), value, intent(in) :: a

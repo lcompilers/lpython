@@ -314,6 +314,11 @@ public:
             if (i < x.n_args-1) r.append(", ");
         }
         r.append(")");
+        if (x.m_bind) {
+            r.append(" ");
+            this->visit_bind(*x.m_bind);
+            r.append(s);
+        }
         r.append("\n");
 
         r += format_unit_body(x);
@@ -504,8 +509,8 @@ public:
             r.append(s);
             r.append(")");
         }
-        r.append(" ");
         if (x.m_bind) {
+            r.append(" ");
             this->visit_bind(*x.m_bind);
             r.append(s);
         }
@@ -1755,12 +1760,13 @@ public:
         r += "(";
         for (size_t i=0; i<x.n_args; i++) {
             visit_expr(*x.m_args[i]);
-            if (i < x.n_args-1 || x.n_kwargs > 0) s.append(", ");
+            r += s;
+            if (i < x.n_args-1 || x.n_kwargs > 0) r.append(", ");
         }
         for (size_t i=0; i<x.n_kwargs; i++) {
             visit_keyword(x.m_kwargs[i]);
             r += s;
-            if (i < x.n_kwargs-1) s.append(", ");
+            if (i < x.n_kwargs-1) r.append(", ");
         }
         r += ")";
         s = r;
