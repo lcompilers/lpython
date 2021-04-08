@@ -1,0 +1,5 @@
+program array7
+implicit none
+integer, parameter :: n=10
+dimension :: SJ(0:N), DJ(0:N)
+end program array7

@@ -1,0 +1,1 @@
+(TranslationUnit [(Program array7 [] [(Declaration (AttrType TypeInteger [] ()) [(SimpleAttribute AttrParameter)] [(n [] 10)]) (Declaration () [(AttrDimension [])] [(SJ [(0 N DimensionExpr)] ()) (DJ [(0 N DimensionExpr)] ())])] [] [])])
