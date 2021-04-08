@@ -422,13 +422,13 @@ script_unit
 //
 
 module
-    : KW_MODULE id sep use_statement_star implicit_statement_opt
+    : KW_MODULE id sep use_statement_star implicit_statement_star
         decl_star contains_block_opt KW_END end_module_opt sep {
             $$ = MODULE($2, $4, $6, $7, @$); }
     ;
 
 submodule
-    : KW_SUBMODULE "(" id ")" id sep use_statement_star implicit_statement_opt
+    : KW_SUBMODULE "(" id ")" id sep use_statement_star implicit_statement_star
         decl_star contains_block_opt KW_END end_submodule_opt sep {
             $$ = SUBMODULE($3, $5, $7, $9, $10, @$); }
     ;
@@ -555,7 +555,7 @@ proc_modifier
 
 
 program
-    : KW_PROGRAM id sep use_statement_star implicit_statement_opt decl_star statements
+    : KW_PROGRAM id sep use_statement_star implicit_statement_star decl_star statements
         contains_block_opt KW_END end_program_opt sep {
             LLOC(@$, @10); $$ = PROGRAM($2, $4, $6, $7, $8, @$); }
     ;
@@ -592,12 +592,12 @@ end_function_opt
 
 subroutine
     : KW_SUBROUTINE id sub_args bind_opt sep use_statement_star
-    import_statement_star implicit_statement_opt decl_star statements
+    import_statement_star implicit_statement_star decl_star statements
         contains_block_opt
         KW_END end_subroutine_opt sep {
             LLOC(@$, @13); $$ = SUBROUTINE($2, $3, $4, $6, $7, $9, $10, $11, @$); }
     | fn_mod_plus KW_SUBROUTINE id sub_args bind_opt sep use_statement_star
-    import_statement_star implicit_statement_opt decl_star statements
+    import_statement_star implicit_statement_star decl_star statements
         contains_block_opt
         KW_END end_subroutine_opt sep {
             LLOC(@$, @14); $$ = SUBROUTINE($3, $4, $5, $7, $8, $10, $11, $12, @$); }
@@ -605,7 +605,7 @@ subroutine
 
 procedure
     : fn_mod_plus KW_PROCEDURE id sub_args sep use_statement_star
-    import_statement_star implicit_statement_opt decl_star statements
+    import_statement_star implicit_statement_star decl_star statements
         contains_block_opt
         KW_END end_procedure_opt sep {
             LLOC(@$, @14); $$ = PROCEDURE($3, $4, $6, $9, $10, $11, @$); }
@@ -613,40 +613,40 @@ procedure
 
 function
     : KW_FUNCTION id "(" id_list_opt ")"
-        sep use_statement_star import_statement_star implicit_statement_opt decl_star statements
+        sep use_statement_star import_statement_star implicit_statement_star decl_star statements
         contains_block_opt
         KW_END end_function_opt sep {
             LLOC(@$, @14); $$ = FUNCTION0($2, $4, nullptr, nullptr, $7, $8, $10, $11, $12, @$); }
     | KW_FUNCTION id "(" id_list_opt ")"
         bind
         result_opt
-        sep use_statement_star import_statement_star implicit_statement_opt decl_star statements
+        sep use_statement_star import_statement_star implicit_statement_star decl_star statements
         contains_block_opt
         KW_END end_function_opt sep {
             LLOC(@$, @16); $$ = FUNCTION0($2, $4, $7, $6, $9, $10, $12, $13, $14, @$); }
     | KW_FUNCTION id "(" id_list_opt ")"
         result
         bind_opt
-        sep use_statement_star import_statement_star implicit_statement_opt decl_star statements
+        sep use_statement_star import_statement_star implicit_statement_star decl_star statements
         contains_block_opt
         KW_END end_function_opt sep {
             LLOC(@$, @16); $$ = FUNCTION0($2, $4, $6, $7, $9, $10, $12, $13, $14, @$); }
     | fn_mod_plus KW_FUNCTION id "(" id_list_opt ")"
-        sep use_statement_star import_statement_star implicit_statement_opt decl_star statements
+        sep use_statement_star import_statement_star implicit_statement_star decl_star statements
         contains_block_opt
         KW_END end_function_opt sep {
             LLOC(@$, @15); $$ = FUNCTION($1, $3, $5, nullptr, nullptr, $8, $9, $11, $12, $13, @$); }
     | fn_mod_plus KW_FUNCTION id "(" id_list_opt ")"
         bind
         result_opt
-        sep use_statement_star import_statement_star implicit_statement_opt decl_star statements
+        sep use_statement_star import_statement_star implicit_statement_star decl_star statements
         contains_block_opt
         KW_END end_function_opt sep {
             LLOC(@$, @17); $$ = FUNCTION($1, $3, $5, $8, $7, $10, $11, $13, $14, $15, @$); }
     | fn_mod_plus KW_FUNCTION id "(" id_list_opt ")"
         result
         bind_opt
-        sep use_statement_star import_statement_star implicit_statement_opt decl_star statements
+        sep use_statement_star import_statement_star implicit_statement_star decl_star statements
         contains_block_opt
         KW_END end_function_opt sep {
             LLOC(@$, @17); $$ = FUNCTION($1, $3, $5, $7, $8, $10, $11, $13, $14, $15, @$); }
@@ -717,13 +717,15 @@ result
     : KW_RESULT "(" id ")" { $$ = $3; }
     ;
 
-implicit_statement_opt
-    : implicit_statement
+implicit_statement_star
+    : implicit_statement_star implicit_statement
     | %empty
     ;
 
 implicit_statement
     : KW_IMPLICIT KW_NONE sep
+    | KW_IMPLICIT KW_DOUBLE KW_PRECISION "(" id "-" id "," id "-" id ")" sep
+    | KW_IMPLICIT KW_INTEGER "(" id "-" id ")" sep
     ;
 
 use_statement_star
