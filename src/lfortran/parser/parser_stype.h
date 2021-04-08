@@ -42,7 +42,7 @@ union YYSTYPE {
     AST::var_sym_t *var_sym;
     Vec<AST::var_sym_t> vec_var_sym;
 
-    AST::dimension_t dim;
+    AST::dimension_t *dim;
     Vec<AST::dimension_t> vec_dim;
 
     AST::reduce_opType reduce_op_type;

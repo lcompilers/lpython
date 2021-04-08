@@ -905,8 +905,8 @@ var_sym_decl
     ;
 
 array_comp_decl_list
-    : array_comp_decl_list "," array_comp_decl { $$ = $1; LIST_ADD($$, $3); }
-    | array_comp_decl { LIST_NEW($$); LIST_ADD($$, $1); }
+    : array_comp_decl_list "," array_comp_decl { $$ = $1; PLIST_ADD($$, $3); }
+    | array_comp_decl { LIST_NEW($$); PLIST_ADD($$, $1); }
     ;
 
 array_comp_decl
