@@ -838,7 +838,7 @@ public:
         for (size_t i=0; i<x.n_dim; i++) {
             visit_dimension(x.m_dim[i]);
             r += s;
-            if (i < x.n_dim-1) r.append(", ");
+            if (i < x.n_dim-1) r.append(",");
         }
         r += ")";
         s = r;
@@ -1743,24 +1743,34 @@ public:
     }
 
     void visit_dimension(const dimension_t &x) {
-        std::string left;
-        bool left_is_one=false;
-        if (x.m_start) {
-            this->visit_expr(*x.m_start);
-            left = s;
-            if (x.m_start->type == AST::exprType::Num) {
-                left_is_one = (AST::down_cast<AST::Num_t>(x.m_start)->m_n == 1);
-            };
-        }
-        std::string right;
-        if (x.m_end) {
-            this->visit_expr(*x.m_end);
-            right = s;
-        }
-        if (left_is_one && right != "") {
-            s = right;
+        if (x.m_end_star == dimension_typeType::DimensionExpr) {
+            std::string left;
+            bool left_is_one=false;
+            if (x.m_start) {
+                this->visit_expr(*x.m_start);
+                left = s;
+                if (x.m_start->type == AST::exprType::Num) {
+                    left_is_one = (AST::down_cast<AST::Num_t>(x.m_start)->m_n == 1);
+                };
+            }
+            std::string right;
+            if (x.m_end) {
+                this->visit_expr(*x.m_end);
+                right = s;
+            }
+            if (left_is_one && right != "") {
+                s = right;
+            } else {
+                s = left + ":" + right;
+            }
         } else {
-            s = left + ":" + right;
+            LFORTRAN_ASSERT(x.m_end_star == dimension_typeType::DimensionStar);
+            if (x.m_start) {
+                this->visit_expr(*x.m_start);
+                s += ":*";
+            } else {
+                s = "*";
+            }
         }
     }
 
