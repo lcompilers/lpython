@@ -1257,7 +1257,7 @@ public:
                 this->visit_expr(*x.m_args[i].m_value);
                 r += s;
             }
-            if (i < x.n_args-1 || x.n_kwargs > 0) r += ",";
+            if (i < x.n_args-1 || x.n_kwargs > 0) r += ", ";
         }
         for (size_t i=0; i<x.n_kwargs; i++) {
             r += x.m_kwargs[i].m_arg;
@@ -1268,7 +1268,7 @@ public:
                 this->visit_expr(*x.m_kwargs[i].m_value);
                 r += s;
             }
-            if (i < x.n_kwargs-1) r += ",";
+            if (i < x.n_kwargs-1) r += ", ";
         }
         r += ")";
         if (x.n_values > 0) {
@@ -1296,7 +1296,7 @@ public:
                 this->visit_expr(*x.m_args[i].m_value);
                 r += s;
             }
-            if (i < x.n_args-1 || x.n_kwargs > 0) r += ",";
+            if (i < x.n_args-1 || x.n_kwargs > 0) r += ", ";
         }
         for (size_t i=0; i<x.n_kwargs; i++) {
             r += x.m_kwargs[i].m_arg;
@@ -1307,7 +1307,7 @@ public:
                 this->visit_expr(*x.m_kwargs[i].m_value);
                 r += s;
             }
-            if (i < x.n_kwargs-1) r += ",";
+            if (i < x.n_kwargs-1) r += ", ";
         }
         r += ")";
         if (x.n_values > 0) {
@@ -1331,14 +1331,14 @@ public:
         for (size_t i=0; i<x.n_args; i++) {
             this->visit_expr(*x.m_args[i]);
             r += s;
-            if (i < x.n_args-1 || x.n_kwargs > 0) r += ",";
+            if (i < x.n_args-1 || x.n_kwargs > 0) r += ", ";
         }
         for (size_t i=0; i<x.n_kwargs; i++) {
             r += x.m_kwargs[i].m_arg;
             r += "=";
             this->visit_expr(*x.m_kwargs[i].m_value);
             r += s;
-            if (i < x.n_kwargs-1) r += ",";
+            if (i < x.n_kwargs-1) r += ", ";
         }
         r += ")\n";
         s = r;
@@ -1353,14 +1353,14 @@ public:
         for (size_t i=0; i<x.n_args; i++) {
             this->visit_expr(*x.m_args[i]);
             r += s;
-            if (i < x.n_args-1 || x.n_kwargs > 0) r += ",";
+            if (i < x.n_args-1 || x.n_kwargs > 0) r += ", ";
         }
         for (size_t i=0; i<x.n_kwargs; i++) {
             r += x.m_kwargs[i].m_arg;
             r += "=";
             this->visit_expr(*x.m_kwargs[i].m_value);
             r += s;
-            if (i < x.n_kwargs-1) r += ",";
+            if (i < x.n_kwargs-1) r += ", ";
         }
         r += ")\n";
         s = r;
