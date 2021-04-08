@@ -222,7 +222,8 @@ static void modrm_sib_disp(Vec<uint8_t> &code, Allocator &al,
         } else if (base == 0b100) {
             index = 0b100;
         } else {
-            // index will not be used
+            // index will not be used, but silence a compiler warning:
+            index = 0;
         }
     } else {
         mod = 0b11;
@@ -232,6 +233,8 @@ static void modrm_sib_disp(Vec<uint8_t> &code, Allocator &al,
             throw AssemblerError("base_opt must be supplied if mem=false");
         }
         rm = base;
+        // index will not be used, but silence a compiler warning:
+        index = 0;
     }
 
     switch (scale) {

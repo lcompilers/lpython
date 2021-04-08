@@ -809,7 +809,7 @@ public:
                             type = llvm::Type::getInt1Ty(context);
                             break;
                         default :
-                            LFORTRAN_ASSERT(false);
+                            throw CodeGenError("Type not implemented");
                     }
                     llvm::AllocaInst *ptr = builder->CreateAlloca(type, nullptr, v->m_name);
                     llvm_symtab[h] = ptr;
@@ -928,6 +928,7 @@ public:
                     break;
                 default :
                     LFORTRAN_ASSERT(false);
+                    throw CodeGenError("Type not implemented");
             }
             std::vector<llvm::Type*> args = convert_args(x);
             llvm::FunctionType *function_type = llvm::FunctionType::get(
@@ -1473,7 +1474,7 @@ public:
                 break;
             }
             default: {
-                break;
+                throw CodeGenError("kind type not supported");
             }
         }
         switch( a_kind ) {
@@ -1486,7 +1487,7 @@ public:
                 break;
             }
             default: {
-                break;
+                throw CodeGenError("kind type not supported");
             }
         }
         tmp = complex_from_floats(re2, im2, type);
@@ -1744,6 +1745,8 @@ public:
                                           " to " + std::to_string(dest_kind) + " not implemented yet.";
                         throw CodeGenError(msg);
                     }
+                } else {
+                    throw CodeGenError("Negative kinds are not supported.");
                 }
                 tmp = complex_from_floats(re, im, target_type);
                 break;
@@ -1913,7 +1916,7 @@ public:
                         throw CodeGenError("Derived type argument not implemented yet in conversion");
                         break;
                     default :
-                        LFORTRAN_ASSERT(false);
+                        throw CodeGenError("Type not implemented yet.");
                 }
                 llvm::AllocaInst *target = builder->CreateAlloca(
                     target_type, nullptr);
@@ -2009,7 +2012,7 @@ public:
                     break;
                   }
                   default: {
-                    break;
+                      throw CodeGenError("Kind type not supported");
                   }
               }
               llvm::FunctionType *function_type =

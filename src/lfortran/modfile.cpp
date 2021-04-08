@@ -101,6 +101,7 @@ std::string save_modfile(const ASR::TranslationUnit_t &m) {
     LFORTRAN_ASSERT(m.m_global_scope->scope.size()== 1);
     for (auto &a : m.m_global_scope->scope) {
         LFORTRAN_ASSERT(ASR::is_a<ASR::Module_t>(*a.second));
+        if ((bool&)a) { } // Suppress unused warning in Release mode
     }
     BinaryWriter b;
     // Header

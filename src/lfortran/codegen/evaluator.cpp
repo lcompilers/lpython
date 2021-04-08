@@ -539,7 +539,7 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(const std::strin
         return error;
     }
 
-    return std::move(m);
+    return m;
 }
 
 Result<std::string> FortranEvaluator::get_asm(const std::string &code)

@@ -72,7 +72,7 @@ cxx_binary:
   script:
     - tar xzf dist/lfortran-*.tar.gz
     - cd lfortran-*
-    - cmake
+    - CXXFLAGS="-Werror" cmake
          -DCMAKE_BUILD_TYPE=Release
          -DCMAKE_CXX_FLAGS_RELEASE="-Wall -Wextra -O3 -march=nehalem -funroll-loops -DNDEBUG"
          -DWITH_LLVM=yes
@@ -98,7 +98,7 @@ cxx_binary_tests:
     - sudo apt-get install -yq --no-install-recommends libtinfo-dev zlib1g-dev binutils-dev
     - tar xzf dist/lfortran-*.tar.gz
     - cd lfortran-*
-    - cmake
+    - CXXFLAGS="-Werror" cmake
          -DCMAKE_BUILD_TYPE=Debug
          -DWITH_LLVM=yes
          -DWITH_STACKTRACE=yes
@@ -113,7 +113,7 @@ cxx_binary_tests:
     - PATH="`pwd`/src/bin:$PATH" ./test_lfort_cmdline lfortran
 
     - cd src/runtime/tests
-    - cmake .
+    - CXXFLAGS="-Werror" cmake .
     - make
     - ctest
     - cd ../../..
@@ -167,7 +167,7 @@ jupyter_kernel:
     - export PATH="$HOME/conda_root/bin:$PATH"
     - tar xzf dist/lfortran-*.tar.gz
     - cd lfortran-*
-    - cmake
+    - CXXFLAGS="-Werror" cmake
          -DCMAKE_BUILD_TYPE=Debug
          -DWITH_LLVM=yes
          -DWITH_XEUS=yes
@@ -249,7 +249,7 @@ documentation:
     - conda install -c conda-forge nbconvert=5.6.0 mkdocs
     - tar xzf dist/lfortran-*.tar.gz
     - cd lfortran-*
-    - cmake
+    - CXXFLAGS="-Werror" cmake
          -DCMAKE_BUILD_TYPE=Debug
          -DWITH_LLVM=yes
          -DWITH_XEUS=yes
