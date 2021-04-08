@@ -110,6 +110,7 @@ stmt
     | Inquire(expr* args, keyword* kwargs, expr* values)
     | Nullify(expr* args, keyword* kwargs)
     | Rewind(expr* args, keyword* kwargs)
+    | Backspace(expr* args, keyword* kwargs)
 
 expr
     = BoolOp(expr left, boolop op, expr right)
