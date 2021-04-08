@@ -383,7 +383,6 @@ public:
         r += syn(gr::UnitHeader);
         r.append("interface");
         r += syn();
-        r += " ";
         this->visit_interface_header(*x.m_header);
         r.append(s);
         r.append("\n");
@@ -407,7 +406,8 @@ public:
     }
 
     void visit_InterfaceHeader2(const InterfaceHeader2_t &x) {
-        s = x.m_name;
+        s = " ";
+        s += x.m_name;
     }
 
     void visit_InterfaceHeader3(const InterfaceHeader3_t &/* x */) {
