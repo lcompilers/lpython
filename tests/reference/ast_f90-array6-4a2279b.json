@@ -2,11 +2,11 @@
     "basename": "ast_f90-array6-4a2279b",
     "cmd": "lfortran --show-ast-f90 --no-color {infile}",
     "infile": "tests/array6.f90",
-    "infile_hash": "7ec2660b2701d4b661ed2752b051acf8c44951151adcf4a54fa38201",
+    "infile_hash": "bd74956aa588e4b340d6de16fc0b67a51fbf31518393a6cb4e7d2901",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast_f90-array6-4a2279b.stdout",
-    "stdout_hash": "77b0625330b3f6f41238a06cd93586c8099e44f07dbf9789a12409bf",
+    "stdout_hash": "bd4e2df5c0a267165ab22a002c79754eede043dfea1f06275209b79c",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
