@@ -634,6 +634,7 @@ ast = true
 [[test]]
 filename = "../integration_tests/types_13.f90"
 ast = true
+ast_f90 = true
 
 [[test]]
 filename = "../integration_tests/namelist_01.f90"

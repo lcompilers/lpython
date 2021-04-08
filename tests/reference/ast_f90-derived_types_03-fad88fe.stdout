@@ -14,7 +14,7 @@ contains
     type(A) :: b
     end subroutine Y
 
-    integer function Z() 
+    integer function Z()
     type :: A
         integer :: i
     end type
