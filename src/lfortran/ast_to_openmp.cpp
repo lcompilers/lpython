@@ -462,28 +462,6 @@ public:
         r.append(")");
         s = r;
     }
-    void visit_BuiltinCall(const BuiltinCall_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("builtincall");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        s.append(x.m_name);
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_args; i++) {
-            this->visit_expr(*x.m_args[i]);
-            if (i < x.n_args-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(")");
-    }
     void visit_If(const If_t &x) {
         s.append("(");
         if (use_colors) {
@@ -854,35 +832,6 @@ public:
         this->visit_expr(*x.m_right);
         s.append(")");
     }
-    void visit_FuncCall(const FuncCall_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("funccall");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        s.append(x.m_func);
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_args; i++) {
-            this->visit_expr(*x.m_args[i].m_end);
-            if (i < x.n_args-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_keywords; i++) {
-            this->visit_keyword(x.m_keywords[i]);
-            if (i < x.n_keywords-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(")");
-    }
     void visit_FuncCallOrArray(const FuncCallOrArray_t &x) {
         std::string r = "";
         r.append(x.m_func);
@@ -899,28 +848,6 @@ public:
         }
         r.append(")");
         s = r;
-    }
-    void visit_Array(const Array_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("array");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        s.append(x.m_name);
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_args; i++) {
-            this->visit_array_index(*x.m_args[i]);
-            if (i < x.n_args-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(")");
     }
     void visit_ArrayInitializer(const ArrayInitializer_t &x) {
         std::string r = "[";

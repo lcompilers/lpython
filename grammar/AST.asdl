@@ -86,7 +86,6 @@ stmt
     | Assignment(int label, expr target, expr value)
     | Associate(int label, expr target, expr value)
     | Backspace(int label, expr* args, keyword* kwargs)
-    | BuiltinCall(int label, identifier name, expr* args) -- TODO: remove
     | Close(int label, expr* args, keyword* kwargs)
     | Continue(int label)
     | Cycle(int label)
@@ -125,10 +124,8 @@ expr
     | StrOp(expr left, stroperator op, expr right)
     | UnaryOp(unaryop op, expr operand)
     | Compare(expr left, cmpop op, expr right)
-    | FuncCall(identifier func, fnarg* args, keyword* keywords)
     | FuncCallOrArray(identifier func, struct_member* member,
         fnarg* args, keyword* keywords)
-    | Array(identifier name, array_index* args)
     | ArrayInitializer(expr* args)
     | ImpliedDoLoop(expr* values, identifier var, expr start, expr end,
         expr? increment)

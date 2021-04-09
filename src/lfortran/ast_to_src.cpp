@@ -943,19 +943,6 @@ public:
         s = r;
     }
 
-    void visit_BuiltinCall(const BuiltinCall_t &x) {
-        std::string r = indent;
-        r += x.m_name;
-        r += "(";
-        for (size_t i=0; i<x.n_args; i++) {
-            this->visit_expr(*x.m_args[i]);
-            r += s;
-            if (i < x.n_args-1) s.append(", ");
-        }
-        r += ")\n";
-        s = r;
-    }
-
     void visit_If(const If_t &x) {
         std::string r = indent;
         r += syn(gr::Conditional);
@@ -1593,29 +1580,6 @@ public:
         s = "(" + left + ")" + cmpop2str(x.m_op) + "(" + right + ")";
     }
 
-    void visit_FuncCall(const FuncCall_t &x) {
-        std::string r;
-        r.append(x.m_func);
-        r.append("(");
-        for (size_t i=0; i<x.n_args; i++) {
-            if (x.m_args[i].m_end) {
-                this->visit_expr(*x.m_args[i].m_end);
-                r.append(s);
-            } else {
-                r += ":";
-            }
-            if (i < x.n_args-1) r.append(", ");
-        }
-        if (x.n_keywords > 0) r.append(", ");
-        for (size_t i=0; i<x.n_keywords; i++) {
-            this->visit_keyword(x.m_keywords[i]);
-            r.append(s);
-            if (i < x.n_keywords-1) r.append(", ");
-        }
-        r.append(")");
-        s = r;
-    }
-
     void visit_FuncCallOrArray(const FuncCallOrArray_t &x) {
         std::string r;
         if (x.n_member > 0) {
@@ -1656,19 +1620,6 @@ public:
             this->visit_keyword(x.m_keywords[i]);
             r.append(s);
             if (i < x.n_keywords-1) r.append(", ");
-        }
-        r.append(")");
-        s = r;
-    }
-
-    void visit_Array(const Array_t &x) {
-        std::string r;
-        r.append(x.m_name);
-        r.append("(");
-        for (size_t i=0; i<x.n_args; i++) {
-            this->visit_array_index(*x.m_args[i]);
-            r.append(s);
-            if (i < x.n_args-1) r.append(", ");
         }
         r.append(")");
         s = r;
