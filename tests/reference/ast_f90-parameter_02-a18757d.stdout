@@ -7,10 +7,8 @@ end subroutine a_proc
 
 module a_mod
 implicit none
-
 integer :: i
 parameter(i=2)
-
 end module a_mod
 
 program parameter_02

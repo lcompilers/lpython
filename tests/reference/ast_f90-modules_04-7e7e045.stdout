@@ -1,9 +1,6 @@
 module a_04
 implicit none
 
-
-
-
 contains
 
 subroutine b()
@@ -19,15 +16,15 @@ call f()
 
 contains
 
-    subroutine f()
-    use a_04, only: b
-    call b()
-    end subroutine f
+subroutine f()
+use a_04, only: b
+call b()
+end subroutine f
 
-    integer function g()
-    use a_04, only: b
-    call b()
-    g = 5
-    end function g
+integer function g()
+use a_04, only: b
+call b()
+g = 5
+end function g
 
 end program modules_04

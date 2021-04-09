@@ -7,19 +7,19 @@ type(X) :: b
 
 contains
 
-    subroutine Y()
-    type :: A
-        integer :: i
-    end type
-    type(A) :: b
-    end subroutine Y
+subroutine Y()
+type :: A
+    integer :: i
+end type
+type(A) :: b
+end subroutine Y
 
-    integer function Z()
-    type :: A
-        integer :: i
-    end type
-    type(A) :: b
-    Z = 5
-    end function Z
+integer function Z()
+type :: A
+    integer :: i
+end type
+type(A) :: b
+Z = 5
+end function Z
 
 end program derived_types_03
