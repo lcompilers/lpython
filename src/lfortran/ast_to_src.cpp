@@ -1,5 +1,6 @@
 #include <cctype>
 #include <lfortran/ast_to_src.h>
+#include <lfortran/string_utils.h>
 
 using LFortran::AST::expr_t;
 using LFortran::AST::Name_t;
@@ -1290,7 +1291,7 @@ public:
         r += syn();
         r += " ";
         if (x.m_fmt) {
-            r += "\"(" + std::string(x.m_fmt) + ")\"";
+            r += "\"(" + replace(x.m_fmt, "\"", "\"\"") + ")\"";
         } else {
             r += "*";
         }
@@ -1688,7 +1689,7 @@ public:
     void visit_Str(const Str_t &x) {
         s = syn(gr::String);
         s += "\"";
-        s += x.m_s;
+        s += replace(x.m_s, "\"", "\"\"");
         s += "\"";
         s += syn();
     }
