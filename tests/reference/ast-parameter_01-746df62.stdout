@@ -1,1 +1,1 @@
-(TranslationUnit [(Program parameter_01 [] [(Declaration (AttrType TypeInteger [] ()) [] [(i [] ()) (j [] ()) (k [] ())]) (Declaration () [(SimpleAttribute AttrParameter)] [(i [] 1)]) (Declaration () [(SimpleAttribute AttrParameter)] [(j [] 2) (k [] 3)])] [(Print () [i j k])] [])])
+(TranslationUnit [(Program parameter_01 [] [(Declaration (AttrType TypeInteger [] ()) [] [(i [] ()) (j [] ()) (k [] ())]) (Declaration () [(SimpleAttribute AttrParameter)] [(i [] 1)]) (Declaration () [(SimpleAttribute AttrParameter)] [(j [] 2) (k [] 3)])] [(Print 0 () [i j k])] [])])

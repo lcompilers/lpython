@@ -1,1 +1,1 @@
-(TranslationUnit [(Program array3 [] [(Declaration (AttrType TypeReal [] ()) [(AttrDimension [(1 3 DimensionExpr)])] [(a [] ()) (b [] ())])] [(= a (ArrayInitializer [1 2 3])) (= b (ArrayInitializer [1 2 3]))] [])])
+(TranslationUnit [(Program array3 [] [(Declaration (AttrType TypeReal [] ()) [(AttrDimension [(1 3 DimensionExpr)])] [(a [] ()) (b [] ())])] [(= 0 a (ArrayInitializer [1 2 3])) (= 0 b (ArrayInitializer [1 2 3]))] [])])

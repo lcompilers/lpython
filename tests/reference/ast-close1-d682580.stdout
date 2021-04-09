@@ -1,1 +1,1 @@
-(TranslationUnit [(Program close1 [] [] [(Close [u] []) (Close [] [(unit gmv_lun)]) (Close [] [(unit dunit) (status (Str "delete"))]) (Close [] [(UNIT funit) (IOSTAT ierr)])] [])])
+(TranslationUnit [(Program close1 [] [] [(Close 0 [u] []) (Close 0 [] [(unit gmv_lun)]) (Close 0 [] [(unit dunit) (status (Str "delete"))]) (Close 0 [] [(UNIT funit) (IOSTAT ierr)])] [])])

@@ -81,37 +81,43 @@ import_modifier
     | ImportAll
 
 stmt
-    = Assignment(expr target, expr value)
-    | Associate(expr target, expr value)
-    | SubroutineCall(identifier name, fnarg* args, keyword* keywords)
-    | Allocate(fnarg* args, keyword* keywords)
-    | Deallocate(fnarg* args)
-    | Format(int n, string fmt)
-    | BuiltinCall(identifier name, expr* args)
-    | If(expr test, stmt* body, stmt* orelse)
-    | Where(expr test, stmt* body, stmt* orelse)
-    | Stop(expr? code)
-    | ErrorStop(expr? code)
-    | DoLoop(identifier? var, expr? start, expr? end, expr? increment,
-            stmt* body)
-    | DoConcurrentLoop(concurrent_control *control, expr? mask,
-        concurrent_locality* locality, stmt* body)
-    | Select(expr test, case_stmt* body, stmt* default)
-    | Continue()
-    | Cycle()
-    | Exit()
-    | Return()
-    | GoTo(int label)
-    | WhileLoop(expr test, stmt* body)
-    | Print(string? fmt, expr* values)
-    | Write(argstar* args, kw_argstar* kwargs, expr* values)
-    | Read(argstar* args, kw_argstar* kwargs, expr* values)
-    | Open(expr* args, keyword* kwargs)
-    | Close(expr* args, keyword* kwargs)
-    | Inquire(expr* args, keyword* kwargs, expr* values)
-    | Nullify(expr* args, keyword* kwargs)
-    | Rewind(expr* args, keyword* kwargs)
-    | Backspace(expr* args, keyword* kwargs)
+-- Single-line statements (each has a `label`):
+    = Allocate(int label, fnarg* args, keyword* keywords)
+    | Assignment(int label, expr target, expr value)
+    | Associate(int label, expr target, expr value)
+    | Backspace(int label, expr* args, keyword* kwargs)
+    | BuiltinCall(int label, identifier name, expr* args) -- TODO: remove
+    | Close(int label, expr* args, keyword* kwargs)
+    | Continue(int label)
+    | Cycle(int label)
+    | Deallocate(int label, fnarg* args)
+    | ErrorStop(int label, expr? code)
+    | Exit(int label)
+    | Format(int label, string fmt)
+    | GoTo(int label, int goto_label)
+    | Inquire(int label, expr* args, keyword* kwargs, expr* values)
+    | Nullify(int label, expr* args, keyword* kwargs)
+    | Open(int label, expr* args, keyword* kwargs)
+    | Return(int label)
+    | Print(int label, string? fmt, expr* values)
+    | Read(int label, argstar* args, kw_argstar* kwargs, expr* values)
+    | Rewind(int label, expr* args, keyword* kwargs)
+    | Stop(int label, expr? code)
+    | SubroutineCall(int label, identifier name, fnarg* args, keyword* keywords)
+    | Write(int label, argstar* args, kw_argstar* kwargs, expr* values)
+
+-- Multi-line statements (each has a `label` and `stmt_name`):
+    | If(int label, identifier? stmt_name, expr test, stmt* body, stmt* orelse)
+    | Where(int label, identifier? stmt_name, expr test, stmt* body,
+            stmt* orelse)
+    | DoLoop(int label, identifier? stmt_name, identifier? var, expr? start,
+            expr? end, expr? increment, stmt* body)
+    | DoConcurrentLoop(int label, identifier? stmt_name,
+            concurrent_control *control, expr? mask,
+            concurrent_locality* locality, stmt* body)
+    | Select(int label, identifier? stmt_name, expr test, case_stmt* body,
+            stmt* default)
+    | WhileLoop(int label, identifier? stmt_name, expr test, stmt* body)
 
 expr
     = BoolOp(expr left, boolop op, expr right)

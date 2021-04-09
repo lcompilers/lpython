@@ -1,1 +1,1 @@
-(TranslationUnit [(Module a [] [] [(Subroutine b [] () [] [] [] [(Print () [(Str "b()")]) (SubroutineCall c [] [])] [(Subroutine c [] () [] [] [] [(Print () [5])] [])])]) (Program nested_02 [(Use a [(UseSymbol b ())])] [] [(SubroutineCall b [] [])] [])])
+(TranslationUnit [(Module a [] [] [(Subroutine b [] () [] [] [] [(Print 0 () [(Str "b()")]) (SubroutineCall 0 c [] [])] [(Subroutine c [] () [] [] [] [(Print 0 () [5])] [])])]) (Program nested_02 [(Use a [(UseSymbol b ())])] [] [(SubroutineCall 0 b [] [])] [])])
