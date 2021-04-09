@@ -1097,6 +1097,8 @@ print_statement
     : KW_PRINT    "*"                  { $$ = PRINT0(        @$); }
     | KW_PRINT    "*"    ","           { $$ = PRINT0(        @$); }
     | KW_PRINT    "*"    "," expr_list { $$ = PRINT(     $4, @$); }
+    | TK_INTEGER KW_PRINT    "*"    "," expr_list {
+            $$ = PRINT(     $5, @$); LABEL($$, $1); }
     | KW_PRINT TK_STRING               { $$ = PRINTF0($2,    @$); }
     | KW_PRINT TK_STRING ","           { $$ = PRINTF0($2,    @$); }
     | KW_PRINT TK_STRING "," expr_list { $$ = PRINTF($2, $4, @$); }

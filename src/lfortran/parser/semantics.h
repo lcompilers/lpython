@@ -944,6 +944,8 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
             throw LFortran::LFortranException("statement name is inconsistent"); \
         }
 
+#define LABEL(stmt, label) ((Print_t*)stmt)->m_label = label
+
 #define BLOCK(decl, body, l) make_Block_t(p.m_a, l, 0, nullptr, \
         DECLS(decl), decl.size(), \
         STMTS(body), body.size())
