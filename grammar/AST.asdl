@@ -106,20 +106,20 @@ stmt
     | Write(int label, argstar* args, kw_argstar* kwargs, expr* values)
 
 -- Multi-line statements (each has a `label` and `stmt_name`):
-    | If(int label, identifier? stmt_name, expr test, stmt* body, stmt* orelse)
-    | Where(int label, identifier? stmt_name, expr test, stmt* body,
-            stmt* orelse)
-    | DoLoop(int label, identifier? stmt_name, identifier? var, expr? start,
-            expr? end, expr? increment, stmt* body)
+    | AssociateBlock(int label, identifier? stmt_name, var_sym* syms,
+            stmt* body)
+    | Block(int label, identifier? stmt_name, unit_decl2* decl, stmt* body)
     | DoConcurrentLoop(int label, identifier? stmt_name,
             concurrent_control *control, expr? mask,
             concurrent_locality* locality, stmt* body)
+    | DoLoop(int label, identifier? stmt_name, identifier? var, expr? start,
+            expr? end, expr? increment, stmt* body)
+    | If(int label, identifier? stmt_name, expr test, stmt* body, stmt* orelse)
     | Select(int label, identifier? stmt_name, expr test, case_stmt* body,
             stmt* default)
+    | Where(int label, identifier? stmt_name, expr test, stmt* body,
+            stmt* orelse)
     | WhileLoop(int label, identifier? stmt_name, expr test, stmt* body)
-    | Block(int label, identifier? stmt_name, unit_decl2* decl, stmt* body)
-    | AssociateBlock(int label, identifier? stmt_name, var_sym* syms,
-            stmt* body)
 
 expr
     = BoolOp(expr left, boolop op, expr right)
