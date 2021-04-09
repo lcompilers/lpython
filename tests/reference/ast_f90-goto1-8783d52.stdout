@@ -1,4 +1,0 @@
-program goto1
-print *, "OK"
-go to 1
-end program goto1

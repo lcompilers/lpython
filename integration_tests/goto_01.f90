@@ -1,0 +1,7 @@
+program goto_01
+implicit none
+integer :: a
+a = 5
+go to 1
+1 print *, a
+end program
