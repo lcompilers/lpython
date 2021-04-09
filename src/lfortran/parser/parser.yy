@@ -70,6 +70,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> TK_NAME
 %token <string> TK_DEF_OP
 %token <n> TK_INTEGER
+%token <n> TK_LABEL
 %token <string> TK_REAL
 %token <string> TK_BOZ_CONSTANT
 
@@ -1097,7 +1098,7 @@ print_statement
     : KW_PRINT    "*"                  { $$ = PRINT0(        @$); }
     | KW_PRINT    "*"    ","           { $$ = PRINT0(        @$); }
     | KW_PRINT    "*"    "," expr_list { $$ = PRINT(     $4, @$); }
-    | TK_INTEGER KW_PRINT    "*"    "," expr_list {
+    | TK_LABEL KW_PRINT    "*"    "," expr_list {
             $$ = PRINT(     $5, @$); LABEL($$, $1); }
     | KW_PRINT TK_STRING               { $$ = PRINTF0($2,    @$); }
     | KW_PRINT TK_STRING ","           { $$ = PRINTF0($2,    @$); }
@@ -1328,14 +1329,14 @@ forall_statement_single
     ;
 
 format_statement
-    : TK_INTEGER KW_FORMAT "(" format_items ")" { $$ = FORMAT($1, @$); }
-    | TK_INTEGER KW_FORMAT "(" format_items "," "*" "(" format_items ")" ")" {
+    : TK_LABEL KW_FORMAT "(" format_items ")" { $$ = FORMAT($1, @$); }
+    | TK_LABEL KW_FORMAT "(" format_items "," "*" "(" format_items ")" ")" {
             $$ = FORMAT($1, @$); }
-    | TK_INTEGER KW_FORMAT "(" "*" "(" format_items ")" ")" {
+    | TK_LABEL KW_FORMAT "(" "*" "(" format_items ")" ")" {
             $$ = FORMAT($1, @$); }
-    | TK_INTEGER KW_FORMAT "(" "/)" { $$ = FORMAT($1, @$); }
-    | TK_INTEGER KW_FORMAT "(" TK_INTEGER "/)" { $$ = FORMAT($1, @$); }
-    | TK_INTEGER KW_FORMAT "(" format_items "," "/)" { $$ = FORMAT($1, @$); }
+    | TK_LABEL KW_FORMAT "(" "/)" { $$ = FORMAT($1, @$); }
+    | TK_LABEL KW_FORMAT "(" TK_INTEGER "/)" { $$ = FORMAT($1, @$); }
+    | TK_LABEL KW_FORMAT "(" format_items "," "/)" { $$ = FORMAT($1, @$); }
     ;
 
 format_items
@@ -1384,9 +1385,9 @@ inout
 
 enddo
     : KW_END_DO
-    | TK_INTEGER KW_END_DO
+    | TK_LABEL KW_END_DO
     | KW_ENDDO
-    | TK_INTEGER KW_ENDDO
+    | TK_LABEL KW_ENDDO
     ;
 
 endforall
