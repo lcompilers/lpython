@@ -522,6 +522,9 @@ ast_t* implied_do3(Allocator &al, Location &loc,
 #define STRING(x, l) make_Str_t(p.m_a, l, x.c_str(p.m_a))
 #define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, l, EXPR(x), EXPR(y))
 #define ASSOCIATE(x, y, l) make_Associate_t(p.m_a, l, EXPR(x), EXPR(y))
+#define GOTO(x, l) make_GoTo_t(p.m_a, l, x)
+
+
 ast_t* SUBROUTINE_CALL0(Allocator &al, const ast_t *id,
         const Vec<FnArg> &args, Location &l) {
     Vec<fnarg_t> v;

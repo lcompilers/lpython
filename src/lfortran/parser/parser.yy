@@ -306,6 +306,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> multi_line_statement
 %type <ast> multi_line_statement0
 %type <ast> assignment_statement
+%type <ast> goto_statement
 %type <ast> associate_statement
 %type <ast> associate_block
 %type <ast> block_statement
@@ -964,6 +965,7 @@ single_line_statement0
     | exit_statement
     | forall_statement_single
     | format_statement
+    | goto_statement
     | if_statement_single
     | inquire_statement
     | nullify_statement
@@ -998,6 +1000,10 @@ multi_line_statement0
 
 assignment_statement
     : expr "=" expr { $$ = ASSIGNMENT($1, $3, @$); }
+    ;
+
+goto_statement
+    : KW_GO KW_TO TK_INTEGER { $$ = GOTO($3, @$); }
     ;
 
 associate_statement
