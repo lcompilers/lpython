@@ -94,7 +94,7 @@ symbol
 
 storage_type = Default | Save | Parameter
 access = Public | Private
-intent = Local | In | Out | InOut | ReturnVar
+intent = Local | In | Out | InOut | ReturnVar | Unspecified
 
 -- # Documentation for the ABI type
 

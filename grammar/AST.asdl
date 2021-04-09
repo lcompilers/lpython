@@ -190,7 +190,7 @@ simple_attribute
     | AttrTarget
     | AttrValue
 
-attr_intent = In | Out | InOut
+attr_intent = In | Out | InOut | Unspecified
 
 decl_type
     = TypeClass
