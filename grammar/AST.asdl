@@ -117,6 +117,9 @@ stmt
     | Select(int label, identifier? stmt_name, expr test, case_stmt* body,
             stmt* default)
     | WhileLoop(int label, identifier? stmt_name, expr test, stmt* body)
+    | Block(int label, identifier? stmt_name, unit_decl2* decl, stmt* body)
+    | AssociateBlock(int label, identifier? stmt_name, var_sym* syms,
+            stmt* body)
 
 expr
     = BoolOp(expr left, boolop op, expr right)

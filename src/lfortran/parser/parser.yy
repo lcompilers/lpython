@@ -1012,12 +1012,12 @@ associate_statement
 
 associate_block
     : KW_ASSOCIATE "(" var_sym_decl_list ")" sep statements KW_END KW_ASSOCIATE {
-        $$ = PRINT0(@$); }
+        $$ = ASSOCIATE_BLOCK($3, $6, @$); }
     ;
 
 block_statement
     : KW_BLOCK sep var_decl_star statements KW_END KW_BLOCK {
-        $$ = PRINT0(@$); }
+        $$ = BLOCK($3, $4, @$); }
     ;
 
 allocate_statement
