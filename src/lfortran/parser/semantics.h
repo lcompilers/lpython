@@ -248,6 +248,22 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
 
 #define ENUM(l) make_Enum_t(p.m_a, l)
 
+#define IMPLICIT_NONE(l) make_ImplicitNone_t(p.m_a, l, \
+        nullptr, 0)
+#define IMPLICIT_NONE2(x, l) make_ImplicitNone_t(p.m_a, l, \
+        VEC_CAST(x, implicit_none_spec), x.size())
+#define IMPLICIT_NONE_EXTERNAL(l) make_ImplicitNoneExternal_t(p.m_a, l, 0)
+#define IMPLICIT_NONE_TYPE(l) make_ImplicitNoneType_t(p.m_a, l)
+
+#define IMPLICIT(t, spec, l) make_Implicit_t(p.m_a, l, \
+        down_cast<decl_attribute_t>(t), \
+        VEC_CAST(spec, letter_spec), spec.size())
+
+#define LETTER_SPEC1(a, l) make_LetterSpec_t(p.m_a, l, \
+        nullptr, name2char(a))
+#define LETTER_SPEC2(a, b, l) make_LetterSpec_t(p.m_a, l, \
+        name2char(a), name2char(b))
+
 #define VAR_SYM(xout, xname, xdimp, xdimn, xinit, xloc) \
             xout = p.m_a.allocate<var_sym_t>(1); \
             xout->loc = xloc; \
@@ -826,7 +842,7 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
 #define RETURN(l) make_Return_t(p.m_a, l, 0)
 #define CYCLE(l) make_Cycle_t(p.m_a, l, 0)
 #define CONTINUE(l) make_Continue_t(p.m_a, l, 0)
-#define SUBROUTINE(name, args, bind, use, import, decl, stmts, contains, l) \
+#define SUBROUTINE(name, args, bind, use, import, implicit, decl, stmts, contains, l) \
     make_Subroutine_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
@@ -836,6 +852,8 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
         /*n_use*/ use.size(), \
         /*m_import*/ VEC_CAST(import, import_statement), \
         /*n_import*/ import.size(), \
+        /*m_implicit*/ VEC_CAST(implicit, implicit_statement), \
+        /*n_implicit*/ implicit.size(), \
         /*decl*/ DECLS(decl), \
         /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \
@@ -864,7 +882,7 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
     }
 }
 
-#define FUNCTION(fn_type, name, args, return_var, bind, use, import, decl, stmts, contains, l) make_Function_t(p.m_a, l, \
+#define FUNCTION(fn_type, name, args, return_var, bind, use, import, implicit, decl, stmts, contains, l) make_Function_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
@@ -876,13 +894,15 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*n_use*/ use.size(), \
         /*m_import*/ VEC_CAST(import, import_statement), \
         /*n_import*/ import.size(), \
+        /*m_implicit*/ VEC_CAST(implicit, implicit_statement), \
+        /*n_implicit*/ implicit.size(), \
         /*decl*/ DECLS(decl), \
         /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \
         /*n_body*/ stmts.size(), \
         /*contains*/ CONTAINS(contains), \
         /*n_contains*/ contains.size())
-#define FUNCTION0(name, args, return_var, bind, use, import, decl, stmts, contains, l) make_Function_t(p.m_a, l, \
+#define FUNCTION0(name, args, return_var, bind, use, import, implicit, decl, stmts, contains, l) make_Function_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
@@ -894,16 +914,20 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*n_use*/ use.size(), \
         /*m_import*/ VEC_CAST(import, import_statement), \
         /*n_import*/ import.size(), \
+        /*m_implicit*/ VEC_CAST(implicit, implicit_statement), \
+        /*n_implicit*/ implicit.size(), \
         /*decl*/ DECLS(decl), \
         /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \
         /*n_body*/ stmts.size(), \
         /*contains*/ CONTAINS(contains), \
         /*n_contains*/ contains.size())
-#define PROGRAM(name, use, decl, stmts, contains, l) make_Program_t(p.m_a, l, \
+#define PROGRAM(name, use, implicit, decl, stmts, contains, l) make_Program_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*use*/ USES(use), \
         /*n_use*/ use.size(), \
+        /*m_implicit*/ VEC_CAST(implicit, implicit_statement), \
+        /*n_implicit*/ implicit.size(), \
         /*decl*/ DECLS(decl), \
         /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \
@@ -1211,15 +1235,19 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
 #define USE_SYMBOL3(l) make_UseSymbol_t(p.m_a, l, \
         nullptr, nullptr)
 
-#define MODULE(name, use, decl, contains, l) make_Module_t(p.m_a, l, \
+#define MODULE(name, use, implicit, decl, contains, l) make_Module_t(p.m_a, l, \
         name2char(name), \
         /*unit_decl1_t** a_use*/ USES(use), /*size_t n_use*/ use.size(), \
+        /*m_implicit*/ VEC_CAST(implicit, implicit_statement), \
+        /*n_implicit*/ implicit.size(), \
         /*unit_decl2_t** a_decl*/ DECLS(decl), /*size_t n_decl*/ decl.size(), \
         /*program_unit_t** a_contains*/ CONTAINS(contains), /*size_t n_contains*/ contains.size())
-#define SUBMODULE(id ,name, use, decl, contains, l) make_Submodule_t(p.m_a, l, \
+#define SUBMODULE(id ,name, use, implicit, decl, contains, l) make_Submodule_t(p.m_a, l, \
         name2char(id), \
         name2char(name), \
         /*unit_decl1_t** a_use*/ USES(use), /*size_t n_use*/ use.size(), \
+        /*m_implicit*/ VEC_CAST(implicit, implicit_statement), \
+        /*n_implicit*/ implicit.size(), \
         /*unit_decl2_t** a_decl*/ DECLS(decl), /*size_t n_decl*/ decl.size(), \
         /*program_unit_t** a_contains*/ CONTAINS(contains), /*size_t n_contains*/ contains.size())
 #define PRIVATE0(l) make_Private_t(p.m_a, l, \

@@ -290,7 +290,7 @@ public:
         r.append(x.m_name);
         r.append("\n");
 
-        r += format_unit_body(x, true);
+        r += format_unit_body(x);
         r += syn(gr::UnitHeader);
         r.append("end program");
         r += syn();
@@ -464,9 +464,23 @@ public:
         return "";
     }
 
+    template <typename T>
+    std::string format_implicit(const T &x) {
+        std::string r;
+        for (size_t i=0; i<x.n_implicit; i++) {
+            this->visit_implicit_statement(*x.m_implicit[i]);
+            r.append(s);
+        }
+        return r;
+    }
+
+    std::string format_implicit(const Procedure_t &/*x*/) {
+        return "";
+    }
+
 
     template <typename T>
-    std::string format_unit_body(const T &x, bool implicit_none=false) {
+    std::string format_unit_body(const T &x) {
         std::string r;
         if (indent_unit) inc_indent();
         for (size_t i=0; i<x.n_use; i++) {
@@ -474,7 +488,7 @@ public:
             r.append(s);
         }
         r += format_import(x);
-        if (implicit_none) r.append("implicit none\n");
+        r += format_implicit(x);
         for (size_t i=0; i<x.n_decl; i++) {
             this->visit_unit_decl2(*x.m_decl[i]);
             r.append(s);
@@ -604,6 +618,62 @@ public:
             }
         }
         r += "\n";
+        s = r;
+    }
+
+    void visit_ImplicitNone(const ImplicitNone_t &x) {
+        std::string r = indent;
+        r += syn(gr::UnitHeader);
+        r += "implicit none";
+        r += syn();
+        if (x.n_specs > 0) {
+            r += " (";
+            for (size_t i=0; i<x.n_specs; i++) {
+                visit_implicit_none_spec(*x.m_specs[i]);
+                r += s;
+                if (i < x.n_specs-1) r.append(", ");
+            }
+            r += ")";
+        }
+        r += "\n";
+        s = r;
+    }
+
+    void visit_ImplicitNoneExternal(const ImplicitNoneExternal_t &/*x*/) {
+        s = "external";
+    }
+    void visit_ImplicitNoneType(const ImplicitNoneType_t &/*x*/) {
+        s = "type";
+    }
+
+    void visit_Implicit(const Implicit_t &x) {
+        std::string r = indent;
+        r += syn(gr::UnitHeader);
+        r += "implicit";
+        r += syn();
+        r += " ";
+        visit_decl_attribute(*x.m_type);
+        r += s;
+        if (x.n_specs > 0) {
+            r += " (";
+            for (size_t i=0; i<x.n_specs; i++) {
+                visit_letter_spec(*x.m_specs[i]);
+                r += s;
+                if (i < x.n_specs-1) r.append(",");
+            }
+            r += ")";
+        }
+        r += "\n";
+        s = r;
+    }
+
+    void visit_LetterSpec(const LetterSpec_t &x) {
+        std::string r;
+        if (x.m_start) {
+            r += x.m_start;
+            r += "-";
+        }
+        r += x.m_end;
         s = r;
     }
 

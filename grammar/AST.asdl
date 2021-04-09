@@ -32,23 +32,23 @@ unit
     = TranslationUnit(node* items)
 
 mod
-    = Module(identifier name, unit_decl1* use, unit_decl2* decl,
-        program_unit* contains)
-    | Submodule(identifier id,identifier name, unit_decl1* use, unit_decl2* decl,
-        program_unit* contains)
-    | Program(identifier name, unit_decl1* use, unit_decl2* decl,
-        stmt* body, program_unit* contains)
+    = Module(identifier name, unit_decl1* use, implicit_statement* implicit,
+        unit_decl2* decl, program_unit* contains)
+    | Submodule(identifier id,identifier name, unit_decl1* use,
+        implicit_statement* implicit, unit_decl2* decl, program_unit* contains)
+    | Program(identifier name, unit_decl1* use, implicit_statement* implicit,
+        unit_decl2* decl, stmt* body, program_unit* contains)
 
 program_unit
     = Subroutine(identifier name, arg* args, bind? bind, unit_decl1* use,
-            import_statement* import,
-            unit_decl2* decl, stmt* body, program_unit* contains)
+        import_statement* import, implicit_statement* implicit,
+        unit_decl2* decl, stmt* body, program_unit* contains)
     | Procedure(identifier name, arg* args, unit_decl1* use, unit_decl2* decl,
-            stmt* body, program_unit* contains)
+        stmt* body, program_unit* contains)
     | Function(identifier name, arg* args, decl_attribute* attributes,
-            expr? return_var, bind? bind, unit_decl1* use,
-            import_statement* import,
-            unit_decl2* decl, stmt* body, program_unit* contains)
+        expr? return_var, bind? bind, unit_decl1* use, import_statement* import,
+        implicit_statement* implicit, unit_decl2* decl, stmt* body,
+        program_unit* contains)
 
 unit_decl1
     = Use(identifier module, use_symbol* symbols)
@@ -79,6 +79,17 @@ import_modifier
     | ImportOnly
     | ImportNone
     | ImportAll
+
+implicit_statement
+    = ImplicitNone(implicit_none_spec* specs)
+    | Implicit(decl_attribute type, letter_spec* specs)
+
+implicit_none_spec
+    = ImplicitNoneExternal(int dummy)
+    | ImplicitNoneType()
+
+letter_spec
+    = LetterSpec(identifier? start, identifier end)
 
 stmt
 -- Single-line statements (each has a `label`):
