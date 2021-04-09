@@ -918,7 +918,7 @@ asr = true
 llvm = true
 
 [[test]]
-filename = "goto1.f90"
+filename = "../integration_tests/goto_01.f90"
 ast = true
 ast_f90 = true
 
