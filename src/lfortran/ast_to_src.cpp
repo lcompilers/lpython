@@ -1089,6 +1089,10 @@ public:
         r += syn(gr::Repeat);
         r.append("end do");
         r += syn();
+        if (x.m_stmt_name) {
+            r += " ";
+            r += x.m_stmt_name;
+        }
         r += "\n";
         s = r;
     }
