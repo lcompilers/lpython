@@ -1,1 +1,1 @@
-(TranslationUnit [(Module interface1 [] [(Interface (InterfaceHeader2 randn) [(InterfaceModuleProcedure [randn_scalar]) (InterfaceModuleProcedure [randn_vector]) (InterfaceModuleProcedure [randn_matrix]) (InterfaceModuleProcedure [randn_vector_n])])] [])])
+(TranslationUnit [(Module interface1 [] [(ImplicitNone [])] [(Interface (InterfaceHeader2 randn) [(InterfaceModuleProcedure [randn_scalar]) (InterfaceModuleProcedure [randn_vector]) (InterfaceModuleProcedure [randn_matrix]) (InterfaceModuleProcedure [randn_vector_n])])] [])])

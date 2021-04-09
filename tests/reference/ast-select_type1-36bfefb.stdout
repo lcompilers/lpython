@@ -1,1 +1,1 @@
-(TranslationUnit [(Program select_type1 [] [] [(Print 0 () [])] [])])
+(TranslationUnit [(Program select_type1 [] [(ImplicitNone [])] [] [(Print 0 () [])] [])])

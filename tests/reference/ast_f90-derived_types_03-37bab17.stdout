@@ -1,5 +1,4 @@
 program derived_types_03
-implicit none
 do nn = 1, ndiag
     ing = diag(nn)%len
     allocate(diag(nn)%cell_id(ing), STAT=ierr)

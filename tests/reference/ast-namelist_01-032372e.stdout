@@ -1,1 +1,1 @@
-(TranslationUnit [(Program namelist1 [] [(Declaration (AttrType TypeInteger [] ()) [] [(N [] ())]) (Declaration (AttrType TypeReal [] ()) [] [(t [] ()) (x [] ()) (Ecut [] ())]) (Declaration () [(AttrNamelist domain)] [(N [] ()) (t [] ()) (x [] ()) (Ecut [] ())])] [] [])])
+(TranslationUnit [(Program namelist1 [] [(ImplicitNone [])] [(Declaration (AttrType TypeInteger [] ()) [] [(N [] ())]) (Declaration (AttrType TypeReal [] ()) [] [(t [] ()) (x [] ()) (Ecut [] ())]) (Declaration () [(AttrNamelist domain)] [(N [] ()) (t [] ()) (x [] ()) (Ecut [] ())])] [] [])])

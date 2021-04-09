@@ -1,1 +1,1 @@
-(TranslationUnit [(Program types_11 [] [(Enum)] [] [])])
+(TranslationUnit [(Program types_11 [] [(ImplicitNone [])] [(Enum)] [] [])])
