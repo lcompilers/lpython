@@ -86,7 +86,6 @@ stmt
     | Assignment(int label, expr target, expr value)
     | Associate(int label, expr target, expr value)
     | Backspace(int label, expr* args, keyword* kwargs)
-    | BuiltinCall(int label, identifier name, expr* args) -- TODO: remove
     | Close(int label, expr* args, keyword* kwargs)
     | Continue(int label)
     | Cycle(int label)

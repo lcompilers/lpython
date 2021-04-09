@@ -943,19 +943,6 @@ public:
         s = r;
     }
 
-    void visit_BuiltinCall(const BuiltinCall_t &x) {
-        std::string r = indent;
-        r += x.m_name;
-        r += "(";
-        for (size_t i=0; i<x.n_args; i++) {
-            this->visit_expr(*x.m_args[i]);
-            r += s;
-            if (i < x.n_args-1) s.append(", ");
-        }
-        r += ")\n";
-        s = r;
-    }
-
     void visit_If(const If_t &x) {
         std::string r = indent;
         r += syn(gr::Conditional);

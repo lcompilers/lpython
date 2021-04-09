@@ -462,28 +462,6 @@ public:
         r.append(")");
         s = r;
     }
-    void visit_BuiltinCall(const BuiltinCall_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("builtincall");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        s.append(x.m_name);
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_args; i++) {
-            this->visit_expr(*x.m_args[i]);
-            if (i < x.n_args-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(")");
-    }
     void visit_If(const If_t &x) {
         s.append("(");
         if (use_colors) {
