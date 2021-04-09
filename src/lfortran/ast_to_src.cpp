@@ -1524,9 +1524,18 @@ public:
         s = r;
     }
 
+    template <typename Node>
+    std::string print_label(const Node &x) {
+        if (x.m_label == 0) {
+            return "";
+        } else {
+            return std::to_string(x.m_label) + " ";
+        }
+    }
+
     void visit_Format(const Format_t &x) {
         std::string r=indent;
-        r += std::to_string(x.m_label) + " ";
+        r += print_label(x);
         r += syn(gr::Keyword);
         r += "format";
         r += syn();
