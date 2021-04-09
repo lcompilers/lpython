@@ -1017,7 +1017,7 @@ associate_block
 
 block_statement
     : KW_BLOCK sep var_decl_star statements KW_END KW_BLOCK {
-        $$ = PRINT0(@$); }
+        $$ = BLOCK($3, $4, @$); }
     ;
 
 allocate_statement
