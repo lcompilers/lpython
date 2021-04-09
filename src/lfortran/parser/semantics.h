@@ -912,6 +912,14 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*n_contains*/ contains.size())
 #define RESULT(x) p.result.push_back(p.m_a, x)
 
+#define STMT_NAME(id_first, id_last, stmt) \
+        stmt; \
+        ((If_t*)stmt)->m_stmt_name = name2char(id_first); \
+        if (std::string(name2char(id_first)) != \
+                std::string(name2char(id_last))) { \
+            throw LFortran::LFortranException("statement name is inconsistent"); \
+        }
+
 #define IFSINGLE(cond, body, l) make_If_t(p.m_a, l, 0, nullptr, \
         /*test*/ EXPR(cond), \
         /*body*/ IFSTMTS(p.m_a, body), \

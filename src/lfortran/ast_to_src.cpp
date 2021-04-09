@@ -849,6 +849,7 @@ public:
 
     void visit_Assignment(const Assignment_t &x) {
         std::string r = indent;
+        r += print_label(x);
         this->visit_expr(*x.m_target);
         r.append(s);
         r.append(" = ");
@@ -860,6 +861,7 @@ public:
 
     void visit_GoTo(const GoTo_t &x) {
         std::string r = indent;
+        r += print_label(x);
         r += syn(gr::Call);
         r += "go to";
         r += syn();
@@ -871,6 +873,7 @@ public:
 
     void visit_Associate(const Associate_t &x) {
         std::string r = indent;
+        r += print_label(x);
         this->visit_expr(*x.m_target);
         r.append(s);
         r.append(" => ");
@@ -882,6 +885,7 @@ public:
 
     void visit_SubroutineCall(const SubroutineCall_t &x) {
         std::string r = indent;
+        r += print_label(x);
         r += syn(gr::Call);
         r += "call";
         r += syn();
@@ -928,6 +932,7 @@ public:
 
     void visit_Deallocate(const Deallocate_t &x) {
         std::string r = indent;
+        r += print_label(x);
         r.append("deallocate");
         r.append("(");
         for (size_t i=0; i<x.n_args; i++) {
@@ -945,6 +950,8 @@ public:
 
     void visit_If(const If_t &x) {
         std::string r = indent;
+        r += print_label(x);
+        r += print_stmt_name(x);
         r += syn(gr::Conditional);
         r += "if";
         r += syn();
@@ -985,6 +992,8 @@ public:
 
     void visit_Where(const Where_t &x) {
         std::string r = indent;
+        r += print_label(x);
+        r += print_stmt_name(x);
         r += syn(gr::Repeat);
         r += "where";
         r += syn();
@@ -1021,6 +1030,7 @@ public:
 
     void visit_Stop(const Stop_t &x) {
         std::string r = indent;
+        r += print_label(x);
         r += syn(gr::Keyword);
         r.append("stop");
         r += syn();
@@ -1032,8 +1042,9 @@ public:
         s = r;
     }
 
-    void visit_ErrorStop(const ErrorStop_t &/*x*/) {
+    void visit_ErrorStop(const ErrorStop_t &x) {
         std::string r = indent;
+        r += print_label(x);
         r += syn(gr::Keyword);
         r.append("error stop");
         r += syn();
@@ -1043,6 +1054,8 @@ public:
 
     void visit_DoLoop(const DoLoop_t &x) {
         std::string r = indent;
+        r += print_label(x);
+        r += print_stmt_name(x);
         r += syn(gr::Repeat);
         r += "do";
         r += syn();
@@ -1076,6 +1089,10 @@ public:
         r += syn(gr::Repeat);
         r.append("end do");
         r += syn();
+        if (x.m_stmt_name) {
+            r += " ";
+            r += x.m_stmt_name;
+        }
         r += "\n";
         s = r;
     }
@@ -1110,6 +1127,8 @@ public:
             x.base.base.loc);
         }
         std::string r = indent;
+        r += print_label(x);
+        r += print_stmt_name(x);
         r += syn(gr::Repeat);
         r += "do concurrent";
         r += syn();
@@ -1223,8 +1242,9 @@ public:
         }
     }
 
-    void visit_Cycle(const Cycle_t &/*x*/) {
+    void visit_Cycle(const Cycle_t &x) {
         std::string r = indent;
+        r += print_label(x);
         r += syn(gr::Keyword);
         r.append("cycle");
         r += syn();
@@ -1232,8 +1252,9 @@ public:
         s = r;
     }
 
-    void visit_Continue(const Continue_t &/*x*/) {
+    void visit_Continue(const Continue_t &x) {
         std::string r = indent;
+        r += print_label(x);
         r += syn(gr::Keyword);
         r.append("continue");
         r += syn();
@@ -1241,8 +1262,9 @@ public:
         s = r;
     }
 
-    void visit_Exit(const Exit_t &/*x*/) {
+    void visit_Exit(const Exit_t &x) {
         std::string r = indent;
+        r += print_label(x);
         r += syn(gr::Keyword);
         r.append("exit");
         r += syn();
@@ -1250,8 +1272,9 @@ public:
         s = r;
     }
 
-    void visit_Return(const Return_t &/*x*/) {
+    void visit_Return(const Return_t &x) {
         std::string r = indent;
+        r += print_label(x);
         r += syn(gr::Keyword);
         r.append("return");
         r += syn();
@@ -1261,6 +1284,8 @@ public:
 
     void visit_WhileLoop(const WhileLoop_t &x) {
         std::string r = indent;
+        r += print_label(x);
+        r += print_stmt_name(x);
         r += syn(gr::Repeat);
         r += "do while";
         r += syn();
@@ -1284,6 +1309,7 @@ public:
 
     void visit_Print(const Print_t &x) {
         std::string r=indent;
+        r += print_label(x);
         r += syn(gr::Keyword);
         r += "print";
         r += syn();
@@ -1307,6 +1333,7 @@ public:
 
     void visit_Write(const Write_t &x) {
         std::string r=indent;
+        r += print_label(x);
         r += syn(gr::Keyword);
         r += "write";
         r += syn();
@@ -1346,6 +1373,7 @@ public:
 
     void visit_Read(const Read_t &x) {
         std::string r=indent;
+        r += print_label(x);
         r += syn(gr::Keyword);
         r += "read";
         r += syn();
@@ -1385,6 +1413,7 @@ public:
 
     void visit_Close(const Close_t &x) {
         std::string r=indent;
+        r += print_label(x);
         r += syn(gr::Keyword);
         r += "close";
         r += syn();
@@ -1407,6 +1436,7 @@ public:
 
     void visit_Open(const Open_t &x) {
         std::string r=indent;
+        r += print_label(x);
         r += syn(gr::Keyword);
         r += "open";
         r += syn();
@@ -1429,6 +1459,7 @@ public:
 
     void visit_Inquire(const Inquire_t &x) {
         std::string r=indent;
+        r += print_label(x);
         r += syn(gr::Keyword);
         r += "inquire";
         r += syn();
@@ -1460,6 +1491,7 @@ public:
 
     void visit_Rewind(const Rewind_t &x) {
         std::string r=indent;
+        r += print_label(x);
         r += syn(gr::Keyword);
         r += "rewind";
         r += syn();
@@ -1482,6 +1514,7 @@ public:
 
     void visit_Nullify(const Nullify_t &x) {
         std::string r=indent;
+        r += print_label(x);
         r += syn(gr::Keyword);
         r += "nullify";
         r += syn();
@@ -1504,6 +1537,7 @@ public:
 
     void visit_Backspace(const Backspace_t &x) {
         std::string r=indent;
+        r += print_label(x);
         r += syn(gr::Keyword);
         r += "backspace";
         r += syn();
@@ -1524,9 +1558,27 @@ public:
         s = r;
     }
 
+    template <typename Node>
+    std::string print_label(const Node &x) {
+        if (x.m_label == 0) {
+            return "";
+        } else {
+            return std::to_string(x.m_label) + " ";
+        }
+    }
+
+    template <typename Node>
+    std::string print_stmt_name(const Node &x) {
+        if (x.m_stmt_name == nullptr) {
+            return "";
+        } else {
+            return std::string(x.m_stmt_name) + ": ";
+        }
+    }
+
     void visit_Format(const Format_t &x) {
         std::string r=indent;
-        r += std::to_string(x.m_label) + " ";
+        r += print_label(x);
         r += syn(gr::Keyword);
         r += "format";
         r += syn();
@@ -1854,6 +1906,8 @@ public:
 
     void visit_Select(const Select_t &x) {
         std::string r = indent;
+        r += print_label(x);
+        r += print_stmt_name(x);
         r += syn(gr::Conditional);
         r += "select case";
         r += syn();

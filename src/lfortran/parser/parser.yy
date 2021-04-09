@@ -982,8 +982,8 @@ single_line_statement0
     ;
 
 multi_line_statement
-    : multi_line_statement0 sep
-    | id ":" multi_line_statement0 id sep { $$ = $3; }
+    : multi_line_statement0 sep { $$ = $1; }
+    | id ":" multi_line_statement0 id sep { $$ = STMT_NAME($1, $4, $3); }
     ;
 
 multi_line_statement0
