@@ -859,7 +859,7 @@ public:
     }
 
     void visit_GoTo(const GoTo_t &x) {
-        std::string r;
+        std::string r = indent;
         r += syn(gr::Call);
         r += "go to";
         r += syn();
