@@ -1012,7 +1012,7 @@ associate_statement
 
 associate_block
     : KW_ASSOCIATE "(" var_sym_decl_list ")" sep statements KW_END KW_ASSOCIATE {
-        $$ = PRINT0(@$); }
+        $$ = ASSOCIATE_BLOCK($3, $6, @$); }
     ;
 
 block_statement

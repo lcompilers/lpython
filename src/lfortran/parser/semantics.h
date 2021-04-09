@@ -924,6 +924,11 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         DECLS(decl), decl.size(), \
         STMTS(body), body.size())
 
+#define ASSOCIATE_BLOCK(syms, body, l) make_AssociateBlock_t(p.m_a, l, 0, \
+        nullptr, \
+        syms.p, syms.size(), \
+        STMTS(body), body.size())
+
 #define IFSINGLE(cond, body, l) make_If_t(p.m_a, l, 0, nullptr, \
         /*test*/ EXPR(cond), \
         /*body*/ IFSTMTS(p.m_a, body), \
