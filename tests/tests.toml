@@ -210,6 +210,7 @@ llvm = true
 [[test]]
 filename = "../integration_tests/doloop_04.f90"
 ast = true
+ast_f90 = true
 
 [[test]]
 filename = "../integration_tests/subroutines_01.f90"
