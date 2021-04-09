@@ -1,1 +1,1 @@
-(TranslationUnit [(Program program2 [] [] [(SubroutineCall b [] []) (SubroutineCall b [] [])] [(Subroutine b [] () [] [] [] [(Print () [(Str "b")])] [])])])
+(TranslationUnit [(Program program2 [] [] [(SubroutineCall 0 b [] []) (SubroutineCall 0 b [] [])] [(Subroutine b [] () [] [] [] [(Print 0 () [(Str "b")])] [])])])

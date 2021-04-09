@@ -1,1 +1,1 @@
-(TranslationUnit [(Program TESTFortran [] [] [(Print () [(Str "Hello")])] [])])
+(TranslationUnit [(Program TESTFortran [] [] [(Print 0 () [(Str "Hello")])] [])])

@@ -1,1 +1,1 @@
-(TranslationUnit [(Program program1 [] [(Declaration (AttrType TypeInteger [] ()) [] [(i [] ())])] [(= i 5) (Print () [i]) (Print () [(+ i 1)])] [])])
+(TranslationUnit [(Program program1 [] [(Declaration (AttrType TypeInteger [] ()) [] [(i [] ())])] [(= 0 i 5) (Print 0 () [i]) (Print 0 () [(+ i 1)])] [])])

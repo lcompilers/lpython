@@ -1,1 +1,1 @@
-(TranslationUnit [(Function f [] [(AttrType TypeInteger [] ())] () () [] [] [] [(= f 42)] [])])
+(TranslationUnit [(Function f [] [(AttrType TypeInteger [] ())] () () [] [] [] [(= 0 f 42)] [])])

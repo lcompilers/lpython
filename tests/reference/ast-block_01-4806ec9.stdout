@@ -1,1 +1,1 @@
-(TranslationUnit [(Program block_01 [] [(Declaration (AttrType TypeInteger [] ()) [] [(a [] ()) (b [] ()) (d [] ())])] [(= a 1) (= b 2) (Print () []) (If (/= b 2) [(ErrorStop ())] []) (If (/= d 5) [(ErrorStop ())] [])] [])])
+(TranslationUnit [(Program block_01 [] [(Declaration (AttrType TypeInteger [] ()) [] [(a [] ()) (b [] ()) (d [] ())])] [(= 0 a 1) (= 0 b 2) (Print 0 () []) (If 0 () (/= b 2) [(ErrorStop 0 ())] []) (If 0 () (/= d 5) [(ErrorStop 0 ())] [])] [])])

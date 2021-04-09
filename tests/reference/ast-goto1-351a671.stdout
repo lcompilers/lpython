@@ -1,1 +1,1 @@
-(TranslationUnit [(Program goto1 [] [] [(Print () [(Str "OK")]) (GoTo 1)] [])])
+(TranslationUnit [(Program goto1 [] [] [(Print 0 () [(Str "OK")]) (GoTo 0 1)] [])])
