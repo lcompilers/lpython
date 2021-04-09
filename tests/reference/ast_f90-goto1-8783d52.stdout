@@ -1,0 +1,5 @@
+program goto1
+implicit none
+print *, "OK"
+go to 1
+end program goto1
