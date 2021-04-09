@@ -864,7 +864,7 @@ public:
         r += "go to";
         r += syn();
         r.append(" ");
-        r.append(std::to_string(x.m_label));
+        r.append(std::to_string(x.m_goto_label));
         r.append("\n");
         s = r;
     }
@@ -1539,7 +1539,7 @@ public:
 
     void visit_Format(const Format_t &x) {
         std::string r=indent;
-        r += std::to_string(x.m_n) + " ";
+        r += std::to_string(x.m_label) + " ";
         r += syn(gr::Keyword);
         r += "format";
         r += syn();
