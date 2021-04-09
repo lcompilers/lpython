@@ -199,31 +199,9 @@ public:
         r += " ";
         r.append(x.m_name);
         r.append("\n");
-        if (indent_unit) inc_indent();
-        for (size_t i=0; i<x.n_use; i++) {
-            this->visit_unit_decl1(*x.m_use[i]);
-            r.append(s);
-        }
-        r.append("implicit none\n");
-        r.append("\n");
-        for (size_t i=0; i<x.n_decl; i++) {
-            this->visit_unit_decl2(*x.m_decl[i]);
-            r.append(s);
-        }
-        r.append("\n");
-        if (x.n_contains > 0) {
-            r += "\n\n";
-            r += syn(gr::UnitHeader);
-            r.append("contains");
-            r += syn();
-            r += "\n\n";
-            for (size_t i=0; i<x.n_contains; i++) {
-                this->visit_program_unit(*x.m_contains[i]);
-                r.append(s);
-                r.append("\n");
-            }
-        }
-        if (indent_unit) dec_indent();
+
+        r += format_unit_body(x);
+
         r += syn(gr::UnitHeader);
         r.append("end module");
         r += syn();
@@ -322,7 +300,7 @@ public:
         }
         r.append("\n");
 
-        r += format_unit_body(x);
+        r += format_unit_body(x, !indent_unit);
         r += indent;
         r += syn(gr::UnitHeader);
         r.append("end subroutine");
@@ -349,7 +327,7 @@ public:
         r.append(")");
         r.append("\n");
 
-        r += format_unit_body(x);
+        r += format_unit_body(x, !indent_unit);
         r += indent;
         r += syn(gr::UnitHeader);
         r.append("end procedure");
@@ -460,6 +438,10 @@ public:
         return "";
     }
 
+    std::string format_import(const Module_t &/*x*/) {
+        return "";
+    }
+
     std::string format_import(const Procedure_t &/*x*/) {
         return "";
     }
@@ -478,9 +460,23 @@ public:
         return "";
     }
 
+    template <typename T>
+    std::string format_body(const T &x) {
+        std::string r;
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r.append(s);
+        }
+        return r;
+    }
+
+    std::string format_body(const Module_t &/*x*/) {
+        return "";
+    }
+
 
     template <typename T>
-    std::string format_unit_body(const T &x) {
+    std::string format_unit_body(const T &x, bool indent_contains=false) {
         std::string r;
         if (indent_unit) inc_indent();
         for (size_t i=0; i<x.n_use; i++) {
@@ -493,23 +489,22 @@ public:
             this->visit_unit_decl2(*x.m_decl[i]);
             r.append(s);
         }
-        for (size_t i=0; i<x.n_body; i++) {
-            this->visit_stmt(*x.m_body[i]);
-            r.append(s);
-        }
+        r += format_body(x);
         if (x.n_contains > 0) {
             r += "\n";
             r += syn(gr::UnitHeader);
-            r.append("contains");
+            if (indent_unit) dec_indent();
+            r.append(indent + "contains");
+            if (indent_unit) inc_indent();
             r += syn();
             r += "\n\n";
-            if (!indent_unit) inc_indent();
+            if (indent_contains) inc_indent();
             for (size_t i=0; i<x.n_contains; i++) {
                 this->visit_program_unit(*x.m_contains[i]);
                 r.append(s);
                 r.append("\n");
             }
-            if (!indent_unit) dec_indent();
+            if (indent_contains) dec_indent();
         }
         if (indent_unit) dec_indent();
         return r;
@@ -551,7 +546,7 @@ public:
         }
         r.append("\n");
 
-        r += format_unit_body(x);
+        r += format_unit_body(x, !indent_unit);
         r += indent;
         r += syn(gr::UnitHeader);
         r.append("end function");

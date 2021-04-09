@@ -1,12 +1,9 @@
 module access_vars
 implicit none
-
 private
 public :: print_vars
 real :: priv=1.5
 real, public :: publ=2.5
-
-
 
 contains
 

@@ -6,10 +6,10 @@ end if
 
 contains
 
-    integer function integer()
-    integer :: function
-    function = (function)/(function)
-    integer = function
-    end function integer
+integer function integer()
+integer :: function
+function = (function)/(function)
+integer = function
+end function integer
 
 end program reserved_02
