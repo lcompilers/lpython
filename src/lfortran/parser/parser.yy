@@ -1215,6 +1215,10 @@ do_statement
             $$ = DO2($2, $4, $6, $8, @$); }
     | KW_DO id "=" expr "," expr "," expr sep statements enddo {
             $$ = DO3($2, $4, $6, $8, $10, @$); }
+    | KW_DO TK_INTEGER id "=" expr "," expr sep statements enddo {
+            $$ = DO2($3, $5, $7, $9, @$); }
+    | KW_DO TK_INTEGER id "=" expr "," expr "," expr sep statements enddo {
+            $$ = DO3($3, $5, $7, $9, $11, @$); }
     | KW_DO KW_CONCURRENT "(" concurrent_control_list ")"
         concurrent_locality_star sep statements enddo {
             $$ = DO_CONCURRENT1($4, $6, $8, @$); }
@@ -1324,7 +1328,9 @@ inout
 
 enddo
     : KW_END_DO
+    | TK_INTEGER KW_END_DO
     | KW_ENDDO
+    | TK_INTEGER KW_ENDDO
     ;
 
 endforall

@@ -1,0 +1,1 @@
+(TranslationUnit [(Program do3 [] [(Declaration (AttrType TypeInteger [] ()) [] [(i [] ()) (j [] ())])] [(= j 0) (DoLoop i 1 5 () [(= j (+ j i))]) (= j 0) (DoLoop i 1 6 2 [(= j (+ j i))])] [])])
