@@ -7,7 +7,7 @@ a: do i = 1, 10
     if ((i)==(2)) then
         exit
     end if
-end do
+end do a
 if ((j)/=(3)) then
     error stop
 end if
@@ -17,7 +17,7 @@ b: do i = 1, 10, 2
     if ((i)==(3)) then
         exit
     end if
-end do
+end do b
 if ((j)/=(4)) then
     error stop
 end if
@@ -29,7 +29,7 @@ c: do
         exit
     end if
     i = (i) + (1)
-end do
+end do c
 if ((j)/=(3)) then
     error stop
 end if
