@@ -858,6 +858,17 @@ public:
         s = r;
     }
 
+    void visit_GoTo(const GoTo_t &x) {
+        std::string r;
+        r += syn(gr::Call);
+        r += "go to";
+        r += syn();
+        r.append(" ");
+        r.append(std::to_string(x.m_label));
+        r.append("\n");
+        s = r;
+    }
+
     void visit_Associate(const Associate_t &x) {
         std::string r = indent;
         this->visit_expr(*x.m_target);

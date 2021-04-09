@@ -101,6 +101,7 @@ stmt
     | Cycle()
     | Exit()
     | Return()
+    | GoTo(int label)
     | WhileLoop(expr test, stmt* body)
     | Print(string? fmt, expr* values)
     | Write(argstar* args, kw_argstar* kwargs, expr* values)
