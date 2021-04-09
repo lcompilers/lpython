@@ -1,5 +1,4 @@
 program open1
-implicit none
 open(file="p_cc", newunit=u)
 open(task_lun, file=taskfile)
 open(unit=gmv_lun, FILE=fname, IOSTAT=ier, POSITION="rewind")

@@ -1,1 +1,1 @@
-(TranslationUnit [(Module a_01 [] [] [(Subroutine b [] () [] [] [] [(Print 0 () [(Str "b()")])] [])]) (Program modules_01 [(Use a_01 [(UseSymbol b ())])] [] [(SubroutineCall 0 b [] [])] [])])
+(TranslationUnit [(Module a_01 [] [(ImplicitNone [])] [] [(Subroutine b [] () [] [] [] [] [(Print 0 () [(Str "b()")])] [])]) (Program modules_01 [(Use a_01 [(UseSymbol b ())])] [(ImplicitNone [])] [] [(SubroutineCall 0 b [] [])] [])])

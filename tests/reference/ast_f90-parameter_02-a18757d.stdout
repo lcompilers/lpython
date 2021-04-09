@@ -1,4 +1,5 @@
 subroutine a_proc()
+implicit none
 integer :: i
 parameter(i=1)
 print *, i

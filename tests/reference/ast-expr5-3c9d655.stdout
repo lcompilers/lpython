@@ -1,1 +1,1 @@
-(TranslationUnit [(Program expr_05 [] [(Declaration (AttrType TypeInteger [] ()) [] [(x [] ())])] [(= 0 x (* (+ 2 3) 5)) (If 0 () (== x 25) [(ErrorStop 0 ())] [])] [])])
+(TranslationUnit [(Program expr_05 [] [(ImplicitNone [])] [(Declaration (AttrType TypeInteger [] ()) [] [(x [] ())])] [(= 0 x (* (+ 2 3) 5)) (If 0 () (== x 25) [(ErrorStop 0 ())] [])] [])])

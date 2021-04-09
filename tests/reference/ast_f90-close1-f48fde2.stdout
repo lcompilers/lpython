@@ -1,5 +1,4 @@
 program close1
-implicit none
 close(u)
 close(unit=gmv_lun)
 close(unit=dxf%dunit, status="delete")
