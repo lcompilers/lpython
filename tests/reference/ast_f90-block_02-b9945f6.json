@@ -2,11 +2,11 @@
     "basename": "ast_f90-block_02-b9945f6",
     "cmd": "lfortran --show-ast-f90 --no-color {infile}",
     "infile": "tests/../integration_tests/block_02.f90",
-    "infile_hash": "35d67a85a3caac2cbc685716169c27f7772a50d991a29fc238a66848",
+    "infile_hash": "12157679995836e8f1c80250c1b3d07bd763a3908e0f9c3076b38ba0",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast_f90-block_02-b9945f6.stdout",
-    "stdout_hash": "bfc36c3e734f1fe0ab57053b8860566bf0d69313d41eb6a376ad997b",
+    "stdout_hash": "0819d73c5f92e0ded80ac67a7433d0f2c751266896b2e191fb6b4c32",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

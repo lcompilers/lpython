@@ -7,10 +7,11 @@ integer :: n
 n = 10
 allocate(a(5))
 allocate(b(n,n), c(n, 5, n))
-associate (x => a, y => c)
-    x(1) = 5
+1 loop: associate (x => a, y => c)
+    x(1) = x(1) + 5
     y(2,3,4) = 3
-end associate
+end associate loop
+if(a(1).EQ.5) GO TO 2
 a_1 = a(1)
 c_234 = c(2,3,4)
 print *, a_1

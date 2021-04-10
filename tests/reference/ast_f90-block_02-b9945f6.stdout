@@ -1,15 +1,18 @@
 program Block_02
 integer :: A
 A = 10
-1 block
+1 loop: block
     integer :: B
     A = (A) + (5)
     if ((A)==(15)) then
         go to 1
     end if
-    B = (A)/(2)
-    call Square(B)
+    2 B = (A)/(2)
+    if ((B)==(10)) then
+        go to 2
+    end if
 end block
+call Square(B)
 end program Block_02
 
 subroutine Square(B)

@@ -1209,7 +1209,7 @@ public:
         std::string r = indent;
         r += print_label(x);
         r += print_stmt_name(x);
-        r += syn(gr::Repeat);
+        r += syn(gr::UnitHeader);
         r += "associate";
         r += syn();
         r.append(" (");
@@ -1237,7 +1237,7 @@ public:
         std::string r = indent;
         r += print_label(x);
         r += print_stmt_name(x);
-        r += syn(gr::Repeat);
+        r += syn(gr::UnitHeader);
         r += "block";
         r += syn();
         r.append("\n");
