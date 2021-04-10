@@ -885,6 +885,31 @@ public:
         }
     }
 
+    Vec<ASR::expr_t*> visit_expr_list(AST::fnarg_t *ast_list, size_t n) {
+        Vec<ASR::expr_t*> asr_list;
+        asr_list.reserve(al, n);
+        for (size_t i=0; i<n; i++) {
+            visit_expr(*ast_list[i].m_end);
+            ASR::expr_t *expr = EXPR(asr);
+            asr_list.push_back(al, expr);
+        }
+        return asr_list;
+    }
+
+    void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
+        std::string var_name = x.m_func;
+        ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
+        if (!v) {
+            throw SemanticError("Function '" + var_name + "' not found"
+            " or not implemented yet (if it is intrinsic)", x.base.base.loc);
+        }
+        Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
+        ASR::ttype_t *type = EXPR2VAR(ASR::down_cast<ASR::Function_t>(v)
+                ->m_return_var)->m_type;
+        asr = ASR::make_FunctionCall_t(al, x.base.base.loc, v, nullptr,
+            args.p, args.size(), nullptr, 0, type);
+    }
+
     void visit_DerivedType(const AST::DerivedType_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
