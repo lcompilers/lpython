@@ -5,10 +5,9 @@ PROGRAM Block_02
         INTEGER :: B
         A = A + 5
         IF (A.EQ.15) GO TO 1
-    2   B = A / 2
-        IF(B.EQ.10) GO TO 2
+        B = A / 2
+        CALL Square(B)
     END BLOCK loop
-    CALL Square(B)
 END PROGRAM Block_02
 
 SUBROUTINE Square(B)
