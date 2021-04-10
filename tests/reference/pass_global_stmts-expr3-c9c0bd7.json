@@ -2,11 +2,11 @@
     "basename": "pass_global_stmts-expr3-c9c0bd7",
     "cmd": "lfortran --pass=global_stmts --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/expr3.f90",
-    "infile_hash": "a517eaea31a1369bd05123b7a3553245b6a1e560bee961b85fef4a9a",
+    "infile_hash": "a4aed9754913f48e6b1982a698f85476db8324f2d2efe0b1a2de88f5",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "pass_global_stmts-expr3-c9c0bd7.stdout",
-    "stdout_hash": "1ef3eb12a52589898775a50da536fd21efb9c88dff824afffe1d2f78",
+    "stdout_hash": "33796b0d73c7c48d60934575e395abe26dcf9fd319823648a3de7177",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

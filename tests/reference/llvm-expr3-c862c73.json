@@ -2,11 +2,11 @@
     "basename": "llvm-expr3-c862c73",
     "cmd": "lfortran --show-llvm {infile} -o {outfile}",
     "infile": "tests/expr3.f90",
-    "infile_hash": "a517eaea31a1369bd05123b7a3553245b6a1e560bee961b85fef4a9a",
+    "infile_hash": "a4aed9754913f48e6b1982a698f85476db8324f2d2efe0b1a2de88f5",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "llvm-expr3-c862c73.stdout",
-    "stdout_hash": "f9b7ef904be41e43b4396c1dcc3f7522a04b6d6ed417e53fc757fbe8",
+    "stdout_hash": "ca71e828c7f94dcc6e824ad5f5c81b96d668d0f4a25de7ad4004eb9d",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
