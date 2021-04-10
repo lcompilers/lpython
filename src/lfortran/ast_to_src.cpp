@@ -1186,6 +1186,87 @@ public:
         s = r;
     }
 
+    void visit_assoc(const var_sym_t &x) {
+        std::string r = "";
+        r.append(x.m_name);
+        if (x.n_dim > 0) {
+            r.append("(");
+            for (size_t i=0; i<x.n_dim; i++) {
+                visit_dimension(x.m_dim[i]);
+                r += s;
+                if (i < x.n_dim-1) r.append(",");
+            }
+            r.append(")");
+        }
+        if (x.m_initializer) {
+            visit_expr(*x.m_initializer);
+            r += " => " + s;
+        }
+        s = r;
+    }
+
+    void visit_AssociateBlock(const AssociateBlock_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += print_stmt_name(x);
+        r += syn(gr::UnitHeader);
+        r += "associate";
+        r += syn();
+        r.append(" (");
+        for (size_t i=0; i<x.n_syms; i++) {
+            this->visit_assoc(x.m_syms[i]);
+            r.append(s);
+            if (i < x.n_syms-1) r.append(", ");
+        }
+        r.append(")");
+        r += "\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r.append(s);
+        }
+        dec_indent();
+        r += syn(gr::UnitHeader);
+        r.append("end associate");
+        r += syn();
+        if (x.m_stmt_name) {
+            r += " ";
+            r += x.m_stmt_name;
+        }
+        r += "\n";
+        s = r;
+    }
+
+    void visit_Block(const Block_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += print_stmt_name(x);
+        r += syn(gr::UnitHeader);
+        r += "block";
+        r += syn();
+        r.append("\n");
+        inc_indent();
+        for (size_t i=0; i<x.n_decl; i++) {
+            this->visit_unit_decl2(*x.m_decl[i]);
+            r.append(s);
+        }
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r.append(s);
+        }
+        dec_indent();
+        r += indent;
+        r += syn(gr::UnitHeader);
+        r.append("end block");
+        r += syn();
+        if (x.m_stmt_name) {
+            r += " ";
+            r += x.m_stmt_name;
+        }
+        r += "\n";
+        s = r;
+    }
+
     void visit_DoConcurrentLoop(const DoConcurrentLoop_t &x) {
         if (x.n_control != 1) {
             throw SemanticError("Do concurrent: exactly one control statement is required for now",
@@ -2042,7 +2123,7 @@ public:
         if (x.m_end) {
             this->visit_expr(*x.m_end);
             r += s;
-        } 
+        }
         r += ")\n";
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
