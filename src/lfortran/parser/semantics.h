@@ -830,7 +830,7 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
     return s.c_str(al);
 }
 
-#define FORMAT(n, l) make_Format_t(p.m_a, l, n, \
+#define FORMAT(l) make_Format_t(p.m_a, l, 0, \
         format_to_str(p.m_a, l, p.inp))
 
 #define STOP(l) make_Stop_t(p.m_a, l, 0, nullptr)

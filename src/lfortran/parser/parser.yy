@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    467 // shift/reduce conflicts
+%expect    468 // shift/reduce conflicts
 %expect-rr 81  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -302,8 +302,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> var_modifier_list
 %type <ast> var_modifier
 %type <ast> statement
+%type <ast> statement1
 %type <ast> single_line_statement
-%type <ast> single_line_statement0
 %type <ast> multi_line_statement
 %type <ast> multi_line_statement0
 %type <ast> assignment_statement
@@ -1000,15 +1000,16 @@ sep_one
     ;
 
 statement
+    : statement1 sep { $$ = $1; }
+    | TK_LABEL statement1 sep { $$ = $2; LABEL($$, $1); }
+    ;
+
+statement1
     : single_line_statement
     | multi_line_statement
     ;
 
 single_line_statement
-    : single_line_statement0 sep
-    ;
-
-single_line_statement0
     : allocate_statement
     | assignment_statement
     | associate_statement
@@ -1037,8 +1038,8 @@ single_line_statement0
     ;
 
 multi_line_statement
-    : multi_line_statement0 sep { $$ = $1; }
-    | id ":" multi_line_statement0 id sep { $$ = STMT_NAME($1, $4, $3); }
+    : multi_line_statement0 { $$ = $1; }
+    | id ":" multi_line_statement0 id { $$ = STMT_NAME($1, $4, $3); }
     ;
 
 multi_line_statement0
@@ -1098,8 +1099,6 @@ print_statement
     : KW_PRINT    "*"                  { $$ = PRINT0(        @$); }
     | KW_PRINT    "*"    ","           { $$ = PRINT0(        @$); }
     | KW_PRINT    "*"    "," expr_list { $$ = PRINT(     $4, @$); }
-    | TK_LABEL KW_PRINT    "*"    "," expr_list {
-            $$ = PRINT(     $5, @$); LABEL($$, $1); }
     | KW_PRINT TK_STRING               { $$ = PRINTF0($2,    @$); }
     | KW_PRINT TK_STRING ","           { $$ = PRINTF0($2,    @$); }
     | KW_PRINT TK_STRING "," expr_list { $$ = PRINTF($2, $4, @$); }
@@ -1163,7 +1162,7 @@ if_statement
     ;
 
 if_statement_single
-    : KW_IF "(" expr ")" single_line_statement0 { $$ = IFSINGLE($3, $5, @$); }
+    : KW_IF "(" expr ")" single_line_statement { $$ = IFSINGLE($3, $5, @$); }
     ;
 
 if_block
@@ -1329,14 +1328,14 @@ forall_statement_single
     ;
 
 format_statement
-    : TK_LABEL KW_FORMAT "(" format_items ")" { $$ = FORMAT($1, @$); }
-    | TK_LABEL KW_FORMAT "(" format_items "," "*" "(" format_items ")" ")" {
-            $$ = FORMAT($1, @$); }
-    | TK_LABEL KW_FORMAT "(" "*" "(" format_items ")" ")" {
-            $$ = FORMAT($1, @$); }
-    | TK_LABEL KW_FORMAT "(" "/)" { $$ = FORMAT($1, @$); }
-    | TK_LABEL KW_FORMAT "(" TK_INTEGER "/)" { $$ = FORMAT($1, @$); }
-    | TK_LABEL KW_FORMAT "(" format_items "," "/)" { $$ = FORMAT($1, @$); }
+    : KW_FORMAT "(" format_items ")" { $$ = FORMAT(@$); }
+    | KW_FORMAT "(" format_items "," "*" "(" format_items ")" ")" {
+            $$ = FORMAT(@$); }
+    | KW_FORMAT "(" "*" "(" format_items ")" ")" {
+            $$ = FORMAT(@$); }
+    | KW_FORMAT "(" "/)" { $$ = FORMAT(@$); }
+    | KW_FORMAT "(" TK_INTEGER "/)" { $$ = FORMAT(@$); }
+    | KW_FORMAT "(" format_items "," "/)" { $$ = FORMAT(@$); }
     ;
 
 format_items
