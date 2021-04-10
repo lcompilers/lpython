@@ -226,6 +226,7 @@ RUN(NAME init_values LABELS gfortran llvm)
 
 RUN(NAME allocate_01 LABELS gfortran)
 RUN(NAME block_01 LABELS gfortran)
+RUN(NAME block_02 LABELS gfortran)
 RUN(NAME associate_01 LABELS gfortran)
 RUN(NAME associate_02 LABELS gfortran llvm)
 RUN(NAME associate_03 LABELS gfortran llvm)
