@@ -107,6 +107,7 @@ RUN(NAME while_02 LABELS gfortran llvm cpp)
 RUN(NAME doloop_01 LABELS gfortran llvm cpp x86)
 RUN(NAME doloop_02 LABELS gfortran llvm cpp x86)
 RUN(NAME doloop_03 LABELS gfortran llvm cpp)
+RUN(NAME doloop_04 LABELS gfortran)
 RUN(NAME doloop_05 LABELS gfortran llvm cpp)
 
 RUN(NAME goto_01 LABELS gfortran)
@@ -208,8 +209,6 @@ RUN(NAME logical1 LABELS gfortran llvm)
 RUN(NAME logical2 LABELS gfortran llvm)
 RUN(NAME logical3 LABELS gfortran llvm)
 RUN(NAME logical4 LABELS gfortran llvm)
-
-RUN(NAME doloop_04 LABELS gfortran)
 
 # `reduce` is not supported by GFortran yet:
 # RUN(NAME doconcurrentloop_02 LABELS gfortran)
