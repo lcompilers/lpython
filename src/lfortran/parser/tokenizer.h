@@ -17,6 +17,8 @@ public:
     unsigned char *cur_line;
     unsigned int line_num;
 
+    int last_token=-1;
+
 public:
     // Set the string to tokenize. The caller must ensure `str` will stay valid
     // as long as `lex` is being called.
