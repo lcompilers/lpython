@@ -1,9 +1,11 @@
 PROGRAM Block_02
     INTEGER :: A
     A = 10
-    BLOCK
+    1 BLOCK
         INTEGER :: B
-        B = A + 5
+        A = A + 5
+        if(A.EQ.15) GO TO 1
+        B = A / 2
         CALL Square(B)
     END BLOCK
 END PROGRAM Block_02
