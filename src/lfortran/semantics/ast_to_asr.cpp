@@ -309,6 +309,7 @@ public:
     ASR::accessType dflt_access = ASR::Public;
     std::map<std::string, ASR::accessType> assgnd_access;
     Vec<char*> current_module_dependencies;
+    bool in_module=false;
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
         : al{al}, current_scope{symbol_table} { }
@@ -342,6 +343,7 @@ public:
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
         current_module_dependencies.reserve(al, 4);
+        in_module = true;
         for (size_t i=0; i<x.n_use; i++) {
             visit_unit_decl1(*x.m_use[i]);
         }
@@ -365,6 +367,7 @@ public:
         }
         parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
         current_scope = parent_scope;
+        in_module = false;
     }
 
     void visit_Program(const AST::Program_t &x) {
@@ -666,9 +669,18 @@ public:
                             ::AttrPublic) {
                         // Do nothing (public access is the default)
                         LFORTRAN_ASSERT(dflt_access == ASR::accessType::Public);
+                    } else if (sa->m_attr == AST::simple_attributeType
+                            ::AttrSave) {
+                        if (in_module) {
+                            // Do nothing (all variables implicitly have the
+                            // save attribute in a module/main program)
+                        } else {
+                            throw SemanticError("Save Attribute not "
+                                    "supported yet", x.base.base.loc);
+                        }
                     } else {
                         throw SemanticError("Attribute declaration not "
-                                "supported", x.base.base.loc);
+                                "supported yet", x.base.base.loc);
                     }
                 } else {
                     // Example:
