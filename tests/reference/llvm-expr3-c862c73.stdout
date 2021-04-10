@@ -9,6 +9,8 @@ define i32 @f() {
   %f4 = alloca i32, align 4
   %f5 = alloca i32, align 4
   %f6 = alloca i32, align 4
+  %f7 = alloca i32, align 4
+  %f8 = alloca i32, align 4
   store i32 5, i32* %f1, align 4
   store i32 8, i32* %f2, align 4
   store i32 16, i32* %f3, align 4
@@ -17,7 +19,9 @@ define i32 @f() {
   %0 = call float @llvm.pow.f32(float 4.000000e+00, float 3.000000e+00)
   %1 = fptosi float %0 to i32
   store i32 %1, i32* %f6, align 4
-  %2 = load i32, i32* %f6, align 4
+  store i32 8, i32* %f7, align 4
+  store i32 8, i32* %f8, align 4
+  %2 = load i32, i32* %f8, align 4
   ret i32 %2
 }
 
