@@ -11,7 +11,7 @@ allocate(b(n,n), c(n, 5, n))
     x(1) = x(1) + 5
     y(2,3,4) = 3
 end associate loop
-if(a(1).EQ.5) GO TO 2
+if(a(1).EQ.5) GO TO 1
 a_1 = a(1)
 c_234 = c(2,3,4)
 print *, a_1
