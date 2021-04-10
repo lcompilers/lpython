@@ -1226,9 +1226,13 @@ public:
             r.append(s);
         }
         dec_indent();
-        r += syn(gr::Repeat);
+        r += syn(gr::UnitHeader);
         r.append("end associate");
         r += syn();
+        if (x.m_stmt_name) {
+            r += " ";
+            r += x.m_stmt_name;
+        }
         r += "\n";
         s = r;
     }
@@ -1252,9 +1256,13 @@ public:
         }
         dec_indent();
         r += indent;
-        r += syn(gr::Repeat);
+        r += syn(gr::UnitHeader);
         r.append("end block");
         r += syn();
+        if (x.m_stmt_name) {
+            r += " ";
+            r += x.m_stmt_name;
+        }
         r += "\n";
         s = r;
     }

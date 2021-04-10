@@ -11,7 +11,7 @@ A = 10
     if ((B)==(10)) then
         go to 2
     end if
-end block
+end block loop
 call Square(B)
 end program Block_02
 
