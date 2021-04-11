@@ -512,7 +512,6 @@ public:
         if (current_scope->scope.find(std::string(return_var_name)) == current_scope->scope.end()) {
             // The variable is not defined among local variables, extract the
             // type from "integer function f()" and add the variable.
-            ASR::ttype_t *type;
             if (!return_type) {
                 throw SemanticError("Return type not specified",
                         x.base.base.loc);
