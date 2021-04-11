@@ -305,6 +305,7 @@ public:
     ASR::asr_t *asr;
     Allocator &al;
     SymbolTable *current_scope;
+    SymbolTable *global_scope;
     std::map<std::string, std::vector<std::string>> generic_procedures;
     ASR::accessType dflt_access = ASR::Public;
     std::map<std::string, ASR::accessType> assgnd_access;
@@ -329,12 +330,14 @@ public:
             current_scope = al.make_new<SymbolTable>(nullptr);
         }
         LFORTRAN_ASSERT(current_scope != nullptr);
+        global_scope = current_scope;
         for (size_t i=0; i<x.n_items; i++) {
             AST::astType t = x.m_items[i]->type;
             if (t != AST::astType::expr && t != AST::astType::stmt) {
                 visit_ast(*x.m_items[i]);
             }
         }
+        global_scope = nullptr;
         asr = ASR::make_TranslationUnit_t(al, x.base.base.loc,
             current_scope, nullptr, 0);
     }
@@ -902,12 +905,10 @@ public:
         if (!v) {
             if (convert_to_lower(var_name) == "kind") {
                 // Intrinsic function kind(), add it to the global scope
-                ASR::TranslationUnit_t *unit =
-                    ASR::down_cast2<ASR::TranslationUnit_t>(asr);
                 const char *fn_name_orig = "kind";
                 char *fn_name = (char *)fn_name_orig;
                 SymbolTable *fn_scope =
-                    al.make_new<SymbolTable>(unit->m_global_scope);
+                    al.make_new<SymbolTable>(global_scope);
                 ASR::ttype_t *type;
                 type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
                 ASR::asr_t *return_var = ASR::make_Variable_t(
@@ -932,7 +933,7 @@ public:
                                        ASR::abiType::Source,
                                        ASR::Public);
                 std::string sym_name = fn_name;
-                unit->m_global_scope->scope[sym_name] =
+                global_scope->scope[sym_name] =
                     ASR::down_cast<ASR::symbol_t>(fn);
                 v = ASR::down_cast<ASR::symbol_t>(fn);
             } else {
