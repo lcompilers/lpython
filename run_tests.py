@@ -40,6 +40,7 @@ def main():
             continue
         tokens = test.get("tokens", False)
         ast = test.get("ast", False)
+        indent = test.get("indent", False)
         ast_f90 = test.get("ast_f90", False)
         ast_cpp = test.get("ast_cpp", False)
         ast_cpp_hip = test.get("ast_cpp_hip", False)
@@ -63,6 +64,11 @@ def main():
 
         if ast:
             run_test("ast", "lfortran --show-ast --no-color {infile} -o {outfile}",
+                    filename, update_reference)
+        if indent:
+            run_test("ast_indent", "lfortran --show-ast --indent --no-color {infile} -o {outfile}",
+                    filename, update_reference)
+            run_test("asr_indent", "lfortran --show-asr --indent --no-color {infile} -o {outfile}",
                     filename, update_reference)
 
         if ast_f90:
