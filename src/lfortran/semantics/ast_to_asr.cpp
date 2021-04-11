@@ -900,8 +900,46 @@ public:
         std::string var_name = x.m_func;
         ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
         if (!v) {
-            throw SemanticError("Function '" + var_name + "' not found"
-            " or not implemented yet (if it is intrinsic)", x.base.base.loc);
+            if (convert_to_lower(var_name) == "kind") {
+                // Intrinsic function kind(), add it to the global scope
+                ASR::TranslationUnit_t *unit =
+                    ASR::down_cast2<ASR::TranslationUnit_t>(asr);
+                const char *fn_name_orig = "kind";
+                char *fn_name = (char *)fn_name_orig;
+                SymbolTable *fn_scope =
+                    al.make_new<SymbolTable>(unit->m_global_scope);
+                ASR::ttype_t *type;
+                type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+                ASR::asr_t *return_var = ASR::make_Variable_t(
+                    al, x.base.base.loc, fn_scope, fn_name, intent_return_var,
+                    nullptr, ASR::storage_typeType::Default, type,
+                    ASR::abiType::Source,
+                    ASR::Public);
+                fn_scope->scope[std::string(fn_name)] =
+                    ASR::down_cast<ASR::symbol_t>(return_var);
+                ASR::asr_t *return_var_ref = ASR::make_Var_t(
+                    al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(return_var));
+                ASR::asr_t *fn =
+                    ASR::make_Function_t(al, x.base.base.loc,
+                                       /* a_symtab */ fn_scope,
+                                       /* a_name */ fn_name,
+                                       // TODO: add an argument:
+                                       /* a_args */ nullptr,
+                                       /* n_args */ 0,
+                                       /* a_body */ nullptr,
+                                       /* n_body */ 0,
+                                       /* a_return_var */ EXPR(return_var_ref),
+                                       ASR::abiType::Source,
+                                       ASR::Public);
+                std::string sym_name = fn_name;
+                unit->m_global_scope->scope[sym_name] =
+                    ASR::down_cast<ASR::symbol_t>(fn);
+                v = ASR::down_cast<ASR::symbol_t>(fn);
+            } else {
+                throw SemanticError("Function '" + var_name + "' not found"
+                    " or not implemented yet (if it is intrinsic)",
+                    x.base.base.loc);
+            }
         }
         Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
         ASR::ttype_t *type = EXPR2VAR(ASR::down_cast<ASR::Function_t>(v)
