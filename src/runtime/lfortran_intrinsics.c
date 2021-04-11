@@ -18,7 +18,7 @@ typedef double _Complex double_complex_t;
 #endif
 
 
-double _lfort_sum(int n, double *v)
+double _lfortran_sum(int n, double *v)
 {
     int i, r;
     r = 0;
@@ -28,7 +28,7 @@ double _lfort_sum(int n, double *v)
     return r;
 }
 
-void _lfort_random_number(int n, double *v)
+void _lfortran_random_number(int n, double *v)
 {
     int i;
     for (i=0; i < n; i++) {

@@ -110,7 +110,7 @@ cxx_binary_tests:
     - export LFORTRAN_RUNTIME_LIBRARY_DIR="`pwd`/src/runtime"
     - cd ..
     - ./run_tests.py
-    - PATH="`pwd`/src/bin:$PATH" ./test_lfort_cmdline lfortran
+    - PATH="`pwd`/src/bin:$PATH" ./test_lfortran_cmdline lfortran
 
     - cd src/runtime/tests
     - CXXFLAGS="-Werror" cmake .
