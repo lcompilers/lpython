@@ -517,17 +517,56 @@ public:
                 throw SemanticError("Return type not specified",
                         x.base.base.loc);
             }
+            ASR::ttype_t *type;
+            int a_kind = 4;
+            if (return_type->m_kind != nullptr) {
+                visit_expr(*return_type->m_kind->m_value);
+                ASR::expr_t* kind_expr = EXPR(asr);
+                switch( kind_expr->type ) {
+                    case ASR::exprType::ConstantInteger: {
+                        a_kind = ASR::down_cast<ASR::ConstantInteger_t>
+                                (kind_expr)->m_n;
+                        break;
+                    }
+                    case ASR::exprType::Var: {
+                        ASR::Var_t* kind_var =
+                            ASR::down_cast<ASR::Var_t>(kind_expr);
+                        ASR::Variable_t* kind_variable =
+                            ASR::down_cast<ASR::Variable_t>(kind_var->m_v);
+                        if( kind_variable->m_storage == ASR::storage_typeType::Parameter ) {
+                            if( kind_variable->m_type->type == ASR::ttypeType::Integer ) {
+                                a_kind = ASR::down_cast
+                                    <ASR::ConstantInteger_t>
+                                    (kind_variable->m_value)->m_n;
+                            } else {
+                                std::string msg = "Integer variable required. " + std::string(kind_variable->m_name) + 
+                                                " is not an Integer variable.";
+                                throw SemanticError(msg, x.base.base.loc);
+                            }
+                        } else {
+                            std::string msg = "Parameter " + std::string(kind_variable->m_name) + 
+                                            " is a variable, which does not reduce to a constant expression";
+                            throw SemanticError(msg, x.base.base.loc);
+                        }
+                        break;
+                    }
+                    default: {
+                        throw SemanticError(R"""(Only Integer literals or expressions which reduce to constant Integer are accepted as kind parameters.)""", 
+                                            x.base.base.loc);
+                    }
+                }
+            }
             switch (return_type->m_type) {
                 case (AST::decl_typeType::TypeInteger) : {
-                    type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+                    type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, a_kind, nullptr, 0));
                     break;
                 }
                 case (AST::decl_typeType::TypeReal) : {
-                    type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
+                    type = TYPE(ASR::make_Real_t(al, x.base.base.loc, a_kind, nullptr, 0));
                     break;
                 }
                 case (AST::decl_typeType::TypeComplex) : {
-                    type = TYPE(ASR::make_Complex_t(al, x.base.base.loc, 4, nullptr, 0));
+                    type = TYPE(ASR::make_Complex_t(al, x.base.base.loc, a_kind, nullptr, 0));
                     break;
                 }
                 case (AST::decl_typeType::TypeLogical) : {
