@@ -1,5 +1,5 @@
 set(SRC
-    lfort_intrinsics.c
+    lfortran_intrinsics.c
 )
 add_library(lfortran_runtime SHARED ${SRC})
 add_library(lfortran_runtime_static STATIC ${SRC})
