@@ -27,7 +27,7 @@ contains
 
     complex(4) function f(a) result(b)
     complex(4), intent(in) :: a
-    b = a + 1
+    b = a + 5
     end function
 
 end program
