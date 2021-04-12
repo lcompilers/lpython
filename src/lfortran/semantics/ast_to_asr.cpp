@@ -1167,7 +1167,7 @@ public:
                 SymbolTable *fn_scope =
                     al.make_new<SymbolTable>(global_scope);
                 ASR::ttype_t *type;
-                type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+                type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0)); // Is a_kind needed here?
                 ASR::asr_t *return_var = ASR::make_Variable_t(
                     al, x.base.base.loc, fn_scope, fn_name, intent_return_var,
                     nullptr, ASR::storage_typeType::Default, type,
@@ -2176,7 +2176,7 @@ public:
                 SymbolTable *fn_scope =
                     al.make_new<SymbolTable>(unit->m_global_scope);
                 ASR::ttype_t *type;
-                type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+                type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0)); // Is a_kind needed here?
                 ASR::asr_t *return_var = ASR::make_Variable_t(
                     al, x.base.base.loc, fn_scope, fn_name, intent_return_var,
                     nullptr, ASR::storage_typeType::Default, type,
@@ -2256,7 +2256,7 @@ public:
                     // Arguments
                     Vec<ASR::expr_t *> args;
                     args.reserve(al, 1);
-                    type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
+                    type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0)); // Is a_kind needed here?
                     const char *arg0_s_orig = "x";
                     char *arg0_s = (char *)arg0_s_orig;
                     ASR::asr_t *arg0 = ASR::make_Variable_t(
@@ -2269,7 +2269,7 @@ public:
                     args.push_back(al, EXPR(ASR::make_Var_t(al, x.base.base.loc, var)));
 
                     // Return value
-                    type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
+                    type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0)); // Is a_kind needed here?
                     ASR::asr_t *return_var = ASR::make_Variable_t(
                         al, x.base.base.loc, fn_scope, fn_name, intent_return_var,
                         nullptr, ASR::storage_typeType::Default, type,
