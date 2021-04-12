@@ -48,8 +48,11 @@ void _lfortran_printf(const char* format, ...)
 void _lfortran_complex_add(struct _lfortran_complex* a,
         struct _lfortran_complex* b, struct _lfortran_complex *result)
 {
+    // printf("(%f, %f)", a->re, a->im);
+    // printf("(%f, %f)", b->re, b->im);
     result->re = a->re + b->re;
     result->im = a->im + b->im;
+    // printf("(%f, %f)", result->re, result->im);
 }
 
 void _lfortran_complex_sub(struct _lfortran_complex* a,

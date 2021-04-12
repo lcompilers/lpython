@@ -124,6 +124,7 @@ public:
     std::string mangle_prefix;
     bool prototype_only;
     llvm::StructType *complex_type_4, *complex_type_8;
+    llvm::StructType *complex_type_4_ptr, *complex_type_8_ptr;
     llvm::PointerType *character_type;
     
     // Data Members for handling arrays
@@ -325,15 +326,25 @@ public:
         return type_ptr;
     }
 
-    inline llvm::Type* getComplexType(int a_kind) {
+    inline llvm::Type* getComplexType(int a_kind, bool get_pointer=false) {
+        llvm::Type* type = nullptr;
         switch(a_kind)
         {
             case 4:
-                return complex_type_4;
+                type = complex_type_4;
+                break;
             case 8:
-                return complex_type_8;
+                type = complex_type_8;
+                break;
             default:
                 throw CodeGenError("Only 32 and 64 bits complex kinds are supported.");
+        }
+        if( type != nullptr ) {
+            if( get_pointer ) {
+                return type->getPointerTo();
+            } else {
+                return type;
+            }
         }
         return nullptr;
     }
@@ -512,8 +523,16 @@ public:
         std::vector<llvm::Type*> els_8 = {
             llvm::Type::getDoubleTy(context),
             llvm::Type::getDoubleTy(context)};
+        std::vector<llvm::Type*> els_4_ptr = {
+            llvm::Type::getFloatPtrTy(context),
+            llvm::Type::getFloatPtrTy(context)};
+        std::vector<llvm::Type*> els_8_ptr = {
+            llvm::Type::getDoublePtrTy(context),
+            llvm::Type::getDoublePtrTy(context)};
         complex_type_4 = llvm::StructType::create(context, els_4, "complex_4");
         complex_type_8 = llvm::StructType::create(context, els_8, "complex_8");
+        complex_type_4_ptr = llvm::StructType::create(context, els_4_ptr, "complex_4_ptr");
+        complex_type_8_ptr = llvm::StructType::create(context, els_8_ptr, "complex_8_ptr");
         character_type = llvm::Type::getInt8PtrTy(context);
 
         // Process Variables first:
@@ -845,9 +864,11 @@ public:
                     type = getFPType(a_kind, true);
                     break;
                 }
-                case (ASR::ttypeType::Complex) :
-                    throw CodeGenError("Complex argument type not implemented yet in conversion");
+                case (ASR::ttypeType::Complex) : {
+                    int a_kind = down_cast<ASR::Complex_t>(arg->m_type)->m_kind;
+                    type = getComplexType(a_kind, true);
                     break;
+                }
                 case (ASR::ttypeType::Character) :
                     throw CodeGenError("Character argument type not implemented yet in conversion");
                     break;
@@ -915,9 +936,11 @@ public:
                     return_type = getFPType(a_kind);
                     break;
                 }
-                case (ASR::ttypeType::Complex) :
-                    throw CodeGenError("Complex return type not implemented yet");
+                case (ASR::ttypeType::Complex) : {
+                    int a_kind = down_cast<ASR::Complex_t>(return_var_type0)->m_kind;
+                    return_type = getComplexType(a_kind);
                     break;
+                }
                 case (ASR::ttypeType::Character) :
                     throw CodeGenError("Character return type not implemented yet");
                     break;
