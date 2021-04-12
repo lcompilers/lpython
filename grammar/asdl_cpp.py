@@ -443,7 +443,8 @@ class PickleVisitorVisitor(ASDLVisitor):
     def make_visitor(self, name, fields, cons):
         self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
         self.emit(      'if(indent) {',2)
-        self.emit(          'round[++tmp1] = indent_level;',3)
+        self.emit(          'tmp1++;',3)
+        self.emit(          'round[tmp1] = indent_level;',3)
         self.emit(          'if(start_line) {',3)
         self.emit(              'start_line = false;', 4)
         self.emit(              's.append(indtd);', 4)
