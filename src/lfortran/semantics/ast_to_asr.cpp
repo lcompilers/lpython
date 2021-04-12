@@ -1116,12 +1116,6 @@ public:
         return asr_list;
     }
 
-    void visit_Logical(const AST::Logical_t &x) {
-        ASR::ttype_t *type = TYPE(ASR::make_Logical_t(al, x.base.base.loc,
-                4, nullptr, 0));
-        asr = ASR::make_ConstantLogical_t(al, x.base.base.loc, x.m_value, type);
-    }
-
     void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
         std::string var_name = x.m_func;
         ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
