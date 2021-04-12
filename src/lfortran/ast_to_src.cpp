@@ -877,10 +877,6 @@ public:
         r += "(";
         r += syn(gr::Type);
         switch (x.m_intent) {
-            case (attr_intentType::Unspecified) : {
-                r = "";
-                return;
-            }
             case (attr_intentType::In) : {
                 r.append("in");
                 break;

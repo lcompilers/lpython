@@ -1012,7 +1012,7 @@ public:
                                     s_intent = intent_inout;
                                     break;
                                 }
-                                case (AST::attr_intentType::Unspecified) : {
+                                default : {
                                     s_intent = intent_unspecified;
                                     break;
                                 }

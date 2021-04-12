@@ -367,10 +367,6 @@ public:
         r += "intent";
         r += "(";
         switch (x.m_intent) {
-            case (attr_intentType::Unspecified) : {
-                r = "";
-                break;
-            }
             case (attr_intentType::In) : {
                 r.append("in");
                 break;
