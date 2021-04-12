@@ -12,6 +12,7 @@ set(SRC
     codegen/x86_assembler.cpp
     codegen/asr_to_x86.cpp
 
+    pass/param_to_const.cpp
     pass/do_loops.cpp
     pass/global_stmts.cpp
     pass/select_case.cpp

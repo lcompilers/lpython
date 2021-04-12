@@ -156,6 +156,7 @@ RUN(NAME intrinsics_06 LABELS gfortran llvm) # inverse trignometric
 
 RUN(NAME parameter_01 LABELS gfortran)
 RUN(NAME parameter_02 LABELS gfortran)
+RUN(NAME parameter_03 LABELS gfortran)
 
 RUN(NAME modules_01 LABELS gfortran llvm)
 RUN(NAME modules_02 LABELS gfortran llvm)
@@ -225,6 +226,7 @@ RUN(NAME line_continuation_03 LABELS gfortran)
 
 RUN(NAME program_01 LABELS gfortran)
 RUN(NAME init_values LABELS gfortran llvm)
+RUN(NAME param_pass_01 LABELS gfortran)
 
 RUN(NAME allocate_01 LABELS gfortran)
 RUN(NAME block_01 LABELS gfortran)

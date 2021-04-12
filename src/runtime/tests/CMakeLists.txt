@@ -30,7 +30,7 @@ endif ()
 message("Installation prefix: ${CMAKE_INSTALL_PREFIX}")
 
 set(SRC
-    ../lfort_intrinsics.c
+    ../lfortran_intrinsics.c
     ../lfortran_intrinsic_math.f90
 )
 add_library(lfortran_runtime SHARED ${SRC})

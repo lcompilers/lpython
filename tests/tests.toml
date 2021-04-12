@@ -640,6 +640,10 @@ ast = true
 ast_f90 = true
 
 [[test]]
+filename = "../integration_tests/parameter_03.f90"
+asr = true
+
+[[test]]
 filename = "do_concurrent1.f90"
 ast = true
 
@@ -862,6 +866,10 @@ asr = true
 [[test]]
 filename = "modules_06.f90"
 ast = true
+asr = true
+
+[[test]]
+filename = "modules_07.f90"
 asr = true
 
 [[test]]

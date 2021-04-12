@@ -299,16 +299,191 @@ namespace LFortran {
 
     };
 
+class CommonVisitorMethods {
+
+    public:
+
+    inline static void visit_BinOp(Allocator& al, const AST::BinOp_t &x, 
+                            ASR::expr_t*& left, ASR::expr_t*& right, ASR::asr_t*& asr) {
+        ASR::binopType op;
+        switch (x.m_op) {
+            case (AST::Add) :
+                op = ASR::Add;
+                break;
+            case (AST::Sub) :
+                op = ASR::Sub;
+                break;
+            case (AST::Mul) :
+                op = ASR::Mul;
+                break;
+            case (AST::Div) :
+                op = ASR::Div;
+                break;
+            case (AST::Pow) :
+                op = ASR::Pow;
+                break;
+            // Fix compiler warning:
+            default : { LFORTRAN_ASSERT(false); op = ASR::binopType::Pow; }
+        }
+
+        // Cast LHS or RHS if necessary
+        ASR::ttype_t *left_type = expr_type(left);
+        ASR::ttype_t *right_type = expr_type(right);
+        ASR::expr_t **conversion_cand = &left;
+        ASR::ttype_t *source_type = left_type;
+        ASR::ttype_t *dest_type = right_type;
+
+        ImplicitCastRules::find_conversion_candidate(
+            &left, &right, left_type, right_type, 
+            conversion_cand, &source_type, &dest_type);
+        ImplicitCastRules::set_converted_value(
+            al, x.base.base.loc, conversion_cand,
+            source_type, dest_type);
+
+        LFORTRAN_ASSERT(HelperMethods::check_equal_type(expr_type(left), expr_type(right)));
+        asr = ASR::make_BinOp_t(al, x.base.base.loc, left, op, right, dest_type);
+    }
+
+    inline static void visit_Compare(Allocator& al, const AST::Compare_t &x, ASR::expr_t*& left, 
+                       ASR::expr_t*& right, ASR::asr_t*& asr) {
+        // Cast LHS or RHS if necessary
+        ASR::ttype_t *left_type = expr_type(left);
+        ASR::ttype_t *right_type = expr_type(right);
+        if( (left_type->type != ASR::ttypeType::Real && 
+            left_type->type != ASR::ttypeType::Integer) &&
+            (right_type->type != ASR::ttypeType::Real &&
+             right_type->type != ASR::ttypeType::Integer) ) {
+            throw SemanticError(
+                "Compare: only Integer or Real can be on the LHS and RHS", 
+            x.base.base.loc);
+        }
+        else
+        {
+            ASR::expr_t **conversion_cand = &left;
+            ASR::ttype_t *dest_type = right_type;
+            ASR::ttype_t *source_type = left_type;
+            ImplicitCastRules::find_conversion_candidate
+            (&left, &right, left_type, right_type, 
+             conversion_cand, &source_type, &dest_type);
+
+            ImplicitCastRules::set_converted_value
+            (al, x.base.base.loc, conversion_cand, 
+             source_type, dest_type);
+        }
+
+        LFORTRAN_ASSERT(HelperMethods::check_equal_type(expr_type(left), expr_type(right)));
+        ASR::ttype_t *type = TYPE(ASR::make_Logical_t(al, x.base.base.loc,
+                4, nullptr, 0));
+        ASR::cmpopType asr_op;
+        switch (x.m_op) {
+            case (AST::cmpopType::Eq) : { asr_op = ASR::cmpopType::Eq; break;}
+            case (AST::cmpopType::Gt) : { asr_op = ASR::cmpopType::Gt; break;}
+            case (AST::cmpopType::GtE) : { asr_op = ASR::cmpopType::GtE; break;}
+            case (AST::cmpopType::Lt) : { asr_op = ASR::cmpopType::Lt; break;}
+            case (AST::cmpopType::LtE) : { asr_op = ASR::cmpopType::LtE; break;}
+            case (AST::cmpopType::NotEq) : { asr_op = ASR::cmpopType::NotEq; break;}
+            default : {
+                throw SemanticError("Comparison operator not implemented",
+                        x.base.base.loc);
+            }
+        }
+        asr = ASR::make_Compare_t(al, x.base.base.loc,
+            left, asr_op, right, type);
+    }
+
+    inline static void visit_BoolOp(Allocator& al, const AST::BoolOp_t &x, ASR::expr_t*& left, 
+                                    ASR::expr_t*& right, ASR::asr_t*& asr) {
+        ASR::boolopType op;
+        switch (x.m_op) {
+            case (AST::And):
+                op = ASR::And;
+                break;
+            case (AST::Or):
+                op = ASR::Or;
+                break;
+            case (AST::NEqv):
+                op = ASR::NEqv;
+                break;
+            case (AST::Eqv):
+                op = ASR::Eqv;
+                break;
+            default:
+                throw SemanticError(R"""(Only .and., .or., .neqv., .eqv. 
+                                    implemented for logical type operands.)""", 
+                                    x.base.base.loc);
+        }
+
+        // Cast LHS or RHS if necessary
+        ASR::ttype_t *left_type = expr_type(left);
+        ASR::ttype_t *right_type = expr_type(right);
+        ASR::expr_t **conversion_cand = &left;
+        ASR::ttype_t *source_type = left_type;
+        ASR::ttype_t *dest_type = right_type;
+
+        ImplicitCastRules::find_conversion_candidate(
+            &left, &right, left_type, right_type, 
+            conversion_cand, &source_type, &dest_type);
+        ImplicitCastRules::set_converted_value(
+            al, x.base.base.loc, conversion_cand,
+            source_type, dest_type);
+
+        LFORTRAN_ASSERT(HelperMethods::check_equal_type(expr_type(left), expr_type(right)));
+        asr = ASR::make_BoolOp_t(al, x.base.base.loc,
+                left, op, right, dest_type);
+    }
+
+    inline static void visit_UnaryOp(Allocator& al, const AST::UnaryOp_t &x, 
+                                     ASR::expr_t*& operand, ASR::asr_t*& asr) {
+        ASR::unaryopType op;
+        switch (x.m_op) {
+            case (AST::unaryopType::Invert) :
+                op = ASR::unaryopType::Invert;
+                break;
+            case (AST::unaryopType::Not) :
+                op = ASR::unaryopType::Not;
+                break;
+            case (AST::unaryopType::UAdd) :
+                op = ASR::unaryopType::UAdd;
+                break;
+            case (AST::unaryopType::USub) :
+                op = ASR::unaryopType::USub;
+                break;
+            // Fix compiler warning:
+            default : { LFORTRAN_ASSERT(false); op = ASR::unaryopType::Invert; }
+        }
+        ASR::ttype_t *operand_type = expr_type(operand);
+        asr = ASR::make_UnaryOp_t(al, x.base.base.loc,
+                op, operand, operand_type);
+    }
+
+    static inline void visit_StrOp(Allocator& al, const AST::StrOp_t &x, ASR::expr_t*& left, 
+                                    ASR::expr_t*& right, ASR::asr_t*& asr) { 
+        ASR::stropType op;
+        switch (x.m_op) {
+            case (AST::Concat) :
+                op = ASR::Concat;
+        }
+        ASR::ttype_t *right_type = expr_type(right);
+        ASR::ttype_t *dest_type = right_type;
+        // TODO: Type check here?
+        asr = ASR::make_StrOp_t(al, x.base.base.loc,
+                left, op, right, dest_type);
+    }        
+
+};
+
 class SymbolTableVisitor : public AST::BaseVisitor<SymbolTableVisitor>
 {
 public:
     ASR::asr_t *asr;
     Allocator &al;
     SymbolTable *current_scope;
+    SymbolTable *global_scope;
     std::map<std::string, std::vector<std::string>> generic_procedures;
     ASR::accessType dflt_access = ASR::Public;
     std::map<std::string, ASR::accessType> assgnd_access;
     Vec<char*> current_module_dependencies;
+    bool in_module=false;
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
         : al{al}, current_scope{symbol_table} { }
@@ -328,12 +503,14 @@ public:
             current_scope = al.make_new<SymbolTable>(nullptr);
         }
         LFORTRAN_ASSERT(current_scope != nullptr);
+        global_scope = current_scope;
         for (size_t i=0; i<x.n_items; i++) {
             AST::astType t = x.m_items[i]->type;
             if (t != AST::astType::expr && t != AST::astType::stmt) {
                 visit_ast(*x.m_items[i]);
             }
         }
+        global_scope = nullptr;
         asr = ASR::make_TranslationUnit_t(al, x.base.base.loc,
             current_scope, nullptr, 0);
     }
@@ -342,6 +519,7 @@ public:
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
         current_module_dependencies.reserve(al, 4);
+        in_module = true;
         for (size_t i=0; i<x.n_use; i++) {
             visit_unit_decl1(*x.m_use[i]);
         }
@@ -365,6 +543,7 @@ public:
         }
         parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
         current_scope = parent_scope;
+        in_module = false;
     }
 
     void visit_Program(const AST::Program_t &x) {
@@ -624,10 +803,54 @@ public:
         current_scope = parent_scope;
     }
 
+    void visit_StrOp(const AST::StrOp_t &x) { 
+        this->visit_expr(*x.m_left);
+        ASR::expr_t *left = EXPR(asr);
+        this->visit_expr(*x.m_right);
+        ASR::expr_t *right = EXPR(asr);
+        CommonVisitorMethods::visit_StrOp(al, x, left, right, asr);
+    }
+
+    void visit_UnaryOp(const AST::UnaryOp_t &x) {
+        this->visit_expr(*x.m_operand);
+        ASR::expr_t *operand = EXPR(asr);
+        CommonVisitorMethods::visit_UnaryOp(al, x, operand, asr);
+    }
+
+    void visit_BoolOp(const AST::BoolOp_t &x) {
+        this->visit_expr(*x.m_left);
+        ASR::expr_t *left = EXPR(asr);
+        this->visit_expr(*x.m_right);
+        ASR::expr_t *right = EXPR(asr);
+        CommonVisitorMethods::visit_BoolOp(al, x, left, right, asr);
+    }
+
+    void visit_Compare(const AST::Compare_t &x) {
+        this->visit_expr(*x.m_left);
+        ASR::expr_t *left = EXPR(asr);
+        this->visit_expr(*x.m_right);
+        ASR::expr_t *right = EXPR(asr);
+        CommonVisitorMethods::visit_Compare(al, x, left, right, asr);
+    }
+
+    void visit_BinOp(const AST::BinOp_t &x) {
+        this->visit_expr(*x.m_left);
+        ASR::expr_t *left = EXPR(asr);
+        this->visit_expr(*x.m_right);
+        ASR::expr_t *right = EXPR(asr);
+        CommonVisitorMethods::visit_BinOp(al, x, left, right, asr);
+    }
+
     void visit_Str(const AST::Str_t &x) {
         ASR::ttype_t *type = TYPE(ASR::make_Character_t(al, x.base.base.loc,
                 8, nullptr, 0));
         asr = ASR::make_Str_t(al, x.base.base.loc, x.m_s, type);
+    }
+
+    void visit_Logical(const AST::Logical_t &x) {
+        ASR::ttype_t *type = TYPE(ASR::make_Logical_t(al, x.base.base.loc,
+                4, nullptr, 0));
+        asr = ASR::make_ConstantLogical_t(al, x.base.base.loc, x.m_value, type);
     }
 
     void visit_Complex(const AST::Complex_t &x) {
@@ -704,9 +927,18 @@ public:
                             ::AttrPublic) {
                         // Do nothing (public access is the default)
                         LFORTRAN_ASSERT(dflt_access == ASR::accessType::Public);
+                    } else if (sa->m_attr == AST::simple_attributeType
+                            ::AttrSave) {
+                        if (in_module) {
+                            // Do nothing (all variables implicitly have the
+                            // save attribute in a module/main program)
+                        } else {
+                            throw SemanticError("Save Attribute not "
+                                    "supported yet", x.base.base.loc);
+                        }
                     } else {
                         throw SemanticError("Attribute declaration not "
-                                "supported", x.base.base.loc);
+                                "supported yet", x.base.base.loc);
                     }
                 } else {
                     // Example:
@@ -909,6 +1141,67 @@ public:
                 current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(v);
             } // for m_syms
         }
+    }
+
+    Vec<ASR::expr_t*> visit_expr_list(AST::fnarg_t *ast_list, size_t n) {
+        Vec<ASR::expr_t*> asr_list;
+        asr_list.reserve(al, n);
+        for (size_t i=0; i<n; i++) {
+            visit_expr(*ast_list[i].m_end);
+            ASR::expr_t *expr = EXPR(asr);
+            asr_list.push_back(al, expr);
+        }
+        return asr_list;
+    }
+
+    void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
+        std::string var_name = x.m_func;
+        ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
+        if (!v) {
+            if (convert_to_lower(var_name) == "kind") {
+                // Intrinsic function kind(), add it to the global scope
+                const char *fn_name_orig = "kind";
+                char *fn_name = (char *)fn_name_orig;
+                SymbolTable *fn_scope =
+                    al.make_new<SymbolTable>(global_scope);
+                ASR::ttype_t *type;
+                type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+                ASR::asr_t *return_var = ASR::make_Variable_t(
+                    al, x.base.base.loc, fn_scope, fn_name, intent_return_var,
+                    nullptr, ASR::storage_typeType::Default, type,
+                    ASR::abiType::Source,
+                    ASR::Public);
+                fn_scope->scope[std::string(fn_name)] =
+                    ASR::down_cast<ASR::symbol_t>(return_var);
+                ASR::asr_t *return_var_ref = ASR::make_Var_t(
+                    al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(return_var));
+                ASR::asr_t *fn =
+                    ASR::make_Function_t(al, x.base.base.loc,
+                                       /* a_symtab */ fn_scope,
+                                       /* a_name */ fn_name,
+                                       // TODO: add an argument:
+                                       /* a_args */ nullptr,
+                                       /* n_args */ 0,
+                                       /* a_body */ nullptr,
+                                       /* n_body */ 0,
+                                       /* a_return_var */ EXPR(return_var_ref),
+                                       ASR::abiType::Source,
+                                       ASR::Public);
+                std::string sym_name = fn_name;
+                global_scope->scope[sym_name] =
+                    ASR::down_cast<ASR::symbol_t>(fn);
+                v = ASR::down_cast<ASR::symbol_t>(fn);
+            } else {
+                throw SemanticError("Function '" + var_name + "' not found"
+                    " or not implemented yet (if it is intrinsic)",
+                    x.base.base.loc);
+            }
+        }
+        Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
+        ASR::ttype_t *type = EXPR2VAR(ASR::down_cast<ASR::Function_t>(v)
+                ->m_return_var)->m_type;
+        asr = ASR::make_FunctionCall_t(al, x.base.base.loc, v, nullptr,
+            args.p, args.size(), nullptr, 0, type);
     }
 
     void visit_DerivedType(const AST::DerivedType_t &x) {
@@ -1816,52 +2109,7 @@ public:
         ASR::expr_t *left = EXPR(tmp);
         this->visit_expr(*x.m_right);
         ASR::expr_t *right = EXPR(tmp);
-        // Cast LHS or RHS if necessary
-        ASR::ttype_t *left_type = expr_type(left);
-        ASR::ttype_t *right_type = expr_type(right);
-        if( (left_type->type != ASR::ttypeType::Real && 
-            left_type->type != ASR::ttypeType::Integer) &&
-            (right_type->type != ASR::ttypeType::Real &&
-             right_type->type != ASR::ttypeType::Integer) ) {
-            throw SemanticError(
-                "Compare: only Integer or Real can be on the LHS and RHS", 
-            x.base.base.loc);
-        }
-        else
-        {
-            ASR::expr_t **conversion_cand = &left;
-            ASR::ttype_t *dest_type = right_type;
-            ASR::ttype_t *source_type = left_type;
-            ImplicitCastRules::find_conversion_candidate
-            (&left, &right, left_type, right_type, 
-             conversion_cand, &source_type, &dest_type);
-
-            ImplicitCastRules::set_converted_value
-            (al, x.base.base.loc, conversion_cand, 
-             source_type, dest_type);
-        }
-
-        bool res = HelperMethods::check_equal_type(expr_type(left), expr_type(right));
-        if( !res ) {
-            LFORTRAN_ASSERT(false);
-        }
-        ASR::ttype_t *type = TYPE(ASR::make_Logical_t(al, x.base.base.loc,
-                4, nullptr, 0));
-        ASR::cmpopType asr_op;
-        switch (x.m_op) {
-            case (AST::cmpopType::Eq) : { asr_op = ASR::cmpopType::Eq; break;}
-            case (AST::cmpopType::Gt) : { asr_op = ASR::cmpopType::Gt; break;}
-            case (AST::cmpopType::GtE) : { asr_op = ASR::cmpopType::GtE; break;}
-            case (AST::cmpopType::Lt) : { asr_op = ASR::cmpopType::Lt; break;}
-            case (AST::cmpopType::LtE) : { asr_op = ASR::cmpopType::LtE; break;}
-            case (AST::cmpopType::NotEq) : { asr_op = ASR::cmpopType::NotEq; break;}
-            default : {
-                throw SemanticError("Comparison operator not implemented",
-                        x.base.base.loc);
-            }
-        }
-        tmp = ASR::make_Compare_t(al, x.base.base.loc,
-            left, asr_op, right, type);
+        CommonVisitorMethods::visit_Compare(al, x, left, right, tmp);
     }
 
     void visit_BoolOp(const AST::BoolOp_t &x) {
@@ -1869,46 +2117,7 @@ public:
         ASR::expr_t *left = EXPR(tmp);
         this->visit_expr(*x.m_right);
         ASR::expr_t *right = EXPR(tmp);
-        ASR::boolopType op;
-        switch (x.m_op) {
-            case (AST::And):
-                op = ASR::And;
-                break;
-            case (AST::Or):
-                op = ASR::Or;
-                break;
-            case (AST::NEqv):
-                op = ASR::NEqv;
-                break;
-            case (AST::Eqv):
-                op = ASR::Eqv;
-                break;
-            default:
-                throw SemanticError(R"""(Only .and., .or., .neqv., .eqv. 
-                                    implemented for logical type operands.)""", 
-                                    x.base.base.loc);
-        }
-
-        // Cast LHS or RHS if necessary
-        ASR::ttype_t *left_type = expr_type(left);
-        ASR::ttype_t *right_type = expr_type(right);
-        ASR::expr_t **conversion_cand = &left;
-        ASR::ttype_t *source_type = left_type;
-        ASR::ttype_t *dest_type = right_type;
-
-        ImplicitCastRules::find_conversion_candidate(
-            &left, &right, left_type, right_type, 
-            conversion_cand, &source_type, &dest_type);
-        ImplicitCastRules::set_converted_value(
-            al, x.base.base.loc, conversion_cand,
-            source_type, dest_type);
-
-        bool res = HelperMethods::check_equal_type(expr_type(left), expr_type(right));
-        if( !res ) {
-            LFORTRAN_ASSERT(false);
-        }
-        tmp = ASR::make_BoolOp_t(al, x.base.base.loc,
-                left, op, right, dest_type);
+        CommonVisitorMethods::visit_BoolOp(al, x, left, right, tmp);
     }
 
     void visit_BinOp(const AST::BinOp_t &x) {
@@ -1916,47 +2125,7 @@ public:
         ASR::expr_t *left = EXPR(tmp);
         this->visit_expr(*x.m_right);
         ASR::expr_t *right = EXPR(tmp);
-        ASR::binopType op;
-        switch (x.m_op) {
-            case (AST::Add) :
-                op = ASR::Add;
-                break;
-            case (AST::Sub) :
-                op = ASR::Sub;
-                break;
-            case (AST::Mul) :
-                op = ASR::Mul;
-                break;
-            case (AST::Div) :
-                op = ASR::Div;
-                break;
-            case (AST::Pow) :
-                op = ASR::Pow;
-                break;
-            // Fix compiler warning:
-            default : { LFORTRAN_ASSERT(false); op = ASR::binopType::Pow; }
-        }
-
-        // Cast LHS or RHS if necessary
-        ASR::ttype_t *left_type = expr_type(left);
-        ASR::ttype_t *right_type = expr_type(right);
-        ASR::expr_t **conversion_cand = &left;
-        ASR::ttype_t *source_type = left_type;
-        ASR::ttype_t *dest_type = right_type;
-
-        ImplicitCastRules::find_conversion_candidate(
-            &left, &right, left_type, right_type, 
-            conversion_cand, &source_type, &dest_type);
-        ImplicitCastRules::set_converted_value(
-            al, x.base.base.loc, conversion_cand,
-            source_type, dest_type);
-
-        bool res = HelperMethods::check_equal_type(expr_type(left), expr_type(right));
-        if( !res ) {
-            LFORTRAN_ASSERT(false);
-        }
-        tmp = ASR::make_BinOp_t(al, x.base.base.loc,
-                left, op, right, dest_type);
+        CommonVisitorMethods::visit_BinOp(al, x, left, right, tmp);
     }
 
     void visit_StrOp(const AST::StrOp_t &x) { 
@@ -1964,41 +2133,13 @@ public:
         ASR::expr_t *left = EXPR(tmp);
         this->visit_expr(*x.m_right);
         ASR::expr_t *right = EXPR(tmp);
-        ASR::stropType op;
-        switch (x.m_op) {
-            case (AST::Concat) :
-                op = ASR::Concat;
-        }
-        ASR::ttype_t *right_type = expr_type(right);
-        ASR::ttype_t *dest_type = right_type;
-        // TODO: Type check here?
-        tmp = ASR::make_StrOp_t(al, x.base.base.loc,
-                left, op, right, dest_type);
+        CommonVisitorMethods::visit_StrOp(al, x, left, right, tmp);
     }
 
     void visit_UnaryOp(const AST::UnaryOp_t &x) {
         this->visit_expr(*x.m_operand);
         ASR::expr_t *operand = EXPR(tmp);
-        ASR::unaryopType op;
-        switch (x.m_op) {
-            case (AST::unaryopType::Invert) :
-                op = ASR::unaryopType::Invert;
-                break;
-            case (AST::unaryopType::Not) :
-                op = ASR::unaryopType::Not;
-                break;
-            case (AST::unaryopType::UAdd) :
-                op = ASR::unaryopType::UAdd;
-                break;
-            case (AST::unaryopType::USub) :
-                op = ASR::unaryopType::USub;
-                break;
-            // Fix compiler warning:
-            default : { LFORTRAN_ASSERT(false); op = ASR::unaryopType::Invert; }
-        }
-        ASR::ttype_t *operand_type = expr_type(operand);
-        tmp = ASR::make_UnaryOp_t(al, x.base.base.loc,
-                op, operand, operand_type);
+        CommonVisitorMethods::visit_UnaryOp(al, x, operand, tmp);
     }
 
     ASR::asr_t* resolve_variable(const Location &loc, const char* id) {
