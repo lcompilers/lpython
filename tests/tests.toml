@@ -7,6 +7,8 @@
 [[test]]
 filename = "subroutine1.f90"
 tokens = true
+ast_indent = true
+asr_indent = true
 ast = true
 
 [[test]]
