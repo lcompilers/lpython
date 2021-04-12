@@ -3,7 +3,7 @@
 #include <lfortran/exception.h>
 #include <lfortran/asr_utils.h>
 #include <lfortran/asr_verify.h>
-#include <lfortran/pass/do_loops.h>
+#include <lfortran/pass/select_case.h>
 
 
 namespace LFortran {

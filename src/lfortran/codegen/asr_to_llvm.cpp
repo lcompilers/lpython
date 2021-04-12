@@ -44,6 +44,7 @@
 #include <lfortran/pass/do_loops.h>
 #include <lfortran/pass/select_case.h>
 #include <lfortran/pass/global_stmts.h>
+#include <lfortran/pass/param_to_const.h>
 #include <lfortran/exception.h>
 #include <lfortran/asr_utils.h>
 #include <lfortran/pickle.h>
@@ -2037,9 +2038,9 @@ std::unique_ptr<LLVMModule> asr_to_llvm(ASR::TranslationUnit_t &asr,
     ASRToLLVMVisitor v(context);
     pass_wrap_global_stmts_into_function(al, asr, run_fn);
 
+    pass_replace_param_to_const(al, asr);
     // Uncomment for debugging the ASR after the transformation
     // std::cout << pickle(asr) << std::endl;
-
     pass_replace_do_loops(al, asr);
     pass_replace_select_case(al, asr);
     v.visit_asr((ASR::asr_t&)asr);
