@@ -854,12 +854,14 @@ public:
     }
 
     void visit_Complex(const AST::Complex_t &x) {
-        ASR::ttype_t *type = TYPE(ASR::make_Complex_t(al, x.base.base.loc,
-                4, nullptr, 0));
         this->visit_expr(*x.m_re);
         ASR::expr_t *re = EXPR(asr);
         this->visit_expr(*x.m_im);
         ASR::expr_t *im = EXPR(asr);
+        int re_kind = HelperMethods::extract_kind_from_ttype_t(expr_type(re));
+        int im_kind = HelperMethods::extract_kind_from_ttype_t(expr_type(im));
+        ASR::ttype_t *type = TYPE(ASR::make_Complex_t(al, x.base.base.loc,
+                std::max(re_kind, im_kind), nullptr, 0));
         asr = ASR::make_ConstantComplex_t(al, x.base.base.loc,
                 re, im, type);
     }
