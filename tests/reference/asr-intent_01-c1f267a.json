@@ -1,0 +1,13 @@
+{
+    "basename": "asr-intent_01-c1f267a",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/intent_01.f90",
+    "infile_hash": "ecbce2d4b01a09bee24ec92ce8be335f75903e746d23a667806bf264",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-intent_01-c1f267a.stdout",
+    "stdout_hash": "a71cab6258ca514b936199ee16fbcc315fa16596fc049a24f304b94a",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

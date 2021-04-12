@@ -484,6 +484,7 @@ public:
     std::map<std::string, ASR::accessType> assgnd_access;
     Vec<char*> current_module_dependencies;
     bool in_module=false;
+    std::vector<std::string> current_procedure_args;
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
         : al{al}, current_scope{symbol_table} { }
@@ -579,6 +580,11 @@ public:
         ASR::accessType s_access = dflt_access;
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
+        for (size_t i=0; i<x.n_args; i++) {
+            char *arg=x.m_args[i].m_arg;
+            std::string arg_s = arg;
+            current_procedure_args.push_back(arg);
+        }
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
         }
@@ -622,6 +628,7 @@ public:
         }
         parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
         current_scope = parent_scope;
+        current_procedure_args.clear();
     }
 
     AST::AttrType_t* find_return_type(AST::decl_attribute_t** attributes,
@@ -646,6 +653,11 @@ public:
         ASR::accessType s_access = dflt_access;
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
+        for (size_t i=0; i<x.n_args; i++) {
+            char *arg=x.m_args[i].m_arg;
+            std::string arg_s = arg;
+            current_procedure_args.push_back(arg);
+        }
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
         }
@@ -763,6 +775,7 @@ public:
         }
         parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
         current_scope = parent_scope;
+        current_procedure_args.clear();
     }
 
     void visit_StrOp(const AST::StrOp_t &x) { 
@@ -948,7 +961,14 @@ public:
                                 x.base.base.loc);
                     }
                 }
-                ASR::intentType s_intent=intent_local;
+                ASR::intentType s_intent;
+                if (std::find(current_procedure_args.begin(), 
+                        current_procedure_args.end(), s.m_name) != 
+                        current_procedure_args.end()) {
+                    s_intent = intent_unspecified;
+                } else {
+                    s_intent = intent_local;
+                }
                 Vec<ASR::dimension_t> dims;
                 dims.reserve(al, 0);
                 if (x.n_attributes > 0) {
@@ -990,6 +1010,10 @@ public:
                                 }
                                 case (AST::attr_intentType::InOut) : {
                                     s_intent = intent_inout;
+                                    break;
+                                }
+                                default : {
+                                    s_intent = intent_unspecified;
                                     break;
                                 }
                             }

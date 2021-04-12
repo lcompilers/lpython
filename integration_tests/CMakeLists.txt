@@ -250,3 +250,5 @@ RUN(NAME string3 LABELS gfortran llvm)
 
 RUN(NAME nested_01 LABELS gfortran llvm)
 RUN(NAME nested_02 LABELS gfortran llvm)
+
+RUN(NAME intent_01 LABELS gfortran llvm)
