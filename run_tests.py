@@ -40,11 +40,13 @@ def main():
             continue
         tokens = test.get("tokens", False)
         ast = test.get("ast", False)
+        ast_indent = test.get("ast_indent", False)
         ast_f90 = test.get("ast_f90", False)
         ast_cpp = test.get("ast_cpp", False)
         ast_cpp_hip = test.get("ast_cpp_hip", False)
         ast_openmp = test.get("ast_openmp", False)
         asr = test.get("asr", False)
+        asr_indent = test.get("asr_indent", False)
         mod_to_asr = test.get("mod_to_asr", False)
         llvm = test.get("llvm", False)
         cpp = test.get("cpp", False)
@@ -64,6 +66,9 @@ def main():
         if ast:
             run_test("ast", "lfortran --show-ast --no-color {infile} -o {outfile}",
                     filename, update_reference)
+        if ast_indent:
+            run_test("ast_indent", "lfortran --show-ast --indent --no-color {infile} -o {outfile}",
+                    filename, update_reference)
 
         if ast_f90:
             run_test("ast_f90", "lfortran --show-ast-f90 --no-color {infile}",
@@ -76,6 +81,10 @@ def main():
         if asr:
             run_test("asr", "lfortran --show-asr --no-color {infile} -o {outfile}",
                     filename, update_reference)
+
+        if asr_indent:
+            run_test("asr_indent", "lfortran --show-asr --indent --no-color {infile} -o {outfile}",
+                filename, update_reference)
 
         if mod_to_asr:
             run_test("mod_to_asr", "lfortran mod --show-asr --no-color {infile}",

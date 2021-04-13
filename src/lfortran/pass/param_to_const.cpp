@@ -31,12 +31,13 @@ to:
 class VarVisitor : public ASR::BaseWalkVisitor<VarVisitor>
 {
 private:
-    Allocator &al;
     ASR::expr_t* asr;
 
 public:
+    // Currently `al` is not used, but we might need it in the future:
+    Allocator &al;
 
-    VarVisitor(Allocator &al) : al{al}, asr{nullptr} {
+    VarVisitor(Allocator &al) : asr{nullptr}, al{al} {
     }
 
     void visit_Program(const ASR::Program_t &x) {

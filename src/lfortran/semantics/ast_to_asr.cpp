@@ -484,6 +484,7 @@ public:
     std::map<std::string, ASR::accessType> assgnd_access;
     Vec<char*> current_module_dependencies;
     bool in_module=false;
+    std::vector<std::string> current_procedure_args;
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
         : al{al}, current_scope{symbol_table} { }
@@ -579,6 +580,11 @@ public:
         ASR::accessType s_access = dflt_access;
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
+        for (size_t i=0; i<x.n_args; i++) {
+            char *arg=x.m_args[i].m_arg;
+            std::string arg_s = arg;
+            current_procedure_args.push_back(arg);
+        }
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
         }
@@ -622,6 +628,7 @@ public:
         }
         parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
         current_scope = parent_scope;
+        current_procedure_args.clear();
     }
 
     AST::AttrType_t* find_return_type(AST::decl_attribute_t** attributes,
@@ -646,6 +653,11 @@ public:
         ASR::accessType s_access = dflt_access;
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
+        for (size_t i=0; i<x.n_args; i++) {
+            char *arg=x.m_args[i].m_arg;
+            std::string arg_s = arg;
+            current_procedure_args.push_back(arg);
+        }
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
         }
@@ -801,6 +813,7 @@ public:
         }
         parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
         current_scope = parent_scope;
+        current_procedure_args.clear();
     }
 
     void visit_StrOp(const AST::StrOp_t &x) { 
@@ -988,7 +1001,14 @@ public:
                                 x.base.base.loc);
                     }
                 }
-                ASR::intentType s_intent=intent_local;
+                ASR::intentType s_intent;
+                if (std::find(current_procedure_args.begin(), 
+                        current_procedure_args.end(), s.m_name) != 
+                        current_procedure_args.end()) {
+                    s_intent = intent_unspecified;
+                } else {
+                    s_intent = intent_local;
+                }
                 Vec<ASR::dimension_t> dims;
                 dims.reserve(al, 0);
                 if (x.n_attributes > 0) {
@@ -1030,6 +1050,10 @@ public:
                                 }
                                 case (AST::attr_intentType::InOut) : {
                                     s_intent = intent_inout;
+                                    break;
+                                }
+                                default : {
+                                    s_intent = intent_unspecified;
                                     break;
                                 }
                             }
@@ -1518,202 +1542,6 @@ public:
        for(auto x: s) res.push_back(std::tolower(x));
        return res;
     }
-
-
-    /*
-    void visit_decl(const AST::decl_t &x) {
-        ASR::accessType s_access = dflt_access;
-        std::string sym;
-
-        if (!x.m_sym_type) {
-            // This is an attribute declaration
-            // Check if there is an associated symbol
-            if (x.m_sym) { 
-                // This declaration applies to a specific non-variable entity, 
-                // which is not yet supported
-                if (x.n_attrs > 0) {
-                    // TODO: Simply assuming this will be public/private
-                    AST::Attribute_t *a = (AST::Attribute_t*)(x.m_attrs[0]);
-                    if (std::string(a->m_name) == "private") {
-                            s_access = ASR::Private;
-                        } else if (std::string(a->m_name) == "public") {
-                            s_access = ASR::Public;
-                        } else {
-                            throw SemanticError("Attribute declaration not "
-                                    "supported", x.loc);
-                    }
-                }
-                sym = x.m_sym;
-                assgnd_access[sym] = s_access;
-                return;
-            } else if (x.n_attrs > 0) {
-                // TODO: Check for cases that can hit this other than
-                // public/private declaration
-                AST::Attribute_t *a = (AST::Attribute_t*)(x.m_attrs[0]);
-                if (std::string(a->m_name) == "private") {
-                    dflt_access = ASR::Private;
-                }
-            }
-            return;
-        }
-        sym = x.m_sym;
-        if (assgnd_access.count(sym)) {
-            s_access = assgnd_access[sym];
-        }
-        std::string sym_type = convert_to_lower(x.m_sym_type);
-        ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
-        bool is_pointer = false;
-        if (current_scope->scope.find(sym) == current_scope->scope.end()) {
-            ASR::intentType s_intent=intent_local;
-            Vec<ASR::dimension_t> dims;
-            dims.reserve(al, x.n_dims);
-            if (x.n_attrs > 0) {
-                for (size_t i = 0; i < x.n_attrs; i++) {
-                    AST::Attribute_t *a = (AST::Attribute_t*)(x.m_attrs[i]);
-                    if (std::string(a->m_name) == "private") {
-                        s_access = ASR::Private;
-                    } else if (std::string(a->m_name) == "public") {
-                        s_access = ASR::Public;
-                    } else if (std::string(a->m_name) == "intent") {
-                        if (a->n_args > 0) {
-                            std::string intent = std::string(a->m_args[0].m_arg);
-                            if (intent == "in") {
-                                s_intent = intent_in;
-                            } else if (intent == "out") {
-                                s_intent = intent_out;
-                            } else if (intent == "inout") {
-                                s_intent = intent_inout;
-                            } else {
-                                throw SemanticError("Incorrect intent specifier", x.loc);
-                            }
-                        } else {
-                            throw SemanticError("intent() is empty. Must specify intent", x.loc);
-                        }
-                    } else if (std::string(a->m_name) == "dimension") {
-                        if (x.n_dims > 0) {
-                            throw SemanticError("Cannot specify dimensions both ways", x.loc);
-                        }
-                        dims.reserve(al, a->n_dims);
-                        for (size_t i=0; i<a->n_dims; i++) {
-                            ASR::dimension_t dim;
-                            if (a->m_dims[i].m_start) {
-                                this->visit_expr(*a->m_dims[i].m_start);
-                                dim.m_start = EXPR(asr);
-                            } else {
-                                dim.m_start = nullptr;
-                            }
-                            if (a->m_dims[i].m_end) {
-                                this->visit_expr(*a->m_dims[i].m_end);
-                                dim.m_end = EXPR(asr);
-                            } else {
-                                dim.m_end = nullptr;
-                            }
-                            dims.push_back(al, dim);
-                        }
-                    } else if( std::string(a->m_name) == "parameter" ) {
-                        storage_type = ASR::storage_typeType::Parameter;
-                    } else if( std::string(a->m_name) == "pointer" ) {
-                        is_pointer = true;
-                    }
-                }
-            }
-            for (size_t i=0; i<x.n_dims; i++) {
-                ASR::dimension_t dim;
-                if (x.m_dims[i].m_start) {
-                    this->visit_expr(*x.m_dims[i].m_start);
-                    dim.m_start = EXPR(asr);
-                } else {
-                    dim.m_start = nullptr;
-                }
-                if (x.m_dims[i].m_end) {
-                    this->visit_expr(*x.m_dims[i].m_end);
-                    dim.m_end = EXPR(asr);
-                } else {
-                    dim.m_end = nullptr;
-                }
-                dims.push_back(al, dim);
-            }
-            ASR::ttype_t *type;
-            int a_kind = 4;
-            if( x.m_kind != nullptr )
-            {
-                this->visit_expr(*x.m_kind->m_value);
-                ASR::expr_t* kind_expr = EXPR(asr);
-                switch( kind_expr->type ) {
-                    case ASR::exprType::ConstantInteger: {
-                        a_kind = ((ASR::ConstantInteger_t*)asr)->m_n;
-                        break;
-                    }
-                    case ASR::exprType::Var: {
-                        ASR::asr_t* base_ptr = &(kind_expr->base);
-                        ASR::Var_t* kind_var = (ASR::Var_t*)base_ptr;
-                        ASR::Variable_t* kind_variable = (ASR::Variable_t*)(&(kind_var->m_v->base));
-                        if( kind_variable->m_storage == ASR::storage_typeType::Parameter ) {
-                            if( kind_variable->m_type->type == ASR::ttypeType::Integer ) {
-                                a_kind = ((ASR::ConstantInteger_t*)(kind_variable->m_value))->m_n;
-                            } else {
-                                std::string msg = "Integer variable required. " + std::string(kind_variable->m_name) + 
-                                                  " is not an Integer variable.";
-                                throw SemanticError(msg, x.loc);
-                            }
-                        } else {
-                            std::string msg = "Parameter " + std::string(kind_variable->m_name) + 
-                                              " is a variable, which does not reduce to a constant expression";
-                            throw SemanticError(msg, x.loc);
-                        }
-                        break;
-                    }
-                    default: {
-                        throw SemanticError(R"""(Only Integer literals or expressions which 
-                                            reduce to constant Integer are accepted as kind parameters.)""", 
-                                            x.loc);
-                    }
-                }
-            }
-            if (sym_type == "real") {
-                if( is_pointer ) {
-                    type = TYPE(ASR::make_RealPointer_t(al, x.loc, a_kind, dims.p, dims.size()));
-                } else {
-                    type = TYPE(ASR::make_Real_t(al, x.loc, a_kind, dims.p, dims.size()));
-                }
-            } else if (sym_type == "integer") {
-                if( is_pointer ) {
-                    type = TYPE(ASR::make_IntegerPointer_t(al, x.loc, a_kind, dims.p, dims.size()));
-                } else {
-                    type = TYPE(ASR::make_Integer_t(al, x.loc, a_kind, dims.p, dims.size()));
-                }
-            } else if (sym_type == "logical") {
-                type = TYPE(ASR::make_Logical_t(al, x.loc, 4, dims.p, dims.size()));
-            } else if (sym_type == "complex") {
-                type = TYPE(ASR::make_Complex_t(al, x.loc, a_kind, dims.p, dims.size()));
-            } else if (sym_type == "character") {
-                type = TYPE(ASR::make_Character_t(al, x.loc, 4, dims.p, dims.size()));
-            } else if (sym_type == "type") {
-                LFORTRAN_ASSERT(x.m_derived_type_name);
-                std::string derived_type_name = x.m_derived_type_name;
-                ASR::symbol_t *v = current_scope->resolve_symbol(derived_type_name);
-                if (!v) {
-                    throw SemanticError("Derived type '" + derived_type_name + "' not declared", x.loc);
-                }
-                type = TYPE(ASR::make_Derived_t(al, x.loc, v, dims.p, dims.size()));
-            } else {
-                throw SemanticError("Unsupported type: " + sym_type, x.loc);
-            }
-            ASR::expr_t* init_expr = nullptr;
-            if( x.m_initializer != nullptr ) {
-                this->visit_expr(*x.m_initializer);
-                init_expr = EXPR(asr);
-                ASR::ttype_t *init_type = expr_type(init_expr);
-                ImplicitCastRules::set_converted_value(al, x.loc, &init_expr, init_type, type);
-            }
-            ASR::asr_t *v = ASR::make_Variable_t(al, x.loc, current_scope,
-                    x.m_sym, s_intent, init_expr, storage_type, type,
-                    ASR::abiType::Source, s_access);
-            current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(v);
-
-        }
-    }
-    */
 
     ASR::asr_t* resolve_variable(const Location &loc, const char* id) {
         SymbolTable *scope = current_scope;

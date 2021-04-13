@@ -7,6 +7,8 @@
 [[test]]
 filename = "subroutine1.f90"
 tokens = true
+ast_indent = true
+asr_indent = true
 ast = true
 
 [[test]]
@@ -949,3 +951,9 @@ ast_f90 = true
 filename = "implicit1.f90"
 ast = true
 ast_f90 = true
+
+[[test]]
+filename = "../integration_tests/intent_01.f90"
+ast = true
+asr = true
+llvm = true
