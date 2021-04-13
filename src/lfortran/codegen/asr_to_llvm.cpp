@@ -325,19 +325,28 @@ public:
         return type_ptr;
     }
 
-    inline llvm::Type* getComplexType(int a_kind) {
+    inline llvm::Type* getComplexType(int a_kind, bool get_pointer=false) {
+        llvm::Type* type = nullptr;
         switch(a_kind)
         {
             case 4:
-                return complex_type_4;
+                type = complex_type_4;
+                break;
             case 8:
-                return complex_type_8;
+                type = complex_type_8;
+                break;
             default:
                 throw CodeGenError("Only 32 and 64 bits complex kinds are supported.");
         }
+        if( type != nullptr ) {
+            if( get_pointer ) {
+                return type->getPointerTo();
+            } else {
+                return type;
+            }
+        }
         return nullptr;
     }
-
 
     /*
     * Dispatches the required function from runtime library to 
@@ -430,6 +439,11 @@ public:
     llvm::Value *complex_re(llvm::Value *c, llvm::Type* complex_type=nullptr) {
         if( complex_type == nullptr ) {
             complex_type = complex_type_4;
+        }
+        std::cout<<c->getType()->isStructTy()<<" ";
+        std::cout<<c->getType()->isPointerTy()<<std::endl;
+        if( c->getType()->isPointerTy() ) {
+            c = builder->CreateLoad(c);
         }
         llvm::AllocaInst *pc = builder->CreateAlloca(complex_type, nullptr);
         builder->CreateStore(c, pc);
@@ -760,18 +774,17 @@ public:
                             if( n_dims > 0 ) {
                                 type = get_array_type(type_, a_kind, n_dims, m_dims);
                             } else {
-                                int a_kind = down_cast<ASR::Integer_t>(v->m_type)->m_kind;
                                 type = getIntType(a_kind);
                             }
                             break;
                         }
                         case (ASR::ttypeType::Real) : {
-                            int a_kind = down_cast<ASR::Real_t>(v->m_type)->m_kind;
+                            a_kind = down_cast<ASR::Real_t>(v->m_type)->m_kind;
                             type = getFPType(a_kind);
                             break;
                         }
                         case (ASR::ttypeType::Complex) : {
-                            int a_kind = down_cast<ASR::Complex_t>(v->m_type)->m_kind;
+                            a_kind = down_cast<ASR::Complex_t>(v->m_type)->m_kind;
                             type = getComplexType(a_kind);
                             break;
                         }
@@ -785,17 +798,18 @@ public:
                             throw CodeGenError("Derived type argument not implemented yet in conversion");
                             break;
                         case (ASR::ttypeType::IntegerPointer) : {
-                            int a_kind = down_cast<ASR::IntegerPointer_t>(v->m_type)->m_kind;
+                            a_kind = down_cast<ASR::IntegerPointer_t>(v->m_type)->m_kind;
                             type = getIntType(a_kind, true);
                             break;
                         } 
                         case (ASR::ttypeType::RealPointer) : {
-                            int a_kind = down_cast<ASR::RealPointer_t>(v->m_type)->m_kind;
+                            a_kind = down_cast<ASR::RealPointer_t>(v->m_type)->m_kind;
                             type = getFPType(a_kind, true);
                             break;
                         }
                         case (ASR::ttypeType::ComplexPointer) : {
-                            throw CodeGenError("Pointers for Complex type not implemented yet in conversion");
+                            a_kind = down_cast<ASR::ComplexPointer_t>(v->m_type)->m_kind;
+                            type = getComplexType(a_kind, true);
                             break;
                         }
                         case (ASR::ttypeType::CharacterPointer) : {
@@ -1549,6 +1563,7 @@ public:
     void visit_Var(const ASR::Var_t &x) {
         ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(
                 symbol_get_past_external(x.m_v));
+                std::cout<<v->m_name<<std::endl;
         fetch_var(v);
     }
 
@@ -1813,9 +1828,11 @@ public:
             } else if (t->type == ASR::ttypeType::Character) {
                 fmt.push_back("%s");
                 args.push_back(tmp);
-            } else if (t->type == ASR::ttypeType::Complex) {
+            } else if (t->type == ASR::ttypeType::Complex || 
+                       t->type == ASR::ttypeType::ComplexPointer) {
                 int a_kind = ((ASR::Complex_t*)(&(t->base)))->m_kind;
                 llvm::Type *type, *complex_type;
+                std::cout<<tmp->getType()->getTypeID()<<std::endl;
                 switch( a_kind ) {
                     case 4 : {
                         // Cast float to double as a workaround for the fact that
@@ -1839,6 +1856,7 @@ public:
                     }
                 }
                 llvm::Value *d;
+                std::cout<<tmp->getType()->getTypeID()<<std::endl;
                 d = builder->CreateFPExt(complex_re(tmp, complex_type), type);
                 args.push_back(d);
                 d = builder->CreateFPExt(complex_im(tmp, complex_type), type);
