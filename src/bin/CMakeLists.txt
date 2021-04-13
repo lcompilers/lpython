@@ -1,4 +1,4 @@
-add_executable(lfortran lfortran.cpp tpl/whereami/whereami.cpp)
+add_executable(lfortran lfortran.cpp)
 target_include_directories(lfortran PRIVATE "tpl")
 target_link_libraries(lfortran lfortran_lib)
 if (UNIX AND NOT APPLE)
