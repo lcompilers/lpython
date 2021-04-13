@@ -4,12 +4,9 @@ set -e
 set -x
 
 if [[ $1 == "" ]]; then
-    echo "Test local lfort"
+    echo "Test local lfortran"
     PATH="$(pwd):$PATH"
-    FC=lfort
-elif [[ $1 == "lfort" ]]; then
-    echo "Test installed lfort"
-    FC=lfort
+    FC=lfortran
 elif [[ $1 == "gfortran" ]]; then
     echo "Test installed gfortran"
     FC=gfortran
@@ -73,26 +70,5 @@ cd $(mktemp -d)
 $FC -S -o xx1 -c $f
 [ -f "xx1" ]
 grep $ASM_PATTERN xx1
-
-if [[ $FC == "lfort" ]]; then
-    # Python LFortran specific options
-    cd $(mktemp -d)
-    $FC --show-ast $f > log
-    [ ! -f "expr2.o" ]
-    grep 'mod.Program' log
-    grep 'Integer()' log && exit 1
-    $FC --show-ast-typed $f > log
-    [ ! -f "expr2.o" ]
-    grep 'mod.Program' log
-    grep 'Integer()' log
-
-    cd $(mktemp -d)
-    $FC -emit-llvm $f
-    [ -f "expr2.ll" ]
-
-    cd $(mktemp -d)
-    $FC $f
-    [ ! -f "a.out" ]
-fi
 
 echo "All tests succeeded"
