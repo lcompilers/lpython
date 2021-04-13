@@ -1,18 +1,26 @@
 (TranslationUnit 
    [
    (Subroutine 
-      g [] [] [
-      (Declaration [
-         (x "integer" () [] [] [] ()) 
-         (i "integer" () [] [] [] ())])] [
-      (= x 1) 
-      (DoLoop i 1 10 () [
-         (= x (* x i))])] []) 
+      g [] () [] [] [] [
+      (Declaration 
+         (AttrType 
+            TypeInteger [] ()) [] [
+         (
+            x [] ()) 
+         (
+            i [] ())])] [
+      (= 0 x 1) 
+      (DoLoop 0 () i 1 10 () [
+         (= 0 x (* x i))])] []) 
    (Subroutine 
-      h [] [] [
-      (Declaration [
-         (x "integer" () [] [] [] ()) 
-         (i "integer" () [] [] [] ())])] [
-      (= x 1) 
-      (DoLoop i 1 10 () [
-         (= x (* i x))])] [])])
+      h [] () [] [] [] [
+      (Declaration 
+         (AttrType 
+            TypeInteger [] ()) [] [
+         (
+            x [] ()) 
+         (
+            i [] ())])] [
+      (= 0 x 1) 
+      (DoLoop 0 () i 1 10 () [
+         (= 0 x (* i x))])] [])])
