@@ -37,6 +37,13 @@ if (WITH_STACKTRACE AND APPLE AND CMAKE_CXX_COMPILER_ID MATCHES Clang)
     endif()
 endif()
 
+add_custom_command(
+    TARGET lfortran
+    POST_BUILD
+    WORKING_DIRECTORY ../runtime
+    COMMAND lfortran --backend=cpp -c lfortran_intrinsic_kind.f90 -o lfortran_intrinsic_kind.o
+)
+
 # Ensure "Release" is not appended to the path on Windows:
 # https://stackoverflow.com/a/56201564/479532
 set_target_properties(lfortran PROPERTIES RUNTIME_OUTPUT_DIRECTORY $<0:>)
