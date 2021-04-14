@@ -115,15 +115,46 @@ public:
         indentation_level = 0;
         indentation_spaces = 4;
 
+        std::string headers =
+R"(#include <iostream>
+#include <vector>
+#include <Kokkos_Core.hpp>
+
+template <typename T>
+Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
+{
+    Kokkos::View<T*> r("r", v.size());
+    for (size_t i=0; i < v.size(); i++) {
+        r(i) = v[i];
+    }
+    return r;
+}
+
+)";
+        unit_src += headers;
+
+
         // TODO: We need to pre-declare all functions first, then generate code
         // Otherwise some function might not be found.
 
         // Process procedures first:
         for (auto &item : x.m_global_scope->scope) {
-            if (!is_a<ASR::Program_t>(*item.second)) {
+            if (is_a<ASR::Function_t>(*item.second)
+                || is_a<ASR::Subroutine_t>(*item.second)) {
                 visit_symbol(*item.second);
                 unit_src += src;
             }
+        }
+
+        // Then do all the modules in the right order
+        std::vector<std::string> build_order
+            = determine_module_dependencies(x);
+        for (auto &item : build_order) {
+            LFORTRAN_ASSERT(x.m_global_scope->scope.find(item)
+                != x.m_global_scope->scope.end());
+            ASR::symbol_t *mod = x.m_global_scope->scope[item];
+            visit_symbol(*mod);
+                unit_src += src;
         }
 
         // Then the main program:
@@ -135,6 +166,24 @@ public:
         }
 
         src = unit_src;
+    }
+
+    void visit_Module(const ASR::Module_t &x) {
+        // Generate code for nested subroutines and functions first:
+        std::string contains;
+        for (auto &item : x.m_symtab->scope) {
+            if (is_a<ASR::Subroutine_t>(*item.second)) {
+                ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
+                visit_Subroutine(*s);
+                contains += src + "\n";
+            }
+            if (is_a<ASR::Function_t>(*item.second)) {
+                ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
+                visit_Function(*s);
+                contains += src + "\n";
+            }
+        }
+        src = contains;
     }
 
     void visit_Program(const ASR::Program_t &x) {
@@ -173,23 +222,7 @@ public:
             body += src;
         }
 
-        std::string headers =
-R"(#include <iostream>
-#include <Kokkos_Core.hpp>
-
-template <typename T>
-Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
-{
-    Kokkos::View<T*> r("r", v.size());
-    for (size_t i=0; i < v.size(); i++) {
-        r(i) = v[i];
-    }
-    return r;
-}
-
-)";
-
-        src = headers + contains + "int main(int argc, char* argv[])\n{\n"
+        src = contains + "int main(int argc, char* argv[])\n{\n"
                 + indent1 + "Kokkos::initialize(argc, argv);\n"
                 + indent1 + "{\n"
                 + decl + body
@@ -312,7 +345,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     }
 
     void visit_FunctionCall(const ASR::FunctionCall_t &x) {
-        ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(x.m_name);
+        ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(
+            symbol_get_past_external(x.m_name));
         std::string fn_name = fn->m_name;
         if (sym_info[get_hash((ASR::asr_t*)x.m_name)].intrinsic_function) {
             if (fn_name == "size") {
@@ -717,7 +751,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
-        ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(x.m_name);
+        ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(
+            symbol_get_past_external(x.m_name));
         std::string out = indent + s->m_name + "(";
         for (size_t i=0; i<x.n_args; i++) {
             if (x.m_args[i]->type == ASR::exprType::Var) {
