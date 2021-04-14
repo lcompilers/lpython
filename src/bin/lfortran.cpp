@@ -488,8 +488,6 @@ int emit_cpp(const std::string &infile)
 }
 
 
-#ifdef HAVE_LFORTRAN_LLVM
-
 int save_mod_files(const LFortran::ASR::TranslationUnit_t &u)
 {
     for (auto &item : u.m_global_scope->scope) {
@@ -531,6 +529,8 @@ int save_mod_files(const LFortran::ASR::TranslationUnit_t &u)
     }
     return 0;
 }
+
+#ifdef HAVE_LFORTRAN_LLVM
 
 int emit_llvm(const std::string &infile)
 {
