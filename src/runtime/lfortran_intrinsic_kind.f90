@@ -30,14 +30,22 @@ logical(4), intent(in) :: x
 r = 4
 end function
 
-integer function selected_int_kind(x) result(r)
-integer, intent(in) :: x
-r = 4
+integer function selected_int_kind(R) result(res)
+integer, intent(in) :: R
+if (R < 10) then
+    res = 4
+else
+    res = 8
+end if
 end function
 
-integer function selected_real_kind(x) result(r)
-integer, intent(in) :: x
-r = 4
+integer function selected_real_kind(R) result(res)
+integer, intent(in) :: R
+if (R < 7) then
+    res = 4
+else
+    res = 8
+end if
 end function
 
 end module
