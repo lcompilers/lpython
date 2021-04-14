@@ -19,11 +19,10 @@
 
 namespace LFortran {
 
-    class HelperMethods {
+    namespace HelperMethods {
 
-        public: 
 
-            inline static bool is_pointer(ASR::ttype_t* x) {
+            inline bool is_pointer(ASR::ttype_t* x) {
                 switch( x->type ) {
                     case ASR::ttypeType::IntegerPointer:
                     case ASR::ttypeType::RealPointer:
@@ -39,7 +38,7 @@ namespace LFortran {
                 return false;
             }
 
-            inline static bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
+            inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
                 bool is_source_pointer = is_pointer(source), is_dest_pointer = is_pointer(dest);
                 if( (!is_source_pointer && !is_dest_pointer) || 
                     (is_source_pointer && is_dest_pointer) ) {
@@ -76,7 +75,7 @@ namespace LFortran {
                 return res;
             }
 
-            inline static int extract_kind(char* m_n) {
+            inline int extract_kind(char* m_n) {
                 bool is_under_score = false;
                 char kind_str[2] = {'0', '0'};
                 int i = 1, j = 0;
@@ -95,7 +94,7 @@ namespace LFortran {
                 return 4;
             }
 
-            inline static int extract_kind(ASR::expr_t* kind_expr, const Location& loc) {
+            inline int extract_kind(ASR::expr_t* kind_expr, const Location& loc) {
                 int a_kind = 4;
                 switch( kind_expr->type ) {
                     case ASR::exprType::ConstantInteger: {
@@ -133,7 +132,7 @@ namespace LFortran {
                 return a_kind;
             }
 
-            inline static bool check_equal_type(ASR::ttype_t* x, ASR::ttype_t* y) {
+            inline bool check_equal_type(ASR::ttype_t* x, ASR::ttype_t* y) {
                 if( x->type == y->type ) {
                     return true;
                 }
@@ -141,7 +140,7 @@ namespace LFortran {
                 return HelperMethods::is_same_type_pointer(x, y);
             }
 
-            inline static int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {
+            inline int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {
                 if( curr_type == nullptr ) {
                     return -1;
                 }
@@ -169,7 +168,7 @@ namespace LFortran {
                     }
                 }
             }
-    };
+    }
 
     class ImplicitCastRules {
 
