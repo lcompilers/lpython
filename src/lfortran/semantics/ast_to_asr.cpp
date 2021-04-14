@@ -110,12 +110,77 @@ namespace LFortran {
                             ASR::down_cast<ASR::Variable_t>(kind_var->m_v);
                         if( kind_variable->m_storage == ASR::storage_typeType::Parameter ) {
                             if( kind_variable->m_type->type == ASR::ttypeType::Integer ) {
-                                if (ASR::is_a<ASR::ConstantInteger_t>(*(kind_variable->m_value))) {
+                                if (ASR::is_a<ASR::ConstantInteger_t>(
+                                        *(kind_variable->m_value))) {
                                     a_kind = ASR::down_cast
                                         <ASR::ConstantInteger_t>
                                         (kind_variable->m_value)->m_n;
+                                } else if (ASR::is_a<ASR::FunctionCall_t>(
+                                        *(kind_variable->m_value))) {
+                                    ASR::FunctionCall_t *fc =
+                                        ASR::down_cast<ASR::FunctionCall_t>(
+                                        kind_variable->m_value);
+                                    ASR::Function_t *fn =
+                                        ASR::down_cast<ASR::Function_t>(
+                                        symbol_get_past_external(fc->m_name));
+                                    if (std::string(fn->m_name)=="kind") {
+                                        if (fc->n_args == 1 &&
+                                            ASR::is_a<ASR::ConstantLogical_t>(
+                                                    *fc->m_args[0])) {
+                                            ASR::ConstantLogical_t *l = ASR::down_cast<
+                                                ASR::ConstantLogical_t>(
+                                                fc->m_args[0]);
+                                            ASR::Logical_t *lt = ASR::down_cast<
+                                                ASR::Logical_t>(l->m_type);
+                                            a_kind = lt->m_kind;
+                                        } else {
+                                            throw SemanticError("kind",
+                                                loc);
+                                        }
+                                    } else if (std::string(fn->m_name)
+                                            == "selected_int_kind") {
+                                        if (fc->n_args == 1 &&
+                                            ASR::is_a<ASR::ConstantInteger_t>(
+                                                    *fc->m_args[0])) {
+                                            ASR::ConstantInteger_t *i = ASR::down_cast<
+                                                ASR::ConstantInteger_t>(
+                                                fc->m_args[0]);
+                                            int R = i->m_n;
+                                            if (R < 10) {
+                                                a_kind = 4;
+                                            } else {
+                                                a_kind = 8;
+                                            }
+                                        } else {
+                                            throw SemanticError("selected_int_kind",
+                                                loc);
+                                        }
+                                    } else if (std::string(fn->m_name)
+                                            == "selected_real_kind") {
+                                        if (fc->n_args == 1 &&
+                                            ASR::is_a<ASR::ConstantInteger_t>(
+                                                    *fc->m_args[0])) {
+                                            ASR::ConstantInteger_t *i = ASR::down_cast<
+                                                ASR::ConstantInteger_t>(
+                                                fc->m_args[0]);
+                                            int R = i->m_n;
+                                            if (R < 7) {
+                                                a_kind = 4;
+                                            } else {
+                                                a_kind = 8;
+                                            }
+                                        } else {
+                                            throw SemanticError("selected_real_kind",
+                                                loc);
+                                        }
+                                    } else {
+                                        throw SemanticError("FunctionCall to '"
+                                            + std::string(fn->m_name)
+                                            + "' unsupported",
+                                        loc);
+                                    }
                                 } else {
-                                    throw SemanticError("So far only ConstantInteger supported as kind variable value",
+                                    throw SemanticError("So far only ConstantInteger or FunctionCall supported as kind variable value",
                                         loc);
                                 }
                             } else {
