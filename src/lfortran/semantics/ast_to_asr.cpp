@@ -95,6 +95,44 @@ namespace LFortran {
                 return 4;
             }
 
+            inline static int extract_kind(ASR::expr_t* kind_expr, const Location& loc) {
+                int a_kind = 4;
+                switch( kind_expr->type ) {
+                    case ASR::exprType::ConstantInteger: {
+                        a_kind = ASR::down_cast<ASR::ConstantInteger_t>
+                                (kind_expr)->m_n;
+                        break;
+                    }
+                    case ASR::exprType::Var: {
+                        ASR::Var_t* kind_var =
+                            ASR::down_cast<ASR::Var_t>(kind_expr);
+                        ASR::Variable_t* kind_variable =
+                            ASR::down_cast<ASR::Variable_t>(kind_var->m_v);
+                        if( kind_variable->m_storage == ASR::storage_typeType::Parameter ) {
+                            if( kind_variable->m_type->type == ASR::ttypeType::Integer ) {
+                                a_kind = ASR::down_cast
+                                    <ASR::ConstantInteger_t>
+                                    (kind_variable->m_value)->m_n;
+                            } else {
+                                std::string msg = "Integer variable required. " + std::string(kind_variable->m_name) + 
+                                                " is not an Integer variable.";
+                                throw SemanticError(msg, loc);
+                            }
+                        } else {
+                            std::string msg = "Parameter " + std::string(kind_variable->m_name) + 
+                                            " is a variable, which does not reduce to a constant expression";
+                            throw SemanticError(msg, loc);
+                        }
+                        break;
+                    }
+                    default: {
+                        throw SemanticError(R"""(Only Integer literals or expressions which reduce to constant Integer are accepted as kind parameters.)""", 
+                                            loc);
+                    }
+                }
+                return a_kind;
+            }
+
             inline static bool check_equal_type(ASR::ttype_t* x, ASR::ttype_t* y) {
                 if( x->type == y->type ) {
                     return true;
@@ -712,39 +750,7 @@ public:
             if (return_type->m_kind != nullptr) {
                 visit_expr(*return_type->m_kind->m_value);
                 ASR::expr_t* kind_expr = EXPR(asr);
-                switch( kind_expr->type ) {
-                    case ASR::exprType::ConstantInteger: {
-                        a_kind = ASR::down_cast<ASR::ConstantInteger_t>
-                                (kind_expr)->m_n;
-                        break;
-                    }
-                    case ASR::exprType::Var: {
-                        ASR::Var_t* kind_var =
-                            ASR::down_cast<ASR::Var_t>(kind_expr);
-                        ASR::Variable_t* kind_variable =
-                            ASR::down_cast<ASR::Variable_t>(kind_var->m_v);
-                        if( kind_variable->m_storage == ASR::storage_typeType::Parameter ) {
-                            if( kind_variable->m_type->type == ASR::ttypeType::Integer ) {
-                                a_kind = ASR::down_cast
-                                    <ASR::ConstantInteger_t>
-                                    (kind_variable->m_value)->m_n;
-                            } else {
-                                std::string msg = "Integer variable required. " + std::string(kind_variable->m_name) + 
-                                                " is not an Integer variable.";
-                                throw SemanticError(msg, x.base.base.loc);
-                            }
-                        } else {
-                            std::string msg = "Parameter " + std::string(kind_variable->m_name) + 
-                                            " is a variable, which does not reduce to a constant expression";
-                            throw SemanticError(msg, x.base.base.loc);
-                        }
-                        break;
-                    }
-                    default: {
-                        throw SemanticError(R"""(Only Integer literals or expressions which reduce to constant Integer are accepted as kind parameters.)""", 
-                                            x.base.base.loc);
-                    }
-                }
+                a_kind = HelperMethods::extract_kind(kind_expr, x.base.base.loc);
             }
             switch (return_type->m_type) {
                 case (AST::decl_typeType::TypeInteger) : {
@@ -1083,39 +1089,7 @@ public:
                 if (sym_type->m_kind != nullptr) {
                     visit_expr(*sym_type->m_kind->m_value);
                     ASR::expr_t* kind_expr = EXPR(asr);
-                    switch( kind_expr->type ) {
-                        case ASR::exprType::ConstantInteger: {
-                            a_kind = ASR::down_cast<ASR::ConstantInteger_t>
-                                    (kind_expr)->m_n;
-                            break;
-                        }
-                        case ASR::exprType::Var: {
-                            ASR::Var_t* kind_var =
-                                ASR::down_cast<ASR::Var_t>(kind_expr);
-                            ASR::Variable_t* kind_variable =
-                                ASR::down_cast<ASR::Variable_t>(kind_var->m_v);
-                            if( kind_variable->m_storage == ASR::storage_typeType::Parameter ) {
-                                if( kind_variable->m_type->type == ASR::ttypeType::Integer ) {
-                                    a_kind = ASR::down_cast
-                                        <ASR::ConstantInteger_t>
-                                        (kind_variable->m_value)->m_n;
-                                } else {
-                                    std::string msg = "Integer variable required. " + std::string(kind_variable->m_name) + 
-                                                    " is not an Integer variable.";
-                                    throw SemanticError(msg, x.base.base.loc);
-                                }
-                            } else {
-                                std::string msg = "Parameter " + std::string(kind_variable->m_name) + 
-                                                " is a variable, which does not reduce to a constant expression";
-                                throw SemanticError(msg, x.base.base.loc);
-                            }
-                            break;
-                        }
-                        default: {
-                            throw SemanticError(R"""(Only Integer literals or expressions which reduce to constant Integer are accepted as kind parameters.)""", 
-                                                x.base.base.loc);
-                        }
-                    }
+                    a_kind = HelperMethods::extract_kind(kind_expr, x.base.base.loc);
                 }
                 if (sym_type->m_type == AST::decl_typeType::TypeReal) {
                     if (is_pointer) {
