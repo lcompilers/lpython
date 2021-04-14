@@ -47,6 +47,7 @@ CPackSourceConfig.cmake
 *.so
 *.s
 *.ll
+*.dat
 
 ## Generated files
 version
