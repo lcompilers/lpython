@@ -14,6 +14,7 @@
 #include <lfortran/serialization.h>
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/parser/parser_stype.h>
+#include <lfortran/string_utils.h>
 #include <lfortran/utils.h>
 
 #define num_types 12
@@ -1259,6 +1260,10 @@ public:
                 std::string sym = mfn->m_name;
                 current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
                 v = ASR::down_cast<ASR::symbol_t>(fn);
+                // Add the module `m` to current module dependencies
+                if (!present(current_module_dependencies, m->m_name)) {
+                    current_module_dependencies.push_back(al, m->m_name);
+                }
             } else {
                 throw SemanticError("Function '" + var_name + "' not found"
                     " or not implemented yet (if it is intrinsic)",
@@ -1425,8 +1430,13 @@ public:
                     == current_scope->parent->scope.end()) {
                 // A module that was loaded requires to load another
                 // module
+
+                // This is not very robust, we should store that information
+                // in the ASR itself, or encode in the name in a robust way,
+                // such as using `module_name@intrinsic`:
+                bool is_intrinsic = startswith(item, "lfortran_intrinsic");
                 ASR::TranslationUnit_t *mod1 = find_and_load_module(item,
-                        *current_scope->parent, false);
+                        *current_scope->parent, is_intrinsic);
                 if (mod1 == nullptr) {
                     throw SemanticError("Module '" + item + "' modfile was not found",
                         loc);
