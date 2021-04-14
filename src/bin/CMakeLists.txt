@@ -32,7 +32,7 @@ if (WITH_STACKTRACE AND APPLE AND CMAKE_CXX_COMPILER_ID MATCHES Clang)
         add_custom_command(
             TARGET lfortran
             POST_BUILD
-            COMMAND ./dwarf_convert.py lfortran.dSYM/raw.txt lfortran.dSYM/lines.txt lfortran.dSYM/lines.dat
+            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/dwarf_convert.py lfortran.dSYM/raw.txt lfortran.dSYM/lines.txt lfortran.dSYM/lines.dat
         )
     endif()
 endif()
@@ -40,8 +40,8 @@ endif()
 add_custom_command(
     TARGET lfortran
     POST_BUILD
-    WORKING_DIRECTORY ../runtime
-    COMMAND lfortran --backend=cpp -c lfortran_intrinsic_kind.f90 -o lfortran_intrinsic_kind.o
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../runtime
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/lfortran --backend=cpp -c ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/lfortran_intrinsic_kind.f90 -o lfortran_intrinsic_kind.o
 )
 
 # Ensure "Release" is not appended to the path on Windows:
