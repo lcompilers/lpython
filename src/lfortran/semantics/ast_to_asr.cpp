@@ -1422,34 +1422,40 @@ public:
             = ASR::down_cast2<ASR::TranslationUnit_t>(ASR::make_TranslationUnit_t(al, loc,
                 current_scope->parent, nullptr, 0));
 
-        // Load any dependent modules
-        std::vector<std::string> modules_list
-            = determine_module_dependencies(*tu);
-        for (auto &item : modules_list) {
-            if (current_scope->parent->scope.find(item)
-                    == current_scope->parent->scope.end()) {
-                // A module that was loaded requires to load another
-                // module
+        // Load any dependent modules recursively
+        bool rerun = true;
+        while (rerun) {
+            rerun = false;
+            std::vector<std::string> modules_list
+                = determine_module_dependencies(*tu);
+            for (auto &item : modules_list) {
+                if (current_scope->parent->scope.find(item)
+                        == current_scope->parent->scope.end()) {
+                    // A module that was loaded requires to load another
+                    // module
 
-                // This is not very robust, we should store that information
-                // in the ASR itself, or encode in the name in a robust way,
-                // such as using `module_name@intrinsic`:
-                bool is_intrinsic = startswith(item, "lfortran_intrinsic");
-                ASR::TranslationUnit_t *mod1 = find_and_load_module(item,
-                        *current_scope->parent, is_intrinsic);
-                if (mod1 == nullptr) {
-                    throw SemanticError("Module '" + item + "' modfile was not found",
-                        loc);
+                    // This is not very robust, we should store that information
+                    // in the ASR itself, or encode in the name in a robust way,
+                    // such as using `module_name@intrinsic`:
+                    bool is_intrinsic = startswith(item, "lfortran_intrinsic");
+                    ASR::TranslationUnit_t *mod1 = find_and_load_module(item,
+                            *current_scope->parent, is_intrinsic);
+                    if (mod1 == nullptr) {
+                        throw SemanticError("Module '" + item + "' modfile was not found",
+                            loc);
+                    }
+                    ASR::Module_t *mod2 = extract_module(*mod1);
+                    current_scope->parent->scope[item] = (ASR::symbol_t*)mod2;
+                    mod2->m_symtab->parent = current_scope->parent;
+                    mod2->m_loaded_from_mod = true;
+                    rerun = true;
                 }
-                ASR::Module_t *mod2 = extract_module(*mod1);
-                current_scope->parent->scope[item] = (ASR::symbol_t*)mod2;
-                mod2->m_symtab->parent = current_scope->parent;
-                mod2->m_loaded_from_mod = true;
             }
         }
 
         // Check that all modules are included in ASR now
-        modules_list = determine_module_dependencies(*tu);
+        std::vector<std::string> modules_list
+            = determine_module_dependencies(*tu);
         for (auto &item : modules_list) {
             if (current_scope->parent->scope.find(item)
                     == current_scope->parent->scope.end()) {
