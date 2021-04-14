@@ -3,7 +3,6 @@
 #include <stdlib.h>
 
 #include <bin/CLI11.hpp>
-#include <bin/tpl/whereami/whereami.h>
 
 #include <lfortran/stacktrace.h>
 #include <lfortran/parser/parser.h>
@@ -23,6 +22,7 @@
 #include <lfortran/config.h>
 #include <lfortran/fortran_kernel.h>
 #include <lfortran/string_utils.h>
+#include <lfortran/utils.h>
 #include <lfortran/parser/parser.tab.hh>
 
 #include <cpp-terminal/terminal.h>
@@ -904,40 +904,6 @@ int link_executable(const std::string &infile, const std::string &outfile,
     }
 }
 
-void get_executable_path(std::string &executable_path, int &dirname_length)
-{
-    int length;
-
-    length = wai_getExecutablePath(NULL, 0, &dirname_length);
-    if (length > 0) {
-        std::string path(length+1, '\0');
-        wai_getExecutablePath(&path[0], length, &dirname_length);
-        executable_path = path;
-        if (executable_path[executable_path.size()-1] == '\0') {
-            executable_path = executable_path.substr(0,executable_path.size()-1);
-        }
-    } else {
-        throw LFortran::LFortranException("Cannot determine executable path.");
-    }
-}
-
-std::string get_runtime_library_dir()
-{
-    char *env_p = std::getenv("LFORTRAN_RUNTIME_LIBRARY_DIR");
-    if (env_p) return env_p;
-
-    std::string path;
-    int dirname_length;
-    get_executable_path(path, dirname_length);
-    std::string dirname = path.substr(0,dirname_length);
-    if (endswith(dirname, "src/bin")) {
-        // Development version
-        return dirname + "/../runtime";
-    } else {
-        // Installed version
-        return dirname + "/../share/lfortran/lib/";
-    }
-}
 
 Platform get_platform()
 {
@@ -961,9 +927,9 @@ int main(int argc, char *argv[])
 #endif
     try {
         int dirname_length;
-        get_executable_path(LFortran::binary_executable_path, dirname_length);
+        LFortran::get_executable_path(LFortran::binary_executable_path, dirname_length);
 
-        std::string runtime_library_dir = get_runtime_library_dir();
+        std::string runtime_library_dir = LFortran::get_runtime_library_dir();
         Backend backend;
         Platform platform = get_platform();
 
