@@ -151,6 +151,10 @@ stmt
     | Exit()
     | WhileLoop(expr test, stmt* body)
     | Print(string? fmt, expr* values)
+    | Open(int label, expr* args, keyword* kwargs)
+    | Close(int label, expr* args, keyword* kwargs)
+    | Write(int label, argstar* args, kw_argstar* kwargs, expr* values)
+    | Read(int label, argstar* args, kw_argstar* kwargs, expr* values)
 
 expr
     = BoolOp(expr left, boolop op, expr right, ttype type)
@@ -204,6 +208,9 @@ cast_kind
     | IntegerToComplex
     | IntegerToLogical
     | ComplexToComplex
+
+kw_argstar = (identifier arg, expr? value)
+argstar = (expr? value)
 
 dimension = (expr? start, expr? end)
 

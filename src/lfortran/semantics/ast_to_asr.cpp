@@ -1553,6 +1553,117 @@ public:
         // This AST node was already visited in SymbolTableVisitor
     }
 
+    inline void generate_args_for_open_close(int64_t m_label, AST::expr_t** m_args, size_t n_args, 
+                                             AST::keyword_t* m_kwargs, size_t n_kwargs, 
+                                             int64_t& a_label, Vec<ASR::expr_t*>& a_args, Vec<ASR::keyword_t>& a_kwargs) {
+        a_label = m_label;
+        a_args.reserve(al, n_args);
+        for( uint i = 0; i < n_args; i++ ) {
+            this->visit_expr(*m_args[i]);
+            ASR::expr_t* a_arg = EXPR(tmp);
+            a_args.push_back(al, a_arg);
+        }
+        a_kwargs.reserve(al, n_args);
+        for( uint i = 0; i < n_kwargs; i++ ) {
+            ASR::keyword_t* a_kwarg = al.make_new<ASR::keyword_t>();
+            a_kwarg->loc = m_kwargs[i].loc;
+            a_kwarg->m_arg = m_kwargs[i].m_arg;
+            if( m_kwargs[i].m_value != nullptr ) {
+                this->visit_expr(*m_kwargs[i].m_value);
+                a_kwarg->m_value = EXPR(tmp);
+            } else {
+                a_kwarg->m_value = nullptr;
+            }
+            a_kwargs.push_back(al, *a_kwarg);
+        }
+    }
+
+    void visit_Open(const AST::Open_t& x) {
+        int64_t a_label;
+        Vec<ASR::expr_t*> a_args;
+        Vec<ASR::keyword_t> a_keyowrds;
+        generate_args_for_open_close(x.m_label, x.m_args, x.n_args, 
+                                     x.m_kwargs, x.n_kwargs, 
+                                     a_label, a_args, a_keyowrds);
+        tmp = ASR::make_Open_t(al, x.base.base.loc, a_label, a_args.p, a_args.size(), 
+                               a_keyowrds.p, a_keyowrds.size());
+    }
+
+    void visit_Close(const AST::Close_t& x) {
+        int64_t a_label;
+        Vec<ASR::expr_t*> a_args;
+        Vec<ASR::keyword_t> a_keyowrds;
+        generate_args_for_open_close(x.m_label, x.m_args, x.n_args, 
+                                     x.m_kwargs, x.n_kwargs, 
+                                     a_label, a_args, a_keyowrds);
+        tmp = ASR::make_Close_t(al, x.base.base.loc, a_label, a_args.p, a_args.size(), 
+                                a_keyowrds.p, a_keyowrds.size());
+    }
+
+    inline void generate_args_for_read_write(int64_t m_label, AST::argstar_t* m_args, size_t n_args,
+                                             AST::kw_argstar_t* m_kwargs, size_t n_kwargs,
+                                             AST::expr_t** m_values, size_t n_values,
+                                             int64_t& a_label, Vec<ASR::argstar_t>& a_args, 
+                                             Vec<ASR::kw_argstar_t>& a_kwargs, Vec<ASR::expr_t*>& a_values) {
+        a_label = m_label;
+        a_args.reserve(al, n_args);
+        for( uint i = 0; i < n_args; i++ ) {
+            ASR::argstar_t* a_arg = al.make_new<ASR::argstar_t>();
+            a_arg->loc = m_args[i].loc;
+            if( m_args[i].m_value != nullptr ) {
+                this->visit_expr(*m_args[i].m_value);
+                a_arg->m_value = EXPR(tmp);
+            } else {
+                a_arg->m_value = nullptr;
+            }
+            a_args.push_back(al, *a_arg);
+        }
+        a_kwargs.reserve(al, n_kwargs);
+        for( uint i = 0; i < n_kwargs; i++ ) {
+            ASR::kw_argstar_t* a_kwarg = al.make_new<ASR::kw_argstar_t>();
+            a_kwarg->loc = m_kwargs[i].loc;
+            a_kwarg->m_arg = m_kwargs[i].m_arg;
+            if( m_kwargs[i].m_value != nullptr ) {
+                this->visit_expr(*m_kwargs[i].m_value);
+                a_kwarg->m_value = EXPR(tmp);
+            } else {
+                a_kwarg->m_value = nullptr;
+            }
+            a_kwargs.push_back(al, *a_kwarg);
+        }
+        a_values.reserve(al, n_values);
+        for( uint i = 0; i < n_values; i++ ) {
+            this->visit_expr(*m_values[i]);
+            a_values.push_back(al, EXPR(tmp));
+        } 
+    }
+
+    void visit_Write(const AST::Write_t& x) {
+        int64_t a_label;
+        Vec<ASR::argstar_t> a_args;
+        Vec<ASR::kw_argstar_t> a_kwargs;
+        Vec<ASR::expr_t*> a_values;
+        generate_args_for_read_write(x.m_label, x.m_args, x.n_args, 
+                                     x.m_kwargs, x.n_kwargs, 
+                                     x.m_values, x.n_values, 
+                                     a_label, a_args, a_kwargs, a_values);
+        tmp = ASR::make_Write_t(al, x.base.base.loc, a_label, a_args.p, a_args.size(), 
+                                a_kwargs.p, a_kwargs.size(), a_values.p, a_values.size());
+    }
+
+    void visit_Read(const AST::Read_t& x) {
+        int64_t a_label;
+        Vec<ASR::argstar_t> a_args;
+        Vec<ASR::kw_argstar_t> a_kwargs;
+        Vec<ASR::expr_t*> a_values;
+        generate_args_for_read_write(x.m_label, x.m_args, x.n_args, 
+                                     x.m_kwargs, x.n_kwargs, 
+                                     x.m_values, x.n_values, 
+                                     a_label, a_args, a_kwargs, a_values);
+        tmp = ASR::make_Read_t(al, x.base.base.loc, a_label, a_args.p, a_args.size(), 
+                                a_kwargs.p, a_kwargs.size(), a_values.p, a_values.size());
+    }
+
     void visit_Associate(const AST::Associate_t& x) {
         this->visit_expr(*(x.m_target));
         ASR::expr_t* target = EXPR(tmp);
