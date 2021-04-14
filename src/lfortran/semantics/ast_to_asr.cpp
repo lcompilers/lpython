@@ -19,11 +19,10 @@
 
 namespace LFortran {
 
-    class HelperMethods {
+    namespace HelperMethods {
 
-        public: 
 
-            inline static bool is_pointer(ASR::ttype_t* x) {
+            inline bool is_pointer(ASR::ttype_t* x) {
                 switch( x->type ) {
                     case ASR::ttypeType::IntegerPointer:
                     case ASR::ttypeType::RealPointer:
@@ -39,7 +38,7 @@ namespace LFortran {
                 return false;
             }
 
-            inline static bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
+            inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
                 bool is_source_pointer = is_pointer(source), is_dest_pointer = is_pointer(dest);
                 if( (!is_source_pointer && !is_dest_pointer) || 
                     (is_source_pointer && is_dest_pointer) ) {
@@ -76,7 +75,7 @@ namespace LFortran {
                 return res;
             }
 
-            inline static int extract_kind(char* m_n) {
+            inline int extract_kind(char* m_n) {
                 bool is_under_score = false;
                 char kind_str[2] = {'0', '0'};
                 int i = 1, j = 0;
@@ -95,7 +94,45 @@ namespace LFortran {
                 return 4;
             }
 
-            inline static bool check_equal_type(ASR::ttype_t* x, ASR::ttype_t* y) {
+            inline int extract_kind(ASR::expr_t* kind_expr, const Location& loc) {
+                int a_kind = 4;
+                switch( kind_expr->type ) {
+                    case ASR::exprType::ConstantInteger: {
+                        a_kind = ASR::down_cast<ASR::ConstantInteger_t>
+                                (kind_expr)->m_n;
+                        break;
+                    }
+                    case ASR::exprType::Var: {
+                        ASR::Var_t* kind_var =
+                            ASR::down_cast<ASR::Var_t>(kind_expr);
+                        ASR::Variable_t* kind_variable =
+                            ASR::down_cast<ASR::Variable_t>(kind_var->m_v);
+                        if( kind_variable->m_storage == ASR::storage_typeType::Parameter ) {
+                            if( kind_variable->m_type->type == ASR::ttypeType::Integer ) {
+                                a_kind = ASR::down_cast
+                                    <ASR::ConstantInteger_t>
+                                    (kind_variable->m_value)->m_n;
+                            } else {
+                                std::string msg = "Integer variable required. " + std::string(kind_variable->m_name) + 
+                                                " is not an Integer variable.";
+                                throw SemanticError(msg, loc);
+                            }
+                        } else {
+                            std::string msg = "Parameter " + std::string(kind_variable->m_name) + 
+                                            " is a variable, which does not reduce to a constant expression";
+                            throw SemanticError(msg, loc);
+                        }
+                        break;
+                    }
+                    default: {
+                        throw SemanticError(R"""(Only Integer literals or expressions which reduce to constant Integer are accepted as kind parameters.)""", 
+                                            loc);
+                    }
+                }
+                return a_kind;
+            }
+
+            inline bool check_equal_type(ASR::ttype_t* x, ASR::ttype_t* y) {
                 if( x->type == y->type ) {
                     return true;
                 }
@@ -103,7 +140,7 @@ namespace LFortran {
                 return HelperMethods::is_same_type_pointer(x, y);
             }
 
-            inline static int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {
+            inline int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {
                 if( curr_type == nullptr ) {
                     return -1;
                 }
@@ -131,7 +168,7 @@ namespace LFortran {
                     }
                 }
             }
-    };
+    }
 
     class ImplicitCastRules {
 
@@ -703,22 +740,28 @@ public:
         if (current_scope->scope.find(std::string(return_var_name)) == current_scope->scope.end()) {
             // The variable is not defined among local variables, extract the
             // type from "integer function f()" and add the variable.
-            ASR::ttype_t *type;
             if (!return_type) {
                 throw SemanticError("Return type not specified",
                         x.base.base.loc);
             }
+            ASR::ttype_t *type;
+            int a_kind = 4;
+            if (return_type->m_kind != nullptr) {
+                visit_expr(*return_type->m_kind->m_value);
+                ASR::expr_t* kind_expr = EXPR(asr);
+                a_kind = HelperMethods::extract_kind(kind_expr, x.base.base.loc);
+            }
             switch (return_type->m_type) {
                 case (AST::decl_typeType::TypeInteger) : {
-                    type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+                    type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, a_kind, nullptr, 0));
                     break;
                 }
                 case (AST::decl_typeType::TypeReal) : {
-                    type = TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
+                    type = TYPE(ASR::make_Real_t(al, x.base.base.loc, a_kind, nullptr, 0));
                     break;
                 }
                 case (AST::decl_typeType::TypeComplex) : {
-                    type = TYPE(ASR::make_Complex_t(al, x.base.base.loc, 4, nullptr, 0));
+                    type = TYPE(ASR::make_Complex_t(al, x.base.base.loc, a_kind, nullptr, 0));
                     break;
                 }
                 case (AST::decl_typeType::TypeLogical) : {
@@ -829,12 +872,14 @@ public:
     }
 
     void visit_Complex(const AST::Complex_t &x) {
-        ASR::ttype_t *type = TYPE(ASR::make_Complex_t(al, x.base.base.loc,
-                4, nullptr, 0));
         this->visit_expr(*x.m_re);
         ASR::expr_t *re = EXPR(asr);
         this->visit_expr(*x.m_im);
         ASR::expr_t *im = EXPR(asr);
+        int re_kind = HelperMethods::extract_kind_from_ttype_t(expr_type(re));
+        int im_kind = HelperMethods::extract_kind_from_ttype_t(expr_type(im));
+        ASR::ttype_t *type = TYPE(ASR::make_Complex_t(al, x.base.base.loc,
+                std::max(re_kind, im_kind), nullptr, 0));
         asr = ASR::make_ConstantComplex_t(al, x.base.base.loc,
                 re, im, type);
     }
@@ -1043,39 +1088,7 @@ public:
                 if (sym_type->m_kind != nullptr) {
                     visit_expr(*sym_type->m_kind->m_value);
                     ASR::expr_t* kind_expr = EXPR(asr);
-                    switch( kind_expr->type ) {
-                        case ASR::exprType::ConstantInteger: {
-                            a_kind = ASR::down_cast<ASR::ConstantInteger_t>
-                                    (kind_expr)->m_n;
-                            break;
-                        }
-                        case ASR::exprType::Var: {
-                            ASR::Var_t* kind_var =
-                                ASR::down_cast<ASR::Var_t>(kind_expr);
-                            ASR::Variable_t* kind_variable =
-                                ASR::down_cast<ASR::Variable_t>(kind_var->m_v);
-                            if( kind_variable->m_storage == ASR::storage_typeType::Parameter ) {
-                                if( kind_variable->m_type->type == ASR::ttypeType::Integer ) {
-                                    a_kind = ASR::down_cast
-                                        <ASR::ConstantInteger_t>
-                                        (kind_variable->m_value)->m_n;
-                                } else {
-                                    std::string msg = "Integer variable required. " + std::string(kind_variable->m_name) + 
-                                                    " is not an Integer variable.";
-                                    throw SemanticError(msg, x.base.base.loc);
-                                }
-                            } else {
-                                std::string msg = "Parameter " + std::string(kind_variable->m_name) + 
-                                                " is a variable, which does not reduce to a constant expression";
-                                throw SemanticError(msg, x.base.base.loc);
-                            }
-                            break;
-                        }
-                        default: {
-                            throw SemanticError(R"""(Only Integer literals or expressions which reduce to constant Integer are accepted as kind parameters.)""", 
-                                                x.base.base.loc);
-                        }
-                    }
+                    a_kind = HelperMethods::extract_kind(kind_expr, x.base.base.loc);
                 }
                 if (sym_type->m_type == AST::decl_typeType::TypeReal) {
                     if (is_pointer) {
@@ -2161,7 +2174,7 @@ public:
         ASR::expr_t *im = EXPR(tmp);
         int a_kind_i = HelperMethods::extract_kind_from_ttype_t(expr_type(im));
         ASR::ttype_t *type = TYPE(ASR::make_Complex_t(al, x.base.base.loc,
-                std::max(a_kind_r, a_kind_i), nullptr, 0)); // Extract kind here.
+                std::max(a_kind_r, a_kind_i), nullptr, 0));
         tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc,
                 re, im, type);
     }
