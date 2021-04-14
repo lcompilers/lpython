@@ -1390,6 +1390,16 @@ public:
 
     ASR::Module_t* load_module(const std::string &module_name,
         const Location &loc, bool intrinsic) {
+        if (current_scope->parent->scope.find(module_name)
+                != current_scope->parent->scope.end()) {
+            ASR::symbol_t *m = current_scope->parent->scope[module_name];
+            if (ASR::is_a<ASR::Module_t>(*m)) {
+                return ASR::down_cast<ASR::Module_t>(m);
+            } else {
+                throw SemanticError("The symbol '" + module_name
+                    + "' is not a module", loc);
+            }
+        }
         ASR::TranslationUnit_t *mod1 = find_and_load_module(module_name,
                 *current_scope->parent, intrinsic);
         if (mod1 == nullptr) {
