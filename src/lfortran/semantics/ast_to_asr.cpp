@@ -1259,6 +1259,10 @@ public:
                 std::string sym = mfn->m_name;
                 current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
                 v = ASR::down_cast<ASR::symbol_t>(fn);
+                // Add the module `m` to current module dependencies
+                if (!present(current_module_dependencies, m->m_name)) {
+                    current_module_dependencies.push_back(al, m->m_name);
+                }
             } else {
                 throw SemanticError("Function '" + var_name + "' not found"
                     " or not implemented yet (if it is intrinsic)",
