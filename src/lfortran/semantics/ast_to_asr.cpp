@@ -1558,13 +1558,13 @@ public:
                                              int64_t& a_label, Vec<ASR::expr_t*>& a_args, Vec<ASR::keyword_t>& a_kwargs) {
         a_label = m_label;
         a_args.reserve(al, n_args);
-        for( uint i = 0; i < n_args; i++ ) {
+        for( std::uint32_t i = 0; i < n_args; i++ ) {
             this->visit_expr(*m_args[i]);
             ASR::expr_t* a_arg = EXPR(tmp);
             a_args.push_back(al, a_arg);
         }
         a_kwargs.reserve(al, n_args);
-        for( uint i = 0; i < n_kwargs; i++ ) {
+        for( std::uint32_t i = 0; i < n_kwargs; i++ ) {
             ASR::keyword_t* a_kwarg = al.make_new<ASR::keyword_t>();
             a_kwarg->loc = m_kwargs[i].loc;
             a_kwarg->m_arg = m_kwargs[i].m_arg;
@@ -1607,7 +1607,7 @@ public:
                                              Vec<ASR::kw_argstar_t>& a_kwargs, Vec<ASR::expr_t*>& a_values) {
         a_label = m_label;
         a_args.reserve(al, n_args);
-        for( uint i = 0; i < n_args; i++ ) {
+        for( std::uint32_t i = 0; i < n_args; i++ ) {
             ASR::argstar_t* a_arg = al.make_new<ASR::argstar_t>();
             a_arg->loc = m_args[i].loc;
             if( m_args[i].m_value != nullptr ) {
@@ -1619,7 +1619,7 @@ public:
             a_args.push_back(al, *a_arg);
         }
         a_kwargs.reserve(al, n_kwargs);
-        for( uint i = 0; i < n_kwargs; i++ ) {
+        for( std::uint32_t i = 0; i < n_kwargs; i++ ) {
             ASR::kw_argstar_t* a_kwarg = al.make_new<ASR::kw_argstar_t>();
             a_kwarg->loc = m_kwargs[i].loc;
             a_kwarg->m_arg = m_kwargs[i].m_arg;
@@ -1632,7 +1632,7 @@ public:
             a_kwargs.push_back(al, *a_kwarg);
         }
         a_values.reserve(al, n_values);
-        for( uint i = 0; i < n_values; i++ ) {
+        for( std::uint32_t i = 0; i < n_values; i++ ) {
             this->visit_expr(*m_values[i]);
             a_values.push_back(al, EXPR(tmp));
         } 
