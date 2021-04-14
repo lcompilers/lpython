@@ -108,7 +108,8 @@ namespace LFortran {
                         ASR::Var_t* kind_var =
                             ASR::down_cast<ASR::Var_t>(kind_expr);
                         ASR::Variable_t* kind_variable =
-                            ASR::down_cast<ASR::Variable_t>(kind_var->m_v);
+                            ASR::down_cast<ASR::Variable_t>(
+                                symbol_get_past_external(kind_var->m_v));
                         if( kind_variable->m_storage == ASR::storage_typeType::Parameter ) {
                             if( kind_variable->m_type->type == ASR::ttypeType::Integer ) {
                                 if (ASR::is_a<ASR::ConstantInteger_t>(
@@ -1590,7 +1591,7 @@ public:
                             x.base.base.loc);
                     }
                     ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
-                    // `msub` is the Function in a module. Now we construct
+                    // `mfn` is the Function in a module. Now we construct
                     // an ExternalSymbol that points to it.
                     Str name;
                     name.from_str(al, local_sym);
@@ -1604,8 +1605,28 @@ public:
                         dflt_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(fn);
+                } else if (ASR::is_a<ASR::Variable_t>(*t)) {
+                    if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
+                        throw SemanticError("Variable already defined",
+                            x.base.base.loc);
+                    }
+                    ASR::Variable_t *mv = ASR::down_cast<ASR::Variable_t>(t);
+                    // `mv` is the Variable in a module. Now we construct
+                    // an ExternalSymbol that points to it.
+                    Str name;
+                    name.from_str(al, local_sym);
+                    char *cname = name.c_str(al);
+                    ASR::asr_t *v = ASR::make_ExternalSymbol_t(
+                        al, mv->base.base.loc,
+                        /* a_symtab */ current_scope,
+                        /* a_name */ cname,
+                        (ASR::symbol_t*)mv,
+                        m->m_name, mv->m_name,
+                        dflt_access
+                        );
+                    current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(v);
                 } else {
-                    throw LFortranException("Only Subroutines and Functions supported in 'use'");
+                    throw LFortranException("Only Subroutines, Functions and Variables supported in 'use'");
                 }
             }
         }
