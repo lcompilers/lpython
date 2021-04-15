@@ -136,21 +136,24 @@ abi                   -- External     ABI
 
 
 stmt
-    = Assignment(expr target, expr value)
+    = Allocate()
+    | Assignment(expr target, expr value)
     | Associate(expr target, expr value)
-    | SubroutineCall(symbol name, symbol? original_name, expr* args)
-    | BuiltinCall(identifier name, expr* args)
-    | If(expr test, stmt* body, stmt* orelse)
-    | Where(expr test, stmt* body, stmt* orelse)
-    | Stop(expr? code)
-    | ErrorStop(expr? code)
-    | DoLoop(do_loop_head head, stmt* body)
-    | DoConcurrentLoop(do_loop_head head, stmt* body)
-    | Select(expr test, case_stmt* body, stmt* default)
     | Cycle()
+    | Deallocate()
+    | DoConcurrentLoop(do_loop_head head, stmt* body)
+    | DoLoop(do_loop_head head, stmt* body)
+    | ErrorStop(expr? code)
     | Exit()
-    | WhileLoop(expr test, stmt* body)
+    | If(expr test, stmt* body, stmt* orelse)
     | Print(string? fmt, expr* values)
+    | Return()
+    | Select(expr test, case_stmt* body, stmt* default)
+    | Stop(expr? code)
+    | SubroutineCall(symbol name, symbol? original_name, expr* args)
+    | Where(expr test, stmt* body, stmt* orelse)
+    | WhileLoop(expr test, stmt* body)
+
 
 expr
     = BoolOp(expr left, boolop op, expr right, ttype type)

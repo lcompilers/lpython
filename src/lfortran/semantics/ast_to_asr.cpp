@@ -1114,6 +1114,9 @@ public:
                             } else if (sa->m_attr == AST::simple_attributeType
                                     ::AttrTarget) {
                                 // Do nothing for now
+                            } else if (sa->m_attr == AST::simple_attributeType
+                                    ::AttrAllocatable) {
+                                // TODO
                             } else {
                                 throw SemanticError("Attribute type not implemented yet",
                                         x.base.base.loc);
@@ -1705,6 +1708,21 @@ public:
         }
     } 
 
+    void visit_Allocate(const AST::Allocate_t& x) {
+        // TODO
+        tmp = ASR::make_Allocate_t(al, x.base.base.loc);
+    }
+
+    void visit_Deallocate(const AST::Deallocate_t& x) {
+        // TODO
+        tmp = ASR::make_Deallocate_t(al, x.base.base.loc);
+    }
+
+    void visit_Return(const AST::Return_t& x) {
+        // TODO
+        tmp = ASR::make_Return_t(al, x.base.base.loc);
+    }
+
     void visit_case_stmt(const AST::case_stmt_t& x) {
         switch(x.type) {
             case AST::case_stmtType::CaseStmt: {
@@ -2091,7 +2109,7 @@ public:
         ASR::symbol_t *v = scope->resolve_symbol(var_name);
         if (!v) {
             // TODO: add these to global scope by default ahead of time
-            if (var_name == "size") {
+            if (to_lower(var_name) == "size") {
                 // Intrinsic function size(), add it to the global scope
                 ASR::TranslationUnit_t *unit = (ASR::TranslationUnit_t *)asr;
                 const char *fn_name_orig = "size";
@@ -2159,7 +2177,8 @@ public:
                 v = ASR::down_cast<ASR::symbol_t>(fn);
             } else {
                 auto find_intrinsic =
-                    std::find(all_intrinsics.begin(), all_intrinsics.end(), var_name);
+                    std::find(all_intrinsics.begin(), all_intrinsics.end(),
+                        to_lower(var_name));
                 if (find_intrinsic == all_intrinsics.end()) {
                     throw SemanticError("Function or array '" + var_name +
                                         "' not declared",
@@ -2243,12 +2262,23 @@ public:
                 Vec<ASR::array_index_t> args;
                 args.reserve(al, x.n_args);
                 for (size_t i=0; i<x.n_args; i++) {
-                    visit_expr(*x.m_args[i].m_end);
                     ASR::array_index_t ai;
-                    ai.m_left = nullptr;
-                    ai.m_right = EXPR(tmp);
-                    ai.m_step = nullptr;
-                    ai.loc = ai.m_right->base.loc;
+                    if (x.m_args[i].m_start == nullptr && x.m_args[i].m_end) {
+                        visit_expr(*x.m_args[i].m_end);
+                        ai.m_left = nullptr;
+                        ai.m_right = EXPR(tmp);
+                        ai.m_step = nullptr;
+                        ai.loc = ai.m_right->base.loc;
+                    } else if (x.m_args[i].m_start == nullptr
+                            && x.m_args[i].m_end == nullptr) {
+                        ai.m_left = nullptr;
+                        ai.m_right = nullptr;
+                        ai.m_step = nullptr;
+                        ai.loc = x.base.base.loc;
+                    } else {
+                        throw SemanticError("Argument type not implemented yet",
+                            x.base.base.loc);
+                    }
                     args.push_back(al, ai);
                 }
 
