@@ -3,7 +3,7 @@ implicit none
 
 real, dimension(100) :: x, y  
 real, dimension(100) :: p, q
-integer :: i  
+integer :: i, u
 
 ! data  
 do i = 1,100  
@@ -12,11 +12,11 @@ do i = 1,100
 end do  
 
 ! output data into a file 
-open(1, file = 'data1.dat', status='new')  
+open(newunit=u, file = 'data1.dat', status='replace')  
 do i = 1,100  
-    write(1,*) x(i), y(i)   
+    write(u,*) x(i), y(i)   
 end do  
-close(1) 
+close(u) 
 
 ! opening the file for reading
 open (2, file = 'data1.dat', status = 'old')
