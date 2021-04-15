@@ -1,4 +1,3 @@
-#include <cctype>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -1115,6 +1114,9 @@ public:
                             } else if (sa->m_attr == AST::simple_attributeType
                                     ::AttrTarget) {
                                 // Do nothing for now
+                            } else if (sa->m_attr == AST::simple_attributeType
+                                    ::AttrAllocatable) {
+                                // TODO
                             } else {
                                 throw SemanticError("Attribute type not implemented yet",
                                         x.base.base.loc);
@@ -1235,7 +1237,7 @@ public:
         std::string var_name = x.m_func;
         ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
         if (!v) {
-            std::string remote_sym = convert_to_lower(var_name);
+            std::string remote_sym = to_lower(var_name);
             if (intrinsic_procedures.find(remote_sym)
                         != intrinsic_procedures.end()) {
                 std::string module_name = intrinsic_procedures[remote_sym];
@@ -1638,11 +1640,6 @@ public:
                 a_kind, nullptr, 0));
         asr = ASR::make_ConstantReal_t(al, x.base.base.loc, x.m_n, type);
     }
-    inline std::string convert_to_lower(const std::string &s) {
-       std::string res;
-       for(auto x: s) res.push_back(std::tolower(x));
-       return res;
-    }
 
     ASR::asr_t* resolve_variable(const Location &loc, const char* id) {
         SymbolTable *scope = current_scope;
@@ -1710,6 +1707,21 @@ public:
             tmp = ASR::make_Associate_t(al, x.base.base.loc, target, value);
         }
     } 
+
+    void visit_Allocate(const AST::Allocate_t& x) {
+        // TODO
+        tmp = ASR::make_Allocate_t(al, x.base.base.loc);
+    }
+
+    void visit_Deallocate(const AST::Deallocate_t& x) {
+        // TODO
+        tmp = ASR::make_Deallocate_t(al, x.base.base.loc);
+    }
+
+    void visit_Return(const AST::Return_t& x) {
+        // TODO
+        tmp = ASR::make_Return_t(al, x.base.base.loc);
+    }
 
     void visit_case_stmt(const AST::case_stmt_t& x) {
         switch(x.type) {
@@ -2083,8 +2095,34 @@ public:
         return ASR::make_Var_t(al, loc, v);
     }
 
+    ASR::asr_t* resolve_variable2(const Location &loc, const char* id,
+            const char* derived_type_id) {
+        SymbolTable *scope = current_scope;
+        std::string var_name = id;
+        std::string dt_name = derived_type_id;
+        ASR::symbol_t *v = scope->resolve_symbol(dt_name);
+        if (!v) {
+            throw SemanticError("Variable '" + dt_name + "' not declared", loc);
+        }
+        if (ASR::is_a<ASR::DerivedType_t>(*v)) {
+            throw SemanticError("DerivedType variable '" + dt_name + "%"
+                + var_name + "' access is not implemented yet", loc);
+            //return ASR::make_Var_t(al, loc, v);
+        } else {
+            throw SemanticError("Variable '" + dt_name + "' is not a derived type", loc);
+        }
+    }
+
     void visit_Name(const AST::Name_t &x) {
-        tmp = resolve_variable(x.base.base.loc, x.m_id);
+        if (x.n_member == 0) {
+            tmp = resolve_variable(x.base.base.loc, x.m_id);
+        } else if (x.n_member == 1 && x.m_member[0].n_args == 0) {
+            tmp = resolve_variable2(x.base.base.loc, x.m_id,
+                x.m_member[0].m_name);
+        } else {
+            throw SemanticError("Derived Types not implemented yet",
+                x.base.base.loc);
+        }
     }
 
     void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
@@ -2097,7 +2135,7 @@ public:
         ASR::symbol_t *v = scope->resolve_symbol(var_name);
         if (!v) {
             // TODO: add these to global scope by default ahead of time
-            if (var_name == "size") {
+            if (to_lower(var_name) == "size") {
                 // Intrinsic function size(), add it to the global scope
                 ASR::TranslationUnit_t *unit = (ASR::TranslationUnit_t *)asr;
                 const char *fn_name_orig = "size";
@@ -2165,7 +2203,8 @@ public:
                 v = ASR::down_cast<ASR::symbol_t>(fn);
             } else {
                 auto find_intrinsic =
-                    std::find(all_intrinsics.begin(), all_intrinsics.end(), var_name);
+                    std::find(all_intrinsics.begin(), all_intrinsics.end(),
+                        to_lower(var_name));
                 if (find_intrinsic == all_intrinsics.end()) {
                     throw SemanticError("Function or array '" + var_name +
                                         "' not declared",
@@ -2249,12 +2288,23 @@ public:
                 Vec<ASR::array_index_t> args;
                 args.reserve(al, x.n_args);
                 for (size_t i=0; i<x.n_args; i++) {
-                    visit_expr(*x.m_args[i].m_end);
                     ASR::array_index_t ai;
-                    ai.m_left = nullptr;
-                    ai.m_right = EXPR(tmp);
-                    ai.m_step = nullptr;
-                    ai.loc = ai.m_right->base.loc;
+                    if (x.m_args[i].m_start == nullptr && x.m_args[i].m_end) {
+                        visit_expr(*x.m_args[i].m_end);
+                        ai.m_left = nullptr;
+                        ai.m_right = EXPR(tmp);
+                        ai.m_step = nullptr;
+                        ai.loc = ai.m_right->base.loc;
+                    } else if (x.m_args[i].m_start == nullptr
+                            && x.m_args[i].m_end == nullptr) {
+                        ai.m_left = nullptr;
+                        ai.m_right = nullptr;
+                        ai.m_step = nullptr;
+                        ai.loc = x.base.base.loc;
+                    } else {
+                        throw SemanticError("Argument type not implemented yet",
+                            x.base.base.loc);
+                    }
                     args.push_back(al, ai);
                 }
 
