@@ -2096,7 +2096,12 @@ public:
     }
 
     void visit_Name(const AST::Name_t &x) {
-        tmp = resolve_variable(x.base.base.loc, x.m_id);
+        if (x.n_member == 0) {
+            tmp = resolve_variable(x.base.base.loc, x.m_id);
+        } else {
+            throw SemanticError("Derived Types not implemented yet",
+                x.base.base.loc);
+        }
     }
 
     void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
