@@ -1,3 +1,4 @@
+#include <cctype>
 #include <regex>
 
 #include <lfortran/string_utils.h>
@@ -16,6 +17,12 @@ bool endswith(const std::string &s, const std::string &e)
 {
     if (s.size() < e.size()) return false;
     return s.substr(s.size()-e.size()) == e;
+}
+
+std::string to_lower(const std::string &s) {
+    std::string res;
+    for(auto x: s) res.push_back(std::tolower(x));
+    return res;
 }
 
 std::vector<std::string> split(const std::string &s)

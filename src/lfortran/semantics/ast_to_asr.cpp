@@ -1,4 +1,3 @@
-#include <cctype>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -1235,7 +1234,7 @@ public:
         std::string var_name = x.m_func;
         ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
         if (!v) {
-            std::string remote_sym = convert_to_lower(var_name);
+            std::string remote_sym = to_lower(var_name);
             if (intrinsic_procedures.find(remote_sym)
                         != intrinsic_procedures.end()) {
                 std::string module_name = intrinsic_procedures[remote_sym];
@@ -1637,11 +1636,6 @@ public:
         ASR::ttype_t *type = TYPE(ASR::make_Real_t(al, x.base.base.loc,
                 a_kind, nullptr, 0));
         asr = ASR::make_ConstantReal_t(al, x.base.base.loc, x.m_n, type);
-    }
-    inline std::string convert_to_lower(const std::string &s) {
-       std::string res;
-       for(auto x: s) res.push_back(std::tolower(x));
-       return res;
     }
 
     ASR::asr_t* resolve_variable(const Location &loc, const char* id) {
