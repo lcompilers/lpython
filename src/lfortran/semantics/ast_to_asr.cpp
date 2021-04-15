@@ -1720,89 +1720,60 @@ public:
     }
 
     void visit_Open(const AST::Open_t& x) {
-        int64_t a_label;
-        Vec<ASR::expr_t*> a_args;
-        Vec<ASR::keyword_t> a_keyowrds;
-        generate_args_for_open_close(x.m_label, x.m_args, x.n_args, 
-                                     x.m_kwargs, x.n_kwargs, 
-                                     a_label, a_args, a_keyowrds);
-        tmp = ASR::make_Open_t(al, x.base.base.loc, a_label, a_args.p, a_args.size(), 
-                               a_keyowrds.p, a_keyowrds.size());
-    }
-
-    void visit_Close(const AST::Close_t& x) {
-        int64_t a_label;
-        Vec<ASR::expr_t*> a_args;
-        Vec<ASR::keyword_t> a_keyowrds;
-        generate_args_for_open_close(x.m_label, x.m_args, x.n_args, 
-                                     x.m_kwargs, x.n_kwargs, 
-                                     a_label, a_args, a_keyowrds);
-        tmp = ASR::make_Close_t(al, x.base.base.loc, a_label, a_args.p, a_args.size(), 
-                                a_keyowrds.p, a_keyowrds.size());
-    }
-
-    inline void generate_args_for_read_write(int64_t m_label, AST::argstar_t* m_args, size_t n_args,
-                                             AST::kw_argstar_t* m_kwargs, size_t n_kwargs,
-                                             AST::expr_t** m_values, size_t n_values,
-                                             int64_t& a_label, Vec<ASR::argstar_t>& a_args, 
-                                             Vec<ASR::kw_argstar_t>& a_kwargs, Vec<ASR::expr_t*>& a_values) {
-        a_label = m_label;
-        a_args.reserve(al, n_args);
-        for( std::uint32_t i = 0; i < n_args; i++ ) {
-            ASR::argstar_t* a_arg = al.make_new<ASR::argstar_t>();
-            a_arg->loc = m_args[i].loc;
-            if( m_args[i].m_value != nullptr ) {
-                this->visit_expr(*m_args[i].m_value);
-                a_arg->m_value = EXPR(tmp);
-            } else {
-                a_arg->m_value = nullptr;
-            }
-            a_args.push_back(al, *a_arg);
+        ASR::expr_t *a_newunit = nullptr, *a_filename = nullptr, *a_status = nullptr;
+        if( x.n_args > 1 ) {
+            throw SemanticError("Number of arguments cannot be more than 1 in Open statement.",
+                                x.base.base.loc);
         }
-        a_kwargs.reserve(al, n_kwargs);
-        for( std::uint32_t i = 0; i < n_kwargs; i++ ) {
-            ASR::kw_argstar_t* a_kwarg = al.make_new<ASR::kw_argstar_t>();
-            a_kwarg->loc = m_kwargs[i].loc;
-            a_kwarg->m_arg = m_kwargs[i].m_arg;
-            if( m_kwargs[i].m_value != nullptr ) {
-                this->visit_expr(*m_kwargs[i].m_value);
-                a_kwarg->m_value = EXPR(tmp);
-            } else {
-                a_kwarg->m_value = nullptr;
-            }
-            a_kwargs.push_back(al, *a_kwarg);
+        if( x.n_args == 1 ) {
+            this->visit_expr(*x.m_args[0]);
+            a_newunit = EXPR(tmp);
         }
-        a_values.reserve(al, n_values);
-        for( std::uint32_t i = 0; i < n_values; i++ ) {
-            this->visit_expr(*m_values[i]);
-            a_values.push_back(al, EXPR(tmp));
-        } 
-    }
-
-    void visit_Write(const AST::Write_t& x) {
-        int64_t a_label;
-        Vec<ASR::argstar_t> a_args;
-        Vec<ASR::kw_argstar_t> a_kwargs;
-        Vec<ASR::expr_t*> a_values;
-        generate_args_for_read_write(x.m_label, x.m_args, x.n_args, 
-                                     x.m_kwargs, x.n_kwargs, 
-                                     x.m_values, x.n_values, 
-                                     a_label, a_args, a_kwargs, a_values);
-        tmp = ASR::make_Write_t(al, x.base.base.loc, a_label, a_args.p, a_args.size(), 
-                                a_kwargs.p, a_kwargs.size(), a_values.p, a_values.size());
-    }
-
-    void visit_Read(const AST::Read_t& x) {
-        int64_t a_label;
-        Vec<ASR::argstar_t> a_args;
-        Vec<ASR::kw_argstar_t> a_kwargs;
-        Vec<ASR::expr_t*> a_values;
-        generate_args_for_read_write(x.m_label, x.m_args, x.n_args, 
-                                     x.m_kwargs, x.n_kwargs, 
-                                     x.m_values, x.n_values, 
-                                     a_label, a_args, a_kwargs, a_values);
-        tmp = ASR::make_Read_t(al, x.base.base.loc, a_label, a_args.p, a_args.size(), 
-                                a_kwargs.p, a_kwargs.size(), a_values.p, a_values.size());
+        for( std::uint32_t i = 0; i < x.n_kwargs; i++ ) {
+            AST::keyword_t kwarg = x.m_kwargs[i];
+            if( std::string(kwarg.m_arg) == std::string("newunit") || 
+                std::string(kwarg.m_arg) == std::string("unit") ) {
+                if( a_newunit != nullptr ) {
+                    throw SemanticError(R"""(Duplicate value of unit found, 
+                                             unit has already been specified 
+                                             via argument or keyword arguments)""",
+                                        x.base.base.loc);
+                }
+                this->visit_expr(*kwarg.m_value);
+                a_newunit = EXPR(tmp);
+                ASR::ttype_t* a_newunit_type = expr_type(a_newunit);
+                if( a_newunit_type->type != ASR::ttypeType::Integer && 
+                    a_newunit_type->type != ASR::ttypeType::IntegerPointer ) {
+                        throw SemanticError("`newunit`/`unit` must be of type, Integer or IntegerPointer", x.base.base.loc);
+                }
+            } else if( std::string(kwarg.m_arg) == std::string("file") ) {
+                if( a_filename != nullptr ) {
+                    throw SemanticError(R"""(Duplicate value of `file` found, unit has already been specified via arguments or keyword arguments)""",
+                                        x.base.base.loc);
+                }
+                this->visit_expr(*kwarg.m_value);
+                a_filename = EXPR(tmp);
+                ASR::ttype_t* a_filename_type = expr_type(a_filename);
+                if( a_filename_type->type != ASR::ttypeType::Character && 
+                    a_filename_type->type != ASR::ttypeType::CharacterPointer ) {
+                        throw SemanticError("`file` must be of type, Character or CharacterPointer", x.base.base.loc);
+                }
+            } else if( std::string(kwarg.m_arg) == std::string("status") ) {
+                if( a_status != nullptr ) {
+                    throw SemanticError(R"""(Duplicate value of `status` found, unit has already been specified via arguments or keyword arguments)""",
+                                        x.base.base.loc);
+                }
+                this->visit_expr(*kwarg.m_value);
+                a_status = EXPR(tmp);
+                ASR::ttype_t* a_status_type = expr_type(a_status);
+                if( a_status_type->type != ASR::ttypeType::Character && 
+                    a_status_type->type != ASR::ttypeType::CharacterPointer ) {
+                        throw SemanticError("`status` must be of type, Character or CharacterPointer", x.base.base.loc);
+                }
+            }
+        }
+        tmp = ASR::make_Open_t(al, x.base.base.loc, x.m_label, 
+                               a_newunit, a_filename, a_status);
     }
 
     void visit_Associate(const AST::Associate_t& x) {

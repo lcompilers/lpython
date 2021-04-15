@@ -3,7 +3,9 @@ implicit none
 
 real, dimension(100) :: x, y  
 real, dimension(100) :: p, q
-integer :: i, u
+integer, target :: i, u = 1
+integer, pointer :: u_ptr;
+u_ptr => u
 
 ! data  
 do i = 1,100  
@@ -12,7 +14,7 @@ do i = 1,100
 end do  
 
 ! output data into a file 
-open(newunit=u, file = 'data1.dat', status='replace')  
+open(newunit=u_ptr, file='data.dat', status='replace')  
 do i = 1,100  
     write(u,*) x(i), y(i)   
 end do  
