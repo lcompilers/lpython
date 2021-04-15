@@ -2095,9 +2095,30 @@ public:
         return ASR::make_Var_t(al, loc, v);
     }
 
+    ASR::asr_t* resolve_variable2(const Location &loc, const char* id,
+            const char* derived_type_id) {
+        SymbolTable *scope = current_scope;
+        std::string var_name = id;
+        std::string dt_name = derived_type_id;
+        ASR::symbol_t *v = scope->resolve_symbol(dt_name);
+        if (!v) {
+            throw SemanticError("Variable '" + dt_name + "' not declared", loc);
+        }
+        if (ASR::is_a<ASR::DerivedType_t>(*v)) {
+            throw SemanticError("DerivedType variable '" + dt_name + "%"
+                + var_name + "' access is not implemented yet", loc);
+            //return ASR::make_Var_t(al, loc, v);
+        } else {
+            throw SemanticError("Variable '" + dt_name + "' is not a derived type", loc);
+        }
+    }
+
     void visit_Name(const AST::Name_t &x) {
         if (x.n_member == 0) {
             tmp = resolve_variable(x.base.base.loc, x.m_id);
+        } else if (x.n_member == 1 && x.m_member[0].n_args == 0) {
+            tmp = resolve_variable2(x.base.base.loc, x.m_id,
+                x.m_member[0].m_name);
         } else {
             throw SemanticError("Derived Types not implemented yet",
                 x.base.base.loc);
