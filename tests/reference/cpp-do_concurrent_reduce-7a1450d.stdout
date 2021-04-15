@@ -1,3 +1,17 @@
+#include <iostream>
+#include <vector>
+#include <Kokkos_Core.hpp>
+
+template <typename T>
+Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
+{
+    Kokkos::View<T*> r("r", v.size());
+    for (size_t i=0; i < v.size(); i++) {
+        r(i) = v[i];
+    }
+    return r;
+}
+
 void sum_reduce(const Kokkos::View<const float*> &a, float &s)
 {
     int N;

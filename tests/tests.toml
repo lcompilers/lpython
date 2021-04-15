@@ -646,6 +646,10 @@ filename = "../integration_tests/parameter_03.f90"
 asr = true
 
 [[test]]
+filename = "../integration_tests/parameter_04.f90"
+asr = true
+
+[[test]]
 filename = "do_concurrent1.f90"
 ast = true
 

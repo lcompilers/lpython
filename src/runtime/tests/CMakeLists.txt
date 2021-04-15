@@ -32,6 +32,7 @@ message("Installation prefix: ${CMAKE_INSTALL_PREFIX}")
 set(SRC
     ../lfortran_intrinsics.c
     ../lfortran_intrinsic_math.f90
+    ../lfortran_intrinsic_kind.f90
 )
 add_library(lfortran_runtime SHARED ${SRC})
 add_library(lfortran_runtime_static STATIC ${SRC})
@@ -47,3 +48,4 @@ ADDTEST(test_sin)
 ADDTEST(test_cos)
 ADDTEST(test_tan)
 ADDTEST(test_hyperbolics)
+ADDTEST(test_kind)

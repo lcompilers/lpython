@@ -119,6 +119,7 @@ RUN(NAME subroutines_04 LABELS gfortran llvm)
 
 RUN(NAME functions_01 LABELS gfortran llvm cpp x86)
 RUN(NAME functions_02 LABELS gfortran llvm)
+RUN(NAME functions_03 LABELS gfortran llvm)
 
 RUN(NAME types_01 LABELS gfortran llvm cpp)
 RUN(NAME types_02 LABELS gfortran llvm cpp)
@@ -156,7 +157,8 @@ RUN(NAME intrinsics_open_close_read_write LABELS gfortran)
 
 RUN(NAME parameter_01 LABELS gfortran)
 RUN(NAME parameter_02 LABELS gfortran)
-RUN(NAME parameter_03 LABELS gfortran)
+RUN(NAME parameter_03 LABELS gfortran llvm)
+RUN(NAME parameter_04 LABELS gfortran llvm)
 
 RUN(NAME modules_01 LABELS gfortran llvm)
 RUN(NAME modules_02 LABELS gfortran llvm)
