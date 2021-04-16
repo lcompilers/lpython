@@ -47,7 +47,6 @@ CPackSourceConfig.cmake
 *.so
 *.s
 *.ll
-*.dat
 
 ## Generated files
 version
@@ -96,6 +95,8 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+*.dat
+*.mod
 MANIFEST
 
 ## PyTest
