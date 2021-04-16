@@ -1694,31 +1694,6 @@ public:
         // This AST node was already visited in SymbolTableVisitor
     }
 
-    inline void generate_args_for_open_close(int64_t m_label, AST::expr_t** m_args, size_t n_args, 
-                                             AST::keyword_t* m_kwargs, size_t n_kwargs, 
-                                             int64_t& a_label, Vec<ASR::expr_t*>& a_args, Vec<ASR::keyword_t>& a_kwargs) {
-        a_label = m_label;
-        a_args.reserve(al, n_args);
-        for( std::uint32_t i = 0; i < n_args; i++ ) {
-            this->visit_expr(*m_args[i]);
-            ASR::expr_t* a_arg = EXPR(tmp);
-            a_args.push_back(al, a_arg);
-        }
-        a_kwargs.reserve(al, n_args);
-        for( std::uint32_t i = 0; i < n_kwargs; i++ ) {
-            ASR::keyword_t* a_kwarg = al.make_new<ASR::keyword_t>();
-            a_kwarg->loc = m_kwargs[i].loc;
-            a_kwarg->m_arg = m_kwargs[i].m_arg;
-            if( m_kwargs[i].m_value != nullptr ) {
-                this->visit_expr(*m_kwargs[i].m_value);
-                a_kwarg->m_value = EXPR(tmp);
-            } else {
-                a_kwarg->m_value = nullptr;
-            }
-            a_kwargs.push_back(al, *a_kwarg);
-        }
-    }
-
     void visit_Open(const AST::Open_t& x) {
         ASR::expr_t *a_newunit = nullptr, *a_filename = nullptr, *a_status = nullptr;
         if( x.n_args > 1 ) {
@@ -1731,12 +1706,13 @@ public:
         }
         for( std::uint32_t i = 0; i < x.n_kwargs; i++ ) {
             AST::keyword_t kwarg = x.m_kwargs[i];
-            if( std::string(kwarg.m_arg) == std::string("newunit") || 
-                std::string(kwarg.m_arg) == std::string("unit") ) {
+            std::string m_arg_str(kwarg.m_arg);
+            std::transform(m_arg_str.begin(), m_arg_str.end(), m_arg_str.begin(), 
+                           [](unsigned char c){ return std::tolower(c); }); // correct
+            if( m_arg_str == std::string("newunit") || 
+                m_arg_str == std::string("unit") ) {
                 if( a_newunit != nullptr ) {
-                    throw SemanticError(R"""(Duplicate value of unit found, 
-                                             unit has already been specified 
-                                             via argument or keyword arguments)""",
+                    throw SemanticError(R"""(Duplicate value of `unit` found, `unit` has already been specified via argument or keyword arguments)""",
                                         x.base.base.loc);
                 }
                 this->visit_expr(*kwarg.m_value);
@@ -1746,7 +1722,7 @@ public:
                     a_newunit_type->type != ASR::ttypeType::IntegerPointer ) {
                         throw SemanticError("`newunit`/`unit` must be of type, Integer or IntegerPointer", x.base.base.loc);
                 }
-            } else if( std::string(kwarg.m_arg) == std::string("file") ) {
+            } else if( m_arg_str == std::string("file") ) {
                 if( a_filename != nullptr ) {
                     throw SemanticError(R"""(Duplicate value of `file` found, unit has already been specified via arguments or keyword arguments)""",
                                         x.base.base.loc);
@@ -1758,7 +1734,7 @@ public:
                     a_filename_type->type != ASR::ttypeType::CharacterPointer ) {
                         throw SemanticError("`file` must be of type, Character or CharacterPointer", x.base.base.loc);
                 }
-            } else if( std::string(kwarg.m_arg) == std::string("status") ) {
+            } else if( m_arg_str == std::string("status") ) {
                 if( a_status != nullptr ) {
                     throw SemanticError(R"""(Duplicate value of `status` found, unit has already been specified via arguments or keyword arguments)""",
                                         x.base.base.loc);
@@ -1772,8 +1748,214 @@ public:
                 }
             }
         }
+        if( a_newunit == nullptr ) {
+            throw SemanticError("`newunit` or `unit` must be specified either in argument or keyword arguments.",
+                                x.base.base.loc);
+        }
         tmp = ASR::make_Open_t(al, x.base.base.loc, x.m_label, 
                                a_newunit, a_filename, a_status);
+    }
+
+    void visit_Close(const AST::Close_t& x) {
+        ASR::expr_t *a_unit = nullptr, *a_iostat = nullptr, *a_iomsg = nullptr; 
+        ASR::expr_t *a_err = nullptr, *a_status = nullptr;
+        if( x.n_args > 1 ) {
+            throw SemanticError("Number of arguments cannot be more than 1 in Close statement.",
+                        x.base.base.loc);
+        }
+        if( x.n_args == 1 ) {
+            this->visit_expr(*x.m_args[0]);
+            a_unit = EXPR(tmp);
+        }
+        for( std::uint32_t i = 0; i < x.n_kwargs; i++ ) {
+            AST::keyword_t kwarg = x.m_kwargs[i];
+            std::string m_arg_str(kwarg.m_arg);
+            std::transform(m_arg_str.begin(), m_arg_str.end(), m_arg_str.begin(), 
+                           [](unsigned char c){ return std::tolower(c); }); // correct
+            if( m_arg_str == std::string("unit") ) {
+                if( a_unit != nullptr ) {
+                    throw SemanticError(R"""(Duplicate value of `unit` found, `unit` has already been specified via argument or keyword arguments)""",
+                                        x.base.base.loc);
+                }
+                this->visit_expr(*kwarg.m_value);
+                a_unit = EXPR(tmp);
+                ASR::ttype_t* a_newunit_type = expr_type(a_unit);
+                if( a_newunit_type->type != ASR::ttypeType::Integer && 
+                    a_newunit_type->type != ASR::ttypeType::IntegerPointer ) {
+                        throw SemanticError("`newunit`/`unit` must be of type, Integer or IntegerPointer", x.base.base.loc);
+                }
+            } else if( m_arg_str == std::string("iostat") ) {
+                if( a_iostat != nullptr ) {
+                    throw SemanticError(R"""(Duplicate value of `iostat` found, unit has already been specified via arguments or keyword arguments)""",
+                                        x.base.base.loc);
+                }
+                this->visit_expr(*kwarg.m_value);
+                a_iostat = EXPR(tmp);
+                ASR::ttype_t* a_iostat_type = expr_type(a_iostat);
+                if( a_iostat_type->type != ASR::ttypeType::Integer && 
+                    a_iostat_type->type != ASR::ttypeType::IntegerPointer ) {
+                        throw SemanticError("`iostat` must be of type, Integer or IntegerPointer", x.base.base.loc);
+                }
+            } else if( m_arg_str == std::string("iomsg") ) {
+                if( a_iomsg != nullptr ) {
+                    throw SemanticError(R"""(Duplicate value of `iomsg` found, unit has already been specified via arguments or keyword arguments)""",
+                                        x.base.base.loc);
+                }
+                this->visit_expr(*kwarg.m_value);
+                a_iomsg = EXPR(tmp);
+                ASR::ttype_t* a_iomsg_type = expr_type(a_iomsg);
+                if( a_iomsg_type->type != ASR::ttypeType::Character && 
+                    a_iomsg_type->type != ASR::ttypeType::CharacterPointer ) {
+                        throw SemanticError("`iomsg` must be of type, Character or CharacterPointer", x.base.base.loc);
+                    }
+            } else if( m_arg_str == std::string("status") ) {
+                if( a_status != nullptr ) {
+                    throw SemanticError(R"""(Duplicate value of `status` found, unit has already been specified via arguments or keyword arguments)""",
+                                        x.base.base.loc);
+                }
+                this->visit_expr(*kwarg.m_value);
+                a_status = EXPR(tmp);
+                ASR::ttype_t* a_status_type = expr_type(a_status);
+                if( a_status_type->type != ASR::ttypeType::Character && 
+                    a_status_type->type != ASR::ttypeType::CharacterPointer ) {
+                        throw SemanticError("`status` must be of type, Character or CharacterPointer", x.base.base.loc);
+                }
+            } else if( m_arg_str == std::string("err") ) {
+                if( a_err != nullptr ) {
+                    throw SemanticError(R"""(Duplicate value of `err` found, `err` has already been specified via arguments or keyword arguments)""",
+                                        x.base.base.loc);
+                }
+                if( kwarg.m_value->type != AST::exprType::Num ) {
+                    throw SemanticError("`err` must be a literal integer", x.base.base.loc);
+                }
+                this->visit_expr(*kwarg.m_value);
+                a_err = EXPR(tmp);
+            }
+        }
+        if( a_unit == nullptr ) {
+            throw SemanticError("`newunit` or `unit` must be specified either in argument or keyword arguments.",
+                                x.base.base.loc);
+        }
+        tmp = ASR::make_Close_t(al, x.base.base.loc, x.m_label, a_unit, a_iostat, a_iomsg, a_err, a_status);
+    }
+
+    void create_read_write_ASR_node(const AST::stmt_t& read_write_stmt, AST::stmtType _type) {
+        int64_t m_label;
+        AST::argstar_t* m_args; size_t n_args;
+        AST::kw_argstar_t* m_kwargs; size_t n_kwargs; 
+        AST::expr_t** m_values; size_t n_values;
+        const Location& loc = read_write_stmt.base.loc;
+        if( _type == AST::stmtType::Write ) {
+            AST::Write_t* w = (AST::Write_t*)(&read_write_stmt);
+            m_label = w->m_label;
+            m_args = w->m_args; n_args = w->n_args;
+            m_kwargs = w->m_kwargs; n_kwargs = w->n_kwargs;
+            m_values = w->m_values; n_values = w->n_values;
+        } else if( _type == AST::stmtType::Read ) {
+            AST::Read_t* r = (AST::Read_t*)(&read_write_stmt);
+            m_label = r->m_label;
+            m_args = r->m_args; n_args = r->n_args;
+            m_kwargs = r->m_kwargs; n_kwargs = r->n_kwargs;
+            m_values = r->m_values; n_values = r->n_values;
+        }
+
+        ASR::expr_t *a_unit, *a_fmt, *a_iomsg, *a_iostat, *a_id;
+        a_unit = a_fmt = a_iomsg = a_iostat = a_id = nullptr;
+        Vec<ASR::expr_t*> a_values_vec;
+        a_values_vec.reserve(al, n_values); 
+
+        if( n_args > 2 ) {
+            throw SemanticError("Number of arguments cannot be more than 2 in Read/Write statement.",
+                                loc);
+        }
+        std::vector<ASR::expr_t**> args = {&a_unit, &a_fmt};
+        for( std::uint32_t i = 0; i < n_args; i++ ) {
+            this->visit_expr(*m_args[i].m_value);
+            *args[i] = EXPR(tmp);
+        }
+        for( std::uint32_t i = 0; i < n_kwargs; i++ ) {
+            AST::kw_argstar_t kwarg = m_kwargs[i];
+            std::string m_arg_str(kwarg.m_arg);
+            std::transform(m_arg_str.begin(), m_arg_str.end(), m_arg_str.begin(), 
+                           [](unsigned char c){ return std::tolower(c); }); // correct
+            if( m_arg_str == std::string("unit") ) {
+                if( a_unit != nullptr ) {
+                    throw SemanticError(R"""(Duplicate value of `unit` found, `unit` has already been specified via argument or keyword arguments)""",
+                                        loc);
+                }
+                this->visit_expr(*kwarg.m_value);
+                a_unit = EXPR(tmp);
+                ASR::ttype_t* a_unit_type = expr_type(a_unit);
+                if( a_unit_type->type != ASR::ttypeType::Integer && 
+                    a_unit_type->type != ASR::ttypeType::IntegerPointer ) {
+                        throw SemanticError("`unit` must be of type, Integer or IntegerPointer", loc);
+                }
+            } else if( m_arg_str == std::string("iostat") ) {
+                if( a_iostat != nullptr ) {
+                    throw SemanticError(R"""(Duplicate value of `iostat` found, unit has already been specified via arguments or keyword arguments)""",
+                                        loc);
+                }
+                this->visit_expr(*kwarg.m_value);
+                a_iostat = EXPR(tmp);
+                ASR::ttype_t* a_iostat_type = expr_type(a_iostat);
+                if( a_iostat_type->type != ASR::ttypeType::Integer && 
+                    a_iostat_type->type != ASR::ttypeType::IntegerPointer ) {
+                        throw SemanticError("`iostat` must be of type, Integer or IntegerPointer", loc);
+                }
+            } else if( m_arg_str == std::string("iomsg") ) {
+                if( a_iomsg != nullptr ) {
+                    throw SemanticError(R"""(Duplicate value of `iomsg` found, unit has already been specified via arguments or keyword arguments)""",
+                                        loc);
+                }
+                this->visit_expr(*kwarg.m_value);
+                a_iomsg = EXPR(tmp);
+                ASR::ttype_t* a_iomsg_type = expr_type(a_iomsg);
+                if( a_iomsg_type->type != ASR::ttypeType::Character && 
+                    a_iomsg_type->type != ASR::ttypeType::CharacterPointer ) {
+                        throw SemanticError("`iomsg` must be of type, Character or CharacterPointer", loc);
+                    }
+            } else if( m_arg_str == std::string("id") ) {
+                if( a_id != nullptr ) {
+                    throw SemanticError(R"""(Duplicate value of `id` found, unit has already been specified via arguments or keyword arguments)""",
+                                        loc);
+                }
+                this->visit_expr(*kwarg.m_value);
+                a_id = EXPR(tmp);
+                ASR::ttype_t* a_status_type = expr_type(a_id);
+                if( a_status_type->type != ASR::ttypeType::Integer && 
+                    a_status_type->type != ASR::ttypeType::IntegerPointer ) {
+                        throw SemanticError("`status` must be of type, Character or CharacterPointer", loc);
+                }
+            }
+        }
+        if( a_unit == nullptr ) {
+            throw SemanticError("`unit` must be specified either in arguments or keyword arguments.",
+                                loc);
+        }
+        if( a_fmt == nullptr ) {
+            throw SemanticError("`fmt` must be specified either in arguments or keyword arguments.",
+                                loc);
+        }
+        
+        for( std::uint32_t i = 0; i < n_values; i++ ) {
+            this->visit_expr(*m_values[i]);
+            a_values_vec.push_back(al, EXPR(tmp));
+        }
+        if( _type == AST::stmtType::Write ) {
+            tmp = ASR::make_Write_t(al, loc, m_label, a_unit, a_fmt, 
+                                    a_iomsg, a_iostat, a_id, a_values_vec.p, n_values);
+        } else if( _type == AST::stmtType::Read ) {
+            tmp = ASR::make_Read_t(al, loc, m_label, a_unit, a_fmt, 
+                                   a_iomsg, a_iostat, a_id, a_values_vec.p, n_values);
+        }
+    }
+
+    void visit_Write(const AST::Write_t& x) {
+        create_read_write_ASR_node(x.base, x.class_type);
+    }
+
+    void visit_Read(const AST::Read_t& x) {
+        create_read_write_ASR_node(x.base, x.class_type);
     }
 
     void visit_Associate(const AST::Associate_t& x) {
