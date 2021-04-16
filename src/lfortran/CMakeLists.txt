@@ -50,6 +50,7 @@ if (WITH_LLVM)
     set(SRC ${SRC}
         codegen/evaluator.cpp
         codegen/asr_to_llvm.cpp
+        pass/nested_vars.cpp
     )
     # We use deprecated API in LLVM, so we disable the warning until we upgrade
     if (NOT MSVC)
