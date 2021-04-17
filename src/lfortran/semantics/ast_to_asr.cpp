@@ -1874,8 +1874,10 @@ public:
         }
         std::vector<ASR::expr_t**> args = {&a_unit, &a_fmt};
         for( std::uint32_t i = 0; i < n_args; i++ ) {
-            this->visit_expr(*m_args[i].m_value);
-            *args[i] = EXPR(tmp);
+            if( m_args[i].m_value != nullptr ) {
+                this->visit_expr(*m_args[i].m_value);
+                *args[i] = EXPR(tmp);
+            }
         }
         for( std::uint32_t i = 0; i < n_kwargs; i++ ) {
             AST::kw_argstar_t kwarg = m_kwargs[i];
@@ -1934,11 +1936,11 @@ public:
                 }
             }
         }
-        if( a_unit == nullptr ) {
+        if( a_unit == nullptr && n_args < 1 ) {
             throw SemanticError("`unit` must be specified either in arguments or keyword arguments.",
                                 loc);
         }
-        if( a_fmt == nullptr ) {
+        if( a_fmt == nullptr && n_args < 2 ) {
             throw SemanticError("`fmt` must be specified either in arguments or keyword arguments.",
                                 loc);
         }
