@@ -1406,7 +1406,7 @@ endwhere
     ;
 
 exit_statement
-    : KW_EXIT id_opt { $$ = EXIT(@$); }
+    : KW_EXIT id_opt { $$ = EXIT($2, @$); }
     ;
 
 return_statement

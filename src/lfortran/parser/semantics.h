@@ -838,7 +838,7 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
 #define ERROR_STOP(l) make_ErrorStop_t(p.m_a, l, 0, nullptr)
 #define ERROR_STOP1(e, l) make_ErrorStop_t(p.m_a, l, 0, EXPR(e))
 
-#define EXIT(l) make_Exit_t(p.m_a, l, 0)
+#define EXIT(id, l) make_Exit_t(p.m_a, l, 0, name2char(id))
 #define RETURN(l) make_Return_t(p.m_a, l, 0)
 #define CYCLE(id, l) make_Cycle_t(p.m_a, l, 0, name2char(id))
 #define CONTINUE(l) make_Continue_t(p.m_a, l, 0)
