@@ -28,6 +28,12 @@ public:
             throw LFortranException("ASR verify failed: " + error_msg);
         }
     }
+    void require(bool cond, const std::string &error_msg,
+                const Location &loc) {
+        std::string msg = std::to_string(loc.first_line) + ":"
+            + std::to_string(loc.first_column) + ": " + error_msg;
+        require(cond, msg);
+    }
 
     // Returns true if the `symtab_ID` is the current symbol table `symtab` or
     // any of its parents. It returns false otherwise, such as in the case when
@@ -230,7 +236,8 @@ public:
     void visit_FunctionCall(const FunctionCall_t &x) {
         require(symtab_in_scope(current_symtab,
              symbol_parent_symtab(x.m_name)->counter),
-            "FunctionCall::m_name cannot point outside of its symbol table");
+            "FunctionCall::m_name cannot point outside of its symbol table",
+            x.base.base.loc);
         for (size_t i=0; i<x.n_args; i++) {
             visit_expr(*x.m_args[i]);
         }
