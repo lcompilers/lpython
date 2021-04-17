@@ -1718,9 +1718,11 @@ public:
                 this->visit_expr(*kwarg.m_value);
                 a_newunit = EXPR(tmp);
                 ASR::ttype_t* a_newunit_type = expr_type(a_newunit);
-                if( a_newunit_type->type != ASR::ttypeType::Integer && 
-                    a_newunit_type->type != ASR::ttypeType::IntegerPointer ) {
-                        throw SemanticError("`newunit`/`unit` must be of type, Integer or IntegerPointer", x.base.base.loc);
+                if( ( m_arg_str == std::string("newunit") && 
+                      a_newunit->type != ASR::exprType::Var ) || 
+                    ( a_newunit_type->type != ASR::ttypeType::Integer && 
+                    a_newunit_type->type != ASR::ttypeType::IntegerPointer ) ) {
+                        throw SemanticError("`newunit`/`unit` must be a variable of type, Integer or IntegerPointer", x.base.base.loc);
                 }
             } else if( m_arg_str == std::string("file") ) {
                 if( a_filename != nullptr ) {
@@ -1782,7 +1784,7 @@ public:
                 ASR::ttype_t* a_newunit_type = expr_type(a_unit);
                 if( a_newunit_type->type != ASR::ttypeType::Integer && 
                     a_newunit_type->type != ASR::ttypeType::IntegerPointer ) {
-                        throw SemanticError("`newunit`/`unit` must be of type, Integer or IntegerPointer", x.base.base.loc);
+                        throw SemanticError("`unit` must be of type, Integer or IntegerPointer", x.base.base.loc);
                 }
             } else if( m_arg_str == std::string("iostat") ) {
                 if( a_iostat != nullptr ) {
@@ -1792,9 +1794,10 @@ public:
                 this->visit_expr(*kwarg.m_value);
                 a_iostat = EXPR(tmp);
                 ASR::ttype_t* a_iostat_type = expr_type(a_iostat);
-                if( a_iostat_type->type != ASR::ttypeType::Integer && 
-                    a_iostat_type->type != ASR::ttypeType::IntegerPointer ) {
-                        throw SemanticError("`iostat` must be of type, Integer or IntegerPointer", x.base.base.loc);
+                if( a_iostat->type != ASR::exprType::Var || 
+                    ( a_iostat_type->type != ASR::ttypeType::Integer && 
+                      a_iostat_type->type != ASR::ttypeType::IntegerPointer ) ) {
+                        throw SemanticError("`iostat` must be a variable of type, Integer or IntegerPointer", x.base.base.loc);
                 }
             } else if( m_arg_str == std::string("iomsg") ) {
                 if( a_iomsg != nullptr ) {
@@ -1804,8 +1807,9 @@ public:
                 this->visit_expr(*kwarg.m_value);
                 a_iomsg = EXPR(tmp);
                 ASR::ttype_t* a_iomsg_type = expr_type(a_iomsg);
-                if( a_iomsg_type->type != ASR::ttypeType::Character && 
-                    a_iomsg_type->type != ASR::ttypeType::CharacterPointer ) {
+                if( a_iomsg->type != ASR::exprType::Var || 
+                   ( a_iomsg_type->type != ASR::ttypeType::Character && 
+                    a_iomsg_type->type != ASR::ttypeType::CharacterPointer ) ) {
                         throw SemanticError("`iomsg` must be of type, Character or CharacterPointer", x.base.base.loc);
                     }
             } else if( m_arg_str == std::string("status") ) {
@@ -1898,8 +1902,9 @@ public:
                 this->visit_expr(*kwarg.m_value);
                 a_iostat = EXPR(tmp);
                 ASR::ttype_t* a_iostat_type = expr_type(a_iostat);
-                if( a_iostat_type->type != ASR::ttypeType::Integer && 
-                    a_iostat_type->type != ASR::ttypeType::IntegerPointer ) {
+                if( a_iostat->type != ASR::exprType::Var || 
+                    ( a_iostat_type->type != ASR::ttypeType::Integer && 
+                      a_iostat_type->type != ASR::ttypeType::IntegerPointer ) ) {
                         throw SemanticError("`iostat` must be of type, Integer or IntegerPointer", loc);
                 }
             } else if( m_arg_str == std::string("iomsg") ) {
@@ -1910,8 +1915,9 @@ public:
                 this->visit_expr(*kwarg.m_value);
                 a_iomsg = EXPR(tmp);
                 ASR::ttype_t* a_iomsg_type = expr_type(a_iomsg);
-                if( a_iomsg_type->type != ASR::ttypeType::Character && 
-                    a_iomsg_type->type != ASR::ttypeType::CharacterPointer ) {
+                if( a_iomsg->type != ASR::exprType::Var || 
+                   ( a_iomsg_type->type != ASR::ttypeType::Character && 
+                     a_iomsg_type->type != ASR::ttypeType::CharacterPointer ) ) {
                         throw SemanticError("`iomsg` must be of type, Character or CharacterPointer", loc);
                     }
             } else if( m_arg_str == std::string("id") ) {
@@ -1922,8 +1928,8 @@ public:
                 this->visit_expr(*kwarg.m_value);
                 a_id = EXPR(tmp);
                 ASR::ttype_t* a_status_type = expr_type(a_id);
-                if( a_status_type->type != ASR::ttypeType::Integer && 
-                    a_status_type->type != ASR::ttypeType::IntegerPointer ) {
+                if( a_status_type->type != ASR::ttypeType::Character && 
+                    a_status_type->type != ASR::ttypeType::CharacterPointer ) {
                         throw SemanticError("`status` must be of type, Character or CharacterPointer", loc);
                 }
             }
