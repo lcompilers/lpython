@@ -1837,10 +1837,10 @@ public:
     }
 
     void create_read_write_ASR_node(const AST::stmt_t& read_write_stmt, AST::stmtType _type) {
-        int64_t m_label;
-        AST::argstar_t* m_args; size_t n_args;
-        AST::kw_argstar_t* m_kwargs; size_t n_kwargs; 
-        AST::expr_t** m_values; size_t n_values;
+        int64_t m_label = -1;
+        AST::argstar_t* m_args = nullptr; size_t n_args = 0;
+        AST::kw_argstar_t* m_kwargs = nullptr; size_t n_kwargs = 0; 
+        AST::expr_t** m_values = nullptr; size_t n_values = 0;
         const Location& loc = read_write_stmt.base.loc;
         if( _type == AST::stmtType::Write ) {
             AST::Write_t* w = (AST::Write_t*)(&read_write_stmt);
