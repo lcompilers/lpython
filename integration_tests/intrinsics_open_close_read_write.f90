@@ -17,7 +17,7 @@ open(unit=u_ptr, file='data.dat', status='replace')
 do i = 1, 100  
     write(u, '(10F8.2)') x(i), y(i)   
 end do  
-close(1, err=999, iomsg=msg, iostat=u)
+close(1, ERR=999, iomsg=msg, iostat=u)
 
 999 open (2, file='data.dat', status='old')
 do i = 1, 100  

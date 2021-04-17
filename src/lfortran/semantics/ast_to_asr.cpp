@@ -1704,8 +1704,6 @@ public:
         for( std::uint32_t i = 0; i < x.n_kwargs; i++ ) {
             AST::keyword_t kwarg = x.m_kwargs[i];
             std::string m_arg_str(kwarg.m_arg);
-            std::transform(m_arg_str.begin(), m_arg_str.end(), m_arg_str.begin(), 
-                           [](unsigned char c){ return std::tolower(c); }); // correct
             if( m_arg_str == std::string("newunit") || 
                 m_arg_str == std::string("unit") ) {
                 if( a_newunit != nullptr ) {
@@ -1769,8 +1767,6 @@ public:
         for( std::uint32_t i = 0; i < x.n_kwargs; i++ ) {
             AST::keyword_t kwarg = x.m_kwargs[i];
             std::string m_arg_str(kwarg.m_arg);
-            std::transform(m_arg_str.begin(), m_arg_str.end(), m_arg_str.begin(), 
-                           [](unsigned char c){ return std::tolower(c); }); // correct
             if( m_arg_str == std::string("unit") ) {
                 if( a_unit != nullptr ) {
                     throw SemanticError(R"""(Duplicate value of `unit` found, `unit` has already been specified via argument or keyword arguments)""",
@@ -1879,8 +1875,6 @@ public:
         for( std::uint32_t i = 0; i < n_kwargs; i++ ) {
             AST::kw_argstar_t kwarg = m_kwargs[i];
             std::string m_arg_str(kwarg.m_arg);
-            std::transform(m_arg_str.begin(), m_arg_str.end(), m_arg_str.begin(), 
-                           [](unsigned char c){ return std::tolower(c); }); // correct
             if( m_arg_str == std::string("unit") ) {
                 if( a_unit != nullptr ) {
                     throw SemanticError(R"""(Duplicate value of `unit` found, `unit` has already been specified via argument or keyword arguments)""",
