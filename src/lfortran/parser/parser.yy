@@ -265,6 +265,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> expr_list
 %type <vec_ast> expr_list_opt
 %type <ast> id
+%type <ast> id_opt
 %type <vec_ast> id_list
 %type <vec_ast> id_list_opt
 %type <ast> script_unit
@@ -1413,7 +1414,7 @@ return_statement
     ;
 
 cycle_statement
-    : KW_CYCLE id_opt { $$ = CYCLE(@$); }
+    : KW_CYCLE id_opt { $$ = CYCLE($2, @$); }
     ;
 
 continue_statement
@@ -1548,8 +1549,8 @@ id_list
 
 // id?
 id_opt
-    : id
-    | %empty
+    : id { $$ = $1; }
+    | %empty { $$ = nullptr; }
     ;
 
 

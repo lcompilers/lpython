@@ -99,7 +99,7 @@ stmt
     | Backspace(int label, expr* args, keyword* kwargs)
     | Close(int label, expr* args, keyword* kwargs)
     | Continue(int label)
-    | Cycle(int label)
+    | Cycle(int label, identifier? stmt_name)
     | Deallocate(int label, fnarg* args)
     | ErrorStop(int label, expr? code)
     | Exit(int label)
