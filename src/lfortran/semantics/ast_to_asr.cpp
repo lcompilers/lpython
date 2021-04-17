@@ -1545,6 +1545,7 @@ public:
                     std::string sym = mvar->m_name;
                     current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(var);
                 } else {
+                    std::cout<<item.first<<std::endl;
                     throw LFortranException("Only function / subroutine implemented");
                 }
             }
@@ -1628,6 +1629,26 @@ public:
                             x.base.base.loc);
                     }
                     ASR::Variable_t *mv = ASR::down_cast<ASR::Variable_t>(t);
+                    // `mv` is the Variable in a module. Now we construct
+                    // an ExternalSymbol that points to it.
+                    Str name;
+                    name.from_str(al, local_sym);
+                    char *cname = name.c_str(al);
+                    ASR::asr_t *v = ASR::make_ExternalSymbol_t(
+                        al, mv->base.base.loc,
+                        /* a_symtab */ current_scope,
+                        /* a_name */ cname,
+                        (ASR::symbol_t*)mv,
+                        m->m_name, mv->m_name,
+                        dflt_access
+                        );
+                    current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(v);
+                } else if( ASR::is_a<ASR::DerivedType_t>(*t) ) {
+                    if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
+                        throw SemanticError("Derived type already defined",
+                            x.base.base.loc);
+                    }
+                    ASR::DerivedType_t *mv = ASR::down_cast<ASR::DerivedType_t>(t);
                     // `mv` is the Variable in a module. Now we construct
                     // an ExternalSymbol that points to it.
                     Str name;
