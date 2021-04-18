@@ -153,6 +153,7 @@ RUN(NAME intrinsics_03 LABELS gfortran llvm) # cos
 RUN(NAME intrinsics_04 LABELS gfortran llvm) # tan
 RUN(NAME intrinsics_05 LABELS gfortran llvm) # hyperbolics
 RUN(NAME intrinsics_06 LABELS gfortran llvm) # inverse trignometric
+RUN(NAME intrinsics_open_close_read_write LABELS gfortran)
 
 RUN(NAME parameter_01 LABELS gfortran)
 RUN(NAME parameter_02 LABELS gfortran)

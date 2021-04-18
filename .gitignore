@@ -95,6 +95,8 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+*.dat
+*.mod
 MANIFEST
 
 ## PyTest
