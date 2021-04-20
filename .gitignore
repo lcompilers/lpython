@@ -113,4 +113,5 @@ MANIFEST
 output
 *.o
 *.out
+*.mod
 /.ccls-cache/

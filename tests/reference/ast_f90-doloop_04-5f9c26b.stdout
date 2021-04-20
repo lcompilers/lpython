@@ -5,7 +5,7 @@ j = 0
 a: do i = 1, 10
     j = (j) + (i)
     if ((i)==(2)) then
-        exit
+        exit a
     end if
 end do a
 if ((j)/=(3)) then
@@ -15,7 +15,7 @@ j = 0
 b: do i = 1, 10, 2
     j = (j) + (i)
     if ((i)==(3)) then
-        exit
+        exit b
     end if
 end do b
 if ((j)/=(4)) then
@@ -26,7 +26,7 @@ i = 1
 c: do
     j = (j) + (i)
     if ((i)==(2)) then
-        exit
+        exit c
     end if
     i = (i) + (1)
 end do c
