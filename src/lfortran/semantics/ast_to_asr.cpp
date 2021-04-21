@@ -2409,10 +2409,12 @@ public:
         if (!v) {
             throw SemanticError("Variable '" + dt_name + "' not declared", loc);
         }
-        if (ASR::is_a<ASR::DerivedType_t>(*v)) {
-            throw SemanticError("DerivedType variable '" + dt_name + "%"
-                + var_name + "' access is not implemented yet", loc);
-            //return ASR::make_Var_t(al, loc, v);
+        ASR::Variable_t* v_variable = ((ASR::Variable_t*)(&(v->base)));
+        if ( v_variable->m_type->type == ASR::ttypeType::Derived || 
+             v_variable->m_type->type == ASR::ttypeType::DerivedPointer ) {
+            // throw SemanticError("DerivedType variable '" + dt_name + "%"
+            //     + var_name + "' access is not implemented yet", loc);
+            return ASR::make_DerivedRef_t(al, loc, v, );
         } else {
             throw SemanticError("Variable '" + dt_name + "' is not a derived type", loc);
         }
