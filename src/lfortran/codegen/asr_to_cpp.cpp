@@ -6,6 +6,7 @@
 #include <lfortran/codegen/asr_to_cpp.h>
 #include <lfortran/exception.h>
 #include <lfortran/asr_utils.h>
+#include <lfortran/string_utils.h>
 
 
 namespace LFortran {
@@ -106,6 +107,7 @@ public:
     int indentation_spaces;
     bool last_unary_plus;
     bool last_binary_plus;
+    bool intrinsic_module = false;
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         // All loose statements must be converted to a function, so the items
@@ -137,6 +139,21 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         // TODO: We need to pre-declare all functions first, then generate code
         // Otherwise some function might not be found.
 
+        {
+            // Process intrinsic modules in the right order
+            std::vector<std::string> build_order
+                = determine_module_dependencies(x);
+            for (auto &item : build_order) {
+                LFORTRAN_ASSERT(x.m_global_scope->scope.find(item)
+                    != x.m_global_scope->scope.end());
+                if (startswith(item, "lfortran_intrinsic")) {
+                    ASR::symbol_t *mod = x.m_global_scope->scope[item];
+                    visit_symbol(*mod);
+                    unit_src += src;
+                }
+            }
+        }
+
         // Process procedures first:
         for (auto &item : x.m_global_scope->scope) {
             if (is_a<ASR::Function_t>(*item.second)
@@ -152,9 +169,11 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         for (auto &item : build_order) {
             LFORTRAN_ASSERT(x.m_global_scope->scope.find(item)
                 != x.m_global_scope->scope.end());
-            ASR::symbol_t *mod = x.m_global_scope->scope[item];
-            visit_symbol(*mod);
+            if (!startswith(item, "lfortran_intrinsic")) {
+                ASR::symbol_t *mod = x.m_global_scope->scope[item];
+                visit_symbol(*mod);
                 unit_src += src;
+            }
         }
 
         // Then the main program:
@@ -169,21 +188,27 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     }
 
     void visit_Module(const ASR::Module_t &x) {
+        if (startswith(x.m_name, "lfortran_intrinsic_")) {
+            intrinsic_module = true;
+        } else {
+            intrinsic_module = false;
+        }
         // Generate code for nested subroutines and functions first:
         std::string contains;
         for (auto &item : x.m_symtab->scope) {
             if (is_a<ASR::Subroutine_t>(*item.second)) {
                 ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
                 visit_Subroutine(*s);
-                contains += src + "\n";
+                contains += src;
             }
             if (is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
                 visit_Function(*s);
-                contains += src + "\n";
+                contains += src;
             }
         }
         src = contains;
+        intrinsic_module = false;
     }
 
     void visit_Program(const ASR::Program_t &x) {
@@ -193,12 +218,12 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             if (is_a<ASR::Subroutine_t>(*item.second)) {
                 ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
                 visit_Subroutine(*s);
-                contains += src + "\n";
+                contains += src;
             }
             if (is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
                 visit_Function(*s);
-                contains += src + "\n";
+                contains += src;
             }
         }
 
@@ -274,13 +299,13 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             }
         }
 
-        sub += "{\n" + decl + body + "}\n";
+        sub += "{\n" + decl + body + "}\n\n";
         src = sub;
         indentation_level -= 1;
     }
 
     void visit_Function(const ASR::Function_t &x) {
-        if (std::string(x.m_name) == "size" && x.n_body == 0) {
+        if (std::string(x.m_name) == "size" && intrinsic_module) {
             // Intrinsic function `size`
             SymbolInfo s;
             s.intrinsic_function = true;
@@ -340,6 +365,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             sub[sub.size()-1] = ';';
             sub += "\n";
         }
+        sub += "\n";
         src = sub;
         indentation_level -= 1;
     }
@@ -348,7 +374,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(
             symbol_get_past_external(x.m_name));
         std::string fn_name = fn->m_name;
-        if (sym_info[get_hash((ASR::asr_t*)x.m_name)].intrinsic_function) {
+        if (sym_info[get_hash((ASR::asr_t*)fn)].intrinsic_function) {
             if (fn_name == "size") {
                 LFORTRAN_ASSERT(x.n_args > 0);
                 visit_expr(*x.m_args[0]);
@@ -368,7 +394,6 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                 throw CodeGenError("Intrinsic function '" + fn_name
                         + "' not implemented");
             }
-
         } else {
             std::string args;
             for (size_t i=0; i<x.n_args; i++) {
