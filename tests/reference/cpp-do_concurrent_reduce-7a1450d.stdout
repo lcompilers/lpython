@@ -21,3 +21,4 @@ void sum_reduce(const Kokkos::View<const float*> &a, float &s)
         s = s + a[i-1];
     });
 }
+
