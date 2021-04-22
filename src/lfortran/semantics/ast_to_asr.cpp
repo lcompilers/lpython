@@ -2213,7 +2213,8 @@ public:
         ASR::expr_t *target = EXPR(tmp);
         ASR::ttype_t *target_type = expr_type(target);
         if( target->type != ASR::exprType::Var && 
-            target->type != ASR::exprType::ArrayRef )
+            target->type != ASR::exprType::ArrayRef && 
+            target->type != ASR::exprType::DerivedRef )
         {
             throw SemanticError(
                 "The LHS of assignment can only be a variable or an array reference",
@@ -2227,7 +2228,7 @@ public:
         if (target->type == ASR::exprType::Var) {
 
             ImplicitCastRules::set_converted_value(al, x.base.base.loc, &value, 
-                                                 value_type, target_type);
+                                                    value_type, target_type);
 
         }
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value);
@@ -2412,9 +2413,27 @@ public:
         ASR::Variable_t* v_variable = ((ASR::Variable_t*)(&(v->base)));
         if ( v_variable->m_type->type == ASR::ttypeType::Derived || 
              v_variable->m_type->type == ASR::ttypeType::DerivedPointer ) {
-            // throw SemanticError("DerivedType variable '" + dt_name + "%"
-            //     + var_name + "' access is not implemented yet", loc);
-            return ASR::make_DerivedRef_t(al, loc, v, );
+            ASR::ttype_t* v_type = v_variable->m_type;
+            ASR::Derived_t* der = (ASR::Derived_t*)(&(v_type->base));
+            ASR::DerivedType_t* der_type;
+            if( der->m_derived_type->type == ASR::symbolType::ExternalSymbol ) {
+                ASR::ExternalSymbol_t* der_ext = (ASR::ExternalSymbol_t*)(&(der->m_derived_type->base));
+                ASR::symbol_t* der_sym = der_ext->m_external;
+                if( der_sym == nullptr ) {
+                    throw SemanticError("'" + std::string(der_ext->m_name) + "' isn't a Derived type.", loc);
+                } else {
+                    der_type = (ASR::DerivedType_t*)(&(der_sym->base));
+                }
+            } else {
+                der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
+            }
+            ASR::symbol_t* member = der_type->m_symtab->resolve_symbol(var_name);
+            if( member != nullptr ) {
+                ASR::Variable_t* member_variable = ((ASR::Variable_t*)(&(member->base)));
+                return ASR::make_DerivedRef_t(al, loc, v, member, member_variable->m_type);
+            } else {
+                throw SemanticError("Variable '" + dt_name + "' doesn't have any member named, '" + var_name + "'.", loc);
+            }
         } else {
             throw SemanticError("Variable '" + dt_name + "' is not a derived type", loc);
         }
