@@ -454,8 +454,6 @@ public:
         if( complex_type == nullptr ) {
             complex_type = complex_type_4;
         }
-        std::cout<<c->getType()->isStructTy()<<" ";
-        std::cout<<c->getType()->isPointerTy()<<std::endl;
         if( c->getType()->isPointerTy() ) {
             c = builder->CreateLoad(c);
         }
@@ -1448,8 +1446,18 @@ public:
                    x.m_type->type == ASR::ttypeType::ComplexPointer) {
             llvm::Type *type;
             int a_kind;
-            a_kind = down_cast<ASR::Complex_t>(x.m_type)->m_kind;
+            if( x.m_type->type == ASR::ttypeType::ComplexPointer ) {
+                a_kind = down_cast<ASR::ComplexPointer_t>(x.m_type)->m_kind;
+            } else {
+                a_kind = down_cast<ASR::Complex_t>(x.m_type)->m_kind;
+            }
             type = getComplexType(a_kind);
+            if( left_val->getType()->isPointerTy() ) {
+                left_val = builder->CreateLoad(left_val);
+            }
+            if( right_val->getType()->isPointerTy() ) {
+                right_val = builder->CreateLoad(right_val);
+            }
             switch (x.m_op) {
                 case ASR::binopType::Add: {
                     tmp = lfortran_complex_bin_op(left_val, right_val, "_lfortran_complex_add", type);
@@ -1646,14 +1654,12 @@ public:
 
     inline void fetch_var(ASR::Variable_t* x) {
         switch( x->m_type->type ) {
-            case ASR::ttypeType::IntegerPointer: {
+            case ASR::ttypeType::IntegerPointer:
+            case ASR::ttypeType::RealPointer:
+            case ASR::ttypeType::ComplexPointer: {
                 fetch_ptr(x);
                 break;
             }
-            case ASR::ttypeType::RealPointer: {
-                fetch_ptr(x);
-            }
-            case ASR::ttypeType::ComplexPointer:
             case ASR::ttypeType::CharacterPointer:
             case ASR::ttypeType::LogicalPointer:
             case ASR::ttypeType::DerivedPointer: {
@@ -1669,7 +1675,6 @@ public:
     void visit_Var(const ASR::Var_t &x) {
         ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(
                 symbol_get_past_external(x.m_v));
-                std::cout<<v->m_name<<std::endl;
         fetch_var(v);
     }
 
@@ -1938,7 +1943,6 @@ public:
                        t->type == ASR::ttypeType::ComplexPointer) {
                 int a_kind = ((ASR::Complex_t*)(&(t->base)))->m_kind;
                 llvm::Type *type, *complex_type;
-                std::cout<<tmp->getType()->getTypeID()<<std::endl;
                 switch( a_kind ) {
                     case 4 : {
                         // Cast float to double as a workaround for the fact that
@@ -1962,7 +1966,6 @@ public:
                     }
                 }
                 llvm::Value *d;
-                std::cout<<tmp->getType()->getTypeID()<<std::endl;
                 d = builder->CreateFPExt(complex_re(tmp, complex_type), type);
                 args.push_back(d);
                 d = builder->CreateFPExt(complex_im(tmp, complex_type), type);
