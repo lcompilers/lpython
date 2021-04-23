@@ -51,6 +51,8 @@ struct Vec {
     // reserve() must be called before calling push_back()
     void reserve(Allocator &al, size_t max) {
         n = 0;
+        if (max == 0) max++;
+        LFORTRAN_ASSERT(max > 0)
         this->max = max;
         p = al.allocate<T>(max);
 #ifdef WITH_LFORTRAN_ASSERT
@@ -96,6 +98,16 @@ struct Vec {
         this->p = p;
         this->n = n;
         this->max = n;
+#ifdef WITH_LFORTRAN_ASSERT
+        reserve_called = vec_called_const;
+#endif
+    }
+
+    void from_pointer_n_copy(Allocator &al, T* p, size_t n) {
+        this->reserve(al, n);
+        for (size_t i=0; i<n; i++) {
+            this->push_back(al, p[i]);
+        }
     }
 
     VecIterator<T> begin() const {

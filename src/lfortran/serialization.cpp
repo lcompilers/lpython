@@ -385,6 +385,10 @@ public:
     }
 
     void visit_ExternalSymbol(const ExternalSymbol_t &x) {
+        if (x.m_external != nullptr) {
+            // Nothing to do, the external symbol is already resolved
+            return;
+        }
         LFORTRAN_ASSERT(x.m_external == nullptr);
         std::string module_name = x.m_module_name;
         std::string original_name = x.m_original_name;

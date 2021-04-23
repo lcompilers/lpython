@@ -581,6 +581,146 @@ class CommonVisitorMethods {
 
 };
 
+std::map<std::string, std::string> intrinsic_procedures = {
+        {"kind", "lfortran_intrinsic_kind"},
+        {"selected_int_kind", "lfortran_intrinsic_kind"},
+        {"selected_real_kind", "lfortran_intrinsic_kind"},
+        {"size", "lfortran_intrinsic_array"},
+    };
+
+std::string read_file(const std::string &filename)
+{
+    std::ifstream ifs(filename.c_str(), std::ios::in | std::ios::binary
+            | std::ios::ate);
+
+    std::ifstream::pos_type filesize = ifs.tellg();
+    if (filesize < 0) return std::string();
+
+    ifs.seekg(0, std::ios::beg);
+
+    std::vector<char> bytes(filesize);
+    ifs.read(&bytes[0], filesize);
+
+    return std::string(&bytes[0], filesize);
+}
+
+bool present(Vec<char*> &v, const char* name) {
+    for (auto &a : v) {
+        if (std::string(a) == std::string(name)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+ASR::Module_t* extract_module(const ASR::TranslationUnit_t &m) {
+    LFORTRAN_ASSERT(m.m_global_scope->scope.size()== 1);
+    for (auto &a : m.m_global_scope->scope) {
+        LFORTRAN_ASSERT(ASR::is_a<ASR::Module_t>(*a.second));
+        return ASR::down_cast<ASR::Module_t>(a.second);
+    }
+    throw LFortranException("ICE: Module not found");
+}
+
+ASR::TranslationUnit_t* find_and_load_module(
+        Allocator &al,
+        const std::string &msym,
+        SymbolTable &symtab, bool intrinsic) {
+    std::string modfilename = msym + ".mod";
+    if (intrinsic) {
+        std::string rl_path = get_runtime_library_dir();
+        modfilename = rl_path + "/" + modfilename;
+    }
+    std::string modfile = read_file(modfilename);
+    if (modfile == "") return nullptr;
+    ASR::TranslationUnit_t *asr = load_modfile(al, modfile, false,
+        symtab);
+    return asr;
+}
+
+ASR::Module_t* load_module(
+    Allocator &al,
+    SymbolTable *symtab,
+    const std::string &module_name,
+    const Location &loc, bool intrinsic) {
+    LFORTRAN_ASSERT(symtab);
+    if (symtab->scope.find(module_name) != symtab->scope.end()) {
+        ASR::symbol_t *m = symtab->scope[module_name];
+        if (ASR::is_a<ASR::Module_t>(*m)) {
+            return ASR::down_cast<ASR::Module_t>(m);
+        } else {
+            throw SemanticError("The symbol '" + module_name
+                + "' is not a module", loc);
+        }
+    }
+    LFORTRAN_ASSERT(symtab->parent == nullptr);
+    ASR::TranslationUnit_t *mod1 = find_and_load_module(al, module_name,
+            *symtab, intrinsic);
+    if (mod1 == nullptr) {
+        throw SemanticError("Module '" + module_name + "' not declared in the current source and the modfile was not found",
+            loc);
+    }
+    ASR::Module_t *mod2 = extract_module(*mod1);
+    symtab->scope[module_name] = (ASR::symbol_t*)mod2;
+    mod2->m_symtab->parent = symtab;
+    mod2->m_loaded_from_mod = true;
+    LFORTRAN_ASSERT(symtab->resolve_symbol(module_name));
+
+    // Create a temporary TranslationUnit just for fixing the symbols
+    ASR::TranslationUnit_t *tu
+        = ASR::down_cast2<ASR::TranslationUnit_t>(ASR::make_TranslationUnit_t(al, loc,
+            symtab, nullptr, 0));
+
+    // Load any dependent modules recursively
+    bool rerun = true;
+    while (rerun) {
+        rerun = false;
+        std::vector<std::string> modules_list
+            = determine_module_dependencies(*tu);
+        for (auto &item : modules_list) {
+            if (symtab->scope.find(item)
+                    == symtab->scope.end()) {
+                // A module that was loaded requires to load another
+                // module
+
+                // This is not very robust, we should store that information
+                // in the ASR itself, or encode in the name in a robust way,
+                // such as using `module_name@intrinsic`:
+                bool is_intrinsic = startswith(item, "lfortran_intrinsic");
+                ASR::TranslationUnit_t *mod1 = find_and_load_module(al,
+                        item,
+                        *symtab, is_intrinsic);
+                if (mod1 == nullptr) {
+                    throw SemanticError("Module '" + item + "' modfile was not found",
+                        loc);
+                }
+                ASR::Module_t *mod2 = extract_module(*mod1);
+                symtab->scope[item] = (ASR::symbol_t*)mod2;
+                mod2->m_symtab->parent = symtab;
+                mod2->m_loaded_from_mod = true;
+                rerun = true;
+            }
+        }
+    }
+
+    // Check that all modules are included in ASR now
+    std::vector<std::string> modules_list
+        = determine_module_dependencies(*tu);
+    for (auto &item : modules_list) {
+        if (symtab->scope.find(item) == symtab->scope.end()) {
+            throw SemanticError("ICE: Module '" + item + "' modfile was not found, but should have",
+                loc);
+        }
+    }
+
+    // Fix all external symbols
+    fix_external_symbols(*tu, *symtab);
+    LFORTRAN_ASSERT(asr_verify(*tu));
+
+    return mod2;
+}
+
+
 class SymbolTableVisitor : public AST::BaseVisitor<SymbolTableVisitor>
 {
 public:
@@ -594,11 +734,6 @@ public:
     Vec<char*> current_module_dependencies;
     bool in_module=false;
     std::vector<std::string> current_procedure_args;
-    std::map<std::string, std::string> intrinsic_procedures = {
-        {"kind", "lfortran_intrinsic_kind"},
-        {"selected_int_kind", "lfortran_intrinsic_kind"},
-        {"selected_real_kind", "lfortran_intrinsic_kind"},
-    };
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
         : al{al}, current_scope{symbol_table} { }
@@ -1241,8 +1376,8 @@ public:
             if (intrinsic_procedures.find(remote_sym)
                         != intrinsic_procedures.end()) {
                 std::string module_name = intrinsic_procedures[remote_sym];
-                ASR::Module_t *m = load_module(module_name,
-                    x.base.base.loc, true);
+                ASR::Module_t *m = load_module(al, current_scope->parent,
+                    module_name, x.base.base.loc, true);
 
                 ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
                 if (!t) {
@@ -1348,132 +1483,6 @@ public:
         }
     }
 
-    std::string read_file(const std::string &filename)
-    {
-        std::ifstream ifs(filename.c_str(), std::ios::in | std::ios::binary
-                | std::ios::ate);
-
-        std::ifstream::pos_type filesize = ifs.tellg();
-        if (filesize < 0) return std::string();
-
-        ifs.seekg(0, std::ios::beg);
-
-        std::vector<char> bytes(filesize);
-        ifs.read(&bytes[0], filesize);
-
-        return std::string(&bytes[0], filesize);
-    }
-
-    ASR::TranslationUnit_t* find_and_load_module(const std::string &msym,
-            SymbolTable &symtab, bool intrinsic) {
-        std::string modfilename = msym + ".mod";
-        if (intrinsic) {
-            std::string rl_path = get_runtime_library_dir();
-            modfilename = rl_path + "/" + modfilename;
-        }
-        std::string modfile = read_file(modfilename);
-        if (modfile == "") return nullptr;
-        ASR::TranslationUnit_t *asr = load_modfile(al, modfile, false,
-            symtab);
-        return asr;
-    }
-
-    ASR::Module_t* extract_module(const ASR::TranslationUnit_t &m) {
-        LFORTRAN_ASSERT(m.m_global_scope->scope.size()== 1);
-        for (auto &a : m.m_global_scope->scope) {
-            LFORTRAN_ASSERT(ASR::is_a<ASR::Module_t>(*a.second));
-            return ASR::down_cast<ASR::Module_t>(a.second);
-        }
-        throw LFortranException("ICE: Module not found");
-    }
-
-    bool present(Vec<char*> &v, const char* name) {
-        for (auto &a : v) {
-            if (std::string(a) == std::string(name)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    ASR::Module_t* load_module(const std::string &module_name,
-        const Location &loc, bool intrinsic) {
-        if (current_scope->parent->scope.find(module_name)
-                != current_scope->parent->scope.end()) {
-            ASR::symbol_t *m = current_scope->parent->scope[module_name];
-            if (ASR::is_a<ASR::Module_t>(*m)) {
-                return ASR::down_cast<ASR::Module_t>(m);
-            } else {
-                throw SemanticError("The symbol '" + module_name
-                    + "' is not a module", loc);
-            }
-        }
-        ASR::TranslationUnit_t *mod1 = find_and_load_module(module_name,
-                *current_scope->parent, intrinsic);
-        if (mod1 == nullptr) {
-            throw SemanticError("Module '" + module_name + "' not declared in the current source and the modfile was not found",
-                loc);
-        }
-        ASR::Module_t *mod2 = extract_module(*mod1);
-        current_scope->parent->scope[module_name] = (ASR::symbol_t*)mod2;
-        mod2->m_symtab->parent = current_scope->parent;
-        mod2->m_loaded_from_mod = true;
-        LFORTRAN_ASSERT(current_scope->parent->resolve_symbol(module_name));
-
-        // Create a temporary TranslationUnit just for fixing the symbols
-        ASR::TranslationUnit_t *tu
-            = ASR::down_cast2<ASR::TranslationUnit_t>(ASR::make_TranslationUnit_t(al, loc,
-                current_scope->parent, nullptr, 0));
-
-        // Load any dependent modules recursively
-        bool rerun = true;
-        while (rerun) {
-            rerun = false;
-            std::vector<std::string> modules_list
-                = determine_module_dependencies(*tu);
-            for (auto &item : modules_list) {
-                if (current_scope->parent->scope.find(item)
-                        == current_scope->parent->scope.end()) {
-                    // A module that was loaded requires to load another
-                    // module
-
-                    // This is not very robust, we should store that information
-                    // in the ASR itself, or encode in the name in a robust way,
-                    // such as using `module_name@intrinsic`:
-                    bool is_intrinsic = startswith(item, "lfortran_intrinsic");
-                    ASR::TranslationUnit_t *mod1 = find_and_load_module(item,
-                            *current_scope->parent, is_intrinsic);
-                    if (mod1 == nullptr) {
-                        throw SemanticError("Module '" + item + "' modfile was not found",
-                            loc);
-                    }
-                    ASR::Module_t *mod2 = extract_module(*mod1);
-                    current_scope->parent->scope[item] = (ASR::symbol_t*)mod2;
-                    mod2->m_symtab->parent = current_scope->parent;
-                    mod2->m_loaded_from_mod = true;
-                    rerun = true;
-                }
-            }
-        }
-
-        // Check that all modules are included in ASR now
-        std::vector<std::string> modules_list
-            = determine_module_dependencies(*tu);
-        for (auto &item : modules_list) {
-            if (current_scope->parent->scope.find(item)
-                    == current_scope->parent->scope.end()) {
-                    throw SemanticError("ICE: Module '" + item + "' modfile was not found, but should have",
-                        loc);
-            }
-        }
-
-        // Fix all external symbols
-        fix_external_symbols(*tu, *current_scope->parent);
-        LFORTRAN_ASSERT(asr_verify(*tu));
-
-        return mod2;
-    }
-
     void visit_Use(const AST::Use_t &x) {
         std::string msym = x.m_module;
         if (!present(current_module_dependencies, x.m_module)) {
@@ -1481,7 +1490,8 @@ public:
         }
         ASR::symbol_t *t = current_scope->parent->resolve_symbol(msym);
         if (!t) {
-            t = (ASR::symbol_t*)load_module(msym, x.base.base.loc, false);
+            t = (ASR::symbol_t*)load_module(al, current_scope->parent,
+                msym, x.base.base.loc, false);
         }
         if (!ASR::is_a<ASR::Module_t>(*t)) {
             throw SemanticError("The symbol '" + msym + "' must be a module",
@@ -1669,6 +1679,7 @@ public:
     Allocator &al;
     ASR::asr_t *asr, *tmp;
     SymbolTable *current_scope;
+    ASR::Module_t *current_module=nullptr;
     BodyVisitor(Allocator &al, ASR::asr_t *unit) : al{al}, asr{unit} {}
 
     void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
@@ -2084,12 +2095,14 @@ public:
         ASR::symbol_t *t = current_scope->scope[std::string(x.m_name)];
         ASR::Module_t *v = ASR::down_cast<ASR::Module_t>(t);
         current_scope = v->m_symtab;
+        current_module = v;
 
         for (size_t i=0; i<x.n_contains; i++) {
             visit_program_unit(*x.m_contains[i]);
         }
 
         current_scope = old_scope;
+        current_module = nullptr;
         tmp = nullptr;
     }
 
@@ -2400,40 +2413,49 @@ public:
         std::string var_name = x.m_func;
         ASR::symbol_t *v = scope->resolve_symbol(var_name);
         if (!v) {
-            // TODO: add these to global scope by default ahead of time
-            if (to_lower(var_name) == "size") {
-                // Intrinsic function size(), add it to the global scope
-                ASR::TranslationUnit_t *unit = (ASR::TranslationUnit_t *)asr;
-                const char *fn_name_orig = "size";
-                char *fn_name = (char *)fn_name_orig;
-                SymbolTable *fn_scope =
-                    al.make_new<SymbolTable>(unit->m_global_scope);
-                ASR::ttype_t *type;
-                type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
-                ASR::asr_t *return_var = ASR::make_Variable_t(
-                    al, x.base.base.loc, fn_scope, fn_name, intent_return_var,
-                    nullptr, ASR::storage_typeType::Default, type,
-                    ASR::abiType::Source,
-                    ASR::Public);
-                fn_scope->scope[std::string(fn_name)] =
-                    ASR::down_cast<ASR::symbol_t>(return_var);
-                ASR::asr_t *return_var_ref = ASR::make_Var_t(
-                    al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(return_var));
-                ASR::asr_t *fn =
-                    ASR::make_Function_t(al, x.base.base.loc,
-                                       /* a_symtab */ fn_scope,
-                                       /* a_name */ fn_name,
-                                       /* a_args */ nullptr,
-                                       /* n_args */ 0,
-                                       /* a_body */ nullptr,
-                                       /* n_body */ 0,
-                                       /* a_return_var */ EXPR(return_var_ref),
-                                       ASR::abiType::Source,
-                                       ASR::Public);
-                std::string sym_name = fn_name;
-                unit->m_global_scope->scope[sym_name] =
-                    ASR::down_cast<ASR::symbol_t>(fn);
+            std::string remote_sym = to_lower(var_name);
+            if (intrinsic_procedures.find(remote_sym)
+                        != intrinsic_procedures.end()) {
+                std::string module_name = intrinsic_procedures[remote_sym];
+                bool shift_scope = false;
+                if (current_scope->parent->parent) {
+                    current_scope = current_scope->parent;
+                    shift_scope = true;
+                }
+                ASR::Module_t *m = load_module(al, current_scope->parent, module_name,
+                    x.base.base.loc, true);
+                if (shift_scope) current_scope = scope;
+
+                ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
+                if (!t) {
+                    throw SemanticError("The symbol '" + remote_sym
+                        + "' not found in the module '" + module_name + "'",
+                        x.base.base.loc);
+                }
+
+                ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
+                ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
+                    al, mfn->base.base.loc,
+                    /* a_symtab */ current_scope,
+                    /* a_name */ mfn->m_name,
+                    (ASR::symbol_t*)mfn,
+                    m->m_name, mfn->m_name,
+                    ASR::accessType::Private
+                    );
+                std::string sym = mfn->m_name;
+                current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
                 v = ASR::down_cast<ASR::symbol_t>(fn);
+                if (current_module) {
+                    // Add the module `m` to current module dependencies
+                    Vec<char*> vec;
+                    vec.from_pointer_n_copy(al, current_module->m_dependencies,
+                                current_module->n_dependencies);
+                    if (!present(vec, m->m_name)) {
+                        vec.push_back(al, m->m_name);
+                        current_module->m_dependencies = vec.p;
+                        current_module->n_dependencies = vec.size();
+                    }
+                }
             } else if (var_name == "present") {
                 // Intrinsic function present(), add it to the global scope
                 ASR::TranslationUnit_t *unit = (ASR::TranslationUnit_t *)asr;

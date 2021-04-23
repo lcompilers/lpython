@@ -4,7 +4,7 @@ use modules_08_b, only: b
 implicit none
 
 if (a() /= 3) error stop
-if (b() /= 5) error stop
+if (b() /= 9) error stop
 
 print *, "OK"
 

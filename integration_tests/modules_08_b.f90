@@ -6,7 +6,7 @@ public b
 contains
 
 integer function b()
-b = 5
+b = 5 + kind(.true.)
 end function
 
 end module

@@ -35,6 +35,10 @@ std::string get_runtime_library_dir()
     if (endswith(dirname, "src/bin")) {
         // Development version
         return dirname + "/../runtime";
+    } else if (endswith(dirname, "src/lfortran/tests") ||
+               endswith(dirname, "src\\lfortran\\tests")) {
+        // CTest Tests
+        return dirname + "/../../runtime";
     } else {
         // Installed version
         return dirname + "/../share/lfortran/lib";

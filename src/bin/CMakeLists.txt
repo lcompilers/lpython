@@ -44,6 +44,18 @@ add_custom_command(
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/lfortran --backend=cpp -c ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/lfortran_intrinsic_kind.f90 -o lfortran_intrinsic_kind.o
 )
 
+add_custom_command(
+    TARGET lfortran
+    POST_BUILD
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../runtime
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/lfortran --backend=cpp -c ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/lfortran_intrinsic_array.f90 -o lfortran_intrinsic_array.o
+)
+
+install(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_array.mod
+    DESTINATION share/lfortran/lib
+)
+
 # Ensure "Release" is not appended to the path on Windows:
 # https://stackoverflow.com/a/56201564/479532
 set_target_properties(lfortran PROPERTIES RUNTIME_OUTPUT_DIRECTORY $<0:>)
