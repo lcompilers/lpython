@@ -1545,8 +1545,7 @@ public:
                     std::string sym = mvar->m_name;
                     current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(var);
                 } else {
-                    std::cout<<item.first<<std::endl;
-                    throw LFortranException("Only function / subroutine implemented");
+                    throw LFortranException("'" + item.first + "' is not supported yet for declaring with use.");
                 }
             }
         } else {
@@ -1664,7 +1663,7 @@ public:
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(v);
                 } else {
-                    throw LFortranException("Only Subroutines, Functions and Variables supported in 'use'");
+                    throw LFortranException("Only Subroutines, Functions, Variables and Derived supported in 'use'");
                 }
             }
         }
