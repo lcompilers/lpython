@@ -646,6 +646,10 @@ filename = "../integration_tests/parameter_03.f90"
 asr = true
 
 [[test]]
+filename = "../integration_tests/parameter_04.f90"
+asr = true
+
+[[test]]
 filename = "do_concurrent1.f90"
 ast = true
 
@@ -845,6 +849,10 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "../integration_tests/intrinsics_open_close_read_write.f90"
+asr = true
+
+[[test]]
 filename = "../src/runtime/lfortran_intrinsic_math.f90"
 ast = true
 
@@ -957,3 +965,14 @@ filename = "../integration_tests/intent_01.f90"
 ast = true
 asr = true
 llvm = true
+
+[[test]]
+filename = "../integration_tests/nested_03.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/nested_04.f90"
+asr = true
+llvm = true
+

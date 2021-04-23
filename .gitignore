@@ -95,6 +95,8 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+*.dat
+*.mod
 MANIFEST
 
 ## PyTest
@@ -111,4 +113,5 @@ MANIFEST
 output
 *.o
 *.out
+*.mod
 /.ccls-cache/

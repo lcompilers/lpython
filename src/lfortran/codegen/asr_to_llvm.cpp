@@ -45,6 +45,7 @@
 #include <lfortran/pass/select_case.h>
 #include <lfortran/pass/global_stmts.h>
 #include <lfortran/pass/param_to_const.h>
+#include <lfortran/pass/nested_vars.h>
 #include <lfortran/exception.h>
 #include <lfortran/asr_utils.h>
 #include <lfortran/pickle.h>
@@ -124,6 +125,7 @@ public:
     std::string mangle_prefix;
     bool prototype_only;
     llvm::StructType *complex_type_4, *complex_type_8;
+    llvm::StructType *complex_type_4_ptr, *complex_type_8_ptr;
     llvm::PointerType *character_type;
     
     // Data Members for handling arrays
@@ -133,6 +135,18 @@ public:
 
     std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
     std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
+
+    // Data members for handling nested functions
+    std::vector<uint64_t> needed_globals; /* For saving the hash of variables 
+        from a parent scope needed in a nested function */
+    std::map<uint64_t, std::vector<llvm::Type*>> runtime_descriptor; /* For 
+        saving the hash of a parent function needing to give access to 
+        variables in a nested function, as well as the variable types */
+    llvm::StructType* needed_global_struct; /*The struct type that will hold 
+        variables needed in a nested function; will contain types as given in 
+        the runtime descriptor member */
+    std::string desc_name; // For setting the name of the global struct
+
 
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context(context),
         prototype_only(false), dim_des(llvm::StructType::create(
@@ -486,6 +500,13 @@ public:
         return builder->CreateLoad(pres);
     }
 
+    llvm::Value *nested_struct_rd(std::vector<llvm::Value*> vals,
+            llvm::StructType* rd) {
+        llvm::AllocaInst *pres = builder->CreateAlloca(rd, nullptr);
+        llvm::Value *pim = builder->CreateGEP(pres, vals);
+        return builder->CreateLoad(pim);
+    }
+
     /**
      * @brief This function generates the
      * @detail This is converted to
@@ -526,8 +547,16 @@ public:
         std::vector<llvm::Type*> els_8 = {
             llvm::Type::getDoubleTy(context),
             llvm::Type::getDoubleTy(context)};
+        std::vector<llvm::Type*> els_4_ptr = {
+            llvm::Type::getFloatPtrTy(context),
+            llvm::Type::getFloatPtrTy(context)};
+        std::vector<llvm::Type*> els_8_ptr = {
+            llvm::Type::getDoublePtrTy(context),
+            llvm::Type::getDoublePtrTy(context)};
         complex_type_4 = llvm::StructType::create(context, els_4, "complex_4");
         complex_type_8 = llvm::StructType::create(context, els_8, "complex_8");
+        complex_type_4_ptr = llvm::StructType::create(context, els_4_ptr, "complex_4_ptr");
+        complex_type_8_ptr = llvm::StructType::create(context, els_8_ptr, "complex_8_ptr");
         character_type = llvm::Type::getInt8PtrTy(context);
 
         // Process Variables first:
@@ -753,6 +782,8 @@ public:
 
     template<typename T>
     void declare_vars(const T &x) {
+        std::vector<llvm::Value*> needed_glob_vals;
+        llvm::Value *target_var;
         for (auto &item : x.m_symtab->scope) {
             if (is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
@@ -830,10 +861,22 @@ public:
                     llvm_symtab[h] = ptr;
                     fill_array_details(ptr, m_dims, n_dims);
                     if( v->m_value != nullptr ) {
-                        llvm::Value *target_var = ptr;
+                        target_var = ptr;
                         this->visit_expr_wrapper(v->m_value, true);
                         llvm::Value *init_value = tmp;
+                        needed_glob_vals.push_back(tmp);
                         builder->CreateStore(init_value, target_var);
+
+                        auto finder = std::find(needed_globals.begin(), 
+                                needed_globals.end(), h);
+                        if (finder != needed_globals.end()) {
+                            llvm::Value* ptr = module->getOrInsertGlobal(desc_name, 
+                                    needed_global_struct);
+                            int idx = std::distance(needed_globals.begin(),
+                                    finder);
+                            builder->CreateStore(builder->CreateLoad(target_var), 
+                                    create_gep(ptr, idx));
+                        }
                     }
                 }
             }
@@ -859,9 +902,11 @@ public:
                     type = getFPType(a_kind, true);
                     break;
                 }
-                case (ASR::ttypeType::Complex) :
-                    throw CodeGenError("Complex argument type not implemented yet in conversion");
+                case (ASR::ttypeType::Complex) : {
+                    int a_kind = down_cast<ASR::Complex_t>(arg->m_type)->m_kind;
+                    type = getComplexType(a_kind, true);
                     break;
+                }
                 case (ASR::ttypeType::Character) :
                     throw CodeGenError("Character argument type not implemented yet in conversion");
                     break;
@@ -903,10 +948,25 @@ public:
             x.m_abi != ASR::abiType::Interactive) {
                 return;
         }
+        // Check if the procedure has a nested function that needs access to
+        // some variables in its local scope
+        uint32_t h = get_hash((ASR::asr_t*)&x);
+        std::vector<llvm::Type*> nested_type;
+        if (runtime_descriptor[h].size() > 0) {
+            nested_type = runtime_descriptor[h];
+            needed_global_struct = llvm::StructType::create(
+                context, nested_type, x.m_name);
+            desc_name = x.m_name;
+            std::string desc_string = "_rtd";
+            desc_name += desc_string;
+            module->getOrInsertGlobal(desc_name, needed_global_struct);
+            llvm::ConstantAggregateZero* initializer = 
+                llvm::ConstantAggregateZero::get(needed_global_struct);
+            module->getNamedGlobal(desc_name)->setInitializer(initializer);
+        }
         visit_procedures(x);
         bool interactive = (x.m_abi == ASR::abiType::Interactive);
 
-        uint32_t h = get_hash((ASR::asr_t*)&x);
         llvm::Function *F = nullptr;
         if (llvm_symtab_fn.find(h) != llvm_symtab_fn.end()) {
             /*
@@ -929,9 +989,11 @@ public:
                     return_type = getFPType(a_kind);
                     break;
                 }
-                case (ASR::ttypeType::Complex) :
-                    throw CodeGenError("Complex return type not implemented yet");
+                case (ASR::ttypeType::Complex) : {
+                    int a_kind = down_cast<ASR::Complex_t>(return_var_type0)->m_kind;
+                    return_type = getComplexType(a_kind);
                     break;
+                }
                 case (ASR::ttypeType::Character) :
                     throw CodeGenError("Character return type not implemented yet");
                     break;
@@ -983,8 +1045,23 @@ public:
                 return;
         }
         bool interactive = (x.m_abi == ASR::abiType::Interactive);
-        visit_procedures(x);
+        // Check if the procedure has a nested function that needs access to
+        // some variables in its local scope
         uint32_t h = get_hash((ASR::asr_t*)&x);
+        std::vector<llvm::Type*> nested_type;
+        if (runtime_descriptor[h].size() > 0) {
+            nested_type = runtime_descriptor[h];
+            needed_global_struct = llvm::StructType::create(
+                context, nested_type, x.m_name);
+            desc_name = x.m_name;
+            std::string desc_string = "_rtd";
+            desc_name += desc_string;
+            module->getOrInsertGlobal(desc_name, needed_global_struct);
+            llvm::ConstantAggregateZero* initializer = 
+                llvm::ConstantAggregateZero::get(needed_global_struct);
+            module->getNamedGlobal(desc_name)->setInitializer(initializer);
+        }
+        visit_procedures(x);
         llvm::Function *F = nullptr;
         if (llvm_symtab_fn.find(h) != llvm_symtab_fn.end()) {
             /*
@@ -1045,12 +1122,13 @@ public:
 
     void visit_Assignment(const ASR::Assignment_t &x) {
         llvm::Value *target, *value;
+        uint32_t h;
         if( x.m_target->type == ASR::exprType::ArrayRef ) {
             this->visit_expr(*x.m_target);
             target = tmp;   
         } else {
             ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
-            uint32_t h = get_hash((ASR::asr_t*)asr_target);
+            h = get_hash((ASR::asr_t*)asr_target);
             switch( asr_target->m_type->type ) {
                 case ASR::ttypeType::IntegerPointer:
                 case ASR::ttypeType::RealPointer:
@@ -1070,6 +1148,17 @@ public:
         this->visit_expr_wrapper(x.m_value, true);
         value = tmp;
         builder->CreateStore(value, target);
+
+        auto finder = std::find(needed_globals.begin(), 
+                needed_globals.end(), h);
+        if (finder != needed_globals.end()) {
+            llvm::Value* ptr = module->getOrInsertGlobal(desc_name, 
+                    needed_global_struct);
+            int idx = std::distance(needed_globals.begin(),
+                    finder);
+            builder->CreateStore(builder->CreateLoad(target), 
+                    create_gep(ptr, idx));
+        }
     }
 
     inline void visit_expr_wrapper(const ASR::expr_t* x, bool load_array_ref=false) {
@@ -1533,9 +1622,26 @@ public:
 
     inline void fetch_val(ASR::Variable_t* x) {
         uint32_t x_h = get_hash((ASR::asr_t*)x);
-        LFORTRAN_ASSERT(llvm_symtab.find(x_h) != llvm_symtab.end());
-        llvm::Value* x_v = llvm_symtab[x_h];
-        tmp = builder->CreateLoad(x_v);
+        llvm::Value* x_v;
+        // Check if x is a needed global here, if so, it should exist as an
+        // element in the runtime descriptor, get element pointer and create
+        // load
+        if (llvm_symtab.find(x_h) == llvm_symtab.end()) {
+            LFORTRAN_ASSERT(std::find(needed_globals.begin(), 
+                    needed_globals.end(), x_h) != needed_globals.end());
+            auto finder = std::find(needed_globals.begin(), 
+                    needed_globals.end(), x_h);
+            llvm::Constant *ptr = module->getOrInsertGlobal(desc_name,
+                needed_global_struct);
+            int idx = std::distance(needed_globals.begin(), finder);
+            std::vector<llvm::Value*> idx_vec = {
+            llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
+            llvm::ConstantInt::get(context, llvm::APInt(32, idx))};
+            x_v = builder->CreateGEP(ptr, idx_vec);
+        } else {
+            x_v = llvm_symtab[x_h];
+        }
+            tmp = builder->CreateLoad(x_v);
     }
 
     inline void fetch_var(ASR::Variable_t* x) {
@@ -2059,8 +2165,11 @@ std::unique_ptr<LLVMModule> asr_to_llvm(ASR::TranslationUnit_t &asr,
     pass_replace_param_to_const(al, asr);
     // Uncomment for debugging the ASR after the transformation
     // std::cout << pickle(asr) << std::endl;
+
     pass_replace_do_loops(al, asr);
     pass_replace_select_case(al, asr);
+    v.runtime_descriptor = pass_find_nested_vars(asr, context, 
+            v.needed_globals);
     v.visit_asr((ASR::asr_t&)asr);
     std::string msg;
     llvm::raw_string_ostream err(msg);

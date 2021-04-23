@@ -1394,6 +1394,10 @@ public:
         r += syn(gr::Keyword);
         r.append("cycle");
         r += syn();
+        if (x.m_stmt_name) {
+            r += " ";
+            r += x.m_stmt_name;
+        }
         r += "\n";
         s = r;
     }
@@ -1414,6 +1418,10 @@ public:
         r += syn(gr::Keyword);
         r.append("exit");
         r += syn();
+        if (x.m_stmt_name) {
+            r += " ";
+            r += x.m_stmt_name;
+        }
         r += "\n";
         s = r;
     }

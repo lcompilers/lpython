@@ -30,8 +30,11 @@ set(SRC
     mod_to_asr.cpp
 
     string_utils.cpp
+    utils.cpp
 
     stacktrace.cpp
+
+    ../bin/tpl/whereami/whereami.cpp
 )
 if (WITH_XEUS)
     set(SRC ${SRC}
@@ -47,6 +50,7 @@ if (WITH_LLVM)
     set(SRC ${SRC}
         codegen/evaluator.cpp
         codegen/asr_to_llvm.cpp
+        pass/nested_vars.cpp
     )
     # We use deprecated API in LLVM, so we disable the warning until we upgrade
     if (NOT MSVC)

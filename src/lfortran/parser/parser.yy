@@ -1405,7 +1405,8 @@ endwhere
     ;
 
 exit_statement
-    : KW_EXIT id_opt { $$ = EXIT(@$); }
+    : KW_EXIT { $$ = EXIT(@$); }
+    | KW_EXIT id { $$ = EXIT2($2, @$); }
     ;
 
 return_statement
@@ -1413,7 +1414,8 @@ return_statement
     ;
 
 cycle_statement
-    : KW_CYCLE id_opt { $$ = CYCLE(@$); }
+    : KW_CYCLE { $$ = CYCLE(@$); }
+    | KW_CYCLE id { $$ = CYCLE2($2, @$); }
     ;
 
 continue_statement

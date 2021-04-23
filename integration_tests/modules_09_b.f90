@@ -1,7 +1,9 @@
 module modules_09_b
 implicit none
 private
-public b
+public b, i
+
+integer, parameter :: i = 5
 
 contains
 

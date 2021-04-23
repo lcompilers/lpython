@@ -218,6 +218,7 @@ cxx_binary_min_tests:
     - ctest --output-on-failure
     - cp src/bin/lfortran ../src/bin/
     - cp src/bin/cpptranslate ../src/bin/
+    - cp src/runtime/*.mod ../src/runtime/
     - cd ..
     - ./run_tests.py --no-llvm
 
