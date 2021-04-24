@@ -976,3 +976,7 @@ filename = "../integration_tests/nested_04.f90"
 asr = true
 llvm = true
 
+[[test]]
+filename = "../integration_tests/nested_05.f90"
+asr = true
+llvm = true

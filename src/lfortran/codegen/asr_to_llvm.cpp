@@ -139,7 +139,7 @@ public:
     // Data members for handling nested functions
     std::vector<uint64_t> needed_globals; /* For saving the hash of variables 
         from a parent scope needed in a nested function */
-    std::map<uint64_t, std::vector<llvm::Type*>> runtime_descriptor; /* For 
+    std::map<uint64_t, std::vector<llvm::Type*>> nested_func_types; /* For 
         saving the hash of a parent function needing to give access to 
         variables in a nested function, as well as the variable types */
     llvm::StructType* needed_global_struct; /*The struct type that will hold 
@@ -778,7 +778,6 @@ public:
 
     template<typename T>
     void declare_vars(const T &x) {
-        std::vector<llvm::Value*> needed_glob_vals;
         llvm::Value *target_var;
         for (auto &item : x.m_symtab->scope) {
             if (is_a<ASR::Variable_t>(*item.second)) {
@@ -860,9 +859,7 @@ public:
                         target_var = ptr;
                         this->visit_expr_wrapper(v->m_value, true);
                         llvm::Value *init_value = tmp;
-                        needed_glob_vals.push_back(tmp);
                         builder->CreateStore(init_value, target_var);
-
                         auto finder = std::find(needed_globals.begin(), 
                                 needed_globals.end(), h);
                         if (finder != needed_globals.end()) {
@@ -870,8 +867,8 @@ public:
                                     needed_global_struct);
                             int idx = std::distance(needed_globals.begin(),
                                     finder);
-                            builder->CreateStore(builder->CreateLoad(target_var), 
-                                    create_gep(ptr, idx));
+                            builder->CreateStore(target_var, create_gep(ptr,
+                                        idx));
                         }
                     }
                 }
@@ -948,12 +945,12 @@ public:
         // some variables in its local scope
         uint32_t h = get_hash((ASR::asr_t*)&x);
         std::vector<llvm::Type*> nested_type;
-        if (runtime_descriptor[h].size() > 0) {
-            nested_type = runtime_descriptor[h];
+        if (nested_func_types[h].size() > 0) {
+            nested_type = nested_func_types[h];
             needed_global_struct = llvm::StructType::create(
                 context, nested_type, x.m_name);
             desc_name = x.m_name;
-            std::string desc_string = "_rtd";
+            std::string desc_string = "_nstd_strct";
             desc_name += desc_string;
             module->getOrInsertGlobal(desc_name, needed_global_struct);
             llvm::ConstantAggregateZero* initializer = 
@@ -1045,12 +1042,12 @@ public:
         // some variables in its local scope
         uint32_t h = get_hash((ASR::asr_t*)&x);
         std::vector<llvm::Type*> nested_type;
-        if (runtime_descriptor[h].size() > 0) {
-            nested_type = runtime_descriptor[h];
+        if (nested_func_types[h].size() > 0) {
+            nested_type = nested_func_types[h];
             needed_global_struct = llvm::StructType::create(
                 context, nested_type, x.m_name);
             desc_name = x.m_name;
-            std::string desc_string = "_rtd";
+            std::string desc_string = "_nstd_strct";
             desc_name += desc_string;
             module->getOrInsertGlobal(desc_name, needed_global_struct);
             llvm::ConstantAggregateZero* initializer = 
@@ -1125,35 +1122,49 @@ public:
         } else {
             ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
             h = get_hash((ASR::asr_t*)asr_target);
-            switch( asr_target->m_type->type ) {
-                case ASR::ttypeType::IntegerPointer:
-                case ASR::ttypeType::RealPointer:
-                case ASR::ttypeType::ComplexPointer:
-                case ASR::ttypeType::CharacterPointer:
-                case ASR::ttypeType::LogicalPointer:
-                case ASR::ttypeType::DerivedPointer: {
-                    target = builder->CreateLoad(llvm_symtab[h]);
-                    break;
+            if (llvm_symtab.find(h) != llvm_symtab.end()) {
+                switch( asr_target->m_type->type ) {
+                    case ASR::ttypeType::IntegerPointer:
+                    case ASR::ttypeType::RealPointer:
+                    case ASR::ttypeType::ComplexPointer:
+                    case ASR::ttypeType::CharacterPointer:
+                    case ASR::ttypeType::LogicalPointer:
+                    case ASR::ttypeType::DerivedPointer: {
+                        target = builder->CreateLoad(llvm_symtab[h]);
+                        break;
+                    }
+                    default: {
+                        target = llvm_symtab[h];
+                        break;
+                    }
                 }
-                default: {
-                    target = llvm_symtab[h];
-                    break;
-                }
+                
+            } else {
+                /* Target for assignment not in the symbol table - must be
+                assigning to an outer scope from a nested function - see 
+                nested_05.f90 */
+                auto finder = std::find(needed_globals.begin(), 
+                        needed_globals.end(), h);
+                LFORTRAN_ASSERT(finder != needed_globals.end());
+                llvm::Value* ptr = module->getOrInsertGlobal(desc_name,
+                    needed_global_struct);
+                int idx = std::distance(needed_globals.begin(), finder);
+                target = builder->CreateLoad(create_gep(ptr, idx));
             }
         }
         this->visit_expr_wrapper(x.m_value, true);
         value = tmp;
         builder->CreateStore(value, target);
-
         auto finder = std::find(needed_globals.begin(), 
                 needed_globals.end(), h);
         if (finder != needed_globals.end()) {
+            /* Target for assignment could be in the symbol table - and we are
+            assigning to a variable needed in a nested function - see 
+            nested_04.f90 */
             llvm::Value* ptr = module->getOrInsertGlobal(desc_name, 
                     needed_global_struct);
-            int idx = std::distance(needed_globals.begin(),
-                    finder);
-            builder->CreateStore(builder->CreateLoad(target), 
-                    create_gep(ptr, idx));
+            int idx = std::distance(needed_globals.begin(), finder);
+            builder->CreateStore(target, create_gep(ptr, idx));
         }
     }
 
@@ -1633,7 +1644,7 @@ public:
             std::vector<llvm::Value*> idx_vec = {
             llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
             llvm::ConstantInt::get(context, llvm::APInt(32, idx))};
-            x_v = builder->CreateGEP(ptr, idx_vec);
+            x_v = builder->CreateLoad(builder->CreateGEP(ptr, idx_vec));
         } else {
             x_v = llvm_symtab[x_h];
         }
@@ -2160,7 +2171,7 @@ std::unique_ptr<LLVMModule> asr_to_llvm(ASR::TranslationUnit_t &asr,
 
     pass_replace_do_loops(al, asr);
     pass_replace_select_case(al, asr);
-    v.runtime_descriptor = pass_find_nested_vars(asr, context, 
+    v.nested_func_types = pass_find_nested_vars(asr, context, 
             v.needed_globals);
     v.visit_asr((ASR::asr_t&)asr);
     std::string msg;

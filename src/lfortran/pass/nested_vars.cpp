@@ -17,7 +17,6 @@ need access to variables from an outer scope. Such variables get hashed
 and later compared to variable declarations while emitting IR. If we get a 
 hash match, that variable is placed in a global struct where it can be accessed
 from the inner scope
-TODO: Always use pointer to objects instead of storing the whole objects.
 
 */
 
@@ -41,11 +40,11 @@ public:
         needed_globals{needed_globals} { };
     // Basically want to store a hash for each procedure and a hash for the
     // needed global types
-    //std::map<uint64_t, std::vector<llvm::Type*>> runtime_descriptor;
+    //std::map<uint64_t, std::vector<llvm::Type*>> nested_func_types;
     uint32_t cur_func_hash;
     uint32_t par_func_hash;
     std::vector<llvm::Type*> proc_types;
-    std::map<uint64_t, std::vector<llvm::Type*>> runtime_descriptor;
+    std::map<uint64_t, std::vector<llvm::Type*>> nested_func_types;
 
     inline llvm::Type* getIntType(int a_kind, bool get_pointer=false) {
         llvm::Type* type_ptr = nullptr;
@@ -127,7 +126,7 @@ public:
             }
         } else {
             std::vector<llvm::Type*> proc_types_i;
-            runtime_descriptor.insert({cur_func_hash, proc_types_i});
+            nested_func_types.insert({cur_func_hash, proc_types_i});
             current_scope = x.m_symtab;
             for (size_t i = 0; i < x.n_body; i++) {
                 visit_stmt(*x.m_body[i]);
@@ -158,29 +157,33 @@ public:
                         current_scope->scope.end()) {
                 uint32_t h = get_hash((ASR::asr_t*)v);
                 llvm::Type* rel_type;
-                needed_globals.push_back(h);
-                //llvm::Type* rel_type;
-                switch(v->m_type->type){
-                    // TODO: Store as pointers ->getPointerTo()
-                    case ASR::ttypeType::Integer: {
-                        int a_kind = down_cast<ASR::Integer_t>(v->m_type)->
-                            m_kind;
-                        rel_type = getIntType(a_kind);
-                        break;
+                auto finder = std::find(needed_globals.begin(), 
+                        needed_globals.end(), h);
+
+                if (finder == needed_globals.end()) {
+                    needed_globals.push_back(h);
+                    switch(v->m_type->type){
+                        case ASR::ttypeType::Integer: {
+                            int a_kind = down_cast<ASR::Integer_t>(v->m_type)->
+                                m_kind;
+                            rel_type = getIntType(a_kind)->getPointerTo();
+                            break;
+                        }
+                        case ASR::ttypeType::Real: {
+                            int a_kind = down_cast<ASR::Real_t>(v->m_type)->
+                                m_kind;
+                            rel_type = getFPType(a_kind)->getPointerTo();
+                            break;
+                        }
+                        default: {
+                                throw CodeGenError("Variable type not \
+                                        supported in nested functions");
+                            break;
+                        }
                     }
-                    case ASR::ttypeType::Real: {
-                        int a_kind = down_cast<ASR::Real_t>(v->m_type)->m_kind;
-                        rel_type = getFPType(a_kind);
-                        break;
-                    }
-                    default: {
-                            throw CodeGenError("Variable type not supported \
-                                    in nested function");
-                        break;
-                    }
+                    proc_types.push_back(rel_type);
+                    nested_func_types[par_func_hash].push_back(rel_type);
                 }
-                proc_types.push_back(rel_type);
-                runtime_descriptor[par_func_hash].push_back(rel_type);
             }
         }
     }
@@ -194,7 +197,7 @@ std::map<uint64_t, std::vector<llvm::Type*>> pass_find_nested_vars(
     NestedVarVisitor v(context, needed_globals);
     v.visit_TranslationUnit(unit);
     LFORTRAN_ASSERT(asr_verify(unit));
-    return v.runtime_descriptor;
+    return v.nested_func_types;
 }
 
 
