@@ -1189,8 +1189,8 @@ public:
                         dims.p, dims.size()));
                 } else if (sym_type->m_type == AST::decl_typeType::TypeComplex) {
                     if( is_pointer ) {
-                    type = TYPE(ASR::make_ComplexPointer_t(al, x.base.base.loc, a_kind,
-                                dims.p, dims.size()));
+                        type = TYPE(ASR::make_ComplexPointer_t(al, x.base.base.loc, a_kind,
+                                    dims.p, dims.size()));
                     } else {
                         type = TYPE(ASR::make_Complex_t(al, x.base.base.loc, a_kind,
                                     dims.p, dims.size()));
