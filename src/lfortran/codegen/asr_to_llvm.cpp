@@ -947,40 +947,67 @@ public:
     std::vector<llvm::Type*> convert_args(const T &x) {
         std::vector<llvm::Type*> args;
         for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
-            LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
-            // We pass all arguments as pointers for now
-            llvm::Type *type;
-            switch (arg->m_type->type) {
-                case (ASR::ttypeType::Integer) : {
-                    int a_kind = down_cast<ASR::Integer_t>(arg->m_type)->m_kind;
-                    type = getIntType(a_kind, true);
-                    break;
-                }
-                case (ASR::ttypeType::Real) : {
-                    int a_kind = down_cast<ASR::Real_t>(arg->m_type)->m_kind;
-                    type = getFPType(a_kind, true);
-                    break;
-                }
-                case (ASR::ttypeType::Complex) : {
-                    int a_kind = down_cast<ASR::Complex_t>(arg->m_type)->m_kind;
-                    type = getComplexType(a_kind, true);
-                    break;
-                }
-                case (ASR::ttypeType::Character) :
-                    throw CodeGenError("Character argument type not implemented yet in conversion");
-                    break;
-                case (ASR::ttypeType::Logical) :
-                    type = llvm::Type::getInt1PtrTy(context);
-                    break;
+            if (is_a<ASR::Variable_t>(*symbol_get_past_external(
+                    ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
+                ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
+                LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
+                // We pass all arguments as pointers for now
+                llvm::Type *type;
+                switch (arg->m_type->type) {
+                    case (ASR::ttypeType::Integer) : {
+                        int a_kind = down_cast<ASR::Integer_t>(arg->m_type)->m_kind;
+                        type = getIntType(a_kind, true);
+                        break;
+                    }
+                    case (ASR::ttypeType::Real) : {
+                        int a_kind = down_cast<ASR::Real_t>(arg->m_type)->m_kind;
+                        type = getFPType(a_kind, true);
+                        break;
+                    }
+                    case (ASR::ttypeType::Complex) : {
+                        int a_kind = down_cast<ASR::Complex_t>(arg->m_type)->m_kind;
+                        type = getComplexType(a_kind, true);
+                        break;
+                    }
+                    case (ASR::ttypeType::Character) :
+                        throw CodeGenError("Character argument type not implemented yet in conversion");
+                        break;
+                    case (ASR::ttypeType::Logical) :
+                        type = llvm::Type::getInt1PtrTy(context);
+                        break;
                 case (ASR::ttypeType::Derived) : {
                     type = getDerivedType(arg->m_type, true);
-                    break;
+                        break;
                 }
-                default :
-                    LFORTRAN_ASSERT(false);
+                    default :
+                        LFORTRAN_ASSERT(false);
+                }
+                args.push_back(type);
+            } else {
+                 // This is likely a procedure passed as an argument. For the
+                 // type, we need to pass in a function pointer with the
+                 // correct call signature. Believe this needs to be done here
+                 // first as when we generate IR we will this.
+                // We already have the data for this procedure in
+                // llvm_symtab_fn.
+                ASR::Function_t* fn = ASR::down_cast<ASR::Function_t>(
+                    symbol_get_past_external(ASR::down_cast<ASR::Var_t>(
+                    x.m_args[i])->m_v));
+                uint32_t h = get_hash((ASR::asr_t*)fn);
+                auto a = llvm_symtab_fn[h]->getFunctionType();
+                llvm::Value* b = llvm_symtab_fn[h];
+                std::vector<llvm::Type*> fp_types;
+                for (size_t i = 0; i < a->getNumParams(); i++){
+                    fp_types.push_back(a->getParamType(i));
+                }
+                /*
+                llvm::StructType* type = llvm::StructType::create(
+                    context, fp_types);
+                */
+                llvm::Type *type;
+                type = llvm_symtab_fn[h]->getType();
+                args.push_back(type);
             }
-            args.push_back(type);
         }
         return args;
     }
@@ -989,12 +1016,17 @@ public:
     void declare_args(const T &x, llvm::Function &F) {
         size_t i = 0;
         for (llvm::Argument &llvm_arg : F.args()) {
-            ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
-            LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
-            uint32_t h = get_hash((ASR::asr_t*)arg);
-            std::string arg_s = arg->m_name;
-            llvm_arg.setName(arg_s);
-            llvm_symtab[h] = &llvm_arg;
+            if (is_a<ASR::Variable_t>(*symbol_get_past_external(
+                    ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
+                ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
+                LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
+                uint32_t h = get_hash((ASR::asr_t*)arg);
+                std::string arg_s = arg->m_name;
+                llvm_arg.setName(arg_s);
+                llvm_symtab[h] = &llvm_arg;
+            } /* else {
+                // Deal with case where procedure passed in as argument
+                */
             i++;
         }
     }
@@ -2089,6 +2121,8 @@ public:
         std::vector<llvm::Value *> args;
         for (size_t i=0; i<x.n_args; i++) {
             if (x.m_args[i]->type == ASR::exprType::Var) {
+                // TODO: Can we create store of the LLVM function we need for
+                // callback?
                 ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 tmp = llvm_symtab[h];

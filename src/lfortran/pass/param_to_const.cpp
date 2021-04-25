@@ -115,22 +115,24 @@ public:
     }
 
     void visit_Var(const ASR::Var_t& x) {
-        ASR::Variable_t *init_var = ASR::down_cast<ASR::Variable_t>(symbol_get_past_external(x.m_v));
-        if( init_var->m_storage == ASR::storage_typeType::Parameter ) {
-            if( init_var->m_value == nullptr ) {
-                asr = init_var->m_value;
-            } else {
-                switch( init_var->m_value->type ) {
-                    case ASR::exprType::ConstantInteger: 
-                    case ASR::exprType::ConstantReal:
-                    case ASR::exprType::ConstantComplex:
-                    case ASR::exprType::ConstantLogical: 
-                    case ASR::exprType::Str: {
-                        asr = init_var->m_value;
-                        break;
-                    }
-                    default: {
-                        this->visit_expr(*(init_var->m_value));
+        if (is_a<ASR::Variable_t>(*symbol_get_past_external(x.m_v))) {
+            ASR::Variable_t *init_var = ASR::down_cast<ASR::Variable_t>(symbol_get_past_external(x.m_v));
+            if( init_var->m_storage == ASR::storage_typeType::Parameter ) {
+                if( init_var->m_value == nullptr ) {
+                    asr = init_var->m_value;
+                } else {
+                    switch( init_var->m_value->type ) {
+                        case ASR::exprType::ConstantInteger: 
+                        case ASR::exprType::ConstantReal:
+                        case ASR::exprType::ConstantComplex:
+                        case ASR::exprType::ConstantLogical: 
+                        case ASR::exprType::Str: {
+                            asr = init_var->m_value;
+                            break;
+                        }
+                        default: {
+                            this->visit_expr(*(init_var->m_value));
+                        }
                     }
                 }
             }
