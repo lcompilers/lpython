@@ -877,6 +877,9 @@ public:
         }
         parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
         current_scope = parent_scope;
+        /* FIXME: This can become incorrect/get cleared prematurely, perhaps
+           in nested functions, and also in callback.f90 test, but it may not
+           matter since we would have already checked the intent */
         current_procedure_args.clear();
     }
 
@@ -1438,6 +1441,11 @@ public:
         current_scope = parent_scope;
     }
 
+    void visit_InterfaceProc(const AST::InterfaceProc_t &x) {
+        visit_program_unit(*x.m_proc);
+        return;
+    }
+
     void visit_Interface(const AST::Interface_t &x) {
         if (AST::is_a<AST::InterfaceHeader2_t>(*x.m_header)) {
             char *generic_name = AST::down_cast<AST::InterfaceHeader2_t>(x.m_header)->m_name;
@@ -1456,6 +1464,11 @@ public:
                 }
             }
             generic_procedures[std::string(generic_name)] = proc_names;
+        } else if (AST::is_a<AST::InterfaceHeader1_t>(*x.m_header)) {
+            std::vector<std::string> proc_names;
+            for (size_t i = 0; i < x.n_items; i++) {
+                visit_interface_item(*x.m_items[i]);
+            }
         } else {
             throw SemanticError("Interface type not imlemented yet", x.base.base.loc);
         }
