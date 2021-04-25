@@ -2,8 +2,8 @@ module a_01
 implicit none
 
 type :: X
-    integer :: i
     real :: r
+    integer :: i
 end type
 
 contains
@@ -17,12 +17,12 @@ end subroutine
 end module
 
 program derived_types_01
-use a_01, only: X, set
+use a_01, only: X
 implicit none
 type(X) :: b
 b%i = 5
 b%r = 3.5
-print *, b%i, b%r
-call set(b)
-print *, b%i, b%r
+!print *, b%i, b%r
+! call set(b)
+!print *, b%i, b%r
 end
