@@ -1237,10 +1237,11 @@ public:
         }
     }
 
-    inline void visit_expr_wrapper(const ASR::expr_t* x, bool load_array_ref=false) {
+    inline void visit_expr_wrapper(const ASR::expr_t* x, bool load_ref=false) {
         this->visit_expr(*x);
-        if( x->type == ASR::exprType::ArrayRef ) {
-            if( load_array_ref ) {
+        if( x->type == ASR::exprType::ArrayRef || 
+            x->type == ASR::exprType::DerivedRef ) {
+            if( load_ref ) {
                 tmp = builder->CreateLoad(tmp);
             }
         }
