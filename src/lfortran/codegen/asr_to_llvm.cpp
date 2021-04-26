@@ -2121,11 +2121,21 @@ public:
         std::vector<llvm::Value *> args;
         for (size_t i=0; i<x.n_args; i++) {
             if (x.m_args[i]->type == ASR::exprType::Var) {
-                // TODO: Can we create store of the LLVM function we need for
-                // callback?
-                ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
-                uint32_t h = get_hash((ASR::asr_t*)arg);
-                tmp = llvm_symtab[h];
+                if (is_a<ASR::Variable_t>(*symbol_get_past_external(
+                        ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
+                    /* TODO: Can we create store of the LLVM function we need
+                       for callback? */
+                    ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
+                    uint32_t h = get_hash((ASR::asr_t*)arg);
+                    tmp = llvm_symtab[h];
+                } else if (is_a<ASR::Function_t>(*symbol_get_past_external(
+                    ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
+                    ASR::Function_t* fn = ASR::down_cast<ASR::Function_t>(
+                        symbol_get_past_external(ASR::down_cast<ASR::Var_t>(
+                        x.m_args[i])->m_v));
+                    uint32_t h = get_hash((ASR::asr_t*)fn);
+                    tmp = llvm_symtab_fn[h];
+                }
             } else {
                 this->visit_expr_wrapper(x.m_args[i], true);
                 llvm::Value *value=tmp;

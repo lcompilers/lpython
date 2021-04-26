@@ -31,5 +31,5 @@ end module
 
 program main
   use callback_01
-  call foo(0.0, 2.0)
+  call foo(1.5, 2.0)
 end program
