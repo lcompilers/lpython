@@ -151,6 +151,10 @@ public:
         the runtime descriptor member */
     std::string desc_name; // For setting the name of the global struct
 
+    // Data members for callback functions/procedures as arguments
+    std::map<std::string, uint64_t> interface_procs; /* Links a procedure
+         implementation to it's string name for adding to the BB */
+
 
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context(context),
         prototype_only(false), dim_des(llvm::StructType::create(
@@ -1057,9 +1061,13 @@ public:
                 llvm::ConstantAggregateZero::get(needed_global_struct);
             module->getNamedGlobal(desc_name)->setInitializer(initializer);
         }
+        // Check if the procedure is an interface - if so we will need to add 
+        // onto the basic block when we get to the implementation later
+        if (x.m_deftype == ASR::Interface) {
+            interface_procs[x.m_name] = h;
+        }
         visit_procedures(x);
         bool interactive = (x.m_abi == ASR::abiType::Interactive);
-
         llvm::Function *F = nullptr;
         if (llvm_symtab_fn.find(h) != llvm_symtab_fn.end()) {
             /*
@@ -1067,7 +1075,8 @@ public:
                 + std::string(x.m_name) + "'");
             */
             F = llvm_symtab_fn[h];
-        } else {
+        } else if (interface_procs.find(x.m_name) == interface_procs.end() || 
+                interface_procs[x.m_name] == h)  {
             ASR::ttype_t *return_var_type0 = EXPR2VAR(x.m_return_var)->m_type;
             ASR::ttypeType return_var_type = return_var_type0->type;
             llvm::Type *return_type;
@@ -1106,13 +1115,12 @@ public:
             F = llvm::Function::Create(function_type,
                     llvm::Function::ExternalLinkage, mangle_prefix + x.m_name, module.get());
             llvm_symtab_fn[h] = F;
-        }
+        } else {
+            F = llvm_symtab_fn[interface_procs[x.m_name]];
 
-        if (interactive) return;
-
-        if (!prototype_only) {
             llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
-                    ".entry", F);
+                    ".entry", F, 0);
+
             builder->SetInsertPoint(BB);
 
             declare_args(x, *F);
@@ -1122,15 +1130,54 @@ public:
             for (size_t i=0; i<x.n_body; i++) {
                 this->visit_stmt(*x.m_body[i]);
             }
-
-            ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
-            uint32_t h = get_hash((ASR::asr_t*)asr_retval);
-            llvm::Value *ret_val = llvm_symtab[h];
-            llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
-            builder->CreateRet(ret_val2);
+            return;
         }
 
-    }
+        if (interactive) return;
+
+        if (!prototype_only) {
+            // Check if the procedure has an existing interface
+            /*
+            auto test  = interface_procs.find(x.m_name);
+            if (test != interface_procs.end() && 
+                    interface_procs[x.m_name] != h) {
+                    // There is an existing interface procedure
+                F = llvm_symtab_fn[interface_procs[x.m_name]];
+
+                llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
+                        ".entry", F, 0);
+
+                builder->SetInsertPoint(BB);
+
+                declare_args(x, *F);
+
+                declare_local_vars(x);
+
+                for (size_t i=0; i<x.n_body; i++) {
+                    this->visit_stmt(*x.m_body[i]);
+                }
+
+            } else {
+            */
+                llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
+                        ".entry", F);
+                builder->SetInsertPoint(BB);
+
+                declare_args(x, *F);
+
+                declare_local_vars(x);
+
+                for (size_t i=0; i<x.n_body; i++) {
+                    this->visit_stmt(*x.m_body[i]);
+                }
+                ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
+                uint32_t h = get_hash((ASR::asr_t*)asr_retval);
+                llvm::Value *ret_val = llvm_symtab[h];
+                llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
+                builder->CreateRet(ret_val2);
+            }
+        }
+
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
         if (x.m_abi != ASR::abiType::Source &&
