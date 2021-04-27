@@ -47,7 +47,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                     type = TYPE(ASR::make_Integer_t(al, loc, a_kind, nullptr, 0));
                     return_var = ASR::make_Variable_t(al, loc,
                         fn_scope, var_name, intent_local, nullptr,
-                        ASR::storage_typeType::Default, type,
+                        ASR::storage_typeType::Default, false, type,
                         ASR::abiType::Source,
                         ASR::Public);
                     return_var_ref = EXPR(ASR::make_Var_t(al, loc,
@@ -61,7 +61,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                     type = TYPE(ASR::make_Real_t(al, loc, 4, nullptr, 0));
                     return_var = ASR::make_Variable_t(al, loc,
                         fn_scope, var_name, intent_local, nullptr,
-                        ASR::storage_typeType::Default, type,
+                        ASR::storage_typeType::Default, false, type,
                         ASR::abiType::Source,
                         ASR::Public);
                     return_var_ref = EXPR(ASR::make_Var_t(al, loc,

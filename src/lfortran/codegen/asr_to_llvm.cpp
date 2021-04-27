@@ -937,6 +937,7 @@ public:
     }
 
     void visit_Function(const ASR::Function_t &x) {
+        // Implement intrinsics here
         if (x.m_abi != ASR::abiType::Source &&
             x.m_abi != ASR::abiType::Interactive) {
                 return;
