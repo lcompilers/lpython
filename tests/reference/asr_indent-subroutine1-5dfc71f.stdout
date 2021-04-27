@@ -43,7 +43,8 @@
                         (Var 2 i) 
                         (Integer 4 [])))])] 
                Source 
-               Public), 
+               Public 
+               Implementation), 
          h: 
             (Subroutine 
                (SymbolTable 
@@ -85,6 +86,7 @@
                         (Var 3 x) 
                         (Integer 4 [])))])] 
                Source 
-               Public)
+               Public 
+               Implementation)
       }) 
    [])

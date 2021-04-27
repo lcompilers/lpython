@@ -999,7 +999,6 @@ public:
                     x.m_args[i])->m_v));
                 uint32_t h = get_hash((ASR::asr_t*)fn);
                 auto a = llvm_symtab_fn[h]->getFunctionType();
-                llvm::Value* b = llvm_symtab_fn[h];
                 std::vector<llvm::Type*> fp_types;
                 for (size_t i = 0; i < a->getNumParams(); i++){
                     fp_types.push_back(a->getParamType(i));
@@ -2206,7 +2205,12 @@ public:
                         symbol_get_past_external(ASR::down_cast<ASR::Var_t>(
                         x.m_args[i])->m_v));
                     uint32_t h = get_hash((ASR::asr_t*)fn);
-                    tmp = llvm_symtab_fn[h];
+                    if (interface_procs.find(fn->m_name) == 
+                            interface_procs.end()) {
+                        tmp = llvm_symtab_fn[h];
+                    } else {
+                        tmp = llvm_symtab_fn[interface_procs[fn->m_name]];
+                    }
                 }
             } else {
                 this->visit_expr_wrapper(x.m_args[i], true);
