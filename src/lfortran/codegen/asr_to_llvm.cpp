@@ -133,6 +133,10 @@ public:
     std::map<int, llvm::ArrayType*> rank2desc;
     std::map<std::pair<std::pair<int, int>, std::pair<int, int>>, llvm::StructType*> tkr2array;
 
+    // Maps for containing information regarding derived types
+    std::map<std::string, llvm::StructType*> name2dertype;
+    std::map<std::string, std::map<std::string, int>> name2memidx;
+
     std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
     std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
 
@@ -361,6 +365,51 @@ public:
         }
         return nullptr;
     }
+
+    llvm::Type* getDerivedType(ASR::ttype_t* _type, bool is_pointer=false) {
+        ASR::Derived_t* der = (ASR::Derived_t*)(&(_type->base));
+        ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
+        std::string der_type_name = std::string(der_type->m_name);
+        llvm::StructType* der_type_llvm;
+        if( name2dertype.find(der_type_name) != name2dertype.end() ) {
+            der_type_llvm = name2dertype[der_type_name];
+        } else {
+            std::map<std::string, ASR::symbol_t*> scope = der_type->m_symtab->scope;
+            std::vector<llvm::Type*> member_types;
+            int member_idx = 0;
+            for( auto itr = scope.begin(); itr != scope.end(); itr++ ) {
+                ASR::Variable_t* member = (ASR::Variable_t*)(&(itr->second->base));
+                llvm::Type* mem_type = nullptr;
+                switch( member->m_type->type ) {
+                    case ASR::ttypeType::Integer: {
+                        int a_kind = down_cast<ASR::Integer_t>(member->m_type)->m_kind;
+                        mem_type = getIntType(a_kind);
+                        break;
+                    }
+                    case ASR::ttypeType::Real: {
+                        int a_kind = down_cast<ASR::Real_t>(member->m_type)->m_kind;
+                        mem_type = getFPType(a_kind);
+                        break;
+                    }
+                    default:
+                        throw SemanticError("Cannot identify the type of member, '" + 
+                                            std::string(member->m_name) + 
+                                            "' in derived type, '" + der_type_name + "'.", 
+                                            member->base.base.loc);
+                }
+                member_types.push_back(mem_type);
+                name2memidx[der_type_name][std::string(member->m_name)] = member_idx;
+                member_idx++;
+            }
+            der_type_llvm = llvm::StructType::create(context, member_types, der_type_name);
+            name2dertype[der_type_name] = der_type_llvm;
+        }
+        if( is_pointer ) {
+            return der_type_llvm->getPointerTo();
+        }
+        return (llvm::Type*) der_type_llvm;
+    }
+
 
     /*
     * Dispatches the required function from runtime library to 
@@ -670,6 +719,21 @@ public:
         get_single_element(x);
     }
 
+    void visit_DerivedRef(const ASR::DerivedRef_t& x) {
+        ASR::Variable_t* var = (ASR::Variable_t*)(&(x.m_v->base));
+        ASR::Derived_t* der = (ASR::Derived_t*)(&(var->m_type->base));
+        ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
+        std::string der_type_name = std::string(der_type->m_name);
+        ASR::Variable_t* member = (ASR::Variable_t*)(&(x.m_m->base));
+        std::string member_name = std::string(member->m_name);
+        int member_idx = name2memidx[der_type_name][member_name];
+        std::vector<llvm::Value*> idx_vec = {
+            llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
+            llvm::ConstantInt::get(context, llvm::APInt(32, member_idx))};
+        uint32_t h = get_hash((ASR::asr_t*)var);
+        tmp = builder->CreateGEP(llvm_symtab[h], idx_vec);
+    }
+
     void visit_Variable(const ASR::Variable_t &x) {
         uint32_t h = get_hash((ASR::asr_t*)&x);
         // This happens at global scope, so the intent can only be either local
@@ -822,9 +886,10 @@ public:
                         case (ASR::ttypeType::Logical) :
                             type = llvm::Type::getInt1Ty(context);
                             break;
-                        case (ASR::ttypeType::Derived) :
-                            throw CodeGenError("Derived type argument not implemented yet in conversion");
+                        case (ASR::ttypeType::Derived) : {
+                            type = getDerivedType(v->m_type, false);
                             break;
+                        }
                         case (ASR::ttypeType::IntegerPointer) : {
                             a_kind = down_cast<ASR::IntegerPointer_t>(v->m_type)->m_kind;
                             type = getIntType(a_kind, true);
@@ -908,9 +973,10 @@ public:
                 case (ASR::ttypeType::Logical) :
                     type = llvm::Type::getInt1PtrTy(context);
                     break;
-                case (ASR::ttypeType::Derived) :
-                    throw CodeGenError("Derived type argument not implemented yet in conversion");
+                case (ASR::ttypeType::Derived) : {
+                    type = getDerivedType(arg->m_type, true);
                     break;
+                }
                 default :
                     LFORTRAN_ASSERT(false);
             }
@@ -1118,7 +1184,8 @@ public:
     void visit_Assignment(const ASR::Assignment_t &x) {
         llvm::Value *target, *value;
         uint32_t h;
-        if( x.m_target->type == ASR::exprType::ArrayRef ) {
+        if( x.m_target->type == ASR::exprType::ArrayRef || 
+            x.m_target->type == ASR::exprType::DerivedRef ) {
             this->visit_expr(*x.m_target);
             target = tmp;   
         } else {
@@ -1170,10 +1237,11 @@ public:
         }
     }
 
-    inline void visit_expr_wrapper(const ASR::expr_t* x, bool load_array_ref=false) {
+    inline void visit_expr_wrapper(const ASR::expr_t* x, bool load_ref=false) {
         this->visit_expr(*x);
-        if( x->type == ASR::exprType::ArrayRef ) {
-            if( load_array_ref ) {
+        if( x->type == ASR::exprType::ArrayRef || 
+            x->type == ASR::exprType::DerivedRef ) {
+            if( load_ref ) {
                 tmp = builder->CreateLoad(tmp);
             }
         }
@@ -2051,9 +2119,10 @@ public:
                     case (ASR::ttypeType::Logical) :
                         target_type = llvm::Type::getInt1Ty(context);
                         break;
-                    case (ASR::ttypeType::Derived) :
-                        throw CodeGenError("Derived type argument not implemented yet in conversion");
+                    case (ASR::ttypeType::Derived) : {
+                        target_type = getDerivedType(arg_type);
                         break;
+                    }
                     default :
                         throw CodeGenError("Type not implemented yet.");
                 }

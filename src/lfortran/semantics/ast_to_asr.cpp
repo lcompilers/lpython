@@ -1545,7 +1545,7 @@ public:
                     std::string sym = mvar->m_name;
                     current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(var);
                 } else {
-                    throw LFortranException("Only function / subroutine implemented");
+                    throw LFortranException("'" + item.first + "' is not supported yet for declaring with use.");
                 }
             }
         } else {
@@ -1642,8 +1642,28 @@ public:
                         dflt_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(v);
+                } else if( ASR::is_a<ASR::DerivedType_t>(*t) ) {
+                    if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
+                        throw SemanticError("Derived type already defined",
+                            x.base.base.loc);
+                    }
+                    ASR::DerivedType_t *mv = ASR::down_cast<ASR::DerivedType_t>(t);
+                    // `mv` is the Variable in a module. Now we construct
+                    // an ExternalSymbol that points to it.
+                    Str name;
+                    name.from_str(al, local_sym);
+                    char *cname = name.c_str(al);
+                    ASR::asr_t *v = ASR::make_ExternalSymbol_t(
+                        al, mv->base.base.loc,
+                        /* a_symtab */ current_scope,
+                        /* a_name */ cname,
+                        (ASR::symbol_t*)mv,
+                        m->m_name, mv->m_name,
+                        dflt_access
+                        );
+                    current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(v);
                 } else {
-                    throw LFortranException("Only Subroutines, Functions and Variables supported in 'use'");
+                    throw LFortranException("Only Subroutines, Functions, Variables and Derived supported in 'use'");
                 }
             }
         }
@@ -2192,7 +2212,8 @@ public:
         ASR::expr_t *target = EXPR(tmp);
         ASR::ttype_t *target_type = expr_type(target);
         if( target->type != ASR::exprType::Var && 
-            target->type != ASR::exprType::ArrayRef )
+            target->type != ASR::exprType::ArrayRef && 
+            target->type != ASR::exprType::DerivedRef )
         {
             throw SemanticError(
                 "The LHS of assignment can only be a variable or an array reference",
@@ -2206,7 +2227,7 @@ public:
         if (target->type == ASR::exprType::Var) {
 
             ImplicitCastRules::set_converted_value(al, x.base.base.loc, &value, 
-                                                 value_type, target_type);
+                                                    value_type, target_type);
 
         }
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value);
@@ -2388,10 +2409,30 @@ public:
         if (!v) {
             throw SemanticError("Variable '" + dt_name + "' not declared", loc);
         }
-        if (ASR::is_a<ASR::DerivedType_t>(*v)) {
-            throw SemanticError("DerivedType variable '" + dt_name + "%"
-                + var_name + "' access is not implemented yet", loc);
-            //return ASR::make_Var_t(al, loc, v);
+        ASR::Variable_t* v_variable = ((ASR::Variable_t*)(&(v->base)));
+        if ( v_variable->m_type->type == ASR::ttypeType::Derived || 
+             v_variable->m_type->type == ASR::ttypeType::DerivedPointer ) {
+            ASR::ttype_t* v_type = v_variable->m_type;
+            ASR::Derived_t* der = (ASR::Derived_t*)(&(v_type->base));
+            ASR::DerivedType_t* der_type;
+            if( der->m_derived_type->type == ASR::symbolType::ExternalSymbol ) {
+                ASR::ExternalSymbol_t* der_ext = (ASR::ExternalSymbol_t*)(&(der->m_derived_type->base));
+                ASR::symbol_t* der_sym = der_ext->m_external;
+                if( der_sym == nullptr ) {
+                    throw SemanticError("'" + std::string(der_ext->m_name) + "' isn't a Derived type.", loc);
+                } else {
+                    der_type = (ASR::DerivedType_t*)(&(der_sym->base));
+                }
+            } else {
+                der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
+            }
+            ASR::symbol_t* member = der_type->m_symtab->resolve_symbol(var_name);
+            if( member != nullptr ) {
+                ASR::Variable_t* member_variable = ((ASR::Variable_t*)(&(member->base)));
+                return ASR::make_DerivedRef_t(al, loc, v, member, member_variable->m_type);
+            } else {
+                throw SemanticError("Variable '" + dt_name + "' doesn't have any member named, '" + var_name + "'.", loc);
+            }
         } else {
             throw SemanticError("Variable '" + dt_name + "' is not a derived type", loc);
         }

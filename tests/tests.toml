@@ -440,6 +440,7 @@ ast_f90 = true
 filename = "../integration_tests/derived_types_01.f90"
 ast = true
 ast_f90 = true
+asr = true
 
 [[test]]
 filename = "../integration_tests/derived_types_02.f90"

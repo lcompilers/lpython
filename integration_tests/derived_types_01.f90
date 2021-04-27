@@ -2,8 +2,8 @@ module a_01
 implicit none
 
 type :: X
-    integer :: i
     real :: r
+    integer :: i
 end type
 
 contains
