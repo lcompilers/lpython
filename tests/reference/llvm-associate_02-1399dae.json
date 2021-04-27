@@ -2,11 +2,11 @@
     "basename": "llvm-associate_02-1399dae",
     "cmd": "lfortran --show-llvm {infile} -o {outfile}",
     "infile": "tests/../integration_tests/associate_02.f90",
-    "infile_hash": "d248a44f964c8d7022dd5022ffcf97a1845a67dd1aeb2b38d02f5e0b",
+    "infile_hash": "dbb8b4f2546c33b093c6e6bff2a4af346405121ccb63b2bb42d761d6",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "llvm-associate_02-1399dae.stdout",
-    "stdout_hash": "3f0c8476f1ee5fc41dc192fd15f889339a2011122cfffaa0332070c9",
+    "stdout_hash": "82ed20bd075c1955a97c83a953b2e7539c3f0173dbed3bc6ec644fcc",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

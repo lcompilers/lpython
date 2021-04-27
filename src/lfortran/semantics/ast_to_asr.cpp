@@ -1323,8 +1323,13 @@ public:
                     type = TYPE(ASR::make_Logical_t(al, x.base.base.loc, 4,
                         dims.p, dims.size()));
                 } else if (sym_type->m_type == AST::decl_typeType::TypeComplex) {
-                    type = TYPE(ASR::make_Complex_t(al, x.base.base.loc, a_kind,
-                        dims.p, dims.size()));
+                    if( is_pointer ) {
+                        type = TYPE(ASR::make_ComplexPointer_t(al, x.base.base.loc, a_kind,
+                                    dims.p, dims.size()));
+                    } else {
+                        type = TYPE(ASR::make_Complex_t(al, x.base.base.loc, a_kind,
+                                    dims.p, dims.size()));
+                    }
                 } else if (sym_type->m_type == AST::decl_typeType::TypeCharacter) {
                     type = TYPE(ASR::make_Character_t(al, x.base.base.loc, 4,
                         dims.p, dims.size()));
