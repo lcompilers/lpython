@@ -1076,7 +1076,7 @@ public:
             */
             F = llvm_symtab_fn[h];
         } else if (interface_procs.find(x.m_name) == interface_procs.end() || 
-                interface_procs[x.m_name] == h)  {
+            interface_procs[x.m_name] == h) {
             ASR::ttype_t *return_var_type0 = EXPR2VAR(x.m_return_var)->m_type;
             ASR::ttypeType return_var_type = return_var_type0->type;
             llvm::Type *return_type;
@@ -1118,17 +1118,40 @@ public:
         } else {
             F = llvm_symtab_fn[interface_procs[x.m_name]];
 
+            /*
             llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
                     ".entry", F, 0);
+            */
 
-            builder->SetInsertPoint(BB);
 
+            //builder->SetInsertPoint(&BB->back());
+
+            auto a = &(F->getBasicBlockList());
+            // Insert instruction at front of basic block by getting front of
+            // the instruction list
+            /*
+            llvm::BasicBlock *BB = &(a->front());
+            auto b = &(BB->getInstList());
+            builder->SetInsertPoint(&(b->front()));
+            */
+            // Insert instruction at end of basic block by getting front of
+            // basic block list (just the first basic block, starting at the
+            // last instruction)
+            builder->SetInsertPoint(&(a->front()));
+            //int b = BB->getFirstInsertionPt();
             declare_args(x, *F);
 
             declare_local_vars(x);
 
             for (size_t i=0; i<x.n_body; i++) {
                 this->visit_stmt(*x.m_body[i]);
+            }
+            ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
+            uint32_t h = get_hash((ASR::asr_t*)asr_retval);
+            llvm::Value *ret_val = llvm_symtab[h];
+            llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
+            if (x.m_deftype == ASR::Implementation) {
+                builder->CreateRet(ret_val2);
             }
             return;
         }
@@ -1174,7 +1197,9 @@ public:
                 uint32_t h = get_hash((ASR::asr_t*)asr_retval);
                 llvm::Value *ret_val = llvm_symtab[h];
                 llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
-                builder->CreateRet(ret_val2);
+                if (x.m_deftype == ASR::Implementation) {
+                    builder->CreateRet(ret_val2);
+                }
             }
         }
 
