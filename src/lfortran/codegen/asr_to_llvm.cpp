@@ -368,7 +368,14 @@ public:
 
     llvm::Type* getDerivedType(ASR::ttype_t* _type, bool is_pointer=false) {
         ASR::Derived_t* der = (ASR::Derived_t*)(&(_type->base));
-        ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
+        ASR::symbol_t* der_sym;
+        if( der->m_derived_type->type == ASR::symbolType::ExternalSymbol ) {
+            ASR::ExternalSymbol_t* der_extr = (ASR::ExternalSymbol_t*)(&(der->m_derived_type->base));
+            der_sym = der_extr->m_external;
+        } else {
+            der_sym = der->m_derived_type;   
+        }
+        ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der_sym->base));
         std::string der_type_name = std::string(der_type->m_name);
         llvm::StructType* der_type_llvm;
         if( name2dertype.find(der_type_name) != name2dertype.end() ) {
@@ -377,6 +384,9 @@ public:
             std::map<std::string, ASR::symbol_t*> scope = der_type->m_symtab->scope;
             std::vector<llvm::Type*> member_types;
             int member_idx = 0;
+            for( auto itr = scope.begin(); itr != scope.end(); itr++ ) {
+                std::cout<<itr->first<<std::endl;
+            }
             for( auto itr = scope.begin(); itr != scope.end(); itr++ ) {
                 ASR::Variable_t* member = (ASR::Variable_t*)(&(itr->second->base));
                 llvm::Type* mem_type = nullptr;
