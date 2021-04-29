@@ -139,7 +139,7 @@ public:
 
     std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
     std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
-
+    std::map<uint64_t, llvm::Value*> llvm_symtab_fn_arg;
     // Data members for handling nested functions
     std::vector<uint64_t> needed_globals; /* For saving the hash of variables 
         from a parent scope needed in a nested function */
@@ -1030,6 +1030,14 @@ public:
             } /* else {
                 // Deal with case where procedure passed in as argument
                 */
+            if (is_a<ASR::Function_t>(*symbol_get_past_external(
+                ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
+                ASR::Function_t *arg = EXPR2FUN(x.m_args[i]);
+                uint32_t h = get_hash((ASR::asr_t*)arg);
+                std::string arg_s = arg->m_name;
+                llvm_arg.setName(arg_s);
+                llvm_symtab_fn_arg[h] = &llvm_arg;
+            }
             i++;
         }
     }
@@ -2307,13 +2315,23 @@ public:
         } else {
             throw CodeGenError("External type not implemented yet.");
         }
-        if (llvm_symtab_fn.find(h) == llvm_symtab_fn.end()) {
+        if (llvm_symtab_fn_arg.find(h) != llvm_symtab_fn_arg.end()) {
+            llvm::Value *fntst = llvm_symtab_fn_arg[h];
+            auto tst = fntst->getName();
+            fntst->getType()->print(llvm::outs());
+            llvm::Value *fn = llvm_symtab_fn[h];
+            llvm::Function* fna = llvm::dyn_cast<llvm::Function>(fn);
+            fna->getType()->print(llvm::outs());
+            std::vector<llvm::Value *> args = convert_call_args(x);
+            tmp = builder->CreateCall(fna, args);
+        } else if (llvm_symtab_fn.find(h) == llvm_symtab_fn.end()) {
             throw CodeGenError("Function code not generated for '"
                 + std::string(s->m_name) + "'");
+        } else {
+            llvm::Function *fn = llvm_symtab_fn[h];
+            std::vector<llvm::Value *> args = convert_call_args(x);
+            tmp = builder->CreateCall(fn, args);
         }
-        llvm::Function *fn = llvm_symtab_fn[h];
-        std::vector<llvm::Value *> args = convert_call_args(x);
-        tmp = builder->CreateCall(fn, args);
     }
 
     //!< Meant to be called only once
