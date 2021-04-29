@@ -2401,8 +2401,7 @@ public:
     }
 
     ASR::asr_t* resolve_variable2(const Location &loc, const char* id,
-            const char* derived_type_id) {
-        SymbolTable *scope = current_scope;
+            const char* derived_type_id, SymbolTable*& scope) {
         std::string var_name = id;
         std::string dt_name = derived_type_id;
         ASR::symbol_t *v = scope->resolve_symbol(dt_name);
@@ -2426,10 +2425,12 @@ public:
             } else {
                 der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
             }
+            scope = der_type->m_symtab;
             ASR::symbol_t* member = der_type->m_symtab->resolve_symbol(var_name);
             if( member != nullptr ) {
                 ASR::Variable_t* member_variable = ((ASR::Variable_t*)(&(member->base)));
-                return ASR::make_DerivedRef_t(al, loc, v, member, member_variable->m_type);
+                ASR::asr_t* v_var = ASR::make_Var_t(al, loc, v);
+                return ASR::make_DerivedRef_t(al, loc, EXPR(v_var), member, member_variable->m_type);
             } else {
                 throw SemanticError("Variable '" + dt_name + "' doesn't have any member named, '" + var_name + "'.", loc);
             }
@@ -2442,11 +2443,22 @@ public:
         if (x.n_member == 0) {
             tmp = resolve_variable(x.base.base.loc, x.m_id);
         } else if (x.n_member == 1 && x.m_member[0].n_args == 0) {
+            SymbolTable* scope = current_scope;
             tmp = resolve_variable2(x.base.base.loc, x.m_id,
-                x.m_member[0].m_name);
+                x.m_member[0].m_name, scope);
         } else {
-            throw SemanticError("Derived Types not implemented yet",
-                x.base.base.loc);
+            SymbolTable* scope = current_scope;
+            tmp = resolve_variable2(x.base.base.loc, x.m_member[1].m_name, x.m_member[0].m_name, scope);
+            ASR::DerivedRef_t* tmp2;
+            std::uint32_t i;
+            for( i = 2; i < x.n_member; i++ ) {
+                tmp2 = (ASR::DerivedRef_t*)resolve_variable2(x.base.base.loc, 
+                                            x.m_member[i].m_name, x.m_member[i - 1].m_name, scope);
+                tmp = ASR::make_DerivedRef_t(al, x.base.base.loc, EXPR(tmp), tmp2->m_m, tmp2->m_type);
+            }
+            i = x.n_member - 1;
+            tmp2 = (ASR::DerivedRef_t*)resolve_variable2(x.base.base.loc, x.m_id, x.m_member[i].m_name, scope);
+            tmp = ASR::make_DerivedRef_t(al, x.base.base.loc, EXPR(tmp), tmp2->m_m, tmp2->m_type);
         }
     }
 

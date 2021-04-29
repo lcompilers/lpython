@@ -6,23 +6,47 @@ type :: X
     integer :: i
 end type
 
+! type :: Y
+!     complex :: c
+!     type(X) :: d
+! end type
+
 contains
 
-subroutine set(a)
-type(X), intent(out) :: a
-a%i = 1
-a%r = 1.5
-end subroutine
+! subroutine set(a)
+! type(X), intent(out) :: a
+! a%i = 1
+! a%r = 1.5
+! end subroutine
 
 end module
 
+! module a_02
+! use a_01, only: Y
+! implicit none
+
+! type :: Z
+!     complex :: k
+!     type(Y) :: l
+! end type
+
+! end module
+
 program derived_types_01
-use a_01, only: X, set
-implicit none
-type(X) :: b
-b%i = 5
-b%r = 3.5
-print *, b%i, b%r
-call set(b)
-print *, b%i, b%r
+! use a_02, only: Z
+use a_01, only: X
+! implicit none
+! type(X) :: b
+type(X) :: c
+! b%i = 5
+! b%r = 3.5
+! print *, b%i, b%r
+! call set(b)
+! print *, b%i, b%r
+! c%l%d%r = 2.0
+! c%d%i = 2
+! c%c = (2.0, 2.0)
+! print *, c%d%r, c%d%i, c%c
+! call set(c%d)
+! print *, c%d%r, c%d%i, c%c
 end

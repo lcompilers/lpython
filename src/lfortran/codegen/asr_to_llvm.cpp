@@ -367,40 +367,45 @@ public:
     }
 
     llvm::Type* getDerivedType(ASR::ttype_t* _type, bool is_pointer=false) {
+        std::cout<<_type->type
         ASR::Derived_t* der = (ASR::Derived_t*)(&(_type->base));
         ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
         std::string der_type_name = std::string(der_type->m_name);
+        std::cout<<der_type_name<<std::endl<<std::endl;
         llvm::StructType* der_type_llvm;
         if( name2dertype.find(der_type_name) != name2dertype.end() ) {
             der_type_llvm = name2dertype[der_type_name];
         } else {
             std::map<std::string, ASR::symbol_t*> scope = der_type->m_symtab->scope;
+            // std::cout<<scope<<" "<<llvm_symtab<<std::endl;
             std::vector<llvm::Type*> member_types;
             int member_idx = 0;
             for( auto itr = scope.begin(); itr != scope.end(); itr++ ) {
-                ASR::Variable_t* member = (ASR::Variable_t*)(&(itr->second->base));
-                llvm::Type* mem_type = nullptr;
-                switch( member->m_type->type ) {
-                    case ASR::ttypeType::Integer: {
-                        int a_kind = down_cast<ASR::Integer_t>(member->m_type)->m_kind;
-                        mem_type = getIntType(a_kind);
-                        break;
-                    }
-                    case ASR::ttypeType::Real: {
-                        int a_kind = down_cast<ASR::Real_t>(member->m_type)->m_kind;
-                        mem_type = getFPType(a_kind);
-                        break;
-                    }
-                    default:
-                        throw SemanticError("Cannot identify the type of member, '" + 
-                                            std::string(member->m_name) + 
-                                            "' in derived type, '" + der_type_name + "'.", 
-                                            member->base.base.loc);
-                }
-                member_types.push_back(mem_type);
-                name2memidx[der_type_name][std::string(member->m_name)] = member_idx;
-                member_idx++;
+                std::cout<<itr->first<<std::endl;
+                // ASR::Variable_t* member = (ASR::Variable_t*)(&(itr->second->base));
+                // llvm::Type* mem_type = nullptr;
+                // switch( member->m_type->type ) {
+                //     case ASR::ttypeType::Integer: {
+                //         int a_kind = down_cast<ASR::Integer_t>(member->m_type)->m_kind;
+                //         mem_type = getIntType(a_kind);
+                //         break;
+                //     }
+                //     case ASR::ttypeType::Real: {
+                //         int a_kind = down_cast<ASR::Real_t>(member->m_type)->m_kind;
+                //         mem_type = getFPType(a_kind);
+                //         break;
+                //     }
+                //     default:
+                //         throw SemanticError("Cannot identify the type of member, '" + 
+                //                             std::string(member->m_name) + 
+                //                             "' in derived type, '" + der_type_name + "'.", 
+                //                             member->base.base.loc);
+                // }
+                // member_types.push_back(mem_type);
+                // name2memidx[der_type_name][std::string(member->m_name)] = member_idx;
+                // member_idx++;
             }
+            std::cout<<std::endl;
             der_type_llvm = llvm::StructType::create(context, member_types, der_type_name);
             name2dertype[der_type_name] = der_type_llvm;
         }
