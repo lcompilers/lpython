@@ -15,8 +15,8 @@ contains
 
 subroutine set(a)
 type(X), intent(out) :: a
-! a%i = 1
-! a%r = 1.5
+a%i = 1
+a%r = 1.5
 end subroutine
 
 end module

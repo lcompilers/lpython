@@ -2149,17 +2149,22 @@ public:
                     case (ASR::ttypeType::Logical) :
                         target_type = llvm::Type::getInt1Ty(context);
                         break;
-                    case (ASR::ttypeType::Derived) : {
-                        target_type = getDerivedType(arg_type);
+                    case (ASR::ttypeType::Derived) :
                         break;
-                    }
                     default :
                         throw CodeGenError("Type not implemented yet.");
                 }
-                // llvm::AllocaInst *target = builder->CreateAlloca(
-                //     target_type, nullptr);
-                // builder->CreateStore(value, target);
-                tmp = value;
+                switch(arg_type->type) {
+                    case ASR::ttypeType::Derived: {
+                        tmp = value;
+                        break;
+                    }
+                    default: {
+                        llvm::AllocaInst *target = builder->CreateAlloca(
+                            target_type, nullptr);
+                        builder->CreateStore(value, target);
+                    }
+                }
             }
             args.push_back(tmp);
         }
