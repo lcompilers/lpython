@@ -2123,7 +2123,7 @@ public:
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 tmp = llvm_symtab[h];
             } else {
-                this->visit_expr_wrapper(x.m_args[i], true);
+                this->visit_expr_wrapper(x.m_args[i]);
                 llvm::Value *value=tmp;
                 llvm::Type *target_type;
                 ASR::ttype_t* arg_type = expr_type(x.m_args[i]);
@@ -2156,10 +2156,10 @@ public:
                     default :
                         throw CodeGenError("Type not implemented yet.");
                 }
-                llvm::AllocaInst *target = builder->CreateAlloca(
-                    target_type, nullptr);
-                builder->CreateStore(value, target);
-                tmp = target;
+                // llvm::AllocaInst *target = builder->CreateAlloca(
+                //     target_type, nullptr);
+                // builder->CreateStore(value, target);
+                tmp = value;
             }
             args.push_back(tmp);
         }
