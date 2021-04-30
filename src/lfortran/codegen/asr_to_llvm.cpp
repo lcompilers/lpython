@@ -2317,13 +2317,12 @@ public:
         }
         if (llvm_symtab_fn_arg.find(h) != llvm_symtab_fn_arg.end()) {
             llvm::Value *fntst = llvm_symtab_fn_arg[h];
-            auto tst = fntst->getName();
-            fntst->getType()->print(llvm::outs());
             llvm::Value *fn = llvm_symtab_fn[h];
             llvm::Function* fna = llvm::dyn_cast<llvm::Function>(fn);
             fna->getType()->print(llvm::outs());
             std::vector<llvm::Value *> args = convert_call_args(x);
-            tmp = builder->CreateCall(fna, args);
+            tmp = builder->CreateCall(llvm_symtab_fn[h]->getFunctionType(), 
+                fntst, args);
         } else if (llvm_symtab_fn.find(h) == llvm_symtab_fn.end()) {
             throw CodeGenError("Function code not generated for '"
                 + std::string(s->m_name) + "'");
