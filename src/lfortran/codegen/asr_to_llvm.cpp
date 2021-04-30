@@ -96,6 +96,9 @@ private:
   //!< A map from sin, cos, etc. to the corresponding functions
   std::unordered_map<std::string, llvm::Function *> all_intrinsics;
 
+  //! To be used by visit_DerivedRef.
+  std::string der_type_name;
+
   //! Helpful for debugging while testing LLVM code
   void print_util(llvm::Value* v, std::string fmt_chars) {
         std::vector<llvm::Value *> args;
@@ -396,6 +399,15 @@ public:
                     case ASR::ttypeType::Real: {
                         int a_kind = down_cast<ASR::Real_t>(member->m_type)->m_kind;
                         mem_type = getFPType(a_kind);
+                        break;
+                    }
+                    case ASR::ttypeType::Derived: {
+                        mem_type = getDerivedType(member->m_type);
+                        break;
+                    }
+                    case ASR::ttypeType::Complex: {
+                        int a_kind = down_cast<ASR::Complex_t>(member->m_type)->m_kind;
+                        mem_type = getComplexType(a_kind);
                         break;
                     }
                     default:
@@ -727,18 +739,19 @@ public:
     }
 
     void visit_DerivedRef(const ASR::DerivedRef_t& x) {
-        ASR::Variable_t* var = (ASR::Variable_t*)(&(x.m_v->base));
-        ASR::Derived_t* der = (ASR::Derived_t*)(&(var->m_type->base));
-        ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
-        std::string der_type_name = std::string(der_type->m_name);
-        ASR::Variable_t* member = (ASR::Variable_t*)(&(x.m_m->base));
+        this->visit_expr(*x.m_v);
+        ASR::Var_t* mem_var = (ASR::Var_t*)(&(x.m_m->base));
+        ASR::Variable_t* member = down_cast<ASR::Variable_t>(symbol_get_past_external(mem_var->m_v));
         std::string member_name = std::string(member->m_name);
         int member_idx = name2memidx[der_type_name][member_name];
         std::vector<llvm::Value*> idx_vec = {
             llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
             llvm::ConstantInt::get(context, llvm::APInt(32, member_idx))};
-        uint32_t h = get_hash((ASR::asr_t*)var);
-        tmp = builder->CreateGEP(llvm_symtab[h], idx_vec);
+        llvm::Value* tmp1 = builder->CreateGEP(tmp, idx_vec);
+        if( member->m_type->type == ASR::ttypeType::Derived ) {
+            this->visit_expr(*x.m_m);
+        }
+        tmp = tmp1;
     }
 
     void visit_Variable(const ASR::Variable_t &x) {
@@ -1749,6 +1762,16 @@ public:
             case ASR::ttypeType::CharacterPointer:
             case ASR::ttypeType::LogicalPointer:
             case ASR::ttypeType::DerivedPointer: {
+                break;
+            }
+            case ASR::ttypeType::Derived: {
+                ASR::Derived_t* der = (ASR::Derived_t*)(&(x->m_type->base));
+                ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
+                der_type_name = std::string(der_type->m_name);
+                uint32_t h = get_hash((ASR::asr_t*)x);
+                if( llvm_symtab.find(h) != llvm_symtab.end() ) {
+                    tmp = llvm_symtab[h];
+                }
                 break;
             }
             default: {

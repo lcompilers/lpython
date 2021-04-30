@@ -2430,7 +2430,8 @@ public:
             if( member != nullptr ) {
                 ASR::Variable_t* member_variable = ((ASR::Variable_t*)(&(member->base)));
                 ASR::asr_t* v_var = ASR::make_Var_t(al, loc, v);
-                return ASR::make_DerivedRef_t(al, loc, EXPR(v_var), member, member_variable->m_type);
+                ASR::asr_t* m_var = ASR::make_Var_t(al, loc, member);
+                return ASR::make_DerivedRef_t(al, loc, EXPR(v_var), EXPR(m_var), member_variable->m_type);
             } else {
                 throw SemanticError("Variable '" + dt_name + "' doesn't have any member named, '" + var_name + "'.", loc);
             }

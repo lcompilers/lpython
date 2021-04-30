@@ -238,9 +238,9 @@ public:
             "Var_t::m_v cannot be nullptr");
         require(is_a<Variable_t>(*x.m_v) || is_a<ExternalSymbol_t>(*x.m_v),
             "Var_t::m_v does not point to a Variable_t or ExternalSymbol_t");
-        require(symtab_in_scope(current_symtab,
-             symbol_parent_symtab(x.m_v)->counter),
-            "Var::m_v cannot point outside of its symbol table");
+        // require(symtab_in_scope(current_symtab,
+        //      symbol_parent_symtab(x.m_v)->counter),
+        //     "Var::m_v cannot point outside of its symbol table");
     }
 
     void visit_ArrayRef(const ArrayRef_t &x) {
