@@ -1,12 +1,12 @@
 {
-    "basename": "asr-derived_types_01-960dafe",
-    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "basename": "llvm-derived_types_01-49e71ac",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
     "infile": "tests/../integration_tests/derived_types_01.f90",
     "infile_hash": "f61e2d4c887af94bb55e5f02c4a04c3b64e9a2ee3ca2020a4fd94daa",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "asr-derived_types_01-960dafe.stdout",
-    "stdout_hash": "7a9ff1ed50c1be106b984d6392701fc2d6742aebc00a2c98ec0b4bf7",
+    "stdout": "llvm-derived_types_01-49e71ac.stdout",
+    "stdout_hash": "4fd30e26781e59cb8e96463d6686e70dd2be972e97ec5ca00afb32b3",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
