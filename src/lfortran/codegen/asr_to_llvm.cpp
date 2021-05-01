@@ -952,7 +952,7 @@ public:
         std::vector<llvm::Type*> args;
         for (size_t i=0; i<x.n_args; i++) {
             if (is_a<ASR::Variable_t>(*symbol_get_past_external(
-                    ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
+                ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
                 ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
                 LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
                 // We pass all arguments as pointers for now
@@ -979,34 +979,23 @@ public:
                     case (ASR::ttypeType::Logical) :
                         type = llvm::Type::getInt1PtrTy(context);
                         break;
-                case (ASR::ttypeType::Derived) : {
-                    type = getDerivedType(arg->m_type, true);
+                    case (ASR::ttypeType::Derived) : {
+                        type = getDerivedType(arg->m_type, true);
                         break;
-                }
+                    }
                     default :
                         LFORTRAN_ASSERT(false);
                 }
                 args.push_back(type);
-            } else {
-                 // This is likely a procedure passed as an argument. For the
-                 // type, we need to pass in a function pointer with the
-                 // correct call signature. Believe this needs to be done here
-                 // first as when we generate IR we will this.
-                // We already have the data for this procedure in
-                // llvm_symtab_fn.
+            } else if (is_a<ASR::Function_t>(*symbol_get_past_external(
+                ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
+                /* This is likely a procedure passed as an argument. For the
+                   type, we need to pass in a function pointer with the
+                   correct call signature. */
                 ASR::Function_t* fn = ASR::down_cast<ASR::Function_t>(
                     symbol_get_past_external(ASR::down_cast<ASR::Var_t>(
                     x.m_args[i])->m_v));
                 uint32_t h = get_hash((ASR::asr_t*)fn);
-                auto a = llvm_symtab_fn[h]->getFunctionType();
-                std::vector<llvm::Type*> fp_types;
-                for (size_t i = 0; i < a->getNumParams(); i++){
-                    fp_types.push_back(a->getParamType(i));
-                }
-                /*
-                llvm::StructType* type = llvm::StructType::create(
-                    context, fp_types);
-                */
                 llvm::Type *type;
                 type = llvm_symtab_fn[h]->getType();
                 args.push_back(type);
@@ -1027,11 +1016,9 @@ public:
                 std::string arg_s = arg->m_name;
                 llvm_arg.setName(arg_s);
                 llvm_symtab[h] = &llvm_arg;
-            } /* else {
-                // Deal with case where procedure passed in as argument
-                */
-            if (is_a<ASR::Function_t>(*symbol_get_past_external(
+            } else if (is_a<ASR::Function_t>(*symbol_get_past_external(
                 ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
+                // Deal with case where procedure passed in as argument
                 ASR::Function_t *arg = EXPR2FUN(x.m_args[i]);
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 std::string arg_s = arg->m_name;
