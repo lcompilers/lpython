@@ -44,9 +44,9 @@ print *, b%i, b%r
 call set(b)
 print *, b%i, b%r
 c%l%d%r = 2.0
-c%l%d%i = 2
-c%k = (2.0, 2.0)
-print *, c%l%d%r, c%l%d%i, c%k
-call set(c%l%d)
-print *, c%l%d%r, c%l%d%i, c%k
+! c%l%d%i = 2
+! c%k = (2.0, 2.0)
+! print *, c%l%d%r, c%l%d%i, c%k
+! call set(c%l%d)
+! print *, c%l%d%r, c%l%d%i, c%k
 end

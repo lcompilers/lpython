@@ -2400,6 +2400,47 @@ public:
         return ASR::make_Var_t(al, loc, v);
     }
 
+    ASR::asr_t* getDerivedRef_t(const Location& loc, ASR::asr_t* v_var, ASR::symbol_t* member) {
+        ASR::symbol_t member_copy = *member;
+        member = &member_copy;
+        ASR::Variable_t* member_variable = ((ASR::Variable_t*)(&(member->base)));
+        ASR::ttype_t* member_type = member_variable->m_type;
+        // std::cout<<&(member_type->base)<<std::endl;
+        switch( member_type->type ) {
+            case ASR::ttypeType::Derived: {
+                ASR::Derived_t* der = (ASR::Derived_t*)(&(member_type->base));
+                ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
+                if( der_type->m_symtab->counter != current_scope->counter ) {
+                    ASR::symbol_t* der_ext;
+                    if( current_scope->scope.find(std::string(der_type->m_name)) == current_scope->scope.end() ) {
+                        // std::cout<<der_type->m_name<<std::endl;
+                        char* module_name = (char*)"nullptr";
+                        ASR::symbol_t* m_external = der->m_derived_type;
+                        if( m_external->type == ASR::symbolType::ExternalSymbol ) {
+                            ASR::ExternalSymbol_t* m_ext = (ASR::ExternalSymbol_t*)(&(m_external->base));
+                            m_external = m_ext->m_external;
+                            module_name = m_ext->m_module_name;
+                        }
+                        der_ext = (ASR::symbol_t*)ASR::make_ExternalSymbol_t(al, loc, current_scope, der_type->m_name, m_external, 
+                                                                             module_name, der_type->m_name, ASR::accessType::Public);
+                        current_scope->scope[std::string(der_type->m_name)] = der_ext;
+                    } else {
+                        der_ext = current_scope->scope[std::string(der_type->m_name)];
+                    }
+                    ASR::asr_t* der_new = ASR::make_Derived_t(al, loc, der_ext, der->m_dims, der->n_dims);
+                    member_type = (ASR::ttype_t*)(der_new);
+                }
+                break;
+            }
+            default : 
+                break;
+        }
+        // std::cout<<&(member_type->base)<<std::endl;
+        member_variable->m_type = member_type;
+        ASR::asr_t* m_var = ASR::make_Var_t(al, loc, member);
+        return ASR::make_DerivedRef_t(al, loc, EXPR(v_var), EXPR(m_var), member_type);
+    }
+
     ASR::asr_t* resolve_variable2(const Location &loc, const char* id,
             const char* derived_type_id, SymbolTable*& scope) {
         std::string var_name = id;
@@ -2428,10 +2469,8 @@ public:
             scope = der_type->m_symtab;
             ASR::symbol_t* member = der_type->m_symtab->resolve_symbol(var_name);
             if( member != nullptr ) {
-                ASR::Variable_t* member_variable = ((ASR::Variable_t*)(&(member->base)));
                 ASR::asr_t* v_var = ASR::make_Var_t(al, loc, v);
-                ASR::asr_t* m_var = ASR::make_Var_t(al, loc, member);
-                return ASR::make_DerivedRef_t(al, loc, EXPR(v_var), EXPR(m_var), member_variable->m_type);
+                return getDerivedRef_t(loc, v_var, member);
             } else {
                 throw SemanticError("Variable '" + dt_name + "' doesn't have any member named, '" + var_name + "'.", loc);
             }
