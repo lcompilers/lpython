@@ -2316,13 +2316,10 @@ public:
             throw CodeGenError("External type not implemented yet.");
         }
         if (llvm_symtab_fn_arg.find(h) != llvm_symtab_fn_arg.end()) {
-            llvm::Value *fntst = llvm_symtab_fn_arg[h];
-            llvm::Value *fn = llvm_symtab_fn[h];
-            llvm::Function* fna = llvm::dyn_cast<llvm::Function>(fn);
-            fna->getType()->print(llvm::outs());
+            llvm::Value* fn = llvm_symtab_fn_arg[h];
+            llvm::FunctionType* fntype = llvm_symtab_fn[h]->getFunctionType();
             std::vector<llvm::Value *> args = convert_call_args(x);
-            tmp = builder->CreateCall(llvm_symtab_fn[h]->getFunctionType(), 
-                fntst, args);
+            tmp = builder->CreateCall(fntype, fn, args);
         } else if (llvm_symtab_fn.find(h) == llvm_symtab_fn.end()) {
             throw CodeGenError("Function code not generated for '"
                 + std::string(s->m_name) + "'");
