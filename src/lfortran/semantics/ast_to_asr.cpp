@@ -828,7 +828,7 @@ public:
 
     void visit_Subroutine(const AST::Subroutine_t &x) {
         ASR::accessType s_access = dflt_access;
-        ASR::deftypeType deftype = ASR::Implementation;
+        ASR::deftypeType deftype = ASR::deftypeType::Implementation;
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
         for (size_t i=0; i<x.n_args; i++) {
@@ -859,7 +859,7 @@ public:
             s_access = assgnd_access[sym_name];
         }
         if (is_interface){
-            deftype = ASR::Interface;
+            deftype = ASR::deftypeType::Interface;
         }
         asr = ASR::make_Subroutine_t(
             al, x.base.base.loc,
@@ -908,7 +908,7 @@ public:
     void visit_Function(const AST::Function_t &x) {
         // Extract local (including dummy) variables first
         ASR::accessType s_access = dflt_access;
-        ASR::deftypeType deftype = ASR::Implementation;
+        ASR::deftypeType deftype = ASR::deftypeType::Implementation;
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
         for (size_t i=0; i<x.n_args; i++) {
@@ -1019,7 +1019,7 @@ public:
             s_access = assgnd_access[sym_name];
         }
         if (is_interface) {
-            deftype = ASR::Interface;
+            deftype = ASR::deftypeType::Interface;
         }
         asr = ASR::make_Function_t(
             al, x.base.base.loc,
@@ -2554,7 +2554,7 @@ public:
                                        /* n_body */ 0,
                                        /* a_return_var */ EXPR(return_var_ref),
                                        ASR::abiType::Source,
-                                       ASR::Public, ASR::Implementation);
+                                       ASR::Public, ASR::deftypeType::Implementation);
                 std::string sym_name = fn_name;
                 unit->m_global_scope->scope[sym_name] =
                     ASR::down_cast<ASR::symbol_t>(fn);
@@ -2615,7 +2615,7 @@ public:
                                              /* n_body */ 0,
                                              /* a_return_var */ EXPR(return_var_ref),
                                              ASR::abiType::Intrinsic,
-                                             ASR::Public, ASR::Implementation);
+                                             ASR::Public, ASR::deftypeType::Implementation);
                     std::string sym_name = fn_name;
                     unit->m_global_scope->scope[sym_name] =
                         ASR::down_cast<ASR::symbol_t>(fn);
