@@ -50,4 +50,3 @@ define i32 @main() {
   ret i32 0
 }
 
-float (float*)*float (float*)*
