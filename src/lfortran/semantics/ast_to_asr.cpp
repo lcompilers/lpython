@@ -1010,6 +1010,13 @@ public:
         if (assgnd_access.count(sym_name)) {
             s_access = assgnd_access[sym_name];
         }
+        ASR::abiType abi_type;
+        std::vector<std::string> intrinsics = {std::string("lbound")};
+        for( std::string& func_name: intrinsics ) {
+            if( sym_name == func_name ) {
+                abi_type = ASR::abiType::Intrinsic;
+            }
+        }
         asr = ASR::make_Function_t(
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
@@ -1019,7 +1026,7 @@ public:
             /* a_body */ nullptr,
             /* n_body */ 0,
             /* a_return_var */ EXPR(return_var_ref),
-            ASR::abiType::Source, s_access);
+            abi_type, s_access);
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             ASR::symbol_t *f1 = parent_scope->scope[sym_name];
             ASR::Function_t *f2 = ASR::down_cast<ASR::Function_t>(f1);

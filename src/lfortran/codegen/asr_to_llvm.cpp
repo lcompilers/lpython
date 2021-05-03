@@ -936,12 +936,14 @@ public:
         declare_vars(x);
     }
 
+    void fill_size(const ASR::Function_t& x) {
+        ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
+        uint32_t h = get_hash((ASR::asr_t*)arg);
+        llvm::Value* llvm_arg = llvm_symtab[h];
+    }
+
     void visit_Function(const ASR::Function_t &x) {
         // Implement intrinsics here
-        if (x.m_abi != ASR::abiType::Source &&
-            x.m_abi != ASR::abiType::Interactive) {
-                return;
-        }
         // Check if the procedure has a nested function that needs access to
         // some variables in its local scope
         uint32_t h = get_hash((ASR::asr_t*)&x);
@@ -1020,8 +1022,21 @@ public:
 
             declare_local_vars(x);
 
-            for (size_t i=0; i<x.n_body; i++) {
-                this->visit_stmt(*x.m_body[i]);
+            switch( x.m_abi ) {
+                case ASR::abiType::Intrinsic: {
+                    std::string func_name = x.m_name;
+                    if( func_name == "size" ) {
+                        fill_size(x);
+                    } else {
+                        throw CodeGenError("Cannot generate code for " + func_name);
+                    }
+                    break;
+                }
+                default: {
+                    for (size_t i=0; i<x.n_body; i++) {
+                        this->visit_stmt(*x.m_body[i]);
+                    }
+                }
             }
 
             ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
