@@ -2402,7 +2402,7 @@ public:
 
     ASR::asr_t* getDerivedRef_t(const Location& loc, ASR::asr_t* v_var, ASR::symbol_t* member) {
         ASR::symbol_t member_copy = *member;
-        member = &member_copy;
+        // member = &member_copy;
         ASR::Variable_t* member_variable = ((ASR::Variable_t*)(&(member->base)));
         ASR::ttype_t* member_type = member_variable->m_type;
         // std::cout<<&(member_type->base)<<std::endl;
@@ -2436,9 +2436,9 @@ public:
                 break;
         }
         // std::cout<<&(member_type->base)<<std::endl;
-        member_variable->m_type = member_type;
+        // member_variable->m_type = member_type;
         ASR::asr_t* m_var = ASR::make_Var_t(al, loc, member);
-        return ASR::make_DerivedRef_t(al, loc, EXPR(v_var), EXPR(m_var), member_type);
+        return ASR::make_DerivedRef_t(al, loc, EXPR(v_var), member, member_type);
     }
 
     ASR::asr_t* resolve_variable2(const Location &loc, const char* id,

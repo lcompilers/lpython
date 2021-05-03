@@ -740,8 +740,7 @@ public:
 
     void visit_DerivedRef(const ASR::DerivedRef_t& x) {
         this->visit_expr(*x.m_v);
-        ASR::Var_t* mem_var = (ASR::Var_t*)(&(x.m_m->base));
-        ASR::Variable_t* member = down_cast<ASR::Variable_t>(symbol_get_past_external(mem_var->m_v));
+        ASR::Variable_t* member = down_cast<ASR::Variable_t>(symbol_get_past_external(x.m_m));
         std::string member_name = std::string(member->m_name);
         int member_idx = name2memidx[der_type_name][member_name];
         std::vector<llvm::Value*> idx_vec = {
@@ -749,7 +748,13 @@ public:
             llvm::ConstantInt::get(context, llvm::APInt(32, member_idx))};
         llvm::Value* tmp1 = builder->CreateGEP(tmp, idx_vec);
         if( member->m_type->type == ASR::ttypeType::Derived ) {
-            this->visit_expr(*x.m_m);
+            ASR::Derived_t* der = (ASR::Derived_t*)(&(member->m_type->base));
+            ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
+            der_type_name = std::string(der_type->m_name);
+            uint32_t h = get_hash((ASR::asr_t*)member);
+            if( llvm_symtab.find(h) != llvm_symtab.end() ) {
+                tmp = llvm_symtab[h];
+            }
         }
         tmp = tmp1;
     }

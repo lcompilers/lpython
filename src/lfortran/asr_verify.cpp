@@ -221,8 +221,8 @@ public:
         if (check_external) {
             require(x.m_external != nullptr,
                 "ExternalSymbol::m_external cannot be nullptr");
-            // require(!is_a<ExternalSymbol_t>(*x.m_external),
-            //     "ExternalSymbol::m_external cannot be an ExternalSymbol");
+            require(!is_a<ExternalSymbol_t>(*x.m_external),
+                "ExternalSymbol::m_external cannot be an ExternalSymbol");
             char *orig_name = symbol_name(x.m_external);
             require(std::string(x.m_original_name) == std::string(orig_name),
                 "ExternalSymbol::m_original_name must match external->m_name");
@@ -238,9 +238,8 @@ public:
             "Var_t::m_v cannot be nullptr");
         require(is_a<Variable_t>(*x.m_v) || is_a<ExternalSymbol_t>(*x.m_v),
             "Var_t::m_v does not point to a Variable_t or ExternalSymbol_t");
-        if( !symtab_in_scope(current_symtab, symbol_parent_symtab(x.m_v)->counter) ) {
-            std::cout<<"Var::m_v cannot point outside of its symbol table"<<std::endl;
-        }
+        require(symtab_in_scope(current_symtab, symbol_parent_symtab(x.m_v)->counter),
+            "Var::m_v cannot point outside of its symbol table");
     }
 
     void visit_ArrayRef(const ArrayRef_t &x) {
@@ -277,7 +276,6 @@ public:
     }
 
     void visit_Derived(const Derived_t &x) {
-        // ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(x.m_derived_type->base));
         require(symtab_in_scope(current_symtab,
                 symbol_parent_symtab(x.m_derived_type)->counter),
             "Derived::m_derived_type cannot point outside of its symbol table");
