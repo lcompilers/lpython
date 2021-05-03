@@ -999,6 +999,18 @@ public:
                 llvm::Type *type;
                 type = llvm_symtab_fn[h]->getType();
                 args.push_back(type);
+            } else if (is_a<ASR::Subroutine_t>(*symbol_get_past_external(
+                ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
+                /* This is likely a procedure passed as an argument. For the
+                   type, we need to pass in a function pointer with the
+                   correct call signature. */
+                ASR::Subroutine_t* fn = ASR::down_cast<ASR::Subroutine_t>(
+                    symbol_get_past_external(ASR::down_cast<ASR::Var_t>(
+                    x.m_args[i])->m_v));
+                uint32_t h = get_hash((ASR::asr_t*)fn);
+                llvm::Type *type;
+                type = llvm_symtab_fn[h]->getType();
+                args.push_back(type);
             }
         }
         return args;
@@ -1020,6 +1032,14 @@ public:
                 ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
                 // Deal with case where procedure passed in as argument
                 ASR::Function_t *arg = EXPR2FUN(x.m_args[i]);
+                uint32_t h = get_hash((ASR::asr_t*)arg);
+                std::string arg_s = arg->m_name;
+                llvm_arg.setName(arg_s);
+                llvm_symtab_fn_arg[h] = &llvm_arg;
+            } else if (is_a<ASR::Subroutine_t>(*symbol_get_past_external(
+                ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
+                // Deal with case where procedure passed in as argument
+                ASR::Subroutine_t *arg = EXPR2SUB(x.m_args[i]);
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 std::string arg_s = arg->m_name;
                 llvm_arg.setName(arg_s);
@@ -1170,7 +1190,7 @@ public:
             uint32_t h = get_hash((ASR::asr_t*)asr_retval);
             llvm::Value *ret_val = llvm_symtab[h];
             llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
-            // Only create return value of this is an implementation
+            // Only create return value if this is an implementation
             // TODO: If this is an interface we are just repeating statements
             // when we get to the implementation, need to fix that
             if (x.m_deftype == ASR::Implementation) {
@@ -1202,6 +1222,11 @@ public:
                 llvm::ConstantAggregateZero::get(needed_global_struct);
             module->getNamedGlobal(desc_name)->setInitializer(initializer);
         }
+        // Check if the procedure is an interface - if so we will need to add 
+        // onto the basic block when we get to the implementation later
+        if (x.m_deftype == ASR::Interface) {
+            interface_procs[x.m_name] = h;
+        }
         visit_procedures(x);
         llvm::Function *F = nullptr;
         if (llvm_symtab_fn.find(h) != llvm_symtab_fn.end()) {
@@ -1210,13 +1235,55 @@ public:
                 + std::string(x.m_name) + "'");
             */
             F = llvm_symtab_fn[h];
-        } else {
+        } else if (interface_procs.find(x.m_name) == interface_procs.end() || 
+            interface_procs[x.m_name] == h) {
             std::vector<llvm::Type*> args = convert_args(x);
             llvm::FunctionType *function_type = llvm::FunctionType::get(
                     llvm::Type::getVoidTy(context), args, false);
             F = llvm::Function::Create(function_type,
                     llvm::Function::ExternalLinkage, mangle_prefix + x.m_name, module.get());
             llvm_symtab_fn[h] = F;
+
+        } else {
+            /* TODO: Below approach will not work if there are multiple
+               implementations in different scopes as we made a single function
+               and simply amend to the basic block. Determine if we need 
+               multiple function declarations or can branch between basic 
+               blocks for the different implementation */
+            F = llvm_symtab_fn[interface_procs[x.m_name]];
+            /*
+            llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
+                    ".entry", F, 0);
+            */
+            //builder->SetInsertPoint(&BB->back());
+            // Insert instruction at front of basic block by getting front of
+            // the instruction list
+            /*
+            llvm::BasicBlock *BB = &(a->front());
+            auto b = &(BB->getInstList());
+            builder->SetInsertPoint(&(b->front()));
+            */
+            // Insert instruction at end of basic block by getting front of
+            // basic block list (just the first basic block, starting at the
+            // last instruction)
+            llvm::Function::BasicBlockListType* F_bbs = 
+                &(F->getBasicBlockList());
+            builder->SetInsertPoint(&(F_bbs->front()));
+            //int b = BB->getFirstInsertionPt();
+            declare_args(x, *F);
+
+            declare_local_vars(x);
+
+            for (size_t i=0; i<x.n_body; i++) {
+                this->visit_stmt(*x.m_body[i]);
+            }
+            // Only create return value if this is an implementation
+            // TODO: If this is an interface we are just repeating statements
+            // when we get to the implementation, need to fix that
+            if (x.m_deftype == ASR::Implementation) {
+                builder->CreateRetVoid();
+            }
+            return;
         }
 
         if (interactive) return;
@@ -1233,8 +1300,12 @@ public:
             for (size_t i=0; i<x.n_body; i++) {
                 this->visit_stmt(*x.m_body[i]);
             }
-
-            builder->CreateRetVoid();
+            // Only create return value if this is an implementation
+            // TODO: If this is an interface we are just repeating statements
+            // when we get to the implementation, need to fix that
+            if (x.m_deftype == ASR::Implementation) {
+                builder->CreateRetVoid();
+            }
         }
     }
 
@@ -2187,6 +2258,19 @@ public:
                     } else {
                         tmp = llvm_symtab_fn[interface_procs[fn->m_name]];
                     }
+                } else if (is_a<ASR::Subroutine_t>(*symbol_get_past_external(
+                    ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
+                    ASR::Subroutine_t* fn = ASR::down_cast<ASR::Subroutine_t>(
+                        symbol_get_past_external(ASR::down_cast<ASR::Var_t>(
+                        x.m_args[i])->m_v));
+                    uint32_t h = get_hash((ASR::asr_t*)fn);
+                    // TODO: Double check this
+                    if (interface_procs.find(fn->m_name) == 
+                            interface_procs.end()) {
+                        tmp = llvm_symtab_fn[h];
+                    } else {
+                        tmp = llvm_symtab_fn[interface_procs[fn->m_name]];
+                    }
                 }
             } else {
                 this->visit_expr_wrapper(x.m_args[i], true);
@@ -2245,13 +2329,20 @@ public:
         } else {
             throw CodeGenError("External type not implemented yet.");
         }
-        if (llvm_symtab_fn.find(h) == llvm_symtab_fn.end()) {
+        if (llvm_symtab_fn_arg.find(h) != llvm_symtab_fn_arg.end()) {
+            // Check if this is a callback function
+            llvm::Value* fn = llvm_symtab_fn_arg[h];
+            llvm::FunctionType* fntype = llvm_symtab_fn[h]->getFunctionType();
+            std::vector<llvm::Value *> args = convert_call_args(x);
+            tmp = builder->CreateCall(fntype, fn, args);
+        } else if (llvm_symtab_fn.find(h) == llvm_symtab_fn.end()) {
             throw CodeGenError("Subroutine code not generated for '"
                 + std::string(s->m_name) + "'");
+        } else {
+            llvm::Function *fn = llvm_symtab_fn[h];
+            std::vector<llvm::Value *> args = convert_call_args(x);
+            builder->CreateCall(fn, args);
         }
-        llvm::Function *fn = llvm_symtab_fn[h];
-        std::vector<llvm::Value *> args = convert_call_args(x);
-        builder->CreateCall(fn, args);
     }
 
     void visit_FunctionCall(const ASR::FunctionCall_t &x) {

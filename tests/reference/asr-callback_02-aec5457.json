@@ -1,0 +1,13 @@
+{
+    "basename": "asr-callback_02-aec5457",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/callback_02.f90",
+    "infile_hash": "880452ed794b4467313ba9a87318b17fe757a084b2a39129209153d3",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-callback_02-aec5457.stdout",
+    "stdout_hash": "beab9770d3bbe57f49b49c3fd56dd9056e752a65a82b3703b48e79a1",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
