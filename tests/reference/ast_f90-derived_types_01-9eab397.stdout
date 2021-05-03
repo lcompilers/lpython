@@ -13,6 +13,8 @@ contains
 
 subroutine set(a)
 type(X), intent(out) :: a
+a%i = 1
+a%r = 1.5
 end subroutine set
 
 end module a_01

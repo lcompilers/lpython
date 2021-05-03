@@ -2168,6 +2168,7 @@ public:
                         llvm::AllocaInst *target = builder->CreateAlloca(
                             target_type, nullptr);
                         builder->CreateStore(value, target);
+                        tmp = target;
                     }
                 }
             }

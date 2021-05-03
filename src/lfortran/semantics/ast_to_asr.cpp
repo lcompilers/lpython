@@ -2401,11 +2401,8 @@ public:
     }
 
     ASR::asr_t* getDerivedRef_t(const Location& loc, ASR::asr_t* v_var, ASR::symbol_t* member) {
-        ASR::symbol_t member_copy = *member;
-        // member = &member_copy;
         ASR::Variable_t* member_variable = ((ASR::Variable_t*)(&(member->base)));
         ASR::ttype_t* member_type = member_variable->m_type;
-        // std::cout<<&(member_type->base)<<std::endl;
         switch( member_type->type ) {
             case ASR::ttypeType::Derived: {
                 ASR::Derived_t* der = (ASR::Derived_t*)(&(member_type->base));
@@ -2413,7 +2410,6 @@ public:
                 if( der_type->m_symtab->counter != current_scope->counter ) {
                     ASR::symbol_t* der_ext;
                     if( current_scope->scope.find(std::string(der_type->m_name)) == current_scope->scope.end() ) {
-                        // std::cout<<der_type->m_name<<std::endl;
                         char* module_name = (char*)"nullptr";
                         ASR::symbol_t* m_external = der->m_derived_type;
                         if( m_external->type == ASR::symbolType::ExternalSymbol ) {
@@ -2435,9 +2431,6 @@ public:
             default : 
                 break;
         }
-        // std::cout<<&(member_type->base)<<std::endl;
-        // member_variable->m_type = member_type;
-        ASR::asr_t* m_var = ASR::make_Var_t(al, loc, member);
         return ASR::make_DerivedRef_t(al, loc, EXPR(v_var), member, member_type);
     }
 
