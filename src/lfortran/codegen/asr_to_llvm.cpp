@@ -1181,19 +1181,23 @@ public:
 
             declare_args(x, *F);
 
-            declare_local_vars(x);
+            if (x.m_deftype == ASR::Implementation) {
+                // If we declare local vars in a function interface, we will
+                // allocate the return variable twice (assume we don't need to
+                // do anything with local vars for interfaces for now
+                declare_local_vars(x);
+            }
 
             for (size_t i=0; i<x.n_body; i++) {
                 this->visit_stmt(*x.m_body[i]);
             }
             ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
             uint32_t h = get_hash((ASR::asr_t*)asr_retval);
-            llvm::Value *ret_val = llvm_symtab[h];
-            llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
+
             // Only create return value if this is an implementation
-            // TODO: If this is an interface we are just repeating statements
-            // when we get to the implementation, need to fix that
             if (x.m_deftype == ASR::Implementation) {
+                llvm::Value *ret_val = llvm_symtab[h];
+                llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
                 builder->CreateRet(ret_val2);
             }
         }
@@ -1295,14 +1299,18 @@ public:
 
             declare_args(x, *F);
 
-            declare_local_vars(x);
+            if (x.m_deftype == ASR::Implementation) {
+                // Declaring local variables in a subroutine is not quite the
+                // same as a function as we are not definitely allocating the
+                // return value twice, but assume we don't need this for
+                // interfaces for now (same as function)
+                declare_local_vars(x);
+            }
 
             for (size_t i=0; i<x.n_body; i++) {
                 this->visit_stmt(*x.m_body[i]);
             }
             // Only create return value if this is an implementation
-            // TODO: If this is an interface we are just repeating statements
-            // when we get to the implementation, need to fix that
             if (x.m_deftype == ASR::Implementation) {
                 builder->CreateRetVoid();
             }
