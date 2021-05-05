@@ -1136,25 +1136,13 @@ public:
                multiple function declarations or can branch between basic 
                blocks for the different implementation */
             F = llvm_symtab_fn[interface_procs[x.m_name]];
-            /*
-            llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
-                    ".entry", F, 0);
-            */
-            //builder->SetInsertPoint(&BB->back());
-            // Insert instruction at front of basic block by getting front of
-            // the instruction list
-            /*
-            llvm::BasicBlock *BB = &(a->front());
-            auto b = &(BB->getInstList());
-            builder->SetInsertPoint(&(b->front()));
-            */
             // Insert instruction at end of basic block by getting front of
             // basic block list (just the first basic block, starting at the
             // last instruction)
             llvm::Function::BasicBlockListType* F_bbs = 
                 &(F->getBasicBlockList());
             builder->SetInsertPoint(&(F_bbs->front()));
-            //int b = BB->getFirstInsertionPt();
+
             declare_args(x, *F);
 
             declare_local_vars(x);
@@ -1184,7 +1172,7 @@ public:
             if (x.m_deftype == ASR::Implementation) {
                 // If we declare local vars in a function interface, we will
                 // allocate the return variable twice (assume we don't need to
-                // do anything with local vars for interfaces for now
+                // do anything with local vars for interfaces for now)
                 declare_local_vars(x);
             }
 
@@ -1255,25 +1243,10 @@ public:
                multiple function declarations or can branch between basic 
                blocks for the different implementation */
             F = llvm_symtab_fn[interface_procs[x.m_name]];
-            /*
-            llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
-                    ".entry", F, 0);
-            */
-            //builder->SetInsertPoint(&BB->back());
-            // Insert instruction at front of basic block by getting front of
-            // the instruction list
-            /*
-            llvm::BasicBlock *BB = &(a->front());
-            auto b = &(BB->getInstList());
-            builder->SetInsertPoint(&(b->front()));
-            */
-            // Insert instruction at end of basic block by getting front of
-            // basic block list (just the first basic block, starting at the
-            // last instruction)
             llvm::Function::BasicBlockListType* F_bbs = 
                 &(F->getBasicBlockList());
             builder->SetInsertPoint(&(F_bbs->front()));
-            //int b = BB->getFirstInsertionPt();
+
             declare_args(x, *F);
 
             declare_local_vars(x);
@@ -2259,7 +2232,6 @@ public:
                         symbol_get_past_external(ASR::down_cast<ASR::Var_t>(
                         x.m_args[i])->m_v));
                     uint32_t h = get_hash((ASR::asr_t*)fn);
-                    // TODO: Double check this
                     if (interface_procs.find(fn->m_name) == 
                             interface_procs.end()) {
                         tmp = llvm_symtab_fn[h];
@@ -2272,7 +2244,6 @@ public:
                         symbol_get_past_external(ASR::down_cast<ASR::Var_t>(
                         x.m_args[i])->m_v));
                     uint32_t h = get_hash((ASR::asr_t*)fn);
-                    // TODO: Double check this
                     if (interface_procs.find(fn->m_name) == 
                             interface_procs.end()) {
                         tmp = llvm_symtab_fn[h];
