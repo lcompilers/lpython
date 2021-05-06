@@ -259,5 +259,5 @@ RUN(NAME nested_05 LABELS gfortran llvm)
 
 RUN(NAME intent_01 LABELS gfortran llvm)
 
-RUN(NAME callback_01 LABELS gfortran)
-RUN(NAME callback_02 LABELS gfortran)
+RUN(NAME callback_01 LABELS gfortran llvm)
+RUN(NAME callback_02 LABELS gfortran llvm)
