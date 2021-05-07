@@ -2141,6 +2141,100 @@ public:
         dec_indent();
         s = r;
     }
+
+    void visit_SelectType(const SelectType_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += print_stmt_name(x);
+        r += syn(gr::Conditional);
+        r += "select type";
+        r += syn();
+        r += " (";
+        if (x.m_assoc_name) {
+            r.append(x.m_assoc_name);
+            r += "=>";
+        }
+        this->visit_expr(*x.m_selector);
+        r += s;
+        r += ")\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_type_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        r += syn(gr::Conditional);
+        r += "end select";
+        r += syn();
+        r += "\n";
+        s = r;
+    }
+
+    void visit_TypeStmt1(const TypeStmt1_t &x) {
+        std::string r = indent;
+        r += syn(gr::Conditional);
+        r += "type is";
+        r += syn();
+        r += " (";
+        if (x.m_name) {
+            r.append(x.m_name);
+        }
+        r += ")\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        s = r;
+    }
+    void visit_TypeStmt2(const TypeStmt2_t &x) {
+        std::string r = indent;
+        r += syn(gr::Conditional);
+        r += "type is";
+        r += syn();
+        r += " (";
+        r += "// TODO)\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        s = r;
+    }
+    void visit_ClassStmt(const ClassStmt_t &x) {
+        std::string r = indent;
+        r += syn(gr::Conditional);
+        r += "class is";
+        r += syn();
+        r += " (";
+        if (x.m_id) {
+            r.append(x.m_id);
+        }
+        r += ")\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        s = r;
+    }
+    void visit_ClassDefault(const ClassDefault_t &x) {
+        std::string r = indent;
+        r += syn(gr::Conditional);
+        r += "class default";
+        r += syn();
+        r += "\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        s = r;
+    }
 };
 
 }
