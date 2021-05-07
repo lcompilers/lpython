@@ -2170,7 +2170,7 @@ public:
         s = r;
     }
 
-    void visit_TypeStmt1(const TypeStmt1_t &x) {
+    void visit_TypeStmtName(const TypeStmtName_t &x) {
         std::string r = indent;
         r += syn(gr::Conditional);
         r += "type is";
@@ -2188,7 +2188,7 @@ public:
         dec_indent();
         s = r;
     }
-    void visit_TypeStmt2(const TypeStmt2_t &x) {
+    void visit_TypeStmtType(const TypeStmtType_t &x) {
         std::string r = indent;
         r += syn(gr::Conditional);
         r += "type is";

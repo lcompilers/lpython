@@ -1232,9 +1232,9 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
         name2char(id), EXPR(sel), \
         TYPE_STMTS(body), body.size())
 
-#define TYPE_STMT1(x, body, l) make_TypeStmt1_t(p.m_a, l, \
+#define TYPE_STMT1(x, body, l) make_TypeStmtName_t(p.m_a, l, \
         x.c_str(p.m_a), STMTS(body), body.size())
-#define TYPE_STMT2(varType, body, l) make_TypeStmt2_t(p.m_a, l, \
+#define TYPE_STMT2(varType, body, l) make_TypeStmtType_t(p.m_a, l, \
         STMTS(body), body.size())
 #define CLASS_STMT(id, body, l) make_ClassStmt_t(p.m_a, l, \
         name2char(id), STMTS(body), body.size())
