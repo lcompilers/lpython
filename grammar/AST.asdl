@@ -262,8 +262,8 @@ array_index = ArrayIndex(expr? left, expr? right, expr? step)
 case_stmt = CaseStmt(expr* test, stmt* body) | CaseStmt_Range(expr? start, expr? end, stmt* body)
 
 type_stmt
-    = TypeStmt1(identifier? name, stmt* body)
-    | TypeStmt2(stmt* body)
+    = TypeStmtName(identifier? name, stmt* body)
+    | TypeStmtType(stmt* body)
     | ClassStmt(identifier? id, stmt* body)
     | ClassDefault(stmt* body)
 
