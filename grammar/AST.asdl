@@ -263,7 +263,7 @@ case_stmt = CaseStmt(expr* test, stmt* body) | CaseStmt_Range(expr? start, expr?
 
 type_stmt
     = TypeStmtName(identifier? name, stmt* body)
-    | TypeStmtType(stmt* body)
+    | TypeStmtType(decl_attribute? vartype, stmt* body)
     | ClassStmt(identifier? id, stmt* body)
     | ClassDefault(stmt* body)
 

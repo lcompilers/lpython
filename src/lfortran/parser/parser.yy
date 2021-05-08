@@ -1254,8 +1254,8 @@ select_type_body_statements
     ;
 
 select_type_body_statement
-    : KW_TYPE KW_IS "(" TK_NAME ")" sep statements { $$ = TYPE_STMT1($4, $7, @$); }
-    | KW_TYPE KW_IS "(" var_type ")" sep statements { $$ = TYPE_STMT2($4, $7, @$); }
+    : KW_TYPE KW_IS "(" TK_NAME ")" sep statements { $$ = TYPE_STMTNAME($4, $7, @$); }
+    | KW_TYPE KW_IS "(" var_type ")" sep statements { $$ = TYPE_STMTVAR($4, $7, @$); }
     | KW_CLASS KW_IS "(" id ")" sep statements { $$ = CLASS_STMT($4, $7, @$); }
     | KW_CLASS KW_DEFAULT sep statements { $$ = CLASS_DEFAULT($4, @$); }
     ;

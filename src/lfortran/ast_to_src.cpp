@@ -2194,7 +2194,11 @@ public:
         r += "type is";
         r += syn();
         r += " (";
-        r += "// TODO)\n";
+        if (x.m_vartype) {
+            this->visit_decl_attribute(*x.m_vartype);
+            r += s;
+        }
+        r += ")\n";
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
