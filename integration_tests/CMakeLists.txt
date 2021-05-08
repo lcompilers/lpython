@@ -179,6 +179,8 @@ RUN(NAME case_01 LABELS gfortran llvm)
 RUN(NAME case_02 LABELS gfortran llvm)
 RUN(NAME case_03 LABELS gfortran llvm)
 
+RUN(NAME select_type_01 LABELS gfortran)
+
 RUN(NAME program_02 LABELS gfortran)
 
 RUN(NAME where_01 LABELS gfortran)
