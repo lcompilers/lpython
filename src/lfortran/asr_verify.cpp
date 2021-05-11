@@ -280,7 +280,7 @@ public:
 
     void visit_Derived(const Derived_t &x) {
         require(symtab_in_scope(current_symtab,
-             symbol_parent_symtab(x.m_derived_type)->counter),
+                symbol_parent_symtab(x.m_derived_type)->counter),
             "Derived::m_derived_type cannot point outside of its symbol table");
         for (size_t i=0; i<x.n_dims; i++) {
             visit_dimension(x.m_dims[i]);
