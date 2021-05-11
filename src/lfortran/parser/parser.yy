@@ -332,6 +332,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> where_block
 %type <ast> select_statement
 %type <ast> select_type_statement
+%type <vec_ast> select_type_body_statements
+%type <ast> select_type_body_statement
 %type <vec_ast> case_statements
 %type <ast> case_statement
 %type <vec_ast> select_default_statement_opt
@@ -1239,22 +1241,23 @@ select_default_statement
 select_type_statement
     : KW_SELECT KW_TYPE "(" expr ")" sep select_type_body_statements
         KW_END KW_SELECT {
-                $$ = PRINT0(@$); }
+                $$ = SELECT_TYPE1($4, $7, @$); }
     | KW_SELECT KW_TYPE "(" id "=>" expr ")" sep select_type_body_statements
         KW_END KW_SELECT {
-                $$ = PRINT0(@$); }
+                $$ = SELECT_TYPE2($4, $6, $9, @$); }
     ;
 
 select_type_body_statements
-    : select_type_body_statements select_type_body_statement
-    | %empty
+    : select_type_body_statements select_type_body_statement {
+                        $$ = $1; LIST_ADD($$, $2); }
+    | %empty { LIST_NEW($$); }
     ;
 
 select_type_body_statement
-    : KW_TYPE KW_IS "(" TK_NAME ")" sep statements
-    | KW_TYPE KW_IS "(" var_type ")" sep statements
-    | KW_CLASS KW_IS "(" id ")" sep statements
-    | KW_CLASS KW_DEFAULT sep statements
+    : KW_TYPE KW_IS "(" TK_NAME ")" sep statements { $$ = TYPE_STMTNAME($4, $7, @$); }
+    | KW_TYPE KW_IS "(" var_type ")" sep statements { $$ = TYPE_STMTVAR($4, $7, @$); }
+    | KW_CLASS KW_IS "(" id ")" sep statements { $$ = CLASS_STMT($4, $7, @$); }
+    | KW_CLASS KW_DEFAULT sep statements { $$ = CLASS_DEFAULT($4, @$); }
     ;
 
 

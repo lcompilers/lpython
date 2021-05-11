@@ -733,6 +733,7 @@ public:
     std::map<std::string, ASR::accessType> assgnd_access;
     Vec<char*> current_module_dependencies;
     bool in_module=false;
+    bool is_interface=false;
     std::vector<std::string> current_procedure_args;
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
@@ -827,6 +828,7 @@ public:
 
     void visit_Subroutine(const AST::Subroutine_t &x) {
         ASR::accessType s_access = dflt_access;
+        ASR::deftypeType deftype = ASR::deftypeType::Implementation;
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
         for (size_t i=0; i<x.n_args; i++) {
@@ -856,6 +858,9 @@ public:
         if (assgnd_access.count(sym_name)) {
             s_access = assgnd_access[sym_name];
         }
+        if (is_interface){
+            deftype = ASR::deftypeType::Interface;
+        }
         asr = ASR::make_Subroutine_t(
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
@@ -865,7 +870,7 @@ public:
             /* a_body */ nullptr,
             /* n_body */ 0,
             ASR::abiType::Source,
-            s_access);
+            s_access, deftype);
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             ASR::symbol_t *f1 = parent_scope->scope[sym_name];
             ASR::Subroutine_t *f2 = ASR::down_cast<ASR::Subroutine_t>(f1);
@@ -877,6 +882,9 @@ public:
         }
         parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
         current_scope = parent_scope;
+        /* FIXME: This can become incorrect/get cleared prematurely, perhaps
+           in nested functions, and also in callback.f90 test, but it may not
+           matter since we would have already checked the intent */
         current_procedure_args.clear();
     }
 
@@ -900,6 +908,7 @@ public:
     void visit_Function(const AST::Function_t &x) {
         // Extract local (including dummy) variables first
         ASR::accessType s_access = dflt_access;
+        ASR::deftypeType deftype = ASR::deftypeType::Implementation;
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
         for (size_t i=0; i<x.n_args; i++) {
@@ -1009,6 +1018,9 @@ public:
         if (assgnd_access.count(sym_name)) {
             s_access = assgnd_access[sym_name];
         }
+        if (is_interface) {
+            deftype = ASR::deftypeType::Interface;
+        }
         asr = ASR::make_Function_t(
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
@@ -1018,7 +1030,7 @@ public:
             /* a_body */ nullptr,
             /* n_body */ 0,
             /* a_return_var */ EXPR(return_var_ref),
-            ASR::abiType::Source, s_access);
+            ASR::abiType::Source, s_access, deftype);
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             ASR::symbol_t *f1 = parent_scope->scope[sym_name];
             ASR::Function_t *f2 = ASR::down_cast<ASR::Function_t>(f1);
@@ -1438,6 +1450,13 @@ public:
         current_scope = parent_scope;
     }
 
+    void visit_InterfaceProc(const AST::InterfaceProc_t &x) {
+        is_interface = true;
+        visit_program_unit(*x.m_proc);
+        is_interface = false;
+        return;
+    }
+
     void visit_Interface(const AST::Interface_t &x) {
         if (AST::is_a<AST::InterfaceHeader2_t>(*x.m_header)) {
             char *generic_name = AST::down_cast<AST::InterfaceHeader2_t>(x.m_header)->m_name;
@@ -1456,6 +1475,11 @@ public:
                 }
             }
             generic_procedures[std::string(generic_name)] = proc_names;
+        } else if (AST::is_a<AST::InterfaceHeader1_t>(*x.m_header)) {
+            std::vector<std::string> proc_names;
+            for (size_t i = 0; i < x.n_items; i++) {
+                visit_interface_item(*x.m_items[i]);
+            }
         } else {
             throw SemanticError("Interface type not imlemented yet", x.base.base.loc);
         }
@@ -2400,9 +2424,42 @@ public:
         return ASR::make_Var_t(al, loc, v);
     }
 
+    ASR::asr_t* getDerivedRef_t(const Location& loc, ASR::asr_t* v_var, ASR::symbol_t* member) {
+        ASR::Variable_t* member_variable = ((ASR::Variable_t*)(&(member->base)));
+        ASR::ttype_t* member_type = member_variable->m_type;
+        switch( member_type->type ) {
+            case ASR::ttypeType::Derived: {
+                ASR::Derived_t* der = (ASR::Derived_t*)(&(member_type->base));
+                ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
+                if( der_type->m_symtab->counter != current_scope->counter ) {
+                    ASR::symbol_t* der_ext;
+                    if( current_scope->scope.find(std::string(der_type->m_name)) == current_scope->scope.end() ) {
+                        char* module_name = (char*)"nullptr";
+                        ASR::symbol_t* m_external = der->m_derived_type;
+                        if( m_external->type == ASR::symbolType::ExternalSymbol ) {
+                            ASR::ExternalSymbol_t* m_ext = (ASR::ExternalSymbol_t*)(&(m_external->base));
+                            m_external = m_ext->m_external;
+                            module_name = m_ext->m_module_name;
+                        }
+                        der_ext = (ASR::symbol_t*)ASR::make_ExternalSymbol_t(al, loc, current_scope, der_type->m_name, m_external, 
+                                                                             module_name, der_type->m_name, ASR::accessType::Public);
+                        current_scope->scope[std::string(der_type->m_name)] = der_ext;
+                    } else {
+                        der_ext = current_scope->scope[std::string(der_type->m_name)];
+                    }
+                    ASR::asr_t* der_new = ASR::make_Derived_t(al, loc, der_ext, der->m_dims, der->n_dims);
+                    member_type = (ASR::ttype_t*)(der_new);
+                }
+                break;
+            }
+            default : 
+                break;
+        }
+        return ASR::make_DerivedRef_t(al, loc, EXPR(v_var), member, member_type);
+    }
+
     ASR::asr_t* resolve_variable2(const Location &loc, const char* id,
-            const char* derived_type_id) {
-        SymbolTable *scope = current_scope;
+            const char* derived_type_id, SymbolTable*& scope) {
         std::string var_name = id;
         std::string dt_name = derived_type_id;
         ASR::symbol_t *v = scope->resolve_symbol(dt_name);
@@ -2426,10 +2483,11 @@ public:
             } else {
                 der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
             }
+            scope = der_type->m_symtab;
             ASR::symbol_t* member = der_type->m_symtab->resolve_symbol(var_name);
             if( member != nullptr ) {
-                ASR::Variable_t* member_variable = ((ASR::Variable_t*)(&(member->base)));
-                return ASR::make_DerivedRef_t(al, loc, v, member, member_variable->m_type);
+                ASR::asr_t* v_var = ASR::make_Var_t(al, loc, v);
+                return getDerivedRef_t(loc, v_var, member);
             } else {
                 throw SemanticError("Variable '" + dt_name + "' doesn't have any member named, '" + var_name + "'.", loc);
             }
@@ -2442,11 +2500,22 @@ public:
         if (x.n_member == 0) {
             tmp = resolve_variable(x.base.base.loc, x.m_id);
         } else if (x.n_member == 1 && x.m_member[0].n_args == 0) {
+            SymbolTable* scope = current_scope;
             tmp = resolve_variable2(x.base.base.loc, x.m_id,
-                x.m_member[0].m_name);
+                x.m_member[0].m_name, scope);
         } else {
-            throw SemanticError("Derived Types not implemented yet",
-                x.base.base.loc);
+            SymbolTable* scope = current_scope;
+            tmp = resolve_variable2(x.base.base.loc, x.m_member[1].m_name, x.m_member[0].m_name, scope);
+            ASR::DerivedRef_t* tmp2;
+            std::uint32_t i;
+            for( i = 2; i < x.n_member; i++ ) {
+                tmp2 = (ASR::DerivedRef_t*)resolve_variable2(x.base.base.loc, 
+                                            x.m_member[i].m_name, x.m_member[i - 1].m_name, scope);
+                tmp = ASR::make_DerivedRef_t(al, x.base.base.loc, EXPR(tmp), tmp2->m_m, tmp2->m_type);
+            }
+            i = x.n_member - 1;
+            tmp2 = (ASR::DerivedRef_t*)resolve_variable2(x.base.base.loc, x.m_id, x.m_member[i].m_name, scope);
+            tmp = ASR::make_DerivedRef_t(al, x.base.base.loc, EXPR(tmp), tmp2->m_m, tmp2->m_type);
         }
     }
 
@@ -2530,7 +2599,7 @@ public:
                                        /* n_body */ 0,
                                        /* a_return_var */ EXPR(return_var_ref),
                                        ASR::abiType::Source,
-                                       ASR::Public);
+                                       ASR::Public, ASR::deftypeType::Implementation);
                 std::string sym_name = fn_name;
                 unit->m_global_scope->scope[sym_name] =
                     ASR::down_cast<ASR::symbol_t>(fn);
@@ -2591,7 +2660,7 @@ public:
                                              /* n_body */ 0,
                                              /* a_return_var */ EXPR(return_var_ref),
                                              ASR::abiType::Intrinsic,
-                                             ASR::Public);
+                                             ASR::Public, ASR::deftypeType::Implementation);
                     std::string sym_name = fn_name;
                     unit->m_global_scope->scope[sym_name] =
                         ASR::down_cast<ASR::symbol_t>(fn);

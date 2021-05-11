@@ -179,6 +179,8 @@ RUN(NAME case_01 LABELS gfortran llvm)
 RUN(NAME case_02 LABELS gfortran llvm)
 RUN(NAME case_03 LABELS gfortran llvm)
 
+RUN(NAME select_type_01 LABELS gfortran)
+
 RUN(NAME program_02 LABELS gfortran)
 
 RUN(NAME where_01 LABELS gfortran)
@@ -259,3 +261,6 @@ RUN(NAME nested_05 LABELS gfortran llvm)
 RUN(NAME nested_06 LABELS gfortran llvm)
 
 RUN(NAME intent_01 LABELS gfortran llvm)
+
+RUN(NAME callback_01 LABELS gfortran llvm)
+RUN(NAME callback_02 LABELS gfortran llvm)
