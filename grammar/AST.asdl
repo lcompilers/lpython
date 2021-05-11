@@ -128,6 +128,8 @@ stmt
     | If(int label, identifier? stmt_name, expr test, stmt* body, stmt* orelse)
     | Select(int label, identifier? stmt_name, expr test, case_stmt* body,
             stmt* default)
+    | SelectType(int label, identifier? stmt_name, identifier? assoc_name, expr selector,
+            type_stmt* body)
     | Where(int label, identifier? stmt_name, expr test, stmt* body,
             stmt* orelse)
     | WhileLoop(int label, identifier? stmt_name, expr test, stmt* body)
@@ -258,6 +260,12 @@ bind = Bind(expr* args, keyword* kwargs)
 array_index = ArrayIndex(expr? left, expr? right, expr? step)
 
 case_stmt = CaseStmt(expr* test, stmt* body) | CaseStmt_Range(expr? start, expr? end, stmt* body)
+
+type_stmt
+    = TypeStmtName(identifier? name, stmt* body)
+    | TypeStmtType(decl_attribute? vartype, stmt* body)
+    | ClassStmt(identifier? id, stmt* body)
+    | ClassDefault(stmt* body)
 
 use_symbol = UseSymbol(identifier sym, identifier? rename)
 

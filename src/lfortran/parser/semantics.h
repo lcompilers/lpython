@@ -70,6 +70,7 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 #define ATTRS(x) VEC_CAST(x, attribute)
 #define EXPRS(x) VEC_CAST(x, expr)
 #define CASE_STMTS(x) VEC_CAST(x, case_stmt)
+#define TYPE_STMTS(x) VEC_CAST(x, type_stmt)
 #define USE_SYMBOLS(x) VEC_CAST(x, use_symbol)
 #define CONCURRENT_CONTROLS(x) VEC_CAST(x, concurrent_control)
 #define CONCURRENT_LOCALITIES(x) VEC_CAST(x, concurrent_locality)
@@ -1224,6 +1225,21 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
         nullptr, EXPR(cond), STMTS(body), body.size())
 #define CASE_STMT4(cond1, cond2, body, l) make_CaseStmt_Range_t(p.m_a, l, \
         EXPR(cond1), EXPR(cond2), STMTS(body), body.size())
+
+#define SELECT_TYPE1(sel, body, l) make_SelectType_t(p.m_a, l, 0, nullptr, \
+        nullptr, EXPR(sel), TYPE_STMTS(body), body.size())
+#define SELECT_TYPE2(id, sel, body, l) make_SelectType_t(p.m_a, l, 0, nullptr, \
+        name2char(id), EXPR(sel), \
+        TYPE_STMTS(body), body.size())
+
+#define TYPE_STMTNAME(x, body, l) make_TypeStmtName_t(p.m_a, l, \
+        x.c_str(p.m_a), STMTS(body), body.size())
+#define TYPE_STMTVAR(vartype, body, l) make_TypeStmtType_t(p.m_a, l, \
+        down_cast<decl_attribute_t>(vartype), STMTS(body), body.size())
+#define CLASS_STMT(id, body, l) make_ClassStmt_t(p.m_a, l, \
+        name2char(id), STMTS(body), body.size())
+#define CLASS_DEFAULT(body, l) make_ClassDefault_t(p.m_a, l, \
+        STMTS(body), body.size())
 
 #define USE1(mod, l) make_Use_t(p.m_a, l, \
         name2char(mod), \
