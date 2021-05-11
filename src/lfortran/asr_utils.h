@@ -42,6 +42,18 @@ static inline ASR::Variable_t* EXPR2VAR(const ASR::expr_t *f)
                 ASR::down_cast<ASR::Var_t>(f)->m_v));
 }
 
+static inline ASR::Function_t* EXPR2FUN(const ASR::expr_t *f)
+{
+    return ASR::down_cast<ASR::Function_t>(symbol_get_past_external(
+                ASR::down_cast<ASR::Var_t>(f)->m_v));
+}
+
+static inline ASR::Subroutine_t* EXPR2SUB(const ASR::expr_t *f)
+{
+    return ASR::down_cast<ASR::Subroutine_t>(symbol_get_past_external(
+                ASR::down_cast<ASR::Var_t>(f)->m_v));
+}
+
 
 static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
 {

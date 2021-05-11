@@ -733,6 +733,7 @@ public:
     std::map<std::string, ASR::accessType> assgnd_access;
     Vec<char*> current_module_dependencies;
     bool in_module=false;
+    bool is_interface=false;
     std::vector<std::string> current_procedure_args;
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
@@ -827,6 +828,7 @@ public:
 
     void visit_Subroutine(const AST::Subroutine_t &x) {
         ASR::accessType s_access = dflt_access;
+        ASR::deftypeType deftype = ASR::deftypeType::Implementation;
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
         for (size_t i=0; i<x.n_args; i++) {
@@ -856,6 +858,9 @@ public:
         if (assgnd_access.count(sym_name)) {
             s_access = assgnd_access[sym_name];
         }
+        if (is_interface){
+            deftype = ASR::deftypeType::Interface;
+        }
         asr = ASR::make_Subroutine_t(
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
@@ -865,7 +870,7 @@ public:
             /* a_body */ nullptr,
             /* n_body */ 0,
             ASR::abiType::Source,
-            s_access);
+            s_access, deftype);
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             ASR::symbol_t *f1 = parent_scope->scope[sym_name];
             ASR::Subroutine_t *f2 = ASR::down_cast<ASR::Subroutine_t>(f1);
@@ -877,6 +882,9 @@ public:
         }
         parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
         current_scope = parent_scope;
+        /* FIXME: This can become incorrect/get cleared prematurely, perhaps
+           in nested functions, and also in callback.f90 test, but it may not
+           matter since we would have already checked the intent */
         current_procedure_args.clear();
     }
 
@@ -900,6 +908,7 @@ public:
     void visit_Function(const AST::Function_t &x) {
         // Extract local (including dummy) variables first
         ASR::accessType s_access = dflt_access;
+        ASR::deftypeType deftype = ASR::deftypeType::Implementation;
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
         for (size_t i=0; i<x.n_args; i++) {
@@ -1009,6 +1018,9 @@ public:
         if (assgnd_access.count(sym_name)) {
             s_access = assgnd_access[sym_name];
         }
+        if (is_interface) {
+            deftype = ASR::deftypeType::Interface;
+        }
         asr = ASR::make_Function_t(
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
@@ -1018,7 +1030,7 @@ public:
             /* a_body */ nullptr,
             /* n_body */ 0,
             /* a_return_var */ EXPR(return_var_ref),
-            ASR::abiType::Source, s_access);
+            ASR::abiType::Source, s_access, deftype);
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             ASR::symbol_t *f1 = parent_scope->scope[sym_name];
             ASR::Function_t *f2 = ASR::down_cast<ASR::Function_t>(f1);
@@ -1438,6 +1450,13 @@ public:
         current_scope = parent_scope;
     }
 
+    void visit_InterfaceProc(const AST::InterfaceProc_t &x) {
+        is_interface = true;
+        visit_program_unit(*x.m_proc);
+        is_interface = false;
+        return;
+    }
+
     void visit_Interface(const AST::Interface_t &x) {
         if (AST::is_a<AST::InterfaceHeader2_t>(*x.m_header)) {
             char *generic_name = AST::down_cast<AST::InterfaceHeader2_t>(x.m_header)->m_name;
@@ -1456,6 +1475,11 @@ public:
                 }
             }
             generic_procedures[std::string(generic_name)] = proc_names;
+        } else if (AST::is_a<AST::InterfaceHeader1_t>(*x.m_header)) {
+            std::vector<std::string> proc_names;
+            for (size_t i = 0; i < x.n_items; i++) {
+                visit_interface_item(*x.m_items[i]);
+            }
         } else {
             throw SemanticError("Interface type not imlemented yet", x.base.base.loc);
         }
@@ -2575,7 +2599,7 @@ public:
                                        /* n_body */ 0,
                                        /* a_return_var */ EXPR(return_var_ref),
                                        ASR::abiType::Source,
-                                       ASR::Public);
+                                       ASR::Public, ASR::deftypeType::Implementation);
                 std::string sym_name = fn_name;
                 unit->m_global_scope->scope[sym_name] =
                     ASR::down_cast<ASR::symbol_t>(fn);
@@ -2636,7 +2660,7 @@ public:
                                              /* n_body */ 0,
                                              /* a_return_var */ EXPR(return_var_ref),
                                              ASR::abiType::Intrinsic,
-                                             ASR::Public);
+                                             ASR::Public, ASR::deftypeType::Implementation);
                     std::string sym_name = fn_name;
                     unit->m_global_scope->scope[sym_name] =
                         ASR::down_cast<ASR::symbol_t>(fn);

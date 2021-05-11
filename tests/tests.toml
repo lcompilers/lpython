@@ -987,3 +987,13 @@ llvm = true
 filename = "../integration_tests/nested_05.f90"
 asr = true
 llvm = true
+
+[[test]]
+filename = "../integration_tests/callback_01.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/callback_02.f90"
+asr = true
+llvm = true
