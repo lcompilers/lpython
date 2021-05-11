@@ -1050,6 +1050,16 @@ public:
                 ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
                 LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
                 uint32_t h = get_hash((ASR::asr_t*)arg);
+                auto finder = std::find(needed_globals.begin(),
+                    needed_globals.end(), h);
+                if (finder != needed_globals.end()) {
+                    llvm::Value* ptr = module->getOrInsertGlobal(desc_name,
+                            needed_global_struct);
+                    int idx = std::distance(needed_globals.begin(),
+                            finder);
+                    builder->CreateStore(&llvm_arg, create_gep(ptr,
+                                idx));
+                }
                 std::string arg_s = arg->m_name;
                 llvm_arg.setName(arg_s);
                 llvm_symtab[h] = &llvm_arg;

@@ -989,6 +989,11 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "../integration_tests/nested_06.f90"
+asr = true
+llvm = true
+
+[[test]]
 filename = "../integration_tests/callback_01.f90"
 asr = true
 llvm = true
