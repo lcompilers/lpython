@@ -175,7 +175,7 @@ expr
     | Str(string s, ttype type)
     | Var(symbol v)
     | ArrayRef(symbol v, array_index* args, ttype type)
-    | DerivedRef(symbol v, symbol m, ttype type)
+    | DerivedRef(expr v, symbol m, ttype type)
     | ImplicitCast(expr arg, cast_kind kind, ttype type)
     | ExplicitCast(expr arg, cast_kind kind, ttype type)
 
