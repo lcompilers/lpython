@@ -774,7 +774,7 @@ int compile_to_object_file_cpp(const std::string &infile,
         }
         if (kokkos) {
             std::string kokkos_dir = get_kokkos_dir();
-            options += "-I" + kokkos_dir + "/include";
+            options += "-std=c++17 -I" + kokkos_dir + "/include";
         }
         std::string cmd = CXX + " " + options + " -o " + outfile + " -c " + cppfile;
         int err = system(cmd.c_str());
