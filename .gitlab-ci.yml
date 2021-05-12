@@ -123,7 +123,7 @@ cxx_binary_tests:
     - make
     - ./project1
     - git clean -dfx
-    - FC=../../src/bin/lfortran FFLAGS="--openmp --backend=llvm" cmake .
+    - FC=../../src/bin/lfortran cmake .
     - make
     - ./project1
     - cd ../..
