@@ -154,7 +154,7 @@ cxx_binary_tests:
     - make install
     - cd ..
     - cd ..
-    - FC=../../src/bin/lfortran cmake -DLFORTRAN_BACKEND=cpp ..
+    - FC=../../src/bin/lfortran FFLAGS="--openmp" cmake -DLFORTRAN_BACKEND=cpp ..
     - make
     - ctest -L cpp
 

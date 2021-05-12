@@ -710,7 +710,7 @@ int compile_to_binary_x86(const std::string &infile, const std::string &outfile,
 
 int compile_to_object_file_cpp(const std::string &infile,
         const std::string &outfile,
-        bool assembly, bool kokkos)
+        bool assembly, bool kokkos, bool openmp)
 {
     std::string input = read_file(infile);
 
@@ -769,9 +769,12 @@ int compile_to_object_file_cpp(const std::string &infile,
 
         std::string CXX = "g++";
         std::string options;
+        if (openmp) {
+            options += "-fopenmp ";
+        }
         if (kokkos) {
             std::string kokkos_dir = get_kokkos_dir();
-            options += "-fopenmp -I" + kokkos_dir + "/include";
+            options += "-std=c++17 -I" + kokkos_dir + "/include";
         }
         std::string cmd = CXX + " " + options + " -o " + outfile + " -c " + cppfile;
         int err = system(cmd.c_str());
@@ -788,7 +791,7 @@ int compile_to_object_file_cpp(const std::string &infile,
 // outfile will become the executable
 int link_executable(const std::string &infile, const std::string &outfile,
     const std::string &runtime_library_dir, Backend backend,
-    bool static_executable, bool kokkos, Platform platform)
+    bool static_executable, bool kokkos, bool openmp, Platform platform)
 {
     /*
     The `gcc` line for dynamic linking that is constructed below:
@@ -876,9 +879,11 @@ int link_executable(const std::string &infile, const std::string &outfile,
         if (static_executable) {
             options += " -static ";
         }
+        if (openmp) {
+            options += " -fopenmp ";
+        }
         if (kokkos) {
             std::string kokkos_dir = get_kokkos_dir();
-            options += " -fopenmp ";
             post_options += kokkos_dir + "/lib/libkokkoscontainers.a "
                 + kokkos_dir + "/lib/libkokkoscore.a -ldl";
         }
@@ -968,6 +973,8 @@ int main(int argc, char *argv[])
         bool arg_mod_show_asr = false;
         bool arg_mod_no_color = false;
 
+        bool openmp = false;
+
         CLI::App app{"LFortran: modern interactive LLVM-based Fortran compiler"};
         // Standard options compatible with gfortran, gcc or clang
         // We follow the established conventions
@@ -996,6 +1003,7 @@ int main(int argc, char *argv[])
         app.add_flag("--time-report", time_report, "Show compilation time report");
         app.add_flag("--static", static_link, "Create a static executable");
         app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp, x86)", true);
+        app.add_flag("--openmp", openmp, "Enable openmp");
 
         /*
         * Subcommands:
@@ -1193,7 +1201,8 @@ int main(int argc, char *argv[])
                 return 1;
 #endif
             } else if (backend == Backend::cpp) {
-                return compile_to_object_file_cpp(arg_file, outfile, false, true);
+                return compile_to_object_file_cpp(arg_file, outfile, false,
+                        true, openmp);
             } else if (backend == Backend::x86) {
                 return compile_to_binary_x86(arg_file, outfile, time_report);
             } else {
@@ -1217,16 +1226,17 @@ int main(int argc, char *argv[])
                 return 1;
 #endif
             } else if (backend == Backend::cpp) {
-                err = compile_to_object_file_cpp(arg_file, tmp_o, false, true);
+                err = compile_to_object_file_cpp(arg_file, tmp_o, false,
+                        true, openmp);
             } else {
                 throw LFortran::LFortranException("Backend not supported");
             }
             if (err) return err;
             return link_executable(tmp_o, outfile, runtime_library_dir,
-                    backend, static_link, true, platform);
+                    backend, static_link, true, openmp, platform);
         } else {
             return link_executable(arg_file, outfile, runtime_library_dir,
-                    backend, static_link, true, platform);
+                    backend, static_link, true, openmp, platform);
         }
     } catch(const LFortran::LFortranException &e) {
         std::cerr << e.stacktrace();
