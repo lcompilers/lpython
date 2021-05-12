@@ -130,7 +130,7 @@ namespace LFortran
                     result["status"] = "error";
                     result["ename"] = "CompilerError";
                     result["evalue"] = msg;
-                    result["traceback"] = {};
+                    result["traceback"] = nl::json::array();
                 }
                 return result;
             }
@@ -150,7 +150,7 @@ namespace LFortran
                     result["status"] = "error";
                     result["ename"] = "CompilerError";
                     result["evalue"] = msg;
-                    result["traceback"] = {};
+                    result["traceback"] = nl::json::array();
                 }
                 return result;
             }
@@ -170,7 +170,7 @@ namespace LFortran
                     result["status"] = "error";
                     result["ename"] = "CompilerError";
                     result["evalue"] = msg;
-                    result["traceback"] = {};
+                    result["traceback"] = nl::json::array();
                 }
                 return result;
             }
@@ -190,7 +190,7 @@ namespace LFortran
                     result["status"] = "error";
                     result["ename"] = "CompilerError";
                     result["evalue"] = msg;
-                    result["traceback"] = {};
+                    result["traceback"] = nl::json::array();
                 }
                 return result;
             }
@@ -210,7 +210,7 @@ namespace LFortran
                     result["status"] = "error";
                     result["ename"] = "CompilerError";
                     result["evalue"] = msg;
-                    result["traceback"] = {};
+                    result["traceback"] = nl::json::array();
                 }
                 return result;
             }
@@ -230,7 +230,7 @@ namespace LFortran
                     result["status"] = "error";
                     result["ename"] = "CompilerError";
                     result["evalue"] = msg;
-                    result["traceback"] = {};
+                    result["traceback"] = nl::json::array();
                 }
                 return result;
             }
@@ -248,7 +248,7 @@ namespace LFortran
                 result["status"] = "error";
                 result["ename"] = "CompilerError";
                 result["evalue"] = msg;
-                result["traceback"] = {};
+                result["traceback"] = nl::json::array();
                 return result;
             }
         } catch (const LFortranException &e) {
@@ -257,7 +257,7 @@ namespace LFortran
             result["status"] = "error";
             result["ename"] = "LFortranException";
             result["evalue"] = e.msg();
-            result["traceback"] = {};
+            result["traceback"] = nl::json::array();
             return result;
         }
 
