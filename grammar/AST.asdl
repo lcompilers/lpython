@@ -43,8 +43,9 @@ program_unit
     = Subroutine(identifier name, arg* args, bind? bind, unit_decl1* use,
         import_statement* import, implicit_statement* implicit,
         unit_decl2* decl, stmt* body, program_unit* contains)
-    | Procedure(identifier name, arg* args, unit_decl1* use, unit_decl2* decl,
-        stmt* body, program_unit* contains)
+    | Procedure(identifier name, arg* args, unit_decl1* use,
+        import_statement* import, implicit_statement* implicit,
+        unit_decl2* decl, stmt* body, program_unit* contains)
     | Function(identifier name, arg* args, decl_attribute* attributes,
         expr? return_var, bind? bind, unit_decl1* use, import_statement* import,
         implicit_statement* implicit, unit_decl2* decl, stmt* body,
