@@ -2678,13 +2678,45 @@ public:
                 break;
             }
             case (ASR::symbolType::ExternalSymbol) : {
-                Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
-                ASR::ttype_t *type;
                 ASR::symbol_t *f2 = ASR::down_cast<ASR::ExternalSymbol_t>(v)->m_external;
                 LFORTRAN_ASSERT(f2);
-                type = EXPR2VAR(ASR::down_cast<ASR::Function_t>(f2)->m_return_var)->m_type;
-                tmp = ASR::make_FunctionCall_t(al, x.base.base.loc,
-                    v, nullptr, args.p, args.size(), nullptr, 0, type);
+                if (ASR::is_a<ASR::Function_t>(*f2)) {
+                    Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
+                    ASR::ttype_t *type;
+                    type = EXPR2VAR(ASR::down_cast<ASR::Function_t>(f2)->m_return_var)->m_type;
+                    tmp = ASR::make_FunctionCall_t(al, x.base.base.loc,
+                        v, nullptr, args.p, args.size(), nullptr, 0, type);
+                } else if (ASR::is_a<ASR::Variable_t>(*f2)) {
+                    Vec<ASR::array_index_t> args;
+                    args.reserve(al, x.n_args);
+                    for (size_t i=0; i<x.n_args; i++) {
+                        ASR::array_index_t ai;
+                        if (x.m_args[i].m_start == nullptr && x.m_args[i].m_end) {
+                            visit_expr(*x.m_args[i].m_end);
+                            ai.m_left = nullptr;
+                            ai.m_right = EXPR(tmp);
+                            ai.m_step = nullptr;
+                            ai.loc = ai.m_right->base.loc;
+                        } else if (x.m_args[i].m_start == nullptr
+                                && x.m_args[i].m_end == nullptr) {
+                            ai.m_left = nullptr;
+                            ai.m_right = nullptr;
+                            ai.m_step = nullptr;
+                            ai.loc = x.base.base.loc;
+                        } else {
+                            throw SemanticError("Argument type not implemented yet",
+                                x.base.base.loc);
+                        }
+                        args.push_back(al, ai);
+                    }
+
+                    ASR::ttype_t *type;
+                    type = ASR::down_cast<ASR::Variable_t>(f2)->m_type;
+                    tmp = ASR::make_ArrayRef_t(al, x.base.base.loc,
+                        v, args.p, args.size(), type);
+                } else {
+                    throw SemanticError("Unimplemented", x.base.base.loc);
+                }
                 break;
             }
             case (ASR::symbolType::Variable) : {

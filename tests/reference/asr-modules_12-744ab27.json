@@ -1,0 +1,13 @@
+{
+    "basename": "asr-modules_12-744ab27",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/modules_12.f90",
+    "infile_hash": "aba2ca12e578c5e6c071c1baf18c66272a5c54a88a9c73d8f05e6196",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-modules_12-744ab27.stdout",
+    "stdout_hash": "ae861b1a57b2b19b10f40c9c8f1c27037c130474dbac2d2717490079",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
