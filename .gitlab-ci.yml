@@ -118,6 +118,22 @@ cxx_binary_tests:
     - ctest
     - cd ../../..
 
+    - cd examples/project1
+    - FC=../../src/bin/lfortran FFLAGS="--openmp --backend=cpp" cmake .
+    - make
+    - ./project1
+    - git clean -dfx
+    - FC=../../src/bin/lfortran FFLAGS="--openmp --backend=llvm" cmake .
+    - make
+    - ./project1
+    - cd ../..
+
+    - cd examples/project2
+    - FC=../../src/bin/lfortran FFLAGS="--openmp --backend=cpp" cmake .
+    - make
+    - ./doconcurrent
+    - cd ../..
+
     - cd integration_tests
 
     - mkdir build-gfortran
