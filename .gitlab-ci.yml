@@ -118,23 +118,6 @@ cxx_binary_tests:
     - ctest
     - cd ../../..
 
-    - cd examples/project1
-    - export LFORTRAN_KOKKOS_DIR=$HOME/ext/kokkos
-    - FC=../../src/bin/lfortran FFLAGS="--openmp --backend=cpp" cmake .
-    - make
-    - ./project1
-    - git clean -dfx
-    - FC=../../src/bin/lfortran cmake .
-    - make
-    - ./project1
-    - cd ../..
-
-    - cd examples/project2
-    - FC=../../src/bin/lfortran FFLAGS="--openmp --backend=cpp" cmake .
-    - make
-    - ./doconcurrent
-    - cd ../..
-
     - cd integration_tests
 
     - mkdir build-gfortran
@@ -174,6 +157,24 @@ cxx_binary_tests:
     - FC=../../src/bin/lfortran FFLAGS="--openmp" cmake -DLFORTRAN_BACKEND=cpp ..
     - make
     - ctest -L cpp
+    - cd ../..
+
+    - cd examples/project1
+    - FC=../../src/bin/lfortran FFLAGS="--openmp --backend=cpp" cmake .
+    - make
+    - ./project1
+    - git clean -dfx
+    - FC=../../src/bin/lfortran cmake .
+    - make
+    - ./project1
+    - cd ../..
+
+    - cd examples/project2
+    - FC=../../src/bin/lfortran FFLAGS="--openmp --backend=cpp" cmake .
+    - make
+    - ./doconcurrent
+    - cd ../..
+
 
 # Test Jupyter Kernel
 jupyter_kernel:
