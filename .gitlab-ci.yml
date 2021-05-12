@@ -119,8 +119,9 @@ cxx_binary_tests:
     - cd ../../..
 
     - cd examples/project1
-    - FC=../../src/bin/lfortran FFLAGS="--openmp --backend=cpp" LFORTRAN_KOKKOS_DIR=$HOME/ext/kokkos cmake .
-    - LFORTRAN_KOKKOS_DIR=$HOME/ext/kokkos make
+    - export LFORTRAN_KOKKOS_DIR=$HOME/ext/kokkos
+    - FC=../../src/bin/lfortran FFLAGS="--openmp --backend=cpp" cmake .
+    - make
     - ./project1
     - git clean -dfx
     - FC=../../src/bin/lfortran cmake .
@@ -129,8 +130,8 @@ cxx_binary_tests:
     - cd ../..
 
     - cd examples/project2
-    - FC=../../src/bin/lfortran FFLAGS="--openmp --backend=cpp" LFORTRAN_KOKKOS_DIR=$HOME/ext/kokkos cmake .
-    - LFORTRAN_KOKKOS_DIR=$HOME/ext/kokkos make
+    - FC=../../src/bin/lfortran FFLAGS="--openmp --backend=cpp" cmake .
+    - make
     - ./doconcurrent
     - cd ../..
 
