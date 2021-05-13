@@ -1281,12 +1281,12 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
 #define PUBLIC(syms, l) make_Public_t(p.m_a, l, \
         nullptr, 0)
 
-#define INTERFACE_HEADER1(l) make_InterfaceHeader1_t(p.m_a, l)
-#define INTERFACE_HEADER2(id, l) make_InterfaceHeader2_t(p.m_a, l, \
+#define INTERFACE_HEADER(l) make_InterfaceHeader_t(p.m_a, l)
+#define INTERFACE_HEADER_NAME(id, l) make_InterfaceHeaderName_t(p.m_a, l, \
         name2char(id))
-#define INTERFACE_HEADER3(l) make_InterfaceHeader3_t(p.m_a, l)
-#define INTERFACE_HEADER4(l) make_InterfaceHeader4_t(p.m_a, l)
-#define INTERFACE_HEADER5(l) make_InterfaceHeader5_t(p.m_a, l)
+#define INTERFACE_HEADER_ASSIGNMENT(l) make_InterfaceHeaderAssignment_t(p.m_a, l)
+#define INTERFACE_HEADER_OPERATOR(l) make_InterfaceHeaderOperator_t(p.m_a, l)
+#define ABSTRACT_INTERFACE_HEADER(l) make_AbstractInterfaceHeader_t(p.m_a, l)
 
 #define INTERFACE(header, contains, l) make_Interface_t(p.m_a, l, \
         down_cast<interface_header_t>(header), INTERFACE_ITEMS(contains), contains.size())

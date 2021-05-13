@@ -378,7 +378,7 @@ exit
 (Module test [] [(ImplicitNone [])] [] [(Subroutine a [(b)] () [] [] [] [(Declaration (AttrType TypeInteger [] ()) [(AttrIntent In)] [(b [] ())])] [] []) (Subroutine f [(b)] () [] [] [] [(Declaration (AttrType TypeInteger [] ()) [(AttrIntent In)] [(b [] ())])] [] [])])
 (Module test [] [(ImplicitNone [])] [(Declaration (AttrType TypeInteger [] ()) [] [(x [] ())])] [(Subroutine a [(b)] () [] [] [] [(Declaration (AttrType TypeInteger [] ()) [(AttrIntent In)] [(b [] ())])] [] [])])
 (Module test [] [(ImplicitNone [])] [] [(Function f [] [] y () [] [] [] [] [(= 0 y 0)] [])])
-(Module test [] [(ImplicitNone [])] [(Interface (InterfaceHeader2 name) [(InterfaceModuleProcedure [a]) (InterfaceModuleProcedure [b]) (InterfaceModuleProcedure [c])])] [])
+(Module test [] [(ImplicitNone [])] [(Interface (InterfaceHeaderName name) [(InterfaceModuleProcedure [a]) (InterfaceModuleProcedure [b]) (InterfaceModuleProcedure [c])])] [])
 (Declaration (AttrType TypeInteger [] ()) [] [(x [] ())])
 (Declaration (AttrType TypeInteger [] ()) [] [(x [] ())])
 (Declaration (AttrType TypeInteger [] ()) [] [(x [] ())])

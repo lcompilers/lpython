@@ -62,11 +62,11 @@ unit_decl2
     | Enum()
 
 interface_header
-    = InterfaceHeader1()
-    | InterfaceHeader2(identifier name)
-    | InterfaceHeader3()
-    | InterfaceHeader4()
-    | InterfaceHeader5()
+    = InterfaceHeader()
+    | InterfaceHeaderName(identifier name)
+    | InterfaceHeaderAssignment()
+    | InterfaceHeaderOperator()
+    | AbstractInterfaceHeader()
 
 interface_item
     = InterfaceProc(program_unit proc)
