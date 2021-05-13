@@ -618,7 +618,7 @@ procedure
     import_statement_star implicit_statement_star decl_star statements
         contains_block_opt
         KW_END end_procedure_opt sep {
-            LLOC(@$, @14); $$ = PROCEDURE($3, $4, $6, $9, $10, $11, @$); }
+            LLOC(@$, @14); $$ = PROCEDURE($3, $4, $6, $7, $8, $9, $10, $11, @$); }
     ;
 
 function

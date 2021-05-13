@@ -442,10 +442,6 @@ public:
         return "";
     }
 
-    std::string format_import(const Procedure_t &/*x*/) {
-        return "";
-    }
-
     template <typename T>
     std::string format_implicit(const T &x) {
         std::string r;
@@ -454,10 +450,6 @@ public:
             r.append(s);
         }
         return r;
-    }
-
-    std::string format_implicit(const Procedure_t &/*x*/) {
-        return "";
     }
 
     template <typename T>

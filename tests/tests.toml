@@ -143,6 +143,10 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "procedure1.f90"
+ast = true
+
+[[test]]
 filename = "program1.f90"
 ast = true
 asr = true

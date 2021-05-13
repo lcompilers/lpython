@@ -863,13 +863,17 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
         /*n_body*/ stmts.size(), \
         /*contains*/ CONTAINS(contains), \
         /*n_contains*/ contains.size())
-#define PROCEDURE(name, args, use, decl, stmts, contains, l) \
+#define PROCEDURE(name, args, use, import, implicit, decl, stmts, contains, l) \
     make_Procedure_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
         /*use*/ USES(use), \
         /*n_use*/ use.size(), \
+        /*m_import*/ VEC_CAST(import, import_statement), \
+        /*n_import*/ import.size(), \
+        /*m_implicit*/ VEC_CAST(implicit, implicit_statement), \
+        /*n_implicit*/ implicit.size(), \
         /*decl*/ DECLS(decl), \
         /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \
