@@ -449,12 +449,13 @@ interface_decl
     ;
 
 interface_stmt
-    : KW_INTERFACE { $$ = INTERFACE_HEADER1(@$); }
-    | KW_INTERFACE id { $$ = INTERFACE_HEADER2($2, @$); }
-    | KW_INTERFACE KW_ASSIGNMENT "(" "=" ")" { $$ = INTERFACE_HEADER3(@$); }
+    : KW_INTERFACE { $$ = INTERFACE_HEADER(@$); }
+    | KW_INTERFACE id { $$ = INTERFACE_HEADER_NAME($2, @$); }
+    | KW_INTERFACE KW_ASSIGNMENT "(" "=" ")" {
+        $$ = INTERFACE_HEADER_ASSIGNMENT(@$); }
     | KW_INTERFACE KW_OPERATOR "(" operator_type ")" {
-        $$ = INTERFACE_HEADER4(@$); }
-    | KW_ABSTRACT KW_INTERFACE { $$ = INTERFACE_HEADER5(@$); }
+        $$ = INTERFACE_HEADER_OPERATOR(@$); }
+    | KW_ABSTRACT KW_INTERFACE { $$ = ABSTRACT_INTERFACE_HEADER(@$); }
     ;
 
 endinterface

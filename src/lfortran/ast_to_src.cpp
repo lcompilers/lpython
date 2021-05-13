@@ -379,28 +379,25 @@ public:
         s = r;
     }
 
-    void visit_InterfaceHeader1(const InterfaceHeader1_t &/* x */) {
-        //TODO
+    void visit_InterfaceHeader(const InterfaceHeader_t &/* x */) {
         s = "";
     }
 
-    void visit_InterfaceHeader2(const InterfaceHeader2_t &x) {
+    void visit_InterfaceHeaderName(const InterfaceHeaderName_t &x) {
         s = " ";
         s += x.m_name;
     }
 
-    void visit_InterfaceHeader3(const InterfaceHeader3_t &/* x */) {
-        //TODO
-        s = "";
+    void visit_InterfaceHeaderAssignment(const InterfaceHeaderAssignment_t &/* x */) {
+        s = " assignment (=)";
     }
 
-    void visit_InterfaceHeader4(const InterfaceHeader4_t &/* x */) {
+    void visit_InterfaceHeaderOperator(const InterfaceHeaderOperator_t &/* x */) {
         //TODO
-        s = "";
+        s = " operator ()";
     }
 
-    void visit_InterfaceHeader5(const InterfaceHeader5_t &/* x */) {
-        //TODO
+    void visit_AbstractInterfaceHeader(const AbstractInterfaceHeader_t &/* x */) {
         s = "";
     }
 
