@@ -1286,6 +1286,8 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
         name2char(id))
 #define INTERFACE_HEADER_ASSIGNMENT(l) make_InterfaceHeaderAssignment_t(p.m_a, l)
 #define INTERFACE_HEADER_OPERATOR(op, l) make_InterfaceHeaderOperator_t(p.m_a, l, op)
+#define INTERFACE_HEADER_CUSTOMOP(op, l) make_InterfaceHeaderCustomOperator_t(p.m_a, \
+        l, op.c_str(p.m_a))
 #define ABSTRACT_INTERFACE_HEADER(l) make_AbstractInterfaceHeader_t(p.m_a, l)
 
 #define OPERATOR(op, l) interfaceopType::op

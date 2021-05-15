@@ -456,6 +456,8 @@ interface_stmt
         $$ = INTERFACE_HEADER_ASSIGNMENT(@$); }
     | KW_INTERFACE KW_OPERATOR "(" operator_type ")" {
         $$ = INTERFACE_HEADER_OPERATOR($4, @$); }
+    | KW_INTERFACE KW_OPERATOR "(" TK_DEF_OP ")" {
+        $$ = INTERFACE_HEADER_CUSTOMOP($4, @$); }
     | KW_ABSTRACT KW_INTERFACE { $$ = ABSTRACT_INTERFACE_HEADER(@$); }
     ;
 

@@ -420,6 +420,12 @@ public:
         s = " operator (" + interfaceop2str(x.m_op) + ")";
     }
 
+    void visit_InterfaceHeaderCustomOperator(const InterfaceHeaderCustomOperator_t &x) {
+        s = " operator (";
+        s += x.m_operator_name;
+        s += ")";
+    }
+
     void visit_AbstractInterfaceHeader(const AbstractInterfaceHeader_t &/* x */) {
         s = "";
     }

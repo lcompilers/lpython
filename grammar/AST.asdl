@@ -66,6 +66,7 @@ interface_header
     | InterfaceHeaderName(identifier name)
     | InterfaceHeaderAssignment()
     | InterfaceHeaderOperator(interfaceop op)
+    | InterfaceHeaderCustomOperator(identifier operator_name)
     | AbstractInterfaceHeader()
 
 interface_item
