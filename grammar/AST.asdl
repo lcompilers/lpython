@@ -65,7 +65,8 @@ interface_header
     = InterfaceHeader()
     | InterfaceHeaderName(identifier name)
     | InterfaceHeaderAssignment()
-    | InterfaceHeaderOperator()
+    | InterfaceHeaderOperator(interfaceop op)
+    | InterfaceHeaderCustomOperator(identifier operator_name)
     | AbstractInterfaceHeader()
 
 interface_item
@@ -162,6 +163,12 @@ stroperator = Concat
 unaryop = Invert | Not | UAdd | USub
 
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
+
+interfaceop
+    = AND | OR | EQV | NEQV
+    | PLUS | MINUS | STAR | DIV | POW
+    | NOT
+    | EQ | NOTEQ | LT | LTE | GT | GTE
 
 decl_attribute
     = AttrBind(identifier name)

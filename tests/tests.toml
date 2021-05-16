@@ -499,6 +499,14 @@ filename = "interface2.f90"
 ast = true
 
 [[test]]
+filename = "interface3.f90"
+ast = true
+
+[[test]]
+filename = "interface4.f90"
+ast = true
+
+[[test]]
 filename = "../integration_tests/modules_01.f90"
 ast = true
 asr = true

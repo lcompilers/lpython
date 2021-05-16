@@ -366,6 +366,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <kind_arg> kind_arg2
 %type <vec_ast> interface_body
 %type <ast> interface_item
+%type <interface_op_type> operator_type
 %type <ast> write_arg
 %type <argstarkw> write_arg2
 %type <vec_argstarkw> write_arg_list
@@ -454,7 +455,9 @@ interface_stmt
     | KW_INTERFACE KW_ASSIGNMENT "(" "=" ")" {
         $$ = INTERFACE_HEADER_ASSIGNMENT(@$); }
     | KW_INTERFACE KW_OPERATOR "(" operator_type ")" {
-        $$ = INTERFACE_HEADER_OPERATOR(@$); }
+        $$ = INTERFACE_HEADER_OPERATOR($4, @$); }
+    | KW_INTERFACE KW_OPERATOR "(" TK_DEF_OP ")" {
+        $$ = INTERFACE_HEADER_CUSTOMOP($4, @$); }
     | KW_ABSTRACT KW_INTERFACE { $$ = ABSTRACT_INTERFACE_HEADER(@$); }
     ;
 
@@ -525,14 +528,22 @@ procedure_decl
     ;
 
 operator_type
-    : "+"
-    | "-"
-    | "=="
-    | "/="
-    | ">"
-    | ">="
-    | "<"
-    | "<="
+    : "+"      { $$ = OPERATOR(PLUS, @$); }
+    | "-"      { $$ = OPERATOR(MINUS, @$); }
+    | "*"      { $$ = OPERATOR(STAR, @$); }
+    | "/"      { $$ = OPERATOR(DIV, @$); }
+    | "**"     { $$ = OPERATOR(POW, @$); }
+    | "=="     { $$ = OPERATOR(EQ, @$); }
+    | "/="     { $$ = OPERATOR(NOTEQ, @$); }
+    | ">"      { $$ = OPERATOR(GT, @$); }
+    | ">="     { $$ = OPERATOR(GTE, @$); }
+    | "<"      { $$ = OPERATOR(LT, @$); }
+    | "<="     { $$ = OPERATOR(GTE, @$); }
+    | ".not."  { $$ = OPERATOR(NOT, @$); }
+    | ".and."  { $$ = OPERATOR(AND, @$); }
+    | ".or."   { $$ = OPERATOR(OR, @$); }
+    | ".eqv."  { $$ = OPERATOR(EQV, @$); }
+    | ".neqv." { $$ = OPERATOR(NEQV, @$); }
     ;
 
 proc_paren

@@ -64,6 +64,29 @@ namespace {
         }
         throw LFortranException("Unknown type");
     }
+
+    std::string interfaceop2str(const AST::interfaceopType type)
+    {
+        switch (type) {
+            case (AST::interfaceopType::AND) : return ".and.";
+            case (AST::interfaceopType::OR) : return ".or.";
+            case (AST::interfaceopType::EQV) : return ".eqv.";
+            case (AST::interfaceopType::NEQV) : return ".neqv.";
+            case (AST::interfaceopType::PLUS) : return " + ";
+            case (AST::interfaceopType::MINUS) : return " - ";
+            case (AST::interfaceopType::STAR) : return "*";
+            case (AST::interfaceopType::DIV) : return "/";
+            case (AST::interfaceopType::POW) : return "**";
+            case (AST::interfaceopType::NOT) : return ".not.";
+            case (AST::interfaceopType::EQ) : return "==";
+            case (AST::interfaceopType::GT) : return ">";
+            case (AST::interfaceopType::GTE) : return ">=";
+            case (AST::interfaceopType::LT) : return "<";
+            case (AST::interfaceopType::LTE) : return "<=";
+            case (AST::interfaceopType::NOTEQ) : return "/=";
+        }
+        throw LFortranException("Unknown type");
+    }
 }
 
 namespace AST {
@@ -374,8 +397,9 @@ public:
         r += syn(gr::UnitHeader);
         r.append("end interface");
         r += syn();
+        this->visit_interface_header(*x.m_header);
+        r.append(s);
         r.append("\n");
-
         s = r;
     }
 
@@ -392,9 +416,14 @@ public:
         s = " assignment (=)";
     }
 
-    void visit_InterfaceHeaderOperator(const InterfaceHeaderOperator_t &/* x */) {
-        //TODO
-        s = " operator ()";
+    void visit_InterfaceHeaderOperator(const InterfaceHeaderOperator_t &x) {
+        s = " operator (" + interfaceop2str(x.m_op) + ")";
+    }
+
+    void visit_InterfaceHeaderCustomOperator(const InterfaceHeaderCustomOperator_t &x) {
+        s = " operator (";
+        s += x.m_operator_name;
+        s += ")";
     }
 
     void visit_AbstractInterfaceHeader(const AbstractInterfaceHeader_t &/* x */) {
