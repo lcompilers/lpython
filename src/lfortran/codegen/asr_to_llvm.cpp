@@ -96,6 +96,8 @@ private:
   //!< A map from sin, cos, etc. to the corresponding functions
   std::unordered_map<std::string, llvm::Function *> all_intrinsics;
 
+  std::vector<std::string> lfortran_intrinsics;
+
   //! To be used by visit_DerivedRef.
   std::string der_type_name;
 
@@ -159,8 +161,9 @@ public:
          implementation to it's string name for adding to the BB */
 
 
-    ASRToLLVMVisitor(llvm::LLVMContext &context) : context(context),
-        prototype_only(false), dim_des(llvm::StructType::create(
+    ASRToLLVMVisitor(llvm::LLVMContext &context) : lfortran_intrinsics(std::vector<std::string>(
+            {std::string("size")})
+        ), context(context), prototype_only(false), dim_des(llvm::StructType::create(
             context, 
             std::vector<llvm::Type*>(
                 {llvm::Type::getInt32Ty(context), 
@@ -183,15 +186,15 @@ public:
     (ASR::ttypeType type_, int a_kind, int rank, ASR::dimension_t* m_dims,
      bool get_pointer=false) {
         int size = 0;
-        if( verify_dimensions_t(m_dims, rank) ) {
-            size = 1;
-            for( int r = 0; r < rank; r++ ) {
-                ASR::dimension_t m_dim = m_dims[r];
-                int start = ((ASR::ConstantInteger_t*)(m_dim.m_start))->m_n;
-                int end = ((ASR::ConstantInteger_t*)(m_dim.m_end))->m_n;
-                size *= (end - start + 1);
-            }
-        }
+        // if( verify_dimensions_t(m_dims, rank) ) {
+        //     size = 1;
+        //     for( int r = 0; r < rank; r++ ) {
+        //         ASR::dimension_t m_dim = m_dims[r];
+        //         int start = ((ASR::ConstantInteger_t*)(m_dim.m_start))->m_n;
+        //         int end = ((ASR::ConstantInteger_t*)(m_dim.m_end))->m_n;
+        //         size *= (end - start + 1);
+        //     }
+        // }
         std::pair<std::pair<int, int>, std::pair<int, int>> array_key = std::make_pair(std::make_pair((int)type_, a_kind), std::make_pair(rank, size));
         if( tkr2array.find(array_key) != tkr2array.end() ) {
             return tkr2array[array_key];
@@ -1071,8 +1074,8 @@ public:
             if (is_a<ASR::Variable_t>(*symbol_get_past_external(
                     ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
                 ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
-                ASR::Real_t* _type = (ASR::Real_t*)(&(arg->m_type->base));
-                std::cout<<_type->n_dims<<" "<<_type->m_kind<<std::endl;
+                // ASR::Real_t* _type = (ASR::Real_t*)(&(arg->m_type->base));
+                // std::cout<<_type->n_dims<<" "<<_type->m_kind<<std::endl;
                 LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 auto finder = std::find(needed_globals.begin(),
@@ -2441,22 +2444,28 @@ public:
         } else if (s->m_abi == ASR::abiType::Interactive) {
             h = get_hash((ASR::asr_t*)s);
         } else if (s->m_abi == ASR::abiType::Intrinsic) {
-            int a_kind = extract_kind_from_ttype_t(x.m_type);
-            if (all_intrinsics.empty()) {
-                populate_intrinsics(x.m_type);
-            }
-            // We use an unordered map to get the O(n) operation time
-            std::unordered_map<std::string, llvm::Function *>::const_iterator
-                find_intrinsic = all_intrinsics.find(s->m_name);
-            if (find_intrinsic == all_intrinsics.end()) {
-                throw CodeGenError("Intrinsic not implemented yet.");
+            std::string func_name = s->m_name;
+            if( std::find(lfortran_intrinsics.begin(), lfortran_intrinsics.end(), func_name) != 
+                lfortran_intrinsics.end() ) {
+                h = get_hash((ASR::asr_t*)s);
             } else {
-                std::vector<llvm::Value *> args = convert_call_args(x);
-                LFORTRAN_ASSERT(args.size() == 1);
-                tmp = lfortran_intrinsic(find_intrinsic->second, args[0], a_kind);
-                return;
+                int a_kind = extract_kind_from_ttype_t(x.m_type);
+                if (all_intrinsics.empty()) {
+                    populate_intrinsics(x.m_type);
+                }
+                // We use an unordered map to get the O(n) operation time
+                std::unordered_map<std::string, llvm::Function *>::const_iterator
+                    find_intrinsic = all_intrinsics.find(s->m_name);
+                if (find_intrinsic == all_intrinsics.end()) {
+                    throw CodeGenError("Intrinsic not implemented yet.");
+                } else {
+                    std::vector<llvm::Value *> args = convert_call_args(x);
+                    LFORTRAN_ASSERT(args.size() == 1);
+                    tmp = lfortran_intrinsic(find_intrinsic->second, args[0], a_kind);
+                    return;
+                }
+                h = get_hash((ASR::asr_t *)s);
             }
-            h = get_hash((ASR::asr_t *)s);
         } else {
             throw CodeGenError("External type not implemented yet.");
         }

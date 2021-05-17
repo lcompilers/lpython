@@ -1024,6 +1024,8 @@ public:
         for( std::string& func_name: intrinsics ) {
             if( sym_name == func_name ) {
                 abi_type = ASR::abiType::Intrinsic;
+                s_access = ASR::accessType::Public;
+                break;
             }
         }
         if (is_interface) {
