@@ -1002,8 +1002,16 @@ public:
                 ASR::dimension_t* m_dims = nullptr;
                 switch (arg->m_type->type) {
                     case (ASR::ttypeType::Integer) : {
-                        int a_kind = down_cast<ASR::Integer_t>(arg->m_type)->m_kind;
-                        type = getIntType(a_kind, true);
+                        ASR::Integer_t* v_type = down_cast<ASR::Integer_t>(arg->m_type);
+                        type_ = v_type->class_type;
+                        m_dims = v_type->m_dims;
+                        n_dims = v_type->n_dims;
+                        a_kind = v_type->m_kind;
+                        if( n_dims > 0 ) {
+                            type = get_array_type(type_, a_kind, n_dims, m_dims, true);
+                        } else {
+                            type = getIntType(a_kind, true);
+                        }
                         break;
                     }
                     case (ASR::ttypeType::Real) : {

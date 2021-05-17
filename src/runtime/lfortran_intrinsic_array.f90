@@ -4,7 +4,7 @@ implicit none
 contains
 
 integer function size(x) result(r)
-real(8), intent(in) :: x(:)
+integer, intent(in) :: x(:)
 end function
 
 ! integer function lbound(array, dim, kind) result(lbounds)
