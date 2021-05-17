@@ -2450,7 +2450,7 @@ public:
                         der_ext = (ASR::symbol_t*)ASR::make_ExternalSymbol_t(al, loc, current_scope, mangled_name_char, m_external,
                                                                              module_name, der_type->m_name, ASR::accessType::Public);
                         derived_types_count += 1;
-                        current_scope->scope[std::string(der_type->m_name)] = der_ext;
+                        current_scope->scope[mangled_name.str()] = der_ext;
                     } else {
                         der_ext = current_scope->scope[std::string(der_type->m_name)];
                     }
