@@ -179,8 +179,9 @@ public:
         return rank2desc[rank];
     }
 
-    inline llvm::StructType* get_array_type
-    (ASR::ttypeType type_, int a_kind, int rank, ASR::dimension_t* m_dims) {
+    inline llvm::Type* get_array_type
+    (ASR::ttypeType type_, int a_kind, int rank, ASR::dimension_t* m_dims,
+     bool get_pointer=false) {
         int size = 0;
         if( verify_dimensions_t(m_dims, rank) ) {
             size = 1;
@@ -232,6 +233,9 @@ public:
             llvm::Type::getInt32Ty(context),
             dim_des_array};
         tkr2array[array_key] = llvm::StructType::create(context, array_type_vec, "array");
+        if( get_pointer ) {
+            return tkr2array[array_key]->getPointerTo();
+        }
         return tkr2array[array_key];
     }
 
@@ -900,8 +904,16 @@ public:
                             break;
                         }
                         case (ASR::ttypeType::Real) : {
-                            a_kind = down_cast<ASR::Real_t>(v->m_type)->m_kind;
-                            type = getFPType(a_kind);
+                            ASR::Real_t* v_type = down_cast<ASR::Real_t>(v->m_type);
+                            type_ = v_type->class_type;
+                            m_dims = v_type->m_dims;
+                            n_dims = v_type->n_dims;
+                            a_kind = v_type->m_kind;
+                            if( n_dims > 0 ) {
+                                type = get_array_type(type_, a_kind, n_dims, m_dims);
+                            } else {
+                                type = getFPType(a_kind);
+                            }
                             break;
                         }
                         case (ASR::ttypeType::Complex) : {
@@ -982,6 +994,9 @@ public:
                 LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
                 // We pass all arguments as pointers for now
                 llvm::Type *type;
+                ASR::ttypeType type_;
+                int n_dims = 0, a_kind = 4;
+                ASR::dimension_t* m_dims = nullptr;
                 switch (arg->m_type->type) {
                     case (ASR::ttypeType::Integer) : {
                         int a_kind = down_cast<ASR::Integer_t>(arg->m_type)->m_kind;
@@ -989,8 +1004,16 @@ public:
                         break;
                     }
                     case (ASR::ttypeType::Real) : {
-                        int a_kind = down_cast<ASR::Real_t>(arg->m_type)->m_kind;
-                        type = getFPType(a_kind, true);
+                        ASR::Real_t* v_type = down_cast<ASR::Real_t>(arg->m_type);
+                        type_ = v_type->class_type;
+                        m_dims = v_type->m_dims;
+                        n_dims = v_type->n_dims;
+                        a_kind = v_type->m_kind;
+                        if( n_dims > 0 ) {
+                            type = get_array_type(type_, a_kind, n_dims, m_dims, true);
+                        } else {
+                            type = getFPType(a_kind, true);
+                        }
                         break;
                     }
                     case (ASR::ttypeType::Complex) : {
@@ -1048,6 +1071,8 @@ public:
             if (is_a<ASR::Variable_t>(*symbol_get_past_external(
                     ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
                 ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
+                ASR::Real_t* _type = (ASR::Real_t*)(&(arg->m_type->base));
+                std::cout<<_type->n_dims<<" "<<_type->m_kind<<std::endl;
                 LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 auto finder = std::find(needed_globals.begin(),
@@ -1090,9 +1115,24 @@ public:
     }
 
     void fill_size(const ASR::Function_t& x) {
-        ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
+        ASR::Variable_t *arg = EXPR2VAR(x.m_args[0]);
         uint32_t h = get_hash((ASR::asr_t*)arg);
         llvm::Value* llvm_arg = llvm_symtab[h];
+        ASR::Variable_t *ret = EXPR2VAR(x.m_return_var);
+        h = get_hash((ASR::asr_t*)ret);
+        llvm::Value* llvm_ret_ptr = llvm_symtab[h];
+        // llvm::Value* llvm_ret = builder->CreateLoad(llvm_symtab[h]);
+        llvm::Value* dim_des_val = create_gep(llvm_arg, 2);
+        llvm::Value* size_val = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
+        // std::cout<<((llvm::PointerType*)dim_des_val->getType())->getElementType()->getArrayNumElements()<<std::endl;
+        int n_dims = ((llvm::PointerType*)dim_des_val->getType())->getElementType()->getArrayNumElements();
+        for( int r = 0; r < n_dims; r++ ) {
+            llvm::Value* dim_val = create_gep(dim_des_val, r);
+            llvm::Value* dim_size_ptr = create_gep(dim_val, 3);
+            llvm::Value* dim_size = builder->CreateLoad(dim_size_ptr);
+            size_val = builder->CreateMul(size_val, dim_size);
+        }
+        builder->CreateStore(size_val, llvm_ret_ptr);
     }
 
     void visit_Function(const ASR::Function_t &x) {
@@ -1195,7 +1235,7 @@ public:
             if (x.m_deftype == ASR::Implementation) {
                 builder->CreateRet(ret_val2);
             }
-            return;
+            return ;
         }
 
         if (interactive) return;

@@ -1020,7 +1020,7 @@ public:
             s_access = assgnd_access[sym_name];
         }
         ASR::abiType abi_type;
-        std::vector<std::string> intrinsics = {std::string("lbound")};
+        std::vector<std::string> intrinsics = {std::string("lbound"), std::string("size")};
         for( std::string& func_name: intrinsics ) {
             if( sym_name == func_name ) {
                 abi_type = ASR::abiType::Intrinsic;
