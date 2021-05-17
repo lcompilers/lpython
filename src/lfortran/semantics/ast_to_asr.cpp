@@ -1730,7 +1730,6 @@ public:
     SymbolTable *current_scope;
     ASR::Module_t *current_module=nullptr;
     BodyVisitor(Allocator &al, ASR::asr_t *unit) : al{al}, asr{unit} {}
-    std::uint64_t derived_types_count = 0;
 
     void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
         ASR::TranslationUnit_t *unit = ASR::down_cast2<ASR::TranslationUnit_t>(asr);
@@ -2434,25 +2433,24 @@ public:
                 ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
                 if( der_type->m_symtab->counter != current_scope->counter ) {
                     ASR::symbol_t* der_ext;
-                    if( current_scope->scope.find(std::string(der_type->m_name)) == current_scope->scope.end() ) {
-                        char* module_name = (char*)"nullptr";
-                        ASR::symbol_t* m_external = der->m_derived_type;
-                        if( m_external->type == ASR::symbolType::ExternalSymbol ) {
-                            ASR::ExternalSymbol_t* m_ext = (ASR::ExternalSymbol_t*)(&(m_external->base));
-                            m_external = m_ext->m_external;
-                            module_name = m_ext->m_module_name;
-                        }
-                        Str mangled_name;
-                        mangled_name.from_str(al, std::to_string(derived_types_count) + "_" + 
-                                                  std::string(module_name) + "_" + 
-                                                  std::string(der_type->m_name));
-                        char* mangled_name_char = mangled_name.c_str(al);
+                    char* module_name = (char*)"nullptr";
+                    ASR::symbol_t* m_external = der->m_derived_type;
+                    if( m_external->type == ASR::symbolType::ExternalSymbol ) {
+                        ASR::ExternalSymbol_t* m_ext = (ASR::ExternalSymbol_t*)(&(m_external->base));
+                        m_external = m_ext->m_external;
+                        module_name = m_ext->m_module_name;
+                    }
+                    Str mangled_name;
+                    mangled_name.from_str(al, "1_" + 
+                                              std::string(module_name) + "_" + 
+                                              std::string(der_type->m_name));
+                    char* mangled_name_char = mangled_name.c_str(al);
+                    if( current_scope->scope.find(mangled_name.str()) == current_scope->scope.end() ) {
                         der_ext = (ASR::symbol_t*)ASR::make_ExternalSymbol_t(al, loc, current_scope, mangled_name_char, m_external,
                                                                              module_name, der_type->m_name, ASR::accessType::Public);
-                        derived_types_count += 1;
                         current_scope->scope[mangled_name.str()] = der_ext;
                     } else {
-                        der_ext = current_scope->scope[std::string(der_type->m_name)];
+                        der_ext = current_scope->scope[mangled_name.str()];
                     }
                     ASR::asr_t* der_new = ASR::make_Derived_t(al, loc, der_ext, der->m_dims, der->n_dims);
                     member_type = (ASR::ttype_t*)(der_new);
