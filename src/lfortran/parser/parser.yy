@@ -332,6 +332,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> where_block
 %type <ast> select_statement
 %type <ast> select_type_statement
+%type <vec_ast> select_type_body_statements
+%type <ast> select_type_body_statement
 %type <vec_ast> case_statements
 %type <ast> case_statement
 %type <vec_ast> select_default_statement_opt
@@ -364,6 +366,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <kind_arg> kind_arg2
 %type <vec_ast> interface_body
 %type <ast> interface_item
+%type <interface_op_type> operator_type
 %type <ast> write_arg
 %type <argstarkw> write_arg2
 %type <vec_argstarkw> write_arg_list
@@ -447,12 +450,15 @@ interface_decl
     ;
 
 interface_stmt
-    : KW_INTERFACE { $$ = INTERFACE_HEADER1(@$); }
-    | KW_INTERFACE id { $$ = INTERFACE_HEADER2($2, @$); }
-    | KW_INTERFACE KW_ASSIGNMENT "(" "=" ")" { $$ = INTERFACE_HEADER3(@$); }
+    : KW_INTERFACE { $$ = INTERFACE_HEADER(@$); }
+    | KW_INTERFACE id { $$ = INTERFACE_HEADER_NAME($2, @$); }
+    | KW_INTERFACE KW_ASSIGNMENT "(" "=" ")" {
+        $$ = INTERFACE_HEADER_ASSIGNMENT(@$); }
     | KW_INTERFACE KW_OPERATOR "(" operator_type ")" {
-        $$ = INTERFACE_HEADER4(@$); }
-    | KW_ABSTRACT KW_INTERFACE { $$ = INTERFACE_HEADER5(@$); }
+        $$ = INTERFACE_HEADER_OPERATOR($4, @$); }
+    | KW_INTERFACE KW_OPERATOR "(" TK_DEF_OP ")" {
+        $$ = INTERFACE_HEADER_CUSTOMOP($4, @$); }
+    | KW_ABSTRACT KW_INTERFACE { $$ = ABSTRACT_INTERFACE_HEADER(@$); }
     ;
 
 endinterface
@@ -522,14 +528,22 @@ procedure_decl
     ;
 
 operator_type
-    : "+"
-    | "-"
-    | "=="
-    | "/="
-    | ">"
-    | ">="
-    | "<"
-    | "<="
+    : "+"      { $$ = OPERATOR(PLUS, @$); }
+    | "-"      { $$ = OPERATOR(MINUS, @$); }
+    | "*"      { $$ = OPERATOR(STAR, @$); }
+    | "/"      { $$ = OPERATOR(DIV, @$); }
+    | "**"     { $$ = OPERATOR(POW, @$); }
+    | "=="     { $$ = OPERATOR(EQ, @$); }
+    | "/="     { $$ = OPERATOR(NOTEQ, @$); }
+    | ">"      { $$ = OPERATOR(GT, @$); }
+    | ">="     { $$ = OPERATOR(GTE, @$); }
+    | "<"      { $$ = OPERATOR(LT, @$); }
+    | "<="     { $$ = OPERATOR(GTE, @$); }
+    | ".not."  { $$ = OPERATOR(NOT, @$); }
+    | ".and."  { $$ = OPERATOR(AND, @$); }
+    | ".or."   { $$ = OPERATOR(OR, @$); }
+    | ".eqv."  { $$ = OPERATOR(EQV, @$); }
+    | ".neqv." { $$ = OPERATOR(NEQV, @$); }
     ;
 
 proc_paren
@@ -616,7 +630,7 @@ procedure
     import_statement_star implicit_statement_star decl_star statements
         contains_block_opt
         KW_END end_procedure_opt sep {
-            LLOC(@$, @14); $$ = PROCEDURE($3, $4, $6, $9, $10, $11, @$); }
+            LLOC(@$, @14); $$ = PROCEDURE($3, $4, $6, $7, $8, $9, $10, $11, @$); }
     ;
 
 function
@@ -1239,22 +1253,23 @@ select_default_statement
 select_type_statement
     : KW_SELECT KW_TYPE "(" expr ")" sep select_type_body_statements
         KW_END KW_SELECT {
-                $$ = PRINT0(@$); }
+                $$ = SELECT_TYPE1($4, $7, @$); }
     | KW_SELECT KW_TYPE "(" id "=>" expr ")" sep select_type_body_statements
         KW_END KW_SELECT {
-                $$ = PRINT0(@$); }
+                $$ = SELECT_TYPE2($4, $6, $9, @$); }
     ;
 
 select_type_body_statements
-    : select_type_body_statements select_type_body_statement
-    | %empty
+    : select_type_body_statements select_type_body_statement {
+                        $$ = $1; LIST_ADD($$, $2); }
+    | %empty { LIST_NEW($$); }
     ;
 
 select_type_body_statement
-    : KW_TYPE KW_IS "(" TK_NAME ")" sep statements
-    | KW_TYPE KW_IS "(" var_type ")" sep statements
-    | KW_CLASS KW_IS "(" id ")" sep statements
-    | KW_CLASS KW_DEFAULT sep statements
+    : KW_TYPE KW_IS "(" TK_NAME ")" sep statements { $$ = TYPE_STMTNAME($4, $7, @$); }
+    | KW_TYPE KW_IS "(" var_type ")" sep statements { $$ = TYPE_STMTVAR($4, $7, @$); }
+    | KW_CLASS KW_IS "(" id ")" sep statements { $$ = CLASS_STMT($4, $7, @$); }
+    | KW_CLASS KW_DEFAULT sep statements { $$ = CLASS_DEFAULT($4, @$); }
     ;
 
 

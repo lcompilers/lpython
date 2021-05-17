@@ -42,6 +42,18 @@ static inline ASR::Variable_t* EXPR2VAR(const ASR::expr_t *f)
                 ASR::down_cast<ASR::Var_t>(f)->m_v));
 }
 
+static inline ASR::Function_t* EXPR2FUN(const ASR::expr_t *f)
+{
+    return ASR::down_cast<ASR::Function_t>(symbol_get_past_external(
+                ASR::down_cast<ASR::Var_t>(f)->m_v));
+}
+
+static inline ASR::Subroutine_t* EXPR2SUB(const ASR::expr_t *f)
+{
+    return ASR::down_cast<ASR::Subroutine_t>(symbol_get_past_external(
+                ASR::down_cast<ASR::Var_t>(f)->m_v));
+}
+
 
 static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
 {
@@ -52,6 +64,7 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
         case ASR::exprType::Compare: { return ((ASR::Compare_t*)f)->m_type; }
         case ASR::exprType::FunctionCall: { return ((ASR::FunctionCall_t*)f)->m_type; }
         case ASR::exprType::ArrayRef: { return ((ASR::ArrayRef_t*)f)->m_type; }
+        case ASR::exprType::DerivedRef: { return ((ASR::DerivedRef_t*)f)->m_type; }
         case ASR::exprType::ArrayInitializer: { return ((ASR::ArrayInitializer_t*)f)->m_type; }
         case ASR::exprType::ConstantInteger: { return ((ASR::ConstantInteger_t*)f)->m_type; }
         case ASR::exprType::ConstantReal: { return ((ASR::ConstantReal_t*)f)->m_type; }

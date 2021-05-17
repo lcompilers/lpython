@@ -1,0 +1,13 @@
+{
+    "basename": "ast_f90-select_type1-eea9baa",
+    "cmd": "lfortran --show-ast-f90 --no-color {infile}",
+    "infile": "tests/select_type1.f90",
+    "infile_hash": "0484f169388676238c1bdf4ae9e9041b66ca05da7dc95a32c57a6003",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_f90-select_type1-eea9baa.stdout",
+    "stdout_hash": "7a06481b29b61eb38f12a018d320bf35f47ff7cf3624a9b23b1f2bdf",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

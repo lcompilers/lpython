@@ -1,0 +1,13 @@
+{
+    "basename": "asr-nested_06-1d576ad",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/nested_06.f90",
+    "infile_hash": "b94500b7f8becc154e61ec7d99e50e8c4cbbd4c0ca20bb262a670562",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-nested_06-1d576ad.stdout",
+    "stdout_hash": "dfd16649ef679a1ebfe6f083170df3355a37a4a64611e406f4ae7a3f",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

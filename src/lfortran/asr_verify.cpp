@@ -236,8 +236,10 @@ public:
     void visit_Var(const Var_t &x) {
         require(x.m_v != nullptr,
             "Var_t::m_v cannot be nullptr");
-        require(is_a<Variable_t>(*x.m_v) || is_a<ExternalSymbol_t>(*x.m_v),
-            "Var_t::m_v does not point to a Variable_t or ExternalSymbol_t");
+        require(is_a<Variable_t>(*x.m_v) || is_a<ExternalSymbol_t>(*x.m_v)
+                || is_a<Function_t>(*x.m_v) || is_a<Subroutine_t>(*x.m_v),
+            "Var_t::m_v does not point to a Variable_t, ExternalSymbol_t," \
+            "Function_t, or Subroutine_t");
         require(symtab_in_scope(current_symtab,
              symbol_parent_symtab(x.m_v)->counter),
             "Var::m_v cannot point outside of its symbol table");
@@ -278,7 +280,7 @@ public:
 
     void visit_Derived(const Derived_t &x) {
         require(symtab_in_scope(current_symtab,
-             symbol_parent_symtab(x.m_derived_type)->counter),
+                symbol_parent_symtab(x.m_derived_type)->counter),
             "Derived::m_derived_type cannot point outside of its symbol table");
         for (size_t i=0; i<x.n_dims; i++) {
             visit_dimension(x.m_dims[i]);

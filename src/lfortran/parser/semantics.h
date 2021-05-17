@@ -70,6 +70,7 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 #define ATTRS(x) VEC_CAST(x, attribute)
 #define EXPRS(x) VEC_CAST(x, expr)
 #define CASE_STMTS(x) VEC_CAST(x, case_stmt)
+#define TYPE_STMTS(x) VEC_CAST(x, type_stmt)
 #define USE_SYMBOLS(x) VEC_CAST(x, use_symbol)
 #define CONCURRENT_CONTROLS(x) VEC_CAST(x, concurrent_control)
 #define CONCURRENT_LOCALITIES(x) VEC_CAST(x, concurrent_locality)
@@ -862,13 +863,17 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
         /*n_body*/ stmts.size(), \
         /*contains*/ CONTAINS(contains), \
         /*n_contains*/ contains.size())
-#define PROCEDURE(name, args, use, decl, stmts, contains, l) \
+#define PROCEDURE(name, args, use, import, implicit, decl, stmts, contains, l) \
     make_Procedure_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
         /*use*/ USES(use), \
         /*n_use*/ use.size(), \
+        /*m_import*/ VEC_CAST(import, import_statement), \
+        /*n_import*/ import.size(), \
+        /*m_implicit*/ VEC_CAST(implicit, implicit_statement), \
+        /*n_implicit*/ implicit.size(), \
         /*decl*/ DECLS(decl), \
         /*n_decl*/ decl.size(), \
         /*body*/ STMTS(stmts), \
@@ -1225,6 +1230,21 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
 #define CASE_STMT4(cond1, cond2, body, l) make_CaseStmt_Range_t(p.m_a, l, \
         EXPR(cond1), EXPR(cond2), STMTS(body), body.size())
 
+#define SELECT_TYPE1(sel, body, l) make_SelectType_t(p.m_a, l, 0, nullptr, \
+        nullptr, EXPR(sel), TYPE_STMTS(body), body.size())
+#define SELECT_TYPE2(id, sel, body, l) make_SelectType_t(p.m_a, l, 0, nullptr, \
+        name2char(id), EXPR(sel), \
+        TYPE_STMTS(body), body.size())
+
+#define TYPE_STMTNAME(x, body, l) make_TypeStmtName_t(p.m_a, l, \
+        x.c_str(p.m_a), STMTS(body), body.size())
+#define TYPE_STMTVAR(vartype, body, l) make_TypeStmtType_t(p.m_a, l, \
+        down_cast<decl_attribute_t>(vartype), STMTS(body), body.size())
+#define CLASS_STMT(id, body, l) make_ClassStmt_t(p.m_a, l, \
+        name2char(id), STMTS(body), body.size())
+#define CLASS_DEFAULT(body, l) make_ClassDefault_t(p.m_a, l, \
+        STMTS(body), body.size())
+
 #define USE1(mod, l) make_Use_t(p.m_a, l, \
         name2char(mod), \
         nullptr, 0)
@@ -1261,12 +1281,16 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
 #define PUBLIC(syms, l) make_Public_t(p.m_a, l, \
         nullptr, 0)
 
-#define INTERFACE_HEADER1(l) make_InterfaceHeader1_t(p.m_a, l)
-#define INTERFACE_HEADER2(id, l) make_InterfaceHeader2_t(p.m_a, l, \
+#define INTERFACE_HEADER(l) make_InterfaceHeader_t(p.m_a, l)
+#define INTERFACE_HEADER_NAME(id, l) make_InterfaceHeaderName_t(p.m_a, l, \
         name2char(id))
-#define INTERFACE_HEADER3(l) make_InterfaceHeader3_t(p.m_a, l)
-#define INTERFACE_HEADER4(l) make_InterfaceHeader4_t(p.m_a, l)
-#define INTERFACE_HEADER5(l) make_InterfaceHeader5_t(p.m_a, l)
+#define INTERFACE_HEADER_ASSIGNMENT(l) make_InterfaceHeaderAssignment_t(p.m_a, l)
+#define INTERFACE_HEADER_OPERATOR(op, l) make_InterfaceHeaderOperator_t(p.m_a, l, op)
+#define INTERFACE_HEADER_CUSTOMOP(op, l) make_InterfaceHeaderCustomOperator_t(p.m_a, \
+        l, op.c_str(p.m_a))
+#define ABSTRACT_INTERFACE_HEADER(l) make_AbstractInterfaceHeader_t(p.m_a, l)
+
+#define OPERATOR(op, l) interfaceopType::op
 
 #define INTERFACE(header, contains, l) make_Interface_t(p.m_a, l, \
         down_cast<interface_header_t>(header), INTERFACE_ITEMS(contains), contains.size())

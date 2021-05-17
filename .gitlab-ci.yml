@@ -95,7 +95,7 @@ cxx_binary_tests:
     - export PATH="$HOME/conda_root/bin:$PATH"
     - conda install -c conda-forge toml lld=11.0.1 llvmdev=11.0.1
     - sudo apt-get update
-    - sudo apt-get install -yq --no-install-recommends libtinfo-dev zlib1g-dev binutils-dev
+    - sudo apt-get install -yq --no-install-recommends git libtinfo-dev zlib1g-dev binutils-dev
     - tar xzf dist/lfortran-*.tar.gz
     - cd lfortran-*
     - CXXFLAGS="-Werror" cmake
@@ -154,9 +154,27 @@ cxx_binary_tests:
     - make install
     - cd ..
     - cd ..
-    - FC=../../src/bin/lfortran cmake -DLFORTRAN_BACKEND=cpp ..
+    - FC=../../src/bin/lfortran FFLAGS="--openmp" cmake -DLFORTRAN_BACKEND=cpp ..
     - make
     - ctest -L cpp
+    - cd ../..
+
+    - cd examples/project1
+    - FC=../../src/bin/lfortran FFLAGS="--openmp --backend=cpp" cmake .
+    - make
+    - ./project1
+    - git clean -dfx
+    - FC=../../src/bin/lfortran cmake .
+    - make
+    - ./project1
+    - cd ../..
+
+    - cd examples/project2
+    - FC=../../src/bin/lfortran FFLAGS="--openmp --backend=cpp" cmake .
+    - make
+    - ./doconcurrent
+    - cd ../..
+
 
 # Test Jupyter Kernel
 jupyter_kernel:

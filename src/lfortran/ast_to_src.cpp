@@ -64,6 +64,29 @@ namespace {
         }
         throw LFortranException("Unknown type");
     }
+
+    std::string interfaceop2str(const AST::interfaceopType type)
+    {
+        switch (type) {
+            case (AST::interfaceopType::AND) : return ".and.";
+            case (AST::interfaceopType::OR) : return ".or.";
+            case (AST::interfaceopType::EQV) : return ".eqv.";
+            case (AST::interfaceopType::NEQV) : return ".neqv.";
+            case (AST::interfaceopType::PLUS) : return " + ";
+            case (AST::interfaceopType::MINUS) : return " - ";
+            case (AST::interfaceopType::STAR) : return "*";
+            case (AST::interfaceopType::DIV) : return "/";
+            case (AST::interfaceopType::POW) : return "**";
+            case (AST::interfaceopType::NOT) : return ".not.";
+            case (AST::interfaceopType::EQ) : return "==";
+            case (AST::interfaceopType::GT) : return ">";
+            case (AST::interfaceopType::GTE) : return ">=";
+            case (AST::interfaceopType::LT) : return "<";
+            case (AST::interfaceopType::LTE) : return "<=";
+            case (AST::interfaceopType::NOTEQ) : return "/=";
+        }
+        throw LFortranException("Unknown type");
+    }
 }
 
 namespace AST {
@@ -374,33 +397,36 @@ public:
         r += syn(gr::UnitHeader);
         r.append("end interface");
         r += syn();
+        this->visit_interface_header(*x.m_header);
+        r.append(s);
         r.append("\n");
-
         s = r;
     }
 
-    void visit_InterfaceHeader1(const InterfaceHeader1_t &/* x */) {
-        //TODO
+    void visit_InterfaceHeader(const InterfaceHeader_t &/* x */) {
         s = "";
     }
 
-    void visit_InterfaceHeader2(const InterfaceHeader2_t &x) {
+    void visit_InterfaceHeaderName(const InterfaceHeaderName_t &x) {
         s = " ";
         s += x.m_name;
     }
 
-    void visit_InterfaceHeader3(const InterfaceHeader3_t &/* x */) {
-        //TODO
-        s = "";
+    void visit_InterfaceHeaderAssignment(const InterfaceHeaderAssignment_t &/* x */) {
+        s = " assignment (=)";
     }
 
-    void visit_InterfaceHeader4(const InterfaceHeader4_t &/* x */) {
-        //TODO
-        s = "";
+    void visit_InterfaceHeaderOperator(const InterfaceHeaderOperator_t &x) {
+        s = " operator (" + interfaceop2str(x.m_op) + ")";
     }
 
-    void visit_InterfaceHeader5(const InterfaceHeader5_t &/* x */) {
-        //TODO
+    void visit_InterfaceHeaderCustomOperator(const InterfaceHeaderCustomOperator_t &x) {
+        s = " operator (";
+        s += x.m_operator_name;
+        s += ")";
+    }
+
+    void visit_AbstractInterfaceHeader(const AbstractInterfaceHeader_t &/* x */) {
         s = "";
     }
 
@@ -442,10 +468,6 @@ public:
         return "";
     }
 
-    std::string format_import(const Procedure_t &/*x*/) {
-        return "";
-    }
-
     template <typename T>
     std::string format_implicit(const T &x) {
         std::string r;
@@ -454,10 +476,6 @@ public:
             r.append(s);
         }
         return r;
-    }
-
-    std::string format_implicit(const Procedure_t &/*x*/) {
-        return "";
     }
 
     template <typename T>
@@ -2133,6 +2151,104 @@ public:
             r += s;
         }
         r += ")\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        s = r;
+    }
+
+    void visit_SelectType(const SelectType_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += print_stmt_name(x);
+        r += syn(gr::Conditional);
+        r += "select type";
+        r += syn();
+        r += " (";
+        if (x.m_assoc_name) {
+            r.append(x.m_assoc_name);
+            r += "=>";
+        }
+        this->visit_expr(*x.m_selector);
+        r += s;
+        r += ")\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_type_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        r += syn(gr::Conditional);
+        r += "end select";
+        r += syn();
+        r += "\n";
+        s = r;
+    }
+
+    void visit_TypeStmtName(const TypeStmtName_t &x) {
+        std::string r = indent;
+        r += syn(gr::Conditional);
+        r += "type is";
+        r += syn();
+        r += " (";
+        if (x.m_name) {
+            r.append(x.m_name);
+        }
+        r += ")\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        s = r;
+    }
+    void visit_TypeStmtType(const TypeStmtType_t &x) {
+        std::string r = indent;
+        r += syn(gr::Conditional);
+        r += "type is";
+        r += syn();
+        r += " (";
+        if (x.m_vartype) {
+            this->visit_decl_attribute(*x.m_vartype);
+            r += s;
+        }
+        r += ")\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        s = r;
+    }
+    void visit_ClassStmt(const ClassStmt_t &x) {
+        std::string r = indent;
+        r += syn(gr::Conditional);
+        r += "class is";
+        r += syn();
+        r += " (";
+        if (x.m_id) {
+            r.append(x.m_id);
+        }
+        r += ")\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        s = r;
+    }
+    void visit_ClassDefault(const ClassDefault_t &x) {
+        std::string r = indent;
+        r += syn(gr::Conditional);
+        r += "class default";
+        r += syn();
+        r += "\n";
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
