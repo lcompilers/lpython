@@ -2447,7 +2447,7 @@ public:
                     char* mangled_name_char = mangled_name.c_str(al);
                     if( current_scope->scope.find(mangled_name.str()) == current_scope->scope.end() ) {
                         bool make_new_ext_sym = true;
-                        ASR::symbol_t* der_tmp;
+                        ASR::symbol_t* der_tmp = nullptr;
                         if( current_scope->scope.find(std::string(der_type->m_name)) != current_scope->scope.end() ) {
                             der_tmp = current_scope->scope[std::string(der_type->m_name)];
                             if( der_tmp->type == ASR::symbolType::ExternalSymbol ) {
@@ -2462,6 +2462,7 @@ public:
                                                                                 module_name, der_type->m_name, ASR::accessType::Public);
                             current_scope->scope[mangled_name.str()] = der_ext;
                         } else {
+                            LFORTRAN_ASSERT(der_tmp != nullptr);
                             der_ext = der_tmp;
                         }
                     } else {
