@@ -743,9 +743,11 @@ public:
     }
 
     void visit_DerivedRef(const ASR::DerivedRef_t& x) {
+        der_type_name = "";
         this->visit_expr(*x.m_v);
         ASR::Variable_t* member = down_cast<ASR::Variable_t>(symbol_get_past_external(x.m_m));
         std::string member_name = std::string(member->m_name);
+        LFORTRAN_ASSERT(der_type_name.size() != 0);
         int member_idx = name2memidx[der_type_name][member_name];
         std::vector<llvm::Value*> idx_vec = {
             llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
