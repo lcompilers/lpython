@@ -900,8 +900,16 @@ public:
                             break;
                         }
                         case (ASR::ttypeType::Real) : {
-                            a_kind = down_cast<ASR::Real_t>(v->m_type)->m_kind;
-                            type = getFPType(a_kind);
+                            ASR::Real_t* v_type = down_cast<ASR::Real_t>(v->m_type);
+                            type_ = v_type->class_type;
+                            m_dims = v_type->m_dims;
+                            n_dims = v_type->n_dims;
+                            a_kind = v_type->m_kind;
+                            if( n_dims > 0 ) {
+                                type = get_array_type(type_, a_kind, n_dims, m_dims);
+                            } else {
+                                type = getFPType(a_kind);
+                            }
                             break;
                         }
                         case (ASR::ttypeType::Complex) : {
