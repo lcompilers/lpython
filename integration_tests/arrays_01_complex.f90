@@ -1,7 +1,7 @@
 program arrays_01
 implicit none
 integer :: i
-real(8) :: a(3), b(4)
+complex(4) :: a(3), b(4)
 do i = 1, 3
     a(i) = i+10
 end do

@@ -2248,7 +2248,8 @@ public:
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = EXPR(tmp);
         ASR::ttype_t *value_type = expr_type(value);
-        if (target->type == ASR::exprType::Var) {
+        if (target->type == ASR::exprType::Var || 
+            target->type == ASR::exprType::ArrayRef) {
 
             ImplicitCastRules::set_converted_value(al, x.base.base.loc, &value,
                                                     value_type, target_type);
