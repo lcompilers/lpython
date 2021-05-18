@@ -154,11 +154,6 @@ public:
         the runtime descriptor member */
     std::string desc_name; // For setting the name of the global struct
 
-    // Data members for callback functions/procedures as arguments
-    std::map<std::string, uint64_t> interface_procs; /* Links a procedure
-         implementation to it's string name for adding to the BB */
-
-
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context(context),
         prototype_only(false), dim_des(llvm::StructType::create(
             context, 
@@ -1112,11 +1107,6 @@ public:
                 llvm::ConstantAggregateZero::get(needed_global_struct);
             module->getNamedGlobal(desc_name)->setInitializer(initializer);
         }
-        // Check if the procedure is an interface - if so we will need to add 
-        // onto the basic block when we get to the implementation later
-        if (x.m_deftype == ASR::Interface) {
-            interface_procs[x.m_name] = h;
-        }
         visit_procedures(x);
         bool interactive = (x.m_abi == ASR::abiType::Interactive);
         llvm::Function *F = nullptr;
@@ -1126,8 +1116,7 @@ public:
                 + std::string(x.m_name) + "'");
             */
             F = llvm_symtab_fn[h];
-        } else if (interface_procs.find(x.m_name) == interface_procs.end() || 
-            interface_procs[x.m_name] == h) {
+        } else {
             ASR::ttype_t *return_var_type0 = EXPR2VAR(x.m_return_var)->m_type;
             ASR::ttypeType return_var_type = return_var_type0->type;
             llvm::Type *return_type;
@@ -1166,61 +1155,27 @@ public:
             F = llvm::Function::Create(function_type,
                     llvm::Function::ExternalLinkage, mangle_prefix + x.m_name, module.get());
             llvm_symtab_fn[h] = F;
-        } else {
-            /* TODO: Below approach will not work if there are multiple
-               implementations in different scopes as we made a single function
-               and simply amend to the basic block. Determine if we need 
-               multiple function declarations or can branch between basic 
-               blocks for the different implementation */
-            F = llvm_symtab_fn[interface_procs[x.m_name]];
-            // Insert instruction at end of basic block by getting front of
-            // basic block list (just the first basic block, starting at the
-            // last instruction)
-            llvm::Function::BasicBlockListType* F_bbs = 
-                &(F->getBasicBlockList());
-            builder->SetInsertPoint(&(F_bbs->front()));
-
-            declare_args(x, *F);
-
-            declare_local_vars(x);
-
-            for (size_t i=0; i<x.n_body; i++) {
-                this->visit_stmt(*x.m_body[i]);
-            }
-            ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
-            uint32_t h = get_hash((ASR::asr_t*)asr_retval);
-            llvm::Value *ret_val = llvm_symtab[h];
-            llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
-            if (x.m_deftype == ASR::Implementation) {
-                builder->CreateRet(ret_val2);
-            }
-            return;
         }
 
-        if (interactive) return;
+        if (x.m_deftype == ASR::deftypeType::Implementation) {
 
-        if (!prototype_only) {
-            llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
-                    ".entry", F);
-            builder->SetInsertPoint(BB);
+            if (interactive) return;
 
-            declare_args(x, *F);
+            if (!prototype_only) {
+                llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
+                        ".entry", F);
+                builder->SetInsertPoint(BB);
 
-            if (x.m_deftype == ASR::Implementation) {
-                // If we declare local vars in a function interface, we will
-                // allocate the return variable twice (assume we don't need to
-                // do anything with local vars for interfaces for now)
+                declare_args(x, *F);
+
                 declare_local_vars(x);
-            }
 
-            for (size_t i=0; i<x.n_body; i++) {
-                this->visit_stmt(*x.m_body[i]);
-            }
-            ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
-            uint32_t h = get_hash((ASR::asr_t*)asr_retval);
+                for (size_t i=0; i<x.n_body; i++) {
+                    this->visit_stmt(*x.m_body[i]);
+                }
+                ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
+                uint32_t h = get_hash((ASR::asr_t*)asr_retval);
 
-            // Only create return value if this is an implementation
-            if (x.m_deftype == ASR::Implementation) {
                 llvm::Value *ret_val = llvm_symtab[h];
                 llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
                 builder->CreateRet(ret_val2);
@@ -1251,11 +1206,6 @@ public:
                 llvm::ConstantAggregateZero::get(needed_global_struct);
             module->getNamedGlobal(desc_name)->setInitializer(initializer);
         }
-        // Check if the procedure is an interface - if so we will need to add 
-        // onto the basic block when we get to the implementation later
-        if (x.m_deftype == ASR::Interface) {
-            interface_procs[x.m_name] = h;
-        }
         visit_procedures(x);
         llvm::Function *F = nullptr;
         if (llvm_symtab_fn.find(h) != llvm_symtab_fn.end()) {
@@ -1264,64 +1214,32 @@ public:
                 + std::string(x.m_name) + "'");
             */
             F = llvm_symtab_fn[h];
-        } else if (interface_procs.find(x.m_name) == interface_procs.end() || 
-            interface_procs[x.m_name] == h) {
+        } else {
             std::vector<llvm::Type*> args = convert_args(x);
             llvm::FunctionType *function_type = llvm::FunctionType::get(
                     llvm::Type::getVoidTy(context), args, false);
             F = llvm::Function::Create(function_type,
                     llvm::Function::ExternalLinkage, mangle_prefix + x.m_name, module.get());
             llvm_symtab_fn[h] = F;
-
-        } else {
-            /* TODO: Below approach will not work if there are multiple
-               implementations in different scopes as we made a single function
-               and simply amend to the basic block. Determine if we need 
-               multiple function declarations or can branch between basic 
-               blocks for the different implementation */
-            F = llvm_symtab_fn[interface_procs[x.m_name]];
-            llvm::Function::BasicBlockListType* F_bbs = 
-                &(F->getBasicBlockList());
-            builder->SetInsertPoint(&(F_bbs->front()));
-
-            declare_args(x, *F);
-
-            declare_local_vars(x);
-
-            for (size_t i=0; i<x.n_body; i++) {
-                this->visit_stmt(*x.m_body[i]);
-            }
-            // Only create return value if this is an implementation
-            // TODO: If this is an interface we are just repeating statements
-            // when we get to the implementation, need to fix that
-            if (x.m_deftype == ASR::Implementation) {
-                builder->CreateRetVoid();
-            }
-            return;
         }
 
-        if (interactive) return;
+        if (x.m_deftype == ASR::deftypeType::Implementation) {
 
-        if (!prototype_only) {
-            llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
-                    ".entry", F);
-            builder->SetInsertPoint(BB);
+            if (interactive) return;
 
-            declare_args(x, *F);
+            if (!prototype_only) {
+                llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
+                        ".entry", F);
+                builder->SetInsertPoint(BB);
 
-            if (x.m_deftype == ASR::Implementation) {
-                // Declaring local variables in a subroutine is not quite the
-                // same as a function as we are not definitely allocating the
-                // return value twice, but assume we don't need this for
-                // interfaces for now (same as function)
+                declare_args(x, *F);
+
                 declare_local_vars(x);
-            }
 
-            for (size_t i=0; i<x.n_body; i++) {
-                this->visit_stmt(*x.m_body[i]);
-            }
-            // Only create return value if this is an implementation
-            if (x.m_deftype == ASR::Implementation) {
+                for (size_t i=0; i<x.n_body; i++) {
+                    this->visit_stmt(*x.m_body[i]);
+                }
+
                 builder->CreateRetVoid();
             }
         }
@@ -2279,24 +2197,14 @@ public:
                         symbol_get_past_external(ASR::down_cast<ASR::Var_t>(
                         x.m_args[i])->m_v));
                     uint32_t h = get_hash((ASR::asr_t*)fn);
-                    if (interface_procs.find(fn->m_name) == 
-                            interface_procs.end()) {
-                        tmp = llvm_symtab_fn[h];
-                    } else {
-                        tmp = llvm_symtab_fn[interface_procs[fn->m_name]];
-                    }
+                    tmp = llvm_symtab_fn[h];
                 } else if (is_a<ASR::Subroutine_t>(*symbol_get_past_external(
                     ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
                     ASR::Subroutine_t* fn = ASR::down_cast<ASR::Subroutine_t>(
                         symbol_get_past_external(ASR::down_cast<ASR::Var_t>(
                         x.m_args[i])->m_v));
                     uint32_t h = get_hash((ASR::asr_t*)fn);
-                    if (interface_procs.find(fn->m_name) == 
-                            interface_procs.end()) {
-                        tmp = llvm_symtab_fn[h];
-                    } else {
-                        tmp = llvm_symtab_fn[interface_procs[fn->m_name]];
-                    }
+                    tmp = llvm_symtab_fn[h];
                 }
             } else {
                 this->visit_expr_wrapper(x.m_args[i]);
