@@ -222,6 +222,10 @@ public:
                 el_type = getComplexType(a_kind, true);
                 break;
             }
+            case ASR::ttypeType::Logical: {
+                el_type = llvm::Type::getInt1Ty(context);
+                break;
+            }
             default:
                 break;
         }
@@ -723,8 +727,14 @@ public:
                 n_dims = v_type->n_dims;
                 break;
             }
+            case ASR::ttypeType::Logical: {
+                ASR::Logical_t* v_type = down_cast<ASR::Logical_t>(v->m_type);
+                m_dims = v_type->m_dims;
+                n_dims = v_type->n_dims;
+                break;
+            }
             default: {
-                throw CodeGenError("Explicit shape checking supported only for integers.");
+                throw CodeGenError("Explicit shape checking supported only for integer, real, complex and logical types.");
             }
         }
         return verify_dimensions_t(m_dims, n_dims);
@@ -932,9 +942,19 @@ public:
                         case (ASR::ttypeType::Character) :
                             type = character_type;
                             break;
-                        case (ASR::ttypeType::Logical) :
-                            type = llvm::Type::getInt1Ty(context);
+                        case (ASR::ttypeType::Logical) : {
+                            ASR::Logical_t* v_type = down_cast<ASR::Logical_t>(v->m_type);
+                            type_ = v_type->class_type;
+                            m_dims = v_type->m_dims;
+                            n_dims = v_type->n_dims;
+                            a_kind = v_type->m_kind;
+                            if( n_dims > 0 ) {
+                                type = get_array_type(type_, a_kind, n_dims, m_dims);
+                            } else {
+                                type = llvm::Type::getInt1Ty(context);
+                            }
                             break;
+                        }
                         case (ASR::ttypeType::Derived) : {
                             type = getDerivedType(v->m_type, false);
                             break;
