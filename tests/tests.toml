@@ -1010,3 +1010,11 @@ llvm = true
 filename = "../integration_tests/callback_02.f90"
 asr = true
 llvm = true
+
+[[test]]
+filename = "../integration_tests/callback_03.f90"
+llvm = true
+
+[[test]]
+filename = "../integration_tests/callback_04.f90"
+llvm = true
