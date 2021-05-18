@@ -186,15 +186,15 @@ public:
     (ASR::ttypeType type_, int a_kind, int rank, ASR::dimension_t* m_dims,
      bool get_pointer=false) {
         int size = 0;
-        // if( verify_dimensions_t(m_dims, rank) ) {
-        //     size = 1;
-        //     for( int r = 0; r < rank; r++ ) {
-        //         ASR::dimension_t m_dim = m_dims[r];
-        //         int start = ((ASR::ConstantInteger_t*)(m_dim.m_start))->m_n;
-        //         int end = ((ASR::ConstantInteger_t*)(m_dim.m_end))->m_n;
-        //         size *= (end - start + 1);
-        //     }
-        // }
+        if( verify_dimensions_t(m_dims, rank) ) {
+            size = 1;
+            for( int r = 0; r < rank; r++ ) {
+                ASR::dimension_t m_dim = m_dims[r];
+                int start = ((ASR::ConstantInteger_t*)(m_dim.m_start))->m_n;
+                int end = ((ASR::ConstantInteger_t*)(m_dim.m_end))->m_n;
+                size *= (end - start + 1);
+            }
+        }
         std::pair<std::pair<int, int>, std::pair<int, int>> array_key = std::make_pair(std::make_pair((int)type_, a_kind), std::make_pair(rank, size));
         if( tkr2array.find(array_key) != tkr2array.end() ) {
             return tkr2array[array_key];
@@ -1141,6 +1141,7 @@ public:
             llvm::Value* dim_val = create_gep(dim_des_val, r);
             llvm::Value* dim_size_ptr = create_gep(dim_val, 3);
             llvm::Value* dim_size = builder->CreateLoad(dim_size_ptr);
+            print_util(dim_size, "%d");
             size_val = builder->CreateMul(size_val, dim_size);
         }
         builder->CreateStore(size_val, llvm_ret_ptr);
@@ -2328,8 +2329,12 @@ public:
         exit(context, *module, *builder, exit_code);
     }
 
+    bool is_array(llvm::Value* val) {
+        return true;
+    }
+
     template <typename T>
-    std::vector<llvm::Value*> convert_call_args(const T &x) {
+    std::vector<llvm::Value*> convert_call_args(const T &x, llvm::Function* fn=nullptr) {
         std::vector<llvm::Value *> args;
         for (size_t i=0; i<x.n_args; i++) {
             if (x.m_args[i]->type == ASR::exprType::Var) {
@@ -2337,7 +2342,12 @@ public:
                         ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
                     ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
                     uint32_t h = get_hash((ASR::asr_t*)arg);
+                    std::cout<<"Inside Var"<<std::endl;
                     tmp = llvm_symtab[h];
+                    if( is_array(tmp) ) {
+                        std::cout<<tmp->getType()->isPointerTy()<<std::endl;
+                        tmp = builder->CreateBitCast(tmp, fn->getParamByValType(0)->getPointerTo());
+                    }
                 } else if (is_a<ASR::Function_t>(*symbol_get_past_external(
                     ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
                     ASR::Function_t* fn = ASR::down_cast<ASR::Function_t>(
@@ -2488,7 +2498,7 @@ public:
                 + std::string(s->m_name) + "'");
         } else {
             llvm::Function *fn = llvm_symtab_fn[h];
-            std::vector<llvm::Value *> args = convert_call_args(x);
+            std::vector<llvm::Value *> args = convert_call_args(x, fn);
             tmp = builder->CreateCall(fn, args);
         }
     }
