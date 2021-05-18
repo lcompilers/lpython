@@ -16,9 +16,9 @@ int main(int argc, char* argv[])
 {
     Kokkos::initialize(argc, argv);
     {
-        Kokkos::View<int[3]> a("a");
-        Kokkos::View<int[4]> b("b");
-        Kokkos::View<int[2][2]> c("c");
+        Kokkos::View<float[3]> a("a");
+        Kokkos::View<float[4]> b("b");
+        Kokkos::View<float[2][2]> c("c");
         int i;
         int j;
         for (i=1; i<=3; i++) {

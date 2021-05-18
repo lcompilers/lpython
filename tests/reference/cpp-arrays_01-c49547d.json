@@ -2,11 +2,11 @@
     "basename": "cpp-arrays_01-c49547d",
     "cmd": "lfortran --show-cpp {infile}",
     "infile": "tests/../integration_tests/arrays_01.f90",
-    "infile_hash": "f7df4142feb383f836dfa072a60673922e8873b5695f893be8329b89",
+    "infile_hash": "1c8ef5bb68c7da72cc326343697e18c2fef11fe32cc4398e2312a914",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "cpp-arrays_01-c49547d.stdout",
-    "stdout_hash": "bb13ce8436f1fbf3f8fb642daa66cfc983829d2a738ad1628b80f9b6",
+    "stdout_hash": "fbb4997e84b575bced16a404a20f66ac4b212e2b130ae48a4f142eea",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
