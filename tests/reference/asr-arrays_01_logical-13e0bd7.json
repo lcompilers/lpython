@@ -1,0 +1,13 @@
+{
+    "basename": "asr-arrays_01_logical-13e0bd7",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/arrays_01_logical.f90",
+    "infile_hash": "3caae88d533a78124fa65cc1f5e27259aa966d6af380253513e128b4",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-arrays_01_logical-13e0bd7.stdout",
+    "stdout_hash": "ad0aee3098b95df7076c3d678fafeae57acc23fb914cda027d31f43b",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
