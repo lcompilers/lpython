@@ -1,7 +1,7 @@
 program arrays_01
 implicit none
-integer :: i
-real(8) :: a(3), b(4)
+integer :: i, j
+real(8) :: a(3), b(4), c(2, 2)
 do i = 1, 3
     a(i) = i+10
 end do
@@ -29,4 +29,14 @@ if (b(4) /= 17) error stop
 
 b(4) = a(1)
 if (b(4) /= 11) error stop
+
+do i = 1, 2
+    do j = 1, 2
+        c(i, j) = i + j + 10
+    end do
+end do
+if (c(1, 1) /= 12) error stop
+if (c(1, 2) /= 13) error stop
+if (c(2, 1) /= 13) error stop
+if (c(2, 2) /= 14) error stop
 end
