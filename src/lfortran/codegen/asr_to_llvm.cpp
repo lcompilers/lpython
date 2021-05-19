@@ -1298,8 +1298,6 @@ public:
                         std::string func_name = x.m_name;
                         if( func_name == "size" ) {
                             fill_size(x);
-                        } else {
-                            throw CodeGenError("Cannot generate code for " + func_name);
                         }
                         break;
                     }

@@ -1,7 +1,15 @@
+5
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
 @0 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
+
+define float @sin(float* %x) {
+.entry:
+  %sin = alloca float, align 4
+  %0 = load float, float* %sin, align 4
+  ret float %0
+}
 
 define i32 @main() {
 .entry:

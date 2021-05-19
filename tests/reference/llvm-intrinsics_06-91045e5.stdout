@@ -1,3 +1,9 @@
+5
+5
+5
+5
+5
+5
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
@@ -7,6 +13,48 @@ source_filename = "LFortran"
 @3 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
 @4 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
 @5 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
+
+define float @acos(float* %x) {
+.entry:
+  %acos = alloca float, align 4
+  %0 = load float, float* %acos, align 4
+  ret float %0
+}
+
+define float @acosh(float* %x) {
+.entry:
+  %acosh = alloca float, align 4
+  %0 = load float, float* %acosh, align 4
+  ret float %0
+}
+
+define float @asin(float* %x) {
+.entry:
+  %asin = alloca float, align 4
+  %0 = load float, float* %asin, align 4
+  ret float %0
+}
+
+define float @asinh(float* %x) {
+.entry:
+  %asinh = alloca float, align 4
+  %0 = load float, float* %asinh, align 4
+  ret float %0
+}
+
+define float @atan(float* %x) {
+.entry:
+  %atan = alloca float, align 4
+  %0 = load float, float* %atan, align 4
+  ret float %0
+}
+
+define float @atanh(float* %x) {
+.entry:
+  %atanh = alloca float, align 4
+  %0 = load float, float* %atanh, align 4
+  ret float %0
+}
 
 define i32 @main() {
 .entry:
