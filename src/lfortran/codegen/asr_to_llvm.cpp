@@ -1278,35 +1278,6 @@ public:
             F = llvm::Function::Create(function_type,
                     llvm::Function::ExternalLinkage, mangle_prefix + x.m_name, module.get());
             llvm_symtab_fn[h] = F;
-        } else {
-            /* TODO: Below approach will not work if there are multiple
-               implementations in different scopes as we made a single function
-               and simply amend to the basic block. Determine if we need 
-               multiple function declarations or can branch between basic 
-               blocks for the different implementation */
-            F = llvm_symtab_fn[interface_procs[x.m_name]];
-            // Insert instruction at end of basic block by getting front of
-            // basic block list (just the first basic block, starting at the
-            // last instruction)
-            llvm::Function::BasicBlockListType* F_bbs = 
-                &(F->getBasicBlockList());
-            builder->SetInsertPoint(&(F_bbs->front()));
-
-            declare_args(x, *F);
-
-            declare_local_vars(x);
-
-            for (size_t i=0; i<x.n_body; i++) {
-                this->visit_stmt(*x.m_body[i]);
-            }
-            ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
-            uint32_t h = get_hash((ASR::asr_t*)asr_retval);
-            llvm::Value *ret_val = llvm_symtab[h];
-            llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
-            if (x.m_deftype == ASR::Implementation) {
-                builder->CreateRet(ret_val2);
-            }
-            return ;
         }
 
         if (x.m_deftype == ASR::deftypeType::Implementation) {
@@ -1322,24 +1293,24 @@ public:
 
                 declare_local_vars(x);
 
-            switch( x.m_abi ) {
-                case ASR::abiType::Intrinsic: {
-                    std::string func_name = x.m_name;
-                    if( func_name == "size" ) {
-                        fill_size(x);
-                    } else {
-                        throw CodeGenError("Cannot generate code for " + func_name);
+                switch( x.m_abi ) {
+                    case ASR::abiType::Intrinsic: {
+                        std::string func_name = x.m_name;
+                        if( func_name == "size" ) {
+                            fill_size(x);
+                        } else {
+                            throw CodeGenError("Cannot generate code for " + func_name);
+                        }
+                        break;
                     }
-                    break;
-                }
-                default: {
-                    for (size_t i=0; i<x.n_body; i++) {
-                        this->visit_stmt(*x.m_body[i]);
+                    default: {
+                        for (size_t i=0; i<x.n_body; i++) {
+                            this->visit_stmt(*x.m_body[i]);
+                        }
                     }
                 }
-            }
-            ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
-            uint32_t h = get_hash((ASR::asr_t*)asr_retval);
+                ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
+                uint32_t h = get_hash((ASR::asr_t*)asr_retval);
 
                 llvm::Value *ret_val = llvm_symtab[h];
                 llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
