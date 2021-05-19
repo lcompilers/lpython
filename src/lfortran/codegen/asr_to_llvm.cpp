@@ -158,7 +158,6 @@ public:
         the runtime descriptor member */
     std::string desc_name; // For setting the name of the global struct
 
-<<<<<<< HEAD
     // Data members for callback functions/procedures as arguments
     std::map<std::string, uint64_t> interface_procs; /* Links a procedure
          implementation to it's string name for adding to the BB */
@@ -167,10 +166,6 @@ public:
     ASRToLLVMVisitor(llvm::LLVMContext &context) : lfortran_intrinsics(std::vector<std::string>(
             {std::string("size")})
         ), context(context), prototype_only(false), dim_des(llvm::StructType::create(
-=======
-    ASRToLLVMVisitor(llvm::LLVMContext &context) : context(context),
-        prototype_only(false), dim_des(llvm::StructType::create(
->>>>>>> master
             context, 
             std::vector<llvm::Type*>(
                 {llvm::Type::getInt32Ty(context), 
@@ -1283,7 +1278,6 @@ public:
             F = llvm::Function::Create(function_type,
                     llvm::Function::ExternalLinkage, mangle_prefix + x.m_name, module.get());
             llvm_symtab_fn[h] = F;
-<<<<<<< HEAD
         } else {
             /* TODO: Below approach will not work if there are multiple
                implementations in different scopes as we made a single function
@@ -1313,8 +1307,6 @@ public:
                 builder->CreateRet(ret_val2);
             }
             return ;
-=======
->>>>>>> master
         }
 
         if (x.m_deftype == ASR::deftypeType::Implementation) {
@@ -1330,7 +1322,6 @@ public:
 
                 declare_local_vars(x);
 
-<<<<<<< HEAD
             switch( x.m_abi ) {
                 case ASR::abiType::Intrinsic: {
                     std::string func_name = x.m_name;
@@ -1349,13 +1340,6 @@ public:
             }
             ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
             uint32_t h = get_hash((ASR::asr_t*)asr_retval);
-=======
-                for (size_t i=0; i<x.n_body; i++) {
-                    this->visit_stmt(*x.m_body[i]);
-                }
-                ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
-                uint32_t h = get_hash((ASR::asr_t*)asr_retval);
->>>>>>> master
 
                 llvm::Value *ret_val = llvm_symtab[h];
                 llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
