@@ -2437,6 +2437,7 @@ public:
     void visit_FunctionCall(const ASR::FunctionCall_t &x) {
         ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(symbol_get_past_external(x.m_name));
         uint32_t h;
+        std::cout<<s->m_abi<<std::endl;
         if (s->m_abi == ASR::abiType::Source) {
             h = get_hash((ASR::asr_t*)s);
         } else if (s->m_abi == ASR::abiType::LFortranModule) {

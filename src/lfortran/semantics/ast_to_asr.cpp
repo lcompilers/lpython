@@ -1019,7 +1019,7 @@ public:
         if (assgnd_access.count(sym_name)) {
             s_access = assgnd_access[sym_name];
         }
-        ASR::abiType abi_type;
+        ASR::abiType abi_type = ASR::abiType::Source;
         std::vector<std::string> intrinsics = {std::string("lbound"), std::string("size")};
         for( std::string& func_name: intrinsics ) {
             if( sym_name == func_name ) {

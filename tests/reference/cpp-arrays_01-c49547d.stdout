@@ -19,7 +19,8 @@ int main(int argc, char* argv[])
         Kokkos::View<int[3]> a("a");
         Kokkos::View<int[4]> b("b");
         int i;
-        for (i=1; i<=3; i++) {
+        int size_a;
+        for (i=1; i<=size_a; i++) {
             a[i-1] = i + 10;
         };
         if (a[1-1] != 11) {
