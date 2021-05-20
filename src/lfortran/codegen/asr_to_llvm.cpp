@@ -175,7 +175,8 @@ public:
     }
 
     inline llvm::StructType* get_array_type
-    (ASR::ttypeType type_, int a_kind, int rank, ASR::dimension_t* m_dims) {
+    (ASR::ttype_t* m_type_, int a_kind, int rank, ASR::dimension_t* m_dims) {
+        ASR::ttypeType type_ = m_type_->type;
         int size = 0;
         if( verify_dimensions_t(m_dims, rank) ) {
             size = 1;
@@ -219,6 +220,10 @@ public:
             }
             case ASR::ttypeType::Logical: {
                 el_type = llvm::Type::getInt1Ty(context);
+                break;
+            }
+            case ASR::ttypeType::Derived: {
+                el_type = getDerivedType(m_type_);
                 break;
             }
             default:
@@ -890,7 +895,7 @@ public:
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
                 uint32_t h = get_hash((ASR::asr_t*)v);
                 llvm::Type *type;
-                ASR::ttypeType type_;
+                ASR::ttype_t* m_type_;
                 int n_dims = 0, a_kind = 4;
                 ASR::dimension_t* m_dims = nullptr;
                 if (v->m_intent == intent_local || 
@@ -899,12 +904,12 @@ public:
                     switch (v->m_type->type) {
                         case (ASR::ttypeType::Integer) : {
                             ASR::Integer_t* v_type = down_cast<ASR::Integer_t>(v->m_type);
-                            type_ = v_type->class_type;
+                            m_type_ = v->m_type;
                             m_dims = v_type->m_dims;
                             n_dims = v_type->n_dims;
                             a_kind = v_type->m_kind;
                             if( n_dims > 0 ) {
-                                type = get_array_type(type_, a_kind, n_dims, m_dims);
+                                type = get_array_type(m_type_, a_kind, n_dims, m_dims);
                             } else {
                                 type = getIntType(a_kind);
                             }
@@ -912,12 +917,12 @@ public:
                         }
                         case (ASR::ttypeType::Real) : {
                             ASR::Real_t* v_type = down_cast<ASR::Real_t>(v->m_type);
-                            type_ = v_type->class_type;
+                            m_type_ = v->m_type;
                             m_dims = v_type->m_dims;
                             n_dims = v_type->n_dims;
                             a_kind = v_type->m_kind;
                             if( n_dims > 0 ) {
-                                type = get_array_type(type_, a_kind, n_dims, m_dims);
+                                type = get_array_type(m_type_, a_kind, n_dims, m_dims);
                             } else {
                                 type = getFPType(a_kind);
                             }
@@ -925,12 +930,12 @@ public:
                         }
                         case (ASR::ttypeType::Complex) : {
                             ASR::Complex_t* v_type = down_cast<ASR::Complex_t>(v->m_type);
-                            type_ = v_type->class_type;
+                            m_type_ = v->m_type;
                             m_dims = v_type->m_dims;
                             n_dims = v_type->n_dims;
                             a_kind = v_type->m_kind;
                             if( n_dims > 0 ) {
-                                type = get_array_type(type_, a_kind, n_dims, m_dims);
+                                type = get_array_type(m_type_, a_kind, n_dims, m_dims);
                             } else {
                                 type = getComplexType(a_kind);
                             }
@@ -941,19 +946,27 @@ public:
                             break;
                         case (ASR::ttypeType::Logical) : {
                             ASR::Logical_t* v_type = down_cast<ASR::Logical_t>(v->m_type);
-                            type_ = v_type->class_type;
+                            m_type_ = v->m_type;
                             m_dims = v_type->m_dims;
                             n_dims = v_type->n_dims;
                             a_kind = v_type->m_kind;
                             if( n_dims > 0 ) {
-                                type = get_array_type(type_, a_kind, n_dims, m_dims);
+                                type = get_array_type(m_type_, a_kind, n_dims, m_dims);
                             } else {
                                 type = llvm::Type::getInt1Ty(context);
                             }
                             break;
                         }
                         case (ASR::ttypeType::Derived) : {
-                            type = getDerivedType(v->m_type, false);
+                            ASR::Derived_t* v_type = down_cast<ASR::Derived_t>(v->m_type);
+                            m_type_ = v->m_type;
+                            m_dims = v_type->m_dims;
+                            n_dims = v_type->n_dims;
+                            if( n_dims > 0 ) {
+                                type = get_array_type(m_type_, a_kind, n_dims, m_dims);
+                            } else {
+                                type = getDerivedType(m_type_, false);
+                            }
                             break;
                         }
                         case (ASR::ttypeType::IntegerPointer) : {
