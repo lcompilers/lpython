@@ -268,3 +268,5 @@ RUN(NAME intent_01 LABELS gfortran llvm)
 
 RUN(NAME callback_01 LABELS gfortran llvm)
 RUN(NAME callback_02 LABELS gfortran llvm)
+RUN(NAME callback_03 LABELS gfortran llvm)
+RUN(NAME callback_04 LABELS gfortran llvm)
