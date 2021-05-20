@@ -2885,6 +2885,31 @@ public:
                 body.size());
     }
 
+    void visit_ImpliedDoLoop(const AST::ImpliedDoLoop_t& x) {
+        Vec<ASR::expr_t*> a_values_vec;
+        ASR::expr_t *a_start, *a_end, *a_increment;
+        a_start = a_end = a_increment = nullptr;
+        a_values_vec.reserve(al, x.n_values);
+        for( size_t i = 0; i < x.n_values; i++ ) {
+            this->visit_expr(*(x.m_values[i]));
+            a_values_vec.push_back(al, EXPR(tmp));
+        }
+        this->visit_expr(*(x.m_start));
+        a_start = EXPR(tmp);
+        this->visit_expr(*(x.m_end));
+        a_end = EXPR(tmp);
+        if( x.m_increment != nullptr ) {
+            this->visit_expr(*(x.m_increment));
+            a_increment = EXPR(tmp);
+        }
+        ASR::expr_t** a_values = a_values_vec.p;
+        size_t n_values = a_values_vec.size();
+        char* a_var = x.m_var;
+        tmp = ASR::make_ImpliedDoLoop_t(al, x.base.base.loc, a_values, n_values, 
+                                            a_var, a_start, a_end, a_increment, 
+                                            expr_type(a_start));
+    }
+
     void visit_DoLoop(const AST::DoLoop_t &x) {
         if (! x.m_var) {
             throw SemanticError("Do loop: loop variable is required for now",
