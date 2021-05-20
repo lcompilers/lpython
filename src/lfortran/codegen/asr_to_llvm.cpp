@@ -1211,7 +1211,13 @@ public:
     }
 
     void visit_Function(const ASR::Function_t &x) {
-        // Implement intrinsics here
+        if( !(x.m_abi == ASR::abiType::Source ||
+              x.m_abi == ASR::abiType::Interactive ||
+             (x.m_abi == ASR::abiType::Intrinsic && 
+              std::find(lfortran_intrinsics.begin(), lfortran_intrinsics.end(), 
+                        std::string(x.m_name)) != lfortran_intrinsics.end())) ) {
+                            return;
+        }
         // Check if the procedure has a nested function that needs access to
         // some variables in its local scope
         uint32_t h = get_hash((ASR::asr_t*)&x);
@@ -1300,6 +1306,7 @@ public:
                         break;
                     }
                     default: {
+                        std::cout<<"Inside Default"<<std::endl;
                         for (size_t i=0; i<x.n_body; i++) {
                             this->visit_stmt(*x.m_body[i]);
                         }
@@ -2443,8 +2450,10 @@ public:
             std::string func_name = s->m_name;
             if( std::find(lfortran_intrinsics.begin(), lfortran_intrinsics.end(), func_name) != 
                 lfortran_intrinsics.end() ) {
+                std::cout<<"Intrinsic Found"<<std::endl;
                 h = get_hash((ASR::asr_t*)s);
             } else {
+                std::cout<<"Intrinsic Not Found"<<std::endl;
                 int a_kind = extract_kind_from_ttype_t(x.m_type);
                 if (all_intrinsics.empty()) {
                     populate_intrinsics(x.m_type);
@@ -2461,7 +2470,6 @@ public:
                     tmp = lfortran_intrinsic(find_intrinsic->second, args[0], a_kind);
                     return;
                 }
-                h = get_hash((ASR::asr_t *)s);
             }
         } else {
             throw CodeGenError("External type not implemented yet.");
