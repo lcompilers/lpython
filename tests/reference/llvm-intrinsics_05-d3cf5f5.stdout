@@ -1,30 +1,12 @@
+Intrinsic Not Found
+Intrinsic Not Found
+Intrinsic Not Found
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
 @0 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
 @1 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
 @2 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
-
-define float @cosh(float* %x) {
-.entry:
-  %cosh = alloca float, align 4
-  %0 = load float, float* %cosh, align 4
-  ret float %0
-}
-
-define float @sinh(float* %x) {
-.entry:
-  %sinh = alloca float, align 4
-  %0 = load float, float* %sinh, align 4
-  ret float %0
-}
-
-define float @tanh(float* %x) {
-.entry:
-  %tanh = alloca float, align 4
-  %0 = load float, float* %tanh, align 4
-  ret float %0
-}
 
 define i32 @main() {
 .entry:
