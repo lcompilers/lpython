@@ -733,8 +733,14 @@ public:
                 n_dims = v_type->n_dims;
                 break;
             }
+            case ASR::ttypeType::Derived: {
+                ASR::Derived_t* v_type = down_cast<ASR::Derived_t>(v->m_type);
+                m_dims = v_type->m_dims;
+                n_dims = v_type->n_dims;
+                break;
+            }
             default: {
-                throw CodeGenError("Explicit shape checking supported only for integer, real, complex and logical types.");
+                throw CodeGenError("Explicit shape checking supported only for integer, real, complex, logical and derived types.");
             }
         }
         return verify_dimensions_t(m_dims, n_dims);
