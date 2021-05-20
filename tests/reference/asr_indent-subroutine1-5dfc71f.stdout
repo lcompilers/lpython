@@ -12,7 +12,7 @@
                            2 
                            i 
                            Local () 
-                           Default .false. 
+                           Default 
                            (Integer 4 []) 
                            Source 
                            Public), 
@@ -21,7 +21,7 @@
                            2 
                            x 
                            Local () 
-                           Default .false. 
+                           Default 
                            (Integer 4 []) 
                            Source 
                            Public)
@@ -55,7 +55,7 @@
                            3 
                            i 
                            Local () 
-                           Default .false. 
+                           Default 
                            (Integer 4 []) 
                            Source 
                            Public), 
@@ -64,7 +64,7 @@
                            3 
                            x 
                            Local () 
-                           Default .false. 
+                           Default 
                            (Integer 4 []) 
                            Source 
                            Public)
