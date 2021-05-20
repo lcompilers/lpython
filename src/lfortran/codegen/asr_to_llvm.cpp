@@ -1124,8 +1124,6 @@ public:
             if (is_a<ASR::Variable_t>(*symbol_get_past_external(
                     ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
                 ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
-                // ASR::Real_t* _type = (ASR::Real_t*)(&(arg->m_type->base));
-                // std::cout<<_type->n_dims<<" "<<_type->m_kind<<std::endl;
                 LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 auto finder = std::find(needed_globals.begin(),
@@ -2435,7 +2433,6 @@ public:
     void visit_FunctionCall(const ASR::FunctionCall_t &x) {
         ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(symbol_get_past_external(x.m_name));
         uint32_t h;
-        std::cout<<s->m_abi<<std::endl;
         if (s->m_abi == ASR::abiType::Source) {
             h = get_hash((ASR::asr_t*)s);
         } else if (s->m_abi == ASR::abiType::LFortranModule) {
