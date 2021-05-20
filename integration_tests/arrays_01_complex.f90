@@ -1,4 +1,4 @@
-program arrays_01
+program arrays_01_complex
 implicit none
 integer :: i, j
 complex(4) :: a(3), b(4), c(2, 2)

@@ -1,4 +1,4 @@
-program arrays_01
+program arrays_01_logical
 implicit none
 integer :: i, j
 logical :: a(3), b(4), c(2, 2)

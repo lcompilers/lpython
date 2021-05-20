@@ -1,4 +1,4 @@
-program arrays_01
+program arrays_01_real
 implicit none
 integer :: i, j
 real(8) :: a(3), b(4), c(2, 2)

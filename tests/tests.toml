@@ -345,7 +345,6 @@ llvm = true
 
 [[test]]
 filename = "../integration_tests/arrays_01_real.f90"
-cpp = true
 asr = true
 llvm = true
 
