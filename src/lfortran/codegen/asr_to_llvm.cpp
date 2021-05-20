@@ -1306,7 +1306,6 @@ public:
                         break;
                     }
                     default: {
-                        std::cout<<"Inside Default"<<std::endl;
                         for (size_t i=0; i<x.n_body; i++) {
                             this->visit_stmt(*x.m_body[i]);
                         }
@@ -2450,10 +2449,8 @@ public:
             std::string func_name = s->m_name;
             if( std::find(lfortran_intrinsics.begin(), lfortran_intrinsics.end(), func_name) != 
                 lfortran_intrinsics.end() ) {
-                std::cout<<"Intrinsic Found"<<std::endl;
                 h = get_hash((ASR::asr_t*)s);
             } else {
-                std::cout<<"Intrinsic Not Found"<<std::endl;
                 int a_kind = extract_kind_from_ttype_t(x.m_type);
                 if (all_intrinsics.empty()) {
                     populate_intrinsics(x.m_type);
