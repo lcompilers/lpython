@@ -1061,6 +1061,18 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*body*/ STMTS(body), \
         /*n_body*/ body.size())
 
+#define FORALL1(conlist, loc, body, l) make_ForAll_t(p.m_a, l, 0, nullptr, \
+        CONCURRENT_CONTROLS(conlist), conlist.size(), \
+        nullptr, \
+        CONCURRENT_LOCALITIES(loc), loc.size(), \
+        STMTS(body), body.size())
+
+#define FORALL2(conlist, mask, loc, body, l) make_ForAll_t(p.m_a, l, 0, nullptr, \
+        CONCURRENT_CONTROLS(conlist), conlist.size(), \
+        EXPR(mask), \
+        CONCURRENT_LOCALITIES(loc), loc.size(), \
+        STMTS(body), body.size())
+
 #define CONCURRENT_CONTROL1(i, a, b, l) make_ConcurrentControl_t(p.m_a, l, \
         name2char(i), EXPR(a), EXPR(b), nullptr)
 
