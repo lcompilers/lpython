@@ -310,7 +310,13 @@ cpp = true
 filename = "array2.f90"
 ast = true
 asr = true
+llvm = true
 cpp = true
+
+[[test]]
+filename = "array2_derived.f90"
+asr = true
+llvm = true
 
 [[test]]
 filename = "array3.f90"
