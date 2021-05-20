@@ -1,14 +1,16 @@
 program arrays_01
 implicit none
 integer :: i, a(3), b(4)
-do i = 1, 3
+integer :: size_a = size(a)
+integer :: size_b = size(b)
+do i = 1, size_a
     a(i) = i+10
 end do
 if (a(1) /= 11) error stop
 if (a(2) /= 12) error stop
 if (a(3) /= 13) error stop
 
-do i = 11, 14
+do i = 11, 10 + size_b
     b(i-10) = i
 end do
 if (b(1) /= 11) error stop
@@ -16,7 +18,7 @@ if (b(2) /= 12) error stop
 if (b(3) /= 13) error stop
 if (b(4) /= 14) error stop
 
-do i = 1, 3
+do i = 1, size_a
     b(i) = a(i)-10
 end do
 if (b(1) /= 1) error stop
