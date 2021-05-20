@@ -2,7 +2,7 @@
     "basename": "llvm-arrays_01_complex-d304bc4",
     "cmd": "lfortran --show-llvm {infile} -o {outfile}",
     "infile": "tests/../integration_tests/arrays_01_complex.f90",
-    "infile_hash": "6d1aa5e381fcc5a5e19f439f4fdc7a50ab5ee1da5c70c966b1d4d5c0",
+    "infile_hash": "2f81875039547fcf7eaa3375e4f99fbc8ef6d91ac2bb214c88cff999",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "llvm-arrays_01_complex-d304bc4.stdout",
