@@ -1981,6 +1981,12 @@ public:
         s += syn();
     }
 
+    void visit_BOZ(const BOZ_t &x) {
+        s = syn(gr::Integer);
+        s += "\"" + std::string(x.m_s) + "\"";
+        s += syn();
+    }
+
     void visit_Complex(const Complex_t &x){
         std::string r;
         s = syn(gr::Complex);
