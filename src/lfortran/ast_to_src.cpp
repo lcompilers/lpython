@@ -1172,10 +1172,7 @@ public:
         r += syn(gr::Repeat);
         r.append("end do");
         r += syn();
-        if (x.m_stmt_name) {
-            r += " ";
-            r += x.m_stmt_name;
-        }
+        r += end_stmt_name(x);
         r += "\n";
         s = r;
     }
@@ -1342,41 +1339,24 @@ public:
     }
 
     void visit_ForAll(const ForAll_t &x) {
-        if (x.n_control != 1) {
-            throw SemanticError("Forall : exactly one control statement is required for now",
-            x.base.base.loc);
-        }
         std::string r = indent;
         r += print_label(x);
         r += print_stmt_name(x);
         r += syn(gr::Repeat);
         r += "forall";
         r += syn();
-        AST::ConcurrentControl_t &h = *(AST::ConcurrentControl_t*) x.m_control[0];
         r.append(" (");
-        if (h.m_var) {
-            r.append(h.m_var);
-            r.append(" = ");
-        }
-        if (h.m_start) {
-            this->visit_expr(*h.m_start);
-            r.append(s);
-            r.append(":");
-        }
-        if (h.m_end) {
-            this->visit_expr(*h.m_end);
+        for (size_t i=0; i<x.n_control; i++) {
+            this->visit_concurrent_control(*x.m_control[i]);
+            if (i < x.n_control-1) s.append(", ");
             r.append(s);
         }
-        if (h.m_increment) {
-            r.append(":");
-            this->visit_expr(*h.m_increment);
-            r.append(s);
-        }
-        r.append(")");
         if (x.m_mask) {
+            r += ", ";
             this->visit_expr(*x.m_mask);
             r += s;
         }
+        r.append(")");
         for (size_t i=0; i<x.n_locality; i++) {
             this->visit_concurrent_locality(*x.m_locality[i]);
             r.append(s);
@@ -1392,46 +1372,30 @@ public:
         r += syn(gr::Repeat);
         r.append("end forall");
         r += syn();
+        r += end_stmt_name(x);
         r += "\n";
         s = r;
     }
 
     void visit_ForAllSingle(const ForAllSingle_t &x) {
-        if (x.n_control != 1) {
-            throw SemanticError("For all: exactly one control statement is required for now",
-            x.base.base.loc);
-        }
         std::string r = indent;
         r += print_label(x);
         r += print_stmt_name(x);
         r += syn(gr::Repeat);
         r += "forall";
         r += syn();
-        AST::ConcurrentControl_t &h = *(AST::ConcurrentControl_t*) x.m_control[0];
         r.append(" (");
-        if (h.m_var) {
-            r.append(h.m_var);
-            r.append(" = ");
-        }
-        if (h.m_start) {
-            this->visit_expr(*h.m_start);
-            r.append(s);
-            r.append(":");
-        }
-        if (h.m_end) {
-            this->visit_expr(*h.m_end);
+        for (size_t i=0; i<x.n_control; i++) {
+            this->visit_concurrent_control(*x.m_control[i]);
+            if (i < x.n_control-1) s.append(", ");
             r.append(s);
         }
-        if (h.m_increment) {
-            r.append(":");
-            this->visit_expr(*h.m_increment);
-            r.append(s);
-        }
-        r.append(")");
         if (x.m_mask) {
+            r += ", ";
             this->visit_expr(*x.m_mask);
             r += s;
         }
+        r.append(")");
         r.append("\n");
         inc_indent();
         this->visit_stmt(*x.m_assign);
@@ -1441,7 +1405,31 @@ public:
         r += syn(gr::Repeat);
         r.append("end forall");
         r += syn();
+        r += end_stmt_name(x);
         r += "\n";
+        s = r;
+    }
+
+    void visit_ConcurrentControl(const ConcurrentControl_t &x) {
+        std::string r;
+        if (x.m_var) {
+            r.append(x.m_var);
+            r.append(" = ");
+        }
+        if (x.m_start) {
+            this->visit_expr(*x.m_start);
+            r.append(s);
+            r.append(":");
+        }
+        if (x.m_end) {
+            this->visit_expr(*x.m_end);
+            r.append(s);
+        }
+        if (x.m_increment) {
+            r.append(":");
+            this->visit_expr(*x.m_increment);
+            r.append(s);
+        }
         s = r;
     }
 
@@ -1849,6 +1837,15 @@ public:
             return "";
         } else {
             return std::string(x.m_stmt_name) + ": ";
+        }
+    }
+
+    template <typename Node>
+    std::string end_stmt_name(const Node &x) {
+        if (x.m_stmt_name == nullptr) {
+            return "";
+        } else {
+            return " " + std::string(x.m_stmt_name);
         }
     }
 

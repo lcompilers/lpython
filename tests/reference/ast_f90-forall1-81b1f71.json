@@ -1,0 +1,13 @@
+{
+    "basename": "ast_f90-forall1-81b1f71",
+    "cmd": "lfortran --show-ast-f90 --no-color {infile}",
+    "infile": "tests/forall1.f90",
+    "infile_hash": "c0bc2a81b478acca60180152012de1e4011f235afde816cb91804fb9",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_f90-forall1-81b1f71.stdout",
+    "stdout_hash": "da71848ee28699693b0d45300352b6847366fa128128d2cc28034375",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
