@@ -2905,16 +2905,17 @@ public:
         }
         ASR::expr_t** a_values = a_values_vec.p;
         size_t n_values = a_values_vec.size();
-        std::string a_var_name = std::to_string(iloop_counter) + std::string(x.m_var);
-        iloop_counter += 1;
-        Str a_var_name_f;
-        a_var_name_f.from_str(al, a_var_name);
-        ASR::asr_t* a_variable = ASR::make_Variable_t(al, x.base.base.loc, current_scope, a_var_name_f.c_str(al), 
-                                                        ASR::intentType::Local, nullptr,
-                                                        ASR::storage_typeType::Default, expr_type(a_start),
-                                                        ASR::abiType::Source, ASR::Public);
-        ASR::symbol_t* a_sym = ASR::down_cast<ASR::symbol_t>(a_variable);
-        current_scope->scope[a_var_name] = a_sym;
+        // std::string a_var_name = std::to_string(iloop_counter) + std::string(x.m_var);
+        // iloop_counter += 1;
+        // Str a_var_name_f;
+        // a_var_name_f.from_str(al, a_var_name);
+        // ASR::asr_t* a_variable = ASR::make_Variable_t(al, x.base.base.loc, current_scope, a_var_name_f.c_str(al), 
+        //                                                 ASR::intentType::Local, nullptr,
+        //                                                 ASR::storage_typeType::Default, expr_type(a_start),
+        //                                                 ASR::abiType::Source, ASR::Public);
+        LFORTRAN_ASSERT(current_scope->scope.find(std::string(x.m_var)) != current_scope->scope.end());
+        ASR::symbol_t* a_sym = current_scope->scope[std::string(x.m_var)];
+        // current_scope->scope[a_var_name] = a_sym;
         ASR::expr_t* a_var = EXPR(ASR::make_Var_t(al, x.base.base.loc, a_sym));
         tmp = ASR::make_ImpliedDoLoop_t(al, x.base.base.loc, a_values, n_values, 
                                             a_var, a_start, a_end, a_increment, 

@@ -108,18 +108,23 @@ public:
                 head.loc = head.m_v->base.loc;
                 Vec<ASR::stmt_t*> doloop_body;
                 doloop_body.reserve(al, 1);
-                ASR::Var_t* arr_var = (ASR::Var_t*)(&(x.m_value->base));
+                ASR::Var_t* arr_var = (ASR::Var_t*)(&(x.m_target->base));
                 ASR::symbol_t* arr = arr_var->m_v;
-                ASR::ttype_t *const_1_type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
-                ASR::expr_t* const_1 = EXPR(ASR::make_ConstantInteger_t(al, arr_var->base.base.loc, 1, const_1_type));
+                ASR::ttype_t *_type = expr_type(idoloop->m_start);
+                ASR::expr_t* const_1 = EXPR(ASR::make_ConstantInteger_t(al, arr_var->base.base.loc, 1, _type));
+                ASR::expr_t* const_n = EXPR(ASR::make_ConstantInteger_t(al, arr_var->base.base.loc, idoloop->n_values, _type));
+                ASR::expr_t* offset = EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, idoloop->m_var, ASR::binopType::Sub, idoloop->m_start, _type));
+                ASR::expr_t* num_grps = EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, offset, ASR::binopType::Mul, const_n, _type));
+                ASR::expr_t* grp_start = EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, num_grps, ASR::binopType::Add, const_1, _type));
                 for( size_t i = 0; i < idoloop->n_values; i++ ) {
                     Vec<ASR::array_index_t> args;
                     ASR::array_index_t ai;
                     ai.m_left = nullptr;
+                    ASR::expr_t* const_i = EXPR(ASR::make_ConstantInteger_t(al, arr_var->base.base.loc, i, _type));
                     ASR::expr_t* idx = EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, 
-                                                                idoloop->m_var, ASR::binopType::Add, const_1, 
-                                                                const_1_type));
-                    ai.m_right = idx; // To add expressions
+                                                                grp_start, ASR::binopType::Add, const_i, 
+                                                                _type));
+                    ai.m_right = idx;
                     ai.m_step = nullptr;
                     args.reserve(al, 1);
                     args.push_back(al, ai);
