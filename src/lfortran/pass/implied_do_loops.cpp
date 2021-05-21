@@ -33,7 +33,7 @@ private:
     Vec<ASR::stmt_t*> implied_do_loop_result;
 public:
     ImpliedDoLoopVisitor(Allocator &al) : al{al} {
-        implied_do_loop_result.n = 0;
+        implied_do_loop_result.reserve(al, 1);
 
     }
 
@@ -99,28 +99,38 @@ public:
             ASR::ArrayInitializer_t* arr_init = ((ASR::ArrayInitializer_t*)(&(x.m_value->base)));
             if( arr_init->n_args == 1 && arr_init->m_args[0] != nullptr && 
                 arr_init->m_args[0]->type == ASR::exprType::ImpliedDoLoop ) {
-                    ASR::ImpliedDoLoop_t* idoloop = ((ASR::ImpliedDoLoop_t*)(&(arr_init->m_args[0]->base)));
-                    ASR::do_loop_head_t head;
-                    head.m_v = idoloop->m_var;
-                    head.m_start = idoloop->m_start;
-                    head.m_end = idoloop->m_end;
-                    head.m_increment = idoloop->m_increment;
-                    head.loc = head.m_v->base.loc;
-                    Vec<ASR::stmt_t*> doloop_body;
-                    doloop_body.reserve(al, 1);
-                    ASR::Var_t* arr_var = (ASR::Var_t*)(&(x.m_value->base));
-                    ASR::symbol_t* arr = arr_var->m_v;
-                    for( size_t i = 0; i < idoloop->n_values; i++ ) {
-                        Vec<ASR::array_index_t> args;
-                        ASR::array_index_t ai;
-                        ai.m_left = nullptr;
-                        ai.m_right = idoloop->m_var; // To add expressions
-                        ai.m_step = nullptr;
-                        args.reserve(al, 1);
-                        args.push_back(al, ai);
-                        ASR::expr_t* array_ref = EXPR(ASR::make_ArrayRef_t(al, arr_var->base.base.loc, arr, args.p, args.size(), expr_type(EXPR((ASR::asr_t*)arr_var))));
-                        ASR::stmt_t* doloop_stmt = STMT(ASR::make_Assignment_t(al, ))
-                    }
+                ASR::ImpliedDoLoop_t* idoloop = ((ASR::ImpliedDoLoop_t*)(&(arr_init->m_args[0]->base)));
+                ASR::do_loop_head_t head;
+                head.m_v = idoloop->m_var;
+                head.m_start = idoloop->m_start;
+                head.m_end = idoloop->m_end;
+                head.m_increment = idoloop->m_increment;
+                head.loc = head.m_v->base.loc;
+                Vec<ASR::stmt_t*> doloop_body;
+                doloop_body.reserve(al, 1);
+                ASR::Var_t* arr_var = (ASR::Var_t*)(&(x.m_value->base));
+                ASR::symbol_t* arr = arr_var->m_v;
+                ASR::ttype_t *const_1_type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+                ASR::expr_t* const_1 = EXPR(ASR::make_ConstantInteger_t(al, arr_var->base.base.loc, 1, const_1_type));
+                for( size_t i = 0; i < idoloop->n_values; i++ ) {
+                    Vec<ASR::array_index_t> args;
+                    ASR::array_index_t ai;
+                    ai.m_left = nullptr;
+                    ASR::expr_t* idx = EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, 
+                                                                idoloop->m_var, ASR::binopType::Add, const_1, 
+                                                                const_1_type));
+                    ai.m_right = idx; // To add expressions
+                    ai.m_step = nullptr;
+                    args.reserve(al, 1);
+                    args.push_back(al, ai);
+                    ASR::expr_t* array_ref = EXPR(ASR::make_ArrayRef_t(al, arr_var->base.base.loc, arr, 
+                                                                        args.p, args.size(), 
+                                                                        expr_type(EXPR((ASR::asr_t*)arr_var))));
+                    ASR::stmt_t* doloop_stmt = STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, array_ref, idoloop->m_values[i]));
+                    doloop_body.push_back(al, doloop_stmt);
+                }
+                ASR::stmt_t* doloop = STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
+                implied_do_loop_result.push_back(al, doloop);
             }
         }
     }
