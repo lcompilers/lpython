@@ -339,12 +339,22 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
                 }
             }
 
-            [bB] '"' [01]+ '"' { token(yylval.string); RET(TK_BOZ_CONSTANT) }
-            [bB] "'" [01]+ "'" { token(yylval.string); RET(TK_BOZ_CONSTANT) }
-            [oO] '"' [0-7]+ '"' { token(yylval.string); RET(TK_BOZ_CONSTANT) }
-            [oO] "'" [0-7]+ "'" { token(yylval.string); RET(TK_BOZ_CONSTANT) }
-            [zZ] '"' [0-9a-f]+ '"' { token(yylval.string); RET(TK_BOZ_CONSTANT) }
-            [zZ] "'" [0-9a-f]+ "'" { token(yylval.string); RET(TK_BOZ_CONSTANT) }
+            [bB] '"' [01]+ '"' | '"' [01]+ '"' [bB] {
+                token(yylval.string); RET(TK_BOZ_CONSTANT) }
+            [bB] "'" [01]+ "'" | "'" [01]+ "'" [bB] {
+                token(yylval.string); RET(TK_BOZ_CONSTANT) }
+            [oO] '"' [0-7]+ '"' | '"' [0-7]+ '"' [oO] {
+                token(yylval.string); RET(TK_BOZ_CONSTANT) }
+            [oO] "'" [0-7]+ "'" | "'" [0-7]+ "'" [oO] {
+                token(yylval.string); RET(TK_BOZ_CONSTANT) }
+            [zZ] '"' [0-9a-fA-F]+ '"' | '"' [0-9a-fA-F]+ '"' [zZ] {
+                token(yylval.string); RET(TK_BOZ_CONSTANT) }
+            [zZ] "'" [0-9a-fA-F]+ "'" | "'" [0-9a-fA-F]+ "'" [zZ] {
+                token(yylval.string); RET(TK_BOZ_CONSTANT) }
+            [xX] '"' [0-9a-fA-F]+ '"' | '"' [0-9a-fA-F]+ '"' [xX] {
+                token(yylval.string); RET(TK_BOZ_CONSTANT) }
+            [xX] "'" [0-9a-fA-F]+ "'" | "'" [0-9a-fA-F]+ "'" [xX] {
+                token(yylval.string); RET(TK_BOZ_CONSTANT) }
 
             "&" ws_comment+ whitespace? "&"? {
                 line_num++; cur_line=cur; continue;
