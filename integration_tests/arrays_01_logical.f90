@@ -35,7 +35,7 @@ if (.not. b(4)) error stop
 
 do i = 1, 2
     do j = 1, 2
-        if (((i + j) - 2*((i + j)/2)) .eq. 1) then
+        if (((i + j) - 2*((i + j)/2)) == 1) then
             c(i, j) = .true.
         else
             c(i, j) = .false.
