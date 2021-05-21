@@ -12,5 +12,5 @@ print *, x(1), x(2), x(3), x(4), x(5), x(6)
 x = [(2*i, 3*i, 4*i, i+1, i**2, i*2, i = 2, 2)]
 print *, x(1), x(2), x(3), x(4), x(5), x(6)
 ! A = 3
-! print '("Matrix A"/(10F8.2))', ((A(i,j), i = 1, 10), j = 1, 10)
+print '("Matrix A"/(10F8.2))',  ((A(i, j), i = 1, 10), j = 1, 10)
 end program

@@ -39,6 +39,35 @@ namespace LFortran {
                 return false;
             }
 
+            inline bool is_array(ASR::ttype_t* x) {
+                int n_dims = 0;
+                switch( x->type ) {
+                    case ASR::ttypeType::Integer: {
+                        ASR::Integer_t* _type = (ASR::Integer_t*)(&(x->base));
+                        n_dims = _type->n_dims;
+                        break;
+                    }
+                    case ASR::ttypeType::Real: {
+                        ASR::Real_t* _type = (ASR::Real_t*)(&(x->base));
+                        n_dims = _type->n_dims > 0;
+                        break;
+                    }
+                    case ASR::ttypeType::Complex: {
+                        ASR::Complex_t* _type = (ASR::Complex_t*)(&(x->base));
+                        n_dims = _type->n_dims > 0;
+                        break;
+                    }
+                    case ASR::ttypeType::Logical: {
+                        ASR::Logical_t* _type = (ASR::Logical_t*)(&(x->base));
+                        n_dims = _type->n_dims > 0;
+                        break;
+                    }
+                    default:
+                        break;
+                }
+                return n_dims > 0;
+            } 
+
             inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
                 bool is_source_pointer = is_pointer(source), is_dest_pointer = is_pointer(dest);
                 if( (!is_source_pointer && !is_dest_pointer) ||
@@ -2249,6 +2278,10 @@ public:
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = EXPR(tmp);
         ASR::ttype_t *value_type = expr_type(value);
+        if( target->type == ASR::exprType::Var && !HelperMethods::is_array(target_type) && 
+            value->type == ASR::exprType::ArrayInitializer ) {
+            throw SemanticError("ArrayInitalizer expressions can only be assigned array references", x.base.base.loc);
+        }
         if (target->type == ASR::exprType::Var) {
 
             ImplicitCastRules::set_converted_value(al, x.base.base.loc, &value,

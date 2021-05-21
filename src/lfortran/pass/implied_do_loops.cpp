@@ -131,6 +131,9 @@ public:
                     ASR::expr_t* array_ref = EXPR(ASR::make_ArrayRef_t(al, arr_var->base.base.loc, arr, 
                                                                         args.p, args.size(), 
                                                                         expr_type(EXPR((ASR::asr_t*)arr_var))));
+                    if( idoloop->m_values[i]->type == ASR::exprType::ImpliedDoLoop ) {
+                        throw SemanticError("Pass for nested ImpliedDoLoop nodes isn't implemented yet.", idoloop->m_values[i]->base.loc);
+                    }
                     ASR::stmt_t* doloop_stmt = STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, array_ref, idoloop->m_values[i]));
                     doloop_body.push_back(al, doloop_stmt);
                 }
