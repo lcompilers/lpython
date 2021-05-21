@@ -14,13 +14,13 @@ define void @__module_dr_fortran_cb_print_dr() {
 
 declare void @_lfortran_printf(i8*, ...)
 
-declare void @__module_dr_fortran_cb_title_or_name()
-
 define void @__module_dr_fortran_cb_print_dr_fortran(void ()* %title_or_name) {
 .entry:
   call void %title_or_name()
   ret void
 }
+
+declare void @__module_dr_fortran_cb_title_or_name()
 
 define void @__module_dr_fortran_cb_print_fortran() {
 .entry:
