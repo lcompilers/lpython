@@ -119,6 +119,7 @@ public:
                 for( size_t i = 0; i < idoloop->n_values; i++ ) {
                     Vec<ASR::array_index_t> args;
                     ASR::array_index_t ai;
+                    ai.loc = arr_var->base.base.loc;
                     ai.m_left = nullptr;
                     ASR::expr_t* const_i = EXPR(ASR::make_ConstantInteger_t(al, arr_var->base.base.loc, i, _type));
                     ASR::expr_t* idx = EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, 
