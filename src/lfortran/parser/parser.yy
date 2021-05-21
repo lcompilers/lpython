@@ -1329,17 +1329,17 @@ concurrent_locality
 forall_statement
     : KW_FORALL "(" concurrent_control_list ")"
         concurrent_locality_star sep statements endforall {
-            $$ = DO_CONCURRENT1($3, $5, $7, @$); }
+            $$ = FORALL1($3, $5, $7, @$); }
     | KW_FORALL "(" concurrent_control_list "," expr ")"
         concurrent_locality_star sep statements endforall {
-            $$ = DO_CONCURRENT2($3, $5, $7, $9, @$); }
+            $$ = FORALL2($3, $5, $7, $9, @$); }
     ;
 
 forall_statement_single
     : KW_FORALL "(" concurrent_control_list ")"
-        assignment_statement { $$ = PRINT0(@$); }
+        assignment_statement { $$ = FORALLSINGLE1($3, $5, @$); }
     | KW_FORALL "(" concurrent_control_list "," expr ")"
-        assignment_statement { $$ = PRINT0(@$); }
+        assignment_statement { $$ = FORALLSINGLE2($3, $5, $7, @$); }
     ;
 
 format_statement

@@ -105,6 +105,8 @@ stmt
     | Deallocate(int label, fnarg* args)
     | ErrorStop(int label, expr? code)
     | Exit(int label, identifier? stmt_name)
+    | ForAllSingle(int label, identifier? stmt_name,
+            concurrent_control *control, expr? mask, stmt assign)
     | Format(int label, string fmt)
     | GoTo(int label, int goto_label)
     | Inquire(int label, expr* args, keyword* kwargs, expr* values)
@@ -127,11 +129,14 @@ stmt
             concurrent_locality* locality, stmt* body)
     | DoLoop(int label, identifier? stmt_name, identifier? var, expr? start,
             expr? end, expr? increment, stmt* body)
+    | ForAll(int label, identifier? stmt_name,
+            concurrent_control *control, expr? mask,
+            concurrent_locality* locality, stmt* body)
     | If(int label, identifier? stmt_name, expr test, stmt* body, stmt* orelse)
     | Select(int label, identifier? stmt_name, expr test, case_stmt* body,
             stmt* default)
-    | SelectType(int label, identifier? stmt_name, identifier? assoc_name, expr selector,
-            type_stmt* body)
+    | SelectType(int label, identifier? stmt_name, identifier? assoc_name,
+            expr selector, type_stmt* body)
     | Where(int label, identifier? stmt_name, expr test, stmt* body,
             stmt* orelse)
     | WhileLoop(int label, identifier? stmt_name, expr test, stmt* body)

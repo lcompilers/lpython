@@ -468,6 +468,11 @@ filename = "fn3.f90"
 ast = true
 
 [[test]]
+filename = "forall1.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
 filename = "subroutine8.f90"
 ast = true
 
