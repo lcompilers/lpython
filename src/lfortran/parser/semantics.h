@@ -1073,6 +1073,13 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         CONCURRENT_LOCALITIES(loc), loc.size(), \
         STMTS(body), body.size())
 
+#define FORALLSINGLE1(conlist, assign, l) make_ForAllSingle_t(p.m_a, l, \
+        0, nullptr, CONCURRENT_CONTROLS(conlist), conlist.size(), \
+        nullptr, down_cast<stmt_t>(assign))
+#define FORALLSINGLE2(conlist, mask, assign, l) make_ForAllSingle_t(p.m_a, l, \
+        0, nullptr, CONCURRENT_CONTROLS(conlist), conlist.size(), \
+        EXPR(mask), down_cast<stmt_t>(assign))
+
 #define CONCURRENT_CONTROL1(i, a, b, l) make_ConcurrentControl_t(p.m_a, l, \
         name2char(i), EXPR(a), EXPR(b), nullptr)
 

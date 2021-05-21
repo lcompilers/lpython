@@ -1337,9 +1337,9 @@ forall_statement
 
 forall_statement_single
     : KW_FORALL "(" concurrent_control_list ")"
-        assignment_statement { $$ = PRINT0(@$); }
+        assignment_statement { $$ = FORALLSINGLE1($3, $5, @$); }
     | KW_FORALL "(" concurrent_control_list "," expr ")"
-        assignment_statement { $$ = PRINT0(@$); }
+        assignment_statement { $$ = FORALLSINGLE2($3, $5, $7, @$); }
     ;
 
 format_statement
