@@ -975,6 +975,7 @@ public:
                             n_dims = v_type->n_dims;
                             a_kind = v_type->m_kind;
                             if( n_dims > 0 ) {
+                                is_array_type = true;
                                 type = get_array_type(m_type_, a_kind, n_dims, m_dims);
                             } else {
                                 type = getComplexType(a_kind);
@@ -991,6 +992,7 @@ public:
                             n_dims = v_type->n_dims;
                             a_kind = v_type->m_kind;
                             if( n_dims > 0 ) {
+                                is_array_type = true;
                                 type = get_array_type(m_type_, a_kind, n_dims, m_dims);
                             } else {
                                 type = llvm::Type::getInt1Ty(context);
@@ -1003,6 +1005,7 @@ public:
                             m_dims = v_type->m_dims;
                             n_dims = v_type->n_dims;
                             if( n_dims > 0 ) {
+                                is_array_type = true;
                                 type = get_array_type(m_type_, a_kind, n_dims, m_dims);
                             } else {
                                 type = getDerivedType(m_type_, false);
