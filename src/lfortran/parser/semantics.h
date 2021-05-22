@@ -537,6 +537,7 @@ ast_t* implied_do3(Allocator &al, Location &loc,
 #define REAL(x, l) make_Real_t(p.m_a, l, x.c_str(p.m_a))
 #define COMPLEX(x, y, l) make_Complex_t(p.m_a, l, EXPR(x), EXPR(y))
 #define STRING(x, l) make_Str_t(p.m_a, l, x.c_str(p.m_a))
+#define BOZ(x, l) make_BOZ_t(p.m_a, l, x.c_str(p.m_a))
 #define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, l, 0, EXPR(x), EXPR(y))
 #define ASSOCIATE(x, y, l) make_Associate_t(p.m_a, l, 0, EXPR(x), EXPR(y))
 #define GOTO(x, l) make_GoTo_t(p.m_a, l, 0, x)
@@ -1060,6 +1061,25 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*reduce*/ REDUCE_TYPE(reduce), \
         /*body*/ STMTS(body), \
         /*n_body*/ body.size())
+
+#define FORALL1(conlist, loc, body, l) make_ForAll_t(p.m_a, l, 0, nullptr, \
+        CONCURRENT_CONTROLS(conlist), conlist.size(), \
+        nullptr, \
+        CONCURRENT_LOCALITIES(loc), loc.size(), \
+        STMTS(body), body.size())
+
+#define FORALL2(conlist, mask, loc, body, l) make_ForAll_t(p.m_a, l, 0, nullptr, \
+        CONCURRENT_CONTROLS(conlist), conlist.size(), \
+        EXPR(mask), \
+        CONCURRENT_LOCALITIES(loc), loc.size(), \
+        STMTS(body), body.size())
+
+#define FORALLSINGLE1(conlist, assign, l) make_ForAllSingle_t(p.m_a, l, \
+        0, nullptr, CONCURRENT_CONTROLS(conlist), conlist.size(), \
+        nullptr, down_cast<stmt_t>(assign))
+#define FORALLSINGLE2(conlist, mask, assign, l) make_ForAllSingle_t(p.m_a, l, \
+        0, nullptr, CONCURRENT_CONTROLS(conlist), conlist.size(), \
+        EXPR(mask), down_cast<stmt_t>(assign))
 
 #define CONCURRENT_CONTROL1(i, a, b, l) make_ConcurrentControl_t(p.m_a, l, \
         name2char(i), EXPR(a), EXPR(b), nullptr)

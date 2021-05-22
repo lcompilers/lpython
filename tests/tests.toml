@@ -489,6 +489,11 @@ filename = "fn3.f90"
 ast = true
 
 [[test]]
+filename = "forall1.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
 filename = "subroutine8.f90"
 ast = true
 
@@ -1046,4 +1051,8 @@ llvm = true
 
 [[test]]
 filename = "../integration_tests/callback_04.f90"
+llvm = true
+
+[[test]]
+filename = "../integration_tests/recursion_01.f90"
 llvm = true

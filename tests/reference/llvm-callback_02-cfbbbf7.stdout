@@ -5,8 +5,6 @@ source_filename = "LFortran"
 @1 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
 @2 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
 
-declare void @__module_callback_02_f(float*, float*)
-
 define void @__module_callback_02_cb(float* %res, float* %a, float* %b, void (float*, float*)* %f) {
 .entry:
   call void %f(float* %a, float* %res)
@@ -29,15 +27,9 @@ define void @__module_callback_02_cb(float* %res, float* %a, float* %b, void (fl
   ret void
 }
 
-declare void @_lfortran_printf(i8*, ...)
+declare void @__module_callback_02_f(float*, float*)
 
-define void @__module_callback_02_f.1(float* %x, float* %res) {
-.entry:
-  %0 = load float, float* %x, align 4
-  %1 = fmul float 2.000000e+00, %0
-  store float %1, float* %res, align 4
-  ret void
-}
+declare void @_lfortran_printf(i8*, ...)
 
 define float @__module_callback_02_foo(float* %c, float* %d, float* %res) {
 .entry:
@@ -47,6 +39,14 @@ define float @__module_callback_02_foo(float* %c, float* %d, float* %res) {
   store float %0, float* %foo, align 4
   %1 = load float, float* %foo, align 4
   ret float %1
+}
+
+define void @__module_callback_02_f.1(float* %x, float* %res) {
+.entry:
+  %0 = load float, float* %x, align 4
+  %1 = fmul float 2.000000e+00, %0
+  store float %1, float* %res, align 4
+  ret void
 }
 
 define i32 @main() {
