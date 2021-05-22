@@ -175,7 +175,8 @@ public:
     }
 
     inline llvm::StructType* get_array_type
-    (ASR::ttypeType type_, int a_kind, int rank, ASR::dimension_t* m_dims) {
+    (ASR::ttype_t* m_type_, int a_kind, int rank, ASR::dimension_t* m_dims) {
+        ASR::ttypeType type_ = m_type_->type;
         int size = 0;
         if( verify_dimensions_t(m_dims, rank) ) {
             size = 1;
@@ -194,29 +195,35 @@ public:
         llvm::Type* el_type = nullptr;
         switch(type_) {
             case ASR::ttypeType::Integer: {
-                switch(a_kind) {
-                    case 4:
-                        el_type = llvm::Type::getInt32Ty(context);
-                        break;
-                    case 8:
-                        el_type = llvm::Type::getInt64Ty(context);
-                        break;
-                    default:
-                        throw CodeGenError("Only 32 and 64 bits integer kinds are supported.");
-                }
+                el_type = getIntType(a_kind);
+                break;
+            }
+            case ASR::ttypeType::IntegerPointer: {
+                el_type = getIntType(a_kind, true);
                 break;
             }
             case ASR::ttypeType::Real: {
-                switch(a_kind) {
-                    case 4:
-                        el_type = llvm::Type::getFloatPtrTy(context);
-                        break;
-                    case 8:
-                        el_type = llvm::Type::getDoublePtrTy(context);
-                        break;
-                    default:
-                        throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
-                }
+                el_type = getFPType(a_kind);
+                break;
+            }
+            case ASR::ttypeType::RealPointer: {
+                el_type = getFPType(a_kind, true);
+                break;
+            }
+            case ASR::ttypeType::Complex: {
+                el_type = getComplexType(a_kind);
+                break;
+            }
+            case ASR::ttypeType::ComplexPointer: {
+                el_type = getComplexType(a_kind, true);
+                break;
+            }
+            case ASR::ttypeType::Logical: {
+                el_type = llvm::Type::getInt1Ty(context);
+                break;
+            }
+            case ASR::ttypeType::Derived: {
+                el_type = getDerivedType(m_type_);
                 break;
             }
             default:
@@ -714,8 +721,26 @@ public:
                 n_dims = v_type->n_dims;
                 break;
             }
+            case ASR::ttypeType::Complex: {
+                ASR::Complex_t* v_type = down_cast<ASR::Complex_t>(v->m_type);
+                m_dims = v_type->m_dims;
+                n_dims = v_type->n_dims;
+                break;
+            }
+            case ASR::ttypeType::Logical: {
+                ASR::Logical_t* v_type = down_cast<ASR::Logical_t>(v->m_type);
+                m_dims = v_type->m_dims;
+                n_dims = v_type->n_dims;
+                break;
+            }
+            case ASR::ttypeType::Derived: {
+                ASR::Derived_t* v_type = down_cast<ASR::Derived_t>(v->m_type);
+                m_dims = v_type->m_dims;
+                n_dims = v_type->n_dims;
+                break;
+            }
             default: {
-                throw CodeGenError("Explicit shape checking supported only for integers.");
+                throw CodeGenError("Explicit shape checking supported only for integer, real, complex, logical and derived types.");
             }
         }
         return verify_dimensions_t(m_dims, n_dims);
@@ -876,7 +901,7 @@ public:
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
                 uint32_t h = get_hash((ASR::asr_t*)v);
                 llvm::Type *type;
-                ASR::ttypeType type_;
+                ASR::ttype_t* m_type_;
                 int n_dims = 0, a_kind = 4;
                 ASR::dimension_t* m_dims = nullptr;
                 if (v->m_intent == intent_local || 
@@ -885,35 +910,69 @@ public:
                     switch (v->m_type->type) {
                         case (ASR::ttypeType::Integer) : {
                             ASR::Integer_t* v_type = down_cast<ASR::Integer_t>(v->m_type);
-                            type_ = v_type->class_type;
+                            m_type_ = v->m_type;
                             m_dims = v_type->m_dims;
                             n_dims = v_type->n_dims;
                             a_kind = v_type->m_kind;
                             if( n_dims > 0 ) {
-                                type = get_array_type(type_, a_kind, n_dims, m_dims);
+                                type = get_array_type(m_type_, a_kind, n_dims, m_dims);
                             } else {
                                 type = getIntType(a_kind);
                             }
                             break;
                         }
                         case (ASR::ttypeType::Real) : {
-                            a_kind = down_cast<ASR::Real_t>(v->m_type)->m_kind;
-                            type = getFPType(a_kind);
+                            ASR::Real_t* v_type = down_cast<ASR::Real_t>(v->m_type);
+                            m_type_ = v->m_type;
+                            m_dims = v_type->m_dims;
+                            n_dims = v_type->n_dims;
+                            a_kind = v_type->m_kind;
+                            if( n_dims > 0 ) {
+                                type = get_array_type(m_type_, a_kind, n_dims, m_dims);
+                            } else {
+                                type = getFPType(a_kind);
+                            }
                             break;
                         }
                         case (ASR::ttypeType::Complex) : {
-                            a_kind = down_cast<ASR::Complex_t>(v->m_type)->m_kind;
-                            type = getComplexType(a_kind);
+                            ASR::Complex_t* v_type = down_cast<ASR::Complex_t>(v->m_type);
+                            m_type_ = v->m_type;
+                            m_dims = v_type->m_dims;
+                            n_dims = v_type->n_dims;
+                            a_kind = v_type->m_kind;
+                            if( n_dims > 0 ) {
+                                type = get_array_type(m_type_, a_kind, n_dims, m_dims);
+                            } else {
+                                type = getComplexType(a_kind);
+                            }
                             break;
                         }
                         case (ASR::ttypeType::Character) :
                             type = character_type;
                             break;
-                        case (ASR::ttypeType::Logical) :
-                            type = llvm::Type::getInt1Ty(context);
+                        case (ASR::ttypeType::Logical) : {
+                            ASR::Logical_t* v_type = down_cast<ASR::Logical_t>(v->m_type);
+                            m_type_ = v->m_type;
+                            m_dims = v_type->m_dims;
+                            n_dims = v_type->n_dims;
+                            a_kind = v_type->m_kind;
+                            if( n_dims > 0 ) {
+                                type = get_array_type(m_type_, a_kind, n_dims, m_dims);
+                            } else {
+                                type = llvm::Type::getInt1Ty(context);
+                            }
                             break;
+                        }
                         case (ASR::ttypeType::Derived) : {
-                            type = getDerivedType(v->m_type, false);
+                            ASR::Derived_t* v_type = down_cast<ASR::Derived_t>(v->m_type);
+                            m_type_ = v->m_type;
+                            m_dims = v_type->m_dims;
+                            n_dims = v_type->n_dims;
+                            if( n_dims > 0 ) {
+                                type = get_array_type(m_type_, a_kind, n_dims, m_dims);
+                            } else {
+                                type = getDerivedType(m_type_, false);
+                            }
                             break;
                         }
                         case (ASR::ttypeType::IntegerPointer) : {
@@ -1434,6 +1493,29 @@ public:
                             x.base.base.loc);
                 }
             }
+        } else if (optype == ASR::ttypeType::Complex) {
+            llvm::Value* real_left = complex_re(left, left->getType());
+            llvm::Value* real_right = complex_re(right, right->getType());
+            llvm::Value* img_left = complex_im(left, left->getType());
+            llvm::Value* img_right = complex_im(right, right->getType());
+            llvm::Value *real_res, *img_res;
+            switch (x.m_op) {
+                case (ASR::cmpopType::Eq) : {
+                    real_res = builder->CreateFCmpUEQ(real_left, real_right);
+                    img_res = builder->CreateFCmpUEQ(img_left, img_right);
+                    break;
+                }
+                case (ASR::cmpopType::NotEq) : {
+                    real_res = builder->CreateFCmpUNE(real_left, real_right);
+                    img_res = builder->CreateFCmpUNE(img_left, img_right);
+                    break;
+                }
+                default : {
+                    throw SemanticError("Comparison operator not implemented",
+                            x.base.base.loc);
+                }
+            }
+            tmp = builder->CreateAnd(real_res, img_res);
         } else {
             throw CodeGenError("Only Integer and Real implemented in Compare");
         }
