@@ -310,7 +310,13 @@ cpp = true
 filename = "array2.f90"
 ast = true
 asr = true
+llvm = true
 cpp = true
+
+[[test]]
+filename = "array2_derived.f90"
+asr = true
+llvm = true
 
 [[test]]
 filename = "array3.f90"
@@ -349,6 +355,21 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "../integration_tests/arrays_01_real.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/arrays_01_complex.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/arrays_01_logical.f90"
+asr = true
+llvm = true
+
+[[test]]
 filename = "../integration_tests/arrays_02.f90"
 ast = true
 ast_f90 = true
@@ -366,6 +387,8 @@ cpp = true
 filename = "../integration_tests/arrays_06.f90"
 ast = true
 ast_f90 = true
+asr = true
+llvm = true
 
 [[test]]
 filename = "../integration_tests/arrays_07.f90"
@@ -471,6 +494,11 @@ cpp = true
 [[test]]
 filename = "fn3.f90"
 ast = true
+
+[[test]]
+filename = "forall1.f90"
+ast = true
+ast_f90 = true
 
 [[test]]
 filename = "subroutine8.f90"
@@ -1030,4 +1058,8 @@ llvm = true
 
 [[test]]
 filename = "../integration_tests/callback_04.f90"
+llvm = true
+
+[[test]]
+filename = "../integration_tests/recursion_01.f90"
 llvm = true
