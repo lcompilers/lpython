@@ -156,6 +156,7 @@ expr
     | Real(string n)
     | Complex(expr re, expr im)
     | Str(string s)
+    | BOZ(string s)
     | Name(identifier id, struct_member* member)
     | Logical(bool value)
 

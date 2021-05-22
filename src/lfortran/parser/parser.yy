@@ -1477,7 +1477,7 @@ expr
     | TK_INTEGER { $$ = INTEGER($1, @$); }
     | TK_REAL { $$ = REAL($1, @$); }
     | TK_STRING { $$ = STRING($1, @$); }
-    | TK_BOZ_CONSTANT { $$ = STRING($1, @$); } // TODO: add BOZ AST node
+    | TK_BOZ_CONSTANT { $$ = BOZ($1, @$); }
     | ".true."  { $$ = TRUE(@$); }
     | ".false." { $$ = FALSE(@$); }
     | "(" expr ")" { $$ = $2; }
