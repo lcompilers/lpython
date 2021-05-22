@@ -1,7 +1,7 @@
 (TranslationUnit 
    [
    (Subroutine 
-      g [] () [] [] [] [
+      g [] [] () [] [] [] [
       (Declaration 
          (AttrType 
             TypeInteger [] ()) [] [
@@ -13,7 +13,7 @@
       (DoLoop 0 () i 1 10 () [
          (= 0 x (* x i))])] []) 
    (Subroutine 
-      h [] () [] [] [] [
+      h [] [] () [] [] [] [
       (Declaration 
          (AttrType 
             TypeInteger [] ()) [] [
