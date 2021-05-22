@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-recursion_01-2f4476d",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/recursion_01.f90",
+    "infile_hash": "1e4b2d3443a20a91f047ee86808b6d104c0f8bb11e930886d11978b5",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-recursion_01-2f4476d.stdout",
+    "stdout_hash": "baa03fcae19b7d0e061eeab6467d3fa4a65cb0eb2a7d420b1d45a8f6",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

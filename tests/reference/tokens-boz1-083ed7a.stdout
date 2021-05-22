@@ -22,4 +22,8 @@
 (NEWLINE)
 (TOKEN "BOZ constant" Z"1d31")
 (NEWLINE)
+(TOKEN "BOZ constant" z"C1B1")
+(NEWLINE)
+(TOKEN "BOZ constant" Z"1E3A")
+(NEWLINE)
 (EOF)
