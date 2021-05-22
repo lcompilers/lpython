@@ -2440,16 +2440,27 @@ public:
                     uint32_t h = get_hash((ASR::asr_t*)arg);
                     if (llvm_symtab.find(h) != llvm_symtab.end()){
                         tmp = llvm_symtab[h];
-                        if( name == "size" ) {
-                            llvm::Value* arg_struct = builder->CreateAlloca(fname2arg_type["size"].first, nullptr);
-                            llvm::Value* first_ele_ptr = create_gep(create_gep(tmp, 2), 0);
-                            llvm::Value* first_arg_ptr = create_gep(arg_struct, 0);
-                            builder->CreateStore(first_ele_ptr, first_arg_ptr);
-                            llvm::Value* rank_ptr = create_gep(arg_struct, 1);
-                            llvm::StructType* tmp_type = (llvm::StructType*)(((llvm::PointerType*)(tmp->getType()))->getElementType());
-                            int rank = ((llvm::ArrayType*)(tmp_type->getElementType(2)))->getNumElements();
-                            builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, rank)), rank_ptr);
-                            tmp = arg_struct;
+                        const ASR::symbol_t* func_subrout = symbol_get_past_external(x.m_name);
+                        ASR::abiType x_abi = (ASR::abiType) 0;
+                        if( func_subrout->type == ASR::symbolType::Function ) {
+                            ASR::Function_t* func = down_cast<ASR::Function_t>(func_subrout);
+                            x_abi = func->m_abi;
+                        } else if( func_subrout->type == ASR::symbolType::Subroutine ) {
+                            ASR::Subroutine_t* sub = down_cast<ASR::Subroutine_t>(func_subrout);
+                            x_abi = sub->m_abi;
+                        }
+                        if( x_abi == ASR::abiType::Intrinsic ) {
+                            if( name == "size" ) {
+                                llvm::Value* arg_struct = builder->CreateAlloca(fname2arg_type["size"].first, nullptr);
+                                llvm::Value* first_ele_ptr = create_gep(create_gep(tmp, 2), 0);
+                                llvm::Value* first_arg_ptr = create_gep(arg_struct, 0);
+                                builder->CreateStore(first_ele_ptr, first_arg_ptr);
+                                llvm::Value* rank_ptr = create_gep(arg_struct, 1);
+                                llvm::StructType* tmp_type = (llvm::StructType*)(((llvm::PointerType*)(tmp->getType()))->getElementType());
+                                int rank = ((llvm::ArrayType*)(tmp_type->getElementType(2)))->getNumElements();
+                                builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, rank)), rank_ptr);
+                                tmp = arg_struct;
+                            }
                         }
                     } else {
                         auto finder = std::find(needed_globals.begin(), 

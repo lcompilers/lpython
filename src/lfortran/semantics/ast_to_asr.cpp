@@ -1456,8 +1456,6 @@ public:
                 if (!present(current_module_dependencies, m->m_name)) {
                     current_module_dependencies.push_back(al, m->m_name);
                 }
-            } else if( var_name == "size" ) {
-                // TODO: Add make_Function_t call for size
             } else {
                 throw SemanticError("Function '" + var_name + "' not found"
                     " or not implemented yet (if it is intrinsic)",
@@ -2664,6 +2662,54 @@ public:
                                        /* n_body */ 0,
                                        /* a_return_var */ EXPR(return_var_ref),
                                        ASR::abiType::Source,
+                                       ASR::Public, ASR::deftypeType::Implementation);
+                std::string sym_name = fn_name;
+                unit->m_global_scope->scope[sym_name] =
+                    ASR::down_cast<ASR::symbol_t>(fn);
+                v = ASR::down_cast<ASR::symbol_t>(fn);
+            } else if( var_name == "size" ) {
+                // Intrinsic function present(), add it to the global scope
+                ASR::TranslationUnit_t *unit = (ASR::TranslationUnit_t *)asr;
+                const char *fn_name_orig = "size";
+                char *fn_name = (char *)fn_name_orig;
+                SymbolTable *fn_scope =
+                    al.make_new<SymbolTable>(unit->m_global_scope);
+                ASR::ttype_t *type;
+                type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+                const char *ret_name_orig = "r_size";
+                char *ret_name = (char *)ret_name_orig;
+                ASR::asr_t *return_var = ASR::make_Variable_t(
+                    al, x.base.base.loc, fn_scope, ret_name, intent_return_var,
+                    nullptr, ASR::storage_typeType::Default, type,
+                    ASR::abiType::Source,
+                    ASR::Public);
+                fn_scope->scope[std::string(ret_name)] =
+                    ASR::down_cast<ASR::symbol_t>(return_var);
+                ASR::asr_t *return_var_ref = ASR::make_Var_t(
+                    al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(return_var));
+                Vec<ASR::expr_t*> a_args;
+                a_args.reserve(al, 1);
+                const char *arg_name_orig = "a_size";
+                char *arg_name = (char *)arg_name_orig;
+                type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 1)); // Minimum 1 dimension
+                ASR::asr_t* arg_arr = ASR::make_Variable_t(al, x.base.base.loc, fn_scope, arg_name, 
+                                                            ASR::intentType::In, nullptr, 
+                                                            ASR::storage_typeType::Default, type,
+                                                            ASR::abiType::Source, ASR::Public);
+                fn_scope->scope[std::string(arg_name)] =
+                    ASR::down_cast<ASR::symbol_t>(arg_arr);
+                ASR::asr_t *arg_var_ref = ASR::make_Var_t(
+                    al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(arg_arr));
+                a_args.push_back(al, EXPR(arg_var_ref));
+                ASR::asr_t *fn = ASR::make_Function_t(al, x.base.base.loc,
+                                       /* a_symtab */ fn_scope,
+                                       /* a_name */ fn_name,
+                                       /* a_args */ a_args.p,
+                                       /* n_args */ a_args.size(),
+                                       /* a_body */ nullptr,
+                                       /* n_body */ 0,
+                                       /* a_return_var */ EXPR(return_var_ref),
+                                       ASR::abiType::Intrinsic,
                                        ASR::Public, ASR::deftypeType::Implementation);
                 std::string sym_name = fn_name;
                 unit->m_global_scope->scope[sym_name] =

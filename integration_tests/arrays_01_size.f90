@@ -1,8 +1,10 @@
 program arrays_01
 implicit none
 integer :: i, a(3), b(4)
-integer :: size_a = size(a)
-integer :: size_b = size(b)
+integer :: size_a
+integer :: size_b
+size_a = size(a)
+size_b = size(b)
 do i = 1, size_a
     a(i) = i+10
 end do
