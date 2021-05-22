@@ -185,8 +185,9 @@ public:
         return rank2desc[rank];
     }
 
-    inline llvm::StructType* get_array_type
-    (ASR::ttype_t* m_type_, int a_kind, int rank, ASR::dimension_t* m_dims) {
+    inline llvm::Type* get_array_type
+    (ASR::ttype_t* m_type_, int a_kind, int rank, ASR::dimension_t* m_dims,
+     bool get_pointer=false) {
         ASR::ttypeType type_ = m_type_->type;
         int size = 0;
         if( verify_dimensions_t(m_dims, rank) ) {
@@ -248,7 +249,7 @@ public:
         if( get_pointer ) {
             return tkr2array[array_key]->getPointerTo();
         }
-        return tkr2array[array_key];
+        return (llvm::Type*) tkr2array[array_key];
     }
 
     inline llvm::Value* create_gep(llvm::Value* ds, int idx) {
@@ -1080,20 +1081,20 @@ public:
                 LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
                 // We pass all arguments as pointers for now
                 llvm::Type *type;
-                ASR::ttypeType type_;
+                ASR::ttype_t* m_type_;
                 int n_dims = 0, a_kind = 4;
                 ASR::dimension_t* m_dims = nullptr;
                 bool is_array_type = false;
                 switch (arg->m_type->type) {
                     case (ASR::ttypeType::Integer) : {
                         ASR::Integer_t* v_type = down_cast<ASR::Integer_t>(arg->m_type);
-                        type_ = v_type->class_type;
+                        m_type_ = arg->m_type;
                         m_dims = v_type->m_dims;
                         n_dims = v_type->n_dims;
                         a_kind = v_type->m_kind;
                         if( n_dims > 0 ) {
                             is_array_type = true;
-                            type = get_array_type(type_, a_kind, n_dims, m_dims, true);
+                            type = get_array_type(m_type_, a_kind, n_dims, m_dims, true);
                         } else {
                             type = getIntType(a_kind, true);
                         }
@@ -1101,13 +1102,13 @@ public:
                     }
                     case (ASR::ttypeType::Real) : {
                         ASR::Real_t* v_type = down_cast<ASR::Real_t>(arg->m_type);
-                        type_ = v_type->class_type;
+                        m_type_ = arg->m_type;
                         m_dims = v_type->m_dims;
                         n_dims = v_type->n_dims;
                         a_kind = v_type->m_kind;
                         if( n_dims > 0 ) {
                             is_array_type = true;
-                            type = get_array_type(type_, a_kind, n_dims, m_dims, true);
+                            type = get_array_type(m_type_, a_kind, n_dims, m_dims, true);
                         } else {
                             type = getFPType(a_kind, true);
                         }
@@ -1355,19 +1356,8 @@ public:
 
                 declare_local_vars(x);
 
-                switch( x.m_abi ) {
-                    case ASR::abiType::Intrinsic: {
-                        std::string func_name = x.m_name;
-                        if( func_name == "size" ) {
-                            fill_size(x);
-                        }
-                        break;
-                    }
-                    default: {
-                        for (size_t i=0; i<x.n_body; i++) {
-                            this->visit_stmt(*x.m_body[i]);
-                        }
-                    }
+                for (size_t i=0; i<x.n_body; i++) {
+                    this->visit_stmt(*x.m_body[i]);
                 }
 
                 builder->CreateRetVoid();
@@ -1452,9 +1442,21 @@ public:
 
                 declare_local_vars(x);
 
-                for (size_t i=0; i<x.n_body; i++) {
-                    this->visit_stmt(*x.m_body[i]);
+                switch( x.m_abi ) {
+                    case ASR::abiType::Intrinsic: {
+                        std::string func_name = x.m_name;
+                        if( func_name == "size" ) {
+                            fill_size(x);
+                        }
+                        break;
+                    }
+                    default: {
+                        for (size_t i=0; i<x.n_body; i++) {
+                            this->visit_stmt(*x.m_body[i]);
+                        }
+                    }
                 }
+
                 ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
                 uint32_t h = get_hash((ASR::asr_t*)asr_retval);
 
