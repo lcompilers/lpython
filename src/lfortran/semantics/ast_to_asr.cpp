@@ -2281,7 +2281,8 @@ public:
             value->type == ASR::exprType::ArrayInitializer ) {
             throw SemanticError("ArrayInitalizer expressions can only be assigned array references", x.base.base.loc);
         }
-        if (target->type == ASR::exprType::Var) {
+        if (target->type == ASR::exprType::Var || 
+            target->type == ASR::exprType::ArrayRef) {
 
             ImplicitCastRules::set_converted_value(al, x.base.base.loc, &value,
                                                     value_type, target_type);

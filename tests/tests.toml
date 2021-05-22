@@ -310,7 +310,13 @@ cpp = true
 filename = "array2.f90"
 ast = true
 asr = true
+llvm = true
 cpp = true
+
+[[test]]
+filename = "array2_derived.f90"
+asr = true
+llvm = true
 
 [[test]]
 filename = "array3.f90"
@@ -340,6 +346,21 @@ ast_f90 = true
 [[test]]
 filename = "../integration_tests/arrays_01.f90"
 cpp = true
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/arrays_01_real.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/arrays_01_complex.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/arrays_01_logical.f90"
 asr = true
 llvm = true
 
