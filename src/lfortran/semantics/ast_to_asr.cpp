@@ -1456,6 +1456,8 @@ public:
                 if (!present(current_module_dependencies, m->m_name)) {
                     current_module_dependencies.push_back(al, m->m_name);
                 }
+            } else if( var_name == "size" ) {
+                // TODO: Add make_Function_t call for size
             } else {
                 throw SemanticError("Function '" + var_name + "' not found"
                     " or not implemented yet (if it is intrinsic)",
@@ -2667,8 +2669,6 @@ public:
                 unit->m_global_scope->scope[sym_name] =
                     ASR::down_cast<ASR::symbol_t>(fn);
                 v = ASR::down_cast<ASR::symbol_t>(fn);
-            } else if( var_name == "size" ) {
-                std::cout<<"Inside size"<<std::endl;
             } else {
                 auto find_intrinsic =
                     std::find(all_intrinsics.begin(), all_intrinsics.end(),
