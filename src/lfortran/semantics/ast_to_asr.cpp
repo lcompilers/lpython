@@ -613,8 +613,7 @@ class CommonVisitorMethods {
 std::map<std::string, std::string> intrinsic_procedures = {
         {"kind", "lfortran_intrinsic_kind"},
         {"selected_int_kind", "lfortran_intrinsic_kind"},
-        {"selected_real_kind", "lfortran_intrinsic_kind"},
-        {"size", "lfortran_intrinsic_array"}
+        {"selected_real_kind", "lfortran_intrinsic_kind"}
     };
 
 std::string read_file(const std::string &filename)
@@ -2668,6 +2667,8 @@ public:
                 unit->m_global_scope->scope[sym_name] =
                     ASR::down_cast<ASR::symbol_t>(fn);
                 v = ASR::down_cast<ASR::symbol_t>(fn);
+            } else if( var_name == "size" ) {
+                std::cout<<"Inside size"<<std::endl;
             } else {
                 auto find_intrinsic =
                     std::find(all_intrinsics.begin(), all_intrinsics.end(),
