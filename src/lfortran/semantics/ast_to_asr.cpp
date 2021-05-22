@@ -39,6 +39,35 @@ namespace LFortran {
                 return false;
             }
 
+            inline bool is_array(ASR::ttype_t* x) {
+                int n_dims = 0;
+                switch( x->type ) {
+                    case ASR::ttypeType::Integer: {
+                        ASR::Integer_t* _type = (ASR::Integer_t*)(&(x->base));
+                        n_dims = _type->n_dims;
+                        break;
+                    }
+                    case ASR::ttypeType::Real: {
+                        ASR::Real_t* _type = (ASR::Real_t*)(&(x->base));
+                        n_dims = _type->n_dims > 0;
+                        break;
+                    }
+                    case ASR::ttypeType::Complex: {
+                        ASR::Complex_t* _type = (ASR::Complex_t*)(&(x->base));
+                        n_dims = _type->n_dims > 0;
+                        break;
+                    }
+                    case ASR::ttypeType::Logical: {
+                        ASR::Logical_t* _type = (ASR::Logical_t*)(&(x->base));
+                        n_dims = _type->n_dims > 0;
+                        break;
+                    }
+                    default:
+                        break;
+                }
+                return n_dims > 0;
+            } 
+
             inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
                 bool is_source_pointer = is_pointer(source), is_dest_pointer = is_pointer(dest);
                 if( (!is_source_pointer && !is_dest_pointer) ||
@@ -2248,6 +2277,10 @@ public:
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = EXPR(tmp);
         ASR::ttype_t *value_type = expr_type(value);
+        if( target->type == ASR::exprType::Var && !HelperMethods::is_array(target_type) && 
+            value->type == ASR::exprType::ArrayInitializer ) {
+            throw SemanticError("ArrayInitalizer expressions can only be assigned array references", x.base.base.loc);
+        }
         if (target->type == ASR::exprType::Var || 
             target->type == ASR::exprType::ArrayRef) {
 
@@ -2884,6 +2917,42 @@ public:
         }
         tmp = ASR::make_WhileLoop_t(al, x.base.base.loc, test, body.p,
                 body.size());
+    }
+
+    void visit_ImpliedDoLoop(const AST::ImpliedDoLoop_t& x) {
+        Vec<ASR::expr_t*> a_values_vec;
+        ASR::expr_t *a_start, *a_end, *a_increment;
+        a_start = a_end = a_increment = nullptr;
+        a_values_vec.reserve(al, x.n_values);
+        for( size_t i = 0; i < x.n_values; i++ ) {
+            this->visit_expr(*(x.m_values[i]));
+            a_values_vec.push_back(al, EXPR(tmp));
+        }
+        this->visit_expr(*(x.m_start));
+        a_start = EXPR(tmp);
+        this->visit_expr(*(x.m_end));
+        a_end = EXPR(tmp);
+        if( x.m_increment != nullptr ) {
+            this->visit_expr(*(x.m_increment));
+            a_increment = EXPR(tmp);
+        }
+        ASR::expr_t** a_values = a_values_vec.p;
+        size_t n_values = a_values_vec.size();
+        // std::string a_var_name = std::to_string(iloop_counter) + std::string(x.m_var);
+        // iloop_counter += 1;
+        // Str a_var_name_f;
+        // a_var_name_f.from_str(al, a_var_name);
+        // ASR::asr_t* a_variable = ASR::make_Variable_t(al, x.base.base.loc, current_scope, a_var_name_f.c_str(al), 
+        //                                                 ASR::intentType::Local, nullptr,
+        //                                                 ASR::storage_typeType::Default, expr_type(a_start),
+        //                                                 ASR::abiType::Source, ASR::Public);
+        LFORTRAN_ASSERT(current_scope->scope.find(std::string(x.m_var)) != current_scope->scope.end());
+        ASR::symbol_t* a_sym = current_scope->scope[std::string(x.m_var)];
+        // current_scope->scope[a_var_name] = a_sym;
+        ASR::expr_t* a_var = EXPR(ASR::make_Var_t(al, x.base.base.loc, a_sym));
+        tmp = ASR::make_ImpliedDoLoop_t(al, x.base.base.loc, a_values, n_values, 
+                                            a_var, a_start, a_end, a_increment, 
+                                            expr_type(a_start));
     }
 
     void visit_DoLoop(const AST::DoLoop_t &x) {

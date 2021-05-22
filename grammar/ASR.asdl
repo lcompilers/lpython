@@ -169,6 +169,8 @@ expr
     | FunctionCall(symbol name, symbol? original_name, expr* args,
             keyword* keywords, ttype type)
     | ArrayInitializer(expr* args, ttype type)
+    | ImpliedDoLoop(expr* values, expr var, expr start, expr end,
+                    expr? increment, ttype type)
     | ConstantInteger(int n, ttype type)
     | ConstantReal(string r, ttype type)
     | ConstantComplex(expr re, expr im, ttype type)
