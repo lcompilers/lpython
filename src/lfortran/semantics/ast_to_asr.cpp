@@ -1758,8 +1758,7 @@ public:
     ASR::asr_t *asr, *tmp;
     SymbolTable *current_scope;
     ASR::Module_t *current_module=nullptr;
-    int iloop_counter;
-    BodyVisitor(Allocator &al, ASR::asr_t *unit) : al{al}, asr{unit}, iloop_counter{0} {}
+    BodyVisitor(Allocator &al, ASR::asr_t *unit) : al{al}, asr{unit} {}
 
     void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
         ASR::TranslationUnit_t *unit = ASR::down_cast2<ASR::TranslationUnit_t>(asr);
