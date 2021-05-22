@@ -40,11 +40,12 @@ mod
         unit_decl2* decl, stmt* body, program_unit* contains)
 
 program_unit
-    = Subroutine(identifier name, arg* args, bind? bind, unit_decl1* use,
-        import_statement* import, implicit_statement* implicit,
-        unit_decl2* decl, stmt* body, program_unit* contains)
-    | Procedure(identifier name, arg* args, unit_decl1* use,
-        import_statement* import, implicit_statement* implicit,
+    = Subroutine(identifier name, arg* args, decl_attribute* attributes,
+        bind? bind, unit_decl1* use, import_statement* import,
+        implicit_statement* implicit, unit_decl2* decl,
+        stmt* body, program_unit* contains)
+    | Procedure(identifier name, arg* args, decl_attribute* attributes,
+        unit_decl1* use, import_statement* import, implicit_statement* implicit,
         unit_decl2* decl, stmt* body, program_unit* contains)
     | Function(identifier name, arg* args, decl_attribute* attributes,
         expr? return_var, bind? bind, unit_decl1* use, import_statement* import,
@@ -71,7 +72,7 @@ interface_header
 
 interface_item
     = InterfaceProc(program_unit proc)
-    | InterfaceModuleProcedure(identifier* names)
+    | InterfaceModuleProcedure(identifier* names, decl_attribute* attributes)
 
 import_statement
     = Import(identifier* symbols, import_modifier mod)
