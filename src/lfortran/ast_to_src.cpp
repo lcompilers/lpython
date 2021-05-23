@@ -390,6 +390,33 @@ public:
         s = r;
     }
 
+    void visit_Enum(const Enum_t & x) {
+        std::string r = indent;
+        r += syn(gr::UnitHeader);
+        r.append("enum");
+        r += syn();
+        if(x.n_attr) {
+            r.append(", ");
+            for (size_t i=0; i<x.n_attr; i++) {
+                this->visit_decl_attribute(*x.m_attr[i]);
+                r.append(s);
+            }
+        }
+
+        r.append("\n");
+        inc_indent();
+        for (size_t i=0; i<x.n_items; i++) {
+            this->visit_unit_decl2(*x.m_items[i]);
+            r.append(s);
+        }
+        dec_indent();
+        r += syn(gr::UnitHeader);
+        r.append("end enum");
+        r.append("\n");
+        r += syn();
+        s = r;
+    }
+
     void visit_Interface(const Interface_t &x) {
         std::string r;
         r += syn(gr::UnitHeader);
@@ -924,6 +951,28 @@ public:
             }
         }
         r += syn();
+        r += ")";
+        s = r;
+    }
+
+    void visit_AttrBind(const AttrBind_t &x) {
+        std::string r;
+        r += syn(gr::Type);
+        r += "bind";
+        r += syn();
+        r += "(";
+        r.append(x.m_name);
+        r += ")";
+        s = r;
+    }
+
+    void visit_AttrExtends(const AttrExtends_t &x) {
+        std::string r;
+        r += syn(gr::Type);
+        r += "extends";
+        r += syn();
+        r += "(";
+        r.append(x.m_name);
         r += ")";
         s = r;
     }

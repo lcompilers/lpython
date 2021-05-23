@@ -60,7 +60,7 @@ unit_decl2
         var_sym* syms)
     | Interface(interface_header header, interface_item* items)
     | DerivedType(identifier name, unit_decl2* items)
-    | Enum()
+    | Enum(decl_attribute* attr, unit_decl2* items)
 
 interface_header
     = InterfaceHeader()

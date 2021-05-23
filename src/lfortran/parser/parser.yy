@@ -496,7 +496,7 @@ interface_item
 
 enum_decl
     : KW_ENUM enum_var_modifiers sep var_decl_star KW_END KW_ENUM sep {
-        $$ = ENUM(@$); }
+        $$ = ENUM($2, $4, @$); }
     ;
 
 enum_var_modifiers

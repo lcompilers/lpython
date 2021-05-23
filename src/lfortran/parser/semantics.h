@@ -247,7 +247,9 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
         VAR_DECL_PARAMETERb(p.m_a, l), 1, \
         varsym.p, varsym.n)
 
-#define ENUM(l) make_Enum_t(p.m_a, l)
+#define ENUM(attr, decl, l) make_Enum_t(p.m_a, l, \
+        VEC_CAST(attr, decl_attribute), attr.n, \
+        DECLS(decl), decl.size())
 
 #define IMPLICIT_NONE(l) make_ImplicitNone_t(p.m_a, l, \
         nullptr, 0)
