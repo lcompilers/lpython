@@ -1058,3 +1058,11 @@ llvm = true
 [[test]]
 filename = "../integration_tests/recursion_01.f90"
 llvm = true
+
+[[test]]
+filename = "../integration_tests/return_01.f90"
+llvm = true
+
+[[test]]
+filename = "../integration_tests/return_02.f90"
+llvm = true
