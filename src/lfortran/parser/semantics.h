@@ -851,6 +851,8 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
+        /*m_attributes*/ nullptr, \
+        /*n_attributes*/ 0, \
         /*bind*/ bind_opt(bind), \
         /*use*/ USES(use), \
         /*n_use*/ use.size(), \
@@ -864,11 +866,33 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
         /*n_body*/ stmts.size(), \
         /*contains*/ CONTAINS(contains), \
         /*n_contains*/ contains.size())
-#define PROCEDURE(name, args, use, import, implicit, decl, stmts, contains, l) \
+#define SUBROUTINE1(fn_mod, name, args, bind, use, import, implicit, \
+        decl, stmts, contains, l) make_Subroutine_t(p.m_a, l, \
+        /*name*/ name2char(name), \
+        /*args*/ ARGS(p.m_a, l, args), \
+        /*n_args*/ args.size(), \
+        /*m_attributes*/ VEC_CAST(fn_mod, decl_attribute), \
+        /*n_attributes*/ fn_mod.size(), \
+        /*bind*/ bind_opt(bind), \
+        /*use*/ USES(use), \
+        /*n_use*/ use.size(), \
+        /*m_import*/ VEC_CAST(import, import_statement), \
+        /*n_import*/ import.size(), \
+        /*m_implicit*/ VEC_CAST(implicit, implicit_statement), \
+        /*n_implicit*/ implicit.size(), \
+        /*decl*/ DECLS(decl), \
+        /*n_decl*/ decl.size(), \
+        /*body*/ STMTS(stmts), \
+        /*n_body*/ stmts.size(), \
+        /*contains*/ CONTAINS(contains), \
+        /*n_contains*/ contains.size())
+#define PROCEDURE(fn_mod, name, args, use, import, implicit, decl, stmts, contains, l) \
     make_Procedure_t(p.m_a, l, \
         /*name*/ name2char(name), \
         /*args*/ ARGS(p.m_a, l, args), \
         /*n_args*/ args.size(), \
+        /*m_attributes*/ VEC_CAST(fn_mod, decl_attribute), \
+        /*n_attributes*/ fn_mod.size(), \
         /*use*/ USES(use), \
         /*n_use*/ use.size(), \
         /*m_import*/ VEC_CAST(import, import_statement), \
@@ -1314,9 +1338,13 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
 
 #define INTERFACE(header, contains, l) make_Interface_t(p.m_a, l, \
         down_cast<interface_header_t>(header), INTERFACE_ITEMS(contains), contains.size())
+#define INTERFACE_MODULE_PROC1(fn_mod, names, l) \
+        make_InterfaceModuleProcedure_t(p.m_a, l, \
+        REDUCE_ARGS(p.m_a, names), names.size(), \
+        VEC_CAST(fn_mod, decl_attribute), fn_mod.size())
 #define INTERFACE_MODULE_PROC(names, l) \
         make_InterfaceModuleProcedure_t(p.m_a, l, \
-        REDUCE_ARGS(p.m_a, names), names.size())
+        REDUCE_ARGS(p.m_a, names), names.size(), nullptr, 0)
 #define INTERFACE_PROC(proc, l) \
         make_InterfaceProc_t(p.m_a, l, \
         down_cast<program_unit_t>(proc))

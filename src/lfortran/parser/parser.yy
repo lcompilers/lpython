@@ -481,9 +481,9 @@ interface_body
 
 interface_item
     : fn_mod_plus KW_PROCEDURE id_list sep {
-        $$ = INTERFACE_MODULE_PROC($3, @$); }
+        $$ = INTERFACE_MODULE_PROC1($1, $3, @$); }
     | fn_mod_plus KW_PROCEDURE "::" id_list sep {
-        $$ = INTERFACE_MODULE_PROC($4, @$); }
+        $$ = INTERFACE_MODULE_PROC1($1, $4, @$); }
     | KW_PROCEDURE id_list sep {
         $$ = INTERFACE_MODULE_PROC($2, @$); }
     | KW_PROCEDURE "::" id_list sep {
@@ -622,7 +622,7 @@ subroutine
     import_statement_star implicit_statement_star decl_star statements
         contains_block_opt
         KW_END end_subroutine_opt sep {
-            LLOC(@$, @14); $$ = SUBROUTINE($3, $4, $5, $7, $8, $9, $10, $11, $12, @$); }
+            LLOC(@$, @14); $$ = SUBROUTINE1($1, $3, $4, $5, $7, $8, $9, $10, $11, $12, @$); }
     ;
 
 procedure
@@ -630,7 +630,7 @@ procedure
     import_statement_star implicit_statement_star decl_star statements
         contains_block_opt
         KW_END end_procedure_opt sep {
-            LLOC(@$, @14); $$ = PROCEDURE($3, $4, $6, $7, $8, $9, $10, $11, @$); }
+            LLOC(@$, @14); $$ = PROCEDURE($1, $3, $4, $6, $7, $8, $9, $10, $11, @$); }
     ;
 
 function
