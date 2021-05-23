@@ -125,7 +125,8 @@ public:
     std::unique_ptr<llvm::IRBuilder<>> builder;
 
     llvm::Value *tmp;
-    llvm::BasicBlock *current_loophead, *current_loopend;
+    llvm::BasicBlock *current_loophead, *current_loopend, *if_return;
+    bool early_return = false;
     std::string mangle_prefix;
     bool prototype_only;
     llvm::StructType *complex_type_4, *complex_type_8;
@@ -1326,11 +1327,22 @@ public:
                 for (size_t i=0; i<x.n_body; i++) {
                     this->visit_stmt(*x.m_body[i]);
                 }
+
+                if (early_return) {
+                    builder->CreateBr(if_return);
+                }
                 ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
                 uint32_t h = get_hash((ASR::asr_t*)asr_retval);
 
                 llvm::Value *ret_val = llvm_symtab[h];
+
+                if (early_return) {
+                    builder->SetInsertPoint(if_return);
+                    early_return = false;
+                }
+
                 llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
+
                 builder->CreateRet(ret_val2);
             }
         }
@@ -1535,7 +1547,10 @@ public:
             this->visit_stmt(*x.m_body[i]);
         }
         llvm::Value *thenV = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
-        builder->CreateBr(mergeBB);
+        if (!early_return) {
+            builder->CreateBr(mergeBB);
+        }
+
         thenBB = builder->GetInsertBlock();
         fn->getBasicBlockList().push_back(elseBB);
         builder->SetInsertPoint(elseBB);
@@ -1543,14 +1558,17 @@ public:
             this->visit_stmt(*x.m_orelse[i]);
         }
         llvm::Value *elseV = llvm::ConstantInt::get(context, llvm::APInt(32, 2));
+
         builder->CreateBr(mergeBB);
         elseBB = builder->GetInsertBlock();
         fn->getBasicBlockList().push_back(mergeBB);
         builder->SetInsertPoint(mergeBB);
-        llvm::PHINode *PN = builder->CreatePHI(llvm::Type::getInt32Ty(context), 2,
-                                        "iftmp");
-        PN->addIncoming(thenV, thenBB);
-        PN->addIncoming(elseV, elseBB);
+        if (!early_return){
+            llvm::PHINode *PN = builder->CreatePHI(llvm::Type::getInt32Ty(context), 2,
+                                            "iftmp");
+            PN->addIncoming(thenV, thenBB);
+            PN->addIncoming(elseV, elseBB);
+        }
     }
 
     void visit_WhileLoop(const ASR::WhileLoop_t &x) {
@@ -1593,6 +1611,17 @@ public:
         llvm::BasicBlock *after = llvm::BasicBlock::Create(context, "after", fn);
         builder->CreateBr(current_loophead);
         builder->SetInsertPoint(after);
+    }
+
+    void visit_Return(const ASR::Return_t & /* x */) {
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+        if (!early_return){
+            llvm::BasicBlock *br_return = llvm::BasicBlock::Create(context, 
+                "return", fn);
+            early_return = true;
+            if_return = br_return;
+        }
+        builder->CreateBr(if_return);
     }
 
     void visit_BoolOp(const ASR::BoolOp_t &x) {

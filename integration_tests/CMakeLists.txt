@@ -272,3 +272,6 @@ RUN(NAME callback_03 LABELS gfortran llvm)
 RUN(NAME callback_04 LABELS gfortran llvm)
 
 RUN(NAME recursion_01 LABELS gfortran llvm)
+
+RUN(NAME return_01 LABELS gfortran llvm)
+RUN(NAME return_02 LABELS gfortran llvm)
