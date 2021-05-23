@@ -53,7 +53,11 @@ program_unit
         program_unit* contains)
 
 unit_decl1
-    = Use(identifier module, use_symbol* symbols)
+    = Use(module_nature nature, identifier module, use_symbol* symbols)
+
+module_nature
+    = Intrinsic
+    | Non_Intrinsic
 
 unit_decl2
     = Declaration(decl_attribute? vartype, decl_attribute* attributes,
