@@ -1938,6 +1938,7 @@ public:
     }
 
     inline void fetch_val(ASR::Variable_t* x) {
+        // std::cout<<x->m_name<<std::endl;
         uint32_t x_h = get_hash((ASR::asr_t*)x);
         llvm::Value* x_v;
         // Check if x is a needed global here, if so, it should exist as an
