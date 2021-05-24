@@ -305,7 +305,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     }
 
     void visit_Function(const ASR::Function_t &x) {
-        if (std::string(x.m_name) == "size" && intrinsic_module) {
+        if (std::string(x.m_name) == "size" && 
+            (intrinsic_module || x.m_abi == ASR::abiType::Intrinsic) ) {
             // Intrinsic function `size`
             SymbolInfo s;
             s.intrinsic_function = true;
