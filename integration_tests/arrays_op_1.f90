@@ -14,16 +14,16 @@ print *, a(1), a(2), a(3), a(4)
 
 print *, b(1), b(2), b(3), b(4)
 
-! c = a + b
-! print *, c
+c = a + b
+print *, c(1), c(2), c(3), c(4)
 
 ! c = a - b
-! print *, c
+! print *, c(1), c(2), c(3), c(4)
 
 ! c = a*b
-! print *, c
+! print *, c(1), c(2), c(3), c(4)
 
 ! c = b/a
-! print *, c
+! print *, c(1), c(2), c(3), c(4)
 
 end program

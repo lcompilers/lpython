@@ -17,6 +17,7 @@
 #include <lfortran/pass/do_loops.h>
 #include <lfortran/pass/global_stmts.h>
 #include <lfortran/pass/implied_do_loops.h>
+#include <lfortran/pass/array_op.h>
 #include <lfortran/asr_utils.h>
 #include <lfortran/asr_verify.h>
 #include <lfortran/modfile.h>
@@ -42,7 +43,7 @@ enum Platform {
 };
 
 enum ASRPass {
-    do_loops, global_stmts, implied_do_loops
+    do_loops, global_stmts, implied_do_loops, array_op
 };
 
 std::string remove_extension(const std::string& filename) {
@@ -455,6 +456,10 @@ int emit_asr(const std::string &infile, bool colors,
             }
             case (ASRPass::implied_do_loops) : {
                 LFortran::pass_replace_implied_do_loops(al, *asr);
+                break;
+            }
+            case (ASRPass::array_op) : {
+                LFortran::pass_replace_array_op(al, *asr);
                 break;
             }
             default : throw LFortran::LFortranException("Pass not implemened");
@@ -1163,6 +1168,8 @@ int main(int argc, char *argv[])
                 passes.push_back(ASRPass::global_stmts);
             } else if (arg_pass == "implied_do_loops") {
                 passes.push_back(ASRPass::implied_do_loops);
+            } else if (arg_pass == "array_op") {
+                passes.push_back(ASRPass::array_op);
             } else {
                 std::cerr << "Pass must be one of: do_loops, global_stmts" << std::endl;
                 return 1;
