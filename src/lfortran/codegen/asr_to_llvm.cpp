@@ -869,6 +869,16 @@ public:
                         item.second);
                 visit_Variable(*v);
             }
+            if (is_a<ASR::Function_t>(*item.second)) {
+                ASR::Function_t *v = down_cast<ASR::Function_t>(
+                        item.second);
+                instantiate_function(*v);
+            }
+            if (is_a<ASR::Subroutine_t>(*item.second)) {
+                ASR::Subroutine_t *v = down_cast<ASR::Subroutine_t>(
+                        item.second);
+                instantiate_subroutine(*v);
+            }
         }
         visit_procedures(x);
         mangle_prefix = "";
