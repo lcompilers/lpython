@@ -12,16 +12,10 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
-int size(const Kokkos::View<const int*> &a_size)
-{
-    int r_size;
-    return r_size;
-}
-
 void triad(const Kokkos::View<const float*> &a, const Kokkos::View<const float*> &b, float scalar, const Kokkos::View<float*> &c)
 {
     int N;
-    N = size(a);
+    N = a.extent(0);
     Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(1, N+1), KOKKOS_LAMBDA(const long i) {
         c[i-1] = a[i-1] + scalar*b[i-1];
     });
