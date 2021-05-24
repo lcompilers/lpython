@@ -1047,14 +1047,7 @@ public:
             s_access = assgnd_access[sym_name];
         }
         ASR::abiType abi_type = ASR::abiType::Source;
-        std::vector<std::string> intrinsics = {std::string("size")};
-        for( std::string& func_name: intrinsics ) {
-            if( sym_name == func_name ) {
-                abi_type = ASR::abiType::Intrinsic;
-                s_access = ASR::accessType::Public;
-                break;
-            }
-        }
+        
         if (is_interface) {
             deftype = ASR::deftypeType::Interface;
         }
@@ -2668,7 +2661,6 @@ public:
                     ASR::down_cast<ASR::symbol_t>(fn);
                 v = ASR::down_cast<ASR::symbol_t>(fn);
             } else if( var_name == "size" ) {
-                // Intrinsic function present(), add it to the global scope
                 ASR::TranslationUnit_t *unit = (ASR::TranslationUnit_t *)asr;
                 const char *fn_name_orig = "size";
                 char *fn_name = (char *)fn_name_orig;
@@ -2691,7 +2683,14 @@ public:
                 a_args.reserve(al, 1);
                 const char *arg_name_orig = "a_size";
                 char *arg_name = (char *)arg_name_orig;
-                type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 1)); // Minimum 1 dimension
+                ASR::dimension_t dim;
+                Vec<ASR::dimension_t> dims;
+                dims.reserve(al, 1);
+                dim.loc = x.base.base.loc;
+                dim.m_start = nullptr;
+                dim.m_end = nullptr;
+                dims.push_back(al, dim);
+                type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, dims.p, 1)); // Minimum 1 dimension
                 ASR::asr_t* arg_arr = ASR::make_Variable_t(al, x.base.base.loc, fn_scope, arg_name, 
                                                             ASR::intentType::In, nullptr, 
                                                             ASR::storage_typeType::Default, type,

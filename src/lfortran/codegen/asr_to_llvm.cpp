@@ -2449,6 +2449,8 @@ public:
                             ASR::Subroutine_t* sub = down_cast<ASR::Subroutine_t>(func_subrout);
                             x_abi = sub->m_abi;
                         }
+                        // TODO: Add support for extracting the first pointer of array type 
+                        // and passing to user defined functions.
                         if( x_abi == ASR::abiType::Intrinsic ) {
                             if( name == "size" ) {
                                 llvm::Value* arg_struct = builder->CreateAlloca(fname2arg_type["size"].first, nullptr);
