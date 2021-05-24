@@ -97,8 +97,6 @@ private:
   //!< A map from sin, cos, etc. to the corresponding functions
   std::unordered_map<std::string, llvm::Function *> all_intrinsics;
 
-  std::vector<std::string> lfortran_intrinsics;
-
   //! To be used by visit_DerivedRef.
   std::string der_type_name;
 
@@ -165,9 +163,8 @@ public:
          implementation to it's string name for adding to the BB */
 
 
-    ASRToLLVMVisitor(llvm::LLVMContext &context) : lfortran_intrinsics(std::vector<std::string>(
-            {std::string("size")})
-        ), context(context), prototype_only(false), dim_des(llvm::StructType::create(
+    ASRToLLVMVisitor(llvm::LLVMContext &context) : context(context), prototype_only(false), 
+    dim_des(llvm::StructType::create(
             context, 
             std::vector<llvm::Type*>(
                 {llvm::Type::getInt32Ty(context), 
@@ -1043,9 +1040,16 @@ public:
                             throw CodeGenError("Type not implemented");
                     }
                     std::string m_name = std::string(x.m_name);
-                    if( is_array_type && 
-                        std::find(lfortran_intrinsics.begin(), lfortran_intrinsics.end(), 
-                                  m_name) != lfortran_intrinsics.end()) {
+                    ASR::abiType abi_type = ASR::abiType::Source;
+                    if( x.class_type == ASR::symbolType::Function ) {
+                        ASR::Function_t* _func = (ASR::Function_t*)(&(x.base));
+                        abi_type = _func->m_abi;
+                    } else if( x.class_type == ASR::symbolType::Subroutine ) {
+                        ASR::Subroutine_t* _sub = (ASR::Subroutine_t*)(&(x.base));
+                        abi_type = _sub->m_abi;
+                    }
+                    if( is_array_type && abi_type == ASR::abiType::Intrinsic &&
+                        fname2arg_type.find(m_name) != fname2arg_type.end() ) {
                         type = fname2arg_type[m_name].second;
                         is_array_type = false;
                     }
@@ -1137,9 +1141,8 @@ public:
                         LFORTRAN_ASSERT(false);
                 }
                 std::string m_name = std::string(x.m_name);
-                if( is_array_type && 
-                    std::find(lfortran_intrinsics.begin(), lfortran_intrinsics.end(), 
-                                m_name) != lfortran_intrinsics.end()) {
+                if( is_array_type && x.m_abi == ASR::abiType::Intrinsic && 
+                    fname2arg_type.find(m_name) != fname2arg_type.end()) {
                     type = fname2arg_type[m_name].second;
                     is_array_type = false;
                 }
@@ -1265,9 +1268,10 @@ public:
     void visit_Function(const ASR::Function_t &x) {
         if( !(x.m_abi == ASR::abiType::Source ||
               x.m_abi == ASR::abiType::Interactive ||
-             (x.m_abi == ASR::abiType::Intrinsic && 
-              std::find(lfortran_intrinsics.begin(), lfortran_intrinsics.end(), 
-                        std::string(x.m_name)) != lfortran_intrinsics.end())) ) {
+              (x.m_abi == ASR::abiType::Intrinsic && 
+               fname2arg_type.find(std::string(x.m_name)) != fname2arg_type.end())) ) { 
+                // The reason the above check is here to ensure that the intrinsic under 
+                // consideration is primitive and not something defined in C runtime library or at Fortran level
                             return;
         }
         // Check if the procedure has a nested function that needs access to
@@ -2619,8 +2623,7 @@ public:
             h = get_hash((ASR::asr_t*)s);
         } else if (s->m_abi == ASR::abiType::Intrinsic) {
             std::string func_name = s->m_name;
-            if( std::find(lfortran_intrinsics.begin(), lfortran_intrinsics.end(), func_name) != 
-                lfortran_intrinsics.end() ) {
+            if( fname2arg_type.find(func_name) != fname2arg_type.end() ) {
                 h = get_hash((ASR::asr_t*)s);
             } else {
                 int a_kind = extract_kind_from_ttype_t(x.m_type);
