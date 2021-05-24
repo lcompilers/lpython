@@ -304,6 +304,11 @@ public:
 
     void visit_Subroutine(const Subroutine_t &x) {
         std::string r = indent;
+        for (size_t i=0; i<x.n_attributes; i++) {
+            visit_decl_attribute(*x.m_attributes[i]);
+            r += s;
+            r.append(" ");
+        }
         r += syn(gr::UnitHeader);
         r.append("subroutine");
         r += syn();
@@ -336,8 +341,13 @@ public:
 
     void visit_Procedure(const Procedure_t &x) {
         std::string r = indent;
+        for (size_t i=0; i<x.n_attributes; i++) {
+            visit_decl_attribute(*x.m_attributes[i]);
+            r += s;
+            r.append(" ");
+        }
         r += syn(gr::UnitHeader);
-        r.append("module procedure");
+        r.append("procedure");
         r += syn();
         r += " ";
         r.append(x.m_name);
@@ -432,8 +442,13 @@ public:
 
     void visit_InterfaceModuleProcedure(const InterfaceModuleProcedure_t &x) {
         std::string r = indent;
+        for (size_t i=0; i<x.n_attributes; i++) {
+            visit_decl_attribute(*x.m_attributes[i]);
+            r += s;
+            r.append(" ");
+        }
         r += syn(gr::UnitHeader);
-        r.append("module procedure ");
+        r.append("procedure ");
         r += syn();
         for (size_t i=0; i<x.n_names; i++) {
             r.append(x.m_names[i]);
