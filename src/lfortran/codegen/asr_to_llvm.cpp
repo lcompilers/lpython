@@ -1214,6 +1214,9 @@ public:
         declare_vars(x);
     }
 
+    /*
+    This function defines the size intrinsic's body at LLVM level.
+    */
     void fill_size(const ASR::Function_t& x) {
         ASR::Variable_t *arg = EXPR2VAR(x.m_args[0]);
         uint32_t h = get_hash((ASR::asr_t*)arg);
@@ -2481,6 +2484,14 @@ public:
                         // and passing to user defined functions.
                         if( x_abi == ASR::abiType::Intrinsic ) {
                             if( name == "size" ) {
+                                /*
+                                When size intrinsic is called on a fortran array then the above 
+                                code extracts the dimension descriptor array and its rank from the 
+                                overall array descriptor. It wraps them into a struct (specifically, arg_struct of type, size_arg here) 
+                                and passes to LLVM size. So, if you do, size(a) (a is a fortran array), then at LLVM level,  
+                                @size(%size_arg* %x) is used as call where size_arg 
+                                is described above.
+                                */
                                 llvm::Value* arg_struct = builder->CreateAlloca(fname2arg_type["size"].first, nullptr);
                                 llvm::Value* first_ele_ptr = create_gep(create_gep(tmp, 2), 0);
                                 llvm::Value* first_arg_ptr = create_gep(arg_struct, 0);
