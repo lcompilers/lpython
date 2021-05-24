@@ -12,10 +12,16 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
+int size(const Kokkos::View<const int*> &a_size)
+{
+    int r_size;
+    return r_size;
+}
+
 void sum_reduce(const Kokkos::View<const float*> &a, float &s)
 {
     int N;
-    N = a.extent(0);
+    N = size(a);
     s = 0;
     Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(1, N+1), KOKKOS_LAMBDA(const long i) {
         s = s + a[i-1];

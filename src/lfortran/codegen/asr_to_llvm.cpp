@@ -1461,9 +1461,9 @@ public:
                     }
                 }
 
-                // if (early_return) {
-                //     builder->CreateBr(if_return);
-                // }
+                if (early_return) {
+                    builder->CreateBr(if_return);
+                }
                 ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
                 uint32_t h = get_hash((ASR::asr_t*)asr_retval);
 

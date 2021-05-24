@@ -12,6 +12,12 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
+int size(const Kokkos::View<const int*> &a_size)
+{
+    int r_size;
+    return r_size;
+}
+
 float abs(float a)
 {
     float r;
@@ -30,7 +36,7 @@ float sum(const Kokkos::View<const float*> &a)
     float r;
     std::cout << "sum" << std::endl;
     r = 0;
-    for (i=1; i<=a.extent(0); i++) {
+    for (i=1; i<=size(a); i++) {
         r = r + a[i-1];
     };
     return r;
