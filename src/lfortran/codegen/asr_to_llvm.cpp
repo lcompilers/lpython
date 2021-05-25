@@ -949,6 +949,7 @@ public:
 
     void visit_Program(const ASR::Program_t &x) {
         // Generate code for nested subroutines and functions first:
+        declare_needed_global_types(x);
         visit_procedures(x);
 
         // Generate code for the main program
