@@ -12,10 +12,9 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
-int main(int argc, char* argv[])
-{
-    Kokkos::initialize(argc, argv);
-    {
+namespace {
+
+void main2() {
         int a;
         int b;
         int c;
@@ -53,7 +52,13 @@ int main(int argc, char* argv[])
         x = 2*a + a*b - a*b + 2*a;
         x = 2*a + a*b - a*b - 2*a;
         x = a - b - c - 1;
-    }
+}
+
+}
+int main(int argc, char* argv[])
+{
+    Kokkos::initialize(argc, argv);
+    main2();
     Kokkos::finalize();
     return 0;
 }
