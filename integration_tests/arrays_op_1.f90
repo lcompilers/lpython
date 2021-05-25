@@ -1,4 +1,4 @@
-program array_op
+program array_op_1
 implicit none
 
 integer :: a(4), b(4), c(4)
@@ -17,13 +17,13 @@ print *, b(1), b(2), b(3), b(4)
 c = a + b
 print *, c(1), c(2), c(3), c(4)
 
-! c = a - b
-! print *, c(1), c(2), c(3), c(4)
+c = a - b
+print *, c(1), c(2), c(3), c(4)
 
-! c = a*b
-! print *, c(1), c(2), c(3), c(4)
+c = a*b
+print *, c(1), c(2), c(3), c(4)
 
-! c = b/a
-! print *, c(1), c(2), c(3), c(4)
+c = b/a
+print *, c(1), c(2), c(3), c(4)
 
 end program

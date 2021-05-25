@@ -226,21 +226,46 @@ public:
         }
     }
 
-    ASR::expr_t* create_array_ref(ASR::expr_t* arr_expr, ASR::expr_t* idx_var) {
+    ASR::expr_t* create_array_ref(ASR::expr_t* arr_expr, Vec<ASR::expr_t*>& idx_vars) {
         ASR::Var_t* arr_var = down_cast<ASR::Var_t>(arr_expr);
         ASR::symbol_t* arr = arr_var->m_v;
         Vec<ASR::array_index_t> args;
-        ASR::array_index_t ai;
-        ai.loc = arr_expr->base.loc;
-        ai.m_left = nullptr;
-        ai.m_right = idx_var;
-        ai.m_step = nullptr;
         args.reserve(al, 1);
-        args.push_back(al, ai);
+        for( size_t i = 0; i < idx_vars.size(); i++ ) {
+            ASR::array_index_t ai;
+            ai.loc = arr_expr->base.loc;
+            ai.m_left = nullptr;
+            ai.m_right = idx_vars[i];
+            ai.m_step = nullptr;
+            args.push_back(al, ai);
+        }
         ASR::expr_t* array_ref = EXPR(ASR::make_ArrayRef_t(al, arr_expr->base.loc, arr, 
                                                             args.p, args.size(), 
                                                             expr_type(EXPR((ASR::asr_t*)arr_var))));
         return array_ref;
+    }
+
+    void create_idx_vars(Vec<ASR::expr_t*>& idx_vars, int n_dims, const Location& loc) {
+        idx_vars.reserve(al, n_dims);
+        for( int i = 1; i <= n_dims; i++ ) {
+            Str str_name;
+            str_name.from_str(al, std::to_string(i) + std::string("_k"));
+            const char* const_idx_var_name = str_name.c_str(al);
+            char* idx_var_name = (char*)const_idx_var_name;
+            ASR::expr_t* idx_var = nullptr;
+            ASR::ttype_t* int32_type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+            if( unit.m_global_scope->scope.find(std::string(idx_var_name)) == unit.m_global_scope->scope.end() ) {
+                ASR::asr_t* idx_sym = ASR::make_Variable_t(al, loc, unit.m_global_scope, idx_var_name, 
+                                                        ASR::intentType::Local, nullptr, ASR::storage_typeType::Default, 
+                                                        int32_type, ASR::abiType::Source, ASR::accessType::Public);
+                unit.m_global_scope->scope[std::string(idx_var_name)] = ASR::down_cast<ASR::symbol_t>(idx_sym);
+                idx_var = EXPR(ASR::make_Var_t(al, loc, ASR::down_cast<ASR::symbol_t>(idx_sym)));
+            } else {
+                ASR::symbol_t* idx_sym = unit.m_global_scope->scope[std::string(idx_var_name)];
+                idx_var = EXPR(ASR::make_Var_t(al, loc, idx_sym));
+            }
+            idx_vars.push_back(al, idx_var);
+        }
     }
 
     void visit_BinOp(const ASR::BinOp_t &x) {
@@ -259,45 +284,40 @@ public:
         if( dims_left_vec.size() <= 0 ) {
             return ;
         }
-        const char* const_idx_var_name = "1_k";
-        char* idx_var_name = (char*)const_idx_var_name;
-        ASR::expr_t* idx_var = nullptr;
-        ASR::ttype_t* int32_type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
-        if( unit.m_global_scope->scope.find(std::string(idx_var_name)) == unit.m_global_scope->scope.end() ) {
-            ASR::asr_t* idx_sym = ASR::make_Variable_t(al, x.base.base.loc, unit.m_global_scope, idx_var_name, 
-                                                    ASR::intentType::Local, nullptr, ASR::storage_typeType::Default, 
-                                                    int32_type, ASR::abiType::Source, ASR::accessType::Public);
-            unit.m_global_scope->scope[std::string(idx_var_name)] = ASR::down_cast<ASR::symbol_t>(idx_sym);
-            idx_var = EXPR(ASR::make_Var_t(al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(idx_sym)));
-        } else {
-            ASR::symbol_t* idx_sym = unit.m_global_scope->scope[std::string(idx_var_name)];
-            idx_var = EXPR(ASR::make_Var_t(al, x.base.base.loc, idx_sym));
-        }
+
         dimension_descriptor* dims_left = dims_left_vec.p;
         int n_dims = dims_left_vec.size();
         dimension_descriptor* dims_right = dims_right_vec.p;
+        ASR::ttype_t* int32_type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+        Vec<ASR::expr_t*> idx_vars;
+        create_idx_vars(idx_vars, n_dims, x.base.base.loc);
+        ASR::stmt_t* doloop = nullptr;
         for( int i = n_dims - 1; i >= 0; i-- ) {
             if( dims_left[i].lbound != dims_right[i].lbound ||
                 dims_left[i].ubound != dims_right[i].ubound ) {
                 throw SemanticError("Incompatible shapes of operand arrays", x.base.base.loc);
             }
             ASR::do_loop_head_t head;
-            head.m_v = idx_var;
+            head.m_v = idx_vars[i];
             head.m_start = EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, dims_left[i].lbound, int32_type));
             head.m_end = EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, dims_left[i].ubound, int32_type));
             head.m_increment = nullptr;
             head.loc = head.m_v->base.loc;
             Vec<ASR::stmt_t*> doloop_body;
             doloop_body.reserve(al, 1);
-            ASR::expr_t* ref_1 = create_array_ref(x.m_left, idx_var);
-            ASR::expr_t* ref_2 = create_array_ref(x.m_right, idx_var);
-            ASR::expr_t* res = create_array_ref(m_target, idx_var);
-            ASR::expr_t* bin_op_el_wise = EXPR(ASR::make_BinOp_t(al, x.base.base.loc, ref_1, x.m_op, ref_2, x.m_type));
-            ASR::stmt_t* assign = STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, bin_op_el_wise));
-            doloop_body.push_back(al, assign);
-            ASR::stmt_t* doloop = STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
-            array_op_result.push_back(al, doloop);
+            if( doloop == nullptr ) {
+                ASR::expr_t* ref_1 = create_array_ref(x.m_left, idx_vars);
+                ASR::expr_t* ref_2 = create_array_ref(x.m_right, idx_vars);
+                ASR::expr_t* res = create_array_ref(m_target, idx_vars);
+                ASR::expr_t* bin_op_el_wise = EXPR(ASR::make_BinOp_t(al, x.base.base.loc, ref_1, x.m_op, ref_2, x.m_type));
+                ASR::stmt_t* assign = STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, bin_op_el_wise));
+                doloop_body.push_back(al, assign);
+            } else {
+                doloop_body.push_back(al, doloop);
+            }
+            doloop = STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
         }
+        array_op_result.push_back(al, doloop);
     }
 };
 
