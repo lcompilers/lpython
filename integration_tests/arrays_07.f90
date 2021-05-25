@@ -2,7 +2,7 @@ program arrays_07
 implicit none
 integer, dimension(10) :: x
 integer :: i
-x = [(i, i = 1, size(x))]
+x = [(i, i = 1, 10)]
 print *, x
 print *, x(:)
 print *, x(3:5)
