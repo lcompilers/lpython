@@ -299,8 +299,8 @@ public:
             }
             ASR::do_loop_head_t head;
             head.m_v = idx_vars[i];
-            head.m_start = EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, dims_left[i].lbound, int32_type));
-            head.m_end = EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, dims_left[i].ubound, int32_type));
+            head.m_start = EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, dims_left[i].lbound, int32_type)); // TODO: Replace with call to lbound
+            head.m_end = EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, dims_left[i].ubound, int32_type)); // TODO: Replace with call to ubound
             head.m_increment = nullptr;
             head.loc = head.m_v->base.loc;
             Vec<ASR::stmt_t*> doloop_body;
