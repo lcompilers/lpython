@@ -30,10 +30,11 @@ class ArrayOpVisitor : public ASR::BaseWalkVisitor<ArrayOpVisitor>
 {
 private:
     Allocator &al;
-    ASR::TranslationUnit_t &unit;
     Vec<ASR::stmt_t*> array_op_result;
+    bool apply_pass;
+
 public:
-    ArrayOpVisitor(Allocator &al, ASR::TranslationUnit_t& unit) : al{al}, unit{unit} {
+    ArrayOpVisitor(Allocator &al) : al{al}, apply_pass{false} {
         array_op_result.reserve(al, 1);
 
     }
@@ -95,13 +96,96 @@ public:
         transform_stmts(xx.m_body, xx.n_body);
     }
 
+    inline bool is_array(ASR::expr_t* x) {
+        bool result = false;
+        int n_dims = 0;
+        ASR::ttype_t* x_type = expr_type(x);
+        if( x->type == ASR::exprType::Var ) {
+            switch( x->type ) {
+                case ASR::ttypeType::Integer: {
+                    ASR::Integer_t* x_type_ref = down_cast<ASR::Integer_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    break;
+                }
+                case ASR::ttypeType::IntegerPointer: {
+                    ASR::IntegerPointer_t* x_type_ref = down_cast<ASR::IntegerPointer_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    break;
+                }
+                case ASR::ttypeType::Real: {
+                    ASR::Real_t* x_type_ref = down_cast<ASR::Real_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    break;
+                }
+                case ASR::ttypeType::RealPointer: {
+                    ASR::RealPointer_t* x_type_ref = down_cast<ASR::RealPointer_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    break;
+                }
+                case ASR::ttypeType::Complex: {
+                    ASR::Complex_t* x_type_ref = down_cast<ASR::Complex_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    break;
+                }
+                case ASR::ttypeType::ComplexPointer: {
+                    ASR::ComplexPointer_t* x_type_ref = down_cast<ASR::ComplexPointer_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    break;
+                }
+                case ASR::ttypeType::Derived: {
+                    ASR::Derived_t* x_type_ref = down_cast<ASR::Derived_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    break;
+                }
+                case ASR::ttypeType::DerivedPointer: {
+                    ASR::DerivedPointer_t* x_type_ref = down_cast<ASR::DerivedPointer_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    break;
+                }
+                case ASR::ttypeType::Logical: {
+                    ASR::Logical_t* x_type_ref = down_cast<ASR::Logical_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    break;
+                }
+                case ASR::ttypeType::LogicalPointer: {
+                    ASR::LogicalPointer_t* x_type_ref = down_cast<ASR::LogicalPointer_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    break;
+                }
+                case ASR::ttypeType::Character: {
+                    ASR::Character_t* x_type_ref = down_cast<ASR::Character_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    break;
+                }
+                case ASR::ttypeType::CharacterPointer: {
+                    ASR::CharacterPointer_t* x_type_ref = down_cast<ASR::CharacterPointer_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    break;
+                }
+                default:
+                    break;
+            }
+            result = n_dims > 0;
+        }
+        std::cout<<result<<std::endl;
+        return result;
+    }
+
+    void visit_Assignment(const ASR::Assignment_t& x) {
+        if( is_array(x.m_target) ) {
+            apply_pass = true;
+            this->visit_expr(*(x.m_value));
+            apply_pass = false;
+        }
+    }
+
     void visit_BinOp(const ASR::BinOp_t &x) {
-        // TODO: Add pass for array operations
+        std::cout<<"Inside BinOp"<<std::endl;
     }
 };
 
 void pass_replace_array_op(Allocator &al, ASR::TranslationUnit_t &unit) {
-    ArrayOpVisitor v(al, unit);
+    ArrayOpVisitor v(al);
     v.visit_TranslationUnit(unit);
     LFORTRAN_ASSERT(asr_verify(unit));
 }
