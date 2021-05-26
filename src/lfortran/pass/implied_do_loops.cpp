@@ -4,6 +4,7 @@
 #include <lfortran/asr_utils.h>
 #include <lfortran/asr_verify.h>
 #include <lfortran/pass/implied_do_loops.h>
+#include <lfortran/pass/pass_utils.h>
 
 
 namespace LFortran {
@@ -95,7 +96,7 @@ public:
         transform_stmts(xx.m_body, xx.n_body);
     }
 
-    void create_implied_do_loop(ASR::ImpliedDoLoop_t* idoloop, ASR::Var_t* arr_var, ASR::expr_t* arr_idx=nullptr) {
+    void create_do_loop(ASR::ImpliedDoLoop_t* idoloop, ASR::Var_t* arr_var, ASR::expr_t* arr_idx=nullptr) {
         ASR::do_loop_head_t head;
         head.m_v = idoloop->m_var;
         head.m_start = idoloop->m_start;
@@ -157,7 +158,7 @@ public:
                 arr_init->m_args[0]->type == ASR::exprType::ImpliedDoLoop ) {
                 ASR::ImpliedDoLoop_t* idoloop = ((ASR::ImpliedDoLoop_t*)(&(arr_init->m_args[0]->base)));
                 ASR::Var_t* arr_var = (ASR::Var_t*)(&(x.m_target->base));
-                create_implied_do_loop(idoloop, arr_var, nullptr);
+                create_do_loop(idoloop, arr_var, nullptr);
             } else if( arr_init->n_args > 1 && arr_init->m_args[0] != nullptr ) {
                 ASR::Var_t* arr_var = (ASR::Var_t*)(&(x.m_target->base));
                 const char* const_idx_var_name = "1_k";
@@ -181,7 +182,7 @@ public:
                     ASR::expr_t* curr_init = arr_init->m_args[k];
                     if( curr_init->type == ASR::exprType::ImpliedDoLoop ) {
                         ASR::ImpliedDoLoop_t* idoloop = ((ASR::ImpliedDoLoop_t*)(&(curr_init->base)));
-                        create_implied_do_loop(idoloop, arr_var, idx_var);
+                        create_do_loop(idoloop, arr_var, idx_var);
                     } else {
                         Vec<ASR::array_index_t> args;
                         ASR::array_index_t ai;
@@ -202,6 +203,39 @@ public:
                     }
                 }
             }
+        } else if( x.m_value->type != ASR::exprType::ArrayInitializer && 
+                   PassUtils::is_array(x.m_target, al)) {
+            Vec<PassUtils::dimension_descriptor> dims_target_vec;
+            PassUtils::get_dims(x.m_target, dims_target_vec, al);
+            if( dims_target_vec.size() <= 0 ) {
+                return ;
+            }
+
+            PassUtils::dimension_descriptor* dims_target = dims_target_vec.p;
+            int n_dims = dims_target_vec.size();
+            ASR::ttype_t* int32_type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+            Vec<ASR::expr_t*> idx_vars;
+            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, unit);
+            ASR::stmt_t* doloop = nullptr;
+            for( int i = n_dims - 1; i >= 0; i-- ) {
+                ASR::do_loop_head_t head;
+                head.m_v = idx_vars[i];
+                head.m_start = EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, dims_target[i].lbound, int32_type)); // TODO: Replace with call to lbound
+                head.m_end = EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, dims_target[i].ubound, int32_type)); // TODO: Replace with call to ubound
+                head.m_increment = nullptr;
+                head.loc = head.m_v->base.loc;
+                Vec<ASR::stmt_t*> doloop_body;
+                doloop_body.reserve(al, 1);
+                if( doloop == nullptr ) {
+                    ASR::expr_t* ref = PassUtils::create_array_ref(x.m_target, idx_vars, al);
+                    ASR::stmt_t* assign = STMT(ASR::make_Assignment_t(al, x.base.base.loc, ref, x.m_value));
+                    doloop_body.push_back(al, assign);
+                } else {
+                    doloop_body.push_back(al, doloop);
+                }
+                doloop = STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
+            }
+            implied_do_loop_result.push_back(al, doloop);
         }
     }
 };
