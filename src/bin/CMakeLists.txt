@@ -56,7 +56,6 @@ install(
     DESTINATION share/lfortran/lib
 )
 
-
 # Ensure "Release" is not appended to the path on Windows:
 # https://stackoverflow.com/a/56201564/479532
 set_target_properties(lfortran PROPERTIES RUNTIME_OUTPUT_DIRECTORY $<0:>)
