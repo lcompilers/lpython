@@ -160,7 +160,6 @@ public:
                 create_implied_do_loop(idoloop, arr_var, nullptr);
             } else if( arr_init->n_args > 1 && arr_init->m_args[0] != nullptr ) {
                 ASR::Var_t* arr_var = (ASR::Var_t*)(&(x.m_target->base));
-                // ASR::ttype_t *_type = expr_type(x.m_target);
                 const char* const_idx_var_name = "1_k";
                 char* idx_var_name = (char*)const_idx_var_name;
                 ASR::expr_t* idx_var = nullptr;
