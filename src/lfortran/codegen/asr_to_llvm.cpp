@@ -140,6 +140,7 @@ public:
     std::map<std::pair<std::pair<int, int>, std::pair<int, int>>, llvm::StructType*> tkr2array;
 
     std::map<std::string, std::pair<llvm::Type*, llvm::Type*>> fname2arg_type;
+    std::vector<std::string> c_runtime_intrinsics;
 
     // Maps for containing information regarding derived types
     std::map<std::string, llvm::StructType*> name2dertype;
@@ -660,6 +661,9 @@ public:
                                                                                     dim_des->getPointerTo(),
                                                                                     getIntType(4)}), "size_arg");
         fname2arg_type["size"] = std::make_pair(size_arg, size_arg->getPointerTo());
+
+        c_runtime_intrinsics =  {"sin",  "cos",  "tan",  "sinh",  "cosh",  "tanh",
+                                 "asin", "acos", "atan", "asinh", "acosh", "atanh"};
 
         // Process Variables first:
         for (auto &item : x.m_global_scope->scope) {
@@ -1232,8 +1236,9 @@ public:
         if( !(x.m_abi == ASR::abiType::Source ||
               x.m_abi == ASR::abiType::Interactive ||
               (x.m_abi == ASR::abiType::Intrinsic && 
-               (fname2arg_type.find(std::string(x.m_name)) != fname2arg_type.end() ||  
-                x.m_deftype != ASR::deftypeType::Interface))) ) { 
+               (fname2arg_type.find(std::string(x.m_name)) != fname2arg_type.end() &&  
+                std::find(c_runtime_intrinsics.begin(), c_runtime_intrinsics.end(), std::string(x.m_name)) 
+                == c_runtime_intrinsics.end()))) ) { 
                             return;
         }
         // Check if the procedure has a nested function that needs access to
@@ -2681,11 +2686,8 @@ public:
 
     //!< Meant to be called only once
     void populate_intrinsics(ASR::ttype_t* _type) {
-        std::vector<std::string> supported = {
-            "sin",  "cos",  "tan",  "sinh",  "cosh",  "tanh",
-            "asin", "acos", "atan", "asinh", "acosh", "atanh"};
 
-        for (auto sv : supported) {
+        for (auto sv : c_runtime_intrinsics) {
             auto fname = "_lfortran_" + sv;
             llvm::Function *fn = module->getFunction(fname);
             if (!fn) {
