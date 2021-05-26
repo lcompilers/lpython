@@ -650,6 +650,37 @@ ASR::Module_t* extract_module(const ASR::TranslationUnit_t &m) {
     throw LFortranException("ICE: Module not found");
 }
 
+void set_intrinsic(ASR::symbol_t* sym) {
+    switch( sym->type ) {
+        case ASR::symbolType::Module: {
+            ASR::Module_t* module_sym = ASR::down_cast<ASR::Module_t>(sym);
+            for( auto& itr: module_sym->m_symtab->scope ) {
+                set_intrinsic(itr.second);
+            }
+            break;
+        }
+        case ASR::symbolType::Function: {
+            ASR::Function_t* function_sym = ASR::down_cast<ASR::Function_t>(sym);
+            function_sym->m_abi = ASR::abiType::Intrinsic;
+            break;
+        }
+        case ASR::symbolType::Subroutine: {
+            ASR::Subroutine_t* subroutine_sym = ASR::down_cast<ASR::Subroutine_t>(sym);
+            subroutine_sym->m_abi = ASR::abiType::Intrinsic;
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+}
+
+void set_intrinsic(ASR::TranslationUnit_t* trans_unit) {
+    for( auto& itr: trans_unit->m_global_scope->scope ) {
+        set_intrinsic(itr.second);
+    }
+}
+
 ASR::TranslationUnit_t* find_and_load_module(
         Allocator &al,
         const std::string &msym,
@@ -663,6 +694,9 @@ ASR::TranslationUnit_t* find_and_load_module(
     if (modfile == "") return nullptr;
     ASR::TranslationUnit_t *asr = load_modfile(al, modfile, false,
         symtab);
+    if (intrinsic) {
+        set_intrinsic(asr);
+    }
     return asr;
 }
 
