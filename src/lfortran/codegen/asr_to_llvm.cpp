@@ -1228,54 +1228,6 @@ public:
         declare_vars(x);
     }
 
-    /*
-    This function defines the size intrinsic's body at LLVM level.
-    */
-    void fill_size(const ASR::Function_t& x) {
-        ASR::Variable_t *arg = EXPR2VAR(x.m_args[0]);
-        uint32_t h = get_hash((ASR::asr_t*)arg);
-        llvm::Value* llvm_arg = llvm_symtab[h];
-        ASR::Variable_t *ret = EXPR2VAR(x.m_return_var);
-        h = get_hash((ASR::asr_t*)ret);
-        llvm::Value* llvm_ret_ptr = llvm_symtab[h];
-        llvm::Value* dim_des_val = builder->CreateLoad(create_gep(llvm_arg, 0));
-        llvm::Value* rank = builder->CreateLoad(create_gep(llvm_arg, 1));
-        builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 1)), llvm_ret_ptr);
-
-        llvm::Function *fn = builder->GetInsertBlock()->getParent();
-        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head", fn);
-        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
-        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
-        this->current_loophead = loophead;
-        this->current_loopend = loopend;
-
-        llvm::Value* r = builder->CreateAlloca(getIntType(4), nullptr);
-        builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), r);
-        // head
-        builder->CreateBr(loophead);
-        builder->SetInsertPoint(loophead);
-        llvm::Value *cond = builder->CreateICmpSLT(builder->CreateLoad(r), rank);
-        builder->CreateCondBr(cond, loopbody, loopend);
-
-        // body
-        fn->getBasicBlockList().push_back(loopbody);
-        builder->SetInsertPoint(loopbody);
-        llvm::Value* r_val = builder->CreateLoad(r);
-        llvm::Value* ret_val = builder->CreateLoad(llvm_ret_ptr);
-        llvm::Value* dim_val = create_ptr_gep(dim_des_val, r_val);
-        llvm::Value* dim_size_ptr = create_gep(dim_val, 3);
-        llvm::Value* dim_size = builder->CreateLoad(dim_size_ptr);
-        ret_val = builder->CreateMul(ret_val, dim_size);
-        builder->CreateStore(ret_val, llvm_ret_ptr);
-        r_val = builder->CreateAdd(r_val, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
-        builder->CreateStore(r_val, r);
-        builder->CreateBr(loophead);
-
-        // end
-        fn->getBasicBlockList().push_back(loopend);
-        builder->SetInsertPoint(loopend);
-    }
-
     void visit_Function(const ASR::Function_t &x) {
         if( !(x.m_abi == ASR::abiType::Source ||
               x.m_abi == ASR::abiType::Interactive ||
@@ -1446,55 +1398,104 @@ public:
         return function_type;
     }
 
+    inline void define_function_entry(const ASR::Function_t& x) {
+        uint32_t h = get_hash((ASR::asr_t*)&x);
+        llvm::Function* F = llvm_symtab_fn[h];
+        llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
+                ".entry", F);
+        builder->SetInsertPoint(BB);
+
+        declare_args(x, *F);
+
+        declare_local_vars(x);
+    }
+
+    inline  void define_function_exit(const ASR::Function_t& x) {
+        if (early_return) {
+            builder->CreateBr(if_return);
+        }
+        ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
+        uint32_t h = get_hash((ASR::asr_t*)asr_retval);
+
+        llvm::Value *ret_val = llvm_symtab[h];
+
+        if (early_return) {
+            builder->SetInsertPoint(if_return);
+            early_return = false;
+        }
+
+        llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
+
+        builder->CreateRet(ret_val2);
+    }
 
     void generate_function(const ASR::Function_t &x){
-        uint32_t h = get_hash((ASR::asr_t*)&x);
         bool interactive = (x.m_abi == ASR::abiType::Interactive);
-        if (x.m_deftype == ASR::deftypeType::Implementation) {
+        if (x.m_deftype == ASR::deftypeType::Implementation ) {
 
             if (interactive) return;
 
             if (!prototype_only) {
-                llvm::Function* F = llvm_symtab_fn[h];
-                llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
-                        ".entry", F);
-                builder->SetInsertPoint(BB);
+                define_function_entry(x);
 
-                declare_args(x, *F);
-
-                declare_local_vars(x);
-
-                switch( x.m_abi ) {
-                    case ASR::abiType::Intrinsic: {
-                        std::string func_name = x.m_name;
-                        if( func_name == "size" ) {
-                            fill_size(x);
-                        }
-                        break;
-                    }
-                    default: {
-                        for (size_t i=0; i<x.n_body; i++) {
-                            this->visit_stmt(*x.m_body[i]);
-                        }
-                    }
+                for (size_t i=0; i<x.n_body; i++) {
+                    this->visit_stmt(*x.m_body[i]);
                 }
 
-                if (early_return) {
-                    builder->CreateBr(if_return);
-                }
-                ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
-                uint32_t h = get_hash((ASR::asr_t*)asr_retval);
+                define_function_exit(x);                
+            }
+        } else if( x.m_abi == ASR::abiType::Intrinsic && 
+                   x.m_deftype == ASR::deftypeType::Interface ) {
+            std::string m_name = x.m_name;
+            if( m_name == "size" ) {
 
-                llvm::Value *ret_val = llvm_symtab[h];
+                define_function_entry(x);
 
-                if (early_return) {
-                    builder->SetInsertPoint(if_return);
-                    early_return = false;
-                }
+                // Defines the size intrinsic's body at LLVM level.
+                ASR::Variable_t *arg = EXPR2VAR(x.m_args[0]);
+                uint32_t h = get_hash((ASR::asr_t*)arg);
+                llvm::Value* llvm_arg = llvm_symtab[h];
+                ASR::Variable_t *ret = EXPR2VAR(x.m_return_var);
+                h = get_hash((ASR::asr_t*)ret);
+                llvm::Value* llvm_ret_ptr = llvm_symtab[h];
+                llvm::Value* dim_des_val = builder->CreateLoad(create_gep(llvm_arg, 0));
+                llvm::Value* rank = builder->CreateLoad(create_gep(llvm_arg, 1));
+                builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 1)), llvm_ret_ptr);
 
-                llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
+                llvm::Function *fn = builder->GetInsertBlock()->getParent();
+                llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head", fn);
+                llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+                llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+                this->current_loophead = loophead;
+                this->current_loopend = loopend;
 
-                builder->CreateRet(ret_val2);
+                llvm::Value* r = builder->CreateAlloca(getIntType(4), nullptr);
+                builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), r);
+                // head
+                builder->CreateBr(loophead);
+                builder->SetInsertPoint(loophead);
+                llvm::Value *cond = builder->CreateICmpSLT(builder->CreateLoad(r), rank);
+                builder->CreateCondBr(cond, loopbody, loopend);
+
+                // body
+                fn->getBasicBlockList().push_back(loopbody);
+                builder->SetInsertPoint(loopbody);
+                llvm::Value* r_val = builder->CreateLoad(r);
+                llvm::Value* ret_val = builder->CreateLoad(llvm_ret_ptr);
+                llvm::Value* dim_val = create_ptr_gep(dim_des_val, r_val);
+                llvm::Value* dim_size_ptr = create_gep(dim_val, 3);
+                llvm::Value* dim_size = builder->CreateLoad(dim_size_ptr);
+                ret_val = builder->CreateMul(ret_val, dim_size);
+                builder->CreateStore(ret_val, llvm_ret_ptr);
+                r_val = builder->CreateAdd(r_val, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+                builder->CreateStore(r_val, r);
+                builder->CreateBr(loophead);
+
+                // end
+                fn->getBasicBlockList().push_back(loopend);
+                builder->SetInsertPoint(loopend);
+
+                define_function_exit(x);
             }
         }
     }
