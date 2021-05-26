@@ -12,17 +12,22 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
-int main(int argc, char* argv[])
-{
-    Kokkos::initialize(argc, argv);
-    {
+namespace {
+
+void main2() {
         int i;
         float r;
         r = 1.5;
         std::cout << r << std::endl;
         i = (int)(r);
         std::cout << i << std::endl;
-    }
+}
+
+}
+int main(int argc, char* argv[])
+{
+    Kokkos::initialize(argc, argv);
+    main2();
     Kokkos::finalize();
     return 0;
 }

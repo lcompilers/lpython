@@ -43,6 +43,7 @@
 #include <lfortran/codegen/asr_to_llvm.h>
 #include <lfortran/pass/do_loops.h>
 #include <lfortran/pass/implied_do_loops.h>
+#include <lfortran/pass/array_op.h>
 #include <lfortran/pass/select_case.h>
 #include <lfortran/pass/global_stmts.h>
 #include <lfortran/pass/param_to_const.h>
@@ -895,6 +896,16 @@ public:
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(
                         item.second);
                 visit_Variable(*v);
+            }
+            if (is_a<ASR::Function_t>(*item.second)) {
+                ASR::Function_t *v = down_cast<ASR::Function_t>(
+                        item.second);
+                instantiate_function(*v);
+            }
+            if (is_a<ASR::Subroutine_t>(*item.second)) {
+                ASR::Subroutine_t *v = down_cast<ASR::Subroutine_t>(
+                        item.second);
+                instantiate_subroutine(*v);
             }
         }
         visit_procedures(x);
@@ -2717,6 +2728,7 @@ std::unique_ptr<LLVMModule> asr_to_llvm(ASR::TranslationUnit_t &asr,
     // Uncomment for debugging the ASR after the transformation
     // std::cout << pickle(asr) << std::endl;
     pass_replace_implied_do_loops(al, asr);
+    pass_replace_array_op(al, asr);
     pass_replace_do_loops(al, asr);
     pass_replace_select_case(al, asr);
     v.nested_func_types = pass_find_nested_vars(asr, context, 

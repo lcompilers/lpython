@@ -247,11 +247,15 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             body += src;
         }
 
-        src = contains + "int main(int argc, char* argv[])\n{\n"
-                + indent1 + "Kokkos::initialize(argc, argv);\n"
-                + indent1 + "{\n"
+        src = "namespace {\n"
+                + contains
+                + "\nvoid main2() {\n"
                 + decl + body
-                + indent1 + "}\n"
+                + "}\n\n"
+                + "}\n"
+                + "int main(int argc, char* argv[])\n{\n"
+                + indent1 + "Kokkos::initialize(argc, argv);\n"
+                + indent1 + "main2();\n"
                 + indent1 + "Kokkos::finalize();\n"
                 + indent1 + "return 0;\n}\n";
         indentation_level -= 2;

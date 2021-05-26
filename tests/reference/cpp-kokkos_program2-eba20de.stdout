@@ -12,6 +12,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
+namespace {
 void triad(const Kokkos::View<const float*> &a, const Kokkos::View<const float*> &b, float scalar, const Kokkos::View<float*> &c)
 {
     int N;
@@ -21,10 +22,8 @@ void triad(const Kokkos::View<const float*> &a, const Kokkos::View<const float*>
     });
 }
 
-int main(int argc, char* argv[])
-{
-    Kokkos::initialize(argc, argv);
-    {
+
+void main2() {
         Kokkos::View<float[10000]> a("a");
         Kokkos::View<float[10000]> b("b");
         Kokkos::View<float[10000]> c("c");
@@ -39,7 +38,13 @@ int main(int argc, char* argv[])
         });
         triad(a, b, scalar, c);
         std::cout << "End Stream Triad" << std::endl;
-    }
+}
+
+}
+int main(int argc, char* argv[])
+{
+    Kokkos::initialize(argc, argv);
+    main2();
     Kokkos::finalize();
     return 0;
 }

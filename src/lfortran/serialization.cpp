@@ -195,7 +195,7 @@ public:
 
     uint8_t read_int8() {
         if (pos+1 > s.size()) {
-            throw LFortranException("String is too short for deserialization.");
+            throw LFortranException("read_int8(): String is too short for deserialization.");
         }
         uint8_t n = s[pos];
         pos += 1;
@@ -204,7 +204,7 @@ public:
 
     uint64_t read_int64() {
         if (pos+4 > s.size()) {
-            throw LFortranException("String is too short for deserialization.");
+            throw LFortranException("read_int64(): String is too short for deserialization.");
         }
         uint64_t n = string_to_uint64(&s[pos]);
         pos += 4;
@@ -219,7 +219,7 @@ public:
     std::string read_string() {
         size_t n = read_int64();
         if (pos+n > s.size()) {
-            throw LFortranException("String is too short for deserialization.");
+            throw LFortranException("read_string(): String is too short for deserialization.");
         }
         std::string r = std::string(&s[pos], n);
         pos += n;

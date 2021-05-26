@@ -370,6 +370,16 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "../integration_tests/arrays_op_1.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/arrays_op_2.f90"
+asr = true
+llvm = true
+
+[[test]]
 filename = "../integration_tests/arrays_02.f90"
 ast = true
 ast_f90 = true
@@ -1070,4 +1080,8 @@ llvm = true
 
 [[test]]
 filename = "../integration_tests/return_02.f90"
+llvm = true
+
+[[test]]
+filename = "../integration_tests/modules_13.f90"
 llvm = true
