@@ -670,6 +670,16 @@ void set_intrinsic(ASR::symbol_t* sym) {
             subroutine_sym->m_abi = ASR::abiType::Intrinsic;
             break;
         }
+        case ASR::symbolType::DerivedType: {
+            ASR::DerivedType_t* derived_type_sym = ASR::down_cast<ASR::DerivedType_t>(sym);
+            derived_type_sym->m_abi = ASR::abiType::Intrinsic;
+            break;
+        }
+        case ASR::symbolType::Variable: {
+            ASR::Variable_t* derived_type_sym = ASR::down_cast<ASR::Variable_t>(sym);
+            derived_type_sym->m_abi = ASR::abiType::Intrinsic;
+            break;
+        }
         default: {
             break;
         }
