@@ -114,9 +114,9 @@ public:
         }
         // Case #1: For static arrays in both the operands
         Vec<PassUtils::dimension_descriptor> dims_left_vec;
-        PassUtils::get_dims(x.m_left, dims_left_vec);
+        PassUtils::get_dims(x.m_left, dims_left_vec, al);
         Vec<PassUtils::dimension_descriptor> dims_right_vec;
-        PassUtils::get_dims(x.m_right, dims_right_vec);
+        PassUtils::get_dims(x.m_right, dims_right_vec, al);
         if( dims_left_vec.size() != dims_right_vec.size() ) {
             throw SemanticError("Cannot generate loop operands of different shapes", 
                                 x.base.base.loc);

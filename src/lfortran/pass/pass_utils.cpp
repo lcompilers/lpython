@@ -117,7 +117,7 @@ namespace LFortran {
             }
         }   
 
-        inline bool is_array(ASR::expr_t* x, Allocator& al) {
+        bool is_array(ASR::expr_t* x, Allocator& al) {
             Vec<dimension_descriptor> result;
             get_dims(x, result, al);
             return result.size() > 0;
