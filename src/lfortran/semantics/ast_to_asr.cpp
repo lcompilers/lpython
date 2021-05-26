@@ -1091,7 +1091,6 @@ public:
         if (assgnd_access.count(sym_name)) {
             s_access = assgnd_access[sym_name];
         }
-        ASR::abiType abi_type = ASR::abiType::Source;
         
         if (is_interface) {
             deftype = ASR::deftypeType::Interface;
@@ -1105,7 +1104,7 @@ public:
             /* a_body */ nullptr,
             /* n_body */ 0,
             /* a_return_var */ EXPR(return_var_ref),
-            abi_type, s_access, deftype);
+            ASR::abiType::Source, s_access, deftype);
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             ASR::symbol_t *f1 = parent_scope->scope[sym_name];
             ASR::Function_t *f2 = ASR::down_cast<ASR::Function_t>(f1);
