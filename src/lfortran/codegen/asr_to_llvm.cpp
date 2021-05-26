@@ -1236,7 +1236,7 @@ public:
         if( !(x.m_abi == ASR::abiType::Source ||
               x.m_abi == ASR::abiType::Interactive ||
               (x.m_abi == ASR::abiType::Intrinsic && 
-               (fname2arg_type.find(std::string(x.m_name)) != fname2arg_type.end() &&  
+               ((fname2arg_type.find(std::string(x.m_name)) != fname2arg_type.end() || x.m_deftype != ASR::deftypeType::Interface) &&  
                 std::find(c_runtime_intrinsics.begin(), c_runtime_intrinsics.end(), std::string(x.m_name)) 
                 == c_runtime_intrinsics.end()))) ) { 
                             return;
