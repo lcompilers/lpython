@@ -1232,9 +1232,8 @@ public:
         if( !(x.m_abi == ASR::abiType::Source ||
               x.m_abi == ASR::abiType::Interactive ||
               (x.m_abi == ASR::abiType::Intrinsic && 
-               fname2arg_type.find(std::string(x.m_name)) != fname2arg_type.end())) ) { 
-                // The reason the above check is here to ensure that the intrinsic under 
-                // consideration is primitive and not something defined in C runtime library or at Fortran level
+               (fname2arg_type.find(std::string(x.m_name)) != fname2arg_type.end() ||  
+                x.m_deftype != ASR::deftypeType::Interface))) ) { 
                             return;
         }
         // Check if the procedure has a nested function that needs access to
@@ -2646,7 +2645,11 @@ public:
                 std::unordered_map<std::string, llvm::Function *>::const_iterator
                     find_intrinsic = all_intrinsics.find(s->m_name);
                 if (find_intrinsic == all_intrinsics.end()) {
-                    throw CodeGenError("Intrinsic not implemented yet.");
+                    if( s->m_deftype == ASR::deftypeType::Interface ) {
+                        throw CodeGenError("Intrinsic not implemented yet.");
+                    } else {
+                        h = get_hash((ASR::asr_t*)s);
+                    }
                 } else {
                     std::string m_name = std::string(((ASR::Function_t*)(&(x.m_name->base)))->m_name);
                     std::vector<llvm::Value *> args = convert_call_args(x, m_name);
