@@ -33,6 +33,7 @@ set(SRC
     ../lfortran_intrinsics.c
     ../lfortran_intrinsic_math.f90
     ../lfortran_intrinsic_kind.f90
+    ../lfortran_intrinsic_array.f90
 )
 add_library(lfortran_runtime SHARED ${SRC})
 add_library(lfortran_runtime_static STATIC ${SRC})

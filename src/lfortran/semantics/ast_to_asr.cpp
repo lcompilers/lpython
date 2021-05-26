@@ -613,7 +613,8 @@ class CommonVisitorMethods {
 std::map<std::string, std::string> intrinsic_procedures = {
         {"kind", "lfortran_intrinsic_kind"},
         {"selected_int_kind", "lfortran_intrinsic_kind"},
-        {"selected_real_kind", "lfortran_intrinsic_kind"}
+        {"selected_real_kind", "lfortran_intrinsic_kind"},
+        {"size", "lfortran_intrinsic_array"}
     };
 
 std::string read_file(const std::string &filename)
@@ -2689,60 +2690,6 @@ public:
                                        /* n_body */ 0,
                                        /* a_return_var */ EXPR(return_var_ref),
                                        ASR::abiType::Source,
-                                       ASR::Public, ASR::deftypeType::Implementation);
-                std::string sym_name = fn_name;
-                unit->m_global_scope->scope[sym_name] =
-                    ASR::down_cast<ASR::symbol_t>(fn);
-                v = ASR::down_cast<ASR::symbol_t>(fn);
-            } else if( var_name == "size" ) {
-                ASR::TranslationUnit_t *unit = (ASR::TranslationUnit_t *)asr;
-                const char *fn_name_orig = "size";
-                char *fn_name = (char *)fn_name_orig;
-                SymbolTable *fn_scope =
-                    al.make_new<SymbolTable>(unit->m_global_scope);
-                ASR::ttype_t *type;
-                type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
-                const char *ret_name_orig = "r_size";
-                char *ret_name = (char *)ret_name_orig;
-                ASR::asr_t *return_var = ASR::make_Variable_t(
-                    al, x.base.base.loc, fn_scope, ret_name, intent_return_var,
-                    nullptr, ASR::storage_typeType::Default, type,
-                    ASR::abiType::Source,
-                    ASR::Public);
-                fn_scope->scope[std::string(ret_name)] =
-                    ASR::down_cast<ASR::symbol_t>(return_var);
-                ASR::asr_t *return_var_ref = ASR::make_Var_t(
-                    al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(return_var));
-                Vec<ASR::expr_t*> a_args;
-                a_args.reserve(al, 1);
-                const char *arg_name_orig = "a_size";
-                char *arg_name = (char *)arg_name_orig;
-                ASR::dimension_t dim;
-                Vec<ASR::dimension_t> dims;
-                dims.reserve(al, 1);
-                dim.loc = x.base.base.loc;
-                dim.m_start = nullptr;
-                dim.m_end = nullptr;
-                dims.push_back(al, dim);
-                type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, dims.p, 1)); // Minimum 1 dimension
-                ASR::asr_t* arg_arr = ASR::make_Variable_t(al, x.base.base.loc, fn_scope, arg_name, 
-                                                            ASR::intentType::In, nullptr, 
-                                                            ASR::storage_typeType::Default, type,
-                                                            ASR::abiType::Source, ASR::Public);
-                fn_scope->scope[std::string(arg_name)] =
-                    ASR::down_cast<ASR::symbol_t>(arg_arr);
-                ASR::asr_t *arg_var_ref = ASR::make_Var_t(
-                    al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(arg_arr));
-                a_args.push_back(al, EXPR(arg_var_ref));
-                ASR::asr_t *fn = ASR::make_Function_t(al, x.base.base.loc,
-                                       /* a_symtab */ fn_scope,
-                                       /* a_name */ fn_name,
-                                       /* a_args */ a_args.p,
-                                       /* n_args */ a_args.size(),
-                                       /* a_body */ nullptr,
-                                       /* n_body */ 0,
-                                       /* a_return_var */ EXPR(return_var_ref),
-                                       ASR::abiType::Intrinsic,
                                        ASR::Public, ASR::deftypeType::Implementation);
                 std::string sym_name = fn_name;
                 unit->m_global_scope->scope[sym_name] =
