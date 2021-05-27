@@ -102,8 +102,11 @@ class DoLoopVisitor : public ASR::BaseWalkVisitor<DoLoopVisitor>
 private:
     Allocator &al;
     Vec<ASR::stmt_t*> do_loop_result;
+
 public:
-    DoLoopVisitor(Allocator &al) : al{al} {
+    bool is_do_loop_present;
+
+    DoLoopVisitor(Allocator &al) : al{al}, is_do_loop_present{false} {
         do_loop_result.n = 0;
 
     }
@@ -117,6 +120,7 @@ public:
             do_loop_result.n = 0;
             visit_stmt(*m_body[i]);
             if (do_loop_result.size() > 0) {
+                is_do_loop_present = true;
                 for (size_t j=0; j<do_loop_result.size(); j++) {
                     body.push_back(al, do_loop_result[j]);
                 }
@@ -181,8 +185,11 @@ void pass_replace_do_loops(Allocator &al, ASR::TranslationUnit_t &unit) {
     DoLoopVisitor v(al);
     // Each call transforms only one layer of nested loops, so we call it twice
     // to transform doubly nested loops:
-    v.visit_TranslationUnit(unit);
-    v.visit_TranslationUnit(unit);
+    v.is_do_loop_present = true;
+    while( v.is_do_loop_present ) {
+        v.is_do_loop_present = false;
+        v.visit_TranslationUnit(unit);
+    }
     LFORTRAN_ASSERT(asr_verify(unit));
 }
 
