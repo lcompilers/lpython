@@ -2,11 +2,11 @@
     "basename": "ast-arrays_06-9c351b7",
     "cmd": "lfortran --show-ast --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/arrays_06.f90",
-    "infile_hash": "cfb2faa08fe383a365cc4347305e775f5684915be9bbf0b2c279f8d1",
+    "infile_hash": "ad272ec89431eb1b809ff4aec3f3b6118fb23a8a8e96d53dee2c4de1",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast-arrays_06-9c351b7.stdout",
-    "stdout_hash": "7fcbbe55bcdb99180646ddc5b956bb0afe2c10917fce7febce1ee224",
+    "stdout_hash": "72a4f1a2ee50a6dba1d028e9dc493caf1b8d59493ca26e1c09861f7a",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

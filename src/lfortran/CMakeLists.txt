@@ -18,6 +18,7 @@ set(SRC
     pass/select_case.cpp
     pass/implied_do_loops.cpp
     pass/array_op.cpp
+    pass/pass_utils.cpp
 
     asr_verify.cpp
     asr_utils.cpp
