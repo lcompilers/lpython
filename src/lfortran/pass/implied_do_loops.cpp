@@ -102,6 +102,22 @@ public:
         contains_array = PassUtils::is_array(x_expr, al);
     }
 
+    void visit_ConstantInteger(const ASR::ConstantInteger_t&) {
+        contains_array = false;
+    }
+
+    void visit_ConstantReal(const ASR::ConstantReal_t&) {
+        contains_array = false;
+    }
+
+    void visit_ConstantComplex(const ASR::ConstantComplex_t&) {
+        contains_array = false;
+    }
+
+    void visit_ConstantLogical(const ASR::ConstantLogical_t&) {
+        contains_array = false;
+    }
+
     void visit_BinOp(const ASR::BinOp_t& x) {
         if( contains_array ) {
             return ;
