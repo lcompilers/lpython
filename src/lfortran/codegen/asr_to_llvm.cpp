@@ -1678,7 +1678,6 @@ public:
     }
 
     void visit_BinOp(const ASR::BinOp_t &x) {
-        // std::cout<<"Inside BinOp"<<std::endl;
         this->visit_expr_wrapper(x.m_left, true);
         llvm::Value *left_val = tmp;
         this->visit_expr_wrapper(x.m_right, true);
@@ -1687,7 +1686,6 @@ public:
             x.m_type->type == ASR::ttypeType::IntegerPointer) {
             switch (x.m_op) {
                 case ASR::binopType::Add: {
-                    // std::cout<<left_val->getType()->isPointerTy()<<" "<<right_val->getType()->isPointerTy()<<std::endl;
                     tmp = builder->CreateAdd(left_val, right_val);
                     break;
                 };
