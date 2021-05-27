@@ -3,6 +3,7 @@
 #include <lfortran/exception.h>
 #include <lfortran/asr_utils.h>
 #include <lfortran/asr_verify.h>
+#include <lfortran/pass/pass_utils.h>
 #include <lfortran/pass/print_arr.h>
 
 
@@ -96,58 +97,50 @@ public:
     }
 
     void visit_Print(const ASR::Print_t& x) {
-        
-    }
+        if( x.n_values == 1 && PassUtils::is_array(x.m_values[0], al) ) {
+            ASR::expr_t* arr_expr = x.m_values[0];
+            // Case #1: For static arrays in both the operands
+            Vec<PassUtils::dimension_descriptor> dims_vec;
+            PassUtils::get_dims(arr_expr, dims_vec, al);
+            if( dims_vec.size() <= 0 ) {
+                return ;
+            }
 
-    void visit_Assignment(const ASR::Assignment_t &x) {
-        if( x.m_value->type == ASR::exprType::ArrayInitializer ) {
-            ASR::ArrayInitializer_t* arr_init = ((ASR::ArrayInitializer_t*)(&(x.m_value->base)));
-            if( arr_init->n_args == 1 && arr_init->m_args[0] != nullptr && 
-                arr_init->m_args[0]->type == ASR::exprType::ImpliedDoLoop ) {
-                ASR::ImpliedDoLoop_t* idoloop = ((ASR::ImpliedDoLoop_t*)(&(arr_init->m_args[0]->base)));
+            PassUtils::dimension_descriptor* dims = dims_vec.p;
+            int n_dims = dims_vec.size();
+            ASR::ttype_t* int32_type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+            Vec<ASR::expr_t*> idx_vars;
+            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, unit);
+            ASR::stmt_t* empty_print_stmt = STMT(ASR::make_Print_t(al, x.base.base.loc, nullptr, nullptr, 0, nullptr));
+            ASR::stmt_t* doloop = nullptr;
+            for( int i = n_dims - 1; i >= 0; i-- ) {
                 ASR::do_loop_head_t head;
-                head.m_v = idoloop->m_var;
-                head.m_start = idoloop->m_start;
-                head.m_end = idoloop->m_end;
-                head.m_increment = idoloop->m_increment;
+                head.m_v = idx_vars[i];
+                head.m_start = EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, dims[i].lbound, int32_type)); // TODO: Replace with call to lbound
+                head.m_end = EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, dims[i].ubound, int32_type)); // TODO: Replace with call to ubound
+                head.m_increment = nullptr;
                 head.loc = head.m_v->base.loc;
                 Vec<ASR::stmt_t*> doloop_body;
                 doloop_body.reserve(al, 1);
-                ASR::Var_t* arr_var = (ASR::Var_t*)(&(x.m_target->base));
-                ASR::symbol_t* arr = arr_var->m_v;
-                ASR::ttype_t *_type = expr_type(idoloop->m_start);
-                ASR::expr_t* const_1 = EXPR(ASR::make_ConstantInteger_t(al, arr_var->base.base.loc, 1, _type));
-                ASR::expr_t* const_n = EXPR(ASR::make_ConstantInteger_t(al, arr_var->base.base.loc, idoloop->n_values, _type));
-                ASR::expr_t* offset = EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, idoloop->m_var, ASR::binopType::Sub, idoloop->m_start, _type));
-                ASR::expr_t* num_grps = EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, offset, ASR::binopType::Mul, const_n, _type));
-                ASR::expr_t* grp_start = EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, num_grps, ASR::binopType::Add, const_1, _type));
-                for( size_t i = 0; i < idoloop->n_values; i++ ) {
-                    Vec<ASR::array_index_t> args;
-                    ASR::array_index_t ai;
-                    ai.loc = arr_var->base.base.loc;
-                    ai.m_left = nullptr;
-                    ASR::expr_t* const_i = EXPR(ASR::make_ConstantInteger_t(al, arr_var->base.base.loc, i, _type));
-                    ASR::expr_t* idx = EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, 
-                                                                grp_start, ASR::binopType::Add, const_i, 
-                                                                _type));
-                    ai.m_right = idx;
-                    ai.m_step = nullptr;
-                    args.reserve(al, 1);
-                    args.push_back(al, ai);
-                    ASR::expr_t* array_ref = EXPR(ASR::make_ArrayRef_t(al, arr_var->base.base.loc, arr, 
-                                                                        args.p, args.size(), 
-                                                                        expr_type(EXPR((ASR::asr_t*)arr_var))));
-                    if( idoloop->m_values[i]->type == ASR::exprType::ImpliedDoLoop ) {
-                        throw SemanticError("Pass for nested ImpliedDoLoop nodes isn't implemented yet.", idoloop->m_values[i]->base.loc);
-                    }
-                    ASR::stmt_t* doloop_stmt = STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, array_ref, idoloop->m_values[i]));
-                    doloop_body.push_back(al, doloop_stmt);
+                if( doloop == nullptr ) {
+                    ASR::expr_t* ref = PassUtils::create_array_ref(arr_expr, idx_vars, al);
+                    Vec<ASR::expr_t*> print_args;
+                    print_args.reserve(al, 1);
+                    print_args.push_back(al, ref);
+                    ASR::stmt_t* print_stmt = STMT(ASR::make_Print_t(al, x.base.base.loc, nullptr, 
+                                                                 print_args.p, print_args.size(), "\t"));
+                    doloop_body.push_back(al, print_stmt);
+                } else {
+                    doloop_body.push_back(al, doloop);
+                    doloop_body.push_back(al, empty_print_stmt);
                 }
-                ASR::stmt_t* doloop = STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
-                print_arr_result.push_back(al, doloop);
+                doloop = STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
+            print_arr_result.push_back(al, doloop);
+            print_arr_result.push_back(al, empty_print_stmt);
         }
     }
+
 };
 
 void pass_replace_print_arr(Allocator &al, ASR::TranslationUnit_t &unit) {
