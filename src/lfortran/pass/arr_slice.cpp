@@ -30,9 +30,10 @@ class ArrSliceVisitor : public ASR::BaseWalkVisitor<ArrSliceVisitor>
 {
 private:
     Allocator &al;
+    ASR::TranslationUnit_t &unit;
     Vec<ASR::stmt_t*> arr_slice_result;
 public:
-    ArrSliceVisitor(Allocator &al) : al{al} {
+    ArrSliceVisitor(Allocator &al, ASR::TranslationUnit_t &unit) : al{al}, unit{unit} {
         arr_slice_result.reserve(al, 1);
 
     }
@@ -94,6 +95,10 @@ public:
         transform_stmts(xx.m_body, xx.n_body);
     }
 
+    void visit_ArrayRef(const ASR::ArrayRef_t& x) {
+        
+    }
+
     void visit_Assignment(const ASR::Assignment_t &x) {
         if( x.m_value->type == ASR::exprType::ArrayInitializer ) {
             ASR::ArrayInitializer_t* arr_init = ((ASR::ArrayInitializer_t*)(&(x.m_value->base)));
@@ -146,7 +151,7 @@ public:
 };
 
 void pass_replace_arr_slice(Allocator &al, ASR::TranslationUnit_t &unit) {
-    ArrSliceVisitor v(al);
+    ArrSliceVisitor v(al, unit);
     v.visit_TranslationUnit(unit);
     LFORTRAN_ASSERT(asr_verify(unit));
 }
