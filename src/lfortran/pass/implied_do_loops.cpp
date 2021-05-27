@@ -33,8 +33,9 @@ private:
     Allocator &al;
     ASR::TranslationUnit_t &unit;
     Vec<ASR::stmt_t*> implied_do_loop_result;
+    bool contains_array;
 public:
-    ImpliedDoLoopVisitor(Allocator &al, ASR::TranslationUnit_t& unit) : al{al}, unit{unit} {
+    ImpliedDoLoopVisitor(Allocator &al, ASR::TranslationUnit_t& unit) : al{al}, unit{unit}, contains_array{false} {
         implied_do_loop_result.reserve(al, 1);
 
     }
@@ -94,6 +95,23 @@ public:
         // which requires to generate a TransformVisitor.
         ASR::Function_t &xx = const_cast<ASR::Function_t&>(x);
         transform_stmts(xx.m_body, xx.n_body);
+    }
+
+    void visit_Var(const ASR::Var_t& x) {
+        ASR::expr_t* x_expr = (ASR::expr_t*)(&x);
+        contains_array = PassUtils::is_array(x_expr, al);
+    }
+
+    void visit_BinOp(const ASR::BinOp_t& x) {
+        if( contains_array ) {
+            return ;
+        }
+        bool left_array, right_array;
+        visit_expr(*(x.m_left));
+        left_array = contains_array;
+        visit_expr(*(x.m_right));
+        right_array = contains_array;
+        contains_array = left_array || right_array;
     }
 
     void create_do_loop(ASR::ImpliedDoLoop_t* idoloop, ASR::Var_t* arr_var, ASR::expr_t* arr_idx=nullptr) {
@@ -205,6 +223,11 @@ public:
             }
         } else if( x.m_value->type != ASR::exprType::ArrayInitializer && 
                    PassUtils::is_array(x.m_target, al)) {
+            contains_array = true;
+            visit_expr(*(x.m_value)); // TODO: Add support for updating contains array in all types of expressions
+            if( contains_array ) {
+                return ;
+            }
             Vec<PassUtils::dimension_descriptor> dims_target_vec;
             PassUtils::get_dims(x.m_target, dims_target_vec, al);
             if( dims_target_vec.size() <= 0 ) {
