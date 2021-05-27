@@ -4,6 +4,7 @@
 #include <lfortran/asr_utils.h>
 #include <lfortran/asr_verify.h>
 #include <lfortran/pass/arr_slice.h>
+#include <lfortran/pass/pass_utils.h>
 
 
 namespace LFortran {
@@ -32,10 +33,11 @@ private:
     Allocator &al;
     ASR::TranslationUnit_t &unit;
     Vec<ASR::stmt_t*> arr_slice_result;
-public:
-    ArrSliceVisitor(Allocator &al, ASR::TranslationUnit_t &unit) : al{al}, unit{unit} {
-        arr_slice_result.reserve(al, 1);
+    int slice_counter;
 
+public:
+    ArrSliceVisitor(Allocator &al, ASR::TranslationUnit_t &unit) : al{al}, unit{unit}, slice_counter{0} {
+        arr_slice_result.reserve(al, 1);
     }
 
     void transform_stmts(ASR::stmt_t **&m_body, size_t &n_body) {
@@ -95,56 +97,56 @@ public:
         transform_stmts(xx.m_body, xx.n_body);
     }
 
-    void visit_ArrayRef(const ASR::ArrayRef_t& x) {
-        
+    bool is_slice_present(const ASR::ArrayRef_t& x) {
+        bool slice_present = false;
+        for( size_t i = 0; i < x.n_args; i++ ) {
+            if( !(x.m_args[i].m_left == nullptr && 
+                  x.m_args[i].m_right != nullptr && 
+                  x.m_args[i].m_step == nullptr) ) {
+                slice_present = true;
+                break;
+            }
+        }
+        return slice_present;
     }
 
-    void visit_Assignment(const ASR::Assignment_t &x) {
-        if( x.m_value->type == ASR::exprType::ArrayInitializer ) {
-            ASR::ArrayInitializer_t* arr_init = ((ASR::ArrayInitializer_t*)(&(x.m_value->base)));
-            if( arr_init->n_args == 1 && arr_init->m_args[0] != nullptr && 
-                arr_init->m_args[0]->type == ASR::exprType::ImpliedDoLoop ) {
-                ASR::ImpliedDoLoop_t* idoloop = ((ASR::ImpliedDoLoop_t*)(&(arr_init->m_args[0]->base)));
+    void visit_ArrayRef(const ASR::ArrayRef_t& x) {
+        if( is_slice_present(x) ) {
+            Str new_name_str;
+            new_name_str.from_str(al, "_" + std::to_string(slice_counter) + "_slice");
+            char* new_var_name = (char*)new_name_str.c_str(al);
+            ASR::asr_t* slice_asr = ASR::make_Variable_t(al, x.base.base.loc, unit.m_global_scope, new_var_name, 
+                                                        ASR::intentType::Local, nullptr, ASR::storage_typeType::Default, 
+                                                        x.m_type, ASR::abiType::Source, ASR::accessType::Public);
+            ASR::symbol_t* slice_sym = ASR::down_cast<ASR::symbol_t>(slice_asr);
+            unit.m_global_scope->scope[std::string(new_var_name)] = slice_sym;
+            Vec<ASR::expr_t*> idx_vars_target, idx_vars_value;
+            PassUtils::create_idx_vars(idx_vars_target, x.n_args, x.base.base.loc, al, unit, "_t");
+            PassUtils::create_idx_vars(idx_vars_value, x.n_args, x.base.base.loc, al, unit, "_v");
+            ASR::stmt_t* doloop = nullptr;
+            ASR::ttype_t* int32_type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+            ASR::expr_t* const_1 = EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, 1, int32_type));
+            for( int i = (int)x.n_args - 1; i >= 0; i-- ) {
                 ASR::do_loop_head_t head;
-                head.m_v = idoloop->m_var;
-                head.m_start = idoloop->m_start;
-                head.m_end = idoloop->m_end;
-                head.m_increment = idoloop->m_increment;
+                head.m_v = idx_vars_value[i];
+                head.m_start = x.m_args[i].m_left;
+                head.m_end = x.m_args[i].m_right;
+                head.m_increment = x.m_args[i].m_step;
                 head.loc = head.m_v->base.loc;
                 Vec<ASR::stmt_t*> doloop_body;
                 doloop_body.reserve(al, 1);
-                ASR::Var_t* arr_var = (ASR::Var_t*)(&(x.m_target->base));
-                ASR::symbol_t* arr = arr_var->m_v;
-                ASR::ttype_t *_type = expr_type(idoloop->m_start);
-                ASR::expr_t* const_1 = EXPR(ASR::make_ConstantInteger_t(al, arr_var->base.base.loc, 1, _type));
-                ASR::expr_t* const_n = EXPR(ASR::make_ConstantInteger_t(al, arr_var->base.base.loc, idoloop->n_values, _type));
-                ASR::expr_t* offset = EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, idoloop->m_var, ASR::binopType::Sub, idoloop->m_start, _type));
-                ASR::expr_t* num_grps = EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, offset, ASR::binopType::Mul, const_n, _type));
-                ASR::expr_t* grp_start = EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, num_grps, ASR::binopType::Add, const_1, _type));
-                for( size_t i = 0; i < idoloop->n_values; i++ ) {
-                    Vec<ASR::array_index_t> args;
-                    ASR::array_index_t ai;
-                    ai.loc = arr_var->base.base.loc;
-                    ai.m_left = nullptr;
-                    ASR::expr_t* const_i = EXPR(ASR::make_ConstantInteger_t(al, arr_var->base.base.loc, i, _type));
-                    ASR::expr_t* idx = EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, 
-                                                                grp_start, ASR::binopType::Add, const_i, 
-                                                                _type));
-                    ai.m_right = idx;
-                    ai.m_step = nullptr;
-                    args.reserve(al, 1);
-                    args.push_back(al, ai);
-                    ASR::expr_t* array_ref = EXPR(ASR::make_ArrayRef_t(al, arr_var->base.base.loc, arr, 
-                                                                        args.p, args.size(), 
-                                                                        expr_type(EXPR((ASR::asr_t*)arr_var))));
-                    if( idoloop->m_values[i]->type == ASR::exprType::ImpliedDoLoop ) {
-                        throw SemanticError("Pass for nested ImpliedDoLoop nodes isn't implemented yet.", idoloop->m_values[i]->base.loc);
-                    }
-                    ASR::stmt_t* doloop_stmt = STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, array_ref, idoloop->m_values[i]));
-                    doloop_body.push_back(al, doloop_stmt);
+                if( doloop == nullptr ) {
+                    ASR::expr_t* target_ref = PassUtils::create_array_ref(slice_sym, idx_vars_target, al, x.base.base.loc, x.m_type);
+                    ASR::expr_t* value_ref = PassUtils::create_array_ref(x.m_v, idx_vars_value, al, x.base.base.loc, x.m_type);
+                    ASR::stmt_t* assign_stmt = STMT(ASR::make_Assignment_t(al, x.base.base.loc, target_ref, value_ref));
+                    doloop_body.push_back(al, assign_stmt);
+                } else {
+                    doloop_body.push_back(al, doloop);
                 }
-                ASR::stmt_t* doloop = STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
-                arr_slice_result.push_back(al, doloop);
+                ASR::expr_t* inc_expr = EXPR(ASR::make_BinOp_t(al, x.base.base.loc, idx_vars_target[i], ASR::binopType::Add, const_1, int32_type));
+                ASR::stmt_t* assign_stmt = STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_target[i], inc_expr));
+                doloop_body.push_back(al, assign_stmt);
+                doloop = STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
         }
     }

@@ -19,7 +19,10 @@ namespace LFortran {
 
         ASR::expr_t* create_array_ref(ASR::expr_t* arr_expr, Vec<ASR::expr_t*>& idx_vars, Allocator& al);
 
-        void create_idx_vars(Vec<ASR::expr_t*>& idx_vars, int n_dims, const Location& loc, Allocator& al, ASR::TranslationUnit_t& unit);
+        ASR::expr_t* create_array_ref(ASR::symbol_t* arr, Vec<ASR::expr_t*>& idx_vars, Allocator& al,
+                                      Location& loc, ASR::ttype_t* _type);
+
+        void create_idx_vars(Vec<ASR::expr_t*>& idx_vars, int n_dims, const Location& loc, Allocator& al, ASR::TranslationUnit_t& unit, std::string suffix="_k");
 
     }
 

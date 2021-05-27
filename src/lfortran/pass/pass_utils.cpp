@@ -130,27 +130,33 @@ namespace LFortran {
         ASR::expr_t* create_array_ref(ASR::expr_t* arr_expr, Vec<ASR::expr_t*>& idx_vars, Allocator& al) {
             ASR::Var_t* arr_var = ASR::down_cast<ASR::Var_t>(arr_expr);
             ASR::symbol_t* arr = arr_var->m_v;
+            return create_array_ref(arr, idx_vars, al, arr_expr->base.loc, expr_type(EXPR((ASR::asr_t*)arr_var)));
+        }
+
+        ASR::expr_t* create_array_ref(ASR::symbol_t* arr, Vec<ASR::expr_t*>& idx_vars, Allocator& al,
+                                      Location& loc, ASR::ttype_t* _type) {
             Vec<ASR::array_index_t> args;
             args.reserve(al, 1);
             for( size_t i = 0; i < idx_vars.size(); i++ ) {
                 ASR::array_index_t ai;
-                ai.loc = arr_expr->base.loc;
+                ai.loc = loc;
                 ai.m_left = nullptr;
                 ai.m_right = idx_vars[i];
                 ai.m_step = nullptr;
                 args.push_back(al, ai);
             }
-            ASR::expr_t* array_ref = EXPR(ASR::make_ArrayRef_t(al, arr_expr->base.loc, arr, 
+            ASR::expr_t* array_ref = EXPR(ASR::make_ArrayRef_t(al, loc, arr, 
                                                                 args.p, args.size(), 
-                                                                expr_type(EXPR((ASR::asr_t*)arr_var))));
+                                                                _type));
             return array_ref;
         }
 
-        void create_idx_vars(Vec<ASR::expr_t*>& idx_vars, int n_dims, const Location& loc, Allocator& al, ASR::TranslationUnit_t& unit) {
+        void create_idx_vars(Vec<ASR::expr_t*>& idx_vars, int n_dims, const Location& loc, Allocator& al, 
+                             ASR::TranslationUnit_t& unit, std::string suffix) {
             idx_vars.reserve(al, n_dims);
             for( int i = 1; i <= n_dims; i++ ) {
                 Str str_name;
-                str_name.from_str(al, std::to_string(i) + std::string("_k"));
+                str_name.from_str(al, std::to_string(i) + suffix);
                 const char* const_idx_var_name = str_name.c_str(al);
                 char* idx_var_name = (char*)const_idx_var_name;
                 ASR::expr_t* idx_var = nullptr;
