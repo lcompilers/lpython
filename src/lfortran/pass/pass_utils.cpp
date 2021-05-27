@@ -10,13 +10,17 @@ namespace LFortran {
     namespace PassUtils {
 
         void get_dims(ASR::expr_t* x, Vec<dimension_descriptor>& result, Allocator& al) {
-            result.reserve(al, 1);
-            ASR::dimension_t* m_dims = nullptr;
-            int n_dims = 0;
-            ASR::ttype_t* x_type = expr_type(x);
+            result.reserve(al, 0);
             if( x->type == ASR::exprType::Var ) {
                 ASR::Var_t* x_var = ASR::down_cast<ASR::Var_t>(x);
-                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(symbol_get_past_external(x_var->m_v));
+                ASR::symbol_t* x_sym = (ASR::symbol_t*)symbol_get_past_external(x_var->m_v);
+                if( x_sym->type != ASR::symbolType::Variable ) {
+                    return ;
+                }
+                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(x_sym);
+                ASR::ttype_t* x_type = expr_type(x);
+                ASR::dimension_t* m_dims = nullptr;
+                int n_dims = 0;
                 switch( v->m_type->type ) {
                     case ASR::ttypeType::Integer: {
                         ASR::Integer_t* x_type_ref = ASR::down_cast<ASR::Integer_t>(x_type);

@@ -98,7 +98,7 @@ public:
     }
 
     void visit_Var(const ASR::Var_t& x) {
-        ASR::expr_t* x_expr = (ASR::expr_t*)(&x);
+        ASR::expr_t* x_expr = (ASR::expr_t*)(&(x.base));
         contains_array = PassUtils::is_array(x_expr, al);
     }
 
