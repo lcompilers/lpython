@@ -147,7 +147,7 @@ stmt
     | ErrorStop(expr? code)
     | Exit()
     | If(expr test, stmt* body, stmt* orelse)
-    | Print(string? fmt, expr* values)
+    | Print(string? fmt, expr* values, string? end_line_char)
     | Open(int label, expr? newunit, expr? filename, expr? status)
     | Close(int label, expr? unit, expr? iostat, expr? iomsg, expr? err, expr? status)
     | Read(int label, expr? unit, expr? fmt, expr? iomsg, expr? iostat, expr? id, expr* values)

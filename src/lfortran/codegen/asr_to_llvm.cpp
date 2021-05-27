@@ -2309,7 +2309,11 @@ public:
             fmt_str += fmt[i];
             if (i < fmt.size()-1) fmt_str += " ";
         }
-        fmt_str += "\n";
+        if( x.m_end_line_char ) {
+            fmt_str += std::string(x.m_end_line_char);
+        } else {
+            fmt_str += "\n";
+        }
         llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(fmt_str);
         std::vector<llvm::Value *> printf_args;
         printf_args.push_back(fmt_ptr);
