@@ -99,7 +99,7 @@ public:
     void visit_Print(const ASR::Print_t& x) {
         if( x.n_values == 1 && PassUtils::is_array(x.m_values[0], al) ) {
             ASR::expr_t* arr_expr = x.m_values[0];
-            // Case #1: For static arrays in both the operands
+            // Case #1: For a single static array in the argument
             Vec<PassUtils::dimension_descriptor> dims_vec;
             PassUtils::get_dims(arr_expr, dims_vec, al);
             if( dims_vec.size() <= 0 ) {
@@ -133,14 +133,11 @@ public:
                     doloop_body.push_back(al, print_stmt);
                 } else {
                     doloop_body.push_back(al, doloop);
-                    doloop_body.push_back(al, empty_print_stmt);
                 }
                 doloop = STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
             print_arr_result.push_back(al, doloop);
-            if( n_dims == 1 ) {
-                print_arr_result.push_back(al, empty_print_stmt);
-            }
+            print_arr_result.push_back(al, empty_print_stmt);
         }
     }
 

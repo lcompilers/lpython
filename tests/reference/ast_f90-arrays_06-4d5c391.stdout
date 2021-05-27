@@ -1,6 +1,6 @@
 program arrays_06
 implicit none
-integer, dimension(10,10) :: A
+integer, dimension(3,3,3) :: A
 integer :: i, j
 integer, dimension(6) :: x
 j = 4
