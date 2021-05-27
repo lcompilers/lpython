@@ -25,7 +25,7 @@ print *, x(3: :2)
 print *, x(::2)
 print *, x(: :2)
 
-print *, x
+print *, y
 print *, y(:, 3)
 print *, y(3:5, :)
 print *, y(4:, 3:)
