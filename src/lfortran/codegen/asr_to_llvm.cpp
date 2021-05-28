@@ -661,6 +661,10 @@ public:
                                                                                     dim_des->getPointerTo(),
                                                                                     getIntType(4)}), "size_arg");
         fname2arg_type["size"] = std::make_pair(size_arg, size_arg->getPointerTo());
+        llvm::Type* lbound_arg = (llvm::Type*)llvm::StructType::create(context, std::vector<llvm::Type*>({
+                                                                                    dim_des->getPointerTo(),
+                                                                                    getIntType(4)}), "lbound_arg");
+        fname2arg_type["lbound"] = std::make_pair(lbound_arg, lbound_arg->getPointerTo());
 
         c_runtime_intrinsics =  {"sin",  "cos",  "tan",  "sinh",  "cosh",  "tanh",
                                  "asin", "acos", "atan", "asinh", "acosh", "atanh"};
@@ -1498,6 +1502,25 @@ public:
                 // end
                 fn->getBasicBlockList().push_back(loopend);
                 builder->SetInsertPoint(loopend);
+
+                define_function_exit(x);
+            } else if( m_name == "lbound" ) {
+                define_function_entry(x);
+
+                // Defines the size intrinsic's body at LLVM level.
+                ASR::Variable_t *arg = EXPR2VAR(x.m_args[0]);
+                uint32_t h = get_hash((ASR::asr_t*)arg);
+                llvm::Value* llvm_arg = llvm_symtab[h];
+
+                ASR::Variable_t *ret = EXPR2VAR(x.m_return_var);
+                h = get_hash((ASR::asr_t*)ret);
+                llvm::Value* llvm_ret_ptr = llvm_symtab[h];
+
+                llvm::Value* dim_des_val = builder->CreateLoad(create_gep(llvm_arg, 0));
+                llvm::Value* dim_val = builder->CreateLoad(create_gep(llvm_arg, 1));
+                llvm::Value* dim_struct = builder->CreateLoad(create_gep(dim_des_val, dim_val));
+                llvm::Value* res = builder->CreateLoad(create_gep(dim_struct, 0));
+                builder->CreateStore(res, llvm_ret_ptr);
 
                 define_function_exit(x);
             }
@@ -2520,6 +2543,21 @@ public:
                                 llvm::StructType* tmp_type = (llvm::StructType*)(((llvm::PointerType*)(tmp->getType()))->getElementType());
                                 int rank = ((llvm::ArrayType*)(tmp_type->getElementType(2)))->getNumElements();
                                 builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, rank)), rank_ptr);
+                                tmp = arg_struct;
+                            } else if( name == "lbound" ) {
+                                llvm::Value* arg_struct = builder->CreateAlloca(fname2arg_type["lbound"].first, nullptr);
+                                llvm::Value* first_ele_ptr = create_gep(create_gep(tmp, 2), 0);
+                                llvm::Value* first_arg_ptr = create_gep(arg_struct, 0);
+                                builder->CreateStore(first_ele_ptr, first_arg_ptr);
+                                llvm::Value* rank_ptr = create_gep(arg_struct, 1);
+                                llvm::StructType* tmp_type = (llvm::StructType*)(((llvm::PointerType*)(tmp->getType()))->getElementType());
+
+                                i += 1;
+                                ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
+                                uint32_t h = get_hash((ASR::asr_t*)arg);
+                                LFORTRAN_ASSERT(llvm_symtab.find(h) != llvm_symtab.end());
+                                tmp = llvm_symtab[h];
+                                builder->CreateStore(tmp, rank_ptr);
                                 tmp = arg_struct;
                             }
                         }

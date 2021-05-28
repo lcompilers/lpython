@@ -7,4 +7,11 @@ interface
     end function
 end interface
 
+interface
+    integer function lbound(x, dim) result(r)
+    integer, intent(in) :: x(:)
+    integer, intent(in) :: dim
+    end function
+end interface
+
 end module
