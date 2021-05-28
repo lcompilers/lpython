@@ -1530,7 +1530,7 @@ public:
                 } else if( m_name == "ubound" ) {
                     idx = 2;
                 }
-                llvm::Value* res = builder->CreateLoad(create_gep(dim_struct, 1));
+                llvm::Value* res = builder->CreateLoad(create_gep(dim_struct, idx));
                 builder->CreateStore(res, llvm_ret_ptr);
 
                 define_function_exit(x);

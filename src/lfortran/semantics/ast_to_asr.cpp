@@ -615,7 +615,8 @@ std::map<std::string, std::string> intrinsic_procedures = {
         {"selected_int_kind", "lfortran_intrinsic_kind"},
         {"selected_real_kind", "lfortran_intrinsic_kind"},
         {"size", "lfortran_intrinsic_array"},
-        {"lbound", "lfortran_intrinsic_array"}
+        {"lbound", "lfortran_intrinsic_array"},
+        {"ubound", "lfortran_intrinsic_array"}
     };
 
 std::string read_file(const std::string &filename)
