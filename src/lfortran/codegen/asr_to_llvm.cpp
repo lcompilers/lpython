@@ -2521,7 +2521,6 @@ public:
             ASR::Subroutine_t* sub = down_cast<ASR::Subroutine_t>(func_subrout);
             x_abi = sub->m_abi;
         }
-        std::cout<<name<<std::endl;
         if( x_abi == ASR::abiType::Intrinsic ) {
             if( name == "size" ) {
                 /*
@@ -2561,7 +2560,6 @@ public:
                 args.push_back(arg2);
             }
         }
-        std::cout<<args.size()<<std::endl<<std::endl;
         if( args.size() == 0 ) {
             for (size_t i=0; i<x.n_args; i++) {
                 if (x.m_args[i]->type == ASR::exprType::Var) {
@@ -2640,8 +2638,8 @@ public:
                         }
                     }
                 }
+                args.push_back(tmp);
             }
-            args.push_back(tmp);
         }
         return args;
     }
