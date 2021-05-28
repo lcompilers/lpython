@@ -268,6 +268,10 @@ public:
         }
     }
 
+    ASR::expr_t* get_bound(ASR::expr_t* arr_expr, int dim, std::string bound) {
+        
+    }
+
     void visit_BinOp(const ASR::BinOp_t &x) {
         if( !apply_pass ) {
             return ;
@@ -299,8 +303,8 @@ public:
             }
             ASR::do_loop_head_t head;
             head.m_v = idx_vars[i];
-            head.m_start = EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, dims_left[i].lbound, int32_type)); // TODO: Replace with call to lbound
-            head.m_end = EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, dims_left[i].ubound, int32_type)); // TODO: Replace with call to ubound
+            head.m_start = get_bound(x.m_left, i, "lbound");// EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, dims_left[i].lbound, int32_type)); // TODO: Replace with call to lbound
+            head.m_end = get_bound(x.m_right, i, "ubound"); // EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, dims_left[i].ubound, int32_type)); // TODO: Replace with call to ubound
             head.m_increment = nullptr;
             head.loc = head.m_v->base.loc;
             Vec<ASR::stmt_t*> doloop_body;

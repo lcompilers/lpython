@@ -7,6 +7,7 @@ namespace LFortran {
 
 void get_executable_path(std::string &executable_path, int &dirname_length);
 std::string get_runtime_library_dir();
+std::string read_file(const std::string &filename);
 
 } // LFortran
 
