@@ -2521,6 +2521,7 @@ public:
             ASR::Subroutine_t* sub = down_cast<ASR::Subroutine_t>(func_subrout);
             x_abi = sub->m_abi;
         }
+        std::cout<<name<<std::endl;
         if( x_abi == ASR::abiType::Intrinsic ) {
             if( name == "size" ) {
                 /*
@@ -2559,7 +2560,9 @@ public:
                 builder->CreateStore(tmp, arg2);
                 args.push_back(arg2);
             }
-        } else {
+        }
+        std::cout<<args.size()<<std::endl<<std::endl;
+        if( args.size() == 0 ) {
             for (size_t i=0; i<x.n_args; i++) {
                 if (x.m_args[i]->type == ASR::exprType::Var) {
                     if (is_a<ASR::Variable_t>(*symbol_get_past_external(
