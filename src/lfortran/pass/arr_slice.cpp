@@ -5,6 +5,11 @@
 #include <lfortran/asr_verify.h>
 #include <lfortran/pass/arr_slice.h>
 #include <lfortran/pass/pass_utils.h>
+#include <unordered_map>
+#include <map>
+#include <utility>
+
+typedef std::map<std::pair<ASR::expr_t*, std::pair<ASR::expr_t*, ASR::expr_t*>>, ASR::Var_t*> sliceargs2var;
 
 
 namespace LFortran {
@@ -34,6 +39,7 @@ private:
     ASR::TranslationUnit_t &unit;
     Vec<ASR::stmt_t*> arr_slice_result;
     int slice_counter;
+    std::unordered_map<ASR::symbol_t*, sliceargs2var> sym2slice;
 
 public:
     ArrSliceVisitor(Allocator &al, ASR::TranslationUnit_t &unit) : al{al}, unit{unit}, slice_counter{0} {
@@ -148,6 +154,7 @@ public:
                 doloop_body.push_back(al, assign_stmt);
                 doloop = STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
+            arr_slice_result.push_back(al, doloop);
         }
     }
 };

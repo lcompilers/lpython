@@ -134,7 +134,7 @@ namespace LFortran {
         }
 
         ASR::expr_t* create_array_ref(ASR::symbol_t* arr, Vec<ASR::expr_t*>& idx_vars, Allocator& al,
-                                      Location& loc, ASR::ttype_t* _type) {
+                                      const Location& loc, ASR::ttype_t* _type) {
             Vec<ASR::array_index_t> args;
             args.reserve(al, 1);
             for( size_t i = 0; i < idx_vars.size(); i++ ) {
