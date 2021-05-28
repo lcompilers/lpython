@@ -661,8 +661,9 @@ public:
                                                                                     dim_des->getPointerTo(),
                                                                                     getIntType(4)}), "size_arg");
         fname2arg_type["size"] = std::make_pair(size_arg, size_arg->getPointerTo());
-        llvm::Type* lbound_arg = (llvm::Type*)dim_des->getPointerTo();
-        fname2arg_type["lbound"] = std::make_pair(lbound_arg, lbound_arg->getPointerTo());
+        llvm::Type* bound_arg = (llvm::Type*)dim_des->getPointerTo();
+        fname2arg_type["lbound"] = std::make_pair(bound_arg, bound_arg->getPointerTo());
+        fname2arg_type["ubound"] = std::make_pair(bound_arg, bound_arg->getPointerTo());
 
         c_runtime_intrinsics =  {"sin",  "cos",  "tan",  "sinh",  "cosh",  "tanh",
                                  "asin", "acos", "atan", "asinh", "acosh", "atanh"};
@@ -1502,7 +1503,7 @@ public:
                 builder->SetInsertPoint(loopend);
 
                 define_function_exit(x);
-            } else if( m_name == "lbound" ) {
+            } else if( m_name == "lbound" || m_name == "ubound" ) {
                 define_function_entry(x);
 
                 // Defines the size intrinsic's body at LLVM level.
@@ -1523,6 +1524,12 @@ public:
                 llvm::Value* const_1 = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
                 dim_val = builder->CreateSub(dim_val, const_1);
                 llvm::Value* dim_struct = create_ptr_gep(dim_des_val, dim_val);
+                int idx = -1;
+                if( m_name == "lbound" ) {
+                    idx = 1;
+                } else if( m_name == "ubound" ) {
+                    idx = 2;
+                }
                 llvm::Value* res = builder->CreateLoad(create_gep(dim_struct, 1));
                 builder->CreateStore(res, llvm_ret_ptr);
 
@@ -2544,11 +2551,11 @@ public:
                 builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, rank)), rank_ptr);
                 tmp = arg_struct;
                 args.push_back(tmp);
-            } else if( name == "lbound" ) {
+            } else if( name == "lbound" || name == "ubound" ) {
                 ASR::Variable_t *arg = EXPR2VAR(x.m_args[0]);
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 tmp = llvm_symtab[h];
-                llvm::Value* arg1 = builder->CreateAlloca(fname2arg_type["lbound"].first, nullptr);
+                llvm::Value* arg1 = builder->CreateAlloca(fname2arg_type[name].first, nullptr);
                 llvm::Value* first_ele_ptr = create_gep(create_gep(tmp, 2), 0);
                 llvm::Value* first_arg_ptr = arg1;
                 builder->CreateStore(first_ele_ptr, first_arg_ptr);
