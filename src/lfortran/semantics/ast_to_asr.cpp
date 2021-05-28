@@ -8,13 +8,9 @@
 #include <lfortran/asr.h>
 #include <lfortran/asr_utils.h>
 #include <lfortran/asr_verify.h>
-// #include <lfortran/pickle.h>
-// #include <lfortran/modfile.h>
-// #include <lfortran/serialization.h>
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/parser/parser_stype.h>
 #include <lfortran/string_utils.h>
-// #include <lfortran/utils.h>
 
 #define num_types 12
 
