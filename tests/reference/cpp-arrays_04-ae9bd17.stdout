@@ -18,6 +18,12 @@ int lbound(const Kokkos::View<const int*> &x, int dim)
     return r;
 }
 
+int ubound(const Kokkos::View<const int*> &x, int dim)
+{
+    int r;
+    return r;
+}
+
 namespace {
 float abs(float a)
 {

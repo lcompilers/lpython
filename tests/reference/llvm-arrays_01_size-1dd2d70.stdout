@@ -67,6 +67,20 @@ loop.end:                                         ; preds = %loop.head
   ret i32 %14
 }
 
+define i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %x, i32* %dim) {
+.entry:
+  %r = alloca i32, align 4
+  %0 = load %dimension_descriptor*, %dimension_descriptor** %x, align 8
+  %1 = load i32, i32* %dim, align 4
+  %2 = sub i32 %1, 1
+  %3 = getelementptr inbounds %dimension_descriptor, %dimension_descriptor* %0, i32 %2
+  %4 = getelementptr %dimension_descriptor, %dimension_descriptor* %3, i32 0, i32 2
+  %5 = load i32, i32* %4, align 4
+  store i32 %5, i32* %r, align 4
+  %6 = load i32, i32* %r, align 4
+  ret i32 %6
+}
+
 define i32 @main() {
 .entry:
   %a = alloca %array.0, align 8

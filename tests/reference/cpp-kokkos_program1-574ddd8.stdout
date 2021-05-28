@@ -18,6 +18,12 @@ int lbound(const Kokkos::View<const int*> &x, int dim)
     return r;
 }
 
+int ubound(const Kokkos::View<const int*> &x, int dim)
+{
+    int r;
+    return r;
+}
+
 namespace {
 void triad(const Kokkos::View<const float*> &a, const Kokkos::View<const float*> &b, float scalar, const Kokkos::View<float*> &c)
 {
