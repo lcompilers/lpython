@@ -24,6 +24,36 @@ to:
     do i = lbound(a), ubound(a)
         c(i) = a(i) + b(i)
     end do
+
+The code below might seem intriguing because of minor but crucial
+details. Generally for any node, first, its children are visited.
+If any child contains operations over arrays then, the a do loop
+pass is added for performing the operation element wise. For stroing
+the result, either a new variable is created or a result variable
+available from the parent node is used. Once done, this result variable
+is used by the parent node in place of the child node from which it was
+made available. Consider the example below for better understanding.
+
+Say, BinOp(BinOp(Arr1 Add Arr2) Add Arr3) is the expression we want
+to visit. Then, first BinOp(Arr1 Add Arr2) will be visited and its
+result will be stored (not actually, just extra ASR do loop node will be added) 
+in a new variable, Say Result1. Then this Result1 will be used as follows,
+BinOp(Result1 Add Arr3). Imagine, this overall expression is further
+assigned to some Fortran variable as, Assign(Var1, BinOp(Result1 Add Arr3)).
+In this case a new variable will not be created to store the result of RHS, just Var1
+will be used as the final destination and a do loop pass will be added as follows,
+do i = lbound(Var1), ubound(Var1)
+
+Var1(i) = Result1(i) + Arr3(i)
+
+end do
+
+Note that once the control will reach the above loop, the loop for
+Result1 would have already been executed.
+
+All the nodes should be implemented using the above logic to track 
+array operations and perform the do loop pass. As of now, some of the
+nodes are implemented and more are yet to be implemented with time. 
 */
 
 struct dimension_descriptor
@@ -37,8 +67,40 @@ private:
     Allocator &al;
     ASR::TranslationUnit_t &unit;
     Vec<ASR::stmt_t*> array_op_result;
-    ASR::expr_t *tmp_val, *result_var;
+
+    /*
+        This pointer stores the result of a node.
+        Specifically if a node or its child contains
+        operations performed over arrays then it points
+        to the new variable which will store the result
+        of that operation once the code is compiled.
+    */
+    ASR::expr_t *tmp_val; 
+
+    /*
+        This pointer is intened to be a signal for the current
+        node to create a new variable for storing the result of
+        array operation or store it in a variable available from
+        the parent node. For example, if BinOp is a child of the 
+        Assignment node then, the following will point to the target
+        attribute of the assignment node. This helps in avoiding
+        unnecessary do loop passes.
+    */
+    ASR::expr_t *result_var;
+
+    /*
+        This integer just maintains the count of new result
+        variables created. It helps in uniquely identifying
+        the variables and avoids clash with already existing
+        variables defined by the user.
+    */
     int result_var_num;
+
+    /*
+        It stores the address of symbol table of current scope,
+        which can be program, function, subroutine or even
+        global scope.
+    */
     SymbolTable* current_scope;
 
 public:
