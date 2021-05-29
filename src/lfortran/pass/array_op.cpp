@@ -318,7 +318,6 @@ public:
         dimension_descriptor* dims_left = dims_left_vec.p;
         int n_dims = dims_left_vec.size();
         dimension_descriptor* dims_right = dims_right_vec.p;
-        ASR::ttype_t* int32_type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
         Vec<ASR::expr_t*> idx_vars;
         create_idx_vars(idx_vars, n_dims, x.base.base.loc);
         ASR::stmt_t* doloop = nullptr;
