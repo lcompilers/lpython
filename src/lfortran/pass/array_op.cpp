@@ -283,7 +283,7 @@ public:
                 ASR::do_loop_head_t head;
                 head.m_v = idx_vars[i];
                 head.m_start = get_bound(x.m_left, i + 1, "lbound");
-                head.m_end = get_bound(x.m_right, i + 1, "ubound");
+                head.m_end = get_bound(x.m_left, i + 1, "ubound");
                 head.m_increment = nullptr;
                 head.loc = head.m_v->base.loc;
                 Vec<ASR::stmt_t*> doloop_body;
