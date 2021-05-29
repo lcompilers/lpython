@@ -661,6 +661,9 @@ public:
                                                                                     dim_des->getPointerTo(),
                                                                                     getIntType(4)}), "size_arg");
         fname2arg_type["size"] = std::make_pair(size_arg, size_arg->getPointerTo());
+        llvm::Type* bound_arg = static_cast<llvm::Type*>(dim_des->getPointerTo());
+        fname2arg_type["lbound"] = std::make_pair(bound_arg, bound_arg->getPointerTo());
+        fname2arg_type["ubound"] = std::make_pair(bound_arg, bound_arg->getPointerTo());
 
         c_runtime_intrinsics =  {"sin",  "cos",  "tan",  "sinh",  "cosh",  "tanh",
                                  "asin", "acos", "atan", "asinh", "acosh", "atanh"};
@@ -1500,6 +1503,37 @@ public:
                 builder->SetInsertPoint(loopend);
 
                 define_function_exit(x);
+            } else if( m_name == "lbound" || m_name == "ubound" ) {
+                define_function_entry(x);
+
+                // Defines the size intrinsic's body at LLVM level.
+                ASR::Variable_t *arg = EXPR2VAR(x.m_args[0]);
+                uint32_t h = get_hash((ASR::asr_t*)arg);
+                llvm::Value* llvm_arg1 = llvm_symtab[h];
+
+                arg = EXPR2VAR(x.m_args[1]);
+                h = get_hash((ASR::asr_t*)arg);
+                llvm::Value* llvm_arg2 = llvm_symtab[h];
+
+                ASR::Variable_t *ret = EXPR2VAR(x.m_return_var);
+                h = get_hash((ASR::asr_t*)ret);
+                llvm::Value* llvm_ret_ptr = llvm_symtab[h];
+
+                llvm::Value* dim_des_val = builder->CreateLoad(llvm_arg1);
+                llvm::Value* dim_val = builder->CreateLoad(llvm_arg2);
+                llvm::Value* const_1 = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
+                dim_val = builder->CreateSub(dim_val, const_1);
+                llvm::Value* dim_struct = create_ptr_gep(dim_des_val, dim_val);
+                int idx = -1;
+                if( m_name == "lbound" ) {
+                    idx = 1;
+                } else if( m_name == "ubound" ) {
+                    idx = 2;
+                }
+                llvm::Value* res = builder->CreateLoad(create_gep(dim_struct, idx));
+                builder->CreateStore(res, llvm_ret_ptr);
+
+                define_function_exit(x);
             }
         }
     }
@@ -2114,7 +2148,7 @@ public:
         } else {
             x_v = llvm_symtab[x_h];
         }
-            tmp = builder->CreateLoad(x_v);
+        tmp = builder->CreateLoad(x_v);
     }
 
     inline void fetch_var(ASR::Variable_t* x) {
@@ -2483,116 +2517,136 @@ public:
     template <typename T>
     std::vector<llvm::Value*> convert_call_args(const T &x, std::string name) {
         std::vector<llvm::Value *> args;
-        for (size_t i=0; i<x.n_args; i++) {
-            if (x.m_args[i]->type == ASR::exprType::Var) {
-                if (is_a<ASR::Variable_t>(*symbol_get_past_external(
-                        ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
-                    ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
-                    uint32_t h = get_hash((ASR::asr_t*)arg);
-                    if (llvm_symtab.find(h) != llvm_symtab.end()){
-                        tmp = llvm_symtab[h];
-                        const ASR::symbol_t* func_subrout = symbol_get_past_external(x.m_name);
-                        ASR::abiType x_abi = (ASR::abiType) 0;
-                        if( func_subrout->type == ASR::symbolType::Function ) {
-                            ASR::Function_t* func = down_cast<ASR::Function_t>(func_subrout);
-                            x_abi = func->m_abi;
-                        } else if( func_subrout->type == ASR::symbolType::Subroutine ) {
-                            ASR::Subroutine_t* sub = down_cast<ASR::Subroutine_t>(func_subrout);
-                            x_abi = sub->m_abi;
-                        }
-                        // TODO: Add support for extracting the first pointer of array type 
-                        // and passing to user defined functions.
-                        if( x_abi == ASR::abiType::Intrinsic ) {
-                            if( name == "size" ) {
-                                /*
-                                When size intrinsic is called on a fortran array then the above 
-                                code extracts the dimension descriptor array and its rank from the 
-                                overall array descriptor. It wraps them into a struct (specifically, arg_struct of type, size_arg here) 
-                                and passes to LLVM size. So, if you do, size(a) (a is a fortran array), then at LLVM level,  
-                                @size(%size_arg* %x) is used as call where size_arg 
-                                is described above.
-                                */
-                                llvm::Value* arg_struct = builder->CreateAlloca(fname2arg_type["size"].first, nullptr);
-                                llvm::Value* first_ele_ptr = create_gep(create_gep(tmp, 2), 0);
-                                llvm::Value* first_arg_ptr = create_gep(arg_struct, 0);
-                                builder->CreateStore(first_ele_ptr, first_arg_ptr);
-                                llvm::Value* rank_ptr = create_gep(arg_struct, 1);
-                                llvm::StructType* tmp_type = (llvm::StructType*)(((llvm::PointerType*)(tmp->getType()))->getElementType());
-                                int rank = ((llvm::ArrayType*)(tmp_type->getElementType(2)))->getNumElements();
-                                builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, rank)), rank_ptr);
-                                tmp = arg_struct;
-                            }
-                        }
-                    } else {
-                        auto finder = std::find(needed_globals.begin(), 
-                                needed_globals.end(), h);
-                        LFORTRAN_ASSERT(finder != needed_globals.end());
-                        llvm::Value* ptr = module->getOrInsertGlobal(desc_name,
-                            needed_global_struct);
-                        int idx = std::distance(needed_globals.begin(), finder);
-                        tmp = builder->CreateLoad(create_gep(ptr, idx));
-                    }
-                } else if (is_a<ASR::Function_t>(*symbol_get_past_external(
-                    ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
-                    ASR::Function_t* fn = ASR::down_cast<ASR::Function_t>(
-                        symbol_get_past_external(ASR::down_cast<ASR::Var_t>(
-                        x.m_args[i])->m_v));
-                    uint32_t h = get_hash((ASR::asr_t*)fn);
-                    tmp = llvm_symtab_fn[h];
-                } else if (is_a<ASR::Subroutine_t>(*symbol_get_past_external(
-                    ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
-                    ASR::Subroutine_t* fn = ASR::down_cast<ASR::Subroutine_t>(
-                        symbol_get_past_external(ASR::down_cast<ASR::Var_t>(
-                        x.m_args[i])->m_v));
-                    uint32_t h = get_hash((ASR::asr_t*)fn);
-                    tmp = llvm_symtab_fn[h];
-                }
-            } else {
-                this->visit_expr_wrapper(x.m_args[i]);
-                llvm::Value *value=tmp;
-                llvm::Type *target_type;
-                ASR::ttype_t* arg_type = expr_type(x.m_args[i]);
-                switch (arg_type->type) {
-                    case (ASR::ttypeType::Integer) : {
-                        int a_kind = down_cast<ASR::Integer_t>(arg_type)->m_kind;
-                        target_type = getIntType(a_kind);
-                        break;
-                    }
-                    case (ASR::ttypeType::Real) : {
-                        int a_kind = down_cast<ASR::Real_t>(arg_type)->m_kind;
-                        target_type = getFPType(a_kind);
-                        break;
-                    }
-                    case (ASR::ttypeType::Complex) : {
-                        int a_kind = down_cast<ASR::Complex_t>(arg_type)->m_kind;
-                        target_type = getComplexType(a_kind);
-                        break;
-                    }
-                    case (ASR::ttypeType::Character) :
-                        throw CodeGenError("Character argument type not implemented yet in conversion");
-                        break;
-                    case (ASR::ttypeType::Logical) :
-                        target_type = llvm::Type::getInt1Ty(context);
-                        break;
-                    case (ASR::ttypeType::Derived) :
-                        break;
-                    default :
-                        throw CodeGenError("Type not implemented yet.");
-                }
-                switch(arg_type->type) {
-                    case ASR::ttypeType::Derived: {
-                        tmp = value;
-                        break;
-                    }
-                    default: {
-                        llvm::AllocaInst *target = builder->CreateAlloca(
-                            target_type, nullptr);
-                        builder->CreateStore(value, target);
-                        tmp = target;
-                    }
-                }
+        // TODO: Add support for extracting the first pointer of array type 
+        // and passing to user defined functions.
+        const ASR::symbol_t* func_subrout = symbol_get_past_external(x.m_name);
+        ASR::abiType x_abi = (ASR::abiType) 0;
+        if( func_subrout->type == ASR::symbolType::Function ) {
+            ASR::Function_t* func = down_cast<ASR::Function_t>(func_subrout);
+            x_abi = func->m_abi;
+        } else if( func_subrout->type == ASR::symbolType::Subroutine ) {
+            ASR::Subroutine_t* sub = down_cast<ASR::Subroutine_t>(func_subrout);
+            x_abi = sub->m_abi;
+        }
+        if( x_abi == ASR::abiType::Intrinsic ) {
+            if( name == "size" ) {
+                /*
+                When size intrinsic is called on a fortran array then the above 
+                code extracts the dimension descriptor array and its rank from the 
+                overall array descriptor. It wraps them into a struct (specifically, arg_struct of type, size_arg here) 
+                and passes to LLVM size. So, if you do, size(a) (a is a fortran array), then at LLVM level,  
+                @size(%size_arg* %x) is used as call where size_arg 
+                is described above.
+                */
+                ASR::Variable_t *arg = EXPR2VAR(x.m_args[0]);
+                uint32_t h = get_hash((ASR::asr_t*)arg);
+                tmp = llvm_symtab[h];
+                llvm::Value* arg_struct = builder->CreateAlloca(fname2arg_type["size"].first, nullptr);
+                llvm::Value* first_ele_ptr = create_gep(create_gep(tmp, 2), 0);
+                llvm::Value* first_arg_ptr = create_gep(arg_struct, 0);
+                builder->CreateStore(first_ele_ptr, first_arg_ptr);
+                llvm::Value* rank_ptr = create_gep(arg_struct, 1);
+                llvm::StructType* tmp_type = (llvm::StructType*)(((llvm::PointerType*)(tmp->getType()))->getElementType());
+                int rank = ((llvm::ArrayType*)(tmp_type->getElementType(2)))->getNumElements();
+                builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, rank)), rank_ptr);
+                tmp = arg_struct;
+                args.push_back(tmp);
+            } else if( name == "lbound" || name == "ubound" ) {
+                ASR::Variable_t *arg = EXPR2VAR(x.m_args[0]);
+                uint32_t h = get_hash((ASR::asr_t*)arg);
+                tmp = llvm_symtab[h];
+                llvm::Value* arg1 = builder->CreateAlloca(fname2arg_type[name].first, nullptr);
+                llvm::Value* first_ele_ptr = create_gep(create_gep(tmp, 2), 0);
+                llvm::Value* first_arg_ptr = arg1;
+                builder->CreateStore(first_ele_ptr, first_arg_ptr);
+                args.push_back(arg1);
+                llvm::Value* arg2 = builder->CreateAlloca(getIntType(4), nullptr);
+
+                this->visit_expr_wrapper(x.m_args[1], true);
+                builder->CreateStore(tmp, arg2);
+                args.push_back(arg2);
             }
-            args.push_back(tmp);
+        }
+        if( args.size() == 0 ) {
+            for (size_t i=0; i<x.n_args; i++) {
+                if (x.m_args[i]->type == ASR::exprType::Var) {
+                    if (is_a<ASR::Variable_t>(*symbol_get_past_external(
+                            ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
+                        ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
+                        uint32_t h = get_hash((ASR::asr_t*)arg);
+                        if (llvm_symtab.find(h) != llvm_symtab.end()){
+                            tmp = llvm_symtab[h];
+                        } else {
+                            auto finder = std::find(needed_globals.begin(), 
+                                    needed_globals.end(), h);
+                            LFORTRAN_ASSERT(finder != needed_globals.end());
+                            llvm::Value* ptr = module->getOrInsertGlobal(desc_name,
+                                needed_global_struct);
+                            int idx = std::distance(needed_globals.begin(), finder);
+                            tmp = builder->CreateLoad(create_gep(ptr, idx));
+                        }
+                    } else if (is_a<ASR::Function_t>(*symbol_get_past_external(
+                        ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
+                        ASR::Function_t* fn = ASR::down_cast<ASR::Function_t>(
+                            symbol_get_past_external(ASR::down_cast<ASR::Var_t>(
+                            x.m_args[i])->m_v));
+                        uint32_t h = get_hash((ASR::asr_t*)fn);
+                        tmp = llvm_symtab_fn[h];
+                    } else if (is_a<ASR::Subroutine_t>(*symbol_get_past_external(
+                        ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
+                        ASR::Subroutine_t* fn = ASR::down_cast<ASR::Subroutine_t>(
+                            symbol_get_past_external(ASR::down_cast<ASR::Var_t>(
+                            x.m_args[i])->m_v));
+                        uint32_t h = get_hash((ASR::asr_t*)fn);
+                        tmp = llvm_symtab_fn[h];
+                    }
+                } else {
+                    this->visit_expr_wrapper(x.m_args[i]);
+                    llvm::Value *value=tmp;
+                    llvm::Type *target_type;
+                    ASR::ttype_t* arg_type = expr_type(x.m_args[i]);
+                    switch (arg_type->type) {
+                        case (ASR::ttypeType::Integer) : {
+                            int a_kind = down_cast<ASR::Integer_t>(arg_type)->m_kind;
+                            target_type = getIntType(a_kind);
+                            break;
+                        }
+                        case (ASR::ttypeType::Real) : {
+                            int a_kind = down_cast<ASR::Real_t>(arg_type)->m_kind;
+                            target_type = getFPType(a_kind);
+                            break;
+                        }
+                        case (ASR::ttypeType::Complex) : {
+                            int a_kind = down_cast<ASR::Complex_t>(arg_type)->m_kind;
+                            target_type = getComplexType(a_kind);
+                            break;
+                        }
+                        case (ASR::ttypeType::Character) :
+                            throw CodeGenError("Character argument type not implemented yet in conversion");
+                            break;
+                        case (ASR::ttypeType::Logical) :
+                            target_type = llvm::Type::getInt1Ty(context);
+                            break;
+                        case (ASR::ttypeType::Derived) :
+                            break;
+                        default :
+                            throw CodeGenError("Type not implemented yet.");
+                    }
+                    switch(arg_type->type) {
+                        case ASR::ttypeType::Derived: {
+                            tmp = value;
+                            break;
+                        }
+                        default: {
+                            llvm::AllocaInst *target = builder->CreateAlloca(
+                                target_type, nullptr);
+                            builder->CreateStore(value, target);
+                            tmp = target;
+                        }
+                    }
+                }
+                args.push_back(tmp);
+            }
         }
         return args;
     }

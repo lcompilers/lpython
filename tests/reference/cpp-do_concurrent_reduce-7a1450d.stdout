@@ -12,6 +12,18 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
+int lbound(const Kokkos::View<const int*> &x, int dim)
+{
+    int r;
+    return r;
+}
+
+int ubound(const Kokkos::View<const int*> &x, int dim)
+{
+    int r;
+    return r;
+}
+
 void sum_reduce(const Kokkos::View<const float*> &a, float &s)
 {
     int N;

@@ -1,0 +1,13 @@
+{
+    "basename": "asr-array_bound_1-b0c2255",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/array_bound_1.f90",
+    "infile_hash": "38d2c1d99ad714fdaa387541310a78f8d3c4d7e19e93ed67a2dcf677",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-array_bound_1-b0c2255.stdout",
+    "stdout_hash": "ea207b15733b8619eea0bc4c99addd5c14a0362243cbb169f486a9a9",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
