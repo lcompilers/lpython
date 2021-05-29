@@ -33,7 +33,7 @@ print *, d(1), d(2), d(3), d(4)
 d = a*b*c
 print *, d(1), d(2), d(3), d(4)
 
-d = (a*b)/(c + a)
+d = (a*b)/(c + 1)
 print *, d(1), d(2), d(3), d(4)
 
 end program

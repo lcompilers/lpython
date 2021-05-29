@@ -277,6 +277,10 @@ public:
                                              args.p, args.size(), nullptr, 0, type));
     }
 
+    void visit_ConstantInteger(const ASR::ConstantInteger_t& x) {
+        tmp_val = const_cast<ASR::expr_t*>(&(x.base));
+    }
+
     void visit_ImplicitCast(const ASR::ImplicitCast_t& x) {
         ASR::expr_t* result_var_copy = result_var;
         result_var = nullptr;
@@ -313,6 +317,8 @@ public:
             }
             array_op_result.push_back(al, doloop);
             tmp_val = result_var;
+        } else {
+            tmp_val = const_cast<ASR::expr_t*>(&(x.base));
         }
     }
 
@@ -331,6 +337,7 @@ public:
         int rank_left = get_rank(left);
         int rank_right = get_rank(right);
         if( rank_left == 0 && rank_right == 0 ) {
+            tmp_val = const_cast<ASR::expr_t*>(&(x.base));
             return ;
         }
         if( rank_left > 0 && rank_right > 0 ) {
@@ -364,6 +371,51 @@ public:
                     ASR::expr_t* ref_2 = create_array_ref(right, idx_vars);
                     ASR::expr_t* res = create_array_ref(result_var, idx_vars);
                     ASR::expr_t* bin_op_el_wise = EXPR(ASR::make_BinOp_t(al, x.base.base.loc, ref_1, x.m_op, ref_2, x.m_type));
+                    ASR::stmt_t* assign = STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, bin_op_el_wise));
+                    doloop_body.push_back(al, assign);
+                } else {
+                    doloop_body.push_back(al, doloop);
+                }
+                doloop = STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
+            }
+            array_op_result.push_back(al, doloop);
+        } else if( (rank_left == 0 && rank_right > 0) || 
+                   (rank_right == 0 && rank_left > 0) ) {
+            result_var = result_var_copy;
+            ASR::expr_t *arr_expr = nullptr, *other_expr = nullptr;
+            int n_dims = 0;
+            if( rank_left > 0 ) {
+                arr_expr = left;
+                other_expr = right;
+                n_dims = rank_left;
+            } else {
+                arr_expr = right;
+                other_expr = left;
+                n_dims = rank_right;
+            }
+            if( result_var == nullptr ) {
+                result_var = create_var(result_var_num, std::string("_bin_op_res"), x.base.base.loc, expr_type(arr_expr));
+                result_var_num += 1;
+            }
+            tmp_val = result_var;
+
+            Vec<ASR::expr_t*> idx_vars;
+            create_idx_vars(idx_vars, n_dims, x.base.base.loc);
+            ASR::stmt_t* doloop = nullptr;
+            for( int i = n_dims - 1; i >= 0; i-- ) {
+                // TODO: Add an If debug node to check if the lower and upper bounds of both the arrays are same.
+                ASR::do_loop_head_t head;
+                head.m_v = idx_vars[i];
+                head.m_start = get_bound(result_var, i + 1, "lbound");
+                head.m_end = get_bound(result_var, i + 1, "ubound");
+                head.m_increment = nullptr;
+                head.loc = head.m_v->base.loc;
+                Vec<ASR::stmt_t*> doloop_body;
+                doloop_body.reserve(al, 1);
+                if( doloop == nullptr ) {
+                    ASR::expr_t* ref = create_array_ref(arr_expr, idx_vars);
+                    ASR::expr_t* res = create_array_ref(result_var, idx_vars);
+                    ASR::expr_t* bin_op_el_wise = EXPR(ASR::make_BinOp_t(al, x.base.base.loc, ref, x.m_op, other_expr, x.m_type));
                     ASR::stmt_t* assign = STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, bin_op_el_wise));
                     doloop_body.push_back(al, assign);
                 } else {
