@@ -661,7 +661,7 @@ public:
                                                                                     dim_des->getPointerTo(),
                                                                                     getIntType(4)}), "size_arg");
         fname2arg_type["size"] = std::make_pair(size_arg, size_arg->getPointerTo());
-        llvm::Type* bound_arg = (llvm::Type*)dim_des->getPointerTo();
+        llvm::Type* bound_arg = static_cast<llvm::Type*>(dim_des->getPointerTo());
         fname2arg_type["lbound"] = std::make_pair(bound_arg, bound_arg->getPointerTo());
         fname2arg_type["ubound"] = std::make_pair(bound_arg, bound_arg->getPointerTo());
 
