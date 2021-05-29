@@ -1350,8 +1350,17 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
         down_cast<program_unit_t>(proc))
 
 // TODO: Add DerivedType AST node
-#define DERIVED_TYPE(attr, name, decl, l) make_DerivedType_t(p.m_a, l, \
+#define DERIVED_TYPE(attr, name, decl, contains, l) make_DerivedType_t(p.m_a, l, \
         name2char(name), VEC_CAST(attr, decl_attribute), attr.size(),  \
-        DECLS(decl), decl.size())
+        DECLS(decl), decl.size(), \
+        VEC_CAST(contains, procedure_decl), contains.size())
+
+#define GENERIC_OPERATOR(optype, namelist, l) make_GenericOperator_t( \
+        p.m_a, l, REDUCE_ARGS(p.m_a, namelist), namelist.size())
+#define GENERIC_ASSIGNMENT(namelist, l) make_GenericAssignment_t( p.m_a, l, \
+        REDUCE_ARGS(p.m_a, namelist), namelist.size())
+#define GENERIC_NAME(name, namelist, l) make_GenericName_t( p.m_a, l, \
+        name2char(name), REDUCE_ARGS(p.m_a, namelist), namelist.size())
+#define FINAL_NAME(name, l) make_FinalName_t( p.m_a, l, name2char(name))
 
 #endif

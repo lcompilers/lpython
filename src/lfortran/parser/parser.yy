@@ -382,6 +382,13 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> implicit_none_spec_list
 %type <ast> letter_spec
 %type <vec_ast> letter_spec_list
+%type <ast> procedure_decl
+%type <ast> proc_modifier
+%type <ast> proc_paren
+%type <vec_ast> procedure_list
+%type <vec_ast> derived_type_contains_opt
+%type <vec_ast> proc_modifiers
+%type <vec_ast> proc_modifier_list
 
 // Precedence
 
@@ -505,26 +512,29 @@ enum_var_modifiers
     ;
 
 derived_type_decl
-    : KW_TYPE var_modifiers id sep var_decl_star derived_type_contains_opt KW_END KW_TYPE id_opt sep {
-        $$ = DERIVED_TYPE($2, $3, $5, @$); }
+    : KW_TYPE var_modifiers id sep var_decl_star
+        derived_type_contains_opt KW_END KW_TYPE id_opt sep {
+        $$ = DERIVED_TYPE($2, $3, $5, $6, @$); }
     ;
 
 derived_type_contains_opt
-    : KW_CONTAINS sep procedure_list //{ $$ = $3; }
-    | %empty //{ LIST_NEW($$); }
+    : KW_CONTAINS sep procedure_list { $$ = $3; }
+    | %empty { LIST_NEW($$); }
     ;
 
 procedure_list
-    : procedure_list procedure_decl //{ $$ = $1; LIST_ADD($$, $3); }
-    | procedure_decl //{ LIST_NEW($$); LIST_ADD($$, $1); }
+    : procedure_list procedure_decl { $$ = $1; LIST_ADD($$, $2); }
+    | procedure_decl { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 procedure_decl
-    : KW_PROCEDURE proc_paren proc_modifiers use_symbol_list sep
-    | KW_GENERIC "::" KW_OPERATOR "(" operator_type ")" "=>" id_list sep
-    | KW_GENERIC "::" KW_ASSIGNMENT "(" "=" ")" "=>" id_list sep
-    | KW_GENERIC "::" id "=>" id_list sep
-    | KW_FINAL "::" id sep
+    : KW_PROCEDURE proc_paren proc_modifiers use_symbol_list sep { }
+    | KW_GENERIC "::" KW_OPERATOR "(" operator_type ")" "=>" id_list sep {
+            $$ = GENERIC_OPERATOR($5, $8, @$); }
+    | KW_GENERIC "::" KW_ASSIGNMENT "(" "=" ")" "=>" id_list sep {
+            $$ = GENERIC_ASSIGNMENT($8, @$); }
+    | KW_GENERIC "::" id "=>" id_list sep { $$ = GENERIC_NAME($3, $5, @$); }
+    | KW_FINAL "::" id sep { $$ = FINAL_NAME($3, @$); }
     ;
 
 operator_type

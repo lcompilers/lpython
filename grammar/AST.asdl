@@ -59,7 +59,8 @@ unit_decl2
     = Declaration(decl_attribute? vartype, decl_attribute* attributes,
         var_sym* syms)
     | Interface(interface_header header, interface_item* items)
-    | DerivedType(identifier name, decl_attribute* attrtype, unit_decl2* items)
+    | DerivedType(identifier name, decl_attribute* attrtype,
+        unit_decl2* items, procedure_decl* contains)
     | Enum()
 
 interface_header
@@ -176,6 +177,12 @@ interfaceop
     | PLUS | MINUS | STAR | DIV | POW
     | NOT
     | EQ | NOTEQ | LT | LTE | GT | GTE
+
+procedure_decl
+    = GenericOperator(identifier* names)
+    | GenericAssignment(identifier* names)
+    | GenericName(identifier name, identifier* names)
+    | FinalName(identifier name)
 
 decl_attribute
     = AttrBind(identifier name)
