@@ -1,1 +1,1 @@
-(TranslationUnit [(Module program_02_mod [] [(ImplicitNone [])] [] []) (Program program_02 [(Use program_02_mod [])] [(ImplicitNone [])] [] [] [(Subroutine f1 [] [] () [] [] [] [] [] []) (Function f2 [] [(AttrType TypeInteger [] ())] () () [] [] [] [] [(= 0 f2 3)] [])])])
+(TranslationUnit [(Module program_02_mod [] [(ImplicitNone [])] [] []) (Program program_02 [(Use [] program_02_mod [])] [(ImplicitNone [])] [] [] [(Subroutine f1 [] [] () [] [] [] [] [] []) (Function f2 [] [(AttrType TypeInteger [] ())] () () [] [] [] [] [(= 0 f2 3)] [])])])

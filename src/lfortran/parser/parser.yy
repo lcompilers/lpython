@@ -286,6 +286,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> use_statement_star
 %type <ast> use_symbol
 %type <vec_ast> use_symbol_list
+%type <ast> use_modifier
+%type <vec_ast> use_modifiers
+%type <vec_ast> use_modifier_list
 %type <vec_ast> var_decl_star
 %type <vec_var_sym> var_sym_decl_list
 %type <ast> var_decl
@@ -496,7 +499,7 @@ interface_item
 
 enum_decl
     : KW_ENUM enum_var_modifiers sep var_decl_star KW_END KW_ENUM sep {
-        $$ = ENUM(@$); }
+        $$ = ENUM($2, $4, @$); }
     ;
 
 enum_var_modifiers
@@ -804,9 +807,9 @@ use_statement_star
     ;
 
 use_statement
-    : KW_USE use_modifiers id sep { $$ = USE1($3, @$); }
+    : KW_USE use_modifiers id sep { $$ = USE1($2, $3, @$); }
     | KW_USE use_modifiers id "," KW_ONLY ":" use_symbol_list sep {
-            $$ = USE2($3, $7, @$); }
+            $$ = USE2($2, $3, $7, @$); }
     ;
 
 import_statement_star
@@ -835,18 +838,19 @@ use_symbol
     ;
 
 use_modifiers
-    : %empty
-    | "::"
-    | use_modifier_list "::"
+    : %empty { LIST_NEW($$); }
+    | "::" { LIST_NEW($$); }
+    | use_modifier_list "::" { $$ = $1; }
     ;
 
 use_modifier_list
-    : use_modifier_list "," use_modifier
-    | "," use_modifier
+    : use_modifier_list "," use_modifier { $$=$1; LIST_ADD($$, $3); }
+    | "," use_modifier { LIST_NEW($$); LIST_ADD($$, $2); }
     ;
 
 use_modifier
-    : KW_INTRINSIC
+    : KW_INTRINSIC { $$ = SIMPLE_ATTR(Intrinsic, @$); }
+    | KW_NON_INTRINSIC { $$ = SIMPLE_ATTR(Non_Intrinsic, @$); }
     ;
 
 // var_decl*
