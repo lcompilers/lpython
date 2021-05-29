@@ -102,9 +102,7 @@ public:
         transform_stmts(xx.m_body, xx.n_body);
     }
 
-    inline void get_dims(ASR::expr_t* x, Vec<dimension_descriptor>& result) {
-        result.reserve(al, 0);
-        ASR::dimension_t* m_dims = nullptr;
+    inline int get_rank(ASR::expr_t* x) {
         int n_dims = 0;
         ASR::ttype_t* x_type = expr_type(x);
         if( x->type == ASR::exprType::Var ) {
@@ -114,106 +112,72 @@ public:
                 case ASR::ttypeType::Integer: {
                     ASR::Integer_t* x_type_ref = down_cast<ASR::Integer_t>(x_type);
                     n_dims = x_type_ref->n_dims;
-                    m_dims = x_type_ref->m_dims;
                     break;
                 }
                 case ASR::ttypeType::IntegerPointer: {
                     ASR::IntegerPointer_t* x_type_ref = down_cast<ASR::IntegerPointer_t>(x_type);
                     n_dims = x_type_ref->n_dims;
-                    m_dims = x_type_ref->m_dims;
                     break;
                 }
                 case ASR::ttypeType::Real: {
                     ASR::Real_t* x_type_ref = down_cast<ASR::Real_t>(x_type);
                     n_dims = x_type_ref->n_dims;
-                    m_dims = x_type_ref->m_dims;
                     break;
                 }
                 case ASR::ttypeType::RealPointer: {
                     ASR::RealPointer_t* x_type_ref = down_cast<ASR::RealPointer_t>(x_type);
                     n_dims = x_type_ref->n_dims;
-                    m_dims = x_type_ref->m_dims;
                     break;
                 }
                 case ASR::ttypeType::Complex: {
                     ASR::Complex_t* x_type_ref = down_cast<ASR::Complex_t>(x_type);
                     n_dims = x_type_ref->n_dims;
-                    m_dims = x_type_ref->m_dims;
                     break;
                 }
                 case ASR::ttypeType::ComplexPointer: {
                     ASR::ComplexPointer_t* x_type_ref = down_cast<ASR::ComplexPointer_t>(x_type);
                     n_dims = x_type_ref->n_dims;
-                    m_dims = x_type_ref->m_dims;
                     break;
                 }
                 case ASR::ttypeType::Derived: {
                     ASR::Derived_t* x_type_ref = down_cast<ASR::Derived_t>(x_type);
                     n_dims = x_type_ref->n_dims;
-                    m_dims = x_type_ref->m_dims;
                     break;
                 }
                 case ASR::ttypeType::DerivedPointer: {
                     ASR::DerivedPointer_t* x_type_ref = down_cast<ASR::DerivedPointer_t>(x_type);
                     n_dims = x_type_ref->n_dims;
-                    m_dims = x_type_ref->m_dims;
                     break;
                 }
                 case ASR::ttypeType::Logical: {
                     ASR::Logical_t* x_type_ref = down_cast<ASR::Logical_t>(x_type);
                     n_dims = x_type_ref->n_dims;
-                    m_dims = x_type_ref->m_dims;
                     break;
                 }
                 case ASR::ttypeType::LogicalPointer: {
                     ASR::LogicalPointer_t* x_type_ref = down_cast<ASR::LogicalPointer_t>(x_type);
                     n_dims = x_type_ref->n_dims;
-                    m_dims = x_type_ref->m_dims;
                     break;
                 }
                 case ASR::ttypeType::Character: {
                     ASR::Character_t* x_type_ref = down_cast<ASR::Character_t>(x_type);
                     n_dims = x_type_ref->n_dims;
-                    m_dims = x_type_ref->m_dims;
                     break;
                 }
                 case ASR::ttypeType::CharacterPointer: {
                     ASR::CharacterPointer_t* x_type_ref = down_cast<ASR::CharacterPointer_t>(x_type);
                     n_dims = x_type_ref->n_dims;
-                    m_dims = x_type_ref->m_dims;
                     break;
                 }
                 default:
                     break;
             }
-            if( n_dims > 0 ) {
-                for( int i = 0; i < n_dims; i++ ) {
-                    int lbound = -1, ubound = -1;
-                    if( m_dims[i].m_start->type == ASR::exprType::ConstantInteger ) {
-                        ASR::ConstantInteger_t* m_start = down_cast<ASR::ConstantInteger_t>(m_dims[i].m_start);
-                        lbound = m_start->m_n;
-                    }
-                    if( m_dims[i].m_end->type == ASR::exprType::ConstantInteger ) {
-                        ASR::ConstantInteger_t* m_end = down_cast<ASR::ConstantInteger_t>(m_dims[i].m_end);
-                        ubound = m_end->m_n;
-                    } 
-                    if( lbound != -1 && ubound != -1 ) {
-                        dimension_descriptor new_dim;
-                        new_dim.lbound = lbound;
-                        new_dim.ubound = ubound;
-                        result.push_back(al, new_dim);
-                    } else {
-                        break;
-                    }
-                }
-            }
         }
+        return n_dims;
     }
 
     inline bool is_array(ASR::expr_t* x) {
-        Vec<dimension_descriptor> result;
-        get_dims(x, result);
-        return result.size() > 0;
+        return get_rank(x) > 0;
     }
 
     void visit_Assignment(const ASR::Assignment_t& x) {
@@ -302,51 +266,42 @@ public:
         if( !apply_pass ) {
             return ;
         }
-        // Case #1: For static arrays in both the operands
-        Vec<dimension_descriptor> dims_left_vec;
-        get_dims(x.m_left, dims_left_vec);
-        Vec<dimension_descriptor> dims_right_vec;
-        get_dims(x.m_right, dims_right_vec);
-        if( dims_left_vec.size() != dims_right_vec.size() ) {
-            throw SemanticError("Cannot generate loop operands of different shapes", 
-                                x.base.base.loc);
-        }
-        if( dims_left_vec.size() <= 0 ) {
-            return ;
-        }
+        int rank_left = get_rank(x.m_left);
+        int rank_right = get_rank(x.m_right);
+        if( rank_left > 0 && rank_right > 0 ) {
+            if( rank_left != rank_right ) {
+                throw SemanticError("Cannot generate loop operands of different shapes", 
+                                    x.base.base.loc);
+            }
 
-        dimension_descriptor* dims_left = dims_left_vec.p;
-        int n_dims = dims_left_vec.size();
-        dimension_descriptor* dims_right = dims_right_vec.p;
-        Vec<ASR::expr_t*> idx_vars;
-        create_idx_vars(idx_vars, n_dims, x.base.base.loc);
-        ASR::stmt_t* doloop = nullptr;
-        for( int i = n_dims - 1; i >= 0; i-- ) {
-            if( dims_left[i].lbound != dims_right[i].lbound ||
-                dims_left[i].ubound != dims_right[i].ubound ) {
-                throw SemanticError("Incompatible shapes of operand arrays", x.base.base.loc);
+            int n_dims = rank_left;
+            Vec<ASR::expr_t*> idx_vars;
+            create_idx_vars(idx_vars, n_dims, x.base.base.loc);
+            ASR::stmt_t* doloop = nullptr;
+            for( int i = n_dims - 1; i >= 0; i-- ) {
+                // TODO: Add an If debug node to check if the lower and upper bounds of both the arrays are same.
+                ASR::do_loop_head_t head;
+                head.m_v = idx_vars[i];
+                head.m_start = get_bound(x.m_left, i + 1, "lbound");
+                head.m_end = get_bound(x.m_right, i + 1, "ubound");
+                head.m_increment = nullptr;
+                head.loc = head.m_v->base.loc;
+                Vec<ASR::stmt_t*> doloop_body;
+                doloop_body.reserve(al, 1);
+                if( doloop == nullptr ) {
+                    ASR::expr_t* ref_1 = create_array_ref(x.m_left, idx_vars);
+                    ASR::expr_t* ref_2 = create_array_ref(x.m_right, idx_vars);
+                    ASR::expr_t* res = create_array_ref(m_target, idx_vars);
+                    ASR::expr_t* bin_op_el_wise = EXPR(ASR::make_BinOp_t(al, x.base.base.loc, ref_1, x.m_op, ref_2, x.m_type));
+                    ASR::stmt_t* assign = STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, bin_op_el_wise));
+                    doloop_body.push_back(al, assign);
+                } else {
+                    doloop_body.push_back(al, doloop);
+                }
+                doloop = STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
-            ASR::do_loop_head_t head;
-            head.m_v = idx_vars[i];
-            head.m_start = get_bound(x.m_left, i + 1, "lbound");// EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, dims_left[i].lbound, int32_type)); // TODO: Replace with call to lbound
-            head.m_end = get_bound(x.m_right, i + 1, "ubound"); // EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, dims_left[i].ubound, int32_type)); // TODO: Replace with call to ubound
-            head.m_increment = nullptr;
-            head.loc = head.m_v->base.loc;
-            Vec<ASR::stmt_t*> doloop_body;
-            doloop_body.reserve(al, 1);
-            if( doloop == nullptr ) {
-                ASR::expr_t* ref_1 = create_array_ref(x.m_left, idx_vars);
-                ASR::expr_t* ref_2 = create_array_ref(x.m_right, idx_vars);
-                ASR::expr_t* res = create_array_ref(m_target, idx_vars);
-                ASR::expr_t* bin_op_el_wise = EXPR(ASR::make_BinOp_t(al, x.base.base.loc, ref_1, x.m_op, ref_2, x.m_type));
-                ASR::stmt_t* assign = STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, bin_op_el_wise));
-                doloop_body.push_back(al, assign);
-            } else {
-                doloop_body.push_back(al, doloop);
-            }
-            doloop = STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
+            array_op_result.push_back(al, doloop);
         }
-        array_op_result.push_back(al, doloop);
     }
 };
 
