@@ -506,17 +506,17 @@ enum_var_modifiers
 
 derived_type_decl
     : KW_TYPE var_modifiers id sep var_decl_star derived_type_contains_opt KW_END KW_TYPE id_opt sep {
-        $$ = DERIVED_TYPE($3, $5, @$); }
+        $$ = DERIVED_TYPE($2, $3, $5, @$); }
     ;
 
 derived_type_contains_opt
-    : KW_CONTAINS sep procedure_list
-    | %empty
+    : KW_CONTAINS sep procedure_list //{ $$ = $3; }
+    | %empty //{ LIST_NEW($$); }
     ;
 
 procedure_list
-    : procedure_list procedure_decl
-    | procedure_decl
+    : procedure_list procedure_decl //{ $$ = $1; LIST_ADD($$, $3); }
+    | procedure_decl //{ LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 procedure_decl

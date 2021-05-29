@@ -1350,7 +1350,8 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
         down_cast<program_unit_t>(proc))
 
 // TODO: Add DerivedType AST node
-#define DERIVED_TYPE(name, decl, l) make_DerivedType_t(p.m_a, l, \
-        name2char(name), DECLS(decl), decl.size())
+#define DERIVED_TYPE(attr, name, decl, l) make_DerivedType_t(p.m_a, l, \
+        name2char(name), VEC_CAST(attr, decl_attribute), attr.size(),  \
+        DECLS(decl), decl.size())
 
 #endif

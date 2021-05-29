@@ -371,11 +371,30 @@ public:
         s = r;
     }
 
+    void visit_AttrExtends(const AttrExtends_t &x) {
+        std::string r;
+        r += syn(gr::Type);
+        r += "extends";
+        r += syn();
+        r += "(";
+        r.append(x.m_name);
+        r += ")";
+        s = r;
+    }
+// Remove visit_AttrExtends !!
+
     void visit_DerivedType(const DerivedType_t &x) {
         std::string r = indent;
         r += syn(gr::UnitHeader);
-        r.append("type :: ");
+        r.append("type ");
         r += syn();
+        for (size_t i=0; i<x.n_attrtype; i++) {
+            r.append(", ");
+            this->visit_decl_attribute(*x.m_attrtype[i]);
+            r.append(s);
+            if (i < x.n_attrtype-1) r.append(", ");
+        }
+        r.append(" :: ");
         r.append(x.m_name);
         r.append("\n");
         inc_indent();

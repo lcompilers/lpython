@@ -59,7 +59,7 @@ unit_decl2
     = Declaration(decl_attribute? vartype, decl_attribute* attributes,
         var_sym* syms)
     | Interface(interface_header header, interface_item* items)
-    | DerivedType(identifier name, unit_decl2* items)
+    | DerivedType(identifier name, decl_attribute* attrtype, unit_decl2* items)
     | Enum()
 
 interface_header
