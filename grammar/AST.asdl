@@ -53,11 +53,7 @@ program_unit
         program_unit* contains)
 
 unit_decl1
-    = Use(module_nature nature, identifier module, use_symbol* symbols)
-
-module_nature
-    = Intrinsic
-    | Non_Intrinsic
+    = Use(decl_attribute* nature, identifier module, use_symbol* symbols)
 
 unit_decl2
     = Declaration(decl_attribute? vartype, decl_attribute* attributes,
@@ -210,6 +206,8 @@ simple_attribute
     | AttrSave
     | AttrTarget
     | AttrValue
+    | AttrIntrinsic
+    | AttrNon_Intrinsic
 
 attr_intent = In | Out | InOut
 

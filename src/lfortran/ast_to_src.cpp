@@ -623,6 +623,12 @@ public:
         r += syn(gr::UnitHeader);
         r += "use";
         r += syn();
+        for (size_t i=0; i<x.n_nature; i++) {
+            r += ", ";
+            this->visit_decl_attribute(*x.m_nature[i]);
+            r.append(s);
+            r += " ::";
+        }
         r += " ";
         r.append(x.m_module);
         if (x.n_symbols > 0) {
@@ -838,6 +844,8 @@ public:
             ATTRTYPE(Save)
             ATTRTYPE(Target)
             ATTRTYPE(Value)
+            ATTRTYPE(Intrinsic)
+            ATTRTYPE(Non_Intrinsic)
             default :
                 throw LFortranException("Attribute type not implemented");
         }

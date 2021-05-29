@@ -1292,10 +1292,10 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
         STMTS(body), body.size())
 
 #define USE1(nature, mod, l) make_Use_t(p.m_a, l, \
-        module_natureType::Intrinsic, name2char(mod), \
+        VEC_CAST(nature, decl_attribute), nature.size(), name2char(mod), \
         nullptr, 0)
 #define USE2(nature, mod, syms, l) make_Use_t(p.m_a, l, \
-        module_natureType::Intrinsic, name2char(mod), \
+        VEC_CAST(nature, decl_attribute), nature.size(), name2char(mod), \
         USE_SYMBOLS(syms), syms.size())
 
 #define USE_SYMBOL1(x, l) make_UseSymbol_t(p.m_a, l, \

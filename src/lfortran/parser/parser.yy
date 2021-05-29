@@ -849,8 +849,8 @@ use_modifier_list
     ;
 
 use_modifier
-    : KW_INTRINSIC { $$; }
-    | KW_NON_INTRINSIC { $$; }
+    : KW_INTRINSIC { $$ = SIMPLE_ATTR(Intrinsic, @$); }
+    | KW_NON_INTRINSIC { $$ = SIMPLE_ATTR(Non_Intrinsic, @$); }
     ;
 
 // var_decl*
