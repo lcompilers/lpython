@@ -37,11 +37,14 @@ private:
     Allocator &al;
     ASR::TranslationUnit_t &unit;
     Vec<ASR::stmt_t*> array_op_result;
-    bool apply_pass;
-    ASR::expr_t* m_target;
+    ASR::expr_t *tmp_val, *result_var;
+    int result_var_num;
+    SymbolTable* current_scope;
 
 public:
-    ArrayOpVisitor(Allocator &al, ASR::TranslationUnit_t &unit) : al{al}, unit{unit}, apply_pass{false}, m_target{nullptr} {
+    ArrayOpVisitor(Allocator &al, ASR::TranslationUnit_t &unit) : al{al}, unit{unit}, 
+    tmp_val{nullptr}, result_var{nullptr}, result_var_num{0},
+    current_scope{nullptr} {
         array_op_result.reserve(al, 1);
     }
 
@@ -73,6 +76,7 @@ public:
         // FIXME: this is a hack, we need to pass in a non-const `x`,
         // which requires to generate a TransformVisitor.
         ASR::Program_t &xx = const_cast<ASR::Program_t&>(x);
+        current_scope = xx.m_symtab;
         transform_stmts(xx.m_body, xx.n_body);
 
         // Transform nested functions and subroutines
@@ -92,6 +96,7 @@ public:
         // FIXME: this is a hack, we need to pass in a non-const `x`,
         // which requires to generate a TransformVisitor.
         ASR::Subroutine_t &xx = const_cast<ASR::Subroutine_t&>(x);
+        current_scope = xx.m_symtab;
         transform_stmts(xx.m_body, xx.n_body);
     }
 
@@ -99,6 +104,7 @@ public:
         // FIXME: this is a hack, we need to pass in a non-const `x`,
         // which requires to generate a TransformVisitor.
         ASR::Function_t &xx = const_cast<ASR::Function_t&>(x);
+        current_scope = xx.m_symtab;
         transform_stmts(xx.m_body, xx.n_body);
     }
 
@@ -182,11 +188,8 @@ public:
 
     void visit_Assignment(const ASR::Assignment_t& x) {
         if( is_array(x.m_target) ) {
-            apply_pass = true;
-            m_target = x.m_target;
+            result_var = x.m_target;
             this->visit_expr(*(x.m_value));
-            m_target = nullptr;
-            apply_pass = false;
         }
     }
 
@@ -209,25 +212,34 @@ public:
         return array_ref;
     }
 
+    ASR::expr_t* create_var(int counter, std::string suffix, const Location& loc,
+                            ASR::ttype_t* var_type) {
+        ASR::expr_t* idx_var = nullptr;
+
+        Str str_name;
+        str_name.from_str(al, std::to_string(counter) + suffix);
+        const char* const_idx_var_name = str_name.c_str(al);
+        char* idx_var_name = (char*)const_idx_var_name;
+
+        if( current_scope->scope.find(std::string(idx_var_name)) == current_scope->scope.end() ) {
+            ASR::asr_t* idx_sym = ASR::make_Variable_t(al, loc, current_scope, idx_var_name, 
+                                                    ASR::intentType::Local, nullptr, ASR::storage_typeType::Default, 
+                                                    var_type, ASR::abiType::Source, ASR::accessType::Public);
+            current_scope->scope[std::string(idx_var_name)] = ASR::down_cast<ASR::symbol_t>(idx_sym);
+            idx_var = EXPR(ASR::make_Var_t(al, loc, ASR::down_cast<ASR::symbol_t>(idx_sym)));
+        } else {
+            ASR::symbol_t* idx_sym = current_scope->scope[std::string(idx_var_name)];
+            idx_var = EXPR(ASR::make_Var_t(al, loc, idx_sym));
+        }
+
+        return idx_var;
+    }
+
     void create_idx_vars(Vec<ASR::expr_t*>& idx_vars, int n_dims, const Location& loc) {
         idx_vars.reserve(al, n_dims);
+        ASR::ttype_t* int32_type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
         for( int i = 1; i <= n_dims; i++ ) {
-            Str str_name;
-            str_name.from_str(al, std::to_string(i) + std::string("_k"));
-            const char* const_idx_var_name = str_name.c_str(al);
-            char* idx_var_name = (char*)const_idx_var_name;
-            ASR::expr_t* idx_var = nullptr;
-            ASR::ttype_t* int32_type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-            if( unit.m_global_scope->scope.find(std::string(idx_var_name)) == unit.m_global_scope->scope.end() ) {
-                ASR::asr_t* idx_sym = ASR::make_Variable_t(al, loc, unit.m_global_scope, idx_var_name, 
-                                                        ASR::intentType::Local, nullptr, ASR::storage_typeType::Default, 
-                                                        int32_type, ASR::abiType::Source, ASR::accessType::Public);
-                unit.m_global_scope->scope[std::string(idx_var_name)] = ASR::down_cast<ASR::symbol_t>(idx_sym);
-                idx_var = EXPR(ASR::make_Var_t(al, loc, ASR::down_cast<ASR::symbol_t>(idx_sym)));
-            } else {
-                ASR::symbol_t* idx_sym = unit.m_global_scope->scope[std::string(idx_var_name)];
-                idx_var = EXPR(ASR::make_Var_t(al, loc, idx_sym));
-            }
+            ASR::expr_t* idx_var = create_var(i, std::string("_k"), loc, int32_type);
             idx_vars.push_back(al, idx_var);
         }
     }
@@ -236,19 +248,21 @@ public:
         ASR::symbol_t *v;
         std::string remote_sym = bound;
         std::string module_name = "lfortran_intrinsic_array";
-        ASR::Module_t *m = load_module(al, unit.m_global_scope,
+        SymbolTable* current_scope_copy = current_scope;
+        current_scope = unit.m_global_scope;
+        ASR::Module_t *m = load_module(al, current_scope,
                                         module_name, arr_expr->base.loc, true);
 
         ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
         ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
-        ASR::asr_t *fn = ASR::make_ExternalSymbol_t(al, mfn->base.base.loc, unit.m_global_scope,
+        ASR::asr_t *fn = ASR::make_ExternalSymbol_t(al, mfn->base.base.loc, current_scope,
                                                     mfn->m_name, (ASR::symbol_t*)mfn,
                                                     m->m_name, mfn->m_name, ASR::accessType::Private);
         std::string sym = mfn->m_name;
-        if( unit.m_global_scope->scope.find(sym) != unit.m_global_scope->scope.end() ) {
-            v = unit.m_global_scope->scope[sym];
+        if( current_scope->scope.find(sym) != current_scope->scope.end() ) {
+            v = current_scope->scope[sym];
         } else {
-            unit.m_global_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
+            current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
             v = ASR::down_cast<ASR::symbol_t>(fn);
         }
         Vec<ASR::expr_t*> args;
@@ -258,21 +272,39 @@ public:
         args.push_back(al, const_1);
         ASR::ttype_t *type = EXPR2VAR(ASR::down_cast<ASR::Function_t>(
                                      symbol_get_past_external(v))->m_return_var)->m_type;
+        current_scope = current_scope_copy;
         return EXPR(ASR::make_FunctionCall_t(al, arr_expr->base.loc, v, nullptr,
                                              args.p, args.size(), nullptr, 0, type));
     }
 
+    void visit_Var(const ASR::Var_t& x) {
+        tmp_val = const_cast<ASR::expr_t*>(&(x.base));
+    }
+
     void visit_BinOp(const ASR::BinOp_t &x) {
-        if( !apply_pass ) {
+        ASR::expr_t* result_var_copy = result_var;
+        result_var = nullptr;
+        this->visit_expr(*(x.m_left));
+        ASR::expr_t* left = tmp_val;
+        result_var = nullptr;
+        this->visit_expr(*(x.m_right));
+        ASR::expr_t* right = tmp_val;
+        int rank_left = get_rank(left);
+        int rank_right = get_rank(right);
+        if( rank_left == 0 && rank_right == 0 ) {
             return ;
         }
-        int rank_left = get_rank(x.m_left);
-        int rank_right = get_rank(x.m_right);
         if( rank_left > 0 && rank_right > 0 ) {
             if( rank_left != rank_right ) {
                 throw SemanticError("Cannot generate loop operands of different shapes", 
                                     x.base.base.loc);
             }
+            result_var = result_var_copy;
+            if( result_var == nullptr ) {
+                result_var = create_var(result_var_num, std::string("_bin_op_res"), x.base.base.loc, expr_type(left));
+                result_var_num += 1;
+            }
+            tmp_val = result_var;
 
             int n_dims = rank_left;
             Vec<ASR::expr_t*> idx_vars;
@@ -282,16 +314,16 @@ public:
                 // TODO: Add an If debug node to check if the lower and upper bounds of both the arrays are same.
                 ASR::do_loop_head_t head;
                 head.m_v = idx_vars[i];
-                head.m_start = get_bound(x.m_left, i + 1, "lbound");
-                head.m_end = get_bound(x.m_left, i + 1, "ubound");
+                head.m_start = get_bound(result_var, i + 1, "lbound");
+                head.m_end = get_bound(result_var, i + 1, "ubound");
                 head.m_increment = nullptr;
                 head.loc = head.m_v->base.loc;
                 Vec<ASR::stmt_t*> doloop_body;
                 doloop_body.reserve(al, 1);
                 if( doloop == nullptr ) {
-                    ASR::expr_t* ref_1 = create_array_ref(x.m_left, idx_vars);
-                    ASR::expr_t* ref_2 = create_array_ref(x.m_right, idx_vars);
-                    ASR::expr_t* res = create_array_ref(m_target, idx_vars);
+                    ASR::expr_t* ref_1 = create_array_ref(left, idx_vars);
+                    ASR::expr_t* ref_2 = create_array_ref(right, idx_vars);
+                    ASR::expr_t* res = create_array_ref(result_var, idx_vars);
                     ASR::expr_t* bin_op_el_wise = EXPR(ASR::make_BinOp_t(al, x.base.base.loc, ref_1, x.m_op, ref_2, x.m_type));
                     ASR::stmt_t* assign = STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, bin_op_el_wise));
                     doloop_body.push_back(al, assign);
