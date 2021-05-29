@@ -787,8 +787,8 @@ public:
         llvm::Value* array = llvm_symtab[v_h];
         bool check_for_bounds = is_explicit_shape(v);
         llvm::Value* idx = cmo_convertor_single_element(array, x.m_args, (int) x.n_args, check_for_bounds);
-        llvm::Value* array_ptr = create_gep(array, 0);
-        llvm::Value* ptr_to_array_idx = create_gep(array_ptr, idx);
+        llvm::Value* array_ptr = create_gep(create_gep(array, 0), 0);
+        llvm::Value* ptr_to_array_idx = create_ptr_gep(array_ptr, idx);
         tmp = ptr_to_array_idx;
     }
 

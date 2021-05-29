@@ -385,11 +385,11 @@ ast = true
 ast_f90 = true
 
 [[test]]
-filename = "../integration_tests/arrays_03.f90"
+filename = "../integration_tests/arrays_03_func.f90"
 cpp = true
 
 [[test]]
-filename = "../integration_tests/arrays_04.f90"
+filename = "../integration_tests/arrays_04_func.f90"
 asr = true
 cpp = true
 
