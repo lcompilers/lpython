@@ -181,7 +181,7 @@ interfaceop
 procedure_decl
     = DerivedTypeProc(identifier? name, decl_attribute* attr,
         use_symbol* symbols)
-    | GenericOperator(identifier* names)
+    | GenericOperator(interfaceop op, identifier* names)
     | GenericAssignment(identifier* names)
     | GenericName(identifier name, identifier* names)
     | FinalName(identifier name)
