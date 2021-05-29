@@ -53,7 +53,7 @@ program_unit
         program_unit* contains)
 
 unit_decl1
-    = Use(identifier module, use_symbol* symbols)
+    = Use(decl_attribute* nature, identifier module, use_symbol* symbols)
 
 unit_decl2
     = Declaration(decl_attribute? vartype, decl_attribute* attributes,
@@ -61,7 +61,7 @@ unit_decl2
     | Interface(interface_header header, interface_item* items)
     | DerivedType(identifier name, decl_attribute* attrtype,
         unit_decl2* items, procedure_decl* contains)
-    | Enum()
+    | Enum(decl_attribute* attr, unit_decl2* items)
 
 interface_header
     = InterfaceHeader()
@@ -216,6 +216,8 @@ simple_attribute
     | AttrSave
     | AttrTarget
     | AttrValue
+    | AttrIntrinsic
+    | AttrNon_Intrinsic
     | AttrDeferred
     | AttrNonDeferred
 

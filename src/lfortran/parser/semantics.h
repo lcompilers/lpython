@@ -247,7 +247,9 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
         VAR_DECL_PARAMETERb(p.m_a, l), 1, \
         varsym.p, varsym.n)
 
-#define ENUM(l) make_Enum_t(p.m_a, l)
+#define ENUM(attr, decl, l) make_Enum_t(p.m_a, l, \
+        VEC_CAST(attr, decl_attribute), attr.n, \
+        DECLS(decl), decl.size())
 
 #define IMPLICIT_NONE(l) make_ImplicitNone_t(p.m_a, l, \
         nullptr, 0)
@@ -1289,11 +1291,11 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
 #define CLASS_DEFAULT(body, l) make_ClassDefault_t(p.m_a, l, \
         STMTS(body), body.size())
 
-#define USE1(mod, l) make_Use_t(p.m_a, l, \
-        name2char(mod), \
+#define USE1(nature, mod, l) make_Use_t(p.m_a, l, \
+        VEC_CAST(nature, decl_attribute), nature.size(), name2char(mod), \
         nullptr, 0)
-#define USE2(mod, syms, l) make_Use_t(p.m_a, l, \
-        name2char(mod), \
+#define USE2(nature, mod, syms, l) make_Use_t(p.m_a, l, \
+        VEC_CAST(nature, decl_attribute), nature.size(), name2char(mod), \
         USE_SYMBOLS(syms), syms.size())
 
 #define USE_SYMBOL1(x, l) make_UseSymbol_t(p.m_a, l, \

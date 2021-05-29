@@ -172,6 +172,19 @@ std::vector<std::string> order_deps(std::map<std::string,
 std::vector<std::string> determine_module_dependencies(
         const ASR::TranslationUnit_t &unit);
 
+ASR::Module_t* extract_module(const ASR::TranslationUnit_t &m);
+
+ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
+                            const std::string &module_name,
+                            const Location &loc, bool intrinsic);
+
+ASR::TranslationUnit_t* find_and_load_module(Allocator &al, const std::string &msym,
+                                                SymbolTable &symtab, bool intrinsic);
+
+void set_intrinsic(ASR::TranslationUnit_t* trans_unit);
+
+void set_intrinsic(ASR::symbol_t* sym);
+
 } // namespace LFortran
 
 #endif // LFORTRAN_ASR_UTILS_H
