@@ -269,7 +269,33 @@ public:
     }
 
     ASR::expr_t* get_bound(ASR::expr_t* arr_expr, int dim, std::string bound) {
-        
+        ASR::symbol_t *v;
+        std::string remote_sym = bound;
+        std::string module_name = "lfortran_intrinsic_array";
+        ASR::Module_t *m = load_module(al, unit.m_global_scope,
+                                        module_name, arr_expr->base.loc, true);
+
+        ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
+        ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
+        ASR::asr_t *fn = ASR::make_ExternalSymbol_t(al, mfn->base.base.loc, unit.m_global_scope,
+                                                    mfn->m_name, (ASR::symbol_t*)mfn,
+                                                    m->m_name, mfn->m_name, ASR::accessType::Private);
+        std::string sym = mfn->m_name;
+        if( unit.m_global_scope->scope.find(sym) != unit.m_global_scope->scope.end() ) {
+            v = unit.m_global_scope->scope[sym];
+        } else {
+            unit.m_global_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
+            v = ASR::down_cast<ASR::symbol_t>(fn);
+        }
+        Vec<ASR::expr_t*> args;
+        args.reserve(al, 2);
+        args.push_back(al, arr_expr);
+        ASR::expr_t* const_1 = EXPR(ASR::make_ConstantInteger_t(al, arr_expr->base.loc, dim, expr_type(mfn->m_args[1])));
+        args.push_back(al, const_1);
+        ASR::ttype_t *type = EXPR2VAR(ASR::down_cast<ASR::Function_t>(
+                                     symbol_get_past_external(v))->m_return_var)->m_type;
+        return EXPR(ASR::make_FunctionCall_t(al, arr_expr->base.loc, v, nullptr,
+                                             args.p, args.size(), nullptr, 0, type));
     }
 
     void visit_BinOp(const ASR::BinOp_t &x) {
@@ -303,8 +329,8 @@ public:
             }
             ASR::do_loop_head_t head;
             head.m_v = idx_vars[i];
-            head.m_start = get_bound(x.m_left, i, "lbound");// EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, dims_left[i].lbound, int32_type)); // TODO: Replace with call to lbound
-            head.m_end = get_bound(x.m_right, i, "ubound"); // EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, dims_left[i].ubound, int32_type)); // TODO: Replace with call to ubound
+            head.m_start = get_bound(x.m_left, i + 1, "lbound");// EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, dims_left[i].lbound, int32_type)); // TODO: Replace with call to lbound
+            head.m_end = get_bound(x.m_right, i + 1, "ubound"); // EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, dims_left[i].ubound, int32_type)); // TODO: Replace with call to ubound
             head.m_increment = nullptr;
             head.loc = head.m_v->base.loc;
             Vec<ASR::stmt_t*> doloop_body;

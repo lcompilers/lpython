@@ -63,4 +63,13 @@ std::string read_file(const std::string &filename)
     return std::string(&bytes[0], filesize);
 }
 
+bool present(Vec<char*> &v, const char* name) {
+    for (auto &a : v) {
+        if (std::string(a) == std::string(name)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 }

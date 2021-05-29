@@ -14,6 +14,8 @@ print *, a(1), a(2), a(3), a(4)
 
 print *, b(1), b(2), b(3), b(4)
 
+print *, lbound(a, 1), lbound(b, 1)
+
 c = a + b
 print *, c(1), c(2), c(3), c(4)
 

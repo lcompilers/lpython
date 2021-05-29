@@ -11,6 +11,7 @@
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/parser/parser_stype.h>
 #include <lfortran/string_utils.h>
+#include <lfortran/utils.h>
 
 #define num_types 12
 
@@ -614,15 +615,6 @@ std::map<std::string, std::string> intrinsic_procedures = {
         {"lbound", "lfortran_intrinsic_array"},
         {"ubound", "lfortran_intrinsic_array"}
     };
-
-bool present(Vec<char*> &v, const char* name) {
-    for (auto &a : v) {
-        if (std::string(a) == std::string(name)) {
-            return true;
-        }
-    }
-    return false;
-}
 
 class SymbolTableVisitor : public AST::BaseVisitor<SymbolTableVisitor>
 {
