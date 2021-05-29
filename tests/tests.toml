@@ -1088,5 +1088,9 @@ filename = "../integration_tests/return_02.f90"
 llvm = true
 
 [[test]]
+filename = "../integration_tests/return_03.f90"
+llvm = true
+
+[[test]]
 filename = "../integration_tests/modules_13.f90"
 llvm = true

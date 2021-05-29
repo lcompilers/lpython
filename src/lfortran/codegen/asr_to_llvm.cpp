@@ -1321,27 +1321,19 @@ public:
 
 
     void generate_subroutine(const ASR::Subroutine_t &x){
-        uint32_t h = get_hash((ASR::asr_t*)&x);
         bool interactive = (x.m_abi == ASR::abiType::Interactive);
         if (x.m_deftype == ASR::deftypeType::Implementation) {
 
             if (interactive) return;
 
             if (!prototype_only) {
-                llvm::Function* F = llvm_symtab_fn[h];
-                llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
-                        ".entry", F);
-                builder->SetInsertPoint(BB);
-
-                declare_args(x, *F);
-
-                declare_local_vars(x);
+                define_subroutine_entry(x);
 
                 for (size_t i=0; i<x.n_body; i++) {
                     this->visit_stmt(*x.m_body[i]);
                 }
 
-                builder->CreateRetVoid();
+                define_subroutine_exit(x);                
             }
         }
     }
@@ -1417,7 +1409,20 @@ public:
         declare_local_vars(x);
     }
 
-    inline  void define_function_exit(const ASR::Function_t& x) {
+
+    inline void define_subroutine_entry(const ASR::Subroutine_t& x) {
+        uint32_t h = get_hash((ASR::asr_t*)&x);
+        llvm::Function* F = llvm_symtab_fn[h];
+        llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
+                ".entry", F);
+        builder->SetInsertPoint(BB);
+
+        declare_args(x, *F);
+
+        declare_local_vars(x);
+    }
+
+    inline void define_function_exit(const ASR::Function_t& x) {
         if (early_return) {
             builder->CreateBr(if_return);
         }
@@ -1434,6 +1439,20 @@ public:
         llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
 
         builder->CreateRet(ret_val2);
+    }
+
+
+    inline void define_subroutine_exit(const ASR::Subroutine_t& /*x*/) {
+        if (early_return) {
+            builder->CreateBr(if_return);
+        }
+
+        if (early_return) {
+            builder->SetInsertPoint(if_return);
+            early_return = false;
+        }
+
+        builder->CreateRetVoid();
     }
 
     void generate_function(const ASR::Function_t &x){
