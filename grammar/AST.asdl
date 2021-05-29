@@ -179,7 +179,9 @@ interfaceop
     | EQ | NOTEQ | LT | LTE | GT | GTE
 
 procedure_decl
-    = GenericOperator(identifier* names)
+    = DerivedTypeProc(identifier? name, decl_attribute* attr,
+        use_symbol* symbols)
+    | GenericOperator(identifier* names)
     | GenericAssignment(identifier* names)
     | GenericName(identifier name, identifier* names)
     | FinalName(identifier name)
@@ -192,6 +194,7 @@ decl_attribute
     | AttrNamelist(identifier name)
     | SimpleAttribute(simple_attribute attr)
     | AttrType(decl_type type, kind_item* kind, identifier? name)
+    | AttrPass(identifier name)
 
 simple_attribute
     = AttrAbstract
@@ -213,6 +216,8 @@ simple_attribute
     | AttrSave
     | AttrTarget
     | AttrValue
+    | AttrDeferred
+    | AttrNonDeferred
 
 attr_intent = In | Out | InOut
 

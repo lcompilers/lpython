@@ -528,7 +528,8 @@ procedure_list
     ;
 
 procedure_decl
-    : KW_PROCEDURE proc_paren proc_modifiers use_symbol_list sep { }
+    : KW_PROCEDURE proc_paren proc_modifiers use_symbol_list sep {
+            $$ = DERIVED_TYPE_PROC($2, $3, $4, @$); }
     | KW_GENERIC "::" KW_OPERATOR "(" operator_type ")" "=>" id_list sep {
             $$ = GENERIC_OPERATOR($5, $8, @$); }
     | KW_GENERIC "::" KW_ASSIGNMENT "(" "=" ")" "=>" id_list sep {
@@ -557,28 +558,28 @@ operator_type
     ;
 
 proc_paren
-    : %empty
-    | "(" id ")"
+    : %empty { $$ = nullptr; }
+    | "(" id ")" { $$ = $2; }
     ;
 
 proc_modifiers
-    : %empty
-    | "::"
-    | proc_modifier_list "::"
+    : %empty { LIST_NEW($$); }
+    | "::" { LIST_NEW($$); }
+    | proc_modifier_list "::" { $$ = $1; }
     ;
 
 proc_modifier_list
-    : proc_modifier_list "," proc_modifier
-    | "," proc_modifier
+    : proc_modifier_list "," proc_modifier { $$ = $1; LIST_ADD($$, $3); }
+    | "," proc_modifier { LIST_NEW($$); LIST_ADD($$, $2); }
     ;
 
 proc_modifier
-    : KW_PRIVATE
-    | KW_PUBLIC
-    | KW_PASS "(" id ")"
-    | KW_NOPASS
-    | KW_DEFERRED
-    | KW_NON_OVERRIDABLE
+    : KW_PRIVATE  { $$ = SIMPLE_ATTR(Private, @$); }
+    | KW_PUBLIC { $$ = SIMPLE_ATTR(Public, @$); }
+    | KW_PASS "(" id ")" { $$ = PASS($3, @$); }
+    | KW_NOPASS { $$ = SIMPLE_ATTR(NoPass, @$); }
+    | KW_DEFERRED { $$ = SIMPLE_ATTR(Deferred, @$); }
+    | KW_NON_OVERRIDABLE { $$ = SIMPLE_ATTR(NonDeferred, @$); }
     ;
 
 
