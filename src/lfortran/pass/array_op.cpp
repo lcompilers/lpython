@@ -235,11 +235,11 @@ public:
         return idx_var;
     }
 
-    void create_idx_vars(Vec<ASR::expr_t*>& idx_vars, int n_dims, const Location& loc) {
+    void create_idx_vars(Vec<ASR::expr_t*>& idx_vars, int n_dims, const Location& loc, std::string suffix=std::string("_k")) {
         idx_vars.reserve(al, n_dims);
         ASR::ttype_t* int32_type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
         for( int i = 1; i <= n_dims; i++ ) {
-            ASR::expr_t* idx_var = create_var(i, std::string("_k"), loc, int32_type);
+            ASR::expr_t* idx_var = create_var(i, suffix, loc, int32_type);
             idx_vars.push_back(al, idx_var);
         }
     }
@@ -275,6 +275,45 @@ public:
         current_scope = current_scope_copy;
         return EXPR(ASR::make_FunctionCall_t(al, arr_expr->base.loc, v, nullptr,
                                              args.p, args.size(), nullptr, 0, type));
+    }
+
+    void visit_ImplicitCast(const ASR::ImplicitCast_t& x) {
+        ASR::expr_t* result_var_copy = result_var;
+        result_var = nullptr;
+        this->visit_expr(*(x.m_arg));
+        result_var = result_var_copy;
+        if( is_array(tmp_val) ) {
+            if( result_var == nullptr ) {
+                result_var = create_var(result_var_num, std::string("_implicit_cast_res"), x.base.base.loc, x.m_type);
+                result_var_num += 1;
+            }
+            int n_dims = get_rank(result_var);
+            Vec<ASR::expr_t*> idx_vars;
+            create_idx_vars(idx_vars, n_dims, x.base.base.loc);
+            ASR::stmt_t* doloop = nullptr;
+            for( int i = n_dims - 1; i >= 0; i-- ) {
+                ASR::do_loop_head_t head;
+                head.m_v = idx_vars[i];
+                head.m_start = get_bound(result_var, i + 1, "lbound");
+                head.m_end = get_bound(result_var, i + 1, "ubound");
+                head.m_increment = nullptr;
+                head.loc = head.m_v->base.loc;
+                Vec<ASR::stmt_t*> doloop_body;
+                doloop_body.reserve(al, 1);
+                if( doloop == nullptr ) {
+                    ASR::expr_t* ref = create_array_ref(tmp_val, idx_vars);
+                    ASR::expr_t* res = create_array_ref(result_var, idx_vars);
+                    ASR::expr_t* impl_cast_el_wise = EXPR(ASR::make_ImplicitCast_t(al, x.base.base.loc, ref, x.m_kind, x.m_type));
+                    ASR::stmt_t* assign = STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, impl_cast_el_wise));
+                    doloop_body.push_back(al, assign);
+                } else {
+                    doloop_body.push_back(al, doloop);
+                }
+                doloop = STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
+            }
+            array_op_result.push_back(al, doloop);
+            tmp_val = result_var;
+        }
     }
 
     void visit_Var(const ASR::Var_t& x) {
