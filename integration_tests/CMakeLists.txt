@@ -279,3 +279,4 @@ RUN(NAME recursion_01 LABELS gfortran llvm)
 
 RUN(NAME return_01 LABELS gfortran llvm)
 RUN(NAME return_02 LABELS gfortran llvm)
+RUN(NAME return_03 LABELS gfortran llvm)
