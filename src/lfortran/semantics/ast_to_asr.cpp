@@ -613,7 +613,9 @@ std::map<std::string, std::string> intrinsic_procedures = {
         {"selected_real_kind", "lfortran_intrinsic_kind"},
         {"size", "lfortran_intrinsic_array"},
         {"lbound", "lfortran_intrinsic_array"},
-        {"ubound", "lfortran_intrinsic_array"}
+        {"ubound", "lfortran_intrinsic_array"},
+        {"min", "lfortran_intrinsic_array"},
+        {"max", "lfortran_intrinsic_array"}
     };
 
 class SymbolTableVisitor : public AST::BaseVisitor<SymbolTableVisitor>
