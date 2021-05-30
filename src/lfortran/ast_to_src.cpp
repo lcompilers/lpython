@@ -1303,6 +1303,12 @@ public:
         r += syn(gr::Keyword);
         r.append("error stop");
         r += syn();
+        if (x.m_code)
+        {
+            r += " ";
+            this->visit_expr(*x.m_code);
+            r.append(s);
+        }
         r += "\n";
         s = r;
     }
