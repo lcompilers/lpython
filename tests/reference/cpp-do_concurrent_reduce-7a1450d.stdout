@@ -12,6 +12,12 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
+bool allocated(const Kokkos::View<const int*> &x)
+{
+    bool r;
+    return r;
+}
+
 int lbound(const Kokkos::View<const int*> &x, int dim)
 {
     int r;
