@@ -3,11 +3,11 @@ implicit none
 type :: X
     real :: r
     integer :: i
-end type
+end type X
 type :: Y
     complex :: c
     type(X) :: d
-end type
+end type Y
 
 contains
 
@@ -25,7 +25,7 @@ implicit none
 type :: Z
     complex :: k
     type(Y) :: l
-end type
+end type Z
 end module a_02
 
 program derived_types_01

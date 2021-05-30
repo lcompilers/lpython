@@ -471,6 +471,9 @@ static inline reduce_opType convert_id_to_reduce_type(
 #define NEQV(x, y, l) make_BoolOp_t(p.m_a, l, EXPR(x), boolopType::NEqv, EXPR(y))
 
 #define ARRAY_IN(a, l) make_ArrayInitializer_t(p.m_a, l, \
+        nullptr, EXPRS(a), a.size())
+#define ARRAY_IN1(vartype, a, l) make_ArrayInitializer_t(p.m_a, l, \
+        down_cast<decl_attribute_t>(vartype), \
         EXPRS(a), a.size())
 
 ast_t* implied_do_loop(Allocator &al, Location &loc,
@@ -1351,8 +1354,25 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
         make_InterfaceProc_t(p.m_a, l, \
         down_cast<program_unit_t>(proc))
 
-// TODO: Add DerivedType AST node
-#define DERIVED_TYPE(name, decl, l) make_DerivedType_t(p.m_a, l, \
-        name2char(name), DECLS(decl), decl.size())
+#define DERIVED_TYPE(attr, name, decl, contains, l) make_DerivedType_t(p.m_a, l, \
+        name2char(name), VEC_CAST(attr, decl_attribute), attr.size(),  \
+        DECLS(decl), decl.size(), \
+        VEC_CAST(contains, procedure_decl), contains.size())
+
+#define DERIVED_TYPE_PROC(attr, syms, l) make_DerivedTypeProc_t(p.m_a, l, \
+        nullptr, VEC_CAST(attr, decl_attribute), attr.size(), \
+        USE_SYMBOLS(syms), syms.size())
+#define DERIVED_TYPE_PROC1(name, attr, syms, l) make_DerivedTypeProc_t(p.m_a, l, \
+        name2char(name), VEC_CAST(attr, decl_attribute), attr.size(), \
+        USE_SYMBOLS(syms), syms.size())
+#define GENERIC_OPERATOR(optype, namelist, l) make_GenericOperator_t(p.m_a, l, \
+        optype, REDUCE_ARGS(p.m_a, namelist), namelist.size())
+#define GENERIC_ASSIGNMENT(namelist, l) make_GenericAssignment_t(p.m_a, l, \
+        REDUCE_ARGS(p.m_a, namelist), namelist.size())
+#define GENERIC_NAME(name, namelist, l) make_GenericName_t(p.m_a, l, \
+        name2char(name), REDUCE_ARGS(p.m_a, namelist), namelist.size())
+#define FINAL_NAME(name, l) make_FinalName_t(p.m_a, l, name2char(name))
+
+#define PASS(name, l) make_AttrPass_t(p.m_a, l, name2char(name))
 
 #endif

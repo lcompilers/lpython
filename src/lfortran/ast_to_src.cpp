@@ -72,8 +72,8 @@ namespace {
             case (AST::interfaceopType::OR) : return ".or.";
             case (AST::interfaceopType::EQV) : return ".eqv.";
             case (AST::interfaceopType::NEQV) : return ".neqv.";
-            case (AST::interfaceopType::PLUS) : return " + ";
-            case (AST::interfaceopType::MINUS) : return " - ";
+            case (AST::interfaceopType::PLUS) : return "+";
+            case (AST::interfaceopType::MINUS) : return "-";
             case (AST::interfaceopType::STAR) : return "*";
             case (AST::interfaceopType::DIV) : return "/";
             case (AST::interfaceopType::POW) : return "**";
@@ -374,8 +374,15 @@ public:
     void visit_DerivedType(const DerivedType_t &x) {
         std::string r = indent;
         r += syn(gr::UnitHeader);
-        r.append("type :: ");
+        r.append("type");
         r += syn();
+        for (size_t i=0; i<x.n_attrtype; i++) {
+            if (i == 0) r.append(", ");
+            this->visit_decl_attribute(*x.m_attrtype[i]);
+            r.append(s);
+            if (i < x.n_attrtype-1) r.append(", ");
+        }
+        r.append(" :: ");
         r.append(x.m_name);
         r.append("\n");
         inc_indent();
@@ -384,11 +391,95 @@ public:
             r.append(s);
         }
         dec_indent();
+        if (x.n_contains) {
+            r += "\n";
+            r += syn(gr::UnitHeader);
+            r.append("contains");
+            r += syn();
+            r += "\n\n";
+            for (size_t i=0; i<x.n_contains; i++) {
+                this->visit_procedure_decl(*x.m_contains[i]);
+                r.append(s);
+                r.append("\n");
+            }
+        }
         r += syn(gr::UnitHeader);
-        r.append(indent + "end type\n");
+        r.append(indent + "end type ");
         r += syn();
+        r.append(x.m_name);
+        r += "\n";
         s = r;
     }
+    void visit_DerivedTypeProc(const DerivedTypeProc_t &x) {
+        std::string r;
+        r += syn(gr::String);
+        r.append("procedure");
+        r += syn();
+        if (x.m_name) {
+            r += "(";
+            r.append(x.m_name);
+            r += ")";
+        }
+        for (size_t i=0; i<x.n_attr; i++) {
+            if (i == 0) r.append(", ");
+            this->visit_decl_attribute(*x.m_attr[i]);
+            r.append(s);
+            if (i < x.n_attr-1) r.append(", ");
+        }
+        r.append(" :: ");
+        for (size_t i=0; i<x.n_symbols; i++) {
+            this->visit_use_symbol(*x.m_symbols[i]);
+            r.append(s);
+        }
+        s = r;
+    }
+    void visit_GenericOperator(const GenericOperator_t &x) {
+        std::string r;
+        r += syn(gr::String);
+        r.append("generic :: operator");
+        r += syn();
+        r += "(" + interfaceop2str(x.m_op) + ")";
+        r += " => ";
+        for (size_t i=0; i<x.n_names; i++) {
+            r.append(x.m_names[i]);
+            if (i < x.n_names-1) r.append(", ");
+        }
+        s = r;
+    }
+    void visit_GenericAssignment(const GenericAssignment_t &x) {
+        std::string r;
+        r += syn(gr::String);
+        r.append("generic :: assignment(=)");
+        r += syn();
+        r += " => ";
+        for (size_t i=0; i<x.n_names; i++) {
+            r.append(x.m_names[i]);
+            if (i < x.n_names-1) r.append(", ");
+        }
+        s = r;
+    }
+    void visit_GenericName(const GenericName_t &x) {
+        std::string r;
+        r += syn(gr::String);
+        r.append("generic :: ");
+        r += syn();
+        r.append(x.m_name);
+        r += " => ";
+        for (size_t i=0; i<x.n_names; i++) {
+            r.append(x.m_names[i]);
+            if (i < x.n_names-1) r.append(", ");
+        }
+        s = r;
+    }
+    void visit_FinalName(const FinalName_t &x) {
+        std::string r;
+        r += syn(gr::String);
+        r.append("final :: ");
+        r += syn();
+        r.append(x.m_name);
+        s = r;
+    }
+
 
     void visit_Enum(const Enum_t & x) {
         std::string r = indent;
@@ -846,6 +937,8 @@ public:
             ATTRTYPE(Value)
             ATTRTYPE(Intrinsic)
             ATTRTYPE(Non_Intrinsic)
+            ATTRTYPE(Deferred)
+            ATTRTYPE(NonDeferred)
             default :
                 throw LFortranException("Attribute type not implemented");
         }
@@ -999,6 +1092,17 @@ public:
             }
             r += ")";
         }
+        s = r;
+    }
+
+    void visit_AttrPass(const AttrPass_t &x) {
+        std::string r;
+        r += syn(gr::Type);
+        r += "pass";
+        r += syn();
+        r += "(";
+        r.append(x.m_name);
+        r += ")";
         s = r;
     }
 
@@ -1203,6 +1307,12 @@ public:
         r += syn(gr::Keyword);
         r.append("error stop");
         r += syn();
+        if (x.m_code)
+        {
+            r += " ";
+            this->visit_expr(*x.m_code);
+            r.append(s);
+        }
         r += "\n";
         s = r;
     }

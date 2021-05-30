@@ -59,7 +59,8 @@ unit_decl2
     = Declaration(decl_attribute? vartype, decl_attribute* attributes,
         var_sym* syms)
     | Interface(interface_header header, interface_item* items)
-    | DerivedType(identifier name, unit_decl2* items)
+    | DerivedType(identifier name, decl_attribute* attrtype,
+        unit_decl2* items, procedure_decl* contains)
     | Enum(decl_attribute* attr, unit_decl2* items)
 
 interface_header
@@ -150,7 +151,7 @@ expr
     | Compare(expr left, cmpop op, expr right)
     | FuncCallOrArray(identifier func, struct_member* member,
         fnarg* args, keyword* keywords)
-    | ArrayInitializer(expr* args)
+    | ArrayInitializer(decl_attribute? vartype, expr* args)
     | ImpliedDoLoop(expr* values, identifier var, expr start, expr end,
         expr? increment)
     | Num(int n)
@@ -177,6 +178,14 @@ interfaceop
     | NOT
     | EQ | NOTEQ | LT | LTE | GT | GTE
 
+procedure_decl
+    = DerivedTypeProc(identifier? name, decl_attribute* attr,
+        use_symbol* symbols)
+    | GenericOperator(interfaceop op, identifier* names)
+    | GenericAssignment(identifier* names)
+    | GenericName(identifier name, identifier* names)
+    | FinalName(identifier name)
+
 decl_attribute
     = AttrBind(identifier name)
     | AttrDimension(dimension* dim)
@@ -185,6 +194,7 @@ decl_attribute
     | AttrNamelist(identifier name)
     | SimpleAttribute(simple_attribute attr)
     | AttrType(decl_type type, kind_item* kind, identifier? name)
+    | AttrPass(identifier name)
 
 simple_attribute
     = AttrAbstract
@@ -208,6 +218,8 @@ simple_attribute
     | AttrValue
     | AttrIntrinsic
     | AttrNon_Intrinsic
+    | AttrDeferred
+    | AttrNonDeferred
 
 attr_intent = In | Out | InOut
 

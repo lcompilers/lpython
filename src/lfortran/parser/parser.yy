@@ -385,6 +385,12 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> implicit_none_spec_list
 %type <ast> letter_spec
 %type <vec_ast> letter_spec_list
+%type <ast> procedure_decl
+%type <ast> proc_modifier
+%type <vec_ast> procedure_list
+%type <vec_ast> derived_type_contains_opt
+%type <vec_ast> proc_modifiers
+%type <vec_ast> proc_modifier_list
 
 // Precedence
 
@@ -508,26 +514,32 @@ enum_var_modifiers
     ;
 
 derived_type_decl
-    : KW_TYPE var_modifiers id sep var_decl_star derived_type_contains_opt KW_END KW_TYPE id_opt sep {
-        $$ = DERIVED_TYPE($3, $5, @$); }
+    : KW_TYPE var_modifiers id sep var_decl_star
+        derived_type_contains_opt KW_END KW_TYPE id_opt sep {
+        $$ = DERIVED_TYPE($2, $3, $5, $6, @$); }
     ;
 
 derived_type_contains_opt
-    : KW_CONTAINS sep procedure_list
-    | %empty
+    : KW_CONTAINS sep procedure_list { $$ = $3; }
+    | %empty { LIST_NEW($$); }
     ;
 
 procedure_list
-    : procedure_list procedure_decl
-    | procedure_decl
+    : procedure_list procedure_decl { $$ = $1; LIST_ADD($$, $2); }
+    | procedure_decl { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 procedure_decl
-    : KW_PROCEDURE proc_paren proc_modifiers use_symbol_list sep
-    | KW_GENERIC "::" KW_OPERATOR "(" operator_type ")" "=>" id_list sep
-    | KW_GENERIC "::" KW_ASSIGNMENT "(" "=" ")" "=>" id_list sep
-    | KW_GENERIC "::" id "=>" id_list sep
-    | KW_FINAL "::" id sep
+    : KW_PROCEDURE proc_modifiers use_symbol_list sep {
+            $$ = DERIVED_TYPE_PROC($2, $3, @$); }
+    | KW_PROCEDURE "(" id ")" proc_modifiers use_symbol_list sep {
+            $$ = DERIVED_TYPE_PROC1($3, $5, $6, @$); }
+    | KW_GENERIC "::" KW_OPERATOR "(" operator_type ")" "=>" id_list sep {
+            $$ = GENERIC_OPERATOR($5, $8, @$); }
+    | KW_GENERIC "::" KW_ASSIGNMENT "(" "=" ")" "=>" id_list sep {
+            $$ = GENERIC_ASSIGNMENT($8, @$); }
+    | KW_GENERIC "::" id "=>" id_list sep { $$ = GENERIC_NAME($3, $5, @$); }
+    | KW_FINAL "::" id sep { $$ = FINAL_NAME($3, @$); }
     ;
 
 operator_type
@@ -549,29 +561,24 @@ operator_type
     | ".neqv." { $$ = OPERATOR(NEQV, @$); }
     ;
 
-proc_paren
-    : %empty
-    | "(" id ")"
-    ;
-
 proc_modifiers
-    : %empty
-    | "::"
-    | proc_modifier_list "::"
+    : %empty { LIST_NEW($$); }
+    | "::" { LIST_NEW($$); }
+    | proc_modifier_list "::" { $$ = $1; }
     ;
 
 proc_modifier_list
-    : proc_modifier_list "," proc_modifier
-    | "," proc_modifier
+    : proc_modifier_list "," proc_modifier { $$ = $1; LIST_ADD($$, $3); }
+    | "," proc_modifier { LIST_NEW($$); LIST_ADD($$, $2); }
     ;
 
 proc_modifier
-    : KW_PRIVATE
-    | KW_PUBLIC
-    | KW_PASS "(" id ")"
-    | KW_NOPASS
-    | KW_DEFERRED
-    | KW_NON_OVERRIDABLE
+    : KW_PRIVATE  { $$ = SIMPLE_ATTR(Private, @$); }
+    | KW_PUBLIC { $$ = SIMPLE_ATTR(Public, @$); }
+    | KW_PASS "(" id ")" { $$ = PASS($3, @$); }
+    | KW_NOPASS { $$ = SIMPLE_ATTR(NoPass, @$); }
+    | KW_DEFERRED { $$ = SIMPLE_ATTR(Deferred, @$); }
+    | KW_NON_OVERRIDABLE { $$ = SIMPLE_ATTR(NonDeferred, @$); }
     ;
 
 
@@ -1477,7 +1484,7 @@ expr
     | struct_member_star id "(" fnarray_arg_list_opt ")" {
             $$ = FUNCCALLORARRAY2($1, $2, $4, @$); }
     | "[" expr_list_opt rbracket { $$ = ARRAY_IN($2, @$); }
-    | "[" var_type "::" expr_list_opt rbracket { $$ = ARRAY_IN($4, @$); }
+    | "[" var_type "::" expr_list_opt rbracket { $$ = ARRAY_IN1($2, $4, @$); }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
     | TK_REAL { $$ = REAL($1, @$); }
     | TK_STRING { $$ = STRING($1, @$); }
