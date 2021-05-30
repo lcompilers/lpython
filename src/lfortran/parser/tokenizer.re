@@ -146,6 +146,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             'equivalence' { KW(EQUIVALENCE) }
             'errmsg' { KW(ERRMSG) }
             'error' { KW(ERROR) }
+            'event' { KW(EVENT) }
             'exit' { KW(EXIT) }
             'extends' { KW(EXTENDS) }
             'external' { KW(EXTERNAL) }
@@ -195,6 +196,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             'parameter' { KW(PARAMETER) }
             'pass' { KW(PASS) }
             'pointer' { KW(POINTER) }
+            'post' { KW(POST) }
             'precision' { KW(PRECISION) }
             'print' { KW(PRINT) }
             'private' { KW(PRIVATE) }
@@ -231,6 +233,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             'use' { KW(USE) }
             'value' { KW(VALUE) }
             'volatile' { KW(VOLATILE) }
+            'wait' { KW(WAIT) }
             'where' { KW(WHERE) }
             'while' { KW(WHILE) }
             'write' { KW(WRITE) }

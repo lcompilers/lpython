@@ -170,6 +170,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_EQUIVALENCE
 %token <string> KW_ERRMSG
 %token <string> KW_ERROR
+%token <string> KW_EVENT
 %token <string> KW_EXIT
 %token <string> KW_EXTENDS
 %token <string> KW_EXTERNAL
@@ -219,6 +220,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_PARAMETER
 %token <string> KW_PASS
 %token <string> KW_POINTER
+%token <string> KW_POST
 %token <string> KW_PRECISION
 %token <string> KW_PRINT
 %token <string> KW_PRIVATE
@@ -255,6 +257,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_USE
 %token <string> KW_VALUE
 %token <string> KW_VOLATILE
+%token <string> KW_WAIT
 %token <string> KW_WHERE
 %token <string> KW_WHILE
 %token <string> KW_WRITE
@@ -356,6 +359,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> continue_statement
 %type <ast> stop_statement
 %type <ast> error_stop_statement
+%type <ast> event_post_statement
+%type <ast> event_wait_statement
 %type <ast> format_statement
 %type <vec_ast> statements
 %type <vec_ast> contains_block_opt
@@ -1048,6 +1053,8 @@ single_line_statement
     | cycle_statement
     | deallocate_statement
     | error_stop_statement
+    | event_post_statement
+    | event_wait_statement
     | exit_statement
     | forall_statement_single
     | format_statement
@@ -1463,6 +1470,14 @@ error_stop_statement
     | KW_ERROR KW_STOP expr { $$ = ERROR_STOP1($3, @$); }
     ;
 
+event_post_statement
+    : KW_EVENT KW_POST "(" expr ")" { $$ = ERROR_STOP(@$); }
+    ;
+
+event_wait_statement
+    : KW_EVENT KW_WAIT "(" expr ")" { $$ = ERROR_STOP(@$); }
+    ;
+
 // -----------------------------------------------------------------------------
 // Fortran expression
 
@@ -1663,6 +1678,7 @@ id
     | KW_EQUIVALENCE { $$ = SYMBOL($1, @$); }
     | KW_ERRMSG { $$ = SYMBOL($1, @$); }
     | KW_ERROR { $$ = SYMBOL($1, @$); }
+    | KW_EVENT { $$ = SYMBOL($1, @$); }
     | KW_EXIT { $$ = SYMBOL($1, @$); }
     | KW_EXTENDS { $$ = SYMBOL($1, @$); }
     | KW_EXTERNAL { $$ = SYMBOL($1, @$); }
@@ -1711,6 +1727,7 @@ id
     | KW_PARAMETER { $$ = SYMBOL($1, @$); }
     | KW_PASS { $$ = SYMBOL($1, @$); }
     | KW_POINTER { $$ = SYMBOL($1, @$); }
+    | KW_POST { $$ = SYMBOL($1, @$); }
     | KW_PRECISION { $$ = SYMBOL($1, @$); }
     | KW_PRINT { $$ = SYMBOL($1, @$); }
     | KW_PRIVATE { $$ = SYMBOL($1, @$); }
@@ -1747,6 +1764,7 @@ id
     | KW_USE { $$ = SYMBOL($1, @$); }
     | KW_VALUE { $$ = SYMBOL($1, @$); }
     | KW_VOLATILE { $$ = SYMBOL($1, @$); }
+    | KW_WAIT { $$ = SYMBOL($1, @$); }
     | KW_WHERE { $$ = SYMBOL($1, @$); }
     | KW_WHILE { $$ = SYMBOL($1, @$); }
     | KW_WRITE { $$ = SYMBOL($1, @$); }
