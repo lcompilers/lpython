@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    469 // shift/reduce conflicts
+%expect    481 // shift/reduce conflicts
 %expect-rr 81  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -930,6 +930,7 @@ var_modifier
     : KW_PARAMETER { $$ = SIMPLE_ATTR(Parameter, @$); }
     | KW_DIMENSION "(" array_comp_decl_list ")" { $$ = DIMENSION($3, @$); }
     | KW_DIMENSION { $$ = DIMENSION0(@$); }
+    | KW_CODIMENSION "[" array_comp_decl_list "]" { $$ = DIMENSION($3, @$); }
     | KW_ALLOCATABLE { $$ = SIMPLE_ATTR(Allocatable, @$); }
     | KW_POINTER { $$ = SIMPLE_ATTR(Pointer, @$); }
     | KW_TARGET { $$ = SIMPLE_ATTR(Target, @$); }
