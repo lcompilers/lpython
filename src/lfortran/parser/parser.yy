@@ -532,7 +532,7 @@ procedure_list
 
 procedure_decl
     : KW_PROCEDURE proc_paren proc_modifiers use_symbol_list sep {
-            $$ = DERIVED_TYPE_PROC($2, $3, $4, @$); }
+            $$ = DERIVED_TYPE_PROC($3, $4, @$); }
     | KW_GENERIC "::" KW_OPERATOR "(" operator_type ")" "=>" id_list sep {
             $$ = GENERIC_OPERATOR($5, $8, @$); }
     | KW_GENERIC "::" KW_ASSIGNMENT "(" "=" ")" "=>" id_list sep {

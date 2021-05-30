@@ -371,18 +371,6 @@ public:
         s = r;
     }
 
-    void visit_AttrExtends(const AttrExtends_t &x) {
-        std::string r;
-        r += syn(gr::Type);
-        r += "extends";
-        r += syn();
-        r += "(";
-        r.append(x.m_name);
-        r += ")";
-        s = r;
-    }
-// Remove visit_AttrExtends !!
-
     void visit_DerivedType(const DerivedType_t &x) {
         std::string r = indent;
         r += syn(gr::UnitHeader);
@@ -425,9 +413,6 @@ public:
         r += syn(gr::String);
         r.append("procedure");
         r += syn();
-        r += "(";
-        r.append(x.m_name);
-        r.append(")");
         for (size_t i=0; i<x.n_attr; i++) {
             if (i == 0) r.append(", ");
             this->visit_decl_attribute(*x.m_attr[i]);
@@ -1099,6 +1084,17 @@ public:
             }
             r += ")";
         }
+        s = r;
+    }
+
+    void visit_AttrPass(const AttrPass_t &x) {
+        std::string r;
+        r += syn(gr::Type);
+        r += "pass";
+        r += syn();
+        r += "(";
+        r.append(x.m_name);
+        r += ")";
         s = r;
     }
 

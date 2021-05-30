@@ -1356,8 +1356,8 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
         DECLS(decl), decl.size(), \
         VEC_CAST(contains, procedure_decl), contains.size())
 
-#define DERIVED_TYPE_PROC(name, attr, syms, l) make_DerivedTypeProc_t(p.m_a, l, \
-        name2char(name), VEC_CAST(attr, decl_attribute), attr.size(), \
+#define DERIVED_TYPE_PROC(attr, syms, l) make_DerivedTypeProc_t(p.m_a, l, \
+        VEC_CAST(attr, decl_attribute), attr.size(), \
         USE_SYMBOLS(syms), syms.size())
 #define GENERIC_OPERATOR(optype, namelist, l) make_GenericOperator_t(p.m_a, l, \
         optype, REDUCE_ARGS(p.m_a, namelist), namelist.size())
