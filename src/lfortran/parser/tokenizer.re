@@ -223,6 +223,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             'stop' { KW(STOP) }
             'submodule' { KW(SUBMODULE) }
             'subroutine' { KW(SUBROUTINE) }
+            'sync' { KW(SYNC) }
             'target' { KW(TARGET) }
             'team' { KW(TEAM) }
             'team_number' { KW(TEAM_NUMBER) }

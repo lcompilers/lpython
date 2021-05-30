@@ -247,6 +247,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_STOP
 %token <string> KW_SUBMODULE
 %token <string> KW_SUBROUTINE
+%token <string> KW_SYNC
 %token <string> KW_TARGET
 %token <string> KW_TEAM
 %token <string> KW_TEAM_NUMBER
@@ -361,6 +362,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> error_stop_statement
 %type <ast> event_post_statement
 %type <ast> event_wait_statement
+%type <ast> sync_all_statement
 %type <ast> format_statement
 %type <vec_ast> statements
 %type <vec_ast> contains_block_opt
@@ -1070,6 +1072,7 @@ single_line_statement
     | backspace_statement
     | stop_statement
     | subroutine_call
+    | sync_all_statement
     | where_statement_single
     | write_statement
     ;
@@ -1478,6 +1481,10 @@ event_wait_statement
     : KW_EVENT KW_WAIT "(" expr ")" { $$ = ERROR_STOP(@$); }
     ;
 
+sync_all_statement
+    : KW_SYNC KW_ALL { $$ = ERROR_STOP(@$); }
+    ;
+
 // -----------------------------------------------------------------------------
 // Fortran expression
 
@@ -1754,6 +1761,7 @@ id
     | KW_STOP { $$ = SYMBOL($1, @$); }
     | KW_SUBMODULE { $$ = SYMBOL($1, @$); }
     | KW_SUBROUTINE { $$ = SYMBOL($1, @$); }
+    | KW_SYNC { $$ = SYMBOL($1, @$); }
     | KW_TARGET { $$ = SYMBOL($1, @$); }
     | KW_TEAM { $$ = SYMBOL($1, @$); }
     | KW_TEAM_NUMBER { $$ = SYMBOL($1, @$); }
