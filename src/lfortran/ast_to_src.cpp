@@ -415,6 +415,11 @@ public:
         r += syn(gr::String);
         r.append("procedure");
         r += syn();
+        if (x.m_name) {
+            r += "(";
+            r.append(x.m_name);
+            r += ")";
+        }
         for (size_t i=0; i<x.n_attr; i++) {
             if (i == 0) r.append(", ");
             this->visit_decl_attribute(*x.m_attr[i]);
@@ -426,7 +431,6 @@ public:
             this->visit_use_symbol(*x.m_symbols[i]);
             r.append(s);
         }
-        r += "\n";
         s = r;
     }
     void visit_GenericOperator(const GenericOperator_t &x) {

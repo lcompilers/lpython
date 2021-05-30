@@ -387,7 +387,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> letter_spec_list
 %type <ast> procedure_decl
 %type <ast> proc_modifier
-%type <ast> proc_paren
 %type <vec_ast> procedure_list
 %type <vec_ast> derived_type_contains_opt
 %type <vec_ast> proc_modifiers
@@ -531,8 +530,10 @@ procedure_list
     ;
 
 procedure_decl
-    : KW_PROCEDURE proc_paren proc_modifiers use_symbol_list sep {
-            $$ = DERIVED_TYPE_PROC($3, $4, @$); }
+    : KW_PROCEDURE proc_modifiers use_symbol_list sep {
+            $$ = DERIVED_TYPE_PROC($2, $3, @$); }
+    | KW_PROCEDURE "(" id ")" proc_modifiers use_symbol_list sep {
+            $$ = DERIVED_TYPE_PROC1($3, $5, $6, @$); }
     | KW_GENERIC "::" KW_OPERATOR "(" operator_type ")" "=>" id_list sep {
             $$ = GENERIC_OPERATOR($5, $8, @$); }
     | KW_GENERIC "::" KW_ASSIGNMENT "(" "=" ")" "=>" id_list sep {
@@ -558,11 +559,6 @@ operator_type
     | ".or."   { $$ = OPERATOR(OR, @$); }
     | ".eqv."  { $$ = OPERATOR(EQV, @$); }
     | ".neqv." { $$ = OPERATOR(NEQV, @$); }
-    ;
-
-proc_paren
-    : %empty { $$ = nullptr; }
-    | "(" id ")" { $$ = $2; }
     ;
 
 proc_modifiers

@@ -179,7 +179,7 @@ interfaceop
     | EQ | NOTEQ | LT | LTE | GT | GTE
 
 procedure_decl
-    = DerivedTypeProc(decl_attribute* attr,
+    = DerivedTypeProc(identifier? name, decl_attribute* attr,
         use_symbol* symbols)
     | GenericOperator(interfaceop op, identifier* names)
     | GenericAssignment(identifier* names)
