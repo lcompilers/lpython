@@ -118,7 +118,8 @@ stmt
     | Read(int label, argstar* args, kw_argstar* kwargs, expr* values)
     | Rewind(int label, expr* args, keyword* kwargs)
     | Stop(int label, expr? code)
-    | SubroutineCall(int label, identifier name, fnarg* args, keyword* keywords)
+    | SubroutineCall(int label, identifier name, fnarg* args,
+            keyword* keywords, struct_member* member)
     | Write(int label, argstar* args, kw_argstar* kwargs, expr* values)
 
 -- Multi-line statements (each has a `label` and `stmt_name`):
