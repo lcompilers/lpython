@@ -23,6 +23,10 @@ interface
     integer function min(a, b) result(r)
     integer, intent(in) :: a, b
     end function
+
+    logical function allocated(x) result(r)
+    integer, intent(in) :: x(:)
+    end function
 end interface
 
 end module
