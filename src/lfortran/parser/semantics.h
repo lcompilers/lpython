@@ -471,6 +471,9 @@ static inline reduce_opType convert_id_to_reduce_type(
 #define NEQV(x, y, l) make_BoolOp_t(p.m_a, l, EXPR(x), boolopType::NEqv, EXPR(y))
 
 #define ARRAY_IN(a, l) make_ArrayInitializer_t(p.m_a, l, \
+        nullptr, EXPRS(a), a.size())
+#define ARRAY_IN1(vartype, a, l) make_ArrayInitializer_t(p.m_a, l, \
+        down_cast<decl_attribute_t>(vartype), \
         EXPRS(a), a.size())
 
 ast_t* implied_do_loop(Allocator &al, Location &loc,

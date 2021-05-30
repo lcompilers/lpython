@@ -1484,7 +1484,7 @@ expr
     | struct_member_star id "(" fnarray_arg_list_opt ")" {
             $$ = FUNCCALLORARRAY2($1, $2, $4, @$); }
     | "[" expr_list_opt rbracket { $$ = ARRAY_IN($2, @$); }
-    | "[" var_type "::" expr_list_opt rbracket { $$ = ARRAY_IN($4, @$); }
+    | "[" var_type "::" expr_list_opt rbracket { $$ = ARRAY_IN1($2, $4, @$); }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
     | TK_REAL { $$ = REAL($1, @$); }
     | TK_STRING { $$ = STRING($1, @$); }
