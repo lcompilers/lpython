@@ -1094,3 +1094,7 @@ llvm = true
 [[test]]
 filename = "../integration_tests/modules_13.f90"
 llvm = true
+
+[[test]]
+filename = "coarrays_01.f90"
+ast = true
