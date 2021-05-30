@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    468 // shift/reduce conflicts
+%expect    469 // shift/reduce conflicts
 %expect-rr 81  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -296,6 +296,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_dim> array_comp_decl_list
 %type <fnarg> fnarray_arg
 %type <vec_fnarg> fnarray_arg_list_opt
+%type <fnarg> coarray_arg
+%type <vec_fnarg> coarray_arg_list
 %type <dim> array_comp_decl
 %type <ast> var_type
 %type <ast> fn_mod
@@ -981,6 +983,9 @@ var_sym_decl
             VAR_SYM($$, $1, $3.p, $3.n, $6, @$); }
     | id "(" array_comp_decl_list ")" "=>" expr {
             VAR_SYM($$, $1, $3.p, $3.n, $6, @$); }
+    | id "[" array_comp_decl_list "]" { VAR_SYM2($$, $1, $3.p, $3.n, @$); }
+    | id "(" array_comp_decl_list ")" "[" array_comp_decl_list "]" {
+            VAR_SYM2($$, $1, $3.p, $3.n, @$); }
 
 // TODO: is this needed? It seems it should go somewheer else
 /*
@@ -1481,6 +1486,10 @@ expr
     : id { $$ = $1; }
     | struct_member_star id { NAME1($$, $2, $1, @$); }
     | id "(" fnarray_arg_list_opt ")" { $$ = FUNCCALLORARRAY($1, $3, @$); }
+    | id "(" fnarray_arg_list_opt ")" "[" coarray_arg_list "]" {
+            $$ = FUNCCALLORARRAY($1, $3, @$); }
+    | id "[" coarray_arg_list "]" {
+            $$ = FUNCCALLORARRAY($1, $3, @$); }
     | struct_member_star id "(" fnarray_arg_list_opt ")" {
             $$ = FUNCCALLORARRAY2($1, $2, $4, @$); }
     | "[" expr_list_opt rbracket { $$ = ARRAY_IN($2, @$); }
@@ -1562,6 +1571,31 @@ fnarray_arg
     | expr ":" expr ":" expr { $$ = ARRAY_COMP_DECL_abc($1, $3, $5, @$); }
 // keyword function argument
     | id "=" expr            { $$ = ARRAY_COMP_DECL1k($1, $3, @$); }
+    ;
+
+coarray_arg_list
+    : coarray_arg_list "," coarray_arg { $$ = $1; PLIST_ADD($$, $3); }
+    | coarray_arg { LIST_NEW($$); PLIST_ADD($$, $1); }
+    ;
+
+coarray_arg
+// array element / function argument
+    : expr                   { $$ = ARRAY_COMP_DECL_0i0($1, @$); }
+// array section
+    | ":"                    { $$ = ARRAY_COMP_DECL_001(@$); }
+    | expr ":"               { $$ = ARRAY_COMP_DECL_a01($1, @$); }
+    | ":" expr               { $$ = ARRAY_COMP_DECL_0b1($2, @$); }
+    | expr ":" expr          { $$ = ARRAY_COMP_DECL_ab1($1, $3, @$); }
+    | "::" expr              { $$ = ARRAY_COMP_DECL_00c($2, @$); }
+    | ":" ":" expr           { $$ = ARRAY_COMP_DECL_00c($3, @$); }
+    | expr "::" expr         { $$ = ARRAY_COMP_DECL_a0c($1, $3, @$); }
+    | expr ":" ":" expr      { $$ = ARRAY_COMP_DECL_a0c($1, $4, @$); }
+    | ":" expr ":" expr      { $$ = ARRAY_COMP_DECL_0bc($2, $4, @$); }
+    | expr ":" expr ":" expr { $$ = ARRAY_COMP_DECL_abc($1, $3, $5, @$); }
+// keyword function argument
+    | id "=" expr            { $$ = ARRAY_COMP_DECL1k($1, $3, @$); }
+// star
+    | "*"                    { $$ = ARRAY_COMP_DECL_001(@$); }
     ;
 
 id_list_opt
