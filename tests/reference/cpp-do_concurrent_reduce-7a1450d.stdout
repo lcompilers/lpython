@@ -18,6 +18,18 @@ int lbound(const Kokkos::View<const int*> &x, int dim)
     return r;
 }
 
+int max(int a, int b)
+{
+    int r;
+    return r;
+}
+
+int min(int a, int b)
+{
+    int r;
+    return r;
+}
+
 int ubound(const Kokkos::View<const int*> &x, int dim)
 {
     int r;
