@@ -1,8 +1,8 @@
 diff --git a/src/lfortran/parser/parser.yy b/src/lfortran/parser/parser.yy
-index c22df599..c6f107c3 100644
+index 99036333..c976ab08 100644
 --- a/src/lfortran/parser/parser.yy
 +++ b/src/lfortran/parser/parser.yy
-@@ -1126,137 +1126,4 @@ id_opt
+@@ -1640,141 +1640,4 @@ id_opt
  
  id
      : TK_NAME { $$ = SYMBOL($1, @$); }
@@ -52,6 +52,7 @@ index c22df599..c6f107c3 100644
 -    | KW_EQUIVALENCE { $$ = SYMBOL($1, @$); }
 -    | KW_ERRMSG { $$ = SYMBOL($1, @$); }
 -    | KW_ERROR { $$ = SYMBOL($1, @$); }
+-    | KW_EVENT { $$ = SYMBOL($1, @$); }
 -    | KW_EXIT { $$ = SYMBOL($1, @$); }
 -    | KW_EXTENDS { $$ = SYMBOL($1, @$); }
 -    | KW_EXTERNAL { $$ = SYMBOL($1, @$); }
@@ -100,6 +101,7 @@ index c22df599..c6f107c3 100644
 -    | KW_PARAMETER { $$ = SYMBOL($1, @$); }
 -    | KW_PASS { $$ = SYMBOL($1, @$); }
 -    | KW_POINTER { $$ = SYMBOL($1, @$); }
+-    | KW_POST { $$ = SYMBOL($1, @$); }
 -    | KW_PRECISION { $$ = SYMBOL($1, @$); }
 -    | KW_PRINT { $$ = SYMBOL($1, @$); }
 -    | KW_PRIVATE { $$ = SYMBOL($1, @$); }
@@ -126,6 +128,7 @@ index c22df599..c6f107c3 100644
 -    | KW_STOP { $$ = SYMBOL($1, @$); }
 -    | KW_SUBMODULE { $$ = SYMBOL($1, @$); }
 -    | KW_SUBROUTINE { $$ = SYMBOL($1, @$); }
+-    | KW_SYNC { $$ = SYMBOL($1, @$); }
 -    | KW_TARGET { $$ = SYMBOL($1, @$); }
 -    | KW_TEAM { $$ = SYMBOL($1, @$); }
 -    | KW_TEAM_NUMBER { $$ = SYMBOL($1, @$); }
@@ -136,6 +139,7 @@ index c22df599..c6f107c3 100644
 -    | KW_USE { $$ = SYMBOL($1, @$); }
 -    | KW_VALUE { $$ = SYMBOL($1, @$); }
 -    | KW_VOLATILE { $$ = SYMBOL($1, @$); }
+-    | KW_WAIT { $$ = SYMBOL($1, @$); }
 -    | KW_WHERE { $$ = SYMBOL($1, @$); }
 -    | KW_WHILE { $$ = SYMBOL($1, @$); }
 -    | KW_WRITE { $$ = SYMBOL($1, @$); }
