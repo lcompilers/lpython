@@ -404,8 +404,10 @@ public:
             }
         }
         r += syn(gr::UnitHeader);
-        r.append(indent + "end type\n");
+        r.append(indent + "end type ");
         r += syn();
+        r.append(x.m_name);
+        r += "\n";
         s = r;
     }
     void visit_DerivedTypeProc(const DerivedTypeProc_t &x) {
@@ -931,6 +933,8 @@ public:
             ATTRTYPE(Value)
             ATTRTYPE(Intrinsic)
             ATTRTYPE(Non_Intrinsic)
+            ATTRTYPE(Deferred)
+            ATTRTYPE(NonDeferred)
             default :
                 throw LFortranException("Attribute type not implemented");
         }
