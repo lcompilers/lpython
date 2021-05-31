@@ -900,6 +900,15 @@ public:
             }
             r.append(")");
         }
+        if (x.n_codim > 0) {
+            r.append("[");
+            for (size_t i=0; i<x.n_codim; i++) {
+                visit_dimension(x.m_codim[i]);
+                r += s;
+                if (i < x.n_codim-1) r.append(",");
+            }
+            r.append("]");
+        }
         if (x.m_initializer) {
             visit_expr(*x.m_initializer);
             r += "=" + s;
@@ -1091,6 +1100,23 @@ public:
                 if (i < x.n_dim-1) r.append(",");
             }
             r += ")";
+        }
+        s = r;
+    }
+
+    void visit_AttrCodimension(const AttrCodimension_t &x) {
+        std::string r;
+        r += syn(gr::Type);
+        r += "codimension";
+        r += syn();
+        if (x.n_codim > 0) {
+            r += "[";
+            for (size_t i=0; i<x.n_codim; i++) {
+                visit_dimension(x.m_codim[i]);
+                r += s;
+                if (i < x.n_codim-1) r.append(",");
+            }
+            r += "]";
         }
         s = r;
     }
@@ -1322,6 +1348,44 @@ public:
             this->visit_expr(*x.m_code);
             r.append(s);
         }
+        r += "\n";
+        s = r;
+    }
+
+    void visit_EventPost(const EventPost_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += syn(gr::Keyword);
+        r.append("event post");
+        r += syn();
+        r += " (";
+        this->visit_expr(*x.m_variable);
+        r += ")";
+        r.append(s);
+        r += "\n";
+        s = r;
+    }
+
+    void visit_EventWait(const EventWait_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += syn(gr::Keyword);
+        r.append("event wait");
+        r += syn();
+        r += " (";
+        this->visit_expr(*x.m_variable);
+        r += ")";
+        r.append(s);
+        r += "\n";
+        s = r;
+    }
+
+    void visit_SyncAll(const SyncAll_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += syn(gr::Keyword);
+        r.append("sync all");
+        r += syn();
         r += "\n";
         s = r;
     }
