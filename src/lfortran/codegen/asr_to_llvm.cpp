@@ -102,7 +102,7 @@ private:
   std::string der_type_name;
 
   //! Helpful for debugging while testing LLVM code
-  void print_util(llvm::Value* v, std::string fmt_chars) {
+  void print_util(llvm::Value* v, std::string fmt_chars, std::string endline="\t") {
         std::vector<llvm::Value *> args;
         std::vector<std::string> fmt;
         args.push_back(v);
@@ -112,7 +112,7 @@ private:
             fmt_str += fmt[i];
             if (i < fmt.size()-1) fmt_str += " ";
         }
-        fmt_str += "\n";
+        fmt_str += endline;
         llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(fmt_str);
         std::vector<llvm::Value *> printf_args;
         printf_args.push_back(fmt_ptr);
@@ -138,6 +138,7 @@ public:
     llvm::StructType* dim_des;
     std::map<int, llvm::ArrayType*> rank2desc;
     std::map<std::pair<std::pair<int, int>, std::pair<int, int>>, llvm::StructType*> tkr2array;
+    std::unordered_map<std::string, std::unordered_map<std::string, llvm::Type*>> arr_arg_type_cache;
 
     std::map<std::string, std::pair<llvm::Type*, llvm::Type*>> fname2arg_type;
     std::vector<std::string> c_runtime_intrinsics;
@@ -201,6 +202,9 @@ public:
         }
         std::pair<std::pair<int, int>, std::pair<int, int>> array_key = std::make_pair(std::make_pair((int)type_, a_kind), std::make_pair(rank, size));
         if( tkr2array.find(array_key) != tkr2array.end() ) {
+            if( get_pointer ) {
+                return tkr2array[array_key]->getPointerTo();
+            }
             return tkr2array[array_key];
         }
         llvm::ArrayType* dim_des_array = get_dim_des_array(rank);
@@ -727,9 +731,9 @@ public:
             this->visit_expr_wrapper(curr_idx.m_right, true);
             llvm::Value* curr_llvm_idx = tmp;
             llvm::Value* dim_des_ptr = create_gep(dim_des_arr_ptr, r);
+            llvm::Value* lval = builder->CreateLoad(create_gep(dim_des_ptr, 1));
+            curr_llvm_idx = builder->CreateSub(curr_llvm_idx, lval);
             if( check_for_bounds ) {
-                llvm::Value* lval = builder->CreateLoad(create_gep(dim_des_ptr, 1));
-                curr_llvm_idx = builder->CreateSub(curr_llvm_idx, lval);
                 // check_single_element(curr_llvm_idx, arr); TODO: To be implemented
             }
             idx = builder->CreateAdd(idx, builder->CreateMul(prod, curr_llvm_idx));
@@ -786,10 +790,17 @@ public:
         LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
         llvm::Value* array = llvm_symtab[v_h];
         bool check_for_bounds = is_explicit_shape(v);
+        std::cout<<"Check for bounds: "<<check_for_bounds<<std::endl;
         llvm::Value* idx = cmo_convertor_single_element(array, x.m_args, (int) x.n_args, check_for_bounds);
-        llvm::Value* array_ptr = create_gep(create_gep(array, 0), 0);
-        llvm::Value* ptr_to_array_idx = create_ptr_gep(array_ptr, idx);
-        tmp = ptr_to_array_idx;
+        llvm::Value* full_array = create_gep(array, 0);
+        if( static_cast<llvm::PointerType*>(full_array->getType())
+            ->getElementType()->isArrayTy() ) {
+            print_util(idx, "%d", "\t");
+            tmp = create_gep(full_array, idx);
+        } else {
+            print_util(idx, "%d", "\t");
+            tmp = create_ptr_gep(builder->CreateLoad(full_array), idx);
+        }
     }
 
     void visit_ArrayRef(const ASR::ArrayRef_t& x) {
@@ -1054,19 +1065,42 @@ public:
                         default :
                             throw CodeGenError("Type not implemented");
                     }
-                    std::string m_name = std::string(x.m_name);
-                    ASR::abiType abi_type = ASR::abiType::Source;
-                    if( x.class_type == ASR::symbolType::Function ) {
-                        ASR::Function_t* _func = (ASR::Function_t*)(&(x.base));
-                        abi_type = _func->m_abi;
-                    } else if( x.class_type == ASR::symbolType::Subroutine ) {
-                        ASR::Subroutine_t* _sub = (ASR::Subroutine_t*)(&(x.base));
-                        abi_type = _sub->m_abi;
-                    }
-                    if( is_array_type && abi_type == ASR::abiType::Intrinsic &&
-                        fname2arg_type.find(m_name) != fname2arg_type.end() ) {
-                        type = fname2arg_type[m_name].second;
-                        is_array_type = false;
+                    if( x.class_type == ASR::symbolType::Function || 
+                        x.class_type == ASR::symbolType::Subroutine ) {
+                        std::string m_name = std::string(x.m_name);
+                        ASR::abiType abi_type = ASR::abiType::Source;
+                        if( x.class_type == ASR::symbolType::Function ) {
+                            ASR::Function_t* _func = (ASR::Function_t*)(&(x.base));
+                            abi_type = _func->m_abi;
+                        } else if( x.class_type == ASR::symbolType::Subroutine ) {
+                            ASR::Subroutine_t* _sub = (ASR::Subroutine_t*)(&(x.base));
+                            abi_type = _sub->m_abi;
+                        }
+                        if( is_array_type ) {
+                            if( abi_type == ASR::abiType::Source ) {
+                                llvm::ArrayType* arr_type = static_cast<llvm::ArrayType*>(static_cast<llvm::StructType*>(type)->getElementType(0));
+                                llvm::Type* ele_type = arr_type->getElementType();
+                                llvm::Type* first_ele_ptr_type = ele_type->getPointerTo();
+                                llvm::Type* new_arr_type = nullptr;
+                                if( arr_arg_type_cache.find(m_name) == arr_arg_type_cache.end() && 
+                                    arr_arg_type_cache[m_name].find(std::string(v->m_name)) != arr_arg_type_cache[m_name].end() ) {
+                                    new_arr_type = llvm::StructType::create(context, std::vector<llvm::Type*>({first_ele_ptr_type,
+                                                                                                                static_cast<llvm::StructType*>(type)->getElementType(1),
+                                                                                                                static_cast<llvm::StructType*>(type)->getElementType(2)      
+                                                                                                                }), "array_call");
+                                    arr_arg_type_cache[m_name][std::string(v->m_name)] = new_arr_type;    
+                                } else {
+                                    new_arr_type = arr_arg_type_cache[m_name][std::string(v->m_name)];
+                                }
+                                std::cout<<new_arr_type<<std::endl;
+                                type = new_arr_type->getPointerTo();
+                                is_array_type = false;                                                                                        
+                            } else if( abi_type == ASR::abiType::Intrinsic &&
+                                fname2arg_type.find(m_name) != fname2arg_type.end() ) {
+                                type = fname2arg_type[m_name].second;
+                                is_array_type = false;
+                            }
+                        }
                     }
                     llvm::AllocaInst *ptr = builder->CreateAlloca(type, nullptr, v->m_name);
                     llvm_symtab[h] = ptr;
@@ -1156,10 +1190,32 @@ public:
                         LFORTRAN_ASSERT(false);
                 }
                 std::string m_name = std::string(x.m_name);
-                if( is_array_type && x.m_abi == ASR::abiType::Intrinsic && 
-                    fname2arg_type.find(m_name) != fname2arg_type.end()) {
-                    type = fname2arg_type[m_name].second;
-                    is_array_type = false;
+                if( is_array_type ) {
+                    if( x.m_abi == ASR::abiType::Source ) {
+                        llvm::Type* orig_type = static_cast<llvm::PointerType*>(type)->getElementType();
+                        llvm::StructType* type_struct = static_cast<llvm::StructType*>(orig_type);
+                        llvm::ArrayType* arr_type = static_cast<llvm::ArrayType*>(type_struct->getElementType(0));
+                        llvm::Type* ele_type = arr_type->getElementType();
+                        llvm::Type* first_ele_ptr_type = ele_type->getPointerTo();
+                        llvm::Type* new_arr_type = nullptr;
+                        if( arr_arg_type_cache.find(m_name) == arr_arg_type_cache.end() && 
+                            arr_arg_type_cache[m_name].find(std::string(arg->m_name)) == arr_arg_type_cache[m_name].end() ) {
+                            new_arr_type = llvm::StructType::create(context, std::vector<llvm::Type*>({first_ele_ptr_type,
+                                                                                                        type_struct->getElementType(1),
+                                                                                                        type_struct->getElementType(2),      
+                                                                                                        }), "array_call");
+                            arr_arg_type_cache[m_name][std::string(arg->m_name)] = new_arr_type;    
+                        } else {
+                            new_arr_type = arr_arg_type_cache[m_name][std::string(arg->m_name)];
+                        }
+                        std::cout<<"Inside convert_args: "<<m_name<<" "<<arg->m_name<<" "<<new_arr_type<<std::endl;
+                        type = new_arr_type->getPointerTo();
+                        is_array_type = false;
+                    } else if( x.m_abi == ASR::abiType::Intrinsic && 
+                        fname2arg_type.find(m_name) != fname2arg_type.end()) {
+                        type = fname2arg_type[m_name].second;
+                        is_array_type = false;
+                    }
                 }
                 args.push_back(type);
             } else if (is_a<ASR::Function_t>(*symbol_get_past_external(
@@ -2487,15 +2543,21 @@ public:
                         tmp = llvm_symtab[h];
                         const ASR::symbol_t* func_subrout = symbol_get_past_external(x.m_name);
                         ASR::abiType x_abi = (ASR::abiType) 0;
+                        std::string orig_arg_name = "";
                         if( func_subrout->type == ASR::symbolType::Function ) {
                             ASR::Function_t* func = down_cast<ASR::Function_t>(func_subrout);
+                            ASR::Variable_t *orig_arg = EXPR2VAR(func->m_args[i]);
+                            orig_arg_name = orig_arg->m_name;
                             x_abi = func->m_abi;
                         } else if( func_subrout->type == ASR::symbolType::Subroutine ) {
                             ASR::Subroutine_t* sub = down_cast<ASR::Subroutine_t>(func_subrout);
+                            ASR::Variable_t *orig_arg = EXPR2VAR(sub->m_args[i]);
+                            orig_arg_name = orig_arg->m_name;
                             x_abi = sub->m_abi;
                         }
                         // TODO: Add support for extracting the first pointer of array type 
                         // and passing to user defined functions.
+                        llvm::Type* tmp_type = static_cast<llvm::PointerType*>(tmp->getType())->getElementType();
                         if( x_abi == ASR::abiType::Intrinsic ) {
                             if( name == "size" ) {
                                 /*
@@ -2516,7 +2578,26 @@ public:
                                 builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, rank)), rank_ptr);
                                 tmp = arg_struct;
                             }
-                        }
+                        } else if( x_abi == ASR::abiType::Source && 
+                                   tmp_type->isStructTy() && 
+                                   static_cast<llvm::StructType*>(tmp_type)->
+                                   getElementType(0)->isArrayTy() ) {
+                            std::cout<<"Inside Array Conversion "<<tmp_type<<std::endl;
+                            llvm::Type* new_arr_type = arr_arg_type_cache[name][orig_arg_name];
+                            std::cout<<new_arr_type<<std::endl;
+                            llvm::Value* arg_struct = builder->CreateAlloca(new_arr_type, nullptr);
+                            llvm::Value* first_ele_ptr = create_gep(create_gep(tmp, 0), 0);
+                            print_util(builder->CreateLoad(first_ele_ptr), "%d", "\n");
+                            llvm::Value* first_arg_ptr = create_gep(arg_struct, 0);
+                            builder->CreateStore(first_ele_ptr, first_arg_ptr);
+                            llvm::Value* sec_ele_ptr = builder->CreateLoad(create_gep(tmp, 1));
+                            llvm::Value* sec_arg_ptr = create_gep(arg_struct, 1); 
+                            builder->CreateStore(sec_ele_ptr, sec_arg_ptr);   
+                            llvm::Value* third_ele_ptr = builder->CreateLoad(create_gep(tmp, 2));
+                            llvm::Value* third_arg_ptr = create_gep(arg_struct, 2); 
+                            builder->CreateStore(third_ele_ptr, third_arg_ptr);   
+                            tmp = arg_struct;
+                        } 
                     } else {
                         auto finder = std::find(needed_globals.begin(), 
                                 needed_globals.end(), h);
