@@ -290,7 +290,17 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
             xout->n_codim = 0; \
             xout->m_initializer=nullptr;
 
-#define VAR_SYM3(xout, xname, xdimp, xdimn, xcodimp, xcodimn, xloc) \
+#define VAR_SYM3(xout, xname, xcodimp, xcodimn, xloc) \
+            xout = p.m_a.allocate<var_sym_t>(1); \
+            xout->loc = xloc; \
+            xout->m_name = name2char(xname); \
+            xout->m_dim = nullptr; \
+            xout->n_dim = 0; \
+            xout->m_codim = xcodimp; \
+            xout->n_codim = xcodimn; \
+            xout->m_initializer=nullptr;
+
+#define VAR_SYM4(xout, xname, xdimp, xdimn, xcodimp, xcodimn, xloc) \
             xout = p.m_a.allocate<var_sym_t>(1); \
             xout->loc = xloc; \
             xout->m_name = name2char(xname); \

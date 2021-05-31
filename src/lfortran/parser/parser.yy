@@ -991,9 +991,9 @@ var_sym_decl
             VAR_SYM($$, $1, $3.p, $3.n, $6, @$); }
     | id "(" array_comp_decl_list ")" "=>" expr {
             VAR_SYM($$, $1, $3.p, $3.n, $6, @$); }
-    | id "[" array_comp_decl_list "]" { VAR_SYM2($$, $1, $3.p, $3.n, @$); }
+    | id "[" array_comp_decl_list "]" { VAR_SYM3($$, $1, $3.p, $3.n, @$); }
     | id "(" array_comp_decl_list ")" "[" array_comp_decl_list "]" {
-            VAR_SYM3($$, $1, $3.p, $3.n, $6.p, $6.n, @$); }
+            VAR_SYM4($$, $1, $3.p, $3.n, $6.p, $6.n, @$); }
 
 // TODO: is this needed? It seems it should go somewheer else
 /*
