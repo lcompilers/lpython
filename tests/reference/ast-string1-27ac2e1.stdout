@@ -1,1 +1,1 @@
-(TranslationUnit [(Program print_my_name [] [(ImplicitNone [])] [(Declaration (AttrType TypeCharacter [(len 7 Value)] ()) [] [(my_name [] (Str "Dominic"))])] [(Print 0 () [(Str "My name is ") my_name])] [])])
+(TranslationUnit [(Program print_my_name [] [(ImplicitNone [])] [(Declaration (AttrType TypeCharacter [(len 7 Value)] ()) [] [(my_name [] [] (Str "Dominic"))])] [(Print 0 () [(Str "My name is ") my_name])] [])])
