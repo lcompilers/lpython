@@ -5,6 +5,7 @@
 #include <lfortran/asr_verify.h>
 #include <lfortran/pass/nested_vars.h>
 #include <llvm/IR/Verifier.h>
+#include <unordered_map>
 
 namespace LFortran {
 
@@ -32,12 +33,17 @@ private:
     SymbolTable* current_scope;
     llvm::LLVMContext &context;
     std::vector<uint64_t> &needed_globals;
+    std::vector<uint64_t> &nested_call_out;
+    std::map<uint64_t, std::vector<uint64_t>> &nesting_map;
 
 public:
 
-    NestedVarVisitor(llvm::LLVMContext &context, std::vector<uint64_t> 
-        &needed_globals) : context{context}, 
-        needed_globals{needed_globals} { };
+    NestedVarVisitor(llvm::LLVMContext &context, std::vector<uint64_t>
+        &needed_globals, std::vector<uint64_t> &nested_call_out, 
+        std::map<uint64_t, std::vector<uint64_t>>&nesting_map) : 
+        context{context}, 
+        needed_globals{needed_globals}, 
+        nested_call_out{nested_call_out}, nesting_map{nesting_map} { };
     // Basically want to store a hash for each procedure and a hash for the
     // needed global types
     //std::map<uint64_t, std::vector<llvm::Type*>> nested_func_types;
@@ -45,6 +51,8 @@ public:
     uint32_t par_func_hash;
     std::vector<llvm::Type*> proc_types;
     std::map<uint64_t, std::vector<llvm::Type*>> nested_func_types;
+    std::vector<uint64_t> calls_to;
+    bool calls_out = false;
 
     inline llvm::Type* getIntType(int a_kind, bool get_pointer=false) {
         llvm::Type* type_ptr = nullptr;
@@ -114,25 +122,51 @@ public:
                 if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
                     par_func_hash = cur_func_hash;
                     ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(
-                            item.second);
+                        item.second);
+                    for (size_t i = 0; i < x.n_body; i++) {
+                        visit_stmt(*x.m_body[i]);
+                    }
                     visit_Subroutine(*s);
                 }
                 if (ASR::is_a<ASR::Function_t>(*item.second)) {
                     par_func_hash = cur_func_hash;
                     ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(
-                            item.second);
+                        item.second);
+                    for (size_t i = 0; i < x.n_body; i++) {
+                        visit_stmt(*x.m_body[i]);
+                    }
                     visit_Function(*s);
                 }
             }
         } else {
+            nesting_map[par_func_hash].push_back(cur_func_hash);
             std::vector<llvm::Type*> proc_types_i;
             nested_func_types.insert({cur_func_hash, proc_types_i});
             current_scope = x.m_symtab;
+            if (calls_out && x.m_deftype == LFortran::ASR::Implementation){
+                if (std::find(calls_to.begin(), calls_to.end(), cur_func_hash) 
+                    == calls_to.end() && calls_to.size() >= 1){
+                    /* Parent function does not call the nested function - if
+                       the function makes any external calls, we must save the
+                       context  */
+                    nested_call_out.push_back(par_func_hash);
+                } else if (std::find(calls_to.begin(), calls_to.end(), 
+                    cur_func_hash) != calls_to.end() && calls_to.size() >= 2 ){
+                    /* Parent function does call the nested function - if the 
+                       function makes any other external calls, we must save the
+                       context  */
+                    nested_call_out.push_back(par_func_hash);
+                }
+            }
             for (size_t i = 0; i < x.n_body; i++) {
                 visit_stmt(*x.m_body[i]);
             }
         }
         nesting_depth--;
+        if (nesting_depth == 0){
+            calls_out = false;
+            calls_to.clear();
+        }
     }
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
@@ -143,6 +177,34 @@ public:
     void visit_Function(const ASR::Function_t &x) {
         cur_func_hash = get_hash((ASR::asr_t*)&x);
         visit_procedure(x);
+    }
+
+    void visit_FunctionCall(const ASR::FunctionCall_t &x) {
+        if (nesting_depth == 1){
+            // Have to save all the calls out and make sure they are not solely
+            // to the nested function
+            ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(
+                symbol_get_past_external(x.m_name));
+            uint32_t call_hash = get_hash((ASR::asr_t*)s);
+            if (std::find(calls_to.begin(), calls_to.end(), call_hash) == 
+                calls_to.end()){
+                calls_to.push_back(call_hash);
+            }
+            calls_out = true;
+        }
+    }
+
+    void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
+        if (nesting_depth == 1){
+            ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(
+                symbol_get_past_external(x.m_name));
+            uint32_t call_hash = get_hash((ASR::asr_t*)s);
+            if (std::find(calls_to.begin(), calls_to.end(), call_hash) == 
+                calls_to.end()){
+                calls_to.push_back(call_hash);
+            }
+            calls_out = true;
+        }
     }
 
     void visit_Var(const ASR::Var_t &x) {
@@ -193,8 +255,10 @@ public:
 
 std::map<uint64_t, std::vector<llvm::Type*>> pass_find_nested_vars(
         ASR::TranslationUnit_t &unit, llvm::LLVMContext &context,
-        std::vector<uint64_t> &needed_globals) {
-    NestedVarVisitor v(context, needed_globals);
+        std::vector<uint64_t> &needed_globals, 
+        std::vector<uint64_t> &nested_call_out,
+        std::map<uint64_t, std::vector<uint64_t>> &nesting_map) {
+    NestedVarVisitor v(context, needed_globals, nested_call_out, nesting_map);
     v.visit_TranslationUnit(unit);
     LFORTRAN_ASSERT(asr_verify(unit));
     return v.nested_func_types;
