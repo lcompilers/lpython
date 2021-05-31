@@ -193,6 +193,7 @@ procedure_decl
 decl_attribute
     = AttrBind(identifier name)
     | AttrDimension(dimension* dim)
+    | AttrCodimension(dimension* dim)
     | AttrExtends(identifier name)
     | AttrIntent(attr_intent intent)
     | AttrNamelist(identifier name)

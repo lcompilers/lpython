@@ -146,6 +146,9 @@ static inline Vec<kind_item_t> a2kind_list(Allocator &al,
 #define DIMENSION0(l) make_AttrDimension_t( \
             p.m_a, l, \
             nullptr, 0)
+#define CODIMENSION(dim, l) make_AttrCodimension_t( \
+            p.m_a, l, \
+            dim.p, dim.size())
 
 #define ATTR_TYPE(x, l) make_AttrType_t( \
             p.m_a, l, \
@@ -855,6 +858,11 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
 #define CYCLE(l) make_Cycle_t(p.m_a, l, 0, nullptr)
 #define CYCLE2(id, l) make_Cycle_t(p.m_a, l, 0, name2char(id))
 #define CONTINUE(l) make_Continue_t(p.m_a, l, 0)
+
+#define EVENT_POST(eventVar, l) make_EventPost_t(p.m_a, l, EXPR(eventVar))
+#define EVENT_WAIT(eventVar, l) make_EventWait_t(p.m_a, l, EXPR(eventVar))
+#define SYNC_ALL(l) make_SyncAll_t(p.m_a, l)
+
 #define SUBROUTINE(name, args, bind, use, import, implicit, decl, stmts, contains, l) \
     make_Subroutine_t(p.m_a, l, \
         /*name*/ name2char(name), \
@@ -1378,9 +1386,5 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
 #define FINAL_NAME(name, l) make_FinalName_t(p.m_a, l, name2char(name))
 
 #define PASS(name, l) make_AttrPass_t(p.m_a, l, name2char(name))
-
-#define EVENT_POST(eventVar, l) make_EventPost_t(p.m_a, l, EXPR(eventVar))
-#define EVENT_WAIT(eventVar, l) make_EventWait_t(p.m_a, l, EXPR(eventVar))
-#define SYNC_ALL(l) make_SyncAll_t(p.m_a, l)
 
 #endif
