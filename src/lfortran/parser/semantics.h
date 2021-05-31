@@ -359,6 +359,12 @@ static inline Vec<struct_member_t> empty5()
     r.from_pointer_n(nullptr, 0);
     return r;
 }
+static inline Vec<FnArg> empty1()
+{
+    Vec<FnArg> r;
+    r.from_pointer_n(nullptr, 0);
+    return r;
+}
 
 static inline VarType* VARTYPE0_(Allocator &al,
         const LFortran::Str &s, const Vec<kind_item_t> kind, Location &l)
@@ -1320,7 +1326,6 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
         /*char* a_func*/ name2char(id),
         /* struct_member_t* */member.p, /* size_t */member.size(),
         /*fnarg_t* a_args*/ v.p, /*size_t n_args*/ v.size(),
-        /*fnarg_t* a_coargs*/ nullptr, /*size_t n_coargs*/ 0,
         /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size());
 }
 
@@ -1329,10 +1334,40 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
 #define FUNCCALLORARRAY2(members, id, args, l) FUNCCALLORARRAY0(p.m_a, id, \
         args, members, l)
 
-#define FUNCCALLORCOARRAY1(id, args, l) FUNCCALLORARRAY0(p.m_a, id, args, \
-        empty5(), l)
-#define FUNCCALLORCOARRAY2(id, args, coargs, l) FUNCCALLORARRAY0(p.m_a, id, \
-        args, empty5(), l)
+ast_t* COARRAY(Allocator &al, const ast_t *id,
+        const Vec<FnArg> &args, const Vec<FnArg> &coargs,
+        Location &l) {
+    Vec<fnarg_t> fn;
+    fn.reserve(al, args.size());
+    Vec<keyword_t> fnkw;
+    fnkw.reserve(al, args.size());
+    for (auto &item : args) {
+        if (item.keyword) {
+            fnkw.push_back(al, item.kw);
+        } else {
+            fn.push_back(al, item.arg);
+        }
+    }
+    Vec<fnarg_t> coarr;
+    coarr.reserve(al, coargs.size());
+    Vec<keyword_t> coarrkw;
+    coarrkw.reserve(al, coargs.size());
+    for (auto &item : coargs) {
+        if (item.keyword) {
+            coarrkw.push_back(al, item.kw);
+        } else {
+            coarr.push_back(al, item.arg);
+        }
+    }
+    return make_CoarrayRef_t(al, l,
+        /*char* a_func*/ name2char(id),
+        /*fnarg_t* */ fn.p, /*size_t */ fn.size(),
+        /*keyword_t* */ fnkw.p, /*size_t */ fnkw.size(),
+        /*fnarg_t* */ coarr.p, /*size_t s*/ coarr.size(),
+        /*keyword_t* */ coarrkw.p, /*size_t */ coarrkw.size());
+}
+#define COARRAY1(id, coargs, l) COARRAY(p.m_a, id, empty1(), coargs, l)
+#define COARRAY2(id, args, coargs, l) COARRAY(p.m_a, id, args, coargs, l)
 
 #define SELECT(cond, body, def, l) make_Select_t(p.m_a, l, 0, nullptr, \
         EXPR(cond), \
