@@ -903,7 +903,7 @@ public:
         if (x.n_codim > 0) {
             r.append("[");
             for (size_t i=0; i<x.n_codim; i++) {
-                visit_dimension(x.m_codim[i]);
+                visit_codimension(x.m_codim[i]);
                 r += s;
                 if (i < x.n_codim-1) r.append(",");
             }
@@ -1112,7 +1112,7 @@ public:
         if (x.n_codim > 0) {
             r += "[";
             for (size_t i=0; i<x.n_codim; i++) {
-                visit_dimension(x.m_codim[i]);
+                visit_codimension(x.m_codim[i]);
                 r += s;
                 if (i < x.n_codim-1) r.append(",");
             }
@@ -2338,6 +2338,38 @@ public:
             }
         } else {
             LFORTRAN_ASSERT(x.m_end_star == dimension_typeType::DimensionStar);
+            if (x.m_start) {
+                this->visit_expr(*x.m_start);
+                s += ":*";
+            } else {
+                s = "*";
+            }
+        }
+    }
+
+    void visit_codimension(const codimension_t &x) {
+        if (x.m_end_star == codimension_typeType::CodimensionExpr) {
+            std::string left;
+            bool left_is_one=false;
+            if (x.m_start) {
+                this->visit_expr(*x.m_start);
+                left = s;
+                if (x.m_start->type == AST::exprType::Num) {
+                    left_is_one = (AST::down_cast<AST::Num_t>(x.m_start)->m_n == 1);
+                };
+            }
+            std::string right;
+            if (x.m_end) {
+                this->visit_expr(*x.m_end);
+                right = s;
+            }
+            if (left_is_one && right != "") {
+                s = right;
+            } else {
+                s = left + ":" + right;
+            }
+        } else {
+            LFORTRAN_ASSERT(x.m_end_star == codimension_typeType::CodimensionStar);
             if (x.m_start) {
                 this->visit_expr(*x.m_start);
                 s += ":*";

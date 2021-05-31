@@ -193,7 +193,7 @@ procedure_decl
 decl_attribute
     = AttrBind(identifier name)
     | AttrDimension(dimension* dim)
-    | AttrCodimension(dimension* codim)
+    | AttrCodimension(codimension* codim)
     | AttrExtends(identifier name)
     | AttrIntent(attr_intent intent)
     | AttrNamelist(identifier name)
@@ -239,7 +239,7 @@ decl_type
     | TypeReal
     | TypeType
 
-var_sym = (identifier name, dimension* dim, dimension* codim,
+var_sym = (identifier name, dimension* dim, codimension* codim,
  expr? initializer)
 
 kind_item = (identifier? id, expr? value, kind_item_type type)
@@ -248,6 +248,9 @@ kind_item_type = Star | Colon | Value
 
 dimension = (expr? start, expr? end, dimension_type end_star)
 dimension_type = DimensionExpr | DimensionStar
+
+codimension = (expr? start, expr? end, codimension_type end_star)
+codimension_type = CodimensionExpr | CodimensionStar
 
 -- Encoding of an array dimension declaration:
 --           start      end     end_star
