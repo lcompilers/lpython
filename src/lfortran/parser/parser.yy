@@ -298,11 +298,13 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> var_decl
 %type <var_sym> var_sym_decl
 %type <vec_dim> array_comp_decl_list
+%type <vec_codim> coarray_comp_decl_list
 %type <fnarg> fnarray_arg
 %type <vec_fnarg> fnarray_arg_list_opt
 %type <fnarg> coarray_arg
 %type <vec_fnarg> coarray_arg_list
 %type <dim> array_comp_decl
+%type <codim> coarray_comp_decl
 %type <ast> var_type
 %type <ast> fn_mod
 %type <vec_ast> fn_mod_plus
@@ -930,7 +932,7 @@ var_modifier
     : KW_PARAMETER { $$ = SIMPLE_ATTR(Parameter, @$); }
     | KW_DIMENSION "(" array_comp_decl_list ")" { $$ = DIMENSION($3, @$); }
     | KW_DIMENSION { $$ = DIMENSION0(@$); }
-    | KW_CODIMENSION "[" array_comp_decl_list "]" { $$ = DIMENSION($3, @$); }
+    | KW_CODIMENSION "[" coarray_comp_decl_list "]" { $$ = CODIMENSION($3, @$); }
     | KW_ALLOCATABLE { $$ = SIMPLE_ATTR(Allocatable, @$); }
     | KW_POINTER { $$ = SIMPLE_ATTR(Pointer, @$); }
     | KW_TARGET { $$ = SIMPLE_ATTR(Target, @$); }
@@ -991,9 +993,9 @@ var_sym_decl
             VAR_SYM($$, $1, $3.p, $3.n, $6, @$); }
     | id "(" array_comp_decl_list ")" "=>" expr {
             VAR_SYM($$, $1, $3.p, $3.n, $6, @$); }
-    | id "[" array_comp_decl_list "]" { VAR_SYM2($$, $1, $3.p, $3.n, @$); }
-    | id "(" array_comp_decl_list ")" "[" array_comp_decl_list "]" {
-            VAR_SYM2($$, $1, $3.p, $3.n, @$); }
+    | id "[" coarray_comp_decl_list "]" { VAR_SYM3($$, $1, $3.p, $3.n, @$); }
+    | id "(" array_comp_decl_list ")" "[" coarray_comp_decl_list "]" {
+            VAR_SYM4($$, $1, $3.p, $3.n, $6.p, $6.n, @$); }
 
 // TODO: is this needed? It seems it should go somewheer else
 /*
@@ -1015,6 +1017,21 @@ array_comp_decl
     | ":"            { $$ = ARRAY_COMP_DECL5d(@$); }
     | "*"            { $$ = ARRAY_COMP_DECL6d(@$); }
     | expr ":" "*"   { $$ = ARRAY_COMP_DECL7d($1, @$); }
+    ;
+
+coarray_comp_decl_list
+    : coarray_comp_decl_list "," coarray_comp_decl { $$ = $1; PLIST_ADD($$, $3); }
+    | coarray_comp_decl { LIST_NEW($$); PLIST_ADD($$, $1); }
+    ;
+
+coarray_comp_decl
+    : expr           { $$ = COARRAY_COMP_DECL1d($1, @$); }
+    | expr ":" expr  { $$ = COARRAY_COMP_DECL2d($1, $3, @$); }
+    | expr ":"       { $$ = COARRAY_COMP_DECL3d($1, @$); }
+    | ":" expr       { $$ = COARRAY_COMP_DECL4d($2, @$); }
+    | ":"            { $$ = COARRAY_COMP_DECL5d(@$); }
+    | "*"            { $$ = COARRAY_COMP_DECL6d(@$); }
+    | expr ":" "*"   { $$ = COARRAY_COMP_DECL7d($1, @$); }
     ;
 
 
@@ -1475,15 +1492,15 @@ error_stop_statement
     ;
 
 event_post_statement
-    : KW_EVENT KW_POST "(" expr ")" { $$ = ERROR_STOP(@$); }
+    : KW_EVENT KW_POST "(" expr ")" { $$ = EVENT_POST($4, @$); }
     ;
 
 event_wait_statement
-    : KW_EVENT KW_WAIT "(" expr ")" { $$ = ERROR_STOP(@$); }
+    : KW_EVENT KW_WAIT "(" expr ")" { $$ = EVENT_WAIT($4, @$); }
     ;
 
 sync_all_statement
-    : KW_SYNC KW_ALL { $$ = ERROR_STOP(@$); }
+    : KW_SYNC KW_ALL { $$ = SYNC_ALL(@$); }
     ;
 
 // -----------------------------------------------------------------------------
@@ -1509,10 +1526,10 @@ expr
     : id { $$ = $1; }
     | struct_member_star id { NAME1($$, $2, $1, @$); }
     | id "(" fnarray_arg_list_opt ")" { $$ = FUNCCALLORARRAY($1, $3, @$); }
-    | id "(" fnarray_arg_list_opt ")" "[" coarray_arg_list "]" {
-            $$ = FUNCCALLORARRAY($1, $3, @$); }
     | id "[" coarray_arg_list "]" {
-            $$ = FUNCCALLORARRAY($1, $3, @$); }
+            $$ = COARRAY1($1, $3, @$); }
+    | id "(" fnarray_arg_list_opt ")" "[" coarray_arg_list "]" {
+            $$ = COARRAY2($1, $3, $6, @$); }
     | struct_member_star id "(" fnarray_arg_list_opt ")" {
             $$ = FUNCCALLORARRAY2($1, $2, $4, @$); }
     | "[" expr_list_opt rbracket { $$ = ARRAY_IN($2, @$); }

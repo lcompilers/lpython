@@ -900,6 +900,15 @@ public:
             }
             r.append(")");
         }
+        if (x.n_codim > 0) {
+            r.append("[");
+            for (size_t i=0; i<x.n_codim; i++) {
+                visit_codimension(x.m_codim[i]);
+                r += s;
+                if (i < x.n_codim-1) r.append(",");
+            }
+            r.append("]");
+        }
         if (x.m_initializer) {
             visit_expr(*x.m_initializer);
             r += "=" + s;
@@ -1091,6 +1100,23 @@ public:
                 if (i < x.n_dim-1) r.append(",");
             }
             r += ")";
+        }
+        s = r;
+    }
+
+    void visit_AttrCodimension(const AttrCodimension_t &x) {
+        std::string r;
+        r += syn(gr::Type);
+        r += "codimension";
+        r += syn();
+        if (x.n_codim > 0) {
+            r += "[";
+            for (size_t i=0; i<x.n_codim; i++) {
+                visit_codimension(x.m_codim[i]);
+                r += s;
+                if (i < x.n_codim-1) r.append(",");
+            }
+            r += "]";
         }
         s = r;
     }
@@ -1322,6 +1348,44 @@ public:
             this->visit_expr(*x.m_code);
             r.append(s);
         }
+        r += "\n";
+        s = r;
+    }
+
+    void visit_EventPost(const EventPost_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += syn(gr::Keyword);
+        r.append("event post");
+        r += syn();
+        r += " (";
+        this->visit_expr(*x.m_variable);
+        r.append(s);
+        r += ")";
+        r += "\n";
+        s = r;
+    }
+
+    void visit_EventWait(const EventWait_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += syn(gr::Keyword);
+        r.append("event wait");
+        r += syn();
+        r += " (";
+        this->visit_expr(*x.m_variable);
+        r.append(s);
+        r += ")";
+        r += "\n";
+        s = r;
+    }
+
+    void visit_SyncAll(const SyncAll_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += syn(gr::Keyword);
+        r.append("sync all");
+        r += syn();
         r += "\n";
         s = r;
     }
@@ -2141,6 +2205,40 @@ public:
         s = r;
     }
 
+    void visit_CoarrayRef(const CoarrayRef_t &x) {
+        std::string r;
+        r.append(x.m_name);
+        if(x.n_args > 0) {
+            r.append("(");
+            for (size_t i=0; i<x.n_args; i++) {
+                this->visit_fnarg(x.m_args[i]);
+                r.append(s);
+                if (i < x.n_args-1) r.append(", ");
+            }
+            if (x.n_fnkw > 0) r.append(", ");
+            for (size_t i=0; i<x.n_fnkw; i++) {
+                this->visit_keyword(x.m_fnkw[i]);
+                r.append(s);
+                if (i < x.n_fnkw-1) r.append(", ");
+            }
+            r.append(")");
+        }
+        r.append("[");
+        for (size_t i=0; i<x.n_coargs; i++) {
+            this->visit_fnarg(x.m_coargs[i]);
+            r.append(s);
+            if (i < x.n_coargs-1) r.append(", ");
+        }
+        if (x.n_cokw > 0) r.append(", ");
+        for (size_t i=0; i<x.n_cokw; i++) {
+            this->visit_keyword(x.m_cokw[i]);
+            r.append(s);
+            if (i < x.n_cokw-1) r.append(", ");
+        }
+        r.append("]");
+        s = r;
+    }
+
     void visit_ArrayInitializer(const ArrayInitializer_t &x) {
         std::string r = "[";
         for (size_t i=0; i<x.n_args; i++) {
@@ -2274,6 +2372,38 @@ public:
             }
         } else {
             LFORTRAN_ASSERT(x.m_end_star == dimension_typeType::DimensionStar);
+            if (x.m_start) {
+                this->visit_expr(*x.m_start);
+                s += ":*";
+            } else {
+                s = "*";
+            }
+        }
+    }
+
+    void visit_codimension(const codimension_t &x) {
+        if (x.m_end_star == codimension_typeType::CodimensionExpr) {
+            std::string left;
+            bool left_is_one=false;
+            if (x.m_start) {
+                this->visit_expr(*x.m_start);
+                left = s;
+                if (x.m_start->type == AST::exprType::Num) {
+                    left_is_one = (AST::down_cast<AST::Num_t>(x.m_start)->m_n == 1);
+                };
+            }
+            std::string right;
+            if (x.m_end) {
+                this->visit_expr(*x.m_end);
+                right = s;
+            }
+            if (left_is_one && right != "") {
+                s = right;
+            } else {
+                s = left + ":" + right;
+            }
+        } else {
+            LFORTRAN_ASSERT(x.m_end_star == codimension_typeType::CodimensionStar);
             if (x.m_start) {
                 this->visit_expr(*x.m_start);
                 s += ":*";

@@ -106,6 +106,8 @@ stmt
     | Cycle(int label, identifier? stmt_name)
     | Deallocate(int label, fnarg* args)
     | ErrorStop(int label, expr? code)
+    | EventPost(int label, expr variable)
+    | EventWait(int label, expr variable)
     | Exit(int label, identifier? stmt_name)
     | ForAllSingle(int label, identifier? stmt_name,
             concurrent_control *control, expr? mask, stmt assign)
@@ -121,6 +123,7 @@ stmt
     | Stop(int label, expr? code)
     | SubroutineCall(int label, identifier name, struct_member* member,
             fnarg* args, keyword* keywords)
+    | SyncAll(int label)
     | Write(int label, argstar* args, kw_argstar* kwargs, expr* values)
 
 -- Multi-line statements (each has a `label` and `stmt_name`):
@@ -152,6 +155,8 @@ expr
     | Compare(expr left, cmpop op, expr right)
     | FuncCallOrArray(identifier func, struct_member* member,
         fnarg* args, keyword* keywords)
+    | CoarrayRef(identifier name, fnarg* args, keyword* fnkw
+        fnarg* coargs, keyword* cokw)
     | ArrayInitializer(decl_attribute? vartype, expr* args)
     | ImpliedDoLoop(expr* values, identifier var, expr start, expr end,
         expr? increment)
@@ -190,6 +195,7 @@ procedure_decl
 decl_attribute
     = AttrBind(identifier name)
     | AttrDimension(dimension* dim)
+    | AttrCodimension(codimension* codim)
     | AttrExtends(identifier name)
     | AttrIntent(attr_intent intent)
     | AttrNamelist(identifier name)
@@ -235,7 +241,8 @@ decl_type
     | TypeReal
     | TypeType
 
-var_sym = (identifier name, dimension* dim, expr? initializer)
+var_sym = (identifier name, dimension* dim, codimension* codim,
+ expr? initializer)
 
 kind_item = (identifier? id, expr? value, kind_item_type type)
 
@@ -243,6 +250,9 @@ kind_item_type = Star | Colon | Value
 
 dimension = (expr? start, expr? end, dimension_type end_star)
 dimension_type = DimensionExpr | DimensionStar
+
+codimension = (expr? start, expr? end, codimension_type end_star)
+codimension_type = CodimensionExpr | CodimensionStar
 
 -- Encoding of an array dimension declaration:
 --           start      end     end_star
