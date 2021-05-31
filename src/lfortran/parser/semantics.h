@@ -1379,4 +1379,8 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
 
 #define PASS(name, l) make_AttrPass_t(p.m_a, l, name2char(name))
 
+#define EVENT_POST(eventVar, l) make_EventPost_t(p.m_a, l, EXPR(eventVar))
+#define EVENT_WAIT(eventVar, l) make_EventWait_t(p.m_a, l, EXPR(eventVar))
+#define SYNC_ALL(l) make_SyncAll_t(p.m_a, l)
+
 #endif

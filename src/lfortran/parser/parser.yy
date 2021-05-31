@@ -1475,15 +1475,15 @@ error_stop_statement
     ;
 
 event_post_statement
-    : KW_EVENT KW_POST "(" expr ")" { $$ = ERROR_STOP(@$); }
+    : KW_EVENT KW_POST "(" expr ")" { $$ = EVENT_POST($4, @$); }
     ;
 
 event_wait_statement
-    : KW_EVENT KW_WAIT "(" expr ")" { $$ = ERROR_STOP(@$); }
+    : KW_EVENT KW_WAIT "(" expr ")" { $$ = EVENT_WAIT($4, @$); }
     ;
 
 sync_all_statement
-    : KW_SYNC KW_ALL { $$ = ERROR_STOP(@$); }
+    : KW_SYNC KW_ALL { $$ = SYNC_ALL(@$); }
     ;
 
 // -----------------------------------------------------------------------------
