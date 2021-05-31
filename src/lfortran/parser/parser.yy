@@ -1509,10 +1509,10 @@ expr
     : id { $$ = $1; }
     | struct_member_star id { NAME1($$, $2, $1, @$); }
     | id "(" fnarray_arg_list_opt ")" { $$ = FUNCCALLORARRAY($1, $3, @$); }
-    | id "(" fnarray_arg_list_opt ")" "[" coarray_arg_list "]" {
-            $$ = FUNCCALLORARRAY($1, $3, @$); }
     | id "[" coarray_arg_list "]" {
-            $$ = FUNCCALLORARRAY($1, $3, @$); }
+            $$ = FUNCCALLORCOARRAY1($1, $3, @$); }
+    | id "(" fnarray_arg_list_opt ")" "[" coarray_arg_list "]" {
+            $$ = FUNCCALLORCOARRAY2($1, $3, $6, @$); }
     | struct_member_star id "(" fnarray_arg_list_opt ")" {
             $$ = FUNCCALLORARRAY2($1, $2, $4, @$); }
     | "[" expr_list_opt rbracket { $$ = ARRAY_IN($2, @$); }

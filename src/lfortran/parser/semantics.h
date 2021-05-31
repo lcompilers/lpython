@@ -1280,8 +1280,9 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
     }
     return make_FuncCallOrArray_t(al, l,
         /*char* a_func*/ name2char(id),
-        member.p, member.size(),
-        /*expr_t** a_args*/ v.p, /*size_t n_args*/ v.size(),
+        /* struct_member_t* */member.p, /* size_t */member.size(),
+        /*fnarg_t* a_args*/ v.p, /*size_t n_args*/ v.size(),
+        /*fnarg_t* a_coargs*/ nullptr, /*size_t n_coargs*/ 0,
         /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size());
 }
 
@@ -1289,6 +1290,11 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
         empty5(), l)
 #define FUNCCALLORARRAY2(members, id, args, l) FUNCCALLORARRAY0(p.m_a, id, \
         args, members, l)
+
+#define FUNCCALLORCOARRAY1(id, args, l) FUNCCALLORARRAY0(p.m_a, id, args, \
+        empty5(), l)
+#define FUNCCALLORCOARRAY2(id, args, coargs, l) FUNCCALLORARRAY0(p.m_a, id, \
+        args, empty5(), l)
 
 #define SELECT(cond, body, def, l) make_Select_t(p.m_a, l, 0, nullptr, \
         EXPR(cond), \
