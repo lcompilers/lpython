@@ -548,8 +548,8 @@ ast_t* implied_do3(Allocator &al, Location &loc,
 #define GOTO(x, l) make_GoTo_t(p.m_a, l, 0, x)
 
 
-ast_t* SUBROUTINE_CALL0(Allocator &al, const ast_t *id,
-        const Vec<FnArg> &args, Location &l) {
+ast_t* SUBROUTINE_CALL0(Allocator &al, struct_member_t* mem, size_t n,
+        const ast_t *id, const Vec<FnArg> &args, Location &l) {
     Vec<fnarg_t> v;
     v.reserve(al, args.size());
     Vec<keyword_t> v2;
@@ -563,14 +563,18 @@ ast_t* SUBROUTINE_CALL0(Allocator &al, const ast_t *id,
     }
     return make_SubroutineCall_t(al, l, 0,
         /*char* a_func*/ name2char(id),
+        /*struct_member_t* a_member*/ mem, /*size_t n_member*/ n,
         /*expr_t** a_args*/ v.p, /*size_t n_args*/ v.size(),
         /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size());
 }
 #define SUBROUTINE_CALL(name, args, l) SUBROUTINE_CALL0(p.m_a, \
-        name, args, l)
+        nullptr, 0, name, args, l)
+#define SUBROUTINE_CALL1(mem, name, args, l) SUBROUTINE_CALL0(p.m_a, \
+        mem.p, mem.n, name, args, l)
 #define SUBROUTINE_CALL2(name, l) make_SubroutineCall_t(p.m_a, l, 0, \
-        name2char(name), \
-        nullptr, 0, nullptr, 0)
+        name2char(name), nullptr, 0, nullptr, 0, nullptr, 0)
+#define SUBROUTINE_CALL3(mem, name, l) make_SubroutineCall_t(p.m_a, l, 0, \
+        name2char(name), mem.p, mem.n, nullptr, 0, nullptr, 0)
 
 Vec<fnarg_t> FNARGS(Allocator &al,
         const Vec<FnArg> &args) {

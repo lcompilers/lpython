@@ -1129,11 +1129,11 @@ subroutine_call
     : KW_CALL id "(" fnarray_arg_list_opt ")" {
             $$ = SUBROUTINE_CALL($2, $4, @$); }
     | KW_CALL struct_member_star id "(" fnarray_arg_list_opt ")" {
-            $$ = SUBROUTINE_CALL($3, $5, @$); }
+            $$ = SUBROUTINE_CALL1($2, $3, $5, @$); }
     | KW_CALL id {
             $$ = SUBROUTINE_CALL2($2, @$); }
     | KW_CALL struct_member_star id {
-            $$ = SUBROUTINE_CALL2($3, @$); }
+            $$ = SUBROUTINE_CALL3($2, $3, @$); }
     ;
 
 print_statement
