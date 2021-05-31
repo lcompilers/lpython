@@ -193,7 +193,7 @@ procedure_decl
 decl_attribute
     = AttrBind(identifier name)
     | AttrDimension(dimension* dim)
-    | AttrCodimension(dimension* dim)
+    | AttrCodimension(dimension* codim)
     | AttrExtends(identifier name)
     | AttrIntent(attr_intent intent)
     | AttrNamelist(identifier name)
@@ -239,7 +239,8 @@ decl_type
     | TypeReal
     | TypeType
 
-var_sym = (identifier name, dimension* dim, expr? initializer)
+var_sym = (identifier name, dimension* dim, dimension* codim,
+ expr? initializer)
 
 kind_item = (identifier? id, expr? value, kind_item_type type)
 

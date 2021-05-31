@@ -276,6 +276,8 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
             xout->m_name = name2char(xname); \
             xout->m_dim = xdimp; \
             xout->n_dim = xdimn; \
+            xout->m_codim = nullptr; \
+            xout->n_codim = 0; \
             xout->m_initializer=down_cast<expr_t>(xinit);
 
 #define VAR_SYM2(xout, xname, xdimp, xdimn, xloc) \
@@ -284,8 +286,19 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
             xout->m_name = name2char(xname); \
             xout->m_dim = xdimp; \
             xout->n_dim = xdimn; \
+            xout->m_codim = nullptr; \
+            xout->n_codim = 0; \
             xout->m_initializer=nullptr;
 
+#define VAR_SYM3(xout, xname, xdimp, xdimn, xcodimp, xcodimn, xloc) \
+            xout = p.m_a.allocate<var_sym_t>(1); \
+            xout->loc = xloc; \
+            xout->m_name = name2char(xname); \
+            xout->m_dim = xdimp; \
+            xout->n_dim = xdimn; \
+            xout->m_codim = xcodimp; \
+            xout->n_codim = xcodimn; \
+            xout->m_initializer=nullptr;
 
 static inline expr_t** DIMS2EXPRS(Allocator &al, const Vec<FnArg> &d)
 {
