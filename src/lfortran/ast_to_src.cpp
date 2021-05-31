@@ -1149,6 +1149,10 @@ public:
         r += "call";
         r += syn();
         r += " ";
+        for (size_t i=0; i<x.n_member; i++) {
+            r.append(x.m_member[i].m_name);
+            r.append("%");
+        }
         r.append(x.m_name);
         r.append("(");
         for (size_t i=0; i<x.n_args; i++) {
@@ -1159,6 +1163,11 @@ public:
                 r += ":";
             }
             if (i < x.n_args-1) r.append(", ");
+        }
+        for (size_t i=0; i<x.n_keywords; i++) {
+            this->visit_keyword(x.m_keywords[i]);
+            r.append(s);
+            if (i < x.n_keywords-1) r.append(", ");
         }
         r.append(")\n");
         s = r;

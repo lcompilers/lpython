@@ -563,9 +563,9 @@ ast_t* SUBROUTINE_CALL0(Allocator &al, struct_member_t* mem, size_t n,
     }
     return make_SubroutineCall_t(al, l, 0,
         /*char* a_func*/ name2char(id),
+        /*struct_member_t* a_member*/ mem, /*size_t n_member*/ n,
         /*expr_t** a_args*/ v.p, /*size_t n_args*/ v.size(),
-        /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size(),
-        /*struct_member_t* a_member*/ mem, /*size_t n_member*/ n);
+        /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size());
 }
 #define SUBROUTINE_CALL(name, args, l) SUBROUTINE_CALL0(p.m_a, \
         nullptr, 0, name, args, l)
@@ -574,7 +574,7 @@ ast_t* SUBROUTINE_CALL0(Allocator &al, struct_member_t* mem, size_t n,
 #define SUBROUTINE_CALL2(name, l) make_SubroutineCall_t(p.m_a, l, 0, \
         name2char(name), nullptr, 0, nullptr, 0, nullptr, 0)
 #define SUBROUTINE_CALL3(mem, name, l) make_SubroutineCall_t(p.m_a, l, 0, \
-        name2char(name), nullptr, 0, nullptr, 0, mem.p, mem.n)
+        name2char(name), mem.p, mem.n, nullptr, 0, nullptr, 0)
 
 Vec<fnarg_t> FNARGS(Allocator &al,
         const Vec<FnArg> &args) {
