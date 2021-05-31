@@ -1360,8 +1360,8 @@ public:
         r += syn();
         r += " (";
         this->visit_expr(*x.m_variable);
-        r += ")";
         r.append(s);
+        r += ")";
         r += "\n";
         s = r;
     }
@@ -1374,8 +1374,8 @@ public:
         r += syn();
         r += " (";
         this->visit_expr(*x.m_variable);
-        r += ")";
         r.append(s);
+        r += ")";
         r += "\n";
         s = r;
     }
@@ -2202,6 +2202,40 @@ public:
             if (i < x.n_keywords-1) r.append(", ");
         }
         r.append(")");
+        s = r;
+    }
+
+    void visit_CoarrayRef(const CoarrayRef_t &x) {
+        std::string r;
+        r.append(x.m_name);
+        if(x.n_args > 0) {
+            r.append("(");
+            for (size_t i=0; i<x.n_args; i++) {
+                this->visit_fnarg(x.m_args[i]);
+                r.append(s);
+                if (i < x.n_args-1) r.append(", ");
+            }
+            if (x.n_fnkw > 0) r.append(", ");
+            for (size_t i=0; i<x.n_fnkw; i++) {
+                this->visit_keyword(x.m_fnkw[i]);
+                r.append(s);
+                if (i < x.n_fnkw-1) r.append(", ");
+            }
+            r.append(")");
+        }
+        r.append("[");
+        for (size_t i=0; i<x.n_coargs; i++) {
+            this->visit_fnarg(x.m_coargs[i]);
+            r.append(s);
+            if (i < x.n_coargs-1) r.append(", ");
+        }
+        if (x.n_cokw > 0) r.append(", ");
+        for (size_t i=0; i<x.n_cokw; i++) {
+            this->visit_keyword(x.m_cokw[i]);
+            r.append(s);
+            if (i < x.n_cokw-1) r.append(", ");
+        }
+        r.append("]");
         s = r;
     }
 
