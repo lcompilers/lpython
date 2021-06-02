@@ -1,0 +1,44 @@
+; ModuleID = 'LFortran'
+source_filename = "LFortran"
+
+@0 = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
+
+define void @__module_callback_05_px_call1(i32* %x) {
+.entry:
+  call void @__module_callback_05_px_call2(void (i32*)* @__module_callback_05_printx, i32* %x)
+  ret void
+}
+
+define void @__module_callback_05_px_call2(void (i32*)* %f, i32* %x) {
+.entry:
+  call void @__module_callback_05_px_call3(void (i32*)* %f, i32* %x)
+  ret void
+}
+
+define void @__module_callback_05_px_call3(void (i32*)* %f, i32* %x) {
+.entry:
+  call void %f(i32* %x)
+  ret void
+}
+
+define void @__module_callback_05_printx(i32* %x) {
+.entry:
+  %0 = load i32, i32* %x, align 4
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0), i32 %0)
+  ret void
+}
+
+declare void @_lfortran_printf(i8*, ...)
+
+declare void @__module_callback_05_f(i32*)
+
+declare void @__module_callback_05_f.1(i32*)
+
+define i32 @main() {
+.entry:
+  %x = alloca i32, align 4
+  store i32 5, i32* %x, align 4
+  call void @__module_callback_05_px_call1(i32* %x)
+  ret i32 0
+}
+

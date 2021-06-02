@@ -185,12 +185,6 @@ public:
         in a nested_function before checking if we need to declare stack 
         types */
 
-
-    // Data members for callback functions/procedures as arguments
-    std::map<std::string, uint64_t> interface_procs; /* Links a procedure
-         implementation to it's string name for adding to the BB */
-
-
     ASRToLLVMVisitor(llvm::LLVMContext &context) : context(context), prototype_only(false), 
     dim_des(llvm::StructType::create(
             context, 
@@ -2760,14 +2754,24 @@ public:
                             symbol_get_past_external(ASR::down_cast<ASR::Var_t>(
                             x.m_args[i])->m_v));
                         uint32_t h = get_hash((ASR::asr_t*)fn);
-                        tmp = llvm_symtab_fn[h];
+                        if (fn->m_deftype == ASR::deftypeType::Implementation) {
+                            tmp = llvm_symtab_fn[h];
+                        } else {
+                            // Must be an argument/chained procedure pass
+                            tmp = llvm_symtab_fn_arg[h];
+                        }
                     } else if (is_a<ASR::Subroutine_t>(*symbol_get_past_external(
                         ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
                         ASR::Subroutine_t* fn = ASR::down_cast<ASR::Subroutine_t>(
                             symbol_get_past_external(ASR::down_cast<ASR::Var_t>(
                             x.m_args[i])->m_v));
                         uint32_t h = get_hash((ASR::asr_t*)fn);
-                        tmp = llvm_symtab_fn[h];
+                        if (fn->m_deftype == ASR::deftypeType::Implementation) {
+                            tmp = llvm_symtab_fn[h];
+                        } else {
+                            // Must be an argument/chained procedure pass
+                            tmp = llvm_symtab_fn_arg[h];
+                        }
                     }
                 } else {
                     this->visit_expr_wrapper(x.m_args[i]);
