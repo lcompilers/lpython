@@ -169,6 +169,67 @@ public:
         }
     }
 
+
+    void visit_procedure(const ASR::Program_t &x) {
+        nesting_depth++;
+        if (nesting_depth == 1) {
+            for (auto &item : x.m_symtab->scope) {
+                if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
+                    par_func_hash = cur_func_hash;
+                    ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(
+                        item.second);
+                    for (size_t i = 0; i < x.n_body; i++) {
+                        visit_stmt(*x.m_body[i]);
+                    }
+                    visit_Subroutine(*s);
+                }
+                if (ASR::is_a<ASR::Function_t>(*item.second)) {
+                    par_func_hash = cur_func_hash;
+                    ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(
+                        item.second);
+                    for (size_t i = 0; i < x.n_body; i++) {
+                        visit_stmt(*x.m_body[i]);
+                    }
+                    visit_Function(*s);
+                }
+            }
+        } else {
+            nesting_map[par_func_hash].push_back(cur_func_hash);
+            std::vector<llvm::Type*> proc_types_i;
+            nested_func_types.insert({cur_func_hash, proc_types_i});
+            current_scope = x.m_symtab;
+            if (calls_out){
+                if (std::find(calls_to.begin(), calls_to.end(), cur_func_hash) 
+                    == calls_to.end() && calls_to.size() >= 1){
+                    /* Parent function does not call the nested function - if
+                       the function makes any external calls, we must save the
+                       context  */
+                    nested_call_out.push_back(par_func_hash);
+                } else if (std::find(calls_to.begin(), calls_to.end(), 
+                    cur_func_hash) != calls_to.end() && calls_to.size() >= 2 ){
+                    /* Parent function does call the nested function - if the 
+                       function makes any other external calls, we must save the
+                       context  */
+                    nested_call_out.push_back(par_func_hash);
+                }
+            }
+            for (size_t i = 0; i < x.n_body; i++) {
+                visit_stmt(*x.m_body[i]);
+            }
+        }
+        nesting_depth--;
+        if (nesting_depth == 0){
+            calls_out = false;
+            calls_to.clear();
+        }
+    }
+
+
+    void visit_Program(const ASR::Program_t &x) {
+        cur_func_hash = get_hash((ASR::asr_t*)&x);
+        visit_procedure(x);
+    }
+
     void visit_Subroutine(const ASR::Subroutine_t &x) {
         cur_func_hash = get_hash((ASR::asr_t*)&x);
         visit_procedure(x);
