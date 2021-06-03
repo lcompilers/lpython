@@ -547,6 +547,8 @@ procedure_decl
             $$ = DERIVED_TYPE_PROC1($3, $5, $6, @$); }
     | KW_GENERIC "::" KW_OPERATOR "(" operator_type ")" "=>" id_list sep {
             $$ = GENERIC_OPERATOR($5, $8, @$); }
+    | KW_GENERIC "::" KW_OPERATOR "(" TK_DEF_OP ")" "=>" id_list sep {
+            $$ = GENERIC_CUSTOPERATOR($5, $8, @$); }
     | KW_GENERIC "::" KW_ASSIGNMENT "(" "=" ")" "=>" id_list sep {
             $$ = GENERIC_ASSIGNMENT($8, @$); }
     | KW_GENERIC "::" id "=>" id_list sep { $$ = GENERIC_NAME($3, $5, @$); }

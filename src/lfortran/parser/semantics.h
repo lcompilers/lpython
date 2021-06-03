@@ -1471,6 +1471,8 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         USE_SYMBOLS(syms), syms.size())
 #define GENERIC_OPERATOR(optype, namelist, l) make_GenericOperator_t(p.m_a, l, \
         optype, REDUCE_ARGS(p.m_a, namelist), namelist.size())
+#define GENERIC_CUSTOPERATOR(optype, namelist, l) make_GenericCustomOperator_t( \
+        p.m_a, l, optype.c_str(p.m_a), REDUCE_ARGS(p.m_a, namelist), namelist.size())
 #define GENERIC_ASSIGNMENT(namelist, l) make_GenericAssignment_t(p.m_a, l, \
         REDUCE_ARGS(p.m_a, namelist), namelist.size())
 #define GENERIC_NAME(name, namelist, l) make_GenericName_t(p.m_a, l, \
