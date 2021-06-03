@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-arrays_04_func-8d7edb9",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/arrays_04_func.f90",
+    "infile_hash": "50eb699e803e7dace8da286ee49cdb7381ebe3141bff17ca374f1f02",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-arrays_04_func-8d7edb9.stdout",
+    "stdout_hash": "7adf9b18cb5c58b8a0b7651e13778acc605359bf321b0cb4cca8496f",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
