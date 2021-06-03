@@ -446,6 +446,21 @@ public:
         }
         s = r;
     }
+    void visit_GenericCustomOperator(const GenericCustomOperator_t &x) {
+        std::string r;
+        r += syn(gr::String);
+        r.append("generic :: operator");
+        r += syn();
+        r += "(";
+        r.append(x.m_optype);
+        r += ")";
+        r += " => ";
+        for (size_t i=0; i<x.n_names; i++) {
+            r.append(x.m_names[i]);
+            if (i < x.n_names-1) r.append(", ");
+        }
+        s = r;
+    }
     void visit_GenericAssignment(const GenericAssignment_t &x) {
         std::string r;
         r += syn(gr::String);
