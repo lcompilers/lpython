@@ -309,6 +309,7 @@ type_stmt
     | ClassDefault(stmt* body)
 
 use_symbol = UseSymbol(identifier sym, identifier? rename)
+    | UseAssignment()
     | IntrinsicOperator(interfaceop op)
     | CustomOperator(identifier opName)
 

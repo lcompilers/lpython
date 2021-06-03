@@ -2519,12 +2519,16 @@ public:
         s.append(x.m_sym);
     }
 
+    void visit_UseAssignment(const UseAssignment_t & /*x*/) {
+        s = "assignment (=)";
+    }
+
     void visit_IntrinsicOperator(const IntrinsicOperator_t &x) {
-        s += "(" + interfaceop2str(x.m_op) + ")";
+        s = "operator (" + interfaceop2str(x.m_op) + ")";
     }
 
     void visit_CustomOperator(const CustomOperator_t &x) {
-        s += "(";
+        s = "operator (";
         s.append(x.m_opName);
         s += ")";
     }
