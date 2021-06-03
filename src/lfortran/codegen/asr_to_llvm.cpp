@@ -1423,20 +1423,20 @@ public:
         declare_vars(x);
     }
 
-    // void visit_Function(const ASR::Function_t &x) {
-    //     if( !(x.m_abi == ASR::abiType::Source ||
-    //           x.m_abi == ASR::abiType::Interactive ||
-    //           (x.m_abi == ASR::abiType::Intrinsic && 
-    //            ((fname2arg_type.find(std::string(x.m_name)) != fname2arg_type.end() || x.m_deftype != ASR::deftypeType::Interface) &&  
-    //             std::find(c_runtime_intrinsics.begin(), c_runtime_intrinsics.end(), std::string(x.m_name)) 
-    //             == c_runtime_intrinsics.end()))) ) { 
-    //                         return;
-    //     }
-    //     instantiate_function(x);
-    //     visit_procedures(x);
-    //     generate_function(x);
-    //     parent_function = nullptr;
-    // }
+    void visit_Function(const ASR::Function_t &x) {
+        if( !(x.m_abi == ASR::abiType::Source ||
+              x.m_abi == ASR::abiType::Interactive ||
+              (x.m_abi == ASR::abiType::Intrinsic && 
+               ((fname2arg_type.find(std::string(x.m_name)) != fname2arg_type.end() || x.m_deftype != ASR::deftypeType::Interface) &&  
+                std::find(c_runtime_intrinsics.begin(), c_runtime_intrinsics.end(), std::string(x.m_name)) 
+                == c_runtime_intrinsics.end()))) ) { 
+                            return;
+        }
+        instantiate_function(x);
+        visit_procedures(x);
+        generate_function(x);
+        parent_function = nullptr;
+    }
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
         if (x.m_abi != ASR::abiType::Source &&
@@ -1448,6 +1448,8 @@ public:
         generate_subroutine(x);
         parent_subroutine = nullptr;
     }
+
+
 
     void instantiate_subroutine(const ASR::Subroutine_t &x){
         uint32_t h = get_hash((ASR::asr_t*)&x);
@@ -1474,6 +1476,7 @@ public:
         return function_type;
     }
 
+
     void generate_subroutine(const ASR::Subroutine_t &x){
         bool interactive = (x.m_abi == ASR::abiType::Interactive);
         if (x.m_deftype == ASR::deftypeType::Implementation) {
@@ -1490,36 +1493,6 @@ public:
                 define_subroutine_exit(x);                
             }
         }
-    }
-
-    void visit_Function(const ASR::Function_t &x) {
-        if( !(x.m_abi == ASR::abiType::Source ||
-              x.m_abi == ASR::abiType::Interactive ||
-              (x.m_abi == ASR::abiType::Intrinsic && 
-               ((fname2arg_type.find(std::string(x.m_name)) != fname2arg_type.end() || x.m_deftype != ASR::deftypeType::Interface) &&  
-                std::find(c_runtime_intrinsics.begin(), c_runtime_intrinsics.end(), std::string(x.m_name)) 
-                == c_runtime_intrinsics.end()))) ) { 
-                            return;
-        }
-        // Check if the procedure has a nested function that needs access to
-        // some variables in its local scope
-        uint32_t h = get_hash((ASR::asr_t*)&x);
-        std::vector<llvm::Type*> nested_type;
-        if (nested_func_types[h].size() > 0) {
-            nested_type = nested_func_types[h];
-            needed_global_struct = llvm::StructType::create(
-                context, nested_type, x.m_name);
-            desc_name = x.m_name;
-            std::string desc_string = "_nstd_strct";
-            desc_name += desc_string;
-            module->getOrInsertGlobal(desc_name, needed_global_struct);
-            llvm::ConstantAggregateZero* initializer = 
-                llvm::ConstantAggregateZero::get(needed_global_struct);
-            module->getNamedGlobal(desc_name)->setInitializer(initializer);
-        }
-        instantiate_function(x);
-        visit_procedures(x);
-        generate_function(x);
     }
 
     void instantiate_function(const ASR::Function_t &x){
@@ -1539,6 +1512,7 @@ public:
             llvm_symtab_fn[h] = F;
         }
     }
+
 
     llvm::FunctionType* get_function_type(const ASR::Function_t &x){
         ASR::ttype_t *return_var_type0 = EXPR2VAR(x.m_return_var)->m_type;
