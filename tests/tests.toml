@@ -391,6 +391,8 @@ ast_f90 = true
 
 [[test]]
 filename = "../integration_tests/arrays_03_func.f90"
+asr = true
+llvm = true
 cpp = true
 
 [[test]]
@@ -1086,15 +1088,15 @@ llvm = true
 
 [[test]]
 filename = "../integration_tests/recursion_01.f90"
-llvm = true
+asr = true
 
 [[test]]
 filename = "../integration_tests/recursion_02.f90"
-llvm = true
+asr = true
 
 [[test]]
 filename = "../integration_tests/recursion_03.f90"
-llvm = true
+asr = true
 
 [[test]]
 filename = "../integration_tests/return_01.f90"
@@ -1118,4 +1120,4 @@ ast = true
 
 [[test]]
 filename = "../integration_tests/program_03.f90"
-llvm = true
+asr = true
