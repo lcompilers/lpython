@@ -21,6 +21,8 @@ contains
     procedure, pass(self) :: p2
     generic :: operator(/=) => p5, p6
     generic :: operator(+) => p8
+    generic :: operator(.in.) => p7
+    generic :: operator(.dot.) => p10
     generic :: assignment(=) => p9
     generic :: p1 => p2;
     final :: y
