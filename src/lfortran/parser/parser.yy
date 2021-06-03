@@ -547,6 +547,8 @@ procedure_decl
             $$ = DERIVED_TYPE_PROC1($3, $5, $6, @$); }
     | KW_GENERIC "::" KW_OPERATOR "(" operator_type ")" "=>" id_list sep {
             $$ = GENERIC_OPERATOR($5, $8, @$); }
+    | KW_GENERIC "::" KW_OPERATOR "(" TK_DEF_OP ")" "=>" id_list sep {
+            $$ = GENERIC_CUSTOPERATOR($5, $8, @$); }
     | KW_GENERIC "::" KW_ASSIGNMENT "(" "=" ")" "=>" id_list sep {
             $$ = GENERIC_ASSIGNMENT($8, @$); }
     | KW_GENERIC "::" id "=>" id_list sep { $$ = GENERIC_NAME($3, $5, @$); }
@@ -852,7 +854,9 @@ use_symbol_list
 use_symbol
     : id          { $$ = USE_SYMBOL1($1, @$); }
     | id "=>" id  { $$ = USE_SYMBOL2($1, $3, @$); }
-    | KW_ASSIGNMENT "(" "=" ")"  { $$ = USE_SYMBOL3(@$); }
+    | KW_ASSIGNMENT "(" "=" ")"  { $$ = USE_ASSIGNMENT(@$); }
+    | KW_OPERATOR "(" operator_type ")"  { $$ = INTRINSIC_OPERATOR($3, @$); }
+    | KW_OPERATOR "(" TK_DEF_OP ")"  { $$ = CUSTOM_OPERATOR($3, @$); }
     ;
 
 use_modifiers

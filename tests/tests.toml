@@ -1119,3 +1119,7 @@ ast = true
 [[test]]
 filename = "../integration_tests/program_03.f90"
 llvm = true
+
+[[test]]
+filename = "use_statement.f90"
+ast = true

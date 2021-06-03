@@ -1409,8 +1409,12 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         name2char(x), nullptr)
 #define USE_SYMBOL2(x, y, l) make_UseSymbol_t(p.m_a, l, \
         name2char(y), name2char(x))
-#define USE_SYMBOL3(l) make_UseSymbol_t(p.m_a, l, \
-        nullptr, nullptr)
+#define USE_ASSIGNMENT(l) make_UseAssignment_t(p.m_a, l)
+#define INTRINSIC_OPERATOR(op, l) make_IntrinsicOperator_t(p.m_a, l, \
+        op)
+#define CUSTOM_OPERATOR(optype, l) make_CustomOperator_t(p.m_a, l, \
+        optype.c_str(p.m_a))
+
 
 #define MODULE(name, use, implicit, decl, contains, l) make_Module_t(p.m_a, l, \
         name2char(name), \
@@ -1471,6 +1475,8 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         USE_SYMBOLS(syms), syms.size())
 #define GENERIC_OPERATOR(optype, namelist, l) make_GenericOperator_t(p.m_a, l, \
         optype, REDUCE_ARGS(p.m_a, namelist), namelist.size())
+#define GENERIC_CUSTOPERATOR(optype, namelist, l) make_GenericCustomOperator_t( \
+        p.m_a, l, optype.c_str(p.m_a), REDUCE_ARGS(p.m_a, namelist), namelist.size())
 #define GENERIC_ASSIGNMENT(namelist, l) make_GenericAssignment_t(p.m_a, l, \
         REDUCE_ARGS(p.m_a, namelist), namelist.size())
 #define GENERIC_NAME(name, namelist, l) make_GenericName_t(p.m_a, l, \
