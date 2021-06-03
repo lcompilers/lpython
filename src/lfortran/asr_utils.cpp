@@ -1,4 +1,10 @@
 #include <lfortran/asr_utils.h>
+#include <lfortran/string_utils.h>
+#include <lfortran/serialization.h>
+#include <lfortran/assert.h>
+#include <lfortran/asr_verify.h>
+#include <lfortran/utils.h>
+#include <lfortran/modfile.h>
 
 namespace LFortran {
 
@@ -74,6 +80,153 @@ std::vector<std::string> determine_module_dependencies(
         }
     }
     return order_deps(deps);
+}
+
+ASR::Module_t* extract_module(const ASR::TranslationUnit_t &m) {
+    LFORTRAN_ASSERT(m.m_global_scope->scope.size()== 1);
+    for (auto &a : m.m_global_scope->scope) {
+        LFORTRAN_ASSERT(ASR::is_a<ASR::Module_t>(*a.second));
+        return ASR::down_cast<ASR::Module_t>(a.second);
+    }
+    throw LFortranException("ICE: Module not found");
+}
+
+ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
+                            const std::string &module_name,
+                            const Location &loc, bool intrinsic) {
+    LFORTRAN_ASSERT(symtab);
+    if (symtab->scope.find(module_name) != symtab->scope.end()) {
+        ASR::symbol_t *m = symtab->scope[module_name];
+        if (ASR::is_a<ASR::Module_t>(*m)) {
+            return ASR::down_cast<ASR::Module_t>(m);
+        } else {
+            throw SemanticError("The symbol '" + module_name
+                + "' is not a module", loc);
+        }
+    }
+    LFORTRAN_ASSERT(symtab->parent == nullptr);
+    ASR::TranslationUnit_t *mod1 = find_and_load_module(al, module_name,
+            *symtab, intrinsic);
+    if (mod1 == nullptr) {
+        throw SemanticError("Module '" + module_name + "' not declared in the current source and the modfile was not found",
+            loc);
+    }
+    ASR::Module_t *mod2 = extract_module(*mod1);
+    symtab->scope[module_name] = (ASR::symbol_t*)mod2;
+    mod2->m_symtab->parent = symtab;
+    mod2->m_loaded_from_mod = true;
+    LFORTRAN_ASSERT(symtab->resolve_symbol(module_name));
+
+    // Create a temporary TranslationUnit just for fixing the symbols
+    ASR::TranslationUnit_t *tu
+        = ASR::down_cast2<ASR::TranslationUnit_t>(ASR::make_TranslationUnit_t(al, loc,
+            symtab, nullptr, 0));
+
+    // Load any dependent modules recursively
+    bool rerun = true;
+    while (rerun) {
+        rerun = false;
+        std::vector<std::string> modules_list
+            = determine_module_dependencies(*tu);
+        for (auto &item : modules_list) {
+            if (symtab->scope.find(item)
+                    == symtab->scope.end()) {
+                // A module that was loaded requires to load another
+                // module
+
+                // This is not very robust, we should store that information
+                // in the ASR itself, or encode in the name in a robust way,
+                // such as using `module_name@intrinsic`:
+                bool is_intrinsic = startswith(item, "lfortran_intrinsic");
+                ASR::TranslationUnit_t *mod1 = find_and_load_module(al,
+                        item,
+                        *symtab, is_intrinsic);
+                if (mod1 == nullptr) {
+                    throw SemanticError("Module '" + item + "' modfile was not found",
+                        loc);
+                }
+                ASR::Module_t *mod2 = extract_module(*mod1);
+                symtab->scope[item] = (ASR::symbol_t*)mod2;
+                mod2->m_symtab->parent = symtab;
+                mod2->m_loaded_from_mod = true;
+                rerun = true;
+            }
+        }
+    }
+
+    // Check that all modules are included in ASR now
+    std::vector<std::string> modules_list
+        = determine_module_dependencies(*tu);
+    for (auto &item : modules_list) {
+        if (symtab->scope.find(item) == symtab->scope.end()) {
+            throw SemanticError("ICE: Module '" + item + "' modfile was not found, but should have",
+                loc);
+        }
+    }
+
+    // Fix all external symbols
+    fix_external_symbols(*tu, *symtab);
+    LFORTRAN_ASSERT(asr_verify(*tu));
+
+    return mod2;
+}
+
+void set_intrinsic(ASR::symbol_t* sym) {
+    switch( sym->type ) {
+        case ASR::symbolType::Module: {
+            ASR::Module_t* module_sym = ASR::down_cast<ASR::Module_t>(sym);
+            for( auto& itr: module_sym->m_symtab->scope ) {
+                set_intrinsic(itr.second);
+            }
+            break;
+        }
+        case ASR::symbolType::Function: {
+            ASR::Function_t* function_sym = ASR::down_cast<ASR::Function_t>(sym);
+            function_sym->m_abi = ASR::abiType::Intrinsic;
+            break;
+        }
+        case ASR::symbolType::Subroutine: {
+            ASR::Subroutine_t* subroutine_sym = ASR::down_cast<ASR::Subroutine_t>(sym);
+            subroutine_sym->m_abi = ASR::abiType::Intrinsic;
+            break;
+        }
+        case ASR::symbolType::DerivedType: {
+            ASR::DerivedType_t* derived_type_sym = ASR::down_cast<ASR::DerivedType_t>(sym);
+            derived_type_sym->m_abi = ASR::abiType::Intrinsic;
+            break;
+        }
+        case ASR::symbolType::Variable: {
+            ASR::Variable_t* derived_type_sym = ASR::down_cast<ASR::Variable_t>(sym);
+            derived_type_sym->m_abi = ASR::abiType::Intrinsic;
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+}
+
+void set_intrinsic(ASR::TranslationUnit_t* trans_unit) {
+    for( auto& itr: trans_unit->m_global_scope->scope ) {
+        set_intrinsic(itr.second);
+    }
+}
+
+ASR::TranslationUnit_t* find_and_load_module(Allocator &al, const std::string &msym,
+                                                SymbolTable &symtab, bool intrinsic) {
+    std::string modfilename = msym + ".mod";
+    if (intrinsic) {
+        std::string rl_path = get_runtime_library_dir();
+        modfilename = rl_path + "/" + modfilename;
+    }
+    std::string modfile = read_file(modfilename);
+    if (modfile == "") return nullptr;
+    ASR::TranslationUnit_t *asr = load_modfile(al, modfile, false,
+        symtab);
+    if (intrinsic) {
+        set_intrinsic(asr);
+    }
+    return asr;
 }
 
 } // namespace LFortran

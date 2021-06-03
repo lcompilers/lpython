@@ -2,7 +2,7 @@ program derived_types_03
 implicit none
 type :: X
     integer :: i
-end type
+end type X
 type(X) :: b
 
 contains
@@ -10,14 +10,14 @@ contains
 subroutine Y()
 type :: A
     integer :: i
-end type
+end type A
 type(A) :: b
 end subroutine Y
 
 integer function Z()
 type :: A
     integer :: i
-end type
+end type A
 type(A) :: b
 Z = 5
 end function Z

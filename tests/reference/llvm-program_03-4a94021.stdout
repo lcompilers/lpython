@@ -1,0 +1,64 @@
+; ModuleID = 'LFortran'
+source_filename = "LFortran"
+
+%closuretest_nstd_types = type { i32* }
+%closuretest_vals = type { i32 }
+
+@closuretest_nstd_strct = global %closuretest_nstd_types zeroinitializer
+@closuretest_nstd_strct_stack = global [1000 x %closuretest_vals] zeroinitializer
+@sp_closuretest = global i32 zeroinitializer
+@0 = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
+
+define i32 @add_z(i32* %x) {
+.entry:
+  %y = alloca i32, align 4
+  %0 = load i32, i32* %x, align 4
+  %1 = load i32*, i32** getelementptr inbounds (%closuretest_nstd_types, %closuretest_nstd_types* @closuretest_nstd_strct, i32 0, i32 0), align 8
+  %2 = load i32, i32* %1, align 4
+  %3 = add i32 %0, %2
+  store i32 %3, i32* %y, align 4
+  %4 = load i32, i32* %y, align 4
+  ret i32 %4
+}
+
+define i32 @apply(i32 (i32*)* %fun, i32* %x) {
+.entry:
+  %y = alloca i32, align 4
+  %0 = call i32 %fun(i32* %x)
+  store i32 %0, i32* %y, align 4
+  %1 = load i32, i32* %y, align 4
+  ret i32 %1
+}
+
+declare i32 @fun(i32*)
+
+define i32 @main() {
+.entry:
+  %z = alloca i32, align 4
+  store i32 0, i32* %z, align 4
+  store i32* %z, i32** getelementptr inbounds (%closuretest_nstd_types, %closuretest_nstd_types* @closuretest_nstd_strct, i32 0, i32 0), align 8
+  br label %loop.head
+
+loop.head:                                        ; preds = %loop.body, %.entry
+  %0 = load i32, i32* %z, align 4
+  %1 = add i32 %0, 1
+  %2 = icmp sle i32 %1, 10
+  br i1 %2, label %loop.body, label %loop.end
+
+loop.body:                                        ; preds = %loop.head
+  %3 = load i32, i32* %z, align 4
+  %4 = add i32 %3, 1
+  store i32 %4, i32* %z, align 4
+  store i32* %z, i32** getelementptr inbounds (%closuretest_nstd_types, %closuretest_nstd_types* @closuretest_nstd_strct, i32 0, i32 0), align 8
+  %5 = alloca i32, align 4
+  store i32 1, i32* %5, align 4
+  %6 = call i32 @apply(i32 (i32*)* @add_z, i32* %5)
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0), i32 %6)
+  br label %loop.head
+
+loop.end:                                         ; preds = %loop.head
+  ret i32 0
+}
+
+declare void @_lfortran_printf(i8*, ...)
+

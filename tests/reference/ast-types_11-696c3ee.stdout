@@ -1,1 +1,1 @@
-(TranslationUnit [(Program types_11 [] [(ImplicitNone [])] [(Enum)] [] [])])
+(TranslationUnit [(Program types_11 [] [(ImplicitNone [])] [(Enum [(AttrBind c)] [(Declaration () [(SimpleAttribute AttrEnumerator)] [(a [] [] 1)]) (Declaration () [(SimpleAttribute AttrEnumerator)] [(b [] [] 2)]) (Declaration () [(SimpleAttribute AttrEnumerator)] [(c [] [] 3)])])] [] [])])
