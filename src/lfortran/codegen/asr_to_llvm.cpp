@@ -1540,9 +1540,10 @@ public:
                     nested_global_stack);
                 module->getNamedGlobal(nested_stack_name)->setInitializer(
                     initializer);
-                initializer = llvm::ConstantAggregateZero::get(sp);
+                llvm::ConstantInt *sp_init = llvm::ConstantInt::get(
+                    module->getContext(), llvm::APInt(32,0));
                 module->getNamedGlobal(nested_sp_name)->setInitializer(
-                    initializer);
+                    sp_init);
             }
         }
     }
