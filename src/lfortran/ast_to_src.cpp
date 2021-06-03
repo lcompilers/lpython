@@ -2519,6 +2519,16 @@ public:
         s.append(x.m_sym);
     }
 
+    void visit_IntrinsicOperator(const IntrinsicOperator_t &x) {
+        s += "(" + interfaceop2str(x.m_op) + ")";
+    }
+
+    void visit_CustomOperator(const CustomOperator_t &x) {
+        s += "(";
+        s.append(x.m_opName);
+        s += ")";
+    }
+
     void visit_Select(const Select_t &x) {
         std::string r = indent;
         r += print_label(x);

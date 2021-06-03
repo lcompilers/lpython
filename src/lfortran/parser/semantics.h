@@ -1411,6 +1411,11 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         name2char(y), name2char(x))
 #define USE_SYMBOL3(l) make_UseSymbol_t(p.m_a, l, \
         nullptr, nullptr)
+#define INTRINSIC_OPERATOR(op, l) make_IntrinsicOperator_t(p.m_a, l, \
+        op)
+#define CUSTOM_OPERATOR(optype, l) make_CustomOperator_t(p.m_a, l, \
+        optype.c_str(p.m_a))
+
 
 #define MODULE(name, use, implicit, decl, contains, l) make_Module_t(p.m_a, l, \
         name2char(name), \

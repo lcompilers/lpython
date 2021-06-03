@@ -309,6 +309,8 @@ type_stmt
     | ClassDefault(stmt* body)
 
 use_symbol = UseSymbol(identifier sym, identifier? rename)
+    | IntrinsicOperator(interfaceop op)
+    | CustomOperator(identifier opName)
 
 concurrent_control = ConcurrentControl(identifier? var, expr? start, expr? end, expr? increment)
 

@@ -855,6 +855,8 @@ use_symbol
     : id          { $$ = USE_SYMBOL1($1, @$); }
     | id "=>" id  { $$ = USE_SYMBOL2($1, $3, @$); }
     | KW_ASSIGNMENT "(" "=" ")"  { $$ = USE_SYMBOL3(@$); }
+    | KW_OPERATOR "(" operator_type ")"  { $$ = INTRINSIC_OPERATOR($3, @$); }
+    | KW_OPERATOR "(" TK_DEF_OP ")"  { $$ = CUSTOM_OPERATOR($3, @$); }
     ;
 
 use_modifiers
