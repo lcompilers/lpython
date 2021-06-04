@@ -813,15 +813,12 @@ public:
         LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
         llvm::Value* array = llvm_symtab[v_h];
         bool check_for_bounds = is_explicit_shape(v);
-        // // std::cout<<"Check for bounds: "<<check_for_bounds<<std::endl;
         llvm::Value* idx = cmo_convertor_single_element(array, x.m_args, (int) x.n_args, check_for_bounds);
         llvm::Value* full_array = create_gep(array, 0);
         if( static_cast<llvm::PointerType*>(full_array->getType())
             ->getElementType()->isArrayTy() ) {
-            // print_util(idx, "%d", "\t");
             tmp = create_gep(full_array, idx);
         } else {
-            // print_util(idx, "%d", "\t");
             tmp = create_ptr_gep(builder->CreateLoad(full_array), idx);
         }
     }
@@ -1111,8 +1108,7 @@ public:
                                 llvm::Type* ele_type = arr_type->getElementType();
                                 llvm::Type* first_ele_ptr_type = ele_type->getPointerTo();
                                 llvm::Type* new_arr_type = nullptr;
-                                // std::cout<<"Inside declare_vars"<<std::endl;
-                                // std::cout<<"==================="<<std::endl;
+
                                 if( arr_arg_type_cache.find(m_h) == arr_arg_type_cache.end() || (
                                     arr_arg_type_cache.find(m_h) != arr_arg_type_cache.end() && 
                                     arr_arg_type_cache[m_h].find(std::string(v->m_name)) == arr_arg_type_cache[m_h].end() ) ) {
@@ -1124,8 +1120,7 @@ public:
                                 } else {
                                     new_arr_type = arr_arg_type_cache[m_h][std::string(v->m_name)];
                                 }
-                                // std::cout<<"==================="<<std::endl;
-                                // // std::cout<<new_arr_type<<std::endl;
+                                
                                 type = new_arr_type->getPointerTo();
                                 is_array_type = false;                                                                                        
                             } else if( abi_type == ASR::abiType::Intrinsic &&
@@ -1239,13 +1234,11 @@ public:
                         llvm::Type* ele_type = arr_type->getElementType();
                         llvm::Type* first_ele_ptr_type = ele_type->getPointerTo();
                         llvm::Type* new_arr_type = nullptr;
-                        // std::cout<<"Inside convert_args"<<std::endl;
-                        // std::cout<<"==================="<<std::endl;
-                        // std::cout<<m_name<<" "<<arg->m_name<<std::endl;
+                        
                         if( arr_arg_type_cache.find(m_h) == arr_arg_type_cache.end() ||  
                             (arr_arg_type_cache.find(m_h) != arr_arg_type_cache.end() &&
                              arr_arg_type_cache[m_h].find(std::string(arg->m_name)) == arr_arg_type_cache[m_h].end() ) ) {
-                            // std::cout<<"Creating new_arr_type"<<std::endl;
+                            
                             new_arr_type = llvm::StructType::create(context, std::vector<llvm::Type*>({first_ele_ptr_type,
                                                                                                         type_struct->getElementType(1),
                                                                                                         type_struct->getElementType(2),      
@@ -1254,8 +1247,7 @@ public:
                         } else {
                             new_arr_type = arr_arg_type_cache[m_h][std::string(arg->m_name)];
                         }
-                        // std::cout<<"==================="<<std::endl;
-                        // // std::cout<<"Inside convert_args: "<<m_name<<" "<<arg->m_name<<" "<<new_arr_type<<std::endl;
+                        
                         type = new_arr_type->getPointerTo();
                         is_array_type = false;
                     } else if( x.m_abi == ASR::abiType::Intrinsic && 
@@ -2861,14 +2853,10 @@ public:
                                     tmp_type->isStructTy() && 
                                     static_cast<llvm::StructType*>(tmp_type)->
                                     getElementType(0)->isArrayTy() ) {
-                                // std::cout<<"Inside convert_call_args"<<std::endl;
-                                // std::cout<<"========================"<<std::endl;
-                                //// std::cout<<"Inside Array Conversion "<<tmp_type<<std::endl;
+                                
                                 llvm::Type* new_arr_type = arr_arg_type_cache[m_h][orig_arg_name];
-                                //// std::cout<<new_arr_type<<std::endl;
                                 llvm::Value* arg_struct = builder->CreateAlloca(new_arr_type, nullptr);
                                 llvm::Value* first_ele_ptr = create_gep(create_gep(tmp, 0), 0);
-                                // print_util(builder->CreateLoad(first_ele_ptr), "%d", "\n");
                                 llvm::Value* first_arg_ptr = create_gep(arg_struct, 0);
                                 builder->CreateStore(first_ele_ptr, first_arg_ptr);
                                 llvm::Value* sec_ele_ptr = builder->CreateLoad(create_gep(tmp, 1));
@@ -2878,7 +2866,6 @@ public:
                                 llvm::Value* third_arg_ptr = create_gep(arg_struct, 2); 
                                 builder->CreateStore(third_ele_ptr, third_arg_ptr);   
                                 tmp = arg_struct;
-                                // std::cout<<"========================"<<std::endl;
                             } 
                         } else {
                             auto finder = std::find(nested_globals.begin(), 
