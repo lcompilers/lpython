@@ -1,0 +1,91 @@
+#include <iostream>
+#include <vector>
+#include <Kokkos_Core.hpp>
+
+template <typename T>
+Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
+{
+    Kokkos::View<T*> r("r", v.size());
+    for (size_t i=0; i < v.size(); i++) {
+        r(i) = v[i];
+    }
+    return r;
+}
+
+bool allocated(const Kokkos::View<const int*> &x)
+{
+    bool r;
+    return r;
+}
+
+int lbound(const Kokkos::View<const int*> &x, int dim)
+{
+    int r;
+    return r;
+}
+
+int max(int a, int b)
+{
+    int r;
+    return r;
+}
+
+int min(int a, int b)
+{
+    int r;
+    return r;
+}
+
+int ubound(const Kokkos::View<const int*> &x, int dim)
+{
+    int r;
+    return r;
+}
+
+namespace {
+float abs(float a)
+{
+    float r;
+    std::cout << "abs" << std::endl;
+    if (a > 0) {
+        r = a;
+    } else {
+        r = -a;
+    };
+    return r;
+}
+
+float sum(const Kokkos::View<const float*> &a)
+{
+    int i;
+    float r;
+    std::cout << "sum" << std::endl;
+    r = 0;
+    for (i=1; i<=a.extent(0); i++) {
+        r = r + a[i-1];
+    };
+    return r;
+}
+
+
+void main2() {
+        Kokkos::View<float[3]> a("a");
+        float b;
+        a[1-1] = 3;
+        a[2-1] = 2;
+        a[3-1] = 1;
+        b = sum(a);
+        if (abs(b - 6) > 1e-5) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+}
+
+}
+int main(int argc, char* argv[])
+{
+    Kokkos::initialize(argc, argv);
+    main2();
+    Kokkos::finalize();
+    return 0;
+}

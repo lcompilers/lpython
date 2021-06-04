@@ -139,14 +139,15 @@ RUN(NAME arrays_01_logical LABELS gfortran llvm)
 RUN(NAME array_bound_1 LABELS gfortran llvm)
 RUN(NAME arrays_op_1 LABELS gfortran llvm)
 RUN(NAME arrays_op_2 LABELS gfortran llvm)
-RUN(NAME arrays_03 LABELS gfortran cpp)
-RUN(NAME arrays_04 LABELS gfortran cpp)
+RUN(NAME arrays_03_func LABELS gfortran cpp llvm)
+RUN(NAME arrays_04_func LABELS gfortran cpp llvm)
 RUN(NAME arrays_05 LABELS gfortran cpp)
 
 # GFortran
 RUN(NAME arrays_02 LABELS gfortran)
 RUN(NAME arrays_06 LABELS gfortran, llvm)
 RUN(NAME arrays_07 LABELS gfortran)
+RUN(NAME arrays_08_func LABELS gfortran llvm)
 
 RUN(NAME reserved_01 LABELS gfortran)
 RUN(NAME reserved_02 LABELS gfortran llvm)
