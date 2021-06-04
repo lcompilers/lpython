@@ -191,7 +191,7 @@ RUN(NAME case_03 LABELS gfortran llvm)
 RUN(NAME select_type_01 LABELS gfortran)
 
 RUN(NAME program_02 LABELS gfortran)
-RUN(NAME program_03 LABELS gfortran)
+RUN(NAME program_03 LABELS gfortran llvm)
 
 RUN(NAME where_01 LABELS gfortran)
 
@@ -278,9 +278,9 @@ RUN(NAME callback_03 LABELS gfortran llvm)
 RUN(NAME callback_04 LABELS gfortran llvm)
 RUN(NAME callback_05 LABELS gfortran llvm)
 
-RUN(NAME recursion_01 LABELS gfortran)
-RUN(NAME recursion_02 LABELS gfortran)
-RUN(NAME recursion_03 LABELS gfortran)
+RUN(NAME recursion_01 LABELS gfortran llvm)
+RUN(NAME recursion_02 LABELS gfortran llvm)
+RUN(NAME recursion_03 LABELS gfortran llvm)
 
 RUN(NAME return_01 LABELS gfortran llvm)
 RUN(NAME return_02 LABELS gfortran llvm)

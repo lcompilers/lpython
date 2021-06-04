@@ -446,6 +446,21 @@ public:
         }
         s = r;
     }
+    void visit_GenericCustomOperator(const GenericCustomOperator_t &x) {
+        std::string r;
+        r += syn(gr::String);
+        r.append("generic :: operator");
+        r += syn();
+        r += "(";
+        r.append(x.m_optype);
+        r += ")";
+        r += " => ";
+        for (size_t i=0; i<x.n_names; i++) {
+            r.append(x.m_names[i]);
+            if (i < x.n_names-1) r.append(", ");
+        }
+        s = r;
+    }
     void visit_GenericAssignment(const GenericAssignment_t &x) {
         std::string r;
         r += syn(gr::String);
@@ -2502,6 +2517,20 @@ public:
             s.append(" => ");
         }
         s.append(x.m_sym);
+    }
+
+    void visit_UseAssignment(const UseAssignment_t & /*x*/) {
+        s = "assignment (=)";
+    }
+
+    void visit_IntrinsicOperator(const IntrinsicOperator_t &x) {
+        s = "operator (" + interfaceop2str(x.m_op) + ")";
+    }
+
+    void visit_CustomOperator(const CustomOperator_t &x) {
+        s = "operator (";
+        s.append(x.m_opName);
+        s += ")";
     }
 
     void visit_Select(const Select_t &x) {

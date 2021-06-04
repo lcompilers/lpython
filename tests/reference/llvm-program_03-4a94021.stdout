@@ -6,7 +6,7 @@ source_filename = "LFortran"
 
 @closuretest_nstd_strct = global %closuretest_nstd_types zeroinitializer
 @closuretest_nstd_strct_stack = global [1000 x %closuretest_vals] zeroinitializer
-@sp_closuretest = global i32 zeroinitializer
+@sp_closuretest = global i32 0
 @0 = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
 
 define i32 @add_z(i32* %x) {
