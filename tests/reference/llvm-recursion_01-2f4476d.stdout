@@ -7,7 +7,7 @@ source_filename = "LFortran"
 @n = global i32 0
 @sub1_nstd_strct = global %sub1_nstd_types zeroinitializer
 @sub1_nstd_strct_stack = global [1000 x %sub1_vals] zeroinitializer
-@sp_sub1 = global i32 zeroinitializer
+@sp_sub1 = global i32 0
 @x = global i32 0
 @0 = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
 @1 = private unnamed_addr constant [5 x i8] c"x = \00", align 1
