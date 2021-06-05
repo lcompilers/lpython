@@ -1,4 +1,4 @@
-program arrays_03
+program arrays_03_func
 implicit none
 integer :: x(10), s, i
 do i = 1, size(x)

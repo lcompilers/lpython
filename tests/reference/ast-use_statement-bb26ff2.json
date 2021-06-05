@@ -1,0 +1,13 @@
+{
+    "basename": "ast-use_statement-bb26ff2",
+    "cmd": "lfortran --show-ast --no-color {infile} -o {outfile}",
+    "infile": "tests/use_statement.f90",
+    "infile_hash": "59d2ecf2522d1ae3e4dfb7ec347874e6721c2cbc2bb82cd93387471e",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast-use_statement-bb26ff2.stdout",
+    "stdout_hash": "6bdb5071e1fb62e9b096833a78d68960d92b94555e7fd3eeb98847bc",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

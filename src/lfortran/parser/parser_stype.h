@@ -45,6 +45,9 @@ union YYSTYPE {
     AST::dimension_t *dim;
     Vec<AST::dimension_t> vec_dim;
 
+    AST::codimension_t *codim;
+    Vec<AST::codimension_t> vec_codim;
+
     AST::reduce_opType reduce_op_type;
 
     VarType *var_type;

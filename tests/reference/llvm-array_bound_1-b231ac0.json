@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-array_bound_1-b231ac0",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/array_bound_1.f90",
+    "infile_hash": "38d2c1d99ad714fdaa387541310a78f8d3c4d7e19e93ed67a2dcf677",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-array_bound_1-b231ac0.stdout",
+    "stdout_hash": "0fb4669d15c22fb096428183c4d9786951e3ddd7b4b6772af3dccd3e",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

@@ -1,4 +1,4 @@
-program arrays_04
+program arrays_04_func
 implicit none
 real :: a(3), b
 a(1) = 3

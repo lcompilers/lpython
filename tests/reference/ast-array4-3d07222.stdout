@@ -1,1 +1,1 @@
-(TranslationUnit [(Program array4 [] [(ImplicitNone [])] [(Declaration (AttrType TypeInteger [] ()) [] [(i [] ())])] [(= 0 i a)] [])])
+(TranslationUnit [(Program array4 [] [(ImplicitNone [])] [(Declaration (AttrType TypeInteger [] ()) [] [(i [] [] ())])] [(= 0 i a)] [])])

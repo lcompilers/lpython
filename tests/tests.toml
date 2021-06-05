@@ -350,6 +350,11 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "../integration_tests/arrays_01_size.f90"
+asr = true
+llvm = true
+
+[[test]]
 filename = "../integration_tests/arrays_01_real.f90"
 asr = true
 llvm = true
@@ -361,6 +366,11 @@ llvm = true
 
 [[test]]
 filename = "../integration_tests/arrays_01_logical.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/array_bound_1.f90"
 asr = true
 llvm = true
 
@@ -380,12 +390,15 @@ ast = true
 ast_f90 = true
 
 [[test]]
-filename = "../integration_tests/arrays_03.f90"
+filename = "../integration_tests/arrays_03_func.f90"
+asr = true
+llvm = true
 cpp = true
 
 [[test]]
-filename = "../integration_tests/arrays_04.f90"
+filename = "../integration_tests/arrays_04_func.f90"
 asr = true
+llvm = true
 cpp = true
 
 [[test]]
@@ -398,6 +411,11 @@ llvm = true
 [[test]]
 filename = "../integration_tests/arrays_07.f90"
 ast = true
+
+[[test]]
+filename = "../integration_tests/arrays_08_func.f90"
+asr = true
+llvm = true
 
 [[test]]
 filename = "../integration_tests/types_01.f90"
@@ -579,6 +597,12 @@ ast = true
 ast_f90 = true
 
 [[test]]
+filename = "allocate1.f90"
+ast = true
+ast_f90 = true
+
+
+[[test]]
 filename = "../integration_tests/block_01.f90"
 ast = true
 
@@ -754,6 +778,11 @@ ast_f90 = true
 
 [[test]]
 filename = "fn_call1.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
+filename = "Subroutine_Call1.f90"
 ast = true
 ast_f90 = true
 
@@ -1066,7 +1095,21 @@ filename = "../integration_tests/callback_04.f90"
 llvm = true
 
 [[test]]
+filename = "../integration_tests/callback_05.f90"
+llvm = true
+
+[[test]]
 filename = "../integration_tests/recursion_01.f90"
+llvm = true
+
+[[test]]
+filename = "../integration_tests/recursion_02.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/recursion_03.f90"
+asr = true
 llvm = true
 
 [[test]]
@@ -1078,5 +1121,22 @@ filename = "../integration_tests/return_02.f90"
 llvm = true
 
 [[test]]
+filename = "../integration_tests/return_03.f90"
+llvm = true
+
+[[test]]
 filename = "../integration_tests/modules_13.f90"
 llvm = true
+
+[[test]]
+filename = "coarrays_01.f90"
+ast = true
+
+[[test]]
+filename = "../integration_tests/program_03.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "use_statement.f90"
+ast = true

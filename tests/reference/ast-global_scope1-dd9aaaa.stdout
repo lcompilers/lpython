@@ -1,1 +1,1 @@
-(TranslationUnit [(Declaration (AttrType TypeInteger [] ()) [] [(x [] ())])])
+(TranslationUnit [(Declaration (AttrType TypeInteger [] ()) [] [(x [] [] ())])])

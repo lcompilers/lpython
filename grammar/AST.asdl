@@ -53,14 +53,15 @@ program_unit
         program_unit* contains)
 
 unit_decl1
-    = Use(identifier module, use_symbol* symbols)
+    = Use(decl_attribute* nature, identifier module, use_symbol* symbols)
 
 unit_decl2
     = Declaration(decl_attribute? vartype, decl_attribute* attributes,
         var_sym* syms)
     | Interface(interface_header header, interface_item* items)
-    | DerivedType(identifier name, unit_decl2* items)
-    | Enum()
+    | DerivedType(identifier name, decl_attribute* attrtype,
+        unit_decl2* items, procedure_decl* contains)
+    | Enum(decl_attribute* attr, unit_decl2* items)
 
 interface_header
     = InterfaceHeader()
@@ -105,6 +106,8 @@ stmt
     | Cycle(int label, identifier? stmt_name)
     | Deallocate(int label, fnarg* args)
     | ErrorStop(int label, expr? code)
+    | EventPost(int label, expr variable)
+    | EventWait(int label, expr variable)
     | Exit(int label, identifier? stmt_name)
     | ForAllSingle(int label, identifier? stmt_name,
             concurrent_control *control, expr? mask, stmt assign)
@@ -118,7 +121,9 @@ stmt
     | Read(int label, argstar* args, kw_argstar* kwargs, expr* values)
     | Rewind(int label, expr* args, keyword* kwargs)
     | Stop(int label, expr? code)
-    | SubroutineCall(int label, identifier name, fnarg* args, keyword* keywords)
+    | SubroutineCall(int label, identifier name, struct_member* member,
+            fnarg* args, keyword* keywords)
+    | SyncAll(int label)
     | Write(int label, argstar* args, kw_argstar* kwargs, expr* values)
 
 -- Multi-line statements (each has a `label` and `stmt_name`):
@@ -150,7 +155,9 @@ expr
     | Compare(expr left, cmpop op, expr right)
     | FuncCallOrArray(identifier func, struct_member* member,
         fnarg* args, keyword* keywords)
-    | ArrayInitializer(expr* args)
+    | CoarrayRef(identifier name, fnarg* args, keyword* fnkw
+        fnarg* coargs, keyword* cokw)
+    | ArrayInitializer(decl_attribute? vartype, expr* args)
     | ImpliedDoLoop(expr* values, identifier var, expr start, expr end,
         expr? increment)
     | Num(int n)
@@ -177,14 +184,25 @@ interfaceop
     | NOT
     | EQ | NOTEQ | LT | LTE | GT | GTE
 
+procedure_decl
+    = DerivedTypeProc(identifier? name, decl_attribute* attr,
+        use_symbol* symbols)
+    | GenericOperator(interfaceop op, identifier* names)
+    | GenericCustomOperator(identifier optype, identifier* names)
+    | GenericAssignment(identifier* names)
+    | GenericName(identifier name, identifier* names)
+    | FinalName(identifier name)
+
 decl_attribute
     = AttrBind(identifier name)
     | AttrDimension(dimension* dim)
+    | AttrCodimension(codimension* codim)
     | AttrExtends(identifier name)
     | AttrIntent(attr_intent intent)
     | AttrNamelist(identifier name)
     | SimpleAttribute(simple_attribute attr)
     | AttrType(decl_type type, kind_item* kind, identifier? name)
+    | AttrPass(identifier name)
 
 simple_attribute
     = AttrAbstract
@@ -206,6 +224,10 @@ simple_attribute
     | AttrSave
     | AttrTarget
     | AttrValue
+    | AttrIntrinsic
+    | AttrNon_Intrinsic
+    | AttrDeferred
+    | AttrNonDeferred
 
 attr_intent = In | Out | InOut
 
@@ -220,7 +242,8 @@ decl_type
     | TypeReal
     | TypeType
 
-var_sym = (identifier name, dimension* dim, expr? initializer)
+var_sym = (identifier name, dimension* dim, codimension* codim,
+ expr? initializer)
 
 kind_item = (identifier? id, expr? value, kind_item_type type)
 
@@ -228,6 +251,9 @@ kind_item_type = Star | Colon | Value
 
 dimension = (expr? start, expr? end, dimension_type end_star)
 dimension_type = DimensionExpr | DimensionStar
+
+codimension = (expr? start, expr? end, codimension_type end_star)
+codimension_type = CodimensionExpr | CodimensionStar
 
 -- Encoding of an array dimension declaration:
 --           start      end     end_star
@@ -283,6 +309,9 @@ type_stmt
     | ClassDefault(stmt* body)
 
 use_symbol = UseSymbol(identifier sym, identifier? rename)
+    | UseAssignment()
+    | IntrinsicOperator(interfaceop op)
+    | CustomOperator(identifier opName)
 
 concurrent_control = ConcurrentControl(identifier? var, expr? start, expr? end, expr? increment)
 
