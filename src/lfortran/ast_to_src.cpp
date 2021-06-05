@@ -1204,6 +1204,7 @@ public:
                 r += ":";
             }
             if (i < x.n_args-1) r.append(", ");
+            else if (x.n_keywords > 0) r.append(", ");
         }
         for (size_t i=0; i<x.n_keywords; i++) {
             this->visit_keyword(x.m_keywords[i]);
@@ -1219,11 +1220,20 @@ public:
         r.append("allocate");
         r.append("(");
         for (size_t i=0; i<x.n_args; i++) {
+            if (x.m_args[i].m_start) {
+                this->visit_expr(*x.m_args[i].m_start);
+                r.append(s);
+                r += ":";
+            }
             if (x.m_args[i].m_end) {
                 this->visit_expr(*x.m_args[i].m_end);
                 r.append(s);
             } else {
                 r += ":";
+            }
+            if (x.m_args[i].m_step) {
+                this->visit_expr(*x.m_args[i].m_step);
+                r.append(s);
             }
             if (i < x.n_args-1) r.append(", ");
         }
@@ -1245,11 +1255,19 @@ public:
         r.append("deallocate");
         r.append("(");
         for (size_t i=0; i<x.n_args; i++) {
+            if (x.m_args[i].m_start) {
+                this->visit_expr(*x.m_args[i].m_start);
+                r.append(s);
+            }
             if (x.m_args[i].m_end) {
                 this->visit_expr(*x.m_args[i].m_end);
                 r.append(s);
             } else {
                 r += ":";
+            }
+            if (x.m_args[i].m_step) {
+                this->visit_expr(*x.m_args[i].m_step);
+                r.append(s);
             }
             if (i < x.n_args-1) r.append(", ");
         }
@@ -2209,8 +2227,8 @@ public:
             this->visit_fnarg(x.m_args[i]);
             r.append(s);
             if (i < x.n_args-1) r.append(", ");
+            else if (x.n_keywords > 0) r.append(", ");
         }
-        if (x.n_keywords > 0) r.append(", ");
         for (size_t i=0; i<x.n_keywords; i++) {
             this->visit_keyword(x.m_keywords[i]);
             r.append(s);
