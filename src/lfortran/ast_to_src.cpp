@@ -1204,6 +1204,7 @@ public:
                 r += ":";
             }
             if (i < x.n_args-1) r.append(", ");
+            else if (x.n_keywords > 0) r.append(", ");
         }
         for (size_t i=0; i<x.n_keywords; i++) {
             this->visit_keyword(x.m_keywords[i]);
