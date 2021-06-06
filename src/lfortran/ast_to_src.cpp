@@ -2467,7 +2467,11 @@ public:
                 this->visit_expr(*x.m_start);
                 r += s;
             }
-            r += ":";
+            if(x.m_star == codimension_typeType::CodimensionStar) {
+                r += "*";
+            } else {
+                r += ":";
+            }
             if (x.m_end) {
                 this->visit_expr(*x.m_end);
                 r += s;
