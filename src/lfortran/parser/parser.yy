@@ -1639,7 +1639,7 @@ coarray_arg
 // keyword function argument
     | id "=" expr            { $$ = ARRAY_COMP_DECL1k($1, $3, @$); }
 // star
-    | "*"                    { $$ = ARRAY_COMP_DECL_001(@$); }
+    | "*"                    { $$ = ARRAY_COMP_DECL_star(@$); }
     ;
 
 id_list_opt

@@ -290,7 +290,7 @@ arg = (identifier arg)
 -- X(:b:c)    ()         b       c
 -- X(a:b:c)   a          b       c
 --
-fnarg = (expr? start, expr? end, expr? step)
+fnarg = (expr? start, expr? end, expr? step, codimension_type star)
 
 keyword = (identifier arg, expr value)
 

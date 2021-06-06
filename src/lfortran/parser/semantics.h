@@ -407,6 +407,18 @@ static inline FnArg* DIM1(Allocator &al, Location &l,
     return s;
 }
 
+static inline FnArg* CODIM1star(Allocator &al, Location &l, expr_t *c)
+{
+    FnArg *s = al.allocate<FnArg>();
+    s->keyword = false;
+    s->arg.loc = l;
+    s->arg.m_start = nullptr;
+    s->arg.m_end = nullptr;
+    s->arg.m_step = c;
+    s->arg.m_star = codimension_typeType::CodimensionStar;
+    return s;
+}
+
 static inline FnArg* DIM1k(Allocator &al, Location &l,
         ast_t *id, expr_t */*a*/, expr_t *b)
 {
@@ -1218,6 +1230,7 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
 #define ARRAY_COMP_DECL_abc(a,b,c,l) DIM1(p.m_a, l, EXPR(a), EXPR(b), EXPR(c))
 
 #define ARRAY_COMP_DECL1k(id, a, l)   DIM1k(p.m_a, l, id, EXPR(INTEGER(1, l)), EXPR(a))
+#define ARRAY_COMP_DECL_star(l)       CODIM1star(p.m_a, l, EXPR(INTEGER(1, l)))
 
 #define ARRAY_COMP_DECL1d(a, l)       DIM1d(p.m_a, l, EXPR(INTEGER(1, l)), EXPR(a))
 #define ARRAY_COMP_DECL2d(a, b, l)    DIM1d(p.m_a, l, EXPR(a), EXPR(b))
