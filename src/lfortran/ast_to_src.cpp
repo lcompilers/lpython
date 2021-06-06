@@ -1830,6 +1830,10 @@ public:
         r += syn(gr::Keyword);
         r.append("return");
         r += syn();
+        if (x.m_value) {
+            this->visit_expr(*x.m_value);
+            r += " " + s;
+        }
         r += "\n";
         s = r;
     }
