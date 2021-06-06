@@ -20,6 +20,7 @@ using namespace LFortran::AST;
 using LFortran::Location;
 using LFortran::Vec;
 using LFortran::FnArg;
+using LFortran::CoarrayArg;
 using LFortran::VarType;
 using LFortran::SemanticError;
 using LFortran::ArgStarKw;
@@ -407,9 +408,33 @@ static inline FnArg* DIM1(Allocator &al, Location &l,
     return s;
 }
 
-static inline FnArg* CODIM1star(Allocator &al, Location &l, expr_t *c)
+static inline FnArg* DIM1k(Allocator &al, Location &l,
+        ast_t *id, expr_t */*a*/, expr_t *b)
 {
     FnArg *s = al.allocate<FnArg>();
+    s->keyword = true;
+    s->kw.loc = l;
+    s->kw.m_arg = name2char(id);
+    s->kw.m_value = b;
+    return s;
+}
+
+static inline CoarrayArg* CODIM1(Allocator &al, Location &l,
+    expr_t *a, expr_t *b, expr_t *c)
+{
+    CoarrayArg *s = al.allocate<CoarrayArg>();
+    s->keyword = false;
+    s->arg.loc = l;
+    s->arg.m_start = a;
+    s->arg.m_end = b;
+    s->arg.m_step = c;
+    s->arg.m_star = codimension_typeType::CodimensionExpr;
+    return s;
+}
+
+static inline CoarrayArg* CODIM1star(Allocator &al, Location &l, expr_t *c)
+{
+    CoarrayArg *s = al.allocate<CoarrayArg>();
     s->keyword = false;
     s->arg.loc = l;
     s->arg.m_start = nullptr;
@@ -419,10 +444,10 @@ static inline FnArg* CODIM1star(Allocator &al, Location &l, expr_t *c)
     return s;
 }
 
-static inline FnArg* DIM1k(Allocator &al, Location &l,
+static inline CoarrayArg* CODIM1k(Allocator &al, Location &l,
         ast_t *id, expr_t */*a*/, expr_t *b)
 {
-    FnArg *s = al.allocate<FnArg>();
+    CoarrayArg *s = al.allocate<CoarrayArg>();
     s->keyword = true;
     s->kw.loc = l;
     s->kw.m_arg = name2char(id);
@@ -1230,7 +1255,6 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
 #define ARRAY_COMP_DECL_abc(a,b,c,l) DIM1(p.m_a, l, EXPR(a), EXPR(b), EXPR(c))
 
 #define ARRAY_COMP_DECL1k(id, a, l)   DIM1k(p.m_a, l, id, EXPR(INTEGER(1, l)), EXPR(a))
-#define ARRAY_COMP_DECL_star(l)       CODIM1star(p.m_a, l, EXPR(INTEGER(1, l)))
 
 #define ARRAY_COMP_DECL1d(a, l)       DIM1d(p.m_a, l, EXPR(INTEGER(1, l)), EXPR(a))
 #define ARRAY_COMP_DECL2d(a, b, l)    DIM1d(p.m_a, l, EXPR(a), EXPR(b))
@@ -1247,6 +1271,24 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
 #define COARRAY_COMP_DECL5d(l)          CODIM1d(p.m_a, l, nullptr, nullptr)
 #define COARRAY_COMP_DECL6d(l)          CODIM1d_star(p.m_a, l, nullptr)
 #define COARRAY_COMP_DECL7d(a, l)       CODIM1d_star(p.m_a, l, EXPR(a))
+
+#define COARRAY_COMP_DECL_0i0(a,l)     CODIM1(p.m_a, l, nullptr, EXPR(a), nullptr)
+#define COARRAY_COMP_DECL_001(l)       CODIM1(p.m_a, l, \
+        nullptr, nullptr, EXPR(INTEGER(1,l)))
+#define COARRAY_COMP_DECL_a01(a,l)     CODIM1(p.m_a, l, \
+        EXPR(a), nullptr, EXPR(INTEGER(1,l)))
+#define COARRAY_COMP_DECL_0b1(b,l)     CODIM1(p.m_a, l, \
+        nullptr, EXPR(b), EXPR(INTEGER(1,l)))
+#define COARRAY_COMP_DECL_ab1(a,b,l)   CODIM1(p.m_a, l, \
+        EXPR(a), EXPR(b), EXPR(INTEGER(1,l)))
+#define COARRAY_COMP_DECL_00c(c,l)     CODIM1(p.m_a, l, nullptr, nullptr, EXPR(c))
+#define COARRAY_COMP_DECL_a0c(a,c,l)   CODIM1(p.m_a, l, EXPR(a), nullptr, EXPR(c))
+#define COARRAY_COMP_DECL_0bc(b,c,l)   CODIM1(p.m_a, l, nullptr, EXPR(b), EXPR(c))
+#define COARRAY_COMP_DECL_abc(a,b,c,l) CODIM1(p.m_a, l, EXPR(a), EXPR(b), EXPR(c))
+
+#define COARRAY_COMP_DECL1k(id, a, l)   CODIM1k(p.m_a, l, \
+        id, EXPR(INTEGER(1, l)), EXPR(a))
+#define COARRAY_COMP_DECL_star(l)       CODIM1star(p.m_a, l, EXPR(INTEGER(1, l)))
 
 #define VARMOD(a, l) make_Attribute_t(p.m_a, l, \
         a.c_str(p.m_a), \
@@ -1348,7 +1390,7 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
         args, members, l)
 
 ast_t* COARRAY(Allocator &al, const ast_t *id,
-        const Vec<FnArg> &args, const Vec<FnArg> &coargs,
+        const Vec<FnArg> &args, const Vec<CoarrayArg> &coargs,
         Location &l) {
     Vec<fnarg_t> fn;
     fn.reserve(al, args.size());
@@ -1361,7 +1403,7 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
             fn.push_back(al, item.arg);
         }
     }
-    Vec<fnarg_t> coarr;
+    Vec<coarrayarg_t> coarr;
     coarr.reserve(al, coargs.size());
     Vec<keyword_t> coarrkw;
     coarrkw.reserve(al, coargs.size());
@@ -1376,7 +1418,7 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         /*char* a_func*/ name2char(id),
         /*fnarg_t* */ fn.p, /*size_t */ fn.size(),
         /*keyword_t* */ fnkw.p, /*size_t */ fnkw.size(),
-        /*fnarg_t* */ coarr.p, /*size_t s*/ coarr.size(),
+        /*coarrayarg_t* */ coarr.p, /*size_t s*/ coarr.size(),
         /*keyword_t* */ coarrkw.p, /*size_t */ coarrkw.size());
 }
 #define COARRAY1(id, coargs, l) COARRAY(p.m_a, id, empty1(), coargs, l)
