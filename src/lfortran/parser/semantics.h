@@ -270,7 +270,7 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
 #define LETTER_SPEC2(a, b, l) make_LetterSpec_t(p.m_a, l, \
         name2char(a), name2char(b))
 
-#define VAR_SYM(xout, xname, xdimp, xdimn, xinit, xloc) \
+#define VAR_SYM(xout, xname, xdimp, xdimn, xinit, sym, xloc) \
             xout = p.m_a.allocate<var_sym_t>(1); \
             xout->loc = xloc; \
             xout->m_name = name2char(xname); \
@@ -278,7 +278,8 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
             xout->n_dim = xdimn; \
             xout->m_codim = nullptr; \
             xout->n_codim = 0; \
-            xout->m_initializer=down_cast<expr_t>(xinit);
+            xout->m_initializer=down_cast<expr_t>(xinit); \
+            xout->m_sym=symbolType::sym;
 
 #define VAR_SYM2(xout, xname, xdimp, xdimn, xloc) \
             xout = p.m_a.allocate<var_sym_t>(1); \

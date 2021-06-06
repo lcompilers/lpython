@@ -903,7 +903,7 @@ named_constant_def_list
     ;
 
 named_constant_def
-    : id "=" expr { VAR_SYM($$, $1, nullptr, 0, $3, @$); }
+    : id "=" expr { VAR_SYM($$, $1, nullptr, 0, $3, Equal, @$); }
     ;
 
 
@@ -989,14 +989,14 @@ var_sym_decl_list
 
 var_sym_decl
     : id { VAR_SYM2($$, $1, nullptr, 0, @$); }
-    | id "=" expr { VAR_SYM($$, $1, nullptr, 0, $3, @$); }
-    | id "=>" expr { VAR_SYM($$, $1, nullptr, 0, $3, @$); }
-    | id "*" expr { VAR_SYM2($$, $1, nullptr, 0, @$); }
+    | id "=" expr { VAR_SYM($$, $1, nullptr, 0, $3, Equal, @$); }
+    | id "=>" expr { VAR_SYM($$, $1, nullptr, 0, $3, Assign, @$); }
+    | id "*" expr { VAR_SYM($$, $1, nullptr, 0, $3, Asterisk, @$); }
     | id "(" array_comp_decl_list ")" { VAR_SYM2($$, $1, $3.p, $3.n, @$); }
     | id "(" array_comp_decl_list ")" "=" expr {
-            VAR_SYM($$, $1, $3.p, $3.n, $6, @$); }
+            VAR_SYM($$, $1, $3.p, $3.n, $6, Equal, @$); }
     | id "(" array_comp_decl_list ")" "=>" expr {
-            VAR_SYM($$, $1, $3.p, $3.n, $6, @$); }
+            VAR_SYM($$, $1, $3.p, $3.n, $6, Assign, @$); }
     | id "[" coarray_comp_decl_list "]" { VAR_SYM3($$, $1, $3.p, $3.n, @$); }
     | id "(" array_comp_decl_list ")" "[" coarray_comp_decl_list "]" {
             VAR_SYM4($$, $1, $3.p, $3.n, $6.p, $6.n, @$); }
