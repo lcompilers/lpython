@@ -123,7 +123,7 @@ stmt
     | Stop(int label, expr? code)
     | SubroutineCall(int label, identifier name, struct_member* member,
             fnarg* args, keyword* keywords)
-    | SyncAll(int label)
+    | SyncAll(int label, decl_attribute? stat)
     | Write(int label, argstar* args, kw_argstar* kwargs, expr* values)
 
 -- Multi-line statements (each has a `label` and `stmt_name`):
@@ -203,6 +203,8 @@ decl_attribute
     | SimpleAttribute(simple_attribute attr)
     | AttrType(decl_type type, kind_item* kind, identifier? name)
     | AttrPass(identifier name)
+    | AttrStat(identifier variable)
+    | AttrErrmsg(identifier variable)
 
 simple_attribute
     = AttrAbstract

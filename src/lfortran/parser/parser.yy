@@ -365,6 +365,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> event_post_statement
 %type <ast> event_wait_statement
 %type <ast> sync_all_statement
+%type <ast> sync_stat_list
 %type <ast> format_statement
 %type <vec_ast> statements
 %type <vec_ast> contains_block_opt
@@ -1505,8 +1506,14 @@ event_wait_statement
 
 sync_all_statement
     : KW_SYNC KW_ALL { $$ = SYNC_ALL(@$); }
+    | KW_SYNC KW_ALL "(" sync_stat_list ")" { $$ = SYNC_ALL1($4, @$); }
     ;
 
+sync_stat_list
+    : KW_STAT "=" id { $$ = STAT($3, @$); }
+    | KW_ERRMSG "=" id { $$ = ERRMSG($3, @$); }
+    | %empty { $$ = nullptr; }
+    ;
 // -----------------------------------------------------------------------------
 // Fortran expression
 
