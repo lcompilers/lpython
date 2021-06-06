@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    481 // shift/reduce conflicts
+%expect    485 // shift/reduce conflicts
 %expect-rr 81  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -1474,6 +1474,7 @@ exit_statement
 
 return_statement
     : KW_RETURN { $$ = RETURN(@$); }
+    | KW_RETURN expr { $$ = RETURN1($2, @$); }
     ;
 
 cycle_statement
