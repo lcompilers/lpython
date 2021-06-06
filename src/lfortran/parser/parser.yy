@@ -1502,6 +1502,8 @@ error_stop_statement
 
 event_post_statement
     : KW_EVENT KW_POST "(" expr ")" { $$ = EVENT_POST($4, @$); }
+    | KW_EVENT KW_POST "(" expr "," sync_stat_list ")" {
+            $$ = EVENT_POST1($4, $6, @$); }
     ;
 
 event_wait_statement
@@ -1525,7 +1527,8 @@ event_wait_spec
     ;
 
 sync_stat_list
-    : sync_stat { LIST_NEW($$); LIST_ADD($$, $1); }
+    : "," sync_stat { LIST_NEW($$); LIST_ADD($$, $2); }
+    | sync_stat { LIST_NEW($$); LIST_ADD($$, $1); }
     | %empty { LIST_NEW($$); }
     ;
 

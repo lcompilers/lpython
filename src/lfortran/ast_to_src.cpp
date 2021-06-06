@@ -1416,6 +1416,13 @@ public:
         r += " (";
         this->visit_expr(*x.m_variable);
         r.append(s);
+        if (x.m_stat) {
+            r += ", ";
+            for (size_t i=0; i<x.n_stat; i++) {
+                this->visit_decl_attribute(*x.m_stat[i]);
+                r.append(s);
+            }
+        }
         r += ")";
         r += "\n";
         s = r;
