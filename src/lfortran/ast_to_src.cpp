@@ -1147,6 +1147,20 @@ public:
         s = r;
     }
 
+    void visit_AttrStat(const AttrStat_t &x) {
+        std::string r;
+        r = "stat = ";
+        r.append(x.m_variable);
+        s = r;
+    }
+
+    void visit_AttrErrmsg(const AttrErrmsg_t &x) {
+        std::string r;
+        r = "errmsg = ";
+        r.append(x.m_variable);
+        s = r;
+    }
+
     void visit_Assignment(const Assignment_t &x) {
         std::string r = indent;
         r += print_label(x);
@@ -1419,6 +1433,12 @@ public:
         r += syn(gr::Keyword);
         r.append("sync all");
         r += syn();
+        if (x.m_stat) {
+            r += " (";
+            visit_decl_attribute(*x.m_stat);
+            r.append(s);
+            r += ")";
+        }
         r += "\n";
         s = r;
     }
