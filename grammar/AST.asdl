@@ -107,7 +107,7 @@ stmt
     | Deallocate(int label, fnarg* args)
     | ErrorStop(int label, expr? code)
     | EventPost(int label, expr variable)
-    | EventWait(int label, expr variable)
+    | EventWait(int label, expr variable, decl_attribute* spec)
     | Exit(int label, identifier? stmt_name)
     | ForAllSingle(int label, identifier? stmt_name,
             concurrent_control *control, expr? mask, stmt assign)
@@ -123,7 +123,7 @@ stmt
     | Stop(int label, expr? code)
     | SubroutineCall(int label, identifier name, struct_member* member,
             fnarg* args, keyword* keywords)
-    | SyncAll(int label, decl_attribute? stat)
+    | SyncAll(int label, decl_attribute* stat)
     | Write(int label, argstar* args, kw_argstar* kwargs, expr* values)
 
 -- Multi-line statements (each has a `label` and `stmt_name`):
@@ -205,6 +205,7 @@ decl_attribute
     | AttrPass(identifier name)
     | AttrStat(identifier variable)
     | AttrErrmsg(identifier variable)
+    | AttrUntilcount(expr value)
 
 simple_attribute
     = AttrAbstract

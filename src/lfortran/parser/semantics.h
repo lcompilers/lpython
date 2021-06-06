@@ -909,12 +909,16 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
 #define CONTINUE(l) make_Continue_t(p.m_a, l, 0)
 
 #define EVENT_POST(eventVar, l) make_EventPost_t(p.m_a, l, 0, EXPR(eventVar))
-#define EVENT_WAIT(eventVar, l) make_EventWait_t(p.m_a, l, 0, EXPR(eventVar))
-#define SYNC_ALL(l) make_SyncAll_t(p.m_a, l, 0, nullptr)
+#define EVENT_WAIT(eventVar, l) make_EventWait_t(p.m_a, l, 0, \
+        EXPR(eventVar), nullptr, 0)
+#define EVENT_WAIT1(eventVar, x, l) make_EventWait_t(p.m_a, l, 0, \
+        EXPR(eventVar), VEC_CAST(x, decl_attribute), x.size())
+#define SYNC_ALL(l) make_SyncAll_t(p.m_a, l, 0, nullptr, 0)
 #define SYNC_ALL1(x, l) make_SyncAll_t(p.m_a, l, 0, \
-        down_cast<decl_attribute_t>(x))
+        VEC_CAST(x, decl_attribute), x.size())
 #define STAT(var, l) make_AttrStat_t(p.m_a, l, name2char(var))
 #define ERRMSG(var, l) make_AttrErrmsg_t(p.m_a, l, name2char(var))
+#define UNTILCOUNT(e, l) make_AttrUntilcount_t(p.m_a, l, EXPR(e))
 
 #define SUBROUTINE(name, args, bind, use, import, implicit, decl, stmts, contains, l) \
     make_Subroutine_t(p.m_a, l, \
