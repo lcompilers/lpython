@@ -136,7 +136,6 @@ index 99036333..c976ab08 100644
 -    | KW_TO { $$ = SYMBOL($1, @$); }
 -    | KW_TYPE { $$ = SYMBOL($1, @$); }
 -    | KW_UNFORMATTED { $$ = SYMBOL($1, @$); }
--    | KW_UNTIL_COUNT { $$ = SYMBOL($1, @$); }
 -    | KW_USE { $$ = SYMBOL($1, @$); }
 -    | KW_VALUE { $$ = SYMBOL($1, @$); }
 -    | KW_VOLATILE { $$ = SYMBOL($1, @$); }

@@ -205,7 +205,7 @@ decl_attribute
     | AttrPass(identifier name)
     | AttrStat(identifier variable)
     | AttrErrmsg(identifier variable)
-    | AttrUntilcount(expr value)
+    | AttrUntilcount(identifier id, expr value)
 
 simple_attribute
     = AttrAbstract

@@ -41,9 +41,19 @@ else
     event wait(ok_to_overwrite)
     event post(greeting_ready(this_image())[1])
 end if
+
 sync all
+sync all()
 sync all(stat=status)
 sync all(errmsg=status)
+
+event wait(variable, until_count=status)
+event wait(variable, errmsg=status)
+event wait(variable, stat=status)
+
+event post(variable, errmsg=status)
+event post(variable, sta=status)
+
 c[3] = c[4]
 B[1,2] = B[3,4]
 D(99,1)[3,4] = D(1,2)[1,2]

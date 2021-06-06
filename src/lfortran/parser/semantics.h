@@ -921,7 +921,8 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
         VEC_CAST(x, decl_attribute), x.size())
 #define STAT(var, l) make_AttrStat_t(p.m_a, l, name2char(var))
 #define ERRMSG(var, l) make_AttrErrmsg_t(p.m_a, l, name2char(var))
-#define UNTILCOUNT(e, l) make_AttrUntilcount_t(p.m_a, l, EXPR(e))
+#define UNTILCOUNT(id, e, l) make_AttrUntilcount_t(p.m_a, l, \
+        name2char(id), EXPR(e))
 
 #define SUBROUTINE(name, args, bind, use, import, implicit, decl, stmts, contains, l) \
     make_Subroutine_t(p.m_a, l, \

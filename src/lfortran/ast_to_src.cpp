@@ -1162,8 +1162,9 @@ public:
     }
 
     void visit_AttrUntilcount(const AttrUntilcount_t &x) {
-        std::string r;
-        r = "until_count = ";
+        std::string r = "";
+        r.append(x.m_id);
+        r += " = ";
         this->visit_expr(*x.m_value);
         r.append(s);
         s = r;

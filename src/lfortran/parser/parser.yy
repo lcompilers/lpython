@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    481 // shift/reduce conflicts
+%expect    483 // shift/reduce conflicts
 %expect-rr 81  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -255,7 +255,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_TO
 %token <string> KW_TYPE
 %token <string> KW_UNFORMATTED
-%token <string> KW_UNTIL_COUNT
 %token <string> KW_USE
 %token <string> KW_VALUE
 %token <string> KW_VOLATILE
@@ -1523,12 +1522,11 @@ event_wait_spec_list
     ;
 
 event_wait_spec
-    : KW_UNTIL_COUNT "=" expr { $$ = UNTILCOUNT($3, @$); }
+    : id "=" expr { $$ = UNTILCOUNT($1, $3, @$); }
     ;
 
 sync_stat_list
-    : "," sync_stat { LIST_NEW($$); LIST_ADD($$, $2); }
-    | sync_stat { LIST_NEW($$); LIST_ADD($$, $1); }
+    : sync_stat { LIST_NEW($$); LIST_ADD($$, $1); }
     | %empty { LIST_NEW($$); }
     ;
 
@@ -1820,7 +1818,6 @@ id
     | KW_TO { $$ = SYMBOL($1, @$); }
     | KW_TYPE { $$ = SYMBOL($1, @$); }
     | KW_UNFORMATTED { $$ = SYMBOL($1, @$); }
-    | KW_UNTIL_COUNT { $$ = SYMBOL($1, @$); }
     | KW_USE { $$ = SYMBOL($1, @$); }
     | KW_VALUE { $$ = SYMBOL($1, @$); }
     | KW_VOLATILE { $$ = SYMBOL($1, @$); }
