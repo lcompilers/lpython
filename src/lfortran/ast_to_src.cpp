@@ -1161,6 +1161,14 @@ public:
         s = r;
     }
 
+    void visit_AttrUntilcount(const AttrUntilcount_t &x) {
+        std::string r;
+        r = "until_count = ";
+        this->visit_expr(*x.m_value);
+        r.append(s);
+        s = r;
+    }
+
     void visit_Assignment(const Assignment_t &x) {
         std::string r = indent;
         r += print_label(x);
@@ -1422,6 +1430,13 @@ public:
         r += " (";
         this->visit_expr(*x.m_variable);
         r.append(s);
+        if (x.m_spec) {
+            r += ", ";
+            for (size_t i=0; i<x.n_spec; i++) {
+                this->visit_decl_attribute(*x.m_spec[i]);
+                r.append(s);
+            }
+        }
         r += ")";
         r += "\n";
         s = r;
@@ -1435,8 +1450,10 @@ public:
         r += syn();
         if (x.m_stat) {
             r += " (";
-            visit_decl_attribute(*x.m_stat);
-            r.append(s);
+            for (size_t i=0; i<x.n_stat; i++) {
+                this->visit_decl_attribute(*x.m_stat[i]);
+                r.append(s);
+            }
             r += ")";
         }
         r += "\n";
