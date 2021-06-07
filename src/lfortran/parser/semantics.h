@@ -903,7 +903,8 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
 
 #define EXIT(l) make_Exit_t(p.m_a, l, 0, nullptr)
 #define EXIT2(id, l) make_Exit_t(p.m_a, l, 0, name2char(id))
-#define RETURN(l) make_Return_t(p.m_a, l, 0)
+#define RETURN(l) make_Return_t(p.m_a, l, 0, nullptr)
+#define RETURN1(e, l) make_Return_t(p.m_a, l, 0, EXPR(e))
 #define CYCLE(l) make_Cycle_t(p.m_a, l, 0, nullptr)
 #define CYCLE2(id, l) make_Cycle_t(p.m_a, l, 0, name2char(id))
 #define CONTINUE(l) make_Continue_t(p.m_a, l, 0)
