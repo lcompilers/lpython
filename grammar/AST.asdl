@@ -156,7 +156,7 @@ expr
     | FuncCallOrArray(identifier func, struct_member* member,
         fnarg* args, keyword* keywords)
     | CoarrayRef(identifier name, fnarg* args, keyword* fnkw
-        fnarg* coargs, keyword* cokw)
+        coarrayarg* coargs, keyword* cokw)
     | ArrayInitializer(decl_attribute? vartype, expr* args)
     | ImpliedDoLoop(expr* values, identifier var, expr start, expr end,
         expr? increment)
@@ -291,6 +291,8 @@ arg = (identifier arg)
 -- X(a:b:c)   a          b       c
 --
 fnarg = (expr? start, expr? end, expr? step)
+
+coarrayarg = (expr? start, expr? end, expr? step, codimension_type star)
 
 keyword = (identifier arg, expr value)
 

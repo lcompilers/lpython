@@ -2262,7 +2262,7 @@ public:
         }
         r.append("[");
         for (size_t i=0; i<x.n_coargs; i++) {
-            this->visit_fnarg(x.m_coargs[i]);
+            this->visit_coarrayarg(x.m_coargs[i]);
             r.append(s);
             if (i < x.n_coargs-1) r.append(", ");
         }
@@ -2472,6 +2472,40 @@ public:
                 r += s;
             }
             r += ":";
+            if (x.m_end) {
+                this->visit_expr(*x.m_end);
+                r += s;
+            }
+            if (is_a<Num_t>(*x.m_step) && down_cast<Num_t>(x.m_step)->m_n == 1) {
+                // Nothing, a:b:1 is printed as a:b
+            } else {
+                r += ":";
+                this->visit_expr(*x.m_step);
+                r += s;
+            }
+        } else {
+            // Array element
+            LFORTRAN_ASSERT(x.m_end);
+            LFORTRAN_ASSERT(!x.m_start);
+            this->visit_expr(*x.m_end);
+            r = s;
+        }
+        s = r;
+    }
+
+    void visit_coarrayarg(const coarrayarg_t &x) {
+        std::string r;
+        if (x.m_step) {
+            // Array section
+            if (x.m_start) {
+                this->visit_expr(*x.m_start);
+                r += s;
+            }
+            if(x.m_star == codimension_typeType::CodimensionStar) {
+                r += "*";
+            } else {
+                r += ":";
+            }
             if (x.m_end) {
                 this->visit_expr(*x.m_end);
                 r += s;
