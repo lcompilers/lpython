@@ -1,0 +1,22 @@
+program coarrays_02
+use, intrinsic :: iso_fortran_env
+integer, allocatable :: node(:)
+integer, allocatable :: nc(:)
+integer, allocatable :: parent(:), sub(:)
+type(event_type), allocatable :: done(:)[:]
+integer :: i, j, status
+do i = 1, size(node)
+    if ((nc(i))>(0)) then
+        event wait (done(i), until_count = nc(i), stat = status)
+        if ((status)/=(0)) then
+            exit
+        end if
+    end if
+    if ((parent(i))>(0)) then
+        event post (done(sub(i))[parent(i)], stat = status)
+        if ((status)/=(0)) then
+            exit
+        end if
+    end if
+end do
+end program coarrays_02
