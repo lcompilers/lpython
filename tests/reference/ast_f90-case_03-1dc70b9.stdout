@@ -1,7 +1,7 @@
 program case03
 implicit none
 integer :: marks
-integer, parameter :: a=1, b=2
+integer, parameter :: a = 1, b = 2
 marks = 94
 select case (marks)
     case ((40) + (b):)
