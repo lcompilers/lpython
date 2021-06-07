@@ -6,9 +6,11 @@
          (AttrType 
             TypeInteger [] ()) [] [
          (
-            x [] [] ()) 
+            x [] [] () 
+            None) 
          (
-            i [] [] ())])] [
+            i [] [] () 
+            None)])] [
       (= 0 x 1) 
       (DoLoop 0 () i 1 10 () [
          (= 0 x (* x i))])] []) 
@@ -18,9 +20,11 @@
          (AttrType 
             TypeInteger [] ()) [] [
          (
-            x [] [] ()) 
+            x [] [] () 
+            None) 
          (
-            i [] [] ())])] [
+            i [] [] () 
+            None)])] [
       (= 0 x 1) 
       (DoLoop 0 () i 1 10 () [
          (= 0 x (* i x))])] [])])

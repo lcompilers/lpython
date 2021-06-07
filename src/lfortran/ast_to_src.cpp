@@ -87,6 +87,17 @@ namespace {
         }
         throw LFortranException("Unknown type");
     }
+
+    std::string symbol2str(const AST::symbolType type)
+    {
+        switch (type) {
+            case (AST::symbolType::None) : return "";
+            case (AST::symbolType::Assign) : return " => ";
+            case (AST::symbolType::Equal) : return " = ";
+            case (AST::symbolType::Asterisk) : return " *";
+        }
+        throw LFortranException("Unknown type");
+    }
 }
 
 namespace AST {
@@ -926,7 +937,7 @@ public:
         }
         if (x.m_initializer) {
             visit_expr(*x.m_initializer);
-            r += "=" + s;
+            r += symbol2str(x.m_sym) + s;
         }
         s = r;
     }

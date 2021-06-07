@@ -1,6 +1,6 @@
 program program_01
 implicit none
-integer, parameter :: dp=kind(0.d0)
+integer, parameter :: dp = kind(0.d0)
 real(dp) :: a
 integer :: i
 print *, "Normal random numbers:"
@@ -13,7 +13,7 @@ contains
 
 subroutine rand(x)
 real(dp), intent(out) :: x
-logical, save :: first=.true.
+logical, save :: first = .true.
 real(dp), save :: u(2)
 real(dp) :: r2
 if (first) then

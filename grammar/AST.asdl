@@ -243,7 +243,7 @@ decl_type
     | TypeType
 
 var_sym = (identifier name, dimension* dim, codimension* codim,
- expr? initializer)
+ expr? initializer, symbol sym)
 
 kind_item = (identifier? id, expr? value, kind_item_type type)
 
@@ -254,6 +254,8 @@ dimension_type = DimensionExpr | DimensionStar
 
 codimension = (expr? start, expr? end, codimension_type end_star)
 codimension_type = CodimensionExpr | CodimensionStar
+
+symbol = None | Assign | Equal | Asterisk
 
 -- Encoding of an array dimension declaration:
 --           start      end     end_star
