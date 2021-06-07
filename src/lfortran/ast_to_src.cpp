@@ -1161,7 +1161,7 @@ public:
         s = r;
     }
 
-    void visit_AttrUntilcount(const AttrUntilcount_t &x) {
+    void visit_AttrEventWaitKwArg(const AttrEventWaitKwArg_t &x) {
         std::string r = "";
         r.append(x.m_id);
         r += " = ";
@@ -1420,7 +1420,7 @@ public:
         if (x.m_stat) {
             r += ", ";
             for (size_t i=0; i<x.n_stat; i++) {
-                this->visit_decl_attribute(*x.m_stat[i]);
+                this->visit_event_attribute(*x.m_stat[i]);
                 r.append(s);
             }
         }
@@ -1441,7 +1441,7 @@ public:
         if (x.m_spec) {
             r += ", ";
             for (size_t i=0; i<x.n_spec; i++) {
-                this->visit_decl_attribute(*x.m_spec[i]);
+                this->visit_event_attribute(*x.m_spec[i]);
                 r.append(s);
                 if (i < x.n_spec-1) r.append(", ");
             }
@@ -1460,7 +1460,7 @@ public:
         if (x.m_stat) {
             r += " (";
             for (size_t i=0; i<x.n_stat; i++) {
-                this->visit_decl_attribute(*x.m_stat[i]);
+                this->visit_event_attribute(*x.m_stat[i]);
                 r.append(s);
             }
             r += ")";

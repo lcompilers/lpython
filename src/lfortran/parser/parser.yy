@@ -1526,7 +1526,7 @@ event_wait_spec_list
     ;
 
 event_wait_spec
-    : id "=" expr { $$ = UNTILCOUNT($1, $3, @$); }
+    : id "=" expr { $$ = EVENT_WAIT_KW_ARG($1, $3, @$); }
     ;
 
 event_post_stat_list
