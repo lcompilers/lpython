@@ -48,11 +48,12 @@ sync all(stat=status)
 sync all(errmsg=status)
 
 event wait(variable, until_count=status)
+event wait(variable, until_count=status, errmsg=status)
 event wait(variable, errmsg=status)
 event wait(variable, stat=status)
-
+event post (done (sub (i)) [parent (i)], stat=status)
+event post(variable, stat=status)
 event post(variable, errmsg=status)
-event post(variable, sta=status)
 
 c[3] = c[4]
 B[1,2] = B[3,4]

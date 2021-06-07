@@ -1443,6 +1443,7 @@ public:
             for (size_t i=0; i<x.n_spec; i++) {
                 this->visit_decl_attribute(*x.m_spec[i]);
                 r.append(s);
+                if (i < x.n_spec-1) r.append(", ");
             }
         }
         r += ")";
