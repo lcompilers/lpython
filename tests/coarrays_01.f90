@@ -19,6 +19,7 @@ real :: E(1,2,3)[1,2,-1:3,*]
 real, allocatable :: F(:)[:]
 real, allocatable :: g(:,:,:)[:,:,:]
 real, dimension(20), codimension[20,*] :: h
+real, codimension[:], allocatable :: z(:,:)
 character :: r(20)[20,0:*]
 type(event_type) :: ok_to_overwrite[*]
 type(event_type), allocatable :: greeting_ready(:)[:]

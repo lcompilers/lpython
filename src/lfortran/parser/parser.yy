@@ -301,8 +301,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_codim> coarray_comp_decl_list
 %type <fnarg> fnarray_arg
 %type <vec_fnarg> fnarray_arg_list_opt
-%type <fnarg> coarray_arg
-%type <vec_fnarg> coarray_arg_list
+%type <coarrayarg> coarray_arg
+%type <vec_coarrayarg> coarray_arg_list
 %type <dim> array_comp_decl
 %type <codim> coarray_comp_decl
 %type <ast> var_type
@@ -1625,22 +1625,22 @@ coarray_arg_list
 
 coarray_arg
 // array element / function argument
-    : expr                   { $$ = ARRAY_COMP_DECL_0i0($1, @$); }
+    : expr                   { $$ = COARRAY_COMP_DECL_0i0($1, @$); }
 // array section
-    | ":"                    { $$ = ARRAY_COMP_DECL_001(@$); }
-    | expr ":"               { $$ = ARRAY_COMP_DECL_a01($1, @$); }
-    | ":" expr               { $$ = ARRAY_COMP_DECL_0b1($2, @$); }
-    | expr ":" expr          { $$ = ARRAY_COMP_DECL_ab1($1, $3, @$); }
-    | "::" expr              { $$ = ARRAY_COMP_DECL_00c($2, @$); }
-    | ":" ":" expr           { $$ = ARRAY_COMP_DECL_00c($3, @$); }
-    | expr "::" expr         { $$ = ARRAY_COMP_DECL_a0c($1, $3, @$); }
-    | expr ":" ":" expr      { $$ = ARRAY_COMP_DECL_a0c($1, $4, @$); }
-    | ":" expr ":" expr      { $$ = ARRAY_COMP_DECL_0bc($2, $4, @$); }
-    | expr ":" expr ":" expr { $$ = ARRAY_COMP_DECL_abc($1, $3, $5, @$); }
+    | ":"                    { $$ = COARRAY_COMP_DECL_001(@$); }
+    | expr ":"               { $$ = COARRAY_COMP_DECL_a01($1, @$); }
+    | ":" expr               { $$ = COARRAY_COMP_DECL_0b1($2, @$); }
+    | expr ":" expr          { $$ = COARRAY_COMP_DECL_ab1($1, $3, @$); }
+    | "::" expr              { $$ = COARRAY_COMP_DECL_00c($2, @$); }
+    | ":" ":" expr           { $$ = COARRAY_COMP_DECL_00c($3, @$); }
+    | expr "::" expr         { $$ = COARRAY_COMP_DECL_a0c($1, $3, @$); }
+    | expr ":" ":" expr      { $$ = COARRAY_COMP_DECL_a0c($1, $4, @$); }
+    | ":" expr ":" expr      { $$ = COARRAY_COMP_DECL_0bc($2, $4, @$); }
+    | expr ":" expr ":" expr { $$ = COARRAY_COMP_DECL_abc($1, $3, $5, @$); }
 // keyword function argument
-    | id "=" expr            { $$ = ARRAY_COMP_DECL1k($1, $3, @$); }
+    | id "=" expr            { $$ = COARRAY_COMP_DECL1k($1, $3, @$); }
 // star
-    | "*"                    { $$ = ARRAY_COMP_DECL_001(@$); }
+    | "*"                    { $$ = COARRAY_COMP_DECL_star(@$); }
     ;
 
 id_list_opt
