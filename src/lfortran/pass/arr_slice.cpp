@@ -9,8 +9,6 @@
 #include <map>
 #include <utility>
 
-typedef std::map<std::pair<ASR::expr_t*, std::pair<ASR::expr_t*, ASR::expr_t*>>, ASR::Var_t*> sliceargs2var;
-
 
 namespace LFortran {
 
@@ -38,11 +36,16 @@ private:
     Allocator &al;
     ASR::TranslationUnit_t &unit;
     Vec<ASR::stmt_t*> arr_slice_result;
+
+    ASR::expr_t* slice_var;
+
     int slice_counter;
-    std::unordered_map<ASR::symbol_t*, sliceargs2var> sym2slice;
+
+    SymbolTable* current_scope;
 
 public:
-    ArrSliceVisitor(Allocator &al, ASR::TranslationUnit_t &unit) : al{al}, unit{unit}, slice_counter{0} {
+    ArrSliceVisitor(Allocator &al, ASR::TranslationUnit_t &unit) : al{al}, unit{unit}, 
+    slice_var{nullptr}, slice_counter{0}, current_scope{nullptr} {
         arr_slice_result.reserve(al, 1);
     }
 
@@ -74,6 +77,7 @@ public:
         // FIXME: this is a hack, we need to pass in a non-const `x`,
         // which requires to generate a TransformVisitor.
         ASR::Program_t &xx = const_cast<ASR::Program_t&>(x);
+        current_scope = xx.m_symtab;
         transform_stmts(xx.m_body, xx.n_body);
 
         // Transform nested functions and subroutines
@@ -93,6 +97,7 @@ public:
         // FIXME: this is a hack, we need to pass in a non-const `x`,
         // which requires to generate a TransformVisitor.
         ASR::Subroutine_t &xx = const_cast<ASR::Subroutine_t&>(x);
+        current_scope = xx.m_symtab;
         transform_stmts(xx.m_body, xx.n_body);
     }
 
@@ -100,6 +105,7 @@ public:
         // FIXME: this is a hack, we need to pass in a non-const `x`,
         // which requires to generate a TransformVisitor.
         ASR::Function_t &xx = const_cast<ASR::Function_t&>(x);
+        current_scope = xx.m_symtab;
         transform_stmts(xx.m_body, xx.n_body);
     }
 
@@ -119,13 +125,16 @@ public:
     void visit_ArrayRef(const ASR::ArrayRef_t& x) {
         if( is_slice_present(x) ) {
             Str new_name_str;
-            new_name_str.from_str(al, "_" + std::to_string(slice_counter) + "_slice");
+            new_name_str.from_str(al, std::to_string(slice_counter) + "_slice");
+            slice_counter += 1;
             char* new_var_name = (char*)new_name_str.c_str(al);
-            ASR::asr_t* slice_asr = ASR::make_Variable_t(al, x.base.base.loc, unit.m_global_scope, new_var_name, 
+            ASR::asr_t* slice_asr = ASR::make_Variable_t(al, x.base.base.loc, current_scope, new_var_name, 
                                                         ASR::intentType::Local, nullptr, ASR::storage_typeType::Default, 
                                                         x.m_type, ASR::abiType::Source, ASR::accessType::Public);
             ASR::symbol_t* slice_sym = ASR::down_cast<ASR::symbol_t>(slice_asr);
-            unit.m_global_scope->scope[std::string(new_var_name)] = slice_sym;
+            current_scope->scope[std::string(new_var_name)] = slice_sym;
+            slice_var = EXPR(ASR::make_Var_t(al, x.base.base.loc, slice_sym));
+            // std::cout<<"Inside ArrayRef "<<slice_var<<std::endl;
             Vec<ASR::expr_t*> idx_vars_target, idx_vars_value;
             PassUtils::create_idx_vars(idx_vars_target, x.n_args, x.base.base.loc, al, unit, "_t");
             PassUtils::create_idx_vars(idx_vars_value, x.n_args, x.base.base.loc, al, unit, "_v");
@@ -155,6 +164,23 @@ public:
                 doloop = STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
             arr_slice_result.push_back(al, doloop);
+        }
+    }
+
+    void visit_Print(const ASR::Print_t& x) {
+        ASR::Print_t& xx = const_cast<ASR::Print_t&>(x);
+        // std::cout<<"Inside Slice Print "<<xx.n_values<<std::endl;
+        for( size_t i = 0; i < xx.n_values; i++ ) {        
+            slice_var = nullptr;
+            this->visit_expr(*xx.m_values[i]);
+            // std::cout<<"Inside Print "<<slice_var<<std::endl;
+            if( slice_var != nullptr ) {
+                xx.m_values[i] = slice_var;
+                // std::cout<<"Inside Print "<<x.m_values[i]<<std::endl;
+            }
+        }
+        if( arr_slice_result.size() > 0 ) {
+            arr_slice_result.push_back(al, const_cast<ASR::stmt_t*>(&(x.base)));
         }
     }
 };

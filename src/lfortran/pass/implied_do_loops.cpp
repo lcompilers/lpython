@@ -34,8 +34,10 @@ private:
     ASR::TranslationUnit_t &unit;
     Vec<ASR::stmt_t*> implied_do_loop_result;
     bool contains_array;
+    SymbolTable* current_scope;
 public:
-    ImpliedDoLoopVisitor(Allocator &al, ASR::TranslationUnit_t& unit) : al{al}, unit{unit}, contains_array{false} {
+    ImpliedDoLoopVisitor(Allocator &al, ASR::TranslationUnit_t& unit) : al{al}, unit{unit}, 
+    contains_array{false}, current_scope{nullptr} {
         implied_do_loop_result.reserve(al, 1);
 
     }
@@ -68,6 +70,7 @@ public:
         // FIXME: this is a hack, we need to pass in a non-const `x`,
         // which requires to generate a TransformVisitor.
         ASR::Program_t &xx = const_cast<ASR::Program_t&>(x);
+        current_scope = xx.m_symtab;
         transform_stmts(xx.m_body, xx.n_body);
 
         // Transform nested functions and subroutines
@@ -87,6 +90,7 @@ public:
         // FIXME: this is a hack, we need to pass in a non-const `x`,
         // which requires to generate a TransformVisitor.
         ASR::Subroutine_t &xx = const_cast<ASR::Subroutine_t&>(x);
+        current_scope = xx.m_symtab;
         transform_stmts(xx.m_body, xx.n_body);
     }
 
@@ -94,12 +98,13 @@ public:
         // FIXME: this is a hack, we need to pass in a non-const `x`,
         // which requires to generate a TransformVisitor.
         ASR::Function_t &xx = const_cast<ASR::Function_t&>(x);
+        current_scope = xx.m_symtab;
         transform_stmts(xx.m_body, xx.n_body);
     }
 
     void visit_Var(const ASR::Var_t& x) {
         ASR::expr_t* x_expr = (ASR::expr_t*)(&(x.base));
-        contains_array = PassUtils::is_array(x_expr, al);
+        contains_array = PassUtils::is_array(x_expr);
     }
 
     void visit_ConstantInteger(const ASR::ConstantInteger_t&) {
@@ -238,29 +243,22 @@ public:
                 }
             }
         } else if( x.m_value->type != ASR::exprType::ArrayInitializer && 
-                   PassUtils::is_array(x.m_target, al)) {
+                   PassUtils::is_array(x.m_target)) {
             contains_array = true;
             visit_expr(*(x.m_value)); // TODO: Add support for updating contains array in all types of expressions
             if( contains_array ) {
                 return ;
             }
-            Vec<PassUtils::dimension_descriptor> dims_target_vec;
-            PassUtils::get_dims(x.m_target, dims_target_vec, al);
-            if( dims_target_vec.size() <= 0 ) {
-                return ;
-            }
 
-            PassUtils::dimension_descriptor* dims_target = dims_target_vec.p;
-            int n_dims = dims_target_vec.size();
-            ASR::ttype_t* int32_type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+            int n_dims = PassUtils::get_rank(x.m_target);
             Vec<ASR::expr_t*> idx_vars;
             PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, unit);
             ASR::stmt_t* doloop = nullptr;
             for( int i = n_dims - 1; i >= 0; i-- ) {
                 ASR::do_loop_head_t head;
                 head.m_v = idx_vars[i];
-                head.m_start = EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, dims_target[i].lbound, int32_type)); // TODO: Replace with call to lbound
-                head.m_end = EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, dims_target[i].ubound, int32_type)); // TODO: Replace with call to ubound
+                head.m_start = PassUtils::get_bound(x.m_target, n_dims, "lbound", al, unit, current_scope); 
+                head.m_end = PassUtils::get_bound(x.m_target, n_dims, "ubound", al, unit, current_scope);
                 head.m_increment = nullptr;
                 head.loc = head.m_v->base.loc;
                 Vec<ASR::stmt_t*> doloop_body;

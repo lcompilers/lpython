@@ -8,21 +8,21 @@ namespace LFortran {
 
     namespace PassUtils {
 
-        struct dimension_descriptor
-        {
-            int lbound, ubound;
-        };
+        bool is_array(ASR::expr_t* x);
 
-        bool is_array(ASR::expr_t* x, Allocator& al);
-
-        void get_dims(ASR::expr_t* x, Vec<dimension_descriptor>& result, Allocator& al);
+        int get_rank(ASR::expr_t* x);
 
         ASR::expr_t* create_array_ref(ASR::expr_t* arr_expr, Vec<ASR::expr_t*>& idx_vars, Allocator& al);
 
         ASR::expr_t* create_array_ref(ASR::symbol_t* arr, Vec<ASR::expr_t*>& idx_vars, Allocator& al,
                                       const Location& loc, ASR::ttype_t* _type);
 
-        void create_idx_vars(Vec<ASR::expr_t*>& idx_vars, int n_dims, const Location& loc, Allocator& al, ASR::TranslationUnit_t& unit, std::string suffix="_k");
+        void create_idx_vars(Vec<ASR::expr_t*>& idx_vars, int n_dims, const Location& loc, 
+                             Allocator& al, ASR::TranslationUnit_t& unit, std::string suffix="_k");
+        
+        ASR::expr_t* get_bound(ASR::expr_t* arr_expr, int dim, std::string bound,
+                                Allocator& al, ASR::TranslationUnit_t& unit, 
+                                SymbolTable*& current_scope);
 
     }
 

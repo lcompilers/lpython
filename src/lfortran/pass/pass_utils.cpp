@@ -9,122 +9,82 @@ namespace LFortran {
 
     namespace PassUtils {
 
-        void get_dims(ASR::expr_t* x, Vec<dimension_descriptor>& result, Allocator& al) {
-            result.reserve(al, 0);
+        int get_rank(ASR::expr_t* x) {
+            int n_dims = 0;
+            ASR::ttype_t* x_type = expr_type(x);
             if( x->type == ASR::exprType::Var ) {
                 ASR::Var_t* x_var = ASR::down_cast<ASR::Var_t>(x);
-                ASR::symbol_t* x_sym = (ASR::symbol_t*)symbol_get_past_external(x_var->m_v);
-                if( x_sym->type != ASR::symbolType::Variable ) {
-                    return ;
-                }
-                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(x_sym);
-                ASR::ttype_t* x_type = expr_type(x);
-                ASR::dimension_t* m_dims = nullptr;
-                int n_dims = 0;
+                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(symbol_get_past_external(x_var->m_v));
                 switch( v->m_type->type ) {
                     case ASR::ttypeType::Integer: {
                         ASR::Integer_t* x_type_ref = ASR::down_cast<ASR::Integer_t>(x_type);
                         n_dims = x_type_ref->n_dims;
-                        m_dims = x_type_ref->m_dims;
                         break;
                     }
                     case ASR::ttypeType::IntegerPointer: {
                         ASR::IntegerPointer_t* x_type_ref = ASR::down_cast<ASR::IntegerPointer_t>(x_type);
                         n_dims = x_type_ref->n_dims;
-                        m_dims = x_type_ref->m_dims;
                         break;
                     }
                     case ASR::ttypeType::Real: {
                         ASR::Real_t* x_type_ref = ASR::down_cast<ASR::Real_t>(x_type);
                         n_dims = x_type_ref->n_dims;
-                        m_dims = x_type_ref->m_dims;
                         break;
                     }
                     case ASR::ttypeType::RealPointer: {
                         ASR::RealPointer_t* x_type_ref = ASR::down_cast<ASR::RealPointer_t>(x_type);
                         n_dims = x_type_ref->n_dims;
-                        m_dims = x_type_ref->m_dims;
                         break;
                     }
                     case ASR::ttypeType::Complex: {
                         ASR::Complex_t* x_type_ref = ASR::down_cast<ASR::Complex_t>(x_type);
                         n_dims = x_type_ref->n_dims;
-                        m_dims = x_type_ref->m_dims;
                         break;
                     }
                     case ASR::ttypeType::ComplexPointer: {
                         ASR::ComplexPointer_t* x_type_ref = ASR::down_cast<ASR::ComplexPointer_t>(x_type);
                         n_dims = x_type_ref->n_dims;
-                        m_dims = x_type_ref->m_dims;
                         break;
                     }
                     case ASR::ttypeType::Derived: {
                         ASR::Derived_t* x_type_ref = ASR::down_cast<ASR::Derived_t>(x_type);
                         n_dims = x_type_ref->n_dims;
-                        m_dims = x_type_ref->m_dims;
                         break;
                     }
                     case ASR::ttypeType::DerivedPointer: {
                         ASR::DerivedPointer_t* x_type_ref = ASR::down_cast<ASR::DerivedPointer_t>(x_type);
                         n_dims = x_type_ref->n_dims;
-                        m_dims = x_type_ref->m_dims;
                         break;
                     }
                     case ASR::ttypeType::Logical: {
                         ASR::Logical_t* x_type_ref = ASR::down_cast<ASR::Logical_t>(x_type);
                         n_dims = x_type_ref->n_dims;
-                        m_dims = x_type_ref->m_dims;
                         break;
                     }
                     case ASR::ttypeType::LogicalPointer: {
                         ASR::LogicalPointer_t* x_type_ref = ASR::down_cast<ASR::LogicalPointer_t>(x_type);
                         n_dims = x_type_ref->n_dims;
-                        m_dims = x_type_ref->m_dims;
                         break;
                     }
                     case ASR::ttypeType::Character: {
                         ASR::Character_t* x_type_ref = ASR::down_cast<ASR::Character_t>(x_type);
                         n_dims = x_type_ref->n_dims;
-                        m_dims = x_type_ref->m_dims;
                         break;
                     }
                     case ASR::ttypeType::CharacterPointer: {
                         ASR::CharacterPointer_t* x_type_ref = ASR::down_cast<ASR::CharacterPointer_t>(x_type);
                         n_dims = x_type_ref->n_dims;
-                        m_dims = x_type_ref->m_dims;
                         break;
                     }
                     default:
                         break;
                 }
-                if( n_dims > 0 ) {
-                    for( int i = 0; i < n_dims; i++ ) {
-                        int lbound = -1, ubound = -1;
-                        if( m_dims[i].m_start->type == ASR::exprType::ConstantInteger ) {
-                            ASR::ConstantInteger_t* m_start = ASR::down_cast<ASR::ConstantInteger_t>(m_dims[i].m_start);
-                            lbound = m_start->m_n;
-                        }
-                        if( m_dims[i].m_end->type == ASR::exprType::ConstantInteger ) {
-                            ASR::ConstantInteger_t* m_end = ASR::down_cast<ASR::ConstantInteger_t>(m_dims[i].m_end);
-                            ubound = m_end->m_n;
-                        } 
-                        if( lbound != -1 && ubound != -1 ) {
-                            dimension_descriptor new_dim;
-                            new_dim.lbound = lbound;
-                            new_dim.ubound = ubound;
-                            result.push_back(al, new_dim);
-                        } else {
-                            break;
-                        }
-                    }
-                }
             }
+            return n_dims;
         }   
 
-        bool is_array(ASR::expr_t* x, Allocator& al) {
-            Vec<dimension_descriptor> result;
-            get_dims(x, result, al);
-            return result.size() > 0;
+        bool is_array(ASR::expr_t* x) {
+            return get_rank(x) > 0;
         }
 
         ASR::expr_t* create_array_ref(ASR::expr_t* arr_expr, Vec<ASR::expr_t*>& idx_vars, Allocator& al) {
@@ -161,9 +121,10 @@ namespace LFortran {
                 char* idx_var_name = (char*)const_idx_var_name;
                 ASR::expr_t* idx_var = nullptr;
                 ASR::ttype_t* int32_type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+                ASR::expr_t* const_1 = EXPR(ASR::make_ConstantInteger_t(al, loc, 1, int32_type));
                 if( unit.m_global_scope->scope.find(std::string(idx_var_name)) == unit.m_global_scope->scope.end() ) {
                     ASR::asr_t* idx_sym = ASR::make_Variable_t(al, loc, unit.m_global_scope, idx_var_name, 
-                                                            ASR::intentType::Local, nullptr, ASR::storage_typeType::Default, 
+                                                            ASR::intentType::Local, const_1, ASR::storage_typeType::Default, 
                                                             int32_type, ASR::abiType::Source, ASR::accessType::Public);
                     unit.m_global_scope->scope[std::string(idx_var_name)] = ASR::down_cast<ASR::symbol_t>(idx_sym);
                     idx_var = EXPR(ASR::make_Var_t(al, loc, ASR::down_cast<ASR::symbol_t>(idx_sym)));
@@ -173,6 +134,41 @@ namespace LFortran {
                 }
                 idx_vars.push_back(al, idx_var);
             }
+        }
+
+        ASR::expr_t* get_bound(ASR::expr_t* arr_expr, int dim, std::string bound,
+                                Allocator& al, ASR::TranslationUnit_t& unit, 
+                                SymbolTable*& current_scope) {
+            ASR::symbol_t *v;
+            std::string remote_sym = bound;
+            std::string module_name = "lfortran_intrinsic_array";
+            SymbolTable* current_scope_copy = current_scope;
+            current_scope = unit.m_global_scope;
+            ASR::Module_t *m = load_module(al, current_scope,
+                                            module_name, arr_expr->base.loc, true);
+
+            ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
+            ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
+            ASR::asr_t *fn = ASR::make_ExternalSymbol_t(al, mfn->base.base.loc, current_scope,
+                                                        mfn->m_name, (ASR::symbol_t*)mfn,
+                                                        m->m_name, mfn->m_name, ASR::accessType::Private);
+            std::string sym = mfn->m_name;
+            if( current_scope->scope.find(sym) != current_scope->scope.end() ) {
+                v = current_scope->scope[sym];
+            } else {
+                current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
+                v = ASR::down_cast<ASR::symbol_t>(fn);
+            }
+            Vec<ASR::expr_t*> args;
+            args.reserve(al, 2);
+            args.push_back(al, arr_expr);
+            ASR::expr_t* const_1 = EXPR(ASR::make_ConstantInteger_t(al, arr_expr->base.loc, dim, expr_type(mfn->m_args[1])));
+            args.push_back(al, const_1);
+            ASR::ttype_t *type = EXPR2VAR(ASR::down_cast<ASR::Function_t>(
+                                        symbol_get_past_external(v))->m_return_var)->m_type;
+            current_scope = current_scope_copy;
+            return EXPR(ASR::make_FunctionCall_t(al, arr_expr->base.loc, v, nullptr,
+                                                args.p, args.size(), nullptr, 0, type));
         }
 
     }
