@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    481 // shift/reduce conflicts
+%expect    485 // shift/reduce conflicts
 %expect-rr 81  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -301,8 +301,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_codim> coarray_comp_decl_list
 %type <fnarg> fnarray_arg
 %type <vec_fnarg> fnarray_arg_list_opt
-%type <fnarg> coarray_arg
-%type <vec_fnarg> coarray_arg_list
+%type <coarrayarg> coarray_arg
+%type <vec_coarrayarg> coarray_arg_list
 %type <dim> array_comp_decl
 %type <codim> coarray_comp_decl
 %type <ast> var_type
@@ -365,6 +365,11 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> event_post_statement
 %type <ast> event_wait_statement
 %type <ast> sync_all_statement
+%type <vec_ast> event_wait_spec_list
+%type <ast> event_wait_spec
+%type <vec_ast> sync_stat_list
+%type <vec_ast> event_post_stat_list
+%type <ast> sync_stat
 %type <ast> format_statement
 %type <vec_ast> statements
 %type <vec_ast> contains_block_opt
@@ -903,7 +908,7 @@ named_constant_def_list
     ;
 
 named_constant_def
-    : id "=" expr { VAR_SYM($$, $1, nullptr, 0, $3, @$); }
+    : id "=" expr { VAR_SYM($$, $1, nullptr, 0, $3, Equal, @$); }
     ;
 
 
@@ -988,18 +993,18 @@ var_sym_decl_list
     ;
 
 var_sym_decl
-    : id { VAR_SYM2($$, $1, nullptr, 0, @$); }
-    | id "=" expr { VAR_SYM($$, $1, nullptr, 0, $3, @$); }
-    | id "=>" expr { VAR_SYM($$, $1, nullptr, 0, $3, @$); }
-    | id "*" expr { VAR_SYM2($$, $1, nullptr, 0, @$); }
-    | id "(" array_comp_decl_list ")" { VAR_SYM2($$, $1, $3.p, $3.n, @$); }
+    : id { VAR_SYM2($$, $1, nullptr, 0, None, @$); }
+    | id "=" expr { VAR_SYM($$, $1, nullptr, 0, $3, Equal, @$); }
+    | id "=>" expr { VAR_SYM($$, $1, nullptr, 0, $3, Assign, @$); }
+    | id "*" expr { VAR_SYM($$, $1, nullptr, 0, $3, Asterisk, @$); }
+    | id "(" array_comp_decl_list ")" { VAR_SYM2($$, $1, $3.p, $3.n, None, @$); }
     | id "(" array_comp_decl_list ")" "=" expr {
-            VAR_SYM($$, $1, $3.p, $3.n, $6, @$); }
+            VAR_SYM($$, $1, $3.p, $3.n, $6, Equal, @$); }
     | id "(" array_comp_decl_list ")" "=>" expr {
-            VAR_SYM($$, $1, $3.p, $3.n, $6, @$); }
-    | id "[" coarray_comp_decl_list "]" { VAR_SYM3($$, $1, $3.p, $3.n, @$); }
+            VAR_SYM($$, $1, $3.p, $3.n, $6, Assign, @$); }
+    | id "[" coarray_comp_decl_list "]" { VAR_SYM3($$, $1, $3.p, $3.n, None, @$); }
     | id "(" array_comp_decl_list ")" "[" coarray_comp_decl_list "]" {
-            VAR_SYM4($$, $1, $3.p, $3.n, $6.p, $6.n, @$); }
+            VAR_SYM4($$, $1, $3.p, $3.n, $6.p, $6.n, None, @$); }
 
 // TODO: is this needed? It seems it should go somewheer else
 /*
@@ -1474,6 +1479,7 @@ exit_statement
 
 return_statement
     : KW_RETURN { $$ = RETURN(@$); }
+    | KW_RETURN expr { $$ = RETURN1($2, @$); }
     ;
 
 cycle_statement
@@ -1497,16 +1503,45 @@ error_stop_statement
 
 event_post_statement
     : KW_EVENT KW_POST "(" expr ")" { $$ = EVENT_POST($4, @$); }
+    | KW_EVENT KW_POST "(" expr "," event_post_stat_list ")" {
+            $$ = EVENT_POST1($4, $6, @$); }
     ;
 
 event_wait_statement
-    : KW_EVENT KW_WAIT "(" expr ")" { $$ = EVENT_WAIT($4, @$); }
+    : KW_EVENT KW_WAIT "(" expr ")" {
+            $$ = EVENT_WAIT($4, @$); }
+    | KW_EVENT KW_WAIT "(" expr "," event_wait_spec_list ")" {
+            $$ = EVENT_WAIT1($4, $6, @$); }
     ;
 
 sync_all_statement
     : KW_SYNC KW_ALL { $$ = SYNC_ALL(@$); }
+    | KW_SYNC KW_ALL "(" sync_stat_list ")" { $$ = SYNC_ALL1($4, @$); }
     ;
 
+event_wait_spec_list
+    : event_wait_spec_list "," sync_stat { $$ = $1; LIST_ADD($$, $3); }
+    | event_wait_spec { LIST_NEW($$); LIST_ADD($$, $1); }
+    | %empty { LIST_NEW($$); }
+    ;
+
+event_wait_spec
+    : id "=" expr { $$ = EVENT_WAIT_KW_ARG($1, $3, @$); }
+    ;
+
+event_post_stat_list
+    : sync_stat { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+sync_stat_list
+    : sync_stat { LIST_NEW($$); LIST_ADD($$, $1); }
+    | %empty { LIST_NEW($$); }
+    ;
+
+sync_stat
+    : KW_STAT "=" id { $$ = STAT($3, @$); }
+    | KW_ERRMSG "=" id { $$ = ERRMSG($3, @$); }
+    ;
 // -----------------------------------------------------------------------------
 // Fortran expression
 
@@ -1624,22 +1659,22 @@ coarray_arg_list
 
 coarray_arg
 // array element / function argument
-    : expr                   { $$ = ARRAY_COMP_DECL_0i0($1, @$); }
+    : expr                   { $$ = COARRAY_COMP_DECL_0i0($1, @$); }
 // array section
-    | ":"                    { $$ = ARRAY_COMP_DECL_001(@$); }
-    | expr ":"               { $$ = ARRAY_COMP_DECL_a01($1, @$); }
-    | ":" expr               { $$ = ARRAY_COMP_DECL_0b1($2, @$); }
-    | expr ":" expr          { $$ = ARRAY_COMP_DECL_ab1($1, $3, @$); }
-    | "::" expr              { $$ = ARRAY_COMP_DECL_00c($2, @$); }
-    | ":" ":" expr           { $$ = ARRAY_COMP_DECL_00c($3, @$); }
-    | expr "::" expr         { $$ = ARRAY_COMP_DECL_a0c($1, $3, @$); }
-    | expr ":" ":" expr      { $$ = ARRAY_COMP_DECL_a0c($1, $4, @$); }
-    | ":" expr ":" expr      { $$ = ARRAY_COMP_DECL_0bc($2, $4, @$); }
-    | expr ":" expr ":" expr { $$ = ARRAY_COMP_DECL_abc($1, $3, $5, @$); }
+    | ":"                    { $$ = COARRAY_COMP_DECL_001(@$); }
+    | expr ":"               { $$ = COARRAY_COMP_DECL_a01($1, @$); }
+    | ":" expr               { $$ = COARRAY_COMP_DECL_0b1($2, @$); }
+    | expr ":" expr          { $$ = COARRAY_COMP_DECL_ab1($1, $3, @$); }
+    | "::" expr              { $$ = COARRAY_COMP_DECL_00c($2, @$); }
+    | ":" ":" expr           { $$ = COARRAY_COMP_DECL_00c($3, @$); }
+    | expr "::" expr         { $$ = COARRAY_COMP_DECL_a0c($1, $3, @$); }
+    | expr ":" ":" expr      { $$ = COARRAY_COMP_DECL_a0c($1, $4, @$); }
+    | ":" expr ":" expr      { $$ = COARRAY_COMP_DECL_0bc($2, $4, @$); }
+    | expr ":" expr ":" expr { $$ = COARRAY_COMP_DECL_abc($1, $3, $5, @$); }
 // keyword function argument
-    | id "=" expr            { $$ = ARRAY_COMP_DECL1k($1, $3, @$); }
+    | id "=" expr            { $$ = COARRAY_COMP_DECL1k($1, $3, @$); }
 // star
-    | "*"                    { $$ = ARRAY_COMP_DECL_001(@$); }
+    | "*"                    { $$ = COARRAY_COMP_DECL_star(@$); }
     ;
 
 id_list_opt

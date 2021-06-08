@@ -19,6 +19,7 @@ real :: E(1,2,3)[1,2,-1:3,*]
 real, allocatable :: F(:)[:]
 real, allocatable :: g(:,:,:)[:,:,:]
 real, dimension(20), codimension[20,*] :: h
+real, codimension[:], allocatable :: z(:,:)
 character :: r(20)[20,0:*]
 type(event_type) :: ok_to_overwrite[*]
 type(event_type), allocatable :: greeting_ready(:)[:]
@@ -41,7 +42,20 @@ else
     event wait(ok_to_overwrite)
     event post(greeting_ready(this_image())[1])
 end if
+
 sync all
+sync all()
+sync all(stat=status)
+sync all(errmsg=status)
+
+event wait(variable, until_count=status)
+event wait(variable, until_count=status, errmsg=status)
+event wait(variable, errmsg=status)
+event wait(variable, stat=status)
+event post (done (sub (i)) [parent (i)], stat=status)
+event post(variable, stat=status)
+event post(variable, errmsg=status)
+
 c[3] = c[4]
 B[1,2] = B[3,4]
 D(99,1)[3,4] = D(1,2)[1,2]

@@ -24,6 +24,14 @@ struct FnArg {
     };
 };
 
+struct CoarrayArg {
+    bool keyword;
+    union {
+        AST::coarrayarg_t arg;
+        AST::keyword_t kw;
+    };
+};
+
 struct ArgStarKw {
     bool keyword;
     union {
@@ -57,6 +65,9 @@ union YYSTYPE {
 
     FnArg *fnarg;
     Vec<FnArg> vec_fnarg;
+
+    CoarrayArg *coarrayarg;
+    Vec<CoarrayArg> vec_coarrayarg;
 
     ArgStarKw *argstarkw;
     Vec<ArgStarKw> vec_argstarkw;

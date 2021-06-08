@@ -2,11 +2,11 @@
     "basename": "ast-coarrays_01-2b1221b",
     "cmd": "lfortran --show-ast --no-color {infile} -o {outfile}",
     "infile": "tests/coarrays_01.f90",
-    "infile_hash": "c7d3fd39b77c3ad88673027e7e2aee9f73f41d6a0c7dde4d0685dc10",
+    "infile_hash": "59ffbc4b5f18e1fd05b0979b854668ef1028a8f87b57614e9d42dfa6",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast-coarrays_01-2b1221b.stdout",
-    "stdout_hash": "8ba7b972d861deb6880d3819f0ef4a4c5901d32216b5fa6d0b4fb1d4",
+    "stdout_hash": "185936b9dfe453f1fb9dfa1c73e85ba7d47b1a5b56975a2a14d61192",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

@@ -106,8 +106,8 @@ stmt
     | Cycle(int label, identifier? stmt_name)
     | Deallocate(int label, fnarg* args)
     | ErrorStop(int label, expr? code)
-    | EventPost(int label, expr variable)
-    | EventWait(int label, expr variable)
+    | EventPost(int label, expr variable, event_attribute* stat)
+    | EventWait(int label, expr variable, event_attribute* spec)
     | Exit(int label, identifier? stmt_name)
     | ForAllSingle(int label, identifier? stmt_name,
             concurrent_control *control, expr? mask, stmt assign)
@@ -116,14 +116,14 @@ stmt
     | Inquire(int label, expr* args, keyword* kwargs, expr* values)
     | Nullify(int label, expr* args, keyword* kwargs)
     | Open(int label, expr* args, keyword* kwargs)
-    | Return(int label)
+    | Return(int label, expr? value)
     | Print(int label, string? fmt, expr* values)
     | Read(int label, argstar* args, kw_argstar* kwargs, expr* values)
     | Rewind(int label, expr* args, keyword* kwargs)
     | Stop(int label, expr? code)
     | SubroutineCall(int label, identifier name, struct_member* member,
             fnarg* args, keyword* keywords)
-    | SyncAll(int label)
+    | SyncAll(int label, event_attribute* stat)
     | Write(int label, argstar* args, kw_argstar* kwargs, expr* values)
 
 -- Multi-line statements (each has a `label` and `stmt_name`):
@@ -156,7 +156,7 @@ expr
     | FuncCallOrArray(identifier func, struct_member* member,
         fnarg* args, keyword* keywords)
     | CoarrayRef(identifier name, fnarg* args, keyword* fnkw
-        fnarg* coargs, keyword* cokw)
+        coarrayarg* coargs, keyword* cokw)
     | ArrayInitializer(decl_attribute? vartype, expr* args)
     | ImpliedDoLoop(expr* values, identifier var, expr start, expr end,
         expr? increment)
@@ -242,8 +242,13 @@ decl_type
     | TypeReal
     | TypeType
 
+event_attribute
+    = AttrStat(identifier variable)
+    | AttrErrmsg(identifier variable)
+    | AttrEventWaitKwArg(identifier id, expr value)
+
 var_sym = (identifier name, dimension* dim, codimension* codim,
- expr? initializer)
+ expr? initializer, symbol sym)
 
 kind_item = (identifier? id, expr? value, kind_item_type type)
 
@@ -254,6 +259,8 @@ dimension_type = DimensionExpr | DimensionStar
 
 codimension = (expr? start, expr? end, codimension_type end_star)
 codimension_type = CodimensionExpr | CodimensionStar
+
+symbol = None | Assign | Equal | Asterisk
 
 -- Encoding of an array dimension declaration:
 --           start      end     end_star
@@ -291,6 +298,8 @@ arg = (identifier arg)
 -- X(a:b:c)   a          b       c
 --
 fnarg = (expr? start, expr? end, expr? step)
+
+coarrayarg = (expr? start, expr? end, expr? step, codimension_type star)
 
 keyword = (identifier arg, expr value)
 

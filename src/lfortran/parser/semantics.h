@@ -20,6 +20,7 @@ using namespace LFortran::AST;
 using LFortran::Location;
 using LFortran::Vec;
 using LFortran::FnArg;
+using LFortran::CoarrayArg;
 using LFortran::VarType;
 using LFortran::SemanticError;
 using LFortran::ArgStarKw;
@@ -270,7 +271,7 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
 #define LETTER_SPEC2(a, b, l) make_LetterSpec_t(p.m_a, l, \
         name2char(a), name2char(b))
 
-#define VAR_SYM(xout, xname, xdimp, xdimn, xinit, xloc) \
+#define VAR_SYM(xout, xname, xdimp, xdimn, xinit, sym, xloc) \
             xout = p.m_a.allocate<var_sym_t>(1); \
             xout->loc = xloc; \
             xout->m_name = name2char(xname); \
@@ -278,9 +279,10 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
             xout->n_dim = xdimn; \
             xout->m_codim = nullptr; \
             xout->n_codim = 0; \
-            xout->m_initializer=down_cast<expr_t>(xinit);
+            xout->m_initializer=down_cast<expr_t>(xinit); \
+            xout->m_sym=symbolType::sym;
 
-#define VAR_SYM2(xout, xname, xdimp, xdimn, xloc) \
+#define VAR_SYM2(xout, xname, xdimp, xdimn, sym, xloc) \
             xout = p.m_a.allocate<var_sym_t>(1); \
             xout->loc = xloc; \
             xout->m_name = name2char(xname); \
@@ -288,9 +290,10 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
             xout->n_dim = xdimn; \
             xout->m_codim = nullptr; \
             xout->n_codim = 0; \
-            xout->m_initializer=nullptr;
+            xout->m_initializer=nullptr; \
+            xout->m_sym=symbolType::sym;
 
-#define VAR_SYM3(xout, xname, xcodimp, xcodimn, xloc) \
+#define VAR_SYM3(xout, xname, xcodimp, xcodimn, sym, xloc) \
             xout = p.m_a.allocate<var_sym_t>(1); \
             xout->loc = xloc; \
             xout->m_name = name2char(xname); \
@@ -298,9 +301,10 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
             xout->n_dim = 0; \
             xout->m_codim = xcodimp; \
             xout->n_codim = xcodimn; \
-            xout->m_initializer=nullptr;
+            xout->m_initializer=nullptr; \
+            xout->m_sym=symbolType::sym;
 
-#define VAR_SYM4(xout, xname, xdimp, xdimn, xcodimp, xcodimn, xloc) \
+#define VAR_SYM4(xout, xname, xdimp, xdimn, xcodimp, xcodimn, sym, xloc) \
             xout = p.m_a.allocate<var_sym_t>(1); \
             xout->loc = xloc; \
             xout->m_name = name2char(xname); \
@@ -308,7 +312,8 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
             xout->n_dim = xdimn; \
             xout->m_codim = xcodimp; \
             xout->n_codim = xcodimn; \
-            xout->m_initializer=nullptr;
+            xout->m_initializer=nullptr; \
+            xout->m_sym=symbolType::sym;
 
 static inline expr_t** DIMS2EXPRS(Allocator &al, const Vec<FnArg> &d)
 {
@@ -411,6 +416,42 @@ static inline FnArg* DIM1k(Allocator &al, Location &l,
         ast_t *id, expr_t */*a*/, expr_t *b)
 {
     FnArg *s = al.allocate<FnArg>();
+    s->keyword = true;
+    s->kw.loc = l;
+    s->kw.m_arg = name2char(id);
+    s->kw.m_value = b;
+    return s;
+}
+
+static inline CoarrayArg* CODIM1(Allocator &al, Location &l,
+    expr_t *a, expr_t *b, expr_t *c)
+{
+    CoarrayArg *s = al.allocate<CoarrayArg>();
+    s->keyword = false;
+    s->arg.loc = l;
+    s->arg.m_start = a;
+    s->arg.m_end = b;
+    s->arg.m_step = c;
+    s->arg.m_star = codimension_typeType::CodimensionExpr;
+    return s;
+}
+
+static inline CoarrayArg* CODIM1star(Allocator &al, Location &l, expr_t *c)
+{
+    CoarrayArg *s = al.allocate<CoarrayArg>();
+    s->keyword = false;
+    s->arg.loc = l;
+    s->arg.m_start = nullptr;
+    s->arg.m_end = nullptr;
+    s->arg.m_step = c;
+    s->arg.m_star = codimension_typeType::CodimensionStar;
+    return s;
+}
+
+static inline CoarrayArg* CODIM1k(Allocator &al, Location &l,
+        ast_t *id, expr_t */*a*/, expr_t *b)
+{
+    CoarrayArg *s = al.allocate<CoarrayArg>();
     s->keyword = true;
     s->kw.loc = l;
     s->kw.m_arg = name2char(id);
@@ -903,14 +944,27 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
 
 #define EXIT(l) make_Exit_t(p.m_a, l, 0, nullptr)
 #define EXIT2(id, l) make_Exit_t(p.m_a, l, 0, name2char(id))
-#define RETURN(l) make_Return_t(p.m_a, l, 0)
+#define RETURN(l) make_Return_t(p.m_a, l, 0, nullptr)
+#define RETURN1(e, l) make_Return_t(p.m_a, l, 0, EXPR(e))
 #define CYCLE(l) make_Cycle_t(p.m_a, l, 0, nullptr)
 #define CYCLE2(id, l) make_Cycle_t(p.m_a, l, 0, name2char(id))
 #define CONTINUE(l) make_Continue_t(p.m_a, l, 0)
 
-#define EVENT_POST(eventVar, l) make_EventPost_t(p.m_a, l, 0, EXPR(eventVar))
-#define EVENT_WAIT(eventVar, l) make_EventWait_t(p.m_a, l, 0, EXPR(eventVar))
-#define SYNC_ALL(l) make_SyncAll_t(p.m_a, l, 0)
+#define EVENT_POST(eventVar, l) make_EventPost_t(p.m_a, l, 0, \
+        EXPR(eventVar), nullptr, 0)
+#define EVENT_POST1(eventVar, x, l) make_EventPost_t(p.m_a, l, 0, \
+        EXPR(eventVar), VEC_CAST(x, event_attribute), x.size())
+#define EVENT_WAIT(eventVar, l) make_EventWait_t(p.m_a, l, 0, \
+        EXPR(eventVar), nullptr, 0)
+#define EVENT_WAIT1(eventVar, x, l) make_EventWait_t(p.m_a, l, 0, \
+        EXPR(eventVar), VEC_CAST(x, event_attribute), x.size())
+#define SYNC_ALL(l) make_SyncAll_t(p.m_a, l, 0, nullptr, 0)
+#define SYNC_ALL1(x, l) make_SyncAll_t(p.m_a, l, 0, \
+        VEC_CAST(x, event_attribute), x.size())
+#define STAT(var, l) make_AttrStat_t(p.m_a, l, name2char(var))
+#define ERRMSG(var, l) make_AttrErrmsg_t(p.m_a, l, name2char(var))
+#define EVENT_WAIT_KW_ARG(id, e, l) make_AttrEventWaitKwArg_t(p.m_a, l, \
+        name2char(id), EXPR(e))
 
 #define SUBROUTINE(name, args, bind, use, import, implicit, decl, stmts, contains, l) \
     make_Subroutine_t(p.m_a, l, \
@@ -1235,6 +1289,24 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
 #define COARRAY_COMP_DECL6d(l)          CODIM1d_star(p.m_a, l, nullptr)
 #define COARRAY_COMP_DECL7d(a, l)       CODIM1d_star(p.m_a, l, EXPR(a))
 
+#define COARRAY_COMP_DECL_0i0(a,l)     CODIM1(p.m_a, l, nullptr, EXPR(a), nullptr)
+#define COARRAY_COMP_DECL_001(l)       CODIM1(p.m_a, l, \
+        nullptr, nullptr, EXPR(INTEGER(1,l)))
+#define COARRAY_COMP_DECL_a01(a,l)     CODIM1(p.m_a, l, \
+        EXPR(a), nullptr, EXPR(INTEGER(1,l)))
+#define COARRAY_COMP_DECL_0b1(b,l)     CODIM1(p.m_a, l, \
+        nullptr, EXPR(b), EXPR(INTEGER(1,l)))
+#define COARRAY_COMP_DECL_ab1(a,b,l)   CODIM1(p.m_a, l, \
+        EXPR(a), EXPR(b), EXPR(INTEGER(1,l)))
+#define COARRAY_COMP_DECL_00c(c,l)     CODIM1(p.m_a, l, nullptr, nullptr, EXPR(c))
+#define COARRAY_COMP_DECL_a0c(a,c,l)   CODIM1(p.m_a, l, EXPR(a), nullptr, EXPR(c))
+#define COARRAY_COMP_DECL_0bc(b,c,l)   CODIM1(p.m_a, l, nullptr, EXPR(b), EXPR(c))
+#define COARRAY_COMP_DECL_abc(a,b,c,l) CODIM1(p.m_a, l, EXPR(a), EXPR(b), EXPR(c))
+
+#define COARRAY_COMP_DECL1k(id, a, l)   CODIM1k(p.m_a, l, \
+        id, EXPR(INTEGER(1, l)), EXPR(a))
+#define COARRAY_COMP_DECL_star(l)       CODIM1star(p.m_a, l, EXPR(INTEGER(1, l)))
+
 #define VARMOD(a, l) make_Attribute_t(p.m_a, l, \
         a.c_str(p.m_a), \
         /*args*/ nullptr, \
@@ -1335,7 +1407,7 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
         args, members, l)
 
 ast_t* COARRAY(Allocator &al, const ast_t *id,
-        const Vec<FnArg> &args, const Vec<FnArg> &coargs,
+        const Vec<FnArg> &args, const Vec<CoarrayArg> &coargs,
         Location &l) {
     Vec<fnarg_t> fn;
     fn.reserve(al, args.size());
@@ -1348,7 +1420,7 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
             fn.push_back(al, item.arg);
         }
     }
-    Vec<fnarg_t> coarr;
+    Vec<coarrayarg_t> coarr;
     coarr.reserve(al, coargs.size());
     Vec<keyword_t> coarrkw;
     coarrkw.reserve(al, coargs.size());
@@ -1363,7 +1435,7 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         /*char* a_func*/ name2char(id),
         /*fnarg_t* */ fn.p, /*size_t */ fn.size(),
         /*keyword_t* */ fnkw.p, /*size_t */ fnkw.size(),
-        /*fnarg_t* */ coarr.p, /*size_t s*/ coarr.size(),
+        /*coarrayarg_t* */ coarr.p, /*size_t s*/ coarr.size(),
         /*keyword_t* */ coarrkw.p, /*size_t */ coarrkw.size());
 }
 #define COARRAY1(id, coargs, l) COARRAY(p.m_a, id, empty1(), coargs, l)
