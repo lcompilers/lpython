@@ -113,7 +113,8 @@ public:
             PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, unit);
             ASR::stmt_t* doloop = nullptr;
             const char* tab = "\t";
-            ASR::stmt_t* empty_print_stmt = STMT(ASR::make_Print_t(al, x.base.base.loc, nullptr, nullptr, 0, (char*)tab));
+            ASR::stmt_t* empty_print_tab = STMT(ASR::make_Print_t(al, x.base.base.loc, nullptr, nullptr, 0, (char*)tab));
+            ASR::stmt_t* empty_print_endl = STMT(ASR::make_Print_t(al, x.base.base.loc, nullptr, nullptr, 0, nullptr));
             for( int i = n_dims - 1; i >= 0; i-- ) {
                 ASR::do_loop_head_t head;
                 head.m_v = idx_vars[i];
@@ -133,12 +134,12 @@ public:
                     doloop_body.push_back(al, print_stmt);
                 } else {
                     doloop_body.push_back(al, doloop);
-                    doloop_body.push_back(al, empty_print_stmt);
+                    doloop_body.push_back(al, empty_print_tab);
                 }
                 doloop = STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
             print_arr_result.push_back(al, doloop);
-            print_arr_result.push_back(al, empty_print_stmt);
+            print_arr_result.push_back(al, empty_print_endl);
         }
     }
 

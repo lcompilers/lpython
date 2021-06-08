@@ -124,16 +124,16 @@ namespace LFortran {
                 char* idx_var_name = (char*)const_idx_var_name;
                 ASR::expr_t* idx_var = nullptr;
                 ASR::ttype_t* int32_type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-                ASR::expr_t* const_1 = EXPR(ASR::make_ConstantInteger_t(al, loc, 1, int32_type));
                 if( unit.m_global_scope->scope.find(std::string(idx_var_name)) == unit.m_global_scope->scope.end() ) {
                     ASR::asr_t* idx_sym = ASR::make_Variable_t(al, loc, unit.m_global_scope, idx_var_name, 
-                                                            ASR::intentType::Local, const_1, ASR::storage_typeType::Default, 
+                                                            ASR::intentType::Local, nullptr, ASR::storage_typeType::Default, 
                                                             int32_type, ASR::abiType::Source, ASR::accessType::Public);
                     unit.m_global_scope->scope[std::string(idx_var_name)] = ASR::down_cast<ASR::symbol_t>(idx_sym);
                     idx_var = EXPR(ASR::make_Var_t(al, loc, ASR::down_cast<ASR::symbol_t>(idx_sym)));
                 } else {
                     ASR::symbol_t* idx_sym = unit.m_global_scope->scope[std::string(idx_var_name)];
                     idx_var = EXPR(ASR::make_Var_t(al, loc, idx_sym));
+                    
                 }
                 idx_vars.push_back(al, idx_var);
             }

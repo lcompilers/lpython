@@ -112,9 +112,7 @@ public:
     bool is_slice_present(const ASR::ArrayRef_t& x) {
         bool slice_present = false;
         for( size_t i = 0; i < x.n_args; i++ ) {
-            if( !(x.m_args[i].m_left == nullptr && 
-                  x.m_args[i].m_right != nullptr && 
-                  x.m_args[i].m_step == nullptr) ) {
+            if( x.m_args[i].m_step != nullptr ) {
                 slice_present = true;
                 break;
             }
@@ -134,6 +132,7 @@ public:
             ASR::symbol_t* slice_sym = ASR::down_cast<ASR::symbol_t>(slice_asr);
             current_scope->scope[std::string(new_var_name)] = slice_sym;
             slice_var = EXPR(ASR::make_Var_t(al, x.base.base.loc, slice_sym));
+            ASR::expr_t* x_arr_var = EXPR(ASR::make_Var_t(al, x.base.base.loc, x.m_v));
             // std::cout<<"Inside ArrayRef "<<slice_var<<std::endl;
             Vec<ASR::expr_t*> idx_vars_target, idx_vars_value;
             PassUtils::create_idx_vars(idx_vars_target, x.n_args, x.base.base.loc, al, unit, "_t");
@@ -144,8 +143,16 @@ public:
             for( int i = (int)x.n_args - 1; i >= 0; i-- ) {
                 ASR::do_loop_head_t head;
                 head.m_v = idx_vars_value[i];
-                head.m_start = x.m_args[i].m_left;
-                head.m_end = x.m_args[i].m_right;
+                if( x.m_args[i].m_left == nullptr ) {
+                    head.m_start = PassUtils::get_bound(x_arr_var, i + 1, "lbound", al, unit, current_scope);
+                } else {
+                    head.m_start = x.m_args[i].m_left;
+                }
+                if( x.m_args[i].m_right == nullptr ) {
+                    head.m_end = PassUtils::get_bound(x_arr_var, i + 1, "ubound", al, unit, current_scope);
+                } else {
+                    head.m_end = x.m_args[i].m_right;
+                }
                 head.m_increment = x.m_args[i].m_step;
                 head.loc = head.m_v->base.loc;
                 Vec<ASR::stmt_t*> doloop_body;
@@ -156,6 +163,8 @@ public:
                     ASR::stmt_t* assign_stmt = STMT(ASR::make_Assignment_t(al, x.base.base.loc, target_ref, value_ref));
                     doloop_body.push_back(al, assign_stmt);
                 } else {
+                    ASR::stmt_t* set_to_one = STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_target[i+1], const_1));
+                    doloop_body.push_back(al, set_to_one);
                     doloop_body.push_back(al, doloop);
                 }
                 ASR::expr_t* inc_expr = EXPR(ASR::make_BinOp_t(al, x.base.base.loc, idx_vars_target[i], ASR::binopType::Add, const_1, int32_type));
@@ -163,6 +172,8 @@ public:
                 doloop_body.push_back(al, assign_stmt);
                 doloop = STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
+            ASR::stmt_t* set_to_one = STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_target[0], const_1));
+            arr_slice_result.push_back(al, set_to_one);
             arr_slice_result.push_back(al, doloop);
         }
     }
