@@ -2650,7 +2650,7 @@ public:
                 args.reserve(al, x.n_args);
                 for (size_t i=0; i<x.n_args; i++) {
                     ASR::array_index_t ai;
-                    ai.loc = nullptr;
+                    ai.loc = x.base.base.loc;
                     ASR::expr_t *m_start, *m_end, *m_step;
                     m_start = m_end = m_step = nullptr;
                     if( x.m_args[i].m_start != nullptr ) {
