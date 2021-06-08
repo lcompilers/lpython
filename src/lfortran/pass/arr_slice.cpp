@@ -143,14 +143,19 @@ public:
             for( int i = (int)x.n_args - 1; i >= 0; i-- ) {
                 ASR::do_loop_head_t head;
                 head.m_v = idx_vars_value[i];
-                if( x.m_args[i].m_left == nullptr ) {
-                    head.m_start = PassUtils::get_bound(x_arr_var, i + 1, "lbound", al, unit, current_scope);
+                if( x.m_args[i].m_step != nullptr ) {
+                    if( x.m_args[i].m_left == nullptr ) {
+                        head.m_start = PassUtils::get_bound(x_arr_var, i + 1, "lbound", al, unit, current_scope);
+                    } else {
+                        head.m_start = x.m_args[i].m_left;
+                    }
+                    if( x.m_args[i].m_right == nullptr ) {
+                        head.m_end = PassUtils::get_bound(x_arr_var, i + 1, "ubound", al, unit, current_scope);
+                    } else {
+                        head.m_end = x.m_args[i].m_right;
+                    }
                 } else {
-                    head.m_start = x.m_args[i].m_left;
-                }
-                if( x.m_args[i].m_right == nullptr ) {
-                    head.m_end = PassUtils::get_bound(x_arr_var, i + 1, "ubound", al, unit, current_scope);
-                } else {
+                    head.m_start = x.m_args[i].m_right;
                     head.m_end = x.m_args[i].m_right;
                 }
                 head.m_increment = x.m_args[i].m_step;
