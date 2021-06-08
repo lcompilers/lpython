@@ -28,6 +28,16 @@ else
     event post (greeting_ready(this_image())[1])
 end if
 sync all
+sync all ()
+sync all (stat = status)
+sync all (errmsg = status)
+event wait (variable, until_count = status)
+event wait (variable, until_count = status, errmsg = status)
+event wait (variable, errmsg = status)
+event wait (variable, stat = status)
+event post (done(sub(i))[parent(i)], stat = status)
+event post (variable, stat = status)
+event post (variable, errmsg = status)
 c[3] = c[4]
 B[1, 2] = B[3, 4]
 D(99, 1)[3, 4] = D(1, 2)[1, 2]

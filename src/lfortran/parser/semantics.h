@@ -950,9 +950,21 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
 #define CYCLE2(id, l) make_Cycle_t(p.m_a, l, 0, name2char(id))
 #define CONTINUE(l) make_Continue_t(p.m_a, l, 0)
 
-#define EVENT_POST(eventVar, l) make_EventPost_t(p.m_a, l, 0, EXPR(eventVar))
-#define EVENT_WAIT(eventVar, l) make_EventWait_t(p.m_a, l, 0, EXPR(eventVar))
-#define SYNC_ALL(l) make_SyncAll_t(p.m_a, l, 0)
+#define EVENT_POST(eventVar, l) make_EventPost_t(p.m_a, l, 0, \
+        EXPR(eventVar), nullptr, 0)
+#define EVENT_POST1(eventVar, x, l) make_EventPost_t(p.m_a, l, 0, \
+        EXPR(eventVar), VEC_CAST(x, event_attribute), x.size())
+#define EVENT_WAIT(eventVar, l) make_EventWait_t(p.m_a, l, 0, \
+        EXPR(eventVar), nullptr, 0)
+#define EVENT_WAIT1(eventVar, x, l) make_EventWait_t(p.m_a, l, 0, \
+        EXPR(eventVar), VEC_CAST(x, event_attribute), x.size())
+#define SYNC_ALL(l) make_SyncAll_t(p.m_a, l, 0, nullptr, 0)
+#define SYNC_ALL1(x, l) make_SyncAll_t(p.m_a, l, 0, \
+        VEC_CAST(x, event_attribute), x.size())
+#define STAT(var, l) make_AttrStat_t(p.m_a, l, name2char(var))
+#define ERRMSG(var, l) make_AttrErrmsg_t(p.m_a, l, name2char(var))
+#define EVENT_WAIT_KW_ARG(id, e, l) make_AttrEventWaitKwArg_t(p.m_a, l, \
+        name2char(id), EXPR(e))
 
 #define SUBROUTINE(name, args, bind, use, import, implicit, decl, stmts, contains, l) \
     make_Subroutine_t(p.m_a, l, \

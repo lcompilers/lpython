@@ -1158,6 +1158,29 @@ public:
         s = r;
     }
 
+    void visit_AttrStat(const AttrStat_t &x) {
+        std::string r;
+        r = "stat = ";
+        r.append(x.m_variable);
+        s = r;
+    }
+
+    void visit_AttrErrmsg(const AttrErrmsg_t &x) {
+        std::string r;
+        r = "errmsg = ";
+        r.append(x.m_variable);
+        s = r;
+    }
+
+    void visit_AttrEventWaitKwArg(const AttrEventWaitKwArg_t &x) {
+        std::string r = "";
+        r.append(x.m_id);
+        r += " = ";
+        this->visit_expr(*x.m_value);
+        r.append(s);
+        s = r;
+    }
+
     void visit_Assignment(const Assignment_t &x) {
         std::string r = indent;
         r += print_label(x);
@@ -1405,6 +1428,13 @@ public:
         r += " (";
         this->visit_expr(*x.m_variable);
         r.append(s);
+        if (x.m_stat) {
+            r += ", ";
+            for (size_t i=0; i<x.n_stat; i++) {
+                this->visit_event_attribute(*x.m_stat[i]);
+                r.append(s);
+            }
+        }
         r += ")";
         r += "\n";
         s = r;
@@ -1419,6 +1449,14 @@ public:
         r += " (";
         this->visit_expr(*x.m_variable);
         r.append(s);
+        if (x.m_spec) {
+            r += ", ";
+            for (size_t i=0; i<x.n_spec; i++) {
+                this->visit_event_attribute(*x.m_spec[i]);
+                r.append(s);
+                if (i < x.n_spec-1) r.append(", ");
+            }
+        }
         r += ")";
         r += "\n";
         s = r;
@@ -1430,6 +1468,14 @@ public:
         r += syn(gr::Keyword);
         r.append("sync all");
         r += syn();
+        if (x.m_stat) {
+            r += " (";
+            for (size_t i=0; i<x.n_stat; i++) {
+                this->visit_event_attribute(*x.m_stat[i]);
+                r.append(s);
+            }
+            r += ")";
+        }
         r += "\n";
         s = r;
     }

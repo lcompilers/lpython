@@ -365,6 +365,11 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> event_post_statement
 %type <ast> event_wait_statement
 %type <ast> sync_all_statement
+%type <vec_ast> event_wait_spec_list
+%type <ast> event_wait_spec
+%type <vec_ast> sync_stat_list
+%type <vec_ast> event_post_stat_list
+%type <ast> sync_stat
 %type <ast> format_statement
 %type <vec_ast> statements
 %type <vec_ast> contains_block_opt
@@ -1498,16 +1503,45 @@ error_stop_statement
 
 event_post_statement
     : KW_EVENT KW_POST "(" expr ")" { $$ = EVENT_POST($4, @$); }
+    | KW_EVENT KW_POST "(" expr "," event_post_stat_list ")" {
+            $$ = EVENT_POST1($4, $6, @$); }
     ;
 
 event_wait_statement
-    : KW_EVENT KW_WAIT "(" expr ")" { $$ = EVENT_WAIT($4, @$); }
+    : KW_EVENT KW_WAIT "(" expr ")" {
+            $$ = EVENT_WAIT($4, @$); }
+    | KW_EVENT KW_WAIT "(" expr "," event_wait_spec_list ")" {
+            $$ = EVENT_WAIT1($4, $6, @$); }
     ;
 
 sync_all_statement
     : KW_SYNC KW_ALL { $$ = SYNC_ALL(@$); }
+    | KW_SYNC KW_ALL "(" sync_stat_list ")" { $$ = SYNC_ALL1($4, @$); }
     ;
 
+event_wait_spec_list
+    : event_wait_spec_list "," sync_stat { $$ = $1; LIST_ADD($$, $3); }
+    | event_wait_spec { LIST_NEW($$); LIST_ADD($$, $1); }
+    | %empty { LIST_NEW($$); }
+    ;
+
+event_wait_spec
+    : id "=" expr { $$ = EVENT_WAIT_KW_ARG($1, $3, @$); }
+    ;
+
+event_post_stat_list
+    : sync_stat { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+sync_stat_list
+    : sync_stat { LIST_NEW($$); LIST_ADD($$, $1); }
+    | %empty { LIST_NEW($$); }
+    ;
+
+sync_stat
+    : KW_STAT "=" id { $$ = STAT($3, @$); }
+    | KW_ERRMSG "=" id { $$ = ERRMSG($3, @$); }
+    ;
 // -----------------------------------------------------------------------------
 // Fortran expression
 
