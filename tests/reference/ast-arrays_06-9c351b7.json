@@ -6,11 +6,7 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast-arrays_06-9c351b7.stdout",
-<<<<<<< HEAD
-    "stdout_hash": "5b7329893a65b2c47857bcf1b4310518a110551dcfc99d064b93f634",
-=======
-    "stdout_hash": "f7c80b245eee54b3d55a189a4dcce6274b704642d97ad34ad247a466",
->>>>>>> master
+    "stdout_hash": "d5644d3d2519e2e74c724e6b416a87a51ad5ea7ca86eb72c4ff8eff0",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

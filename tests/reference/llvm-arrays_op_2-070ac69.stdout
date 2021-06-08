@@ -6,9 +6,9 @@ source_filename = "LFortran"
 %size_arg = type { %dimension_descriptor*, i32 }
 %array.0 = type { [4 x i32], i32, [3 x %dimension_descriptor] }
 
-@"1_k" = global i32 1
-@"2_k" = global i32 1
-@"3_k" = global i32 1
+@"1_k" = global i32 0
+@"2_k" = global i32 0
+@"3_k" = global i32 0
 @0 = private unnamed_addr constant [13 x i8] c"%d %d %d %d\0A\00", align 1
 @1 = private unnamed_addr constant [13 x i8] c"%d %d %d %d\0A\00", align 1
 @2 = private unnamed_addr constant [13 x i8] c"%d %d %d %d\0A\00", align 1
