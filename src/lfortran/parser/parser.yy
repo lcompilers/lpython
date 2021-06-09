@@ -1494,6 +1494,8 @@ continue_statement
 stop_statement
     : KW_STOP { $$ = STOP(@$); }
     | KW_STOP expr { $$ = STOP1($2, @$); }
+    | KW_STOP "," KW_QUIET "=" expr { $$ = STOP2($5, @$); }
+    | KW_STOP expr "," KW_QUIET "=" expr { $$ = STOP3($2, $6, @$); }
     ;
 
 error_stop_statement
