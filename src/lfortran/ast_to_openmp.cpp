@@ -654,35 +654,6 @@ public:
             r.append("!$OMP END PARALLEL DO");
         s = r;
     }
-    void visit_Select(const Select_t &x) {
-        s.append("(");
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("select");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append(" ");
-        this->visit_expr(*x.m_test);
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_body; i++) {
-            this->visit_case_stmt(*x.m_body[i]);
-            if (i < x.n_body-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(" ");
-        s.append("[");
-        for (size_t i=0; i<x.n_default; i++) {
-            this->visit_stmt(*x.m_default[i]);
-            if (i < x.n_default-1) s.append(" ");
-        }
-        s.append("]");
-        s.append(")");
-    }
     void visit_Cycle(const Cycle_t &/* x */) {
         s.append("(");
         if (use_colors) {
