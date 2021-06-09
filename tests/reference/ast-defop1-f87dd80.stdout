@@ -1,0 +1,1 @@
+(TranslationUnit [(Program defop1 [] [] [] [(= 0 e (DefBinOp a "in" b)) (= 0 e (DefBinOp s "op" (** 3 4))) (= 0 e (DefBinOp (+ a b) "x" (** y x))) (= 0 e (DefBinOp (** x x) "x" (** x x))) (= 0 e (** (DefBinOp (DefBinOp x "x" x) "in" 3) 4))] [])])
