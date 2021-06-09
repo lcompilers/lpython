@@ -213,7 +213,7 @@ public:
      bool get_pointer=false) {
         ASR::ttypeType type_ = m_type_->type;
         int size = 0;
-        if( verify_dimensions_t(m_dims, rank) ) {
+        if( compile_time_dimensions_t(m_dims, rank) ) {
             size = 1;
             for( int r = 0; r < rank; r++ ) {
                 ASR::dimension_t m_dim = m_dims[r];
@@ -267,10 +267,17 @@ public:
             default:
                 break;
         }
-        std::vector<llvm::Type*> array_type_vec = {
-            llvm::ArrayType::get(el_type, size), 
-            llvm::Type::getInt32Ty(context),
-            dim_des_array};
+        std::vector<llvm::Type*> array_type_vec;
+        if( size > 0 ) {
+            array_type_vec = {  llvm::ArrayType::get(el_type, size), 
+                                getIntType(4),
+                                dim_des_array  };
+        } else {
+            array_type_vec = {  el_type->getPointerTo(),
+                                getIntType(4), 
+                                getIntType(4),
+                                dim_des_array  };
+        }
         tkr2array[array_key] = llvm::StructType::create(context, array_type_vec, "array");
         if( get_pointer ) {
             return tkr2array[array_key]->getPointerTo();
@@ -317,30 +324,93 @@ public:
         return is_ok;
     }
 
+    inline bool compile_time_dimensions_t(ASR::dimension_t* m_dims, int n_dims) {
+        if( n_dims <= 0 ) {
+            return false;
+        }
+        bool is_ok = true;
+        for( int r = 0; r < n_dims; r++ ) {
+            if( m_dims[r].m_end == nullptr && 
+                m_dims[r].m_start == nullptr ) {
+                is_ok = false;
+                break;
+            }
+            if( (m_dims[r].m_end != nullptr &&
+                m_dims[r].m_end->type != ASR::exprType::ConstantInteger) || 
+                (m_dims[r].m_start != nullptr &&
+                m_dims[r].m_start->type != ASR::exprType::ConstantInteger) ) {
+                is_ok = false;
+                break;
+            }
+        }
+        return is_ok;
+    }
+
+    inline int compile_time_dimensions_t(llvm::Value* arr) {
+        llvm::Type* arr_type = arr->getType();
+        int max_itr = 100;
+        while( arr_type->isPointerTy() && max_itr > 0 ) {
+            arr_type = static_cast<llvm::PointerType*>(arr_type)->getElementType();
+            max_itr--;
+        }
+        if( !arr_type->isStructTy() ) {
+            return -1;
+        }
+        llvm::StructType* arr_struct_type = static_cast<llvm::StructType*>(arr_type);
+        return arr_struct_type->getNumElements() == 3;
+    }
+
     inline void fill_array_details(llvm::Value* arr, ASR::dimension_t* m_dims, 
                                    int n_dims) {
-        if( verify_dimensions_t(m_dims, n_dims) ) {
-            llvm::Value* offset_val = create_gep(arr, 1);
-            builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), offset_val);
-            llvm::Value* dim_des_val = create_gep(arr, 2);
+        bool run_time_size = !compile_time_dimensions_t(m_dims, n_dims);
+        int shift = run_time_size;
+        llvm::Value* offset_val = create_gep(arr, 1 + shift);
+        builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), offset_val);
+        llvm::Value* dim_des_val = create_gep(arr, 2 + shift);
+        for( int r = 0; r < n_dims; r++ ) {
+            ASR::dimension_t m_dim = m_dims[r];
+            llvm::Value* dim_val = create_gep(dim_des_val, r);
+            llvm::Value* s_val = create_gep(dim_val, 0);
+            llvm::Value* l_val = create_gep(dim_val, 1);
+            llvm::Value* u_val = create_gep(dim_val, 2);
+            llvm::Value* dim_size_ptr = create_gep(dim_val, 3);
+            builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 1)), s_val);
+            visit_expr(*(m_dim.m_start));
+            builder->CreateStore(tmp, l_val);
+            visit_expr(*(m_dim.m_end));
+            builder->CreateStore(tmp, u_val);
+            u_val = builder->CreateLoad(u_val);
+            l_val = builder->CreateLoad(l_val);
+            llvm::Value* dim_size = builder->CreateAdd(builder->CreateSub(u_val, l_val), 
+                                                    llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+            builder->CreateStore(dim_size, dim_size_ptr);
+        }
+        if( run_time_size ) {
+            llvm::Value* const_1 = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
+            llvm::Value* prod = const_1;
             for( int r = 0; r < n_dims; r++ ) {
+                llvm::Value *m_start, *m_end;
                 ASR::dimension_t m_dim = m_dims[r];
-                llvm::Value* dim_val = create_gep(dim_des_val, r);
-                llvm::Value* s_val = create_gep(dim_val, 0);
-                llvm::Value* l_val = create_gep(dim_val, 1);
-                llvm::Value* u_val = create_gep(dim_val, 2);
-                llvm::Value* dim_size_ptr = create_gep(dim_val, 3);
-                builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 1)), s_val);
-                visit_expr(*(m_dim.m_start));
-                builder->CreateStore(tmp, l_val);
+                if( m_dim.m_start != nullptr ) {
+                    visit_expr(*(m_dim.m_start));
+                    m_start = tmp;
+                } else {
+                    m_start = const_1;
+                }
                 visit_expr(*(m_dim.m_end));
-                builder->CreateStore(tmp, u_val);
-                u_val = builder->CreateLoad(u_val);
-                l_val = builder->CreateLoad(l_val);
-                llvm::Value* dim_size = builder->CreateAdd(builder->CreateSub(u_val, l_val), 
-                                                           llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
-                builder->CreateStore(dim_size, dim_size_ptr);
+                m_end = tmp;
+                llvm::Value* dim_size_1 = builder->CreateSub(m_end, m_start);
+                llvm::Value* dim_size = builder->CreateAdd(dim_size_1, const_1);
+                prod = builder->CreateMul(prod, dim_size);
             }
+            llvm::Value* llvm_size = create_gep(arr, 1);
+            builder->CreateStore(prod, llvm_size);
+            llvm::Value* first_ptr = create_gep(arr, 0);
+            llvm::PointerType* first_ptr2ptr_type = static_cast<llvm::PointerType*>(first_ptr->getType());
+            llvm::PointerType* first_ptr_type = static_cast<llvm::PointerType*>(first_ptr2ptr_type->getElementType());
+            llvm::Value* arr_first = builder->CreateAlloca(first_ptr_type->getElementType(), 
+                                                            builder->CreateLoad(llvm_size));
+            builder->CreateStore(arr_first, first_ptr);
         }
     }
 
@@ -747,8 +817,8 @@ public:
 
     inline llvm::Value* cmo_convertor_single_element(
         llvm::Value* arr, ASR::array_index_t* m_args, 
-        int n_args, bool check_for_bounds) {
-        llvm::Value* dim_des_arr_ptr = create_gep(arr, 2);
+        int n_args, bool check_for_bounds, int shift) {
+        llvm::Value* dim_des_arr_ptr = create_gep(arr, 2 + shift);
         llvm::Value* prod = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
         llvm::Value* idx = llvm::ConstantInt::get(context, llvm::APInt(32, 0));
         for( int r = 0; r < n_args; r++ ) {
@@ -806,7 +876,7 @@ public:
                 throw CodeGenError("Explicit shape checking supported only for integer, real, complex, logical and derived types.");
             }
         }
-        return verify_dimensions_t(m_dims, n_dims);
+        return compile_time_dimensions_t(m_dims, n_dims);
     }
 
     inline void get_single_element(const ASR::ArrayRef_t& x) {
@@ -815,7 +885,8 @@ public:
         LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
         llvm::Value* array = llvm_symtab[v_h];
         bool check_for_bounds = is_explicit_shape(v);
-        llvm::Value* idx = cmo_convertor_single_element(array, x.m_args, (int) x.n_args, check_for_bounds);
+        int shift = !is_explicit_shape(v);
+        llvm::Value* idx = cmo_convertor_single_element(array, x.m_args, (int) x.n_args, check_for_bounds, shift);
         llvm::Value* full_array = create_gep(array, 0);
         if( static_cast<llvm::PointerType*>(full_array->getType())
             ->getElementType()->isArrayTy() ) {
@@ -2780,13 +2851,14 @@ public:
                 ASR::Variable_t *arg = EXPR2VAR(x.m_args[0]);
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 tmp = llvm_symtab[h];
+                int shift = !compile_time_dimensions_t(tmp);
                 llvm::Value* arg_struct = builder->CreateAlloca(fname2arg_type["size"].first, nullptr);
-                llvm::Value* first_ele_ptr = create_gep(create_gep(tmp, 2), 0);
+                llvm::Value* first_ele_ptr = create_gep(create_gep(tmp, 2 + shift), 0);
                 llvm::Value* first_arg_ptr = create_gep(arg_struct, 0);
                 builder->CreateStore(first_ele_ptr, first_arg_ptr);
                 llvm::Value* rank_ptr = create_gep(arg_struct, 1);
                 llvm::StructType* tmp_type = (llvm::StructType*)(((llvm::PointerType*)(tmp->getType()))->getElementType());
-                int rank = ((llvm::ArrayType*)(tmp_type->getElementType(2)))->getNumElements();
+                int rank = ((llvm::ArrayType*)(tmp_type->getElementType(2 + shift)))->getNumElements();
                 builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, rank)), rank_ptr);
                 tmp = arg_struct;
                 args.push_back(tmp);
@@ -2794,8 +2866,9 @@ public:
                 ASR::Variable_t *arg = EXPR2VAR(x.m_args[0]);
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 tmp = llvm_symtab[h];
+                int shift = !compile_time_dimensions_t(tmp);
                 llvm::Value* arg1 = builder->CreateAlloca(fname2arg_type[name].first, nullptr);
-                llvm::Value* first_ele_ptr = create_gep(create_gep(tmp, 2), 0);
+                llvm::Value* first_ele_ptr = create_gep(create_gep(tmp, 2 + shift), 0);
                 llvm::Value* first_arg_ptr = arg1;
                 builder->CreateStore(first_ele_ptr, first_arg_ptr);
                 args.push_back(arg1);
