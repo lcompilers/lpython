@@ -6,6 +6,7 @@ using LFortran::AST::expr_t;
 using LFortran::AST::Name_t;
 using LFortran::AST::Num_t;
 using LFortran::AST::BinOp_t;
+using LFortran::AST::DefBinOp_t;
 using LFortran::AST::operatorType;
 using LFortran::AST::BaseVisitor;
 using LFortran::AST::StrOp_t;
@@ -2228,6 +2229,16 @@ public:
         this->visit_expr(*x.m_right);
         std::string right = std::move(s);
         s = "(" + left + ")" + op2str(x.m_op) + "(" + right + ")";
+    }
+
+    void visit_DefBinOp(const DefBinOp_t &x) {
+        this->visit_expr(*x.m_left);
+        std::string left = std::move(s);
+        this->visit_expr(*x.m_right);
+        std::string right = std::move(s);
+        s = "(" + left + ")";
+        s += "." + std::string(x.m_op) + ".";
+        s += "(" + right + ")";
     }
 
     void visit_StrOp(const StrOp_t &x) {
