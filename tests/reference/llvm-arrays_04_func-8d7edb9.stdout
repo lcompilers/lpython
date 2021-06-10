@@ -1,7 +1,7 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-%array = type { [0 x i32], i32, [1 x %dimension_descriptor] }
+%array = type { i32*, i32, [1 x %dimension_descriptor] }
 %dimension_descriptor = type { i32, i32, i32, i32 }
 %size_arg = type { %dimension_descriptor*, i32 }
 %array_call = type { float*, i32, [1 x %dimension_descriptor] }
