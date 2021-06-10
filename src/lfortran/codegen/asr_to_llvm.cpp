@@ -2920,25 +2920,30 @@ public:
                                 // std::cout<<"Inside convert_call_args: Argument: "<<arg->m_name<<std::endl;
                                 if( tmp_struct_type->getNumElements() > 2 && 
                                     tmp_struct_type->getElementType(2)->isArrayTy() ) {
-                                    llvm::Type* new_arr_type = arr_arg_type_cache[m_h][orig_arg_name];
-                                    llvm::Value* arg_struct = builder->CreateAlloca(new_arr_type, nullptr);
-                                    llvm::Value* first_ele_ptr = nullptr;
-                                    if( tmp_struct_type->getElementType(0)->isArrayTy() ) {
-                                        // std::cout<<"Inside convert_call_args: ArrayType"<<std::endl;
-                                        first_ele_ptr = create_gep(create_gep(tmp, 0), 0);
-                                    } else {
-                                        // std::cout<<"Inside convert_call_args: Pointer"<<std::endl;
-                                        first_ele_ptr = builder->CreateLoad(create_gep(tmp, 0));
+                                    llvm::ArrayType* tmp_des = static_cast<llvm::ArrayType*>(tmp_struct_type->getElementType(2));
+                                    int rank = tmp_des->getNumElements();
+                                    if( rank2desc.find(rank) != rank2desc.end() && 
+                                        rank2desc[rank] == tmp_des ) {
+                                        llvm::Type* new_arr_type = arr_arg_type_cache[m_h][orig_arg_name];
+                                        llvm::Value* arg_struct = builder->CreateAlloca(new_arr_type, nullptr);
+                                        llvm::Value* first_ele_ptr = nullptr;
+                                        if( tmp_struct_type->getElementType(0)->isArrayTy() ) {
+                                            // std::cout<<"Inside convert_call_args: ArrayType"<<std::endl;
+                                            first_ele_ptr = create_gep(create_gep(tmp, 0), 0);
+                                        } else {
+                                            // std::cout<<"Inside convert_call_args: Pointer"<<std::endl;
+                                            first_ele_ptr = builder->CreateLoad(create_gep(tmp, 0));
+                                        }
+                                        llvm::Value* first_arg_ptr = create_gep(arg_struct, 0);
+                                        builder->CreateStore(first_ele_ptr, first_arg_ptr);
+                                        llvm::Value* sec_ele_ptr = builder->CreateLoad(create_gep(tmp, 1));
+                                        llvm::Value* sec_arg_ptr = create_gep(arg_struct, 1); 
+                                        builder->CreateStore(sec_ele_ptr, sec_arg_ptr);   
+                                        llvm::Value* third_ele_ptr = builder->CreateLoad(create_gep(tmp, 2));
+                                        llvm::Value* third_arg_ptr = create_gep(arg_struct, 2); 
+                                        builder->CreateStore(third_ele_ptr, third_arg_ptr);   
+                                        tmp = arg_struct;
                                     }
-                                    llvm::Value* first_arg_ptr = create_gep(arg_struct, 0);
-                                    builder->CreateStore(first_ele_ptr, first_arg_ptr);
-                                    llvm::Value* sec_ele_ptr = builder->CreateLoad(create_gep(tmp, 1));
-                                    llvm::Value* sec_arg_ptr = create_gep(arg_struct, 1); 
-                                    builder->CreateStore(sec_ele_ptr, sec_arg_ptr);   
-                                    llvm::Value* third_ele_ptr = builder->CreateLoad(create_gep(tmp, 2));
-                                    llvm::Value* third_arg_ptr = create_gep(arg_struct, 2); 
-                                    builder->CreateStore(third_ele_ptr, third_arg_ptr);   
-                                    tmp = arg_struct;
                                 }
                             } 
                         } else {
