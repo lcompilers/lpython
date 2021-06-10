@@ -410,6 +410,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 
 // Precedence
 
+%left TK_DEF_OP
 %left ".not." ".and." ".or." ".eqv." ".neqv."
 %left "==" "/=" "<" "<=" ">" ">="
 %left "//"
@@ -1621,6 +1622,7 @@ expr
     | expr ".or." expr { $$ = OR($1, $3, @$); }
     | expr ".eqv." expr { $$ = EQV($1, $3, @$); }
     | expr ".neqv." expr { $$ = NEQV($1, $3, @$); }
+    | expr TK_DEF_OP expr { $$ = DEFOP($1, $2, $3, @$); }
     ;
 
 struct_member_star

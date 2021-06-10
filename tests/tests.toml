@@ -1155,3 +1155,7 @@ ast = true
 [[test]]
 filename = "return1.f90"
 ast = true
+
+[[test]]
+filename = "defop1.f90"
+ast = true

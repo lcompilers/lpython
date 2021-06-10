@@ -562,6 +562,8 @@ static inline reduce_opType convert_id_to_reduce_type(
 #define OR(x, y, l)  make_BoolOp_t(p.m_a, l, EXPR(x), boolopType::Or,  EXPR(y))
 #define EQV(x, y, l) make_BoolOp_t(p.m_a, l, EXPR(x), boolopType::Eqv, EXPR(y))
 #define NEQV(x, y, l) make_BoolOp_t(p.m_a, l, EXPR(x), boolopType::NEqv, EXPR(y))
+#define DEFOP(x, op, y, l) make_DefBinOp_t(p.m_a, l, EXPR(x), \
+        def_op_to_str(p.m_a, op), EXPR(y))
 
 #define ARRAY_IN(a, l) make_ArrayInitializer_t(p.m_a, l, \
         nullptr, EXPRS(a), a.size())
@@ -713,6 +715,16 @@ char* print_format_to_str(Allocator &al, const std::string &fmt) {
     LFortran::Str s;
     s.from_str_view(fmt2);
     return s.c_str(al);
+}
+
+char* def_op_to_str(Allocator &al, const LFortran::Str &s) {
+    LFORTRAN_ASSERT(s.p[0] == '.');
+    LFORTRAN_ASSERT(s.p[s.size()-1] == '.');
+    std::string s0 = s.str();
+    s0 = s0.substr(1, s.size()-2);
+    LFortran::Str s2;
+    s2.from_str_view(s0);
+    return s2.c_str(al);
 }
 
 #define PRINT0(l) make_Print_t(p.m_a, l, 0, nullptr, nullptr, 0)

@@ -150,6 +150,7 @@ stmt
 expr
     = BoolOp(expr left, boolop op, expr right)
     | BinOp(expr left, operator op, expr right)
+    | DefBinOp(expr left, string op, expr right)
     | StrOp(expr left, stroperator op, expr right)
     | UnaryOp(unaryop op, expr operand)
     | Compare(expr left, cmpop op, expr right)
