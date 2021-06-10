@@ -1,0 +1,37 @@
+program stop1
+implicit none
+! AST only(Syntax check)
+    integer :: stop = 15
+    integer :: errstop = 25
+
+    if(stop /=15) then
+        stop
+    else if(errstop /=25) then
+        error stop
+    end if
+
+    if(stop /=15) then
+        stop "message"
+    else if(errstop /=25) then
+        error stop "message"
+    end if
+
+    if(stop /=15) then
+        stop 0
+    else if(errstop /=25) then
+        error stop 0
+    end if
+
+    if(stop /=15) then
+        stop, quiet = .true.
+    else if(errstop /=25) then
+        error stop, quiet = .true.
+    end if
+
+    if(stop /=15) then
+        stop 1, quiet = .false.
+    else if(errstop /=25) then
+        error stop 1, quiet = .false.
+    end if
+
+end program

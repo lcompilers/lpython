@@ -2,11 +2,11 @@
     "basename": "llvm-case_02-c5ee6d8",
     "cmd": "lfortran --show-llvm {infile} -o {outfile}",
     "infile": "tests/../integration_tests/case_02.f90",
-    "infile_hash": "af51174f826d7610b0b46b876a83e5df8493f7f8cceb8b1b87105598",
+    "infile_hash": "7bbee224aea840614c0a2aef486a632a1120b0926e9f038ef87d47c1",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "llvm-case_02-c5ee6d8.stdout",
-    "stdout_hash": "40c204f5b0158fdfc023ac45eb2d3f8db0586c3c7b35c403195bef9f",
+    "stdout_hash": "3d7f3bb4fdbc62928ca15a636e90789384eae0955b4456b4c578cd13",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

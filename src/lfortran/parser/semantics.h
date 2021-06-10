@@ -562,6 +562,8 @@ static inline reduce_opType convert_id_to_reduce_type(
 #define OR(x, y, l)  make_BoolOp_t(p.m_a, l, EXPR(x), boolopType::Or,  EXPR(y))
 #define EQV(x, y, l) make_BoolOp_t(p.m_a, l, EXPR(x), boolopType::Eqv, EXPR(y))
 #define NEQV(x, y, l) make_BoolOp_t(p.m_a, l, EXPR(x), boolopType::NEqv, EXPR(y))
+#define DEFOP(x, op, y, l) make_DefBinOp_t(p.m_a, l, EXPR(x), \
+        def_op_to_str(p.m_a, op), EXPR(y))
 
 #define ARRAY_IN(a, l) make_ArrayInitializer_t(p.m_a, l, \
         nullptr, EXPRS(a), a.size())
@@ -713,6 +715,16 @@ char* print_format_to_str(Allocator &al, const std::string &fmt) {
     LFortran::Str s;
     s.from_str_view(fmt2);
     return s.c_str(al);
+}
+
+char* def_op_to_str(Allocator &al, const LFortran::Str &s) {
+    LFORTRAN_ASSERT(s.p[0] == '.');
+    LFORTRAN_ASSERT(s.p[s.size()-1] == '.');
+    std::string s0 = s.str();
+    s0 = s0.substr(1, s.size()-2);
+    LFortran::Str s2;
+    s2.from_str_view(s0);
+    return s2.c_str(al);
 }
 
 #define PRINT0(l) make_Print_t(p.m_a, l, 0, nullptr, nullptr, 0)
@@ -937,10 +949,19 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
 #define FORMAT(l) make_Format_t(p.m_a, l, 0, \
         format_to_str(p.m_a, l, p.inp))
 
-#define STOP(l) make_Stop_t(p.m_a, l, 0, nullptr)
-#define STOP1(e, l) make_Stop_t(p.m_a, l, 0, EXPR(e))
-#define ERROR_STOP(l) make_ErrorStop_t(p.m_a, l, 0, nullptr)
-#define ERROR_STOP1(e, l) make_ErrorStop_t(p.m_a, l, 0, EXPR(e))
+#define STOP(l) make_Stop_t(p.m_a, l, 0, nullptr, nullptr)
+#define STOP1(stop_code, l) make_Stop_t(p.m_a, l, 0, EXPR(stop_code), nullptr)
+#define STOP2(quiet, l) make_Stop_t(p.m_a, l, 0, nullptr, EXPR(quiet))
+#define STOP3(stop_code, quiet, l) make_Stop_t(p.m_a, l, 0, \
+        EXPR(stop_code), EXPR(quiet))
+#define ERROR_STOP(l) make_ErrorStop_t(p.m_a, l, 0, \
+        nullptr, nullptr)
+#define ERROR_STOP1(stop_code, l) make_ErrorStop_t(p.m_a, l, 0, \
+        EXPR(stop_code), nullptr)
+#define ERROR_STOP2(quiet, l) make_ErrorStop_t(p.m_a, l, 0, \
+        nullptr, EXPR(quiet))
+#define ERROR_STOP3(stop_code, quiet, l) make_ErrorStop_t(p.m_a, l, 0, \
+        EXPR(stop_code), EXPR(quiet))
 
 #define EXIT(l) make_Exit_t(p.m_a, l, 0, nullptr)
 #define EXIT2(id, l) make_Exit_t(p.m_a, l, 0, name2char(id))
@@ -1441,10 +1462,9 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 #define COARRAY1(id, coargs, l) COARRAY(p.m_a, id, empty1(), coargs, l)
 #define COARRAY2(id, args, coargs, l) COARRAY(p.m_a, id, args, coargs, l)
 
-#define SELECT(cond, body, def, l) make_Select_t(p.m_a, l, 0, nullptr, \
+#define SELECT(cond, body, l) make_Select_t(p.m_a, l, 0, nullptr, \
         EXPR(cond), \
-        CASE_STMTS(body), body.size(), \
-        STMTS(def), def.size())
+        CASE_STMTS(body), body.size())
 
 #define CASE_STMT(cond, body, l) make_CaseStmt_t(p.m_a, l, \
         EXPRS(cond), cond.size(), STMTS(body), body.size())
@@ -1454,6 +1474,8 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         nullptr, EXPR(cond), STMTS(body), body.size())
 #define CASE_STMT4(cond1, cond2, body, l) make_CaseStmt_Range_t(p.m_a, l, \
         EXPR(cond1), EXPR(cond2), STMTS(body), body.size())
+#define CASE_STMT_DEFAULT(body, l) make_CaseStmt_Default_t(p.m_a, l, \
+        STMTS(body), body.size())
 
 #define SELECT_TYPE1(sel, body, l) make_SelectType_t(p.m_a, l, 0, nullptr, \
         nullptr, EXPR(sel), TYPE_STMTS(body), body.size())

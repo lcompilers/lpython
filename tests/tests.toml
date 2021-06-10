@@ -143,6 +143,11 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "stop1.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
 filename = "procedure1.f90"
 ast = true
 
@@ -1149,4 +1154,8 @@ ast = true
 
 [[test]]
 filename = "return1.f90"
+ast = true
+
+[[test]]
+filename = "defop1.f90"
 ast = true
