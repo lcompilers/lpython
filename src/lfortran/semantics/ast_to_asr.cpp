@@ -2022,16 +2022,27 @@ public:
         }
         Vec<ASR::case_stmt_t*> a_body_vec;
         a_body_vec.reserve(al, x.n_body);
-        for( std::uint32_t i = 0; i < x.n_body; i++ ) {
-            this->visit_case_stmt(*(x.m_body[i]));
-            a_body_vec.push_back(al, CASE_STMT(tmp));
-        }
         Vec<ASR::stmt_t*> def_body;
-        def_body.reserve(al, x.n_default);
-        for( std::uint32_t i = 0; i < x.n_default; i++ ) {
-            this->visit_stmt(*(x.m_default[i]));
-            if (tmp != nullptr) {
-                def_body.push_back(al, STMT(tmp));
+        def_body.reserve(al, 1);
+        for( std::uint32_t i = 0; i < x.n_body; i++ ) {
+            AST::case_stmt_t *body = x.m_body[i];
+            if (AST::is_a<AST::CaseStmt_Default_t>(*body)) {
+                if (def_body.size() != 0) {
+                    throw SemanticError("Default case present more than once",
+                        x.base.base.loc);
+                }
+                AST::CaseStmt_Default_t *d =
+                        AST::down_cast<AST::CaseStmt_Default_t>(body);
+                for( std::uint32_t j = 0; j < d->n_body; j++ ) {
+                    this->visit_stmt(*(d->m_body[j]));
+                    if (tmp != nullptr) {
+                        def_body.push_back(al,
+                            ASR::down_cast<ASR::stmt_t>(tmp));
+                    }
+                }
+            } else {
+                this->visit_case_stmt(*body);
+                a_body_vec.push_back(al, ASR::down_cast<ASR::case_stmt_t>(tmp));
             }
         }
         tmp = ASR::make_Select_t(al, x.base.base.loc, a_test, a_body_vec.p,

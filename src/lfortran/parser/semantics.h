@@ -1462,10 +1462,9 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 #define COARRAY1(id, coargs, l) COARRAY(p.m_a, id, empty1(), coargs, l)
 #define COARRAY2(id, args, coargs, l) COARRAY(p.m_a, id, args, coargs, l)
 
-#define SELECT(cond, body, def, l) make_Select_t(p.m_a, l, 0, nullptr, \
+#define SELECT(cond, body, l) make_Select_t(p.m_a, l, 0, nullptr, \
         EXPR(cond), \
-        CASE_STMTS(body), body.size(), \
-        STMTS(def), def.size())
+        CASE_STMTS(body), body.size())
 
 #define CASE_STMT(cond, body, l) make_CaseStmt_t(p.m_a, l, \
         EXPRS(cond), cond.size(), STMTS(body), body.size())
@@ -1475,6 +1474,8 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         nullptr, EXPR(cond), STMTS(body), body.size())
 #define CASE_STMT4(cond1, cond2, body, l) make_CaseStmt_Range_t(p.m_a, l, \
         EXPR(cond1), EXPR(cond2), STMTS(body), body.size())
+#define CASE_STMT_DEFAULT(body, l) make_CaseStmt_Default_t(p.m_a, l, \
+        STMTS(body), body.size())
 
 #define SELECT_TYPE1(sel, body, l) make_SelectType_t(p.m_a, l, 0, nullptr, \
         nullptr, EXPR(sel), TYPE_STMTS(body), body.size())

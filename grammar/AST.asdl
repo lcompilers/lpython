@@ -139,8 +139,7 @@ stmt
             concurrent_control *control, expr? mask,
             concurrent_locality* locality, stmt* body)
     | If(int label, identifier? stmt_name, expr test, stmt* body, stmt* orelse)
-    | Select(int label, identifier? stmt_name, expr test, case_stmt* body,
-            stmt* default)
+    | Select(int label, identifier? stmt_name, expr test, case_stmt* body)
     | SelectType(int label, identifier? stmt_name, identifier? assoc_name,
             expr selector, type_stmt* body)
     | Where(int label, identifier? stmt_name, expr test, stmt* body,
@@ -310,7 +309,10 @@ bind = Bind(expr* args, keyword* kwargs)
 
 array_index = ArrayIndex(expr? left, expr? right, expr? step)
 
-case_stmt = CaseStmt(expr* test, stmt* body) | CaseStmt_Range(expr? start, expr? end, stmt* body)
+case_stmt
+    = CaseStmt(expr* test, stmt* body)
+    | CaseStmt_Range(expr? start, expr? end, stmt* body)
+    | CaseStmt_Default(stmt* body)
 
 type_stmt
     = TypeStmtName(identifier? name, stmt* body)

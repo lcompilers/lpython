@@ -2668,19 +2668,6 @@ public:
             this->visit_case_stmt(*x.m_body[i]);
             r += s;
         }
-        if (x.n_default > 0) {
-            r += indent;
-            r += syn(gr::Conditional);
-            r += "case";
-            r += syn();
-            r += " default\n";
-            inc_indent();
-            for (size_t i=0; i<x.n_default; i++) {
-                this->visit_stmt(*x.m_default[i]);
-                r += s;
-            }
-            dec_indent();
-        }
         dec_indent();
         r += indent;
         r += syn(gr::Conditional);
@@ -2727,6 +2714,21 @@ public:
             r += s;
         }
         r += ")\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        s = r;
+    }
+
+    void visit_CaseStmt_Default(const CaseStmt_Default_t &x) {
+        std::string r = indent;
+        r += syn(gr::Conditional);
+        r += "case default";
+        r += syn();
+        r += "\n";
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);

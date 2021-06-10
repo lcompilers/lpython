@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    485 // shift/reduce conflicts
+%expect    486 // shift/reduce conflicts
 %expect-rr 81  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -347,8 +347,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> select_type_body_statement
 %type <vec_ast> case_statements
 %type <ast> case_statement
-%type <vec_ast> select_default_statement_opt
-%type <vec_ast> select_default_statement
 %type <ast> while_statement
 %type <ast> do_statement
 %type <ast> forall_statement
@@ -1277,9 +1275,8 @@ where_block
     ;
 
 select_statement
-    : KW_SELECT KW_CASE "(" expr ")" sep case_statements
-        select_default_statement_opt KW_END KW_SELECT {
-                $$ = SELECT($4, $7, $8, @$); }
+    : KW_SELECT KW_CASE "(" expr ")" sep case_statements KW_END KW_SELECT {
+            $$ = SELECT($4, $7, @$); }
     ;
 
 case_statements
@@ -1292,16 +1289,8 @@ case_statement
     | KW_CASE "(" expr ":" ")" sep statements { $$ = CASE_STMT2($3, $7, @$); }
     | KW_CASE "(" ":" expr ")" sep statements { $$ = CASE_STMT3($4, $7, @$); }
     | KW_CASE "(" expr ":" expr ")" sep statements {
-        $$ = CASE_STMT4($3, $5, $8, @$); }
-    ;
-
-select_default_statement_opt
-    : select_default_statement { $$ = $1; }
-    | %empty { LIST_NEW($$); }
-    ;
-
-select_default_statement
-    : KW_CASE KW_DEFAULT sep statements { $$ = $4; }
+            $$ = CASE_STMT4($3, $5, $8, @$); }
+    | KW_CASE KW_DEFAULT sep statements { $$ = CASE_STMT_DEFAULT($4, @$); }
     ;
 
 select_type_statement
