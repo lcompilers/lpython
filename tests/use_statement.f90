@@ -25,5 +25,5 @@ program use_statement
     use example, only: operator (.neqv.)
     use, intrinsic :: example, only: operator (.in.)
     use example, only: operator (.dot.)
-    use, non_intrinsic :: example, only: operator (.customoperator.)
+    use, non_intrinsic :: example, only: operator (.definedoperator.)
 end

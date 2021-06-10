@@ -1506,8 +1506,8 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 #define USE_ASSIGNMENT(l) make_UseAssignment_t(p.m_a, l)
 #define INTRINSIC_OPERATOR(op, l) make_IntrinsicOperator_t(p.m_a, l, \
         op)
-#define CUSTOM_OPERATOR(optype, l) make_CustomOperator_t(p.m_a, l, \
-        optype.c_str(p.m_a))
+#define DEFINED_OPERATOR(optype, l) make_DefinedOperator_t(p.m_a, l, \
+        def_op_to_str(p.m_a, optype))
 
 
 #define MODULE(name, use, implicit, decl, contains, l) make_Module_t(p.m_a, l, \
@@ -1537,8 +1537,8 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         name2char(id))
 #define INTERFACE_HEADER_ASSIGNMENT(l) make_InterfaceHeaderAssignment_t(p.m_a, l)
 #define INTERFACE_HEADER_OPERATOR(op, l) make_InterfaceHeaderOperator_t(p.m_a, l, op)
-#define INTERFACE_HEADER_CUSTOMOP(op, l) make_InterfaceHeaderCustomOperator_t(p.m_a, \
-        l, op.c_str(p.m_a))
+#define INTERFACE_HEADER_DEFOP(op, l) make_InterfaceHeaderDefinedOperator_t( \
+        p.m_a, l, def_op_to_str(p.m_a, op))
 #define ABSTRACT_INTERFACE_HEADER(l) make_AbstractInterfaceHeader_t(p.m_a, l)
 
 #define OPERATOR(op, l) interfaceopType::op
@@ -1569,8 +1569,9 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         USE_SYMBOLS(syms), syms.size())
 #define GENERIC_OPERATOR(optype, namelist, l) make_GenericOperator_t(p.m_a, l, \
         optype, REDUCE_ARGS(p.m_a, namelist), namelist.size())
-#define GENERIC_CUSTOPERATOR(optype, namelist, l) make_GenericCustomOperator_t( \
-        p.m_a, l, optype.c_str(p.m_a), REDUCE_ARGS(p.m_a, namelist), namelist.size())
+#define GENERIC_DEFOP(optype, namelist, l) make_GenericDefinedOperator_t( \
+        p.m_a, l, def_op_to_str(p.m_a, optype), \
+        REDUCE_ARGS(p.m_a, namelist), namelist.size())
 #define GENERIC_ASSIGNMENT(namelist, l) make_GenericAssignment_t(p.m_a, l, \
         REDUCE_ARGS(p.m_a, namelist), namelist.size())
 #define GENERIC_NAME(name, namelist, l) make_GenericName_t(p.m_a, l, \
