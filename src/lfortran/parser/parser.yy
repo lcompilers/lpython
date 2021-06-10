@@ -481,7 +481,7 @@ interface_stmt
     | KW_INTERFACE KW_OPERATOR "(" operator_type ")" {
         $$ = INTERFACE_HEADER_OPERATOR($4, @$); }
     | KW_INTERFACE KW_OPERATOR "(" TK_DEF_OP ")" {
-        $$ = INTERFACE_HEADER_CUSTOMOP($4, @$); }
+        $$ = INTERFACE_HEADER_DEFOP($4, @$); }
     | KW_ABSTRACT KW_INTERFACE { $$ = ABSTRACT_INTERFACE_HEADER(@$); }
     ;
 
@@ -552,7 +552,7 @@ procedure_decl
     | KW_GENERIC "::" KW_OPERATOR "(" operator_type ")" "=>" id_list sep {
             $$ = GENERIC_OPERATOR($5, $8, @$); }
     | KW_GENERIC "::" KW_OPERATOR "(" TK_DEF_OP ")" "=>" id_list sep {
-            $$ = GENERIC_CUSTOPERATOR($5, $8, @$); }
+            $$ = GENERIC_DEFOP($5, $8, @$); }
     | KW_GENERIC "::" KW_ASSIGNMENT "(" "=" ")" "=>" id_list sep {
             $$ = GENERIC_ASSIGNMENT($8, @$); }
     | KW_GENERIC "::" id "=>" id_list sep { $$ = GENERIC_NAME($3, $5, @$); }
@@ -860,7 +860,7 @@ use_symbol
     | id "=>" id  { $$ = USE_SYMBOL2($1, $3, @$); }
     | KW_ASSIGNMENT "(" "=" ")"  { $$ = USE_ASSIGNMENT(@$); }
     | KW_OPERATOR "(" operator_type ")"  { $$ = INTRINSIC_OPERATOR($3, @$); }
-    | KW_OPERATOR "(" TK_DEF_OP ")"  { $$ = CUSTOM_OPERATOR($3, @$); }
+    | KW_OPERATOR "(" TK_DEF_OP ")"  { $$ = DEFINED_OPERATOR($3, @$); }
     ;
 
 use_modifiers

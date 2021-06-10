@@ -68,7 +68,7 @@ interface_header
     | InterfaceHeaderName(identifier name)
     | InterfaceHeaderAssignment()
     | InterfaceHeaderOperator(interfaceop op)
-    | InterfaceHeaderCustomOperator(identifier operator_name)
+    | InterfaceHeaderDefinedOperator(string operator_name)
     | AbstractInterfaceHeader()
 
 interface_item
@@ -188,7 +188,7 @@ procedure_decl
     = DerivedTypeProc(identifier? name, decl_attribute* attr,
         use_symbol* symbols)
     | GenericOperator(interfaceop op, identifier* names)
-    | GenericCustomOperator(identifier optype, identifier* names)
+    | GenericDefinedOperator(string optype, identifier* names)
     | GenericAssignment(identifier* names)
     | GenericName(identifier name, identifier* names)
     | FinalName(identifier name)
@@ -320,10 +320,11 @@ type_stmt
     | ClassStmt(identifier? id, stmt* body)
     | ClassDefault(stmt* body)
 
-use_symbol = UseSymbol(identifier sym, identifier? rename)
+use_symbol
+    = UseSymbol(identifier sym, identifier? rename)
     | UseAssignment()
     | IntrinsicOperator(interfaceop op)
-    | CustomOperator(identifier opName)
+    | DefinedOperator(string opName)
 
 concurrent_control = ConcurrentControl(identifier? var, expr? start, expr? end, expr? increment)
 

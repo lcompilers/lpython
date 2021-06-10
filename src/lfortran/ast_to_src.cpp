@@ -457,13 +457,13 @@ public:
         }
         s = r;
     }
-    void visit_GenericCustomOperator(const GenericCustomOperator_t &x) {
+    void visit_GenericDefinedOperator(const GenericDefinedOperator_t &x) {
         std::string r;
         r += syn(gr::String);
         r.append("generic :: operator");
         r += syn();
         r += "(";
-        r.append(x.m_optype);
+        r += "." + std::string(x.m_optype) + ".";
         r += ")";
         r += " => ";
         for (size_t i=0; i<x.n_names; i++) {
@@ -566,21 +566,23 @@ public:
         s += x.m_name;
     }
 
-    void visit_InterfaceHeaderAssignment(const InterfaceHeaderAssignment_t &/* x */) {
+    void visit_InterfaceHeaderAssignment
+            (const InterfaceHeaderAssignment_t &/* x */) {
         s = " assignment (=)";
     }
 
-    void visit_InterfaceHeaderOperator(const InterfaceHeaderOperator_t &x) {
+    void visit_InterfaceHeaderOperator
+            (const InterfaceHeaderOperator_t &x) {
         s = " operator (" + interfaceop2str(x.m_op) + ")";
     }
 
-    void visit_InterfaceHeaderCustomOperator(const InterfaceHeaderCustomOperator_t &x) {
-        s = " operator (";
-        s += x.m_operator_name;
-        s += ")";
+    void visit_InterfaceHeaderDefinedOperator
+            (const InterfaceHeaderDefinedOperator_t &x) {
+        s = " operator (." + std::string(x.m_operator_name) + ".)";
     }
 
-    void visit_AbstractInterfaceHeader(const AbstractInterfaceHeader_t &/* x */) {
+    void visit_AbstractInterfaceHeader
+            (const AbstractInterfaceHeader_t &/* x */) {
         s = "";
     }
 
@@ -2230,6 +2232,16 @@ public:
         s = "(" + left + ")" + op2str(x.m_op) + "(" + right + ")";
     }
 
+    void visit_DefBinOp(const DefBinOp_t &x) {
+        this->visit_expr(*x.m_left);
+        std::string left = std::move(s);
+        this->visit_expr(*x.m_right);
+        std::string right = std::move(s);
+        s = "(" + left + ")";
+        s += "." + std::string(x.m_op) + ".";
+        s += "(" + right + ")";
+    }
+
     void visit_StrOp(const StrOp_t &x) {
         this->visit_expr(*x.m_left);
         std::string left = std::move(s);
@@ -2341,6 +2353,11 @@ public:
 
     void visit_ArrayInitializer(const ArrayInitializer_t &x) {
         std::string r = "[";
+        if (x.m_vartype) {
+            this->visit_decl_attribute(*x.m_vartype);
+            r.append(s);
+            r += " :: ";
+        }
         for (size_t i=0; i<x.n_args; i++) {
             this->visit_expr(*x.m_args[i]);
             r.append(s);
@@ -2646,10 +2663,8 @@ public:
         s = "operator (" + interfaceop2str(x.m_op) + ")";
     }
 
-    void visit_CustomOperator(const CustomOperator_t &x) {
-        s = "operator (";
-        s.append(x.m_opName);
-        s += ")";
+    void visit_DefinedOperator(const DefinedOperator_t &x) {
+        s = "operator (." + std::string(x.m_opName) + ".)";
     }
 
     void visit_Select(const Select_t &x) {
