@@ -105,7 +105,7 @@ stmt
     | Continue(int label)
     | Cycle(int label, identifier? stmt_name)
     | Deallocate(int label, fnarg* args)
-    | ErrorStop(int label, expr? code)
+    | ErrorStop(int label, expr? code, expr? quiet)
     | EventPost(int label, expr variable, event_attribute* stat)
     | EventWait(int label, expr variable, event_attribute* spec)
     | Exit(int label, identifier? stmt_name)

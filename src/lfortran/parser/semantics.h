@@ -938,11 +938,18 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
         format_to_str(p.m_a, l, p.inp))
 
 #define STOP(l) make_Stop_t(p.m_a, l, 0, nullptr, nullptr)
-#define STOP1(e, l) make_Stop_t(p.m_a, l, 0, EXPR(e), nullptr)
-#define STOP2(e, l) make_Stop_t(p.m_a, l, 0, nullptr, EXPR(e))
-#define STOP3(e, e2, l) make_Stop_t(p.m_a, l, 0, EXPR(e), EXPR(e2))
-#define ERROR_STOP(l) make_ErrorStop_t(p.m_a, l, 0, nullptr)
-#define ERROR_STOP1(e, l) make_ErrorStop_t(p.m_a, l, 0, EXPR(e))
+#define STOP1(stop_code, l) make_Stop_t(p.m_a, l, 0, EXPR(stop_code), nullptr)
+#define STOP2(quiet, l) make_Stop_t(p.m_a, l, 0, nullptr, EXPR(quiet))
+#define STOP3(stop_code, quiet, l) make_Stop_t(p.m_a, l, 0, \
+        EXPR(stop_code), EXPR(quiet))
+#define ERROR_STOP(l) make_ErrorStop_t(p.m_a, l, 0, \
+        nullptr, nullptr)
+#define ERROR_STOP1(stop_code, l) make_ErrorStop_t(p.m_a, l, 0, \
+        EXPR(stop_code), nullptr)
+#define ERROR_STOP2(quiet, l) make_ErrorStop_t(p.m_a, l, 0, \
+        nullptr, EXPR(quiet))
+#define ERROR_STOP3(stop_code, quiet, l) make_ErrorStop_t(p.m_a, l, 0, \
+        EXPR(stop_code), EXPR(quiet))
 
 #define EXIT(l) make_Exit_t(p.m_a, l, 0, nullptr)
 #define EXIT2(id, l) make_Exit_t(p.m_a, l, 0, name2char(id))

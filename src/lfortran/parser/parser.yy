@@ -1501,6 +1501,9 @@ stop_statement
 error_stop_statement
     : KW_ERROR KW_STOP { $$ = ERROR_STOP(@$); }
     | KW_ERROR KW_STOP expr { $$ = ERROR_STOP1($3, @$); }
+    | KW_ERROR KW_STOP "," KW_QUIET "=" expr { $$ = ERROR_STOP2($6, @$); }
+    | KW_ERROR KW_STOP expr "," KW_QUIET "=" expr {
+            $$ = ERROR_STOP3($3, $7, @$); }
     ;
 
 event_post_statement
