@@ -345,20 +345,6 @@ public:
         return is_ok;
     }
 
-    inline int compile_time_dimensions_t(llvm::Value* arr) {
-        llvm::Type* arr_type = arr->getType();
-        int max_itr = 100;
-        while( arr_type->isPointerTy() && max_itr > 0 ) {
-            arr_type = static_cast<llvm::PointerType*>(arr_type)->getElementType();
-            max_itr--;
-        }
-        if( !arr_type->isStructTy() ) {
-            return -1;
-        }
-        llvm::StructType* arr_struct_type = static_cast<llvm::StructType*>(arr_type);
-        return arr_struct_type->getElementType(0)->isArrayTy();
-    }
-
     inline void fill_array_details(llvm::Value* arr, ASR::dimension_t* m_dims, 
                                    int n_dims) {
         bool run_time_size = !compile_time_dimensions_t(m_dims, n_dims);
