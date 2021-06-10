@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    486 // shift/reduce conflicts
+%expect    487 // shift/reduce conflicts
 %expect-rr 81  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -1004,6 +1004,7 @@ var_sym_decl
     | id "[" coarray_comp_decl_list "]" { VAR_SYM3($$, $1, $3.p, $3.n, None, @$); }
     | id "(" array_comp_decl_list ")" "[" coarray_comp_decl_list "]" {
             VAR_SYM4($$, $1, $3.p, $3.n, $6.p, $6.n, None, @$); }
+    | KW_OPERATOR "(" TK_DEF_OP ")" { VAR_SYM5($$, $3, None, @$); }
 
 // TODO: is this needed? It seems it should go somewheer else
 /*

@@ -918,7 +918,9 @@ public:
 
     void visit_var_sym(const var_sym_t &x) {
         std::string r = "";
-        r.append(x.m_name);
+        if(x.m_name){
+            r.append(x.m_name);
+        }
         if (x.n_dim > 0) {
             r.append("(");
             for (size_t i=0; i<x.n_dim; i++) {
@@ -940,6 +942,9 @@ public:
         if (x.m_initializer) {
             visit_expr(*x.m_initializer);
             r += symbol2str(x.m_sym) + s;
+        }
+        if (x.m_defop) {
+            r += "operator(." + std::string(x.m_defop) + ".)";
         }
         s = r;
     }

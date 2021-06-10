@@ -271,7 +271,7 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
 #define LETTER_SPEC2(a, b, l) make_LetterSpec_t(p.m_a, l, \
         name2char(a), name2char(b))
 
-#define VAR_SYM(xout, xname, xdimp, xdimn, xinit, sym, xloc) \
+#define VAR_SYM(xout, xname, xdimp, xdimn, xinit, xsym, xloc) \
             xout = p.m_a.allocate<var_sym_t>(1); \
             xout->loc = xloc; \
             xout->m_name = name2char(xname); \
@@ -279,10 +279,11 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
             xout->n_dim = xdimn; \
             xout->m_codim = nullptr; \
             xout->n_codim = 0; \
-            xout->m_initializer=down_cast<expr_t>(xinit); \
-            xout->m_sym=symbolType::sym;
+            xout->m_initializer = down_cast<expr_t>(xinit); \
+            xout->m_sym = symbolType::xsym; \
+            xout->m_defop = nullptr;
 
-#define VAR_SYM2(xout, xname, xdimp, xdimn, sym, xloc) \
+#define VAR_SYM2(xout, xname, xdimp, xdimn, xsym, xloc) \
             xout = p.m_a.allocate<var_sym_t>(1); \
             xout->loc = xloc; \
             xout->m_name = name2char(xname); \
@@ -290,10 +291,11 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
             xout->n_dim = xdimn; \
             xout->m_codim = nullptr; \
             xout->n_codim = 0; \
-            xout->m_initializer=nullptr; \
-            xout->m_sym=symbolType::sym;
+            xout->m_initializer = nullptr; \
+            xout->m_sym = symbolType::xsym; \
+            xout->m_defop = nullptr;
 
-#define VAR_SYM3(xout, xname, xcodimp, xcodimn, sym, xloc) \
+#define VAR_SYM3(xout, xname, xcodimp, xcodimn, xsym, xloc) \
             xout = p.m_a.allocate<var_sym_t>(1); \
             xout->loc = xloc; \
             xout->m_name = name2char(xname); \
@@ -301,10 +303,11 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
             xout->n_dim = 0; \
             xout->m_codim = xcodimp; \
             xout->n_codim = xcodimn; \
-            xout->m_initializer=nullptr; \
-            xout->m_sym=symbolType::sym;
+            xout->m_initializer = nullptr; \
+            xout->m_sym = symbolType::xsym; \
+            xout->m_defop = nullptr;
 
-#define VAR_SYM4(xout, xname, xdimp, xdimn, xcodimp, xcodimn, sym, xloc) \
+#define VAR_SYM4(xout, xname, xdimp, xdimn, xcodimp, xcodimn, xsym, xloc) \
             xout = p.m_a.allocate<var_sym_t>(1); \
             xout->loc = xloc; \
             xout->m_name = name2char(xname); \
@@ -312,8 +315,21 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
             xout->n_dim = xdimn; \
             xout->m_codim = xcodimp; \
             xout->n_codim = xcodimn; \
-            xout->m_initializer=nullptr; \
-            xout->m_sym=symbolType::sym;
+            xout->m_initializer = nullptr; \
+            xout->m_sym = symbolType::xsym; \
+            xout->m_defop = nullptr;
+
+#define VAR_SYM5(xout, xdefop, xsym, xloc) \
+            xout = p.m_a.allocate<var_sym_t>(1); \
+            xout->loc = xloc; \
+            xout->m_name = nullptr; \
+            xout->m_dim = nullptr; \
+            xout->n_dim = 0; \
+            xout->m_codim = nullptr; \
+            xout->n_codim = 0; \
+            xout->m_initializer = nullptr; \
+            xout->m_sym = symbolType::xsym; \
+            xout->m_defop = def_op_to_str(p.m_a, xdefop);
 
 static inline expr_t** DIMS2EXPRS(Allocator &al, const Vec<FnArg> &d)
 {
