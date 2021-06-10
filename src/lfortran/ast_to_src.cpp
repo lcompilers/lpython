@@ -1399,6 +1399,10 @@ public:
             this->visit_expr(*x.m_code);
             r += " " + s;
         }
+        if (x.m_quiet) {
+            this->visit_expr(*x.m_quiet);
+            r += ", quiet = " + s;
+        }
         r += "\n";
         s = r;
     }
@@ -1409,11 +1413,13 @@ public:
         r += syn(gr::Keyword);
         r.append("error stop");
         r += syn();
-        if (x.m_code)
-        {
-            r += " ";
+        if (x.m_code) {
             this->visit_expr(*x.m_code);
-            r.append(s);
+            r += " " + s;
+        }
+        if (x.m_quiet) {
+            this->visit_expr(*x.m_quiet);
+            r += ", quiet = " + s;
         }
         r += "\n";
         s = r;
