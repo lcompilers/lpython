@@ -943,8 +943,9 @@ public:
             visit_expr(*x.m_initializer);
             r += symbol2str(x.m_sym) + s;
         }
-        if (x.m_defop) {
-            r += "operator(." + std::string(x.m_defop) + ".)";
+        if (x.m_spec) {
+            this->visit_decl_attribute(*x.m_spec);
+            r.append(s);
         }
         s = r;
     }
@@ -1163,6 +1164,17 @@ public:
         r.append(x.m_name);
         r += ")";
         s = r;
+    }
+    void visit_AttrAssignment(const AttrAssignment_t &/*x*/) {
+        s = "assignment (=)";
+    }
+
+    void visit_AttrIntrinsicOperator(const AttrIntrinsicOperator_t &x) {
+        s = "operator (" + intrinsicop2str(x.m_op) + ")";
+    }
+
+    void visit_AttrDefinedOperator(const AttrDefinedOperator_t &x) {
+        s = "operator (." + std::string(x.m_op_name) + ".)";
     }
 
     void visit_AttrStat(const AttrStat_t &x) {
