@@ -271,6 +271,38 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
 #define LETTER_SPEC2(a, b, l) make_LetterSpec_t(p.m_a, l, \
         name2char(a), name2char(b))
 
+static inline var_sym_t* VARSYM(Allocator &al, Location &l,
+        char* name, const Vec<dimension_t> &dim,
+        const Vec<codimension_t> &codim, expr_t* init,
+        LFortran::AST::symbolType sym)
+{
+    var_sym_t *r = al.allocate<var_sym_t>(1);
+    r->loc = l;
+    r->m_name = name;
+    r->m_dim = dim.p;
+    r->n_dim = dim.n;
+    r->m_codim = codim.p;
+    r->n_codim = codim.n;
+    r->m_initializer = init;
+    r->m_sym = sym;
+    return r;
+}
+
+#define VAR_SYM_NAME(name, sym, loc) VARSYM(p.m_a, loc, name2char(name), \
+        emptydim(), emptycodim(), nullptr, sym)
+#define VAR_SYM_INIT(name, init, sym, loc) VARSYM(p.m_a, loc, name2char(name), \
+        emptydim(), emptycodim(), down_cast<expr_t>(init), sym)
+#define VAR_SYM_DIM(name, dim, sym, loc) VARSYM(p.m_a, loc, name2char(name), \
+        dim, emptycodim(), nullptr, sym)
+#define VAR_SYM3_DIM_INIT(name, dim, init, sym, loc) VARSYM(p.m_a, loc, \
+        name2char(name), dim, emptycodim(), \
+        down_cast<expr_t>(init), sym)
+#define VAR_SYM_CODIM(name, codim, sym, loc) VARSYM(p.m_a, loc, \
+        name2char(name), emptydim(), codim, nullptr, sym)
+#define VAR_SYM_DIM_CODIM(name, dim, codim, sym, loc) VARSYM(p.m_a, loc, \
+        name2char(name), dim, codim, nullptr, sym)
+
+/*
 #define VAR_SYM(xout, xname, xdimp, xdimn, xinit, sym, xloc) \
             xout = p.m_a.allocate<var_sym_t>(1); \
             xout->loc = xloc; \
@@ -314,7 +346,7 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
             xout->n_codim = xcodimn; \
             xout->m_initializer=nullptr; \
             xout->m_sym=symbolType::sym;
-
+*/
 static inline expr_t** DIMS2EXPRS(Allocator &al, const Vec<FnArg> &d)
 {
     if (d.size() == 0) {
@@ -367,6 +399,20 @@ static inline Vec<struct_member_t> empty5()
 static inline Vec<FnArg> empty1()
 {
     Vec<FnArg> r;
+    r.from_pointer_n(nullptr, 0);
+    return r;
+}
+
+static inline Vec<dimension_t> emptydim()
+{
+    Vec<dimension_t> r;
+    r.from_pointer_n(nullptr, 0);
+    return r;
+}
+
+static inline Vec<codimension_t> emptycodim()
+{
+    Vec<codimension_t> r;
     r.from_pointer_n(nullptr, 0);
     return r;
 }
