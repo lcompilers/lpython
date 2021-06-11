@@ -2628,7 +2628,8 @@ public:
             case (ASR::cast_kindType::RealToReal) : {
                 int arg_kind = -1, dest_kind = -1;
                 extract_kinds(x, arg_kind, dest_kind);
-                if( arg_kind > 0 && dest_kind > 0 )
+                if( arg_kind > 0 && dest_kind > 0 && 
+                    arg_kind != dest_kind ) 
                 {
                     if( arg_kind == 4 && dest_kind == 8 ) {
                         tmp = builder->CreateFPExt(tmp, llvm::Type::getDoubleTy(context));
@@ -2645,7 +2646,8 @@ public:
             case (ASR::cast_kindType::IntegerToInteger) : {
                 int arg_kind = -1, dest_kind = -1;
                 extract_kinds(x, arg_kind, dest_kind);
-                if( arg_kind > 0 && dest_kind > 0 )
+                if( arg_kind > 0 && dest_kind > 0 && 
+                    arg_kind != dest_kind )
                 {
                     if( arg_kind == 4 && dest_kind == 8 ) {
                         tmp = builder->CreateSExt(tmp, llvm::Type::getInt64Ty(context));
@@ -2664,7 +2666,8 @@ public:
                 int arg_kind = -1, dest_kind = -1;
                 extract_kinds(x, arg_kind, dest_kind);
                 llvm::Value *re, *im;
-                if( arg_kind > 0 && dest_kind > 0 )
+                if( arg_kind > 0 && dest_kind > 0 && 
+                    arg_kind != dest_kind )
                 {
                     if( arg_kind == 4 && dest_kind == 8 ) {
                         target_type = complex_type_8;

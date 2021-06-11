@@ -174,6 +174,22 @@ namespace LFortran {
                                                 args.p, args.size(), nullptr, 0, type));
         }
 
+        ASR::expr_t* to_int32(ASR::expr_t* x, ASR::ttype_t* int64type, Allocator& al) {
+            ASR::cast_kindType cast_kind;
+            switch( expr_type(x)->type ) {
+                case ASR::ttypeType::Integer: {
+                    cast_kind = ASR::cast_kindType::IntegerToInteger;
+                    break;
+                }
+                
+                default: {
+                    break;
+                }
+            }
+
+            return EXPR(ASR::make_ImplicitCast_t(al, x->base.loc, x, cast_kind, int64type));
+        }
+
     }
 
 }

@@ -24,6 +24,8 @@ namespace LFortran {
                                 Allocator& al, ASR::TranslationUnit_t& unit, 
                                 SymbolTable*& current_scope);
 
+        ASR::expr_t* to_int32(ASR::expr_t* x, ASR::ttype_t* int32type, Allocator& al);
+
     }
 
 } // namespace LFortran

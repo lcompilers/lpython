@@ -120,19 +120,94 @@ public:
         return slice_present;
     }
 
+    ASR::ttype_t* get_array_from_slice(const ASR::ArrayRef_t& x, ASR::expr_t* arr_var) {
+        Vec<ASR::dimension_t> m_dims;
+        m_dims.reserve(al, x.n_args);
+        ASR::ttype_t* int32_type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+        ASR::expr_t* const_1 = EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, 1, int32_type));
+        for( size_t i = 0; i < x.n_args; i++ ) {
+            if( x.m_args[i].m_step != nullptr ) {
+                ASR::expr_t *start = nullptr, *end = nullptr, *step = nullptr;
+                if( x.m_args[i].m_left == nullptr ) {
+                    start = PassUtils::get_bound(arr_var, i + 1, "lbound", 
+                                                al, unit, current_scope);
+                } else {
+                    start = x.m_args[i].m_left;
+                }
+
+                if( x.m_args[i].m_right == nullptr ) {
+                    end = PassUtils::get_bound(arr_var, i + 1, "ubound", 
+                                                al, unit, current_scope);
+                } else {
+                    end = x.m_args[i].m_right;
+                }
+
+                if( x.m_args[i].m_step == nullptr ) {
+                    step = const_1;
+                } else {
+                    step = x.m_args[i].m_step;
+                }
+
+                start = PassUtils::to_int32(start, int32_type, al);
+                end = PassUtils::to_int32(end, int32_type, al);
+                step = PassUtils::to_int32(step, int32_type, al);
+
+                ASR::expr_t* gap = EXPR(ASR::make_BinOp_t(al, x.base.base.loc, 
+                                                        end, ASR::binopType::Sub, start, 
+                                                        int32_type));
+                // ASR::expr_t* slice_size = EXPR(ASR::make_BinOp_t(al, x.base.base.loc, 
+                //                                                  gap, ASR::binopType::Add, const_1,
+                //                                                  int64_type));
+                ASR::expr_t* slice_size = EXPR(ASR::make_BinOp_t(al, x.base.base.loc, 
+                                                                gap, ASR::binopType::Div, step,
+                                                                int32_type));
+                ASR::expr_t* actual_size = EXPR(ASR::make_BinOp_t(al, x.base.base.loc, 
+                                                                slice_size, ASR::binopType::Add, const_1,
+                                                                int32_type));
+                ASR::dimension_t curr_dim;
+                curr_dim.loc = x.base.base.loc;
+                curr_dim.m_start = const_1;
+                curr_dim.m_end = actual_size;
+                m_dims.push_back(al, curr_dim);
+            } else {
+                ASR::dimension_t curr_dim;
+                curr_dim.loc = x.base.base.loc;
+                curr_dim.m_start = const_1;
+                curr_dim.m_end = const_1;
+                m_dims.push_back(al, curr_dim);
+            }
+        }
+
+        ASR::ttype_t* new_type = nullptr;
+        switch (x.m_type->type)
+        {
+            case ASR::ttypeType::Integer: {
+                ASR::Integer_t* curr_type = down_cast<ASR::Integer_t>(x.m_type);
+                new_type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, curr_type->m_kind, 
+                                                    m_dims.p, m_dims.size()));
+                break;
+            }
+            
+            default:
+                break;
+        }
+
+        return new_type;
+    }
+
     void visit_ArrayRef(const ASR::ArrayRef_t& x) {
         if( is_slice_present(x) ) {
+            ASR::expr_t* x_arr_var = EXPR(ASR::make_Var_t(al, x.base.base.loc, x.m_v));
             Str new_name_str;
-            new_name_str.from_str(al, std::to_string(slice_counter) + "_slice");
+            new_name_str.from_str(al, "~" + std::to_string(slice_counter) + "_slice");
             slice_counter += 1;
             char* new_var_name = (char*)new_name_str.c_str(al);
             ASR::asr_t* slice_asr = ASR::make_Variable_t(al, x.base.base.loc, current_scope, new_var_name, 
                                                         ASR::intentType::Local, nullptr, ASR::storage_typeType::Default, 
-                                                        x.m_type, ASR::abiType::Source, ASR::accessType::Public);
+                                                        get_array_from_slice(x, x_arr_var), ASR::abiType::Source, ASR::accessType::Public);
             ASR::symbol_t* slice_sym = ASR::down_cast<ASR::symbol_t>(slice_asr);
             current_scope->scope[std::string(new_var_name)] = slice_sym;
             slice_var = EXPR(ASR::make_Var_t(al, x.base.base.loc, slice_sym));
-            ASR::expr_t* x_arr_var = EXPR(ASR::make_Var_t(al, x.base.base.loc, x.m_v));
             // std::cout<<"Inside ArrayRef "<<slice_var<<std::endl;
             Vec<ASR::expr_t*> idx_vars_target, idx_vars_value;
             PassUtils::create_idx_vars(idx_vars_target, x.n_args, x.base.base.loc, al, unit, "_t");

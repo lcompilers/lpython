@@ -15,7 +15,6 @@ x = [(i, i = 1, 10)]
 ! step = x(1)
 ! print *, x(start:end:step)
 print *, x
-print *, x(:)
 print *, x(1:5)
 print *, x(3:)
 print *, x(:5)
