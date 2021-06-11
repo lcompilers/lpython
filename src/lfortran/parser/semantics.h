@@ -288,65 +288,18 @@ static inline var_sym_t* VARSYM(Allocator &al, Location &l,
     return r;
 }
 
-#define VAR_SYM_NAME(out, name, sym, loc) VARSYM(p.m_a, loc, name2char(name), \
-        nullptr, 0, nullptr, 0, nullptr, sym)
-#define VAR_SYM_DIM_INIT(out, name, dim, n_dim, init, sym, loc) VARSYM( \
-        p.m_a, loc, \
-        name2char(name), dim, n_dim, nullptr, 0, \
-        down_cast<expr_t>(init), sym)
-#define VAR_SYM_DIM(out, name, dim, n_dim, sym, loc) VARSYM(p.m_a, loc, \
+#define VAR_SYM_NAME(name, sym, loc) VARSYM(p.m_a, loc, \
+        name2char(name), nullptr, 0, nullptr, 0, nullptr, sym)
+#define VAR_SYM_DIM_INIT(name, dim, n_dim, init, sym, loc) VARSYM(p.m_a, loc, \
+        name2char(name), dim, n_dim, nullptr, 0, down_cast<expr_t>(init), sym)
+#define VAR_SYM_DIM(name, dim, n_dim, sym, loc) VARSYM(p.m_a, loc, \
         name2char(name), dim, n_dim, nullptr, 0, nullptr, sym)
-#define VAR_SYM_CODIM(out, name, codim, n_codim, sym, loc) VARSYM(p.m_a, loc, \
-        name2char(name), nullptr, 0, codim, con_dim, nullptr, sym)
-#define VAR_SYM_DIM_CODIM(out, name, dim, n_dim, codim, n_codim, sym, loc)
+#define VAR_SYM_CODIM(name, codim, n_codim, sym, loc) VARSYM(p.m_a, loc, \
+        name2char(name), nullptr, 0, codim, n_codim, nullptr, sym)
+#define VAR_SYM_DIM_CODIM(name, dim, n_dim, codim, n_codim, sym, loc) \
         VARSYM(p.m_a, loc, name2char(name), \
         dim, n_dim, codim, n_codim, nullptr, sym)
 
-/*
-#define VAR_SYM(xout, xname, xdimp, xdimn, xinit, sym, xloc) \
-            xout = p.m_a.allocate<var_sym_t>(1); \
-            xout->loc = xloc; \
-            xout->m_name = name2char(xname); \
-            xout->m_dim = xdimp; \
-            xout->n_dim = xdimn; \
-            xout->m_codim = nullptr; \
-            xout->n_codim = 0; \
-            xout->m_initializer=down_cast<expr_t>(xinit); \
-            xout->m_sym=symbolType::sym;
-
-#define VAR_SYM2(xout, xname, xdimp, xdimn, sym, xloc) \
-            xout = p.m_a.allocate<var_sym_t>(1); \
-            xout->loc = xloc; \
-            xout->m_name = name2char(xname); \
-            xout->m_dim = xdimp; \
-            xout->n_dim = xdimn; \
-            xout->m_codim = nullptr; \
-            xout->n_codim = 0; \
-            xout->m_initializer=nullptr; \
-            xout->m_sym=symbolType::sym;
-
-#define VAR_SYM3(xout, xname, xcodimp, xcodimn, sym, xloc) \
-            xout = p.m_a.allocate<var_sym_t>(1); \
-            xout->loc = xloc; \
-            xout->m_name = name2char(xname); \
-            xout->m_dim = nullptr; \
-            xout->n_dim = 0; \
-            xout->m_codim = xcodimp; \
-            xout->n_codim = xcodimn; \
-            xout->m_initializer=nullptr; \
-            xout->m_sym=symbolType::sym;
-
-#define VAR_SYM4(xout, xname, xdimp, xdimn, xcodimp, xcodimn, sym, xloc) \
-            xout = p.m_a.allocate<var_sym_t>(1); \
-            xout->loc = xloc; \
-            xout->m_name = name2char(xname); \
-            xout->m_dim = xdimp; \
-            xout->n_dim = xdimn; \
-            xout->m_codim = xcodimp; \
-            xout->n_codim = xcodimn; \
-            xout->m_initializer=nullptr; \
-            xout->m_sym=symbolType::sym;
-*/
 static inline expr_t** DIMS2EXPRS(Allocator &al, const Vec<FnArg> &d)
 {
     if (d.size() == 0) {
