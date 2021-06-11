@@ -187,6 +187,48 @@ public:
                                                     m_dims.p, m_dims.size()));
                 break;
             }
+            case ASR::ttypeType::IntegerPointer: {
+                ASR::IntegerPointer_t* curr_type = down_cast<ASR::IntegerPointer_t>(x.m_type);
+                new_type = TYPE(ASR::make_IntegerPointer_t(al, x.base.base.loc, curr_type->m_kind, 
+                                                            m_dims.p, m_dims.size()));
+                break;
+            }
+            case ASR::ttypeType::Real: {
+                ASR::Real_t* curr_type = down_cast<ASR::Real_t>(x.m_type);
+                new_type = TYPE(ASR::make_Real_t(al, x.base.base.loc, curr_type->m_kind, 
+                                                    m_dims.p, m_dims.size()));
+                break;
+            }
+            case ASR::ttypeType::RealPointer: {
+                ASR::RealPointer_t* curr_type = down_cast<ASR::RealPointer_t>(x.m_type);
+                new_type = TYPE(ASR::make_RealPointer_t(al, x.base.base.loc, curr_type->m_kind, 
+                                                    m_dims.p, m_dims.size()));
+                break;
+            }
+            case ASR::ttypeType::Complex: {
+                ASR::Complex_t* curr_type = down_cast<ASR::Complex_t>(x.m_type);
+                new_type = TYPE(ASR::make_Complex_t(al, x.base.base.loc, curr_type->m_kind, 
+                                                    m_dims.p, m_dims.size()));
+                break;
+            }
+            case ASR::ttypeType::ComplexPointer: {
+                ASR::ComplexPointer_t* curr_type = down_cast<ASR::ComplexPointer_t>(x.m_type);
+                new_type = TYPE(ASR::make_ComplexPointer_t(al, x.base.base.loc, curr_type->m_kind, 
+                                                    m_dims.p, m_dims.size()));
+                break;
+            }
+            case ASR::ttypeType::Logical: {
+                ASR::Logical_t* curr_type = down_cast<ASR::Logical_t>(x.m_type);
+                new_type = TYPE(ASR::make_Logical_t(al, x.base.base.loc, curr_type->m_kind, 
+                                                    m_dims.p, m_dims.size()));
+                break;
+            }
+            case ASR::ttypeType::Derived: {
+                ASR::Derived_t* curr_type = down_cast<ASR::Derived_t>(x.m_type);
+                new_type = TYPE(ASR::make_Derived_t(al, x.base.base.loc, curr_type->m_derived_type, 
+                                                    m_dims.p, m_dims.size()));
+                break;
+            }
             
             default:
                 break;

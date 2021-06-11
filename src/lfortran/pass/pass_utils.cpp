@@ -181,6 +181,11 @@ namespace LFortran {
                     cast_kind = ASR::cast_kindType::IntegerToInteger;
                     break;
                 }
+
+                case ASR::ttypeType::Real: {
+                    cast_kind = ASR::cast_kindType::RealToInteger;
+                    break;
+                }
                 
                 default: {
                     break;
