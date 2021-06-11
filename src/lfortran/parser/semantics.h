@@ -288,19 +288,19 @@ static inline var_sym_t* VARSYM(Allocator &al, Location &l,
     return r;
 }
 
-#define VAR_SYM_NAME(name, sym, loc) VARSYM(p.m_a, loc, name2char(name), \
+#define VAR_SYM_NAME(out, name, sym, loc) VARSYM(p.m_a, loc, name2char(name), \
         nullptr, 0, nullptr, 0, nullptr, sym)
-#define VAR_SYM_INIT(name, init, sym, loc) VARSYM(p.m_a, loc, name2char(name), \
-        nullptr, 0, nullptr, 0, down_cast<expr_t>(init), sym)
-#define VAR_SYM_DIM(name, dim, sym, loc) VARSYM(p.m_a, loc, name2char(name), \
-        dim.p, dim.n, nullptr, 0, nullptr, sym)
-#define VAR_SYM3_DIM_INIT(name, dim, init, sym, loc) VARSYM(p.m_a, loc, \
-        name2char(name), dim.p, dim.n, nullptr, 0, \
+#define VAR_SYM_DIM_INIT(out, name, dim, n_dim, init, sym, loc) VARSYM( \
+        p.m_a, loc, \
+        name2char(name), dim, n_dim, nullptr, 0, \
         down_cast<expr_t>(init), sym)
-#define VAR_SYM_CODIM(name, codim, sym, loc) VARSYM(p.m_a, loc, \
-        name2char(name), nullptr, 0, codim.p, codim.n, nullptr, sym)
-#define VAR_SYM_DIM_CODIM(name, dim, codim, sym, loc) VARSYM(p.m_a, loc, \
-        name2char(name), dim.p, dim.n, codim.p, codim.n, nullptr, sym)
+#define VAR_SYM_DIM(out, name, dim, n_dim, sym, loc) VARSYM(p.m_a, loc, \
+        name2char(name), dim, n_dim, nullptr, 0, nullptr, sym)
+#define VAR_SYM_CODIM(out, name, codim, n_codim, sym, loc) VARSYM(p.m_a, loc, \
+        name2char(name), nullptr, 0, codim, con_dim, nullptr, sym)
+#define VAR_SYM_DIM_CODIM(out, name, dim, n_dim, codim, n_codim, sym, loc)
+        VARSYM(p.m_a, loc, name2char(name), \
+        dim, n_dim, codim, n_codim, nullptr, sym)
 
 /*
 #define VAR_SYM(xout, xname, xdimp, xdimn, xinit, sym, xloc) \
