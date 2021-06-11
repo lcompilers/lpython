@@ -65,25 +65,25 @@ namespace {
         throw LFortranException("Unknown type");
     }
 
-    std::string interfaceop2str(const AST::interfaceopType type)
+    std::string intrinsicop2str(const AST::intrinsicopType type)
     {
         switch (type) {
-            case (AST::interfaceopType::AND) : return ".and.";
-            case (AST::interfaceopType::OR) : return ".or.";
-            case (AST::interfaceopType::EQV) : return ".eqv.";
-            case (AST::interfaceopType::NEQV) : return ".neqv.";
-            case (AST::interfaceopType::PLUS) : return "+";
-            case (AST::interfaceopType::MINUS) : return "-";
-            case (AST::interfaceopType::STAR) : return "*";
-            case (AST::interfaceopType::DIV) : return "/";
-            case (AST::interfaceopType::POW) : return "**";
-            case (AST::interfaceopType::NOT) : return ".not.";
-            case (AST::interfaceopType::EQ) : return "==";
-            case (AST::interfaceopType::GT) : return ">";
-            case (AST::interfaceopType::GTE) : return ">=";
-            case (AST::interfaceopType::LT) : return "<";
-            case (AST::interfaceopType::LTE) : return "<=";
-            case (AST::interfaceopType::NOTEQ) : return "/=";
+            case (AST::intrinsicopType::AND) : return ".and.";
+            case (AST::intrinsicopType::OR) : return ".or.";
+            case (AST::intrinsicopType::EQV) : return ".eqv.";
+            case (AST::intrinsicopType::NEQV) : return ".neqv.";
+            case (AST::intrinsicopType::PLUS) : return "+";
+            case (AST::intrinsicopType::MINUS) : return "-";
+            case (AST::intrinsicopType::STAR) : return "*";
+            case (AST::intrinsicopType::DIV) : return "/";
+            case (AST::intrinsicopType::POW) : return "**";
+            case (AST::intrinsicopType::NOT) : return ".not.";
+            case (AST::intrinsicopType::EQ) : return "==";
+            case (AST::intrinsicopType::GT) : return ">";
+            case (AST::intrinsicopType::GTE) : return ">=";
+            case (AST::intrinsicopType::LT) : return "<";
+            case (AST::intrinsicopType::LTE) : return "<=";
+            case (AST::intrinsicopType::NOTEQ) : return "/=";
         }
         throw LFortranException("Unknown type");
     }
@@ -449,7 +449,7 @@ public:
         r += syn(gr::String);
         r.append("generic :: operator");
         r += syn();
-        r += "(" + interfaceop2str(x.m_op) + ")";
+        r += "(" + intrinsicop2str(x.m_op) + ")";
         r += " => ";
         for (size_t i=0; i<x.n_names; i++) {
             r.append(x.m_names[i]);
@@ -573,7 +573,7 @@ public:
 
     void visit_InterfaceHeaderOperator
             (const InterfaceHeaderOperator_t &x) {
-        s = " operator (" + interfaceop2str(x.m_op) + ")";
+        s = " operator (" + intrinsicop2str(x.m_op) + ")";
     }
 
     void visit_InterfaceHeaderDefinedOperator
@@ -2665,7 +2665,7 @@ public:
     }
 
     void visit_IntrinsicOperator(const IntrinsicOperator_t &x) {
-        s = "operator (" + interfaceop2str(x.m_op) + ")";
+        s = "operator (" + intrinsicop2str(x.m_op) + ")";
     }
 
     void visit_DefinedOperator(const DefinedOperator_t &x) {

@@ -1557,7 +1557,7 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         p.m_a, l, def_op_to_str(p.m_a, op))
 #define ABSTRACT_INTERFACE_HEADER(l) make_AbstractInterfaceHeader_t(p.m_a, l)
 
-#define OPERATOR(op, l) interfaceopType::op
+#define OPERATOR(op, l) intrinsicopType::op
 
 #define INTERFACE(header, contains, l) make_Interface_t(p.m_a, l, \
         down_cast<interface_header_t>(header), INTERFACE_ITEMS(contains), contains.size())

@@ -67,7 +67,7 @@ interface_header
     = InterfaceHeader()
     | InterfaceHeaderName(identifier name)
     | InterfaceHeaderAssignment()
-    | InterfaceHeaderOperator(interfaceop op)
+    | InterfaceHeaderOperator(intrinsicop op)
     | InterfaceHeaderDefinedOperator(string operator_name)
     | AbstractInterfaceHeader()
 
@@ -178,7 +178,7 @@ unaryop = Invert | Not | UAdd | USub
 
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 
-interfaceop
+intrinsicop
     = AND | OR | EQV | NEQV
     | PLUS | MINUS | STAR | DIV | POW
     | NOT
@@ -187,7 +187,7 @@ interfaceop
 procedure_decl
     = DerivedTypeProc(identifier? name, decl_attribute* attr,
         use_symbol* symbols)
-    | GenericOperator(interfaceop op, identifier* names)
+    | GenericOperator(intrinsicop op, identifier* names)
     | GenericDefinedOperator(string optype, identifier* names)
     | GenericAssignment(identifier* names)
     | GenericName(identifier name, identifier* names)
@@ -323,7 +323,7 @@ type_stmt
 use_symbol
     = UseSymbol(identifier sym, identifier? rename)
     | UseAssignment()
-    | IntrinsicOperator(interfaceop op)
+    | IntrinsicOperator(intrinsicop op)
     | DefinedOperator(string opName)
 
 concurrent_control = ConcurrentControl(identifier? var, expr? start, expr? end, expr? increment)
