@@ -137,11 +137,11 @@ abi                   -- External     ABI
 
 
 stmt
-    = Allocate()
+    = Allocate(int label, alloc_arg* args, expr? stat)
     | Assignment(expr target, expr value)
     | Associate(expr target, expr value)
     | Cycle()
-    | Deallocate()
+    | Deallocate(int label, alloc_arg* args)
     | DoConcurrentLoop(do_loop_head head, stmt* body)
     | DoLoop(do_loop_head head, stmt* body)
     | ErrorStop(expr? code)
@@ -217,6 +217,8 @@ cast_kind
     | ComplexToComplex
 
 dimension = (expr? start, expr? end)
+
+alloc_arg = (symbol a, dimension* dims)
 
 attribute = Attribute(identifier name, attribute_arg *args)
 

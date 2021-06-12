@@ -1934,13 +1934,58 @@ public:
     }
 
     void visit_Allocate(const AST::Allocate_t& x) {
-        // TODO
-        tmp = ASR::make_Allocate_t(al, x.base.base.loc);
+        Vec<ASR::alloc_arg_t> alloc_args_vec;
+        alloc_args_vec.reserve(al, x.n_args);
+        ASR::ttype_t *int32_type = TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                                                            4, nullptr, 0));
+        ASR::expr_t* const_1 = EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, 1, int32_type));
+        for( size_t i = 0; i < x.n_args; i++ ) {
+            ASR::alloc_arg_t new_arg;
+            new_arg.loc = x.base.base.loc;
+            this->visit_expr(*(x.m_args[i].m_end));
+            // Assume that tmp is an `ArrayRef`
+            ASR::expr_t* tmp_stmt = EXPR(tmp);
+            ASR::ArrayRef_t* array_ref = ASR::down_cast<ASR::ArrayRef_t>(tmp_stmt);
+            new_arg.m_a = array_ref->m_v;
+            Vec<ASR::dimension_t> dims_vec;
+            dims_vec.reserve(al, array_ref->n_args);
+            for( size_t j = 0; j < array_ref->n_args; j++ ) {
+                ASR::dimension_t new_dim;
+                new_dim.loc = array_ref->m_args[j].loc;
+                ASR::expr_t* m_left = array_ref->m_args[i].m_left;
+                if( m_left != nullptr ) {
+                    new_dim.m_start = m_left;
+                } else {
+                    new_dim.m_start = const_1;
+                }
+                ASR::expr_t* m_right = array_ref->m_args[i].m_right;
+                new_dim.m_end = m_right;
+                dims_vec.push_back(al, new_dim);
+            }
+            new_arg.m_dims = dims_vec.p;
+            new_arg.n_dims = dims_vec.size();
+            alloc_args_vec.push_back(al, new_arg);
+        }
+        
+        // Only one arg should be present
+        std::cout<<x.m_keywords[0].m_arg<<std::endl;
+        if( x.n_keywords > 1 && x.m_keywords[0].m_arg != (char*)"stat") {
+            throw SemanticError("`allocate` statement only "
+                                "accepts one keyword argument," 
+                                "`stat`", x.base.base.loc);
+        }
+        ASR::expr_t* stat = nullptr;
+        if( x.n_keywords > 0 ) {
+            this->visit_expr(*(x.m_keywords[0].m_value));
+            stat = EXPR(tmp);
+        }
+        tmp = ASR::make_Allocate_t(al, x.base.base.loc, x.m_label, 
+                                    alloc_args_vec.p, alloc_args_vec.size(), 
+                                    stat);
     }
 
     void visit_Deallocate(const AST::Deallocate_t& x) {
-        // TODO
-        tmp = ASR::make_Deallocate_t(al, x.base.base.loc);
+        // tmp = ASR::make_Deallocate_t(al, x.base.base.loc);
     }
 
     void visit_Return(const AST::Return_t& x) {
