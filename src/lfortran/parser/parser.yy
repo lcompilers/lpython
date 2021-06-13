@@ -947,6 +947,7 @@ var_modifier
     | KW_OPTIONAL { $$ = SIMPLE_ATTR(Optional, @$); }
     | KW_PROTECTED { $$ = SIMPLE_ATTR(Protected, @$); }
     | KW_SAVE { $$ = SIMPLE_ATTR(Save, @$); }
+    | KW_SEQUENCE { $$ = SIMPLE_ATTR(Sequence, @$); }
     | KW_CONTIGUOUS { $$ = SIMPLE_ATTR(Contiguous, @$); }
     | KW_NOPASS { $$ = SIMPLE_ATTR(NoPass, @$); }
     | KW_PRIVATE { $$ = SIMPLE_ATTR(Private, @$); }

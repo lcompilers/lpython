@@ -970,6 +970,7 @@ public:
             ATTRTYPE(Pure)
             ATTRTYPE(Recursive)
             ATTRTYPE(Save)
+            ATTRTYPE(Sequence)
             ATTRTYPE(Target)
             ATTRTYPE(Value)
             ATTRTYPE(Intrinsic)

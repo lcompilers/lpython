@@ -223,6 +223,7 @@ simple_attribute
     | AttrPure
     | AttrRecursive
     | AttrSave
+    | AttrSequence
     | AttrTarget
     | AttrValue
     | AttrIntrinsic
