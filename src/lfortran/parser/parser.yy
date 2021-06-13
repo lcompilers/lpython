@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    486 // shift/reduce conflicts
-%expect-rr 81  // reduce/reduce conflicts
+%expect    501 // shift/reduce conflicts
+%expect-rr 84  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -348,6 +348,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> case_statements
 %type <ast> case_statement
 %type <ast> while_statement
+%type <ast> critical_statement
 %type <ast> do_statement
 %type <ast> forall_statement
 %type <ast> forall_statement_single
@@ -1113,6 +1114,7 @@ multi_line_statement
 multi_line_statement0
     : associate_block
     | block_statement
+    | critical_statement
     | do_statement
     | forall_statement
     | if_statement
@@ -1538,6 +1540,12 @@ sync_stat_list
 sync_stat
     : KW_STAT "=" id { $$ = STAT($3, @$); }
     | KW_ERRMSG "=" id { $$ = ERRMSG($3, @$); }
+    ;
+
+critical_statement
+    : KW_CRITICAL sep statements KW_END KW_CRITICAL { $$ = CRITICAL($3, @$); }
+    | KW_CRITICAL "(" sync_stat_list ")" sep statements KW_END KW_CRITICAL {
+            $$ = CRITICAL1($3, $6, @$); }
     ;
 // -----------------------------------------------------------------------------
 // Fortran expression

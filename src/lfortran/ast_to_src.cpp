@@ -1598,10 +1598,7 @@ public:
         r += syn(gr::UnitHeader);
         r.append("end associate");
         r += syn();
-        if (x.m_stmt_name) {
-            r += " ";
-            r += x.m_stmt_name;
-        }
+        r += end_stmt_name(x);
         r += "\n";
         s = r;
     }
@@ -1628,10 +1625,38 @@ public:
         r += syn(gr::UnitHeader);
         r.append("end block");
         r += syn();
-        if (x.m_stmt_name) {
-            r += " ";
-            r += x.m_stmt_name;
+        r += end_stmt_name(x);
+        r += "\n";
+        s = r;
+    }
+
+    void visit_Critical(const Critical_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += print_stmt_name(x);
+        r += syn(gr::UnitHeader);
+        r += "critical";
+        r += syn();
+        if (x.m_sync_stat) {
+            r += " (";
+            for (size_t i=0; i<x.n_sync_stat; i++) {
+                this->visit_event_attribute(*x.m_sync_stat[i]);
+                r.append(s);
+            }
+            r += ")";
         }
+        r.append("\n");
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r.append(s);
+        }
+        dec_indent();
+        r += indent;
+        r += syn(gr::UnitHeader);
+        r.append("end critical");
+        r += syn();
+        r += end_stmt_name(x);
         r += "\n";
         s = r;
     }
@@ -1858,10 +1883,7 @@ public:
         r += syn(gr::Keyword);
         r.append("cycle");
         r += syn();
-        if (x.m_stmt_name) {
-            r += " ";
-            r += x.m_stmt_name;
-        }
+        r += end_stmt_name(x);
         r += "\n";
         s = r;
     }
@@ -1882,10 +1904,7 @@ public:
         r += syn(gr::Keyword);
         r.append("exit");
         r += syn();
-        if (x.m_stmt_name) {
-            r += " ";
-            r += x.m_stmt_name;
-        }
+        r += end_stmt_name(x);
         r += "\n";
         s = r;
     }
