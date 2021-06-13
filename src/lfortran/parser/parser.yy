@@ -959,6 +959,7 @@ var_modifier
     | KW_VALUE { $$ = SIMPLE_ATTR(Value, @$); }
     | KW_EXTENDS "(" id ")" { $$ = EXTENDS($3, @$); }
     | KW_BIND "(" id ")" { $$ = BIND($3, @$); }
+    | KW_EQUIVALENCE expr_list { $$ = EQUIVALENCE($2, @$); }
     ;
 
 

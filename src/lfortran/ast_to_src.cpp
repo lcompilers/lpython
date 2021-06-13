@@ -1104,6 +1104,19 @@ public:
         s = r;
     }
 
+    void visit_AttrEquivalence(const AttrEquivalence_t &x) {
+        std::string r;
+        r += syn(gr::Type);
+        r += "equivalence ";
+        r += syn();
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_expr(*x.m_args[i]);
+            r.append(s);
+            if (i < x.n_args-1) s.append(", ");
+        }
+        s = r;
+    }
+
     void visit_AttrExtends(const AttrExtends_t &x) {
         std::string r;
         r += syn(gr::Type);

@@ -197,12 +197,13 @@ decl_attribute
     = AttrBind(identifier name)
     | AttrDimension(dimension* dim)
     | AttrCodimension(codimension* codim)
+    | AttrEquivalence(expr* args)
     | AttrExtends(identifier name)
     | AttrIntent(attr_intent intent)
     | AttrNamelist(identifier name)
+    | AttrPass(identifier name)
     | SimpleAttribute(simple_attribute attr)
     | AttrType(decl_type type, kind_item* kind, identifier? name)
-    | AttrPass(identifier name)
 
 simple_attribute
     = AttrAbstract

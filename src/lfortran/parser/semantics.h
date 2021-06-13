@@ -150,6 +150,9 @@ static inline Vec<kind_item_t> a2kind_list(Allocator &al,
 #define CODIMENSION(dim, l) make_AttrCodimension_t( \
             p.m_a, l, \
             dim.p, dim.size())
+#define PASS(name, l) make_AttrPass_t(p.m_a, l, name2char(name))
+#define EQUIVALENCE(args, l) make_AttrEquivalence_t(p.m_a, l, \
+        EXPRS(args), args.size())
 
 #define ATTR_TYPE(x, l) make_AttrType_t( \
             p.m_a, l, \
@@ -1562,7 +1565,5 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 #define GENERIC_NAME(name, namelist, l) make_GenericName_t(p.m_a, l, \
         name2char(name), REDUCE_ARGS(p.m_a, namelist), namelist.size())
 #define FINAL_NAME(name, l) make_FinalName_t(p.m_a, l, name2char(name))
-
-#define PASS(name, l) make_AttrPass_t(p.m_a, l, name2char(name))
 
 #endif
