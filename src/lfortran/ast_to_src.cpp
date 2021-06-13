@@ -973,6 +973,7 @@ public:
             ATTRTYPE(Sequence)
             ATTRTYPE(Target)
             ATTRTYPE(Value)
+            ATTRTYPE(Volatile)
             ATTRTYPE(Intrinsic)
             ATTRTYPE(Non_Intrinsic)
             ATTRTYPE(Deferred)

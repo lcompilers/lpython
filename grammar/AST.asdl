@@ -226,6 +226,7 @@ simple_attribute
     | AttrSequence
     | AttrTarget
     | AttrValue
+    | AttrVolatile
     | AttrIntrinsic
     | AttrNon_Intrinsic
     | AttrDeferred
