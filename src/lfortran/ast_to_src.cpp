@@ -955,6 +955,7 @@ public:
         switch (x.m_attr) {
             ATTRTYPE(Abstract)
             ATTRTYPE(Allocatable)
+            ATTRTYPE(Asynchronous)
             ATTRTYPE(Contiguous)
             ATTRTYPE(Elemental)
             ATTRTYPE(Enumerator)

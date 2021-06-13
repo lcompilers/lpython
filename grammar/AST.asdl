@@ -207,6 +207,7 @@ decl_attribute
 simple_attribute
     = AttrAbstract
     | AttrAllocatable
+    | AttrAsynchronous
     | AttrContiguous
     | AttrElemental
     | AttrEnumerator

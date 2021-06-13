@@ -942,6 +942,7 @@ var_modifier
     | KW_DIMENSION { $$ = DIMENSION0(@$); }
     | KW_CODIMENSION "[" coarray_comp_decl_list "]" { $$ = CODIMENSION($3, @$); }
     | KW_ALLOCATABLE { $$ = SIMPLE_ATTR(Allocatable, @$); }
+    | KW_ASYNCHRONOUS { $$ = SIMPLE_ATTR(Asynchronous, @$); }
     | KW_POINTER { $$ = SIMPLE_ATTR(Pointer, @$); }
     | KW_TARGET { $$ = SIMPLE_ATTR(Target, @$); }
     | KW_OPTIONAL { $$ = SIMPLE_ATTR(Optional, @$); }
