@@ -974,6 +974,10 @@ filename = "modules_07.f90"
 asr = true
 
 [[test]]
+filename = "string.f90"
+ast_f90 = true
+
+[[test]]
 filename = "../integration_tests/string1.f90"
 ast = true
 asr = true
@@ -1158,5 +1162,10 @@ ast = true
 
 [[test]]
 filename = "defop1.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
+filename = "critical1.f90"
 ast = true
 ast_f90 = true
