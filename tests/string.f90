@@ -1,0 +1,15 @@
+program string
+implicit none
+character(50) :: str
+    str = "Hi, I'm using string"
+    str = 'Use "Double" "quote"'
+    str = "'random'' ab''cd""fg''h'ij""klmno'pqr's'''"
+    str = 'random'' a"b''cd""fg""hij"kl"mno"p"qr"s'''
+    str = """equal''"
+    str = '"Double" ''Quote'''
+    str = "'Single' ""Quote"""
+
+    print *, "Hi, I'm using string"
+    print *, 'This is a "sting"'
+    print *, "'random'' ab''cd""fg''h'ij""klmno'pqr's'''"
+end program
