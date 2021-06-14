@@ -1,1 +1,1 @@
-(TranslationUnit [(Subroutine add [(a) (b) (c)] [] () [] [] [] [(Declaration (AttrType TypeReal [] ()) [(AttrIntent In)] [(a [] [] () None) (b [] [] () None)]) (Declaration (AttrType TypeReal [] ()) [(AttrIntent Out)] [(c [] [] () None)])] [(= 0 c (+ a b))] [])])
+(TranslationUnit [(Subroutine add [(a) (b) (c)] [] () [] [] [] [(Declaration (AttrType TypeReal [] ()) [(AttrIntent In)] [(a [] [] () None ()) (b [] [] () None ())]) (Declaration (AttrType TypeReal [] ()) [(AttrIntent Out)] [(c [] [] () None ())])] [(= 0 c (+ a b))] [])])

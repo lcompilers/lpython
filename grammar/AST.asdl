@@ -67,7 +67,7 @@ interface_header
     = InterfaceHeader()
     | InterfaceHeaderName(identifier name)
     | InterfaceHeaderAssignment()
-    | InterfaceHeaderOperator(interfaceop op)
+    | InterfaceHeaderOperator(intrinsicop op)
     | InterfaceHeaderDefinedOperator(string operator_name)
     | AbstractInterfaceHeader()
 
@@ -178,7 +178,7 @@ unaryop = Invert | Not | UAdd | USub
 
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 
-interfaceop
+intrinsicop
     = AND | OR | EQV | NEQV
     | PLUS | MINUS | STAR | DIV | POW
     | NOT
@@ -187,7 +187,7 @@ interfaceop
 procedure_decl
     = DerivedTypeProc(identifier? name, decl_attribute* attr,
         use_symbol* symbols)
-    | GenericOperator(interfaceop op, identifier* names)
+    | GenericOperator(intrinsicop op, identifier* names)
     | GenericDefinedOperator(string optype, identifier* names)
     | GenericAssignment(identifier* names)
     | GenericName(identifier name, identifier* names)
@@ -203,6 +203,9 @@ decl_attribute
     | SimpleAttribute(simple_attribute attr)
     | AttrType(decl_type type, kind_item* kind, identifier? name)
     | AttrPass(identifier name)
+    | AttrAssignment()
+    | AttrIntrinsicOperator(intrinsicop op)
+    | AttrDefinedOperator(string op_name)
 
 simple_attribute
     = AttrAbstract
@@ -247,8 +250,8 @@ event_attribute
     | AttrErrmsg(identifier variable)
     | AttrEventWaitKwArg(identifier id, expr value)
 
-var_sym = (identifier name, dimension* dim, codimension* codim,
- expr? initializer, symbol sym)
+var_sym = (identifier? name, dimension* dim, codimension* codim,
+ expr? initializer, symbol sym, decl_attribute? spec)
 
 kind_item = (identifier? id, expr? value, kind_item_type type)
 
@@ -323,7 +326,7 @@ type_stmt
 use_symbol
     = UseSymbol(identifier sym, identifier? rename)
     | UseAssignment()
-    | IntrinsicOperator(interfaceop op)
+    | IntrinsicOperator(intrinsicop op)
     | DefinedOperator(string opName)
 
 concurrent_control = ConcurrentControl(identifier? var, expr? start, expr? end, expr? increment)

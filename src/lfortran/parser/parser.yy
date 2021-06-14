@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    486 // shift/reduce conflicts
+%expect    488 // shift/reduce conflicts
 %expect-rr 81  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -296,6 +296,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> var_decl_star
 %type <vec_var_sym> var_sym_decl_list
 %type <ast> var_decl
+%type <ast> decl_spec
 %type <var_sym> var_sym_decl
 %type <vec_dim> array_comp_decl_list
 %type <vec_codim> coarray_comp_decl_list
@@ -1005,12 +1006,13 @@ var_sym_decl
             $$ = VAR_SYM_CODIM($1, $3.p, $3.n, None, @$); }
     | id "(" array_comp_decl_list ")" "[" coarray_comp_decl_list "]" {
             $$ = VAR_SYM_DIM_CODIM($1, $3.p, $3.n, $6.p, $6.n, None, @$); }
+    | decl_spec { $$ = VAR_SYM_SPEC($1, None, @$); }
+    ;
 
-// TODO: is this needed? It seems it should go somewheer else
-/*
-    | KW_ASSIGNMENT "(" "=" ")"              {
-            $$ = FIXME(@$); }
-*/
+decl_spec
+    : KW_OPERATOR "(" operator_type ")" { $$ = DECL_OP($3, @$); }
+    | KW_OPERATOR "(" TK_DEF_OP ")" { $$ = DECL_DEFOP($3, @$); }
+    | KW_ASSIGNMENT "(" "=" ")" { $$ = DECL_ASSIGNMENT(@$); }
     ;
 
 array_comp_decl_list

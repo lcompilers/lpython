@@ -5,12 +5,10 @@
       (Declaration 
          (AttrType 
             TypeInteger [] ()) [] [
-         (
-            x [] [] () 
-            None) 
-         (
-            i [] [] () 
-            None)])] [
+         (x [] [] () 
+            None ()) 
+         (i [] [] () 
+            None ())])] [
       (= 0 x 1) 
       (DoLoop 0 () i 1 10 () [
          (= 0 x (* x i))])] []) 
@@ -19,12 +17,10 @@
       (Declaration 
          (AttrType 
             TypeInteger [] ()) [] [
-         (
-            x [] [] () 
-            None) 
-         (
-            i [] [] () 
-            None)])] [
+         (x [] [] () 
+            None ()) 
+         (i [] [] () 
+            None ())])] [
       (= 0 x 1) 
       (DoLoop 0 () i 1 10 () [
          (= 0 x (* i x))])] [])])
