@@ -1968,14 +1968,14 @@ public:
         }
         
         // Only one arg should be present
-        std::cout<<x.m_keywords[0].m_arg<<std::endl;
-        if( x.n_keywords > 1 && x.m_keywords[0].m_arg != (char*)"stat") {
+        if( x.n_keywords > 1 || 
+          ( x.n_keywords == 1 && std::string(x.m_keywords[0].m_arg) != "stat") ) {
             throw SemanticError("`allocate` statement only "
                                 "accepts one keyword argument," 
                                 "`stat`", x.base.base.loc);
         }
         ASR::expr_t* stat = nullptr;
-        if( x.n_keywords > 0 ) {
+        if( x.n_keywords == 1 ) {
             this->visit_expr(*(x.m_keywords[0].m_value));
             stat = EXPR(tmp);
         }
@@ -1985,7 +1985,14 @@ public:
     }
 
     void visit_Deallocate(const AST::Deallocate_t& x) {
-        // tmp = ASR::make_Deallocate_t(al, x.base.base.loc);
+        Vec<ASR::expr_t*> arg_vec;
+        arg_vec.reserve(al, x.n_args);
+        for( size_t i = 0; i < x.n_args; i++ ) {
+            this->visit_expr(*(x.m_args[i].m_end));
+            arg_vec.push_back(al, EXPR(tmp));
+        }
+        tmp = ASR::make_Deallocate_t(al, x.base.base.loc, x.m_label, 
+                                        arg_vec.p, arg_vec.size());
     }
 
     void visit_Return(const AST::Return_t& x) {

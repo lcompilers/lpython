@@ -141,7 +141,7 @@ stmt
     | Assignment(expr target, expr value)
     | Associate(expr target, expr value)
     | Cycle()
-    | Deallocate(int label, alloc_arg* args)
+    | Deallocate(int label, expr* args)
     | DoConcurrentLoop(do_loop_head head, stmt* body)
     | DoLoop(do_loop_head head, stmt* body)
     | ErrorStop(expr? code)
