@@ -2419,29 +2419,19 @@ public:
     void visit_Str(const Str_t &x) {
         s = syn(gr::String);
         std::string r = x.m_s;
-        if (!(r.find("\"") < r.length())){
-            s += "\"";
-            s.append(r);
-            s += "\"";
-        } else if (r.find("\"") < r.length() && !(r.find("'") < r.length())){
+        int dq = 0, sq = 0;
+        for (auto x: r) {
+            if (x == '"') dq++;
+            if (x == '\'') sq++;
+        }
+        if (dq > sq) {
             s += "'";
-            s.append(r);
+            s += replace(r, "'", "''");
             s += "'";
-        } else if (r.find("\"") < r.length() && (r.find("'") < r.length())){
-            int dq = 0, sq = 0;
-            for(auto x: r) {
-                if(x == '"') dq++;
-                if(x == '\'') sq++;
-            }
-            if(dq > sq) {
-                s += "'";
-                s += replace(r, "'", "''");
-                s += "'";
-            } else {
-                s += "\"";
-                s += replace(r, "\"", "\"\"");
-                s += "\"";
-            }
+        } else {
+            s += "\"";
+            s += replace(r, "\"", "\"\"");
+            s += "\"";
         }
         s += syn();
     }
