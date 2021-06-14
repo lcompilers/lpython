@@ -976,6 +976,7 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
 #define SYNC_ALL(l) make_SyncAll_t(p.m_a, l, 0, nullptr, 0)
 #define SYNC_ALL1(x, l) make_SyncAll_t(p.m_a, l, 0, \
         VEC_CAST(x, event_attribute), x.size())
+
 #define STAT(var, l) make_AttrStat_t(p.m_a, l, name2char(var))
 #define ERRMSG(var, l) make_AttrErrmsg_t(p.m_a, l, name2char(var))
 #define EVENT_WAIT_KW_ARG(id, e, l) make_AttrEventWaitKwArg_t(p.m_a, l, \
@@ -1573,5 +1574,10 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 #define FINAL_NAME(name, l) make_FinalName_t(p.m_a, l, name2char(name))
 
 #define PASS(name, l) make_AttrPass_t(p.m_a, l, name2char(name))
+
+#define CRITICAL(stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
+        nullptr, 0, STMTS(stmts), stmts.size())
+#define CRITICAL1(x, stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
+        VEC_CAST(x, event_attribute), x.size(), STMTS(stmts), stmts.size())
 
 #endif

@@ -130,6 +130,8 @@ stmt
     | AssociateBlock(int label, identifier? stmt_name, var_sym* syms,
             stmt* body)
     | Block(int label, identifier? stmt_name, unit_decl2* decl, stmt* body)
+    | Critical(int label, identifier? stmt_name, event_attribute* sync_stat,
+            stmt* body)
     | DoConcurrentLoop(int label, identifier? stmt_name,
             concurrent_control *control, expr? mask,
             concurrent_locality* locality, stmt* body)
@@ -210,6 +212,7 @@ decl_attribute
 simple_attribute
     = AttrAbstract
     | AttrAllocatable
+    | AttrAsynchronous
     | AttrContiguous
     | AttrElemental
     | AttrEnumerator
