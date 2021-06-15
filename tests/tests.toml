@@ -1160,3 +1160,7 @@ ast = true
 filename = "defop1.f90"
 ast = true
 ast_f90 = true
+
+[[test]]
+filename = "attributes1.f90"
+ast = true
