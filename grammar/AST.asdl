@@ -209,11 +209,15 @@ simple_attribute
     = AttrAbstract
     | AttrAllocatable
     | AttrContiguous
+    | AttrDeferred
     | AttrElemental
     | AttrEnumerator
     | AttrImpure
+    | AttrIntrinsic
     | AttrModule
     | AttrNoPass
+    | AttrNonDeferred
+    | AttrNon_Intrinsic
     | AttrOptional
     | AttrParameter
     | AttrPointer
@@ -227,10 +231,6 @@ simple_attribute
     | AttrTarget
     | AttrValue
     | AttrVolatile
-    | AttrIntrinsic
-    | AttrNon_Intrinsic
-    | AttrDeferred
-    | AttrNonDeferred
 
 attr_intent = In | Out | InOut
 

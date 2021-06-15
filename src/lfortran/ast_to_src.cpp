@@ -956,11 +956,15 @@ public:
             ATTRTYPE(Abstract)
             ATTRTYPE(Allocatable)
             ATTRTYPE(Contiguous)
+            ATTRTYPE(Deferred)
             ATTRTYPE(Elemental)
             ATTRTYPE(Enumerator)
             ATTRTYPE(Impure)
+            ATTRTYPE(Intrinsic)
             ATTRTYPE(Module)
             ATTRTYPE(NoPass)
+            ATTRTYPE(NonDeferred)
+            ATTRTYPE(Non_Intrinsic)
             ATTRTYPE(Optional)
             ATTRTYPE(Parameter)
             ATTRTYPE(Pointer)
@@ -974,10 +978,6 @@ public:
             ATTRTYPE(Target)
             ATTRTYPE(Value)
             ATTRTYPE(Volatile)
-            ATTRTYPE(Intrinsic)
-            ATTRTYPE(Non_Intrinsic)
-            ATTRTYPE(Deferred)
-            ATTRTYPE(NonDeferred)
             default :
                 throw LFortranException("Attribute type not implemented");
         }

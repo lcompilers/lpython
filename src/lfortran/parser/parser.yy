@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    486 // shift/reduce conflicts
-%expect-rr 81  // reduce/reduce conflicts
+%expect    535 // shift/reduce conflicts
+%expect-rr 90  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -957,6 +957,7 @@ var_modifier
     | KW_INTENT "(" KW_IN ")" { $$ = INTENT(In, @$); }
     | KW_INTENT "(" KW_OUT ")" { $$ = INTENT(Out, @$); }
     | KW_INTENT "(" inout ")" { $$ = INTENT(InOut, @$); }
+    | KW_INTRINSIC { $$ = SIMPLE_ATTR(Intrinsic, @$); }
     | KW_VALUE { $$ = SIMPLE_ATTR(Value, @$); }
     | KW_VOLATILE { $$ = SIMPLE_ATTR(Volatile, @$); }
     | KW_EXTENDS "(" id ")" { $$ = EXTENDS($3, @$); }
