@@ -1,1 +1,1 @@
-(TranslationUnit [(Subroutine f [(a) (b)] [] () [] [] [] [(Declaration (AttrType TypeInteger [] ()) [(AttrIntent InOut)] [(a [] [] () None)]) (Declaration (AttrType TypeInteger [] ()) [(AttrIntent InOut)] [(b [] [] () None)])] [(= 0 a (+ b 1)) (= 0 b (+ a 1))] [])])
+(TranslationUnit [(Subroutine f [(a) (b)] [] () [] [] [] [(Declaration (AttrType TypeInteger [] ()) [(AttrIntent InOut)] [(a [] [] () None ())]) (Declaration (AttrType TypeInteger [] ()) [(AttrIntent InOut)] [(b [] [] () None ())])] [(= 0 a (+ b 1)) (= 0 b (+ a 1))] [])])

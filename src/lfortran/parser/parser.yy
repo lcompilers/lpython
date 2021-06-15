@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    535 // shift/reduce conflicts
-%expect-rr 90  // reduce/reduce conflicts
+%expect    552 // shift/reduce conflicts
+%expect-rr 93  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -296,6 +296,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> var_decl_star
 %type <vec_var_sym> var_sym_decl_list
 %type <ast> var_decl
+%type <ast> decl_spec
 %type <var_sym> var_sym_decl
 %type <vec_dim> array_comp_decl_list
 %type <vec_codim> coarray_comp_decl_list
@@ -348,6 +349,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> case_statements
 %type <ast> case_statement
 %type <ast> while_statement
+%type <ast> critical_statement
 %type <ast> do_statement
 %type <ast> forall_statement
 %type <ast> forall_statement_single
@@ -942,6 +944,7 @@ var_modifier
     | KW_DIMENSION { $$ = DIMENSION0(@$); }
     | KW_CODIMENSION "[" coarray_comp_decl_list "]" { $$ = CODIMENSION($3, @$); }
     | KW_ALLOCATABLE { $$ = SIMPLE_ATTR(Allocatable, @$); }
+    | KW_ASYNCHRONOUS { $$ = SIMPLE_ATTR(Asynchronous, @$); }
     | KW_POINTER { $$ = SIMPLE_ATTR(Pointer, @$); }
     | KW_TARGET { $$ = SIMPLE_ATTR(Target, @$); }
     | KW_OPTIONAL { $$ = SIMPLE_ATTR(Optional, @$); }
@@ -1009,12 +1012,13 @@ var_sym_decl
             $$ = VAR_SYM_CODIM($1, $3.p, $3.n, None, @$); }
     | id "(" array_comp_decl_list ")" "[" coarray_comp_decl_list "]" {
             $$ = VAR_SYM_DIM_CODIM($1, $3.p, $3.n, $6.p, $6.n, None, @$); }
+    | decl_spec { $$ = VAR_SYM_SPEC($1, None, @$); }
+    ;
 
-// TODO: is this needed? It seems it should go somewheer else
-/*
-    | KW_ASSIGNMENT "(" "=" ")"              {
-            $$ = FIXME(@$); }
-*/
+decl_spec
+    : KW_OPERATOR "(" operator_type ")" { $$ = DECL_OP($3, @$); }
+    | KW_OPERATOR "(" TK_DEF_OP ")" { $$ = DECL_DEFOP($3, @$); }
+    | KW_ASSIGNMENT "(" "=" ")" { $$ = DECL_ASSIGNMENT(@$); }
     ;
 
 array_comp_decl_list
@@ -1116,6 +1120,7 @@ multi_line_statement
 multi_line_statement0
     : associate_block
     | block_statement
+    | critical_statement
     | do_statement
     | forall_statement
     | if_statement
@@ -1541,6 +1546,12 @@ sync_stat_list
 sync_stat
     : KW_STAT "=" id { $$ = STAT($3, @$); }
     | KW_ERRMSG "=" id { $$ = ERRMSG($3, @$); }
+    ;
+
+critical_statement
+    : KW_CRITICAL sep statements KW_END KW_CRITICAL { $$ = CRITICAL($3, @$); }
+    | KW_CRITICAL "(" sync_stat_list ")" sep statements KW_END KW_CRITICAL {
+            $$ = CRITICAL1($3, $6, @$); }
     ;
 // -----------------------------------------------------------------------------
 // Fortran expression

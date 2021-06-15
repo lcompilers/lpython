@@ -1,6 +1,7 @@
 module interface3
 implicit none
 !checks the syntax
+public :: x, y, z, assignment(=), operator(+), operator(.and.), operator(.in.)
 
 interface
     module procedure sample

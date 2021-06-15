@@ -277,7 +277,7 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
 static inline var_sym_t* VARSYM(Allocator &al, Location &l,
         char* name, dimension_t* dim, size_t n_dim,
         codimension_t* codim, size_t n_codim, expr_t* init,
-        LFortran::AST::symbolType sym)
+        LFortran::AST::symbolType sym, decl_attribute_t* x)
 {
     var_sym_t *r = al.allocate<var_sym_t>(1);
     r->loc = l;
@@ -288,20 +288,29 @@ static inline var_sym_t* VARSYM(Allocator &al, Location &l,
     r->n_codim = n_codim;
     r->m_initializer = init;
     r->m_sym = sym;
+    r->m_spec = x;
     return r;
 }
 
 #define VAR_SYM_NAME(name, sym, loc) VARSYM(p.m_a, loc, \
-        name2char(name), nullptr, 0, nullptr, 0, nullptr, sym)
+        name2char(name), nullptr, 0, nullptr, 0, nullptr, sym, nullptr)
 #define VAR_SYM_DIM_INIT(name, dim, n_dim, init, sym, loc) VARSYM(p.m_a, loc, \
-        name2char(name), dim, n_dim, nullptr, 0, down_cast<expr_t>(init), sym)
+        name2char(name), dim, n_dim, nullptr, 0, \
+        down_cast<expr_t>(init), sym, nullptr)
 #define VAR_SYM_DIM(name, dim, n_dim, sym, loc) VARSYM(p.m_a, loc, \
-        name2char(name), dim, n_dim, nullptr, 0, nullptr, sym)
+        name2char(name), dim, n_dim, nullptr, 0, nullptr, sym, nullptr)
 #define VAR_SYM_CODIM(name, codim, n_codim, sym, loc) VARSYM(p.m_a, loc, \
-        name2char(name), nullptr, 0, codim, n_codim, nullptr, sym)
+        name2char(name), nullptr, 0, codim, n_codim, nullptr, sym, nullptr)
 #define VAR_SYM_DIM_CODIM(name, dim, n_dim, codim, n_codim, sym, loc) \
         VARSYM(p.m_a, loc, name2char(name), \
-        dim, n_dim, codim, n_codim, nullptr, sym)
+        dim, n_dim, codim, n_codim, nullptr, sym, nullptr)
+#define VAR_SYM_SPEC(x, sym, loc) VARSYM(p.m_a, loc, \
+        nullptr, nullptr, 0, nullptr, 0, nullptr, sym, \
+        down_cast<decl_attribute_t>(x))
+#define DECL_ASSIGNMENT(l) make_AttrAssignment_t(p.m_a, l)
+#define DECL_OP(op, l) make_AttrIntrinsicOperator_t(p.m_a, l, op)
+#define DECL_DEFOP(optype, l) make_AttrDefinedOperator_t(p.m_a, l, \
+        def_op_to_str(p.m_a, optype))
 
 static inline expr_t** DIMS2EXPRS(Allocator &al, const Vec<FnArg> &d)
 {
@@ -970,6 +979,7 @@ char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
 #define SYNC_ALL(l) make_SyncAll_t(p.m_a, l, 0, nullptr, 0)
 #define SYNC_ALL1(x, l) make_SyncAll_t(p.m_a, l, 0, \
         VEC_CAST(x, event_attribute), x.size())
+
 #define STAT(var, l) make_AttrStat_t(p.m_a, l, name2char(var))
 #define ERRMSG(var, l) make_AttrErrmsg_t(p.m_a, l, name2char(var))
 #define EVENT_WAIT_KW_ARG(id, e, l) make_AttrEventWaitKwArg_t(p.m_a, l, \
@@ -1529,7 +1539,7 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         p.m_a, l, def_op_to_str(p.m_a, op))
 #define ABSTRACT_INTERFACE_HEADER(l) make_AbstractInterfaceHeader_t(p.m_a, l)
 
-#define OPERATOR(op, l) interfaceopType::op
+#define OPERATOR(op, l) intrinsicopType::op
 
 #define INTERFACE(header, contains, l) make_Interface_t(p.m_a, l, \
         down_cast<interface_header_t>(header), INTERFACE_ITEMS(contains), contains.size())
@@ -1565,5 +1575,10 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 #define GENERIC_NAME(name, namelist, l) make_GenericName_t(p.m_a, l, \
         name2char(name), REDUCE_ARGS(p.m_a, namelist), namelist.size())
 #define FINAL_NAME(name, l) make_FinalName_t(p.m_a, l, name2char(name))
+
+#define CRITICAL(stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
+        nullptr, 0, STMTS(stmts), stmts.size())
+#define CRITICAL1(x, stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
+        VEC_CAST(x, event_attribute), x.size(), STMTS(stmts), stmts.size())
 
 #endif

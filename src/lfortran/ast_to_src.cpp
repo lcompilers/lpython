@@ -65,25 +65,25 @@ namespace {
         throw LFortranException("Unknown type");
     }
 
-    std::string interfaceop2str(const AST::interfaceopType type)
+    std::string intrinsicop2str(const AST::intrinsicopType type)
     {
         switch (type) {
-            case (AST::interfaceopType::AND) : return ".and.";
-            case (AST::interfaceopType::OR) : return ".or.";
-            case (AST::interfaceopType::EQV) : return ".eqv.";
-            case (AST::interfaceopType::NEQV) : return ".neqv.";
-            case (AST::interfaceopType::PLUS) : return "+";
-            case (AST::interfaceopType::MINUS) : return "-";
-            case (AST::interfaceopType::STAR) : return "*";
-            case (AST::interfaceopType::DIV) : return "/";
-            case (AST::interfaceopType::POW) : return "**";
-            case (AST::interfaceopType::NOT) : return ".not.";
-            case (AST::interfaceopType::EQ) : return "==";
-            case (AST::interfaceopType::GT) : return ">";
-            case (AST::interfaceopType::GTE) : return ">=";
-            case (AST::interfaceopType::LT) : return "<";
-            case (AST::interfaceopType::LTE) : return "<=";
-            case (AST::interfaceopType::NOTEQ) : return "/=";
+            case (AST::intrinsicopType::AND) : return ".and.";
+            case (AST::intrinsicopType::OR) : return ".or.";
+            case (AST::intrinsicopType::EQV) : return ".eqv.";
+            case (AST::intrinsicopType::NEQV) : return ".neqv.";
+            case (AST::intrinsicopType::PLUS) : return "+";
+            case (AST::intrinsicopType::MINUS) : return "-";
+            case (AST::intrinsicopType::STAR) : return "*";
+            case (AST::intrinsicopType::DIV) : return "/";
+            case (AST::intrinsicopType::POW) : return "**";
+            case (AST::intrinsicopType::NOT) : return ".not.";
+            case (AST::intrinsicopType::EQ) : return "==";
+            case (AST::intrinsicopType::GT) : return ">";
+            case (AST::intrinsicopType::GTE) : return ">=";
+            case (AST::intrinsicopType::LT) : return "<";
+            case (AST::intrinsicopType::LTE) : return "<=";
+            case (AST::intrinsicopType::NOTEQ) : return "/=";
         }
         throw LFortranException("Unknown type");
     }
@@ -449,7 +449,7 @@ public:
         r += syn(gr::String);
         r.append("generic :: operator");
         r += syn();
-        r += "(" + interfaceop2str(x.m_op) + ")";
+        r += "(" + intrinsicop2str(x.m_op) + ")";
         r += " => ";
         for (size_t i=0; i<x.n_names; i++) {
             r.append(x.m_names[i]);
@@ -573,7 +573,7 @@ public:
 
     void visit_InterfaceHeaderOperator
             (const InterfaceHeaderOperator_t &x) {
-        s = " operator (" + interfaceop2str(x.m_op) + ")";
+        s = " operator (" + intrinsicop2str(x.m_op) + ")";
     }
 
     void visit_InterfaceHeaderDefinedOperator
@@ -918,7 +918,9 @@ public:
 
     void visit_var_sym(const var_sym_t &x) {
         std::string r = "";
-        r.append(x.m_name);
+        if(x.m_name){
+            r.append(x.m_name);
+        }
         if (x.n_dim > 0) {
             r.append("(");
             for (size_t i=0; i<x.n_dim; i++) {
@@ -941,6 +943,10 @@ public:
             visit_expr(*x.m_initializer);
             r += symbol2str(x.m_sym) + s;
         }
+        if (x.m_spec) {
+            this->visit_decl_attribute(*x.m_spec);
+            r.append(s);
+        }
         s = r;
     }
 
@@ -955,6 +961,7 @@ public:
         switch (x.m_attr) {
             ATTRTYPE(Abstract)
             ATTRTYPE(Allocatable)
+            ATTRTYPE(Asynchronous)
             ATTRTYPE(Contiguous)
             ATTRTYPE(Deferred)
             ATTRTYPE(Elemental)
@@ -1173,6 +1180,17 @@ public:
         r.append(x.m_name);
         r += ")";
         s = r;
+    }
+    void visit_AttrAssignment(const AttrAssignment_t &/*x*/) {
+        s = "assignment (=)";
+    }
+
+    void visit_AttrIntrinsicOperator(const AttrIntrinsicOperator_t &x) {
+        s = "operator (" + intrinsicop2str(x.m_op) + ")";
+    }
+
+    void visit_AttrDefinedOperator(const AttrDefinedOperator_t &x) {
+        s = "operator (." + std::string(x.m_op_name) + ".)";
     }
 
     void visit_AttrStat(const AttrStat_t &x) {
@@ -1612,10 +1630,7 @@ public:
         r += syn(gr::UnitHeader);
         r.append("end associate");
         r += syn();
-        if (x.m_stmt_name) {
-            r += " ";
-            r += x.m_stmt_name;
-        }
+        r += end_stmt_name(x);
         r += "\n";
         s = r;
     }
@@ -1642,10 +1657,38 @@ public:
         r += syn(gr::UnitHeader);
         r.append("end block");
         r += syn();
-        if (x.m_stmt_name) {
-            r += " ";
-            r += x.m_stmt_name;
+        r += end_stmt_name(x);
+        r += "\n";
+        s = r;
+    }
+
+    void visit_Critical(const Critical_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += print_stmt_name(x);
+        r += syn(gr::UnitHeader);
+        r += "critical";
+        r += syn();
+        if (x.m_sync_stat) {
+            r += " (";
+            for (size_t i=0; i<x.n_sync_stat; i++) {
+                this->visit_event_attribute(*x.m_sync_stat[i]);
+                r.append(s);
+            }
+            r += ")";
         }
+        r.append("\n");
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r.append(s);
+        }
+        dec_indent();
+        r += indent;
+        r += syn(gr::UnitHeader);
+        r.append("end critical");
+        r += syn();
+        r += end_stmt_name(x);
         r += "\n";
         s = r;
     }
@@ -1872,10 +1915,7 @@ public:
         r += syn(gr::Keyword);
         r.append("cycle");
         r += syn();
-        if (x.m_stmt_name) {
-            r += " ";
-            r += x.m_stmt_name;
-        }
+        r += end_stmt_name(x);
         r += "\n";
         s = r;
     }
@@ -1896,10 +1936,7 @@ public:
         r += syn(gr::Keyword);
         r.append("exit");
         r += syn();
-        if (x.m_stmt_name) {
-            r += " ";
-            r += x.m_stmt_name;
-        }
+        r += end_stmt_name(x);
         r += "\n";
         s = r;
     }
@@ -2396,9 +2433,21 @@ public:
 
     void visit_Str(const Str_t &x) {
         s = syn(gr::String);
-        s += "\"";
-        s += replace(x.m_s, "\"", "\"\"");
-        s += "\"";
+        std::string r = x.m_s;
+        int dq = 0, sq = 0;
+        for (auto x: r) {
+            if (x == '"') dq++;
+            if (x == '\'') sq++;
+        }
+        if (dq > sq) {
+            s += "'";
+            s += replace(r, "'", "''");
+            s += "'";
+        } else {
+            s += "\"";
+            s += replace(r, "\"", "\"\"");
+            s += "\"";
+        }
         s += syn();
     }
 
@@ -2675,7 +2724,7 @@ public:
     }
 
     void visit_IntrinsicOperator(const IntrinsicOperator_t &x) {
-        s = "operator (" + interfaceop2str(x.m_op) + ")";
+        s = "operator (" + intrinsicop2str(x.m_op) + ")";
     }
 
     void visit_DefinedOperator(const DefinedOperator_t &x) {
