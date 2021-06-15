@@ -197,6 +197,7 @@ procedure_decl
 
 decl_attribute
     = AttrBind(identifier name)
+    | AttrData(expr* object, expr* value)
     | AttrDimension(dimension* dim)
     | AttrCodimension(codimension* codim)
     | AttrExtends(identifier name)
