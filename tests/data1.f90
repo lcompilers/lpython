@@ -8,7 +8,7 @@ program data1
     real, dimension (100, 100) :: skew
     type (person) yourname
     data myname / 'xyz' /, miles / 10 * 0 /
-    data ((skew (k, j), j = 1, k), k = 1, 100) / 5050 * 0.0 /
+    data ((skew (k, j), j = 1, k), integer(4) :: k = 1, 100) / 5050 * 0.0 /
     data ((skew (k, j), j = k + 1, 100), k = 1, 99) / 4950 * 1.0 /
     data yourname % age, yourname % fullname / 35, 'abc' /
 

@@ -973,6 +973,36 @@ public:
         s = r;
     }
 
+    void visit_DataImpliedDo(const DataImpliedDo_t &x) {
+        std::string r;
+        r += "(";
+        for (size_t i=0; i<x.n_object_list; i++) {
+            this->visit_expr(*x.m_object_list[i]);
+            r.append(s);
+            if (i < x.n_object_list-1) r.append(", ");
+        }
+        r += ", ";
+        if (x.m_type) {
+            this->visit_decl_attribute(*x.m_type);
+            r.append(s);
+            r += " :: ";
+        }
+        r.append(x.m_var);
+        r += " = ";
+        this->visit_expr(*x.m_start);
+        r.append(s);
+        r += ", ";
+        this->visit_expr(*x.m_end);
+        r.append(s);
+        if (x.m_increment) {
+            r += ", ";
+            this->visit_expr(*x.m_increment);
+            r.append(s);
+        }
+        r += ")";
+        s = r;
+    }
+
 #define ATTRTYPE(x) \
             case (simple_attributeType::Attr##x) : \
                 r.append(convert_to_lowercase(#x)); \
