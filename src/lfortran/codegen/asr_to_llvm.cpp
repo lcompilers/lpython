@@ -207,9 +207,9 @@ public:
         return rank2desc[rank];
     }
 
-    llvm::Type* get_el_type(ASR::ttypeType type_) {
+    llvm::Type* get_el_type(ASR::ttype_t* m_type_, int a_kind) {
         llvm::Type* el_type = nullptr;
-        switch(type_) {
+        switch(m_type_->type) {
             case ASR::ttypeType::Integer: {
                 el_type = getIntType(a_kind);
                 break;
@@ -270,7 +270,7 @@ public:
             return tkr2array[array_key];
         }
         llvm::ArrayType* dim_des_array = get_dim_des_array(rank);
-        llvm::Type* el_type = get_el_type(type_);
+        llvm::Type* el_type = get_el_type(m_type_, a_kind);
         std::vector<llvm::Type*> array_type_vec = {
             llvm::ArrayType::get(el_type, size), 
             llvm::Type::getInt32Ty(context),
@@ -294,7 +294,7 @@ public:
             return tkr2mallocarray[array_key];
         }
         llvm::ArrayType* dim_des_array = get_dim_des_array(rank);
-        llvm::Type* el_type = get_el_type(type_);
+        llvm::Type* el_type = get_el_type(m_type_, a_kind);
         std::vector<llvm::Type*> array_type_vec = {
             el_type->getPointerTo(), 
             llvm::Type::getInt32Ty(context),
@@ -1048,6 +1048,7 @@ public:
                 int n_dims = 0, a_kind = 4;
                 ASR::dimension_t* m_dims = nullptr;
                 bool is_array_type = false;
+                bool is_malloc_array_type = false;
                 if (v->m_intent == intent_local || 
                     v->m_intent == intent_return_var || 
                     !v->m_intent) { 
@@ -1061,6 +1062,7 @@ public:
                             if( n_dims > 0 ) {
                                 is_array_type = true;
                                 if( v->m_storage == ASR::storage_typeType::Allocatable ) {
+                                    is_malloc_array_type = true;
                                     type = get_malloc_array_type(m_type_, a_kind, n_dims, m_dims);
                                 } else {
                                     type = get_array_type(m_type_, a_kind, n_dims, m_dims);
@@ -1201,7 +1203,7 @@ public:
                     }
                     llvm::AllocaInst *ptr = builder->CreateAlloca(type, nullptr, v->m_name);
                     llvm_symtab[h] = ptr;
-                    if( is_array_type ) {
+                    if( is_array_type && !is_malloc_array_type ) {
                         fill_array_details(ptr, m_dims, n_dims);
                     }
                     if( v->m_value != nullptr ) {
