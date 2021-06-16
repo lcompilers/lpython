@@ -286,7 +286,7 @@ public:
         if( current_scope->scope.find(std::string(idx_var_name)) == current_scope->scope.end() ) {
             ASR::asr_t* idx_sym = ASR::make_Variable_t(al, loc, current_scope, idx_var_name, 
                                                     ASR::intentType::Local, nullptr, ASR::storage_typeType::Default, 
-                                                    var_type, ASR::abiType::Source, ASR::accessType::Public);
+                                                    var_type, ASR::abiType::Source, ASR::accessType::Public, ASR::presenceType::Required);
             current_scope->scope[std::string(idx_var_name)] = ASR::down_cast<ASR::symbol_t>(idx_sym);
             idx_var = EXPR(ASR::make_Var_t(al, loc, ASR::down_cast<ASR::symbol_t>(idx_sym)));
         } else {

@@ -90,12 +90,14 @@ symbol
         access access)
     | DerivedType(symbol_table symtab, identifier name, abi abi, access access)
     | Variable(symbol_table parent_symtab, identifier name, intent intent,
-        expr? value, storage_type storage, ttype type, abi abi, access access)
+        expr? value, storage_type storage, ttype type, abi abi, access access,
+        presence presence)
 
 storage_type = Default | Save | Parameter
 access = Public | Private
 intent = Local | In | Out | InOut | ReturnVar | Unspecified
 deftype = Implementation | Interface
+presence = Required | Optional
 
 -- # Documentation for the ABI type
 
