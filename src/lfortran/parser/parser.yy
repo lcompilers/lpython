@@ -274,6 +274,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> script_unit
 %type <ast> module
 %type <ast> submodule
+%type <ast> block_data
 %type <ast> decl
 %type <vec_ast> decl_star
 %type <ast> interface_decl
@@ -452,6 +453,7 @@ units
 script_unit
     : module
     | submodule
+    | block_data
     | program
     | subroutine
     | procedure
@@ -479,6 +481,15 @@ submodule
     : KW_SUBMODULE "(" id ")" id sep use_statement_star implicit_statement_star
         decl_star contains_block_opt KW_END end_submodule_opt sep {
             $$ = SUBMODULE($3, $5, $7, $8, $9, $10, @$); }
+    ;
+
+block_data
+    : KW_BLOCK KW_DATA sep use_statement_star implicit_statement_star
+        decl_star KW_END end_blockdata_opt sep {
+            $$ = BLOCKDATA($4, $5, $6, @$); }
+    | KW_BLOCK KW_DATA id sep use_statement_star implicit_statement_star
+        decl_star KW_END end_blockdata_opt sep {
+            $$ = BLOCKDATA1($3, $5, $6, $7, @$); }
     ;
 
 interface_decl
@@ -634,6 +645,11 @@ end_module_opt
 
 end_submodule_opt
     : KW_SUBMODULE id_opt
+    | %empty
+    ;
+
+end_blockdata_opt
+    : KW_BLOCK KW_DATA id_opt
     | %empty
     ;
 
