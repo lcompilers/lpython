@@ -1576,6 +1576,16 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         /*n_implicit*/ implicit.size(), \
         /*unit_decl2_t** a_decl*/ DECLS(decl), /*size_t n_decl*/ decl.size(), \
         /*program_unit_t** a_contains*/ CONTAINS(contains), /*size_t n_contains*/ contains.size())
+
+#define BLOCKDATA(use, implicit, decl, l) make_BlockData_t(p.m_a, l, \
+        nullptr, USES(use), use.size(), \
+        VEC_CAST(implicit, implicit_statement), implicit.size(), \
+        DECLS(decl), decl.size())
+#define BLOCKDATA1(name, use, implicit, decl, l) make_BlockData_t( \
+        p.m_a, l, name2char(name), USES(use), use.size(), \
+        VEC_CAST(implicit, implicit_statement), implicit.size(), \
+        DECLS(decl), decl.size())
+
 #define PRIVATE0(l) make_Private_t(p.m_a, l, \
         nullptr, 0)
 #define PRIVATE(syms, l) make_Private_t(p.m_a, l, \
