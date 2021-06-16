@@ -892,6 +892,12 @@ public:
                 r += s;
                 if (i < x.n_syms-1) r.append(", ");
             }
+        } else if (x.m_vartype == nullptr && x.n_attributes == 1 &&
+                is_a<SimpleAttribute_t>(*x.m_attributes[0]) &&
+                down_cast<SimpleAttribute_t>(x.m_attributes[0])->m_attr
+                == simple_attributeType::AttrCommon) {
+            visit_Common(x);
+            r.append(s);
         } else {
             if (x.m_vartype) {
                 visit_decl_attribute(*x.m_vartype);
@@ -956,6 +962,26 @@ public:
         s = r;
     }
 
+    void visit_Common(const Declaration_t &x) {
+        std::string r = indent;
+        r += syn(gr::Type);
+        r += "common ";
+        r += syn();
+        for (size_t i=0; i<x.n_syms; i++) {
+            if(x.m_syms[i].m_name){
+                r += "/";
+                r.append(x.m_syms[i].m_name);
+                r += "/ ";
+            }
+            if (x.m_syms[i].m_initializer) {
+                visit_expr(*x.m_syms[i].m_initializer);
+                r += s;
+            }
+            if (i < x.n_syms-1) r.append(", ");
+        }
+        s = r;
+    }
+    
     void visit_AttrData(const AttrData_t &x) {
         std::string r;
         for (size_t i=0; i<x.n_object; i++) {
