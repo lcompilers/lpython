@@ -129,7 +129,8 @@ stmt
 -- Multi-line statements (each has a `label` and `stmt_name`):
     | AssociateBlock(int label, identifier? stmt_name, var_sym* syms,
             stmt* body)
-    | Block(int label, identifier? stmt_name, unit_decl2* decl, stmt* body)
+    | Block(int label, identifier? stmt_name, unit_decl1* use,
+            import_statement* import,unit_decl2* decl, stmt* body)
     | Critical(int label, identifier? stmt_name, event_attribute* sync_stat,
             stmt* body)
     | DoConcurrentLoop(int label, identifier? stmt_name,

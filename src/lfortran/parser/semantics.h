@@ -1146,9 +1146,15 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
 
 #define LABEL(stmt, label) ((Print_t*)stmt)->m_label = label
 
-#define BLOCK(decl, body, l) make_Block_t(p.m_a, l, 0, nullptr, \
-        DECLS(decl), decl.size(), \
-        STMTS(body), body.size())
+#define BLOCK(use, import, decl, body, l) make_Block_t(p.m_a, l, 0, nullptr, \
+        /*use*/ USES(use), \
+        /*n_use*/ use.size(), \
+        /*m_import*/ VEC_CAST(import, import_statement), \
+        /*n_import*/ import.size(), \
+        /*decl*/ DECLS(decl), \
+        /*n_decl*/ decl.size(), \
+        /*body*/ STMTS(body), \
+        /*n_body*/ body.size())
 
 #define ASSOCIATE_BLOCK(syms, body, l) make_AssociateBlock_t(p.m_a, l, 0, \
         nullptr, \

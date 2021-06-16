@@ -1682,6 +1682,11 @@ public:
         r += syn();
         r.append("\n");
         inc_indent();
+        for (size_t i=0; i<x.n_use; i++) {
+            this->visit_unit_decl1(*x.m_use[i]);
+            r.append(s);
+        }
+        r += format_import(x);
         for (size_t i=0; i<x.n_decl; i++) {
             this->visit_unit_decl2(*x.m_decl[i]);
             r.append(s);
