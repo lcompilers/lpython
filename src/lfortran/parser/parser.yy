@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    552 // shift/reduce conflicts
+%expect    548 // shift/reduce conflicts
 %expect-rr 93  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -407,6 +407,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> derived_type_contains_opt
 %type <vec_ast> proc_modifiers
 %type <vec_ast> proc_modifier_list
+%type <ast> equivalence_set
+%type <vec_ast> equivalence_set_list
 
 // Precedence
 
@@ -900,6 +902,16 @@ var_decl
             $$ = VAR_DECL_PARAMETER($3, @$); }
     | KW_NAMELIST "/" id "/" id_list sep {
             $$ = VAR_DECL_NAMELIST($3, $5, @$); }
+    | KW_EQUIVALENCE equivalence_set_list { $$ = EQUIVALENCE($2, @$); }
+    ;
+
+equivalence_set_list
+    : equivalence_set_list "," equivalence_set { $$ = $1; LIST_ADD($$, $3); }
+    | equivalence_set { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+equivalence_set
+    : "(" expr_list ")" { $$ = $2; }
     ;
 
 named_constant_def_list
@@ -965,7 +977,6 @@ var_modifier
     | KW_VOLATILE { $$ = SIMPLE_ATTR(Volatile, @$); }
     | KW_EXTENDS "(" id ")" { $$ = EXTENDS($3, @$); }
     | KW_BIND "(" id ")" { $$ = BIND($3, @$); }
-    | KW_EQUIVALENCE "(" expr_list ")" { $$ = EQUIVALENCE($3, @$); }
     ;
 
 
