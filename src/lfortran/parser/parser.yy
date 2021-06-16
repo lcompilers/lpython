@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    518 // shift/reduce conflicts
+%expect    516 // shift/reduce conflicts
 %expect-rr 84  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -384,6 +384,10 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> data_set_list
 %type <ast> data_set
 %type <vec_ast> data_object_list
+%type <vec_ast> data_stmt_value_list
+%type <ast> data_stmt_value
+%type <ast> data_stmt_repeat
+%type <ast> data_stmt_constant
 %type <ast> data_object
 %type <ast> integer_type
 %type <vec_kind_arg> kind_arg_list
@@ -925,7 +929,7 @@ data_set_list
     ;
 
 data_set
-    : data_object_list "/" expr_list "/" { $$ = DATA($1, $3, @$); }
+    : data_object_list "/" data_stmt_value_list "/" { $$ = DATA($1, $3, @$); }
     ;
 
 data_object_list
@@ -941,6 +945,29 @@ data_object
             $$ = DATA_IMPLIED_DO1($2, $4, $5, $7, $9, @$); }
     | "(" data_object "," integer_type id "=" expr "," expr "," expr ")" {
             $$ = DATA_IMPLIED_DO2($2, $4, $5, $7, $9, $11, @$); }
+    ;
+
+data_stmt_value_list
+    : data_stmt_value_list "," data_stmt_value { $$ = $1; LIST_ADD($$, $3); }
+    | data_stmt_value { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+data_stmt_value
+    : data_stmt_repeat "*" data_stmt_constant
+    | data_stmt_constant
+    ;
+
+data_stmt_repeat
+    : TK_INTEGER { $$ = INTEGER($1, @$); }
+    ;
+
+data_stmt_constant
+    : TK_INTEGER { $$ = INTEGER($1, @$); }
+    | TK_REAL { $$ = REAL($1, @$); }
+    | TK_STRING { $$ = STRING($1, @$); }
+    | TK_BOZ_CONSTANT { $$ = BOZ($1, @$); }
+    | ".true."  { $$ = TRUE(@$); }
+    | ".false." { $$ = FALSE(@$); }
     ;
 
 integer_type
