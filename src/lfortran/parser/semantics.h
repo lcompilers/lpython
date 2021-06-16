@@ -251,6 +251,38 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
         VAR_DECL_PARAMETERb(p.m_a, l), 1, \
         varsym.p, varsym.n)
 
+#define VAR_DECL_DATA(x, l) make_Declaration_t(p.m_a, l, \
+        nullptr, VEC_CAST(x, decl_attribute), x.size(), \
+        nullptr, 0)
+#define DATA(objects, values, l) make_AttrData_t(p.m_a, l, \
+        EXPRS(objects), objects.size(), \
+        EXPRS(values), values.size())
+
+ast_t* data_implied_do(Allocator &al, Location &loc,
+        ast_t* obj_list,
+        ast_t* type,
+        char* id,
+        expr_t* start, expr_t* end, expr_t* incr) {
+    Vec<ast_t*> v;
+    decl_attribute_t* t;
+    if(type == nullptr){
+        t = nullptr;
+    } else {
+        t = down_cast<decl_attribute_t>(type);
+    }
+    v.reserve(al, 1);
+    v.push_back(al, obj_list);
+    return make_DataImpliedDo_t(al, loc, EXPRS(v), v.size(),
+                                t, id, start, end, incr);
+}
+
+#define DATA_IMPLIED_DO1(obj_list, type, id, start, end, l) \
+        data_implied_do(p.m_a, l, obj_list, type, \
+        name2char(id), EXPR(start), EXPR(end), nullptr)
+#define DATA_IMPLIED_DO2(obj_list, type, id, start, end, incr, l) \
+        data_implied_do(p.m_a, l, obj_list, type, \
+        name2char(id), EXPR(start), EXPR(end), EXPR(incr))
+
 #define ENUM(attr, decl, l) make_Enum_t(p.m_a, l, \
         VEC_CAST(attr, decl_attribute), attr.n, \
         DECLS(decl), decl.size())

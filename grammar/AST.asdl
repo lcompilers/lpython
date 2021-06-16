@@ -169,6 +169,8 @@ expr
     | BOZ(string s)
     | Name(identifier id, struct_member* member)
     | Logical(bool value)
+    | DataImpliedDo(expr* object_list, decl_attribute? type,
+        identifier var, expr start, expr end, expr? increment)
 
 boolop = And | Or | Eqv | NEqv
 
@@ -197,6 +199,7 @@ procedure_decl
 
 decl_attribute
     = AttrBind(identifier name)
+    | AttrData(expr* object, expr* value)
     | AttrDimension(dimension* dim)
     | AttrCodimension(codimension* codim)
     | AttrExtends(identifier name)
