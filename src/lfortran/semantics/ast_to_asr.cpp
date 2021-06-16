@@ -1982,7 +1982,7 @@ public:
             this->visit_expr(*(x.m_keywords[0].m_value));
             stat = EXPR(tmp);
         }
-        tmp = ASR::make_Allocate_t(al, x.base.base.loc, x.m_label, 
+        tmp = ASR::make_Allocate_t(al, x.base.base.loc, 
                                     alloc_args_vec.p, alloc_args_vec.size(), 
                                     stat);
     }
@@ -1994,7 +1994,7 @@ public:
             this->visit_expr(*(x.m_args[i].m_end));
             arg_vec.push_back(al, EXPR(tmp));
         }
-        tmp = ASR::make_Deallocate_t(al, x.base.base.loc, x.m_label, 
+        tmp = ASR::make_Deallocate_t(al, x.base.base.loc,
                                         arg_vec.p, arg_vec.size());
     }
 
