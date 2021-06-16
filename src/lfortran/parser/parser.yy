@@ -965,7 +965,7 @@ var_modifier
     | KW_VOLATILE { $$ = SIMPLE_ATTR(Volatile, @$); }
     | KW_EXTENDS "(" id ")" { $$ = EXTENDS($3, @$); }
     | KW_BIND "(" id ")" { $$ = BIND($3, @$); }
-    | KW_EQUIVALENCE expr_list { $$ = EQUIVALENCE($2, @$); }
+    | KW_EQUIVALENCE "(" expr_list ")" { $$ = EQUIVALENCE($3, @$); }
     ;
 
 
