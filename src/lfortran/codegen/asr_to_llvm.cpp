@@ -138,6 +138,7 @@ public:
     llvm::StructType* dim_des;
     std::map<int, llvm::ArrayType*> rank2desc;
     std::map<std::pair<std::pair<int, int>, std::pair<int, int>>, llvm::StructType*> tkr2array;
+    std::map<std::pair<std::pair<int, int>, int>, llvm::StructType*> tkr2mallocarray;
     std::unordered_map<std::uint32_t, std::unordered_map<std::string, llvm::Type*>> arr_arg_type_cache;
 
     std::map<std::string, std::pair<llvm::Type*, llvm::Type*>> fname2arg_type;
@@ -206,28 +207,7 @@ public:
         return rank2desc[rank];
     }
 
-    inline llvm::Type* get_array_type
-    (ASR::ttype_t* m_type_, int a_kind, int rank, ASR::dimension_t* m_dims,
-     bool get_pointer=false) {
-        ASR::ttypeType type_ = m_type_->type;
-        int size = 0;
-        if( verify_dimensions_t(m_dims, rank) ) {
-            size = 1;
-            for( int r = 0; r < rank; r++ ) {
-                ASR::dimension_t m_dim = m_dims[r];
-                int start = ((ASR::ConstantInteger_t*)(m_dim.m_start))->m_n;
-                int end = ((ASR::ConstantInteger_t*)(m_dim.m_end))->m_n;
-                size *= (end - start + 1);
-            }
-        }
-        std::pair<std::pair<int, int>, std::pair<int, int>> array_key = std::make_pair(std::make_pair((int)type_, a_kind), std::make_pair(rank, size));
-        if( tkr2array.find(array_key) != tkr2array.end() ) {
-            if( get_pointer ) {
-                return tkr2array[array_key]->getPointerTo();
-            }
-            return tkr2array[array_key];
-        }
-        llvm::ArrayType* dim_des_array = get_dim_des_array(rank);
+    llvm::Type* get_el_type(ASR::ttypeType type_) {
         llvm::Type* el_type = nullptr;
         switch(type_) {
             case ASR::ttypeType::Integer: {
@@ -265,6 +245,32 @@ public:
             default:
                 break;
         }
+        return el_type;
+    }
+
+    inline llvm::Type* get_array_type
+    (ASR::ttype_t* m_type_, int a_kind, int rank, ASR::dimension_t* m_dims,
+     bool get_pointer=false) {
+        ASR::ttypeType type_ = m_type_->type;
+        int size = 0;
+        if( verify_dimensions_t(m_dims, rank) ) {
+            size = 1;
+            for( int r = 0; r < rank; r++ ) {
+                ASR::dimension_t m_dim = m_dims[r];
+                int start = ((ASR::ConstantInteger_t*)(m_dim.m_start))->m_n;
+                int end = ((ASR::ConstantInteger_t*)(m_dim.m_end))->m_n;
+                size *= (end - start + 1);
+            }
+        }
+        std::pair<std::pair<int, int>, std::pair<int, int>> array_key = std::make_pair(std::make_pair((int)type_, a_kind), std::make_pair(rank, size));
+        if( tkr2array.find(array_key) != tkr2array.end() ) {
+            if( get_pointer ) {
+                return tkr2array[array_key]->getPointerTo();
+            }
+            return tkr2array[array_key];
+        }
+        llvm::ArrayType* dim_des_array = get_dim_des_array(rank);
+        llvm::Type* el_type = get_el_type(type_);
         std::vector<llvm::Type*> array_type_vec = {
             llvm::ArrayType::get(el_type, size), 
             llvm::Type::getInt32Ty(context),
@@ -274,6 +280,30 @@ public:
             return tkr2array[array_key]->getPointerTo();
         }
         return (llvm::Type*) tkr2array[array_key];
+    }
+
+    inline llvm::Type* get_malloc_array_type
+    (ASR::ttype_t* m_type_, int a_kind, int rank, ASR::dimension_t* m_dims,
+     bool get_pointer=false) {
+        ASR::ttypeType type_ = m_type_->type;
+        std::pair<std::pair<int, int>, int> array_key = std::make_pair(std::make_pair((int)type_, a_kind), rank);
+        if( tkr2mallocarray.find(array_key) != tkr2mallocarray.end() ) {
+            if( get_pointer ) {
+                return tkr2mallocarray[array_key]->getPointerTo();
+            }
+            return tkr2mallocarray[array_key];
+        }
+        llvm::ArrayType* dim_des_array = get_dim_des_array(rank);
+        llvm::Type* el_type = get_el_type(type_);
+        std::vector<llvm::Type*> array_type_vec = {
+            el_type->getPointerTo(), 
+            llvm::Type::getInt32Ty(context),
+            dim_des_array};
+        tkr2mallocarray[array_key] = llvm::StructType::create(context, array_type_vec, "array");
+        if( get_pointer ) {
+            return tkr2mallocarray[array_key]->getPointerTo();
+        }
+        return (llvm::Type*) tkr2mallocarray[array_key];
     }
 
     inline llvm::Value* create_gep(llvm::Value* ds, int idx) {
@@ -339,6 +369,31 @@ public:
                                                            llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
                 builder->CreateStore(dim_size, dim_size_ptr);
             }
+        }
+    }
+
+    inline void fill_malloc_array_details(llvm::Value* arr, ASR::dimension_t* m_dims, 
+                                            int n_dims) {
+        llvm::Value* offset_val = create_gep(arr, 1);
+        builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), offset_val);
+        llvm::Value* dim_des_val = create_gep(arr, 2);
+        for( int r = 0; r < n_dims; r++ ) {
+            ASR::dimension_t m_dim = m_dims[r];
+            llvm::Value* dim_val = create_gep(dim_des_val, r);
+            llvm::Value* s_val = create_gep(dim_val, 0);
+            llvm::Value* l_val = create_gep(dim_val, 1);
+            llvm::Value* u_val = create_gep(dim_val, 2);
+            llvm::Value* dim_size_ptr = create_gep(dim_val, 3);
+            builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 1)), s_val);
+            visit_expr(*(m_dim.m_start));
+            builder->CreateStore(tmp, l_val);
+            visit_expr(*(m_dim.m_end));
+            builder->CreateStore(tmp, u_val);
+            u_val = builder->CreateLoad(u_val);
+            l_val = builder->CreateLoad(l_val);
+            llvm::Value* dim_size = builder->CreateAdd(builder->CreateSub(u_val, l_val), 
+                                                        llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+            builder->CreateStore(dim_size, dim_size_ptr);
         }
     }
 
@@ -823,6 +878,16 @@ public:
         }
     }
 
+    void visit_Allocate(const ASR::Allocate_t& x) {
+        for( size_t i = 0; i < x.n_args; i++ ) {
+            ASR::alloc_arg_t curr_arg = x.m_args[i];
+            std::uint32_t h = get_hash((ASR::asr_t*)curr_arg.m_a);
+            LFORTRAN_ASSERT(llvm_symtab.find(h) != llvm_symtab.end());
+            llvm::Value* x_arr = llvm_symtab[h];
+            fill_malloc_array_details(x_arr, curr_arg.m_dims, curr_arg.n_dims);
+        }
+    }
+
     void visit_ArrayRef(const ASR::ArrayRef_t& x) {
         get_single_element(x);
     }
@@ -995,7 +1060,11 @@ public:
                             a_kind = v_type->m_kind;
                             if( n_dims > 0 ) {
                                 is_array_type = true;
-                                type = get_array_type(m_type_, a_kind, n_dims, m_dims);
+                                if( v->m_storage == ASR::storage_typeType::Allocatable ) {
+                                    type = get_malloc_array_type(m_type_, a_kind, n_dims, m_dims);
+                                } else {
+                                    type = get_array_type(m_type_, a_kind, n_dims, m_dims);
+                                }
                             } else {
                                 type = getIntType(a_kind);
                             }

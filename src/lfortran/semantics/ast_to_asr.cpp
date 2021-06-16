@@ -1154,6 +1154,9 @@ public:
                             } else if (sa->m_attr == AST::simple_attributeType
                                     ::AttrParameter) {
                                 storage_type = ASR::storage_typeType::Parameter;
+                            } else if( sa->m_attr == AST::simple_attributeType
+                                    ::AttrAllocatable ) {
+                                storage_type = ASR::storage_typeType::Allocatable;
                             } else if (sa->m_attr == AST::simple_attributeType
                                     ::AttrPointer) {
                                 is_pointer = true;

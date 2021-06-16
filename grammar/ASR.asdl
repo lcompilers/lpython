@@ -92,7 +92,7 @@ symbol
     | Variable(symbol_table parent_symtab, identifier name, intent intent,
         expr? value, storage_type storage, ttype type, abi abi, access access)
 
-storage_type = Default | Save | Parameter
+storage_type = Default | Save | Parameter | Allocatable
 access = Public | Private
 intent = Local | In | Out | InOut | ReturnVar | Unspecified
 deftype = Implementation | Interface
