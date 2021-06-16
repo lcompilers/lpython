@@ -227,6 +227,16 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
     return v.p;
 }
 
+decl_attribute_t** ATTRCOMMON(Allocator &al,
+        Location &loc) {
+    Vec<decl_attribute_t*> v;
+    v.reserve(al, 1);
+    ast_t* a = make_SimpleAttribute_t(al, loc,
+            simple_attributeType::AttrCommon);
+    v.push_back(al, down_cast<decl_attribute_t>(a));
+    return v.p;
+}
+
 #define VAR_DECL2(xattr0, l) \
         make_Declaration_t(p.m_a, l, \
         nullptr, \
@@ -249,6 +259,12 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
         make_Declaration_t(p.m_a, l, \
         nullptr, \
         VAR_DECL_PARAMETERb(p.m_a, l), 1, \
+        varsym.p, varsym.n)
+
+#define VAR_DECL_COMMON(varsym, l) \
+        make_Declaration_t(p.m_a, l, \
+        nullptr, \
+        ATTRCOMMON(p.m_a, l), 1, \
         varsym.p, varsym.n)
 
 #define VAR_DECL_DATA(x, l) make_Declaration_t(p.m_a, l, \
@@ -323,6 +339,8 @@ static inline var_sym_t* VARSYM(Allocator &al, Location &l,
 
 #define VAR_SYM_NAME(name, sym, loc) VARSYM(p.m_a, loc, \
         name2char(name), nullptr, 0, nullptr, 0, nullptr, sym, nullptr)
+#define VAR_SYM_DIM_EXPR(exp, sym, loc) VARSYM(p.m_a, loc, nullptr, \
+        nullptr, 0, nullptr, 0, down_cast<expr_t>(exp), sym, nullptr)
 #define VAR_SYM_DIM_INIT(name, dim, n_dim, init, sym, loc) VARSYM(p.m_a, loc, \
         name2char(name), dim, n_dim, nullptr, 0, \
         down_cast<expr_t>(init), sym, nullptr)
