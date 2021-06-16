@@ -1173,3 +1173,18 @@ ast = true
 filename = "critical1.f90"
 ast = true
 ast_f90 = true
+
+[[test]]
+filename = "block1.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
+filename = "common1.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
+filename = "data1.f90"
+ast = true
+ast_f90 = true

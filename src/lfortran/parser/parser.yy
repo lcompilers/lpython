@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    548 // shift/reduce conflicts
-%expect-rr 93  // reduce/reduce conflicts
+%expect    536 // shift/reduce conflicts
+%expect-rr 84  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -381,6 +381,17 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> concurrent_control
 %type <vec_var_sym> named_constant_def_list
 %type <var_sym> named_constant_def
+%type <vec_var_sym> common_block_list
+%type <var_sym> common_block
+%type <vec_ast> data_set_list
+%type <ast> data_set
+%type <vec_ast> data_object_list
+%type <vec_ast> data_stmt_value_list
+%type <ast> data_stmt_value
+%type <ast> data_stmt_repeat
+%type <ast> data_stmt_constant
+%type <ast> data_object
+%type <ast> integer_type
 %type <vec_kind_arg> kind_arg_list
 %type <kind_arg> kind_arg2
 %type <vec_ast> interface_body
@@ -902,6 +913,10 @@ var_decl
             $$ = VAR_DECL_PARAMETER($3, @$); }
     | KW_NAMELIST "/" id "/" id_list sep {
             $$ = VAR_DECL_NAMELIST($3, $5, @$); }
+    | KW_COMMON common_block_list sep {
+            $$ = VAR_DECL_COMMON($2, @$); }
+    | KW_DATA data_set_list sep {
+            $$ = VAR_DECL_DATA($2, @$); }
     | KW_EQUIVALENCE equivalence_set_list { $$ = EQUIVALENCE($2, @$); }
     ;
 
@@ -924,6 +939,68 @@ named_constant_def
     : id "=" expr { $$ = VAR_SYM_DIM_INIT($1, nullptr, 0, $3, Equal, @$); }
     ;
 
+common_block_list
+    : common_block_list "," common_block { $$ = $1; PLIST_ADD($$, $3); }
+    | common_block { LIST_NEW($$); PLIST_ADD($$, $1); }
+    ;
+
+common_block
+    : "/" id "/" expr {  $$ = VAR_SYM_DIM_INIT($2, nullptr, 0, $4, Equal, @$); }
+    | expr { $$ = VAR_SYM_DIM_EXPR($1, None, @$); }
+    ;
+
+data_set_list
+    : data_set_list "," data_set { $$ = $1; LIST_ADD($$, $3); }
+    | data_set { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+data_set
+    : data_object_list "/" data_stmt_value_list "/" { $$ = DATA($1, $3, @$); }
+    ;
+
+data_object_list
+    : data_object_list "," data_object { $$ = $1; LIST_ADD($$, $3); }
+    | data_object { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+data_object
+    : id { $$ = $1; }
+    | struct_member_star id { NAME1($$, $2, $1, @$); }
+    | id "(" fnarray_arg_list_opt ")" { $$ = FUNCCALLORARRAY($1, $3, @$); }
+    | "(" data_object "," integer_type id "=" expr "," expr ")" {
+            $$ = DATA_IMPLIED_DO1($2, $4, $5, $7, $9, @$); }
+    | "(" data_object "," integer_type id "=" expr "," expr "," expr ")" {
+            $$ = DATA_IMPLIED_DO2($2, $4, $5, $7, $9, $11, @$); }
+    ;
+
+data_stmt_value_list
+    : data_stmt_value_list "," data_stmt_value { $$ = $1; LIST_ADD($$, $3); }
+    | data_stmt_value { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+data_stmt_value
+    : data_stmt_repeat "*" data_stmt_constant
+    | data_stmt_constant
+    ;
+
+data_stmt_repeat
+    : TK_INTEGER { $$ = INTEGER($1, @$); }
+    ;
+
+data_stmt_constant
+    : TK_INTEGER { $$ = INTEGER($1, @$); }
+    | TK_REAL { $$ = REAL($1, @$); }
+    | TK_STRING { $$ = STRING($1, @$); }
+    | TK_BOZ_CONSTANT { $$ = BOZ($1, @$); }
+    | ".true."  { $$ = TRUE(@$); }
+    | ".false." { $$ = FALSE(@$); }
+    ;
+
+integer_type
+    : KW_INTEGER "(" kind_arg_list ")" "::" {
+            $$ = ATTR_TYPE_KIND(Integer, $3, @$); }
+    | %empty { $$ = nullptr; }
+    ;
 
 kind_arg_list
     : kind_arg_list "," kind_arg2 { $$ = $1; LIST_ADD($$, *$3); }
@@ -1159,8 +1236,8 @@ associate_block
     ;
 
 block_statement
-    : KW_BLOCK sep var_decl_star statements KW_END KW_BLOCK {
-        $$ = BLOCK($3, $4, @$); }
+    : KW_BLOCK sep use_statement_star import_statement_star decl_star
+        statements KW_END KW_BLOCK { $$ = BLOCK($3, $4, $5, $6, @$); }
     ;
 
 allocate_statement
