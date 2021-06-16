@@ -10,17 +10,17 @@ source_filename = "LFortran"
 @"1_k" = global i32 0
 @"2_k" = global i32 0
 @"3_k" = global i32 0
-@0 = private unnamed_addr constant [4 x i8] c"%d\09\00", align 1
+@0 = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
 @1 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
-@2 = private unnamed_addr constant [4 x i8] c"%d\09\00", align 1
+@2 = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
 @3 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
-@4 = private unnamed_addr constant [4 x i8] c"%d\09\00", align 1
+@4 = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
 @5 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
-@6 = private unnamed_addr constant [4 x i8] c"%d\09\00", align 1
+@6 = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
 @7 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
-@8 = private unnamed_addr constant [4 x i8] c"%d\09\00", align 1
-@9 = private unnamed_addr constant [2 x i8] c"\09\00", align 1
-@10 = private unnamed_addr constant [2 x i8] c"\09\00", align 1
+@8 = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
+@9 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
+@10 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
 @11 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
 
 declare i1 @__module_lfortran_intrinsic_array_allocated(%array*)

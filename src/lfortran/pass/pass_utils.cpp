@@ -175,7 +175,7 @@ namespace LFortran {
         }
 
         ASR::expr_t* to_int32(ASR::expr_t* x, ASR::ttype_t* int64type, Allocator& al) {
-            ASR::cast_kindType cast_kind;
+            int cast_kind = -1;
             switch( expr_type(x)->type ) {
                 case ASR::ttypeType::Integer: {
                     cast_kind = ASR::cast_kindType::IntegerToInteger;
@@ -191,8 +191,13 @@ namespace LFortran {
                     break;
                 }
             }
-
-            return EXPR(ASR::make_ImplicitCast_t(al, x->base.loc, x, cast_kind, int64type));
+            if( cast_kind > 0 ) {
+                return EXPR(ASR::make_ImplicitCast_t(al, x->base.loc, x, (ASR::cast_kindType)cast_kind, int64type));
+            } else {
+                throw SemanticError("Array indices can only be of type real or integer.",
+                                    x->base.loc);
+            }
+            return nullptr;
         }
 
     }

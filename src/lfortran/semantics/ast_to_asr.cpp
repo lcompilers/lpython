@@ -2765,7 +2765,7 @@ public:
             body.push_back(al, expr);
         }
         tmp = ASR::make_Print_t(al, x.base.base.loc, nullptr,
-            body.p, body.size(), nullptr);
+            body.p, body.size());
     }
 
     void visit_If(const AST::If_t &x) {
