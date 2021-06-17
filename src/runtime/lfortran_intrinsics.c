@@ -560,3 +560,7 @@ void _lfortran_strcat(char** s1, char** s2, char** dest)
     dest_char[cntr] = trmn;
     *dest = &(dest_char[0]);
 }
+
+long _lfortran_malloc(int size) {
+    return (long)malloc(size);
+} 
