@@ -2,7 +2,7 @@ program doloop_05
 implicit none
 integer :: i, j
 1 j = 0
-2 i_loop: do i = 1, 10
+i_loop: do 2 i = 1, 10
     3 if ((i)==(2)) then
         cycle i_loop
     end if

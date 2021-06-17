@@ -981,7 +981,7 @@ public:
         }
         s = r;
     }
-    
+
     void visit_AttrData(const AttrData_t &x) {
         std::string r;
         for (size_t i=0; i<x.n_object; i++) {
@@ -1587,10 +1587,12 @@ public:
 
     void visit_DoLoop(const DoLoop_t &x) {
         std::string r = indent;
-        r += print_label(x);
         r += print_stmt_name(x);
         r += syn(gr::Repeat);
         r += "do";
+        if (x.m_label){
+            r += " " + std::to_string(x.m_label);
+        }
         r += syn();
         if (x.m_var) {
             r.append(" ");
