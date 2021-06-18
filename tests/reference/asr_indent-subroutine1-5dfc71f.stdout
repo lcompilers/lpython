@@ -15,7 +15,8 @@
                            Default 
                            (Integer 4 []) 
                            Source 
-                           Public), 
+                           Public 
+                           Required), 
                      x: 
                         (Variable 
                            2 
@@ -24,7 +25,8 @@
                            Default 
                            (Integer 4 []) 
                            Source 
-                           Public)
+                           Public 
+                           Required)
                   }) 
                g [] [
                (= 
@@ -58,7 +60,8 @@
                            Default 
                            (Integer 4 []) 
                            Source 
-                           Public), 
+                           Public 
+                           Required), 
                      x: 
                         (Variable 
                            3 
@@ -67,7 +70,8 @@
                            Default 
                            (Integer 4 []) 
                            Source 
-                           Public)
+                           Public 
+                           Required)
                   }) 
                h [] [
                (= 

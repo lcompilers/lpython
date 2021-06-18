@@ -227,6 +227,16 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
     return v.p;
 }
 
+decl_attribute_t** ATTRCOMMON(Allocator &al,
+        Location &loc) {
+    Vec<decl_attribute_t*> v;
+    v.reserve(al, 1);
+    ast_t* a = make_SimpleAttribute_t(al, loc,
+            simple_attributeType::AttrCommon);
+    v.push_back(al, down_cast<decl_attribute_t>(a));
+    return v.p;
+}
+
 #define VAR_DECL2(xattr0, l) \
         make_Declaration_t(p.m_a, l, \
         nullptr, \
@@ -250,6 +260,44 @@ decl_attribute_t** VAR_DECL_PARAMETERb(Allocator &al,
         nullptr, \
         VAR_DECL_PARAMETERb(p.m_a, l), 1, \
         varsym.p, varsym.n)
+
+#define VAR_DECL_COMMON(varsym, l) \
+        make_Declaration_t(p.m_a, l, \
+        nullptr, \
+        ATTRCOMMON(p.m_a, l), 1, \
+        varsym.p, varsym.n)
+
+#define VAR_DECL_DATA(x, l) make_Declaration_t(p.m_a, l, \
+        nullptr, VEC_CAST(x, decl_attribute), x.size(), \
+        nullptr, 0)
+#define DATA(objects, values, l) make_AttrData_t(p.m_a, l, \
+        EXPRS(objects), objects.size(), \
+        EXPRS(values), values.size())
+
+ast_t* data_implied_do(Allocator &al, Location &loc,
+        ast_t* obj_list,
+        ast_t* type,
+        char* id,
+        expr_t* start, expr_t* end, expr_t* incr) {
+    Vec<ast_t*> v;
+    decl_attribute_t* t;
+    if(type == nullptr){
+        t = nullptr;
+    } else {
+        t = down_cast<decl_attribute_t>(type);
+    }
+    v.reserve(al, 1);
+    v.push_back(al, obj_list);
+    return make_DataImpliedDo_t(al, loc, EXPRS(v), v.size(),
+                                t, id, start, end, incr);
+}
+
+#define DATA_IMPLIED_DO1(obj_list, type, id, start, end, l) \
+        data_implied_do(p.m_a, l, obj_list, type, \
+        name2char(id), EXPR(start), EXPR(end), nullptr)
+#define DATA_IMPLIED_DO2(obj_list, type, id, start, end, incr, l) \
+        data_implied_do(p.m_a, l, obj_list, type, \
+        name2char(id), EXPR(start), EXPR(end), EXPR(incr))
 
 #define ENUM(attr, decl, l) make_Enum_t(p.m_a, l, \
         VEC_CAST(attr, decl_attribute), attr.n, \
@@ -291,6 +339,8 @@ static inline var_sym_t* VARSYM(Allocator &al, Location &l,
 
 #define VAR_SYM_NAME(name, sym, loc) VARSYM(p.m_a, loc, \
         name2char(name), nullptr, 0, nullptr, 0, nullptr, sym, nullptr)
+#define VAR_SYM_DIM_EXPR(exp, sym, loc) VARSYM(p.m_a, loc, nullptr, \
+        nullptr, 0, nullptr, 0, down_cast<expr_t>(exp), sym, nullptr)
 #define VAR_SYM_DIM_INIT(name, dim, n_dim, init, sym, loc) VARSYM(p.m_a, loc, \
         name2char(name), dim, n_dim, nullptr, 0, \
         down_cast<expr_t>(init), sym, nullptr)
@@ -1114,9 +1164,15 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
 
 #define LABEL(stmt, label) ((Print_t*)stmt)->m_label = label
 
-#define BLOCK(decl, body, l) make_Block_t(p.m_a, l, 0, nullptr, \
-        DECLS(decl), decl.size(), \
-        STMTS(body), body.size())
+#define BLOCK(use, import, decl, body, l) make_Block_t(p.m_a, l, 0, nullptr, \
+        /*use*/ USES(use), \
+        /*n_use*/ use.size(), \
+        /*m_import*/ VEC_CAST(import, import_statement), \
+        /*n_import*/ import.size(), \
+        /*decl*/ DECLS(decl), \
+        /*n_decl*/ decl.size(), \
+        /*body*/ STMTS(body), \
+        /*n_body*/ body.size())
 
 #define ASSOCIATE_BLOCK(syms, body, l) make_AssociateBlock_t(p.m_a, l, 0, \
         nullptr, \
@@ -1520,6 +1576,16 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         /*n_implicit*/ implicit.size(), \
         /*unit_decl2_t** a_decl*/ DECLS(decl), /*size_t n_decl*/ decl.size(), \
         /*program_unit_t** a_contains*/ CONTAINS(contains), /*size_t n_contains*/ contains.size())
+
+#define BLOCKDATA(use, implicit, decl, l) make_BlockData_t(p.m_a, l, \
+        nullptr, USES(use), use.size(), \
+        VEC_CAST(implicit, implicit_statement), implicit.size(), \
+        DECLS(decl), decl.size())
+#define BLOCKDATA1(name, use, implicit, decl, l) make_BlockData_t( \
+        p.m_a, l, name2char(name), USES(use), use.size(), \
+        VEC_CAST(implicit, implicit_statement), implicit.size(), \
+        DECLS(decl), decl.size())
+
 #define PRIVATE0(l) make_Private_t(p.m_a, l, \
         nullptr, 0)
 #define PRIVATE(syms, l) make_Private_t(p.m_a, l, \

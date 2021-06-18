@@ -246,7 +246,8 @@ public:
             char* new_var_name = (char*)new_name_str.c_str(al);
             ASR::asr_t* slice_asr = ASR::make_Variable_t(al, x.base.base.loc, current_scope, new_var_name, 
                                                         ASR::intentType::Local, nullptr, ASR::storage_typeType::Default, 
-                                                        get_array_from_slice(x, x_arr_var), ASR::abiType::Source, ASR::accessType::Public);
+                                                        get_array_from_slice(x, x_arr_var), ASR::abiType::Source, ASR::accessType::Public,
+                                                        ASR::presenceType::Required);
             ASR::symbol_t* slice_sym = ASR::down_cast<ASR::symbol_t>(slice_asr);
             current_scope->scope[std::string(new_var_name)] = slice_sym;
             slice_var = EXPR(ASR::make_Var_t(al, x.base.base.loc, slice_sym));
