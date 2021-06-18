@@ -169,7 +169,7 @@ public:
                 if( unit.m_global_scope->scope.find(std::string(idx_var_name)) == unit.m_global_scope->scope.end() ) {
                     ASR::asr_t* idx_sym = ASR::make_Variable_t(al, arr_init->base.base.loc, unit.m_global_scope, idx_var_name, 
                                                             ASR::intentType::Local, const_1, ASR::storage_typeType::Default, 
-                                                            idx_var_type, ASR::abiType::Source, ASR::accessType::Public);
+                                                            idx_var_type, ASR::abiType::Source, ASR::accessType::Public, ASR::presenceType::Required);
                     unit.m_global_scope->scope[std::string(idx_var_name)] = ASR::down_cast<ASR::symbol_t>(idx_sym);
                     idx_var = EXPR(ASR::make_Var_t(al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(idx_sym)));
                 } else {

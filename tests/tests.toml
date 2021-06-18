@@ -1189,3 +1189,8 @@ ast_f90 = true
 filename = "data1.f90"
 ast = true
 ast_f90 = true
+
+
+[[test]]
+filename = "optional1.f90"
+asr = true
