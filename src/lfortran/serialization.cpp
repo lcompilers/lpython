@@ -6,6 +6,9 @@
 #include <lfortran/asr_utils.h>
 #include <lfortran/asr_verify.h>
 
+// Comment this out to enable human readable text Writer/Reader
+// Useful for debugging.
+#define SER_BINARY
 
 namespace LFortran {
 
@@ -169,7 +172,11 @@ public:
 
 
 class ASTSerializationVisitor :
+#ifdef SER_BINARY
         public BinaryWriter,
+#else
+        public TextWriter,
+#endif
         public AST::SerializationBaseVisitor<ASTSerializationVisitor>
 {
 public:
@@ -194,12 +201,21 @@ std::string serialize(const AST::TranslationUnit_t &unit) {
 }
 
 class ASTDeserializationVisitor :
+#ifdef SER_BINARY
     public BinaryReader,
+#else
+    public TextReader,
+#endif
     public AST::DeserializationBaseVisitor<ASTDeserializationVisitor>
 {
 public:
     ASTDeserializationVisitor(Allocator &al, const std::string &s) :
-        BinaryReader(s), DeserializationBaseVisitor(al, true) {}
+#ifdef SER_BINARY
+        BinaryReader(s),
+#else
+        TextReader(s),
+#endif
+        DeserializationBaseVisitor(al, true) {}
 
     bool read_bool() {
         uint8_t b = read_int8();
@@ -223,7 +239,11 @@ AST::ast_t* deserialize_ast(Allocator &al, const std::string &s) {
 // ----------------------------------------------------------------
 
 class ASRSerializationVisitor :
+#ifdef SER_BINARY
         public BinaryWriter,
+#else
+        public TextWriter,
+#endif
         public ASR::SerializationBaseVisitor<ASRSerializationVisitor>
 {
 public:
@@ -254,13 +274,22 @@ std::string serialize(const ASR::TranslationUnit_t &unit) {
 }
 
 class ASRDeserializationVisitor :
-        public BinaryReader,
+#ifdef SER_BINARY
+    public BinaryReader,
+#else
+    public TextReader,
+#endif
         public ASR::DeserializationBaseVisitor<ASRDeserializationVisitor>
 {
 public:
     ASRDeserializationVisitor(Allocator &al, const std::string &s,
         bool load_symtab_id) :
-            BinaryReader(s), DeserializationBaseVisitor(al, load_symtab_id) {}
+#ifdef SER_BINARY
+            BinaryReader(s),
+#else
+            TextReader(s),
+#endif
+            DeserializationBaseVisitor(al, load_symtab_id) {}
 
     bool read_bool() {
         uint8_t b = read_int8();
