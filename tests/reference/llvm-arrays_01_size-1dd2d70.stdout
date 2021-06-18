@@ -40,6 +40,8 @@ declare i32 @__module_lfortran_intrinsic_array_max(i32*, i32*)
 
 declare i32 @__module_lfortran_intrinsic_array_min(i32*, i32*)
 
+declare i32 @__module_lfortran_intrinsic_array_minval(%array*)
+
 define i32 @__module_lfortran_intrinsic_array_size(%size_arg* %x) {
 .entry:
   %r = alloca i32, align 4
