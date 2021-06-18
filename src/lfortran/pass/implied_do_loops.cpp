@@ -4,6 +4,7 @@
 #include <lfortran/asr_utils.h>
 #include <lfortran/asr_verify.h>
 #include <lfortran/pass/implied_do_loops.h>
+#include <lfortran/pass/pass_utils.h>
 
 
 namespace LFortran {
@@ -32,8 +33,11 @@ private:
     Allocator &al;
     ASR::TranslationUnit_t &unit;
     Vec<ASR::stmt_t*> implied_do_loop_result;
+    bool contains_array;
+    SymbolTable* current_scope;
 public:
-    ImpliedDoLoopVisitor(Allocator &al, ASR::TranslationUnit_t& unit) : al{al}, unit{unit} {
+    ImpliedDoLoopVisitor(Allocator &al, ASR::TranslationUnit_t& unit) : al{al}, unit{unit}, 
+    contains_array{false}, current_scope{nullptr} {
         implied_do_loop_result.reserve(al, 1);
 
     }
@@ -66,6 +70,7 @@ public:
         // FIXME: this is a hack, we need to pass in a non-const `x`,
         // which requires to generate a TransformVisitor.
         ASR::Program_t &xx = const_cast<ASR::Program_t&>(x);
+        current_scope = xx.m_symtab;
         transform_stmts(xx.m_body, xx.n_body);
 
         // Transform nested functions and subroutines
@@ -85,6 +90,7 @@ public:
         // FIXME: this is a hack, we need to pass in a non-const `x`,
         // which requires to generate a TransformVisitor.
         ASR::Subroutine_t &xx = const_cast<ASR::Subroutine_t&>(x);
+        current_scope = xx.m_symtab;
         transform_stmts(xx.m_body, xx.n_body);
     }
 
@@ -92,10 +98,44 @@ public:
         // FIXME: this is a hack, we need to pass in a non-const `x`,
         // which requires to generate a TransformVisitor.
         ASR::Function_t &xx = const_cast<ASR::Function_t&>(x);
+        current_scope = xx.m_symtab;
         transform_stmts(xx.m_body, xx.n_body);
     }
 
-    void create_implied_do_loop(ASR::ImpliedDoLoop_t* idoloop, ASR::Var_t* arr_var, ASR::expr_t* arr_idx=nullptr) {
+    void visit_Var(const ASR::Var_t& x) {
+        ASR::expr_t* x_expr = (ASR::expr_t*)(&(x.base));
+        contains_array = PassUtils::is_array(x_expr);
+    }
+
+    void visit_ConstantInteger(const ASR::ConstantInteger_t&) {
+        contains_array = false;
+    }
+
+    void visit_ConstantReal(const ASR::ConstantReal_t&) {
+        contains_array = false;
+    }
+
+    void visit_ConstantComplex(const ASR::ConstantComplex_t&) {
+        contains_array = false;
+    }
+
+    void visit_ConstantLogical(const ASR::ConstantLogical_t&) {
+        contains_array = false;
+    }
+
+    void visit_BinOp(const ASR::BinOp_t& x) {
+        if( contains_array ) {
+            return ;
+        }
+        bool left_array, right_array;
+        visit_expr(*(x.m_left));
+        left_array = contains_array;
+        visit_expr(*(x.m_right));
+        right_array = contains_array;
+        contains_array = left_array || right_array;
+    }
+
+    void create_do_loop(ASR::ImpliedDoLoop_t* idoloop, ASR::Var_t* arr_var, ASR::expr_t* arr_idx=nullptr) {
         ASR::do_loop_head_t head;
         head.m_v = idoloop->m_var;
         head.m_start = idoloop->m_start;
@@ -157,10 +197,9 @@ public:
                 arr_init->m_args[0]->type == ASR::exprType::ImpliedDoLoop ) {
                 ASR::ImpliedDoLoop_t* idoloop = ((ASR::ImpliedDoLoop_t*)(&(arr_init->m_args[0]->base)));
                 ASR::Var_t* arr_var = (ASR::Var_t*)(&(x.m_target->base));
-                create_implied_do_loop(idoloop, arr_var, nullptr);
+                create_do_loop(idoloop, arr_var, nullptr);
             } else if( arr_init->n_args > 1 && arr_init->m_args[0] != nullptr ) {
                 ASR::Var_t* arr_var = (ASR::Var_t*)(&(x.m_target->base));
-                // ASR::ttype_t *_type = expr_type(x.m_target);
                 const char* const_idx_var_name = "1_k";
                 char* idx_var_name = (char*)const_idx_var_name;
                 ASR::expr_t* idx_var = nullptr;
@@ -182,7 +221,7 @@ public:
                     ASR::expr_t* curr_init = arr_init->m_args[k];
                     if( curr_init->type == ASR::exprType::ImpliedDoLoop ) {
                         ASR::ImpliedDoLoop_t* idoloop = ((ASR::ImpliedDoLoop_t*)(&(curr_init->base)));
-                        create_implied_do_loop(idoloop, arr_var, idx_var);
+                        create_do_loop(idoloop, arr_var, idx_var);
                     } else {
                         Vec<ASR::array_index_t> args;
                         ASR::array_index_t ai;
@@ -203,6 +242,37 @@ public:
                     }
                 }
             }
+        } else if( x.m_value->type != ASR::exprType::ArrayInitializer && 
+                   PassUtils::is_array(x.m_target)) {
+            contains_array = true;
+            visit_expr(*(x.m_value)); // TODO: Add support for updating contains array in all types of expressions
+            if( contains_array ) {
+                return ;
+            }
+
+            int n_dims = PassUtils::get_rank(x.m_target);
+            Vec<ASR::expr_t*> idx_vars;
+            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, unit);
+            ASR::stmt_t* doloop = nullptr;
+            for( int i = n_dims - 1; i >= 0; i-- ) {
+                ASR::do_loop_head_t head;
+                head.m_v = idx_vars[i];
+                head.m_start = PassUtils::get_bound(x.m_target, n_dims, "lbound", al, unit, current_scope); 
+                head.m_end = PassUtils::get_bound(x.m_target, n_dims, "ubound", al, unit, current_scope);
+                head.m_increment = nullptr;
+                head.loc = head.m_v->base.loc;
+                Vec<ASR::stmt_t*> doloop_body;
+                doloop_body.reserve(al, 1);
+                if( doloop == nullptr ) {
+                    ASR::expr_t* ref = PassUtils::create_array_ref(x.m_target, idx_vars, al);
+                    ASR::stmt_t* assign = STMT(ASR::make_Assignment_t(al, x.base.base.loc, ref, x.m_value));
+                    doloop_body.push_back(al, assign);
+                } else {
+                    doloop_body.push_back(al, doloop);
+                }
+                doloop = STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
+            }
+            implied_do_loop_result.push_back(al, doloop);
         }
     }
 };

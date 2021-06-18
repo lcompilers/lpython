@@ -2673,22 +2673,27 @@ public:
                 args.reserve(al, x.n_args);
                 for (size_t i=0; i<x.n_args; i++) {
                     ASR::array_index_t ai;
-                    if (x.m_args[i].m_start == nullptr && x.m_args[i].m_end) {
-                        visit_expr(*x.m_args[i].m_end);
-                        ai.m_left = nullptr;
-                        ai.m_right = EXPR(tmp);
-                        ai.m_step = nullptr;
-                        ai.loc = ai.m_right->base.loc;
-                    } else if (x.m_args[i].m_start == nullptr
-                            && x.m_args[i].m_end == nullptr) {
-                        ai.m_left = nullptr;
-                        ai.m_right = nullptr;
-                        ai.m_step = nullptr;
-                        ai.loc = x.base.base.loc;
-                    } else {
-                        throw SemanticError("Argument type not implemented yet",
-                            x.base.base.loc);
+                    ai.loc = x.base.base.loc;
+                    ASR::expr_t *m_start, *m_end, *m_step;
+                    m_start = m_end = m_step = nullptr;
+                    if( x.m_args[i].m_start != nullptr ) {
+                        visit_expr(*(x.m_args[i].m_start));
+                        m_start = EXPR(tmp);
+                        ai.loc = m_start->base.loc;
                     }
+                    if( x.m_args[i].m_end != nullptr ) {
+                        visit_expr(*(x.m_args[i].m_end));
+                        m_end = EXPR(tmp);
+                        ai.loc = m_end->base.loc;
+                    }
+                    if( x.m_args[i].m_step != nullptr ) {
+                        visit_expr(*(x.m_args[i].m_step));
+                        m_step = EXPR(tmp);
+                        ai.loc = m_step->base.loc;
+                    }
+                    ai.m_left = m_start;
+                    ai.m_right = m_end;
+                    ai.m_step = m_step;
                     args.push_back(al, ai);
                 }
 

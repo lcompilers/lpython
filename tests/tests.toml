@@ -408,14 +408,13 @@ cpp = true
 
 [[test]]
 filename = "../integration_tests/arrays_06.f90"
-ast = true
-ast_f90 = true
 asr = true
 llvm = true
 
 [[test]]
 filename = "../integration_tests/arrays_07.f90"
-ast = true
+asr = true
+llvm = true
 
 [[test]]
 filename = "../integration_tests/arrays_08_func.f90"
