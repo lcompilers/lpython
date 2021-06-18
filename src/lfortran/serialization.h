@@ -16,10 +16,6 @@ namespace LFortran {
     ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s,
             bool load_symtab_id, SymbolTable &symtab);
 
-    std::string uint64_to_string(uint64_t i);
-    uint64_t string_to_uint64(const std::string &s);
-    uint64_t string_to_uint64(const char *s);
-
     void fix_external_symbols(ASR::TranslationUnit_t &unit,
             SymbolTable &external_symtab);
 }

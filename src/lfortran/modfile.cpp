@@ -4,84 +4,10 @@
 #include <lfortran/asr_verify.h>
 #include <lfortran/modfile.h>
 #include <lfortran/serialization.h>
+#include <lfortran/bwriter.h>
 
 
 namespace LFortran {
-
-
-class BinaryWriter
-{
-private:
-    std::string s;
-public:
-    std::string get_str() {
-        return s;
-    }
-
-    void write_int8(uint8_t i) {
-        char c=i;
-        s.append(std::string(&c, 1));
-    }
-
-    void write_int64(uint64_t i) {
-        s.append(uint64_to_string(i));
-    }
-
-    void write_bool(bool b) {
-        if (b) {
-            write_int8(1);
-        } else {
-            write_int8(0);
-        }
-    }
-
-    void write_string(const std::string &t) {
-        write_int64(t.size());
-        s.append(t);
-    }
-};
-
-class BinaryReader
-{
-private:
-    std::string s;
-    size_t pos;
-public:
-    BinaryReader(const std::string &s) : s{s}, pos{0} {}
-
-    uint8_t read_int8() {
-        if (pos+1 > s.size()) {
-            throw LFortranException("String is too short for deserialization.");
-        }
-        uint8_t n = s[pos];
-        pos += 1;
-        return n;
-    }
-
-    uint64_t read_int64() {
-        if (pos+4 > s.size()) {
-            throw LFortranException("String is too short for deserialization.");
-        }
-        uint64_t n = string_to_uint64(&s[pos]);
-        pos += 4;
-        return n;
-    }
-
-    bool read_bool() {
-        uint8_t b = read_int8();
-        return (b == 1);
-    }
-
-    std::string read_string() {
-        size_t n = read_int64();
-        if (pos+n > s.size()) {
-            throw LFortranException("String is too short for deserialization.");
-        }
-        std::string r = std::string(&s[pos], n);
-        pos += n;
-        return r;
-    }
-};
 
 const std::string lfortran_modfile_type_string = "LFortran Modfile";
 
