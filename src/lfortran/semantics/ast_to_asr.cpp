@@ -1955,13 +1955,13 @@ public:
             for( size_t j = 0; j < array_ref->n_args; j++ ) {
                 ASR::dimension_t new_dim;
                 new_dim.loc = array_ref->m_args[j].loc;
-                ASR::expr_t* m_left = array_ref->m_args[i].m_left;
+                ASR::expr_t* m_left = array_ref->m_args[j].m_left;
                 if( m_left != nullptr ) {
                     new_dim.m_start = m_left;
                 } else {
                     new_dim.m_start = const_1;
                 }
-                ASR::expr_t* m_right = array_ref->m_args[i].m_right;
+                ASR::expr_t* m_right = array_ref->m_args[j].m_right;
                 new_dim.m_end = m_right;
                 dims_vec.push_back(al, new_dim);
             }
