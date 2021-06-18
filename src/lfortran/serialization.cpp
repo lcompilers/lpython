@@ -92,6 +92,81 @@ public:
     }
 };
 
+// TextReader / TextWriter encapsulate access to the file by providing
+// primitives that other classes just use. The file is a human readable
+// text file. These classes are useful for debugging.
+class TextWriter
+{
+private:
+    std::string s;
+public:
+    std::string get_str() {
+        return s;
+    }
+
+    void write_int8(uint8_t i) {
+        s.append(std::to_string(i));
+        s += " ";
+    }
+
+    void write_int64(uint64_t i) {
+        s.append(std::to_string(i));
+        s += " ";
+    }
+
+    void write_string(const std::string &t) {
+        write_int64(t.size());
+        s.append(t);
+        s += " ";
+    }
+};
+
+class TextReader
+{
+private:
+    std::string s;
+    size_t pos;
+public:
+    TextReader(const std::string &s) : s{s}, pos{0} {}
+
+    uint8_t read_int8() {
+        uint64_t n = read_int64();
+        if (n < 255) {
+            return n;
+        } else {
+            throw LFortranException("read_int8: Integer too large to fit 8 bits.");
+        }
+    }
+
+    uint64_t read_int64() {
+        std::string tmp;
+        while (s[pos] != ' ') {
+            tmp += s[pos];
+            pos++;
+            if (pos >= s.size()) {
+                throw LFortranException("read_int64: String is too short for deserialization.");
+            }
+        }
+        pos++;
+        uint64_t n = std::stoi(tmp);
+        return n;
+    }
+
+    std::string read_string() {
+        size_t n = read_int64();
+        if (pos+n > s.size()) {
+            throw LFortranException("read_string: String is too short for deserialization.");
+        }
+        std::string r = std::string(&s[pos], n);
+        pos += n;
+        if (s[pos] != ' ') {
+            throw LFortranException("read_string: Space expected.");
+        }
+        pos ++;
+        return r;
+    }
+};
+
 
 class ASTSerializationVisitor :
         public BinaryWriter,
