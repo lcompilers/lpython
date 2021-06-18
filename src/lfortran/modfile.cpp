@@ -1,5 +1,6 @@
 #include <string>
 
+#include <lfortran/config.h>
 #include <lfortran/asr_utils.h>
 #include <lfortran/asr_verify.h>
 #include <lfortran/modfile.h>
@@ -29,7 +30,11 @@ std::string save_modfile(const ASR::TranslationUnit_t &m) {
         LFORTRAN_ASSERT(ASR::is_a<ASR::Module_t>(*a.second));
         if ((bool&)a) { } // Suppress unused warning in Release mode
     }
+#ifdef WITH_LFORTRAN_BINARY_MODFILES
     BinaryWriter b;
+#else
+    TextWriter b;
+#endif
     // Header
     b.write_string(lfortran_modfile_type_string);
     b.write_string(LFORTRAN_VERSION);
@@ -54,7 +59,11 @@ std::string save_modfile(const ASR::TranslationUnit_t &m) {
 
 ASR::TranslationUnit_t* load_modfile(Allocator &al, const std::string &s,
         bool load_symtab_id, SymbolTable &symtab) {
+#ifdef WITH_LFORTRAN_BINARY_MODFILES
     BinaryReader b(s);
+#else
+    TextReader b(s);
+#endif
     std::string file_type = b.read_string();
     if (file_type != lfortran_modfile_type_string) {
         throw LFortranException("LFortran Modfile format not recognized");

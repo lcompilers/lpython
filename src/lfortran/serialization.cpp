@@ -1,5 +1,6 @@
 #include <string>
 
+#include <lfortran/config.h>
 #include <lfortran/serialization.h>
 #include <lfortran/parser/parser.h>
 #include <lfortran/parser/parser.tab.hh>
@@ -7,15 +8,11 @@
 #include <lfortran/asr_verify.h>
 #include <lfortran/bwriter.h>
 
-// Comment this out to enable human readable text Writer/Reader
-// Useful for debugging.
-#define SER_BINARY
 
 namespace LFortran {
 
-
 class ASTSerializationVisitor :
-#ifdef SER_BINARY
+#ifdef WITH_LFORTRAN_BINARY_MODFILES
         public BinaryWriter,
 #else
         public TextWriter,
@@ -44,7 +41,7 @@ std::string serialize(const AST::TranslationUnit_t &unit) {
 }
 
 class ASTDeserializationVisitor :
-#ifdef SER_BINARY
+#ifdef WITH_LFORTRAN_BINARY_MODFILES
     public BinaryReader,
 #else
     public TextReader,
@@ -53,7 +50,7 @@ class ASTDeserializationVisitor :
 {
 public:
     ASTDeserializationVisitor(Allocator &al, const std::string &s) :
-#ifdef SER_BINARY
+#ifdef WITH_LFORTRAN_BINARY_MODFILES
         BinaryReader(s),
 #else
         TextReader(s),
@@ -82,7 +79,7 @@ AST::ast_t* deserialize_ast(Allocator &al, const std::string &s) {
 // ----------------------------------------------------------------
 
 class ASRSerializationVisitor :
-#ifdef SER_BINARY
+#ifdef WITH_LFORTRAN_BINARY_MODFILES
         public BinaryWriter,
 #else
         public TextWriter,
@@ -117,17 +114,17 @@ std::string serialize(const ASR::TranslationUnit_t &unit) {
 }
 
 class ASRDeserializationVisitor :
-#ifdef SER_BINARY
-    public BinaryReader,
+#ifdef WITH_LFORTRAN_BINARY_MODFILES
+        public BinaryReader,
 #else
-    public TextReader,
+        public TextReader,
 #endif
         public ASR::DeserializationBaseVisitor<ASRDeserializationVisitor>
 {
 public:
     ASRDeserializationVisitor(Allocator &al, const std::string &s,
         bool load_symtab_id) :
-#ifdef SER_BINARY
+#ifdef WITH_LFORTRAN_BINARY_MODFILES
             BinaryReader(s),
 #else
             TextReader(s),
