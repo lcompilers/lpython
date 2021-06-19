@@ -457,7 +457,7 @@ public:
         llvm::Value* ptr2firstptr = create_gep(arr, 0);
         if (!fn) {
             llvm::FunctionType *function_type = llvm::FunctionType::get(
-                    getIntType(8), {
+                    character_type, {
                         getIntType(4)
                     }, true);
             fn = llvm::Function::Create(function_type,
@@ -474,8 +474,8 @@ public:
         num_elements = builder->CreateMul(num_elements, llvm_size);
         builder->CreateStore(num_elements, arg_size);
         std::vector<llvm::Value*> args = {builder->CreateLoad(arg_size)};
-        llvm::Value* ptr_as_int = builder->CreateCall(fn, args);
-        llvm::Value* first_ptr = builder->CreateIntToPtr(ptr_as_int, ptr_type);
+        llvm::Value* ptr_as_char_ptr = builder->CreateCall(fn, args);
+        llvm::Value* first_ptr = builder->CreateBitCast(ptr_as_char_ptr, ptr_type);
         builder->CreateStore(first_ptr, ptr2firstptr);
     }
 
