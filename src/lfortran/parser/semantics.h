@@ -150,6 +150,31 @@ static inline Vec<kind_item_t> a2kind_list(Allocator &al,
 #define CODIMENSION(dim, l) make_AttrCodimension_t( \
             p.m_a, l, \
             dim.p, dim.size())
+#define PASS(name, l) make_AttrPass_t(p.m_a, l, name2char(name))
+
+decl_attribute_t** EQUIVALENCE(Allocator &al, Location &loc,
+            equi_t* args, size_t n_args) {
+    Vec<decl_attribute_t*> v;
+    v.reserve(al, 1);
+    ast_t* a = make_AttrEquivalence_t(al, loc, args, n_args);
+    v.push_back(al, down_cast<decl_attribute_t>(a));
+    return v.p;
+}
+
+static inline equi_t* EQUIVALENCE1(Allocator &al, Location &loc,
+        const Vec<ast_t*> set_list)
+{
+    equi_t *r = al.allocate<equi_t>(1);
+    r->loc = loc;
+    r->m_set_list = EXPRS(set_list);
+    r->n_set_list = set_list.size();
+    return r;
+}
+
+#define VAR_DECL_EQUIVALENCE(args, l) make_Declaration_t(p.m_a, l, \
+        nullptr, EQUIVALENCE(p.m_a, l, args.p, args.n), 1, \
+        nullptr, 0)
+#define EQUIVALENCE_SET(set_list, l) EQUIVALENCE1(p.m_a, l, set_list)
 
 #define ATTR_TYPE(x, l) make_AttrType_t( \
             p.m_a, l, \
@@ -1652,8 +1677,6 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 #define GENERIC_NAME(name, namelist, l) make_GenericName_t(p.m_a, l, \
         name2char(name), REDUCE_ARGS(p.m_a, namelist), namelist.size())
 #define FINAL_NAME(name, l) make_FinalName_t(p.m_a, l, name2char(name))
-
-#define PASS(name, l) make_AttrPass_t(p.m_a, l, name2char(name))
 
 #define CRITICAL(stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
         nullptr, 0, STMTS(stmts), stmts.size())

@@ -205,12 +205,13 @@ decl_attribute
     | AttrData(expr* object, expr* value)
     | AttrDimension(dimension* dim)
     | AttrCodimension(codimension* codim)
+    | AttrEquivalence(equi* args)
     | AttrExtends(identifier name)
     | AttrIntent(attr_intent intent)
     | AttrNamelist(identifier name)
+    | AttrPass(identifier name)
     | SimpleAttribute(simple_attribute attr)
     | AttrType(decl_type type, kind_item* kind, identifier? name)
-    | AttrPass(identifier name)
     | AttrAssignment()
     | AttrIntrinsicOperator(intrinsicop op)
     | AttrDefinedOperator(string op_name)
@@ -221,11 +222,15 @@ simple_attribute
     | AttrAsynchronous
     | AttrCommon
     | AttrContiguous
+    | AttrDeferred
     | AttrElemental
     | AttrEnumerator
     | AttrImpure
+    | AttrIntrinsic
     | AttrModule
     | AttrNoPass
+    | AttrNonDeferred
+    | AttrNon_Intrinsic
     | AttrOptional
     | AttrParameter
     | AttrPointer
@@ -235,12 +240,10 @@ simple_attribute
     | AttrPure
     | AttrRecursive
     | AttrSave
+    | AttrSequence
     | AttrTarget
     | AttrValue
-    | AttrIntrinsic
-    | AttrNon_Intrinsic
-    | AttrDeferred
-    | AttrNonDeferred
+    | AttrVolatile
 
 attr_intent = In | Out | InOut
 
@@ -274,6 +277,8 @@ codimension = (expr? start, expr? end, codimension_type end_star)
 codimension_type = CodimensionExpr | CodimensionStar
 
 symbol = None | Assign | Equal | Asterisk
+
+equi = (expr* set_list)
 
 -- Encoding of an array dimension declaration:
 --           start      end     end_star

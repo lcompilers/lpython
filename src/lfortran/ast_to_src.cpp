@@ -1062,6 +1062,30 @@ public:
         s = r;
     }
 
+    void visit_AttrEquivalence(const AttrEquivalence_t &x) {
+        std::string r;
+        r += syn(gr::Type);
+        r += "equivalence ";
+        r += syn();
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_equi(x.m_args[i]);
+            r.append(s);
+            if (i < x.n_args-1) r.append(", ");
+        }
+        s = r;
+    }
+
+    void visit_equi(const equi_t &x) {
+        std::string r;
+        r += "(";
+        for (size_t i=0; i<x.n_set_list; i++) {
+            this->visit_expr(*x.m_set_list[i]);
+            r.append(s);
+            if (i < x.n_set_list-1) r.append(", ");
+        }
+        r += ")";
+        s = r;
+    }
 #define ATTRTYPE(x) \
             case (simple_attributeType::Attr##x) : \
                 r.append(convert_to_lowercase(#x)); \
@@ -1075,11 +1099,15 @@ public:
             ATTRTYPE(Allocatable)
             ATTRTYPE(Asynchronous)
             ATTRTYPE(Contiguous)
+            ATTRTYPE(Deferred)
             ATTRTYPE(Elemental)
             ATTRTYPE(Enumerator)
             ATTRTYPE(Impure)
+            ATTRTYPE(Intrinsic)
             ATTRTYPE(Module)
             ATTRTYPE(NoPass)
+            ATTRTYPE(NonDeferred)
+            ATTRTYPE(Non_Intrinsic)
             ATTRTYPE(Optional)
             ATTRTYPE(Parameter)
             ATTRTYPE(Pointer)
@@ -1089,12 +1117,10 @@ public:
             ATTRTYPE(Pure)
             ATTRTYPE(Recursive)
             ATTRTYPE(Save)
+            ATTRTYPE(Sequence)
             ATTRTYPE(Target)
             ATTRTYPE(Value)
-            ATTRTYPE(Intrinsic)
-            ATTRTYPE(Non_Intrinsic)
-            ATTRTYPE(Deferred)
-            ATTRTYPE(NonDeferred)
+            ATTRTYPE(Volatile)
             default :
                 throw LFortranException("Attribute type not implemented");
         }
