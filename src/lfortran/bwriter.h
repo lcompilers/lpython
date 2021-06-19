@@ -68,6 +68,10 @@ public:
         s.append(std::string(&c, 1));
     }
 
+    void write_int32(uint32_t i) {
+        s.append(uint32_to_string(i));
+    }
+
     void write_int64(uint64_t i) {
         s.append(uint64_to_string(i));
     }
@@ -92,6 +96,15 @@ public:
         }
         uint8_t n = s[pos];
         pos += 1;
+        return n;
+    }
+
+    uint32_t read_int32() {
+        if (pos+4 > s.size()) {
+            throw LFortranException("read_int32: String is too short for deserialization.");
+        }
+        uint32_t n = string_to_uint32(&s[pos]);
+        pos += 4;
         return n;
     }
 
