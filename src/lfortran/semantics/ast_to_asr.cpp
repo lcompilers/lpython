@@ -619,7 +619,8 @@ std::map<std::string, std::string> intrinsic_procedures = {
         {"allocated", "lfortran_intrinsic_array"},
         {"minval", "lfortran_intrinsic_array"},
         {"real", "lfortran_intrinsic_array"},
-        {"sum", "lfortran_intrinsic_array"}
+        {"sum", "lfortran_intrinsic_array"},
+        {"abs", "lfortran_intrinsic_array"}
     };
 
 class SymbolTableVisitor : public AST::BaseVisitor<SymbolTableVisitor>
