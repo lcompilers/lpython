@@ -5,7 +5,7 @@
 
 namespace LFortran {
 
-std::string static inline uint64_to_string(uint64_t i) {
+std::string static inline uint32_to_string(uint32_t i) {
     char bytes[4];
     bytes[0] = (i >> 24) & 0xFF;
     bytes[1] = (i >> 16) & 0xFF;
@@ -14,11 +14,38 @@ std::string static inline uint64_to_string(uint64_t i) {
     return std::string(bytes, 4);
 }
 
-uint64_t static inline string_to_uint64(const char *s) {
+std::string static inline uint64_to_string(uint64_t i) {
+    char bytes[8];
+    bytes[0] = (i >> 56) & 0xFF;
+    bytes[1] = (i >> 48) & 0xFF;
+    bytes[2] = (i >> 40) & 0xFF;
+    bytes[3] = (i >> 32) & 0xFF;
+    bytes[4] = (i >> 24) & 0xFF;
+    bytes[5] = (i >> 16) & 0xFF;
+    bytes[6] = (i >>  8) & 0xFF;
+    bytes[7] =  i        & 0xFF;
+    return std::string(bytes, 8);
+}
+
+uint32_t static inline string_to_uint32(const char *s) {
     // The cast from signed char to unsigned char is important,
     // otherwise the signed char shifts return wrong value for negative numbers
     const uint8_t *p = (const unsigned char*)s;
     return (p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3];
+}
+
+uint64_t static inline string_to_uint64(const char *s) {
+    // The cast from signed char to unsigned char is important,
+    // otherwise the signed char shifts return wrong value for negative numbers
+    const uint8_t *p = (const unsigned char*)s;
+    return (((uint64_t)p[0]) << 56) |
+           (((uint64_t)p[1]) << 48) |
+           (((uint64_t)p[2]) << 40) |
+           (((uint64_t)p[3]) << 32) |
+           (((uint64_t)p[4]) << 24) |
+           (((uint64_t)p[5]) << 16) |
+           (((uint64_t)p[6]) <<  8) |
+            p[7];
 }
 
 uint64_t static inline string_to_uint64(const std::string &s) {
@@ -69,11 +96,11 @@ public:
     }
 
     uint64_t read_int64() {
-        if (pos+4 > s.size()) {
+        if (pos+8 > s.size()) {
             throw LFortranException("read_int64: String is too short for deserialization.");
         }
         uint64_t n = string_to_uint64(&s[pos]);
-        pos += 4;
+        pos += 8;
         return n;
     }
 
