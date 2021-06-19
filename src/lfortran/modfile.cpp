@@ -1,87 +1,14 @@
 #include <string>
 
+#include <lfortran/config.h>
 #include <lfortran/asr_utils.h>
 #include <lfortran/asr_verify.h>
 #include <lfortran/modfile.h>
 #include <lfortran/serialization.h>
+#include <lfortran/bwriter.h>
 
 
 namespace LFortran {
-
-
-class BinaryWriter
-{
-private:
-    std::string s;
-public:
-    std::string get_str() {
-        return s;
-    }
-
-    void write_int8(uint8_t i) {
-        char c=i;
-        s.append(std::string(&c, 1));
-    }
-
-    void write_int64(uint64_t i) {
-        s.append(uint64_to_string(i));
-    }
-
-    void write_bool(bool b) {
-        if (b) {
-            write_int8(1);
-        } else {
-            write_int8(0);
-        }
-    }
-
-    void write_string(const std::string &t) {
-        write_int64(t.size());
-        s.append(t);
-    }
-};
-
-class BinaryReader
-{
-private:
-    std::string s;
-    size_t pos;
-public:
-    BinaryReader(const std::string &s) : s{s}, pos{0} {}
-
-    uint8_t read_int8() {
-        if (pos+1 > s.size()) {
-            throw LFortranException("String is too short for deserialization.");
-        }
-        uint8_t n = s[pos];
-        pos += 1;
-        return n;
-    }
-
-    uint64_t read_int64() {
-        if (pos+4 > s.size()) {
-            throw LFortranException("String is too short for deserialization.");
-        }
-        uint64_t n = string_to_uint64(&s[pos]);
-        pos += 4;
-        return n;
-    }
-
-    bool read_bool() {
-        uint8_t b = read_int8();
-        return (b == 1);
-    }
-
-    std::string read_string() {
-        size_t n = read_int64();
-        if (pos+n > s.size()) {
-            throw LFortranException("String is too short for deserialization.");
-        }
-        std::string r = std::string(&s[pos], n);
-        pos += n;
-        return r;
-    }
-};
 
 const std::string lfortran_modfile_type_string = "LFortran Modfile";
 
@@ -103,7 +30,11 @@ std::string save_modfile(const ASR::TranslationUnit_t &m) {
         LFORTRAN_ASSERT(ASR::is_a<ASR::Module_t>(*a.second));
         if ((bool&)a) { } // Suppress unused warning in Release mode
     }
+#ifdef WITH_LFORTRAN_BINARY_MODFILES
     BinaryWriter b;
+#else
+    TextWriter b;
+#endif
     // Header
     b.write_string(lfortran_modfile_type_string);
     b.write_string(LFORTRAN_VERSION);
@@ -128,7 +59,11 @@ std::string save_modfile(const ASR::TranslationUnit_t &m) {
 
 ASR::TranslationUnit_t* load_modfile(Allocator &al, const std::string &s,
         bool load_symtab_id, SymbolTable &symtab) {
+#ifdef WITH_LFORTRAN_BINARY_MODFILES
     BinaryReader b(s);
+#else
+    TextReader b(s);
+#endif
     std::string file_type = b.read_string();
     if (file_type != lfortran_modfile_type_string) {
         throw LFortranException("LFortran Modfile format not recognized");

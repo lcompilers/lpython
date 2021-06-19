@@ -616,7 +616,12 @@ std::map<std::string, std::string> intrinsic_procedures = {
         {"ubound", "lfortran_intrinsic_array"},
         {"min", "lfortran_intrinsic_array"},
         {"max", "lfortran_intrinsic_array"},
-        {"allocated", "lfortran_intrinsic_array"}
+        {"allocated", "lfortran_intrinsic_array"},
+        {"minval", "lfortran_intrinsic_array"},
+        {"maxval", "lfortran_intrinsic_array"},
+        {"real", "lfortran_intrinsic_array"},
+        {"sum", "lfortran_intrinsic_array"},
+        {"abs", "lfortran_intrinsic_array"}
     };
 
 class SymbolTableVisitor : public AST::BaseVisitor<SymbolTableVisitor>
@@ -628,7 +633,9 @@ public:
     SymbolTable *global_scope;
     std::map<std::string, std::vector<std::string>> generic_procedures;
     ASR::accessType dflt_access = ASR::Public;
+    ASR::presenceType dflt_presence = ASR::presenceType::Required;
     std::map<std::string, ASR::accessType> assgnd_access;
+    std::map<std::string, ASR::presenceType> assgnd_presence;
     Vec<char*> current_module_dependencies;
     bool in_module=false;
     bool is_interface=false;
@@ -895,7 +902,7 @@ public:
             return_var = ASR::make_Variable_t(al, x.base.base.loc,
                 current_scope, return_var_name, intent_return_var, nullptr,
                 ASR::storage_typeType::Default, type,
-                ASR::abiType::Source, ASR::Public);
+                ASR::abiType::Source, ASR::Public, ASR::presenceType::Required);
             current_scope->scope[std::string(return_var_name)]
                 = ASR::down_cast<ASR::symbol_t>(return_var);
         } else {
@@ -1095,6 +1102,9 @@ public:
                         } else if (sa->m_attr == AST::simple_attributeType
                                 ::AttrPublic) {
                             assgnd_access[sym] = ASR::accessType::Public;
+                        } else if (sa->m_attr == AST::simple_attributeType
+                                ::AttrOptional) {
+                            assgnd_presence[sym] = ASR::presenceType::Optional;
                         } else {
                             throw SemanticError("Attribute declaration not "
                                     "supported", x.base.base.loc);
@@ -1112,10 +1122,14 @@ public:
                 AST::var_sym_t &s = x.m_syms[i];
                 std::string sym = s.m_name;
                 ASR::accessType s_access = dflt_access;
+                ASR::presenceType s_presence = dflt_presence;
                 AST::AttrType_t *sym_type =
                     AST::down_cast<AST::AttrType_t>(x.m_vartype);
                 if (assgnd_access.count(sym)) {
                     s_access = assgnd_access[sym];
+                }
+                if (assgnd_presence.count(sym)) {
+                    s_presence = assgnd_presence[sym];
                 }
                 ASR::storage_typeType storage_type =
                         ASR::storage_typeType::Default;
@@ -1157,6 +1171,9 @@ public:
                             } else if (sa->m_attr == AST::simple_attributeType
                                     ::AttrPointer) {
                                 is_pointer = true;
+                            } else if (sa->m_attr == AST::simple_attributeType
+                                    ::AttrOptional) {
+                                s_presence = ASR::presenceType::Optional;
                             } else if (sa->m_attr == AST::simple_attributeType
                                     ::AttrTarget) {
                                 // Do nothing for now
@@ -1267,7 +1284,7 @@ public:
                 }
                 ASR::asr_t *v = ASR::make_Variable_t(al, x.base.base.loc, current_scope,
                         s.m_name, s_intent, init_expr, storage_type, type,
-                        ASR::abiType::Source, s_access);
+                        ASR::abiType::Source, s_access, s_presence);
                 current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(v);
             } // for m_syms
         }
@@ -2508,7 +2525,7 @@ public:
                         current_module->n_dependencies = vec.size();
                     }
                 }
-            } else if (var_name == "present") {
+            } else if (to_lower(var_name) == "present") {
                 // Intrinsic function present(), add it to the global scope
                 ASR::TranslationUnit_t *unit = (ASR::TranslationUnit_t *)asr;
                 const char *fn_name_orig = "present";
@@ -2521,7 +2538,7 @@ public:
                     al, x.base.base.loc, fn_scope, fn_name, intent_return_var,
                     nullptr, ASR::storage_typeType::Default, type,
                     ASR::abiType::Source,
-                    ASR::Public);
+                    ASR::Public, ASR::presenceType::Required);
                 fn_scope->scope[std::string(fn_name)] =
                     ASR::down_cast<ASR::symbol_t>(return_var);
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(
@@ -2571,7 +2588,7 @@ public:
                         al, x.base.base.loc, fn_scope, arg0_s, intent_in, nullptr,
                         ASR::storage_typeType::Default, type,
                         ASR::abiType::Source,
-                        ASR::Public);
+                        ASR::Public, ASR::presenceType::Required);
                     ASR::symbol_t *var = ASR::down_cast<ASR::symbol_t>(arg0);
                     fn_scope->scope[std::string(arg0_s)] = var;
                     args.push_back(al, EXPR(ASR::make_Var_t(al, x.base.base.loc, var)));
@@ -2582,7 +2599,7 @@ public:
                         al, x.base.base.loc, fn_scope, fn_name, intent_return_var,
                         nullptr, ASR::storage_typeType::Default, type,
                         ASR::abiType::Source,
-                        ASR::Public);
+                        ASR::Public, ASR::presenceType::Required);
                     fn_scope->scope[std::string(fn_name)] =
                         ASR::down_cast<ASR::symbol_t>(return_var);
                     ASR::asr_t *return_var_ref = ASR::make_Var_t(
@@ -2661,22 +2678,27 @@ public:
                 args.reserve(al, x.n_args);
                 for (size_t i=0; i<x.n_args; i++) {
                     ASR::array_index_t ai;
-                    if (x.m_args[i].m_start == nullptr && x.m_args[i].m_end) {
-                        visit_expr(*x.m_args[i].m_end);
-                        ai.m_left = nullptr;
-                        ai.m_right = EXPR(tmp);
-                        ai.m_step = nullptr;
-                        ai.loc = ai.m_right->base.loc;
-                    } else if (x.m_args[i].m_start == nullptr
-                            && x.m_args[i].m_end == nullptr) {
-                        ai.m_left = nullptr;
-                        ai.m_right = nullptr;
-                        ai.m_step = nullptr;
-                        ai.loc = x.base.base.loc;
-                    } else {
-                        throw SemanticError("Argument type not implemented yet",
-                            x.base.base.loc);
+                    ai.loc = x.base.base.loc;
+                    ASR::expr_t *m_start, *m_end, *m_step;
+                    m_start = m_end = m_step = nullptr;
+                    if( x.m_args[i].m_start != nullptr ) {
+                        visit_expr(*(x.m_args[i].m_start));
+                        m_start = EXPR(tmp);
+                        ai.loc = m_start->base.loc;
                     }
+                    if( x.m_args[i].m_end != nullptr ) {
+                        visit_expr(*(x.m_args[i].m_end));
+                        m_end = EXPR(tmp);
+                        ai.loc = m_end->base.loc;
+                    }
+                    if( x.m_args[i].m_step != nullptr ) {
+                        visit_expr(*(x.m_args[i].m_step));
+                        m_step = EXPR(tmp);
+                        ai.loc = m_step->base.loc;
+                    }
+                    ai.m_left = m_start;
+                    ai.m_right = m_end;
+                    ai.m_step = m_step;
                     args.push_back(al, ai);
                 }
 

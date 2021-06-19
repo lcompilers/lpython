@@ -408,14 +408,13 @@ cpp = true
 
 [[test]]
 filename = "../integration_tests/arrays_06.f90"
-ast = true
-ast_f90 = true
 asr = true
 llvm = true
 
 [[test]]
 filename = "../integration_tests/arrays_07.f90"
-ast = true
+asr = true
+llvm = true
 
 [[test]]
 filename = "../integration_tests/arrays_08_func.f90"
@@ -1175,6 +1174,11 @@ ast = true
 ast_f90 = true
 
 [[test]]
+filename = "block_data1.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
 filename = "block1.f90"
 ast = true
 ast_f90 = true
@@ -1188,3 +1192,8 @@ ast_f90 = true
 filename = "data1.f90"
 ast = true
 ast_f90 = true
+
+
+[[test]]
+filename = "optional1.f90"
+asr = true

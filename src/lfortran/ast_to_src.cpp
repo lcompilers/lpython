@@ -293,6 +293,39 @@ public:
         s = r;
     }
 
+    void visit_BlockData(const BlockData_t &x) {
+        std::string r = indent;
+        r += syn(gr::UnitHeader);
+        r += "block data";
+        r += syn();
+        if(x.m_name) {
+            r += " ";
+            r.append(x.m_name);
+        }
+        r.append("\n");
+        inc_indent();
+        for (size_t i=0; i<x.n_use; i++) {
+            this->visit_unit_decl1(*x.m_use[i]);
+            r.append(s);
+        }
+        r += format_implicit(x);
+        for (size_t i=0; i<x.n_decl; i++) {
+            this->visit_unit_decl2(*x.m_decl[i]);
+            r.append(s);
+        }
+        dec_indent();
+        r += indent;
+        r += syn(gr::UnitHeader);
+        r.append("end block data");
+        r += syn();
+        if(x.m_name) {
+            r += " ";
+            r.append(x.m_name);
+        }
+        r += "\n";
+        s = r;
+    }
+
     void visit_Program(const Program_t &x) {
         std::string r;
         r += syn(gr::UnitHeader);
@@ -963,7 +996,7 @@ public:
     }
 
     void visit_Common(const Declaration_t &x) {
-        std::string r = indent;
+        std::string r;
         r += syn(gr::Type);
         r += "common ";
         r += syn();
@@ -981,7 +1014,7 @@ public:
         }
         s = r;
     }
-    
+
     void visit_AttrData(const AttrData_t &x) {
         std::string r;
         for (size_t i=0; i<x.n_object; i++) {
