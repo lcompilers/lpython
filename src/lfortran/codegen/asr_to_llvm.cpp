@@ -255,7 +255,7 @@ public:
      bool get_pointer=false) {
         ASR::ttypeType type_ = m_type_->type;
         int size = 0;
-        if( verify_dimensions_t(m_dims, rank) ) {
+        if( compile_time_dimensions_t(m_dims, rank) ) {
             size = 1;
             for( int r = 0; r < rank; r++ ) {
                 ASR::dimension_t m_dim = m_dims[r];
