@@ -30,6 +30,12 @@ TEST_CASE("Integer conversion") {
     i = 16777217;
     CHECK(string_to_uint64(uint64_to_string(i)) == i);
 
+    i = 4294967295LU;
+    CHECK(string_to_uint64(uint64_to_string(i)) == i);
+
+    i = 4294967296LU;
+    CHECK(string_to_uint64(uint64_to_string(i)) == i);
+
     i = 18446744073709551615LLU;
     CHECK(string_to_uint64(uint64_to_string(i)) == i);
 }
