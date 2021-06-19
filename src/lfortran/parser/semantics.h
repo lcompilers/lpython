@@ -1244,17 +1244,31 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*body*/ STMTS(body), \
         /*n_body*/ body.size())
 
-#define DO1(body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, \
+#define DO1(body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, 0, \
         nullptr, nullptr, nullptr, nullptr, \
         /*body*/ STMTS(body), \
         /*n_body*/ body.size())
 
-#define DO2(i, a, b, body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, \
+#define DO2(i, a, b, body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, 0, \
         name2char(i), EXPR(a), EXPR(b), nullptr, \
         /*body*/ STMTS(body), \
         /*n_body*/ body.size())
+#define DO2_LABEL(label, i, a, b, body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, \
+        label, name2char(i), EXPR(a), EXPR(b), nullptr, \
+        /*body*/ STMTS(body), \
+        /*n_body*/ body.size()); \
+        if (label == 0) { \
+            throw LFortran::ParserError("Zero is not a valid statement label", l, 0); \
+        }
 
-#define DO3(i, a, b, c, body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, \
+#define DO3_LABEL(label, i, a, b, c, body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, \
+        label, name2char(i), EXPR(a), EXPR(b), EXPR(c), \
+        /*body*/ STMTS(body), \
+        /*n_body*/ body.size()); \
+        if (label == 0) { \
+            throw LFortran::ParserError("Zero is not a valid statement label", l, 0); \
+        }
+#define DO3(i, a, b, c, body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, 0, \
         name2char(i), EXPR(a), EXPR(b), EXPR(c), \
         /*body*/ STMTS(body), \
         /*n_body*/ body.size())

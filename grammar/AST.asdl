@@ -138,8 +138,8 @@ stmt
     | DoConcurrentLoop(int label, identifier? stmt_name,
             concurrent_control *control, expr? mask,
             concurrent_locality* locality, stmt* body)
-    | DoLoop(int label, identifier? stmt_name, identifier? var, expr? start,
-            expr? end, expr? increment, stmt* body)
+    | DoLoop(int label, identifier? stmt_name, int do_label, identifier? var,
+            expr? start, expr? end, expr? increment, stmt* body)
     | ForAll(int label, identifier? stmt_name,
             concurrent_control *control, expr? mask,
             concurrent_locality* locality, stmt* body)
