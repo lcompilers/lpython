@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    536 // shift/reduce conflicts
-%expect-rr 84  // reduce/reduce conflicts
+%expect    581 // shift/reduce conflicts
+%expect-rr 93  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -419,8 +419,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> derived_type_contains_opt
 %type <vec_ast> proc_modifiers
 %type <vec_ast> proc_modifier_list
-%type <ast> equivalence_set
-%type <vec_ast> equivalence_set_list
+%type <equi> equivalence_set
+%type <vec_equi> equivalence_set_list
 
 // Precedence
 
@@ -933,16 +933,17 @@ var_decl
             $$ = VAR_DECL_COMMON($2, @$); }
     | KW_DATA data_set_list sep {
             $$ = VAR_DECL_DATA($2, @$); }
-    | KW_EQUIVALENCE equivalence_set_list { $$ = EQUIVALENCE($2, @$); }
+    | KW_EQUIVALENCE equivalence_set_list sep {
+        $$ = VAR_DECL_EQUIVALENCE($2, @$); }
     ;
 
 equivalence_set_list
-    : equivalence_set_list "," equivalence_set { $$ = $1; LIST_ADD($$, $3); }
-    | equivalence_set { LIST_NEW($$); LIST_ADD($$, $1); }
+    : equivalence_set_list "," equivalence_set { $$ = $1; PLIST_ADD($$, $3); }
+    | equivalence_set { LIST_NEW($$); PLIST_ADD($$, $1); }
     ;
 
 equivalence_set
-    : "(" expr_list ")" { $$ = $2; }
+    : "(" expr_list ")" { $$ = EQUIVALENCE_SET($2, @$); }
     ;
 
 named_constant_def_list

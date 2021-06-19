@@ -205,7 +205,7 @@ decl_attribute
     | AttrData(expr* object, expr* value)
     | AttrDimension(dimension* dim)
     | AttrCodimension(codimension* codim)
-    | AttrEquivalence(expr* args)
+    | AttrEquivalence(equi* args)
     | AttrExtends(identifier name)
     | AttrIntent(attr_intent intent)
     | AttrNamelist(identifier name)
@@ -277,6 +277,8 @@ codimension = (expr? start, expr? end, codimension_type end_star)
 codimension_type = CodimensionExpr | CodimensionStar
 
 symbol = None | Assign | Equal | Asterisk
+
+equi = (expr* set_list)
 
 -- Encoding of an array dimension declaration:
 --           start      end     end_star
