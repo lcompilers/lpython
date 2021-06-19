@@ -31,6 +31,11 @@ interface
     integer function minval(x)
     integer, intent(in) :: x(:)
     end function
+
+    integer function real(x, kind)
+    integer, intent(in) :: x(:)
+    integer, intent(in) :: kind
+    end function
 end interface
 
 end module
