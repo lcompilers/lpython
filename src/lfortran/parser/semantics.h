@@ -1244,17 +1244,17 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*body*/ STMTS(body), \
         /*n_body*/ body.size())
 
-#define DO1(body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, \
+#define DO1(body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, 0, \
         nullptr, nullptr, nullptr, nullptr, \
         /*body*/ STMTS(body), \
         /*n_body*/ body.size())
 
-#define DO2(label, i, a, b, body, l) make_DoLoop_t(p.m_a, l, label, nullptr, \
+#define DO2(label, i, a, b, body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, label, \
         name2char(i), EXPR(a), EXPR(b), nullptr, \
         /*body*/ STMTS(body), \
         /*n_body*/ body.size())
 
-#define DO3(label, i, a, b, c, body, l) make_DoLoop_t(p.m_a, l, label, nullptr, \
+#define DO3(label, i, a, b, c, body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, label, \
         name2char(i), EXPR(a), EXPR(b), EXPR(c), \
         /*body*/ STMTS(body), \
         /*n_body*/ body.size())

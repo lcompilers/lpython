@@ -1587,11 +1587,12 @@ public:
 
     void visit_DoLoop(const DoLoop_t &x) {
         std::string r = indent;
+        r += print_label(x);
         r += print_stmt_name(x);
         r += syn(gr::Repeat);
         r += "do";
-        if (x.m_label){
-            r += " " + std::to_string(x.m_label);
+        if (x.m_do_label){
+            r += " " + std::to_string(x.m_do_label);
         }
         r += syn();
         if (x.m_var) {
