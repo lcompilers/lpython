@@ -48,6 +48,10 @@ uint64_t static inline string_to_uint64(const char *s) {
             p[7];
 }
 
+uint32_t static inline string_to_uint32(const std::string &s) {
+    return string_to_uint32(&s[0]);
+}
+
 uint64_t static inline string_to_uint64(const std::string &s) {
     return string_to_uint64(&s[0]);
 }
