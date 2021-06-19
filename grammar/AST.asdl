@@ -36,6 +36,8 @@ mod
         unit_decl2* decl, program_unit* contains)
     | Submodule(identifier id,identifier name, unit_decl1* use,
         implicit_statement* implicit, unit_decl2* decl, program_unit* contains)
+    | BlockData(identifier? name, unit_decl1* use,
+        implicit_statement* implicit, unit_decl2* decl)
     | Program(identifier name, unit_decl1* use, implicit_statement* implicit,
         unit_decl2* decl, stmt* body, program_unit* contains)
 
@@ -129,7 +131,8 @@ stmt
 -- Multi-line statements (each has a `label` and `stmt_name`):
     | AssociateBlock(int label, identifier? stmt_name, var_sym* syms,
             stmt* body)
-    | Block(int label, identifier? stmt_name, unit_decl2* decl, stmt* body)
+    | Block(int label, identifier? stmt_name, unit_decl1* use,
+            import_statement* import,unit_decl2* decl, stmt* body)
     | Critical(int label, identifier? stmt_name, event_attribute* sync_stat,
             stmt* body)
     | DoConcurrentLoop(int label, identifier? stmt_name,
@@ -169,6 +172,8 @@ expr
     | BOZ(string s)
     | Name(identifier id, struct_member* member)
     | Logical(bool value)
+    | DataImpliedDo(expr* object_list, decl_attribute? type,
+        identifier var, expr start, expr end, expr? increment)
 
 boolop = And | Or | Eqv | NEqv
 
@@ -197,6 +202,7 @@ procedure_decl
 
 decl_attribute
     = AttrBind(identifier name)
+    | AttrData(expr* object, expr* value)
     | AttrDimension(dimension* dim)
     | AttrCodimension(codimension* codim)
     | AttrExtends(identifier name)
@@ -213,6 +219,7 @@ simple_attribute
     = AttrAbstract
     | AttrAllocatable
     | AttrAsynchronous
+    | AttrCommon
     | AttrContiguous
     | AttrElemental
     | AttrEnumerator

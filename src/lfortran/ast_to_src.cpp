@@ -293,6 +293,39 @@ public:
         s = r;
     }
 
+    void visit_BlockData(const BlockData_t &x) {
+        std::string r = indent;
+        r += syn(gr::UnitHeader);
+        r += "block data";
+        r += syn();
+        if(x.m_name) {
+            r += " ";
+            r.append(x.m_name);
+        }
+        r.append("\n");
+        inc_indent();
+        for (size_t i=0; i<x.n_use; i++) {
+            this->visit_unit_decl1(*x.m_use[i]);
+            r.append(s);
+        }
+        r += format_implicit(x);
+        for (size_t i=0; i<x.n_decl; i++) {
+            this->visit_unit_decl2(*x.m_decl[i]);
+            r.append(s);
+        }
+        dec_indent();
+        r += indent;
+        r += syn(gr::UnitHeader);
+        r.append("end block data");
+        r += syn();
+        if(x.m_name) {
+            r += " ";
+            r.append(x.m_name);
+        }
+        r += "\n";
+        s = r;
+    }
+
     void visit_Program(const Program_t &x) {
         std::string r;
         r += syn(gr::UnitHeader);
@@ -892,6 +925,12 @@ public:
                 r += s;
                 if (i < x.n_syms-1) r.append(", ");
             }
+        } else if (x.m_vartype == nullptr && x.n_attributes == 1 &&
+                is_a<SimpleAttribute_t>(*x.m_attributes[0]) &&
+                down_cast<SimpleAttribute_t>(x.m_attributes[0])->m_attr
+                == simple_attributeType::AttrCommon) {
+            visit_Common(x);
+            r.append(s);
         } else {
             if (x.m_vartype) {
                 visit_decl_attribute(*x.m_vartype);
@@ -899,6 +938,12 @@ public:
                 if (x.n_attributes > 0) r.append(", ");
             }
             for (size_t i=0; i<x.n_attributes; i++) {
+                if(x.m_attributes[i]->type == decl_attributeType::AttrData
+                        && i == 0 ){
+                    r += syn(gr::Type);
+                    r += "data ";
+                    r += syn();
+                }
                 visit_decl_attribute(*x.m_attributes[i]);
                 r += s;
                 if (i < x.n_attributes-1) r.append(", ");
@@ -947,6 +992,73 @@ public:
             this->visit_decl_attribute(*x.m_spec);
             r.append(s);
         }
+        s = r;
+    }
+
+    void visit_Common(const Declaration_t &x) {
+        std::string r;
+        r += syn(gr::Type);
+        r += "common ";
+        r += syn();
+        for (size_t i=0; i<x.n_syms; i++) {
+            if(x.m_syms[i].m_name){
+                r += "/";
+                r.append(x.m_syms[i].m_name);
+                r += "/ ";
+            }
+            if (x.m_syms[i].m_initializer) {
+                visit_expr(*x.m_syms[i].m_initializer);
+                r += s;
+            }
+            if (i < x.n_syms-1) r.append(", ");
+        }
+        s = r;
+    }
+
+    void visit_AttrData(const AttrData_t &x) {
+        std::string r;
+        for (size_t i=0; i<x.n_object; i++) {
+            this->visit_expr(*x.m_object[i]);
+            r.append(s);
+            if (i < x.n_object-1) r.append(", ");
+        }
+        r += "/";
+        for (size_t i=0; i<x.n_value; i++) {
+            this->visit_expr(*x.m_value[i]);
+            r.append(s);
+            if (i < x.n_value-1) r.append(", ");
+        }
+        r += "/";
+        s = r;
+    }
+
+    void visit_DataImpliedDo(const DataImpliedDo_t &x) {
+        std::string r;
+        r += "(";
+        for (size_t i=0; i<x.n_object_list; i++) {
+            this->visit_expr(*x.m_object_list[i]);
+            r.append(s);
+            if (i < x.n_object_list-1) r.append(", ");
+        }
+        r += ", ";
+        if (x.m_type) {
+            this->visit_decl_attribute(*x.m_type);
+            r.append(s);
+            r += " :: ";
+        }
+        r.append(x.m_var);
+        r += " = ";
+        this->visit_expr(*x.m_start);
+        r.append(s);
+        r += ", ";
+        this->visit_expr(*x.m_end);
+        r.append(s);
+        if (x.m_increment) {
+            r += ", ";
+            this->visit_expr(*x.m_increment);
+            r.append(s);
+        }
+        r += ")";
         s = r;
     }
 
@@ -1629,6 +1741,11 @@ public:
         r += syn();
         r.append("\n");
         inc_indent();
+        for (size_t i=0; i<x.n_use; i++) {
+            this->visit_unit_decl1(*x.m_use[i]);
+            r.append(s);
+        }
+        r += format_import(x);
         for (size_t i=0; i<x.n_decl; i++) {
             this->visit_unit_decl2(*x.m_decl[i]);
             r.append(s);
@@ -2419,29 +2536,19 @@ public:
     void visit_Str(const Str_t &x) {
         s = syn(gr::String);
         std::string r = x.m_s;
-        if (!(r.find("\"") < r.length())){
-            s += "\"";
-            s.append(r);
-            s += "\"";
-        } else if (r.find("\"") < r.length() && !(r.find("'") < r.length())){
+        int dq = 0, sq = 0;
+        for (auto x: r) {
+            if (x == '"') dq++;
+            if (x == '\'') sq++;
+        }
+        if (dq > sq) {
             s += "'";
-            s.append(r);
+            s += replace(r, "'", "''");
             s += "'";
-        } else if (r.find("\"") < r.length() && (r.find("'") < r.length())){
-            int dq = 0, sq = 0;
-            for(auto x: r) {
-                if(x == '"') dq++;
-                if(x == '\'') sq++;
-            }
-            if(dq > sq) {
-                s += "'";
-                s += replace(r, "'", "''");
-                s += "'";
-            } else {
-                s += "\"";
-                s += replace(r, "\"", "\"\"");
-                s += "\"";
-            }
+        } else {
+            s += "\"";
+            s += replace(r, "\"", "\"\"");
+            s += "\"";
         }
         s += syn();
     }

@@ -1,6 +1,7 @@
 #include <tests/doctest.h>
 #include <iostream>
 
+#include <lfortran/bwriter.h>
 #include <lfortran/serialization.h>
 #include <lfortran/modfile.h>
 #include <lfortran/pickle.h>
@@ -11,25 +12,41 @@
 
 using LFortran::string_to_uint64;
 using LFortran::uint64_to_string;
+using LFortran::string_to_uint32;
+using LFortran::uint32_to_string;
 
 TEST_CASE("Integer conversion") {
     uint64_t i;
     i = 1;
+    CHECK(string_to_uint32(uint32_to_string(i)) == i);
     CHECK(string_to_uint64(uint64_to_string(i)) == i);
 
     i = 150;
+    CHECK(string_to_uint32(uint32_to_string(i)) == i);
     CHECK(string_to_uint64(uint64_to_string(i)) == i);
 
     i = 256;
+    CHECK(string_to_uint32(uint32_to_string(i)) == i);
     CHECK(string_to_uint64(uint64_to_string(i)) == i);
 
     i = 65537;
+    CHECK(string_to_uint32(uint32_to_string(i)) == i);
     CHECK(string_to_uint64(uint64_to_string(i)) == i);
 
     i = 16777217;
+    CHECK(string_to_uint32(uint32_to_string(i)) == i);
+    CHECK(string_to_uint64(uint64_to_string(i)) == i);
+
+    i = 4294967295LU;
+    CHECK(string_to_uint32(uint32_to_string(i)) == i);
+    CHECK(string_to_uint64(uint64_to_string(i)) == i);
+
+    i = 4294967296LU;
+    CHECK(string_to_uint32(uint32_to_string(i)) != i);
     CHECK(string_to_uint64(uint64_to_string(i)) == i);
 
     i = 18446744073709551615LLU;
+    CHECK(string_to_uint32(uint32_to_string(i)) != i);
     CHECK(string_to_uint64(uint64_to_string(i)) == i);
 }
 

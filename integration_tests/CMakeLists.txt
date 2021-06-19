@@ -145,8 +145,8 @@ RUN(NAME arrays_05 LABELS gfortran cpp)
 
 # GFortran
 RUN(NAME arrays_02 LABELS gfortran)
-RUN(NAME arrays_06 LABELS gfortran, llvm)
-RUN(NAME arrays_07 LABELS gfortran)
+RUN(NAME arrays_06 LABELS gfortran llvm)
+RUN(NAME arrays_07 LABELS gfortran llvm)
 RUN(NAME arrays_08_func LABELS gfortran llvm)
 
 RUN(NAME reserved_01 LABELS gfortran)
