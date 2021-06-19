@@ -542,7 +542,7 @@ int save_mod_files(const LFortran::ASR::TranslationUnit_t &u)
             std::string modfile = std::string(m->m_name) + ".mod";
             {
                 std::ofstream out;
-                out.open(modfile);
+                out.open(modfile, std::ofstream::out | std::ofstream::binary);
                 out << modfile_binary;
             }
         }

@@ -36,6 +36,12 @@ int min(int a, int b)
     return r;
 }
 
+int minval(const Kokkos::View<const int*> &x)
+{
+    int r;
+    return r;
+}
+
 int ubound(const Kokkos::View<const int*> &x, int dim)
 {
     int r;
