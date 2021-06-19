@@ -12,40 +12,64 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
+int abs(const Kokkos::View<const int*> &x)
+{
+    int abs;
+    return abs;
+}
+
 bool allocated(const Kokkos::View<const int*> &x)
 {
-    bool r;
-    return r;
+    bool allocated;
+    return allocated;
 }
 
 int lbound(const Kokkos::View<const int*> &x, int dim)
 {
-    int r;
-    return r;
+    int lbound;
+    return lbound;
 }
 
 int max(int a, int b)
 {
-    int r;
-    return r;
+    int max;
+    return max;
+}
+
+int maxval(const Kokkos::View<const int*> &x)
+{
+    int maxval;
+    return maxval;
 }
 
 int min(int a, int b)
 {
-    int r;
-    return r;
+    int min;
+    return min;
 }
 
 int minval(const Kokkos::View<const int*> &x)
 {
-    int r;
-    return r;
+    int minval;
+    return minval;
+}
+
+int real(const Kokkos::View<const int*> &x, int kind)
+{
+    int real;
+    return real;
+}
+
+int sum(const Kokkos::View<const int*> &x)
+{
+    int sum;
+    return sum;
 }
 
 int ubound(const Kokkos::View<const int*> &x, int dim)
 {
-    int r;
-    return r;
+    int ubound;
+    return ubound;
 }
 
 void sum_reduce(const Kokkos::View<const float*> &a, float &s)
