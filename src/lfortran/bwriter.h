@@ -31,7 +31,10 @@ uint32_t static inline string_to_uint32(const char *s) {
     // The cast from signed char to unsigned char is important,
     // otherwise the signed char shifts return wrong value for negative numbers
     const uint8_t *p = (const unsigned char*)s;
-    return (p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3];
+    return (((uint32_t)p[0]) << 24) |
+           (((uint32_t)p[1]) << 16) |
+           (((uint32_t)p[2]) <<  8) |
+                       p[3];
 }
 
 uint64_t static inline string_to_uint64(const char *s) {
@@ -45,7 +48,7 @@ uint64_t static inline string_to_uint64(const char *s) {
            (((uint64_t)p[4]) << 24) |
            (((uint64_t)p[5]) << 16) |
            (((uint64_t)p[6]) <<  8) |
-            p[7];
+                       p[7];
 }
 
 uint32_t static inline string_to_uint32(const std::string &s) {
