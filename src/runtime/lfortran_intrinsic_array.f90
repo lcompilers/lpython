@@ -32,6 +32,10 @@ interface
     integer, intent(in) :: x(:)
     end function
 
+    integer function maxval(x)
+    integer, intent(in) :: x(:)
+    end function
+
     integer function sum(x)
     integer, intent(in) :: x(:)
     end function
