@@ -4,11 +4,11 @@ integer, allocatable :: a(:), b(:,:), c(:,:,:)
 integer :: n, ierr
 integer :: i, j, k
 n = 10
-allocate(a(n + 5))
-allocate(b(2*n, 3*n), c(n, n, 10), stat=ierr)
-if( size(a) /= n + 5 ) error stop
-if( size(b) /= 2*n*3*n ) error stop
-if( size(c) /= n*n*10 ) error stop
+allocate(a(5:n + 5))
+allocate(b(n:2*n, n:3*n), c(n, 2:n, 3:10), stat=ierr)
+if( size(a) /= n + 1 ) error stop
+if( size(b) /= (n + 1)*(2*n + 1) ) error stop
+if( size(c) /= n*(n - 1)*8 ) error stop
 do i = lbound(a, 1), ubound(a, 1)
     a(i) = i
 end do
