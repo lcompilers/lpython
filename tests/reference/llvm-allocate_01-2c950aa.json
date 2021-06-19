@@ -1,12 +1,12 @@
 {
-    "basename": "asr-allocate_01-f3446f6",
-    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "basename": "llvm-allocate_01-2c950aa",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
     "infile": "tests/../integration_tests/allocate_01.f90",
     "infile_hash": "ef1ec5e1d03431d1f75380421bb3da31d15126ea441ffefbf43a8039",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "asr-allocate_01-f3446f6.stdout",
-    "stdout_hash": "95cfbe0c3c3b1394eb7894fa14c9297d927b649d7de93e41013c0522",
+    "stdout": "llvm-allocate_01-2c950aa.stdout",
+    "stdout_hash": "25264e9d3250680567a4530d1857da4092920a280d442d91998db1db",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
