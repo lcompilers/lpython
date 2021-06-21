@@ -1384,6 +1384,14 @@ public:
         r += " ";
         for (size_t i=0; i<x.n_member; i++) {
             r.append(x.m_member[i].m_name);
+            for (size_t j=0; j<x.m_member[i].n_args; j++) {
+                r += "(";
+                if(x.m_member[i].m_args[j].m_end) {
+                    this->visit_expr(*x.m_member[i].m_args[j].m_end);
+                    r.append(s);
+                }
+                r += ")";
+            }
             r.append("%");
         }
         r.append(x.m_name);
