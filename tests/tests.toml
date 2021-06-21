@@ -557,6 +557,7 @@ ast = true
 [[test]]
 filename = "interface2.f90"
 ast = true
+ast_f90 = true
 
 [[test]]
 filename = "interface3.f90"
