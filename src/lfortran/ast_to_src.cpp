@@ -821,7 +821,7 @@ public:
             r += "all";
             r += syn();
         } else if (x.m_mod == import_modifierType::ImportDefault) {
-            r += " ::";
+            if (x.n_symbols) r += " ::";
         }
         if (x.n_symbols > 0) {
             r += " ";
