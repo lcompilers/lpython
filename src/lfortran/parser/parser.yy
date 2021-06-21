@@ -596,7 +596,7 @@ operator_type
     | ">"      { $$ = OPERATOR(GT, @$); }
     | ">="     { $$ = OPERATOR(GTE, @$); }
     | "<"      { $$ = OPERATOR(LT, @$); }
-    | "<="     { $$ = OPERATOR(GTE, @$); }
+    | "<="     { $$ = OPERATOR(LTE, @$); }
     | ".not."  { $$ = OPERATOR(NOT, @$); }
     | ".and."  { $$ = OPERATOR(AND, @$); }
     | ".or."   { $$ = OPERATOR(OR, @$); }
