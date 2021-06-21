@@ -40,5 +40,6 @@ do i = lbound(c, 1), ubound(c, 1)
         end do
     end do
 end do
-!deallocate(a, c)
+deallocate(b)
+deallocate(a, c)
 end

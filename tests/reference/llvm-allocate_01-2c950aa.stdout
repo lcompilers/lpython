@@ -886,6 +886,30 @@ loop.end52:                                       ; preds = %loop.head43
   br label %loop.head41
 
 loop.end53:                                       ; preds = %loop.head41
+  %488 = load %array.1, %array.1* %b, align 8
+  %489 = getelementptr %array.1, %array.1* %b, i32 0, i32 0
+  %490 = load i32*, i32** %489, align 8
+  %491 = alloca i8*, align 8
+  %492 = bitcast i32* %490 to i8*
+  store i8* %492, i8** %491, align 8
+  %493 = load i8*, i8** %491, align 8
+  call void (i8*, ...) @_lfortran_free(i8* %493)
+  %494 = load %array.0, %array.0* %a, align 8
+  %495 = getelementptr %array.0, %array.0* %a, i32 0, i32 0
+  %496 = load i32*, i32** %495, align 8
+  %497 = alloca i8*, align 8
+  %498 = bitcast i32* %496 to i8*
+  store i8* %498, i8** %497, align 8
+  %499 = load i8*, i8** %497, align 8
+  call void (i8*, ...) @_lfortran_free(i8* %499)
+  %500 = load %array.2, %array.2* %c, align 8
+  %501 = getelementptr %array.2, %array.2* %c, i32 0, i32 0
+  %502 = load i32*, i32** %501, align 8
+  %503 = alloca i8*, align 8
+  %504 = bitcast i32* %502 to i8*
+  store i8* %504, i8** %503, align 8
+  %505 = load i8*, i8** %503, align 8
+  call void (i8*, ...) @_lfortran_free(i8* %505)
   ret i32 0
 }
 
@@ -894,4 +918,6 @@ declare i8* @_lfortran_malloc(i32, ...)
 declare void @_lfortran_printf(i8*, ...)
 
 declare void @exit(i32)
+
+declare void @_lfortran_free(i8*, ...)
 

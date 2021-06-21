@@ -970,6 +970,29 @@ public:
         }
     }
 
+    void visit_Deallocate(const ASR::Deallocate_t& x) {
+        std::string func_name = "_lfortran_free";
+        llvm::Function *fn = module->getFunction(func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {
+                        character_type
+                    }, true);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, func_name, *module);
+        }
+        for( size_t i = 0; i < x.n_args; i++ ) {
+            ASR::expr_t* curr_obj = x.m_args[i];
+            this->visit_expr(*curr_obj);
+            // std::cout<<tmp->getType()->isStructTy()<<std::endl;
+            llvm::Value* arr = builder->CreateLoad(create_gep(tmp, 0));
+            llvm::AllocaInst *arg_arr = builder->CreateAlloca(character_type, nullptr);
+            builder->CreateStore(builder->CreateBitCast(arr, character_type), arg_arr);
+            std::vector<llvm::Value*> args = {builder->CreateLoad(arg_arr)};
+            builder->CreateCall(fn, args);
+        }
+    }
+
     void visit_ArrayRef(const ASR::ArrayRef_t& x) {
         get_single_element(x);
     }
@@ -2526,6 +2549,19 @@ public:
         tmp = builder->CreateLoad(tmp);
     }
 
+    inline bool is_llvm_val_array(llvm::Value* x) {
+        if( x->getType()->isStructTy() ) {
+            llvm::StructType* x_struct = static_cast<llvm::StructType*>
+                                            (x->getType());
+            if( x_struct->getNumElements() == 3 &&
+                x_struct->getElementType(2)->isArrayTy() && 
+                static_cast<llvm::ArrayType*>(x_struct->getElementType(2))
+                ->getElementType() == dim_des )
+            return true;
+        }
+        return false;
+    }
+
     inline void fetch_val(ASR::Variable_t* x) {
         uint32_t x_h = get_hash((ASR::asr_t*)x);
         llvm::Value* x_v;
@@ -2548,6 +2584,15 @@ public:
             x_v = llvm_symtab[x_h];
         }
         tmp = builder->CreateLoad(x_v);
+
+        // std::cout<<"Variable: "<<x->m_name<<" "<<is_llvm_val_array(tmp)<<std::endl;
+        // std::cout<<"Variable: "<<x->m_name<<" "<<(static_cast<llvm::StructType*>(tmp->getType())->getNumElements() == 3)<<std::endl;
+        // if( static_cast<llvm::StructType*>(tmp->getType())->getNumElements() == 3 ) {
+        // std::cout<<"Variable: "<<x->m_name<<" "<<(static_cast<llvm::StructType*>(tmp->getType())->getElementType(2) == dim_des)<<std::endl;
+        // }
+        if( is_llvm_val_array(tmp) ) {
+            tmp = x_v;
+        }
     }
 
     inline void fetch_var(ASR::Variable_t* x) {

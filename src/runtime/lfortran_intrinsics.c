@@ -563,4 +563,8 @@ void _lfortran_strcat(char** s1, char** s2, char** dest)
 
 __int8_t* _lfortran_malloc(int size) {
     return (__int8_t*)malloc(size);
-} 
+}
+
+void _lfortran_free(__int8_t* ptr) {
+    free((void*)ptr);
+}
