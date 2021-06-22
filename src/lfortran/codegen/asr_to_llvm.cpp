@@ -139,7 +139,18 @@ public:
     // Data Members for handling arrays
     llvm::StructType* dim_des;
     std::map<int, llvm::ArrayType*> rank2desc;
+    /*
+        Stores pointer to the unique array descriptor (for arrays on stack) 
+        according to the element type, element type size (in bytes), the 
+        number of dimensions and the total number of elements 
+        (0 if not available at compile time)
+    */
     std::map<std::pair<std::pair<int, int>, std::pair<int, int>>, llvm::StructType*> tkr2array;
+    /*
+        Stores pointer to the unique array descriptor (for arrays on heap) 
+        according to the element type, element type size (in bytes), the 
+        number of dimensions
+    */
     std::map<std::pair<std::pair<int, int>, int>, llvm::StructType*> tkr2mallocarray;
     std::unordered_map<std::uint32_t, std::unordered_map<std::string, llvm::Type*>> arr_arg_type_cache;
 
@@ -259,8 +270,8 @@ public:
             size = 1;
             for( int r = 0; r < rank; r++ ) {
                 ASR::dimension_t m_dim = m_dims[r];
-                int start = ((ASR::ConstantInteger_t*)(m_dim.m_start))->m_n;
-                int end = ((ASR::ConstantInteger_t*)(m_dim.m_end))->m_n;
+                int start = down_cast<ASR::ConstantInteger_t*>(m_dim.m_start)->m_n;
+                int end = down_cast<ASR::ConstantInteger_t*>(m_dim.m_end)->m_n;
                 size *= (end - start + 1);
             }
         }
@@ -427,6 +438,11 @@ public:
         }
     }
 
+    /*
+        This function fills the descriptor 
+        (pointer to the first element, offset and descriptor of each dimension) 
+        of the array which are allocated memory in heap. 
+    */
     inline void fill_malloc_array_details(llvm::Value* arr, ASR::dimension_t* m_dims, 
                                             int n_dims) {
         llvm::Value* num_elements = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
