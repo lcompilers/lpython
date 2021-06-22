@@ -1386,8 +1386,30 @@ public:
             r.append(x.m_member[i].m_name);
             for (size_t j=0; j<x.m_member[i].n_args; j++) {
                 r += "(";
-                if(x.m_member[i].m_args[j].m_end) {
-                    this->visit_expr(*x.m_member[i].m_args[j].m_end);
+                expr_t *start = x.m_member[i].m_args[j].m_start;
+                expr_t *end = x.m_member[i].m_args[j].m_end;
+                expr_t *step = x.m_member[i].m_args[j].m_step;
+                if (step != nullptr) {
+                    if (start) {
+                        this->visit_expr(*start);
+                        r.append(s);
+                    }
+                    r += ":";
+                    if (end) {
+                        this->visit_expr(*end);
+                        r.append(s);
+                    }
+                    if (step == nullptr) {
+                        throw LFortranException("Step cannot be a nullptr");
+                    } else if (!is_a<Num_t>(*step)) {
+                        r += ":";
+                        this->visit_expr(*step);
+                        r.append(s);
+                    }
+                } else {
+                    LFORTRAN_ASSERT(end != nullptr);
+                    LFORTRAN_ASSERT(start == nullptr);
+                    this->visit_expr(*end);
                     r.append(s);
                 }
                 r += ")";
