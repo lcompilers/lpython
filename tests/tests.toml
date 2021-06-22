@@ -1200,6 +1200,5 @@ ast = true
 ast_f90 = true
 
 [[test]]
-filename = "struct_member.f90"
-ast = true
+filename = "arrayelements1.f90"
 ast_f90 = true
