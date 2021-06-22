@@ -2,11 +2,11 @@
     "basename": "ast-Subroutine_Call1-8e53e13",
     "cmd": "lfortran --show-ast --no-color {infile} -o {outfile}",
     "infile": "tests/Subroutine_Call1.f90",
-    "infile_hash": "47a186744269355dcf5224f462be7ed2935ada8af8263566675c21e3",
+    "infile_hash": "bf7f51f810752b3f8e9381f1e100d0c9b3495c2f87cd120a6ee74148",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast-Subroutine_Call1-8e53e13.stdout",
-    "stdout_hash": "acef2f3d967a4cf59f8784c4341ebccb614046c84e8c2cf825c5bdfd",
+    "stdout_hash": "3a8fb754ac57e4659e2f1c98f3004787a6235319705797468e743784",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
