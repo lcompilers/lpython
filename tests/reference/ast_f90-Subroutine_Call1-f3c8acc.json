@@ -2,11 +2,11 @@
     "basename": "ast_f90-Subroutine_Call1-f3c8acc",
     "cmd": "lfortran --show-ast-f90 --no-color {infile}",
     "infile": "tests/Subroutine_Call1.f90",
-    "infile_hash": "47a186744269355dcf5224f462be7ed2935ada8af8263566675c21e3",
+    "infile_hash": "bf7f51f810752b3f8e9381f1e100d0c9b3495c2f87cd120a6ee74148",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast_f90-Subroutine_Call1-f3c8acc.stdout",
-    "stdout_hash": "81ffa5edf9c8e17a5456dbdbc5bb1cfba519b17d0a8aac9481bb5a41",
+    "stdout_hash": "a02af0f4da9788b82cf8568d648b2c6784865a62233169cd96691f84",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
