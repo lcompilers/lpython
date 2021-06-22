@@ -270,8 +270,8 @@ public:
             size = 1;
             for( int r = 0; r < rank; r++ ) {
                 ASR::dimension_t m_dim = m_dims[r];
-                int start = down_cast<ASR::ConstantInteger_t*>(m_dim.m_start)->m_n;
-                int end = down_cast<ASR::ConstantInteger_t*>(m_dim.m_end)->m_n;
+                int start = down_cast<ASR::ConstantInteger_t>(m_dim.m_start)->m_n;
+                int end = down_cast<ASR::ConstantInteger_t>(m_dim.m_end)->m_n;
                 size *= (end - start + 1);
             }
         }
