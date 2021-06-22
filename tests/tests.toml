@@ -1198,3 +1198,7 @@ asr = true
 filename = "attributes1.f90"
 ast = true
 ast_f90 = true
+
+[[test]]
+filename = "arrayelements1.f90"
+ast_f90 = true
