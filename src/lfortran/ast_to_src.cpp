@@ -2613,16 +2613,29 @@ public:
                         expr_t *start = x.m_member[i].m_args[j].m_start;
                         expr_t *end = x.m_member[i].m_args[j].m_end;
                         expr_t *step = x.m_member[i].m_args[j].m_step;
-                        // TODO: Also show start, and step correctly
-                        LFORTRAN_ASSERT(start == nullptr);
-                        LFORTRAN_ASSERT(end != nullptr);
-                        LFORTRAN_ASSERT(step == nullptr);
-                        if (end) {
+                        if (step != nullptr) {
+                            if (start) {
+                                this->visit_expr(*start);
+                                r.append(s);
+                            }
+                            r += ":";
+                            if (end) {
+                                this->visit_expr(*end);
+                                r.append(s);
+                            }
+                            if (step == nullptr) {
+                                throw LFortranException("Step cannot be a nullptr");
+                            } else if (!is_a<Num_t>(*step)) {
+                                r += ":";
+                                this->visit_expr(*step);
+                                r.append(s);
+                            }
+                        } else {
+                            LFORTRAN_ASSERT(end != nullptr);
+                            LFORTRAN_ASSERT(start == nullptr);
                             this->visit_expr(*end);
-                            r.append(s);
+                            r += s;
                         }
-                        if (start) {}
-                        if (step) {}
                         if (i < x.m_member[i].n_args-1) r.append(",");
                     }
                     r.append(")");
