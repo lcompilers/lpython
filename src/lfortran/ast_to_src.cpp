@@ -2623,7 +2623,8 @@ public:
                                 this->visit_expr(*end);
                                 r.append(s);
                             }
-                            if (down_cast<Num_t>(step)->m_n != 1) {
+                            if (is_a<Num_t>(*step) &&
+                                    down_cast<Num_t>(step)->m_n != 1) {
                                 r += ":";
                                 this->visit_expr(*step);
                                 r.append(s);
