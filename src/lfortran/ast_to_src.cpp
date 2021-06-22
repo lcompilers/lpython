@@ -1399,18 +1399,17 @@ public:
                         this->visit_expr(*end);
                         r.append(s);
                     }
-                    if (step == nullptr) {
-                        throw LFortranException("Step cannot be a nullptr");
-                    } else if (!is_a<Num_t>(*step)) {
+                    if (is_a<Num_t>(*step) &&
+                            down_cast<Num_t>(step)->m_n != 1) {
                         r += ":";
                         this->visit_expr(*step);
                         r.append(s);
                     }
-                } else {
-                    LFORTRAN_ASSERT(end != nullptr);
-                    LFORTRAN_ASSERT(start == nullptr);
+                } else if (end != nullptr && start == nullptr) {
                     this->visit_expr(*end);
                     r.append(s);
+                } else {
+                    throw LFortranException("Incorrect array elements");
                 }
                 r += ")";
             }
