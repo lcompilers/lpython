@@ -115,3 +115,5 @@ output
 *.out
 *.mod
 /.ccls-cache/
+ext/
+extsrc/
