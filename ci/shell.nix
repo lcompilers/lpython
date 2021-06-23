@@ -3,7 +3,7 @@ let
   sources = import ./nix/sources.nix;
   pkgs = import sources.nixpkgs { };
   mach-nix = import (builtins.fetchGit {
-    url = "https://github.com/DavHau/mach-nix/";
+    url = "https://github.com/DavHau/mach-nix.git";
     ref = "refs/tags/3.1.1";
   }) {
     pkgs = pkgs;
