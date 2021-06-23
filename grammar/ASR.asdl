@@ -93,7 +93,7 @@ symbol
         expr? value, storage_type storage, ttype type, abi abi, access access,
         presence presence)
 
-storage_type = Default | Save | Parameter
+storage_type = Default | Save | Parameter | Allocatable
 access = Public | Private
 intent = Local | In | Out | InOut | ReturnVar | Unspecified
 deftype = Implementation | Interface
@@ -139,11 +139,11 @@ abi                   -- External     ABI
 
 
 stmt
-    = Allocate()
+    = Allocate(alloc_arg* args, expr? stat)
     | Assignment(expr target, expr value)
     | Associate(expr target, expr value)
     | Cycle()
-    | Deallocate()
+    | Deallocate(expr* args)
     | DoConcurrentLoop(do_loop_head head, stmt* body)
     | DoLoop(do_loop_head head, stmt* body)
     | ErrorStop(expr? code)
@@ -219,6 +219,8 @@ cast_kind
     | ComplexToComplex
 
 dimension = (expr? start, expr? end)
+
+alloc_arg = (symbol a, dimension* dims)
 
 attribute = Attribute(identifier name, attribute_arg *args)
 
