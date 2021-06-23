@@ -940,6 +940,10 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "../integration_tests/intrinsics_07.f90"
+asr = true
+
+[[test]]
 filename = "../integration_tests/intrinsics_open_close_read_write.f90"
 asr = true
 
