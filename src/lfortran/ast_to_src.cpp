@@ -821,7 +821,7 @@ public:
             r += "all";
             r += syn();
         } else if (x.m_mod == import_modifierType::ImportDefault) {
-            r += " ::";
+            if (x.n_symbols) r += " ::";
         }
         if (x.n_symbols > 0) {
             r += " ";
@@ -1062,6 +1062,30 @@ public:
         s = r;
     }
 
+    void visit_AttrEquivalence(const AttrEquivalence_t &x) {
+        std::string r;
+        r += syn(gr::Type);
+        r += "equivalence ";
+        r += syn();
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_equi(x.m_args[i]);
+            r.append(s);
+            if (i < x.n_args-1) r.append(", ");
+        }
+        s = r;
+    }
+
+    void visit_equi(const equi_t &x) {
+        std::string r;
+        r += "(";
+        for (size_t i=0; i<x.n_set_list; i++) {
+            this->visit_expr(*x.m_set_list[i]);
+            r.append(s);
+            if (i < x.n_set_list-1) r.append(", ");
+        }
+        r += ")";
+        s = r;
+    }
 #define ATTRTYPE(x) \
             case (simple_attributeType::Attr##x) : \
                 r.append(convert_to_lowercase(#x)); \
@@ -1075,11 +1099,15 @@ public:
             ATTRTYPE(Allocatable)
             ATTRTYPE(Asynchronous)
             ATTRTYPE(Contiguous)
+            ATTRTYPE(Deferred)
             ATTRTYPE(Elemental)
             ATTRTYPE(Enumerator)
             ATTRTYPE(Impure)
+            ATTRTYPE(Intrinsic)
             ATTRTYPE(Module)
             ATTRTYPE(NoPass)
+            ATTRTYPE(NonDeferred)
+            ATTRTYPE(Non_Intrinsic)
             ATTRTYPE(Optional)
             ATTRTYPE(Parameter)
             ATTRTYPE(Pointer)
@@ -1089,12 +1117,10 @@ public:
             ATTRTYPE(Pure)
             ATTRTYPE(Recursive)
             ATTRTYPE(Save)
+            ATTRTYPE(Sequence)
             ATTRTYPE(Target)
             ATTRTYPE(Value)
-            ATTRTYPE(Intrinsic)
-            ATTRTYPE(Non_Intrinsic)
-            ATTRTYPE(Deferred)
-            ATTRTYPE(NonDeferred)
+            ATTRTYPE(Volatile)
             default :
                 throw LFortranException("Attribute type not implemented");
         }
@@ -1358,6 +1384,35 @@ public:
         r += " ";
         for (size_t i=0; i<x.n_member; i++) {
             r.append(x.m_member[i].m_name);
+            for (size_t j=0; j<x.m_member[i].n_args; j++) {
+                r += "(";
+                expr_t *start = x.m_member[i].m_args[j].m_start;
+                expr_t *end = x.m_member[i].m_args[j].m_end;
+                expr_t *step = x.m_member[i].m_args[j].m_step;
+                if (step != nullptr) {
+                    if (start) {
+                        this->visit_expr(*start);
+                        r.append(s);
+                    }
+                    r += ":";
+                    if (end) {
+                        this->visit_expr(*end);
+                        r.append(s);
+                    }
+                    if (is_a<Num_t>(*step) &&
+                            down_cast<Num_t>(step)->m_n != 1) {
+                        r += ":";
+                        this->visit_expr(*step);
+                        r.append(s);
+                    }
+                } else if (end != nullptr && start == nullptr) {
+                    this->visit_expr(*end);
+                    r.append(s);
+                } else {
+                    throw LFortranException("Incorrect array elements");
+                }
+                r += ")";
+            }
             r.append("%");
         }
         r.append(x.m_name);
@@ -1624,6 +1679,9 @@ public:
         r += print_stmt_name(x);
         r += syn(gr::Repeat);
         r += "do";
+        if (x.m_do_label){
+            r += " " + std::to_string(x.m_do_label);
+        }
         r += syn();
         if (x.m_var) {
             r.append(" ");
@@ -2584,16 +2642,28 @@ public:
                         expr_t *start = x.m_member[i].m_args[j].m_start;
                         expr_t *end = x.m_member[i].m_args[j].m_end;
                         expr_t *step = x.m_member[i].m_args[j].m_step;
-                        // TODO: Also show start, and step correctly
-                        LFORTRAN_ASSERT(start == nullptr);
-                        LFORTRAN_ASSERT(end != nullptr);
-                        LFORTRAN_ASSERT(step == nullptr);
-                        if (end) {
+                        if (step != nullptr) {
+                            if (start) {
+                                this->visit_expr(*start);
+                                r.append(s);
+                            }
+                            r += ":";
+                            if (end) {
+                                this->visit_expr(*end);
+                                r.append(s);
+                            }
+                            if (is_a<Num_t>(*step) &&
+                                    down_cast<Num_t>(step)->m_n != 1) {
+                                r += ":";
+                                this->visit_expr(*step);
+                                r.append(s);
+                            }
+                        } else if (end != nullptr && start == nullptr) {
                             this->visit_expr(*end);
                             r.append(s);
+                        } else {
+                            throw LFortranException("Incorrect array elements");
                         }
-                        if (start) {}
-                        if (step) {}
                         if (i < x.m_member[i].n_args-1) r.append(",");
                     }
                     r.append(")");

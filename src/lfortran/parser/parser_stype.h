@@ -76,6 +76,9 @@ union YYSTYPE {
     Vec<AST::struct_member_t> vec_struct_member;
 
     AST::intrinsicopType interface_op_type;
+
+    AST::equi_t *equi;
+    Vec<AST::equi_t> vec_equi;
 };
 
 static_assert(std::is_standard_layout<YYSTYPE>::value);
