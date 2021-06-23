@@ -167,7 +167,6 @@ namespace LFortran {
                                                 ASR::ConstantReal_t>(
                                                 fc->m_args[0]);
                                                 auto rstring = std::string(r->m_r);
-                                                std::cout<<"Got a constant real at "<< fc->m_args[1]<<" which is "<<rstring<<"\n";
                                                 if (rstring.find("d") != std::string::npos) {
                                                     a_kind = 8; // double precision
                                                 } else {
@@ -179,7 +178,6 @@ namespace LFortran {
                                                 ASR::ConstantInteger_t>(
                                                 fc->m_args[0]);
                                                 int iint = i->m_n;
-                                                std::cout<<"Got a constant integer "<< fc->m_args[0]<<" which is "<<iint<<"\n";
                                             if (iint < 7) {
                                                 a_kind = 4;
                                             } else {
