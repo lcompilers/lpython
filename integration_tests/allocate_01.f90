@@ -1,6 +1,9 @@
 program allocate_01
 implicit none
-integer, allocatable :: a(:), b(:,:), c(:,:,:)
+integer, allocatable :: a(:)
+real, allocatable :: b(:, :) 
+complex, allocatable :: c(:, :, :)
+complex :: r
 integer :: n, ierr
 integer :: i, j, k
 n = 10
@@ -36,7 +39,8 @@ do i = lbound(c, 1), ubound(c, 1)
     end do
 end do
 
-if (reduce_sum(c) /= 114345) error stop
+r = reduce_sum(c)
+if (r /= (114345.0, 0.0)) error stop
 
 deallocate(b)
 deallocate(a, c)
@@ -46,8 +50,9 @@ contains
 subroutine sum(a, b, c)
 implicit none
 
-integer, intent(in) :: a(:), b(:, :)
-integer, intent(out) :: c(:, :, :)
+integer, intent(in) :: a(:)
+real, intent(in) :: b(:, :)
+complex, intent(out) :: c(:, :, :)
 integer :: i, j, k
 
 do i = lbound(a, 1), ubound(a, 1)
@@ -60,10 +65,10 @@ end do
 
 end subroutine sum
 
-integer function reduce_sum(c) result(r)
+complex function reduce_sum(c) result(r)
 implicit none
 
-integer, intent(in) :: c(:, :, :)
+complex, intent(in) :: c(:, :, :)
 integer :: i, j, k
 
 r = 0

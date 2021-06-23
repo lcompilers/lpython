@@ -487,9 +487,14 @@ class CommonVisitorMethods {
         if( (left_type->type != ASR::ttypeType::Real &&
             left_type->type != ASR::ttypeType::Integer) &&
             (right_type->type != ASR::ttypeType::Real &&
-             right_type->type != ASR::ttypeType::Integer) ) {
+             right_type->type != ASR::ttypeType::Integer) && 
+             ((left_type->type != ASR::ttypeType::Complex || 
+               right_type->type != ASR::ttypeType::Complex) && 
+               x.m_op != AST::cmpopType::Eq && 
+               x.m_op != AST::cmpopType::NotEq ) ) {
             throw SemanticError(
-                "Compare: only Integer or Real can be on the LHS and RHS",
+                "Compare: only Integer or Real can be on the LHS and RHS. "
+                "If operator is .eq. or .neq. then Complex type is also acceptable",
             x.base.base.loc);
         }
         else
