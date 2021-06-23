@@ -144,12 +144,16 @@ public:
         according to the element type, element type size (in bytes), the 
         number of dimensions and the total number of elements 
         (0 if not available at compile time)
+        Here, key of the std::map can be interpreted as follows,
+        ((type, kind), (rank, size)) = std::pair<std::pair<int, int>, std::pair<int, int>>
     */
     std::map<std::pair<std::pair<int, int>, std::pair<int, int>>, llvm::StructType*> tkr2array;
     /*
         Stores pointer to the unique array descriptor (for arrays on heap) 
         according to the element type, element type size (in bytes), the 
         number of dimensions
+        Here key of the std::map can be interpreted as follows,
+        ((type, kind), rank) = std::pair<std::pair<int, int>, int>
     */
     std::map<std::pair<std::pair<int, int>, int>, llvm::StructType*> tkr2mallocarray;
     std::unordered_map<std::uint32_t, std::unordered_map<std::string, llvm::Type*>> arr_arg_type_cache;
