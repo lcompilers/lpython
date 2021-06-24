@@ -151,8 +151,9 @@ namespace LFortran {
                                         ASR::down_cast<ASR::Function_t>(
                                         symbol_get_past_external(fc->m_name));
                                     if (std::string(fn->m_name)=="kind") {
-                                        if (fc->n_args == 1 &&
-                                            ASR::is_a<ASR::ConstantLogical_t>(
+                                        if (fc->n_args == 1){
+                                            // Start handling different constants
+                                            if (ASR::is_a<ASR::ConstantLogical_t>(
                                                     *fc->m_args[0])) {
                                             ASR::ConstantLogical_t *l = ASR::down_cast<
                                                 ASR::ConstantLogical_t>(
@@ -160,8 +161,34 @@ namespace LFortran {
                                             ASR::Logical_t *lt = ASR::down_cast<
                                                 ASR::Logical_t>(l->m_type);
                                             a_kind = lt->m_kind;
+                                        } else if (ASR::is_a<ASR::ConstantReal_t>(
+                                                    *fc->m_args[0])) {
+                                            ASR::ConstantReal_t *r = ASR::down_cast<
+                                                ASR::ConstantReal_t>(
+                                                fc->m_args[0]);
+                                                auto rstring = std::string(r->m_r);
+                                                if (rstring.find("d") != std::string::npos) {
+                                                    a_kind = 8; // double precision
+                                                } else {
+                                                    a_kind = 4; // single precision
+                                                }
+                                         } else if (ASR::is_a<ASR::ConstantInteger_t>(
+                                                    *fc->m_args[0])) {
+                                            ASR::ConstantInteger_t *i = ASR::down_cast<
+                                                ASR::ConstantInteger_t>(
+                                                fc->m_args[0]);
+                                                int iint = i->m_n;
+                                            if (iint < 7) {
+                                                a_kind = 4;
+                                            } else {
+                                                a_kind = 8;
+                                            }
+                                            } else {
+                                                throw SemanticError("kind supports Real, Integer and Logical",
+                                                                    loc);
+                                            }
                                         } else {
-                                            throw SemanticError("kind",
+                                            throw SemanticError("kind must not have more than one argument",
                                                 loc);
                                         }
                                     } else if (std::string(fn->m_name)

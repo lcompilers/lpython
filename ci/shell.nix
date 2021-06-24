@@ -2,10 +2,14 @@
 let
   sources = import ./nix/sources.nix;
   pkgs = import sources.nixpkgs { };
-  mach-nix = import (builtins.fetchGit {
-    url = "https://github.com/DavHau/mach-nix.git";
-    ref = "refs/tags/3.1.1";
-  }) {
+  mach-nix = import (
+    pkgs.fetchFromGitHub {
+    owner = "DavHau";
+    repo = "mach-nix";
+    rev = "refs/tags/3.3.0";
+    sha256 = "sha256-RvbFjxnnY/+/zEkvQpl85MICmyp9p2EoncjuN80yrYA=";
+  }
+  ) {
     pkgs = pkgs;
     python = "python37";
   };
@@ -36,7 +40,7 @@ in mkShellNewEnv {
     zlib
     libbfd
     re2c
-    git
+    # git
     xonsh
     rapidjson
   ];
