@@ -307,6 +307,11 @@ public:
                                                 al, x.base.base.loc, 
                                                 ref_1, (ASR::cmpopType)x.m_op, ref_2, x.m_type));
                             break;
+                        case ASR::exprType::BoolOp:
+                            op_el_wise = EXPR(ASR::make_BoolOp_t(
+                                                al, x.base.base.loc, 
+                                                ref_1, (ASR::boolopType)x.m_op, ref_2, x.m_type));
+                            break;
                         default:
                             throw SemanticError("The desired operation is not supported yet for arrays.",
                                                 x.base.base.loc);
@@ -367,6 +372,11 @@ public:
                                                     al, x.base.base.loc, 
                                                     ref, (ASR::cmpopType)x.m_op, other_expr, x.m_type));
                             break;
+                        case ASR::exprType::BoolOp:
+                            op_el_wise = EXPR(ASR::make_BoolOp_t(
+                                                    al, x.base.base.loc, 
+                                                    ref, (ASR::boolopType)x.m_op, other_expr, x.m_type));
+                            break;
                         default:
                             throw SemanticError("The desired operation is not supported yet for arrays.",
                                                 x.base.base.loc);
@@ -388,6 +398,10 @@ public:
 
     void visit_Compare(const ASR::Compare_t &x) {
         visit_ArrayOpCommon<ASR::Compare_t>(x, "_comp_op_res");
+    }
+
+    void visit_BoolOp(const ASR::BoolOp_t &x) {
+        visit_ArrayOpCommon<ASR::BoolOp_t>(x, "_bool_op_res");
     }
 };
 
