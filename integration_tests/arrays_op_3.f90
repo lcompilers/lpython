@@ -34,8 +34,8 @@ call check(c, a, b, 5)
 
 contains
 
-subroutine check(c, a, b, op_code)
-implicit none
+    subroutine check(c, a, b, op_code)
+    implicit none
 
     integer, intent(in) :: a(:, :, :), b(:, :, :)
     logical, intent(in) :: c(:, :, :)
@@ -64,6 +64,6 @@ implicit none
         end do
     end do
 
-end subroutine check
+    end subroutine check
 
 end program
