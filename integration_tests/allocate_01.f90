@@ -23,21 +23,21 @@ end do
 
 call sum(a, b, c)
 
-! do i = lbound(a, 1), ubound(a, 1)
-!     if (a(i) /= i) error stop
-! end do
-! do i = lbound(b, 1), ubound(b, 1)
-!     do j = lbound(b, 2), ubound(b, 2)
-!         if (b(i, j) /= i + j) error stop
-!     end do
-! end do
-! do i = lbound(c, 1), ubound(c, 1)
-!     do j = lbound(c, 2), ubound(c, 2)
-!         do k = lbound(c, 3), ubound(c, 3)
-!             if (c(i, j, k) /= i + j + k) error stop
-!         end do
-!     end do
-! end do
+do i = lbound(a, 1), ubound(a, 1)
+    if (a(i) /= i) error stop
+end do
+do i = lbound(b, 1), ubound(b, 1)
+    do j = lbound(b, 2), ubound(b, 2)
+        if (b(i, j) /= i + j) error stop
+    end do
+end do
+do i = lbound(c, 1), ubound(c, 1)
+    do j = lbound(c, 2), ubound(c, 2)
+        do k = lbound(c, 3), ubound(c, 3)
+            if (c(i, j, k) /= i + j + k) error stop
+        end do
+    end do
+end do
 
 r = reduce_sum(c)
 if (r /= (114345.0, 0.0)) error stop

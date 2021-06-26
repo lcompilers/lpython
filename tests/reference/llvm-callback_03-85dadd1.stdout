@@ -1,0 +1,76 @@
+; ModuleID = 'LFortran'
+source_filename = "LFortran"
+
+@0 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
+@1 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
+
+define float @__module_callback_03_cb(float (float*)* %f, float* %a, float* %b) {
+.entry:
+  %cb = alloca float, align 4
+  %0 = load float, float* %b, align 4
+  %1 = load float, float* %a, align 4
+  %2 = fsub float %0, %1
+  %3 = call float %f(float* %a)
+  %4 = fadd float %2, %3
+  %5 = call float %f(float* %b)
+  %6 = fadd float %4, %5
+  store float %6, float* %cb, align 4
+  %7 = load float, float* %cb, align 4
+  ret float %7
+}
+
+define void @__module_callback_03_foo1(float* %c, float* %d) {
+.entry:
+  %0 = call float @__module_callback_03_cb(float (float*)* @__module_callback_03_f.1, float* %c, float* %d)
+  %1 = fpext float %0 to double
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0), double %1)
+  ret void
+}
+
+define void @__module_callback_03_foo2(float* %c, float* %d) {
+.entry:
+  %0 = call float @__module_callback_03_cb(float (float*)* @__module_callback_03_f.2, float* %c, float* %d)
+  %1 = fpext float %0 to double
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @1, i32 0, i32 0), double %1)
+  ret void
+}
+
+declare float @__module_callback_03_f(float*)
+
+define float @__module_callback_03_f.1(float* %x) {
+.entry:
+  %f = alloca float, align 4
+  %0 = load float, float* %x, align 4
+  %1 = fmul float 2.000000e+00, %0
+  store float %1, float* %f, align 4
+  %2 = load float, float* %f, align 4
+  ret float %2
+}
+
+declare void @_lfortran_printf(i8*, ...)
+
+define float @__module_callback_03_f.2(float* %x) {
+.entry:
+  %f = alloca float, align 4
+  %0 = load float, float* %x, align 4
+  %1 = fmul float -2.000000e+00, %0
+  store float %1, float* %f, align 4
+  %2 = load float, float* %f, align 4
+  ret float %2
+}
+
+define i32 @main() {
+.entry:
+  %0 = alloca float, align 4
+  store float 1.500000e+00, float* %0, align 4
+  %1 = alloca float, align 4
+  store float 2.000000e+00, float* %1, align 4
+  call void @__module_callback_03_foo1(float* %0, float* %1)
+  %2 = alloca float, align 4
+  store float 1.500000e+00, float* %2, align 4
+  %3 = alloca float, align 4
+  store float 2.000000e+00, float* %3, align 4
+  call void @__module_callback_03_foo2(float* %2, float* %3)
+  ret i32 0
+}
+

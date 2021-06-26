@@ -1,0 +1,13 @@
+{
+    "basename": "ast_f90-allocate1-78e1fbe",
+    "cmd": "lfortran --show-ast-f90 --no-color {infile}",
+    "infile": "tests/allocate1.f90",
+    "infile_hash": "f4a5d1024bdbbba40f57c7eb991a06f8e437e295df78538d275334b6",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_f90-allocate1-78e1fbe.stdout",
+    "stdout_hash": "9d9a4eb774142a51cc1527b271fdd7dc950999dcf09f9df26e8b59de",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

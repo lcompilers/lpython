@@ -1,0 +1,13 @@
+{
+    "basename": "ast_f90-types_13-d71b593",
+    "cmd": "lfortran --show-ast-f90 --no-color {infile}",
+    "infile": "tests/../integration_tests/types_13.f90",
+    "infile_hash": "0386b3b949293ae071687d72cec51980cbdce80908080fa69e19a807",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_f90-types_13-d71b593.stdout",
+    "stdout_hash": "1964b2eee1e3a275ac27ca3f0b910d4441835c07c7a6a482ef94f9ab",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

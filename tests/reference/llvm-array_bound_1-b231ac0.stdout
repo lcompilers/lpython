@@ -1,3 +1,7 @@
+a
+b
+c
+d
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 

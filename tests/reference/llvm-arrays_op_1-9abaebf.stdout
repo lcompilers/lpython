@@ -1,3 +1,17 @@
+0_bin_op_res
+1_implicit_cast_res
+2_implicit_cast_res
+3_implicit_cast_res
+4_bin_op_res
+5_bin_op_res
+6_implicit_cast_res
+7_bin_op_res
+8_implicit_cast_res
+9_bin_op_res
+a
+b
+c
+d
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 

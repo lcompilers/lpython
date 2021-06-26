@@ -1,0 +1,4 @@
+program nullify1
+nullify(a)
+nullify(a, b, c, d)
+end program nullify1

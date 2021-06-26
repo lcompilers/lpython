@@ -1,0 +1,13 @@
+{
+    "basename": "ast_f90-parameter_01-fec1e9a",
+    "cmd": "lfortran --show-ast-f90 --no-color {infile}",
+    "infile": "tests/../integration_tests/parameter_01.f90",
+    "infile_hash": "3488de8c55d194f309a915223114321d8596fba6f63399b39ac1ad68",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_f90-parameter_01-fec1e9a.stdout",
+    "stdout_hash": "e4d94bf2282323117c969d5a2af64550a874845922eb0dbb64ad48aa",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

@@ -1,0 +1,26 @@
+program implicit1
+implicit none
+implicit none
+implicit none (external)
+implicit none (type)
+implicit none (external, type)
+implicit none (type, external)
+implicit real (a-h,o-z)
+implicit real(8) (a-h,o-z)
+implicit double precision (a-h,o-z)
+implicit character (c,o-z)
+implicit integer (i-n)
+implicit integer (i,j,k,l,m,n)
+implicit integer (i,j-l,m,n)
+implicit integer(8) (i,j-l,m,n)
+implicit integer (A,C)
+implicit integer(4) (C,D-x)
+implicit logical (l,u-z)
+implicit logical(4) (l,u-z)
+implicit complex (z)
+implicit complex(4) (z)
+implicit complex (C)
+implicit type(BLOB) (A)
+implicit class(X) (A-b)
+implicit procedure(Y) (A-b)
+end program implicit1
