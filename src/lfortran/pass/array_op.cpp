@@ -403,6 +403,11 @@ public:
     void visit_BoolOp(const ASR::BoolOp_t &x) {
         visit_ArrayOpCommon<ASR::BoolOp_t>(x, "_bool_op_res");
     }
+
+    void visit_FunctionCall(const ASR::FunctionCall_t& x) {
+        tmp_val = const_cast<ASR::expr_t*>(&(x.base));
+    }
+
 };
 
 void pass_replace_array_op(Allocator &al, ASR::TranslationUnit_t &unit) {
