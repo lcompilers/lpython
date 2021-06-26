@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    581 // shift/reduce conflicts
+%expect    582 // shift/reduce conflicts
 %expect-rr 93  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -330,6 +330,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> nullify_statement
 %type <ast> print_statement
 %type <ast> open_statement
+%type <ast> flush_statement
 %type <ast> close_statement
 %type <ast> write_statement
 %type <ast> read_statement
@@ -1198,6 +1199,7 @@ single_line_statement
     | event_post_statement
     | event_wait_statement
     | exit_statement
+    | flush_statement
     | forall_statement_single
     | format_statement
     | goto_statement
@@ -1337,6 +1339,10 @@ backspace_statement
     : KW_BACKSPACE "(" write_arg_list ")" { $$ = BACKSPACE($3, @$); }
     ;
 
+flush_statement
+    : KW_FLUSH "(" write_arg_list ")" { $$ = FLUSH($3, @$); }
+    | KW_FLUSH TK_INTEGER { $$ = FLUSH1($2, @$); }
+    ;
 // sr-conflict (2x): KW_ENDIF can be an "id" or end of "if_statement"
 if_statement
     : if_block endif {}
