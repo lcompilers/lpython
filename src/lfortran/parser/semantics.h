@@ -935,6 +935,7 @@ ast_t* builtin3(Allocator &al,
 #define REWIND(args0, l) builtin1(p.m_a, args0, l, make_Rewind_t)
 #define NULLIFY(args0, l) builtin1(p.m_a, args0, l, make_Nullify_t)
 #define BACKSPACE(args0, l) builtin1(p.m_a, args0, l, make_Backspace_t)
+#define FLUSH(args0, l) builtin1(p.m_a, args0, l, make_Flush_t)
 
 #define INQUIRE0(args0, l) builtin2(p.m_a, args0, empty_vecast(), l, \
             make_Inquire_t)
@@ -942,6 +943,8 @@ ast_t* builtin3(Allocator &al,
 #define REWIND2(arg, l) make_Rewind_t(p.m_a, l, 0, \
             EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
 #define REWIND3(arg, l) make_Rewind_t(p.m_a, l, 0, \
+            EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
+#define FLUSH1(arg, l) make_Flush_t(p.m_a, l, 0, \
             EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
 
 #define BIND2(args0, l) builtin3(p.m_a, args0, l, make_Bind_t)
