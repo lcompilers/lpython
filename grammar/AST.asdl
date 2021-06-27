@@ -111,6 +111,7 @@ stmt
     | EventPost(int label, expr variable, event_attribute* stat)
     | EventWait(int label, expr variable, event_attribute* spec)
     | Exit(int label, identifier? stmt_name)
+    | Flush(int label, expr* args, keyword* kwargs)
     | ForAllSingle(int label, identifier? stmt_name,
             concurrent_control *control, expr? mask, stmt assign)
     | Format(int label, string fmt)
