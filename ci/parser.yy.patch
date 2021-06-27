@@ -65,6 +65,7 @@ index 99036333..c976ab08 100644
 -    | KW_FUNCTION { $$ = SYMBOL($1, @$); }
 -    | KW_GENERIC { $$ = SYMBOL($1, @$); }
 -    | KW_GO { $$ = SYMBOL($1, @$); }
+-    | KW_GOTO { $$ = SYMBOL($1, @$); }
 -    | KW_IF { $$ = SYMBOL($1, @$); }
 -    | KW_IMPLICIT { $$ = SYMBOL($1, @$); }
 -    | KW_IMPORT { $$ = SYMBOL($1, @$); }

@@ -15,7 +15,7 @@ implicit none
 
    10 continue
       write(*,*) 'A =',A,'  Got to 10'
-      go to 30
+      goto 30
 
    20 continue
       write(*,*) 'A =',A,'  Got to 20'
@@ -23,7 +23,7 @@ implicit none
    30 continue
       write(*,*) 'A =',A,'  Got to 30'
       if (A.EQ.2) go to 99
-      go to 1
+      goto 1
 
 
    95 continue
