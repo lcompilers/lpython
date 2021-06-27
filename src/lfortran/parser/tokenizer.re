@@ -73,7 +73,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             digit = [0-9];
             char =  [a-zA-Z_];
             name = char (char | digit)*;
-            defop = "."[a-z]+".";
+            defop = "."[a-zA-Z]+".";
             kind = digit+ | name;
             significand = (digit+"."digit*) | ("."digit+);
             exp = [edED][-+]? digit+;
