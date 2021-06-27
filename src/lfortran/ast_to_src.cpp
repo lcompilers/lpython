@@ -2549,6 +2549,13 @@ public:
             if (i < x.n_keywords-1) r.append(", ");
         }
         r.append(")");
+        r.append("(");
+        for (size_t i=0; i<x.n_subargs; i++) {
+            this->visit_fnarg(x.m_subargs[i]);
+            r.append(s);
+            if (i < x.n_subargs-1) r.append(", ");
+        }
+        r.append(")");
         s = r;
     }
 
