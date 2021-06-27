@@ -16,16 +16,16 @@ type(event_type), allocatable :: greeting_ready(:)[:]
 integer :: i, n
 n = 5
 allocate(F(n)[*])
-allocate(greeting_ready(num_images())[*])
+allocate(greeting_ready(num_images()())[*])
 allocate(g(50, 50, 50)[1:2, 1:2, *])
-if ((this_image())==(1)) then
-    do i = 2, num_images()
+if ((this_image()())==(1)) then
+    do i = 2, num_images()()
         c = (c) + (c[i])
         event post (ok_to_overwrite[i])
     end do
 else
     event wait (ok_to_overwrite)
-    event post (greeting_ready(this_image())[1])
+    event post (greeting_ready(this_image()())[1])
 end if
 sync all
 sync all ()
@@ -35,7 +35,7 @@ event wait (variable, until_count = status)
 event wait (variable, until_count = status, errmsg = status)
 event wait (variable, errmsg = status)
 event wait (variable, stat = status)
-event post (done(sub(i))[parent(i)], stat = status)
+event post (done(sub(i)())[parent(i)()], stat = status)
 event post (variable, stat = status)
 event post (variable, errmsg = status)
 c[3] = c[4]

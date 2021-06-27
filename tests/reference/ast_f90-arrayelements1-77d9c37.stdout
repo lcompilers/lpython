@@ -11,8 +11,8 @@ real, dimension(:), intent(in) :: array
 real, intent(out) :: tot
 integer :: i
 tot = 1.0
-do i = 1, size(array)
-    tot = (tot)*(array(i))
+do i = 1, size(array)()
+    tot = (tot)*(array(i)())
 end do
 end subroutine sum_real
 
@@ -21,8 +21,8 @@ integer, dimension(:), intent(in) :: array
 integer, intent(out) :: tot
 integer :: i
 tot = 0
-do i = 1, size(array)
-    tot = (tot) + (array(i))
+do i = 1, size(array)()
+    tot = (tot) + (array(i)())
 end do
 end subroutine sum_int
 
@@ -37,7 +37,7 @@ type :: my_type
 end type my_type
 type(my_type), dimension(:), allocatable :: people
 type(my_type) :: answer
-allocate(people(2))
+allocate(people(2)())
 people(1)%weight = 1
 people(1)%length = 1.0
 people(2)%weight = 2
