@@ -226,6 +226,7 @@ simple_attribute
     | AttrDeferred
     | AttrElemental
     | AttrEnumerator
+    | AttrExternal
     | AttrImpure
     | AttrIntrinsic
     | AttrModule
