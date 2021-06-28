@@ -1002,16 +1002,24 @@ data_stmt_value
     ;
 
 data_stmt_repeat
-    : TK_INTEGER { $$ = INTEGER($1, @$); }
-    ;
-
-data_stmt_constant
-    : TK_INTEGER { $$ = INTEGER($1, @$); }
+    : id { $$ = $1; }
+    | TK_INTEGER { $$ = INTEGER($1, @$); }
     | TK_REAL { $$ = REAL($1, @$); }
     | TK_STRING { $$ = STRING($1, @$); }
     | TK_BOZ_CONSTANT { $$ = BOZ($1, @$); }
     | ".true."  { $$ = TRUE(@$); }
     | ".false." { $$ = FALSE(@$); }
+    ;
+
+data_stmt_constant
+    : id { $$ = $1; }
+    | TK_INTEGER { $$ = INTEGER($1, @$); }
+    | TK_REAL { $$ = REAL($1, @$); }
+    | TK_STRING { $$ = STRING($1, @$); }
+    | TK_BOZ_CONSTANT { $$ = BOZ($1, @$); }
+    | ".true."  { $$ = TRUE(@$); }
+    | ".false." { $$ = FALSE(@$); }
+    | "-" expr %prec UMINUS { $$ = UNARY_MINUS($2, @$); }
     ;
 
 integer_type
