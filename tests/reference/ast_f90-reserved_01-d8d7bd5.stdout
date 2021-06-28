@@ -1,9 +1,9 @@
 program reserved_01
 implicit none
-if ((end(1, 2)())/=(2)) then
+if ((end(1, 2))/=(2)) then
     error stop
 end if
-if ((end(2, 1)())/=(2)) then
+if ((end(2, 1))/=(2)) then
     error stop
 end if
 

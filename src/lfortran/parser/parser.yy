@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    582 // shift/reduce conflicts
-%expect-rr 93  // reduce/reduce conflicts
+%expect    593 // shift/reduce conflicts
+%expect-rr 96  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -1002,16 +1002,24 @@ data_stmt_value
     ;
 
 data_stmt_repeat
-    : TK_INTEGER { $$ = INTEGER($1, @$); }
-    ;
-
-data_stmt_constant
-    : TK_INTEGER { $$ = INTEGER($1, @$); }
+    : id { $$ = $1; }
+    | TK_INTEGER { $$ = INTEGER($1, @$); }
     | TK_REAL { $$ = REAL($1, @$); }
     | TK_STRING { $$ = STRING($1, @$); }
     | TK_BOZ_CONSTANT { $$ = BOZ($1, @$); }
     | ".true."  { $$ = TRUE(@$); }
     | ".false." { $$ = FALSE(@$); }
+    ;
+
+data_stmt_constant
+    : id { $$ = $1; }
+    | TK_INTEGER { $$ = INTEGER($1, @$); }
+    | TK_REAL { $$ = REAL($1, @$); }
+    | TK_STRING { $$ = STRING($1, @$); }
+    | TK_BOZ_CONSTANT { $$ = BOZ($1, @$); }
+    | ".true."  { $$ = TRUE(@$); }
+    | ".false." { $$ = FALSE(@$); }
+    | "-" expr %prec UMINUS { $$ = UNARY_MINUS($2, @$); }
     ;
 
 integer_type
@@ -1064,6 +1072,7 @@ var_modifier
     | KW_PUBLIC { $$ = SIMPLE_ATTR(Public, @$); }
     | KW_ABSTRACT { $$ = SIMPLE_ATTR(Abstract, @$); }
     | KW_ENUMERATOR { $$ = SIMPLE_ATTR(Enumerator, @$); }
+    | KW_EXTERNAL { $$ = SIMPLE_ATTR(External, @$); }
     | KW_INTENT "(" KW_IN ")" { $$ = INTENT(In, @$); }
     | KW_INTENT "(" KW_OUT ")" { $$ = INTENT(Out, @$); }
     | KW_INTENT "(" inout ")" { $$ = INTENT(InOut, @$); }
@@ -1353,25 +1362,27 @@ if_statement_single
     ;
 
 if_block
-    : KW_IF "(" expr ")" KW_THEN sep statements {
-            $$ = IF1($3, $7, @$); }
-    | KW_IF "(" expr ")" KW_THEN sep statements KW_ELSE sep statements {
-            $$ = IF2($3, $7, $10, @$); }
-    | KW_IF "(" expr ")" KW_THEN sep statements KW_ELSE if_block {
-            $$ = IF3($3, $7, $9, @$); }
-    | KW_IF "(" expr ")" KW_THEN sep statements elseif_block {
-            $$ = IF3($3, $7, $8, @$); }
+    : KW_IF "(" expr ")" KW_THEN id_opt sep statements {
+            $$ = IF1($3, $8, @$); }
+    | KW_IF "(" expr ")" KW_THEN id_opt sep statements
+        KW_ELSE id_opt sep statements {
+            $$ = IF2($3, $8, $12, @$); }
+    | KW_IF "(" expr ")" KW_THEN id_opt sep statements KW_ELSE if_block {
+            $$ = IF3($3, $8, $10, @$); }
+    | KW_IF "(" expr ")" KW_THEN id_opt sep statements elseif_block {
+            $$ = IF3($3, $8, $9, @$); }
     ;
 
 elseif_block
-    : KW_ELSEIF "(" expr ")" KW_THEN sep statements {
-            $$ = IF1($3, $7, @$); }
-    | KW_ELSEIF "(" expr ")" KW_THEN sep statements KW_ELSE sep statements {
-            $$ = IF2($3, $7, $10, @$); }
-    | KW_ELSEIF "(" expr ")" KW_THEN sep statements KW_ELSE if_block {
-            $$ = IF3($3, $7, $9, @$); }
-    | KW_ELSEIF "(" expr ")" KW_THEN sep statements elseif_block {
-            $$ = IF3($3, $7, $8, @$); }
+    : KW_ELSEIF "(" expr ")" KW_THEN id_opt sep statements {
+            $$ = IF1($3, $8, @$); }
+    | KW_ELSEIF "(" expr ")" KW_THEN id_opt sep statements
+        KW_ELSE id_opt sep statements {
+            $$ = IF2($3, $8, $12, @$); }
+    | KW_ELSEIF "(" expr ")" KW_THEN id_opt sep statements KW_ELSE if_block {
+            $$ = IF3($3, $8, $10, @$); }
+    | KW_ELSEIF "(" expr ")" KW_THEN id_opt sep statements elseif_block {
+            $$ = IF3($3, $8, $9, @$); }
     ;
 
 where_statement
