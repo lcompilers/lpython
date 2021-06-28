@@ -12,14 +12,16 @@ else if (i == 4) then
     print *, "4"
 end if
 
-if (i == 1) then
+name: if (i == 1) then
     print *, "1"
-elseif (i == 2) then
+else if (i == 2) then name
     print *, "2"
-elseif (i == 3) then
+elseif (i == 3) then name
     print *, "3"
-elseif (i == 4) then
+else if (i == 4) then name
     print *, "4"
-endif
+else name
+    print *, "Invalid!"
+endif name
 
 end

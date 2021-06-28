@@ -2,11 +2,11 @@
     "basename": "ast-if_04-7f1b69d",
     "cmd": "lfortran --show-ast --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/if_04.f90",
-    "infile_hash": "2e5042b940bda2c8726b5062a249d594c5c195f75f2286d76f7a58da",
+    "infile_hash": "dc3029f2df7281746bd116d435ee39913201c693d801c2e53aca3886",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast-if_04-7f1b69d.stdout",
-    "stdout_hash": "f72c3b3b7f94338dcc4357669d91822d20cae63a504446b9cb6604fb",
+    "stdout_hash": "f44c85929eccf91181279efe8c105b50c0469f839e1c43e82289e2c0",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
