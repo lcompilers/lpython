@@ -1,24 +1,3 @@
-x
-y
-~0_slice
-~10_slice
-~11_slice
-~12_slice
-~13_slice
-~14_slice
-~15_slice
-~16_slice
-~17_slice
-~18_slice
-~1_slice
-~2_slice
-~3_slice
-~4_slice
-~5_slice
-~6_slice
-~7_slice
-~8_slice
-~9_slice
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 

@@ -9,6 +9,164 @@ namespace LFortran {
 
     namespace PassUtils {
 
+        void get_dim_rank(ASR::ttype_t* x_type, ASR::dimension_t*& m_dims, int& n_dims) {
+            switch( x_type->type ) {
+                case ASR::ttypeType::Integer: {
+                    ASR::Integer_t* x_type_ref = ASR::down_cast<ASR::Integer_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    m_dims = x_type_ref->m_dims;
+                    break;
+                }
+                case ASR::ttypeType::IntegerPointer: {
+                    ASR::IntegerPointer_t* x_type_ref = ASR::down_cast<ASR::IntegerPointer_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    m_dims = x_type_ref->m_dims;
+                    break;
+                }
+                case ASR::ttypeType::Real: {
+                    ASR::Real_t* x_type_ref = ASR::down_cast<ASR::Real_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    m_dims = x_type_ref->m_dims;
+                    break;
+                }
+                case ASR::ttypeType::RealPointer: {
+                    ASR::RealPointer_t* x_type_ref = ASR::down_cast<ASR::RealPointer_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    m_dims = x_type_ref->m_dims;
+                    break;
+                }
+                case ASR::ttypeType::Complex: {
+                    ASR::Complex_t* x_type_ref = ASR::down_cast<ASR::Complex_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    m_dims = x_type_ref->m_dims;
+                    break;
+                }
+                case ASR::ttypeType::ComplexPointer: {
+                    ASR::ComplexPointer_t* x_type_ref = ASR::down_cast<ASR::ComplexPointer_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    m_dims = x_type_ref->m_dims;
+                    break;
+                }
+                case ASR::ttypeType::Derived: {
+                    ASR::Derived_t* x_type_ref = ASR::down_cast<ASR::Derived_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    m_dims = x_type_ref->m_dims;
+                    break;
+                }
+                case ASR::ttypeType::DerivedPointer: {
+                    ASR::DerivedPointer_t* x_type_ref = ASR::down_cast<ASR::DerivedPointer_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    m_dims = x_type_ref->m_dims;
+                    break;
+                }
+                case ASR::ttypeType::Logical: {
+                    ASR::Logical_t* x_type_ref = ASR::down_cast<ASR::Logical_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    m_dims = x_type_ref->m_dims;
+                    break;
+                }
+                case ASR::ttypeType::LogicalPointer: {
+                    ASR::LogicalPointer_t* x_type_ref = ASR::down_cast<ASR::LogicalPointer_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    m_dims = x_type_ref->m_dims;
+                    break;
+                }
+                case ASR::ttypeType::Character: {
+                    ASR::Character_t* x_type_ref = ASR::down_cast<ASR::Character_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    m_dims = x_type_ref->m_dims;
+                    break;
+                }
+                case ASR::ttypeType::CharacterPointer: {
+                    ASR::CharacterPointer_t* x_type_ref = ASR::down_cast<ASR::CharacterPointer_t>(x_type);
+                    n_dims = x_type_ref->n_dims;
+                    m_dims = x_type_ref->m_dims;
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+
+        void set_dim_rank(ASR::ttype_t* x_type, ASR::dimension_t*& m_dims, int& n_dims) {
+            switch( x_type->type ) {
+                case ASR::ttypeType::Integer: {
+                    ASR::Integer_t* x_type_ref = ASR::down_cast<ASR::Integer_t>(x_type);
+                    x_type_ref->n_dims = n_dims;
+                    x_type_ref->m_dims = m_dims;
+                    break;
+                }
+                case ASR::ttypeType::IntegerPointer: {
+                    ASR::IntegerPointer_t* x_type_ref = ASR::down_cast<ASR::IntegerPointer_t>(x_type);
+                    x_type_ref->n_dims = n_dims;
+                    x_type_ref->m_dims = m_dims;
+                    break;
+                }
+                case ASR::ttypeType::Real: {
+                    ASR::Real_t* x_type_ref = ASR::down_cast<ASR::Real_t>(x_type);
+                    x_type_ref->n_dims = n_dims;
+                    x_type_ref->m_dims = m_dims;
+                    break;
+                }
+                case ASR::ttypeType::RealPointer: {
+                    ASR::RealPointer_t* x_type_ref = ASR::down_cast<ASR::RealPointer_t>(x_type);
+                    x_type_ref->n_dims = n_dims;
+                    x_type_ref->m_dims = m_dims;
+                    break;
+                }
+                case ASR::ttypeType::Complex: {
+                    ASR::Complex_t* x_type_ref = ASR::down_cast<ASR::Complex_t>(x_type);
+                    x_type_ref->n_dims = n_dims;
+                    x_type_ref->m_dims = m_dims;
+                    break;
+                }
+                case ASR::ttypeType::ComplexPointer: {
+                    ASR::ComplexPointer_t* x_type_ref = ASR::down_cast<ASR::ComplexPointer_t>(x_type);
+                    x_type_ref->n_dims = n_dims;
+                    x_type_ref->m_dims = m_dims;
+                    break;
+                }
+                case ASR::ttypeType::Derived: {
+                    ASR::Derived_t* x_type_ref = ASR::down_cast<ASR::Derived_t>(x_type);
+                    x_type_ref->n_dims = n_dims;
+                    x_type_ref->m_dims = m_dims;
+                    break;
+                }
+                case ASR::ttypeType::DerivedPointer: {
+                    ASR::DerivedPointer_t* x_type_ref = ASR::down_cast<ASR::DerivedPointer_t>(x_type);
+                    x_type_ref->n_dims = n_dims;
+                    x_type_ref->m_dims = m_dims;
+                    break;
+                }
+                case ASR::ttypeType::Logical: {
+                    ASR::Logical_t* x_type_ref = ASR::down_cast<ASR::Logical_t>(x_type);
+                    x_type_ref->n_dims = n_dims;
+                    x_type_ref->m_dims = m_dims;
+                    break;
+                }
+                case ASR::ttypeType::LogicalPointer: {
+                    ASR::LogicalPointer_t* x_type_ref = ASR::down_cast<ASR::LogicalPointer_t>(x_type);
+                    x_type_ref->n_dims = n_dims;
+                    x_type_ref->m_dims = m_dims;
+                    break;
+                }
+                case ASR::ttypeType::Character: {
+                    ASR::Character_t* x_type_ref = ASR::down_cast<ASR::Character_t>(x_type);
+                    x_type_ref->n_dims = n_dims;
+                    x_type_ref->m_dims = m_dims;
+                    break;
+                }
+                case ASR::ttypeType::CharacterPointer: {
+                    ASR::CharacterPointer_t* x_type_ref = ASR::down_cast<ASR::CharacterPointer_t>(x_type);
+                    x_type_ref->n_dims = n_dims;
+                    x_type_ref->m_dims = m_dims;
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+
         int get_rank(ASR::expr_t* x) {
             int n_dims = 0;
             if( x->type == ASR::exprType::Var ) {
@@ -17,70 +175,8 @@ namespace LFortran {
                 if( x_sym->type == ASR::symbolType::Variable ) {
                     ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(x_sym);
                     ASR::ttype_t* x_type = v->m_type;
-                    switch( v->m_type->type ) {
-                        case ASR::ttypeType::Integer: {
-                            ASR::Integer_t* x_type_ref = ASR::down_cast<ASR::Integer_t>(x_type);
-                            n_dims = x_type_ref->n_dims;
-                            break;
-                        }
-                        case ASR::ttypeType::IntegerPointer: {
-                            ASR::IntegerPointer_t* x_type_ref = ASR::down_cast<ASR::IntegerPointer_t>(x_type);
-                            n_dims = x_type_ref->n_dims;
-                            break;
-                        }
-                        case ASR::ttypeType::Real: {
-                            ASR::Real_t* x_type_ref = ASR::down_cast<ASR::Real_t>(x_type);
-                            n_dims = x_type_ref->n_dims;
-                            break;
-                        }
-                        case ASR::ttypeType::RealPointer: {
-                            ASR::RealPointer_t* x_type_ref = ASR::down_cast<ASR::RealPointer_t>(x_type);
-                            n_dims = x_type_ref->n_dims;
-                            break;
-                        }
-                        case ASR::ttypeType::Complex: {
-                            ASR::Complex_t* x_type_ref = ASR::down_cast<ASR::Complex_t>(x_type);
-                            n_dims = x_type_ref->n_dims;
-                            break;
-                        }
-                        case ASR::ttypeType::ComplexPointer: {
-                            ASR::ComplexPointer_t* x_type_ref = ASR::down_cast<ASR::ComplexPointer_t>(x_type);
-                            n_dims = x_type_ref->n_dims;
-                            break;
-                        }
-                        case ASR::ttypeType::Derived: {
-                            ASR::Derived_t* x_type_ref = ASR::down_cast<ASR::Derived_t>(x_type);
-                            n_dims = x_type_ref->n_dims;
-                            break;
-                        }
-                        case ASR::ttypeType::DerivedPointer: {
-                            ASR::DerivedPointer_t* x_type_ref = ASR::down_cast<ASR::DerivedPointer_t>(x_type);
-                            n_dims = x_type_ref->n_dims;
-                            break;
-                        }
-                        case ASR::ttypeType::Logical: {
-                            ASR::Logical_t* x_type_ref = ASR::down_cast<ASR::Logical_t>(x_type);
-                            n_dims = x_type_ref->n_dims;
-                            break;
-                        }
-                        case ASR::ttypeType::LogicalPointer: {
-                            ASR::LogicalPointer_t* x_type_ref = ASR::down_cast<ASR::LogicalPointer_t>(x_type);
-                            n_dims = x_type_ref->n_dims;
-                            break;
-                        }
-                        case ASR::ttypeType::Character: {
-                            ASR::Character_t* x_type_ref = ASR::down_cast<ASR::Character_t>(x_type);
-                            n_dims = x_type_ref->n_dims;
-                            break;
-                        }
-                        case ASR::ttypeType::CharacterPointer: {
-                            ASR::CharacterPointer_t* x_type_ref = ASR::down_cast<ASR::CharacterPointer_t>(x_type);
-                            n_dims = x_type_ref->n_dims;
-                            break;
-                        }
-                        default:
-                            break;
-                    }
+                    ASR::dimension_t* m_dims;
+                    get_dim_rank(x_type, m_dims, n_dims);
                 }
             }
             return n_dims;

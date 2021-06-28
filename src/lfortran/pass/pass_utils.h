@@ -10,6 +10,10 @@ namespace LFortran {
 
         bool is_array(ASR::expr_t* x);
 
+        void get_dim_rank(ASR::ttype_t* x_type, ASR::dimension_t*& m_dims, int& n_dims);
+
+        void set_dim_rank(ASR::ttype_t* x_type, ASR::dimension_t*& m_dims, int& n_dims);
+
         int get_rank(ASR::expr_t* x);
 
         ASR::expr_t* create_array_ref(ASR::expr_t* arr_expr, Vec<ASR::expr_t*>& idx_vars, Allocator& al);
