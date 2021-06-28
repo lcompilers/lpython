@@ -183,6 +183,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_FUNCTION
 %token <string> KW_GENERIC
 %token <string> KW_GO
+%token <string> KW_GOTO
 %token <string> KW_IF
 %token <string> KW_IMPLICIT
 %token <string> KW_IMPORT
@@ -1252,6 +1253,7 @@ assignment_statement
 
 goto_statement
     : KW_GO KW_TO TK_INTEGER { $$ = GOTO($3, @$); }
+    | KW_GOTO TK_INTEGER { $$ = GOTO($2, @$); }
     ;
 
 associate_statement
@@ -1889,6 +1891,7 @@ id
     | KW_FUNCTION { $$ = SYMBOL($1, @$); }
     | KW_GENERIC { $$ = SYMBOL($1, @$); }
     | KW_GO { $$ = SYMBOL($1, @$); }
+    | KW_GOTO { $$ = SYMBOL($1, @$); }
     | KW_IF { $$ = SYMBOL($1, @$); }
     | KW_IMPLICIT { $$ = SYMBOL($1, @$); }
     | KW_IMPORT { $$ = SYMBOL($1, @$); }

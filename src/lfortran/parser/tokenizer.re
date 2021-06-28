@@ -158,7 +158,8 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             'formatted' { KW(FORMATTED) }
             'function' { KW(FUNCTION) }
             'generic' { KW(GENERIC) }
-            'go'  { KW(GO) }
+            'go' { KW(GO) }
+            'goto' { KW(GOTO) }
             'if' { KW(IF) }
             'implicit' { KW(IMPLICIT) }
             'import' { KW(IMPORT) }
