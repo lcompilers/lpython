@@ -1496,6 +1496,7 @@ LFortran::Str Str_from_string(Allocator &al, const std::string &s) {
 ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
         const Vec<FnArg> &args,
         const Vec<struct_member_t> &member,
+        const Vec<FnArg> &subargs,
         Location &l) {
     Vec<fnarg_t> v;
     v.reserve(al, args.size());
@@ -1508,17 +1509,25 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
             v.push_back(al, item.arg);
         }
     }
+    Vec<fnarg_t> v1;
+    v1.reserve(al, subargs.size());
+    for (auto &item : subargs) {
+        v1.push_back(al, item.arg);
+    }
     return make_FuncCallOrArray_t(al, l,
         /*char* a_func*/ name2char(id),
         /* struct_member_t* */member.p, /* size_t */member.size(),
         /*fnarg_t* a_args*/ v.p, /*size_t n_args*/ v.size(),
-        /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size());
+        /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size(),
+        /*fnarg_t* a_subargs*/ v1.p , /*size_t n_subargs*/ v1.size());
 }
 
 #define FUNCCALLORARRAY(id, args, l) FUNCCALLORARRAY0(p.m_a, id, args, \
-        empty5(), l)
+        empty5(), empty1(), l)
 #define FUNCCALLORARRAY2(members, id, args, l) FUNCCALLORARRAY0(p.m_a, id, \
-        args, members, l)
+        args, members, empty1(), l)
+#define FUNCCALLORARRAY3(id, args, subargs, l) FUNCCALLORARRAY0(p.m_a, id, \
+        args, empty5(), subargs, l)
 
 ast_t* COARRAY(Allocator &al, const ast_t *id,
         const Vec<FnArg> &args, const Vec<CoarrayArg> &coargs,
