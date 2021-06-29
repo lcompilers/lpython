@@ -5,21 +5,21 @@ integer :: a(2, 2, 1), b(2, 2, 1)
 complex :: c(2, 2, 1)
 integer :: i, j, k
 
-! do i = 1, 2
-!     do j = 1, 2
-!         do k = 1, 1
-!             a(i, j, k) = i + j + k
-!             b(i, j, k) = i*j*k
-!         end do
-!     end do
-! end do
+do i = 1, 2
+    do j = 1, 2
+        do k = 1, 1
+            a(i, j, k) = i + j + k
+            b(i, j, k) = i*j*k
+        end do
+    end do
+end do
 
 
-! c = a + (0.0, 1.0)*b
-! call check(c, 0)
+c = a + (0.0, 1.0)*b
+call check(c, 0)
 
-! c = -a + (0.0, 1.0)*(-b)
-! call check(c, 1)
+c = -a + (0.0, 1.0)*(-b)
+call check(c, 1)
 
 contains
 
