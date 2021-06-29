@@ -1700,14 +1700,20 @@ expr
     : id { $$ = $1; }
     | struct_member_star id { NAME1($$, $2, $1, @$); }
     | id "(" fnarray_arg_list_opt ")" { $$ = FUNCCALLORARRAY($1, $3, @$); }
-    | id "(" fnarray_arg_list_opt ")" "(" fnarray_arg_list_opt ")" {
-            $$ = FUNCCALLORARRAY3($1, $3, $6, @$); }
-    | id "[" coarray_arg_list "]" {
-            $$ = COARRAY1($1, $3, @$); }
-    | id "(" fnarray_arg_list_opt ")" "[" coarray_arg_list "]" {
-            $$ = COARRAY2($1, $3, $6, @$); }
     | struct_member_star id "(" fnarray_arg_list_opt ")" {
             $$ = FUNCCALLORARRAY2($1, $2, $4, @$); }
+    | id "(" fnarray_arg_list_opt ")" "(" fnarray_arg_list_opt ")" {
+            $$ = FUNCCALLORARRAY3($1, $3, $6, @$); }
+    | struct_member_star id "(" fnarray_arg_list_opt ")" "(" fnarray_arg_list_opt ")" {
+            $$ = FUNCCALLORARRAY4($1, $2, $4, $7, @$); }
+    | id "[" coarray_arg_list "]" {
+            $$ = COARRAY1($1, $3, @$); }
+    | struct_member_star id "[" coarray_arg_list "]" {
+            $$ = COARRAY3($1, $2, $4, @$); }
+    | id "(" fnarray_arg_list_opt ")" "[" coarray_arg_list "]" {
+            $$ = COARRAY2($1, $3, $6, @$); }
+    | struct_member_star id "(" fnarray_arg_list_opt ")" "[" coarray_arg_list "]" {
+            $$ = COARRAY4($1, $2, $4, $7, @$); }
     | "[" expr_list_opt rbracket { $$ = ARRAY_IN($2, @$); }
     | "[" var_type "::" expr_list_opt rbracket { $$ = ARRAY_IN1($2, $4, @$); }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
