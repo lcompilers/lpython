@@ -2130,17 +2130,17 @@ public:
         this->visit_expr_wrapper(x.m_value, true);
         value = tmp;
         builder->CreateStore(value, target);
-        // auto finder = std::find(nested_globals.begin(), 
-        //         nested_globals.end(), h);
-        // if (finder != nested_globals.end()) {
-        //     /* Target for assignment could be in the symbol table - and we are
-        //     assigning to a variable needed in a nested function - see 
-        //     nested_04.f90 */
-        //     llvm::Value* ptr = module->getOrInsertGlobal(nested_desc_name, 
-        //             nested_global_struct);
-        //     int idx = std::distance(nested_globals.begin(), finder);
-        //     builder->CreateStore(target, create_gep(ptr, idx));
-        // }
+        auto finder = std::find(nested_globals.begin(), 
+                nested_globals.end(), h);
+        if (finder != nested_globals.end()) {
+            /* Target for assignment could be in the symbol table - and we are
+            assigning to a variable needed in a nested function - see 
+            nested_04.f90 */
+            llvm::Value* ptr = module->getOrInsertGlobal(nested_desc_name, 
+                    nested_global_struct);
+            int idx = std::distance(nested_globals.begin(), finder);
+            builder->CreateStore(target, create_gep(ptr, idx));
+        }
     }
 
     inline void visit_expr_wrapper(const ASR::expr_t* x, bool load_ref=false) {

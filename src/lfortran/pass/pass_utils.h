@@ -23,7 +23,7 @@ namespace LFortran {
                                       const Location& loc, ASR::ttype_t* _type);
 
         void create_idx_vars(Vec<ASR::expr_t*>& idx_vars, int n_dims, const Location& loc, 
-                             Allocator& al, ASR::TranslationUnit_t& unit, std::string suffix="_k");
+                             Allocator& al, SymbolTable*& current_scope, std::string suffix="_k");
         
         ASR::expr_t* get_bound(ASR::expr_t* arr_expr, int dim, std::string bound,
                                 Allocator& al, ASR::TranslationUnit_t& unit, 

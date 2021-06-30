@@ -263,7 +263,7 @@ public:
             }
             int n_dims = PassUtils::get_rank(result_var);
             Vec<ASR::expr_t*> idx_vars;
-            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, unit);
+            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, current_scope);
             ASR::stmt_t* doloop = nullptr;
             for( int i = n_dims - 1; i >= 0; i-- ) {
                 ASR::do_loop_head_t head;
@@ -318,7 +318,7 @@ public:
 
             int n_dims = rank_operand;
             Vec<ASR::expr_t*> idx_vars;
-            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, unit);
+            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, current_scope);
             ASR::stmt_t* doloop = nullptr;
             for( int i = n_dims - 1; i >= 0; i-- ) {
                 // TODO: Add an If debug node to check if the lower and upper bounds of both the arrays are same.
@@ -376,7 +376,7 @@ public:
 
             int n_dims = rank_left;
             Vec<ASR::expr_t*> idx_vars;
-            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, unit);
+            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, current_scope);
             ASR::stmt_t* doloop = nullptr;
             for( int i = n_dims - 1; i >= 0; i-- ) {
                 // TODO: Add an If debug node to check if the lower and upper bounds of both the arrays are same.
@@ -442,7 +442,7 @@ public:
             tmp_val = result_var;
 
             Vec<ASR::expr_t*> idx_vars;
-            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, unit);
+            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, current_scope);
             ASR::stmt_t* doloop = nullptr;
             for( int i = n_dims - 1; i >= 0; i-- ) {
                 // TODO: Add an If debug node to check if the lower and upper bounds of both the arrays are same.
