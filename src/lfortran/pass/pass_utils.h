@@ -12,7 +12,8 @@ namespace LFortran {
 
         void get_dim_rank(ASR::ttype_t* x_type, ASR::dimension_t*& m_dims, int& n_dims);
 
-        void set_dim_rank(ASR::ttype_t* x_type, ASR::dimension_t*& m_dims, int& n_dims);
+        ASR::ttype_t* set_dim_rank(ASR::ttype_t* x_type, ASR::dimension_t*& m_dims, int& n_dims, 
+                                    bool create_new=false, Allocator* al=nullptr);
 
         int get_rank(ASR::expr_t* x);
 

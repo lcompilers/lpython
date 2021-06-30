@@ -178,12 +178,40 @@ public:
         }
     }
 
-    ASR::expr_t* create_var(int counter, std::string suffix, const Location& loc,
-                            ASR::ttype_t* var_type) {
-        ASR::expr_t* idx_var = nullptr;
+    ASR::ttype_t* get_matching_type(ASR::expr_t* sibling) {
+        ASR::ttype_t* sibling_type = expr_type(sibling);
+        if( sibling->type != ASR::exprType::Var ) {
+            return sibling_type;
+        }
+        ASR::dimension_t* m_dims;
+        int ndims;
+        PassUtils::get_dim_rank(sibling_type, m_dims, ndims);
+        for( int i = 0; i < ndims; i++ ) {
+            if( m_dims[i].m_start != nullptr || 
+                m_dims[i].m_end != nullptr ) {
+                return sibling_type;
+            }
+        }
+        Vec<ASR::dimension_t> new_m_dims;
+        new_m_dims.reserve(al, ndims);
+        for( int i = 0; i < ndims; i++ ) {
+            ASR::dimension_t new_m_dim;
+            new_m_dim.loc = m_dims[i].loc;
+            new_m_dim.m_start = PassUtils::get_bound(sibling, i + 1, "lbound", 
+                                                     al, unit, current_scope);
+            new_m_dim.m_end = PassUtils::get_bound(sibling, i + 1, "ubound",
+                                                    al, unit, current_scope);
+            new_m_dims.push_back(al, new_m_dim);
+        }
+        return PassUtils::set_dim_rank(sibling_type, new_m_dims.p, ndims, true, &al);
+    }
 
+    ASR::expr_t* create_var(int counter, std::string suffix, const Location& loc,
+                            ASR::expr_t* sibling) {
+        ASR::expr_t* idx_var = nullptr;
+        ASR::ttype_t* var_type = get_matching_type(sibling);
         Str str_name;
-        str_name.from_str(al, std::to_string(counter) + suffix);
+        str_name.from_str(al, "~" + std::to_string(counter) + suffix);
         const char* const_idx_var_name = str_name.c_str(al);
         char* idx_var_name = (char*)const_idx_var_name;
 
@@ -230,7 +258,7 @@ public:
         if( PassUtils::is_array(tmp_val) ) {
             if( result_var == nullptr ) {
                 fix_dimension(x, tmp_val);
-                result_var = create_var(result_var_num, std::string("_implicit_cast_res"), x.base.base.loc, x.m_type);
+                result_var = create_var(result_var_num, std::string("_implicit_cast_res"), x.base.base.loc, const_cast<ASR::expr_t*>(&(x.base)));
                 result_var_num += 1;
             }
             int n_dims = PassUtils::get_rank(result_var);
@@ -283,7 +311,7 @@ public:
             result_var = result_var_copy;
             if( result_var == nullptr ) {
                 result_var = create_var(result_var_num, res_prefix, 
-                                        x.base.base.loc, expr_type(operand));
+                                        x.base.base.loc, operand);
                 result_var_num += 1;
             }
             tmp_val = result_var;
@@ -341,7 +369,7 @@ public:
             }
             result_var = result_var_copy;
             if( result_var == nullptr ) {
-                result_var = create_var(result_var_num, res_prefix, x.base.base.loc, expr_type(left));
+                result_var = create_var(result_var_num, res_prefix, x.base.base.loc, left);
                 result_var_num += 1;
             }
             tmp_val = result_var;
@@ -408,7 +436,7 @@ public:
                 n_dims = rank_right;
             }
             if( result_var == nullptr ) {
-                result_var = create_var(result_var_num, res_prefix, x.base.base.loc, expr_type(arr_expr));
+                result_var = create_var(result_var_num, res_prefix, x.base.base.loc, arr_expr);
                 result_var_num += 1;
             }
             tmp_val = result_var;

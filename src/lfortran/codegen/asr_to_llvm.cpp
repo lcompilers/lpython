@@ -1160,6 +1160,19 @@ public:
         builder->CreateRet(ret_val2);
     }
 
+    bool is_argument(ASR::Variable_t* v, ASR::expr_t** m_args, 
+                        int n_args) {
+        for( int i = 0; i < n_args; i++ ) {
+            ASR::expr_t* m_arg = m_args[i];
+            uint32_t h_m_arg = get_hash((ASR::asr_t*)m_arg);
+            uint32_t h_v = get_hash((ASR::asr_t*)v);
+            if( h_m_arg == h_v ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     template<typename T>
     void declare_vars(const T &x) {
         llvm::Value *target_var;
@@ -1208,6 +1221,7 @@ public:
                                     is_malloc_array_type = true;
                                     type = get_malloc_array_type(m_type_, a_kind, n_dims);
                                 } else {
+                                    type = get_array_type(m_type_, a_kind, n_dims, m_dims);
                                     type = get_array_type(m_type_, a_kind, n_dims, m_dims);
                                 }
                             } else {
@@ -1308,17 +1322,20 @@ public:
                         std::uint32_t m_h;
                         std::string m_name = std::string(x.m_name);
                         ASR::abiType abi_type = ASR::abiType::Source;
+                        bool is_v_arg = false;
                         if( x.class_type == ASR::symbolType::Function ) {
                             ASR::Function_t* _func = (ASR::Function_t*)(&(x.base));
                             m_h = get_hash((ASR::asr_t*)_func);
                             abi_type = _func->m_abi;
+                            is_v_arg = is_argument(v, _func->m_args, _func->n_args);
                         } else if( x.class_type == ASR::symbolType::Subroutine ) {
                             ASR::Subroutine_t* _sub = (ASR::Subroutine_t*)(&(x.base));
                             abi_type = _sub->m_abi;
                             m_h = get_hash((ASR::asr_t*)_sub);
+                            is_v_arg = is_argument(v, _sub->m_args, _sub->n_args);
                         }
                         if( is_array_type ) {
-                            if( abi_type == ASR::abiType::Source ) {
+                            if( abi_type == ASR::abiType::Source && is_v_arg ) {
                                 llvm::StructType* type_struct = static_cast<llvm::StructType*>(type);
                                 llvm::Type* first_ele_ptr_type = nullptr;
                                 if( type_struct->getElementType(0)->isArrayTy() ) { 
