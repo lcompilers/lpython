@@ -1591,6 +1591,22 @@ public:
                         dflt_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(ep);
+                } else if (ASR::is_a<ASR::ExternalSymbol_t>(*t)) {
+                    if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
+                        throw SemanticError("Symbol already defined",
+                            x.base.base.loc);
+                    }
+                    // Repack ExternalSymbol to point directly to the original symbol
+                    ASR::ExternalSymbol_t *es = ASR::down_cast<ASR::ExternalSymbol_t>(t);
+                    ASR::asr_t *ep = ASR::make_ExternalSymbol_t(
+                        al, es->base.base.loc,
+                        current_scope,
+                        /* a_name */ es->m_name,
+                        es->m_external,
+                        es->m_module_name, es->m_original_name,
+                        es->m_access
+                        );
+                    current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(ep);
                 } else if (ASR::is_a<ASR::Function_t>(*t)) {
                     if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
                         throw SemanticError("Function already defined",
