@@ -681,6 +681,10 @@ filename = "../integration_tests/interface_03.f90"
 ast = true
 
 [[test]]
+filename = "../integration_tests/interface_04.f90"
+asr = true
+
+[[test]]
 filename = "../integration_tests/if_04.f90"
 ast = true
 
