@@ -1507,6 +1507,19 @@ public:
                         );
                     std::string sym = mfn->m_name;
                     current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
+                } else if (ASR::is_a<ASR::GenericProcedure_t>(*item.second)) {
+                    ASR::GenericProcedure_t *gp = ASR::down_cast<
+                        ASR::GenericProcedure_t>(item.second);
+                    ASR::asr_t *ep = ASR::make_ExternalSymbol_t(
+                        al, gp->base.base.loc,
+                        current_scope,
+                        /* a_name */ gp->m_name,
+                        (ASR::symbol_t*)gp,
+                        m->m_name, gp->m_name,
+                        dflt_access
+                        );
+                    std::string sym = gp->m_name;
+                    current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(ep);
                 } else if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                     ASR::Variable_t *mvar = ASR::down_cast<ASR::Variable_t>(item.second);
                     ASR::asr_t *var = ASR::make_ExternalSymbol_t(
