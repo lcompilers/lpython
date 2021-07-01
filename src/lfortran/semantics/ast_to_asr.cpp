@@ -707,6 +707,7 @@ public:
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
         current_module_dependencies.reserve(al, 4);
+        generic_procedures.clear();
         in_module = true;
         for (size_t i=0; i<x.n_use; i++) {
             visit_unit_decl1(*x.m_use[i]);
@@ -1507,6 +1508,19 @@ public:
                         );
                     std::string sym = mfn->m_name;
                     current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
+                } else if (ASR::is_a<ASR::GenericProcedure_t>(*item.second)) {
+                    ASR::GenericProcedure_t *gp = ASR::down_cast<
+                        ASR::GenericProcedure_t>(item.second);
+                    ASR::asr_t *ep = ASR::make_ExternalSymbol_t(
+                        al, gp->base.base.loc,
+                        current_scope,
+                        /* a_name */ gp->m_name,
+                        (ASR::symbol_t*)gp,
+                        m->m_name, gp->m_name,
+                        dflt_access
+                        );
+                    std::string sym = gp->m_name;
+                    current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(ep);
                 } else if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                     ASR::Variable_t *mvar = ASR::down_cast<ASR::Variable_t>(item.second);
                     ASR::asr_t *var = ASR::make_ExternalSymbol_t(
@@ -1575,6 +1589,22 @@ public:
                         t,
                         m->m_name, gp->m_name,
                         dflt_access
+                        );
+                    current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(ep);
+                } else if (ASR::is_a<ASR::ExternalSymbol_t>(*t)) {
+                    if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
+                        throw SemanticError("Symbol already defined",
+                            x.base.base.loc);
+                    }
+                    // Repack ExternalSymbol to point directly to the original symbol
+                    ASR::ExternalSymbol_t *es = ASR::down_cast<ASR::ExternalSymbol_t>(t);
+                    ASR::asr_t *ep = ASR::make_ExternalSymbol_t(
+                        al, es->base.base.loc,
+                        current_scope,
+                        /* a_name */ es->m_name,
+                        es->m_external,
+                        es->m_module_name, es->m_original_name,
+                        es->m_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(ep);
                 } else if (ASR::is_a<ASR::Function_t>(*t)) {
@@ -2366,10 +2396,14 @@ public:
     int select_generic_procedure(const Vec<ASR::expr_t*> &args,
             const ASR::GenericProcedure_t &p, Location loc) {
         for (size_t i=0; i < p.n_procs; i++) {
-            ASR::Subroutine_t *sub
-                = ASR::down_cast<ASR::Subroutine_t>(p.m_procs[i]);
-            if (argument_types_match(args, *sub)) {
-                return i;
+            if (ASR::is_a<ASR::Subroutine_t>(*p.m_procs[i])) {
+                ASR::Subroutine_t *sub
+                    = ASR::down_cast<ASR::Subroutine_t>(p.m_procs[i]);
+                if (argument_types_match(args, *sub)) {
+                    return i;
+                }
+            } else {
+                throw SemanticError("Only Subroutine supported in generic procedure", loc);
             }
         }
         throw SemanticError("Arguments do not match", loc);
