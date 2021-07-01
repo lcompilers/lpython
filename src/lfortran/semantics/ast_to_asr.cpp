@@ -2379,10 +2379,14 @@ public:
     int select_generic_procedure(const Vec<ASR::expr_t*> &args,
             const ASR::GenericProcedure_t &p, Location loc) {
         for (size_t i=0; i < p.n_procs; i++) {
-            ASR::Subroutine_t *sub
-                = ASR::down_cast<ASR::Subroutine_t>(p.m_procs[i]);
-            if (argument_types_match(args, *sub)) {
-                return i;
+            if (ASR::is_a<ASR::Subroutine_t>(*p.m_procs[i])) {
+                ASR::Subroutine_t *sub
+                    = ASR::down_cast<ASR::Subroutine_t>(p.m_procs[i]);
+                if (argument_types_match(args, *sub)) {
+                    return i;
+                }
+            } else {
+                throw SemanticError("Only Subroutine supported in generic procedure", loc);
             }
         }
         throw SemanticError("Arguments do not match", loc);
