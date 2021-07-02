@@ -73,7 +73,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             digit = [0-9];
             char =  [a-zA-Z_];
             name = char (char | digit)*;
-            defop = "."[a-z]+".";
+            defop = "."[a-zA-Z]+".";
             kind = digit+ | name;
             significand = (digit+"."digit*) | ("."digit+);
             exp = [edED][-+]? digit+;
@@ -158,7 +158,8 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             'formatted' { KW(FORMATTED) }
             'function' { KW(FUNCTION) }
             'generic' { KW(GENERIC) }
-            'go'  { KW(GO) }
+            'go' { KW(GO) }
+            'goto' { KW(GOTO) }
             'if' { KW(IF) }
             'implicit' { KW(IMPLICIT) }
             'import' { KW(IMPORT) }

@@ -283,7 +283,7 @@ documentation:
     - rm -r lfortran-*
     - cd doc
     - python convert_nb.py
-    - mkdocs build -s
+    - mkdocs build
     - ../ci/upload_docs.sh
   artifacts:
     paths:

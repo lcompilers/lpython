@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    581 // shift/reduce conflicts
-%expect-rr 93  // reduce/reduce conflicts
+%expect    593 // shift/reduce conflicts
+%expect-rr 96  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -183,6 +183,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_FUNCTION
 %token <string> KW_GENERIC
 %token <string> KW_GO
+%token <string> KW_GOTO
 %token <string> KW_IF
 %token <string> KW_IMPLICIT
 %token <string> KW_IMPORT
@@ -330,6 +331,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> nullify_statement
 %type <ast> print_statement
 %type <ast> open_statement
+%type <ast> flush_statement
 %type <ast> close_statement
 %type <ast> write_statement
 %type <ast> read_statement
@@ -1001,16 +1003,24 @@ data_stmt_value
     ;
 
 data_stmt_repeat
-    : TK_INTEGER { $$ = INTEGER($1, @$); }
-    ;
-
-data_stmt_constant
-    : TK_INTEGER { $$ = INTEGER($1, @$); }
+    : id { $$ = $1; }
+    | TK_INTEGER { $$ = INTEGER($1, @$); }
     | TK_REAL { $$ = REAL($1, @$); }
     | TK_STRING { $$ = STRING($1, @$); }
     | TK_BOZ_CONSTANT { $$ = BOZ($1, @$); }
     | ".true."  { $$ = TRUE(@$); }
     | ".false." { $$ = FALSE(@$); }
+    ;
+
+data_stmt_constant
+    : id { $$ = $1; }
+    | TK_INTEGER { $$ = INTEGER($1, @$); }
+    | TK_REAL { $$ = REAL($1, @$); }
+    | TK_STRING { $$ = STRING($1, @$); }
+    | TK_BOZ_CONSTANT { $$ = BOZ($1, @$); }
+    | ".true."  { $$ = TRUE(@$); }
+    | ".false." { $$ = FALSE(@$); }
+    | "-" expr %prec UMINUS { $$ = UNARY_MINUS($2, @$); }
     ;
 
 integer_type
@@ -1063,6 +1073,7 @@ var_modifier
     | KW_PUBLIC { $$ = SIMPLE_ATTR(Public, @$); }
     | KW_ABSTRACT { $$ = SIMPLE_ATTR(Abstract, @$); }
     | KW_ENUMERATOR { $$ = SIMPLE_ATTR(Enumerator, @$); }
+    | KW_EXTERNAL { $$ = SIMPLE_ATTR(External, @$); }
     | KW_INTENT "(" KW_IN ")" { $$ = INTENT(In, @$); }
     | KW_INTENT "(" KW_OUT ")" { $$ = INTENT(Out, @$); }
     | KW_INTENT "(" inout ")" { $$ = INTENT(InOut, @$); }
@@ -1198,6 +1209,7 @@ single_line_statement
     | event_post_statement
     | event_wait_statement
     | exit_statement
+    | flush_statement
     | forall_statement_single
     | format_statement
     | goto_statement
@@ -1241,6 +1253,7 @@ assignment_statement
 
 goto_statement
     : KW_GO KW_TO TK_INTEGER { $$ = GOTO($3, @$); }
+    | KW_GOTO TK_INTEGER { $$ = GOTO($2, @$); }
     ;
 
 associate_statement
@@ -1337,6 +1350,10 @@ backspace_statement
     : KW_BACKSPACE "(" write_arg_list ")" { $$ = BACKSPACE($3, @$); }
     ;
 
+flush_statement
+    : KW_FLUSH "(" write_arg_list ")" { $$ = FLUSH($3, @$); }
+    | KW_FLUSH TK_INTEGER { $$ = FLUSH1($2, @$); }
+    ;
 // sr-conflict (2x): KW_ENDIF can be an "id" or end of "if_statement"
 if_statement
     : if_block endif {}
@@ -1347,25 +1364,27 @@ if_statement_single
     ;
 
 if_block
-    : KW_IF "(" expr ")" KW_THEN sep statements {
-            $$ = IF1($3, $7, @$); }
-    | KW_IF "(" expr ")" KW_THEN sep statements KW_ELSE sep statements {
-            $$ = IF2($3, $7, $10, @$); }
-    | KW_IF "(" expr ")" KW_THEN sep statements KW_ELSE if_block {
-            $$ = IF3($3, $7, $9, @$); }
-    | KW_IF "(" expr ")" KW_THEN sep statements elseif_block {
-            $$ = IF3($3, $7, $8, @$); }
+    : KW_IF "(" expr ")" KW_THEN id_opt sep statements {
+            $$ = IF1($3, $8, @$); }
+    | KW_IF "(" expr ")" KW_THEN id_opt sep statements
+        KW_ELSE id_opt sep statements {
+            $$ = IF2($3, $8, $12, @$); }
+    | KW_IF "(" expr ")" KW_THEN id_opt sep statements KW_ELSE if_block {
+            $$ = IF3($3, $8, $10, @$); }
+    | KW_IF "(" expr ")" KW_THEN id_opt sep statements elseif_block {
+            $$ = IF3($3, $8, $9, @$); }
     ;
 
 elseif_block
-    : KW_ELSEIF "(" expr ")" KW_THEN sep statements {
-            $$ = IF1($3, $7, @$); }
-    | KW_ELSEIF "(" expr ")" KW_THEN sep statements KW_ELSE sep statements {
-            $$ = IF2($3, $7, $10, @$); }
-    | KW_ELSEIF "(" expr ")" KW_THEN sep statements KW_ELSE if_block {
-            $$ = IF3($3, $7, $9, @$); }
-    | KW_ELSEIF "(" expr ")" KW_THEN sep statements elseif_block {
-            $$ = IF3($3, $7, $8, @$); }
+    : KW_ELSEIF "(" expr ")" KW_THEN id_opt sep statements {
+            $$ = IF1($3, $8, @$); }
+    | KW_ELSEIF "(" expr ")" KW_THEN id_opt sep statements
+        KW_ELSE id_opt sep statements {
+            $$ = IF2($3, $8, $12, @$); }
+    | KW_ELSEIF "(" expr ")" KW_THEN id_opt sep statements KW_ELSE if_block {
+            $$ = IF3($3, $8, $10, @$); }
+    | KW_ELSEIF "(" expr ")" KW_THEN id_opt sep statements elseif_block {
+            $$ = IF3($3, $8, $9, @$); }
     ;
 
 where_statement
@@ -1681,12 +1700,20 @@ expr
     : id { $$ = $1; }
     | struct_member_star id { NAME1($$, $2, $1, @$); }
     | id "(" fnarray_arg_list_opt ")" { $$ = FUNCCALLORARRAY($1, $3, @$); }
-    | id "[" coarray_arg_list "]" {
-            $$ = COARRAY1($1, $3, @$); }
-    | id "(" fnarray_arg_list_opt ")" "[" coarray_arg_list "]" {
-            $$ = COARRAY2($1, $3, $6, @$); }
     | struct_member_star id "(" fnarray_arg_list_opt ")" {
             $$ = FUNCCALLORARRAY2($1, $2, $4, @$); }
+    | id "(" fnarray_arg_list_opt ")" "(" fnarray_arg_list_opt ")" {
+            $$ = FUNCCALLORARRAY3($1, $3, $6, @$); }
+    | struct_member_star id "(" fnarray_arg_list_opt ")" "(" fnarray_arg_list_opt ")" {
+            $$ = FUNCCALLORARRAY4($1, $2, $4, $7, @$); }
+    | id "[" coarray_arg_list "]" {
+            $$ = COARRAY1($1, $3, @$); }
+    | struct_member_star id "[" coarray_arg_list "]" {
+            $$ = COARRAY3($1, $2, $4, @$); }
+    | id "(" fnarray_arg_list_opt ")" "[" coarray_arg_list "]" {
+            $$ = COARRAY2($1, $3, $6, @$); }
+    | struct_member_star id "(" fnarray_arg_list_opt ")" "[" coarray_arg_list "]" {
+            $$ = COARRAY4($1, $2, $4, $7, @$); }
     | "[" expr_list_opt rbracket { $$ = ARRAY_IN($2, @$); }
     | "[" var_type "::" expr_list_opt rbracket { $$ = ARRAY_IN1($2, $4, @$); }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
@@ -1872,6 +1899,7 @@ id
     | KW_FUNCTION { $$ = SYMBOL($1, @$); }
     | KW_GENERIC { $$ = SYMBOL($1, @$); }
     | KW_GO { $$ = SYMBOL($1, @$); }
+    | KW_GOTO { $$ = SYMBOL($1, @$); }
     | KW_IF { $$ = SYMBOL($1, @$); }
     | KW_IMPLICIT { $$ = SYMBOL($1, @$); }
     | KW_IMPORT { $$ = SYMBOL($1, @$); }

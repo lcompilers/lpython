@@ -935,6 +935,7 @@ ast_t* builtin3(Allocator &al,
 #define REWIND(args0, l) builtin1(p.m_a, args0, l, make_Rewind_t)
 #define NULLIFY(args0, l) builtin1(p.m_a, args0, l, make_Nullify_t)
 #define BACKSPACE(args0, l) builtin1(p.m_a, args0, l, make_Backspace_t)
+#define FLUSH(args0, l) builtin1(p.m_a, args0, l, make_Flush_t)
 
 #define INQUIRE0(args0, l) builtin2(p.m_a, args0, empty_vecast(), l, \
             make_Inquire_t)
@@ -942,6 +943,8 @@ ast_t* builtin3(Allocator &al,
 #define REWIND2(arg, l) make_Rewind_t(p.m_a, l, 0, \
             EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
 #define REWIND3(arg, l) make_Rewind_t(p.m_a, l, 0, \
+            EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
+#define FLUSH1(arg, l) make_Flush_t(p.m_a, l, 0, \
             EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
 
 #define BIND2(args0, l) builtin3(p.m_a, args0, l, make_Bind_t)
@@ -1491,8 +1494,9 @@ LFortran::Str Str_from_string(Allocator &al, const std::string &s) {
         b.size())
 
 ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
-        const Vec<FnArg> &args,
         const Vec<struct_member_t> &member,
+        const Vec<FnArg> &args,
+        const Vec<FnArg> &subargs,
         Location &l) {
     Vec<fnarg_t> v;
     v.reserve(al, args.size());
@@ -1505,19 +1509,30 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
             v.push_back(al, item.arg);
         }
     }
+    Vec<fnarg_t> v1;
+    v1.reserve(al, subargs.size());
+    for (auto &item : subargs) {
+        v1.push_back(al, item.arg);
+    }
     return make_FuncCallOrArray_t(al, l,
         /*char* a_func*/ name2char(id),
         /* struct_member_t* */member.p, /* size_t */member.size(),
         /*fnarg_t* a_args*/ v.p, /*size_t n_args*/ v.size(),
-        /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size());
+        /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size(),
+        /*fnarg_t* a_subargs*/ v1.p , /*size_t n_subargs*/ v1.size());
 }
 
-#define FUNCCALLORARRAY(id, args, l) FUNCCALLORARRAY0(p.m_a, id, args, \
-        empty5(), l)
+#define FUNCCALLORARRAY(id, args, l) FUNCCALLORARRAY0(p.m_a, id, empty5(), \
+        args, empty1(), l)
 #define FUNCCALLORARRAY2(members, id, args, l) FUNCCALLORARRAY0(p.m_a, id, \
-        args, members, l)
+        members, args, empty1(), l)
+#define FUNCCALLORARRAY3(id, args, subargs, l) FUNCCALLORARRAY0(p.m_a, id, \
+        empty5(), args, subargs, l)
+#define FUNCCALLORARRAY4(mem, id, args, subargs, l) FUNCCALLORARRAY0(p.m_a, id, \
+        mem, args, subargs, l)
 
 ast_t* COARRAY(Allocator &al, const ast_t *id,
+        const Vec<struct_member_t> &member,
         const Vec<FnArg> &args, const Vec<CoarrayArg> &coargs,
         Location &l) {
     Vec<fnarg_t> fn;
@@ -1544,13 +1559,20 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
     }
     return make_CoarrayRef_t(al, l,
         /*char* a_func*/ name2char(id),
+        /* struct_member_t* */member.p, /* size_t */member.size(),
         /*fnarg_t* */ fn.p, /*size_t */ fn.size(),
         /*keyword_t* */ fnkw.p, /*size_t */ fnkw.size(),
         /*coarrayarg_t* */ coarr.p, /*size_t s*/ coarr.size(),
         /*keyword_t* */ coarrkw.p, /*size_t */ coarrkw.size());
 }
-#define COARRAY1(id, coargs, l) COARRAY(p.m_a, id, empty1(), coargs, l)
-#define COARRAY2(id, args, coargs, l) COARRAY(p.m_a, id, args, coargs, l)
+#define COARRAY1(id, coargs, l) COARRAY(p.m_a, id, \
+        empty5(), empty1(), coargs, l)
+#define COARRAY2(id, args, coargs, l) COARRAY(p.m_a, id, \
+        empty5(), args, coargs, l)
+#define COARRAY3(mem, id, coargs, l) COARRAY(p.m_a, id, \
+        mem, empty1(), coargs, l)
+#define COARRAY4(mem, id, args, coargs, l) COARRAY(p.m_a, id, \
+        mem, args, coargs, l)
 
 #define SELECT(cond, body, l) make_Select_t(p.m_a, l, 0, nullptr, \
         EXPR(cond), \

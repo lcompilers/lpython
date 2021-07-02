@@ -1102,6 +1102,7 @@ public:
             ATTRTYPE(Deferred)
             ATTRTYPE(Elemental)
             ATTRTYPE(Enumerator)
+            ATTRTYPE(External)
             ATTRTYPE(Impure)
             ATTRTYPE(Intrinsic)
             ATTRTYPE(Module)
@@ -2391,6 +2392,29 @@ public:
         s = r;
     }
 
+    void visit_Flush(const Flush_t &x) {
+        std::string r=indent;
+        r += print_label(x);
+        r += syn(gr::Keyword);
+        r += "flush";
+        r += syn();
+        r += "(";
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_expr(*x.m_args[i]);
+            r += s;
+            if (i < x.n_args-1 || x.n_kwargs > 0) r += ", ";
+        }
+        for (size_t i=0; i<x.n_kwargs; i++) {
+            r += x.m_kwargs[i].m_arg;
+            r += "=";
+            this->visit_expr(*x.m_kwargs[i].m_value);
+            r += s;
+            if (i < x.n_kwargs-1) r += ", ";
+        }
+        r += ")\n";
+        s = r;
+    }
+
     template <typename Node>
     std::string print_label(const Node &x) {
         if (x.m_label == 0) {
@@ -2526,11 +2550,56 @@ public:
             if (i < x.n_keywords-1) r.append(", ");
         }
         r.append(")");
+        for (size_t i=0; i<x.n_subargs; i++) {
+            r.append("(");
+            this->visit_fnarg(x.m_subargs[i]);
+            r.append(s);
+            if (i < x.n_subargs-1) r.append(", ");
+            r.append(")");
+        }
         s = r;
     }
 
     void visit_CoarrayRef(const CoarrayRef_t &x) {
         std::string r;
+        if (x.n_member > 0) {
+            for (size_t i=0; i<x.n_member; i++) {
+                r.append(x.m_member[i].m_name);
+                if (x.m_member[i].n_args > 0) {
+                    r.append("(");
+                    for (size_t j=0; j<x.m_member[i].n_args; j++) {
+                        expr_t *start = x.m_member[i].m_args[j].m_start;
+                        expr_t *end = x.m_member[i].m_args[j].m_end;
+                        expr_t *step = x.m_member[i].m_args[j].m_step;
+                        if (step != nullptr) {
+                            if (start) {
+                                this->visit_expr(*start);
+                                r.append(s);
+                            }
+                            r += ":";
+                            if (end) {
+                                this->visit_expr(*end);
+                                r.append(s);
+                            }
+                            if (is_a<Num_t>(*step) &&
+                                    down_cast<Num_t>(step)->m_n != 1) {
+                                r += ":";
+                                this->visit_expr(*step);
+                                r.append(s);
+                            }
+                        } else if (end != nullptr && start == nullptr) {
+                            this->visit_expr(*end);
+                            r.append(s);
+                        } else {
+                            throw LFortranException("Incorrect coarray elements");
+                        }
+                        if (i < x.m_member[i].n_args-1) r.append(",");
+                    }
+                    r.append(")");
+                }
+                r.append("%");
+            }
+        }
         r.append(x.m_name);
         if(x.n_args > 0) {
             r.append("(");

@@ -111,6 +111,7 @@ stmt
     | EventPost(int label, expr variable, event_attribute* stat)
     | EventWait(int label, expr variable, event_attribute* spec)
     | Exit(int label, identifier? stmt_name)
+    | Flush(int label, expr* args, keyword* kwargs)
     | ForAllSingle(int label, identifier? stmt_name,
             concurrent_control *control, expr? mask, stmt assign)
     | Format(int label, string fmt)
@@ -159,9 +160,9 @@ expr
     | UnaryOp(unaryop op, expr operand)
     | Compare(expr left, cmpop op, expr right)
     | FuncCallOrArray(identifier func, struct_member* member,
-        fnarg* args, keyword* keywords)
-    | CoarrayRef(identifier name, fnarg* args, keyword* fnkw
-        coarrayarg* coargs, keyword* cokw)
+        fnarg* args, keyword* keywords, fnarg* subargs)
+    | CoarrayRef(identifier name, struct_member* member,
+        fnarg* args, keyword* fnkw, coarrayarg* coargs, keyword* cokw)
     | ArrayInitializer(decl_attribute? vartype, expr* args)
     | ImpliedDoLoop(expr* values, identifier var, expr start, expr end,
         expr? increment)
@@ -225,6 +226,7 @@ simple_attribute
     | AttrDeferred
     | AttrElemental
     | AttrEnumerator
+    | AttrExternal
     | AttrImpure
     | AttrIntrinsic
     | AttrModule

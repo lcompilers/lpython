@@ -1,0 +1,13 @@
+{
+    "basename": "ast_f90-flush1-3dca185",
+    "cmd": "lfortran --show-ast-f90 --no-color {infile}",
+    "infile": "tests/flush1.f90",
+    "infile_hash": "d0c80e1628d5fabcef4bf73ec7d228e08c9d37462c1a3bd0f08481d8",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_f90-flush1-3dca185.stdout",
+    "stdout_hash": "e444b9cf414836f8eec3e1eb021123256dad2639304b2f386118c64c",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

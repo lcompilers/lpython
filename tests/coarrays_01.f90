@@ -56,6 +56,9 @@ event post (done (sub (i)) [parent (i)], stat=status)
 event post(variable, stat=status)
 event post(variable, errmsg=status)
 
+s%a(3)(4) = 'S'
+s%b[3] = c[4]
+s%c(3)[4] = f(3)[4]
 c[3] = c[4]
 B[1,2] = B[3,4]
 D(99,1)[3,4] = D(1,2)[1,2]

@@ -1,0 +1,8 @@
+program flush1
+    ! Tests for syntax (AST only):
+    flush (10, IOSTAT = n)
+    flush (20, IOMSG = n)
+    flush (ERR = label)
+    flush (30, UNIT = 40)
+    FLUSH 50
+end program
