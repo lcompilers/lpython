@@ -112,7 +112,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             string1 = (kind "_")? '"' ('""'|[^"\x00])* '"';
             string2 = (kind "_")? "'" ("''"|[^'\x00])* "'";
             comment = "!" [^\n\x00]*;
-            ws_comment = whitespace? comment? "\n";
+            ws_comment = whitespace? comment? newline;
 
             * { token_loc(loc);
                 std::string t = token();
@@ -388,10 +388,10 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
                 line_num++; cur_line=cur; continue;
             }
 
-            comment / "\n" { token(yylval.string); RET(TK_COMMENT) }
+            comment / newline { token(yylval.string); RET(TK_COMMENT) }
 
             // Macros are ignored for now:
-            "#" [^\n\x00]* "\n" { line_num++; cur_line=cur; continue; }
+            "#" [^\n\x00]* newline { line_num++; cur_line=cur; continue; }
 
             // Include statements are ignored for now
             'include' whitespace string1 { continue; }
