@@ -58,6 +58,31 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
         * Default rule `*` should always be defined, it has the lowest priority
           regardless of its place and matches any code unit
 
+        The code below executes on its own until a rule is matched: the action
+        in {} is then executed. In that action we can use `tok` and `cur` to
+        extract the token:
+
+        * `tok` points to the first character of the token
+        * `cur-1` points to the last character of the token
+        * `cur` points to the first character of the next token
+
+        In the action, we do one of:
+
+        * call `continue` which executes another cycle in the for loop (which
+          will parse the next token); we use this to skip a token
+        * call `return` which returns from this function; we return a token
+        * throw an exception (terminates the tokenizer)
+
+        In the first two cases, `cur` points to first character of the next
+        token, which becomes `tok` at the next iteration of the loop (either
+        right away after `continue` or after the `lex` function is called again
+        after `return`).
+
+        When the re2c block starts, `cur` must point to the next token that
+        should be tokenized. We remember its value in `tok`. When the action {}
+        enters, `cur` points to the following token and `cur-tok` is the length
+        of the new token that got tokenized.
+
         See the manual for more details.
         */
         /*!re2c
