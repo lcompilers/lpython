@@ -39,6 +39,11 @@ namespace LFortran {
             inline bool is_array(ASR::ttype_t* x) {
                 int n_dims = 0;
                 switch( x->type ) {
+                    case ASR::ttypeType::IntegerPointer: {
+                        ASR::IntegerPointer_t* _type = (ASR::IntegerPointer_t*)(&(x->base));
+                        n_dims = _type->n_dims;
+                        break;
+                    }
                     case ASR::ttypeType::Integer: {
                         ASR::Integer_t* _type = (ASR::Integer_t*)(&(x->base));
                         n_dims = _type->n_dims;
@@ -47,6 +52,11 @@ namespace LFortran {
                     case ASR::ttypeType::Real: {
                         ASR::Real_t* _type = (ASR::Real_t*)(&(x->base));
                         n_dims = _type->n_dims > 0;
+                        break;
+                    }
+                    case ASR::ttypeType::RealPointer: {
+                        ASR::RealPointer_t* _type = (ASR::RealPointer_t*)(&(x->base));
+                        n_dims = _type->n_dims;
                         break;
                     }
                     case ASR::ttypeType::Complex: {
