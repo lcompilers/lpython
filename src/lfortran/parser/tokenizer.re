@@ -42,9 +42,9 @@ bool lex_dec(const unsigned char *s, const unsigned char *e, unsigned long &u)
 
 int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
 {
-	unsigned long u;
     for (;;) {
         tok = cur;
+
         /*
         Re2c has an excellent documentation at:
 
@@ -85,6 +85,11 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
 
         See the manual for more details.
         */
+
+
+        // These two variables are needed by the re2c block below internally,
+        // initialization is not needed.
+        unsigned char *mar, *ctxmar;
         /*!re2c
             re2c:define:YYCURSOR = cur;
             re2c:define:YYMARKER = mar;
@@ -329,6 +334,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             // built-in or custom defined operator, such as: `.eq.`, `.not.`,
             // or `.custom.`.
             integer / defop {
+                unsigned long u;
                 if (lex_dec(tok, cur, u)) {
                     yylval.n = u;
                     RET(TK_INTEGER)
@@ -343,6 +349,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
 
             real { token(yylval.string); RET(TK_REAL) }
             integer / (whitespace name) {
+                unsigned long u;
                 if (lex_dec(tok, cur, u)) {
                     yylval.n = u;
                     if (last_token == yytokentype::TK_NEWLINE) {
@@ -358,6 +365,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
                 }
             }
             integer {
+                unsigned long u;
                 if (lex_dec(tok, cur, u)) {
                     yylval.n = u;
                     RET(TK_INTEGER)
