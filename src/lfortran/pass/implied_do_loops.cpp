@@ -243,6 +243,7 @@ public:
                 }
             }
         } else if( x.m_value->type != ASR::exprType::ArrayInitializer && 
+                   x.m_value->type != ASR::exprType::FunctionCall && // This will be converted to SubroutineCall in array_op.cpp
                    PassUtils::is_array(x.m_target)) {
             contains_array = true;
             visit_expr(*(x.m_value)); // TODO: Add support for updating contains array in all types of expressions

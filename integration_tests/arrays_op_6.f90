@@ -15,12 +15,12 @@ do i = 1, 2
     end do
 end do
 
-d = square(a, b, c)
+d = asquare(a, b, c)
 call check(d)
 
 contains
 
-    function square(a, b, c) result(d)
+    function asquare(a, b, c) result(d)
         implicit none
 
         real :: a(:, :, :), b(:, :, :), c(:, :, :)
@@ -28,7 +28,7 @@ contains
 
         d = a + b + c
 
-    end function square
+    end function asquare
 
     subroutine check(c)
     implicit none
