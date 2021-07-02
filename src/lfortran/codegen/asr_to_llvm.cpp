@@ -3403,7 +3403,6 @@ std::unique_ptr<LLVMModule> asr_to_llvm(ASR::TranslationUnit_t &asr,
     pass_replace_param_to_const(al, asr);
     // Uncomment for debugging the ASR after the transformation
     // std::cout << pickle(asr) << std::endl;
-    // pass_replace_array_op(al, asr);
     pass_replace_select_case(al, asr);
     pass_replace_implied_do_loops(al, asr);
     pass_replace_arr_slice(al, asr);
