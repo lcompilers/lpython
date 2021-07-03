@@ -158,6 +158,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_ENDIF
 %token <string> KW_END_INTERFACE
 %token <string> KW_ENDINTERFACE
+%token <string> KW_ENDTYPE
 %token <string> KW_END_FORALL
 %token <string> KW_ENDFORALL
 %token <string> KW_END_DO
@@ -558,8 +559,13 @@ enum_var_modifiers
 
 derived_type_decl
     : KW_TYPE var_modifiers id sep var_decl_star
-        derived_type_contains_opt KW_END KW_TYPE id_opt sep {
+        derived_type_contains_opt end_type sep {
         $$ = DERIVED_TYPE($2, $3, $5, $6, @$); }
+    ;
+
+end_type
+    : KW_END KW_TYPE id_opt
+    | KW_ENDTYPE id_opt
     ;
 
 derived_type_contains_opt
@@ -1880,6 +1886,7 @@ id
     | KW_ENDDO { $$ = SYMBOL($1, @$); }
     | KW_ENDIF { $$ = SYMBOL($1, @$); }
     | KW_ENDINTERFACE { $$ = SYMBOL($1, @$); }
+    | KW_ENDTYPE { $$ = SYMBOL($1, @$); }
     | KW_ENTRY { $$ = SYMBOL($1, @$); }
     | KW_ENUM { $$ = SYMBOL($1, @$); }
     | KW_ENUMERATOR { $$ = SYMBOL($1, @$); }

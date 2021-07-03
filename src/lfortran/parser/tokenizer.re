@@ -136,6 +136,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             'endif' { KW(ENDIF) }
             'end' whitespace 'interface' { KW(END_INTERFACE) }
             'endinterface' { KW(ENDINTERFACE) }
+            'endtype' { KW(ENDTYPE) }
             'end' whitespace 'do' { KW(END_DO) }
             'enddo' { KW(ENDDO) }
             'end' whitespace 'where' { KW(END_WHERE) }
