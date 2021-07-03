@@ -253,8 +253,8 @@ public:
             slice_var = EXPR(ASR::make_Var_t(al, x.base.base.loc, slice_sym));
             // std::cout<<"Inside ArrayRef "<<slice_var<<std::endl;
             Vec<ASR::expr_t*> idx_vars_target, idx_vars_value;
-            PassUtils::create_idx_vars(idx_vars_target, x.n_args, x.base.base.loc, al, unit, "_t");
-            PassUtils::create_idx_vars(idx_vars_value, x.n_args, x.base.base.loc, al, unit, "_v");
+            PassUtils::create_idx_vars(idx_vars_target, x.n_args, x.base.base.loc, al, current_scope, "_t");
+            PassUtils::create_idx_vars(idx_vars_value, x.n_args, x.base.base.loc, al, current_scope, "_v");
             ASR::stmt_t* doloop = nullptr;
             ASR::ttype_t* int32_type = TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
             ASR::expr_t* const_1 = EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, 1, int32_type));

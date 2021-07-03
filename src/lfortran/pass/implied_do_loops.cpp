@@ -243,6 +243,7 @@ public:
                 }
             }
         } else if( x.m_value->type != ASR::exprType::ArrayInitializer && 
+                   x.m_value->type != ASR::exprType::FunctionCall && // This will be converted to SubroutineCall in array_op.cpp
                    PassUtils::is_array(x.m_target)) {
             contains_array = true;
             visit_expr(*(x.m_value)); // TODO: Add support for updating contains array in all types of expressions
@@ -252,7 +253,7 @@ public:
 
             int n_dims = PassUtils::get_rank(x.m_target);
             Vec<ASR::expr_t*> idx_vars;
-            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, unit);
+            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, current_scope);
             ASR::stmt_t* doloop = nullptr;
             for( int i = n_dims - 1; i >= 0; i-- ) {
                 ASR::do_loop_head_t head;

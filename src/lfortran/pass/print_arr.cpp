@@ -110,7 +110,7 @@ public:
             int n_dims = PassUtils::get_rank(arr_expr);
             // std::cout<<n_dims<<std::endl;
             Vec<ASR::expr_t*> idx_vars;
-            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, unit);
+            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, current_scope);
             ASR::stmt_t* doloop = nullptr;
             ASR::stmt_t* empty_print_endl = STMT(ASR::make_Print_t(al, x.base.base.loc, nullptr, nullptr, 0));
             for( int i = n_dims - 1; i >= 0; i-- ) {

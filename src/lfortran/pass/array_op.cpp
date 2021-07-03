@@ -6,6 +6,9 @@
 #include <lfortran/pass/array_op.h>
 #include <lfortran/pass/pass_utils.h>
 
+#include <vector>
+#include <utility>
+
 
 namespace LFortran {
 
@@ -136,12 +139,7 @@ public:
     // to visit_stmt().
 
     void visit_Program(const ASR::Program_t &x) {
-        // FIXME: this is a hack, we need to pass in a non-const `x`,
-        // which requires to generate a TransformVisitor.
-        ASR::Program_t &xx = const_cast<ASR::Program_t&>(x);
-        current_scope = xx.m_symtab;
-        transform_stmts(xx.m_body, xx.n_body);
-
+        std::vector<std::pair<std::string, ASR::symbol_t*>> replace_vec;
         // Transform nested functions and subroutines
         for (auto &item : x.m_symtab->scope) {
             if (is_a<ASR::Subroutine_t>(*item.second)) {
@@ -151,8 +149,51 @@ public:
             if (is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = down_cast<ASR::Function_t>(item.second);
                 visit_Function(*s);
+                /*
+                * A function which returns an array will be converted
+                * to a subroutine with the destination array as the last
+                * argument. This helps in avoiding deep copies and the
+                * destination memory directly gets filled inside the subroutine.
+                */
+                if( PassUtils::is_array(s->m_return_var) ) {
+                    for( auto& s_item: s->m_symtab->scope ) {
+                        ASR::symbol_t* curr_sym = s_item.second;
+                        if( curr_sym->type == ASR::symbolType::Variable ) {
+                            ASR::Variable_t* var = down_cast<ASR::Variable_t>(curr_sym);
+                            if( var->m_intent == ASR::intentType::Unspecified ) {
+                                var->m_intent = ASR::intentType::In;
+                            } else if( var->m_intent == ASR::intentType::ReturnVar ) {
+                                var->m_intent = ASR::intentType::Out;
+                            }
+                        } 
+                    }
+                    Vec<ASR::expr_t*> a_args;
+                    a_args.reserve(al, s->n_args + 1);
+                    for( size_t i = 0; i < s->n_args; i++ ) {
+                        a_args.push_back(al, s->m_args[i]);
+                    }
+                    a_args.push_back(al, s->m_return_var);
+                    ASR::asr_t* s_sub_asr = ASR::make_Subroutine_t(al, s->base.base.loc, s->m_symtab, 
+                                                    s->m_name, a_args.p, a_args.size(), s->m_body, s->n_body, 
+                                                    s->m_abi, s->m_access, s->m_deftype);
+                    ASR::symbol_t* s_sub = ASR::down_cast<ASR::symbol_t>(s_sub_asr);
+                    replace_vec.push_back(std::make_pair(item.first, s_sub));
+                }
             }
         }
+
+        // FIXME: this is a hack, we need to pass in a non-const `x`,
+        // which requires to generate a TransformVisitor.
+        ASR::Program_t &xx = const_cast<ASR::Program_t&>(x);
+        current_scope = xx.m_symtab;
+        // Updating the symbol table so that the now the name
+        // of the function (which returned array) now points
+        // to the newly created subroutine.
+        for( auto& item: replace_vec ) {
+            current_scope->scope[item.first] = item.second;
+        }
+        transform_stmts(xx.m_body, xx.n_body);
+
     }
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
@@ -178,12 +219,40 @@ public:
         }
     }
 
-    ASR::expr_t* create_var(int counter, std::string suffix, const Location& loc,
-                            ASR::ttype_t* var_type) {
-        ASR::expr_t* idx_var = nullptr;
+    ASR::ttype_t* get_matching_type(ASR::expr_t* sibling) {
+        ASR::ttype_t* sibling_type = expr_type(sibling);
+        if( sibling->type != ASR::exprType::Var ) {
+            return sibling_type;
+        }
+        ASR::dimension_t* m_dims;
+        int ndims;
+        PassUtils::get_dim_rank(sibling_type, m_dims, ndims);
+        for( int i = 0; i < ndims; i++ ) {
+            if( m_dims[i].m_start != nullptr || 
+                m_dims[i].m_end != nullptr ) {
+                return sibling_type;
+            }
+        }
+        Vec<ASR::dimension_t> new_m_dims;
+        new_m_dims.reserve(al, ndims);
+        for( int i = 0; i < ndims; i++ ) {
+            ASR::dimension_t new_m_dim;
+            new_m_dim.loc = m_dims[i].loc;
+            new_m_dim.m_start = PassUtils::get_bound(sibling, i + 1, "lbound", 
+                                                     al, unit, current_scope);
+            new_m_dim.m_end = PassUtils::get_bound(sibling, i + 1, "ubound",
+                                                    al, unit, current_scope);
+            new_m_dims.push_back(al, new_m_dim);
+        }
+        return PassUtils::set_dim_rank(sibling_type, new_m_dims.p, ndims, true, &al);
+    }
 
+    ASR::expr_t* create_var(int counter, std::string suffix, const Location& loc,
+                            ASR::expr_t* sibling) {
+        ASR::expr_t* idx_var = nullptr;
+        ASR::ttype_t* var_type = get_matching_type(sibling);
         Str str_name;
-        str_name.from_str(al, std::to_string(counter) + suffix);
+        str_name.from_str(al, "~" + std::to_string(counter) + suffix);
         const char* const_idx_var_name = str_name.c_str(al);
         char* idx_var_name = (char*)const_idx_var_name;
 
@@ -205,6 +274,23 @@ public:
         tmp_val = const_cast<ASR::expr_t*>(&(x.base));
     }
 
+    void visit_ConstantComplex(const ASR::ConstantComplex_t& x) {
+        tmp_val = const_cast<ASR::expr_t*>(&(x.base));
+    }
+
+    void visit_ConstantReal(const ASR::ConstantReal_t& x) {
+        tmp_val = const_cast<ASR::expr_t*>(&(x.base));
+    }
+
+    void fix_dimension(const ASR::ImplicitCast_t& x, ASR::expr_t* arg_expr) {
+        ASR::ttype_t* x_type = const_cast<ASR::ttype_t*>(x.m_type);
+        ASR::ttype_t* arg_type = expr_type(arg_expr);
+        ASR::dimension_t* m_dims;
+        int ndims;
+        PassUtils::get_dim_rank(arg_type, m_dims, ndims);
+        PassUtils::set_dim_rank(x_type, m_dims, ndims);
+    }
+
     void visit_ImplicitCast(const ASR::ImplicitCast_t& x) {
         ASR::expr_t* result_var_copy = result_var;
         result_var = nullptr;
@@ -212,12 +298,13 @@ public:
         result_var = result_var_copy;
         if( PassUtils::is_array(tmp_val) ) {
             if( result_var == nullptr ) {
-                result_var = create_var(result_var_num, std::string("_implicit_cast_res"), x.base.base.loc, x.m_type);
+                fix_dimension(x, tmp_val);
+                result_var = create_var(result_var_num, std::string("_implicit_cast_res"), x.base.base.loc, const_cast<ASR::expr_t*>(&(x.base)));
                 result_var_num += 1;
             }
             int n_dims = PassUtils::get_rank(result_var);
             Vec<ASR::expr_t*> idx_vars;
-            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, unit);
+            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, current_scope);
             ASR::stmt_t* doloop = nullptr;
             for( int i = n_dims - 1; i >= 0; i-- ) {
                 ASR::do_loop_head_t head;
@@ -250,7 +337,59 @@ public:
         tmp_val = const_cast<ASR::expr_t*>(&(x.base));
     }
 
-    void visit_BinOp(const ASR::BinOp_t &x) {
+    void visit_UnaryOp(const ASR::UnaryOp_t& x) {
+        std::string res_prefix = "_unary_op_res";
+        ASR::expr_t* result_var_copy = result_var;
+        result_var = nullptr;
+        this->visit_expr(*(x.m_operand));
+        ASR::expr_t* operand = tmp_val;
+        int rank_operand = PassUtils::get_rank(operand);
+        if( rank_operand == 0 ) {
+            tmp_val = const_cast<ASR::expr_t*>(&(x.base));
+            return ;
+        }
+        if( rank_operand > 0 ) {
+            result_var = result_var_copy;
+            if( result_var == nullptr ) {
+                result_var = create_var(result_var_num, res_prefix, 
+                                        x.base.base.loc, operand);
+                result_var_num += 1;
+            }
+            tmp_val = result_var;
+
+            int n_dims = rank_operand;
+            Vec<ASR::expr_t*> idx_vars;
+            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, current_scope);
+            ASR::stmt_t* doloop = nullptr;
+            for( int i = n_dims - 1; i >= 0; i-- ) {
+                // TODO: Add an If debug node to check if the lower and upper bounds of both the arrays are same.
+                ASR::do_loop_head_t head;
+                head.m_v = idx_vars[i];
+                head.m_start = PassUtils::get_bound(result_var, i + 1, "lbound", al, unit, current_scope);
+                head.m_end = PassUtils::get_bound(result_var, i + 1, "ubound", al, unit, current_scope);
+                head.m_increment = nullptr;
+                head.loc = head.m_v->base.loc;
+                Vec<ASR::stmt_t*> doloop_body;
+                doloop_body.reserve(al, 1);
+                if( doloop == nullptr ) {
+                    ASR::expr_t* ref = PassUtils::create_array_ref(operand, idx_vars, al);
+                    ASR::expr_t* res = PassUtils::create_array_ref(result_var, idx_vars, al);
+                    ASR::expr_t* op_el_wise = EXPR(ASR::make_UnaryOp_t(
+                                                    al, x.base.base.loc, 
+                                                    x.m_op, ref, x.m_type));
+                    ASR::stmt_t* assign = STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise));
+                    doloop_body.push_back(al, assign);
+                } else {
+                    doloop_body.push_back(al, doloop);
+                }
+                doloop = STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
+            }
+            array_op_result.push_back(al, doloop);
+        }
+    }
+
+    template <typename T>
+    void visit_ArrayOpCommon(const T& x, std::string res_prefix) {
         ASR::expr_t* result_var_copy = result_var;
         result_var = nullptr;
         this->visit_expr(*(x.m_left));
@@ -266,19 +405,19 @@ public:
         }
         if( rank_left > 0 && rank_right > 0 ) {
             if( rank_left != rank_right ) {
-                throw SemanticError("Cannot generate loop operands of different shapes", 
+                throw SemanticError("Cannot generate loop for operands of different shapes", 
                                     x.base.base.loc);
             }
             result_var = result_var_copy;
             if( result_var == nullptr ) {
-                result_var = create_var(result_var_num, std::string("_bin_op_res"), x.base.base.loc, expr_type(left));
+                result_var = create_var(result_var_num, res_prefix, x.base.base.loc, left);
                 result_var_num += 1;
             }
             tmp_val = result_var;
 
             int n_dims = rank_left;
             Vec<ASR::expr_t*> idx_vars;
-            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, unit);
+            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, current_scope);
             ASR::stmt_t* doloop = nullptr;
             for( int i = n_dims - 1; i >= 0; i-- ) {
                 // TODO: Add an If debug node to check if the lower and upper bounds of both the arrays are same.
@@ -294,8 +433,28 @@ public:
                     ASR::expr_t* ref_1 = PassUtils::create_array_ref(left, idx_vars, al);
                     ASR::expr_t* ref_2 = PassUtils::create_array_ref(right, idx_vars, al);
                     ASR::expr_t* res = PassUtils::create_array_ref(result_var, idx_vars, al);
-                    ASR::expr_t* bin_op_el_wise = EXPR(ASR::make_BinOp_t(al, x.base.base.loc, ref_1, x.m_op, ref_2, x.m_type));
-                    ASR::stmt_t* assign = STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, bin_op_el_wise));
+                    ASR::expr_t* op_el_wise = nullptr;
+                    switch( x.class_type ) {
+                        case ASR::exprType::BinOp:
+                            op_el_wise = EXPR(ASR::make_BinOp_t(
+                                                al, x.base.base.loc, 
+                                                ref_1, (ASR::binopType)x.m_op, ref_2, x.m_type));
+                            break;
+                        case ASR::exprType::Compare:
+                            op_el_wise = EXPR(ASR::make_Compare_t(
+                                                al, x.base.base.loc, 
+                                                ref_1, (ASR::cmpopType)x.m_op, ref_2, x.m_type));
+                            break;
+                        case ASR::exprType::BoolOp:
+                            op_el_wise = EXPR(ASR::make_BoolOp_t(
+                                                al, x.base.base.loc, 
+                                                ref_1, (ASR::boolopType)x.m_op, ref_2, x.m_type));
+                            break;
+                        default:
+                            throw SemanticError("The desired operation is not supported yet for arrays.",
+                                                x.base.base.loc);
+                    }
+                    ASR::stmt_t* assign = STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise));
                     doloop_body.push_back(al, assign);
                 } else {
                     doloop_body.push_back(al, doloop);
@@ -318,13 +477,13 @@ public:
                 n_dims = rank_right;
             }
             if( result_var == nullptr ) {
-                result_var = create_var(result_var_num, std::string("_bin_op_res"), x.base.base.loc, expr_type(arr_expr));
+                result_var = create_var(result_var_num, res_prefix, x.base.base.loc, arr_expr);
                 result_var_num += 1;
             }
             tmp_val = result_var;
 
             Vec<ASR::expr_t*> idx_vars;
-            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, unit);
+            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, current_scope);
             ASR::stmt_t* doloop = nullptr;
             for( int i = n_dims - 1; i >= 0; i-- ) {
                 // TODO: Add an If debug node to check if the lower and upper bounds of both the arrays are same.
@@ -339,8 +498,28 @@ public:
                 if( doloop == nullptr ) {
                     ASR::expr_t* ref = PassUtils::create_array_ref(arr_expr, idx_vars, al);
                     ASR::expr_t* res = PassUtils::create_array_ref(result_var, idx_vars, al);
-                    ASR::expr_t* bin_op_el_wise = EXPR(ASR::make_BinOp_t(al, x.base.base.loc, ref, x.m_op, other_expr, x.m_type));
-                    ASR::stmt_t* assign = STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, bin_op_el_wise));
+                    ASR::expr_t* op_el_wise = nullptr;
+                    switch( x.class_type ) {
+                        case ASR::exprType::BinOp:
+                            op_el_wise = EXPR(ASR::make_BinOp_t(
+                                                    al, x.base.base.loc, 
+                                                    ref, (ASR::binopType)x.m_op, other_expr, x.m_type));
+                            break;
+                        case ASR::exprType::Compare:
+                            op_el_wise = EXPR(ASR::make_Compare_t(
+                                                    al, x.base.base.loc, 
+                                                    ref, (ASR::cmpopType)x.m_op, other_expr, x.m_type));
+                            break;
+                        case ASR::exprType::BoolOp:
+                            op_el_wise = EXPR(ASR::make_BoolOp_t(
+                                                    al, x.base.base.loc, 
+                                                    ref, (ASR::boolopType)x.m_op, other_expr, x.m_type));
+                            break;
+                        default:
+                            throw SemanticError("The desired operation is not supported yet for arrays.",
+                                                x.base.base.loc);
+                    }
+                    ASR::stmt_t* assign = STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise));
                     doloop_body.push_back(al, assign);
                 } else {
                     doloop_body.push_back(al, doloop);
@@ -350,6 +529,54 @@ public:
             array_op_result.push_back(al, doloop);
         }
     }
+
+    void visit_BinOp(const ASR::BinOp_t &x) {
+        visit_ArrayOpCommon<ASR::BinOp_t>(x, "_bin_op_res");
+    }
+
+    void visit_Compare(const ASR::Compare_t &x) {
+        visit_ArrayOpCommon<ASR::Compare_t>(x, "_comp_op_res");
+    }
+
+    void visit_BoolOp(const ASR::BoolOp_t &x) {
+        visit_ArrayOpCommon<ASR::BoolOp_t>(x, "_bool_op_res");
+    }
+
+    void visit_FunctionCall(const ASR::FunctionCall_t& x) {
+        tmp_val = const_cast<ASR::expr_t*>(&(x.base));
+        std::string x_name;
+        if( x.m_name->type == ASR::symbolType::ExternalSymbol ) {
+            x_name = down_cast<ASR::ExternalSymbol_t>(x.m_name)->m_name;
+        } else if( x.m_name->type == ASR::symbolType::Function ) {
+            x_name = down_cast<ASR::Function_t>(x.m_name)->m_name;
+        }
+        // The following checks if the name of a function actually 
+        // points to a subroutine. If true this would mean that the
+        // original function returned an array and is now a subroutine.
+        // So the current function call will be converted to a subroutine
+        // call. In short, this check acts as a signal whether to convert
+        // a function call to a subroutine call.
+        if( current_scope != nullptr && 
+            current_scope->scope.find(x_name) != current_scope->scope.end() &&
+            current_scope->scope[x_name]->type == ASR::symbolType::Subroutine ) {
+            if( result_var == nullptr ) {
+                result_var = create_var(result_var_num, "_func_call_res", x.base.base.loc, x.m_args[x.n_args - 1]);
+                result_var_num += 1;
+            }
+            Vec<ASR::expr_t*> s_args;
+            s_args.reserve(al, x.n_args + 1);
+            for( size_t i = 0; i < x.n_args; i++ ) {
+                s_args.push_back(al, x.m_args[i]);
+            }
+            s_args.push_back(al, result_var);
+            tmp_val = result_var;
+            ASR::stmt_t* subrout_call = STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, 
+                                                current_scope->scope[x_name], nullptr, 
+                                                s_args.p, s_args.size()));
+            array_op_result.push_back(al, subrout_call);
+        }
+    }
+
 };
 
 void pass_replace_array_op(Allocator &al, ASR::TranslationUnit_t &unit) {
