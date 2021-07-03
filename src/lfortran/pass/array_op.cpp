@@ -149,6 +149,12 @@ public:
             if (is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = down_cast<ASR::Function_t>(item.second);
                 visit_Function(*s);
+                /*
+                * A function which returns an array will be converted
+                * to a subroutine with the destination array as the last
+                * argument. This helps in avoiding deep copies and the
+                * destination memory directly gets filled inside the subroutine.
+                */
                 if( PassUtils::is_array(s->m_return_var) ) {
                     for( auto& s_item: s->m_symtab->scope ) {
                         ASR::symbol_t* curr_sym = s_item.second;
@@ -180,6 +186,9 @@ public:
         // which requires to generate a TransformVisitor.
         ASR::Program_t &xx = const_cast<ASR::Program_t&>(x);
         current_scope = xx.m_symtab;
+        // Updating the symbol table so that the now the name
+        // of the function (which returned array) now points
+        // to the newly created subroutine.
         for( auto& item: replace_vec ) {
             current_scope->scope[item.first] = item.second;
         }
@@ -541,6 +550,12 @@ public:
         } else if( x.m_name->type == ASR::symbolType::Function ) {
             x_name = down_cast<ASR::Function_t>(x.m_name)->m_name;
         }
+        // The following checks if the name of a function actually 
+        // points to a subroutine. If true this would mean that the
+        // original function returned an array and is now a subroutine.
+        // So the current function call will be converted to a subroutine
+        // call. In short, this check acts as a signal whether to convert
+        // a function call to a subroutine call.
         if( current_scope != nullptr && 
             current_scope->scope.find(x_name) != current_scope->scope.end() &&
             current_scope->scope[x_name]->type == ASR::symbolType::Subroutine ) {

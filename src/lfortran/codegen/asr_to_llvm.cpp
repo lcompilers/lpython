@@ -1160,6 +1160,11 @@ public:
         builder->CreateRet(ret_val2);
     }
 
+    /*
+    * This function detects if the current variable is an argument.
+    * of a function or argument. Some manipulations are to be done 
+    * only on arguments and not on local variables.
+    */
     bool is_argument(ASR::Variable_t* v, ASR::expr_t** m_args, 
                         int n_args) {
         for( int i = 0; i < n_args; i++ ) {
@@ -1221,7 +1226,6 @@ public:
                                     is_malloc_array_type = true;
                                     type = get_malloc_array_type(m_type_, a_kind, n_dims);
                                 } else {
-                                    type = get_array_type(m_type_, a_kind, n_dims, m_dims);
                                     type = get_array_type(m_type_, a_kind, n_dims, m_dims);
                                 }
                             } else {
@@ -1317,6 +1321,11 @@ public:
                         default :
                             throw CodeGenError("Type not implemented");
                     }
+                    /*
+                    * The following if block is used for converting any
+                    * general array descriptor to a pointer type which
+                    * can be passed as an argument in a function call in LLVM IR.
+                    */
                     if( x.class_type == ASR::symbolType::Function || 
                         x.class_type == ASR::symbolType::Subroutine ) {
                         std::uint32_t m_h;
@@ -1335,6 +1344,13 @@ public:
                             is_v_arg = is_argument(v, _sub->m_args, _sub->n_args);
                         }
                         if( is_array_type ) {
+                            /* The first element in an array descriptor can be either of 
+                            * llvm::ArrayType or llvm::PointerType. However, a
+                            * function only accepts llvm::PointerType for arrays. Hence,
+                            * the following if block extracts the pointer to first element
+                            * of an array from its descriptor. Note that this happens only
+                            * for arguments and not for local function variables.
+                            */
                             if( abi_type == ASR::abiType::Source && is_v_arg ) {
                                 llvm::StructType* type_struct = static_cast<llvm::StructType*>(type);
                                 llvm::Type* first_ele_ptr_type = nullptr;
