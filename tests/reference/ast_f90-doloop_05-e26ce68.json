@@ -2,11 +2,11 @@
     "basename": "ast_f90-doloop_05-e26ce68",
     "cmd": "lfortran --show-ast-f90 --no-color {infile}",
     "infile": "tests/../integration_tests/doloop_05.f90",
-    "infile_hash": "5a491890522af8d37e521baf4bf396da8bab25c2981ac91fcb4be0c0",
+    "infile_hash": "d6c2b01c1169dbde9ecbd05ebec2c3267e3d77d027cff03dc7361d78",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast_f90-doloop_05-e26ce68.stdout",
-    "stdout_hash": "a4927c1ecd89cf64721d1305fc5440c8af4689f9cce62460c73f2497",
+    "stdout_hash": "e4c4ecd69d5aceb32ff6f1afd2bb1f5cc7b332bbab0eb7342f80eeaa",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
