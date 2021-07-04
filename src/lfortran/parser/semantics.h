@@ -13,6 +13,7 @@
 #include <cstring>
 
 #include <lfortran/ast.h>
+#include <lfortran/string_utils.h>
 
 // This is only used in parser.tab.cc, nowhere else, so we simply include
 // everything from LFortran::AST to save typing:
@@ -1185,8 +1186,9 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
 #define STMT_NAME(id_first, id_last, stmt) \
         stmt; \
         ((If_t*)stmt)->m_stmt_name = name2char(id_first); \
-        if (std::string(name2char(id_first)) != \
-                std::string(name2char(id_last))) { \
+        std::string first = name2char(id_first), \
+                    last  = name2char(id_last); \
+        if (LFortran::str2lower(first) != LFortran::str2lower(last)) { \
             throw LFortran::LFortranException("statement name is inconsistent"); \
         }
 
