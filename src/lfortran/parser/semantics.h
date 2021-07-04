@@ -740,8 +740,8 @@ ast_t* SUBROUTINE_CALL0(Allocator &al, struct_member_t* mem, size_t n,
 #define SUBROUTINE_CALL3(mem, name, l) make_SubroutineCall_t(p.m_a, l, 0, \
         name2char(name), mem.p, mem.n, nullptr, 0, nullptr, 0)
 
-Vec<fnarg_t> FNARGS(Allocator &al,
-        const Vec<FnArg> &args) {
+ast_t* DEALLOCATE_STMT1(Allocator &al,
+        const Vec<FnArg> &args, Location &l) {
     Vec<fnarg_t> v;
     v.reserve(al, args.size());
     Vec<keyword_t> v2;
@@ -749,12 +749,13 @@ Vec<fnarg_t> FNARGS(Allocator &al,
     for (auto &item : args) {
         if (item.keyword) {
             v2.push_back(al, item.kw);
-            LFORTRAN_ASSERT(false);
         } else {
             v.push_back(al, item.arg);
         }
     }
-    return v;
+    return make_Deallocate_t(al, l, 0,
+        /*expr_t** a_args*/ v.p, /*size_t n_args*/ v.size(),
+        /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size());
 }
 ast_t* ALLOCATE_STMT0(Allocator &al,
         const Vec<FnArg> &args, Location &l) {
@@ -774,8 +775,7 @@ ast_t* ALLOCATE_STMT0(Allocator &al,
         /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size());
 }
 #define ALLOCATE_STMT(args, l) ALLOCATE_STMT0(p.m_a, args, l)
-#define DEALLOCATE_STMT(args, l) make_Deallocate_t(p.m_a, l, 0, \
-        FNARGS(p.m_a, args).p, args.size())
+#define DEALLOCATE_STMT(args, l) DEALLOCATE_STMT1(p.m_a, args, l)
 
 char* print_format_to_str(Allocator &al, const std::string &fmt) {
     LFORTRAN_ASSERT(fmt[0] == '(');
