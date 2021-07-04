@@ -15,12 +15,6 @@ namespace LFortran {
 
 namespace {
 
-    inline std::string convert_to_lowercase(const std::string &s) {
-       std::string res;
-       for(auto x: s) res.push_back(std::tolower(x));
-       return res;
-    }
-
     std::string op2str(const operatorType type)
     {
         switch (type) {
@@ -1088,7 +1082,7 @@ public:
     }
 #define ATTRTYPE(x) \
             case (simple_attributeType::Attr##x) : \
-                r.append(convert_to_lowercase(#x)); \
+                r.append(str2lower(#x)); \
                 break;
 
     void visit_SimpleAttribute(const SimpleAttribute_t &x) {

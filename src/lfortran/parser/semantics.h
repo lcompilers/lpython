@@ -1185,8 +1185,9 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
 #define STMT_NAME(id_first, id_last, stmt) \
         stmt; \
         ((If_t*)stmt)->m_stmt_name = name2char(id_first); \
-        if (std::string(name2char(id_first)) != \
-                std::string(name2char(id_last))) { \
+        std::string first = name2char(id_first), \
+                    last  = name2char(id_last); \
+        if (str2lower(first) != str2lower(last)) { \
             throw LFortran::LFortranException("statement name is inconsistent"); \
         }
 
