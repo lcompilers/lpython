@@ -1230,11 +1230,6 @@ static inline T* down_cast2(const %(mod)s_t *f)
     return down_cast<T>(t);
 }
 
-inline std::string str2lower(const std::string &s) {
-   std::string res;
-   for(auto x: s) res.push_back(std::tolower(x));
-   return res;
-}
 
 """
 
