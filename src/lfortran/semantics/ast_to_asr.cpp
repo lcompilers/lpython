@@ -2077,27 +2077,30 @@ public:
     }
 
     void visit_Deallocate(const AST::Deallocate_t& x) {
-        SemanticError& err = SemanticError("Only an allocatable variable symbol "
-                                            "can be deallocated.", 
-                                            temp_expr->base.loc);
         Vec<ASR::symbol_t*> arg_vec;
         arg_vec.reserve(al, x.n_args);
         for( size_t i = 0; i < x.n_args; i++ ) {
             this->visit_expr(*(x.m_args[i].m_end));
             ASR::expr_t* tmp_expr = EXPR(tmp);
             if( tmp_expr->type != ASR::exprType::Var ) {
-                throw err;
+                throw SemanticError("Only an allocatable variable symbol "
+                                    "can be deallocated.", 
+                                    tmp_expr->base.loc);
             } else {
-                ASR::Var_t* tmp_var = down_cast<ASR::Var_t>(tmp_expr);
-                ASR::symbol_t* tmp_sym = symbol_get_past_external(tmp_var->m_v);
-                if( tmp_sym->type != ASR::symbolType::Variable ) {
-                    throw err;
+                const ASR::Var_t* tmp_var = ASR::down_cast<ASR::Var_t>(tmp_expr);
+                ASR::symbol_t* tmp_sym = tmp_var->m_v;
+                if( symbol_get_past_external(tmp_sym)->type != ASR::symbolType::Variable ) {
+                    throw SemanticError("Only an allocatable variable symbol "
+                                        "can be deallocated.", 
+                                        tmp_expr->base.loc);
                 } else {
-                    ASR::Variable_t* tmp_v = down_cast<ASR::Variable_t>(tmp_sym);
+                    ASR::Variable_t* tmp_v = ASR::down_cast<ASR::Variable_t>(tmp_sym);
                     if( tmp_v->m_storage != ASR::storage_typeType::Allocatable ) {
-                        throw err;
+                        throw SemanticError("Only an allocatable variable symbol "
+                                            "can be deallocated.", 
+                                            tmp_expr->base.loc);
                     }
-                    arg_vec.push_back(al, tmp_v);
+                    arg_vec.push_back(al, tmp_sym);
                 }
             }
         }

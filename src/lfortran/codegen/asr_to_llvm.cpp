@@ -990,7 +990,7 @@ public:
         }
     }
 
-    void visit_Deallocate(const ASR::Deallocate_t& x) {
+    void visit_ExplicitDeallocate(const ASR::ExplicitDeallocate_t& x) {
         std::string func_name = "_lfortran_free";
         llvm::Function *fn = module->getFunction(func_name);
         if (!fn) {
@@ -1001,9 +1001,13 @@ public:
             fn = llvm::Function::Create(function_type,
                     llvm::Function::ExternalLinkage, func_name, *module);
         }
-        for( size_t i = 0; i < x.n_args; i++ ) {
-            ASR::expr_t* curr_obj = x.m_args[i];
-            this->visit_expr(*curr_obj);
+        for( size_t i = 0; i < x.n_vars; i++ ) {
+            const ASR::symbol_t* curr_obj = x.m_vars[i];
+            uint32_t h = get_hash((ASR::asr_t*)curr_obj);
+            LFORTRAN_ASSERT(llvm_symtab.find(h) != llvm_symtab.end());
+            ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(
+                                    symbol_get_past_external(curr_obj));
+            fetch_var(v);
             llvm::Value* arr = builder->CreateLoad(create_gep(tmp, 0));
             llvm::AllocaInst *arg_arr = builder->CreateAlloca(character_type, nullptr);
             builder->CreateStore(builder->CreateBitCast(arr, character_type), arg_arr);
