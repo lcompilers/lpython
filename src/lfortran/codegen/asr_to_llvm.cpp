@@ -990,7 +990,8 @@ public:
         }
     }
 
-    void visit_ExplicitDeallocate(const ASR::ExplicitDeallocate_t& x) {
+    template <typename T>
+    void _Deallocate(const T& x) {
         std::string func_name = "_lfortran_free";
         llvm::Function *fn = module->getFunction(func_name);
         if (!fn) {
@@ -1014,6 +1015,14 @@ public:
             std::vector<llvm::Value*> args = {builder->CreateLoad(arg_arr)};
             builder->CreateCall(fn, args);
         }
+    }
+
+    void visit_ImplicitDeallocate(const ASR::ImplicitDeallocate_t& x) {
+        _Deallocate<ASR::ImplicitDeallocate_t>(x);
+    }
+
+    void visit_ExplicitDeallocate(const ASR::ExplicitDeallocate_t& x) {
+        _Deallocate<ASR::ExplicitDeallocate_t>(x);
     }
 
     void visit_ArrayRef(const ASR::ArrayRef_t& x) {
