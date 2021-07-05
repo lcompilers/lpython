@@ -5,7 +5,7 @@
 %locations
 %glr-parser
 %expect    593 // shift/reduce conflicts
-%expect-rr 96  // reduce/reduce conflicts
+%expect-rr 97  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -1258,8 +1258,14 @@ assignment_statement
     ;
 
 goto_statement
-    : KW_GO KW_TO TK_INTEGER { $$ = GOTO($3, @$); }
-    | KW_GOTO TK_INTEGER { $$ = GOTO($2, @$); }
+    : goto TK_INTEGER { $$ = GOTO($2, @$); }
+    | goto "(" expr_list ")" expr { $$ = GOTO1($3, $5, @$); }
+    | goto "(" expr_list ")" "," expr { $$ = GOTO1($3, $6, @$); }
+    ;
+
+goto
+    : KW_GO KW_TO
+    | KW_GOTO
     ;
 
 associate_statement

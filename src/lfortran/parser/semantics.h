@@ -710,7 +710,10 @@ ast_t* implied_do3(Allocator &al, Location &loc,
 #define BOZ(x, l) make_BOZ_t(p.m_a, l, x.c_str(p.m_a))
 #define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, l, 0, EXPR(x), EXPR(y))
 #define ASSOCIATE(x, y, l) make_Associate_t(p.m_a, l, 0, EXPR(x), EXPR(y))
-#define GOTO(x, l) make_GoTo_t(p.m_a, l, 0, x)
+#define GOTO(x, l) make_GoTo_t(p.m_a, l, 0, \
+        EXPR(INTEGER(x, l)), nullptr, 0)
+#define GOTO1(labels, e, l) make_GoTo_t(p.m_a, l, 0, \
+        EXPR(e), EXPRS(labels), labels.size())
 
 
 ast_t* SUBROUTINE_CALL0(Allocator &al, struct_member_t* mem, size_t n,

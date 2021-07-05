@@ -115,7 +115,7 @@ stmt
     | ForAllSingle(int label, identifier? stmt_name,
             concurrent_control *control, expr? mask, stmt assign)
     | Format(int label, string fmt)
-    | GoTo(int label, int goto_label)
+    | GoTo(int label, expr goto_label, expr* labels)
     | Inquire(int label, expr* args, keyword* kwargs, expr* values)
     | Nullify(int label, expr* args, keyword* kwargs)
     | Open(int label, expr* args, keyword* kwargs)

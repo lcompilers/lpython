@@ -1353,7 +1353,17 @@ public:
         r += "go to";
         r += syn();
         r.append(" ");
-        r.append(std::to_string(x.m_goto_label));
+        if(x.n_labels > 0) {
+            r += "(";
+            for (size_t i=0; i<x.n_labels; i++) {
+                this->visit_expr(*x.m_labels[i]);
+                r.append(s);
+                if (i < x.n_labels-1) r.append(", ");
+            }
+            r += "), ";
+        }
+        this->visit_expr(*x.m_goto_label);
+        r.append(s);
         r.append("\n");
         s = r;
     }
