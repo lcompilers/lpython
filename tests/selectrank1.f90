@@ -1,5 +1,5 @@
 subroutine process(x)
-! real x(..)
+    real x(..)
     select rank(x)
         rank (0)
             x = 0
@@ -13,7 +13,7 @@ subroutine process(x)
 end subroutine process
 
 subroutine initialize (arg, size)
-    ! real,contiguous :: arg(..)
+    real,contiguous :: arg(..)
     integer         :: size, i
     select rank (arg)
         rank (0)   ! special case the scalar case

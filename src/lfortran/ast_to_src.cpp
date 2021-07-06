@@ -2804,14 +2804,16 @@ public:
             } else {
                 s = left + ":" + right;
             }
-        } else {
-            LFORTRAN_ASSERT(x.m_end_star == dimension_typeType::DimensionStar);
+        } else if (x.m_end_star == dimension_typeType::DimensionStar) {
             if (x.m_start) {
                 this->visit_expr(*x.m_start);
                 s += ":*";
             } else {
                 s = "*";
             }
+        } else {
+            LFORTRAN_ASSERT(x.m_end_star == dimension_typeType::AssumedSpec);
+            s = "..";
         }
     }
 

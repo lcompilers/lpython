@@ -540,13 +540,13 @@ static inline dimension_t* DIM1d(Allocator &al, Location &l, expr_t *a, expr_t *
     return s;
 }
 
-static inline dimension_t* DIM1d_star(Allocator &al, Location &l, expr_t *a)
-{
+static inline dimension_t* DIM1d_type(Allocator &al, Location &l,
+        expr_t *a, dimension_typeType type) {
     dimension_t *s = al.allocate<dimension_t>();
     s->loc = l;
     s->m_start = a;
     s->m_end = nullptr;
-    s->m_end_star = dimension_typeType::DimensionStar;
+    s->m_end_star = type;
     return s;
 }
 
@@ -1398,8 +1398,9 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
 #define ARRAY_COMP_DECL3d(a, l)       DIM1d(p.m_a, l, EXPR(a), nullptr)
 #define ARRAY_COMP_DECL4d(b, l)       DIM1d(p.m_a, l, nullptr, EXPR(b))
 #define ARRAY_COMP_DECL5d(l)          DIM1d(p.m_a, l, nullptr, nullptr)
-#define ARRAY_COMP_DECL6d(l)          DIM1d_star(p.m_a, l, nullptr)
-#define ARRAY_COMP_DECL7d(a, l)       DIM1d_star(p.m_a, l, EXPR(a))
+#define ARRAY_COMP_DECL6d(l)          DIM1d_type(p.m_a, l, nullptr, DimensionStar)
+#define ARRAY_COMP_DECL7d(a, l)       DIM1d_type(p.m_a, l, EXPR(a), DimensionStar)
+#define ARRAY_COMP_DECL8d(l)          DIM1d_type(p.m_a, l, nullptr, AssumedSpec)
 
 #define COARRAY_COMP_DECL1d(a, l)       CODIM1d(p.m_a, l, EXPR(INTEGER(1, l)), EXPR(a))
 #define COARRAY_COMP_DECL2d(a, b, l)    CODIM1d(p.m_a, l, EXPR(a), EXPR(b))

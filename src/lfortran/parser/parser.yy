@@ -1159,6 +1159,7 @@ array_comp_decl
     | ":"            { $$ = ARRAY_COMP_DECL5d(@$); }
     | "*"            { $$ = ARRAY_COMP_DECL6d(@$); }
     | expr ":" "*"   { $$ = ARRAY_COMP_DECL7d($1, @$); }
+    | TK_DBL_DOT     { $$ = ARRAY_COMP_DECL8d(@$); }
     ;
 
 coarray_comp_decl_list
