@@ -17,7 +17,6 @@ class InsertImplicitDeallocateVisitor : public ASR::BaseWalkVisitor<InsertImplic
 private:
     Allocator &al;
     ASR::TranslationUnit_t &unit;
-    Vec<ASR::stmt_t*> insertion_result;
 
     /*
         It stores the address of symbol table of current scope,
@@ -27,10 +26,28 @@ private:
     SymbolTable* current_scope;
 
 public:
-    InsertImplicitDeallocateVisitor(Allocator &al, ASR::TranslationUnit_t &unit) : al{al}, unit{unit}, 
-    tmp_val{nullptr}, result_var{nullptr}, result_var_num{0},
-    current_scope{nullptr} {
-        array_op_result.reserve(al, 1);
+    InsertImplicitDeallocateVisitor(Allocator &al, ASR::TranslationUnit_t &unit) : 
+    al{al}, unit{unit}, current_scope{nullptr} {
+    }
+
+    ASR::stmt_t* create_implicit_deallocate(const Location& loc) {
+        Vec<ASR::symbol_t*> del_syms;
+        del_syms.reserve(al, 0);
+        for( auto& item: current_scope->scope ) {
+            if( item.second->type == ASR::symbolType::Variable ) {
+                const ASR::symbol_t* sym = symbol_get_past_external(item.second);
+                ASR::Variable_t* var = down_cast<ASR::Variable_t>(sym);
+                if( var->m_storage == ASR::storage_typeType::Allocatable && 
+                    var->m_intent == ASR::intentType::Local ) {
+                    del_syms.push_back(al, item.second);
+                }
+            }
+        }
+        if( del_syms.size() == 0 ) {
+            return nullptr;
+        }
+        return STMT(ASR::make_ImplicitDeallocate_t(al, loc, 
+                    del_syms.p, del_syms.size()));
     }
 
     void transform_stmts(ASR::stmt_t **&m_body, size_t &n_body) {
@@ -39,16 +56,14 @@ public:
         for (size_t i=0; i<n_body; i++) {
             // Not necessary after we check it after each visit_stmt in every
             // visitor method:
-            array_op_result.n = 0;
             visit_stmt(*m_body[i]);
-            if (array_op_result.size() > 0) {
-                for (size_t j=0; j<array_op_result.size(); j++) {
-                    body.push_back(al, array_op_result[j]);
+            if( m_body[i]->type == ASR::stmtType::Return ) {
+                ASR::stmt_t* impl_del = create_implicit_deallocate(m_body[i]->base.loc);
+                if( impl_del != nullptr ) {
+                    body.push_back(al, impl_del);
                 }
-                array_op_result.n = 0;
-            } else {
-                body.push_back(al, m_body[i]);
             }
+            body.push_back(al, m_body[i]);
         }
         m_body = body.p;
         n_body = body.size();

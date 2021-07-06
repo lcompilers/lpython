@@ -55,13 +55,19 @@ real, intent(in) :: b(:, :)
 complex, intent(out) :: c(:, :, :)
 integer :: i, j, k
 
+complex, allocatable :: c_copy(:, :, :)
+
+allocate(c_copy(lbound(c, 1):ubound(c, 1), lbound(c, 2):ubound(c, 2), lbound(c, 3):ubound(c, 3)))
+
 do i = lbound(a, 1), ubound(a, 1)
     do j = lbound(b, 1), ubound(b, 1)
         do k = lbound(b, 2), ubound(b, 2)
-            c(i, j, k) = a(i) + b(j, k)
+            c_copy(i, j, k) = a(i) + b(j, k)
         end do
     end do
 end do
+
+c = 1
 
 end subroutine sum
 
