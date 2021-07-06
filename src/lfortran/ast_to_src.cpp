@@ -3070,6 +3070,83 @@ public:
         s = r;
     }
 
+    void visit_SelectRank(const SelectRank_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += print_stmt_name(x);
+        r += syn(gr::Conditional);
+        r += "select rank";
+        r += syn();
+        r += " (";
+        if (x.m_assoc_name) {
+            r.append(x.m_assoc_name);
+            r += "=>";
+        }
+        this->visit_expr(*x.m_selector);
+        r += s;
+        r += ")\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_rank_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        r += syn(gr::Conditional);
+        r += "end select";
+        r += syn();
+        r += end_stmt_name(x);
+        r += "\n";
+        s = r;
+    }
+
+    void visit_RankExpr(const RankExpr_t &x) {
+        std::string r = indent;
+        r += syn(gr::Conditional);
+        r += "rank";
+        r += syn();
+        r += " (";
+        this->visit_expr(*x.m_value);
+        r.append(s);
+        r += ")\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        s = r;
+    }
+
+    void visit_RankStar(const RankStar_t &x) {
+        std::string r = indent;
+        r += syn(gr::Conditional);
+        r += "rank";
+        r += syn();
+        r += " (*)\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        s = r;
+    }
+
+    void visit_RankDefault(const RankDefault_t &x) {
+        std::string r = indent;
+        r += syn(gr::Conditional);
+        r += "rank default";
+        r += syn();
+        r += "\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        s = r;
+    }
+
     void visit_SelectType(const SelectType_t &x) {
         std::string r = indent;
         r += print_label(x);

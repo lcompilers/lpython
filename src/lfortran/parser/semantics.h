@@ -72,6 +72,7 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 #define ATTRS(x) VEC_CAST(x, attribute)
 #define EXPRS(x) VEC_CAST(x, expr)
 #define CASE_STMTS(x) VEC_CAST(x, case_stmt)
+#define RANK_STMTS(x) VEC_CAST(x, rank_stmt)
 #define TYPE_STMTS(x) VEC_CAST(x, type_stmt)
 #define USE_SYMBOLS(x) VEC_CAST(x, use_symbol)
 #define CONCURRENT_CONTROLS(x) VEC_CAST(x, concurrent_control)
@@ -1592,6 +1593,17 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 #define CASE_STMT4(cond1, cond2, body, l) make_CaseStmt_Range_t(p.m_a, l, \
         EXPR(cond1), EXPR(cond2), STMTS(body), body.size())
 #define CASE_STMT_DEFAULT(body, l) make_CaseStmt_Default_t(p.m_a, l, \
+        STMTS(body), body.size())
+
+#define SELECT_RANK1(sel, body, l) make_SelectRank_t(p.m_a, l, 0, nullptr, \
+        nullptr, EXPR(sel), RANK_STMTS(body), body.size())
+#define SELECT_RANK2(assoc, sel, body, l) make_SelectRank_t(p.m_a, l, \
+        0, nullptr, name2char(assoc), EXPR(sel), RANK_STMTS(body), body.size())
+
+#define RANK_EXPR(e, body, l) make_RankExpr_t(p.m_a, l, \
+        EXPR(e), STMTS(body), body.size())
+#define RANK_STAR(body, l) make_RankStar_t(p.m_a, l, STMTS(body), body.size())
+#define RANK_DEFAULT(body, l) make_RankDefault_t(p.m_a, l, \
         STMTS(body), body.size())
 
 #define SELECT_TYPE1(sel, body, l) make_SelectType_t(p.m_a, l, 0, nullptr, \
