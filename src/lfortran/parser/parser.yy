@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    593 // shift/reduce conflicts
+%expect    599 // shift/reduce conflicts
 %expect-rr 97  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -350,6 +350,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> select_type_statement
 %type <vec_ast> select_type_body_statements
 %type <ast> select_type_body_statement
+%type <ast> select_rank_statement
+%type <vec_ast> select_rank_case_stmts
+%type <ast> select_rank_case_stmt
 %type <vec_ast> case_statements
 %type <ast> case_statement
 %type <ast> while_statement
@@ -1156,6 +1159,7 @@ array_comp_decl
     | ":"            { $$ = ARRAY_COMP_DECL5d(@$); }
     | "*"            { $$ = ARRAY_COMP_DECL6d(@$); }
     | expr ":" "*"   { $$ = ARRAY_COMP_DECL7d($1, @$); }
+    | TK_DBL_DOT     { $$ = ARRAY_COMP_DECL8d(@$); }
     ;
 
 coarray_comp_decl_list
@@ -1249,6 +1253,7 @@ multi_line_statement0
     | if_statement
     | select_statement
     | select_type_statement
+    | select_rank_statement
     | where_statement
     | while_statement
     ;
@@ -1439,6 +1444,24 @@ case_statement
     | KW_CASE KW_DEFAULT sep statements { $$ = CASE_STMT_DEFAULT($4, @$); }
     ;
 
+select_rank_statement
+    : KW_SELECT KW_RANK "(" expr ")" sep select_rank_case_stmts
+        KW_END KW_SELECT { $$ = SELECT_RANK1($4, $7, @$); }
+    | KW_SELECT KW_RANK "(" id "=>" expr ")" sep select_rank_case_stmts
+        KW_END KW_SELECT { $$ = SELECT_RANK2($4, $6, $9, @$); }
+    ;
+
+select_rank_case_stmts
+    : select_rank_case_stmts select_rank_case_stmt { $$ = $1; LIST_ADD($$, $2); }
+    | %empty { LIST_NEW($$); }
+    ;
+
+select_rank_case_stmt
+    : KW_RANK "(" expr ")" id_opt sep statements { $$ = RANK_EXPR($3, $7, @$); }
+    | KW_RANK "(" "*" ")" id_opt sep statements { $$ = RANK_STAR($7, @$); }
+    | KW_RANK KW_DEFAULT id_opt sep statements { $$ = RANK_DEFAULT($5, @$); }
+    ;
+
 select_type_statement
     : KW_SELECT KW_TYPE "(" expr ")" sep select_type_body_statements
         KW_END KW_SELECT {
@@ -1460,7 +1483,6 @@ select_type_body_statement
     | KW_CLASS KW_IS "(" id ")" sep statements { $$ = CLASS_STMT($4, $7, @$); }
     | KW_CLASS KW_DEFAULT sep statements { $$ = CLASS_DEFAULT($4, @$); }
     ;
-
 
 while_statement
     : KW_DO KW_WHILE "(" expr ")" sep statements enddo {

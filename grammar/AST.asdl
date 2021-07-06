@@ -146,6 +146,8 @@ stmt
             concurrent_locality* locality, stmt* body)
     | If(int label, identifier? stmt_name, expr test, stmt* body, stmt* orelse)
     | Select(int label, identifier? stmt_name, expr test, case_stmt* body)
+    | SelectRank(int label, identifier? stmt_name, identifier? assoc_name,
+            expr selector, rank_stmt* body)
     | SelectType(int label, identifier? stmt_name, identifier? assoc_name,
             expr selector, type_stmt* body)
     | Where(int label, identifier? stmt_name, expr test, stmt* body,
@@ -273,7 +275,7 @@ kind_item = (identifier? id, expr? value, kind_item_type type)
 kind_item_type = Star | Colon | Value
 
 dimension = (expr? start, expr? end, dimension_type end_star)
-dimension_type = DimensionExpr | DimensionStar
+dimension_type = DimensionExpr | DimensionStar | AssumedSpec
 
 codimension = (expr? start, expr? end, codimension_type end_star)
 codimension_type = CodimensionExpr | CodimensionStar
@@ -333,6 +335,11 @@ case_stmt
     = CaseStmt(expr* test, stmt* body)
     | CaseStmt_Range(expr? start, expr? end, stmt* body)
     | CaseStmt_Default(stmt* body)
+
+rank_stmt
+    = RankExpr(expr value, stmt* body)
+    | RankStar(stmt* body)
+    | RankDefault(stmt* body)
 
 type_stmt
     = TypeStmtName(identifier? name, stmt* body)
