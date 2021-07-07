@@ -878,6 +878,8 @@ use_statement
             $$ = USE2($2, $3, $7, @$); }
     | KW_USE use_modifiers id "," KW_ONLY ":" sep {
             $$ = USE3($2, $3, @$); }
+    | KW_USE use_modifiers id "," use_symbol_list sep {
+            $$ = USE4($2, $3, $5, @$); }
     ;
 
 import_statement_star
