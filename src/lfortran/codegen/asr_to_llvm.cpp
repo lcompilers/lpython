@@ -275,31 +275,9 @@ public:
         return el_type;
     }
 
-    inline bool compile_time_dimensions_t(ASR::dimension_t* m_dims, int n_dims) {
-        if( n_dims <= 0 ) {
-            return false;
-        }
-        bool is_ok = true;
-        for( int r = 0; r < n_dims; r++ ) {
-            if( m_dims[r].m_end == nullptr && 
-                m_dims[r].m_start == nullptr ) {
-                is_ok = false;
-                break;
-            }
-            if( (m_dims[r].m_end != nullptr &&
-                m_dims[r].m_end->type != ASR::exprType::ConstantInteger) || 
-                (m_dims[r].m_start != nullptr &&
-                m_dims[r].m_start->type != ASR::exprType::ConstantInteger) ) {
-                is_ok = false;
-                break;
-            }
-        }
-        return is_ok;
-    }
-
     inline void fill_array_details(llvm::Value* arr, ASR::dimension_t* m_dims, 
                                    int n_dims) {
-        bool run_time_size = !compile_time_dimensions_t(m_dims, n_dims);
+        bool run_time_size = !LLVMArrUtils::compile_time_dimensions_t(m_dims, n_dims);
         llvm::Value* offset_val = create_gep(arr, 1);
         builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), offset_val);
         llvm::Value* dim_des_val = create_gep(arr, 2);
@@ -869,7 +847,7 @@ public:
                 throw CodeGenError("Explicit shape checking supported only for integer, real, complex, logical and derived types.");
             }
         }
-        return compile_time_dimensions_t(m_dims, n_dims);
+        return LLVMArrUtils::compile_time_dimensions_t(m_dims, n_dims);
     }
 
     inline void get_single_element(const ASR::ArrayRef_t& x) {

@@ -4,6 +4,28 @@ namespace LFortran {
 
     namespace LLVMArrUtils {
 
+        bool compile_time_dimensions_t(ASR::dimension_t* m_dims, int n_dims) {
+            if( n_dims <= 0 ) {
+                return false;
+            }
+            bool is_ok = true;
+            for( int r = 0; r < n_dims; r++ ) {
+                if( m_dims[r].m_end == nullptr && 
+                    m_dims[r].m_start == nullptr ) {
+                    is_ok = false;
+                    break;
+                }
+                if( (m_dims[r].m_end != nullptr &&
+                    m_dims[r].m_end->type != ASR::exprType::ConstantInteger) || 
+                    (m_dims[r].m_start != nullptr &&
+                    m_dims[r].m_start->type != ASR::exprType::ConstantInteger) ) {
+                    is_ok = false;
+                    break;
+                }
+            }
+            return is_ok;
+        }
+
         Descriptor*
         Descriptor::get_descriptor
         (Allocator& al,
@@ -19,12 +41,12 @@ namespace LFortran {
 
         llvm::Type* Descriptor::get_array_type
         (ASR::ttype_t*, int, int, ASR::dimension_t*,
-         bool) {
+         llvm::Type*, bool) {
             return nullptr;
         }
 
         llvm::Type* Descriptor::get_malloc_array_type
-        (ASR::ttype_t*, int, int, bool) {
+        (ASR::ttype_t*, int, int, llvm::Type*, bool) {
             return nullptr;
         }
 
@@ -89,15 +111,15 @@ namespace LFortran {
         (ASR::ttype_t* m_type_, int a_kind,
         int rank, ASR::dimension_t* m_dims,
         llvm::Type* el_type,
-        bool get_pointer=false) {
+        bool get_pointer) {
             ASR::ttypeType type_ = m_type_->type;
             int size = 0;
             if( compile_time_dimensions_t(m_dims, rank) ) {
                 size = 1;
                 for( int r = 0; r < rank; r++ ) {
                     ASR::dimension_t m_dim = m_dims[r];
-                    int start = down_cast<ASR::ConstantInteger_t>(m_dim.m_start)->m_n;
-                    int end = down_cast<ASR::ConstantInteger_t>(m_dim.m_end)->m_n;
+                    int start = ASR::down_cast<ASR::ConstantInteger_t>(m_dim.m_start)->m_n;
+                    int end = ASR::down_cast<ASR::ConstantInteger_t>(m_dim.m_end)->m_n;
                     size *= (end - start + 1);
                 }
             }
@@ -112,11 +134,11 @@ namespace LFortran {
             std::vector<llvm::Type*> array_type_vec;
             if( size > 0 ) {
                 array_type_vec = {  llvm::ArrayType::get(el_type, size), 
-                                    getIntType(4),
+                                    llvm::Type::getInt32Ty(context),
                                     dim_des_array  };
             } else {
                 array_type_vec = {  el_type->getPointerTo(),
-                                    getIntType(4),
+                                    llvm::Type::getInt32Ty(context),
                                     dim_des_array  };
             }
             tkr2array[array_key] = llvm::StructType::create(context, array_type_vec, "array");
@@ -135,7 +157,7 @@ namespace LFortran {
         }
 
         llvm::Type* SimpleCMODescriptor::get_malloc_array_type
-        (ASR::ttype_t* m_type_, int a_kind, int rank, llvm::Type* el_type, bool get_pointer=false) {
+        (ASR::ttype_t* m_type_, int a_kind, int rank, llvm::Type* el_type, bool get_pointer) {
             ASR::ttypeType type_ = m_type_->type;
             std::pair<std::pair<int, int>, int> array_key = std::make_pair(std::make_pair((int)type_, a_kind), rank);
             if( tkr2mallocarray.find(array_key) != tkr2mallocarray.end() ) {
@@ -144,7 +166,7 @@ namespace LFortran {
                 }
                 return tkr2mallocarray[array_key];
             }
-            llvm::ArrayType* dim_des_array = arr_descr->get_dim_des_array(rank);
+            llvm::ArrayType* dim_des_array = get_dim_des_array(rank);
             std::vector<llvm::Type*> array_type_vec = {
                 el_type->getPointerTo(), 
                 llvm::Type::getInt32Ty(context),
@@ -168,6 +190,38 @@ namespace LFortran {
         (llvm::ArrayType* des, int rank) {
             return (rank2desc.find(rank) != rank2desc.end() && 
                     rank2desc[rank] == des);
+        }
+
+        void SimpleCMODescriptor::fill_array_details(
+        llvm::Value*, ASR::dimension_t*, int) {
+        }
+
+        void SimpleCMODescriptor::fill_malloc_array_details(
+        llvm::Value*, ASR::dimension_t*, int) {
+        }
+
+        llvm::Value* SimpleCMODescriptor::get_pointer_to_memory_block() {
+            return nullptr;
+        }
+
+        llvm::Value* SimpleCMODescriptor::get_offset() {
+            return nullptr;
+        }
+
+        llvm::Value* SimpleCMODescriptor::get_lower_bound(const int) {
+            return nullptr;
+        }
+
+        llvm::Value* SimpleCMODescriptor::get_upper_bound(const int) {
+            return nullptr;
+        }
+
+        llvm::Value* SimpleCMODescriptor::get_stride(const int) {
+            return nullptr;
+        }
+
+        llvm::Value* SimpleCMODescriptor::get_single_element(ASR::ArrayRef_t&) {
+            return nullptr;
         }
 
     } // LLVMArrUtils

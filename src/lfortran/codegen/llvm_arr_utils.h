@@ -16,6 +16,9 @@ namespace LFortran {
 
     namespace LLVMArrUtils {
 
+        bool compile_time_dimensions_t(
+        ASR::dimension_t* m_dims, int n_dims);
+
         enum DESCR_TYPE
         {
             _SimpleCMODescriptor
@@ -47,11 +50,6 @@ namespace LFortran {
 
                 virtual
                 llvm::ArrayType* get_dim_des_array(int rank);
-
-                virtual
-                llvm::Type* get_malloc_array_type
-                (ASR::ttype_t* m_type_, int a_kind,
-                int rank, bool get_pointer=false);
 
                 virtual
                 void fill_array_details(
@@ -104,10 +102,7 @@ namespace LFortran {
 
             public:
 
-                SimpleCMODescriptor();
-
-                virtual
-                llvm::Type* get_el_type(ASR::ttype_t* m_type_, int a_kind);
+                SimpleCMODescriptor(llvm::LLVMContext& context);
 
                 virtual
                 llvm::Type* get_array_type(
@@ -124,11 +119,6 @@ namespace LFortran {
 
                 virtual
                 llvm::ArrayType* get_dim_des_array(int rank);
-
-                virtual
-                llvm::Type* get_malloc_array_type
-                (ASR::ttype_t* m_type_, int a_kind,
-                int rank, bool get_pointer=false);
 
                 virtual
                 void fill_array_details(
