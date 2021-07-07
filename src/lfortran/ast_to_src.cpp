@@ -2812,7 +2812,7 @@ public:
                 s = "*";
             }
         } else {
-            LFORTRAN_ASSERT(x.m_end_star == dimension_typeType::AssumedSpec);
+            LFORTRAN_ASSERT(x.m_end_star == dimension_typeType::AssumedRank);
             s = "..";
         }
     }
