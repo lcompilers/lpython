@@ -245,7 +245,7 @@ public:
             // Have to save all the calls out and make sure they are not solely
             // to the nested function
             ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(
-                symbol_get_past_external(x.m_name));
+                LFortran::ASRUtils::symbol_get_past_external(x.m_name));
             uint32_t call_hash = get_hash((ASR::asr_t*)s);
             if (std::find(calls_to.begin(), calls_to.end(), call_hash) == 
                 calls_to.end()){
@@ -258,7 +258,7 @@ public:
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
         if (nesting_depth == 1){
             ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(
-                symbol_get_past_external(x.m_name));
+                LFortran::ASRUtils::symbol_get_past_external(x.m_name));
             uint32_t call_hash = get_hash((ASR::asr_t*)s);
             if (std::find(calls_to.begin(), calls_to.end(), call_hash) == 
                 calls_to.end()){
@@ -272,7 +272,7 @@ public:
         // Only attempt if we are actually in a nested function
         if (nesting_depth > 1) {
             ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(
-                    symbol_get_past_external(x.m_v));
+                    LFortran::ASRUtils::symbol_get_past_external(x.m_v));
             // If the variable is not defined in the current scope, it is a
             // "needed global" since we need to be able to access it from the
             // nested procedure.
