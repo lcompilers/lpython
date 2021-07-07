@@ -777,23 +777,20 @@ public:
         }
         r += " ";
         r.append(x.m_module);
-        if (x.n_symbols > 0) {
+        if (x.m_only_present || x.n_symbols > 0) {
             r.append(", ");
-            r += syn(gr::UnitHeader);
-            r += "only";
-            r += syn();
-            r += ": ";
-            for (size_t i=0; i<x.n_symbols; i++) {
-                this->visit_use_symbol(*x.m_symbols[i]);
-                r.append(s);
-                if (i < x.n_symbols-1) r.append(", ");
-            }
-        } else if (x.m_empty_symbols) {
-            r.append(", ");
+        }
+        if (x.m_only_present) {
             r += syn(gr::UnitHeader);
             r += "only";
             r += syn();
             r += ":";
+            if (x.n_symbols > 0) r.append(" ");
+        }
+        for (size_t i=0; i<x.n_symbols; i++) {
+            this->visit_use_symbol(*x.m_symbols[i]);
+            r.append(s);
+            if (i < x.n_symbols-1) r.append(", ");
         }
         r += "\n";
         s = r;

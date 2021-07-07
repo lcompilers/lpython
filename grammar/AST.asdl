@@ -56,7 +56,7 @@ program_unit
 
 unit_decl1
     = Use(decl_attribute* nature, identifier module, use_symbol* symbols,
-        bool empty_symbols)
+        bool only_present)
 
 unit_decl2
     = Declaration(decl_attribute? vartype, decl_attribute* attributes,
