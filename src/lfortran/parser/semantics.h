@@ -1627,11 +1627,10 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         nullptr, 0, false)
 #define USE2(nature, mod, syms, l) make_Use_t(p.m_a, l, \
         VEC_CAST(nature, decl_attribute), nature.size(), name2char(mod), \
-        USE_SYMBOLS(syms), syms.size(), false)
+        USE_SYMBOLS(syms), syms.size(), true)
 #define USE3(nature, mod, l) make_Use_t(p.m_a, l, \
         VEC_CAST(nature, decl_attribute), nature.size(), name2char(mod), \
         nullptr, 0, true)
-// TODO:
 #define USE4(nature, mod, syms, l) make_Use_t(p.m_a, l, \
         VEC_CAST(nature, decl_attribute), nature.size(), name2char(mod), \
         USE_SYMBOLS(syms), syms.size(), false)
