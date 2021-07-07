@@ -275,7 +275,7 @@ kind_item = (identifier? id, expr? value, kind_item_type type)
 kind_item_type = Star | Colon | Value
 
 dimension = (expr? start, expr? end, dimension_type end_star)
-dimension_type = DimensionExpr | DimensionStar | AssumedSpec
+dimension_type = DimensionExpr | DimensionStar | AssumedRank
 
 codimension = (expr? start, expr? end, codimension_type end_star)
 codimension_type = CodimensionExpr | CodimensionStar
