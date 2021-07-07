@@ -788,6 +788,12 @@ public:
                 r.append(s);
                 if (i < x.n_symbols-1) r.append(", ");
             }
+        } else if (x.m_empty_symbols) {
+            r.append(", ");
+            r += syn(gr::UnitHeader);
+            r += "only";
+            r += syn();
+            r += ":";
         }
         r += "\n";
         s = r;

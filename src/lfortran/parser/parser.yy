@@ -876,6 +876,8 @@ use_statement
     : KW_USE use_modifiers id sep { $$ = USE1($2, $3, @$); }
     | KW_USE use_modifiers id "," KW_ONLY ":" use_symbol_list sep {
             $$ = USE2($2, $3, $7, @$); }
+    | KW_USE use_modifiers id "," KW_ONLY ":" sep {
+            $$ = USE3($2, $3, @$); }
     ;
 
 import_statement_star
