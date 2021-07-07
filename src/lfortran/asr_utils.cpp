@@ -8,7 +8,10 @@
 
 namespace LFortran {
 
-void visit(int a, std::map<int,std::vector<int>> &deps,
+    namespace ASRUtils  {
+
+
+        void visit(int a, std::map<int,std::vector<int>> &deps,
         std::vector<bool> &visited, std::vector<int> &result) {
     visited[a] = true;
     for (auto n : deps[a]) {
@@ -228,5 +231,7 @@ ASR::TranslationUnit_t* find_and_load_module(Allocator &al, const std::string &m
     }
     return asr;
 }
+    } // namespace ASRUtils
+
 
 } // namespace LFortran

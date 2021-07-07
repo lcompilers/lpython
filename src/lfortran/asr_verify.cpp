@@ -7,6 +7,9 @@
 namespace LFortran {
 namespace ASR {
 
+using LFortran::ASRUtils::symbol_name;
+using LFortran::ASRUtils::symbol_parent_symtab;
+
 bool valid_char(char c) {
     if (c >= 'a' && c <= 'z') return true;
     if (c >= 'A' && c <= 'Z') return true;
