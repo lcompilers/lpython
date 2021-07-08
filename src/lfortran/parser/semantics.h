@@ -1640,10 +1640,11 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 #define USE_SYMBOL2(x, y, l) make_UseSymbol_t(p.m_a, l, \
         name2char(y), name2char(x))
 #define USE_ASSIGNMENT(l) make_UseAssignment_t(p.m_a, l)
-#define INTRINSIC_OPERATOR(op, l) make_IntrinsicOperator_t(p.m_a, l, \
-        op)
+#define INTRINSIC_OPERATOR(op, l) make_IntrinsicOperator_t(p.m_a, l, op)
 #define DEFINED_OPERATOR(optype, l) make_DefinedOperator_t(p.m_a, l, \
         def_op_to_str(p.m_a, optype))
+#define RENAME_OPERATOR(op1, op2, l) make_RenameOperator_t(p.m_a, l, \
+        def_op_to_str(p.m_a, op1), def_op_to_str(p.m_a, op2))
 
 
 #define MODULE(name, use, implicit, decl, contains, l) make_Module_t(p.m_a, l, \

@@ -5,6 +5,7 @@ program use_statement
     use, intrinsic     :: example, only: operator (**)
     use, intrinsic     :: example, only: operator (.not.)
     use, intrinsic     :: example, only: operator (.in.)
+    use, intrinsic     :: example, only: operator (.plus.) => operator (.add.)
     use, non_intrinsic :: example
     USE, NON_INTRINSIC :: EXAMPLE
     use, non_intrinsic :: example, only: assignment(=)
@@ -23,4 +24,5 @@ program use_statement
     use example, only: operator (.eqv.)
     use example, only: operator (.dot.)
     use example, only:
+    use example, operator (.localDefop.) => operator (.useDefop.), a => b
 end
