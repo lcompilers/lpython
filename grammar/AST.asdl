@@ -334,9 +334,12 @@ bind = Bind(expr* args, keyword* kwargs)
 array_index = ArrayIndex(expr? left, expr? right, expr? step)
 
 case_stmt
-    = CaseStmt(expr* test, stmt* body)
-    | CaseStmt_Range(expr? start, expr? end, stmt* body)
+    = CaseStmt(case_cond* test, stmt* body)
     | CaseStmt_Default(stmt* body)
+
+case_cond
+    = CaseCondExpr(expr cond)
+    | CaseCondRange(expr? start, expr? end)
 
 rank_stmt
     = RankExpr(expr value, stmt* body)

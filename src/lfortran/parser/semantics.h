@@ -1595,15 +1595,15 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         CASE_STMTS(body), body.size())
 
 #define CASE_STMT(cond, body, l) make_CaseStmt_t(p.m_a, l, \
-        EXPRS(cond), cond.size(), STMTS(body), body.size())
-#define CASE_STMT2(cond, body, l) make_CaseStmt_Range_t(p.m_a, l, \
-        EXPR(cond), nullptr, STMTS(body), body.size())
-#define CASE_STMT3(cond, body, l) make_CaseStmt_Range_t(p.m_a, l, \
-        nullptr, EXPR(cond), STMTS(body), body.size())
-#define CASE_STMT4(cond1, cond2, body, l) make_CaseStmt_Range_t(p.m_a, l, \
-        EXPR(cond1), EXPR(cond2), STMTS(body), body.size())
+        VEC_CAST(cond, case_cond), cond.size(), STMTS(body), body.size())
 #define CASE_STMT_DEFAULT(body, l) make_CaseStmt_Default_t(p.m_a, l, \
         STMTS(body), body.size())
+
+#define CASE_EXPR(cond, l) make_CaseCondExpr_t(p.m_a, l, EXPR(cond))
+#define CASE_RANGE1(cond, l) make_CaseCondRange_t(p.m_a, l, EXPR(cond), nullptr)
+#define CASE_RANGE2(cond, l) make_CaseCondRange_t(p.m_a, l, nullptr, EXPR(cond))
+#define CASE_RANGE3(cond1, cond2, l) make_CaseCondRange_t(p.m_a, l, \
+        EXPR(cond1), EXPR(cond2))
 
 #define SELECT_RANK1(sel, body, l) make_SelectRank_t(p.m_a, l, 0, nullptr, \
         nullptr, EXPR(sel), RANK_STMTS(body), body.size())

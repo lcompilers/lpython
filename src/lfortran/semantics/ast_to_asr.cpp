@@ -1808,59 +1808,77 @@ public:
         switch(x.type) {
             case AST::case_stmtType::CaseStmt: {
                 AST::CaseStmt_t* Case_Stmt = (AST::CaseStmt_t*)(&(x.base));
-                Vec<ASR::expr_t*> a_test_vec;
-                a_test_vec.reserve(al, Case_Stmt->n_test);
-                for( std::uint32_t i = 0; i < Case_Stmt->n_test; i++ ) {
-                    this->visit_expr(*(Case_Stmt->m_test[i]));
-                    ASR::expr_t* m_test_i = LFortran::ASRUtils::EXPR(tmp);
-                    if( LFortran::ASRUtils::expr_type(m_test_i)->type != ASR::ttypeType::Integer ) {
-                        throw SemanticError(R"""(Expression in Case selector can only be an Integer)""",
+                if (Case_Stmt->n_test == 0) {
+                    throw SemanticError("Case statement must have at least one condition",
+                                        x.base.loc);
+                }
+                if (AST::is_a<AST::CaseCondExpr_t>(*(Case_Stmt->m_test[0]))) {
+                    // For now we only support a list of expressions
+                    Vec<ASR::expr_t*> a_test_vec;
+                    a_test_vec.reserve(al, Case_Stmt->n_test);
+                    for( std::uint32_t i = 0; i < Case_Stmt->n_test; i++ ) {
+                        if (!AST::is_a<AST::CaseCondExpr_t>(*(Case_Stmt->m_test[i]))) {
+                            throw SemanticError("Not implemented yet: range expression not in first position",
+                                                x.base.loc);
+                        }
+                        AST::CaseCondExpr_t *condexpr
+                            = AST::down_cast<AST::CaseCondExpr_t>(Case_Stmt->m_test[i]);
+                        this->visit_expr(*condexpr->m_cond);
+                        ASR::expr_t* m_test_i = LFortran::ASRUtils::EXPR(tmp);
+                        if( LFortran::ASRUtils::expr_type(m_test_i)->type != ASR::ttypeType::Integer ) {
+                            throw SemanticError(R"""(Expression in Case selector can only be an Integer)""",
+                                                x.base.loc);
+                        }
+                        a_test_vec.push_back(al, LFortran::ASRUtils::EXPR(tmp));
+                    }
+                    Vec<ASR::stmt_t*> case_body_vec;
+                    case_body_vec.reserve(al, Case_Stmt->n_body);
+                    for( std::uint32_t i = 0; i < Case_Stmt->n_body; i++ ) {
+                        this->visit_stmt(*(Case_Stmt->m_body[i]));
+                        if (tmp != nullptr) {
+                            case_body_vec.push_back(al, LFortran::ASRUtils::STMT(tmp));
+                        }
+                    }
+                    tmp = ASR::make_CaseStmt_t(al, x.base.loc, a_test_vec.p, a_test_vec.size(),
+                                        case_body_vec.p, case_body_vec.size());
+                    break;
+                } else {
+                    // For now we only support exactly one range
+                    if (Case_Stmt->n_test != 1) {
+                        throw SemanticError("Not implemented: more than one range condition",
                                             x.base.loc);
                     }
-                    a_test_vec.push_back(al, LFortran::ASRUtils::EXPR(tmp));
-                }
-                Vec<ASR::stmt_t*> case_body_vec;
-                case_body_vec.reserve(al, Case_Stmt->n_body);
-                for( std::uint32_t i = 0; i < Case_Stmt->n_body; i++ ) {
-                    this->visit_stmt(*(Case_Stmt->m_body[i]));
-                    if (tmp != nullptr) {
-                        case_body_vec.push_back(al, LFortran::ASRUtils::STMT(tmp));
+                    AST::CaseCondRange_t *condrange
+                        = AST::down_cast<AST::CaseCondRange_t>(Case_Stmt->m_test[0]);
+                    ASR::expr_t *m_start = nullptr, *m_end = nullptr;
+                    if( condrange->m_start != nullptr ) {
+                        this->visit_expr(*(condrange->m_start));
+                        m_start = LFortran::ASRUtils::EXPR(tmp);
+                        if( LFortran::ASRUtils::expr_type(m_start)->type != ASR::ttypeType::Integer ) {
+                            throw SemanticError(R"""(Expression in Case selector can only be an Integer)""",
+                                                x.base.loc);
+                        }
                     }
-                }
-                tmp = ASR::make_CaseStmt_t(al, x.base.loc, a_test_vec.p, a_test_vec.size(),
-                                     case_body_vec.p, case_body_vec.size());
-                break;
-            }
-            case AST::case_stmtType::CaseStmt_Range : {
-                AST::CaseStmt_Range_t* Case_Stmt = (AST::CaseStmt_Range_t*)(&(x.base));
-                ASR::expr_t *m_start = nullptr, *m_end = nullptr;
-                if( Case_Stmt->m_start != nullptr ) {
-                    this->visit_expr(*(Case_Stmt->m_start));
-                    m_start = LFortran::ASRUtils::EXPR(tmp);
-                    if( LFortran::ASRUtils::expr_type(m_start)->type != ASR::ttypeType::Integer ) {
-                        throw SemanticError(R"""(Expression in Case selector can only be an Integer)""",
-                                            x.base.loc);
+                    if( condrange->m_end != nullptr ) {
+                        this->visit_expr(*(condrange->m_end));
+                        m_end = LFortran::ASRUtils::EXPR(tmp);
+                        if( LFortran::ASRUtils::expr_type(m_end)->type != ASR::ttypeType::Integer ) {
+                            throw SemanticError(R"""(Expression in Case selector can only be an Integer)""",
+                                                x.base.loc);
+                        }
                     }
-                }
-                if( Case_Stmt->m_end != nullptr ) {
-                    this->visit_expr(*(Case_Stmt->m_end));
-                    m_end = LFortran::ASRUtils::EXPR(tmp);
-                    if( LFortran::ASRUtils::expr_type(m_end)->type != ASR::ttypeType::Integer ) {
-                        throw SemanticError(R"""(Expression in Case selector can only be an Integer)""",
-                                            x.base.loc);
+                    Vec<ASR::stmt_t*> case_body_vec;
+                    case_body_vec.reserve(al, Case_Stmt->n_body);
+                    for( std::uint32_t i = 0; i < Case_Stmt->n_body; i++ ) {
+                        this->visit_stmt(*(Case_Stmt->m_body[i]));
+                        if (tmp != nullptr) {
+                            case_body_vec.push_back(al, LFortran::ASRUtils::STMT(tmp));
+                        }
                     }
+                    tmp = ASR::make_CaseStmt_Range_t(al, x.base.loc, m_start, m_end,
+                                        case_body_vec.p, case_body_vec.size());
+                    break;
                 }
-                Vec<ASR::stmt_t*> case_body_vec;
-                case_body_vec.reserve(al, Case_Stmt->n_body);
-                for( std::uint32_t i = 0; i < Case_Stmt->n_body; i++ ) {
-                    this->visit_stmt(*(Case_Stmt->m_body[i]));
-                    if (tmp != nullptr) {
-                        case_body_vec.push_back(al, LFortran::ASRUtils::STMT(tmp));
-                    }
-                }
-                tmp = ASR::make_CaseStmt_Range_t(al, x.base.loc, m_start, m_end,
-                                     case_body_vec.p, case_body_vec.size());
-                break;
             }
             default: {
                 throw SemanticError(R"""(Case statement can only support a valid expression

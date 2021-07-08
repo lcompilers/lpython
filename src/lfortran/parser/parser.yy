@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    611 // shift/reduce conflicts
+%expect    605 // shift/reduce conflicts
 %expect-rr 99  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -356,6 +356,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> select_rank_case_stmt
 %type <vec_ast> case_statements
 %type <ast> case_statement
+%type <vec_ast> case_conditions
+%type <ast> case_condition
 %type <ast> while_statement
 %type <ast> critical_statement
 %type <ast> do_statement
@@ -1449,12 +1451,21 @@ case_statements
     ;
 
 case_statement
-    : KW_CASE "(" expr_list ")" sep statements { $$ = CASE_STMT($3, $6, @$); }
-    | KW_CASE "(" expr ":" ")" sep statements { $$ = CASE_STMT2($3, $7, @$); }
-    | KW_CASE "(" ":" expr ")" sep statements { $$ = CASE_STMT3($4, $7, @$); }
-    | KW_CASE "(" expr ":" expr ")" sep statements {
-            $$ = CASE_STMT4($3, $5, $8, @$); }
+    : KW_CASE "(" case_conditions ")" sep statements {
+            $$ = CASE_STMT($3, $6, @$); }
     | KW_CASE KW_DEFAULT sep statements { $$ = CASE_STMT_DEFAULT($4, @$); }
+    ;
+
+case_conditions
+    : case_conditions "," case_condition { $$ = $1; LIST_ADD($$, $3); }
+    | case_condition { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+case_condition
+    : expr { $$ = CASE_EXPR($1, @$); }
+    | expr ":" { $$ = CASE_RANGE1($1, @$); }
+    | ":" expr { $$ = CASE_RANGE2($2, @$); }
+    | expr ":" expr { $$ = CASE_RANGE3($1, $3, @$); }
     ;
 
 select_rank_statement
