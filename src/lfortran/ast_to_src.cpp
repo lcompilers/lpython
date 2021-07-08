@@ -2985,6 +2985,12 @@ public:
         s = "operator (" + intrinsicop2str(x.m_op) + ")";
     }
 
+    void visit_RenameOperator(const RenameOperator_t &x) {
+        s = "operator(." + std::string(x.m_local_defop) + ".)";
+        s += " => ";
+        s += "operator(." + std::string(x.m_use_defop) + ".)";
+    }
+
     void visit_DefinedOperator(const DefinedOperator_t &x) {
         s = "operator (." + std::string(x.m_opName) + ".)";
     }

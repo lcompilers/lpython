@@ -353,6 +353,7 @@ use_symbol
     | UseAssignment()
     | IntrinsicOperator(intrinsicop op)
     | DefinedOperator(string opName)
+    | RenameOperator(string local_defop, string use_defop)
 
 concurrent_control = ConcurrentControl(identifier? var, expr? start, expr? end, expr? increment)
 
