@@ -61,6 +61,16 @@ using ASR::is_a;
 using ASR::down_cast;
 using ASR::down_cast2;
 
+using LFortran::ASRUtils::expr_type;
+using LFortran::ASRUtils::symbol_get_past_external;
+using LFortran::ASRUtils::EXPR2VAR;
+using LFortran::ASRUtils::EXPR2FUN;
+using LFortran::ASRUtils::EXPR2SUB;
+using LFortran::ASRUtils::intent_local;
+using LFortran::ASRUtils::intent_return_var;
+using LFortran::ASRUtils::determine_module_dependencies;
+using LFortran::ASRUtils::is_arg_dummy;
+
 // Platform dependent fast unique hash:
 uint64_t static get_hash(ASR::asr_t *node)
 {

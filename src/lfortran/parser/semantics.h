@@ -72,6 +72,7 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 #define ATTRS(x) VEC_CAST(x, attribute)
 #define EXPRS(x) VEC_CAST(x, expr)
 #define CASE_STMTS(x) VEC_CAST(x, case_stmt)
+#define RANK_STMTS(x) VEC_CAST(x, rank_stmt)
 #define TYPE_STMTS(x) VEC_CAST(x, type_stmt)
 #define USE_SYMBOLS(x) VEC_CAST(x, use_symbol)
 #define CONCURRENT_CONTROLS(x) VEC_CAST(x, concurrent_control)
@@ -539,13 +540,13 @@ static inline dimension_t* DIM1d(Allocator &al, Location &l, expr_t *a, expr_t *
     return s;
 }
 
-static inline dimension_t* DIM1d_star(Allocator &al, Location &l, expr_t *a)
-{
+static inline dimension_t* DIM1d_type(Allocator &al, Location &l,
+        expr_t *a, dimension_typeType type) {
     dimension_t *s = al.allocate<dimension_t>();
     s->loc = l;
     s->m_start = a;
     s->m_end = nullptr;
-    s->m_end_star = dimension_typeType::DimensionStar;
+    s->m_end_star = type;
     return s;
 }
 
@@ -1397,8 +1398,9 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
 #define ARRAY_COMP_DECL3d(a, l)       DIM1d(p.m_a, l, EXPR(a), nullptr)
 #define ARRAY_COMP_DECL4d(b, l)       DIM1d(p.m_a, l, nullptr, EXPR(b))
 #define ARRAY_COMP_DECL5d(l)          DIM1d(p.m_a, l, nullptr, nullptr)
-#define ARRAY_COMP_DECL6d(l)          DIM1d_star(p.m_a, l, nullptr)
-#define ARRAY_COMP_DECL7d(a, l)       DIM1d_star(p.m_a, l, EXPR(a))
+#define ARRAY_COMP_DECL6d(l)          DIM1d_type(p.m_a, l, nullptr, DimensionStar)
+#define ARRAY_COMP_DECL7d(a, l)       DIM1d_type(p.m_a, l, EXPR(a), DimensionStar)
+#define ARRAY_COMP_DECL8d(l)          DIM1d_type(p.m_a, l, nullptr, AssumedRank)
 
 #define COARRAY_COMP_DECL1d(a, l)       CODIM1d(p.m_a, l, EXPR(INTEGER(1, l)), EXPR(a))
 #define COARRAY_COMP_DECL2d(a, b, l)    CODIM1d(p.m_a, l, EXPR(a), EXPR(b))
@@ -1594,6 +1596,17 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 #define CASE_STMT_DEFAULT(body, l) make_CaseStmt_Default_t(p.m_a, l, \
         STMTS(body), body.size())
 
+#define SELECT_RANK1(sel, body, l) make_SelectRank_t(p.m_a, l, 0, nullptr, \
+        nullptr, EXPR(sel), RANK_STMTS(body), body.size())
+#define SELECT_RANK2(assoc, sel, body, l) make_SelectRank_t(p.m_a, l, \
+        0, nullptr, name2char(assoc), EXPR(sel), RANK_STMTS(body), body.size())
+
+#define RANK_EXPR(e, body, l) make_RankExpr_t(p.m_a, l, \
+        EXPR(e), STMTS(body), body.size())
+#define RANK_STAR(body, l) make_RankStar_t(p.m_a, l, STMTS(body), body.size())
+#define RANK_DEFAULT(body, l) make_RankDefault_t(p.m_a, l, \
+        STMTS(body), body.size())
+
 #define SELECT_TYPE1(sel, body, l) make_SelectType_t(p.m_a, l, 0, nullptr, \
         nullptr, EXPR(sel), TYPE_STMTS(body), body.size())
 #define SELECT_TYPE2(id, sel, body, l) make_SelectType_t(p.m_a, l, 0, nullptr, \
@@ -1611,20 +1624,27 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 
 #define USE1(nature, mod, l) make_Use_t(p.m_a, l, \
         VEC_CAST(nature, decl_attribute), nature.size(), name2char(mod), \
-        nullptr, 0)
+        nullptr, 0, false)
 #define USE2(nature, mod, syms, l) make_Use_t(p.m_a, l, \
         VEC_CAST(nature, decl_attribute), nature.size(), name2char(mod), \
-        USE_SYMBOLS(syms), syms.size())
+        USE_SYMBOLS(syms), syms.size(), true)
+#define USE3(nature, mod, l) make_Use_t(p.m_a, l, \
+        VEC_CAST(nature, decl_attribute), nature.size(), name2char(mod), \
+        nullptr, 0, true)
+#define USE4(nature, mod, syms, l) make_Use_t(p.m_a, l, \
+        VEC_CAST(nature, decl_attribute), nature.size(), name2char(mod), \
+        USE_SYMBOLS(syms), syms.size(), false)
 
 #define USE_SYMBOL1(x, l) make_UseSymbol_t(p.m_a, l, \
         name2char(x), nullptr)
 #define USE_SYMBOL2(x, y, l) make_UseSymbol_t(p.m_a, l, \
         name2char(y), name2char(x))
 #define USE_ASSIGNMENT(l) make_UseAssignment_t(p.m_a, l)
-#define INTRINSIC_OPERATOR(op, l) make_IntrinsicOperator_t(p.m_a, l, \
-        op)
+#define INTRINSIC_OPERATOR(op, l) make_IntrinsicOperator_t(p.m_a, l, op)
 #define DEFINED_OPERATOR(optype, l) make_DefinedOperator_t(p.m_a, l, \
         def_op_to_str(p.m_a, optype))
+#define RENAME_OPERATOR(op1, op2, l) make_RenameOperator_t(p.m_a, l, \
+        def_op_to_str(p.m_a, op1), def_op_to_str(p.m_a, op2))
 
 
 #define MODULE(name, use, implicit, decl, contains, l) make_Module_t(p.m_a, l, \

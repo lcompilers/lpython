@@ -40,8 +40,8 @@ Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop) {
     LFORTRAN_ASSERT(a);
     LFORTRAN_ASSERT(b);
     if (!c) {
-        ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-        c = EXPR(ASR::make_ConstantInteger_t(al, loc, 1, type));
+        ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+        c = LFortran::ASRUtils::EXPR(ASR::make_ConstantInteger_t(al, loc, 1, type));
     }
     LFORTRAN_ASSERT(c);
     int increment;
@@ -62,23 +62,23 @@ Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop) {
         cmp_op = ASR::cmpopType::GtE;
     }
     ASR::expr_t *target = loop.m_head.m_v;
-    ASR::ttype_t *type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-    ASR::stmt_t *stmt1 = STMT(ASR::make_Assignment_t(al, loc, target,
-        EXPR(ASR::make_BinOp_t(al, loc, a, ASR::binopType::Sub, c, type))
+    ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+    ASR::stmt_t *stmt1 = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target,
+        LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, a, ASR::binopType::Sub, c, type))
     ));
 
-    ASR::expr_t *cond = EXPR(ASR::make_Compare_t(al, loc,
-        EXPR(ASR::make_BinOp_t(al, loc, target, ASR::binopType::Add, c, type)),
+    ASR::expr_t *cond = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc,
+        LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, target, ASR::binopType::Add, c, type)),
         cmp_op, b, type));
     Vec<ASR::stmt_t*> body;
     body.reserve(al, loop.n_body+1);
-    body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, target,
-        EXPR(ASR::make_BinOp_t(al, loc, target, ASR::binopType::Add, c, type))
+    body.push_back(al, LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target,
+        LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, target, ASR::binopType::Add, c, type))
     )));
     for (size_t i=0; i<loop.n_body; i++) {
         body.push_back(al, loop.m_body[i]);
     }
-    ASR::stmt_t *stmt2 = STMT(ASR::make_WhileLoop_t(al, loc, cond,
+    ASR::stmt_t *stmt2 = LFortran::ASRUtils::STMT(ASR::make_WhileLoop_t(al, loc, cond,
         body.p, body.size()));
     Vec<ASR::stmt_t*> result;
     result.reserve(al, 2);

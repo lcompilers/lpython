@@ -112,7 +112,7 @@ public:
             Vec<ASR::expr_t*> idx_vars;
             PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, current_scope);
             ASR::stmt_t* doloop = nullptr;
-            ASR::stmt_t* empty_print_endl = STMT(ASR::make_Print_t(al, x.base.base.loc, nullptr, nullptr, 0));
+            ASR::stmt_t* empty_print_endl = LFortran::ASRUtils::STMT(ASR::make_Print_t(al, x.base.base.loc, nullptr, nullptr, 0));
             for( int i = n_dims - 1; i >= 0; i-- ) {
                 ASR::do_loop_head_t head;
                 head.m_v = idx_vars[i];
@@ -127,14 +127,14 @@ public:
                     Vec<ASR::expr_t*> print_args;
                     print_args.reserve(al, 1);
                     print_args.push_back(al, ref);
-                    ASR::stmt_t* print_stmt = STMT(ASR::make_Print_t(al, x.base.base.loc, nullptr, 
+                    ASR::stmt_t* print_stmt = LFortran::ASRUtils::STMT(ASR::make_Print_t(al, x.base.base.loc, nullptr,
                                                                  print_args.p, print_args.size()));
                     doloop_body.push_back(al, print_stmt);
                 } else {
                     doloop_body.push_back(al, doloop);
                     doloop_body.push_back(al, empty_print_endl);
                 }
-                doloop = STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
+                doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
             print_arr_result.push_back(al, doloop);
             print_arr_result.push_back(al, empty_print_endl);

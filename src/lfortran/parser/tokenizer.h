@@ -11,8 +11,6 @@ class Tokenizer
 {
 public:
     unsigned char *cur;
-    unsigned char *mar;
-    unsigned char *ctxmar;
     unsigned char *tok;
     unsigned char *cur_line;
     unsigned int line_num;

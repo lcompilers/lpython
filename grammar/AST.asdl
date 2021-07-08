@@ -56,7 +56,8 @@ program_unit
         program_unit* contains)
 
 unit_decl1
-    = Use(decl_attribute* nature, identifier module, use_symbol* symbols)
+    = Use(decl_attribute* nature, identifier module, use_symbol* symbols,
+        bool only_present)
 
 unit_decl2
     = Declaration(decl_attribute? vartype, decl_attribute* attributes,
@@ -147,6 +148,8 @@ stmt
             concurrent_locality* locality, stmt* body)
     | If(int label, identifier? stmt_name, expr test, stmt* body, stmt* orelse)
     | Select(int label, identifier? stmt_name, expr test, case_stmt* body)
+    | SelectRank(int label, identifier? stmt_name, identifier? assoc_name,
+            expr selector, rank_stmt* body)
     | SelectType(int label, identifier? stmt_name, identifier? assoc_name,
             expr selector, type_stmt* body)
     | Where(int label, identifier? stmt_name, expr test, stmt* body,
@@ -274,7 +277,7 @@ kind_item = (identifier? id, expr? value, kind_item_type type)
 kind_item_type = Star | Colon | Value
 
 dimension = (expr? start, expr? end, dimension_type end_star)
-dimension_type = DimensionExpr | DimensionStar
+dimension_type = DimensionExpr | DimensionStar | AssumedRank
 
 codimension = (expr? start, expr? end, codimension_type end_star)
 codimension_type = CodimensionExpr | CodimensionStar
@@ -335,6 +338,11 @@ case_stmt
     | CaseStmt_Range(expr? start, expr? end, stmt* body)
     | CaseStmt_Default(stmt* body)
 
+rank_stmt
+    = RankExpr(expr value, stmt* body)
+    | RankStar(stmt* body)
+    | RankDefault(stmt* body)
+
 type_stmt
     = TypeStmtName(identifier? name, stmt* body)
     | TypeStmtType(decl_attribute? vartype, stmt* body)
@@ -346,6 +354,7 @@ use_symbol
     | UseAssignment()
     | IntrinsicOperator(intrinsicop op)
     | DefinedOperator(string opName)
+    | RenameOperator(string local_defop, string use_defop)
 
 concurrent_control = ConcurrentControl(identifier? var, expr? start, expr? end, expr? increment)
 
