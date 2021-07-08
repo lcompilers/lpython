@@ -10,4 +10,5 @@ type details
    character(50):: name
 end type details
 intrinsic sin, cos
+doubleprecision, intent (in) :: x(..)
 end program
