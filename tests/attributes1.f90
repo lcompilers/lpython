@@ -12,5 +12,5 @@ type details
         procedure, pass:: name => sample
 end type details
 intrinsic sin, cos
-doubleprecision, intent (in) :: x!(..)
+doubleprecision, intent (in) :: x(..)
 end program
