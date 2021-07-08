@@ -277,54 +277,16 @@ public:
     */
     inline void fill_malloc_array_details(llvm::Value* arr, ASR::dimension_t* m_dims, 
                                             int n_dims) {
-        llvm::Value* num_elements = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
-        llvm::Value* offset_val = llvm_utils->create_gep(arr, 1);
-        builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), offset_val);
-        llvm::Value* dim_des_val = llvm_utils->create_gep(arr, 2);
+        std::vector<std::pair<llvm::Value*, llvm::Value*>> llvm_dims;
         for( int r = 0; r < n_dims; r++ ) {
             ASR::dimension_t m_dim = m_dims[r];
-            llvm::Value* dim_val = llvm_utils->create_gep(dim_des_val, r);
-            llvm::Value* s_val = llvm_utils->create_gep(dim_val, 0);
-            llvm::Value* l_val = llvm_utils->create_gep(dim_val, 1);
-            llvm::Value* u_val = llvm_utils->create_gep(dim_val, 2);
-            llvm::Value* dim_size_ptr = llvm_utils->create_gep(dim_val, 3);
-            builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 1)), s_val);
             visit_expr(*(m_dim.m_start));
-            builder->CreateStore(tmp, l_val);
+            llvm::Value* start = tmp;
             visit_expr(*(m_dim.m_end));
-            builder->CreateStore(tmp, u_val);
-            u_val = builder->CreateLoad(u_val);
-            l_val = builder->CreateLoad(l_val);
-            llvm::Value* dim_size = builder->CreateAdd(builder->CreateSub(u_val, l_val), 
-                                                        llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
-            num_elements = builder->CreateMul(num_elements, dim_size);
-            builder->CreateStore(dim_size, dim_size_ptr);
+            llvm::Value* end = tmp;
+            llvm_dims.push_back(std::make_pair(start, end));
         }
-        std::string func_name = "_lfortran_malloc";
-        llvm::Function *fn = module->getFunction(func_name);
-        llvm::Value* ptr2firstptr = llvm_utils->create_gep(arr, 0);
-        if (!fn) {
-            llvm::FunctionType *function_type = llvm::FunctionType::get(
-                    character_type, {
-                        getIntType(4)
-                    }, true);
-            fn = llvm::Function::Create(function_type,
-                    llvm::Function::ExternalLinkage, func_name, *module);
-        }
-        llvm::AllocaInst *arg_size = builder->CreateAlloca(getIntType(4), nullptr);
-        llvm::DataLayout data_layout(module.get());
-        llvm::Type* ptr2firstptr_type = ptr2firstptr->getType();
-        llvm::Type* ptr_type = static_cast<llvm::PointerType*>(ptr2firstptr_type)->getElementType();
-        uint64_t size = data_layout.getTypeAllocSize(
-                            static_cast<llvm::PointerType*>(ptr_type)->
-                            getElementType());
-        llvm::Value* llvm_size = llvm::ConstantInt::get(context, llvm::APInt(32, size));
-        num_elements = builder->CreateMul(num_elements, llvm_size);
-        builder->CreateStore(num_elements, arg_size);
-        std::vector<llvm::Value*> args = {builder->CreateLoad(arg_size)};
-        llvm::Value* ptr_as_char_ptr = builder->CreateCall(fn, args);
-        llvm::Value* first_ptr = builder->CreateBitCast(ptr_as_char_ptr, ptr_type);
-        builder->CreateStore(first_ptr, ptr2firstptr);
+        arr_descr->fill_malloc_array_details(arr, m_dims, n_dims, llvm_dims, module.get());
     }
 
     inline llvm::Type* getIntType(int a_kind, bool get_pointer=false) {

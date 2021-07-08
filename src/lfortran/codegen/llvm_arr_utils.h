@@ -62,8 +62,9 @@ namespace LFortran {
 
                 virtual
                 void fill_malloc_array_details(
-                llvm::Value* arr, ASR::dimension_t* m_dims, 
-                int n_dims);
+                llvm::Value* arr, ASR::dimension_t* m_dims, int n_dims,
+                std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims,
+                llvm::Module* module);
 
                 virtual
                 llvm::Type* get_dimension_descriptor(bool get_pointer=false);
@@ -135,8 +136,9 @@ namespace LFortran {
 
                 virtual
                 void fill_malloc_array_details(
-                llvm::Value* arr, ASR::dimension_t* m_dims, 
-                int n_dims);
+                llvm::Value* arr, ASR::dimension_t* m_dims, int n_dims,
+                std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims,
+                llvm::Module* module);
 
                 virtual
                 llvm::Type* get_dimension_descriptor(bool get_pointer=false);
