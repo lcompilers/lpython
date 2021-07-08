@@ -27,6 +27,47 @@ namespace LFortran {
             return is_ok;
         }
 
+        bool is_explicit_shape(ASR::Variable_t* v) {
+            ASR::dimension_t* m_dims;
+            int n_dims;
+            switch( v->m_type->type ) {
+                case ASR::ttypeType::Integer: {
+                    ASR::Integer_t* v_type = ASR::down_cast<ASR::Integer_t>(v->m_type);
+                    m_dims = v_type->m_dims;
+                    n_dims = v_type->n_dims;
+                    break;
+                }
+                case ASR::ttypeType::Real: {
+                    ASR::Real_t* v_type = ASR::down_cast<ASR::Real_t>(v->m_type);
+                    m_dims = v_type->m_dims;
+                    n_dims = v_type->n_dims;
+                    break;
+                }
+                case ASR::ttypeType::Complex: {
+                    ASR::Complex_t* v_type = ASR::down_cast<ASR::Complex_t>(v->m_type);
+                    m_dims = v_type->m_dims;
+                    n_dims = v_type->n_dims;
+                    break;
+                }
+                case ASR::ttypeType::Logical: {
+                    ASR::Logical_t* v_type = ASR::down_cast<ASR::Logical_t>(v->m_type);
+                    m_dims = v_type->m_dims;
+                    n_dims = v_type->n_dims;
+                    break;
+                }
+                case ASR::ttypeType::Derived: {
+                    ASR::Derived_t* v_type = ASR::down_cast<ASR::Derived_t>(v->m_type);
+                    m_dims = v_type->m_dims;
+                    n_dims = v_type->n_dims;
+                    break;
+                }
+                default: {
+                    throw CodeGenError("Explicit shape checking supported only for integer, real, complex, logical and derived types.");
+                }
+            }
+            return compile_time_dimensions_t(m_dims, n_dims);
+        }
+
         std::unique_ptr<Descriptor>
         Descriptor::get_descriptor
         (llvm::LLVMContext& context,
@@ -91,7 +132,8 @@ namespace LFortran {
             return nullptr;
         }
 
-        llvm::Value* Descriptor::get_single_element(ASR::ArrayRef_t&) {
+        llvm::Value* Descriptor::get_single_element(llvm::Value*,
+            std::vector<llvm::Value*>&, int) {
             return nullptr;
         }
 
@@ -321,8 +363,46 @@ namespace LFortran {
             return nullptr;
         }
 
-        llvm::Value* SimpleCMODescriptor::get_single_element(ASR::ArrayRef_t&) {
-            return nullptr;
+        // TODO: Uncomment and implement later
+        // void check_single_element(llvm::Value* curr_idx, llvm::Value* arr) {
+        // }
+
+        llvm::Value* SimpleCMODescriptor::cmo_convertor_single_element(
+            llvm::Value* arr, std::vector<llvm::Value*>& m_args, 
+            int n_args, bool check_for_bounds) {
+            llvm::Value* dim_des_arr_ptr = llvm_utils->create_gep(arr, 2);
+            llvm::Value* prod = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
+            llvm::Value* idx = llvm::ConstantInt::get(context, llvm::APInt(32, 0));
+            for( int r = 0; r < n_args; r++ ) {
+                llvm::Value* curr_llvm_idx = m_args[r];
+                llvm::Value* dim_des_ptr = llvm_utils->create_gep(dim_des_arr_ptr, r);
+                llvm::Value* lval = builder->CreateLoad(llvm_utils->create_gep(dim_des_ptr, 1));
+                curr_llvm_idx = builder->CreateSub(curr_llvm_idx, lval);
+                if( check_for_bounds ) {
+                    // check_single_element(curr_llvm_idx, arr); TODO: To be implemented
+                }
+                idx = builder->CreateAdd(idx, builder->CreateMul(prod, curr_llvm_idx));
+                llvm::Value* dim_size = builder->CreateLoad(llvm_utils->create_gep(dim_des_ptr, 3));
+                prod = builder->CreateMul(prod, dim_size);
+            }
+            return idx;
+        }
+
+        llvm::Value* SimpleCMODescriptor::get_single_element(llvm::Value* array,
+            std::vector<llvm::Value*>& m_args, int n_args) {
+            llvm::Value* tmp = nullptr;
+            // TODO: Uncomment later
+            // bool check_for_bounds = is_explicit_shape(v);
+            bool check_for_bounds = false;
+            llvm::Value* idx = cmo_convertor_single_element(array, m_args, n_args, check_for_bounds);
+            llvm::Value* full_array = llvm_utils->create_gep(array, 0);
+            if( static_cast<llvm::PointerType*>(full_array->getType())
+                ->getElementType()->isArrayTy() ) {
+                tmp = llvm_utils->create_gep(full_array, idx);
+            } else {
+                tmp = llvm_utils->create_ptr_gep(builder->CreateLoad(full_array), idx);
+            }
+            return tmp;
         }
 
     } // LLVMArrUtils

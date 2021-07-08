@@ -685,90 +685,6 @@ public:
         }
     }
 
-    // TODO: Uncomment and implement later
-    // void check_single_element(llvm::Value* curr_idx, llvm::Value* arr) {
-    // }
-
-    inline llvm::Value* cmo_convertor_single_element(
-        llvm::Value* arr, ASR::array_index_t* m_args, 
-        int n_args, bool check_for_bounds) {
-        llvm::Value* dim_des_arr_ptr = llvm_utils->create_gep(arr, 2);
-        llvm::Value* prod = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
-        llvm::Value* idx = llvm::ConstantInt::get(context, llvm::APInt(32, 0));
-        for( int r = 0; r < n_args; r++ ) {
-            ASR::array_index_t curr_idx = m_args[r];
-            this->visit_expr_wrapper(curr_idx.m_right, true);
-            llvm::Value* curr_llvm_idx = tmp;
-            llvm::Value* dim_des_ptr = llvm_utils->create_gep(dim_des_arr_ptr, r);
-            llvm::Value* lval = builder->CreateLoad(llvm_utils->create_gep(dim_des_ptr, 1));
-            curr_llvm_idx = builder->CreateSub(curr_llvm_idx, lval);
-            if( check_for_bounds ) {
-                // check_single_element(curr_llvm_idx, arr); TODO: To be implemented
-            }
-            idx = builder->CreateAdd(idx, builder->CreateMul(prod, curr_llvm_idx));
-            llvm::Value* dim_size = builder->CreateLoad(llvm_utils->create_gep(dim_des_ptr, 3));
-            prod = builder->CreateMul(prod, dim_size);
-        }
-        return idx;
-    }
-
-    inline bool is_explicit_shape(ASR::Variable_t* v) {
-        ASR::dimension_t* m_dims;
-        int n_dims;
-        switch( v->m_type->type ) {
-            case ASR::ttypeType::Integer: {
-                ASR::Integer_t* v_type = down_cast<ASR::Integer_t>(v->m_type);
-                m_dims = v_type->m_dims;
-                n_dims = v_type->n_dims;
-                break;
-            }
-            case ASR::ttypeType::Real: {
-                ASR::Real_t* v_type = down_cast<ASR::Real_t>(v->m_type);
-                m_dims = v_type->m_dims;
-                n_dims = v_type->n_dims;
-                break;
-            }
-            case ASR::ttypeType::Complex: {
-                ASR::Complex_t* v_type = down_cast<ASR::Complex_t>(v->m_type);
-                m_dims = v_type->m_dims;
-                n_dims = v_type->n_dims;
-                break;
-            }
-            case ASR::ttypeType::Logical: {
-                ASR::Logical_t* v_type = down_cast<ASR::Logical_t>(v->m_type);
-                m_dims = v_type->m_dims;
-                n_dims = v_type->n_dims;
-                break;
-            }
-            case ASR::ttypeType::Derived: {
-                ASR::Derived_t* v_type = down_cast<ASR::Derived_t>(v->m_type);
-                m_dims = v_type->m_dims;
-                n_dims = v_type->n_dims;
-                break;
-            }
-            default: {
-                throw CodeGenError("Explicit shape checking supported only for integer, real, complex, logical and derived types.");
-            }
-        }
-        return LLVMArrUtils::compile_time_dimensions_t(m_dims, n_dims);
-    }
-
-    inline void get_single_element(const ASR::ArrayRef_t& x) {
-        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(x.m_v);
-        uint32_t v_h = get_hash((ASR::asr_t*)v);
-        LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
-        llvm::Value* array = llvm_symtab[v_h];
-        bool check_for_bounds = is_explicit_shape(v);
-        llvm::Value* idx = cmo_convertor_single_element(array, x.m_args, (int) x.n_args, check_for_bounds);
-        llvm::Value* full_array = llvm_utils->create_gep(array, 0);
-        if( static_cast<llvm::PointerType*>(full_array->getType())
-            ->getElementType()->isArrayTy() ) {
-            tmp = llvm_utils->create_gep(full_array, idx);
-        } else {
-            tmp = llvm_utils->create_ptr_gep(builder->CreateLoad(full_array), idx);
-        }
-    }
-
     void visit_Allocate(const ASR::Allocate_t& x) {
         for( size_t i = 0; i < x.n_args; i++ ) {
             ASR::alloc_arg_t curr_arg = x.m_args[i];
@@ -802,7 +718,17 @@ public:
     }
 
     void visit_ArrayRef(const ASR::ArrayRef_t& x) {
-        get_single_element(x);
+        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(x.m_v);
+        uint32_t v_h = get_hash((ASR::asr_t*)v);
+        LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
+        llvm::Value* array = llvm_symtab[v_h];
+        std::vector<llvm::Value*> indices;
+        for( size_t r = 0; r < x.n_args; r++ ) {
+            ASR::array_index_t curr_idx = x.m_args[r];
+            this->visit_expr_wrapper(curr_idx.m_right, true);
+            indices.push_back(tmp);
+        }
+        tmp = arr_descr->get_single_element(array, indices, x.n_args);
     }
 
     void visit_DerivedRef(const ASR::DerivedRef_t& x) {

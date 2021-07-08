@@ -22,6 +22,8 @@ namespace LFortran {
         bool compile_time_dimensions_t(
         ASR::dimension_t* m_dims, int n_dims);
 
+        bool is_explicit_shape(ASR::Variable_t* v);
+
         enum DESCR_TYPE
         {
             _SimpleCMODescriptor
@@ -88,7 +90,8 @@ namespace LFortran {
                 llvm::Value* get_stride(const int dim);
 
                 virtual
-                llvm::Value* get_single_element(ASR::ArrayRef_t& x);
+                llvm::Value* get_single_element(llvm::Value* array,
+                    std::vector<llvm::Value*>& m_args, int n_args);
 
         };
 
@@ -106,6 +109,10 @@ namespace LFortran {
                 std::map<std::pair<std::pair<int, int>, std::pair<int, int>>, llvm::StructType*> tkr2array;
 
                 std::map<std::pair<std::pair<int, int>, int>, llvm::StructType*> tkr2mallocarray;
+
+                llvm::Value* cmo_convertor_single_element(
+                llvm::Value* arr, std::vector<llvm::Value*>& m_args, 
+                int n_args, bool check_for_bounds);
 
             public:
 
@@ -162,7 +169,8 @@ namespace LFortran {
                 llvm::Value* get_stride(const int dim);
 
                 virtual
-                llvm::Value* get_single_element(ASR::ArrayRef_t& x);
+                llvm::Value* get_single_element(llvm::Value* array,
+                    std::vector<llvm::Value*>& m_args, int n_args);
 
         };
 
