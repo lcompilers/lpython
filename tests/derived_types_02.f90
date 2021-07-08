@@ -24,6 +24,8 @@ contains
     generic :: operator(.in.) => p7
     generic :: operator(.dot.) => p10
     generic :: assignment(=) => p9
+    generic, public :: calcCoeffs => calcCoeffsReal, calcCoeffsKPoint
+    generic, private :: name => sample
     generic :: p1 => p2;
     final :: y
 end type X
