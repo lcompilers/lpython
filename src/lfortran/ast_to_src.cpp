@@ -245,6 +245,10 @@ public:
         r += syn();
         r += " (";
         r.append(x.m_id);
+        if(x.m_parent_name) {
+            r += ":";
+            r.append(x.m_parent_name);
+        }
         r += ") ";
         r.append(x.m_name);
         r += "\n";

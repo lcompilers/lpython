@@ -489,6 +489,10 @@ submodule
     : KW_SUBMODULE "(" id ")" id sep use_statement_star implicit_statement_star
         decl_star contains_block_opt KW_END end_submodule_opt sep {
             $$ = SUBMODULE($3, $5, $7, $8, $9, $10, @$); }
+    | KW_SUBMODULE "(" id ":" id ")" id sep use_statement_star
+        implicit_statement_star decl_star
+        contains_block_opt KW_END end_submodule_opt sep {
+            $$ = SUBMODULE1($3, $5, $7, $9, $10, $11, $12, @$); }
     ;
 
 block_data
