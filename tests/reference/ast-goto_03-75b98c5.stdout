@@ -1,0 +1,1 @@
+(TranslationUnit [(Program goto_03 [] [(ImplicitNone [])] [(Declaration (AttrType TypeInteger [] ()) [] [(a [] [] () None ()) (n [] [] () None ())])] [(= 0 n 2) (= 0 a 10) (GoTo 0 n [1 2 3]) (= 1 a (+ a 10)) (= 2 a (+ a 20)) (= 3 a (+ a 30)) (Print 0 () [a]) (If 0 () (/= a 60) [(ErrorStop 0 () ())] [])] [])])

@@ -615,7 +615,7 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
         if (err) return err;
     }
 
-    if (!LFortran::main_program_present(*asr)) {
+    if (!LFortran::ASRUtils::main_program_present(*asr)) {
         // Create an empty object file (things will be actually
         // compiled and linked when the main program is present):
         {
@@ -756,7 +756,7 @@ int compile_to_object_file_cpp(const std::string &infile,
         if (err) return err;
     }
 
-    if (!LFortran::main_program_present(*asr)) {
+    if (!LFortran::ASRUtils::main_program_present(*asr)) {
         // Create an empty object file (things will be actually
         // compiled and linked when the main program is present):
         {

@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    605 // shift/reduce conflicts
-%expect-rr 98  // reduce/reduce conflicts
+%expect    611 // shift/reduce conflicts
+%expect-rr 99  // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -159,6 +159,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_ENDIF
 %token <string> KW_END_INTERFACE
 %token <string> KW_ENDINTERFACE
+%token <string> KW_ENDTYPE
 %token <string> KW_END_FORALL
 %token <string> KW_ENDFORALL
 %token <string> KW_END_DO
@@ -350,6 +351,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> select_type_statement
 %type <vec_ast> select_type_body_statements
 %type <ast> select_type_body_statement
+%type <ast> select_rank_statement
+%type <vec_ast> select_rank_case_stmts
+%type <ast> select_rank_case_stmt
 %type <vec_ast> case_statements
 %type <ast> case_statement
 %type <ast> while_statement
@@ -559,8 +563,13 @@ enum_var_modifiers
 
 derived_type_decl
     : KW_TYPE var_modifiers id sep var_decl_star
-        derived_type_contains_opt KW_END KW_TYPE id_opt sep {
+        derived_type_contains_opt end_type sep {
         $$ = DERIVED_TYPE($2, $3, $5, $6, @$); }
+    ;
+
+end_type
+    : KW_END KW_TYPE id_opt
+    | KW_ENDTYPE id_opt
     ;
 
 derived_type_contains_opt
@@ -869,6 +878,10 @@ use_statement
     : KW_USE use_modifiers id sep { $$ = USE1($2, $3, @$); }
     | KW_USE use_modifiers id "," KW_ONLY ":" use_symbol_list sep {
             $$ = USE2($2, $3, $7, @$); }
+    | KW_USE use_modifiers id "," KW_ONLY ":" sep {
+            $$ = USE3($2, $3, @$); }
+    | KW_USE use_modifiers id "," use_symbol_list sep {
+            $$ = USE4($2, $3, $5, @$); }
     ;
 
 import_statement_star
@@ -1153,6 +1166,7 @@ array_comp_decl
     | ":"            { $$ = ARRAY_COMP_DECL5d(@$); }
     | "*"            { $$ = ARRAY_COMP_DECL6d(@$); }
     | expr ":" "*"   { $$ = ARRAY_COMP_DECL7d($1, @$); }
+    | TK_DBL_DOT     { $$ = ARRAY_COMP_DECL8d(@$); }
     ;
 
 coarray_comp_decl_list
@@ -1246,6 +1260,7 @@ multi_line_statement0
     | if_statement
     | select_statement
     | select_type_statement
+    | select_rank_statement
     | where_statement
     | while_statement
     ;
@@ -1255,8 +1270,14 @@ assignment_statement
     ;
 
 goto_statement
-    : KW_GO KW_TO TK_INTEGER { $$ = GOTO($3, @$); }
-    | KW_GOTO TK_INTEGER { $$ = GOTO($2, @$); }
+    : goto TK_INTEGER { $$ = GOTO($2, @$); }
+    | goto "(" expr_list ")" expr { $$ = GOTO1($3, $5, @$); }
+    | goto "(" expr_list ")" "," expr { $$ = GOTO1($3, $6, @$); }
+    ;
+
+goto
+    : KW_GO KW_TO
+    | KW_GOTO
     ;
 
 associate_statement
@@ -1430,6 +1451,24 @@ case_statement
     | KW_CASE KW_DEFAULT sep statements { $$ = CASE_STMT_DEFAULT($4, @$); }
     ;
 
+select_rank_statement
+    : KW_SELECT KW_RANK "(" expr ")" sep select_rank_case_stmts
+        KW_END KW_SELECT { $$ = SELECT_RANK1($4, $7, @$); }
+    | KW_SELECT KW_RANK "(" id "=>" expr ")" sep select_rank_case_stmts
+        KW_END KW_SELECT { $$ = SELECT_RANK2($4, $6, $9, @$); }
+    ;
+
+select_rank_case_stmts
+    : select_rank_case_stmts select_rank_case_stmt { $$ = $1; LIST_ADD($$, $2); }
+    | %empty { LIST_NEW($$); }
+    ;
+
+select_rank_case_stmt
+    : KW_RANK "(" expr ")" id_opt sep statements { $$ = RANK_EXPR($3, $7, @$); }
+    | KW_RANK "(" "*" ")" id_opt sep statements { $$ = RANK_STAR($7, @$); }
+    | KW_RANK KW_DEFAULT id_opt sep statements { $$ = RANK_DEFAULT($5, @$); }
+    ;
+
 select_type_statement
     : KW_SELECT KW_TYPE "(" expr ")" sep select_type_body_statements
         KW_END KW_SELECT {
@@ -1451,7 +1490,6 @@ select_type_body_statement
     | KW_CLASS KW_IS "(" id ")" sep statements { $$ = CLASS_STMT($4, $7, @$); }
     | KW_CLASS KW_DEFAULT sep statements { $$ = CLASS_DEFAULT($4, @$); }
     ;
-
 
 while_statement
     : KW_DO KW_WHILE "(" expr ")" sep statements enddo {
@@ -1884,6 +1922,7 @@ id
     | KW_ENDDO { $$ = SYMBOL($1, @$); }
     | KW_ENDIF { $$ = SYMBOL($1, @$); }
     | KW_ENDINTERFACE { $$ = SYMBOL($1, @$); }
+    | KW_ENDTYPE { $$ = SYMBOL($1, @$); }
     | KW_ENTRY { $$ = SYMBOL($1, @$); }
     | KW_ENUM { $$ = SYMBOL($1, @$); }
     | KW_ENUMERATOR { $$ = SYMBOL($1, @$); }

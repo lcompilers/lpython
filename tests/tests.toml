@@ -390,6 +390,21 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "../integration_tests/arrays_op_4.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/arrays_op_5.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/arrays_op_6.f90"
+asr = true
+llvm = true
+
+[[test]]
 filename = "../integration_tests/arrays_02.f90"
 ast = true
 ast_f90 = true
@@ -777,6 +792,11 @@ ast = true
 ast_f90 = true
 
 [[test]]
+filename = "selectrank1.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
 filename = "../integration_tests/select_type_01.f90"
 ast = true
 
@@ -1068,6 +1088,11 @@ ast_f90 = true
 
 [[test]]
 filename = "../integration_tests/goto_02.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
+filename = "../integration_tests/goto_03.f90"
 ast = true
 ast_f90 = true
 

@@ -78,8 +78,8 @@ std::string format_type(const std::string &dims, const std::string &type,
 std::string convert_variable_decl(const ASR::Variable_t &v)
 {
     std::string sub;
-    bool use_ref = (v.m_intent == intent_out || v.m_intent == intent_inout);
-    bool dummy = is_arg_dummy(v.m_intent);
+    bool use_ref = (v.m_intent == LFortran::ASRUtils::intent_out || v.m_intent == LFortran::ASRUtils::intent_inout);
+    bool dummy = LFortran::ASRUtils::is_arg_dummy(v.m_intent);
     if (is_a<ASR::Integer_t>(*v.m_type)) {
         ASR::Integer_t *t = down_cast<ASR::Integer_t>(v.m_type);
         std::string dims = convert_dims(t->n_dims, t->m_dims);
@@ -142,7 +142,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         {
             // Process intrinsic modules in the right order
             std::vector<std::string> build_order
-                = determine_module_dependencies(x);
+                = LFortran::ASRUtils::determine_module_dependencies(x);
             for (auto &item : build_order) {
                 LFORTRAN_ASSERT(x.m_global_scope->scope.find(item)
                     != x.m_global_scope->scope.end());
@@ -165,7 +165,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
         // Then do all the modules in the right order
         std::vector<std::string> build_order
-            = determine_module_dependencies(x);
+            = LFortran::ASRUtils::determine_module_dependencies(x);
         for (auto &item : build_order) {
             LFORTRAN_ASSERT(x.m_global_scope->scope.find(item)
                 != x.m_global_scope->scope.end());
@@ -265,8 +265,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         indentation_level += 1;
         std::string sub = "void " + std::string(x.m_name) + "(";
         for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
-            LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
+            ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
+            LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
             sub += convert_variable_decl(*arg);
             if (i < x.n_args-1) sub += ", ";
         }
@@ -275,7 +275,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         for (auto &item : x.m_symtab->scope) {
             if (is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
-                if (v->m_intent == intent_local) {
+                if (v->m_intent == LFortran::ASRUtils::intent_local) {
                     SymbolInfo s;
                     s.needs_declaration = true;
                     sym_info[get_hash((ASR::asr_t*)v)] = s;
@@ -293,7 +293,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         for (auto &item : x.m_symtab->scope) {
             if (is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
-                if (v->m_intent == intent_local) {
+                if (v->m_intent == LFortran::ASRUtils::intent_local) {
                     if (sym_info[get_hash((ASR::asr_t*) v)].needs_declaration) {
                         std::string indent(indentation_level*indentation_spaces, ' ');
                         decl += indent;
@@ -322,7 +322,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             sym_info[get_hash((ASR::asr_t*)&x)] = s;
         }
         std::string sub;
-        ASR::Variable_t *return_var = EXPR2VAR(x.m_return_var);
+        ASR::Variable_t *return_var = LFortran::ASRUtils::EXPR2VAR(x.m_return_var);
         if (is_a<ASR::Integer_t>(*return_var->m_type)) {
             sub = "int ";
         } else if (is_a<ASR::Real_t>(*return_var->m_type)) {
@@ -334,8 +334,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
         sub = sub + std::string(x.m_name) + "(";
         for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
-            LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
+            ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
+            LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
             sub += convert_variable_decl(*arg);
             if (i < x.n_args-1) sub += ", ";
         }
@@ -347,7 +347,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         for (auto &item : x.m_symtab->scope) {
             if (is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
-                if (v->m_intent == intent_local || v->m_intent == intent_return_var) {
+                if (v->m_intent == LFortran::ASRUtils::intent_local || v->m_intent == LFortran::ASRUtils::intent_return_var) {
                    decl += indent + convert_variable_decl(*v) + ";\n";
                 }
             }
@@ -360,7 +360,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
 
         body += indent + "return "
-            + EXPR2VAR(x.m_return_var)->m_name
+            + LFortran::ASRUtils::EXPR2VAR(x.m_return_var)->m_name
             + ";\n";
 
         if (decl.size() > 0 || body.size() > 0) {
@@ -376,7 +376,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
     void visit_FunctionCall(const ASR::FunctionCall_t &x) {
         ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(
-            symbol_get_past_external(x.m_name));
+            LFortran::ASRUtils::symbol_get_past_external(x.m_name));
         std::string fn_name = fn->m_name;
         if (sym_info[get_hash((ASR::asr_t*)fn)].intrinsic_function) {
             if (fn_name == "size") {
@@ -414,7 +414,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     void visit_Assignment(const ASR::Assignment_t &x) {
         std::string target;
         if (is_a<ASR::Var_t>(*x.m_target)) {
-            target = EXPR2VAR(x.m_target)->m_name;
+            target = LFortran::ASRUtils::EXPR2VAR(x.m_target)->m_name;
         } else if (is_a<ASR::ArrayRef_t>(*x.m_target)) {
             visit_ArrayRef(*down_cast<ASR::ArrayRef_t>(x.m_target));
             target = src;
@@ -675,7 +675,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     void visit_DoLoop(const ASR::DoLoop_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "for (";
-        ASR::Variable_t *loop_var = EXPR2VAR(x.m_head.m_v);
+        ASR::Variable_t *loop_var = LFortran::ASRUtils::EXPR2VAR(x.m_head.m_v);
         std::string lvname=loop_var->m_name;
         ASR::expr_t *a=x.m_head.m_start;
         ASR::expr_t *b=x.m_head.m_end;
@@ -733,7 +733,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         out += "Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(1, ";
         visit_expr(*x.m_head.m_end);
         out += src + "+1)";
-        ASR::Variable_t *loop_var = EXPR2VAR(x.m_head.m_v);
+        ASR::Variable_t *loop_var = LFortran::ASRUtils::EXPR2VAR(x.m_head.m_v);
         sym_info[get_hash((ASR::asr_t*) loop_var)].needs_declaration = false;
         out += ", KOKKOS_LAMBDA(const long " + std::string(loop_var->m_name)
                 + ") {\n";
@@ -781,11 +781,11 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(
-            symbol_get_past_external(x.m_name));
+            LFortran::ASRUtils::symbol_get_past_external(x.m_name));
         std::string out = indent + s->m_name + "(";
         for (size_t i=0; i<x.n_args; i++) {
             if (x.m_args[i]->type == ASR::exprType::Var) {
-                ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
+                ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
                 std::string arg_name = arg->m_name;
                 out += arg_name;
             } else {

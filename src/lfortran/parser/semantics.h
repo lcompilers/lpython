@@ -13,6 +13,7 @@
 #include <cstring>
 
 #include <lfortran/ast.h>
+#include <lfortran/string_utils.h>
 
 // This is only used in parser.tab.cc, nowhere else, so we simply include
 // everything from LFortran::AST to save typing:
@@ -71,6 +72,7 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 #define ATTRS(x) VEC_CAST(x, attribute)
 #define EXPRS(x) VEC_CAST(x, expr)
 #define CASE_STMTS(x) VEC_CAST(x, case_stmt)
+#define RANK_STMTS(x) VEC_CAST(x, rank_stmt)
 #define TYPE_STMTS(x) VEC_CAST(x, type_stmt)
 #define USE_SYMBOLS(x) VEC_CAST(x, use_symbol)
 #define CONCURRENT_CONTROLS(x) VEC_CAST(x, concurrent_control)
@@ -547,13 +549,13 @@ static inline dimension_t* DIM1d(Allocator &al, Location &l, expr_t *a, expr_t *
     return s;
 }
 
-static inline dimension_t* DIM1d_star(Allocator &al, Location &l, expr_t *a)
-{
+static inline dimension_t* DIM1d_type(Allocator &al, Location &l,
+        expr_t *a, dimension_typeType type) {
     dimension_t *s = al.allocate<dimension_t>();
     s->loc = l;
     s->m_start = a;
     s->m_end = nullptr;
-    s->m_end_star = dimension_typeType::DimensionStar;
+    s->m_end_star = type;
     return s;
 }
 
@@ -718,7 +720,10 @@ ast_t* implied_do3(Allocator &al, Location &loc,
 #define BOZ(x, l) make_BOZ_t(p.m_a, l, x.c_str(p.m_a))
 #define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, l, 0, EXPR(x), EXPR(y))
 #define ASSOCIATE(x, y, l) make_Associate_t(p.m_a, l, 0, EXPR(x), EXPR(y))
-#define GOTO(x, l) make_GoTo_t(p.m_a, l, 0, x)
+#define GOTO(x, l) make_GoTo_t(p.m_a, l, 0, \
+        EXPR(INTEGER(x, l)), nullptr, 0)
+#define GOTO1(labels, e, l) make_GoTo_t(p.m_a, l, 0, \
+        EXPR(e), EXPRS(labels), labels.size())
 
 
 ast_t* SUBROUTINE_CALL0(Allocator &al, struct_member_t* mem, size_t n,
@@ -749,8 +754,8 @@ ast_t* SUBROUTINE_CALL0(Allocator &al, struct_member_t* mem, size_t n,
 #define SUBROUTINE_CALL3(mem, name, l) make_SubroutineCall_t(p.m_a, l, 0, \
         name2char(name), mem.p, mem.n, nullptr, 0, nullptr, 0)
 
-Vec<fnarg_t> FNARGS(Allocator &al,
-        const Vec<FnArg> &args) {
+ast_t* DEALLOCATE_STMT1(Allocator &al,
+        const Vec<FnArg> &args, Location &l) {
     Vec<fnarg_t> v;
     v.reserve(al, args.size());
     Vec<keyword_t> v2;
@@ -758,12 +763,13 @@ Vec<fnarg_t> FNARGS(Allocator &al,
     for (auto &item : args) {
         if (item.keyword) {
             v2.push_back(al, item.kw);
-            LFORTRAN_ASSERT(false);
         } else {
             v.push_back(al, item.arg);
         }
     }
-    return v;
+    return make_Deallocate_t(al, l, 0,
+        /*expr_t** a_args*/ v.p, /*size_t n_args*/ v.size(),
+        /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size());
 }
 ast_t* ALLOCATE_STMT0(Allocator &al,
         const Vec<FnArg> &args, Location &l) {
@@ -783,8 +789,7 @@ ast_t* ALLOCATE_STMT0(Allocator &al,
         /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size());
 }
 #define ALLOCATE_STMT(args, l) ALLOCATE_STMT0(p.m_a, args, l)
-#define DEALLOCATE_STMT(args, l) make_Deallocate_t(p.m_a, l, 0, \
-        FNARGS(p.m_a, args).p, args.size())
+#define DEALLOCATE_STMT(args, l) DEALLOCATE_STMT1(p.m_a, args, l)
 
 char* print_format_to_str(Allocator &al, const std::string &fmt) {
     LFORTRAN_ASSERT(fmt[0] == '(');
@@ -1194,8 +1199,9 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
 #define STMT_NAME(id_first, id_last, stmt) \
         stmt; \
         ((If_t*)stmt)->m_stmt_name = name2char(id_first); \
-        if (std::string(name2char(id_first)) != \
-                std::string(name2char(id_last))) { \
+        std::string first = name2char(id_first), \
+                    last  = name2char(id_last); \
+        if (LFortran::str2lower(first) != LFortran::str2lower(last)) { \
             throw LFortran::LFortranException("statement name is inconsistent"); \
         }
 
@@ -1401,8 +1407,9 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
 #define ARRAY_COMP_DECL3d(a, l)       DIM1d(p.m_a, l, EXPR(a), nullptr)
 #define ARRAY_COMP_DECL4d(b, l)       DIM1d(p.m_a, l, nullptr, EXPR(b))
 #define ARRAY_COMP_DECL5d(l)          DIM1d(p.m_a, l, nullptr, nullptr)
-#define ARRAY_COMP_DECL6d(l)          DIM1d_star(p.m_a, l, nullptr)
-#define ARRAY_COMP_DECL7d(a, l)       DIM1d_star(p.m_a, l, EXPR(a))
+#define ARRAY_COMP_DECL6d(l)          DIM1d_type(p.m_a, l, nullptr, DimensionStar)
+#define ARRAY_COMP_DECL7d(a, l)       DIM1d_type(p.m_a, l, EXPR(a), DimensionStar)
+#define ARRAY_COMP_DECL8d(l)          DIM1d_type(p.m_a, l, nullptr, AssumedRank)
 
 #define COARRAY_COMP_DECL1d(a, l)       CODIM1d(p.m_a, l, EXPR(INTEGER(1, l)), EXPR(a))
 #define COARRAY_COMP_DECL2d(a, b, l)    CODIM1d(p.m_a, l, EXPR(a), EXPR(b))
@@ -1598,6 +1605,17 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 #define CASE_STMT_DEFAULT(body, l) make_CaseStmt_Default_t(p.m_a, l, \
         STMTS(body), body.size())
 
+#define SELECT_RANK1(sel, body, l) make_SelectRank_t(p.m_a, l, 0, nullptr, \
+        nullptr, EXPR(sel), RANK_STMTS(body), body.size())
+#define SELECT_RANK2(assoc, sel, body, l) make_SelectRank_t(p.m_a, l, \
+        0, nullptr, name2char(assoc), EXPR(sel), RANK_STMTS(body), body.size())
+
+#define RANK_EXPR(e, body, l) make_RankExpr_t(p.m_a, l, \
+        EXPR(e), STMTS(body), body.size())
+#define RANK_STAR(body, l) make_RankStar_t(p.m_a, l, STMTS(body), body.size())
+#define RANK_DEFAULT(body, l) make_RankDefault_t(p.m_a, l, \
+        STMTS(body), body.size())
+
 #define SELECT_TYPE1(sel, body, l) make_SelectType_t(p.m_a, l, 0, nullptr, \
         nullptr, EXPR(sel), TYPE_STMTS(body), body.size())
 #define SELECT_TYPE2(id, sel, body, l) make_SelectType_t(p.m_a, l, 0, nullptr, \
@@ -1615,10 +1633,16 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 
 #define USE1(nature, mod, l) make_Use_t(p.m_a, l, \
         VEC_CAST(nature, decl_attribute), nature.size(), name2char(mod), \
-        nullptr, 0)
+        nullptr, 0, false)
 #define USE2(nature, mod, syms, l) make_Use_t(p.m_a, l, \
         VEC_CAST(nature, decl_attribute), nature.size(), name2char(mod), \
-        USE_SYMBOLS(syms), syms.size())
+        USE_SYMBOLS(syms), syms.size(), true)
+#define USE3(nature, mod, l) make_Use_t(p.m_a, l, \
+        VEC_CAST(nature, decl_attribute), nature.size(), name2char(mod), \
+        nullptr, 0, true)
+#define USE4(nature, mod, syms, l) make_Use_t(p.m_a, l, \
+        VEC_CAST(nature, decl_attribute), nature.size(), name2char(mod), \
+        USE_SYMBOLS(syms), syms.size(), false)
 
 #define USE_SYMBOL1(x, l) make_UseSymbol_t(p.m_a, l, \
         name2char(x), nullptr)

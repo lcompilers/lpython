@@ -15,12 +15,6 @@ namespace LFortran {
 
 namespace {
 
-    inline std::string convert_to_lowercase(const std::string &s) {
-       std::string res;
-       for(auto x: s) res.push_back(std::tolower(x));
-       return res;
-    }
-
     std::string op2str(const operatorType type)
     {
         switch (type) {
@@ -783,17 +777,20 @@ public:
         }
         r += " ";
         r.append(x.m_module);
-        if (x.n_symbols > 0) {
+        if (x.m_only_present || x.n_symbols > 0) {
             r.append(", ");
+        }
+        if (x.m_only_present) {
             r += syn(gr::UnitHeader);
             r += "only";
             r += syn();
-            r += ": ";
-            for (size_t i=0; i<x.n_symbols; i++) {
-                this->visit_use_symbol(*x.m_symbols[i]);
-                r.append(s);
-                if (i < x.n_symbols-1) r.append(", ");
-            }
+            r += ":";
+            if (x.n_symbols > 0) r.append(" ");
+        }
+        for (size_t i=0; i<x.n_symbols; i++) {
+            this->visit_use_symbol(*x.m_symbols[i]);
+            r.append(s);
+            if (i < x.n_symbols-1) r.append(", ");
         }
         r += "\n";
         s = r;
@@ -1088,7 +1085,7 @@ public:
     }
 #define ATTRTYPE(x) \
             case (simple_attributeType::Attr##x) : \
-                r.append(convert_to_lowercase(#x)); \
+                r.append(str2lower(#x)); \
                 break;
 
     void visit_SimpleAttribute(const SimpleAttribute_t &x) {
@@ -1361,7 +1358,17 @@ public:
         r += "go to";
         r += syn();
         r.append(" ");
-        r.append(std::to_string(x.m_goto_label));
+        if(x.n_labels > 0) {
+            r += "(";
+            for (size_t i=0; i<x.n_labels; i++) {
+                this->visit_expr(*x.m_labels[i]);
+                r.append(s);
+                if (i < x.n_labels-1) r.append(", ");
+            }
+            r += "), ";
+        }
+        this->visit_expr(*x.m_goto_label);
+        r.append(s);
         r.append("\n");
         s = r;
     }
@@ -1494,6 +1501,14 @@ public:
                 r.append(s);
             }
             if (i < x.n_args-1) r.append(", ");
+        }
+        if (x.n_keywords > 0) r.append(", ");
+        for (size_t i=0; i<x.n_keywords; i++) {
+            r.append(std::string(x.m_keywords[i].m_arg));
+            r += "=";
+            this->visit_expr(*x.m_keywords[i].m_value);
+            r.append(s);
+            if (i < x.n_keywords-1) r.append(", ");
         }
         r.append(")\n");
         s = r;
@@ -2794,14 +2809,16 @@ public:
             } else {
                 s = left + ":" + right;
             }
-        } else {
-            LFORTRAN_ASSERT(x.m_end_star == dimension_typeType::DimensionStar);
+        } else if (x.m_end_star == dimension_typeType::DimensionStar) {
             if (x.m_start) {
                 this->visit_expr(*x.m_start);
                 s += ":*";
             } else {
                 s = "*";
             }
+        } else {
+            LFORTRAN_ASSERT(x.m_end_star == dimension_typeType::AssumedRank);
+            s = "..";
         }
     }
 
@@ -3049,6 +3066,83 @@ public:
         std::string r = indent;
         r += syn(gr::Conditional);
         r += "case default";
+        r += syn();
+        r += "\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        s = r;
+    }
+
+    void visit_SelectRank(const SelectRank_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += print_stmt_name(x);
+        r += syn(gr::Conditional);
+        r += "select rank";
+        r += syn();
+        r += " (";
+        if (x.m_assoc_name) {
+            r.append(x.m_assoc_name);
+            r += "=>";
+        }
+        this->visit_expr(*x.m_selector);
+        r += s;
+        r += ")\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_rank_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        r += syn(gr::Conditional);
+        r += "end select";
+        r += syn();
+        r += end_stmt_name(x);
+        r += "\n";
+        s = r;
+    }
+
+    void visit_RankExpr(const RankExpr_t &x) {
+        std::string r = indent;
+        r += syn(gr::Conditional);
+        r += "rank";
+        r += syn();
+        r += " (";
+        this->visit_expr(*x.m_value);
+        r.append(s);
+        r += ")\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        s = r;
+    }
+
+    void visit_RankStar(const RankStar_t &x) {
+        std::string r = indent;
+        r += syn(gr::Conditional);
+        r += "rank";
+        r += syn();
+        r += " (*)\n";
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        s = r;
+    }
+
+    void visit_RankDefault(const RankDefault_t &x) {
+        std::string r = indent;
+        r += syn(gr::Conditional);
+        r += "rank default";
         r += syn();
         r += "\n";
         inc_indent();

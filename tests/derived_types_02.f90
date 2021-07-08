@@ -7,7 +7,7 @@ type :: B
 end type
 
 type C
-end type
+endtype
 
 type, extends(B), public :: X
     private

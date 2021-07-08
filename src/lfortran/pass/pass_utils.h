@@ -10,6 +10,11 @@ namespace LFortran {
 
         bool is_array(ASR::expr_t* x);
 
+        void get_dim_rank(ASR::ttype_t* x_type, ASR::dimension_t*& m_dims, int& n_dims);
+
+        ASR::ttype_t* set_dim_rank(ASR::ttype_t* x_type, ASR::dimension_t*& m_dims, int& n_dims, 
+                                    bool create_new=false, Allocator* al=nullptr);
+
         int get_rank(ASR::expr_t* x);
 
         ASR::expr_t* create_array_ref(ASR::expr_t* arr_expr, Vec<ASR::expr_t*>& idx_vars, Allocator& al);
@@ -18,7 +23,7 @@ namespace LFortran {
                                       const Location& loc, ASR::ttype_t* _type);
 
         void create_idx_vars(Vec<ASR::expr_t*>& idx_vars, int n_dims, const Location& loc, 
-                             Allocator& al, ASR::TranslationUnit_t& unit, std::string suffix="_k");
+                             Allocator& al, SymbolTable*& current_scope, std::string suffix="_k");
         
         ASR::expr_t* get_bound(ASR::expr_t* arr_expr, int dim, std::string bound,
                                 Allocator& al, ASR::TranslationUnit_t& unit, 

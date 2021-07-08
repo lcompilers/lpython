@@ -55,7 +55,8 @@ program_unit
         program_unit* contains)
 
 unit_decl1
-    = Use(decl_attribute* nature, identifier module, use_symbol* symbols)
+    = Use(decl_attribute* nature, identifier module, use_symbol* symbols,
+        bool only_present)
 
 unit_decl2
     = Declaration(decl_attribute? vartype, decl_attribute* attributes,
@@ -106,7 +107,7 @@ stmt
     | Close(int label, expr* args, keyword* kwargs)
     | Continue(int label)
     | Cycle(int label, identifier? stmt_name)
-    | Deallocate(int label, fnarg* args)
+    | Deallocate(int label, fnarg* args, keyword* keywords)
     | ErrorStop(int label, expr? code, expr? quiet)
     | EventPost(int label, expr variable, event_attribute* stat)
     | EventWait(int label, expr variable, event_attribute* spec)
@@ -115,7 +116,7 @@ stmt
     | ForAllSingle(int label, identifier? stmt_name,
             concurrent_control *control, expr? mask, stmt assign)
     | Format(int label, string fmt)
-    | GoTo(int label, int goto_label)
+    | GoTo(int label, expr goto_label, expr* labels)
     | Inquire(int label, expr* args, keyword* kwargs, expr* values)
     | Nullify(int label, expr* args, keyword* kwargs)
     | Open(int label, expr* args, keyword* kwargs)
@@ -146,6 +147,8 @@ stmt
             concurrent_locality* locality, stmt* body)
     | If(int label, identifier? stmt_name, expr test, stmt* body, stmt* orelse)
     | Select(int label, identifier? stmt_name, expr test, case_stmt* body)
+    | SelectRank(int label, identifier? stmt_name, identifier? assoc_name,
+            expr selector, rank_stmt* body)
     | SelectType(int label, identifier? stmt_name, identifier? assoc_name,
             expr selector, type_stmt* body)
     | Where(int label, identifier? stmt_name, expr test, stmt* body,
@@ -273,7 +276,7 @@ kind_item = (identifier? id, expr? value, kind_item_type type)
 kind_item_type = Star | Colon | Value
 
 dimension = (expr? start, expr? end, dimension_type end_star)
-dimension_type = DimensionExpr | DimensionStar
+dimension_type = DimensionExpr | DimensionStar | AssumedRank
 
 codimension = (expr? start, expr? end, codimension_type end_star)
 codimension_type = CodimensionExpr | CodimensionStar
@@ -333,6 +336,11 @@ case_stmt
     = CaseStmt(expr* test, stmt* body)
     | CaseStmt_Range(expr? start, expr? end, stmt* body)
     | CaseStmt_Default(stmt* body)
+
+rank_stmt
+    = RankExpr(expr value, stmt* body)
+    | RankStar(stmt* body)
+    | RankDefault(stmt* body)
 
 type_stmt
     = TypeStmtName(identifier? name, stmt* body)
