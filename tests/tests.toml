@@ -148,7 +148,7 @@ ast = true
 ast_f90 = true
 
 [[test]]
-filename = "procedure1.f90"
+filename = "../integration_tests/submodule_01.f90"
 ast = true
 
 [[test]]

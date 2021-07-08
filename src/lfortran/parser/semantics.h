@@ -152,7 +152,16 @@ static inline Vec<kind_item_t> a2kind_list(Allocator &al,
 #define CODIMENSION(dim, l) make_AttrCodimension_t( \
             p.m_a, l, \
             dim.p, dim.size())
-#define PASS(name, l) make_AttrPass_t(p.m_a, l, name2char(name))
+ast_t* PASS1(Allocator &al, Location &loc, ast_t* id) {
+    char* name;
+    if(id == nullptr) {
+        name = nullptr;
+    } else {
+        name = name2char(id);
+    }
+    return make_AttrPass_t(al, loc, name);
+}
+#define PASS(id, l) PASS1(p.m_a, l, id)
 
 decl_attribute_t** EQUIVALENCE(Allocator &al, Location &loc,
             equi_t* args, size_t n_args) {
@@ -1656,6 +1665,18 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         /*program_unit_t** a_contains*/ CONTAINS(contains), /*size_t n_contains*/ contains.size())
 #define SUBMODULE(id ,name, use, implicit, decl, contains, l) make_Submodule_t(p.m_a, l, \
         name2char(id), \
+        nullptr, \
+        name2char(name), \
+        /*unit_decl1_t** a_use*/ USES(use), /*size_t n_use*/ use.size(), \
+        /*m_implicit*/ VEC_CAST(implicit, implicit_statement), \
+        /*n_implicit*/ implicit.size(), \
+        /*unit_decl2_t** a_decl*/ DECLS(decl), /*size_t n_decl*/ decl.size(), \
+        /*program_unit_t** a_contains*/ CONTAINS(contains), /*size_t n_contains*/ contains.size())
+
+#define SUBMODULE1(id , parent_name, name, use, implicit, decl, contains, l) \
+        make_Submodule_t(p.m_a, l, \
+        name2char(id), \
+        name2char(parent_name), \
         name2char(name), \
         /*unit_decl1_t** a_use*/ USES(use), /*size_t n_use*/ use.size(), \
         /*m_implicit*/ VEC_CAST(implicit, implicit_statement), \
