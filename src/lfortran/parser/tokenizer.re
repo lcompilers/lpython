@@ -155,6 +155,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             'do' { KW(DO) }
             'dowhile' { KW(DOWHILE) }
             'double' { KW(DOUBLE) }
+            'doubleprecision' { KW(DOUBLE_PRECISION) }
             'elemental' { KW(ELEMENTAL) }
             'else' { KW(ELSE) }
             'elseif' { KW(ELSEIF) }

@@ -1301,9 +1301,11 @@ public:
         r += syn(gr::Type);
         r += "pass";
         r += syn();
-        r += "(";
-        r.append(x.m_name);
-        r += ")";
+        if (x.m_name) {
+            r += "(";
+            r.append(x.m_name);
+            r += ")";
+        }
         s = r;
     }
     void visit_AttrAssignment(const AttrAssignment_t &/*x*/) {

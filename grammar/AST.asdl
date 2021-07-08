@@ -214,7 +214,7 @@ decl_attribute
     | AttrExtends(identifier name)
     | AttrIntent(attr_intent intent)
     | AttrNamelist(identifier name)
-    | AttrPass(identifier name)
+    | AttrPass(identifier? name)
     | SimpleAttribute(simple_attribute attr)
     | AttrType(decl_type type, kind_item* kind, identifier? name)
     | AttrAssignment()

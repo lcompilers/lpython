@@ -152,7 +152,16 @@ static inline Vec<kind_item_t> a2kind_list(Allocator &al,
 #define CODIMENSION(dim, l) make_AttrCodimension_t( \
             p.m_a, l, \
             dim.p, dim.size())
-#define PASS(name, l) make_AttrPass_t(p.m_a, l, name2char(name))
+ast_t* PASS1(Allocator &al, Location &loc, ast_t* id) {
+    char* name;
+    if(id == nullptr) {
+        name = nullptr;
+    } else {
+        name = name2char(id);
+    }
+    return make_AttrPass_t(al, loc, name);
+}
+#define PASS(id, l) PASS1(p.m_a, l, id)
 
 decl_attribute_t** EQUIVALENCE(Allocator &al, Location &loc,
             equi_t* args, size_t n_args) {
