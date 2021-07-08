@@ -192,10 +192,10 @@ public:
     ASRToLLVMVisitor(llvm::LLVMContext &context) : 
     context(context), builder(std::make_unique<llvm::IRBuilder<>>(context)),
     prototype_only(false),
-    llvm_utils(std::make_unique<LLVMUtils>(builder)),
+    llvm_utils(std::make_unique<LLVMUtils>(context, builder.get())),
     arr_descr(LLVMArrUtils::Descriptor::get_descriptor(context,
-              builder,
-              llvm_utils,
+              builder.get(),
+              llvm_utils.get(),
               LLVMArrUtils::DESCR_TYPE::_SimpleCMODescriptor))
     {
     }

@@ -10,6 +10,7 @@
 
 #include <lfortran/parser/alloc.h>
 #include <lfortran/asr.h>
+#include <lfortran/codegen/llvm_utils.h>
 
 #include <string>
 #include <map>
@@ -31,11 +32,11 @@ namespace LFortran {
             public:
 
                 static
-                std::unique_ptr<LLVMArrUtils::Descriptor>
+                std::unique_ptr<Descriptor>
                 get_descriptor(
                     llvm::LLVMContext& context,
-                    std::unique_ptr<llvm::IRBuilder<>>& builder,
-                    std::unique_ptr<LLVMUtils> llvm_utils,
+                    llvm::IRBuilder<>* builder,
+                    LLVMUtils* llvm_utils,
                     DESCR_TYPE descr_type);
 
                 virtual
@@ -95,8 +96,8 @@ namespace LFortran {
             private:
 
                 llvm::LLVMContext& context;
-                std::unique_ptr<LLVMUtils> llvm_utils;
-                std::unique_ptr<llvm::IRBuilder<>> builder;
+                LLVMUtils* llvm_utils;
+                llvm::IRBuilder<>* builder;
 
                 llvm::StructType* dim_des;
                 std::map<int, llvm::ArrayType*> rank2desc;
@@ -107,8 +108,9 @@ namespace LFortran {
 
             public:
 
-                SimpleCMODescriptor(llvm::LLVMContext& context,
-                    std::unique_ptr<LLVMUtils>& llvm_utils);
+                SimpleCMODescriptor(llvm::LLVMContext& _context,
+                    llvm::IRBuilder<>* _builder,
+                    LLVMUtils* _llvm_utils);
 
                 virtual
                 llvm::Type* get_array_type(

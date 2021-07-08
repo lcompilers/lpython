@@ -12,11 +12,13 @@ namespace LFortran {
 
         private:
 
-            std::unique_ptr<llvm::IRBuilder<>> builder;
+            llvm::LLVMContext& context;
+            llvm::IRBuilder<>* builder;
         
         public:
 
-            LLVMUtils(std::unique_ptr<llvm::IRBuilder<>>& builder);
+            LLVMUtils(llvm::LLVMContext& context,
+                llvm::IRBuilder<>* _builder);
 
             llvm::Value* create_gep(llvm::Value* ds, int idx);
 

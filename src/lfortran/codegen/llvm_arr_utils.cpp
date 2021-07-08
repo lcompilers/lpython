@@ -27,11 +27,11 @@ namespace LFortran {
             return is_ok;
         }
 
-        std::unique_ptr<LLVMArrUtils::Descriptor>
+        std::unique_ptr<Descriptor>
         Descriptor::get_descriptor
         (llvm::LLVMContext& context,
-         std::unique_ptr<LLVMUtils>& llvm_utils,
-         std::unique_ptr<llvm::IRBuilder<>>& builder;
+         llvm::IRBuilder<>* builder,
+         LLVMUtils* llvm_utils,
          DESCR_TYPE descr_type) {
             switch( descr_type ) {
                 case DESCR_TYPE::_SimpleCMODescriptor: {
@@ -97,12 +97,12 @@ namespace LFortran {
             return nullptr;
         }
 
-        SimpleCMODescriptor::SimpleCMODescriptor(llvm::LLVMContext &context,
-            std::unique_ptr<llvm::IRBuilder<>>& builder,
-            std::unique_ptr<LLVMUtils>& llvm_utils):
-        context(context),
-        llvm_utils(llvm_utils),
-        builder(builder),
+        SimpleCMODescriptor::SimpleCMODescriptor(llvm::LLVMContext& _context,
+            llvm::IRBuilder<>* _builder,
+            LLVMUtils* _llvm_utils):
+        context(_context),
+        llvm_utils(std::move(_llvm_utils)),
+        builder(std::move(_builder)),
         dim_des(llvm::StructType::create(
             context, 
             std::vector<llvm::Type*>(
@@ -207,7 +207,6 @@ namespace LFortran {
             builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), offset_val);
             llvm::Value* dim_des_val = llvm_utils->create_gep(arr, 2);
             for( int r = 0; r < n_dims; r++ ) {
-                ASR::dimension_t m_dim = m_dims[r];
                 llvm::Value* dim_val = llvm_utils->create_gep(dim_des_val, r);
                 llvm::Value* s_val = llvm_utils->create_gep(dim_val, 0);
                 llvm::Value* l_val = llvm_utils->create_gep(dim_val, 1);
@@ -223,7 +222,7 @@ namespace LFortran {
                 builder->CreateStore(dim_size, dim_size_ptr);
             }
             if( run_time_size ) {
-                llvm::Value* llvm_size = builder->CreateAlloca(getIntType(4), nullptr);
+                llvm::Value* llvm_size = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
                 llvm::Value* const_1 = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
                 llvm::Value* prod = const_1;
                 for( int r = 0; r < n_dims; r++ ) {
