@@ -53,6 +53,7 @@
 #include <lfortran/exception.h>
 #include <lfortran/asr_utils.h>
 #include <lfortran/pickle.h>
+#include <lfortran/codegen/llvm_utils.h>
 #include <lfortran/codegen/llvm_arr_utils.h>
 
 
@@ -185,38 +186,18 @@ public:
         in a nested_function before checking if we need to declare stack 
         types */
     
-    LLVMArrUtils::Descriptor* arr_descr;
+    std::unique_ptr<LLVMUtils> llvm_utils;
+    std::unique_ptr<LLVMArrUtils::Descriptor> arr_descr;
 
-    ASRToLLVMVisitor(llvm::LLVMContext &context, Allocator& al) : 
-    context(context), prototype_only(false)
+    ASRToLLVMVisitor(llvm::LLVMContext &context) : 
+    context(context), builder(std::make_unique<llvm::IRBuilder<>>(context)),
+    prototype_only(false),
+    llvm_utils(std::make_unique<LLVMUtils>(builder)),
+    arr_descr(LLVMArrUtils::Descriptor::get_descriptor(context,
+              builder,
+              llvm_utils,
+              LLVMArrUtils::DESCR_TYPE::_SimpleCMODescriptor))
     {
-        arr_descr = LLVMArrUtils::Descriptor::get_descriptor(al, context,
-                        LLVMArrUtils::DESCR_TYPE::_SimpleCMODescriptor);
-    }
-
-    inline llvm::Value* create_gep(llvm::Value* ds, int idx) {
-        std::vector<llvm::Value*> idx_vec = {
-        llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
-        llvm::ConstantInt::get(context, llvm::APInt(32, idx))};
-        return builder->CreateGEP(ds, idx_vec);
-    }
-
-    inline llvm::Value* create_gep(llvm::Value* ds, llvm::Value* idx) {
-        std::vector<llvm::Value*> idx_vec = {
-        llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
-        idx};
-        return builder->CreateGEP(ds, idx_vec);
-    }
-
-    inline llvm::Value* create_ptr_gep(llvm::Value* ptr, int idx) {
-        std::vector<llvm::Value*> idx_vec = {
-        llvm::ConstantInt::get(context, llvm::APInt(32, idx))};
-        return builder->CreateInBoundsGEP(ptr, idx_vec);
-    }
-
-    inline llvm::Value* create_ptr_gep(llvm::Value* ptr, llvm::Value* idx) {
-        std::vector<llvm::Value*> idx_vec = {idx};
-        return builder->CreateInBoundsGEP(ptr, idx_vec);
     }
 
     inline bool verify_dimensions_t(ASR::dimension_t* m_dims, int n_dims) {
@@ -275,57 +256,18 @@ public:
         return el_type;
     }
 
-    inline void fill_array_details(llvm::Value* arr, ASR::dimension_t* m_dims, 
-                                   int n_dims) {
-        bool run_time_size = !LLVMArrUtils::compile_time_dimensions_t(m_dims, n_dims);
-        llvm::Value* offset_val = create_gep(arr, 1);
-        builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), offset_val);
-        llvm::Value* dim_des_val = create_gep(arr, 2);
+    void fill_array_details(llvm::Value* arr, ASR::dimension_t* m_dims,
+        int n_dims) {
+        std::vector<std::pair<llvm::Value*, llvm::Value*>> llvm_dims;
         for( int r = 0; r < n_dims; r++ ) {
             ASR::dimension_t m_dim = m_dims[r];
-            llvm::Value* dim_val = create_gep(dim_des_val, r);
-            llvm::Value* s_val = create_gep(dim_val, 0);
-            llvm::Value* l_val = create_gep(dim_val, 1);
-            llvm::Value* u_val = create_gep(dim_val, 2);
-            llvm::Value* dim_size_ptr = create_gep(dim_val, 3);
-            builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 1)), s_val);
             visit_expr(*(m_dim.m_start));
-            builder->CreateStore(tmp, l_val);
+            llvm::Value* start = tmp;
             visit_expr(*(m_dim.m_end));
-            builder->CreateStore(tmp, u_val);
-            u_val = builder->CreateLoad(u_val);
-            l_val = builder->CreateLoad(l_val);
-            llvm::Value* dim_size = builder->CreateAdd(builder->CreateSub(u_val, l_val), 
-                                                    llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
-            builder->CreateStore(dim_size, dim_size_ptr);
+            llvm::Value* end = tmp;
+            llvm_dims.push_back(std::make_pair(start, end));
         }
-        if( run_time_size ) {
-            llvm::Value* llvm_size = builder->CreateAlloca(getIntType(4), nullptr);
-            llvm::Value* const_1 = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
-            llvm::Value* prod = const_1;
-            for( int r = 0; r < n_dims; r++ ) {
-                llvm::Value *m_start, *m_end;
-                ASR::dimension_t m_dim = m_dims[r];
-                if( m_dim.m_start != nullptr ) {
-                    visit_expr(*(m_dim.m_start));
-                    m_start = tmp;
-                } else {
-                    m_start = const_1;
-                }
-                visit_expr(*(m_dim.m_end));
-                m_end = tmp;
-                llvm::Value* dim_size_1 = builder->CreateSub(m_end, m_start);
-                llvm::Value* dim_size = builder->CreateAdd(dim_size_1, const_1);
-                prod = builder->CreateMul(prod, dim_size);
-            }
-            builder->CreateStore(prod, llvm_size);
-            llvm::Value* first_ptr = create_gep(arr, 0);
-            llvm::PointerType* first_ptr2ptr_type = static_cast<llvm::PointerType*>(first_ptr->getType());
-            llvm::PointerType* first_ptr_type = static_cast<llvm::PointerType*>(first_ptr2ptr_type->getElementType());
-            llvm::Value* arr_first = builder->CreateAlloca(first_ptr_type->getElementType(), 
-                                                            builder->CreateLoad(llvm_size));
-            builder->CreateStore(arr_first, first_ptr);
-        }
+        arr_descr->fill_array_details(arr, m_dims, n_dims, llvm_dims);
     }
 
     /*
@@ -336,16 +278,16 @@ public:
     inline void fill_malloc_array_details(llvm::Value* arr, ASR::dimension_t* m_dims, 
                                             int n_dims) {
         llvm::Value* num_elements = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
-        llvm::Value* offset_val = create_gep(arr, 1);
+        llvm::Value* offset_val = llvm_utils->create_gep(arr, 1);
         builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), offset_val);
-        llvm::Value* dim_des_val = create_gep(arr, 2);
+        llvm::Value* dim_des_val = llvm_utils->create_gep(arr, 2);
         for( int r = 0; r < n_dims; r++ ) {
             ASR::dimension_t m_dim = m_dims[r];
-            llvm::Value* dim_val = create_gep(dim_des_val, r);
-            llvm::Value* s_val = create_gep(dim_val, 0);
-            llvm::Value* l_val = create_gep(dim_val, 1);
-            llvm::Value* u_val = create_gep(dim_val, 2);
-            llvm::Value* dim_size_ptr = create_gep(dim_val, 3);
+            llvm::Value* dim_val = llvm_utils->create_gep(dim_des_val, r);
+            llvm::Value* s_val = llvm_utils->create_gep(dim_val, 0);
+            llvm::Value* l_val = llvm_utils->create_gep(dim_val, 1);
+            llvm::Value* u_val = llvm_utils->create_gep(dim_val, 2);
+            llvm::Value* dim_size_ptr = llvm_utils->create_gep(dim_val, 3);
             builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 1)), s_val);
             visit_expr(*(m_dim.m_start));
             builder->CreateStore(tmp, l_val);
@@ -360,7 +302,7 @@ public:
         }
         std::string func_name = "_lfortran_malloc";
         llvm::Function *fn = module->getFunction(func_name);
-        llvm::Value* ptr2firstptr = create_gep(arr, 0);
+        llvm::Value* ptr2firstptr = llvm_utils->create_gep(arr, 0);
         if (!fn) {
             llvm::FunctionType *function_type = llvm::FunctionType::get(
                     character_type, {
@@ -696,7 +638,6 @@ public:
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         module = std::make_unique<llvm::Module>("LFortran", context);
         module->setDataLayout("");
-        builder = std::make_unique<llvm::IRBuilder<>>(context);
 
 
         // All loose statements must be converted to a function, so the items
@@ -789,21 +730,21 @@ public:
     inline llvm::Value* cmo_convertor_single_element(
         llvm::Value* arr, ASR::array_index_t* m_args, 
         int n_args, bool check_for_bounds) {
-        llvm::Value* dim_des_arr_ptr = create_gep(arr, 2);
+        llvm::Value* dim_des_arr_ptr = llvm_utils->create_gep(arr, 2);
         llvm::Value* prod = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
         llvm::Value* idx = llvm::ConstantInt::get(context, llvm::APInt(32, 0));
         for( int r = 0; r < n_args; r++ ) {
             ASR::array_index_t curr_idx = m_args[r];
             this->visit_expr_wrapper(curr_idx.m_right, true);
             llvm::Value* curr_llvm_idx = tmp;
-            llvm::Value* dim_des_ptr = create_gep(dim_des_arr_ptr, r);
-            llvm::Value* lval = builder->CreateLoad(create_gep(dim_des_ptr, 1));
+            llvm::Value* dim_des_ptr = llvm_utils->create_gep(dim_des_arr_ptr, r);
+            llvm::Value* lval = builder->CreateLoad(llvm_utils->create_gep(dim_des_ptr, 1));
             curr_llvm_idx = builder->CreateSub(curr_llvm_idx, lval);
             if( check_for_bounds ) {
                 // check_single_element(curr_llvm_idx, arr); TODO: To be implemented
             }
             idx = builder->CreateAdd(idx, builder->CreateMul(prod, curr_llvm_idx));
-            llvm::Value* dim_size = builder->CreateLoad(create_gep(dim_des_ptr, 3));
+            llvm::Value* dim_size = builder->CreateLoad(llvm_utils->create_gep(dim_des_ptr, 3));
             prod = builder->CreateMul(prod, dim_size);
         }
         return idx;
@@ -857,12 +798,12 @@ public:
         llvm::Value* array = llvm_symtab[v_h];
         bool check_for_bounds = is_explicit_shape(v);
         llvm::Value* idx = cmo_convertor_single_element(array, x.m_args, (int) x.n_args, check_for_bounds);
-        llvm::Value* full_array = create_gep(array, 0);
+        llvm::Value* full_array = llvm_utils->create_gep(array, 0);
         if( static_cast<llvm::PointerType*>(full_array->getType())
             ->getElementType()->isArrayTy() ) {
-            tmp = create_gep(full_array, idx);
+            tmp = llvm_utils->create_gep(full_array, idx);
         } else {
-            tmp = create_ptr_gep(builder->CreateLoad(full_array), idx);
+            tmp = llvm_utils->create_ptr_gep(builder->CreateLoad(full_array), idx);
         }
     }
 
@@ -890,7 +831,7 @@ public:
         for( size_t i = 0; i < x.n_args; i++ ) {
             ASR::expr_t* curr_obj = x.m_args[i];
             this->visit_expr(*curr_obj);
-            llvm::Value* arr = builder->CreateLoad(create_gep(tmp, 0));
+            llvm::Value* arr = builder->CreateLoad(llvm_utils->create_gep(tmp, 0));
             llvm::AllocaInst *arg_arr = builder->CreateAlloca(character_type, nullptr);
             builder->CreateStore(builder->CreateBitCast(arr, character_type), arg_arr);
             std::vector<llvm::Value*> args = {builder->CreateLoad(arg_arr)};
@@ -1292,7 +1233,7 @@ public:
                                     nested_global_struct);
                             int idx = std::distance(nested_globals.begin(),
                                     finder);
-                            builder->CreateStore(target_var, create_gep(ptr,
+                            builder->CreateStore(target_var, llvm_utils->create_gep(ptr,
                                         idx));
                         }
                     }
@@ -1511,19 +1452,19 @@ public:
                             finder);
                         llvm::Value* glob_struct = module->getOrInsertGlobal(
                             nested_desc_name, nested_global_struct);
-                        llvm::Value* target = builder->CreateLoad(create_gep(
+                        llvm::Value* target = builder->CreateLoad(llvm_utils->create_gep(
                             glob_struct, idx));
                         llvm::Value* glob_stack = module->getOrInsertGlobal(
                             nested_stack_name, nested_global_stack);
-                        llvm::Value *glob_stack_gep = create_gep(glob_stack, 
+                        llvm::Value *glob_stack_gep = llvm_utils->create_gep(glob_stack, 
                             sp_val);
-                        llvm::Value *glob_stack_elem = create_gep(
+                        llvm::Value *glob_stack_elem = llvm_utils->create_gep(
                             glob_stack_gep, idx);
                         builder->CreateStore(builder->CreateLoad(target), 
                             glob_stack_elem);
                         llvm::Value *glob_stack_val = builder->CreateLoad(
                             glob_stack_gep);
-                        llvm::Value *glob_stack_sp = create_gep(glob_stack, 
+                        llvm::Value *glob_stack_sp = llvm_utils->create_gep(glob_stack, 
                             sp_val);
                         builder->CreateStore(glob_stack_val, glob_stack_sp);
                     }
@@ -1576,14 +1517,14 @@ public:
                             nested_sp_name, llvm::Type::getInt32Ty(context));
                         llvm::Value *sp_val = builder->CreateLoad(sp_loc);
                         llvm::Value *glob_stack_elem = builder->CreateLoad(
-                            create_gep(create_gep(glob_stack, sp_val), idx));
+                            llvm_utils->create_gep(llvm_utils->create_gep(glob_stack, sp_val), idx));
                         llvm::Value *glob_struct_loc = module->
                             getOrInsertGlobal(nested_desc_name, 
                             nested_global_struct);
                         llvm::Value* target = builder->CreateLoad(
-                            create_gep(glob_struct_loc, idx));
+                            llvm_utils->create_gep(glob_struct_loc, idx));
                         builder->CreateStore(glob_stack_elem, target);
-                        builder->CreateStore(target, create_gep(
+                        builder->CreateStore(target, llvm_utils->create_gep(
                             glob_struct_loc, idx));
                     }
                 }
@@ -1609,7 +1550,7 @@ public:
                             nested_global_struct);
                     int idx = std::distance(nested_globals.begin(),
                             finder);
-                    builder->CreateStore(&llvm_arg, create_gep(ptr,
+                    builder->CreateStore(&llvm_arg, llvm_utils->create_gep(ptr,
                                 idx));
                 }
                 std::string arg_s = arg->m_name;
@@ -1903,8 +1844,8 @@ public:
                 ASR::Variable_t *ret = EXPR2VAR(x.m_return_var);
                 h = get_hash((ASR::asr_t*)ret);
                 llvm::Value* llvm_ret_ptr = llvm_symtab[h];
-                llvm::Value* dim_des_val = builder->CreateLoad(create_gep(llvm_arg, 0));
-                llvm::Value* rank = builder->CreateLoad(create_gep(llvm_arg, 1));
+                llvm::Value* dim_des_val = builder->CreateLoad(llvm_utils->create_gep(llvm_arg, 0));
+                llvm::Value* rank = builder->CreateLoad(llvm_utils->create_gep(llvm_arg, 1));
                 builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 1)), llvm_ret_ptr);
 
                 llvm::Function *fn = builder->GetInsertBlock()->getParent();
@@ -1927,8 +1868,8 @@ public:
                 builder->SetInsertPoint(loopbody);
                 llvm::Value* r_val = builder->CreateLoad(r);
                 llvm::Value* ret_val = builder->CreateLoad(llvm_ret_ptr);
-                llvm::Value* dim_val = create_ptr_gep(dim_des_val, r_val);
-                llvm::Value* dim_size_ptr = create_gep(dim_val, 3);
+                llvm::Value* dim_val = llvm_utils->create_ptr_gep(dim_des_val, r_val);
+                llvm::Value* dim_size_ptr = llvm_utils->create_gep(dim_val, 3);
                 llvm::Value* dim_size = builder->CreateLoad(dim_size_ptr);
                 ret_val = builder->CreateMul(ret_val, dim_size);
                 builder->CreateStore(ret_val, llvm_ret_ptr);
@@ -1961,14 +1902,14 @@ public:
                 llvm::Value* dim_val = builder->CreateLoad(llvm_arg2);
                 llvm::Value* const_1 = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
                 dim_val = builder->CreateSub(dim_val, const_1);
-                llvm::Value* dim_struct = create_ptr_gep(dim_des_val, dim_val);
+                llvm::Value* dim_struct = llvm_utils->create_ptr_gep(dim_des_val, dim_val);
                 int idx = -1;
                 if( m_name == "lbound" ) {
                     idx = 1;
                 } else if( m_name == "ubound" ) {
                     idx = 2;
                 }
-                llvm::Value* res = builder->CreateLoad(create_gep(dim_struct, idx));
+                llvm::Value* res = builder->CreateLoad(llvm_utils->create_gep(dim_struct, idx));
                 builder->CreateStore(res, llvm_ret_ptr);
 
                 define_function_exit(x);
@@ -2036,7 +1977,7 @@ public:
                 llvm::Value* ptr = module->getOrInsertGlobal(nested_desc_name,
                     nested_global_struct);
                 int idx = std::distance(nested_globals.begin(), finder);
-                target = builder->CreateLoad(create_gep(ptr, idx));
+                target = builder->CreateLoad(llvm_utils->create_gep(ptr, idx));
             }
         }
         this->visit_expr_wrapper(x.m_value, true);
@@ -2051,7 +1992,7 @@ public:
             llvm::Value* ptr = module->getOrInsertGlobal(nested_desc_name, 
                     nested_global_struct);
             int idx = std::distance(nested_globals.begin(), finder);
-            builder->CreateStore(target, create_gep(ptr, idx));
+            builder->CreateStore(target, llvm_utils->create_gep(ptr, idx));
         }
     }
 
@@ -3000,10 +2941,10 @@ public:
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 tmp = llvm_symtab[h];
                 llvm::Value* arg_struct = builder->CreateAlloca(fname2arg_type["size"].first, nullptr);
-                llvm::Value* first_ele_ptr = create_gep(create_gep(tmp, 2), 0);
-                llvm::Value* first_arg_ptr = create_gep(arg_struct, 0);
+                llvm::Value* first_ele_ptr = llvm_utils->create_gep(llvm_utils->create_gep(tmp, 2), 0);
+                llvm::Value* first_arg_ptr = llvm_utils->create_gep(arg_struct, 0);
                 builder->CreateStore(first_ele_ptr, first_arg_ptr);
-                llvm::Value* rank_ptr = create_gep(arg_struct, 1);
+                llvm::Value* rank_ptr = llvm_utils->create_gep(arg_struct, 1);
                 llvm::StructType* tmp_type = (llvm::StructType*)(((llvm::PointerType*)(tmp->getType()))->getElementType());
                 int rank = ((llvm::ArrayType*)(tmp_type->getElementType(2)))->getNumElements();
                 builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, rank)), rank_ptr);
@@ -3014,7 +2955,7 @@ public:
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 tmp = llvm_symtab[h];
                 llvm::Value* arg1 = builder->CreateAlloca(fname2arg_type[name].first, nullptr);
-                llvm::Value* first_ele_ptr = create_gep(create_gep(tmp, 2), 0);
+                llvm::Value* first_ele_ptr = llvm_utils->create_gep(llvm_utils->create_gep(tmp, 2), 0);
                 llvm::Value* first_arg_ptr = arg1;
                 builder->CreateStore(first_ele_ptr, first_arg_ptr);
                 args.push_back(arg1);
@@ -3063,17 +3004,17 @@ public:
                                         llvm::Value* arg_struct = builder->CreateAlloca(new_arr_type, nullptr);
                                         llvm::Value* first_ele_ptr = nullptr;
                                         if( tmp_struct_type->getElementType(0)->isArrayTy() ) {
-                                            first_ele_ptr = create_gep(create_gep(tmp, 0), 0);
+                                            first_ele_ptr = llvm_utils->create_gep(llvm_utils->create_gep(tmp, 0), 0);
                                         } else {
-                                            first_ele_ptr = builder->CreateLoad(create_gep(tmp, 0));
+                                            first_ele_ptr = builder->CreateLoad(llvm_utils->create_gep(tmp, 0));
                                         }
-                                        llvm::Value* first_arg_ptr = create_gep(arg_struct, 0);
+                                        llvm::Value* first_arg_ptr = llvm_utils->create_gep(arg_struct, 0);
                                         builder->CreateStore(first_ele_ptr, first_arg_ptr);
-                                        llvm::Value* sec_ele_ptr = builder->CreateLoad(create_gep(tmp, 1));
-                                        llvm::Value* sec_arg_ptr = create_gep(arg_struct, 1); 
+                                        llvm::Value* sec_ele_ptr = builder->CreateLoad(llvm_utils->create_gep(tmp, 1));
+                                        llvm::Value* sec_arg_ptr = llvm_utils->create_gep(arg_struct, 1); 
                                         builder->CreateStore(sec_ele_ptr, sec_arg_ptr);   
-                                        llvm::Value* third_ele_ptr = builder->CreateLoad(create_gep(tmp, 2));
-                                        llvm::Value* third_arg_ptr = create_gep(arg_struct, 2); 
+                                        llvm::Value* third_ele_ptr = builder->CreateLoad(llvm_utils->create_gep(tmp, 2));
+                                        llvm::Value* third_arg_ptr = llvm_utils->create_gep(arg_struct, 2); 
                                         builder->CreateStore(third_ele_ptr, third_arg_ptr);   
                                         tmp = arg_struct;
                                     }
@@ -3086,7 +3027,7 @@ public:
                             llvm::Value* ptr = module->getOrInsertGlobal(nested_desc_name,
                                 nested_global_struct);
                             int idx = std::distance(nested_globals.begin(), finder);
-                            tmp = builder->CreateLoad(create_gep(ptr, idx));
+                            tmp = builder->CreateLoad(llvm_utils->create_gep(ptr, idx));
                         }
                     } else if (is_a<ASR::Function_t>(*symbol_get_past_external(
                         ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
@@ -3308,7 +3249,7 @@ public:
 std::unique_ptr<LLVMModule> asr_to_llvm(ASR::TranslationUnit_t &asr,
         llvm::LLVMContext &context, Allocator &al, std::string run_fn)
 {
-    ASRToLLVMVisitor v(context, al);
+    ASRToLLVMVisitor v(context);
     pass_wrap_global_stmts_into_function(al, asr, run_fn);
 
     pass_replace_param_to_const(al, asr);

@@ -1,13 +1,15 @@
 #ifndef LFORTRAN_LLVM_ARR_UTILS_H
 #define LFORTRAN_LLVM_ARR_UTILS_H
 
+#include <memory>
+
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Value.h>
 #include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/IRBuilder.h>
 
 #include <lfortran/parser/alloc.h>
 #include <lfortran/asr.h>
-#include <lfortran/codegen/asr_to_llvm.h>
 
 #include <string>
 #include <map>
@@ -29,10 +31,11 @@ namespace LFortran {
             public:
 
                 static
-                Descriptor*
+                std::unique_ptr<LLVMArrUtils::Descriptor>
                 get_descriptor(
-                    Allocator& al,
                     llvm::LLVMContext& context,
+                    std::unique_ptr<llvm::IRBuilder<>>& builder,
+                    std::unique_ptr<LLVMUtils> llvm_utils,
                     DESCR_TYPE descr_type);
 
                 virtual
@@ -53,8 +56,8 @@ namespace LFortran {
 
                 virtual
                 void fill_array_details(
-                llvm::Value* arr, ASR::dimension_t* m_dims, 
-                int n_dims);
+                llvm::Value* arr, ASR::dimension_t* m_dims, int n_dims, 
+                std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims);
 
                 virtual
                 void fill_malloc_array_details(
@@ -92,6 +95,8 @@ namespace LFortran {
             private:
 
                 llvm::LLVMContext& context;
+                std::unique_ptr<LLVMUtils> llvm_utils;
+                std::unique_ptr<llvm::IRBuilder<>> builder;
 
                 llvm::StructType* dim_des;
                 std::map<int, llvm::ArrayType*> rank2desc;
@@ -102,7 +107,8 @@ namespace LFortran {
 
             public:
 
-                SimpleCMODescriptor(llvm::LLVMContext& context);
+                SimpleCMODescriptor(llvm::LLVMContext& context,
+                    std::unique_ptr<LLVMUtils>& llvm_utils);
 
                 virtual
                 llvm::Type* get_array_type(
@@ -122,8 +128,8 @@ namespace LFortran {
 
                 virtual
                 void fill_array_details(
-                llvm::Value* arr, ASR::dimension_t* m_dims, 
-                int n_dims);
+                llvm::Value* arr, ASR::dimension_t* m_dims, int n_dims, 
+                std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims);
 
                 virtual
                 void fill_malloc_array_details(

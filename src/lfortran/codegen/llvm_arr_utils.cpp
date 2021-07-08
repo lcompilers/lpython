@@ -1,4 +1,5 @@
 #include <lfortran/codegen/llvm_arr_utils.h>
+#include <lfortran/codegen/llvm_utils.h>
 
 namespace LFortran {
 
@@ -26,14 +27,15 @@ namespace LFortran {
             return is_ok;
         }
 
-        Descriptor*
+        std::unique_ptr<LLVMArrUtils::Descriptor>
         Descriptor::get_descriptor
-        (Allocator& al,
-         llvm::LLVMContext& context,
+        (llvm::LLVMContext& context,
+         std::unique_ptr<LLVMUtils>& llvm_utils,
+         std::unique_ptr<llvm::IRBuilder<>>& builder;
          DESCR_TYPE descr_type) {
             switch( descr_type ) {
                 case DESCR_TYPE::_SimpleCMODescriptor: {
-                    return al.make_new<SimpleCMODescriptor>(context);
+                    return std::make_unique<SimpleCMODescriptor>(context, builder, llvm_utils);
                 }
             }
             return nullptr;
@@ -51,7 +53,8 @@ namespace LFortran {
         }
 
         void Descriptor::fill_array_details(
-        llvm::Value*, ASR::dimension_t*, int) {
+        llvm::Value*, ASR::dimension_t*, int,
+        std::vector<std::pair<llvm::Value*, llvm::Value*>>&) {
         }
 
         void Descriptor::fill_malloc_array_details(
@@ -94,8 +97,12 @@ namespace LFortran {
             return nullptr;
         }
 
-        SimpleCMODescriptor::SimpleCMODescriptor(llvm::LLVMContext &context):
+        SimpleCMODescriptor::SimpleCMODescriptor(llvm::LLVMContext &context,
+            std::unique_ptr<llvm::IRBuilder<>>& builder,
+            std::unique_ptr<LLVMUtils>& llvm_utils):
         context(context),
+        llvm_utils(llvm_utils),
+        builder(builder),
         dim_des(llvm::StructType::create(
             context, 
             std::vector<llvm::Type*>(
@@ -193,7 +200,53 @@ namespace LFortran {
         }
 
         void SimpleCMODescriptor::fill_array_details(
-        llvm::Value*, ASR::dimension_t*, int) {
+        llvm::Value* arr, ASR::dimension_t* m_dims, int n_dims,
+        std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims) {
+            bool run_time_size = !LLVMArrUtils::compile_time_dimensions_t(m_dims, n_dims);
+            llvm::Value* offset_val = llvm_utils->create_gep(arr, 1);
+            builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), offset_val);
+            llvm::Value* dim_des_val = llvm_utils->create_gep(arr, 2);
+            for( int r = 0; r < n_dims; r++ ) {
+                ASR::dimension_t m_dim = m_dims[r];
+                llvm::Value* dim_val = llvm_utils->create_gep(dim_des_val, r);
+                llvm::Value* s_val = llvm_utils->create_gep(dim_val, 0);
+                llvm::Value* l_val = llvm_utils->create_gep(dim_val, 1);
+                llvm::Value* u_val = llvm_utils->create_gep(dim_val, 2);
+                llvm::Value* dim_size_ptr = llvm_utils->create_gep(dim_val, 3);
+                builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 1)), s_val);
+                builder->CreateStore(llvm_dims[r].first, l_val);
+                builder->CreateStore(llvm_dims[r].second, u_val);
+                u_val = builder->CreateLoad(u_val);
+                l_val = builder->CreateLoad(l_val);
+                llvm::Value* dim_size = builder->CreateAdd(builder->CreateSub(u_val, l_val), 
+                                                        llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+                builder->CreateStore(dim_size, dim_size_ptr);
+            }
+            if( run_time_size ) {
+                llvm::Value* llvm_size = builder->CreateAlloca(getIntType(4), nullptr);
+                llvm::Value* const_1 = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
+                llvm::Value* prod = const_1;
+                for( int r = 0; r < n_dims; r++ ) {
+                    llvm::Value *m_start, *m_end;
+                    ASR::dimension_t m_dim = m_dims[r];
+                    if( m_dim.m_start != nullptr ) {
+                        m_start = llvm_dims[r].first;
+                    } else {
+                        m_start = const_1;
+                    }
+                    m_end = llvm_dims[r].second;
+                    llvm::Value* dim_size_1 = builder->CreateSub(m_end, m_start);
+                    llvm::Value* dim_size = builder->CreateAdd(dim_size_1, const_1);
+                    prod = builder->CreateMul(prod, dim_size);
+                }
+                builder->CreateStore(prod, llvm_size);
+                llvm::Value* first_ptr = llvm_utils->create_gep(arr, 0);
+                llvm::PointerType* first_ptr2ptr_type = static_cast<llvm::PointerType*>(first_ptr->getType());
+                llvm::PointerType* first_ptr_type = static_cast<llvm::PointerType*>(first_ptr2ptr_type->getElementType());
+                llvm::Value* arr_first = builder->CreateAlloca(first_ptr_type->getElementType(), 
+                                                                builder->CreateLoad(llvm_size));
+                builder->CreateStore(arr_first, first_ptr);
+            }
         }
 
         void SimpleCMODescriptor::fill_malloc_array_details(
