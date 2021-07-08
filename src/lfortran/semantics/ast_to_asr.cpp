@@ -1040,8 +1040,8 @@ public:
                         throw SemanticError("Derived type '"
                             + derived_type_name + "' not declared", x.base.base.loc);
                     }
-                    type = TYPE(ASR::make_Class_t(al, x.base.base.loc, v,
-                        dims.p, dims.size()));
+                    type = LFortran::ASRUtils::TYPE(ASR::make_Class_t(al, 
+                        x.base.base.loc, v, dims.p, dims.size()));
                 } else {
                     throw SemanticError("Type not implemented yet.",
                          x.base.base.loc);
