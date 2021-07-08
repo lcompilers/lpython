@@ -513,6 +513,7 @@ tokens = true
 [[test]]
 filename = "derived_types_02.f90"
 ast = true
+ast_f90 = true
 
 [[test]]
 filename = "derived_types_03.f90"
