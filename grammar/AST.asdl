@@ -34,8 +34,9 @@ unit
 mod
     = Module(identifier name, unit_decl1* use, implicit_statement* implicit,
         unit_decl2* decl, program_unit* contains)
-    | Submodule(identifier id,identifier name, unit_decl1* use,
-        implicit_statement* implicit, unit_decl2* decl, program_unit* contains)
+    | Submodule(identifier id, identifier? parent_name, identifier name,
+        unit_decl1* use, implicit_statement* implicit,
+        unit_decl2* decl, program_unit* contains)
     | BlockData(identifier? name, unit_decl1* use,
         implicit_statement* implicit, unit_decl2* decl)
     | Program(identifier name, unit_decl1* use, implicit_statement* implicit,

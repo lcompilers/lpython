@@ -25,7 +25,7 @@ contains
     end procedure b
 end submodule module1
 
-submodule (submodule) module2
+submodule (submodule:module1) module2
 contains
     module procedure function
         import, only: a, b
