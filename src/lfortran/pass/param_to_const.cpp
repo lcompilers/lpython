@@ -126,7 +126,7 @@ public:
                         case ASR::exprType::ConstantReal:
                         case ASR::exprType::ConstantComplex:
                         case ASR::exprType::ConstantLogical: 
-                        case ASR::exprType::Str: {
+                        case ASR::exprType::ConstantString: {
                             asr = init_var->m_value;
                             break;
                         }

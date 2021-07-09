@@ -744,10 +744,10 @@ public:
         CommonVisitorMethods::visit_BinOp(al, x, left, right, asr);
     }
 
-    void visit_Str(const AST::Str_t &x) {
+    void visit_String(const AST::String_t &x) {
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
                 8, nullptr, 0));
-        asr = ASR::make_Str_t(al, x.base.base.loc, x.m_s, type);
+        asr = ASR::make_ConstantString_t(al, x.base.base.loc, x.m_s, type);
     }
 
     void visit_Logical(const AST::Logical_t &x) {
@@ -2033,7 +2033,7 @@ public:
         ASR::expr_t *value = LFortran::ASRUtils::EXPR(tmp);
         ASR::ttype_t *value_type = LFortran::ASRUtils::expr_type(value);
         if( target->type == ASR::exprType::Var && !ASRUtils::is_array(target_type) &&
-            value->type == ASR::exprType::ArrayInitializer ) {
+            value->type == ASR::exprType::ConstantArray ) {
             throw SemanticError("ArrayInitalizer expressions can only be assigned array references", x.base.base.loc);
         }
         if (target->type == ASR::exprType::Var || 
@@ -2586,10 +2586,10 @@ public:
         tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, x.m_value, type);
     }
 
-    void visit_Str(const AST::Str_t &x) {
+    void visit_String(const AST::String_t &x) {
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
                 8, nullptr, 0));
-        tmp = ASR::make_Str_t(al, x.base.base.loc, x.m_s, type);
+        tmp = ASR::make_ConstantString_t(al, x.base.base.loc, x.m_s, type);
     }
 
     void visit_Real(const AST::Real_t &x) {
@@ -2630,7 +2630,7 @@ public:
             }
             body.push_back(al, expr);
         }
-        tmp = ASR::make_ArrayInitializer_t(al, x.base.base.loc, body.p,
+        tmp = ASR::make_ConstantArray_t(al, x.base.base.loc, body.p,
             body.size(), type);
     }
 

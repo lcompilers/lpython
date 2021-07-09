@@ -716,7 +716,7 @@ ast_t* implied_do3(Allocator &al, Location &loc,
 #define INTEGER(x, l) make_Num_t(p.m_a, l, x)
 #define REAL(x, l) make_Real_t(p.m_a, l, x.c_str(p.m_a))
 #define COMPLEX(x, y, l) make_Complex_t(p.m_a, l, EXPR(x), EXPR(y))
-#define STRING(x, l) make_Str_t(p.m_a, l, x.c_str(p.m_a))
+#define STRING(x, l) make_String_t(p.m_a, l, x.c_str(p.m_a))
 #define BOZ(x, l) make_BOZ_t(p.m_a, l, x.c_str(p.m_a))
 #define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, l, 0, EXPR(x), EXPR(y))
 #define ASSOCIATE(x, y, l) make_Associate_t(p.m_a, l, 0, EXPR(x), EXPR(y))

@@ -191,8 +191,8 @@ public:
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
-        if( x.m_value->type == ASR::exprType::ArrayInitializer ) {
-            ASR::ArrayInitializer_t* arr_init = ((ASR::ArrayInitializer_t*)(&(x.m_value->base)));
+        if( x.m_value->type == ASR::exprType::ConstantArray ) {
+            ASR::ConstantArray_t* arr_init = ((ASR::ConstantArray_t*)(&(x.m_value->base)));
             if( arr_init->n_args == 1 && arr_init->m_args[0] != nullptr && 
                 arr_init->m_args[0]->type == ASR::exprType::ImpliedDoLoop ) {
                 ASR::ImpliedDoLoop_t* idoloop = ((ASR::ImpliedDoLoop_t*)(&(arr_init->m_args[0]->base)));
@@ -242,7 +242,7 @@ public:
                     }
                 }
             }
-        } else if( x.m_value->type != ASR::exprType::ArrayInitializer && 
+        } else if( x.m_value->type != ASR::exprType::ConstantArray &&
                    x.m_value->type != ASR::exprType::FunctionCall && // This will be converted to SubroutineCall in array_op.cpp
                    PassUtils::is_array(x.m_target)) {
             contains_array = true;
