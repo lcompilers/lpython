@@ -2693,6 +2693,10 @@ public:
     void visit_Num(const Num_t &x) {
         s = syn(gr::Integer);
         s += std::to_string(x.m_n);
+        if (x.m_kind) {
+            s += "_";
+            s += x.m_kind;
+        }
         s += syn();
     }
 

@@ -158,6 +158,10 @@ public:
         if (use_colors) {
             s.append(color(fg::reset));
         }
+        if (x.m_kind) {
+            s += "_";
+            s += x.m_kind;
+        }
     }
     std::string get_str() {
         return s;
