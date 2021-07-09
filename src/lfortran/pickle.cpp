@@ -61,7 +61,10 @@ std::string pickle(int token, const LFortran::YYSTYPE &yystype,
     if (token == yytokentype::TK_NAME) {
         t += " " + yystype.string.str();
     } else if (token == yytokentype::TK_INTEGER) {
-        t += " " + std::to_string(yystype.n);
+        t += " " + std::to_string(yystype.int_suffix.int_n);
+        if (yystype.int_suffix.int_kind.p) {
+            t += "_" + yystype.int_suffix.int_kind.str();
+        }
     } else if (token == yytokentype::TK_STRING) {
         t = t + " " + "\"" + yystype.string.str() + "\"";
     } else if (token == yytokentype::TK_BOZ_CONSTANT) {
@@ -157,6 +160,10 @@ public:
         s.append(std::to_string(x.m_n));
         if (use_colors) {
             s.append(color(fg::reset));
+        }
+        if (x.m_kind) {
+            s += "_";
+            s += x.m_kind;
         }
     }
     std::string get_str() {

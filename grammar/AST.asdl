@@ -170,7 +170,7 @@ expr
     | ArrayInitializer(decl_attribute? vartype, expr* args)
     | ImpliedDoLoop(expr* values, identifier var, expr start, expr end,
         expr? increment)
-    | Num(int n)
+    | Num(int n, string? kind)
     | Real(string n)
     | Complex(expr re, expr im)
     | String(string s)

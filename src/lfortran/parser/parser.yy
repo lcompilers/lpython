@@ -69,7 +69,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token TK_NEWLINE
 %token <string> TK_NAME
 %token <string> TK_DEF_OP
-%token <n> TK_INTEGER
+%token <int_suffix> TK_INTEGER
 %token <n> TK_LABEL
 %token <string> TK_REAL
 %token <string> TK_BOZ_CONSTANT
@@ -1552,9 +1552,9 @@ do_statement
     | KW_DO id "=" expr "," expr "," expr sep statements enddo {
             $$ = DO3($2, $4, $6, $8, $10, @$); }
     | KW_DO TK_INTEGER id "=" expr "," expr sep statements enddo {
-            $$ = DO2_LABEL($2, $3, $5, $7, $9, @$); }
+            $$ = DO2_LABEL(INTEGER3($2), $3, $5, $7, $9, @$); }
     | KW_DO TK_INTEGER id "=" expr "," expr "," expr sep statements enddo {
-            $$ = DO3_LABEL($2, $3, $5, $7, $9, $11, @$); }
+            $$ = DO3_LABEL(INTEGER3($2), $3, $5, $7, $9, $11, @$); }
     | KW_DO KW_CONCURRENT "(" concurrent_control_list ")"
         concurrent_locality_star sep statements enddo {
             $$ = DO_CONCURRENT1($4, $6, $8, @$); }

@@ -138,6 +138,12 @@ pass = "global_stmts"
 llvm = true
 
 [[test]]
+filename = "expr7.f90"
+tokens = true
+ast = true
+ast_f90 = true
+
+[[test]]
 filename = "stop.f90"
 asr = true
 llvm = true

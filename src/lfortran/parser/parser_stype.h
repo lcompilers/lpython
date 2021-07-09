@@ -40,9 +40,16 @@ struct ArgStarKw {
     };
 };
 
+struct IntSuffix {
+    int64_t int_n;
+    Str int_kind;
+};
+
 union YYSTYPE {
-    unsigned long n;
+    int64_t n;
     Str string;
+
+    IntSuffix int_suffix;
 
     AST::ast_t* ast;
     Vec<AST::ast_t*> vec_ast;

@@ -18,22 +18,43 @@ void Tokenizer::set_string(const std::string &str)
 }
 
 template<int base>
-bool adddgt(unsigned long &u, unsigned long d)
+bool adddgt(uint64_t &u, uint64_t d)
 {
-    if (u > (std::numeric_limits<unsigned long>::max() - d) / base) {
+    if (u > (std::numeric_limits<uint64_t>::max() - d) / base) {
         return false;
     }
     u = u * base + d;
     return true;
 }
 
-bool lex_dec(const unsigned char *s, const unsigned char *e, unsigned long &u)
+bool lex_dec(const unsigned char *s, const unsigned char *e, uint64_t &u)
 {
     for (u = 0; s < e; ++s) {
         if (!adddgt<10>(u, *s - 0x30u)) {
             return false;
         }
     }
+    return true;
+}
+
+// Tokenizes integer of the kind 1234_ikind into `u` and `suffix`
+// s ... the start of the integer
+// e ... the character after the end
+bool lex_int(const unsigned char *s, const unsigned char *e, uint64_t &u,
+    Str &suffix)
+{
+    for (u = 0; s < e; ++s) {
+        if (*s == '_') {
+            s++;
+            suffix.p = (char*) s;
+            suffix.n = e-s;
+            return true;
+        } else if (!adddgt<10>(u, *s - 0x30u)) {
+            return false;
+        }
+    }
+    suffix.p = nullptr;
+    suffix.n = 0;
     return true;
 }
 
@@ -339,9 +360,9 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             // built-in or custom defined operator, such as: `.eq.`, `.not.`,
             // or `.custom.`.
             integer / defop {
-                unsigned long u;
-                if (lex_dec(tok, cur, u)) {
-                    yylval.n = u;
+                uint64_t u;
+                if (lex_int(tok, cur, u, yylval.int_suffix.int_kind)) {
+                    yylval.int_suffix.int_n = u;
                     RET(TK_INTEGER)
                 } else {
                     token_loc(loc);
@@ -354,12 +375,13 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
 
             real { token(yylval.string); RET(TK_REAL) }
             integer / (whitespace name) {
-                unsigned long u;
-                if (lex_dec(tok, cur, u)) {
-                    yylval.n = u;
+                uint64_t u;
+                if (lex_int(tok, cur, u, yylval.int_suffix.int_kind)) {
                     if (last_token == yytokentype::TK_NEWLINE) {
+                        yylval.n = u;
                         RET(TK_LABEL)
                     } else {
+                        yylval.int_suffix.int_n = u;
                         RET(TK_INTEGER)
                     }
                 } else {
@@ -370,9 +392,9 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
                 }
             }
             integer {
-                unsigned long u;
-                if (lex_dec(tok, cur, u)) {
-                    yylval.n = u;
+                uint64_t u;
+                if (lex_int(tok, cur, u, yylval.int_suffix.int_kind)) {
+                    yylval.int_suffix.int_n = u;
                     RET(TK_INTEGER)
                 } else {
                     token_loc(loc);

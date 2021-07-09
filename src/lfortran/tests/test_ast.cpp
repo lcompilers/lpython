@@ -21,7 +21,7 @@ TEST_CASE("Test types") {
     Allocator al(1024*1024);
     Location loc;
 
-    AST::ast_t &a = *AST::make_Num_t(al, loc, 5);
+    AST::ast_t &a = *AST::make_Num_t(al, loc, 5, nullptr);
     CHECK(AST::is_a<AST::expr_t>(a));
     CHECK(! AST::is_a<AST::stmt_t>(a));
 
