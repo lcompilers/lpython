@@ -56,6 +56,9 @@ public:
     }
 };
 
+bool lex_int(const unsigned char *s, const unsigned char *e, uint64_t &u,
+    Str &suffix);
+
 } // namespace LFortran
 
 #endif
