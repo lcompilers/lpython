@@ -423,6 +423,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> letter_spec
 %type <vec_ast> letter_spec_list
 %type <ast> procedure_decl
+%type <vec_ast> access_spec_list
+%type <ast> access_spec
 %type <ast> proc_modifier
 %type <vec_ast> procedure_list
 %type <vec_ast> derived_type_contains_opt
@@ -593,14 +595,25 @@ procedure_decl
             $$ = DERIVED_TYPE_PROC($2, $3, @$); }
     | KW_PROCEDURE "(" id ")" proc_modifiers use_symbol_list sep {
             $$ = DERIVED_TYPE_PROC1($3, $5, $6, @$); }
-    | KW_GENERIC "::" KW_OPERATOR "(" operator_type ")" "=>" id_list sep {
-            $$ = GENERIC_OPERATOR($5, $8, @$); }
-    | KW_GENERIC "::" KW_OPERATOR "(" TK_DEF_OP ")" "=>" id_list sep {
-            $$ = GENERIC_DEFOP($5, $8, @$); }
-    | KW_GENERIC "::" KW_ASSIGNMENT "(" "=" ")" "=>" id_list sep {
-            $$ = GENERIC_ASSIGNMENT($8, @$); }
-    | KW_GENERIC "::" id "=>" id_list sep { $$ = GENERIC_NAME($3, $5, @$); }
+    | KW_GENERIC access_spec_list KW_OPERATOR "(" operator_type ")" "=>" id_list sep {
+            $$ = GENERIC_OPERATOR($2, $5, $8, @$); }
+    | KW_GENERIC access_spec_list KW_OPERATOR "(" TK_DEF_OP ")" "=>" id_list sep {
+            $$ = GENERIC_DEFOP($2, $5, $8, @$); }
+    | KW_GENERIC access_spec_list KW_ASSIGNMENT "(" "=" ")" "=>" id_list sep {
+            $$ = GENERIC_ASSIGNMENT($2, $8, @$); }
+    | KW_GENERIC access_spec_list id "=>" id_list sep {
+            $$ = GENERIC_NAME($2, $3, $5, @$); }
     | KW_FINAL "::" id sep { $$ = FINAL_NAME($3, @$); }
+    ;
+
+access_spec_list
+    : "::" { LIST_NEW($$); }
+    | access_spec "::" { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+access_spec
+    : "," KW_PRIVATE  { $$ = SIMPLE_ATTR(Private, @$); }
+    | "," KW_PUBLIC { $$ = SIMPLE_ATTR(Public, @$); }
     ;
 
 operator_type

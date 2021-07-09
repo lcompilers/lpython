@@ -199,10 +199,11 @@ intrinsicop
 procedure_decl
     = DerivedTypeProc(identifier? name, decl_attribute* attr,
         use_symbol* symbols)
-    | GenericOperator(intrinsicop op, identifier* names)
-    | GenericDefinedOperator(string optype, identifier* names)
-    | GenericAssignment(identifier* names)
-    | GenericName(identifier name, identifier* names)
+    | GenericOperator(decl_attribute* attr, intrinsicop op, identifier* names)
+    | GenericDefinedOperator(decl_attribute* attr, string optype,
+        identifier* names)
+    | GenericAssignment(decl_attribute* attr, identifier* names)
+    | GenericName(decl_attribute* attr, identifier name, identifier* names)
     | FinalName(identifier name)
 
 decl_attribute

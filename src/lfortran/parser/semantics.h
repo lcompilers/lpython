@@ -1735,14 +1735,18 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 #define DERIVED_TYPE_PROC1(name, attr, syms, l) make_DerivedTypeProc_t(p.m_a, l, \
         name2char(name), VEC_CAST(attr, decl_attribute), attr.size(), \
         USE_SYMBOLS(syms), syms.size())
-#define GENERIC_OPERATOR(optype, namelist, l) make_GenericOperator_t(p.m_a, l, \
+#define GENERIC_OPERATOR(attr, optype, namelist, l) make_GenericOperator_t(p.m_a, l, \
+        VEC_CAST(attr, decl_attribute), attr.size(), \
         optype, REDUCE_ARGS(p.m_a, namelist), namelist.size())
-#define GENERIC_DEFOP(optype, namelist, l) make_GenericDefinedOperator_t( \
-        p.m_a, l, def_op_to_str(p.m_a, optype), \
+#define GENERIC_DEFOP(attr, optype, namelist, l) make_GenericDefinedOperator_t( \
+        p.m_a, l, VEC_CAST(attr, decl_attribute), attr.size(), \
+        def_op_to_str(p.m_a, optype), \
         REDUCE_ARGS(p.m_a, namelist), namelist.size())
-#define GENERIC_ASSIGNMENT(namelist, l) make_GenericAssignment_t(p.m_a, l, \
+#define GENERIC_ASSIGNMENT(attr, namelist, l) make_GenericAssignment_t(p.m_a, l, \
+        VEC_CAST(attr, decl_attribute), attr.size(), \
         REDUCE_ARGS(p.m_a, namelist), namelist.size())
-#define GENERIC_NAME(name, namelist, l) make_GenericName_t(p.m_a, l, \
+#define GENERIC_NAME(attr, name, namelist, l) make_GenericName_t(p.m_a, l, \
+        VEC_CAST(attr, decl_attribute), attr.size(), \
         name2char(name), REDUCE_ARGS(p.m_a, namelist), namelist.size())
 #define FINAL_NAME(name, l) make_FinalName_t(p.m_a, l, name2char(name))
 

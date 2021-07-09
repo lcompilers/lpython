@@ -1,0 +1,40 @@
+module a
+implicit none
+integer, parameter :: r8 = kind(0.d0)
+type :: B
+end type B
+type :: C
+end type C
+type, extends(B), public :: X
+    private
+    real(r8) :: r1
+    type(C), pointer :: cc => null()
+    real(r8), pointer :: r2(:) => null(), r3(:) => null()
+
+contains
+
+procedure, private :: p1
+procedure(something), private :: p1b
+procedure, pass(self) :: p2
+generic :: operator(/=) => p5, p6
+generic :: operator(+) => p8
+generic :: operator(.in.) => p7
+generic :: operator(.dot.) => p10
+generic :: assignment(=) => p9
+generic, public :: calcCoeffs => calcCoeffsReal, calcCoeffsKPoint
+generic, private :: name => sample
+generic :: p1 => p2
+final :: y
+end type X
+
+contains
+
+subroutine p1(this)
+class(X), intent(out) :: this
+end subroutine p1
+
+subroutine p2(this)
+class(X), intent(inout) :: this
+end subroutine p2
+
+end module a

@@ -478,9 +478,14 @@ public:
     void visit_GenericOperator(const GenericOperator_t &x) {
         std::string r;
         r += syn(gr::String);
-        r.append("generic :: operator");
+        r.append("generic");
         r += syn();
-        r += "(" + intrinsicop2str(x.m_op) + ")";
+        if(x.n_attr > 0 && x.m_attr[0] != nullptr){
+            r += ", ";
+            this->visit_decl_attribute(*x.m_attr[0]);
+            r.append(s);
+        }
+        r += " :: operator(" + intrinsicop2str(x.m_op) + ")";
         r += " => ";
         for (size_t i=0; i<x.n_names; i++) {
             r.append(x.m_names[i]);
@@ -491,9 +496,14 @@ public:
     void visit_GenericDefinedOperator(const GenericDefinedOperator_t &x) {
         std::string r;
         r += syn(gr::String);
-        r.append("generic :: operator");
+        r.append("generic");
         r += syn();
-        r += "(";
+        if(x.n_attr > 0 && x.m_attr[0] != nullptr){
+            r += ", ";
+            this->visit_decl_attribute(*x.m_attr[0]);
+            r.append(s);
+        }
+        r += " :: operator(";
         r += "." + std::string(x.m_optype) + ".";
         r += ")";
         r += " => ";
@@ -506,9 +516,14 @@ public:
     void visit_GenericAssignment(const GenericAssignment_t &x) {
         std::string r;
         r += syn(gr::String);
-        r.append("generic :: assignment(=)");
+        r.append("generic");
         r += syn();
-        r += " => ";
+        if(x.n_attr > 0 && x.m_attr[0] != nullptr){
+            r += ", ";
+            this->visit_decl_attribute(*x.m_attr[0]);
+            r.append(s);
+        }
+        r += " :: assignment(=) => ";
         for (size_t i=0; i<x.n_names; i++) {
             r.append(x.m_names[i]);
             if (i < x.n_names-1) r.append(", ");
@@ -518,8 +533,14 @@ public:
     void visit_GenericName(const GenericName_t &x) {
         std::string r;
         r += syn(gr::String);
-        r.append("generic :: ");
+        r.append("generic");
         r += syn();
+        if(x.n_attr > 0 && x.m_attr[0] != nullptr){
+            r += ", ";
+            this->visit_decl_attribute(*x.m_attr[0]);
+            r.append(s);
+        }
+        r += " :: ";
         r.append(x.m_name);
         r += " => ";
         for (size_t i=0; i<x.n_names; i++) {
