@@ -1236,31 +1236,6 @@ public:
                     if( x.m_abi == ASR::abiType::Source ) {
                         llvm::Type* orig_type = static_cast<llvm::PointerType*>(type)->getElementType();
                         type = arr_descr->get_argument_type(orig_type, m_h, arg->m_name, arr_arg_type_cache);
-                        // llvm::StructType* type_struct = static_cast<llvm::StructType*>(orig_type);
-                        // llvm::Type* first_ele_ptr_type = nullptr;
-                        // if( type_struct->getElementType(0)->isArrayTy() ) { 
-                        //     llvm::ArrayType* arr_type = static_cast<llvm::ArrayType*>(type_struct->getElementType(0));
-                        //     llvm::Type* ele_type = arr_type->getElementType();
-                        //     first_ele_ptr_type = ele_type->getPointerTo();
-                        // } else if( type_struct->getElementType(0)->isPointerTy() ) {
-                        //     first_ele_ptr_type = type_struct->getElementType(0);
-                        // }
-                        // llvm::Type* new_arr_type = nullptr;
-
-                        // if( arr_arg_type_cache.find(m_h) == arr_arg_type_cache.end() ||  
-                        //     (arr_arg_type_cache.find(m_h) != arr_arg_type_cache.end() &&
-                        //      arr_arg_type_cache[m_h].find(std::string(arg->m_name)) == arr_arg_type_cache[m_h].end() ) ) {
-                            
-                        //     new_arr_type = llvm::StructType::create(context, std::vector<llvm::Type*>({first_ele_ptr_type,
-                        //                                                                                 type_struct->getElementType(1),
-                        //                                                                                 type_struct->getElementType(2),      
-                        //                                                                                 }), "array_call");
-                        //     arr_arg_type_cache[m_h][std::string(arg->m_name)] = new_arr_type;    
-                        // } else {
-                        //     new_arr_type = arr_arg_type_cache[m_h][std::string(arg->m_name)];
-                        // }
-                        
-                        // type = new_arr_type->getPointerTo();
                         is_array_type = false;
                     } else if( x.m_abi == ASR::abiType::Intrinsic && 
                         fname2arg_type.find(m_name) != fname2arg_type.end()) {
@@ -1734,8 +1709,6 @@ public:
                 builder->SetInsertPoint(loopbody);
                 llvm::Value* r_val = builder->CreateLoad(r);
                 llvm::Value* ret_val = builder->CreateLoad(llvm_ret_ptr);
-                // llvm::Value* dim_val = llvm_utils->create_ptr_gep(dim_des_val, r_val);
-                // llvm::Value* dim_size_ptr = llvm_utils->create_gep(dim_val, 3);
                 llvm::Value* dim_size = arr_descr->get_dimension_size(dim_des_val, r_val);
                 ret_val = builder->CreateMul(ret_val, dim_size);
                 builder->CreateStore(ret_val, llvm_ret_ptr);
@@ -1768,7 +1741,6 @@ public:
                 llvm::Value* dim_val = builder->CreateLoad(llvm_arg2);
                 llvm::Value* const_1 = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
                 dim_val = builder->CreateSub(dim_val, const_1);
-                // llvm::Value* dim_struct = llvm_utils->create_ptr_gep(dim_des_val, dim_val);
                 llvm::Value* dim_struct = arr_descr->get_pointer_to_dimension_descriptor(dim_des_val, dim_val);
                 llvm::Value* res = nullptr;
                 if( m_name == "lbound" ) {
@@ -2782,8 +2754,6 @@ public:
     template <typename T>
     std::vector<llvm::Value*> convert_call_args(const T &x, std::string name) {
         std::vector<llvm::Value *> args;
-        // TODO: Add support for extracting the first pointer of array type 
-        // and passing to user defined functions.
         const ASR::symbol_t* func_subrout = symbol_get_past_external(x.m_name);
         ASR::abiType x_abi = (ASR::abiType) 0;
         if( func_subrout->type == ASR::symbolType::Function ) {
