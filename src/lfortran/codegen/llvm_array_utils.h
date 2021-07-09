@@ -42,6 +42,18 @@ namespace LFortran {
                     DESCR_TYPE descr_type);
 
                 virtual
+                bool is_array(llvm::Value* tmp);
+
+                virtual
+                llvm::Value* convert_to_argument(llvm::Value* tmp,
+                llvm::Type* arg_type);
+
+                virtual
+                llvm::Type* get_argument_type(llvm::Type* type,
+                std::uint32_t, std::string,
+                std::unordered_map<std::uint32_t, std::unordered_map<std::string, llvm::Type*>>& arr_arg_type_cache);
+
+                virtual
                 llvm::Type* get_array_type(
                 ASR::ttype_t* m_type_, int a_kind,
                 int rank, ASR::dimension_t* m_dims,
@@ -55,7 +67,7 @@ namespace LFortran {
                 bool get_pointer=false);
 
                 virtual
-                llvm::ArrayType* get_dim_des_array(int rank);
+                llvm::ArrayType* create_dimension_descriptor_array_type(int rank);
 
                 virtual
                 void fill_array_details(
@@ -69,25 +81,36 @@ namespace LFortran {
                 llvm::Module* module);
 
                 virtual
-                llvm::Type* get_dimension_descriptor(bool get_pointer=false);
+                llvm::Type* get_dimension_descriptor_type(bool get_pointer=false);
 
                 virtual
                 bool is_matching_dimension_descriptor(llvm::ArrayType* des, int rank);
 
                 virtual
-                llvm::Value* get_pointer_to_memory_block();
+                llvm::Value* get_pointer_to_memory_block(llvm::Value* arr);
 
                 virtual
-                llvm::Value* get_offset();
+                llvm::Value* get_offset(llvm::Value* dim_des);
 
                 virtual
-                llvm::Value* get_lower_bound(const int dim);
+                llvm::Value* get_lower_bound(llvm::Value* dim_des);
 
                 virtual
-                llvm::Value* get_upper_bound(const int dim);
+                llvm::Value* get_upper_bound(llvm::Value* dim_des);
 
                 virtual
-                llvm::Value* get_stride(const int dim);
+                llvm::Value* get_stride(llvm::Value* dim_des);
+
+                virtual
+                llvm::Value* get_dimension_size(llvm::Value* dim_des_arr,
+                    llvm::Value* dim);
+                
+                virtual
+                llvm::Value* get_pointer_to_dimension_descriptor_array(llvm::Value* arr);
+
+                virtual
+                llvm::Value* get_pointer_to_dimension_descriptor(llvm::Value* dim_des_arr, 
+                    llvm::Value* dim);
 
                 virtual
                 llvm::Value* get_single_element(llvm::Value* array,
@@ -119,6 +142,18 @@ namespace LFortran {
                 SimpleCMODescriptor(llvm::LLVMContext& _context,
                     llvm::IRBuilder<>* _builder,
                     LLVMUtils* _llvm_utils);
+                
+                virtual
+                bool is_array(llvm::Value* tmp);
+
+                virtual
+                llvm::Value* convert_to_argument(llvm::Value* tmp,
+                llvm::Type* arg_type);
+
+                virtual
+                llvm::Type* get_argument_type(llvm::Type* type,
+                std::uint32_t m_h, std::string arg_name,
+                std::unordered_map<std::uint32_t, std::unordered_map<std::string, llvm::Type*>>& arr_arg_type_cache);
 
                 virtual
                 llvm::Type* get_array_type(
@@ -134,7 +169,7 @@ namespace LFortran {
                 bool get_pointer=false);
 
                 virtual
-                llvm::ArrayType* get_dim_des_array(int rank);
+                llvm::ArrayType* create_dimension_descriptor_array_type(int rank);
 
                 virtual
                 void fill_array_details(
@@ -148,25 +183,36 @@ namespace LFortran {
                 llvm::Module* module);
 
                 virtual
-                llvm::Type* get_dimension_descriptor(bool get_pointer=false);
+                llvm::Type* get_dimension_descriptor_type(bool get_pointer=false);
 
                 virtual
                 bool is_matching_dimension_descriptor(llvm::ArrayType* des, int rank);
 
                 virtual
-                llvm::Value* get_pointer_to_memory_block();
+                llvm::Value* get_pointer_to_memory_block(llvm::Value* arr);
 
                 virtual
-                llvm::Value* get_offset();
+                llvm::Value* get_offset(llvm::Value* dim_des);
 
                 virtual
-                llvm::Value* get_lower_bound(const int dim);
+                llvm::Value* get_lower_bound(llvm::Value* dim_des);
 
                 virtual
-                llvm::Value* get_upper_bound(const int dim);
+                llvm::Value* get_upper_bound(llvm::Value* dim_des);
 
                 virtual
-                llvm::Value* get_stride(const int dim);
+                llvm::Value* get_dimension_size(llvm::Value* dim_des_arr,
+                    llvm::Value* dim);
+                
+                virtual
+                llvm::Value* get_pointer_to_dimension_descriptor_array(llvm::Value* arr);
+
+                virtual
+                llvm::Value* get_pointer_to_dimension_descriptor(llvm::Value* dim_des_arr, 
+                    llvm::Value* dim);
+
+                virtual
+                llvm::Value* get_stride(llvm::Value* dim_des);
 
                 virtual
                 llvm::Value* get_single_element(llvm::Value* array,

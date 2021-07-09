@@ -628,10 +628,10 @@ public:
         character_type = llvm::Type::getInt8PtrTy(context);
 
         llvm::Type* size_arg = (llvm::Type*)llvm::StructType::create(context, std::vector<llvm::Type*>({
-                                                                                   arr_descr->get_dimension_descriptor(true),
+                                                                                   arr_descr->get_dimension_descriptor_type(true),
                                                                                     getIntType(4)}), "size_arg");
         fname2arg_type["size"] = std::make_pair(size_arg, size_arg->getPointerTo());
-        llvm::Type* bound_arg = static_cast<llvm::Type*>(arr_descr->get_dimension_descriptor(true));
+        llvm::Type* bound_arg = static_cast<llvm::Type*>(arr_descr->get_dimension_descriptor_type(true));
         fname2arg_type["lbound"] = std::make_pair(bound_arg, bound_arg->getPointerTo());
         fname2arg_type["ubound"] = std::make_pair(bound_arg, bound_arg->getPointerTo());
 
@@ -709,7 +709,7 @@ public:
         for( size_t i = 0; i < x.n_args; i++ ) {
             ASR::expr_t* curr_obj = x.m_args[i];
             this->visit_expr(*curr_obj);
-            llvm::Value* arr = builder->CreateLoad(llvm_utils->create_gep(tmp, 0));
+            llvm::Value* arr = builder->CreateLoad(arr_descr->get_pointer_to_memory_block(tmp));
             llvm::AllocaInst *arg_arr = builder->CreateAlloca(character_type, nullptr);
             builder->CreateStore(builder->CreateBitCast(arr, character_type), arg_arr);
             std::vector<llvm::Value*> args = {builder->CreateLoad(arg_arr)};
@@ -1072,30 +1072,7 @@ public:
                             * for arguments and not for local function variables.
                             */
                             if( abi_type == ASR::abiType::Source && is_v_arg ) {
-                                llvm::StructType* type_struct = static_cast<llvm::StructType*>(type);
-                                llvm::Type* first_ele_ptr_type = nullptr;
-                                if( type_struct->getElementType(0)->isArrayTy() ) { 
-                                    llvm::ArrayType* arr_type = static_cast<llvm::ArrayType*>(type_struct->getElementType(0));
-                                    llvm::Type* ele_type = arr_type->getElementType();
-                                    first_ele_ptr_type = ele_type->getPointerTo();
-                                } else if( type_struct->getElementType(0)->isPointerTy() ) {
-                                    first_ele_ptr_type = type_struct->getElementType(0);
-                                }
-                                llvm::Type* new_arr_type = nullptr;
-
-                                if( arr_arg_type_cache.find(m_h) == arr_arg_type_cache.end() || (
-                                    arr_arg_type_cache.find(m_h) != arr_arg_type_cache.end() && 
-                                    arr_arg_type_cache[m_h].find(std::string(v->m_name)) == arr_arg_type_cache[m_h].end() ) ) {
-                                    new_arr_type = llvm::StructType::create(context, std::vector<llvm::Type*>({first_ele_ptr_type,
-                                                                                                                static_cast<llvm::StructType*>(type)->getElementType(1),
-                                                                                                                static_cast<llvm::StructType*>(type)->getElementType(2)      
-                                                                                                                }), "array_call");
-                                    arr_arg_type_cache[m_h][std::string(v->m_name)] = new_arr_type;    
-                                } else {
-                                    new_arr_type = arr_arg_type_cache[m_h][std::string(v->m_name)];
-                                }
-                                
-                                type = new_arr_type->getPointerTo();
+                                type = arr_descr->get_argument_type(type, m_h, v->m_name, arr_arg_type_cache);
                                 is_array_type = false;                                                                                        
                             } else if( abi_type == ASR::abiType::Intrinsic &&
                                 fname2arg_type.find(m_name) != fname2arg_type.end() ) {
@@ -1258,31 +1235,32 @@ public:
                 if( is_array_type ) {
                     if( x.m_abi == ASR::abiType::Source ) {
                         llvm::Type* orig_type = static_cast<llvm::PointerType*>(type)->getElementType();
-                        llvm::StructType* type_struct = static_cast<llvm::StructType*>(orig_type);
-                        llvm::Type* first_ele_ptr_type = nullptr;
-                        if( type_struct->getElementType(0)->isArrayTy() ) { 
-                            llvm::ArrayType* arr_type = static_cast<llvm::ArrayType*>(type_struct->getElementType(0));
-                            llvm::Type* ele_type = arr_type->getElementType();
-                            first_ele_ptr_type = ele_type->getPointerTo();
-                        } else if( type_struct->getElementType(0)->isPointerTy() ) {
-                            first_ele_ptr_type = type_struct->getElementType(0);
-                        }
-                        llvm::Type* new_arr_type = nullptr;
+                        type = arr_descr->get_argument_type(orig_type, m_h, arg->m_name, arr_arg_type_cache);
+                        // llvm::StructType* type_struct = static_cast<llvm::StructType*>(orig_type);
+                        // llvm::Type* first_ele_ptr_type = nullptr;
+                        // if( type_struct->getElementType(0)->isArrayTy() ) { 
+                        //     llvm::ArrayType* arr_type = static_cast<llvm::ArrayType*>(type_struct->getElementType(0));
+                        //     llvm::Type* ele_type = arr_type->getElementType();
+                        //     first_ele_ptr_type = ele_type->getPointerTo();
+                        // } else if( type_struct->getElementType(0)->isPointerTy() ) {
+                        //     first_ele_ptr_type = type_struct->getElementType(0);
+                        // }
+                        // llvm::Type* new_arr_type = nullptr;
 
-                        if( arr_arg_type_cache.find(m_h) == arr_arg_type_cache.end() ||  
-                            (arr_arg_type_cache.find(m_h) != arr_arg_type_cache.end() &&
-                             arr_arg_type_cache[m_h].find(std::string(arg->m_name)) == arr_arg_type_cache[m_h].end() ) ) {
+                        // if( arr_arg_type_cache.find(m_h) == arr_arg_type_cache.end() ||  
+                        //     (arr_arg_type_cache.find(m_h) != arr_arg_type_cache.end() &&
+                        //      arr_arg_type_cache[m_h].find(std::string(arg->m_name)) == arr_arg_type_cache[m_h].end() ) ) {
                             
-                            new_arr_type = llvm::StructType::create(context, std::vector<llvm::Type*>({first_ele_ptr_type,
-                                                                                                        type_struct->getElementType(1),
-                                                                                                        type_struct->getElementType(2),      
-                                                                                                        }), "array_call");
-                            arr_arg_type_cache[m_h][std::string(arg->m_name)] = new_arr_type;    
-                        } else {
-                            new_arr_type = arr_arg_type_cache[m_h][std::string(arg->m_name)];
-                        }
+                        //     new_arr_type = llvm::StructType::create(context, std::vector<llvm::Type*>({first_ele_ptr_type,
+                        //                                                                                 type_struct->getElementType(1),
+                        //                                                                                 type_struct->getElementType(2),      
+                        //                                                                                 }), "array_call");
+                        //     arr_arg_type_cache[m_h][std::string(arg->m_name)] = new_arr_type;    
+                        // } else {
+                        //     new_arr_type = arr_arg_type_cache[m_h][std::string(arg->m_name)];
+                        // }
                         
-                        type = new_arr_type->getPointerTo();
+                        // type = new_arr_type->getPointerTo();
                         is_array_type = false;
                     } else if( x.m_abi == ASR::abiType::Intrinsic && 
                         fname2arg_type.find(m_name) != fname2arg_type.end()) {
@@ -1756,9 +1734,9 @@ public:
                 builder->SetInsertPoint(loopbody);
                 llvm::Value* r_val = builder->CreateLoad(r);
                 llvm::Value* ret_val = builder->CreateLoad(llvm_ret_ptr);
-                llvm::Value* dim_val = llvm_utils->create_ptr_gep(dim_des_val, r_val);
-                llvm::Value* dim_size_ptr = llvm_utils->create_gep(dim_val, 3);
-                llvm::Value* dim_size = builder->CreateLoad(dim_size_ptr);
+                // llvm::Value* dim_val = llvm_utils->create_ptr_gep(dim_des_val, r_val);
+                // llvm::Value* dim_size_ptr = llvm_utils->create_gep(dim_val, 3);
+                llvm::Value* dim_size = arr_descr->get_dimension_size(dim_des_val, r_val);
                 ret_val = builder->CreateMul(ret_val, dim_size);
                 builder->CreateStore(ret_val, llvm_ret_ptr);
                 r_val = builder->CreateAdd(r_val, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
@@ -1790,14 +1768,14 @@ public:
                 llvm::Value* dim_val = builder->CreateLoad(llvm_arg2);
                 llvm::Value* const_1 = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
                 dim_val = builder->CreateSub(dim_val, const_1);
-                llvm::Value* dim_struct = llvm_utils->create_ptr_gep(dim_des_val, dim_val);
-                int idx = -1;
+                // llvm::Value* dim_struct = llvm_utils->create_ptr_gep(dim_des_val, dim_val);
+                llvm::Value* dim_struct = arr_descr->get_pointer_to_dimension_descriptor(dim_des_val, dim_val);
+                llvm::Value* res = nullptr;
                 if( m_name == "lbound" ) {
-                    idx = 1;
+                    res = arr_descr->get_lower_bound(dim_struct);
                 } else if( m_name == "ubound" ) {
-                    idx = 2;
+                    res = arr_descr->get_upper_bound(dim_struct);
                 }
-                llvm::Value* res = builder->CreateLoad(llvm_utils->create_gep(dim_struct, idx));
                 builder->CreateStore(res, llvm_ret_ptr);
 
                 define_function_exit(x);
@@ -2401,7 +2379,7 @@ public:
             if( x_struct->getNumElements() == 3 &&
                 x_struct->getElementType(2)->isArrayTy() && 
                 static_cast<llvm::ArrayType*>(x_struct->getElementType(2))
-                ->getElementType() == arr_descr->get_dimension_descriptor(false) )
+                ->getElementType() == arr_descr->get_dimension_descriptor_type(false) )
             return true;
         }
         return false;
@@ -2829,7 +2807,8 @@ public:
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 tmp = llvm_symtab[h];
                 llvm::Value* arg_struct = builder->CreateAlloca(fname2arg_type["size"].first, nullptr);
-                llvm::Value* first_ele_ptr = llvm_utils->create_gep(llvm_utils->create_gep(tmp, 2), 0);
+                llvm::Value* first_ele_ptr = llvm_utils->create_gep(
+                    arr_descr->get_pointer_to_dimension_descriptor_array(tmp), 0);
                 llvm::Value* first_arg_ptr = llvm_utils->create_gep(arg_struct, 0);
                 builder->CreateStore(first_ele_ptr, first_arg_ptr);
                 llvm::Value* rank_ptr = llvm_utils->create_gep(arg_struct, 1);
@@ -2843,7 +2822,8 @@ public:
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 tmp = llvm_symtab[h];
                 llvm::Value* arg1 = builder->CreateAlloca(fname2arg_type[name].first, nullptr);
-                llvm::Value* first_ele_ptr = llvm_utils->create_gep(llvm_utils->create_gep(tmp, 2), 0);
+                llvm::Value* first_ele_ptr = llvm_utils->create_gep(
+                    arr_descr->get_pointer_to_dimension_descriptor_array(tmp), 0);
                 llvm::Value* first_arg_ptr = arg1;
                 builder->CreateStore(first_ele_ptr, first_arg_ptr);
                 args.push_back(arg1);
@@ -2880,33 +2860,9 @@ public:
                                 orig_arg_name = orig_arg->m_name;
                                 x_abi = sub->m_abi;
                             }
-                            llvm::Type* tmp_type = static_cast<llvm::PointerType*>(tmp->getType())->getElementType();
-                            if( x_abi == ASR::abiType::Source && tmp_type->isStructTy() ) {
-                                llvm::StructType* tmp_struct_type = static_cast<llvm::StructType*>(tmp_type);
-                                if( tmp_struct_type->getNumElements() > 2 && 
-                                    tmp_struct_type->getElementType(2)->isArrayTy() ) {
-                                    llvm::ArrayType* tmp_des = static_cast<llvm::ArrayType*>(tmp_struct_type->getElementType(2));
-                                    int rank = tmp_des->getNumElements();
-                                    if( arr_descr->is_matching_dimension_descriptor(tmp_des, rank) ) {
-                                        llvm::Type* new_arr_type = arr_arg_type_cache[m_h][orig_arg_name];
-                                        llvm::Value* arg_struct = builder->CreateAlloca(new_arr_type, nullptr);
-                                        llvm::Value* first_ele_ptr = nullptr;
-                                        if( tmp_struct_type->getElementType(0)->isArrayTy() ) {
-                                            first_ele_ptr = llvm_utils->create_gep(llvm_utils->create_gep(tmp, 0), 0);
-                                        } else {
-                                            first_ele_ptr = builder->CreateLoad(llvm_utils->create_gep(tmp, 0));
-                                        }
-                                        llvm::Value* first_arg_ptr = llvm_utils->create_gep(arg_struct, 0);
-                                        builder->CreateStore(first_ele_ptr, first_arg_ptr);
-                                        llvm::Value* sec_ele_ptr = builder->CreateLoad(llvm_utils->create_gep(tmp, 1));
-                                        llvm::Value* sec_arg_ptr = llvm_utils->create_gep(arg_struct, 1); 
-                                        builder->CreateStore(sec_ele_ptr, sec_arg_ptr);   
-                                        llvm::Value* third_ele_ptr = builder->CreateLoad(llvm_utils->create_gep(tmp, 2));
-                                        llvm::Value* third_arg_ptr = llvm_utils->create_gep(arg_struct, 2); 
-                                        builder->CreateStore(third_ele_ptr, third_arg_ptr);   
-                                        tmp = arg_struct;
-                                    }
-                                }
+                            if( x_abi == ASR::abiType::Source && arr_descr->is_array(tmp) ) {
+                                llvm::Type* new_arr_type = arr_arg_type_cache[m_h][orig_arg_name];
+                                tmp = arr_descr->convert_to_argument(tmp, new_arr_type);
                             } 
                         } else {
                             auto finder = std::find(nested_globals.begin(), 

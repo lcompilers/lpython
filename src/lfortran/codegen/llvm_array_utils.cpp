@@ -82,6 +82,21 @@ namespace LFortran {
             return nullptr;
         }
 
+        bool Descriptor::is_array(llvm::Value*) {
+            return false;
+        }
+
+        llvm::Value* Descriptor::convert_to_argument(llvm::Value*,
+        llvm::Type*) {
+            return nullptr;
+        }
+
+        llvm::Type* Descriptor::get_argument_type(llvm::Type*,
+        std::uint32_t, std::string,
+        std::unordered_map<std::uint32_t, std::unordered_map<std::string, llvm::Type*>>&) {
+            return nullptr;
+        }
+
         llvm::Type* Descriptor::get_array_type
         (ASR::ttype_t*, int, int, ASR::dimension_t*,
          llvm::Type*, bool) {
@@ -104,7 +119,7 @@ namespace LFortran {
         llvm::Module*) {
         }
 
-        llvm::Type* Descriptor::get_dimension_descriptor(bool) {
+        llvm::Type* Descriptor::get_dimension_descriptor_type(bool) {
             return nullptr;
         }
 
@@ -112,23 +127,33 @@ namespace LFortran {
             return false;
         }
 
-        llvm::Value* Descriptor::get_pointer_to_memory_block() {
+        llvm::Value* Descriptor::get_pointer_to_memory_block(llvm::Value*) {
             return nullptr;
         }
 
-        llvm::Value* Descriptor::get_offset() {
+        llvm::Value* Descriptor::get_offset(llvm::Value*) {
             return nullptr;
         }
 
-        llvm::Value* Descriptor::get_lower_bound(const int) {
+        llvm::Value* Descriptor::get_lower_bound(llvm::Value*) {
             return nullptr;
         }
 
-        llvm::Value* Descriptor::get_upper_bound(const int) {
+        llvm::Value* Descriptor::get_upper_bound(llvm::Value*) {
             return nullptr;
         }
 
-        llvm::Value* Descriptor::get_stride(const int) {
+        llvm::Value* Descriptor::get_stride(llvm::Value*) {
+            return nullptr;
+        }
+
+        llvm::Value* Descriptor::get_dimension_size(llvm::Value* ,
+            llvm::Value*) {
+            return nullptr;
+        }
+
+        llvm::Value* Descriptor::
+        get_pointer_to_dimension_descriptor_array(llvm::Value*) {
             return nullptr;
         }
 
@@ -137,7 +162,12 @@ namespace LFortran {
             return nullptr;
         }
 
-        llvm::ArrayType* Descriptor::get_dim_des_array(int) {
+        llvm::ArrayType* Descriptor::create_dimension_descriptor_array_type(int) {
+            return nullptr;
+        }
+
+        llvm::Value* Descriptor::get_pointer_to_dimension_descriptor(llvm::Value*, 
+            llvm::Value*) {
             return nullptr;
         }
 
@@ -156,6 +186,74 @@ namespace LFortran {
                  llvm::Type::getInt32Ty(context)}), 
                  "dimension_descriptor")
         ) {
+        }
+
+        bool SimpleCMODescriptor::is_array(llvm::Value* tmp) {
+            llvm::Type* tmp_type = static_cast<llvm::PointerType*>(tmp->getType())->getElementType();
+            if( tmp_type->isStructTy() ) {
+                llvm::StructType* tmp_struct_type = static_cast<llvm::StructType*>(tmp_type);
+                if( tmp_struct_type->getNumElements() > 2 && 
+                    tmp_struct_type->getElementType(2)->isArrayTy() ) {
+                    llvm::ArrayType* tmp_des = static_cast<llvm::ArrayType*>(tmp_struct_type->getElementType(2));
+                    int rank = tmp_des->getNumElements();
+                    return is_matching_dimension_descriptor(tmp_des, rank);
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        llvm::Value* SimpleCMODescriptor::
+        convert_to_argument(llvm::Value* tmp, llvm::Type* arg_type) {
+            llvm::Value* arg_struct = builder->CreateAlloca(arg_type, nullptr);
+            llvm::Value* first_ele_ptr = nullptr;
+            llvm::Type* tmp_type = static_cast<llvm::PointerType*>(tmp->getType())->getElementType();
+            llvm::StructType* tmp_struct_type = static_cast<llvm::StructType*>(tmp_type);
+            if( tmp_struct_type->getElementType(0)->isArrayTy() ) {
+                first_ele_ptr = llvm_utils->create_gep(get_pointer_to_memory_block(tmp), 0);
+            } else {
+                first_ele_ptr = builder->CreateLoad(get_pointer_to_memory_block(tmp));
+            }
+            llvm::Value* first_arg_ptr = llvm_utils->create_gep(arg_struct, 0);
+            builder->CreateStore(first_ele_ptr, first_arg_ptr);
+            llvm::Value* sec_ele_ptr = get_offset(tmp);
+            llvm::Value* sec_arg_ptr = llvm_utils->create_gep(arg_struct, 1); 
+            builder->CreateStore(sec_ele_ptr, sec_arg_ptr);   
+            llvm::Value* third_ele_ptr = builder->CreateLoad(
+                get_pointer_to_dimension_descriptor_array(tmp));
+            llvm::Value* third_arg_ptr = llvm_utils->create_gep(arg_struct, 2); 
+            builder->CreateStore(third_ele_ptr, third_arg_ptr);
+            return arg_struct;
+        }
+
+        llvm::Type* SimpleCMODescriptor::get_argument_type(llvm::Type* type,
+        std::uint32_t m_h, std::string arg_name,
+        std::unordered_map<std::uint32_t, std::unordered_map<std::string, llvm::Type*>>& arr_arg_type_cache) {
+            llvm::StructType* type_struct = static_cast<llvm::StructType*>(type);
+            llvm::Type* first_ele_ptr_type = nullptr;
+            if( type_struct->getElementType(0)->isArrayTy() ) { 
+                llvm::ArrayType* arr_type = static_cast<llvm::ArrayType*>(type_struct->getElementType(0));
+                llvm::Type* ele_type = arr_type->getElementType();
+                first_ele_ptr_type = ele_type->getPointerTo();
+            } else if( type_struct->getElementType(0)->isPointerTy() ) {
+                first_ele_ptr_type = type_struct->getElementType(0);
+            }
+            llvm::Type* new_arr_type = nullptr;
+
+            if( arr_arg_type_cache.find(m_h) == arr_arg_type_cache.end() || (
+                arr_arg_type_cache.find(m_h) != arr_arg_type_cache.end() && 
+                arr_arg_type_cache[m_h].find(std::string(arg_name)) == arr_arg_type_cache[m_h].end() ) ) {
+                new_arr_type = llvm::StructType::create(context, std::vector<llvm::Type*>({first_ele_ptr_type,
+                                                                                            static_cast<llvm::StructType*>(type)->getElementType(1),
+                                                                                            static_cast<llvm::StructType*>(type)->getElementType(2)      
+                                                                                            }), "array_call");
+                arr_arg_type_cache[m_h][std::string(arg_name)] = new_arr_type;    
+            } else {
+                new_arr_type = arr_arg_type_cache[m_h][std::string(arg_name)];
+            }
+            return new_arr_type->getPointerTo();
         }
 
         llvm::Type* SimpleCMODescriptor::get_array_type
@@ -181,7 +279,7 @@ namespace LFortran {
                 }
                 return tkr2array[array_key];
             }
-            llvm::ArrayType* dim_des_array = get_dim_des_array(rank);
+            llvm::ArrayType* dim_des_array = create_dimension_descriptor_array_type(rank);
             std::vector<llvm::Type*> array_type_vec;
             if( size > 0 ) {
                 array_type_vec = {  llvm::ArrayType::get(el_type, size), 
@@ -199,7 +297,7 @@ namespace LFortran {
             return (llvm::Type*) tkr2array[array_key];
         }
 
-        llvm::ArrayType* SimpleCMODescriptor::get_dim_des_array(int rank) {
+        llvm::ArrayType* SimpleCMODescriptor::create_dimension_descriptor_array_type(int rank) {
             if( rank2desc.find(rank) != rank2desc.end() ) {
                 return rank2desc[rank];
             } 
@@ -217,7 +315,7 @@ namespace LFortran {
                 }
                 return tkr2mallocarray[array_key];
             }
-            llvm::ArrayType* dim_des_array = get_dim_des_array(rank);
+            llvm::ArrayType* dim_des_array = create_dimension_descriptor_array_type(rank);
             std::vector<llvm::Type*> array_type_vec = {
                 el_type->getPointerTo(), 
                 llvm::Type::getInt32Ty(context),
@@ -229,12 +327,23 @@ namespace LFortran {
             return (llvm::Type*) tkr2mallocarray[array_key];
         }
 
-        llvm::Type* SimpleCMODescriptor::get_dimension_descriptor
+        llvm::Type* SimpleCMODescriptor::get_dimension_descriptor_type
         (bool get_pointer) {
             if( !get_pointer ) {
                 return dim_des;
             }
             return dim_des->getPointerTo();
+        }
+
+        llvm::Value* SimpleCMODescriptor::
+        get_pointer_to_dimension_descriptor_array(llvm::Value* arr) {
+            return llvm_utils->create_gep(arr, 2);
+        }
+
+        llvm::Value* SimpleCMODescriptor::
+        get_dimension_size(llvm::Value* dim_des_arr, llvm::Value* dim) {
+            return builder->CreateLoad(
+                        llvm_utils->create_gep(llvm_utils->create_ptr_gep(dim_des_arr, dim), 3));
         }
 
         bool SimpleCMODescriptor::is_matching_dimension_descriptor
@@ -283,7 +392,7 @@ namespace LFortran {
                     prod = builder->CreateMul(prod, dim_size);
                 }
                 builder->CreateStore(prod, llvm_size);
-                llvm::Value* first_ptr = llvm_utils->create_gep(arr, 0);
+                llvm::Value* first_ptr = get_pointer_to_memory_block(arr);
                 llvm::PointerType* first_ptr2ptr_type = static_cast<llvm::PointerType*>(first_ptr->getType());
                 llvm::PointerType* first_ptr_type = static_cast<llvm::PointerType*>(first_ptr2ptr_type->getElementType());
                 llvm::Value* arr_first = builder->CreateAlloca(first_ptr_type->getElementType(), 
@@ -318,7 +427,7 @@ namespace LFortran {
             }
             std::string func_name = "_lfortran_malloc";
             llvm::Function *fn = module->getFunction(func_name);
-            llvm::Value* ptr2firstptr = llvm_utils->create_gep(arr, 0);
+            llvm::Value* ptr2firstptr = get_pointer_to_memory_block(arr);
             if (!fn) {
                 llvm::FunctionType *function_type = llvm::FunctionType::get(
                         llvm::Type::getInt8PtrTy(context), {
@@ -343,23 +452,28 @@ namespace LFortran {
             builder->CreateStore(first_ptr, ptr2firstptr);
         }
 
-        llvm::Value* SimpleCMODescriptor::get_pointer_to_memory_block() {
-            return nullptr;
+        llvm::Value* SimpleCMODescriptor::get_pointer_to_dimension_descriptor(llvm::Value* dim_des_arr, 
+            llvm::Value* dim) {
+            return llvm_utils->create_ptr_gep(dim_des_arr, dim);
         }
 
-        llvm::Value* SimpleCMODescriptor::get_offset() {
-            return nullptr;
+        llvm::Value* SimpleCMODescriptor::get_pointer_to_memory_block(llvm::Value* arr) {
+            return llvm_utils->create_gep(arr, 0);
         }
 
-        llvm::Value* SimpleCMODescriptor::get_lower_bound(const int) {
-            return nullptr;
+        llvm::Value* SimpleCMODescriptor::get_offset(llvm::Value* arr) {
+            return builder->CreateLoad(llvm_utils->create_gep(arr, 1));
         }
 
-        llvm::Value* SimpleCMODescriptor::get_upper_bound(const int) {
-            return nullptr;
+        llvm::Value* SimpleCMODescriptor::get_lower_bound(llvm::Value* dim_des) {
+            return builder->CreateLoad(llvm_utils->create_gep(dim_des, 1));
         }
 
-        llvm::Value* SimpleCMODescriptor::get_stride(const int) {
+        llvm::Value* SimpleCMODescriptor::get_upper_bound(llvm::Value* dim_des) {
+            return builder->CreateLoad(llvm_utils->create_gep(dim_des, 2));
+        }
+
+        llvm::Value* SimpleCMODescriptor::get_stride(llvm::Value*) {
             return nullptr;
         }
 
@@ -395,7 +509,7 @@ namespace LFortran {
             // bool check_for_bounds = is_explicit_shape(v);
             bool check_for_bounds = false;
             llvm::Value* idx = cmo_convertor_single_element(array, m_args, n_args, check_for_bounds);
-            llvm::Value* full_array = llvm_utils->create_gep(array, 0);
+            llvm::Value* full_array = get_pointer_to_memory_block(array);
             if( static_cast<llvm::PointerType*>(full_array->getType())
                 ->getElementType()->isArrayTy() ) {
                 tmp = llvm_utils->create_gep(full_array, idx);
