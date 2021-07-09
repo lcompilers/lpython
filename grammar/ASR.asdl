@@ -173,14 +173,14 @@ expr
     | Compare(expr left, cmpop op, expr right, ttype type)
     | FunctionCall(symbol name, symbol? original_name, expr* args,
             keyword* keywords, ttype type)
-    | ArrayInitializer(expr* args, ttype type)
+    | ConstantArray(expr* args, ttype type)
     | ImpliedDoLoop(expr* values, expr var, expr start, expr end,
                     expr? increment, ttype type)
     | ConstantInteger(int n, ttype type)
     | ConstantReal(string r, ttype type)
     | ConstantComplex(expr re, expr im, ttype type)
     | ConstantLogical(bool value, ttype type)
-    | Str(string s, ttype type)
+    | ConstantString(string s, ttype type)
     | Var(symbol v)
     | ArrayRef(symbol v, array_index* args, ttype type)
     | DerivedRef(expr v, symbol m, ttype type)

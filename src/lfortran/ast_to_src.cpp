@@ -2702,7 +2702,7 @@ public:
         s += syn();
     }
 
-    void visit_Str(const Str_t &x) {
+    void visit_String(const String_t &x) {
         s = syn(gr::String);
         std::string r = x.m_s;
         int dq = 0, sq = 0;

@@ -439,7 +439,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         last_binary_plus = false;
     }
 
-    void visit_Str(const ASR::Str_t &x) {
+    void visit_ConstantString(const ASR::ConstantString_t &x) {
         src = "\"" + std::string(x.m_s) + "\"";
         last_unary_plus = false;
         last_binary_plus = false;
@@ -625,7 +625,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         last_unary_plus = false;
     }
 
-    void visit_ArrayInitializer(const ASR::ArrayInitializer_t &x) {
+    void visit_ConstantArray(const ASR::ConstantArray_t &x) {
         std::string out = "from_std_vector<float>({";
         for (size_t i=0; i<x.n_args; i++) {
             this->visit_expr(*x.m_args[i]);

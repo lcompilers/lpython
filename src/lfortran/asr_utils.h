@@ -67,11 +67,11 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
         case ASR::exprType::FunctionCall: { return ((ASR::FunctionCall_t*)f)->m_type; }
         case ASR::exprType::ArrayRef: { return ((ASR::ArrayRef_t*)f)->m_type; }
         case ASR::exprType::DerivedRef: { return ((ASR::DerivedRef_t*)f)->m_type; }
-        case ASR::exprType::ArrayInitializer: { return ((ASR::ArrayInitializer_t*)f)->m_type; }
+        case ASR::exprType::ConstantArray: { return ((ASR::ConstantArray_t*)f)->m_type; }
         case ASR::exprType::ConstantInteger: { return ((ASR::ConstantInteger_t*)f)->m_type; }
         case ASR::exprType::ConstantReal: { return ((ASR::ConstantReal_t*)f)->m_type; }
         case ASR::exprType::ConstantComplex: { return ((ASR::ConstantComplex_t*)f)->m_type; }
-        case ASR::exprType::Str: { return ((ASR::Str_t*)f)->m_type; }
+        case ASR::exprType::ConstantString: { return ((ASR::ConstantString_t*)f)->m_type; }
         case ASR::exprType::ImplicitCast: { return ((ASR::ImplicitCast_t*)f)->m_type; }
         case ASR::exprType::ExplicitCast: { return ((ASR::ExplicitCast_t*)f)->m_type; }
         case ASR::exprType::Var: { return EXPR2VAR(f)->m_type; }
