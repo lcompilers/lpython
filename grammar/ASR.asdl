@@ -92,6 +92,9 @@ symbol
     | Variable(symbol_table parent_symtab, identifier name, intent intent,
         expr? value, storage_type storage, ttype type, abi abi, access access,
         presence presence)
+    | ClassType(symbol_table symtab, identifier name, abi abi, access access)
+    | ClassProcedure(symbol_table parent_symtab, identifier name, identifier
+        proc_name, symbol proc, abi abi)
 
 storage_type = Default | Save | Parameter | Allocatable
 access = Public | Private
@@ -197,6 +200,7 @@ ttype
     | CharacterPointer(int kind, dimension* dims)
     | LogicalPointer(int kind, dimension* dims)
     | DerivedPointer(symbol derived_type, dimension* dims)
+    | Class(symbol class_type, dimension* dims)
 
 boolop = And | Or | NEqv | Eqv
 

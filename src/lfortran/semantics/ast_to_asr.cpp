@@ -386,6 +386,8 @@ public:
     SymbolTable *current_scope;
     SymbolTable *global_scope;
     std::map<std::string, std::vector<std::string>> generic_procedures;
+    std::map<std::string, std::map<std::string, std::string>> class_procedures;
+    std::string dt_name;
     ASR::accessType dflt_access = ASR::Public;
     ASR::presenceType dflt_presence = ASR::presenceType::Required;
     std::map<std::string, ASR::accessType> assgnd_access;
@@ -441,6 +443,7 @@ public:
             visit_program_unit(*x.m_contains[i]);
         }
         add_generic_procedures();
+        add_class_procedures();
         asr = ASR::make_Module_t(
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
@@ -1029,6 +1032,16 @@ public:
                     }
                     type = LFortran::ASRUtils::TYPE(ASR::make_Derived_t(al, x.base.base.loc, v,
                         dims.p, dims.size()));
+                } else if (sym_type->m_type == AST::decl_typeType::TypeClass) {
+                    LFORTRAN_ASSERT(sym_type->m_name);
+                    std::string derived_type_name = sym_type->m_name;
+                    ASR::symbol_t *v = current_scope->resolve_symbol(derived_type_name);
+                    if (!v) {
+                        throw SemanticError("Derived type '"
+                            + derived_type_name + "' not declared", x.base.base.loc);
+                    }
+                    type = LFortran::ASRUtils::TYPE(ASR::make_Class_t(al, 
+                        x.base.base.loc, v, dims.p, dims.size()));
                 } else {
                     throw SemanticError("Type not implemented yet.",
                          x.base.base.loc);
@@ -1110,8 +1123,12 @@ public:
     void visit_DerivedType(const AST::DerivedType_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
+        dt_name = x.m_name;
         for (size_t i=0; i<x.n_items; i++) {
             this->visit_unit_decl2(*x.m_items[i]);
+        }
+        for (size_t i=0; i<x.n_contains; i++) {
+            visit_procedure_decl(*x.m_contains[i]);
         }
         std::string sym_name = x.m_name;
         if (current_scope->scope.find(sym_name) != current_scope->scope.end()) {
@@ -1129,6 +1146,14 @@ public:
         visit_program_unit(*x.m_proc);
         is_interface = false;
         return;
+    }
+
+    void visit_DerivedTypeProc(const AST::DerivedTypeProc_t &x) {
+        for (size_t i = 0; i < x.n_symbols; i++) {
+            AST::UseSymbol_t *use_sym = AST::down_cast<AST::UseSymbol_t>(
+                x.m_symbols[i]);
+            class_procedures[dt_name][use_sym->m_rename] = use_sym->m_sym;
+        }
     }
 
     void visit_Interface(const AST::Interface_t &x) {
@@ -1183,6 +1208,28 @@ public:
                 current_scope,
                 generic_name, symbols.p, symbols.size(), ASR::Public);
             current_scope->scope[proc.first] = ASR::down_cast<ASR::symbol_t>(v);
+        }
+    }
+
+    void add_class_procedures() {
+        for (auto &proc : class_procedures) {
+            Location loc;
+            loc.first_line = 1;
+            loc.last_line = 1;
+            loc.first_column = 1;
+            loc.last_column = 1;
+            ASR::DerivedType_t *clss = ASR::down_cast<ASR::DerivedType_t>(
+                current_scope->scope[proc.first]);
+            for (auto &pname : proc.second) {
+                ASR::symbol_t *proc_sym = current_scope->scope[pname.second];
+                char *name = (char*)pname.first.c_str();
+                char *proc_name = (char*)pname.second.c_str();
+                ASR::asr_t *v = ASR::make_ClassProcedure_t(al, loc,
+                    current_scope, name, proc_name, proc_sym, 
+                    ASR::abiType::Source);
+                ASR::symbol_t *cls_proc_sym = ASR::down_cast<ASR::symbol_t>(v);
+                clss->m_symtab->scope[pname.first] = cls_proc_sym;
+            }
         }
     }
 
@@ -2060,7 +2107,15 @@ public:
 
     void visit_SubroutineCall(const AST::SubroutineCall_t &x) {
         std::string sub_name = x.m_name;
-        ASR::symbol_t *original_sym = current_scope->resolve_symbol(sub_name);
+        ASR::symbol_t *original_sym;
+        // If this is a type bound procedure (in a class) it won't be in the
+        // main symbol table. Need to check n_member.
+        if (x.n_member == 1) {
+            original_sym = resolve_deriv_type_proc(x.base.base.loc, x.m_name,
+                x.m_member[0].m_name, current_scope);
+        } else {
+            original_sym = current_scope->resolve_symbol(sub_name);
+        }
         if (!original_sym) {
             throw SemanticError("Subroutine '" + sub_name + "' not declared", x.base.base.loc);
         }
@@ -2076,6 +2131,11 @@ public:
                 ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(original_sym);
                 int idx = select_generic_procedure(args, *p, x.base.base.loc);
                 final_sym = p->m_procs[idx];
+                break;
+            }
+            case (ASR::symbolType::ClassProcedure) : {
+                ASR::ClassProcedure_t *p = ASR::down_cast<ASR::ClassProcedure_t>(original_sym);
+                final_sym = current_scope->resolve_symbol(p->m_proc_name);
                 break;
             }
             case (ASR::symbolType::ExternalSymbol) : {
@@ -2283,7 +2343,8 @@ public:
         }
         ASR::Variable_t* v_variable = ((ASR::Variable_t*)(&(v->base)));
         if ( v_variable->m_type->type == ASR::ttypeType::Derived ||
-             v_variable->m_type->type == ASR::ttypeType::DerivedPointer ) {
+             v_variable->m_type->type == ASR::ttypeType::DerivedPointer ||
+             v_variable->m_type->type == ASR::ttypeType::Class ) {
             ASR::ttype_t* v_type = v_variable->m_type;
             ASR::Derived_t* der = (ASR::Derived_t*)(&(v_type->base));
             ASR::DerivedType_t* der_type;
@@ -2310,6 +2371,45 @@ public:
             throw SemanticError("Variable '" + dt_name + "' is not a derived type", loc);
         }
     }
+
+    ASR::symbol_t* resolve_deriv_type_proc(const Location &loc, const char* id,
+            const char* derived_type_id, SymbolTable*& scope) {
+        std::string var_name = id;
+        std::string dt_name = derived_type_id;
+        ASR::symbol_t *v = scope->resolve_symbol(dt_name);
+        if (!v) {
+            throw SemanticError("Variable '" + dt_name + "' not declared", loc);
+        }
+        ASR::Variable_t* v_variable = ((ASR::Variable_t*)(&(v->base)));
+        if ( v_variable->m_type->type == ASR::ttypeType::Derived ||
+             v_variable->m_type->type == ASR::ttypeType::DerivedPointer ||
+             v_variable->m_type->type == ASR::ttypeType::Class ) {
+            ASR::ttype_t* v_type = v_variable->m_type;
+            ASR::Derived_t* der = (ASR::Derived_t*)(&(v_type->base));
+            ASR::DerivedType_t* der_type;
+            if( der->m_derived_type->type == ASR::symbolType::ExternalSymbol ) {
+                ASR::ExternalSymbol_t* der_ext = (ASR::ExternalSymbol_t*)(&(der->m_derived_type->base));
+                ASR::symbol_t* der_sym = der_ext->m_external;
+                if( der_sym == nullptr ) {
+                    throw SemanticError("'" + std::string(der_ext->m_name) + "' isn't a Derived type.", loc);
+                } else {
+                    der_type = (ASR::DerivedType_t*)(&(der_sym->base));
+                }
+            } else {
+                der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
+            }
+            scope = der_type->m_symtab;
+            ASR::symbol_t* member = der_type->m_symtab->resolve_symbol(var_name);
+            if( member != nullptr ) {
+                return member;
+            } else {
+                throw SemanticError("Variable '" + dt_name + "' doesn't have any member named, '" + var_name + "'.", loc);
+            }
+        } else {
+            throw SemanticError("Variable '" + dt_name + "' is not a derived type", loc);
+        }
+    }
+
 
     void visit_Name(const AST::Name_t &x) {
         if (x.n_member == 0) {
