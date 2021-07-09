@@ -152,7 +152,16 @@ static inline Vec<kind_item_t> a2kind_list(Allocator &al,
 #define CODIMENSION(dim, l) make_AttrCodimension_t( \
             p.m_a, l, \
             dim.p, dim.size())
-#define PASS(name, l) make_AttrPass_t(p.m_a, l, name2char(name))
+ast_t* PASS1(Allocator &al, Location &loc, ast_t* id) {
+    char* name;
+    if(id == nullptr) {
+        name = nullptr;
+    } else {
+        name = name2char(id);
+    }
+    return make_AttrPass_t(al, loc, name);
+}
+#define PASS(id, l) PASS1(p.m_a, l, id)
 
 decl_attribute_t** EQUIVALENCE(Allocator &al, Location &loc,
             equi_t* args, size_t n_args) {
@@ -707,7 +716,7 @@ ast_t* implied_do3(Allocator &al, Location &loc,
 #define INTEGER(x, l) make_Num_t(p.m_a, l, x)
 #define REAL(x, l) make_Real_t(p.m_a, l, x.c_str(p.m_a))
 #define COMPLEX(x, y, l) make_Complex_t(p.m_a, l, EXPR(x), EXPR(y))
-#define STRING(x, l) make_Str_t(p.m_a, l, x.c_str(p.m_a))
+#define STRING(x, l) make_String_t(p.m_a, l, x.c_str(p.m_a))
 #define BOZ(x, l) make_BOZ_t(p.m_a, l, x.c_str(p.m_a))
 #define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, l, 0, EXPR(x), EXPR(y))
 #define ASSOCIATE(x, y, l) make_Associate_t(p.m_a, l, 0, EXPR(x), EXPR(y))
@@ -1586,15 +1595,15 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         CASE_STMTS(body), body.size())
 
 #define CASE_STMT(cond, body, l) make_CaseStmt_t(p.m_a, l, \
-        EXPRS(cond), cond.size(), STMTS(body), body.size())
-#define CASE_STMT2(cond, body, l) make_CaseStmt_Range_t(p.m_a, l, \
-        EXPR(cond), nullptr, STMTS(body), body.size())
-#define CASE_STMT3(cond, body, l) make_CaseStmt_Range_t(p.m_a, l, \
-        nullptr, EXPR(cond), STMTS(body), body.size())
-#define CASE_STMT4(cond1, cond2, body, l) make_CaseStmt_Range_t(p.m_a, l, \
-        EXPR(cond1), EXPR(cond2), STMTS(body), body.size())
+        VEC_CAST(cond, case_cond), cond.size(), STMTS(body), body.size())
 #define CASE_STMT_DEFAULT(body, l) make_CaseStmt_Default_t(p.m_a, l, \
         STMTS(body), body.size())
+
+#define CASE_EXPR(cond, l) make_CaseCondExpr_t(p.m_a, l, EXPR(cond))
+#define CASE_RANGE1(cond, l) make_CaseCondRange_t(p.m_a, l, EXPR(cond), nullptr)
+#define CASE_RANGE2(cond, l) make_CaseCondRange_t(p.m_a, l, nullptr, EXPR(cond))
+#define CASE_RANGE3(cond1, cond2, l) make_CaseCondRange_t(p.m_a, l, \
+        EXPR(cond1), EXPR(cond2))
 
 #define SELECT_RANK1(sel, body, l) make_SelectRank_t(p.m_a, l, 0, nullptr, \
         nullptr, EXPR(sel), RANK_STMTS(body), body.size())
@@ -1640,10 +1649,11 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 #define USE_SYMBOL2(x, y, l) make_UseSymbol_t(p.m_a, l, \
         name2char(y), name2char(x))
 #define USE_ASSIGNMENT(l) make_UseAssignment_t(p.m_a, l)
-#define INTRINSIC_OPERATOR(op, l) make_IntrinsicOperator_t(p.m_a, l, \
-        op)
+#define INTRINSIC_OPERATOR(op, l) make_IntrinsicOperator_t(p.m_a, l, op)
 #define DEFINED_OPERATOR(optype, l) make_DefinedOperator_t(p.m_a, l, \
         def_op_to_str(p.m_a, optype))
+#define RENAME_OPERATOR(op1, op2, l) make_RenameOperator_t(p.m_a, l, \
+        def_op_to_str(p.m_a, op1), def_op_to_str(p.m_a, op2))
 
 
 #define MODULE(name, use, implicit, decl, contains, l) make_Module_t(p.m_a, l, \
@@ -1655,6 +1665,18 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         /*program_unit_t** a_contains*/ CONTAINS(contains), /*size_t n_contains*/ contains.size())
 #define SUBMODULE(id ,name, use, implicit, decl, contains, l) make_Submodule_t(p.m_a, l, \
         name2char(id), \
+        nullptr, \
+        name2char(name), \
+        /*unit_decl1_t** a_use*/ USES(use), /*size_t n_use*/ use.size(), \
+        /*m_implicit*/ VEC_CAST(implicit, implicit_statement), \
+        /*n_implicit*/ implicit.size(), \
+        /*unit_decl2_t** a_decl*/ DECLS(decl), /*size_t n_decl*/ decl.size(), \
+        /*program_unit_t** a_contains*/ CONTAINS(contains), /*size_t n_contains*/ contains.size())
+
+#define SUBMODULE1(id , parent_name, name, use, implicit, decl, contains, l) \
+        make_Submodule_t(p.m_a, l, \
+        name2char(id), \
+        name2char(parent_name), \
         name2char(name), \
         /*unit_decl1_t** a_use*/ USES(use), /*size_t n_use*/ use.size(), \
         /*m_implicit*/ VEC_CAST(implicit, implicit_statement), \
@@ -1713,14 +1735,18 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 #define DERIVED_TYPE_PROC1(name, attr, syms, l) make_DerivedTypeProc_t(p.m_a, l, \
         name2char(name), VEC_CAST(attr, decl_attribute), attr.size(), \
         USE_SYMBOLS(syms), syms.size())
-#define GENERIC_OPERATOR(optype, namelist, l) make_GenericOperator_t(p.m_a, l, \
+#define GENERIC_OPERATOR(attr, optype, namelist, l) make_GenericOperator_t(p.m_a, l, \
+        VEC_CAST(attr, decl_attribute), attr.size(), \
         optype, REDUCE_ARGS(p.m_a, namelist), namelist.size())
-#define GENERIC_DEFOP(optype, namelist, l) make_GenericDefinedOperator_t( \
-        p.m_a, l, def_op_to_str(p.m_a, optype), \
+#define GENERIC_DEFOP(attr, optype, namelist, l) make_GenericDefinedOperator_t( \
+        p.m_a, l, VEC_CAST(attr, decl_attribute), attr.size(), \
+        def_op_to_str(p.m_a, optype), \
         REDUCE_ARGS(p.m_a, namelist), namelist.size())
-#define GENERIC_ASSIGNMENT(namelist, l) make_GenericAssignment_t(p.m_a, l, \
+#define GENERIC_ASSIGNMENT(attr, namelist, l) make_GenericAssignment_t(p.m_a, l, \
+        VEC_CAST(attr, decl_attribute), attr.size(), \
         REDUCE_ARGS(p.m_a, namelist), namelist.size())
-#define GENERIC_NAME(name, namelist, l) make_GenericName_t(p.m_a, l, \
+#define GENERIC_NAME(attr, name, namelist, l) make_GenericName_t(p.m_a, l, \
+        VEC_CAST(attr, decl_attribute), attr.size(), \
         name2char(name), REDUCE_ARGS(p.m_a, namelist), namelist.size())
 #define FINAL_NAME(name, l) make_FinalName_t(p.m_a, l, name2char(name))
 

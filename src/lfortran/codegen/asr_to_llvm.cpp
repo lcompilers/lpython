@@ -2667,7 +2667,7 @@ public:
     }
 
 
-    void visit_Str(const ASR::Str_t &x) {
+    void visit_ConstantString(const ASR::ConstantString_t &x) {
         tmp = builder->CreateGlobalStringPtr(x.m_s);
     }
 

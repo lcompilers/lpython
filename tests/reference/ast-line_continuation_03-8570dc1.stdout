@@ -1,7 +1,7 @@
-(TranslationUnit [(Program line_continuation_03 [] [(ImplicitNone [])] [(Declaration (AttrType TypeInteger [] ()) [] [(i [] [] () None ())]) (Declaration (AttrType TypeInteger [] ()) [] [(k [] [] () None ())])] [(= 0 i 5) (Print 0 () [i]) (Print 0 () [(Str "some string &
-    &is continued")]) (Print 0 () [(Str "some string can contain & as a regular character &
-    &is continued")]) (Print 0 () [(Str "Even here: &&
-    && <- there will be two &")]) (Print 0 () [i]) (Print 0 () [i]) (Print 0 () [i]) (Print 0 () [(Str "some string &
+(TranslationUnit [(Program line_continuation_03 [] [(ImplicitNone [])] [(Declaration (AttrType TypeInteger [] ()) [] [(i [] [] () None ())]) (Declaration (AttrType TypeInteger [] ()) [] [(k [] [] () None ())])] [(= 0 i 5) (Print 0 () [i]) (Print 0 () [(String "some string &
+    &is continued")]) (Print 0 () [(String "some string can contain & as a regular character &
+    &is continued")]) (Print 0 () [(String "Even here: &&
+    && <- there will be two &")]) (Print 0 () [i]) (Print 0 () [i]) (Print 0 () [i]) (Print 0 () [(String "some string &
 ! comment 2
 
 ! comment 3

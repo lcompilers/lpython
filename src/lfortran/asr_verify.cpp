@@ -63,6 +63,20 @@ public:
         const SymbolTable *s = symtab;
         while (s != nullptr) {
             if (s->counter == symtab_ID) return true;
+            for(auto &sym : s->scope){
+                const SymbolTable *s_loc;
+                if( sym.second->type == ASR::symbolType::ExternalSymbol ) {
+                    ASR::ExternalSymbol_t* der_ext = (ASR::ExternalSymbol_t*)
+                        (&(sym.second->base));
+                    ASR::symbol_t* der_sym = der_ext->m_external;
+                    if( der_sym->type == ASR::symbolType::DerivedType) { 
+                        ASR::DerivedType_t *der_type = (ASR::DerivedType_t*)
+                            (&(der_sym->base));
+                        s_loc = der_type->m_symtab;
+                        if(symtab_in_scope(s_loc, symtab_ID)) return true;
+                    }
+                }
+            }
             s = s->parent;
         }
         return false;
