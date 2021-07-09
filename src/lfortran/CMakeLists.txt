@@ -55,7 +55,7 @@ if (WITH_LLVM)
     set(SRC ${SRC}
         codegen/evaluator.cpp
         codegen/asr_to_llvm.cpp
-        codegen/llvm_arr_utils.cpp
+        codegen/llvm_array_utils.cpp
         codegen/llvm_utils.cpp
         pass/nested_vars.cpp
     )
@@ -65,7 +65,7 @@ if (WITH_LLVM)
             COMPILE_FLAGS -Wno-deprecated-declarations)
         set_source_files_properties(codegen/asr_to_llvm.cpp PROPERTIES
             COMPILE_FLAGS -Wno-deprecated-declarations)
-        set_source_files_properties(codegen/llvm_arr_utils.cpp PROPERTIES
+        set_source_files_properties(codegen/llvm_array_utils.cpp PROPERTIES
             COMPILE_FLAGS -Wno-deprecated-declarations)
         set_source_files_properties(codegen/llvm_utils.cpp PROPERTIES
             COMPILE_FLAGS -Wno-deprecated-declarations)

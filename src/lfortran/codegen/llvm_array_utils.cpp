@@ -1,4 +1,4 @@
-#include <lfortran/codegen/llvm_arr_utils.h>
+#include <lfortran/codegen/llvm_array_utils.h>
 #include <lfortran/codegen/llvm_utils.h>
 
 namespace LFortran {

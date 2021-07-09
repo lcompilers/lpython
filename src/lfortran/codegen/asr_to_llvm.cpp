@@ -54,7 +54,7 @@
 #include <lfortran/asr_utils.h>
 #include <lfortran/pickle.h>
 #include <lfortran/codegen/llvm_utils.h>
-#include <lfortran/codegen/llvm_arr_utils.h>
+#include <lfortran/codegen/llvm_array_utils.h>
 
 
 namespace LFortran {
