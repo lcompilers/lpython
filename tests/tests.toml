@@ -139,6 +139,7 @@ llvm = true
 
 [[test]]
 filename = "expr7.f90"
+tokens = true
 ast = true
 ast_f90 = true
 
