@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    605 // shift/reduce conflicts
-%expect-rr 99  // reduce/reduce conflicts
+%expect    607 // shift/reduce conflicts
+%expect-rr 101 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -243,6 +243,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_REWIND
 %token <string> KW_SAVE
 %token <string> KW_SELECT
+%token <string> KW_SELECT_CASE
+%token <string> KW_SELECT_RANK
+%token <string> KW_SELECT_TYPE
 %token <string> KW_SEQUENCE
 %token <string> KW_SHARED
 %token <string> KW_SOURCE
@@ -1456,6 +1459,8 @@ where_block
 select_statement
     : KW_SELECT KW_CASE "(" expr ")" sep case_statements KW_END KW_SELECT {
             $$ = SELECT($4, $7, @$); }
+    | KW_SELECT_CASE "(" expr ")" sep case_statements KW_END KW_SELECT {
+                $$ = SELECT($3, $6, @$); }
     ;
 
 case_statements
@@ -1482,10 +1487,15 @@ case_condition
     ;
 
 select_rank_statement
-    : KW_SELECT KW_RANK "(" expr ")" sep select_rank_case_stmts
-        KW_END KW_SELECT { $$ = SELECT_RANK1($4, $7, @$); }
-    | KW_SELECT KW_RANK "(" id "=>" expr ")" sep select_rank_case_stmts
-        KW_END KW_SELECT { $$ = SELECT_RANK2($4, $6, $9, @$); }
+    : select_rank "(" expr ")" sep select_rank_case_stmts
+        KW_END KW_SELECT { $$ = SELECT_RANK1($3, $6, @$); }
+    | select_rank "(" id "=>" expr ")" sep select_rank_case_stmts
+        KW_END KW_SELECT { $$ = SELECT_RANK2($3, $5, $8, @$); }
+    ;
+
+select_rank
+    : KW_SELECT KW_RANK
+    | KW_SELECT_RANK
     ;
 
 select_rank_case_stmts
@@ -1500,12 +1510,17 @@ select_rank_case_stmt
     ;
 
 select_type_statement
-    : KW_SELECT KW_TYPE "(" expr ")" sep select_type_body_statements
+    : select_type "(" expr ")" sep select_type_body_statements
         KW_END KW_SELECT {
-                $$ = SELECT_TYPE1($4, $7, @$); }
-    | KW_SELECT KW_TYPE "(" id "=>" expr ")" sep select_type_body_statements
+                $$ = SELECT_TYPE1($3, $6, @$); }
+    | select_type "(" id "=>" expr ")" sep select_type_body_statements
         KW_END KW_SELECT {
-                $$ = SELECT_TYPE2($4, $6, $9, @$); }
+                $$ = SELECT_TYPE2($3, $5, $8, @$); }
+    ;
+
+select_type
+    : KW_SELECT KW_TYPE
+    | KW_SELECT_TYPE
     ;
 
 select_type_body_statements
@@ -1524,6 +1539,8 @@ select_type_body_statement
 while_statement
     : KW_DO KW_WHILE "(" expr ")" sep statements enddo {
             $$ = WHILE($4, $7, @$); }
+    | KW_DOWHILE "(" expr ")" sep statements enddo {
+                $$ = WHILE($3, $6, @$); }
     ;
 
 // sr-conflict (2x): "KW_DO sep" being either a do_statement or an expr
@@ -2029,6 +2046,9 @@ id
     | KW_REWIND { $$ = SYMBOL($1, @$); }
     | KW_SAVE { $$ = SYMBOL($1, @$); }
     | KW_SELECT { $$ = SYMBOL($1, @$); }
+    | KW_SELECT_CASE { $$ = SYMBOL($1, @$); }
+    | KW_SELECT_RANK { $$ = SYMBOL($1, @$); }
+    | KW_SELECT_TYPE { $$ = SYMBOL($1, @$); }
     | KW_SEQUENCE { $$ = SYMBOL($1, @$); }
     | KW_SHARED { $$ = SYMBOL($1, @$); }
     | KW_SOURCE { $$ = SYMBOL($1, @$); }

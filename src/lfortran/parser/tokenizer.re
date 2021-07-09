@@ -249,6 +249,9 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             'rewind' { KW(REWIND) }
             'save' { KW(SAVE) }
             'select' { KW(SELECT) }
+            'selectcase' { KW(SELECT_CASE) }
+            'selectrank' { KW(SELECT_RANK) }
+            'selecttype' { KW(SELECT_TYPE) }
             'sequence' { KW(SEQUENCE) }
             'shared' { KW(SHARED) }
             'source' { KW(SOURCE) }
