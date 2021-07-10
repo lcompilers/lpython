@@ -1,1 +1,1 @@
-(TranslationUnit [(Program block1 [] [(Implicit (AttrType TypeInteger [] ()) [(LetterSpec a z)])] [(Declaration (AttrType TypeInteger [] ()) [] [(B [] [] () None ())])] [(Block 0 () [(Use [] mod [(UseSymbol example ())] .true.)] [(Import [] ImportNone)] [] [(= 0 B 10)])] [])])
+(TranslationUnit [(Program block1 [] [(Implicit (AttrType TypeInteger [] ()) [] [(LetterSpec a z)])] [(Declaration (AttrType TypeInteger [] ()) [] [(B [] [] () None ())])] [(Block 0 () [(Use [] mod [(UseSymbol example ())] .true.)] [(Import [] ImportNone)] [] [(= 0 B 10)])] [])])
