@@ -7,6 +7,7 @@
 
 #include <lfortran/parser/parser.h>
 #include <lfortran/parser/parser.tab.hh>
+#include <lfortran/bigint.h>
 
 using LFortran::parse;
 using LFortran::parse2;
@@ -15,6 +16,14 @@ using LFortran::AST::ast_t;
 using LFortran::AST::expr_t;
 using LFortran::AST::Name_t;
 using LFortran::AST::BaseWalkVisitor;
+
+using LFortran::BigInt::is_int_ptr;
+using LFortran::BigInt::ptr_to_int;
+using LFortran::BigInt::int_to_ptr;
+using LFortran::BigInt::string_to_largeint;
+using LFortran::BigInt::largeint_to_string;
+using LFortran::BigInt::MAX_SMALL_INT;
+using LFortran::BigInt::MIN_SMALL_INT;
 
 // Print any vector like iterable to a string
 template <class T>
@@ -132,6 +141,68 @@ TEST_CASE("Test lex_int") {
     REQUIRE(lex_int(s, s+strlen((char*)s), u, suffix));
     CHECK(u == 1234);
     CHECK(suffix.str() == "int64_15_3");
+}
+
+TEST_CASE("Test Big Int") {
+    int64_t i;
+    void *p, *p2;
+
+    /* Integer tests */
+    i = 0;
+    CHECK(!is_int_ptr(i));
+
+    i = 5;
+    CHECK(!is_int_ptr(i));
+
+    i = -5;
+    CHECK(!is_int_ptr(i));
+
+    // Largest integer that is allowed is 2^62-1
+    i = 4611686018427387903LL;
+    CHECK(i == MAX_SMALL_INT);
+    CHECK(!is_int_ptr(i)); // this is an integer
+    i = 4611686018427387904LL;
+    CHECK(is_int_ptr(i)); // this is a pointer
+
+    // Smallest integer that is allowed is -2^63
+    i = -9223372036854775808ULL;
+    CHECK(i == MIN_SMALL_INT);
+    CHECK(!is_int_ptr(i)); // this is an integer
+    i = -9223372036854775809ULL; // This does not fit into a signed 64bit int
+    CHECK(is_int_ptr(i)); // this is a pointer
+
+    /* Pointer tests */
+    // Smallest pointer value is 0 (nullptr)
+    p = nullptr;
+    i = ptr_to_int(p);
+    CHECK(is_int_ptr(i));
+    p2 = int_to_ptr(i);
+    CHECK(p == p2);
+
+    // Second smallest pointer value aligned to 4 is 4
+    p = (void*)4;
+    i = ptr_to_int(p);
+    CHECK(is_int_ptr(i));
+    p2 = int_to_ptr(i);
+    CHECK(p == p2);
+
+    // Maximum pointer value aligned to 4 is (2^64-1)-3
+    p = (void*)18446744073709551612ULL;
+    i = ptr_to_int(p);
+    CHECK(is_int_ptr(i));
+    p2 = int_to_ptr(i);
+    CHECK(p == p2);
+
+    /* Big int tests */
+    Allocator al(1024);
+    LFortran::Str s;
+    char *cs;
+
+    s.from_str_view("123");
+    i = string_to_largeint(al, s);
+    CHECK(is_int_ptr(i));
+    cs = largeint_to_string(i);
+    CHECK(std::string(cs) == "123");
 }
 
 TEST_CASE("Test LFortran::Vec") {
