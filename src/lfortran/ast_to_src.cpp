@@ -889,6 +889,14 @@ public:
         r += " ";
         visit_decl_attribute(*x.m_type);
         r += s;
+        if (x.n_spec > 0) {
+            r += " (";
+            for (size_t i=0; i<x.n_spec; i++) {
+                visit_letter_spec(*x.m_spec[i]);
+                r += s;
+            }
+            r += ")";
+        }
         if (x.n_specs > 0) {
             r += " (";
             for (size_t i=0; i<x.n_specs; i++) {

@@ -347,8 +347,12 @@ ast_t* data_implied_do(Allocator &al, Location &loc,
 #define IMPLICIT_NONE_TYPE(l) make_ImplicitNoneType_t(p.m_a, l)
 
 #define IMPLICIT(t, spec, l) make_Implicit_t(p.m_a, l, \
-        down_cast<decl_attribute_t>(t), \
+        down_cast<decl_attribute_t>(t), nullptr, 0, \
         VEC_CAST(spec, letter_spec), spec.size())
+#define IMPLICIT1(t, spec, specs, l) make_Implicit_t(p.m_a, l, \
+        down_cast<decl_attribute_t>(t), \
+        VEC_CAST(spec, letter_spec), spec.size(), \
+        VEC_CAST(specs, letter_spec), specs.size())
 
 #define LETTER_SPEC1(a, l) make_LetterSpec_t(p.m_a, l, \
         nullptr, name2char(a))
