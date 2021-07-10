@@ -77,6 +77,9 @@ set(LFORTRAN_STATIC_BIN no CACHE BOOL "Build LFortran as a static binary")
 set(WITH_LFORTRAN_BINARY_MODFILES YES
     CACHE BOOL "Use binary modfiles")
 
+#ZLIB
+find_package(ZLIB REQUIRED)
+
 # LLVM
 set(WITH_LLVM no CACHE BOOL "Build with LLVM support")
 if (WITH_LLVM)
@@ -106,11 +109,6 @@ if (WITH_LLVM)
         message(STATUS "ZLIB LIBRARY PATH: ${mypath}")
     endif()
     set(HAVE_LFORTRAN_LLVM yes)
-endif()
-
-# Find ZLIB dependency if not already included by LLVM
-if(NOT TARGET ZLIB::ZLIB)
-  find_package(ZLIB REQUIRED)
 endif()
 
 # XEUS (Fortran kernel)
