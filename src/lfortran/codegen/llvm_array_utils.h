@@ -42,79 +42,82 @@ namespace LFortran {
                     DESCR_TYPE descr_type);
 
                 virtual
-                bool is_array(llvm::Value* tmp);
+                bool is_array(llvm::Value* tmp) = 0;
 
                 virtual
                 llvm::Value* convert_to_argument(llvm::Value* tmp,
-                llvm::Type* arg_type);
+                    llvm::Type* arg_type) = 0;
 
                 virtual
                 llvm::Type* get_argument_type(llvm::Type* type,
-                std::uint32_t, std::string,
-                std::unordered_map<std::uint32_t, std::unordered_map<std::string, llvm::Type*>>& arr_arg_type_cache);
+                    std::uint32_t, std::string,
+                    std::unordered_map
+                    <std::uint32_t, std::unordered_map
+                                    <std::string, llvm::Type*>>& 
+                                    arr_arg_type_cache) = 0;
 
                 virtual
                 llvm::Type* get_array_type(
-                ASR::ttype_t* m_type_, int a_kind,
-                int rank, ASR::dimension_t* m_dims,
-                llvm::Type* el_type,
-                bool get_pointer=false);
+                    ASR::ttype_t* m_type_, int a_kind,
+                    int rank, ASR::dimension_t* m_dims,
+                    llvm::Type* el_type,
+                    bool get_pointer=false) = 0;
 
                 virtual
                 llvm::Type* get_malloc_array_type(
-                ASR::ttype_t* m_type_, int a_kind,
-                int rank, llvm::Type* el_type,
-                bool get_pointer=false);
+                    ASR::ttype_t* m_type_, int a_kind,
+                    int rank, llvm::Type* el_type,
+                    bool get_pointer=false) = 0;
 
                 virtual
-                llvm::ArrayType* create_dimension_descriptor_array_type(int rank);
+                    llvm::ArrayType* create_dimension_descriptor_array_type(int rank) = 0;
 
                 virtual
                 void fill_array_details(
-                llvm::Value* arr, ASR::dimension_t* m_dims, int n_dims, 
-                std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims);
+                    llvm::Value* arr, ASR::dimension_t* m_dims, int n_dims, 
+                    std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims) = 0;
 
                 virtual
                 void fill_malloc_array_details(
-                llvm::Value* arr, ASR::dimension_t* m_dims, int n_dims,
-                std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims,
-                llvm::Module* module);
+                    llvm::Value* arr, ASR::dimension_t* m_dims, int n_dims,
+                    std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims,
+                    llvm::Module* module) = 0;
 
                 virtual
-                llvm::Type* get_dimension_descriptor_type(bool get_pointer=false);
+                llvm::Type* get_dimension_descriptor_type(bool get_pointer=false) = 0;
 
                 virtual
-                bool is_matching_dimension_descriptor(llvm::ArrayType* des, int rank);
+                bool is_matching_dimension_descriptor(llvm::ArrayType* des, int rank) = 0;
 
                 virtual
-                llvm::Value* get_pointer_to_memory_block(llvm::Value* arr);
+                llvm::Value* get_pointer_to_memory_block(llvm::Value* arr) = 0;
 
                 virtual
-                llvm::Value* get_offset(llvm::Value* dim_des);
+                llvm::Value* get_offset(llvm::Value* dim_des) = 0;
 
                 virtual
-                llvm::Value* get_lower_bound(llvm::Value* dim_des);
+                llvm::Value* get_lower_bound(llvm::Value* dim_des) = 0;
 
                 virtual
-                llvm::Value* get_upper_bound(llvm::Value* dim_des);
+                llvm::Value* get_upper_bound(llvm::Value* dim_des) = 0;
 
                 virtual
-                llvm::Value* get_stride(llvm::Value* dim_des);
+                llvm::Value* get_stride(llvm::Value* dim_des) = 0;
 
                 virtual
                 llvm::Value* get_dimension_size(llvm::Value* dim_des_arr,
-                    llvm::Value* dim);
+                    llvm::Value* dim) = 0;
                 
                 virtual
-                llvm::Value* get_pointer_to_dimension_descriptor_array(llvm::Value* arr);
+                llvm::Value* get_pointer_to_dimension_descriptor_array(llvm::Value* arr) = 0;
 
                 virtual
                 llvm::Value* get_pointer_to_dimension_descriptor(llvm::Value* dim_des_arr, 
-                    llvm::Value* dim);
+                    llvm::Value* dim) = 0;
 
                 virtual
                 llvm::Value* get_single_element(llvm::Value* array,
-                    std::vector<llvm::Value*>& m_args, int n_args);
+                    std::vector<llvm::Value*>& m_args, int n_args) = 0;
 
         };
 
@@ -134,8 +137,8 @@ namespace LFortran {
                 std::map<std::pair<std::pair<int, int>, int>, llvm::StructType*> tkr2mallocarray;
 
                 llvm::Value* cmo_convertor_single_element(
-                llvm::Value* arr, std::vector<llvm::Value*>& m_args, 
-                int n_args, bool check_for_bounds);
+                    llvm::Value* arr, std::vector<llvm::Value*>& m_args, 
+                    int n_args, bool check_for_bounds);
 
             public:
 
@@ -148,39 +151,42 @@ namespace LFortran {
 
                 virtual
                 llvm::Value* convert_to_argument(llvm::Value* tmp,
-                llvm::Type* arg_type);
+                    llvm::Type* arg_type);
 
                 virtual
                 llvm::Type* get_argument_type(llvm::Type* type,
-                std::uint32_t m_h, std::string arg_name,
-                std::unordered_map<std::uint32_t, std::unordered_map<std::string, llvm::Type*>>& arr_arg_type_cache);
+                    std::uint32_t m_h, std::string arg_name,
+                    std::unordered_map
+                    <std::uint32_t, std::unordered_map
+                                    <std::string, llvm::Type*>>& 
+                        arr_arg_type_cache);
 
                 virtual
                 llvm::Type* get_array_type(
-                ASR::ttype_t* m_type_, int a_kind,
-                int rank, ASR::dimension_t* m_dims,
-                llvm::Type* el_type,
-                bool get_pointer=false);
+                    ASR::ttype_t* m_type_, int a_kind,
+                    int rank, ASR::dimension_t* m_dims,
+                    llvm::Type* el_type,
+                    bool get_pointer=false);
 
                 virtual
                 llvm::Type* get_malloc_array_type(
-                ASR::ttype_t* m_type_, int a_kind,
-                int rank, llvm::Type* el_type,
-                bool get_pointer=false);
+                    ASR::ttype_t* m_type_, int a_kind,
+                    int rank, llvm::Type* el_type,
+                    bool get_pointer=false);
 
                 virtual
                 llvm::ArrayType* create_dimension_descriptor_array_type(int rank);
 
                 virtual
                 void fill_array_details(
-                llvm::Value* arr, ASR::dimension_t* m_dims, int n_dims, 
-                std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims);
+                    llvm::Value* arr, ASR::dimension_t* m_dims, int n_dims, 
+                    std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims);
 
                 virtual
                 void fill_malloc_array_details(
-                llvm::Value* arr, ASR::dimension_t* m_dims, int n_dims,
-                std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims,
-                llvm::Module* module);
+                    llvm::Value* arr, ASR::dimension_t* m_dims, int n_dims,
+                    std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims,
+                    llvm::Module* module);
 
                 virtual
                 llvm::Type* get_dimension_descriptor_type(bool get_pointer=false);
