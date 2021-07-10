@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <chrono>
+#include <string>
 
 #include <lfortran/parser/parser.h>
 #include <lfortran/parser/parser.tab.hh>
@@ -84,6 +85,53 @@ TEST_CASE("Test longer parser (N = 500)") {
     std::cout << "String size (bytes):      " << text.size() << std::endl;
     std::cout << "Allocator usage (bytes): " << al.size_current() << std::endl;
     CHECK(c == 4509);
+}
+
+TEST_CASE("Test lex_int") {
+    unsigned char *s;
+    uint64_t u;
+    LFortran::Str suffix;
+
+    // Test ints
+    s = (unsigned char*)"15";
+    CHECK(strlen((char*)s) == 2);
+    REQUIRE(lex_int(s, s+strlen((char*)s), u, suffix));
+    CHECK(u == 15);
+    CHECK(suffix.str() == "");
+
+    s = (unsigned char*)"1";
+    REQUIRE(lex_int(s, s+strlen((char*)s), u, suffix));
+    CHECK(u == 1);
+    CHECK(suffix.str() == "");
+
+    s = (unsigned char*)"9223372036854775807"; // 2^63-1
+    REQUIRE(lex_int(s, s+strlen((char*)s), u, suffix));
+    CHECK(u == 9223372036854775807LL);
+    CHECK(suffix.str() == "");
+
+    s = (unsigned char*)"9223372036854775808"; // 2^63
+    REQUIRE(lex_int(s, s+strlen((char*)s), u, suffix));
+    CHECK(u == 9223372036854775808ULL);
+    CHECK(suffix.str() == "");
+
+    s = (unsigned char*)"18446744073709551615"; // 2^64-1
+    REQUIRE(lex_int(s, s+strlen((char*)s), u, suffix));
+    CHECK(u == 18446744073709551615ULL);
+    CHECK(suffix.str() == "");
+
+    s = (unsigned char*)"18446744073709551616"; // 2^64
+    REQUIRE(!lex_int(s, s+strlen((char*)s), u, suffix));
+
+    // Suffixes
+    s = (unsigned char*)"15_int64";
+    REQUIRE(lex_int(s, s+strlen((char*)s), u, suffix));
+    CHECK(u == 15);
+    CHECK(suffix.str() == "int64");
+
+    s = (unsigned char*)"1234_int64_15_3";
+    REQUIRE(lex_int(s, s+strlen((char*)s), u, suffix));
+    CHECK(u == 1234);
+    CHECK(suffix.str() == "int64_15_3");
 }
 
 TEST_CASE("Test LFortran::Vec") {
@@ -362,9 +410,9 @@ TEST_CASE("Tokenizer") {
         tt::END_OF_FILE,
     };
     CHECK(tokens(s, &stypes) == ref);
-    CHECK(stypes[0].n == 2);
+    CHECK(stypes[0].int_suffix.int_n == 2);
     unsigned long nref = 4294967295U;
-    CHECK(stypes[2].n == nref);
+    CHECK(stypes[2].int_suffix.int_n == nref);
 
     s = "2*18446744073709551616"; // 2**64, too large, will throw an exception
     CHECK_THROWS_AS(tokens(s), LFortran::TokenizerError);

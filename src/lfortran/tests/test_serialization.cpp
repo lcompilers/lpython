@@ -309,21 +309,21 @@ TEST_CASE("Topological sorting int") {
     deps[3].push_back(1);
     deps[2].push_back(4);
     deps[3].push_back(4);
-    CHECK(LFortran::order_deps(deps) == std::vector<int>({4, 2, 1, 3}));
+    CHECK(LFortran::ASRUtils::order_deps(deps) == std::vector<int>({4, 2, 1, 3}));
 
     deps.clear();
     deps[1].push_back(2);
     deps[1].push_back(3);
     deps[2].push_back(4);
     deps[3].push_back(4);
-    CHECK(LFortran::order_deps(deps) == std::vector<int>({4, 2, 3, 1}));
+    CHECK(LFortran::ASRUtils::order_deps(deps) == std::vector<int>({4, 2, 3, 1}));
 
     deps.clear();
     deps[1].push_back(2);
     deps[3].push_back(1);
     deps[3].push_back(4);
     deps[4].push_back(1);
-    CHECK(LFortran::order_deps(deps) == std::vector<int>({2, 1, 4, 3}));
+    CHECK(LFortran::ASRUtils::order_deps(deps) == std::vector<int>({2, 1, 4, 3}));
 }
 
 TEST_CASE("Topological sorting string") {
@@ -334,7 +334,7 @@ TEST_CASE("Topological sorting string") {
     deps["C"].push_back("A");
     deps["B"].push_back("D");
     deps["C"].push_back("D");
-    CHECK(LFortran::order_deps(deps) == std::vector<std::string>(
+    CHECK(LFortran::ASRUtils::order_deps(deps) == std::vector<std::string>(
                 {"D", "B", "A", "C"}));
 
     deps.clear();
@@ -342,6 +342,6 @@ TEST_CASE("Topological sorting string") {
     deps["module_c"].push_back("module_a");
     deps["module_c"].push_back("module_d");
     deps["module_d"].push_back("module_a");
-    CHECK(LFortran::order_deps(deps) == std::vector<std::string>(
+    CHECK(LFortran::ASRUtils::order_deps(deps) == std::vector<std::string>(
                 {"module_b", "module_a", "module_d", "module_c"}));
 }

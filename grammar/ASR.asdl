@@ -92,6 +92,9 @@ symbol
     | Variable(symbol_table parent_symtab, identifier name, intent intent,
         expr? value, storage_type storage, ttype type, abi abi, access access,
         presence presence)
+    | ClassType(symbol_table symtab, identifier name, abi abi, access access)
+    | ClassProcedure(symbol_table parent_symtab, identifier name, identifier
+        proc_name, symbol proc, abi abi)
 
 storage_type = Default | Save | Parameter | Allocatable
 access = Public | Private
@@ -170,14 +173,14 @@ expr
     | Compare(expr left, cmpop op, expr right, ttype type)
     | FunctionCall(symbol name, symbol? original_name, expr* args,
             keyword* keywords, ttype type)
-    | ArrayInitializer(expr* args, ttype type)
+    | ConstantArray(expr* args, ttype type)
     | ImpliedDoLoop(expr* values, expr var, expr start, expr end,
                     expr? increment, ttype type)
     | ConstantInteger(int n, ttype type)
     | ConstantReal(string r, ttype type)
     | ConstantComplex(expr re, expr im, ttype type)
     | ConstantLogical(bool value, ttype type)
-    | Str(string s, ttype type)
+    | ConstantString(string s, ttype type)
     | Var(symbol v)
     | ArrayRef(symbol v, array_index* args, ttype type)
     | DerivedRef(expr v, symbol m, ttype type)
@@ -197,6 +200,7 @@ ttype
     | CharacterPointer(int kind, dimension* dims)
     | LogicalPointer(int kind, dimension* dims)
     | DerivedPointer(symbol derived_type, dimension* dims)
+    | Class(symbol class_type, dimension* dims)
 
 boolop = And | Or | NEqv | Eqv
 

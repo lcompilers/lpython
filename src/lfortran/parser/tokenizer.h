@@ -11,8 +11,6 @@ class Tokenizer
 {
 public:
     unsigned char *cur;
-    unsigned char *mar;
-    unsigned char *ctxmar;
     unsigned char *tok;
     unsigned char *cur_line;
     unsigned int line_num;
@@ -57,6 +55,9 @@ public:
         loc.last_column = cur-cur_line;
     }
 };
+
+bool lex_int(const unsigned char *s, const unsigned char *e, uint64_t &u,
+    Str &suffix);
 
 } // namespace LFortran
 

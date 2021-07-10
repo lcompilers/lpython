@@ -162,6 +162,8 @@ RUN(NAME reserved_03 LABELS gfortran)
 
 RUN(NAME namelist_01 LABELS gfortran)
 
+RUN(NAME submodule_01 LABELS gfortran)
+
 RUN(NAME intrinsics_01 LABELS gfortran) # sqrt, abs, log
 RUN(NAME intrinsics_02 LABELS gfortran llvm) # sin
 RUN(NAME intrinsics_03 LABELS gfortran llvm) # cos
@@ -195,6 +197,7 @@ RUN(NAME if_04 LABELS gfortran x86)
 RUN(NAME case_01 LABELS gfortran llvm)
 RUN(NAME case_02 LABELS gfortran llvm)
 RUN(NAME case_03 LABELS gfortran llvm)
+RUN(NAME case_04 LABELS gfortran)
 
 RUN(NAME select_type_01 LABELS gfortran)
 
@@ -294,3 +297,5 @@ RUN(NAME recursion_03 LABELS gfortran llvm)
 RUN(NAME return_01 LABELS gfortran llvm)
 RUN(NAME return_02 LABELS gfortran llvm)
 RUN(NAME return_03 LABELS gfortran llvm)
+
+RUN(NAME class_01 LABELS gfortran)
