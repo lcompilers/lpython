@@ -709,7 +709,7 @@ public:
         for( size_t i = 0; i < x.n_args; i++ ) {
             ASR::expr_t* curr_obj = x.m_args[i];
             this->visit_expr(*curr_obj);
-            llvm::Value* arr = builder->CreateLoad(arr_descr->get_pointer_to_memory_block(tmp));
+            llvm::Value* arr = builder->CreateLoad(arr_descr->get_pointer_to_data(tmp));
             llvm::AllocaInst *arg_arr = builder->CreateAlloca(character_type, nullptr);
             builder->CreateStore(builder->CreateBitCast(arr, character_type), arg_arr);
             std::vector<llvm::Value*> args = {builder->CreateLoad(arg_arr)};

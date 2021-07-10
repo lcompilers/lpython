@@ -90,7 +90,7 @@ namespace LFortran {
                 bool is_matching_dimension_descriptor(llvm::ArrayType* des, int rank) = 0;
 
                 virtual
-                llvm::Value* get_pointer_to_memory_block(llvm::Value* arr) = 0;
+                llvm::Value* get_pointer_to_data(llvm::Value* arr) = 0;
 
                 virtual
                 llvm::Value* get_offset(llvm::Value* dim_des) = 0;
@@ -195,7 +195,7 @@ namespace LFortran {
                 bool is_matching_dimension_descriptor(llvm::ArrayType* des, int rank);
 
                 virtual
-                llvm::Value* get_pointer_to_memory_block(llvm::Value* arr);
+                llvm::Value* get_pointer_to_data(llvm::Value* arr);
 
                 virtual
                 llvm::Value* get_offset(llvm::Value* dim_des);
