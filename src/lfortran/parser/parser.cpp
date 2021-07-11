@@ -65,7 +65,7 @@ void Parser::parse(const std::string &input)
     throw ParserError("Parsing Unsuccessful", loc, 0);
 }
 
-std::vector<int> tokens(const std::string &input,
+std::vector<int> tokens(Allocator &al, const std::string &input,
         std::vector<LFortran::YYSTYPE> *stypes)
 {
     LFortran::Tokenizer t;
@@ -75,7 +75,7 @@ std::vector<int> tokens(const std::string &input,
     while (token != yytokentype::END_OF_FILE) {
         LFortran::YYSTYPE y;
         LFortran::Location l;
-        token = t.lex(y, l);
+        token = t.lex(al, y, l);
         tst.push_back(token);
         if (stypes) stypes->push_back(y);
     }

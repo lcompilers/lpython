@@ -61,7 +61,7 @@ std::string pickle(int token, const LFortran::YYSTYPE &yystype,
     if (token == yytokentype::TK_NAME) {
         t += " " + yystype.string.str();
     } else if (token == yytokentype::TK_INTEGER) {
-        t += " " + std::to_string(yystype.int_suffix.int_n);
+        t += " " + yystype.int_suffix.int_n.str();
         if (yystype.int_suffix.int_kind.p) {
             t += "_" + yystype.int_suffix.int_kind.str();
         }

@@ -7,7 +7,7 @@
 
 namespace LFortran {
 
-namespace BigInt {
+namespace BigIntUtils {
 
 /*
  * Arbitrary size integer implementation.
@@ -91,25 +91,32 @@ inline static char* largeint_to_string(int64_t i) {
     return cs;
 }
 
+} // BigIntUtils
+
+
 struct BigInt {
     int64_t n;
 
+    BigInt() = default;
+    BigInt(const BigInt &) = default;
+    BigInt& operator=(const BigInt &) = default;
+
     bool is_large() const {
-        return is_int_ptr(n);
+        return BigIntUtils::is_int_ptr(n);
     }
 
     void from_smallint(int64_t i) {
-        LFORTRAN_ASSERT(is_small_int(i));
+        LFORTRAN_ASSERT(BigIntUtils::is_small_int(i));
         n = i;
     }
 
     void from_largeint(Allocator &al, const Str &s) {
-        n = string_to_largeint(al, s);
+        n = BigIntUtils::string_to_largeint(al, s);
     }
 
     std::string str() const {
         if (is_large()) {
-            return std::string(largeint_to_string(n));
+            return std::string(BigIntUtils::largeint_to_string(n));
         } else {
             return std::to_string(n);
         }
@@ -123,7 +130,6 @@ static_assert(sizeof(BigInt) == sizeof(int64_t));
 static_assert(sizeof(BigInt) == 8);
 
 
-} // BigInt
 } // LFortran
 
 #endif // LFORTRAN_BIGINT_H

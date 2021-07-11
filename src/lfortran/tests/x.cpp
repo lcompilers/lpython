@@ -29,7 +29,7 @@ int main()
     LFortran::YYSTYPE y;
     LFortran::Location l;
     while (true) {
-        token = t.lex(y, l);
+        token = t.lex(al, y, l);
         std::cout << token << std::endl;
         if (token == yytokentype::TK_INTEGER) {
             print_loc(l);
