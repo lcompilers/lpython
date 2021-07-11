@@ -53,6 +53,8 @@ namespace LFortran {
 
             public:
 
+                virtual ~Descriptor() {}
+
                 /*
                 * Factory method which creates
                 * new descriptors and returns a
