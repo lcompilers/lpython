@@ -90,7 +90,7 @@ import_modifier
 
 implicit_statement
     = ImplicitNone(implicit_none_spec* specs)
-    | Implicit(decl_attribute type, letter_spec* specs)
+    | Implicit(decl_attribute type, letter_spec* kind, letter_spec* specs)
 
 implicit_none_spec
     = ImplicitNoneExternal(int dummy)
