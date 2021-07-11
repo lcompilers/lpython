@@ -1,7 +1,10 @@
 #ifndef LFORTRAN_LLVM_ARR_UTILS_H
 #define LFORTRAN_LLVM_ARR_UTILS_H
 
+#include <map>
 #include <memory>
+#include <string>
+#include <unordered_map>
 
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Value.h>
@@ -11,9 +14,6 @@
 #include <lfortran/parser/alloc.h>
 #include <lfortran/asr.h>
 #include <lfortran/codegen/llvm_utils.h>
-
-#include <string>
-#include <map>
 
 namespace LFortran {
 
@@ -52,6 +52,8 @@ namespace LFortran {
         class Descriptor {
 
             public:
+
+                virtual ~Descriptor() {}
 
                 /*
                 * Factory method which creates
