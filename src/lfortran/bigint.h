@@ -98,12 +98,12 @@ struct BigInt {
         return is_int_ptr(n);
     }
 
-    void from_small_int(int64_t i) {
+    void from_smallint(int64_t i) {
         LFORTRAN_ASSERT(is_small_int(i));
         n = i;
     }
 
-    void from_large_int(Allocator &al, const Str &s) {
+    void from_largeint(Allocator &al, const Str &s) {
         n = string_to_largeint(al, s);
     }
 

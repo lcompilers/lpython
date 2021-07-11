@@ -1,6 +1,7 @@
 #include <limits>
 
 #include "tokenizer.h"
+#include <lfortran/bigint.h>
 #include "parser.tab.hh"
 
 namespace LFortran
@@ -56,6 +57,38 @@ bool lex_int(const unsigned char *s, const unsigned char *e, uint64_t &u,
     suffix.p = nullptr;
     suffix.n = 0;
     return true;
+}
+
+void lex_int_large(Allocator &al, const unsigned char *s,
+    const unsigned char *e, BigInt::BigInt &u, Str &suffix)
+{
+    uint64_t ui;
+    if (lex_int(s, e, ui, suffix)) {
+        if (ui <= BigInt::MAX_SMALL_INT) {
+            u.from_smallint(ui);
+            return;
+        }
+    }
+    const unsigned char *start = s;
+    for (; s < e; ++s) {
+        if (*s == '_') {
+            s++;
+            suffix.p = (char*) s;
+            suffix.n = e-s;
+
+            Str num;
+            num.p = (char*)start;
+            num.n = s-start;
+            u.from_largeint(al, num);
+            return;
+        }
+    }
+    suffix.p = nullptr;
+    suffix.n = 0;
+    Str num;
+    num.p = (char*)start;
+    num.n = e-start;
+    u.from_largeint(al, num);
 }
 
 #define KW(x) token(yylval.string); RET(KW_##x);
