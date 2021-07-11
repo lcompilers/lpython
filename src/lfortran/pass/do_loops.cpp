@@ -41,7 +41,7 @@ Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop) {
     LFORTRAN_ASSERT(b);
     if (!c) {
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-        c = LFortran::ASRUtils::EXPR(ASR::make_ConstantInteger_t(al, loc, 1, type));
+        c = LFortran::ASRUtils::EXPR(ASR::make_ConstantInteger_t(al, loc, 1, type, nullptr));
     }
     LFORTRAN_ASSERT(c);
     int increment;
