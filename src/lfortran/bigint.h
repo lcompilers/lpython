@@ -65,6 +65,10 @@ const int64_t MAX_SMALL_INT = (int64_t)((1ULL << 62)-1);
  */
 const int64_t MIN_SMALL_INT = (int64_t)(-(1ULL << 63));
 
+// Returns true if "i" is a small int
+inline static bool is_small_int(int64_t i) {
+    return (MIN_SMALL_INT <= i && i <= MAX_SMALL_INT);
+}
 
 /* Arbitrary integer implementation
  * For now large integers are implemented as strings with decimal digits. The
@@ -86,6 +90,37 @@ inline static char* largeint_to_string(int64_t i) {
     char *cs = (char*)p;
     return cs;
 }
+
+struct BigInt {
+    int64_t n;
+
+    bool is_large() const {
+        return is_int_ptr(n);
+    }
+
+    void from_small_int(int64_t i) {
+        LFORTRAN_ASSERT(is_small_int(i));
+        n = i;
+    }
+
+    void from_large_int(Allocator &al, const Str &s) {
+        n = string_to_largeint(al, s);
+    }
+
+    std::string str() const {
+        if (is_large()) {
+            return std::string(largeint_to_string(n));
+        } else {
+            return std::to_string(n);
+        }
+    }
+
+};
+
+static_assert(std::is_standard_layout<BigInt>::value);
+static_assert(std::is_trivial<BigInt>::value);
+static_assert(sizeof(BigInt) == sizeof(int64_t));
+static_assert(sizeof(BigInt) == 8);
 
 
 } // BigInt
