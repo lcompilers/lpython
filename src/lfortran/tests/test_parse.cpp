@@ -198,13 +198,13 @@ TEST_CASE("Test Big Int") {
     LFortran::Str s;
     char *cs;
 
-    s.from_str_view("123");
+    s.from_str(al, "123");
     i = string_to_largeint(al, s);
     CHECK(is_int_ptr(i));
     cs = largeint_to_string(i);
     CHECK(std::string(cs) == "123");
 
-    s.from_str_view("123567890123456789012345678901234567890");
+    s.from_str(al, "123567890123456789012345678901234567890");
     i = string_to_largeint(al, s);
     CHECK(is_int_ptr(i));
     cs = largeint_to_string(i);
