@@ -2069,7 +2069,9 @@ public:
             }
         }
         ASR::stmt_t* impl_del = create_implicit_deallocate(x.base.base.loc);
-        body.push_back(al, impl_del);
+        if( impl_del != nullptr ) {
+            body.push_back(al, impl_del);
+        }
         v->m_body = body.p;
         v->n_body = body.size();
 
