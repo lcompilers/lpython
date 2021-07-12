@@ -78,7 +78,7 @@ void lex_int_large(Allocator &al, const unsigned char *s,
 
             Str num;
             num.p = (char*)start;
-            num.n = s-start;
+            num.n = s-start-1;
             u.from_largeint(al, num);
             return;
         }
