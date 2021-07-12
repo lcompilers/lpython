@@ -240,7 +240,12 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'final' { KW(FINAL) }
             'flush' { KW(FLUSH) }
             'forall' { KW(FORALL) }
-            'format' { KW(FORMAT) }
+            'format' {
+                if (last_token == yytokentype::TK_LABEL) {
+                    token(yylval.string);
+                    RET(TK_FORMAT)
+                }
+            }
             'formatted' { KW(FORMATTED) }
             'function' { KW(FUNCTION) }
             'generic' { KW(GENERIC) }

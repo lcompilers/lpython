@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    607 // shift/reduce conflicts
+%expect    606 // shift/reduce conflicts
 %expect-rr 101 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -115,6 +115,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token TK_TRUE ".true."
 %token TK_FALSE ".false."
 
+%token <string> TK_FORMAT
+
 // Terminal tokens: semi-reserved keywords
 
 %token <string> KW_ABSTRACT
@@ -180,7 +182,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_FINAL
 %token <string> KW_FLUSH
 %token <string> KW_FORALL
-%token <string> KW_FORMAT
 %token <string> KW_FORMATTED
 %token <string> KW_FUNCTION
 %token <string> KW_GENERIC
@@ -1623,14 +1624,14 @@ forall_statement_single
     ;
 
 format_statement
-    : KW_FORMAT "(" format_items ")" { $$ = FORMAT(@$); }
-    | KW_FORMAT "(" format_items "," "*" "(" format_items ")" ")" {
+    : TK_FORMAT "(" format_items ")" { $$ = FORMAT(@$); }
+    | TK_FORMAT "(" format_items "," "*" "(" format_items ")" ")" {
             $$ = FORMAT(@$); }
-    | KW_FORMAT "(" "*" "(" format_items ")" ")" {
+    | TK_FORMAT "(" "*" "(" format_items ")" ")" {
             $$ = FORMAT(@$); }
-    | KW_FORMAT "(" "/)" { $$ = FORMAT(@$); }
-    | KW_FORMAT "(" TK_INTEGER "/)" { $$ = FORMAT(@$); }
-    | KW_FORMAT "(" format_items "," "/)" { $$ = FORMAT(@$); }
+    | TK_FORMAT "(" "/)" { $$ = FORMAT(@$); }
+    | TK_FORMAT "(" TK_INTEGER "/)" { $$ = FORMAT(@$); }
+    | TK_FORMAT "(" format_items "," "/)" { $$ = FORMAT(@$); }
     ;
 
 format_items
@@ -1999,7 +2000,6 @@ id
     | KW_FINAL { $$ = SYMBOL($1, @$); }
     | KW_FLUSH { $$ = SYMBOL($1, @$); }
     | KW_FORALL { $$ = SYMBOL($1, @$); }
-    | KW_FORMAT { $$ = SYMBOL($1, @$); }
     | KW_FORMATTED { $$ = SYMBOL($1, @$); }
     | KW_FUNCTION { $$ = SYMBOL($1, @$); }
     | KW_GENERIC { $$ = SYMBOL($1, @$); }
