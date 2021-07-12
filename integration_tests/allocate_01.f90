@@ -42,8 +42,8 @@ end do
 r = reduce_sum(c)
 if (r /= (114345.0, 0.0)) error stop
 
-deallocate(b)
-deallocate(a, c)
+! deallocate(b)
+! deallocate(a, c)
 
 contains
 
@@ -68,7 +68,7 @@ do i = lbound(a, 1), ubound(a, 1)
     end do
 end do
 
-deallocate(c_copy)
+! deallocate(c_copy)
 
 end subroutine sum
 

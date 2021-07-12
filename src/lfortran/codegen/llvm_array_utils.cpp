@@ -100,7 +100,12 @@ namespace LFortran {
         }
 
         bool SimpleCMODescriptor::is_array(llvm::Value* tmp) {
-            llvm::Type* tmp_type = static_cast<llvm::PointerType*>(tmp->getType())->getElementType();
+            llvm::Type* tmp_type = nullptr;
+            if( tmp->getType()->isPointerTy() ) {
+                tmp_type = static_cast<llvm::PointerType*>(tmp->getType())->getElementType();
+            } else {
+                tmp_type = tmp->getType();
+            }
             if( tmp_type->isStructTy() ) {
                 llvm::StructType* tmp_struct_type = static_cast<llvm::StructType*>(tmp_type);
                 if( tmp_struct_type->getNumElements() > 2 && 
@@ -230,7 +235,8 @@ namespace LFortran {
             std::vector<llvm::Type*> array_type_vec = {
                 el_type->getPointerTo(), 
                 llvm::Type::getInt32Ty(context),
-                dim_des_array};
+                dim_des_array,
+                llvm::Type::getInt8Ty(context)};
             tkr2mallocarray[array_key] = llvm::StructType::create(context, array_type_vec, "array");
             if( get_pointer ) {
                 return tkr2mallocarray[array_key]->getPointerTo();

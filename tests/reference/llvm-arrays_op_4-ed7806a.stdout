@@ -5,7 +5,7 @@ source_filename = "LFortran"
 %dimension_descriptor = type { i32, i32, i32, i32 }
 %size_arg = type { %dimension_descriptor*, i32 }
 %array_call = type { i1*, i32, [3 x %dimension_descriptor] }
-%array.1 = type { i1*, i32, [3 x %dimension_descriptor] }
+%array.1 = type { i1*, i32, [3 x %dimension_descriptor], i8 }
 
 @0 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
 @1 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1

@@ -2367,19 +2367,6 @@ public:
         tmp = builder->CreateLoad(tmp);
     }
 
-    inline bool is_llvm_val_array(llvm::Value* x) {
-        if( x->getType()->isStructTy() ) {
-            llvm::StructType* x_struct = static_cast<llvm::StructType*>
-                                            (x->getType());
-            if( x_struct->getNumElements() == 3 &&
-                x_struct->getElementType(2)->isArrayTy() && 
-                static_cast<llvm::ArrayType*>(x_struct->getElementType(2))
-                ->getElementType() == arr_descr->get_dimension_descriptor_type(false) )
-            return true;
-        }
-        return false;
-    }
-
     inline void fetch_val(ASR::Variable_t* x) {
         uint32_t x_h = get_hash((ASR::asr_t*)x);
         llvm::Value* x_v;
@@ -2403,7 +2390,7 @@ public:
         }
         tmp = builder->CreateLoad(x_v);
 
-        if( is_llvm_val_array(tmp) ) {
+        if( arr_descr->is_array(x_v) ) {
             tmp = x_v;
         }
     }
