@@ -1,6 +1,7 @@
 #include <limits>
 
 #include "tokenizer.h"
+#include <lfortran/bigint.h>
 #include "parser.tab.hh"
 
 namespace LFortran
@@ -58,10 +59,42 @@ bool lex_int(const unsigned char *s, const unsigned char *e, uint64_t &u,
     return true;
 }
 
+void lex_int_large(Allocator &al, const unsigned char *s,
+    const unsigned char *e, BigInt::BigInt &u, Str &suffix)
+{
+    uint64_t ui;
+    if (lex_int(s, e, ui, suffix)) {
+        if (ui <= BigInt::MAX_SMALL_INT) {
+            u.from_smallint(ui);
+            return;
+        }
+    }
+    const unsigned char *start = s;
+    for (; s < e; ++s) {
+        if (*s == '_') {
+            s++;
+            suffix.p = (char*) s;
+            suffix.n = e-s;
+
+            Str num;
+            num.p = (char*)start;
+            num.n = s-start-1;
+            u.from_largeint(al, num);
+            return;
+        }
+    }
+    suffix.p = nullptr;
+    suffix.n = 0;
+    Str num;
+    num.p = (char*)start;
+    num.n = e-start;
+    u.from_largeint(al, num);
+}
+
 #define KW(x) token(yylval.string); RET(KW_##x);
 #define RET(x) token_loc(loc); last_token=yytokentype::x; return yytokentype::x;
 
-int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
+int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
 {
     for (;;) {
         tok = cur;
@@ -360,48 +393,38 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             // built-in or custom defined operator, such as: `.eq.`, `.not.`,
             // or `.custom.`.
             integer / defop {
-                uint64_t u;
-                if (lex_int(tok, cur, u, yylval.int_suffix.int_kind)) {
-                    yylval.int_suffix.int_n = u;
-                    RET(TK_INTEGER)
-                } else {
-                    token_loc(loc);
-                    std::string t = token();
-                    throw LFortran::TokenizerError("Integer too large",
-                        loc, t);
-                }
+                lex_int_large(al, tok, cur,
+                    yylval.int_suffix.int_n,
+                    yylval.int_suffix.int_kind);
+                RET(TK_INTEGER)
             }
 
 
             real { token(yylval.string); RET(TK_REAL) }
             integer / (whitespace name) {
-                uint64_t u;
-                if (lex_int(tok, cur, u, yylval.int_suffix.int_kind)) {
-                    if (last_token == yytokentype::TK_NEWLINE) {
-                        yylval.n = u;
-                        RET(TK_LABEL)
+                if (last_token == yytokentype::TK_NEWLINE) {
+                    uint64_t u;
+                    if (lex_int(tok, cur, u, yylval.int_suffix.int_kind)) {
+                            yylval.n = u;
+                            RET(TK_LABEL)
                     } else {
-                        yylval.int_suffix.int_n = u;
-                        RET(TK_INTEGER)
+                        token_loc(loc);
+                        std::string t = token();
+                        throw LFortran::TokenizerError("Integer too large",
+                            loc, t);
                     }
                 } else {
-                    token_loc(loc);
-                    std::string t = token();
-                    throw LFortran::TokenizerError("Integer too large",
-                        loc, t);
+                    lex_int_large(al, tok, cur,
+                        yylval.int_suffix.int_n,
+                        yylval.int_suffix.int_kind);
+                    RET(TK_INTEGER)
                 }
             }
             integer {
-                uint64_t u;
-                if (lex_int(tok, cur, u, yylval.int_suffix.int_kind)) {
-                    yylval.int_suffix.int_n = u;
-                    RET(TK_INTEGER)
-                } else {
-                    token_loc(loc);
-                    std::string t = token();
-                    throw LFortran::TokenizerError("Integer too large",
-                        loc, t);
-                }
+                lex_int_large(al, tok, cur,
+                    yylval.int_suffix.int_n,
+                    yylval.int_suffix.int_kind);
+                RET(TK_INTEGER)
             }
 
             [bB] '"' [01]+ '"' { token(yylval.string); RET(TK_BOZ_CONSTANT) }

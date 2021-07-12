@@ -5,6 +5,7 @@
 #include <lfortran/ast.h>
 #include <lfortran/parser/location.h>
 #include <lfortran/containers.h>
+#include <lfortran/bigint.h>
 
 namespace LFortran
 {
@@ -41,7 +42,7 @@ struct ArgStarKw {
 };
 
 struct IntSuffix {
-    int64_t int_n;
+    BigInt::BigInt int_n;
     Str int_kind;
 };
 

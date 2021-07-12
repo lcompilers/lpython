@@ -1,6 +1,7 @@
 #include <cctype>
 #include <lfortran/ast_to_src.h>
 #include <lfortran/string_utils.h>
+#include <lfortran/bigint.h>
 
 using LFortran::AST::expr_t;
 using LFortran::AST::Name_t;
@@ -2700,7 +2701,7 @@ public:
 
     void visit_Num(const Num_t &x) {
         s = syn(gr::Integer);
-        s += std::to_string(x.m_n);
+        s += BigInt::int_to_str(x.m_n);
         if (x.m_kind) {
             s += "_";
             s += x.m_kind;

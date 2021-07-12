@@ -41,7 +41,7 @@ int emit_tokens(const std::string &infile)
     std::vector<int> toks;
     std::vector<LFortran::YYSTYPE> stypes;
     try {
-        toks = LFortran::tokens(input, &stypes);
+        toks = LFortran::tokens(al, input, &stypes);
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
