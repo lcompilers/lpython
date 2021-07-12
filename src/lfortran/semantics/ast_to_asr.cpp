@@ -1467,7 +1467,12 @@ public:
     void visit_Num(const AST::Num_t &x) {
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 4, nullptr, 0));
-        asr = ASR::make_ConstantInteger_t(al, x.base.base.loc, x.m_n, type);
+        if (BigInt::is_int_ptr(x.m_n)) {
+            throw SemanticError("Integer constants larger than 2^62-1 are not implemented yet", x.base.base.loc);
+        } else {
+            LFORTRAN_ASSERT(!BigInt::is_int_ptr(x.m_n));
+            asr = ASR::make_ConstantInteger_t(al, x.base.base.loc, x.m_n, type);
+        }
     }
 
 };
@@ -2677,7 +2682,12 @@ public:
     void visit_Num(const AST::Num_t &x) {
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 4, nullptr, 0));
-        tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, x.m_n, type);
+        if (BigInt::is_int_ptr(x.m_n)) {
+            throw SemanticError("Integer constants larger than 2^62-1 are not implemented yet", x.base.base.loc);
+        } else {
+            LFORTRAN_ASSERT(!BigInt::is_int_ptr(x.m_n));
+            tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, x.m_n, type);
+        }
     }
 
     void visit_Logical(const AST::Logical_t &x) {
