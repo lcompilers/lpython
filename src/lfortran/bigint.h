@@ -91,6 +91,14 @@ inline static char* largeint_to_string(int64_t i) {
     return cs;
 }
 
+inline static std::string int_to_str(int64_t i) {
+    if (is_int_ptr(i)) {
+        return std::string(largeint_to_string(i));
+    } else {
+        return std::to_string(i);
+    }
+}
+
 } // BigIntUtils
 
 /* This is a thin wrapper over the functionality exposed in BigIntUtils.
@@ -128,11 +136,7 @@ struct BigInt {
     }
 
     std::string str() const {
-        if (is_large()) {
-            return std::string(BigIntUtils::largeint_to_string(n));
-        } else {
-            return std::to_string(n);
-        }
+        return BigIntUtils::int_to_str(n);
     }
 
 };

@@ -157,7 +157,7 @@ public:
         if (use_colors) {
             s.append(color(fg::cyan));
         }
-        s.append(std::to_string(x.m_n));
+        s.append(BigIntUtils::int_to_str(x.m_n));
         if (use_colors) {
             s.append(color(fg::reset));
         }
