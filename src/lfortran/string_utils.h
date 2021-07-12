@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <cctype>
 
 namespace LFortran
 {
@@ -21,6 +22,11 @@ std::vector<std::string> slice(const std::vector<std::string> &v,
 std::string replace(const std::string &s,
     const std::string &regex, const std::string &replace);
 
+inline std::string str2lower(const std::string &s) {
+   std::string res;
+   for(auto x: s) res.push_back(std::tolower(x));
+   return res;
+}
 
 } // namespace LFortran
 

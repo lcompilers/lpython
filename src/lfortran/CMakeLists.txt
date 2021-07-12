@@ -56,6 +56,8 @@ if (WITH_LLVM)
     set(SRC ${SRC}
         codegen/evaluator.cpp
         codegen/asr_to_llvm.cpp
+        codegen/llvm_array_utils.cpp
+        codegen/llvm_utils.cpp
         pass/nested_vars.cpp
     )
     # We use deprecated API in LLVM, so we disable the warning until we upgrade
@@ -64,10 +66,14 @@ if (WITH_LLVM)
             COMPILE_FLAGS -Wno-deprecated-declarations)
         set_source_files_properties(codegen/asr_to_llvm.cpp PROPERTIES
             COMPILE_FLAGS -Wno-deprecated-declarations)
+        set_source_files_properties(codegen/llvm_array_utils.cpp PROPERTIES
+            COMPILE_FLAGS -Wno-deprecated-declarations)
+        set_source_files_properties(codegen/llvm_utils.cpp PROPERTIES
+            COMPILE_FLAGS -Wno-deprecated-declarations)
     endif()
 endif()
 add_library(lfortran_lib ${SRC})
-target_link_libraries(lfortran_lib lfortran_runtime_static p::zlib)
+target_link_libraries(lfortran_lib lfortran_runtime_static ZLIB::ZLIB)
 target_include_directories(lfortran_lib BEFORE PUBLIC ${lfortran_SOURCE_DIR}/src)
 target_include_directories(lfortran_lib BEFORE PUBLIC ${lfortran_BINARY_DIR}/src)
 if (WITH_XEUS)

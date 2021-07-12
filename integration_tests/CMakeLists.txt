@@ -112,6 +112,7 @@ RUN(NAME doloop_05 LABELS gfortran llvm cpp)
 
 RUN(NAME goto_01 LABELS gfortran)
 RUN(NAME goto_02 LABELS gfortran)
+RUN(NAME goto_03 LABELS gfortran)
 
 RUN(NAME subroutines_01 LABELS gfortran llvm cpp x86)
 RUN(NAME subroutines_02 LABELS gfortran llvm cpp x86)
@@ -139,6 +140,10 @@ RUN(NAME arrays_01_logical LABELS gfortran llvm)
 RUN(NAME array_bound_1 LABELS gfortran llvm)
 RUN(NAME arrays_op_1 LABELS gfortran llvm)
 RUN(NAME arrays_op_2 LABELS gfortran llvm)
+RUN(NAME arrays_op_3 LABELS gfortran llvm)
+RUN(NAME arrays_op_4 LABELS gfortran llvm)
+RUN(NAME arrays_op_5 LABELS gfortran llvm)
+RUN(NAME arrays_op_6 LABELS gfortran llvm)
 RUN(NAME arrays_03_func LABELS gfortran cpp llvm)
 RUN(NAME arrays_04_func LABELS gfortran cpp llvm)
 RUN(NAME arrays_05 LABELS gfortran cpp)
@@ -156,6 +161,8 @@ RUN(NAME reserved_02 LABELS gfortran llvm)
 RUN(NAME reserved_03 LABELS gfortran)
 
 RUN(NAME namelist_01 LABELS gfortran)
+
+RUN(NAME submodule_01 LABELS gfortran)
 
 RUN(NAME intrinsics_01 LABELS gfortran) # sqrt, abs, log
 RUN(NAME intrinsics_02 LABELS gfortran llvm) # sin
@@ -190,6 +197,7 @@ RUN(NAME if_04 LABELS gfortran x86)
 RUN(NAME case_01 LABELS gfortran llvm)
 RUN(NAME case_02 LABELS gfortran llvm)
 RUN(NAME case_03 LABELS gfortran llvm)
+RUN(NAME case_04 LABELS gfortran)
 
 RUN(NAME select_type_01 LABELS gfortran)
 
@@ -289,3 +297,5 @@ RUN(NAME recursion_03 LABELS gfortran llvm)
 RUN(NAME return_01 LABELS gfortran llvm)
 RUN(NAME return_02 LABELS gfortran llvm)
 RUN(NAME return_03 LABELS gfortran llvm)
+
+RUN(NAME class_01 LABELS gfortran)

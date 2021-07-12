@@ -35,7 +35,7 @@ public:
         del_syms.reserve(al, 0);
         for( auto& item: current_scope->scope ) {
             if( item.second->type == ASR::symbolType::Variable ) {
-                const ASR::symbol_t* sym = symbol_get_past_external(item.second);
+                const ASR::symbol_t* sym = LFortran::ASRUtils::symbol_get_past_external(item.second);
                 ASR::Variable_t* var = down_cast<ASR::Variable_t>(sym);
                 if( var->m_storage == ASR::storage_typeType::Allocatable && 
                     var->m_intent == ASR::intentType::Local ) {
@@ -46,7 +46,7 @@ public:
         if( del_syms.size() == 0 ) {
             return nullptr;
         }
-        return STMT(ASR::make_ImplicitDeallocate_t(al, loc, 
+        return LFortran::ASRUtils::STMT(ASR::make_ImplicitDeallocate_t(al, loc, 
                     del_syms.p, del_syms.size()));
     }
 

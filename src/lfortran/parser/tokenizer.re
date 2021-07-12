@@ -18,16 +18,16 @@ void Tokenizer::set_string(const std::string &str)
 }
 
 template<int base>
-bool adddgt(unsigned long &u, unsigned long d)
+bool adddgt(uint64_t &u, uint64_t d)
 {
-    if (u > (std::numeric_limits<unsigned long>::max() - d) / base) {
+    if (u > (std::numeric_limits<uint64_t>::max() - d) / base) {
         return false;
     }
     u = u * base + d;
     return true;
 }
 
-bool lex_dec(const unsigned char *s, const unsigned char *e, unsigned long &u)
+bool lex_dec(const unsigned char *s, const unsigned char *e, uint64_t &u)
 {
     for (u = 0; s < e; ++s) {
         if (!adddgt<10>(u, *s - 0x30u)) {
@@ -37,14 +37,35 @@ bool lex_dec(const unsigned char *s, const unsigned char *e, unsigned long &u)
     return true;
 }
 
+// Tokenizes integer of the kind 1234_ikind into `u` and `suffix`
+// s ... the start of the integer
+// e ... the character after the end
+bool lex_int(const unsigned char *s, const unsigned char *e, uint64_t &u,
+    Str &suffix)
+{
+    for (u = 0; s < e; ++s) {
+        if (*s == '_') {
+            s++;
+            suffix.p = (char*) s;
+            suffix.n = e-s;
+            return true;
+        } else if (!adddgt<10>(u, *s - 0x30u)) {
+            return false;
+        }
+    }
+    suffix.p = nullptr;
+    suffix.n = 0;
+    return true;
+}
+
 #define KW(x) token(yylval.string); RET(KW_##x);
 #define RET(x) token_loc(loc); last_token=yytokentype::x; return yytokentype::x;
 
 int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
 {
-	unsigned long u;
     for (;;) {
         tok = cur;
+
         /*
         Re2c has an excellent documentation at:
 
@@ -58,8 +79,38 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
         * Default rule `*` should always be defined, it has the lowest priority
           regardless of its place and matches any code unit
 
+        The code below executes on its own until a rule is matched: the action
+        in {} is then executed. In that action we can use `tok` and `cur` to
+        extract the token:
+
+        * `tok` points to the first character of the token
+        * `cur-1` points to the last character of the token
+        * `cur` points to the first character of the next token
+
+        In the action, we do one of:
+
+        * call `continue` which executes another cycle in the for loop (which
+          will parse the next token); we use this to skip a token
+        * call `return` which returns from this function; we return a token
+        * throw an exception (terminates the tokenizer)
+
+        In the first two cases, `cur` points to first character of the next
+        token, which becomes `tok` at the next iteration of the loop (either
+        right away after `continue` or after the `lex` function is called again
+        after `return`).
+
+        When the re2c block starts, `cur` must point to the next token that
+        should be tokenized. We remember its value in `tok`. When the action {}
+        enters, `cur` points to the following token and `cur-tok` is the length
+        of the new token that got tokenized.
+
         See the manual for more details.
         */
+
+
+        // These two variables are needed by the re2c block below internally,
+        // initialization is not needed.
+        unsigned char *mar, *ctxmar;
         /*!re2c
             re2c:define:YYCURSOR = cur;
             re2c:define:YYMARKER = mar;
@@ -82,7 +133,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             string1 = (kind "_")? '"' ('""'|[^"\x00])* '"';
             string2 = (kind "_")? "'" ("''"|[^'\x00])* "'";
             comment = "!" [^\n\x00]*;
-            ws_comment = whitespace? comment? "\n";
+            ws_comment = whitespace? comment? newline;
 
             * { token_loc(loc);
                 std::string t = token();
@@ -125,6 +176,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             'do' { KW(DO) }
             'dowhile' { KW(DOWHILE) }
             'double' { KW(DOUBLE) }
+            'doubleprecision' { KW(DOUBLE_PRECISION) }
             'elemental' { KW(ELEMENTAL) }
             'else' { KW(ELSE) }
             'elseif' { KW(ELSEIF) }
@@ -136,6 +188,7 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             'endif' { KW(ENDIF) }
             'end' whitespace 'interface' { KW(END_INTERFACE) }
             'endinterface' { KW(ENDINTERFACE) }
+            'endtype' { KW(ENDTYPE) }
             'end' whitespace 'do' { KW(END_DO) }
             'enddo' { KW(ENDDO) }
             'end' whitespace 'where' { KW(END_WHERE) }
@@ -217,6 +270,9 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             'rewind' { KW(REWIND) }
             'save' { KW(SAVE) }
             'select' { KW(SELECT) }
+            'selectcase' { KW(SELECT_CASE) }
+            'selectrank' { KW(SELECT_RANK) }
+            'selecttype' { KW(SELECT_TYPE) }
             'sequence' { KW(SEQUENCE) }
             'shared' { KW(SHARED) }
             'source' { KW(SOURCE) }
@@ -304,8 +360,9 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
             // built-in or custom defined operator, such as: `.eq.`, `.not.`,
             // or `.custom.`.
             integer / defop {
-                if (lex_dec(tok, cur, u)) {
-                    yylval.n = u;
+                uint64_t u;
+                if (lex_int(tok, cur, u, yylval.int_suffix.int_kind)) {
+                    yylval.int_suffix.int_n = u;
                     RET(TK_INTEGER)
                 } else {
                     token_loc(loc);
@@ -318,11 +375,13 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
 
             real { token(yylval.string); RET(TK_REAL) }
             integer / (whitespace name) {
-                if (lex_dec(tok, cur, u)) {
-                    yylval.n = u;
+                uint64_t u;
+                if (lex_int(tok, cur, u, yylval.int_suffix.int_kind)) {
                     if (last_token == yytokentype::TK_NEWLINE) {
+                        yylval.n = u;
                         RET(TK_LABEL)
                     } else {
+                        yylval.int_suffix.int_n = u;
                         RET(TK_INTEGER)
                     }
                 } else {
@@ -333,8 +392,9 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
                 }
             }
             integer {
-                if (lex_dec(tok, cur, u)) {
-                    yylval.n = u;
+                uint64_t u;
+                if (lex_int(tok, cur, u, yylval.int_suffix.int_kind)) {
+                    yylval.int_suffix.int_n = u;
                     RET(TK_INTEGER)
                 } else {
                     token_loc(loc);
@@ -355,10 +415,10 @@ int Tokenizer::lex(YYSTYPE &yylval, Location &loc)
                 line_num++; cur_line=cur; continue;
             }
 
-            comment / "\n" { token(yylval.string); RET(TK_COMMENT) }
+            comment / newline { token(yylval.string); RET(TK_COMMENT) }
 
             // Macros are ignored for now:
-            "#" [^\n\x00]* "\n" { line_num++; cur_line=cur; continue; }
+            "#" [^\n\x00]* newline { line_num++; cur_line=cur; continue; }
 
             // Include statements are ignored for now
             'include' whitespace string1 { continue; }

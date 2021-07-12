@@ -8,6 +8,8 @@
 #include <lfortran/asr_verify.h>
 #include <lfortran/bwriter.h>
 
+using LFortran::ASRUtils::symbol_parent_symtab;
+using LFortran::ASRUtils::symbol_name;
 
 namespace LFortran {
 

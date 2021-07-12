@@ -77,8 +77,9 @@ set(LFORTRAN_STATIC_BIN no CACHE BOOL "Build LFortran as a static binary")
 set(WITH_LFORTRAN_BINARY_MODFILES YES
     CACHE BOOL "Use binary modfiles")
 
-#ZLIB
-find_package(ZLIB REQUIRED)
+# Find ZLIB with our custom finder before including LLVM since the finder for LLVM
+# might search for ZLIB again and find the shared libraries instead of the static ones
+find_package(StaticZLIB REQUIRED)
 
 # LLVM
 set(WITH_LLVM no CACHE BOOL "Build with LLVM support")

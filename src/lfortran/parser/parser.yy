@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    593 // shift/reduce conflicts
-%expect-rr 96  // reduce/reduce conflicts
+%expect    607 // shift/reduce conflicts
+%expect-rr 101 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -69,7 +69,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token TK_NEWLINE
 %token <string> TK_NAME
 %token <string> TK_DEF_OP
-%token <n> TK_INTEGER
+%token <int_suffix> TK_INTEGER
 %token <n> TK_LABEL
 %token <string> TK_REAL
 %token <string> TK_BOZ_CONSTANT
@@ -149,6 +149,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_DO
 %token <string> KW_DOWHILE
 %token <string> KW_DOUBLE
+%token <string> KW_DOUBLE_PRECISION
 %token <string> KW_ELEMENTAL
 %token <string> KW_ELSE
 %token <string> KW_ELSEIF
@@ -158,6 +159,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_ENDIF
 %token <string> KW_END_INTERFACE
 %token <string> KW_ENDINTERFACE
+%token <string> KW_ENDTYPE
 %token <string> KW_END_FORALL
 %token <string> KW_ENDFORALL
 %token <string> KW_END_DO
@@ -241,6 +243,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_REWIND
 %token <string> KW_SAVE
 %token <string> KW_SELECT
+%token <string> KW_SELECT_CASE
+%token <string> KW_SELECT_RANK
+%token <string> KW_SELECT_TYPE
 %token <string> KW_SEQUENCE
 %token <string> KW_SHARED
 %token <string> KW_SOURCE
@@ -349,8 +354,13 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> select_type_statement
 %type <vec_ast> select_type_body_statements
 %type <ast> select_type_body_statement
+%type <ast> select_rank_statement
+%type <vec_ast> select_rank_case_stmts
+%type <ast> select_rank_case_stmt
 %type <vec_ast> case_statements
 %type <ast> case_statement
+%type <vec_ast> case_conditions
+%type <ast> case_condition
 %type <ast> while_statement
 %type <ast> critical_statement
 %type <ast> do_statement
@@ -416,6 +426,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> letter_spec
 %type <vec_ast> letter_spec_list
 %type <ast> procedure_decl
+%type <vec_ast> access_spec_list
+%type <ast> access_spec
 %type <ast> proc_modifier
 %type <vec_ast> procedure_list
 %type <vec_ast> derived_type_contains_opt
@@ -485,6 +497,10 @@ submodule
     : KW_SUBMODULE "(" id ")" id sep use_statement_star implicit_statement_star
         decl_star contains_block_opt KW_END end_submodule_opt sep {
             $$ = SUBMODULE($3, $5, $7, $8, $9, $10, @$); }
+    | KW_SUBMODULE "(" id ":" id ")" id sep use_statement_star
+        implicit_statement_star decl_star
+        contains_block_opt KW_END end_submodule_opt sep {
+            $$ = SUBMODULE1($3, $5, $7, $9, $10, $11, $12, @$); }
     ;
 
 block_data
@@ -558,8 +574,13 @@ enum_var_modifiers
 
 derived_type_decl
     : KW_TYPE var_modifiers id sep var_decl_star
-        derived_type_contains_opt KW_END KW_TYPE id_opt sep {
+        derived_type_contains_opt end_type sep {
         $$ = DERIVED_TYPE($2, $3, $5, $6, @$); }
+    ;
+
+end_type
+    : KW_END KW_TYPE id_opt
+    | KW_ENDTYPE id_opt
     ;
 
 derived_type_contains_opt
@@ -577,14 +598,25 @@ procedure_decl
             $$ = DERIVED_TYPE_PROC($2, $3, @$); }
     | KW_PROCEDURE "(" id ")" proc_modifiers use_symbol_list sep {
             $$ = DERIVED_TYPE_PROC1($3, $5, $6, @$); }
-    | KW_GENERIC "::" KW_OPERATOR "(" operator_type ")" "=>" id_list sep {
-            $$ = GENERIC_OPERATOR($5, $8, @$); }
-    | KW_GENERIC "::" KW_OPERATOR "(" TK_DEF_OP ")" "=>" id_list sep {
-            $$ = GENERIC_DEFOP($5, $8, @$); }
-    | KW_GENERIC "::" KW_ASSIGNMENT "(" "=" ")" "=>" id_list sep {
-            $$ = GENERIC_ASSIGNMENT($8, @$); }
-    | KW_GENERIC "::" id "=>" id_list sep { $$ = GENERIC_NAME($3, $5, @$); }
+    | KW_GENERIC access_spec_list KW_OPERATOR "(" operator_type ")" "=>" id_list sep {
+            $$ = GENERIC_OPERATOR($2, $5, $8, @$); }
+    | KW_GENERIC access_spec_list KW_OPERATOR "(" TK_DEF_OP ")" "=>" id_list sep {
+            $$ = GENERIC_DEFOP($2, $5, $8, @$); }
+    | KW_GENERIC access_spec_list KW_ASSIGNMENT "(" "=" ")" "=>" id_list sep {
+            $$ = GENERIC_ASSIGNMENT($2, $8, @$); }
+    | KW_GENERIC access_spec_list id "=>" id_list sep {
+            $$ = GENERIC_NAME($2, $3, $5, @$); }
     | KW_FINAL "::" id sep { $$ = FINAL_NAME($3, @$); }
+    ;
+
+access_spec_list
+    : "::" { LIST_NEW($$); }
+    | access_spec "::" { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+access_spec
+    : "," KW_PRIVATE  { $$ = SIMPLE_ATTR(Private, @$); }
+    | "," KW_PUBLIC { $$ = SIMPLE_ATTR(Public, @$); }
     ;
 
 operator_type
@@ -620,6 +652,7 @@ proc_modifier_list
 proc_modifier
     : KW_PRIVATE  { $$ = SIMPLE_ATTR(Private, @$); }
     | KW_PUBLIC { $$ = SIMPLE_ATTR(Public, @$); }
+    | KW_PASS { $$ = PASS(nullptr, @$); }
     | KW_PASS "(" id ")" { $$ = PASS($3, @$); }
     | KW_NOPASS { $$ = SIMPLE_ATTR(NoPass, @$); }
     | KW_DEFERRED { $$ = SIMPLE_ATTR(Deferred, @$); }
@@ -812,22 +845,37 @@ implicit_statement
             $$ = IMPLICIT(ATTR_TYPE(Integer, @$), $4, @$); }
     | KW_IMPLICIT KW_INTEGER "*" TK_INTEGER "(" letter_spec_list ")" sep {
             $$ = IMPLICIT(ATTR_TYPE_INT(Integer, $4, @$), $6, @$); }
+    | KW_IMPLICIT KW_INTEGER "(" letter_spec_list ")"
+        "(" letter_spec_list ")" sep {
+            $$ = IMPLICIT1(ATTR_TYPE(Integer, @$), $4, $7, @$); }
     | KW_IMPLICIT KW_CHARACTER "(" letter_spec_list ")" sep {
             $$ = IMPLICIT(ATTR_TYPE(Character, @$), $4, @$); }
     | KW_IMPLICIT KW_CHARACTER "*" TK_INTEGER "(" letter_spec_list ")" sep {
             $$ = IMPLICIT(ATTR_TYPE_INT(Character, $4, @$), $6, @$); }
+    | KW_IMPLICIT KW_CHARACTER "(" letter_spec_list ")"
+        "(" letter_spec_list ")" sep {
+            $$ = IMPLICIT1(ATTR_TYPE(Character, @$), $4, $7, @$); }
     | KW_IMPLICIT KW_REAL "(" letter_spec_list ")" sep {
             $$ = IMPLICIT(ATTR_TYPE(Real, @$), $4, @$); }
     | KW_IMPLICIT KW_REAL "*" TK_INTEGER "(" letter_spec_list ")" sep {
             $$ = IMPLICIT(ATTR_TYPE_INT(Real, $4, @$), $6, @$); }
+    | KW_IMPLICIT KW_REAL "(" letter_spec_list ")"
+        "(" letter_spec_list ")" sep {
+            $$ = IMPLICIT1(ATTR_TYPE(Real, @$), $4, $7, @$); }
     | KW_IMPLICIT KW_COMPLEX "(" letter_spec_list ")" sep {
             $$ = IMPLICIT(ATTR_TYPE(Complex, @$), $4, @$); }
     | KW_IMPLICIT KW_COMPLEX "*" TK_INTEGER "(" letter_spec_list ")" sep {
             $$ = IMPLICIT(ATTR_TYPE_INT(Complex, $4, @$), $6, @$); }
+    | KW_IMPLICIT KW_COMPLEX "(" letter_spec_list ")"
+        "(" letter_spec_list ")" sep {
+            $$ = IMPLICIT1(ATTR_TYPE(Complex, @$), $4, $7, @$); }
     | KW_IMPLICIT KW_LOGICAL "(" letter_spec_list ")" sep {
             $$ = IMPLICIT(ATTR_TYPE(Logical, @$), $4, @$); }
     | KW_IMPLICIT KW_LOGICAL "*" TK_INTEGER "(" letter_spec_list ")" sep {
             $$ = IMPLICIT(ATTR_TYPE_INT(Logical, $4, @$), $6, @$); }
+    | KW_IMPLICIT KW_LOGICAL "(" letter_spec_list ")"
+        "(" letter_spec_list ")" sep {
+            $$ = IMPLICIT1(ATTR_TYPE(Logical, @$), $4, $7, @$); }
     | KW_IMPLICIT KW_DOUBLE KW_PRECISION "(" letter_spec_list ")" sep {
             $$ = IMPLICIT(ATTR_TYPE(DoublePrecision, @$), $5, @$); }
     | KW_IMPLICIT KW_TYPE "(" id ")" "(" letter_spec_list ")" sep {
@@ -867,6 +915,10 @@ use_statement
     : KW_USE use_modifiers id sep { $$ = USE1($2, $3, @$); }
     | KW_USE use_modifiers id "," KW_ONLY ":" use_symbol_list sep {
             $$ = USE2($2, $3, $7, @$); }
+    | KW_USE use_modifiers id "," KW_ONLY ":" sep {
+            $$ = USE3($2, $3, @$); }
+    | KW_USE use_modifiers id "," use_symbol_list sep {
+            $$ = USE4($2, $3, $5, @$); }
     ;
 
 import_statement_star
@@ -894,6 +946,8 @@ use_symbol
     | KW_ASSIGNMENT "(" "=" ")"  { $$ = USE_ASSIGNMENT(@$); }
     | KW_OPERATOR "(" operator_type ")"  { $$ = INTRINSIC_OPERATOR($3, @$); }
     | KW_OPERATOR "(" TK_DEF_OP ")"  { $$ = DEFINED_OPERATOR($3, @$); }
+    | KW_OPERATOR "(" TK_DEF_OP ")" "=>" KW_OPERATOR "(" TK_DEF_OP ")" {
+        $$ = RENAME_OPERATOR($3, $8, @$); }
     ;
 
 use_modifiers
@@ -1103,6 +1157,7 @@ var_type
     | KW_LOGICAL "(" kind_arg_list ")" { $$ = ATTR_TYPE_KIND(Logical, $3, @$); }
     | KW_LOGICAL "*" TK_INTEGER { $$ = ATTR_TYPE_INT(Logical, $3, @$); }
     | KW_DOUBLE KW_PRECISION { $$ = ATTR_TYPE(DoublePrecision, @$); }
+    | KW_DOUBLE_PRECISION { $$ = ATTR_TYPE(DoublePrecision, @$); }
     | KW_TYPE "(" id ")" { $$ = ATTR_TYPE_NAME(Type, $3, @$); }
     | KW_PROCEDURE "(" id ")" { $$ = ATTR_TYPE_NAME(Procedure, $3, @$); }
     | KW_CLASS "(" id ")" { $$ = ATTR_TYPE_NAME(Class, $3, @$); }
@@ -1150,6 +1205,7 @@ array_comp_decl
     | ":"            { $$ = ARRAY_COMP_DECL5d(@$); }
     | "*"            { $$ = ARRAY_COMP_DECL6d(@$); }
     | expr ":" "*"   { $$ = ARRAY_COMP_DECL7d($1, @$); }
+    | TK_DBL_DOT     { $$ = ARRAY_COMP_DECL8d(@$); }
     ;
 
 coarray_comp_decl_list
@@ -1243,6 +1299,7 @@ multi_line_statement0
     | if_statement
     | select_statement
     | select_type_statement
+    | select_rank_statement
     | where_statement
     | while_statement
     ;
@@ -1252,8 +1309,14 @@ assignment_statement
     ;
 
 goto_statement
-    : KW_GO KW_TO TK_INTEGER { $$ = GOTO($3, @$); }
-    | KW_GOTO TK_INTEGER { $$ = GOTO($2, @$); }
+    : goto TK_INTEGER { $$ = GOTO($2, @$); }
+    | goto "(" expr_list ")" expr { $$ = GOTO1($3, $5, @$); }
+    | goto "(" expr_list ")" "," expr { $$ = GOTO1($3, $6, @$); }
+    ;
+
+goto
+    : KW_GO KW_TO
+    | KW_GOTO
     ;
 
 associate_statement
@@ -1411,6 +1474,8 @@ where_block
 select_statement
     : KW_SELECT KW_CASE "(" expr ")" sep case_statements KW_END KW_SELECT {
             $$ = SELECT($4, $7, @$); }
+    | KW_SELECT_CASE "(" expr ")" sep case_statements KW_END KW_SELECT {
+                $$ = SELECT($3, $6, @$); }
     ;
 
 case_statements
@@ -1419,21 +1484,58 @@ case_statements
     ;
 
 case_statement
-    : KW_CASE "(" expr_list ")" sep statements { $$ = CASE_STMT($3, $6, @$); }
-    | KW_CASE "(" expr ":" ")" sep statements { $$ = CASE_STMT2($3, $7, @$); }
-    | KW_CASE "(" ":" expr ")" sep statements { $$ = CASE_STMT3($4, $7, @$); }
-    | KW_CASE "(" expr ":" expr ")" sep statements {
-            $$ = CASE_STMT4($3, $5, $8, @$); }
+    : KW_CASE "(" case_conditions ")" sep statements {
+            $$ = CASE_STMT($3, $6, @$); }
     | KW_CASE KW_DEFAULT sep statements { $$ = CASE_STMT_DEFAULT($4, @$); }
     ;
 
+case_conditions
+    : case_conditions "," case_condition { $$ = $1; LIST_ADD($$, $3); }
+    | case_condition { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+case_condition
+    : expr { $$ = CASE_EXPR($1, @$); }
+    | expr ":" { $$ = CASE_RANGE1($1, @$); }
+    | ":" expr { $$ = CASE_RANGE2($2, @$); }
+    | expr ":" expr { $$ = CASE_RANGE3($1, $3, @$); }
+    ;
+
+select_rank_statement
+    : select_rank "(" expr ")" sep select_rank_case_stmts
+        KW_END KW_SELECT { $$ = SELECT_RANK1($3, $6, @$); }
+    | select_rank "(" id "=>" expr ")" sep select_rank_case_stmts
+        KW_END KW_SELECT { $$ = SELECT_RANK2($3, $5, $8, @$); }
+    ;
+
+select_rank
+    : KW_SELECT KW_RANK
+    | KW_SELECT_RANK
+    ;
+
+select_rank_case_stmts
+    : select_rank_case_stmts select_rank_case_stmt { $$ = $1; LIST_ADD($$, $2); }
+    | %empty { LIST_NEW($$); }
+    ;
+
+select_rank_case_stmt
+    : KW_RANK "(" expr ")" id_opt sep statements { $$ = RANK_EXPR($3, $7, @$); }
+    | KW_RANK "(" "*" ")" id_opt sep statements { $$ = RANK_STAR($7, @$); }
+    | KW_RANK KW_DEFAULT id_opt sep statements { $$ = RANK_DEFAULT($5, @$); }
+    ;
+
 select_type_statement
-    : KW_SELECT KW_TYPE "(" expr ")" sep select_type_body_statements
+    : select_type "(" expr ")" sep select_type_body_statements
         KW_END KW_SELECT {
-                $$ = SELECT_TYPE1($4, $7, @$); }
-    | KW_SELECT KW_TYPE "(" id "=>" expr ")" sep select_type_body_statements
+                $$ = SELECT_TYPE1($3, $6, @$); }
+    | select_type "(" id "=>" expr ")" sep select_type_body_statements
         KW_END KW_SELECT {
-                $$ = SELECT_TYPE2($4, $6, $9, @$); }
+                $$ = SELECT_TYPE2($3, $5, $8, @$); }
+    ;
+
+select_type
+    : KW_SELECT KW_TYPE
+    | KW_SELECT_TYPE
     ;
 
 select_type_body_statements
@@ -1449,10 +1551,11 @@ select_type_body_statement
     | KW_CLASS KW_DEFAULT sep statements { $$ = CLASS_DEFAULT($4, @$); }
     ;
 
-
 while_statement
     : KW_DO KW_WHILE "(" expr ")" sep statements enddo {
             $$ = WHILE($4, $7, @$); }
+    | KW_DOWHILE "(" expr ")" sep statements enddo {
+                $$ = WHILE($3, $6, @$); }
     ;
 
 // sr-conflict (2x): "KW_DO sep" being either a do_statement or an expr
@@ -1464,9 +1567,9 @@ do_statement
     | KW_DO id "=" expr "," expr "," expr sep statements enddo {
             $$ = DO3($2, $4, $6, $8, $10, @$); }
     | KW_DO TK_INTEGER id "=" expr "," expr sep statements enddo {
-            $$ = DO2_LABEL($2, $3, $5, $7, $9, @$); }
+            $$ = DO2_LABEL(INTEGER3($2), $3, $5, $7, $9, @$); }
     | KW_DO TK_INTEGER id "=" expr "," expr "," expr sep statements enddo {
-            $$ = DO3_LABEL($2, $3, $5, $7, $9, $11, @$); }
+            $$ = DO3_LABEL(INTEGER3($2), $3, $5, $7, $9, $11, @$); }
     | KW_DO KW_CONCURRENT "(" concurrent_control_list ")"
         concurrent_locality_star sep statements enddo {
             $$ = DO_CONCURRENT1($4, $6, $8, @$); }
@@ -1872,6 +1975,7 @@ id
     | KW_DO { $$ = SYMBOL($1, @$); }
     | KW_DOWHILE { $$ = SYMBOL($1, @$); }
     | KW_DOUBLE { $$ = SYMBOL($1, @$); }
+    | KW_DOUBLE_PRECISION { $$ = SYMBOL($1, @$); }
     | KW_ELEMENTAL { $$ = SYMBOL($1, @$); }
     | KW_ELSE { $$ = SYMBOL($1, @$); }
     | KW_ELSEIF { $$ = SYMBOL($1, @$); }
@@ -1880,6 +1984,7 @@ id
     | KW_ENDDO { $$ = SYMBOL($1, @$); }
     | KW_ENDIF { $$ = SYMBOL($1, @$); }
     | KW_ENDINTERFACE { $$ = SYMBOL($1, @$); }
+    | KW_ENDTYPE { $$ = SYMBOL($1, @$); }
     | KW_ENTRY { $$ = SYMBOL($1, @$); }
     | KW_ENUM { $$ = SYMBOL($1, @$); }
     | KW_ENUMERATOR { $$ = SYMBOL($1, @$); }
@@ -1956,6 +2061,9 @@ id
     | KW_REWIND { $$ = SYMBOL($1, @$); }
     | KW_SAVE { $$ = SYMBOL($1, @$); }
     | KW_SELECT { $$ = SYMBOL($1, @$); }
+    | KW_SELECT_CASE { $$ = SYMBOL($1, @$); }
+    | KW_SELECT_RANK { $$ = SYMBOL($1, @$); }
+    | KW_SELECT_TYPE { $$ = SYMBOL($1, @$); }
     | KW_SEQUENCE { $$ = SYMBOL($1, @$); }
     | KW_SHARED { $$ = SYMBOL($1, @$); }
     | KW_SOURCE { $$ = SYMBOL($1, @$); }

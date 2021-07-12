@@ -1,9 +1,9 @@
 diff --git a/src/lfortran/parser/parser.yy b/src/lfortran/parser/parser.yy
-index c200f3c2..978f58cc 100644
+index 8197b72b..d23ff9b3 100644
 --- a/src/lfortran/parser/parser.yy
 +++ b/src/lfortran/parser/parser.yy
-@@ -1821,142 +1821,4 @@ id_opt
-
+@@ -1928,147 +1928,4 @@ id_opt
+ 
  id
      : TK_NAME { $$ = SYMBOL($1, @$); }
 -    | KW_ABSTRACT { $$ = SYMBOL($1, @$); }
@@ -38,6 +38,7 @@ index c200f3c2..978f58cc 100644
 -    | KW_DO { $$ = SYMBOL($1, @$); }
 -    | KW_DOWHILE { $$ = SYMBOL($1, @$); }
 -    | KW_DOUBLE { $$ = SYMBOL($1, @$); }
+-    | KW_DOUBLE_PRECISION { $$ = SYMBOL($1, @$); }
 -    | KW_ELEMENTAL { $$ = SYMBOL($1, @$); }
 -    | KW_ELSE { $$ = SYMBOL($1, @$); }
 -    | KW_ELSEIF { $$ = SYMBOL($1, @$); }
@@ -46,6 +47,7 @@ index c200f3c2..978f58cc 100644
 -    | KW_ENDDO { $$ = SYMBOL($1, @$); }
 -    | KW_ENDIF { $$ = SYMBOL($1, @$); }
 -    | KW_ENDINTERFACE { $$ = SYMBOL($1, @$); }
+-    | KW_ENDTYPE { $$ = SYMBOL($1, @$); }
 -    | KW_ENTRY { $$ = SYMBOL($1, @$); }
 -    | KW_ENUM { $$ = SYMBOL($1, @$); }
 -    | KW_ENUMERATOR { $$ = SYMBOL($1, @$); }
@@ -122,6 +124,9 @@ index c200f3c2..978f58cc 100644
 -    | KW_REWIND { $$ = SYMBOL($1, @$); }
 -    | KW_SAVE { $$ = SYMBOL($1, @$); }
 -    | KW_SELECT { $$ = SYMBOL($1, @$); }
+-    | KW_SELECT_CASE { $$ = SYMBOL($1, @$); }
+-    | KW_SELECT_RANK { $$ = SYMBOL($1, @$); }
+-    | KW_SELECT_TYPE { $$ = SYMBOL($1, @$); }
 -    | KW_SEQUENCE { $$ = SYMBOL($1, @$); }
 -    | KW_SHARED { $$ = SYMBOL($1, @$); }
 -    | KW_SOURCE { $$ = SYMBOL($1, @$); }

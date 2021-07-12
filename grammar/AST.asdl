@@ -34,8 +34,9 @@ unit
 mod
     = Module(identifier name, unit_decl1* use, implicit_statement* implicit,
         unit_decl2* decl, program_unit* contains)
-    | Submodule(identifier id,identifier name, unit_decl1* use,
-        implicit_statement* implicit, unit_decl2* decl, program_unit* contains)
+    | Submodule(identifier id, identifier? parent_name, identifier name,
+        unit_decl1* use, implicit_statement* implicit,
+        unit_decl2* decl, program_unit* contains)
     | BlockData(identifier? name, unit_decl1* use,
         implicit_statement* implicit, unit_decl2* decl)
     | Program(identifier name, unit_decl1* use, implicit_statement* implicit,
@@ -55,7 +56,8 @@ program_unit
         program_unit* contains)
 
 unit_decl1
-    = Use(decl_attribute* nature, identifier module, use_symbol* symbols)
+    = Use(decl_attribute* nature, identifier module, use_symbol* symbols,
+        bool only_present)
 
 unit_decl2
     = Declaration(decl_attribute? vartype, decl_attribute* attributes,
@@ -88,7 +90,7 @@ import_modifier
 
 implicit_statement
     = ImplicitNone(implicit_none_spec* specs)
-    | Implicit(decl_attribute type, letter_spec* specs)
+    | Implicit(decl_attribute type, letter_spec* kind, letter_spec* specs)
 
 implicit_none_spec
     = ImplicitNoneExternal(int dummy)
@@ -106,7 +108,7 @@ stmt
     | Close(int label, expr* args, keyword* kwargs)
     | Continue(int label)
     | Cycle(int label, identifier? stmt_name)
-    | Deallocate(int label, fnarg* args)
+    | Deallocate(int label, fnarg* args, keyword* keywords)
     | ErrorStop(int label, expr? code, expr? quiet)
     | EventPost(int label, expr variable, event_attribute* stat)
     | EventWait(int label, expr variable, event_attribute* spec)
@@ -115,7 +117,7 @@ stmt
     | ForAllSingle(int label, identifier? stmt_name,
             concurrent_control *control, expr? mask, stmt assign)
     | Format(int label, string fmt)
-    | GoTo(int label, int goto_label)
+    | GoTo(int label, expr goto_label, expr* labels)
     | Inquire(int label, expr* args, keyword* kwargs, expr* values)
     | Nullify(int label, expr* args, keyword* kwargs)
     | Open(int label, expr* args, keyword* kwargs)
@@ -146,6 +148,8 @@ stmt
             concurrent_locality* locality, stmt* body)
     | If(int label, identifier? stmt_name, expr test, stmt* body, stmt* orelse)
     | Select(int label, identifier? stmt_name, expr test, case_stmt* body)
+    | SelectRank(int label, identifier? stmt_name, identifier? assoc_name,
+            expr selector, rank_stmt* body)
     | SelectType(int label, identifier? stmt_name, identifier? assoc_name,
             expr selector, type_stmt* body)
     | Where(int label, identifier? stmt_name, expr test, stmt* body,
@@ -166,10 +170,10 @@ expr
     | ArrayInitializer(decl_attribute? vartype, expr* args)
     | ImpliedDoLoop(expr* values, identifier var, expr start, expr end,
         expr? increment)
-    | Num(int n)
+    | Num(int n, string? kind)
     | Real(string n)
     | Complex(expr re, expr im)
-    | Str(string s)
+    | String(string s)
     | BOZ(string s)
     | Name(identifier id, struct_member* member)
     | Logical(bool value)
@@ -195,10 +199,11 @@ intrinsicop
 procedure_decl
     = DerivedTypeProc(identifier? name, decl_attribute* attr,
         use_symbol* symbols)
-    | GenericOperator(intrinsicop op, identifier* names)
-    | GenericDefinedOperator(string optype, identifier* names)
-    | GenericAssignment(identifier* names)
-    | GenericName(identifier name, identifier* names)
+    | GenericOperator(decl_attribute* attr, intrinsicop op, identifier* names)
+    | GenericDefinedOperator(decl_attribute* attr, string optype,
+        identifier* names)
+    | GenericAssignment(decl_attribute* attr, identifier* names)
+    | GenericName(decl_attribute* attr, identifier name, identifier* names)
     | FinalName(identifier name)
 
 decl_attribute
@@ -210,7 +215,7 @@ decl_attribute
     | AttrExtends(identifier name)
     | AttrIntent(attr_intent intent)
     | AttrNamelist(identifier name)
-    | AttrPass(identifier name)
+    | AttrPass(identifier? name)
     | SimpleAttribute(simple_attribute attr)
     | AttrType(decl_type type, kind_item* kind, identifier? name)
     | AttrAssignment()
@@ -273,7 +278,7 @@ kind_item = (identifier? id, expr? value, kind_item_type type)
 kind_item_type = Star | Colon | Value
 
 dimension = (expr? start, expr? end, dimension_type end_star)
-dimension_type = DimensionExpr | DimensionStar
+dimension_type = DimensionExpr | DimensionStar | AssumedRank
 
 codimension = (expr? start, expr? end, codimension_type end_star)
 codimension_type = CodimensionExpr | CodimensionStar
@@ -330,9 +335,17 @@ bind = Bind(expr* args, keyword* kwargs)
 array_index = ArrayIndex(expr? left, expr? right, expr? step)
 
 case_stmt
-    = CaseStmt(expr* test, stmt* body)
-    | CaseStmt_Range(expr? start, expr? end, stmt* body)
+    = CaseStmt(case_cond* test, stmt* body)
     | CaseStmt_Default(stmt* body)
+
+case_cond
+    = CaseCondExpr(expr cond)
+    | CaseCondRange(expr? start, expr? end)
+
+rank_stmt
+    = RankExpr(expr value, stmt* body)
+    | RankStar(stmt* body)
+    | RankDefault(stmt* body)
 
 type_stmt
     = TypeStmtName(identifier? name, stmt* body)
@@ -345,6 +358,7 @@ use_symbol
     | UseAssignment()
     | IntrinsicOperator(intrinsicop op)
     | DefinedOperator(string opName)
+    | RenameOperator(string local_defop, string use_defop)
 
 concurrent_control = ConcurrentControl(identifier? var, expr? start, expr? end, expr? increment)
 

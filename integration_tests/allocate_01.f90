@@ -67,8 +67,6 @@ do i = lbound(a, 1), ubound(a, 1)
     end do
 end do
 
-c = 1
-
 end subroutine sum
 
 complex function reduce_sum(c) result(r)
