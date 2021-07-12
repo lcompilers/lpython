@@ -53,7 +53,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                         ASR::abiType::Source,
                         ASR::Public, ASR::presenceType::Required);
                     return_var_ref = EXPR(ASR::make_Var_t(al, loc,
-                        down_cast<ASR::symbol_t>(return_var)));
+                        down_cast<ASR::symbol_t>(return_var), nullptr));
                     fn_scope->scope[std::string(var_name)] = down_cast<ASR::symbol_t>(return_var);
                     target = return_var_ref;
                     idx++;
@@ -67,7 +67,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                         ASR::abiType::Source,
                         ASR::Public, ASR::presenceType::Required);
                     return_var_ref = EXPR(ASR::make_Var_t(al, loc,
-                        down_cast<ASR::symbol_t>(return_var)));
+                        down_cast<ASR::symbol_t>(return_var), nullptr));
                     fn_scope->scope[std::string(var_name)] = down_cast<ASR::symbol_t>(return_var);
                     target = return_var_ref;
                     idx++;

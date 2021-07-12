@@ -50,18 +50,18 @@ to:
 inline ASR::expr_t* gen_test_expr_CaseStmt(Allocator& al, const Location& loc, ASR::CaseStmt_t* Case_Stmt, ASR::expr_t* a_test) {
     ASR::expr_t* test_expr = nullptr;
     if( Case_Stmt->n_test == 1 ) {
-        test_expr = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc, a_test, ASR::cmpopType::Eq, Case_Stmt->m_test[0], LFortran::ASRUtils::expr_type(a_test)));
+        test_expr = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc, a_test, ASR::cmpopType::Eq, Case_Stmt->m_test[0], LFortran::ASRUtils::expr_type(a_test), nullptr));
     } else if( Case_Stmt->n_test == 2 ) {
-        ASR::expr_t* left = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc, a_test, ASR::cmpopType::Eq, Case_Stmt->m_test[0], LFortran::ASRUtils::expr_type(a_test)));
-        ASR::expr_t* right = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc, a_test, ASR::cmpopType::Eq, Case_Stmt->m_test[1], LFortran::ASRUtils::expr_type(a_test)));
-        test_expr = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, left, ASR::binopType::Add, right, LFortran::ASRUtils::expr_type(left)));
+        ASR::expr_t* left = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc, a_test, ASR::cmpopType::Eq, Case_Stmt->m_test[0], LFortran::ASRUtils::expr_type(a_test), nullptr));
+        ASR::expr_t* right = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc, a_test, ASR::cmpopType::Eq, Case_Stmt->m_test[1], LFortran::ASRUtils::expr_type(a_test), nullptr));
+        test_expr = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, left, ASR::binopType::Add, right, LFortran::ASRUtils::expr_type(left), nullptr));
     } else {
-        ASR::expr_t* left = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc, a_test, ASR::cmpopType::Eq, Case_Stmt->m_test[0], LFortran::ASRUtils::expr_type(a_test)));
-        ASR::expr_t* right = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc, a_test, ASR::cmpopType::Eq, Case_Stmt->m_test[1], LFortran::ASRUtils::expr_type(a_test)));
-        test_expr = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, left, ASR::binopType::Add, right, LFortran::ASRUtils::expr_type(left)));
+        ASR::expr_t* left = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc, a_test, ASR::cmpopType::Eq, Case_Stmt->m_test[0], LFortran::ASRUtils::expr_type(a_test), nullptr));
+        ASR::expr_t* right = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc, a_test, ASR::cmpopType::Eq, Case_Stmt->m_test[1], LFortran::ASRUtils::expr_type(a_test), nullptr));
+        test_expr = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, left, ASR::binopType::Add, right, LFortran::ASRUtils::expr_type(left), nullptr));
         for( std::uint32_t j = 2; j < Case_Stmt->n_test; j++ ) {
-            ASR::expr_t* newExpr = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc, a_test, ASR::cmpopType::Eq, Case_Stmt->m_test[j], LFortran::ASRUtils::expr_type(a_test)));
-            test_expr = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, test_expr, ASR::binopType::Add, newExpr, LFortran::ASRUtils::expr_type(newExpr)));
+            ASR::expr_t* newExpr = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc, a_test, ASR::cmpopType::Eq, Case_Stmt->m_test[j], LFortran::ASRUtils::expr_type(a_test), nullptr));
+            test_expr = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, test_expr, ASR::binopType::Add, newExpr, LFortran::ASRUtils::expr_type(newExpr), nullptr));
         }
     }
     return test_expr;
@@ -70,13 +70,13 @@ inline ASR::expr_t* gen_test_expr_CaseStmt(Allocator& al, const Location& loc, A
 inline ASR::expr_t* gen_test_expr_CaseStmt_Range(Allocator& al, const Location& loc, ASR::CaseStmt_Range_t* Case_Stmt, ASR::expr_t* a_test) {
     ASR::expr_t* test_expr = nullptr;
     if( Case_Stmt->m_start != nullptr && Case_Stmt->m_end == nullptr ) {
-        test_expr = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc, Case_Stmt->m_start, ASR::cmpopType::LtE, a_test, LFortran::ASRUtils::expr_type(a_test)));
+        test_expr = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc, Case_Stmt->m_start, ASR::cmpopType::LtE, a_test, LFortran::ASRUtils::expr_type(a_test), nullptr));
     } else if( Case_Stmt->m_start == nullptr && Case_Stmt->m_end != nullptr ) {
-        test_expr = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc, a_test, ASR::cmpopType::LtE,  Case_Stmt->m_end, LFortran::ASRUtils::expr_type(a_test)));
+        test_expr = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc, a_test, ASR::cmpopType::LtE,  Case_Stmt->m_end, LFortran::ASRUtils::expr_type(a_test), nullptr));
     } else if( Case_Stmt->m_start != nullptr && Case_Stmt->m_end != nullptr ) {
-        ASR::expr_t* left = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc, Case_Stmt->m_start, ASR::cmpopType::LtE, a_test, LFortran::ASRUtils::expr_type(a_test)));
-        ASR::expr_t* right = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc, a_test, ASR::cmpopType::LtE,  Case_Stmt->m_end, LFortran::ASRUtils::expr_type(a_test)));
-        test_expr = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, left, ASR::binopType::Mul, right, LFortran::ASRUtils::expr_type(left)));
+        ASR::expr_t* left = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc, Case_Stmt->m_start, ASR::cmpopType::LtE, a_test, LFortran::ASRUtils::expr_type(a_test), nullptr));
+        ASR::expr_t* right = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc, a_test, ASR::cmpopType::LtE,  Case_Stmt->m_end, LFortran::ASRUtils::expr_type(a_test), nullptr));
+        test_expr = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, left, ASR::binopType::Mul, right, LFortran::ASRUtils::expr_type(left), nullptr));
     }
     return test_expr;
 }
