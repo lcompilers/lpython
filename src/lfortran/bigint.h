@@ -99,8 +99,6 @@ inline static std::string int_to_str(int64_t i) {
     }
 }
 
-} // BigIntUtils
-
 /* This is a thin wrapper over the functionality exposed in BigIntUtils.
  * The idea is that one can use the int64_t type directly and just use the
  * utilities in BigIntUtils to handle the large integer aspects, and if it is a
@@ -146,6 +144,8 @@ static_assert(std::is_trivial<BigInt>::value);
 static_assert(sizeof(BigInt) == sizeof(int64_t));
 static_assert(sizeof(BigInt) == 8);
 
+
+} // BigIntUtils
 
 } // LFortran
 
