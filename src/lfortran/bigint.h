@@ -7,7 +7,7 @@
 
 namespace LFortran {
 
-namespace BigIntUtils {
+namespace BigInt {
 
 /*
  * Arbitrary size integer implementation.
@@ -99,10 +99,10 @@ inline static std::string int_to_str(int64_t i) {
     }
 }
 
-/* This is a thin wrapper over the functionality exposed in BigIntUtils.
- * The idea is that one can use the int64_t type directly and just use the
- * utilities in BigIntUtils to handle the large integer aspects, and if it is a
- * small integer, one can use it directly as int64 integer.
+/* BigInt is a thin wrapper over the functionality exposed in the functions
+ * above.  The idea is that one can use the int64_t type directly and just use
+ * the function above to handle the large integer aspects, and if it is a small
+ * integer, one can use it directly as int64 integer.
  *
  * Alternatively, one can use the BigInt class below that exposes the
  * functionality via methods.
@@ -116,16 +116,16 @@ struct BigInt {
     BigInt& operator=(const BigInt &) = default;
 
     void from_smallint(int64_t i) {
-        LFORTRAN_ASSERT(BigIntUtils::is_small_int(i));
+        LFORTRAN_ASSERT(is_small_int(i));
         n = i;
     }
 
     void from_largeint(Allocator &al, const Str &s) {
-        n = BigIntUtils::string_to_largeint(al, s);
+        n = string_to_largeint(al, s);
     }
 
     bool is_large() const {
-        return BigIntUtils::is_int_ptr(n);
+        return is_int_ptr(n);
     }
 
     int64_t as_smallint() const {
@@ -134,7 +134,7 @@ struct BigInt {
     }
 
     std::string str() const {
-        return BigIntUtils::int_to_str(n);
+        return int_to_str(n);
     }
 
 };
@@ -145,7 +145,7 @@ static_assert(sizeof(BigInt) == sizeof(int64_t));
 static_assert(sizeof(BigInt) == 8);
 
 
-} // BigIntUtils
+} // BigInt
 
 } // LFortran
 

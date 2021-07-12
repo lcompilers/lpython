@@ -60,11 +60,11 @@ bool lex_int(const unsigned char *s, const unsigned char *e, uint64_t &u,
 }
 
 void lex_int_large(Allocator &al, const unsigned char *s,
-    const unsigned char *e, BigIntUtils::BigInt &u, Str &suffix)
+    const unsigned char *e, BigInt::BigInt &u, Str &suffix)
 {
     uint64_t ui;
     if (lex_int(s, e, ui, suffix)) {
-        if (ui <= BigIntUtils::MAX_SMALL_INT) {
+        if (ui <= BigInt::MAX_SMALL_INT) {
             u.from_smallint(ui);
             return;
         }

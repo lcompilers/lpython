@@ -42,7 +42,7 @@ struct ArgStarKw {
 };
 
 struct IntSuffix {
-    BigIntUtils::BigInt int_n;
+    BigInt::BigInt int_n;
     Str int_kind;
 };
 

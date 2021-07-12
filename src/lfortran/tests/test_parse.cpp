@@ -17,13 +17,13 @@ using LFortran::AST::expr_t;
 using LFortran::AST::Name_t;
 using LFortran::AST::BaseWalkVisitor;
 
-using LFortran::BigIntUtils::is_int_ptr;
-using LFortran::BigIntUtils::ptr_to_int;
-using LFortran::BigIntUtils::int_to_ptr;
-using LFortran::BigIntUtils::string_to_largeint;
-using LFortran::BigIntUtils::largeint_to_string;
-using LFortran::BigIntUtils::MAX_SMALL_INT;
-using LFortran::BigIntUtils::MIN_SMALL_INT;
+using LFortran::BigInt::is_int_ptr;
+using LFortran::BigInt::ptr_to_int;
+using LFortran::BigInt::int_to_ptr;
+using LFortran::BigInt::string_to_largeint;
+using LFortran::BigInt::largeint_to_string;
+using LFortran::BigInt::MAX_SMALL_INT;
+using LFortran::BigInt::MIN_SMALL_INT;
 
 // Print any vector like iterable to a string
 template <class T>
@@ -495,7 +495,7 @@ TEST_CASE("Tokenizer") {
     s = "2*18446744073709551616"; // 2**64, too large, will throw an exception
     stypes.clear();
     CHECK(tokens(al, s, &stypes) == ref);
-    LFortran::BigIntUtils::BigInt n = stypes[2].int_suffix.int_n;
+    LFortran::BigInt::BigInt n = stypes[2].int_suffix.int_n;
     CHECK(n.is_large());
     CHECK(n.str() == "18446744073709551616");
 
