@@ -63,9 +63,12 @@ do i = lbound(a, 1), ubound(a, 1)
     do j = lbound(b, 1), ubound(b, 1)
         do k = lbound(b, 2), ubound(b, 2)
             c_copy(i, j, k) = a(i) + b(j, k)
+            c(i, j, k) = a(i) + b(j, k)
         end do
     end do
 end do
+
+deallocate(c_copy)
 
 end subroutine sum
 

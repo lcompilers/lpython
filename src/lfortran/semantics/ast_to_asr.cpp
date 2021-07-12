@@ -1835,6 +1835,26 @@ public:
                                     stat);
     }
 
+    ASR::stmt_t* create_implicit_deallocate(const Location& loc) {
+        Vec<ASR::symbol_t*> del_syms;
+        del_syms.reserve(al, 0);
+        for( auto& item: current_scope->scope ) {
+            if( item.second->type == ASR::symbolType::Variable ) {
+                const ASR::symbol_t* sym = LFortran::ASRUtils::symbol_get_past_external(item.second);
+                ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(sym);
+                if( var->m_storage == ASR::storage_typeType::Allocatable && 
+                    var->m_intent == ASR::intentType::Local ) {
+                    del_syms.push_back(al, item.second);
+                }
+            }
+        }
+        if( del_syms.size() == 0 ) {
+            return nullptr;
+        }
+        return LFortran::ASRUtils::STMT(ASR::make_ImplicitDeallocate_t(al, loc, 
+                    del_syms.p, del_syms.size()));
+    }
+
     void visit_Deallocate(const AST::Deallocate_t& x) {
         Vec<ASR::symbol_t*> arg_vec;
         arg_vec.reserve(al, x.n_args);
@@ -2048,6 +2068,8 @@ public:
                 body.push_back(al, LFortran::ASRUtils::STMT(tmp));
             }
         }
+        ASR::stmt_t* impl_del = create_implicit_deallocate(x.base.base.loc);
+        body.push_back(al, impl_del);
         v->m_body = body.p;
         v->n_body = body.size();
 
