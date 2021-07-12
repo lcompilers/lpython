@@ -631,6 +631,7 @@ operator_type
     | ">="     { $$ = OPERATOR(GTE, @$); }
     | "<"      { $$ = OPERATOR(LT, @$); }
     | "<="     { $$ = OPERATOR(LTE, @$); }
+    | "//"     { $$ = OPERATOR(CONCAT, @$); }
     | ".not."  { $$ = OPERATOR(NOT, @$); }
     | ".and."  { $$ = OPERATOR(AND, @$); }
     | ".or."   { $$ = OPERATOR(OR, @$); }

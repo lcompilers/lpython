@@ -79,6 +79,7 @@ namespace {
             case (AST::intrinsicopType::LT) : return "<";
             case (AST::intrinsicopType::LTE) : return "<=";
             case (AST::intrinsicopType::NOTEQ) : return "/=";
+            case (AST::intrinsicopType::CONCAT) : return "//";
         }
         throw LFortranException("Unknown type");
     }

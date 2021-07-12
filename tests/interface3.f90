@@ -58,4 +58,9 @@ end interface
 abstract interface
 end interface
 
+public :: operator(//)
+
+interface operator (//)
+end interface
+
 end module
