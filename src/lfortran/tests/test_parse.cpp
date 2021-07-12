@@ -493,11 +493,11 @@ TEST_CASE("Tokenizer") {
     CHECK(stypes[2].int_suffix.int_n.n == nref);
 
     s = "2*18446744073709551616"; // 2**64, too large, will throw an exception
+    stypes.clear();
     CHECK(tokens(al, s, &stypes) == ref);
-    //LFortran::BigInt n = stypes[2].int_suffix.int_n;
-    // FIXME:
-    //CHECK(n.is_large());
-    //CHECK(n.str() == "18446744073709551616");
+    LFortran::BigInt n = stypes[2].int_suffix.int_n;
+    CHECK(n.is_large());
+    CHECK(n.str() == "18446744073709551616");
 
     // The tokenizer will only go to the first null character
     s = "2*x\0yyyyy";
