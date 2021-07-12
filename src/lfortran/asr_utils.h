@@ -82,6 +82,32 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
     }
 }
 
+static inline ASR::expr_t* expr_value(ASR::expr_t *f)
+{
+    switch (f->type) {
+        case ASR::exprType::BoolOp: { return ASR::down_cast<ASR::BoolOp_t>(f)->m_value; }
+        case ASR::exprType::BinOp: { return ASR::down_cast<ASR::BinOp_t>(f)->m_value; }
+        case ASR::exprType::UnaryOp: { return ASR::down_cast<ASR::UnaryOp_t>(f)->m_value; }
+        case ASR::exprType::Compare: { return ASR::down_cast<ASR::Compare_t>(f)->m_value; }
+        case ASR::exprType::FunctionCall: { return ASR::down_cast<ASR::FunctionCall_t>(f)->m_value; }
+        case ASR::exprType::ArrayRef: { return ASR::down_cast<ASR::ArrayRef_t>(f)->m_value; }
+        case ASR::exprType::DerivedRef: { return ASR::down_cast<ASR::DerivedRef_t>(f)->m_value; }
+        case ASR::exprType::ImplicitCast: { return ASR::down_cast<ASR::ImplicitCast_t>(f)->m_value; }
+        case ASR::exprType::ExplicitCast: { return ASR::down_cast<ASR::ExplicitCast_t>(f)->m_value; }
+        case ASR::exprType::Var: { return EXPR2VAR(f)->m_value; }
+        case ASR::exprType::StrOp: { return ASR::down_cast<ASR::StrOp_t>(f)->m_value; }
+        case ASR::exprType::ImpliedDoLoop: { return ASR::down_cast<ASR::ImpliedDoLoop_t>(f)->m_value; }
+        case ASR::exprType::ConstantArray: // Drop through
+        case ASR::exprType::ConstantInteger: // Drop through
+        case ASR::exprType::ConstantReal: // Drop through
+        case ASR::exprType::ConstantComplex: // Drop through
+        case ASR::exprType::ConstantString:{ // For all Constants
+            return f;
+        }
+        default : throw LFortranException("Not implemented");
+    }
+}
+
 static inline char *symbol_name(const ASR::symbol_t *f)
 {
     switch (f->type) {
