@@ -5,7 +5,7 @@
 %locations
 %glr-parser
 %expect    610 // shift/reduce conflicts
-%expect-rr 107 // reduce/reduce conflicts
+%expect-rr 113 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -538,11 +538,11 @@ module
 
 submodule
     : KW_SUBMODULE "(" id ")" id sep use_statement_star implicit_statement_star
-        decl_star contains_block_opt KW_END end_submodule_opt sep {
+        decl_star contains_block_opt end_submodule sep {
             $$ = SUBMODULE($3, $5, $7, $8, $9, $10, @$); }
     | KW_SUBMODULE "(" id ":" id ")" id sep use_statement_star
         implicit_statement_star decl_star
-        contains_block_opt KW_END end_submodule_opt sep {
+        contains_block_opt end_submodule sep {
             $$ = SUBMODULE1($3, $5, $7, $9, $10, $11, $12, @$); }
     ;
 
@@ -725,9 +725,10 @@ end_module
     | KW_END
     ;
 
-end_submodule_opt
-    : KW_SUBMODULE id_opt
-    | %empty
+end_submodule
+    : KW_END_SUBMODULE id_opt
+    : KW_ENDSUBMODULE id_opt
+    | KW_END
     ;
 
 end_blockdata_opt
