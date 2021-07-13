@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    610 // shift/reduce conflicts
-%expect-rr 119 // reduce/reduce conflicts
+%expect    611 // shift/reduce conflicts
+%expect-rr 101 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
