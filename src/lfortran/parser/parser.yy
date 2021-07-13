@@ -764,6 +764,11 @@ end_function
     | KW_END
     ;
 
+end_associate
+    : KW_END_ASSOCIATE
+    | KW_ENDASSOCIATE
+    ;
+
 subroutine
     : KW_SUBROUTINE id sub_args bind_opt sep use_statement_star
     import_statement_star implicit_statement_star decl_star statements
@@ -1383,7 +1388,7 @@ associate_statement
     ;
 
 associate_block
-    : KW_ASSOCIATE "(" var_sym_decl_list ")" sep statements KW_END KW_ASSOCIATE {
+    : KW_ASSOCIATE "(" var_sym_decl_list ")" sep statements end_associate {
         $$ = ASSOCIATE_BLOCK($3, $6, @$); }
     ;
 
