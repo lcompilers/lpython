@@ -1027,6 +1027,26 @@ uint64_t linecol_to_pos(const std::string &s, uint16_t line, uint16_t col) {
     return pos;
 }
 
+// Converts a linear position `position` to a (line, col) tuple
+void pos_to_linecol(const std::string &s, uint64_t position,
+            uint16_t &line, uint16_t &col) {
+    uint64_t pos = 0;
+    uint64_t nlpos = 0;
+    line = 1;
+    while (true) {
+        nlpos = pos;
+        if (pos == position) break;
+        while (s[pos] != '\n') {
+            pos++;
+            if (pos == position) break;
+            if (pos == s.size()) break;
+        }
+        line++;
+        pos++;
+    }
+    col = pos-nlpos+1;
+}
+
 char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
     uint64_t first = linecol_to_pos(inp, loc.first_line, loc.first_column);
     uint64_t last = linecol_to_pos(inp, loc.last_line, loc.last_column);
