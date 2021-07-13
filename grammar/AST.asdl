@@ -195,6 +195,7 @@ intrinsicop
     | PLUS | MINUS | STAR | DIV | POW
     | NOT
     | EQ | NOTEQ | LT | LTE | GT | GTE
+    | CONCAT
 
 procedure_decl
     = DerivedTypeProc(identifier? name, decl_attribute* attr,
