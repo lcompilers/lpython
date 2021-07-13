@@ -512,6 +512,7 @@ void lex_format(unsigned char *&cur, Location &loc,
                 | 'D' int '.' int
                 | 'PE' int '.' int
                 | 'PF' int '.' int
+                | 'P'
                 ;
             position_edit_desc
                 = 'T' int
