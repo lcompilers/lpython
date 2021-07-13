@@ -1835,6 +1835,9 @@ public:
                                     stat);
     }
 
+// If there are allocatable variables in the local scope it inserts an ImplicitDeallocate node
+// with their list. The ImplicitDeallocate node will deallocate them if they are allocated,
+// otherwise does nothing.
     ASR::stmt_t* create_implicit_deallocate(const Location& loc) {
         Vec<ASR::symbol_t*> del_syms;
         del_syms.reserve(al, 0);
