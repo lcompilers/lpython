@@ -743,9 +743,10 @@ end_blockdata
     | KW_END
     ;
 
-end_subroutine_opt
-    : KW_SUBROUTINE id_opt
-    | %empty
+end_subroutine
+    : KW_END_SUBROUTINE id_opt
+    | KW_ENDSUBROUTINE id_opt
+    | KW_END
     ;
 
 end_procedure_opt
@@ -762,12 +763,12 @@ subroutine
     : KW_SUBROUTINE id sub_args bind_opt sep use_statement_star
     import_statement_star implicit_statement_star decl_star statements
         contains_block_opt
-        KW_END end_subroutine_opt sep {
+        end_subroutine sep {
             LLOC(@$, @13); $$ = SUBROUTINE($2, $3, $4, $6, $7, $8, $9, $10, $11, @$); }
     | fn_mod_plus KW_SUBROUTINE id sub_args bind_opt sep use_statement_star
     import_statement_star implicit_statement_star decl_star statements
         contains_block_opt
-        KW_END end_subroutine_opt sep {
+        end_subroutine sep {
             LLOC(@$, @14); $$ = SUBROUTINE1($1, $3, $4, $5, $7, $8, $9, $10, $11, $12, @$); }
     ;
 
