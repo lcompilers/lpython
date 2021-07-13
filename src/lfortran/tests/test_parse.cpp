@@ -1258,7 +1258,7 @@ TEST_CASE("Location") {
     CHECK(result->loc.first_line == 1);
     CHECK(result->loc.first_column == 1);
     CHECK(result->loc.last_line == 4);
-    CHECK(result->loc.last_column == 18);
+    CHECK(result->loc.last_column == 19);
     auto sub = cast(Subroutine, result);
     auto stmt = cast(Assignment, sub->m_body[1]);
     CHECK(stmt->base.base.loc.first_line == 3);
@@ -1307,7 +1307,7 @@ TEST_CASE("Location") {
     CHECK(result->loc.first_line == 1);
     CHECK(result->loc.first_column == 1);
     CHECK(result->loc.last_line == 4);
-    CHECK(result->loc.last_column == 15);
+    CHECK(result->loc.last_column == 16);
 }
 
 TEST_CASE("Errors") {
