@@ -162,6 +162,9 @@ RUN(NAME reserved_03 LABELS gfortran)
 
 RUN(NAME namelist_01 LABELS gfortran)
 
+RUN(NAME format_01 LABELS gfortran)
+RUN(NAME format_02 LABELS gfortran)
+
 RUN(NAME submodule_01 LABELS gfortran)
 
 RUN(NAME intrinsics_01 LABELS gfortran) # sqrt, abs, log

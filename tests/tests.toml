@@ -824,6 +824,11 @@ ast = true
 ast_f90 = true
 
 [[test]]
+filename = "../integration_tests/format_02.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
 filename = "interop/mod1-14.mod"
 mod_to_asr = true
 

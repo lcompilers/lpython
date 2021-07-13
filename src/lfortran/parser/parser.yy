@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    607 // shift/reduce conflicts
+%expect    606 // shift/reduce conflicts
 %expect-rr 101 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -115,6 +115,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token TK_TRUE ".true."
 %token TK_FALSE ".false."
 
+%token <string> TK_FORMAT
+
 // Terminal tokens: semi-reserved keywords
 
 %token <string> KW_ABSTRACT
@@ -180,7 +182,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_FINAL
 %token <string> KW_FLUSH
 %token <string> KW_FORALL
-%token <string> KW_FORMAT
 %token <string> KW_FORMATTED
 %token <string> KW_FUNCTION
 %token <string> KW_GENERIC
@@ -1624,47 +1625,7 @@ forall_statement_single
     ;
 
 format_statement
-    : KW_FORMAT "(" format_items ")" { $$ = FORMAT(@$); }
-    | KW_FORMAT "(" format_items "," "*" "(" format_items ")" ")" {
-            $$ = FORMAT(@$); }
-    | KW_FORMAT "(" "*" "(" format_items ")" ")" {
-            $$ = FORMAT(@$); }
-    | KW_FORMAT "(" "/)" { $$ = FORMAT(@$); }
-    | KW_FORMAT "(" TK_INTEGER "/)" { $$ = FORMAT(@$); }
-    | KW_FORMAT "(" format_items "," "/)" { $$ = FORMAT(@$); }
-    ;
-
-format_items
-    : format_items "," format_item
-    | format_item
-    ;
-
-
-format_item
-    : format_item1
-    | format_item_slash
-    | format_item_slash format_item1
-    | format_item1 format_item_slash format_item1
-    | ":"
-    ;
-
-format_item_slash
-    : "/"
-    | TK_INTEGER "/"
-    | "//"
-    ;
-
-format_item1
-    : format_item0
-    | TK_INTEGER format_item0
-    ;
-
-format_item0
-    : TK_NAME
-    | TK_NAME TK_REAL
-    | TK_REAL TK_REAL
-    | TK_STRING
-    | "(" format_items ")"
+    : TK_FORMAT { $$ = FORMAT($1, @$); }
     ;
 
 reduce_op
@@ -2000,7 +1961,6 @@ id
     | KW_FINAL { $$ = SYMBOL($1, @$); }
     | KW_FLUSH { $$ = SYMBOL($1, @$); }
     | KW_FORALL { $$ = SYMBOL($1, @$); }
-    | KW_FORMAT { $$ = SYMBOL($1, @$); }
     | KW_FORMATTED { $$ = SYMBOL($1, @$); }
     | KW_FUNCTION { $$ = SYMBOL($1, @$); }
     | KW_GENERIC { $$ = SYMBOL($1, @$); }

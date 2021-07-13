@@ -1027,30 +1027,27 @@ uint64_t linecol_to_pos(const std::string &s, uint16_t line, uint16_t col) {
     return pos;
 }
 
-char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
-    uint64_t first = linecol_to_pos(inp, loc.first_line, loc.first_column);
-    uint64_t last = linecol_to_pos(inp, loc.last_line, loc.last_column);
-    std::string fmt = inp.substr(first, last-first+1);
-    if (fmt[fmt.size()-1] != ')') {
-        // This is a workaround for a bug that the last_column is too small
-        // for multiline comments
-        std::size_t found = inp.find(")\n", last);
-        LFORTRAN_ASSERT(found != std::string::npos);
-        last = found;
-        fmt = inp.substr(first, last-first+1);
+// Converts a linear position `position` to a (line, col) tuple
+void pos_to_linecol(const std::string &s, uint64_t position,
+            uint16_t &line, uint16_t &col) {
+    uint64_t pos = 0;
+    uint64_t nlpos = 0;
+    line = 1;
+    while (true) {
+        nlpos = pos;
+        if (pos == position) break;
+        while (s[pos] != '\n') {
+            pos++;
+            if (pos == position) break;
+            if (pos == s.size()) break;
+        }
+        line++;
+        pos++;
     }
-    LFORTRAN_ASSERT(fmt[fmt.size()-1] == ')');
-    std::size_t found = fmt.find('(');
-    LFORTRAN_ASSERT(found != std::string::npos);
-    fmt = fmt.substr(found+1, fmt.size()-found-2);
-
-    LFortran::Str s;
-    s.from_str_view(fmt);
-    return s.c_str(al);
+    col = pos-nlpos+1;
 }
 
-#define FORMAT(l) make_Format_t(p.m_a, l, 0, \
-        format_to_str(p.m_a, l, p.inp))
+#define FORMAT(s, l) make_Format_t(p.m_a, l, 0, s.c_str(p.m_a))
 
 #define STOP(l) make_Stop_t(p.m_a, l, 0, nullptr, nullptr)
 #define STOP1(stop_code, l) make_Stop_t(p.m_a, l, 0, EXPR(stop_code), nullptr)
