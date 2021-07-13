@@ -543,13 +543,13 @@ void lex_format(unsigned char *&cur, Location &loc,
                     continue;
                 }
             }
-            int '(' {
+            int whitespace? '(' {
                 cur--;
                 unsigned char *tmp;
                 lex_format(cur, loc, tmp);
                 continue;
             }
-            '*' '(' {
+            '*' whitespace? '(' {
                 cur--;
                 unsigned char *tmp;
                 lex_format(cur, loc, tmp);
