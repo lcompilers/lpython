@@ -1,4 +1,4 @@
-program format1
+program format_01
 implicit none
     1 format(/,'BDF2 step ',i6,': T=',es12.5,', H=',es12.5,', ETAH=',es12.5)
     2 format(/ ,'BDF2 step ',i6,': T=',es12.5,', H=',es12.5,', ETAH=',es12.5)
