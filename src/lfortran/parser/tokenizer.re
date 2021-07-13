@@ -488,11 +488,10 @@ void lex_format(unsigned char *&cur, Location &loc,
     int num_paren = 0;
     for (;;) {
         unsigned char *tok = cur;
-        unsigned char *mar, *ctxmar;
+        unsigned char *mar;
         /*!re2c
             re2c:define:YYCURSOR = cur;
             re2c:define:YYMARKER = mar;
-            re2c:define:YYCTXMARKER = ctxmar;
             re2c:yyfill:enable = 0;
             re2c:define:YYCTYPE = "unsigned char";
 
