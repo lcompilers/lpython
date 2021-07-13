@@ -179,6 +179,7 @@ expr
     | Logical(bool value)
     | DataImpliedDo(expr* object_list, decl_attribute? type,
         identifier var, expr start, expr end, expr? increment)
+    | Parenthesis(expr operand)
 
 boolop = And | Or | Eqv | NEqv
 

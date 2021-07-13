@@ -1864,7 +1864,7 @@ expr
     | TK_BOZ_CONSTANT { $$ = BOZ($1, @$); }
     | ".true."  { $$ = TRUE(@$); }
     | ".false." { $$ = FALSE(@$); }
-    | "(" expr ")" { $$ = $2; }
+    | "(" expr ")" { $$ = PAREN($2, @$); }
     | "(" expr "," expr ")" { $$ = COMPLEX($2, $4, @$); }
     | "(" expr "," id "=" expr "," expr ")" {
             $$ = IMPLIED_DO_LOOP1($2, $4, $6, $8, @$); }

@@ -1,0 +1,1 @@
+(TranslationUnit [(AssociateBlock 0 () [(x [] [] y Assign ())] []) (AssociateBlock 0 () [(x [] [] (Parenthesis y) Assign ())] []) (AssociateBlock 0 () [(x [] [] (+ y z) Assign ())] []) (AssociateBlock 0 () [(x [] [] (u- y) Assign ())] []) (SubroutineCall 0 some_subroutine [] [(() x ()) (() (Parenthesis x) ())] []) (= 0 x (FuncCallOrArray f [] [(() (Parenthesis x) ())] [] []))])

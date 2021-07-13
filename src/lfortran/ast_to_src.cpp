@@ -2710,6 +2710,14 @@ public:
         s += syn();
     }
 
+    void visit_Parenthesis(const Parenthesis_t &x) {
+        std::string r = "(";
+        this->visit_expr(*x.m_operand);
+        r.append(s);
+        r += ")";
+        s = r;
+    }
+
     void visit_Real(const Real_t &x) {
         s = syn(gr::Real);
         s += x.m_n;

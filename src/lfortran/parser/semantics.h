@@ -632,6 +632,15 @@ static inline reduce_opType convert_id_to_reduce_type(
 #define TRUE(l) make_Logical_t(p.m_a, l, true)
 #define FALSE(l) make_Logical_t(p.m_a, l, false)
 
+ast_t* parenthesis(Allocator &al, Location &loc, expr_t *op) {
+    switch (op->type) {
+        case LFortran::AST::exprType::Name: { return make_Parenthesis_t(al, loc, op); }
+        default : { return (ast_t*)op; }
+    }
+}
+
+#define PAREN(x, l) parenthesis(p.m_a, l, EXPR(x))
+
 #define STRCONCAT(x, y, l) make_StrOp_t(p.m_a, l, EXPR(x), stroperatorType::Concat, EXPR(y))
 
 #define EQ(x, y, l)  make_Compare_t(p.m_a, l, EXPR(x), cmpopType::Eq, EXPR(y))
