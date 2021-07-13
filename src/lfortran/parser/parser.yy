@@ -606,8 +606,13 @@ interface_item
     ;
 
 enum_decl
-    : KW_ENUM enum_var_modifiers sep var_decl_star KW_END KW_ENUM sep {
+    : KW_ENUM enum_var_modifiers sep var_decl_star endenum sep {
         $$ = ENUM($2, $4, @$); }
+    ;
+
+endenum
+    : KW_END_ENUM
+    | KW_ENDENUM
     ;
 
 enum_var_modifiers
