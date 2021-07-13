@@ -5,7 +5,7 @@
 %locations
 %glr-parser
 %expect    610 // shift/reduce conflicts
-%expect-rr 101 // reduce/reduce conflicts
+%expect-rr 107 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -532,7 +532,7 @@ script_unit
 
 module
     : KW_MODULE id sep use_statement_star implicit_statement_star
-        decl_star contains_block_opt KW_END end_module_opt sep {
+        decl_star contains_block_opt end_module sep {
             $$ = MODULE($2, $4, $5, $6, $7, @$); }
     ;
 
@@ -719,9 +719,10 @@ end_program_opt
     | %empty
     ;
 
-end_module_opt
-    : KW_MODULE id_opt
-    | %empty
+end_module
+    : KW_END_MODULE id_opt
+    : KW_ENDMODULE id_opt
+    | KW_END
     ;
 
 end_submodule_opt
