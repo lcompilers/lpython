@@ -1475,6 +1475,10 @@ public:
         }
     }
 
+    void visit_Parenthesis(const AST::Parenthesis_t &x) {
+        visit_expr(*x.m_operand);
+    }
+
 };
 
 class BodyVisitor : public AST::BaseVisitor<BodyVisitor>
@@ -2688,6 +2692,10 @@ public:
             LFORTRAN_ASSERT(!BigInt::is_int_ptr(x.m_n));
             tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, x.m_n, type);
         }
+    }
+
+    void visit_Parenthesis(const AST::Parenthesis_t &x) {
+        visit_expr(*x.m_operand);
     }
 
     void visit_Logical(const AST::Logical_t &x) {
