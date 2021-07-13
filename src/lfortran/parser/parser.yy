@@ -485,7 +485,10 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 // Precedence
 
 %left TK_DEF_OP
-%left ".not." ".and." ".or." ".eqv." ".neqv."
+%left ".eqv." ".neqv."
+%left ".or."
+%left ".and."
+%precedence ".not."
 %left "==" "/=" "<" "<=" ">" ">="
 %left "//"
 %left "-" "+"
