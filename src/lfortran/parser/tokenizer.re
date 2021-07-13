@@ -7,6 +7,8 @@
 namespace LFortran
 {
 
+void lex_format(unsigned char *&cur, Location &loc);
+
 void Tokenizer::set_string(const std::string &str)
 {
     // The input string must be NULL terminated, otherwise the tokenizer will
@@ -243,6 +245,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'format' {
                 if (last_token == yytokentype::TK_LABEL) {
                     token(yylval.string);
+                    lex_format(cur, loc);
                     RET(TK_FORMAT)
                 } else {
                     token(yylval.string);
@@ -460,6 +463,64 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
 
             defop { token(yylval.string); RET(TK_DEF_OP) }
             name { token(yylval.string); RET(TK_NAME) }
+        */
+    }
+}
+
+std::string token(unsigned char *tok, unsigned char* cur)
+{
+    return std::string((char *)tok, cur - tok);
+}
+
+void token_loc(Location &loc)
+{
+    loc.first_line = 1;
+    loc.last_line = 1;
+    loc.first_column = 1;
+    loc.last_column = 1;
+}
+
+void lex_format(unsigned char *&cur, Location &loc) {
+    int num_paren = 0;
+    for (;;) {
+        unsigned char *tok = cur;
+        unsigned char *mar, *ctxmar;
+        /*!re2c
+            re2c:define:YYCURSOR = cur;
+            re2c:define:YYMARKER = mar;
+            re2c:define:YYCTXMARKER = ctxmar;
+            re2c:yyfill:enable = 0;
+            re2c:define:YYCTYPE = "unsigned char";
+
+            * {
+                token_loc(loc);
+                std::string t = token(tok, cur);
+                throw LFortran::TokenizerError("token '" + t
+                    + "' is not recognized", loc, t);
+            }
+            '(' {
+                if (num_paren == 0) {
+                    num_paren++;
+                    continue;
+                } else {
+                    cur--;
+                    lex_format(cur, loc);
+                }
+            }
+            ')' { return; }
+            end {
+                token_loc(loc);
+                std::string t = token(tok, cur);
+                throw LFortran::TokenizerError("End of file not expected",
+                        loc, t);
+            }
+            whitespace { continue; }
+            '/' { continue; }
+            ',' { continue; }
+            '"' ('""'|[^"\x00])* '"' { continue; }
+            "'" ("''"|[^'\x00])* "'" { continue; }
+            'i' digit+ { continue; }
+            'es' digit+ '.' digit+ { continue; }
         */
     }
 }
