@@ -1624,7 +1624,7 @@ forall_statement_single
     ;
 
 format_statement
-    : TK_FORMAT { $$ = FORMAT(@$); }
+    : TK_FORMAT { $$ = FORMAT($1, @$); }
     ;
 
 reduce_op

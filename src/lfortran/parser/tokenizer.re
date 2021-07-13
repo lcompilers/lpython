@@ -7,7 +7,8 @@
 namespace LFortran
 {
 
-void lex_format(unsigned char *&cur, Location &loc);
+void lex_format(unsigned char *&cur, Location &loc,
+        unsigned char *&start);
 
 void Tokenizer::set_string(const std::string &str)
 {
@@ -244,8 +245,10 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'forall' { KW(FORALL) }
             'format' {
                 if (last_token == yytokentype::TK_LABEL) {
-                    token(yylval.string);
-                    lex_format(cur, loc);
+                    unsigned char *start;
+                    lex_format(cur, loc, start);
+                    yylval.string.p = (char*) start;
+                    yylval.string.n = cur-start-1;
                     RET(TK_FORMAT)
                 } else {
                     token(yylval.string);
@@ -480,7 +483,8 @@ void token_loc(Location &loc)
     loc.last_column = 1;
 }
 
-void lex_format(unsigned char *&cur, Location &loc) {
+void lex_format(unsigned char *&cur, Location &loc,
+        unsigned char *&start) {
     int num_paren = 0;
     for (;;) {
         unsigned char *tok = cur;
@@ -529,10 +533,12 @@ void lex_format(unsigned char *&cur, Location &loc) {
             '(' {
                 if (num_paren == 0) {
                     num_paren++;
+                    start = cur;
                     continue;
                 } else {
                     cur--;
-                    lex_format(cur, loc);
+                    unsigned char *tmp;
+                    lex_format(cur, loc, tmp);
                 }
             }
             ')' { return; }

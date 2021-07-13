@@ -1047,30 +1047,7 @@ void pos_to_linecol(const std::string &s, uint64_t position,
     col = pos-nlpos+1;
 }
 
-char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
-    uint64_t first = linecol_to_pos(inp, loc.first_line, loc.first_column);
-    uint64_t last = linecol_to_pos(inp, loc.last_line, loc.last_column);
-    std::string fmt = inp.substr(first, last-first+1);
-    if (fmt[fmt.size()-1] != ')') {
-        // This is a workaround for a bug that the last_column is too small
-        // for multiline comments
-        std::size_t found = inp.find(")\n", last);
-        LFORTRAN_ASSERT(found != std::string::npos);
-        last = found;
-        fmt = inp.substr(first, last-first+1);
-    }
-    LFORTRAN_ASSERT(fmt[fmt.size()-1] == ')');
-    std::size_t found = fmt.find('(');
-    LFORTRAN_ASSERT(found != std::string::npos);
-    fmt = fmt.substr(found+1, fmt.size()-found-2);
-
-    LFortran::Str s;
-    s.from_str_view(fmt);
-    return s.c_str(al);
-}
-
-#define FORMAT(l) make_Format_t(p.m_a, l, 0, \
-        format_to_str(p.m_a, l, p.inp))
+#define FORMAT(s, l) make_Format_t(p.m_a, l, 0, s.c_str(p.m_a))
 
 #define STOP(l) make_Stop_t(p.m_a, l, 0, nullptr, nullptr)
 #define STOP1(stop_code, l) make_Stop_t(p.m_a, l, 0, EXPR(stop_code), nullptr)
