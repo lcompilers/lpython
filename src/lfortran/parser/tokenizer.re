@@ -244,6 +244,9 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
                 if (last_token == yytokentype::TK_LABEL) {
                     token(yylval.string);
                     RET(TK_FORMAT)
+                } else {
+                    token(yylval.string);
+                    RET(TK_NAME)
                 }
             }
             'formatted' { KW(FORMATTED) }
