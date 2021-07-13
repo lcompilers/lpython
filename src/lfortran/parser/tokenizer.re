@@ -217,18 +217,65 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'else' { KW(ELSE) }
             'elseif' { KW(ELSEIF) }
             'elsewhere' { KW(ELSEWHERE) }
+
             'end' { KW(END) }
+
+            'end' whitespace 'program' { KW(END_PROGRAM) }
+            'endprogram' { KW(ENDPROGRAM) }
+
+            'end' whitespace 'module' { KW(END_MODULE) }
+            'endmodule' { KW(ENDMODULE) }
+
+            'end' whitespace 'submodule' { KW(END_SUBMODULE) }
+            'endsubmodule' { KW(ENDSUBMODULE) }
+
+            'end' whitespace 'block' { KW(END_BLOCK) }
+            'endblock' { KW(ENDBLOCK) }
+
+            'end' whitespace 'block' whitespace 'data' { KW(END_BLOCK_DATA) }
+            'endblock' whitespace 'data' { KW(END_BLOCK_DATA) }
+            'end' whitespace 'blockdata' { KW(END_BLOCK_DATA) }
+            'endblockdata' { KW(ENDBLOCKDATA) }
+
+            'end' whitespace 'subroutine' { KW(END_SUBROUTINE) }
+            'endsubroutine' { KW(ENDSUBROUTINE) }
+
+            'end' whitespace 'function' { KW(END_FUNCTION) }
+            'endfunction' { KW(ENDFUNCTION) }
+
+            'end' whitespace 'procedure' { KW(END_PROCEDURE) }
+            'endprocedure' { KW(ENDPROCEDURE) }
+
+            'end' whitespace 'enum' { KW(END_ENUM) }
+            'endenum' { KW(ENDENUM) }
+
+            'end' whitespace 'select' { KW(END_SELECT) }
+            'endselect' { KW(ENDSELECT) }
+
+            'end' whitespace 'associate' { KW(END_ASSOCIATE) }
+            'endassociate' { KW(ENDASSOCIATE) }
+
+            'end' whitespace 'critical' { KW(END_CRITICAL) }
+            'endcritical' { KW(ENDCRITICAL) }
+
             'end' whitespace 'forall' { KW(END_FORALL) }
             'endforall' { KW(ENDFORALL) }
+
             'end' whitespace 'if' { KW(END_IF) }
             'endif' { KW(ENDIF) }
+
             'end' whitespace 'interface' { KW(END_INTERFACE) }
             'endinterface' { KW(ENDINTERFACE) }
+
+            'end' whitespace 'type' { KW(END_TYPE) }
             'endtype' { KW(ENDTYPE) }
+
             'end' whitespace 'do' { KW(END_DO) }
             'enddo' { KW(ENDDO) }
+
             'end' whitespace 'where' { KW(END_WHERE) }
             'endwhere' { KW(ENDWHERE) }
+
             'entry' { KW(ENTRY) }
             'enum' { KW(ENUM) }
             'enumerator' { KW(ENUMERATOR) }

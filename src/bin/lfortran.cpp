@@ -145,13 +145,9 @@ bool determine_completeness(std::string command)
         for (size_t i = 0; i < toks.size(); i++) {
             if (toks[i] == KW_SUBROUTINE) {
                 sr_blnc++;
-            } else if (toks[i] == KW_END) {
-                // Need another subroutine token for this to be properly
-                // terminated
-                if (toks[i+1] == KW_SUBROUTINE) {
-                    sr_blnc--;
-                    i++;
-                }
+            } else if (toks[i] == KW_END_SUBROUTINE
+                    || toks[i] == KW_ENDSUBROUTINE) {
+                sr_blnc--;
             }
         }
     }
@@ -161,13 +157,9 @@ bool determine_completeness(std::string command)
         for (size_t i = 0; i < toks.size(); i++) {
             if (toks[i] == KW_FUNCTION) {
                 fn_blnc++;
-            } else if (toks[i] == KW_END) {
-                // Need another function token for this to be properly
-                // terminated
-                if (toks[i+1] == KW_FUNCTION) {
-                    fn_blnc--;
-                    i++;
-                }
+            } else if (toks[i] == KW_END_FUNCTION
+                    || toks[i] == KW_ENDFUNCTION) {
+                fn_blnc--;
             }
         }
     }

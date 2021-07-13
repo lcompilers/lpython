@@ -1,8 +1,8 @@
 diff --git a/src/lfortran/parser/parser.yy b/src/lfortran/parser/parser.yy
-index 2100d305..7a3c3a2e 100644
+index 41b4385d..ed172a42 100644
 --- a/src/lfortran/parser/parser.yy
 +++ b/src/lfortran/parser/parser.yy
-@@ -1944,146 +1944,4 @@ id_opt
+@@ -1982,160 +1982,4 @@ id_opt
  
  id
      : TK_NAME { $$ = SYMBOL($1, @$); }
@@ -48,6 +48,20 @@ index 2100d305..7a3c3a2e 100644
 -    | KW_ENDIF { $$ = SYMBOL($1, @$); }
 -    | KW_ENDINTERFACE { $$ = SYMBOL($1, @$); }
 -    | KW_ENDTYPE { $$ = SYMBOL($1, @$); }
+-    | KW_ENDPROGRAM { $$ = SYMBOL($1, @$); }
+-    | KW_ENDMODULE { $$ = SYMBOL($1, @$); }
+-    | KW_ENDSUBMODULE { $$ = SYMBOL($1, @$); }
+-    | KW_ENDBLOCK { $$ = SYMBOL($1, @$); }
+-    | KW_ENDBLOCKDATA { $$ = SYMBOL($1, @$); }
+-    | KW_ENDSUBROUTINE { $$ = SYMBOL($1, @$); }
+-    | KW_ENDFUNCTION { $$ = SYMBOL($1, @$); }
+-    | KW_ENDPROCEDURE { $$ = SYMBOL($1, @$); }
+-    | KW_ENDENUM { $$ = SYMBOL($1, @$); }
+-    | KW_ENDSELECT { $$ = SYMBOL($1, @$); }
+-    | KW_ENDASSOCIATE { $$ = SYMBOL($1, @$); }
+-    | KW_ENDFORALL { $$ = SYMBOL($1, @$); }
+-    | KW_ENDWHERE { $$ = SYMBOL($1, @$); }
+-    | KW_ENDCRITICAL { $$ = SYMBOL($1, @$); }
 -    | KW_ENTRY { $$ = SYMBOL($1, @$); }
 -    | KW_ENUM { $$ = SYMBOL($1, @$); }
 -    | KW_ENUMERATOR { $$ = SYMBOL($1, @$); }
