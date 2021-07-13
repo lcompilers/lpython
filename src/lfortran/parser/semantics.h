@@ -634,26 +634,8 @@ static inline reduce_opType convert_id_to_reduce_type(
 
 ast_t* parenthesis(Allocator &al, Location &loc, expr_t *op) {
     switch (op->type) {
-        case LFortran::AST::exprType::BoolOp: { return (ast_t*)op; }
-        case LFortran::AST::exprType::BinOp: { return (ast_t*)op; }
-        case LFortran::AST::exprType::DefBinOp: { return (ast_t*)op; }
-        case LFortran::AST::exprType::StrOp: { return (ast_t*)op; }
-        case LFortran::AST::exprType::UnaryOp: { return (ast_t*)op; }
-        case LFortran::AST::exprType::Compare: { return (ast_t*)op; }
-        case LFortran::AST::exprType::FuncCallOrArray: { return make_Parenthesis_t(al, loc, op); }
-        case LFortran::AST::exprType::CoarrayRef: { return make_Parenthesis_t(al, loc, op); }
-        case LFortran::AST::exprType::ArrayInitializer: { return make_Parenthesis_t(al, loc, op); }
-        case LFortran::AST::exprType::ImpliedDoLoop: { return make_Parenthesis_t(al, loc, op); }
-        case LFortran::AST::exprType::Num: { return make_Parenthesis_t(al, loc, op); }
-        case LFortran::AST::exprType::Real: { return make_Parenthesis_t(al, loc, op); }
-        case LFortran::AST::exprType::Complex: { return make_Parenthesis_t(al, loc, op); }
-        case LFortran::AST::exprType::String: { return make_Parenthesis_t(al, loc, op); }
-        case LFortran::AST::exprType::BOZ: { return make_Parenthesis_t(al, loc, op); }
         case LFortran::AST::exprType::Name: { return make_Parenthesis_t(al, loc, op); }
-        case LFortran::AST::exprType::Logical: { return make_Parenthesis_t(al, loc, op); }
-        case LFortran::AST::exprType::DataImpliedDo: { return make_Parenthesis_t(al, loc, op); }
-        case LFortran::AST::exprType::Parenthesis: { return (ast_t*)op; }
-        default : throw LFortran::LFortranException("Expr type not implemented in parenthesis");
+        default : { return (ast_t*)op; }
     }
 }
 
