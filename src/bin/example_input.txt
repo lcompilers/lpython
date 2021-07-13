@@ -19,7 +19,7 @@ end function
 f(-42)
 
 subroutine h(r)
-real(dp), intent(out) :: r
+real, intent(out) :: r
 integer :: n, i
 n = 42
 do i = 1, n
