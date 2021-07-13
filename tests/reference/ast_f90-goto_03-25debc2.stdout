@@ -8,7 +8,7 @@ go to (1, 2, 3), n
 2 a = (a) + (20)
 3 a = (a) + (30)
 print *, a
-if ((a)/=(60)) then
+if ((a) /= (60)) then
     error stop
 end if
 end program goto_03

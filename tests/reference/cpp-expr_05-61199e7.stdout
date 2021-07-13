@@ -18,6 +18,7 @@ void main2() {
         int a;
         int b;
         int c;
+        bool l;
         int x;
         a = 3;
         b = 4;
@@ -40,20 +41,39 @@ void main2() {
         x = (-a)*(-b)*(-c);
         x = 3 + 4*5;
         x = (3 + 4)*5;
+        x = a*(b + 5*(c - b));
         x = (3 - 2*a*b)*5;
         x = ((-2)*a*b + 3)*5;
+        x = ((-2)*a*b + 3*b*a)*5;
+        x = ((-2)*a/b + std::pow(a + (-b), 2))*5;
         x = (2*a*b + 3)*5;
         x = std::pow(a, 2) + 2*a*b + std::pow(b, 2);
         x = (a + b)*(a - b);
         x = std::pow(a + b, 2);
+        x = (a + b)*(std::pow(a, 2) - a*b + std::pow(b, 2));
+        x = (a - b)*(a + b)*(std::pow(a, 2) + std::pow(b, 2));
         x = 2 - (-2);
         x = a - (-b) - c;
         x = a - (-2)*b;
+        x = c - (-2)/b;
         x = a - 2 + 3 + 4;
         x = a + 2 + 3 + 4;
         x = 2*a + a*b - a*b + 2*a;
         x = 2*a + a*b - a*b - 2*a;
         x = a - b - c - 1;
+        x = -a - (-b) + (-b) - (-b)*b;
+        x = -3 + 5;
+        x = -a + 5;
+        l = ((std::pow(x, 3)*4 + a <= 4) || ((x < 5) && (x < 6))) == ((true) || ((!false) && (true)));
+        l = (l) || ((l) && (l));
+        l = ((l) || (l)) && (l);
+        l = ((l) && (l)) || (l);
+        l = (l) && ((l) || (l));
+        l = (l) || ((!l) && (l));
+        l = (l) || ((l) && (!l));
+        l = ((l) && (l)) || (!l);
+        l = ((l) && (!l)) || (l);
+        l = (l) && (!(l) || (l));
 }
 
 }

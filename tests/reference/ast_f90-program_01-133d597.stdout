@@ -21,7 +21,7 @@ if (first) then
         call random_number(u)
         u = ((2)*(u)) - (1)
         r2 = sum((u)**(2))
-        if (((r2)<(1)).and.((r2)>(0))) then
+        if (((r2) < (1)) .and. ((r2) > (0))) then
             exit
         end if
     end do
