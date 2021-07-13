@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    606 // shift/reduce conflicts
+%expect    610 // shift/reduce conflicts
 %expect-rr 101 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -156,18 +156,60 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_ELSE
 %token <string> KW_ELSEIF
 %token <string> KW_ELSEWHERE
+
 %token <string> KW_END
+
+%token <string> KW_END_PROGRAM
+%token <string> KW_ENDPROGRAM
+
+%token <string> KW_END_MODULE
+%token <string> KW_ENDMODULE
+
+%token <string> KW_END_SUBMODULE
+%token <string> KW_ENDSUBMODULE
+
+%token <string> KW_END_BLOCK
+%token <string> KW_ENDBLOCK
+
+%token <string> KW_END_BLOCK_DATA
+%token <string> KW_ENDBLOCKDATA
+
+%token <string> KW_END_SUBROUTINE
+%token <string> KW_ENDSUBROUTINE
+
+%token <string> KW_END_FUNCTION
+%token <string> KW_ENDFUNCTION
+
+%token <string> KW_END_ENUM
+%token <string> KW_ENDENUM
+
+%token <string> KW_END_SELECT
+%token <string> KW_ENDSELECT
+
 %token <string> KW_END_IF
 %token <string> KW_ENDIF
+
 %token <string> KW_END_INTERFACE
 %token <string> KW_ENDINTERFACE
+
+%token <string> KW_END_TYPE
 %token <string> KW_ENDTYPE
+
+%token <string> KW_END_ASSOCIATE
+%token <string> KW_ENDASSOCIATE
+
 %token <string> KW_END_FORALL
 %token <string> KW_ENDFORALL
+
 %token <string> KW_END_DO
 %token <string> KW_ENDDO
+
 %token <string> KW_END_WHERE
 %token <string> KW_ENDWHERE
+
+%token <string> KW_END_CRITICAL
+%token <string> KW_ENDCRITICAL
+
 %token <string> KW_ENTRY
 %token <string> KW_ENUM
 %token <string> KW_ENUMERATOR
@@ -1947,6 +1989,19 @@ id
     | KW_ENDIF { $$ = SYMBOL($1, @$); }
     | KW_ENDINTERFACE { $$ = SYMBOL($1, @$); }
     | KW_ENDTYPE { $$ = SYMBOL($1, @$); }
+    | KW_ENDPROGRAM { $$ = SYMBOL($1, @$); }
+    | KW_ENDMODULE { $$ = SYMBOL($1, @$); }
+    | KW_ENDSUBMODULE { $$ = SYMBOL($1, @$); }
+    | KW_ENDBLOCK { $$ = SYMBOL($1, @$); }
+    | KW_ENDBLOCKDATA { $$ = SYMBOL($1, @$); }
+    | KW_ENDSUBROUTINE { $$ = SYMBOL($1, @$); }
+    | KW_ENDFUNCTION { $$ = SYMBOL($1, @$); }
+    | KW_ENDENUM { $$ = SYMBOL($1, @$); }
+    | KW_ENDSELECT { $$ = SYMBOL($1, @$); }
+    | KW_ENDASSOCIATE { $$ = SYMBOL($1, @$); }
+    | KW_ENDFORALL { $$ = SYMBOL($1, @$); }
+    | KW_ENDWHERE { $$ = SYMBOL($1, @$); }
+    | KW_ENDCRITICAL { $$ = SYMBOL($1, @$); }
     | KW_ENTRY { $$ = SYMBOL($1, @$); }
     | KW_ENUM { $$ = SYMBOL($1, @$); }
     | KW_ENUMERATOR { $$ = SYMBOL($1, @$); }
