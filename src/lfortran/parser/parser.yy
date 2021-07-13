@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    614 // shift/reduce conflicts
+%expect    620 // shift/reduce conflicts
 %expect-rr 101 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -758,9 +758,10 @@ end_procedure
     | KW_END
     ;
 
-end_function_opt
-    : KW_FUNCTION id_opt
-    | %empty
+end_function
+    : KW_END_FUNCTION id_opt
+    | KW_ENDFUNCTION id_opt
+    | KW_END
     ;
 
 subroutine
@@ -788,41 +789,41 @@ function
     : KW_FUNCTION id "(" id_list_opt ")"
         sep use_statement_star import_statement_star implicit_statement_star decl_star statements
         contains_block_opt
-        KW_END end_function_opt sep {
-            LLOC(@$, @14); $$ = FUNCTION0($2, $4, nullptr, nullptr, $7, $8, $9, $10, $11, $12, @$); }
+        end_function sep {
+            LLOC(@$, @13); $$ = FUNCTION0($2, $4, nullptr, nullptr, $7, $8, $9, $10, $11, $12, @$); }
     | KW_FUNCTION id "(" id_list_opt ")"
         bind
         result_opt
         sep use_statement_star import_statement_star implicit_statement_star decl_star statements
         contains_block_opt
-        KW_END end_function_opt sep {
-            LLOC(@$, @16); $$ = FUNCTION0($2, $4, $7, $6, $9, $10, $11, $12, $13, $14, @$); }
+        end_function sep {
+            LLOC(@$, @15); $$ = FUNCTION0($2, $4, $7, $6, $9, $10, $11, $12, $13, $14, @$); }
     | KW_FUNCTION id "(" id_list_opt ")"
         result
         bind_opt
         sep use_statement_star import_statement_star implicit_statement_star decl_star statements
         contains_block_opt
-        KW_END end_function_opt sep {
-            LLOC(@$, @16); $$ = FUNCTION0($2, $4, $6, $7, $9, $10, $11, $12, $13, $14, @$); }
+        end_function sep {
+            LLOC(@$, @15); $$ = FUNCTION0($2, $4, $6, $7, $9, $10, $11, $12, $13, $14, @$); }
     | fn_mod_plus KW_FUNCTION id "(" id_list_opt ")"
         sep use_statement_star import_statement_star implicit_statement_star decl_star statements
         contains_block_opt
-        KW_END end_function_opt sep {
-            LLOC(@$, @15); $$ = FUNCTION($1, $3, $5, nullptr, nullptr, $8, $9, $10, $11, $12, $13, @$); }
+        end_function sep {
+            LLOC(@$, @14); $$ = FUNCTION($1, $3, $5, nullptr, nullptr, $8, $9, $10, $11, $12, $13, @$); }
     | fn_mod_plus KW_FUNCTION id "(" id_list_opt ")"
         bind
         result_opt
         sep use_statement_star import_statement_star implicit_statement_star decl_star statements
         contains_block_opt
-        KW_END end_function_opt sep {
-            LLOC(@$, @17); $$ = FUNCTION($1, $3, $5, $8, $7, $10, $11, $12, $13, $14, $15, @$); }
+        end_function sep {
+            LLOC(@$, @16); $$ = FUNCTION($1, $3, $5, $8, $7, $10, $11, $12, $13, $14, $15, @$); }
     | fn_mod_plus KW_FUNCTION id "(" id_list_opt ")"
         result
         bind_opt
         sep use_statement_star import_statement_star implicit_statement_star decl_star statements
         contains_block_opt
-        KW_END end_function_opt sep {
-            LLOC(@$, @17); $$ = FUNCTION($1, $3, $5, $7, $8, $10, $11, $12, $13, $14, $15, @$); }
+        end_function sep {
+            LLOC(@$, @16); $$ = FUNCTION($1, $3, $5, $7, $8, $10, $11, $12, $13, $14, $15, @$); }
     ;
 
 fn_mod_plus
