@@ -49,7 +49,7 @@ std::string format_semantic_error(const std::string &filename,
         const std::string msg);
 
 // Tokenizes the `input` and return a list of tokens
-std::vector<int> tokens(const std::string &input,
+std::vector<int> tokens(Allocator &al, const std::string &input,
         std::vector<LFortran::YYSTYPE> *stypes=nullptr);
 
 // Converts token number to text

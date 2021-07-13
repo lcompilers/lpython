@@ -727,9 +727,10 @@ char *str2str_null(Allocator &al, const LFortran::Str &s) {
 }
 
 #define SYMBOL(x, l) make_Name_t(p.m_a, l, x.c_str(p.m_a), nullptr, 0)
-#define INTEGER(x, l) make_Num_t(p.m_a, l, x.int_n, str2str_null(p.m_a, x.int_kind))
-#define INTEGER2(x, l) make_Num_t(p.m_a, l, x, nullptr)
-#define INTEGER3(x) (x.int_n)
+// `x.int_n` is of type BigInt but we store the int64_t directly in AST
+#define INTEGER(x, l) make_Num_t(p.m_a, l, x.int_n.n, str2str_null(p.m_a, x.int_kind))
+#define INT1(l) make_Num_t(p.m_a, l, 1, nullptr)
+#define INTEGER3(x) (x.int_n.as_smallint())
 #define REAL(x, l) make_Real_t(p.m_a, l, x.c_str(p.m_a))
 #define COMPLEX(x, y, l) make_Complex_t(p.m_a, l, EXPR(x), EXPR(y))
 #define STRING(x, l) make_String_t(p.m_a, l, x.c_str(p.m_a))
@@ -1407,18 +1408,18 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
 #define VAR_SYM_DECL7(l)             DECL2c(p.m_a, l)
 
 #define ARRAY_COMP_DECL_0i0(a,l)     DIM1(p.m_a, l, nullptr, EXPR(a), nullptr)
-#define ARRAY_COMP_DECL_001(l)       DIM1(p.m_a, l, nullptr, nullptr, EXPR(INTEGER2(1,l)))
-#define ARRAY_COMP_DECL_a01(a,l)     DIM1(p.m_a, l, EXPR(a), nullptr, EXPR(INTEGER2(1,l)))
-#define ARRAY_COMP_DECL_0b1(b,l)     DIM1(p.m_a, l, nullptr, EXPR(b), EXPR(INTEGER2(1,l)))
-#define ARRAY_COMP_DECL_ab1(a,b,l)   DIM1(p.m_a, l, EXPR(a), EXPR(b), EXPR(INTEGER2(1,l)))
+#define ARRAY_COMP_DECL_001(l)       DIM1(p.m_a, l, nullptr, nullptr, EXPR(INT1(l)))
+#define ARRAY_COMP_DECL_a01(a,l)     DIM1(p.m_a, l, EXPR(a), nullptr, EXPR(INT1(l)))
+#define ARRAY_COMP_DECL_0b1(b,l)     DIM1(p.m_a, l, nullptr, EXPR(b), EXPR(INT1(l)))
+#define ARRAY_COMP_DECL_ab1(a,b,l)   DIM1(p.m_a, l, EXPR(a), EXPR(b), EXPR(INT1(l)))
 #define ARRAY_COMP_DECL_00c(c,l)     DIM1(p.m_a, l, nullptr, nullptr, EXPR(c))
 #define ARRAY_COMP_DECL_a0c(a,c,l)   DIM1(p.m_a, l, EXPR(a), nullptr, EXPR(c))
 #define ARRAY_COMP_DECL_0bc(b,c,l)   DIM1(p.m_a, l, nullptr, EXPR(b), EXPR(c))
 #define ARRAY_COMP_DECL_abc(a,b,c,l) DIM1(p.m_a, l, EXPR(a), EXPR(b), EXPR(c))
 
-#define ARRAY_COMP_DECL1k(id, a, l)   DIM1k(p.m_a, l, id, EXPR(INTEGER2(1, l)), EXPR(a))
+#define ARRAY_COMP_DECL1k(id, a, l)   DIM1k(p.m_a, l, id, EXPR(INT1(l)), EXPR(a))
 
-#define ARRAY_COMP_DECL1d(a, l)       DIM1d(p.m_a, l, EXPR(INTEGER2(1, l)), EXPR(a))
+#define ARRAY_COMP_DECL1d(a, l)       DIM1d(p.m_a, l, EXPR(INT1(l)), EXPR(a))
 #define ARRAY_COMP_DECL2d(a, b, l)    DIM1d(p.m_a, l, EXPR(a), EXPR(b))
 #define ARRAY_COMP_DECL3d(a, l)       DIM1d(p.m_a, l, EXPR(a), nullptr)
 #define ARRAY_COMP_DECL4d(b, l)       DIM1d(p.m_a, l, nullptr, EXPR(b))
@@ -1427,7 +1428,7 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
 #define ARRAY_COMP_DECL7d(a, l)       DIM1d_type(p.m_a, l, EXPR(a), DimensionStar)
 #define ARRAY_COMP_DECL8d(l)          DIM1d_type(p.m_a, l, nullptr, AssumedRank)
 
-#define COARRAY_COMP_DECL1d(a, l)       CODIM1d(p.m_a, l, EXPR(INTEGER2(1, l)), EXPR(a))
+#define COARRAY_COMP_DECL1d(a, l)       CODIM1d(p.m_a, l, EXPR(INT1(l)), EXPR(a))
 #define COARRAY_COMP_DECL2d(a, b, l)    CODIM1d(p.m_a, l, EXPR(a), EXPR(b))
 #define COARRAY_COMP_DECL3d(a, l)       CODIM1d(p.m_a, l, EXPR(a), nullptr)
 #define COARRAY_COMP_DECL4d(b, l)       CODIM1d(p.m_a, l, nullptr, EXPR(b))
@@ -1437,21 +1438,21 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
 
 #define COARRAY_COMP_DECL_0i0(a,l)     CODIM1(p.m_a, l, nullptr, EXPR(a), nullptr)
 #define COARRAY_COMP_DECL_001(l)       CODIM1(p.m_a, l, \
-        nullptr, nullptr, EXPR(INTEGER2(1,l)))
+        nullptr, nullptr, EXPR(INT1(l)))
 #define COARRAY_COMP_DECL_a01(a,l)     CODIM1(p.m_a, l, \
-        EXPR(a), nullptr, EXPR(INTEGER2(1,l)))
+        EXPR(a), nullptr, EXPR(INT1(l)))
 #define COARRAY_COMP_DECL_0b1(b,l)     CODIM1(p.m_a, l, \
-        nullptr, EXPR(b), EXPR(INTEGER2(1,l)))
+        nullptr, EXPR(b), EXPR(INT1(l)))
 #define COARRAY_COMP_DECL_ab1(a,b,l)   CODIM1(p.m_a, l, \
-        EXPR(a), EXPR(b), EXPR(INTEGER2(1,l)))
+        EXPR(a), EXPR(b), EXPR(INT1(l)))
 #define COARRAY_COMP_DECL_00c(c,l)     CODIM1(p.m_a, l, nullptr, nullptr, EXPR(c))
 #define COARRAY_COMP_DECL_a0c(a,c,l)   CODIM1(p.m_a, l, EXPR(a), nullptr, EXPR(c))
 #define COARRAY_COMP_DECL_0bc(b,c,l)   CODIM1(p.m_a, l, nullptr, EXPR(b), EXPR(c))
 #define COARRAY_COMP_DECL_abc(a,b,c,l) CODIM1(p.m_a, l, EXPR(a), EXPR(b), EXPR(c))
 
 #define COARRAY_COMP_DECL1k(id, a, l)   CODIM1k(p.m_a, l, \
-        id, EXPR(INTEGER2(1, l)), EXPR(a))
-#define COARRAY_COMP_DECL_star(l)       CODIM1star(p.m_a, l, EXPR(INTEGER2(1, l)))
+        id, EXPR(INT1(l)), EXPR(a))
+#define COARRAY_COMP_DECL_star(l)       CODIM1star(p.m_a, l, EXPR(INT1(l)))
 
 #define VARMOD(a, l) make_Attribute_t(p.m_a, l, \
         a.c_str(p.m_a), \
