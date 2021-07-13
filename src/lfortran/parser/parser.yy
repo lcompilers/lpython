@@ -627,7 +627,7 @@ derived_type_decl
     ;
 
 end_type
-    : KW_END KW_TYPE id_opt
+    : KW_END_TYPE id_opt
     | KW_ENDTYPE id_opt
     ;
 
