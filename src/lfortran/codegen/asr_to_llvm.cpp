@@ -728,8 +728,6 @@ public:
         }
         for( size_t i = 0; i < x.n_vars; i++ ) {
             const ASR::symbol_t* curr_obj = x.m_vars[i];
-            uint32_t h = get_hash((ASR::asr_t*)curr_obj);
-            LFORTRAN_ASSERT(llvm_symtab.find(h) != llvm_symtab.end());
             ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(
                                     symbol_get_past_external(curr_obj));
             fetch_var(v);
