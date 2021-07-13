@@ -236,7 +236,7 @@ namespace LFortran {
                 el_type->getPointerTo(), 
                 llvm::Type::getInt32Ty(context),
                 dim_des_array,
-                llvm::Type::getInt8Ty(context)};
+                llvm::Type::getInt1Ty(context)};
             tkr2mallocarray[array_key] = llvm::StructType::create(context, array_type_vec, "array");
             if( get_pointer ) {
                 return tkr2mallocarray[array_key]->getPointerTo();
@@ -324,7 +324,9 @@ namespace LFortran {
         llvm::Module* module) {
             llvm::Value* num_elements = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
             llvm::Value* offset_val = llvm_utils->create_gep(arr, 1);
-            builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), offset_val);
+            builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), 
+                                    offset_val);
+            set_is_allocated_flag(arr, 1);
             llvm::Value* dim_des_val = llvm_utils->create_gep(arr, 2);
             for( int r = 0; r < n_dims; r++ ) {
                 llvm::Value* dim_val = llvm_utils->create_gep(dim_des_val, r);
@@ -434,6 +436,16 @@ namespace LFortran {
                 tmp = llvm_utils->create_ptr_gep(builder->CreateLoad(full_array), idx);
             }
             return tmp;
+        }
+
+        llvm::Value* SimpleCMODescriptor::get_is_allocated_flag(llvm::Value* array) {
+            return builder->CreateLoad(llvm_utils->create_gep(array, 3));
+        }
+
+        void SimpleCMODescriptor::set_is_allocated_flag(llvm::Value* array, uint64_t status) {
+            llvm::Value* is_allocated_flag = llvm_utils->create_gep(array, 3);
+            builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(1, status)), 
+                                    is_allocated_flag);
         }
 
     } // LLVMArrUtils

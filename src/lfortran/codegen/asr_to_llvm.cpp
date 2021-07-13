@@ -705,16 +705,25 @@ public:
         }
     }
 
+    inline void call_lfortran_free(llvm::Function* fn) {
+        llvm::Value* arr = builder->CreateLoad(arr_descr->get_pointer_to_data(tmp));
+        llvm::AllocaInst *arg_arr = builder->CreateAlloca(character_type, nullptr);
+        builder->CreateStore(builder->CreateBitCast(arr, character_type), arg_arr);
+        std::vector<llvm::Value*> args = {builder->CreateLoad(arg_arr)};
+        builder->CreateCall(fn, args);
+        arr_descr->set_is_allocated_flag(tmp, 0);
+    }
+
     template <typename T>
     void _Deallocate(const T& x) {
         std::string func_name = "_lfortran_free";
-        llvm::Function *fn = module->getFunction(func_name);
-        if (!fn) {
+        llvm::Function *free_fn = module->getFunction(func_name);
+        if (!free_fn) {
             llvm::FunctionType *function_type = llvm::FunctionType::get(
                     llvm::Type::getVoidTy(context), {
                         character_type
                     }, true);
-            fn = llvm::Function::Create(function_type,
+            free_fn = llvm::Function::Create(function_type,
                     llvm::Function::ExternalLinkage, func_name, *module);
         }
         for( size_t i = 0; i < x.n_vars; i++ ) {
@@ -724,11 +733,38 @@ public:
             ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(
                                     symbol_get_past_external(curr_obj));
             fetch_var(v);
-            llvm::Value* arr = builder->CreateLoad(arr_descr->get_pointer_to_data(tmp));
-            llvm::AllocaInst *arg_arr = builder->CreateAlloca(character_type, nullptr);
-            builder->CreateStore(builder->CreateBitCast(arr, character_type), arg_arr);
-            std::vector<llvm::Value*> args = {builder->CreateLoad(arg_arr)};
-            builder->CreateCall(fn, args);
+            if( x.class_type == ASR::stmtType::ImplicitDeallocate ) {
+                llvm::Value *cond = arr_descr->get_is_allocated_flag(tmp);
+                llvm::Function *fn = builder->GetInsertBlock()->getParent();
+                llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
+                llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
+                llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
+                builder->CreateCondBr(cond, thenBB, elseBB);
+                builder->SetInsertPoint(thenBB);
+                call_lfortran_free(free_fn);
+                llvm::Value *thenV = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
+                if (!early_return) {
+                    builder->CreateBr(mergeBB);
+                }
+
+                thenBB = builder->GetInsertBlock();
+                fn->getBasicBlockList().push_back(elseBB);
+                builder->SetInsertPoint(elseBB);
+                llvm::Value *elseV = llvm::ConstantInt::get(context, llvm::APInt(32, 2));
+
+                builder->CreateBr(mergeBB);
+                elseBB = builder->GetInsertBlock();
+                fn->getBasicBlockList().push_back(mergeBB);
+                builder->SetInsertPoint(mergeBB);
+                if (!early_return){
+                    llvm::PHINode *PN = builder->CreatePHI(llvm::Type::getInt32Ty(context), 2,
+                                                    "iftmp");
+                    PN->addIncoming(thenV, thenBB);
+                    PN->addIncoming(elseV, elseBB);
+                }
+            } else {
+                call_lfortran_free(free_fn);
+            }
         }
     }
 

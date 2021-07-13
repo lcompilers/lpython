@@ -68,7 +68,7 @@ do i = lbound(a, 1), ubound(a, 1)
     end do
 end do
 
-! deallocate(c_copy)
+deallocate(c_copy)
 
 end subroutine sum
 
