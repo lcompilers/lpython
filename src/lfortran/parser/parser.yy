@@ -1624,47 +1624,7 @@ forall_statement_single
     ;
 
 format_statement
-    : TK_FORMAT "(" format_items ")" { $$ = FORMAT(@$); }
-    | TK_FORMAT "(" format_items "," "*" "(" format_items ")" ")" {
-            $$ = FORMAT(@$); }
-    | TK_FORMAT "(" "*" "(" format_items ")" ")" {
-            $$ = FORMAT(@$); }
-    | TK_FORMAT "(" "/)" { $$ = FORMAT(@$); }
-    | TK_FORMAT "(" TK_INTEGER "/)" { $$ = FORMAT(@$); }
-    | TK_FORMAT "(" format_items "," "/)" { $$ = FORMAT(@$); }
-    ;
-
-format_items
-    : format_items "," format_item
-    | format_item
-    ;
-
-
-format_item
-    : format_item1
-    | format_item_slash
-    | format_item_slash format_item1
-    | format_item1 format_item_slash format_item1
-    | ":"
-    ;
-
-format_item_slash
-    : "/"
-    | TK_INTEGER "/"
-    | "//"
-    ;
-
-format_item1
-    : format_item0
-    | TK_INTEGER format_item0
-    ;
-
-format_item0
-    : TK_NAME
-    | TK_NAME TK_REAL
-    | TK_REAL TK_REAL
-    | TK_STRING
-    | "(" format_items ")"
+    : TK_FORMAT { $$ = FORMAT(@$); }
     ;
 
 reduce_op
