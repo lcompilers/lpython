@@ -243,6 +243,9 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'end' whitespace 'function' { KW(END_FUNCTION) }
             'endfunction' { KW(ENDFUNCTION) }
 
+            'end' whitespace 'procedure' { KW(END_PROCEDURE) }
+            'endprocedure' { KW(ENDPROCEDURE) }
+
             'end' whitespace 'enum' { KW(END_ENUM) }
             'endenum' { KW(ENDENUM) }
 

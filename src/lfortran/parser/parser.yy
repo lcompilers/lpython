@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    611 // shift/reduce conflicts
+%expect    614 // shift/reduce conflicts
 %expect-rr 101 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -179,6 +179,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 
 %token <string> KW_END_FUNCTION
 %token <string> KW_ENDFUNCTION
+
+%token <string> KW_END_PROCEDURE
+%token <string> KW_ENDPROCEDURE
 
 %token <string> KW_END_ENUM
 %token <string> KW_ENDENUM
@@ -749,9 +752,10 @@ end_subroutine
     | KW_END
     ;
 
-end_procedure_opt
-    : KW_PROCEDURE id_opt
-    | %empty
+end_procedure
+    : KW_END_PROCEDURE id_opt
+    | KW_ENDPROCEDURE id_opt
+    | KW_END
     ;
 
 end_function_opt
@@ -776,8 +780,8 @@ procedure
     : fn_mod_plus KW_PROCEDURE id sub_args sep use_statement_star
     import_statement_star implicit_statement_star decl_star statements
         contains_block_opt
-        KW_END end_procedure_opt sep {
-            LLOC(@$, @14); $$ = PROCEDURE($1, $3, $4, $6, $7, $8, $9, $10, $11, @$); }
+        end_procedure sep {
+            LLOC(@$, @13); $$ = PROCEDURE($1, $3, $4, $6, $7, $8, $9, $10, $11, @$); }
     ;
 
 function
@@ -2006,6 +2010,7 @@ id
     | KW_ENDBLOCKDATA { $$ = SYMBOL($1, @$); }
     | KW_ENDSUBROUTINE { $$ = SYMBOL($1, @$); }
     | KW_ENDFUNCTION { $$ = SYMBOL($1, @$); }
+    | KW_ENDPROCEDURE { $$ = SYMBOL($1, @$); }
     | KW_ENDENUM { $$ = SYMBOL($1, @$); }
     | KW_ENDSELECT { $$ = SYMBOL($1, @$); }
     | KW_ENDASSOCIATE { $$ = SYMBOL($1, @$); }
