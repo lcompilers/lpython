@@ -4,7 +4,7 @@ integer :: joblist[*], job
 integer :: a, b
 integer :: IntegerSample
 character(len=50) :: Sample
-if ((this_image())==(1)) then
+if ((this_image()) == (1)) then
     read(*, *) joblist
 end if
 sync all
@@ -22,7 +22,7 @@ do
     critical (errmsg = Sample)
         Sample = "Error message"
     end critical
-    if ((job)>(0)) then
+    if ((job) > (0)) then
         b = ((a)**(2)) + ((b)**(2))
     else
         exit
