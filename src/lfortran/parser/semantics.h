@@ -631,6 +631,7 @@ static inline reduce_opType convert_id_to_reduce_type(
 #define UNARY_PLUS(x, l) make_UnaryOp_t(p.m_a, l, unaryopType::UAdd, EXPR(x))
 #define TRUE(l) make_Logical_t(p.m_a, l, true)
 #define FALSE(l) make_Logical_t(p.m_a, l, false)
+#define PAREN(x, l) make_Parenthesis_t(p.m_a, l, EXPR(x))
 
 #define STRCONCAT(x, y, l) make_StrOp_t(p.m_a, l, EXPR(x), stroperatorType::Concat, EXPR(y))
 
