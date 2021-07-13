@@ -541,7 +541,15 @@ void lex_format(unsigned char *&cur, Location &loc,
                     lex_format(cur, loc, tmp);
                 }
             }
-            ')' { return; }
+            int '(' {
+                cur--;
+                unsigned char *tmp;
+                lex_format(cur, loc, tmp);
+            }
+            ')' {
+                LFORTRAN_ASSERT(num_paren == 1);
+                return;
+            }
             end {
                 token_loc(loc);
                 std::string t = token(tok, cur);
