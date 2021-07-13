@@ -779,6 +779,11 @@ end_select
     | KW_ENDSELECT
     ;
 
+end_critical
+    : KW_END_CRITICAL
+    | KW_ENDCRITICAL
+    ;
+
 subroutine
     : KW_SUBROUTINE id sub_args bind_opt sep use_statement_star
     import_statement_star implicit_statement_star decl_star statements
@@ -1810,8 +1815,8 @@ sync_stat
     ;
 
 critical_statement
-    : KW_CRITICAL sep statements KW_END KW_CRITICAL { $$ = CRITICAL($3, @$); }
-    | KW_CRITICAL "(" sync_stat_list ")" sep statements KW_END KW_CRITICAL {
+    : KW_CRITICAL sep statements end_critical { $$ = CRITICAL($3, @$); }
+    | KW_CRITICAL "(" sync_stat_list ")" sep statements end_critical {
             $$ = CRITICAL1($3, $6, @$); }
     ;
 // -----------------------------------------------------------------------------
