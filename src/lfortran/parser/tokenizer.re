@@ -540,12 +540,20 @@ void lex_format(unsigned char *&cur, Location &loc,
                     cur--;
                     unsigned char *tmp;
                     lex_format(cur, loc, tmp);
+                    continue;
                 }
             }
             int '(' {
                 cur--;
                 unsigned char *tmp;
                 lex_format(cur, loc, tmp);
+                continue;
+            }
+            '*' '(' {
+                cur--;
+                unsigned char *tmp;
+                lex_format(cur, loc, tmp);
+                continue;
             }
             ')' {
                 LFORTRAN_ASSERT(num_paren == 1);
