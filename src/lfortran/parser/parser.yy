@@ -769,6 +769,11 @@ end_associate
     | KW_ENDASSOCIATE
     ;
 
+end_block
+    : KW_END_BLOCK
+    | KW_ENDBLOCK
+    ;
+
 subroutine
     : KW_SUBROUTINE id sub_args bind_opt sep use_statement_star
     import_statement_star implicit_statement_star decl_star statements
@@ -1394,7 +1399,7 @@ associate_block
 
 block_statement
     : KW_BLOCK sep use_statement_star import_statement_star decl_star
-        statements KW_END KW_BLOCK { $$ = BLOCK($3, $4, $5, $6, @$); }
+        statements end_block { $$ = BLOCK($3, $4, $5, $6, @$); }
     ;
 
 allocate_statement
