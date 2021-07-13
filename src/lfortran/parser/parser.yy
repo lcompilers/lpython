@@ -721,25 +721,25 @@ program
 
 end_program
     : KW_END_PROGRAM id_opt
-    : KW_ENDPROGRAM id_opt
+    | KW_ENDPROGRAM id_opt
     | KW_END
     ;
 
 end_module
     : KW_END_MODULE id_opt
-    : KW_ENDMODULE id_opt
+    | KW_ENDMODULE id_opt
     | KW_END
     ;
 
 end_submodule
     : KW_END_SUBMODULE id_opt
-    : KW_ENDSUBMODULE id_opt
+    | KW_ENDSUBMODULE id_opt
     | KW_END
     ;
 
 end_blockdata
     : KW_END_BLOCK_DATA id_opt
-    : KW_ENDBLOCKDATA id_opt
+    | KW_ENDBLOCKDATA id_opt
     | KW_END
     ;
 
