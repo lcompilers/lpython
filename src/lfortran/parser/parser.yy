@@ -5,7 +5,7 @@
 %locations
 %glr-parser
 %expect    610 // shift/reduce conflicts
-%expect-rr 113 // reduce/reduce conflicts
+%expect-rr 119 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -548,10 +548,10 @@ submodule
 
 block_data
     : KW_BLOCK KW_DATA sep use_statement_star implicit_statement_star
-        decl_star KW_END end_blockdata_opt sep {
+        decl_star end_blockdata sep {
             $$ = BLOCKDATA($4, $5, $6, @$); }
     | KW_BLOCK KW_DATA id sep use_statement_star implicit_statement_star
-        decl_star KW_END end_blockdata_opt sep {
+        decl_star end_blockdata sep {
             $$ = BLOCKDATA1($3, $5, $6, $7, @$); }
     ;
 
@@ -731,9 +731,10 @@ end_submodule
     | KW_END
     ;
 
-end_blockdata_opt
-    : KW_BLOCK KW_DATA id_opt
-    | %empty
+end_blockdata
+    : KW_END_BLOCK_DATA id_opt
+    : KW_ENDBLOCKDATA id_opt
+    | KW_END
     ;
 
 end_subroutine_opt
