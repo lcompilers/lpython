@@ -59,4 +59,5 @@ implicit none
                 5X, 'mat_opt= ', I2, /                                 &
                 5X, 'src_opt= ', I2, /                                 &
                 5X, 'scatp= ', I2 )
+660 format('  Format Number ',0PF17.8,' Ry' )
 end program format_01
