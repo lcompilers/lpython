@@ -774,6 +774,11 @@ end_block
     | KW_ENDBLOCK
     ;
 
+end_select
+    : KW_END_SELECT
+    | KW_ENDSELECT
+    ;
+
 subroutine
     : KW_SUBROUTINE id sub_args bind_opt sep use_statement_star
     import_statement_star implicit_statement_star decl_star statements
@@ -1541,9 +1546,9 @@ where_block
     ;
 
 select_statement
-    : KW_SELECT KW_CASE "(" expr ")" sep case_statements KW_END KW_SELECT {
+    : KW_SELECT KW_CASE "(" expr ")" sep case_statements end_select {
             $$ = SELECT($4, $7, @$); }
-    | KW_SELECT_CASE "(" expr ")" sep case_statements KW_END KW_SELECT {
+    | KW_SELECT_CASE "(" expr ")" sep case_statements end_select {
                 $$ = SELECT($3, $6, @$); }
     ;
 
@@ -1572,9 +1577,9 @@ case_condition
 
 select_rank_statement
     : select_rank "(" expr ")" sep select_rank_case_stmts
-        KW_END KW_SELECT { $$ = SELECT_RANK1($3, $6, @$); }
+        end_select { $$ = SELECT_RANK1($3, $6, @$); }
     | select_rank "(" id "=>" expr ")" sep select_rank_case_stmts
-        KW_END KW_SELECT { $$ = SELECT_RANK2($3, $5, $8, @$); }
+        end_select { $$ = SELECT_RANK2($3, $5, $8, @$); }
     ;
 
 select_rank
@@ -1595,10 +1600,10 @@ select_rank_case_stmt
 
 select_type_statement
     : select_type "(" expr ")" sep select_type_body_statements
-        KW_END KW_SELECT {
+        end_select {
                 $$ = SELECT_TYPE1($3, $6, @$); }
     | select_type "(" id "=>" expr ")" sep select_type_body_statements
-        KW_END KW_SELECT {
+        end_select {
                 $$ = SELECT_TYPE2($3, $5, $8, @$); }
     ;
 
