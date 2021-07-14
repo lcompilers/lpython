@@ -20,6 +20,7 @@ contains
     procedure, private :: p1
     procedure(something), private :: p1b
     procedure, pass(self) :: p2
+    procedure :: proc_1, proc_2
     generic :: operator(/=) => p5, p6
     generic :: operator(+) => p8
     generic :: operator(.in.) => p7

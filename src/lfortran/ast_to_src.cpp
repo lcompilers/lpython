@@ -474,6 +474,7 @@ public:
         for (size_t i=0; i<x.n_symbols; i++) {
             this->visit_use_symbol(*x.m_symbols[i]);
             r.append(s);
+            if (i < x.n_symbols-1) r.append(", ");
         }
         s = r;
     }
