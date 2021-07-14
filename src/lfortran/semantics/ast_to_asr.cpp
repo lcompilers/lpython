@@ -695,7 +695,7 @@ public:
             }
             // Add it as a local variable:
             return_var = ASR::make_Variable_t(al, x.base.base.loc,
-                current_scope, return_var_name, LFortran::ASRUtils::intent_return_var, nullptr,
+                current_scope, return_var_name, LFortran::ASRUtils::intent_return_var, nullptr, nullptr,
                 ASR::storage_typeType::Default, type,
                 ASR::abiType::Source, ASR::Public, ASR::presenceType::Required);
             current_scope->scope[std::string(return_var_name)]
@@ -1091,7 +1091,7 @@ public:
                     ImplicitCastRules::set_converted_value(al, x.base.base.loc, &init_expr, init_type, type);
                 }
                 ASR::asr_t *v = ASR::make_Variable_t(al, x.base.base.loc, current_scope,
-                        s.m_name, s_intent, init_expr, storage_type, type,
+                        s.m_name, s_intent, init_expr, nullptr, storage_type, type,
                         ASR::abiType::Source, s_access, s_presence);
                 current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(v);
             } // for m_syms
@@ -2543,7 +2543,7 @@ public:
                 type = LFortran::ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
                 ASR::asr_t *return_var = ASR::make_Variable_t(
                     al, x.base.base.loc, fn_scope, fn_name, LFortran::ASRUtils::intent_return_var,
-                    nullptr, ASR::storage_typeType::Default, type,
+                    nullptr, nullptr, ASR::storage_typeType::Default, type,
                     ASR::abiType::Source,
                     ASR::Public, ASR::presenceType::Required);
                 fn_scope->scope[std::string(fn_name)] =
@@ -2592,7 +2592,7 @@ public:
                     const char *arg0_s_orig = "x";
                     char *arg0_s = (char *)arg0_s_orig;
                     ASR::asr_t *arg0 = ASR::make_Variable_t(
-                        al, x.base.base.loc, fn_scope, arg0_s, LFortran::ASRUtils::intent_in, nullptr,
+                        al, x.base.base.loc, fn_scope, arg0_s, LFortran::ASRUtils::intent_in, nullptr, nullptr,
                         ASR::storage_typeType::Default, type,
                         ASR::abiType::Source,
                         ASR::Public, ASR::presenceType::Required);
@@ -2604,7 +2604,7 @@ public:
                     type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
                     ASR::asr_t *return_var = ASR::make_Variable_t(
                         al, x.base.base.loc, fn_scope, fn_name, LFortran::ASRUtils::intent_return_var,
-                        nullptr, ASR::storage_typeType::Default, type,
+                        nullptr, nullptr, ASR::storage_typeType::Default, type,
                         ASR::abiType::Source,
                         ASR::Public, ASR::presenceType::Required);
                     fn_scope->scope[std::string(fn_name)] =

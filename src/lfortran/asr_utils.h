@@ -376,15 +376,15 @@ static inline int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {
                         if( kind_variable->m_storage == ASR::storage_typeType::Parameter ) {
                             if( kind_variable->m_type->type == ASR::ttypeType::Integer ) {
                                 if (ASR::is_a<ASR::ConstantInteger_t>(
-                                        *(kind_variable->m_value))) {
+                                        *(kind_variable->m_symbolic_value))) {
                                     a_kind = ASR::down_cast
                                         <ASR::ConstantInteger_t>
-                                        (kind_variable->m_value)->m_n;
+                                        (kind_variable->m_symbolic_value)->m_n;
                                 } else if (ASR::is_a<ASR::FunctionCall_t>(
-                                        *(kind_variable->m_value))) {
+                                        *(kind_variable->m_symbolic_value))) {
                                     ASR::FunctionCall_t *fc =
                                         ASR::down_cast<ASR::FunctionCall_t>(
-                                        kind_variable->m_value);
+                                        kind_variable->m_symbolic_value);
                                     ASR::Function_t *fn =
                                         ASR::down_cast<ASR::Function_t>(
                                         symbol_get_past_external(fc->m_name));

@@ -285,7 +285,7 @@ namespace LFortran {
                 ASR::ttype_t* int32_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
                 if( current_scope->scope.find(std::string(idx_var_name)) == current_scope->scope.end() ) {
                     ASR::asr_t* idx_sym = ASR::make_Variable_t(al, loc, current_scope, idx_var_name, 
-                                                            ASR::intentType::Local, nullptr, ASR::storage_typeType::Default, 
+                                                            ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default, 
                                                             int32_type, ASR::abiType::Source, ASR::accessType::Public, 
                                                             ASR::presenceType::Required);
                     current_scope->scope[std::string(idx_var_name)] = ASR::down_cast<ASR::symbol_t>(idx_sym);

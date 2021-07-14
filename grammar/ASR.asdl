@@ -90,8 +90,8 @@ symbol
         access access)
     | DerivedType(symbol_table symtab, identifier name, abi abi, access access)
     | Variable(symbol_table parent_symtab, identifier name, intent intent,
-        expr? value, storage_type storage, ttype type, abi abi, access access,
-        presence presence)
+        expr? symbolic_value, expr? value, storage_type storage, ttype type,
+        abi abi, access access, presence presence)
     | ClassType(symbol_table symtab, identifier name, abi abi, access access)
     | ClassProcedure(symbol_table parent_symtab, identifier name, identifier
         proc_name, symbol proc, abi abi)

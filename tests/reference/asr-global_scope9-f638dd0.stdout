@@ -1,1 +1,1 @@
-(TranslationUnit (SymbolTable 1 {x: (Variable 1 x Local () Default (Integer 8 []) Source Public Required)}) [(= (Var 1 x) (ImplicitCast (ConstantInteger 6 (Integer 4 [])) IntegerToInteger (Integer 8 []) ())) (Var 1 x)])
+(TranslationUnit (SymbolTable 1 {x: (Variable 1 x Local () () Default (Integer 8 []) Source Public Required)}) [(= (Var 1 x) (ImplicitCast (ConstantInteger 6 (Integer 4 [])) IntegerToInteger (Integer 8 []) ())) (Var 1 x)])
