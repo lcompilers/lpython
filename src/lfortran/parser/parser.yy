@@ -1493,6 +1493,8 @@ rewind_statement
 
 backspace_statement
     : KW_BACKSPACE "(" write_arg_list ")" { $$ = BACKSPACE($3, @$); }
+    | KW_BACKSPACE id { $$ = BACKSPACE2($2, @$); }
+    | KW_BACKSPACE TK_INTEGER { $$ = BACKSPACE3($2, @$); }
     ;
 
 flush_statement
