@@ -552,7 +552,7 @@ public:
             }
             ASR::symbol_t *var = current_scope->scope[arg_s];
             args.push_back(al, LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc,
-                var, nullptr)));
+                var)));
         }
         std::string sym_name = x.m_name;
         if (assgnd_access.count(sym_name)) {
@@ -633,7 +633,7 @@ public:
             }
             ASR::symbol_t *var = current_scope->scope[arg_s];
             args.push_back(al, LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc,
-                var, nullptr)));
+                var)));
         }
 
         // Handle the return variable and type
@@ -711,7 +711,7 @@ public:
         }
 
         ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
-            ASR::down_cast<ASR::symbol_t>(return_var), nullptr);
+            ASR::down_cast<ASR::symbol_t>(return_var));
 
         // Create and register the function
         std::string sym_name = x.m_name;
@@ -1494,7 +1494,7 @@ public:
         if (!v) {
             throw SemanticError("Variable '" + var_name + "' not declared", loc);
         }
-        return ASR::make_Var_t(al, loc, v, nullptr);
+        return ASR::make_Var_t(al, loc, v);
     }
 
     void visit_Name(const AST::Name_t &x) {
@@ -2321,7 +2321,7 @@ public:
         if (!v) {
             throw SemanticError("Variable '" + var_name + "' not declared", loc);
         }
-        return ASR::make_Var_t(al, loc, v, nullptr);
+        return ASR::make_Var_t(al, loc, v);
     }
 
     ASR::asr_t* getDerivedRef_t(const Location& loc, ASR::asr_t* v_var, ASR::symbol_t* member) {
@@ -2408,7 +2408,7 @@ public:
             scope = der_type->m_symtab;
             ASR::symbol_t* member = der_type->m_symtab->resolve_symbol(var_name);
             if( member != nullptr ) {
-                ASR::asr_t* v_var = ASR::make_Var_t(al, loc, v, nullptr);
+                ASR::asr_t* v_var = ASR::make_Var_t(al, loc, v);
                 return getDerivedRef_t(loc, v_var, member);
             } else {
                 throw SemanticError("Variable '" + dt_name + "' doesn't have any member named, '" + var_name + "'.", loc);
@@ -2549,7 +2549,7 @@ public:
                 fn_scope->scope[std::string(fn_name)] =
                     ASR::down_cast<ASR::symbol_t>(return_var);
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(
-                    al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(return_var), nullptr);
+                    al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(return_var));
                 ASR::asr_t *fn =
                     ASR::make_Function_t(al, x.base.base.loc,
                                        /* a_symtab */ fn_scope,
@@ -2598,7 +2598,7 @@ public:
                         ASR::Public, ASR::presenceType::Required);
                     ASR::symbol_t *var = ASR::down_cast<ASR::symbol_t>(arg0);
                     fn_scope->scope[std::string(arg0_s)] = var;
-                    args.push_back(al, LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var, nullptr)));
+                    args.push_back(al, LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var)));
 
                     // Return value
                     type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
@@ -2610,7 +2610,7 @@ public:
                     fn_scope->scope[std::string(fn_name)] =
                         ASR::down_cast<ASR::symbol_t>(return_var);
                     ASR::asr_t *return_var_ref = ASR::make_Var_t(
-                        al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(return_var), nullptr);
+                        al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(return_var));
                     ASR::asr_t *fn =
                         ASR::make_Function_t(al, x.base.base.loc,
                                              /* a_symtab */ fn_scope,
@@ -2869,7 +2869,7 @@ public:
         LFORTRAN_ASSERT(current_scope->scope.find(std::string(x.m_var)) != current_scope->scope.end());
         ASR::symbol_t* a_sym = current_scope->scope[std::string(x.m_var)];
         // current_scope->scope[a_var_name] = a_sym;
-        ASR::expr_t* a_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, a_sym, nullptr));
+        ASR::expr_t* a_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, a_sym));
         tmp = ASR::make_ImpliedDoLoop_t(al, x.base.base.loc, a_values, n_values, 
                                             a_var, a_start, a_end, a_increment, 
                                             LFortran::ASRUtils::expr_type(a_start), nullptr);

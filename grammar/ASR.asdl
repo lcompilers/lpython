@@ -181,7 +181,7 @@ expr
     | ConstantComplex(expr re, expr im, ttype type)
     | ConstantLogical(bool value, ttype type)
     | ConstantString(string s, ttype type)
-    | Var(symbol v, expr? value)
+    | Var(symbol v)
     | ArrayRef(symbol v, array_index* args, ttype type, expr? value)
     | DerivedRef(expr v, symbol m, ttype type, expr? value)
     | ImplicitCast(expr arg, cast_kind kind, ttype type, expr? value)

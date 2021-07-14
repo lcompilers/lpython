@@ -289,10 +289,10 @@ namespace LFortran {
                                                             int32_type, ASR::abiType::Source, ASR::accessType::Public, 
                                                             ASR::presenceType::Required);
                     current_scope->scope[std::string(idx_var_name)] = ASR::down_cast<ASR::symbol_t>(idx_sym);
-                    idx_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, loc, ASR::down_cast<ASR::symbol_t>(idx_sym), nullptr));
+                    idx_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, loc, ASR::down_cast<ASR::symbol_t>(idx_sym)));
                 } else {
                     ASR::symbol_t* idx_sym = current_scope->scope[std::string(idx_var_name)];
-                    idx_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, loc, idx_sym, nullptr));
+                    idx_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, loc, idx_sym));
                     
                 }
                 idx_vars.push_back(al, idx_var);

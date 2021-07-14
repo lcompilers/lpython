@@ -239,7 +239,7 @@ public:
 
     void visit_ArrayRef(const ASR::ArrayRef_t& x) {
         if( is_slice_present(x) ) {
-            ASR::expr_t* x_arr_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, x.m_v, nullptr));
+            ASR::expr_t* x_arr_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, x.m_v));
             Str new_name_str;
             new_name_str.from_str(al, "~" + std::to_string(slice_counter) + "_slice");
             slice_counter += 1;
@@ -250,7 +250,7 @@ public:
                                                         ASR::presenceType::Required);
             ASR::symbol_t* slice_sym = ASR::down_cast<ASR::symbol_t>(slice_asr);
             current_scope->scope[std::string(new_var_name)] = slice_sym;
-            slice_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, slice_sym, nullptr));
+            slice_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, slice_sym));
             // std::cout<<"Inside ArrayRef "<<slice_var<<std::endl;
             Vec<ASR::expr_t*> idx_vars_target, idx_vars_value;
             PassUtils::create_idx_vars(idx_vars_target, x.n_args, x.base.base.loc, al, current_scope, "_t");

@@ -210,10 +210,10 @@ public:
                                                             ASR::intentType::Local, const_1, ASR::storage_typeType::Default, 
                                                             idx_var_type, ASR::abiType::Source, ASR::accessType::Public, ASR::presenceType::Required);
                     unit.m_global_scope->scope[std::string(idx_var_name)] = ASR::down_cast<ASR::symbol_t>(idx_sym);
-                    idx_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(idx_sym), nullptr));
+                    idx_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(idx_sym)));
                 } else {
                     ASR::symbol_t* idx_sym = unit.m_global_scope->scope[std::string(idx_var_name)];
-                    idx_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, idx_sym, nullptr));
+                    idx_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, idx_sym));
                     ASR::stmt_t* assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, idx_var, const_1));
                     implied_do_loop_result.push_back(al, assign_stmt);
                 }
