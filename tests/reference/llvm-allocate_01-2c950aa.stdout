@@ -1453,6 +1453,72 @@ else46:                                           ; preds = %loop.end44
 
 ifcont47:                                         ; preds = %else46, %then45
   %iftmp48 = phi i32 [ 1, %then45 ], [ 2, %else46 ]
+  %496 = load %array.6, %array.6* %a, align 8
+  %497 = getelementptr %array.6, %array.6* %a, i32 0, i32 3
+  %498 = load i1, i1* %497, align 1
+  br i1 %498, label %then49, label %else50
+
+then49:                                           ; preds = %ifcont47
+  %499 = getelementptr %array.6, %array.6* %a, i32 0, i32 0
+  %500 = load i32*, i32** %499, align 8
+  %501 = alloca i8*, align 8
+  %502 = bitcast i32* %500 to i8*
+  store i8* %502, i8** %501, align 8
+  %503 = load i8*, i8** %501, align 8
+  call void (i8*, ...) @_lfortran_free(i8* %503)
+  %504 = getelementptr %array.6, %array.6* %a, i32 0, i32 3
+  store i1 false, i1* %504, align 1
+  br label %ifcont51
+
+else50:                                           ; preds = %ifcont47
+  br label %ifcont51
+
+ifcont51:                                         ; preds = %else50, %then49
+  %iftmp52 = phi i32 [ 1, %then49 ], [ 2, %else50 ]
+  %505 = load %array.7, %array.7* %b, align 8
+  %506 = getelementptr %array.7, %array.7* %b, i32 0, i32 3
+  %507 = load i1, i1* %506, align 1
+  br i1 %507, label %then53, label %else54
+
+then53:                                           ; preds = %ifcont51
+  %508 = getelementptr %array.7, %array.7* %b, i32 0, i32 0
+  %509 = load float*, float** %508, align 8
+  %510 = alloca i8*, align 8
+  %511 = bitcast float* %509 to i8*
+  store i8* %511, i8** %510, align 8
+  %512 = load i8*, i8** %510, align 8
+  call void (i8*, ...) @_lfortran_free(i8* %512)
+  %513 = getelementptr %array.7, %array.7* %b, i32 0, i32 3
+  store i1 false, i1* %513, align 1
+  br label %ifcont55
+
+else54:                                           ; preds = %ifcont51
+  br label %ifcont55
+
+ifcont55:                                         ; preds = %else54, %then53
+  %iftmp56 = phi i32 [ 1, %then53 ], [ 2, %else54 ]
+  %514 = load %array.5, %array.5* %c, align 8
+  %515 = getelementptr %array.5, %array.5* %c, i32 0, i32 3
+  %516 = load i1, i1* %515, align 1
+  br i1 %516, label %then57, label %else58
+
+then57:                                           ; preds = %ifcont55
+  %517 = getelementptr %array.5, %array.5* %c, i32 0, i32 0
+  %518 = load %complex_4*, %complex_4** %517, align 8
+  %519 = alloca i8*, align 8
+  %520 = bitcast %complex_4* %518 to i8*
+  store i8* %520, i8** %519, align 8
+  %521 = load i8*, i8** %519, align 8
+  call void (i8*, ...) @_lfortran_free(i8* %521)
+  %522 = getelementptr %array.5, %array.5* %c, i32 0, i32 3
+  store i1 false, i1* %522, align 1
+  br label %ifcont59
+
+else58:                                           ; preds = %ifcont55
+  br label %ifcont59
+
+ifcont59:                                         ; preds = %else58, %then57
+  %iftmp60 = phi i32 [ 1, %then57 ], [ 2, %else58 ]
   ret i32 0
 }
 
