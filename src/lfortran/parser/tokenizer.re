@@ -571,8 +571,8 @@ void lex_format(unsigned char *&cur, Location &loc,
             * {
                 token_loc(loc);
                 std::string t = token(tok, cur);
-                throw LFortran::TokenizerError("token '" + t
-                    + "' is not recognized", loc, t);
+                throw LFortran::TokenizerError("Token '" + t
+                    + "' is not recognized in `format` statement", loc, t);
             }
             '(' {
                 if (num_paren == 0) {
@@ -605,8 +605,8 @@ void lex_format(unsigned char *&cur, Location &loc,
             end {
                 token_loc(loc);
                 std::string t = token(tok, cur);
-                throw LFortran::TokenizerError("End of file not expected",
-                        loc, t);
+                throw LFortran::TokenizerError(
+                    "End of file not expected in `format` statemenet", loc, t);
             }
             whitespace { continue; }
             ',' { continue; }
