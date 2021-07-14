@@ -231,8 +231,8 @@ class CommonVisitorMethods {
         if (LFortran::ASRUtils::expr_value(left) != nullptr && LFortran::ASRUtils::expr_value(right) != nullptr) {
             if (ASR::is_a<LFortran::ASR::Integer_t>(*dest_type)) {
                 // Only for Constant integers, else errors out for init_values.f90
-                if (ASR::is_a<LFortran::ASR::ConstantInteger_t>(*left) &&
-                    ASR::is_a<LFortran::ASR::ConstantInteger_t>(*right)) {
+                if (ASR::is_a<LFortran::ASR::ConstantInteger_t>(*ASRUtils::expr_value(left)) &&
+                    ASR::is_a<LFortran::ASR::ConstantInteger_t>(*ASRUtils::expr_value(right))) {
                     int64_t left_value = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(left))->m_n;
                     int64_t right_value = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(right))->m_n;
                     int64_t result;
