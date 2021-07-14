@@ -16,6 +16,7 @@ type, extends(B), public :: X
     type(C), pointer :: cc => null()
     real(r8), pointer :: r2(:) => null(), r3(:) => null()
 contains
+    private
     procedure, private :: p1
     procedure(something), private :: p1b
     procedure, pass(self) :: p2

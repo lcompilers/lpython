@@ -560,6 +560,13 @@ public:
         s = r;
     }
 
+    void visit_Private(const Private_t &/*x*/) {
+        std::string r;
+        r += syn(gr::Type);
+        r.append("private");
+        r += syn();
+        s = r;
+    }
 
     void visit_Enum(const Enum_t & x) {
         std::string r = indent;

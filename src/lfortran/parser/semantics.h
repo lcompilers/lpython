@@ -1715,14 +1715,7 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         p.m_a, l, name2char(name), USES(use), use.size(), \
         VEC_CAST(implicit, implicit_statement), implicit.size(), \
         DECLS(decl), decl.size())
-
-#define PRIVATE0(l) make_Private_t(p.m_a, l, \
-        nullptr, 0)
-#define PRIVATE(syms, l) make_Private_t(p.m_a, l, \
-        nullptr, 0)
-#define PUBLIC(syms, l) make_Public_t(p.m_a, l, \
-        nullptr, 0)
-
+        
 #define INTERFACE_HEADER(l) make_InterfaceHeader_t(p.m_a, l)
 #define INTERFACE_HEADER_NAME(id, l) make_InterfaceHeaderName_t(p.m_a, l, \
         name2char(id))
@@ -1772,6 +1765,7 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         VEC_CAST(attr, decl_attribute), attr.size(), \
         name2char(name), REDUCE_ARGS(p.m_a, namelist), namelist.size())
 #define FINAL_NAME(name, l) make_FinalName_t(p.m_a, l, name2char(name))
+#define PRIVATE(syms, l) make_Private_t(p.m_a, l)
 
 #define CRITICAL(stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
         nullptr, 0, STMTS(stmts), stmts.size())

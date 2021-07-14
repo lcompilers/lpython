@@ -207,6 +207,7 @@ procedure_decl
     | GenericAssignment(decl_attribute* attr, identifier* names)
     | GenericName(decl_attribute* attr, identifier name, identifier* names)
     | FinalName(identifier name)
+    | Private()
 
 decl_attribute
     = AttrBind(identifier name)
