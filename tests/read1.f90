@@ -10,4 +10,8 @@ read(u, fmt=x) b, c, e
 read(*, fmt=x) b, c, e
 READ( iunit, NML=invar, IOSTAT=ierr )
 READ( UNIT=iunit, NML=invar, IOSTAT=ierr )
+read 10
+READ 10, A, B
+read *, size
+READ *, A (A (1) : A (10))
 end program

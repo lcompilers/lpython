@@ -123,7 +123,8 @@ stmt
     | Open(int label, expr* args, keyword* kwargs)
     | Return(int label, expr? value)
     | Print(int label, string? fmt, expr* values)
-    | Read(int label, argstar* args, kw_argstar* kwargs, expr* values)
+    | Read(int label, expr? format, argstar* args,
+            kw_argstar* kwargs, expr* values)
     | Rewind(int label, expr* args, keyword* kwargs)
     | Stop(int label, expr? code, expr? quiet)
     | SubroutineCall(int label, identifier name, struct_member* member,
@@ -175,6 +176,7 @@ expr
     | Complex(expr re, expr im)
     | String(string s)
     | BOZ(string s)
+    | SymStar()
     | Name(identifier id, struct_member* member)
     | Logical(bool value)
     | DataImpliedDo(expr* object_list, decl_attribute? type,

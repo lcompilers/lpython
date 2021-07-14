@@ -2263,29 +2263,39 @@ public:
         r += syn(gr::Keyword);
         r += "read";
         r += syn();
-        r += "(";
-        for (size_t i=0; i<x.n_args; i++) {
-            if (x.m_args[i].m_value == nullptr) {
-                r += "*";
-            } else {
-                this->visit_expr(*x.m_args[i].m_value);
-                r += s;
-            }
-            if (i < x.n_args-1 || x.n_kwargs > 0) r += ", ";
+        if (x.m_format) {
+            r += " ";
+            this->visit_expr(*x.m_format);
+            r.append(s);
         }
-        for (size_t i=0; i<x.n_kwargs; i++) {
-            r += x.m_kwargs[i].m_arg;
-            r += "=";
-            if (x.m_kwargs[i].m_value == nullptr) {
-                r += "*";
-            } else {
-                this->visit_expr(*x.m_kwargs[i].m_value);
-                r += s;
+        if(x.n_args || x.n_kwargs) {
+            r += "(";
+            for (size_t i=0; i<x.n_args; i++) {
+                if (x.m_args[i].m_value == nullptr) {
+                    r += "*";
+                } else {
+                    this->visit_expr(*x.m_args[i].m_value);
+                    r += s;
+                }
+                if (i < x.n_args-1 || x.n_kwargs > 0) r += ", ";
             }
-            if (i < x.n_kwargs-1) r += ", ";
+            for (size_t i=0; i<x.n_kwargs; i++) {
+                r += x.m_kwargs[i].m_arg;
+                r += "=";
+                if (x.m_kwargs[i].m_value == nullptr) {
+                    r += "*";
+                } else {
+                    this->visit_expr(*x.m_kwargs[i].m_value);
+                    r += s;
+                }
+                if (i < x.n_kwargs-1) r += ", ";
+            }
+            r += ")";
         }
-        r += ")";
         if (x.n_values > 0) {
+            if (x.m_format) {
+                r += ",";
+            }
             r += " ";
             for (size_t i=0; i<x.n_values; i++) {
                 this->visit_expr(*x.m_values[i]);
@@ -2748,6 +2758,10 @@ public:
         s = syn(gr::Integer);
         s += "\"" + std::string(x.m_s) + "\"";
         s += syn();
+    }
+
+    void visit_SymStar(const SymStar_t &/*x*/) {
+        s = "*";
     }
 
     void visit_Complex(const Complex_t &x){
