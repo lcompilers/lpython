@@ -227,7 +227,7 @@ class CommonVisitorMethods {
 
         LFORTRAN_ASSERT(ASRUtils::check_equal_type(LFortran::ASRUtils::expr_type(left), LFortran::ASRUtils::expr_type(right)));
         ASR::expr_t* value = nullptr;
-        // Try to convert in-place
+        // Assign evaluation to `value` if possible, otherwise leave nullptr
         if (LFortran::ASRUtils::expr_value(left) != nullptr && LFortran::ASRUtils::expr_value(right) != nullptr) {
             if (ASR::is_a<LFortran::ASR::Integer_t>(*dest_type)) {
                 // Only for Constant integers, else errors out for init_values.f90
