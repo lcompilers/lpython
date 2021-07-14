@@ -94,7 +94,7 @@ static inline ASR::expr_t* expr_value(ASR::expr_t *f)
         case ASR::exprType::DerivedRef: { return ASR::down_cast<ASR::DerivedRef_t>(f)->m_value; }
         case ASR::exprType::ImplicitCast: { return ASR::down_cast<ASR::ImplicitCast_t>(f)->m_value; }
         case ASR::exprType::ExplicitCast: { return ASR::down_cast<ASR::ExplicitCast_t>(f)->m_value; }
-        case ASR::exprType::Var: { return EXPR2VAR(f)->m_symbolic_value; }
+        case ASR::exprType::Var: { return EXPR2VAR(f)->m_value; }
         case ASR::exprType::StrOp: { return ASR::down_cast<ASR::StrOp_t>(f)->m_value; }
         case ASR::exprType::ImpliedDoLoop: { return ASR::down_cast<ASR::ImpliedDoLoop_t>(f)->m_value; }
         case ASR::exprType::ConstantArray: // Drop through
