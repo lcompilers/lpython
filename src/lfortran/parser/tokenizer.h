@@ -17,7 +17,7 @@ public:
 
     int last_token=-1;
 
-    std::vector<uint64_t> label_do_stack;
+    std::vector<uint64_t> label_do_stack = {0};
     bool next_continue_is_enddo=false;
 
 public:
