@@ -1240,6 +1240,9 @@ public:
             r.append(x.m_name);
             r.append(")");
         }
+        if (x.m_sym == symbolType::Asterisk) {
+            r.append("(*)");
+        }
         s = r;
     }
 

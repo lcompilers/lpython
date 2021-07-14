@@ -220,7 +220,7 @@ decl_attribute
     | AttrNamelist(identifier name)
     | AttrPass(identifier? name)
     | SimpleAttribute(simple_attribute attr)
-    | AttrType(decl_type type, kind_item* kind, identifier? name)
+    | AttrType(decl_type type, kind_item* kind, identifier? name, symbol sym)
     | AttrAssignment()
     | AttrIntrinsicOperator(intrinsicop op)
     | AttrDefinedOperator(string op_name)

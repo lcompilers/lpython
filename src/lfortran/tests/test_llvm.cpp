@@ -355,7 +355,7 @@ end function)";
     Allocator al(4*1024);
     LFortran::AST::TranslationUnit_t* tu = LFortran::parse2(al, source);
     LFortran::AST::ast_t* ast = tu->m_items[0];
-    CHECK(LFortran::pickle(*ast) == "(Function f [] [] () () [] [] [] [(Declaration (AttrType TypeInteger [] ()) [] [(f [] [] () None ())])] [(= 0 f 5)] [])");
+    CHECK(LFortran::pickle(*ast) == "(Function f [] [] () () [] [] [] [(Declaration (AttrType TypeInteger [] () None) [] [(f [] [] () None ())])] [(= 0 f 5)] [])");
 
     // AST -> ASR
     LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *tu);
@@ -383,7 +383,7 @@ end function)";
     Allocator al(4*1024);
     LFortran::AST::TranslationUnit_t* tu = LFortran::parse2(al, source);
     LFortran::AST::ast_t* ast = tu->m_items[0];
-    CHECK(LFortran::pickle(*ast) == "(Function f [] [] () () [] [] [] [(Declaration (AttrType TypeInteger [] ()) [] [(f [] [] () None ())])] [(= 0 f 4)] [])");
+    CHECK(LFortran::pickle(*ast) == "(Function f [] [] () () [] [] [] [(Declaration (AttrType TypeInteger [] () None) [] [(f [] [] () None ())])] [(= 0 f 4)] [])");
 
     // AST -> ASR
     LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *tu);
