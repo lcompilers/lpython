@@ -661,6 +661,7 @@ procedure_decl
     | KW_GENERIC access_spec_list id "=>" id_list sep {
             $$ = GENERIC_NAME($2, $3, $5, @$); }
     | KW_FINAL "::" id sep { $$ = FINAL_NAME($3, @$); }
+    | KW_PRIVATE sep { $$ = PRIVATE(Private, @$); }
     ;
 
 access_spec_list

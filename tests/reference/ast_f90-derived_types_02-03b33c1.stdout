@@ -13,6 +13,7 @@ type, extends(B), public :: X
 
 contains
 
+private
 procedure, private :: p1
 procedure(something), private :: p1b
 procedure, pass(self) :: p2
