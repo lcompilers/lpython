@@ -30,20 +30,20 @@
                   }) 
                g [] [
                (= 
-                  (Var 2 x) (ConstantInteger 1 
+                  (Var 2 x ()) (ConstantInteger 1 
                   (Integer 4 []))) 
                (DoLoop 
                   (
-                     (Var 2 i) (ConstantInteger 1 
+                     (Var 2 i ()) (ConstantInteger 1 
                      (Integer 4 [])) (ConstantInteger 10 
                      (Integer 4 [])) ()) [
                   (= 
-                     (Var 2 x) 
+                     (Var 2 x ()) 
                      (BinOp 
-                        (Var 2 x) 
+                        (Var 2 x ()) 
                         Mul 
-                        (Var 2 i) 
-                        (Integer 4 [])))])] 
+                        (Var 2 i ()) 
+                        (Integer 4 []) ()))])] 
                Source 
                Public 
                Implementation), 
@@ -75,20 +75,20 @@
                   }) 
                h [] [
                (= 
-                  (Var 3 x) (ConstantInteger 1 
+                  (Var 3 x ()) (ConstantInteger 1 
                   (Integer 4 []))) 
                (DoLoop 
                   (
-                     (Var 3 i) (ConstantInteger 1 
+                     (Var 3 i ()) (ConstantInteger 1 
                      (Integer 4 [])) (ConstantInteger 10 
                      (Integer 4 [])) ()) [
                   (= 
-                     (Var 3 x) 
+                     (Var 3 x ()) 
                      (BinOp 
-                        (Var 3 i) 
+                        (Var 3 i ()) 
                         Mul 
-                        (Var 3 x) 
-                        (Integer 4 [])))])] 
+                        (Var 3 x ()) 
+                        (Integer 4 []) ()))])] 
                Source 
                Public 
                Implementation)
