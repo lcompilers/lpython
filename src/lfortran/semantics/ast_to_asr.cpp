@@ -3,6 +3,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <cmath>
 
 #include <lfortran/ast.h>
 #include <lfortran/asr.h>
@@ -225,7 +226,43 @@ class CommonVisitorMethods {
             source_type, dest_type);
 
         LFORTRAN_ASSERT(ASRUtils::check_equal_type(LFortran::ASRUtils::expr_type(left), LFortran::ASRUtils::expr_type(right)));
-        asr = ASR::make_BinOp_t(al, x.base.base.loc, left, op, right, dest_type, nullptr);
+        ASR::expr_t* value = nullptr;
+        // Try to convert in-place
+        if (LFortran::ASRUtils::expr_value(left) != nullptr && LFortran::ASRUtils::expr_value(right) != nullptr) {
+            if (ASR::is_a<LFortran::ASR::Integer_t>(*dest_type)) {
+                // Only for Constant integers, else errors out for init_values.f90
+                if (ASR::is_a<LFortran::ASR::ConstantInteger_t>(*left) &&
+                    ASR::is_a<LFortran::ASR::ConstantInteger_t>(*right)) {
+                    int64_t left_value = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(left))->m_n;
+                    int64_t right_value = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(right))->m_n;
+                    int64_t result;
+                    switch (op) {
+                        case (AST::Add):
+                            result = left_value + right_value;
+                            break;
+                        case (AST::Sub):
+                            result = left_value - right_value;
+                            break;
+                        case (AST::Mul):
+                            result = left_value * right_value;
+                            break;
+                        case (AST::Div):
+                            result = left_value / right_value;
+                            break;
+                        case (AST::Pow):
+                            result = std::pow(left_value, right_value);
+                            break;
+                            // Reconsider
+                        default : { LFORTRAN_ASSERT(false); op = ASR::binopType::Pow; }
+                    }
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, result, dest_type));
+                }
+                else {
+                    // not implemented
+                }
+            }
+        }
+        asr = ASR::make_BinOp_t(al, x.base.base.loc, left, op, right, dest_type, value);
     }
 
     inline static void visit_Compare(Allocator& al, const AST::Compare_t &x, ASR::expr_t*& left,
