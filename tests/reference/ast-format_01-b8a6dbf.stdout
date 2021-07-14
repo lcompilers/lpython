@@ -17,4 +17,4 @@
            '(kg/m**3)',5x,'(J/kg)' ") (Format 610 "71('-'),/,(1x,i4,0p,3f10.1,1p,3e12.3)") (Format 620 "(1x,i4,0p,3(2x,'|',2x,f5.1),1p, 3(1x,'|',1x,e9.3))") (Format 630 " //,'  Format Number ',i4") (Format 631 "//,'  Format Number ',i4") (Format 640 ""Table form of A"/(2F8.2)") (Format 650 " 5X, 'ng= ', I4, /                                      &
                 5X, 'mat_opt= ', I2, /                                 &
                 5X, 'src_opt= ', I2, /                                 &
-                5X, 'scatp= ', I2 ") (Format 660 "'  Format Number ',0PF17.8,' Ry' ") (Format 670 "/'xx'") (Format 680 "/"xx"") (Format 690 "/ "xx"") (Format 700 "/ 'xx'") (Format 710 "/ i5, 'x'") (Format 720 "// i5, 'x'") (Format 730 "//")] [])])
+                5X, 'scatp= ', I2 ") (Format 660 "'  Format Number ',0PF17.8,' Ry' ") (Format 670 "/'xx'") (Format 680 "/"xx"") (Format 690 "/ "xx"") (Format 700 "/ 'xx'") (Format 710 "/ i5, 'x'") (Format 720 "// i5, 'x'") (Format 730 "//") (Format 740 "/1X'(',I2,')', X, A")] [])])
