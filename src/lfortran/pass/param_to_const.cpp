@@ -118,20 +118,20 @@ public:
         if (is_a<ASR::Variable_t>(*LFortran::ASRUtils::symbol_get_past_external(x.m_v))) {
             ASR::Variable_t *init_var = ASR::down_cast<ASR::Variable_t>(LFortran::ASRUtils::symbol_get_past_external(x.m_v));
             if( init_var->m_storage == ASR::storage_typeType::Parameter ) {
-                if( init_var->m_value == nullptr ) {
-                    asr = init_var->m_value;
+                if( init_var->m_symbolic_value == nullptr ) {
+                    asr = init_var->m_symbolic_value;
                 } else {
-                    switch( init_var->m_value->type ) {
+                    switch( init_var->m_symbolic_value->type ) {
                         case ASR::exprType::ConstantInteger: 
                         case ASR::exprType::ConstantReal:
                         case ASR::exprType::ConstantComplex:
                         case ASR::exprType::ConstantLogical: 
                         case ASR::exprType::ConstantString: {
-                            asr = init_var->m_value;
+                            asr = init_var->m_symbolic_value;
                             break;
                         }
                         default: {
-                            this->visit_expr(*(init_var->m_value));
+                            this->visit_expr(*(init_var->m_symbolic_value));
                         }
                     }
                 }
@@ -141,11 +141,11 @@ public:
 
     void visit_Variable(const ASR::Variable_t& x) {
         ASR::Variable_t& x_unconst = const_cast<ASR::Variable_t&>(x);
-        if( x.m_value != nullptr ) {
+        if( x.m_symbolic_value != nullptr ) {
             asr = nullptr;
-            visit_expr(*(x.m_value));
+            visit_expr(*(x.m_symbolic_value));
             if( asr != nullptr ) {
-                x_unconst.m_value = asr;
+                x_unconst.m_symbolic_value = asr;
                 asr = nullptr;
             }
         }

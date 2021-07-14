@@ -94,7 +94,7 @@ static inline ASR::expr_t* expr_value(ASR::expr_t *f)
         case ASR::exprType::DerivedRef: { return ASR::down_cast<ASR::DerivedRef_t>(f)->m_value; }
         case ASR::exprType::ImplicitCast: { return ASR::down_cast<ASR::ImplicitCast_t>(f)->m_value; }
         case ASR::exprType::ExplicitCast: { return ASR::down_cast<ASR::ExplicitCast_t>(f)->m_value; }
-        case ASR::exprType::Var: { return EXPR2VAR(f)->m_value; }
+        case ASR::exprType::Var: { return EXPR2VAR(f)->m_symbolic_value; }
         case ASR::exprType::StrOp: { return ASR::down_cast<ASR::StrOp_t>(f)->m_value; }
         case ASR::exprType::ImpliedDoLoop: { return ASR::down_cast<ASR::ImpliedDoLoop_t>(f)->m_value; }
         case ASR::exprType::ConstantArray: // Drop through
@@ -376,15 +376,15 @@ static inline int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {
                         if( kind_variable->m_storage == ASR::storage_typeType::Parameter ) {
                             if( kind_variable->m_type->type == ASR::ttypeType::Integer ) {
                                 if (ASR::is_a<ASR::ConstantInteger_t>(
-                                        *(kind_variable->m_value))) {
+                                        *(kind_variable->m_symbolic_value))) {
                                     a_kind = ASR::down_cast
                                         <ASR::ConstantInteger_t>
-                                        (kind_variable->m_value)->m_n;
+                                        (kind_variable->m_symbolic_value)->m_n;
                                 } else if (ASR::is_a<ASR::FunctionCall_t>(
-                                        *(kind_variable->m_value))) {
+                                        *(kind_variable->m_symbolic_value))) {
                                     ASR::FunctionCall_t *fc =
                                         ASR::down_cast<ASR::FunctionCall_t>(
-                                        kind_variable->m_value);
+                                        kind_variable->m_symbolic_value);
                                     ASR::Function_t *fn =
                                         ASR::down_cast<ASR::Function_t>(
                                         symbol_get_past_external(fc->m_name));
