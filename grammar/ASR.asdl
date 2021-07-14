@@ -166,26 +166,26 @@ stmt
 
 
 expr
-    = BoolOp(expr left, boolop op, expr right, ttype type)
-    | BinOp(expr left, binop op, expr right, ttype type)
-    | StrOp(expr left, strop op, expr right, ttype type)
-    | UnaryOp(unaryop op, expr operand, ttype type)
-    | Compare(expr left, cmpop op, expr right, ttype type)
+    = BoolOp(expr left, boolop op, expr right, ttype type, expr? value)
+    | BinOp(expr left, binop op, expr right, ttype type, expr? value)
+    | StrOp(expr left, strop op, expr right, ttype type, expr? value)
+    | UnaryOp(unaryop op, expr operand, ttype type, expr? value)
+    | Compare(expr left, cmpop op, expr right, ttype type, expr? value)
     | FunctionCall(symbol name, symbol? original_name, expr* args,
-            keyword* keywords, ttype type)
+            keyword* keywords, ttype type, expr? value)
     | ConstantArray(expr* args, ttype type)
     | ImpliedDoLoop(expr* values, expr var, expr start, expr end,
-                    expr? increment, ttype type)
+                    expr? increment, ttype type, expr? value)
     | ConstantInteger(int n, ttype type)
     | ConstantReal(string r, ttype type)
     | ConstantComplex(expr re, expr im, ttype type)
     | ConstantLogical(bool value, ttype type)
     | ConstantString(string s, ttype type)
     | Var(symbol v)
-    | ArrayRef(symbol v, array_index* args, ttype type)
-    | DerivedRef(expr v, symbol m, ttype type)
-    | ImplicitCast(expr arg, cast_kind kind, ttype type)
-    | ExplicitCast(expr arg, cast_kind kind, ttype type)
+    | ArrayRef(symbol v, array_index* args, ttype type, expr? value)
+    | DerivedRef(expr v, symbol m, ttype type, expr? value)
+    | ImplicitCast(expr arg, cast_kind kind, ttype type, expr? value)
+    | ExplicitCast(expr arg, cast_kind kind, ttype type, expr? value)
 
 ttype
     = Integer(int kind, dimension* dims)

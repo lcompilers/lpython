@@ -1,0 +1,13 @@
+{
+    "basename": "asr-expr_06-2de4136",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/expr_06.f90",
+    "infile_hash": "86c5ce938c64e34b4a0d0c0005ed174ab091a74089c4e28d87f55945",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-expr_06-2de4136.stdout",
+    "stdout_hash": "130c446b143b1a813919c5ebd5c25a9a36916c1efcfe2069e063dbd1",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

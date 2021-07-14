@@ -318,7 +318,7 @@ public:
                 if( doloop == nullptr ) {
                     ASR::expr_t* ref = PassUtils::create_array_ref(tmp_val, idx_vars, al);
                     ASR::expr_t* res = PassUtils::create_array_ref(result_var, idx_vars, al);
-                    ASR::expr_t* impl_cast_el_wise = LFortran::ASRUtils::EXPR(ASR::make_ImplicitCast_t(al, x.base.base.loc, ref, x.m_kind, x.m_type));
+                    ASR::expr_t* impl_cast_el_wise = LFortran::ASRUtils::EXPR(ASR::make_ImplicitCast_t(al, x.base.base.loc, ref, x.m_kind, x.m_type, nullptr));
                     ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, impl_cast_el_wise));
                     doloop_body.push_back(al, assign);
                 } else {
@@ -376,7 +376,7 @@ public:
                     ASR::expr_t* res = PassUtils::create_array_ref(result_var, idx_vars, al);
                     ASR::expr_t* op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_UnaryOp_t(
                                                     al, x.base.base.loc, 
-                                                    x.m_op, ref, x.m_type));
+                                                    x.m_op, ref, x.m_type, nullptr));
                     ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise));
                     doloop_body.push_back(al, assign);
                 } else {
@@ -438,17 +438,17 @@ public:
                         case ASR::exprType::BinOp:
                             op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(
                                                 al, x.base.base.loc, 
-                                                ref_1, (ASR::binopType)x.m_op, ref_2, x.m_type));
+                                                ref_1, (ASR::binopType)x.m_op, ref_2, x.m_type, nullptr));
                             break;
                         case ASR::exprType::Compare:
                             op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(
                                                 al, x.base.base.loc, 
-                                                ref_1, (ASR::cmpopType)x.m_op, ref_2, x.m_type));
+                                                ref_1, (ASR::cmpopType)x.m_op, ref_2, x.m_type, nullptr));
                             break;
                         case ASR::exprType::BoolOp:
                             op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_BoolOp_t(
                                                 al, x.base.base.loc, 
-                                                ref_1, (ASR::boolopType)x.m_op, ref_2, x.m_type));
+                                                ref_1, (ASR::boolopType)x.m_op, ref_2, x.m_type, nullptr));
                             break;
                         default:
                             throw SemanticError("The desired operation is not supported yet for arrays.",
@@ -503,17 +503,17 @@ public:
                         case ASR::exprType::BinOp:
                             op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(
                                                     al, x.base.base.loc, 
-                                                    ref, (ASR::binopType)x.m_op, other_expr, x.m_type));
+                                                    ref, (ASR::binopType)x.m_op, other_expr, x.m_type, nullptr));
                             break;
                         case ASR::exprType::Compare:
                             op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(
                                                     al, x.base.base.loc, 
-                                                    ref, (ASR::cmpopType)x.m_op, other_expr, x.m_type));
+                                                    ref, (ASR::cmpopType)x.m_op, other_expr, x.m_type, nullptr));
                             break;
                         case ASR::exprType::BoolOp:
                             op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_BoolOp_t(
                                                     al, x.base.base.loc, 
-                                                    ref, (ASR::boolopType)x.m_op, other_expr, x.m_type));
+                                                    ref, (ASR::boolopType)x.m_op, other_expr, x.m_type, nullptr));
                             break;
                         default:
                             throw SemanticError("The desired operation is not supported yet for arrays.",

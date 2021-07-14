@@ -43,7 +43,7 @@
                         (Var 2 x) 
                         Mul 
                         (Var 2 i) 
-                        (Integer 4 [])))])] 
+                        (Integer 4 []) ()))])] 
                Source 
                Public 
                Implementation), 
@@ -88,7 +88,7 @@
                         (Var 3 i) 
                         Mul 
                         (Var 3 x) 
-                        (Integer 4 [])))])] 
+                        (Integer 4 []) ()))])] 
                Source 
                Public 
                Implementation)

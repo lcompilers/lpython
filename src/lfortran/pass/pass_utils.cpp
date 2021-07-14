@@ -269,7 +269,7 @@ namespace LFortran {
             }
             ASR::expr_t* array_ref = LFortran::ASRUtils::EXPR(ASR::make_ArrayRef_t(al, loc, arr,
                                                                 args.p, args.size(), 
-                                                                _type));
+                                                                _type, nullptr));
             return array_ref;
         }
 
@@ -331,7 +331,7 @@ namespace LFortran {
                                         LFortran::ASRUtils::symbol_get_past_external(v))->m_return_var)->m_type;
             current_scope = current_scope_copy;
             return LFortran::ASRUtils::EXPR(ASR::make_FunctionCall_t(al, arr_expr->base.loc, v, nullptr,
-                                                args.p, args.size(), nullptr, 0, type));
+                                                args.p, args.size(), nullptr, 0, type, nullptr));
         }
 
         ASR::expr_t* to_int32(ASR::expr_t* x, ASR::ttype_t* int64type, Allocator& al) {
@@ -352,7 +352,7 @@ namespace LFortran {
                 }
             }
             if( cast_kind > 0 ) {
-                return LFortran::ASRUtils::EXPR(ASR::make_ImplicitCast_t(al, x->base.loc, x, (ASR::cast_kindType)cast_kind, int64type));
+                return LFortran::ASRUtils::EXPR(ASR::make_ImplicitCast_t(al, x->base.loc, x, (ASR::cast_kindType)cast_kind, int64type, nullptr));
             } else {
                 throw SemanticError("Array indices can only be of type real or integer.",
                                     x->base.loc);
