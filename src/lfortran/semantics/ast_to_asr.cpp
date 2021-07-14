@@ -2049,6 +2049,10 @@ public:
                 body.push_back(al, LFortran::ASRUtils::STMT(tmp));
             }
         }
+        ASR::stmt_t* impl_del = create_implicit_deallocate(x.base.base.loc);
+        if( impl_del != nullptr ) {
+            body.push_back(al, impl_del);
+        }
         v->m_body = body.p;
         v->n_body = body.size();
 
@@ -2104,12 +2108,17 @@ public:
                 body.push_back(al, LFortran::ASRUtils::STMT(tmp));
             }
         }
+        ASR::stmt_t* impl_del = create_implicit_deallocate(x.base.base.loc);
+        if( impl_del != nullptr ) {
+            body.push_back(al, impl_del);
+        }
         v->m_body = body.p;
         v->n_body = body.size();
 
         for (size_t i=0; i<x.n_contains; i++) {
             visit_program_unit(*x.m_contains[i]);
         }
+        create_implicit_deallocate(x.base.base.loc);
 
         current_scope = old_scope;
         tmp = nullptr;

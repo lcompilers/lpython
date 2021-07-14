@@ -42,9 +42,6 @@ end do
 r = reduce_sum(c)
 if (r /= (114345.0, 0.0)) error stop
 
-! deallocate(b)
-! deallocate(a, c)
-
 contains
 
 subroutine sum(a, b, c)
