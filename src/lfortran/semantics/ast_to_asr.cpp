@@ -237,19 +237,19 @@ class CommonVisitorMethods {
                     int64_t right_value = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(right))->m_n;
                     int64_t result;
                     switch (op) {
-                        case (AST::Add):
+                        case (ASR::Add):
                             result = left_value + right_value;
                             break;
-                        case (AST::Sub):
+                        case (ASR::Sub):
                             result = left_value - right_value;
                             break;
-                        case (AST::Mul):
+                        case (ASR::Mul):
                             result = left_value * right_value;
                             break;
-                        case (AST::Div):
+                        case (ASR::Div):
                             result = left_value / right_value;
                             break;
-                        case (AST::Pow):
+                        case (ASR::Pow):
                             result = std::pow(left_value, right_value);
                             break;
                             // Reconsider
