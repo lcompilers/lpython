@@ -94,6 +94,21 @@ void lex_int_large(Allocator &al, const unsigned char *s,
     u.from_largeint(al, num);
 }
 
+uint64_t parse_int(const unsigned char *s)
+{
+    while (*s == ' ') s++;
+    uint64_t u;
+    for (u = 0; ; ++s) {
+        if (*s >= '0' && *s <= '9') {
+            if (!adddgt<10>(u, *s - 0x30u)) {
+                return false;
+            }
+        } else {
+            return u;
+        }
+    }
+}
+
 #define KW(x) token(yylval.string); RET(KW_##x);
 #define RET(x) token_loc(loc); last_token=yytokentype::x; return yytokentype::x;
 
@@ -201,7 +216,15 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'concurrent' { KW(CONCURRENT) }
             'contains' { KW(CONTAINS) }
             'contiguous' { KW(CONTIGUOUS) }
-            'continue' { KW(CONTINUE) }
+            'continue' {
+                if (last_token == yytokentype::TK_LABEL
+                        && next_continue_is_enddo) {
+                    next_continue_is_enddo = false;
+                    KW(END_DO)
+                } else {
+                    KW(CONTINUE)
+                }
+            }
             'critical' { KW(CRITICAL) }
             'cycle' { KW(CYCLE) }
             'data' { KW(DATA) }
@@ -209,6 +232,13 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'default' { KW(DEFAULT) }
             'deferred' { KW(DEFERRED) }
             'dimension' { KW(DIMENSION) }
+            'do' / (whitespace digit+) {
+                // This is a label do statement, we have to match the
+                // corresponding continue base "end do".
+                uint64_t n = parse_int(cur);
+                label_do_stack.push_back(n);
+                KW(DO);
+            }
             'do' { KW(DO) }
             'dowhile' { KW(DOWHILE) }
             'double' { KW(DOUBLE) }
@@ -462,6 +492,12 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
                     uint64_t u;
                     if (lex_int(tok, cur, u, yylval.int_suffix.int_kind)) {
                             yylval.n = u;
+                            if (label_do_stack[label_do_stack.size()-1] == u) {
+                                label_do_stack.pop_back();
+                                next_continue_is_enddo = true;
+                            } else {
+                                next_continue_is_enddo = false;
+                            }
                             RET(TK_LABEL)
                     } else {
                         token_loc(loc);
