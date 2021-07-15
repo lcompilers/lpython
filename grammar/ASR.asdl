@@ -20,6 +20,7 @@
 --   * string
 -- We extend these by:
 --   * bool (.true. / .false.)
+--   * float (floating point number of infinite precision)
 --   * symbol_table (scoped Symbol Table implementation)
 --   * node (any ASR node)
 --
@@ -177,7 +178,7 @@ expr
     | ImpliedDoLoop(expr* values, expr var, expr start, expr end,
                     expr? increment, ttype type, expr? value)
     | ConstantInteger(int n, ttype type)
-    | ConstantReal(string r, ttype type)
+    | ConstantReal(float r, ttype type)
     | ConstantComplex(expr re, expr im, ttype type)
     | ConstantLogical(bool value, ttype type)
     | ConstantString(string s, ttype type)

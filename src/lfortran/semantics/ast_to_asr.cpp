@@ -18,6 +18,10 @@
 
 namespace LFortran {
 
+    double extract_real(const char *s) {
+        return std::atof(s);
+    }
+
     class ImplicitCastRules {
 
         private:
@@ -1482,9 +1486,10 @@ public:
 
     void visit_Real(const AST::Real_t &x) {
         int a_kind = ASRUtils::extract_kind(x.m_n);
+        double r = extract_real(x.m_n);
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
                 a_kind, nullptr, 0));
-        asr = ASR::make_ConstantReal_t(al, x.base.base.loc, x.m_n, type);
+        asr = ASR::make_ConstantReal_t(al, x.base.base.loc, r, type);
     }
 
     ASR::asr_t* resolve_variable(const Location &loc, const char* id) {
@@ -2749,9 +2754,10 @@ public:
 
     void visit_Real(const AST::Real_t &x) {
         int a_kind = ASRUtils::extract_kind(x.m_n);
+        double r = extract_real(x.m_n);
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
                 a_kind, nullptr, 0));
-        tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, x.m_n, type);
+        tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, r, type);
     }
 
     void visit_Complex(const AST::Complex_t &x) {
