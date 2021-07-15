@@ -12,7 +12,9 @@ rewind s
 rewind 10
 rewind(err=label, unit=s)
 
-backspace(u)
+backspace (u)
+backspace io_unit
+backspace 10
 BACKSPACE (10, IOSTAT = N)
 
 end program

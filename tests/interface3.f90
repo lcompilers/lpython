@@ -2,6 +2,10 @@ module interface3
 implicit none
 !checks the syntax
 public :: x, y, z, assignment(=), operator(+), operator(.and.), operator(.in.)
+public :: operator(*)
+public :: operator(/)
+public :: operator(/ )
+public :: operator(// )
 
 interface
     module procedure sample
@@ -28,6 +32,8 @@ interface operator (*)
     module procedure intersection
 end interface
 interface operator ( / )
+end interface
+interface operator (/)
 end interface
 interface operator (**)
 end interface
@@ -62,5 +68,13 @@ public :: operator(//)
 
 interface operator (//)
 end interface
+
+contains
+
+    function f(operator)
+    ! Currently parsed as an operator, but AST -> ASR phase can fix that:
+    real, intent(in) :: operator (*)
+    end function f
+
 
 end module

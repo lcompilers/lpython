@@ -2,11 +2,11 @@
     "basename": "ast_f90-implicit1-5bbb5d3",
     "cmd": "lfortran --show-ast-f90 --no-color {infile}",
     "infile": "tests/implicit1.f90",
-    "infile_hash": "9ef9d6d0d664b748ba5f86596980af98b2dccae961bf5ee4b4dbe5fe",
+    "infile_hash": "00ae8b21e25b4e7a0c4c512623aedce98b11afe49c5dc8a34c20d90a",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast_f90-implicit1-5bbb5d3.stdout",
-    "stdout_hash": "3abeb8e837666ed0c4fd874e98706490169ff08ff66fc78390c7b18b",
+    "stdout_hash": "c8e4e3146a6d1ba8ca773d1473af29864a2d315ec1b5459ebb8f50b2",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

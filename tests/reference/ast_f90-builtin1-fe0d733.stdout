@@ -8,5 +8,7 @@ rewind(s)
 rewind(10)
 rewind(err=label, unit=s)
 backspace(u)
+backspace(io_unit)
+backspace(10)
 backspace(10, IOSTAT=N)
 end program builtin_01

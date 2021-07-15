@@ -355,11 +355,11 @@ end function)";
     Allocator al(4*1024);
     LFortran::AST::TranslationUnit_t* tu = LFortran::parse2(al, source);
     LFortran::AST::ast_t* ast = tu->m_items[0];
-    CHECK(LFortran::pickle(*ast) == "(Function f [] [] () () [] [] [] [(Declaration (AttrType TypeInteger [] ()) [] [(f [] [] () None ())])] [(= 0 f 5)] [])");
+    CHECK(LFortran::pickle(*ast) == "(Function f [] [] () () [] [] [] [(Declaration (AttrType TypeInteger [] () None) [] [(f [] [] () None ())])] [(= 0 f 5)] [])");
 
     // AST -> ASR
     LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *tu);
-    CHECK(LFortran::pickle(*asr) == "(TranslationUnit (SymbolTable 1 {f: (Function (SymbolTable 2 {f: (Variable 2 f ReturnVar () Default (Integer 4 []) Source Public Required)}) f [] [(= (Var 2 f) (ConstantInteger 5 (Integer 4 [])))] (Var 2 f) Source Public Implementation)}) [])");
+    CHECK(LFortran::pickle(*asr) == "(TranslationUnit (SymbolTable 1 {f: (Function (SymbolTable 2 {f: (Variable 2 f ReturnVar () () Default (Integer 4 []) Source Public Required)}) f [] [(= (Var 2 f) (ConstantInteger 5 (Integer 4 [])))] (Var 2 f) Source Public Implementation)}) [])");
 
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
@@ -383,11 +383,11 @@ end function)";
     Allocator al(4*1024);
     LFortran::AST::TranslationUnit_t* tu = LFortran::parse2(al, source);
     LFortran::AST::ast_t* ast = tu->m_items[0];
-    CHECK(LFortran::pickle(*ast) == "(Function f [] [] () () [] [] [] [(Declaration (AttrType TypeInteger [] ()) [] [(f [] [] () None ())])] [(= 0 f 4)] [])");
+    CHECK(LFortran::pickle(*ast) == "(Function f [] [] () () [] [] [] [(Declaration (AttrType TypeInteger [] () None) [] [(f [] [] () None ())])] [(= 0 f 4)] [])");
 
     // AST -> ASR
     LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *tu);
-    CHECK(LFortran::pickle(*asr) == "(TranslationUnit (SymbolTable 3 {f: (Function (SymbolTable 4 {f: (Variable 4 f ReturnVar () Default (Integer 4 []) Source Public Required)}) f [] [(= (Var 4 f) (ConstantInteger 4 (Integer 4 [])))] (Var 4 f) Source Public Implementation)}) [])");     
+    CHECK(LFortran::pickle(*asr) == "(TranslationUnit (SymbolTable 3 {f: (Function (SymbolTable 4 {f: (Variable 4 f ReturnVar () () Default (Integer 4 []) Source Public Required)}) f [] [(= (Var 4 f) (ConstantInteger 4 (Integer 4 [])))] (Var 4 f) Source Public Implementation)}) [])");
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
     std::unique_ptr<LFortran::LLVMModule> m = LFortran::asr_to_llvm(*asr,

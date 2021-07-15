@@ -474,6 +474,7 @@ public:
         for (size_t i=0; i<x.n_symbols; i++) {
             this->visit_use_symbol(*x.m_symbols[i]);
             r.append(s);
+            if (i < x.n_symbols-1) r.append(", ");
         }
         s = r;
     }
@@ -560,6 +561,13 @@ public:
         s = r;
     }
 
+    void visit_Private(const Private_t &/*x*/) {
+        std::string r;
+        r += syn(gr::Type);
+        r.append("private");
+        r += syn();
+        s = r;
+    }
 
     void visit_Enum(const Enum_t & x) {
         std::string r = indent;
@@ -1231,6 +1239,9 @@ public:
             r.append("(");
             r.append(x.m_name);
             r.append(")");
+        }
+        if (x.m_sym == symbolType::Asterisk) {
+            r.append("(*)");
         }
         s = r;
     }

@@ -105,7 +105,7 @@ void main2() {
         a[2-1] = 2;
         a[3-1] = 1;
         b = sum(a);
-        if (abs(b - 6) > 1e-5) {
+        if (abs(b - 6) > 0.000010) {
             std::cerr << "ERROR STOP" << std::endl;
             exit(1);
         };

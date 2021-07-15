@@ -191,25 +191,31 @@ static inline equi_t* EQUIVALENCE1(Allocator &al, Location &loc,
             p.m_a, l, \
             decl_typeType::Type##x, \
             nullptr, 0, \
-            nullptr)
+            nullptr, None)
 
 #define ATTR_TYPE_INT(x, n, l) make_AttrType_t( \
             p.m_a, l, \
             decl_typeType::Type##x, \
             a2kind_list(p.m_a, l, INTEGER(n, l)).p, 1, \
-            nullptr)
+            nullptr, None)
 
 #define ATTR_TYPE_KIND(x, kind, l) make_AttrType_t( \
             p.m_a, l, \
             decl_typeType::Type##x, \
             kind.p, kind.size(), \
-            nullptr)
+            nullptr, None)
 
 #define ATTR_TYPE_NAME(x, name, l) make_AttrType_t( \
             p.m_a, l, \
             decl_typeType::Type##x, \
             nullptr, 0, \
-            name2char(name))
+            name2char(name), None)
+
+#define ATTR_TYPE_STAR(x, sym, l) make_AttrType_t( \
+            p.m_a, l, \
+            decl_typeType::Type##x, \
+            nullptr, 0, \
+            nullptr, sym)
 
 #define IMPORT0(x, l) make_Import_t( \
             p.m_a, l, \
@@ -980,10 +986,17 @@ ast_t* builtin3(Allocator &al,
 #define INQUIRE0(args0, l) builtin2(p.m_a, args0, empty_vecast(), l, \
             make_Inquire_t)
 #define INQUIRE(args0, args, l) builtin2(p.m_a, args0, args, l, make_Inquire_t)
+
 #define REWIND2(arg, l) make_Rewind_t(p.m_a, l, 0, \
-            EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
+        EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
 #define REWIND3(arg, l) make_Rewind_t(p.m_a, l, 0, \
-            EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
+        EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
+
+#define BACKSPACE2(arg, l) make_Backspace_t(p.m_a, l, 0, \
+        EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
+#define BACKSPACE3(arg, l) make_Backspace_t(p.m_a, l, 0, \
+        EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
+
 #define FLUSH1(arg, l) make_Flush_t(p.m_a, l, 0, \
             EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
 
@@ -1715,14 +1728,7 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         p.m_a, l, name2char(name), USES(use), use.size(), \
         VEC_CAST(implicit, implicit_statement), implicit.size(), \
         DECLS(decl), decl.size())
-
-#define PRIVATE0(l) make_Private_t(p.m_a, l, \
-        nullptr, 0)
-#define PRIVATE(syms, l) make_Private_t(p.m_a, l, \
-        nullptr, 0)
-#define PUBLIC(syms, l) make_Public_t(p.m_a, l, \
-        nullptr, 0)
-
+        
 #define INTERFACE_HEADER(l) make_InterfaceHeader_t(p.m_a, l)
 #define INTERFACE_HEADER_NAME(id, l) make_InterfaceHeaderName_t(p.m_a, l, \
         name2char(id))
@@ -1772,6 +1778,7 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         VEC_CAST(attr, decl_attribute), attr.size(), \
         name2char(name), REDUCE_ARGS(p.m_a, namelist), namelist.size())
 #define FINAL_NAME(name, l) make_FinalName_t(p.m_a, l, name2char(name))
+#define PRIVATE(syms, l) make_Private_t(p.m_a, l)
 
 #define CRITICAL(stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
         nullptr, 0, STMTS(stmts), stmts.size())

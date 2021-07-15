@@ -4,7 +4,8 @@
       g [] [] () [] [] [] [
       (Declaration 
          (AttrType 
-            TypeInteger [] ()) [] [
+            TypeInteger [] () 
+            None) [] [
          (x [] [] () 
             None ()) 
          (i [] [] () 
@@ -16,7 +17,8 @@
       h [] [] () [] [] [] [
       (Declaration 
          (AttrType 
-            TypeInteger [] ()) [] [
+            TypeInteger [] () 
+            None) [] [
          (x [] [] () 
             None ()) 
          (i [] [] () 
