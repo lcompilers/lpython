@@ -1268,7 +1268,7 @@ var_sym_decl
     | id "=" expr { $$ = VAR_SYM_DIM_INIT($1, nullptr, 0, $3, Equal, @$); }
     | id "=>" expr { $$ = VAR_SYM_DIM_INIT($1, nullptr, 0, $3, Assign, @$); }
     | id "*" expr { $$ = VAR_SYM_DIM_INIT($1, nullptr, 0, $3, Asterisk, @$); }
-    | id "(" array_comp_decl_list ")" { $$ = VAR_SYM_DIM($1, $3.p, $3.n, None, @$); }
+    | id "(" array_comp_decl_list ")" %dprec 1 { $$ = VAR_SYM_DIM($1, $3.p, $3.n, None, @$); }
     | id "(" array_comp_decl_list ")" "=" expr {
             $$ = VAR_SYM_DIM_INIT($1, $3.p, $3.n, $6, Equal, @$); }
     | id "(" array_comp_decl_list ")" "=>" expr {
@@ -1277,7 +1277,7 @@ var_sym_decl
             $$ = VAR_SYM_CODIM($1, $3.p, $3.n, None, @$); }
     | id "(" array_comp_decl_list ")" "[" coarray_comp_decl_list "]" {
             $$ = VAR_SYM_DIM_CODIM($1, $3.p, $3.n, $6.p, $6.n, None, @$); }
-    | decl_spec { $$ = VAR_SYM_SPEC($1, None, @$); }
+    | decl_spec %dprec 2 { $$ = VAR_SYM_SPEC($1, None, @$); }
     ;
 
 decl_spec
