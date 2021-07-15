@@ -64,4 +64,12 @@ public :: operator(//)
 interface operator (//)
 end interface
 
+contains
+
+    function f(operator)
+    ! Currently parsed as an operator, but AST -> ASR phase can fix that:
+    real, intent(in) :: operator (*)
+    end function f
+
+
 end module
