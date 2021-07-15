@@ -1193,7 +1193,11 @@ public:
         for (size_t i = 0; i < x.n_symbols; i++) {
             AST::UseSymbol_t *use_sym = AST::down_cast<AST::UseSymbol_t>(
                 x.m_symbols[i]);
-            class_procedures[dt_name][use_sym->m_rename] = use_sym->m_sym;
+            if (use_sym->m_rename) {
+                class_procedures[dt_name][use_sym->m_rename] = use_sym->m_sym;
+            } else {
+                class_procedures[dt_name][use_sym->m_sym] = use_sym->m_sym;
+            }
         }
     }
 
