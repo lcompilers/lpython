@@ -217,6 +217,7 @@ public:
             result_var = x.m_target;
             this->visit_expr(*(x.m_value));
         }
+        result_var = nullptr;
     }
 
     ASR::ttype_t* get_matching_type(ASR::expr_t* sibling) {
@@ -367,6 +368,7 @@ public:
                 doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
             array_op_result.push_back(al, doloop);
+            tmp_val = nullptr;
         }
     }
 
@@ -608,6 +610,7 @@ public:
                                                 s_args.p, s_args.size()));
             array_op_result.push_back(al, subrout_call);
         }
+        result_var = nullptr;
     }
 
 };
