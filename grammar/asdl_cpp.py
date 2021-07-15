@@ -100,6 +100,9 @@ def convert_type(asdl_type, seq, opt, mod_name):
     elif asdl_type == "bool":
         type_ = "bool"
         assert not seq
+    elif asdl_type == "float":
+        type_ = "double"
+        assert not seq
     elif asdl_type == "node":
         type_ = "%s_t*" % mod_name
         if seq:
@@ -664,6 +667,8 @@ class PickleVisitorVisitor(ASDLVisitor):
                     self.emit("}", 2)
                 else:
                     self.emit('s.append(std::to_string(x.m_%s));' % field.name, 2)
+            elif field.type == "float" and not field.seq and not field.opt:
+                self.emit('s.append(std::to_string(x.m_%s));' % field.name, 2)
             elif field.type == "bool" and not field.seq and not field.opt:
                 self.emit("if (x.m_%s) {" % field.name, 2)
                 self.emit(    's.append(".true.");', 3)
@@ -840,6 +845,8 @@ class SerializationVisitorVisitor(ASDLVisitor):
                 self.emit("} else {", 2)
                 self.emit(    'self().write_bool(false);', 3)
                 self.emit("}", 2)
+            elif field.type == "float" and not field.seq and not field.opt:
+                self.emit('self().write_float64(x.m_%s);' % field.name, 2)
             elif field.type in self.data.simple_types:
                 if field.opt:
                     raise Exception("Unimplemented opt for field type: " + field.type);
@@ -1059,6 +1066,10 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                     elif f.type == "int":
                         assert not f.opt
                         lines.append("int64_t m_%s = self().read_int64();" % (f.name))
+                        args.append("m_%s" % (f.name))
+                    elif f.type == "float":
+                        assert not f.opt
+                        lines.append("double m_%s = self().read_float64();" % (f.name))
                         args.append("m_%s" % (f.name))
                     elif f.type == "bool":
                         assert not f.opt

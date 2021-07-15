@@ -2270,7 +2270,7 @@ public:
     }
 
     void visit_ConstantReal(const ASR::ConstantReal_t &x) {
-        double val = std::atof(x.m_r);
+        double val = x.m_r;
         int a_kind = ((ASR::Real_t*)(&(x.m_type->base)))->m_kind;
         switch( a_kind ) {
             
@@ -2293,10 +2293,8 @@ public:
     void visit_ConstantComplex(const ASR::ConstantComplex_t &x) {
         LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantReal_t>(*x.m_re));
         LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantReal_t>(*x.m_im));
-        double re = std::atof(
-            ASR::down_cast<ASR::ConstantReal_t>(x.m_re)->m_r);
-        double im = std::atof(
-            ASR::down_cast<ASR::ConstantReal_t>(x.m_im)->m_r);
+        double re = ASR::down_cast<ASR::ConstantReal_t>(x.m_re)->m_r;
+        double im = ASR::down_cast<ASR::ConstantReal_t>(x.m_im)->m_r;
         int a_kind = extract_kind_from_ttype_t(x.m_type);
         llvm::Value *re2, *im2;
         llvm::Type *type;

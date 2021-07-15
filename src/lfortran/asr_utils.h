@@ -404,12 +404,9 @@ static inline int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {
                                             ASR::ConstantReal_t *r = ASR::down_cast<
                                                 ASR::ConstantReal_t>(
                                                 fc->m_args[0]);
-                                                auto rstring = std::string(r->m_r);
-                                                if (rstring.find("d") != std::string::npos) {
-                                                    a_kind = 8; // double precision
-                                                } else {
-                                                    a_kind = 4; // single precision
-                                                }
+                                                ASR::Real_t *rt = ASR::down_cast<
+                                                    ASR::Real_t>(r->m_type);
+                                                a_kind = rt->m_kind;
                                          } else if (ASR::is_a<ASR::ConstantInteger_t>(
                                                     *fc->m_args[0])) {
                                             ASR::ConstantInteger_t *i = ASR::down_cast<
