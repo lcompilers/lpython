@@ -217,6 +217,7 @@ public:
             result_var = x.m_target;
             this->visit_expr(*(x.m_value));
         }
+        result_var = nullptr;
     }
 
     ASR::ttype_t* get_matching_type(ASR::expr_t* sibling) {
@@ -335,6 +336,40 @@ public:
 
     void visit_Var(const ASR::Var_t& x) {
         tmp_val = const_cast<ASR::expr_t*>(&(x.base));
+        if( result_var != nullptr && PassUtils::is_array(result_var) ) {
+            int rank_var = PassUtils::get_rank(tmp_val);
+            int n_dims = rank_var;
+            Vec<ASR::expr_t*> idx_vars;
+            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, current_scope);
+            ASR::stmt_t* doloop = nullptr;
+            for( int i = n_dims - 1; i >= 0; i-- ) {
+                // TODO: Add an If debug node to check if the lower and upper bounds of both the arrays are same.
+                ASR::do_loop_head_t head;
+                head.m_v = idx_vars[i];
+                head.m_start = PassUtils::get_bound(result_var, i + 1, "lbound", al, unit, current_scope);
+                head.m_end = PassUtils::get_bound(result_var, i + 1, "ubound", al, unit, current_scope);
+                head.m_increment = nullptr;
+                head.loc = head.m_v->base.loc;
+                Vec<ASR::stmt_t*> doloop_body;
+                doloop_body.reserve(al, 1);
+                if( doloop == nullptr ) {
+                    ASR::expr_t* ref = nullptr;
+                    if( rank_var > 0 ) {
+                        ref = PassUtils::create_array_ref(tmp_val, idx_vars, al);
+                    } else {
+                        ref = tmp_val;
+                    }
+                    ASR::expr_t* res = PassUtils::create_array_ref(result_var, idx_vars, al);
+                    ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, ref));
+                    doloop_body.push_back(al, assign);
+                } else {
+                    doloop_body.push_back(al, doloop);
+                }
+                doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
+            }
+            array_op_result.push_back(al, doloop);
+            tmp_val = nullptr;
+        }
     }
 
     void visit_UnaryOp(const ASR::UnaryOp_t& x) {
@@ -575,6 +610,7 @@ public:
                                                 s_args.p, s_args.size()));
             array_op_result.push_back(al, subrout_call);
         }
+        result_var = nullptr;
     }
 
 };
