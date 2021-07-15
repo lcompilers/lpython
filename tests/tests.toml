@@ -1241,6 +1241,11 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "../integration_tests/program_04.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
 filename = "use_statement.f90"
 ast = true
 
