@@ -430,6 +430,11 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             // Single character symbols
             "(" { RET(TK_LPAREN) }
             "(" / "/=" { RET(TK_LPAREN) } // To parse "operator(/=)" correctly
+            "(" / "/)" { RET(TK_LPAREN) } // To parse "operator(/)" correctly
+            // To parse "operator(/ )" correctly
+            "(" / "/" whitespace ")" { RET(TK_LPAREN) }
+            // To parse "operator(// )" correctly
+            "(" / "//" whitespace ")" { RET(TK_LPAREN) }
             "(" / "//)" { RET(TK_LPAREN) } // To parse "operator(//)" correctly
             ")" { RET(TK_RPAREN) }
             "[" | "(/" { RET(TK_LBRACKET) }

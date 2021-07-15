@@ -3,6 +3,9 @@ implicit none
 !checks the syntax
 public :: x, y, z, assignment(=), operator(+), operator(.and.), operator(.in.)
 public :: operator(*)
+public :: operator(/)
+public :: operator(/ )
+public :: operator(// )
 
 interface
     module procedure sample
@@ -29,6 +32,8 @@ interface operator (*)
     module procedure intersection
 end interface
 interface operator ( / )
+end interface
+interface operator (/)
 end interface
 interface operator (**)
 end interface
