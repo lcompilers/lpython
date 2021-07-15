@@ -1282,6 +1282,7 @@ var_sym_decl
 
 decl_spec
     : KW_OPERATOR "(" operator_type ")" { $$ = DECL_OP($3, @$); }
+    | KW_OPERATOR "(" "/)" { $$ = DECL_OP(OPERATOR(DIV, @$), @$); }
     | KW_OPERATOR "(" TK_DEF_OP ")" { $$ = DECL_DEFOP($3, @$); }
     | KW_ASSIGNMENT "(" "=" ")" { $$ = DECL_ASSIGNMENT(@$); }
     ;
