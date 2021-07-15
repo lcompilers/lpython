@@ -434,7 +434,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     }
 
     void visit_ConstantReal(const ASR::ConstantReal_t &x) {
-        src = x.m_r;
+        src = std::to_string(x.m_r);
         last_unary_plus = false;
         last_binary_plus = false;
     }
