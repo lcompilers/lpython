@@ -1,4 +1,4 @@
-program format1
+program format_01
 implicit none
     1 format(/,'BDF2 step ',i6,': T=',es12.5,', H=',es12.5,', ETAH=',es12.5)
     2 format(/ ,'BDF2 step ',i6,': T=',es12.5,', H=',es12.5,', ETAH=',es12.5)
@@ -59,4 +59,13 @@ implicit none
                 5X, 'mat_opt= ', I2, /                                 &
                 5X, 'src_opt= ', I2, /                                 &
                 5X, 'scatp= ', I2 )
+    660 format('  Format Number ',0PF17.8,' Ry' )
+    670 format(/'xx')
+    680 format(/"xx")
+    690 format(/ "xx")
+    700 format(/ 'xx')
+    710 format(/ i5, 'x')
+    720 format(// i5, 'x')
+    730 format(//)
+    740 FORMAT(/1X'(',I2,')', X, A)
 end program

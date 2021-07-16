@@ -1,0 +1,1 @@
+(TranslationUnit (SymbolTable 1 {expr_06: (Program (SymbolTable 2 {x: (Variable 2 x Local (BinOp (ConstantInteger 3 (Integer 4 [])) Add (ConstantInteger 6 (Integer 4 [])) (Integer 4 []) (ConstantInteger 9 (Integer 4 []))) () Default (Integer 4 []) Source Public Required)}) expr_06 [] [(Print () [(Var 2 x)])])}) [])

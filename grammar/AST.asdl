@@ -179,6 +179,7 @@ expr
     | Logical(bool value)
     | DataImpliedDo(expr* object_list, decl_attribute? type,
         identifier var, expr start, expr end, expr? increment)
+    | Parenthesis(expr operand)
 
 boolop = And | Or | Eqv | NEqv
 
@@ -206,6 +207,7 @@ procedure_decl
     | GenericAssignment(decl_attribute* attr, identifier* names)
     | GenericName(decl_attribute* attr, identifier name, identifier* names)
     | FinalName(identifier name)
+    | Private()
 
 decl_attribute
     = AttrBind(identifier name)
@@ -218,7 +220,7 @@ decl_attribute
     | AttrNamelist(identifier name)
     | AttrPass(identifier? name)
     | SimpleAttribute(simple_attribute attr)
-    | AttrType(decl_type type, kind_item* kind, identifier? name)
+    | AttrType(decl_type type, kind_item* kind, identifier? name, symbol sym)
     | AttrAssignment()
     | AttrIntrinsicOperator(intrinsicop op)
     | AttrDefinedOperator(string op_name)

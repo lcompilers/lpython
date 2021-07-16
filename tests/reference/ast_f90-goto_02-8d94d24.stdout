@@ -5,11 +5,11 @@ A = 0
 1 continue
 write(*, *)
 A = (A) + (1)
-if ((A)>(2)) then
+if ((A) > (2)) then
     go to 95
 end if
 write(*, *) "A =", A, "  Starting"
-if ((A)==(1)) then
+if ((A) == (1)) then
     go to 10
 end if
 go to 20
@@ -20,7 +20,7 @@ go to 30
 write(*, *) "A =", A, "  Got to 20"
 30 continue
 write(*, *) "A =", A, "  Got to 30"
-if ((A)==(2)) then
+if ((A) == (2)) then
     go to 99
 end if
 go to 1

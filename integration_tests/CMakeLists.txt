@@ -92,6 +92,7 @@ RUN(NAME expr_02 LABELS gfortran llvm cpp x86)
 RUN(NAME expr_03 LABELS gfortran llvm cpp x86)
 RUN(NAME expr_04 LABELS gfortran llvm cpp)
 RUN(NAME expr_05 LABELS gfortran llvm cpp)
+RUN(NAME expr_06 LABELS gfortran llvm)
 
 RUN(NAME variables_01 LABELS gfortran llvm cpp x86)
 RUN(NAME variables_02 LABELS gfortran llvm cpp x86)
@@ -144,6 +145,7 @@ RUN(NAME arrays_op_3 LABELS gfortran llvm)
 RUN(NAME arrays_op_4 LABELS gfortran llvm)
 RUN(NAME arrays_op_5 LABELS gfortran llvm)
 RUN(NAME arrays_op_6 LABELS gfortran llvm)
+RUN(NAME arrays_op_7 LABELS gfortran llvm)
 RUN(NAME arrays_03_func LABELS gfortran cpp llvm)
 RUN(NAME arrays_04_func LABELS gfortran cpp llvm)
 RUN(NAME arrays_05 LABELS gfortran cpp)
@@ -161,6 +163,9 @@ RUN(NAME reserved_02 LABELS gfortran llvm)
 RUN(NAME reserved_03 LABELS gfortran)
 
 RUN(NAME namelist_01 LABELS gfortran)
+
+RUN(NAME format_01 LABELS gfortran)
+RUN(NAME format_02 LABELS gfortran)
 
 RUN(NAME submodule_01 LABELS gfortran)
 
@@ -203,6 +208,7 @@ RUN(NAME select_type_01 LABELS gfortran)
 
 RUN(NAME program_02 LABELS gfortran)
 RUN(NAME program_03 LABELS gfortran llvm)
+RUN(NAME program_04 LABELS gfortran)
 
 RUN(NAME where_01 LABELS gfortran)
 

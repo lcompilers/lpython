@@ -4,7 +4,7 @@ A = 10
 1 loop: block
     integer :: B
     A = (A) + (5)
-    if ((A)==(15)) then
+    if ((A) == (15)) then
         go to 1
     end if
     B = (A)/(2)

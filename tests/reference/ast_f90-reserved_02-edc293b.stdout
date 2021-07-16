@@ -1,6 +1,6 @@
 program reserved_02
 implicit none
-if ((integer())/=(1)) then
+if ((integer()) /= (1)) then
     error stop
 end if
 

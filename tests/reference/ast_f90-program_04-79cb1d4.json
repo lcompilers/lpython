@@ -1,0 +1,13 @@
+{
+    "basename": "ast_f90-program_04-79cb1d4",
+    "cmd": "lfortran --show-ast-f90 --no-color {infile}",
+    "infile": "tests/../integration_tests/program_04.f90",
+    "infile_hash": "6d4faa951231e470e99cbc3ff617437048ceb99e3d92ba6e7810ef43",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_f90-program_04-79cb1d4.stdout",
+    "stdout_hash": "439500fd8492ff2ca0bd5b0af5b38a26c80293df93355b1cdd42f456",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

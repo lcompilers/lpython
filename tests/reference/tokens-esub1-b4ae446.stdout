@@ -12,7 +12,6 @@
 (TOKEN "=")
 (TOKEN "integer" 1)
 (NEWLINE)
-(KEYWORD "end")
-(KEYWORD "subroutine")
+(KEYWORD "end subroutine")
 (NEWLINE)
 (EOF)

@@ -31,10 +31,10 @@ namespace {
     std::string boolop2str(const AST::boolopType type)
     {
         switch (type) {
-            case (AST::boolopType::And) : return ".and.";
-            case (AST::boolopType::Or) : return ".or.";
-            case (AST::boolopType::Eqv) : return ".eqv.";
-            case (AST::boolopType::NEqv) : return ".neqv.";
+            case (AST::boolopType::And) : return " .and. ";
+            case (AST::boolopType::Or) : return " .or. ";
+            case (AST::boolopType::Eqv) : return " .eqv. ";
+            case (AST::boolopType::NEqv) : return " .neqv. ";
         }
         throw LFortranException("Unknown type");
     }
@@ -42,12 +42,12 @@ namespace {
     std::string cmpop2str(const AST::cmpopType type)
     {
         switch (type) {
-            case (AST::cmpopType::Eq) : return "==";
-            case (AST::cmpopType::Gt) : return ">";
-            case (AST::cmpopType::GtE) : return ">=";
-            case (AST::cmpopType::Lt) : return "<";
-            case (AST::cmpopType::LtE) : return "<=";
-            case (AST::cmpopType::NotEq) : return "/=";
+            case (AST::cmpopType::Eq) : return " == ";
+            case (AST::cmpopType::Gt) : return " > ";
+            case (AST::cmpopType::GtE) : return " >= ";
+            case (AST::cmpopType::Lt) : return " < ";
+            case (AST::cmpopType::LtE) : return " <= ";
+            case (AST::cmpopType::NotEq) : return " /= ";
         }
         throw LFortranException("Unknown type");
     }
@@ -211,11 +211,18 @@ public:
         for (size_t i=0; i<x.n_items; i++) {
             this->visit_ast(*x.m_items[i]);
             r += s;
-            if (i < x.n_items-1 && (
-                    !is_a<unit_decl2_t>(*x.m_items[i]) &&
-                    !is_a<unit_decl2_t>(*x.m_items[i+1])
-                )) {
-                r.append("\n");
+            if (i < x.n_items-1) {
+                if (is_a<expr_t>(*x.m_items[i]) || (
+                        (  is_a<mod_t>(*x.m_items[i])
+                        || is_a<program_unit_t>(*x.m_items[i])
+                        ) &&
+                        (  is_a<mod_t>(*x.m_items[i+1])
+                        || is_a<program_unit_t>(*x.m_items[i+1])
+                        )
+                            )
+                        ) {
+                    r.append("\n");
+                }
             }
         }
         s = r;
@@ -474,6 +481,7 @@ public:
         for (size_t i=0; i<x.n_symbols; i++) {
             this->visit_use_symbol(*x.m_symbols[i]);
             r.append(s);
+            if (i < x.n_symbols-1) r.append(", ");
         }
         s = r;
     }
@@ -560,6 +568,13 @@ public:
         s = r;
     }
 
+    void visit_Private(const Private_t &/*x*/) {
+        std::string r;
+        r += syn(gr::Type);
+        r.append("private");
+        r += syn();
+        s = r;
+    }
 
     void visit_Enum(const Enum_t & x) {
         std::string r = indent;
@@ -1231,6 +1246,9 @@ public:
             r.append("(");
             r.append(x.m_name);
             r.append(")");
+        }
+        if (x.m_sym == symbolType::Asterisk) {
+            r.append("(*)");
         }
         s = r;
     }
@@ -2708,6 +2726,14 @@ public:
             s += x.m_kind;
         }
         s += syn();
+    }
+
+    void visit_Parenthesis(const Parenthesis_t &x) {
+        std::string r = "(";
+        this->visit_expr(*x.m_operand);
+        r.append(s);
+        r += ")";
+        s = r;
     }
 
     void visit_Real(const Real_t &x) {

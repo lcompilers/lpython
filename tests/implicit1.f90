@@ -10,6 +10,7 @@ implicit none (type, external)
 implicit real (a-h,o-z)
 implicit real (dp) (a-h,o-z)
 implicit real*8 (a-h,o-z)
+implicit real(8) (a-h,o-z)
 
 implicit double precision (a-h,o-z)
 
@@ -23,15 +24,18 @@ implicit integer (dp) (a-h,o-z)
 implicit integer*8 (i,j-l,m,n)
 IMPLICIT INTEGER (A, C)
 IMPLICIT INTEGER*4 (C, D-x)
+IMPLICIT INTEGER(4) (C, D-x)
 
 implicit logical (l, u-z)
 implicit logical (dp) (a-h,o-z)
 implicit logical*4 (l, u-z)
+implicit logical(4) (l, u-z)
 
 implicit complex (z)
 implicit complex (dp) (a-h,o-z)
 IMPLICIT COMPLEX (C)
 implicit complex*4 (z)
+implicit complex(4) (z)
 
 IMPLICIT TYPE(BLOB) (A)
 IMPLICIT class(X) (A-b)

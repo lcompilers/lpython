@@ -229,8 +229,8 @@ public:
         require(id_symtab_map.find(symtab->counter) != id_symtab_map.end(),
             "Variable::m_parent_symtab must be present in the ASR");
 
-        if (x.m_value)
-            visit_expr(*x.m_value);
+        if (x.m_symbolic_value)
+            visit_expr(*x.m_symbolic_value);
         visit_ttype(*x.m_type);
     }
 

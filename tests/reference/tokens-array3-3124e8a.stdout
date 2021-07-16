@@ -38,7 +38,6 @@
 (TOKEN "/)")
 (NEWLINE)
 (NEWLINE)
-(KEYWORD "end")
-(KEYWORD "program")
+(KEYWORD "end program")
 (NEWLINE)
 (EOF)

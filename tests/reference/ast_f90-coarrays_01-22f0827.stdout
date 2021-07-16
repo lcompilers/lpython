@@ -18,7 +18,7 @@ n = 5
 allocate(F(n)[*])
 allocate(greeting_ready(num_images())[*])
 allocate(g(50, 50, 50)[1:2, 1:2, *])
-if ((this_image())==(1)) then
+if ((this_image()) == (1)) then
     do i = 2, num_images()
         c = (c) + (c[i])
         event post (ok_to_overwrite[i])

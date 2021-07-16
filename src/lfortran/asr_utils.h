@@ -82,6 +82,32 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
     }
 }
 
+static inline ASR::expr_t* expr_value(ASR::expr_t *f)
+{
+    switch (f->type) {
+        case ASR::exprType::BoolOp: { return ASR::down_cast<ASR::BoolOp_t>(f)->m_value; }
+        case ASR::exprType::BinOp: { return ASR::down_cast<ASR::BinOp_t>(f)->m_value; }
+        case ASR::exprType::UnaryOp: { return ASR::down_cast<ASR::UnaryOp_t>(f)->m_value; }
+        case ASR::exprType::Compare: { return ASR::down_cast<ASR::Compare_t>(f)->m_value; }
+        case ASR::exprType::FunctionCall: { return ASR::down_cast<ASR::FunctionCall_t>(f)->m_value; }
+        case ASR::exprType::ArrayRef: { return ASR::down_cast<ASR::ArrayRef_t>(f)->m_value; }
+        case ASR::exprType::DerivedRef: { return ASR::down_cast<ASR::DerivedRef_t>(f)->m_value; }
+        case ASR::exprType::ImplicitCast: { return ASR::down_cast<ASR::ImplicitCast_t>(f)->m_value; }
+        case ASR::exprType::ExplicitCast: { return ASR::down_cast<ASR::ExplicitCast_t>(f)->m_value; }
+        case ASR::exprType::Var: { return EXPR2VAR(f)->m_value; }
+        case ASR::exprType::StrOp: { return ASR::down_cast<ASR::StrOp_t>(f)->m_value; }
+        case ASR::exprType::ImpliedDoLoop: { return ASR::down_cast<ASR::ImpliedDoLoop_t>(f)->m_value; }
+        case ASR::exprType::ConstantArray: // Drop through
+        case ASR::exprType::ConstantInteger: // Drop through
+        case ASR::exprType::ConstantReal: // Drop through
+        case ASR::exprType::ConstantComplex: // Drop through
+        case ASR::exprType::ConstantString:{ // For all Constants
+            return f;
+        }
+        default : throw LFortranException("Not implemented");
+    }
+}
+
 static inline char *symbol_name(const ASR::symbol_t *f)
 {
     switch (f->type) {
@@ -350,15 +376,15 @@ static inline int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {
                         if( kind_variable->m_storage == ASR::storage_typeType::Parameter ) {
                             if( kind_variable->m_type->type == ASR::ttypeType::Integer ) {
                                 if (ASR::is_a<ASR::ConstantInteger_t>(
-                                        *(kind_variable->m_value))) {
+                                        *(kind_variable->m_symbolic_value))) {
                                     a_kind = ASR::down_cast
                                         <ASR::ConstantInteger_t>
-                                        (kind_variable->m_value)->m_n;
+                                        (kind_variable->m_symbolic_value)->m_n;
                                 } else if (ASR::is_a<ASR::FunctionCall_t>(
-                                        *(kind_variable->m_value))) {
+                                        *(kind_variable->m_symbolic_value))) {
                                     ASR::FunctionCall_t *fc =
                                         ASR::down_cast<ASR::FunctionCall_t>(
-                                        kind_variable->m_value);
+                                        kind_variable->m_symbolic_value);
                                     ASR::Function_t *fn =
                                         ASR::down_cast<ASR::Function_t>(
                                         symbol_get_past_external(fc->m_name));
@@ -378,12 +404,9 @@ static inline int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {
                                             ASR::ConstantReal_t *r = ASR::down_cast<
                                                 ASR::ConstantReal_t>(
                                                 fc->m_args[0]);
-                                                auto rstring = std::string(r->m_r);
-                                                if (rstring.find("d") != std::string::npos) {
-                                                    a_kind = 8; // double precision
-                                                } else {
-                                                    a_kind = 4; // single precision
-                                                }
+                                                ASR::Real_t *rt = ASR::down_cast<
+                                                    ASR::Real_t>(r->m_type);
+                                                a_kind = rt->m_kind;
                                          } else if (ASR::is_a<ASR::ConstantInteger_t>(
                                                     *fc->m_args[0])) {
                                             ASR::ConstantInteger_t *i = ASR::down_cast<

@@ -191,25 +191,31 @@ static inline equi_t* EQUIVALENCE1(Allocator &al, Location &loc,
             p.m_a, l, \
             decl_typeType::Type##x, \
             nullptr, 0, \
-            nullptr)
+            nullptr, None)
 
 #define ATTR_TYPE_INT(x, n, l) make_AttrType_t( \
             p.m_a, l, \
             decl_typeType::Type##x, \
             a2kind_list(p.m_a, l, INTEGER(n, l)).p, 1, \
-            nullptr)
+            nullptr, None)
 
 #define ATTR_TYPE_KIND(x, kind, l) make_AttrType_t( \
             p.m_a, l, \
             decl_typeType::Type##x, \
             kind.p, kind.size(), \
-            nullptr)
+            nullptr, None)
 
 #define ATTR_TYPE_NAME(x, name, l) make_AttrType_t( \
             p.m_a, l, \
             decl_typeType::Type##x, \
             nullptr, 0, \
-            name2char(name))
+            name2char(name), None)
+
+#define ATTR_TYPE_STAR(x, sym, l) make_AttrType_t( \
+            p.m_a, l, \
+            decl_typeType::Type##x, \
+            nullptr, 0, \
+            nullptr, sym)
 
 #define IMPORT0(x, l) make_Import_t( \
             p.m_a, l, \
@@ -632,6 +638,15 @@ static inline reduce_opType convert_id_to_reduce_type(
 #define TRUE(l) make_Logical_t(p.m_a, l, true)
 #define FALSE(l) make_Logical_t(p.m_a, l, false)
 
+ast_t* parenthesis(Allocator &al, Location &loc, expr_t *op) {
+    switch (op->type) {
+        case LFortran::AST::exprType::Name: { return make_Parenthesis_t(al, loc, op); }
+        default : { return (ast_t*)op; }
+    }
+}
+
+#define PAREN(x, l) parenthesis(p.m_a, l, EXPR(x))
+
 #define STRCONCAT(x, y, l) make_StrOp_t(p.m_a, l, EXPR(x), stroperatorType::Concat, EXPR(y))
 
 #define EQ(x, y, l)  make_Compare_t(p.m_a, l, EXPR(x), cmpopType::Eq, EXPR(y))
@@ -971,10 +986,17 @@ ast_t* builtin3(Allocator &al,
 #define INQUIRE0(args0, l) builtin2(p.m_a, args0, empty_vecast(), l, \
             make_Inquire_t)
 #define INQUIRE(args0, args, l) builtin2(p.m_a, args0, args, l, make_Inquire_t)
+
 #define REWIND2(arg, l) make_Rewind_t(p.m_a, l, 0, \
-            EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
+        EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
 #define REWIND3(arg, l) make_Rewind_t(p.m_a, l, 0, \
-            EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
+        EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
+
+#define BACKSPACE2(arg, l) make_Backspace_t(p.m_a, l, 0, \
+        EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
+#define BACKSPACE3(arg, l) make_Backspace_t(p.m_a, l, 0, \
+        EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
+
 #define FLUSH1(arg, l) make_Flush_t(p.m_a, l, 0, \
             EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
 
@@ -1027,30 +1049,27 @@ uint64_t linecol_to_pos(const std::string &s, uint16_t line, uint16_t col) {
     return pos;
 }
 
-char* format_to_str(Allocator &al, Location &loc, const std::string &inp) {
-    uint64_t first = linecol_to_pos(inp, loc.first_line, loc.first_column);
-    uint64_t last = linecol_to_pos(inp, loc.last_line, loc.last_column);
-    std::string fmt = inp.substr(first, last-first+1);
-    if (fmt[fmt.size()-1] != ')') {
-        // This is a workaround for a bug that the last_column is too small
-        // for multiline comments
-        std::size_t found = inp.find(")\n", last);
-        LFORTRAN_ASSERT(found != std::string::npos);
-        last = found;
-        fmt = inp.substr(first, last-first+1);
+// Converts a linear position `position` to a (line, col) tuple
+void pos_to_linecol(const std::string &s, uint64_t position,
+            uint16_t &line, uint16_t &col) {
+    uint64_t pos = 0;
+    uint64_t nlpos = 0;
+    line = 1;
+    while (true) {
+        nlpos = pos;
+        if (pos == position) break;
+        while (s[pos] != '\n') {
+            pos++;
+            if (pos == position) break;
+            if (pos == s.size()) break;
+        }
+        line++;
+        pos++;
     }
-    LFORTRAN_ASSERT(fmt[fmt.size()-1] == ')');
-    std::size_t found = fmt.find('(');
-    LFORTRAN_ASSERT(found != std::string::npos);
-    fmt = fmt.substr(found+1, fmt.size()-found-2);
-
-    LFortran::Str s;
-    s.from_str_view(fmt);
-    return s.c_str(al);
+    col = pos-nlpos+1;
 }
 
-#define FORMAT(l) make_Format_t(p.m_a, l, 0, \
-        format_to_str(p.m_a, l, p.inp))
+#define FORMAT(s, l) make_Format_t(p.m_a, l, 0, s.c_str(p.m_a))
 
 #define STOP(l) make_Stop_t(p.m_a, l, 0, nullptr, nullptr)
 #define STOP1(stop_code, l) make_Stop_t(p.m_a, l, 0, EXPR(stop_code), nullptr)
@@ -1709,14 +1728,7 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         p.m_a, l, name2char(name), USES(use), use.size(), \
         VEC_CAST(implicit, implicit_statement), implicit.size(), \
         DECLS(decl), decl.size())
-
-#define PRIVATE0(l) make_Private_t(p.m_a, l, \
-        nullptr, 0)
-#define PRIVATE(syms, l) make_Private_t(p.m_a, l, \
-        nullptr, 0)
-#define PUBLIC(syms, l) make_Public_t(p.m_a, l, \
-        nullptr, 0)
-
+        
 #define INTERFACE_HEADER(l) make_InterfaceHeader_t(p.m_a, l)
 #define INTERFACE_HEADER_NAME(id, l) make_InterfaceHeaderName_t(p.m_a, l, \
         name2char(id))
@@ -1766,6 +1778,7 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         VEC_CAST(attr, decl_attribute), attr.size(), \
         name2char(name), REDUCE_ARGS(p.m_a, namelist), namelist.size())
 #define FINAL_NAME(name, l) make_FinalName_t(p.m_a, l, name2char(name))
+#define PRIVATE(syms, l) make_Private_t(p.m_a, l)
 
 #define CRITICAL(stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
         nullptr, 0, STMTS(stmts), stmts.size())

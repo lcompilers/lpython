@@ -434,7 +434,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     }
 
     void visit_ConstantReal(const ASR::ConstantReal_t &x) {
-        src = x.m_r;
+        src = std::to_string(x.m_r);
         last_unary_plus = false;
         last_binary_plus = false;
     }
@@ -622,6 +622,34 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             }
             default : throw CodeGenError("Unhandled switch case");
         }
+        last_unary_plus = false;
+    }
+
+    void visit_BoolOp(const ASR::BoolOp_t &x) {
+        this->visit_expr(*x.m_left);
+        std::string left_val = "(" + src + ")";
+        this->visit_expr(*x.m_right);
+        std::string right_val = "(" + src + ")";
+        switch (x.m_op) {
+            case ASR::boolopType::And: {
+                src = left_val + " && " + right_val;
+                break;
+            }
+            case ASR::boolopType::Or: {
+                src = left_val + " || " + right_val;
+                break;
+            }
+            case ASR::boolopType::NEqv: {
+                src = left_val + " != " + right_val;
+                break;
+            }
+            case ASR::boolopType::Eqv: {
+                src = left_val + " == " + right_val;
+                break;
+            }
+            default : throw CodeGenError("Unhandled switch case");
+        }
+        last_binary_plus = false;
         last_unary_plus = false;
     }
 

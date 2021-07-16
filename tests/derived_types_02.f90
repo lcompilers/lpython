@@ -16,9 +16,11 @@ type, extends(B), public :: X
     type(C), pointer :: cc => null()
     real(r8), pointer :: r2(:) => null(), r3(:) => null()
 contains
+    private
     procedure, private :: p1
     procedure(something), private :: p1b
     procedure, pass(self) :: p2
+    procedure :: proc_1, proc_2
     generic :: operator(/=) => p5, p6
     generic :: operator(+) => p8
     generic :: operator(.in.) => p7

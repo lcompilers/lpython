@@ -821,8 +821,8 @@ public:
             || x.m_abi == ASR::abiType::Interactive);
         bool external = (x.m_abi != ASR::abiType::Source);
         llvm::Constant* init_value = nullptr;
-        if (x.m_value != nullptr){
-            this->visit_expr_wrapper(x.m_value, true);
+        if (x.m_symbolic_value != nullptr){
+            this->visit_expr_wrapper(x.m_symbolic_value, true);
             init_value = llvm::dyn_cast<llvm::Constant>(tmp);
         }
         if (x.m_type->type == ASR::ttypeType::Integer) {
@@ -1143,9 +1143,9 @@ public:
                     if( is_array_type && !is_malloc_array_type ) {
                         fill_array_details(ptr, m_dims, n_dims);
                     }
-                    if( v->m_value != nullptr ) {
+                    if( v->m_symbolic_value != nullptr ) {
                         target_var = ptr;
-                        this->visit_expr_wrapper(v->m_value, true);
+                        this->visit_expr_wrapper(v->m_symbolic_value, true);
                         llvm::Value *init_value = tmp;
                         builder->CreateStore(init_value, target_var);
                         auto finder = std::find(nested_globals.begin(), 
@@ -2317,7 +2317,7 @@ public:
     }
 
     void visit_ConstantReal(const ASR::ConstantReal_t &x) {
-        double val = std::atof(x.m_r);
+        double val = x.m_r;
         int a_kind = ((ASR::Real_t*)(&(x.m_type->base)))->m_kind;
         switch( a_kind ) {
             
@@ -2340,10 +2340,8 @@ public:
     void visit_ConstantComplex(const ASR::ConstantComplex_t &x) {
         LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantReal_t>(*x.m_re));
         LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantReal_t>(*x.m_im));
-        double re = std::atof(
-            ASR::down_cast<ASR::ConstantReal_t>(x.m_re)->m_r);
-        double im = std::atof(
-            ASR::down_cast<ASR::ConstantReal_t>(x.m_im)->m_r);
+        double re = ASR::down_cast<ASR::ConstantReal_t>(x.m_re)->m_r;
+        double im = ASR::down_cast<ASR::ConstantReal_t>(x.m_im)->m_r;
         int a_kind = extract_kind_from_ttype_t(x.m_type);
         llvm::Value *re2, *im2;
         llvm::Type *type;
