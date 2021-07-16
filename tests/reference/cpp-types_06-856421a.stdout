@@ -1,0 +1,127 @@
+#include <iostream>
+#include <vector>
+#include <Kokkos_Core.hpp>
+
+template <typename T>
+Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
+{
+    Kokkos::View<T*> r("r", v.size());
+    for (size_t i=0; i < v.size(); i++) {
+        r(i) = v[i];
+    }
+    return r;
+}
+
+namespace {
+
+void main2() {
+        int i;
+        float r;
+        r = 2;
+        i = 2;
+        if (i < i) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+        if (r < r) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+        if (r < i) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+        if (i < r) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+        if (i > i) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+        if (r > r) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+        if (r > i) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+        if (i > r) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+        if (i != i) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+        if (r != r) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+        if (r != i) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+        if (i != r) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+        if (i + 1 <= i) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+        if (r + 1 <= r) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+        if (r + 1 <= i) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+        if (i + 1 <= r) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+        if (i >= i + 1) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+        if (r >= r + 1) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+        if (r >= i + 1) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+        if (i >= r + 1) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+        if (i == i + 1) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+        if (r == r + 1) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+        if (r == i + 1) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+        if (i == r + 1) {
+            std::cerr << "ERROR STOP" << std::endl;
+            exit(1);
+        };
+}
+
+}
+int main(int argc, char* argv[])
+{
+    Kokkos::initialize(argc, argv);
+    main2();
+    Kokkos::finalize();
+    return 0;
+}

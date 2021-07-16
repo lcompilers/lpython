@@ -1,0 +1,9 @@
+program block1
+implicit integer (a-z)
+integer :: B
+block
+    use mod, only: example
+    import, none
+    B = 10
+end block
+end program block1

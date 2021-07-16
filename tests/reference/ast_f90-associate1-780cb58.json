@@ -1,0 +1,13 @@
+{
+    "basename": "ast_f90-associate1-780cb58",
+    "cmd": "lfortran --show-ast-f90 --no-color {infile}",
+    "infile": "tests/associate1.f90",
+    "infile_hash": "1f90b3ef799fb354098ee524279bb2b71bf3813b43f2269fb014ec0d",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_f90-associate1-780cb58.stdout",
+    "stdout_hash": "ec4a4a281491485f3b9820a7d729fbcffd710ee9801745bd69e8a946",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

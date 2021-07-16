@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-arrays_04_func-ac14cef",
+    "cmd": "lfortran --show-cpp {infile}",
+    "infile": "tests/../integration_tests/arrays_04_func.f90",
+    "infile_hash": "50eb699e803e7dace8da286ee49cdb7381ebe3141bff17ca374f1f02",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-arrays_04_func-ac14cef.stdout",
+    "stdout_hash": "f867dc930e255477848e7c9ced9f20a7e3ad4ff96966c7cfa3bbe604",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

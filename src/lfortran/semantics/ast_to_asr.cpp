@@ -2119,20 +2119,23 @@ public:
 
     ASR::stmt_t* create_implicit_deallocate_subrout_call(ASR::stmt_t* x) {
         ASR::SubroutineCall_t* subrout_call = ASR::down_cast<ASR::SubroutineCall_t>(x);
-        ASR::Subroutine_t* subrout = ASR::down_cast<ASR::Subroutine_t>(subrout_call->m_name);
+        const ASR::symbol_t* subrout_sym = LFortran::ASRUtils::symbol_get_past_external(subrout_call->m_name);
+        ASR::Subroutine_t* subrout = ASR::down_cast<ASR::Subroutine_t>(subrout_sym);
         Vec<ASR::symbol_t*> del_syms;
         del_syms.reserve(al, 1);
         for( size_t i = 0; i < subrout_call->n_args; i++ ) {
             if( subrout_call->m_args[i]->type == ASR::exprType::Var ) {
                 const ASR::Var_t* arg_var = ASR::down_cast<ASR::Var_t>(subrout_call->m_args[i]);
                 const ASR::symbol_t* sym = LFortran::ASRUtils::symbol_get_past_external(arg_var->m_v);
-                ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(sym);
-                const ASR::Var_t* orig_arg_var = ASR::down_cast<ASR::Var_t>(subrout->m_args[i]);
-                const ASR::symbol_t* orig_sym = LFortran::ASRUtils::symbol_get_past_external(orig_arg_var->m_v);
-                ASR::Variable_t* orig_var = ASR::down_cast<ASR::Variable_t>(orig_sym);
-                if( var->m_storage == ASR::storage_typeType::Allocatable && 
-                    orig_var->m_intent == ASR::intentType::Out ) {
-                    del_syms.push_back(al, arg_var->m_v);
+                if( sym->type == ASR::symbolType::Variable ) {
+                    ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(sym);
+                    const ASR::Var_t* orig_arg_var = ASR::down_cast<ASR::Var_t>(subrout->m_args[i]);
+                    const ASR::symbol_t* orig_sym = LFortran::ASRUtils::symbol_get_past_external(orig_arg_var->m_v);
+                    ASR::Variable_t* orig_var = ASR::down_cast<ASR::Variable_t>(orig_sym);
+                    if( var->m_storage == ASR::storage_typeType::Allocatable && 
+                        orig_var->m_intent == ASR::intentType::Out ) {
+                        del_syms.push_back(al, arg_var->m_v);
+                    }
                 }
             }
         }

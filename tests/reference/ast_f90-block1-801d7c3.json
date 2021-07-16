@@ -1,0 +1,13 @@
+{
+    "basename": "ast_f90-block1-801d7c3",
+    "cmd": "lfortran --show-ast-f90 --no-color {infile}",
+    "infile": "tests/block1.f90",
+    "infile_hash": "f96fe7a8f6b65ebcf0a50e8d6fa12979410f5f902e0771f5100aaad1",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_f90-block1-801d7c3.stdout",
+    "stdout_hash": "ac61d53a1b63908db4a132f43e9659f4b81380077c35e94f2e865f68",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

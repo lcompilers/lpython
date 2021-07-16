@@ -1122,11 +1122,7 @@ ast_f90 = true
 filename = "../integration_tests/expr_06.f90"
 asr = true
 
-[[test]]
-filename = "../integration_tests/modules_11.f90"
-ast = true
-asr = true
-llvm = true
+
 
 [[test]]
 filename = "../integration_tests/modules_12.f90"

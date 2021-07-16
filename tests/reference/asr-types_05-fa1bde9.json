@@ -1,0 +1,13 @@
+{
+    "basename": "asr-types_05-fa1bde9",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/types_05.f90",
+    "infile_hash": "96f8e950abafbc42b9d0438efdca0a8355bb2bd7b4b168ee23063521",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-types_05-fa1bde9.stdout",
+    "stdout_hash": "83128d180eaa4ee4423f581350e429d73cffc723f761449563099b7f",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
