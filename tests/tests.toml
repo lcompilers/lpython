@@ -1302,5 +1302,5 @@ ast = true
 ast_f90 = true
 
 [[test]]
-filename = "../integration_tests/class_01.f90"
+filename = "../integration_tests/class_02.f90"
 asr = true
