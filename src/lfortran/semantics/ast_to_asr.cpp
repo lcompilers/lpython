@@ -234,9 +234,6 @@ class CommonVisitorMethods {
         // Assign evaluation to `value` if possible, otherwise leave nullptr
         if (LFortran::ASRUtils::expr_value(left) != nullptr && LFortran::ASRUtils::expr_value(right) != nullptr) {
             if (ASR::is_a<LFortran::ASR::Integer_t>(*dest_type)) {
-                // Only for Constant integers, else errors out for init_values.f90
-                if (ASR::is_a<LFortran::ASR::ConstantInteger_t>(*ASRUtils::expr_value(left)) &&
-                    ASR::is_a<LFortran::ASR::ConstantInteger_t>(*ASRUtils::expr_value(right))) {
                     int64_t left_value = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(left))->m_n;
                     int64_t right_value = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(right))->m_n;
                     int64_t result;
@@ -260,10 +257,6 @@ class CommonVisitorMethods {
                         default : { LFORTRAN_ASSERT(false); op = ASR::binopType::Pow; }
                     }
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, result, dest_type));
-                }
-                else {
-                    // not implemented
-                }
             }
         }
         asr = ASR::make_BinOp_t(al, x.base.base.loc, left, op, right, dest_type, value);
