@@ -139,8 +139,13 @@ namespace LFortran {
             builder->CreateStore(sec_ele_ptr, sec_arg_ptr);   
             llvm::Value* third_ele_ptr = builder->CreateLoad(
                 get_pointer_to_dimension_descriptor_array(tmp));
-            llvm::Value* third_arg_ptr = llvm_utils->create_gep(arg_struct, 2); 
+            llvm::Value* third_arg_ptr = llvm_utils->create_gep(arg_struct, 2);
             builder->CreateStore(third_ele_ptr, third_arg_ptr);
+            if( tmp_struct_type->getNumElements() > 3 ) {
+                llvm::Value* fourth_ele = get_is_allocated_flag(tmp);
+                llvm::Value* fourth_arg_ptr = llvm_utils->create_gep(arg_struct, 3);
+                builder->CreateStore(fourth_ele, fourth_arg_ptr);
+            }
             return arg_struct;
         }
 
@@ -161,11 +166,12 @@ namespace LFortran {
             if( arr_arg_type_cache.find(m_h) == arr_arg_type_cache.end() || (
                 arr_arg_type_cache.find(m_h) != arr_arg_type_cache.end() && 
                 arr_arg_type_cache[m_h].find(std::string(arg_name)) == arr_arg_type_cache[m_h].end() ) ) {
-                new_arr_type = llvm::StructType::create(context, std::vector<llvm::Type*>({first_ele_ptr_type,
-                                                                                            static_cast<llvm::StructType*>(type)->getElementType(1),
-                                                                                            static_cast<llvm::StructType*>(type)->getElementType(2)      
-                                                                                            }), "array_call");
-                arr_arg_type_cache[m_h][std::string(arg_name)] = new_arr_type;    
+                std::vector<llvm::Type*> arg_des = {first_ele_ptr_type};
+                for( size_t i = 1; i < type_struct->getNumElements(); i++ ) {
+                    arg_des.push_back(static_cast<llvm::StructType*>(type)->getElementType(i));
+                }
+                new_arr_type = llvm::StructType::create(context, arg_des, "array_call");
+                arr_arg_type_cache[m_h][std::string(arg_name)] = new_arr_type;
             } else {
                 new_arr_type = arr_arg_type_cache[m_h][std::string(arg_name)];
             }

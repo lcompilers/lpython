@@ -739,6 +739,7 @@ public:
                 llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
                 builder->CreateCondBr(cond, thenBB, elseBB);
                 builder->SetInsertPoint(thenBB);
+                //print_util(cond, "%d");
                 call_lfortran_free(free_fn);
                 llvm::Value *thenV = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
                 if (!early_return) {

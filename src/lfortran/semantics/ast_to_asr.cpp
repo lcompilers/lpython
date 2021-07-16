@@ -2092,7 +2092,14 @@ public:
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
             if (tmp != nullptr) {
-                body.push_back(al, LFortran::ASRUtils::STMT(tmp));
+                ASR::stmt_t* tmp_stmt = LFortran::ASRUtils::STMT(tmp);
+                if( tmp_stmt->type == ASR::stmtType::SubroutineCall ) {
+                    ASR::stmt_t* impl_decl = create_implicit_deallocate_subrout_call(tmp_stmt);
+                    if( impl_decl != nullptr ) {
+                        body.push_back(al, impl_decl);
+                    }
+                }
+                body.push_back(al, tmp_stmt);
             }
         }
         ASR::stmt_t* impl_del = create_implicit_deallocate(x.base.base.loc);
@@ -2110,6 +2117,32 @@ public:
         tmp = nullptr;
     }
 
+    ASR::stmt_t* create_implicit_deallocate_subrout_call(ASR::stmt_t* x) {
+        ASR::SubroutineCall_t* subrout_call = ASR::down_cast<ASR::SubroutineCall_t>(x);
+        ASR::Subroutine_t* subrout = ASR::down_cast<ASR::Subroutine_t>(subrout_call->m_name);
+        Vec<ASR::symbol_t*> del_syms;
+        del_syms.reserve(al, 1);
+        for( size_t i = 0; i < subrout_call->n_args; i++ ) {
+            if( subrout_call->m_args[i]->type == ASR::exprType::Var ) {
+                const ASR::Var_t* arg_var = ASR::down_cast<ASR::Var_t>(subrout_call->m_args[i]);
+                const ASR::symbol_t* sym = LFortran::ASRUtils::symbol_get_past_external(arg_var->m_v);
+                ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(sym);
+                const ASR::Var_t* orig_arg_var = ASR::down_cast<ASR::Var_t>(subrout->m_args[i]);
+                const ASR::symbol_t* orig_sym = LFortran::ASRUtils::symbol_get_past_external(orig_arg_var->m_v);
+                ASR::Variable_t* orig_var = ASR::down_cast<ASR::Variable_t>(orig_sym);
+                if( var->m_storage == ASR::storage_typeType::Allocatable && 
+                    orig_var->m_intent == ASR::intentType::Out ) {
+                    del_syms.push_back(al, arg_var->m_v);
+                }
+            }
+        }
+        if( del_syms.size() == 0 ) {
+            return nullptr;
+        }
+        return LFortran::ASRUtils::STMT(ASR::make_ImplicitDeallocate_t(al, x->base.loc,
+                    del_syms.p, del_syms.size()));
+    }
+
     void visit_Subroutine(const AST::Subroutine_t &x) {
     // TODO: add SymbolTable::lookup_symbol(), which will automatically return
     // an error
@@ -2123,7 +2156,14 @@ public:
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
             if (tmp != nullptr) {
-                body.push_back(al, LFortran::ASRUtils::STMT(tmp));
+                ASR::stmt_t* tmp_stmt = LFortran::ASRUtils::STMT(tmp);
+                if( tmp_stmt->type == ASR::stmtType::SubroutineCall ) {
+                    ASR::stmt_t* impl_decl = create_implicit_deallocate_subrout_call(tmp_stmt);
+                    if( impl_decl != nullptr ) {
+                        body.push_back(al, impl_decl);
+                    }
+                }
+                body.push_back(al, tmp_stmt);
             }
         }
         ASR::stmt_t* impl_del = create_implicit_deallocate(x.base.base.loc);
@@ -2151,7 +2191,14 @@ public:
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
             if (tmp != nullptr) {
-                body.push_back(al, LFortran::ASRUtils::STMT(tmp));
+                ASR::stmt_t* tmp_stmt = LFortran::ASRUtils::STMT(tmp);
+                if( tmp_stmt->type == ASR::stmtType::SubroutineCall ) {
+                    ASR::stmt_t* impl_decl = create_implicit_deallocate_subrout_call(tmp_stmt);
+                    if( impl_decl != nullptr ) {
+                        body.push_back(al, impl_decl);
+                    }
+                }
+                body.push_back(al, tmp_stmt);
             }
         }
         ASR::stmt_t* impl_del = create_implicit_deallocate(x.base.base.loc);
@@ -2164,7 +2211,6 @@ public:
         for (size_t i=0; i<x.n_contains; i++) {
             visit_program_unit(*x.m_contains[i]);
         }
-        create_implicit_deallocate(x.base.base.loc);
 
         current_scope = old_scope;
         tmp = nullptr;
