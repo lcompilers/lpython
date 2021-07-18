@@ -2,6 +2,14 @@ stages:
   - tarball
   - build
 
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - if: '$CI_COMMIT_BRANCH'
+    - if: '$CI_COMMIT_TAG'
+
 prepare tarball:
   stage: tarball
   image: registry.gitlab.com/lfortran/ci-images:prepare-1.7.0
