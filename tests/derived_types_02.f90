@@ -25,6 +25,7 @@ contains
     generic :: operator(+) => p8
     generic :: operator(.in.) => p7
     generic :: operator(.dot.) => p10
+    generic :: operator(/) => p11
     generic :: assignment(=) => p9
     generic, public :: calcCoeffs => calcCoeffsReal, calcCoeffsKPoint
     generic, private :: name => sample

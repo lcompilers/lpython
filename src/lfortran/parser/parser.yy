@@ -590,6 +590,8 @@ endinterface
     | endinterface0 id
     | endinterface0 KW_ASSIGNMENT "(" "=" ")"
     | endinterface0 KW_OPERATOR "(" operator_type ")"
+    | endinterface0 KW_OPERATOR "(" "/)"
+    | endinterface0 KW_OPERATOR "(" TK_DEF_OP ")"
     ;
 
 endinterface0
@@ -661,6 +663,8 @@ procedure_decl
             $$ = DERIVED_TYPE_PROC1($3, $5, $6, @$); }
     | KW_GENERIC access_spec_list KW_OPERATOR "(" operator_type ")" "=>" id_list sep {
             $$ = GENERIC_OPERATOR($2, $5, $8, @$); }
+    | KW_GENERIC access_spec_list KW_OPERATOR "(" "/)" "=>" id_list sep {
+            $$ = GENERIC_OPERATOR($2, OPERATOR(DIV, @$), $7, @$); }
     | KW_GENERIC access_spec_list KW_OPERATOR "(" TK_DEF_OP ")" "=>" id_list sep {
             $$ = GENERIC_DEFOP($2, $5, $8, @$); }
     | KW_GENERIC access_spec_list KW_ASSIGNMENT "(" "=" ")" "=>" id_list sep {
@@ -1045,6 +1049,7 @@ use_symbol
     | id "=>" id  { $$ = USE_SYMBOL2($1, $3, @$); }
     | KW_ASSIGNMENT "(" "=" ")"  { $$ = USE_ASSIGNMENT(@$); }
     | KW_OPERATOR "(" operator_type ")"  { $$ = INTRINSIC_OPERATOR($3, @$); }
+    | KW_OPERATOR "(" "/)"  { $$ = INTRINSIC_OPERATOR(OPERATOR(DIV, @$), @$); }
     | KW_OPERATOR "(" TK_DEF_OP ")"  { $$ = DEFINED_OPERATOR($3, @$); }
     | KW_OPERATOR "(" TK_DEF_OP ")" "=>" KW_OPERATOR "(" TK_DEF_OP ")" {
         $$ = RENAME_OPERATOR($3, $8, @$); }

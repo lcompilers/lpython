@@ -17,6 +17,7 @@ program use_statement
     use :: example, only: sample=>rename
     use example, only: operator (*)
     use example, only: operator ( / )
+    use example, only: operator (/)
     use example, only: operator (/=)
     use example, only: operator (>)
     use example, only: operator (<=)
