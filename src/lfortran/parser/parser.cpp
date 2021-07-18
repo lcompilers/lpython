@@ -273,6 +273,8 @@ std::string token2text(const int token)
         T(KW_ENDWHERE, "endwhere")
         T(KW_END_CRITICAL, "end critical")
         T(KW_ENDCRITICAL, "endcritical")
+        T(KW_END_FILE, "end file")
+        T(KW_ENDFILE, "endfile")
 
         T(KW_ENTRY, "entry")
         T(KW_ENUM, "enum")

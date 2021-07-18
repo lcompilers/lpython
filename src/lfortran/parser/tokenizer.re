@@ -306,6 +306,9 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'end' whitespace 'where' { KW(END_WHERE) }
             'endwhere' { KW(ENDWHERE) }
 
+            'end file' { KW(END_FILE) }
+            'endfile' { KW(ENDFILE) }
+
             'entry' { KW(ENTRY) }
             'enum' { KW(ENUM) }
             'enumerator' { KW(ENUMERATOR) }
