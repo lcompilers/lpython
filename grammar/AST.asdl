@@ -148,6 +148,7 @@ stmt
             concurrent_control *control, expr? mask,
             concurrent_locality* locality, stmt* body)
     | If(int label, identifier? stmt_name, expr test, stmt* body, stmt* orelse)
+    | IfArithmetic(int label, identifier? stmt_name, expr test, int lt_label, int eq_label, int gt_label)
     | Select(int label, identifier? stmt_name, expr test, case_stmt* body)
     | SelectRank(int label, identifier? stmt_name, identifier? assoc_name,
             expr selector, rank_stmt* body)

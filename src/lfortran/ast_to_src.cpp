@@ -1609,6 +1609,24 @@ public:
         s = r;
     }
 
+    void visit_IfArithmetic(const IfArithmetic_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += print_stmt_name(x);
+        r += syn(gr::Conditional);
+        r += "if";
+        r += syn();
+        r += " (";
+        this->visit_expr(*x.m_test);
+        r += s;
+        r += ") ";
+        r += std::to_string(x.m_lt_label);
+        r += ", " + std::to_string(x.m_eq_label);
+        r += ", " + std::to_string(x.m_gt_label);
+        r += "\n";
+        s = r;
+    }
+
     void visit_Where(const Where_t &x) {
         std::string r = indent;
         r += print_label(x);

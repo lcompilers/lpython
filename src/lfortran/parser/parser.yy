@@ -1545,7 +1545,10 @@ if_statement
     ;
 
 if_statement_single
-    : KW_IF "(" expr ")" single_line_statement { $$ = IFSINGLE($3, $5, @$); }
+    : KW_IF "(" expr ")" single_line_statement { 
+            $$ = IFSINGLE($3, $5, @$); }
+    | KW_IF "(" expr ")" TK_INTEGER "," TK_INTEGER "," TK_INTEGER { 
+            $$ = IFARITHMETIC($3, INTEGER3($5), INTEGER3($7), INTEGER3($9), @$); }
     ;
 
 if_block
