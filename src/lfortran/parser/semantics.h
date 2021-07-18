@@ -1282,6 +1282,12 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*a_orelse*/ nullptr, \
         /*n_orelse*/ 0)
 
+#define IFARITHMETIC(cond, lt_label, eq_label, gt_label, l) make_IfArithmetic_t(p.m_a, l, 0, nullptr, \
+        /*test*/ EXPR(cond), \
+        /*lt_label*/ lt_label, \
+        /*eq_label*/ eq_label, \
+        /*gt_label*/ gt_label)
+
 #define IF1(cond, body, l) make_If_t(p.m_a, l, 0, nullptr, \
         /*test*/ EXPR(cond), \
         /*body*/ STMTS(body), \

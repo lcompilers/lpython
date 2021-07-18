@@ -153,6 +153,7 @@ stmt
     | ErrorStop(expr? code)
     | Exit()
     | If(expr test, stmt* body, stmt* orelse)
+    | IfArithmetic(expr test, int lt_label, int eq_label, int gt_label)
     | Print(string? fmt, expr* values)
     | Open(int label, expr? newunit, expr? filename, expr? status)
     | Close(int label, expr? unit, expr? iostat, expr? iomsg, expr? err, expr? status)

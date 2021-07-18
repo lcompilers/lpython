@@ -1143,6 +1143,11 @@ ast = true
 ast_f90 = true
 
 [[test]]
+filename = "if1.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
 filename = "implicit1.f90"
 ast = true
 ast_f90 = true
