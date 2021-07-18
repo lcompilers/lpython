@@ -674,24 +674,26 @@ ast_t* implied_do_loop(Allocator &al, Location &loc,
         Vec<ast_t*> &ex_list,
         ast_t* i,
         ast_t* low,
-        ast_t* high) {
+        ast_t* high,
+        ast_t* incr) {
     return make_ImpliedDoLoop_t(al, loc,
             EXPRS(ex_list), ex_list.size(),
             name2char(i),
             EXPR(low),
             EXPR(high),
-            nullptr);
+            EXPR_OPT(incr));
 }
 
 ast_t* implied_do1(Allocator &al, Location &loc,
         ast_t* ex,
         ast_t* i,
         ast_t* low,
-        ast_t* high) {
+        ast_t* high,
+        ast_t* incr) {
     Vec<ast_t*> v;
     v.reserve(al, 1);
     v.push_back(al, ex);
-    return implied_do_loop(al, loc, v, i, low, high);
+    return implied_do_loop(al, loc, v, i, low, high, incr);
 }
 
 ast_t* implied_do2(Allocator &al, Location &loc,
@@ -699,12 +701,13 @@ ast_t* implied_do2(Allocator &al, Location &loc,
         ast_t* ex2,
         ast_t* i,
         ast_t* low,
-        ast_t* high) {
+        ast_t* high,
+        ast_t* incr) {
     Vec<ast_t*> v;
     v.reserve(al, 2);
     v.push_back(al, ex1);
     v.push_back(al, ex2);
-    return implied_do_loop(al, loc, v, i, low, high);
+    return implied_do_loop(al, loc, v, i, low, high, incr);
 }
 
 ast_t* implied_do3(Allocator &al, Location &loc,
@@ -713,7 +716,8 @@ ast_t* implied_do3(Allocator &al, Location &loc,
         Vec<ast_t*> ex_list,
         ast_t* i,
         ast_t* low,
-        ast_t* high) {
+        ast_t* high,
+        ast_t* incr) {
     Vec<ast_t*> v;
     v.reserve(al, 2+ex_list.size());
     v.push_back(al, ex1);
@@ -721,15 +725,22 @@ ast_t* implied_do3(Allocator &al, Location &loc,
     for (size_t i=0; i<ex_list.size(); i++) {
         v.push_back(al, ex_list[i]);
     }
-    return implied_do_loop(al, loc, v, i, low, high);
+    return implied_do_loop(al, loc, v, i, low, high, incr);
 }
 
 #define IMPLIED_DO_LOOP1(ex, i, low, high, l) \
-    implied_do1(p.m_a, l, ex, i, low, high)
+    implied_do1(p.m_a, l, ex, i, low, high, nullptr)
 #define IMPLIED_DO_LOOP2(ex1, ex2, i, low, high, l) \
-    implied_do2(p.m_a, l, ex1, ex2, i, low, high)
+    implied_do2(p.m_a, l, ex1, ex2, i, low, high, nullptr)
 #define IMPLIED_DO_LOOP3(ex1, ex2, ex_list, i, low, high, l) \
-    implied_do3(p.m_a, l, ex1, ex2, ex_list, i, low, high)
+    implied_do3(p.m_a, l, ex1, ex2, ex_list, i, low, high, nullptr)
+// with incr
+#define IMPLIED_DO_LOOP4(ex, i, low, high, incr, l) \
+    implied_do1(p.m_a, l, ex, i, low, high, incr)
+#define IMPLIED_DO_LOOP5(ex1, ex2, i, low, high, incr, l) \
+    implied_do2(p.m_a, l, ex1, ex2, i, low, high, incr)
+#define IMPLIED_DO_LOOP6(ex1, ex2, ex_list, i, low, high, incr, l) \
+    implied_do3(p.m_a, l, ex1, ex2, ex_list, i, low, high, incr)
 
 char *str2str_null(Allocator &al, const LFortran::Str &s) {
     if (s.p == nullptr) {

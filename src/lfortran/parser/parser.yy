@@ -1910,6 +1910,12 @@ expr
             $$ = IMPLIED_DO_LOOP2($2, $4, $6, $8, $10, @$); }
     | "(" expr "," expr "," expr_list "," id "=" expr "," expr ")" {
             $$ = IMPLIED_DO_LOOP3($2, $4, $6, $8, $10, $12, @$); }
+    | "(" expr "," id "=" expr "," expr "," expr ")" {
+            $$ = IMPLIED_DO_LOOP4($2, $4, $6, $8, $10, @$); }
+    | "(" expr "," expr "," id "=" expr "," expr "," expr ")" {
+            $$ = IMPLIED_DO_LOOP5($2, $4, $6, $8, $10, $12, @$); }
+    | "(" expr "," expr "," expr_list "," id "=" expr "," expr "," expr ")" {
+            $$ = IMPLIED_DO_LOOP6($2, $4, $6, $8, $10, $12, $14, @$); }
 
 // ### level-1
 
