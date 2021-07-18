@@ -982,6 +982,7 @@ ast_t* builtin3(Allocator &al,
 #define NULLIFY(args0, l) builtin1(p.m_a, args0, l, make_Nullify_t)
 #define BACKSPACE(args0, l) builtin1(p.m_a, args0, l, make_Backspace_t)
 #define FLUSH(args0, l) builtin1(p.m_a, args0, l, make_Flush_t)
+#define ENDFILE(args0, l) builtin1(p.m_a, args0, l, make_Endfile_t)
 
 #define INQUIRE0(args0, l) builtin2(p.m_a, args0, empty_vecast(), l, \
             make_Inquire_t)
@@ -999,6 +1000,11 @@ ast_t* builtin3(Allocator &al,
 
 #define FLUSH1(arg, l) make_Flush_t(p.m_a, l, 0, \
             EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
+
+#define ENDFILE2(arg, l) make_Endfile_t(p.m_a, l, 0, \
+        EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
+#define ENDFILE3(arg, l) make_Endfile_t(p.m_a, l, 0, \
+        EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
 
 #define BIND2(args0, l) builtin3(p.m_a, args0, l, make_Bind_t)
 
@@ -1728,7 +1734,7 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         p.m_a, l, name2char(name), USES(use), use.size(), \
         VEC_CAST(implicit, implicit_statement), implicit.size(), \
         DECLS(decl), decl.size())
-        
+
 #define INTERFACE_HEADER(l) make_InterfaceHeader_t(p.m_a, l)
 #define INTERFACE_HEADER_NAME(id, l) make_InterfaceHeaderName_t(p.m_a, l, \
         name2char(id))

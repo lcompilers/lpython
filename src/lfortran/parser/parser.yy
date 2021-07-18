@@ -5,7 +5,7 @@
 %locations
 %glr-parser
 %expect    620 // shift/reduce conflicts
-%expect-rr 101 // reduce/reduce conflicts
+%expect-rr 102 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -213,6 +213,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_END_CRITICAL
 %token <string> KW_ENDCRITICAL
 
+%token <string> KW_END_FILE
+%token <string> KW_ENDFILE
+
 %token <string> KW_ENTRY
 %token <string> KW_ENUM
 %token <string> KW_ENUMERATOR
@@ -389,6 +392,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> inquire_statement
 %type <ast> rewind_statement
 %type <ast> backspace_statement
+%type <ast> endfile_statement
 %type <ast> if_statement
 %type <ast> if_statement_single
 %type <ast> if_block
@@ -1376,6 +1380,7 @@ single_line_statement
     | return_statement
     | rewind_statement
     | backspace_statement
+    | endfile_statement
     | stop_statement
     | subroutine_call
     | sync_all_statement
@@ -1517,6 +1522,18 @@ flush_statement
     : KW_FLUSH "(" write_arg_list ")" { $$ = FLUSH($3, @$); }
     | KW_FLUSH TK_INTEGER { $$ = FLUSH1($2, @$); }
     ;
+
+endfile_statement
+    : end_file "(" write_arg_list ")" { $$ = ENDFILE($3, @$); }
+    | end_file id { $$ = ENDFILE2($2, @$); }
+    | end_file TK_INTEGER { $$ = ENDFILE3($2, @$); }
+    ;
+
+end_file
+    : KW_END_FILE
+    | KW_ENDFILE
+    ;
+
 // sr-conflict (2x): KW_ENDIF can be an "id" or end of "if_statement"
 if_statement
     : if_block endif {}
@@ -2059,6 +2076,7 @@ id
     | KW_ENDFORALL { $$ = SYMBOL($1, @$); }
     | KW_ENDWHERE { $$ = SYMBOL($1, @$); }
     | KW_ENDCRITICAL { $$ = SYMBOL($1, @$); }
+    | KW_ENDFILE { $$ = SYMBOL($1, @$); }
     | KW_ENTRY { $$ = SYMBOL($1, @$); }
     | KW_ENUM { $$ = SYMBOL($1, @$); }
     | KW_ENUMERATOR { $$ = SYMBOL($1, @$); }
