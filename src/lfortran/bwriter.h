@@ -87,6 +87,11 @@ public:
         write_int64(t.size());
         s.append(t);
     }
+
+    void write_float64(double d) {
+        write_int64((uint64_t)d);
+    }
+
 };
 
 class BinaryReader
@@ -132,6 +137,10 @@ public:
         std::string r = std::string(&s[pos], n);
         pos += n;
         return r;
+    }
+
+    double read_float64() {
+        return (double)read_int64();
     }
 };
 

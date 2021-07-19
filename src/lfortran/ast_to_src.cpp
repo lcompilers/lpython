@@ -211,11 +211,18 @@ public:
         for (size_t i=0; i<x.n_items; i++) {
             this->visit_ast(*x.m_items[i]);
             r += s;
-            if (i < x.n_items-1 && (
-                    !is_a<unit_decl2_t>(*x.m_items[i]) &&
-                    !is_a<unit_decl2_t>(*x.m_items[i+1])
-                )) {
-                r.append("\n");
+            if (i < x.n_items-1) {
+                if (is_a<expr_t>(*x.m_items[i]) || (
+                        (  is_a<mod_t>(*x.m_items[i])
+                        || is_a<program_unit_t>(*x.m_items[i])
+                        ) &&
+                        (  is_a<mod_t>(*x.m_items[i+1])
+                        || is_a<program_unit_t>(*x.m_items[i+1])
+                        )
+                            )
+                        ) {
+                    r.append("\n");
+                }
             }
         }
         s = r;
@@ -474,6 +481,7 @@ public:
         for (size_t i=0; i<x.n_symbols; i++) {
             this->visit_use_symbol(*x.m_symbols[i]);
             r.append(s);
+            if (i < x.n_symbols-1) r.append(", ");
         }
         s = r;
     }
@@ -560,6 +568,13 @@ public:
         s = r;
     }
 
+    void visit_Private(const Private_t &/*x*/) {
+        std::string r;
+        r += syn(gr::Type);
+        r.append("private");
+        r += syn();
+        s = r;
+    }
 
     void visit_Enum(const Enum_t & x) {
         std::string r = indent;
@@ -1232,6 +1247,9 @@ public:
             r.append(x.m_name);
             r.append(")");
         }
+        if (x.m_sym == symbolType::Asterisk) {
+            r.append("(*)");
+        }
         s = r;
     }
 
@@ -1587,6 +1605,24 @@ public:
         r += syn(gr::Conditional);
         r += "end if";
         r += syn();
+        r += "\n";
+        s = r;
+    }
+
+    void visit_IfArithmetic(const IfArithmetic_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += print_stmt_name(x);
+        r += syn(gr::Conditional);
+        r += "if";
+        r += syn();
+        r += " (";
+        this->visit_expr(*x.m_test);
+        r += s;
+        r += ") ";
+        r += std::to_string(x.m_lt_label);
+        r += ", " + std::to_string(x.m_eq_label);
+        r += ", " + std::to_string(x.m_gt_label);
         r += "\n";
         s = r;
     }
@@ -2459,6 +2495,29 @@ public:
         r += print_label(x);
         r += syn(gr::Keyword);
         r += "flush";
+        r += syn();
+        r += "(";
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_expr(*x.m_args[i]);
+            r += s;
+            if (i < x.n_args-1 || x.n_kwargs > 0) r += ", ";
+        }
+        for (size_t i=0; i<x.n_kwargs; i++) {
+            r += x.m_kwargs[i].m_arg;
+            r += "=";
+            this->visit_expr(*x.m_kwargs[i].m_value);
+            r += s;
+            if (i < x.n_kwargs-1) r += ", ";
+        }
+        r += ")\n";
+        s = r;
+    }
+
+    void visit_Endfile(const Endfile_t &x) {
+        std::string r=indent;
+        r += print_label(x);
+        r += syn(gr::Keyword);
+        r += "endfile";
         r += syn();
         r += "(";
         for (size_t i=0; i<x.n_args; i++) {

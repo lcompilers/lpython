@@ -191,25 +191,31 @@ static inline equi_t* EQUIVALENCE1(Allocator &al, Location &loc,
             p.m_a, l, \
             decl_typeType::Type##x, \
             nullptr, 0, \
-            nullptr)
+            nullptr, None)
 
 #define ATTR_TYPE_INT(x, n, l) make_AttrType_t( \
             p.m_a, l, \
             decl_typeType::Type##x, \
             a2kind_list(p.m_a, l, INTEGER(n, l)).p, 1, \
-            nullptr)
+            nullptr, None)
 
 #define ATTR_TYPE_KIND(x, kind, l) make_AttrType_t( \
             p.m_a, l, \
             decl_typeType::Type##x, \
             kind.p, kind.size(), \
-            nullptr)
+            nullptr, None)
 
 #define ATTR_TYPE_NAME(x, name, l) make_AttrType_t( \
             p.m_a, l, \
             decl_typeType::Type##x, \
             nullptr, 0, \
-            name2char(name))
+            name2char(name), None)
+
+#define ATTR_TYPE_STAR(x, sym, l) make_AttrType_t( \
+            p.m_a, l, \
+            decl_typeType::Type##x, \
+            nullptr, 0, \
+            nullptr, sym)
 
 #define IMPORT0(x, l) make_Import_t( \
             p.m_a, l, \
@@ -668,24 +674,26 @@ ast_t* implied_do_loop(Allocator &al, Location &loc,
         Vec<ast_t*> &ex_list,
         ast_t* i,
         ast_t* low,
-        ast_t* high) {
+        ast_t* high,
+        ast_t* incr) {
     return make_ImpliedDoLoop_t(al, loc,
             EXPRS(ex_list), ex_list.size(),
             name2char(i),
             EXPR(low),
             EXPR(high),
-            nullptr);
+            EXPR_OPT(incr));
 }
 
 ast_t* implied_do1(Allocator &al, Location &loc,
         ast_t* ex,
         ast_t* i,
         ast_t* low,
-        ast_t* high) {
+        ast_t* high,
+        ast_t* incr) {
     Vec<ast_t*> v;
     v.reserve(al, 1);
     v.push_back(al, ex);
-    return implied_do_loop(al, loc, v, i, low, high);
+    return implied_do_loop(al, loc, v, i, low, high, incr);
 }
 
 ast_t* implied_do2(Allocator &al, Location &loc,
@@ -693,12 +701,13 @@ ast_t* implied_do2(Allocator &al, Location &loc,
         ast_t* ex2,
         ast_t* i,
         ast_t* low,
-        ast_t* high) {
+        ast_t* high,
+        ast_t* incr) {
     Vec<ast_t*> v;
     v.reserve(al, 2);
     v.push_back(al, ex1);
     v.push_back(al, ex2);
-    return implied_do_loop(al, loc, v, i, low, high);
+    return implied_do_loop(al, loc, v, i, low, high, incr);
 }
 
 ast_t* implied_do3(Allocator &al, Location &loc,
@@ -707,7 +716,8 @@ ast_t* implied_do3(Allocator &al, Location &loc,
         Vec<ast_t*> ex_list,
         ast_t* i,
         ast_t* low,
-        ast_t* high) {
+        ast_t* high,
+        ast_t* incr) {
     Vec<ast_t*> v;
     v.reserve(al, 2+ex_list.size());
     v.push_back(al, ex1);
@@ -715,15 +725,22 @@ ast_t* implied_do3(Allocator &al, Location &loc,
     for (size_t i=0; i<ex_list.size(); i++) {
         v.push_back(al, ex_list[i]);
     }
-    return implied_do_loop(al, loc, v, i, low, high);
+    return implied_do_loop(al, loc, v, i, low, high, incr);
 }
 
 #define IMPLIED_DO_LOOP1(ex, i, low, high, l) \
-    implied_do1(p.m_a, l, ex, i, low, high)
+    implied_do1(p.m_a, l, ex, i, low, high, nullptr)
 #define IMPLIED_DO_LOOP2(ex1, ex2, i, low, high, l) \
-    implied_do2(p.m_a, l, ex1, ex2, i, low, high)
+    implied_do2(p.m_a, l, ex1, ex2, i, low, high, nullptr)
 #define IMPLIED_DO_LOOP3(ex1, ex2, ex_list, i, low, high, l) \
-    implied_do3(p.m_a, l, ex1, ex2, ex_list, i, low, high)
+    implied_do3(p.m_a, l, ex1, ex2, ex_list, i, low, high, nullptr)
+// with incr
+#define IMPLIED_DO_LOOP4(ex, i, low, high, incr, l) \
+    implied_do1(p.m_a, l, ex, i, low, high, incr)
+#define IMPLIED_DO_LOOP5(ex1, ex2, i, low, high, incr, l) \
+    implied_do2(p.m_a, l, ex1, ex2, i, low, high, incr)
+#define IMPLIED_DO_LOOP6(ex1, ex2, ex_list, i, low, high, incr, l) \
+    implied_do3(p.m_a, l, ex1, ex2, ex_list, i, low, high, incr)
 
 char *str2str_null(Allocator &al, const LFortran::Str &s) {
     if (s.p == nullptr) {
@@ -983,16 +1000,29 @@ ast_t* builtin3(Allocator &al,
 #define NULLIFY(args0, l) builtin1(p.m_a, args0, l, make_Nullify_t)
 #define BACKSPACE(args0, l) builtin1(p.m_a, args0, l, make_Backspace_t)
 #define FLUSH(args0, l) builtin1(p.m_a, args0, l, make_Flush_t)
+#define ENDFILE(args0, l) builtin1(p.m_a, args0, l, make_Endfile_t)
 
 #define INQUIRE0(args0, l) builtin2(p.m_a, args0, empty_vecast(), l, \
             make_Inquire_t)
 #define INQUIRE(args0, args, l) builtin2(p.m_a, args0, args, l, make_Inquire_t)
+
 #define REWIND2(arg, l) make_Rewind_t(p.m_a, l, 0, \
-            EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
+        EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
 #define REWIND3(arg, l) make_Rewind_t(p.m_a, l, 0, \
-            EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
+        EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
+
+#define BACKSPACE2(arg, l) make_Backspace_t(p.m_a, l, 0, \
+        EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
+#define BACKSPACE3(arg, l) make_Backspace_t(p.m_a, l, 0, \
+        EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
+
 #define FLUSH1(arg, l) make_Flush_t(p.m_a, l, 0, \
             EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
+
+#define ENDFILE2(arg, l) make_Endfile_t(p.m_a, l, 0, \
+        EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
+#define ENDFILE3(arg, l) make_Endfile_t(p.m_a, l, 0, \
+        EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
 
 #define BIND2(args0, l) builtin3(p.m_a, args0, l, make_Bind_t)
 
@@ -1258,6 +1288,12 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*n_body*/ 1, \
         /*a_orelse*/ nullptr, \
         /*n_orelse*/ 0)
+
+#define IFARITHMETIC(cond, lt_label, eq_label, gt_label, l) make_IfArithmetic_t(p.m_a, l, 0, nullptr, \
+        /*test*/ EXPR(cond), \
+        /*lt_label*/ lt_label, \
+        /*eq_label*/ eq_label, \
+        /*gt_label*/ gt_label)
 
 #define IF1(cond, body, l) make_If_t(p.m_a, l, 0, nullptr, \
         /*test*/ EXPR(cond), \
@@ -1723,13 +1759,6 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         VEC_CAST(implicit, implicit_statement), implicit.size(), \
         DECLS(decl), decl.size())
 
-#define PRIVATE0(l) make_Private_t(p.m_a, l, \
-        nullptr, 0)
-#define PRIVATE(syms, l) make_Private_t(p.m_a, l, \
-        nullptr, 0)
-#define PUBLIC(syms, l) make_Public_t(p.m_a, l, \
-        nullptr, 0)
-
 #define INTERFACE_HEADER(l) make_InterfaceHeader_t(p.m_a, l)
 #define INTERFACE_HEADER_NAME(id, l) make_InterfaceHeaderName_t(p.m_a, l, \
         name2char(id))
@@ -1779,6 +1808,7 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         VEC_CAST(attr, decl_attribute), attr.size(), \
         name2char(name), REDUCE_ARGS(p.m_a, namelist), namelist.size())
 #define FINAL_NAME(name, l) make_FinalName_t(p.m_a, l, name2char(name))
+#define PRIVATE(syms, l) make_Private_t(p.m_a, l)
 
 #define CRITICAL(stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
         nullptr, 0, STMTS(stmts), stmts.size())

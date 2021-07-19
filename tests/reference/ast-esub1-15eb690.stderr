@@ -1,4 +1,4 @@
-input:1:16 [0;31msyntax error:[0;00m token type 'identifier' is unexpected here
-subroutine g() [0;31mr[0;00m
-               [0;31m^[0;00m
+input:1:16 syntax error: token type 'identifier' is unexpected here
+subroutine g() r
+               ^
 Parsing error: syntax error

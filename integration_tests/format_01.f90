@@ -67,4 +67,5 @@ implicit none
     710 format(/ i5, 'x')
     720 format(// i5, 'x')
     730 format(//)
+    740 FORMAT(/1X'(',I2,')', X, A)
 end program

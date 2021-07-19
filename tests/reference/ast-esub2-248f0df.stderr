@@ -1,4 +1,4 @@
-input:3:5 [0;31msyntax error:[0;00m token '~' is not recognized
-x = [0;31m~[0;00m1
-    [0;31m^[0;00m
+input:3:5 syntax error: token '~' is not recognized
+x = ~1
+    ^
 Tokenizing error: token '~' is not recognized

@@ -17,6 +17,9 @@ public:
 
     int last_token=-1;
 
+    std::vector<uint64_t> label_do_stack = {0};
+    bool next_continue_is_enddo=false;
+
 public:
     // Set the string to tokenize. The caller must ensure `str` will stay valid
     // as long as `lex` is being called.

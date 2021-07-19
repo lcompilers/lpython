@@ -17,7 +17,7 @@ namespace {
 void main2() {
         int i;
         float r;
-        r = 1.5;
+        r = 1.500000;
         std::cout << r << std::endl;
         i = (int)(r);
         std::cout << i << std::endl;
