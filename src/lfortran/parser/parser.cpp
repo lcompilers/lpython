@@ -28,11 +28,14 @@ AST::TranslationUnit_t* parse(Allocator &al, const std::string &s)
         p.result.p, p.result.size());
 }
 
-AST::TranslationUnit_t* parse2(Allocator &al, const std::string &s, bool use_colors)
+AST::TranslationUnit_t* parse2(Allocator &al, const std::string &code_original,
+        bool use_colors)
 {
+    LFortran::LocationManager lm;
+    std::string code_prescanned = LFortran::fix_continuation(code_original, lm);
     AST::TranslationUnit_t* result;
     try {
-        result = parse(al, s);
+        result = parse(al, code_prescanned);
     } catch (const LFortran::ParserError &e) {
         int token;
         if (e.msg() == "syntax is ambiguous") {
@@ -40,10 +43,10 @@ AST::TranslationUnit_t* parse2(Allocator &al, const std::string &s, bool use_col
         } else {
             token = e.token;
         }
-        std::cerr << format_syntax_error("input", s, e.loc, token, nullptr, use_colors);
+        std::cerr << format_syntax_error("input", code_prescanned, e.loc, token, nullptr, use_colors);
         throw;
     } catch (const LFortran::TokenizerError &e) {
-        std::cerr << format_syntax_error("input", s, e.loc, -1, &e.token, use_colors);
+        std::cerr << format_syntax_error("input", code_prescanned, e.loc, -1, &e.token, use_colors);
         throw;
     }
     return result;
@@ -99,8 +102,12 @@ void cont1(const std::string &s, size_t &pos, bool &ws_or_comment)
     pos++;
 }
 
-std::string fix_continuation(const std::string &s)
+std::string fix_continuation(const std::string &s, LocationManager &lm)
 {
+    // `pos` is the position in the original code `s`
+    // `out` is the final code (outcome)
+    lm.out_start.push_back(0);
+    lm.in_start.push_back(0);
     std::string out;
     size_t pos = 0;
     bool in_comment = false;
@@ -115,13 +122,23 @@ std::string fix_continuation(const std::string &s)
                 while (ws_or_comment) {
                     cont1(s, pos2, ws_or_comment);
                 }
+                // `pos` will move by more than 1, close the old interval
+//                lm.in_size.push_back(pos-lm.in_start[lm.in_start.size()-1]);
+                // Move `pos`
                 pos = pos2;
                 if (s[pos] == '&') pos++;
+                // Start a new interval (just the starts, the size will be
+                // filled in later)
+                lm.out_start.push_back(out.size());
+                lm.in_start.push_back(pos);
             }
         }
         out += s[pos];
         pos++;
     }
+    // set the size of the last interval
+//    lm.in_size.push_back(pos-lm.in_start[lm.in_start.size()-1]);
+
     return out;
 }
 
