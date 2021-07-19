@@ -120,7 +120,7 @@ std::string fix_continuation(const std::string &s, LocationManager &lm)
                     cont1(s, pos2, ws_or_comment);
                 }
                 // `pos` will move by more than 1, close the old interval
-                lm.in_size.push_back(pos-lm.in_start[lm.in_start.size()-1]);
+//                lm.in_size.push_back(pos-lm.in_start[lm.in_start.size()-1]);
                 // Move `pos`
                 pos = pos2;
                 if (s[pos] == '&') pos++;
@@ -134,7 +134,7 @@ std::string fix_continuation(const std::string &s, LocationManager &lm)
         pos++;
     }
     // set the size of the last interval
-    lm.in_size.push_back(pos-lm.in_start[lm.in_start.size()-1]);
+//    lm.in_size.push_back(pos-lm.in_start[lm.in_start.size()-1]);
 
     return out;
 }
