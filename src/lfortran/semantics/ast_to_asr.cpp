@@ -257,6 +257,30 @@ class CommonVisitorMethods {
                         default : { LFORTRAN_ASSERT(false); op = ASR::binopType::Pow; }
                     }
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, result, dest_type));
+            }  else if (ASR::is_a<LFortran::ASR::Real_t>(*dest_type)) {
+                    double left_value = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(left))->m_r;
+                    double right_value = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(right))->m_r;
+                    double result;
+                    switch (op) {
+                        case (ASR::Add):
+                            result = left_value + right_value;
+                            break;
+                        case (ASR::Sub):
+                            result = left_value - right_value;
+                            break;
+                        case (ASR::Mul):
+                            result = left_value * right_value;
+                            break;
+                        case (ASR::Div):
+                            result = left_value / right_value;
+                            break;
+                        case (ASR::Pow):
+                            result = std::pow(left_value, right_value);
+                            break;
+                            // Reconsider
+                        default : { LFORTRAN_ASSERT(false); op = ASR::binopType::Pow; }
+                    }
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, result, dest_type));
             }
         }
         asr = ASR::make_BinOp_t(al, x.base.base.loc, left, op, right, dest_type, value);
