@@ -1313,3 +1313,4 @@ ast_f90 = true
 [[test]]
 filename = "../integration_tests/class_02.f90"
 asr = true
+llvm = true

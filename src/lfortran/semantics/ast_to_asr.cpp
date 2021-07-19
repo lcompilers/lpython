@@ -1175,7 +1175,7 @@ public:
                 LFortran::ASRUtils::symbol_get_past_external(v))
                 ->m_return_var)->m_type;
         asr = ASR::make_FunctionCall_t(al, x.base.base.loc, v, nullptr,
-            args.p, args.size(), nullptr, 0, type, nullptr);
+            args.p, args.size(), nullptr, 0, type, nullptr, nullptr);
     }
 
     void visit_DerivedType(const AST::DerivedType_t &x) {
@@ -2180,9 +2180,13 @@ public:
     void visit_SubroutineCall(const AST::SubroutineCall_t &x) {
         std::string sub_name = x.m_name;
         ASR::symbol_t *original_sym;
+        ASR::expr_t *v_expr = nullptr;
         // If this is a type bound procedure (in a class) it won't be in the
         // main symbol table. Need to check n_member.
         if (x.n_member == 1) {
+            ASR::symbol_t *v = current_scope->resolve_symbol(x.m_member[0].m_name);
+            ASR::asr_t *v_var = ASR::make_Var_t(al, x.base.base.loc, v);
+            v_expr = LFortran::ASRUtils::EXPR(v_var);
             original_sym = resolve_deriv_type_proc(x.base.base.loc, x.m_name,
                 x.m_member[0].m_name, current_scope);
         } else {
@@ -2262,7 +2266,7 @@ public:
             }
         }
         tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc,
-                final_sym, original_sym, args.p, args.size());
+                final_sym, original_sym, args.p, args.size(), v_expr);
     }
 
     int select_generic_procedure(const Vec<ASR::expr_t*> &args,
@@ -2510,10 +2514,21 @@ public:
         std::vector<std::string> all_intrinsics = {
             "sin",  "cos",  "tan",  "sinh",  "cosh",  "tanh",
             "asin", "acos", "atan", "asinh", "acosh", "atanh"};
-
         SymbolTable *scope = current_scope;
         std::string var_name = x.m_func;
         ASR::symbol_t *v = scope->resolve_symbol(var_name);
+        ASR::expr_t *v_expr = nullptr;
+        // If this is a type bound procedure (in a class) it won't be in the
+        // main symbol table. Need to check n_member.
+        if (x.n_member == 1) {
+            ASR::symbol_t *v = current_scope->resolve_symbol(x.m_member[0].m_name);
+            ASR::asr_t *v_var = ASR::make_Var_t(al, x.base.base.loc, v);
+            v_expr = LFortran::ASRUtils::EXPR(v_var);
+            v = resolve_deriv_type_proc(x.base.base.loc, x.m_func,
+                x.m_member[0].m_name, scope);
+        } else {
+            v = current_scope->resolve_symbol(var_name);
+        }
         if (!v) {
             std::string remote_sym = to_lower(var_name);
             if (intrinsic_procedures.find(remote_sym)
@@ -2661,7 +2676,8 @@ public:
                 ASR::ttype_t *type;
                 type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(v)->m_return_var)->m_type;
                 tmp = ASR::make_FunctionCall_t(al, x.base.base.loc,
-                    v, nullptr, args.p, args.size(), nullptr, 0, type, nullptr);
+                    v, nullptr, args.p, args.size(), nullptr, 0, type, nullptr,
+                    v_expr);
                 break;
             }
             case (ASR::symbolType::ExternalSymbol) : {
@@ -2672,7 +2688,8 @@ public:
                     ASR::ttype_t *type;
                     type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(f2)->m_return_var)->m_type;
                     tmp = ASR::make_FunctionCall_t(al, x.base.base.loc,
-                        v, nullptr, args.p, args.size(), nullptr, 0, type, nullptr);
+                        v, nullptr, args.p, args.size(), nullptr, 0, type, 
+                        nullptr, nullptr);
                 } else if (ASR::is_a<ASR::Variable_t>(*f2)) {
                     Vec<ASR::array_index_t> args;
                     args.reserve(al, x.n_args);

@@ -443,6 +443,69 @@ public:
     }
 
 
+    llvm::Type* getClassType(ASR::ttype_t* _type, bool is_pointer=false) {
+        ASR::Class_t* der = (ASR::Class_t*)(&(_type->base));
+        ASR::symbol_t* der_sym;
+        if( der->m_class_type->type == ASR::symbolType::ExternalSymbol ) {
+            ASR::ExternalSymbol_t* der_extr = (ASR::ExternalSymbol_t*)(&(der->m_class_type->base));
+            der_sym = der_extr->m_external;
+        } else {
+            der_sym = der->m_class_type;
+        }
+        ASR::ClassType_t* der_type = (ASR::ClassType_t*)(&(der_sym->base));
+        std::string der_type_name = std::string(der_type->m_name);
+        llvm::StructType* der_type_llvm;
+        if( name2dertype.find(der_type_name) != name2dertype.end() ) {
+            der_type_llvm = name2dertype[der_type_name];
+        } else {
+            std::map<std::string, ASR::symbol_t*> scope = der_type->m_symtab->scope;
+            std::vector<llvm::Type*> member_types;
+            int member_idx = 0;
+            for( auto itr = scope.begin(); itr != scope.end(); itr++ ) {
+                if (!ASR::is_a<ASR::ClassProcedure_t>(*itr->second)) { 
+                    ASR::Variable_t* member = (ASR::Variable_t*)(&(itr->second->base));
+                    llvm::Type* mem_type = nullptr;
+                    switch( member->m_type->type ) {
+                        case ASR::ttypeType::Integer: {
+                            int a_kind = down_cast<ASR::Integer_t>(member->m_type)->m_kind;
+                            mem_type = getIntType(a_kind);
+                            break;
+                        }
+                        case ASR::ttypeType::Real: {
+                            int a_kind = down_cast<ASR::Real_t>(member->m_type)->m_kind;
+                            mem_type = getFPType(a_kind);
+                            break;
+                        }
+                        case ASR::ttypeType::Class: {
+                            mem_type = getClassType(member->m_type);
+                            break;
+                        }
+                        case ASR::ttypeType::Complex: {
+                            int a_kind = down_cast<ASR::Complex_t>(member->m_type)->m_kind;
+                            mem_type = getComplexType(a_kind);
+                            break;
+                        }
+                        default:
+                            throw SemanticError("Cannot identify the type of member, '" + 
+                                                std::string(member->m_name) + 
+                                                "' in derived type, '" + der_type_name + "'.", 
+                                                member->base.base.loc);
+                    }
+                    member_types.push_back(mem_type);
+                    name2memidx[der_type_name][std::string(member->m_name)] = member_idx;
+                    member_idx++;
+                }
+            }
+            der_type_llvm = llvm::StructType::create(context, member_types, der_type_name);
+            name2dertype[der_type_name] = der_type_llvm;
+        }
+        if( is_pointer ) {
+            return der_type_llvm->getPointerTo();
+        }
+        return (llvm::Type*) der_type_llvm;
+    }
+
+
     /*
     * Dispatches the required function from runtime library to 
     * perform the specified binary operation.
@@ -1227,6 +1290,24 @@ public:
                             }
                         } else {
                             type = getDerivedType(arg->m_type, true);
+                        }
+                        break;
+                    }
+                    case (ASR::ttypeType::Class) : {
+                        ASR::Class_t* v_type = down_cast<ASR::Class_t>(arg->m_type);
+                        m_type_ = arg->m_type;
+                        m_dims = v_type->m_dims;
+                        n_dims = v_type->n_dims;
+                        if( n_dims > 0 ) {
+                            is_array_type = true;
+                            llvm::Type* el_type = get_el_type(m_type_, a_kind);
+                            if( v->m_storage == ASR::storage_typeType::Allocatable ) {
+                                type = arr_descr->get_malloc_array_type(m_type_, a_kind, n_dims, el_type, true);
+                            } else {
+                                type = arr_descr->get_array_type(m_type_, a_kind, n_dims, m_dims, el_type, true);
+                            }
+                        } else {
+                            type = getClassType(arg->m_type, true);
                         }
                         break;
                     }
@@ -2416,6 +2497,16 @@ public:
                 }
                 break;
             }
+            case ASR::ttypeType::Class: {
+                ASR::Class_t* der = (ASR::Class_t*)(&(x->m_type->base));
+                ASR::ClassType_t* der_type = (ASR::ClassType_t*)(&(der->m_class_type->base));
+                der_type_name = std::string(der_type->m_name);
+                uint32_t h = get_hash((ASR::asr_t*)x);
+                if( llvm_symtab.find(h) != llvm_symtab.end() ) {
+                    tmp = llvm_symtab[h];
+                }
+                break;
+            }
             default: {
                 fetch_val(x);
                 break;
@@ -2928,8 +3019,21 @@ public:
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
-        ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(
-                symbol_get_past_external(x.m_name));
+        ASR::Subroutine_t *s;
+        std::vector<llvm::Value*> args;
+        const ASR::symbol_t *proc_sym = symbol_get_past_external(x.m_name);
+        if (x.m_dt){
+            ASR::Variable_t *caller = EXPR2VAR(x.m_dt);
+            std::uint32_t h = get_hash((ASR::asr_t*)caller);
+            args.push_back(llvm_symtab[h]);
+        }
+        if (ASR::is_a<ASR::Subroutine_t>(*proc_sym)) {
+            s = ASR::down_cast<ASR::Subroutine_t>(proc_sym);
+        } else {
+            ASR::ClassProcedure_t *clss_proc = ASR::down_cast<
+                ASR::ClassProcedure_t>(proc_sym);
+            s = ASR::down_cast<ASR::Subroutine_t>(clss_proc->m_proc);
+        }
         if (parent_function){
             push_nested_stack(parent_function);
         } else if (parent_subroutine){
@@ -2958,7 +3062,8 @@ public:
         } else {
             llvm::Function *fn = llvm_symtab_fn[h];
             std::string m_name = std::string(((ASR::Subroutine_t*)(&(x.m_name->base)))->m_name);
-            std::vector<llvm::Value *> args = convert_call_args(x, m_name);
+            std::vector<llvm::Value *> args2 = convert_call_args(x, m_name);
+            args.insert(args.end(), args2.begin(), args2.end());
             builder->CreateCall(fn, args);
         }
         calling_function_hash = h;
@@ -2966,7 +3071,22 @@ public:
     }
 
     void visit_FunctionCall(const ASR::FunctionCall_t &x) {
-        ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(symbol_get_past_external(x.m_name));
+        ASR::Function_t *s;
+        std::vector<llvm::Value*> args;
+        const ASR::symbol_t *proc_sym = symbol_get_past_external(x.m_name);
+        if (x.m_dt){
+            ASR::Variable_t *caller = EXPR2VAR(x.m_dt);
+            std::uint32_t h = get_hash((ASR::asr_t*)caller);
+            args.push_back(llvm_symtab[h]);
+        }
+        if (ASR::is_a<ASR::Function_t>(*proc_sym)) {
+            s = ASR::down_cast<ASR::Function_t>(proc_sym);
+        } else {
+            ASR::ClassProcedure_t *clss_proc = ASR::down_cast<
+                ASR::ClassProcedure_t>(proc_sym);
+            s = ASR::down_cast<ASR::Function_t>(clss_proc->m_proc);
+        }
+        s = ASR::down_cast<ASR::Function_t>(symbol_get_past_external(x.m_name));
         if (parent_function){
             push_nested_stack(parent_function);
         } else if (parent_subroutine){
@@ -3021,7 +3141,8 @@ public:
         } else {
             llvm::Function *fn = llvm_symtab_fn[h];
             std::string m_name = std::string(((ASR::Function_t*)(&(x.m_name->base)))->m_name);
-            std::vector<llvm::Value *> args = convert_call_args(x, m_name);
+            std::vector<llvm::Value *> args2 = convert_call_args(x, m_name);
+            args.insert(args.end(), args2.begin(), args2.end());
             tmp = builder->CreateCall(fn, args);
         }
         calling_function_hash = h;

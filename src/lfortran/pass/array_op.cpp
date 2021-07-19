@@ -607,7 +607,7 @@ public:
             tmp_val = result_var;
             ASR::stmt_t* subrout_call = LFortran::ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc,
                                                 current_scope->scope[x_name], nullptr, 
-                                                s_args.p, s_args.size()));
+                                                s_args.p, s_args.size(), nullptr));
             array_op_result.push_back(al, subrout_call);
         }
         result_var = nullptr;
