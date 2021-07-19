@@ -304,14 +304,17 @@ FortranEvaluator::~FortranEvaluator()
 {
 }
 
-Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(const std::string &code,
-    bool verbose)
+Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
+            const std::string &code_orig,
+            bool verbose)
 {
     try {
         EvalResult result;
 
         // Src -> AST
         LFortran::AST::TranslationUnit_t* ast;
+        LFortran::LocationManager lm;
+        std::string code = LFortran::fix_continuation(code_orig, lm);
         ast = LFortran::parse(al, code);
 
         if (verbose) {
@@ -410,11 +413,14 @@ Result<std::string> FortranEvaluator::get_ast(const std::string &code)
     }
 }
 
-Result<AST::TranslationUnit_t*> FortranEvaluator::get_ast2(const std::string &code)
+Result<AST::TranslationUnit_t*> FortranEvaluator::get_ast2(
+            const std::string &code_orig)
 {
     try {
         // Src -> AST
         LFortran::AST::TranslationUnit_t* ast;
+        LFortran::LocationManager lm;
+        std::string code = LFortran::fix_continuation(code_orig, lm);
         ast = LFortran::parse(al, code);
         return ast;
     } catch (const TokenizerError &e) {
@@ -450,12 +456,15 @@ Result<std::string> FortranEvaluator::get_asr(const std::string &code)
     }
 }
 
-Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(const std::string &code)
+Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
+            const std::string &code_orig)
 {
     ASR::TranslationUnit_t* asr;
     try {
         // Src -> AST
         AST::TranslationUnit_t* ast;
+        LFortran::LocationManager lm;
+        std::string code = LFortran::fix_continuation(code_orig, lm);
         ast = parse(al, code);
 
         // AST -> ASR
