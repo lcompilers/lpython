@@ -1139,7 +1139,8 @@ int main(int argc, char *argv[])
             }
             std::string file_cpp2 = file_cpp + "2";
             std::string input = read_file(file_cpp);
-            std::string output = LFortran::fix_continuation(input);
+            LFortran::LocationManager lm;
+            std::string output = LFortran::fix_continuation(input, lm);
             {
                 std::ofstream out;
                 out.open(file_cpp2);

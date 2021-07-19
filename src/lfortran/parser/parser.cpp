@@ -99,8 +99,12 @@ void cont1(const std::string &s, size_t &pos, bool &ws_or_comment)
     pos++;
 }
 
-std::string fix_continuation(const std::string &s)
+std::string fix_continuation(const std::string &s, LocationManager &lm)
 {
+    // `pos` is the position in the original code `s`
+    // `out` is the final code (outcome)
+    lm.out_start.push_back(0);
+    lm.in_start.push_back(0);
     std::string out;
     size_t pos = 0;
     bool in_comment = false;
@@ -115,13 +119,23 @@ std::string fix_continuation(const std::string &s)
                 while (ws_or_comment) {
                     cont1(s, pos2, ws_or_comment);
                 }
+                // `pos` will move by more than 1, close the old interval
+                lm.in_size.push_back(pos-lm.in_start[lm.in_start.size()-1]);
+                // Move `pos`
                 pos = pos2;
                 if (s[pos] == '&') pos++;
+                // Start a new interval (just the starts, the size will be
+                // filled in later)
+                lm.out_start.push_back(out.size());
+                lm.in_start.push_back(pos);
             }
         }
         out += s[pos];
         pos++;
     }
+    // set the size of the last interval
+    lm.in_size.push_back(pos-lm.in_start[lm.in_start.size()-1]);
+
     return out;
 }
 
