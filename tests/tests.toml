@@ -1118,6 +1118,10 @@ filename = "../integration_tests/expr_06.f90"
 asr = true
 
 [[test]]
+filename = "../integration_tests/expr_07.f90"
+asr = true
+
+[[test]]
 filename = "../integration_tests/modules_11.f90"
 ast = true
 asr = true
