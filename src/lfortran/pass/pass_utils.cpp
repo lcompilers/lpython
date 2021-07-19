@@ -331,7 +331,7 @@ namespace LFortran {
                                         LFortran::ASRUtils::symbol_get_past_external(v))->m_return_var)->m_type;
             current_scope = current_scope_copy;
             return LFortran::ASRUtils::EXPR(ASR::make_FunctionCall_t(al, arr_expr->base.loc, v, nullptr,
-                                                args.p, args.size(), nullptr, 0, type, nullptr));
+                                                args.p, args.size(), nullptr, 0, type, nullptr, nullptr));
         }
 
         ASR::expr_t* to_int32(ASR::expr_t* x, ASR::ttype_t* int64type, Allocator& al) {
