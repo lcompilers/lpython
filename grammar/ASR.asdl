@@ -144,6 +144,7 @@ abi                   -- External     ABI
 
 stmt
     = Allocate(alloc_arg* args, expr? stat)
+    | Assign(int label, identifier variable)
     | Assignment(expr target, expr value)
     | Associate(expr target, expr value)
     | Cycle()

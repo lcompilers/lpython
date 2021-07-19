@@ -123,6 +123,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_ALL
 %token <string> KW_ALLOCATABLE
 %token <string> KW_ALLOCATE
+%token <string> KW_ASSIGN
 %token <string> KW_ASSIGNMENT
 %token <string> KW_ASSOCIATE
 %token <string> KW_ASYNCHRONOUS
@@ -374,6 +375,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> single_line_statement
 %type <ast> multi_line_statement
 %type <ast> multi_line_statement0
+%type <ast> assign_statement
 %type <ast> assignment_statement
 %type <ast> goto_statement
 %type <ast> associate_statement
@@ -1278,13 +1280,13 @@ var_sym_decl_list
 var_sym_decl
     : id { $$ = VAR_SYM_NAME($1, None, @$); }
     | id "=" expr { $$ = VAR_SYM_DIM_INIT($1, nullptr, 0, $3, Equal, @$); }
-    | id "=>" expr { $$ = VAR_SYM_DIM_INIT($1, nullptr, 0, $3, Assign, @$); }
+    | id "=>" expr { $$ = VAR_SYM_DIM_INIT($1, nullptr, 0, $3, Arrow, @$); }
     | id "*" expr { $$ = VAR_SYM_DIM_INIT($1, nullptr, 0, $3, Asterisk, @$); }
     | id "(" array_comp_decl_list ")" %dprec 1 { $$ = VAR_SYM_DIM($1, $3.p, $3.n, None, @$); }
     | id "(" array_comp_decl_list ")" "=" expr {
             $$ = VAR_SYM_DIM_INIT($1, $3.p, $3.n, $6, Equal, @$); }
     | id "(" array_comp_decl_list ")" "=>" expr {
-            $$ = VAR_SYM_DIM_INIT($1, $3.p, $3.n, $6, Assign, @$); }
+            $$ = VAR_SYM_DIM_INIT($1, $3.p, $3.n, $6, Arrow, @$); }
     | id "[" coarray_comp_decl_list "]" {
             $$ = VAR_SYM_CODIM($1, $3.p, $3.n, None, @$); }
     | id "(" array_comp_decl_list ")" "[" coarray_comp_decl_list "]" {
@@ -1362,6 +1364,7 @@ statement1
 
 single_line_statement
     : allocate_statement
+    | assign_statement
     | assignment_statement
     | associate_statement
     | close_statement
@@ -1410,6 +1413,10 @@ multi_line_statement0
     | select_rank_statement
     | where_statement
     | while_statement
+    ;
+
+assign_statement
+    : KW_ASSIGN TK_INTEGER KW_TO id { $$ = ASSIGN(INTEGER3($2), $4, @$); }
     ;
 
 assignment_statement
@@ -2038,6 +2045,7 @@ id
     | KW_ALL { $$ = SYMBOL($1, @$); }
     | KW_ALLOCATABLE { $$ = SYMBOL($1, @$); }
     | KW_ALLOCATE { $$ = SYMBOL($1, @$); }
+    | KW_ASSIGN { $$ = SYMBOL($1, @$); }
     | KW_ASSIGNMENT { $$ = SYMBOL($1, @$); }
     | KW_ASSOCIATE { $$ = SYMBOL($1, @$); }
     | KW_ASYNCHRONOUS { $$ = SYMBOL($1, @$); }

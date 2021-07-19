@@ -102,6 +102,7 @@ letter_spec
 stmt
 -- Single-line statements (each has a `label`):
     = Allocate(int label, fnarg* args, keyword* keywords)
+    | Assign(int label, int assign_label, identifier variable)
     | Assignment(int label, expr target, expr value)
     | Associate(int label, expr target, expr value)
     | Backspace(int label, expr* args, keyword* kwargs)
@@ -288,7 +289,7 @@ dimension_type = DimensionExpr | DimensionStar | AssumedRank
 codimension = (expr? start, expr? end, codimension_type end_star)
 codimension_type = CodimensionExpr | CodimensionStar
 
-symbol = None | Assign | Equal | Asterisk
+symbol = None | Arrow | Equal | Asterisk
 
 equi = (expr* set_list)
 

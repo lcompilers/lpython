@@ -199,6 +199,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'all' { KW(ALL) }
             'allocatable' { KW(ALLOCATABLE) }
             'allocate' { KW(ALLOCATE) }
+            'assign' { KW(ASSIGN) }
             'assignment' { KW(ASSIGNMENT) }
             'associate' { KW(ASSOCIATE) }
             'asynchronous' { KW(ASYNCHRONOUS) }
