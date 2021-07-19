@@ -28,11 +28,14 @@ AST::TranslationUnit_t* parse(Allocator &al, const std::string &s)
         p.result.p, p.result.size());
 }
 
-AST::TranslationUnit_t* parse2(Allocator &al, const std::string &s, bool use_colors)
+AST::TranslationUnit_t* parse2(Allocator &al, const std::string &code_original,
+        bool use_colors)
 {
+    LFortran::LocationManager lm;
+    std::string code_prescanned = LFortran::fix_continuation(code_original, lm);
     AST::TranslationUnit_t* result;
     try {
-        result = parse(al, s);
+        result = parse(al, code_prescanned);
     } catch (const LFortran::ParserError &e) {
         int token;
         if (e.msg() == "syntax is ambiguous") {
@@ -40,10 +43,10 @@ AST::TranslationUnit_t* parse2(Allocator &al, const std::string &s, bool use_col
         } else {
             token = e.token;
         }
-        std::cerr << format_syntax_error("input", s, e.loc, token, nullptr, use_colors);
+        std::cerr << format_syntax_error("input", code_prescanned, e.loc, token, nullptr, use_colors);
         throw;
     } catch (const LFortran::TokenizerError &e) {
-        std::cerr << format_syntax_error("input", s, e.loc, -1, &e.token, use_colors);
+        std::cerr << format_syntax_error("input", code_prescanned, e.loc, -1, &e.token, use_colors);
         throw;
     }
     return result;
