@@ -341,7 +341,7 @@ int emit_ast(const std::string &infile, bool colors, bool indent)
     Allocator al(64*1024*1024);
     LFortran::AST::TranslationUnit_t* ast;
     try {
-        ast = LFortran::parse2(al, input);
+        ast = LFortran::parse2(al, input, colors);
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
@@ -361,7 +361,7 @@ int emit_ast_f90(const std::string &infile, bool colors)
     Allocator al(64*1024*1024);
     LFortran::AST::TranslationUnit_t* ast;
     try {
-        ast = LFortran::parse2(al, input);
+        ast = LFortran::parse2(al, input, colors);
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
@@ -386,7 +386,7 @@ int format(const std::string &file, bool inplace, bool color, int indent,
     Allocator al(64*1024*1024);
     LFortran::AST::TranslationUnit_t* ast;
     try {
-        ast = LFortran::parse2(al, input);
+        ast = LFortran::parse2(al, input, color);
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
@@ -419,7 +419,7 @@ int emit_asr(const std::string &infile, bool colors,
     Allocator al(64*1024*1024);
     LFortran::AST::TranslationUnit_t* ast;
     try {
-        ast = LFortran::parse2(al, input);
+        ast = LFortran::parse2(al, input, colors);
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
@@ -580,7 +580,7 @@ int emit_llvm(const std::string &infile)
 
 int compile_to_object_file(const std::string &infile, const std::string &outfile,
         bool assembly=false,
-        bool show_stacktrace=false)
+        bool show_stacktrace=false, bool colors=true)
 {
     std::string input = read_file(infile);
 
@@ -597,7 +597,7 @@ int compile_to_object_file(const std::string &infile, const std::string &outfile
         if (show_stacktrace) {
             std::cerr << fe.error_stacktrace(result.error);
         }
-        std::cerr << fe.format_error(result.error, input);
+        std::cerr << fe.format_error(result.error, input, colors);
         return 1;
     }
 
@@ -1215,7 +1215,7 @@ int main(int argc, char *argv[])
             if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
                 return compile_to_object_file(arg_file, outfile, false,
-                    show_stacktrace);
+                    show_stacktrace, !arg_no_color);
 #else
                 std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;
@@ -1240,7 +1240,7 @@ int main(int argc, char *argv[])
             if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
                 err = compile_to_object_file(arg_file, tmp_o, false,
-                    show_stacktrace);
+                    show_stacktrace, !arg_no_color);
 #else
                 std::cerr << "Compiling Fortran files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;
