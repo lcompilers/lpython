@@ -761,6 +761,7 @@ char *str2str_null(Allocator &al, const LFortran::Str &s) {
 #define COMPLEX(x, y, l) make_Complex_t(p.m_a, l, EXPR(x), EXPR(y))
 #define STRING(x, l) make_String_t(p.m_a, l, x.c_str(p.m_a))
 #define BOZ(x, l) make_BOZ_t(p.m_a, l, x.c_str(p.m_a))
+#define ASSIGN(label, variable, l) make_Assign_t(p.m_a, l, 0, label, name2char(variable))
 #define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, l, 0, EXPR(x), EXPR(y))
 #define ASSOCIATE(x, y, l) make_Associate_t(p.m_a, l, 0, EXPR(x), EXPR(y))
 #define GOTO(x, l) make_GoTo_t(p.m_a, l, 0, \

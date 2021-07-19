@@ -852,6 +852,11 @@ ast = true
 ast_f90 = true
 
 [[test]]
+filename = "assign.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
 filename = "associate1.f90"
 ast = true
 ast_f90 = true

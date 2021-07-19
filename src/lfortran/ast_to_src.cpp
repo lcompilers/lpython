@@ -88,7 +88,7 @@ namespace {
     {
         switch (type) {
             case (AST::symbolType::None) : return "";
-            case (AST::symbolType::Assign) : return " => ";
+            case (AST::symbolType::Arrow) : return " => ";
             case (AST::symbolType::Equal) : return " = ";
             case (AST::symbolType::Asterisk) : return " *";
         }
@@ -1389,6 +1389,17 @@ public:
         r += " = ";
         this->visit_expr(*x.m_value);
         r.append(s);
+        s = r;
+    }
+
+    void visit_Assign(const Assign_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r.append("assign");
+        r += " " + std::to_string(x.m_assign_label);
+        r += " to ";
+        r += x.m_variable;
+        r += "\n";
         s = r;
     }
 
