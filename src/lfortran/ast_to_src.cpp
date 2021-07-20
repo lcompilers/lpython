@@ -2327,6 +2327,8 @@ public:
                 if (i < x.n_kwargs-1) r += ", ";
             }
             r += ")";
+        } else if(!x.m_format) {
+            r += " *,";
         }
         if (x.n_values > 0) {
             if (x.m_format) {
@@ -2819,9 +2821,6 @@ public:
         s += syn();
     }
 
-    void visit_SymStar(const SymStar_t &/*x*/) {
-        s = "*";
-    }
 
     void visit_Complex(const Complex_t &x){
         std::string r;

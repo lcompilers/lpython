@@ -178,7 +178,6 @@ expr
     | Complex(expr re, expr im)
     | String(string s)
     | BOZ(string s)
-    | SymStar()
     | Name(identifier id, struct_member* member)
     | Logical(bool value)
     | DataImpliedDo(expr* object_list, decl_attribute? type,

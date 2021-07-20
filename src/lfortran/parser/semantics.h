@@ -989,10 +989,9 @@ ast_t* builtin3(Allocator &al,
 #define READ2(arg, args, l) make_Read_t(p.m_a, l, 0, \
         EXPR(INTEGER(arg, l)), nullptr, 0, nullptr, 0, EXPRS(args), args.size())
 #define READ3(args, l) make_Read_t(p.m_a, l, 0, \
-        EXPR(STAR(l)), nullptr, 0, nullptr, 0, EXPRS(args), args.size())
+        nullptr, nullptr, 0, nullptr, 0, EXPRS(args), args.size())
 #define READ4(arg, l) make_Read_t(p.m_a, l, 0, \
         EXPR(INTEGER(arg, l)), nullptr, 0, nullptr, 0, nullptr, 0)
-#define STAR(l) make_SymStar_t(p.m_a, l)
 
 #define OPEN(args0, l) builtin1(p.m_a, args0, l, make_Open_t)
 #define CLOSE(args0, l) builtin1(p.m_a, args0, l, make_Close_t)
