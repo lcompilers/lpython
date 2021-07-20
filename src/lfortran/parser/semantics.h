@@ -897,7 +897,7 @@ ast_t* READ1(Allocator &al,
             v.push_back(al, item.arg);
         }
     }
-    return make_Read_t(al, l, 0,
+    return make_Read_t(al, l, 0, nullptr,
         v.p, v.size(),
         v2.p, v2.size(),
         EXPRS(args), args.size());
@@ -987,6 +987,12 @@ ast_t* builtin3(Allocator &al,
 
 #define READ0(args0, l) READ1(p.m_a, args0, empty_vecast(), l)
 #define READ(args0, args, l) READ1(p.m_a, args0, args, l)
+#define READ2(arg, args, l) make_Read_t(p.m_a, l, 0, \
+        EXPR(INTEGER(arg, l)), nullptr, 0, nullptr, 0, EXPRS(args), args.size())
+#define READ3(args, l) make_Read_t(p.m_a, l, 0, \
+        nullptr, nullptr, 0, nullptr, 0, EXPRS(args), args.size())
+#define READ4(arg, l) make_Read_t(p.m_a, l, 0, \
+        EXPR(INTEGER(arg, l)), nullptr, 0, nullptr, 0, nullptr, 0)
 
 #define OPEN(args0, l) builtin1(p.m_a, args0, l, make_Open_t)
 #define CLOSE(args0, l) builtin1(p.m_a, args0, l, make_Close_t)

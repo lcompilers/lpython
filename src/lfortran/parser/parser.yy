@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    620 // shift/reduce conflicts
+%expect    621 // shift/reduce conflicts
 %expect-rr 102 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -1507,6 +1507,9 @@ read_statement
     : KW_READ "(" write_arg_list ")" expr_list { $$ = READ($3, $5, @$); }
     | KW_READ "(" write_arg_list ")" "," expr_list { $$ = READ($3, $6, @$); }
     | KW_READ "(" write_arg_list ")" { $$ = READ0($3, @$); }
+    | KW_READ TK_INTEGER "," expr_list { $$ = READ2($2, $4, @$); }
+    | KW_READ "*" "," expr_list { $$ = READ3($4, @$); }
+    | KW_READ TK_INTEGER { $$ = READ4($2, @$); }
     ;
 
 nullify_statement
@@ -1552,9 +1555,9 @@ if_statement
     ;
 
 if_statement_single
-    : KW_IF "(" expr ")" single_line_statement { 
+    : KW_IF "(" expr ")" single_line_statement {
             $$ = IFSINGLE($3, $5, @$); }
-    | KW_IF "(" expr ")" TK_INTEGER "," TK_INTEGER "," TK_INTEGER { 
+    | KW_IF "(" expr ")" TK_INTEGER "," TK_INTEGER "," TK_INTEGER {
             $$ = IFARITHMETIC($3, INTEGER3($5), INTEGER3($7), INTEGER3($9), @$); }
     ;
 
