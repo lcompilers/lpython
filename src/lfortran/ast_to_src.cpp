@@ -605,6 +605,9 @@ public:
 
     void visit_Interface(const Interface_t &x) {
         std::string r;
+        if(x.m_header->type == AbstractInterfaceHeader) {
+            r += "abstract ";
+        }
         r += syn(gr::UnitHeader);
         r.append("interface");
         r += syn();
