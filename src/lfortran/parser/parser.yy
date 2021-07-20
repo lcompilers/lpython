@@ -1524,13 +1524,17 @@ inquire_statement
 rewind_statement
     : KW_REWIND "(" write_arg_list ")" { $$ = REWIND($3, @$); }
     | KW_REWIND id { $$ = REWIND2($2, @$); }
-    | KW_REWIND TK_INTEGER { $$ = REWIND3($2, @$); }
+    | KW_REWIND TK_INTEGER { $$ = REWIND2(INTEGER($2, @$), @$); }
+    | KW_REWIND id "(" fnarray_arg_list_opt ")" {
+            $$ =  REWIND2(FUNCCALLORARRAY($2, $4, @$), @$); }
     ;
 
 backspace_statement
     : KW_BACKSPACE "(" write_arg_list ")" { $$ = BACKSPACE($3, @$); }
     | KW_BACKSPACE id { $$ = BACKSPACE2($2, @$); }
-    | KW_BACKSPACE TK_INTEGER { $$ = BACKSPACE3($2, @$); }
+    | KW_BACKSPACE TK_INTEGER { $$ = BACKSPACE2(INTEGER($2, @$), @$); }
+    | KW_BACKSPACE id "(" fnarray_arg_list_opt ")" {
+            $$ =  BACKSPACE2(FUNCCALLORARRAY($2, $4, @$), @$); }
     ;
 
 flush_statement
@@ -1541,7 +1545,7 @@ flush_statement
 endfile_statement
     : end_file "(" write_arg_list ")" { $$ = ENDFILE($3, @$); }
     | end_file id { $$ = ENDFILE2($2, @$); }
-    | end_file TK_INTEGER { $$ = ENDFILE3($2, @$); }
+    | end_file TK_INTEGER { $$ = ENDFILE2(INTEGER($2, @$), @$); }
     ;
 
 end_file
