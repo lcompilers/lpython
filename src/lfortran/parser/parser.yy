@@ -386,6 +386,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> deallocate_statement
 %type <ast> nullify_statement
 %type <ast> print_statement
+%type <ast> format
 %type <ast> open_statement
 %type <ast> flush_statement
 %type <ast> close_statement
@@ -1468,12 +1469,16 @@ subroutine_call
     ;
 
 print_statement
-    : KW_PRINT    "*"                  { $$ = PRINT0(        @$); }
-    | KW_PRINT    "*"    ","           { $$ = PRINT0(        @$); }
-    | KW_PRINT    "*"    "," expr_list { $$ = PRINT(     $4, @$); }
-    | KW_PRINT TK_STRING               { $$ = PRINTF0($2,    @$); }
-    | KW_PRINT TK_STRING ","           { $$ = PRINTF0($2,    @$); }
-    | KW_PRINT TK_STRING "," expr_list { $$ = PRINTF($2, $4, @$); }
+    : KW_PRINT format               { $$ = PRINT0($2,    @$); }
+    | KW_PRINT format ","           { $$ = PRINT0($2,    @$); }
+    | KW_PRINT format "," expr_list { $$ = PRINT($2, $4, @$); }
+    ;
+
+format
+    : TK_STRING { $$ = PRINT_STRING($1, @$); }
+    | TK_INTEGER { $$ = INTEGER($1, @$); }
+    | id { $$ = $1; }
+    | "*" { $$ = nullptr; }
     ;
 
 open_statement
@@ -1552,9 +1557,9 @@ if_statement
     ;
 
 if_statement_single
-    : KW_IF "(" expr ")" single_line_statement { 
+    : KW_IF "(" expr ")" single_line_statement {
             $$ = IFSINGLE($3, $5, @$); }
-    | KW_IF "(" expr ")" TK_INTEGER "," TK_INTEGER "," TK_INTEGER { 
+    | KW_IF "(" expr ")" TK_INTEGER "," TK_INTEGER "," TK_INTEGER {
             $$ = IFARITHMETIC($3, INTEGER3($5), INTEGER3($7), INTEGER3($9), @$); }
     ;
 

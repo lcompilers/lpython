@@ -124,7 +124,7 @@ stmt
     | Nullify(int label, expr* args, keyword* kwargs)
     | Open(int label, expr* args, keyword* kwargs)
     | Return(int label, expr? value)
-    | Print(int label, string? fmt, expr* values)
+    | Print(int label, expr? fmt, expr* values)
     | Read(int label, argstar* args, kw_argstar* kwargs, expr* values)
     | Rewind(int label, expr* args, keyword* kwargs)
     | Stop(int label, expr? code, expr? quiet)
