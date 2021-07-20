@@ -2248,7 +2248,14 @@ public:
         r += syn();
         r += " ";
         if (x.m_fmt) {
-            r += "\"(" + replace(x.m_fmt, "\"", "\"\"") + ")\"";
+            this->visit_expr(*x.m_fmt);
+            if(x.m_fmt->type == exprType::String) {
+                s.insert(6, "(");
+                s.insert(s.size()-6, ")");
+                r.append(s);
+            } else {
+                r.append(s);
+            }
         } else {
             r += "*";
         }
