@@ -1131,6 +1131,7 @@ public:
     }
 
     void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
+        SymbolTable *scope = current_scope;
         std::string var_name = x.m_func;
         ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
         if (!v) {
@@ -1138,8 +1139,15 @@ public:
             if (intrinsic_procedures.find(remote_sym)
                         != intrinsic_procedures.end()) {
                 std::string module_name = intrinsic_procedures[remote_sym];
+
+                bool shift_scope = false;
+                if (current_scope->parent->parent) {
+                    current_scope = current_scope->parent;
+                    shift_scope = true;
+                }
                 ASR::Module_t *m = LFortran::ASRUtils::load_module(al, current_scope->parent,
                     module_name, x.base.base.loc, true);
+                if (shift_scope) current_scope = scope;
 
                 ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
                 if (!t) {

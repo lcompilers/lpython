@@ -258,6 +258,16 @@ filename = "../integration_tests/subroutines_03.f90"
 ast = true
 
 [[test]]
+filename = "../integration_tests/subroutines_04.f90"
+ast = true
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/subroutines_05.f90"
+asr = true
+
+[[test]]
 filename = "scopes1.f90"
 asr = true
 
@@ -1085,12 +1095,6 @@ filename = "global_scope7.f90"
 asr = true
 llvm = true
 pass = "global_stmts"
-
-[[test]]
-filename = "../integration_tests/subroutines_04.f90"
-ast = true
-asr = true
-llvm = true
 
 [[test]]
 filename = "../integration_tests/parsing_01.f90"
