@@ -91,6 +91,7 @@ namespace {
             case (AST::symbolType::Arrow) : return " => ";
             case (AST::symbolType::Equal) : return " = ";
             case (AST::symbolType::Asterisk) : return " *";
+            case (AST::symbolType::DoubleAsterisk) : return "*(*)";
         }
         throw LFortranException("Unknown type");
     }
@@ -1012,6 +1013,9 @@ public:
         std::string r = "";
         if(x.m_name){
             r.append(x.m_name);
+            if(x.m_sym) {
+                r += symbol2str(x.m_sym);
+            }
         }
         if (x.n_dim > 0) {
             r.append("(");
@@ -1249,6 +1253,8 @@ public:
         }
         if (x.m_sym == symbolType::Asterisk) {
             r.append("(*)");
+        } else if(x.m_sym == symbolType::DoubleAsterisk){
+            r.append("*(*)");
         }
         s = r;
     }
