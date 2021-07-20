@@ -854,12 +854,23 @@ char* def_op_to_str(Allocator &al, const LFortran::Str &s) {
     return s2.c_str(al);
 }
 
-#define PRINT0(l) make_Print_t(p.m_a, l, 0, nullptr, nullptr, 0)
-#define PRINT(args, l) make_Print_t(p.m_a, l, 0, nullptr, EXPRS(args), args.size())
-#define PRINTF0(fmt, l) make_Print_t(p.m_a, l, 0, \
-        print_format_to_str(p.m_a, fmt.str()), nullptr, 0)
-#define PRINTF(fmt, args, l) make_Print_t(p.m_a, l, 0, \
-        print_format_to_str(p.m_a, fmt.str()), EXPRS(args), args.size())
+ast_t* PRINT1(Allocator &al, Location &l,
+        ast_t* fmt,
+        expr_t** m_args, size_t n_args) {
+    expr_t* x;
+    if(fmt == nullptr) {
+        x = nullptr;
+    } else {
+        x = down_cast<expr_t>(fmt);
+    }
+    return make_Print_t(al, l, 0, x, m_args, n_args);
+}
+
+#define PRINT0(fmt, l) PRINT1(p.m_a, l, fmt, nullptr, 0)
+#define PRINT(fmt, args, l) PRINT1(p.m_a, l, fmt, \
+        EXPRS(args), args.size())
+#define PRINT_STRING(x, l)  make_String_t(p.m_a, l, \
+        print_format_to_str(p.m_a, x.str()))
 
 ast_t* WRITE1(Allocator &al,
         const Vec<ArgStarKw> &args0,

@@ -1323,3 +1323,8 @@ ast_f90 = true
 filename = "../integration_tests/class_02.f90"
 asr = true
 llvm = true
+
+[[test]]
+filename = "print1.f90"
+ast = true
+ast_f90 = true
