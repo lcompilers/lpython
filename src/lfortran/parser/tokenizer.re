@@ -226,7 +226,13 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'concurrent' { KW(CONCURRENT) }
             'contains' { KW(CONTAINS) }
             'contiguous' { KW(CONTIGUOUS) }
-            'continue' { KW(CONTINUE) }
+            'continue' {
+                if (next_newline_enddo) {
+                    continue;
+                } else {
+                    KW(CONTINUE)
+                }
+            }
             'critical' { KW(CRITICAL) }
             'cycle' { KW(CYCLE) }
             'data' { KW(DATA) }
