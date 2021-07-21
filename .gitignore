@@ -114,6 +114,7 @@ output
 *.o
 *.out
 *.mod
+*.smod
 /.ccls-cache/
 ext/
 extsrc/
