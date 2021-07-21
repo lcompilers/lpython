@@ -6,11 +6,7 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-allocate_01-f3446f6.stdout",
-<<<<<<< HEAD
-    "stdout_hash": "0e4ca048fcc18b11430f8f2118e6b7fc9ee9092ca5fc0df2c4b0a439",
-=======
-    "stdout_hash": "b7179ca1ff9a3620bab6be4d80e196aa3666d88052716b3e37b57b3b",
->>>>>>> master
+    "stdout_hash": "5a90fc19e923b05bfc8940f9bc55ae2141ced0a842077b84ce0dcae7",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
