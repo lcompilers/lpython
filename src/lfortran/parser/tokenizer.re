@@ -517,6 +517,8 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
                             if (label_do_stack[label_do_stack.size()-1] == u) {
                                 label_do_stack.pop_back();
                                 next_newline_enddo = true;
+                                last_token = yytokentype::TK_LABEL;
+                                continue;
                             } else {
                                 next_newline_enddo = false;
                             }
