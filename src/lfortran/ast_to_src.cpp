@@ -1016,7 +1016,7 @@ public:
         std::string r = "";
         if(x.m_name){
             r.append(x.m_name);
-            if(x.m_sym) {
+            if(x.m_sym == DoubleAsterisk) {
                 r += symbol2str(x.m_sym);
             }
         }
