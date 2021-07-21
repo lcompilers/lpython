@@ -47,9 +47,9 @@ contains
 subroutine sum(a, b, c)
 implicit none
 
-integer, intent(in) :: a(:)
-real, intent(in) :: b(:, :)
-complex, intent(out) :: c(:, :, :)
+integer, allocatable, intent(in) :: a(:)
+real, allocatable, intent(in) :: b(:, :)
+complex, allocatable, intent(out) :: c(:, :, :)
 integer :: i, j, k
 
 complex, allocatable :: c_copy(:, :, :)
@@ -72,7 +72,7 @@ end subroutine sum
 complex function reduce_sum(c) result(r)
 implicit none
 
-complex, intent(in) :: c(:, :, :)
+complex, allocatable, intent(in) :: c(:, :, :)
 integer :: i, j, k
 
 r = 0
