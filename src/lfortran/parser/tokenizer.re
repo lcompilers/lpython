@@ -117,7 +117,6 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
     if (enddo_state == 1) {
         enddo_state = 2;
         KW(END_DO)
-
     } else if (enddo_state == 2) {
         enddo_state = 0;
         token_loc(loc); line_num++; cur_line=cur;
