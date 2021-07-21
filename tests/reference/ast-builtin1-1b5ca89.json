@@ -2,11 +2,11 @@
     "basename": "ast-builtin1-1b5ca89",
     "cmd": "lfortran --show-ast --no-color {infile} -o {outfile}",
     "infile": "tests/builtin1.f90",
-    "infile_hash": "ab089e79251dc629107289935f69196c579a6ad402100e29ecf5c0a2",
+    "infile_hash": "8c200e5b6fa38354dabbf5be7d12f548fa4e99f58ac9225f50a77c8c",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast-builtin1-1b5ca89.stdout",
-    "stdout_hash": "0e801b1fba8276beaa87390755c51742492df02ea8159f266b5078d0",
+    "stdout_hash": "73cefeb41f00dd6be9c9ecd2d1a07ccc9e22b6de23045d848e526352",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

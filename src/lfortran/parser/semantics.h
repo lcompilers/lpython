@@ -1016,25 +1016,14 @@ ast_t* builtin3(Allocator &al,
 #define INQUIRE0(args0, l) builtin2(p.m_a, args0, empty_vecast(), l, \
             make_Inquire_t)
 #define INQUIRE(args0, args, l) builtin2(p.m_a, args0, args, l, make_Inquire_t)
-
 #define REWIND2(arg, l) make_Rewind_t(p.m_a, l, 0, \
         EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
-#define REWIND3(arg, l) make_Rewind_t(p.m_a, l, 0, \
-        EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
-
 #define BACKSPACE2(arg, l) make_Backspace_t(p.m_a, l, 0, \
         EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
-#define BACKSPACE3(arg, l) make_Backspace_t(p.m_a, l, 0, \
-        EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
-
 #define FLUSH1(arg, l) make_Flush_t(p.m_a, l, 0, \
             EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
-
 #define ENDFILE2(arg, l) make_Endfile_t(p.m_a, l, 0, \
         EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
-#define ENDFILE3(arg, l) make_Endfile_t(p.m_a, l, 0, \
-        EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
-
 #define BIND2(args0, l) builtin3(p.m_a, args0, l, make_Bind_t)
 
 
