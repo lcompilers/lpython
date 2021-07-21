@@ -1,9 +1,13 @@
 program do4
 implicit none
-integer :: i, j, k
+integer :: i, j, k, enddo
 j = 0
 do 15 i = 1, 5
 15 j = j + i
+
+j = 0
+do 16 i = 1, 5
+16 enddo = 5
 
 j = 0
 do 20 i = 1, 6, 2
