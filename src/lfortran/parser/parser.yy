@@ -1254,7 +1254,8 @@ var_type
     | KW_CHARACTER { $$ = ATTR_TYPE(Character, @$); }
     | KW_CHARACTER "(" kind_arg_list ")" { $$ = ATTR_TYPE_KIND(Character, $3, @$); }
     | KW_CHARACTER "*" TK_INTEGER { $$ = ATTR_TYPE_INT(Character, $3, @$); }
-    | KW_CHARACTER "*" "(" "*" ")" { $$ = ATTR_TYPE(Character, @$); } // TODO
+    | KW_CHARACTER "*" "(" "*" ")" {
+            $$ = ATTR_TYPE_STAR(Character, DoubleAsterisk, @$); }
     | KW_REAL { $$ = ATTR_TYPE(Real, @$); }
     | KW_REAL "(" kind_arg_list ")" { $$ = ATTR_TYPE_KIND(Real, $3, @$); }
     | KW_REAL "*" TK_INTEGER { $$ = ATTR_TYPE_INT(Real, $3, @$); }
@@ -1283,6 +1284,7 @@ var_sym_decl
     | id "=" expr { $$ = VAR_SYM_DIM_INIT($1, nullptr, 0, $3, Equal, @$); }
     | id "=>" expr { $$ = VAR_SYM_DIM_INIT($1, nullptr, 0, $3, Arrow, @$); }
     | id "*" expr { $$ = VAR_SYM_DIM_INIT($1, nullptr, 0, $3, Asterisk, @$); }
+    | id "*" "(" "*" ")" { $$ = VAR_SYM_NAME($1, DoubleAsterisk, @$); }
     | id "(" array_comp_decl_list ")" %dprec 1 { $$ = VAR_SYM_DIM($1, $3.p, $3.n, None, @$); }
     | id "(" array_comp_decl_list ")" "=" expr {
             $$ = VAR_SYM_DIM_INIT($1, $3.p, $3.n, $6, Equal, @$); }

@@ -290,7 +290,7 @@ dimension_type = DimensionExpr | DimensionStar | AssumedRank
 codimension = (expr? start, expr? end, codimension_type end_star)
 codimension_type = CodimensionExpr | CodimensionStar
 
-symbol = None | Arrow | Equal | Asterisk
+symbol = None | Arrow | Equal | Asterisk | DoubleAsterisk
 
 equi = (expr* set_list)
 
