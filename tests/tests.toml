@@ -663,6 +663,16 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "../integration_tests/allocate_02.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/allocate_03.f90"
+asr = true
+llvm = true
+
+[[test]]
 filename = "allocate1.f90"
 ast = true
 ast_f90 = true

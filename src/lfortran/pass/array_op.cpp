@@ -60,11 +60,6 @@ array operations and perform the do loop pass. As of now, some of the
 nodes are implemented and more are yet to be implemented with time. 
 */
 
-struct dimension_descriptor
-{
-    int lbound, ubound;
-};
-
 class ArrayOpVisitor : public ASR::BaseWalkVisitor<ArrayOpVisitor>
 {
 private:

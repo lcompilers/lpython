@@ -38,7 +38,7 @@ contains
     subroutine verify(c, op_code)
     implicit none
 
-    logical, intent(in) :: c(:, :, :)
+    logical, allocatable, intent(in) :: c(:, :, :)
     integer, intent(in) :: op_code
 
     integer :: i, j, k
