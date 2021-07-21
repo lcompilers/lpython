@@ -309,7 +309,12 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
                 }
                 KW(END_DO)
             }
-            'enddo' { KW(ENDDO) }
+            'enddo' {
+                if (last_token == yytokentype::TK_LABEL) {
+                    next_newline_enddo = false;
+                }
+                KW(ENDDO)
+            }
 
             'end' whitespace 'where' { KW(END_WHERE) }
             'endwhere' { KW(ENDWHERE) }
