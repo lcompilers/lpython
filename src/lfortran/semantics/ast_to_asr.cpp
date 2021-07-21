@@ -234,9 +234,6 @@ class CommonVisitorMethods {
         // Assign evaluation to `value` if possible, otherwise leave nullptr
         if (LFortran::ASRUtils::expr_value(left) != nullptr && LFortran::ASRUtils::expr_value(right) != nullptr) {
             if (ASR::is_a<LFortran::ASR::Integer_t>(*dest_type)) {
-                // Only for Constant integers, else errors out for init_values.f90
-                if (ASR::is_a<LFortran::ASR::ConstantInteger_t>(*ASRUtils::expr_value(left)) &&
-                    ASR::is_a<LFortran::ASR::ConstantInteger_t>(*ASRUtils::expr_value(right))) {
                     int64_t left_value = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(left))->m_n;
                     int64_t right_value = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(right))->m_n;
                     int64_t result;
@@ -260,10 +257,30 @@ class CommonVisitorMethods {
                         default : { LFORTRAN_ASSERT(false); op = ASR::binopType::Pow; }
                     }
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, result, dest_type));
-                }
-                else {
-                    // not implemented
-                }
+            }  else if (ASR::is_a<LFortran::ASR::Real_t>(*dest_type)) {
+                    double left_value = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(left))->m_r;
+                    double right_value = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(right))->m_r;
+                    double result;
+                    switch (op) {
+                        case (ASR::Add):
+                            result = left_value + right_value;
+                            break;
+                        case (ASR::Sub):
+                            result = left_value - right_value;
+                            break;
+                        case (ASR::Mul):
+                            result = left_value * right_value;
+                            break;
+                        case (ASR::Div):
+                            result = left_value / right_value;
+                            break;
+                        case (ASR::Pow):
+                            result = std::pow(left_value, right_value);
+                            break;
+                            // Reconsider
+                        default : { LFORTRAN_ASSERT(false); op = ASR::binopType::Pow; }
+                    }
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, result, dest_type));
             }
         }
         asr = ASR::make_BinOp_t(al, x.base.base.loc, left, op, right, dest_type, value);
@@ -1114,6 +1131,7 @@ public:
     }
 
     void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
+        SymbolTable *scope = current_scope;
         std::string var_name = x.m_func;
         ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
         if (!v) {
@@ -1121,8 +1139,15 @@ public:
             if (intrinsic_procedures.find(remote_sym)
                         != intrinsic_procedures.end()) {
                 std::string module_name = intrinsic_procedures[remote_sym];
+
+                bool shift_scope = false;
+                if (current_scope->parent->parent) {
+                    current_scope = current_scope->parent;
+                    shift_scope = true;
+                }
                 ASR::Module_t *m = LFortran::ASRUtils::load_module(al, current_scope->parent,
                     module_name, x.base.base.loc, true);
+                if (shift_scope) current_scope = scope;
 
                 ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
                 if (!t) {
@@ -1158,7 +1183,7 @@ public:
                 LFortran::ASRUtils::symbol_get_past_external(v))
                 ->m_return_var)->m_type;
         asr = ASR::make_FunctionCall_t(al, x.base.base.loc, v, nullptr,
-            args.p, args.size(), nullptr, 0, type, nullptr);
+            args.p, args.size(), nullptr, 0, type, nullptr, nullptr);
     }
 
     void visit_DerivedType(const AST::DerivedType_t &x) {
@@ -1193,7 +1218,11 @@ public:
         for (size_t i = 0; i < x.n_symbols; i++) {
             AST::UseSymbol_t *use_sym = AST::down_cast<AST::UseSymbol_t>(
                 x.m_symbols[i]);
-            class_procedures[dt_name][use_sym->m_rename] = use_sym->m_sym;
+            if (use_sym->m_rename) {
+                class_procedures[dt_name][use_sym->m_rename] = use_sym->m_sym;
+            } else {
+                class_procedures[dt_name][use_sym->m_sym] = use_sym->m_sym;
+            }
         }
     }
 
@@ -2265,9 +2294,13 @@ public:
     void visit_SubroutineCall(const AST::SubroutineCall_t &x) {
         std::string sub_name = x.m_name;
         ASR::symbol_t *original_sym;
+        ASR::expr_t *v_expr = nullptr;
         // If this is a type bound procedure (in a class) it won't be in the
         // main symbol table. Need to check n_member.
         if (x.n_member == 1) {
+            ASR::symbol_t *v = current_scope->resolve_symbol(x.m_member[0].m_name);
+            ASR::asr_t *v_var = ASR::make_Var_t(al, x.base.base.loc, v);
+            v_expr = LFortran::ASRUtils::EXPR(v_var);
             original_sym = resolve_deriv_type_proc(x.base.base.loc, x.m_name,
                 x.m_member[0].m_name, current_scope);
         } else {
@@ -2347,7 +2380,7 @@ public:
             }
         }
         tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc,
-                final_sym, original_sym, args.p, args.size());
+                final_sym, original_sym, args.p, args.size(), v_expr);
     }
 
     int select_generic_procedure(const Vec<ASR::expr_t*> &args,
@@ -2595,10 +2628,21 @@ public:
         std::vector<std::string> all_intrinsics = {
             "sin",  "cos",  "tan",  "sinh",  "cosh",  "tanh",
             "asin", "acos", "atan", "asinh", "acosh", "atanh"};
-
         SymbolTable *scope = current_scope;
         std::string var_name = x.m_func;
         ASR::symbol_t *v = scope->resolve_symbol(var_name);
+        ASR::expr_t *v_expr = nullptr;
+        // If this is a type bound procedure (in a class) it won't be in the
+        // main symbol table. Need to check n_member.
+        if (x.n_member == 1) {
+            ASR::symbol_t *v = current_scope->resolve_symbol(x.m_member[0].m_name);
+            ASR::asr_t *v_var = ASR::make_Var_t(al, x.base.base.loc, v);
+            v_expr = LFortran::ASRUtils::EXPR(v_var);
+            v = resolve_deriv_type_proc(x.base.base.loc, x.m_func,
+                x.m_member[0].m_name, scope);
+        } else {
+            v = current_scope->resolve_symbol(var_name);
+        }
         if (!v) {
             std::string remote_sym = to_lower(var_name);
             if (intrinsic_procedures.find(remote_sym)
@@ -2746,7 +2790,8 @@ public:
                 ASR::ttype_t *type;
                 type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(v)->m_return_var)->m_type;
                 tmp = ASR::make_FunctionCall_t(al, x.base.base.loc,
-                    v, nullptr, args.p, args.size(), nullptr, 0, type, nullptr);
+                    v, nullptr, args.p, args.size(), nullptr, 0, type, nullptr,
+                    v_expr);
                 break;
             }
             case (ASR::symbolType::ExternalSymbol) : {
@@ -2757,7 +2802,8 @@ public:
                     ASR::ttype_t *type;
                     type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(f2)->m_return_var)->m_type;
                     tmp = ASR::make_FunctionCall_t(al, x.base.base.loc,
-                        v, nullptr, args.p, args.size(), nullptr, 0, type, nullptr);
+                        v, nullptr, args.p, args.size(), nullptr, 0, type, 
+                        nullptr, nullptr);
                 } else if (ASR::is_a<ASR::Variable_t>(*f2)) {
                     Vec<ASR::array_index_t> args;
                     args.reserve(al, x.n_args);

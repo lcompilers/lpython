@@ -674,24 +674,26 @@ ast_t* implied_do_loop(Allocator &al, Location &loc,
         Vec<ast_t*> &ex_list,
         ast_t* i,
         ast_t* low,
-        ast_t* high) {
+        ast_t* high,
+        ast_t* incr) {
     return make_ImpliedDoLoop_t(al, loc,
             EXPRS(ex_list), ex_list.size(),
             name2char(i),
             EXPR(low),
             EXPR(high),
-            nullptr);
+            EXPR_OPT(incr));
 }
 
 ast_t* implied_do1(Allocator &al, Location &loc,
         ast_t* ex,
         ast_t* i,
         ast_t* low,
-        ast_t* high) {
+        ast_t* high,
+        ast_t* incr) {
     Vec<ast_t*> v;
     v.reserve(al, 1);
     v.push_back(al, ex);
-    return implied_do_loop(al, loc, v, i, low, high);
+    return implied_do_loop(al, loc, v, i, low, high, incr);
 }
 
 ast_t* implied_do2(Allocator &al, Location &loc,
@@ -699,12 +701,13 @@ ast_t* implied_do2(Allocator &al, Location &loc,
         ast_t* ex2,
         ast_t* i,
         ast_t* low,
-        ast_t* high) {
+        ast_t* high,
+        ast_t* incr) {
     Vec<ast_t*> v;
     v.reserve(al, 2);
     v.push_back(al, ex1);
     v.push_back(al, ex2);
-    return implied_do_loop(al, loc, v, i, low, high);
+    return implied_do_loop(al, loc, v, i, low, high, incr);
 }
 
 ast_t* implied_do3(Allocator &al, Location &loc,
@@ -713,7 +716,8 @@ ast_t* implied_do3(Allocator &al, Location &loc,
         Vec<ast_t*> ex_list,
         ast_t* i,
         ast_t* low,
-        ast_t* high) {
+        ast_t* high,
+        ast_t* incr) {
     Vec<ast_t*> v;
     v.reserve(al, 2+ex_list.size());
     v.push_back(al, ex1);
@@ -721,15 +725,22 @@ ast_t* implied_do3(Allocator &al, Location &loc,
     for (size_t i=0; i<ex_list.size(); i++) {
         v.push_back(al, ex_list[i]);
     }
-    return implied_do_loop(al, loc, v, i, low, high);
+    return implied_do_loop(al, loc, v, i, low, high, incr);
 }
 
 #define IMPLIED_DO_LOOP1(ex, i, low, high, l) \
-    implied_do1(p.m_a, l, ex, i, low, high)
+    implied_do1(p.m_a, l, ex, i, low, high, nullptr)
 #define IMPLIED_DO_LOOP2(ex1, ex2, i, low, high, l) \
-    implied_do2(p.m_a, l, ex1, ex2, i, low, high)
+    implied_do2(p.m_a, l, ex1, ex2, i, low, high, nullptr)
 #define IMPLIED_DO_LOOP3(ex1, ex2, ex_list, i, low, high, l) \
-    implied_do3(p.m_a, l, ex1, ex2, ex_list, i, low, high)
+    implied_do3(p.m_a, l, ex1, ex2, ex_list, i, low, high, nullptr)
+// with incr
+#define IMPLIED_DO_LOOP4(ex, i, low, high, incr, l) \
+    implied_do1(p.m_a, l, ex, i, low, high, incr)
+#define IMPLIED_DO_LOOP5(ex1, ex2, i, low, high, incr, l) \
+    implied_do2(p.m_a, l, ex1, ex2, i, low, high, incr)
+#define IMPLIED_DO_LOOP6(ex1, ex2, ex_list, i, low, high, incr, l) \
+    implied_do3(p.m_a, l, ex1, ex2, ex_list, i, low, high, incr)
 
 char *str2str_null(Allocator &al, const LFortran::Str &s) {
     if (s.p == nullptr) {
@@ -750,6 +761,7 @@ char *str2str_null(Allocator &al, const LFortran::Str &s) {
 #define COMPLEX(x, y, l) make_Complex_t(p.m_a, l, EXPR(x), EXPR(y))
 #define STRING(x, l) make_String_t(p.m_a, l, x.c_str(p.m_a))
 #define BOZ(x, l) make_BOZ_t(p.m_a, l, x.c_str(p.m_a))
+#define ASSIGN(label, variable, l) make_Assign_t(p.m_a, l, 0, label, name2char(variable))
 #define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, l, 0, EXPR(x), EXPR(y))
 #define ASSOCIATE(x, y, l) make_Associate_t(p.m_a, l, 0, EXPR(x), EXPR(y))
 #define GOTO(x, l) make_GoTo_t(p.m_a, l, 0, \
@@ -842,12 +854,23 @@ char* def_op_to_str(Allocator &al, const LFortran::Str &s) {
     return s2.c_str(al);
 }
 
-#define PRINT0(l) make_Print_t(p.m_a, l, 0, nullptr, nullptr, 0)
-#define PRINT(args, l) make_Print_t(p.m_a, l, 0, nullptr, EXPRS(args), args.size())
-#define PRINTF0(fmt, l) make_Print_t(p.m_a, l, 0, \
-        print_format_to_str(p.m_a, fmt.str()), nullptr, 0)
-#define PRINTF(fmt, args, l) make_Print_t(p.m_a, l, 0, \
-        print_format_to_str(p.m_a, fmt.str()), EXPRS(args), args.size())
+ast_t* PRINT1(Allocator &al, Location &l,
+        ast_t* fmt,
+        expr_t** m_args, size_t n_args) {
+    expr_t* x;
+    if(fmt == nullptr) {
+        x = nullptr;
+    } else {
+        x = down_cast<expr_t>(fmt);
+    }
+    return make_Print_t(al, l, 0, x, m_args, n_args);
+}
+
+#define PRINT0(fmt, l) PRINT1(p.m_a, l, fmt, nullptr, 0)
+#define PRINT(fmt, args, l) PRINT1(p.m_a, l, fmt, \
+        EXPRS(args), args.size())
+#define PRINT_STRING(x, l)  make_String_t(p.m_a, l, \
+        print_format_to_str(p.m_a, x.str()))
 
 ast_t* WRITE1(Allocator &al,
         const Vec<ArgStarKw> &args0,
@@ -885,7 +908,7 @@ ast_t* READ1(Allocator &al,
             v.push_back(al, item.arg);
         }
     }
-    return make_Read_t(al, l, 0,
+    return make_Read_t(al, l, 0, nullptr,
         v.p, v.size(),
         v2.p, v2.size(),
         EXPRS(args), args.size());
@@ -975,6 +998,12 @@ ast_t* builtin3(Allocator &al,
 
 #define READ0(args0, l) READ1(p.m_a, args0, empty_vecast(), l)
 #define READ(args0, args, l) READ1(p.m_a, args0, args, l)
+#define READ2(arg, args, l) make_Read_t(p.m_a, l, 0, \
+        EXPR(INTEGER(arg, l)), nullptr, 0, nullptr, 0, EXPRS(args), args.size())
+#define READ3(args, l) make_Read_t(p.m_a, l, 0, \
+        nullptr, nullptr, 0, nullptr, 0, EXPRS(args), args.size())
+#define READ4(arg, l) make_Read_t(p.m_a, l, 0, \
+        EXPR(INTEGER(arg, l)), nullptr, 0, nullptr, 0, nullptr, 0)
 
 #define OPEN(args0, l) builtin1(p.m_a, args0, l, make_Open_t)
 #define CLOSE(args0, l) builtin1(p.m_a, args0, l, make_Close_t)
@@ -982,24 +1011,19 @@ ast_t* builtin3(Allocator &al,
 #define NULLIFY(args0, l) builtin1(p.m_a, args0, l, make_Nullify_t)
 #define BACKSPACE(args0, l) builtin1(p.m_a, args0, l, make_Backspace_t)
 #define FLUSH(args0, l) builtin1(p.m_a, args0, l, make_Flush_t)
+#define ENDFILE(args0, l) builtin1(p.m_a, args0, l, make_Endfile_t)
 
 #define INQUIRE0(args0, l) builtin2(p.m_a, args0, empty_vecast(), l, \
             make_Inquire_t)
 #define INQUIRE(args0, args, l) builtin2(p.m_a, args0, args, l, make_Inquire_t)
-
 #define REWIND2(arg, l) make_Rewind_t(p.m_a, l, 0, \
         EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
-#define REWIND3(arg, l) make_Rewind_t(p.m_a, l, 0, \
-        EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
-
 #define BACKSPACE2(arg, l) make_Backspace_t(p.m_a, l, 0, \
         EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
-#define BACKSPACE3(arg, l) make_Backspace_t(p.m_a, l, 0, \
-        EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
-
 #define FLUSH1(arg, l) make_Flush_t(p.m_a, l, 0, \
             EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
-
+#define ENDFILE2(arg, l) make_Endfile_t(p.m_a, l, 0, \
+        EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
 #define BIND2(args0, l) builtin3(p.m_a, args0, l, make_Bind_t)
 
 
@@ -1264,6 +1288,12 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*n_body*/ 1, \
         /*a_orelse*/ nullptr, \
         /*n_orelse*/ 0)
+
+#define IFARITHMETIC(cond, lt_label, eq_label, gt_label, l) make_IfArithmetic_t(p.m_a, l, 0, nullptr, \
+        /*test*/ EXPR(cond), \
+        /*lt_label*/ lt_label, \
+        /*eq_label*/ eq_label, \
+        /*gt_label*/ gt_label)
 
 #define IF1(cond, body, l) make_If_t(p.m_a, l, 0, nullptr, \
         /*test*/ EXPR(cond), \
@@ -1728,7 +1758,7 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         p.m_a, l, name2char(name), USES(use), use.size(), \
         VEC_CAST(implicit, implicit_statement), implicit.size(), \
         DECLS(decl), decl.size())
-        
+
 #define INTERFACE_HEADER(l) make_InterfaceHeader_t(p.m_a, l)
 #define INTERFACE_HEADER_NAME(id, l) make_InterfaceHeaderName_t(p.m_a, l, \
         name2char(id))

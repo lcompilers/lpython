@@ -3,7 +3,7 @@ use iso_c_binding, only: c_int, c_double, c_char
 implicit none
 interface
     subroutine g(d)
-    character :: d
+    character*(*) :: d
     end subroutine g
     subroutine g2(d)
     character(len=*) :: d

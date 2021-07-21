@@ -728,7 +728,7 @@ public:
         }
         s.append(" ");
         if (x.m_fmt) {
-            s.append(x.m_fmt);
+            this->visit_expr(*x.m_fmt);
         } else {
             s.append("()");
         }

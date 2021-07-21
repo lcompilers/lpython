@@ -1,6 +1,6 @@
 module interface2
 implicit none
-interface
+abstract interface
     subroutine read_params(this, params)
     import
     class(porous_drag_model), intent(inout) :: this
