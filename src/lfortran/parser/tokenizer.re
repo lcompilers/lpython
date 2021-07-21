@@ -302,18 +302,8 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'end' whitespace 'type' { KW(END_TYPE) }
             'endtype' { KW(ENDTYPE) }
 
-            'end' whitespace 'do' {
-                if (last_token == yytokentype::TK_LABEL) {
-                    next_newline_enddo = false;
-                }
-                KW(END_DO)
-            }
-            'enddo' {
-                if (last_token == yytokentype::TK_LABEL) {
-                    next_newline_enddo = false;
-                }
-                KW(ENDDO)
-            }
+            'end' whitespace 'do' { KW(END_DO) }
+            'enddo' { KW(ENDDO) }
 
             'end' whitespace 'where' { KW(END_WHERE) }
             'endwhere' { KW(ENDWHERE) }
@@ -437,11 +427,13 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
 
             // Tokens
             newline {
-                if (next_newline_enddo) {
+                if (next_newline_enddo && last_token != yytokentype::KW_ENDDO
+                    && last_token != yytokentype::KW_END_DO) {
                     next_newline_enddo = false;
                     enddo_state = 1;
                     return yytokentype::TK_NEWLINE;
                 } else {
+                    next_newline_enddo = false;
                     token_loc(loc); line_num++; cur_line=cur;
                     last_token = yytokentype::TK_NEWLINE;
                     return yytokentype::TK_NEWLINE;
