@@ -8,10 +8,9 @@ integer :: n, ierr
 integer :: i, j, k
 n = 10
 allocate(a(5:n + 5))
-allocate(b(n:2*n, n:3*n), c(5:n + 5, n:2*n, n:3*n), stat=ierr)
+allocate(b(n:2*n, n:3*n), stat=ierr)
 if( size(a) /= n + 1 ) error stop
 if( size(b) /= (n + 1)*(2*n + 1) ) error stop
-if( size(c) /= ((n + 1)**2)*(2*n + 1) ) error stop
 do i = lbound(a, 1), ubound(a, 1)
     a(i) = i
 end do
@@ -54,7 +53,8 @@ integer :: i, j, k
 
 complex, allocatable :: c_copy(:, :, :)
 
-allocate(c_copy(lbound(c, 1):ubound(c, 1), lbound(c, 2):ubound(c, 2), lbound(c, 3):ubound(c, 3)))
+allocate(c_copy(lbound(a, 1):ubound(a, 1), lbound(b, 1):ubound(b, 1), lbound(b, 2):ubound(b, 2)))
+allocate(c(lbound(a, 1):ubound(a, 1), lbound(b, 1):ubound(b, 1), lbound(b, 2):ubound(b, 2)))
 
 do i = lbound(a, 1), ubound(a, 1)
     do j = lbound(b, 1), ubound(b, 1)
