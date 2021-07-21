@@ -18,7 +18,8 @@ public:
     int last_token=-1;
 
     std::vector<uint64_t> label_do_stack = {0};
-    bool next_continue_is_enddo=false;
+    bool next_newline_enddo = false;
+    int enddo_state = 0;
 
 public:
     // Set the string to tokenize. The caller must ensure `str` will stay valid
