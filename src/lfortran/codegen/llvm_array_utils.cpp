@@ -129,8 +129,10 @@ namespace LFortran {
             llvm::StructType* tmp_struct_type = static_cast<llvm::StructType*>(tmp_type);
             if( tmp_struct_type->getElementType(0)->isArrayTy() ) {
                 first_ele_ptr = llvm_utils->create_gep(get_pointer_to_data(tmp), 0);
-            } else {
+            } else if( tmp_struct_type->getNumElements() < 4 ) {
                 first_ele_ptr = builder->CreateLoad(get_pointer_to_data(tmp));
+            } else if( tmp_struct_type->getNumElements() == 4 ) {
+                return tmp;
             }
             llvm::Value* first_arg_ptr = llvm_utils->create_gep(arg_struct, 0);
             builder->CreateStore(first_ele_ptr, first_arg_ptr);
@@ -141,11 +143,6 @@ namespace LFortran {
                 get_pointer_to_dimension_descriptor_array(tmp));
             llvm::Value* third_arg_ptr = llvm_utils->create_gep(arg_struct, 2);
             builder->CreateStore(third_ele_ptr, third_arg_ptr);
-            if( tmp_struct_type->getNumElements() > 3 ) {
-                llvm::Value* fourth_ele = get_is_allocated_flag(tmp);
-                llvm::Value* fourth_arg_ptr = llvm_utils->create_gep(arg_struct, 3);
-                builder->CreateStore(fourth_ele, fourth_arg_ptr);
-            }
             return arg_struct;
         }
 
@@ -158,8 +155,13 @@ namespace LFortran {
                 llvm::ArrayType* arr_type = static_cast<llvm::ArrayType*>(type_struct->getElementType(0));
                 llvm::Type* ele_type = arr_type->getElementType();
                 first_ele_ptr_type = ele_type->getPointerTo();
-            } else if( type_struct->getElementType(0)->isPointerTy() ) {
+            } else if( type_struct->getElementType(0)->isPointerTy() &&
+                       type_struct->getNumElements() < 4 ) {
                 first_ele_ptr_type = type_struct->getElementType(0);
+            } else if( type_struct->getElementType(0)->isPointerTy() &&
+                       type_struct->getNumElements() == 4 ) {
+                arr_arg_type_cache[m_h][std::string(arg_name)] = type;
+                return type->getPointerTo();
             }
             llvm::Type* new_arr_type = nullptr;
 
