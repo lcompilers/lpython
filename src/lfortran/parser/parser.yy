@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    620 // shift/reduce conflicts
+%expect    621 // shift/reduce conflicts
 %expect-rr 102 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -386,6 +386,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> deallocate_statement
 %type <ast> nullify_statement
 %type <ast> print_statement
+%type <ast> format
 %type <ast> open_statement
 %type <ast> flush_statement
 %type <ast> close_statement
@@ -1253,7 +1254,8 @@ var_type
     | KW_CHARACTER { $$ = ATTR_TYPE(Character, @$); }
     | KW_CHARACTER "(" kind_arg_list ")" { $$ = ATTR_TYPE_KIND(Character, $3, @$); }
     | KW_CHARACTER "*" TK_INTEGER { $$ = ATTR_TYPE_INT(Character, $3, @$); }
-    | KW_CHARACTER "*" "(" "*" ")" { $$ = ATTR_TYPE(Character, @$); } // TODO
+    | KW_CHARACTER "*" "(" "*" ")" {
+            $$ = ATTR_TYPE_STAR(Character, DoubleAsterisk, @$); }
     | KW_REAL { $$ = ATTR_TYPE(Real, @$); }
     | KW_REAL "(" kind_arg_list ")" { $$ = ATTR_TYPE_KIND(Real, $3, @$); }
     | KW_REAL "*" TK_INTEGER { $$ = ATTR_TYPE_INT(Real, $3, @$); }
@@ -1282,6 +1284,7 @@ var_sym_decl
     | id "=" expr { $$ = VAR_SYM_DIM_INIT($1, nullptr, 0, $3, Equal, @$); }
     | id "=>" expr { $$ = VAR_SYM_DIM_INIT($1, nullptr, 0, $3, Arrow, @$); }
     | id "*" expr { $$ = VAR_SYM_DIM_INIT($1, nullptr, 0, $3, Asterisk, @$); }
+    | id "*" "(" "*" ")" { $$ = VAR_SYM_NAME($1, DoubleAsterisk, @$); }
     | id "(" array_comp_decl_list ")" %dprec 1 { $$ = VAR_SYM_DIM($1, $3.p, $3.n, None, @$); }
     | id "(" array_comp_decl_list ")" "=" expr {
             $$ = VAR_SYM_DIM_INIT($1, $3.p, $3.n, $6, Equal, @$); }
@@ -1468,12 +1471,16 @@ subroutine_call
     ;
 
 print_statement
-    : KW_PRINT    "*"                  { $$ = PRINT0(        @$); }
-    | KW_PRINT    "*"    ","           { $$ = PRINT0(        @$); }
-    | KW_PRINT    "*"    "," expr_list { $$ = PRINT(     $4, @$); }
-    | KW_PRINT TK_STRING               { $$ = PRINTF0($2,    @$); }
-    | KW_PRINT TK_STRING ","           { $$ = PRINTF0($2,    @$); }
-    | KW_PRINT TK_STRING "," expr_list { $$ = PRINTF($2, $4, @$); }
+    : KW_PRINT format               { $$ = PRINT0($2,    @$); }
+    | KW_PRINT format ","           { $$ = PRINT0($2,    @$); }
+    | KW_PRINT format "," expr_list { $$ = PRINT($2, $4, @$); }
+    ;
+
+format
+    : TK_STRING { $$ = PRINT_STRING($1, @$); }
+    | TK_INTEGER { $$ = INTEGER($1, @$); }
+    | id { $$ = $1; }
+    | "*" { $$ = nullptr; }
     ;
 
 open_statement
@@ -1507,6 +1514,9 @@ read_statement
     : KW_READ "(" write_arg_list ")" expr_list { $$ = READ($3, $5, @$); }
     | KW_READ "(" write_arg_list ")" "," expr_list { $$ = READ($3, $6, @$); }
     | KW_READ "(" write_arg_list ")" { $$ = READ0($3, @$); }
+    | KW_READ TK_INTEGER "," expr_list { $$ = READ2($2, $4, @$); }
+    | KW_READ "*" "," expr_list { $$ = READ3($4, @$); }
+    | KW_READ TK_INTEGER { $$ = READ4($2, @$); }
     ;
 
 nullify_statement
@@ -1521,13 +1531,17 @@ inquire_statement
 rewind_statement
     : KW_REWIND "(" write_arg_list ")" { $$ = REWIND($3, @$); }
     | KW_REWIND id { $$ = REWIND2($2, @$); }
-    | KW_REWIND TK_INTEGER { $$ = REWIND3($2, @$); }
+    | KW_REWIND TK_INTEGER { $$ = REWIND2(INTEGER($2, @$), @$); }
+    | KW_REWIND id "(" fnarray_arg_list_opt ")" {
+            $$ =  REWIND2(FUNCCALLORARRAY($2, $4, @$), @$); }
     ;
 
 backspace_statement
     : KW_BACKSPACE "(" write_arg_list ")" { $$ = BACKSPACE($3, @$); }
     | KW_BACKSPACE id { $$ = BACKSPACE2($2, @$); }
-    | KW_BACKSPACE TK_INTEGER { $$ = BACKSPACE3($2, @$); }
+    | KW_BACKSPACE TK_INTEGER { $$ = BACKSPACE2(INTEGER($2, @$), @$); }
+    | KW_BACKSPACE id "(" fnarray_arg_list_opt ")" {
+            $$ =  BACKSPACE2(FUNCCALLORARRAY($2, $4, @$), @$); }
     ;
 
 flush_statement
@@ -1538,7 +1552,7 @@ flush_statement
 endfile_statement
     : end_file "(" write_arg_list ")" { $$ = ENDFILE($3, @$); }
     | end_file id { $$ = ENDFILE2($2, @$); }
-    | end_file TK_INTEGER { $$ = ENDFILE3($2, @$); }
+    | end_file TK_INTEGER { $$ = ENDFILE2(INTEGER($2, @$), @$); }
     ;
 
 end_file

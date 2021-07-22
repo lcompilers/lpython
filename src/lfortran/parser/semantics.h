@@ -854,12 +854,23 @@ char* def_op_to_str(Allocator &al, const LFortran::Str &s) {
     return s2.c_str(al);
 }
 
-#define PRINT0(l) make_Print_t(p.m_a, l, 0, nullptr, nullptr, 0)
-#define PRINT(args, l) make_Print_t(p.m_a, l, 0, nullptr, EXPRS(args), args.size())
-#define PRINTF0(fmt, l) make_Print_t(p.m_a, l, 0, \
-        print_format_to_str(p.m_a, fmt.str()), nullptr, 0)
-#define PRINTF(fmt, args, l) make_Print_t(p.m_a, l, 0, \
-        print_format_to_str(p.m_a, fmt.str()), EXPRS(args), args.size())
+ast_t* PRINT1(Allocator &al, Location &l,
+        ast_t* fmt,
+        expr_t** m_args, size_t n_args) {
+    expr_t* x;
+    if(fmt == nullptr) {
+        x = nullptr;
+    } else {
+        x = down_cast<expr_t>(fmt);
+    }
+    return make_Print_t(al, l, 0, x, m_args, n_args);
+}
+
+#define PRINT0(fmt, l) PRINT1(p.m_a, l, fmt, nullptr, 0)
+#define PRINT(fmt, args, l) PRINT1(p.m_a, l, fmt, \
+        EXPRS(args), args.size())
+#define PRINT_STRING(x, l)  make_String_t(p.m_a, l, \
+        print_format_to_str(p.m_a, x.str()))
 
 ast_t* WRITE1(Allocator &al,
         const Vec<ArgStarKw> &args0,
@@ -897,7 +908,7 @@ ast_t* READ1(Allocator &al,
             v.push_back(al, item.arg);
         }
     }
-    return make_Read_t(al, l, 0,
+    return make_Read_t(al, l, 0, nullptr,
         v.p, v.size(),
         v2.p, v2.size(),
         EXPRS(args), args.size());
@@ -987,6 +998,12 @@ ast_t* builtin3(Allocator &al,
 
 #define READ0(args0, l) READ1(p.m_a, args0, empty_vecast(), l)
 #define READ(args0, args, l) READ1(p.m_a, args0, args, l)
+#define READ2(arg, args, l) make_Read_t(p.m_a, l, 0, \
+        EXPR(INTEGER(arg, l)), nullptr, 0, nullptr, 0, EXPRS(args), args.size())
+#define READ3(args, l) make_Read_t(p.m_a, l, 0, \
+        nullptr, nullptr, 0, nullptr, 0, EXPRS(args), args.size())
+#define READ4(arg, l) make_Read_t(p.m_a, l, 0, \
+        EXPR(INTEGER(arg, l)), nullptr, 0, nullptr, 0, nullptr, 0)
 
 #define OPEN(args0, l) builtin1(p.m_a, args0, l, make_Open_t)
 #define CLOSE(args0, l) builtin1(p.m_a, args0, l, make_Close_t)
@@ -999,25 +1016,14 @@ ast_t* builtin3(Allocator &al,
 #define INQUIRE0(args0, l) builtin2(p.m_a, args0, empty_vecast(), l, \
             make_Inquire_t)
 #define INQUIRE(args0, args, l) builtin2(p.m_a, args0, args, l, make_Inquire_t)
-
 #define REWIND2(arg, l) make_Rewind_t(p.m_a, l, 0, \
         EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
-#define REWIND3(arg, l) make_Rewind_t(p.m_a, l, 0, \
-        EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
-
 #define BACKSPACE2(arg, l) make_Backspace_t(p.m_a, l, 0, \
         EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
-#define BACKSPACE3(arg, l) make_Backspace_t(p.m_a, l, 0, \
-        EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
-
 #define FLUSH1(arg, l) make_Flush_t(p.m_a, l, 0, \
             EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
-
 #define ENDFILE2(arg, l) make_Endfile_t(p.m_a, l, 0, \
         EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
-#define ENDFILE3(arg, l) make_Endfile_t(p.m_a, l, 0, \
-        EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
-
 #define BIND2(args0, l) builtin3(p.m_a, args0, l, make_Bind_t)
 
 

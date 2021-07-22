@@ -8,10 +8,9 @@ integer :: n, ierr
 integer :: i, j, k
 n = 10
 allocate(a(5:n + 5))
-allocate(b(n:2*n, n:3*n), c(5:n + 5, n:2*n, n:3*n), stat=ierr)
+allocate(b(n:2*n, n:3*n), stat=ierr)
 if( size(a) /= n + 1 ) error stop
 if( size(b) /= (n + 1)*(2*n + 1) ) error stop
-if( size(c) /= ((n + 1)**2)*(2*n + 1) ) error stop
 do i = lbound(a, 1), ubound(a, 1)
     a(i) = i
 end do
@@ -42,33 +41,38 @@ end do
 r = reduce_sum(c)
 if (r /= (114345.0, 0.0)) error stop
 
-deallocate(b)
-deallocate(a, c)
-
 contains
 
 subroutine sum(a, b, c)
 implicit none
 
-integer, intent(in) :: a(:)
-real, intent(in) :: b(:, :)
-complex, intent(out) :: c(:, :, :)
+integer, allocatable, intent(in) :: a(:)
+real, allocatable, intent(in) :: b(:, :)
+complex, allocatable, intent(out) :: c(:, :, :)
 integer :: i, j, k
+
+complex, allocatable :: c_copy(:, :, :)
+
+allocate(c_copy(lbound(a, 1):ubound(a, 1), lbound(b, 1):ubound(b, 1), lbound(b, 2):ubound(b, 2)))
+allocate(c(lbound(a, 1):ubound(a, 1), lbound(b, 1):ubound(b, 1), lbound(b, 2):ubound(b, 2)))
 
 do i = lbound(a, 1), ubound(a, 1)
     do j = lbound(b, 1), ubound(b, 1)
         do k = lbound(b, 2), ubound(b, 2)
+            c_copy(i, j, k) = a(i) + b(j, k)
             c(i, j, k) = a(i) + b(j, k)
         end do
     end do
 end do
+
+deallocate(c_copy)
 
 end subroutine sum
 
 complex function reduce_sum(c) result(r)
 implicit none
 
-complex, intent(in) :: c(:, :, :)
+complex, allocatable, intent(in) :: c(:, :, :)
 integer :: i, j, k
 
 r = 0

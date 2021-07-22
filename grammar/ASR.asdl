@@ -148,7 +148,10 @@ stmt
     | Assignment(expr target, expr value)
     | Associate(expr target, expr value)
     | Cycle()
-    | Deallocate(expr* args)
+    -- deallocates if allocated otherwise throws a runtime error
+    | ExplicitDeallocate(symbol* vars)
+    -- deallocates if allocated otherwise does nothing
+    | ImplicitDeallocate(symbol* vars)
     | DoConcurrentLoop(do_loop_head head, stmt* body)
     | DoLoop(do_loop_head head, stmt* body)
     | ErrorStop(expr? code)

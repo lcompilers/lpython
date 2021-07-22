@@ -124,8 +124,9 @@ stmt
     | Nullify(int label, expr* args, keyword* kwargs)
     | Open(int label, expr* args, keyword* kwargs)
     | Return(int label, expr? value)
-    | Print(int label, string? fmt, expr* values)
-    | Read(int label, argstar* args, kw_argstar* kwargs, expr* values)
+    | Print(int label, expr? fmt, expr* values)
+    | Read(int label, expr? format, argstar* args,
+            kw_argstar* kwargs, expr* values)
     | Rewind(int label, expr* args, keyword* kwargs)
     | Stop(int label, expr? code, expr? quiet)
     | SubroutineCall(int label, identifier name, struct_member* member,
@@ -289,7 +290,7 @@ dimension_type = DimensionExpr | DimensionStar | AssumedRank
 codimension = (expr? start, expr? end, codimension_type end_star)
 codimension_type = CodimensionExpr | CodimensionStar
 
-symbol = None | Arrow | Equal | Asterisk
+symbol = None | Arrow | Equal | Asterisk | DoubleAsterisk
 
 equi = (expr* set_list)
 

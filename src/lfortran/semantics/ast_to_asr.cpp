@@ -1131,6 +1131,7 @@ public:
     }
 
     void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
+        SymbolTable *scope = current_scope;
         std::string var_name = x.m_func;
         ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
         if (!v) {
@@ -1138,8 +1139,15 @@ public:
             if (intrinsic_procedures.find(remote_sym)
                         != intrinsic_procedures.end()) {
                 std::string module_name = intrinsic_procedures[remote_sym];
+
+                bool shift_scope = false;
+                if (current_scope->parent->parent) {
+                    current_scope = current_scope->parent;
+                    shift_scope = true;
+                }
                 ASR::Module_t *m = LFortran::ASRUtils::load_module(al, current_scope->parent,
                     module_name, x.base.base.loc, true);
+                if (shift_scope) current_scope = scope;
 
                 ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
                 if (!t) {
@@ -1907,15 +1915,59 @@ public:
                                     stat);
     }
 
+// If there are allocatable variables in the local scope it inserts an ImplicitDeallocate node
+// with their list. The ImplicitDeallocate node will deallocate them if they are allocated,
+// otherwise does nothing.
+    ASR::stmt_t* create_implicit_deallocate(const Location& loc) {
+        Vec<ASR::symbol_t*> del_syms;
+        del_syms.reserve(al, 0);
+        for( auto& item: current_scope->scope ) {
+            if( item.second->type == ASR::symbolType::Variable ) {
+                const ASR::symbol_t* sym = LFortran::ASRUtils::symbol_get_past_external(item.second);
+                ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(sym);
+                if( var->m_storage == ASR::storage_typeType::Allocatable && 
+                    var->m_intent == ASR::intentType::Local ) {
+                    del_syms.push_back(al, item.second);
+                }
+            }
+        }
+        if( del_syms.size() == 0 ) {
+            return nullptr;
+        }
+        return LFortran::ASRUtils::STMT(ASR::make_ImplicitDeallocate_t(al, loc, 
+                    del_syms.p, del_syms.size()));
+    }
+
     void visit_Deallocate(const AST::Deallocate_t& x) {
-        Vec<ASR::expr_t*> arg_vec;
+        Vec<ASR::symbol_t*> arg_vec;
         arg_vec.reserve(al, x.n_args);
         for( size_t i = 0; i < x.n_args; i++ ) {
             this->visit_expr(*(x.m_args[i].m_end));
-            arg_vec.push_back(al, LFortran::ASRUtils::EXPR(tmp));
+            ASR::expr_t* tmp_expr = LFortran::ASRUtils::EXPR(tmp);
+            if( tmp_expr->type != ASR::exprType::Var ) {
+                throw SemanticError("Only an allocatable variable symbol "
+                                    "can be deallocated.", 
+                                    tmp_expr->base.loc);
+            } else {
+                const ASR::Var_t* tmp_var = ASR::down_cast<ASR::Var_t>(tmp_expr);
+                ASR::symbol_t* tmp_sym = tmp_var->m_v;
+                if( LFortran::ASRUtils::symbol_get_past_external(tmp_sym)->type != ASR::symbolType::Variable ) {
+                    throw SemanticError("Only an allocatable variable symbol "
+                                        "can be deallocated.", 
+                                        tmp_expr->base.loc);
+                } else {
+                    ASR::Variable_t* tmp_v = ASR::down_cast<ASR::Variable_t>(tmp_sym);
+                    if( tmp_v->m_storage != ASR::storage_typeType::Allocatable ) {
+                        throw SemanticError("Only an allocatable variable symbol "
+                                            "can be deallocated.", 
+                                            tmp_expr->base.loc);
+                    }
+                    arg_vec.push_back(al, tmp_sym);
+                }
+            }
         }
-        tmp = ASR::make_Deallocate_t(al, x.base.base.loc,
-                                        arg_vec.p, arg_vec.size());
+        tmp = ASR::make_ExplicitDeallocate_t(al, x.base.base.loc,
+                                            arg_vec.p, arg_vec.size());
     }
 
     void visit_Return(const AST::Return_t& x) {
@@ -2069,8 +2121,19 @@ public:
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
             if (tmp != nullptr) {
-                body.push_back(al, LFortran::ASRUtils::STMT(tmp));
+                ASR::stmt_t* tmp_stmt = LFortran::ASRUtils::STMT(tmp);
+                if( tmp_stmt->type == ASR::stmtType::SubroutineCall ) {
+                    ASR::stmt_t* impl_decl = create_implicit_deallocate_subrout_call(tmp_stmt);
+                    if( impl_decl != nullptr ) {
+                        body.push_back(al, impl_decl);
+                    }
+                }
+                body.push_back(al, tmp_stmt);
             }
+        }
+        ASR::stmt_t* impl_del = create_implicit_deallocate(x.base.base.loc);
+        if( impl_del != nullptr ) {
+            body.push_back(al, impl_del);
         }
         v->m_body = body.p;
         v->n_body = body.size();
@@ -2081,6 +2144,38 @@ public:
 
         current_scope = old_scope;
         tmp = nullptr;
+    }
+
+    ASR::stmt_t* create_implicit_deallocate_subrout_call(ASR::stmt_t* x) {
+        ASR::SubroutineCall_t* subrout_call = ASR::down_cast<ASR::SubroutineCall_t>(x);
+        const ASR::symbol_t* subrout_sym = LFortran::ASRUtils::symbol_get_past_external(subrout_call->m_name);
+        if( subrout_sym->type != ASR::symbolType::Subroutine ) {
+            return nullptr;
+        }
+        ASR::Subroutine_t* subrout = ASR::down_cast<ASR::Subroutine_t>(subrout_sym);
+        Vec<ASR::symbol_t*> del_syms;
+        del_syms.reserve(al, 1);
+        for( size_t i = 0; i < subrout_call->n_args; i++ ) {
+            if( subrout_call->m_args[i]->type == ASR::exprType::Var ) {
+                const ASR::Var_t* arg_var = ASR::down_cast<ASR::Var_t>(subrout_call->m_args[i]);
+                const ASR::symbol_t* sym = LFortran::ASRUtils::symbol_get_past_external(arg_var->m_v);
+                if( sym->type == ASR::symbolType::Variable ) {
+                    ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(sym);
+                    const ASR::Var_t* orig_arg_var = ASR::down_cast<ASR::Var_t>(subrout->m_args[i]);
+                    const ASR::symbol_t* orig_sym = LFortran::ASRUtils::symbol_get_past_external(orig_arg_var->m_v);
+                    ASR::Variable_t* orig_var = ASR::down_cast<ASR::Variable_t>(orig_sym);
+                    if( var->m_storage == ASR::storage_typeType::Allocatable && 
+                        orig_var->m_intent == ASR::intentType::Out ) {
+                        del_syms.push_back(al, arg_var->m_v);
+                    }
+                }
+            }
+        }
+        if( del_syms.size() == 0 ) {
+            return nullptr;
+        }
+        return LFortran::ASRUtils::STMT(ASR::make_ImplicitDeallocate_t(al, x->base.loc,
+                    del_syms.p, del_syms.size()));
     }
 
     void visit_Subroutine(const AST::Subroutine_t &x) {
@@ -2096,8 +2191,19 @@ public:
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
             if (tmp != nullptr) {
-                body.push_back(al, LFortran::ASRUtils::STMT(tmp));
+                ASR::stmt_t* tmp_stmt = LFortran::ASRUtils::STMT(tmp);
+                if( tmp_stmt->type == ASR::stmtType::SubroutineCall ) {
+                    ASR::stmt_t* impl_decl = create_implicit_deallocate_subrout_call(tmp_stmt);
+                    if( impl_decl != nullptr ) {
+                        body.push_back(al, impl_decl);
+                    }
+                }
+                body.push_back(al, tmp_stmt);
             }
+        }
+        ASR::stmt_t* impl_del = create_implicit_deallocate(x.base.base.loc);
+        if( impl_del != nullptr ) {
+            body.push_back(al, impl_del);
         }
         v->m_body = body.p;
         v->n_body = body.size();
@@ -2120,8 +2226,19 @@ public:
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
             if (tmp != nullptr) {
-                body.push_back(al, LFortran::ASRUtils::STMT(tmp));
+                ASR::stmt_t* tmp_stmt = LFortran::ASRUtils::STMT(tmp);
+                if( tmp_stmt->type == ASR::stmtType::SubroutineCall ) {
+                    ASR::stmt_t* impl_decl = create_implicit_deallocate_subrout_call(tmp_stmt);
+                    if( impl_decl != nullptr ) {
+                        body.push_back(al, impl_decl);
+                    }
+                }
+                body.push_back(al, tmp_stmt);
             }
+        }
+        ASR::stmt_t* impl_del = create_implicit_deallocate(x.base.base.loc);
+        if( impl_del != nullptr ) {
+            body.push_back(al, impl_del);
         }
         v->m_body = body.p;
         v->n_body = body.size();

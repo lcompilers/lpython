@@ -45,7 +45,8 @@ enum Platform {
 };
 
 enum ASRPass {
-    do_loops, global_stmts, implied_do_loops, array_op, arr_slice, print_arr
+    do_loops, global_stmts, implied_do_loops, array_op,
+    arr_slice, print_arr
 };
 
 std::string remove_extension(const std::string& filename) {

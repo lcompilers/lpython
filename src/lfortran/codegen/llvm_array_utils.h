@@ -238,6 +238,12 @@ namespace LFortran {
                 virtual
                 llvm::Value* get_single_element(llvm::Value* array,
                     std::vector<llvm::Value*>& m_args, int n_args) = 0;
+                
+                virtual
+                llvm::Value* get_is_allocated_flag(llvm::Value* array) = 0;
+
+                virtual
+                void set_is_allocated_flag(llvm::Value* array, uint64_t status) = 0;
 
         };
 
@@ -343,6 +349,12 @@ namespace LFortran {
                 virtual
                 llvm::Value* get_single_element(llvm::Value* array,
                     std::vector<llvm::Value*>& m_args, int n_args);
+                
+                virtual
+                llvm::Value* get_is_allocated_flag(llvm::Value* array);
+
+                virtual
+                void set_is_allocated_flag(llvm::Value* array, uint64_t status);
 
         };
 
