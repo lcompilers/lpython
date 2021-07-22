@@ -7,11 +7,11 @@ PROGRAM ASSOCIATE_04
     THETA = 1.5
     A = 0.4
 
-    ASSOCIATE ( Z => EXP(-(X**2+Y**2)) * COS(THETA), V => MYREAL)
-      PRINT *, A+Z, A-Z, V
-      V = V * 4.6
+    ASSOCIATE ( Z => -(X*2 + Y*2) * COS(THETA), V => MYREAL)
+        PRINT *, A + Z, A - Z, V
+        V = V * 4.6
     END ASSOCIATE
 
     PRINT *, MYREAL
 
-  END PROGRAM ASSOCIATE_04
+END PROGRAM ASSOCIATE_04

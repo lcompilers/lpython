@@ -1558,6 +1558,7 @@ public:
     Allocator &al;
     ASR::asr_t *asr, *tmp;
     SymbolTable *current_scope;
+    Vec<ASR::stmt_t*> *current_body;
     ASR::Module_t *current_module=nullptr;
     BodyVisitor(Allocator &al, ASR::asr_t *unit) : al{al}, asr{unit} {}
 
@@ -1864,6 +1865,28 @@ public:
         }
     }
 
+    void visit_AssociateBlock(const AST::AssociateBlock_t& x) {
+        SymbolTable* new_scope = al.make_new<SymbolTable>(current_scope);
+        for( size_t i = 0; i < x.n_syms; i++ ) {
+            this->visit_expr(*x.m_syms[i].m_initializer);
+            ASR::asr_t *v = ASR::make_Variable_t(al, x.base.base.loc, new_scope,
+                                                 x.m_syms[i].m_name, ASR::intentType::Local,
+                                                 LFortran::ASRUtils::EXPR(tmp), nullptr,
+                                                 ASR::storage_typeType::Default,
+                                                 nullptr, ASR::abiType::Source,
+                                                 ASR::accessType::Private,
+                                                 ASR::presenceType::Required);
+            new_scope->scope[x.m_syms[i].m_name] = ASR::down_cast<ASR::symbol_t>(v);
+        }
+        SymbolTable* current_scope_copy = current_scope;
+        current_scope = new_scope;
+        for( size_t i = 0; i < x.n_body; i++ ) {
+            this->visit_stmt(*x.m_body[i]);
+            current_body->push_back(al, LFortran::ASRUtils::STMT(tmp));
+        }
+        current_scope = current_scope_copy;
+    }
+
     void visit_Allocate(const AST::Allocate_t& x) {
         Vec<ASR::alloc_arg_t> alloc_args_vec;
         alloc_args_vec.reserve(al, x.n_args);
@@ -2117,6 +2140,7 @@ public:
         current_scope = v->m_symtab;
 
         Vec<ASR::stmt_t*> body;
+        current_body = &body;
         body.reserve(al, x.n_body);
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
