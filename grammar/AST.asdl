@@ -214,7 +214,7 @@ procedure_decl
     | Private()
 
 decl_attribute
-    = AttrBind(identifier name)
+    = AttrBind(bind bind)
     | AttrData(expr* object, expr* value)
     | AttrDimension(dimension* dim)
     | AttrCodimension(codimension* codim)

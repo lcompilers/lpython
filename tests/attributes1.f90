@@ -1,6 +1,9 @@
 program attributes1
+! test for AST(to fmt) only
 character (len = 4) :: a, b
 character, intent(in) :: str*(*)
+character(len=1,kind=c_char), target, &
+    bind(C,name="_binary_fclKernels_cl_start") :: fclKernelStart
 character (len = 3) :: c (2)
 integer, volatile :: d, e
 real, external :: g
