@@ -286,7 +286,7 @@ dimension_type = DimensionExpr | DimensionStar | AssumedRank
 codimension = (expr? start, expr? end, codimension_type end_star)
 codimension_type = CodimensionExpr | CodimensionStar
 
-symbol = None | Assign | Equal | Asterisk
+symbol = None | Assign | Equal | Asterisk | Slash
 
 equi = (expr* set_list)
 
