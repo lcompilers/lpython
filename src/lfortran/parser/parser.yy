@@ -5,7 +5,7 @@
 %locations
 %glr-parser
 %expect    621 // shift/reduce conflicts
-%expect-rr 102 // reduce/reduce conflicts
+%expect-rr 128 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -1281,6 +1281,7 @@ var_sym_decl_list
 
 var_sym_decl
     : id { $$ = VAR_SYM_NAME($1, None, @$); }
+    | "/" id "/" { $$ = VAR_SYM_NAME($2, Slash, @$); }
     | id "=" expr { $$ = VAR_SYM_DIM_INIT($1, nullptr, 0, $3, Equal, @$); }
     | id "=>" expr { $$ = VAR_SYM_DIM_INIT($1, nullptr, 0, $3, Arrow, @$); }
     | id "*" expr { $$ = VAR_SYM_DIM_INIT($1, nullptr, 0, $3, Asterisk, @$); }

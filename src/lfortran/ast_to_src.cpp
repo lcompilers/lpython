@@ -92,6 +92,7 @@ namespace {
             case (AST::symbolType::Equal) : return " = ";
             case (AST::symbolType::Asterisk) : return " *";
             case (AST::symbolType::DoubleAsterisk) : return "*(*)";
+            case (AST::symbolType::Slash) : return "/";
         }
         throw LFortranException("Unknown type");
     }
@@ -1014,7 +1015,11 @@ public:
 
     void visit_var_sym(const var_sym_t &x) {
         std::string r = "";
-        if(x.m_name){
+        if(x.m_name && x.m_sym == Slash){
+            r += "/";
+            r.append(x.m_name);
+            r += "/";
+        } else if(x.m_name) {
             r.append(x.m_name);
             if(x.m_sym == DoubleAsterisk) {
                 r += symbol2str(x.m_sym);
