@@ -140,7 +140,7 @@ static inline Vec<kind_item_t> a2kind_list(Allocator &al,
 #define INTENT(x, l) make_AttrIntent_t( \
             p.m_a, l, attr_intentType::x)
 #define BIND(x, l) make_AttrBind_t( \
-            p.m_a, l, name2char(x))
+            p.m_a, l, bind_opt(x))
 #define EXTENDS(x, l) make_AttrExtends_t( \
             p.m_a, l, name2char(x))
 #define DIMENSION(x, l) make_AttrDimension_t( \

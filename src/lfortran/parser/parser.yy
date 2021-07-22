@@ -1242,7 +1242,7 @@ var_modifier
     | KW_VALUE { $$ = SIMPLE_ATTR(Value, @$); }
     | KW_VOLATILE { $$ = SIMPLE_ATTR(Volatile, @$); }
     | KW_EXTENDS "(" id ")" { $$ = EXTENDS($3, @$); }
-    | KW_BIND "(" id ")" { $$ = BIND($3, @$); }
+    | bind { $$ = BIND($1, @$); }
     ;
 
 
@@ -1552,9 +1552,9 @@ if_statement
     ;
 
 if_statement_single
-    : KW_IF "(" expr ")" single_line_statement { 
+    : KW_IF "(" expr ")" single_line_statement {
             $$ = IFSINGLE($3, $5, @$); }
-    | KW_IF "(" expr ")" TK_INTEGER "," TK_INTEGER "," TK_INTEGER { 
+    | KW_IF "(" expr ")" TK_INTEGER "," TK_INTEGER "," TK_INTEGER {
             $$ = IFARITHMETIC($3, INTEGER3($5), INTEGER3($7), INTEGER3($9), @$); }
     ;
 
