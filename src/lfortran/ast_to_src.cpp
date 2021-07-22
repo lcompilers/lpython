@@ -88,9 +88,10 @@ namespace {
     {
         switch (type) {
             case (AST::symbolType::None) : return "";
-            case (AST::symbolType::Assign) : return " => ";
+            case (AST::symbolType::Arrow) : return " => ";
             case (AST::symbolType::Equal) : return " = ";
             case (AST::symbolType::Asterisk) : return " *";
+            case (AST::symbolType::DoubleAsterisk) : return "*(*)";
             case (AST::symbolType::Slash) : return "/";
         }
         throw LFortranException("Unknown type");
@@ -606,6 +607,9 @@ public:
 
     void visit_Interface(const Interface_t &x) {
         std::string r;
+        if(x.m_header->type == AbstractInterfaceHeader) {
+            r += "abstract ";
+        }
         r += syn(gr::UnitHeader);
         r.append("interface");
         r += syn();
@@ -1017,6 +1021,9 @@ public:
             r += "/";
         } else if(x.m_name) {
             r.append(x.m_name);
+            if(x.m_sym == DoubleAsterisk) {
+                r += symbol2str(x.m_sym);
+            }
         }
         if (x.n_dim > 0) {
             r.append("(");
@@ -1254,6 +1261,8 @@ public:
         }
         if (x.m_sym == symbolType::Asterisk) {
             r.append("(*)");
+        } else if(x.m_sym == symbolType::DoubleAsterisk){
+            r.append("*(*)");
         }
         s = r;
     }
@@ -1394,6 +1403,17 @@ public:
         r += " = ";
         this->visit_expr(*x.m_value);
         r.append(s);
+        s = r;
+    }
+
+    void visit_Assign(const Assign_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r.append("assign");
+        r += " " + std::to_string(x.m_assign_label);
+        r += " to ";
+        r += x.m_variable;
+        r += "\n";
         s = r;
     }
 
@@ -1610,6 +1630,24 @@ public:
         r += syn(gr::Conditional);
         r += "end if";
         r += syn();
+        r += "\n";
+        s = r;
+    }
+
+    void visit_IfArithmetic(const IfArithmetic_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += print_stmt_name(x);
+        r += syn(gr::Conditional);
+        r += "if";
+        r += syn();
+        r += " (";
+        this->visit_expr(*x.m_test);
+        r += s;
+        r += ") ";
+        r += std::to_string(x.m_lt_label);
+        r += ", " + std::to_string(x.m_eq_label);
+        r += ", " + std::to_string(x.m_gt_label);
         r += "\n";
         s = r;
     }
@@ -2224,7 +2262,19 @@ public:
         r += syn();
         r += " ";
         if (x.m_fmt) {
-            r += "\"(" + replace(x.m_fmt, "\"", "\"\"") + ")\"";
+            this->visit_expr(*x.m_fmt);
+            if(x.m_fmt->type == exprType::String ) {
+                if(s[0] == '"' || s[0] == '\'') {
+                    s.insert(1, "(");
+                    s.insert(s.size()-1, ")");
+                } else {
+                    s.insert(6, "(");
+                    s.insert(s.size()-6, ")");
+                }
+                r.append(s);
+            } else {
+                r.append(s);
+            }
         } else {
             r += "*";
         }
@@ -2286,29 +2336,41 @@ public:
         r += syn(gr::Keyword);
         r += "read";
         r += syn();
-        r += "(";
-        for (size_t i=0; i<x.n_args; i++) {
-            if (x.m_args[i].m_value == nullptr) {
-                r += "*";
-            } else {
-                this->visit_expr(*x.m_args[i].m_value);
-                r += s;
-            }
-            if (i < x.n_args-1 || x.n_kwargs > 0) r += ", ";
+        if (x.m_format) {
+            r += " ";
+            this->visit_expr(*x.m_format);
+            r.append(s);
         }
-        for (size_t i=0; i<x.n_kwargs; i++) {
-            r += x.m_kwargs[i].m_arg;
-            r += "=";
-            if (x.m_kwargs[i].m_value == nullptr) {
-                r += "*";
-            } else {
-                this->visit_expr(*x.m_kwargs[i].m_value);
-                r += s;
+        if(x.n_args || x.n_kwargs) {
+            r += "(";
+            for (size_t i=0; i<x.n_args; i++) {
+                if (x.m_args[i].m_value == nullptr) {
+                    r += "*";
+                } else {
+                    this->visit_expr(*x.m_args[i].m_value);
+                    r += s;
+                }
+                if (i < x.n_args-1 || x.n_kwargs > 0) r += ", ";
             }
-            if (i < x.n_kwargs-1) r += ", ";
+            for (size_t i=0; i<x.n_kwargs; i++) {
+                r += x.m_kwargs[i].m_arg;
+                r += "=";
+                if (x.m_kwargs[i].m_value == nullptr) {
+                    r += "*";
+                } else {
+                    this->visit_expr(*x.m_kwargs[i].m_value);
+                    r += s;
+                }
+                if (i < x.n_kwargs-1) r += ", ";
+            }
+            r += ")";
+        } else if(!x.m_format) {
+            r += " *,";
         }
-        r += ")";
         if (x.n_values > 0) {
+            if (x.m_format) {
+                r += ",";
+            }
             r += " ";
             for (size_t i=0; i<x.n_values; i++) {
                 this->visit_expr(*x.m_values[i]);
@@ -2472,6 +2534,29 @@ public:
         r += print_label(x);
         r += syn(gr::Keyword);
         r += "flush";
+        r += syn();
+        r += "(";
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_expr(*x.m_args[i]);
+            r += s;
+            if (i < x.n_args-1 || x.n_kwargs > 0) r += ", ";
+        }
+        for (size_t i=0; i<x.n_kwargs; i++) {
+            r += x.m_kwargs[i].m_arg;
+            r += "=";
+            this->visit_expr(*x.m_kwargs[i].m_value);
+            r += s;
+            if (i < x.n_kwargs-1) r += ", ";
+        }
+        r += ")\n";
+        s = r;
+    }
+
+    void visit_Endfile(const Endfile_t &x) {
+        std::string r=indent;
+        r += print_label(x);
+        r += syn(gr::Keyword);
+        r += "endfile";
         r += syn();
         r += "(";
         for (size_t i=0; i<x.n_args; i++) {
@@ -2772,6 +2857,7 @@ public:
         s += "\"" + std::string(x.m_s) + "\"";
         s += syn();
     }
+
 
     void visit_Complex(const Complex_t &x){
         std::string r;

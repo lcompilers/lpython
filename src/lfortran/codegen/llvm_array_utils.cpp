@@ -100,7 +100,12 @@ namespace LFortran {
         }
 
         bool SimpleCMODescriptor::is_array(llvm::Value* tmp) {
-            llvm::Type* tmp_type = static_cast<llvm::PointerType*>(tmp->getType())->getElementType();
+            llvm::Type* tmp_type = nullptr;
+            if( tmp->getType()->isPointerTy() ) {
+                tmp_type = static_cast<llvm::PointerType*>(tmp->getType())->getElementType();
+            } else {
+                tmp_type = tmp->getType();
+            }
             if( tmp_type->isStructTy() ) {
                 llvm::StructType* tmp_struct_type = static_cast<llvm::StructType*>(tmp_type);
                 if( tmp_struct_type->getNumElements() > 2 && 
@@ -124,8 +129,10 @@ namespace LFortran {
             llvm::StructType* tmp_struct_type = static_cast<llvm::StructType*>(tmp_type);
             if( tmp_struct_type->getElementType(0)->isArrayTy() ) {
                 first_ele_ptr = llvm_utils->create_gep(get_pointer_to_data(tmp), 0);
-            } else {
+            } else if( tmp_struct_type->getNumElements() < 4 ) {
                 first_ele_ptr = builder->CreateLoad(get_pointer_to_data(tmp));
+            } else if( tmp_struct_type->getNumElements() == 4 ) {
+                return tmp;
             }
             llvm::Value* first_arg_ptr = llvm_utils->create_gep(arg_struct, 0);
             builder->CreateStore(first_ele_ptr, first_arg_ptr);
@@ -134,7 +141,7 @@ namespace LFortran {
             builder->CreateStore(sec_ele_ptr, sec_arg_ptr);   
             llvm::Value* third_ele_ptr = builder->CreateLoad(
                 get_pointer_to_dimension_descriptor_array(tmp));
-            llvm::Value* third_arg_ptr = llvm_utils->create_gep(arg_struct, 2); 
+            llvm::Value* third_arg_ptr = llvm_utils->create_gep(arg_struct, 2);
             builder->CreateStore(third_ele_ptr, third_arg_ptr);
             return arg_struct;
         }
@@ -148,19 +155,25 @@ namespace LFortran {
                 llvm::ArrayType* arr_type = static_cast<llvm::ArrayType*>(type_struct->getElementType(0));
                 llvm::Type* ele_type = arr_type->getElementType();
                 first_ele_ptr_type = ele_type->getPointerTo();
-            } else if( type_struct->getElementType(0)->isPointerTy() ) {
+            } else if( type_struct->getElementType(0)->isPointerTy() &&
+                       type_struct->getNumElements() < 4 ) {
                 first_ele_ptr_type = type_struct->getElementType(0);
+            } else if( type_struct->getElementType(0)->isPointerTy() &&
+                       type_struct->getNumElements() == 4 ) {
+                arr_arg_type_cache[m_h][std::string(arg_name)] = type;
+                return type->getPointerTo();
             }
             llvm::Type* new_arr_type = nullptr;
 
             if( arr_arg_type_cache.find(m_h) == arr_arg_type_cache.end() || (
                 arr_arg_type_cache.find(m_h) != arr_arg_type_cache.end() && 
                 arr_arg_type_cache[m_h].find(std::string(arg_name)) == arr_arg_type_cache[m_h].end() ) ) {
-                new_arr_type = llvm::StructType::create(context, std::vector<llvm::Type*>({first_ele_ptr_type,
-                                                                                            static_cast<llvm::StructType*>(type)->getElementType(1),
-                                                                                            static_cast<llvm::StructType*>(type)->getElementType(2)      
-                                                                                            }), "array_call");
-                arr_arg_type_cache[m_h][std::string(arg_name)] = new_arr_type;    
+                std::vector<llvm::Type*> arg_des = {first_ele_ptr_type};
+                for( size_t i = 1; i < type_struct->getNumElements(); i++ ) {
+                    arg_des.push_back(static_cast<llvm::StructType*>(type)->getElementType(i));
+                }
+                new_arr_type = llvm::StructType::create(context, arg_des, "array_call");
+                arr_arg_type_cache[m_h][std::string(arg_name)] = new_arr_type;
             } else {
                 new_arr_type = arr_arg_type_cache[m_h][std::string(arg_name)];
             }
@@ -230,7 +243,8 @@ namespace LFortran {
             std::vector<llvm::Type*> array_type_vec = {
                 el_type->getPointerTo(), 
                 llvm::Type::getInt32Ty(context),
-                dim_des_array};
+                dim_des_array,
+                llvm::Type::getInt1Ty(context)};
             tkr2mallocarray[array_key] = llvm::StructType::create(context, array_type_vec, "array");
             if( get_pointer ) {
                 return tkr2mallocarray[array_key]->getPointerTo();
@@ -318,7 +332,9 @@ namespace LFortran {
         llvm::Module* module) {
             llvm::Value* num_elements = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
             llvm::Value* offset_val = llvm_utils->create_gep(arr, 1);
-            builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), offset_val);
+            builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), 
+                                    offset_val);
+            set_is_allocated_flag(arr, 1);
             llvm::Value* dim_des_val = llvm_utils->create_gep(arr, 2);
             for( int r = 0; r < n_dims; r++ ) {
                 llvm::Value* dim_val = llvm_utils->create_gep(dim_des_val, r);
@@ -428,6 +444,16 @@ namespace LFortran {
                 tmp = llvm_utils->create_ptr_gep(builder->CreateLoad(full_array), idx);
             }
             return tmp;
+        }
+
+        llvm::Value* SimpleCMODescriptor::get_is_allocated_flag(llvm::Value* array) {
+            return builder->CreateLoad(llvm_utils->create_gep(array, 3));
+        }
+
+        void SimpleCMODescriptor::set_is_allocated_flag(llvm::Value* array, uint64_t status) {
+            llvm::Value* is_allocated_flag = llvm_utils->create_gep(array, 3);
+            builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(1, status)), 
+                                    is_allocated_flag);
         }
 
     } // LLVMArrUtils

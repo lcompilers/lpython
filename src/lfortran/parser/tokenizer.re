@@ -199,6 +199,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'all' { KW(ALL) }
             'allocatable' { KW(ALLOCATABLE) }
             'allocate' { KW(ALLOCATE) }
+            'assign' { KW(ASSIGN) }
             'assignment' { KW(ASSIGNMENT) }
             'associate' { KW(ASSOCIATE) }
             'asynchronous' { KW(ASYNCHRONOUS) }
@@ -305,6 +306,9 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
 
             'end' whitespace 'where' { KW(END_WHERE) }
             'endwhere' { KW(ENDWHERE) }
+
+            'end file' { KW(END_FILE) }
+            'endfile' { KW(ENDFILE) }
 
             'entry' { KW(ENTRY) }
             'enum' { KW(ENUM) }

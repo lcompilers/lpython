@@ -1,5 +1,6 @@
 program attributes1
 character (len = 4) :: a, b
+character, intent(in) :: str*(*)
 character (len = 3) :: c (2)
 integer, volatile :: d, e
 real, external :: g

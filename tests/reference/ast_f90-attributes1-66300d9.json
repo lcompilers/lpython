@@ -2,11 +2,11 @@
     "basename": "ast_f90-attributes1-66300d9",
     "cmd": "lfortran --show-ast-f90 --no-color {infile}",
     "infile": "tests/attributes1.f90",
-    "infile_hash": "42584285a3eadf5fdbd2d523d659e5e6ab546f9b78dca9b71b19ef17",
+    "infile_hash": "63e1c07b8b85d825fbd59857f13f2ccdd5ab1746297f660e9f0819c1",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast_f90-attributes1-66300d9.stdout",
-    "stdout_hash": "53a9205158b34c51e4f903713397448fb92d46f44ad1171bd11214f2",
+    "stdout_hash": "a0bf230a3e68cd7e27913fc0b2994115398b0729c333e5344df31330",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

@@ -11,6 +11,7 @@ module class_Circle
   end type Circle
 contains
   function circle_area(this) result(area)
+    ! F2003 standard 4.5.3.3 passed object dummy argument
     class(Circle), intent(in) :: this
     real :: area
     area = pi * this%radius**2

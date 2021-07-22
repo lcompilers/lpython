@@ -2,11 +2,11 @@
     "basename": "ast_f90-derived_types_02-03b33c1",
     "cmd": "lfortran --show-ast-f90 --no-color {infile}",
     "infile": "tests/derived_types_02.f90",
-    "infile_hash": "6235bcb389639a575f071e2947212a72827a80df97c91dced2b9ef78",
+    "infile_hash": "b31d3dbfa2c290d744f6648caf15f3aee335edf44f72c00c20c903d2",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast_f90-derived_types_02-03b33c1.stdout",
-    "stdout_hash": "794d79e2a84a6cbf7e60de24cddc2008d1afa87b12093ddb04fa1c7e",
+    "stdout_hash": "9bd1bfe5c7a781e49358406c2653751e660cd5d2c114883ef6f9c215",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

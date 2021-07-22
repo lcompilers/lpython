@@ -1,0 +1,13 @@
+{
+    "basename": "ast_f90-assign-8cff064",
+    "cmd": "lfortran --show-ast-f90 --no-color {infile}",
+    "infile": "tests/assign.f90",
+    "infile_hash": "67fee149907196a73ab4db43412dfbf29304c02aa5f1ce2da476423e",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_f90-assign-8cff064.stdout",
+    "stdout_hash": "a4031c58a54999ef11c4056f966556288b03894297d8b16bf4317ca8",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
