@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    621 // shift/reduce conflicts
+%expect    780 // shift/reduce conflicts
 %expect-rr 102 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -1148,9 +1148,9 @@ data_object
     : id { $$ = $1; }
     | struct_member_star id { NAME1($$, $2, $1, @$); }
     | id "(" fnarray_arg_list_opt ")" { $$ = FUNCCALLORARRAY($1, $3, @$); }
-    | "(" data_object "," integer_type id "=" expr "," expr ")" {
+    | "(" data_object_list "," integer_type id "=" expr "," expr ")" {
             $$ = DATA_IMPLIED_DO1($2, $4, $5, $7, $9, @$); }
-    | "(" data_object "," integer_type id "=" expr "," expr "," expr ")" {
+    | "(" data_object_list "," integer_type id "=" expr "," expr "," expr ")" {
             $$ = DATA_IMPLIED_DO2($2, $4, $5, $7, $9, $11, @$); }
     ;
 
