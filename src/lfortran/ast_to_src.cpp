@@ -1299,14 +1299,7 @@ public:
     }
 
     void visit_AttrBind(const AttrBind_t &x) {
-        std::string r;
-        r += syn(gr::Type);
-        r += "bind";
-        r += syn();
-        r += "(";
-        r.append(x.m_name);
-        r += ")";
-        s = r;
+        visit_bind(*x.m_bind);
     }
 
     void visit_AttrExtends(const AttrExtends_t &x) {
