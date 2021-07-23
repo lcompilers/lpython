@@ -26,25 +26,25 @@ macro(COPYFILE filename)
 endmacro(COPYFILE)
 
 
-# ADDTEST(test_parse p::doctest)
-# ADDTEST(test_ast p::doctest)
+ADDTEST(test_parse p::doctest)
+ADDTEST(test_ast p::doctest)
 ADDTESTC(test_cwrapper)
 
-# ADDTEST(test_pickle p::doctest)
+ADDTEST(test_pickle p::doctest)
 COPYFILE(ref_pickle.txt)
 
-# ADDTEST(x)
+ADDTEST(x)
 if (WITH_JSON)
-    # ADDTEST(test_ast_to_json p::doctest)
+    ADDTEST(test_ast_to_json p::doctest)
 endif()
 if (WITH_LLVM)
-    # ADDTEST(test_llvm p::doctest)
+    ADDTEST(test_llvm p::doctest)
 endif()
 
-# ADDTEST(test_stacktrace)
+ADDTEST(test_stacktrace)
 
-# ADDTEST(test_stacktrace2 p::doctest)
+ADDTEST(test_stacktrace2 p::doctest)
 
-# ADDTEST(test_asm p::doctest)
+ADDTEST(test_asm p::doctest)
 
-# ADDTEST(test_serialization p::doctest)
+ADDTEST(test_serialization p::doctest)
