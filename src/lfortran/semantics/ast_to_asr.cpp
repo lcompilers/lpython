@@ -1870,7 +1870,7 @@ public:
         for( size_t i = 0; i < x.n_syms; i++ ) {
             this->visit_expr(*x.m_syms[i].m_initializer);
             ASR::asr_t *v = ASR::make_Variable_t(al, x.base.base.loc, new_scope,
-                                                 x.m_syms[i].m_name, ASR::intentType::Local,
+                                                 x.m_syms[i].m_name, ASR::intentType::AssociateBlock,
                                                  LFortran::ASRUtils::EXPR(tmp), nullptr,
                                                  ASR::storage_typeType::Default,
                                                  nullptr, ASR::abiType::Source,
@@ -2499,7 +2499,8 @@ public:
         }
         if( v->type == ASR::symbolType::Variable ) {
             ASR::Variable_t* v_var = ASR::down_cast<ASR::Variable_t>(v);
-            if( v_var->m_type == nullptr ) {
+            if( v_var->m_type == nullptr && 
+                v_var->m_intent == ASR::intentType::AssociateBlock ) {
                 return (ASR::asr_t*)(v_var->m_symbolic_value);
             }
         }
@@ -2905,6 +2906,13 @@ public:
                 }
 
                 ASR::ttype_t *type;
+                ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(v);
+                if( var->m_type == nullptr &&
+                    var->m_intent == ASR::intentType::AssociateBlock ) {
+                    ASR::expr_t* orig_expr = var->m_symbolic_value;
+                    ASR::Var_t* orig_Var = ASR::down_cast<ASR::Var_t>(orig_expr);
+                    v = orig_Var->m_v;
+                }
                 type = ASR::down_cast<ASR::Variable_t>(v)->m_type;
                 tmp = ASR::make_ArrayRef_t(al, x.base.base.loc,
                     v, args.p, args.size(), type, nullptr);

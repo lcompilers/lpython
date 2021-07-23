@@ -269,6 +269,7 @@ RUN(NAME block_02 LABELS gfortran)
 RUN(NAME associate_01 LABELS gfortran)
 RUN(NAME associate_02 LABELS gfortran llvm)
 RUN(NAME associate_03 LABELS gfortran llvm)
+RUN(NAME associate_04 LABELS gfortran llvm)
 
 RUN(NAME real_dp LABELS gfortran llvm)
 RUN(NAME bin_op_real_dp LABELS gfortran llvm)

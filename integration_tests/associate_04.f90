@@ -1,17 +1,19 @@
-PROGRAM ASSOCIATE_04
+program associate_04
 
-    REAL :: MYREAL, X, Y, THETA, A
-    X = 0.42
-    Y = 0.35
-    MYREAL = 9.1
-    THETA = 1.5
-    A = 0.4
+    real :: myreal, x, y, theta, a
+    x = 0.42
+    y = 0.35
+    myreal = 9.1
+    theta = 1.5
+    a = 0.4
 
-    ASSOCIATE ( Z => -(X*2 + Y*2) * COS(THETA), V => MYREAL)
-        PRINT *, A + Z, A - Z, V
-        V = V * 4.6
-    END ASSOCIATE
+    associate ( z => -(x*2 + y*2) * cos(theta), v => myreal)
+        print *, a + z, a - z, v
+        v = v * 4.6
+    end associate
 
-    PRINT *, MYREAL
+    print *, myreal
 
-END PROGRAM ASSOCIATE_04
+    if ((myreal - 41.86) > 1e-5 .or. myreal - 41.86 < -1e-5) error stop 
+
+end program associate_04

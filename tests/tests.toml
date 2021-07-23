@@ -703,6 +703,11 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "../integration_tests/associate_04.f90"
+asr = true
+llvm = true
+
+[[test]]
 filename = "write1.f90"
 ast = true
 ast_f90 = true

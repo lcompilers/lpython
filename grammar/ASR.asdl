@@ -99,7 +99,7 @@ symbol
 
 storage_type = Default | Save | Parameter | Allocatable
 access = Public | Private
-intent = Local | In | Out | InOut | ReturnVar | Unspecified
+intent = Local | In | Out | InOut | ReturnVar | Unspecified | AssociateBlock
 deftype = Implementation | Interface
 presence = Required | Optional
 
