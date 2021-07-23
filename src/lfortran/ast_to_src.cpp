@@ -561,6 +561,51 @@ public:
         }
         s = r;
     }
+
+    void visit_GenericWrite(const GenericWrite_t &x) {
+        std::string r;
+        r += syn(gr::String);
+        r.append("generic");
+        r += syn();
+        if(x.n_attr > 0 && x.m_attr[0] != nullptr){
+            r += ", ";
+            this->visit_decl_attribute(*x.m_attr[0]);
+            r.append(s);
+        }
+        r += " :: ";
+        r += "write(";
+        r.append(x.m_id);
+        r += ")";
+        r += " => ";
+        for (size_t i=0; i<x.n_names; i++) {
+            r.append(x.m_names[i]);
+            if (i < x.n_names-1) r.append(", ");
+        }
+        s = r;
+    }
+
+    void visit_GenericRead(const GenericRead_t &x) {
+        std::string r;
+        r += syn(gr::String);
+        r.append("generic");
+        r += syn();
+        if(x.n_attr > 0 && x.m_attr[0] != nullptr){
+            r += ", ";
+            this->visit_decl_attribute(*x.m_attr[0]);
+            r.append(s);
+        }
+        r += " :: ";
+        r += "read(";
+        r.append(x.m_id);
+        r += ")";
+        r += " => ";
+        for (size_t i=0; i<x.n_names; i++) {
+            r.append(x.m_names[i]);
+            if (i < x.n_names-1) r.append(", ");
+        }
+        s = r;
+    }
+
     void visit_FinalName(const FinalName_t &x) {
         std::string r;
         r += syn(gr::String);
@@ -658,6 +703,17 @@ public:
     void visit_AbstractInterfaceHeader
             (const AbstractInterfaceHeader_t &/* x */) {
         s = "";
+    }
+
+    void visit_InterfaceHeaderWrite(const InterfaceHeaderWrite_t &x) {
+        s = " write(";
+        s.append(x.m_id);
+        s += ")";
+    }
+    void visit_InterfaceHeaderRead(const InterfaceHeaderRead_t &x) {
+        s = " read(";
+        s.append(x.m_id);
+        s += ")";
     }
 
     void visit_InterfaceModuleProcedure(const InterfaceModuleProcedure_t &x) {
@@ -3145,6 +3201,18 @@ public:
     void visit_DefinedOperator(const DefinedOperator_t &x) {
         s = "operator (." + std::string(x.m_opName) + ".)";
     }
+
+    void visit_UseWrite(const UseWrite_t &x) {
+        s = "write(";
+        s.append(x.m_id);
+        s += ")";
+    }
+    void visit_UseRead(const UseRead_t &x) {
+        s = "read(";
+        s.append(x.m_id);
+        s += ")";
+    }
+
 
     void visit_Select(const Select_t &x) {
         std::string r = indent;

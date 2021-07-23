@@ -74,6 +74,8 @@ interface_header
     | InterfaceHeaderOperator(intrinsicop op)
     | InterfaceHeaderDefinedOperator(string operator_name)
     | AbstractInterfaceHeader()
+    | InterfaceHeaderWrite(identifier id)
+    | InterfaceHeaderRead(identifier id)
 
 interface_item
     = InterfaceProc(program_unit proc)
@@ -210,6 +212,8 @@ procedure_decl
         identifier* names)
     | GenericAssignment(decl_attribute* attr, identifier* names)
     | GenericName(decl_attribute* attr, identifier name, identifier* names)
+    | GenericWrite(decl_attribute* attr, identifier id, identifier* names)
+    | GenericRead(decl_attribute* attr, identifier id, identifier* names)
     | FinalName(identifier name)
     | Private()
 
@@ -366,6 +370,8 @@ use_symbol
     | IntrinsicOperator(intrinsicop op)
     | DefinedOperator(string opName)
     | RenameOperator(string local_defop, string use_defop)
+    | UseWrite(identifier id)
+    | UseRead(identifier id)
 
 concurrent_control = ConcurrentControl(identifier? var, expr? start, expr? end, expr? increment)
 
