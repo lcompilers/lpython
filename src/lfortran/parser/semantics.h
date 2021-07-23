@@ -1788,7 +1788,14 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         down_cast<program_unit_t>(proc))
 
 #define DERIVED_TYPE(attr, name, decl, contains, l) make_DerivedType_t(p.m_a, l, \
-        name2char(name), VEC_CAST(attr, decl_attribute), attr.size(),  \
+        name2char(name), nullptr, 0, \
+        VEC_CAST(attr, decl_attribute), attr.size(),  \
+        DECLS(decl), decl.size(), \
+        VEC_CAST(contains, procedure_decl), contains.size())
+#define DERIVED_TYPE1(attr, name, namelist, decl, contains, l) \
+        make_DerivedType_t(p.m_a, l, name2char(name), \
+        REDUCE_ARGS(p.m_a, namelist), namelist.size(), \
+        VEC_CAST(attr, decl_attribute), attr.size(),  \
         DECLS(decl), decl.size(), \
         VEC_CAST(contains, procedure_decl), contains.size())
 
