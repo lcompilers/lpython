@@ -17,4 +17,5 @@ procedure, pass :: name => sample
 end type details
 intrinsic :: sin, cos
 double precision, intent(in) :: x(..)
+save :: /zzrayc/
 end program attributes1
