@@ -1,3 +1,4 @@
+! Reference - https://www.ibm.com/docs/en/xffbg/121.141?topic=control-associate-construct-fortran-2003
 program associate_04
 
     real :: myreal, x, y, theta, a
