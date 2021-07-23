@@ -561,6 +561,51 @@ public:
         }
         s = r;
     }
+
+    void visit_GenericWrite(const GenericWrite_t &x) {
+        std::string r;
+        r += syn(gr::String);
+        r.append("generic");
+        r += syn();
+        if(x.n_attr > 0 && x.m_attr[0] != nullptr){
+            r += ", ";
+            this->visit_decl_attribute(*x.m_attr[0]);
+            r.append(s);
+        }
+        r += " :: ";
+        r += "write(";
+        r.append(x.m_id);
+        r += ")";
+        r += " => ";
+        for (size_t i=0; i<x.n_names; i++) {
+            r.append(x.m_names[i]);
+            if (i < x.n_names-1) r.append(", ");
+        }
+        s = r;
+    }
+
+    void visit_GenericRead(const GenericRead_t &x) {
+        std::string r;
+        r += syn(gr::String);
+        r.append("generic");
+        r += syn();
+        if(x.n_attr > 0 && x.m_attr[0] != nullptr){
+            r += ", ";
+            this->visit_decl_attribute(*x.m_attr[0]);
+            r.append(s);
+        }
+        r += " :: ";
+        r += "read(";
+        r.append(x.m_id);
+        r += ")";
+        r += " => ";
+        for (size_t i=0; i<x.n_names; i++) {
+            r.append(x.m_names[i]);
+            if (i < x.n_names-1) r.append(", ");
+        }
+        s = r;
+    }
+
     void visit_FinalName(const FinalName_t &x) {
         std::string r;
         r += syn(gr::String);

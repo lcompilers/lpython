@@ -676,6 +676,10 @@ procedure_decl
             $$ = GENERIC_ASSIGNMENT($2, $8, @$); }
     | KW_GENERIC access_spec_list id "=>" id_list sep {
             $$ = GENERIC_NAME($2, $3, $5, @$); }
+    | KW_GENERIC access_spec_list KW_WRITE "(" id ")" "=>" id_list sep {
+            $$ = GENERIC_WRITE($2, $5, $8, @$); }
+    | KW_GENERIC access_spec_list KW_READ "(" id ")" "=>" id_list sep {
+            $$ = GENERIC_READ($2, $5, $8, @$); }
     | KW_FINAL "::" id sep { $$ = FINAL_NAME($3, @$); }
     | KW_PRIVATE sep { $$ = PRIVATE(Private, @$); }
     ;

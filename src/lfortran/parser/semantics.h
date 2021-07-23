@@ -1811,6 +1811,12 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 #define GENERIC_NAME(attr, name, namelist, l) make_GenericName_t(p.m_a, l, \
         VEC_CAST(attr, decl_attribute), attr.size(), \
         name2char(name), REDUCE_ARGS(p.m_a, namelist), namelist.size())
+#define GENERIC_WRITE(attr, id, namelist, l) make_GenericWrite_t(p.m_a, l, \
+        VEC_CAST(attr, decl_attribute), attr.size(), name2char(id), \
+        REDUCE_ARGS(p.m_a, namelist), namelist.size())
+#define GENERIC_READ(attr, id, namelist, l) make_GenericRead_t(p.m_a, l, \
+        VEC_CAST(attr, decl_attribute), attr.size(), name2char(id), \
+        REDUCE_ARGS(p.m_a, namelist), namelist.size())
 #define FINAL_NAME(name, l) make_FinalName_t(p.m_a, l, name2char(name))
 #define PRIVATE(syms, l) make_Private_t(p.m_a, l)
 
