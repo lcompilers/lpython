@@ -24,6 +24,8 @@ program use_statement
     use example, only: operator (.and.)
     use example, only: operator (.eqv.)
     use example, only: operator (.dot.)
+    use example, only: write(formatted)
+    use example, only: read(unformatted)
     use example, only:
     use example, operator (.localDefop.) => operator (.useDefop.), a => b
 end

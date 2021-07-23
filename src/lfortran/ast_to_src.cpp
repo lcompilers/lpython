@@ -660,6 +660,17 @@ public:
         s = "";
     }
 
+    void visit_InterfaceHeaderWrite(const InterfaceHeaderWrite_t &x) {
+        s = " write(";
+        s.append(x.m_id);
+        s += ")";
+    }
+    void visit_InterfaceHeaderRead(const InterfaceHeaderRead_t &x) {
+        s = " read(";
+        s.append(x.m_id);
+        s += ")";
+    }
+
     void visit_InterfaceModuleProcedure(const InterfaceModuleProcedure_t &x) {
         std::string r = indent;
         for (size_t i=0; i<x.n_attributes; i++) {
@@ -3145,6 +3156,18 @@ public:
     void visit_DefinedOperator(const DefinedOperator_t &x) {
         s = "operator (." + std::string(x.m_opName) + ".)";
     }
+
+    void visit_UseWrite(const UseWrite_t &x) {
+        s = "write(";
+        s.append(x.m_id);
+        s += ")";
+    }
+    void visit_UseRead(const UseRead_t &x) {
+        s = "read(";
+        s.append(x.m_id);
+        s += ")";
+    }
+
 
     void visit_Select(const Select_t &x) {
         std::string r = indent;

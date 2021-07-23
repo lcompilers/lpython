@@ -1720,6 +1720,8 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         def_op_to_str(p.m_a, optype))
 #define RENAME_OPERATOR(op1, op2, l) make_RenameOperator_t(p.m_a, l, \
         def_op_to_str(p.m_a, op1), def_op_to_str(p.m_a, op2))
+#define USE_WRITE(x, l) make_UseWrite_t(p.m_a, l, name2char(x))
+#define USE_READ(x, l) make_UseRead_t(p.m_a, l, name2char(x))
 
 
 #define MODULE(name, use, implicit, decl, contains, l) make_Module_t(p.m_a, l, \
@@ -1767,6 +1769,8 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 #define INTERFACE_HEADER_DEFOP(op, l) make_InterfaceHeaderDefinedOperator_t( \
         p.m_a, l, def_op_to_str(p.m_a, op))
 #define ABSTRACT_INTERFACE_HEADER(l) make_AbstractInterfaceHeader_t(p.m_a, l)
+#define INTERFACE_HEADER_WRITE(x, l) make_InterfaceHeaderWrite_t(p.m_a, l, name2char(x))
+#define INTERFACE_HEADER_READ(x, l) make_InterfaceHeaderRead_t(p.m_a, l, name2char(x))
 
 #define OPERATOR(op, l) intrinsicopType::op
 
