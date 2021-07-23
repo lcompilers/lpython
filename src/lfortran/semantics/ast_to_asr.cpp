@@ -1882,8 +1882,13 @@ public:
         current_scope = new_scope;
         for( size_t i = 0; i < x.n_body; i++ ) {
             this->visit_stmt(*x.m_body[i]);
-            current_body->push_back(al, LFortran::ASRUtils::STMT(tmp));
+            if( tmp != nullptr ) {
+                current_body->push_back(al, LFortran::ASRUtils::STMT(tmp));
+            }
+            // To avoid last statement to be entered twice once we exit this node
+            tmp = nullptr;
         }
+        current_scope->scope.clear();
         current_scope = current_scope_copy;
     }
 
@@ -2491,6 +2496,12 @@ public:
         ASR::symbol_t *v = scope->resolve_symbol(var_name);
         if (!v) {
             throw SemanticError("Variable '" + var_name + "' not declared", loc);
+        }
+        if( v->type == ASR::symbolType::Variable ) {
+            ASR::Variable_t* v_var = ASR::down_cast<ASR::Variable_t>(v);
+            if( v_var->m_type == nullptr ) {
+                return (ASR::asr_t*)(v_var->m_symbolic_value);
+            }
         }
         return ASR::make_Var_t(al, loc, v);
     }
