@@ -35,6 +35,11 @@ contains
     final :: y
 end type X
 
+type matrix(k, b)
+    integer, kind :: k = 4
+    integer(8), len :: b
+    real(k) :: element(b, b)
+endtype matrix
 
 contains
 

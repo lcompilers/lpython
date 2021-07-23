@@ -437,6 +437,12 @@ public:
         }
         r.append(" :: ");
         r.append(x.m_name);
+        for (size_t i=0; i<x.n_namelist; i++) {
+            if (i == 0) r += "(";
+            r.append(x.m_namelist[i]);
+            if (i < x.n_namelist-1) r.append(", ");
+            else r += ")";
+        }
         r.append("\n");
         inc_indent();
         for (size_t i=0; i<x.n_items; i++) {
@@ -1220,6 +1226,8 @@ public:
             ATTRTYPE(External)
             ATTRTYPE(Impure)
             ATTRTYPE(Intrinsic)
+            ATTRTYPE(Kind)
+            ATTRTYPE(Len)
             ATTRTYPE(Module)
             ATTRTYPE(NoPass)
             ATTRTYPE(NonDeferred)
