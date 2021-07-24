@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    621 // shift/reduce conflicts
-%expect-rr 128 // reduce/reduce conflicts
+%expect    643 // shift/reduce conflicts
+%expect-rr 136 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -643,7 +643,10 @@ enum_var_modifiers
 derived_type_decl
     : KW_TYPE var_modifiers id sep var_decl_star
         derived_type_contains_opt end_type sep {
-        $$ = DERIVED_TYPE($2, $3, $5, $6, @$); }
+            $$ = DERIVED_TYPE($2, $3, $5, $6, @$); }
+    | KW_TYPE var_modifiers id "(" id_list ")" sep var_decl_star
+        derived_type_contains_opt end_type sep {
+            $$ = DERIVED_TYPE1($2, $3, $5, $8, $9, @$); }
     ;
 
 end_type
@@ -1252,6 +1255,8 @@ var_modifier
     | KW_VOLATILE { $$ = SIMPLE_ATTR(Volatile, @$); }
     | KW_EXTENDS "(" id ")" { $$ = EXTENDS($3, @$); }
     | bind { $$ = BIND($1, @$); }
+    | KW_KIND { $$ = SIMPLE_ATTR(Kind, @$); }
+    | KW_LEN { $$ = SIMPLE_ATTR(Len, @$); }
     ;
 
 

@@ -63,7 +63,7 @@ unit_decl2
     = Declaration(decl_attribute? vartype, decl_attribute* attributes,
         var_sym* syms)
     | Interface(interface_header header, interface_item* items)
-    | DerivedType(identifier name, decl_attribute* attrtype,
+    | DerivedType(identifier name, identifier* namelist, decl_attribute* attrtype,
         unit_decl2* items, procedure_decl* contains)
     | Enum(decl_attribute* attr, unit_decl2* items)
 
@@ -245,6 +245,8 @@ simple_attribute
     | AttrExternal
     | AttrImpure
     | AttrIntrinsic
+    | AttrKind
+    | AttrLen
     | AttrModule
     | AttrNoPass
     | AttrNonDeferred
