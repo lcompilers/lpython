@@ -380,7 +380,7 @@ int emit_ast_f90(const std::string &infile, bool colors)
 }
 
 int format(const std::string &file, bool inplace, bool color, int indent,
-    bool indent_unit)
+    bool indent_unit, bool fixed_form)
 {
     if (inplace) color = false;
     std::string input = read_file(file);
@@ -388,7 +388,7 @@ int format(const std::string &file, bool inplace, bool color, int indent,
     Allocator al(64*1024*1024);
     LFortran::AST::TranslationUnit_t* ast;
     try {
-        ast = LFortran::parse2(al, input, color);
+        ast = LFortran::parse2(al, input, color, fixed_form);
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
@@ -984,6 +984,7 @@ int main(int argc, char *argv[])
         bool arg_fmt_indent_unit = false;
         bool arg_fmt_inplace = false;
         bool arg_fmt_no_color = false;
+        bool arg_fmt_fixed_form = false;
 
         std::string arg_mod_file;
         bool arg_mod_show_asr = false;
@@ -1033,6 +1034,7 @@ int main(int argc, char *argv[])
         fmt.add_option("--spaces", arg_fmt_indent, "Number of spaces to use for indentation", true);
         fmt.add_flag("--indent-unit", arg_fmt_indent_unit, "Indent contents of sub / fn / prog / mod");
         fmt.add_flag("--no-color", arg_fmt_no_color, "Turn off color when writing to stdout");
+        fmt.add_flag("--fixed-form", arg_fmt_fixed_form, "Use fixed form Fortran source parsing");
 
         // kernel
         CLI::App &kernel = *app.add_subcommand("kernel", "Run in Jupyter kernel mode.");
@@ -1064,7 +1066,7 @@ int main(int argc, char *argv[])
 
         if (fmt) {
             return format(arg_fmt_file, arg_fmt_inplace, !arg_fmt_no_color,
-                arg_fmt_indent, arg_fmt_indent_unit);
+                arg_fmt_indent, arg_fmt_indent_unit, arg_fmt_fixed_form);
         }
 
         if (kernel) {
