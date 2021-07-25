@@ -113,6 +113,27 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
         lm.in_start.push_back(0);
         std::string out;
         size_t pos = 0;
+        /* Note:
+         * This should be a valid fixed form prescanner, except the following
+         * features which are currently not implemented:
+         *
+         *   * Continuation lines after comment(s) or empty lines (they will be
+         *     appended to the previous comment, and thus skipped)
+         *   * Characters after column 72 are included, but should be ignored
+         *   * White space is preserved (but should be removed)
+         *
+         * The parser together with this fixed form prescanner works as a fixed
+         * form parser with some limitations. Due to the last point above,
+         * white space is not ignored because it is needed for the parser, so
+         * the following are not supported:
+         *
+         *   * Extra space: `.  and.`, `3.5 55 d0`, ...
+         *   * Missing space: `doi=1,5`, `callsome_subroutine(x)`
+         *
+         * It turns out most fixed form codes use white space as one would
+         * expect, so it is not such a big problem and the fixes needed to do
+         * in the fixed form Fortran code are relatively minor in practice.
+         */
         while (pos < s.size()) {
             if ( (pos == 0 && (s[pos] == 'c' || s[pos] == 'C'
                         || s[pos] == '*'))
