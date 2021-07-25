@@ -114,12 +114,24 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
         std::string out;
         size_t pos = 0;
         while (pos < s.size()) {
-            if ( (pos == 0 && (s[pos] == 'c' || s[pos] == 'C'))
+            if ( (pos == 0 && (s[pos] == 'c' || s[pos] == 'C'
+                        || s[pos] == '*'))
                     ||
                     (pos > 0 && s[pos-1] == '\n'
-                        && (s[pos] == 'c' || s[pos] == 'C')) ) {
-                // Comment:
+                        && (s[pos] == 'c' || s[pos] == 'C'
+                            || s[pos] == '*')) ) {
+                // Comment: prescan the rest of the line
                 out += '!';
+                pos++;
+                while (pos < s.size() && s[pos] != '\n') {
+                    out += s[pos];
+                    pos++;;
+                }
+                if (pos < s.size()) {
+                    out += s[pos];
+                    pos++;;
+                }
+                continue;
             } else if ( (pos > 5 && s[pos-6] == '\n'
                         && (s[pos] != ' ' && s[pos] != '0'))
                     && s[pos-5] == ' ') {
