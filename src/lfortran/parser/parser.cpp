@@ -137,6 +137,10 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
                     && s[pos-5] == ' ') {
                 // Line continuation:
                 out = out.substr(0, out.size()-6);
+            } else if ( (pos > 5 && s[pos-6] == '\n'
+                        && s[pos] == '0')
+                    && s[pos-5] == ' ') {
+                // Regular line, but remove the 0 by not outputting anything
             } else {
                 out += s[pos];
             }

@@ -25,7 +25,7 @@ C    !, "F4" ! This whole line is a comment
      ;, "OK2" ! line continuation to the previous non-comment line
      1, "OK3" ! line continuation
      $, "OK4" ! line continuation
-!    0print *, "1" ! not line continuation, new statement
+     0print *, "1" ! not line continuation, new statement
       print *, "2" ! not line continuation, new statement
       end ! Comment 5
 ! Comment
