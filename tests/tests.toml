@@ -1338,3 +1338,8 @@ llvm = true
 filename = "print1.f90"
 ast = true
 ast_f90 = true
+
+[[test]]
+filename = "fixed_form1.f"
+ast = true
+ast_f90 = true
