@@ -1,0 +1,1 @@
+(TranslationUnit [(Program fixed_form2 [] [] [(Declaration (AttrType TypeInteger [] () None) [] [(a [] [] () None ())])] [(Print 0 () [(String "OK1") (String "OK2")]) (Print 0 () [(String "OK1")]) (Print 0 () [(String "1")]) (Print 0 () [(String "2")])] [])])
