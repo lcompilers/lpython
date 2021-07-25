@@ -356,14 +356,14 @@ int emit_ast(const std::string &infile, bool colors, bool indent,
     return 0;
 }
 
-int emit_ast_f90(const std::string &infile, bool colors)
+int emit_ast_f90(const std::string &infile, bool colors, bool fixed_form)
 {
     std::string input = read_file(infile);
     // Src -> AST
     Allocator al(64*1024*1024);
     LFortran::AST::TranslationUnit_t* ast;
     try {
-        ast = LFortran::parse2(al, input, colors);
+        ast = LFortran::parse2(al, input, colors, fixed_form);
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
@@ -1169,7 +1169,7 @@ int main(int argc, char *argv[])
                     arg_fixed_form);
         }
         if (show_ast_f90) {
-            return emit_ast_f90(arg_file, !arg_no_color);
+            return emit_ast_f90(arg_file, !arg_no_color, arg_fixed_form);
         }
         std::vector<ASRPass> passes;
         if (arg_pass != "") {
