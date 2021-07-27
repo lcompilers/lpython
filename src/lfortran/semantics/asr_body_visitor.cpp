@@ -1365,6 +1365,7 @@ namespace LFortran {
                     ASR::expr_t* orig_expr = var->m_symbolic_value;
                     ASR::Var_t* orig_Var = ASR::down_cast<ASR::Var_t>(orig_expr);
                     v = orig_Var->m_v;
+                    type = ASR::down_cast<ASR::Variable_t>(v)->m_type;
                 }
                 tmp = ASR::make_ArrayRef_t(al, x.base.base.loc,
                     v, args.p, args.size(), type, nullptr);

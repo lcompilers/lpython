@@ -45,6 +45,7 @@ public:
   void visit_Write(const AST::Write_t &x);
   void visit_Read(const AST::Read_t &x);
   void visit_Associate(const AST::Associate_t &x);
+  void visit_AssociateBlock(const AST::AssociateBlock_t& x);
   void visit_Allocate(const AST::Allocate_t &x);
   ASR::stmt_t *create_implicit_deallocate(const Location &loc);
   void visit_Deallocate(const AST::Deallocate_t &x);

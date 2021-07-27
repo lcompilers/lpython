@@ -38,6 +38,7 @@ private:
     Vec<ASR::stmt_t*> arr_slice_result;
 
     ASR::expr_t* slice_var;
+    bool create_slice_var;
 
     int slice_counter;
 
@@ -45,7 +46,9 @@ private:
 
 public:
     ArrSliceVisitor(Allocator &al, ASR::TranslationUnit_t &unit) : al{al}, unit{unit}, 
-    slice_var{nullptr}, slice_counter{0}, current_scope{nullptr} {
+    slice_var{nullptr}, create_slice_var{false},
+    slice_counter{0}, current_scope{nullptr}
+    {
         arr_slice_result.reserve(al, 1);
     }
 
@@ -107,17 +110,6 @@ public:
         ASR::Function_t &xx = const_cast<ASR::Function_t&>(x);
         current_scope = xx.m_symtab;
         transform_stmts(xx.m_body, xx.n_body);
-    }
-
-    bool is_slice_present(const ASR::ArrayRef_t& x) {
-        bool slice_present = false;
-        for( size_t i = 0; i < x.n_args; i++ ) {
-            if( x.m_args[i].m_step != nullptr ) {
-                slice_present = true;
-                break;
-            }
-        }
-        return slice_present;
     }
 
     ASR::ttype_t* get_array_from_slice(const ASR::ArrayRef_t& x, ASR::expr_t* arr_var) {
@@ -238,7 +230,7 @@ public:
     }
 
     void visit_ArrayRef(const ASR::ArrayRef_t& x) {
-        if( is_slice_present(x) ) {
+        if( PassUtils::is_slice_present(x) && create_slice_var ) {
             ASR::expr_t* x_arr_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, x.m_v));
             Str new_name_str;
             new_name_str.from_str(al, "~" + std::to_string(slice_counter) + "_slice");
@@ -301,18 +293,50 @@ public:
         }
     }
 
+    void visit_Assignment(const ASR::Assignment_t& x) {
+        this->visit_expr(*x.m_value);
+        // If any slicing happened then do loop must have been created
+        // So, the current assignment should be inserted into arr_slice_result
+        // so that it doesn't get ignored.
+        if( arr_slice_result.size() > 0 ) {
+            arr_slice_result.push_back(al, const_cast<ASR::stmt_t*>(&(x.base)));
+        }
+    }
+
+    void visit_BinOp(const ASR::BinOp_t& x) {
+        ASR::BinOp_t& xx = const_cast<ASR::BinOp_t&>(x);
+        create_slice_var = true;
+        slice_var = nullptr;
+        this->visit_expr(*x.m_left);
+        if( slice_var != nullptr ) {
+            xx.m_left = slice_var;
+            slice_var = nullptr;
+        }
+        this->visit_expr(*x.m_right);
+        if( slice_var != nullptr ) {
+            xx.m_right = slice_var;
+            slice_var = nullptr;
+        }
+        create_slice_var = false;
+    }
+
     void visit_Print(const ASR::Print_t& x) {
         ASR::Print_t& xx = const_cast<ASR::Print_t&>(x);
         // std::cout<<"Inside Slice Print "<<xx.n_values<<std::endl;
         for( size_t i = 0; i < xx.n_values; i++ ) {        
             slice_var = nullptr;
+            create_slice_var = true;
             this->visit_expr(*xx.m_values[i]);
+            create_slice_var = false;
             // std::cout<<"Inside Print "<<slice_var<<std::endl;
             if( slice_var != nullptr ) {
                 xx.m_values[i] = slice_var;
                 // std::cout<<"Inside Print "<<x.m_values[i]<<std::endl;
             }
         }
+        // If any slicing happened then do loop must have been created
+        // So, the current print should be inserted into arr_slice_result
+        // so that it doesn't get ignored.
         if( arr_slice_result.size() > 0 ) {
             arr_slice_result.push_back(al, const_cast<ASR::stmt_t*>(&(x.base)));
         }
