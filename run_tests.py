@@ -64,15 +64,27 @@ def main():
                     filename, update_reference)
 
         if ast:
-            run_test("ast", "lfortran --show-ast --no-color {infile} -o {outfile}",
-                    filename, update_reference)
+            if filename.endswith(".f"):
+                # Use fixed form
+                run_test("ast", "lfortran --fixed-form --show-ast --no-color {infile} -o {outfile}",
+                        filename, update_reference)
+            else:
+                # Use free form
+                run_test("ast", "lfortran --show-ast --no-color {infile} -o {outfile}",
+                        filename, update_reference)
         if ast_indent:
             run_test("ast_indent", "lfortran --show-ast --indent --no-color {infile} -o {outfile}",
                     filename, update_reference)
 
         if ast_f90:
-            run_test("ast_f90", "lfortran --show-ast-f90 --no-color {infile}",
-                    filename, update_reference)
+            if filename.endswith(".f"):
+                # Use fixed form
+                run_test("ast_f90", "lfortran --fixed-form --show-ast-f90 --no-color {infile}",
+                        filename, update_reference)
+            else:
+                # Use free form
+                run_test("ast_f90", "lfortran --show-ast-f90 --no-color {infile}",
+                        filename, update_reference)
 
         if ast_openmp:
             run_test("ast_openmp", "cpptranslate --show-ast-openmp {infile}",
