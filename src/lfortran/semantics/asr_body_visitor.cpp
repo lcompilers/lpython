@@ -317,6 +317,33 @@ namespace LFortran {
         }
     }
 
+    void BodyVisitor::visit_AssociateBlock(const AST::AssociateBlock_t& x) {
+        SymbolTable* new_scope = al.make_new<SymbolTable>(current_scope);
+        for( size_t i = 0; i < x.n_syms; i++ ) {
+            this->visit_expr(*x.m_syms[i].m_initializer);
+            ASR::asr_t *v = ASR::make_Variable_t(al, x.base.base.loc, new_scope,
+                                                 x.m_syms[i].m_name, ASR::intentType::AssociateBlock,
+                                                 LFortran::ASRUtils::EXPR(tmp), nullptr,
+                                                 ASR::storage_typeType::Default,
+                                                 nullptr, ASR::abiType::Source,
+                                                 ASR::accessType::Private,
+                                                 ASR::presenceType::Required);
+            new_scope->scope[x.m_syms[i].m_name] = ASR::down_cast<ASR::symbol_t>(v);
+        }
+        SymbolTable* current_scope_copy = current_scope;
+        current_scope = new_scope;
+        for( size_t i = 0; i < x.n_body; i++ ) {
+            this->visit_stmt(*x.m_body[i]);
+            if( tmp != nullptr ) {
+                current_body->push_back(al, LFortran::ASRUtils::STMT(tmp));
+            }
+            // To avoid last statement to be entered twice once we exit this node
+            tmp = nullptr;
+        }
+        current_scope->scope.clear();
+        current_scope = current_scope_copy;
+    }
+
     void BodyVisitor::visit_Allocate(const AST::Allocate_t& x) {
         Vec<ASR::alloc_arg_t> alloc_args_vec;
         alloc_args_vec.reserve(al, x.n_args);
@@ -570,6 +597,7 @@ namespace LFortran {
         current_scope = v->m_symtab;
 
         Vec<ASR::stmt_t*> body;
+        current_body = &body;
         body.reserve(al, x.n_body);
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
@@ -920,6 +948,13 @@ namespace LFortran {
         ASR::symbol_t *v = scope->resolve_symbol(var_name);
         if (!v) {
             throw SemanticError("Variable '" + var_name + "' not declared", loc);
+        }
+        if( v->type == ASR::symbolType::Variable ) {
+            ASR::Variable_t* v_var = ASR::down_cast<ASR::Variable_t>(v);
+            if( v_var->m_type == nullptr && 
+                v_var->m_intent == ASR::intentType::AssociateBlock ) {
+                return (ASR::asr_t*)(v_var->m_symbolic_value);
+            }
         }
         return ASR::make_Var_t(al, loc, v);
     }
@@ -1324,6 +1359,14 @@ namespace LFortran {
 
                 ASR::ttype_t *type;
                 type = ASR::down_cast<ASR::Variable_t>(v)->m_type;
+                ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(v);
+                if( var->m_type == nullptr &&
+                    var->m_intent == ASR::intentType::AssociateBlock ) {
+                    ASR::expr_t* orig_expr = var->m_symbolic_value;
+                    ASR::Var_t* orig_Var = ASR::down_cast<ASR::Var_t>(orig_expr);
+                    v = orig_Var->m_v;
+                    type = ASR::down_cast<ASR::Variable_t>(v)->m_type;
+                }
                 tmp = ASR::make_ArrayRef_t(al, x.base.base.loc,
                     v, args.p, args.size(), type, nullptr);
                 break;

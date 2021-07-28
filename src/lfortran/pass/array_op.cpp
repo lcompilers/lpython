@@ -86,6 +86,8 @@ private:
         unnecessary do loop passes.
     */
     ASR::expr_t *result_var;
+    Vec<ASR::expr_t*> result_lbound, result_ubound, result_inc;
+    bool use_custom_loop_params;
 
     /*
         This integer just maintains the count of new result
@@ -104,9 +106,13 @@ private:
 
 public:
     ArrayOpVisitor(Allocator &al, ASR::TranslationUnit_t &unit) : al{al}, unit{unit}, 
-    tmp_val{nullptr}, result_var{nullptr}, result_var_num{0},
-    current_scope{nullptr} {
+    tmp_val{nullptr}, result_var{nullptr}, use_custom_loop_params{false},
+    result_var_num{0}, current_scope{nullptr}
+    {
         array_op_result.reserve(al, 1);
+        result_lbound.reserve(al, 1);
+        result_ubound.reserve(al, 1);
+        result_inc.reserve(al, 1);
     }
 
     void transform_stmts(ASR::stmt_t **&m_body, size_t &n_body) {
@@ -210,6 +216,37 @@ public:
     void visit_Assignment(const ASR::Assignment_t& x) {
         if( PassUtils::is_array(x.m_target) ) {
             result_var = x.m_target;
+            this->visit_expr(*(x.m_value));
+        } else if( PassUtils::is_slice_present(x.m_target) ) {
+            ASR::ArrayRef_t* array_ref = ASR::down_cast<ASR::ArrayRef_t>(x.m_target);
+            result_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.m_target->base.loc, array_ref->m_v));
+            result_lbound.reserve(al, array_ref->n_args);
+            result_ubound.reserve(al, array_ref->n_args);
+            result_inc.reserve(al, array_ref->n_args);
+            ASR::expr_t *m_start, *m_end, *m_increment;
+            m_start = m_end = m_increment = nullptr;
+            for( int i = 0; i < (int) array_ref->n_args; i++ ) {
+                if( array_ref->m_args[i].m_step != nullptr ) {
+                    if( array_ref->m_args[i].m_left == nullptr ) {
+                        m_start = PassUtils::get_bound(result_var, i + 1, "lbound", al, unit, current_scope);
+                    } else {
+                        m_start = array_ref->m_args[i].m_left;
+                    }
+                    if( array_ref->m_args[i].m_right == nullptr ) {
+                        m_end = PassUtils::get_bound(result_var, i + 1, "ubound", al, unit, current_scope);
+                    } else {
+                        m_end = array_ref->m_args[i].m_right;
+                    }
+                } else {
+                    m_start = array_ref->m_args[i].m_right;
+                    m_end = array_ref->m_args[i].m_right;
+                }
+                m_increment = array_ref->m_args[i].m_step;
+                result_lbound.push_back(al, m_start);
+                result_ubound.push_back(al, m_end);
+                result_inc.push_back(al, m_increment);
+            }
+            use_custom_loop_params = true;
             this->visit_expr(*(x.m_value));
         }
         result_var = nullptr;
@@ -420,6 +457,8 @@ public:
 
     template <typename T>
     void visit_ArrayOpCommon(const T& x, std::string res_prefix) {
+        bool current_status = use_custom_loop_params;
+        use_custom_loop_params = false;
         ASR::expr_t* result_var_copy = result_var;
         result_var = nullptr;
         this->visit_expr(*(x.m_left));
@@ -427,6 +466,7 @@ public:
         result_var = nullptr;
         this->visit_expr(*(x.m_right));
         ASR::expr_t* right = tmp_val;
+        use_custom_loop_params = current_status;
         int rank_left = PassUtils::get_rank(left);
         int rank_right = PassUtils::get_rank(right);
         if( rank_left == 0 && rank_right == 0 ) {
@@ -446,22 +486,31 @@ public:
             tmp_val = result_var;
 
             int n_dims = rank_left;
-            Vec<ASR::expr_t*> idx_vars;
-            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, current_scope);
+            Vec<ASR::expr_t*> idx_vars, idx_vars_value;
+            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, current_scope, "_t");
+            PassUtils::create_idx_vars(idx_vars_value, n_dims, x.base.base.loc, al, current_scope, "_v");
+            ASR::ttype_t* int32_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+            ASR::expr_t* const_1 = LFortran::ASRUtils::EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, 1, int32_type));
             ASR::stmt_t* doloop = nullptr;
             for( int i = n_dims - 1; i >= 0; i-- ) {
                 // TODO: Add an If debug node to check if the lower and upper bounds of both the arrays are same.
                 ASR::do_loop_head_t head;
                 head.m_v = idx_vars[i];
-                head.m_start = PassUtils::get_bound(result_var, i + 1, "lbound", al, unit, current_scope);
-                head.m_end = PassUtils::get_bound(result_var, i + 1, "ubound", al, unit, current_scope);
-                head.m_increment = nullptr;
+                if( use_custom_loop_params ) {
+                    head.m_start = result_lbound[i];
+                    head.m_end = result_ubound[i];
+                    head.m_increment = result_inc[i];
+                } else {
+                    head.m_start = PassUtils::get_bound(result_var, i + 1, "lbound", al, unit, current_scope);
+                    head.m_end = PassUtils::get_bound(result_var, i + 1, "ubound", al, unit, current_scope);
+                    head.m_increment = nullptr;
+                }
                 head.loc = head.m_v->base.loc;
                 Vec<ASR::stmt_t*> doloop_body;
                 doloop_body.reserve(al, 1);
                 if( doloop == nullptr ) {
-                    ASR::expr_t* ref_1 = PassUtils::create_array_ref(left, idx_vars, al);
-                    ASR::expr_t* ref_2 = PassUtils::create_array_ref(right, idx_vars, al);
+                    ASR::expr_t* ref_1 = PassUtils::create_array_ref(left, idx_vars_value, al);
+                    ASR::expr_t* ref_2 = PassUtils::create_array_ref(right, idx_vars_value, al);
                     ASR::expr_t* res = PassUtils::create_array_ref(result_var, idx_vars, al);
                     ASR::expr_t* op_el_wise = nullptr;
                     switch( x.class_type ) {
@@ -487,10 +536,17 @@ public:
                     ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise));
                     doloop_body.push_back(al, assign);
                 } else {
+                    ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i+1], const_1));
+                    doloop_body.push_back(al, set_to_one);
                     doloop_body.push_back(al, doloop);
                 }
+                ASR::expr_t* inc_expr = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc, idx_vars_value[i], ASR::binopType::Add, const_1, int32_type, nullptr));
+                ASR::stmt_t* assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i], inc_expr));
+                doloop_body.push_back(al, assign_stmt);
                 doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
+            ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[0], const_1));
+            array_op_result.push_back(al, set_to_one);
             array_op_result.push_back(al, doloop);
         } else if( (rank_left == 0 && rank_right > 0) || 
                    (rank_right == 0 && rank_left > 0) ) {
@@ -512,21 +568,30 @@ public:
             }
             tmp_val = result_var;
 
-            Vec<ASR::expr_t*> idx_vars;
-            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, current_scope);
+            Vec<ASR::expr_t*> idx_vars, idx_vars_value;
+            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, current_scope, "_t");
+            PassUtils::create_idx_vars(idx_vars_value, n_dims, x.base.base.loc, al, current_scope, "_v");
+            ASR::ttype_t* int32_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+            ASR::expr_t* const_1 = LFortran::ASRUtils::EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, 1, int32_type));
             ASR::stmt_t* doloop = nullptr;
             for( int i = n_dims - 1; i >= 0; i-- ) {
                 // TODO: Add an If debug node to check if the lower and upper bounds of both the arrays are same.
                 ASR::do_loop_head_t head;
                 head.m_v = idx_vars[i];
-                head.m_start = PassUtils::get_bound(result_var, i + 1, "lbound", al, unit, current_scope);
-                head.m_end = PassUtils::get_bound(result_var, i + 1, "ubound", al, unit, current_scope);
-                head.m_increment = nullptr;
+                if( use_custom_loop_params ) {
+                    head.m_start = result_lbound[i];
+                    head.m_end = result_ubound[i];
+                    head.m_increment = result_inc[i];
+                } else {
+                    head.m_start = PassUtils::get_bound(result_var, i + 1, "lbound", al, unit, current_scope);
+                    head.m_end = PassUtils::get_bound(result_var, i + 1, "ubound", al, unit, current_scope);
+                    head.m_increment = nullptr;
+                }
                 head.loc = head.m_v->base.loc;
                 Vec<ASR::stmt_t*> doloop_body;
                 doloop_body.reserve(al, 1);
                 if( doloop == nullptr ) {
-                    ASR::expr_t* ref = PassUtils::create_array_ref(arr_expr, idx_vars, al);
+                    ASR::expr_t* ref = PassUtils::create_array_ref(arr_expr, idx_vars_value, al);
                     ASR::expr_t* res = PassUtils::create_array_ref(result_var, idx_vars, al);
                     ASR::expr_t* op_el_wise = nullptr;
                     switch( x.class_type ) {
@@ -552,10 +617,17 @@ public:
                     ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise));
                     doloop_body.push_back(al, assign);
                 } else {
+                    ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i+1], const_1));
+                    doloop_body.push_back(al, set_to_one);
                     doloop_body.push_back(al, doloop);
                 }
+                ASR::expr_t* inc_expr = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc, idx_vars_value[i], ASR::binopType::Add, const_1, int32_type, nullptr));
+                ASR::stmt_t* assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i], inc_expr));
+                doloop_body.push_back(al, assign_stmt);
                 doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
+            ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[0], const_1));
+            array_op_result.push_back(al, set_to_one);
             array_op_result.push_back(al, doloop);
         }
     }
