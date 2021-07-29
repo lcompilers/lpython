@@ -1053,6 +1053,11 @@ llvm = true
 filename = "../integration_tests/intrinsics_07.f90"
 asr = true
 
+# tiny
+[[test]]
+filename = "../integration_tests/intrinsics_08.f90"
+asr = true
+
 [[test]]
 filename = "../integration_tests/intrinsics_open_close_read_write.f90"
 asr = true
