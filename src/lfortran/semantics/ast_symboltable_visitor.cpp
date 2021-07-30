@@ -20,81 +20,44 @@ namespace LFortran {
 
 class SymbolTableVisitor : public AST::BaseVisitor<SymbolTableVisitor> {
 private:
-  std::map<std::string, std::string> intrinsic_procedures = {
-      {"kind", "lfortran_intrinsic_kind"},
-      {"selected_int_kind", "lfortran_intrinsic_kind"},
-      {"selected_real_kind", "lfortran_intrinsic_kind"},
-      {"size", "lfortran_intrinsic_array"},
-      {"lbound", "lfortran_intrinsic_array"},
-      {"ubound", "lfortran_intrinsic_array"},
-      {"min", "lfortran_intrinsic_array"},
-      {"max", "lfortran_intrinsic_array"},
-      {"allocated", "lfortran_intrinsic_array"},
-      {"minval", "lfortran_intrinsic_array"},
-      {"maxval", "lfortran_intrinsic_array"},
-      {"real", "lfortran_intrinsic_array"},
-      {"sum", "lfortran_intrinsic_array"},
-      {"abs", "lfortran_intrinsic_array"}};
+    std::map<std::string, std::string> intrinsic_procedures = {
+        {"kind", "lfortran_intrinsic_kind"},
+        {"selected_int_kind", "lfortran_intrinsic_kind"},
+        {"selected_real_kind", "lfortran_intrinsic_kind"},
+        {"size", "lfortran_intrinsic_array"},
+        {"lbound", "lfortran_intrinsic_array"},
+        {"ubound", "lfortran_intrinsic_array"},
+        {"min", "lfortran_intrinsic_array"},
+        {"max", "lfortran_intrinsic_array"},
+        {"allocated", "lfortran_intrinsic_array"},
+        {"minval", "lfortran_intrinsic_array"},
+        {"maxval", "lfortran_intrinsic_array"},
+        {"real", "lfortran_intrinsic_array"},
+        {"sum", "lfortran_intrinsic_array"},
+        {"abs", "lfortran_intrinsic_array"}};
 
 public:
-  ASR::asr_t *asr;
-  Allocator &al;
-  SymbolTable *current_scope;
-  SymbolTable *global_scope;
-  std::map<std::string, std::vector<std::string>> generic_procedures;
-  std::map<std::string, std::map<std::string, std::string>> class_procedures;
-  std::string dt_name;
-  ASR::accessType dflt_access = ASR::Public;
-  ASR::presenceType dflt_presence = ASR::presenceType::Required;
-  std::map<std::string, ASR::accessType> assgnd_access;
-  std::map<std::string, ASR::presenceType> assgnd_presence;
-  Vec<char *> current_module_dependencies;
-  bool in_module = false;
-  bool is_interface = false;
-  std::vector<std::string> current_procedure_args;
+    ASR::asr_t *asr;
+    Allocator &al;
+    SymbolTable *current_scope;
+    SymbolTable *global_scope;
+    std::map<std::string, std::vector<std::string>> generic_procedures;
+    std::map<std::string, std::map<std::string, std::string>> class_procedures;
+    std::string dt_name;
+    ASR::accessType dflt_access = ASR::Public;
+    ASR::presenceType dflt_presence = ASR::presenceType::Required;
+    std::map<std::string, ASR::accessType> assgnd_access;
+    std::map<std::string, ASR::presenceType> assgnd_presence;
+    Vec<char *> current_module_dependencies;
+    bool in_module = false;
+    bool is_interface = false;
+    std::vector<std::string> current_procedure_args;
 
-  SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
+    SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
       : al{al}, current_scope{symbol_table} {}
 
-  ASR::symbol_t *resolve_symbol(const Location &loc, const char *id);
-  void visit_TranslationUnit(const AST::TranslationUnit_t &x);
-  void visit_Module(const AST::Module_t &x);
-  void visit_Program(const AST::Program_t &x);
-  void visit_Subroutine(const AST::Subroutine_t &x);
-  AST::AttrType_t *find_return_type(AST::decl_attribute_t **attributes,
-                                    size_t n, const Location &loc);
 
-  void visit_Function(const AST::Function_t &x);
-  void visit_StrOp(const AST::StrOp_t &x);
-  void visit_UnaryOp(const AST::UnaryOp_t &x);
-  void visit_BoolOp(const AST::BoolOp_t &x);
-  void visit_Compare(const AST::Compare_t &x);
-  void visit_BinOp(const AST::BinOp_t &x);
-  void visit_String(const AST::String_t &x);
-  void visit_Logical(const AST::Logical_t &x);
-  void visit_Complex(const AST::Complex_t &x);
-  void process_dims(Allocator &al, Vec<ASR::dimension_t> &dims,
-                    AST::dimension_t *m_dim, size_t n_dim);
-
-  void visit_Declaration(const AST::Declaration_t &x);
-  Vec<ASR::expr_t *> visit_expr_list(AST::fnarg_t *ast_list, size_t n);
-  void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x);
-  void visit_DerivedType(const AST::DerivedType_t &x);
-  void visit_InterfaceProc(const AST::InterfaceProc_t &x);
-  void visit_DerivedTypeProc(const AST::DerivedTypeProc_t &x);
-  void visit_Interface(const AST::Interface_t &x);
-  void add_generic_procedures();
-  void add_class_procedures();
-  void visit_Use(const AST::Use_t &x);
-  void visit_Real(const AST::Real_t &x);
-  ASR::asr_t *resolve_variable(const Location &loc, const char *id);
-  void visit_Name(const AST::Name_t &x);
-  void visit_Num(const AST::Num_t &x);
-  void visit_Parenthesis(const AST::Parenthesis_t &x);
-};
-
-
-    ASR::symbol_t* SymbolTableVisitor::resolve_symbol(const Location &loc, const char* id) {
+    ASR::symbol_t* resolve_symbol(const Location &loc, const char* id) {
         SymbolTable *scope = current_scope;
         std::string sub_name = id;
         ASR::symbol_t *sub = scope->resolve_symbol(sub_name);
@@ -104,7 +67,7 @@ public:
         return sub;
     }
 
-    void SymbolTableVisitor::visit_TranslationUnit(const AST::TranslationUnit_t &x) {
+    void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
         if (!current_scope) {
             current_scope = al.make_new<SymbolTable>(nullptr);
         }
@@ -121,7 +84,7 @@ public:
             current_scope, nullptr, 0);
     }
 
-    void SymbolTableVisitor::visit_Module(const AST::Module_t &x) {
+    void visit_Module(const AST::Module_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
         current_module_dependencies.reserve(al, 4);
@@ -154,7 +117,7 @@ public:
         in_module = false;
     }
 
-    void SymbolTableVisitor::visit_Program(const AST::Program_t &x) {
+    void visit_Program(const AST::Program_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
         current_module_dependencies.reserve(al, 4);
@@ -183,7 +146,7 @@ public:
         current_scope = parent_scope;
     }
 
-    void SymbolTableVisitor::visit_Subroutine(const AST::Subroutine_t &x) {
+    void visit_Subroutine(const AST::Subroutine_t &x) {
         ASR::accessType s_access = dflt_access;
         ASR::deftypeType deftype = ASR::deftypeType::Implementation;
         SymbolTable *parent_scope = current_scope;
@@ -245,7 +208,7 @@ public:
         current_procedure_args.clear();
     }
 
-    AST::AttrType_t* SymbolTableVisitor::find_return_type(AST::decl_attribute_t** attributes,
+    AST::AttrType_t* find_return_type(AST::decl_attribute_t** attributes,
             size_t n, const Location &loc) {
         AST::AttrType_t* r = nullptr;
         bool found = false;
@@ -262,7 +225,7 @@ public:
         return r;
     }
 
-    void SymbolTableVisitor::visit_Function(const AST::Function_t &x) {
+    void visit_Function(const AST::Function_t &x) {
         // Extract local (including dummy) variables first
         ASR::accessType s_access = dflt_access;
         ASR::deftypeType deftype = ASR::deftypeType::Implementation;
@@ -403,7 +366,7 @@ public:
         current_procedure_args.clear();
     }
 
-    void SymbolTableVisitor::visit_StrOp(const AST::StrOp_t &x) {
+    void visit_StrOp(const AST::StrOp_t &x) {
         this->visit_expr(*x.m_left);
         ASR::expr_t *left = LFortran::ASRUtils::EXPR(asr);
         this->visit_expr(*x.m_right);
@@ -411,13 +374,13 @@ public:
         CommonVisitorMethods::visit_StrOp(al, x, left, right, asr);
     }
 
-    void SymbolTableVisitor::visit_UnaryOp(const AST::UnaryOp_t &x) {
+    void visit_UnaryOp(const AST::UnaryOp_t &x) {
         this->visit_expr(*x.m_operand);
         ASR::expr_t *operand = LFortran::ASRUtils::EXPR(asr);
         CommonVisitorMethods::visit_UnaryOp(al, x, operand, asr);
     }
 
-    void SymbolTableVisitor::visit_BoolOp(const AST::BoolOp_t &x) {
+    void visit_BoolOp(const AST::BoolOp_t &x) {
         this->visit_expr(*x.m_left);
         ASR::expr_t *left = LFortran::ASRUtils::EXPR(asr);
         this->visit_expr(*x.m_right);
@@ -425,7 +388,7 @@ public:
         CommonVisitorMethods::visit_BoolOp(al, x, left, right, asr);
     }
 
-    void SymbolTableVisitor::visit_Compare(const AST::Compare_t &x) {
+    void visit_Compare(const AST::Compare_t &x) {
         this->visit_expr(*x.m_left);
         ASR::expr_t *left = LFortran::ASRUtils::EXPR(asr);
         this->visit_expr(*x.m_right);
@@ -433,7 +396,7 @@ public:
         CommonVisitorMethods::visit_Compare(al, x, left, right, asr);
     }
 
-    void SymbolTableVisitor::visit_BinOp(const AST::BinOp_t &x) {
+    void visit_BinOp(const AST::BinOp_t &x) {
         this->visit_expr(*x.m_left);
         ASR::expr_t *left = LFortran::ASRUtils::EXPR(asr);
         this->visit_expr(*x.m_right);
@@ -441,19 +404,19 @@ public:
         CommonVisitorMethods::visit_BinOp(al, x, left, right, asr);
     }
 
-    void SymbolTableVisitor::visit_String(const AST::String_t &x) {
+    void visit_String(const AST::String_t &x) {
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
                 8, nullptr, 0));
         asr = ASR::make_ConstantString_t(al, x.base.base.loc, x.m_s, type);
     }
 
-    void SymbolTableVisitor::visit_Logical(const AST::Logical_t &x) {
+    void visit_Logical(const AST::Logical_t &x) {
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc,
                 4, nullptr, 0));
         asr = ASR::make_ConstantLogical_t(al, x.base.base.loc, x.m_value, type);
     }
 
-    void SymbolTableVisitor::visit_Complex(const AST::Complex_t &x) {
+    void visit_Complex(const AST::Complex_t &x) {
         this->visit_expr(*x.m_re);
         ASR::expr_t *re = LFortran::ASRUtils::EXPR(asr);
         this->visit_expr(*x.m_im);
@@ -466,7 +429,7 @@ public:
                 re, im, type);
     }
 
-    void SymbolTableVisitor::process_dims(Allocator &al, Vec<ASR::dimension_t> &dims,
+    void process_dims(Allocator &al, Vec<ASR::dimension_t> &dims,
         AST::dimension_t *m_dim, size_t n_dim) {
         LFORTRAN_ASSERT(dims.size() == 0);
         dims.reserve(al, n_dim);
@@ -489,7 +452,7 @@ public:
         }
     }
 
-    void SymbolTableVisitor::visit_Declaration(const AST::Declaration_t &x) {
+    void visit_Declaration(const AST::Declaration_t &x) {
         if (x.m_vartype == nullptr &&
                 x.n_attributes == 1 &&
                 AST::is_a<AST::AttrNamelist_t>(*x.m_attributes[0])) {
@@ -755,7 +718,7 @@ public:
         }
     }
 
-    Vec<ASR::expr_t*> SymbolTableVisitor::visit_expr_list(AST::fnarg_t *ast_list, size_t n) {
+    Vec<ASR::expr_t*> visit_expr_list(AST::fnarg_t *ast_list, size_t n) {
         Vec<ASR::expr_t*> asr_list;
         asr_list.reserve(al, n);
         for (size_t i=0; i<n; i++) {
@@ -766,7 +729,7 @@ public:
         return asr_list;
     }
 
-    void SymbolTableVisitor::visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
+    void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
         SymbolTable *scope = current_scope;
         std::string var_name = x.m_func;
         ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
@@ -822,7 +785,7 @@ public:
             args.p, args.size(), nullptr, 0, type, nullptr, nullptr);
     }
 
-    void SymbolTableVisitor::visit_DerivedType(const AST::DerivedType_t &x) {
+    void visit_DerivedType(const AST::DerivedType_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
         dt_name = x.m_name;
@@ -843,14 +806,14 @@ public:
         current_scope = parent_scope;
     }
 
-    void SymbolTableVisitor::visit_InterfaceProc(const AST::InterfaceProc_t &x) {
+    void visit_InterfaceProc(const AST::InterfaceProc_t &x) {
         is_interface = true;
         visit_program_unit(*x.m_proc);
         is_interface = false;
         return;
     }
 
-    void SymbolTableVisitor::visit_DerivedTypeProc(const AST::DerivedTypeProc_t &x) {
+    void visit_DerivedTypeProc(const AST::DerivedTypeProc_t &x) {
         for (size_t i = 0; i < x.n_symbols; i++) {
             AST::UseSymbol_t *use_sym = AST::down_cast<AST::UseSymbol_t>(
                 x.m_symbols[i]);
@@ -862,7 +825,7 @@ public:
         }
     }
 
-    void SymbolTableVisitor::visit_Interface(const AST::Interface_t &x) {
+    void visit_Interface(const AST::Interface_t &x) {
         if (AST::is_a<AST::InterfaceHeaderName_t>(*x.m_header)) {
             char *generic_name = AST::down_cast<AST::InterfaceHeaderName_t>(x.m_header)->m_name;
             std::vector<std::string> proc_names;
@@ -890,7 +853,7 @@ public:
         }
     }
 
-    void SymbolTableVisitor::add_generic_procedures() {
+    void add_generic_procedures() {
         for (auto &proc : generic_procedures) {
             Location loc;
             loc.first_line = 1;
@@ -917,7 +880,7 @@ public:
         }
     }
 
-    void SymbolTableVisitor::add_class_procedures() {
+    void add_class_procedures() {
         for (auto &proc : class_procedures) {
             Location loc;
             loc.first_line = 1;
@@ -942,7 +905,7 @@ public:
         }
     }
 
-    void SymbolTableVisitor::visit_Use(const AST::Use_t &x) {
+    void visit_Use(const AST::Use_t &x) {
         std::string msym = x.m_module;
         if (!present(current_module_dependencies, x.m_module)) {
             current_module_dependencies.push_back(al, x.m_module);
@@ -1152,7 +1115,7 @@ public:
         }
     }
 
-    void SymbolTableVisitor::visit_Real(const AST::Real_t &x) {
+    void visit_Real(const AST::Real_t &x) {
         int a_kind = ASRUtils::extract_kind(x.m_n);
         double r = ASRUtils::extract_real(x.m_n);
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
@@ -1160,7 +1123,7 @@ public:
         asr = ASR::make_ConstantReal_t(al, x.base.base.loc, r, type);
     }
 
-    ASR::asr_t* SymbolTableVisitor::resolve_variable(const Location &loc, const char* id) {
+    ASR::asr_t* resolve_variable(const Location &loc, const char* id) {
         SymbolTable *scope = current_scope;
         std::string var_name = id;
         ASR::symbol_t *v = scope->resolve_symbol(var_name);
@@ -1170,11 +1133,11 @@ public:
         return ASR::make_Var_t(al, loc, v);
     }
 
-    void SymbolTableVisitor::visit_Name(const AST::Name_t &x) {
+    void visit_Name(const AST::Name_t &x) {
         asr = resolve_variable(x.base.base.loc, x.m_id);
     }
 
-    void SymbolTableVisitor::visit_Num(const AST::Num_t &x) {
+    void visit_Num(const AST::Num_t &x) {
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 4, nullptr, 0));
         if (BigInt::is_int_ptr(x.m_n)) {
@@ -1185,9 +1148,11 @@ public:
         }
     }
 
-    void SymbolTableVisitor::visit_Parenthesis(const AST::Parenthesis_t &x) {
+    void visit_Parenthesis(const AST::Parenthesis_t &x) {
         visit_expr(*x.m_operand);
     }
+
+};
 
 ASR::asr_t *symbol_table_visitor(Allocator &al, AST::TranslationUnit_t &ast,
         SymbolTable *symbol_table)

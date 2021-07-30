@@ -20,99 +20,36 @@ namespace LFortran {
 
 class BodyVisitor : public AST::BaseVisitor<BodyVisitor> {
 private:
-  std::map<std::string, std::string> intrinsic_procedures = {
-      {"kind", "lfortran_intrinsic_kind"},
-      {"selected_int_kind", "lfortran_intrinsic_kind"},
-      {"selected_real_kind", "lfortran_intrinsic_kind"},
-      {"size", "lfortran_intrinsic_array"},
-      {"lbound", "lfortran_intrinsic_array"},
-      {"ubound", "lfortran_intrinsic_array"},
-      {"min", "lfortran_intrinsic_array"},
-      {"max", "lfortran_intrinsic_array"},
-      {"allocated", "lfortran_intrinsic_array"},
-      {"minval", "lfortran_intrinsic_array"},
-      {"maxval", "lfortran_intrinsic_array"},
-      {"real", "lfortran_intrinsic_array"},
-      {"sum", "lfortran_intrinsic_array"},
-      {"abs", "lfortran_intrinsic_array"}};
+    std::map<std::string, std::string> intrinsic_procedures = {
+        {"kind", "lfortran_intrinsic_kind"},
+        {"selected_int_kind", "lfortran_intrinsic_kind"},
+        {"selected_real_kind", "lfortran_intrinsic_kind"},
+        {"size", "lfortran_intrinsic_array"},
+        {"lbound", "lfortran_intrinsic_array"},
+        {"ubound", "lfortran_intrinsic_array"},
+        {"min", "lfortran_intrinsic_array"},
+        {"max", "lfortran_intrinsic_array"},
+        {"allocated", "lfortran_intrinsic_array"},
+        {"minval", "lfortran_intrinsic_array"},
+        {"maxval", "lfortran_intrinsic_array"},
+        {"real", "lfortran_intrinsic_array"},
+        {"sum", "lfortran_intrinsic_array"},
+        {"abs", "lfortran_intrinsic_array"}};
 
 public:
-  Allocator &al;
-  ASR::asr_t *asr, *tmp;
-  SymbolTable *current_scope;
-  Vec<ASR::stmt_t*> *current_body;
-  ASR::Module_t *current_module = nullptr;
+    Allocator &al;
+    ASR::asr_t *asr, *tmp;
+    SymbolTable *current_scope;
+    Vec<ASR::stmt_t*> *current_body;
+    ASR::Module_t *current_module = nullptr;
 
-  BodyVisitor(Allocator &al, ASR::asr_t *unit) : al{al}, asr{unit} {}
+    BodyVisitor(Allocator &al, ASR::asr_t *unit) : al{al}, asr{unit} {}
 
-  void visit_TranslationUnit(const AST::TranslationUnit_t &x);
-  void visit_Declaration(const AST::Declaration_t & /* x */){
-      // Already visited this AST node in the SymbolTableVisitor
-  };
-  void visit_Open(const AST::Open_t &x);
-  void visit_Close(const AST::Close_t &x);
-  void create_read_write_ASR_node(const AST::stmt_t &read_write_stmt,
-                                  AST::stmtType _type);
-  void visit_Write(const AST::Write_t &x);
-  void visit_Read(const AST::Read_t &x);
-  void visit_Associate(const AST::Associate_t &x);
-  void visit_AssociateBlock(const AST::AssociateBlock_t& x);
-  void visit_Allocate(const AST::Allocate_t &x);
-  ASR::stmt_t *create_implicit_deallocate(const Location &loc);
-  void visit_Deallocate(const AST::Deallocate_t &x);
-  void visit_Return(const AST::Return_t &x);
-  void visit_case_stmt(const AST::case_stmt_t &x);
-  void visit_Select(const AST::Select_t &x);
-  void visit_Module(const AST::Module_t &x);
-  void visit_Program(const AST::Program_t &x);
-  ASR::stmt_t *create_implicit_deallocate_subrout_call(ASR::stmt_t *x);
-  void visit_Subroutine(const AST::Subroutine_t &x);
-  void visit_Function(const AST::Function_t &x);
-  void visit_Assignment(const AST::Assignment_t &x);
-  Vec<ASR::expr_t *> visit_expr_list(AST::fnarg_t *ast_list, size_t n);
-  void visit_SubroutineCall(const AST::SubroutineCall_t &x);
-  int select_generic_procedure(const Vec<ASR::expr_t *> &args,
-                               const ASR::GenericProcedure_t &p, Location loc);
-  bool argument_types_match(const Vec<ASR::expr_t *> &args,
-                            const ASR::Subroutine_t &sub);
-  bool types_equal(const ASR::ttype_t &a, const ASR::ttype_t &b);
-  void visit_Compare(const AST::Compare_t &x);
-  void visit_BoolOp(const AST::BoolOp_t &x);
-  void visit_BinOp(const AST::BinOp_t &x);
-  void visit_StrOp(const AST::StrOp_t &x);
-  void visit_UnaryOp(const AST::UnaryOp_t &x);
-  ASR::asr_t *resolve_variable(const Location &loc, const char *id);
-  ASR::asr_t *getDerivedRef_t(const Location &loc, ASR::asr_t *v_var,
-                              ASR::symbol_t *member);
-  ASR::asr_t *resolve_variable2(const Location &loc, const char *id,
-                                const char *derived_type_id,
-                                SymbolTable *&scope);
-  ASR::symbol_t *resolve_deriv_type_proc(const Location &loc, const char *id,
-                                         const char *derived_type_id,
-                                         SymbolTable *&scope);
-  void visit_Name(const AST::Name_t &x);
-  void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x);
-  void visit_Num(const AST::Num_t &x);
-  void visit_Parenthesis(const AST::Parenthesis_t &x);
-  void visit_Logical(const AST::Logical_t &x);
-  void visit_String(const AST::String_t &x);
-  void visit_Real(const AST::Real_t &x);
-  void visit_Complex(const AST::Complex_t &x);
-  void visit_ArrayInitializer(const AST::ArrayInitializer_t &x);
-  void visit_Print(const AST::Print_t &x);
-  void visit_If(const AST::If_t &x);
-  void visit_WhileLoop(const AST::WhileLoop_t &x);
-  void visit_ImpliedDoLoop(const AST::ImpliedDoLoop_t &x);
-  void visit_DoLoop(const AST::DoLoop_t &x);
-  void visit_DoConcurrentLoop(const AST::DoConcurrentLoop_t &x);
-  void visit_Exit(const AST::Exit_t &x);
-  void visit_Cycle(const AST::Cycle_t &x);
-  void visit_Continue(const AST::Continue_t & /*x*/);
-  void visit_Stop(const AST::Stop_t &x);
-  void visit_ErrorStop(const AST::ErrorStop_t &x);
-};
+    void visit_Declaration(const AST::Declaration_t & /* x */){
+        // Already visited this AST node in the SymbolTableVisitor
+    };
 
-    void BodyVisitor::visit_TranslationUnit(const AST::TranslationUnit_t &x) {
+    void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
         ASR::TranslationUnit_t *unit = ASR::down_cast2<ASR::TranslationUnit_t>(asr);
         current_scope = unit->m_global_scope;
         Vec<ASR::asr_t*> items;
@@ -128,7 +65,7 @@ public:
         unit->n_items = items.size();
     }
 
-    void BodyVisitor::visit_Open(const AST::Open_t& x) {
+    void visit_Open(const AST::Open_t& x) {
         ASR::expr_t *a_newunit = nullptr, *a_filename = nullptr, *a_status = nullptr;
         if( x.n_args > 1 ) {
             throw SemanticError("Number of arguments cannot be more than 1 in Open statement.",
@@ -190,7 +127,7 @@ public:
                                a_newunit, a_filename, a_status);
     }
 
-    void BodyVisitor::visit_Close(const AST::Close_t& x) {
+    void visit_Close(const AST::Close_t& x) {
         ASR::expr_t *a_unit = nullptr, *a_iostat = nullptr, *a_iomsg = nullptr;
         ASR::expr_t *a_err = nullptr, *a_status = nullptr;
         if( x.n_args > 1 ) {
@@ -273,7 +210,7 @@ public:
         tmp = ASR::make_Close_t(al, x.base.base.loc, x.m_label, a_unit, a_iostat, a_iomsg, a_err, a_status);
     }
 
-    void BodyVisitor::create_read_write_ASR_node(const AST::stmt_t& read_write_stmt, AST::stmtType _type) {
+    void create_read_write_ASR_node(const AST::stmt_t& read_write_stmt, AST::stmtType _type) {
         int64_t m_label = -1;
         AST::argstar_t* m_args = nullptr; size_t n_args = 0;
         AST::kw_argstar_t* m_kwargs = nullptr; size_t n_kwargs = 0;
@@ -386,15 +323,15 @@ public:
         }
     }
 
-    void BodyVisitor::visit_Write(const AST::Write_t& x) {
+    void visit_Write(const AST::Write_t& x) {
         create_read_write_ASR_node(x.base, x.class_type);
     }
 
-    void BodyVisitor::visit_Read(const AST::Read_t& x) {
+    void visit_Read(const AST::Read_t& x) {
         create_read_write_ASR_node(x.base, x.class_type);
     }
 
-    void BodyVisitor::visit_Associate(const AST::Associate_t& x) {
+    void visit_Associate(const AST::Associate_t& x) {
         this->visit_expr(*(x.m_target));
         ASR::expr_t* target = LFortran::ASRUtils::EXPR(tmp);
         this->visit_expr(*(x.m_value));
@@ -411,7 +348,7 @@ public:
         }
     }
 
-    void BodyVisitor::visit_AssociateBlock(const AST::AssociateBlock_t& x) {
+    void visit_AssociateBlock(const AST::AssociateBlock_t& x) {
         SymbolTable* new_scope = al.make_new<SymbolTable>(current_scope);
         for( size_t i = 0; i < x.n_syms; i++ ) {
             this->visit_expr(*x.m_syms[i].m_initializer);
@@ -438,7 +375,7 @@ public:
         current_scope = current_scope_copy;
     }
 
-    void BodyVisitor::visit_Allocate(const AST::Allocate_t& x) {
+    void visit_Allocate(const AST::Allocate_t& x) {
         Vec<ASR::alloc_arg_t> alloc_args_vec;
         alloc_args_vec.reserve(al, x.n_args);
         ASR::ttype_t *int32_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
@@ -492,7 +429,7 @@ public:
 // If there are allocatable variables in the local scope it inserts an ImplicitDeallocate node
 // with their list. The ImplicitDeallocate node will deallocate them if they are allocated,
 // otherwise does nothing.
-    ASR::stmt_t* BodyVisitor::create_implicit_deallocate(const Location& loc) {
+    ASR::stmt_t* create_implicit_deallocate(const Location& loc) {
         Vec<ASR::symbol_t*> del_syms;
         del_syms.reserve(al, 0);
         for( auto& item: current_scope->scope ) {
@@ -512,7 +449,7 @@ public:
                     del_syms.p, del_syms.size()));
     }
 
-    void BodyVisitor::visit_Deallocate(const AST::Deallocate_t& x) {
+    void visit_Deallocate(const AST::Deallocate_t& x) {
         Vec<ASR::symbol_t*> arg_vec;
         arg_vec.reserve(al, x.n_args);
         for( size_t i = 0; i < x.n_args; i++ ) {
@@ -544,12 +481,12 @@ public:
                                             arg_vec.p, arg_vec.size());
     }
 
-    void BodyVisitor::visit_Return(const AST::Return_t& x) {
+    void visit_Return(const AST::Return_t& x) {
         // TODO
         tmp = ASR::make_Return_t(al, x.base.base.loc);
     }
 
-    void BodyVisitor::visit_case_stmt(const AST::case_stmt_t& x) {
+    void visit_case_stmt(const AST::case_stmt_t& x) {
         switch(x.type) {
             case AST::case_stmtType::CaseStmt: {
                 AST::CaseStmt_t* Case_Stmt = (AST::CaseStmt_t*)(&(x.base));
@@ -633,7 +570,7 @@ public:
         }
     }
 
-    void BodyVisitor::visit_Select(const AST::Select_t& x) {
+    void visit_Select(const AST::Select_t& x) {
         this->visit_expr(*(x.m_test));
         ASR::expr_t* a_test = LFortran::ASRUtils::EXPR(tmp);
         if( LFortran::ASRUtils::expr_type(a_test)->type != ASR::ttypeType::Integer ) {
@@ -668,7 +605,7 @@ public:
                            a_body_vec.size(), def_body.p, def_body.size());
     }
 
-    void BodyVisitor::visit_Module(const AST::Module_t &x) {
+    void visit_Module(const AST::Module_t &x) {
         SymbolTable *old_scope = current_scope;
         ASR::symbol_t *t = current_scope->scope[std::string(x.m_name)];
         ASR::Module_t *v = ASR::down_cast<ASR::Module_t>(t);
@@ -684,7 +621,7 @@ public:
         tmp = nullptr;
     }
 
-    void BodyVisitor::visit_Program(const AST::Program_t &x) {
+    void visit_Program(const AST::Program_t &x) {
         SymbolTable *old_scope = current_scope;
         ASR::symbol_t *t = current_scope->scope[std::string(x.m_name)];
         ASR::Program_t *v = ASR::down_cast<ASR::Program_t>(t);
@@ -721,7 +658,7 @@ public:
         tmp = nullptr;
     }
 
-    ASR::stmt_t* BodyVisitor::create_implicit_deallocate_subrout_call(ASR::stmt_t* x) {
+    ASR::stmt_t* create_implicit_deallocate_subrout_call(ASR::stmt_t* x) {
         ASR::SubroutineCall_t* subrout_call = ASR::down_cast<ASR::SubroutineCall_t>(x);
         const ASR::symbol_t* subrout_sym = LFortran::ASRUtils::symbol_get_past_external(subrout_call->m_name);
         if( subrout_sym->type != ASR::symbolType::Subroutine ) {
@@ -753,7 +690,7 @@ public:
                     del_syms.p, del_syms.size()));
     }
 
-    void BodyVisitor::visit_Subroutine(const AST::Subroutine_t &x) {
+    void visit_Subroutine(const AST::Subroutine_t &x) {
     // TODO: add SymbolTable::lookup_symbol(), which will automatically return
     // an error
     // TODO: add SymbolTable::get_symbol(), which will only check in Debug mode
@@ -791,7 +728,7 @@ public:
         tmp = nullptr;
     }
 
-    void BodyVisitor::visit_Function(const AST::Function_t &x) {
+    void visit_Function(const AST::Function_t &x) {
         SymbolTable *old_scope = current_scope;
         ASR::symbol_t *t = current_scope->scope[std::string(x.m_name)];
         ASR::Function_t *v = ASR::down_cast<ASR::Function_t>(t);
@@ -826,7 +763,7 @@ public:
         tmp = nullptr;
     }
 
-    void BodyVisitor::visit_Assignment(const AST::Assignment_t &x) {
+    void visit_Assignment(const AST::Assignment_t &x) {
         this->visit_expr(*x.m_target);
         ASR::expr_t *target = LFortran::ASRUtils::EXPR(tmp);
         ASR::ttype_t *target_type = LFortran::ASRUtils::expr_type(target);
@@ -857,7 +794,7 @@ public:
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value);
     }
 
-    Vec<ASR::expr_t*> BodyVisitor::visit_expr_list(AST::fnarg_t *ast_list, size_t n) {
+    Vec<ASR::expr_t*> visit_expr_list(AST::fnarg_t *ast_list, size_t n) {
         Vec<ASR::expr_t*> asr_list;
         asr_list.reserve(al, n);
         for (size_t i=0; i<n; i++) {
@@ -869,7 +806,7 @@ public:
         return asr_list;
     }
 
-    void BodyVisitor::visit_SubroutineCall(const AST::SubroutineCall_t &x) {
+    void visit_SubroutineCall(const AST::SubroutineCall_t &x) {
         std::string sub_name = x.m_name;
         ASR::symbol_t *original_sym;
         ASR::expr_t *v_expr = nullptr;
@@ -961,7 +898,7 @@ public:
                 final_sym, original_sym, args.p, args.size(), v_expr);
     }
 
-    int BodyVisitor::select_generic_procedure(const Vec<ASR::expr_t*> &args,
+    int select_generic_procedure(const Vec<ASR::expr_t*> &args,
             const ASR::GenericProcedure_t &p, Location loc) {
         for (size_t i=0; i < p.n_procs; i++) {
             if (ASR::is_a<ASR::Subroutine_t>(*p.m_procs[i])) {
@@ -977,7 +914,7 @@ public:
         throw SemanticError("Arguments do not match", loc);
     }
 
-    bool BodyVisitor::argument_types_match(const Vec<ASR::expr_t*> &args,
+    bool argument_types_match(const Vec<ASR::expr_t*> &args,
             const ASR::Subroutine_t &sub) {
         if (args.size() == sub.n_args) {
             for (size_t i=0; i < args.size(); i++) {
@@ -994,11 +931,11 @@ public:
         }
     }
 
-    bool BodyVisitor::types_equal(const ASR::ttype_t &a, const ASR::ttype_t &b) {
+    bool types_equal(const ASR::ttype_t &a, const ASR::ttype_t &b) {
         return (a.type == b.type);
     }
 
-    void BodyVisitor::visit_Compare(const AST::Compare_t &x) {
+    void visit_Compare(const AST::Compare_t &x) {
         this->visit_expr(*x.m_left);
         ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
         this->visit_expr(*x.m_right);
@@ -1006,7 +943,7 @@ public:
         CommonVisitorMethods::visit_Compare(al, x, left, right, tmp);
     }
 
-    void BodyVisitor::visit_BoolOp(const AST::BoolOp_t &x) {
+    void visit_BoolOp(const AST::BoolOp_t &x) {
         this->visit_expr(*x.m_left);
         ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
         this->visit_expr(*x.m_right);
@@ -1014,7 +951,7 @@ public:
         CommonVisitorMethods::visit_BoolOp(al, x, left, right, tmp);
     }
 
-    void BodyVisitor::visit_BinOp(const AST::BinOp_t &x) {
+    void visit_BinOp(const AST::BinOp_t &x) {
         this->visit_expr(*x.m_left);
         ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
         this->visit_expr(*x.m_right);
@@ -1022,7 +959,7 @@ public:
         CommonVisitorMethods::visit_BinOp(al, x, left, right, tmp);
     }
 
-    void BodyVisitor::visit_StrOp(const AST::StrOp_t &x) {
+    void visit_StrOp(const AST::StrOp_t &x) {
         this->visit_expr(*x.m_left);
         ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
         this->visit_expr(*x.m_right);
@@ -1030,13 +967,13 @@ public:
         CommonVisitorMethods::visit_StrOp(al, x, left, right, tmp);
     }
 
-    void BodyVisitor::visit_UnaryOp(const AST::UnaryOp_t &x) {
+    void visit_UnaryOp(const AST::UnaryOp_t &x) {
         this->visit_expr(*x.m_operand);
         ASR::expr_t *operand = LFortran::ASRUtils::EXPR(tmp);
         CommonVisitorMethods::visit_UnaryOp(al, x, operand, tmp);
     }
 
-    ASR::asr_t* BodyVisitor::resolve_variable(const Location &loc, const char* id) {
+    ASR::asr_t* resolve_variable(const Location &loc, const char* id) {
         SymbolTable *scope = current_scope;
         std::string var_name = id;
         ASR::symbol_t *v = scope->resolve_symbol(var_name);
@@ -1053,7 +990,7 @@ public:
         return ASR::make_Var_t(al, loc, v);
     }
 
-    ASR::asr_t* BodyVisitor::getDerivedRef_t(const Location& loc, ASR::asr_t* v_var, ASR::symbol_t* member) {
+    ASR::asr_t* getDerivedRef_t(const Location& loc, ASR::asr_t* v_var, ASR::symbol_t* member) {
         ASR::Variable_t* member_variable = ((ASR::Variable_t*)(&(member->base)));
         ASR::ttype_t* member_type = member_variable->m_type;
         switch( member_type->type ) {
@@ -1108,7 +1045,7 @@ public:
         return ASR::make_DerivedRef_t(al, loc, LFortran::ASRUtils::EXPR(v_var), member, member_type, nullptr);
     }
 
-    ASR::asr_t* BodyVisitor::resolve_variable2(const Location &loc, const char* id,
+    ASR::asr_t* resolve_variable2(const Location &loc, const char* id,
             const char* derived_type_id, SymbolTable*& scope) {
         std::string var_name = id;
         std::string dt_name = derived_type_id;
@@ -1147,7 +1084,7 @@ public:
         }
     }
 
-    ASR::symbol_t* BodyVisitor::resolve_deriv_type_proc(const Location &loc, const char* id,
+    ASR::symbol_t* resolve_deriv_type_proc(const Location &loc, const char* id,
             const char* derived_type_id, SymbolTable*& scope) {
         std::string var_name = id;
         std::string dt_name = derived_type_id;
@@ -1186,7 +1123,7 @@ public:
     }
 
 
-    void BodyVisitor::visit_Name(const AST::Name_t &x) {
+    void visit_Name(const AST::Name_t &x) {
         if (x.n_member == 0) {
             tmp = resolve_variable(x.base.base.loc, x.m_id);
         } else if (x.n_member == 1 && x.m_member[0].n_args == 0) {
@@ -1209,7 +1146,7 @@ public:
         }
     }
 
-    void BodyVisitor::visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
+    void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
         std::vector<std::string> all_intrinsics = {
             "sin",  "cos",  "tan",  "sinh",  "cosh",  "tanh",
             "asin", "acos", "atan", "asinh", "acosh", "atanh"};
@@ -1470,7 +1407,7 @@ public:
             }
     }
 
-    void BodyVisitor::visit_Num(const AST::Num_t &x) {
+    void visit_Num(const AST::Num_t &x) {
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 4, nullptr, 0));
         if (BigInt::is_int_ptr(x.m_n)) {
@@ -1481,23 +1418,23 @@ public:
         }
     }
 
-    void BodyVisitor::visit_Parenthesis(const AST::Parenthesis_t &x) {
+    void visit_Parenthesis(const AST::Parenthesis_t &x) {
         visit_expr(*x.m_operand);
     }
 
-    void BodyVisitor::visit_Logical(const AST::Logical_t &x) {
+    void visit_Logical(const AST::Logical_t &x) {
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc,
                 4, nullptr, 0));
         tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, x.m_value, type);
     }
 
-    void BodyVisitor::visit_String(const AST::String_t &x) {
+    void visit_String(const AST::String_t &x) {
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
                 8, nullptr, 0));
         tmp = ASR::make_ConstantString_t(al, x.base.base.loc, x.m_s, type);
     }
 
-    void BodyVisitor::visit_Real(const AST::Real_t &x) {
+    void visit_Real(const AST::Real_t &x) {
         int a_kind = ASRUtils::extract_kind(x.m_n);
         double r = ASRUtils::extract_real(x.m_n);
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
@@ -1505,7 +1442,7 @@ public:
         tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, r, type);
     }
 
-    void BodyVisitor::visit_Complex(const AST::Complex_t &x) {
+    void visit_Complex(const AST::Complex_t &x) {
         this->visit_expr(*x.m_re);
         ASR::expr_t *re = LFortran::ASRUtils::EXPR(tmp);
         int a_kind_r = LFortran::ASRUtils::extract_kind_from_ttype_t(LFortran::ASRUtils::expr_type(re));
@@ -1518,7 +1455,7 @@ public:
                 re, im, type);
     }
 
-    void BodyVisitor::visit_ArrayInitializer(const AST::ArrayInitializer_t &x) {
+    void visit_ArrayInitializer(const AST::ArrayInitializer_t &x) {
         Vec<ASR::expr_t*> body;
         body.reserve(al, x.n_args);
         ASR::ttype_t *type = nullptr;
@@ -1539,7 +1476,7 @@ public:
             body.size(), type);
     }
 
-    void BodyVisitor::visit_Print(const AST::Print_t &x) {
+    void visit_Print(const AST::Print_t &x) {
         Vec<ASR::expr_t*> body;
         body.reserve(al, x.n_values);
         for (size_t i=0; i<x.n_values; i++) {
@@ -1551,7 +1488,7 @@ public:
             body.p, body.size());
     }
 
-    void BodyVisitor::visit_If(const AST::If_t &x) {
+    void visit_If(const AST::If_t &x) {
         visit_expr(*x.m_test);
         ASR::expr_t *test = LFortran::ASRUtils::EXPR(tmp);
         Vec<ASR::stmt_t*> body;
@@ -1574,7 +1511,7 @@ public:
                 body.size(), orelse.p, orelse.size());
     }
 
-    void BodyVisitor::visit_WhileLoop(const AST::WhileLoop_t &x) {
+    void visit_WhileLoop(const AST::WhileLoop_t &x) {
         visit_expr(*x.m_test);
         ASR::expr_t *test = LFortran::ASRUtils::EXPR(tmp);
         Vec<ASR::stmt_t*> body;
@@ -1589,7 +1526,7 @@ public:
                 body.size());
     }
 
-    void BodyVisitor::visit_ImpliedDoLoop(const AST::ImpliedDoLoop_t& x) {
+    void visit_ImpliedDoLoop(const AST::ImpliedDoLoop_t& x) {
         Vec<ASR::expr_t*> a_values_vec;
         ASR::expr_t *a_start, *a_end, *a_increment;
         a_start = a_end = a_increment = nullptr;
@@ -1625,7 +1562,7 @@ public:
                                             LFortran::ASRUtils::expr_type(a_start), nullptr);
     }
 
-    void BodyVisitor::visit_DoLoop(const AST::DoLoop_t &x) {
+    void visit_DoLoop(const AST::DoLoop_t &x) {
         if (! x.m_var) {
             throw SemanticError("Do loop: loop variable is required for now",
                 x.base.base.loc);
@@ -1669,7 +1606,7 @@ public:
                 body.size());
     }
 
-    void BodyVisitor::visit_DoConcurrentLoop(const AST::DoConcurrentLoop_t &x) {
+    void visit_DoConcurrentLoop(const AST::DoConcurrentLoop_t &x) {
         if (x.n_control != 1) {
             throw SemanticError("Do concurrent: exactly one control statement is required for now",
             x.base.base.loc);
@@ -1718,23 +1655,23 @@ public:
                 body.size());
     }
 
-    void BodyVisitor::visit_Exit(const AST::Exit_t &x) {
+    void visit_Exit(const AST::Exit_t &x) {
         // TODO: add a check here that we are inside a While loop
         tmp = ASR::make_Exit_t(al, x.base.base.loc);
     }
 
-    void BodyVisitor::visit_Cycle(const AST::Cycle_t &x) {
+    void visit_Cycle(const AST::Cycle_t &x) {
         // TODO: add a check here that we are inside a While loop
         tmp = ASR::make_Cycle_t(al, x.base.base.loc);
     }
 
-    void BodyVisitor::visit_Continue(const AST::Continue_t &/*x*/) {
+    void visit_Continue(const AST::Continue_t &/*x*/) {
         // TODO: add a check here that we are inside a While loop
         // Nothing to generate, we return a null pointer
         tmp = nullptr;
     }
 
-    void BodyVisitor::visit_Stop(const AST::Stop_t &x) {
+    void visit_Stop(const AST::Stop_t &x) {
         ASR::expr_t *code;
         if (x.m_code) {
             visit_expr(*x.m_code);
@@ -1745,7 +1682,7 @@ public:
         tmp = ASR::make_Stop_t(al, x.base.base.loc, code);
     }
 
-    void BodyVisitor::visit_ErrorStop(const AST::ErrorStop_t &x) {
+    void visit_ErrorStop(const AST::ErrorStop_t &x) {
         ASR::expr_t *code;
         if (x.m_code) {
             visit_expr(*x.m_code);
@@ -1755,6 +1692,8 @@ public:
         }
         tmp = ASR::make_ErrorStop_t(al, x.base.base.loc, code);
     }
+
+};
 
 ASR::TranslationUnit_t *body_visitor(Allocator &al,
         AST::TranslationUnit_t &ast, ASR::asr_t *unit)
