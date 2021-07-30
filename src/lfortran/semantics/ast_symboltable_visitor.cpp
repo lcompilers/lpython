@@ -802,10 +802,18 @@ public:
                         // We don't actually need the value yet, it is enough to know it is a double
                         // but it might provide further information later (precision)
                         // double tiny_val = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(tiny_expr))->m_r;
-                        float low_val = std::numeric_limits<float>::min();
-                        value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc,
-                                                                                     low_val, // value
-                                                                                     tiny_type));
+                        int tiny_kind = LFortran::ASRUtils::extract_kind_from_ttype_t(tiny_type);
+                        if (tiny_kind == 4){
+                            float low_val = std::numeric_limits<float>::min();
+                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc,
+                                                                                         low_val, // value
+                                                                                         tiny_type));
+                        } else {
+                            double low_val = std::numeric_limits<double>::min();
+                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc,
+                                                                                         low_val, // value
+                                                                                         tiny_type));
+                                }
                     }
                     else {
                         throw SemanticError("Argument for tiny must be Real",
