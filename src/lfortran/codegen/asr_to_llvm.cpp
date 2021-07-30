@@ -261,10 +261,6 @@ public:
                 break;
             }
             case ASR::ttypeType::Character: {
-                el_type = llvm::Type::getInt8Ty(context);
-                break;
-            }
-            case ASR::ttypeType::CharacterPointer: {
                 el_type = character_type;
                 break;
             }
@@ -1981,10 +1977,15 @@ public:
                 int idx = std::distance(nested_globals.begin(), finder);
                 target = builder->CreateLoad(llvm_utils->create_gep(ptr, idx));
             }
+            if( arr_descr->is_array(target) ) {
+                if( asr_target->m_type->type == 
+                    ASR::ttypeType::Character ) {
+                    target = arr_descr->get_pointer_to_data(target);
+            }
+        }
         }
         this->visit_expr_wrapper(x.m_value, true);
         value = tmp;
-        // TODO: Make changes for handling allocatable strings as target.
         builder->CreateStore(value, target);
         auto finder = std::find(nested_globals.begin(), 
                 nested_globals.end(), h);

@@ -1,17 +1,20 @@
 program character1
 implicit none
 
-   character(len = 15) :: surname, firstname 
-   character, allocatable :: title(:)
-   ! character(len = :), allocatable :: greetings
+   character(len = 40), allocatable :: user_data(:)
+   character, allocatable :: greetings(:)
 
-   title = 'Mr. '
-   firstname = 'Rowan '
-   surname = 'Atkinson'
-   allocate(title(6))
-   ! greetings = 'A big hello from Mr. Bean'
+   allocate(user_data(3))
+   user_data(1) = 'Mr. '
+   user_data(2) = 'Rowan '
+   user_data(3) = 'Atkinson'
+   allocate(greetings(4))
+   greetings(1) = 'h'
+   greetings(2) = 'e'
+   greetings(3) = 'l'
+   greetings(4) = 'l'
+   greetings(5) = 'o'
 
-   print *, 'Here is ', title, firstname, surname
-   ! print *, greetings
+   print *, 'Here is ', user_data(1), user_data(2), user_data(3)
 
 end program character1
