@@ -10,9 +10,9 @@
 #include <lfortran/asr_utils.h>
 #include <lfortran/asr_verify.h>
 #include <lfortran/semantics/asr_implicit_cast_rules.h>
-#include <lfortran/semantics/asr_common_visitor.h>
-#include <lfortran/semantics/asr_symboltable_visitor.h>
-#include <lfortran/semantics/asr_body_visitor.h>
+#include <lfortran/semantics/ast_common_visitor.h>
+#include <lfortran/semantics/ast_symboltable_visitor.h>
+#include <lfortran/semantics/ast_body_visitor.h>
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/parser/parser_stype.h>
 #include <lfortran/string_utils.h>
