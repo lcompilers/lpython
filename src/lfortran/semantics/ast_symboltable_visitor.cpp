@@ -852,8 +852,11 @@ namespace LFortran{
                 current_scope->scope[proc.first]);
             for (auto &pname : proc.second) {
                 ASR::symbol_t *proc_sym = current_scope->scope[pname.second];
-                char *name = (char*)pname.first.c_str();
-                char *proc_name = (char*)pname.second.c_str();
+                Str s;
+                s.from_str_view(pname.first);
+                char *name = s.c_str(al);
+                s.from_str_view(pname.second);
+                char *proc_name = s.c_str(al);
                 ASR::asr_t *v = ASR::make_ClassProcedure_t(al, loc,
                     current_scope, name, proc_name, proc_sym,
                     ASR::abiType::Source);
