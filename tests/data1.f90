@@ -14,6 +14,7 @@ program data1
     data ((skew (k, j), j = k + 1, 100, k), k = 1, 99, 1) / 4950 * 1.0 /
     data yourname % age, yourname % fullname / 35, 'abc' /
     DATA s/ 1.d0, -1.d0,  0.d0,  0.d0,  0.d0, -1.d0, sin3,  cos3, 0.d0, -1.d0 /
+    data(iarx(i,1), iary(i,1),i=1,9)/  1, 9, 1950,1350, 4350/
 
     print *, "Your name is: ", yourname % fullname
     print *, "Your age is: ", yourname % age
