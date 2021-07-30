@@ -1,0 +1,106 @@
+; ModuleID = 'LFortran'
+source_filename = "LFortran"
+
+@0 = private unnamed_addr constant [10 x i8] c"%f %f %f\0A\00", align 1
+@1 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
+@2 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
+
+define i32 @main() {
+.entry:
+  %a = alloca float, align 4
+  %myreal = alloca float, align 4
+  %theta = alloca float, align 4
+  %x = alloca float, align 4
+  %y = alloca float, align 4
+  store float 0x3FDAE147A0000000, float* %x, align 4
+  store float 0x3FD6666660000000, float* %y, align 4
+  store float 0x4022333340000000, float* %myreal, align 4
+  store float 1.500000e+00, float* %theta, align 4
+  store float 0x3FD99999A0000000, float* %a, align 4
+  %0 = load float, float* %a, align 4
+  %1 = load float, float* %x, align 4
+  %2 = fmul float %1, 2.000000e+00
+  %3 = load float, float* %y, align 4
+  %4 = fmul float %3, 2.000000e+00
+  %5 = fadd float %2, %4
+  %6 = fsub float 0.000000e+00, %5
+  %7 = alloca float, align 4
+  %8 = load float, float* %theta, align 4
+  call void @_lfortran_cos(float %8, float* %7)
+  %9 = load float, float* %7, align 4
+  %10 = fmul float %6, %9
+  %11 = fadd float %0, %10
+  %12 = fpext float %11 to double
+  %13 = load float, float* %a, align 4
+  %14 = load float, float* %x, align 4
+  %15 = fmul float %14, 2.000000e+00
+  %16 = load float, float* %y, align 4
+  %17 = fmul float %16, 2.000000e+00
+  %18 = fadd float %15, %17
+  %19 = fsub float 0.000000e+00, %18
+  %20 = alloca float, align 4
+  %21 = load float, float* %theta, align 4
+  call void @_lfortran_cos(float %21, float* %20)
+  %22 = load float, float* %20, align 4
+  %23 = fmul float %19, %22
+  %24 = fsub float %13, %23
+  %25 = fpext float %24 to double
+  %26 = load float, float* %myreal, align 4
+  %27 = fpext float %26 to double
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([10 x i8], [10 x i8]* @0, i32 0, i32 0), double %12, double %25, double %27)
+  %28 = load float, float* %myreal, align 4
+  %29 = fmul float %28, 0x4012666660000000
+  store float %29, float* %myreal, align 4
+  %30 = load float, float* %myreal, align 4
+  %31 = fpext float %30 to double
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @1, i32 0, i32 0), double %31)
+  %32 = load float, float* %myreal, align 4
+  %33 = fsub float %32, 0x4044EE1480000000
+  %34 = fcmp ugt float %33, 0x3EE4F8B580000000
+  %35 = load float, float* %myreal, align 4
+  %36 = fsub float %35, 0x4044EE1480000000
+  %37 = fcmp ult float %36, 0xBEE4F8B580000000
+  %38 = or i1 %34, %37
+  br i1 %38, label %then, label %else
+
+then:                                             ; preds = %.entry
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @2, i32 0, i32 0))
+  call void @exit(i32 1)
+  br label %ifcont
+
+else:                                             ; preds = %.entry
+  br label %ifcont
+
+ifcont:                                           ; preds = %else, %then
+  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
+  ret i32 0
+}
+
+declare void @_lfortran_sin(float, float*)
+
+declare void @_lfortran_cos(float, float*)
+
+declare void @_lfortran_tan(float, float*)
+
+declare void @_lfortran_sinh(float, float*)
+
+declare void @_lfortran_cosh(float, float*)
+
+declare void @_lfortran_tanh(float, float*)
+
+declare void @_lfortran_asin(float, float*)
+
+declare void @_lfortran_acos(float, float*)
+
+declare void @_lfortran_atan(float, float*)
+
+declare void @_lfortran_asinh(float, float*)
+
+declare void @_lfortran_acosh(float, float*)
+
+declare void @_lfortran_atanh(float, float*)
+
+declare void @_lfortran_printf(i8*, ...)
+
+declare void @exit(i32)
+

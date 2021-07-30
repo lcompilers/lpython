@@ -360,6 +360,25 @@ namespace LFortran {
             return nullptr;
         }
 
+        bool is_slice_present(const ASR::ArrayRef_t& x) {
+            bool slice_present = false;
+            for( size_t i = 0; i < x.n_args; i++ ) {
+                if( x.m_args[i].m_step != nullptr ) {
+                    slice_present = true;
+                    break;
+                }
+            }
+            return slice_present;
+        }
+
+        bool is_slice_present(const ASR::expr_t* x) {
+            if( x == nullptr || x->type != ASR::exprType::ArrayRef ) {
+                return false;
+            }
+            ASR::ArrayRef_t* array_ref = ASR::down_cast<ASR::ArrayRef_t>(x);
+            return is_slice_present(*array_ref);
+        }
+
     }
 
 }
