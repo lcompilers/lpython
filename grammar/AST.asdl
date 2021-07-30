@@ -63,7 +63,7 @@ unit_decl2
     = Declaration(decl_attribute? vartype, decl_attribute* attributes,
         var_sym* syms)
     | Interface(interface_header header, interface_item* items)
-    | DerivedType(identifier name, decl_attribute* attrtype,
+    | DerivedType(identifier name, identifier* namelist, decl_attribute* attrtype,
         unit_decl2* items, procedure_decl* contains)
     | Enum(decl_attribute* attr, unit_decl2* items)
 
@@ -74,6 +74,8 @@ interface_header
     | InterfaceHeaderOperator(intrinsicop op)
     | InterfaceHeaderDefinedOperator(string operator_name)
     | AbstractInterfaceHeader()
+    | InterfaceHeaderWrite(identifier id)
+    | InterfaceHeaderRead(identifier id)
 
 interface_item
     = InterfaceProc(program_unit proc)
@@ -210,11 +212,13 @@ procedure_decl
         identifier* names)
     | GenericAssignment(decl_attribute* attr, identifier* names)
     | GenericName(decl_attribute* attr, identifier name, identifier* names)
+    | GenericWrite(decl_attribute* attr, identifier id, identifier* names)
+    | GenericRead(decl_attribute* attr, identifier id, identifier* names)
     | FinalName(identifier name)
     | Private()
 
 decl_attribute
-    = AttrBind(identifier name)
+    = AttrBind(bind bind)
     | AttrData(expr* object, expr* value)
     | AttrDimension(dimension* dim)
     | AttrCodimension(codimension* codim)
@@ -241,6 +245,8 @@ simple_attribute
     | AttrExternal
     | AttrImpure
     | AttrIntrinsic
+    | AttrKind
+    | AttrLen
     | AttrModule
     | AttrNoPass
     | AttrNonDeferred
@@ -290,7 +296,7 @@ dimension_type = DimensionExpr | DimensionStar | AssumedRank
 codimension = (expr? start, expr? end, codimension_type end_star)
 codimension_type = CodimensionExpr | CodimensionStar
 
-symbol = None | Arrow | Equal | Asterisk | DoubleAsterisk
+symbol = None | Arrow | Equal | Asterisk | DoubleAsterisk | Slash
 
 equi = (expr* set_list)
 
@@ -366,6 +372,8 @@ use_symbol
     | IntrinsicOperator(intrinsicop op)
     | DefinedOperator(string opName)
     | RenameOperator(string local_defop, string use_defop)
+    | UseWrite(identifier id)
+    | UseRead(identifier id)
 
 concurrent_control = ConcurrentControl(identifier? var, expr? start, expr? end, expr? increment)
 

@@ -1,0 +1,13 @@
+{
+    "basename": "ast_f90-fixed_form1-b056bbd",
+    "cmd": "lfortran --fixed-form --show-ast-f90 --no-color {infile}",
+    "infile": "tests/fixed_form1.f",
+    "infile_hash": "a6774c19d8ae1f0ab04227a596e393ce26d84d1c0f796b7187a87f1a",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_f90-fixed_form1-b056bbd.stdout",
+    "stdout_hash": "cfe246ceb80ae9ce64fe4ff64241423d9844b0a0c3af71ee1cbf3d50",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

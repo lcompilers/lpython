@@ -30,9 +30,16 @@ contains
     generic, public :: calcCoeffs => calcCoeffsReal, calcCoeffsKPoint
     generic, private :: name => sample
     generic :: p1 => p2;
+    generic, public :: write(formatted) => t_write
+    generic :: read(unformatted) => t_read
     final :: y
 end type X
 
+type matrix(k, b)
+    integer, kind :: k = 4
+    integer(8), len :: b
+    real(k) :: element(b, b)
+endtype matrix
 
 contains
 

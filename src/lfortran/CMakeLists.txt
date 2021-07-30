@@ -5,6 +5,8 @@ set(SRC
     parser/parser.tab.cc
     parser/parser.cpp
 
+    semantics/ast_symboltable_visitor.cpp
+    semantics/ast_body_visitor.cpp
     semantics/ast_to_asr.cpp
     semantics/asr_scopes.cpp
 

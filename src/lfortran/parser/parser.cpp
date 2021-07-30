@@ -29,10 +29,11 @@ AST::TranslationUnit_t* parse(Allocator &al, const std::string &s)
 }
 
 AST::TranslationUnit_t* parse2(Allocator &al, const std::string &code_original,
-        bool use_colors)
+        bool use_colors, bool fixed_form)
 {
     LFortran::LocationManager lm;
-    std::string code_prescanned = LFortran::fix_continuation(code_original, lm);
+    std::string code_prescanned = LFortran::fix_continuation(code_original, lm,
+            fixed_form);
     AST::TranslationUnit_t* result;
     try {
         result = parse(al, code_prescanned);
@@ -102,44 +103,109 @@ void cont1(const std::string &s, size_t &pos, bool &ws_or_comment)
     pos++;
 }
 
-std::string fix_continuation(const std::string &s, LocationManager &lm)
+std::string fix_continuation(const std::string &s, LocationManager &lm,
+        bool fixed_form)
 {
-    // `pos` is the position in the original code `s`
-    // `out` is the final code (outcome)
-    lm.out_start.push_back(0);
-    lm.in_start.push_back(0);
-    std::string out;
-    size_t pos = 0;
-    bool in_comment = false;
-    while (pos < s.size()) {
-        if (s[pos] == '!') in_comment = true;
-        if (in_comment && s[pos] == '\n') in_comment = false;
-        if (!in_comment && s[pos] == '&') {
-            size_t pos2=pos+1;
-            bool ws_or_comment;
-            cont1(s, pos2, ws_or_comment);
-            if (ws_or_comment) {
-                while (ws_or_comment) {
-                    cont1(s, pos2, ws_or_comment);
+    if (fixed_form) {
+        // `pos` is the position in the original code `s`
+        // `out` is the final code (outcome)
+        lm.out_start.push_back(0);
+        lm.in_start.push_back(0);
+        std::string out;
+        size_t pos = 0;
+        /* Note:
+         * This should be a valid fixed form prescanner, except the following
+         * features which are currently not implemented:
+         *
+         *   * Continuation lines after comment(s) or empty lines (they will be
+         *     appended to the previous comment, and thus skipped)
+         *   * Characters after column 72 are included, but should be ignored
+         *   * White space is preserved (but should be removed)
+         *
+         * The parser together with this fixed form prescanner works as a fixed
+         * form parser with some limitations. Due to the last point above,
+         * white space is not ignored because it is needed for the parser, so
+         * the following are not supported:
+         *
+         *   * Extra space: `.  and.`, `3.5 55 d0`, ...
+         *   * Missing space: `doi=1,5`, `callsome_subroutine(x)`
+         *
+         * It turns out most fixed form codes use white space as one would
+         * expect, so it is not such a big problem and the fixes needed to do
+         * in the fixed form Fortran code are relatively minor in practice.
+         */
+        while (pos < s.size()) {
+            if ( (pos == 0 && (s[pos] == 'c' || s[pos] == 'C'
+                        || s[pos] == '*'))
+                    ||
+                    (pos > 0 && s[pos-1] == '\n'
+                        && (s[pos] == 'c' || s[pos] == 'C'
+                            || s[pos] == '*')) ) {
+                // Comment: prescan the rest of the line
+                out += '!';
+                pos++;
+                while (pos < s.size() && s[pos] != '\n') {
+                    out += s[pos];
+                    pos++;;
                 }
-                // `pos` will move by more than 1, close the old interval
-//                lm.in_size.push_back(pos-lm.in_start[lm.in_start.size()-1]);
-                // Move `pos`
-                pos = pos2;
-                if (s[pos] == '&') pos++;
-                // Start a new interval (just the starts, the size will be
-                // filled in later)
-                lm.out_start.push_back(out.size());
-                lm.in_start.push_back(pos);
+                if (pos < s.size()) {
+                    out += s[pos];
+                    pos++;;
+                }
+                continue;
+            } else if ( (pos > 5 && s[pos-6] == '\n'
+                        && (s[pos] != ' ' && s[pos] != '0'))
+                    && s[pos-5] == ' ') {
+                // Line continuation:
+                out = out.substr(0, out.size()-6);
+            } else if ( (pos > 5 && s[pos-6] == '\n'
+                        && s[pos] == '0')
+                    && s[pos-5] == ' ') {
+                // Regular line, but remove the 0 by not outputting anything
+            } else {
+                out += s[pos];
             }
+            pos++;
         }
-        out += s[pos];
-        pos++;
-    }
-    // set the size of the last interval
-//    lm.in_size.push_back(pos-lm.in_start[lm.in_start.size()-1]);
+        return out;
+    } else {
+        // `pos` is the position in the original code `s`
+        // `out` is the final code (outcome)
+        lm.out_start.push_back(0);
+        lm.in_start.push_back(0);
+        std::string out;
+        size_t pos = 0;
+        bool in_comment = false;
+        while (pos < s.size()) {
+            if (s[pos] == '!') in_comment = true;
+            if (in_comment && s[pos] == '\n') in_comment = false;
+            if (!in_comment && s[pos] == '&') {
+                size_t pos2=pos+1;
+                bool ws_or_comment;
+                cont1(s, pos2, ws_or_comment);
+                if (ws_or_comment) {
+                    while (ws_or_comment) {
+                        cont1(s, pos2, ws_or_comment);
+                    }
+                    // `pos` will move by more than 1, close the old interval
+    //                lm.in_size.push_back(pos-lm.in_start[lm.in_start.size()-1]);
+                    // Move `pos`
+                    pos = pos2;
+                    if (s[pos] == '&') pos++;
+                    // Start a new interval (just the starts, the size will be
+                    // filled in later)
+                    lm.out_start.push_back(out.size());
+                    lm.in_start.push_back(pos);
+                }
+            }
+            out += s[pos];
+            pos++;
+        }
+        // set the size of the last interval
+    //    lm.in_size.push_back(pos-lm.in_start[lm.in_start.size()-1]);
 
-    return out;
+        return out;
+    }
 }
 
 

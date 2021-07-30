@@ -38,7 +38,7 @@ AST::TranslationUnit_t* parse(Allocator &al, const std::string &s);
 // Just like `parse`, but prints a nice error message to std::cout if a
 // syntax error happens:
 AST::TranslationUnit_t* parse2(Allocator &al, const std::string &s,
-        bool use_colors=true);
+        bool use_colors=true, bool fixed_form=false);
 
 // Returns a nice error message as a string
 std::string format_syntax_error(const std::string &filename,
@@ -91,7 +91,8 @@ struct LocationManager {
     }
 };
 
-std::string fix_continuation(const std::string &s, LocationManager &lm);
+std::string fix_continuation(const std::string &s, LocationManager &lm,
+        bool fixed_form);
 
 } // namespace LFortran
 

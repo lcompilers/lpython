@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    780 // shift/reduce conflicts
-%expect-rr 102 // reduce/reduce conflicts
+%expect    802 // shift/reduce conflicts
+%expect-rr 136 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -586,6 +586,8 @@ interface_stmt
     | KW_INTERFACE KW_OPERATOR "(" TK_DEF_OP ")" {
         $$ = INTERFACE_HEADER_DEFOP($4, @$); }
     | KW_ABSTRACT KW_INTERFACE { $$ = ABSTRACT_INTERFACE_HEADER(@$); }
+    | KW_INTERFACE KW_WRITE "(" id ")" { $$ = INTERFACE_HEADER_WRITE($4, @$); }
+    | KW_INTERFACE KW_READ "(" id ")" { $$ = INTERFACE_HEADER_READ($4, @$); }
     ;
 
 endinterface
@@ -641,7 +643,10 @@ enum_var_modifiers
 derived_type_decl
     : KW_TYPE var_modifiers id sep var_decl_star
         derived_type_contains_opt end_type sep {
-        $$ = DERIVED_TYPE($2, $3, $5, $6, @$); }
+            $$ = DERIVED_TYPE($2, $3, $5, $6, @$); }
+    | KW_TYPE var_modifiers id "(" id_list ")" sep var_decl_star
+        derived_type_contains_opt end_type sep {
+            $$ = DERIVED_TYPE1($2, $3, $5, $8, $9, @$); }
     ;
 
 end_type
@@ -674,6 +679,10 @@ procedure_decl
             $$ = GENERIC_ASSIGNMENT($2, $8, @$); }
     | KW_GENERIC access_spec_list id "=>" id_list sep {
             $$ = GENERIC_NAME($2, $3, $5, @$); }
+    | KW_GENERIC access_spec_list KW_WRITE "(" id ")" "=>" id_list sep {
+            $$ = GENERIC_WRITE($2, $5, $8, @$); }
+    | KW_GENERIC access_spec_list KW_READ "(" id ")" "=>" id_list sep {
+            $$ = GENERIC_READ($2, $5, $8, @$); }
     | KW_FINAL "::" id sep { $$ = FINAL_NAME($3, @$); }
     | KW_PRIVATE sep { $$ = PRIVATE(Private, @$); }
     ;
@@ -1056,6 +1065,8 @@ use_symbol
     | KW_OPERATOR "(" TK_DEF_OP ")"  { $$ = DEFINED_OPERATOR($3, @$); }
     | KW_OPERATOR "(" TK_DEF_OP ")" "=>" KW_OPERATOR "(" TK_DEF_OP ")" {
         $$ = RENAME_OPERATOR($3, $8, @$); }
+    | KW_WRITE "(" id ")" { $$ = USE_WRITE($3, @$); }
+    | KW_READ "(" id ")" { $$ = USE_READ($3, @$); }
     ;
 
 use_modifiers
@@ -1243,7 +1254,9 @@ var_modifier
     | KW_VALUE { $$ = SIMPLE_ATTR(Value, @$); }
     | KW_VOLATILE { $$ = SIMPLE_ATTR(Volatile, @$); }
     | KW_EXTENDS "(" id ")" { $$ = EXTENDS($3, @$); }
-    | KW_BIND "(" id ")" { $$ = BIND($3, @$); }
+    | bind { $$ = BIND($1, @$); }
+    | KW_KIND { $$ = SIMPLE_ATTR(Kind, @$); }
+    | KW_LEN { $$ = SIMPLE_ATTR(Len, @$); }
     ;
 
 
@@ -1281,6 +1294,7 @@ var_sym_decl_list
 
 var_sym_decl
     : id { $$ = VAR_SYM_NAME($1, None, @$); }
+    | "/" id "/" { $$ = VAR_SYM_NAME($2, Slash, @$); }
     | id "=" expr { $$ = VAR_SYM_DIM_INIT($1, nullptr, 0, $3, Equal, @$); }
     | id "=>" expr { $$ = VAR_SYM_DIM_INIT($1, nullptr, 0, $3, Arrow, @$); }
     | id "*" expr { $$ = VAR_SYM_DIM_INIT($1, nullptr, 0, $3, Asterisk, @$); }

@@ -69,6 +69,22 @@ public :: operator(//)
 interface operator (//)
 end interface  operator (//)
 
+interface write(formatted)
+    module procedure :: write_formatted
+end interface
+
+interface write(unformatted)
+    module procedure :: write_unformatted
+end interface
+
+interface read(formatted)
+    module procedure :: read_formatted
+end interface
+
+interface read(unformatted)
+    module procedure :: read_unformatted
+end interface
+
 contains
 
     function f(operator)
