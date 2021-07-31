@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <cmath>
+#include <limits>
 
 #include <lfortran/ast.h>
 #include <lfortran/asr.h>
@@ -34,7 +35,9 @@ private:
         {"maxval", "lfortran_intrinsic_array"},
         {"real", "lfortran_intrinsic_array"},
         {"sum", "lfortran_intrinsic_array"},
-        {"abs", "lfortran_intrinsic_array"}};
+        {"abs", "lfortran_intrinsic_array"},
+        {"tiny", "lfortran_intrinsic_array"}
+};
 
 public:
     ASR::asr_t *asr;
@@ -781,8 +784,53 @@ public:
         ASR::ttype_t *type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(
                 LFortran::ASRUtils::symbol_get_past_external(v))
                 ->m_return_var)->m_type;
+        // Add value where possible
+        ASR::expr_t *value = nullptr;
+        switch(args.n) {
+            case 1: // Single argument intrinsics
+                if (var_name=="tiny") {
+                    // We assume the input is valid
+                    // ASR::expr_t* tiny_expr = args[0];
+                    ASR::ttype_t* tiny_type = LFortran::ASRUtils::expr_type(args[0]);
+                    // TODO: Arrays of reals are a valid argument for tiny
+                    if (LFortran::ASRUtils::is_array(tiny_type)){
+                        throw SemanticError("Array values not implemented yet",
+                                            x.base.base.loc);
+                    }
+                    // TODO: Figure out how to deal with single and double precision later
+                    if (ASR::is_a<LFortran::ASR::Real_t>(*tiny_type)) {
+                        // We don't actually need the value yet, it is enough to know it is a double
+                        // but it might provide further information later (precision)
+                        // double tiny_val = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(tiny_expr))->m_r;
+                        int tiny_kind = LFortran::ASRUtils::extract_kind_from_ttype_t(tiny_type);
+                        if (tiny_kind == 4){
+                            float low_val = std::numeric_limits<float>::min();
+                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc,
+                                                                                         low_val, // value
+                                                                                         tiny_type));
+                        } else {
+                            double low_val = std::numeric_limits<double>::min();
+                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc,
+                                                                                         low_val, // value
+                                                                                         tiny_type));
+                                }
+                    }
+                    else {
+                        throw SemanticError("Argument for tiny must be Real",
+                                            x.base.base.loc);
+                    }
+                }
+                break;
+            default: // Not implemented
+            throw SemanticError("Function '" + var_name + "' with " + std::to_string(args.n) +
+                    " arguments not supported yet",
+                    x.base.base.loc);
+                break;
+        }
+        // if (var_name=="kind" && args.n==1) {
+        // }
         asr = ASR::make_FunctionCall_t(al, x.base.base.loc, v, nullptr,
-            args.p, args.size(), nullptr, 0, type, nullptr, nullptr);
+            args.p, args.size(), nullptr, 0, type, value, nullptr);
     }
 
     void visit_DerivedType(const AST::DerivedType_t &x) {
