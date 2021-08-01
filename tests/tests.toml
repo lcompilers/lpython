@@ -1053,9 +1053,14 @@ llvm = true
 filename = "../integration_tests/intrinsics_07.f90"
 asr = true
 
-# tiny
+# tiny (symboltable)
 [[test]]
 filename = "../integration_tests/intrinsics_08.f90"
+asr = true
+
+# tiny (body)
+[[test]]
+filename = "../integration_tests/intrinsics_09.f90"
 asr = true
 
 [[test]]
