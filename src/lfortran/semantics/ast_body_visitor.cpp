@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <map>
 #include <memory>
 #include <string>
@@ -9,6 +10,7 @@
 #include <lfortran/asr.h>
 #include <lfortran/asr_utils.h>
 #include <lfortran/asr_verify.h>
+#include <lfortran/exception.h>
 #include <lfortran/semantics/asr_implicit_cast_rules.h>
 #include <lfortran/semantics/ast_common_visitor.h>
 #include <lfortran/semantics/ast_to_asr.h>
@@ -1323,11 +1325,41 @@ public:
                 LFORTRAN_ASSERT(f2);
                 if (ASR::is_a<ASR::Function_t>(*f2)) {
                     Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
-                    ASR::ttype_t *type;
-                    type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(f2)->m_return_var)->m_type;
+                    ASR::ttype_t *return_type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(f2)->m_return_var)->m_type;
+                    // Populate value
+                    ASR::expr_t* value = nullptr;
+                    std::string func_name = x.m_func;
+                    // Only populate for supported intrinsic functions
+                    if (intrinsic_procedures.find(func_name)
+                        != intrinsic_procedures.end()) { // Got an intrinsic, now try to assign value
+                        ASR::ttype_t *func_type = LFortran::ASRUtils::expr_type(args[0]);
+                        if (func_name == "tiny") {
+                            if (args.n == 1) {
+                                if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*func_type)) {
+                                    if (LFortran::ASRUtils::is_array(func_type)){
+                                        throw SemanticError("Array values not implemented yet",
+                                                            x.base.base.loc);
+                                    }
+                                    int tiny_kind = LFortran::ASRUtils::extract_kind_from_ttype_t(func_type);
+                                    if (tiny_kind == 4){
+                                        float low_val = std::numeric_limits<float>::min();
+                                        value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, low_val, func_type));
+                                    } else {
+                                        double low_val = std::numeric_limits<float>::min();
+                                        value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, low_val, func_type));
+                                    }
+                                }
+                                else {
+                                    throw SemanticError("Argument for tiny must be Real", x.base.base.loc);
+                                }
+                            } else {
+                                throw SemanticError("tiny must have only one argument", x.base.base.loc);
+                            }
+                        }
+                    }
                     tmp = ASR::make_FunctionCall_t(al, x.base.base.loc,
-                        v, nullptr, args.p, args.size(), nullptr, 0, type,
-                        nullptr, nullptr);
+                        v, nullptr, args.p, args.size(), nullptr, 0, return_type,
+                        value, nullptr);
                 } else if (ASR::is_a<ASR::Variable_t>(*f2)) {
                     Vec<ASR::array_index_t> args;
                     args.reserve(al, x.n_args);
