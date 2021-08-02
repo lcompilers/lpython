@@ -151,6 +151,7 @@ void skip_rest_of_line(const std::string &s, size_t &pos)
     pos++; // Skip the last '\n'
 }
 
+// Parses string, including possible continuation lines
 void parse_string(std::string &out, const std::string &s, size_t &pos)
 {
     char quote = s[pos];
@@ -159,7 +160,6 @@ void parse_string(std::string &out, const std::string &s, size_t &pos)
     pos++;
     while (pos < s.size() && ! (s[pos] == quote && s[pos+1] != quote)) {
         if (s[pos] == '\n') {
-            out += s[pos];
             pos++;
             pos += 6;
             continue;
