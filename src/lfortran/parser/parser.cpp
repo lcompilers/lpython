@@ -151,17 +151,43 @@ void skip_rest_of_line(const std::string &s, size_t &pos)
     pos++; // Skip the last '\n'
 }
 
-void copy_rest_of_line(std::string &out, const std::string &s, size_t &pos)
+void parse_string(std::string &out, const std::string &s, size_t &pos)
 {
-    while (pos < s.size() && s[pos] != '\n') {
-        // TODO: this doesn't work inside a string
-        if (s[pos] == '!') {
-            skip_rest_of_line(s, pos);
-            out += '\n';
-            return;
+    char quote = s[pos];
+    LFORTRAN_ASSERT(quote == '"' || quote == '\'');
+    out += s[pos];
+    pos++;
+    while (pos < s.size() && ! (s[pos] == quote && s[pos+1] != quote)) {
+        if (s[pos] == '\n') {
+            out += s[pos];
+            pos++;
+            pos += 6;
+            continue;
+        }
+        if (s[pos] == quote && s[pos+1] == quote) {
+            out += s[pos];
+            pos++;
         }
         out += s[pos];
         pos++;
+    }
+    out += s[pos]; // Copy the last quote
+    pos++;
+}
+
+void copy_rest_of_line(std::string &out, const std::string &s, size_t &pos)
+{
+    while (pos < s.size() && s[pos] != '\n') {
+        if (s[pos] == '"' || s[pos] == '\'') {
+            parse_string(out, s, pos);
+        } else if (s[pos] == '!') {
+            skip_rest_of_line(s, pos);
+            out += '\n';
+            return;
+        } else {
+            out += s[pos];
+            pos++;
+        }
     }
     out += s[pos]; // Copy the last `\n'
     pos++;
