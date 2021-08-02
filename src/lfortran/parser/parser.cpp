@@ -103,6 +103,46 @@ void cont1(const std::string &s, size_t &pos, bool &ws_or_comment)
     pos++;
 }
 
+enum LineType {
+    Comment, Statement, LabeledStatement, Continuation, EndOfFile
+};
+
+// Determines the type of line
+// `pos` points to the first character (column) of the line
+// The line ends with either `\n` or `\0`.
+LineType determine_line_type(const unsigned char *pos)
+{
+    int col=1;
+    if (*pos == '\n') {
+        // Empty line => classified as comment
+        return LineType::Comment;
+    } else if (*pos == '*' || *pos == 'c' || *pos == 'C' || *pos == '!') {
+        // Comment
+        return LineType::Comment;
+    } else if (*pos == '\0') {
+        return LineType::EndOfFile;
+    } else {
+        while (*pos == ' ') {
+            pos++;
+            col+=1;
+        }
+        if (*pos == '\n' || *pos == '\0') return LineType::Comment;
+        if (*pos == '!') return LineType::Comment;
+        if (col == 6) {
+            if (*pos == ' ' || *pos == '0') {
+                return LineType::Statement;
+            } else {
+                return LineType::Continuation;
+            }
+        }
+        if (col <= 6) {
+            return LineType::LabeledStatement;
+        } else {
+            return LineType::Statement;
+        }
+    }
+}
+
 std::string fix_continuation(const std::string &s, LocationManager &lm,
         bool fixed_form)
 {
