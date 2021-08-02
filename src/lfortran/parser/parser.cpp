@@ -175,6 +175,21 @@ void parse_string(std::string &out, const std::string &s, size_t &pos)
     pos++;
 }
 
+bool is_num(char c)
+{
+    return '0' <= c && c <= '9';
+}
+
+void copy_label(std::string &out, const std::string &s, size_t &pos)
+{
+    size_t col = 1;
+    while (pos < s.size() && s[pos] != '\n' && col <= 6) {
+        out += s[pos];
+        pos++;
+        col++;
+    }
+}
+
 void copy_rest_of_line(std::string &out, const std::string &s, size_t &pos)
 {
     while (pos < s.size() && s[pos] != '\n') {
@@ -240,7 +255,9 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
                     break;
                 }
                 case LineType::LabeledStatement : {
-                    // Copy from column 1
+                    // Copy the label
+                    copy_label(out, s, pos);
+                    // Copy from column 7
                     copy_rest_of_line(out, s, pos);
                     break;
                 }
