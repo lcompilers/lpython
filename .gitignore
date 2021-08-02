@@ -40,13 +40,15 @@ install_manifest.txt
 Testing/Temporary
 CPackConfig.cmake
 CPackSourceConfig.cmake
-
+_CPack_Packages
 
 ## libraries
 *.a
 *.so
 *.s
 *.ll
+*.dylib
+*.dSYM
 
 ## Generated files
 version
@@ -67,6 +69,34 @@ src/lfortran/asr.h
 src/lfortran/config.h
 share/jupyter/kernels/fortran/kernel.json
 
+### https://raw.github.com/github/gitignore/218a941be92679ce67d0484547e3e142b2f5f6f0/Global/macOS.gitignore
+
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two \r
+Icon
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
 
 # Python
 
@@ -116,5 +146,14 @@ output
 *.mod
 *.smod
 /.ccls-cache/
+.cache/
 ext/
 extsrc/
+tmp/
+tmpdebug/
+
+## Ninja
+build.ninja
+.ninja_deps
+.ninja_log
+/compile_commands.json
