@@ -143,6 +143,14 @@ LineType determine_line_type(const unsigned char *pos)
     }
 }
 
+void skip_rest_of_line(const std::string &s, size_t &pos)
+{
+    while (pos < s.size() && s[pos] != '\n') {
+        pos++;
+    }
+    pos++; // Skip the last '\n'
+}
+
 void copy_rest_of_line(std::string &out, const std::string &s, size_t &pos)
 {
     while (pos < s.size() && s[pos] != '\n') {
@@ -190,10 +198,7 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
             switch (lt) {
                 case LineType::Comment : {
                     // Skip
-                    while (pos < s.size() && s[pos] != '\n') {
-                        pos++;
-                    }
-                    pos++; // Skip the last '\n'
+                    skip_rest_of_line(s, pos);
                     break;
                 }
                 case LineType::Statement : {
