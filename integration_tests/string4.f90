@@ -8,7 +8,7 @@ implicit none
    user_data(1) = 'Mr. '
    user_data(2) = 'Rowan '
    user_data(3) = 'Atkinson'
-   allocate(greetings(4))
+   allocate(greetings(5))
    greetings(1) = 'h'
    greetings(2) = 'e'
    greetings(3) = 'l'
