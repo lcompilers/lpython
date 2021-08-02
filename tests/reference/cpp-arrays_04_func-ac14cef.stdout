@@ -66,6 +66,12 @@ int sum(const Kokkos::View<const int*> &x)
     return sum;
 }
 
+int tiny(const Kokkos::View<const int*> &x)
+{
+    int tiny;
+    return tiny;
+}
+
 int ubound(const Kokkos::View<const int*> &x, int dim)
 {
     int ubound;

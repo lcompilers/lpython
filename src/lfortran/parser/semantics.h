@@ -317,20 +317,17 @@ decl_attribute_t** ATTRCOMMON(Allocator &al,
         EXPRS(values), values.size())
 
 ast_t* data_implied_do(Allocator &al, Location &loc,
-        ast_t* obj_list,
+        Vec<ast_t*> obj_list,
         ast_t* type,
         char* id,
         expr_t* start, expr_t* end, expr_t* incr) {
-    Vec<ast_t*> v;
     decl_attribute_t* t;
     if(type == nullptr){
         t = nullptr;
     } else {
         t = down_cast<decl_attribute_t>(type);
     }
-    v.reserve(al, 1);
-    v.push_back(al, obj_list);
-    return make_DataImpliedDo_t(al, loc, EXPRS(v), v.size(),
+    return make_DataImpliedDo_t(al, loc, EXPRS(obj_list), obj_list.size(),
                                 t, id, start, end, incr);
 }
 
