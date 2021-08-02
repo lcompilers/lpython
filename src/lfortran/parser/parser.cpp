@@ -143,6 +143,16 @@ LineType determine_line_type(const unsigned char *pos)
     }
 }
 
+void copy_rest_of_line(std::string &out, const std::string &s, size_t &pos)
+{
+    while (pos < s.size() && s[pos] != '\n') {
+        out += s[pos];
+        pos++;
+    }
+    out += s[pos]; // Copy the last `\n'
+    pos++;
+}
+
 std::string fix_continuation(const std::string &s, LocationManager &lm,
         bool fixed_form)
 {
@@ -189,34 +199,19 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
                 case LineType::Statement : {
                     // Copy from column 7
                     pos += 6;
-                    while (pos < s.size() && s[pos] != '\n') {
-                        out += s[pos];
-                        pos++;;
-                    }
-                    out += s[pos]; // Copy the last `\n'
-                    pos++;;
+                    copy_rest_of_line(out, s, pos);
                     break;
                 }
                 case LineType::LabeledStatement : {
                     // Copy from column 1
-                    while (pos < s.size() && s[pos] != '\n') {
-                        out += s[pos];
-                        pos++;;
-                    }
-                    out += s[pos]; // Copy the last `\n'
-                    pos++;;
+                    copy_rest_of_line(out, s, pos);
                     break;
                 }
                 case LineType::Continuation : {
                     // Append from column 7 to previous line
                     out = out.substr(0, out.size()-1); // Remove the last '\n'
                     pos += 6;
-                    while (pos < s.size() && s[pos] != '\n') {
-                        out += s[pos];
-                        pos++;;
-                    }
-                    out += s[pos]; // Copy the last `\n'
-                    pos++;;
+                    copy_rest_of_line(out, s, pos);
                     break;
                 }
                 case LineType::EndOfFile : {
