@@ -127,7 +127,7 @@ LineType determine_line_type(const unsigned char *pos)
             col+=1;
         }
         if (*pos == '\n' || *pos == '\0') return LineType::Comment;
-        if (*pos == '!') return LineType::Comment;
+        if (*pos == '!' && col != 6) return LineType::Comment;
         if (col == 6) {
             if (*pos == ' ' || *pos == '0') {
                 return LineType::Statement;
