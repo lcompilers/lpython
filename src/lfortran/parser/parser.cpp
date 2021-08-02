@@ -154,6 +154,12 @@ void skip_rest_of_line(const std::string &s, size_t &pos)
 void copy_rest_of_line(std::string &out, const std::string &s, size_t &pos)
 {
     while (pos < s.size() && s[pos] != '\n') {
+        // TODO: this doesn't work inside a string
+        if (s[pos] == '!') {
+            skip_rest_of_line(s, pos);
+            out += '\n';
+            return;
+        }
         out += s[pos];
         pos++;
     }
