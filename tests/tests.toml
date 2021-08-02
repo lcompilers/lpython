@@ -1063,6 +1063,11 @@ asr = true
 filename = "../integration_tests/intrinsics_09.f90"
 asr = true
 
+# real
+[[test]]
+filename = "../integration_tests/intrinsics_10.f90"
+asr = true
+
 [[test]]
 filename = "../integration_tests/intrinsics_open_close_read_write.f90"
 asr = true
