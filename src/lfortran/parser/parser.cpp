@@ -174,38 +174,56 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
          * expect, so it is not such a big problem and the fixes needed to do
          * in the fixed form Fortran code are relatively minor in practice.
          */
-        while (pos < s.size()) {
-            if ( (pos == 0 && (s[pos] == 'c' || s[pos] == 'C'
-                        || s[pos] == '*'))
-                    ||
-                    (pos > 0 && s[pos-1] == '\n'
-                        && (s[pos] == 'c' || s[pos] == 'C'
-                            || s[pos] == '*')) ) {
-                // Comment: prescan the rest of the line
-                out += '!';
-                pos++;
-                while (pos < s.size() && s[pos] != '\n') {
-                    out += s[pos];
-                    pos++;;
+        while (true) {
+            const char *p = &s[pos];
+            LineType lt = determine_line_type((const unsigned char*)p);
+            switch (lt) {
+                case LineType::Comment : {
+                    // Skip
+                    while (pos < s.size() && s[pos] != '\n') {
+                        pos++;
+                    }
+                    pos++; // Skip the last '\n'
+                    break;
                 }
-                if (pos < s.size()) {
-                    out += s[pos];
+                case LineType::Statement : {
+                    // Copy from column 7
+                    pos += 6;
+                    while (pos < s.size() && s[pos] != '\n') {
+                        out += s[pos];
+                        pos++;;
+                    }
+                    out += s[pos]; // Copy the last `\n'
                     pos++;;
+                    break;
                 }
-                continue;
-            } else if ( (pos > 5 && s[pos-6] == '\n'
-                        && (s[pos] != ' ' && s[pos] != '0'))
-                    && s[pos-5] == ' ') {
-                // Line continuation:
-                out = out.substr(0, out.size()-6);
-            } else if ( (pos > 5 && s[pos-6] == '\n'
-                        && s[pos] == '0')
-                    && s[pos-5] == ' ') {
-                // Regular line, but remove the 0 by not outputting anything
-            } else {
-                out += s[pos];
-            }
-            pos++;
+                case LineType::LabeledStatement : {
+                    // Copy from column 1
+                    while (pos < s.size() && s[pos] != '\n') {
+                        out += s[pos];
+                        pos++;;
+                    }
+                    out += s[pos]; // Copy the last `\n'
+                    pos++;;
+                    break;
+                }
+                case LineType::Continuation : {
+                    // Append from column 7 to previous line
+                    out = out.substr(0, out.size()-1); // Remove the last '\n'
+                    pos += 6;
+                    while (pos < s.size() && s[pos] != '\n') {
+                        out += s[pos];
+                        pos++;;
+                    }
+                    out += s[pos]; // Copy the last `\n'
+                    pos++;;
+                    break;
+                }
+                case LineType::EndOfFile : {
+                    break;
+                }
+            };
+            if (lt == LineType::EndOfFile) break;
         }
         return out;
     } else {
