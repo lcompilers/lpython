@@ -66,8 +66,8 @@ TEST_CASE("Symbolic expressions") {
 
 TEST_CASE("Symbolic assignments") {
     Allocator al(4*1024);
-    CHECK(P("x = y") == "(= 0 x y)");
-    CHECK(P("x = 2*y") == "(= 0 x (* 2 y))");
+    CHECK(P("x = y") == "(= 0 x y ())");
+    CHECK(P("x = 2*y") == "(= 0 x (* 2 y) ())");
 
     CHECK_THROWS_AS(P("x ="), LFortran::ParserError);
     CHECK_THROWS_AS(P("x = 2*"), LFortran::ParserError);
@@ -131,22 +131,22 @@ TEST_CASE("Multiple units") {
         y = z+1)";
     results = LFortran::parse(al, s);
     CHECK(results->n_items == 2);
-    CHECK(LFortran::pickle(*results->m_items[0]) == "(= 0 x (+ x 1))");
-    CHECK(LFortran::pickle(*results->m_items[1]) == "(= 0 y (+ z 1))");
+    CHECK(LFortran::pickle(*results->m_items[0]) == "(= 0 x (+ x 1) ())");
+    CHECK(LFortran::pickle(*results->m_items[1]) == "(= 0 y (+ z 1) ())");
 
     s = "x = x+1; ; y = z+1";
     results = LFortran::parse(al, s);
     CHECK(results->n_items == 2);
-    CHECK(LFortran::pickle(*results->m_items[0]) == "(= 0 x (+ x 1))");
-    CHECK(LFortran::pickle(*results->m_items[1]) == "(= 0 y (+ z 1))");
+    CHECK(LFortran::pickle(*results->m_items[0]) == "(= 0 x (+ x 1) ())");
+    CHECK(LFortran::pickle(*results->m_items[1]) == "(= 0 y (+ z 1) ())");
 
     s = R"(x = x+1;
 
     ; y = z+1)";
     results = LFortran::parse(al, s);
     CHECK(results->n_items == 2);
-    CHECK(LFortran::pickle(*results->m_items[0]) == "(= 0 x (+ x 1))");
-    CHECK(LFortran::pickle(*results->m_items[1]) == "(= 0 y (+ z 1))");
+    CHECK(LFortran::pickle(*results->m_items[0]) == "(= 0 x (+ x 1) ())");
+    CHECK(LFortran::pickle(*results->m_items[1]) == "(= 0 y (+ z 1) ())");
 
     s = R"(x+1
     y = z+1
@@ -154,7 +154,7 @@ TEST_CASE("Multiple units") {
     results = LFortran::parse(al, s);
     CHECK(results->n_items == 3);
     CHECK(LFortran::pickle(*results->m_items[0]) == "(+ x 1)");
-    CHECK(LFortran::pickle(*results->m_items[1]) == "(= 0 y (+ z 1))");
+    CHECK(LFortran::pickle(*results->m_items[1]) == "(= 0 y (+ z 1) ())");
     CHECK(LFortran::pickle(*results->m_items[2]) == "a");
 
     s = R"(function g()
@@ -166,9 +166,9 @@ TEST_CASE("Multiple units") {
     a)";
     results = LFortran::parse(al, s);
     CHECK(results->n_items == 4);
-    CHECK(LFortran::pickle(*results->m_items[0]) == "(Function g [] [] () () [] [] [] [] [(= 0 x y) (= 0 x (* 2 y))] [])");
-    CHECK(LFortran::pickle(*results->m_items[1]) == "(= 0 s x)");
-    CHECK(LFortran::pickle(*results->m_items[2]) == "(= 0 y (+ z 1))");
+    CHECK(LFortran::pickle(*results->m_items[0]) == "(Function g [] [] () () [] [] [] [] [(= 0 x y ()) (= 0 x (* 2 y) ())] [])");
+    CHECK(LFortran::pickle(*results->m_items[1]) == "(= 0 s x ())");
+    CHECK(LFortran::pickle(*results->m_items[2]) == "(= 0 y (+ z 1) ())");
     CHECK(LFortran::pickle(*results->m_items[3]) == "a");
 }
 
