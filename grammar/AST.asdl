@@ -103,38 +103,38 @@ letter_spec
 
 stmt
 -- Single-line statements (each has a `label`):
-    = Allocate(int label, fnarg* args, keyword* keywords)
-    | Assign(int label, int assign_label, identifier variable)
-    | Assignment(int label, expr target, expr value)
-    | Associate(int label, expr target, expr value)
-    | Backspace(int label, expr* args, keyword* kwargs)
-    | Close(int label, expr* args, keyword* kwargs)
-    | Continue(int label)
-    | Cycle(int label, identifier? stmt_name)
-    | Deallocate(int label, fnarg* args, keyword* keywords)
-    | Endfile(int label, expr* args, keyword* kwargs)
-    | ErrorStop(int label, expr? code, expr? quiet)
-    | EventPost(int label, expr variable, event_attribute* stat)
-    | EventWait(int label, expr variable, event_attribute* spec)
-    | Exit(int label, identifier? stmt_name)
-    | Flush(int label, expr* args, keyword* kwargs)
+    = Allocate(int label, fnarg* args, keyword* keywords, trivia? trivia)
+    | Assign(int label, int assign_label, identifier variable, trivia? trivia)
+    | Assignment(int label, expr target, expr value, trivia? trivia)
+    | Associate(int label, expr target, expr value, trivia? trivia)
+    | Backspace(int label, expr* args, keyword* kwargs, trivia? trivia)
+    | Close(int label, expr* args, keyword* kwargs, trivia? trivia)
+    | Continue(int label, trivia? trivia)
+    | Cycle(int label, identifier? stmt_name, trivia? trivia)
+    | Deallocate(int label, fnarg* args, keyword* keywords, trivia? trivia)
+    | Endfile(int label, expr* args, keyword* kwargs, trivia? trivia)
+    | ErrorStop(int label, expr? code, expr? quiet, trivia? trivia)
+    | EventPost(int label, expr variable, event_attribute* stat, trivia? trivia)
+    | EventWait(int label, expr variable, event_attribute* spec, trivia? trivia)
+    | Exit(int label, identifier? stmt_name, trivia? trivia)
+    | Flush(int label, expr* args, keyword* kwargs, trivia? trivia)
     | ForAllSingle(int label, identifier? stmt_name,
-            concurrent_control *control, expr? mask, stmt assign)
-    | Format(int label, string fmt)
-    | GoTo(int label, expr goto_label, expr* labels)
-    | Inquire(int label, expr* args, keyword* kwargs, expr* values)
-    | Nullify(int label, expr* args, keyword* kwargs)
-    | Open(int label, expr* args, keyword* kwargs)
-    | Return(int label, expr? value)
-    | Print(int label, expr? fmt, expr* values)
+            concurrent_control *control, expr? mask, stmt assign, trivia? trivia)
+    | Format(int label, string fmt, trivia? trivia)
+    | GoTo(int label, expr goto_label, expr* labels, trivia? trivia)
+    | Inquire(int label, expr* args, keyword* kwargs, expr* values, trivia? trivia)
+    | Nullify(int label, expr* args, keyword* kwargs, trivia? trivia)
+    | Open(int label, expr* args, keyword* kwargs, trivia? trivia)
+    | Return(int label, expr? value, trivia? trivia)
+    | Print(int label, expr? fmt, expr* values, trivia? trivia)
     | Read(int label, expr? format, argstar* args,
-            kw_argstar* kwargs, expr* values)
-    | Rewind(int label, expr* args, keyword* kwargs)
-    | Stop(int label, expr? code, expr? quiet)
+            kw_argstar* kwargs, expr* values, trivia? trivia)
+    | Rewind(int label, expr* args, keyword* kwargs, trivia? trivia)
+    | Stop(int label, expr? code, expr? quiet, trivia? trivia)
     | SubroutineCall(int label, identifier name, struct_member* member,
-            fnarg* args, keyword* keywords)
-    | SyncAll(int label, event_attribute* stat)
-    | Write(int label, argstar* args, kw_argstar* kwargs, expr* values)
+            fnarg* args, keyword* keywords, trivia? trivia)
+    | SyncAll(int label, event_attribute* stat, trivia? trivia)
+    | Write(int label, argstar* args, kw_argstar* kwargs, expr* values, trivia? trivia)
 
 -- Multi-line statements (each has a `label` and `stmt_name`):
     | AssociateBlock(int label, identifier? stmt_name, var_sym* syms,
@@ -186,6 +186,14 @@ expr
     | DataImpliedDo(expr* object_list, decl_attribute? type,
         identifier var, expr start, expr end, expr? increment)
     | Parenthesis(expr operand)
+
+trivia
+    = TriviaNode(trivia_node* before, trivia_node* after)
+
+trivia_node
+    = Comment(string comment)
+    | EmptyLines()
+    | Semicolon()
 
 boolop = And | Or | Eqv | NEqv
 
