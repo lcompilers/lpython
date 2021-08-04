@@ -649,7 +649,9 @@ public:
                 }
                 ASR::ttype_t *type;
                 int a_kind = 4;
-                if (sym_type->m_kind != nullptr) {
+                if (sym_type->m_type != AST::decl_typeType::TypeCharacter &&
+                    sym_type->m_kind != nullptr &&
+                    sym_type->m_kind->m_value != nullptr) {
                     visit_expr(*sym_type->m_kind->m_value);
                     ASR::expr_t* kind_expr = LFortran::ASRUtils::EXPR(asr);
                     a_kind = ASRUtils::extract_kind(kind_expr, x.base.base.loc);

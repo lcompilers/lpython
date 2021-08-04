@@ -288,6 +288,7 @@ RUN(NAME complex_dp_param LABELS gfortran llvm)
 RUN(NAME string1 LABELS gfortran llvm)
 RUN(NAME string2 LABELS gfortran llvm)
 RUN(NAME string3 LABELS gfortran llvm)
+RUN(NAME string4 LABELS gfortran llvm)
 
 RUN(NAME nested_01 LABELS gfortran llvm)
 RUN(NAME nested_02 LABELS gfortran llvm)
