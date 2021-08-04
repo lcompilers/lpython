@@ -103,6 +103,96 @@ void cont1(const std::string &s, size_t &pos, bool &ws_or_comment)
     pos++;
 }
 
+enum LineType {
+    Comment, Statement, LabeledStatement, Continuation, EndOfFile
+};
+
+// Determines the type of line
+// `pos` points to the first character (column) of the line
+// The line ends with either `\n` or `\0`.
+LineType determine_line_type(const unsigned char *pos)
+{
+    int col=1;
+    if (*pos == '\n') {
+        // Empty line => classified as comment
+        return LineType::Comment;
+    } else if (*pos == '*' || *pos == 'c' || *pos == 'C' || *pos == '!') {
+        // Comment
+        return LineType::Comment;
+    } else if (*pos == '\0') {
+        return LineType::EndOfFile;
+    } else {
+        while (*pos == ' ') {
+            pos++;
+            col+=1;
+        }
+        if (*pos == '\n' || *pos == '\0') return LineType::Comment;
+        if (*pos == '!' && col != 6) return LineType::Comment;
+        if (col == 6) {
+            if (*pos == ' ' || *pos == '0') {
+                return LineType::Statement;
+            } else {
+                return LineType::Continuation;
+            }
+        }
+        if (col <= 6) {
+            return LineType::LabeledStatement;
+        } else {
+            return LineType::Statement;
+        }
+    }
+}
+
+void skip_rest_of_line(const std::string &s, size_t &pos)
+{
+    while (pos < s.size() && s[pos] != '\n') {
+        pos++;
+    }
+    pos++; // Skip the last '\n'
+}
+
+// Parses string, including possible continuation lines
+void parse_string(std::string &out, const std::string &s, size_t &pos)
+{
+    char quote = s[pos];
+    LFORTRAN_ASSERT(quote == '"' || quote == '\'');
+    out += s[pos];
+    pos++;
+    while (pos < s.size() && ! (s[pos] == quote && s[pos+1] != quote)) {
+        if (s[pos] == '\n') {
+            pos++;
+            pos += 6;
+            continue;
+        }
+        if (s[pos] == quote && s[pos+1] == quote) {
+            out += s[pos];
+            pos++;
+        }
+        out += s[pos];
+        pos++;
+    }
+    out += s[pos]; // Copy the last quote
+    pos++;
+}
+
+void copy_rest_of_line(std::string &out, const std::string &s, size_t &pos)
+{
+    while (pos < s.size() && s[pos] != '\n') {
+        if (s[pos] == '"' || s[pos] == '\'') {
+            parse_string(out, s, pos);
+        } else if (s[pos] == '!') {
+            skip_rest_of_line(s, pos);
+            out += '\n';
+            return;
+        } else {
+            out += s[pos];
+            pos++;
+        }
+    }
+    out += s[pos]; // Copy the last `\n'
+    pos++;
+}
+
 std::string fix_continuation(const std::string &s, LocationManager &lm,
         bool fixed_form)
 {
@@ -134,38 +224,38 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
          * expect, so it is not such a big problem and the fixes needed to do
          * in the fixed form Fortran code are relatively minor in practice.
          */
-        while (pos < s.size()) {
-            if ( (pos == 0 && (s[pos] == 'c' || s[pos] == 'C'
-                        || s[pos] == '*'))
-                    ||
-                    (pos > 0 && s[pos-1] == '\n'
-                        && (s[pos] == 'c' || s[pos] == 'C'
-                            || s[pos] == '*')) ) {
-                // Comment: prescan the rest of the line
-                out += '!';
-                pos++;
-                while (pos < s.size() && s[pos] != '\n') {
-                    out += s[pos];
-                    pos++;;
+        while (true) {
+            const char *p = &s[pos];
+            LineType lt = determine_line_type((const unsigned char*)p);
+            switch (lt) {
+                case LineType::Comment : {
+                    // Skip
+                    skip_rest_of_line(s, pos);
+                    break;
                 }
-                if (pos < s.size()) {
-                    out += s[pos];
-                    pos++;;
+                case LineType::Statement : {
+                    // Copy from column 7
+                    pos += 6;
+                    copy_rest_of_line(out, s, pos);
+                    break;
                 }
-                continue;
-            } else if ( (pos > 5 && s[pos-6] == '\n'
-                        && (s[pos] != ' ' && s[pos] != '0'))
-                    && s[pos-5] == ' ') {
-                // Line continuation:
-                out = out.substr(0, out.size()-6);
-            } else if ( (pos > 5 && s[pos-6] == '\n'
-                        && s[pos] == '0')
-                    && s[pos-5] == ' ') {
-                // Regular line, but remove the 0 by not outputting anything
-            } else {
-                out += s[pos];
-            }
-            pos++;
+                case LineType::LabeledStatement : {
+                    // Copy from column 1
+                    copy_rest_of_line(out, s, pos);
+                    break;
+                }
+                case LineType::Continuation : {
+                    // Append from column 7 to previous line
+                    out = out.substr(0, out.size()-1); // Remove the last '\n'
+                    pos += 6;
+                    copy_rest_of_line(out, s, pos);
+                    break;
+                }
+                case LineType::EndOfFile : {
+                    break;
+                }
+            };
+            if (lt == LineType::EndOfFile) break;
         }
         return out;
     } else {

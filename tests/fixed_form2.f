@@ -27,5 +27,13 @@ C    !, "F4" ! This whole line is a comment
      $, "OK4" ! line continuation
      0print *, "1" ! not line continuation, new statement
       print *, "2" ! not line continuation, new statement
+      print *, "1", "1   ! not comment
+     $  finish string"
+      print *, "1", "1 "" ' 2 """" 3
+     $ ! also not comment
+     $ finish string"
+      print *, "1", '1 '' " 2 '''' 3
+     $ ! also not comment
+     $ finish string'
       end ! Comment 5
 ! Comment

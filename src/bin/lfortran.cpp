@@ -315,6 +315,15 @@ int prompt(bool verbose)
 }
 #endif
 
+int emit_prescan(const std::string &infile, bool fixed_form)
+{
+    std::string input = read_file(infile);
+    LFortran::LocationManager lm;
+    std::string prescan = LFortran::fix_continuation(input, lm, fixed_form);
+    std::cout << prescan << std::endl;
+    return 0;
+}
+
 int emit_tokens(const std::string &infile)
 {
     std::string input = read_file(infile);
@@ -963,6 +972,7 @@ int main(int argc, char *argv[])
         std::string arg_o;
         std::vector<std::string> arg_files;
         bool arg_version = false;
+        bool show_prescan = false;
         bool show_tokens = false;
         bool show_ast = false;
         bool show_asr = false;
@@ -1007,6 +1017,7 @@ int main(int argc, char *argv[])
         // LFortran specific options
         app.add_flag("--cpp", arg_cpp, "Enable preprocessing");
         app.add_flag("--fixed-form", arg_fixed_form, "Use fixed form Fortran source parsing");
+        app.add_flag("--show-prescan", show_prescan, "Show tokens for the given file and exit");
         app.add_flag("--show-tokens", show_tokens, "Show tokens for the given file and exit");
         app.add_flag("--show-ast", show_ast, "Show AST for the given file and exit");
         app.add_flag("--show-asr", show_asr, "Show ASR for the given file and exit");
@@ -1123,6 +1134,8 @@ int main(int argc, char *argv[])
             outfile = basename + ".s";
         } else if (arg_c) {
             outfile = basename + ".o";
+        } else if (show_prescan) {
+            outfile = basename + ".prescan";
         } else if (show_tokens) {
             outfile = basename + ".tokens";
         } else if (show_ast) {
@@ -1161,6 +1174,9 @@ int main(int argc, char *argv[])
         }
 
 
+        if (show_prescan) {
+            return emit_prescan(arg_file, arg_fixed_form);
+        }
         if (show_tokens) {
             return emit_tokens(arg_file);
         }
