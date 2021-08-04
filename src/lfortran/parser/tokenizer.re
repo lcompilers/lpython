@@ -118,7 +118,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
         tok = cur;
 
         /*
-        Re2c has an excellent documentation at:
+        Re2c has excellent documentation at:
 
         https://re2c.org/manual/manual_c.html
 
@@ -129,14 +129,34 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
           precedence
         * Default rule `*` should always be defined, it has the lowest priority
           regardless of its place and matches any code unit
+        * We use the "Sentinel character" method for end of input:
+            * The end of the input text is denoted with a null character \x00
+            * Thus the null character cannot be part of the input otherwise
+            * There is one rule to match \x00 to end the parser
+            * No other rule is allowed to match \x00, otherwise the re2c block
+              would parse past the end of the string and segfaults
+            * A special case of the previous point are negated character
+              ranges, such as [^"\x00], where one must include \x00 in it to
+              ensure this rule does not match \x00 (all other rules simply do
+              not mention \x00)
+            * See the "Handling the end of input" section in the re2c
+              documentation for more info
 
-        The code below executes on its own until a rule is matched: the action
-        in {} is then executed. In that action we can use `tok` and `cur` to
-        extract the token:
+        The re2c block interacts with the rest of the code via just one pointer
+        variable `cur`. On entering the re2c block, the `cur` variable must
+        point to the first character of the token to be tokenized by the block.
+        The re2c block below then executes on its own until a rule is matched:
+        the action in {} is then executed. In that action `cur` points to the
+        first character of the next token.
+
+        Before the re2c block we save the current `cur` into `tok`, so that we
+        can use `tok` and `cur` in the action in {} to extract the token that
+        corresponds to the rule that got matched:
 
         * `tok` points to the first character of the token
         * `cur-1` points to the last character of the token
         * `cur` points to the first character of the next token
+        * `cur-tok` is the length of the token
 
         In the action, we do one of:
 
@@ -150,17 +170,13 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
         right away after `continue` or after the `lex` function is called again
         after `return`).
 
-        When the re2c block starts, `cur` must point to the next token that
-        should be tokenized. We remember its value in `tok`. When the action {}
-        enters, `cur` points to the following token and `cur-tok` is the length
-        of the new token that got tokenized.
-
         See the manual for more details.
         */
 
 
         // These two variables are needed by the re2c block below internally,
-        // initialization is not needed.
+        // initialization is not needed. One can think of them as local
+        // variables of the re2c block.
         unsigned char *mar, *ctxmar;
         /*!re2c
             re2c:define:YYCURSOR = cur;
