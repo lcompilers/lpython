@@ -192,6 +192,7 @@ trivia
 
 trivia_node
     = Comment(string comment)
+    | EOLComment(string comment)
     | EmptyLines()
     | Semicolon()
 
