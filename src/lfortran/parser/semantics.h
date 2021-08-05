@@ -758,13 +758,13 @@ char *str2str_null(Allocator &al, const LFortran::Str &s) {
 #define COMPLEX(x, y, l) make_Complex_t(p.m_a, l, EXPR(x), EXPR(y))
 #define STRING(x, l) make_String_t(p.m_a, l, x.c_str(p.m_a))
 #define BOZ(x, l) make_BOZ_t(p.m_a, l, x.c_str(p.m_a))
-#define ASSIGN(label, variable, l) make_Assign_t(p.m_a, l, 0, label, name2char(variable))
-#define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, l, 0, EXPR(x), EXPR(y))
-#define ASSOCIATE(x, y, l) make_Associate_t(p.m_a, l, 0, EXPR(x), EXPR(y))
+#define ASSIGN(label, variable, l) make_Assign_t(p.m_a, l, 0, label, name2char(variable), nullptr)
+#define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, l, 0, EXPR(x), EXPR(y), nullptr)
+#define ASSOCIATE(x, y, l) make_Associate_t(p.m_a, l, 0, EXPR(x), EXPR(y), nullptr)
 #define GOTO(x, l) make_GoTo_t(p.m_a, l, 0, \
-        EXPR(INTEGER(x, l)), nullptr, 0)
+        EXPR(INTEGER(x, l)), nullptr, 0, nullptr)
 #define GOTO1(labels, e, l) make_GoTo_t(p.m_a, l, 0, \
-        EXPR(e), EXPRS(labels), labels.size())
+        EXPR(e), EXPRS(labels), labels.size(), nullptr)
 
 
 ast_t* SUBROUTINE_CALL0(Allocator &al, struct_member_t* mem, size_t n,
@@ -784,16 +784,16 @@ ast_t* SUBROUTINE_CALL0(Allocator &al, struct_member_t* mem, size_t n,
         /*char* a_func*/ name2char(id),
         /*struct_member_t* a_member*/ mem, /*size_t n_member*/ n,
         /*expr_t** a_args*/ v.p, /*size_t n_args*/ v.size(),
-        /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size());
+        /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size(), nullptr);
 }
 #define SUBROUTINE_CALL(name, args, l) SUBROUTINE_CALL0(p.m_a, \
         nullptr, 0, name, args, l)
 #define SUBROUTINE_CALL1(mem, name, args, l) SUBROUTINE_CALL0(p.m_a, \
         mem.p, mem.n, name, args, l)
 #define SUBROUTINE_CALL2(name, l) make_SubroutineCall_t(p.m_a, l, 0, \
-        name2char(name), nullptr, 0, nullptr, 0, nullptr, 0)
+        name2char(name), nullptr, 0, nullptr, 0, nullptr, 0, nullptr)
 #define SUBROUTINE_CALL3(mem, name, l) make_SubroutineCall_t(p.m_a, l, 0, \
-        name2char(name), mem.p, mem.n, nullptr, 0, nullptr, 0)
+        name2char(name), mem.p, mem.n, nullptr, 0, nullptr, 0, nullptr)
 
 ast_t* DEALLOCATE_STMT1(Allocator &al,
         const Vec<FnArg> &args, Location &l) {
@@ -810,7 +810,7 @@ ast_t* DEALLOCATE_STMT1(Allocator &al,
     }
     return make_Deallocate_t(al, l, 0,
         /*expr_t** a_args*/ v.p, /*size_t n_args*/ v.size(),
-        /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size());
+        /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size(), nullptr);
 }
 ast_t* ALLOCATE_STMT0(Allocator &al,
         const Vec<FnArg> &args, Location &l) {
@@ -827,7 +827,7 @@ ast_t* ALLOCATE_STMT0(Allocator &al,
     }
     return make_Allocate_t(al, l, 0,
         /*expr_t** a_args*/ v.p, /*size_t n_args*/ v.size(),
-        /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size());
+        /*keyword_t* a_keywords*/ v2.p, /*size_t n_keywords*/ v2.size(), nullptr);
 }
 #define ALLOCATE_STMT(args, l) ALLOCATE_STMT0(p.m_a, args, l)
 #define DEALLOCATE_STMT(args, l) DEALLOCATE_STMT1(p.m_a, args, l)
@@ -860,7 +860,7 @@ ast_t* PRINT1(Allocator &al, Location &l,
     } else {
         x = down_cast<expr_t>(fmt);
     }
-    return make_Print_t(al, l, 0, x, m_args, n_args);
+    return make_Print_t(al, l, 0, x, m_args, n_args, nullptr);
 }
 
 #define PRINT0(fmt, l) PRINT1(p.m_a, l, fmt, nullptr, 0)
@@ -887,7 +887,7 @@ ast_t* WRITE1(Allocator &al,
     return make_Write_t(al, l, 0,
         v.p, v.size(),
         v2.p, v2.size(),
-        EXPRS(args), args.size());
+        EXPRS(args), args.size(), nullptr);
 }
 
 ast_t* READ1(Allocator &al,
@@ -908,7 +908,7 @@ ast_t* READ1(Allocator &al,
     return make_Read_t(al, l, 0, nullptr,
         v.p, v.size(),
         v2.p, v2.size(),
-        EXPRS(args), args.size());
+        EXPRS(args), args.size(), nullptr);
 }
 
 void extract_args1(Allocator &al,
@@ -941,7 +941,7 @@ ast_t* builtin1(Allocator &al,
     extract_args1(al, v, v2, args0);
     return cons(al, l, 0,
         v.p, v.size(),
-        v2.p, v2.size());
+        v2.p, v2.size(), nullptr);
 }
 
 template <typename ASTConstructor>
@@ -954,7 +954,7 @@ ast_t* builtin2(Allocator &al,
     extract_args1(al, v, v2, args0);
     return cons(al, l, 0,
         v.p, v.size(),
-        v2.p, v2.size(), EXPRS(ex_list), ex_list.size());
+        v2.p, v2.size(), EXPRS(ex_list), ex_list.size(), nullptr);
 }
 
 template <typename ASTConstructor>
@@ -996,11 +996,11 @@ ast_t* builtin3(Allocator &al,
 #define READ0(args0, l) READ1(p.m_a, args0, empty_vecast(), l)
 #define READ(args0, args, l) READ1(p.m_a, args0, args, l)
 #define READ2(arg, args, l) make_Read_t(p.m_a, l, 0, \
-        EXPR(INTEGER(arg, l)), nullptr, 0, nullptr, 0, EXPRS(args), args.size())
+        EXPR(INTEGER(arg, l)), nullptr, 0, nullptr, 0, EXPRS(args), args.size(), nullptr)
 #define READ3(args, l) make_Read_t(p.m_a, l, 0, \
-        nullptr, nullptr, 0, nullptr, 0, EXPRS(args), args.size())
+        nullptr, nullptr, 0, nullptr, 0, EXPRS(args), args.size(), nullptr)
 #define READ4(arg, l) make_Read_t(p.m_a, l, 0, \
-        EXPR(INTEGER(arg, l)), nullptr, 0, nullptr, 0, nullptr, 0)
+        EXPR(INTEGER(arg, l)), nullptr, 0, nullptr, 0, nullptr, 0, nullptr)
 
 #define OPEN(args0, l) builtin1(p.m_a, args0, l, make_Open_t)
 #define CLOSE(args0, l) builtin1(p.m_a, args0, l, make_Close_t)
@@ -1014,13 +1014,13 @@ ast_t* builtin3(Allocator &al,
             make_Inquire_t)
 #define INQUIRE(args0, args, l) builtin2(p.m_a, args0, args, l, make_Inquire_t)
 #define REWIND2(arg, l) make_Rewind_t(p.m_a, l, 0, \
-        EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
+        EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0, nullptr)
 #define BACKSPACE2(arg, l) make_Backspace_t(p.m_a, l, 0, \
-        EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
+        EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0, nullptr)
 #define FLUSH1(arg, l) make_Flush_t(p.m_a, l, 0, \
-            EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0)
+            EXPRS(A2LIST(p.m_a, INTEGER(arg, l))), 1, nullptr, 0, nullptr)
 #define ENDFILE2(arg, l) make_Endfile_t(p.m_a, l, 0, \
-        EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0)
+        EXPRS(A2LIST(p.m_a, arg)), 1, nullptr, 0, nullptr)
 #define BIND2(args0, l) builtin3(p.m_a, args0, l, make_Bind_t)
 
 
@@ -1090,41 +1090,41 @@ void pos_to_linecol(const std::string &s, uint64_t position,
     col = pos-nlpos+1;
 }
 
-#define FORMAT(s, l) make_Format_t(p.m_a, l, 0, s.c_str(p.m_a))
+#define FORMAT(s, l) make_Format_t(p.m_a, l, 0, s.c_str(p.m_a), nullptr)
 
-#define STOP(l) make_Stop_t(p.m_a, l, 0, nullptr, nullptr)
-#define STOP1(stop_code, l) make_Stop_t(p.m_a, l, 0, EXPR(stop_code), nullptr)
-#define STOP2(quiet, l) make_Stop_t(p.m_a, l, 0, nullptr, EXPR(quiet))
+#define STOP(l) make_Stop_t(p.m_a, l, 0, nullptr, nullptr, nullptr)
+#define STOP1(stop_code, l) make_Stop_t(p.m_a, l, 0, EXPR(stop_code), nullptr, nullptr)
+#define STOP2(quiet, l) make_Stop_t(p.m_a, l, 0, nullptr, EXPR(quiet), nullptr)
 #define STOP3(stop_code, quiet, l) make_Stop_t(p.m_a, l, 0, \
-        EXPR(stop_code), EXPR(quiet))
+        EXPR(stop_code), EXPR(quiet), nullptr)
 #define ERROR_STOP(l) make_ErrorStop_t(p.m_a, l, 0, \
-        nullptr, nullptr)
+        nullptr, nullptr, nullptr)
 #define ERROR_STOP1(stop_code, l) make_ErrorStop_t(p.m_a, l, 0, \
-        EXPR(stop_code), nullptr)
+        EXPR(stop_code), nullptr, nullptr)
 #define ERROR_STOP2(quiet, l) make_ErrorStop_t(p.m_a, l, 0, \
-        nullptr, EXPR(quiet))
+        nullptr, EXPR(quiet), nullptr)
 #define ERROR_STOP3(stop_code, quiet, l) make_ErrorStop_t(p.m_a, l, 0, \
-        EXPR(stop_code), EXPR(quiet))
+        EXPR(stop_code), EXPR(quiet), nullptr)
 
-#define EXIT(l) make_Exit_t(p.m_a, l, 0, nullptr)
-#define EXIT2(id, l) make_Exit_t(p.m_a, l, 0, name2char(id))
-#define RETURN(l) make_Return_t(p.m_a, l, 0, nullptr)
-#define RETURN1(e, l) make_Return_t(p.m_a, l, 0, EXPR(e))
-#define CYCLE(l) make_Cycle_t(p.m_a, l, 0, nullptr)
-#define CYCLE2(id, l) make_Cycle_t(p.m_a, l, 0, name2char(id))
-#define CONTINUE(l) make_Continue_t(p.m_a, l, 0)
+#define EXIT(l) make_Exit_t(p.m_a, l, 0, nullptr, nullptr)
+#define EXIT2(id, l) make_Exit_t(p.m_a, l, 0, name2char(id), nullptr)
+#define RETURN(l) make_Return_t(p.m_a, l, 0, nullptr, nullptr)
+#define RETURN1(e, l) make_Return_t(p.m_a, l, 0, EXPR(e), nullptr)
+#define CYCLE(l) make_Cycle_t(p.m_a, l, 0, nullptr, nullptr)
+#define CYCLE2(id, l) make_Cycle_t(p.m_a, l, 0, name2char(id), nullptr)
+#define CONTINUE(l) make_Continue_t(p.m_a, l, 0, nullptr)
 
 #define EVENT_POST(eventVar, l) make_EventPost_t(p.m_a, l, 0, \
-        EXPR(eventVar), nullptr, 0)
+        EXPR(eventVar), nullptr, 0, nullptr)
 #define EVENT_POST1(eventVar, x, l) make_EventPost_t(p.m_a, l, 0, \
-        EXPR(eventVar), VEC_CAST(x, event_attribute), x.size())
+        EXPR(eventVar), VEC_CAST(x, event_attribute), x.size(), nullptr)
 #define EVENT_WAIT(eventVar, l) make_EventWait_t(p.m_a, l, 0, \
-        EXPR(eventVar), nullptr, 0)
+        EXPR(eventVar), nullptr, 0, nullptr)
 #define EVENT_WAIT1(eventVar, x, l) make_EventWait_t(p.m_a, l, 0, \
-        EXPR(eventVar), VEC_CAST(x, event_attribute), x.size())
-#define SYNC_ALL(l) make_SyncAll_t(p.m_a, l, 0, nullptr, 0)
+        EXPR(eventVar), VEC_CAST(x, event_attribute), x.size(), nullptr)
+#define SYNC_ALL(l) make_SyncAll_t(p.m_a, l, 0, nullptr, 0, nullptr)
 #define SYNC_ALL1(x, l) make_SyncAll_t(p.m_a, l, 0, \
-        VEC_CAST(x, event_attribute), x.size())
+        VEC_CAST(x, event_attribute), x.size(), nullptr)
 
 #define STAT(var, l) make_AttrStat_t(p.m_a, l, name2char(var))
 #define ERRMSG(var, l) make_AttrErrmsg_t(p.m_a, l, name2char(var))
@@ -1412,10 +1412,10 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
 
 #define FORALLSINGLE1(conlist, assign, l) make_ForAllSingle_t(p.m_a, l, \
         0, nullptr, CONCURRENT_CONTROLS(conlist), conlist.size(), \
-        nullptr, down_cast<stmt_t>(assign))
+        nullptr, down_cast<stmt_t>(assign), nullptr)
 #define FORALLSINGLE2(conlist, mask, assign, l) make_ForAllSingle_t(p.m_a, l, \
         0, nullptr, CONCURRENT_CONTROLS(conlist), conlist.size(), \
-        EXPR(mask), down_cast<stmt_t>(assign))
+        EXPR(mask), down_cast<stmt_t>(assign), nullptr)
 
 #define CONCURRENT_CONTROL1(i, a, b, l) make_ConcurrentControl_t(p.m_a, l, \
         name2char(i), EXPR(a), EXPR(b), nullptr)
@@ -1828,5 +1828,72 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         nullptr, 0, STMTS(stmts), stmts.size())
 #define CRITICAL1(x, stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
         VEC_CAST(x, event_attribute), x.size(), STMTS(stmts), stmts.size())
+
+
+#define TRIVIA_SET(x) case LFortran::AST::stmtType::x: { down_cast<x##_t>(s)->m_trivia = trivia; break; }
+
+void set_m_trivia(stmt_t *s, trivia_t *trivia) {
+    switch (s->type) {
+        TRIVIA_SET(Allocate)
+        TRIVIA_SET(Assign)
+        TRIVIA_SET(Assignment)
+        TRIVIA_SET(Associate)
+        TRIVIA_SET(Backspace)
+        TRIVIA_SET(Close)
+        TRIVIA_SET(Continue)
+        TRIVIA_SET(Cycle)
+        TRIVIA_SET(Deallocate)
+        TRIVIA_SET(Endfile)
+        TRIVIA_SET(ErrorStop)
+        TRIVIA_SET(EventPost)
+        TRIVIA_SET(EventWait)
+        TRIVIA_SET(Exit)
+        TRIVIA_SET(Flush)
+        TRIVIA_SET(ForAllSingle)
+        TRIVIA_SET(Format)
+        TRIVIA_SET(GoTo)
+        TRIVIA_SET(Inquire)
+        TRIVIA_SET(Nullify)
+        TRIVIA_SET(Open)
+        TRIVIA_SET(Return)
+        TRIVIA_SET(Print)
+        TRIVIA_SET(Read)
+        TRIVIA_SET(Rewind)
+        TRIVIA_SET(Stop)
+        TRIVIA_SET(SubroutineCall)
+        TRIVIA_SET(SyncAll)
+        TRIVIA_SET(Write)
+        default : { } //throw LFortran::LFortranException("Not implemented");
+    }
+}
+
+void set_trivia(Allocator &al, ast_t *ast, ast_t *trivia) {
+    stmt_t *s = down_cast<stmt_t>(ast);
+    TriviaNode_t *t = down_cast2<TriviaNode_t>(trivia);
+    trivia_t *tt = down_cast<trivia_t>(trivia);
+    Vec<trivia_node_t*> v;
+    v.reserve(al, t->n_after);
+    for (size_t i=0; i<t->n_after; i++) {
+        if (i == 0) {
+            if (is_a<EmptyLines_t>(*t->m_after[i])) {
+                continue;
+            }
+        }
+        v.push_back(al, t->m_after[i]);
+    }
+    if (v.size() > 0) {
+        t->n_after = v.size();
+        t->m_after = v.p;
+        set_m_trivia(s, tt);
+    }
+}
+
+#define NEWLINE(l) make_EmptyLines_t(p.m_a, l)
+#define SEMICOLON(l) make_Semicolon_t(p.m_a, l)
+#define COMMENT(cmt, l) make_Comment_t(p.m_a, l, cmt.c_str(p.m_a))
+
+#define TRIVIA_(stmt, x) set_trivia(p.m_a, stmt, x)
+#define TRIVIA_AFTER(x, l) make_TriviaNode_t(p.m_a, l, nullptr, 0, \
+        VEC_CAST(x, trivia_node), x.size())
 
 #endif
