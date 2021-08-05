@@ -1878,7 +1878,7 @@ void set_m_trivia(stmt_t *s, trivia_t *trivia) {
         TRIVIA_SET(SelectType)
         TRIVIA_SET(Where)
         TRIVIA_SET(WhileLoop)
-        default : { } //throw LFortran::LFortranException("Not implemented");
+        default : { throw LFortran::LFortranException("Not implemented"); }
     }
 }
 
