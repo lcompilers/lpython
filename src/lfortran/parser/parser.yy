@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    643 // shift/reduce conflicts
-%expect-rr 136 // reduce/reduce conflicts
+%expect    646 // shift/reduce conflicts
+%expect-rr 163 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -92,6 +92,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 
 %token <string> TK_STRING
 %token <string> TK_COMMENT
+%token <string> TK_EOLCOMMENT
 
 %token TK_DBL_DOT ".."
 %token TK_DBL_COLON "::"
@@ -1371,6 +1372,7 @@ sep
 sep_one
     : TK_NEWLINE { $$ = NEWLINE(@$); }
     | TK_COMMENT { $$ = COMMENT($1, @$); }
+    | TK_EOLCOMMENT { $$ = EOLCOMMENT($1, @$); }
     | ";" { $$ = SEMICOLON(@$); }
     ;
 

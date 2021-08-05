@@ -1891,6 +1891,7 @@ void set_trivia(Allocator &al, ast_t *ast, ast_t *trivia) {
 #define NEWLINE(l) make_EmptyLines_t(p.m_a, l)
 #define SEMICOLON(l) make_Semicolon_t(p.m_a, l)
 #define COMMENT(cmt, l) make_Comment_t(p.m_a, l, cmt.c_str(p.m_a))
+#define EOLCOMMENT(cmt, l) make_EOLComment_t(p.m_a, l, cmt.c_str(p.m_a))
 
 #define TRIVIA_(stmt, x) set_trivia(p.m_a, stmt, x)
 #define TRIVIA_AFTER(x, l) make_TriviaNode_t(p.m_a, l, nullptr, 0, \
