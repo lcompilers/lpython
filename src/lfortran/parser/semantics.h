@@ -1829,26 +1829,62 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 #define CRITICAL1(x, stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
         VEC_CAST(x, event_attribute), x.size(), STMTS(stmts), stmts.size())
 
+
+#define TRIVIA_SET(x) case LFortran::AST::stmtType::x: { down_cast<x##_t>(s)->m_trivia = trivia; break; }
+
+void set_m_trivia(stmt_t *s, trivia_t *trivia) {
+    switch (s->type) {
+        TRIVIA_SET(Allocate)
+        TRIVIA_SET(Assign)
+        TRIVIA_SET(Assignment)
+        TRIVIA_SET(Associate)
+        TRIVIA_SET(Backspace)
+        TRIVIA_SET(Close)
+        TRIVIA_SET(Continue)
+        TRIVIA_SET(Cycle)
+        TRIVIA_SET(Deallocate)
+        TRIVIA_SET(Endfile)
+        TRIVIA_SET(ErrorStop)
+        TRIVIA_SET(EventPost)
+        TRIVIA_SET(EventWait)
+        TRIVIA_SET(Exit)
+        TRIVIA_SET(Flush)
+        TRIVIA_SET(ForAllSingle)
+        TRIVIA_SET(Format)
+        TRIVIA_SET(GoTo)
+        TRIVIA_SET(Inquire)
+        TRIVIA_SET(Nullify)
+        TRIVIA_SET(Open)
+        TRIVIA_SET(Return)
+        TRIVIA_SET(Print)
+        TRIVIA_SET(Read)
+        TRIVIA_SET(Rewind)
+        TRIVIA_SET(Stop)
+        TRIVIA_SET(SubroutineCall)
+        TRIVIA_SET(SyncAll)
+        TRIVIA_SET(Write)
+        default : { } //throw LFortran::LFortranException("Not implemented");
+    }
+}
+
 void set_trivia(Allocator &al, ast_t *ast, ast_t *trivia) {
     stmt_t *s = down_cast<stmt_t>(ast);
-    if (is_a<Print_t>(*s)) {
-        Print_t *p = down_cast<Print_t>(s);
-        TriviaNode_t *t = down_cast2<TriviaNode_t>(trivia);
-        Vec<trivia_node_t*> v;
-        v.reserve(al, t->n_after);
-        for (size_t i=0; i<t->n_after; i++) {
-            if (i == 0) {
-                if (is_a<EmptyLines_t>(*t->m_after[i])) {
-                    continue;
-                }
+    TriviaNode_t *t = down_cast2<TriviaNode_t>(trivia);
+    trivia_t *tt = down_cast<trivia_t>(trivia);
+    Vec<trivia_node_t*> v;
+    v.reserve(al, t->n_after);
+    for (size_t i=0; i<t->n_after; i++) {
+        if (i == 0) {
+            if (is_a<EmptyLines_t>(*t->m_after[i])) {
+                continue;
             }
-            v.push_back(al, t->m_after[i]);
         }
-        if (v.size() > 0) {
-            t->n_after = v.size();
-            t->m_after = v.p;
-            p->m_trivia = down_cast<trivia_t>(trivia);
-        }
+        v.push_back(al, t->m_after[i]);
+    }
+    if (v.size() > 0) {
+        t->n_after = v.size();
+        t->m_after = v.p;
+        set_m_trivia(s, tt);
     }
 }
 
