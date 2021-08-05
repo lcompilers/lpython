@@ -832,15 +832,6 @@ ast_t* ALLOCATE_STMT0(Allocator &al,
 #define ALLOCATE_STMT(args, l) ALLOCATE_STMT0(p.m_a, args, l)
 #define DEALLOCATE_STMT(args, l) DEALLOCATE_STMT1(p.m_a, args, l)
 
-char* print_format_to_str(Allocator &al, const std::string &fmt) {
-    LFORTRAN_ASSERT(fmt[0] == '(');
-    LFORTRAN_ASSERT(fmt[fmt.size()-1] == ')');
-    std::string fmt2 = fmt.substr(1, fmt.size()-2);
-    LFortran::Str s;
-    s.from_str_view(fmt2);
-    return s.c_str(al);
-}
-
 char* def_op_to_str(Allocator &al, const LFortran::Str &s) {
     LFORTRAN_ASSERT(s.p[0] == '.');
     LFORTRAN_ASSERT(s.p[s.size()-1] == '.');
@@ -866,8 +857,6 @@ ast_t* PRINT1(Allocator &al, Location &l,
 #define PRINT0(fmt, l) PRINT1(p.m_a, l, fmt, nullptr, 0)
 #define PRINT(fmt, args, l) PRINT1(p.m_a, l, fmt, \
         EXPRS(args), args.size())
-#define PRINT_STRING(x, l)  make_String_t(p.m_a, l, \
-        print_format_to_str(p.m_a, x.str()))
 
 ast_t* WRITE1(Allocator &al,
         const Vec<ArgStarKw> &args0,
