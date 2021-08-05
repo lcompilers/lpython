@@ -1106,6 +1106,7 @@ filename = "../integration_tests/string1.f90"
 ast = true
 asr = true
 llvm = true
+cpp = true
 
 [[test]]
 filename = "../integration_tests/string2.f90"
