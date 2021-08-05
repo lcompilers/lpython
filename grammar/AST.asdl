@@ -138,29 +138,33 @@ stmt
 
 -- Multi-line statements (each has a `label` and `stmt_name`):
     | AssociateBlock(int label, identifier? stmt_name, var_sym* syms,
-            stmt* body)
+            stmt* body, trivia? trivia)
     | Block(int label, identifier? stmt_name, unit_decl1* use,
-            import_statement* import,unit_decl2* decl, stmt* body)
+            import_statement* import,unit_decl2* decl, stmt* body, trivia? trivia)
     | Critical(int label, identifier? stmt_name, event_attribute* sync_stat,
-            stmt* body)
+            stmt* body, trivia? trivia)
     | DoConcurrentLoop(int label, identifier? stmt_name,
             concurrent_control *control, expr? mask,
-            concurrent_locality* locality, stmt* body)
+            concurrent_locality* locality, stmt* body, trivia? trivia)
     | DoLoop(int label, identifier? stmt_name, int do_label, identifier? var,
-            expr? start, expr? end, expr? increment, stmt* body)
+            expr? start, expr? end, expr? increment, stmt* body, trivia? trivia)
     | ForAll(int label, identifier? stmt_name,
             concurrent_control *control, expr? mask,
-            concurrent_locality* locality, stmt* body)
-    | If(int label, identifier? stmt_name, expr test, stmt* body, stmt* orelse)
-    | IfArithmetic(int label, identifier? stmt_name, expr test, int lt_label, int eq_label, int gt_label)
-    | Select(int label, identifier? stmt_name, expr test, case_stmt* body)
+            concurrent_locality* locality, stmt* body, trivia? trivia)
+    | If(int label, identifier? stmt_name, expr test, stmt* body,
+            stmt* orelse, trivia? trivia)
+    | IfArithmetic(int label, identifier? stmt_name, expr test,
+            int lt_label, int eq_label, int gt_label, trivia? trivia)
+    | Select(int label, identifier? stmt_name, expr test,
+            case_stmt* body, trivia? trivia)
     | SelectRank(int label, identifier? stmt_name, identifier? assoc_name,
-            expr selector, rank_stmt* body)
+            expr selector, rank_stmt* body, trivia? trivia)
     | SelectType(int label, identifier? stmt_name, identifier? assoc_name,
-            expr selector, type_stmt* body)
+            expr selector, type_stmt* body, trivia? trivia)
     | Where(int label, identifier? stmt_name, expr test, stmt* body,
-            stmt* orelse)
-    | WhileLoop(int label, identifier? stmt_name, expr test, stmt* body)
+            stmt* orelse, trivia? trivia)
+    | WhileLoop(int label, identifier? stmt_name, expr test,
+            stmt* body, trivia? trivia)
 
 expr
     = BoolOp(expr left, boolop op, expr right)
