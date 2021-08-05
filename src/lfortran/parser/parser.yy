@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    646 // shift/reduce conflicts
+%expect    650 // shift/reduce conflicts
 %expect-rr 163 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -1499,9 +1499,7 @@ print_statement
     ;
 
 format
-    : TK_STRING { $$ = PRINT_STRING($1, @$); }
-    | TK_INTEGER { $$ = INTEGER($1, @$); }
-    | id { $$ = $1; }
+    : expr { $$ = $1; }
     | "*" { $$ = nullptr; }
     ;
 

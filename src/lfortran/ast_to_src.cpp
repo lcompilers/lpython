@@ -2320,18 +2320,7 @@ public:
         r += " ";
         if (x.m_fmt) {
             this->visit_expr(*x.m_fmt);
-            if(x.m_fmt->type == exprType::String ) {
-                if(s[0] == '"' || s[0] == '\'') {
-                    s.insert(1, "(");
-                    s.insert(s.size()-1, ")");
-                } else {
-                    s.insert(6, "(");
-                    s.insert(s.size()-6, ")");
-                }
-                r.append(s);
-            } else {
-                r.append(s);
-            }
+            r.append(s);
         } else {
             r += "*";
         }

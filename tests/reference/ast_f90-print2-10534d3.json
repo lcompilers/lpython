@@ -1,0 +1,13 @@
+{
+    "basename": "ast_f90-print2-10534d3",
+    "cmd": "lfortran --show-ast-f90 --no-color {infile}",
+    "infile": "tests/print2.f90",
+    "infile_hash": "6adc0ae191ec271ea11820e431167bc842948bb91bf0b54fe86090f7",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_f90-print2-10534d3.stdout",
+    "stdout_hash": "339b33d70462d35147ac0857de0da142cbd503ec76403f1a13ce8546",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
