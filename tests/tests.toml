@@ -1372,3 +1372,7 @@ ast_f90 = true
 [[test]]
 filename = "fixed_form2.f"
 ast = true
+
+[[test]]
+filename = "comments1.f90"
+ast = true
