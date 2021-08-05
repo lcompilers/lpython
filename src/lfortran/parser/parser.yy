@@ -1378,7 +1378,8 @@ sep_one
 
 statement
     : statement1 sep { $$ = $1; TRIVIA_($$, TRIVIA_AFTER($2, @$)); }
-    | TK_LABEL statement1 sep { $$ = $2; LABEL($$, $1); }
+    | TK_LABEL statement1 sep { $$ = $2;
+            LABEL($$, $1); TRIVIA_($$, TRIVIA_AFTER($3, @$)); }
     ;
 
 statement1
