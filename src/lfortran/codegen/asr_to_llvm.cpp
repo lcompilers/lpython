@@ -3106,7 +3106,7 @@ public:
     }
 
     void visit_FunctionCall(const ASR::FunctionCall_t &x) {
-        ASR::Function_t *s;
+        ASR::Function_t *s = nullptr;
         std::vector<llvm::Value*> args;
         const ASR::symbol_t *proc_sym = symbol_get_past_external(x.m_name);
         if (x.m_dt){
@@ -3121,7 +3121,9 @@ public:
                 ASR::ClassProcedure_t>(proc_sym);
             s = ASR::down_cast<ASR::Function_t>(clss_proc->m_proc);
         }
-        s = ASR::down_cast<ASR::Function_t>(symbol_get_past_external(x.m_name));
+        if( s == nullptr ) {
+            s = ASR::down_cast<ASR::Function_t>(symbol_get_past_external(x.m_name));
+        }
         if (parent_function){
             push_nested_stack(parent_function);
         } else if (parent_subroutine){

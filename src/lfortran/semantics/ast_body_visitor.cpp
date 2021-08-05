@@ -1121,14 +1121,14 @@ namespace LFortran {
             "asin", "acos", "atan", "asinh", "acosh", "atanh"};
         SymbolTable *scope = current_scope;
         std::string var_name = x.m_func;
-        ASR::symbol_t *v = scope->resolve_symbol(var_name);
+        ASR::symbol_t *v = nullptr;
         ASR::expr_t *v_expr = nullptr;
         // If this is a type bound procedure (in a class) it won't be in the
         // main symbol table. Need to check n_member.
         if (x.n_member == 1) {
-            ASR::symbol_t *v = current_scope->resolve_symbol(x.m_member[0].m_name);
-            ASR::asr_t *v_var = ASR::make_Var_t(al, x.base.base.loc, v);
-            v_expr = LFortran::ASRUtils::EXPR(v_var);
+            ASR::symbol_t *obj = current_scope->resolve_symbol(x.m_member[0].m_name);
+            ASR::asr_t *obj_var = ASR::make_Var_t(al, x.base.base.loc, obj);
+            v_expr = LFortran::ASRUtils::EXPR(obj_var);
             v = resolve_deriv_type_proc(x.base.base.loc, x.m_func,
                 x.m_member[0].m_name, scope);
         } else {
@@ -1276,7 +1276,17 @@ namespace LFortran {
             }
         }
         switch (v->type) {
-            case (ASR::symbolType::Function) : {
+            case ASR::symbolType::ClassProcedure : {
+                Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
+                ASR::ttype_t *type = nullptr;
+                ASR::ClassProcedure_t *v_class_proc = ASR::down_cast<ASR::ClassProcedure_t>(v);
+                type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(v_class_proc->m_proc)->m_return_var)->m_type;
+                tmp = ASR::make_FunctionCall_t(al, x.base.base.loc,
+                        v, nullptr, args.p, args.size(), nullptr, 0, type, nullptr,
+                        v_expr);
+                break;
+            }
+            case ASR::symbolType::Function : {
                 Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
                 ASR::ttype_t *type;
                 type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(v)->m_return_var)->m_type;
