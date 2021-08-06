@@ -17,13 +17,6 @@ contains
     area = pi * this%radius**2
   end function circle_area
 
-  function circle_area_1(this) result(area)
-    ! F2003 standard 4.5.3.3 passed object dummy argument
-    class(Circle), intent(in) :: this
-    real :: area
-    area = pi * this%radius
-  end function circle_area_1
-
   subroutine circle_print(this)
     class(Circle), intent(in) :: this
     real :: area
