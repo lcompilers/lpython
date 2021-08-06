@@ -285,7 +285,7 @@ RUN(NAME complex_dp LABELS gfortran llvm)
 RUN(NAME bin_op_complex_dp LABELS gfortran llvm)
 RUN(NAME complex_dp_param LABELS gfortran llvm)
 
-RUN(NAME string1 LABELS gfortran llvm)
+RUN(NAME string1 LABELS gfortran llvm cpp)
 RUN(NAME string2 LABELS gfortran llvm)
 RUN(NAME string3 LABELS gfortran llvm)
 RUN(NAME string4 LABELS gfortran llvm)
