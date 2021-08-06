@@ -176,6 +176,9 @@ RUN(NAME intrinsics_03 LABELS gfortran llvm) # cos
 RUN(NAME intrinsics_04 LABELS gfortran llvm) # tan
 RUN(NAME intrinsics_05 LABELS gfortran llvm) # hyperbolics
 RUN(NAME intrinsics_06 LABELS gfortran llvm) # inverse trignometric
+RUN(NAME intrinsics_07 LABELS gfortran) # kind
+RUN(NAME intrinsics_08 LABELS gfortran) # tiny symboltable
+RUN(NAME intrinsics_09 LABELS gfortran) # tiny body
 RUN(NAME intrinsics_open_close_read_write LABELS gfortran)
 
 RUN(NAME parameter_01 LABELS gfortran)
@@ -285,6 +288,7 @@ RUN(NAME complex_dp_param LABELS gfortran llvm)
 RUN(NAME string1 LABELS gfortran llvm)
 RUN(NAME string2 LABELS gfortran llvm)
 RUN(NAME string3 LABELS gfortran llvm)
+RUN(NAME string4 LABELS gfortran llvm)
 
 RUN(NAME nested_01 LABELS gfortran llvm)
 RUN(NAME nested_02 LABELS gfortran llvm)

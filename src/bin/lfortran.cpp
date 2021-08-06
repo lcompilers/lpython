@@ -11,6 +11,7 @@
 #include <lfortran/mod_to_asr.h>
 #include <lfortran/codegen/asr_to_llvm.h>
 #include <lfortran/codegen/asr_to_cpp.h>
+#include <lfortran/codegen/asr_to_py.h>
 #include <lfortran/codegen/asr_to_x86.h>
 #include <lfortran/ast_to_src.h>
 #include <lfortran/codegen/evaluator.h>
@@ -315,6 +316,15 @@ int prompt(bool verbose)
 }
 #endif
 
+int emit_prescan(const std::string &infile, bool fixed_form)
+{
+    std::string input = read_file(infile);
+    LFortran::LocationManager lm;
+    std::string prescan = LFortran::fix_continuation(input, lm, fixed_form);
+    std::cout << prescan << std::endl;
+    return 0;
+}
+
 int emit_tokens(const std::string &infile)
 {
     std::string input = read_file(infile);
@@ -409,6 +419,37 @@ int format(const std::string &file, bool inplace, bool color, int indent,
         std::cout << source;
     }
 
+    return 0;
+}
+
+int python_wrapper(const std::string &infile, std::string /*array_order*/)
+{
+    std::string input = read_file(infile);
+
+    // Src -> AST
+    Allocator al(64*1024*1024);
+    LFortran::AST::TranslationUnit_t* ast;
+    try {
+        ast = LFortran::parse2(al, input);
+    } catch (const LFortran::TokenizerError &e) {
+        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
+        return 1;
+    } catch (const LFortran::ParserError &e) {
+        std::cerr << "Parsing error: " << e.msg() << std::endl;
+        return 2;
+    }
+
+    // AST -> ASR
+    LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast);
+
+    // ASR -> C / Python
+    // TODO: this returns a C header file
+    // we will have to also return the Cython files, as arguments
+    std::string c_h;
+    c_h = LFortran::asr_to_py(*asr);
+
+    // TODO: change this to print to a file
+    std::cout << c_h;
     return 0;
 }
 
@@ -963,6 +1004,7 @@ int main(int argc, char *argv[])
         std::string arg_o;
         std::vector<std::string> arg_files;
         bool arg_version = false;
+        bool show_prescan = false;
         bool show_tokens = false;
         bool show_ast = false;
         bool show_asr = false;
@@ -990,6 +1032,9 @@ int main(int argc, char *argv[])
         bool arg_mod_show_asr = false;
         bool arg_mod_no_color = false;
 
+        std::string arg_pywrap_file;
+        std::string arg_pywrap_array_order="f";
+
         bool openmp = false;
 
         CLI::App app{"LFortran: modern interactive LLVM-based Fortran compiler"};
@@ -1007,6 +1052,7 @@ int main(int argc, char *argv[])
         // LFortran specific options
         app.add_flag("--cpp", arg_cpp, "Enable preprocessing");
         app.add_flag("--fixed-form", arg_fixed_form, "Use fixed form Fortran source parsing");
+        app.add_flag("--show-prescan", show_prescan, "Show tokens for the given file and exit");
         app.add_flag("--show-tokens", show_tokens, "Show tokens for the given file and exit");
         app.add_flag("--show-ast", show_ast, "Show AST for the given file and exit");
         app.add_flag("--show-asr", show_asr, "Show ASR for the given file and exit");
@@ -1045,6 +1091,12 @@ int main(int argc, char *argv[])
         mod.add_option("file", arg_mod_file, "Mod file (*.mod)")->required();
         mod.add_flag("--show-asr", arg_mod_show_asr, "Show ASR for the module");
         mod.add_flag("--no-color", arg_mod_no_color, "Turn off colored ASR");
+
+        // pywrap
+        CLI::App &pywrap = *app.add_subcommand("pywrap", "Python wrapper generator");
+        pywrap.add_option("file", arg_pywrap_file, "Fortran source file (*.f90)")->required();
+        pywrap.add_option("--array-order", arg_pywrap_array_order,
+                "Select array order (c, f)", true);
 
 
         app.get_formatter()->column_width(25);
@@ -1089,6 +1141,10 @@ int main(int argc, char *argv[])
             return 0;
         }
 
+        if (pywrap) {
+            return python_wrapper(arg_pywrap_file, arg_pywrap_array_order);
+        }
+
         if (arg_backend == "llvm") {
             backend = Backend::llvm;
         } else if (arg_backend == "cpp") {
@@ -1123,6 +1179,8 @@ int main(int argc, char *argv[])
             outfile = basename + ".s";
         } else if (arg_c) {
             outfile = basename + ".o";
+        } else if (show_prescan) {
+            outfile = basename + ".prescan";
         } else if (show_tokens) {
             outfile = basename + ".tokens";
         } else if (show_ast) {
@@ -1161,6 +1219,9 @@ int main(int argc, char *argv[])
         }
 
 
+        if (show_prescan) {
+            return emit_prescan(arg_file, arg_fixed_form);
+        }
         if (show_tokens) {
             return emit_tokens(arg_file);
         }

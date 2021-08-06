@@ -2,7 +2,7 @@
     "basename": "llvm-string2-4efbf91",
     "cmd": "lfortran --show-llvm {infile} -o {outfile}",
     "infile": "tests/../integration_tests/string2.f90",
-    "infile_hash": "67e62ae7792aa7e1f4cd92144e9f32c4f30077627c8d110cc6c46c99",
+    "infile_hash": "e51c4f0399fd44637cd5a7c06c32e7f6525c83b16722b837bc767909",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "llvm-string2-4efbf91.stdout",

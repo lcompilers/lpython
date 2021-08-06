@@ -1,1 +1,1 @@
-(TranslationUnit [(Program print_my_name [] [(ImplicitNone [])] [(Declaration (AttrType TypeCharacter [(len 7 Value)] () None) [] [(my_name [] [] (String "Dominic") Equal ())])] [(Print 0 () [(String "My name is ") my_name])] [])])
+(TranslationUnit [(Program print_my_name [] [(ImplicitNone [])] [(Declaration (AttrType TypeCharacter [(len 7 Value)] () None) [] [(my_name [] [] (String "Dominic") Equal ())])] [(Print 0 () [(String "My name is ") my_name] (TriviaNode [] [(EmptyLines)]))] [])])

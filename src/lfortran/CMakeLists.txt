@@ -11,6 +11,7 @@ set(SRC
     semantics/asr_scopes.cpp
 
     codegen/asr_to_cpp.cpp
+    codegen/asr_to_py.cpp
     codegen/x86_assembler.cpp
     codegen/asr_to_x86.cpp
 

@@ -260,6 +260,10 @@ public:
                 el_type = getDerivedType(m_type_);
                 break;
             }
+            case ASR::ttypeType::Character: {
+                el_type = character_type;
+                break;
+            }
             default:
                 break;
         }
@@ -1091,9 +1095,26 @@ public:
                             }
                             break;
                         }
-                        case (ASR::ttypeType::Character) :
-                            type = character_type;
+                        case (ASR::ttypeType::Character) : {
+                            ASR::Character_t* v_type = down_cast<ASR::Character_t>(v->m_type);
+                            m_type_ = v->m_type;
+                            m_dims = v_type->m_dims;
+                            n_dims = v_type->n_dims;
+                            a_kind = v_type->m_kind;
+                            if( n_dims > 0 ) {
+                                is_array_type = true;
+                                llvm::Type* el_type = get_el_type(m_type_, a_kind);
+                                if( v->m_storage == ASR::storage_typeType::Allocatable ) {
+                                    is_malloc_array_type = true;
+                                    type = arr_descr->get_malloc_array_type(m_type_, a_kind, n_dims, el_type);
+                                } else {
+                                    type = arr_descr->get_array_type(m_type_, a_kind, n_dims, m_dims, el_type);
+                                }
+                            } else {
+                                type = character_type;
+                            }
                             break;
+                        }
                         case (ASR::ttypeType::Logical) : {
                             ASR::Logical_t* v_type = down_cast<ASR::Logical_t>(v->m_type);
                             m_type_ = v->m_type;
@@ -1956,6 +1977,12 @@ public:
                 int idx = std::distance(nested_globals.begin(), finder);
                 target = builder->CreateLoad(llvm_utils->create_gep(ptr, idx));
             }
+            if( arr_descr->is_array(target) ) {
+                if( asr_target->m_type->type == 
+                    ASR::ttypeType::Character ) {
+                    target = arr_descr->get_pointer_to_data(target);
+            }
+        }
         }
         this->visit_expr_wrapper(x.m_value, true);
         value = tmp;

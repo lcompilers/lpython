@@ -2,11 +2,11 @@
     "basename": "ast-string2-eb4e1df",
     "cmd": "lfortran --show-ast --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/string2.f90",
-    "infile_hash": "67e62ae7792aa7e1f4cd92144e9f32c4f30077627c8d110cc6c46c99",
+    "infile_hash": "e51c4f0399fd44637cd5a7c06c32e7f6525c83b16722b837bc767909",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast-string2-eb4e1df.stdout",
-    "stdout_hash": "dcacc1522a9e44b06999e9e9e16538042c10b7ab290463c98eb93f32",
+    "stdout_hash": "76c3d6ddc82033d60b76a759f20b01f4ee26250a601fc244ac76e0ca",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

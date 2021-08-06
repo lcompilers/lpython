@@ -1,1 +1,1 @@
-(TranslationUnit [(ImplicitNone []) (Print 0 () [(String "hello world")]) end])
+(TranslationUnit [(ImplicitNone []) (Print 0 () [(String "hello world")] ()) end])

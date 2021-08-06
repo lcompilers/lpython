@@ -1053,6 +1053,16 @@ llvm = true
 filename = "../integration_tests/intrinsics_07.f90"
 asr = true
 
+# tiny (symboltable)
+[[test]]
+filename = "../integration_tests/intrinsics_08.f90"
+asr = true
+
+# tiny (body)
+[[test]]
+filename = "../integration_tests/intrinsics_09.f90"
+asr = true
+
 [[test]]
 filename = "../integration_tests/intrinsics_open_close_read_write.f90"
 asr = true
@@ -1100,6 +1110,11 @@ llvm = true
 [[test]]
 filename = "../integration_tests/string2.f90"
 ast = true
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/string4.f90"
 asr = true
 llvm = true
 
@@ -1355,10 +1370,19 @@ ast = true
 ast_f90 = true
 
 [[test]]
+filename = "print2.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
 filename = "fixed_form1.f"
 ast = true
 ast_f90 = true
 
 [[test]]
 filename = "fixed_form2.f"
+ast = true
+
+[[test]]
+filename = "comments1.f90"
 ast = true

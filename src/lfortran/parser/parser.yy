@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    643 // shift/reduce conflicts
-%expect-rr 136 // reduce/reduce conflicts
+%expect    650 // shift/reduce conflicts
+%expect-rr 163 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -92,6 +92,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 
 %token <string> TK_STRING
 %token <string> TK_COMMENT
+%token <string> TK_EOLCOMMENT
 
 %token TK_DBL_DOT ".."
 %token TK_DBL_COLON "::"
@@ -488,6 +489,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> proc_modifier_list
 %type <equi> equivalence_set
 %type <vec_equi> equivalence_set_list
+%type <ast> sep_one
+%type <vec_ast> sep
 
 // Precedence
 
@@ -1159,9 +1162,13 @@ data_object
     : id { $$ = $1; }
     | struct_member_star id { NAME1($$, $2, $1, @$); }
     | id "(" fnarray_arg_list_opt ")" { $$ = FUNCCALLORARRAY($1, $3, @$); }
-    | "(" data_object "," integer_type id "=" expr "," expr ")" {
+    | "(" data_object_list "," id "=" expr "," expr ")" {
+            $$ = DATA_IMPLIED_DO1($2, nullptr, $4, $6, $8, @$); }
+    | "(" data_object_list "," integer_type id "=" expr "," expr ")" {
             $$ = DATA_IMPLIED_DO1($2, $4, $5, $7, $9, @$); }
-    | "(" data_object "," integer_type id "=" expr "," expr "," expr ")" {
+    | "(" data_object_list "," id "=" expr "," expr "," expr ")" {
+            $$ = DATA_IMPLIED_DO2($2, nullptr, $4, $6, $8, $10, @$); }
+    | "(" data_object_list "," integer_type id "=" expr "," expr "," expr ")" {
             $$ = DATA_IMPLIED_DO2($2, $4, $5, $7, $9, $11, @$); }
     ;
 
@@ -1199,7 +1206,6 @@ data_stmt_constant
 integer_type
     : KW_INTEGER "(" kind_arg_list ")" "::" {
             $$ = ATTR_TYPE_KIND(Integer, $3, @$); }
-    | %empty { $$ = nullptr; }
     ;
 
 kind_arg_list
@@ -1359,19 +1365,21 @@ statements
     ;
 
 sep
-    : sep sep_one
-    | sep_one
+    : sep sep_one { $$ = $1; LIST_ADD($$, $2); }
+    | sep_one { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 sep_one
-    : TK_NEWLINE
-    | TK_COMMENT
-    | ";"
+    : TK_NEWLINE { $$ = NEWLINE(@$); }
+    | TK_COMMENT { $$ = COMMENT($1, @$); }
+    | TK_EOLCOMMENT { $$ = EOLCOMMENT($1, @$); }
+    | ";" { $$ = SEMICOLON(@$); }
     ;
 
 statement
-    : statement1 sep { $$ = $1; }
-    | TK_LABEL statement1 sep { $$ = $2; LABEL($$, $1); }
+    : statement1 sep { $$ = $1; TRIVIA_($$, TRIVIA_AFTER($2, @$)); }
+    | TK_LABEL statement1 sep { $$ = $2;
+            LABEL($$, $1); TRIVIA_($$, TRIVIA_AFTER($3, @$)); }
     ;
 
 statement1
@@ -1491,9 +1499,7 @@ print_statement
     ;
 
 format
-    : TK_STRING { $$ = PRINT_STRING($1, @$); }
-    | TK_INTEGER { $$ = INTEGER($1, @$); }
-    | id { $$ = $1; }
+    : expr { $$ = $1; }
     | "*" { $$ = nullptr; }
     ;
 
