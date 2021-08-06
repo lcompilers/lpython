@@ -75,29 +75,6 @@ std::string format_type(const std::string &dims, const std::string &type,
     return fmt;
 }
 
-std::string convert_variable_decl(const ASR::Variable_t &v)
-{
-    std::string sub;
-    bool use_ref = (v.m_intent == LFortran::ASRUtils::intent_out || v.m_intent == LFortran::ASRUtils::intent_inout);
-    bool dummy = LFortran::ASRUtils::is_arg_dummy(v.m_intent);
-    if (is_a<ASR::Integer_t>(*v.m_type)) {
-        ASR::Integer_t *t = down_cast<ASR::Integer_t>(v.m_type);
-        std::string dims = convert_dims(t->n_dims, t->m_dims);
-        sub = format_type(dims, "int", v.m_name, use_ref, dummy);
-    } else if (is_a<ASR::Real_t>(*v.m_type)) {
-        ASR::Real_t *t = down_cast<ASR::Real_t>(v.m_type);
-        std::string dims = convert_dims(t->n_dims, t->m_dims);
-        sub = format_type(dims, "float", v.m_name, use_ref, dummy);
-    } else if (is_a<ASR::Logical_t>(*v.m_type)) {
-        ASR::Logical_t *t = down_cast<ASR::Logical_t>(v.m_type);
-        std::string dims = convert_dims(t->n_dims, t->m_dims);
-        sub = format_type(dims, "bool", v.m_name, use_ref, dummy);
-    } else {
-        throw CodeGenError("Type not supported");
-    }
-    return sub;
-}
-
 class ASRToCPPVisitor : public ASR::BaseVisitor<ASRToCPPVisitor>
 {
 public:
@@ -109,6 +86,39 @@ public:
     bool last_binary_plus;
     bool intrinsic_module = false;
 
+    std::string convert_variable_decl(const ASR::Variable_t &v)
+    {
+        std::string sub;
+        bool use_ref = (v.m_intent == LFortran::ASRUtils::intent_out || v.m_intent == LFortran::ASRUtils::intent_inout);
+        bool dummy = LFortran::ASRUtils::is_arg_dummy(v.m_intent);
+        if (is_a<ASR::Integer_t>(*v.m_type)) {
+            ASR::Integer_t *t = down_cast<ASR::Integer_t>(v.m_type);
+            std::string dims = convert_dims(t->n_dims, t->m_dims);
+            sub = format_type(dims, "int", v.m_name, use_ref, dummy);
+        } else if (is_a<ASR::Real_t>(*v.m_type)) {
+            ASR::Real_t *t = down_cast<ASR::Real_t>(v.m_type);
+            std::string dims = convert_dims(t->n_dims, t->m_dims);
+            sub = format_type(dims, "float", v.m_name, use_ref, dummy);
+        } else if (is_a<ASR::Logical_t>(*v.m_type)) {
+            ASR::Logical_t *t = down_cast<ASR::Logical_t>(v.m_type);
+            std::string dims = convert_dims(t->n_dims, t->m_dims);
+            sub = format_type(dims, "bool", v.m_name, use_ref, dummy);
+        } else if (is_a<ASR::Character_t>(*v.m_type)) {
+            ASR::Character_t *t = down_cast<ASR::Character_t>(v.m_type);
+            std::string dims = convert_dims(t->n_dims, t->m_dims);
+            sub = format_type(dims, "std::string", v.m_name, use_ref, dummy);
+            if (v.m_symbolic_value) {
+                this->visit_expr(*v.m_symbolic_value);
+                std::string init = src;
+                sub += "=" + init;
+            }
+        } else {
+            throw CodeGenError("Type not supported");
+        }
+        return sub;
+    }
+
+
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         // All loose statements must be converted to a function, so the items
         // must be empty:
@@ -119,6 +129,7 @@ public:
 
         std::string headers =
 R"(#include <iostream>
+#include <string>
 #include <vector>
 #include <Kokkos_Core.hpp>
 

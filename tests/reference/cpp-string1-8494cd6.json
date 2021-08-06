@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-string1-8494cd6",
+    "cmd": "lfortran --show-cpp {infile}",
+    "infile": "tests/../integration_tests/string1.f90",
+    "infile_hash": "d03124d042e49a615db3d1dd14d3c33fb8899181f68c024802cf1372",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-string1-8494cd6.stdout",
+    "stdout_hash": "6b1c92742f596e7b450763483e0fce58d2972fdb633c66d653d0e383",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
