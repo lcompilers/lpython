@@ -8,7 +8,7 @@ source_filename = "LFortran"
 @1 = private unnamed_addr constant [9 x i8] c" area = \00", align 1
 @2 = private unnamed_addr constant [13 x i8] c"%s %f %s %f\0A\00", align 1
 
-define float @__module_class_Circle_circle_area(%Circle* %this) {
+define float @__module_class_circle1_circle_area(%Circle* %this) {
 .entry:
   %area = alloca float, align 4
   %0 = load float, float* @pi, align 4
@@ -21,10 +21,10 @@ define float @__module_class_Circle_circle_area(%Circle* %this) {
   ret float %5
 }
 
-define void @__module_class_Circle_circle_print(%Circle* %this) {
+define void @__module_class_circle1_circle_print(%Circle* %this) {
 .entry:
   %area = alloca float, align 4
-  %0 = call float @__module_class_Circle_circle_area(%Circle* %this)
+  %0 = call float @__module_class_circle1_circle_area(%Circle* %this)
   store float %0, float* %area, align 4
   %1 = getelementptr %Circle, %Circle* %this, i32 0, i32 0
   %2 = load float, float* %1, align 4
@@ -45,7 +45,7 @@ define i32 @main() {
   %c = alloca %Circle, align 8
   %0 = getelementptr %Circle, %Circle* %c, i32 0, i32 0
   store float 1.500000e+00, float* %0, align 4
-  call void @__module_class_Circle_circle_print(%Circle* %c)
+  call void @__module_class_circle1_circle_print(%Circle* %c)
   ret i32 0
 }
 
