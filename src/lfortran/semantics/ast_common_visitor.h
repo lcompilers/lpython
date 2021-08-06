@@ -232,8 +232,43 @@ public:
     LFORTRAN_ASSERT(
         ASRUtils::check_equal_type(LFortran::ASRUtils::expr_type(left),
                                    LFortran::ASRUtils::expr_type(right)));
+
+    ASR::expr_t *value = nullptr;
+    // Assign evaluation to `value` if possible, otherwise leave nullptr
+    if (LFortran::ASRUtils::expr_value(left) != nullptr &&
+        LFortran::ASRUtils::expr_value(right) != nullptr) {
+        LFORTRAN_ASSERT(ASR::is_a<LFortran::ASR::Logical_t>(*dest_type))
+
+        bool left_value = ASR::down_cast<ASR::ConstantLogical_t>(
+                                 LFortran::ASRUtils::expr_value(left))
+                                 ->m_value;
+        bool right_value = ASR::down_cast<ASR::ConstantLogical_t>(
+                                  LFortran::ASRUtils::expr_value(right))
+                                  ->m_value;
+        bool result;
+        switch (op) {
+            case (ASR::And):
+                result = left_value && right_value;
+                break;
+            case (ASR::Or):
+                result = left_value || right_value;
+                break;
+            case (ASR::NEqv):
+                result = left_value != right_value;
+                break;
+            case (ASR::Eqv):
+                result = left_value == right_value;
+                break;
+            default:
+                throw SemanticError(R"""(Only .and., .or., .neqv., .eqv.
+                                                implemented for logical type operands.)""",
+                                    x.base.base.loc);
+        }
+        value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+            al, x.base.base.loc, result, dest_type));
+    }
     asr = ASR::make_BoolOp_t(al, x.base.base.loc, left, op, right, dest_type,
-                             nullptr);
+                             value);
   }
 
   inline static void visit_UnaryOp(Allocator &al, const AST::UnaryOp_t &x,
