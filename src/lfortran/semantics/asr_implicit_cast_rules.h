@@ -118,9 +118,24 @@ public:
           "Only " + allowed_types_str + " can be assigned to " + dest_type_str;
       throw SemanticError(error_msg, a_loc);
     } else if (cast_kind != default_case) {
+        ASR::expr_t *value=nullptr;
+        if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::RealToInteger) {
+            if (ASRUtils::expr_value(*convert_can)) {
+                LFORTRAN_ASSERT(ASR::is_a<ASR::Integer_t>(*dest_type))
+                LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*ASRUtils::expr_type(*convert_can)))
+                value = ASRUtils::expr_value(*convert_can);
+                LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantReal_t>(*value))
+                ASR::ConstantReal_t *r = ASR::down_cast<ASR::ConstantReal_t>(value);
+                int64_t i = r->m_r;
+                value = (ASR::expr_t *)ASR::make_ConstantInteger_t(al, a_loc,
+                    i, dest_type);
+            }
+
+        }
+
       *convert_can = (ASR::expr_t *)ASR::make_ImplicitCast_t(
           al, a_loc, *convert_can, (ASR::cast_kindType)cast_kind, dest_type,
-          nullptr);
+          value);
     }
   }
 
