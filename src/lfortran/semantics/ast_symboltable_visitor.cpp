@@ -719,8 +719,9 @@ public:
                     if (storage_type == ASR::storage_typeType::Parameter) {
                         value = ASRUtils::expr_value(init_expr);
                         if (value == nullptr) {
-                            throw SemanticError("Value of a parameter variable must evaluate to a compile time constant",
-                                x.base.base.loc);
+                            // TODO: enable this after intrinsic functions (kind) evaluation is implemented:
+                            //throw SemanticError("Value of a parameter variable must evaluate to a compile time constant",
+                            //    x.base.base.loc);
                         }
                     }
                 }
