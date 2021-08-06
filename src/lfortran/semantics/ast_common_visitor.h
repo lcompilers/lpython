@@ -259,8 +259,51 @@ public:
     }
     }
     ASR::ttype_t *operand_type = LFortran::ASRUtils::expr_type(operand);
+    ASR::expr_t *value = nullptr;
+    // Assign evaluation to `value` if possible, otherwise leave nullptr
+    if (LFortran::ASRUtils::expr_value(operand) != nullptr) {
+      if (ASR::is_a<LFortran::ASR::Integer_t>(*operand_type)) {
+        int64_t op_value = ASR::down_cast<ASR::ConstantInteger_t>(
+                                  LFortran::ASRUtils::expr_value(operand))
+                                  ->m_n;
+        int64_t result;
+        switch (op) {
+        case (ASR::unaryopType::UAdd):
+          result = op_value;
+          break;
+        case (ASR::unaryopType::USub):
+          result = -op_value;
+          break;
+        default: {
+            throw SemanticError("Unary operator not implemented yet for compile time evaluation",
+                x.base.base.loc);
+        }
+        }
+        value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
+            al, x.base.base.loc, result, operand_type));
+      } else if (ASR::is_a<LFortran::ASR::Real_t>(*operand_type)) {
+        double op_value = ASR::down_cast<ASR::ConstantReal_t>(
+                                LFortran::ASRUtils::expr_value(operand))
+                                ->m_r;
+        double result;
+        switch (op) {
+        case (ASR::unaryopType::UAdd):
+          result = op_value;
+          break;
+        case (ASR::unaryopType::USub):
+          result = -op_value;
+          break;
+        default: {
+            throw SemanticError("Unary operator not implemented yet for compile time evaluation",
+                x.base.base.loc);
+        }
+        }
+        value = ASR::down_cast<ASR::expr_t>(
+            ASR::make_ConstantReal_t(al, x.base.base.loc, result, operand_type));
+      }
+    }
     asr = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, operand_type,
-                              nullptr);
+                              value);
   }
 
   static inline void visit_StrOp(Allocator &al, const AST::StrOp_t &x,
