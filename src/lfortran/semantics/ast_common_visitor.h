@@ -189,8 +189,96 @@ public:
                           x.base.base.loc);
     }
     }
+
+    ASR::expr_t *value = nullptr;
+    ASR::ttype_t *source_type = left_type;
+    // Assign evaluation to `value` if possible, otherwise leave nullptr
+    if (LFortran::ASRUtils::expr_value(left) != nullptr &&
+        LFortran::ASRUtils::expr_value(right) != nullptr) {
+      if (ASR::is_a<LFortran::ASR::Integer_t>(*source_type)) {
+        int64_t left_value = ASR::down_cast<ASR::ConstantInteger_t>(
+                                 LFortran::ASRUtils::expr_value(left))
+                                 ->m_n;
+        int64_t right_value = ASR::down_cast<ASR::ConstantInteger_t>(
+                                  LFortran::ASRUtils::expr_value(right))
+                                  ->m_n;
+        bool result;
+        switch (asr_op) {
+            case (ASR::cmpopType::Eq): {
+                result = left_value == right_value;
+                break;
+            }
+            case (ASR::cmpopType::Gt): {
+                result = left_value > right_value;
+                break;
+            }
+            case (ASR::cmpopType::GtE): {
+                result = left_value >= right_value;
+                break;
+            }
+            case (ASR::cmpopType::Lt): {
+                result = left_value < right_value;
+                break;
+            }
+            case (ASR::cmpopType::LtE): {
+                result = left_value <= right_value;
+                break;
+            }
+            case (ASR::cmpopType::NotEq): {
+                result = left_value != right_value;
+                break;
+            }
+            default: {
+                throw SemanticError("Comparison operator not implemented",
+                                    x.base.base.loc);
+            }
+        }
+        value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+            al, x.base.base.loc, result, source_type));
+      } else if (ASR::is_a<LFortran::ASR::Real_t>(*source_type)) {
+        double left_value = ASR::down_cast<ASR::ConstantReal_t>(
+                                LFortran::ASRUtils::expr_value(left))
+                                ->m_r;
+        double right_value = ASR::down_cast<ASR::ConstantReal_t>(
+                                 LFortran::ASRUtils::expr_value(right))
+                                 ->m_r;
+        bool result;
+        switch (asr_op) {
+            case (ASR::cmpopType::Eq): {
+                result = left_value == right_value;
+                break;
+            }
+            case (ASR::cmpopType::Gt): {
+                result = left_value > right_value;
+                break;
+            }
+            case (ASR::cmpopType::GtE): {
+                result = left_value >= right_value;
+                break;
+            }
+            case (ASR::cmpopType::Lt): {
+                result = left_value < right_value;
+                break;
+            }
+            case (ASR::cmpopType::LtE): {
+                result = left_value <= right_value;
+                break;
+            }
+            case (ASR::cmpopType::NotEq): {
+                result = left_value != right_value;
+                break;
+            }
+            default: {
+                throw SemanticError("Comparison operator not implemented",
+                                    x.base.base.loc);
+            }
+        }
+        value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+            al, x.base.base.loc, result, source_type));
+      }
+    }
     asr = ASR::make_Compare_t(al, x.base.base.loc, left, asr_op, right, type,
-                              nullptr);
+                              value);
   }
 
   inline static void visit_BoolOp(Allocator &al, const AST::BoolOp_t &x,
