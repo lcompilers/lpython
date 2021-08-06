@@ -433,6 +433,7 @@ public:
                                  ASR::expr_t *&left, ASR::expr_t *&right,
                                  ASR::asr_t *&asr) {
     ASR::stropType op;
+    LFORTRAN_ASSERT(x.m_op == AST::Concat)
     switch (x.m_op) {
     case (AST::Concat):
       op = ASR::Concat;
@@ -440,8 +441,26 @@ public:
     ASR::ttype_t *right_type = LFortran::ASRUtils::expr_type(right);
     ASR::ttype_t *dest_type = right_type;
     // TODO: Type check here?
+
+    ASR::expr_t *value = nullptr;
+    // Assign evaluation to `value` if possible, otherwise leave nullptr
+    if (LFortran::ASRUtils::expr_value(left) != nullptr &&
+        LFortran::ASRUtils::expr_value(right) != nullptr) {
+        char* left_value = ASR::down_cast<ASR::ConstantString_t>(
+                                 LFortran::ASRUtils::expr_value(left))
+                                 ->m_s;
+        char* right_value = ASR::down_cast<ASR::ConstantString_t>(
+                                  LFortran::ASRUtils::expr_value(right))
+                                  ->m_s;
+        char* result;
+        std::string result_s = std::string(left_value)+std::string(right_value);
+        Str s; s.from_str_view(result_s);
+        result = s.c_str(al);
+        value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(
+            al, x.base.base.loc, result, dest_type));
+      }
     asr = ASR::make_StrOp_t(al, x.base.base.loc, left, op, right, dest_type,
-                            nullptr);
+                            value);
   }
 };
 } // namespace LFortran
