@@ -843,6 +843,10 @@ public:
     }
 
     void visit_ArrayRef(const ASR::ArrayRef_t& x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
         ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(x.m_v);
         uint32_t v_h = get_hash((ASR::asr_t*)v);
         LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
@@ -857,6 +861,10 @@ public:
     }
 
     void visit_DerivedRef(const ASR::DerivedRef_t& x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
         der_type_name = "";
         this->visit_expr(*x.m_v);
         ASR::Variable_t* member = down_cast<ASR::Variable_t>(symbol_get_past_external(x.m_m));
@@ -880,6 +888,10 @@ public:
     }
 
     void visit_Variable(const ASR::Variable_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
         uint32_t h = get_hash((ASR::asr_t*)&x);
         // This happens at global scope, so the intent can only be either local
         // (global variable declared/initialized in this translation unit), or
@@ -2011,6 +2023,10 @@ public:
     }
 
     void visit_Compare(const ASR::Compare_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
         this->visit_expr_wrapper(x.m_left, true);
         llvm::Value *left = tmp;
         this->visit_expr_wrapper(x.m_right, true);
@@ -2198,6 +2214,10 @@ public:
     }
 
     void visit_BoolOp(const ASR::BoolOp_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
         this->visit_expr_wrapper(x.m_left, true);
         llvm::Value *left_val = tmp;
         this->visit_expr_wrapper(x.m_right, true);
@@ -2227,6 +2247,10 @@ public:
     }
 
     void visit_StrOp(const ASR::StrOp_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
         this->visit_expr_wrapper(x.m_left, true);
         llvm::Value *left_val = tmp;
         this->visit_expr_wrapper(x.m_right, true);
@@ -2372,6 +2396,10 @@ public:
     }
 
     void visit_UnaryOp(const ASR::UnaryOp_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
         this->visit_expr_wrapper(x.m_operand, true);
         if (x.m_type->type == ASR::ttypeType::Integer) {
             if (x.m_op == ASR::unaryopType::UAdd) {
@@ -2649,6 +2677,10 @@ public:
     }
 
     void visit_ImplicitCast(const ASR::ImplicitCast_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
         this->visit_expr_wrapper(x.m_arg, true);
         switch (x.m_kind) {
             case (ASR::cast_kindType::IntegerToReal) : {
