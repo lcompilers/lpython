@@ -2240,6 +2240,10 @@ public:
     }
 
     void visit_BinOp(const ASR::BinOp_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
         this->visit_expr_wrapper(x.m_left, true);
         llvm::Value *left_val = tmp;
         this->visit_expr_wrapper(x.m_right, true);
@@ -2537,6 +2541,10 @@ public:
     }
 
     inline void fetch_var(ASR::Variable_t* x) {
+        if (x->m_value) {
+            this->visit_expr_wrapper(x->m_value, true);
+            return;
+        }
         switch( x->m_type->type ) {
             case ASR::ttypeType::IntegerPointer:
             case ASR::ttypeType::RealPointer:
@@ -3133,6 +3141,10 @@ public:
     }
 
     void visit_FunctionCall(const ASR::FunctionCall_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
         ASR::Function_t *s;
         std::vector<llvm::Value*> args;
         const ASR::symbol_t *proc_sym = symbol_get_past_external(x.m_name);
