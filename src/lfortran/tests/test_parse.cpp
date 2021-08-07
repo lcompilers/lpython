@@ -1297,7 +1297,7 @@ TEST_CASE("Location") {
     CHECK(result->loc.first_line == 1);
     CHECK(result->loc.first_column == 1);
     CHECK(result->loc.last_line == 4);
-    CHECK(result->loc.last_column == 16);
+    CHECK(result->loc.last_column == 17);
 
     input = R"(program f
     x = y

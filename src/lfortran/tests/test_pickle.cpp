@@ -166,7 +166,7 @@ TEST_CASE("Multiple units") {
     a)";
     results = LFortran::parse(al, s);
     CHECK(results->n_items == 4);
-    CHECK(LFortran::pickle(*results->m_items[0]) == "(Function g [] [] () () [] [] [] [] [(= 0 x y ()) (= 0 x (* 2 y) ())] [])");
+    CHECK(LFortran::pickle(*results->m_items[0]) == "(Function g [] [] () () () [] [] [] [] [(= 0 x y ()) (= 0 x (* 2 y) ())] [])");
     CHECK(LFortran::pickle(*results->m_items[1]) == "(= 0 s x ())");
     CHECK(LFortran::pickle(*results->m_items[2]) == "(= 0 y (+ z 1) ())");
     CHECK(LFortran::pickle(*results->m_items[3]) == "a");
