@@ -1,7 +1,9 @@
 (TranslationUnit 
    [
    (Subroutine 
-      g [] [] () [] [] [] [
+      g [] [] () 
+      (TriviaNode [] [
+         (EmptyLines)]) [] [] [] [
       (Declaration 
          (AttrType 
             TypeInteger [] () 
@@ -9,12 +11,12 @@
          (x [] [] () 
             None ()) 
          (i [] [] () 
-            None ())])] [
+            None ())] ())] [
       (= 0 x 1 ()) 
       (DoLoop 0 () 0 i 1 10 () [
          (= 0 x (* x i) ())] ())] []) 
    (Subroutine 
-      h [] [] () [] [] [] [
+      h [] [] () () [] [] [] [
       (Declaration 
          (AttrType 
             TypeInteger [] () 
@@ -22,7 +24,7 @@
          (x [] [] () 
             None ()) 
          (i [] [] () 
-            None ())])] [
+            None ())] ())] [
       (= 0 x 1 ()) 
       (DoLoop 0 () 0 i 1 10 () [
          (= 0 x (* i x) ())] ())] [])])
