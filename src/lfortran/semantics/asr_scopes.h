@@ -15,6 +15,7 @@ struct SymbolTable {
     std::map<std::string, ASR::symbol_t*> scope;
     SymbolTable *parent;
     unsigned int counter;
+    std::vector<std::string> data_member_names;
 
     SymbolTable(SymbolTable *parent);
 
