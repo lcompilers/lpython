@@ -709,14 +709,24 @@ public:
                          x.base.base.loc);
                 }
                 ASR::expr_t* init_expr = nullptr;
+                ASR::expr_t* value = nullptr;
                 if (s.m_initializer != nullptr) {
                     this->visit_expr(*s.m_initializer);
                     init_expr = LFortran::ASRUtils::EXPR(asr);
                     ASR::ttype_t *init_type = LFortran::ASRUtils::expr_type(init_expr);
                     ImplicitCastRules::set_converted_value(al, x.base.base.loc, &init_expr, init_type, type);
+                    LFORTRAN_ASSERT(init_expr != nullptr);
+                    if (storage_type == ASR::storage_typeType::Parameter) {
+                        value = ASRUtils::expr_value(init_expr);
+                        if (value == nullptr) {
+                            // TODO: enable this after intrinsic functions (kind) evaluation is implemented:
+                            //throw SemanticError("Value of a parameter variable must evaluate to a compile time constant",
+                            //    x.base.base.loc);
+                        }
+                    }
                 }
                 ASR::asr_t *v = ASR::make_Variable_t(al, x.base.base.loc, current_scope,
-                        s.m_name, s_intent, init_expr, nullptr, storage_type, type,
+                        s.m_name, s_intent, init_expr, value, storage_type, type,
                         ASR::abiType::Source, s_access, s_presence);
                 current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(v);
             } // for m_syms

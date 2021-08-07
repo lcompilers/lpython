@@ -16,17 +16,10 @@ define i32 @f() {
   store i32 16, i32* %f3, align 4
   store i32 11, i32* %f4, align 4
   store i32 2, i32* %f5, align 4
-  %0 = call float @llvm.pow.f32(float 4.000000e+00, float 3.000000e+00)
-  %1 = fptosi float %0 to i32
-  store i32 %1, i32* %f6, align 4
+  store i32 64, i32* %f6, align 4
   store i32 8, i32* %f7, align 4
   store i32 8, i32* %f8, align 4
-  %2 = load i32, i32* %f8, align 4
-  ret i32 %2
+  %0 = load i32, i32* %f8, align 4
+  ret i32 %0
 }
-
-; Function Attrs: nounwind readnone speculatable willreturn
-declare float @llvm.pow.f32(float, float) #0
-
-attributes #0 = { nounwind readnone speculatable willreturn }
 

@@ -16,16 +16,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 namespace {
 
 void main2() {
-        Kokkos::View<float[5]> a("a");
-        Kokkos::View<float[5]> b("b");
-        Kokkos::View<int[3]> c("c");
-        Kokkos::View<bool[2]> d("d");
-        Kokkos::View<float[2][3]> e("e");
-        Kokkos::View<int[3][4]> f("f");
-        Kokkos::View<bool[5][2]> g("g");
-        Kokkos::View<float[2][3][4]> h("h");
-        Kokkos::View<int[3][4][3]> i("i");
-        Kokkos::View<bool[5][2][2]> j("j");
+        std::string my_name="Dominic";
+        std::cout << "My name is " << my_name << std::endl;
 }
 
 }

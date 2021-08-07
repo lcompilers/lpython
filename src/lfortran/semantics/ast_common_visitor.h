@@ -189,8 +189,96 @@ public:
                           x.base.base.loc);
     }
     }
+
+    ASR::expr_t *value = nullptr;
+    ASR::ttype_t *source_type = left_type;
+    // Assign evaluation to `value` if possible, otherwise leave nullptr
+    if (LFortran::ASRUtils::expr_value(left) != nullptr &&
+        LFortran::ASRUtils::expr_value(right) != nullptr) {
+      if (ASR::is_a<LFortran::ASR::Integer_t>(*source_type)) {
+        int64_t left_value = ASR::down_cast<ASR::ConstantInteger_t>(
+                                 LFortran::ASRUtils::expr_value(left))
+                                 ->m_n;
+        int64_t right_value = ASR::down_cast<ASR::ConstantInteger_t>(
+                                  LFortran::ASRUtils::expr_value(right))
+                                  ->m_n;
+        bool result;
+        switch (asr_op) {
+            case (ASR::cmpopType::Eq): {
+                result = left_value == right_value;
+                break;
+            }
+            case (ASR::cmpopType::Gt): {
+                result = left_value > right_value;
+                break;
+            }
+            case (ASR::cmpopType::GtE): {
+                result = left_value >= right_value;
+                break;
+            }
+            case (ASR::cmpopType::Lt): {
+                result = left_value < right_value;
+                break;
+            }
+            case (ASR::cmpopType::LtE): {
+                result = left_value <= right_value;
+                break;
+            }
+            case (ASR::cmpopType::NotEq): {
+                result = left_value != right_value;
+                break;
+            }
+            default: {
+                throw SemanticError("Comparison operator not implemented",
+                                    x.base.base.loc);
+            }
+        }
+        value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+            al, x.base.base.loc, result, source_type));
+      } else if (ASR::is_a<LFortran::ASR::Real_t>(*source_type)) {
+        double left_value = ASR::down_cast<ASR::ConstantReal_t>(
+                                LFortran::ASRUtils::expr_value(left))
+                                ->m_r;
+        double right_value = ASR::down_cast<ASR::ConstantReal_t>(
+                                 LFortran::ASRUtils::expr_value(right))
+                                 ->m_r;
+        bool result;
+        switch (asr_op) {
+            case (ASR::cmpopType::Eq): {
+                result = left_value == right_value;
+                break;
+            }
+            case (ASR::cmpopType::Gt): {
+                result = left_value > right_value;
+                break;
+            }
+            case (ASR::cmpopType::GtE): {
+                result = left_value >= right_value;
+                break;
+            }
+            case (ASR::cmpopType::Lt): {
+                result = left_value < right_value;
+                break;
+            }
+            case (ASR::cmpopType::LtE): {
+                result = left_value <= right_value;
+                break;
+            }
+            case (ASR::cmpopType::NotEq): {
+                result = left_value != right_value;
+                break;
+            }
+            default: {
+                throw SemanticError("Comparison operator not implemented",
+                                    x.base.base.loc);
+            }
+        }
+        value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+            al, x.base.base.loc, result, source_type));
+      }
+    }
     asr = ASR::make_Compare_t(al, x.base.base.loc, left, asr_op, right, type,
-                              nullptr);
+                              value);
   }
 
   inline static void visit_BoolOp(Allocator &al, const AST::BoolOp_t &x,
@@ -232,8 +320,43 @@ public:
     LFORTRAN_ASSERT(
         ASRUtils::check_equal_type(LFortran::ASRUtils::expr_type(left),
                                    LFortran::ASRUtils::expr_type(right)));
+
+    ASR::expr_t *value = nullptr;
+    // Assign evaluation to `value` if possible, otherwise leave nullptr
+    if (LFortran::ASRUtils::expr_value(left) != nullptr &&
+        LFortran::ASRUtils::expr_value(right) != nullptr) {
+        LFORTRAN_ASSERT(ASR::is_a<LFortran::ASR::Logical_t>(*dest_type))
+
+        bool left_value = ASR::down_cast<ASR::ConstantLogical_t>(
+                                 LFortran::ASRUtils::expr_value(left))
+                                 ->m_value;
+        bool right_value = ASR::down_cast<ASR::ConstantLogical_t>(
+                                  LFortran::ASRUtils::expr_value(right))
+                                  ->m_value;
+        bool result;
+        switch (op) {
+            case (ASR::And):
+                result = left_value && right_value;
+                break;
+            case (ASR::Or):
+                result = left_value || right_value;
+                break;
+            case (ASR::NEqv):
+                result = left_value != right_value;
+                break;
+            case (ASR::Eqv):
+                result = left_value == right_value;
+                break;
+            default:
+                throw SemanticError(R"""(Only .and., .or., .neqv., .eqv.
+                                                implemented for logical type operands.)""",
+                                    x.base.base.loc);
+        }
+        value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+            al, x.base.base.loc, result, dest_type));
+    }
     asr = ASR::make_BoolOp_t(al, x.base.base.loc, left, op, right, dest_type,
-                             nullptr);
+                             value);
   }
 
   inline static void visit_UnaryOp(Allocator &al, const AST::UnaryOp_t &x,
@@ -259,14 +382,58 @@ public:
     }
     }
     ASR::ttype_t *operand_type = LFortran::ASRUtils::expr_type(operand);
+    ASR::expr_t *value = nullptr;
+    // Assign evaluation to `value` if possible, otherwise leave nullptr
+    if (LFortran::ASRUtils::expr_value(operand) != nullptr) {
+      if (ASR::is_a<LFortran::ASR::Integer_t>(*operand_type)) {
+        int64_t op_value = ASR::down_cast<ASR::ConstantInteger_t>(
+                                  LFortran::ASRUtils::expr_value(operand))
+                                  ->m_n;
+        int64_t result;
+        switch (op) {
+        case (ASR::unaryopType::UAdd):
+          result = op_value;
+          break;
+        case (ASR::unaryopType::USub):
+          result = -op_value;
+          break;
+        default: {
+            throw SemanticError("Unary operator not implemented yet for compile time evaluation",
+                x.base.base.loc);
+        }
+        }
+        value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
+            al, x.base.base.loc, result, operand_type));
+      } else if (ASR::is_a<LFortran::ASR::Real_t>(*operand_type)) {
+        double op_value = ASR::down_cast<ASR::ConstantReal_t>(
+                                LFortran::ASRUtils::expr_value(operand))
+                                ->m_r;
+        double result;
+        switch (op) {
+        case (ASR::unaryopType::UAdd):
+          result = op_value;
+          break;
+        case (ASR::unaryopType::USub):
+          result = -op_value;
+          break;
+        default: {
+            throw SemanticError("Unary operator not implemented yet for compile time evaluation",
+                x.base.base.loc);
+        }
+        }
+        value = ASR::down_cast<ASR::expr_t>(
+            ASR::make_ConstantReal_t(al, x.base.base.loc, result, operand_type));
+      }
+    }
     asr = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, operand_type,
-                              nullptr);
+                              value);
   }
 
   static inline void visit_StrOp(Allocator &al, const AST::StrOp_t &x,
                                  ASR::expr_t *&left, ASR::expr_t *&right,
                                  ASR::asr_t *&asr) {
     ASR::stropType op;
+    LFORTRAN_ASSERT(x.m_op == AST::Concat)
     switch (x.m_op) {
     case (AST::Concat):
       op = ASR::Concat;
@@ -274,8 +441,26 @@ public:
     ASR::ttype_t *right_type = LFortran::ASRUtils::expr_type(right);
     ASR::ttype_t *dest_type = right_type;
     // TODO: Type check here?
+
+    ASR::expr_t *value = nullptr;
+    // Assign evaluation to `value` if possible, otherwise leave nullptr
+    if (LFortran::ASRUtils::expr_value(left) != nullptr &&
+        LFortran::ASRUtils::expr_value(right) != nullptr) {
+        char* left_value = ASR::down_cast<ASR::ConstantString_t>(
+                                 LFortran::ASRUtils::expr_value(left))
+                                 ->m_s;
+        char* right_value = ASR::down_cast<ASR::ConstantString_t>(
+                                  LFortran::ASRUtils::expr_value(right))
+                                  ->m_s;
+        char* result;
+        std::string result_s = std::string(left_value)+std::string(right_value);
+        Str s; s.from_str_view(result_s);
+        result = s.c_str(al);
+        value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(
+            al, x.base.base.loc, result, dest_type));
+      }
     asr = ASR::make_StrOp_t(al, x.base.base.loc, left, op, right, dest_type,
-                            nullptr);
+                            value);
   }
 };
 } // namespace LFortran
