@@ -1073,6 +1073,16 @@ asr = true
 filename = "../integration_tests/intrinsics_11.f90"
 asr = true
 
+# kind (body)
+[[test]]
+filename = "../integration_tests/intrinsics_12.f90"
+asr = true
+
+# kind (symboltable)
+[[test]]
+filename = "../integration_tests/intrinsics_13.f90"
+asr = true
+
 [[test]]
 filename = "../integration_tests/intrinsics_open_close_read_write.f90"
 asr = true
