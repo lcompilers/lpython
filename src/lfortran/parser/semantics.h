@@ -1915,11 +1915,6 @@ void set_trivia(Allocator &al, ast_t *ast, ast_t *trivia) {
     Vec<trivia_node_t*> v;
     v.reserve(al, t->n_after);
     for (size_t i=0; i<t->n_after; i++) {
-        if (i == 0) {
-            if (is_a<EmptyLines_t>(*t->m_after[i])) {
-                continue;
-            }
-        }
         v.push_back(al, t->m_after[i]);
     }
     if (v.size() > 0) {
@@ -1929,16 +1924,46 @@ void set_trivia(Allocator &al, ast_t *ast, ast_t *trivia) {
     }
 }
 
+ast_t* set_trivia1(Allocator &al, Location &l,
+        trivia_node_t** m_t1, size_t n_t1,
+        trivia_node_t** m_t2, size_t n_t2) {
+    Vec<trivia_node_t*> v1, v2;
+    v2.reserve(al, n_t2);
+    if(m_t1 == nullptr) {
+        v1.p = nullptr;
+        v1.n = 0;
+    } else {
+        v1.reserve(al, n_t1);
+        for (size_t i=0; i < n_t1; i++) {
+            if (i == 0) {
+                if (is_a<EmptyLines_t>(*m_t1[i])) {
+                    continue;
+                }
+            }
+            v1.push_back(al, m_t1[i]);
+        }
+    }
+    for (size_t i=0; i < n_t2; i++) {
+        if (i == 0) {
+            if (is_a<EmptyLines_t>(*m_t2[i])) {
+                continue;
+            }
+        }
+        v2.push_back(al, m_t2[i]);
+    }
+    return make_TriviaNode_t(al, l, v1.p, v1.n, v2.p, v2.n);
+}
+
 #define NEWLINE(l) make_EmptyLines_t(p.m_a, l)
 #define SEMICOLON(l) make_Semicolon_t(p.m_a, l)
 #define COMMENT(cmt, l) make_Comment_t(p.m_a, l, cmt.c_str(p.m_a))
 #define EOLCOMMENT(cmt, l) make_EOLComment_t(p.m_a, l, cmt.c_str(p.m_a))
 
 #define TRIVIA_(stmt, x) set_trivia(p.m_a, stmt, x)
-#define TRIVIA(x, y, l) make_TriviaNode_t(p.m_a, l, \
+#define TRIVIA(x, y, l) set_trivia1(p.m_a, l, \
         VEC_CAST(x, trivia_node), x.size(), \
-        VEC_CAST(y, trivia_node), y.size())
-#define TRIVIA_AFTER(x, l) make_TriviaNode_t(p.m_a, l, nullptr, 0, \
+        VEC_CAST(y, trivia_node), x.size())
+#define TRIVIA_AFTER(x, l) set_trivia1(p.m_a, l, nullptr, 0, \
         VEC_CAST(x, trivia_node), x.size())
 
 #endif
