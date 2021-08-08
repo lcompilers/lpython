@@ -1382,3 +1382,7 @@ ast = true
 [[test]]
 filename = "comments1.f90"
 ast = true
+
+[[test]]
+filename = "constant_kinds.f90"
+asr = true
