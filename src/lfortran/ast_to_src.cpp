@@ -208,6 +208,70 @@ public:
         indent = std::string(indent_level*indent_spaces, ' ');
     }
 
+    std::string print_trivia_inside(const trivia_t &x) {
+        std::string r = " ";
+        auto y = (TriviaNode_t &)x;
+        for (size_t i=0; i<y.n_inside; i++) {
+            switch (y.m_inside[i]->type) {
+                case trivia_nodeType::Comment: {
+                    r += std::string(
+                        down_cast<Comment_t>(y.m_inside[i])->m_comment
+                    );
+                    r += "\n";
+                    break;
+                }
+                case trivia_nodeType::EOLComment: {
+                    r += std::string(
+                        down_cast<EOLComment_t>(y.m_inside[i])->m_comment
+                    );
+                    r += "\n";
+                    break;
+                }
+                case trivia_nodeType::EmptyLines: {
+                    r += "\n";
+                    break;
+                }
+                case trivia_nodeType::Semicolon: {
+                    r += "; ";
+                    break;
+                }
+            }
+        }
+        return r;
+    }
+
+    std::string print_trivia_after(const trivia_t &x) {
+        std::string r = " ";
+        auto y = (TriviaNode_t &)x;
+        for (size_t i=0; i<y.n_after; i++) {
+            switch (y.m_after[i]->type) {
+                case trivia_nodeType::Comment: {
+                    r += std::string(
+                        down_cast<Comment_t>(y.m_after[i])->m_comment
+                    );
+                    r += "\n";
+                    break;
+                }
+                case trivia_nodeType::EOLComment: {
+                    r += std::string(
+                        down_cast<EOLComment_t>(y.m_after[i])->m_comment
+                    );
+                    r += "\n";
+                    break;
+                }
+                case trivia_nodeType::EmptyLines: {
+                    r += "\n";
+                    break;
+                }
+                case trivia_nodeType::Semicolon: {
+                    r += "; ";
+                    break;
+                }
+            }
+        }
+        return r;
+    }
+
     void visit_TranslationUnit(const TranslationUnit_t &x) {
         std::string r;
         for (size_t i=0; i<x.n_items; i++) {
@@ -237,7 +301,11 @@ public:
         r += syn();
         r += " ";
         r.append(x.m_name);
-        r.append("\n");
+        if(x.m_trivia){
+            r += print_trivia_inside(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
 
         r += format_unit_body(x);
 
@@ -246,7 +314,11 @@ public:
         r += syn();
         r += " ";
         r.append(x.m_name);
-        r.append("\n");
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
     void visit_Submodule(const Submodule_t &x) {
@@ -342,7 +414,11 @@ public:
         r += syn();
         r += " ";
         r.append(x.m_name);
-        r.append("\n");
+        if(x.m_trivia){
+            r += print_trivia_inside(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
 
         r += format_unit_body(x);
         r += syn(gr::UnitHeader);
@@ -350,8 +426,11 @@ public:
         r += syn();
         r += " ";
         r.append(x.m_name);
-        r.append("\n");
-
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
