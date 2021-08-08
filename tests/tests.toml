@@ -1063,9 +1063,14 @@ asr = true
 filename = "../integration_tests/intrinsics_09.f90"
 asr = true
 
-# real
+# real (body)
 [[test]]
 filename = "../integration_tests/intrinsics_10.f90"
+asr = true
+
+# real (symboltable)
+[[test]]
+filename = "../integration_tests/intrinsics_11.f90"
 asr = true
 
 [[test]]
