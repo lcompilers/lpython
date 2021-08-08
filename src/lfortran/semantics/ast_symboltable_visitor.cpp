@@ -36,6 +36,7 @@ private:
         {"real", "lfortran_intrinsic_array"},
         {"sum", "lfortran_intrinsic_array"},
         {"abs", "lfortran_intrinsic_array"},
+        {"real", "lfortran_intrinsic_array"},
         {"tiny", "lfortran_intrinsic_array"}
 };
 
@@ -809,7 +810,7 @@ public:
                         throw SemanticError("Array values not implemented yet",
                                             x.base.base.loc);
                     }
-                    // TODO: Figure out how to deal with single and double precision later
+                    // TODO: Figure out how to deal with higher precision later
                     if (ASR::is_a<LFortran::ASR::Real_t>(*tiny_type)) {
                         // We don't actually need the value yet, it is enough to know it is a double
                         // but it might provide further information later (precision)
@@ -833,7 +834,41 @@ public:
                     }
                 }
                 break;
-            default: // Not implemented
+                if (var_name=="real") {
+                    ASR::expr_t* real_expr = args[0];
+                    ASR::ttype_t* real_type = LFortran::ASRUtils::expr_type(real_expr);
+                    int real_kind = ASRUtils::extract_kind_from_ttype_t(real_type);
+                    if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*real_type)) {
+                        if (real_kind == 4){
+                            float rr = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(real_expr))->m_r;
+                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, rr, real_type));
+                        } else {
+                            double rr = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(real_expr))->m_r;
+                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, rr, real_type));
+                        }
+                    }
+                    else if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*real_type)) {
+                        if (real_kind == 4){
+                            int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(
+                                LFortran::ASRUtils::expr_value(real_expr))->m_n;
+                            float rr = static_cast<float>(rv);
+                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, rr, real_type));
+                        } else {
+                            double rr = static_cast<double>(ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(real_expr))->m_n);
+                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, rr, real_type));
+                        }
+                    }
+                    // TODO: Handle BOZ later
+                    // else if () {
+
+                    // }
+                    else {
+                        throw SemanticError("REAL must have only one argument", x.base.base.loc);
+                    }
+                }
+               break;
+        break;
+        default: // Not implemented
             throw SemanticError("Function '" + var_name + "' with " + std::to_string(args.n) +
                     " arguments not supported yet",
                     x.base.base.loc);
