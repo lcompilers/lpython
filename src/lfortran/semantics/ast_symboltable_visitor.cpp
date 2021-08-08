@@ -10,6 +10,7 @@
 #include <lfortran/asr.h>
 #include <lfortran/asr_utils.h>
 #include <lfortran/asr_verify.h>
+#include <lfortran/exception.h>
 #include <lfortran/semantics/asr_implicit_cast_rules.h>
 #include <lfortran/semantics/ast_common_visitor.h>
 #include <lfortran/semantics/ast_to_asr.h>
@@ -801,6 +802,38 @@ public:
         ASR::expr_t *value = nullptr;
         switch(args.n) {
             case 1: // Single argument intrinsics
+                if (var_name=="kind") {
+                    // TODO: Refactor to allow early return
+                    // kind_num --> value {4, 8, etc.}
+                    int64_t kind_num = 4; // Default
+                    ASR::expr_t* kind_expr = args[0];
+                    ASR::ttype_t* kind_type = LFortran::ASRUtils::expr_type(kind_expr);
+                    // TODO: Check that the expression reduces to a valid constant expression (10.1.12)
+                    switch( kind_expr->type ) {
+                        case ASR::exprType::ConstantInteger: {
+                            kind_num = ASR::down_cast<ASR::Integer_t>(ASR::down_cast<ASR::ConstantInteger_t>(kind_expr)->m_type)->m_kind;
+                            break;
+                        }
+                        case ASR::exprType::ConstantReal:{
+                            kind_num = ASR::down_cast<ASR::Real_t>(ASR::down_cast<ASR::ConstantReal_t>(kind_expr)->m_type)->m_kind;
+                            break;
+                        }
+                        case ASR::exprType::ConstantLogical:{
+                            kind_num = ASR::down_cast<ASR::Logical_t>(ASR::down_cast<ASR::ConstantLogical_t>(kind_expr)->m_type)->m_kind;
+                            break;
+                        }
+                        case ASR::exprType::Var : {
+                            kind_num = ASRUtils::extract_kind(kind_expr, x.base.base.loc);
+                            break;
+                        }
+                    default: {
+                        std::string msg = R"""(Only Integer literals or expressions which reduce to constant Integer are accepted as kind parameters.)""";
+                        throw SemanticError(msg, x.base.base.loc);
+                        break;
+                    }
+                    }
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, kind_num, kind_type));
+                }
                 if (var_name=="tiny") {
                     // We assume the input is valid
                     // ASR::expr_t* tiny_expr = args[0];
@@ -863,7 +896,7 @@ public:
 
                     // }
                     else {
-                        throw SemanticError("REAL must have only one argument", x.base.base.loc);
+                        throw SemanticError("real must have only one argument", x.base.base.loc);
                     }
                 }
                break;
@@ -874,8 +907,6 @@ public:
                     x.base.base.loc);
                 break;
         }
-        // if (var_name=="kind" && args.n==1) {
-        // }
         asr = ASR::make_FunctionCall_t(al, x.base.base.loc, v, nullptr,
             args.p, args.size(), nullptr, 0, type, value, nullptr);
     }
