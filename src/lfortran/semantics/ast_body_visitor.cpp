@@ -1333,8 +1333,8 @@ public:
                     // Only populate for supported intrinsic functions
                     if (intrinsic_procedures.find(func_name)
                         != intrinsic_procedures.end()) { // Got an intrinsic, now try to assign value
-                        ASR::ttype_t *func_type = LFortran::ASRUtils::expr_type(args[0]);
-                        ASR::expr_t* func_expr = args.p[0];
+                        ASR::expr_t* func_expr = args[0];
+                        ASR::ttype_t *func_type = LFortran::ASRUtils::expr_type(func_expr);
                         if (func_name == "tiny") {
                             if (args.n == 1) {
                                 if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*func_type)) {
@@ -1393,24 +1393,19 @@ public:
                         if (func_name == "kind") {
                             if (args.n == 1) {
                                 int kind_val {4};
-                                std::string symbval;
                                 if (ASR::is_a<ASR::ConstantLogical_t>(*func_expr)){
                                     kind_val = ASR::down_cast<ASR::Logical_t>(ASR::down_cast<ASR::ConstantLogical_t>(func_expr)->m_type)->m_kind;
                                 }
                                 else if (ASR::is_a<ASR::ConstantReal_t>(*func_expr)){
-                                    // TODO: Handle 0.d0 which is currently returned as 0 and therefore kind_val 4
                                     kind_val = ASR::down_cast<ASR::Real_t>(ASR::down_cast<ASR::ConstantReal_t>(func_expr)->m_type)->m_kind;
-                                    symbval = "kind(" + std::to_string(kind_val) + ")";
                                 }
                                 else if (ASR::is_a<ASR::ConstantInteger_t>(*func_expr)){
                                     kind_val = ASR::down_cast<ASR::Integer_t>(ASR::down_cast<ASR::ConstantInteger_t>(func_expr)->m_type)->m_kind;
-                                    symbval = "kind(" + std::to_string(kind_val) + ")";
                                 }
                                 else {
                                     throw SemanticError("kind supports Real, Integer and Logical", x.base.base.loc);
                                 }
                                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, kind_val, func_type));
-                                // TODO: Assign symval??
                             } else {
                                 throw SemanticError("kind must have only one argument", x.base.base.loc);
                             }

@@ -808,62 +808,33 @@ public:
                     // TODO: Refactor to allow early return
                     // kind_num --> value {4, 8, etc.}
                     int64_t kind_num = 4; // Default
-                    std::string symbval;
-                    // symbolic_value --> kind(13) for kind(13)
-                    ASR::expr_t* symbolic_value = nullptr; //  Default
                     ASR::expr_t* kind_expr = args[0];
                     ASR::ttype_t* kind_type = LFortran::ASRUtils::expr_type(kind_expr);
                     // TODO: Check that the expression reduces to a valid constant expression (10.1.12)
                     switch( kind_expr->type ) {
-                    case ASR::exprType::ConstantInteger: {
-                        kind_num = ASR::down_cast<ASR::ConstantInteger_t>(kind_expr)->m_n;
-                        symbval = "kind(" + std::to_string(kind_num) + ")";
-                        break;
-                    }
+                        case ASR::exprType::ConstantInteger: {
+                            kind_num = ASR::down_cast<ASR::Integer_t>(ASR::down_cast<ASR::ConstantInteger_t>(kind_expr)->m_type)->m_kind;
+                            break;
+                        }
                         case ASR::exprType::ConstantReal:{
                             kind_num = ASR::down_cast<ASR::Real_t>(ASR::down_cast<ASR::ConstantReal_t>(kind_expr)->m_type)->m_kind;
                             break;
                         }
-                    case ASR::exprType::Var : {
-                        ASR::Variable_t*  kind_var = ASRUtils::EXPR2VAR(kind_expr);
-                        if (kind_var->m_storage==ASR::storage_typeType::Parameter) {
-                            if (kind_var->m_type->type == ASR::ttypeType::Integer)
-                            {
-                                if (ASR::is_a<ASR::ConstantInteger_t>(*(kind_var->m_symbolic_value))) {
-                                    kind_num = ASR::down_cast<ASR::ConstantInteger_t>(kind_var->m_symbolic_value)->m_n;
-                                    symbval = "kind(" + std::to_string(kind_num) + ")";
-                                } else if (ASR::is_a<ASR::FunctionCall_t>(*(kind_var->m_symbolic_value))) {
-                                    ASR::Function_t *kfn = ASRUtils::EXPR2FUN(kind_expr);
-                                } else {
-                                    std::string msg = "So far only ConstantInteger or FunctionCall have been implemented for use as kind variable value";
-                                    throw SemanticError(msg, x.base.base.loc);
-                                }
-                            } else {
-                                std::string msg = "Integer variable required. " + std::string(kind_var->m_name) +
-                                    " is not an Integer variable.";
-                                throw SemanticError(msg, x.base.base.loc);
-                            }
-                        } else {
-                            std::string msg = "Parameter " + std::to_string(*(kind_var->m_name)) + " is a variable which does not reduce to a constant expression";
-                            throw SemanticError(msg, x.base.base.loc);
+                        case ASR::exprType::ConstantLogical:{
+                            kind_num = ASR::down_cast<ASR::Logical_t>(ASR::down_cast<ASR::ConstantLogical_t>(kind_expr)->m_type)->m_kind;
+                            break;
                         }
-                        break;
-                    }
+                        case ASR::exprType::Var : {
+                            kind_num = ASRUtils::extract_kind(kind_expr, x.base.base.loc);
+                            break;
+                        }
                     default: {
                         std::string msg = R"""(Only Integer literals or expressions which reduce to constant Integer are accepted as kind parameters.)""";
                         throw SemanticError(msg, x.base.base.loc);
                         break;
                     }
                     }
-                    // Use value and symbolic value
-                    if (kind_num <= 4) {
-                        kind_num = 4;
-                    } else {
-                        kind_num = 8;
-                    }
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, kind_num, kind_type));
-                    // TODO: Fix this to use the symbolic_value correctly (kind_type is wrong, should be ConstantString)
-                    symbolic_value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(al, x.base.base.loc, symbval.data(), kind_type));
                 }
                 if (var_name=="tiny") {
                     // We assume the input is valid
