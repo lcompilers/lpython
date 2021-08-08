@@ -1352,10 +1352,10 @@ public:
                                     }
                                 }
                                 else {
-                                    throw SemanticError("Argument for TINY must be Real", x.base.base.loc);
+                                    throw SemanticError("Argument for tiny must be Real", x.base.base.loc);
                                 }
                             } else {
-                                throw SemanticError("TINY must have only one argument", x.base.base.loc);
+                                throw SemanticError("tiny must have only one argument", x.base.base.loc);
                             }
                         }
                         if (func_name == "real") {
@@ -1387,7 +1387,7 @@ public:
 
                                 // }
                             } else {
-                                throw SemanticError("REAL must have only one argument", x.base.base.loc);
+                                throw SemanticError("real must have only one argument", x.base.base.loc);
                             }
                         }
                         if (func_name == "kind") {

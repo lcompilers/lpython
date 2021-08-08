@@ -898,7 +898,7 @@ public:
 
                     // }
                     else {
-                        throw SemanticError("REAL must have only one argument", x.base.base.loc);
+                        throw SemanticError("real must have only one argument", x.base.base.loc);
                     }
                 }
                break;
