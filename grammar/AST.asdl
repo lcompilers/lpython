@@ -138,33 +138,38 @@ stmt
 
 -- Multi-line statements (each has a `label` and `stmt_name`):
     | AssociateBlock(int label, identifier? stmt_name, var_sym* syms,
-            stmt* body, trivia? trivia)
+            stmt* body, trivia? t_inside, trivia? trivia)
     | Block(int label, identifier? stmt_name, unit_decl1* use,
-            import_statement* import,unit_decl2* decl, stmt* body, trivia? trivia)
+            import_statement* import,unit_decl2* decl, stmt* body,
+            trivia? t_inside, trivia? trivia)
     | Critical(int label, identifier? stmt_name, event_attribute* sync_stat,
-            stmt* body, trivia? trivia)
+            stmt* body, trivia? t_inside, trivia? trivia)
     | DoConcurrentLoop(int label, identifier? stmt_name,
             concurrent_control *control, expr? mask,
-            concurrent_locality* locality, stmt* body, trivia? trivia)
+            concurrent_locality* locality, stmt* body,
+            trivia? t_inside, trivia? trivia)
     | DoLoop(int label, identifier? stmt_name, int do_label, identifier? var,
-            expr? start, expr? end, expr? increment, stmt* body, trivia? trivia)
+            expr? start, expr? end, expr? increment, stmt* body,
+            trivia? t_inside, trivia? trivia)
     | ForAll(int label, identifier? stmt_name,
             concurrent_control *control, expr? mask,
-            concurrent_locality* locality, stmt* body, trivia? trivia)
+            concurrent_locality* locality, stmt* body,
+            trivia? t_inside, trivia? trivia)
     | If(int label, identifier? stmt_name, expr test, stmt* body,
-            stmt* orelse, trivia? trivia)
+            stmt* orelse, trivia? t_inside, trivia? trivia)
     | IfArithmetic(int label, identifier? stmt_name, expr test,
-            int lt_label, int eq_label, int gt_label, trivia? trivia)
+            int lt_label, int eq_label, int gt_label,
+            trivia? trivia)
     | Select(int label, identifier? stmt_name, expr test,
-            case_stmt* body, trivia? trivia)
+            case_stmt* body, trivia? t_inside, trivia? trivia)
     | SelectRank(int label, identifier? stmt_name, identifier? assoc_name,
-            expr selector, rank_stmt* body, trivia? trivia)
+            expr selector, rank_stmt* body, trivia? t_inside, trivia? trivia)
     | SelectType(int label, identifier? stmt_name, identifier? assoc_name,
-            expr selector, type_stmt* body, trivia? trivia)
+            expr selector, type_stmt* body, trivia? t_inside, trivia? trivia)
     | Where(int label, identifier? stmt_name, expr test, stmt* body,
-            stmt* orelse, trivia? trivia)
+            stmt* orelse, trivia? t_inside, trivia? trivia)
     | WhileLoop(int label, identifier? stmt_name, expr test,
-            stmt* body, trivia? trivia)
+            stmt* body, trivia? t_inside, trivia? trivia)
 
 expr
     = BoolOp(expr left, boolop op, expr right)
@@ -361,23 +366,23 @@ bind = Bind(expr* args, keyword* kwargs)
 array_index = ArrayIndex(expr? left, expr? right, expr? step)
 
 case_stmt
-    = CaseStmt(case_cond* test, stmt* body)
-    | CaseStmt_Default(stmt* body)
+    = CaseStmt(case_cond* test, trivia? trivia, stmt* body)
+    | CaseStmt_Default(trivia? trivia, stmt* body)
 
 case_cond
     = CaseCondExpr(expr cond)
     | CaseCondRange(expr? start, expr? end)
 
 rank_stmt
-    = RankExpr(expr value, stmt* body)
-    | RankStar(stmt* body)
-    | RankDefault(stmt* body)
+    = RankExpr(expr value, trivia? trivia, stmt* body)
+    | RankStar(trivia? trivia, stmt* body)
+    | RankDefault(trivia? trivia, stmt* body)
 
 type_stmt
-    = TypeStmtName(identifier? name, stmt* body)
-    | TypeStmtType(decl_attribute? vartype, stmt* body)
-    | ClassStmt(identifier? id, stmt* body)
-    | ClassDefault(stmt* body)
+    = TypeStmtName(identifier? name, trivia? trivia, stmt* body)
+    | TypeStmtType(decl_attribute? vartype, trivia? trivia, stmt* body)
+    | ClassStmt(identifier? id, trivia? trivia, stmt* body)
+    | ClassDefault(trivia? trivia, stmt* body)
 
 use_symbol
     = UseSymbol(identifier sym, identifier? rename)

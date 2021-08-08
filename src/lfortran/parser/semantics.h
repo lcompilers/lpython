@@ -1276,7 +1276,7 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
 
 #define LABEL(stmt, label) ((Print_t*)stmt)->m_label = label
 
-#define BLOCK(use, import, decl, body, l) make_Block_t(p.m_a, l, 0, nullptr, \
+#define BLOCK(trivia, use, import, decl, body, l) make_Block_t(p.m_a, l, 0, nullptr, \
         /*use*/ USES(use), \
         /*n_use*/ use.size(), \
         /*m_import*/ VEC_CAST(import, import_statement), \
@@ -1284,19 +1284,19 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*decl*/ DECLS(decl), \
         /*n_decl*/ decl.size(), \
         /*body*/ STMTS(body), \
-        /*n_body*/ body.size(), nullptr)
+        /*n_body*/ body.size(), trivia_cast(trivia), nullptr)
 
-#define ASSOCIATE_BLOCK(syms, body, l) make_AssociateBlock_t(p.m_a, l, 0, \
+#define ASSOCIATE_BLOCK(syms, trivia, body, l) make_AssociateBlock_t(p.m_a, l, 0, \
         nullptr, \
         syms.p, syms.size(), \
-        STMTS(body), body.size(), nullptr)
+        STMTS(body), body.size(), trivia_cast(trivia), nullptr)
 
 #define IFSINGLE(cond, body, l) make_If_t(p.m_a, l, 0, nullptr, \
         /*test*/ EXPR(cond), \
         /*body*/ IFSTMTS(p.m_a, body), \
         /*n_body*/ 1, \
         /*a_orelse*/ nullptr, \
-        /*n_orelse*/ 0, nullptr)
+        /*n_orelse*/ 0, nullptr, nullptr)
 
 #define IFARITHMETIC(cond, lt_label, eq_label, gt_label, l) \
         make_IfArithmetic_t(p.m_a, l, 0, nullptr, \
@@ -1305,104 +1305,104 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*eq_label*/ eq_label, \
         /*gt_label*/ gt_label, nullptr)
 
-#define IF1(cond, body, l) make_If_t(p.m_a, l, 0, nullptr, \
+#define IF1(cond, trivia, body, l) make_If_t(p.m_a, l, 0, nullptr, \
         /*test*/ EXPR(cond), \
         /*body*/ STMTS(body), \
         /*n_body*/ body.size(), \
         /*a_orelse*/ nullptr, \
-        /*n_orelse*/ 0, nullptr)
+        /*n_orelse*/ 0, trivia_cast(trivia), nullptr)
 
-#define IF2(cond, body, orelse, l) make_If_t(p.m_a, l, 0, nullptr, \
+#define IF2(cond, trivia, body, orelse, l) make_If_t(p.m_a, l, 0, nullptr, \
         /*test*/ EXPR(cond), \
         /*body*/ STMTS(body), \
         /*n_body*/ body.size(), \
         /*a_orelse*/ STMTS(orelse), \
-        /*n_orelse*/ orelse.size(), nullptr)
+        /*n_orelse*/ orelse.size(), trivia_cast(trivia), nullptr)
 
-#define IF3(cond, body, ifblock, l) make_If_t(p.m_a, l, 0, nullptr, \
+#define IF3(cond, trivia, body, ifblock, l) make_If_t(p.m_a, l, 0, nullptr, \
         /*test*/ EXPR(cond), \
         /*body*/ STMTS(body), \
         /*n_body*/ body.size(), \
         /*a_orelse*/ IFSTMTS(p.m_a, ifblock), \
-        /*n_orelse*/ 1, nullptr)
+        /*n_orelse*/ 1, trivia_cast(trivia), nullptr)
 
 #define WHERESINGLE(cond, body, l) make_Where_t(p.m_a, l, 0, nullptr, \
         /*test*/ EXPR(cond), \
         /*body*/ IFSTMTS(p.m_a, body), \
         /*n_body*/ 1, \
         /*a_orelse*/ nullptr, \
-        /*n_orelse*/ 0, nullptr)
+        /*n_orelse*/ 0, nullptr, nullptr)
 
-#define WHERE1(cond, body, l) make_Where_t(p.m_a, l, 0, nullptr, \
+#define WHERE1(cond, trivia, body, l) make_Where_t(p.m_a, l, 0, nullptr, \
         /*test*/ EXPR(cond), \
         /*body*/ STMTS(body), \
         /*n_body*/ body.size(), \
         /*a_orelse*/ nullptr, \
-        /*n_orelse*/ 0, nullptr)
+        /*n_orelse*/ 0, trivia_cast(trivia), nullptr)
 
-#define WHERE2(cond, body, orelse, l) make_Where_t(p.m_a, l, 0, nullptr, \
+#define WHERE2(cond, trivia, body, orelse, l) make_Where_t(p.m_a, l, 0, nullptr, \
         /*test*/ EXPR(cond), \
         /*body*/ STMTS(body), \
         /*n_body*/ body.size(), \
         /*a_orelse*/ STMTS(orelse), \
-        /*n_orelse*/ orelse.size(), nullptr)
+        /*n_orelse*/ orelse.size(), trivia_cast(trivia), nullptr)
 
-#define WHERE3(cond, body, whereblock, l) make_Where_t(p.m_a, l, 0, nullptr, \
+#define WHERE3(cond, trivia, body, whereblock, l) make_Where_t(p.m_a, l, 0, nullptr, \
         /*test*/ EXPR(cond), \
         /*body*/ STMTS(body), \
         /*n_body*/ body.size(), \
         /*a_orelse*/ IFSTMTS(p.m_a, whereblock), \
-        /*n_orelse*/ 1, nullptr)
+        /*n_orelse*/ 1, trivia_cast(trivia), nullptr)
 
 #define LIST_NEW(l) l.reserve(p.m_a, 4)
 #define LIST_ADD(l, x) l.push_back(p.m_a, x)
 #define PLIST_ADD(l, x) l.push_back(p.m_a, *x)
 
-#define WHILE(cond, body, l) make_WhileLoop_t(p.m_a, l, 0, nullptr, \
+#define WHILE(cond, trivia, body, l) make_WhileLoop_t(p.m_a, l, 0, nullptr, \
         /*test*/ EXPR(cond), \
         /*body*/ STMTS(body), \
-        /*n_body*/ body.size(), nullptr)
+        /*n_body*/ body.size(), trivia_cast(trivia), nullptr)
 
-#define DO1(body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, 0, \
+#define DO1(trivia, body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, 0, \
         nullptr, nullptr, nullptr, nullptr, \
         /*body*/ STMTS(body), \
-        /*n_body*/ body.size(), nullptr)
+        /*n_body*/ body.size(), trivia_cast(trivia), nullptr)
 
-#define DO2(i, a, b, body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, 0, \
+#define DO2(i, a, b, trivia, body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, 0, \
         name2char(i), EXPR(a), EXPR(b), nullptr, \
         /*body*/ STMTS(body), \
-        /*n_body*/ body.size(), nullptr)
-#define DO2_LABEL(label, i, a, b, body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, \
+        /*n_body*/ body.size(), trivia_cast(trivia), nullptr)
+#define DO2_LABEL(label, i, a, b, trivia, body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, \
         label, name2char(i), EXPR(a), EXPR(b), nullptr, \
         /*body*/ STMTS(body), \
-        /*n_body*/ body.size(), nullptr); \
+        /*n_body*/ body.size(), trivia_cast(trivia), nullptr); \
         if (label == 0) { \
             throw LFortran::ParserError("Zero is not a valid statement label", l, 0); \
         }
 
-#define DO3_LABEL(label, i, a, b, c, body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, \
+#define DO3_LABEL(label, i, a, b, c, trivia, body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, \
         label, name2char(i), EXPR(a), EXPR(b), EXPR(c), \
         /*body*/ STMTS(body), \
-        /*n_body*/ body.size(), nullptr); \
+        /*n_body*/ body.size(), trivia_cast(trivia), nullptr); \
         if (label == 0) { \
             throw LFortran::ParserError("Zero is not a valid statement label", l, 0); \
         }
-#define DO3(i, a, b, c, body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, 0, \
+#define DO3(i, a, b, c, trivia, body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, 0, \
         name2char(i), EXPR(a), EXPR(b), EXPR(c), \
         /*body*/ STMTS(body), \
-        /*n_body*/ body.size(), nullptr)
+        /*n_body*/ body.size(), trivia_cast(trivia), nullptr)
 
-#define DO_CONCURRENT1(h, loc, body, l) make_DoConcurrentLoop_t(p.m_a, l, 0, nullptr, \
+#define DO_CONCURRENT1(h, loc, trivia, body, l) make_DoConcurrentLoop_t(p.m_a, l, 0, nullptr, \
         CONCURRENT_CONTROLS(h), h.size(), \
         nullptr, \
         CONCURRENT_LOCALITIES(loc), loc.size(), \
-        STMTS(body), body.size(), nullptr)
+        STMTS(body), body.size(), trivia_cast(trivia), nullptr)
 
-#define DO_CONCURRENT2(h, m, loc, body, l) make_DoConcurrentLoop_t(p.m_a, l, 0, nullptr, \
+#define DO_CONCURRENT2(h, m, loc, trivia, body, l) make_DoConcurrentLoop_t(p.m_a, l, 0, nullptr, \
         CONCURRENT_CONTROLS(h), h.size(), \
         EXPR(m), \
         CONCURRENT_LOCALITIES(loc), loc.size(), \
-        STMTS(body), body.size(), nullptr)
+        STMTS(body), body.size(), trivia_cast(trivia), nullptr)
 
 
 #define DO_CONCURRENT_REDUCE(i, a, b, reduce, body, l) make_DoConcurrentLoop_t(p.m_a, l, \
@@ -1411,17 +1411,17 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*body*/ STMTS(body), \
         /*n_body*/ body.size(), nullptr)
 
-#define FORALL1(conlist, loc, body, l) make_ForAll_t(p.m_a, l, 0, nullptr, \
+#define FORALL1(conlist, loc, trivia, body, l) make_ForAll_t(p.m_a, l, 0, nullptr, \
         CONCURRENT_CONTROLS(conlist), conlist.size(), \
         nullptr, \
         CONCURRENT_LOCALITIES(loc), loc.size(), \
-        STMTS(body), body.size(), nullptr)
+        STMTS(body), body.size(), trivia_cast(trivia), nullptr)
 
-#define FORALL2(conlist, mask, loc, body, l) make_ForAll_t(p.m_a, l, 0, nullptr, \
+#define FORALL2(conlist, mask, loc, trivia, body, l) make_ForAll_t(p.m_a, l, 0, nullptr, \
         CONCURRENT_CONTROLS(conlist), conlist.size(), \
         EXPR(mask), \
         CONCURRENT_LOCALITIES(loc), loc.size(), \
-        STMTS(body), body.size(), nullptr)
+        STMTS(body), body.size(), trivia_cast(trivia), nullptr)
 
 #define FORALLSINGLE1(conlist, assign, l) make_ForAllSingle_t(p.m_a, l, \
         0, nullptr, CONCURRENT_CONTROLS(conlist), conlist.size(), \
@@ -1666,14 +1666,15 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 #define COARRAY4(mem, id, args, coargs, l) COARRAY(p.m_a, id, \
         mem, args, coargs, l)
 
-#define SELECT(cond, body, l) make_Select_t(p.m_a, l, 0, nullptr, \
+#define SELECT(cond, trivia, body, l) make_Select_t(p.m_a, l, 0, nullptr, \
         EXPR(cond), \
-        CASE_STMTS(body), body.size(), nullptr)
+        CASE_STMTS(body), body.size(), trivia_cast(trivia), nullptr)
 
-#define CASE_STMT(cond, body, l) make_CaseStmt_t(p.m_a, l, \
-        VEC_CAST(cond, case_cond), cond.size(), STMTS(body), body.size())
-#define CASE_STMT_DEFAULT(body, l) make_CaseStmt_Default_t(p.m_a, l, \
-        STMTS(body), body.size())
+#define CASE_STMT(cond, trivia, body, l) make_CaseStmt_t(p.m_a, l, \
+        VEC_CAST(cond, case_cond), cond.size(), \
+        trivia_cast(trivia), STMTS(body), body.size())
+#define CASE_STMT_DEFAULT(trivia, body, l) make_CaseStmt_Default_t(p.m_a, l, \
+        trivia_cast(trivia), STMTS(body), body.size())
 
 #define CASE_EXPR(cond, l) make_CaseCondExpr_t(p.m_a, l, EXPR(cond))
 #define CASE_RANGE1(cond, l) make_CaseCondRange_t(p.m_a, l, EXPR(cond), nullptr)
@@ -1681,32 +1682,33 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 #define CASE_RANGE3(cond1, cond2, l) make_CaseCondRange_t(p.m_a, l, \
         EXPR(cond1), EXPR(cond2))
 
-#define SELECT_RANK1(sel, body, l) make_SelectRank_t(p.m_a, l, 0, nullptr, \
-        nullptr, EXPR(sel), RANK_STMTS(body), body.size(), nullptr)
-#define SELECT_RANK2(assoc, sel, body, l) make_SelectRank_t(p.m_a, l, \
+#define SELECT_RANK1(sel, trivia, body, l) make_SelectRank_t(p.m_a, l, 0, nullptr, \
+        nullptr, EXPR(sel), RANK_STMTS(body), body.size(), trivia_cast(trivia), nullptr)
+#define SELECT_RANK2(assoc, sel, trivia, body, l) make_SelectRank_t(p.m_a, l, \
         0, nullptr, name2char(assoc), EXPR(sel), \
-        RANK_STMTS(body), body.size(), nullptr)
+        RANK_STMTS(body), body.size(), trivia_cast(trivia), nullptr)
 
-#define RANK_EXPR(e, body, l) make_RankExpr_t(p.m_a, l, \
-        EXPR(e), STMTS(body), body.size())
-#define RANK_STAR(body, l) make_RankStar_t(p.m_a, l, STMTS(body), body.size())
-#define RANK_DEFAULT(body, l) make_RankDefault_t(p.m_a, l, \
+#define RANK_EXPR(e, trivia, body, l) make_RankExpr_t(p.m_a, l, \
+        EXPR(e), trivia_cast(trivia), STMTS(body), body.size())
+#define RANK_STAR(trivia, body, l) make_RankStar_t(p.m_a, l, trivia_cast(trivia), \
+        STMTS(body), body.size())
+#define RANK_DEFAULT(trivia, body, l) make_RankDefault_t(p.m_a, l, trivia_cast(trivia), \
         STMTS(body), body.size())
 
-#define SELECT_TYPE1(sel, body, l) make_SelectType_t(p.m_a, l, 0, nullptr, \
-        nullptr, EXPR(sel), TYPE_STMTS(body), body.size(), nullptr)
-#define SELECT_TYPE2(id, sel, body, l) make_SelectType_t(p.m_a, l, 0, nullptr, \
+#define SELECT_TYPE1(sel, trivia, body, l) make_SelectType_t(p.m_a, l, 0, nullptr, \
+        nullptr, EXPR(sel), TYPE_STMTS(body), body.size(), trivia_cast(trivia), nullptr)
+#define SELECT_TYPE2(id, sel, trivia, body, l) make_SelectType_t(p.m_a, l, 0, nullptr, \
         name2char(id), EXPR(sel), \
-        TYPE_STMTS(body), body.size(), nullptr)
+        TYPE_STMTS(body), body.size(), trivia_cast(trivia), nullptr)
 
-#define TYPE_STMTNAME(x, body, l) make_TypeStmtName_t(p.m_a, l, \
-        x.c_str(p.m_a), STMTS(body), body.size())
-#define TYPE_STMTVAR(vartype, body, l) make_TypeStmtType_t(p.m_a, l, \
-        down_cast<decl_attribute_t>(vartype), STMTS(body), body.size())
-#define CLASS_STMT(id, body, l) make_ClassStmt_t(p.m_a, l, \
-        name2char(id), STMTS(body), body.size())
-#define CLASS_DEFAULT(body, l) make_ClassDefault_t(p.m_a, l, \
-        STMTS(body), body.size())
+#define TYPE_STMTNAME(x, trivia, body, l) make_TypeStmtName_t(p.m_a, l, \
+        x.c_str(p.m_a), trivia_cast(trivia), STMTS(body), body.size())
+#define TYPE_STMTVAR(vartype, trivia, body, l) make_TypeStmtType_t(p.m_a, l, \
+        down_cast<decl_attribute_t>(vartype), trivia_cast(trivia), STMTS(body), body.size())
+#define CLASS_STMT(id, trivia, body, l) make_ClassStmt_t(p.m_a, l, \
+        name2char(id), trivia_cast(trivia), STMTS(body), body.size())
+#define CLASS_DEFAULT(trivia, body, l) make_ClassDefault_t(p.m_a, l, \
+        trivia_cast(trivia), STMTS(body), body.size())
 
 #define USE1(nature, mod, trivia, l) make_Use_t(p.m_a, l, \
         VEC_CAST(nature, decl_attribute), nature.size(), name2char(mod), \
@@ -1860,10 +1862,11 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         trivia_cast(trivia))
 #define PRIVATE(syms, trivia, l) make_Private_t(p.m_a, l, trivia_cast(trivia))
 
-#define CRITICAL(stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
-        nullptr, 0, STMTS(stmts), stmts.size(), nullptr)
-#define CRITICAL1(x, stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
-        VEC_CAST(x, event_attribute), x.size(), STMTS(stmts), stmts.size(), nullptr)
+#define CRITICAL(trivia, stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
+        nullptr, 0, STMTS(stmts), stmts.size(), trivia_cast(trivia), nullptr)
+#define CRITICAL1(x, trivia, stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
+        VEC_CAST(x, event_attribute), x.size(), \
+        STMTS(stmts), stmts.size(), trivia_cast(trivia), nullptr)
 
 
 #define TRIVIA_SET(x) case LFortran::AST::stmtType::x: { down_cast<x##_t>(s)->m_trivia = trivia; break; }
