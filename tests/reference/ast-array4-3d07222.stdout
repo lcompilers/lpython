@@ -1,1 +1,1 @@
-(TranslationUnit [(Program array4 [] [(ImplicitNone [])] [(Declaration (AttrType TypeInteger [] () None) [] [(i [] [] () None ())])] [(= 0 i a (TriviaNode [] [(EmptyLines)]))] [])])
+(TranslationUnit [(Program array4 () [] [(ImplicitNone [] (TriviaNode [] [(EmptyLines)]))] [(Declaration (AttrType TypeInteger [] () None) [] [(i [] [] () None ())] (TriviaNode [] [(EmptyLines)]))] [(= 0 i a (TriviaNode [] [(EmptyLines)]))] [])])

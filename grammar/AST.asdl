@@ -32,40 +32,40 @@ unit
     = TranslationUnit(node* items)
 
 mod
-    = Module(identifier name, unit_decl1* use, implicit_statement* implicit,
+    = Module(identifier name, trivia? trivia, unit_decl1* use, implicit_statement* implicit,
         unit_decl2* decl, program_unit* contains)
-    | Submodule(identifier id, identifier? parent_name, identifier name,
+    | Submodule(identifier id, identifier? parent_name, identifier name, trivia? trivia,
         unit_decl1* use, implicit_statement* implicit,
         unit_decl2* decl, program_unit* contains)
-    | BlockData(identifier? name, unit_decl1* use,
+    | BlockData(identifier? name, trivia? trivia, unit_decl1* use,
         implicit_statement* implicit, unit_decl2* decl)
-    | Program(identifier name, unit_decl1* use, implicit_statement* implicit,
+    | Program(identifier name, trivia? trivia, unit_decl1* use, implicit_statement* implicit,
         unit_decl2* decl, stmt* body, program_unit* contains)
 
 program_unit
     = Subroutine(identifier name, arg* args, decl_attribute* attributes,
-        bind? bind, unit_decl1* use, import_statement* import,
+        bind? bind, trivia? trivia, unit_decl1* use, import_statement* import,
         implicit_statement* implicit, unit_decl2* decl,
         stmt* body, program_unit* contains)
-    | Procedure(identifier name, arg* args, decl_attribute* attributes,
+    | Procedure(identifier name, arg* args, decl_attribute* attributes, trivia? trivia,
         unit_decl1* use, import_statement* import, implicit_statement* implicit,
         unit_decl2* decl, stmt* body, program_unit* contains)
     | Function(identifier name, arg* args, decl_attribute* attributes,
-        expr? return_var, bind? bind, unit_decl1* use, import_statement* import,
+        expr? return_var, bind? bind, trivia? trivia, unit_decl1* use, import_statement* import,
         implicit_statement* implicit, unit_decl2* decl, stmt* body,
         program_unit* contains)
 
 unit_decl1
     = Use(decl_attribute* nature, identifier module, use_symbol* symbols,
-        bool only_present)
+        bool only_present, trivia? trivia)
 
 unit_decl2
     = Declaration(decl_attribute? vartype, decl_attribute* attributes,
-        var_sym* syms)
-    | Interface(interface_header header, interface_item* items)
-    | DerivedType(identifier name, identifier* namelist, decl_attribute* attrtype,
+        var_sym* syms, trivia? trivia)
+    | Interface(interface_header header, trivia? trivia, interface_item* items)
+    | DerivedType(identifier name, identifier* namelist, trivia? trivia, decl_attribute* attrtype,
         unit_decl2* items, procedure_decl* contains)
-    | Enum(decl_attribute* attr, unit_decl2* items)
+    | Enum(decl_attribute* attr, trivia? trivia, unit_decl2* items)
 
 interface_header
     = InterfaceHeader()
@@ -79,10 +79,10 @@ interface_header
 
 interface_item
     = InterfaceProc(program_unit proc)
-    | InterfaceModuleProcedure(identifier* names, decl_attribute* attributes)
+    | InterfaceModuleProcedure(identifier* names, decl_attribute* attributes, trivia? trivia)
 
 import_statement
-    = Import(identifier* symbols, import_modifier mod)
+    = Import(identifier* symbols, import_modifier mod, trivia? trivia)
 
 import_modifier
     = ImportDefault
@@ -91,8 +91,8 @@ import_modifier
     | ImportAll
 
 implicit_statement
-    = ImplicitNone(implicit_none_spec* specs)
-    | Implicit(decl_attribute type, letter_spec* kind, letter_spec* specs)
+    = ImplicitNone(implicit_none_spec* specs, trivia? trivia)
+    | Implicit(decl_attribute type, letter_spec* kind, letter_spec* specs, trivia? trivia)
 
 implicit_none_spec
     = ImplicitNoneExternal(int dummy)
@@ -138,33 +138,38 @@ stmt
 
 -- Multi-line statements (each has a `label` and `stmt_name`):
     | AssociateBlock(int label, identifier? stmt_name, var_sym* syms,
-            stmt* body, trivia? trivia)
+            stmt* body, trivia? t_inside, trivia? trivia)
     | Block(int label, identifier? stmt_name, unit_decl1* use,
-            import_statement* import,unit_decl2* decl, stmt* body, trivia? trivia)
+            import_statement* import,unit_decl2* decl, stmt* body,
+            trivia? t_inside, trivia? trivia)
     | Critical(int label, identifier? stmt_name, event_attribute* sync_stat,
-            stmt* body, trivia? trivia)
+            stmt* body, trivia? t_inside, trivia? trivia)
     | DoConcurrentLoop(int label, identifier? stmt_name,
             concurrent_control *control, expr? mask,
-            concurrent_locality* locality, stmt* body, trivia? trivia)
+            concurrent_locality* locality, stmt* body,
+            trivia? t_inside, trivia? trivia)
     | DoLoop(int label, identifier? stmt_name, int do_label, identifier? var,
-            expr? start, expr? end, expr? increment, stmt* body, trivia? trivia)
+            expr? start, expr? end, expr? increment, stmt* body,
+            trivia? t_inside, trivia? trivia)
     | ForAll(int label, identifier? stmt_name,
             concurrent_control *control, expr? mask,
-            concurrent_locality* locality, stmt* body, trivia? trivia)
+            concurrent_locality* locality, stmt* body,
+            trivia? t_inside, trivia? trivia)
     | If(int label, identifier? stmt_name, expr test, stmt* body,
-            stmt* orelse, trivia? trivia)
+            stmt* orelse, trivia? t_inside, trivia? trivia)
     | IfArithmetic(int label, identifier? stmt_name, expr test,
-            int lt_label, int eq_label, int gt_label, trivia? trivia)
+            int lt_label, int eq_label, int gt_label,
+            trivia? trivia)
     | Select(int label, identifier? stmt_name, expr test,
-            case_stmt* body, trivia? trivia)
+            case_stmt* body, trivia? t_inside, trivia? trivia)
     | SelectRank(int label, identifier? stmt_name, identifier? assoc_name,
-            expr selector, rank_stmt* body, trivia? trivia)
+            expr selector, rank_stmt* body, trivia? t_inside, trivia? trivia)
     | SelectType(int label, identifier? stmt_name, identifier? assoc_name,
-            expr selector, type_stmt* body, trivia? trivia)
+            expr selector, type_stmt* body, trivia? t_inside, trivia? trivia)
     | Where(int label, identifier? stmt_name, expr test, stmt* body,
-            stmt* orelse, trivia? trivia)
+            stmt* orelse, trivia? t_inside, trivia? trivia)
     | WhileLoop(int label, identifier? stmt_name, expr test,
-            stmt* body, trivia? trivia)
+            stmt* body, trivia? t_inside, trivia? trivia)
 
 expr
     = BoolOp(expr left, boolop op, expr right)
@@ -192,7 +197,7 @@ expr
     | Parenthesis(expr operand)
 
 trivia
-    = TriviaNode(trivia_node* before, trivia_node* after)
+    = TriviaNode(trivia_node* inside, trivia_node* after)
 
 trivia_node
     = Comment(string comment)
@@ -219,16 +224,16 @@ intrinsicop
 
 procedure_decl
     = DerivedTypeProc(identifier? name, decl_attribute* attr,
-        use_symbol* symbols)
-    | GenericOperator(decl_attribute* attr, intrinsicop op, identifier* names)
+        use_symbol* symbols, trivia? trivia)
+    | GenericOperator(decl_attribute* attr, intrinsicop op, identifier* names, trivia? trivia)
     | GenericDefinedOperator(decl_attribute* attr, string optype,
-        identifier* names)
-    | GenericAssignment(decl_attribute* attr, identifier* names)
-    | GenericName(decl_attribute* attr, identifier name, identifier* names)
-    | GenericWrite(decl_attribute* attr, identifier id, identifier* names)
-    | GenericRead(decl_attribute* attr, identifier id, identifier* names)
-    | FinalName(identifier name)
-    | Private()
+        identifier* names, trivia? trivia)
+    | GenericAssignment(decl_attribute* attr, identifier* names, trivia? trivia)
+    | GenericName(decl_attribute* attr, identifier name, identifier* names, trivia? trivia)
+    | GenericWrite(decl_attribute* attr, identifier id, identifier* names, trivia? trivia)
+    | GenericRead(decl_attribute* attr, identifier id, identifier* names, trivia? trivia)
+    | FinalName(identifier name, trivia? trivia)
+    | Private(trivia? trivia)
 
 decl_attribute
     = AttrBind(bind bind)
@@ -361,23 +366,23 @@ bind = Bind(expr* args, keyword* kwargs)
 array_index = ArrayIndex(expr? left, expr? right, expr? step)
 
 case_stmt
-    = CaseStmt(case_cond* test, stmt* body)
-    | CaseStmt_Default(stmt* body)
+    = CaseStmt(case_cond* test, trivia? trivia, stmt* body)
+    | CaseStmt_Default(trivia? trivia, stmt* body)
 
 case_cond
     = CaseCondExpr(expr cond)
     | CaseCondRange(expr? start, expr? end)
 
 rank_stmt
-    = RankExpr(expr value, stmt* body)
-    | RankStar(stmt* body)
-    | RankDefault(stmt* body)
+    = RankExpr(expr value, trivia? trivia, stmt* body)
+    | RankStar(trivia? trivia, stmt* body)
+    | RankDefault(trivia? trivia, stmt* body)
 
 type_stmt
-    = TypeStmtName(identifier? name, stmt* body)
-    | TypeStmtType(decl_attribute? vartype, stmt* body)
-    | ClassStmt(identifier? id, stmt* body)
-    | ClassDefault(stmt* body)
+    = TypeStmtName(identifier? name, trivia? trivia, stmt* body)
+    | TypeStmtType(decl_attribute? vartype, trivia? trivia, stmt* body)
+    | ClassStmt(identifier? id, trivia? trivia, stmt* body)
+    | ClassDefault(trivia? trivia, stmt* body)
 
 use_symbol
     = UseSymbol(identifier sym, identifier? rename)
