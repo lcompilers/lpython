@@ -181,6 +181,8 @@ RUN(NAME intrinsics_08 LABELS gfortran) # tiny symboltable
 RUN(NAME intrinsics_09 LABELS gfortran) # tiny body
 RUN(NAME intrinsics_10 LABELS gfortran) # real body
 RUN(NAME intrinsics_11 LABELS gfortran) # real symboltable
+RUN(NAME intrinsics_12 LABELS gfortran) # kind body
+RUN(NAME intrinsics_13 LABELS gfortran) # kind symboltable
 RUN(NAME intrinsics_open_close_read_write LABELS gfortran)
 
 RUN(NAME parameter_01 LABELS gfortran)
