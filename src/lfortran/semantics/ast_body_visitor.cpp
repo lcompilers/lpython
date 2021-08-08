@@ -1402,8 +1402,11 @@ public:
                                 else if (ASR::is_a<ASR::ConstantInteger_t>(*func_expr)){
                                     kind_val = ASR::down_cast<ASR::Integer_t>(ASR::down_cast<ASR::ConstantInteger_t>(func_expr)->m_type)->m_kind;
                                 }
+                                else if (ASR::is_a<ASR::Var_t>(*func_expr)) {
+                                    kind_val = ASRUtils::extract_kind(func_expr, x.base.base.loc);
+                                }
                                 else {
-                                    throw SemanticError("kind supports Real, Integer and Logical", x.base.base.loc);
+                                    throw SemanticError("kind supports Real, Integer, Logical and things which reduce to the same", x.base.base.loc);
                                 }
                                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, kind_val, func_type));
                             } else {
