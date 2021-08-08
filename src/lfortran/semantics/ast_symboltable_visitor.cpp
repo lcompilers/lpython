@@ -1233,8 +1233,14 @@ public:
     }
 
     void visit_Num(const AST::Num_t &x) {
+        int kind = 4;
+        if (x.m_kind) {
+            if (std::string(x.m_kind) == "8") {
+                kind = 8;
+            }
+        }
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                4, nullptr, 0));
+                kind, nullptr, 0));
         if (BigInt::is_int_ptr(x.m_n)) {
             throw SemanticError("Integer constants larger than 2^62-1 are not implemented yet", x.base.base.loc);
         } else {

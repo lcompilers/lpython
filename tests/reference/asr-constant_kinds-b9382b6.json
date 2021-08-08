@@ -1,0 +1,13 @@
+{
+    "basename": "asr-constant_kinds-b9382b6",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/constant_kinds.f90",
+    "infile_hash": "c0be463eb7c2d21d76249ef9357c41398b5f61eb3c9fc1821e01469f",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-constant_kinds-b9382b6.stdout",
+    "stdout_hash": "df30ba9547268c1b17328c46fc9e653e16e998509c3c2d659935d423",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

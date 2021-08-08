@@ -346,20 +346,24 @@ static inline int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {
             }
 
             inline int extract_kind(char* m_n) {
-                bool is_under_score = false;
-                char kind_str[2] = {'0', '0'};
-                int i = 1, j = 0;
-                for( ; m_n[i] != '\0'; i++ ) {
-                    is_under_score = m_n[i-1] == '_' && !is_under_score ? true : is_under_score;
-                    if( is_under_score ) {
-                        kind_str[j] = m_n[i];
-                        j++;
+                char *p = m_n;
+                while (*p != '\0') {
+                    if (*p == '_') {
+                        p++;
+                        std::string kind = std::string(p);
+                        int ikind = std::atoi(p);
+                        if (ikind == 0) {
+                            // Not an integer
+                            return 4; // FIXME: we need to return a string
+                        } else {
+                            return ikind;
+                        }
                     }
-                }
-                if( kind_str[0] != '0' && kind_str[1] == '0'  ) {
-                    return kind_str[0] - '0';
-                } else if( kind_str[0] != '0' && kind_str[0] != '0' ) {
-                    return (kind_str[0] - '0')*10 + (kind_str[1] - '0');
+                    if (*p == 'd' || *p == 'D') {
+                        // Double precision
+                        return 8;
+                    }
+                    p++;
                 }
                 return 4;
             }
