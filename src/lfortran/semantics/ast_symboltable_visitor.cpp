@@ -801,7 +801,7 @@ public:
         // Add value where possible
         ASR::expr_t *value = nullptr;
         switch(args.n) {
-            case 1: // Single argument intrinsics
+            case 1: { // Single argument intrinsics
                 if (var_name=="kind") {
                     // TODO: Refactor to allow early return
                     // kind_num --> value {4, 8, etc.}
@@ -833,8 +833,7 @@ public:
                     }
                     }
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, kind_num, kind_type));
-                }
-                if (var_name=="tiny") {
+                } else if (var_name=="tiny") {
                     // We assume the input is valid
                     // ASR::expr_t* tiny_expr = args[0];
                     ASR::ttype_t* tiny_type = LFortran::ASRUtils::expr_type(args[0]);
@@ -865,9 +864,7 @@ public:
                         throw SemanticError("Argument for tiny must be Real",
                                             x.base.base.loc);
                     }
-                }
-                break;
-                if (var_name=="real") {
+                } else if (var_name=="real") {
                     ASR::expr_t* real_expr = args[0];
                     ASR::ttype_t* real_type = LFortran::ASRUtils::expr_type(real_expr);
                     int real_kind = ASRUtils::extract_kind_from_ttype_t(real_type);
@@ -898,14 +895,50 @@ public:
                     else {
                         throw SemanticError("real must have only one argument", x.base.base.loc);
                     }
+                } else if (var_name=="selected_int_kind") {
+                    ASR::expr_t* real_expr = args[0];
+                    ASR::ttype_t* real_type = LFortran::ASRUtils::expr_type(real_expr);
+                    if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*real_type)) {
+                        int64_t R = ASR::down_cast<ASR::ConstantInteger_t>(
+                            LFortran::ASRUtils::expr_value(real_expr))->m_n;
+                        int a_kind = 4;
+                        if (R < 10) {
+                            a_kind = 4;
+                        } else {
+                            a_kind = 8;
+                        }
+                        value = ASR::down_cast<ASR::expr_t>(
+                            ASR::make_ConstantInteger_t(al, x.base.base.loc,
+                            a_kind, real_type));
+                    } else {
+                        throw SemanticError("integer_int_kind() must have one integer argument", x.base.base.loc);
+                    }
+                } else if (var_name=="selected_real_kind") {
+                    ASR::expr_t* real_expr = args[0];
+                    ASR::ttype_t* real_type = LFortran::ASRUtils::expr_type(real_expr);
+                    if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*real_type)) {
+                        int64_t R = ASR::down_cast<ASR::ConstantInteger_t>(
+                            LFortran::ASRUtils::expr_value(real_expr))->m_n;
+                        int a_kind = 4;
+                        if (R < 7) {
+                            a_kind = 4;
+                        } else {
+                            a_kind = 8;
+                        }
+                        value = ASR::down_cast<ASR::expr_t>(
+                            ASR::make_ConstantInteger_t(al, x.base.base.loc,
+                            a_kind, real_type));
+                    } else {
+                        throw SemanticError("integer_real_kind() must have one integer argument", x.base.base.loc);
+                    }
                 }
-               break;
-        break;
-        default: // Not implemented
-            throw SemanticError("Function '" + var_name + "' with " + std::to_string(args.n) +
-                    " arguments not supported yet",
-                    x.base.base.loc);
                 break;
+            }
+            default:  { // Not implemented
+                throw SemanticError("Function '" + var_name + "' with " + std::to_string(args.n) +
+                        " arguments not supported yet",
+                        x.base.base.loc);
+            }
         }
         asr = ASR::make_FunctionCall_t(al, x.base.base.loc, v, nullptr,
             args.p, args.size(), nullptr, 0, type, value, nullptr);
