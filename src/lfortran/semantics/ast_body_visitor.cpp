@@ -1506,8 +1506,9 @@ public:
                 std::string var_name = x.m_kind;
                 ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
                 if (v) {
-                    if (ASR::is_a<ASR::Variable_t>(*v)) {
-                        ASR::Variable_t *v2 = ASR::down_cast<ASR::Variable_t>(v);
+                    const ASR::symbol_t *v3 = LFortran::ASRUtils::symbol_get_past_external(v);
+                    if (ASR::is_a<ASR::Variable_t>(*v3)) {
+                        ASR::Variable_t *v2 = ASR::down_cast<ASR::Variable_t>(v3);
                         if (v2->m_value) {
                             if (ASR::is_a<ASR::ConstantInteger_t>(*v2->m_value)) {
                                 ikind = ASR::down_cast<ASR::ConstantInteger_t>(v2->m_value)->m_n;
@@ -1563,8 +1564,9 @@ public:
             std::string var_name = s_kind;
             ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
             if (v) {
-                if (ASR::is_a<ASR::Variable_t>(*v)) {
-                    ASR::Variable_t *v2 = ASR::down_cast<ASR::Variable_t>(v);
+                const ASR::symbol_t *v3 = LFortran::ASRUtils::symbol_get_past_external(v);
+                if (ASR::is_a<ASR::Variable_t>(*v3)) {
+                    ASR::Variable_t *v2 = ASR::down_cast<ASR::Variable_t>(v3);
                     if (v2->m_value) {
                         if (ASR::is_a<ASR::ConstantInteger_t>(*v2->m_value)) {
                             r_kind = ASR::down_cast<ASR::ConstantInteger_t>(v2->m_value)->m_n;
