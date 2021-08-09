@@ -1326,14 +1326,38 @@ public:
     }
 
     void visit_Num(const AST::Num_t &x) {
-        int kind = 4;
+        int ikind = 4;
         if (x.m_kind) {
-            if (std::string(x.m_kind) == "8") {
-                kind = 8;
+            ikind = std::atoi(x.m_kind);
+            if (ikind == 0) {
+                std::string var_name = x.m_kind;
+                ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
+                if (v) {
+                    if (ASR::is_a<ASR::Variable_t>(*v)) {
+                        ASR::Variable_t *v2 = ASR::down_cast<ASR::Variable_t>(v);
+                        if (v2->m_value) {
+                            if (ASR::is_a<ASR::ConstantInteger_t>(*v2->m_value)) {
+                                ikind = ASR::down_cast<ASR::ConstantInteger_t>(v2->m_value)->m_n;
+                            } else {
+                                throw SemanticError("Variable '" + var_name + "' is constant but not an integer",
+                                    x.base.base.loc);
+                            }
+                        } else {
+                            throw SemanticError("Variable '" + var_name + "' is not constant",
+                                x.base.base.loc);
+                        }
+                    } else {
+                        throw SemanticError("Symbol '" + var_name + "' is not a variable",
+                            x.base.base.loc);
+                    }
+                } else {
+                    throw SemanticError("Variable '" + var_name + "' not declared",
+                        x.base.base.loc);
+                }
             }
         }
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                kind, nullptr, 0));
+                ikind, nullptr, 0));
         if (BigInt::is_int_ptr(x.m_n)) {
             throw SemanticError("Integer constants larger than 2^62-1 are not implemented yet", x.base.base.loc);
         } else {
