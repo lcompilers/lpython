@@ -912,6 +912,12 @@ public:
                 if (argument_types_match(args, *sub)) {
                     return i;
                 }
+            } else if (ASR::is_a<ASR::Function_t>(*p.m_procs[i])) {
+                ASR::Function_t *fn
+                    = ASR::down_cast<ASR::Function_t>(p.m_procs[i]);
+                if (argument_types_match(args, *fn)) {
+                    return i;
+                }
             } else {
                 throw SemanticError("Only Subroutine supported in generic procedure", loc);
             }
@@ -919,8 +925,9 @@ public:
         throw SemanticError("Arguments do not match", loc);
     }
 
+    template <typename T>
     bool argument_types_match(const Vec<ASR::expr_t*> &args,
-            const ASR::Subroutine_t &sub) {
+            const T &sub) {
         if (args.size() == sub.n_args) {
             for (size_t i=0; i < args.size(); i++) {
                 ASR::Variable_t *v = LFortran::ASRUtils::EXPR2VAR(sub.m_args[i]);
@@ -1318,6 +1325,19 @@ public:
                 type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(v)->m_return_var)->m_type;
                 tmp = ASR::make_FunctionCall_t(al, x.base.base.loc,
                     v, nullptr, args.p, args.size(), nullptr, 0, type, nullptr,
+                    v_expr);
+                break;
+            }
+            case (ASR::symbolType::GenericProcedure) : {
+                ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(v);
+                Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
+                int idx = select_generic_procedure(args, *p, x.base.base.loc);
+                ASR::symbol_t *final_sym = p->m_procs[idx];
+
+                ASR::ttype_t *type;
+                type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(final_sym)->m_return_var)->m_type;
+                tmp = ASR::make_FunctionCall_t(al, x.base.base.loc,
+                    final_sym, v, args.p, args.size(), nullptr, 0, type, nullptr,
                     v_expr);
                 break;
             }
