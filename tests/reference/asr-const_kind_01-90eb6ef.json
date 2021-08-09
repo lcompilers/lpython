@@ -1,0 +1,13 @@
+{
+    "basename": "asr-const_kind_01-90eb6ef",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/const_kind_01.f90",
+    "infile_hash": "d4c0af9b90708f58d944586c06c948bea50408175f8b6edf852dd5c0",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-const_kind_01-90eb6ef.stdout",
+    "stdout_hash": "45abefcddbc63112280c6286d3348609c6cb2f2985db8885c85b518d",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

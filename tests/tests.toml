@@ -1406,3 +1406,7 @@ ast = true
 [[test]]
 filename = "constant_kinds.f90"
 asr = true
+
+[[test]]
+filename = "../integration_tests/const_kind_01.f90"
+asr = true
