@@ -1964,7 +1964,7 @@ ast_t* set_trivia1(Allocator &al, Location &l,
         }
         v2.push_back(al, m_t2[i]);
     }
-    if(v2.n > 0){
+    if(v1.n > 0 || v2.n > 0){
         return make_TriviaNode_t(al, l, v1.p, v1.n, v2.p, v2.n);
     } else {
         return nullptr;

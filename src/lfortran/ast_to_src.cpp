@@ -214,6 +214,7 @@ public:
         for (size_t i=0; i<y.n_inside; i++) {
             switch (y.m_inside[i]->type) {
                 case trivia_nodeType::Comment: {
+                    if(i == 0) r += "\n";
                     r += std::string(
                         down_cast<Comment_t>(y.m_inside[i])->m_comment
                     );
@@ -228,6 +229,7 @@ public:
                     break;
                 }
                 case trivia_nodeType::EmptyLines: {
+                    if(i == 0) r += "\n";
                     r += "\n";
                     break;
                 }
@@ -246,6 +248,7 @@ public:
         for (size_t i=0; i<y.n_after; i++) {
             switch (y.m_after[i]->type) {
                 case trivia_nodeType::Comment: {
+                    if(i == 0) r += "\n";
                     r += std::string(
                         down_cast<Comment_t>(y.m_after[i])->m_comment
                     );
@@ -260,6 +263,7 @@ public:
                     break;
                 }
                 case trivia_nodeType::EmptyLines: {
+                    if(i == 0) r += "\n";
                     r += "\n";
                     break;
                 }
@@ -334,7 +338,11 @@ public:
         }
         r += ") ";
         r.append(x.m_name);
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_inside(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         if (indent_unit) inc_indent();
         if(x.n_use > 0) {
             for (size_t i=0; i<x.n_use; i++) {
@@ -370,7 +378,11 @@ public:
         r += syn();
         r += " ";
         r.append(x.m_name);
-        r.append("\n");
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -383,7 +395,11 @@ public:
             r += " ";
             r.append(x.m_name);
         }
-        r.append("\n");
+        if(x.m_trivia){
+            r += print_trivia_inside(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_use; i++) {
             this->visit_unit_decl1(*x.m_use[i]);
@@ -403,7 +419,11 @@ public:
             r += " ";
             r.append(x.m_name);
         }
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -458,7 +478,11 @@ public:
             this->visit_bind(*x.m_bind);
             r.append(s);
         }
-        r.append("\n");
+        if(x.m_trivia){
+            r += print_trivia_inside(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
 
         r += format_unit_body(x, !indent_unit);
         r += indent;
@@ -467,7 +491,11 @@ public:
         r += syn();
         r += " ";
         r.append(x.m_name);
-        r.append("\n");
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -490,7 +518,11 @@ public:
             if (i < x.n_args-1) r.append(", ");
         }
         r.append(")");
-        r.append("\n");
+        if(x.m_trivia){
+            r += print_trivia_inside(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
 
         r += format_unit_body(x, !indent_unit);
         r += indent;
@@ -499,7 +531,11 @@ public:
         r += syn();
         r += " ";
         r.append(x.m_name);
-        r.append("\n");
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -522,7 +558,11 @@ public:
             if (i < x.n_namelist-1) r.append(", ");
             else r += ")";
         }
-        r.append("\n");
+        if(x.m_trivia){
+            r += print_trivia_inside(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_items; i++) {
             visit_unit_decl2(*x.m_items[i]);
@@ -538,14 +578,18 @@ public:
             for (size_t i=0; i<x.n_contains; i++) {
                 this->visit_procedure_decl(*x.m_contains[i]);
                 r.append(s);
-                r.append("\n");
+                // r.append("\n");
             }
         }
         r += syn(gr::UnitHeader);
         r.append(indent + "end type ");
         r += syn();
         r.append(x.m_name);
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
     void visit_DerivedTypeProc(const DerivedTypeProc_t &x) {
@@ -570,6 +614,11 @@ public:
             r.append(s);
             if (i < x.n_symbols-1) r.append(", ");
         }
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
     void visit_GenericOperator(const GenericOperator_t &x) {
@@ -587,6 +636,11 @@ public:
         for (size_t i=0; i<x.n_names; i++) {
             r.append(x.m_names[i]);
             if (i < x.n_names-1) r.append(", ");
+        }
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
         }
         s = r;
     }
@@ -608,6 +662,11 @@ public:
             r.append(x.m_names[i]);
             if (i < x.n_names-1) r.append(", ");
         }
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
     void visit_GenericAssignment(const GenericAssignment_t &x) {
@@ -624,6 +683,11 @@ public:
         for (size_t i=0; i<x.n_names; i++) {
             r.append(x.m_names[i]);
             if (i < x.n_names-1) r.append(", ");
+        }
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
         }
         s = r;
     }
@@ -643,6 +707,11 @@ public:
         for (size_t i=0; i<x.n_names; i++) {
             r.append(x.m_names[i]);
             if (i < x.n_names-1) r.append(", ");
+        }
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
         }
         s = r;
     }
@@ -666,6 +735,11 @@ public:
             r.append(x.m_names[i]);
             if (i < x.n_names-1) r.append(", ");
         }
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -688,6 +762,11 @@ public:
             r.append(x.m_names[i]);
             if (i < x.n_names-1) r.append(", ");
         }
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -697,14 +776,24 @@ public:
         r.append("final :: ");
         r += syn();
         r.append(x.m_name);
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
-    void visit_Private(const Private_t &/*x*/) {
+    void visit_Private(const Private_t &x) {
         std::string r;
         r += syn(gr::Type);
         r.append("private");
         r += syn();
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -721,7 +810,11 @@ public:
             }
         }
 
-        r.append("\n");
+        if(x.m_trivia){
+            r += print_trivia_inside(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_items; i++) {
             this->visit_unit_decl2(*x.m_items[i]);
@@ -730,8 +823,12 @@ public:
         dec_indent();
         r += syn(gr::UnitHeader);
         r.append("end enum");
-        r.append("\n");
         r += syn();
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -745,7 +842,11 @@ public:
         r += syn();
         this->visit_interface_header(*x.m_header);
         r.append(s);
-        r.append("\n");
+        if(x.m_trivia){
+            r += print_trivia_inside(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_items; i++) {
             this->visit_interface_item(*x.m_items[i]);
@@ -757,7 +858,11 @@ public:
         r += syn();
         this->visit_interface_header(*x.m_header);
         r.append(s);
-        r.append("\n");
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -815,7 +920,11 @@ public:
             r.append(x.m_names[i]);
             if (i < x.n_names-1) r.append(", ");
         }
-        r.append("\n");
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -938,7 +1047,11 @@ public:
             this->visit_bind(*x.m_bind);
             r.append(s);
         }
-        r.append("\n");
+        if(x.m_trivia){
+            r += print_trivia_inside(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
 
         r += format_unit_body(x, !indent_unit);
         r += indent;
@@ -947,8 +1060,11 @@ public:
         r += syn();
         r += " ";
         r.append(x.m_name);
-        r.append("\n");
-
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -980,7 +1096,11 @@ public:
             r.append(s);
             if (i < x.n_symbols-1) r.append(", ");
         }
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -1015,7 +1135,11 @@ public:
                 if (i < x.n_symbols-1) r.append(", ");
             }
         }
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -1033,7 +1157,11 @@ public:
             }
             r += ")";
         }
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -1069,7 +1197,11 @@ public:
             }
             r += ")";
         }
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -1150,7 +1282,11 @@ public:
                 }
             }
         }
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -1549,7 +1685,11 @@ public:
         r += " " + std::to_string(x.m_assign_label);
         r += " to ";
         r += x.m_variable;
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -1561,7 +1701,11 @@ public:
         r.append(" = ");
         this->visit_expr(*x.m_value);
         r.append(s);
-        r += "\n";
+        if (x.m_trivia) {
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r += "\n";
+        }
         s = r;
     }
 
@@ -1583,7 +1727,11 @@ public:
         }
         this->visit_expr(*x.m_goto_label);
         r.append(s);
-        r.append("\n");
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -1595,7 +1743,11 @@ public:
         r.append(" => ");
         this->visit_expr(*x.m_value);
         r.append(s);
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -1656,7 +1808,12 @@ public:
             r.append(s);
             if (i < x.n_keywords-1) r.append(", ");
         }
-        r.append(")\n");
+        r.append(")");
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -1690,7 +1847,12 @@ public:
             r.append(s);
             if (i < x.n_keywords-1) r.append(", ");
         }
-        r.append(")\n");
+        r.append(")");
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -1724,7 +1886,12 @@ public:
             r.append(s);
             if (i < x.n_keywords-1) r.append(", ");
         }
-        r.append(")\n");
+        r.append(")");
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -1742,7 +1909,11 @@ public:
         r += syn(gr::Conditional);
         r += "then";
         r += syn();
-        r += "\n";
+        if(x.m_t_inside){
+            r += print_trivia_after(*x.m_t_inside);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
@@ -1754,7 +1925,11 @@ public:
             r += syn(gr::Conditional);
             r += "else";
             r += syn();
-            r += "\n";
+            if(x.m_t_inside){
+                r += print_trivia_inside(*x.m_t_inside);
+            } else {
+                r.append("\n");
+            }
             inc_indent();
             for (size_t i=0; i<x.n_orelse; i++) {
                 this->visit_stmt(*x.m_orelse[i]);
@@ -1766,7 +1941,11 @@ public:
         r += syn(gr::Conditional);
         r += "end if";
         r += syn();
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -1784,7 +1963,11 @@ public:
         r += std::to_string(x.m_lt_label);
         r += ", " + std::to_string(x.m_eq_label);
         r += ", " + std::to_string(x.m_gt_label);
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -1798,7 +1981,12 @@ public:
         r += " (";
         this->visit_expr(*x.m_test);
         r += s;
-        r += ")\n";
+        r += ")";
+        if(x.m_t_inside){
+            r += print_trivia_inside(*x.m_t_inside);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
@@ -1810,7 +1998,11 @@ public:
             r += syn(gr::Conditional);
             r += "else where";
             r += syn();
-            r += "\n";
+            if(x.m_t_inside){
+                r += print_trivia_after(*x.m_t_inside);
+            } else {
+                r.append("\n");
+            }
             inc_indent();
             for (size_t i=0; i<x.n_orelse; i++) {
                 this->visit_stmt(*x.m_orelse[i]);
@@ -1822,7 +2014,11 @@ public:
         r += syn(gr::Repeat);
         r += "end where";
         r += syn();
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -1840,7 +2036,11 @@ public:
             this->visit_expr(*x.m_quiet);
             r += ", quiet = " + s;
         }
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -1858,7 +2058,11 @@ public:
             this->visit_expr(*x.m_quiet);
             r += ", quiet = " + s;
         }
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -1879,7 +2083,11 @@ public:
             }
         }
         r += ")";
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -1901,7 +2109,11 @@ public:
             }
         }
         r += ")";
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -1919,7 +2131,11 @@ public:
             }
             r += ")";
         }
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -1952,7 +2168,11 @@ public:
             this->visit_expr(*x.m_increment);
             r.append(s);
         }
-        r.append("\n");
+        if(x.m_t_inside){
+            r += print_trivia_after(*x.m_t_inside);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
@@ -1964,7 +2184,11 @@ public:
         r.append("end do");
         r += syn();
         r += end_stmt_name(x);
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -2025,7 +2249,11 @@ public:
             if (i < x.n_syms-1) r.append(", ");
         }
         r.append(")");
-        r += "\n";
+        if(x.m_t_inside){
+            r += print_trivia_after(*x.m_t_inside);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
@@ -2036,7 +2264,11 @@ public:
         r.append("end associate");
         r += syn();
         r += end_stmt_name(x);
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -2047,7 +2279,11 @@ public:
         r += syn(gr::UnitHeader);
         r += "block";
         r += syn();
-        r.append("\n");
+        if(x.m_t_inside){
+            r += print_trivia_after(*x.m_t_inside);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_use; i++) {
             this->visit_unit_decl1(*x.m_use[i]);
@@ -2068,7 +2304,11 @@ public:
         r.append("end block");
         r += syn();
         r += end_stmt_name(x);
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -2087,7 +2327,11 @@ public:
             }
             r += ")";
         }
-        r.append("\n");
+        if(x.m_t_inside){
+            r += print_trivia_after(*x.m_t_inside);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
@@ -2099,7 +2343,11 @@ public:
         r.append("end critical");
         r += syn();
         r += end_stmt_name(x);
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -2144,7 +2392,11 @@ public:
             this->visit_concurrent_locality(*x.m_locality[i]);
             r.append(s);
         }
-        r.append("\n");
+        if(x.m_t_inside){
+            r += print_trivia_after(*x.m_t_inside);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
@@ -2155,7 +2407,11 @@ public:
         r += syn(gr::Repeat);
         r.append("end do");
         r += syn();
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -2182,7 +2438,11 @@ public:
             this->visit_concurrent_locality(*x.m_locality[i]);
             r.append(s);
         }
-        r.append("\n");
+        if(x.m_t_inside){
+            r += print_trivia_after(*x.m_t_inside);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
@@ -2194,7 +2454,11 @@ public:
         r.append("end forall");
         r += syn();
         r += end_stmt_name(x);
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -2227,7 +2491,11 @@ public:
         r.append("end forall");
         r += syn();
         r += end_stmt_name(x);
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -2326,7 +2594,11 @@ public:
         r.append("cycle");
         r += syn();
         r += end_stmt_name(x);
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -2336,7 +2608,11 @@ public:
         r += syn(gr::Keyword);
         r.append("continue");
         r += syn();
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -2347,7 +2623,11 @@ public:
         r.append("exit");
         r += syn();
         r += end_stmt_name(x);
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -2361,7 +2641,11 @@ public:
             this->visit_expr(*x.m_value);
             r += " " + s;
         }
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -2375,7 +2659,12 @@ public:
         r += " (";
         this->visit_expr(*x.m_test);
         r += s;
-        r += ")\n";
+        r += ")";
+        if(x.m_t_inside){
+            r += print_trivia_after(*x.m_t_inside);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
@@ -2386,7 +2675,11 @@ public:
         r += syn(gr::Repeat);
         r += "end do";
         r += syn();
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -2411,7 +2704,11 @@ public:
                 if (i < x.n_values-1) r += ", ";
             }
         }
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -2451,7 +2748,11 @@ public:
                 if (i < x.n_values-1) r += ", ";
             }
         }
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -2503,7 +2804,11 @@ public:
                 if (i < x.n_values-1) r += ", ";
             }
         }
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -2526,7 +2831,12 @@ public:
             r += s;
             if (i < x.n_kwargs-1) r += ", ";
         }
-        r += ")\n";
+        r += ")";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -2549,7 +2859,12 @@ public:
             r += s;
             if (i < x.n_kwargs-1) r += ", ";
         }
-        r += ")\n";
+        r += ")";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -2581,7 +2896,11 @@ public:
                 if (i < x.n_values-1) r += ", ";
             }
         }
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -2604,7 +2923,12 @@ public:
             r += s;
             if (i < x.n_kwargs-1) r += ", ";
         }
-        r += ")\n";
+        r += ")";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -2627,7 +2951,12 @@ public:
             r += s;
             if (i < x.n_kwargs-1) r += ", ";
         }
-        r += ")\n";
+        r += ")";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -2650,7 +2979,12 @@ public:
             r += s;
             if (i < x.n_kwargs-1) r += ", ";
         }
-        r += ")\n";
+        r += ")";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -2673,7 +3007,12 @@ public:
             r += s;
             if (i < x.n_kwargs-1) r += ", ";
         }
-        r += ")\n";
+        r += ")";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -2696,7 +3035,12 @@ public:
             r += s;
             if (i < x.n_kwargs-1) r += ", ";
         }
-        r += ")\n";
+        r += ")";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -2733,7 +3077,12 @@ public:
         r += syn(gr::Keyword);
         r += "format";
         r += syn();
-        r += "(" + std::string(x.m_fmt) + ")\n";
+        r += "(" + std::string(x.m_fmt) + ")";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -3300,7 +3649,12 @@ public:
         r += " (";
         this->visit_expr(*x.m_test);
         r += s;
-        r += ")\n";
+        r += ")";
+        if(x.m_t_inside){
+            r += print_trivia_after(*x.m_t_inside);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_case_stmt(*x.m_body[i]);
@@ -3311,7 +3665,11 @@ public:
         r += syn(gr::Conditional);
         r += "end select";
         r += syn();
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -3326,7 +3684,12 @@ public:
             r += s;
             if (i < x.n_test-1) r += ", ";
         }
-        r += ")\n";
+        r += ")";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
@@ -3359,7 +3722,11 @@ public:
         r += syn(gr::Conditional);
         r += "case default";
         r += syn();
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
@@ -3383,7 +3750,12 @@ public:
         }
         this->visit_expr(*x.m_selector);
         r += s;
-        r += ")\n";
+        r += ")";
+        if(x.m_t_inside){
+            r += print_trivia_after(*x.m_t_inside);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_rank_stmt(*x.m_body[i]);
@@ -3394,7 +3766,11 @@ public:
         r += "end select";
         r += syn();
         r += end_stmt_name(x);
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -3406,7 +3782,12 @@ public:
         r += " (";
         this->visit_expr(*x.m_value);
         r.append(s);
-        r += ")\n";
+        r += ")";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
@@ -3421,7 +3802,12 @@ public:
         r += syn(gr::Conditional);
         r += "rank";
         r += syn();
-        r += " (*)\n";
+        r += " (*)";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
@@ -3436,7 +3822,11 @@ public:
         r += syn(gr::Conditional);
         r += "rank default";
         r += syn();
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
@@ -3460,7 +3850,12 @@ public:
         }
         this->visit_expr(*x.m_selector);
         r += s;
-        r += ")\n";
+        r += ")";
+        if(x.m_t_inside){
+            r += print_trivia_after(*x.m_t_inside);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_type_stmt(*x.m_body[i]);
@@ -3470,7 +3865,11 @@ public:
         r += syn(gr::Conditional);
         r += "end select";
         r += syn();
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         s = r;
     }
 
@@ -3483,7 +3882,12 @@ public:
         if (x.m_name) {
             r.append(x.m_name);
         }
-        r += ")\n";
+        r += ")";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
@@ -3502,7 +3906,12 @@ public:
             this->visit_decl_attribute(*x.m_vartype);
             r += s;
         }
-        r += ")\n";
+        r += ")";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
@@ -3520,7 +3929,12 @@ public:
         if (x.m_id) {
             r.append(x.m_id);
         }
-        r += ")\n";
+        r += ")";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
@@ -3534,7 +3948,11 @@ public:
         r += syn(gr::Conditional);
         r += "class default";
         r += syn();
-        r += "\n";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
         inc_indent();
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
