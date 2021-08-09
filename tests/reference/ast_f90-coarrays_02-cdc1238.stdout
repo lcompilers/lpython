@@ -29,4 +29,4 @@ do i = 1, size(node)
         end if
     end if
 end do
-end program coarrays_02 
+end program coarrays_02

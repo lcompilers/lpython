@@ -21,4 +21,4 @@ do k = 1, nz
         end do
     end do
 end do
-end program derived_types_03 
+end program derived_types_03

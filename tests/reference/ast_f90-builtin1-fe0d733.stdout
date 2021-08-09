@@ -24,4 +24,4 @@ endfile(k)
 endfile(10, iostat=n)
 endfile(unit=iout, iostat=ios, iomsg=msg) 
 
-end program builtin_01 
+end program builtin_01

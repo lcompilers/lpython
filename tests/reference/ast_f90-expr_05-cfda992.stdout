@@ -64,4 +64,4 @@ l = (l) .or. ((l) .and. (.not.(l)))
 l = ((l) .and. (l)) .or. (.not.(l))
 l = ((l) .and. (.not.(l))) .or. (l)
 l = (l) .and. (.not.((l) .or. (l)))
-end program expr_05 
+end program expr_05

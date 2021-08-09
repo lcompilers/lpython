@@ -40,4 +40,4 @@ implicit complex(4) (z)
 implicit type(BLOB) (A)
 implicit class(X) (A-b)
 implicit procedure(Y) (A-b)
-end program implicit1 
+end program implicit1
