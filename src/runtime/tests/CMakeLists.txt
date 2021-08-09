@@ -34,6 +34,8 @@ set(SRC
     ../lfortran_intrinsic_math.f90
     ../lfortran_intrinsic_kind.f90
     ../lfortran_intrinsic_array.f90
+    ../lfortran_intrinsic_iso_fortran_env.f90
+    ../lfortran_intrinsic_iso_c_binding.f90
 )
 add_library(lfortran_runtime SHARED ${SRC})
 add_library(lfortran_runtime_static STATIC ${SRC})
@@ -50,3 +52,5 @@ ADDTEST(test_cos)
 ADDTEST(test_tan)
 ADDTEST(test_hyperbolics)
 ADDTEST(test_kind)
+ADDTEST(test_iso_fortran_env)
+ADDTEST(test_iso_c_binding)
