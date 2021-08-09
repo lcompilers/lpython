@@ -12,7 +12,7 @@ define i32 @main() {
   %u = alloca float, align 4
   store float 0x3FF0CCCCC0000000, float* %u, align 4
   %v = alloca double, align 8
-  store double 0x3FF0CCCCC0000000, double* %v, align 8
+  store double 1.050000e+00, double* %v, align 8
   %zero = alloca double, align 8
   store double 0.000000e+00, double* %zero, align 8
   %0 = load float, float* %u, align 4
