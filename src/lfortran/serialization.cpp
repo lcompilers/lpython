@@ -323,7 +323,9 @@ public:
                 return;
             }
         }
-        throw LFortranException("ExternalSymbol cannot be resolved");
+        throw LFortranException("ExternalSymbol cannot be resolved, module '"
+            + module_name + "' not found or the symbol name '"
+            + original_name + "' not found in the module.");
     }
 
 
