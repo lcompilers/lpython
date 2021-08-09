@@ -1277,10 +1277,37 @@ public:
     }
 
     void visit_Real(const AST::Real_t &x) {
-        int a_kind = ASRUtils::extract_kind(x.m_n);
         double r = ASRUtils::extract_real(x.m_n);
+        char* s_kind;
+        int r_kind = ASRUtils::extract_kind_str(x.m_n, s_kind);
+        if (r_kind == 0) {
+            std::string var_name = s_kind;
+            ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
+            if (v) {
+                if (ASR::is_a<ASR::Variable_t>(*v)) {
+                    ASR::Variable_t *v2 = ASR::down_cast<ASR::Variable_t>(v);
+                    if (v2->m_value) {
+                        if (ASR::is_a<ASR::ConstantInteger_t>(*v2->m_value)) {
+                            r_kind = ASR::down_cast<ASR::ConstantInteger_t>(v2->m_value)->m_n;
+                        } else {
+                            throw SemanticError("Variable '" + var_name + "' is constant but not an integer",
+                                x.base.base.loc);
+                        }
+                    } else {
+                        throw SemanticError("Variable '" + var_name + "' is not constant",
+                            x.base.base.loc);
+                    }
+                } else {
+                    throw SemanticError("Symbol '" + var_name + "' is not a variable",
+                        x.base.base.loc);
+                }
+            } else {
+                throw SemanticError("Variable '" + var_name + "' not declared",
+                    x.base.base.loc);
+            }
+        }
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
-                a_kind, nullptr, 0));
+                r_kind, nullptr, 0));
         asr = ASR::make_ConstantReal_t(al, x.base.base.loc, r, type);
     }
 
