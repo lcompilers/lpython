@@ -211,33 +211,37 @@ public:
     std::string print_trivia_inside(const trivia_t &x) {
         std::string r = " ";
         auto y = (TriviaNode_t &)x;
-        for (size_t i=0; i<y.n_inside; i++) {
-            switch (y.m_inside[i]->type) {
-                case trivia_nodeType::Comment: {
-                    if(i == 0) r += "\n";
-                    r += std::string(
-                        down_cast<Comment_t>(y.m_inside[i])->m_comment
-                    );
-                    r += "\n";
-                    break;
-                }
-                case trivia_nodeType::EOLComment: {
-                    r += std::string(
-                        down_cast<EOLComment_t>(y.m_inside[i])->m_comment
-                    );
-                    r += "\n";
-                    break;
-                }
-                case trivia_nodeType::EmptyLines: {
-                    if(i == 0) r += "\n";
-                    r += "\n";
-                    break;
-                }
-                case trivia_nodeType::Semicolon: {
-                    r += "; ";
-                    break;
+        if(y.n_inside > 0) {
+            for (size_t i=0; i<y.n_inside; i++) {
+                switch (y.m_inside[i]->type) {
+                    case trivia_nodeType::Comment: {
+                        if(i == 0) r += "\n";
+                        r += std::string(
+                            down_cast<Comment_t>(y.m_inside[i])->m_comment
+                        );
+                        r += "\n";
+                        break;
+                    }
+                    case trivia_nodeType::EOLComment: {
+                        r += std::string(
+                            down_cast<EOLComment_t>(y.m_inside[i])->m_comment
+                        );
+                        r += "\n";
+                        break;
+                    }
+                    case trivia_nodeType::EmptyLines: {
+                        if(i == 0) r += "\n";
+                        r += "\n";
+                        break;
+                    }
+                    case trivia_nodeType::Semicolon: {
+                        r += "; ";
+                        break;
+                    }
                 }
             }
+        } else {
+            return "\n";
         }
         return r;
     }
@@ -245,33 +249,37 @@ public:
     std::string print_trivia_after(const trivia_t &x) {
         std::string r = " ";
         auto y = (TriviaNode_t &)x;
-        for (size_t i=0; i<y.n_after; i++) {
-            switch (y.m_after[i]->type) {
-                case trivia_nodeType::Comment: {
-                    if(i == 0) r += "\n";
-                    r += std::string(
-                        down_cast<Comment_t>(y.m_after[i])->m_comment
-                    );
-                    r += "\n";
-                    break;
-                }
-                case trivia_nodeType::EOLComment: {
-                    r += std::string(
-                        down_cast<EOLComment_t>(y.m_after[i])->m_comment
-                    );
-                    r += "\n";
-                    break;
-                }
-                case trivia_nodeType::EmptyLines: {
-                    if(i == 0) r += "\n";
-                    r += "\n";
-                    break;
-                }
-                case trivia_nodeType::Semicolon: {
-                    r += "; ";
-                    break;
+        if(y.n_after > 0) {
+            for (size_t i=0; i<y.n_after; i++) {
+                switch (y.m_after[i]->type) {
+                    case trivia_nodeType::Comment: {
+                        if(i == 0) r += "\n";
+                        r += std::string(
+                            down_cast<Comment_t>(y.m_after[i])->m_comment
+                        );
+                        r += "\n";
+                        break;
+                    }
+                    case trivia_nodeType::EOLComment: {
+                        r += std::string(
+                            down_cast<EOLComment_t>(y.m_after[i])->m_comment
+                        );
+                        r += "\n";
+                        break;
+                    }
+                    case trivia_nodeType::EmptyLines: {
+                        if(i == 0) r += "\n";
+                        r += "\n";
+                        break;
+                    }
+                    case trivia_nodeType::Semicolon: {
+                        r += "; ";
+                        break;
+                    }
                 }
             }
+        } else {
+            return "\n";
         }
         return r;
     }
