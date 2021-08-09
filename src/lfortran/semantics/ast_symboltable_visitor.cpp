@@ -806,7 +806,6 @@ public:
                     // kind_num --> value {4, 8, etc.}
                     int64_t kind_num = 4; // Default
                     ASR::expr_t* kind_expr = args[0];
-                    ASR::ttype_t* kind_type = LFortran::ASRUtils::expr_type(kind_expr);
                     // TODO: Check that the expression reduces to a valid constant expression (10.1.12)
                     switch( kind_expr->type ) {
                         case ASR::exprType::ConstantInteger: {
@@ -831,7 +830,11 @@ public:
                         break;
                     }
                     }
-                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, kind_num, kind_type));
+                    ASR::ttype_t *type = LFortran::ASRUtils::TYPE(
+                            ASR::make_Integer_t(al, x.base.base.loc,
+                                4, nullptr, 0));
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, kind_num,
+                        type));
                 } else if (var_name=="tiny") {
                     // We assume the input is valid
                     // ASR::expr_t* tiny_expr = args[0];
