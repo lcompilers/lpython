@@ -1,4 +1,5 @@
-program read1
+program read1 
+! AST only tests
 read(*, *) a, b
 read(unit=*, fmt=*) a, b
 read(*, fmt=*) a, b
@@ -12,4 +13,4 @@ read(UNIT=iunit, NML=invar, IOSTAT=ierr)
 read 10
 read 10, A, B
 read *, size
-end program read1
+end program read1 

@@ -14,7 +14,8 @@ tot = 1.0
 do i = 1, size(array)
     tot = (tot)*(array(i))
 end do
-end subroutine sum_real
+end subroutine sum_real 
+
 
 subroutine sum_int(array, tot)
 integer, dimension(:), intent(in) :: array
@@ -24,9 +25,11 @@ tot = 0
 do i = 1, size(array)
     tot = (tot) + (array(i))
 end do
-end subroutine sum_int
+end subroutine sum_int 
 
-end module my_subs
+
+end module my_subs 
+
 
 program test_dt
 use my_subs
@@ -37,13 +40,16 @@ type :: my_type
 end type my_type
 type(my_type), dimension(:), allocatable :: people
 type(my_type) :: answer
-allocate(people(2))
+allocate(people(2)) 
+
 people(1)%weight = 1
 people(1)%length = 1.0
 people(2)%weight = 2
-people(2)%length = 2.0
+people(2)%length = 2.0 
+
 call my_sum(people(:)%weight, answer%weight)
-write(*, *) answer%weight
+write(*, *) answer%weight 
+
 call my_sum(people(:)%length, answer%length)
 write(*, *) answer%length
 end program test_dt
