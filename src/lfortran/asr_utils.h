@@ -346,7 +346,7 @@ static inline int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {
                 return res;
             }
 
-            inline int extract_kind(char* m_n) {
+            inline int extract_kind_str(char* m_n, char *&kind_str) {
                 char *p = m_n;
                 while (*p != '\0') {
                     if (*p == '_') {
@@ -354,8 +354,9 @@ static inline int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {
                         std::string kind = std::string(p);
                         int ikind = std::atoi(p);
                         if (ikind == 0) {
-                            // Not an integer
-                            return 4; // FIXME: we need to return a string
+                            // Not an integer, return a string
+                            kind_str = p;
+                            return 0;
                         } else {
                             return ikind;
                         }
