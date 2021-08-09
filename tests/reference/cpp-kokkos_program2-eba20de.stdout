@@ -55,9 +55,9 @@ int minval(const Kokkos::View<const int*> &x)
     return minval;
 }
 
-int real(const Kokkos::View<const int*> &x, int kind)
+float real(const Kokkos::View<const int*> &x, int kind)
 {
-    int real;
+    float real;
     return real;
 }
 
@@ -67,9 +67,9 @@ int sum(const Kokkos::View<const int*> &x)
     return sum;
 }
 
-int tiny(const Kokkos::View<const int*> &x)
+float tiny(const Kokkos::View<const int*> &x)
 {
-    int tiny;
+    float tiny;
     return tiny;
 }
 
