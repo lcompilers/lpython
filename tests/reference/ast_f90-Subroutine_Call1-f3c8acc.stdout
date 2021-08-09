@@ -1,5 +1,7 @@
 program Subroutine_Call1
-implicit none
+implicit none 
+! Syntax check
+!Subroutine CALL
 call randn(x(i))
 call randn(x)
 call random_number(U)

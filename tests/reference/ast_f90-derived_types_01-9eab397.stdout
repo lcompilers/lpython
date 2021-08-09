@@ -1,13 +1,16 @@
 module a_01
-implicit none
+implicit none 
+
 type :: X
     real :: r
     integer :: i
-end type X
+end type X 
+
 type :: Y
     complex :: c
     type(X) :: d
-end type Y
+end type Y 
+
 
 contains
 
@@ -15,18 +18,23 @@ subroutine set(a)
 type(X), intent(out) :: a
 a%i = 1
 a%r = 1.5
-end subroutine set
+end subroutine set 
 
-end module a_01
+
+end module a_01 
+
 
 module a_02
 use a_01, only: Y
-implicit none
+implicit none 
+
 type :: Z
     complex :: k
     type(Y) :: l
-end type Z
-end module a_02
+end type Z 
+
+end module a_02 
+
 
 program derived_types_01
 use a_02, only: Z

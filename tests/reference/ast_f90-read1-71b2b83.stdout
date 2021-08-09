@@ -1,4 +1,5 @@
-program read1
+program read1 
+! AST only tests
 read(*, *) a, b
 read(unit=*, fmt=*) a, b
 read(*, fmt=*) a, b

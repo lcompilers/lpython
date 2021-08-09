@@ -1,4 +1,5 @@
-program flush1
+program flush1 
+! Tests for syntax (AST only):
 flush(10, IOSTAT=n)
 flush(20, IOMSG=n)
 flush(ERR=label)

@@ -2,7 +2,8 @@ program reserved_02
 implicit none
 if ((integer()) /= (1)) then
     error stop
-end if
+end if 
+
 
 contains
 
@@ -10,6 +11,7 @@ integer function integer()
 integer :: function
 function = (function)/(function)
 integer = function
-end function integer
+end function integer 
+
 
 end program reserved_02

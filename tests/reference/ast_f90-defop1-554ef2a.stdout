@@ -1,4 +1,5 @@
-program defop1
+program defop1 
+! Tests for syntax (AST) only:
 e = (a).in.(b)
 E = (A).IN.(B)
 e = (b%s).op.((3)**(4))
