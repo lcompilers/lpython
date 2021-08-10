@@ -603,6 +603,9 @@ public:
                             } else if (sa->m_attr == AST::simple_attributeType
                                     ::AttrAllocatable) {
                                 // TODO
+                            } else if (sa->m_attr == AST::simple_attributeType
+                                    ::AttrValue) {
+                                // TODO
                             } else {
                                 throw SemanticError("Attribute type not implemented yet",
                                         x.base.base.loc);

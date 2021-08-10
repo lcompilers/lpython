@@ -239,7 +239,7 @@ RUN(NAME types_08 LABELS gfortran)
 RUN(NAME types_09 LABELS gfortran)
 RUN(NAME types_10 LABELS gfortran)
 RUN(NAME types_11 LABELS gfortran)
-RUN(NAME types_12 LABELS gfortran)
+RUN(NAME types_12 LABELS gfortran llvm)
 RUN(NAME types_13 LABELS gfortran)
 
 RUN(NAME complex_01 LABELS gfortran)
