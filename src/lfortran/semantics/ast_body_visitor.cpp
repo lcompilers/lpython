@@ -1412,7 +1412,7 @@ public:
                         }
                         if (func_name == "kind") {
                             if (args.n == 1) {
-                                int kind_val {4};
+                                int64_t kind_val {4};
                                 if (ASR::is_a<ASR::ConstantLogical_t>(*func_expr)){
                                     kind_val = ASR::down_cast<ASR::Logical_t>(ASR::down_cast<ASR::ConstantLogical_t>(func_expr)->m_type)->m_kind;
                                 }
@@ -1431,6 +1431,32 @@ public:
                                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, kind_val, func_type));
                             } else {
                                 throw SemanticError("kind must have only one argument", x.base.base.loc);
+                            }
+                        }
+                        if (func_name == "selected_int_kind") {
+                            if (args.n == 1 && ASR::is_a<ASR::Integer_t>(*func_type)) {
+                                int64_t kind_val {4}, R {4};
+                                R = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(func_expr))->m_n;
+                                if (R >= 10) { // > ?
+                                   kind_val = 8;
+                                }
+                                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, kind_val, func_type));
+                            } else {
+                                throw SemanticError(func_name + " must have only one integer argument", x.base.base.loc);
+                            }
+                        }
+                        if (func_name == "selected_real_kind") {
+                            // TODO: Be more standards compliant 16.9.170
+                            // e.g. selected_real_kind(6, 70)
+                            if (args.n == 1 && ASR::is_a<ASR::Integer_t>(*func_type)) {
+                                int64_t kind_val {4}, R {4};
+                                R = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(func_expr))->m_n;
+                                if (R >= 7) { // > ?
+                                   kind_val = 8;
+                                }
+                                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, kind_val, func_type));
+                            } else {
+                                throw SemanticError(func_name + " must have only one integer argument", x.base.base.loc);
                             }
                         }
                     }

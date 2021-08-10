@@ -919,6 +919,8 @@ public:
                         throw SemanticError("integer_int_kind() must have one integer argument", x.base.base.loc);
                     }
                 } else if (var_name=="selected_real_kind") {
+                    // TODO: Be more standards compliant 16.9.170
+                    // e.g. selected_real_kind(6, 70)
                     ASR::expr_t* real_expr = args[0];
                     ASR::ttype_t* real_type = LFortran::ASRUtils::expr_type(real_expr);
                     if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*real_type)) {
