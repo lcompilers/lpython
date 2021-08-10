@@ -1948,20 +1948,10 @@ ast_t* set_trivia1(Allocator &al, Location &l,
     } else {
         v1.reserve(al, n_t1);
         for (size_t i=0; i < n_t1; i++) {
-            if (i == 0) {
-                if (is_a<EmptyLines_t>(*m_t1[i])) {
-                    continue;
-                }
-            }
             v1.push_back(al, m_t1[i]);
         }
     }
     for (size_t i=0; i < n_t2; i++) {
-        if (i == 0) {
-            if (is_a<EmptyLines_t>(*m_t2[i])) {
-                continue;
-            }
-        }
         v2.push_back(al, m_t2[i]);
     }
     if(v1.n > 0 || v2.n > 0){
