@@ -233,6 +233,8 @@ RUN(NAME interface_02 LABELS gfortran llvm)
 RUN(NAME interface_03 LABELS gfortran)
 RUN(NAME interface_04 LABELS gfortran llvm)
 RUN(NAME interface_05 LABELS gfortran)
+RUN(NAME interface_06 LABELS gfortran)
+RUN(NAME interface_07 LABELS gfortran llvm)
 
 RUN(NAME types_07 LABELS gfortran)
 RUN(NAME types_08 LABELS gfortran)
