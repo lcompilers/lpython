@@ -183,12 +183,13 @@ RUN(NAME intrinsics_10 LABELS gfortran) # real body
 RUN(NAME intrinsics_11 LABELS gfortran) # real symboltable
 RUN(NAME intrinsics_12 LABELS gfortran) # kind body
 RUN(NAME intrinsics_13 LABELS gfortran) # kind symboltable
+RUN(NAME intrinsics_14 LABELS gfortran) # selected_real,int_kind body
 RUN(NAME intrinsics_open_close_read_write LABELS gfortran)
 
 RUN(NAME parameter_01 LABELS gfortran)
 RUN(NAME parameter_02 LABELS gfortran)
 RUN(NAME parameter_03 LABELS gfortran llvm)
-RUN(NAME parameter_04 LABELS gfortran llvm)
+RUN(NAME parameter_04 LABELS gfortran llvm) # selected_real,int_kind symboltable
 
 RUN(NAME modules_01 LABELS gfortran llvm)
 RUN(NAME modules_02 LABELS gfortran llvm)

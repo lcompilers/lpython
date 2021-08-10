@@ -1083,6 +1083,11 @@ asr = true
 filename = "../integration_tests/intrinsics_13.f90"
 asr = true
 
+# selected_int,real_kind (parameter_04 has symboltable)
+[[test]]
+filename = "../integration_tests/intrinsics_14.f90"
+asr = true
+
 [[test]]
 filename = "../integration_tests/intrinsics_open_close_read_write.f90"
 asr = true
