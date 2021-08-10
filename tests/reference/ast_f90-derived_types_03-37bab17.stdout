@@ -1,4 +1,5 @@
 program derived_types_03 
+
 ! AST only
 do nn = 1, ndiag
     ing = diag(nn)%len

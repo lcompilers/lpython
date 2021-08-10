@@ -1,4 +1,5 @@
 program implicit1 
+
 ! AST only
 implicit none
 implicit none
