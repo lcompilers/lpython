@@ -3,6 +3,7 @@
    (Subroutine 
       g [] [] () 
       (TriviaNode [] [
+         (EmptyLines) 
          (EmptyLines)]) [] [] [] [
       (Declaration 
          (AttrType 

@@ -1,4 +1,5 @@
 program open1 
+
 ! Tests for syntax (AST) only:
 open(file="p_cc", newunit=u)
 open(task_lun, file=taskfile)

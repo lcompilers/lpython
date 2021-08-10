@@ -196,13 +196,25 @@ expr
         identifier var, expr start, expr end, expr? increment)
     | Parenthesis(expr operand)
 
+
+-- All statement nodes have an optional trivia?, here is the meaning:
+-- nullptr ... Equivalent to \n (the statement ends with \n)
+-- Meaning of trivia_node (in both `inside` and `after`):
+--     Comment ...... Comment followed by \n (previous line must be ended)
+--     EOLComment ... Ends the current line with a comment followed by \n
+--     EndOfLine .... Ends the current line with \n
+--     Semicolon .... ";" (just one character, does not end the line)
+-- The trivia starts with an open line, must be first ended by either
+-- EOLComment or EndOfLine.
+
+
 trivia
     = TriviaNode(trivia_node* inside, trivia_node* after)
 
 trivia_node
     = Comment(string comment)
     | EOLComment(string comment)
-    | EmptyLines()
+    | EmptyLines() -- Will be renamed to EndOfLine()
     | Semicolon()
 
 boolop = And | Or | Eqv | NEqv

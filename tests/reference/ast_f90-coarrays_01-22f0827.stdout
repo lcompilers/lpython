@@ -1,4 +1,5 @@
 program coarrays_01 
+
 ! This test should test most of coarray syntax:
 ! * declarations
 ! * allocations

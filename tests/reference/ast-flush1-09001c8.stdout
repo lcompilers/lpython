@@ -1,1 +1,1 @@
-(TranslationUnit [(Program flush1 (TriviaNode [(Comment "! Tests for syntax (AST only):")] []) [] [] [] [(Flush 0 [10] [(IOSTAT n)] ()) (Flush 0 [20] [(IOMSG n)] ()) (Flush 0 [] [(ERR label)] ()) (Flush 0 [30] [(UNIT 40)] ()) (Flush 0 [50] [] ())] [])])
+(TranslationUnit [(Program flush1 (TriviaNode [(EmptyLines) (Comment "! Tests for syntax (AST only):")] []) [] [] [] [(Flush 0 [10] [(IOSTAT n)] ()) (Flush 0 [20] [(IOMSG n)] ()) (Flush 0 [] [(ERR label)] ()) (Flush 0 [30] [(UNIT 40)] ()) (Flush 0 [50] [] ())] [])])

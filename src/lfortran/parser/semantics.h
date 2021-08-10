@@ -1946,23 +1946,23 @@ ast_t* set_trivia1(Allocator &al, Location &l,
         v1.p = nullptr;
         v1.n = 0;
     } else {
-        v1.reserve(al, n_t1);
-        for (size_t i=0; i < n_t1; i++) {
-            if (i == 0) {
-                if (is_a<EmptyLines_t>(*m_t1[i])) {
-                    continue;
-                }
+        if (n_t1 == 1 && is_a<EmptyLines_t>(*m_t1[0])) {
+            v1.p = nullptr;
+            v1.n = 0;
+        } else {
+            v1.reserve(al, n_t1);
+            for (size_t i=0; i < n_t1; i++) {
+                v1.push_back(al, m_t1[i]);
             }
-            v1.push_back(al, m_t1[i]);
         }
     }
-    for (size_t i=0; i < n_t2; i++) {
-        if (i == 0) {
-            if (is_a<EmptyLines_t>(*m_t2[i])) {
-                continue;
-            }
+    if (n_t2 == 1 && is_a<EmptyLines_t>(*m_t2[0])) {
+        v2.p = nullptr;
+        v2.n = 0;
+    } else {
+        for (size_t i=0; i < n_t2; i++) {
+            v2.push_back(al, m_t2[i]);
         }
-        v2.push_back(al, m_t2[i]);
     }
     if(v1.n > 0 || v2.n > 0){
         return make_TriviaNode_t(al, l, v1.p, v1.n, v2.p, v2.n);
