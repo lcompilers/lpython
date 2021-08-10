@@ -325,3 +325,5 @@ RUN(NAME class_02 LABELS gfortran llvm)
 
 RUN(NAME test_iso_c_binding LABELS gfortran llvm)
 RUN(NAME test_iso_fortran_env LABELS gfortran llvm)
+
+RUN(NAME abs_01 LABELS gfortran)
