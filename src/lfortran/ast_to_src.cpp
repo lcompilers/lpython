@@ -253,7 +253,6 @@ public:
             for (size_t i=0; i<y.n_after; i++) {
                 switch (y.m_after[i]->type) {
                     case trivia_nodeType::Comment: {
-                        if(i == 0) r += "\n";
                         r += std::string(
                             down_cast<Comment_t>(y.m_after[i])->m_comment
                         );
@@ -268,7 +267,6 @@ public:
                         break;
                     }
                     case trivia_nodeType::EmptyLines: {
-                        if(i == 0) r += "\n";
                         r += "\n";
                         break;
                     }
