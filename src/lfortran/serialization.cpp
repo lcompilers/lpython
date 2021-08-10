@@ -7,6 +7,7 @@
 #include <lfortran/asr_utils.h>
 #include <lfortran/asr_verify.h>
 #include <lfortran/bwriter.h>
+#include <lfortran/string_utils.h>
 
 using LFortran::ASRUtils::symbol_parent_symtab;
 using LFortran::ASRUtils::symbol_name;
@@ -304,6 +305,9 @@ public:
         LFORTRAN_ASSERT(x.m_external == nullptr);
         std::string module_name = x.m_module_name;
         std::string original_name = x.m_original_name;
+        if (startswith(module_name, "lfortran_intrinsic_iso")) {
+            module_name = module_name.substr(19);
+        }
         if (global_symtab->scope.find(module_name) != global_symtab->scope.end()) {
             Module_t *m = down_cast<Module_t>(global_symtab->scope[module_name]);
             if (m->m_symtab->scope.find(original_name) != m->m_symtab->scope.end()) {

@@ -152,6 +152,15 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                 ASR::TranslationUnit_t *mod1 = find_and_load_module(al,
                         item,
                         *symtab, is_intrinsic);
+                if (mod1 == nullptr && !is_intrinsic) {
+                    // Module not found as a regular module. Try intrinsic module
+                    if (item == "iso_c_binding"
+                        ||item == "iso_fortran_env") {
+                        mod1 = find_and_load_module(al, "lfortran_intrinsic_" + item,
+                            *symtab, true);
+                    }
+                }
+
                 if (mod1 == nullptr) {
                     throw SemanticError("Module '" + item + "' modfile was not found",
                         loc);
