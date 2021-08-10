@@ -1158,6 +1158,51 @@ public:
         }
     }
 
+    void symbol_resolve_generic_procedure(
+            ASR::symbol_t *v,
+            const AST::FuncCallOrArray_t &x
+            ) {
+        ASR::ExternalSymbol_t *p = ASR::down_cast<ASR::ExternalSymbol_t>(v);
+        ASR::symbol_t *f2 = ASR::down_cast<ASR::ExternalSymbol_t>(v)->m_external;
+        ASR::GenericProcedure_t *g = ASR::down_cast<ASR::GenericProcedure_t>(f2);
+        Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
+        int idx = select_generic_procedure(args, *g, x.base.base.loc);
+        ASR::symbol_t *final_sym;
+        final_sym = g->m_procs[idx];
+        if (!ASR::is_a<ASR::Function_t>(*final_sym)) {
+            throw SemanticError("ExternalSymbol must point to a Function", x.base.base.loc);
+        }
+        ASR::ttype_t *return_type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(final_sym)->m_return_var)->m_type;
+        // Create ExternalSymbol for the final subroutine:
+        // We mangle the new ExternalSymbol's local name as:
+        //   generic_procedure_local_name @
+        //     specific_procedure_remote_name
+        std::string local_sym = std::string(p->m_name) + "@"
+            + LFortran::ASRUtils::symbol_name(final_sym);
+        if (current_scope->scope.find(local_sym)
+            == current_scope->scope.end()) {
+            Str name;
+            name.from_str(al, local_sym);
+            char *cname = name.c_str(al);
+            ASR::asr_t *sub = ASR::make_ExternalSymbol_t(
+                al, g->base.base.loc,
+                /* a_symtab */ current_scope,
+                /* a_name */ cname,
+                final_sym,
+                p->m_module_name, LFortran::ASRUtils::symbol_name(final_sym),
+                ASR::accessType::Private
+                );
+            final_sym = ASR::down_cast<ASR::symbol_t>(sub);
+            current_scope->scope[local_sym] = final_sym;
+        } else {
+            final_sym = current_scope->scope[local_sym];
+        }
+        ASR::expr_t *value = nullptr;
+        tmp = ASR::make_FunctionCall_t(al, x.base.base.loc,
+            final_sym, v, args.p, args.size(), nullptr, 0, return_type,
+            value, nullptr);
+    }
+
     void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
         std::vector<std::string> all_intrinsics = {
             "sin",  "cos",  "tan",  "sinh",  "cosh",  "tanh",
@@ -1195,6 +1240,29 @@ public:
                 if (!t) {
                     throw SemanticError("The symbol '" + remote_sym
                         + "' not found in the module '" + module_name + "'",
+                        x.base.base.loc);
+                }
+                if (ASR::is_a<ASR::GenericProcedure_t>(*t)) {
+                    ASR::GenericProcedure_t *gp = ASR::down_cast<ASR::GenericProcedure_t>(t);
+                    ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
+                        al, gp->base.base.loc,
+                        /* a_symtab */ current_scope,
+                        /* a_name */ gp->m_name,
+                        (ASR::symbol_t*)gp,
+                        m->m_name, gp->m_name,
+                        ASR::accessType::Private
+                        );
+                    std::string sym = gp->m_name;
+                    current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
+                    symbol_resolve_generic_procedure(
+                        ASR::down_cast<ASR::symbol_t>(fn), x);
+                    return;
+                }
+
+                if (!ASR::is_a<ASR::Function_t>(*t)) {
+                    throw SemanticError("The symbol '" + remote_sym
+                        + "' found in the module '" + module_name + "', "
+                        + "but it is not a function.",
                         x.base.base.loc);
                 }
 
@@ -1494,44 +1562,7 @@ public:
                     tmp = ASR::make_ArrayRef_t(al, x.base.base.loc,
                         v, args.p, args.size(), type, nullptr);
                 } else if (ASR::is_a<ASR::GenericProcedure_t>(*f2)) {
-                    ASR::ExternalSymbol_t *p = ASR::down_cast<ASR::ExternalSymbol_t>(v);
-                    ASR::GenericProcedure_t *g = ASR::down_cast<ASR::GenericProcedure_t>(f2);
-                    Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
-                    int idx = select_generic_procedure(args, *g, x.base.base.loc);
-                    ASR::symbol_t *final_sym;
-                    final_sym = g->m_procs[idx];
-                    if (!ASR::is_a<ASR::Function_t>(*final_sym)) {
-                        throw SemanticError("ExternalSymbol must point to a Function", x.base.base.loc);
-                    }
-                    ASR::ttype_t *return_type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(final_sym)->m_return_var)->m_type;
-                    // Create ExternalSymbol for the final subroutine:
-                    // We mangle the new ExternalSymbol's local name as:
-                    //   generic_procedure_local_name @
-                    //     specific_procedure_remote_name
-                    std::string local_sym = std::string(p->m_name) + "@"
-                        + LFortran::ASRUtils::symbol_name(final_sym);
-                    if (current_scope->scope.find(local_sym)
-                        == current_scope->scope.end()) {
-                        Str name;
-                        name.from_str(al, local_sym);
-                        char *cname = name.c_str(al);
-                        ASR::asr_t *sub = ASR::make_ExternalSymbol_t(
-                            al, g->base.base.loc,
-                            /* a_symtab */ current_scope,
-                            /* a_name */ cname,
-                            final_sym,
-                            p->m_module_name, LFortran::ASRUtils::symbol_name(final_sym),
-                            ASR::accessType::Private
-                            );
-                        final_sym = ASR::down_cast<ASR::symbol_t>(sub);
-                        current_scope->scope[local_sym] = final_sym;
-                    } else {
-                        final_sym = current_scope->scope[local_sym];
-                    }
-                    ASR::expr_t *value = nullptr;
-                    tmp = ASR::make_FunctionCall_t(al, x.base.base.loc,
-                        final_sym, v, args.p, args.size(), nullptr, 0, return_type,
-                        value, nullptr);
+                    symbol_resolve_generic_procedure(v, x);
                 } else {
                     throw SemanticError("Unimplemented", x.base.base.loc);
                 }
