@@ -1355,6 +1355,8 @@ public:
                         != intrinsic_procedures.end()) { // Got an intrinsic, now try to assign value
                         ASR::expr_t* func_expr = args[0];
                         ASR::ttype_t *func_type = LFortran::ASRUtils::expr_type(func_expr);
+                        // TODO: This ordering is terrible; falls through in an arbitrary manner
+                        // Should be in a hash table or something
                         if (func_name == "tiny") {
                             if (args.n == 1) {
                                 if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*func_type)) {
@@ -1378,7 +1380,7 @@ public:
                                 throw SemanticError("tiny must have only one argument", x.base.base.loc);
                             }
                         }
-                        if (func_name == "real") {
+                        else if (func_name == "real") {
                             if (args.n == 1) {
                                 ASR::expr_t* real_expr = args[0];
                                 int real_kind = LFortran::ASRUtils::extract_kind_from_ttype_t(func_type);
@@ -1410,9 +1412,9 @@ public:
                                 throw SemanticError("real must have only one argument", x.base.base.loc);
                             }
                         }
-                        if (func_name == "kind") {
+                        else if (func_name == "kind") {
                             if (args.n == 1) {
-                                int kind_val {4};
+                                int64_t kind_val {4};
                                 if (ASR::is_a<ASR::ConstantLogical_t>(*func_expr)){
                                     kind_val = ASR::down_cast<ASR::Logical_t>(ASR::down_cast<ASR::ConstantLogical_t>(func_expr)->m_type)->m_kind;
                                 }
@@ -1431,6 +1433,32 @@ public:
                                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, kind_val, func_type));
                             } else {
                                 throw SemanticError("kind must have only one argument", x.base.base.loc);
+                            }
+                        }
+                        else if (func_name == "selected_int_kind") {
+                            if (args.n == 1 && ASR::is_a<ASR::Integer_t>(*func_type)) {
+                                int64_t kind_val {4}, R {4};
+                                R = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(func_expr))->m_n;
+                                if (R >= 10) { // > ?
+                                   kind_val = 8;
+                                }
+                                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, kind_val, func_type));
+                            } else {
+                                throw SemanticError(func_name + " must have only one integer argument", x.base.base.loc);
+                            }
+                        }
+                        else if (func_name == "selected_real_kind") {
+                            // TODO: Be more standards compliant 16.9.170
+                            // e.g. selected_real_kind(6, 70)
+                            if (args.n == 1 && ASR::is_a<ASR::Integer_t>(*func_type)) {
+                                int64_t kind_val {4}, R {4};
+                                R = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(func_expr))->m_n;
+                                if (R >= 7) { // > ?
+                                   kind_val = 8;
+                                }
+                                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, kind_val, func_type));
+                            } else {
+                                throw SemanticError(func_name + " must have only one integer argument", x.base.base.loc);
                             }
                         }
                     }
