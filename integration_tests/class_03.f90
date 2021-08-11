@@ -21,8 +21,8 @@ program hr_code
     type(person) :: jack
     type(employee) :: jill
     jack = person( "Jack", "Smith", 1984, "M" )
-    ! jill = employee( person( "Jill", "Smith", 1984, "F" ), 2003, "sales" )
+    jill = employee( person( "Jill", "Smith", 1984, "F" ), 2003, "sales" )
     
-    ! print *, jack%first, jack%last
-    ! print *, jill%person%first, jill%person%last, jill%department
+    print *, jack%first, jack%last, jack%birthyear, jack%sgender
+    print *, jill%person%first, jill%person%last, jill%person%birthyear, jill%person%sgender, jill%department, jill%hire_date
 end program hr_code

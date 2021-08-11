@@ -50,6 +50,7 @@
 #include <lfortran/pass/nested_vars.h>
 #include <lfortran/pass/print_arr.h>
 #include <lfortran/pass/arr_slice.h>
+#include <lfortran/pass/class_constructor.h>
 #include <lfortran/exception.h>
 #include <lfortran/asr_utils.h>
 #include <lfortran/pickle.h>
@@ -425,6 +426,10 @@ public:
                     case ASR::ttypeType::Complex: {
                         int a_kind = down_cast<ASR::Complex_t>(member->m_type)->m_kind;
                         mem_type = getComplexType(a_kind);
+                        break;
+                    }
+                    case ASR::ttypeType::Character: {
+                        mem_type = character_type;
                         break;
                     }
                     default:
@@ -3274,6 +3279,7 @@ std::unique_ptr<LLVMModule> asr_to_llvm(ASR::TranslationUnit_t &asr,
     pass_replace_param_to_const(al, asr);
     // Uncomment for debugging the ASR after the transformation
     // std::cout << pickle(asr) << std::endl;
+    pass_replace_class_constructor(al, asr);
     pass_replace_implied_do_loops(al, asr);
     pass_replace_arr_slice(al, asr);
     pass_replace_array_op(al, asr);
