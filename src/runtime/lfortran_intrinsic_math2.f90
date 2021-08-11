@@ -97,9 +97,26 @@ end function
 ! 		sin(x) = x + (S1*x + (x! (r-y/2)+y))
 
 elemental real(dp) function dsin(x) result(r)
+real(dp), parameter :: pi = 3.1415926535897932384626433832795_dp
 real(dp), intent(in) :: x
-! TODO: implement the reduction
-r = kernel_dsin(x, 0.0_dp, 0)
+real(dp) :: y(2)
+integer :: n
+if (abs(x) < pi/4) then
+    r = kernel_dsin(x, 0.0_dp, 0)
+else
+    y(1) = modulo(x, pi/2)
+    n = (x-y(1)) / (pi/2)
+    select case (modulo(n, 4))
+        case (0)
+            r =  kernel_dsin(y(1), y(2), 1)
+        case (1)
+            r =  kernel_dcos(y(1), y(2))
+        case (2)
+            r = -kernel_dsin(y(1), y(2), 1)
+        case default
+            r = -kernel_dcos(y(1), y(2))
+    end select
+end if
 end function
 
 elemental real(dp) function kernel_dsin(x, y, iy) result(res)
@@ -125,6 +142,11 @@ if (iy == 0) then
 else
     res = x-((z*(half*y-v*r)-y)-v*S1)
 end if
+end function
+
+elemental real(dp) function kernel_dcos(x, y) result(res)
+real(dp), intent(in) :: x, y
+error stop "cos not implemented"
 end function
 
 
