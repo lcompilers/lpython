@@ -1919,53 +1919,19 @@ void set_m_trivia(stmt_t *s, trivia_t *trivia) {
     }
 }
 
-void set_trivia(Allocator &al, ast_t *ast, ast_t *trivia) {
-    if(trivia != nullptr) {
-        stmt_t *s = down_cast<stmt_t>(ast);
-        TriviaNode_t *t = down_cast2<TriviaNode_t>(trivia);
-        trivia_t *tt = down_cast<trivia_t>(trivia);
-        Vec<trivia_node_t*> v;
-        v.reserve(al, t->n_after);
-        for (size_t i=0; i<t->n_after; i++) {
-            v.push_back(al, t->m_after[i]);
-        }
-        if (v.size() > 0) {
-            t->n_after = v.size();
-            t->m_after = v.p;
-            set_m_trivia(s, tt);
-        }
-    }
-}
-
-ast_t* set_trivia1(Allocator &al, Location &l,
+ast_t* set_trivia(Allocator &al, Location &l,
         trivia_node_t** m_t1, size_t n_t1,
         trivia_node_t** m_t2, size_t n_t2) {
-    Vec<trivia_node_t*> v1, v2;
-    v2.reserve(al, n_t2);
-    if(m_t1 == nullptr) {
-        v1.p = nullptr;
-        v1.n = 0;
-    } else {
-        if (n_t1 == 1 && is_a<EndOfLine_t>(*m_t1[0])) {
-            v1.p = nullptr;
-            v1.n = 0;
-        } else {
-            v1.reserve(al, n_t1);
-            for (size_t i=0; i < n_t1; i++) {
-                v1.push_back(al, m_t1[i]);
-            }
-        }
+    if(m_t1 == nullptr || (n_t1 == 1 && is_a<EndOfLine_t>(*m_t1[0]))) {
+        m_t1 = nullptr;
+        n_t1 = 0;
     }
     if (n_t2 == 1 && is_a<EndOfLine_t>(*m_t2[0])) {
-        v2.p = nullptr;
-        v2.n = 0;
-    } else {
-        for (size_t i=0; i < n_t2; i++) {
-            v2.push_back(al, m_t2[i]);
-        }
+        m_t2 = nullptr;
+        n_t2 = 0;
     }
-    if(v1.n > 0 || v2.n > 0){
-        return make_TriviaNode_t(al, l, v1.p, v1.n, v2.p, v2.n);
+    if(n_t1 > 0 || n_t2 > 0){
+        return make_TriviaNode_t(al, l, m_t1, n_t1, m_t2, n_t2);
     } else {
         return nullptr;
     }
@@ -1976,11 +1942,12 @@ ast_t* set_trivia1(Allocator &al, Location &l,
 #define COMMENT(cmt, l) make_Comment_t(p.m_a, l, cmt.c_str(p.m_a))
 #define EOLCOMMENT(cmt, l) make_EOLComment_t(p.m_a, l, cmt.c_str(p.m_a))
 
-#define TRIVIA_(stmt, x) set_trivia(p.m_a, stmt, x)
-#define TRIVIA(x, y, l) set_trivia1(p.m_a, l, \
+#define TRIVIA_(stmt, trivia) if(trivia != nullptr) \
+        set_m_trivia(down_cast<stmt_t>(stmt), down_cast<trivia_t>(trivia));
+#define TRIVIA(x, y, l) set_trivia(p.m_a, l, \
         VEC_CAST(x, trivia_node), x.size(), \
         VEC_CAST(y, trivia_node), y.size())
-#define TRIVIA_AFTER(x, l) set_trivia1(p.m_a, l, nullptr, 0, \
+#define TRIVIA_AFTER(x, l) set_trivia(p.m_a, l, nullptr, 0, \
         VEC_CAST(x, trivia_node), x.size())
 
 #endif
