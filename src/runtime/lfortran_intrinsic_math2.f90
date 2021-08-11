@@ -107,11 +107,11 @@ real(dp), intent(in) :: x, y
 integer, intent(in) :: iy
 real(dp), parameter :: half = 5.00000000000000000000e-01_dp
 real(dp), parameter :: S1 = -1.66666666666666324348e-01_dp
-real(dp), parameter :: S2  =  8.33333333332248946124e-03_dp
-real(dp), parameter :: S3  = -1.98412698298579493134e-04_dp
-real(dp), parameter :: S4  =  2.75573137070700676789e-06_dp
-real(dp), parameter :: S5  = -2.50507602534068634195e-08_dp
-real(dp), parameter :: S6  =  1.58969099521155010221e-10_dp
+real(dp), parameter :: S2 =  8.33333333332248946124e-03_dp
+real(dp), parameter :: S3 = -1.98412698298579493134e-04_dp
+real(dp), parameter :: S4 =  2.75573137070700676789e-06_dp
+real(dp), parameter :: S5 = -2.50507602534068634195e-08_dp
+real(dp), parameter :: S6 =  1.58969099521155010221e-10_dp
 real(dp) :: z, r, v
 if (abs(x) < 2.0_dp**(-27)) then
     res = x
