@@ -1946,7 +1946,7 @@ ast_t* set_trivia1(Allocator &al, Location &l,
         v1.p = nullptr;
         v1.n = 0;
     } else {
-        if (n_t1 == 1 && is_a<EmptyLines_t>(*m_t1[0])) {
+        if (n_t1 == 1 && is_a<EndOfLine_t>(*m_t1[0])) {
             v1.p = nullptr;
             v1.n = 0;
         } else {
@@ -1956,7 +1956,7 @@ ast_t* set_trivia1(Allocator &al, Location &l,
             }
         }
     }
-    if (n_t2 == 1 && is_a<EmptyLines_t>(*m_t2[0])) {
+    if (n_t2 == 1 && is_a<EndOfLine_t>(*m_t2[0])) {
         v2.p = nullptr;
         v2.n = 0;
     } else {
@@ -1971,7 +1971,7 @@ ast_t* set_trivia1(Allocator &al, Location &l,
     }
 }
 
-#define NEWLINE(l) make_EmptyLines_t(p.m_a, l)
+#define NEWLINE(l) make_EndOfLine_t(p.m_a, l)
 #define SEMICOLON(l) make_Semicolon_t(p.m_a, l)
 #define COMMENT(cmt, l) make_Comment_t(p.m_a, l, cmt.c_str(p.m_a))
 #define EOLCOMMENT(cmt, l) make_EOLComment_t(p.m_a, l, cmt.c_str(p.m_a))

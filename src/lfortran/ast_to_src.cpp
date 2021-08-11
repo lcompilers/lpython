@@ -229,7 +229,7 @@ public:
                         r += "\n";
                         break;
                     }
-                    case trivia_nodeType::EmptyLines: {
+                    case trivia_nodeType::EndOfLine: {
                         if(i == 0) r += "\n";
                         r += "\n";
                         break;
@@ -266,7 +266,7 @@ public:
                         r += "\n";
                         break;
                     }
-                    case trivia_nodeType::EmptyLines: {
+                    case trivia_nodeType::EndOfLine: {
                         r += "\n";
                         break;
                     }
