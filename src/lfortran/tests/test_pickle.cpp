@@ -145,7 +145,7 @@ TEST_CASE("Multiple units") {
     ; y = z+1)";
     results = LFortran::parse(al, s);
     CHECK(results->n_items == 2);
-    CHECK(LFortran::pickle(*results->m_items[0]) == "(= 0 x (+ x 1) (TriviaNode [] [(Semicolon) (EmptyLines) (EmptyLines) (Semicolon)]))");
+    CHECK(LFortran::pickle(*results->m_items[0]) == "(= 0 x (+ x 1) (TriviaNode [] [(Semicolon) (EndOfLine) (EndOfLine) (Semicolon)]))");
     CHECK(LFortran::pickle(*results->m_items[1]) == "(= 0 y (+ z 1) ())");
 
     s = R"(x+1

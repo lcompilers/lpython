@@ -214,7 +214,7 @@ trivia
 trivia_node
     = Comment(string comment)
     | EOLComment(string comment)
-    | EmptyLines() -- Will be renamed to EndOfLine()
+    | EndOfLine()
     | Semicolon()
 
 boolop = And | Or | Eqv | NEqv
