@@ -1118,6 +1118,17 @@ asr = true
 filename = "../integration_tests/floor_02.f90"
 asr = true
 
+# int (body)
+[[test]]
+filename = "../integration_tests/int_01.f90"
+asr = true
+
+# int (symboltable)
+[[test]]
+filename = "../integration_tests/int_02.f90"
+asr = true
+
+
 [[test]]
 filename = "../integration_tests/intrinsics_open_close_read_write.f90"
 asr = true

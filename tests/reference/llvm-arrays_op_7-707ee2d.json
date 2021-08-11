@@ -6,7 +6,11 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "llvm-arrays_op_7-707ee2d.stdout",
+<<<<<<< HEAD
     "stdout_hash": "dd3e6c56a5cd1c63806db3b00b9a41ba9dea4c5f0f9bdb5aeba53006",
+=======
+    "stdout_hash": "e1e62e9e3fc277dd1188550d6e771d66866719817c1610f40ff275ff",
+>>>>>>> 6f89ee7d (tests: Pass)
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

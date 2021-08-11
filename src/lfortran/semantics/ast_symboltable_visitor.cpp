@@ -947,7 +947,7 @@ public:
                     int int_kind = ASRUtils::extract_kind_from_ttype_t(int_type);
                     if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*int_type)) {
                         if (int_kind == 4){
-                            int32_t ival = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(int_expr))->m_n;
+                            int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(int_expr))->m_n;
                             value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, int_type));
                         } else {
                             int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(int_expr))->m_n;
@@ -958,7 +958,7 @@ public:
                         if (int_kind == 4){
                             float rv = ASR::down_cast<ASR::ConstantReal_t>(
                                 LFortran::ASRUtils::expr_value(int_expr))->m_r;
-                            int32_t ival = static_cast<int32_t>(rv);
+                            int64_t ival = static_cast<int64_t>(rv);
                             value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, int_type));
                         } else {
                             double rv = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(int_expr))->m_r;

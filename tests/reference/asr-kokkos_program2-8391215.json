@@ -6,7 +6,11 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-kokkos_program2-8391215.stdout",
+<<<<<<< HEAD
     "stdout_hash": "e89ff517dea41824c177c60ca3a0bf4b7192af543e7873a5a323a1bc",
+=======
+    "stdout_hash": "deed1e4b0a1a12e9e13beb64d7bf841b684f28207b0e99e54cd9d7e6",
+>>>>>>> 6f89ee7d (tests: Pass)
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

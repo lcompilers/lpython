@@ -25,7 +25,11 @@ declare i32 @__module_lfortran_intrinsic_array_abs(%array*)
 
 declare i1 @__module_lfortran_intrinsic_array_allocated(%array*)
 
+<<<<<<< HEAD
 declare i32 @__module_lfortran_intrinsic_array_floor(%array.0*, i32*)
+=======
+declare i32 @__module_lfortran_intrinsic_array_int(%array.0*, i32*)
+>>>>>>> 6f89ee7d (tests: Pass)
 
 define i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %x, i32* %dim) {
 .entry:

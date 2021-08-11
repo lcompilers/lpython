@@ -6,7 +6,11 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "llvm-allocate_02-63ca743.stdout",
+<<<<<<< HEAD
     "stdout_hash": "6400205e3cec642db8c80f013885720c54d352ec7b70a6ccae2a4535",
+=======
+    "stdout_hash": "c5a5c3f3b8587b9810ee5613a003acb67038131ed05dc6ae85f68aed",
+>>>>>>> 6f89ee7d (tests: Pass)
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

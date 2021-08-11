@@ -6,7 +6,11 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "cpp-kokkos_program1-574ddd8.stdout",
+<<<<<<< HEAD
     "stdout_hash": "10e5ddcfa43a05137a31facf3f20ec83908511220c9adb993268d0bc",
+=======
+    "stdout_hash": "642407223961edfa7e25786db62d440dc1f2c60a9d0d9e79adec429b",
+>>>>>>> 6f89ee7d (tests: Pass)
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

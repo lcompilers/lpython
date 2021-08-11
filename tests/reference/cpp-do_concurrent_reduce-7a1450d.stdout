@@ -25,10 +25,17 @@ bool allocated(const Kokkos::View<const int*> &x)
     return allocated;
 }
 
+<<<<<<< HEAD
 int floor(const Kokkos::View<const float*> &x, int kind)
 {
     int floor;
     return floor;
+=======
+int int(const Kokkos::View<const float*> &x, int kind)
+{
+    int int;
+    return int;
+>>>>>>> 6f89ee7d (tests: Pass)
 }
 
 int lbound(const Kokkos::View<const int*> &x, int dim)
