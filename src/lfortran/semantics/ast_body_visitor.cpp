@@ -845,8 +845,6 @@ public:
                 break;
             }
             case (ASR::symbolType::ClassProcedure) : {
-                ASR::ClassProcedure_t *p = ASR::down_cast<ASR::ClassProcedure_t>(original_sym);
-                // final_sym = current_scope->resolve_symbol(p->m_proc_name);
                 final_sym = original_sym;
                 original_sym = nullptr;
                 break;
