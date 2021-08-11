@@ -90,7 +90,7 @@ namespace {
             case (AST::symbolType::None) : return "";
             case (AST::symbolType::Arrow) : return " => ";
             case (AST::symbolType::Equal) : return " = ";
-            case (AST::symbolType::Asterisk) : return " *";
+            case (AST::symbolType::Asterisk) : return "*";
             case (AST::symbolType::DoubleAsterisk) : return "*(*)";
             case (AST::symbolType::Slash) : return "/";
         }
