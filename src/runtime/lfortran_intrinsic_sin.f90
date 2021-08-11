@@ -50,25 +50,16 @@ contains
 elemental real(dp) function dsin(x) result(r)
 real(dp), parameter :: pi = 3.1415926535897932384626433832795_dp
 real(dp), intent(in) :: x
-real(dp) :: y(2)
+real(dp) :: y
 integer :: n
 if (abs(x) < pi/4) then
     r = kernel_dsin(x, 0.0_dp, 0)
 else
-    y(1) = modulo(x, pi/2)
-    ! Note: this y(2) must be assigned using the __ieee754_rem_pio2 function
-    y(2) = 0
-    n = (x-y(1)) / (pi/2)
-    select case (modulo(n, 4))
-        case (0)
-            r =  kernel_dsin(y(1), y(2), 1)
-        case (1)
-            r =  kernel_dcos(y(1), y(2))
-        case (2)
-            r = -kernel_dsin(y(1), y(2), 1)
-        case default
-            r = -kernel_dcos(y(1), y(2))
-    end select
+    y = modulo(x, 2*pi)
+    y = min(y, pi - y)
+    y = max(y, -pi - y)
+    y = min(y, pi - y)
+    r = kernel_dsin(y, 0.0_dp, 0)
 end if
 end function
 
