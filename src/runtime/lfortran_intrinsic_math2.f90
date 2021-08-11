@@ -7,9 +7,9 @@ interface abs
     module procedure sabs, dabs
 end interface
 
-!interface sqrt
-!    module procedure ssqrt, dsqrt
-!end interface
+interface sqrt
+    module procedure ssqrt, dsqrt
+end interface
 
 
 contains
@@ -36,23 +36,23 @@ end function
 
 ! sqrt -------------------------------------------------------------------------
 
-!elemental real(sp) function ssqrt(x) result(r)
-!real(sp), intent(in) :: x
-!if (x >= 0) then
-!    r = x**(1._sp/2)
-!else
-!    error stop "sqrt(x) for x < 0 is not allowed"
-!end if
-!end function
+elemental real(sp) function ssqrt(x) result(r)
+real(sp), intent(in) :: x
+if (x >= 0) then
+    r = x**(1._sp/2)
+else
+    error stop "sqrt(x) for x < 0 is not allowed"
+end if
+end function
 
-!elemental real(dp) function dsqrt(x) result(r)
-!real(dp), intent(in) :: x
-!if (x >= 0) then
-!    r = x**(1._dp/2)
-!else
-!    error stop "sqrt(x) for x < 0 is not allowed"
-!end if
-!end function
+elemental real(dp) function dsqrt(x) result(r)
+real(dp), intent(in) :: x
+if (x >= 0) then
+    r = x**(1._dp/2)
+else
+    error stop "sqrt(x) for x < 0 is not allowed"
+end if
+end function
 
 
 end module
