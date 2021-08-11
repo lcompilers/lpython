@@ -1517,12 +1517,13 @@ public:
                                 }
                                 else if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*func_type)) {
                                     if (real_kind == 4){
-                                        int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(
+                                        int32_t rv = ASR::down_cast<ASR::ConstantInteger_t>(
                                             LFortran::ASRUtils::expr_value(real_expr))->m_n;
                                         float rr = static_cast<float>(rv);
                                         value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, rr, func_type));
                                     } else {
-                                        double rr = static_cast<double>(ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(real_expr))->m_n);
+                                        int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(real_expr))->m_n;
+                                        double rr = static_cast<double>(rv);
                                         value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, rr, func_type));
                                     }
                                 }
