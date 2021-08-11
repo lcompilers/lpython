@@ -46,6 +46,9 @@ define i32 @main() {
   %0 = getelementptr %Circle, %Circle* %c, i32 0, i32 0
   store float 1.500000e+00, float* %0, align 4
   call void @__module_class_circle1_circle_print(%Circle* %c)
+  %1 = getelementptr %Circle, %Circle* %c, i32 0, i32 0
+  store float 2.000000e+00, float* %1, align 4
+  call void @__module_class_circle1_circle_print(%Circle* %c)
   ret i32 0
 }
 
