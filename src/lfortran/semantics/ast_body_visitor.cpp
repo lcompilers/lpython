@@ -36,7 +36,7 @@ private:
         {"maxval", "lfortran_intrinsic_array"},
         {"real", "lfortran_intrinsic_array"},
         {"sum", "lfortran_intrinsic_array"},
-        {"abs", "lfortran_intrinsic_array"},
+        {"abs", "lfortran_intrinsic_math2"},
         {"real", "lfortran_intrinsic_array"},
         {"tiny", "lfortran_intrinsic_array"}
 };

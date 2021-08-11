@@ -37,47 +37,40 @@ if (WITH_STACKTRACE AND APPLE AND CMAKE_CXX_COMPILER_ID MATCHES Clang)
     endif()
 endif()
 
-add_custom_command(
-    TARGET lfortran
-    POST_BUILD
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../runtime
-    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/lfortran --backend=cpp -c ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/lfortran_intrinsic_array.f90 -o lfortran_intrinsic_array.o
+macro(LFORTRAN_COMPILE_RUNTIME name)
+    add_custom_command(
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../runtime/${name}.mod
+        COMMAND lfortran
+        ARGS --backend=cpp -c ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/${name}.f90 -o ${name}.o
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../runtime
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/${name}.f90 ${ARGN}
+        COMMENT "LFortran Compiling ${name}.f90")
+endmacro(LFORTRAN_COMPILE_RUNTIME)
+
+LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_array)
+LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_kind)
+LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_iso_fortran_env)
+LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_iso_c_binding)
+LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_math2
+  ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.mod
 )
 
-add_custom_command(
-    TARGET lfortran
-    POST_BUILD
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../runtime
-    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/lfortran --backend=cpp -c ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/lfortran_intrinsic_kind.f90 -o lfortran_intrinsic_kind.o
+add_custom_target(lfortran2
+    ALL
+    DEPENDS
+        ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_array.mod
+        ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_kind.mod
+        ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.mod
+        ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_c_binding.mod
+        ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_math2.mod
 )
-
-add_custom_command(
-    TARGET lfortran
-    POST_BUILD
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../runtime
-    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/lfortran --backend=cpp -c ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.f90 -o lfortran_intrinsic_iso_fortran_env.o
-)
-
-add_custom_command(
-    TARGET lfortran
-    POST_BUILD
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../runtime
-    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/lfortran --backend=cpp -c ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/lfortran_intrinsic_iso_c_binding.f90 -o lfortran_intrinsic_iso_c_binding.o
-)
-
-# add_custom_command(
-#     TARGET lfortran
-#     POST_BUILD
-#     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../runtime
-#     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/lfortran --backend=cpp -c ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/lfortran_intrinsic_math.f90 -o lfortran_intrinsic_math.o
-# )
 
 install(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_array.mod
           ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_kind.mod
           ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.mod
           ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_c_binding.mod
-          # ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_math.mod
+          ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_math2.mod
     DESTINATION share/lfortran/lib
 )
 
