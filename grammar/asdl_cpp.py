@@ -760,7 +760,9 @@ class SerializationVisitorVisitor(ASDLVisitor):
             if field.seq:
                 self.emit('self().write_int64(x.n_%s);' % field.name, level)
                 self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
-                if field.type in sums:
+                if field.type == "symbol":
+                    self.emit("self().write_symbol(*x.m_%s[i]);" % (field.name), level+1)
+                elif field.type in sums:
                     self.emit("self().visit_%s(*x.m_%s[i]);" % (field.type, field.name), level+1)
                 else:
                     self.emit("self().visit_%s(x.m_%s[i]);" % (field.type, field.name), level+1)
@@ -1013,8 +1015,11 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                     if f.type in products:
                         lines.append("    v_%s.push_back(al, self().deserialize_%s());" % (f.name, f.type))
                     else:
-                        lines.append("    v_%s.push_back(al, %s::down_cast<%s::%s_t>(self().deserialize_%s()));" % (f.name,
-                            subs["mod"].upper(), subs["mod"].upper(), f.type, f.type))
+                        if f.type == "symbol":
+                            lines.append("    v_%s.push_back(al, self().read_symbol());" % (f.name))
+                        else:
+                            lines.append("    v_%s.push_back(al, %s::down_cast<%s::%s_t>(self().deserialize_%s()));" % (f.name,
+                                subs["mod"].upper(), subs["mod"].upper(), f.type, f.type))
                     lines.append("}")
                 else:
                     if f.type == "node":

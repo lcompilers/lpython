@@ -44,7 +44,7 @@ declare i32 @__module_lfortran_intrinsic_array_min(i32*, i32*)
 
 declare i32 @__module_lfortran_intrinsic_array_minval(%array*)
 
-declare i32 @__module_lfortran_intrinsic_array_real(%array*, i32*)
+declare float @__module_lfortran_intrinsic_array_real(%array*, i32*)
 
 define i32 @__module_lfortran_intrinsic_array_size(%size_arg* %x) {
 .entry:
@@ -82,7 +82,7 @@ loop.end:                                         ; preds = %loop.head
 
 declare i32 @__module_lfortran_intrinsic_array_sum(%array*)
 
-declare i32 @__module_lfortran_intrinsic_array_tiny(%array*)
+declare float @__module_lfortran_intrinsic_array_tiny(%array*)
 
 define i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %x, i32* %dim) {
 .entry:

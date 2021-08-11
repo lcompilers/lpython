@@ -12,13 +12,14 @@ select rank (x)
         error stop "process bad arg"
 end select
 return
-end subroutine process
+end subroutine process 
+
 
 subroutine initialize(arg, size)
 real, contiguous :: arg(..)
 integer :: size, i
 select rank (arg)
-    rank (0)
+    rank (0) ! special case the scalar case
         arg = 0.0
     rank (*)
         do i = 1, size

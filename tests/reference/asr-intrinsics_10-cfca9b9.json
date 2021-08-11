@@ -1,0 +1,13 @@
+{
+    "basename": "asr-intrinsics_10-cfca9b9",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/intrinsics_10.f90",
+    "infile_hash": "574d28f0c6b85cf1bd1263ef8530e069cbe07753791f9e8bec6d939e",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-intrinsics_10-cfca9b9.stdout",
+    "stdout_hash": "c8cb76a70c8d3ad070e1354ae0af0bc922c90b5609365623df4ae8ea",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

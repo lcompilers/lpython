@@ -8,7 +8,8 @@ A = 10
 B = 20
 call pass()
 stop
-end program common1
+end program common1 
+
 
 subroutine pass()
 real :: A, B

@@ -179,12 +179,17 @@ RUN(NAME intrinsics_06 LABELS gfortran llvm) # inverse trignometric
 RUN(NAME intrinsics_07 LABELS gfortran) # kind
 RUN(NAME intrinsics_08 LABELS gfortran) # tiny symboltable
 RUN(NAME intrinsics_09 LABELS gfortran) # tiny body
+RUN(NAME intrinsics_10 LABELS gfortran) # real body
+RUN(NAME intrinsics_11 LABELS gfortran) # real symboltable
+RUN(NAME intrinsics_12 LABELS gfortran) # kind body
+RUN(NAME intrinsics_13 LABELS gfortran) # kind symboltable
+RUN(NAME intrinsics_14 LABELS gfortran) # selected_real,int_kind body
 RUN(NAME intrinsics_open_close_read_write LABELS gfortran)
 
 RUN(NAME parameter_01 LABELS gfortran)
 RUN(NAME parameter_02 LABELS gfortran)
 RUN(NAME parameter_03 LABELS gfortran llvm)
-RUN(NAME parameter_04 LABELS gfortran llvm)
+RUN(NAME parameter_04 LABELS gfortran llvm) # selected_real,int_kind symboltable
 
 RUN(NAME modules_01 LABELS gfortran llvm)
 RUN(NAME modules_02 LABELS gfortran llvm)
@@ -201,6 +206,7 @@ RUN(NAME modules_10 LABELS gfortran llvm)
 RUN(NAME modules_11 LABELS gfortran llvm)
 RUN(NAME modules_12 LABELS gfortran)
 RUN(NAME modules_13 LABELS gfortran llvm)
+RUN(NAME modules_14 LABELS gfortran llvm EXTRAFILES modules_14_a.f90)
 
 RUN(NAME if_04 LABELS gfortran x86)
 RUN(NAME case_01 LABELS gfortran llvm)
@@ -224,17 +230,20 @@ RUN(NAME parsing_01 LABELS gfortran)
 RUN(NAME parsing_02 LABELS gfortran)
 RUN(NAME parsing_03 LABELS gfortran llvm)
 
-RUN(NAME interface_01 LABELS gfortran)
-RUN(NAME interface_02 LABELS gfortran)
+RUN(NAME interface_01 LABELS gfortran llvm)
+RUN(NAME interface_02 LABELS gfortran llvm)
 RUN(NAME interface_03 LABELS gfortran)
-RUN(NAME interface_04 LABELS gfortran)
+RUN(NAME interface_04 LABELS gfortran llvm)
+RUN(NAME interface_05 LABELS gfortran llvm)
+RUN(NAME interface_06 LABELS gfortran)
+RUN(NAME interface_07 LABELS gfortran llvm)
 
 RUN(NAME types_07 LABELS gfortran)
 RUN(NAME types_08 LABELS gfortran)
 RUN(NAME types_09 LABELS gfortran)
 RUN(NAME types_10 LABELS gfortran)
 RUN(NAME types_11 LABELS gfortran)
-RUN(NAME types_12 LABELS gfortran)
+RUN(NAME types_12 LABELS gfortran llvm)
 RUN(NAME types_13 LABELS gfortran)
 
 RUN(NAME complex_01 LABELS gfortran)
@@ -284,6 +293,8 @@ RUN(NAME int_dp_param LABELS gfortran llvm)
 RUN(NAME complex_dp LABELS gfortran llvm)
 RUN(NAME bin_op_complex_dp LABELS gfortran llvm)
 RUN(NAME complex_dp_param LABELS gfortran llvm)
+RUN(NAME const_kind_01 LABELS gfortran llvm)
+RUN(NAME const_kind_02 LABELS gfortran llvm)
 
 RUN(NAME string1 LABELS gfortran llvm cpp)
 RUN(NAME string2 LABELS gfortran llvm)
@@ -316,3 +327,8 @@ RUN(NAME return_03 LABELS gfortran llvm)
 RUN(NAME class_01 LABELS gfortran llvm)
 RUN(NAME class_02 LABELS gfortran llvm)
 RUN(NAME class_03 LABELS gfortran llvm)
+
+RUN(NAME test_iso_c_binding LABELS gfortran llvm)
+RUN(NAME test_iso_fortran_env LABELS gfortran llvm)
+
+RUN(NAME abs_01 LABELS gfortran)

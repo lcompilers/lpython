@@ -761,6 +761,10 @@ filename = "../integration_tests/interface_04.f90"
 asr = true
 
 [[test]]
+filename = "../integration_tests/interface_05.f90"
+asr = true
+
+[[test]]
 filename = "../integration_tests/if_04.f90"
 ast = true
 
@@ -1061,6 +1065,31 @@ asr = true
 # tiny (body)
 [[test]]
 filename = "../integration_tests/intrinsics_09.f90"
+asr = true
+
+# real (body)
+[[test]]
+filename = "../integration_tests/intrinsics_10.f90"
+asr = true
+
+# real (symboltable)
+[[test]]
+filename = "../integration_tests/intrinsics_11.f90"
+asr = true
+
+# kind (body)
+[[test]]
+filename = "../integration_tests/intrinsics_12.f90"
+asr = true
+
+# kind (symboltable)
+[[test]]
+filename = "../integration_tests/intrinsics_13.f90"
+asr = true
+
+# selected_int,real_kind (parameter_04 has symboltable)
+[[test]]
+filename = "../integration_tests/intrinsics_14.f90"
 asr = true
 
 [[test]]
@@ -1392,3 +1421,15 @@ ast = true
 [[test]]
 filename = "comments1.f90"
 ast = true
+
+[[test]]
+filename = "constant_kinds.f90"
+asr = true
+
+[[test]]
+filename = "../integration_tests/const_kind_01.f90"
+asr = true
+
+[[test]]
+filename = "../integration_tests/const_kind_02.f90"
+asr = true

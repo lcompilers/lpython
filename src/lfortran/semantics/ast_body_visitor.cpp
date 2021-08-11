@@ -37,6 +37,7 @@ private:
         {"real", "lfortran_intrinsic_array"},
         {"sum", "lfortran_intrinsic_array"},
         {"abs", "lfortran_intrinsic_array"},
+        {"real", "lfortran_intrinsic_array"},
         {"tiny", "lfortran_intrinsic_array"}
 };
 
@@ -914,6 +915,12 @@ public:
                 if (argument_types_match(args, *sub)) {
                     return i;
                 }
+            } else if (ASR::is_a<ASR::Function_t>(*p.m_procs[i])) {
+                ASR::Function_t *fn
+                    = ASR::down_cast<ASR::Function_t>(p.m_procs[i]);
+                if (argument_types_match(args, *fn)) {
+                    return i;
+                }
             } else {
                 throw SemanticError("Only Subroutine supported in generic procedure", loc);
             }
@@ -921,8 +928,9 @@ public:
         throw SemanticError("Arguments do not match", loc);
     }
 
+    template <typename T>
     bool argument_types_match(const Vec<ASR::expr_t*> &args,
-            const ASR::Subroutine_t &sub) {
+            const T &sub) {
         if (args.size() == sub.n_args) {
             for (size_t i=0; i < args.size(); i++) {
                 ASR::Variable_t *v = LFortran::ASRUtils::EXPR2VAR(sub.m_args[i]);
@@ -1153,6 +1161,51 @@ public:
         }
     }
 
+    void symbol_resolve_generic_procedure(
+            ASR::symbol_t *v,
+            const AST::FuncCallOrArray_t &x
+            ) {
+        ASR::ExternalSymbol_t *p = ASR::down_cast<ASR::ExternalSymbol_t>(v);
+        ASR::symbol_t *f2 = ASR::down_cast<ASR::ExternalSymbol_t>(v)->m_external;
+        ASR::GenericProcedure_t *g = ASR::down_cast<ASR::GenericProcedure_t>(f2);
+        Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
+        int idx = select_generic_procedure(args, *g, x.base.base.loc);
+        ASR::symbol_t *final_sym;
+        final_sym = g->m_procs[idx];
+        if (!ASR::is_a<ASR::Function_t>(*final_sym)) {
+            throw SemanticError("ExternalSymbol must point to a Function", x.base.base.loc);
+        }
+        ASR::ttype_t *return_type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(final_sym)->m_return_var)->m_type;
+        // Create ExternalSymbol for the final subroutine:
+        // We mangle the new ExternalSymbol's local name as:
+        //   generic_procedure_local_name @
+        //     specific_procedure_remote_name
+        std::string local_sym = std::string(p->m_name) + "@"
+            + LFortran::ASRUtils::symbol_name(final_sym);
+        if (current_scope->scope.find(local_sym)
+            == current_scope->scope.end()) {
+            Str name;
+            name.from_str(al, local_sym);
+            char *cname = name.c_str(al);
+            ASR::asr_t *sub = ASR::make_ExternalSymbol_t(
+                al, g->base.base.loc,
+                /* a_symtab */ current_scope,
+                /* a_name */ cname,
+                final_sym,
+                p->m_module_name, LFortran::ASRUtils::symbol_name(final_sym),
+                ASR::accessType::Private
+                );
+            final_sym = ASR::down_cast<ASR::symbol_t>(sub);
+            current_scope->scope[local_sym] = final_sym;
+        } else {
+            final_sym = current_scope->scope[local_sym];
+        }
+        ASR::expr_t *value = nullptr;
+        tmp = ASR::make_FunctionCall_t(al, x.base.base.loc,
+            final_sym, v, args.p, args.size(), nullptr, 0, return_type,
+            value, nullptr);
+    }
+
     void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
         std::vector<std::string> all_intrinsics = {
             "sin",  "cos",  "tan",  "sinh",  "cosh",  "tanh",
@@ -1190,6 +1243,29 @@ public:
                 if (!t) {
                     throw SemanticError("The symbol '" + remote_sym
                         + "' not found in the module '" + module_name + "'",
+                        x.base.base.loc);
+                }
+                if (ASR::is_a<ASR::GenericProcedure_t>(*t)) {
+                    ASR::GenericProcedure_t *gp = ASR::down_cast<ASR::GenericProcedure_t>(t);
+                    ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
+                        al, gp->base.base.loc,
+                        /* a_symtab */ current_scope,
+                        /* a_name */ gp->m_name,
+                        (ASR::symbol_t*)gp,
+                        m->m_name, gp->m_name,
+                        ASR::accessType::Private
+                        );
+                    std::string sym = gp->m_name;
+                    current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
+                    symbol_resolve_generic_procedure(
+                        ASR::down_cast<ASR::symbol_t>(fn), x);
+                    return;
+                }
+
+                if (!ASR::is_a<ASR::Function_t>(*t)) {
+                    throw SemanticError("The symbol '" + remote_sym
+                        + "' found in the module '" + module_name + "', "
+                        + "but it is not a function.",
                         x.base.base.loc);
                 }
 
@@ -1333,6 +1409,19 @@ public:
                     v_expr);
                 break;
             }
+            case (ASR::symbolType::GenericProcedure) : {
+                ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(v);
+                Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
+                int idx = select_generic_procedure(args, *p, x.base.base.loc);
+                ASR::symbol_t *final_sym = p->m_procs[idx];
+
+                ASR::ttype_t *type;
+                type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(final_sym)->m_return_var)->m_type;
+                tmp = ASR::make_FunctionCall_t(al, x.base.base.loc,
+                    final_sym, v, args.p, args.size(), nullptr, 0, type, nullptr,
+                    v_expr);
+                break;
+            }
             case (ASR::symbolType::ExternalSymbol) : {
                 ASR::symbol_t *f2 = ASR::down_cast<ASR::ExternalSymbol_t>(v)->m_external;
                 LFORTRAN_ASSERT(f2);
@@ -1345,7 +1434,10 @@ public:
                     // Only populate for supported intrinsic functions
                     if (intrinsic_procedures.find(func_name)
                         != intrinsic_procedures.end()) { // Got an intrinsic, now try to assign value
-                        ASR::ttype_t *func_type = LFortran::ASRUtils::expr_type(args[0]);
+                        ASR::expr_t* func_expr = args[0];
+                        ASR::ttype_t *func_type = LFortran::ASRUtils::expr_type(func_expr);
+                        // TODO: This ordering is terrible; falls through in an arbitrary manner
+                        // Should be in a hash table or something
                         if (func_name == "tiny") {
                             if (args.n == 1) {
                                 if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*func_type)) {
@@ -1367,6 +1459,87 @@ public:
                                 }
                             } else {
                                 throw SemanticError("tiny must have only one argument", x.base.base.loc);
+                            }
+                        }
+                        else if (func_name == "real") {
+                            if (args.n == 1) {
+                                ASR::expr_t* real_expr = args[0];
+                                int real_kind = LFortran::ASRUtils::extract_kind_from_ttype_t(func_type);
+                                if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*func_type)) {
+                                    if (real_kind == 4){
+                                        float rr = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(real_expr))->m_r;
+                                        value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, rr, func_type));
+                                    } else {
+                                        double rr = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(real_expr))->m_r;
+                                        value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, rr, func_type));
+                                    }
+                                }
+                                else if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*func_type)) {
+                                    if (real_kind == 4){
+                                        int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(
+                                            LFortran::ASRUtils::expr_value(real_expr))->m_n;
+                                        float rr = static_cast<float>(rv);
+                                        value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, rr, func_type));
+                                    } else {
+                                        double rr = static_cast<double>(ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(real_expr))->m_n);
+                                        value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, rr, func_type));
+                                    }
+                                }
+                                // TODO: Handle BOZ later
+                                // else if () {
+
+                                // }
+                            } else {
+                                throw SemanticError("real must have only one argument", x.base.base.loc);
+                            }
+                        }
+                        else if (func_name == "kind") {
+                            if (args.n == 1) {
+                                int64_t kind_val {4};
+                                if (ASR::is_a<ASR::ConstantLogical_t>(*func_expr)){
+                                    kind_val = ASR::down_cast<ASR::Logical_t>(ASR::down_cast<ASR::ConstantLogical_t>(func_expr)->m_type)->m_kind;
+                                }
+                                else if (ASR::is_a<ASR::ConstantReal_t>(*func_expr)){
+                                    kind_val = ASR::down_cast<ASR::Real_t>(ASR::down_cast<ASR::ConstantReal_t>(func_expr)->m_type)->m_kind;
+                                }
+                                else if (ASR::is_a<ASR::ConstantInteger_t>(*func_expr)){
+                                    kind_val = ASR::down_cast<ASR::Integer_t>(ASR::down_cast<ASR::ConstantInteger_t>(func_expr)->m_type)->m_kind;
+                                }
+                                else if (ASR::is_a<ASR::Var_t>(*func_expr)) {
+                                    kind_val = ASRUtils::extract_kind(func_expr, x.base.base.loc);
+                                }
+                                else {
+                                    throw SemanticError("kind supports Real, Integer, Logical and things which reduce to the same", x.base.base.loc);
+                                }
+                                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, kind_val, func_type));
+                            } else {
+                                throw SemanticError("kind must have only one argument", x.base.base.loc);
+                            }
+                        }
+                        else if (func_name == "selected_int_kind") {
+                            if (args.n == 1 && ASR::is_a<ASR::Integer_t>(*func_type)) {
+                                int64_t kind_val {4}, R {4};
+                                R = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(func_expr))->m_n;
+                                if (R >= 10) { // > ?
+                                   kind_val = 8;
+                                }
+                                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, kind_val, func_type));
+                            } else {
+                                throw SemanticError(func_name + " must have only one integer argument", x.base.base.loc);
+                            }
+                        }
+                        else if (func_name == "selected_real_kind") {
+                            // TODO: Be more standards compliant 16.9.170
+                            // e.g. selected_real_kind(6, 70)
+                            if (args.n == 1 && ASR::is_a<ASR::Integer_t>(*func_type)) {
+                                int64_t kind_val {4}, R {4};
+                                R = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(func_expr))->m_n;
+                                if (R >= 7) { // > ?
+                                   kind_val = 8;
+                                }
+                                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, kind_val, func_type));
+                            } else {
+                                throw SemanticError(func_name + " must have only one integer argument", x.base.base.loc);
                             }
                         }
                     }
@@ -1408,6 +1581,8 @@ public:
                                                             nullptr, 0));
                     tmp = ASR::make_DerivedTypeConstructor_t(al, x.base.base.loc,
                             v, vals.p, vals.size(), der);
+                } else if (ASR::is_a<ASR::GenericProcedure_t>(*f2)) {
+                    symbol_resolve_generic_procedure(v, x);
                 } else {
                     throw SemanticError("Unimplemented", x.base.base.loc);
                 }
@@ -1462,8 +1637,39 @@ public:
     }
 
     void visit_Num(const AST::Num_t &x) {
-        ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                4, nullptr, 0));
+        int ikind = 4;
+        if (x.m_kind) {
+            ikind = std::atoi(x.m_kind);
+            if (ikind == 0) {
+                std::string var_name = x.m_kind;
+                ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
+                if (v) {
+                    const ASR::symbol_t *v3 = LFortran::ASRUtils::symbol_get_past_external(v);
+                    if (ASR::is_a<ASR::Variable_t>(*v3)) {
+                        ASR::Variable_t *v2 = ASR::down_cast<ASR::Variable_t>(v3);
+                        if (v2->m_value) {
+                            if (ASR::is_a<ASR::ConstantInteger_t>(*v2->m_value)) {
+                                ikind = ASR::down_cast<ASR::ConstantInteger_t>(v2->m_value)->m_n;
+                            } else {
+                                throw SemanticError("Variable '" + var_name + "' is constant but not an integer",
+                                    x.base.base.loc);
+                            }
+                        } else {
+                            throw SemanticError("Variable '" + var_name + "' is not constant",
+                                x.base.base.loc);
+                        }
+                    } else {
+                        throw SemanticError("Symbol '" + var_name + "' is not a variable",
+                            x.base.base.loc);
+                    }
+                } else {
+                    throw SemanticError("Variable '" + var_name + "' not declared",
+                        x.base.base.loc);
+                }
+            }
+        }
+        ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al,
+                x.base.base.loc, ikind, nullptr, 0));
         if (BigInt::is_int_ptr(x.m_n)) {
             throw SemanticError("Integer constants larger than 2^62-1 are not implemented yet", x.base.base.loc);
         } else {
@@ -1489,10 +1695,38 @@ public:
     }
 
     void visit_Real(const AST::Real_t &x) {
-        int a_kind = ASRUtils::extract_kind(x.m_n);
         double r = ASRUtils::extract_real(x.m_n);
+        char* s_kind;
+        int r_kind = ASRUtils::extract_kind_str(x.m_n, s_kind);
+        if (r_kind == 0) {
+            std::string var_name = s_kind;
+            ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
+            if (v) {
+                const ASR::symbol_t *v3 = LFortran::ASRUtils::symbol_get_past_external(v);
+                if (ASR::is_a<ASR::Variable_t>(*v3)) {
+                    ASR::Variable_t *v2 = ASR::down_cast<ASR::Variable_t>(v3);
+                    if (v2->m_value) {
+                        if (ASR::is_a<ASR::ConstantInteger_t>(*v2->m_value)) {
+                            r_kind = ASR::down_cast<ASR::ConstantInteger_t>(v2->m_value)->m_n;
+                        } else {
+                            throw SemanticError("Variable '" + var_name + "' is constant but not an integer",
+                                x.base.base.loc);
+                        }
+                    } else {
+                        throw SemanticError("Variable '" + var_name + "' is not constant",
+                            x.base.base.loc);
+                    }
+                } else {
+                    throw SemanticError("Symbol '" + var_name + "' is not a variable",
+                        x.base.base.loc);
+                }
+            } else {
+                throw SemanticError("Variable '" + var_name + "' not declared",
+                    x.base.base.loc);
+            }
+        }
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
-                a_kind, nullptr, 0));
+                r_kind, nullptr, 0));
         tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, r, type);
     }
 
