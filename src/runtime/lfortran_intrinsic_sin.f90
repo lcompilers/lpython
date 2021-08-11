@@ -56,6 +56,7 @@ if (abs(x) < pi/4) then
     r = kernel_dsin(x, 0.0_dp, 0)
 else
     y(1) = modulo(x, pi/2)
+    y(2) = 0
     n = (x-y(1)) / (pi/2)
     select case (modulo(n, 4))
         case (0)
