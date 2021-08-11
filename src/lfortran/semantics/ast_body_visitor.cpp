@@ -811,6 +811,7 @@ public:
     }
 
     void visit_SubroutineCall(const AST::SubroutineCall_t &x) {
+        SymbolTable* scope = current_scope;
         std::string sub_name = x.m_name;
         ASR::symbol_t *original_sym;
         ASR::expr_t *v_expr = nullptr;
@@ -821,7 +822,7 @@ public:
             ASR::asr_t *v_var = ASR::make_Var_t(al, x.base.base.loc, v);
             v_expr = LFortran::ASRUtils::EXPR(v_var);
             original_sym = resolve_deriv_type_proc(x.base.base.loc, x.m_name,
-                x.m_member[0].m_name, current_scope);
+                x.m_member[0].m_name, scope);
         } else {
             original_sym = current_scope->resolve_symbol(sub_name);
         }
@@ -844,7 +845,9 @@ public:
             }
             case (ASR::symbolType::ClassProcedure) : {
                 ASR::ClassProcedure_t *p = ASR::down_cast<ASR::ClassProcedure_t>(original_sym);
-                final_sym = current_scope->resolve_symbol(p->m_proc_name);
+                // final_sym = current_scope->resolve_symbol(p->m_proc_name);
+                final_sym = original_sym;
+                original_sym = nullptr;
                 break;
             }
             case (ASR::symbolType::ExternalSymbol) : {

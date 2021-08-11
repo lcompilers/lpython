@@ -31,8 +31,9 @@ program circle_test
   implicit none
 
   type(Circle) :: c     ! Declare a variable of type Circle.
-  !c = Circle(1.5)       ! Use the implicit constructor, radius = 1.5.
+  c = Circle(1.5)       ! Use the implicit constructor, radius = 1.5.
+  call c%print          ! Call the type-bound subroutine
   !c = Circle       ! Works in gfortran, but not ifort or flang
-  c%radius = 1.5
+  c%radius = 2.0
   call c%print          ! Call the type-bound subroutine
 end program circle_test

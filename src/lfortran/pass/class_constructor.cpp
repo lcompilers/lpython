@@ -94,8 +94,6 @@ public:
     }
 
     void visit_DerivedTypeConstructor(const ASR::DerivedTypeConstructor_t &x) {
-        ASR::expr_t* dt_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc,
-                                                                       x.m_dt_sym));
         ASR::Derived_t* dt_der = down_cast<ASR::Derived_t>(x.m_type);
         ASR::DerivedType_t* dt_dertype = (ASR::DerivedType_t*)(&(
                                          LFortran::ASRUtils::symbol_get_past_external(dt_der->m_derived_type)->base));
