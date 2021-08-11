@@ -3,8 +3,8 @@
    (Subroutine 
       g [] [] () 
       (TriviaNode [] [
-         (EmptyLines) 
-         (EmptyLines)]) [] [] [] [
+         (EndOfLine) 
+         (EndOfLine)]) [] [] [] [
       (Declaration 
          (AttrType 
             TypeInteger [] () 
