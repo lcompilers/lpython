@@ -1,6 +1,6 @@
 program test_sin2
 use iso_fortran_env, only: dp => real64
-use lfortran_intrinsic_math2, only: sin
+use lfortran_intrinsic_sin, only: sin
 implicit none
 real(dp) :: x
 x = sin(1.5_dp)
