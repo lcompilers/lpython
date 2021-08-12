@@ -1,3 +1,7 @@
+#include <math.h>
+
+#define __HI(x) *(1+(int*)&x)
+#define __LO(x) *(int*)&x
 
 /* @(#)k_rem_pio2.c 1.3 95/01/18 */
 /*
@@ -127,7 +131,7 @@
  * to produce the hexadecimal values shown.
  */
 
-#include "fdlibm.h"
+//#include "fdlibm.h"
 
 #ifdef __STDC__
 static const int init_jk[] = {2,3,4,6}; /* initial value for jk */
@@ -336,7 +340,7 @@ recompute:
  * use __kernel_rem_pio2()
  */
 
-#include "fdlibm.h"
+//#include "fdlibm.h"
 
 /*
  * Table of constants for 2/pi, 396 Hex digits (476 decimal) of 2/pi 
@@ -387,9 +391,9 @@ static const double
 #else
 static double 
 #endif
-zero =  0.00000000000000000000e+00, /* 0x00000000, 0x00000000 */
+//zero =  0.00000000000000000000e+00, /* 0x00000000, 0x00000000 */
 half =  5.00000000000000000000e-01, /* 0x3FE00000, 0x00000000 */
-two24 =  1.67772160000000000000e+07, /* 0x41700000, 0x00000000 */
+//two24 =  1.67772160000000000000e+07, /* 0x41700000, 0x00000000 */
 invpio2 =  6.36619772367581382433e-01, /* 0x3FE45F30, 0x6DC9C883 */
 pio2_1  =  1.57079632673412561417e+00, /* 0x3FF921FB, 0x54400000 */
 pio2_1t =  6.07710050650619224932e-11, /* 0x3DD0B461, 0x1A626331 */
