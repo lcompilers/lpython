@@ -3,6 +3,7 @@ source_filename = "LFortran"
 
 %array = type { i32*, i32, [1 x %dimension_descriptor] }
 %dimension_descriptor = type { i32, i32, i32, i32 }
+%array.0 = type { float*, i32, [1 x %dimension_descriptor] }
 %size_arg = type { %dimension_descriptor*, i32 }
 %array_call = type { float*, i32, [1 x %dimension_descriptor] }
 %array.1 = type { [3 x float], i32, [1 x %dimension_descriptor] }
@@ -16,6 +17,8 @@ source_filename = "LFortran"
 declare i32 @__module_lfortran_intrinsic_array_abs(%array*)
 
 declare i1 @__module_lfortran_intrinsic_array_allocated(%array*)
+
+declare i32 @__module_lfortran_intrinsic_array_floor(%array.0*, i32*)
 
 define i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %x, i32* %dim) {
 .entry:
