@@ -253,35 +253,63 @@ end if
 end function
 
 elemental real(dp) function kernel_dsin2(x) result(res)
-  real(dp), intent(in) :: x
-  real(dp), parameter :: C1 = 2.0612613395817811826e-18_dp
-  real(dp), parameter :: C2 = 0.9999999999999990771_dp
-  real(dp), parameter :: C3 = -1.1326311799469310948e-16_dp
-  real(dp), parameter :: C4 = -0.16666666666664811048_dp
-  real(dp), parameter :: C5 = 4.0441204087065883493e-16_dp
-  real(dp), parameter :: C6 = 8.333333333226519387e-3_dp
-  real(dp), parameter :: C7 = -5.1082355103624979855e-16_dp
-  real(dp), parameter :: C8 = -1.9841269813888534497e-4_dp
-  real(dp), parameter :: C9 = 3.431131630096384069e-16_dp
-  real(dp), parameter :: C10 = 2.7557315514280769795e-6_dp
-  real(dp), parameter :: C11 = -1.6713014856642339287e-16_dp
-  real(dp), parameter :: C12 = -2.5051823583393710429e-8_dp
-  real(dp), parameter :: C13 = 6.6095338377356955055e-17_dp
-  real(dp), parameter :: C14 = 1.6046585911173017112e-10_dp
-  real(dp), parameter :: C15 = -1.6627129557672300738e-17_dp
-  real(dp), parameter :: C16 = -7.3572396558796051923e-13_dp
-  real(dp), parameter :: C17 = 1.7462917763807982697e-18
-  ! Remez16
-  res = C1 + x * (C2 + x * &
-       (C3 + x * (C4 + x * &
-       (C5 + x * (C6 + x * &
-       (C7 + x * (C8 + x * &
-       (C9 + x * (C10 + x * &
-       (C11 + x * (C12 + x * &
-       (C13 + x * (C14 + x * &
-       (C15 + x * (C16 + x * C17)))))))))))))))
-  ! Chebyshev32
-  ! res = 2.1355496357691975886e-20_dp + x * (1.0000000000000000063_dp + x * (-9.004255532791894035e-18_dp + x * (-0.16666666666666708032_dp + x * (3.9332705471670443079e-16_dp + x * (8.333333333341355733e-3_dp + x * (-6.9028665221660691874e-15_dp + x * (-1.9841269848665583425e-4_dp + x * (6.1976058203375757744e-14_dp + x * (2.7557323147213076849e-6_dp + x * (-3.2138655682600360264e-13_dp + x * (-2.5053432626865828714e-8_dp + x * (1.0468987330682077985e-12_dp + x * (1.6360972193468943658e-10_dp + x * (-2.2731120913506430714e-12_dp + x * (-5.5906235858164260444e-12_dp + x * (3.425556604867707744e-12_dp + x * (5.532635689918605909e-12_dp + x * (-3.6764276518941318983e-12_dp + x * (-4.5930955707654957942e-12_dp + x * (2.8488303025191868967e-12_dp + x * (2.7673107200394155003e-12_dp + x * (-1.59803409654352135405e-12_dp + x * (-1.1963665142242100106e-12_dp + x * (6.4277391325110941334e-13_dp + x * (3.6143518894425348369e-13_dp + x * (-1.8071233122115074043e-13_dp + x * (-7.2405073651171420086e-14_dp + x * (3.3717669642454825042e-14_dp + x * (8.63748093603347239e-15_dp + x * (-3.751088768577678467e-15_dp + x * (-4.642806182921299547e-16_dp + x * 1.8832379977836398444e-16)))))))))))))))))))))))))))))))
+real(dp), intent(in) :: x
+real(dp), parameter :: C1 = 2.0612613395817811826e-18_dp
+real(dp), parameter :: C2 = 0.9999999999999990771_dp
+real(dp), parameter :: C3 = -1.1326311799469310948e-16_dp
+real(dp), parameter :: C4 = -0.16666666666664811048_dp
+real(dp), parameter :: C5 = 4.0441204087065883493e-16_dp
+real(dp), parameter :: C6 = 8.333333333226519387e-3_dp
+real(dp), parameter :: C7 = -5.1082355103624979855e-16_dp
+real(dp), parameter :: C8 = -1.9841269813888534497e-4_dp
+real(dp), parameter :: C9 = 3.431131630096384069e-16_dp
+real(dp), parameter :: C10 = 2.7557315514280769795e-6_dp
+real(dp), parameter :: C11 = -1.6713014856642339287e-16_dp
+real(dp), parameter :: C12 = -2.5051823583393710429e-8_dp
+real(dp), parameter :: C13 = 6.6095338377356955055e-17_dp
+real(dp), parameter :: C14 = 1.6046585911173017112e-10_dp
+real(dp), parameter :: C15 = -1.6627129557672300738e-17_dp
+real(dp), parameter :: C16 = -7.3572396558796051923e-13_dp
+real(dp), parameter :: C17 = 1.7462917763807982697e-18_dp
+! Remez16
+res = C1  + x * (C2  + x * &
+     (C3  + x * (C4  + x * &
+     (C5  + x * (C6  + x * &
+     (C7  + x * (C8  + x * &
+     (C9  + x * (C10 + x * &
+     (C11 + x * (C12 + x * &
+     (C13 + x * (C14 + x * &
+     (C15 + x * (C16 + x * C17)))))))))))))))
+end function
+
+elemental real(dp) function kernel_dcos2(x) result(res)
+real(dp), intent(in) :: x
+real(dp), parameter :: C1 = 0.99999999999999999317_dp
+real(dp), parameter :: C2 = 4.3522024034217346524e-18_dp
+real(dp), parameter :: C3 = -0.49999999999999958516_dp
+real(dp), parameter :: C4 = -8.242872826356848038e-17_dp
+real(dp), parameter :: C5 = 4.166666666666261697e-2_dp
+real(dp), parameter :: C6 = 4.0485005435941782636e-16_dp
+real(dp), parameter :: C7 = -1.3888888888731381616e-3_dp
+real(dp), parameter :: C8 = -8.721570096570797013e-16_dp
+real(dp), parameter :: C9 = 2.4801587270604889267e-5_dp
+real(dp), parameter :: C10 = 9.352687193379247843e-16_dp
+real(dp), parameter :: C11 = -2.7557315787234544468e-7_dp
+real(dp), parameter :: C12 = -5.2320806585871644286e-16_dp
+real(dp), parameter :: C13 = 2.0876532326120694722e-9_dp
+real(dp), parameter :: C14 = 1.4637857803935104813e-16_dp
+real(dp), parameter :: C15 = -1.146215379106821115e-11_dp
+real(dp), parameter :: C16 = -1.6185683697669940221e-17_dp
+real(dp), parameter :: C17 = 4.6012969591571265687e-14_dp
+! Remez16
+res = C1  + x * (C2  + x * &
+     (C3  + x * (C4  + x * &
+     (C5  + x * (C6  + x * &
+     (C7  + x * (C8  + x * &
+     (C9  + x * (C10 + x * &
+     (C11 + x * (C12 + x * &
+     (C13 + x * (C14 + x * &
+     (C15 + x * (C16 + x * C17)))))))))))))))
 end function
 
 end module
