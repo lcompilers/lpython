@@ -20,7 +20,7 @@ do i = 1, 2000
 end do
 print *
 print *, "Maximum error:", err_max
-if (err_max > 1e-9_dp) error stop "Maximum error too large"
+if (err_max > 1e-15_dp) error stop "Maximum error too large"
 
 ! Large number
 x = 2e10_dp+0.5_dp
