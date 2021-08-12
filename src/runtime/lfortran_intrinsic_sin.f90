@@ -237,7 +237,6 @@ end function
 !                          value                    gfortran sin             lfortran sin              absolute error
 
 elemental real(dp) function dsin2(x) result(r)
-real(dp), parameter :: pi = 3.1415926535897932384626433832795_dp
 real(dp), intent(in) :: x
 real(dp) :: y
 integer :: n
