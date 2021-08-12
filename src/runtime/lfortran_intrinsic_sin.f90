@@ -253,23 +253,23 @@ end function
 
 elemental real(dp) function kernel_dsin2(x) result(res)
 real(dp), intent(in) :: x
-real(dp), parameter :: C1 = 2.0612613395817811826e-18_dp
+real(dp), parameter :: C1 = 0
 real(dp), parameter :: C2 = 0.9999999999999990771_dp
-real(dp), parameter :: C3 = -1.1326311799469310948e-16_dp
+real(dp), parameter :: C3 = 0
 real(dp), parameter :: C4 = -0.16666666666664811048_dp
-real(dp), parameter :: C5 = 4.0441204087065883493e-16_dp
+real(dp), parameter :: C5 = 0
 real(dp), parameter :: C6 = 8.333333333226519387e-3_dp
-real(dp), parameter :: C7 = -5.1082355103624979855e-16_dp
+real(dp), parameter :: C7 = 0
 real(dp), parameter :: C8 = -1.9841269813888534497e-4_dp
-real(dp), parameter :: C9 = 3.431131630096384069e-16_dp
+real(dp), parameter :: C9 = 0
 real(dp), parameter :: C10 = 2.7557315514280769795e-6_dp
-real(dp), parameter :: C11 = -1.6713014856642339287e-16_dp
+real(dp), parameter :: C11 = 0
 real(dp), parameter :: C12 = -2.5051823583393710429e-8_dp
-real(dp), parameter :: C13 = 6.6095338377356955055e-17_dp
+real(dp), parameter :: C13 = 0
 real(dp), parameter :: C14 = 1.6046585911173017112e-10_dp
-real(dp), parameter :: C15 = -1.6627129557672300738e-17_dp
+real(dp), parameter :: C15 = 0
 real(dp), parameter :: C16 = -7.3572396558796051923e-13_dp
-real(dp), parameter :: C17 = 1.7462917763807982697e-18_dp
+real(dp), parameter :: C17 = 0
 ! Remez16
 res = C1  + x * (C2  + x * &
      (C3  + x * (C4  + x * &
