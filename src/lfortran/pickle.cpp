@@ -5,6 +5,7 @@
 #include <lfortran/parser/parser.h>
 #include <lfortran/parser/parser.tab.hh>
 #include <lfortran/asr_utils.h>
+#include <lfortran/string_utils.h>
 
 using LFortran::AST::ast_t;
 using LFortran::AST::Declaration_t;
@@ -194,6 +195,8 @@ class ASRPickleVisitor :
     public LFortran::ASR::PickleBaseVisitor<ASRPickleVisitor>
 {
 public:
+    bool show_intrinsic_modules;
+
     std::string get_str() {
         return s;
     }
@@ -231,18 +234,40 @@ public:
         this->visit_ttype(*x.m_type);
         s.append(")");
     }
+    void visit_Module(const ASR::Module_t &x) {
+        if (!show_intrinsic_modules &&
+                    startswith(x.m_name, "lfortran_intrinsic_")) {
+            s.append("(");
+            if (use_colors) {
+                s.append(color(style::bold));
+                s.append(color(fg::magenta));
+            }
+            s.append("IntrinsicModule");
+            if (use_colors) {
+                s.append(color(fg::reset));
+                s.append(color(style::reset));
+            }
+            s.append(" ");
+            s.append(x.m_name);
+            s.append(")");
+        } else {
+            LFortran::ASR::PickleBaseVisitor<ASRPickleVisitor>::visit_Module(x);
+        };
+    }
 };
 
-std::string pickle(LFortran::ASR::asr_t &asr, bool colors, bool indent) {
+std::string pickle(LFortran::ASR::asr_t &asr, bool colors, bool indent,
+        bool show_intrinsic_modules) {
     ASRPickleVisitor v;
     v.use_colors = colors;
     v.indent = indent;
+    v.show_intrinsic_modules = show_intrinsic_modules;
     v.visit_asr(asr);
     return v.get_str();
 }
 
-std::string pickle(LFortran::ASR::TranslationUnit_t &asr, bool colors, bool indent) {
-    return pickle((ASR::asr_t &)asr, colors, indent);
+std::string pickle(LFortran::ASR::TranslationUnit_t &asr, bool colors, bool indent, bool show_intrinsic_modules) {
+    return pickle((ASR::asr_t &)asr, colors, indent, show_intrinsic_modules);
 }
 
 }

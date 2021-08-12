@@ -454,7 +454,8 @@ int python_wrapper(const std::string &infile, std::string /*array_order*/)
 }
 
 int emit_asr(const std::string &infile, bool colors,
-    const std::vector<ASRPass> &passes, bool indent)
+    const std::vector<ASRPass> &passes, bool indent,
+    bool with_intrinsic_modules)
 {
     std::string input = read_file(infile);
 
@@ -510,7 +511,8 @@ int emit_asr(const std::string &infile, bool colors,
             default : throw LFortran::LFortranException("Pass not implemened");
         }
     }
-    std::cout << LFortran::pickle(*asr, colors, indent) << std::endl;
+    std::cout << LFortran::pickle(*asr, colors, indent,
+            with_intrinsic_modules) << std::endl;
     return 0;
 }
 
@@ -1008,6 +1010,7 @@ int main(int argc, char *argv[])
         bool show_tokens = false;
         bool show_ast = false;
         bool show_asr = false;
+        bool with_intrinsic_modules = false;
         bool show_ast_f90 = false;
         std::string arg_pass;
         bool arg_no_color = false;
@@ -1056,6 +1059,7 @@ int main(int argc, char *argv[])
         app.add_flag("--show-tokens", show_tokens, "Show tokens for the given file and exit");
         app.add_flag("--show-ast", show_ast, "Show AST for the given file and exit");
         app.add_flag("--show-asr", show_asr, "Show ASR for the given file and exit");
+        app.add_flag("--with-intrinsic-modules", with_intrinsic_modules, "Show intrinsic modules in ASR");
         app.add_flag("--show-ast-f90", show_ast_f90, "Show Fortran from AST for the given file and exit");
         app.add_flag("--no-color", arg_no_color, "Turn off colored AST/ASR");
         app.add_flag("--indent", arg_indent, "Indented print ASR/AST");
@@ -1253,7 +1257,8 @@ int main(int argc, char *argv[])
             show_asr = true;
         }
         if (show_asr) {
-            return emit_asr(arg_file, !arg_no_color, passes, arg_indent);
+            return emit_asr(arg_file, !arg_no_color, passes, arg_indent,
+                    with_intrinsic_modules);
         }
         if (show_llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
