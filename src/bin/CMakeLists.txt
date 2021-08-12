@@ -37,6 +37,12 @@ if (WITH_STACKTRACE AND APPLE AND CMAKE_CXX_COMPILER_ID MATCHES Clang)
     endif()
 endif()
 
+add_custom_command(
+    TARGET lfortran
+    POST_BUILD
+    COMMAND cmake -E remove -f ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_*.mod
+)
+
 macro(LFORTRAN_COMPILE_RUNTIME name)
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../runtime/${name}.mod
