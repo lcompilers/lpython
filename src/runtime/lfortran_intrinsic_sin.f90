@@ -131,9 +131,69 @@ else
 end if
 end function
 
+! __kernel_cos( x,  y )
+! https://www.netlib.org/fdlibm/k_cos.c
+! kernel cos function on [-pi/4, pi/4], pi/4 ~ 0.785398164
+! Input x is assumed to be bounded by ~pi/4 in magnitude.
+! Input y is the tail of x.
+!
+! Algorithm
+!	1. Since cos(-x) = cos(x), we need only to consider positive x.
+!	2. if x < 2^-27 (hx<0x3e400000 0), return 1 with inexact if x!=0.
+!	3. cos(x) is approximated by a polynomial of degree 14 on
+!	   [0,pi/4]
+!		  	                 4            14
+!	   	cos(x) ~ 1 - x*x/2 + C1*x + ... + C6*x
+!	   where the remez error is
+!
+! 	|              2     4     6     8     10    12     14 |     -58
+! 	|cos(x)-(1-.5*x +C1*x +C2*x +C3*x +C4*x +C5*x  +C6*x  )| <= 2
+! 	|    					               |
+!
+! 	               4     6     8     10    12     14
+!	4. let r = C1*x +C2*x +C3*x +C4*x +C5*x  +C6*x  , then
+!	       cos(x) = 1 - x*x/2 + r
+!	   since cos(x+y) ~ cos(x) - sin(x)*y
+!			  ~ cos(x) - x*y,
+!	   a correction term is necessary in cos(x) and hence
+!		cos(x+y) = 1 - (x*x/2 - (r - x*y))
+!	   For better accuracy when x > 0.3, let qx = |x|/4 with
+!	   the last 32 bits mask off, and if x > 0.78125, let qx = 0.28125.
+!	   Then
+!		cos(x+y) = (1-qx) - ((x*x/2-qx) - (r-x*y)).
+!	   Note that 1-qx and (x*x/2-qx) is EXACT here, and the
+!	   magnitude of the latter is at least a quarter of x*x/2,
+!	   thus, reducing the rounding error in the subtraction.
+
+
 elemental real(dp) function kernel_dcos(x, y) result(res)
 real(dp), intent(in) :: x, y
-error stop "cos not implemented"
+real(dp), parameter :: one=  1.00000000000000000000e+00_dp
+real(dp), parameter :: C1 =  4.16666666666666019037e-02_dp
+real(dp), parameter :: C2 = -1.38888888888741095749e-03_dp
+real(dp), parameter :: C3 =  2.48015872894767294178e-05_dp
+real(dp), parameter :: C4 = -2.75573143513906633035e-07_dp
+real(dp), parameter :: C5 =  2.08757232129817482790e-09_dp
+real(dp), parameter :: C6 = -1.13596475577881948265e-11_dp
+real(dp) :: z, r, qx, hz, a
+if (abs(x) < 2.0_dp**(-27)) then
+    res = one
+    return
+end if
+z = x*x
+r  = z*(C1+z*(C2+z*(C3+z*(C4+z*(C5+z*C6)))))
+if (abs(x) < 0.3_dp) then
+    res = one - (0.5_dp*z - (z*r - x*y))
+else
+    if (abs(x) > 0.78125_dp) then
+        qx = 0.28125_dp
+    else
+        qx = abs(x)/4
+    end if
+    hz = 0.5_dp*z-qx
+    a  = one-qx
+    res = a - (hz - (z*r-x*y))
+end if
 end function
 
 
