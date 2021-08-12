@@ -240,15 +240,11 @@ elemental real(dp) function dsin2(x) result(r)
 real(dp), intent(in) :: x
 real(dp) :: y
 integer :: n
-if (abs(x) < pi/2) then
-    r = kernel_dsin2(x)
-else ! fold into [-pi/2, pi/2]
-    y = modulo(x, 2*pi)
-    y = min(y, pi - y)
-    y = max(y, -pi - y)
-    y = min(y, pi - y)
-    r = kernel_dsin2(y)
-end if
+y = modulo(x, 2*pi)
+y = min(y, pi - y)
+y = max(y, -pi - y)
+y = min(y, pi - y)
+r = kernel_dsin2(y)
 end function
 
 ! Accurate on [-pi/2,pi/2] to about 1e-16
