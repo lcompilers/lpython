@@ -21,4 +21,13 @@ end do
 print *
 print *, "Maximum error:", err_max
 if (err_max > 1e-9_dp) error stop "Maximum error too large"
+
+! Large number
+x = 2e10_dp
+s1 = sin2(x); s2 = sin(x); err = abs(s1-s2)
+print *, x, err
+
+x = 2e40_dp
+s1 = sin2(x); s2 = sin(x); err = abs(s1-s2)
+print *, x, err
 end program
