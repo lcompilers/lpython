@@ -34,6 +34,7 @@ set(SRC
     ../lfortran_intrinsic_math.f90
     ../lfortran_intrinsic_math2.f90
     ../lfortran_intrinsic_sin.f90
+    ../lfortran_intrinsic_sin_c.c
     ../lfortran_intrinsic_kind.f90
     ../lfortran_intrinsic_array.f90
     ../lfortran_intrinsic_iso_fortran_env.f90

@@ -196,11 +196,6 @@ else
 end if
 end function
 
-! __ieee754_rem_pio2(x,y)
-! https://www.netlib.org/fdlibm/e_rem_pio2.c
-!
-! return the remainder of x rem pi/2 in y[0]+y[1]
-! use __kernel_rem_pio2()
 
 integer function rem_pio2(x, y) result(n)
 ! Computes 128bit float approximation of modulo(x, pi/2) returned
@@ -215,12 +210,16 @@ integer function rem_pio2(x, y) result(n)
 ! higher accuracy.
 real(dp), intent(in) :: x
 real(dp), intent(out) :: y(2)
-! TODO: for now we only implement a 64bit float approximation
-! and we set y(2) to zero. This causes the sin function to sometimes be
-! only 1e-9 accurate.
-y(1) = modulo(x, pi/2)
-y(2) = 0
-n = (x-y(1)) / (pi/2)
+
+interface
+    integer(c_int) function ieee754_rem_pio2(x, y) bind(c)
+    use iso_c_binding, only: c_double, c_int
+    real(c_double), value, intent(in) :: x
+    real(c_double), intent(out) :: y(2)
+    end function
+end interface
+
+n = ieee754_rem_pio2(x, y)
 end function
 
 end module
