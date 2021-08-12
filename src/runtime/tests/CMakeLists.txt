@@ -32,6 +32,8 @@ message("Installation prefix: ${CMAKE_INSTALL_PREFIX}")
 set(SRC
     ../lfortran_intrinsics.c
     ../lfortran_intrinsic_math.f90
+    ../lfortran_intrinsic_math2.f90
+    ../lfortran_intrinsic_sin.f90
     ../lfortran_intrinsic_kind.f90
     ../lfortran_intrinsic_array.f90
     ../lfortran_intrinsic_iso_fortran_env.f90
@@ -48,6 +50,7 @@ endmacro(ADDTEST)
 
 ADDTEST(test_abs)
 ADDTEST(test_sin)
+ADDTEST(test_sin2)
 ADDTEST(test_cos)
 ADDTEST(test_tan)
 ADDTEST(test_hyperbolics)
