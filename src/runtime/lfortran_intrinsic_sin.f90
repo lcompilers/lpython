@@ -251,6 +251,7 @@ else ! fold into [-pi/2, pi/2]
 end if
 end function
 
+! Accurate on [-pi/2,pi/2] to about 1e-16
 elemental real(dp) function kernel_dsin2(x) result(res)
 real(dp), intent(in) :: x
 real(dp), parameter :: S1 = 0.9999999999999990771_dp
