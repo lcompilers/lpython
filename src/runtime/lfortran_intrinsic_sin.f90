@@ -1,10 +1,14 @@
 module lfortran_intrinsic_sin
 use, intrinsic :: iso_fortran_env, only: sp => real32, dp => real64
 implicit none
+private
+public sin
 
 interface sin
     module procedure dsin
 end interface
+
+real(dp), parameter :: pi = 3.1415926535897932384626433832795_dp
 
 contains
 
@@ -51,18 +55,14 @@ contains
 !
 
 
-elemental real(dp) function dsin(x) result(r)
-real(dp), parameter :: pi = 3.1415926535897932384626433832795_dp
+real(dp) function dsin(x) result(r)
 real(dp), intent(in) :: x
 real(dp) :: y(2)
 integer :: n
 if (abs(x) < pi/4) then
     r = kernel_dsin(x, 0.0_dp, 0)
 else
-    y(1) = modulo(x, pi/2)
-    ! Note: this y(2) must be assigned using the __ieee754_rem_pio2 function
-    y(2) = 0
-    n = (x-y(1)) / (pi/2)
+    n = rem_pio2(x, y)
     select case (modulo(n, 4))
         case (0)
             r =  kernel_dsin(y(1), y(2), 1)
@@ -196,5 +196,31 @@ else
 end if
 end function
 
+! __ieee754_rem_pio2(x,y)
+! https://www.netlib.org/fdlibm/e_rem_pio2.c
+!
+! return the remainder of x rem pi/2 in y[0]+y[1]
+! use __kernel_rem_pio2()
+
+integer function rem_pio2(x, y) result(n)
+! Computes 128bit float approximation of modulo(x, pi/2) returned
+! as the sum of two 64bit floating point numbers y(1)+y(2)
+! This function roughly implements:
+!   y(1) = modulo(x, pi/2)         ! 64bit float
+!   y(2) = modulo(x, pi/2) - y(1)  ! The exact tail
+!   n = (x-y(1)) / (pi/2)
+! The y(1) is the modulo, and y(2) is a tail. When added directly
+! as y(1) + y(2) it will be equal to just y(1) in 64bit floats, but
+! if used separately in polynomial approximations one can use y(2) to get
+! higher accuracy.
+real(dp), intent(in) :: x
+real(dp), intent(out) :: y(2)
+! TODO: for now we only implement a 64bit float approximation
+! and we set y(2) to zero. This causes the sin function to sometimes be
+! only 1e-9 accurate.
+y(1) = modulo(x, pi/2)
+y(2) = 0
+n = (x-y(1)) / (pi/2)
+end function
 
 end module
