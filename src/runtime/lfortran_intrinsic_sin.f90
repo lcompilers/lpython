@@ -10,7 +10,6 @@ contains
 
 ! sin --------------------------------------------------------------------------
 ! Our implementation here is based off of the C files from the Sun compiler
-! http://www.netlib.org/fdlibm/k_sin.c
 !
 ! Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
 !
@@ -19,33 +18,38 @@ contains
 ! software is freely granted, provided that this notice
 ! is preserved.
 
+! sin(x)
+! https://www.netlib.org/fdlibm/s_sin.c
+! Return sine function of x.
+!
+! kernel function:
+!	__kernel_sin		... sine function on [-pi/4,pi/4]
+!	__kernel_cos		... cose function on [-pi/4,pi/4]
+!	__ieee754_rem_pio2	... argument reduction routine
+!
+! Method.
+!      Let S,C and T denote the sin, cos and tan respectively on
+!	[-PI/4, +PI/4]. Reduce the argument x to y1+y2 = x-k*pi/2
+!	in [-pi/4 , +pi/4], and let n = k mod 4.
+!	We have
+!
+!          n        sin(x)      cos(x)        tan(x)
+!     ----------------------------------------------------------
+!          0          S           C             T
+!          1          C          -S            -1/T
+!          2         -S          -C             T
+!          3         -C           S            -1/T
+!     ----------------------------------------------------------
+!
+! Special cases:
+!      Let trig be any of sin, cos, or tan.
+!      trig(+-INF)  is NaN, with signals;
+!      trig(NaN)    is that NaN;
+!
+! Accuracy:
+!	TRIG(x) returns trig(x) nearly rounded
+!
 
-!  __kernel_sin( x, y, iy)
-!  kernel sin function on [-pi/4, pi/4], pi/4 ~ 0.7854
-!  Input x is assumed to be bounded by ~pi/4 in magnitude.
-!  Input y is the tail of x.
-!  Input iy indicates whether y is 0. (if iy=0, y assume to be 0).
-!
-!  Algorithm
-! 	1. Since sin(-x) = -sin(x), we need only to consider positive x.
-! 	2. if x < 2^-27 (hx<0x3e400000 0), return x with inexact if x!=0.
-! 	3. sin(x) is approximated by a polynomial of degree 13 on
-! 	   [0,pi/4]
-! 		  	         3            13
-! 	   	sin(x) ~ x + S1*x + ... + S6*x
-! 	   where
-!
-!  	|sin(x)         2     4     6     8     10     12  |     -58
-!  	|----- - (1+S1*x +S2*x +S3*x +S4*x +S5*x  +S6*x   )| <= 2
-!  	|  x 					           |
-!
-! 	4. sin(x+y) = sin(x) + sin'(x')*y
-! 		    ~ sin(x) + (1-x*x/2)*y
-! 	   For better accuracy, let
-! 		     3      2      2      2      2
-! 		r = x! (S2+x! (S3+x! (S4+x! (S5+x! S6))))
-! 	   then                   3    2
-! 		sin(x) = x + (S1*x + (x! (r-y/2)+y))
 
 elemental real(dp) function dsin(x) result(r)
 real(dp), parameter :: pi = 3.1415926535897932384626433832795_dp
@@ -71,6 +75,36 @@ else
     end select
 end if
 end function
+
+
+
+!  __kernel_sin( x, y, iy)
+! http://www.netlib.org/fdlibm/k_sin.c
+!  kernel sin function on [-pi/4, pi/4], pi/4 ~ 0.7854
+!  Input x is assumed to be bounded by ~pi/4 in magnitude.
+!  Input y is the tail of x.
+!  Input iy indicates whether y is 0. (if iy=0, y assume to be 0).
+!
+!  Algorithm
+! 	1. Since sin(-x) = -sin(x), we need only to consider positive x.
+! 	2. if x < 2^-27 (hx<0x3e400000 0), return x with inexact if x!=0.
+! 	3. sin(x) is approximated by a polynomial of degree 13 on
+! 	   [0,pi/4]
+! 		  	         3            13
+! 	   	sin(x) ~ x + S1*x + ... + S6*x
+! 	   where
+!
+!  	|sin(x)         2     4     6     8     10     12  |     -58
+!  	|----- - (1+S1*x +S2*x +S3*x +S4*x +S5*x  +S6*x   )| <= 2
+!  	|  x 					           |
+!
+! 	4. sin(x+y) = sin(x) + sin'(x')*y
+! 		    ~ sin(x) + (1-x*x/2)*y
+! 	   For better accuracy, let
+! 		     3      2      2      2      2
+! 		r = x! (S2+x! (S3+x! (S4+x! (S5+x! S6))))
+! 	   then                   3    2
+! 		sin(x) = x + (S1*x + (x! (r-y/2)+y))
 
 elemental real(dp) function kernel_dsin(x, y, iy) result(res)
 real(dp), intent(in) :: x, y
