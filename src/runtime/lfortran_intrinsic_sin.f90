@@ -62,7 +62,7 @@ integer :: n
 if (abs(x) < pi/4) then
     r = kernel_dsin(x, 0.0_dp, 0)
 else
-    n = rem_pio2(x, y)
+    n = rem_pio2_c(x, y)
     select case (modulo(n, 4))
         case (0)
             r =  kernel_dsin(y(1), y(2), 1)
@@ -197,7 +197,7 @@ end if
 end function
 
 
-integer function rem_pio2(x, y) result(n)
+integer function rem_pio2_c(x, y) result(n)
 ! Computes 128bit float approximation of modulo(x, pi/2) returned
 ! as the sum of two 64bit floating point numbers y(1)+y(2)
 ! This function roughly implements:
@@ -220,6 +220,125 @@ interface
 end interface
 
 n = ieee754_rem_pio2(x, y)
+end function
+
+
+! Our implementation here is designed around range reduction to [-pi/2, pi/2]
+! Subsequently, we fit a 64 bit precision polynomials via Sollya (https://www.sollya.org/)
+! -- Chebyshev (32 terms) --
+! This has a theoretical approximation error bound of [-7.9489615048122632526e-41;7.9489615048122632526e-41]
+! Due to rounding errors; we obtain a maximum error (w.r.t. gfortran) of ~ E-15 over [-10, 10]
+! -- Remez (16 terms) -- [DEFAULT] (fewer terms)
+! Due to rounding errors; we obtain a maximum error (w.r.t. gfortran) of ~ E-16 over [-10, 10]
+! For large values, e.g. 2E10 we have an absolute error of E-7
+! For huge(0) we have an absolute error of E-008
+! TODO: Deal with very large numbers; the errors get worse above 2E10
+! For huge(0.0) we have 3.4028234663852886E+038 -0.52187652333365853       0.99999251142364332        1.5218690347573018
+!                          value                    gfortran sin             lfortran sin              absolute error
+
+elemental real(dp) function dsin2(x) result(r)
+real(dp), parameter :: pi = 3.1415926535897932384626433832795_dp
+real(dp), intent(in) :: x
+real(dp) :: y
+integer :: n
+if (abs(x) < pi/2) then
+    r = kernel_dsin2(x)
+else ! fold into [-pi/2, pi/2]
+    y = modulo(x, 2*pi)
+    y = min(y, pi - y)
+    y = max(y, -pi - y)
+    y = min(y, pi - y)
+    r = kernel_dsin2(y)
+end if
+end function
+
+elemental real(dp) function kernel_dsin2(x) result(res)
+real(dp), intent(in) :: x
+real(dp), parameter :: C1 = 2.0612613395817811826e-18_dp
+real(dp), parameter :: C2 = 0.9999999999999990771_dp
+real(dp), parameter :: C3 = -1.1326311799469310948e-16_dp
+real(dp), parameter :: C4 = -0.16666666666664811048_dp
+real(dp), parameter :: C5 = 4.0441204087065883493e-16_dp
+real(dp), parameter :: C6 = 8.333333333226519387e-3_dp
+real(dp), parameter :: C7 = -5.1082355103624979855e-16_dp
+real(dp), parameter :: C8 = -1.9841269813888534497e-4_dp
+real(dp), parameter :: C9 = 3.431131630096384069e-16_dp
+real(dp), parameter :: C10 = 2.7557315514280769795e-6_dp
+real(dp), parameter :: C11 = -1.6713014856642339287e-16_dp
+real(dp), parameter :: C12 = -2.5051823583393710429e-8_dp
+real(dp), parameter :: C13 = 6.6095338377356955055e-17_dp
+real(dp), parameter :: C14 = 1.6046585911173017112e-10_dp
+real(dp), parameter :: C15 = -1.6627129557672300738e-17_dp
+real(dp), parameter :: C16 = -7.3572396558796051923e-13_dp
+real(dp), parameter :: C17 = 1.7462917763807982697e-18_dp
+! Remez16
+res = C1  + x * (C2  + x * &
+     (C3  + x * (C4  + x * &
+     (C5  + x * (C6  + x * &
+     (C7  + x * (C8  + x * &
+     (C9  + x * (C10 + x * &
+     (C11 + x * (C12 + x * &
+     (C13 + x * (C14 + x * &
+     (C15 + x * (C16 + x * C17)))))))))))))))
+end function
+
+elemental real(dp) function kernel_dcos2(x) result(res)
+real(dp), intent(in) :: x
+real(dp), parameter :: C1 = 0.99999999999999999317_dp
+real(dp), parameter :: C2 = 4.3522024034217346524e-18_dp
+real(dp), parameter :: C3 = -0.49999999999999958516_dp
+real(dp), parameter :: C4 = -8.242872826356848038e-17_dp
+real(dp), parameter :: C5 = 4.166666666666261697e-2_dp
+real(dp), parameter :: C6 = 4.0485005435941782636e-16_dp
+real(dp), parameter :: C7 = -1.3888888888731381616e-3_dp
+real(dp), parameter :: C8 = -8.721570096570797013e-16_dp
+real(dp), parameter :: C9 = 2.4801587270604889267e-5_dp
+real(dp), parameter :: C10 = 9.352687193379247843e-16_dp
+real(dp), parameter :: C11 = -2.7557315787234544468e-7_dp
+real(dp), parameter :: C12 = -5.2320806585871644286e-16_dp
+real(dp), parameter :: C13 = 2.0876532326120694722e-9_dp
+real(dp), parameter :: C14 = 1.4637857803935104813e-16_dp
+real(dp), parameter :: C15 = -1.146215379106821115e-11_dp
+real(dp), parameter :: C16 = -1.6185683697669940221e-17_dp
+real(dp), parameter :: C17 = 4.6012969591571265687e-14_dp
+! Remez16
+res = C1  + x * (C2  + x * &
+     (C3  + x * (C4  + x * &
+     (C5  + x * (C6  + x * &
+     (C7  + x * (C8  + x * &
+     (C9  + x * (C10 + x * &
+     (C11 + x * (C12 + x * &
+     (C13 + x * (C14 + x * &
+     (C15 + x * (C16 + x * C17)))))))))))))))
+end function
+
+real(dp) function dsin3(x) result(r)
+real(dp), intent(in) :: x
+real(dp) :: y
+integer :: n
+if (abs(x) < pi/4) then
+    r = kernel_dsin2(x)
+else
+    n = rem_pio2(x, y)
+    select case (modulo(n, 4))
+        case (0)
+            r =  kernel_dsin2(y)
+        case (1)
+            r =  kernel_dcos2(y)
+        case (2)
+            r = -kernel_dsin2(y)
+        case default
+            r = -kernel_dcos2(y)
+    end select
+end if
+end function
+
+integer function rem_pio2(x, y) result(n)
+real(dp), intent(in) :: x
+real(dp), intent(out) :: y
+y = modulo(x, pi/2)
+if (y > pi/4) y = y-pi/2
+n = (x-y) / (pi/2)
 end function
 
 end module
