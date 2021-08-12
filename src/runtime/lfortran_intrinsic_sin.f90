@@ -62,7 +62,7 @@ integer :: n
 if (abs(x) < pi/4) then
     r = kernel_dsin(x, 0.0_dp, 0)
 else
-    n = rem_pio2(x, y)
+    n = rem_pio2_c(x, y)
     select case (modulo(n, 4))
         case (0)
             r =  kernel_dsin(y(1), y(2), 1)
@@ -197,7 +197,7 @@ end if
 end function
 
 
-integer function rem_pio2(x, y) result(n)
+integer function rem_pio2_c(x, y) result(n)
 ! Computes 128bit float approximation of modulo(x, pi/2) returned
 ! as the sum of two 64bit floating point numbers y(1)+y(2)
 ! This function roughly implements:
@@ -310,6 +310,35 @@ res = C1  + x * (C2  + x * &
      (C11 + x * (C12 + x * &
      (C13 + x * (C14 + x * &
      (C15 + x * (C16 + x * C17)))))))))))))))
+end function
+
+real(dp) function dsin3(x) result(r)
+real(dp), intent(in) :: x
+real(dp) :: y
+integer :: n
+if (abs(x) < pi/4) then
+    r = kernel_dsin2(x)
+else
+    n = rem_pio2(x, y)
+    select case (modulo(n, 4))
+        case (0)
+            r =  kernel_dsin2(y)
+        case (1)
+            r =  kernel_dcos2(y)
+        case (2)
+            r = -kernel_dsin2(y)
+        case default
+            r = -kernel_dcos2(y)
+    end select
+end if
+end function
+
+integer function rem_pio2(x, y) result(n)
+real(dp), intent(in) :: x
+real(dp), intent(out) :: y
+y = modulo(x, pi/2)
+if (y > pi/4) y = y-pi/2
+n = (x-y) / (pi/2)
 end function
 
 end module
