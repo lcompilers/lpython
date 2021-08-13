@@ -6,11 +6,7 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "cpp-subroutine6-a47eddf.stdout",
-<<<<<<< HEAD
-    "stdout_hash": "90ef525911e59158783eb5e51dac2efd8121bbc8f2d4fa5251beb730",
-=======
-    "stdout_hash": "85c0f546e367dca6e024bde91469eaf14a3add8deb9b04f421647276",
->>>>>>> 6f89ee7d (tests: Pass)
+    "stdout_hash": "a83281c4b5656f4721b8a5b2b757c8807508dd9d44d3c7fb2042c13b",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

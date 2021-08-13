@@ -6,11 +6,7 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "cpp-arrays_03_func-36a282e.stdout",
-<<<<<<< HEAD
-    "stdout_hash": "e4999a4e681fbbb587927a81fea80c7a23b61b1eb17d918c10a00f09",
-=======
-    "stdout_hash": "d7f8e8affcc553bfb07bb532b8db61a0296c6d9a889bcd095b6b6892",
->>>>>>> 6f89ee7d (tests: Pass)
+    "stdout_hash": "f2fc00c2274be62bc2f99bc77b3563f49c53eb11982269c364d28987",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

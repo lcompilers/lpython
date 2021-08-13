@@ -6,11 +6,7 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "cpp-do_concurrent_reduce-7a1450d.stdout",
-<<<<<<< HEAD
-    "stdout_hash": "cf65b74923086511bd94daed33b5e736b463e4bbb42dc6f4912af979",
-=======
-    "stdout_hash": "c5368d7169af0fe6d09a78d2f1668840b01dbbaf2c1101574e93cfae",
->>>>>>> 6f89ee7d (tests: Pass)
+    "stdout_hash": "1c94c752ceab0fe62f77437890a9fbed52e93cdcd4fca66c8c181a90",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
