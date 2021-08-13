@@ -6,8 +6,8 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "llvm-intrinsics_02-89bd643.stdout",
-    "stdout_hash": "a95c524814bc8abd161a306bb2704a72a478aca065a538a071138e9d",
-    "stderr": null,
-    "stderr_hash": null,
-    "returncode": 0
+    "stdout_hash": "6327eaeea71cf8c6fbd94550a299fedb0d923e59314d43dd806d0785",
+    "stderr": "llvm-intrinsics_02-89bd643.stderr",
+    "stderr_hash": "5fdcb21e79fa80839485f501560bcb6760b7ea9a6366463b73e4e8ba",
+    "returncode": 5
 }
