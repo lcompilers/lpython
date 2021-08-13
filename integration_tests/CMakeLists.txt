@@ -173,7 +173,7 @@ RUN(NAME submodule_01 LABELS gfortran)
 RUN(NAME floor_01 LABELS gfortran llvm) # floor body
 RUN(NAME floor_02 LABELS gfortran) # floor symboltable
 RUN(NAME intrinsics_01 LABELS gfortran) # sqrt, abs, log
-RUN(NAME intrinsics_02 LABELS gfortran llvm) # sin
+RUN(NAME intrinsics_02 LABELS gfortran) # sin (single precision)
 RUN(NAME intrinsics_03 LABELS gfortran llvm) # cos
 RUN(NAME intrinsics_04 LABELS gfortran llvm) # tan
 RUN(NAME intrinsics_05 LABELS gfortran llvm) # hyperbolics
