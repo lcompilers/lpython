@@ -3,7 +3,7 @@ source_filename = "LFortran"
 
 @0 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
 @1 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
-@2 = private unnamed_addr constant [5 x i8] c"%lf\0A\00", align 1
+@2 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
 
 define i32 @__module_lfortran_intrinsic_math2_a1floor(double* %x) {
 .entry:
@@ -357,13 +357,14 @@ declare float @llvm.pow.f32(float, float) #0
 
 define i32 @main() {
 .entry:
-  %x = alloca double, align 8
-  %0 = alloca double, align 8
-  store double 1.500000e+00, double* %0, align 8
-  %1 = call double @__module_lfortran_intrinsic_math2_a6dsin(double* %0)
-  store double %1, double* %x, align 8
-  %2 = load double, double* %x, align 8
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @2, i32 0, i32 0), double %2)
+  %x = alloca float, align 4
+  %0 = alloca float, align 4
+  store float 1.500000e+00, float* %0, align 4
+  %1 = call float @__module_lfortran_intrinsic_math2_a7ssin(float* %0)
+  store float %1, float* %x, align 4
+  %2 = load float, float* %x, align 4
+  %3 = fpext float %2 to double
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @2, i32 0, i32 0), double %3)
   ret i32 0
 }
 
