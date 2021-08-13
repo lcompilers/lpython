@@ -31,12 +31,6 @@ int floor(const Kokkos::View<const float*> &x, int kind)
     return floor;
 }
 
-int int(const Kokkos::View<const float*> &x, int kind)
-{
-    int int;
-    return int;
-}
-
 int lbound(const Kokkos::View<const int*> &x, int dim)
 {
     int lbound;
