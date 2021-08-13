@@ -30,15 +30,15 @@ endif ()
 message("Installation prefix: ${CMAKE_INSTALL_PREFIX}")
 
 set(SRC
-    ../lfortran_intrinsics.c
-    ../lfortran_intrinsic_math.f90
-    ../lfortran_intrinsic_math2.f90
-    ../lfortran_intrinsic_sin.f90
-    ../lfortran_intrinsic_sin_c.c
-    ../lfortran_intrinsic_kind.f90
-    ../lfortran_intrinsic_array.f90
-    ../lfortran_intrinsic_iso_fortran_env.f90
-    ../lfortran_intrinsic_iso_c_binding.f90
+    ../impure/lfortran_intrinsics.c
+    ../impure/lfortran_intrinsic_math.f90
+    ../pure/lfortran_intrinsic_math2.f90
+    ../impure/lfortran_intrinsic_sin.f90
+    ../impure/lfortran_intrinsic_sin_c.c
+    ../pure/lfortran_intrinsic_kind.f90
+    ../builtin/lfortran_intrinsic_array.f90
+    ../pure/lfortran_intrinsic_iso_fortran_env.f90
+    ../pure/lfortran_intrinsic_iso_c_binding.f90
 )
 add_library(lfortran_runtime SHARED ${SRC})
 add_library(lfortran_runtime_static STATIC ${SRC})
