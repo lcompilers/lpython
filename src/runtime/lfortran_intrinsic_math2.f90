@@ -12,7 +12,7 @@ interface sqrt
 end interface
 
 interface sin
-    module procedure a6dsin
+    module procedure a7ssin, a6dsin
 end interface
 
 real(dp), parameter :: pi = 3.1415926535897932384626433832795_dp
@@ -127,6 +127,15 @@ real(dp), parameter :: S8 = -7.3572396558796051923e-13_dp
 real(dp) :: z
 z = x*x
 res = x * (S1+z*(S2+z*(S3+z*(S4+z*(S5+z*(S6+z*(S7+z*S8)))))))
+end function
+
+elemental real(sp) function a7ssin(x) result(r)
+real(sp), intent(in) :: x
+real(sp) :: y
+real(dp) :: tmp, x2
+x2 = x
+tmp = a6dsin(x2)
+r = tmp
 end function
 
 end module
