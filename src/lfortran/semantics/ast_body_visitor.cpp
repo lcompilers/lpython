@@ -946,7 +946,23 @@ public:
     }
 
     bool types_equal(const ASR::ttype_t &a, const ASR::ttype_t &b) {
-        return (a.type == b.type);
+        if (a.type == b.type) {
+            // TODO: check dims
+            switch (a.type) {
+                case (ASR::ttypeType::Real) : {
+                    ASR::Real_t *a2 = ASR::down_cast<ASR::Real_t>(&a);
+                    ASR::Real_t *b2 = ASR::down_cast<ASR::Real_t>(&b);
+                    if (a2->m_kind == b2->m_kind) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                    break;
+                }
+                default : return true;
+            }
+        }
+        return false;
     }
 
     void visit_Compare(const AST::Compare_t &x) {
