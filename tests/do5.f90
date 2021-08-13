@@ -1,4 +1,4 @@
-program do4
+program do5
 implicit none
 integer :: i, j, k, enddo
 j = 0
