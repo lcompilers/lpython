@@ -60,6 +60,9 @@ LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_iso_c_binding pure)
 LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_math2 pure
   ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.mod
 )
+LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_trig pure
+  ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.mod
+)
 
 add_custom_target(lfortran2
     ALL
@@ -69,6 +72,7 @@ add_custom_target(lfortran2
         ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.mod
         ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_c_binding.mod
         ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_math2.mod
+        ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_trig.mod
 )
 
 install(
@@ -77,6 +81,7 @@ install(
           ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.mod
           ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_c_binding.mod
           ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_math2.mod
+          ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_trig.mod
     DESTINATION share/lfortran/lib
 )
 
