@@ -111,7 +111,7 @@ public:
     bool indent_unit;
     // The precedence of the last expression, using the table
     // 10.1 in the Fortran 2018 standard:
-    double last_expr_precedence;
+    int last_expr_precedence;
 
     // Syntax highlighting groups
     enum gr {
@@ -3102,10 +3102,10 @@ public:
     void visit_BoolOp(const BoolOp_t &x) {
         this->visit_expr(*x.m_left);
         std::string left = std::move(s);
-        double left_precedence = last_expr_precedence;
+        int left_precedence = last_expr_precedence;
         this->visit_expr(*x.m_right);
         std::string right = std::move(s);
-        double right_precedence = last_expr_precedence;
+        int right_precedence = last_expr_precedence;
         switch (x.m_op) {
             case (AST::boolopType::And) : {
                 last_expr_precedence = 4;
@@ -3140,10 +3140,10 @@ public:
     void visit_BinOp(const BinOp_t &x) {
         this->visit_expr(*x.m_left);
         std::string left = std::move(s);
-        double left_precedence = last_expr_precedence;
+        int left_precedence = last_expr_precedence;
         this->visit_expr(*x.m_right);
         std::string right = std::move(s);
-        double right_precedence = last_expr_precedence;
+        int right_precedence = last_expr_precedence;
         switch (x.m_op) {
             case (operatorType::Add) : {
                 last_expr_precedence = 8;
@@ -3167,7 +3167,7 @@ public:
             }
         }
         s = "";
-        if (std::abs(left_precedence - 9) < 1e-5) {
+        if (left_precedence == 9) {
             s += "(" + left + ")";
         } else {
             if (left_precedence >= last_expr_precedence) {
@@ -3177,7 +3177,7 @@ public:
             }
         }
         s +=  op2str(x.m_op);
-        if (std::abs(right_precedence - 9) < 1e-5) {
+        if (right_precedence == 9) {
             s += "(" + right + ")";
         } else if (x.m_op == operatorType::Sub) {
             if (right_precedence > last_expr_precedence) {
@@ -3197,10 +3197,10 @@ public:
     void visit_DefBinOp(const DefBinOp_t &x) {
         this->visit_expr(*x.m_left);
         std::string left = std::move(s);
-        double left_precedence = last_expr_precedence;
+        int left_precedence = last_expr_precedence;
         this->visit_expr(*x.m_right);
         std::string right = std::move(s);
-        double right_precedence = last_expr_precedence;
+        int right_precedence = last_expr_precedence;
         last_expr_precedence = 1;
 
         if (left_precedence >= last_expr_precedence) {
@@ -3219,10 +3219,10 @@ public:
     void visit_StrOp(const StrOp_t &x) {
         this->visit_expr(*x.m_left);
         std::string left = std::move(s);
-        double left_precedence = last_expr_precedence;
+        int left_precedence = last_expr_precedence;
         this->visit_expr(*x.m_right);
         std::string right = std::move(s);
-        double right_precedence = last_expr_precedence;
+        int right_precedence = last_expr_precedence;
         last_expr_precedence = 7;
         if (left_precedence >= last_expr_precedence) {
             s += left;
@@ -3239,7 +3239,7 @@ public:
 
     void visit_UnaryOp(const UnaryOp_t &x) {
         this->visit_expr(*x.m_operand);
-        double expr_precedence = last_expr_precedence;
+        int expr_precedence = last_expr_precedence;
         if (x.m_op == AST::unaryopType::USub) {
             last_expr_precedence = 9;
             if (expr_precedence >= last_expr_precedence) {
@@ -3266,10 +3266,10 @@ public:
     void visit_Compare(const Compare_t &x) {
         this->visit_expr(*x.m_left);
         std::string left = std::move(s);
-        double left_precedence = last_expr_precedence;
+        int left_precedence = last_expr_precedence;
         this->visit_expr(*x.m_right);
         std::string right = std::move(s);
-        double right_precedence = last_expr_precedence;
+        int right_precedence = last_expr_precedence;
         last_expr_precedence = 6;
         if (left_precedence >= last_expr_precedence) {
             s += left;
