@@ -5,7 +5,7 @@ program {{ fname }}_test
   real(dp) :: ir, gf, lf
   print*, "Compiled with {{ compiler  }}"
   print*, "x           ", "gfortran_{{fname}}(x)           ", &
-        "lfortan_{{fname}}(x)           ", "abs_error           "
+        "lfortran_{{fname}}(x)           ", "abs_error           "
   ir = -{{ range }}
   do while (ir<={{ range }})
      gf = {{ fname }}(ir)

@@ -53,8 +53,10 @@ def mkfunc(compiler, genfiles, execute, plot, build):
                     with open(str(funcdirname.absolute())+f"/{compiler}_{func['fname']}_output.dat", "w") as res:
                         subprocess.Popen([f"./{test_data['test_name']}"], env=execenv, cwd=funcdirname, stdout=res).wait()
                 if plot==True:
-                    pass
+                    mkplot(funcdirname.absolute()+f"/{compiler}_{func['fname']}_output.dat")
 
+def mkplot(pathname):
+    pass
 
 if __name__ == '__main__':
     mkfunc()
