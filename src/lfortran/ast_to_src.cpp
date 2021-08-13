@@ -3167,7 +3167,7 @@ public:
             }
         }
         s = "";
-        if (std::abs(left_precedence - 10.5) < 1e-5) {
+        if (std::abs(left_precedence - 9) < 1e-5) {
             s += "(" + left + ")";
         } else {
             if (left_precedence >= last_expr_precedence) {
@@ -3177,7 +3177,7 @@ public:
             }
         }
         s +=  op2str(x.m_op);
-        if (std::abs(right_precedence - 10.5) < 1e-5) {
+        if (std::abs(right_precedence - 9) < 1e-5) {
             s += "(" + right + ")";
         } else if (x.m_op == operatorType::Sub) {
             if (right_precedence > last_expr_precedence) {
@@ -3241,14 +3241,14 @@ public:
         this->visit_expr(*x.m_operand);
         double expr_precedence = last_expr_precedence;
         if (x.m_op == AST::unaryopType::USub) {
-            last_expr_precedence = 10.5;
+            last_expr_precedence = 9;
             if (expr_precedence >= last_expr_precedence) {
                 s = "-" + s;
             } else {
                 s = "-(" + s + ")";
             }
         } else if (x.m_op == AST::unaryopType::UAdd) {
-            last_expr_precedence = 10.5;
+            last_expr_precedence = 9;
             // pass
             // s = s;
         } else if (x.m_op == AST::unaryopType::Not) {
