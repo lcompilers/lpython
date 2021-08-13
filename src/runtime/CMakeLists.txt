@@ -8,3 +8,15 @@ install(TARGETS lfortran_runtime lfortran_runtime_static
     ARCHIVE DESTINATION share/lfortran/lib
     LIBRARY DESTINATION share/lfortran/lib
 )
+
+set(runtime_components
+    lfortran_runtime_pure
+    lfortran_runtime_impure
+    lfortran_runtime_builtin
+    )
+
+add_library(lfortran_unif_runtime INTERFACE)
+target_link_libraries(lfortran_unif_runtime INTERFACE ${runtime_components})
+
+# Install
+install(TARGETS lfortran_unif_runtime)
