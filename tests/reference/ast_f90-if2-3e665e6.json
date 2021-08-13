@@ -1,0 +1,13 @@
+{
+    "basename": "ast_f90-if2-3e665e6",
+    "cmd": "lfortran --show-ast-f90 --no-color {infile}",
+    "infile": "tests/if2.f90",
+    "infile_hash": "7e5997e7b3a28044e5c2899900ea795edfd628c1ed4530afdf1aea0d",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_f90-if2-3e665e6.stdout",
+    "stdout_hash": "9774f1479c529b24bd7745441c2dc191df1b3fdbe76e7fbe2f857081",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

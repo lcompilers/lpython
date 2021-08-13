@@ -1297,7 +1297,7 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*body*/ IFSTMTS(p.m_a, body), \
         /*n_body*/ 1, \
         /*a_orelse*/ nullptr, \
-        /*n_orelse*/ 0, nullptr, nullptr)
+        /*n_orelse*/ 0, nullptr, nullptr, nullptr)
 
 #define IFARITHMETIC(cond, lt_label, eq_label, gt_label, l) \
         make_IfArithmetic_t(p.m_a, l, 0, nullptr, \
@@ -1311,21 +1311,21 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*body*/ STMTS(body), \
         /*n_body*/ body.size(), \
         /*a_orelse*/ nullptr, \
-        /*n_orelse*/ 0, trivia_cast(trivia), nullptr)
+        /*n_orelse*/ 0, trivia_cast(trivia), nullptr, nullptr)
 
 #define IF2(cond, trivia, body, orelse, l) make_If_t(p.m_a, l, 0, nullptr, \
         /*test*/ EXPR(cond), \
         /*body*/ STMTS(body), \
         /*n_body*/ body.size(), \
         /*a_orelse*/ STMTS(orelse), \
-        /*n_orelse*/ orelse.size(), trivia_cast(trivia), nullptr)
+        /*n_orelse*/ orelse.size(), nullptr, trivia_cast(trivia), nullptr)
 
 #define IF3(cond, trivia, body, ifblock, l) make_If_t(p.m_a, l, 0, nullptr, \
         /*test*/ EXPR(cond), \
         /*body*/ STMTS(body), \
         /*n_body*/ body.size(), \
         /*a_orelse*/ IFSTMTS(p.m_a, ifblock), \
-        /*n_orelse*/ 1, trivia_cast(trivia), nullptr)
+        /*n_orelse*/ 1, trivia_cast(trivia), nullptr, nullptr)
 
 #define WHERESINGLE(cond, body, l) make_Where_t(p.m_a, l, 0, nullptr, \
         /*test*/ EXPR(cond), \
