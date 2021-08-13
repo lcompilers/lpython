@@ -1,0 +1,16 @@
+program {{ fname }}_test
+  use, intrinsic :: iso_fortran_env, only: sp => real32, dp => real64
+  use :: lfortran_intrinsic_trig, only: {{ fname }}2 => {{ fname }}
+  real(dp), parameter :: pi = 3.1415926535897932384626433832795_dp
+  real(dp) :: ir, gf, lf
+  print*, "Compiled with {{ compiler  }}"
+  print*, "x           ", "gfortran_{{fname}}(x)           ", &
+        "lfortran_{{fname}}(x)           ", "abs_error           "
+  ir = -{{ range }}
+  do while (ir<={{ range }})
+     gf = {{ fname }}(ir)
+     lf = {{ fname }}2(ir)
+     print*, ir, gf, lf, abs(gf-lf)
+     ir = ir + {{ stepsize }}
+  end do
+end program

@@ -1143,7 +1143,7 @@ filename = "../integration_tests/intrinsics_open_close_read_write.f90"
 asr = true
 
 [[test]]
-filename = "../src/runtime/lfortran_intrinsic_math.f90"
+filename = "../src/runtime/impure/lfortran_intrinsic_math.f90"
 ast = true
 
 [[test]]
