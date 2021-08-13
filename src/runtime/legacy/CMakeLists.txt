@@ -1,5 +1,5 @@
 set(SRC
-    impure/lfortran_intrinsics.c
+    ../lib/impure/lfortran_intrinsics.c
 )
 add_library(lfortran_runtime SHARED ${SRC})
 add_library(lfortran_runtime_static STATIC ${SRC})
