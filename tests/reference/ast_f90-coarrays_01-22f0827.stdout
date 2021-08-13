@@ -16,7 +16,7 @@ real, dimension(100), codimension[*] :: A
 integer :: B[3,*]
 integer :: c[*]
 real :: D(100,2)[3,*]
-real :: E(1,2,3)[1,2,-(1):3,*]
+real :: E(1,2,3)[1,2,-1:3,*]
 real, allocatable :: F(:)[:]
 real, allocatable :: g(:,:,:)[:,:,:]
 real, dimension(20), codimension[20,*] :: h
@@ -34,9 +34,9 @@ allocate(greeting_ready(num_images())[*])
 allocate(g(50, 50, 50)[1:2, 1:2, *]) 
 
 ! Array access, events, teams
-if ((this_image()) == (1)) then
+if (this_image() == 1) then
     do i = 2, num_images()
-        c = (c) + (c[i])
+        c = c + c[i]
         event post (ok_to_overwrite[i])
     end do
 else

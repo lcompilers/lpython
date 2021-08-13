@@ -13,21 +13,21 @@ elist(1) = 0.0d+00
 iord(1) = 0
 result = 0.0d+00
 abserr = 0.0d+00
-if ((((((((b) <= (a)) .or. (((epsabs) == (0.0d+00)) .and. ((epsrel) < (dmax1((0.5d+02)*(epmach), 0.5d-28))))) .or. ((alfa) <= (-(0.1d+01)))) .or. ((beta) <= (-(0.1d+01)))) .or. ((integr) < (1))) .or. ((integr) > (4))) .or. ((limit) < (2))) then
+if (b <= a .or. epsabs == 0.0d+00 .and. epsrel < dmax1(0.5d+02*epmach, 0.5d-28) .or. alfa <= -0.1d+01 .or. beta <= -0.1d+01 .or. integr < 1 .or. integr > 4 .or. limit < 2) then
     go to 999
 end if
 ier = 0
 call dqmomo(alfa, beta, ri, rj, rg, rh, integr)
-centre = (0.5d+00)*((b) + (a))
+centre = 0.5d+00*(b + a)
 call dqc25s(f, a, b, a, centre, alfa, beta, ri, rj, rg, rh, area1, error1, resas1, integr, nev)
 neval = nev
 call dqc25s(f, a, b, centre, b, alfa, beta, ri, rj, rg, rh, area2, error2, resas2, integr, nev)
 last = 2
-neval = (neval) + (nev)
-result = (area1) + (area2)
-abserr = (error1) + (error2)
-errbnd = dmax1(epsabs, (epsrel)*(dabs(result)))
-if ((error2) > (error1)) then
+neval = neval + nev
+result = area1 + area2
+abserr = error1 + error2
+errbnd = dmax1(epsabs, epsrel*dabs(result))
+if (error2 > error1) then
     go to 10
 end if
 alist(1) = a
@@ -49,10 +49,10 @@ elist(1) = error2
 elist(2) = error1
 20 iord(1) = 1
 iord(2) = 2
-if ((limit) == (2)) then
+if (limit == 2) then
     ier = 1
 end if
-if (((abserr) <= (errbnd)) .or. ((ier) == (1))) then
+if (abserr <= errbnd .or. ier == 1) then
     go to 999
 end if
 errmax = elist(1)
@@ -64,45 +64,45 @@ iroff1 = 0
 iroff2 = 0
 do 60 last = 3, limit
     a1 = alist(maxerr)
-    b1 = (0.5d+00)*((alist(maxerr)) + (blist(maxerr)))
+    b1 = 0.5d+00*(alist(maxerr) + blist(maxerr))
     a2 = b1
     b2 = blist(maxerr)
     call dqc25s(f, a, b, a1, b1, alfa, beta, ri, rj, rg, rh, area1, error1, resas1, integr, nev)
-    neval = (neval) + (nev)
+    neval = neval + nev
     call dqc25s(f, a, b, a2, b2, alfa, beta, ri, rj, rg, rh, area2, error2, resas2, integr, nev)
-    neval = (neval) + (nev)
-    area12 = (area1) + (area2)
-    erro12 = (error1) + (error2)
-    errsum = ((errsum) + (erro12)) - (errmax)
-    area = ((area) + (area12)) - (rlist(maxerr))
-    if (((a) == (a1)) .or. ((b) == (b2))) then
+    neval = neval + nev
+    area12 = area1 + area2
+    erro12 = error1 + error2
+    errsum = errsum + erro12 - errmax
+    area = area + area12 - rlist(maxerr)
+    if (a == a1 .or. b == b2) then
         go to 30
     end if
-    if (((resas1) == (error1)) .or. ((resas2) == (error2))) then
+    if (resas1 == error1 .or. resas2 == error2) then
         go to 30
     end if
-    if (((dabs((rlist(maxerr)) - (area12))) < ((0.1d-04)*(dabs(area12)))) .and. ((erro12) >= ((0.99d+00)*(errmax)))) then
-        iroff1 = (iroff1) + (1)
+    if (dabs(rlist(maxerr) - area12) < 0.1d-04*dabs(area12) .and. erro12 >= 0.99d+00*errmax) then
+        iroff1 = iroff1 + 1
     end if
-    if (((last) > (10)) .and. ((erro12) > (errmax))) then
-        iroff2 = (iroff2) + (1)
+    if (last > 10 .and. erro12 > errmax) then
+        iroff2 = iroff2 + 1
     end if
     30 rlist(maxerr) = area1
     rlist(last) = area2
-    errbnd = dmax1(epsabs, (epsrel)*(dabs(area)))
-    if ((errsum) <= (errbnd)) then
+    errbnd = dmax1(epsabs, epsrel*dabs(area))
+    if (errsum <= errbnd) then
         go to 35
     end if
-    if ((last) == (limit)) then
+    if (last == limit) then
         ier = 1
     end if
-    if (((iroff1) >= (6)) .or. ((iroff2) >= (20))) then
+    if (iroff1 >= 6 .or. iroff2 >= 20) then
         ier = 2
     end if
-    if ((dmax1(dabs(a1), dabs(b2))) <= (((0.1d+01) + ((0.1d+03)*(epmach)))*((dabs(a2)) + ((0.1d+04)*(uflow))))) then
+    if (dmax1(dabs(a1), dabs(b2)) <= (0.1d+01 + 0.1d+03*epmach)*(dabs(a2) + 0.1d+04*uflow)) then
         ier = 3
     end if
-    35 if ((error2) > (error1)) then
+    35 if (error2 > error1) then
         go to 40
     end if
     alist(last) = a2
@@ -119,13 +119,13 @@ do 60 last = 3, limit
     elist(maxerr) = error2
     elist(last) = error1
     50 call dqpsrt(limit, last, maxerr, errmax, elist, iord, nrmax)
-    if (((ier) /= (0)) .or. ((errsum) <= (errbnd))) then
+    if (ier /= 0 .or. errsum <= errbnd) then
         go to 70
     end if
 end do
 70 result = 0.0d+00
 do 80 k = 1, last
-    result = (result) + (rlist(k))
+    result = result + rlist(k)
 end do
 abserr = errsum
 999 return
