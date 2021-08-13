@@ -375,6 +375,16 @@ ast = true
 ast_f90 = true
 
 [[test]]
+filename = "array8.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
+filename = "array9.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
 filename = "../integration_tests/arrays_01.f90"
 cpp = true
 asr = true
@@ -1029,6 +1039,12 @@ filename = "../integration_tests/intrinsics_02.f90"
 asr = true
 llvm = true
 
+# sin
+[[test]]
+filename = "../integration_tests/sin_03.f90"
+asr = true
+llvm = true
+
 # cos
 [[test]]
 filename = "../integration_tests/intrinsics_03.f90"
@@ -1090,6 +1106,16 @@ asr = true
 # selected_int,real_kind (parameter_04 has symboltable)
 [[test]]
 filename = "../integration_tests/intrinsics_14.f90"
+asr = true
+
+# floor (body)
+[[test]]
+filename = "../integration_tests/floor_01.f90"
+asr = true
+
+# floor (symboltable)
+[[test]]
+filename = "../integration_tests/floor_02.f90"
 asr = true
 
 [[test]]
@@ -1222,6 +1248,11 @@ ast_f90 = true
 
 [[test]]
 filename = "if1.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
+filename = "if2.f90"
 ast = true
 ast_f90 = true
 

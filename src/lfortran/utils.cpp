@@ -34,7 +34,8 @@ std::string get_runtime_library_dir()
     int dirname_length;
     get_executable_path(path, dirname_length);
     std::string dirname = path.substr(0,dirname_length);
-    if (endswith(dirname, "src/bin")) {
+    if (   endswith(dirname, "src/bin")
+        || endswith(dirname, "src\\bin")) {
         // Development version
         return dirname + "/../runtime";
     } else if (endswith(dirname, "src/lfortran/tests") ||

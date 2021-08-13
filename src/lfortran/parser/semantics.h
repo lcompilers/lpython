@@ -678,11 +678,12 @@ ast_t* parenthesis(Allocator &al, Location &loc, expr_t *op) {
 #define DEFOP(x, op, y, l) make_DefBinOp_t(p.m_a, l, EXPR(x), \
         def_op_to_str(p.m_a, op), EXPR(y))
 
-#define ARRAY_IN(a, l) make_ArrayInitializer_t(p.m_a, l, \
-        nullptr, EXPRS(a), a.size())
-#define ARRAY_IN1(vartype, a, l) make_ArrayInitializer_t(p.m_a, l, \
-        down_cast<decl_attribute_t>(vartype), \
-        EXPRS(a), a.size())
+#define ARRAY_IN1(a, l) make_ArrayInitializer_t(p.m_a, l, \
+        nullptr, nullptr, EXPRS(a), a.size())
+#define ARRAY_IN2(vartype, a, l) make_ArrayInitializer_t(p.m_a, l, \
+        down_cast<decl_attribute_t>(vartype), nullptr, EXPRS(a), a.size())
+#define ARRAY_IN3(classtype, a, l) make_ArrayInitializer_t(p.m_a, l, \
+        nullptr, name2char(classtype), EXPRS(a), a.size())
 
 ast_t* implied_do_loop(Allocator &al, Location &loc,
         Vec<ast_t*> &ex_list,
@@ -1296,7 +1297,7 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*body*/ IFSTMTS(p.m_a, body), \
         /*n_body*/ 1, \
         /*a_orelse*/ nullptr, \
-        /*n_orelse*/ 0, nullptr, nullptr)
+        /*n_orelse*/ 0, nullptr, nullptr, nullptr)
 
 #define IFARITHMETIC(cond, lt_label, eq_label, gt_label, l) \
         make_IfArithmetic_t(p.m_a, l, 0, nullptr, \
@@ -1310,21 +1311,21 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*body*/ STMTS(body), \
         /*n_body*/ body.size(), \
         /*a_orelse*/ nullptr, \
-        /*n_orelse*/ 0, trivia_cast(trivia), nullptr)
+        /*n_orelse*/ 0, trivia_cast(trivia), nullptr, nullptr)
 
 #define IF2(cond, trivia, body, orelse, l) make_If_t(p.m_a, l, 0, nullptr, \
         /*test*/ EXPR(cond), \
         /*body*/ STMTS(body), \
         /*n_body*/ body.size(), \
         /*a_orelse*/ STMTS(orelse), \
-        /*n_orelse*/ orelse.size(), trivia_cast(trivia), nullptr)
+        /*n_orelse*/ orelse.size(), nullptr, trivia_cast(trivia), nullptr)
 
 #define IF3(cond, trivia, body, ifblock, l) make_If_t(p.m_a, l, 0, nullptr, \
         /*test*/ EXPR(cond), \
         /*body*/ STMTS(body), \
         /*n_body*/ body.size(), \
         /*a_orelse*/ IFSTMTS(p.m_a, ifblock), \
-        /*n_orelse*/ 1, trivia_cast(trivia), nullptr)
+        /*n_orelse*/ 1, trivia_cast(trivia), nullptr, nullptr)
 
 #define WHERESINGLE(cond, body, l) make_Where_t(p.m_a, l, 0, nullptr, \
         /*test*/ EXPR(cond), \

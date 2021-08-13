@@ -90,7 +90,7 @@ namespace {
             case (AST::symbolType::None) : return "";
             case (AST::symbolType::Arrow) : return " => ";
             case (AST::symbolType::Equal) : return " = ";
-            case (AST::symbolType::Asterisk) : return " *";
+            case (AST::symbolType::Asterisk) : return "*";
             case (AST::symbolType::DoubleAsterisk) : return "*(*)";
             case (AST::symbolType::Slash) : return "/";
         }
@@ -1915,8 +1915,10 @@ public:
         r += syn(gr::Conditional);
         r += "then";
         r += syn();
-        if(x.m_t_inside){
-            r += print_trivia_after(*x.m_t_inside);
+        if(x.m_if_trivia){
+            r += print_trivia_after(*x.m_if_trivia);
+        } else if(x.m_else_trivia) {
+            r += print_trivia_inside(*x.m_else_trivia);
         } else {
             r.append("\n");
         }
@@ -1931,8 +1933,8 @@ public:
             r += syn(gr::Conditional);
             r += "else";
             r += syn();
-            if(x.m_t_inside){
-                r += print_trivia_inside(*x.m_t_inside);
+            if(x.m_else_trivia){
+                r += print_trivia_after(*x.m_else_trivia);
             } else {
                 r.append("\n");
             }
@@ -3277,6 +3279,9 @@ public:
         if (x.m_vartype) {
             this->visit_decl_attribute(*x.m_vartype);
             r.append(s);
+            r += " :: ";
+        } else if (x.m_classtype) {
+            r.append(x.m_classtype);
             r += " :: ";
         }
         for (size_t i=0; i<x.n_args; i++) {
