@@ -1005,7 +1005,7 @@ public:
             throw SemanticError("DerivedType already defined", x.base.base.loc);
         }
         asr = ASR::make_DerivedType_t(al, x.base.base.loc, current_scope,
-            x.m_name, ASR::abiType::Source, dflt_access);
+            x.m_name, ASR::abiType::Source, dflt_access, nullptr);
         parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
 
         current_scope = parent_scope;
