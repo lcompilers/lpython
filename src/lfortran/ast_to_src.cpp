@@ -3248,9 +3248,7 @@ public:
                 s = "-(" + s + ")";
             }
         } else if (x.m_op == AST::unaryopType::UAdd) {
-            last_expr_precedence = 9;
-            // pass
-            // s = s;
+            // Skip unary plus, keep the previous precedence
         } else if (x.m_op == AST::unaryopType::Not) {
             last_expr_precedence = 5;
             if (expr_precedence >= last_expr_precedence) {
