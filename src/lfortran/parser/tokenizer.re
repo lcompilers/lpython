@@ -123,9 +123,9 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             enddo_state = 1;
         } else {
             enddo_state = 0;
+            token_loc(loc); line_num++; cur_line=cur;
+            last_token = yytokentype::TK_NEWLINE;
         }
-        token_loc(loc); line_num++; cur_line=cur;
-        last_token = yytokentype::TK_NEWLINE;
         return yytokentype::TK_NEWLINE;
     }
     for (;;) {
