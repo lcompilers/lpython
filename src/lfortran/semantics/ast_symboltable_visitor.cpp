@@ -670,6 +670,15 @@ public:
                         type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
                             a_kind, dims.p, dims.size()));
                     }
+                } else if (sym_type->m_type == AST::decl_typeType::TypeDoublePrecision) {
+                    a_kind = 8;
+                    if (is_pointer) {
+                        type = LFortran::ASRUtils::TYPE(ASR::make_RealPointer_t(al, x.base.base.loc,
+                            a_kind, dims.p, dims.size()));
+                    } else {
+                        type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
+                            a_kind, dims.p, dims.size()));
+                    }
                 } else if (sym_type->m_type == AST::decl_typeType::TypeInteger) {
                     if (is_pointer) {
                         type = LFortran::ASRUtils::TYPE(ASR::make_IntegerPointer_t(al, x.base.base.loc, a_kind, dims.p, dims.size()));
