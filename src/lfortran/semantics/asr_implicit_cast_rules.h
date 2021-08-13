@@ -130,6 +130,24 @@ public:
                 value = (ASR::expr_t *)ASR::make_ConstantInteger_t(al, a_loc,
                     i, dest_type);
             }
+        } else if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::IntegerToReal) {
+            if (ASRUtils::expr_value(*convert_can)) {
+                LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*dest_type)
+                 || ASR::is_a<ASR::RealPointer_t>(*dest_type))
+                LFORTRAN_ASSERT(ASR::is_a<ASR::Integer_t>(*ASRUtils::expr_type(*convert_can)))
+                value = ASRUtils::expr_value(*convert_can);
+                if (ASR::is_a<ASR::ConstantInteger_t>(*value)) {
+                  ASR::ConstantInteger_t *i = ASR::down_cast<ASR::ConstantInteger_t>(value);
+                  double rval = static_cast<double>(i->m_n);
+                  value = (ASR::expr_t *)ASR::make_ConstantReal_t(al, a_loc,
+                                                                 rval, dest_type);
+                } else {
+                  // TODO: Handle cases where this is say, a constant Array
+                  // See https://gitlab.com/lfortran/lfortran/-/merge_requests/1162#note_647992506
+                  value = nullptr; // Reset
+                }
+            }
+
         } else if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::RealToReal) {
             if (ASRUtils::expr_value(*convert_can)) {
                 LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*dest_type)

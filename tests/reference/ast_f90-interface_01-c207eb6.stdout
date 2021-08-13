@@ -11,13 +11,13 @@ contains
 
 subroutine a1(a)
 integer, intent(inout) :: a
-a = (a) + (1)
+a = a + 1
 end subroutine a1 
 
 
 subroutine a2(a)
 real, intent(inout) :: a
-a = (a) + (1)
+a = a + 1
 end subroutine a2 
 
 
@@ -33,19 +33,19 @@ real :: r
 
 i = 5
 call a(i)
-if ((i) /= (6)) then
+if (i /= 6) then
     error stop
 end if 
 
 r = 6
 call a(r)
-if ((r) /= (7)) then
+if (r /= 7) then
     error stop
 end if 
 
 i = 7
 call a(i)
-if ((i) /= (8)) then
+if (i /= 8) then
     error stop
 end if 
 
