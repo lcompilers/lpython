@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-sin_03-aebf02d",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/sin_03.f90",
+    "infile_hash": "3c036b8aabdbfddc3c46fb69183c427f7991b105c361b785872acf59",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-sin_03-aebf02d.stdout",
+    "stdout_hash": "4e8fb49367b4d0a7082f39cf7ccd0a0bff61fc8f6dbd3bbf50c27855",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

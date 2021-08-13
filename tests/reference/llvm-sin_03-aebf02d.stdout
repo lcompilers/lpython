@@ -1,0 +1,353 @@
+; ModuleID = 'LFortran'
+source_filename = "LFortran"
+
+@0 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
+@1 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
+@2 = private unnamed_addr constant [5 x i8] c"%lf\0A\00", align 1
+
+define i32 @__module_lfortran_intrinsic_math2_a1floor(double* %x) {
+.entry:
+  %r = alloca i32, align 4
+  %0 = load double, double* %x, align 8
+  %1 = fcmp uge double %0, 0.000000e+00
+  br i1 %1, label %then, label %else
+
+then:                                             ; preds = %.entry
+  %2 = load double, double* %x, align 8
+  %3 = fptosi double %2 to i32
+  store i32 %3, i32* %r, align 4
+  br label %ifcont
+
+else:                                             ; preds = %.entry
+  %4 = load double, double* %x, align 8
+  %5 = fsub double %4, 1.000000e+00
+  %6 = fptosi double %5 to i32
+  store i32 %6, i32* %r, align 4
+  br label %ifcont
+
+ifcont:                                           ; preds = %else, %then
+  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
+  %7 = load i32, i32* %r, align 4
+  ret i32 %7
+}
+
+define double @__module_lfortran_intrinsic_math2_a2modulo(double* %x, double* %y) {
+.entry:
+  %r = alloca double, align 8
+  %0 = load double, double* %x, align 8
+  %1 = load double, double* %x, align 8
+  %2 = load double, double* %y, align 8
+  %3 = fdiv double %1, %2
+  %4 = alloca double, align 8
+  store double %3, double* %4, align 8
+  %5 = call i32 @__module_lfortran_intrinsic_math2_a1floor(double* %4)
+  %6 = sitofp i32 %5 to double
+  %7 = load double, double* %y, align 8
+  %8 = fmul double %6, %7
+  %9 = fsub double %0, %8
+  store double %9, double* %r, align 8
+  %10 = load double, double* %r, align 8
+  ret double %10
+}
+
+define double @__module_lfortran_intrinsic_math2_a3min(double* %x, double* %y) {
+.entry:
+  %r = alloca double, align 8
+  %0 = load double, double* %x, align 8
+  %1 = load double, double* %y, align 8
+  %2 = fcmp ult double %0, %1
+  br i1 %2, label %then, label %else
+
+then:                                             ; preds = %.entry
+  %3 = load double, double* %x, align 8
+  store double %3, double* %r, align 8
+  br label %ifcont
+
+else:                                             ; preds = %.entry
+  %4 = load double, double* %y, align 8
+  store double %4, double* %r, align 8
+  br label %ifcont
+
+ifcont:                                           ; preds = %else, %then
+  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
+  %5 = load double, double* %r, align 8
+  ret double %5
+}
+
+define double @__module_lfortran_intrinsic_math2_a4max(double* %x, double* %y) {
+.entry:
+  %r = alloca double, align 8
+  %0 = load double, double* %x, align 8
+  %1 = load double, double* %y, align 8
+  %2 = fcmp ugt double %0, %1
+  br i1 %2, label %then, label %else
+
+then:                                             ; preds = %.entry
+  %3 = load double, double* %x, align 8
+  store double %3, double* %r, align 8
+  br label %ifcont
+
+else:                                             ; preds = %.entry
+  %4 = load double, double* %y, align 8
+  store double %4, double* %r, align 8
+  br label %ifcont
+
+ifcont:                                           ; preds = %else, %then
+  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
+  %5 = load double, double* %r, align 8
+  ret double %5
+}
+
+define double @__module_lfortran_intrinsic_math2_a5kernel_dsin(double* %x) {
+.entry:
+  %S1 = alloca double, align 8
+  store double 0x3FEFFFFFFFFFFFF8, double* %S1, align 8
+  %S2 = alloca double, align 8
+  store double 0xBFC55555555552B9, double* %S2, align 8
+  %S3 = alloca double, align 8
+  store double 0x3F8111111110208B, double* %S3, align 8
+  %S4 = alloca double, align 8
+  store double 0xBF2A01A019677B7B, double* %S4, align 8
+  %S5 = alloca double, align 8
+  store double 0x3EC71DE371212827, double* %S5, align 8
+  %S6 = alloca double, align 8
+  store double 0xBE5AE6315D6BA572, double* %S6, align 8
+  %S7 = alloca double, align 8
+  store double 0x3DE60DE3F77343C0, double* %S7, align 8
+  %S8 = alloca double, align 8
+  store double 0xBD69E2CFF677919D, double* %S8, align 8
+  %res = alloca double, align 8
+  %z = alloca double, align 8
+  %0 = load double, double* %x, align 8
+  %1 = load double, double* %x, align 8
+  %2 = fmul double %0, %1
+  store double %2, double* %z, align 8
+  %3 = load double, double* %x, align 8
+  %4 = load double, double* %z, align 8
+  %5 = load double, double* %z, align 8
+  %6 = load double, double* %z, align 8
+  %7 = load double, double* %z, align 8
+  %8 = load double, double* %z, align 8
+  %9 = load double, double* %z, align 8
+  %10 = load double, double* %z, align 8
+  %11 = fmul double %10, 0xBD69E2CFF677919D
+  %12 = fadd double 0x3DE60DE3F77343C0, %11
+  %13 = fmul double %9, %12
+  %14 = fadd double 0xBE5AE6315D6BA572, %13
+  %15 = fmul double %8, %14
+  %16 = fadd double 0x3EC71DE371212827, %15
+  %17 = fmul double %7, %16
+  %18 = fadd double 0xBF2A01A019677B7B, %17
+  %19 = fmul double %6, %18
+  %20 = fadd double 0x3F8111111110208B, %19
+  %21 = fmul double %5, %20
+  %22 = fadd double 0xBFC55555555552B9, %21
+  %23 = fmul double %4, %22
+  %24 = fadd double 0x3FEFFFFFFFFFFFF8, %23
+  %25 = fmul double %3, %24
+  store double %25, double* %res, align 8
+  %26 = load double, double* %res, align 8
+  ret double %26
+}
+
+define double @__module_lfortran_intrinsic_math2_a6dsin(double* %x) {
+.entry:
+  %n = alloca i32, align 4
+  %r = alloca double, align 8
+  %y = alloca double, align 8
+  %0 = alloca double, align 8
+  store double 0x401921FB54442D18, double* %0, align 8
+  %1 = call double @__module_lfortran_intrinsic_math2_a2modulo(double* %x, double* %0)
+  store double %1, double* %y, align 8
+  %2 = load double, double* %y, align 8
+  %3 = fsub double 0x400921FB54442D18, %2
+  %4 = alloca double, align 8
+  store double %3, double* %4, align 8
+  %5 = call double @__module_lfortran_intrinsic_math2_a3min(double* %y, double* %4)
+  store double %5, double* %y, align 8
+  %6 = load double, double* %y, align 8
+  %7 = fsub double 0xC00921FB54442D18, %6
+  %8 = alloca double, align 8
+  store double %7, double* %8, align 8
+  %9 = call double @__module_lfortran_intrinsic_math2_a4max(double* %y, double* %8)
+  store double %9, double* %y, align 8
+  %10 = load double, double* %y, align 8
+  %11 = fsub double 0x400921FB54442D18, %10
+  %12 = alloca double, align 8
+  store double %11, double* %12, align 8
+  %13 = call double @__module_lfortran_intrinsic_math2_a3min(double* %y, double* %12)
+  store double %13, double* %y, align 8
+  %14 = call double @__module_lfortran_intrinsic_math2_a5kernel_dsin(double* %y)
+  store double %14, double* %r, align 8
+  %15 = load double, double* %r, align 8
+  ret double %15
+}
+
+define double @__module_lfortran_intrinsic_math2_abs3(double* %x) {
+.entry:
+  %r = alloca double, align 8
+  %0 = load double, double* %x, align 8
+  %1 = fcmp uge double %0, 0.000000e+00
+  br i1 %1, label %then, label %else
+
+then:                                             ; preds = %.entry
+  %2 = load double, double* %x, align 8
+  store double %2, double* %r, align 8
+  br label %ifcont
+
+else:                                             ; preds = %.entry
+  %3 = load double, double* %x, align 8
+  %4 = fsub double 0.000000e+00, %3
+  store double %4, double* %r, align 8
+  br label %ifcont
+
+ifcont:                                           ; preds = %else, %then
+  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
+  %5 = load double, double* %r, align 8
+  ret double %5
+}
+
+define double @__module_lfortran_intrinsic_math2_dabs(double* %x) {
+.entry:
+  %r = alloca double, align 8
+  %0 = load double, double* %x, align 8
+  %1 = fcmp uge double %0, 0.000000e+00
+  br i1 %1, label %then, label %else
+
+then:                                             ; preds = %.entry
+  %2 = load double, double* %x, align 8
+  store double %2, double* %r, align 8
+  br label %ifcont
+
+else:                                             ; preds = %.entry
+  %3 = load double, double* %x, align 8
+  %4 = fsub double 0.000000e+00, %3
+  store double %4, double* %r, align 8
+  br label %ifcont
+
+ifcont:                                           ; preds = %else, %then
+  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
+  %5 = load double, double* %r, align 8
+  ret double %5
+}
+
+define double @__module_lfortran_intrinsic_math2_dsqrt(double* %x) {
+.entry:
+  %r = alloca double, align 8
+  %0 = load double, double* %x, align 8
+  %1 = fcmp uge double %0, 0.000000e+00
+  br i1 %1, label %then, label %else
+
+then:                                             ; preds = %.entry
+  %2 = load double, double* %x, align 8
+  %3 = call double @llvm.pow.f64(double %2, double 5.000000e-01)
+  store double %3, double* %r, align 8
+  br label %ifcont
+
+else:                                             ; preds = %.entry
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @0, i32 0, i32 0))
+  call void @exit(i32 1)
+  br label %ifcont
+
+ifcont:                                           ; preds = %else, %then
+  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
+  %4 = load double, double* %r, align 8
+  ret double %4
+}
+
+define float @__module_lfortran_intrinsic_math2_sabs(float* %x) {
+.entry:
+  %r = alloca float, align 4
+  %0 = load float, float* %x, align 4
+  %1 = fcmp uge float %0, 0.000000e+00
+  br i1 %1, label %then, label %else
+
+then:                                             ; preds = %.entry
+  %2 = load float, float* %x, align 4
+  store float %2, float* %r, align 4
+  br label %ifcont
+
+else:                                             ; preds = %.entry
+  %3 = load float, float* %x, align 4
+  %4 = fsub float 0.000000e+00, %3
+  store float %4, float* %r, align 4
+  br label %ifcont
+
+ifcont:                                           ; preds = %else, %then
+  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
+  %5 = load float, float* %r, align 4
+  ret float %5
+}
+
+define float @__module_lfortran_intrinsic_math2_ssqrt(float* %x) {
+.entry:
+  %r = alloca float, align 4
+  %0 = load float, float* %x, align 4
+  %1 = fcmp uge float %0, 0.000000e+00
+  br i1 %1, label %then, label %else
+
+then:                                             ; preds = %.entry
+  %2 = load float, float* %x, align 4
+  %3 = call float @llvm.pow.f32(float %2, float 5.000000e-01)
+  store float %3, float* %r, align 4
+  br label %ifcont
+
+else:                                             ; preds = %.entry
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @1, i32 0, i32 0))
+  call void @exit(i32 1)
+  br label %ifcont
+
+ifcont:                                           ; preds = %else, %then
+  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
+  %4 = load float, float* %r, align 4
+  ret float %4
+}
+
+declare void @_lfortran_sin(float, float*)
+
+declare void @_lfortran_cos(float, float*)
+
+declare void @_lfortran_tan(float, float*)
+
+declare void @_lfortran_sinh(float, float*)
+
+declare void @_lfortran_cosh(float, float*)
+
+declare void @_lfortran_tanh(float, float*)
+
+declare void @_lfortran_asin(float, float*)
+
+declare void @_lfortran_acos(float, float*)
+
+declare void @_lfortran_atan(float, float*)
+
+declare void @_lfortran_asinh(float, float*)
+
+declare void @_lfortran_acosh(float, float*)
+
+declare void @_lfortran_atanh(float, float*)
+
+; Function Attrs: nounwind readnone speculatable willreturn
+declare double @llvm.pow.f64(double, double) #0
+
+declare void @_lfortran_printf(i8*, ...)
+
+declare void @exit(i32)
+
+; Function Attrs: nounwind readnone speculatable willreturn
+declare float @llvm.pow.f32(float, float) #0
+
+define i32 @main() {
+.entry:
+  %x = alloca double, align 8
+  %0 = alloca double, align 8
+  store double 1.500000e+00, double* %0, align 8
+  %1 = call double @__module_lfortran_intrinsic_math2_a6dsin(double* %0)
+  store double %1, double* %x, align 8
+  %2 = load double, double* %x, align 8
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @2, i32 0, i32 0), double %2)
+  ret i32 0
+}
+
+attributes #0 = { nounwind readnone speculatable willreturn }
+
