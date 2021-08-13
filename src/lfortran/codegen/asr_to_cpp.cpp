@@ -327,6 +327,13 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             sym_info[get_hash((ASR::asr_t*)&x)] = s;
             src = "";
             return;
+        } else if (std::string(x.m_name) == "int" && intrinsic_module) {
+            // Intrinsic function `int`
+            SymbolInfo s;
+            s.intrinsic_function = true;
+            sym_info[get_hash((ASR::asr_t*)&x)] = s;
+            src = "";
+            return;
         } else {
             SymbolInfo s;
             s.intrinsic_function = false;
@@ -405,6 +412,10 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                     }
                 }
                 src = var_name + ".extent(" + args + ")";
+            } else if (fn_name == "int") {
+                LFORTRAN_ASSERT(x.n_args > 0);
+                visit_expr(*x.m_args[0]);
+                src = "(int)" + src;
             } else {
                 throw CodeGenError("Intrinsic function '" + fn_name
                         + "' not implemented");

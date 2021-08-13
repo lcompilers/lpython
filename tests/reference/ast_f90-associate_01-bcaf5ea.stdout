@@ -9,11 +9,11 @@ n = 10
 allocate(a(5))
 allocate(b(n, n), c(n, 5, n))
 1 loop: associate (x => a, y => c)
-    x(1) = (a_1) + (5)
+    x(1) = a_1 + 5
     y(2, 3, 4) = 3
 end associate loop
 a_1 = a(1)
-if ((a(1)) == (5)) then
+if (a(1) == 5) then
     go to 1
 end if
 c_234 = c(2, 3, 4)

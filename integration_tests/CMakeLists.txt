@@ -172,6 +172,10 @@ RUN(NAME submodule_01 LABELS gfortran)
 
 RUN(NAME floor_01 LABELS gfortran llvm) # floor body
 RUN(NAME floor_02 LABELS gfortran) # floor symboltable
+
+RUN(NAME int_01 LABELS gfortran llvm) # int body
+RUN(NAME int_02 LABELS gfortran) # int symboltable
+
 RUN(NAME intrinsics_01 LABELS gfortran) # sqrt, abs, log
 RUN(NAME intrinsics_02 LABELS gfortran llvm) # sin
 RUN(NAME intrinsics_03 LABELS gfortran llvm) # cos
@@ -192,6 +196,7 @@ RUN(NAME parameter_01 LABELS gfortran)
 RUN(NAME parameter_02 LABELS gfortran)
 RUN(NAME parameter_03 LABELS gfortran llvm)
 RUN(NAME parameter_04 LABELS gfortran llvm) # selected_real,int_kind symboltable
+RUN(NAME parameter_05 LABELS gfortran llvm) # Implicit IntegerToReal
 
 RUN(NAME modules_01 LABELS gfortran llvm)
 RUN(NAME modules_02 LABELS gfortran llvm)
@@ -247,6 +252,7 @@ RUN(NAME types_10 LABELS gfortran)
 RUN(NAME types_11 LABELS gfortran)
 RUN(NAME types_12 LABELS gfortran llvm)
 RUN(NAME types_13 LABELS gfortran)
+RUN(NAME types_14 LABELS gfortran llvm)
 
 RUN(NAME complex_01 LABELS gfortran)
 RUN(NAME complex_02 LABELS gfortran)
@@ -335,6 +341,7 @@ RUN(NAME test_iso_fortran_env LABELS gfortran llvm)
 RUN(NAME abs_01 LABELS gfortran llvm)
 RUN(NAME abs_02 LABELS gfortran llvm)
 RUN(NAME sqrt_01 LABELS gfortran llvm)
+RUN(NAME sqrt_02 LABELS gfortran llvm)
 RUN(NAME sin_01 LABELS gfortran llvm)
 RUN(NAME sin_02 LABELS gfortran llvm)
 RUN(NAME sin_03 LABELS gfortran llvm)
