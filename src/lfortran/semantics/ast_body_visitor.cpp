@@ -38,6 +38,7 @@ private:
         {"floor", "lfortran_intrinsic_array"},
         {"sum", "lfortran_intrinsic_array"},
         {"abs", "lfortran_intrinsic_math2"},
+        {"sin", "lfortran_intrinsic_math2"},
         {"sqrt", "lfortran_intrinsic_math2"},
         {"tiny", "lfortran_intrinsic_array"}
 };
@@ -1206,7 +1207,7 @@ public:
 
     void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
         std::vector<std::string> all_intrinsics = {
-            "sin",  "cos",  "tan",  "sinh",  "cosh",  "tanh",
+            "cos",  "tan",  "sinh",  "cosh",  "tanh",
             "asin", "acos", "atan", "asinh", "acosh", "atanh"};
         SymbolTable *scope = current_scope;
         std::string var_name = x.m_func;
