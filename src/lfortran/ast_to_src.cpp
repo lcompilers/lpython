@@ -3278,6 +3278,9 @@ public:
             this->visit_decl_attribute(*x.m_vartype);
             r.append(s);
             r += " :: ";
+        } else if (x.m_classtype) {
+            r.append(x.m_classtype);
+            r += " :: ";
         }
         for (size_t i=0; i<x.n_args; i++) {
             this->visit_expr(*x.m_args[i]);

@@ -5,7 +5,7 @@
 %locations
 %glr-parser
 %expect    650 // shift/reduce conflicts
-%expect-rr 163 // reduce/reduce conflicts
+%expect-rr 169 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -1945,8 +1945,9 @@ expr
             $$ = COARRAY2($1, $3, $6, @$); }
     | struct_member_star id "(" fnarray_arg_list_opt ")" "[" coarray_arg_list "]" {
             $$ = COARRAY4($1, $2, $4, $7, @$); }
-    | "[" expr_list_opt rbracket { $$ = ARRAY_IN($2, @$); }
-    | "[" var_type "::" expr_list_opt rbracket { $$ = ARRAY_IN1($2, $4, @$); }
+    | "[" expr_list_opt rbracket { $$ = ARRAY_IN1($2, @$); }
+    | "[" var_type "::" expr_list_opt rbracket %dprec 2 { $$ = ARRAY_IN2($2, $4, @$); }
+    | "[" id "::" expr_list_opt rbracket %dprec 1 { $$ = ARRAY_IN3($2, $4, @$); }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
     | TK_REAL { $$ = REAL($1, @$); }
     | TK_STRING { $$ = STRING($1, @$); }

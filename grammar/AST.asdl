@@ -182,7 +182,7 @@ expr
         fnarg* args, keyword* keywords, fnarg* subargs)
     | CoarrayRef(identifier name, struct_member* member,
         fnarg* args, keyword* fnkw, coarrayarg* coargs, keyword* cokw)
-    | ArrayInitializer(decl_attribute? vartype, expr* args)
+    | ArrayInitializer(decl_attribute? vartype, identifier? classtype, expr* args)
     | ImpliedDoLoop(expr* values, identifier var, expr start, expr end,
         expr? increment)
     | Num(int n, string? kind)

@@ -678,11 +678,12 @@ ast_t* parenthesis(Allocator &al, Location &loc, expr_t *op) {
 #define DEFOP(x, op, y, l) make_DefBinOp_t(p.m_a, l, EXPR(x), \
         def_op_to_str(p.m_a, op), EXPR(y))
 
-#define ARRAY_IN(a, l) make_ArrayInitializer_t(p.m_a, l, \
-        nullptr, EXPRS(a), a.size())
-#define ARRAY_IN1(vartype, a, l) make_ArrayInitializer_t(p.m_a, l, \
-        down_cast<decl_attribute_t>(vartype), \
-        EXPRS(a), a.size())
+#define ARRAY_IN1(a, l) make_ArrayInitializer_t(p.m_a, l, \
+        nullptr, nullptr, EXPRS(a), a.size())
+#define ARRAY_IN2(vartype, a, l) make_ArrayInitializer_t(p.m_a, l, \
+        down_cast<decl_attribute_t>(vartype), nullptr, EXPRS(a), a.size())
+#define ARRAY_IN3(classtype, a, l) make_ArrayInitializer_t(p.m_a, l, \
+        nullptr, name2char(classtype), EXPRS(a), a.size())
 
 ast_t* implied_do_loop(Allocator &al, Location &loc,
         Vec<ast_t*> &ex_list,
