@@ -13,38 +13,38 @@ do 35 i = 1, 5
     do 35 j = 1, 5
         k = k + 1
 35 continue
-write(*, *) k
+write(*,*) k
 
 k = 0
 do 40 i = 1, 25
     k = k + 1
 40 enddo
-write(*, *) k
+write(*,*) k
 
 k = 0
 do 45 i = 1, 25
     k = k + 1
 45 end do
-write(*, *) k
+write(*,*) k
 
 k = 0
 do 50 i = 1, 5
     do 50 j = 1, 5
         k = k + 0
 50 k = k + 1
-write(*, *) k
+write(*,*) k
 
 k = 0
 do 60 i = 1, 25
     k = k + 0
 60 k = k + 1
-write(*, *) k
+write(*,*) k
 
 k = -25
 do 65 i = 1, 5
     do 65 j = 1, 5
         k = k + 2
 65 continue
-write(*, *) k
+write(*,*) k
 
 end program
