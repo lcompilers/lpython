@@ -4,7 +4,7 @@ select rank (x)
     rank (0)
         x = 0
     rank (2)
-        if ((size(x, 2)) >= (2)) then
+        if (size(x, 2) >= 2) then
             x(:, 2) = 2
         end if
     rank default

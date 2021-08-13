@@ -12,20 +12,20 @@ integer :: i, j, status
 ! set up the tree, including allocation of all arrays.
 do i = 1, size(node) 
 ! wait for children to complete
-    if ((nc(i)) > (0)) then
+    if (nc(i) > 0) then
         event wait (done(i), until_count = nc(i), stat = status)
-        if ((status) /= (0)) then
+        if (status /= 0) then
             exit
         end if
     end if 
 
 ! process node, using data from children.
-    if ((parent(i)) > (0)) then 
+    if (parent(i) > 0) then 
 ! node is not the root.
 ! place result on image parent (i) for node node (sub) [parent (i)]
 ! tell parent (i) that this has been done.
         event post (done(sub(i))[parent(i)], stat = status)
-        if ((status) /= (0)) then
+        if (status /= 0) then
             exit
         end if
     end if

@@ -1,7 +1,7 @@
 size(tvec, dim=2)
 min(tvec(2, i), tvec(1, i))
 a(1, 2, 3)
-f(a, b, d=(5)/(2), c=(3) + (3))
+f(a, b, d=5/2, c=3 + 3)
 A(i, j, k)
 X(i)
 X(:)

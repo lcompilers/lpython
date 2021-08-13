@@ -4,11 +4,11 @@ integer :: i
 real :: x
 x = 1.0
 do concurrent (i = 1:10) shared(i) local(x) default(none)
-    if ((a(i)) > (0)) then
+    if (a(i) > 0) then
         x = sqrt(a(i))
-        a(i) = (a(i)) - ((x)**(2))
+        a(i) = a(i) - x**2
     end if
-    b(i) = (b(i)) - (a(i))
+    b(i) = b(i) - a(i)
 end do
 print *, x
 end subroutine do_concurrent2

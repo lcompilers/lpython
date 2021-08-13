@@ -9,7 +9,7 @@ N = size(a)
 sum = 0 
 
 do concurrent (i = 1:N)
-    a(i) = (a((i) - (1))) + (5)
+    a(i) = a(i - 1) + 5
 end do 
 
 call arraySum(a, sum) 
@@ -21,7 +21,7 @@ subroutine arraySum(a, sum)
 real, intent(in) :: a(:)
 real, intent(out) :: sum
 do concurrent (i = 1:N) reduce(+: s)
-    sum = (sum) + (a(i))
+    sum = sum + a(i)
 end do
 end subroutine arraySum
 

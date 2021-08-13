@@ -12,7 +12,7 @@ real, intent(out) :: tot
 integer :: i
 tot = 1.0
 do i = 1, size(array)
-    tot = (tot)*(array(i))
+    tot = tot*array(i)
 end do
 end subroutine sum_real 
 
@@ -23,7 +23,7 @@ integer, intent(out) :: tot
 integer :: i
 tot = 0
 do i = 1, size(array)
-    tot = (tot) + (array(i))
+    tot = tot + array(i)
 end do
 end subroutine sum_int 
 
