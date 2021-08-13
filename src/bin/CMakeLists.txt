@@ -43,21 +43,21 @@ add_custom_command(
     COMMAND cmake -E remove -f ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_*.mod
 )
 
-macro(LFORTRAN_COMPILE_RUNTIME name)
+macro(LFORTRAN_COMPILE_RUNTIME name dir)
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../runtime/${name}.mod
         COMMAND lfortran
-        ARGS --backend=cpp -c ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/${name}.f90 -o ${name}.o
+        ARGS --backend=cpp -c ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/${dir}/${name}.f90 -o ${name}.o
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../runtime
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/${name}.f90 ${ARGN}
-        COMMENT "LFortran Compiling ${name}.f90")
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/${dir}/${name}.f90 ${ARGN}
+        COMMENT "LFortran Compiling ${dir}/${name}.f90")
 endmacro(LFORTRAN_COMPILE_RUNTIME)
 
-LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_array)
-LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_kind)
-LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_iso_fortran_env)
-LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_iso_c_binding)
-LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_math2
+LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_array builtin)
+LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_kind pure)
+LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_iso_fortran_env pure)
+LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_iso_c_binding pure)
+LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_math2 pure
   ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.mod
 )
 
