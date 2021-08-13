@@ -14,9 +14,9 @@ b = [real :: ]
 b = [integer :: ]
 d = [real(4) :: ] 
 
-a = [varying_string :: x]
-b = [real :: 1.0]
-b = [integer :: 1]
-d = [real(4) :: 1.0]
+a = [varying_string :: x, x]
+b = [real :: 1.0, 2.0]
+b = [integer :: 1, 2]
+d = [real(4) :: 1.0, 2.0]
 end program array9 
 
