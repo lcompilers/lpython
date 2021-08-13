@@ -183,6 +183,24 @@ define double @__module_lfortran_intrinsic_math2_a6dsin(double* %x) {
   ret double %15
 }
 
+define float @__module_lfortran_intrinsic_math2_a7ssin(float* %x) {
+.entry:
+  %r = alloca float, align 4
+  %tmp = alloca double, align 8
+  %x2 = alloca double, align 8
+  %y = alloca float, align 4
+  %0 = load float, float* %x, align 4
+  %1 = fpext float %0 to double
+  store double %1, double* %x2, align 8
+  %2 = call double @__module_lfortran_intrinsic_math2_a6dsin(double* %x2)
+  store double %2, double* %tmp, align 8
+  %3 = load double, double* %tmp, align 8
+  %4 = fptrunc double %3 to float
+  store float %4, float* %r, align 4
+  %5 = load float, float* %r, align 4
+  ret float %5
+}
+
 define double @__module_lfortran_intrinsic_math2_abs3(double* %x) {
 .entry:
   %r = alloca double, align 8
