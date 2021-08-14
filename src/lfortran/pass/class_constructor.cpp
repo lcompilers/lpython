@@ -5,6 +5,8 @@
 #include <lfortran/asr_verify.h>
 #include <lfortran/pass/class_constructor.h>
 
+#include <cstring>
+
 
 namespace LFortran {
 
@@ -97,9 +99,8 @@ public:
         ASR::Derived_t* dt_der = down_cast<ASR::Derived_t>(x.m_type);
         ASR::DerivedType_t* dt_dertype = (ASR::DerivedType_t*)(&(
                                          LFortran::ASRUtils::symbol_get_past_external(dt_der->m_derived_type)->base));
-        int i = 0;
-        for( std::string& name: dt_dertype->m_symtab->data_member_names ) {
-            ASR::symbol_t* member = dt_dertype->m_symtab->resolve_symbol(name);
+        for( size_t i = 0; i < dt_dertype->n_members; i++ ) {
+            ASR::symbol_t* member = dt_dertype->m_symtab->resolve_symbol(std::string(dt_dertype->m_members[i], strlen(dt_dertype->m_members[i])));
             ASR::Variable_t* member_variable = down_cast<ASR::Variable_t>
                                                 (LFortran::ASRUtils::symbol_get_past_external(member));
             ASR::ttype_t* member_type = member_variable->m_type;
@@ -107,7 +108,6 @@ public:
                                                                 member, member_type, nullptr));
             ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, derived_ref, x.m_args[i]));
             class_constructor_result.push_back(al, assign);
-            i++;
         }
     }
 };
