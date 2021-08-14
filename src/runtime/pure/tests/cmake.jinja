@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+
+project({{ test_name }} Fortran C)
+
+add_executable({{ test_name }}
+    {{ test_files|join('\n    ') }}
+)

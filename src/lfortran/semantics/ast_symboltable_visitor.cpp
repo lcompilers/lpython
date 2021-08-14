@@ -36,6 +36,7 @@ private:
         {"maxval", "lfortran_intrinsic_array"},
         {"real", "lfortran_intrinsic_array"},
         {"floor", "lfortran_intrinsic_array"},
+        {"int", "lfortran_intrinsic_array"},
         {"sum", "lfortran_intrinsic_array"},
         {"abs", "lfortran_intrinsic_array"},
         {"tiny", "lfortran_intrinsic_array"}
@@ -671,6 +672,15 @@ public:
                         type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
                             a_kind, dims.p, dims.size()));
                     }
+                } else if (sym_type->m_type == AST::decl_typeType::TypeDoublePrecision) {
+                    a_kind = 8;
+                    if (is_pointer) {
+                        type = LFortran::ASRUtils::TYPE(ASR::make_RealPointer_t(al, x.base.base.loc,
+                            a_kind, dims.p, dims.size()));
+                    } else {
+                        type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
+                            a_kind, dims.p, dims.size()));
+                    }
                 } else if (sym_type->m_type == AST::decl_typeType::TypeInteger) {
                     if (is_pointer) {
                         type = LFortran::ASRUtils::TYPE(ASR::make_IntegerPointer_t(al, x.base.base.loc, a_kind, dims.p, dims.size()));
@@ -843,7 +853,8 @@ public:
                                 4, nullptr, 0));
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, kind_num,
                         type));
-                } else if (var_name=="tiny") {
+                }
+                else if (var_name=="tiny") {
                     // We assume the input is valid
                     // ASR::expr_t* tiny_expr = args[0];
                     ASR::ttype_t* tiny_type = LFortran::ASRUtils::expr_type(args[0]);
@@ -944,6 +955,39 @@ public:
                         throw SemanticError("floor must have one real argument", x.base.base.loc);
                     }
                 }
+                else if (var_name=="int") {
+                    ASR::expr_t* int_expr = args[0];
+                    ASR::ttype_t* int_type = LFortran::ASRUtils::expr_type(int_expr);
+                    int int_kind = ASRUtils::extract_kind_from_ttype_t(int_type);
+                    if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*int_type)) {
+                        if (int_kind == 4){
+                            int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(int_expr))->m_n;
+                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, int_type));
+                        } else {
+                            int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(int_expr))->m_n;
+                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, int_type));
+                        }
+                    }
+                    else if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*int_type)) {
+                        if (int_kind == 4){
+                            float rv = ASR::down_cast<ASR::ConstantReal_t>(
+                                LFortran::ASRUtils::expr_value(int_expr))->m_r;
+                            int64_t ival = static_cast<int64_t>(rv);
+                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, int_type));
+                        } else {
+                            double rv = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(int_expr))->m_r;
+                            int64_t ival = static_cast<int64_t>(rv);
+                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, int_type));
+                        }
+                    }
+                    // TODO: Handle BOZ later
+                    // else if () {
+
+                    // }
+                    else {
+                        throw SemanticError("int must have only one argument", x.base.base.loc);
+                    }
+                }
                 else if (var_name=="selected_int_kind") {
                     ASR::expr_t* real_expr = args[0];
                     ASR::ttype_t* real_type = LFortran::ASRUtils::expr_type(real_expr);
@@ -962,7 +1006,8 @@ public:
                     } else {
                         throw SemanticError("integer_int_kind() must have one integer argument", x.base.base.loc);
                     }
-                } else if (var_name=="selected_real_kind") {
+                }
+                else if (var_name=="selected_real_kind") {
                     // TODO: Be more standards compliant 16.9.170
                     // e.g. selected_real_kind(6, 70)
                     ASR::expr_t* real_expr = args[0];

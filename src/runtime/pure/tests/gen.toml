@@ -1,0 +1,10 @@
+[[trig]] # [name of lfortran_MODULE.f90]
+fname = "sin" # Function to generate test for; must be the same as for gfortran
+only = "dsin" # if not testing same function
+range = 20 # [-range, +range]
+stepsize = 0.01
+
+[[trig]]
+fname = "cos" # Function to generate test for
+range = 20
+stepsize = 0.01
