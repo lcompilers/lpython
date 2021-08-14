@@ -118,9 +118,14 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
         enddo_state = 2;
         KW(END_DO)
     } else if (enddo_state == 2) {
-        enddo_state = 0;
-        token_loc(loc); line_num++; cur_line=cur;
-        last_token = yytokentype::TK_NEWLINE;
+        enddo_insert_count--;
+        if (enddo_insert_count > 0) {
+            enddo_state = 1;
+        } else {
+            enddo_state = 0;
+            token_loc(loc); line_num++; cur_line=cur;
+            last_token = yytokentype::TK_NEWLINE;
+        }
         return yytokentype::TK_NEWLINE;
     }
     for (;;) {
@@ -242,13 +247,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'concurrent' { KW(CONCURRENT) }
             'contains' { KW(CONTAINS) }
             'contiguous' { KW(CONTIGUOUS) }
-            'continue' {
-                if (next_newline_enddo) {
-                    continue;
-                } else {
-                    KW(CONTINUE)
-                }
-            }
+            'continue' { KW(CONTINUE) }
             'critical' { KW(CRITICAL) }
             'cycle' { KW(CYCLE) }
             'data' { KW(DATA) }
@@ -260,7 +259,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
                 // This is a label do statement, we have to match the
                 // corresponding continue base "end do".
                 uint64_t n = parse_int(cur);
-                label_do_stack.push_back(n);
+                enddo_label_stack.push_back(n);
                 KW(DO);
             }
             'do' { KW(DO) }
@@ -324,8 +323,20 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'end' whitespace 'type' { KW(END_TYPE) }
             'endtype' { KW(ENDTYPE) }
 
-            'end' whitespace 'do' { KW(END_DO) }
-            'enddo' { KW(ENDDO) }
+            'end' whitespace 'do' { 
+                if (enddo_newline_process) {
+                    KW(CONTINUE)
+                } else {
+                    KW(END_DO)
+                }
+            }
+            'enddo' { 
+                if (enddo_newline_process) {
+                    KW(CONTINUE)
+                } else {
+                    KW(ENDDO)
+                }
+            }
 
             'end' whitespace 'where' { KW(END_WHERE) }
             'endwhere' { KW(ENDWHERE) }
@@ -449,13 +460,13 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
 
             // Tokens
             newline {
-                if (next_newline_enddo && last_token != yytokentype::KW_ENDDO
-                    && last_token != yytokentype::KW_END_DO) {
-                    next_newline_enddo = false;
+                if (enddo_newline_process) {
+                    enddo_newline_process = false;
                     enddo_state = 1;
                     return yytokentype::TK_NEWLINE;
                 } else {
-                    next_newline_enddo = false;
+                    enddo_newline_process = false;
+                    enddo_insert_count = 0;
                     token_loc(loc); line_num++; cur_line=cur;
                     last_token = yytokentype::TK_NEWLINE;
                     return yytokentype::TK_NEWLINE;
@@ -532,13 +543,14 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
                     uint64_t u;
                     if (lex_int(tok, cur, u, yylval.int_suffix.int_kind)) {
                             yylval.n = u;
-                            if (label_do_stack[label_do_stack.size()-1] == u) {
-                                label_do_stack.pop_back();
-                                next_newline_enddo = true;
-                                last_token = yytokentype::TK_LABEL;
-                                continue;
+                            if (enddo_label_stack[enddo_label_stack.size()-1] == u) {
+                                while (enddo_label_stack[enddo_label_stack.size()-1] == u) {
+                                    enddo_label_stack.pop_back();
+                                    enddo_insert_count++;
+                                }
+                                enddo_newline_process = true;
                             } else {
-                                next_newline_enddo = false;
+                                enddo_newline_process = false;
                             }
                             RET(TK_LABEL)
                     } else {
