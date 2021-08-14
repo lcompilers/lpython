@@ -126,7 +126,7 @@ do last = 3, limit
 end do
 70 result = 0.0d+00
 do k = 1, last
-    result = (result) + (rlist(k))
+    result = result + rlist(k)
     80 continue
 end do
 abserr = errsum
