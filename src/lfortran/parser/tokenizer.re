@@ -247,14 +247,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'concurrent' { KW(CONCURRENT) }
             'contains' { KW(CONTAINS) }
             'contiguous' { KW(CONTIGUOUS) }
-            'continue' {
-                if (enddo_newline_process) {
-                    enddo_newline_skip = true;
-                    continue;
-                } else {
-                    KW(CONTINUE)
-                }
-            }
+            'continue' { KW(CONTINUE) }
             'critical' { KW(CRITICAL) }
             'cycle' { KW(CYCLE) }
             'data' { KW(DATA) }
@@ -330,8 +323,20 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'end' whitespace 'type' { KW(END_TYPE) }
             'endtype' { KW(ENDTYPE) }
 
-            'end' whitespace 'do' { KW(END_DO) }
-            'enddo' { KW(ENDDO) }
+            'end' whitespace 'do' { 
+                if (enddo_newline_process) {
+                    KW(CONTINUE)
+                } else {
+                    KW(END_DO)
+                }
+            }
+            'enddo' { 
+                if (enddo_newline_process) {
+                    KW(CONTINUE)
+                } else {
+                    KW(ENDDO)
+                }
+            }
 
             'end' whitespace 'where' { KW(END_WHERE) }
             'endwhere' { KW(ENDWHERE) }
@@ -455,19 +460,12 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
 
             // Tokens
             newline {
-                if (enddo_newline_process && last_token != yytokentype::KW_ENDDO
-                    && last_token != yytokentype::KW_END_DO) {
+                if (enddo_newline_process) {
                     enddo_newline_process = false;
-                    if (enddo_newline_skip) {
-                        enddo_state = 2;
-                        KW(END_DO)
-                    } else {
-                        enddo_state = 1;
-                        return yytokentype::TK_NEWLINE;
-                    }
+                    enddo_state = 1;
+                    return yytokentype::TK_NEWLINE;
                 } else {
                     enddo_newline_process = false;
-                    enddo_newline_skip = false;
                     enddo_insert_count = 0;
                     token_loc(loc); line_num++; cur_line=cur;
                     last_token = yytokentype::TK_NEWLINE;
@@ -551,8 +549,6 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
                                     enddo_insert_count++;
                                 }
                                 enddo_newline_process = true;
-                                last_token = yytokentype::TK_LABEL;
-                                continue;
                             } else {
                                 enddo_newline_process = false;
                             }

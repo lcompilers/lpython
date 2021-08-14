@@ -19,7 +19,6 @@ public:
 
     std::vector<uint64_t> enddo_label_stack = {0};
     bool enddo_newline_process = false;
-    bool enddo_newline_skip = false;
     int enddo_state = 0;
     int enddo_insert_count = 0;
 
