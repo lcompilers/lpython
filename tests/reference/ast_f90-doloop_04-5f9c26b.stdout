@@ -3,36 +3,36 @@ implicit none
 integer :: i, j
 j = 0
 a: do i = 1, 10
-    j = (j) + (i)
-    if ((i) == (2)) then
+    j = j + i
+    if (i == 2) then
         exit a
     end if
 end do a
-if ((j) /= (3)) then
+if (j /= 3) then
     error stop
 end if 
 
 j = 0
 b: do i = 1, 10, 2
-    j = (j) + (i)
-    if ((i) == (3)) then
+    j = j + i
+    if (i == 3) then
         exit b
     end if
 end do b
-if ((j) /= (4)) then
+if (j /= 4) then
     error stop
 end if 
 
 j = 0
 i = 1
 c: do
-    j = (j) + (i)
-    if ((i) == (2)) then
+    j = j + i
+    if (i == 2) then
         exit c
     end if
-    i = (i) + (1)
+    i = i + 1
 end do c
-if ((j) /= (3)) then
+if (j /= 3) then
     error stop
 end if 
 

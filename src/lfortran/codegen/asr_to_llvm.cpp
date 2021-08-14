@@ -2657,24 +2657,7 @@ public:
     }
 
     inline ASR::ttype_t* extract_ttype_t_from_expr(ASR::expr_t* expr) {
-        ASR::asr_t* base = &(expr->base);
-        switch( expr->type ) {
-            case ASR::exprType::ConstantReal : {
-                return ((ASR::ConstantReal_t*)base)->m_type;
-            }
-            case ASR::exprType::ConstantInteger : {
-                return ((ASR::ConstantInteger_t*)base)->m_type;
-            }
-            case ASR::exprType::BinOp : {
-                return ((ASR::BinOp_t*)base)->m_type;
-            } 
-            case ASR::exprType::ConstantComplex: {
-                return ((ASR::ConstantComplex_t*)base)->m_type;
-            }
-            default : {
-                return nullptr;
-            }
-        }
+        return ASRUtils::expr_type(expr);
     }
 
     void extract_kinds(const ASR::ImplicitCast_t& x, 
@@ -2682,6 +2665,7 @@ public:
     {   
         dest_kind = extract_kind_from_ttype_t(x.m_type);
         ASR::ttype_t* curr_type = extract_ttype_t_from_expr(x.m_arg);
+        LFORTRAN_ASSERT(curr_type != nullptr)
         arg_kind = extract_kind_from_ttype_t(curr_type);
     }
 

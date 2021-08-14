@@ -9,13 +9,13 @@ end forall
 forall (i = 1:n:3, j = 1:n:5)
     A(i, j) = SIN(A(j, i))
 end forall
-forall (i = 1:n, j = 1:n, (i) /= (j))
-    A(i, j) = REAL((i) + (j))
+forall (i = 1:n, j = 1:n, i /= j)
+    A(i, j) = REAL(i + j)
 end forall
-forall (i = 1:n, j = 1:m, (A(i, j)) /= (0))
-    A(i, j) = (1)/(A(i, j))
+forall (i = 1:n, j = 1:m, A(i, j) /= 0)
+    A(i, j) = 1/A(i, j)
 end forall
-forall (i = 1:1000, j = 1:1000, (i) /= (j))
+forall (i = 1:1000, j = 1:1000, i /= j)
     A(i, j) = A(j, i)
 end forall 
 
@@ -27,16 +27,16 @@ forall (j = 1:n) shared(i) local(x) default(none)
 end forall 
 
 forall (i = 1:N) reduce(*: s)
-    s = (s) + (a(i))
+    s = s + a(i)
 end forall 
 
-forall (i = 3:(N) + (1), j = 3:(N) + (1))
-    C(i, j) = (C(i, (j) + (2))) + (C(i, (j) - (2)))
-    D(i, j) = ((C(i, j)) + (C((i) + (2), j))) + (C((i) - (2), j))
+forall (i = 3:N + 1, j = 3:N + 1)
+    C(i, j) = C(i, j + 2) + C(i, j - 2)
+    D(i, j) = C(i, j) + C(i + 2, j) + C(i - 2, j)
 end forall 
 
-forall (x = 1:100, (J(x)) > (0))
-    where ((I(x, :)) < (0))
+forall (x = 1:100, J(x) > 0)
+    where (I(x, :) < 0)
         I(x, :) = 0
     else where
         I(x, :) = 1
@@ -44,7 +44,7 @@ forall (x = 1:100, (J(x)) > (0))
 end forall 
 
 outer: forall (i = 1:100)
-    inner: forall (j = 1:100, (i) /= (j))
+    inner: forall (j = 1:100, i /= j)
         A(i, j) = A(j, i)
     end forall inner
 end forall outer

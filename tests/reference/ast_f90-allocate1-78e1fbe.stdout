@@ -5,7 +5,7 @@ integer :: cmdlen
 integer :: ierr
 call get_command(length=cmdlen) 
 
-if ((cmdlen) > (0)) then
+if (cmdlen > 0) then
     allocate(character(cmdlen)::cmd)
     call get_command(cmd)
     print *, "hello ", cmd

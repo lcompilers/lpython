@@ -1,0 +1,13 @@
+{
+    "basename": "asr-sin_03-8490135",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/sin_03.f90",
+    "infile_hash": "3c036b8aabdbfddc3c46fb69183c427f7991b105c361b785872acf59",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-sin_03-8490135.stdout",
+    "stdout_hash": "0c126ffdcbeb71f6f74d730aaab5a82d1422764e48da6da53af32cfc",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

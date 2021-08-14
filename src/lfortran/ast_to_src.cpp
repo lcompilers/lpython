@@ -109,6 +109,9 @@ public:
     std::string indent;
     int indent_spaces;
     bool indent_unit;
+    // The precedence of the last expression, using the table
+    // 10.1 in the Fortran 2018 standard:
+    int last_expr_precedence;
 
     // Syntax highlighting groups
     enum gr {
@@ -1402,6 +1405,7 @@ public:
         }
         r += ")";
         s = r;
+        last_expr_precedence = 13;
     }
 
     void visit_AttrEquivalence(const AttrEquivalence_t &x) {
@@ -1915,8 +1919,10 @@ public:
         r += syn(gr::Conditional);
         r += "then";
         r += syn();
-        if(x.m_t_inside){
-            r += print_trivia_after(*x.m_t_inside);
+        if(x.m_if_trivia){
+            r += print_trivia_after(*x.m_if_trivia);
+        } else if(x.m_else_trivia) {
+            r += print_trivia_inside(*x.m_else_trivia);
         } else {
             r.append("\n");
         }
@@ -1931,8 +1937,8 @@ public:
             r += syn(gr::Conditional);
             r += "else";
             r += syn();
-            if(x.m_t_inside){
-                r += print_trivia_inside(*x.m_t_inside);
+            if(x.m_else_trivia){
+                r += print_trivia_after(*x.m_else_trivia);
             } else {
                 r.append("\n");
             }
@@ -2217,6 +2223,7 @@ public:
         }
         r.append(")");
         s = r;
+        last_expr_precedence = 13;
     }
 
     void visit_assoc(const var_sym_t &x) {
@@ -3092,46 +3099,160 @@ public:
     void visit_BoolOp(const BoolOp_t &x) {
         this->visit_expr(*x.m_left);
         std::string left = std::move(s);
+        int left_precedence = last_expr_precedence;
         this->visit_expr(*x.m_right);
         std::string right = std::move(s);
-        s = "(" + left + ")" + boolop2str(x.m_op) + "(" + right + ")";
+        int right_precedence = last_expr_precedence;
+        switch (x.m_op) {
+            case (AST::boolopType::And) : {
+                last_expr_precedence = 4;
+                break;
+            }
+            case (AST::boolopType::Or) : {
+                last_expr_precedence = 3;
+                break;
+            }
+            case (AST::boolopType::Eqv) : {
+                last_expr_precedence = 2;
+                break;
+            }
+            case (AST::boolopType::NEqv) : {
+                last_expr_precedence = 2;
+                break;
+            }
+        }
+        if (left_precedence >= last_expr_precedence) {
+            s += left;
+        } else {
+            s += "(" + left + ")";
+        }
+        s +=  boolop2str(x.m_op);
+        if (right_precedence >= last_expr_precedence) {
+            s += right;
+        } else {
+            s += "(" + right + ")";
+        }
     }
 
     void visit_BinOp(const BinOp_t &x) {
         this->visit_expr(*x.m_left);
         std::string left = std::move(s);
+        int left_precedence = last_expr_precedence;
         this->visit_expr(*x.m_right);
         std::string right = std::move(s);
-        s = "(" + left + ")" + op2str(x.m_op) + "(" + right + ")";
+        int right_precedence = last_expr_precedence;
+        switch (x.m_op) {
+            case (operatorType::Add) : {
+                last_expr_precedence = 8;
+                break;
+            }
+            case (operatorType::Sub) : {
+                last_expr_precedence = 8;
+                break;
+            }
+            case (operatorType::Mul) : {
+                last_expr_precedence = 10;
+                break;
+            }
+            case (operatorType::Div) : {
+                last_expr_precedence = 10;
+                break;
+            }
+            case (operatorType::Pow) : {
+                last_expr_precedence = 11;
+                break;
+            }
+        }
+        s = "";
+        if (left_precedence == 9) {
+            s += "(" + left + ")";
+        } else {
+            if (left_precedence >= last_expr_precedence) {
+                s += left;
+            } else {
+                s += "(" + left + ")";
+            }
+        }
+        s +=  op2str(x.m_op);
+        if (right_precedence == 9) {
+            s += "(" + right + ")";
+        } else if (x.m_op == operatorType::Sub) {
+            if (right_precedence > last_expr_precedence) {
+                s += right;
+            } else {
+                s += "(" + right + ")";
+            }
+        } else {
+            if (right_precedence >= last_expr_precedence) {
+                s += right;
+            } else {
+                s += "(" + right + ")";
+            }
+        }
     }
 
     void visit_DefBinOp(const DefBinOp_t &x) {
         this->visit_expr(*x.m_left);
         std::string left = std::move(s);
+        int left_precedence = last_expr_precedence;
         this->visit_expr(*x.m_right);
         std::string right = std::move(s);
-        s = "(" + left + ")";
+        int right_precedence = last_expr_precedence;
+        last_expr_precedence = 1;
+
+        if (left_precedence >= last_expr_precedence) {
+            s += left;
+        } else {
+            s += "(" + left + ")";
+        }
         s += "." + std::string(x.m_op) + ".";
-        s += "(" + right + ")";
+        if (right_precedence >= last_expr_precedence) {
+            s += right;
+        } else {
+            s += "(" + right + ")";
+        }
     }
 
     void visit_StrOp(const StrOp_t &x) {
         this->visit_expr(*x.m_left);
         std::string left = std::move(s);
+        int left_precedence = last_expr_precedence;
         this->visit_expr(*x.m_right);
         std::string right = std::move(s);
-        s = left + strop2str(x.m_op) + right;
+        int right_precedence = last_expr_precedence;
+        last_expr_precedence = 7;
+        if (left_precedence >= last_expr_precedence) {
+            s += left;
+        } else {
+            s += "(" + left + ")";
+        }
+        s += strop2str(x.m_op);
+        if (right_precedence >= last_expr_precedence) {
+            s += right;
+        } else {
+            s += "(" + right + ")";
+        }
     }
 
     void visit_UnaryOp(const UnaryOp_t &x) {
         this->visit_expr(*x.m_operand);
+        int expr_precedence = last_expr_precedence;
         if (x.m_op == AST::unaryopType::USub) {
-            s = "-(" + s + ")";
+            last_expr_precedence = 9;
+            if (expr_precedence >= last_expr_precedence) {
+                s = "-" + s;
+            } else {
+                s = "-(" + s + ")";
+            }
         } else if (x.m_op == AST::unaryopType::UAdd) {
-            // pass
-            // s = s;
+            // Skip unary plus, keep the previous precedence
         } else if (x.m_op == AST::unaryopType::Not) {
-            s = ".not.(" + s + ")";
+            last_expr_precedence = 5;
+            if (expr_precedence >= last_expr_precedence) {
+                s = ".not. " + s;
+            } else {
+                s = ".not.(" + s + ")";
+            }
         } else {
             throw LFortranException("Unary op type not implemented");
         }
@@ -3140,9 +3261,22 @@ public:
     void visit_Compare(const Compare_t &x) {
         this->visit_expr(*x.m_left);
         std::string left = std::move(s);
+        int left_precedence = last_expr_precedence;
         this->visit_expr(*x.m_right);
         std::string right = std::move(s);
-        s = "(" + left + ")" + cmpop2str(x.m_op) + "(" + right + ")";
+        int right_precedence = last_expr_precedence;
+        last_expr_precedence = 6;
+        if (left_precedence >= last_expr_precedence) {
+            s += left;
+        } else {
+            s += "(" + left + ")";
+        }
+        s +=  cmpop2str(x.m_op);
+        if (right_precedence >= last_expr_precedence) {
+            s += right;
+        } else {
+            s += "(" + right + ")";
+        }
     }
 
     void visit_FuncCallOrArray(const FuncCallOrArray_t &x) {
@@ -3195,6 +3329,7 @@ public:
             r.append(")");
         }
         s = r;
+        last_expr_precedence = 13;
     }
 
     void visit_CoarrayRef(const CoarrayRef_t &x) {
@@ -3267,6 +3402,7 @@ public:
         }
         r.append("]");
         s = r;
+        last_expr_precedence = 13;
     }
 
     void visit_ArrayInitializer(const ArrayInitializer_t &x) {
@@ -3286,6 +3422,7 @@ public:
         }
         r.append("]");
         s = r;
+        last_expr_precedence = 13;
     }
 
     void visit_Num(const Num_t &x) {
@@ -3296,6 +3433,7 @@ public:
             s += x.m_kind;
         }
         s += syn();
+        last_expr_precedence = 13;
     }
 
     void visit_Parenthesis(const Parenthesis_t &x) {
@@ -3304,12 +3442,14 @@ public:
         r.append(s);
         r += ")";
         s = r;
+        last_expr_precedence = 13;
     }
 
     void visit_Real(const Real_t &x) {
         s = syn(gr::Real);
         s += x.m_n;
         s += syn();
+        last_expr_precedence = 13;
     }
 
     void visit_String(const String_t &x) {
@@ -3330,12 +3470,14 @@ public:
             s += "\"";
         }
         s += syn();
+        last_expr_precedence = 13;
     }
 
     void visit_BOZ(const BOZ_t &x) {
         s = syn(gr::Integer);
         s += "\"" + std::string(x.m_s) + "\"";
         s += syn();
+        last_expr_precedence = 13;
     }
 
 
@@ -3351,6 +3493,7 @@ public:
         r += ")";
         r += syn();
         s = r;
+        last_expr_precedence = 13;
     }
 
     void visit_Name(const Name_t &x) {
@@ -3395,6 +3538,7 @@ public:
         }
         r.append(std::string(x.m_id));
         s = r;
+        last_expr_precedence = 13;
     }
 
     void visit_Logical(const Logical_t &x) {
@@ -3405,6 +3549,7 @@ public:
             s += ".false.";
         }
         s += syn();
+        last_expr_precedence = 13;
     }
 
     std::string kind_value(const AST::kind_item_typeType &type,

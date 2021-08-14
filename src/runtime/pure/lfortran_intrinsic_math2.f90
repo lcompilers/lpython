@@ -11,7 +11,6 @@ interface sqrt
     module procedure ssqrt, dsqrt
 end interface
 
-
 contains
 
 ! abs --------------------------------------------------------------------------

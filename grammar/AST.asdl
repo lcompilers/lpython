@@ -156,7 +156,7 @@ stmt
             concurrent_locality* locality, stmt* body,
             trivia? t_inside, trivia? trivia)
     | If(int label, identifier? stmt_name, expr test, stmt* body,
-            stmt* orelse, trivia? t_inside, trivia? trivia)
+            stmt* orelse, trivia? if_trivia, trivia? else_trivia, trivia? trivia)
     | IfArithmetic(int label, identifier? stmt_name, expr test,
             int lt_label, int eq_label, int gt_label,
             trivia? trivia)

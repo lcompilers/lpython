@@ -38,7 +38,10 @@ private:
         {"floor", "lfortran_intrinsic_array"},
         {"sum", "lfortran_intrinsic_array"},
         {"abs", "lfortran_intrinsic_math2"},
+        {"sin", "lfortran_intrinsic_trig"},
         {"sqrt", "lfortran_intrinsic_math2"},
+        {"int", "lfortran_intrinsic_array"},
+        {"real", "lfortran_intrinsic_array"},
         {"tiny", "lfortran_intrinsic_array"}
 };
 
@@ -945,7 +948,23 @@ public:
     }
 
     bool types_equal(const ASR::ttype_t &a, const ASR::ttype_t &b) {
-        return (a.type == b.type);
+        if (a.type == b.type) {
+            // TODO: check dims
+            switch (a.type) {
+                case (ASR::ttypeType::Real) : {
+                    ASR::Real_t *a2 = ASR::down_cast<ASR::Real_t>(&a);
+                    ASR::Real_t *b2 = ASR::down_cast<ASR::Real_t>(&b);
+                    if (a2->m_kind == b2->m_kind) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                    break;
+                }
+                default : return true;
+            }
+        }
+        return false;
     }
 
     void visit_Compare(const AST::Compare_t &x) {
@@ -1206,7 +1225,7 @@ public:
 
     void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
         std::vector<std::string> all_intrinsics = {
-            "sin",  "cos",  "tan",  "sinh",  "cosh",  "tanh",
+            "cos",  "tan",  "sinh",  "cosh",  "tanh",
             "asin", "acos", "atan", "asinh", "acosh", "atanh"};
         SymbolTable *scope = current_scope;
         std::string var_name = x.m_func;
@@ -1449,6 +1468,40 @@ public:
                                 throw SemanticError("tiny must have only one argument", x.base.base.loc);
                             }
                         }
+                        else if (func_name == "int") {
+                            if (args.n == 1) {
+                                ASR::expr_t* func_expr = args[0];
+                                int func_kind = LFortran::ASRUtils::extract_kind_from_ttype_t(func_type);
+                                if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*func_type)) {
+                                    if (func_kind == 4){
+                                        float rr = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(func_expr))->m_r;
+                                        int64_t ival = static_cast<int64_t>(rr);
+                                        value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, func_type));
+                                    } else {
+                                        double rr = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(func_expr))->m_r;
+                                        int64_t ival = static_cast<int64_t>(rr);
+                                        value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, func_type));
+                                    }
+                                }
+                                else if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*func_type)) {
+                                    if (func_kind == 4){
+                                        int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(
+                                            LFortran::ASRUtils::expr_value(func_expr))->m_n;
+                                        value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, func_type));
+                                    } else {
+                                        int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(
+                                            LFortran::ASRUtils::expr_value(func_expr))->m_n;
+                                        value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, ival, func_type));
+                                    }
+                                }
+                                // TODO: Handle BOZ later
+                                // else if () {
+
+                                // }
+                            } else {
+                                throw SemanticError("int must have only one argument", x.base.base.loc);
+                            }
+                        }
                         else if (func_name == "real") {
                             if (args.n == 1) {
                                 ASR::expr_t* real_expr = args[0];
@@ -1469,7 +1522,8 @@ public:
                                         float rr = static_cast<float>(rv);
                                         value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, rr, func_type));
                                     } else {
-                                        double rr = static_cast<double>(ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(real_expr))->m_n);
+                                        int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(real_expr))->m_n;
+                                        double rr = static_cast<double>(rv);
                                         value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, rr, func_type));
                                     }
                                 }
