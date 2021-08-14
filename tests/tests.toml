@@ -44,6 +44,14 @@ filename = "do4.f90"
 ast = true
 
 [[test]]
+filename = "do5.f90"
+ast = true
+
+[[test]]
+filename = "do6.f90"
+ast = true
+
+[[test]]
 filename = "errors/esub1.f90"
 tokens = true
 ast = true
