@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    650 // shift/reduce conflicts
-%expect-rr 169 // reduce/reduce conflicts
+%expect    610 // shift/reduce conflicts
+%expect-rr 170 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -438,7 +438,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> event_post_stat_list
 %type <ast> sync_stat
 %type <ast> format_statement
+%type <ast> decl_statement
 %type <vec_ast> statements
+%type <vec_ast> decl_statements
 %type <vec_ast> contains_block_opt
 %type <vec_ast> sub_or_func_plus
 %type <ast> result_opt
@@ -747,9 +749,9 @@ proc_modifier
 
 
 program
-    : KW_PROGRAM id sep use_statement_star implicit_statement_star decl_star statements
+    : KW_PROGRAM id sep use_statement_star implicit_statement_star decl_statements
         contains_block_opt end_program sep {
-            LLOC(@$, @10); $$ = PROGRAM($2, TRIVIA($3, $10, @$), $4, $5, $6, $7, $8, @$); }
+      LLOC(@$, @9); $$ = PROGRAM($2, TRIVIA($3, $9, @$), $4, $5, $6, $7, @$); }
     ;
 
 end_program
@@ -1376,6 +1378,19 @@ sep_one
     | TK_COMMENT { $$ = COMMENT($1, @$); }
     | TK_EOLCOMMENT { $$ = EOLCOMMENT($1, @$); }
     | ";" { $$ = SEMICOLON(@$); }
+    ;
+
+decl_statements
+    : decl_statements decl_statement { $$ = $1; LIST_ADD($$, $2); }
+    | %empty { LIST_NEW($$); }
+    ;
+
+decl_statement
+    : var_decl
+    | interface_decl
+    | derived_type_decl
+    | enum_decl
+    | statement
     ;
 
 statement

@@ -356,6 +356,9 @@ ast_t* data_implied_do(Allocator &al, Location &loc,
         trivia_cast(trivia), \
         DECLS(decl), decl.size())
 
+#define STATEMENT_FUNCTION(name, e, trivia, l) make_StatementFunction_t(p.m_a, l, \
+        name2char(name), EXPR(e), trivia_cast(trivia))
+
 #define IMPLICIT_NONE(trivia, l) make_ImplicitNone_t(p.m_a, l, \
         nullptr, 0, trivia_cast(trivia))
 #define IMPLICIT_NONE2(x, trivia, l) make_ImplicitNone_t(p.m_a, l, \
@@ -1251,17 +1254,17 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*n_body*/ stmts.size(), \
         /*contains*/ CONTAINS(contains), \
         /*n_contains*/ contains.size())
-#define PROGRAM(name, trivia, use, implicit, decl, stmts, contains, l) make_Program_t(p.m_a, l, \
+#define PROGRAM(name, trivia, use, implicit, decl_stmts, contains, l) make_Program_t(p.m_a, l, \
         /*name*/ name2char(name), \
         trivia_cast(trivia), \
         /*use*/ USES(use), \
         /*n_use*/ use.size(), \
         /*m_implicit*/ VEC_CAST(implicit, implicit_statement), \
         /*n_implicit*/ implicit.size(), \
-        /*decl*/ DECLS(decl), \
-        /*n_decl*/ decl.size(), \
-        /*body*/ STMTS(stmts), \
-        /*n_body*/ stmts.size(), \
+        /*decl*/ nullptr, \
+        /*n_decl*/ 0, \
+        /*body*/ nullptr, \
+        /*n_body*/ 0, \
         /*contains*/ CONTAINS(contains), \
         /*n_contains*/ contains.size())
 #define RESULT(x) p.result.push_back(p.m_a, x)
