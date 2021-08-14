@@ -1,4 +1,4 @@
-module class_Circle
+module class_circle1
   implicit none
   private
   real :: pi = 3.1415926535897931d0 ! Class-wide private constant
@@ -23,16 +23,16 @@ contains
     area = this%area()  ! Call the type-bound function
     print *, 'Circle: r = ', this%radius, ' area = ', area
   end subroutine circle_print
-end module class_Circle
+end module class_circle1
 
 
 program circle_test
-  use class_Circle, only: Circle
+  use class_circle1, only: Circle
   implicit none
 
   type(Circle) :: c     ! Declare a variable of type Circle.
-  !c = Circle(1.5)       ! Use the implicit constructor, radius = 1.5.
-  !c = Circle       ! Works in gfortran, but not ifort or flang
-  c%radius = 1.5
+  c = Circle(1.5)       ! Use the implicit constructor, radius = 1.5.
+  call c%print          ! Call the type-bound subroutine
+  c%radius = 2.0
   call c%print          ! Call the type-bound subroutine
 end program circle_test

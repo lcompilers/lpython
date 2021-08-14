@@ -50,6 +50,7 @@
 #include <lfortran/pass/nested_vars.h>
 #include <lfortran/pass/print_arr.h>
 #include <lfortran/pass/arr_slice.h>
+#include <lfortran/pass/class_constructor.h>
 #include <lfortran/exception.h>
 #include <lfortran/asr_utils.h>
 #include <lfortran/pickle.h>
@@ -425,6 +426,10 @@ public:
                     case ASR::ttypeType::Complex: {
                         int a_kind = down_cast<ASR::Complex_t>(member->m_type)->m_kind;
                         mem_type = getComplexType(a_kind);
+                        break;
+                    }
+                    case ASR::ttypeType::Character: {
+                        mem_type = character_type;
                         break;
                     }
                     default:
@@ -3170,7 +3175,7 @@ public:
             this->visit_expr_wrapper(x.m_value, true);
             return;
         }
-        ASR::Function_t *s;
+        ASR::Function_t *s = nullptr;
         std::vector<llvm::Value*> args;
         const ASR::symbol_t *proc_sym = symbol_get_past_external(x.m_name);
         if (x.m_dt){
@@ -3185,7 +3190,9 @@ public:
                 ASR::ClassProcedure_t>(proc_sym);
             s = ASR::down_cast<ASR::Function_t>(clss_proc->m_proc);
         }
-        s = ASR::down_cast<ASR::Function_t>(symbol_get_past_external(x.m_name));
+        if( s == nullptr ) {
+            s = ASR::down_cast<ASR::Function_t>(symbol_get_past_external(x.m_name));
+        }
         if (parent_function){
             push_nested_stack(parent_function);
         } else if (parent_subroutine){
@@ -3297,6 +3304,7 @@ std::unique_ptr<LLVMModule> asr_to_llvm(ASR::TranslationUnit_t &asr,
     pass_replace_param_to_const(al, asr);
     // Uncomment for debugging the ASR after the transformation
     // std::cout << pickle(asr) << std::endl;
+    pass_replace_class_constructor(al, asr);
     pass_replace_implied_do_loops(al, asr);
     pass_replace_arr_slice(al, asr);
     pass_replace_array_op(al, asr);

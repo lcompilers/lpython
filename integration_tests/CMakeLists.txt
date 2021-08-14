@@ -332,8 +332,9 @@ RUN(NAME return_01 LABELS gfortran llvm)
 RUN(NAME return_02 LABELS gfortran llvm)
 RUN(NAME return_03 LABELS gfortran llvm)
 
-RUN(NAME class_01 LABELS gfortran)
+RUN(NAME class_01 LABELS gfortran llvm)
 RUN(NAME class_02 LABELS gfortran llvm)
+RUN(NAME class_03 LABELS gfortran llvm)
 
 RUN(NAME test_iso_c_binding LABELS gfortran llvm)
 RUN(NAME test_iso_fortran_env LABELS gfortran llvm)

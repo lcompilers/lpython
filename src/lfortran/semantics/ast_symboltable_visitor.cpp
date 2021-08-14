@@ -57,10 +57,12 @@ public:
     Vec<char *> current_module_dependencies;
     bool in_module = false;
     bool is_interface = false;
+    bool is_derived_type = false;
+    Vec<char*> data_member_names;
     std::vector<std::string> current_procedure_args;
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
-      : al{al}, current_scope{symbol_table} {}
+      : al{al}, current_scope{symbol_table}, is_derived_type{false} {}
 
 
     ASR::symbol_t* resolve_symbol(const Location &loc, const char* id) {
@@ -743,6 +745,9 @@ public:
                         s.m_name, s_intent, init_expr, value, storage_type, type,
                         ASR::abiType::Source, s_access, s_presence);
                 current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(v);
+                if( is_derived_type ) {
+                    data_member_names.push_back(al, s.m_name);
+                }
             } // for m_syms
         }
     }
@@ -1038,6 +1043,8 @@ public:
     void visit_DerivedType(const AST::DerivedType_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
+        data_member_names.reserve(al, 0);
+        is_derived_type = true;
         dt_name = x.m_name;
         for (size_t i=0; i<x.n_items; i++) {
             this->visit_unit_decl2(*x.m_items[i]);
@@ -1050,10 +1057,11 @@ public:
             throw SemanticError("DerivedType already defined", x.base.base.loc);
         }
         asr = ASR::make_DerivedType_t(al, x.base.base.loc, current_scope,
-            x.m_name, ASR::abiType::Source, dflt_access);
+            x.m_name, data_member_names.p, data_member_names.size(), ASR::abiType::Source, dflt_access);
         parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
 
         current_scope = parent_scope;
+        is_derived_type = false;
     }
 
     void visit_InterfaceProc(const AST::InterfaceProc_t &x) {
