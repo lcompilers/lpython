@@ -48,8 +48,9 @@ do 60 i = 1, 25
 write(*,*) k
 correct = correct + k
 
-k = -25
+k = -30
 do 65 i = 1, 5
+    k = k + 1
     do 65 j = 1, 5
         if (k == 25) go to 70
         k = k + 2
@@ -66,8 +67,9 @@ end if
 write(*,*) k
 correct = correct + k
 
-k = -25
+k = -30
 do 75 i = 1, 5
+    k = k + 1
     do 75 j = 1, 5
         if (k == 25) go to 80
         k = k + 2
