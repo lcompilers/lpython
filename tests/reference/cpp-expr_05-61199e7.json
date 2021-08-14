@@ -2,11 +2,11 @@
     "basename": "cpp-expr_05-61199e7",
     "cmd": "lfortran --show-cpp {infile}",
     "infile": "tests/../integration_tests/expr_05.f90",
-    "infile_hash": "4a155463c7b437626fdc1e717638111c01e7228fc1c3aab316b46d11",
+    "infile_hash": "9ba64c46165206d070ba772850f2de89fe32d27c80328477131806ac",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "cpp-expr_05-61199e7.stdout",
-    "stdout_hash": "df54bc68eb16d1130d2c018de7f6169577cfd1fdff6a62205843778b",
+    "stdout_hash": "55b9735e25a2f7480ee2cafa825e785c159720d7ac75ed338ca081fd",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

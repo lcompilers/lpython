@@ -19,6 +19,7 @@
 #include <lfortran/pass/global_stmts.h>
 #include <lfortran/pass/implied_do_loops.h>
 #include <lfortran/pass/array_op.h>
+#include <lfortran/pass/class_constructor.h>
 #include <lfortran/pass/arr_slice.h>
 #include <lfortran/pass/print_arr.h>
 #include <lfortran/asr_utils.h>
@@ -47,7 +48,7 @@ enum Platform {
 
 enum ASRPass {
     do_loops, global_stmts, implied_do_loops, array_op,
-    arr_slice, print_arr
+    arr_slice, print_arr, class_constructor
 };
 
 std::string remove_extension(const std::string& filename) {
@@ -498,6 +499,10 @@ int emit_asr(const std::string &infile, bool colors,
             }
             case (ASRPass::array_op) : {
                 LFortran::pass_replace_array_op(al, *asr);
+                break;
+            }
+            case (ASRPass::class_constructor) : {
+                LFortran::pass_replace_class_constructor(al, *asr);
                 break;
             }
             case (ASRPass::arr_slice) : {
@@ -1246,6 +1251,8 @@ int main(int argc, char *argv[])
                 passes.push_back(ASRPass::implied_do_loops);
             } else if (arg_pass == "array_op") {
                 passes.push_back(ASRPass::array_op);
+            } else if (arg_pass == "class_constructor") {
+                passes.push_back(ASRPass::class_constructor);
             } else if (arg_pass == "print_arr") {
                 passes.push_back(ASRPass::print_arr);
             } else if (arg_pass == "arr_slice") {

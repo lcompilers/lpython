@@ -44,6 +44,14 @@ filename = "do4.f90"
 ast = true
 
 [[test]]
+filename = "do5.f90"
+ast = true
+
+[[test]]
+filename = "do6.f90"
+ast = true
+
+[[test]]
 filename = "errors/esub1.f90"
 tokens = true
 ast = true
@@ -834,6 +842,11 @@ asr = true
 filename = "../integration_tests/parameter_04.f90"
 asr = true
 
+# IntegerToReal
+[[test]]
+filename = "../integration_tests/parameter_05.f90"
+asr = true
+
 [[test]]
 filename = "do_concurrent1.f90"
 ast = true
@@ -856,6 +869,10 @@ ast_f90 = true
 filename = "../integration_tests/types_13.f90"
 ast = true
 ast_f90 = true
+
+[[test]]
+filename = "../integration_tests/types_14.f90"
+asr = true
 
 [[test]]
 filename = "../integration_tests/namelist_01.f90"
@@ -1118,12 +1135,23 @@ asr = true
 filename = "../integration_tests/floor_02.f90"
 asr = true
 
+# int (body)
+[[test]]
+filename = "../integration_tests/int_01.f90"
+asr = true
+
+# int (symboltable)
+[[test]]
+filename = "../integration_tests/int_02.f90"
+asr = true
+
+
 [[test]]
 filename = "../integration_tests/intrinsics_open_close_read_write.f90"
 asr = true
 
 [[test]]
-filename = "../src/runtime/lfortran_intrinsic_math.f90"
+filename = "../src/runtime/impure/lfortran_intrinsic_math.f90"
 ast = true
 
 [[test]]
@@ -1416,7 +1444,17 @@ ast = true
 ast_f90 = true
 
 [[test]]
+filename = "../integration_tests/class_01.f90"
+asr = true
+llvm = true
+
+[[test]]
 filename = "../integration_tests/class_02.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/class_03.f90"
 asr = true
 llvm = true
 
