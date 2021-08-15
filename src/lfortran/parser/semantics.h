@@ -1252,25 +1252,25 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*contains*/ CONTAINS(contains), \
         /*n_contains*/ contains.size())
 
-Vec<ast_t*> SPLIT_DECL(Allocator &al, Vec<ast_t*> value)
+Vec<ast_t*> SPLIT_DECL(Allocator &al, Vec<ast_t*> ast)
 {
     Vec<ast_t*> v;
-    v.reserve(al, value.size());
-    for (size_t i=0; i<value.size(); i++) {
-        if (is_a<unit_decl2_t>(*value[i])) {
-            v.push_back(al, value[i]);
+    v.reserve(al, ast.size());
+    for (size_t i=0; i<ast.size(); i++) {
+        if (is_a<unit_decl2_t>(*ast[i])) {
+            v.push_back(al, ast[i]);
         }
     }
     return v;
 }
 
-Vec<ast_t*> SPLIT_STMT(Allocator &al, Vec<ast_t*> value)
+Vec<ast_t*> SPLIT_STMT(Allocator &al, Vec<ast_t*> ast)
 {
     Vec<ast_t*> v;
-    v.reserve(al, value.size());
-    for (size_t i=0; i<value.size(); i++) {
-        if (is_a<stmt_t>(*value[i])) {
-            v.push_back(al, value[i]);
+    v.reserve(al, ast.size());
+    for (size_t i=0; i<ast.size(); i++) {
+        if (is_a<stmt_t>(*ast[i])) {
+            v.push_back(al, ast[i]);
         }
     }
     return v;
