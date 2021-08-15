@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    610 // shift/reduce conflicts
+%expect    232 // shift/reduce conflicts
 %expect-rr 170 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -751,7 +751,8 @@ proc_modifier
 program
     : KW_PROGRAM id sep use_statement_star implicit_statement_star decl_statements
         contains_block_opt end_program sep {
-      LLOC(@$, @9); $$ = PROGRAM($2, TRIVIA($3, $9, @$), $4, $5, SPLIT_DECL(p.m_a, $6), SPLIT_STMT(p.m_a, $6), $7, @$); }
+      LLOC(@$, @9); $$ = PROGRAM($2, TRIVIA($3, $9, @$), $4, $5,
+            SPLIT_DECL(p.m_a, $6), SPLIT_STMT(p.m_a, $6), $7, @$); }
     ;
 
 end_program
@@ -818,64 +819,75 @@ end_critical
 
 subroutine
     : KW_SUBROUTINE id sub_args bind_opt sep use_statement_star
-    import_statement_star implicit_statement_star decl_star statements
+    import_statement_star implicit_statement_star decl_statements
         contains_block_opt
         end_subroutine sep {
-            LLOC(@$, @13); $$ = SUBROUTINE($2, $3, $4, TRIVIA($5, $13, @$), $6, $7, $8, $9, $10, $11, @$); }
+            LLOC(@$, @12); $$ = SUBROUTINE($2, $3, $4, TRIVIA($5, $12, @$), $6,
+                $7, $8, SPLIT_DECL(p.m_a, $9), SPLIT_STMT(p.m_a, $9), $10, @$); }
     | fn_mod_plus KW_SUBROUTINE id sub_args bind_opt sep use_statement_star
-    import_statement_star implicit_statement_star decl_star statements
+    import_statement_star implicit_statement_star decl_statements
         contains_block_opt
         end_subroutine sep {
-            LLOC(@$, @14); $$ = SUBROUTINE1($1, $3, $4, $5, TRIVIA($6, $14, @$), $7, $8, $9, $10, $11, $12, @$); }
+            LLOC(@$, @13); $$ = SUBROUTINE1($1, $3, $4, $5, TRIVIA($6, $13, @$),
+                $7, $8, $9, SPLIT_DECL(p.m_a, $10), SPLIT_STMT(p.m_a, $10), $11, @$); }
     ;
 
 procedure
     : fn_mod_plus KW_PROCEDURE id sub_args sep use_statement_star
-    import_statement_star implicit_statement_star decl_star statements
+    import_statement_star implicit_statement_star decl_statements
         contains_block_opt
         end_procedure sep {
-            LLOC(@$, @13); $$ = PROCEDURE($1, $3, $4, TRIVIA($5, $13, @$), $6, $7, $8, $9, $10, $11, @$); }
+            LLOC(@$, @12); $$ = PROCEDURE($1, $3, $4, TRIVIA($5, $12, @$), $6,
+                $7, $8, SPLIT_DECL(p.m_a, $9), SPLIT_STMT(p.m_a, $9), $10, @$); }
     ;
 
 function
     : KW_FUNCTION id "(" id_list_opt ")"
-        sep use_statement_star import_statement_star implicit_statement_star decl_star statements
+        sep use_statement_star import_statement_star implicit_statement_star decl_statements
         contains_block_opt
         end_function sep {
-            LLOC(@$, @14); $$ = FUNCTION0($2, $4, nullptr, nullptr, TRIVIA($6, $14, @$), $7, $8, $9, $10, $11, $12, @$); }
+            LLOC(@$, @13); $$ = FUNCTION0($2, $4, nullptr, nullptr,
+                TRIVIA($6, $13, @$), $7, $8, $9, SPLIT_DECL(p.m_a, $10),
+                SPLIT_STMT(p.m_a, $10), $11, @$); }
     | KW_FUNCTION id "(" id_list_opt ")"
         bind
         result_opt
-        sep use_statement_star import_statement_star implicit_statement_star decl_star statements
+        sep use_statement_star import_statement_star implicit_statement_star decl_statements
         contains_block_opt
         end_function sep {
-            LLOC(@$, @16); $$ = FUNCTION0($2, $4, $7, $6, TRIVIA($8, $16, @$), $9, $10, $11, $12, $13, $14, @$); }
+            LLOC(@$, @15); $$ = FUNCTION0($2, $4, $7, $6, TRIVIA($8, $15, @$),
+                $9, $10, $11, SPLIT_DECL(p.m_a, $12), SPLIT_STMT(p.m_a, $12), $13, @$); }
     | KW_FUNCTION id "(" id_list_opt ")"
         result
         bind_opt
-        sep use_statement_star import_statement_star implicit_statement_star decl_star statements
+        sep use_statement_star import_statement_star implicit_statement_star decl_statements
         contains_block_opt
         end_function sep {
-            LLOC(@$, @16); $$ = FUNCTION0($2, $4, $6, $7, TRIVIA($8, $16, @$), $9, $10, $11, $12, $13, $14, @$); }
+            LLOC(@$, @15); $$ = FUNCTION0($2, $4, $6, $7, TRIVIA($8, $15, @$),
+                $9, $10, $11, SPLIT_DECL(p.m_a, $12), SPLIT_STMT(p.m_a, $12), $13, @$); }
     | fn_mod_plus KW_FUNCTION id "(" id_list_opt ")"
-        sep use_statement_star import_statement_star implicit_statement_star decl_star statements
+        sep use_statement_star import_statement_star implicit_statement_star decl_statements
         contains_block_opt
         end_function sep {
-            LLOC(@$, @15); $$ = FUNCTION($1, $3, $5, nullptr, nullptr, TRIVIA($7, $15, @$), $8, $9, $10, $11, $12, $13, @$); }
+            LLOC(@$, @14); $$ = FUNCTION($1, $3, $5, nullptr, nullptr,
+                TRIVIA($7, $14, @$), $8, $9, $10, SPLIT_DECL(p.m_a, $11),
+                SPLIT_STMT(p.m_a, $11), $12, @$); }
     | fn_mod_plus KW_FUNCTION id "(" id_list_opt ")"
         bind
         result_opt
-        sep use_statement_star import_statement_star implicit_statement_star decl_star statements
+        sep use_statement_star import_statement_star implicit_statement_star decl_statements
         contains_block_opt
         end_function sep {
-            LLOC(@$, @17); $$ = FUNCTION($1, $3, $5, $8, $7, TRIVIA($9, $17, @$), $10, $11, $12, $13, $14, $15, @$); }
+            LLOC(@$, @16); $$ = FUNCTION($1, $3, $5, $8, $7, TRIVIA($9, $16, @$),
+                $10, $11, $12, SPLIT_DECL(p.m_a, $13), SPLIT_STMT(p.m_a, $13), $14, @$); }
     | fn_mod_plus KW_FUNCTION id "(" id_list_opt ")"
         result
         bind_opt
-        sep use_statement_star import_statement_star implicit_statement_star decl_star statements
+        sep use_statement_star import_statement_star implicit_statement_star decl_statements
         contains_block_opt
         end_function sep {
-            LLOC(@$, @17); $$ = FUNCTION($1, $3, $5, $7, $8, TRIVIA($9, $17, @$), $10, $11, $12, $13, $14, $15, @$); }
+            LLOC(@$, @16); $$ = FUNCTION($1, $3, $5, $7, $8, TRIVIA($9, $16, @$),
+                $10, $11, $12, SPLIT_DECL(p.m_a, $13), SPLIT_STMT(p.m_a, $13), $14, @$); }
     ;
 
 fn_mod_plus
