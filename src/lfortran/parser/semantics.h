@@ -356,9 +356,6 @@ ast_t* data_implied_do(Allocator &al, Location &loc,
         trivia_cast(trivia), \
         DECLS(decl), decl.size())
 
-#define STATEMENT_FUNCTION(name, e, trivia, l) make_StatementFunction_t(p.m_a, l, \
-        name2char(name), EXPR(e), trivia_cast(trivia))
-
 #define IMPLICIT_NONE(trivia, l) make_ImplicitNone_t(p.m_a, l, \
         nullptr, 0, trivia_cast(trivia))
 #define IMPLICIT_NONE2(x, trivia, l) make_ImplicitNone_t(p.m_a, l, \
