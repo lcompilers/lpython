@@ -1276,19 +1276,41 @@ Vec<ast_t*> SPLIT_STMT(Allocator &al, Vec<ast_t*> ast)
     return v;
 }
 
+ast_t* PROGRAM2(Allocator &al, const Location &a_loc, char* a_name,
+        trivia_t* a_trivia, unit_decl1_t** a_use, size_t n_use,
+        implicit_statement_t** a_implicit, size_t n_implicit,
+        Vec<ast_t*> decl_stmts, program_unit_t** a_contains,
+        size_t n_contains) {
+
+Vec<ast_t*> decl = SPLIT_DECL(al, decl_stmts);
+Vec<ast_t*> stmt = SPLIT_STMT(al, decl_stmts);
+
+return make_Program_t(al, a_loc,
+        /*name*/ a_name,
+        a_trivia,
+        /*use*/ a_use,
+        /*n_use*/ n_use,
+        /*m_implicit*/ a_implicit,
+        /*n_implicit*/ n_implicit,
+        /*decl*/ DECLS(decl),
+        /*n_decl*/ decl.size(),
+        /*body*/ STMTS(stmt),
+        /*n_body*/ stmt.size(),
+        /*contains*/ a_contains,
+        /*n_contains*/ n_contains);
+
+}
 
 
-#define PROGRAM(name, trivia, use, implicit, decl, stmts, contains, l) make_Program_t(p.m_a, l, \
+#define PROGRAM(name, trivia, use, implicit, decl_stmts, contains, l) \
+    PROGRAM2(p.m_a, l, \
         /*name*/ name2char(name), \
         trivia_cast(trivia), \
         /*use*/ USES(use), \
         /*n_use*/ use.size(), \
         /*m_implicit*/ VEC_CAST(implicit, implicit_statement), \
         /*n_implicit*/ implicit.size(), \
-        /*decl*/ DECLS(decl), \
-        /*n_decl*/ decl.size(), \
-        /*body*/ STMTS(stmts), \
-        /*n_body*/ stmts.size(), \
+        decl_stmts, \
         /*contains*/ CONTAINS(contains), \
         /*n_contains*/ contains.size())
 #define RESULT(x) p.result.push_back(p.m_a, x)
