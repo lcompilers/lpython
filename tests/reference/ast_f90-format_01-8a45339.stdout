@@ -1,5 +1,8 @@
 program format_01
 implicit none
+integer :: x
+integer :: y
+integer :: z
 1 format(/,'BDF2 step ',i6,': T=',es12.5,', H=',es12.5,', ETAH=',es12.5)
 2 format(/ ,'BDF2 step ',i6,': T=',es12.5,', H=',es12.5,', ETAH=',es12.5)
 3 format( /,'BDF2 step ',i6,': T=',es12.5,', H=',es12.5,', ETAH=',es12.5)
@@ -48,5 +51,6 @@ implicit none
 710 format(/ i5, 'x')
 720 format(// i5, 'x')
 730 format(//)
+x = 5
 740 format(/1X'(',I2,')', X, A)
 end program format_01
