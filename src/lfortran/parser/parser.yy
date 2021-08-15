@@ -751,7 +751,7 @@ proc_modifier
 program
     : KW_PROGRAM id sep use_statement_star implicit_statement_star decl_statements
         contains_block_opt end_program sep {
-      LLOC(@$, @9); $$ = PROGRAM($2, TRIVIA($3, $9, @$), $4, $5, $6, $7, @$); }
+      LLOC(@$, @9); $$ = PROGRAM($2, TRIVIA($3, $9, @$), $4, $5, SPLIT_DECL(p.m_a, $6), SPLIT_STMT(p.m_a, $6), $7, @$); }
     ;
 
 end_program

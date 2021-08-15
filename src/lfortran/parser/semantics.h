@@ -1254,17 +1254,44 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*n_body*/ stmts.size(), \
         /*contains*/ CONTAINS(contains), \
         /*n_contains*/ contains.size())
-#define PROGRAM(name, trivia, use, implicit, decl_stmts, contains, l) make_Program_t(p.m_a, l, \
+
+Vec<ast_t*> SPLIT_DECL(Allocator &al, Vec<ast_t*> value)
+{
+    Vec<ast_t*> v;
+    v.reserve(al, value.size());
+    for (size_t i=0; i<value.size(); i++) {
+        if (is_a<unit_decl2_t>(*value[i])) {
+            v.push_back(al, value[i]);
+        }
+    }
+    return v;
+}
+
+Vec<ast_t*> SPLIT_STMT(Allocator &al, Vec<ast_t*> value)
+{
+    Vec<ast_t*> v;
+    v.reserve(al, value.size());
+    for (size_t i=0; i<value.size(); i++) {
+        if (is_a<stmt_t>(*value[i])) {
+            v.push_back(al, value[i]);
+        }
+    }
+    return v;
+}
+
+
+
+#define PROGRAM(name, trivia, use, implicit, decl, stmts, contains, l) make_Program_t(p.m_a, l, \
         /*name*/ name2char(name), \
         trivia_cast(trivia), \
         /*use*/ USES(use), \
         /*n_use*/ use.size(), \
         /*m_implicit*/ VEC_CAST(implicit, implicit_statement), \
         /*n_implicit*/ implicit.size(), \
-        /*decl*/ nullptr, \
-        /*n_decl*/ 0, \
-        /*body*/ nullptr, \
-        /*n_body*/ 0, \
+        /*decl*/ DECLS(decl), \
+        /*n_decl*/ decl.size(), \
+        /*body*/ STMTS(stmts), \
+        /*n_body*/ stmts.size(), \
         /*contains*/ CONTAINS(contains), \
         /*n_contains*/ contains.size())
 #define RESULT(x) p.result.push_back(p.m_a, x)
