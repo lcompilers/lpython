@@ -1282,8 +1282,18 @@ ast_t* PROGRAM2(Allocator &al, const Location &a_loc, char* a_name,
         Vec<ast_t*> decl_stmts, program_unit_t** a_contains,
         size_t n_contains) {
 
-Vec<ast_t*> decl = SPLIT_DECL(al, decl_stmts);
-Vec<ast_t*> stmt = SPLIT_STMT(al, decl_stmts);
+Vec<ast_t*> decl;
+Vec<ast_t*> stmt;
+decl.reserve(al, decl_stmts.size());
+stmt.reserve(al, decl_stmts.size());
+for (size_t i=0; i<decl_stmts.size(); i++) {
+    if (is_a<unit_decl2_t>(*decl_stmts[i])) {
+        decl.push_back(al, decl_stmts[i]);
+    } else {
+        LFORTRAN_ASSERT(is_a<stmt_t>(*decl_stmts[i]))
+        stmt.push_back(al, decl_stmts[i]);
+    }
+}
 
 return make_Program_t(al, a_loc,
         /*name*/ a_name,
