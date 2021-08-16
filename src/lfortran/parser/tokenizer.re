@@ -450,6 +450,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'submodule' { KW(SUBMODULE) }
             'subroutine' { KW(SUBROUTINE) }
             'sync' { KW(SYNC) }
+            'syncteam' { KW(SYNC_TEAM) }
             'target' { KW(TARGET) }
             'team' { KW(TEAM) }
             'team_number' { KW(TEAM_NUMBER) }

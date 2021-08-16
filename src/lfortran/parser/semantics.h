@@ -1962,6 +1962,10 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 #define FORMTEAM2(e, id, sync_stat, l) make_FormTeam_t(p.m_a, l, 0, EXPR(e), \
         name2char(id), VEC_CAST(sync_stat, event_attribute), sync_stat.size(), nullptr)
 
+#define SYNCTEAM1(e, l) make_SyncTeam_t(p.m_a, l, 0, EXPR(e), nullptr, 0, nullptr)
+#define SYNCTEAM2(e, x, l) make_SyncTeam_t(p.m_a, l, 0, EXPR(e), \
+        VEC_CAST(x, event_attribute), x.size(), nullptr)
+
 #define TRIVIA_SET(x) case LFortran::AST::stmtType::x: { down_cast<x##_t>(s)->m_trivia = trivia; break; }
 
 void set_m_trivia(stmt_t *s, trivia_t *trivia) {
@@ -1995,6 +1999,7 @@ void set_m_trivia(stmt_t *s, trivia_t *trivia) {
         TRIVIA_SET(Stop)
         TRIVIA_SET(SubroutineCall)
         TRIVIA_SET(SyncAll)
+        TRIVIA_SET(SyncTeam)
         TRIVIA_SET(Write)
         TRIVIA_SET(AssociateBlock)
         TRIVIA_SET(Block)

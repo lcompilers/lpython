@@ -312,6 +312,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_SUBMODULE
 %token <string> KW_SUBROUTINE
 %token <string> KW_SYNC
+%token <string> KW_SYNC_TEAM
 %token <string> KW_TARGET
 %token <string> KW_TEAM
 %token <string> KW_TEAM_NUMBER
@@ -1932,6 +1933,16 @@ event_wait_statement
 sync_all_statement
     : KW_SYNC KW_ALL { $$ = SYNC_ALL(@$); }
     | KW_SYNC KW_ALL "(" sync_stat_list ")" { $$ = SYNC_ALL1($4, @$); }
+    ;
+
+sync_all_statement
+    : sync_team "(" expr ")" { $$ = SYNCTEAM1($3, @$); }
+    | sync_team "(" expr sync_stat_list ")" { $$ = SYNCTEAM2($3, $4, @$); }
+    ;
+
+sync_team
+    : KW_SYNC KW_TEAM
+    | KW_SYNC_TEAM
     ;
 
 event_wait_spec_list
