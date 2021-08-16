@@ -37,53 +37,50 @@ if (WITH_STACKTRACE AND APPLE AND CMAKE_CXX_COMPILER_ID MATCHES Clang)
     endif()
 endif()
 
-add_custom_command(
-    TARGET lfortran
-    POST_BUILD
-    COMMAND cmake -E remove -f ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_*.mod
-)
 
-macro(LFORTRAN_COMPILE_RUNTIME name dir)
-    add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../runtime/${name}.mod
-        COMMAND lfortran
-        ARGS --backend=cpp -c ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/${dir}/${name}.f90 -o ${name}.o
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../runtime
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/${dir}/${name}.f90 ${ARGN}
-        COMMENT "LFortran Compiling ${dir}/${name}.f90")
-endmacro(LFORTRAN_COMPILE_RUNTIME)
+if (WITH_RUNTIME_LIBRARY)
+    macro(LFORTRAN_COMPILE_RUNTIME name dir)
+        add_custom_command(
+            OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../runtime/${name}.mod
+            COMMAND ${CMAKE_CURRENT_BINARY_DIR}/lfortran
+            ARGS --backend=cpp -c ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/${dir}/${name}.f90 -o ${name}.o
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../runtime
+            DEPENDS lfortran ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/${dir}/${name}.f90 ${ARGN}
+            COMMENT "LFortran Compiling ${dir}/${name}.f90")
+    endmacro(LFORTRAN_COMPILE_RUNTIME)
 
-LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_array builtin)
-LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_kind pure)
-LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_iso_fortran_env pure)
-LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_iso_c_binding pure)
-LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_math2 pure
-  ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.mod
-)
-LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_trig pure
-  ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.mod
-)
+    LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_array builtin)
+    LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_kind pure)
+    LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_iso_fortran_env pure)
+    LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_iso_c_binding pure)
+    LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_math2 pure
+      ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.mod
+    )
+    LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_trig pure
+      ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.mod
+    )
 
-add_custom_target(lfortran2
-    ALL
-    DEPENDS
-        ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_array.mod
-        ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_kind.mod
-        ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.mod
-        ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_c_binding.mod
-        ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_math2.mod
-        ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_trig.mod
-)
+    add_custom_target(lfortran2
+        ALL
+        DEPENDS
+            ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_array.mod
+            ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_kind.mod
+            ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.mod
+            ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_c_binding.mod
+            ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_math2.mod
+            ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_trig.mod
+    )
 
-install(
-    FILES ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_array.mod
-          ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_kind.mod
-          ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.mod
-          ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_c_binding.mod
-          ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_math2.mod
-          ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_trig.mod
-    DESTINATION share/lfortran/lib
-)
+    install(
+        FILES ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_array.mod
+              ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_kind.mod
+              ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.mod
+              ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_c_binding.mod
+              ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_math2.mod
+              ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_trig.mod
+        DESTINATION share/lfortran/lib
+    )
+endif()
 
 # Ensure "Release" is not appended to the path on Windows:
 # https://stackoverflow.com/a/56201564/479532
