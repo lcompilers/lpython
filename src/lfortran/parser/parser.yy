@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    232 // shift/reduce conflicts
+%expect    190 // shift/reduce conflicts
 %expect-rr 170 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -1497,8 +1497,8 @@ associate_block
     ;
 
 block_statement
-    : KW_BLOCK sep use_statement_star import_statement_star decl_star
-        statements end_block { $$ = BLOCK(TRIVIA_AFTER($2, @$), $3, $4, $5, $6, @$); }
+    : KW_BLOCK sep use_statement_star import_statement_star decl_statements
+        end_block { $$ = BLOCK(TRIVIA_AFTER($2, @$), $3, $4, SPLIT_DECL(p.m_a, $5), SPLIT_STMT(p.m_a, $5), @$); }
     ;
 
 allocate_statement
