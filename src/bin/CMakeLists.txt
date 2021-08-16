@@ -42,7 +42,7 @@ if (WITH_RUNTIME_LIBRARY)
     macro(LFORTRAN_COMPILE_RUNTIME name dir)
         add_custom_command(
             OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../runtime/${name}.mod
-            COMMAND lfortran
+            COMMAND ${CMAKE_CURRENT_BINARY_DIR}/lfortran
             ARGS --backend=cpp -c ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/${dir}/${name}.f90 -o ${name}.o
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../runtime
             DEPENDS lfortran ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/${dir}/${name}.f90 ${ARGN}
