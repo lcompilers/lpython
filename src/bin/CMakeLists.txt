@@ -39,19 +39,13 @@ endif()
 
 
 if (WITH_RUNTIME_LIBRARY)
-    add_custom_command(
-        TARGET lfortran
-        POST_BUILD
-        COMMAND cmake -E remove -f ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_*.mod
-    )
-
     macro(LFORTRAN_COMPILE_RUNTIME name dir)
         add_custom_command(
             OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../runtime/${name}.mod
             COMMAND lfortran
             ARGS --backend=cpp -c ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/${dir}/${name}.f90 -o ${name}.o
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../runtime
-            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/${dir}/${name}.f90 ${ARGN}
+            DEPENDS lfortran ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/${dir}/${name}.f90 ${ARGN}
             COMMENT "LFortran Compiling ${dir}/${name}.f90")
     endmacro(LFORTRAN_COMPILE_RUNTIME)
 
