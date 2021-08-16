@@ -677,6 +677,8 @@ ast_t* parenthesis(Allocator &al, Location &loc, expr_t *op) {
 #define NEQV(x, y, l) make_BoolOp_t(p.m_a, l, EXPR(x), boolopType::NEqv, EXPR(y))
 #define DEFOP(x, op, y, l) make_DefBinOp_t(p.m_a, l, EXPR(x), \
         def_op_to_str(p.m_a, op), EXPR(y))
+#define UNARY_DEFOP(op, y, l) make_DefUnaryOp_t(p.m_a, l, \
+        def_op_to_str(p.m_a, op), EXPR(y))
 
 #define ARRAY_IN1(a, l) make_ArrayInitializer_t(p.m_a, l, \
         nullptr, nullptr, EXPRS(a), a.size())

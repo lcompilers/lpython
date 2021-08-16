@@ -3213,6 +3213,20 @@ public:
         }
     }
 
+    void visit_DefUnaryOp(const DefUnaryOp_t &x) {
+        this->visit_expr(*x.m_operand);
+        std::string right = std::move(s);
+        int right_precedence = last_expr_precedence;
+        last_expr_precedence = 12;
+
+        s += "." + std::string(x.m_op) + ".";
+        if (right_precedence >= last_expr_precedence) {
+            s += right;
+        } else {
+            s += "(" + right + ")";
+        }
+    }
+
     void visit_StrOp(const StrOp_t &x) {
         this->visit_expr(*x.m_left);
         std::string left = std::move(s);

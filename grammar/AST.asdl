@@ -177,6 +177,7 @@ expr
     | DefBinOp(expr left, string op, expr right)
     | StrOp(expr left, stroperator op, expr right)
     | UnaryOp(unaryop op, expr operand)
+    | DefUnaryOp(string op, expr operand)
     | Compare(expr left, cmpop op, expr right)
     | FuncCallOrArray(identifier func, struct_member* member,
         fnarg* args, keyword* keywords, fnarg* subargs)
