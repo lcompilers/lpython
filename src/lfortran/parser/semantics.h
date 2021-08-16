@@ -1928,6 +1928,21 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         VEC_CAST(x, event_attribute), x.size(), \
         STMTS(stmts), stmts.size(), trivia_cast(trivia), nullptr)
 
+#define CHANGETEAM1(e, co_assoc, sync, trivia, stmts, l) make_ChangeTeam_t(p.m_a, l, \
+        0, nullptr, EXPR(e), \
+        VEC_CAST(co_assoc, team_attribute), co_assoc.size(), \
+        VEC_CAST(sync, event_attribute), sync.size(), \
+        STMTS(stmts), stmts.size(), \
+        trivia_cast(trivia), nullptr, nullptr, 0)
+#define CHANGETEAM2(e, co_assoc, sync, trivia, stmts, sync_stat, l) \
+        make_ChangeTeam_t(p.m_a, l, 0, nullptr, EXPR(e), \
+        VEC_CAST(co_assoc, team_attribute), co_assoc.size(), \
+        VEC_CAST(sync, event_attribute), sync.size(),\
+        STMTS(stmts), stmts.size(), \
+        trivia_cast(trivia), nullptr, \
+        VEC_CAST(sync_stat, event_attribute), sync_stat.size())
+#define COARRAY_ASSOC(id, coarray, e, l) make_CoarrayAssociation_t(p.m_a, l, \
+        EXPR(COARRAY(p.m_a, id, empty5(), empty1(), coarray, l)), EXPR(e))
 
 #define TRIVIA_SET(x) case LFortran::AST::stmtType::x: { down_cast<x##_t>(s)->m_trivia = trivia; break; }
 
@@ -1964,6 +1979,7 @@ void set_m_trivia(stmt_t *s, trivia_t *trivia) {
         TRIVIA_SET(Write)
         TRIVIA_SET(AssociateBlock)
         TRIVIA_SET(Block)
+        TRIVIA_SET(ChangeTeam)
         TRIVIA_SET(Critical)
         TRIVIA_SET(DoConcurrentLoop)
         TRIVIA_SET(DoLoop)

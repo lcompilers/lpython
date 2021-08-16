@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    190 // shift/reduce conflicts
+%expect    193 // shift/reduce conflicts
 %expect-rr 170 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -133,6 +133,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_BLOCK
 %token <string> KW_CALL
 %token <string> KW_CASE
+%token <string> KW_CHANGE
+%token <string> KW_CHANGE_TEAM
 %token <string> KW_CHARACTER
 %token <string> KW_CLASS
 %token <string> KW_CLOSE
@@ -217,6 +219,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 
 %token <string> KW_END_FILE
 %token <string> KW_ENDFILE
+
+%token <string> KW_END_TEAM
+%token <string> KW_ENDTEAM
 
 %token <string> KW_ENTRY
 %token <string> KW_ENUM
@@ -417,6 +422,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> case_condition
 %type <ast> while_statement
 %type <ast> critical_statement
+%type <ast> change_team_statement
+%type <vec_ast> coarray_association_list
+%type <ast> coarray_association
 %type <ast> do_statement
 %type <ast> forall_statement
 %type <ast> forall_statement_single
@@ -815,6 +823,11 @@ end_critical
     : KW_END_CRITICAL
     | KW_ENDCRITICAL
     ;
+
+    end_team
+        : KW_END_TEAM
+        | KW_ENDTEAM
+        ;
 
 subroutine
     : KW_SUBROUTINE id sub_args bind_opt sep use_statement_star
@@ -1457,6 +1470,7 @@ multi_line_statement
 multi_line_statement0
     : associate_block
     | block_statement
+    | change_team_statement
     | critical_statement
     | do_statement
     | forall_statement
@@ -1920,7 +1934,8 @@ event_post_stat_list
     ;
 
 sync_stat_list
-    : sync_stat { LIST_NEW($$); LIST_ADD($$, $1); }
+    : sync_stat_list "," sync_stat { $$ = $1; LIST_ADD($$, $3); }
+    | sync_stat { LIST_NEW($$); LIST_ADD($$, $1); }
     | %empty { LIST_NEW($$); }
     ;
 
@@ -1934,6 +1949,31 @@ critical_statement
     | KW_CRITICAL "(" sync_stat_list ")" sep statements end_critical {
             $$ = CRITICAL1($3, TRIVIA_AFTER($5, @$), $6, @$); }
     ;
+
+change_team_statement
+    : change_team "(" expr coarray_association_list sync_stat_list ")"
+        sep statements end_team {
+            $$ = CHANGETEAM1($3, $4, $5, TRIVIA_AFTER($7, @$), $8, @$); }
+    | change_team "(" expr coarray_association_list sync_stat_list ")"
+        sep statements end_team "(" sync_stat_list ")" {
+            $$ = CHANGETEAM2($3, $4, $5, TRIVIA_AFTER($7, @$), $8, $11, @$); }
+    ;
+
+coarray_association_list
+    : coarray_association_list "," coarray_association { $$ = $1; LIST_ADD($$, $3); }
+    | coarray_association { LIST_NEW($$); LIST_ADD($$, $1); }
+    | %empty { LIST_NEW($$); }
+    ;
+
+coarray_association
+    : id "[" coarray_arg_list "]" "=>" expr { $$ = COARRAY_ASSOC($1, $3, $6, @$); }
+    ;
+
+change_team
+    : KW_CHANGE KW_TEAM
+    | KW_CHANGE_TEAM
+    ;
+
 // -----------------------------------------------------------------------------
 // Fortran expression
 
