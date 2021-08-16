@@ -3162,6 +3162,32 @@ public:
         s = r;
     }
 
+    void visit_FormTeam(const FormTeam_t &x) {
+        std::string r=indent;
+        r += print_label(x);
+        r += syn(gr::Keyword);
+        r += "form team";
+        r += syn();
+        r += "(";
+        this->visit_expr(*x.m_team_number);
+        r.append(s);
+        r += ", ";
+        r.append(x.m_team_var);
+        for (size_t i=0; i<x.n_sync_stat; i++) {
+            if(i == 0) r += ", ";
+            this->visit_event_attribute(*x.m_sync_stat[i]);
+            r.append(s);
+            if (i < x.n_sync_stat-1) r.append(", ");
+        }
+        r += ")";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
+        s = r;
+    }
+
     void visit_BoolOp(const BoolOp_t &x) {
         this->visit_expr(*x.m_left);
         std::string left = std::move(s);
