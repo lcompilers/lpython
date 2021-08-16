@@ -239,7 +239,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'call' { KW(CALL) }
             'case' { KW(CASE) }
             'change' { KW(CHANGE) }
-            'change team' { KW(CHANGE_TEAM) }
+            'changeteam' { KW(CHANGE_TEAM) }
             'character' { KW(CHARACTER) }
             'class' { KW(CLASS) }
             'close' { KW(CLOSE) }
@@ -376,6 +376,8 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
                 }
             }
             'formatted' { KW(FORMATTED) }
+            'form' { KW(FORM) }
+            'formteam' { KW(FORM_TEAM) }
             'function' { KW(FUNCTION) }
             'generic' { KW(GENERIC) }
             'go' { KW(GO) }

@@ -121,6 +121,8 @@ stmt
     | ForAllSingle(int label, identifier? stmt_name,
             concurrent_control *control, expr? mask, stmt assign, trivia? trivia)
     | Format(int label, string fmt, trivia? trivia)
+    | FormTeam(int label, expr team_number, identifier team_var,
+            event_attribute* sync_stat, trivia? trivia)
     | GoTo(int label, expr goto_label, expr* labels, trivia? trivia)
     | Inquire(int label, expr* args, keyword* kwargs, expr* values, trivia? trivia)
     | Nullify(int label, expr* args, keyword* kwargs, trivia? trivia)

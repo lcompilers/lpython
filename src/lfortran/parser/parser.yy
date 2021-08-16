@@ -5,7 +5,7 @@
 %locations
 %glr-parser
 %expect    192 // shift/reduce conflicts
-%expect-rr 170 // reduce/reduce conflicts
+%expect-rr 171 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -238,6 +238,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_FLUSH
 %token <string> KW_FORALL
 %token <string> KW_FORMATTED
+%token <string> KW_FORM
+%token <string> KW_FORM_TEAM
 %token <string> KW_FUNCTION
 %token <string> KW_GENERIC
 %token <string> KW_GO
@@ -446,6 +448,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> event_post_stat_list
 %type <ast> sync_stat
 %type <ast> format_statement
+%type <ast> form_team_statement
 %type <ast> decl_statement
 %type <vec_ast> statements
 %type <vec_ast> decl_statements
@@ -1444,6 +1447,7 @@ single_line_statement
     | flush_statement
     | forall_statement_single
     | format_statement
+    | form_team_statement
     | goto_statement
     | if_statement_single
     | inquire_statement
@@ -1834,6 +1838,17 @@ format_statement
     : TK_FORMAT { $$ = FORMAT($1, @$); }
     ;
 
+form_team_statement
+    : form_team "(" expr "," id ")" { $$ = FORMTEAM1($3, $5, @$); }
+    | form_team "(" expr "," id sync_stat_list ")" {
+            $$ = FORMTEAM2($3, $5, $6, @$); }
+    ;
+
+form_team
+    : KW_FORM KW_TEAM
+    | KW_FORM_TEAM
+    ;
+
 reduce_op
     : "+" { $$ = REDUCE_OP_TYPE_ADD(@$); }
     | "*" { $$ = REDUCE_OP_TYPE_MUL(@$); }
@@ -2163,6 +2178,7 @@ id
     | KW_BLOCK { $$ = SYMBOL($1, @$); }
     | KW_CALL { $$ = SYMBOL($1, @$); }
     | KW_CASE { $$ = SYMBOL($1, @$); }
+    | KW_CHANGE { $$ = SYMBOL($1, @$); }
     | KW_CHARACTER { $$ = SYMBOL($1, @$); }
     | KW_CLASS { $$ = SYMBOL($1, @$); }
     | KW_CLOSE { $$ = SYMBOL($1, @$); }
@@ -2223,6 +2239,8 @@ id
     | KW_FLUSH { $$ = SYMBOL($1, @$); }
     | KW_FORALL { $$ = SYMBOL($1, @$); }
     | KW_FORMATTED { $$ = SYMBOL($1, @$); }
+    | KW_FORM { $$ = SYMBOL($1, @$); }
+    | KW_FORM_TEAM { $$ = SYMBOL($1, @$); }
     | KW_FUNCTION { $$ = SYMBOL($1, @$); }
     | KW_GENERIC { $$ = SYMBOL($1, @$); }
     | KW_GO { $$ = SYMBOL($1, @$); }
