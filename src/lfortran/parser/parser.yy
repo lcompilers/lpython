@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    193 // shift/reduce conflicts
+%expect    192 // shift/reduce conflicts
 %expect-rr 170 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -1935,8 +1935,8 @@ event_post_stat_list
 
 sync_stat_list
     : sync_stat_list "," sync_stat { $$ = $1; LIST_ADD($$, $3); }
+    | "," sync_stat { LIST_NEW($$); LIST_ADD($$, $2); }
     | sync_stat { LIST_NEW($$); LIST_ADD($$, $1); }
-    | %empty { LIST_NEW($$); }
     ;
 
 sync_stat
@@ -1951,12 +1951,18 @@ critical_statement
     ;
 
 change_team_statement
-    : change_team "(" expr coarray_association_list sync_stat_list ")"
+    : change_team "(" expr coarray_association_list ")"
         sep statements end_team {
-            $$ = CHANGETEAM1($3, $4, $5, TRIVIA_AFTER($7, @$), $8, @$); }
+            $$ = CHANGETEAM1($3, $4, TRIVIA_AFTER($6, @$), $7, @$); }
+    | change_team "(" expr coarray_association_list ")"
+        sep statements end_team "(" sync_stat_list ")" {
+            $$ = CHANGETEAM2($3, $4, TRIVIA_AFTER($6, @$), $7, $10, @$); }
+    | change_team "(" expr coarray_association_list sync_stat_list ")"
+        sep statements end_team {
+            $$ = CHANGETEAM3($3, $4, $5, TRIVIA_AFTER($7, @$), $8, @$); }
     | change_team "(" expr coarray_association_list sync_stat_list ")"
         sep statements end_team "(" sync_stat_list ")" {
-            $$ = CHANGETEAM2($3, $4, $5, TRIVIA_AFTER($7, @$), $8, $11, @$); }
+            $$ = CHANGETEAM4($3, $4, $5, TRIVIA_AFTER($7, @$), $8, $11, @$); }
     ;
 
 coarray_association_list

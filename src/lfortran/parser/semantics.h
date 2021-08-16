@@ -1928,13 +1928,26 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
         VEC_CAST(x, event_attribute), x.size(), \
         STMTS(stmts), stmts.size(), trivia_cast(trivia), nullptr)
 
-#define CHANGETEAM1(e, co_assoc, sync, trivia, stmts, l) make_ChangeTeam_t(p.m_a, l, \
+#define CHANGETEAM1(e, co_assoc, trivia, stmts, l) make_ChangeTeam_t(p.m_a, l, \
+        0, nullptr, EXPR(e), \
+        VEC_CAST(co_assoc, team_attribute), co_assoc.size(), \
+        nullptr, 0, \
+        STMTS(stmts), stmts.size(), \
+        trivia_cast(trivia), nullptr, nullptr, 0)
+#define CHANGETEAM2(e, co_assoc, trivia, stmts, sync_stat, l) \
+        make_ChangeTeam_t(p.m_a, l, 0, nullptr, EXPR(e), \
+        VEC_CAST(co_assoc, team_attribute), co_assoc.size(), \
+        nullptr, 0, \
+        STMTS(stmts), stmts.size(), \
+        trivia_cast(trivia), nullptr, \
+        VEC_CAST(sync_stat, event_attribute), sync_stat.size())
+#define CHANGETEAM3(e, co_assoc, sync, trivia, stmts, l) make_ChangeTeam_t(p.m_a, l, \
         0, nullptr, EXPR(e), \
         VEC_CAST(co_assoc, team_attribute), co_assoc.size(), \
         VEC_CAST(sync, event_attribute), sync.size(), \
         STMTS(stmts), stmts.size(), \
         trivia_cast(trivia), nullptr, nullptr, 0)
-#define CHANGETEAM2(e, co_assoc, sync, trivia, stmts, sync_stat, l) \
+#define CHANGETEAM4(e, co_assoc, sync, trivia, stmts, sync_stat, l) \
         make_ChangeTeam_t(p.m_a, l, 0, nullptr, EXPR(e), \
         VEC_CAST(co_assoc, team_attribute), co_assoc.size(), \
         VEC_CAST(sync, event_attribute), sync.size(),\
