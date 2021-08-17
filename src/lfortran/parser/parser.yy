@@ -443,6 +443,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> event_post_statement
 %type <ast> event_wait_statement
 %type <ast> sync_all_statement
+%type <ast> sync_team_statement
 %type <vec_ast> event_wait_spec_list
 %type <ast> event_wait_spec
 %type <vec_ast> sync_stat_list
@@ -1463,6 +1464,7 @@ single_line_statement
     | stop_statement
     | subroutine_call
     | sync_all_statement
+    | sync_team_statement
     | where_statement_single
     | write_statement
     ;
@@ -1936,7 +1938,7 @@ sync_all_statement
     | KW_SYNC KW_ALL "(" sync_stat_list ")" { $$ = SYNC_ALL2($4, @$); }
     ;
 
-sync_all_statement
+sync_team_statement
     : sync_team "(" expr ")" { $$ = SYNCTEAM1($3, @$); }
     | sync_team "(" expr sync_stat_list ")" { $$ = SYNCTEAM2($3, $4, @$); }
     ;
