@@ -1932,7 +1932,8 @@ event_wait_statement
 
 sync_all_statement
     : KW_SYNC KW_ALL { $$ = SYNC_ALL(@$); }
-    | KW_SYNC KW_ALL "(" sync_stat_list ")" { $$ = SYNC_ALL1($4, @$); }
+    | KW_SYNC KW_ALL "(" ")" { $$ = SYNC_ALL1(@$); }
+    | KW_SYNC KW_ALL "(" sync_stat_list ")" { $$ = SYNC_ALL2($4, @$); }
     ;
 
 sync_all_statement
@@ -1971,9 +1972,12 @@ sync_stat
     ;
 
 critical_statement
-    : KW_CRITICAL sep statements end_critical { $$ = CRITICAL(TRIVIA_AFTER($2, @$), $3, @$); }
+    : KW_CRITICAL sep statements end_critical {
+            $$ = CRITICAL(TRIVIA_AFTER($2, @$), $3, @$); }
+    | KW_CRITICAL "(" ")" sep statements end_critical {
+            $$ = CRITICAL1(TRIVIA_AFTER($4, @$), $5, @$); }
     | KW_CRITICAL "(" sync_stat_list ")" sep statements end_critical {
-            $$ = CRITICAL1($3, TRIVIA_AFTER($5, @$), $6, @$); }
+            $$ = CRITICAL2($3, TRIVIA_AFTER($5, @$), $6, @$); }
     ;
 
 change_team_statement

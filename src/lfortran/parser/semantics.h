@@ -1129,8 +1129,15 @@ void pos_to_linecol(const std::string &s, uint64_t position,
         EXPR(eventVar), nullptr, 0, nullptr)
 #define EVENT_WAIT1(eventVar, x, l) make_EventWait_t(p.m_a, l, 0, \
         EXPR(eventVar), VEC_CAST(x, event_attribute), x.size(), nullptr)
+
+Vec<ast_t*> empty_sync(Allocator &al) {
+    Vec<ast_t*> v; v.reserve(al, 1);
+    return v;
+}
 #define SYNC_ALL(l) make_SyncAll_t(p.m_a, l, 0, nullptr, 0, nullptr)
-#define SYNC_ALL1(x, l) make_SyncAll_t(p.m_a, l, 0, \
+#define SYNC_ALL1(l) make_SyncAll_t(p.m_a, l, 0, \
+        VEC_CAST(empty_sync(p.m_a), event_attribute), empty_sync(p.m_a).size(), nullptr)
+#define SYNC_ALL2(x, l) make_SyncAll_t(p.m_a, l, 0, \
         VEC_CAST(x, event_attribute), x.size(), nullptr)
 
 #define STAT(var, l) make_AttrStat_t(p.m_a, l, name2char(var))
@@ -1924,7 +1931,10 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 
 #define CRITICAL(trivia, stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
         nullptr, 0, STMTS(stmts), stmts.size(), trivia_cast(trivia), nullptr)
-#define CRITICAL1(x, trivia, stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
+#define CRITICAL1(trivia, stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
+        VEC_CAST(empty_sync(p.m_a), event_attribute), empty_sync(p.m_a).size(), \
+        STMTS(stmts), stmts.size(), trivia_cast(trivia), nullptr)
+#define CRITICAL2(x, trivia, stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
         VEC_CAST(x, event_attribute), x.size(), \
         STMTS(stmts), stmts.size(), trivia_cast(trivia), nullptr)
 
