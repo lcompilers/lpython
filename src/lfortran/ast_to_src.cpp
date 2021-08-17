@@ -2140,9 +2140,39 @@ public:
             for (size_t i=0; i<x.n_stat; i++) {
                 this->visit_event_attribute(*x.m_stat[i]);
                 r.append(s);
+                if (i < x.n_stat-1) r.append(", ");
             }
             r += ")";
         }
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
+        s = r;
+    }
+
+    void visit_SyncImages(const SyncImages_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += syn(gr::Keyword);
+        r.append("sync images");
+        r += syn();
+        r += "(";
+        if (x.m_image_set) {
+            this->visit_expr(*x.m_image_set);
+            r.append(s);
+        }
+        if(x.m_sym == Asterisk) {
+            r += symbol2str(x.m_sym);
+        }
+        for (size_t i=0; i<x.n_stat; i++) {
+            if(i == 0) r += ", ";
+            this->visit_event_attribute(*x.m_stat[i]);
+            r.append(s);
+            if (i < x.n_stat-1) r.append(", ");
+        }
+        r += ")";
         if(x.m_trivia){
             r += print_trivia_after(*x.m_trivia);
         } else {
@@ -2158,10 +2188,11 @@ public:
         r.append("sync memory");
         r += syn();
         if (x.m_stat) {
-            r += " (";
+            r += "(";
             for (size_t i=0; i<x.n_stat; i++) {
                 this->visit_event_attribute(*x.m_stat[i]);
                 r.append(s);
+                if (i < x.n_stat-1) r.append(", ");
             }
             r += ")";
         }
