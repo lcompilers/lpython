@@ -2151,6 +2151,28 @@ public:
         s = r;
     }
 
+    void visit_SyncMemory(const SyncMemory_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += syn(gr::Keyword);
+        r.append("sync memory");
+        r += syn();
+        if (x.m_stat) {
+            r += " (";
+            for (size_t i=0; i<x.n_stat; i++) {
+                this->visit_event_attribute(*x.m_stat[i]);
+                r.append(s);
+            }
+            r += ")";
+        }
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
+        s = r;
+    }
+
     void visit_SyncTeam(const SyncTeam_t &x) {
         std::string r = indent;
         r += print_label(x);
