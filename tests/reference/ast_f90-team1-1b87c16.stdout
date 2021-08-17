@@ -1,0 +1,16 @@
+program team1
+implicit none 
+
+integer, parameter :: n = 4
+type(TEAM_TYPE) :: column
+real, codimension[n,*] :: co_array
+integer, dimension(2) :: my_cosubscripts
+my_cosubscripts(:) = THIS_IMAGE(co_array) 
+! ​FORM TEAM (my_cosubscripts(2), column, NEW_INDEX = my_cosubscripts(1))
+form team(my_cosubscripts(2), column)
+sync team(column)
+change team(column, ca[*] => co_array) 
+! Segment 1
+end team 
+
+end program team1
