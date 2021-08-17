@@ -1140,6 +1140,15 @@ Vec<ast_t*> empty_sync(Allocator &al) {
 #define SYNC_ALL2(x, l) make_SyncAll_t(p.m_a, l, 0, \
         VEC_CAST(x, event_attribute), x.size(), nullptr)
 
+#define SYNC_IMAGE1(sym, l) make_SyncImages_t(p.m_a, l, 0, \
+        nullptr, sym, nullptr, 0, nullptr)
+#define SYNC_IMAGE2(e, l) make_SyncImages_t(p.m_a, l, 0, \
+        EXPR(e), None, nullptr, 0, nullptr)
+#define SYNC_IMAGE3(sym, sync_stat, l) make_SyncImages_t(p.m_a, l, 0, nullptr, \
+        sym, VEC_CAST(sync_stat, event_attribute), sync_stat.size(), nullptr)
+#define SYNC_IMAGE4(e, sync_stat, l) make_SyncImages_t(p.m_a, l, 0, EXPR(e), \
+        None, VEC_CAST(sync_stat, event_attribute), sync_stat.size(), nullptr)
+
 #define SYNC_MEMORY(l) make_SyncMemory_t(p.m_a, l, 0, nullptr, 0, nullptr)
 #define SYNC_MEMORY1(l) make_SyncMemory_t(p.m_a, l, 0, \
         VEC_CAST(empty_sync(p.m_a), event_attribute), empty_sync(p.m_a).size(), nullptr)
@@ -2015,6 +2024,8 @@ void set_m_trivia(stmt_t *s, trivia_t *trivia) {
         TRIVIA_SET(Stop)
         TRIVIA_SET(SubroutineCall)
         TRIVIA_SET(SyncAll)
+        TRIVIA_SET(SyncImages)
+        TRIVIA_SET(SyncMemory)
         TRIVIA_SET(SyncTeam)
         TRIVIA_SET(Write)
         TRIVIA_SET(AssociateBlock)

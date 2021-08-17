@@ -448,6 +448,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> event_post_statement
 %type <ast> event_wait_statement
 %type <ast> sync_all_statement
+%type <ast> sync_images_statement
 %type <ast> sync_memory_statement
 %type <ast> sync_team_statement
 %type <vec_ast> event_wait_spec_list
@@ -1470,6 +1471,7 @@ single_line_statement
     | stop_statement
     | subroutine_call
     | sync_all_statement
+    | sync_images_statement
     | sync_memory_statement
     | sync_team_statement
     | where_statement_single
@@ -1947,6 +1949,18 @@ sync_all_statement
 sync_all
     : KW_SYNC KW_ALL
     | KW_SYNC_ALL
+    ;
+
+sync_images_statement
+    : sync_images "(" "*" ")" { $$ = SYNC_IMAGE1(Asterisk, @$); }
+    | sync_images "(" expr ")" { $$ = SYNC_IMAGE2($3, @$); }
+    | sync_images "(" "*" sync_stat_list ")" {
+            $$ = SYNC_IMAGE3(Asterisk, $4, @$); }
+    | sync_images "(" expr sync_stat_list ")" { $$ = SYNC_IMAGE4($3, $4, @$); }
+    ;
+sync_images
+    : KW_SYNC KW_IMAGES
+    | KW_SYNC_IMAGES
     ;
 
 sync_memory_statement
