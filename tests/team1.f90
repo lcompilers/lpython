@@ -1,16 +1,23 @@
-PROGRAM team1
+program team1
 implicit none
+! Syntax check only(AST)
 
-INTEGER, PARAMETER          :: n = 4
-TYPE (TEAM_TYPE)            :: column
-REAL,CODIMENSION[n, *]      :: co_array
-INTEGER,DIMENSION(2)        :: my_cosubscripts
-my_cosubscripts (:)   = THIS_IMAGE(co_array)
-! ​FORM TEAM (my_cosubscripts(2), column, NEW_INDEX = my_cosubscripts(1))
-FORM TEAM (my_cosubscripts(2), column)
-SYNC TEAM (column)
-CHANGE TEAM (column, ca[*] => co_array)
-! Segment 1
-END TEAM
+integer, parameter          :: n = 4
+type (team_type)            :: column, odd_even
+real,codimension[n, *]      :: co_array
+integer,dimension(2)        :: my_cosubscripts
+my_cosubscripts (:)   = this_image(co_array)
 
-END PROGRAM
+! ​form team (my_cosubscripts(2), column, new_index = my_cosubscripts(1))
+form team (my_cosubscripts(2), column)
+sync team (column)
+change team (column, ca[*] => co_array)
+! segment 1
+end team
+
+formteam (2-mod(this_image(), 2), odd_even)
+changeteam (odd_even)
+! segment 2
+endteam
+
+end program
