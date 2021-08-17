@@ -836,10 +836,10 @@ end_critical
     | KW_ENDCRITICAL
     ;
 
-    end_team
-        : KW_END_TEAM
-        | KW_ENDTEAM
-        ;
+end_team
+    : KW_END_TEAM
+    | KW_ENDTEAM
+    ;
 
 subroutine
     : KW_SUBROUTINE id sub_args bind_opt sep use_statement_star
