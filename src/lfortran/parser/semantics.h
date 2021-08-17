@@ -1140,6 +1140,12 @@ Vec<ast_t*> empty_sync(Allocator &al) {
 #define SYNC_ALL2(x, l) make_SyncAll_t(p.m_a, l, 0, \
         VEC_CAST(x, event_attribute), x.size(), nullptr)
 
+#define SYNC_MEMORY(l) make_SyncMemory_t(p.m_a, l, 0, nullptr, 0, nullptr)
+#define SYNC_MEMORY1(l) make_SyncMemory_t(p.m_a, l, 0, \
+        VEC_CAST(empty_sync(p.m_a), event_attribute), empty_sync(p.m_a).size(), nullptr)
+#define SYNC_MEMORY2(x, l) make_SyncMemory_t(p.m_a, l, 0, \
+        VEC_CAST(x, event_attribute), x.size(), nullptr)
+
 #define STAT(var, l) make_AttrStat_t(p.m_a, l, name2char(var))
 #define ERRMSG(var, l) make_AttrErrmsg_t(p.m_a, l, name2char(var))
 #define EVENT_WAIT_KW_ARG(id, e, l) make_AttrEventWaitKwArg_t(p.m_a, l, \

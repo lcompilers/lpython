@@ -245,6 +245,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_GO
 %token <string> KW_GOTO
 %token <string> KW_IF
+%token <string> KW_IMAGES
 %token <string> KW_IMPLICIT
 %token <string> KW_IMPORT
 %token <string> KW_IMPURE
@@ -263,6 +264,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_LOCAL
 %token <string> KW_LOCAL_INIT
 %token <string> KW_LOGICAL
+%token <string> KW_MEMORY
 %token <string> KW_MODULE
 %token <string> KW_MOLD
 %token <string> KW_NAME
@@ -312,6 +314,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_SUBMODULE
 %token <string> KW_SUBROUTINE
 %token <string> KW_SYNC
+%token <string> KW_SYNC_ALL
+%token <string> KW_SYNC_IMAGES
+%token <string> KW_SYNC_MEMORY
 %token <string> KW_SYNC_TEAM
 %token <string> KW_TARGET
 %token <string> KW_TEAM
@@ -443,6 +448,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> event_post_statement
 %type <ast> event_wait_statement
 %type <ast> sync_all_statement
+%type <ast> sync_memory_statement
 %type <ast> sync_team_statement
 %type <vec_ast> event_wait_spec_list
 %type <ast> event_wait_spec
@@ -1464,6 +1470,7 @@ single_line_statement
     | stop_statement
     | subroutine_call
     | sync_all_statement
+    | sync_memory_statement
     | sync_team_statement
     | where_statement_single
     | write_statement
@@ -1933,9 +1940,23 @@ event_wait_statement
     ;
 
 sync_all_statement
-    : KW_SYNC KW_ALL { $$ = SYNC_ALL(@$); }
-    | KW_SYNC KW_ALL "(" ")" { $$ = SYNC_ALL1(@$); }
-    | KW_SYNC KW_ALL "(" sync_stat_list ")" { $$ = SYNC_ALL2($4, @$); }
+    : sync_all { $$ = SYNC_ALL(@$); }
+    | sync_all "(" ")" { $$ = SYNC_ALL1(@$); }
+    | sync_all "(" sync_stat_list ")" { $$ = SYNC_ALL2($3, @$); }
+    ;
+sync_all
+    : KW_SYNC KW_ALL
+    | KW_SYNC_ALL
+    ;
+
+sync_memory_statement
+    : sync_memory { $$ = SYNC_MEMORY(@$); }
+    | sync_memory "(" ")" { $$ = SYNC_MEMORY1(@$); }
+    | sync_memory "(" sync_stat_list ")" { $$ = SYNC_MEMORY2($3, @$); }
+    ;
+sync_memory
+    : KW_SYNC KW_MEMORY
+    | KW_SYNC_MEMORY
     ;
 
 sync_team_statement
@@ -2263,6 +2284,7 @@ id
     | KW_GO { $$ = SYMBOL($1, @$); }
     | KW_GOTO { $$ = SYMBOL($1, @$); }
     | KW_IF { $$ = SYMBOL($1, @$); }
+    | KW_IMAGES { $$ = SYMBOL($1, @$); }
     | KW_IMPLICIT { $$ = SYMBOL($1, @$); }
     | KW_IMPORT { $$ = SYMBOL($1, @$); }
     | KW_IMPURE { $$ = SYMBOL($1, @$); }
@@ -2280,6 +2302,7 @@ id
     | KW_LOCAL { $$ = SYMBOL($1, @$); }
     | KW_LOCAL_INIT { $$ = SYMBOL($1, @$); }
     | KW_LOGICAL { $$ = SYMBOL($1, @$); }
+    | KW_MEMORY { $$ = SYMBOL($1, @$); }
     | KW_MODULE { $$ = SYMBOL($1, @$); }
     | KW_MOLD { $$ = SYMBOL($1, @$); }
     | KW_NAME { $$ = SYMBOL($1, @$); }
