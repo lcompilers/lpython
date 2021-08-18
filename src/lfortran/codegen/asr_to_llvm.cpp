@@ -3257,8 +3257,10 @@ public:
                     return;
                 }
             }
+        } else if (s->m_abi == ASR::abiType::BindC) {
+            h = get_hash((ASR::asr_t*)s);
         } else {
-            throw CodeGenError("External type not implemented yet.");
+            throw CodeGenError("ABI type not implemented yet.");
         }
         if (llvm_symtab_fn_arg.find(h) != llvm_symtab_fn_arg.end()) {
             // Check if this is a callback function
