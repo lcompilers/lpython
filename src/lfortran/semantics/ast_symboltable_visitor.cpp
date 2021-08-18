@@ -350,6 +350,29 @@ public:
         if (is_interface) {
             deftype = ASR::deftypeType::Interface;
         }
+
+        ASR::abiType abi_type=ASR::abiType::Source;
+        if (x.m_bind) {
+            AST::Bind_t *bind = AST::down_cast<AST::Bind_t>(x.m_bind);
+            if (bind->n_args == 1) {
+                if (AST::is_a<AST::Name_t>(*bind->m_args[0])) {
+                    AST::Name_t *name = AST::down_cast<AST::Name_t>(
+                        bind->m_args[0]);
+                    if (to_lower(std::string(name->m_id)) == "c") {
+                        abi_type=ASR::abiType::BindC;
+                    } else {
+                        throw SemanticError("Unsupported language in bind()",
+                            x.base.base.loc);
+                    }
+                } else {
+                        throw SemanticError("Language name must be specified in bind() as plain text",
+                            x.base.base.loc);
+                }
+            } else {
+                throw SemanticError("At least one argument needed in bind()",
+                    x.base.base.loc);
+            }
+        }
         asr = ASR::make_Function_t(
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
@@ -359,7 +382,7 @@ public:
             /* a_body */ nullptr,
             /* n_body */ 0,
             /* a_return_var */ LFortran::ASRUtils::EXPR(return_var_ref),
-            ASR::abiType::Source, s_access, deftype);
+            abi_type, s_access, deftype);
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             ASR::symbol_t *f1 = parent_scope->scope[sym_name];
             ASR::Function_t *f2 = ASR::down_cast<ASR::Function_t>(f1);
