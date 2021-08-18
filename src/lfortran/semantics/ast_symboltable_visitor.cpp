@@ -1046,6 +1046,21 @@ public:
         data_member_names.reserve(al, 0);
         is_derived_type = true;
         dt_name = x.m_name;
+        AST::AttrExtends_t *attr_extend = nullptr;
+        for( size_t i = 0; i < x.n_attrtype; i++ ) {
+            switch( x.m_attrtype[i]->type ) {
+                case AST::decl_attributeType::AttrExtends: {
+                    if( attr_extend != nullptr ) {
+                        throw SemanticError("DerivedType can only extend one another DerivedType",
+                                            x.base.base.loc);
+                    }
+                    attr_extend = (AST::AttrExtends_t*)(&(x.m_attrtype[i]->base));
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
         for (size_t i=0; i<x.n_items; i++) {
             this->visit_unit_decl2(*x.m_items[i]);
         }
@@ -1056,10 +1071,18 @@ public:
         if (current_scope->scope.find(sym_name) != current_scope->scope.end()) {
             throw SemanticError("DerivedType already defined", x.base.base.loc);
         }
+        ASR::symbol_t* parent_sym = nullptr;
+        if( attr_extend != nullptr ) {
+            std::string parent_sym_name = attr_extend->m_name;
+            if( parent_scope->scope.find(parent_sym_name) == parent_scope->scope.end() ) {
+                throw SemanticError(parent_sym_name + " is not defined.", x.base.base.loc);
+            }
+            parent_sym = parent_scope->scope[parent_sym_name];
+        }
         asr = ASR::make_DerivedType_t(al, x.base.base.loc, current_scope,
-            x.m_name, data_member_names.p, data_member_names.size(), ASR::abiType::Source, dflt_access);
+                x.m_name, data_member_names.p, data_member_names.size(),
+                ASR::abiType::Source, dflt_access, parent_sym);
         parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
-
         current_scope = parent_scope;
         is_derived_type = false;
     }

@@ -1092,7 +1092,7 @@ public:
              v_variable->m_type->type == ASR::ttypeType::Class ) {
             ASR::ttype_t* v_type = v_variable->m_type;
             ASR::Derived_t* der = (ASR::Derived_t*)(&(v_type->base));
-            ASR::DerivedType_t* der_type;
+            ASR::DerivedType_t *der_type;
             if( der->m_derived_type->type == ASR::symbolType::ExternalSymbol ) {
                 ASR::ExternalSymbol_t* der_ext = (ASR::ExternalSymbol_t*)(&(der->m_derived_type->base));
                 ASR::symbol_t* der_sym = der_ext->m_external;
@@ -1104,8 +1104,19 @@ public:
             } else {
                 der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
             }
-            scope = der_type->m_symtab;
-            ASR::symbol_t* member = der_type->m_symtab->resolve_symbol(var_name);
+            ASR::DerivedType_t *par_der_type = der_type;
+            // scope = der_type->m_symtab;
+            // ASR::symbol_t* member = der_type->m_symtab->resolve_symbol(var_name);
+            ASR::symbol_t* member = nullptr;
+            while( par_der_type != nullptr && member == nullptr ) {
+                scope = par_der_type->m_symtab;
+                member = par_der_type->m_symtab->resolve_symbol(var_name);
+                if( par_der_type->m_parent != nullptr ) {
+                    par_der_type = (ASR::DerivedType_t*)(LFortran::ASRUtils::symbol_get_past_external(par_der_type->m_parent));
+                } else {
+                    par_der_type = nullptr;
+                }
+            }
             if( member != nullptr ) {
                 ASR::asr_t* v_var = ASR::make_Var_t(al, loc, v);
                 return getDerivedRef_t(loc, v_var, member);

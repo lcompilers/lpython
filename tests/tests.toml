@@ -1464,6 +1464,11 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "../integration_tests/class_04.f90"
+asr = true
+llvm = true
+
+[[test]]
 filename = "print1.f90"
 ast = true
 ast_f90 = true

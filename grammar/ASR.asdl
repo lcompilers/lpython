@@ -90,7 +90,7 @@ symbol
         symbol external, identifier module_name, identifier original_name,
         access access)
     | DerivedType(symbol_table symtab, identifier name, identifier* members,
-        abi abi, access access)
+        abi abi, access access, symbol? parent)
     | Variable(symbol_table parent_symtab, identifier name, intent intent,
         expr? symbolic_value, expr? value, storage_type storage, ttype type,
         abi abi, access access, presence presence)
