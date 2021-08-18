@@ -1706,9 +1706,14 @@ public:
             F = llvm_symtab_fn[h];
         } else {
             llvm::FunctionType* function_type = get_function_type(x);
+            std::string fn_name;
+            if (x.m_abi == ASR::abiType::BindC) {
+                fn_name = x.m_name;
+            } else {
+                fn_name = mangle_prefix + x.m_name;
+            }
             F = llvm::Function::Create(function_type,
-                llvm::Function::ExternalLinkage, mangle_prefix + 
-                x.m_name, module.get());
+                llvm::Function::ExternalLinkage, fn_name, module.get());
             llvm_symtab_fn[h] = F;
         }
     }
