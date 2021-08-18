@@ -1497,3 +1497,9 @@ asr = true
 [[test]]
 filename = "../integration_tests/const_kind_02.f90"
 asr = true
+
+
+[[test]]
+filename = "team1.f90"
+ast = true
+ast_f90 = true

@@ -1131,8 +1131,15 @@ void pos_to_linecol(const std::string &s, uint64_t position,
         EXPR(eventVar), nullptr, 0, nullptr)
 #define EVENT_WAIT1(eventVar, x, l) make_EventWait_t(p.m_a, l, 0, \
         EXPR(eventVar), VEC_CAST(x, event_attribute), x.size(), nullptr)
+
+Vec<ast_t*> empty_sync(Allocator &al) {
+    Vec<ast_t*> v; v.reserve(al, 1);
+    return v;
+}
 #define SYNC_ALL(l) make_SyncAll_t(p.m_a, l, 0, nullptr, 0, nullptr)
-#define SYNC_ALL1(x, l) make_SyncAll_t(p.m_a, l, 0, \
+#define SYNC_ALL1(l) make_SyncAll_t(p.m_a, l, 0, \
+        VEC_CAST(empty_sync(p.m_a), event_attribute), empty_sync(p.m_a).size(), nullptr)
+#define SYNC_ALL2(x, l) make_SyncAll_t(p.m_a, l, 0, \
         VEC_CAST(x, event_attribute), x.size(), nullptr)
 
 #define STAT(var, l) make_AttrStat_t(p.m_a, l, name2char(var))
@@ -1926,10 +1933,50 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 
 #define CRITICAL(trivia, stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
         nullptr, 0, STMTS(stmts), stmts.size(), trivia_cast(trivia), nullptr)
-#define CRITICAL1(x, trivia, stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
+#define CRITICAL1(trivia, stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
+        VEC_CAST(empty_sync(p.m_a), event_attribute), empty_sync(p.m_a).size(), \
+        STMTS(stmts), stmts.size(), trivia_cast(trivia), nullptr)
+#define CRITICAL2(x, trivia, stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
         VEC_CAST(x, event_attribute), x.size(), \
         STMTS(stmts), stmts.size(), trivia_cast(trivia), nullptr)
 
+#define CHANGETEAM1(e, co_assoc, trivia, stmts, l) make_ChangeTeam_t(p.m_a, l, \
+        0, nullptr, EXPR(e), \
+        VEC_CAST(co_assoc, team_attribute), co_assoc.size(), \
+        nullptr, 0, \
+        STMTS(stmts), stmts.size(), \
+        trivia_cast(trivia), nullptr, nullptr, 0)
+#define CHANGETEAM2(e, co_assoc, trivia, stmts, sync_stat, l) \
+        make_ChangeTeam_t(p.m_a, l, 0, nullptr, EXPR(e), \
+        VEC_CAST(co_assoc, team_attribute), co_assoc.size(), \
+        nullptr, 0, \
+        STMTS(stmts), stmts.size(), \
+        trivia_cast(trivia), nullptr, \
+        VEC_CAST(sync_stat, event_attribute), sync_stat.size())
+#define CHANGETEAM3(e, co_assoc, sync, trivia, stmts, l) make_ChangeTeam_t(p.m_a, l, \
+        0, nullptr, EXPR(e), \
+        VEC_CAST(co_assoc, team_attribute), co_assoc.size(), \
+        VEC_CAST(sync, event_attribute), sync.size(), \
+        STMTS(stmts), stmts.size(), \
+        trivia_cast(trivia), nullptr, nullptr, 0)
+#define CHANGETEAM4(e, co_assoc, sync, trivia, stmts, sync_stat, l) \
+        make_ChangeTeam_t(p.m_a, l, 0, nullptr, EXPR(e), \
+        VEC_CAST(co_assoc, team_attribute), co_assoc.size(), \
+        VEC_CAST(sync, event_attribute), sync.size(),\
+        STMTS(stmts), stmts.size(), \
+        trivia_cast(trivia), nullptr, \
+        VEC_CAST(sync_stat, event_attribute), sync_stat.size())
+#define COARRAY_ASSOC(id, coarray, e, l) make_CoarrayAssociation_t(p.m_a, l, \
+        EXPR(COARRAY(p.m_a, id, empty5(), empty1(), coarray, l)), EXPR(e))
+
+#define FORMTEAM1(e, id, l) make_FormTeam_t(p.m_a, l, 0, \
+        EXPR(e), name2char(id), nullptr, 0, nullptr)
+#define FORMTEAM2(e, id, sync_stat, l) make_FormTeam_t(p.m_a, l, 0, EXPR(e), \
+        name2char(id), VEC_CAST(sync_stat, event_attribute), sync_stat.size(), nullptr)
+
+#define SYNCTEAM1(e, l) make_SyncTeam_t(p.m_a, l, 0, EXPR(e), nullptr, 0, nullptr)
+#define SYNCTEAM2(e, x, l) make_SyncTeam_t(p.m_a, l, 0, EXPR(e), \
+        VEC_CAST(x, event_attribute), x.size(), nullptr)
 
 #define TRIVIA_SET(x) case LFortran::AST::stmtType::x: { down_cast<x##_t>(s)->m_trivia = trivia; break; }
 
@@ -1952,6 +1999,7 @@ void set_m_trivia(stmt_t *s, trivia_t *trivia) {
         TRIVIA_SET(Flush)
         TRIVIA_SET(ForAllSingle)
         TRIVIA_SET(Format)
+        TRIVIA_SET(FormTeam)
         TRIVIA_SET(GoTo)
         TRIVIA_SET(Inquire)
         TRIVIA_SET(Nullify)
@@ -1963,9 +2011,11 @@ void set_m_trivia(stmt_t *s, trivia_t *trivia) {
         TRIVIA_SET(Stop)
         TRIVIA_SET(SubroutineCall)
         TRIVIA_SET(SyncAll)
+        TRIVIA_SET(SyncTeam)
         TRIVIA_SET(Write)
         TRIVIA_SET(AssociateBlock)
         TRIVIA_SET(Block)
+        TRIVIA_SET(ChangeTeam)
         TRIVIA_SET(Critical)
         TRIVIA_SET(DoConcurrentLoop)
         TRIVIA_SET(DoLoop)

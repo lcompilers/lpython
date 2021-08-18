@@ -1,0 +1,13 @@
+{
+    "basename": "ast_f90-team1-1b87c16",
+    "cmd": "lfortran --show-ast-f90 --no-color {infile}",
+    "infile": "tests/team1.f90",
+    "infile_hash": "046371a373e05f1b4a1126982b07a55cb74af508c0aae4de0cf4289d",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_f90-team1-1b87c16.stdout",
+    "stdout_hash": "7caceafb673a764cdbd7bf7e6223aa25ffe78ba10734e2afabbe812e",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

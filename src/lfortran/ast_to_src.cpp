@@ -2151,6 +2151,30 @@ public:
         s = r;
     }
 
+    void visit_SyncTeam(const SyncTeam_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += syn(gr::Keyword);
+        r.append("sync team");
+        r += syn();
+        r += "(";
+        this->visit_expr(*x.m_value);
+        r.append(s);
+        for (size_t i=0; i<x.n_stat; i++) {
+            if(i == 0) r += ", ";
+            this->visit_event_attribute(*x.m_stat[i]);
+            r.append(s);
+            if (i < x.n_stat-1) r.append(", ");
+        }
+        r += ")";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
+        s = r;
+    }
+
     void visit_DoLoop(const DoLoop_t &x) {
         std::string r = indent;
         r += print_label(x);
@@ -2319,6 +2343,72 @@ public:
         } else {
             r.append("\n");
         }
+        s = r;
+    }
+
+    void visit_ChangeTeam(const ChangeTeam_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += print_stmt_name(x);
+        r += syn(gr::UnitHeader);
+        r += "change team";
+        r += syn();
+        r += "(";
+        this->visit_expr(*x.m_team_value);
+        r.append(s);
+        for (size_t i=0; i<x.n_coarray_assoc; i++) {
+            if(i == 0) r += ", ";
+            this->visit_team_attribute(*x.m_coarray_assoc[i]);
+            r.append(s);
+            if (i < x.n_coarray_assoc-1) r.append(", ");
+        }
+        for (size_t i=0; i<x.n_sync; i++) {
+            if(i == 0) r += ", ";
+            this->visit_event_attribute(*x.m_sync[i]);
+            r.append(s);
+            if (i < x.n_sync-1) r.append(", ");
+        }
+        r += ")";
+        if(x.m_t_inside){
+            r += print_trivia_after(*x.m_t_inside);
+        } else {
+            r.append("\n");
+        }
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r.append(s);
+        }
+        dec_indent();
+        r += indent;
+        r += syn(gr::UnitHeader);
+        r.append("end team");
+        r += syn();
+        if (x.m_sync_stat) {
+            r += " (";
+            for (size_t i=0; i<x.n_sync_stat; i++) {
+                this->visit_event_attribute(*x.m_sync_stat[i]);
+                r.append(s);
+                if (i < x.n_sync_stat-1) r.append(", ");
+            }
+            r += ")";
+        }
+        r += end_stmt_name(x);
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
+        s = r;
+    }
+
+    void visit_CoarrayAssociation(const CoarrayAssociation_t &x) {
+        std::string r = "";
+        this->visit_expr(*x.m_coarray);
+        r.append(s);
+        r += " => ";
+        this->visit_expr(*x.m_selector);
+        r.append(s);
         s = r;
     }
 
@@ -3088,6 +3178,32 @@ public:
         r += "format";
         r += syn();
         r += "(" + std::string(x.m_fmt) + ")";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
+        s = r;
+    }
+
+    void visit_FormTeam(const FormTeam_t &x) {
+        std::string r=indent;
+        r += print_label(x);
+        r += syn(gr::Keyword);
+        r += "form team";
+        r += syn();
+        r += "(";
+        this->visit_expr(*x.m_team_number);
+        r.append(s);
+        r += ", ";
+        r.append(x.m_team_var);
+        for (size_t i=0; i<x.n_sync_stat; i++) {
+            if(i == 0) r += ", ";
+            this->visit_event_attribute(*x.m_sync_stat[i]);
+            r.append(s);
+            if (i < x.n_sync_stat-1) r.append(", ");
+        }
+        r += ")";
         if(x.m_trivia){
             r += print_trivia_after(*x.m_trivia);
         } else {

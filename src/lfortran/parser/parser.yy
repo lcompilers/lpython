@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    194 // shift/reduce conflicts
-%expect-rr 170 // reduce/reduce conflicts
+%expect    196 // shift/reduce conflicts
+%expect-rr 171 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -133,6 +133,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_BLOCK
 %token <string> KW_CALL
 %token <string> KW_CASE
+%token <string> KW_CHANGE
+%token <string> KW_CHANGE_TEAM
 %token <string> KW_CHARACTER
 %token <string> KW_CLASS
 %token <string> KW_CLOSE
@@ -218,6 +220,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_END_FILE
 %token <string> KW_ENDFILE
 
+%token <string> KW_END_TEAM
+%token <string> KW_ENDTEAM
+
 %token <string> KW_ENTRY
 %token <string> KW_ENUM
 %token <string> KW_ENUMERATOR
@@ -233,6 +238,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_FLUSH
 %token <string> KW_FORALL
 %token <string> KW_FORMATTED
+%token <string> KW_FORM
+%token <string> KW_FORM_TEAM
 %token <string> KW_FUNCTION
 %token <string> KW_GENERIC
 %token <string> KW_GO
@@ -305,6 +312,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_SUBMODULE
 %token <string> KW_SUBROUTINE
 %token <string> KW_SYNC
+%token <string> KW_SYNC_TEAM
 %token <string> KW_TARGET
 %token <string> KW_TEAM
 %token <string> KW_TEAM_NUMBER
@@ -417,6 +425,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> case_condition
 %type <ast> while_statement
 %type <ast> critical_statement
+%type <ast> change_team_statement
+%type <vec_ast> coarray_association_list
+%type <ast> coarray_association
 %type <ast> do_statement
 %type <ast> forall_statement
 %type <ast> forall_statement_single
@@ -432,12 +443,14 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> event_post_statement
 %type <ast> event_wait_statement
 %type <ast> sync_all_statement
+%type <ast> sync_team_statement
 %type <vec_ast> event_wait_spec_list
 %type <ast> event_wait_spec
 %type <vec_ast> sync_stat_list
 %type <vec_ast> event_post_stat_list
 %type <ast> sync_stat
 %type <ast> format_statement
+%type <ast> form_team_statement
 %type <ast> decl_statement
 %type <vec_ast> statements
 %type <vec_ast> decl_statements
@@ -815,6 +828,11 @@ end_critical
     : KW_END_CRITICAL
     | KW_ENDCRITICAL
     ;
+
+    end_team
+        : KW_END_TEAM
+        | KW_ENDTEAM
+        ;
 
 subroutine
     : KW_SUBROUTINE id sub_args bind_opt sep use_statement_star
@@ -1431,6 +1449,7 @@ single_line_statement
     | flush_statement
     | forall_statement_single
     | format_statement
+    | form_team_statement
     | goto_statement
     | if_statement_single
     | inquire_statement
@@ -1445,6 +1464,7 @@ single_line_statement
     | stop_statement
     | subroutine_call
     | sync_all_statement
+    | sync_team_statement
     | where_statement_single
     | write_statement
     ;
@@ -1457,6 +1477,7 @@ multi_line_statement
 multi_line_statement0
     : associate_block
     | block_statement
+    | change_team_statement
     | critical_statement
     | do_statement
     | forall_statement
@@ -1820,6 +1841,17 @@ format_statement
     : TK_FORMAT { $$ = FORMAT($1, @$); }
     ;
 
+form_team_statement
+    : form_team "(" expr "," id ")" { $$ = FORMTEAM1($3, $5, @$); }
+    | form_team "(" expr "," id sync_stat_list ")" {
+            $$ = FORMTEAM2($3, $5, $6, @$); }
+    ;
+
+form_team
+    : KW_FORM KW_TEAM
+    | KW_FORM_TEAM
+    ;
+
 reduce_op
     : "+" { $$ = REDUCE_OP_TYPE_ADD(@$); }
     | "*" { $$ = REDUCE_OP_TYPE_MUL(@$); }
@@ -1902,7 +1934,18 @@ event_wait_statement
 
 sync_all_statement
     : KW_SYNC KW_ALL { $$ = SYNC_ALL(@$); }
-    | KW_SYNC KW_ALL "(" sync_stat_list ")" { $$ = SYNC_ALL1($4, @$); }
+    | KW_SYNC KW_ALL "(" ")" { $$ = SYNC_ALL1(@$); }
+    | KW_SYNC KW_ALL "(" sync_stat_list ")" { $$ = SYNC_ALL2($4, @$); }
+    ;
+
+sync_team_statement
+    : sync_team "(" expr ")" { $$ = SYNCTEAM1($3, @$); }
+    | sync_team "(" expr sync_stat_list ")" { $$ = SYNCTEAM2($3, $4, @$); }
+    ;
+
+sync_team
+    : KW_SYNC KW_TEAM
+    | KW_SYNC_TEAM
     ;
 
 event_wait_spec_list
@@ -1920,8 +1963,9 @@ event_post_stat_list
     ;
 
 sync_stat_list
-    : sync_stat { LIST_NEW($$); LIST_ADD($$, $1); }
-    | %empty { LIST_NEW($$); }
+    : sync_stat_list "," sync_stat { $$ = $1; LIST_ADD($$, $3); }
+    | "," sync_stat { LIST_NEW($$); LIST_ADD($$, $2); }
+    | sync_stat { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 sync_stat
@@ -1930,10 +1974,44 @@ sync_stat
     ;
 
 critical_statement
-    : KW_CRITICAL sep statements end_critical { $$ = CRITICAL(TRIVIA_AFTER($2, @$), $3, @$); }
+    : KW_CRITICAL sep statements end_critical {
+            $$ = CRITICAL(TRIVIA_AFTER($2, @$), $3, @$); }
+    | KW_CRITICAL "(" ")" sep statements end_critical {
+            $$ = CRITICAL1(TRIVIA_AFTER($4, @$), $5, @$); }
     | KW_CRITICAL "(" sync_stat_list ")" sep statements end_critical {
-            $$ = CRITICAL1($3, TRIVIA_AFTER($5, @$), $6, @$); }
+            $$ = CRITICAL2($3, TRIVIA_AFTER($5, @$), $6, @$); }
     ;
+
+change_team_statement
+    : change_team "(" expr coarray_association_list ")"
+        sep statements end_team {
+            $$ = CHANGETEAM1($3, $4, TRIVIA_AFTER($6, @$), $7, @$); }
+    | change_team "(" expr coarray_association_list ")"
+        sep statements end_team "(" sync_stat_list ")" {
+            $$ = CHANGETEAM2($3, $4, TRIVIA_AFTER($6, @$), $7, $10, @$); }
+    | change_team "(" expr coarray_association_list sync_stat_list ")"
+        sep statements end_team {
+            $$ = CHANGETEAM3($3, $4, $5, TRIVIA_AFTER($7, @$), $8, @$); }
+    | change_team "(" expr coarray_association_list sync_stat_list ")"
+        sep statements end_team "(" sync_stat_list ")" {
+            $$ = CHANGETEAM4($3, $4, $5, TRIVIA_AFTER($7, @$), $8, $11, @$); }
+    ;
+
+coarray_association_list
+    : coarray_association_list "," coarray_association { $$ = $1; LIST_ADD($$, $3); }
+    | coarray_association { LIST_NEW($$); LIST_ADD($$, $1); }
+    | %empty { LIST_NEW($$); }
+    ;
+
+coarray_association
+    : id "[" coarray_arg_list "]" "=>" expr { $$ = COARRAY_ASSOC($1, $3, $6, @$); }
+    ;
+
+change_team
+    : KW_CHANGE KW_TEAM
+    | KW_CHANGE_TEAM
+    ;
+
 // -----------------------------------------------------------------------------
 // Fortran expression
 
@@ -2118,6 +2196,7 @@ id
     | KW_BLOCK { $$ = SYMBOL($1, @$); }
     | KW_CALL { $$ = SYMBOL($1, @$); }
     | KW_CASE { $$ = SYMBOL($1, @$); }
+    | KW_CHANGE { $$ = SYMBOL($1, @$); }
     | KW_CHARACTER { $$ = SYMBOL($1, @$); }
     | KW_CLASS { $$ = SYMBOL($1, @$); }
     | KW_CLOSE { $$ = SYMBOL($1, @$); }
@@ -2178,6 +2257,8 @@ id
     | KW_FLUSH { $$ = SYMBOL($1, @$); }
     | KW_FORALL { $$ = SYMBOL($1, @$); }
     | KW_FORMATTED { $$ = SYMBOL($1, @$); }
+    | KW_FORM { $$ = SYMBOL($1, @$); }
+    | KW_FORM_TEAM { $$ = SYMBOL($1, @$); }
     | KW_FUNCTION { $$ = SYMBOL($1, @$); }
     | KW_GENERIC { $$ = SYMBOL($1, @$); }
     | KW_GO { $$ = SYMBOL($1, @$); }

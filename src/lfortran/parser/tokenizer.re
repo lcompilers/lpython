@@ -238,6 +238,8 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'block' { KW(BLOCK) }
             'call' { KW(CALL) }
             'case' { KW(CASE) }
+            'change' { KW(CHANGE) }
+            'changeteam' { KW(CHANGE_TEAM) }
             'character' { KW(CHARACTER) }
             'class' { KW(CLASS) }
             'close' { KW(CLOSE) }
@@ -311,6 +313,9 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'end' whitespace 'critical' { KW(END_CRITICAL) }
             'endcritical' { KW(ENDCRITICAL) }
 
+            'end' whitespace 'team' { KW(END_TEAM) }
+            'endteam' { KW(ENDTEAM) }
+
             'end' whitespace 'forall' { KW(END_FORALL) }
             'endforall' { KW(ENDFORALL) }
 
@@ -323,14 +328,14 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'end' whitespace 'type' { KW(END_TYPE) }
             'endtype' { KW(ENDTYPE) }
 
-            'end' whitespace 'do' { 
+            'end' whitespace 'do' {
                 if (enddo_newline_process) {
                     KW(CONTINUE)
                 } else {
                     KW(END_DO)
                 }
             }
-            'enddo' { 
+            'enddo' {
                 if (enddo_newline_process) {
                     KW(CONTINUE)
                 } else {
@@ -371,6 +376,8 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
                 }
             }
             'formatted' { KW(FORMATTED) }
+            'form' { KW(FORM) }
+            'formteam' { KW(FORM_TEAM) }
             'function' { KW(FUNCTION) }
             'generic' { KW(GENERIC) }
             'go' { KW(GO) }
@@ -443,6 +450,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'submodule' { KW(SUBMODULE) }
             'subroutine' { KW(SUBROUTINE) }
             'sync' { KW(SYNC) }
+            'syncteam' { KW(SYNC_TEAM) }
             'target' { KW(TARGET) }
             'team' { KW(TEAM) }
             'team_number' { KW(TEAM_NUMBER) }

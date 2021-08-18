@@ -1,9 +1,9 @@
-diff --git a/src/lfortran/parser/parser.yy b/src/lfortran/parser/parser2.yy
-index eb3f76d4..1f39cb07 100644
+diff --git a/src/lfortran/parser/parser.yy b/src/lfortran/parser/parser.yy
+index 2d6f0e49..6a069aa9 100644
 --- a/src/lfortran/parser/parser.yy
-+++ b/src/lfortran/parser/parser2.yy
-@@ -2041,162 +2041,4 @@ id_opt
- 
++++ b/src/lfortran/parser/parser.yy
+@@ -2182,165 +2182,4 @@ id_opt
+
  id
      : TK_NAME { $$ = SYMBOL($1, @$); }
 -    | KW_ABSTRACT { $$ = SYMBOL($1, @$); }
@@ -19,6 +19,7 @@ index eb3f76d4..1f39cb07 100644
 -    | KW_BLOCK { $$ = SYMBOL($1, @$); }
 -    | KW_CALL { $$ = SYMBOL($1, @$); }
 -    | KW_CASE { $$ = SYMBOL($1, @$); }
+-    | KW_CHANGE { $$ = SYMBOL($1, @$); }
 -    | KW_CHARACTER { $$ = SYMBOL($1, @$); }
 -    | KW_CLASS { $$ = SYMBOL($1, @$); }
 -    | KW_CLOSE { $$ = SYMBOL($1, @$); }
@@ -79,6 +80,8 @@ index eb3f76d4..1f39cb07 100644
 -    | KW_FLUSH { $$ = SYMBOL($1, @$); }
 -    | KW_FORALL { $$ = SYMBOL($1, @$); }
 -    | KW_FORMATTED { $$ = SYMBOL($1, @$); }
+-    | KW_FORM { $$ = SYMBOL($1, @$); }
+-    | KW_FORM_TEAM { $$ = SYMBOL($1, @$); }
 -    | KW_FUNCTION { $$ = SYMBOL($1, @$); }
 -    | KW_GENERIC { $$ = SYMBOL($1, @$); }
 -    | KW_GO { $$ = SYMBOL($1, @$); }
