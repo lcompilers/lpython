@@ -60,6 +60,7 @@ public:
     bool is_derived_type = false;
     Vec<char*> data_member_names;
     std::vector<std::string> current_procedure_args;
+    ASR::abiType current_procedure_abi_type = ASR::abiType::Source;
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
       : al{al}, current_scope{symbol_table}, is_derived_type{false} {}
@@ -164,6 +165,7 @@ public:
             std::string arg_s = arg;
             current_procedure_args.push_back(arg);
         }
+        current_procedure_abi_type = ASR::abiType::Source;
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
         }
@@ -214,6 +216,7 @@ public:
            in nested functions, and also in callback.f90 test, but it may not
            matter since we would have already checked the intent */
         current_procedure_args.clear();
+        current_procedure_abi_type = ASR::abiType::Source;
     }
 
     AST::AttrType_t* find_return_type(AST::decl_attribute_t** attributes,
@@ -244,6 +247,31 @@ public:
             std::string arg_s = arg;
             current_procedure_args.push_back(arg);
         }
+
+        // Determine the ABI (Source or BindC for now)
+        current_procedure_abi_type = ASR::abiType::Source;
+        if (x.m_bind) {
+            AST::Bind_t *bind = AST::down_cast<AST::Bind_t>(x.m_bind);
+            if (bind->n_args == 1) {
+                if (AST::is_a<AST::Name_t>(*bind->m_args[0])) {
+                    AST::Name_t *name = AST::down_cast<AST::Name_t>(
+                        bind->m_args[0]);
+                    if (to_lower(std::string(name->m_id)) == "c") {
+                        current_procedure_abi_type=ASR::abiType::BindC;
+                    } else {
+                        throw SemanticError("Unsupported language in bind()",
+                            x.base.base.loc);
+                    }
+                } else {
+                        throw SemanticError("Language name must be specified in bind() as plain text",
+                            x.base.base.loc);
+                }
+            } else {
+                throw SemanticError("At least one argument needed in bind()",
+                    x.base.base.loc);
+            }
+        }
+
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
         }
@@ -325,7 +353,7 @@ public:
             return_var = ASR::make_Variable_t(al, x.base.base.loc,
                 current_scope, return_var_name, LFortran::ASRUtils::intent_return_var, nullptr, nullptr,
                 ASR::storage_typeType::Default, type,
-                ASR::abiType::Source, ASR::Public, ASR::presenceType::Required);
+                current_procedure_abi_type, ASR::Public, ASR::presenceType::Required);
             current_scope->scope[std::string(return_var_name)]
                 = ASR::down_cast<ASR::symbol_t>(return_var);
         } else {
@@ -351,28 +379,6 @@ public:
             deftype = ASR::deftypeType::Interface;
         }
 
-        ASR::abiType abi_type=ASR::abiType::Source;
-        if (x.m_bind) {
-            AST::Bind_t *bind = AST::down_cast<AST::Bind_t>(x.m_bind);
-            if (bind->n_args == 1) {
-                if (AST::is_a<AST::Name_t>(*bind->m_args[0])) {
-                    AST::Name_t *name = AST::down_cast<AST::Name_t>(
-                        bind->m_args[0]);
-                    if (to_lower(std::string(name->m_id)) == "c") {
-                        abi_type=ASR::abiType::BindC;
-                    } else {
-                        throw SemanticError("Unsupported language in bind()",
-                            x.base.base.loc);
-                    }
-                } else {
-                        throw SemanticError("Language name must be specified in bind() as plain text",
-                            x.base.base.loc);
-                }
-            } else {
-                throw SemanticError("At least one argument needed in bind()",
-                    x.base.base.loc);
-            }
-        }
         asr = ASR::make_Function_t(
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
@@ -382,7 +388,7 @@ public:
             /* a_body */ nullptr,
             /* n_body */ 0,
             /* a_return_var */ LFortran::ASRUtils::EXPR(return_var_ref),
-            abi_type, s_access, deftype);
+            current_procedure_abi_type, s_access, deftype);
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             ASR::symbol_t *f1 = parent_scope->scope[sym_name];
             ASR::Function_t *f2 = ASR::down_cast<ASR::Function_t>(f1);
@@ -395,6 +401,7 @@ public:
         parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
         current_scope = parent_scope;
         current_procedure_args.clear();
+        current_procedure_abi_type = ASR::abiType::Source;
     }
 
     void visit_StrOp(const AST::StrOp_t &x) {
@@ -766,7 +773,7 @@ public:
                 }
                 ASR::asr_t *v = ASR::make_Variable_t(al, x.base.base.loc, current_scope,
                         s.m_name, s_intent, init_expr, value, storage_type, type,
-                        ASR::abiType::Source, s_access, s_presence);
+                        current_procedure_abi_type, s_access, s_presence);
                 current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(v);
                 if( is_derived_type ) {
                     data_member_names.push_back(al, s.m_name);
