@@ -1503,3 +1503,8 @@ asr = true
 filename = "team1.f90"
 ast = true
 ast_f90 = true
+
+[[test]]
+filename = "sync1.f90"
+ast = true
+ast_f90 = true

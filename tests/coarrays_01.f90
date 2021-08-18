@@ -43,8 +43,8 @@ else
     event post(greeting_ready(this_image())[1])
 end if
 
-sync all
-sync all()
+syncall
+syncall()
 sync all(stat=status)
 sync all(errmsg=status)
 

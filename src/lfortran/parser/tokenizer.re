@@ -383,6 +383,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'go' { KW(GO) }
             'goto' { KW(GOTO) }
             'if' { KW(IF) }
+            'images' { KW(IMAGES) }
             'implicit' { KW(IMPLICIT) }
             'import' { KW(IMPORT) }
             'impure' { KW(IMPURE) }
@@ -401,6 +402,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'local' { KW(LOCAL) }
             'local_init' { KW(LOCAL_INIT) }
             'logical' { KW(LOGICAL) }
+            'memory' { KW(MEMORY) }
             'module' { KW(MODULE) }
             'mold' { KW(MOLD) }
             'name' { KW(NAME) }
@@ -451,6 +453,9 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'submodule' { KW(SUBMODULE) }
             'subroutine' { KW(SUBROUTINE) }
             'sync' { KW(SYNC) }
+            'syncall' { KW(SYNC_ALL) }
+            'syncimages' { KW(SYNC_IMAGES) }
+            'syncmemory' { KW(SYNC_MEMORY) }
             'syncteam' { KW(SYNC_TEAM) }
             'target' { KW(TARGET) }
             'team' { KW(TEAM) }
