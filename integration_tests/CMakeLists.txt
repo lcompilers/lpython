@@ -214,7 +214,7 @@ RUN(NAME modules_11 LABELS gfortran llvm)
 RUN(NAME modules_12 LABELS gfortran)
 RUN(NAME modules_13 LABELS gfortran llvm)
 RUN(NAME modules_14 LABELS gfortran llvm EXTRAFILES modules_14_a.f90)
-RUN(NAME modules_15 LABELS gfortran EXTRAFILES
+RUN(NAME modules_15 LABELS gfortran llvm EXTRAFILES
         modules_15b.f90 modules_15c.c)
 
 RUN(NAME if_04 LABELS gfortran x86)
