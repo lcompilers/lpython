@@ -445,6 +445,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> cycle_statement
 %type <ast> continue_statement
 %type <ast> stop_statement
+%type <ast> entry_statement
 %type <ast> error_stop_statement
 %type <ast> event_post_statement
 %type <ast> event_wait_statement
@@ -1450,6 +1451,7 @@ single_line_statement
     | continue_statement
     | cycle_statement
     | deallocate_statement
+    | entry_statement
     | error_stop_statement
     | event_post_statement
     | event_wait_statement
@@ -1912,6 +1914,12 @@ cycle_statement
 
 continue_statement
     : KW_CONTINUE { $$ = CONTINUE(@$); }
+    ;
+
+entry_statement
+    : KW_ENTRY id sub_args { $$ = ENTRY1($2, $3, @$); }
+    | KW_ENTRY id sub_args bind result_opt { $$ = ENTRY2($2, $3, $4, $5, @$); }
+    | KW_ENTRY id sub_args result bind_opt { $$ = ENTRY3($2, $3, $4, $5, @$); }
     ;
 
 stop_statement

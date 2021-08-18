@@ -2042,6 +2042,44 @@ public:
         s = r;
     }
 
+    void visit_Entry(const Entry_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += syn(gr::Keyword);
+        r.append("entry");
+        r += syn();
+        r += " ";
+        r.append(x.m_name);
+        r.append("(");
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_arg(x.m_args[i]);
+            r.append(s);
+            if (i < x.n_args-1) r.append(", ");
+        }
+        r.append(")");
+        if (x.m_return_var) {
+            r += " ";
+            r += syn(gr::UnitHeader);
+            r.append("result");
+            r += syn();
+            r += "(";
+            this->visit_expr(*x.m_return_var);
+            r.append(s);
+            r.append(")");
+        }
+        if (x.m_bind) {
+            r.append(" ");
+            this->visit_bind(*x.m_bind);
+            r.append(s);
+        }
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
+        s = r;
+    }
+
     void visit_Stop(const Stop_t &x) {
         std::string r = indent;
         r += print_label(x);
@@ -2586,8 +2624,8 @@ public:
         r.append(" (");
         for (size_t i=0; i<x.n_control; i++) {
             this->visit_concurrent_control(*x.m_control[i]);
-            if (i < x.n_control-1) s.append(", ");
             r.append(s);
+            if (i < x.n_control-1) r.append(", ");
         }
         if (x.m_mask) {
             r += ", ";
@@ -2633,8 +2671,8 @@ public:
         r.append(" (");
         for (size_t i=0; i<x.n_control; i++) {
             this->visit_concurrent_control(*x.m_control[i]);
-            if (i < x.n_control-1) s.append(", ");
             r.append(s);
+            if (i < x.n_control-1) r.append(", ");
         }
         if (x.m_mask) {
             r += ", ";
