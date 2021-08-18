@@ -156,6 +156,7 @@ public:
 
     // Maps for containing information regarding derived types
     std::map<std::string, llvm::StructType*> name2dertype;
+    std::map<std::string, std::string> dertype2parent;
     std::map<std::string, std::map<std::string, int>> name2memidx;
 
     std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
@@ -387,24 +388,23 @@ public:
         return nullptr;
     }
 
-    llvm::Type* getDerivedType(ASR::ttype_t* _type, bool is_pointer=false) {
-        ASR::Derived_t* der = (ASR::Derived_t*)(&(_type->base));
-        ASR::symbol_t* der_sym;
-        if( der->m_derived_type->type == ASR::symbolType::ExternalSymbol ) {
-            ASR::ExternalSymbol_t* der_extr = (ASR::ExternalSymbol_t*)(&(der->m_derived_type->base));
-            der_sym = der_extr->m_external;
-        } else {
-            der_sym = der->m_derived_type;   
-        }
-        ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der_sym->base));
+    llvm::Type* getDerivedType(ASR::DerivedType_t* der_type, bool is_pointer=false) {
         std::string der_type_name = std::string(der_type->m_name);
         llvm::StructType* der_type_llvm;
         if( name2dertype.find(der_type_name) != name2dertype.end() ) {
             der_type_llvm = name2dertype[der_type_name];
         } else {
-            std::map<std::string, ASR::symbol_t*> scope = der_type->m_symtab->scope;
             std::vector<llvm::Type*> member_types;
             int member_idx = 0;
+            if( der_type->m_parent != nullptr ) {
+                ASR::DerivedType_t *par_der_type = ASR::down_cast<ASR::DerivedType_t>(
+                                                        symbol_get_past_external(der_type->m_parent));
+                llvm::Type* par_llvm = getDerivedType(par_der_type);
+                member_types.push_back(par_llvm);
+                dertype2parent[der_type_name] = std::string(par_der_type->m_name);
+                member_idx += 1;
+            }
+            std::map<std::string, ASR::symbol_t*> scope = der_type->m_symtab->scope;
             for( auto itr = scope.begin(); itr != scope.end(); itr++ ) {
                 ASR::Variable_t* member = (ASR::Variable_t*)(&(itr->second->base));
                 llvm::Type* mem_type = nullptr;
@@ -449,6 +449,19 @@ public:
             return der_type_llvm->getPointerTo();
         }
         return (llvm::Type*) der_type_llvm;
+    }
+
+    llvm::Type* getDerivedType(ASR::ttype_t* _type, bool is_pointer=false) {
+        ASR::Derived_t* der = (ASR::Derived_t*)(&(_type->base));
+        ASR::symbol_t* der_sym;
+        if( der->m_derived_type->type == ASR::symbolType::ExternalSymbol ) {
+            ASR::ExternalSymbol_t* der_extr = (ASR::ExternalSymbol_t*)(&(der->m_derived_type->base));
+            der_sym = der_extr->m_external;
+        } else {
+            der_sym = der->m_derived_type;   
+        }
+        ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der_sym->base));
+        return getDerivedType(der_type, is_pointer);
     }
 
 
@@ -875,6 +888,14 @@ public:
         ASR::Variable_t* member = down_cast<ASR::Variable_t>(symbol_get_past_external(x.m_m));
         std::string member_name = std::string(member->m_name);
         LFORTRAN_ASSERT(der_type_name.size() != 0);
+        while( name2memidx[der_type_name].find(member_name) == name2memidx[der_type_name].end() ) {
+            if( dertype2parent.find(der_type_name) == dertype2parent.end() ) {
+                throw SemanticError(der_type_name + " doesn't have any member named " + member_name,
+                                    x.base.base.loc);
+            }
+            tmp = llvm_utils->create_gep(tmp, 0);
+            der_type_name = dertype2parent[der_type_name];
+        }
         int member_idx = name2memidx[der_type_name][member_name];
         std::vector<llvm::Value*> idx_vec = {
             llvm::ConstantInt::get(context, llvm::APInt(32, 0)),

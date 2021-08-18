@@ -19,10 +19,12 @@ program main
 
     type(foo_b) :: foo
 
-    foo%m_bar_a%a = 2
-    foo%m_bar_b%b = 1
+    foo%m_bar_a%a = -20
+    foo%m_bar_b%b = 20
 
     print *, foo%m_bar_a%a
     print *, foo%m_bar_b%b
+
+    if( foo%m_bar_a%a + foo%m_bar_b%b /= 0 ) error stop
 
   end program main
