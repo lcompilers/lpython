@@ -1706,9 +1706,14 @@ public:
             F = llvm_symtab_fn[h];
         } else {
             llvm::FunctionType* function_type = get_function_type(x);
+            std::string fn_name;
+            if (x.m_abi == ASR::abiType::BindC) {
+                fn_name = x.m_name;
+            } else {
+                fn_name = mangle_prefix + x.m_name;
+            }
             F = llvm::Function::Create(function_type,
-                llvm::Function::ExternalLinkage, mangle_prefix + 
-                x.m_name, module.get());
+                llvm::Function::ExternalLinkage, fn_name, module.get());
             llvm_symtab_fn[h] = F;
         }
     }
@@ -3252,8 +3257,10 @@ public:
                     return;
                 }
             }
+        } else if (s->m_abi == ASR::abiType::BindC) {
+            h = get_hash((ASR::asr_t*)s);
         } else {
-            throw CodeGenError("External type not implemented yet.");
+            throw CodeGenError("ABI type not implemented yet.");
         }
         if (llvm_symtab_fn_arg.find(h) != llvm_symtab_fn_arg.end()) {
             // Check if this is a callback function
