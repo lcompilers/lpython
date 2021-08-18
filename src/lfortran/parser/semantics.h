@@ -1144,6 +1144,7 @@ Vec<ast_t*> empty_sync(Allocator &al) {
 
 #define STAT(var, l) make_AttrStat_t(p.m_a, l, name2char(var))
 #define ERRMSG(var, l) make_AttrErrmsg_t(p.m_a, l, name2char(var))
+#define NEW_INDEX(e, l) make_AttrNewIndex_t(p.m_a, l, EXPR(e))
 #define EVENT_WAIT_KW_ARG(id, e, l) make_AttrEventWaitKwArg_t(p.m_a, l, \
         name2char(id), EXPR(e))
 
