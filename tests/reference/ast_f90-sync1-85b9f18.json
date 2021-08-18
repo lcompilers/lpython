@@ -1,0 +1,13 @@
+{
+    "basename": "ast_f90-sync1-85b9f18",
+    "cmd": "lfortran --show-ast-f90 --no-color {infile}",
+    "infile": "tests/sync1.f90",
+    "infile_hash": "363462c860cc54ea57727a4d2ee43782f907dd682bcafcb8fa2017cb",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_f90-sync1-85b9f18.stdout",
+    "stdout_hash": "caaee38cca4ccbbaf4c24641ae5ef72e49e675d9ae31ab00724b280b",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

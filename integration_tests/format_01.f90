@@ -1,6 +1,7 @@
 program format_01
 implicit none
     1 format(/,'BDF2 step ',i6,': T=',es12.5,', H=',es12.5,', ETAH=',es12.5)
+integer :: x
     2 format(/ ,'BDF2 step ',i6,': T=',es12.5,', H=',es12.5,', ETAH=',es12.5)
     3 format( /,'BDF2 step ',i6,': T=',es12.5,', H=',es12.5,', ETAH=',es12.5)
     4 format(2x,'Preconditioner update FAILED at T=',es12.5,', ETAH=',es12.5)
@@ -11,6 +12,7 @@ implicit none
     9 format(i6,/)
     10 format(/ , /)
     121 FORMAT( /, 80A, / )
+integer :: y
     122 FORMAT( /, 80A, /)
     123 FORMAT(/, 80A, /)
     124 FORMAT(/, 80A, / )
@@ -67,5 +69,7 @@ implicit none
     710 format(/ i5, 'x')
     720 format(// i5, 'x')
     730 format(//)
+integer :: z
+    x = 5
     740 FORMAT(/1X'(',I2,')', X, A)
 end program

@@ -1679,6 +1679,14 @@ public:
         s = r;
     }
 
+    void visit_AttrNewIndex(const AttrNewIndex_t &x) {
+        std::string r;
+        r = "new_index = ";
+        this->visit_expr(*x.m_value);
+        r.append(s);
+        s = r;
+    }
+
     void visit_AttrEventWaitKwArg(const AttrEventWaitKwArg_t &x) {
         std::string r = "";
         r.append(x.m_id);
@@ -2034,6 +2042,44 @@ public:
         s = r;
     }
 
+    void visit_Entry(const Entry_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += syn(gr::Keyword);
+        r.append("entry");
+        r += syn();
+        r += " ";
+        r.append(x.m_name);
+        r.append("(");
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_arg(x.m_args[i]);
+            r.append(s);
+            if (i < x.n_args-1) r.append(", ");
+        }
+        r.append(")");
+        if (x.m_return_var) {
+            r += " ";
+            r += syn(gr::UnitHeader);
+            r.append("result");
+            r += syn();
+            r += "(";
+            this->visit_expr(*x.m_return_var);
+            r.append(s);
+            r.append(")");
+        }
+        if (x.m_bind) {
+            r.append(" ");
+            this->visit_bind(*x.m_bind);
+            r.append(s);
+        }
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
+        s = r;
+    }
+
     void visit_Stop(const Stop_t &x) {
         std::string r = indent;
         r += print_label(x);
@@ -2140,9 +2186,86 @@ public:
             for (size_t i=0; i<x.n_stat; i++) {
                 this->visit_event_attribute(*x.m_stat[i]);
                 r.append(s);
+                if (i < x.n_stat-1) r.append(", ");
             }
             r += ")";
         }
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
+        s = r;
+    }
+
+    void visit_SyncImages(const SyncImages_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += syn(gr::Keyword);
+        r.append("sync images");
+        r += syn();
+        r += "(";
+        if (x.m_image_set) {
+            this->visit_expr(*x.m_image_set);
+            r.append(s);
+        }
+        if(x.m_sym == Asterisk) {
+            r += symbol2str(x.m_sym);
+        }
+        for (size_t i=0; i<x.n_stat; i++) {
+            if(i == 0) r += ", ";
+            this->visit_event_attribute(*x.m_stat[i]);
+            r.append(s);
+            if (i < x.n_stat-1) r.append(", ");
+        }
+        r += ")";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
+        s = r;
+    }
+
+    void visit_SyncMemory(const SyncMemory_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += syn(gr::Keyword);
+        r.append("sync memory");
+        r += syn();
+        if (x.m_stat) {
+            r += "(";
+            for (size_t i=0; i<x.n_stat; i++) {
+                this->visit_event_attribute(*x.m_stat[i]);
+                r.append(s);
+                if (i < x.n_stat-1) r.append(", ");
+            }
+            r += ")";
+        }
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
+        s = r;
+    }
+
+    void visit_SyncTeam(const SyncTeam_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += syn(gr::Keyword);
+        r.append("sync team");
+        r += syn();
+        r += "(";
+        this->visit_expr(*x.m_value);
+        r.append(s);
+        for (size_t i=0; i<x.n_stat; i++) {
+            if(i == 0) r += ", ";
+            this->visit_event_attribute(*x.m_stat[i]);
+            r.append(s);
+            if (i < x.n_stat-1) r.append(", ");
+        }
+        r += ")";
         if(x.m_trivia){
             r += print_trivia_after(*x.m_trivia);
         } else {
@@ -2322,6 +2445,72 @@ public:
         s = r;
     }
 
+    void visit_ChangeTeam(const ChangeTeam_t &x) {
+        std::string r = indent;
+        r += print_label(x);
+        r += print_stmt_name(x);
+        r += syn(gr::UnitHeader);
+        r += "change team";
+        r += syn();
+        r += "(";
+        this->visit_expr(*x.m_team_value);
+        r.append(s);
+        for (size_t i=0; i<x.n_coarray_assoc; i++) {
+            if(i == 0) r += ", ";
+            this->visit_team_attribute(*x.m_coarray_assoc[i]);
+            r.append(s);
+            if (i < x.n_coarray_assoc-1) r.append(", ");
+        }
+        for (size_t i=0; i<x.n_sync; i++) {
+            if(i == 0) r += ", ";
+            this->visit_event_attribute(*x.m_sync[i]);
+            r.append(s);
+            if (i < x.n_sync-1) r.append(", ");
+        }
+        r += ")";
+        if(x.m_t_inside){
+            r += print_trivia_after(*x.m_t_inside);
+        } else {
+            r.append("\n");
+        }
+        inc_indent();
+        for (size_t i=0; i<x.n_body; i++) {
+            this->visit_stmt(*x.m_body[i]);
+            r.append(s);
+        }
+        dec_indent();
+        r += indent;
+        r += syn(gr::UnitHeader);
+        r.append("end team");
+        r += syn();
+        if (x.m_sync_stat) {
+            r += " (";
+            for (size_t i=0; i<x.n_sync_stat; i++) {
+                this->visit_event_attribute(*x.m_sync_stat[i]);
+                r.append(s);
+                if (i < x.n_sync_stat-1) r.append(", ");
+            }
+            r += ")";
+        }
+        r += end_stmt_name(x);
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
+        s = r;
+    }
+
+    void visit_CoarrayAssociation(const CoarrayAssociation_t &x) {
+        std::string r = "";
+        this->visit_expr(*x.m_coarray);
+        r.append(s);
+        r += " => ";
+        this->visit_expr(*x.m_selector);
+        r.append(s);
+        s = r;
+    }
+
     void visit_Critical(const Critical_t &x) {
         std::string r = indent;
         r += print_label(x);
@@ -2435,8 +2624,8 @@ public:
         r.append(" (");
         for (size_t i=0; i<x.n_control; i++) {
             this->visit_concurrent_control(*x.m_control[i]);
-            if (i < x.n_control-1) s.append(", ");
             r.append(s);
+            if (i < x.n_control-1) r.append(", ");
         }
         if (x.m_mask) {
             r += ", ";
@@ -2482,8 +2671,8 @@ public:
         r.append(" (");
         for (size_t i=0; i<x.n_control; i++) {
             this->visit_concurrent_control(*x.m_control[i]);
-            if (i < x.n_control-1) s.append(", ");
             r.append(s);
+            if (i < x.n_control-1) r.append(", ");
         }
         if (x.m_mask) {
             r += ", ";
@@ -3096,6 +3285,32 @@ public:
         s = r;
     }
 
+    void visit_FormTeam(const FormTeam_t &x) {
+        std::string r=indent;
+        r += print_label(x);
+        r += syn(gr::Keyword);
+        r += "form team";
+        r += syn();
+        r += "(";
+        this->visit_expr(*x.m_team_number);
+        r.append(s);
+        r += ", ";
+        r.append(x.m_team_var);
+        for (size_t i=0; i<x.n_sync_stat; i++) {
+            if(i == 0) r += ", ";
+            this->visit_event_attribute(*x.m_sync_stat[i]);
+            r.append(s);
+            if (i < x.n_sync_stat-1) r.append(", ");
+        }
+        r += ")";
+        if(x.m_trivia){
+            r += print_trivia_after(*x.m_trivia);
+        } else {
+            r.append("\n");
+        }
+        s = r;
+    }
+
     void visit_BoolOp(const BoolOp_t &x) {
         this->visit_expr(*x.m_left);
         std::string left = std::move(s);
@@ -3205,6 +3420,20 @@ public:
         } else {
             s += "(" + left + ")";
         }
+        s += "." + std::string(x.m_op) + ".";
+        if (right_precedence >= last_expr_precedence) {
+            s += right;
+        } else {
+            s += "(" + right + ")";
+        }
+    }
+
+    void visit_DefUnaryOp(const DefUnaryOp_t &x) {
+        this->visit_expr(*x.m_operand);
+        std::string right = std::move(s);
+        int right_precedence = last_expr_precedence;
+        last_expr_precedence = 12;
+
         s += "." + std::string(x.m_op) + ".";
         if (right_precedence >= last_expr_precedence) {
             s += right;

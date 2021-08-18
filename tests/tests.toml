@@ -162,6 +162,11 @@ ast = true
 ast_f90 = true
 
 [[test]]
+filename = "expr9.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
 filename = "stop.f90"
 asr = true
 llvm = true
@@ -1497,3 +1502,19 @@ asr = true
 [[test]]
 filename = "../integration_tests/const_kind_02.f90"
 asr = true
+
+
+[[test]]
+filename = "team1.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
+filename = "sync1.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
+filename = "entry1.f90"
+ast = true
+ast_f90 = true

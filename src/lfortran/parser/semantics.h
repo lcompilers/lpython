@@ -677,6 +677,8 @@ ast_t* parenthesis(Allocator &al, Location &loc, expr_t *op) {
 #define NEQV(x, y, l) make_BoolOp_t(p.m_a, l, EXPR(x), boolopType::NEqv, EXPR(y))
 #define DEFOP(x, op, y, l) make_DefBinOp_t(p.m_a, l, EXPR(x), \
         def_op_to_str(p.m_a, op), EXPR(y))
+#define UNARY_DEFOP(op, y, l) make_DefUnaryOp_t(p.m_a, l, \
+        def_op_to_str(p.m_a, op), EXPR(y))
 
 #define ARRAY_IN1(a, l) make_ArrayInitializer_t(p.m_a, l, \
         nullptr, nullptr, EXPRS(a), a.size())
@@ -1129,12 +1131,35 @@ void pos_to_linecol(const std::string &s, uint64_t position,
         EXPR(eventVar), nullptr, 0, nullptr)
 #define EVENT_WAIT1(eventVar, x, l) make_EventWait_t(p.m_a, l, 0, \
         EXPR(eventVar), VEC_CAST(x, event_attribute), x.size(), nullptr)
+
+Vec<ast_t*> empty_sync(Allocator &al) {
+    Vec<ast_t*> v; v.reserve(al, 1);
+    return v;
+}
 #define SYNC_ALL(l) make_SyncAll_t(p.m_a, l, 0, nullptr, 0, nullptr)
-#define SYNC_ALL1(x, l) make_SyncAll_t(p.m_a, l, 0, \
+#define SYNC_ALL1(l) make_SyncAll_t(p.m_a, l, 0, \
+        VEC_CAST(empty_sync(p.m_a), event_attribute), empty_sync(p.m_a).size(), nullptr)
+#define SYNC_ALL2(x, l) make_SyncAll_t(p.m_a, l, 0, \
+        VEC_CAST(x, event_attribute), x.size(), nullptr)
+
+#define SYNC_IMAGE1(sym, l) make_SyncImages_t(p.m_a, l, 0, \
+        nullptr, sym, nullptr, 0, nullptr)
+#define SYNC_IMAGE2(e, l) make_SyncImages_t(p.m_a, l, 0, \
+        EXPR(e), None, nullptr, 0, nullptr)
+#define SYNC_IMAGE3(sym, sync_stat, l) make_SyncImages_t(p.m_a, l, 0, nullptr, \
+        sym, VEC_CAST(sync_stat, event_attribute), sync_stat.size(), nullptr)
+#define SYNC_IMAGE4(e, sync_stat, l) make_SyncImages_t(p.m_a, l, 0, EXPR(e), \
+        None, VEC_CAST(sync_stat, event_attribute), sync_stat.size(), nullptr)
+
+#define SYNC_MEMORY(l) make_SyncMemory_t(p.m_a, l, 0, nullptr, 0, nullptr)
+#define SYNC_MEMORY1(l) make_SyncMemory_t(p.m_a, l, 0, \
+        VEC_CAST(empty_sync(p.m_a), event_attribute), empty_sync(p.m_a).size(), nullptr)
+#define SYNC_MEMORY2(x, l) make_SyncMemory_t(p.m_a, l, 0, \
         VEC_CAST(x, event_attribute), x.size(), nullptr)
 
 #define STAT(var, l) make_AttrStat_t(p.m_a, l, name2char(var))
 #define ERRMSG(var, l) make_AttrErrmsg_t(p.m_a, l, name2char(var))
+#define NEW_INDEX(e, l) make_AttrNewIndex_t(p.m_a, l, EXPR(e))
 #define EVENT_WAIT_KW_ARG(id, e, l) make_AttrEventWaitKwArg_t(p.m_a, l, \
         name2char(id), EXPR(e))
 
@@ -1251,17 +1276,76 @@ char *str_or_null(Allocator &al, const LFortran::Str &s) {
         /*n_body*/ stmts.size(), \
         /*contains*/ CONTAINS(contains), \
         /*n_contains*/ contains.size())
-#define PROGRAM(name, trivia, use, implicit, decl, stmts, contains, l) make_Program_t(p.m_a, l, \
+
+Vec<ast_t*> SPLIT_DECL(Allocator &al, Vec<ast_t*> ast)
+{
+    Vec<ast_t*> v;
+    v.reserve(al, ast.size());
+    for (size_t i=0; i<ast.size(); i++) {
+        if (is_a<unit_decl2_t>(*ast[i])) {
+            v.push_back(al, ast[i]);
+        }
+    }
+    return v;
+}
+
+Vec<ast_t*> SPLIT_STMT(Allocator &al, Vec<ast_t*> ast)
+{
+    Vec<ast_t*> v;
+    v.reserve(al, ast.size());
+    for (size_t i=0; i<ast.size(); i++) {
+        if (is_a<stmt_t>(*ast[i])) {
+            v.push_back(al, ast[i]);
+        }
+    }
+    return v;
+}
+
+ast_t* PROGRAM2(Allocator &al, const Location &a_loc, char* a_name,
+        trivia_t* a_trivia, unit_decl1_t** a_use, size_t n_use,
+        implicit_statement_t** a_implicit, size_t n_implicit,
+        Vec<ast_t*> decl_stmts, program_unit_t** a_contains,
+        size_t n_contains) {
+
+Vec<ast_t*> decl;
+Vec<ast_t*> stmt;
+decl.reserve(al, decl_stmts.size());
+stmt.reserve(al, decl_stmts.size());
+for (size_t i=0; i<decl_stmts.size(); i++) {
+    if (is_a<unit_decl2_t>(*decl_stmts[i])) {
+        decl.push_back(al, decl_stmts[i]);
+    } else {
+        LFORTRAN_ASSERT(is_a<stmt_t>(*decl_stmts[i]))
+        stmt.push_back(al, decl_stmts[i]);
+    }
+}
+
+return make_Program_t(al, a_loc,
+        /*name*/ a_name,
+        a_trivia,
+        /*use*/ a_use,
+        /*n_use*/ n_use,
+        /*m_implicit*/ a_implicit,
+        /*n_implicit*/ n_implicit,
+        /*decl*/ DECLS(decl),
+        /*n_decl*/ decl.size(),
+        /*body*/ STMTS(stmt),
+        /*n_body*/ stmt.size(),
+        /*contains*/ a_contains,
+        /*n_contains*/ n_contains);
+
+}
+
+
+#define PROGRAM(name, trivia, use, implicit, decl_stmts, contains, l) \
+    PROGRAM2(p.m_a, l, \
         /*name*/ name2char(name), \
         trivia_cast(trivia), \
         /*use*/ USES(use), \
         /*n_use*/ use.size(), \
         /*m_implicit*/ VEC_CAST(implicit, implicit_statement), \
         /*n_implicit*/ implicit.size(), \
-        /*decl*/ DECLS(decl), \
-        /*n_decl*/ decl.size(), \
-        /*body*/ STMTS(stmts), \
-        /*n_body*/ stmts.size(), \
+        decl_stmts, \
         /*contains*/ CONTAINS(contains), \
         /*n_contains*/ contains.size())
 #define RESULT(x) p.result.push_back(p.m_a, x)
@@ -1865,10 +1949,59 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 
 #define CRITICAL(trivia, stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
         nullptr, 0, STMTS(stmts), stmts.size(), trivia_cast(trivia), nullptr)
-#define CRITICAL1(x, trivia, stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
+#define CRITICAL1(trivia, stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
+        VEC_CAST(empty_sync(p.m_a), event_attribute), empty_sync(p.m_a).size(), \
+        STMTS(stmts), stmts.size(), trivia_cast(trivia), nullptr)
+#define CRITICAL2(x, trivia, stmts, l) make_Critical_t(p.m_a, l, 0, nullptr, \
         VEC_CAST(x, event_attribute), x.size(), \
         STMTS(stmts), stmts.size(), trivia_cast(trivia), nullptr)
 
+#define CHANGETEAM1(e, co_assoc, trivia, stmts, l) make_ChangeTeam_t(p.m_a, l, \
+        0, nullptr, EXPR(e), \
+        VEC_CAST(co_assoc, team_attribute), co_assoc.size(), \
+        nullptr, 0, \
+        STMTS(stmts), stmts.size(), \
+        trivia_cast(trivia), nullptr, nullptr, 0)
+#define CHANGETEAM2(e, co_assoc, trivia, stmts, sync_stat, l) \
+        make_ChangeTeam_t(p.m_a, l, 0, nullptr, EXPR(e), \
+        VEC_CAST(co_assoc, team_attribute), co_assoc.size(), \
+        nullptr, 0, \
+        STMTS(stmts), stmts.size(), \
+        trivia_cast(trivia), nullptr, \
+        VEC_CAST(sync_stat, event_attribute), sync_stat.size())
+#define CHANGETEAM3(e, co_assoc, sync, trivia, stmts, l) make_ChangeTeam_t(p.m_a, l, \
+        0, nullptr, EXPR(e), \
+        VEC_CAST(co_assoc, team_attribute), co_assoc.size(), \
+        VEC_CAST(sync, event_attribute), sync.size(), \
+        STMTS(stmts), stmts.size(), \
+        trivia_cast(trivia), nullptr, nullptr, 0)
+#define CHANGETEAM4(e, co_assoc, sync, trivia, stmts, sync_stat, l) \
+        make_ChangeTeam_t(p.m_a, l, 0, nullptr, EXPR(e), \
+        VEC_CAST(co_assoc, team_attribute), co_assoc.size(), \
+        VEC_CAST(sync, event_attribute), sync.size(),\
+        STMTS(stmts), stmts.size(), \
+        trivia_cast(trivia), nullptr, \
+        VEC_CAST(sync_stat, event_attribute), sync_stat.size())
+#define COARRAY_ASSOC(id, coarray, e, l) make_CoarrayAssociation_t(p.m_a, l, \
+        EXPR(COARRAY(p.m_a, id, empty5(), empty1(), coarray, l)), EXPR(e))
+
+#define FORMTEAM1(e, id, l) make_FormTeam_t(p.m_a, l, 0, \
+        EXPR(e), name2char(id), nullptr, 0, nullptr)
+#define FORMTEAM2(e, id, sync_stat, l) make_FormTeam_t(p.m_a, l, 0, EXPR(e), \
+        name2char(id), VEC_CAST(sync_stat, event_attribute), sync_stat.size(), nullptr)
+
+#define SYNCTEAM1(e, l) make_SyncTeam_t(p.m_a, l, 0, EXPR(e), nullptr, 0, nullptr)
+#define SYNCTEAM2(e, x, l) make_SyncTeam_t(p.m_a, l, 0, EXPR(e), \
+        VEC_CAST(x, event_attribute), x.size(), nullptr)
+
+#define ENTRY1(id, args, l) make_Entry_t(p.m_a, l, 0, name2char(id), \
+        ARGS(p.m_a, l, args), args.size(), nullptr, nullptr, nullptr)
+#define ENTRY2(id, args, bind, return, l) make_Entry_t(p.m_a, l, 0, \
+        name2char(id), ARGS(p.m_a, l, args), args.size(), \
+        EXPR_OPT(return), bind_opt(bind), nullptr)
+#define ENTRY3(id, args, return, bind, l) make_Entry_t(p.m_a, l, 0, \
+        name2char(id), ARGS(p.m_a, l, args), args.size(), \
+        EXPR_OPT(return), bind_opt(bind), nullptr)
 
 #define TRIVIA_SET(x) case LFortran::AST::stmtType::x: { down_cast<x##_t>(s)->m_trivia = trivia; break; }
 
@@ -1884,6 +2017,7 @@ void set_m_trivia(stmt_t *s, trivia_t *trivia) {
         TRIVIA_SET(Cycle)
         TRIVIA_SET(Deallocate)
         TRIVIA_SET(Endfile)
+        TRIVIA_SET(Entry)
         TRIVIA_SET(ErrorStop)
         TRIVIA_SET(EventPost)
         TRIVIA_SET(EventWait)
@@ -1891,6 +2025,7 @@ void set_m_trivia(stmt_t *s, trivia_t *trivia) {
         TRIVIA_SET(Flush)
         TRIVIA_SET(ForAllSingle)
         TRIVIA_SET(Format)
+        TRIVIA_SET(FormTeam)
         TRIVIA_SET(GoTo)
         TRIVIA_SET(Inquire)
         TRIVIA_SET(Nullify)
@@ -1902,9 +2037,13 @@ void set_m_trivia(stmt_t *s, trivia_t *trivia) {
         TRIVIA_SET(Stop)
         TRIVIA_SET(SubroutineCall)
         TRIVIA_SET(SyncAll)
+        TRIVIA_SET(SyncImages)
+        TRIVIA_SET(SyncMemory)
+        TRIVIA_SET(SyncTeam)
         TRIVIA_SET(Write)
         TRIVIA_SET(AssociateBlock)
         TRIVIA_SET(Block)
+        TRIVIA_SET(ChangeTeam)
         TRIVIA_SET(Critical)
         TRIVIA_SET(DoConcurrentLoop)
         TRIVIA_SET(DoLoop)

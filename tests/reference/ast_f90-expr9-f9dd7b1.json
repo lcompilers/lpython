@@ -1,0 +1,13 @@
+{
+    "basename": "ast_f90-expr9-f9dd7b1",
+    "cmd": "lfortran --show-ast-f90 --no-color {infile}",
+    "infile": "tests/expr9.f90",
+    "infile_hash": "72b98645e78d4c2860107f173940315443535270bca4d18d631ea006",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_f90-expr9-f9dd7b1.stdout",
+    "stdout_hash": "d6888988904544626c2adaff83ce70adc5f226e814b3c3ab8430eca7",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
