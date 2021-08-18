@@ -1679,6 +1679,14 @@ public:
         s = r;
     }
 
+    void visit_AttrNewIndex(const AttrNewIndex_t &x) {
+        std::string r;
+        r = "new_index = ";
+        this->visit_expr(*x.m_value);
+        r.append(s);
+        s = r;
+    }
+
     void visit_AttrEventWaitKwArg(const AttrEventWaitKwArg_t &x) {
         std::string r = "";
         r.append(x.m_id);

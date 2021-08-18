@@ -110,6 +110,7 @@ index d29c8aea..a23e1219 100644
 -    | KW_MOLD { $$ = SYMBOL($1, @$); }
 -    | KW_NAME { $$ = SYMBOL($1, @$); }
 -    | KW_NAMELIST { $$ = SYMBOL($1, @$); }
+-    | KW_NEW_INDEX { $$ = SYMBOL($1, @$); }
 -    | KW_NOPASS { $$ = SYMBOL($1, @$); }
 -    | KW_NON_INTRINSIC { $$ = SYMBOL($1, @$); }
 -    | KW_NON_OVERRIDABLE { $$ = SYMBOL($1, @$); }
