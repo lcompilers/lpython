@@ -851,7 +851,8 @@ int compile_to_object_file_cpp(const std::string &infile,
 
 // infile is an object file
 // outfile will become the executable
-int link_executable(const std::string &infile, const std::string &outfile,
+int link_executable(const std::vector<std::string> &infiles,
+    const std::string &outfile,
     const std::string &runtime_library_dir, Backend backend,
     bool static_executable, bool kokkos, bool openmp, Platform platform)
 {
@@ -927,7 +928,11 @@ int link_executable(const std::string &infile, const std::string &outfile,
             }
             runtime_lib = "lfortran_runtime_static";
         }
-        std::string cmd = CC + options + " -o " + outfile + " " + infile + " -L"
+        std::string cmd = CC + options + " -o " + outfile + " ";
+        for (auto &s : infiles) {
+            cmd += s + " ";
+        }
+        cmd += + " -L"
             + base_path + " -Wl,-rpath," + base_path + " -l" + runtime_lib + " -lm";
         int err = system(cmd.c_str());
         if (err) {
@@ -949,8 +954,12 @@ int link_executable(const std::string &infile, const std::string &outfile,
             post_options += kokkos_dir + "/lib/libkokkoscontainers.a "
                 + kokkos_dir + "/lib/libkokkoscore.a -ldl";
         }
-        std::string cmd = CXX + options + " -o " + outfile + " " + infile
-            + " " + post_options + " -lm";
+        std::string cmd = CXX + options + " -o " + outfile + " ";
+        for (auto &s : infiles) {
+            cmd += s + " ";
+        }
+        cmd += + " -L";
+        cmd += " " + post_options + " -lm";
         int err = system(cmd.c_str());
         if (err) {
             std::cout << "The command '" + cmd + "' failed." << std::endl;
@@ -958,7 +967,7 @@ int link_executable(const std::string &infile, const std::string &outfile,
         }
         return 0;
     } else if (backend == Backend::x86) {
-        std::string cmd = "cp " + infile + " " + outfile;
+        std::string cmd = "cp " + infiles[0] + " " + outfile;
         int err = system(cmd.c_str());
         if (err) {
             std::cout << "The command '" + cmd + "' failed." << std::endl;
@@ -1338,10 +1347,10 @@ int main(int argc, char *argv[])
                 throw LFortran::LFortranException("Backend not supported");
             }
             if (err) return err;
-            return link_executable(tmp_o, outfile, runtime_library_dir,
+            return link_executable({tmp_o}, outfile, runtime_library_dir,
                     backend, static_link, true, openmp, platform);
         } else {
-            return link_executable(arg_file, outfile, runtime_library_dir,
+            return link_executable(arg_files, outfile, runtime_library_dir,
                     backend, static_link, true, openmp, platform);
         }
     } catch(const LFortran::LFortranException &e) {
