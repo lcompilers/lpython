@@ -318,6 +318,7 @@ decl_type
 event_attribute
     = AttrStat(identifier variable)
     | AttrErrmsg(identifier variable)
+    | AttrNewIndex(expr value)
     | AttrEventWaitKwArg(identifier id, expr value)
 
 team_attribute = CoarrayAssociation(expr coarray, expr selector)

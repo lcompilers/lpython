@@ -8,8 +8,7 @@ real,codimension[n, *]      :: co_array
 integer,dimension(2)        :: my_cosubscripts
 my_cosubscripts (:)   = this_image(co_array)
 
-! ​form team (my_cosubscripts(2), column, new_index = my_cosubscripts(1))
-form team (my_cosubscripts(2), column)
+form team (my_cosubscripts(2), column, new_index = my_cosubscripts(1))
 sync team (column)
 change team (column, ca[*] => co_array)
 ! segment 1

@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    196 // shift/reduce conflicts
+%expect    197 // shift/reduce conflicts
 %expect-rr 171 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -267,6 +267,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_MOLD
 %token <string> KW_NAME
 %token <string> KW_NAMELIST
+%token <string> KW_NEW_INDEX
 %token <string> KW_NOPASS
 %token <string> KW_NON_INTRINSIC
 %token <string> KW_NON_OVERRIDABLE
@@ -1971,6 +1972,7 @@ sync_stat_list
 sync_stat
     : KW_STAT "=" id { $$ = STAT($3, @$); }
     | KW_ERRMSG "=" id { $$ = ERRMSG($3, @$); }
+    | KW_NEW_INDEX "=" expr { $$ = NEW_INDEX($3, @$); }
     ;
 
 critical_statement
@@ -2285,6 +2287,7 @@ id
     | KW_MOLD { $$ = SYMBOL($1, @$); }
     | KW_NAME { $$ = SYMBOL($1, @$); }
     | KW_NAMELIST { $$ = SYMBOL($1, @$); }
+    | KW_NEW_INDEX { $$ = SYMBOL($1, @$); }
     | KW_NOPASS { $$ = SYMBOL($1, @$); }
     | KW_NON_INTRINSIC { $$ = SYMBOL($1, @$); }
     | KW_NON_OVERRIDABLE { $$ = SYMBOL($1, @$); }

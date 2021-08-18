@@ -405,6 +405,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'mold' { KW(MOLD) }
             'name' { KW(NAME) }
             'namelist' { KW(NAMELIST) }
+            'new_index' { KW(NEW_INDEX) }
             'nopass' { KW(NOPASS) }
             'non_intrinsic' { KW(NON_INTRINSIC) }
             'non_overridable' { KW(NON_OVERRIDABLE) }
