@@ -4,7 +4,7 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    192 // shift/reduce conflicts
+%expect    196 // shift/reduce conflicts
 %expect-rr 171 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
@@ -2109,6 +2109,7 @@ expr
             $$ = IMPLIED_DO_LOOP6($2, $4, $6, $8, $10, $12, $14, @$); }
 
 // ### level-1
+    | TK_DEF_OP expr { $$ = UNARY_DEFOP($1, $2, @$); }
 
 // ### level-2
     | expr "+" expr { $$ = ADD($1, $3, @$); }

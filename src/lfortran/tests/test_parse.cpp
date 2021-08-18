@@ -1385,12 +1385,12 @@ TEST_CASE("Errors") {
         CHECK(false);
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
-        CHECK(e.token == yytokentype::TK_DEF_OP);
+        CHECK(e.token == yytokentype::TK_NEWLINE);
         std::cerr << format_syntax_error("input", input, e.loc, e.token);
         CHECK(e.loc.first_line == 1);
-        CHECK(e.loc.first_column == 5);
+        CHECK(e.loc.first_column == 11);
         CHECK(e.loc.last_line == 1);
-        CHECK(e.loc.last_column == 10);
+        CHECK(e.loc.last_column == 11);
     }
 
     input = "1 + x allocate y";
