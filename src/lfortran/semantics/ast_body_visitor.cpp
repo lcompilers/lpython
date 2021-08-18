@@ -1104,15 +1104,18 @@ public:
             } else {
                 der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
             }
-            ASR::DerivedType_t *par_der_type = nullptr;
-            if( der_type->m_parent != nullptr ) {
-                par_der_type = (ASR::DerivedType_t*)(LFortran::ASRUtils::symbol_get_past_external(der_type->m_parent));
-            }
-            scope = der_type->m_symtab;
-            ASR::symbol_t* member = der_type->m_symtab->resolve_symbol(var_name);
-            if( par_der_type != nullptr && member == nullptr ) {
+            ASR::DerivedType_t *par_der_type = der_type;
+            // scope = der_type->m_symtab;
+            // ASR::symbol_t* member = der_type->m_symtab->resolve_symbol(var_name);
+            ASR::symbol_t* member = nullptr;
+            while( par_der_type != nullptr && member == nullptr ) {
                 scope = par_der_type->m_symtab;
                 member = par_der_type->m_symtab->resolve_symbol(var_name);
+                if( par_der_type->m_parent != nullptr ) {
+                    par_der_type = (ASR::DerivedType_t*)(LFortran::ASRUtils::symbol_get_past_external(par_der_type->m_parent));
+                } else {
+                    par_der_type = nullptr;
+                }
             }
             if( member != nullptr ) {
                 ASR::asr_t* v_var = ASR::make_Var_t(al, loc, v);
