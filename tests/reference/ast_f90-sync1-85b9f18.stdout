@@ -10,16 +10,16 @@ end if
 sync memory 
 
 call external_sync()
-sync memory (stat = status) 
+sync memory(stat = status) 
 
 if (iam == 2) then
     write(*, *) x[1]
 end if 
 
 if (this_image() == 1) then
-    sync images (*)
+    sync images(*)
 else
-    sync images (1, stat = status)
+    sync images(1, stat = status)
 end if 
 
 end program sync1
