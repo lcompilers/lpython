@@ -113,6 +113,8 @@ stmt
     | Cycle(int label, identifier? stmt_name, trivia? trivia)
     | Deallocate(int label, fnarg* args, keyword* keywords, trivia? trivia)
     | Endfile(int label, expr* args, keyword* kwargs, trivia? trivia)
+    | Entry(int label, identifier name, arg* args, expr? return_var,
+            bind? bind, trivia? trivia)
     | ErrorStop(int label, expr? code, expr? quiet, trivia? trivia)
     | EventPost(int label, expr variable, event_attribute* stat, trivia? trivia)
     | EventWait(int label, expr variable, event_attribute* spec, trivia? trivia)

@@ -1994,6 +1994,15 @@ ast_t* COARRAY(Allocator &al, const ast_t *id,
 #define SYNCTEAM2(e, x, l) make_SyncTeam_t(p.m_a, l, 0, EXPR(e), \
         VEC_CAST(x, event_attribute), x.size(), nullptr)
 
+#define ENTRY1(id, args, l) make_Entry_t(p.m_a, l, 0, name2char(id), \
+        ARGS(p.m_a, l, args), args.size(), nullptr, nullptr, nullptr)
+#define ENTRY2(id, args, bind, return, l) make_Entry_t(p.m_a, l, 0, \
+        name2char(id), ARGS(p.m_a, l, args), args.size(), \
+        EXPR_OPT(return), bind_opt(bind), nullptr)
+#define ENTRY3(id, args, return, bind, l) make_Entry_t(p.m_a, l, 0, \
+        name2char(id), ARGS(p.m_a, l, args), args.size(), \
+        EXPR_OPT(return), bind_opt(bind), nullptr)
+
 #define TRIVIA_SET(x) case LFortran::AST::stmtType::x: { down_cast<x##_t>(s)->m_trivia = trivia; break; }
 
 void set_m_trivia(stmt_t *s, trivia_t *trivia) {
@@ -2008,6 +2017,7 @@ void set_m_trivia(stmt_t *s, trivia_t *trivia) {
         TRIVIA_SET(Cycle)
         TRIVIA_SET(Deallocate)
         TRIVIA_SET(Endfile)
+        TRIVIA_SET(Entry)
         TRIVIA_SET(ErrorStop)
         TRIVIA_SET(EventPost)
         TRIVIA_SET(EventWait)
