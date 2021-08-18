@@ -274,6 +274,12 @@ void LLVMEvaluator::save_object_file(llvm::Module &m, const std::string &filenam
     dest.flush();
 }
 
+void LLVMEvaluator::create_empty_object_file(const std::string &filename) {
+    std::string source;
+    std::unique_ptr<llvm::Module> module = parse_module(source);
+    save_object_file(*module, filename);
+}
+
 std::string LLVMEvaluator::module_to_string(llvm::Module &m) {
     std::string buf;
     llvm::raw_string_ostream os(buf);
