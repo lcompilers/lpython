@@ -772,7 +772,8 @@ int compile_to_binary_x86(const std::string &infile, const std::string &outfile,
 
 int compile_to_object_file_cpp(const std::string &infile,
         const std::string &outfile,
-        bool assembly, bool kokkos, bool openmp)
+        bool assembly, bool kokkos, bool openmp,
+        Platform platform)
 {
     std::string input = read_file(infile);
 
@@ -801,17 +802,25 @@ int compile_to_object_file_cpp(const std::string &infile,
     if (!LFortran::ASRUtils::main_program_present(*asr)) {
         // Create an empty object file (things will be actually
         // compiled and linked when the main program is present):
-        std::string outfile_empty = outfile + ".empty.c";
-        {
-            std::ofstream out;
-            out.open(outfile_empty);
-            out << " ";
-        }
-        std::string cmd = "gcc -c " + outfile_empty + " -o " + outfile;
-        int err = system(cmd.c_str());
-        if (err) {
-            std::cout << "The command '" + cmd + "' failed." << std::endl;
-            return 11;
+        if (platform == Platform::Windows) {
+            {
+                std::ofstream out;
+                out.open(outfile);
+                out << " ";
+            }
+        } else {
+            std::string outfile_empty = outfile + ".empty.c";
+            {
+                std::ofstream out;
+                out.open(outfile_empty);
+                out << " ";
+            }
+            std::string cmd = "gcc -c " + outfile_empty + " -o " + outfile;
+            int err = system(cmd.c_str());
+            if (err) {
+                std::cout << "The command '" + cmd + "' failed." << std::endl;
+                return 11;
+            }
         }
         return 0;
     }
@@ -1324,7 +1333,7 @@ int main(int argc, char *argv[])
 #endif
             } else if (backend == Backend::cpp) {
                 return compile_to_object_file_cpp(arg_file, outfile, false,
-                        true, openmp);
+                        true, openmp, platform);
             } else if (backend == Backend::x86) {
                 return compile_to_binary_x86(arg_file, outfile, time_report);
             } else {
@@ -1349,7 +1358,7 @@ int main(int argc, char *argv[])
 #endif
             } else if (backend == Backend::cpp) {
                 err = compile_to_object_file_cpp(arg_file, tmp_o, false,
-                        true, openmp);
+                        true, openmp, platform);
             } else {
                 throw LFortran::LFortranException("Backend not supported");
             }
