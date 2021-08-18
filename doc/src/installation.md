@@ -202,12 +202,25 @@ repository in development mode,
 LFortran can print stacktraces when there is an unhandled exception, as well as
 on any compiler error with the `--show-stacktrace` option. This is very helpful
 for developing the compiler itself to see where in LFortran the problem is. The
-stacktrace support is turned off by default, to enable it, install `binutils`
-and compile LFortran with the `-DWITH_STACKTRACE=yes` cmake option.
+stacktrace support is turned off by default, to enable it,
+compile LFortran with the `-DWITH_STACKTRACE=yes` cmake option after installing
+the prerequisites on each platform per the instructions below.
+
+### Ubuntu
 
 In Ubuntu, `apt install binutils-dev`.
 
-On macOS, you can install [Spack](https://spack.io/), then:
+### macOS
+
+If you use the default Clang compiler on macOS, then the stacktraces should
+just work on both Intel and M1 based macOS (the CMake build system
+automatically invokes the `dsymtuil` tool and our Python scripts to store the
+debug information, see `src/bin/CMakeLists.txt` for more details). If it does
+not work, please report a bug.
+
+If you do not like the default way, an alternative is to use bintutils. For
+that, first install
+[Spack](https://spack.io/), then:
 ```
 spack install binutils
 spack find -p binutils
