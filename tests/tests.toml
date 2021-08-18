@@ -1508,3 +1508,8 @@ ast_f90 = true
 filename = "sync1.f90"
 ast = true
 ast_f90 = true
+
+[[test]]
+filename = "entry1.f90"
+ast = true
+ast_f90 = true
