@@ -801,10 +801,17 @@ int compile_to_object_file_cpp(const std::string &infile,
     if (!LFortran::ASRUtils::main_program_present(*asr)) {
         // Create an empty object file (things will be actually
         // compiled and linked when the main program is present):
+        std::string outfile_empty = outfile + ".empty.c";
         {
             std::ofstream out;
-            out.open(outfile);
+            out.open(outfile_empty);
             out << " ";
+        }
+        std::string cmd = "gcc -c " + outfile_empty + " -o " + outfile;
+        int err = system(cmd.c_str());
+        if (err) {
+            std::cout << "The command '" + cmd + "' failed." << std::endl;
+            return 11;
         }
         return 0;
     }
