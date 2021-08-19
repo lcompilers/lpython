@@ -18,6 +18,10 @@ double f3(int *n, double *b) {
     return s;
 }
 
-int f4(int a, double b) {
+int f4(int a, float b) {
+    return a + b;
+}
+
+int f5(int a, double b) {
     return a + b;
 }
