@@ -1533,21 +1533,20 @@ public:
                                     int real_kind = LFortran::ASRUtils::extract_kind_from_ttype_t(func_type);
                                     if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*func_type)) {
                                         if (real_kind == 4){
-                                            float rr = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(real_expr))->m_r;
+                                            float rr = ASR::down_cast<ASR::ConstantReal_t>(real_expr_value)->m_r;
                                             value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, rr, func_type));
                                         } else {
-                                            double rr = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(real_expr))->m_r;
+                                            double rr = ASR::down_cast<ASR::ConstantReal_t>(real_expr_value)->m_r;
                                             value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, rr, func_type));
                                         }
                                     }
                                     else if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*func_type)) {
                                         if (real_kind == 4){
-                                            int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(
-                                                LFortran::ASRUtils::expr_value(real_expr))->m_n;
+                                            int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(real_expr_value)->m_n;
                                             float rr = static_cast<float>(rv);
                                             value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, rr, func_type));
                                         } else {
-                                            int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(real_expr))->m_n;
+                                            int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(real_expr_value)->m_n;
                                             double rr = static_cast<double>(rv);
                                             value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, rr, func_type));
                                         }
