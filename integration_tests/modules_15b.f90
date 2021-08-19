@@ -17,6 +17,13 @@ interface
     real(c_double), intent(in) :: b
     end function
 
+    ! int f_int_float_complex(int *a, float_complex_t *b)
+    integer(c_int) function f_int_float_complex(a, b) result(r) bind(c)
+    import :: c_int, c_float
+    integer(c_int), intent(in) :: a
+    complex(c_float), intent(in) :: b
+    end function
+
     ! int f_int_double_complex(int *a, double_complex_t *b)
     integer(c_int) function f_int_double_complex(a, b) result(r) bind(c)
     import :: c_int, c_double
