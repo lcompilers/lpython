@@ -16,6 +16,16 @@ int f_int_double_value(int a, double b) {
     return a + b;
 }
 
+int f_int_intarray(int n, int *b) {
+    int i;
+    int s;
+    s = 0;
+    for (i=0; i < n; i++) {
+        s += b[i];
+    }
+    return s;
+}
+
 float f_int_floatarray(int n, float *b) {
     int i;
     float s;
