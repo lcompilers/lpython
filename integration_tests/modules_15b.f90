@@ -23,6 +23,13 @@ interface
     integer(c_int), intent(in) :: n
     real(c_double), intent(in) :: b(n)
     end function
+
+    ! int f4(int *, double b)
+    integer(c_int) function f4(a, b) result(r) bind(c)
+    import :: c_int, c_double
+    integer(c_int), value, intent(in) :: a
+    real(c_double), value, intent(in) :: b
+    end function
 end interface
 
 end module
