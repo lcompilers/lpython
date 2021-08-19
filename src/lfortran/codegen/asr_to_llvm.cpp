@@ -1729,7 +1729,11 @@ public:
             llvm::FunctionType* function_type = get_function_type(x);
             std::string fn_name;
             if (x.m_abi == ASR::abiType::BindC) {
-                fn_name = x.m_name;
+                if (x.m_bindc_name) {
+                    fn_name = x.m_bindc_name;
+                } else {
+                    fn_name = x.m_name;
+                }
             } else {
                 fn_name = mangle_prefix + x.m_name;
             }

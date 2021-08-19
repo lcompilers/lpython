@@ -200,7 +200,7 @@ public:
             /* a_body */ nullptr,
             /* n_body */ 0,
             ASR::abiType::Source,
-            s_access, deftype);
+            s_access, deftype, nullptr);
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             ASR::symbol_t *f1 = parent_scope->scope[sym_name];
             ASR::Subroutine_t *f2 = ASR::down_cast<ASR::Subroutine_t>(f1);
@@ -250,6 +250,7 @@ public:
 
         // Determine the ABI (Source or BindC for now)
         current_procedure_abi_type = ASR::abiType::Source;
+        char *bindc_name=nullptr;
         if (x.m_bind) {
             AST::Bind_t *bind = AST::down_cast<AST::Bind_t>(x.m_bind);
             if (bind->n_args == 1) {
@@ -269,6 +270,22 @@ public:
             } else {
                 throw SemanticError("At least one argument needed in bind()",
                     x.base.base.loc);
+            }
+            if (bind->n_kwargs == 1) {
+                char *arg = bind->m_kwargs[0].m_arg;
+                AST::expr_t *value = bind->m_kwargs[0].m_value;
+                if (to_lower(std::string(arg)) == "name") {
+                    if (AST::is_a<AST::String_t>(*value)) {
+                        AST::String_t *name = AST::down_cast<AST::String_t>(value);
+                        bindc_name = name->m_s;
+                    } else {
+                        throw SemanticError("The value of the 'name' keyword argument in bind(c) must be a string",
+                            x.base.base.loc);
+                    }
+                } else {
+                    throw SemanticError("Unsupported keyword argument in bind()",
+                        x.base.base.loc);
+                }
             }
         }
 
@@ -389,7 +406,7 @@ public:
             /* a_body */ nullptr,
             /* n_body */ 0,
             /* a_return_var */ LFortran::ASRUtils::EXPR(return_var_ref),
-            current_procedure_abi_type, s_access, deftype);
+            current_procedure_abi_type, s_access, deftype, bindc_name);
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             ASR::symbol_t *f1 = parent_scope->scope[sym_name];
             ASR::Function_t *f2 = ASR::down_cast<ASR::Function_t>(f1);

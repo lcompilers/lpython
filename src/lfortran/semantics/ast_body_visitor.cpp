@@ -1350,7 +1350,7 @@ public:
                                        /* n_body */ 0,
                                        /* a_return_var */ LFortran::ASRUtils::EXPR(return_var_ref),
                                        ASR::abiType::Source,
-                                       ASR::Public, ASR::deftypeType::Implementation);
+                                       ASR::Public, ASR::deftypeType::Implementation, nullptr);
                 std::string sym_name = fn_name;
                 unit->m_global_scope->scope[sym_name] =
                     ASR::down_cast<ASR::symbol_t>(fn);
@@ -1411,7 +1411,7 @@ public:
                                              /* n_body */ 0,
                                              /* a_return_var */ LFortran::ASRUtils::EXPR(return_var_ref),
                                              ASR::abiType::Intrinsic,
-                                             ASR::Public, ASR::deftypeType::Implementation);
+                                             ASR::Public, ASR::deftypeType::Implementation, nullptr);
                     std::string sym_name = fn_name;
                     unit->m_global_scope->scope[sym_name] =
                         ASR::down_cast<ASR::symbol_t>(fn);

@@ -102,7 +102,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                 /* n_body */ body.size(),
                 /* a_return_var */ return_var_ref,
                 ASR::abiType::Source,
-                ASR::Public, ASR::Implementation);
+                ASR::Public, ASR::Implementation, nullptr);
             std::string sym_name = fn_name;
             if (unit.m_global_scope->scope.find(sym_name) != unit.m_global_scope->scope.end()) {
                 throw SemanticError("Function already defined", fn->loc);
@@ -120,7 +120,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                 /* a_body */ body.p,
                 /* n_body */ body.size(),
                 ASR::abiType::Source,
-                ASR::Public, ASR::Implementation);
+                ASR::Public, ASR::Implementation, nullptr);
             std::string sym_name = fn_name;
             if (unit.m_global_scope->scope.find(sym_name) != unit.m_global_scope->scope.end()) {
                 throw SemanticError("Function already defined", fn->loc);
