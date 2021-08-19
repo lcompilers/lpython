@@ -3063,8 +3063,14 @@ public:
                             if( x_abi == ASR::abiType::Source && arr_descr->is_array(tmp) ) {
                                 llvm::Type* new_arr_type = arr_arg_type_cache[m_h][orig_arg_name];
                                 tmp = arr_descr->convert_to_argument(tmp, new_arr_type);
-                            } else if( x_abi == ASR::abiType::BindC ) {
-                                tmp =  arr_descr->get_pointer_to_data(tmp);
+                            } else if ( x_abi == ASR::abiType::BindC ) {
+                                if( arr_descr->is_array(tmp) ) {
+                                    tmp = arr_descr->get_pointer_to_data(tmp);
+                                    llvm::PointerType* tmp_type = static_cast<llvm::PointerType*>(tmp->getType());
+                                    if( tmp_type->getElementType()->isArrayTy() ) {
+                                        tmp = llvm_utils->create_gep(tmp, 0);
+                                    }
+                                }
                             }
                         } else {
                             auto finder = std::find(nested_globals.begin(), 
