@@ -1295,7 +1295,8 @@ public:
                 ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
                 ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
                 LFORTRAN_ASSERT(is_arg_dummy(arg->m_intent));
-                // We pass all arguments as pointers for now
+                // We pass all arguments as pointers for now,
+                // except bind(C) value arguments that are passed by value
                 llvm::Type *type;
                 ASR::ttype_t* m_type_;
                 int n_dims = 0, a_kind = 4;
@@ -1310,12 +1311,17 @@ public:
                         n_dims = v_type->n_dims;
                         a_kind = v_type->m_kind;
                         if( n_dims > 0 ) {
-                            is_array_type = true;
-                            llvm::Type* el_type = get_el_type(m_type_, a_kind);
-                            if( v->m_storage == ASR::storage_typeType::Allocatable ) {
-                                type = arr_descr->get_malloc_array_type(m_type_, a_kind, n_dims, el_type, true);
+                            if (x.m_abi == ASR::abiType::BindC) {
+                                // Bind(C) arrays are represened as a pointer
+                                type = getIntType(a_kind, true);
                             } else {
-                                type = arr_descr->get_array_type(m_type_, a_kind, n_dims, m_dims, el_type, true);
+                                is_array_type = true;
+                                llvm::Type* el_type = get_el_type(m_type_, a_kind);
+                                if( v->m_storage == ASR::storage_typeType::Allocatable ) {
+                                    type = arr_descr->get_malloc_array_type(m_type_, a_kind, n_dims, el_type, true);
+                                } else {
+                                    type = arr_descr->get_array_type(m_type_, a_kind, n_dims, m_dims, el_type, true);
+                                }
                             }
                         } else {
                             if (arg->m_abi == ASR::abiType::BindC
