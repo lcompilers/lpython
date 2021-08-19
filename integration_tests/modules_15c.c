@@ -17,3 +17,7 @@ double f3(int *n, double *b) {
     }
     return s;
 }
+
+int f4(int a, double b) {
+    return a + b;
+}
