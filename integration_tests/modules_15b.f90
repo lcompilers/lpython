@@ -31,6 +31,13 @@ interface
     real(c_double), value, intent(in) :: b
     end function
 
+    ! float f_int_floatarray(int n, float *b)
+    real(c_float) function f_int_floatarray(n, b) result(r) bind(c)
+    import :: c_int, c_double
+    integer(c_int), value, intent(in) :: n
+    real(c_float), intent(in) :: b(n)
+    end function
+
     ! double f_int_doublearray(int n, double *b)
     real(c_double) function f_int_doublearray(n, b) result(r) bind(c)
     import :: c_int, c_double
