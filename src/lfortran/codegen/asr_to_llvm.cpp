@@ -1329,12 +1329,17 @@ public:
                         n_dims = v_type->n_dims;
                         a_kind = v_type->m_kind;
                         if( n_dims > 0 ) {
-                            is_array_type = true;
-                            llvm::Type* el_type = get_el_type(m_type_, a_kind);
-                            if( v->m_storage == ASR::storage_typeType::Allocatable ) {
-                                type = arr_descr->get_malloc_array_type(m_type_, a_kind, n_dims, el_type, true);
+                            if (x.m_abi == ASR::abiType::BindC) {
+                                // Bind(C) arrays are represened as a pointer
+                                type = getFPType(a_kind, true);
                             } else {
-                                type = arr_descr->get_array_type(m_type_, a_kind, n_dims, m_dims, el_type, true);
+                                is_array_type = true;
+                                llvm::Type* el_type = get_el_type(m_type_, a_kind);
+                                if( v->m_storage == ASR::storage_typeType::Allocatable ) {
+                                    type = arr_descr->get_malloc_array_type(m_type_, a_kind, n_dims, el_type, true);
+                                } else {
+                                    type = arr_descr->get_array_type(m_type_, a_kind, n_dims, m_dims, el_type, true);
+                                }
                             }
                         } else {
                             type = getFPType(a_kind, true);
