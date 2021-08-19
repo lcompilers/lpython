@@ -19,7 +19,7 @@ interface
 
     ! int f_int_float_value(int a, float b)
     integer(c_int) function f_int_float_value(a, b) result(r) bind(c)
-    import :: c_int, c_double
+    import :: c_int, c_float
     integer(c_int), value, intent(in) :: a
     real(c_float), value, intent(in) :: b
     end function
@@ -40,7 +40,7 @@ interface
 
     ! float f_int_floatarray(int n, float *b)
     real(c_float) function f_int_floatarray(n, b) result(r) bind(c)
-    import :: c_int, c_double
+    import :: c_int, c_float
     integer(c_int), value, intent(in) :: n
     real(c_float), intent(in) :: b(n)
     end function
