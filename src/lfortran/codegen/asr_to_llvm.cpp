@@ -1378,7 +1378,12 @@ public:
                                 type = arr_descr->get_array_type(m_type_, a_kind, n_dims, m_dims, el_type, true);
                             }
                         } else {
-                            type = getComplexType(a_kind, true);
+                            if (arg->m_abi == ASR::abiType::BindC
+                                && arg->m_value_attr) {
+                                type = getComplexType(a_kind, false);
+                            } else {
+                                type = getComplexType(a_kind, true);
+                            }
                         }
                         break;
                     }
