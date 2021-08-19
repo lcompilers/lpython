@@ -11,6 +11,10 @@ interface sqrt
     module procedure ssqrt, dsqrt
 end interface
 
+interface aimag
+    module procedure saimag, daimag
+end interface
+
 contains
 
 ! abs --------------------------------------------------------------------------
@@ -53,5 +57,18 @@ else
 end if
 end function
 
+! aimag
+
+elemental real(sp) function saimag(x) result(r)
+complex(sp), intent(in) :: x
+r = 0
+error stop "aimag(x) not implemented yet"
+end function
+
+elemental real(dp) function daimag(x) result(r)
+complex(dp), intent(in) :: x
+r = 0
+error stop "aimag(x) not implemented yet"
+end function
 
 end module
