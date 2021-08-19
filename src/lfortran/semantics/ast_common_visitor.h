@@ -465,37 +465,7 @@ public:
 
 static ASR::asr_t* comptime_intrinsic_real(ASR::expr_t *A,
         ASR::expr_t * kind,
-        Allocator &al, const Location &loc, Vec<ASR::expr_t*> &/*args*/,
-        ASR::symbol_t */*v*/, ASR::ttype_t */*return_type*/) {
-    /*
-    ASR::expr_t* real_expr = A;
-    ASR::expr_t* real_expr_value = LFortran::ASRUtils::expr_value(real_expr);
-    ASR::ttype_t *func_type = LFortran::ASRUtils::expr_type(real_expr);
-    ASR::expr_t* value=nullptr;
-    if (real_expr_value) {
-        int real_kind = LFortran::ASRUtils::extract_kind_from_ttype_t(func_type);
-        if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*func_type)) {
-            if (real_kind == 4){
-                float rr = ASR::down_cast<ASR::ConstantReal_t>(real_expr_value)->m_r;
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, rr, func_type));
-            } else {
-                double rr = ASR::down_cast<ASR::ConstantReal_t>(real_expr_value)->m_r;
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, rr, func_type));
-            }
-        }
-        else if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*func_type)) {
-            if (real_kind == 4){
-                int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(real_expr_value)->m_n;
-                float rr = static_cast<float>(rv);
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, rr, func_type));
-            } else {
-                int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(real_expr_value)->m_n;
-                double rr = static_cast<double>(rv);
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, rr, func_type));
-            }
-        }
-    }
-    */
+        Allocator &al, const Location &loc) {
     int kind_int = 4;
     if (kind) {
         ASR::expr_t* kind_value = LFortran::ASRUtils::expr_value(kind);

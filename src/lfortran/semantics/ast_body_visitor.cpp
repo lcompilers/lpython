@@ -1527,11 +1527,9 @@ public:
                         }
                         else if (func_name == "real") {
                             if (args.n == 1) {
-                                tmp = CommonVisitorMethods::comptime_intrinsic_real(args[0], nullptr, al, x.base.base.loc,
-                                    args, v, return_type);
+                                tmp = CommonVisitorMethods::comptime_intrinsic_real(args[0], nullptr, al, x.base.base.loc);
                             } else if (args.n == 2) {
-                                tmp = CommonVisitorMethods::comptime_intrinsic_real(args[0], args[1], al, x.base.base.loc,
-                                    args, v, return_type);
+                                tmp = CommonVisitorMethods::comptime_intrinsic_real(args[0], args[1], al, x.base.base.loc);
                             } else {
                                 throw SemanticError("real(A [, kind]) requires 1 or 2 arguments", x.base.base.loc);
                             }
