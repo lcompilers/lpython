@@ -462,7 +462,41 @@ public:
     asr = ASR::make_StrOp_t(al, x.base.base.loc, left, op, right, dest_type,
                             value);
   }
-};
+
+static ASR::expr_t* comptime_intrinsic_real(ASR::expr_t *A, ASR::expr_t *kind,
+    Allocator &al, const Location &loc) {
+    ASR::expr_t* real_expr = A;
+    ASR::expr_t* real_expr_value = LFortran::ASRUtils::expr_value(real_expr);
+    ASR::ttype_t *func_type = LFortran::ASRUtils::expr_type(real_expr);
+    ASR::expr_t* value=nullptr;
+    if (real_expr_value) {
+        int real_kind = LFortran::ASRUtils::extract_kind_from_ttype_t(func_type);
+        if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*func_type)) {
+            if (real_kind == 4){
+                float rr = ASR::down_cast<ASR::ConstantReal_t>(real_expr_value)->m_r;
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, rr, func_type));
+            } else {
+                double rr = ASR::down_cast<ASR::ConstantReal_t>(real_expr_value)->m_r;
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, rr, func_type));
+            }
+        }
+        else if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*func_type)) {
+            if (real_kind == 4){
+                int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(real_expr_value)->m_n;
+                float rr = static_cast<float>(rv);
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, rr, func_type));
+            } else {
+                int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(real_expr_value)->m_n;
+                double rr = static_cast<double>(rv);
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, rr, func_type));
+            }
+        }
+    }
+    return value;
+}
+
+}; // class CommonVisitorMethods
+
 } // namespace LFortran
 
 #endif /* LFORTRAN_SEMANTICS_AST_COMMON_VISITOR_H */
