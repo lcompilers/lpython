@@ -25,6 +25,8 @@ r64 = f3(n, X)
 print *, r64
 if (abs(r64 - 6.6_dp) > 1e-10_dp) error stop
 
+a = 3
+r64 = 5
 i = f4(a, r64)
 print *, i
 if (i /= 8) error stop
