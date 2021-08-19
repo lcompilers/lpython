@@ -1527,12 +1527,15 @@ public:
                         }
                         else if (func_name == "real") {
                             if (args.n == 1) {
-                                value = CommonVisitorMethods::comptime_intrinsic_real(args[0], nullptr, al, x.base.base.loc);
+                                tmp = CommonVisitorMethods::comptime_intrinsic_real(args[0], nullptr, al, x.base.base.loc,
+                                    args, v, return_type);
                             } else if (args.n == 2) {
-                                value = CommonVisitorMethods::comptime_intrinsic_real(args[0], args[1], al, x.base.base.loc);
+                                tmp = CommonVisitorMethods::comptime_intrinsic_real(args[0], args[1], al, x.base.base.loc,
+                                    args, v, return_type);
                             } else {
                                 throw SemanticError("real(A [, kind]) requires 1 or 2 arguments", x.base.base.loc);
                             }
+                            break;
                         }
                         else if (var_name=="floor") {
                             // TODO: Implement optional kind; J3/18-007r1 --> FLOOR(A, [KIND])

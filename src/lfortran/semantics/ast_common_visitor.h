@@ -463,8 +463,9 @@ public:
                             value);
   }
 
-static ASR::expr_t* comptime_intrinsic_real(ASR::expr_t *A, ASR::expr_t *kind,
-    Allocator &al, const Location &loc) {
+static ASR::asr_t* comptime_intrinsic_real(ASR::expr_t *A, ASR::expr_t *kind,
+        Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args,
+        ASR::symbol_t *v, ASR::ttype_t *return_type) {
     ASR::expr_t* real_expr = A;
     ASR::expr_t* real_expr_value = LFortran::ASRUtils::expr_value(real_expr);
     ASR::ttype_t *func_type = LFortran::ASRUtils::expr_type(real_expr);
@@ -492,7 +493,9 @@ static ASR::expr_t* comptime_intrinsic_real(ASR::expr_t *A, ASR::expr_t *kind,
             }
         }
     }
-    return value;
+    return ASR::make_FunctionCall_t(al, loc,
+        v, nullptr, args.p, args.size(), nullptr, 0, return_type,
+        value, nullptr);
 }
 
 }; // class CommonVisitorMethods
