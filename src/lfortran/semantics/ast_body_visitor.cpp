@@ -964,6 +964,16 @@ public:
                     }
                     break;
                 }
+                case (ASR::ttypeType::Complex) : {
+                    ASR::Complex_t *a2 = ASR::down_cast<ASR::Complex_t>(&a);
+                    ASR::Complex_t *b2 = ASR::down_cast<ASR::Complex_t>(&b);
+                    if (a2->m_kind == b2->m_kind) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                    break;
+                }
                 default : return true;
             }
         }
