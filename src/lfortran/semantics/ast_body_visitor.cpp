@@ -367,7 +367,8 @@ public:
                                                  ASR::storage_typeType::Default,
                                                  nullptr, ASR::abiType::Source,
                                                  ASR::accessType::Private,
-                                                 ASR::presenceType::Required);
+                                                 ASR::presenceType::Required,
+                                                 false);
             new_scope->scope[x.m_syms[i].m_name] = ASR::down_cast<ASR::symbol_t>(v);
         }
         SymbolTable* current_scope_copy = current_scope;
@@ -1334,7 +1335,7 @@ public:
                     al, x.base.base.loc, fn_scope, fn_name, LFortran::ASRUtils::intent_return_var,
                     nullptr, nullptr, ASR::storage_typeType::Default, type,
                     ASR::abiType::Source,
-                    ASR::Public, ASR::presenceType::Required);
+                    ASR::Public, ASR::presenceType::Required, false);
                 fn_scope->scope[std::string(fn_name)] =
                     ASR::down_cast<ASR::symbol_t>(return_var);
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(
@@ -1384,7 +1385,7 @@ public:
                         al, x.base.base.loc, fn_scope, arg0_s, LFortran::ASRUtils::intent_in, nullptr, nullptr,
                         ASR::storage_typeType::Default, type,
                         ASR::abiType::Source,
-                        ASR::Public, ASR::presenceType::Required);
+                        ASR::Public, ASR::presenceType::Required, false);
                     ASR::symbol_t *var = ASR::down_cast<ASR::symbol_t>(arg0);
                     fn_scope->scope[std::string(arg0_s)] = var;
                     args.push_back(al, LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var)));
@@ -1395,7 +1396,7 @@ public:
                         al, x.base.base.loc, fn_scope, fn_name, LFortran::ASRUtils::intent_return_var,
                         nullptr, nullptr, ASR::storage_typeType::Default, type,
                         ASR::abiType::Source,
-                        ASR::Public, ASR::presenceType::Required);
+                        ASR::Public, ASR::presenceType::Required, false);
                     fn_scope->scope[std::string(fn_name)] =
                         ASR::down_cast<ASR::symbol_t>(return_var);
                     ASR::asr_t *return_var_ref = ASR::make_Var_t(

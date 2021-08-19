@@ -353,7 +353,8 @@ public:
             return_var = ASR::make_Variable_t(al, x.base.base.loc,
                 current_scope, return_var_name, LFortran::ASRUtils::intent_return_var, nullptr, nullptr,
                 ASR::storage_typeType::Default, type,
-                current_procedure_abi_type, ASR::Public, ASR::presenceType::Required);
+                current_procedure_abi_type, ASR::Public, ASR::presenceType::Required,
+                false);
             current_scope->scope[std::string(return_var_name)]
                 = ASR::down_cast<ASR::symbol_t>(return_var);
         } else {
@@ -773,7 +774,8 @@ public:
                 }
                 ASR::asr_t *v = ASR::make_Variable_t(al, x.base.base.loc, current_scope,
                         s.m_name, s_intent, init_expr, value, storage_type, type,
-                        current_procedure_abi_type, s_access, s_presence);
+                        current_procedure_abi_type, s_access, s_presence,
+                        false);
                 current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(v);
                 if( is_derived_type ) {
                     data_member_names.push_back(al, s.m_name);
