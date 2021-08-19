@@ -1689,11 +1689,25 @@ public:
             F = llvm_symtab_fn[h];
         } else {
             llvm::FunctionType *function_type = get_subroutine_type(x);
-            std::string fn_name = mangle_prefix + x.m_name;
-            F = llvm::Function::Create(function_type,
-                llvm::Function::ExternalLinkage, fn_name, module.get());
+            std::string fn_name;
+            if (x.m_abi == ASR::abiType::BindC) {
+                if (x.m_bindc_name) {
+                    fn_name = x.m_bindc_name;
+                } else {
+                    fn_name = x.m_name;
+                }
+            } else {
+                fn_name = mangle_prefix + x.m_name;
+            }
+            if (llvm_symtab_fn_names.find(fn_name) == llvm_symtab_fn_names.end()) {
+                llvm_symtab_fn_names[fn_name] = h;
+                F = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, fn_name, module.get());
+            } else {
+                uint32_t old_h = llvm_symtab_fn_names[fn_name];
+                F = llvm_symtab_fn[old_h];
+            }
             llvm_symtab_fn[h] = F;
-            llvm_symtab_fn_names[fn_name] = h;
         }
     }
 
@@ -3228,8 +3242,10 @@ public:
             h = get_hash((ASR::asr_t*)s);
         } else if (s->m_abi == ASR::abiType::Source) {
             h = get_hash((ASR::asr_t*)s);
+        } else if (s->m_abi == ASR::abiType::BindC) {
+            h = get_hash((ASR::asr_t*)s);
         } else {
-            throw CodeGenError("External type not implemented yet.");
+            throw CodeGenError("ABI type not implemented yet in SubroutineCall.");
         }
         if (llvm_symtab_fn_arg.find(h) != llvm_symtab_fn_arg.end()) {
             // Check if this is a callback function
