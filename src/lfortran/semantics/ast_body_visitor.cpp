@@ -926,10 +926,10 @@ public:
                     return i;
                 }
             } else {
-                throw SemanticError("Only Subroutine supported in generic procedure", loc);
+                throw SemanticError("Only Subroutine and Function supported in generic procedure", loc);
             }
         }
-        throw SemanticError("Arguments do not match", loc);
+        throw SemanticError("Arguments do not match for any generic procedure", loc);
     }
 
     template <typename T>
