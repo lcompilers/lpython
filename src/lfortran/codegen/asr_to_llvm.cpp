@@ -2985,11 +2985,11 @@ public:
     std::vector<llvm::Value*> convert_call_args(const T &x, std::string name) {
         std::vector<llvm::Value *> args;
         const ASR::symbol_t* func_subrout = symbol_get_past_external(x.m_name);
-        ASR::abiType x_abi = (ASR::abiType) 0;
-        if( func_subrout->type == ASR::symbolType::Function ) {
+        ASR::abiType x_abi = ASR::abiType::Source;
+        if( is_a<ASR::Function_t>(*func_subrout) ) {
             ASR::Function_t* func = down_cast<ASR::Function_t>(func_subrout);
             x_abi = func->m_abi;
-        } else if( func_subrout->type == ASR::symbolType::Subroutine ) {
+        } else if( is_a<ASR::Subroutine_t>(*func_subrout) ) {
             ASR::Subroutine_t* sub = down_cast<ASR::Subroutine_t>(func_subrout);
             x_abi = sub->m_abi;
         }
