@@ -462,7 +462,36 @@ public:
     asr = ASR::make_StrOp_t(al, x.base.base.loc, left, op, right, dest_type,
                             value);
   }
-};
+
+static ASR::asr_t* comptime_intrinsic_real(ASR::expr_t *A,
+        ASR::expr_t * kind,
+        Allocator &al, const Location &loc) {
+    int kind_int = 4;
+    if (kind) {
+        ASR::expr_t* kind_value = LFortran::ASRUtils::expr_value(kind);
+        if (kind_value) {
+            if (ASR::is_a<ASR::ConstantInteger_t>(*kind_value)) {
+                kind_int = ASR::down_cast<ASR::ConstantInteger_t>(kind_value)->m_n;
+            } else {
+                throw SemanticError("kind argument to real(a, kind) is not a constant integer", loc);
+            }
+        } else {
+            throw SemanticError("kind argument to real(a, kind) is not constant", loc);
+        }
+    }
+    ASR::expr_t *result = A;
+    ASR::ttype_t *dest_type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, loc,
+                kind_int, nullptr, 0));
+    ASR::ttype_t *source_type = LFortran::ASRUtils::expr_type(A);
+
+    // TODO: this is explicit cast, use ExplicitCast
+    ImplicitCastRules::set_converted_value(al, loc, &result,
+                                           source_type, dest_type);
+    return (ASR::asr_t*)result;
+}
+
+}; // class CommonVisitorMethods
+
 } // namespace LFortran
 
 #endif /* LFORTRAN_SEMANTICS_AST_COMMON_VISITOR_H */
