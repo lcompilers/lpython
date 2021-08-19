@@ -577,6 +577,7 @@ public:
                 std::string sym = s.m_name;
                 ASR::accessType s_access = dflt_access;
                 ASR::presenceType s_presence = dflt_presence;
+                bool value_attr = false;
                 AST::AttrType_t *sym_type =
                     AST::down_cast<AST::AttrType_t>(x.m_vartype);
                 if (assgnd_access.count(sym)) {
@@ -639,7 +640,7 @@ public:
                                 // TODO
                             } else if (sa->m_attr == AST::simple_attributeType
                                     ::AttrValue) {
-                                // TODO
+                                value_attr = true;
                             } else {
                                 throw SemanticError("Attribute type not implemented yet",
                                         x.base.base.loc);
@@ -775,7 +776,7 @@ public:
                 ASR::asr_t *v = ASR::make_Variable_t(al, x.base.base.loc, current_scope,
                         s.m_name, s_intent, init_expr, value, storage_type, type,
                         current_procedure_abi_type, s_access, s_presence,
-                        false);
+                        value_attr);
                 current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(v);
                 if( is_derived_type ) {
                     data_member_names.push_back(al, s.m_name);
