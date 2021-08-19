@@ -30,24 +30,22 @@ define void @__module_callback_02_cb(float* %res, float* %a, float* %b, void (fl
 define float @__module_callback_02_foo(float* %c, float* %d, float* %res) {
 .entry:
   %foo = alloca float, align 4
-  call void @__module_callback_02_cb(float* %res, float* %c, float* %d, void (float*, float*)* @__module_callback_02_f.1)
+  call void @__module_callback_02_cb(float* %res, float* %c, float* %d, void (float*, float*)* @__module_callback_02_f)
   %0 = load float, float* %res, align 4
   store float %0, float* %foo, align 4
   %1 = load float, float* %foo, align 4
   ret float %1
 }
 
-declare void @__module_callback_02_f(float*, float*)
-
-declare void @_lfortran_printf(i8*, ...)
-
-define void @__module_callback_02_f.1(float* %x, float* %res) {
+define void @__module_callback_02_f(float* %x, float* %res) {
 .entry:
   %0 = load float, float* %x, align 4
   %1 = fmul float 2.000000e+00, %0
   store float %1, float* %res, align 4
   ret void
 }
+
+declare void @_lfortran_printf(i8*, ...)
 
 define i32 @main() {
 .entry:

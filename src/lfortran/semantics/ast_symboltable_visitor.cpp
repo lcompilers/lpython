@@ -20,6 +20,48 @@
 
 namespace LFortran {
 
+template <typename T>
+void extract_bind(T &x, ASR::abiType &abi_type, char *&bindc_name) {
+    if (x.m_bind) {
+        AST::Bind_t *bind = AST::down_cast<AST::Bind_t>(x.m_bind);
+        if (bind->n_args == 1) {
+            if (AST::is_a<AST::Name_t>(*bind->m_args[0])) {
+                AST::Name_t *name = AST::down_cast<AST::Name_t>(
+                    bind->m_args[0]);
+                if (to_lower(std::string(name->m_id)) == "c") {
+                    abi_type=ASR::abiType::BindC;
+                } else {
+                    throw SemanticError("Unsupported language in bind()",
+                        x.base.base.loc);
+                }
+            } else {
+                    throw SemanticError("Language name must be specified in bind() as plain text",
+                        x.base.base.loc);
+            }
+        } else {
+            throw SemanticError("At least one argument needed in bind()",
+                x.base.base.loc);
+        }
+        if (bind->n_kwargs == 1) {
+            char *arg = bind->m_kwargs[0].m_arg;
+            AST::expr_t *value = bind->m_kwargs[0].m_value;
+            if (to_lower(std::string(arg)) == "name") {
+                if (AST::is_a<AST::String_t>(*value)) {
+                    AST::String_t *name = AST::down_cast<AST::String_t>(value);
+                    bindc_name = name->m_s;
+                } else {
+                    throw SemanticError("The value of the 'name' keyword argument in bind(c) must be a string",
+                        x.base.base.loc);
+                }
+            } else {
+                throw SemanticError("Unsupported keyword argument in bind()",
+                    x.base.base.loc);
+            }
+        }
+    }
+}
+
+
 class SymbolTableVisitor : public AST::BaseVisitor<SymbolTableVisitor> {
 private:
     std::map<std::string, std::string> intrinsic_procedures = {
@@ -166,6 +208,9 @@ public:
             current_procedure_args.push_back(arg);
         }
         current_procedure_abi_type = ASR::abiType::Source;
+        char *bindc_name=nullptr;
+        extract_bind(x, current_procedure_abi_type, bindc_name);
+
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
         }
@@ -199,8 +244,8 @@ public:
             /* n_args */ args.size(),
             /* a_body */ nullptr,
             /* n_body */ 0,
-            ASR::abiType::Source,
-            s_access, deftype, nullptr);
+            current_procedure_abi_type,
+            s_access, deftype, bindc_name);
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             ASR::symbol_t *f1 = parent_scope->scope[sym_name];
             ASR::Subroutine_t *f2 = ASR::down_cast<ASR::Subroutine_t>(f1);
@@ -251,43 +296,7 @@ public:
         // Determine the ABI (Source or BindC for now)
         current_procedure_abi_type = ASR::abiType::Source;
         char *bindc_name=nullptr;
-        if (x.m_bind) {
-            AST::Bind_t *bind = AST::down_cast<AST::Bind_t>(x.m_bind);
-            if (bind->n_args == 1) {
-                if (AST::is_a<AST::Name_t>(*bind->m_args[0])) {
-                    AST::Name_t *name = AST::down_cast<AST::Name_t>(
-                        bind->m_args[0]);
-                    if (to_lower(std::string(name->m_id)) == "c") {
-                        current_procedure_abi_type=ASR::abiType::BindC;
-                    } else {
-                        throw SemanticError("Unsupported language in bind()",
-                            x.base.base.loc);
-                    }
-                } else {
-                        throw SemanticError("Language name must be specified in bind() as plain text",
-                            x.base.base.loc);
-                }
-            } else {
-                throw SemanticError("At least one argument needed in bind()",
-                    x.base.base.loc);
-            }
-            if (bind->n_kwargs == 1) {
-                char *arg = bind->m_kwargs[0].m_arg;
-                AST::expr_t *value = bind->m_kwargs[0].m_value;
-                if (to_lower(std::string(arg)) == "name") {
-                    if (AST::is_a<AST::String_t>(*value)) {
-                        AST::String_t *name = AST::down_cast<AST::String_t>(value);
-                        bindc_name = name->m_s;
-                    } else {
-                        throw SemanticError("The value of the 'name' keyword argument in bind(c) must be a string",
-                            x.base.base.loc);
-                    }
-                } else {
-                    throw SemanticError("Unsupported keyword argument in bind()",
-                        x.base.base.loc);
-                }
-            }
-        }
+        extract_bind(x, current_procedure_abi_type, bindc_name);
 
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
