@@ -176,7 +176,7 @@ public:
                     a_args.push_back(al, s->m_return_var);
                     ASR::asr_t* s_sub_asr = ASR::make_Subroutine_t(al, s->base.base.loc, s->m_symtab, 
                                                     s->m_name, a_args.p, a_args.size(), s->m_body, s->n_body, 
-                                                    s->m_abi, s->m_access, s->m_deftype);
+                                                    s->m_abi, s->m_access, s->m_deftype, nullptr);
                     ASR::symbol_t* s_sub = ASR::down_cast<ASR::symbol_t>(s_sub_asr);
                     replace_vec.push_back(std::make_pair(item.first, s_sub));
                 }

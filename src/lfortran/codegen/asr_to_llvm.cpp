@@ -161,6 +161,7 @@ public:
 
     std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
     std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
+    std::map<std::string, uint64_t> llvm_symtab_fn_names;
     std::map<uint64_t, llvm::Value*> llvm_symtab_fn_arg;
 
     // Data members for handling nested functions
@@ -1683,10 +1684,11 @@ public:
             F = llvm_symtab_fn[h];
         } else {
             llvm::FunctionType *function_type = get_subroutine_type(x);
+            std::string fn_name = mangle_prefix + x.m_name;
             F = llvm::Function::Create(function_type,
-                llvm::Function::ExternalLinkage, mangle_prefix + 
-                x.m_name, module.get());
+                llvm::Function::ExternalLinkage, fn_name, module.get());
             llvm_symtab_fn[h] = F;
+            llvm_symtab_fn_names[fn_name] = h;
         }
     }
 
@@ -1729,12 +1731,22 @@ public:
             llvm::FunctionType* function_type = get_function_type(x);
             std::string fn_name;
             if (x.m_abi == ASR::abiType::BindC) {
-                fn_name = x.m_name;
+                if (x.m_bindc_name) {
+                    fn_name = x.m_bindc_name;
+                } else {
+                    fn_name = x.m_name;
+                }
             } else {
                 fn_name = mangle_prefix + x.m_name;
             }
-            F = llvm::Function::Create(function_type,
-                llvm::Function::ExternalLinkage, fn_name, module.get());
+            if (llvm_symtab_fn_names.find(fn_name) == llvm_symtab_fn_names.end()) {
+                llvm_symtab_fn_names[fn_name] = h;
+                F = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, fn_name, module.get());
+            } else {
+                uint32_t old_h = llvm_symtab_fn_names[fn_name];
+                F = llvm_symtab_fn[old_h];
+            }
             llvm_symtab_fn[h] = F;
         }
     }
