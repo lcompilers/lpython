@@ -32,8 +32,6 @@ declare void @_lfortran_printf(i8*, ...)
 
 declare void @__module_callback_05_f(i32*)
 
-declare void @__module_callback_05_f.1(i32*)
-
 define i32 @main() {
 .entry:
   %x = alloca i32, align 4
