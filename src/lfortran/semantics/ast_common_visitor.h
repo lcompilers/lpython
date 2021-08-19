@@ -463,7 +463,8 @@ public:
                             value);
   }
 
-static ASR::asr_t* comptime_intrinsic_real(ASR::expr_t *A, ASR::expr_t *kind,
+static ASR::asr_t* comptime_intrinsic_real(ASR::expr_t *A,
+        ASR::expr_t * /*kind*/,
         Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args,
         ASR::symbol_t *v, ASR::ttype_t *return_type) {
     ASR::expr_t* real_expr = A;
