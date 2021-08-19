@@ -110,8 +110,6 @@ declare i32 @__module_recursion_03_f()
 
 declare void @_lfortran_printf(i8*, ...)
 
-declare i32 @__module_recursion_03_f.1()
-
 define i32 @__module_recursion_03_getx() {
 .entry:
   %getx = alloca i32, align 4
