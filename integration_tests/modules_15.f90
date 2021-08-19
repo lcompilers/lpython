@@ -1,7 +1,8 @@
 program modules_15
 use iso_fortran_env, only: sp=>real32, dp=>real64
 use modules_15b, only: f_int_float, f_int_double, f_int_float_value, &
-        f_int_double_value, f_int_intarray, f_int_floatarray, f_int_doublearray
+        f_int_double_value, f_int_intarray, f_int_floatarray, &
+        f_int_doublearray, f_int_double_value_name
 implicit none
 integer :: i, a, n, I32(3)
 real(sp) :: r32, X32(3)
@@ -28,6 +29,9 @@ if (i /= 8) error stop
 a = 3
 r64 = 5
 i = f_int_double_value(a, r64)
+print *, i
+if (i /= 8) error stop
+i = f_int_double_value_name(a, r64)
 print *, i
 if (i /= 8) error stop
 
