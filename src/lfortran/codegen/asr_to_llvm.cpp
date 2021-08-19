@@ -1318,7 +1318,12 @@ public:
                                 type = arr_descr->get_array_type(m_type_, a_kind, n_dims, m_dims, el_type, true);
                             }
                         } else {
-                            type = getIntType(a_kind, true);
+                            if (arg->m_abi == ASR::abiType::BindC
+                                && arg->m_value_attr) {
+                                type = getIntType(a_kind, false);
+                            } else {
+                                type = getIntType(a_kind, true);
+                            }
                         }
                         break;
                     }
@@ -1342,7 +1347,12 @@ public:
                                 }
                             }
                         } else {
-                            type = getFPType(a_kind, true);
+                            if (arg->m_abi == ASR::abiType::BindC
+                                && arg->m_value_attr) {
+                                type = getFPType(a_kind, false);
+                            } else {
+                                type = getFPType(a_kind, true);
+                            }
                         }
                         break;
                     }
@@ -3046,19 +3056,22 @@ public:
                             const ASR::symbol_t* func_subrout = symbol_get_past_external(x.m_name);
                             ASR::abiType x_abi = (ASR::abiType) 0;
                             std::uint32_t m_h;
+                            ASR::Variable_t *orig_arg = nullptr;
                             std::string orig_arg_name = "";
                             if( func_subrout->type == ASR::symbolType::Function ) {
                                 ASR::Function_t* func = down_cast<ASR::Function_t>(func_subrout);
                                 m_h = get_hash((ASR::asr_t*)func);
-                                ASR::Variable_t *orig_arg = EXPR2VAR(func->m_args[i]);
+                                orig_arg = EXPR2VAR(func->m_args[i]);
                                 orig_arg_name = orig_arg->m_name;
                                 x_abi = func->m_abi;
                             } else if( func_subrout->type == ASR::symbolType::Subroutine ) {
                                 ASR::Subroutine_t* sub = down_cast<ASR::Subroutine_t>(func_subrout);
                                 m_h = get_hash((ASR::asr_t*)sub);
-                                ASR::Variable_t *orig_arg = EXPR2VAR(sub->m_args[i]);
+                                orig_arg = EXPR2VAR(sub->m_args[i]);
                                 orig_arg_name = orig_arg->m_name;
                                 x_abi = sub->m_abi;
+                            } else {
+                                LFORTRAN_ASSERT(false)
                             }
                             if( x_abi == ASR::abiType::Source && arr_descr->is_array(tmp) ) {
                                 llvm::Type* new_arr_type = arr_arg_type_cache[m_h][orig_arg_name];
@@ -3070,6 +3083,13 @@ public:
                                     if( tmp_type->getElementType()->isArrayTy() ) {
                                         tmp = llvm_utils->create_gep(tmp, 0);
                                     }
+                                } else {
+                                    if (orig_arg->m_abi == ASR::abiType::BindC
+                                        && orig_arg->m_value_attr) {
+                                            // Dereference the pointer argument
+                                            // to pass by value
+                                            tmp = builder->CreateLoad(tmp);
+                                        }
                                 }
                             }
                         } else {

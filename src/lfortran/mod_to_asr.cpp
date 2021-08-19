@@ -256,7 +256,7 @@ ASR::TranslationUnit_t* parse_gfortran_mod_file(Allocator &al, const std::string
                     name, ASR::intentType::In, nullptr, nullptr,
                     ASR::storage_typeType::Default, s.v.type,
                     ASR::abiType::GFortranModule,
-                    ASR::Public, ASR::presenceType::Required);
+                    ASR::Public, ASR::presenceType::Required, false);
                 s.v.var = down_cast<ASR::symbol_t>(asr);
             } else if (kind == "PROCEDURE") {
                 s.kind = GSymbol::procedure;
