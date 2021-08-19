@@ -1318,7 +1318,12 @@ public:
                                 type = arr_descr->get_array_type(m_type_, a_kind, n_dims, m_dims, el_type, true);
                             }
                         } else {
-                            type = getIntType(a_kind, true);
+                            if (arg->m_abi == ASR::abiType::BindC
+                                && arg->m_value_attr) {
+                                type = getIntType(a_kind, false);
+                            } else {
+                                type = getIntType(a_kind, true);
+                            }
                         }
                         break;
                     }
@@ -1342,7 +1347,12 @@ public:
                                 }
                             }
                         } else {
-                            type = getFPType(a_kind, true);
+                            if (arg->m_abi == ASR::abiType::BindC
+                                && arg->m_value_attr) {
+                                type = getFPType(a_kind, false);
+                            } else {
+                                type = getFPType(a_kind, true);
+                            }
                         }
                         break;
                     }
