@@ -54,6 +54,8 @@ normal_continue:                                  ; preds = %decrement_sp, %.ent
   ret i32 %15
 }
 
+declare i32 @__module_recursion_02_f()
+
 define i32 @__module_recursion_02_sub1(i32* %y, i32* %iter) {
 .entry:
   %sub1 = alloca i32, align 4
@@ -97,10 +99,6 @@ ifcont:                                           ; preds = %else
   br label %return
 }
 
-declare i32 @__module_recursion_02_f()
-
-declare void @_lfortran_printf(i8*, ...)
-
 define i32 @__module_recursion_02_getx() {
 .entry:
   %getx = alloca i32, align 4
@@ -113,6 +111,8 @@ define i32 @__module_recursion_02_getx() {
   %4 = load i32, i32* %getx, align 4
   ret i32 %4
 }
+
+declare void @_lfortran_printf(i8*, ...)
 
 define i32 @main() {
 .entry:
