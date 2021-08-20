@@ -2901,6 +2901,38 @@ public:
                 tmp = complex_from_floats(re, im, target_type);
                 break;
             }
+            case (ASR::cast_kindType::ComplexToReal) : {
+                int arg_kind = -1, dest_kind = -1;
+                extract_kinds(x, arg_kind, dest_kind);
+                llvm::Value *re;
+                if( arg_kind > 0 && dest_kind > 0)
+                {
+                    if( arg_kind == 4 && dest_kind == 4 ) {
+                        // complex(4) -> real(4)
+                        re = complex_re(tmp, complex_type_4);
+                        tmp = re;
+                    } else if( arg_kind == 4 && dest_kind == 8 ) {
+                        // complex(4) -> real(8)
+                        re = complex_re(tmp, complex_type_4);
+                        tmp = builder->CreateFPExt(re, llvm::Type::getDoubleTy(context));
+                    } else if( arg_kind == 8 && dest_kind == 4 ) {
+                        // complex(8) -> real(4)
+                        re = complex_re(tmp, complex_type_8);
+                        tmp = builder->CreateFPTrunc(re, llvm::Type::getFloatTy(context));
+                    } else if( arg_kind == 8 && dest_kind == 8 ) {
+                        // complex(8) -> real(8)
+                        re = complex_re(tmp, complex_type_8);
+                        tmp = re;
+                    } else {
+                        std::string msg = "Conversion from " + std::to_string(arg_kind) +
+                                          " to " + std::to_string(dest_kind) + " not implemented yet.";
+                        throw CodeGenError(msg);
+                    }
+                } else {
+                    throw CodeGenError("Negative kinds are not supported.");
+                }
+                break;
+            }
             default : throw CodeGenError("Cast kind not implemented");
         }
     }

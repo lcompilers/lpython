@@ -20,6 +20,7 @@ private:
   static const int integer_to_complex = ASR::cast_kindType::IntegerToComplex;
   static const int integer_to_logical = ASR::cast_kindType::IntegerToLogical;
   static const int complex_to_complex = ASR::cast_kindType::ComplexToComplex;
+  static const int complex_to_real = ASR::cast_kindType::ComplexToReal;
   static const int real_to_real = ASR::cast_kindType::RealToReal;
   //! Stores the variable part of error messages to be passed to SemanticError.
   static constexpr const char *type_names[num_types][2] = {
@@ -44,25 +45,35 @@ private:
    */
   static constexpr const int rule_map[num_types / 2][num_types] = {
 
+      // Integer
       {integer_to_integer, integer_to_real, integer_to_complex, error_case,
        integer_to_logical, error_case, integer_to_integer, integer_to_real,
        integer_to_complex, error_case, integer_to_logical, error_case},
+
+      // Real
       {real_to_integer, real_to_real, real_to_complex, default_case,
        default_case, default_case, real_to_integer, real_to_real,
        real_to_complex, default_case, default_case, default_case},
-      {default_case, default_case, complex_to_complex, default_case,
+
+      // Complex
+      {default_case, complex_to_real, complex_to_complex, default_case,
        default_case, default_case, default_case, default_case,
        complex_to_complex, default_case, default_case, default_case},
+
+      // Character
       {default_case, default_case, default_case, default_case, default_case,
        default_case, default_case, default_case, default_case, default_case,
        default_case, default_case},
+
+      // Logical
       {default_case, default_case, default_case, default_case, default_case,
        default_case, default_case, default_case, default_case, default_case,
        default_case, default_case},
+
+      // Derived
       {default_case, default_case, default_case, default_case, default_case,
        default_case, default_case, default_case, default_case, default_case,
        default_case, default_case}
-
   };
 
   /*
