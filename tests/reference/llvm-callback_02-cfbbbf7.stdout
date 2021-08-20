@@ -27,6 +27,14 @@ define void @__module_callback_02_cb(float* %res, float* %a, float* %b, void (fl
   ret void
 }
 
+define void @__module_callback_02_f(float* %x, float* %res) {
+.entry:
+  %0 = load float, float* %x, align 4
+  %1 = fmul float 2.000000e+00, %0
+  store float %1, float* %res, align 4
+  ret void
+}
+
 define float @__module_callback_02_foo(float* %c, float* %d, float* %res) {
 .entry:
   %foo = alloca float, align 4
@@ -35,14 +43,6 @@ define float @__module_callback_02_foo(float* %c, float* %d, float* %res) {
   store float %0, float* %foo, align 4
   %1 = load float, float* %foo, align 4
   ret float %1
-}
-
-define void @__module_callback_02_f(float* %x, float* %res) {
-.entry:
-  %0 = load float, float* %x, align 4
-  %1 = fmul float 2.000000e+00, %0
-  store float %1, float* %res, align 4
-  ret void
 }
 
 declare void @_lfortran_printf(i8*, ...)
