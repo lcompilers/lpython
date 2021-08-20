@@ -421,7 +421,7 @@ class PickleVisitorVisitor(ASDLVisitor):
         self.emit(  "bool indent, start_line = true;", 1)
         self.emit(  "int indent_level = 0, indent_spaces = 3, lvl = 0;", 1)
         self.emit(  "int tmp = 0, tmp1 = 0, tmp2 = 2;", 1)
-        self.emit(  "int curly[20], round[20];", 1)
+        self.emit(  "int curly[2000], round[2000];", 1)
         self.emit("public:")
         self.emit(  "PickleBaseVisitor() : use_colors(false), indent(false) { s.reserve(100000); }", 1)
         self.emit(  "void inc_indent() {", 1)
