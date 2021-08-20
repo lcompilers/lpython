@@ -20,7 +20,7 @@ interface floor
 end interface
 
 interface modulo
-    module procedure smodulo, dmodulo
+    module procedure imodulo, smodulo, dmodulo
 end interface
 
 contains
@@ -111,6 +111,11 @@ end if
 end function
 
 ! modulo -----------------------------------------------------------------------
+
+elemental integer function imodulo(x, y) result(r)
+integer, intent(in) :: x, y
+r = x-floor(real(x)/y)*y
+end function
 
 elemental real(sp) function smodulo(x, y) result(r)
 real(sp), intent(in) :: x, y
