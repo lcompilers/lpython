@@ -1,7 +1,7 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-@0 = private unnamed_addr constant [5 x i8] c"%lf\0A\00", align 1
+@0 = private unnamed_addr constant [9 x i8] c"%23.17f\0A\00", align 1
 
 define i32 @__module_lfortran_intrinsic_trig_a1floor(double* %x) {
 .entry:
@@ -255,7 +255,7 @@ define i32 @main() {
   %1 = call double @__module_lfortran_intrinsic_trig_a6dsin(double* %0)
   store double %1, double* %x, align 8
   %2 = load double, double* %x, align 8
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @0, i32 0, i32 0), double %2)
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @0, i32 0, i32 0), double %2)
   ret i32 0
 }
 
