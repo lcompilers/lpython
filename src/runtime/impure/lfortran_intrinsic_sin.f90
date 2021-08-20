@@ -1,4 +1,5 @@
 module lfortran_intrinsic_sin
+use iso_c_binding, only: c_double, c_int
 use, intrinsic :: iso_fortran_env, only: sp => real32, dp => real64
 implicit none
 private
