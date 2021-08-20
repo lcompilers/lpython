@@ -123,8 +123,6 @@ ifcont:                                           ; preds = %else, %then
   ret float %5
 }
 
-declare void @_lfortran_printf(i8*, ...)
-
 define float @sum(%array_call* %a) {
 .entry:
   %i = alloca i32, align 4
@@ -176,6 +174,8 @@ loop.end:                                         ; preds = %loop.head
   %28 = load float, float* %r, align 4
   ret float %28
 }
+
+declare void @_lfortran_printf(i8*, ...)
 
 define i32 @main() {
 .entry:

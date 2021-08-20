@@ -102,8 +102,6 @@ define void @f(%array* %c) {
   ret void
 }
 
-declare i8* @_lfortran_malloc(i32, ...)
-
 define i32 @g(%array* %x) {
 .entry:
   %r = alloca i32, align 4
@@ -234,10 +232,6 @@ ifcont:                                           ; preds = %else, %then
   ret i32 %105
 }
 
-declare void @_lfortran_printf(i8*, ...)
-
-declare void @_lfortran_free(i8*, ...)
-
 define void @h(%array* %c) {
 .entry:
   %0 = getelementptr %array, %array* %c, i32 0, i32 2
@@ -364,6 +358,12 @@ ifcont:                                           ; preds = %else, %then
   store i32 8, i32* %104, align 4
   ret void
 }
+
+declare i8* @_lfortran_malloc(i32, ...)
+
+declare void @_lfortran_printf(i8*, ...)
+
+declare void @_lfortran_free(i8*, ...)
 
 define i32 @main() {
 .entry:

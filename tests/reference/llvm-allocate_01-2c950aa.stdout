@@ -255,8 +255,6 @@ loop.end6:                                        ; preds = %loop.head
   ret %complex_4 %92
 }
 
-declare void @_lfortran_complex_add(%complex_4*, %complex_4*, %complex_4*, ...)
-
 define void @sum(%array.2* %a, %array.3* %b, %array.1* %c) {
 .entry:
   %c_copy = alloca %array.1, align 8
@@ -750,6 +748,8 @@ ifcont:                                           ; preds = %else, %then
   %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
   ret void
 }
+
+declare void @_lfortran_complex_add(%complex_4*, %complex_4*, %complex_4*, ...)
 
 declare i8* @_lfortran_malloc(i32, ...)
 
