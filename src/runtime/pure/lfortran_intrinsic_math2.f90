@@ -15,6 +15,14 @@ interface aimag
     module procedure saimag, daimag
 end interface
 
+interface floor
+    module procedure sfloor, dfloor
+end interface
+
+interface modulo
+    module procedure smodulo, dmodulo
+end interface
+
 contains
 
 ! abs --------------------------------------------------------------------------
@@ -66,7 +74,7 @@ else
 end if
 end function
 
-! aimag
+! aimag ------------------------------------------------------------------------
 
 elemental real(sp) function saimag(x) result(r)
 complex(sp), intent(in) :: x
@@ -80,6 +88,38 @@ complex(dp), intent(in) :: x
 ! Uncomment once it is implemented
 !r = x%im
 error stop "aimag not implemented yet"
+end function
+
+! floor ------------------------------------------------------------------------
+
+elemental integer function sfloor(x) result(r)
+real(sp), intent(in) :: x
+if (x >= 0) then
+    r = x
+else
+    r = x-1
+end if
+end function
+
+elemental integer function dfloor(x) result(r)
+real(dp), intent(in) :: x
+if (x >= 0) then
+    r = x
+else
+    r = x-1
+end if
+end function
+
+! modulo -----------------------------------------------------------------------
+
+elemental real(sp) function smodulo(x, y) result(r)
+real(sp), intent(in) :: x, y
+r = x-floor(x/y)*y
+end function
+
+elemental real(dp) function dmodulo(x, y) result(r)
+real(dp), intent(in) :: x, y
+r = x-floor(x/y)*y
 end function
 
 end module

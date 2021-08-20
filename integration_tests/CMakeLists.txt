@@ -172,6 +172,9 @@ RUN(NAME submodule_01 LABELS gfortran)
 
 RUN(NAME floor_01 LABELS gfortran llvm) # floor body
 RUN(NAME floor_02 LABELS gfortran) # floor symboltable
+RUN(NAME floor_03 LABELS gfortran)
+
+RUN(NAME modulo_01 LABELS gfortran llvm)
 
 RUN(NAME int_01 LABELS gfortran llvm) # int body
 RUN(NAME int_02 LABELS gfortran) # int symboltable
