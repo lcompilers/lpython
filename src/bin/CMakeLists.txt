@@ -55,6 +55,7 @@ if (WITH_RUNTIME_LIBRARY)
     LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_iso_c_binding pure)
     LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_math2 pure
       ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.mod
+      ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_array.mod
     )
     LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_trig pure
       ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.mod
