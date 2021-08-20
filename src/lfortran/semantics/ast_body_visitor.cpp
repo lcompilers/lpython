@@ -38,6 +38,7 @@ private:
         {"floor", "lfortran_intrinsic_array"},
         {"sum", "lfortran_intrinsic_array"},
         {"abs", "lfortran_intrinsic_math2"},
+        {"aimag", "lfortran_intrinsic_math2"},
         {"sin", "lfortran_intrinsic_trig"},
         {"sqrt", "lfortran_intrinsic_math2"},
         {"int", "lfortran_intrinsic_array"},
@@ -925,10 +926,10 @@ public:
                     return i;
                 }
             } else {
-                throw SemanticError("Only Subroutine supported in generic procedure", loc);
+                throw SemanticError("Only Subroutine and Function supported in generic procedure", loc);
             }
         }
-        throw SemanticError("Arguments do not match", loc);
+        throw SemanticError("Arguments do not match for any generic procedure", loc);
     }
 
     template <typename T>
@@ -952,7 +953,18 @@ public:
     bool types_equal(const ASR::ttype_t &a, const ASR::ttype_t &b) {
         if (a.type == b.type) {
             // TODO: check dims
+            // TODO: check all types
             switch (a.type) {
+                case (ASR::ttypeType::Integer) : {
+                    ASR::Integer_t *a2 = ASR::down_cast<ASR::Integer_t>(&a);
+                    ASR::Integer_t *b2 = ASR::down_cast<ASR::Integer_t>(&b);
+                    if (a2->m_kind == b2->m_kind) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                    break;
+                }
                 case (ASR::ttypeType::Real) : {
                     ASR::Real_t *a2 = ASR::down_cast<ASR::Real_t>(&a);
                     ASR::Real_t *b2 = ASR::down_cast<ASR::Real_t>(&b);
@@ -963,7 +975,17 @@ public:
                     }
                     break;
                 }
-                default : return true;
+                case (ASR::ttypeType::Complex) : {
+                    ASR::Complex_t *a2 = ASR::down_cast<ASR::Complex_t>(&a);
+                    ASR::Complex_t *b2 = ASR::down_cast<ASR::Complex_t>(&b);
+                    if (a2->m_kind == b2->m_kind) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                    break;
+                }
+                default : return false;
             }
         }
         return false;
