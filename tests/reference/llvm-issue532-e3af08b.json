@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-issue532-e3af08b",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
+    "infile": "tests/issue532.f90",
+    "infile_hash": "75f4785bea0a877f7a902640ffcc5d276bd955349ff3df1639d6e6b7",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-issue532-e3af08b.stdout",
+    "stdout_hash": "37977fb992f2489d111a8b158137054799b337f8a4f19d8df64b211a",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

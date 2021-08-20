@@ -1522,3 +1522,8 @@ ast_f90 = true
 filename = "entry1.f90"
 ast = true
 ast_f90 = true
+
+[[test]]
+filename = "issue532.f90"
+asr = true
+llvm = true
