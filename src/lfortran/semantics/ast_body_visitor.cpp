@@ -39,6 +39,7 @@ private:
         {"sum", "lfortran_intrinsic_array"},
         {"abs", "lfortran_intrinsic_math2"},
         {"aimag", "lfortran_intrinsic_math2"},
+        {"modulo", "lfortran_intrinsic_math2"},
         {"sin", "lfortran_intrinsic_trig"},
         {"sqrt", "lfortran_intrinsic_math2"},
         {"int", "lfortran_intrinsic_array"},
