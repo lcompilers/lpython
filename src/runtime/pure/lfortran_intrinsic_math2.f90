@@ -4,7 +4,7 @@ use, intrinsic :: iso_fortran_env, only: sp => real32, dp => real64
 implicit none
 
 interface abs
-    module procedure sabs, dabs
+    module procedure iabs, sabs, dabs
 end interface
 
 interface sqrt
@@ -18,6 +18,15 @@ end interface
 contains
 
 ! abs --------------------------------------------------------------------------
+
+elemental integer function iabs(x) result(r)
+integer, intent(in) :: x
+if (x >= 0) then
+    r = x
+else
+    r = -x
+end if
+end function
 
 elemental real(sp) function sabs(x) result(r)
 real(sp), intent(in) :: x
