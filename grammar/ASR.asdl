@@ -230,6 +230,7 @@ cast_kind
     | IntegerToComplex
     | IntegerToLogical
     | ComplexToComplex
+    | ComplexToReal
 
 dimension = (expr? start, expr? end)
 
