@@ -1312,6 +1312,17 @@ public:
                     current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
                     symbol_resolve_generic_procedure(
                         ASR::down_cast<ASR::symbol_t>(fn), x);
+                    if (current_module) {
+                        // Add the module `m` to current module dependencies
+                        Vec<char*> vec;
+                        vec.from_pointer_n_copy(al, current_module->m_dependencies,
+                                    current_module->n_dependencies);
+                        if (!present(vec, m->m_name)) {
+                            vec.push_back(al, m->m_name);
+                            current_module->m_dependencies = vec.p;
+                            current_module->n_dependencies = vec.size();
+                        }
+                    }
                     return;
                 }
 
