@@ -1019,6 +1019,19 @@ public:
 
     void visit_Program(const ASR::Program_t &x) {
         // Generate code for nested subroutines and functions first:
+        for (auto &item : x.m_symtab->scope) {
+            if (is_a<ASR::Function_t>(*item.second)) {
+                ASR::Function_t *v = down_cast<ASR::Function_t>(
+                        item.second);
+                instantiate_function(*v);
+                declare_needed_global_types(*v);
+            } else if (is_a<ASR::Subroutine_t>(*item.second)) {
+                ASR::Subroutine_t *v = down_cast<ASR::Subroutine_t>(
+                        item.second);
+                instantiate_subroutine(*v);
+                declare_needed_global_types(*v);
+            }
+        }
         declare_needed_global_types(x);
         visit_procedures(x);
 
