@@ -25,6 +25,7 @@ set(SRC
     pass/arr_slice.cpp
     pass/print_arr.cpp
     pass/pass_utils.cpp
+    pass/unused_functions.cpp
 
     asr_verify.cpp
     asr_utils.cpp
