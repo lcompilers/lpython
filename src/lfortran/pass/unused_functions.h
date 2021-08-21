@@ -5,7 +5,7 @@
 
 namespace LFortran {
 
-    void pass_unused_functions(ASR::TranslationUnit_t &unit);
+    void pass_unused_functions(Allocator &al, ASR::TranslationUnit_t &unit);
 
 } // namespace LFortran
 

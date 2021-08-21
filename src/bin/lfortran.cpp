@@ -515,7 +515,7 @@ int emit_asr(const std::string &infile, bool colors,
                 break;
             }
             case (ASRPass::unused_functions) : {
-                LFortran::pass_unused_functions(*asr);
+                LFortran::pass_unused_functions(al, *asr);
                 break;
             }
             default : throw LFortran::LFortranException("Pass not implemened");

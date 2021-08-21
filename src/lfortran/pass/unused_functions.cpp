@@ -96,15 +96,6 @@ public:
     }
 
     void visit_GenericProcedure(const ASR::GenericProcedure_t &x) {
-        for (size_t i=0; i<x.n_procs; i++) {
-            const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_procs[i]);
-            if (ASR::is_a<ASR::Function_t>(*s)) {
-                ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
-                std::string name = f->m_name;
-                uint64_t h = get_hash((ASR::asr_t*)f);
-                fn_used[h] = name;
-            }
-        }
         uint64_t h = get_hash((ASR::asr_t*)&x);
         fn_declarations[h] = x.m_name;
     }
@@ -162,17 +153,20 @@ bool is_program_present(ASR::TranslationUnit_t &unit) {
 
 class UnusedFunctionsVisitor : public ASR::BaseWalkVisitor<UnusedFunctionsVisitor>
 {
+private:
+    Allocator &al;
 public:
     std::map<uint64_t, std::string> fn_unused;
 
+    UnusedFunctionsVisitor(Allocator &al) : al{al} { }
+
     void remove_unused_fn(std::map<std::string, ASR::symbol_t*> &scope) {
         for (auto it = scope.begin(); it != scope.end(); ) {
-            this->visit_symbol(*it->second);
             uint64_t h = get_hash((ASR::asr_t*)it->second);
             if (fn_unused.find(h) != fn_unused.end()) {
-//                std::cout << "Erasing: " << fn_unused[h] << std::endl;
                 it = scope.erase(it);
             } else {
+                this->visit_symbol(*it->second);
                 ++it;
             }
         }
@@ -193,10 +187,30 @@ public:
     void visit_Function(const ASR::Function_t &x) {
         remove_unused_fn(x.m_symtab->scope);
     }
+    void visit_GenericProcedure(const ASR::GenericProcedure_t &x) {
+        Vec<ASR::symbol_t*> v;
+        v.reserve(al, x.n_procs);
+        for (size_t i=0; i<x.n_procs; i++) {
+            const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_procs[i]);
+            uint64_t h = get_hash((ASR::asr_t*)s);
+            if (fn_unused.find(h) != fn_unused.end()) {
+                //std::cout << "GP: erase proc #" << i << " / " << x.n_procs << std::endl;
+            } else {
+                v.push_back(al, x.m_procs[i]);
+            }
+        }
+        if (v.size() < x.n_procs) {
+            // FIXME: this is a hack, we need to pass in a non-const `x`,
+            // which requires to generate a TransformVisitor.
+            ASR::GenericProcedure_t &xx = const_cast<ASR::GenericProcedure_t&>(x);
+            xx.m_procs = v.p;
+            xx.n_procs = v.n;
+        }
+    }
 
 };
 
-void pass_unused_functions(ASR::TranslationUnit_t &unit) {
+void pass_unused_functions(Allocator &al, ASR::TranslationUnit_t &unit) {
     if (is_program_present(unit)) {
         for (int i=0; i < 4; i++)
         {
@@ -209,7 +223,7 @@ void pass_unused_functions(ASR::TranslationUnit_t &unit) {
             }
             std::cout << std::endl;
     */
-            UnusedFunctionsVisitor v;
+            UnusedFunctionsVisitor v(al);
             v.fn_unused = fn_unused;
             v.visit_TranslationUnit(unit);
             LFORTRAN_ASSERT(asr_verify(unit));
