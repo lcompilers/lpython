@@ -1,34 +1,7 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-%complex_4 = type { float, float }
-%complex_8 = type { double, double }
-
 @0 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
-
-define %complex_4 @__module_lfortran_intrinsic_math_ctan(%complex_4* %x) {
-.entry:
-  %r = alloca %complex_4, align 8
-  %0 = load %complex_4, %complex_4* %x, align 4
-  %1 = call %complex_4 @_lfortran_ctan(%complex_4 %0)
-  store %complex_4 %1, %complex_4* %r, align 4
-  %2 = load %complex_4, %complex_4* %r, align 4
-  ret %complex_4 %2
-}
-
-declare %complex_4 @_lfortran_ctan(%complex_4)
-
-define double @__module_lfortran_intrinsic_math_dtan(double* %x) {
-.entry:
-  %r = alloca double, align 8
-  %0 = load double, double* %x, align 8
-  %1 = call double @_lfortran_dtan(double %0)
-  store double %1, double* %r, align 8
-  %2 = load double, double* %r, align 8
-  ret double %2
-}
-
-declare double @_lfortran_dtan(double)
 
 define float @__module_lfortran_intrinsic_math_stan(float* %x) {
 .entry:
@@ -41,18 +14,6 @@ define float @__module_lfortran_intrinsic_math_stan(float* %x) {
 }
 
 declare float @_lfortran_stan(float)
-
-define %complex_8 @__module_lfortran_intrinsic_math_ztan(%complex_8* %x) {
-.entry:
-  %r = alloca %complex_8, align 8
-  %0 = load %complex_8, %complex_8* %x, align 8
-  %1 = call %complex_8 @_lfortran_ztan(%complex_8 %0)
-  store %complex_8 %1, %complex_8* %r, align 8
-  %2 = load %complex_8, %complex_8* %r, align 8
-  ret %complex_8 %2
-}
-
-declare %complex_8 @_lfortran_ztan(%complex_8)
 
 define i32 @main() {
 .entry:
