@@ -199,30 +199,6 @@ define float @__module_lfortran_intrinsic_trig_ssin(float* %x) {
   ret float %5
 }
 
-declare void @_lfortran_sin(double, double*)
-
-declare void @_lfortran_cos(double, double*)
-
-declare void @_lfortran_tan(double, double*)
-
-declare void @_lfortran_sinh(double, double*)
-
-declare void @_lfortran_cosh(double, double*)
-
-declare void @_lfortran_tanh(double, double*)
-
-declare void @_lfortran_asin(double, double*)
-
-declare void @_lfortran_acos(double, double*)
-
-declare void @_lfortran_atan(double, double*)
-
-declare void @_lfortran_asinh(double, double*)
-
-declare void @_lfortran_acosh(double, double*)
-
-declare void @_lfortran_atanh(double, double*)
-
 define i32 @main() {
 .entry:
   %x = alloca float, align 4
