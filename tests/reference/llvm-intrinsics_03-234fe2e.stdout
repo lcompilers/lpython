@@ -3,19 +3,28 @@ source_filename = "LFortran"
 
 @0 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
 
+define float @__module_lfortran_intrinsic_math_scos(float* %x) {
+.entry:
+  %r = alloca float, align 4
+  %0 = load float, float* %x, align 4
+  %1 = call float @_lfortran_scos(float %0)
+  store float %1, float* %r, align 4
+  %2 = load float, float* %r, align 4
+  ret float %2
+}
+
+declare float @_lfortran_scos(float)
+
 define i32 @main() {
 .entry:
   %x = alloca float, align 4
   %0 = alloca float, align 4
   store float 9.500000e+00, float* %0, align 4
-  %1 = alloca float, align 4
-  %2 = load float, float* %0, align 4
-  call void @_lfortran_cos(float %2, float* %1)
-  %3 = load float, float* %1, align 4
-  store float %3, float* %x, align 4
-  %4 = load float, float* %x, align 4
-  %5 = fpext float %4 to double
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0), double %5)
+  %1 = call float @__module_lfortran_intrinsic_math_scos(float* %0)
+  store float %1, float* %x, align 4
+  %2 = load float, float* %x, align 4
+  %3 = fpext float %2 to double
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0), double %3)
   ret i32 0
 }
 

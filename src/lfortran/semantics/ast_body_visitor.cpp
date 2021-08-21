@@ -41,7 +41,17 @@ private:
         {"aimag", "lfortran_intrinsic_math2"},
         {"modulo", "lfortran_intrinsic_math2"},
         {"sin", "lfortran_intrinsic_trig"},
+        {"cos", "lfortran_intrinsic_math"},
         {"tan", "lfortran_intrinsic_math"},
+        {"sinh", "lfortran_intrinsic_math"},
+        {"cosh", "lfortran_intrinsic_math"},
+        {"tanh", "lfortran_intrinsic_math"},
+        {"asin", "lfortran_intrinsic_math"},
+        {"acos", "lfortran_intrinsic_math"},
+        {"atan", "lfortran_intrinsic_math"},
+        {"asinh", "lfortran_intrinsic_math"},
+        {"acosh", "lfortran_intrinsic_math"},
+        {"atanh", "lfortran_intrinsic_math"},
         {"sqrt", "lfortran_intrinsic_math2"},
         {"int", "lfortran_intrinsic_array"},
         {"real", "lfortran_intrinsic_array"},
@@ -1261,9 +1271,7 @@ public:
     }
 
     void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
-        std::vector<std::string> all_intrinsics = {
-            "cos",  "sinh",  "cosh",  "tanh",
-            "asin", "acos", "atan", "asinh", "acosh", "atanh"};
+        std::vector<std::string> all_intrinsics = {};
         SymbolTable *scope = current_scope;
         std::string var_name = x.m_func;
         ASR::symbol_t *v = nullptr;
