@@ -11,6 +11,18 @@ interface sqrt
     module procedure ssqrt, dsqrt
 end interface
 
+interface exp
+    module procedure sexp, dexp
+end interface
+
+interface log
+    module procedure slog, dlog
+end interface
+
+interface erf
+    module procedure serf, derf
+end interface
+
 interface sin
     module procedure ssin, dsin, csin, zsin
 end interface
@@ -109,6 +121,78 @@ if (x >= 0) then
 else
     error stop "sqrt(x) for x < 0 is not allowed"
 end if
+end function
+
+! exp --------------------------------------------------------------------------
+
+elemental real(sp) function sexp(x) result(r)
+real(sp), intent(in) :: x
+interface
+    pure real(c_float) function c_sexp(x) bind(c, name="_lfortran_sexp")
+    import :: c_float
+    real(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_sexp(x)
+end function
+
+elemental real(dp) function dexp(x) result(r)
+real(dp), intent(in) :: x
+interface
+    pure real(c_double) function c_dexp(x) bind(c, name="_lfortran_dexp")
+    import :: c_double
+    real(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_dexp(x)
+end function
+
+! log --------------------------------------------------------------------------
+
+elemental real(sp) function slog(x) result(r)
+real(sp), intent(in) :: x
+interface
+    pure real(c_float) function c_slog(x) bind(c, name="_lfortran_slog")
+    import :: c_float
+    real(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_slog(x)
+end function
+
+elemental real(dp) function dlog(x) result(r)
+real(dp), intent(in) :: x
+interface
+    pure real(c_double) function c_dlog(x) bind(c, name="_lfortran_dlog")
+    import :: c_double
+    real(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_dlog(x)
+end function
+
+! erf --------------------------------------------------------------------------
+
+elemental real(sp) function serf(x) result(r)
+real(sp), intent(in) :: x
+interface
+    pure real(c_float) function c_serf(x) bind(c, name="_lfortran_serf")
+    import :: c_float
+    real(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_serf(x)
+end function
+
+elemental real(dp) function derf(x) result(r)
+real(dp), intent(in) :: x
+interface
+    pure real(c_double) function c_derf(x) bind(c, name="_lfortran_derf")
+    import :: c_double
+    real(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_derf(x)
 end function
 
 ! sin --------------------------------------------------------------------------

@@ -94,6 +94,42 @@ void _lfortran_complex_pow(struct _lfortran_complex* a,
 
 }
 
+// exp -------------------------------------------------------------------------
+
+float _lfortran_sexp(float x)
+{
+    return exp(x);
+}
+
+double _lfortran_dexp(double x)
+{
+    return exp(x);
+}
+
+// log -------------------------------------------------------------------------
+
+float _lfortran_slog(float x)
+{
+    return log(x);
+}
+
+double _lfortran_dlog(double x)
+{
+    return log(x);
+}
+
+// erf -------------------------------------------------------------------------
+
+float _lfortran_serf(float x)
+{
+    return erf(x);
+}
+
+double _lfortran_derf(double x)
+{
+    return erf(x);
+}
+
 // sin -------------------------------------------------------------------------
 
 void _lfortran_sin(float x, float *result)
