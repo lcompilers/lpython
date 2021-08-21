@@ -3,30 +3,6 @@ source_filename = "LFortran"
 
 @0 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
 
-define double @__module_lfortran_intrinsic_trig_abs(double* %x) {
-.entry:
-  %r = alloca double, align 8
-  %0 = load double, double* %x, align 8
-  %1 = fcmp uge double %0, 0.000000e+00
-  br i1 %1, label %then, label %else
-
-then:                                             ; preds = %.entry
-  %2 = load double, double* %x, align 8
-  store double %2, double* %r, align 8
-  br label %ifcont
-
-else:                                             ; preds = %.entry
-  %3 = load double, double* %x, align 8
-  %4 = fsub double 0.000000e+00, %3
-  store double %4, double* %r, align 8
-  br label %ifcont
-
-ifcont:                                           ; preds = %else, %then
-  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
-  %5 = load double, double* %r, align 8
-  ret double %5
-}
-
 define double @__module_lfortran_intrinsic_trig_dsin(double* %x) {
 .entry:
   %n = alloca i32, align 4

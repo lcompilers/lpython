@@ -1,10 +1,8 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-%array = type { i32*, i32, [1 x %dimension_descriptor] }
-%dimension_descriptor = type { i32, i32, i32, i32 }
-%array.0 = type { float*, i32, [1 x %dimension_descriptor] }
 %size_arg = type { %dimension_descriptor*, i32 }
+%dimension_descriptor = type { i32, i32, i32, i32 }
 %array_call = type { float*, i32, [1 x %dimension_descriptor] }
 %array.1 = type { [3 x float], i32, [1 x %dimension_descriptor] }
 
@@ -13,38 +11,6 @@ source_filename = "LFortran"
 @2 = private unnamed_addr constant [4 x i8] c"sum\00", align 1
 @3 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @4 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
-
-declare i32 @__module_lfortran_intrinsic_array_abs(%array*)
-
-declare i1 @__module_lfortran_intrinsic_array_allocated(%array*)
-
-declare i32 @__module_lfortran_intrinsic_array_floor(%array.0*, i32*)
-
-declare i32 @__module_lfortran_intrinsic_array_int(%array.0*, i32*)
-
-define i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %x, i32* %dim) {
-.entry:
-  %lbound = alloca i32, align 4
-  %0 = load %dimension_descriptor*, %dimension_descriptor** %x, align 8
-  %1 = load i32, i32* %dim, align 4
-  %2 = sub i32 %1, 1
-  %3 = getelementptr inbounds %dimension_descriptor, %dimension_descriptor* %0, i32 %2
-  %4 = getelementptr %dimension_descriptor, %dimension_descriptor* %3, i32 0, i32 1
-  %5 = load i32, i32* %4, align 4
-  store i32 %5, i32* %lbound, align 4
-  %6 = load i32, i32* %lbound, align 4
-  ret i32 %6
-}
-
-declare i32 @__module_lfortran_intrinsic_array_max(i32*, i32*)
-
-declare i32 @__module_lfortran_intrinsic_array_maxval(%array*)
-
-declare i32 @__module_lfortran_intrinsic_array_min(i32*, i32*)
-
-declare i32 @__module_lfortran_intrinsic_array_minval(%array*)
-
-declare float @__module_lfortran_intrinsic_array_real(%array*, i32*)
 
 define i32 @__module_lfortran_intrinsic_array_size(%size_arg* %x) {
 .entry:
@@ -78,24 +44,6 @@ loop.body:                                        ; preds = %loop.head
 loop.end:                                         ; preds = %loop.head
   %14 = load i32, i32* %size, align 4
   ret i32 %14
-}
-
-declare i32 @__module_lfortran_intrinsic_array_sum(%array*)
-
-declare float @__module_lfortran_intrinsic_array_tiny(%array*)
-
-define i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %x, i32* %dim) {
-.entry:
-  %ubound = alloca i32, align 4
-  %0 = load %dimension_descriptor*, %dimension_descriptor** %x, align 8
-  %1 = load i32, i32* %dim, align 4
-  %2 = sub i32 %1, 1
-  %3 = getelementptr inbounds %dimension_descriptor, %dimension_descriptor* %0, i32 %2
-  %4 = getelementptr %dimension_descriptor, %dimension_descriptor* %3, i32 0, i32 2
-  %5 = load i32, i32* %4, align 4
-  store i32 %5, i32* %ubound, align 4
-  %6 = load i32, i32* %ubound, align 4
-  ret i32 %6
 }
 
 define float @abs(float* %a) {

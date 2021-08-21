@@ -22,6 +22,7 @@
 #include <lfortran/pass/class_constructor.h>
 #include <lfortran/pass/arr_slice.h>
 #include <lfortran/pass/print_arr.h>
+#include <lfortran/pass/unused_functions.h>
 #include <lfortran/asr_utils.h>
 #include <lfortran/asr_verify.h>
 #include <lfortran/modfile.h>
@@ -48,7 +49,7 @@ enum Platform {
 
 enum ASRPass {
     do_loops, global_stmts, implied_do_loops, array_op,
-    arr_slice, print_arr, class_constructor
+    arr_slice, print_arr, class_constructor, unused_functions,
 };
 
 std::string remove_extension(const std::string& filename) {
@@ -511,6 +512,10 @@ int emit_asr(const std::string &infile, bool colors,
             }
             case (ASRPass::print_arr) : {
                 LFortran::pass_replace_print_arr(al, *asr);
+                break;
+            }
+            case (ASRPass::unused_functions) : {
+                LFortran::pass_unused_functions(*asr);
                 break;
             }
             default : throw LFortran::LFortranException("Pass not implemened");
@@ -1285,8 +1290,10 @@ int main(int argc, char *argv[])
                 passes.push_back(ASRPass::print_arr);
             } else if (arg_pass == "arr_slice") {
                 passes.push_back(ASRPass::arr_slice);
+            } else if (arg_pass == "unused_functions") {
+                passes.push_back(ASRPass::unused_functions);
             } else {
-                std::cerr << "Pass must be one of: do_loops, global_stmts" << std::endl;
+                std::cerr << "Pass must be one of: do_loops, global_stmts, implied_do_loops, array_op, class_constructor, print_arr, arr_slice, unused_functions" << std::endl;
                 return 1;
             }
             show_asr = true;

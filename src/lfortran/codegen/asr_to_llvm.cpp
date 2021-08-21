@@ -51,6 +51,7 @@
 #include <lfortran/pass/print_arr.h>
 #include <lfortran/pass/arr_slice.h>
 #include <lfortran/pass/class_constructor.h>
+#include <lfortran/pass/unused_functions.h>
 #include <lfortran/exception.h>
 #include <lfortran/asr_utils.h>
 #include <lfortran/pickle.h>
@@ -3469,6 +3470,7 @@ std::unique_ptr<LLVMModule> asr_to_llvm(ASR::TranslationUnit_t &asr,
     pass_replace_print_arr(al, asr);
     pass_replace_do_loops(al, asr);
     pass_replace_select_case(al, asr);
+    pass_unused_functions(asr);
     v.nested_func_types = pass_find_nested_vars(asr, context, 
         v.nested_globals, v.nested_call_out, v.nesting_map);
     v.visit_asr((ASR::asr_t&)asr);
