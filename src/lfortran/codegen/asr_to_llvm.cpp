@@ -111,9 +111,6 @@ void exit(llvm::LLVMContext &context, llvm::Module &module,
 class ASRToLLVMVisitor : public ASR::BaseVisitor<ASRToLLVMVisitor>
 {
 private:
-  //!< A map from sin, cos, etc. to the corresponding functions
-  std::unordered_map<std::string, llvm::Function *> all_intrinsics;
-
   //! To be used by visit_DerivedRef.
   std::string der_type_name;
 
@@ -153,7 +150,6 @@ public:
     std::unordered_map<std::uint32_t, std::unordered_map<std::string, llvm::Type*>> arr_arg_type_cache;
 
     std::map<std::string, std::pair<llvm::Type*, llvm::Type*>> fname2arg_type;
-    std::vector<std::string> c_runtime_intrinsics;
 
     // Maps for containing information regarding derived types
     std::map<std::string, llvm::StructType*> name2dertype;
@@ -731,9 +727,6 @@ public:
         llvm::Type* bound_arg = static_cast<llvm::Type*>(arr_descr->get_dimension_descriptor_type(true));
         fname2arg_type["lbound"] = std::make_pair(bound_arg, bound_arg->getPointerTo());
         fname2arg_type["ubound"] = std::make_pair(bound_arg, bound_arg->getPointerTo());
-
-        c_runtime_intrinsics =  {"sin",  "cos",  "tan",  "sinh",  "cosh",  "tanh",
-                                 "asin", "acos", "atan", "asinh", "acosh", "atanh"};
 
         // Process Variables first:
         for (auto &item : x.m_global_scope->scope) {
@@ -1663,14 +1656,6 @@ public:
     }
 
     void visit_Function(const ASR::Function_t &x) {
-        if( !(x.m_abi == ASR::abiType::Source ||
-              x.m_abi == ASR::abiType::Interactive ||
-              (x.m_abi == ASR::abiType::Intrinsic && 
-               ((fname2arg_type.find(std::string(x.m_name)) != fname2arg_type.end() || x.m_deftype != ASR::deftypeType::Interface) &&  
-                std::find(c_runtime_intrinsics.begin(), c_runtime_intrinsics.end(), std::string(x.m_name)) 
-                == c_runtime_intrinsics.end()))) ) { 
-                            return;
-        }
         instantiate_function(x);
         visit_procedures(x);
         generate_function(x);
@@ -3368,25 +3353,10 @@ public:
             if( fname2arg_type.find(func_name) != fname2arg_type.end() ) {
                 h = get_hash((ASR::asr_t*)s);
             } else {
-                int a_kind = extract_kind_from_ttype_t(x.m_type);
-                if (all_intrinsics.empty()) {
-                    populate_intrinsics(x.m_type);
-                }
-                // We use an unordered map to get the O(n) operation time
-                std::unordered_map<std::string, llvm::Function *>::const_iterator
-                    find_intrinsic = all_intrinsics.find(s->m_name);
-                if (find_intrinsic == all_intrinsics.end()) {
-                    if( s->m_deftype == ASR::deftypeType::Interface ) {
-                        throw CodeGenError("Intrinsic not implemented yet.");
-                    } else {
-                        h = get_hash((ASR::asr_t*)s);
-                    }
+                if( s->m_deftype == ASR::deftypeType::Interface ) {
+                    throw CodeGenError("Intrinsic not implemented yet.");
                 } else {
-                    std::string m_name = std::string(((ASR::Function_t*)(&(x.m_name->base)))->m_name);
-                    std::vector<llvm::Value *> args = convert_call_args(x, m_name);
-                    LFORTRAN_ASSERT(args.size() == 1);
-                    tmp = lfortran_intrinsic(find_intrinsic->second, args[0], a_kind);
-                    return;
+                    h = get_hash((ASR::asr_t*)s);
                 }
             }
         } else if (s->m_abi == ASR::abiType::BindC) {
@@ -3415,42 +3385,6 @@ public:
         pop_nested_stack(s);
     }
 
-    //!< Meant to be called only once
-    void populate_intrinsics(ASR::ttype_t* _type) {
-
-        for (auto sv : c_runtime_intrinsics) {
-            auto fname = "_lfortran_" + sv;
-            llvm::Function *fn = module->getFunction(fname);
-            if (!fn) {
-              int a_kind = extract_kind_from_ttype_t(_type);
-              llvm::Type *func_type, *ptr_type;
-              switch( a_kind ) {
-                  case 4: {
-                    func_type = llvm::Type::getFloatTy(context);
-                    ptr_type = llvm::Type::getFloatPtrTy(context);
-                    break;
-                  }
-                  case 8: {
-                    func_type = llvm::Type::getDoubleTy(context);
-                    ptr_type = llvm::Type::getDoublePtrTy(context);
-                    break;
-                  }
-                  default: {
-                      throw CodeGenError("Kind type not supported");
-                  }
-              }
-              llvm::FunctionType *function_type =
-                  llvm::FunctionType::get(llvm::Type::getVoidTy(context),
-                                          {func_type,
-                                           ptr_type},
-                                          false);
-              fn = llvm::Function::Create(
-                  function_type, llvm::Function::ExternalLinkage, fname, *module);
-            }
-            all_intrinsics[sv] = fn;
-        }
-        return;
-    }
 };
 
 
