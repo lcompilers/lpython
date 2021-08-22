@@ -77,7 +77,13 @@ cp lfortran-$lfortran_version/test-bld/src/runtime/*.mod src/runtime/
 
 # Run some simple compilation tests, works everywhere:
 src/bin/lfortran --version
-src/bin/lfortran -c examples/expr2.f90 -o expr2.o
+src/bin/lfortran -c examples/expr2.f90 -o expr2.obj
+if $WIN == "1":
+    link expr2.obj src\runtime\lfortran_runtime_static.lib
+else:
+    src/bin/lfortran -o expr2 expr2.obj
+./expr2
+
 
 # Run all tests (does not work on Windows yet):
 cmake --version
