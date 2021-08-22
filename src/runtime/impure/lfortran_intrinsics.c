@@ -237,7 +237,7 @@ double_complex_t _lfortran_ztan(double_complex_t x)
     double_complex_t r;
     return r; // TODO: implement in MSVC
 #else
-    return tan(x);
+    return ctan(x);
 #endif
 }
 
