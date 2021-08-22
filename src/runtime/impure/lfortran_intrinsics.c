@@ -450,7 +450,6 @@ double_complex_t _lfortran_zacos(double_complex_t x)
 }
 
 // atan ------------------------------------------------------------------------
-// TODO: Handle atan(Y,X) and atan2(Y,X)
 
 float _lfortran_satan(float x)
 {
@@ -480,6 +479,18 @@ double_complex_t _lfortran_zatan(double_complex_t x)
 #else
     return catan(x);
 #endif
+}
+
+// atan2 -----------------------------------------------------------------------
+
+float _lfortran_satan2(float y, float x)
+{
+    return atan2f(y, x);
+}
+
+double _lfortran_datan2(double y, double x)
+{
+    return atan2(y, x);
 }
 
 // asinh -----------------------------------------------------------------------

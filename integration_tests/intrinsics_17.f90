@@ -18,4 +18,9 @@ print *, x
 y = erf(1.5_dp)
 print *, y
 
+x = atan2(1.5_sp, 2.5_sp)
+print *, x
+y = atan2(1.5_dp, 2.5_dp)
+print *, y
+
 end

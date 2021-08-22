@@ -59,6 +59,10 @@ interface atan
     module procedure satan, datan, catan, zatan
 end interface
 
+interface atan2
+    module procedure satan2, datan2
+end interface
+
 interface asinh
     module procedure sasinh, dasinh, casinh, zasinh
 end interface
@@ -629,7 +633,7 @@ end interface
 r = c_zacos(x)
 end function
 
-! atan --------------------------------------------------------------------------
+! atan -------------------------------------------------------------------------
 
 elemental real(sp) function satan(x) result(r)
 real(sp), intent(in) :: x
@@ -673,6 +677,30 @@ interface
     end function
 end interface
 r = c_zatan(x)
+end function
+
+! atan2 ------------------------------------------------------------------------
+
+elemental real(sp) function satan2(y, x) result(r)
+real(sp), intent(in) :: y, x
+interface
+    pure real(c_float) function c_satan2(y, x) bind(c, name="_lfortran_satan2")
+    import :: c_float
+    real(c_float), intent(in), value :: y, x
+    end function
+end interface
+r = c_satan2(y, x)
+end function
+
+elemental real(dp) function datan2(y, x) result(r)
+real(dp), intent(in) :: y, x
+interface
+    pure real(c_double) function c_datan2(y, x) bind(c, name="_lfortran_datan2")
+    import :: c_double
+    real(c_double), intent(in), value :: y, x
+    end function
+end interface
+r = c_datan2(y, x)
 end function
 
 ! asinh --------------------------------------------------------------------------

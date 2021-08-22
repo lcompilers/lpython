@@ -52,6 +52,7 @@ private:
         {"asin", "lfortran_intrinsic_math"},
         {"acos", "lfortran_intrinsic_math"},
         {"atan", "lfortran_intrinsic_math"},
+        {"atan2", "lfortran_intrinsic_math"},
         {"asinh", "lfortran_intrinsic_math"},
         {"acosh", "lfortran_intrinsic_math"},
         {"atanh", "lfortran_intrinsic_math"},
