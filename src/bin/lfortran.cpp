@@ -934,33 +934,47 @@ int link_executable(const std::vector<std::string> &infiles,
 
     */
     if (backend == Backend::llvm) {
-        std::string CC;
-        if (platform == Platform::macOS) {
-            CC = "clang";
-        } else {
-            CC = "gcc";
-        }
-        std::string base_path = "\"" + runtime_library_dir + "\"";
-        std::string options;
-        std::string runtime_lib = "lfortran_runtime";
-        if (static_executable) {
-            if (platform != Platform::macOS) {
-                options += " -static ";
+        if (platform == Platform::Windows) {
+            std::string cmd = "link -out:" + outfile + " ";
+            for (auto &s : infiles) {
+                cmd += s + " ";
             }
-            runtime_lib = "lfortran_runtime_static";
+            cmd += runtime_library_dir + "\\lfortran_runtime_static.lib";
+            int err = system(cmd.c_str());
+            if (err) {
+                std::cout << "The command '" + cmd + "' failed." << std::endl;
+                return 10;
+            }
+            return 0;
+        } else {
+            std::string CC;
+            if (platform == Platform::macOS) {
+                CC = "clang";
+            } else {
+                CC = "gcc";
+            }
+            std::string base_path = "\"" + runtime_library_dir + "\"";
+            std::string options;
+            std::string runtime_lib = "lfortran_runtime";
+            if (static_executable) {
+                if (platform != Platform::macOS) {
+                    options += " -static ";
+                }
+                runtime_lib = "lfortran_runtime_static";
+            }
+            std::string cmd = CC + options + " -o " + outfile + " ";
+            for (auto &s : infiles) {
+                cmd += s + " ";
+            }
+            cmd += + " -L"
+                + base_path + " -Wl,-rpath," + base_path + " -l" + runtime_lib + " -lm";
+            int err = system(cmd.c_str());
+            if (err) {
+                std::cout << "The command '" + cmd + "' failed." << std::endl;
+                return 10;
+            }
+            return 0;
         }
-        std::string cmd = CC + options + " -o " + outfile + " ";
-        for (auto &s : infiles) {
-            cmd += s + " ";
-        }
-        cmd += + " -L"
-            + base_path + " -Wl,-rpath," + base_path + " -l" + runtime_lib + " -lm";
-        int err = system(cmd.c_str());
-        if (err) {
-            std::cout << "The command '" + cmd + "' failed." << std::endl;
-            return 10;
-        }
-        return 0;
     } else if (backend == Backend::cpp) {
         std::string CXX = "g++";
         std::string options, post_options;
