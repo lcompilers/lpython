@@ -1399,8 +1399,14 @@ public:
                             }
                         } else {
                             if (arg->m_abi == ASR::abiType::BindC
-                                && arg->m_value_attr) {
-                                type = getComplexType(a_kind, false);
+                                    && arg->m_value_attr) {
+                                if (a_kind == 4) {
+                                    // type_fx2 is <2 x float>
+                                    llvm::Type* type_fx2 = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2);
+                                    type = type_fx2;
+                                } else {
+                                    type = getComplexType(a_kind, false);
+                                }
                             } else {
                                 type = getComplexType(a_kind, true);
                             }
@@ -3181,9 +3187,24 @@ public:
                                 } else {
                                     if (orig_arg->m_abi == ASR::abiType::BindC
                                         && orig_arg->m_value_attr) {
-                                            // Dereference the pointer argument
-                                            // to pass by value
-                                            tmp = builder->CreateLoad(tmp);
+                                            ASR::ttype_t* arg_type = arg->m_type;
+                                            if (is_a<ASR::Complex_t>(*arg_type) &&
+                                                    extract_kind_from_ttype_t(arg_type) == 4) {
+                                                // tmp is {float, float}*
+                                                // type_fx2p is <2 x float>*
+                                                llvm::Type* type_fx2p = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2)->getPointerTo();
+                                                // Convert {float,float}* to <2 x float>* using bitcast
+                                                tmp = builder->CreateBitCast(tmp, type_fx2p);
+                                                // Then convert <2 x float>* -> <2 x float>
+                                                tmp = builder->CreateLoad(tmp);
+                                            } else {
+                                                // Dereference the pointer argument
+                                                // to pass by value
+                                                // E.g.:
+                                                // i32* -> i32
+                                                // {double,double}* -> {double,double}
+                                                tmp = builder->CreateLoad(tmp);
+                                            }
                                         }
                                 }
                             }
