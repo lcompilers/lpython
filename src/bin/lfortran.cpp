@@ -1048,6 +1048,7 @@ int main(int argc, char *argv[])
         bool arg_c = false;
         bool arg_v = false;
         bool arg_E = false;
+        std::string arg_J;
         std::vector<std::string> arg_I;
         std::vector<std::string> arg_l;
         std::vector<std::string> arg_L;
@@ -1102,6 +1103,7 @@ int main(int argc, char *argv[])
         app.add_option("-l", arg_l, "Link library option");
         app.add_option("-L", arg_L, "Library path option");
         app.add_option("-I", arg_I, "Include path");
+        app.add_option("-J", arg_J, "Where to save mod files");
         app.add_flag("--version", arg_version, "Display compiler version information");
 
         // LFortran specific options
