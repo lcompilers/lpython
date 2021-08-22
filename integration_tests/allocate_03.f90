@@ -3,7 +3,10 @@ implicit none
 
     integer, allocatable :: c(:, :, :)
     integer :: r
-    allocate(c(3, 3, 3))
+    integer :: stat
+    stat = 1
+    allocate(c(3, 3, 3), STAT=stat)
+    if (stat /= 0) error stop
     c(1, 1, 1) = 3
     call h(c)
     r = g(c)

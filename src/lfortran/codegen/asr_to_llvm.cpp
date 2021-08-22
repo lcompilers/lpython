@@ -783,6 +783,19 @@ public:
             llvm::Value* x_arr = llvm_symtab[h];
             fill_malloc_array_details(x_arr, curr_arg.m_dims, curr_arg.n_dims);
         }
+        if (x.m_stat) {
+            ASR::Variable_t *asr_target = EXPR2VAR(x.m_stat);
+            uint32_t h = get_hash((ASR::asr_t*)asr_target);
+            if (llvm_symtab.find(h) != llvm_symtab.end()) {
+                llvm::Value *target, *value;
+                target = llvm_symtab[h];
+                // Store 0 (success) in the stat variable
+                value = llvm::ConstantInt::get(context, llvm::APInt(32, 0));
+                builder->CreateStore(value, target);
+            } else {
+                throw CodeGenError("Stat variable in allocate not found in LLVM symtab");
+            }
+        }
     }
 
     inline void call_lfortran_free(llvm::Function* fn) {

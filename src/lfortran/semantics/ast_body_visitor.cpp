@@ -438,7 +438,7 @@ public:
 
         // Only one arg should be present
         if( x.n_keywords > 1 ||
-          ( x.n_keywords == 1 && std::string(x.m_keywords[0].m_arg) != "stat") ) {
+          ( x.n_keywords == 1 && to_lower(x.m_keywords[0].m_arg) != "stat") ) {
             throw SemanticError("`allocate` statement only "
                                 "accepts one keyword argument,"
                                 "`stat`", x.base.base.loc);
