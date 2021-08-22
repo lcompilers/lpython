@@ -422,8 +422,11 @@ int format(const std::string &file, bool inplace, bool color, int indent,
     return 0;
 }
 
-int python_wrapper(const std::string &infile, std::string /*array_order*/)
+int python_wrapper(const std::string &infile, std::string array_order)
 {
+
+    bool c_order = (0==array_order.compare("c"));
+
     std::string input = read_file(infile);
 
     // Src -> AST
@@ -442,14 +445,21 @@ int python_wrapper(const std::string &infile, std::string /*array_order*/)
     // AST -> ASR
     LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast);
 
-    // ASR -> C / Python
-    // TODO: this returns a C header file
-    // we will have to also return the Cython files, as arguments
-    std::string c_h;
-    c_h = LFortran::asr_to_py(*asr);
+    // ASR -> (C header file, Cython pxd file, Cython pyx file)
+    std::string c_h, pxd, pyx;
+    std::tie(c_h, pxd, pyx) = LFortran::asr_to_py(*asr, c_order);
 
-    // TODO: change this to print to a file
-    std::cout << c_h;
+    // figure out pyx and pxd filenames
+    auto prefix = infile.substr(0,infile.rfind('.'));
+    auto chdr_fname = prefix + ".h";
+    auto pxd_fname = prefix  + ".pxd";
+    auto pyx_fname = prefix  + ".pyx";
+
+    // save generated outputs to files.
+    std::ofstream(chdr_fname) << c_h;
+    std::ofstream(pxd_fname)  << pxd;
+    std::ofstream(pyx_fname)  << pyx;
+    
     return 0;
 }
 
