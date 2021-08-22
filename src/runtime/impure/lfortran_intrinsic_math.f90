@@ -8,15 +8,15 @@ interface abs
 end interface
 
 interface sqrt
-    module procedure ssqrt, dsqrt
+    module procedure ssqrt, dsqrt, csqrt, zsqrt
 end interface
 
 interface exp
-    module procedure sexp, dexp
+    module procedure sexp, dexp, cexp, zexp
 end interface
 
 interface log
-    module procedure slog, dlog
+    module procedure slog, dlog, clog, zlog
 end interface
 
 interface erf
@@ -123,6 +123,28 @@ else
 end if
 end function
 
+elemental complex(sp) function csqrt(x) result(r)
+complex(sp), intent(in) :: x
+interface
+    pure complex(c_float) function c_csqrt(x) bind(c, name="_lfortran_csqrt")
+    import :: c_float
+    complex(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_csqrt(x)
+end function
+
+elemental complex(dp) function zsqrt(x) result(r)
+complex(dp), intent(in) :: x
+interface
+    pure complex(c_double) function c_zsqrt(x) bind(c, name="_lfortran_zsqrt")
+    import :: c_double
+    complex(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_zsqrt(x)
+end function
+
 ! exp --------------------------------------------------------------------------
 
 elemental real(sp) function sexp(x) result(r)
@@ -147,6 +169,28 @@ end interface
 r = c_dexp(x)
 end function
 
+elemental complex(sp) function cexp(x) result(r)
+complex(sp), intent(in) :: x
+interface
+    pure complex(c_float) function c_cexp(x) bind(c, name="_lfortran_cexp")
+    import :: c_float
+    complex(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_cexp(x)
+end function
+
+elemental complex(dp) function zexp(x) result(r)
+complex(dp), intent(in) :: x
+interface
+    pure complex(c_double) function c_zexp(x) bind(c, name="_lfortran_zexp")
+    import :: c_double
+    complex(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_zexp(x)
+end function
+
 ! log --------------------------------------------------------------------------
 
 elemental real(sp) function slog(x) result(r)
@@ -169,6 +213,28 @@ interface
     end function
 end interface
 r = c_dlog(x)
+end function
+
+elemental complex(sp) function clog(x) result(r)
+complex(sp), intent(in) :: x
+interface
+    pure complex(c_float) function c_clog(x) bind(c, name="_lfortran_clog")
+    import :: c_float
+    complex(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_clog(x)
+end function
+
+elemental complex(dp) function zlog(x) result(r)
+complex(dp), intent(in) :: x
+interface
+    pure complex(c_double) function c_zlog(x) bind(c, name="_lfortran_zlog")
+    import :: c_double
+    complex(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_zlog(x)
 end function
 
 ! erf --------------------------------------------------------------------------
