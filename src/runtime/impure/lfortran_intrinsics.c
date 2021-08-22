@@ -94,6 +94,28 @@ void _lfortran_complex_pow(struct _lfortran_complex* a,
 
 }
 
+// sqrt ------------------------------------------------------------------------
+
+float_complex_t _lfortran_csqrt(float_complex_t x)
+{
+#ifdef _WIN32
+    float_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return csqrtf(x);
+#endif
+}
+
+double_complex_t _lfortran_zsqrt(double_complex_t x)
+{
+#ifdef _WIN32
+    double_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return csqrt(x);
+#endif
+}
+
 // exp -------------------------------------------------------------------------
 
 float _lfortran_sexp(float x)
@@ -106,6 +128,26 @@ double _lfortran_dexp(double x)
     return exp(x);
 }
 
+float_complex_t _lfortran_cexp(float_complex_t x)
+{
+#ifdef _WIN32
+    float_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return cexpf(x);
+#endif
+}
+
+double_complex_t _lfortran_zexp(double_complex_t x)
+{
+#ifdef _WIN32
+    double_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return cexp(x);
+#endif
+}
+
 // log -------------------------------------------------------------------------
 
 float _lfortran_slog(float x)
@@ -116,6 +158,26 @@ float _lfortran_slog(float x)
 double _lfortran_dlog(double x)
 {
     return log(x);
+}
+
+float_complex_t _lfortran_clog(float_complex_t x)
+{
+#ifdef _WIN32
+    float_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return clogf(x);
+#endif
+}
+
+double_complex_t _lfortran_zlog(double_complex_t x)
+{
+#ifdef _WIN32
+    double_complex_t r;
+    return r; // TODO: implement in MSVC
+#else
+    return clog(x);
+#endif
 }
 
 // erf -------------------------------------------------------------------------
