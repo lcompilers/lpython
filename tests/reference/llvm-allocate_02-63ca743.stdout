@@ -1657,6 +1657,7 @@ define i32 @main() {
   %58 = call i8* (i32, ...) @_lfortran_malloc(i32 %57)
   %59 = bitcast i8* %58 to i32*
   store i32* %59, i32** %54, align 8
+  store i32 0, i32* %ierr, align 4
   %60 = alloca %dimension_descriptor*, align 8
   %61 = getelementptr %array.0, %array.0* %a, i32 0, i32 2
   %62 = getelementptr [1 x %dimension_descriptor], [1 x %dimension_descriptor]* %61, i32 0, i32 0
