@@ -163,40 +163,63 @@ public:
         chdr = chdr_tmp;
         pyx  = pyx_tmp;
         pxd  = pxd_tmp;
+
+	cur_module.clear();
     }
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
 	
 	// Only process bind(c) subprograms for now
-	// if (something) return;
+	if (x.m_abi != ASR::abiType::BindC) return;
 
-        std::string sub = "void " + std::string(x.m_name) + "(";
+	// Return type and function name
+	bool bindc_name_not_given = x.m_bindc_name == NULL || !strcmp("",x.m_bindc_name);
+	std::string effective_name = bindc_name_not_given ? x.m_name : x.m_bindc_name;
+
+        chdr = "void " + effective_name + " (";
+	
+	// Arguments
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
-            sub += convert_variable_decl(*arg);
-            if (i < x.n_args-1) sub += ", ";
-        }
-        sub += ")\n";
 
-        chdr = sub;
+            chdr += convert_variable_decl(*arg);
+            if (i < x.n_args-1) chdr += ", ";
+        }
+	chdr += ");\n" ;
     }
 
 
     void visit_Function(const ASR::Function_t &x) {
-	// Only process bind(c) subprograms for now
-	// if (something) return;
 
-        std::string sub = "void " + std::string(x.m_name) + "(";
+	// Only process bind(c) subprograms for now
+	if (x.m_abi != ASR::abiType::BindC) return;
+
+	// Return type and function name
+	bool bindc_name_not_given = x.m_bindc_name == NULL || !strcmp("",x.m_bindc_name);
+	std::string effective_name = bindc_name_not_given ? x.m_name : x.m_bindc_name;
+
+	ASR::Variable_t *return_var = LFortran::ASRUtils::EXPR2VAR(x.m_return_var);
+        if (is_a<ASR::Integer_t>(*return_var->m_type)) {
+            chdr = "int ";
+        } else if (is_a<ASR::Real_t>(*return_var->m_type)) {
+            chdr = "float ";
+        } else if (is_a<ASR::Logical_t>(*return_var->m_type)) {
+            chdr = "bool ";
+        } else {
+            throw CodeGenError("Return type not supported");
+        }
+        chdr += effective_name + " (";
+	
+	// Arguments
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
-            sub += convert_variable_decl(*arg);
-            if (i < x.n_args-1) sub += ", ";
-        }
-        sub += ")\n";
 
-        chdr = sub;
+            chdr += convert_variable_decl(*arg);
+            if (i < x.n_args-1) chdr += ", ";
+        }
+	chdr += ");\n" ;
     }
 
 };
