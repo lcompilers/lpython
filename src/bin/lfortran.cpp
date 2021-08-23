@@ -1124,7 +1124,7 @@ int main(int argc, char *argv[])
         app.add_flag("--show-stacktrace", show_stacktrace, "Show internal stacktrace on compiler errors");
         app.add_flag("--time-report", time_report, "Show compilation time report");
         app.add_flag("--static", static_link, "Create a static executable");
-        app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp, x86)")->default_str(arg_backend);
+        app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp, x86)")->capture_default_str();
         app.add_flag("--openmp", openmp, "Enable openmp");
 
         /*
@@ -1135,7 +1135,7 @@ int main(int argc, char *argv[])
         CLI::App &fmt = *app.add_subcommand("fmt", "Format Fortran source files.");
         fmt.add_option("file", arg_fmt_file, "Fortran source file to format")->required();
         fmt.add_flag("-i", arg_fmt_inplace, "Modify <file> in-place (instead of writing to stdout)");
-        fmt.add_option("--spaces", arg_fmt_indent, "Number of spaces to use for indentation")->default_str(std::to_string(arg_fmt_indent));
+        fmt.add_option("--spaces", arg_fmt_indent, "Number of spaces to use for indentation")->capture_default_str();
         fmt.add_flag("--indent-unit", arg_fmt_indent_unit, "Indent contents of sub / fn / prog / mod");
         fmt.add_flag("--no-color", arg_fmt_no_color, "Turn off color when writing to stdout");
         fmt.add_flag("--fixed-form", arg_fmt_fixed_form, "Use fixed form Fortran source parsing");
@@ -1154,7 +1154,7 @@ int main(int argc, char *argv[])
         CLI::App &pywrap = *app.add_subcommand("pywrap", "Python wrapper generator");
         pywrap.add_option("file", arg_pywrap_file, "Fortran source file (*.f90)")->required();
         pywrap.add_option("--array-order", arg_pywrap_array_order,
-                "Select array order (c, f)")->default_str(arg_pywrap_array_order);
+                "Select array order (c, f)")->capture_default_str();
 
 
         app.get_formatter()->column_width(25);
