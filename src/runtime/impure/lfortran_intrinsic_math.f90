@@ -8,7 +8,19 @@ interface abs
 end interface
 
 interface sqrt
-    module procedure ssqrt, dsqrt
+    module procedure ssqrt, dsqrt, csqrt, zsqrt
+end interface
+
+interface exp
+    module procedure sexp, dexp, cexp, zexp
+end interface
+
+interface log
+    module procedure slog, dlog, clog, zlog
+end interface
+
+interface erf
+    module procedure serf, derf
 end interface
 
 interface sin
@@ -45,6 +57,10 @@ end interface
 
 interface atan
     module procedure satan, datan, catan, zatan
+end interface
+
+interface atan2
+    module procedure satan2, datan2
 end interface
 
 interface asinh
@@ -109,6 +125,144 @@ if (x >= 0) then
 else
     error stop "sqrt(x) for x < 0 is not allowed"
 end if
+end function
+
+elemental complex(sp) function csqrt(x) result(r)
+complex(sp), intent(in) :: x
+interface
+    pure complex(c_float) function c_csqrt(x) bind(c, name="_lfortran_csqrt")
+    import :: c_float
+    complex(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_csqrt(x)
+end function
+
+elemental complex(dp) function zsqrt(x) result(r)
+complex(dp), intent(in) :: x
+interface
+    pure complex(c_double) function c_zsqrt(x) bind(c, name="_lfortran_zsqrt")
+    import :: c_double
+    complex(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_zsqrt(x)
+end function
+
+! exp --------------------------------------------------------------------------
+
+elemental real(sp) function sexp(x) result(r)
+real(sp), intent(in) :: x
+interface
+    pure real(c_float) function c_sexp(x) bind(c, name="_lfortran_sexp")
+    import :: c_float
+    real(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_sexp(x)
+end function
+
+elemental real(dp) function dexp(x) result(r)
+real(dp), intent(in) :: x
+interface
+    pure real(c_double) function c_dexp(x) bind(c, name="_lfortran_dexp")
+    import :: c_double
+    real(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_dexp(x)
+end function
+
+elemental complex(sp) function cexp(x) result(r)
+complex(sp), intent(in) :: x
+interface
+    pure complex(c_float) function c_cexp(x) bind(c, name="_lfortran_cexp")
+    import :: c_float
+    complex(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_cexp(x)
+end function
+
+elemental complex(dp) function zexp(x) result(r)
+complex(dp), intent(in) :: x
+interface
+    pure complex(c_double) function c_zexp(x) bind(c, name="_lfortran_zexp")
+    import :: c_double
+    complex(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_zexp(x)
+end function
+
+! log --------------------------------------------------------------------------
+
+elemental real(sp) function slog(x) result(r)
+real(sp), intent(in) :: x
+interface
+    pure real(c_float) function c_slog(x) bind(c, name="_lfortran_slog")
+    import :: c_float
+    real(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_slog(x)
+end function
+
+elemental real(dp) function dlog(x) result(r)
+real(dp), intent(in) :: x
+interface
+    pure real(c_double) function c_dlog(x) bind(c, name="_lfortran_dlog")
+    import :: c_double
+    real(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_dlog(x)
+end function
+
+elemental complex(sp) function clog(x) result(r)
+complex(sp), intent(in) :: x
+interface
+    pure complex(c_float) function c_clog(x) bind(c, name="_lfortran_clog")
+    import :: c_float
+    complex(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_clog(x)
+end function
+
+elemental complex(dp) function zlog(x) result(r)
+complex(dp), intent(in) :: x
+interface
+    pure complex(c_double) function c_zlog(x) bind(c, name="_lfortran_zlog")
+    import :: c_double
+    complex(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_zlog(x)
+end function
+
+! erf --------------------------------------------------------------------------
+
+elemental real(sp) function serf(x) result(r)
+real(sp), intent(in) :: x
+interface
+    pure real(c_float) function c_serf(x) bind(c, name="_lfortran_serf")
+    import :: c_float
+    real(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_serf(x)
+end function
+
+elemental real(dp) function derf(x) result(r)
+real(dp), intent(in) :: x
+interface
+    pure real(c_double) function c_derf(x) bind(c, name="_lfortran_derf")
+    import :: c_double
+    real(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_derf(x)
 end function
 
 ! sin --------------------------------------------------------------------------
@@ -479,7 +633,7 @@ end interface
 r = c_zacos(x)
 end function
 
-! atan --------------------------------------------------------------------------
+! atan -------------------------------------------------------------------------
 
 elemental real(sp) function satan(x) result(r)
 real(sp), intent(in) :: x
@@ -523,6 +677,30 @@ interface
     end function
 end interface
 r = c_zatan(x)
+end function
+
+! atan2 ------------------------------------------------------------------------
+
+elemental real(sp) function satan2(y, x) result(r)
+real(sp), intent(in) :: y, x
+interface
+    pure real(c_float) function c_satan2(y, x) bind(c, name="_lfortran_satan2")
+    import :: c_float
+    real(c_float), intent(in), value :: y, x
+    end function
+end interface
+r = c_satan2(y, x)
+end function
+
+elemental real(dp) function datan2(y, x) result(r)
+real(dp), intent(in) :: y, x
+interface
+    pure real(c_double) function c_datan2(y, x) bind(c, name="_lfortran_datan2")
+    import :: c_double
+    real(c_double), intent(in), value :: y, x
+    end function
+end interface
+r = c_datan2(y, x)
 end function
 
 ! asinh --------------------------------------------------------------------------

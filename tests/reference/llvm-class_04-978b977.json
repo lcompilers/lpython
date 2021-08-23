@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-class_04-978b977",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/class_04.f90",
+    "infile_hash": "0ddf2718f32dd9cfea8c4f4c9c384902ac023b5792e9fc8ec4a7648f",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-class_04-978b977.stdout",
+    "stdout_hash": "6d317148e175f54bc0a925bbfed34879fea37387ab6f5a50bace86ec",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

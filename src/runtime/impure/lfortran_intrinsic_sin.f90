@@ -1,4 +1,10 @@
 module lfortran_intrinsic_sin
+! Implicit dependencies
+! abs pure/math2
+! modulo pure/math2
+! min builtin/array
+! max builtin/array
+use iso_c_binding, only: c_double, c_int
 use, intrinsic :: iso_fortran_env, only: sp => real32, dp => real64
 implicit none
 private

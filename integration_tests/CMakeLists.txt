@@ -172,6 +172,9 @@ RUN(NAME submodule_01 LABELS gfortran)
 
 RUN(NAME floor_01 LABELS gfortran llvm) # floor body
 RUN(NAME floor_02 LABELS gfortran) # floor symboltable
+RUN(NAME floor_03 LABELS gfortran)
+
+RUN(NAME modulo_01 LABELS gfortran llvm)
 
 RUN(NAME int_01 LABELS gfortran llvm) # int body
 RUN(NAME int_02 LABELS gfortran) # int symboltable
@@ -190,6 +193,9 @@ RUN(NAME intrinsics_11 LABELS gfortran) # real symboltable
 RUN(NAME intrinsics_12 LABELS gfortran llvm) # kind body
 RUN(NAME intrinsics_13 LABELS gfortran) # kind symboltable
 RUN(NAME intrinsics_14 LABELS gfortran) # selected_real,int_kind body
+RUN(NAME intrinsics_15 LABELS gfortran llvm) # real
+RUN(NAME intrinsics_16 LABELS gfortran) # aimag
+RUN(NAME intrinsics_17 LABELS gfortran llvm) # exp, log, erf
 RUN(NAME intrinsics_open_close_read_write LABELS gfortran)
 
 RUN(NAME parameter_01 LABELS gfortran)
@@ -214,6 +220,11 @@ RUN(NAME modules_11 LABELS gfortran llvm)
 RUN(NAME modules_12 LABELS gfortran)
 RUN(NAME modules_13 LABELS gfortran llvm)
 RUN(NAME modules_14 LABELS gfortran llvm EXTRAFILES modules_14_a.f90)
+RUN(NAME modules_15 LABELS gfortran llvm EXTRAFILES
+        modules_15b.f90 modules_15c.c)
+RUN(NAME modules_16 LABELS gfortran llvm EXTRAFILES modules_16b.f90)
+RUN(NAME modules_18 LABELS gfortran llvm EXTRAFILES
+        modules_18b.f90 modules_15c.c)
 
 RUN(NAME if_04 LABELS gfortran x86)
 RUN(NAME case_01 LABELS gfortran llvm)
@@ -332,14 +343,17 @@ RUN(NAME return_01 LABELS gfortran llvm)
 RUN(NAME return_02 LABELS gfortran llvm)
 RUN(NAME return_03 LABELS gfortran llvm)
 
-RUN(NAME class_01 LABELS gfortran)
+RUN(NAME class_01 LABELS gfortran llvm)
 RUN(NAME class_02 LABELS gfortran llvm)
+RUN(NAME class_03 LABELS gfortran llvm)
+RUN(NAME class_04 LABELS gfortran llvm)
 
 RUN(NAME test_iso_c_binding LABELS gfortran llvm)
 RUN(NAME test_iso_fortran_env LABELS gfortran llvm)
 
 RUN(NAME abs_01 LABELS gfortran llvm)
 RUN(NAME abs_02 LABELS gfortran llvm)
+RUN(NAME abs_03 LABELS gfortran llvm)
 RUN(NAME sqrt_01 LABELS gfortran llvm)
 RUN(NAME sqrt_02 LABELS gfortran llvm)
 RUN(NAME sin_01 LABELS gfortran llvm)

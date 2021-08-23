@@ -314,8 +314,12 @@ public:
                 symbol_t *sym = m->m_symtab->scope[original_name];
                 // FIXME: this is a hack, we need to pass in a non-const `x`.
                 ExternalSymbol_t &xx = const_cast<ExternalSymbol_t&>(x);
+                LFORTRAN_ASSERT(sym)
                 xx.m_external = sym;
-                return;
+            } else {
+                throw LFortranException("ExternalSymbol cannot be resolved, the symbol '"
+                    + original_name + "' was not found in the module '"
+                    + module_name + "' (but the module was found)");
             }
         } else if (external_symtab->scope.find(module_name) != external_symtab->scope.end()) {
             Module_t *m = down_cast<Module_t>(external_symtab->scope[module_name]);
@@ -323,13 +327,18 @@ public:
                 symbol_t *sym = m->m_symtab->scope[original_name];
                 // FIXME: this is a hack, we need to pass in a non-const `x`.
                 ExternalSymbol_t &xx = const_cast<ExternalSymbol_t&>(x);
+                LFORTRAN_ASSERT(sym)
                 xx.m_external = sym;
-                return;
+            } else {
+                throw LFortranException("ExternalSymbol cannot be resolved, the symbol '"
+                    + original_name + "' was not found in the module '"
+                    + module_name + "' (but the module was found)");
             }
+        } else {
+            throw LFortranException("ExternalSymbol cannot be resolved, the module '"
+                + module_name + "' was not found, so the symbol '"
+                + original_name + "' could not be resolved");
         }
-        throw LFortranException("ExternalSymbol cannot be resolved, module '"
-            + module_name + "' not found or the symbol name '"
-            + original_name + "' not found in the module.");
     }
 
 

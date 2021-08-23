@@ -44,7 +44,9 @@ define i32 @main() {
 .entry:
   %c = alloca %Circle, align 8
   %0 = getelementptr %Circle, %Circle* %c, i32 0, i32 0
-  store float 1.500000e+00, float* %0, align 4
+  store float 1.000000e+00, float* %0, align 4
+  %1 = getelementptr %Circle, %Circle* %c, i32 0, i32 0
+  store float 1.500000e+00, float* %1, align 4
   call void @__module_class_circle2_circle_print(%Circle* %c)
   ret i32 0
 }

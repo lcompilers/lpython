@@ -114,6 +114,20 @@ uint64_t parse_int(const unsigned char *s)
 
 int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
 {
+    if (enddo_state == 1) {
+        enddo_state = 2;
+        KW(END_DO)
+    } else if (enddo_state == 2) {
+        enddo_insert_count--;
+        if (enddo_insert_count > 0) {
+            enddo_state = 1;
+        } else {
+            enddo_state = 0;
+            token_loc(loc); line_num++; cur_line=cur;
+            last_token = yytokentype::TK_NEWLINE;
+        }
+        return yytokentype::TK_NEWLINE;
+    }
     for (;;) {
         tok = cur;
 
@@ -224,6 +238,8 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'block' { KW(BLOCK) }
             'call' { KW(CALL) }
             'case' { KW(CASE) }
+            'change' { KW(CHANGE) }
+            'changeteam' { KW(CHANGE_TEAM) }
             'character' { KW(CHARACTER) }
             'class' { KW(CLASS) }
             'close' { KW(CLOSE) }
@@ -233,15 +249,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'concurrent' { KW(CONCURRENT) }
             'contains' { KW(CONTAINS) }
             'contiguous' { KW(CONTIGUOUS) }
-            'continue' {
-                if (last_token == yytokentype::TK_LABEL
-                        && next_continue_is_enddo) {
-                    next_continue_is_enddo = false;
-                    KW(END_DO)
-                } else {
-                    KW(CONTINUE)
-                }
-            }
+            'continue' { KW(CONTINUE) }
             'critical' { KW(CRITICAL) }
             'cycle' { KW(CYCLE) }
             'data' { KW(DATA) }
@@ -253,7 +261,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
                 // This is a label do statement, we have to match the
                 // corresponding continue base "end do".
                 uint64_t n = parse_int(cur);
-                label_do_stack.push_back(n);
+                enddo_label_stack.push_back(n);
                 KW(DO);
             }
             'do' { KW(DO) }
@@ -305,6 +313,9 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'end' whitespace 'critical' { KW(END_CRITICAL) }
             'endcritical' { KW(ENDCRITICAL) }
 
+            'end' whitespace 'team' { KW(END_TEAM) }
+            'endteam' { KW(ENDTEAM) }
+
             'end' whitespace 'forall' { KW(END_FORALL) }
             'endforall' { KW(ENDFORALL) }
 
@@ -317,8 +328,20 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'end' whitespace 'type' { KW(END_TYPE) }
             'endtype' { KW(ENDTYPE) }
 
-            'end' whitespace 'do' { KW(END_DO) }
-            'enddo' { KW(ENDDO) }
+            'end' whitespace 'do' {
+                if (enddo_newline_process) {
+                    KW(CONTINUE)
+                } else {
+                    KW(END_DO)
+                }
+            }
+            'enddo' {
+                if (enddo_newline_process) {
+                    KW(CONTINUE)
+                } else {
+                    KW(ENDDO)
+                }
+            }
 
             'end' whitespace 'where' { KW(END_WHERE) }
             'endwhere' { KW(ENDWHERE) }
@@ -353,11 +376,14 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
                 }
             }
             'formatted' { KW(FORMATTED) }
+            'form' { KW(FORM) }
+            'formteam' { KW(FORM_TEAM) }
             'function' { KW(FUNCTION) }
             'generic' { KW(GENERIC) }
             'go' { KW(GO) }
             'goto' { KW(GOTO) }
             'if' { KW(IF) }
+            'images' { KW(IMAGES) }
             'implicit' { KW(IMPLICIT) }
             'import' { KW(IMPORT) }
             'impure' { KW(IMPURE) }
@@ -376,10 +402,12 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'local' { KW(LOCAL) }
             'local_init' { KW(LOCAL_INIT) }
             'logical' { KW(LOGICAL) }
+            'memory' { KW(MEMORY) }
             'module' { KW(MODULE) }
             'mold' { KW(MOLD) }
             'name' { KW(NAME) }
             'namelist' { KW(NAMELIST) }
+            'new_index' { KW(NEW_INDEX) }
             'nopass' { KW(NOPASS) }
             'non_intrinsic' { KW(NON_INTRINSIC) }
             'non_overridable' { KW(NON_OVERRIDABLE) }
@@ -425,6 +453,10 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             'submodule' { KW(SUBMODULE) }
             'subroutine' { KW(SUBROUTINE) }
             'sync' { KW(SYNC) }
+            'syncall' { KW(SYNC_ALL) }
+            'syncimages' { KW(SYNC_IMAGES) }
+            'syncmemory' { KW(SYNC_MEMORY) }
+            'syncteam' { KW(SYNC_TEAM) }
             'target' { KW(TARGET) }
             'team' { KW(TEAM) }
             'team_number' { KW(TEAM_NUMBER) }
@@ -442,9 +474,17 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
 
             // Tokens
             newline {
+                if (enddo_newline_process) {
+                    enddo_newline_process = false;
+                    enddo_state = 1;
+                    return yytokentype::TK_NEWLINE;
+                } else {
+                    enddo_newline_process = false;
+                    enddo_insert_count = 0;
                     token_loc(loc); line_num++; cur_line=cur;
                     last_token = yytokentype::TK_NEWLINE;
                     return yytokentype::TK_NEWLINE;
+                }
             }
 
             // Single character symbols
@@ -517,11 +557,14 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
                     uint64_t u;
                     if (lex_int(tok, cur, u, yylval.int_suffix.int_kind)) {
                             yylval.n = u;
-                            if (label_do_stack[label_do_stack.size()-1] == u) {
-                                label_do_stack.pop_back();
-                                next_continue_is_enddo = true;
+                            if (enddo_label_stack[enddo_label_stack.size()-1] == u) {
+                                while (enddo_label_stack[enddo_label_stack.size()-1] == u) {
+                                    enddo_label_stack.pop_back();
+                                    enddo_insert_count++;
+                                }
+                                enddo_newline_process = true;
                             } else {
-                                next_continue_is_enddo = false;
+                                enddo_newline_process = false;
                             }
                             RET(TK_LABEL)
                     } else {

@@ -1,47 +1,133 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-@0 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
+%complex_8 = type { double, double }
+
+@0 = private unnamed_addr constant [9 x i8] c"%23.17f\0A\00", align 1
+@1 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
+@2 = private unnamed_addr constant [11 x i8] c"(%lf,%lf)\0A\00", align 1
+@3 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
+
+define double @__module_lfortran_intrinsic_math2_dabs(double* %x) {
+.entry:
+  %r = alloca double, align 8
+  %0 = load double, double* %x, align 8
+  %1 = fcmp uge double %0, 0.000000e+00
+  br i1 %1, label %then, label %else
+
+then:                                             ; preds = %.entry
+  %2 = load double, double* %x, align 8
+  store double %2, double* %r, align 8
+  br label %ifcont
+
+else:                                             ; preds = %.entry
+  %3 = load double, double* %x, align 8
+  %4 = fsub double 0.000000e+00, %3
+  store double %4, double* %r, align 8
+  br label %ifcont
+
+ifcont:                                           ; preds = %else, %then
+  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
+  %5 = load double, double* %r, align 8
+  ret double %5
+}
+
+define double @__module_lfortran_intrinsic_math_dtan(double* %x) {
+.entry:
+  %r = alloca double, align 8
+  %0 = load double, double* %x, align 8
+  %1 = call double @_lfortran_dtan(double %0)
+  store double %1, double* %r, align 8
+  %2 = load double, double* %r, align 8
+  ret double %2
+}
+
+declare double @_lfortran_dtan(double)
+
+define %complex_8 @__module_lfortran_intrinsic_math_ztan(%complex_8* %x) {
+.entry:
+  %r = alloca %complex_8, align 8
+  %0 = load %complex_8, %complex_8* %x, align 8
+  %1 = call %complex_8 @_lfortran_ztan(%complex_8 %0)
+  store %complex_8 %1, %complex_8* %r, align 8
+  %2 = load %complex_8, %complex_8* %r, align 8
+  ret %complex_8 %2
+}
+
+declare %complex_8 @_lfortran_ztan(%complex_8)
 
 define i32 @main() {
 .entry:
-  %x = alloca float, align 4
-  %0 = alloca float, align 4
-  store float 1.500000e+00, float* %0, align 4
-  %1 = alloca float, align 4
-  %2 = load float, float* %0, align 4
-  call void @_lfortran_tan(float %2, float* %1)
-  %3 = load float, float* %1, align 4
-  store float %3, float* %x, align 4
-  %4 = load float, float* %x, align 4
-  %5 = fpext float %4 to double
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0), double %5)
+  %x = alloca double, align 8
+  %z = alloca %complex_8, align 8
+  store double 1.500000e+00, double* %x, align 8
+  %0 = call double @__module_lfortran_intrinsic_math_dtan(double* %x)
+  store double %0, double* %x, align 8
+  %1 = load double, double* %x, align 8
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @0, i32 0, i32 0), double %1)
+  %2 = load double, double* %x, align 8
+  %3 = fsub double %2, 0x402C33ED50B88778
+  %4 = alloca double, align 8
+  store double %3, double* %4, align 8
+  %5 = call double @__module_lfortran_intrinsic_math2_dabs(double* %4)
+  %6 = fcmp ugt double %5, 1.000000e-10
+  br i1 %6, label %then, label %else
+
+then:                                             ; preds = %.entry
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @1, i32 0, i32 0))
+  call void @exit(i32 1)
+  br label %ifcont
+
+else:                                             ; preds = %.entry
+  br label %ifcont
+
+ifcont:                                           ; preds = %else, %then
+  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
+  %7 = alloca %complex_8, align 8
+  %8 = getelementptr %complex_8, %complex_8* %7, i32 0, i32 0
+  %9 = getelementptr %complex_8, %complex_8* %7, i32 0, i32 1
+  store double 1.500000e+00, double* %8, align 8
+  store double 3.500000e+00, double* %9, align 8
+  %10 = load %complex_8, %complex_8* %7, align 8
+  store %complex_8 %10, %complex_8* %z, align 8
+  %11 = call %complex_8 @__module_lfortran_intrinsic_math_ztan(%complex_8* %z)
+  store %complex_8 %11, %complex_8* %z, align 8
+  %12 = load %complex_8, %complex_8* %z, align 8
+  %13 = alloca %complex_8, align 8
+  store %complex_8 %12, %complex_8* %13, align 8
+  %14 = getelementptr %complex_8, %complex_8* %13, i32 0, i32 0
+  %15 = load double, double* %14, align 8
+  %16 = alloca %complex_8, align 8
+  store %complex_8 %12, %complex_8* %16, align 8
+  %17 = getelementptr %complex_8, %complex_8* %16, i32 0, i32 1
+  %18 = load double, double* %17, align 8
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @2, i32 0, i32 0), double %15, double %18)
+  %19 = load %complex_8, %complex_8* %z, align 8
+  %20 = alloca %complex_8, align 8
+  store %complex_8 %19, %complex_8* %20, align 8
+  %21 = getelementptr %complex_8, %complex_8* %20, i32 0, i32 0
+  %22 = load double, double* %21, align 8
+  %23 = fsub double %22, 0x3F30E5C06C0C177D
+  %24 = alloca double, align 8
+  store double %23, double* %24, align 8
+  %25 = call double @__module_lfortran_intrinsic_math2_dabs(double* %24)
+  %26 = fcmp ugt double %25, 1.000000e-10
+  br i1 %26, label %then1, label %else2
+
+then1:                                            ; preds = %ifcont
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @3, i32 0, i32 0))
+  call void @exit(i32 1)
+  br label %ifcont3
+
+else2:                                            ; preds = %ifcont
+  br label %ifcont3
+
+ifcont3:                                          ; preds = %else2, %then1
+  %iftmp4 = phi i32 [ 1, %then1 ], [ 2, %else2 ]
   ret i32 0
 }
 
-declare void @_lfortran_sin(float, float*)
-
-declare void @_lfortran_cos(float, float*)
-
-declare void @_lfortran_tan(float, float*)
-
-declare void @_lfortran_sinh(float, float*)
-
-declare void @_lfortran_cosh(float, float*)
-
-declare void @_lfortran_tanh(float, float*)
-
-declare void @_lfortran_asin(float, float*)
-
-declare void @_lfortran_acos(float, float*)
-
-declare void @_lfortran_atan(float, float*)
-
-declare void @_lfortran_asinh(float, float*)
-
-declare void @_lfortran_acosh(float, float*)
-
-declare void @_lfortran_atanh(float, float*)
-
 declare void @_lfortran_printf(i8*, ...)
+
+declare void @exit(i32)
 

@@ -62,7 +62,7 @@ area = result
 errsum = abserr
 iroff1 = 0
 iroff2 = 0
-do 60 last = 3, limit
+do last = 3, limit
     a1 = alist(maxerr)
     b1 = 0.5d+00*(alist(maxerr) + blist(maxerr))
     a2 = b1
@@ -122,10 +122,12 @@ do 60 last = 3, limit
     if (ier /= 0 .or. errsum <= errbnd) then
         go to 70
     end if
+    60 continue
 end do
 70 result = 0.0d+00
-do 80 k = 1, last
+do k = 1, last
     result = result + rlist(k)
+    80 continue
 end do
 abserr = errsum
 999 return

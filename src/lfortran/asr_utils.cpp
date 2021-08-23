@@ -11,7 +11,7 @@ namespace LFortran {
     namespace ASRUtils  {
 
 
-        void visit(int a, std::map<int,std::vector<int>> &deps,
+void visit(int a, std::map<int,std::vector<int>> &deps,
         std::vector<bool> &visited, std::vector<int> &result) {
     visited[a] = true;
     for (auto n : deps[a]) {

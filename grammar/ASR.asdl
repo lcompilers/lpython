@@ -81,18 +81,20 @@ symbol
     | Module(symbol_table symtab, identifier name, identifier* dependencies,
         bool loaded_from_mod)
     | Subroutine(symbol_table symtab, identifier name, expr* args, stmt* body,
-        abi abi, access access, deftype deftype)
+        abi abi, access access, deftype deftype, string? bindc_name)
     | Function(symbol_table symtab, identifier name, expr* args, stmt* body,
-        expr return_var, abi abi, access access, deftype deftype)
+        expr return_var, abi abi, access access, deftype deftype,
+        string? bindc_name)
     | GenericProcedure(symbol_table parent_symtab, identifier name,
         symbol* procs, access access)
     | ExternalSymbol(symbol_table parent_symtab, identifier name,
         symbol external, identifier module_name, identifier original_name,
         access access)
-    | DerivedType(symbol_table symtab, identifier name, abi abi, access access)
+    | DerivedType(symbol_table symtab, identifier name, identifier* members,
+        abi abi, access access, symbol? parent)
     | Variable(symbol_table parent_symtab, identifier name, intent intent,
         expr? symbolic_value, expr? value, storage_type storage, ttype type,
-        abi abi, access access, presence presence)
+        abi abi, access access, presence presence, bool value_attr)
     | ClassType(symbol_table symtab, identifier name, abi abi, access access)
     | ClassProcedure(symbol_table parent_symtab, identifier name, identifier
         proc_name, symbol proc, abi abi)
@@ -179,6 +181,7 @@ expr
     | Compare(expr left, cmpop op, expr right, ttype type, expr? value)
     | FunctionCall(symbol name, symbol? original_name, expr* args,
             keyword* keywords, ttype type, expr? value, expr? dt)
+    | DerivedTypeConstructor(symbol dt_sym, expr* args, ttype type)
     | ConstantArray(expr* args, ttype type)
     | ImpliedDoLoop(expr* values, expr var, expr start, expr end,
                     expr? increment, ttype type, expr? value)
@@ -227,6 +230,7 @@ cast_kind
     | IntegerToComplex
     | IntegerToLogical
     | ComplexToComplex
+    | ComplexToReal
 
 dimension = (expr? start, expr? end)
 

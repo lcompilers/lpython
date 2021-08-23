@@ -1,7 +1,7 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-@0 = private unnamed_addr constant [15 x i8] c"%f %lf %f %lf\0A\00", align 1
+@0 = private unnamed_addr constant [23 x i8] c"%f %23.17f %f %23.17f\0A\00", align 1
 
 define i32 @main() {
 .entry:
@@ -19,7 +19,7 @@ define i32 @main() {
   %3 = load float, float* %x, align 4
   %4 = fpext float %3 to double
   %5 = load double, double* %u, align 8
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([15 x i8], [15 x i8]* @0, i32 0, i32 0), double %1, double %2, double %4, double %5)
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([23 x i8], [23 x i8]* @0, i32 0, i32 0), double %1, double %2, double %4, double %5)
   ret i32 0
 }
 

@@ -20,6 +20,48 @@
 
 namespace LFortran {
 
+template <typename T>
+void extract_bind(T &x, ASR::abiType &abi_type, char *&bindc_name) {
+    if (x.m_bind) {
+        AST::Bind_t *bind = AST::down_cast<AST::Bind_t>(x.m_bind);
+        if (bind->n_args == 1) {
+            if (AST::is_a<AST::Name_t>(*bind->m_args[0])) {
+                AST::Name_t *name = AST::down_cast<AST::Name_t>(
+                    bind->m_args[0]);
+                if (to_lower(std::string(name->m_id)) == "c") {
+                    abi_type=ASR::abiType::BindC;
+                } else {
+                    throw SemanticError("Unsupported language in bind()",
+                        x.base.base.loc);
+                }
+            } else {
+                    throw SemanticError("Language name must be specified in bind() as plain text",
+                        x.base.base.loc);
+            }
+        } else {
+            throw SemanticError("At least one argument needed in bind()",
+                x.base.base.loc);
+        }
+        if (bind->n_kwargs == 1) {
+            char *arg = bind->m_kwargs[0].m_arg;
+            AST::expr_t *value = bind->m_kwargs[0].m_value;
+            if (to_lower(std::string(arg)) == "name") {
+                if (AST::is_a<AST::String_t>(*value)) {
+                    AST::String_t *name = AST::down_cast<AST::String_t>(value);
+                    bindc_name = name->m_s;
+                } else {
+                    throw SemanticError("The value of the 'name' keyword argument in bind(c) must be a string",
+                        x.base.base.loc);
+                }
+            } else {
+                throw SemanticError("Unsupported keyword argument in bind()",
+                    x.base.base.loc);
+            }
+        }
+    }
+}
+
+
 class SymbolTableVisitor : public AST::BaseVisitor<SymbolTableVisitor> {
 private:
     std::map<std::string, std::string> intrinsic_procedures = {
@@ -57,10 +99,13 @@ public:
     Vec<char *> current_module_dependencies;
     bool in_module = false;
     bool is_interface = false;
+    bool is_derived_type = false;
+    Vec<char*> data_member_names;
     std::vector<std::string> current_procedure_args;
+    ASR::abiType current_procedure_abi_type = ASR::abiType::Source;
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
-      : al{al}, current_scope{symbol_table} {}
+      : al{al}, current_scope{symbol_table}, is_derived_type{false} {}
 
 
     ASR::symbol_t* resolve_symbol(const Location &loc, const char* id) {
@@ -162,6 +207,10 @@ public:
             std::string arg_s = arg;
             current_procedure_args.push_back(arg);
         }
+        current_procedure_abi_type = ASR::abiType::Source;
+        char *bindc_name=nullptr;
+        extract_bind(x, current_procedure_abi_type, bindc_name);
+
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
         }
@@ -195,8 +244,8 @@ public:
             /* n_args */ args.size(),
             /* a_body */ nullptr,
             /* n_body */ 0,
-            ASR::abiType::Source,
-            s_access, deftype);
+            current_procedure_abi_type,
+            s_access, deftype, bindc_name);
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             ASR::symbol_t *f1 = parent_scope->scope[sym_name];
             ASR::Subroutine_t *f2 = ASR::down_cast<ASR::Subroutine_t>(f1);
@@ -212,6 +261,7 @@ public:
            in nested functions, and also in callback.f90 test, but it may not
            matter since we would have already checked the intent */
         current_procedure_args.clear();
+        current_procedure_abi_type = ASR::abiType::Source;
     }
 
     AST::AttrType_t* find_return_type(AST::decl_attribute_t** attributes,
@@ -242,6 +292,12 @@ public:
             std::string arg_s = arg;
             current_procedure_args.push_back(arg);
         }
+
+        // Determine the ABI (Source or BindC for now)
+        current_procedure_abi_type = ASR::abiType::Source;
+        char *bindc_name=nullptr;
+        extract_bind(x, current_procedure_abi_type, bindc_name);
+
         for (size_t i=0; i<x.n_decl; i++) {
             visit_unit_decl2(*x.m_decl[i]);
         }
@@ -323,7 +379,8 @@ public:
             return_var = ASR::make_Variable_t(al, x.base.base.loc,
                 current_scope, return_var_name, LFortran::ASRUtils::intent_return_var, nullptr, nullptr,
                 ASR::storage_typeType::Default, type,
-                ASR::abiType::Source, ASR::Public, ASR::presenceType::Required);
+                current_procedure_abi_type, ASR::Public, ASR::presenceType::Required,
+                false);
             current_scope->scope[std::string(return_var_name)]
                 = ASR::down_cast<ASR::symbol_t>(return_var);
         } else {
@@ -348,6 +405,7 @@ public:
         if (is_interface) {
             deftype = ASR::deftypeType::Interface;
         }
+
         asr = ASR::make_Function_t(
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
@@ -357,7 +415,7 @@ public:
             /* a_body */ nullptr,
             /* n_body */ 0,
             /* a_return_var */ LFortran::ASRUtils::EXPR(return_var_ref),
-            ASR::abiType::Source, s_access, deftype);
+            current_procedure_abi_type, s_access, deftype, bindc_name);
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             ASR::symbol_t *f1 = parent_scope->scope[sym_name];
             ASR::Function_t *f2 = ASR::down_cast<ASR::Function_t>(f1);
@@ -370,6 +428,7 @@ public:
         parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
         current_scope = parent_scope;
         current_procedure_args.clear();
+        current_procedure_abi_type = ASR::abiType::Source;
     }
 
     void visit_StrOp(const AST::StrOp_t &x) {
@@ -544,6 +603,7 @@ public:
                 std::string sym = s.m_name;
                 ASR::accessType s_access = dflt_access;
                 ASR::presenceType s_presence = dflt_presence;
+                bool value_attr = false;
                 AST::AttrType_t *sym_type =
                     AST::down_cast<AST::AttrType_t>(x.m_vartype);
                 if (assgnd_access.count(sym)) {
@@ -606,7 +666,7 @@ public:
                                 // TODO
                             } else if (sa->m_attr == AST::simple_attributeType
                                     ::AttrValue) {
-                                // TODO
+                                value_attr = true;
                             } else {
                                 throw SemanticError("Attribute type not implemented yet",
                                         x.base.base.loc);
@@ -741,8 +801,12 @@ public:
                 }
                 ASR::asr_t *v = ASR::make_Variable_t(al, x.base.base.loc, current_scope,
                         s.m_name, s_intent, init_expr, value, storage_type, type,
-                        ASR::abiType::Source, s_access, s_presence);
+                        current_procedure_abi_type, s_access, s_presence,
+                        value_attr);
                 current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(v);
+                if( is_derived_type ) {
+                    data_member_names.push_back(al, s.m_name);
+                }
             } // for m_syms
         }
     }
@@ -882,36 +946,8 @@ public:
                     }
                 }
                 else if (var_name=="real") {
-                    ASR::expr_t* real_expr = args[0];
-                    ASR::ttype_t* real_type = LFortran::ASRUtils::expr_type(real_expr);
-                    int real_kind = ASRUtils::extract_kind_from_ttype_t(real_type);
-                    if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*real_type)) {
-                        if (real_kind == 4){
-                            float rr = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(real_expr))->m_r;
-                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, rr, real_type));
-                        } else {
-                            double rr = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(real_expr))->m_r;
-                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, rr, real_type));
-                        }
-                    }
-                    else if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*real_type)) {
-                        if (real_kind == 4){
-                            int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(
-                                LFortran::ASRUtils::expr_value(real_expr))->m_n;
-                            float rr = static_cast<float>(rv);
-                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, rr, real_type));
-                        } else {
-                            double rr = static_cast<double>(ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(real_expr))->m_n);
-                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc, rr, real_type));
-                        }
-                    }
-                    // TODO: Handle BOZ later
-                    // else if () {
-
-                    // }
-                    else {
-                        throw SemanticError("real must have only one argument", x.base.base.loc);
-                    }
+                    asr = CommonVisitorMethods::comptime_intrinsic_real(args[0], nullptr, al, x.base.base.loc);
+                    return;
                 }
                 else if (var_name=="floor") {
                     // TODO: Implement optional kind; J3/18-007r1 --> FLOOR(A, [KIND])
@@ -1025,6 +1061,17 @@ public:
                 }
                 break;
             }
+            case 2: {
+                if (var_name=="real") {
+                    asr = CommonVisitorMethods::comptime_intrinsic_real(args[0], args[1], al, x.base.base.loc);
+                    return;
+                } else {
+                    throw SemanticError("Function '" + var_name + "' with " + std::to_string(args.n) +
+                            " arguments not supported yet",
+                            x.base.base.loc);
+                }
+                break;
+            }
             default:  { // Not implemented
                 throw SemanticError("Function '" + var_name + "' with " + std::to_string(args.n) +
                         " arguments not supported yet",
@@ -1038,7 +1085,24 @@ public:
     void visit_DerivedType(const AST::DerivedType_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
+        data_member_names.reserve(al, 0);
+        is_derived_type = true;
         dt_name = x.m_name;
+        AST::AttrExtends_t *attr_extend = nullptr;
+        for( size_t i = 0; i < x.n_attrtype; i++ ) {
+            switch( x.m_attrtype[i]->type ) {
+                case AST::decl_attributeType::AttrExtends: {
+                    if( attr_extend != nullptr ) {
+                        throw SemanticError("DerivedType can only extend one another DerivedType",
+                                            x.base.base.loc);
+                    }
+                    attr_extend = (AST::AttrExtends_t*)(&(x.m_attrtype[i]->base));
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
         for (size_t i=0; i<x.n_items; i++) {
             this->visit_unit_decl2(*x.m_items[i]);
         }
@@ -1049,11 +1113,20 @@ public:
         if (current_scope->scope.find(sym_name) != current_scope->scope.end()) {
             throw SemanticError("DerivedType already defined", x.base.base.loc);
         }
+        ASR::symbol_t* parent_sym = nullptr;
+        if( attr_extend != nullptr ) {
+            std::string parent_sym_name = attr_extend->m_name;
+            if( parent_scope->scope.find(parent_sym_name) == parent_scope->scope.end() ) {
+                throw SemanticError(parent_sym_name + " is not defined.", x.base.base.loc);
+            }
+            parent_sym = parent_scope->scope[parent_sym_name];
+        }
         asr = ASR::make_DerivedType_t(al, x.base.base.loc, current_scope,
-            x.m_name, ASR::abiType::Source, dflt_access);
+                x.m_name, data_member_names.p, data_member_names.size(),
+                ASR::abiType::Source, dflt_access, parent_sym);
         parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
-
         current_scope = parent_scope;
+        is_derived_type = false;
     }
 
     void visit_InterfaceProc(const AST::InterfaceProc_t &x) {

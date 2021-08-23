@@ -4,8 +4,8 @@
 %param {LFortran::Parser &p}
 %locations
 %glr-parser
-%expect    650 // shift/reduce conflicts
-%expect-rr 169 // reduce/reduce conflicts
+%expect    197 // shift/reduce conflicts
+%expect-rr 171 // reduce/reduce conflicts
 
 // Uncomment this to get verbose error messages
 //%define parse.error verbose
@@ -133,6 +133,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_BLOCK
 %token <string> KW_CALL
 %token <string> KW_CASE
+%token <string> KW_CHANGE
+%token <string> KW_CHANGE_TEAM
 %token <string> KW_CHARACTER
 %token <string> KW_CLASS
 %token <string> KW_CLOSE
@@ -218,6 +220,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_END_FILE
 %token <string> KW_ENDFILE
 
+%token <string> KW_END_TEAM
+%token <string> KW_ENDTEAM
+
 %token <string> KW_ENTRY
 %token <string> KW_ENUM
 %token <string> KW_ENUMERATOR
@@ -233,11 +238,14 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_FLUSH
 %token <string> KW_FORALL
 %token <string> KW_FORMATTED
+%token <string> KW_FORM
+%token <string> KW_FORM_TEAM
 %token <string> KW_FUNCTION
 %token <string> KW_GENERIC
 %token <string> KW_GO
 %token <string> KW_GOTO
 %token <string> KW_IF
+%token <string> KW_IMAGES
 %token <string> KW_IMPLICIT
 %token <string> KW_IMPORT
 %token <string> KW_IMPURE
@@ -256,10 +264,12 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_LOCAL
 %token <string> KW_LOCAL_INIT
 %token <string> KW_LOGICAL
+%token <string> KW_MEMORY
 %token <string> KW_MODULE
 %token <string> KW_MOLD
 %token <string> KW_NAME
 %token <string> KW_NAMELIST
+%token <string> KW_NEW_INDEX
 %token <string> KW_NOPASS
 %token <string> KW_NON_INTRINSIC
 %token <string> KW_NON_OVERRIDABLE
@@ -305,6 +315,10 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> KW_SUBMODULE
 %token <string> KW_SUBROUTINE
 %token <string> KW_SYNC
+%token <string> KW_SYNC_ALL
+%token <string> KW_SYNC_IMAGES
+%token <string> KW_SYNC_MEMORY
+%token <string> KW_SYNC_TEAM
 %token <string> KW_TARGET
 %token <string> KW_TEAM
 %token <string> KW_TEAM_NUMBER
@@ -417,6 +431,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> case_condition
 %type <ast> while_statement
 %type <ast> critical_statement
+%type <ast> change_team_statement
+%type <vec_ast> coarray_association_list
+%type <ast> coarray_association
 %type <ast> do_statement
 %type <ast> forall_statement
 %type <ast> forall_statement_single
@@ -428,17 +445,24 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> cycle_statement
 %type <ast> continue_statement
 %type <ast> stop_statement
+%type <ast> entry_statement
 %type <ast> error_stop_statement
 %type <ast> event_post_statement
 %type <ast> event_wait_statement
 %type <ast> sync_all_statement
+%type <ast> sync_images_statement
+%type <ast> sync_memory_statement
+%type <ast> sync_team_statement
 %type <vec_ast> event_wait_spec_list
 %type <ast> event_wait_spec
 %type <vec_ast> sync_stat_list
 %type <vec_ast> event_post_stat_list
 %type <ast> sync_stat
 %type <ast> format_statement
+%type <ast> form_team_statement
+%type <ast> decl_statement
 %type <vec_ast> statements
+%type <vec_ast> decl_statements
 %type <vec_ast> contains_block_opt
 %type <vec_ast> sub_or_func_plus
 %type <ast> result_opt
@@ -747,9 +771,9 @@ proc_modifier
 
 
 program
-    : KW_PROGRAM id sep use_statement_star implicit_statement_star decl_star statements
+    : KW_PROGRAM id sep use_statement_star implicit_statement_star decl_statements
         contains_block_opt end_program sep {
-            LLOC(@$, @10); $$ = PROGRAM($2, TRIVIA($3, $10, @$), $4, $5, $6, $7, $8, @$); }
+      LLOC(@$, @9); $$ = PROGRAM($2, TRIVIA($3, $9, @$), $4, $5, $6, $7, @$); }
     ;
 
 end_program
@@ -814,66 +838,82 @@ end_critical
     | KW_ENDCRITICAL
     ;
 
+end_team
+    : KW_END_TEAM
+    | KW_ENDTEAM
+    ;
+
 subroutine
     : KW_SUBROUTINE id sub_args bind_opt sep use_statement_star
-    import_statement_star implicit_statement_star decl_star statements
+    import_statement_star implicit_statement_star decl_statements
         contains_block_opt
         end_subroutine sep {
-            LLOC(@$, @13); $$ = SUBROUTINE($2, $3, $4, TRIVIA($5, $13, @$), $6, $7, $8, $9, $10, $11, @$); }
+            LLOC(@$, @12); $$ = SUBROUTINE($2, $3, $4, TRIVIA($5, $12, @$), $6,
+                $7, $8, SPLIT_DECL(p.m_a, $9), SPLIT_STMT(p.m_a, $9), $10, @$); }
     | fn_mod_plus KW_SUBROUTINE id sub_args bind_opt sep use_statement_star
-    import_statement_star implicit_statement_star decl_star statements
+    import_statement_star implicit_statement_star decl_statements
         contains_block_opt
         end_subroutine sep {
-            LLOC(@$, @14); $$ = SUBROUTINE1($1, $3, $4, $5, TRIVIA($6, $14, @$), $7, $8, $9, $10, $11, $12, @$); }
+            LLOC(@$, @13); $$ = SUBROUTINE1($1, $3, $4, $5, TRIVIA($6, $13, @$),
+                $7, $8, $9, SPLIT_DECL(p.m_a, $10), SPLIT_STMT(p.m_a, $10), $11, @$); }
     ;
 
 procedure
     : fn_mod_plus KW_PROCEDURE id sub_args sep use_statement_star
-    import_statement_star implicit_statement_star decl_star statements
+    import_statement_star implicit_statement_star decl_statements
         contains_block_opt
         end_procedure sep {
-            LLOC(@$, @13); $$ = PROCEDURE($1, $3, $4, TRIVIA($5, $13, @$), $6, $7, $8, $9, $10, $11, @$); }
+            LLOC(@$, @12); $$ = PROCEDURE($1, $3, $4, TRIVIA($5, $12, @$), $6,
+                $7, $8, SPLIT_DECL(p.m_a, $9), SPLIT_STMT(p.m_a, $9), $10, @$); }
     ;
 
 function
     : KW_FUNCTION id "(" id_list_opt ")"
-        sep use_statement_star import_statement_star implicit_statement_star decl_star statements
+        sep use_statement_star import_statement_star implicit_statement_star decl_statements
         contains_block_opt
         end_function sep {
-            LLOC(@$, @14); $$ = FUNCTION0($2, $4, nullptr, nullptr, TRIVIA($6, $14, @$), $7, $8, $9, $10, $11, $12, @$); }
+            LLOC(@$, @13); $$ = FUNCTION0($2, $4, nullptr, nullptr,
+                TRIVIA($6, $13, @$), $7, $8, $9, SPLIT_DECL(p.m_a, $10),
+                SPLIT_STMT(p.m_a, $10), $11, @$); }
     | KW_FUNCTION id "(" id_list_opt ")"
         bind
         result_opt
-        sep use_statement_star import_statement_star implicit_statement_star decl_star statements
+        sep use_statement_star import_statement_star implicit_statement_star decl_statements
         contains_block_opt
         end_function sep {
-            LLOC(@$, @16); $$ = FUNCTION0($2, $4, $7, $6, TRIVIA($8, $16, @$), $9, $10, $11, $12, $13, $14, @$); }
+            LLOC(@$, @15); $$ = FUNCTION0($2, $4, $7, $6, TRIVIA($8, $15, @$),
+                $9, $10, $11, SPLIT_DECL(p.m_a, $12), SPLIT_STMT(p.m_a, $12), $13, @$); }
     | KW_FUNCTION id "(" id_list_opt ")"
         result
         bind_opt
-        sep use_statement_star import_statement_star implicit_statement_star decl_star statements
+        sep use_statement_star import_statement_star implicit_statement_star decl_statements
         contains_block_opt
         end_function sep {
-            LLOC(@$, @16); $$ = FUNCTION0($2, $4, $6, $7, TRIVIA($8, $16, @$), $9, $10, $11, $12, $13, $14, @$); }
+            LLOC(@$, @15); $$ = FUNCTION0($2, $4, $6, $7, TRIVIA($8, $15, @$),
+                $9, $10, $11, SPLIT_DECL(p.m_a, $12), SPLIT_STMT(p.m_a, $12), $13, @$); }
     | fn_mod_plus KW_FUNCTION id "(" id_list_opt ")"
-        sep use_statement_star import_statement_star implicit_statement_star decl_star statements
+        sep use_statement_star import_statement_star implicit_statement_star decl_statements
         contains_block_opt
         end_function sep {
-            LLOC(@$, @15); $$ = FUNCTION($1, $3, $5, nullptr, nullptr, TRIVIA($7, $15, @$), $8, $9, $10, $11, $12, $13, @$); }
+            LLOC(@$, @14); $$ = FUNCTION($1, $3, $5, nullptr, nullptr,
+                TRIVIA($7, $14, @$), $8, $9, $10, SPLIT_DECL(p.m_a, $11),
+                SPLIT_STMT(p.m_a, $11), $12, @$); }
     | fn_mod_plus KW_FUNCTION id "(" id_list_opt ")"
         bind
         result_opt
-        sep use_statement_star import_statement_star implicit_statement_star decl_star statements
+        sep use_statement_star import_statement_star implicit_statement_star decl_statements
         contains_block_opt
         end_function sep {
-            LLOC(@$, @17); $$ = FUNCTION($1, $3, $5, $8, $7, TRIVIA($9, $17, @$), $10, $11, $12, $13, $14, $15, @$); }
+            LLOC(@$, @16); $$ = FUNCTION($1, $3, $5, $8, $7, TRIVIA($9, $16, @$),
+                $10, $11, $12, SPLIT_DECL(p.m_a, $13), SPLIT_STMT(p.m_a, $13), $14, @$); }
     | fn_mod_plus KW_FUNCTION id "(" id_list_opt ")"
         result
         bind_opt
-        sep use_statement_star import_statement_star implicit_statement_star decl_star statements
+        sep use_statement_star import_statement_star implicit_statement_star decl_statements
         contains_block_opt
         end_function sep {
-            LLOC(@$, @17); $$ = FUNCTION($1, $3, $5, $7, $8, TRIVIA($9, $17, @$), $10, $11, $12, $13, $14, $15, @$); }
+            LLOC(@$, @16); $$ = FUNCTION($1, $3, $5, $7, $8, TRIVIA($9, $16, @$),
+                $10, $11, $12, SPLIT_DECL(p.m_a, $13), SPLIT_STMT(p.m_a, $13), $14, @$); }
     ;
 
 fn_mod_plus
@@ -1378,6 +1418,19 @@ sep_one
     | ";" { $$ = SEMICOLON(@$); }
     ;
 
+decl_statements
+    : decl_statements decl_statement { $$ = $1; LIST_ADD($$, $2); }
+    | %empty { LIST_NEW($$); }
+    ;
+
+decl_statement
+    : var_decl
+    | interface_decl
+    | derived_type_decl
+    | enum_decl
+    | statement
+    ;
+
 statement
     : statement1 sep { $$ = $1; TRIVIA_($$, TRIVIA_AFTER($2, @$)); }
     | TK_LABEL statement1 sep { $$ = $2;
@@ -1398,6 +1451,7 @@ single_line_statement
     | continue_statement
     | cycle_statement
     | deallocate_statement
+    | entry_statement
     | error_stop_statement
     | event_post_statement
     | event_wait_statement
@@ -1405,6 +1459,7 @@ single_line_statement
     | flush_statement
     | forall_statement_single
     | format_statement
+    | form_team_statement
     | goto_statement
     | if_statement_single
     | inquire_statement
@@ -1419,6 +1474,9 @@ single_line_statement
     | stop_statement
     | subroutine_call
     | sync_all_statement
+    | sync_images_statement
+    | sync_memory_statement
+    | sync_team_statement
     | where_statement_single
     | write_statement
     ;
@@ -1431,6 +1489,7 @@ multi_line_statement
 multi_line_statement0
     : associate_block
     | block_statement
+    | change_team_statement
     | critical_statement
     | do_statement
     | forall_statement
@@ -1471,8 +1530,8 @@ associate_block
     ;
 
 block_statement
-    : KW_BLOCK sep use_statement_star import_statement_star decl_star
-        statements end_block { $$ = BLOCK(TRIVIA_AFTER($2, @$), $3, $4, $5, $6, @$); }
+    : KW_BLOCK sep use_statement_star import_statement_star decl_statements
+        end_block { $$ = BLOCK(TRIVIA_AFTER($2, @$), $3, $4, SPLIT_DECL(p.m_a, $5), SPLIT_STMT(p.m_a, $5), @$); }
     ;
 
 allocate_statement
@@ -1794,6 +1853,17 @@ format_statement
     : TK_FORMAT { $$ = FORMAT($1, @$); }
     ;
 
+form_team_statement
+    : form_team "(" expr "," id ")" { $$ = FORMTEAM1($3, $5, @$); }
+    | form_team "(" expr "," id sync_stat_list ")" {
+            $$ = FORMTEAM2($3, $5, $6, @$); }
+    ;
+
+form_team
+    : KW_FORM KW_TEAM
+    | KW_FORM_TEAM
+    ;
+
 reduce_op
     : "+" { $$ = REDUCE_OP_TYPE_ADD(@$); }
     | "*" { $$ = REDUCE_OP_TYPE_MUL(@$); }
@@ -1846,6 +1916,12 @@ continue_statement
     : KW_CONTINUE { $$ = CONTINUE(@$); }
     ;
 
+entry_statement
+    : KW_ENTRY id sub_args { $$ = ENTRY1($2, $3, @$); }
+    | KW_ENTRY id sub_args bind result_opt { $$ = ENTRY2($2, $3, $4, $5, @$); }
+    | KW_ENTRY id sub_args result bind_opt { $$ = ENTRY3($2, $3, $4, $5, @$); }
+    ;
+
 stop_statement
     : KW_STOP { $$ = STOP(@$); }
     | KW_STOP expr { $$ = STOP1($2, @$); }
@@ -1875,8 +1951,45 @@ event_wait_statement
     ;
 
 sync_all_statement
-    : KW_SYNC KW_ALL { $$ = SYNC_ALL(@$); }
-    | KW_SYNC KW_ALL "(" sync_stat_list ")" { $$ = SYNC_ALL1($4, @$); }
+    : sync_all { $$ = SYNC_ALL(@$); }
+    | sync_all "(" ")" { $$ = SYNC_ALL1(@$); }
+    | sync_all "(" sync_stat_list ")" { $$ = SYNC_ALL2($3, @$); }
+    ;
+sync_all
+    : KW_SYNC KW_ALL
+    | KW_SYNC_ALL
+    ;
+
+sync_images_statement
+    : sync_images "(" "*" ")" { $$ = SYNC_IMAGE1(Asterisk, @$); }
+    | sync_images "(" expr ")" { $$ = SYNC_IMAGE2($3, @$); }
+    | sync_images "(" "*" sync_stat_list ")" {
+            $$ = SYNC_IMAGE3(Asterisk, $4, @$); }
+    | sync_images "(" expr sync_stat_list ")" { $$ = SYNC_IMAGE4($3, $4, @$); }
+    ;
+sync_images
+    : KW_SYNC KW_IMAGES
+    | KW_SYNC_IMAGES
+    ;
+
+sync_memory_statement
+    : sync_memory { $$ = SYNC_MEMORY(@$); }
+    | sync_memory "(" ")" { $$ = SYNC_MEMORY1(@$); }
+    | sync_memory "(" sync_stat_list ")" { $$ = SYNC_MEMORY2($3, @$); }
+    ;
+sync_memory
+    : KW_SYNC KW_MEMORY
+    | KW_SYNC_MEMORY
+    ;
+
+sync_team_statement
+    : sync_team "(" expr ")" { $$ = SYNCTEAM1($3, @$); }
+    | sync_team "(" expr sync_stat_list ")" { $$ = SYNCTEAM2($3, $4, @$); }
+    ;
+
+sync_team
+    : KW_SYNC KW_TEAM
+    | KW_SYNC_TEAM
     ;
 
 event_wait_spec_list
@@ -1894,20 +2007,56 @@ event_post_stat_list
     ;
 
 sync_stat_list
-    : sync_stat { LIST_NEW($$); LIST_ADD($$, $1); }
-    | %empty { LIST_NEW($$); }
+    : sync_stat_list "," sync_stat { $$ = $1; LIST_ADD($$, $3); }
+    | "," sync_stat { LIST_NEW($$); LIST_ADD($$, $2); }
+    | sync_stat { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 sync_stat
     : KW_STAT "=" id { $$ = STAT($3, @$); }
     | KW_ERRMSG "=" id { $$ = ERRMSG($3, @$); }
+    | KW_NEW_INDEX "=" expr { $$ = NEW_INDEX($3, @$); }
     ;
 
 critical_statement
-    : KW_CRITICAL sep statements end_critical { $$ = CRITICAL(TRIVIA_AFTER($2, @$), $3, @$); }
+    : KW_CRITICAL sep statements end_critical {
+            $$ = CRITICAL(TRIVIA_AFTER($2, @$), $3, @$); }
+    | KW_CRITICAL "(" ")" sep statements end_critical {
+            $$ = CRITICAL1(TRIVIA_AFTER($4, @$), $5, @$); }
     | KW_CRITICAL "(" sync_stat_list ")" sep statements end_critical {
-            $$ = CRITICAL1($3, TRIVIA_AFTER($5, @$), $6, @$); }
+            $$ = CRITICAL2($3, TRIVIA_AFTER($5, @$), $6, @$); }
     ;
+
+change_team_statement
+    : change_team "(" expr coarray_association_list ")"
+        sep statements end_team {
+            $$ = CHANGETEAM1($3, $4, TRIVIA_AFTER($6, @$), $7, @$); }
+    | change_team "(" expr coarray_association_list ")"
+        sep statements end_team "(" sync_stat_list ")" {
+            $$ = CHANGETEAM2($3, $4, TRIVIA_AFTER($6, @$), $7, $10, @$); }
+    | change_team "(" expr coarray_association_list sync_stat_list ")"
+        sep statements end_team {
+            $$ = CHANGETEAM3($3, $4, $5, TRIVIA_AFTER($7, @$), $8, @$); }
+    | change_team "(" expr coarray_association_list sync_stat_list ")"
+        sep statements end_team "(" sync_stat_list ")" {
+            $$ = CHANGETEAM4($3, $4, $5, TRIVIA_AFTER($7, @$), $8, $11, @$); }
+    ;
+
+coarray_association_list
+    : coarray_association_list "," coarray_association { $$ = $1; LIST_ADD($$, $3); }
+    | coarray_association { LIST_NEW($$); LIST_ADD($$, $1); }
+    | %empty { LIST_NEW($$); }
+    ;
+
+coarray_association
+    : id "[" coarray_arg_list "]" "=>" expr { $$ = COARRAY_ASSOC($1, $3, $6, @$); }
+    ;
+
+change_team
+    : KW_CHANGE KW_TEAM
+    | KW_CHANGE_TEAM
+    ;
+
 // -----------------------------------------------------------------------------
 // Fortran expression
 
@@ -1970,6 +2119,7 @@ expr
             $$ = IMPLIED_DO_LOOP6($2, $4, $6, $8, $10, $12, $14, @$); }
 
 // ### level-1
+    | TK_DEF_OP expr { $$ = UNARY_DEFOP($1, $2, @$); }
 
 // ### level-2
     | expr "+" expr { $$ = ADD($1, $3, @$); }
@@ -2091,6 +2241,7 @@ id
     | KW_BLOCK { $$ = SYMBOL($1, @$); }
     | KW_CALL { $$ = SYMBOL($1, @$); }
     | KW_CASE { $$ = SYMBOL($1, @$); }
+    | KW_CHANGE { $$ = SYMBOL($1, @$); }
     | KW_CHARACTER { $$ = SYMBOL($1, @$); }
     | KW_CLASS { $$ = SYMBOL($1, @$); }
     | KW_CLOSE { $$ = SYMBOL($1, @$); }
@@ -2151,11 +2302,14 @@ id
     | KW_FLUSH { $$ = SYMBOL($1, @$); }
     | KW_FORALL { $$ = SYMBOL($1, @$); }
     | KW_FORMATTED { $$ = SYMBOL($1, @$); }
+    | KW_FORM { $$ = SYMBOL($1, @$); }
+    | KW_FORM_TEAM { $$ = SYMBOL($1, @$); }
     | KW_FUNCTION { $$ = SYMBOL($1, @$); }
     | KW_GENERIC { $$ = SYMBOL($1, @$); }
     | KW_GO { $$ = SYMBOL($1, @$); }
     | KW_GOTO { $$ = SYMBOL($1, @$); }
     | KW_IF { $$ = SYMBOL($1, @$); }
+    | KW_IMAGES { $$ = SYMBOL($1, @$); }
     | KW_IMPLICIT { $$ = SYMBOL($1, @$); }
     | KW_IMPORT { $$ = SYMBOL($1, @$); }
     | KW_IMPURE { $$ = SYMBOL($1, @$); }
@@ -2173,10 +2327,12 @@ id
     | KW_LOCAL { $$ = SYMBOL($1, @$); }
     | KW_LOCAL_INIT { $$ = SYMBOL($1, @$); }
     | KW_LOGICAL { $$ = SYMBOL($1, @$); }
+    | KW_MEMORY { $$ = SYMBOL($1, @$); }
     | KW_MODULE { $$ = SYMBOL($1, @$); }
     | KW_MOLD { $$ = SYMBOL($1, @$); }
     | KW_NAME { $$ = SYMBOL($1, @$); }
     | KW_NAMELIST { $$ = SYMBOL($1, @$); }
+    | KW_NEW_INDEX { $$ = SYMBOL($1, @$); }
     | KW_NOPASS { $$ = SYMBOL($1, @$); }
     | KW_NON_INTRINSIC { $$ = SYMBOL($1, @$); }
     | KW_NON_OVERRIDABLE { $$ = SYMBOL($1, @$); }

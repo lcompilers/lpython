@@ -113,6 +113,8 @@ stmt
     | Cycle(int label, identifier? stmt_name, trivia? trivia)
     | Deallocate(int label, fnarg* args, keyword* keywords, trivia? trivia)
     | Endfile(int label, expr* args, keyword* kwargs, trivia? trivia)
+    | Entry(int label, identifier name, arg* args, expr? return_var,
+            bind? bind, trivia? trivia)
     | ErrorStop(int label, expr? code, expr? quiet, trivia? trivia)
     | EventPost(int label, expr variable, event_attribute* stat, trivia? trivia)
     | EventWait(int label, expr variable, event_attribute* spec, trivia? trivia)
@@ -121,6 +123,8 @@ stmt
     | ForAllSingle(int label, identifier? stmt_name,
             concurrent_control *control, expr? mask, stmt assign, trivia? trivia)
     | Format(int label, string fmt, trivia? trivia)
+    | FormTeam(int label, expr team_number, identifier team_var,
+            event_attribute* sync_stat, trivia? trivia)
     | GoTo(int label, expr goto_label, expr* labels, trivia? trivia)
     | Inquire(int label, expr* args, keyword* kwargs, expr* values, trivia? trivia)
     | Nullify(int label, expr* args, keyword* kwargs, trivia? trivia)
@@ -134,6 +138,10 @@ stmt
     | SubroutineCall(int label, identifier name, struct_member* member,
             fnarg* args, keyword* keywords, trivia? trivia)
     | SyncAll(int label, event_attribute* stat, trivia? trivia)
+    | SyncImages(int label, expr? image_set, symbol sym,
+            event_attribute* stat, trivia? trivia)
+    | SyncMemory(int label, event_attribute* stat, trivia? trivia)
+    | SyncTeam(int label, expr value, event_attribute* stat, trivia? trivia)
     | Write(int label, argstar* args, kw_argstar* kwargs, expr* values, trivia? trivia)
 
 -- Multi-line statements (each has a `label` and `stmt_name`):
@@ -142,6 +150,9 @@ stmt
     | Block(int label, identifier? stmt_name, unit_decl1* use,
             import_statement* import,unit_decl2* decl, stmt* body,
             trivia? t_inside, trivia? trivia)
+    | ChangeTeam(int label, identifier? stmt_name, expr team_value,
+            team_attribute* coarray_assoc, event_attribute* sync,
+            stmt* body, trivia? t_inside, trivia? trivia, event_attribute* sync_stat)
     | Critical(int label, identifier? stmt_name, event_attribute* sync_stat,
             stmt* body, trivia? t_inside, trivia? trivia)
     | DoConcurrentLoop(int label, identifier? stmt_name,
@@ -177,6 +188,7 @@ expr
     | DefBinOp(expr left, string op, expr right)
     | StrOp(expr left, stroperator op, expr right)
     | UnaryOp(unaryop op, expr operand)
+    | DefUnaryOp(string op, expr operand)
     | Compare(expr left, cmpop op, expr right)
     | FuncCallOrArray(identifier func, struct_member* member,
         fnarg* args, keyword* keywords, fnarg* subargs)
@@ -311,7 +323,10 @@ decl_type
 event_attribute
     = AttrStat(identifier variable)
     | AttrErrmsg(identifier variable)
+    | AttrNewIndex(expr value)
     | AttrEventWaitKwArg(identifier id, expr value)
+
+team_attribute = CoarrayAssociation(expr coarray, expr selector)
 
 var_sym = (identifier? name, dimension* dim, codimension* codim,
  expr? initializer, symbol sym, decl_attribute? spec)

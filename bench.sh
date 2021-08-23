@@ -32,7 +32,7 @@ cd ..
 mkdir master
 cd master
 #cmake -DCMAKE_CXX_FLAGS_RELEASE="-Wall -Wextra -O3 -funroll-loops -DNDEBUG" ../lfortran
-cmake ../lfortran
+cmake -DWITH_FMT=yes ../lfortran
 make -j
 cd ..
 
@@ -46,6 +46,6 @@ cd ..
 mkdir mr
 cd mr
 #cmake -DCMAKE_CXX_FLAGS_RELEASE="-Wall -Wextra -O3 -funroll-loops -DNDEBUG" ../lfortran
-cmake ../lfortran
+cmake -DWITH_FMT=yes ../lfortran
 make -j
 cd ..

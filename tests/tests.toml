@@ -44,6 +44,14 @@ filename = "do4.f90"
 ast = true
 
 [[test]]
+filename = "do5.f90"
+ast = true
+
+[[test]]
+filename = "do6.f90"
+ast = true
+
+[[test]]
 filename = "errors/esub1.f90"
 tokens = true
 ast = true
@@ -150,6 +158,11 @@ ast_f90 = true
 [[test]]
 filename = "expr8.f90"
 tokens = true
+ast = true
+ast_f90 = true
+
+[[test]]
+filename = "expr9.f90"
 ast = true
 ast_f90 = true
 
@@ -1143,10 +1156,6 @@ filename = "../integration_tests/intrinsics_open_close_read_write.f90"
 asr = true
 
 [[test]]
-filename = "../src/runtime/lfortran_intrinsic_math.f90"
-ast = true
-
-[[test]]
 filename = "errors/dim_assgn_test.f90"
 asr = true
 
@@ -1249,6 +1258,10 @@ llvm = true
 
 [[test]]
 filename = "../integration_tests/modules_12.f90"
+asr = true
+
+[[test]]
+filename = "../integration_tests/modules_15b.f90"
 asr = true
 
 [[test]]
@@ -1436,7 +1449,22 @@ ast = true
 ast_f90 = true
 
 [[test]]
+filename = "../integration_tests/class_01.f90"
+asr = true
+llvm = true
+
+[[test]]
 filename = "../integration_tests/class_02.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/class_03.f90"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/class_04.f90"
 asr = true
 llvm = true
 
@@ -1474,3 +1502,24 @@ asr = true
 [[test]]
 filename = "../integration_tests/const_kind_02.f90"
 asr = true
+
+
+[[test]]
+filename = "team1.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
+filename = "sync1.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
+filename = "entry1.f90"
+ast = true
+ast_f90 = true
+
+[[test]]
+filename = "issue532.f90"
+asr = true
+llvm = true
