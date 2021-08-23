@@ -24,6 +24,8 @@ int f_int_float_complex(int *a, float_complex_t *b);
 int f_int_double_complex(int *a, double_complex_t *b);
 int f_int_float_complex_value(int a, float_complex_t b);
 int f_int_double_complex_value(int a, double_complex_t b);
+float_complex_t f_float_complex_value_return(float_complex_t b);
+double_complex_t f_double_complex_value_return(double_complex_t b);
 int f_int_float_value(int a, float b);
 int f_int_double_value(int a, double b);
 int f_int_intarray(int n, int *b);
