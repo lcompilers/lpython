@@ -45,6 +45,18 @@ interface
     complex(c_double), value, intent(in) :: b
     end function
 
+    ! float_complex_t f_float_complex_value_return(float_complex_t b)
+    complex(c_float) function f_float_complex_value_return(b) result(r) bind(c)
+    import :: c_float
+    complex(c_float), value, intent(in) :: b
+    end function
+
+    ! double_complex_t f_double_complex_value_return(double_complex_t b)
+    complex(c_double) function f_double_complex_value_return(b) result(r)bind(c)
+    import :: c_double
+    complex(c_double), value, intent(in) :: b
+    end function
+
     ! int f_int_float_value(int a, float b)
     integer(c_int) function f_int_float_value(a, b) result(r) bind(c)
     import :: c_int, c_float

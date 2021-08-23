@@ -78,6 +78,17 @@ void _lfortran_complex_div(struct _lfortran_complex* a,
     result->im = (p*s + q*r)/mod_b;
 }
 
+#undef CMPLX
+#undef CMPLXF
+#undef CMPLXL
+#undef _Imaginary_I
+
+#define _Imaginary_I (I)
+#define CMPLX(x, y) ((double complex)((double)(x) + _Imaginary_I * (double)(y)))
+#define CMPLXF(x, y) ((float complex)((float)(x) + _Imaginary_I * (float)(y)))
+#define CMPLXL(x, y) ((long double complex)((long double)(x) + \
+                      _Imaginary_I * (long double)(y)))
+
 void _lfortran_complex_pow(struct _lfortran_complex* a,
         struct _lfortran_complex* b, struct _lfortran_complex *result)
 {

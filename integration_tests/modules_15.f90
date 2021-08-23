@@ -11,6 +11,7 @@ use modules_15b, only: &
     sub_int_float_complex, sub_int_double_complex, &
     f_int_float_complex_value, f_int_double_complex_value, &
     sub_int_float_complex_value, sub_int_double_complex_value, &
+    f_float_complex_value_return, f_double_complex_value_return, &
     f_int_double_value_name, &
     sub_int_double_value_name
 implicit none
@@ -67,6 +68,18 @@ c32 = (5._sp, 7._sp)
 call sub_int_float_complex_value(a, c32, i)
 print *, i
 if (i /= 15) error stop
+
+c32 = (5._sp, 7._sp)
+c32 = f_float_complex_value_return(c32)
+print *, c32
+if (abs(real(c32,sp) - 10) > 1e-5_sp) error stop
+!if (abs(aimag(c32) - 14) > 1e-5_sp) error stop
+
+c64 = (5._dp, 7._dp)
+c64 = f_double_complex_value_return(c64)
+print *, c64
+if (abs(real(c64,dp) - 10) > 1e-10_dp) error stop
+!if (abs(aimag(c64) - 14) > 1e-10_dp) error stop
 
 a = 3
 c64 = (5._dp, 7._dp)
