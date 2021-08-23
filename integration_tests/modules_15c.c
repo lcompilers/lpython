@@ -26,6 +26,18 @@ int f_int_double_complex_value(int a, double_complex_t b) {
     return a + creal(b) + cimag(b);
 }
 
+float_complex_t f_float_complex_value_return(float_complex_t b) {
+    float_complex_t r;
+    r = b * 2;
+    return r;
+}
+
+double_complex_t f_double_complex_value_return(double_complex_t b) {
+    double_complex_t r;
+    r = b * 2;
+    return r;
+}
+
 int f_int_float_value(int a, float b) {
     return a + b;
 }
