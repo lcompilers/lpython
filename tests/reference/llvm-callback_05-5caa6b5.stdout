@@ -9,18 +9,6 @@ define void @__module_callback_05_px_call1(i32* %x) {
   ret void
 }
 
-define void @__module_callback_05_px_call2(void (i32*)* %f, i32* %x) {
-.entry:
-  call void @__module_callback_05_px_call3(void (i32*)* %f, i32* %x)
-  ret void
-}
-
-define void @__module_callback_05_px_call3(void (i32*)* %f, i32* %x) {
-.entry:
-  call void %f(i32* %x)
-  ret void
-}
-
 define void @__module_callback_05_printx(i32* %x) {
 .entry:
   %0 = load i32, i32* %x, align 4
@@ -28,9 +16,21 @@ define void @__module_callback_05_printx(i32* %x) {
   ret void
 }
 
-declare void @_lfortran_printf(i8*, ...)
+define void @__module_callback_05_px_call2(void (i32*)* %f, i32* %x) {
+.entry:
+  call void @__module_callback_05_px_call3(void (i32*)* %f, i32* %x)
+  ret void
+}
 
 declare void @__module_callback_05_f(i32*)
+
+define void @__module_callback_05_px_call3(void (i32*)* %f, i32* %x) {
+.entry:
+  call void %f(i32* %x)
+  ret void
+}
+
+declare void @_lfortran_printf(i8*, ...)
 
 define i32 @main() {
 .entry:
