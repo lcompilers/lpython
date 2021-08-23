@@ -8,6 +8,7 @@
 #include <lfortran/semantics/asr_scopes.h>
 #include <lfortran/ast.h>
 #include <lfortran/asr.h>
+#include <lfortran/utils.h>
 
 // Forward declare all needed LLVM classes without importing any LLVM header
 // files. Those are only imported in evaluator.cpp and nowhere else, to speed
@@ -67,7 +68,7 @@ public:
 class FortranEvaluator
 {
 public:
-    FortranEvaluator();
+    FortranEvaluator(Platform platform);
     ~FortranEvaluator();
 
     struct EvalResult {
@@ -158,6 +159,7 @@ public:
 private:
     Allocator al;
     LLVMEvaluator e;
+    Platform platform;
     SymbolTable *symbol_table;
     int eval_count;
     std::string run_fn;
