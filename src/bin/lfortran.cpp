@@ -1102,7 +1102,7 @@ int main(int argc, char *argv[])
         app.add_flag("-E", arg_E, "Preprocess only; do not compile, assemble or link");
         app.add_option("-l", arg_l, "Link library option");
         app.add_option("-L", arg_L, "Library path option");
-        app.add_option("-I", arg_I, "Include path");
+        app.add_option("-I", arg_I, "Include path")->allow_extra_args(false);
         app.add_option("-J", arg_J, "Where to save mod files");
         app.add_flag("--version", arg_version, "Display compiler version information");
 
