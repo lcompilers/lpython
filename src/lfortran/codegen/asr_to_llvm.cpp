@@ -1408,6 +1408,7 @@ public:
                                     llvm::Type* type_fx2 = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2);
                                     type = type_fx2;
                                 } else {
+                                    LFORTRAN_ASSERT(a_kind == 8)
                                     if (platform == Platform::Windows) {
                                         // 128 bit aggregate type is passed by reference
                                         type = getComplexType(a_kind, true);
