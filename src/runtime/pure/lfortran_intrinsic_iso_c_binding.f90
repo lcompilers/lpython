@@ -6,5 +6,7 @@ integer, parameter :: c_long = 4
 integer, parameter :: c_long_long = 8
 integer, parameter :: c_float = 4
 integer, parameter :: c_double = 8
+integer, parameter :: c_bool = 4
+integer, parameter :: c_char = 1
 
 end module
