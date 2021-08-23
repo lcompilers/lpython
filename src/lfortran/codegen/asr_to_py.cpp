@@ -28,11 +28,72 @@
  * 
  * */
 
+
+/* 
+ * The following technique is called X-macros, if you don't recognize it.
+ * You should be able to look it up under that name for an explanation.
+ */
+
+#define CTYPELIST \
+	_X(ASR::Integer_t, c_int,           "int"   ) \
+	_X(ASR::Integer_t, c_short,         "short" ) \
+	_X(ASR::Integer_t, c_long,          "long"  ) \
+	_X(ASR::Integer_t, c_long_long,     "long long" ) \
+	_X(ASR::Integer_t, c_signed_char,   "signed char" ) \
+	_X(ASR::Integer_t, c_size_t,        "size_t" ) \
+	\
+	_X(ASR::Integer_t, c_int8_t,        "int8_t" ) \
+	_X(ASR::Integer_t, c_int16_t,       "int16_t" ) \
+	_X(ASR::Integer_t, c_int32_t,       "int32_t" ) \
+	_X(ASR::Integer_t, c_int64_t,       "int64_t" ) \
+	\
+	_X(ASR::Integer_t, c_int_least8_t,  "int_least8_t" ) \
+	_X(ASR::Integer_t, c_int_least16_t, "int_least16_t" ) \
+	_X(ASR::Integer_t, c_int_least32_t, "int_least32_t" ) \
+	_X(ASR::Integer_t, c_int_least64_t, "int_least64_t" ) \
+	\
+	_X(ASR::Integer_t, c_int_fast8_t,   "int_fast8_t" ) \
+	_X(ASR::Integer_t, c_int_fast16_t,  "int_fast16_t" ) \
+	_X(ASR::Integer_t, c_int_fast32_t,  "int_fast32_t" ) \
+	_X(ASR::Integer_t, c_int_fast64_t,  "int_fast64_t" ) \
+	\
+	_X(ASR::Integer_t, c_intmax_t,      "intmax_t" ) \
+	_X(ASR::Integer_t, c_intptr_t,      "intptr_t" ) \
+	_X(ASR::Integer_t, c_ptrdiff_t,     "ptrdiff_t" ) \
+	\
+	_X(ASR::Real_t,    c_float,         "float" ) \
+	_X(ASR::Real_t,    c_double,        "double" ) \
+	_X(ASR::Real_t,    c_long_double,   "long double" ) \
+	\
+	_X(ASR::Complex_t, c_float_complex, "float _Complex" ) \
+	_X(ASR::Complex_t, c_double_complex, "double _Complex" ) \
+	_X(ASR::Complex_t, c_long_double_complex, "long double _Complex" ) \
+	\
+	_X(ASR::Logical_t, c_bool,          "_Bool" ) \
+       	_X(ASR::Character_t, c_char,        "char" ) 
+
+
 namespace LFortran {
 
 using ASR::is_a;
 using ASR::down_cast;
 using ASR::down_cast2;
+
+std::string asr_vartype_to_chdr_type_string(ASR::Variable_t *arg)
+{
+	std::string ret;
+	if(is_a<ASR::Real_t>(*arg->m_type)) 
+	{
+		auto real = down_cast<ASR::Real_t>(arg->m_type);
+		ret = std::to_string(real->m_kind);
+	}
+	else
+	{
+		ret = "NO";
+	}
+
+	return ret;
+}
 
 std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims);
 
@@ -183,7 +244,10 @@ public:
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
 
-            chdr += convert_variable_decl(*arg);
+            //chdr += convert_variable_decl(*arg);
+            chdr += arg->m_name;
+            chdr += " ";
+	    chdr += asr_vartype_to_chdr_type_string(arg);
             if (i < x.n_args-1) chdr += ", ";
         }
 	chdr += ");\n" ;
@@ -216,7 +280,8 @@ public:
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
 
-            chdr += convert_variable_decl(*arg);
+            //chdr += convert_variable_decl(*arg);
+            chdr += arg->m_name;
             if (i < x.n_args-1) chdr += ", ";
         }
 	chdr += ");\n" ;
