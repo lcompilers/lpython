@@ -1864,7 +1864,21 @@ public:
                     }
                 } else {
                     LFORTRAN_ASSERT(a_kind == 8)
-                    return_type = getComplexType(a_kind);
+                    if (x.m_abi == ASR::abiType::BindC) {
+                        if (platform == Platform::Windows) {
+                            // pass as subroutine
+                            return_type = getComplexType(a_kind, true);
+                            std::vector<llvm::Type*> args = convert_args(x);
+                            args.insert(args.begin(), return_type);
+                            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                                    llvm::Type::getVoidTy(context), args, false);
+                            return function_type;
+                        } else {
+                            return_type = getComplexType(a_kind);
+                        }
+                    } else {
+                        return_type = getComplexType(a_kind);
+                    }
                 }
                 break;
             }
@@ -3478,7 +3492,27 @@ public:
             std::string m_name = std::string(((ASR::Function_t*)(&(x.m_name->base)))->m_name);
             std::vector<llvm::Value *> args2 = convert_call_args(x, m_name);
             args.insert(args.end(), args2.begin(), args2.end());
-            tmp = builder->CreateCall(fn, args);
+            if (s->m_abi == ASR::abiType::BindC) {
+                ASR::ttype_t *return_var_type0 = EXPR2VAR(s->m_return_var)->m_type;
+                if (is_a<ASR::Complex_t>(*return_var_type0)) {
+                    int a_kind = down_cast<ASR::Complex_t>(return_var_type0)->m_kind;
+                    if (a_kind == 8) {
+                        if (platform == Platform::Windows) {
+                            tmp = builder->CreateAlloca(complex_type_8, nullptr);
+                            args.insert(args.begin(), tmp);
+                            builder->CreateCall(fn, args);
+                        } else {
+                            tmp = builder->CreateCall(fn, args);
+                        }
+                    } else {
+                        tmp = builder->CreateCall(fn, args);
+                    }
+                } else {
+                    tmp = builder->CreateCall(fn, args);
+                }
+            } else {
+                tmp = builder->CreateCall(fn, args);
+            }
         }
         if (s->m_abi == ASR::abiType::BindC) {
             ASR::ttype_t *return_var_type0 = EXPR2VAR(s->m_return_var)->m_type;
