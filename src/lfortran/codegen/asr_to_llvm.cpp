@@ -137,6 +137,7 @@ public:
     llvm::LLVMContext &context;
     std::unique_ptr<llvm::Module> module;
     std::unique_ptr<llvm::IRBuilder<>> builder;
+    Platform platform;
 
     llvm::Value *tmp;
     llvm::BasicBlock *current_loophead, *current_loopend, *if_return;
@@ -199,8 +200,10 @@ public:
     std::unique_ptr<LLVMUtils> llvm_utils;
     std::unique_ptr<LLVMArrUtils::Descriptor> arr_descr;
 
-    ASRToLLVMVisitor(llvm::LLVMContext &context) : 
-    context(context), builder(std::make_unique<llvm::IRBuilder<>>(context)),
+    ASRToLLVMVisitor(llvm::LLVMContext &context, Platform platform) : 
+    context(context),
+    builder(std::make_unique<llvm::IRBuilder<>>(context)),
+    platform{platform},
     prototype_only(false),
     llvm_utils(std::make_unique<LLVMUtils>(context, builder.get())),
     arr_descr(LLVMArrUtils::Descriptor::get_descriptor(context,
@@ -1405,7 +1408,14 @@ public:
                                     llvm::Type* type_fx2 = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2);
                                     type = type_fx2;
                                 } else {
-                                    type = getComplexType(a_kind, false);
+                                    LFORTRAN_ASSERT(a_kind == 8)
+                                    if (platform == Platform::Windows) {
+                                        // 128 bit aggregate type is passed by reference
+                                        type = getComplexType(a_kind, true);
+                                    } else {
+                                        // Pass by value
+                                        type = getComplexType(a_kind, false);
+                                    }
                                 }
                             } else {
                                 type = getComplexType(a_kind, true);
@@ -3202,15 +3212,25 @@ public:
                                     if (orig_arg->m_abi == ASR::abiType::BindC
                                         && orig_arg->m_value_attr) {
                                             ASR::ttype_t* arg_type = arg->m_type;
-                                            if (is_a<ASR::Complex_t>(*arg_type) &&
-                                                    extract_kind_from_ttype_t(arg_type) == 4) {
-                                                // tmp is {float, float}*
-                                                // type_fx2p is <2 x float>*
-                                                llvm::Type* type_fx2p = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2)->getPointerTo();
-                                                // Convert {float,float}* to <2 x float>* using bitcast
-                                                tmp = builder->CreateBitCast(tmp, type_fx2p);
-                                                // Then convert <2 x float>* -> <2 x float>
-                                                tmp = builder->CreateLoad(tmp);
+                                            if (is_a<ASR::Complex_t>(*arg_type)) {
+                                                int c_kind = extract_kind_from_ttype_t(arg_type);
+                                                if (c_kind == 4) {
+                                                    // tmp is {float, float}*
+                                                    // type_fx2p is <2 x float>*
+                                                    llvm::Type* type_fx2p = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2)->getPointerTo();
+                                                    // Convert {float,float}* to <2 x float>* using bitcast
+                                                    tmp = builder->CreateBitCast(tmp, type_fx2p);
+                                                    // Then convert <2 x float>* -> <2 x float>
+                                                    tmp = builder->CreateLoad(tmp);
+                                                } else {
+                                                    LFORTRAN_ASSERT(c_kind == 8)
+                                                    if (platform == Platform::Windows) {
+                                                        // 128 bit aggregate type is passed by reference
+                                                    } else {
+                                                        // Pass by value
+                                                        tmp = builder->CreateLoad(tmp);
+                                                    }
+                                                }
                                             } else {
                                                 // Dereference the pointer argument
                                                 // to pass by value
@@ -3438,9 +3458,9 @@ public:
 
 
 std::unique_ptr<LLVMModule> asr_to_llvm(ASR::TranslationUnit_t &asr,
-        llvm::LLVMContext &context, Allocator &al, std::string run_fn)
+        llvm::LLVMContext &context, Allocator &al, Platform platform, std::string run_fn)
 {
-    ASRToLLVMVisitor v(context);
+    ASRToLLVMVisitor v(context, platform);
     pass_wrap_global_stmts_into_function(al, asr, run_fn);
 
     // Uncomment for debugging the ASR after the transformation
