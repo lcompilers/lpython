@@ -629,6 +629,41 @@ int emit_llvm(const std::string &infile, LFortran::Platform platform)
     return 0;
 }
 
+int emit_asm(const std::string &infile, LFortran::Platform platform)
+{
+    std::string input = read_file(infile);
+
+    // Src -> AST
+    Allocator al(64*1024*1024);
+    LFortran::AST::TranslationUnit_t* ast;
+    try {
+        ast = LFortran::parse2(al, input);
+    } catch (const LFortran::TokenizerError &e) {
+        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
+        return 1;
+    } catch (const LFortran::ParserError &e) {
+        std::cerr << "Parsing error: " << e.msg() << std::endl;
+        return 2;
+    }
+
+    // AST -> ASR
+    LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast);
+
+    // ASR -> LLVM
+    LFortran::LLVMEvaluator e;
+    std::unique_ptr<LFortran::LLVMModule> m;
+    try {
+        m = LFortran::asr_to_llvm(*asr, e.get_context(), al, platform);
+    } catch (const LFortran::CodeGenError &e) {
+        std::cerr << "Code generation error: " << e.msg() << std::endl;
+        return 5;
+    }
+
+    std::cout << e.get_asm(*(m->m_m)) << std::endl;
+
+    return 0;
+}
+
 int compile_to_object_file(const std::string &infile,
         const std::string &outfile,
         LFortran::Platform platform,
@@ -1307,6 +1342,14 @@ int main(int argc, char *argv[])
             return emit_llvm(arg_file, platform);
 #else
             std::cerr << "The --show-llvm option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+            return 1;
+#endif
+        }
+        if (show_asm) {
+#ifdef HAVE_LFORTRAN_LLVM
+            return emit_asm(arg_file, platform);
+#else
+            std::cerr << "The --show-asm option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
             return 1;
 #endif
         }
