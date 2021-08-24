@@ -1404,9 +1404,15 @@ public:
                             if (arg->m_abi == ASR::abiType::BindC
                                     && arg->m_value_attr) {
                                 if (a_kind == 4) {
-                                    // type_fx2 is <2 x float>
-                                    llvm::Type* type_fx2 = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2);
-                                    type = type_fx2;
+                                    if (platform == Platform::Windows) {
+                                        // type_fx2 is i64
+                                        llvm::Type* type_fx2 = llvm::Type::getInt64Ty(context);
+                                        type = type_fx2;
+                                    } else {
+                                        // type_fx2 is <2 x float>
+                                        llvm::Type* type_fx2 = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2);
+                                        type = type_fx2;
+                                    }
                                 } else {
                                     LFORTRAN_ASSERT(a_kind == 8)
                                     if (platform == Platform::Windows) {
@@ -1846,8 +1852,13 @@ public:
                 int a_kind = down_cast<ASR::Complex_t>(return_var_type0)->m_kind;
                 if (a_kind == 4) {
                     if (x.m_abi == ASR::abiType::BindC) {
-                        // <2 x float>
-                        return_type = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2);
+                        if (platform == Platform::Windows) {
+                            // i64
+                            return_type = llvm::Type::getInt64Ty(context);
+                        } else {
+                            // <2 x float>
+                            return_type = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2);
+                        }
                     } else {
                         return_type = getComplexType(a_kind);
                     }
@@ -3225,13 +3236,23 @@ public:
                                             if (is_a<ASR::Complex_t>(*arg_type)) {
                                                 int c_kind = extract_kind_from_ttype_t(arg_type);
                                                 if (c_kind == 4) {
-                                                    // tmp is {float, float}*
-                                                    // type_fx2p is <2 x float>*
-                                                    llvm::Type* type_fx2p = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2)->getPointerTo();
-                                                    // Convert {float,float}* to <2 x float>* using bitcast
-                                                    tmp = builder->CreateBitCast(tmp, type_fx2p);
-                                                    // Then convert <2 x float>* -> <2 x float>
-                                                    tmp = builder->CreateLoad(tmp);
+                                                    if (platform == Platform::Windows) {
+                                                        // tmp is {float, float}*
+                                                        // type_fx2p is i64*
+                                                        llvm::Type* type_fx2p = llvm::Type::getInt64PtrTy(context);
+                                                        // Convert {float,float}* to i64* using bitcast
+                                                        tmp = builder->CreateBitCast(tmp, type_fx2p);
+                                                        // Then convert i64* -> i64
+                                                        tmp = builder->CreateLoad(tmp);
+                                                    } else {
+                                                        // tmp is {float, float}*
+                                                        // type_fx2p is <2 x float>*
+                                                        llvm::Type* type_fx2p = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2)->getPointerTo();
+                                                        // Convert {float,float}* to <2 x float>* using bitcast
+                                                        tmp = builder->CreateBitCast(tmp, type_fx2p);
+                                                        // Then convert <2 x float>* -> <2 x float>
+                                                        tmp = builder->CreateLoad(tmp);
+                                                    }
                                                 } else {
                                                     LFORTRAN_ASSERT(c_kind == 8)
                                                     if (platform == Platform::Windows) {
@@ -3464,17 +3485,31 @@ public:
             if (is_a<ASR::Complex_t>(*return_var_type0)) {
                 int a_kind = down_cast<ASR::Complex_t>(return_var_type0)->m_kind;
                 if (a_kind == 4) {
-                    // tmp is <2 x float>, have to convert to {float, float}
+                    if (platform == Platform::Windows) {
+                        // tmp is i64, have to convert to {float, float}
 
-                    // <2 x float>
-                    llvm::Type* type_fx2 = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2);
-                    // Convert <2 x float> to <2 x float>*
-                    llvm::AllocaInst *p_fx2 = builder->CreateAlloca(type_fx2, nullptr);
-                    builder->CreateStore(tmp, p_fx2);
-                    // Convert <2 x float>* to {float,float}* using bitcast
-                    tmp = builder->CreateBitCast(p_fx2, complex_type_4->getPointerTo());
-                    // Convert {float,float}* to {float,float}
-                    tmp = builder->CreateLoad(tmp);
+                        // i64
+                        llvm::Type* type_fx2 = llvm::Type::getInt64Ty(context);
+                        // Convert i64 to i64*
+                        llvm::AllocaInst *p_fx2 = builder->CreateAlloca(type_fx2, nullptr);
+                        builder->CreateStore(tmp, p_fx2);
+                        // Convert i64* to {float,float}* using bitcast
+                        tmp = builder->CreateBitCast(p_fx2, complex_type_4->getPointerTo());
+                        // Convert {float,float}* to {float,float}
+                        tmp = builder->CreateLoad(tmp);
+                    } else {
+                        // tmp is <2 x float>, have to convert to {float, float}
+
+                        // <2 x float>
+                        llvm::Type* type_fx2 = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2);
+                        // Convert <2 x float> to <2 x float>*
+                        llvm::AllocaInst *p_fx2 = builder->CreateAlloca(type_fx2, nullptr);
+                        builder->CreateStore(tmp, p_fx2);
+                        // Convert <2 x float>* to {float,float}* using bitcast
+                        tmp = builder->CreateBitCast(p_fx2, complex_type_4->getPointerTo());
+                        // Convert {float,float}* to {float,float}
+                        tmp = builder->CreateLoad(tmp);
+                    }
                 }
             }
         }
