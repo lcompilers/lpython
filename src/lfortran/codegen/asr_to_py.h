@@ -6,7 +6,7 @@
 
 namespace LFortran {
 
-    std::tuple<std::string, std::string, std::string> asr_to_py(ASR::TranslationUnit_t &asr, bool c_order);
+    std::tuple<std::string, std::string, std::string> asr_to_py(ASR::TranslationUnit_t &asr, bool c_order, std::string chdr_filename);
 
 } // namespace LFortran
 
