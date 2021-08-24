@@ -10,8 +10,8 @@ struct _lfortran_complex {
 };
 
 #if _WIN32
-typedef struct _lfortran_complex float_complex_t;
-typedef struct _lfortran_complex double_complex_t;
+typedef _Fcomplex float_complex_t;
+typedef _Dcomplex double_complex_t;
 #else
 typedef float _Complex float_complex_t;
 typedef double _Complex double_complex_t;
@@ -281,12 +281,7 @@ double _lfortran_dtan(double x)
 
 float_complex_t _lfortran_ctan(float_complex_t x)
 {
-#ifdef _WIN32
-    float_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return ctanf(x);
-#endif
 }
 
 double_complex_t _lfortran_ztan(double_complex_t x)
