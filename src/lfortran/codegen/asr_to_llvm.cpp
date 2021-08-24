@@ -1844,7 +1844,17 @@ public:
             }
             case (ASR::ttypeType::Complex) : {
                 int a_kind = down_cast<ASR::Complex_t>(return_var_type0)->m_kind;
-                return_type = getComplexType(a_kind);
+                if (a_kind == 4) {
+                    if (x.m_abi == ASR::abiType::BindC) {
+                        // <2 x float>
+                        return_type = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2);
+                    } else {
+                        return_type = getComplexType(a_kind);
+                    }
+                } else {
+                    LFORTRAN_ASSERT(a_kind == 8)
+                    return_type = getComplexType(a_kind);
+                }
                 break;
             }
             case (ASR::ttypeType::Character) :
@@ -3448,6 +3458,25 @@ public:
             std::vector<llvm::Value *> args2 = convert_call_args(x, m_name);
             args.insert(args.end(), args2.begin(), args2.end());
             tmp = builder->CreateCall(fn, args);
+        }
+        if (s->m_abi == ASR::abiType::BindC) {
+            ASR::ttype_t *return_var_type0 = EXPR2VAR(s->m_return_var)->m_type;
+            if (is_a<ASR::Complex_t>(*return_var_type0)) {
+                int a_kind = down_cast<ASR::Complex_t>(return_var_type0)->m_kind;
+                if (a_kind == 4) {
+                    // tmp is <2 x float>, have to convert to {float, float}
+
+                    // <2 x float>
+                    llvm::Type* type_fx2 = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2);
+                    // Convert <2 x float> to <2 x float>*
+                    llvm::AllocaInst *p_fx2 = builder->CreateAlloca(type_fx2, nullptr);
+                    builder->CreateStore(tmp, p_fx2);
+                    // Convert <2 x float>* to {float,float}* using bitcast
+                    tmp = builder->CreateBitCast(p_fx2, complex_type_4->getPointerTo());
+                    // Convert {float,float}* to {float,float}
+                    tmp = builder->CreateLoad(tmp);
+                }
+            }
         }
         calling_function_hash = h;
         pop_nested_stack(s);
