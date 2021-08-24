@@ -77,12 +77,13 @@ cp lfortran-$lfortran_version/test-bld/src/runtime/*.mod src/runtime/
 
 # Run some simple compilation tests, works everywhere:
 src/bin/lfortran --version
+# Compile and link separately
 src/bin/lfortran -c examples/expr2.f90 -o expr2.o
 src/bin/lfortran -o expr2 expr2.o
 ./expr2
 
-src/bin/lfortran -c integration_tests/intrinsics_04s.f90 -o intrinsics_04s.o
-src/bin/lfortran -o intrinsics_04s intrinsics_04s.o
+# Compile and link in one step
+src/bin/lfortran integration_tests/intrinsics_04s.f90 -o intrinsics_04s
 ./intrinsics_04s
 
 
