@@ -347,6 +347,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             sub = "float ";
         } else if (is_a<ASR::Logical_t>(*return_var->m_type)) {
             sub = "bool ";
+        } else if (is_a<ASR::Character_t>(*return_var->m_type)) {
+            sub = "std::string ";
         } else {
             throw CodeGenError("Return type not supported");
         }
