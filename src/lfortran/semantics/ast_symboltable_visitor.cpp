@@ -471,7 +471,7 @@ public:
 
     void visit_String(const AST::String_t &x) {
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
-                8, nullptr, 0));
+                1, nullptr, 0));
         asr = ASR::make_ConstantString_t(al, x.base.base.loc, x.m_s, type);
     }
 
@@ -757,7 +757,7 @@ public:
                                     dims.p, dims.size()));
                     }
                 } else if (sym_type->m_type == AST::decl_typeType::TypeCharacter) {
-                    type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 4,
+                    type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1,
                         dims.p, dims.size()));
                 } else if (sym_type->m_type == AST::decl_typeType::TypeType) {
                     LFORTRAN_ASSERT(sym_type->m_name);
