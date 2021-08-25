@@ -286,12 +286,7 @@ float_complex_t _lfortran_ctan(float_complex_t x)
 
 double_complex_t _lfortran_ztan(double_complex_t x)
 {
-#ifdef _WIN32
-    double_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return ctan(x);
-#endif
 }
 
 // sinh ------------------------------------------------------------------------
