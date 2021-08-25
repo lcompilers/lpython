@@ -86,6 +86,9 @@ src/bin/lfortran -o expr2 expr2.o
 src/bin/lfortran integration_tests/intrinsics_04s.f90 -o intrinsics_04s
 ./intrinsics_04s
 
+src/bin/lfortran integration_tests/intrinsics_04.f90 -o intrinsics_04
+./intrinsics_04
+
 
 # Run all tests (does not work on Windows yet):
 cmake --version
