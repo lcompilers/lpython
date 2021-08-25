@@ -92,9 +92,7 @@ elif $MACOS == "1": # macOS
 else: # Linux
     gcc -c integration_tests/modules_15c.c -o modules_15c.o
 if $WIN == "1":
-    pass
-    # Does not work yet:
-    #link -out:modules_15 modules_15.o modules_15b.o modules_15c.o C:\projects\lfortran-ts83e\src\bin/../runtime\lfortran_runtime_static.lib
+    link -out:modules_15 modules_15.o modules_15c.o C:\projects\lfortran-ts83e\src\bin/../runtime\lfortran_runtime_static.lib
     #src/bin/lfortran modules_15.o modules_15b.o modules_15c.o -o modules_15
 else:
     src/bin/lfortran modules_15.o modules_15b.o modules_15c.o -o modules_15
