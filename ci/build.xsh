@@ -85,9 +85,9 @@ src/bin/lfortran -o expr2 expr2.o
 # Compile C and Fortran
 src/bin/lfortran -c integration_tests/modules_15b.f90 -o modules_15b.o
 src/bin/lfortran -c integration_tests/modules_15.f90 -o modules_15.o
-if WIN == "1": # Windows
+if $WIN == "1": # Windows
     cl /c integration_tests/modules_15c.c /Fomodules_15c.o
-elif MACOS == "1": # macOS
+elif $MACOS == "1": # macOS
     clang -c integration_tests/modules_15c.c -o modules_15c.o
 else: # Linux
     gcc -c integration_tests/modules_15c.c -o modules_15c.o
