@@ -3501,6 +3501,8 @@ public:
                             tmp = builder->CreateAlloca(complex_type_8, nullptr);
                             args.insert(args.begin(), tmp);
                             builder->CreateCall(fn, args);
+                            // Convert {double,double}* to {double,double}
+                            tmp = builder->CreateLoad(tmp);
                         } else {
                             tmp = builder->CreateCall(fn, args);
                         }
