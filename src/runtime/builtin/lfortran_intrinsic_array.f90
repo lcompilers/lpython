@@ -62,6 +62,10 @@ interface
     real, intent(in) :: x(:)
     integer, intent(in) :: kind
     end function
+
+    character function char(x)
+    integer, intent(in) :: x
+    end function
 end interface
 
 end module

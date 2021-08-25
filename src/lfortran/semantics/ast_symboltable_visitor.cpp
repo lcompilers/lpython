@@ -81,7 +81,8 @@ private:
         {"int", "lfortran_intrinsic_array"},
         {"sum", "lfortran_intrinsic_array"},
         {"abs", "lfortran_intrinsic_array"},
-        {"tiny", "lfortran_intrinsic_array"}
+        {"tiny", "lfortran_intrinsic_array"},
+        {"char", "lfortran_intrinsic_array"}
 };
 
 public:
@@ -369,6 +370,10 @@ public:
                 }
                 case (AST::decl_typeType::TypeLogical) : {
                     type = LFortran::ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
+                    break;
+                }
+                case (AST::decl_typeType::TypeCharacter) : {
+                    type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, nullptr, 0));
                     break;
                 }
                 default :
@@ -1017,6 +1022,31 @@ public:
                     // }
                     else {
                         throw SemanticError("int must have only one argument", x.base.base.loc);
+                    }
+                }
+                else if (var_name=="char") {
+                    ASR::expr_t* real_expr = args[0];
+                    ASR::ttype_t* real_type = LFortran::ASRUtils::expr_type(real_expr);
+                    if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*real_type)) {
+                        int64_t c = ASR::down_cast<ASR::ConstantInteger_t>(
+                            LFortran::ASRUtils::expr_value(real_expr))->m_n;
+                        ASR::ttype_t* str_type =
+                            LFortran::ASRUtils::TYPE(ASR::make_Character_t(al,
+                            x.base.base.loc, 1, nullptr, 0));
+                        if (! (c >= 0 && c <= 127) ) {
+                            throw SemanticError("The argument 'x' in char(x) must be in the range 0 <= x <= 127.", x.base.base.loc);
+                        }
+                        char cc = c;
+                        std::string svalue;
+                        svalue += cc;
+                        Str s;
+                        s.from_str_view(svalue);
+                        char *str_val = s.c_str(al);
+                        value = ASR::down_cast<ASR::expr_t>(
+                            ASR::make_ConstantString_t(al, x.base.base.loc,
+                            str_val, str_type));
+                    } else {
+                        throw SemanticError("char() must have one integer argument", x.base.base.loc);
                     }
                 }
                 else if (var_name=="selected_int_kind") {

@@ -1908,7 +1908,7 @@ public:
                 break;
             }
             case (ASR::ttypeType::Character) :
-                throw CodeGenError("Character return type not implemented yet");
+                return_type = llvm::Type::getInt8Ty(context);
                 break;
             case (ASR::ttypeType::Logical) :
                 return_type = llvm::Type::getInt1Ty(context);
