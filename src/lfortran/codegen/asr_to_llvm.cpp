@@ -1002,8 +1002,31 @@ public:
         }
     }
 
+    void start_module_init_function_prototype(const ASR::Module_t &x) {
+        uint32_t h = get_hash((ASR::asr_t*)&x);
+        llvm::FunctionType *function_type = llvm::FunctionType::get(
+                llvm::Type::getVoidTy(context), {}, false);
+        LFORTRAN_ASSERT(llvm_symtab_fn.find(h) == llvm_symtab_fn.end());
+        std::string module_fn_name = "__lfortran_module_init_" + std::string(x.m_name);
+        llvm::Function *F = llvm::Function::Create(function_type,
+                llvm::Function::ExternalLinkage, module_fn_name, module.get());
+        llvm::BasicBlock *BB = llvm::BasicBlock::Create(context, ".entry", F);
+        builder->SetInsertPoint(BB);
+
+        llvm_symtab_fn[h] = F;
+    }
+
+    void finish_module_init_function_prototype(const ASR::Module_t &x) {
+        uint32_t h = get_hash((ASR::asr_t*)&x);
+        builder->CreateRetVoid();
+        llvm_symtab_fn[h]->removeFromParent();
+    }
+
     void visit_Module(const ASR::Module_t &x) {
         mangle_prefix = "__module_" + std::string(x.m_name) + "_";
+
+        start_module_init_function_prototype(x);
+
         for (auto &item : x.m_symtab->scope) {
             if (is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(
@@ -1023,6 +1046,8 @@ public:
                 declare_needed_global_types(*v);
             }
         }
+        finish_module_init_function_prototype(x);
+
         visit_procedures(x);
         mangle_prefix = "";
     }
