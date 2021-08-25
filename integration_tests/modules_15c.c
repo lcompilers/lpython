@@ -1,5 +1,3 @@
-#include <complex.h>
-
 #include "modules_15c.h"
 
 int f_int_float(int *a, float *b) {
