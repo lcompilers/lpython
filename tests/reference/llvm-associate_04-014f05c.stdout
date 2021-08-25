@@ -1,9 +1,12 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-@0 = private unnamed_addr constant [10 x i8] c"%f %f %f\0A\00", align 1
-@1 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
-@2 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
+@0 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
+@1 = private unnamed_addr constant [10 x i8] c"%f %f %f\0A\00", align 1
+@2 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
+@3 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
+
+declare i8 @__module_lfortran_intrinsic_array_char(i32*)
 
 define float @__module_lfortran_intrinsic_math_scos(float* %x) {
 .entry:
@@ -53,13 +56,13 @@ define i32 @main() {
   %21 = fpext float %20 to double
   %22 = load float, float* %myreal, align 4
   %23 = fpext float %22 to double
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([10 x i8], [10 x i8]* @0, i32 0, i32 0), double %10, double %21, double %23)
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([10 x i8], [10 x i8]* @1, i32 0, i32 0), double %10, double %21, double %23)
   %24 = load float, float* %myreal, align 4
   %25 = fmul float %24, 0x4012666660000000
   store float %25, float* %myreal, align 4
   %26 = load float, float* %myreal, align 4
   %27 = fpext float %26 to double
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @1, i32 0, i32 0), double %27)
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @2, i32 0, i32 0), double %27)
   %28 = load float, float* %myreal, align 4
   %29 = fsub float %28, 0x4044EE1480000000
   %30 = fcmp ugt float %29, 0x3EE4F8B580000000
@@ -70,7 +73,7 @@ define i32 @main() {
   br i1 %34, label %then, label %else
 
 then:                                             ; preds = %.entry
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @2, i32 0, i32 0))
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @3, i32 0, i32 0))
   call void @exit(i32 1)
   br label %ifcont
 

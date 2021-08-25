@@ -25,6 +25,12 @@ bool allocated(const Kokkos::View<const int*> &x)
     return allocated;
 }
 
+std::string char(int x)
+{
+    std::string char;
+    return char;
+}
+
 int floor(const Kokkos::View<const float*> &x, int kind)
 {
     int floor;
