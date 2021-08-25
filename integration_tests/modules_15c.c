@@ -1,5 +1,3 @@
-#include <complex.h>
-
 #include "modules_15c.h"
 
 int f_int_float(int *a, float *b) {
@@ -28,13 +26,21 @@ int f_int_double_complex_value(int a, double_complex_t b) {
 
 float_complex_t f_float_complex_value_return(float_complex_t b) {
     float_complex_t r;
+#if _WIN32
+    r = _FCmulcr(b, 2.0);
+#else
     r = b * 2;
+#endif
     return r;
 }
 
 double_complex_t f_double_complex_value_return(double_complex_t b) {
     double_complex_t r;
+#if _WIN32
+    r = _Cmulcr(b, 2.0);
+#else
     r = b * 2;
+#endif
     return r;
 }
 
