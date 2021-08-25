@@ -1760,7 +1760,7 @@ public:
 
     void visit_String(const AST::String_t &x) {
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
-                8, nullptr, 0));
+                1, nullptr, 0));
         tmp = ASR::make_ConstantString_t(al, x.base.base.loc, x.m_s, type);
     }
 
