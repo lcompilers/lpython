@@ -91,12 +91,8 @@ elif $MACOS == "1": # macOS
     clang -c integration_tests/modules_15c.c -o modules_15c.o
 else: # Linux
     gcc -c integration_tests/modules_15c.c -o modules_15c.o
-if $WIN == "1":
-    link -out:modules_15 modules_15.o modules_15c.o C:\projects\lfortran-ts83e\src\bin/../runtime\lfortran_runtime_static.lib
-    #src/bin/lfortran modules_15.o modules_15b.o modules_15c.o -o modules_15
-else:
-    src/bin/lfortran modules_15.o modules_15b.o modules_15c.o -o modules_15
-    ./modules_15
+src/bin/lfortran modules_15.o modules_15b.o modules_15c.o -o modules_15
+./modules_15
 
 
 # Compile and link in one step
