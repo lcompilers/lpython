@@ -33,6 +33,7 @@ set(SRC
     ../impure/lfortran_intrinsics.c
     ../impure/lfortran_intrinsic_math.f90
     ../pure/lfortran_intrinsic_math2.f90
+    ../pure/lfortran_intrinsic_string.f90
     ../impure/lfortran_intrinsic_sin.f90
     ../impure/lfortran_intrinsic_sin_c.c
     ../pure/lfortran_intrinsic_kind.f90
@@ -58,3 +59,4 @@ ADDTEST(test_hyperbolics)
 ADDTEST(test_kind)
 ADDTEST(test_iso_fortran_env)
 ADDTEST(test_iso_c_binding)
+ADDTEST(test_strings)
