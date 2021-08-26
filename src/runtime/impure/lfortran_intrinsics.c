@@ -9,7 +9,7 @@ struct _lfortran_complex {
     float re, im;
 };
 
-#if _WIN32
+#ifdef _MSC_VER
 typedef _Fcomplex float_complex_t;
 typedef _Dcomplex double_complex_t;
 #else
@@ -92,7 +92,7 @@ void _lfortran_complex_div(struct _lfortran_complex* a,
 void _lfortran_complex_pow(struct _lfortran_complex* a,
         struct _lfortran_complex* b, struct _lfortran_complex *result)
 {
-    #ifdef _WIN32
+    #ifdef _MSC_VER
         result->re = 0.0;
         result->im = 0.0;
     #else
@@ -109,7 +109,7 @@ void _lfortran_complex_pow(struct _lfortran_complex* a,
 
 float_complex_t _lfortran_csqrt(float_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     float_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -119,7 +119,7 @@ float_complex_t _lfortran_csqrt(float_complex_t x)
 
 double_complex_t _lfortran_zsqrt(double_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     double_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -141,7 +141,7 @@ double _lfortran_dexp(double x)
 
 float_complex_t _lfortran_cexp(float_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     float_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -151,7 +151,7 @@ float_complex_t _lfortran_cexp(float_complex_t x)
 
 double_complex_t _lfortran_zexp(double_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     double_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -173,7 +173,7 @@ double _lfortran_dlog(double x)
 
 float_complex_t _lfortran_clog(float_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     float_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -183,7 +183,7 @@ float_complex_t _lfortran_clog(float_complex_t x)
 
 double_complex_t _lfortran_zlog(double_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     double_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -217,7 +217,7 @@ double _lfortran_dsin(double x)
 
 float_complex_t _lfortran_csin(float_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     float_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -227,7 +227,7 @@ float_complex_t _lfortran_csin(float_complex_t x)
 
 double_complex_t _lfortran_zsin(double_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     double_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -249,7 +249,7 @@ double _lfortran_dcos(double x)
 
 float_complex_t _lfortran_ccos(float_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     float_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -259,7 +259,7 @@ float_complex_t _lfortran_ccos(float_complex_t x)
 
 double_complex_t _lfortran_zcos(double_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     double_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -303,7 +303,7 @@ double _lfortran_dsinh(double x)
 
 float_complex_t _lfortran_csinh(float_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     float_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -313,7 +313,7 @@ float_complex_t _lfortran_csinh(float_complex_t x)
 
 double_complex_t _lfortran_zsinh(double_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     double_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -336,7 +336,7 @@ double _lfortran_dcosh(double x)
 
 float_complex_t _lfortran_ccosh(float_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     float_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -346,7 +346,7 @@ float_complex_t _lfortran_ccosh(float_complex_t x)
 
 double_complex_t _lfortran_zcosh(double_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     double_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -368,7 +368,7 @@ double _lfortran_dtanh(double x)
 
 float_complex_t _lfortran_ctanh(float_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     float_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -378,7 +378,7 @@ float_complex_t _lfortran_ctanh(float_complex_t x)
 
 double_complex_t _lfortran_ztanh(double_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     double_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -400,7 +400,7 @@ double _lfortran_dasin(double x)
 
 float_complex_t _lfortran_casin(float_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     float_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -410,7 +410,7 @@ float_complex_t _lfortran_casin(float_complex_t x)
 
 double_complex_t _lfortran_zasin(double_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     double_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -432,7 +432,7 @@ double _lfortran_dacos(double x)
 
 float_complex_t _lfortran_cacos(float_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     float_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -442,7 +442,7 @@ float_complex_t _lfortran_cacos(float_complex_t x)
 
 double_complex_t _lfortran_zacos(double_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     double_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -464,7 +464,7 @@ double _lfortran_datan(double x)
 
 float_complex_t _lfortran_catan(float_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     float_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -474,7 +474,7 @@ float_complex_t _lfortran_catan(float_complex_t x)
 
 double_complex_t _lfortran_zatan(double_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     double_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -508,7 +508,7 @@ double _lfortran_dasinh(double x)
 
 float_complex_t _lfortran_casinh(float_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     float_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -518,7 +518,7 @@ float_complex_t _lfortran_casinh(float_complex_t x)
 
 double_complex_t _lfortran_zasinh(double_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     double_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -540,7 +540,7 @@ double _lfortran_dacosh(double x)
 
 float_complex_t _lfortran_cacosh(float_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     float_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -550,7 +550,7 @@ float_complex_t _lfortran_cacosh(float_complex_t x)
 
 double_complex_t _lfortran_zacosh(double_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     double_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -572,7 +572,7 @@ double _lfortran_datanh(double x)
 
 float_complex_t _lfortran_catanh(float_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     float_complex_t r;
     return r; // TODO: implement in MSVC
 #else
@@ -582,7 +582,7 @@ float_complex_t _lfortran_catanh(float_complex_t x)
 
 double_complex_t _lfortran_zatanh(double_complex_t x)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     double_complex_t r;
     return r; // TODO: implement in MSVC
 #else
