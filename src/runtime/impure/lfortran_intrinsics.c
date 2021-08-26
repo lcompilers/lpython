@@ -93,8 +93,11 @@ void _lfortran_complex_pow(struct _lfortran_complex* a,
         struct _lfortran_complex* b, struct _lfortran_complex *result)
 {
     #ifdef _MSC_VER
-        result->re = 0.0;
-        result->im = 0.0;
+        _Fcomplex ca = _FCOMPLEX_(a->re, a->im);
+        _Fcomplex cb = _FCOMPLEX_(b->re, b->im);
+        _Fcomplex cr = cpowf(ca, cb);
+        result->re = crealf(cr);
+        result->im = cimagf(cr);
     #else
         float complex ca = CMPLXF(a->re, a->im);
         float complex cb = CMPLXF(b->re, b->im);
