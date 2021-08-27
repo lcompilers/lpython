@@ -73,4 +73,18 @@ bool present(Vec<char*> &v, const char* name) {
     return false;
 }
 
+Platform get_platform()
+{
+#ifdef _WIN32
+    return Platform::Windows;
+#else
+#    ifdef __APPLE__
+    return Platform::macOS;
+#    else
+    return Platform::Linux;
+#    endif
+#endif
+}
+
+
 }

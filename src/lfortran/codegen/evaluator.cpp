@@ -301,7 +301,7 @@ llvm::LLVMContext &LLVMEvaluator::get_context()
 /* ------------------------------------------------------------------------- */
 // FortranEvaluator
 
-FortranEvaluator::FortranEvaluator() : al{1024*1024},
+FortranEvaluator::FortranEvaluator(Platform platform) : al{1024*1024}, platform{platform},
     symbol_table{nullptr}, eval_count{0}
 {
 }
@@ -311,8 +311,7 @@ FortranEvaluator::~FortranEvaluator()
 }
 
 Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
-            const std::string &code_orig,
-            bool verbose)
+            const std::string &code_orig, bool verbose)
 {
     try {
         EvalResult result;
@@ -348,7 +347,7 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
 
         // ASR -> LLVM
         std::unique_ptr<LFortran::LLVMModule> m;
-        m = LFortran::asr_to_llvm(*asr, e.get_context(), al, run_fn);
+        m = LFortran::asr_to_llvm(*asr, e.get_context(), al, platform, run_fn);
 
         if (verbose) {
             result.llvm_ir = m->str();
@@ -547,7 +546,7 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(const std::strin
     // ASR -> LLVM
     std::unique_ptr<LFortran::LLVMModule> m;
     try {
-        m = LFortran::asr_to_llvm(*asr.result, e.get_context(), al, run_fn);
+        m = LFortran::asr_to_llvm(*asr.result, e.get_context(), al, platform, run_fn);
     } catch (const CodeGenError &e) {
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::CodeGen;

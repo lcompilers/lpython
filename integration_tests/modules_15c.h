@@ -1,17 +1,11 @@
 #ifndef MODULES_15C
 #define MODULES_15C
 
-struct _lfortrantest_float_complex {
-    float re, im;
-};
-
-struct _lfortrantest_double_complex {
-    double re, im;
-};
+#include <complex.h>
 
 #if _WIN32
-typedef struct _lfortrantest_float_complex float_complex_t;
-typedef struct _lfortrantest_double_complex double_complex_t;
+typedef _Fcomplex float_complex_t;
+typedef _Dcomplex double_complex_t;
 #else
 typedef float _Complex float_complex_t;
 typedef double _Complex double_complex_t;

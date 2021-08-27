@@ -327,7 +327,10 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             sym_info[get_hash((ASR::asr_t*)&x)] = s;
             src = "";
             return;
-        } else if (std::string(x.m_name) == "int" && intrinsic_module) {
+        } else if ((
+                std::string(x.m_name) == "int" ||
+                std::string(x.m_name) == "char"
+                ) && intrinsic_module) {
             // Intrinsic function `int`
             SymbolInfo s;
             s.intrinsic_function = true;
@@ -347,6 +350,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             sub = "float ";
         } else if (is_a<ASR::Logical_t>(*return_var->m_type)) {
             sub = "bool ";
+        } else if (is_a<ASR::Character_t>(*return_var->m_type)) {
+            sub = "std::string ";
         } else {
             throw CodeGenError("Return type not supported");
         }

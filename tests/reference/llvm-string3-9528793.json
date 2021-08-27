@@ -2,11 +2,11 @@
     "basename": "llvm-string3-9528793",
     "cmd": "lfortran --show-llvm {infile} -o {outfile}",
     "infile": "tests/../integration_tests/string3.f90",
-    "infile_hash": "90188a84217deb8d16424b3aaf49f0b2a999cad8494cdf536c6d27e1",
+    "infile_hash": "7815b8703dfd3a1c61cab40604e20693508878e8a90e450834ce592b",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "llvm-string3-9528793.stdout",
-    "stdout_hash": "213c188d9a1eb688d56e131ce1c240a91b9abab15014898bf84bfc68",
+    "stdout_hash": "31b0082d8c7680739ce02a537531de2c7f4055e790613d6695970a01",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

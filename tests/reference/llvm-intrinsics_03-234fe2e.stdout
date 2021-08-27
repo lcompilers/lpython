@@ -1,7 +1,10 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-@0 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
+@0 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
+@1 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
+
+declare i8 @__module_lfortran_intrinsic_array_char(i32*)
 
 define float @__module_lfortran_intrinsic_math_scos(float* %x) {
 .entry:
@@ -24,7 +27,7 @@ define i32 @main() {
   store float %1, float* %x, align 4
   %2 = load float, float* %x, align 4
   %3 = fpext float %2 to double
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0), double %3)
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @1, i32 0, i32 0), double %3)
   ret i32 0
 }
 
