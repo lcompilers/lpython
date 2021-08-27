@@ -112,22 +112,12 @@ void _lfortran_complex_pow(struct _lfortran_complex* a,
 
 float_complex_t _lfortran_csqrt(float_complex_t x)
 {
-#ifdef _MSC_VER
-    float_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return csqrtf(x);
-#endif
 }
 
 double_complex_t _lfortran_zsqrt(double_complex_t x)
 {
-#ifdef _MSC_VER
-    double_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return csqrt(x);
-#endif
 }
 
 // exp -------------------------------------------------------------------------
@@ -144,22 +134,12 @@ double _lfortran_dexp(double x)
 
 float_complex_t _lfortran_cexp(float_complex_t x)
 {
-#ifdef _MSC_VER
-    float_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return cexpf(x);
-#endif
 }
 
 double_complex_t _lfortran_zexp(double_complex_t x)
 {
-#ifdef _MSC_VER
-    double_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return cexp(x);
-#endif
 }
 
 // log -------------------------------------------------------------------------
@@ -176,22 +156,12 @@ double _lfortran_dlog(double x)
 
 float_complex_t _lfortran_clog(float_complex_t x)
 {
-#ifdef _MSC_VER
-    float_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return clogf(x);
-#endif
 }
 
 double_complex_t _lfortran_zlog(double_complex_t x)
 {
-#ifdef _MSC_VER
-    double_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return clog(x);
-#endif
 }
 
 // erf -------------------------------------------------------------------------
@@ -220,22 +190,12 @@ double _lfortran_dsin(double x)
 
 float_complex_t _lfortran_csin(float_complex_t x)
 {
-#ifdef _MSC_VER
-    float_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return csinf(x);
-#endif
 }
 
 double_complex_t _lfortran_zsin(double_complex_t x)
 {
-#ifdef _MSC_VER
-    double_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return csin(x);
-#endif
 }
 
 // cos -------------------------------------------------------------------------
@@ -252,22 +212,12 @@ double _lfortran_dcos(double x)
 
 float_complex_t _lfortran_ccos(float_complex_t x)
 {
-#ifdef _MSC_VER
-    float_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return ccosf(x);
-#endif
 }
 
 double_complex_t _lfortran_zcos(double_complex_t x)
 {
-#ifdef _MSC_VER
-    double_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return ccos(x);
-#endif
 }
 
 // tan -------------------------------------------------------------------------
@@ -306,22 +256,12 @@ double _lfortran_dsinh(double x)
 
 float_complex_t _lfortran_csinh(float_complex_t x)
 {
-#ifdef _MSC_VER
-    float_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return csinhf(x);
-#endif
 }
 
 double_complex_t _lfortran_zsinh(double_complex_t x)
 {
-#ifdef _MSC_VER
-    double_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return csinh(x);
-#endif
 }
 
 // cosh ------------------------------------------------------------------------
@@ -339,22 +279,12 @@ double _lfortran_dcosh(double x)
 
 float_complex_t _lfortran_ccosh(float_complex_t x)
 {
-#ifdef _MSC_VER
-    float_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return ccoshf(x);
-#endif
 }
 
 double_complex_t _lfortran_zcosh(double_complex_t x)
 {
-#ifdef _MSC_VER
-    double_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return ccosh(x);
-#endif
 }
 
 // tanh ------------------------------------------------------------------------
@@ -371,22 +301,12 @@ double _lfortran_dtanh(double x)
 
 float_complex_t _lfortran_ctanh(float_complex_t x)
 {
-#ifdef _MSC_VER
-    float_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return ctanhf(x);
-#endif
 }
 
 double_complex_t _lfortran_ztanh(double_complex_t x)
 {
-#ifdef _MSC_VER
-    double_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return ctanh(x);
-#endif
 }
 
 // asin ------------------------------------------------------------------------
@@ -403,22 +323,12 @@ double _lfortran_dasin(double x)
 
 float_complex_t _lfortran_casin(float_complex_t x)
 {
-#ifdef _MSC_VER
-    float_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return casinf(x);
-#endif
 }
 
 double_complex_t _lfortran_zasin(double_complex_t x)
 {
-#ifdef _MSC_VER
-    double_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return casin(x);
-#endif
 }
 
 // acos ------------------------------------------------------------------------
@@ -435,22 +345,12 @@ double _lfortran_dacos(double x)
 
 float_complex_t _lfortran_cacos(float_complex_t x)
 {
-#ifdef _MSC_VER
-    float_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return cacosf(x);
-#endif
 }
 
 double_complex_t _lfortran_zacos(double_complex_t x)
 {
-#ifdef _MSC_VER
-    double_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return cacos(x);
-#endif
 }
 
 // atan ------------------------------------------------------------------------
@@ -467,22 +367,12 @@ double _lfortran_datan(double x)
 
 float_complex_t _lfortran_catan(float_complex_t x)
 {
-#ifdef _MSC_VER
-    float_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return catanf(x);
-#endif
 }
 
 double_complex_t _lfortran_zatan(double_complex_t x)
 {
-#ifdef _MSC_VER
-    double_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return catan(x);
-#endif
 }
 
 // atan2 -----------------------------------------------------------------------
@@ -511,22 +401,12 @@ double _lfortran_dasinh(double x)
 
 float_complex_t _lfortran_casinh(float_complex_t x)
 {
-#ifdef _MSC_VER
-    float_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return casinhf(x);
-#endif
 }
 
 double_complex_t _lfortran_zasinh(double_complex_t x)
 {
-#ifdef _MSC_VER
-    double_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return casinh(x);
-#endif
 }
 
 // acosh -----------------------------------------------------------------------
@@ -543,22 +423,12 @@ double _lfortran_dacosh(double x)
 
 float_complex_t _lfortran_cacosh(float_complex_t x)
 {
-#ifdef _MSC_VER
-    float_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return cacoshf(x);
-#endif
 }
 
 double_complex_t _lfortran_zacosh(double_complex_t x)
 {
-#ifdef _MSC_VER
-    double_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return cacosh(x);
-#endif
 }
 
 // atanh -----------------------------------------------------------------------
@@ -575,22 +445,12 @@ double _lfortran_datanh(double x)
 
 float_complex_t _lfortran_catanh(float_complex_t x)
 {
-#ifdef _MSC_VER
-    float_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return catanhf(x);
-#endif
 }
 
 double_complex_t _lfortran_zatanh(double_complex_t x)
 {
-#ifdef _MSC_VER
-    double_complex_t r;
-    return r; // TODO: implement in MSVC
-#else
     return catanh(x);
-#endif
 }
 
 
