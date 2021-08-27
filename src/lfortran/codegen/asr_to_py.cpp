@@ -52,42 +52,42 @@
  */ 
 
 #define CTYPELIST_FUTURE \
-    _X(ASR::Integer_t, c_int,           "int"   ) \
-    _X(ASR::Integer_t, c_short,         "short" ) \
-    _X(ASR::Integer_t, c_long,          "long"  ) \
-    _X(ASR::Integer_t, c_long_long,     "long long" ) \
-    _X(ASR::Integer_t, c_signed_char,   "signed char" ) \
-    _X(ASR::Integer_t, c_size_t,        "size_t" ) \
+    _X(ASR::Integer_t, "c_int",           "int"   ) \
+    _X(ASR::Integer_t, "c_short",         "short" ) \
+    _X(ASR::Integer_t, "c_long",          "long"  ) \
+    _X(ASR::Integer_t, "c_long_long",     "long long" ) \
+    _X(ASR::Integer_t, "c_signed_char",   "signed char" ) \
+    _X(ASR::Integer_t, "c_size_t",        "size_t" ) \
     \
-    _X(ASR::Integer_t, c_int8_t,        "int8_t" ) \
-    _X(ASR::Integer_t, c_int16_t,       "int16_t" ) \
-    _X(ASR::Integer_t, c_int32_t,       "int32_t" ) \
-    _X(ASR::Integer_t, c_int64_t,       "int64_t" ) \
+    _X(ASR::Integer_t, "c_int8_t",        "int8_t" ) \
+    _X(ASR::Integer_t, "c_int16_t",       "int16_t" ) \
+    _X(ASR::Integer_t, "c_int32_t",       "int32_t" ) \
+    _X(ASR::Integer_t, "c_int64_t",       "int64_t" ) \
     \
-    _X(ASR::Integer_t, c_int_least8_t,  "int_least8_t" ) \
-    _X(ASR::Integer_t, c_int_least16_t, "int_least16_t" ) \
-    _X(ASR::Integer_t, c_int_least32_t, "int_least32_t" ) \
-    _X(ASR::Integer_t, c_int_least64_t, "int_least64_t" ) \
+    _X(ASR::Integer_t, "c_int_least8_t",  "int_least8_t" ) \
+    _X(ASR::Integer_t, "c_int_least16_t", "int_least16_t" ) \
+    _X(ASR::Integer_t, "c_int_least32_t", "int_least32_t" ) \
+    _X(ASR::Integer_t, "c_int_least64_t", "int_least64_t" ) \
     \
-    _X(ASR::Integer_t, c_int_fast8_t,   "int_fast8_t" ) \
-    _X(ASR::Integer_t, c_int_fast16_t,  "int_fast16_t" ) \
-    _X(ASR::Integer_t, c_int_fast32_t,  "int_fast32_t" ) \
-    _X(ASR::Integer_t, c_int_fast64_t,  "int_fast64_t" ) \
+    _X(ASR::Integer_t, "c_int_fast8_t",   "int_fast8_t" ) \
+    _X(ASR::Integer_t, "c_int_fast16_t",  "int_fast16_t" ) \
+    _X(ASR::Integer_t, "c_int_fast32_t",  "int_fast32_t" ) \
+    _X(ASR::Integer_t, "c_int_fast64_t",  "int_fast64_t" ) \
     \
-    _X(ASR::Integer_t, c_intmax_t,      "intmax_t" ) \
-    _X(ASR::Integer_t, c_intptr_t,      "intptr_t" ) \
-    _X(ASR::Integer_t, c_ptrdiff_t,     "ptrdiff_t" ) \
+    _X(ASR::Integer_t, "c_intmax_t",      "intmax_t" ) \
+    _X(ASR::Integer_t, "c_intptr_t",      "intptr_t" ) \
+    _X(ASR::Integer_t, "c_ptrdiff_t",     "ptrdiff_t" ) \
     \
-    _X(ASR::Real_t,    c_float,         "float" ) \
-    _X(ASR::Real_t,    c_double,        "double" ) \
-    _X(ASR::Real_t,    c_long_double,   "long double" ) \
+    _X(ASR::Real_t,    "c_float",         "float" ) \
+    _X(ASR::Real_t,    "c_double",        "double" ) \
+    _X(ASR::Real_t,    "c_long_double",   "long double" ) \
     \
-    _X(ASR::Complex_t, c_float_complex, "float _Complex" ) \
-    _X(ASR::Complex_t, c_double_complex, "double _Complex" ) \
-    _X(ASR::Complex_t, c_long_double_complex, "long double _Complex" ) \
+    _X(ASR::Complex_t, "c_float_complex", "float _Complex" ) \
+    _X(ASR::Complex_t, "c_double_complex", "double _Complex" ) \
+    _X(ASR::Complex_t, "c_long_double_complex", "long double _Complex" ) \
     \
-    _X(ASR::Logical_t, c_bool,          "_Bool" ) \
-    _X(ASR::Character_t, c_char,        "char" ) 
+    _X(ASR::Logical_t, "c_bool",          "_Bool" ) \
+    _X(ASR::Character_t, "c_char",        "char" ) 
 
 
 namespace LFortran {
@@ -111,41 +111,77 @@ public:
 
     // What's the file name of the C header file we're going to generate? (needed for the .pxd)
     std::string chdr_filename;
+    // What's the name of the pxd file (minus the .pxd extension)
+    std::string pxdf;
 
-    ASRToPyVisitor(bool c_order_, std::string chdr_filename_) : c_order(c_order_), chdr_filename(chdr_filename_) {}
-
-    std::string convert_variable_decl(ASR::Variable_t *arg)
+    ASRToPyVisitor(bool c_order_, std::string chdr_filename_) : 
+            c_order(c_order_), 
+            chdr_filename(chdr_filename_),
+            pxdf(chdr_filename_)
     {
-        std::string ret = "";
-        bool has_dims = false;
+        // knock off ".h" from the c header filename
+        pxdf.erase(--pxdf.end());
+        pxdf.erase(--pxdf.end());   
+        // append "_pxd"
+        pxdf += "_pxd";
+    }
 
-        // This is much more "C-style" than C++ style, but
-        // I'm using the type list table I generated above to generate a sequence of if-blocks
+    std::tuple<std::string, std::string, std::string> helper_visit_argument(ASR::Variable_t *arg)
+    {
+        // return strings
+        std::string c, cyargs, fargs; 
+
+        int ndims = 0;
+
+        // TODO handle or issue error on assumed-shape array 
+        // TODO handle interoperable derived types
+
+
+        // First: determine the C type of the argument, and if it is an array
+
+        // Use the type list table above to generate a sequence of if-blocks with the preprocessor
         #define _X(T,NUM,STR) \
         if ( is_a<T>(*arg->m_type) && (down_cast<T>(arg->m_type)->m_kind == NUM) ) { \
-            ret = STR; \
-            if(down_cast<T>(arg->m_type)->n_dims > 0) has_dims=true; \
+            c = STR; \
+            ndims=down_cast<T>(arg->m_type)->n_dims; \
         } else
 
-        CTYPELIST {};
+        CTYPELIST {
+            // We end up in this block if none of the above if-blocks were triggered
+            throw CodeGenError("Type not supported");
+        };
         #undef _X
 
-        // If none of the generated if-blocks got triggered, then the ret string will be empty
-        if(ret.empty())
-            throw CodeGenError("Type not supported");
-
-        // The argument is a pointer, unless it is not an array AND has the value type
-        // If the argument is not a pointer, but is intent(in), it should be a ptr-to-const.
-        if (has_dims || !arg->m_value_attr) {
-            ret += " *";
-            if (ASR::intentType::In == arg->m_intent) ret = "const " + ret;
+        
+        // before we change 'c' so it's not longer just the type name,
+        // Figure out the corresponding cython argument type
+        if (ndims > 0) {
+            std::string mode     = c_order   ? ", mode=\"c\"" : ", mode=\"fortran\"";
+            std::string strndims = ndims > 1 ? ", ndims="+std::to_string(ndims) : "";
+            cyargs = "ndarray[" + c + strndims + mode + "]";
+        } else {
+            cyargs = c;
         }
 
 
-        ret += " ";
-        ret += arg->m_name;
+        // The argument is a pointer, unless it is not an array AND has the value type
+        // If the argument is not a pointer, but is intent(in), it should be a ptr-to-const.
+        if (ndims > 0 || !arg->m_value_attr) {
+            c += " *";
+            if (ASR::intentType::In == arg->m_intent) c = "const " + c;
+            fargs = "&";
+        }
 
-        return ret;
+        c += " ";
+        c += arg->m_name;
+
+        cyargs += " ";
+        cyargs += arg->m_name;
+
+        fargs += arg->m_name;
+        if(ndims > 0) fargs += "[0]";
+
+        return std::make_tuple(c, cyargs, fargs);
     }
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
@@ -165,6 +201,13 @@ public:
         pxd_tmp +=  "# Editing by hand is discouraged.\n\n";
         pxd_tmp +=  "from libc.stdint cimport int8_t, int16_t, int32_t, int64_t\n";
         pxd_tmp +=  "cdef extern from \"" + chdr_filename + "\":\n";
+
+        
+        pyx_tmp =  "# This file was automatically generated by the LFortran compiler.\n";
+        pyx_tmp += "# Editing by hand is discouraged.\n\n";
+        pyx_tmp += "from numpy cimport import_array, ndarray, int8_t, int16_t, int32_t, int64_t\n";
+        pyx_tmp += "from numpy import empty, int8, int16, int32, int64\n";
+        pyx_tmp += "cimport " + pxdf + " \n\n";
 
         // Process loose procedures first
         for (auto &item : x.m_global_scope->scope) {
@@ -248,17 +291,35 @@ public:
 
         chdr = "void " + effective_name + " (";
 
-        // Arguments
+        std::string pyx_body;     // generated code for the body of the Cython wrapper function
+        std::string pyx_arglist;  // arguments to the Cython wrapper function
+        std::string pyx_callargs; // arguments passed to the Fortran function
+
+        // Loop over arguments, build up strings
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
 
-            chdr += convert_variable_decl(arg);
-            if (i < x.n_args-1) chdr += ", ";
+            std::string a, b, c;       
+            std::tie(a,b,c) = helper_visit_argument(arg);
+
+            chdr += a;
+            pyx_arglist += b;
+            pyx_callargs += c;
+
+            if (i < x.n_args-1) {
+                chdr += ", ";
+                pyx_arglist += ", ";
+                pyx_callargs += ", ";
+            }
         }
         chdr += ")";
         pxd = "    " + chdr + "\n";
         chdr += ";\n" ;
+
+        pyx = "def " + effective_name + " (" + pyx_arglist + "):\n";
+        pyx += pyx_body;
+        pyx += "    " + pxdf +"."+ effective_name + " (" + pyx_callargs + ")\n\n";
     }
 
 
@@ -290,7 +351,11 @@ public:
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
 
-            chdr += convert_variable_decl(arg);
+            std::string a, b, c;       
+            std::tie(a,b,c) = helper_visit_argument(arg);
+
+            chdr += a;
+
             if (i < x.n_args-1) chdr += ", ";
         }
         chdr += ")";

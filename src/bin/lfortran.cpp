@@ -446,7 +446,7 @@ int python_wrapper(const std::string &infile, std::string array_order)
     // figure out pyx and pxd filenames
     auto prefix = infile.substr(0,infile.rfind('.'));
     auto chdr_fname = prefix + ".h";
-    auto pxd_fname = prefix  + ".pxd";
+    auto pxd_fname = prefix  + "_pxd.pxd";
     auto pyx_fname = prefix  + ".pyx";
 
     // The ASR to Python converter needs to know the name of the .h file that will be written, 
