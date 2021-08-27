@@ -1186,27 +1186,27 @@ filename = "string.f90"
 ast_f90 = true
 
 [[test]]
-filename = "../integration_tests/string1.f90"
+filename = "../integration_tests/string_01.f90"
 ast = true
 asr = true
 llvm = true
 cpp = true
 
 [[test]]
-filename = "../integration_tests/string2.f90"
+filename = "../integration_tests/string_02.f90"
 ast = true
 asr = true
 llvm = true
 
 [[test]]
-filename = "../integration_tests/string4.f90"
-asr = true
-llvm = true
-
-[[test]]
-filename = "../integration_tests/string3.f90"
+filename = "../integration_tests/string_03.f90"
 ast = true
 ast_f90 = true
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/string_04.f90"
 asr = true
 llvm = true
 
