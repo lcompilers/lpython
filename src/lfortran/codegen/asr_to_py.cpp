@@ -48,8 +48,7 @@
 
 
 /*
- * We will use this list instead, once the ASR has the symbolic kind
- */ 
+ * We will use this list instead, once the ASR has symbolic kind information.
 
 #define CTYPELIST_FUTURE \
     _X(ASR::Integer_t, "c_int",           "int"   ) \
@@ -88,7 +87,7 @@
     \
     _X(ASR::Logical_t, "c_bool",          "_Bool" ) \
     _X(ASR::Character_t, "c_char",        "char" ) 
-
+ */ 
 
 namespace LFortran {
 
