@@ -139,6 +139,40 @@ LLVMEvaluator::LLVMEvaluator()
         reinterpret_cast<std::uintptr_t>(_lfortran_printf));
 }
 
+// FIXME: This is basically LLVMEvaluator::LLVMEvaluator() with an extra parameter
+LLVMEvaluator::LLVMEvaluator(const std::string &t)
+{
+    llvm::InitializeNativeTarget();
+    llvm::InitializeNativeTargetAsmPrinter();
+    llvm::InitializeNativeTargetAsmParser();
+
+    context = std::make_unique<llvm::LLVMContext>();
+
+    if (t != "")
+        target_triple = t;
+    else
+        target_triple = LLVMGetDefaultTargetTriple();
+
+    std::string Error;
+    const llvm::Target *target = llvm::TargetRegistry::lookupTarget(target_triple, Error);
+    if (!target) {
+        throw LFortran::CodeGenError(Error);
+    }
+    std::string CPU = "generic";
+    std::string features = "";
+    llvm::TargetOptions opt;
+    llvm::Optional<llvm::Reloc::Model> RM = llvm::Reloc::Model::PIC_;
+    TM = target->createTargetMachine(target_triple, CPU, features, opt, RM);
+
+    // For some reason the JIT requires a different TargetMachine
+    llvm::TargetMachine *TM2 = llvm::EngineBuilder().selectTarget();
+    jit = std::make_unique<llvm::orc::KaleidoscopeJIT>(TM2);
+
+    llvm::sys::DynamicLibrary::AddSymbol("_lfortran_printf",
+        (void*)
+        reinterpret_cast<std::uintptr_t>(_lfortran_printf));
+}
+
 LLVMEvaluator::~LLVMEvaluator()
 {
     jit.reset();

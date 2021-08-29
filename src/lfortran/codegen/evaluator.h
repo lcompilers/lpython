@@ -46,6 +46,7 @@ private:
     llvm::TargetMachine *TM;
 public:
     LLVMEvaluator();
+    LLVMEvaluator(const std::string &t);
     ~LLVMEvaluator();
     std::unique_ptr<llvm::Module> parse_module(const std::string &source);
     void add_module(const std::string &source);
