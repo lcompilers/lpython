@@ -27,7 +27,7 @@
  * */
 
 
-/* 
+/*  
  * The following technique is called X-macros, if you don't recognize it.
  * You should be able to look it up under that name for an explanation.
  */
