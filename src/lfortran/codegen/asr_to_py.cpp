@@ -14,7 +14,8 @@
  * It also generates a C header file, so I suppose it indirectly generates C wrappers as well.
  * Currently, it outputs Cython, rather than the Python C API directly - much easier to implement.
  * The actual output files are:
- *  - a .h file, containing C-language function declarations *  - a .pxd file, basically containing the same information as the .h file, but in Cython's format.
+ *  - a .h file, containing C-language function declarations *  
+ *  - a .pxd file, basically containing the same information as the .h file, but in Cython's format.
  *  - a .pyx file, which is a Cython file that includes the actual python-callable wrapper functions.
  *
  *  Currently, this back-end only wraps functions that are marked "bind (c)" in the Fortran source.
@@ -118,69 +119,172 @@ public:
             chdr_filename(chdr_filename_),
             pxdf(chdr_filename_)
     {
+        // we need to get get the pxd filename (minus extension), so we can import it in the pyx file
         // knock off ".h" from the c header filename
         pxdf.erase(--pxdf.end());
         pxdf.erase(--pxdf.end());   
-        // append "_pxd"
+        // this is an unfortuante hack, but we have to add something so that the pxd and pyx filenames
+        // are different (beyond just their extensions). If we don't, the cython emits a warning.
+        // TODO we definitely need to change this somehow because right now this "append _pxd" trick
+        // exists in two places (bin/lfortran.cpp, and here), which could easily cause breakage.
         pxdf += "_pxd";
     }
 
-    std::tuple<std::string, std::string, std::string> helper_visit_argument(ASR::Variable_t *arg)
+    std::tuple<std::string, std::string, std::string, std::string> helper_visit_arguments(size_t n_args, ASR::expr_t ** args)
     {
-        // return strings
-        std::string c, cyargs, fargs; 
 
-        int ndims = 0;
-
-        // TODO handle or issue error on assumed-shape array 
-        // TODO handle interoperable derived types
-
-
-        // First: determine the C type of the argument, and if it is an array
-
-        // Use the type list table above to generate a sequence of if-blocks with the preprocessor
-        #define _X(T,NUM,STR) \
-        if ( is_a<T>(*arg->m_type) && (down_cast<T>(arg->m_type)->m_kind == NUM) ) { \
-            c = STR; \
-            ndims=down_cast<T>(arg->m_type)->n_dims; \
-        } else
-
-        CTYPELIST {
-            // We end up in this block if none of the above if-blocks were triggered
-            throw CodeGenError("Type not supported");
+        struct arg_info {
+            ASR::Variable_t*  asr_obj;
+            std::string       ctype;
+            int               ndims;
+            
+            std::vector<std::string> ubound_varnames;
+            std::vector<std::pair<std::string,int> > i_am_ubound_of;
         };
-        #undef _X
 
-        
-        // before we change 'c' so it's not longer just the type name,
-        // Figure out the corresponding cython argument type
-        if (ndims > 0) {
-            std::string mode     = c_order   ? ", mode=\"c\"" : ", mode=\"fortran\"";
-            std::string strndims = ndims > 1 ? ", ndims="+std::to_string(ndims) : "";
-            cyargs = "ndarray[" + c + strndims + mode + "]";
-        } else {
-            cyargs = c;
-        }
+        std::vector<arg_info> arg_infos;
 
 
-        // The argument is a pointer, unless it is not an array AND has the value type
-        // If the argument is not a pointer, but is intent(in), it should be a ptr-to-const.
-        if (ndims > 0 || !arg->m_value_attr) {
-            c += " *";
-            if (ASR::intentType::In == arg->m_intent) c = "const " + c;
-            fargs = "&";
-        }
+        /* get_arg_infos */ for (size_t i=0; i<n_args; i++) {
 
-        c += " ";
-        c += arg->m_name;
+            ASR::Variable_t *arg = ASRUtils::EXPR2VAR(args[i]);
+            LFORTRAN_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
 
-        cyargs += " ";
-        cyargs += arg->m_name;
+            // TODO add support for (or emit error on) assumed-shape arrays
+            // TODO add support for interoperable derived types
 
-        fargs += arg->m_name;
-        if(ndims > 0) fargs += "[0]";
+            arg_info this_arg_info;
 
-        return std::make_tuple(c, cyargs, fargs);
+            const char * errmsg1 = "pywrap does not yet support array dummy arguments with lower bounds other than 1.";
+            const char * errmsg2 = "pywrap can only generate wrappers for array dummy arguments " 
+                                   "if the upper bound is a constant integer, or another (scalar) dummy argument.";
+
+            // Generate a sequence of if-blocks to determine the type, using the type list defined above
+            #define _X(ASR_TYPE, KIND, CTYPE_STR) \
+            if ( is_a<ASR_TYPE>(*arg->m_type) && (down_cast<ASR_TYPE>(arg->m_type)->m_kind == KIND) ) { \
+                this_arg_info.asr_obj = arg;                                                       \
+                this_arg_info.ctype   = CTYPE_STR;                                                 \
+                auto tmp_arg          = down_cast<ASR_TYPE>(arg->m_type);                          \
+                this_arg_info.ndims   = tmp_arg->n_dims;                                           \
+                for (int j = 0; j < this_arg_info.ndims; j++) {                                    \
+                    auto lbound_ptr = tmp_arg->m_dims[j].m_start;                                  \
+                    if (!is_a<ASR::ConstantInteger_t>(*lbound_ptr)) {                              \
+                        throw CodeGenError(errmsg1);                                               \
+                    }                                                                              \
+                    if (down_cast<ASR::ConstantInteger_t>(lbound_ptr)->m_n != 1) {                 \
+                        throw CodeGenError(errmsg1);                                               \
+                    }                                                                              \
+                    if (is_a<ASR::Var_t>(*tmp_arg->m_dims[j].m_end)) {                             \
+                        ASR::Variable_t *dimvar = ASRUtils::EXPR2VAR(tmp_arg->m_dims[j].m_end);    \
+                        this_arg_info.ubound_varnames.push_back(dimvar->m_name);                   \
+                    } else if (!is_a<ASR::ConstantInteger_t>(*lbound_ptr)) {                       \
+                        throw CodeGenError(errmsg2);                                               \
+                    }                                                                              \
+                }                                                                                  \
+            } else       
+
+            CTYPELIST {
+                // We end up in this block if none of the above if-blocks were triggered
+                throw CodeGenError("Type not supported");
+            };
+            #undef _X
+
+            arg_infos.push_back(this_arg_info);
+
+        } // get_arg_infos
+
+
+        /* mark_array_bound_vars */ for(auto arg_iter = arg_infos.begin(); arg_iter != arg_infos.end(); arg_iter++) {
+
+            /* some dummy args might just be the sizes of other dummy args, e.g.:
+
+            subroutine foo(n,x)
+                integer :: n, x(n)
+            end subroutine  
+
+            We don't actually want `n` in the python wrapper's arguments - the Python programmer
+            shouldn't need to explicitly pass sizes. From the get_arg_infos block, we already have
+            the mapping from `x` to `n`, but we also need the opposite - we need be able to look at 
+            `n` and know that it's related to `x`. So let's do a pass over the arg_infos list and 
+            assemble that information.
+            */
+            
+            for (auto bound_iter =  arg_iter->ubound_varnames.begin(); 
+                      bound_iter != arg_iter->ubound_varnames.end(); 
+                      bound_iter++ ) {
+                for (unsigned int j = 0; j < arg_infos.size(); j++) {
+                    if (0 == std::string(arg_infos[j].asr_obj->m_name).compare(*bound_iter)) {
+                        arg_infos[j].i_am_ubound_of.push_back(std::make_pair(arg_iter->asr_obj->m_name, j));
+                    }
+                }
+            }
+
+        } // mark_array_bound_vars
+
+
+        std::string c, cyargs, fargs, pyxbody;
+
+        /* build_return_strings */ for(auto it = arg_infos.begin(); it != arg_infos.end(); it++) {
+           
+            std::string c_wip, cyargs_wip, fargs_wip;          
+
+            c_wip = it->ctype;
+
+            // Get type for cython wrapper argument, from the C type name
+            if (it->ndims > 0) {
+                std::string mode     = c_order   ? ", mode=\"c\"" : ", mode=\"fortran\"";
+                std::string strndims = it->ndims > 1 ? ", ndims="+std::to_string(it->ndims) : "";
+                cyargs_wip += "ndarray[" + it->ctype + strndims + mode + "]";
+            } else {
+                cyargs_wip += it->ctype;
+            }
+
+            // Fortran defaults to pass-by-reference, so the C argument is a pointer, unless
+            // it is not an array AND it has the value type.
+            if (it->ndims > 0 || !it->asr_obj->m_value_attr) {
+                c_wip += " *";
+                fargs_wip = "&";
+                // If the argument is intent(in) and a pointer, it should be a ptr-to-const.
+                if (ASR::intentType::In == it->asr_obj->m_intent) c_wip = "const " + c_wip;
+            }
+
+            c_wip += " ";
+            c_wip += it->asr_obj->m_name;
+
+            cyargs_wip += " ";
+            cyargs_wip += it->asr_obj->m_name;
+
+            fargs_wip += it->asr_obj->m_name;
+            if(it->ndims > 0) fargs_wip += "[0]";
+
+             
+            if(!it->i_am_ubound_of.empty()) {
+                cyargs_wip.clear();
+                auto& i_am_ubound_of = it->i_am_ubound_of[0];
+                pyxbody += "    cdef " + it->ctype + " "; 
+                pyxbody += it->asr_obj->m_name;
+                pyxbody += " = ";
+                pyxbody += i_am_ubound_of.first + ".shape[" + std::to_string(i_am_ubound_of.second) + "]\n";
+                for(unsigned int k = 1; k < it->i_am_ubound_of.size(); k++) {
+                    auto& i_am_ubound_of_k = it->i_am_ubound_of[k];
+                    pyxbody += "    assert(" + i_am_ubound_of_k.first + ".shape[" + std::to_string(i_am_ubound_of_k.second) + "] == "
+                                             + i_am_ubound_of.first   + ".shape[" + std::to_string(i_am_ubound_of.second)   + "]\n";
+                }
+            }
+
+            c += c_wip;
+            fargs  += fargs_wip;
+            cyargs += cyargs_wip;
+
+            if ( it + 1 != arg_infos.end()) {
+                c += ", ";
+                fargs += ", ";
+                if(!cyargs_wip.empty()) cyargs += ", ";
+            }
+
+        } // build_return_strings
+
+        return std::make_tuple(c, cyargs, fargs, pyxbody);
     }
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
@@ -222,7 +326,7 @@ public:
 
         // Then do all the modules in the right order
         std::vector<std::string> build_order
-            = LFortran::ASRUtils::determine_module_dependencies(x);
+            = ASRUtils::determine_module_dependencies(x);
         for (auto &item : build_order) {
             LFORTRAN_ASSERT(x.m_global_scope->scope.find(item)
                     != x.m_global_scope->scope.end());
@@ -290,35 +394,16 @@ public:
 
         chdr = "void " + effective_name + " (";
 
-        std::string pyx_body;     // generated code for the body of the Cython wrapper function
-        std::string pyx_arglist;  // arguments to the Cython wrapper function
-        std::string pyx_callargs; // arguments passed to the Fortran function
-
-        // Loop over arguments, build up strings
-        for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
-            LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
-
-            std::string a, b, c;       
-            std::tie(a,b,c) = helper_visit_argument(arg);
-
-            chdr += a;
-            pyx_arglist += b;
-            pyx_callargs += c;
-
-            if (i < x.n_args-1) {
-                chdr += ", ";
-                pyx_arglist += ", ";
-                pyx_callargs += ", ";
-            }
-        }
-        chdr += ")";
+        std::string c_args, cy_args, call_args, pyx_body;       
+        std::tie(c_args,cy_args,call_args,pyx_body) = helper_visit_arguments(x.n_args, x.m_args);
+        
+        chdr += c_args + ")";
         pxd = "    " + chdr + "\n";
         chdr += ";\n" ;
 
-        pyx = "def " + effective_name + " (" + pyx_arglist + "):\n";
+        pyx = "def " + effective_name + " (" + cy_args + "):\n";
         pyx += pyx_body;
-        pyx += "    " + pxdf +"."+ effective_name + " (" + pyx_callargs + ")\n\n";
+        pyx += "    " + pxdf +"."+ effective_name + " (" + call_args + ")\n\n";
     }
 
 
@@ -331,35 +416,9 @@ public:
         bool bindc_name_not_given = x.m_bindc_name == NULL || !strcmp("",x.m_bindc_name);
         std::string effective_name = bindc_name_not_given ? x.m_name : x.m_bindc_name;
 
-        ASR::Variable_t *return_var = LFortran::ASRUtils::EXPR2VAR(x.m_return_var);
-        #define _X(T,NUM,STR) \
-        if ( is_a<T>(*return_var->m_type) && (down_cast<T>(return_var->m_type)->m_kind == NUM) ) { \
-            chdr = STR; \
-        } else
+        // TODO deal with functions
+        // very similar to subroutines, just need to account for the return value
 
-        CTYPELIST {
-            throw CodeGenError("Return type not supported");
-        };
-        #undef _X
-
-        
-        chdr += " " + effective_name + " (";
-
-        // Arguments
-        for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
-            LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
-
-            std::string a, b, c;       
-            std::tie(a,b,c) = helper_visit_argument(arg);
-
-            chdr += a;
-
-            if (i < x.n_args-1) chdr += ", ";
-        }
-        chdr += ")";
-        pxd = "    " + chdr + "\n";
-        chdr += ";\n" ;
     }
 
 };
