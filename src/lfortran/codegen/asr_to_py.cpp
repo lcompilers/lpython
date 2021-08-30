@@ -22,7 +22,7 @@
  *  At some later point we will offer the functionality to generate bind (c) wrapper functions for
  *  normal Fortran subprograms, but for now, we don't offer this functionality.
  *
- *  --- H. Snyder, Aug 2021
+ *  --- H. Snyder, Aug 2021 
  * 
  * */
 
