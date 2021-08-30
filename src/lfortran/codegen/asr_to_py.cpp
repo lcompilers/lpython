@@ -9,7 +9,7 @@
 
 
 /*
- *
+ * 
  * This back-end generates wrapper code that allows Fortran to automatically be called from Python.
  * It also generates a C header file, so I suppose it indirectly generates C wrappers as well.
  * Currently, it outputs Cython, rather than the Python C API directly - much easier to implement.
