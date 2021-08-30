@@ -208,6 +208,7 @@ public:
             the mapping from `x` to `n`, but we also need the opposite - we need be able to look at 
             `n` and know that it's related to `x`. So let's do a pass over the arg_infos list and 
             assemble that information.
+
             */
             
             for (auto bound_iter =  arg_iter->ubound_varnames.begin(); 
@@ -222,6 +223,21 @@ public:
 
         } /* mark_array_bound_vars */
 
+
+        /* apply_c_order */ if(c_order) {
+
+            for(auto arg_iter = arg_infos.begin(); arg_iter != arg_infos.end(); arg_iter++) {
+            
+                for (auto bound =  arg_iter->i_am_ubound_of.begin();
+                          bound != arg_iter->i_am_ubound_of.end();
+                          bound++) {
+                    auto x = std::make_pair(bound->first, - bound->second -1);
+                    bound->swap(x);
+                }  
+            
+            }
+
+        } /* apply_c_order */
 
         std::string c, cyargs, fargs, pyxbody, return_statement;
 
