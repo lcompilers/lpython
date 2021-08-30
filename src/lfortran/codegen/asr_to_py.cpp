@@ -192,7 +192,7 @@ public:
 
             arg_infos.push_back(this_arg_info);
 
-        } // get_arg_infos
+        } /* get_arg_infos */
 
 
         /* mark_array_bound_vars */ for(auto arg_iter = arg_infos.begin(); arg_iter != arg_infos.end(); arg_iter++) {
@@ -220,7 +220,7 @@ public:
                 }
             }
 
-        } // mark_array_bound_vars
+        } /* mark_array_bound_vars */
 
 
         std::string c, cyargs, fargs, pyxbody, return_statement;
@@ -234,7 +234,7 @@ public:
             // Get type for cython wrapper argument, from the C type name
             if (it->ndims > 0) {
                 std::string mode     = c_order   ? ", mode=\"c\"" : ", mode=\"fortran\"";
-                std::string strndims = it->ndims > 1 ? ", ndims="+std::to_string(it->ndims) : "";
+                std::string strndims = it->ndims > 1 ? ", ndim="+std::to_string(it->ndims) : "";
                 cyargs_wip += "ndarray[" + it->ctype + strndims + mode + "]";
             } else {
                 cyargs_wip += it->ctype;
@@ -249,11 +249,6 @@ public:
                 if (ASR::intentType::In == it->asr_obj->m_intent) c_wip = "const " + c_wip;
             }
 
-            if (ASR::intentType::Out   == it->asr_obj->m_intent ||
-                ASR::intentType::InOut == it->asr_obj->m_intent) {
-                rtn_wip = it->asr_obj->m_name;
-            }
-
             c_wip += " ";
             c_wip += it->asr_obj->m_name;
 
@@ -261,7 +256,37 @@ public:
             cyargs_wip += it->asr_obj->m_name;
 
             fargs_wip += it->asr_obj->m_name;
-            if(it->ndims > 0) fargs_wip += "[0]";
+            if(it->ndims > 0) {
+                fargs_wip += "[0";
+                for(int h = 1; h < it->ndims; h++) 
+                    fargs_wip += ",0";
+                fargs_wip += "]";
+            }
+
+            if (ASR::intentType::Out == it->asr_obj->m_intent)
+            { 
+                rtn_wip = it->asr_obj->m_name;
+
+                // TODO: remove argument from cython wrapper argument list,
+                // cdef it correctly so that it can be passed to fortran and then returned
+
+                /* 
+                pyxbody += "    cdef " + cyargs_wip;
+                pyxbody += " = empty((";
+                for(int l = 0 ; l < it->ndim ; l++)
+                {
+                }
+                pyxbody += "), order=\"";
+                if(c_order) pyxbody += 'C';
+                else        pyxbody += 'F';
+                pyxbody += "\")\n";
+                cyargs_wip.clear();
+                */
+
+            }
+            if (ASR::intentType::InOut == it->asr_obj->m_intent) {
+                rtn_wip = it->asr_obj->m_name;
+            }
 
              
             if(!it->i_am_ubound_of.empty()) {
@@ -274,7 +299,7 @@ public:
                 for(unsigned int k = 1; k < it->i_am_ubound_of.size(); k++) {
                     auto& i_am_ubound_of_k = it->i_am_ubound_of[k];
                     pyxbody += "    assert(" + i_am_ubound_of_k.first + ".shape[" + std::to_string(i_am_ubound_of_k.second) + "] == "
-                                             + i_am_ubound_of.first   + ".shape[" + std::to_string(i_am_ubound_of.second)   + "]\n";
+                                             + i_am_ubound_of.first   + ".shape[" + std::to_string(i_am_ubound_of.second)   + "])\n";
                 }
             }
 
@@ -288,9 +313,10 @@ public:
             cyargs += cyargs_wip;
             return_statement += rtn_wip;
             
-            if ( !return_statement.empty() ) return_statement = "    return " + return_statement;
 
-        } // build_return_strings
+        } /* build_return_strings */
+
+        if ( !return_statement.empty() ) return_statement = "    return " + return_statement;
 
         return std::make_tuple(c, cyargs, fargs, pyxbody, return_statement);
     }
