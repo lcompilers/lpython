@@ -130,7 +130,8 @@ public:
         pxdf += "_pxd";
     }
 
-    std::tuple<std::string, std::string, std::string, std::string> helper_visit_arguments(size_t n_args, ASR::expr_t ** args)
+    std::tuple<std::string, std::string, std::string, std::string, std::string>
+    helper_visit_arguments(size_t n_args, ASR::expr_t ** args)
     {
 
         struct arg_info {
@@ -222,11 +223,11 @@ public:
         } // mark_array_bound_vars
 
 
-        std::string c, cyargs, fargs, pyxbody;
+        std::string c, cyargs, fargs, pyxbody, return_statement;
 
         /* build_return_strings */ for(auto it = arg_infos.begin(); it != arg_infos.end(); it++) {
            
-            std::string c_wip, cyargs_wip, fargs_wip;          
+            std::string c_wip, cyargs_wip, fargs_wip, rtn_wip;          
 
             c_wip = it->ctype;
 
@@ -246,6 +247,11 @@ public:
                 fargs_wip = "&";
                 // If the argument is intent(in) and a pointer, it should be a ptr-to-const.
                 if (ASR::intentType::In == it->asr_obj->m_intent) c_wip = "const " + c_wip;
+            }
+
+            if (ASR::intentType::Out   == it->asr_obj->m_intent ||
+                ASR::intentType::InOut == it->asr_obj->m_intent) {
+                rtn_wip = it->asr_obj->m_name;
             }
 
             c_wip += " ";
@@ -272,19 +278,21 @@ public:
                 }
             }
 
-            c += c_wip;
+            if(!c.empty()       && !c_wip.empty())      c += ", ";
+            if(!fargs.empty()   && !fargs_wip.empty())  fargs += ", ";
+            if(!cyargs.empty()  && !cyargs_wip.empty()) cyargs += ", ";
+            if(!return_statement.empty() && !rtn_wip.empty()) return_statement += ", ";
+
+            c      += c_wip;
             fargs  += fargs_wip;
             cyargs += cyargs_wip;
-
-            if ( it + 1 != arg_infos.end()) {
-                c += ", ";
-                fargs += ", ";
-                if(!cyargs_wip.empty()) cyargs += ", ";
-            }
+            return_statement += rtn_wip;
+            
+            if ( !return_statement.empty() ) return_statement = "    return " + return_statement;
 
         } // build_return_strings
 
-        return std::make_tuple(c, cyargs, fargs, pyxbody);
+        return std::make_tuple(c, cyargs, fargs, pyxbody, return_statement);
     }
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
@@ -394,8 +402,8 @@ public:
 
         chdr = "void " + effective_name + " (";
 
-        std::string c_args, cy_args, call_args, pyx_body;       
-        std::tie(c_args,cy_args,call_args,pyx_body) = helper_visit_arguments(x.n_args, x.m_args);
+        std::string c_args, cy_args, call_args, pyx_body, rtn_statement;       
+        std::tie(c_args,cy_args,call_args,pyx_body,rtn_statement) = helper_visit_arguments(x.n_args, x.m_args);
         
         chdr += c_args + ")";
         pxd = "    " + chdr + "\n";
@@ -403,7 +411,8 @@ public:
 
         pyx = "def " + effective_name + " (" + cy_args + "):\n";
         pyx += pyx_body;
-        pyx += "    " + pxdf +"."+ effective_name + " (" + call_args + ")\n\n";
+        pyx += "    " + pxdf +"."+ effective_name + " (" + call_args + ")\n";
+        pyx += rtn_statement + "\n\n";
     }
 
 
