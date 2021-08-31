@@ -138,6 +138,7 @@ public:
     std::unique_ptr<llvm::Module> module;
     std::unique_ptr<llvm::IRBuilder<>> builder;
     Platform platform;
+    Allocator &al;
 
     llvm::Value *tmp;
     llvm::BasicBlock *current_loophead, *current_loopend, *if_return;
@@ -200,10 +201,11 @@ public:
     std::unique_ptr<LLVMUtils> llvm_utils;
     std::unique_ptr<LLVMArrUtils::Descriptor> arr_descr;
 
-    ASRToLLVMVisitor(llvm::LLVMContext &context, Platform platform) : 
+    ASRToLLVMVisitor(Allocator &al, llvm::LLVMContext &context, Platform platform) :
     context(context),
     builder(std::make_unique<llvm::IRBuilder<>>(context)),
     platform{platform},
+    al{al},
     prototype_only(false),
     llvm_utils(std::make_unique<LLVMUtils>(context, builder.get())),
     arr_descr(LLVMArrUtils::Descriptor::get_descriptor(context,
@@ -3585,7 +3587,7 @@ public:
 std::unique_ptr<LLVMModule> asr_to_llvm(ASR::TranslationUnit_t &asr,
         llvm::LLVMContext &context, Allocator &al, Platform platform, std::string run_fn)
 {
-    ASRToLLVMVisitor v(context, platform);
+    ASRToLLVMVisitor v(al, context, platform);
     pass_wrap_global_stmts_into_function(al, asr, run_fn);
 
     // Uncomment for debugging the ASR after the transformation
