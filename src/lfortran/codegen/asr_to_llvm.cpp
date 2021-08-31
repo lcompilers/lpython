@@ -1484,7 +1484,7 @@ public:
                         break;
                     }
                     case (ASR::ttypeType::Character) :
-                        type = character_type;
+                        type = character_type->getPointerTo();
                         break;
                     case (ASR::ttypeType::Logical) : {
                         ASR::Logical_t* v_type = down_cast<ASR::Logical_t>(arg->m_type);
