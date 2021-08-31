@@ -3446,7 +3446,7 @@ public:
                             break;
                         }
                         case (ASR::ttypeType::Character) :
-                            throw CodeGenError("Character argument type not implemented yet in conversion");
+                            target_type = character_type;
                             break;
                         case (ASR::ttypeType::Logical) :
                             target_type = llvm::Type::getInt1Ty(context);
