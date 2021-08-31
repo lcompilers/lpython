@@ -138,6 +138,7 @@ public:
     std::unique_ptr<llvm::Module> module;
     std::unique_ptr<llvm::IRBuilder<>> builder;
     Platform platform;
+    Allocator &al;
 
     llvm::Value *tmp;
     llvm::BasicBlock *current_loophead, *current_loopend, *if_return;
@@ -200,10 +201,11 @@ public:
     std::unique_ptr<LLVMUtils> llvm_utils;
     std::unique_ptr<LLVMArrUtils::Descriptor> arr_descr;
 
-    ASRToLLVMVisitor(llvm::LLVMContext &context, Platform platform) : 
+    ASRToLLVMVisitor(Allocator &al, llvm::LLVMContext &context, Platform platform) :
     context(context),
     builder(std::make_unique<llvm::IRBuilder<>>(context)),
     platform{platform},
+    al{al},
     prototype_only(false),
     llvm_utils(std::make_unique<LLVMUtils>(context, builder.get())),
     arr_descr(LLVMArrUtils::Descriptor::get_descriptor(context,
@@ -611,6 +613,21 @@ public:
         std::vector<llvm::Value*> args = {pleft_arg, pright_arg, presult};
         builder->CreateCall(fn, args);
         return builder->CreateLoad(presult);
+    }
+
+    llvm::Value* lfortran_str_len(llvm::Value* str)
+    {
+        std::string runtime_func_name = "_lfortran_str_len";
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getInt32Ty(context), {
+                        character_type->getPointerTo()
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        return builder->CreateCall(fn, {str});
     }
 
 
@@ -1257,7 +1274,7 @@ public:
                             break;
                         }
                         case (ASR::ttypeType::CharacterPointer) : {
-                            type = llvm::Type::getInt8PtrTy(context);
+                            type = character_type;
                             break;
                         }
                         case (ASR::ttypeType::DerivedPointer) : {
@@ -1329,6 +1346,18 @@ public:
                                     finder);
                             builder->CreateStore(target_var, llvm_utils->create_gep(ptr,
                                         idx));
+                        }
+                    } else {
+                        if (is_a<ASR::Character_t>(*v->m_type) && !is_array_type) {
+                            ASR::Character_t *t = down_cast<ASR::Character_t>(v->m_type);
+                            target_var = ptr;
+                            int strlen = t->m_len;
+                            std::string empty(strlen, ' ');
+                            Str str;
+                            str.from_str_view(empty);
+                            char *s = str.c_str(al);
+                            llvm::Value *init_value = builder->CreateGlobalStringPtr(s);
+                            builder->CreateStore(init_value, target_var);
                         }
                     }
                 }
@@ -1455,7 +1484,7 @@ public:
                         break;
                     }
                     case (ASR::ttypeType::Character) :
-                        throw CodeGenError("Character argument type not implemented yet in conversion");
+                        type = character_type;
                         break;
                     case (ASR::ttypeType::Logical) : {
                         ASR::Logical_t* v_type = down_cast<ASR::Logical_t>(arg->m_type);
@@ -3492,7 +3521,14 @@ public:
                 h = get_hash((ASR::asr_t*)s);
             } else {
                 if( s->m_deftype == ASR::deftypeType::Interface ) {
-                    throw CodeGenError("Intrinsic not implemented yet.");
+                    if (func_name == "len") {
+                        std::vector<llvm::Value *> args = convert_call_args(x, "len");
+                        LFORTRAN_ASSERT(args.size() == 1)
+                        tmp = lfortran_str_len(args[0]);
+                        return;
+                    } else {
+                        throw CodeGenError("Intrinsic not implemented yet.");
+                    }
                 } else {
                     h = get_hash((ASR::asr_t*)s);
                 }
@@ -3585,7 +3621,7 @@ public:
 std::unique_ptr<LLVMModule> asr_to_llvm(ASR::TranslationUnit_t &asr,
         llvm::LLVMContext &context, Allocator &al, Platform platform, std::string run_fn)
 {
-    ASRToLLVMVisitor v(context, platform);
+    ASRToLLVMVisitor v(al, context, platform);
     pass_wrap_global_stmts_into_function(al, asr, run_fn);
 
     // Uncomment for debugging the ASR after the transformation

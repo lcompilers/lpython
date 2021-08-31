@@ -476,6 +476,11 @@ void _lfortran_strcat(char** s1, char** s2, char** dest)
     *dest = &(dest_char[0]);
 }
 
+int _lfortran_str_len(char** s)
+{
+    return strlen(*s);
+}
+
 char* _lfortran_malloc(int size) {
     return (char*)malloc(size);
 }
