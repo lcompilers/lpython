@@ -382,7 +382,7 @@ public:
                     break;
                 }
                 case (AST::decl_typeType::TypeCharacter) : {
-                    type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, a_len, nullptr, 0));
+                    type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, a_len, nullptr, nullptr, 0));
                     break;
                 }
                 default :
@@ -486,7 +486,7 @@ public:
     void visit_String(const AST::String_t &x) {
         int s_len = strlen(x.m_s);
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
-                1, s_len, nullptr, 0));
+                1, s_len, nullptr, nullptr, 0));
         asr = ASR::make_ConstantString_t(al, x.base.base.loc, x.m_s, type);
     }
 
@@ -805,7 +805,7 @@ public:
                     if (a_len == -3) {
                         throw SemanticError("Runtime len not implemented yet.", x.base.base.loc);
                     }
-                    type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, a_len,
+                    type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, a_len, nullptr,
                         dims.p, dims.size()));
                 } else if (sym_type->m_type == AST::decl_typeType::TypeType) {
                     LFORTRAN_ASSERT(sym_type->m_name);
@@ -1108,7 +1108,7 @@ public:
                             LFortran::ASRUtils::expr_value(real_expr))->m_n;
                         ASR::ttype_t* str_type =
                             LFortran::ASRUtils::TYPE(ASR::make_Character_t(al,
-                            x.base.base.loc, 1, 1, nullptr, 0));
+                            x.base.base.loc, 1, 1, nullptr, nullptr, 0));
                         if (! (c >= 0 && c <= 127) ) {
                             throw SemanticError("The argument 'x' in char(x) must be in the range 0 <= x <= 127.", x.base.base.loc);
                         }

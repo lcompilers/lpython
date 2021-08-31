@@ -206,7 +206,7 @@ namespace LFortran {
                     ASR::Character_t* x_type_ref = ASR::down_cast<ASR::Character_t>(x_type);
                     if( create_new ) {
                         new_type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(*al, x_type->base.loc, x_type_ref->m_kind,
-                            x_type_ref->m_len,
+                            x_type_ref->m_len, nullptr,
                                                             m_dims, n_dims));
                     } else {
                         x_type_ref->n_dims = n_dims;
