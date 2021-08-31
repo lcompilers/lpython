@@ -773,16 +773,17 @@ public:
                     }
                 } else if (sym_type->m_type == AST::decl_typeType::TypeCharacter) {
                     int a_len = -10;
+                    ASR::expr_t *len_expr = nullptr;
                     // TODO: take into account m_kind->m_id and all kind items
                     if (sym_type->m_kind != nullptr) {
                         switch (sym_type->m_kind->m_type) {
                             case (AST::kind_item_typeType::Value) : {
                                 LFORTRAN_ASSERT(sym_type->m_kind->m_value != nullptr);
                                 visit_expr(*sym_type->m_kind->m_value);
-                                ASR::expr_t* kind_expr = LFortran::ASRUtils::EXPR(asr);
-                                a_len = ASRUtils::extract_len(kind_expr, x.base.base.loc);
+                                ASR::expr_t* len_expr0 = LFortran::ASRUtils::EXPR(asr);
+                                a_len = ASRUtils::extract_len(len_expr0, x.base.base.loc);
                                 if (a_len == -3) {
-                                    throw SemanticError("Runtime len not implemented yet.", x.base.base.loc);
+                                    len_expr = len_expr0;
                                 }
                                 break;
                             }
@@ -801,6 +802,9 @@ public:
                         a_len = 1; // The default len of "character :: x" is 1
                     }
                     LFORTRAN_ASSERT(a_len != -10)
+                    if (a_len == -3) {
+                        throw SemanticError("Runtime len not implemented yet.", x.base.base.loc);
+                    }
                     type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, a_len,
                         dims.p, dims.size()));
                 } else if (sym_type->m_type == AST::decl_typeType::TypeType) {
