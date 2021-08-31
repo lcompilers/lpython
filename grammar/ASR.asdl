@@ -200,7 +200,7 @@ ttype
     = Integer(int kind, dimension* dims)
     | Real(int kind, dimension* dims)
     | Complex(int kind, dimension* dims)
-    | Character(int kind, dimension* dims)
+    | Character(int kind, int len, dimension* dims)
     | Logical(int kind, dimension* dims)
     | Derived(symbol derived_type, dimension* dims)
     | IntegerPointer(int kind, dimension* dims)
