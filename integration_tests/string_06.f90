@@ -15,7 +15,7 @@ r = len(string)
 if (r == 0) return
 do while(string(r:r) == " ")
     r = r - 1
-    if (r == 0) return
+    if (r == 0) exit
 end do
 end function
 

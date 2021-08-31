@@ -80,14 +80,14 @@ loop.body6:                                       ; preds = %loop.head5
 then7:                                            ; preds = %loop.body6
   br label %loop.end11
 
-after:                                            ; No predecessors!
+dead_block:                                       ; No predecessors!
   br label %ifcont9
 
 else8:                                            ; preds = %loop.body6
   br label %ifcont9
 
-ifcont9:                                          ; preds = %else8, %after
-  %iftmp10 = phi i32 [ 1, %after ], [ 2, %else8 ]
+ifcont9:                                          ; preds = %else8, %dead_block
+  %iftmp10 = phi i32 [ 1, %dead_block ], [ 2, %else8 ]
   %17 = load i32, i32* %j, align 4
   %18 = load i32, i32* %i, align 4
   %19 = add i32 %17, %18
@@ -143,14 +143,14 @@ loop.body21:                                      ; preds = %loop.head20
 then22:                                           ; preds = %loop.body21
   br label %loop.head20
 
-after23:                                          ; No predecessors!
+dead_block23:                                     ; No predecessors!
   br label %ifcont25
 
 else24:                                           ; preds = %loop.body21
   br label %ifcont25
 
-ifcont25:                                         ; preds = %else24, %after23
-  %iftmp26 = phi i32 [ 1, %after23 ], [ 2, %else24 ]
+ifcont25:                                         ; preds = %else24, %dead_block23
+  %iftmp26 = phi i32 [ 1, %dead_block23 ], [ 2, %else24 ]
   %30 = load i32, i32* %j, align 4
   %31 = load i32, i32* %i, align 4
   %32 = add i32 %30, %31
