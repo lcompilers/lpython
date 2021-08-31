@@ -350,13 +350,13 @@ public:
             }
             ASR::ttype_t *type;
             int a_kind = 4;
-            int a_len = -3;
+            int a_len = -10;
             if (return_type->m_kind != nullptr) {
                 if (return_type->n_kind == 1) {
                     visit_expr(*return_type->m_kind->m_value);
                     ASR::expr_t* kind_expr = LFortran::ASRUtils::EXPR(asr);
                     if (return_type->m_type == AST::decl_typeType::TypeCharacter) {
-                        a_len = ASRUtils::extract_kind(kind_expr, x.base.base.loc);
+                        a_len = ASRUtils::extract_len(kind_expr, x.base.base.loc);
                     } else {
                         a_kind = ASRUtils::extract_kind(kind_expr, x.base.base.loc);
                     }
@@ -772,7 +772,7 @@ public:
                                     dims.p, dims.size()));
                     }
                 } else if (sym_type->m_type == AST::decl_typeType::TypeCharacter) {
-                    int a_len = -3;
+                    int a_len = -10;
                     // TODO: take into account m_kind->m_id and all kind items
                     if (sym_type->m_kind != nullptr) {
                         switch (sym_type->m_kind->m_type) {
@@ -780,7 +780,10 @@ public:
                                 LFORTRAN_ASSERT(sym_type->m_kind->m_value != nullptr);
                                 visit_expr(*sym_type->m_kind->m_value);
                                 ASR::expr_t* kind_expr = LFortran::ASRUtils::EXPR(asr);
-                                a_len = ASRUtils::extract_kind(kind_expr, x.base.base.loc);
+                                a_len = ASRUtils::extract_len(kind_expr, x.base.base.loc);
+                                if (a_len == -3) {
+                                    throw SemanticError("Runtime len not implemented yet.", x.base.base.loc);
+                                }
                                 break;
                             }
                             case (AST::kind_item_typeType::Star) : {
@@ -797,7 +800,7 @@ public:
                     } else {
                         a_len = 1; // The default len of "character :: x" is 1
                     }
-                    LFORTRAN_ASSERT(a_len != -3)
+                    LFORTRAN_ASSERT(a_len != -10)
                     type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, a_len,
                         dims.p, dims.size()));
                 } else if (sym_type->m_type == AST::decl_typeType::TypeType) {
