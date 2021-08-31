@@ -37,6 +37,7 @@ private:
         {"real", "lfortran_intrinsic_array"},
         {"floor", "lfortran_intrinsic_array"},
         {"sum", "lfortran_intrinsic_array"},
+        {"len", "lfortran_intrinsic_array"},
         {"abs", "lfortran_intrinsic_math2"},
         {"aimag", "lfortran_intrinsic_math2"},
         {"modulo", "lfortran_intrinsic_math2"},
