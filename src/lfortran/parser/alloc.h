@@ -31,6 +31,11 @@ public:
         size = s;
         blocks.push_back(start);
     }
+    Allocator() = delete;
+    Allocator(const Allocator&) = delete;
+    Allocator& operator=(const Allocator&) = delete;
+    Allocator(const Allocator&&) = delete;
+    Allocator& operator=(const Allocator&&) = delete;
     ~Allocator() {
         for (size_t i = 0; i < blocks.size(); i++) {
             if (blocks[i] != nullptr) free(blocks[i]);
