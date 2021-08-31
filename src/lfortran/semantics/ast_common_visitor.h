@@ -438,9 +438,16 @@ public:
     case (AST::Concat):
       op = ASR::Concat;
     }
+    ASR::ttype_t *left_type = LFortran::ASRUtils::expr_type(left);
     ASR::ttype_t *right_type = LFortran::ASRUtils::expr_type(right);
-    ASR::ttype_t *dest_type = right_type;
-    // TODO: Type check here?
+    LFORTRAN_ASSERT(ASR::is_a<ASR::Character_t>(*left_type))
+    LFORTRAN_ASSERT(ASR::is_a<ASR::Character_t>(*right_type))
+    ASR::Character_t *left_type2 = ASR::down_cast<ASR::Character_t>(left_type);
+    ASR::Character_t *right_type2 = ASR::down_cast<ASR::Character_t>(right_type);
+    LFORTRAN_ASSERT(left_type2->n_dims == 0);
+    LFORTRAN_ASSERT(right_type2->n_dims == 0);
+    ASR::ttype_t *dest_type = ASR::down_cast<ASR::ttype_t>(ASR::make_Character_t(al, x.base.base.loc, left_type2->m_kind,
+        left_type2->m_len + right_type2->m_len, nullptr, 0));
 
     ASR::expr_t *value = nullptr;
     // Assign evaluation to `value` if possible, otherwise leave nullptr
@@ -456,6 +463,7 @@ public:
         std::string result_s = std::string(left_value)+std::string(right_value);
         Str s; s.from_str_view(result_s);
         result = s.c_str(al);
+        LFORTRAN_ASSERT((int64_t)strlen(result) == ASR::down_cast<ASR::Character_t>(dest_type)->m_len)
         value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(
             al, x.base.base.loc, result, dest_type));
       }
