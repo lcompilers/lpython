@@ -321,6 +321,7 @@ RUN(NAME string_02 LABELS gfortran llvm)
 RUN(NAME string_03 LABELS gfortran llvm)
 RUN(NAME string_04 LABELS gfortran llvm)
 RUN(NAME string_05 LABELS gfortran llvm)
+RUN(NAME string_06 LABELS gfortran llvm)
 
 RUN(NAME nested_01 LABELS gfortran llvm)
 RUN(NAME nested_02 LABELS gfortran llvm)
