@@ -2481,9 +2481,10 @@ public:
 
     void visit_Cycle(const ASR::Cycle_t & /* x */) {
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
-        llvm::BasicBlock *after = llvm::BasicBlock::Create(context, "after", fn);
+        dead_bb = llvm::BasicBlock::Create(context, "dead_block", fn);
         builder->CreateBr(current_loophead);
-        builder->SetInsertPoint(after);
+        builder->SetInsertPoint(dead_bb);
+        dead_block = true;
     }
 
     void visit_Return(const ASR::Return_t & /* x */) {
