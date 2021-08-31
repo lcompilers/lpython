@@ -196,6 +196,11 @@ expr
     | ImplicitCast(expr arg, cast_kind kind, ttype type, expr? value)
     | ExplicitCast(expr arg, cast_kind kind, ttype type, expr? value)
 
+-- `len` in Character:
+-- >=0 ... the length of the string, known at compile time
+--  -1 ... character(*), i.e., inferred at runtime
+--  -2 ... character(:), allocatable (possibly we might use -1 for that also)
+
 ttype
     = Integer(int kind, dimension* dims)
     | Real(int kind, dimension* dims)
