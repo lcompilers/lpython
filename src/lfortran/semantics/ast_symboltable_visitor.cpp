@@ -838,6 +838,39 @@ public:
                             throw SemanticError("Value of a parameter variable must evaluate to a compile time constant",
                                 x.base.base.loc);
                         }
+                        if (sym_type->m_type == AST::decl_typeType::TypeCharacter) {
+                            ASR::Character_t *lhs_type = ASR::down_cast<ASR::Character_t>(type);
+                            ASR::Character_t *rhs_type = ASR::down_cast<ASR::Character_t>(ASRUtils::expr_type(value));
+                            int lhs_len = lhs_type->m_len;
+                            int rhs_len = rhs_type->m_len;
+                            if (rhs_len >= 0) {
+                                if (lhs_len == -1) {
+                                    // The RHS len is known at compile time
+                                    // and the LHS is inferred length
+                                    lhs_len = rhs_len;
+                                } else if (lhs_len >= 0) {
+                                    if (lhs_len != rhs_len) {
+                                        // Note: this might be valid, perhaps
+                                        // change this to a warning
+                                        throw SemanticError("The LHS character len="
+                                            + std::to_string(lhs_len)
+                                            + " and the RHS character len="
+                                            + std::to_string(rhs_len)
+                                            + " are not equal.", x.base.base.loc);
+                                    }
+                                } else {
+                                    LFORTRAN_ASSERT(lhs_len == -2)
+                                    throw SemanticError("The LHS character len must not be allocatable in a parameter declaration",
+                                        x.base.base.loc);
+                                }
+                            } else {
+                                throw SemanticError("The RHS character len must be known at compile time",
+                                    x.base.base.loc);
+                            }
+                            LFORTRAN_ASSERT(lhs_len == rhs_len)
+                            LFORTRAN_ASSERT(lhs_len >= 0)
+                            lhs_type->m_len = lhs_len;
+                        }
                     }
                 }
                 ASR::asr_t *v = ASR::make_Variable_t(al, x.base.base.loc, current_scope,
