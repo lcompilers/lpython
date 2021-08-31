@@ -802,10 +802,7 @@ public:
                         a_len = 1; // The default len of "character :: x" is 1
                     }
                     LFORTRAN_ASSERT(a_len != -10)
-                    if (a_len == -3) {
-                        throw SemanticError("Runtime len not implemented yet.", x.base.base.loc);
-                    }
-                    type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, a_len, nullptr,
+                    type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, a_len, len_expr,
                         dims.p, dims.size()));
                 } else if (sym_type->m_type == AST::decl_typeType::TypeType) {
                     LFORTRAN_ASSERT(sym_type->m_name);
