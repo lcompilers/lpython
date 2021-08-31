@@ -2381,8 +2381,22 @@ public:
                 }
             }
             tmp = builder->CreateAnd(real_res, img_res);
+        } else if (optype == ASR::ttypeType::Character) {
+            // TODO: For now we only compare the first character of the strings
+            switch (x.m_op) {
+                case (ASR::cmpopType::Eq) : {
+                    left = builder->CreateLoad(left);
+                    right = builder->CreateLoad(right);
+                    tmp = builder->CreateICmpEQ(left, right);
+                    break;
+                }
+                default : {
+                    throw SemanticError("Comparison operator not implemented for strings",
+                            x.base.base.loc);
+                }
+            }
         } else {
-            throw CodeGenError("Only Integer and Real implemented in Compare");
+            throw CodeGenError("Only Integer, Real, Complex, Character implemented in Compare");
         }
     }
 
