@@ -773,12 +773,31 @@ public:
                     }
                 } else if (sym_type->m_type == AST::decl_typeType::TypeCharacter) {
                     int a_len = -3;
-                    if (sym_type->m_kind != nullptr &&
-                        sym_type->m_kind->m_value != nullptr) {
-                        visit_expr(*sym_type->m_kind->m_value);
-                        ASR::expr_t* kind_expr = LFortran::ASRUtils::EXPR(asr);
-                        a_len = ASRUtils::extract_kind(kind_expr, x.base.base.loc);
+                    // TODO: take into account m_kind->m_id and all kind items
+                    if (sym_type->m_kind != nullptr) {
+                        switch (sym_type->m_kind->m_type) {
+                            case (AST::kind_item_typeType::Value) : {
+                                LFORTRAN_ASSERT(sym_type->m_kind->m_value != nullptr);
+                                visit_expr(*sym_type->m_kind->m_value);
+                                ASR::expr_t* kind_expr = LFortran::ASRUtils::EXPR(asr);
+                                a_len = ASRUtils::extract_kind(kind_expr, x.base.base.loc);
+                                break;
+                            }
+                            case (AST::kind_item_typeType::Star) : {
+                                LFORTRAN_ASSERT(sym_type->m_kind->m_value == nullptr);
+                                a_len = -1;
+                                break;
+                            }
+                            case (AST::kind_item_typeType::Colon) : {
+                                LFORTRAN_ASSERT(sym_type->m_kind->m_value == nullptr);
+                                a_len = -2;
+                                break;
+                            }
+                        }
+                    } else {
+                        a_len = 1; // The default len of "character :: x" is 1
                     }
+                    LFORTRAN_ASSERT(a_len != -3)
                     type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, a_len,
                         dims.p, dims.size()));
                 } else if (sym_type->m_type == AST::decl_typeType::TypeType) {
@@ -818,6 +837,39 @@ public:
                         if (value == nullptr) {
                             throw SemanticError("Value of a parameter variable must evaluate to a compile time constant",
                                 x.base.base.loc);
+                        }
+                        if (sym_type->m_type == AST::decl_typeType::TypeCharacter) {
+                            ASR::Character_t *lhs_type = ASR::down_cast<ASR::Character_t>(type);
+                            ASR::Character_t *rhs_type = ASR::down_cast<ASR::Character_t>(ASRUtils::expr_type(value));
+                            int lhs_len = lhs_type->m_len;
+                            int rhs_len = rhs_type->m_len;
+                            if (rhs_len >= 0) {
+                                if (lhs_len == -1) {
+                                    // The RHS len is known at compile time
+                                    // and the LHS is inferred length
+                                    lhs_len = rhs_len;
+                                } else if (lhs_len >= 0) {
+                                    if (lhs_len != rhs_len) {
+                                        // Note: this might be valid, perhaps
+                                        // change this to a warning
+                                        throw SemanticError("The LHS character len="
+                                            + std::to_string(lhs_len)
+                                            + " and the RHS character len="
+                                            + std::to_string(rhs_len)
+                                            + " are not equal.", x.base.base.loc);
+                                    }
+                                } else {
+                                    LFORTRAN_ASSERT(lhs_len == -2)
+                                    throw SemanticError("The LHS character len must not be allocatable in a parameter declaration",
+                                        x.base.base.loc);
+                                }
+                            } else {
+                                throw SemanticError("The RHS character len must be known at compile time",
+                                    x.base.base.loc);
+                            }
+                            LFORTRAN_ASSERT(lhs_len == rhs_len)
+                            LFORTRAN_ASSERT(lhs_len >= 0)
+                            lhs_type->m_len = lhs_len;
                         }
                     }
                 }
