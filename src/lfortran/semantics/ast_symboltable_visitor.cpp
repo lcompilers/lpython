@@ -350,10 +350,19 @@ public:
             }
             ASR::ttype_t *type;
             int a_kind = 4;
+            int a_len = -3;
             if (return_type->m_kind != nullptr) {
-                visit_expr(*return_type->m_kind->m_value);
-                ASR::expr_t* kind_expr = LFortran::ASRUtils::EXPR(asr);
-                a_kind = ASRUtils::extract_kind(kind_expr, x.base.base.loc);
+                if (return_type->n_kind == 1) {
+                    visit_expr(*return_type->m_kind->m_value);
+                    ASR::expr_t* kind_expr = LFortran::ASRUtils::EXPR(asr);
+                    if (return_type->m_type == AST::decl_typeType::TypeCharacter) {
+                        a_len = ASRUtils::extract_kind(kind_expr, x.base.base.loc);
+                    } else {
+                        a_kind = ASRUtils::extract_kind(kind_expr, x.base.base.loc);
+                    }
+                } else {
+                    throw SemanticError("Only one kind item supported for now", x.base.base.loc);
+                }
             }
             switch (return_type->m_type) {
                 case (AST::decl_typeType::TypeInteger) : {
@@ -373,7 +382,7 @@ public:
                     break;
                 }
                 case (AST::decl_typeType::TypeCharacter) : {
-                    type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, nullptr, 0));
+                    type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, a_len, nullptr, 0));
                     break;
                 }
                 default :
@@ -475,8 +484,9 @@ public:
     }
 
     void visit_String(const AST::String_t &x) {
+        int s_len = strlen(x.m_s);
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
-                1, nullptr, 0));
+                1, s_len, nullptr, 0));
         asr = ASR::make_ConstantString_t(al, x.base.base.loc, x.m_s, type);
     }
 
@@ -762,7 +772,14 @@ public:
                                     dims.p, dims.size()));
                     }
                 } else if (sym_type->m_type == AST::decl_typeType::TypeCharacter) {
-                    type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1,
+                    int a_len = -3;
+                    if (sym_type->m_kind != nullptr &&
+                        sym_type->m_kind->m_value != nullptr) {
+                        visit_expr(*sym_type->m_kind->m_value);
+                        ASR::expr_t* kind_expr = LFortran::ASRUtils::EXPR(asr);
+                        a_len = ASRUtils::extract_kind(kind_expr, x.base.base.loc);
+                    }
+                    type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, a_len,
                         dims.p, dims.size()));
                 } else if (sym_type->m_type == AST::decl_typeType::TypeType) {
                     LFORTRAN_ASSERT(sym_type->m_name);
@@ -1032,7 +1049,7 @@ public:
                             LFortran::ASRUtils::expr_value(real_expr))->m_n;
                         ASR::ttype_t* str_type =
                             LFortran::ASRUtils::TYPE(ASR::make_Character_t(al,
-                            x.base.base.loc, 1, nullptr, 0));
+                            x.base.base.loc, 1, 1, nullptr, 0));
                         if (! (c >= 0 && c <= 127) ) {
                             throw SemanticError("The argument 'x' in char(x) must be in the range 0 <= x <= 127.", x.base.base.loc);
                         }
