@@ -1468,8 +1468,33 @@ public:
                                         f->m_name,
                                         ASR::accessType::Private
                                         ));
+                                    Vec<ASR::expr_t*> args;
+                                    args.reserve(al, fc->n_args);
+                                    for (size_t i=0; i < fc->n_args; i++) {
+                                        ASR::expr_t *arg = fc->m_args[i];
+                                        if (ASR::is_a<ASR::Var_t>(*arg)) {
+                                            ASR::Var_t *var = ASR::down_cast<ASR::Var_t>(arg);
+                                            if (ASR::is_a<ASR::Variable_t>(*var->m_v)) {
+                                                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var->m_v);
+                                                // TODO: add this ExternalSymbol to `current_scope` if it is not there. If it is there, just reuse it
+                                                char *modname=(char*)"FIXME2";
+                                                ASR::symbol_t *new_v = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(
+                                                    al, v->base.base.loc,
+                                                    /* a_symtab */ current_scope,
+                                                    /* a_name */ v->m_name,
+                                                    (ASR::symbol_t*)v,
+                                                    //m->m_name,
+                                                    modname,
+                                                    v->m_name,
+                                                    ASR::accessType::Private
+                                                    ));
+                                                arg = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, arg->base.loc, new_v));
+                                            }
+                                        }
+                                        args.push_back(al, arg);
+                                    }
                                     ASR::expr_t *new_len_expr = ASR::down_cast<ASR::expr_t>(ASR::make_FunctionCall_t(
-                                        al, fc->base.base.loc, new_es, nullptr, fc->m_args, fc->n_args, fc->m_keywords, fc->n_keywords, fc->m_type, fc->m_value, fc->m_dt));
+                                        al, fc->base.base.loc, new_es, nullptr, args.p, args.n, fc->m_keywords, fc->n_keywords, fc->m_type, fc->m_value, fc->m_dt));
                                     return_type = ASR::down_cast<ASR::ttype_t>(
                                         ASR::make_Character_t(al, t->base.base.loc,
                                             t->m_kind, t->m_len, new_len_expr, t->m_dims, t->n_dims)
