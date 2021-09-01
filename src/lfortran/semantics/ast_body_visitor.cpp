@@ -1447,6 +1447,65 @@ public:
                 if (ASR::is_a<ASR::Function_t>(*f2)) {
                     Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
                     ASR::ttype_t *return_type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(f2)->m_return_var)->m_type;
+                    // Rebuild the return type if needed and make FunctionCalls use ExternalSymbol
+                    if (ASR::is_a<ASR::Character_t>(*return_type)) {
+                        ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(return_type);
+                        if (t->m_len_expr) {
+                            if (ASR::is_a<ASR::FunctionCall_t>(*t->m_len_expr)) {
+                                ASR::FunctionCall_t *fc = ASR::down_cast<ASR::FunctionCall_t>(t->m_len_expr);
+                                if (ASR::is_a<ASR::Function_t>(*fc->m_name)) {
+                                    ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(fc->m_name);
+                                    //ASR::Module_t *m = nullptr; // TODO -- find the function (f) 's module
+                                    char *modname=(char*)"FIXME1";
+                                    // TODO: add this ExternalSymbol to `current_scope` if it is not there. If it is there, just reuse it
+                                    ASR::symbol_t *new_es = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(
+                                        al, f->base.base.loc,
+                                        /* a_symtab */ current_scope,
+                                        /* a_name */ f->m_name,
+                                        (ASR::symbol_t*)f,
+                                        //m->m_name,
+                                        modname,
+                                        f->m_name,
+                                        ASR::accessType::Private
+                                        ));
+                                    Vec<ASR::expr_t*> args;
+                                    args.reserve(al, fc->n_args);
+                                    for (size_t i=0; i < fc->n_args; i++) {
+                                        ASR::expr_t *arg = fc->m_args[i];
+                                        if (ASR::is_a<ASR::Var_t>(*arg)) {
+                                            ASR::Var_t *var = ASR::down_cast<ASR::Var_t>(arg);
+                                            if (ASR::is_a<ASR::Variable_t>(*var->m_v)) {
+                                                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var->m_v);
+                                                // TODO: add this ExternalSymbol to `current_scope` if it is not there. If it is there, just reuse it
+                                                char *modname=(char*)"FIXME2";
+                                                ASR::symbol_t *new_v = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(
+                                                    al, v->base.base.loc,
+                                                    /* a_symtab */ current_scope,
+                                                    /* a_name */ v->m_name,
+                                                    (ASR::symbol_t*)v,
+                                                    //m->m_name,
+                                                    modname,
+                                                    v->m_name,
+                                                    ASR::accessType::Private
+                                                    ));
+                                                arg = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, arg->base.loc, new_v));
+                                            }
+                                        }
+                                        args.push_back(al, arg);
+                                    }
+                                    ASR::expr_t *new_len_expr = ASR::down_cast<ASR::expr_t>(ASR::make_FunctionCall_t(
+                                        al, fc->base.base.loc, new_es, nullptr, args.p, args.n, fc->m_keywords, fc->n_keywords, fc->m_type, fc->m_value, fc->m_dt));
+                                    return_type = ASR::down_cast<ASR::ttype_t>(
+                                        ASR::make_Character_t(al, t->base.base.loc,
+                                            t->m_kind, t->m_len, new_len_expr, t->m_dims, t->n_dims)
+                                    );
+                                }
+                            } else {
+                                throw SemanticError("Currently only FunctionCall is supported in character's len expression in ExternalSymbol", x.base.base.loc);
+                            }
+                        }
+                    }
+
                     // Populate value
                     ASR::expr_t* value = nullptr;
                     std::string func_name = x.m_func;
