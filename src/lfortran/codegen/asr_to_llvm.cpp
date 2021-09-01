@@ -1420,7 +1420,7 @@ public:
                                 strlen = 10;
                                 llvm::Value *arg_size = llvm::ConstantInt::get(context, llvm::APInt(32,strlen+1));
                                 llvm::Value *init_value = LLVMArrUtils::lfortran_malloc(context, *module, *builder, arg_size);
-                                // TODO: fill it with spaces and add null char at the end
+                                string_init(context, *module, *builder, arg_size, init_value);
                                 builder->CreateStore(init_value, target_var);
                             } else {
                                 throw CodeGenError("Unsupported len value in ASR");
