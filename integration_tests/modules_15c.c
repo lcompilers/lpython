@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "modules_15c.h"
 
 int f_int_float(int *a, float *b) {
@@ -144,4 +146,8 @@ void sub_int_doublearray(int n, double *b, double *r) {
         s += b[i];
     }
     *r = s;
+}
+
+int f_string(char *s) {
+    return strlen(s);
 }
