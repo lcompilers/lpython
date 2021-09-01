@@ -1400,6 +1400,21 @@ public:
                         );
                     std::string sym = mvar->m_name;
                     current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(var);
+                } else if (ASR::is_a<ASR::ExternalSymbol_t>(*item.second)) {
+                    // We have to "repack" the ExternalSymbol so that it lives in the
+                    // local symbol table
+                    ASR::ExternalSymbol_t *es0 = ASR::down_cast<ASR::ExternalSymbol_t>(item.second);
+                    ASR::asr_t *es = ASR::make_ExternalSymbol_t(
+                        al, es0->base.base.loc,
+                        /* a_symtab */ current_scope,
+                        /* a_name */ es0->m_name,
+                        es0->m_external,
+                        es0->m_module_name,
+                        es0->m_original_name,
+                        dflt_access
+                        );
+                    std::string sym = es0->m_original_name;
+                    current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(es);
                 } else {
                     throw LFortranException("'" + item.first + "' is not supported yet for declaring with use.");
                 }
