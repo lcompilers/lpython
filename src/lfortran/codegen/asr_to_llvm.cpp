@@ -2249,6 +2249,7 @@ public:
     void visit_Assignment(const ASR::Assignment_t &x) {
         llvm::Value *target, *value;
         uint32_t h;
+        bool lhs_is_string_arrayref = false;
         if( x.m_target->type == ASR::exprType::ArrayRef || 
             x.m_target->type == ASR::exprType::DerivedRef ) {
             this->visit_expr(*x.m_target);
@@ -2261,6 +2262,7 @@ public:
                         ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(asr_target->m_type);
                         if (t->n_dims == 0) {
                             target = builder->CreateLoad(target);
+                            lhs_is_string_arrayref = true;
                         }
                     }
                 }
@@ -2309,7 +2311,9 @@ public:
         if ( is_a<ASR::Character_t>(*expr_type(x.m_value)) ) {
             ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(expr_type(x.m_value));
             if (t->n_dims == 0) {
-                value = builder->CreateLoad(value);
+                if (lhs_is_string_arrayref) {
+                    value = builder->CreateLoad(value);
+                }
             }
         }
         builder->CreateStore(value, target);
