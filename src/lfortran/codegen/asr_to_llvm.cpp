@@ -2445,6 +2445,12 @@ public:
                     tmp = builder->CreateICmpEQ(left, right);
                     break;
                 }
+                case (ASR::cmpopType::NotEq) : {
+                    left = builder->CreateLoad(left);
+                    right = builder->CreateLoad(right);
+                    tmp = builder->CreateICmpNE(left, right);
+                    break;
+                }
                 default : {
                     throw SemanticError("Comparison operator not implemented for strings",
                             x.base.base.loc);
