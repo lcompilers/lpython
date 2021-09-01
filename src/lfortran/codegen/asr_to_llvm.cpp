@@ -1389,12 +1389,27 @@ public:
                             ASR::Character_t *t = down_cast<ASR::Character_t>(v->m_type);
                             target_var = ptr;
                             int strlen = t->m_len;
-                            std::string empty(strlen, ' ');
-                            Str str;
-                            str.from_str_view(empty);
-                            char *s = str.c_str(al);
-                            llvm::Value *init_value = builder->CreateGlobalStringPtr(s);
-                            builder->CreateStore(init_value, target_var);
+                            if (strlen >= 0) {
+                                // Compile time length
+                                std::string empty(strlen, ' ');
+                                Str str;
+                                str.from_str_view(empty);
+                                char *s = str.c_str(al);
+                                llvm::Value *init_value = builder->CreateGlobalStringPtr(s);
+                                builder->CreateStore(init_value, target_var);
+                            } else if (strlen == -3) {
+                                // Runtime length
+                                // TODO: evaluate the length and allocate at runtime
+                                strlen = 10;
+                                std::string empty(strlen, ' ');
+                                Str str;
+                                str.from_str_view(empty);
+                                char *s = str.c_str(al);
+                                llvm::Value *init_value = builder->CreateGlobalStringPtr(s);
+                                builder->CreateStore(init_value, target_var);
+                            } else {
+                                throw CodeGenError("Unsupported len value in ASR");
+                            }
                         }
                     }
                 }
