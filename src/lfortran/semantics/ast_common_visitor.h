@@ -447,7 +447,7 @@ public:
     LFORTRAN_ASSERT(left_type2->n_dims == 0);
     LFORTRAN_ASSERT(right_type2->n_dims == 0);
     ASR::ttype_t *dest_type = ASR::down_cast<ASR::ttype_t>(ASR::make_Character_t(al, x.base.base.loc, left_type2->m_kind,
-        left_type2->m_len + right_type2->m_len, nullptr, 0));
+        left_type2->m_len + right_type2->m_len, nullptr, nullptr, 0));
 
     ASR::expr_t *value = nullptr;
     // Assign evaluation to `value` if possible, otherwise leave nullptr

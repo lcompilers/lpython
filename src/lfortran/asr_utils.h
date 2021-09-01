@@ -183,6 +183,45 @@ static inline SymbolTable *symbol_parent_symtab(const ASR::symbol_t *f)
     }
 }
 
+// Returns the `symbol`'s symtab, or nullptr if the symbol has no symtab
+static inline SymbolTable *symbol_symtab(const ASR::symbol_t *f)
+{
+    switch (f->type) {
+        case ASR::symbolType::Program: {
+            return ASR::down_cast<ASR::Program_t>(f)->m_symtab;
+        }
+        case ASR::symbolType::Module: {
+            return ASR::down_cast<ASR::Module_t>(f)->m_symtab;
+        }
+        case ASR::symbolType::Subroutine: {
+            return ASR::down_cast<ASR::Subroutine_t>(f)->m_symtab;
+        }
+        case ASR::symbolType::Function: {
+            return ASR::down_cast<ASR::Function_t>(f)->m_symtab;
+        }
+        case ASR::symbolType::GenericProcedure: {
+            return nullptr;
+            //throw LFortranException("GenericProcedure does not have a symtab");
+        }
+        case ASR::symbolType::DerivedType: {
+            return ASR::down_cast<ASR::DerivedType_t>(f)->m_symtab;
+        }
+        case ASR::symbolType::Variable: {
+            return nullptr;
+            //throw LFortranException("Variable does not have a symtab");
+        }
+        case ASR::symbolType::ExternalSymbol: {
+            return nullptr;
+            //throw LFortranException("ExternalSymbol does not have a symtab");
+        }
+        case ASR::symbolType::ClassProcedure: {
+            return nullptr;
+            //throw LFortranException("ClassProcedure does not have a symtab");
+        }
+        default : throw LFortranException("Not implemented");
+    }
+}
+
 const ASR::intentType intent_local=ASR::intentType::Local; // local variable (not a dummy argument)
 const ASR::intentType intent_in   =ASR::intentType::In; // dummy argument, intent(in)
 const ASR::intentType intent_out  =ASR::intentType::Out; // dummy argument, intent(out)
@@ -407,6 +446,44 @@ static inline int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {
                     }
                 }
                 return a_kind;
+            }
+
+            inline int extract_len(ASR::expr_t* len_expr, const Location& loc) {
+                int a_len = -10;
+                switch( len_expr->type ) {
+                    case ASR::exprType::ConstantInteger: {
+                        a_len = ASR::down_cast<ASR::ConstantInteger_t>
+                                (len_expr)->m_n;
+                        break;
+                    }
+                    case ASR::exprType::Var: {
+                        ASR::Var_t* len_var =
+                            ASR::down_cast<ASR::Var_t>(len_expr);
+                        ASR::Variable_t* len_variable =
+                            ASR::down_cast<ASR::Variable_t>(
+                                symbol_get_past_external(len_var->m_v));
+                        if( len_variable->m_storage == ASR::storage_typeType::Parameter ) {
+                            if( len_variable->m_type->type == ASR::ttypeType::Integer ) {
+                                LFORTRAN_ASSERT( len_variable->m_value != nullptr );
+                                a_len = ASR::down_cast<ASR::ConstantInteger_t>(len_variable->m_value)->m_n;
+                            } else {
+                                std::string msg = "Integer variable required. " + std::string(len_variable->m_name) +
+                                                " is not an Integer variable.";
+                                throw SemanticError(msg, loc);
+                            }
+                        } else {
+                            // An expression is beind used for `len` that cannot be evaluated
+                            a_len = -3;
+                        }
+                        break;
+                    }
+                    default: {
+                        throw SemanticError("Only Integers or variables implemented so far for `len` expressions",
+                                            loc);
+                    }
+                }
+                LFORTRAN_ASSERT(a_len != -10)
+                return a_len;
             }
 
             inline bool check_equal_type(ASR::ttype_t* x, ASR::ttype_t* y) {

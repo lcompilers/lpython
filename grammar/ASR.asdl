@@ -200,12 +200,13 @@ expr
 -- >=0 ... the length of the string, known at compile time
 --  -1 ... character(*), i.e., inferred at runtime
 --  -2 ... character(:), allocatable (possibly we might use -1 for that also)
+--  -3 ... character(n+3), i.e., a runtime expression stored in `len_expr`
 
 ttype
     = Integer(int kind, dimension* dims)
     | Real(int kind, dimension* dims)
     | Complex(int kind, dimension* dims)
-    | Character(int kind, int len, dimension* dims)
+    | Character(int kind, int len, expr? len_expr, dimension* dims)
     | Logical(int kind, dimension* dims)
     | Derived(symbol derived_type, dimension* dims)
     | IntegerPointer(int kind, dimension* dims)

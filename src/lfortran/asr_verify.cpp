@@ -293,7 +293,11 @@ public:
         for (size_t i=0; i<x.n_keywords; i++) {
             visit_keyword(x.m_keywords[i]);
         }
+        SymbolTable *parent_symtab = current_symtab;
+        current_symtab = ASRUtils::symbol_symtab(x.m_name);
+        if (current_symtab == nullptr) current_symtab = parent_symtab;
         visit_ttype(*x.m_type);
+        current_symtab = parent_symtab;
     }
 
     void visit_Derived(const Derived_t &x) {
