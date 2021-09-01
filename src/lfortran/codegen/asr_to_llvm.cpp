@@ -108,6 +108,23 @@ void exit(llvm::LLVMContext &context, llvm::Module &module,
     builder.CreateCall(fn_exit, {exit_code});
 }
 
+void string_init(llvm::LLVMContext &context, llvm::Module &module,
+        llvm::IRBuilder<> &builder, llvm::Value* arg_size, llvm::Value* arg_string) {
+    std::string func_name = "_lfortran_string_init";
+    llvm::Function *fn = module.getFunction(func_name);
+    if (!fn) {
+        llvm::FunctionType *function_type = llvm::FunctionType::get(
+                llvm::Type::getVoidTy(context), {
+                    llvm::Type::getInt32Ty(context),
+                    llvm::Type::getInt8PtrTy(context)
+                }, true);
+        fn = llvm::Function::Create(function_type,
+                llvm::Function::ExternalLinkage, func_name, module);
+    }
+    std::vector<llvm::Value*> args = {arg_size, arg_string};
+    builder.CreateCall(fn, args);
+}
+
 class ASRToLLVMVisitor : public ASR::BaseVisitor<ASRToLLVMVisitor>
 {
 private:
