@@ -703,6 +703,17 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         src = out;
     }
 
+    void visit_Write(const ASR::Write_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string out = indent + "std::cout ";
+        for (size_t i=0; i<x.n_values; i++) {
+            this->visit_expr(*x.m_values[i]);
+            out += "<< " + src + " ";
+        }
+        out += "<< std::endl;\n";
+        src = out;
+    }
+
     void visit_WhileLoop(const ASR::WhileLoop_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "while (";

@@ -3203,6 +3203,19 @@ public:
     }
 
     void visit_Print(const ASR::Print_t &x) {
+        handle_print(x);
+    }
+
+    void visit_Write(const ASR::Write_t &x) {
+        if (x.m_fmt == nullptr && x.m_unit == nullptr) {
+            handle_print(x);
+        } else {
+            throw CodeGenError("fmt and unit not implemented in write yet");
+        }
+    }
+
+    template <typename T>
+    void handle_print(const T &x) {
         std::vector<llvm::Value *> args;
         std::vector<std::string> fmt;
         for (size_t i=0; i<x.n_values; i++) {
