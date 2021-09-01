@@ -16,7 +16,13 @@ end function
 function trim(x) result(r)
 character(len=*),intent(in) :: x
 character(len=len_trim(x)) :: r
-r = x(1:len(r))
+! This does not work yet in LFortran:
+!r = x(1:len(r))
+! So we do this workaroud that works:
+integer :: i
+do i = 1, len(r)
+    r(i:i) = x(i:i)
+end do
 end function
 
 end module
