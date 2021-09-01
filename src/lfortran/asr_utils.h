@@ -477,6 +477,10 @@ static inline int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {
                         }
                         break;
                     }
+                    case ASR::exprType::FunctionCall: {
+                        a_len = -3;
+                        break;
+                    }
                     default: {
                         throw SemanticError("Only Integers or variables implemented so far for `len` expressions",
                                             loc);
