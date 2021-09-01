@@ -13,6 +13,15 @@ do while(string(r:r) == " ")
 end do
 end function
 
+function trim(x) result(r)
+character(len=*),intent(in) :: x
+character(len=len_trim(x)) :: r
+integer :: i
+do i = 1, len(r)
+    r(i:i) = x(i:i)
+end do
+end function
+
 end module
 
 program string_08
@@ -40,16 +49,5 @@ if (len(trim("xx")) /= 2) error stop
 
 print *, trim("xx    ")
 print *, len(trim("xx    "))
-
-contains
-
-function trim(x) result(r)
-character(len=*),intent(in) :: x
-character(len=len_trim(x)) :: r
-integer :: i
-do i = 1, len(r)
-    r(i:i) = x(i:i)
-end do
-end function
 
 end program
