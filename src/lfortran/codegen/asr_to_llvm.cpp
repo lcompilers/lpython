@@ -1399,13 +1399,11 @@ public:
                                 builder->CreateStore(init_value, target_var);
                             } else if (strlen == -3) {
                                 // Runtime length
-                                // TODO: evaluate the length and allocate at runtime
+                                // TODO: evaluate the length at runtime
                                 strlen = 10;
-                                std::string empty(strlen, ' ');
-                                Str str;
-                                str.from_str_view(empty);
-                                char *s = str.c_str(al);
-                                llvm::Value *init_value = builder->CreateGlobalStringPtr(s);
+                                llvm::Value *arg_size = llvm::ConstantInt::get(context, llvm::APInt(32,strlen+1));
+                                llvm::Value *init_value = LLVMArrUtils::lfortran_malloc(context, *module, *builder, arg_size);
+                                // TODO: fill it with spaces and add null char at the end
                                 builder->CreateStore(init_value, target_var);
                             } else {
                                 throw CodeGenError("Unsupported len value in ASR");
