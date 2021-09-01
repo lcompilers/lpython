@@ -1415,10 +1415,11 @@ public:
                                 llvm::Value *init_value = builder->CreateGlobalStringPtr(s);
                                 builder->CreateStore(init_value, target_var);
                             } else if (strlen == -3) {
-                                // Runtime length
-                                // TODO: evaluate the length at runtime
-                                strlen = 10;
-                                llvm::Value *arg_size = llvm::ConstantInt::get(context, llvm::APInt(32,strlen+1));
+                                LFORTRAN_ASSERT(t->m_len_expr)
+                                this->visit_expr(*t->m_len_expr);
+                                llvm::Value *arg_size = tmp;
+                                arg_size = builder->CreateAdd(arg_size, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+                                // TODO: this temporary string is never deallocated (leaks memory)
                                 llvm::Value *init_value = LLVMArrUtils::lfortran_malloc(context, *module, *builder, arg_size);
                                 string_init(context, *module, *builder, arg_size, init_value);
                                 builder->CreateStore(init_value, target_var);
