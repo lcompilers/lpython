@@ -2285,8 +2285,8 @@ public:
                 if( asr_target->m_type->type == 
                     ASR::ttypeType::Character ) {
                     target = arr_descr->get_pointer_to_data(target);
+                }
             }
-        }
         }
         this->visit_expr_wrapper(x.m_value, true);
         value = tmp;
