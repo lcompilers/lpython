@@ -309,6 +309,9 @@ public:
             return;
         }
         LFORTRAN_ASSERT(x.m_external == nullptr);
+        if (x.m_module_name == nullptr) {
+            throw LFortranException("The ExternalSymbol was referenced in some ASR node, but it was not loaded as part of the SymbolTable");
+        }
         std::string module_name = x.m_module_name;
         std::string original_name = x.m_original_name;
         if (startswith(module_name, "lfortran_intrinsic_iso")) {
