@@ -108,6 +108,23 @@ void exit(llvm::LLVMContext &context, llvm::Module &module,
     builder.CreateCall(fn_exit, {exit_code});
 }
 
+void string_init(llvm::LLVMContext &context, llvm::Module &module,
+        llvm::IRBuilder<> &builder, llvm::Value* arg_size, llvm::Value* arg_string) {
+    std::string func_name = "_lfortran_string_init";
+    llvm::Function *fn = module.getFunction(func_name);
+    if (!fn) {
+        llvm::FunctionType *function_type = llvm::FunctionType::get(
+                llvm::Type::getVoidTy(context), {
+                    llvm::Type::getInt32Ty(context),
+                    llvm::Type::getInt8PtrTy(context)
+                }, true);
+        fn = llvm::Function::Create(function_type,
+                llvm::Function::ExternalLinkage, func_name, module);
+    }
+    std::vector<llvm::Value*> args = {arg_size, arg_string};
+    builder.CreateCall(fn, args);
+}
+
 class ASRToLLVMVisitor : public ASR::BaseVisitor<ASRToLLVMVisitor>
 {
 private:
@@ -1389,12 +1406,26 @@ public:
                             ASR::Character_t *t = down_cast<ASR::Character_t>(v->m_type);
                             target_var = ptr;
                             int strlen = t->m_len;
-                            std::string empty(strlen, ' ');
-                            Str str;
-                            str.from_str_view(empty);
-                            char *s = str.c_str(al);
-                            llvm::Value *init_value = builder->CreateGlobalStringPtr(s);
-                            builder->CreateStore(init_value, target_var);
+                            if (strlen >= 0) {
+                                // Compile time length
+                                std::string empty(strlen, ' ');
+                                Str str;
+                                str.from_str_view(empty);
+                                char *s = str.c_str(al);
+                                llvm::Value *init_value = builder->CreateGlobalStringPtr(s);
+                                builder->CreateStore(init_value, target_var);
+                            } else if (strlen == -3) {
+                                LFORTRAN_ASSERT(t->m_len_expr)
+                                this->visit_expr(*t->m_len_expr);
+                                llvm::Value *arg_size = tmp;
+                                arg_size = builder->CreateAdd(arg_size, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+                                // TODO: this temporary string is never deallocated (leaks memory)
+                                llvm::Value *init_value = LLVMArrUtils::lfortran_malloc(context, *module, *builder, arg_size);
+                                string_init(context, *module, *builder, arg_size, init_value);
+                                builder->CreateStore(init_value, target_var);
+                            } else {
+                                throw CodeGenError("Unsupported len value in ASR");
+                            }
                         }
                     }
                 }
@@ -1974,7 +2005,7 @@ public:
                 break;
             }
             case (ASR::ttypeType::Character) :
-                return_type = llvm::Type::getInt8Ty(context);
+                return_type = character_type;
                 break;
             case (ASR::ttypeType::Logical) :
                 return_type = llvm::Type::getInt1Ty(context);
@@ -2218,10 +2249,24 @@ public:
     void visit_Assignment(const ASR::Assignment_t &x) {
         llvm::Value *target, *value;
         uint32_t h;
+        bool lhs_is_string_arrayref = false;
         if( x.m_target->type == ASR::exprType::ArrayRef || 
             x.m_target->type == ASR::exprType::DerivedRef ) {
             this->visit_expr(*x.m_target);
             target = tmp;   
+            if (is_a<ASR::ArrayRef_t>(*x.m_target)) {
+                ASR::ArrayRef_t *asr_target0 = ASR::down_cast<ASR::ArrayRef_t>(x.m_target);
+                if (is_a<ASR::Variable_t>(*asr_target0->m_v)) {
+                    ASR::Variable_t *asr_target = ASR::down_cast<ASR::Variable_t>(asr_target0->m_v);
+                    if ( is_a<ASR::Character_t>(*asr_target->m_type) ) {
+                        ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(asr_target->m_type);
+                        if (t->n_dims == 0) {
+                            target = builder->CreateLoad(target);
+                            lhs_is_string_arrayref = true;
+                        }
+                    }
+                }
+            }
         } else {
             ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
             h = get_hash((ASR::asr_t*)asr_target);
@@ -2258,11 +2303,19 @@ public:
                 if( asr_target->m_type->type == 
                     ASR::ttypeType::Character ) {
                     target = arr_descr->get_pointer_to_data(target);
+                }
             }
-        }
         }
         this->visit_expr_wrapper(x.m_value, true);
         value = tmp;
+        if ( is_a<ASR::Character_t>(*expr_type(x.m_value)) ) {
+            ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(expr_type(x.m_value));
+            if (t->n_dims == 0) {
+                if (lhs_is_string_arrayref) {
+                    value = builder->CreateLoad(value);
+                }
+            }
+        }
         builder->CreateStore(value, target);
         auto finder = std::find(nested_globals.begin(), 
                 nested_globals.end(), h);

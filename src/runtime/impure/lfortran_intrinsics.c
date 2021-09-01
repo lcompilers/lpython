@@ -488,3 +488,12 @@ char* _lfortran_malloc(int size) {
 void _lfortran_free(char* ptr) {
     free((void*)ptr);
 }
+
+// size_plus_one is the size of the string including the null character
+void _lfortran_string_init(int size_plus_one, char *s) {
+    int size = size_plus_one-1;
+    for (int i=0; i < size; i++) {
+        s[i] = ' ';
+    }
+    s[size] = '\0';
+}

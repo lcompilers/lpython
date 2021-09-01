@@ -5,6 +5,22 @@ namespace LFortran {
 
     namespace LLVMArrUtils {
 
+        llvm::Value* lfortran_malloc(llvm::LLVMContext &context, llvm::Module &module,
+                llvm::IRBuilder<> &builder, llvm::Value* arg_size) {
+            std::string func_name = "_lfortran_malloc";
+            llvm::Function *fn = module.getFunction(func_name);
+            if (!fn) {
+                llvm::FunctionType *function_type = llvm::FunctionType::get(
+                        llvm::Type::getInt8PtrTy(context), {
+                            llvm::Type::getInt32Ty(context)
+                        }, true);
+                fn = llvm::Function::Create(function_type,
+                        llvm::Function::ExternalLinkage, func_name, module);
+            }
+            std::vector<llvm::Value*> args = {arg_size};
+            return builder.CreateCall(fn, args);
+        }
+
         bool compile_time_dimensions_t(ASR::dimension_t* m_dims, int n_dims) {
             if( n_dims <= 0 ) {
                 return false;
@@ -352,17 +368,7 @@ namespace LFortran {
                 num_elements = builder->CreateMul(num_elements, dim_size);
                 builder->CreateStore(dim_size, dim_size_ptr);
             }
-            std::string func_name = "_lfortran_malloc";
-            llvm::Function *fn = module->getFunction(func_name);
             llvm::Value* ptr2firstptr = get_pointer_to_data(arr);
-            if (!fn) {
-                llvm::FunctionType *function_type = llvm::FunctionType::get(
-                        llvm::Type::getInt8PtrTy(context), {
-                            llvm::Type::getInt32Ty(context)
-                        }, true);
-                fn = llvm::Function::Create(function_type,
-                        llvm::Function::ExternalLinkage, func_name, *module);
-            }
             llvm::AllocaInst *arg_size = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
             llvm::DataLayout data_layout(module);
             llvm::Type* ptr2firstptr_type = ptr2firstptr->getType();
@@ -373,8 +379,7 @@ namespace LFortran {
             llvm::Value* llvm_size = llvm::ConstantInt::get(context, llvm::APInt(32, size));
             num_elements = builder->CreateMul(num_elements, llvm_size);
             builder->CreateStore(num_elements, arg_size);
-            std::vector<llvm::Value*> args = {builder->CreateLoad(arg_size)};
-            llvm::Value* ptr_as_char_ptr = builder->CreateCall(fn, args);
+            llvm::Value* ptr_as_char_ptr = lfortran_malloc(context, *module, *builder, builder->CreateLoad(arg_size));
             llvm::Value* first_ptr = builder->CreateBitCast(ptr_as_char_ptr, ptr_type);
             builder->CreateStore(first_ptr, ptr2firstptr);
         }
