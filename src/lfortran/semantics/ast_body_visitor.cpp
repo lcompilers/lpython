@@ -60,7 +60,9 @@ private:
         {"sqrt", "lfortran_intrinsic_math2"},
         {"int", "lfortran_intrinsic_array"},
         {"real", "lfortran_intrinsic_array"},
-        {"tiny", "lfortran_intrinsic_array"}
+        {"tiny", "lfortran_intrinsic_array"},
+        {"len_trim", "lfortran_intrinsic_string"},
+        {"trim", "lfortran_intrinsic_string"},
 };
 
 public:
