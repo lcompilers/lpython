@@ -1989,7 +1989,7 @@ public:
                 break;
             }
             case (ASR::ttypeType::Character) :
-                return_type = llvm::Type::getInt8Ty(context);
+                return_type = character_type;
                 break;
             case (ASR::ttypeType::Logical) :
                 return_type = llvm::Type::getInt1Ty(context);
