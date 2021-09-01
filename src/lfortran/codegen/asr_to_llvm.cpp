@@ -1552,7 +1552,11 @@ public:
                         break;
                     }
                     case (ASR::ttypeType::Character) :
-                        type = character_type->getPointerTo();
+                        if (arg->m_abi == ASR::abiType::BindC) {
+                            type = character_type;
+                        } else {
+                            type = character_type->getPointerTo();
+                        }
                         break;
                     case (ASR::ttypeType::Logical) : {
                         ASR::Logical_t* v_type = down_cast<ASR::Logical_t>(arg->m_type);
@@ -3496,6 +3500,7 @@ public:
                     llvm::Value *value=tmp;
                     llvm::Type *target_type;
                     ASR::ttype_t* arg_type = expr_type(x.m_args[i]);
+                    bool character_bindc = false;
                     switch (arg_type->type) {
                         case (ASR::ttypeType::Integer) : {
                             int a_kind = down_cast<ASR::Integer_t>(arg_type)->m_kind;
@@ -3512,9 +3517,25 @@ public:
                             target_type = getComplexType(a_kind);
                             break;
                         }
-                        case (ASR::ttypeType::Character) :
+                        case (ASR::ttypeType::Character) : {
+                            const ASR::symbol_t* func_subrout = symbol_get_past_external(x.m_name);
+                            ASR::Variable_t *orig_arg = nullptr;
+                            if( func_subrout->type == ASR::symbolType::Function ) {
+                                ASR::Function_t* func = down_cast<ASR::Function_t>(func_subrout);
+                                orig_arg = EXPR2VAR(func->m_args[i]);
+                            } else if( func_subrout->type == ASR::symbolType::Subroutine ) {
+                                ASR::Subroutine_t* sub = down_cast<ASR::Subroutine_t>(func_subrout);
+                                orig_arg = EXPR2VAR(sub->m_args[i]);
+                            } else {
+                                LFORTRAN_ASSERT(false)
+                            }
+                            if (orig_arg->m_abi == ASR::abiType::BindC) {
+                                character_bindc = true;
+                            }
+
                             target_type = character_type;
                             break;
+                        }
                         case (ASR::ttypeType::Logical) :
                             target_type = llvm::Type::getInt1Ty(context);
                             break;
@@ -3529,10 +3550,12 @@ public:
                             break;
                         }
                         default: {
-                            llvm::AllocaInst *target = builder->CreateAlloca(
-                                target_type, nullptr);
-                            builder->CreateStore(value, target);
-                            tmp = target;
+                            if (!character_bindc) {
+                                llvm::AllocaInst *target = builder->CreateAlloca(
+                                    target_type, nullptr);
+                                builder->CreateStore(value, target);
+                                tmp = target;
+                            }
                         }
                     }
                 }
