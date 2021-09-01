@@ -183,6 +183,45 @@ static inline SymbolTable *symbol_parent_symtab(const ASR::symbol_t *f)
     }
 }
 
+// Returns the `symbol`'s symtab, or nullptr if the symbol has no symtab
+static inline SymbolTable *symbol_symtab(const ASR::symbol_t *f)
+{
+    switch (f->type) {
+        case ASR::symbolType::Program: {
+            return ASR::down_cast<ASR::Program_t>(f)->m_symtab;
+        }
+        case ASR::symbolType::Module: {
+            return ASR::down_cast<ASR::Module_t>(f)->m_symtab;
+        }
+        case ASR::symbolType::Subroutine: {
+            return ASR::down_cast<ASR::Subroutine_t>(f)->m_symtab;
+        }
+        case ASR::symbolType::Function: {
+            return ASR::down_cast<ASR::Function_t>(f)->m_symtab;
+        }
+        case ASR::symbolType::GenericProcedure: {
+            return nullptr;
+            //throw LFortranException("GenericProcedure does not have a symtab");
+        }
+        case ASR::symbolType::DerivedType: {
+            return ASR::down_cast<ASR::DerivedType_t>(f)->m_symtab;
+        }
+        case ASR::symbolType::Variable: {
+            return nullptr;
+            //throw LFortranException("Variable does not have a symtab");
+        }
+        case ASR::symbolType::ExternalSymbol: {
+            return nullptr;
+            //throw LFortranException("ExternalSymbol does not have a symtab");
+        }
+        case ASR::symbolType::ClassProcedure: {
+            return nullptr;
+            //throw LFortranException("ClassProcedure does not have a symtab");
+        }
+        default : throw LFortranException("Not implemented");
+    }
+}
+
 const ASR::intentType intent_local=ASR::intentType::Local; // local variable (not a dummy argument)
 const ASR::intentType intent_in   =ASR::intentType::In; // dummy argument, intent(in)
 const ASR::intentType intent_out  =ASR::intentType::Out; // dummy argument, intent(out)
