@@ -39,5 +39,7 @@ void sub_int_intarray(int n, int *b, int *r);
 void sub_int_floatarray(int n, float *b, float *r);
 void sub_int_doublearray(int n, double *b, double *r);
 
+int f_string(char *s);
+
 
 #endif // MODULES_15C
