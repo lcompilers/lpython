@@ -19,6 +19,9 @@ namespace LFortran {
 
     namespace LLVMArrUtils {
 
+        llvm::Value* lfortran_malloc(llvm::LLVMContext &context, llvm::Module &module,
+                llvm::IRBuilder<> &builder, llvm::Value* arg_size);
+
         /*
         * This function checks whether the
         * dimensions are available at compile time.
