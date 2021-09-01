@@ -2237,6 +2237,18 @@ public:
             x.m_target->type == ASR::exprType::DerivedRef ) {
             this->visit_expr(*x.m_target);
             target = tmp;   
+            if (is_a<ASR::ArrayRef_t>(*x.m_target)) {
+                ASR::ArrayRef_t *asr_target0 = ASR::down_cast<ASR::ArrayRef_t>(x.m_target);
+                if (is_a<ASR::Variable_t>(*asr_target0->m_v)) {
+                    ASR::Variable_t *asr_target = ASR::down_cast<ASR::Variable_t>(asr_target0->m_v);
+                    if ( is_a<ASR::Character_t>(*asr_target->m_type) ) {
+                        ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(asr_target->m_type);
+                        if (t->n_dims == 0) {
+                            target = builder->CreateLoad(target);
+                        }
+                    }
+                }
+            }
         } else {
             ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
             h = get_hash((ASR::asr_t*)asr_target);
@@ -2278,6 +2290,12 @@ public:
         }
         this->visit_expr_wrapper(x.m_value, true);
         value = tmp;
+        if ( is_a<ASR::Character_t>(*expr_type(x.m_value)) ) {
+            ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(expr_type(x.m_value));
+            if (t->n_dims == 0) {
+                value = builder->CreateLoad(value);
+            }
+        }
         builder->CreateStore(value, target);
         auto finder = std::find(nested_globals.begin(), 
                 nested_globals.end(), h);
