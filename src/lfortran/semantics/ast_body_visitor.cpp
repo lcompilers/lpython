@@ -904,7 +904,7 @@ public:
                             /* a_symtab */ current_scope,
                             /* a_name */ cname,
                             final_sym,
-                            p->m_module_name, LFortran::ASRUtils::symbol_name(final_sym),
+                            p->m_module_name, nullptr, 0, LFortran::ASRUtils::symbol_name(final_sym),
                             ASR::accessType::Private
                             );
                         final_sym = ASR::down_cast<ASR::symbol_t>(sub);
@@ -1100,7 +1100,7 @@ public:
                         }
                         if( make_new_ext_sym ) {
                             der_ext = (ASR::symbol_t*)ASR::make_ExternalSymbol_t(al, loc, current_scope, mangled_name_char, m_external,
-                                                                                module_name, der_type->m_name, ASR::accessType::Public);
+                                                                                module_name, nullptr, 0, der_type->m_name, ASR::accessType::Public);
                             current_scope->scope[mangled_name.str()] = der_ext;
                         } else {
                             LFORTRAN_ASSERT(der_tmp != nullptr);
@@ -1263,7 +1263,7 @@ public:
                 /* a_symtab */ current_scope,
                 /* a_name */ cname,
                 final_sym,
-                p->m_module_name, LFortran::ASRUtils::symbol_name(final_sym),
+                p->m_module_name, nullptr, 0, LFortran::ASRUtils::symbol_name(final_sym),
                 ASR::accessType::Private
                 );
             final_sym = ASR::down_cast<ASR::symbol_t>(sub);
@@ -1320,7 +1320,7 @@ public:
                         /* a_symtab */ current_scope,
                         /* a_name */ gp->m_name,
                         (ASR::symbol_t*)gp,
-                        m->m_name, gp->m_name,
+                        m->m_name, nullptr, 0, gp->m_name,
                         ASR::accessType::Private
                         );
                     std::string sym = gp->m_name;
@@ -1354,7 +1354,7 @@ public:
                     /* a_symtab */ current_scope,
                     /* a_name */ mfn->m_name,
                     (ASR::symbol_t*)mfn,
-                    m->m_name, mfn->m_name,
+                    m->m_name, nullptr, 0, mfn->m_name,
                     ASR::accessType::Private
                     );
                 std::string sym = mfn->m_name;
@@ -1469,7 +1469,7 @@ public:
                                             /* a_name */ f->m_name,
                                             (ASR::symbol_t*)f,
                                             //m->m_name,
-                                            modname,
+                                            modname, nullptr, 0,
                                             f->m_name,
                                             ASR::accessType::Private
                                             ));
@@ -1494,7 +1494,7 @@ public:
                                                         /* a_name */ v->m_name,
                                                         (ASR::symbol_t*)v,
                                                         //m->m_name,
-                                                        modname,
+                                                        modname, nullptr, 0,
                                                         v->m_name,
                                                         ASR::accessType::Private
                                                         ));

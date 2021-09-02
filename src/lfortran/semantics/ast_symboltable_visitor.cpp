@@ -932,7 +932,7 @@ public:
                     /* a_symtab */ current_scope,
                     /* a_name */ mfn->m_name,
                     (ASR::symbol_t*)mfn,
-                    m->m_name, mfn->m_name,
+                    m->m_name, nullptr, 0, mfn->m_name,
                     ASR::accessType::Private
                     );
                 std::string sym = mfn->m_name;
@@ -1358,7 +1358,7 @@ public:
                         /* a_symtab */ current_scope,
                         /* a_name */ msub->m_name,
                         (ASR::symbol_t*)msub,
-                        m->m_name, msub->m_name,
+                        m->m_name, nullptr, 0, msub->m_name,
                         dflt_access
                         );
                     std::string sym = msub->m_name;
@@ -1370,7 +1370,7 @@ public:
                         /* a_symtab */ current_scope,
                         /* a_name */ mfn->m_name,
                         (ASR::symbol_t*)mfn,
-                        m->m_name, mfn->m_name,
+                        m->m_name, nullptr, 0, mfn->m_name,
                         dflt_access
                         );
                     std::string sym = mfn->m_name;
@@ -1383,7 +1383,7 @@ public:
                         current_scope,
                         /* a_name */ gp->m_name,
                         (ASR::symbol_t*)gp,
-                        m->m_name, gp->m_name,
+                        m->m_name, nullptr, 0, gp->m_name,
                         dflt_access
                         );
                     std::string sym = gp->m_name;
@@ -1395,7 +1395,7 @@ public:
                         /* a_symtab */ current_scope,
                         /* a_name */ mvar->m_name,
                         (ASR::symbol_t*)mvar,
-                        m->m_name, mvar->m_name,
+                        m->m_name, nullptr, 0, mvar->m_name,
                         dflt_access
                         );
                     std::string sym = mvar->m_name;
@@ -1409,7 +1409,7 @@ public:
                         /* a_symtab */ current_scope,
                         /* a_name */ es0->m_name,
                         es0->m_external,
-                        es0->m_module_name,
+                        es0->m_module_name, nullptr, 0,
                         es0->m_original_name,
                         dflt_access
                         );
@@ -1451,7 +1451,7 @@ public:
                         /* a_symtab */ current_scope,
                         /* a_name */ name.c_str(al),
                         (ASR::symbol_t*)msub,
-                        m->m_name, msub->m_name,
+                        m->m_name, nullptr, 0, msub->m_name,
                         dflt_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(sub);
@@ -1469,7 +1469,7 @@ public:
                         current_scope,
                         /* a_name */ cname,
                         t,
-                        m->m_name, gp->m_name,
+                        m->m_name, nullptr, 0, gp->m_name,
                         dflt_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(ep);
@@ -1485,7 +1485,7 @@ public:
                         current_scope,
                         /* a_name */ es->m_name,
                         es->m_external,
-                        es->m_module_name, es->m_original_name,
+                        es->m_module_name, es->m_scope_names, es->n_scope_names, es->m_original_name,
                         es->m_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(ep);
@@ -1505,7 +1505,7 @@ public:
                         /* a_symtab */ current_scope,
                         /* a_name */ cname,
                         (ASR::symbol_t*)mfn,
-                        m->m_name, mfn->m_name,
+                        m->m_name, nullptr, 0, mfn->m_name,
                         dflt_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(fn);
@@ -1525,7 +1525,7 @@ public:
                         /* a_symtab */ current_scope,
                         /* a_name */ cname,
                         (ASR::symbol_t*)mv,
-                        m->m_name, mv->m_name,
+                        m->m_name, nullptr, 0, mv->m_name,
                         dflt_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(v);
@@ -1545,7 +1545,7 @@ public:
                         /* a_symtab */ current_scope,
                         /* a_name */ cname,
                         (ASR::symbol_t*)mv,
-                        m->m_name, mv->m_name,
+                        m->m_name, nullptr, 0, mv->m_name,
                         dflt_access
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(v);
