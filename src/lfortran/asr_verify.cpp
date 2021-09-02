@@ -99,6 +99,8 @@ public:
             "TranslationUnit::m_global_scope->counter must be unique");
         require(x.m_global_scope->asr_owner == (ASR::asr_t*)&x,
             "The TranslationUnit::m_global_scope::asr_owner must point to itself");
+        require(down_cast2<TranslationUnit_t>(current_symtab->asr_owner)->m_global_scope == current_symtab,
+            "The asr_owner invariant failed");
         id_symtab_map[x.m_global_scope->counter] = x.m_global_scope;
         for (auto &a : x.m_global_scope->scope) {
             this->visit_symbol(*a.second);
@@ -127,6 +129,8 @@ public:
             "Program::m_symtab->counter must be unique");
         require(x.m_symtab->asr_owner == (ASR::asr_t*)&x,
             "The X::m_symtab::asr_owner must point to X");
+        require(ASRUtils::symbol_symtab(down_cast<symbol_t>(current_symtab->asr_owner)) == current_symtab,
+            "The asr_owner invariant failed");
         id_symtab_map[x.m_symtab->counter] = x.m_symtab;
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
@@ -150,6 +154,8 @@ public:
             "Module::m_symtab->counter must be unique");
         require(x.m_symtab->asr_owner == (ASR::asr_t*)&x,
             "The X::m_symtab::asr_owner must point to X");
+        require(ASRUtils::symbol_symtab(down_cast<symbol_t>(current_symtab->asr_owner)) == current_symtab,
+            "The asr_owner invariant failed");
         id_symtab_map[x.m_symtab->counter] = x.m_symtab;
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
@@ -179,6 +185,8 @@ public:
             "The X::m_symtab::asr_owner must point to X");
         require(id_symtab_map.find(x.m_symtab->counter) == id_symtab_map.end(),
             "Subroutine::m_symtab->counter must be unique");
+        require(ASRUtils::symbol_symtab(down_cast<symbol_t>(current_symtab->asr_owner)) == current_symtab,
+            "The asr_owner invariant failed");
         id_symtab_map[x.m_symtab->counter] = x.m_symtab;
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
@@ -203,6 +211,8 @@ public:
             "The X::m_symtab::asr_owner must point to X");
         require(id_symtab_map.find(x.m_symtab->counter) == id_symtab_map.end(),
             "Function::m_symtab->counter must be unique");
+        require(ASRUtils::symbol_symtab(down_cast<symbol_t>(current_symtab->asr_owner)) == current_symtab,
+            "The asr_owner invariant failed");
         id_symtab_map[x.m_symtab->counter] = x.m_symtab;
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
@@ -228,6 +238,8 @@ public:
             "The X::m_symtab::asr_owner must point to X");
         require(id_symtab_map.find(x.m_symtab->counter) == id_symtab_map.end(),
             "Derivedtype::m_symtab->counter must be unique");
+        require(ASRUtils::symbol_symtab(down_cast<symbol_t>(current_symtab->asr_owner)) == current_symtab,
+            "The asr_owner invariant failed");
         id_symtab_map[x.m_symtab->counter] = x.m_symtab;
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
