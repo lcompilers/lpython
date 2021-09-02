@@ -369,6 +369,12 @@ public:
             require(symtab_in_scope(current_symtab, x.m_name),
                 "FunctionCall::m_name cannot point outside of its symbol table",
                 x.base.base.loc);
+            if (check_external) {
+                const ASR::symbol_t *fn = ASRUtils::symbol_get_past_external(x.m_name);
+                require(ASR::is_a<ASR::Function_t>(*fn),
+                    "FunctionCall::m_name must be a Function",
+                    x.base.base.loc);
+            }
         }
         for (size_t i=0; i<x.n_args; i++) {
             visit_expr(*x.m_args[i]);
