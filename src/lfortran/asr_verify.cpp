@@ -85,11 +85,21 @@ public:
 
     bool symtab_in_scope2(const SymbolTable *symtab, const ASR::symbol_t *sym) {
         unsigned int symtab_ID = symbol_parent_symtab(sym)->counter;
+        char *sym_name = symbol_name(sym);
         const SymbolTable *s = symtab;
         while (s != nullptr) {
-            if (s->counter == symtab_ID) return true;
+            if (s->counter == symtab_ID) {
+                if (s->scope.find(std::string(sym_name)) != s->scope.end()) {
+                    // The symbol table was found and the symbol `sym` is in it
+                    return true;
+                } else {
+                    // The symbol table was found, but the symbol `sym` is not in it
+                    return false;
+                }
+            }
             s = s->parent;
         }
+        // The symbol table was not found in the scope of `symtab`.
         return false;
     }
 
