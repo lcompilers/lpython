@@ -1291,7 +1291,7 @@ public:
             v = resolve_deriv_type_proc(x.base.base.loc, x.m_func,
                 x.m_member[0].m_name, scope);
         } else {
-            v = current_scope->resolve_symbol(var_name);
+            v = current_scope->resolve_symbol(to_lower(var_name));
         }
         if (!v) {
             std::string remote_sym = to_lower(var_name);
