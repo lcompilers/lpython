@@ -315,7 +315,7 @@ namespace LFortran {
             ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
             ASR::asr_t *fn = ASR::make_ExternalSymbol_t(al, mfn->base.base.loc, current_scope,
                                                         mfn->m_name, (ASR::symbol_t*)mfn,
-                                                        m->m_name, mfn->m_name, ASR::accessType::Private);
+                                                        m->m_name, nullptr, 0, mfn->m_name, ASR::accessType::Private);
             std::string sym = mfn->m_name;
             if( current_scope->scope.find(sym) != current_scope->scope.end() ) {
                 v = current_scope->scope[sym];

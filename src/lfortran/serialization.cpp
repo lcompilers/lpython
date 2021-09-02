@@ -316,11 +316,10 @@ public:
         }
         if (global_symtab->scope.find(module_name) != global_symtab->scope.end()) {
             Module_t *m = down_cast<Module_t>(global_symtab->scope[module_name]);
-            if (m->m_symtab->scope.find(original_name) != m->m_symtab->scope.end()) {
-                symbol_t *sym = m->m_symtab->scope[original_name];
+            symbol_t *sym = m->m_symtab->find_scoped_symbol(original_name, x.n_scope_names, x.m_scope_names);
+            if (sym) {
                 // FIXME: this is a hack, we need to pass in a non-const `x`.
                 ExternalSymbol_t &xx = const_cast<ExternalSymbol_t&>(x);
-                LFORTRAN_ASSERT(sym)
                 xx.m_external = sym;
             } else {
                 throw LFortranException("ExternalSymbol cannot be resolved, the symbol '"
@@ -329,11 +328,10 @@ public:
             }
         } else if (external_symtab->scope.find(module_name) != external_symtab->scope.end()) {
             Module_t *m = down_cast<Module_t>(external_symtab->scope[module_name]);
-            if (m->m_symtab->scope.find(original_name) != m->m_symtab->scope.end()) {
-                symbol_t *sym = m->m_symtab->scope[original_name];
+            symbol_t *sym = m->m_symtab->find_scoped_symbol(original_name, x.n_scope_names, x.m_scope_names);
+            if (sym) {
                 // FIXME: this is a hack, we need to pass in a non-const `x`.
                 ExternalSymbol_t &xx = const_cast<ExternalSymbol_t&>(x);
-                LFORTRAN_ASSERT(sym)
                 xx.m_external = sym;
             } else {
                 throw LFortranException("ExternalSymbol cannot be resolved, the symbol '"

@@ -46,6 +46,9 @@ struct SymbolTable {
 
     // Marks all variables as external
     void mark_all_variables_external(Allocator &al);
+
+    ASR::symbol_t *find_scoped_symbol(const std::string &name,
+        size_t n_scope_names, char **m_scope_names);
 };
 
 } // namespace LFortran
