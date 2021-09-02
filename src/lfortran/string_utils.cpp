@@ -2,6 +2,7 @@
 #include <regex>
 
 #include <lfortran/string_utils.h>
+#include <lfortran/containers.h>
 
 namespace LFortran
 {
@@ -23,6 +24,11 @@ std::string to_lower(const std::string &s) {
     std::string res;
     for(auto x: s) res.push_back(std::tolower(x));
     return res;
+}
+
+char *s2c(Allocator &al, const std::string &s) {
+    Str x; x.from_str_view(s);
+    return x.c_str(al);
 }
 
 std::vector<std::string> split(const std::string &s)

@@ -253,7 +253,7 @@ public:
         require(symtab != nullptr,
             "Variable::m_parent_symtab cannot be nullptr");
         require(symtab->scope.find(std::string(x.m_name)) != symtab->scope.end(),
-            "Variable not found in parent_symtab symbol table");
+            "Variable '" + std::string(x.m_name) + "' not found in parent_symtab symbol table");
         symbol_t *symtab_sym = symtab->scope[std::string(x.m_name)];
         const symbol_t *current_sym = &x.base;
         require(symtab_sym == current_sym,
