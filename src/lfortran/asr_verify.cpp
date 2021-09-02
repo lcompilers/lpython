@@ -285,37 +285,42 @@ public:
         }
     }
 
+    SymbolTable *get_dt_symtab(ASR::expr_t *dt, const Location &loc) {
+        require(ASR::is_a<ASR::Var_t>(*dt),
+            "m_dt must point to a Var",
+            loc);
+        ASR::Var_t *var = ASR::down_cast<ASR::Var_t>(dt);
+        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var->m_v);
+        ASR::symbol_t *type_sym=nullptr;
+        switch (v->m_type->type) {
+            case (ASR::ttypeType::Derived): {
+                type_sym = ASR::down_cast<ASR::Derived_t>(v->m_type)->m_derived_type;
+                break;
+            }
+            case (ASR::ttypeType::DerivedPointer): {
+                type_sym = ASR::down_cast<ASR::DerivedPointer_t>(v->m_type)->m_derived_type;
+                break;
+            }
+            case (ASR::ttypeType::Class): {
+                type_sym = ASR::down_cast<ASR::Class_t>(v->m_type)->m_class_type;
+                break;
+            }
+            default :
+                require(false,
+                    "m_dt::m_v::m_type must point to a type with a symbol table (Derived or Class)",
+                    loc);
+        }
+        LFORTRAN_ASSERT(type_sym)
+        SymbolTable *symtab = ASRUtils::symbol_symtab(type_sym);
+        require(symtab,
+            "m_dt::m_v::m_type::class/derived_type must point to a symbol with a symbol table",
+            loc);
+        return symtab;
+    }
+
     void visit_FunctionCall(const FunctionCall_t &x) {
         if (x.m_dt) {
-            require(ASR::is_a<ASR::Var_t>(*x.m_dt),
-                "FunctionCall::m_dt must point to a Var",
-                x.base.base.loc);
-            ASR::Var_t *var = ASR::down_cast<ASR::Var_t>(x.m_dt);
-            ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var->m_v);
-            ASR::symbol_t *type_sym=nullptr;
-            switch (v->m_type->type) {
-                case (ASR::ttypeType::Derived): {
-                    type_sym = ASR::down_cast<ASR::Derived_t>(v->m_type)->m_derived_type;
-                    break;
-                }
-                case (ASR::ttypeType::DerivedPointer): {
-                    type_sym = ASR::down_cast<ASR::DerivedPointer_t>(v->m_type)->m_derived_type;
-                    break;
-                }
-                case (ASR::ttypeType::Class): {
-                    type_sym = ASR::down_cast<ASR::Class_t>(v->m_type)->m_class_type;
-                    break;
-                }
-                default :
-                    require(false,
-                        "FunctionCall::m_dt::m_v::m_type must point to a type with a symbol table (Derived or Class)",
-                        x.base.base.loc);
-            }
-            LFORTRAN_ASSERT(type_sym)
-            SymbolTable *symtab = ASRUtils::symbol_symtab(type_sym);
-            require(symtab,
-                "FunctionCall::m_dt::m_v::m_type::class/derived_type must point to a symbol with a symbol table",
-                x.base.base.loc);
+            SymbolTable *symtab = get_dt_symtab(x.m_dt, x.base.base.loc);
             require(symtab_in_scope(symtab, x.m_name),
                 "FunctionCall::m_name cannot point outside of its symbol table",
                 x.base.base.loc);
