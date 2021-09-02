@@ -98,7 +98,7 @@ public:
         require(id_symtab_map.find(x.m_global_scope->counter) == id_symtab_map.end(),
             "TranslationUnit::m_global_scope->counter must be unique");
         require(x.m_global_scope->asr_owner == (ASR::asr_t*)&x,
-            "The X::m_global_scope::asr_owner must point to X");
+            "The TranslationUnit::m_global_scope::asr_owner must point to itself");
         id_symtab_map[x.m_global_scope->counter] = x.m_global_scope;
         for (auto &a : x.m_global_scope->scope) {
             this->visit_symbol(*a.second);
