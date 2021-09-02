@@ -59,21 +59,22 @@ public:
     // Returns true if the `symtab_ID` is the current symbol table `symtab` or
     // any of its parents. It returns false otherwise, such as in the case when
     // the symtab is in a different module.
-    bool symtab_in_scope(const SymbolTable *symtab, unsigned int symtab_ID) {
+    bool symtab_in_scope_weak(const SymbolTable *symtab, const ASR::symbol_t *sym) {
+        unsigned int symtab_ID = symbol_parent_symtab(sym)->counter;
         const SymbolTable *s = symtab;
         while (s != nullptr) {
             if (s->counter == symtab_ID) return true;
-            for(auto &sym : s->scope){
+            for(auto &sym0 : s->scope){
                 const SymbolTable *s_loc;
-                if( ASR::is_a<ASR::ExternalSymbol_t>(*sym.second) ) {
-                    ASR::ExternalSymbol_t* der_ext = ASR::down_cast<ASR::ExternalSymbol_t>(sym.second);
+                if ( ASR::is_a<ASR::ExternalSymbol_t>(*sym0.second) ) {
+                    ASR::ExternalSymbol_t* der_ext = ASR::down_cast<ASR::ExternalSymbol_t>(sym0.second);
                     ASR::symbol_t* der_sym = der_ext->m_external;
                     if (check_external) {
                         LFORTRAN_ASSERT(der_sym)
                         if( ASR::is_a<DerivedType_t>(*der_sym)) {
                             ASR::DerivedType_t *der_type = ASR::down_cast<ASR::DerivedType_t>(der_sym);
                             s_loc = der_type->m_symtab;
-                            if(symtab_in_scope(s_loc, symtab_ID)) return true;
+                            if (symtab_in_scope_weak(s_loc, sym)) return true;
                         }
                     }
                 }
@@ -83,7 +84,7 @@ public:
         return false;
     }
 
-    bool symtab_in_scope2(const SymbolTable *symtab, const ASR::symbol_t *sym) {
+    bool symtab_in_scope(const SymbolTable *symtab, const ASR::symbol_t *sym) {
         unsigned int symtab_ID = symbol_parent_symtab(sym)->counter;
         char *sym_name = symbol_name(sym);
         const SymbolTable *s = symtab;
@@ -278,13 +279,12 @@ public:
                 || is_a<Function_t>(*x.m_v) || is_a<Subroutine_t>(*x.m_v),
             "Var_t::m_v does not point to a Variable_t, ExternalSymbol_t," \
             "Function_t, or Subroutine_t");
-        require(symtab_in_scope(current_symtab,
-             symbol_parent_symtab(x.m_v)->counter),
+        require(symtab_in_scope_weak(current_symtab, x.m_v),
             "Var::m_v cannot point outside of its symbol table");
     }
 
     void visit_ArrayRef(const ArrayRef_t &x) {
-        require(symtab_in_scope2(current_symtab, x.m_v),
+        require(symtab_in_scope(current_symtab, x.m_v),
             "ArrayRef::m_v cannot point outside of its symbol table");
         for (size_t i=0; i<x.n_args; i++) {
             visit_array_index(x.m_args[i]);
@@ -293,8 +293,7 @@ public:
     }
 
     void visit_SubroutineCall(const SubroutineCall_t &x) {
-        require(symtab_in_scope(current_symtab,
-             symbol_parent_symtab(x.m_name)->counter),
+        require(symtab_in_scope_weak(current_symtab, x.m_name),
             "SubroutineCall::m_name cannot point outside of its symbol table");
         for (size_t i=0; i<x.n_args; i++) {
             visit_expr(*x.m_args[i]);
@@ -302,8 +301,7 @@ public:
     }
 
     void visit_FunctionCall(const FunctionCall_t &x) {
-        require(symtab_in_scope(current_symtab,
-             symbol_parent_symtab(x.m_name)->counter),
+        require(symtab_in_scope_weak(current_symtab, x.m_name),
             "FunctionCall::m_name cannot point outside of its symbol table",
             x.base.base.loc);
         for (size_t i=0; i<x.n_args; i++) {
@@ -320,8 +318,7 @@ public:
     }
 
     void visit_Derived(const Derived_t &x) {
-        require(symtab_in_scope(current_symtab,
-                symbol_parent_symtab(x.m_derived_type)->counter),
+        require(symtab_in_scope_weak(current_symtab, x.m_derived_type),
             "Derived::m_derived_type cannot point outside of its symbol table");
         for (size_t i=0; i<x.n_dims; i++) {
             visit_dimension(x.m_dims[i]);
@@ -329,7 +326,7 @@ public:
     }
 
     void visit_DerivedPointer(const DerivedPointer_t &x) {
-        require(symtab_in_scope2(current_symtab, x.m_derived_type),
+        require(symtab_in_scope(current_symtab, x.m_derived_type),
             "DerivedPointer::m_derived_type cannot point outside of its symbol table");
         for (size_t i=0; i<x.n_dims; i++) {
             visit_dimension(x.m_dims[i]);
