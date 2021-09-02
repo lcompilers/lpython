@@ -4,7 +4,6 @@
 #include <map>
 
 #include <lfortran/parser/alloc.h>
-#include <lfortran/string_utils.h>
 
 namespace LFortran  {
 

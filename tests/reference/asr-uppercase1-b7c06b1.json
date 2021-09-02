@@ -1,0 +1,13 @@
+{
+    "basename": "asr-uppercase1-b7c06b1",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/uppercase1.f90",
+    "infile_hash": "5a65afa41100952259b9009c4fba9ad49c4090de264c0e38fcb37834",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-uppercase1-b7c06b1.stdout",
+    "stdout_hash": "5be2aee21c3f121497b198cb41d169c84f2d99958dffda47a6a7cba7",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
