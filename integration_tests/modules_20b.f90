@@ -5,7 +5,9 @@ contains
 
 subroutine trim2(x)
 character(len=*),intent(in) :: x
-print *, trim(x)
+integer :: len_trim
+len_trim = 1
+print *, len_trim, trim(x)
 end subroutine
 
 end module
