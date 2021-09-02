@@ -67,8 +67,9 @@ public:
         const SymbolTable *s = symtab;
         while (s != nullptr) {
             if (s->counter == symtab_ID) {
-                if (s->scope.find(std::string(sym_name)) != s->scope.end()) {
-                    if (s->scope.at(std::string(sym_name)) == sym) {
+                ASR::symbol_t *sym2 = s->get_symbol(sym_name);
+                if (sym2) {
+                    if (sym2 == sym) {
                         // The symbol table was found and the symbol `sym` is in
                         // it
                         return true;

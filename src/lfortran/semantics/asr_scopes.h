@@ -4,6 +4,7 @@
 #include <map>
 
 #include <lfortran/parser/alloc.h>
+#include <lfortran/string_utils.h>
 
 namespace LFortran  {
 
@@ -42,6 +43,18 @@ struct SymbolTable {
             }
         }
         return scope[name];
+    }
+
+    // Obtains the symbol `name` from the current symbol table
+    // Returns `nullptr` if symbol not found.
+    ASR::symbol_t* get_symbol(const std::string &name) const {
+        //auto it = scope.find(to_lower(name));
+        auto it = scope.find(name);
+        if (it == scope.end()) {
+            return nullptr;
+        } else {
+            return it->second;
+        }
     }
 
     // Marks all variables as external
