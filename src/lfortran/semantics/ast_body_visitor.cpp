@@ -1459,17 +1459,22 @@ public:
                                     ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(fc->m_name);
                                     //ASR::Module_t *m = nullptr; // TODO -- find the function (f) 's module
                                     char *modname=(char*)"FIXME1";
-                                    // TODO: add this ExternalSymbol to `current_scope` if it is not there. If it is there, just reuse it
-                                    ASR::symbol_t *new_es = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(
-                                        al, f->base.base.loc,
-                                        /* a_symtab */ current_scope,
-                                        /* a_name */ f->m_name,
-                                        (ASR::symbol_t*)f,
-                                        //m->m_name,
-                                        modname,
-                                        f->m_name,
-                                        ASR::accessType::Private
-                                        ));
+                                    ASR::symbol_t *new_es;
+                                    if (current_scope->scope.find(std::string(f->m_name)) != current_scope->scope.end()) {
+                                        new_es = current_scope->scope[std::string(f->m_name)];
+                                    } else {
+                                        new_es = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(
+                                            al, f->base.base.loc,
+                                            /* a_symtab */ current_scope,
+                                            /* a_name */ f->m_name,
+                                            (ASR::symbol_t*)f,
+                                            //m->m_name,
+                                            modname,
+                                            f->m_name,
+                                            ASR::accessType::Private
+                                            ));
+                                        current_scope->scope[std::string(f->m_name)] = new_es;
+                                    }
                                     Vec<ASR::expr_t*> args;
                                     args.reserve(al, fc->n_args);
                                     for (size_t i=0; i < fc->n_args; i++) {
@@ -1478,18 +1483,23 @@ public:
                                             ASR::Var_t *var = ASR::down_cast<ASR::Var_t>(arg);
                                             if (ASR::is_a<ASR::Variable_t>(*var->m_v)) {
                                                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var->m_v);
-                                                // TODO: add this ExternalSymbol to `current_scope` if it is not there. If it is there, just reuse it
                                                 char *modname=(char*)"FIXME2";
-                                                ASR::symbol_t *new_v = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(
-                                                    al, v->base.base.loc,
-                                                    /* a_symtab */ current_scope,
-                                                    /* a_name */ v->m_name,
-                                                    (ASR::symbol_t*)v,
-                                                    //m->m_name,
-                                                    modname,
-                                                    v->m_name,
-                                                    ASR::accessType::Private
-                                                    ));
+                                                ASR::symbol_t *new_v;
+                                                if (current_scope->scope.find(std::string(v->m_name)) != current_scope->scope.end()) {
+                                                    new_v = current_scope->scope[std::string(v->m_name)];
+                                                } else {
+                                                    new_v = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(
+                                                        al, v->base.base.loc,
+                                                        /* a_symtab */ current_scope,
+                                                        /* a_name */ v->m_name,
+                                                        (ASR::symbol_t*)v,
+                                                        //m->m_name,
+                                                        modname,
+                                                        v->m_name,
+                                                        ASR::accessType::Private
+                                                        ));
+                                                    current_scope->scope[std::string(v->m_name)] = new_v;
+                                                }
                                                 arg = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, arg->base.loc, new_v));
                                             }
                                         }
