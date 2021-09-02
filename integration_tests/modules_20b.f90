@@ -3,9 +3,9 @@ implicit none
 
 contains
 
-subroutine trim2(y)
-character(len=*),intent(in) :: y
-print *, trim(y)
+subroutine trim2(x)
+character(len=*),intent(in) :: x
+print *, trim(x)
 end subroutine
 
 end module

@@ -188,4 +188,14 @@ ASR::symbol_t *SymbolTable::find_scoped_symbol(const std::string &name,
     }
 }
 
+std::string SymbolTable::get_unique_name(const std::string &name) {
+    std::string unique_name = name;
+    int counter = 1;
+    while (scope.find(unique_name) != scope.end()) {
+        unique_name = name + std::to_string(counter);
+        counter++;
+    }
+    return unique_name;
+}
+
 } // namespace LFortran
