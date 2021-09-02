@@ -1457,8 +1457,8 @@ public:
                                 ASR::FunctionCall_t *fc = ASR::down_cast<ASR::FunctionCall_t>(t->m_len_expr);
                                 if (ASR::is_a<ASR::Function_t>(*fc->m_name)) {
                                     ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(fc->m_name);
-                                    //ASR::Module_t *m = nullptr; // TODO -- find the function (f) 's module
-                                    char *modname=(char*)"FIXME1";
+                                    ASR::Module_t *m = ASR::down_cast2<ASR::Module_t>(f->m_symtab->parent->asr_owner);
+                                    char *modname = m->m_name;
                                     ASR::symbol_t *new_es;
                                     if (current_scope->scope.find(std::string(f->m_name)) != current_scope->scope.end()) {
                                         new_es = current_scope->scope[std::string(f->m_name)];
@@ -1468,7 +1468,6 @@ public:
                                             /* a_symtab */ current_scope,
                                             /* a_name */ f->m_name,
                                             (ASR::symbol_t*)f,
-                                            //m->m_name,
                                             modname, nullptr, 0,
                                             f->m_name,
                                             ASR::accessType::Private
