@@ -51,10 +51,10 @@ define i32 @main() {
   %"1_k" = alloca i32, align 4
   %"2_k" = alloca i32, align 4
   %"3_k" = alloca i32, align 4
-  %A = alloca %array.0, align 8
-  %0 = getelementptr %array.0, %array.0* %A, i32 0, i32 1
+  %a = alloca %array.0, align 8
+  %0 = getelementptr %array.0, %array.0* %a, i32 0, i32 1
   store i32 0, i32* %0, align 4
-  %1 = getelementptr %array.0, %array.0* %A, i32 0, i32 2
+  %1 = getelementptr %array.0, %array.0* %a, i32 0, i32 2
   %2 = getelementptr [3 x %dimension_descriptor], [3 x %dimension_descriptor]* %1, i32 0, i32 0
   %3 = getelementptr %dimension_descriptor, %dimension_descriptor* %2, i32 0, i32 0
   %4 = getelementptr %dimension_descriptor, %dimension_descriptor* %2, i32 0, i32 1
@@ -612,7 +612,7 @@ loop.body20:                                      ; preds = %loop.head19
 loop.end21:                                       ; preds = %loop.head19
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @7, i32 0, i32 0))
   %412 = alloca %dimension_descriptor*, align 8
-  %413 = getelementptr %array.0, %array.0* %A, i32 0, i32 2
+  %413 = getelementptr %array.0, %array.0* %a, i32 0, i32 2
   %414 = getelementptr [3 x %dimension_descriptor], [3 x %dimension_descriptor]* %413, i32 0, i32 0
   store %dimension_descriptor* %414, %dimension_descriptor** %412, align 8
   %415 = alloca i32, align 4
@@ -626,7 +626,7 @@ loop.head22:                                      ; preds = %loop.end29, %loop.e
   %418 = load i32, i32* %"1_k", align 4
   %419 = add i32 %418, 1
   %420 = alloca %dimension_descriptor*, align 8
-  %421 = getelementptr %array.0, %array.0* %A, i32 0, i32 2
+  %421 = getelementptr %array.0, %array.0* %a, i32 0, i32 2
   %422 = getelementptr [3 x %dimension_descriptor], [3 x %dimension_descriptor]* %421, i32 0, i32 0
   store %dimension_descriptor* %422, %dimension_descriptor** %420, align 8
   %423 = alloca i32, align 4
@@ -640,7 +640,7 @@ loop.body23:                                      ; preds = %loop.head22
   %427 = add i32 %426, 1
   store i32 %427, i32* %"1_k", align 4
   %428 = alloca %dimension_descriptor*, align 8
-  %429 = getelementptr %array.0, %array.0* %A, i32 0, i32 2
+  %429 = getelementptr %array.0, %array.0* %a, i32 0, i32 2
   %430 = getelementptr [3 x %dimension_descriptor], [3 x %dimension_descriptor]* %429, i32 0, i32 0
   store %dimension_descriptor* %430, %dimension_descriptor** %428, align 8
   %431 = alloca i32, align 4
@@ -654,7 +654,7 @@ loop.head24:                                      ; preds = %loop.end28, %loop.b
   %434 = load i32, i32* %"2_k", align 4
   %435 = add i32 %434, 1
   %436 = alloca %dimension_descriptor*, align 8
-  %437 = getelementptr %array.0, %array.0* %A, i32 0, i32 2
+  %437 = getelementptr %array.0, %array.0* %a, i32 0, i32 2
   %438 = getelementptr [3 x %dimension_descriptor], [3 x %dimension_descriptor]* %437, i32 0, i32 0
   store %dimension_descriptor* %438, %dimension_descriptor** %436, align 8
   %439 = alloca i32, align 4
@@ -668,7 +668,7 @@ loop.body25:                                      ; preds = %loop.head24
   %443 = add i32 %442, 1
   store i32 %443, i32* %"2_k", align 4
   %444 = alloca %dimension_descriptor*, align 8
-  %445 = getelementptr %array.0, %array.0* %A, i32 0, i32 2
+  %445 = getelementptr %array.0, %array.0* %a, i32 0, i32 2
   %446 = getelementptr [3 x %dimension_descriptor], [3 x %dimension_descriptor]* %445, i32 0, i32 0
   store %dimension_descriptor* %446, %dimension_descriptor** %444, align 8
   %447 = alloca i32, align 4
@@ -682,7 +682,7 @@ loop.head26:                                      ; preds = %loop.body27, %loop.
   %450 = load i32, i32* %"3_k", align 4
   %451 = add i32 %450, 1
   %452 = alloca %dimension_descriptor*, align 8
-  %453 = getelementptr %array.0, %array.0* %A, i32 0, i32 2
+  %453 = getelementptr %array.0, %array.0* %a, i32 0, i32 2
   %454 = getelementptr [3 x %dimension_descriptor], [3 x %dimension_descriptor]* %453, i32 0, i32 0
   store %dimension_descriptor* %454, %dimension_descriptor** %452, align 8
   %455 = alloca i32, align 4
@@ -698,7 +698,7 @@ loop.body27:                                      ; preds = %loop.head26
   %460 = load i32, i32* %"1_k", align 4
   %461 = load i32, i32* %"2_k", align 4
   %462 = load i32, i32* %"3_k", align 4
-  %463 = getelementptr %array.0, %array.0* %A, i32 0, i32 2
+  %463 = getelementptr %array.0, %array.0* %a, i32 0, i32 2
   %464 = getelementptr [3 x %dimension_descriptor], [3 x %dimension_descriptor]* %463, i32 0, i32 0
   %465 = getelementptr %dimension_descriptor, %dimension_descriptor* %464, i32 0, i32 1
   %466 = load i32, i32* %465, align 4
@@ -726,7 +726,7 @@ loop.body27:                                      ; preds = %loop.head26
   %488 = getelementptr %dimension_descriptor, %dimension_descriptor* %482, i32 0, i32 3
   %489 = load i32, i32* %488, align 4
   %490 = mul i32 %481, %489
-  %491 = getelementptr %array.0, %array.0* %A, i32 0, i32 0
+  %491 = getelementptr %array.0, %array.0* %a, i32 0, i32 0
   %492 = getelementptr [27 x i32], [27 x i32]* %491, i32 0, i32 %487
   store i32 7, i32* %492, align 4
   br label %loop.head26
@@ -739,7 +739,7 @@ loop.end29:                                       ; preds = %loop.head24
 
 loop.end30:                                       ; preds = %loop.head22
   %493 = alloca %dimension_descriptor*, align 8
-  %494 = getelementptr %array.0, %array.0* %A, i32 0, i32 2
+  %494 = getelementptr %array.0, %array.0* %a, i32 0, i32 2
   %495 = getelementptr [3 x %dimension_descriptor], [3 x %dimension_descriptor]* %494, i32 0, i32 0
   store %dimension_descriptor* %495, %dimension_descriptor** %493, align 8
   %496 = alloca i32, align 4
@@ -753,7 +753,7 @@ loop.head31:                                      ; preds = %loop.end38, %loop.e
   %499 = load i32, i32* %"1_k", align 4
   %500 = add i32 %499, 1
   %501 = alloca %dimension_descriptor*, align 8
-  %502 = getelementptr %array.0, %array.0* %A, i32 0, i32 2
+  %502 = getelementptr %array.0, %array.0* %a, i32 0, i32 2
   %503 = getelementptr [3 x %dimension_descriptor], [3 x %dimension_descriptor]* %502, i32 0, i32 0
   store %dimension_descriptor* %503, %dimension_descriptor** %501, align 8
   %504 = alloca i32, align 4
@@ -767,7 +767,7 @@ loop.body32:                                      ; preds = %loop.head31
   %508 = add i32 %507, 1
   store i32 %508, i32* %"1_k", align 4
   %509 = alloca %dimension_descriptor*, align 8
-  %510 = getelementptr %array.0, %array.0* %A, i32 0, i32 2
+  %510 = getelementptr %array.0, %array.0* %a, i32 0, i32 2
   %511 = getelementptr [3 x %dimension_descriptor], [3 x %dimension_descriptor]* %510, i32 0, i32 0
   store %dimension_descriptor* %511, %dimension_descriptor** %509, align 8
   %512 = alloca i32, align 4
@@ -781,7 +781,7 @@ loop.head33:                                      ; preds = %loop.end37, %loop.b
   %515 = load i32, i32* %"2_k", align 4
   %516 = add i32 %515, 1
   %517 = alloca %dimension_descriptor*, align 8
-  %518 = getelementptr %array.0, %array.0* %A, i32 0, i32 2
+  %518 = getelementptr %array.0, %array.0* %a, i32 0, i32 2
   %519 = getelementptr [3 x %dimension_descriptor], [3 x %dimension_descriptor]* %518, i32 0, i32 0
   store %dimension_descriptor* %519, %dimension_descriptor** %517, align 8
   %520 = alloca i32, align 4
@@ -795,7 +795,7 @@ loop.body34:                                      ; preds = %loop.head33
   %524 = add i32 %523, 1
   store i32 %524, i32* %"2_k", align 4
   %525 = alloca %dimension_descriptor*, align 8
-  %526 = getelementptr %array.0, %array.0* %A, i32 0, i32 2
+  %526 = getelementptr %array.0, %array.0* %a, i32 0, i32 2
   %527 = getelementptr [3 x %dimension_descriptor], [3 x %dimension_descriptor]* %526, i32 0, i32 0
   store %dimension_descriptor* %527, %dimension_descriptor** %525, align 8
   %528 = alloca i32, align 4
@@ -809,7 +809,7 @@ loop.head35:                                      ; preds = %loop.body36, %loop.
   %531 = load i32, i32* %"3_k", align 4
   %532 = add i32 %531, 1
   %533 = alloca %dimension_descriptor*, align 8
-  %534 = getelementptr %array.0, %array.0* %A, i32 0, i32 2
+  %534 = getelementptr %array.0, %array.0* %a, i32 0, i32 2
   %535 = getelementptr [3 x %dimension_descriptor], [3 x %dimension_descriptor]* %534, i32 0, i32 0
   store %dimension_descriptor* %535, %dimension_descriptor** %533, align 8
   %536 = alloca i32, align 4
@@ -825,7 +825,7 @@ loop.body36:                                      ; preds = %loop.head35
   %541 = load i32, i32* %"1_k", align 4
   %542 = load i32, i32* %"2_k", align 4
   %543 = load i32, i32* %"3_k", align 4
-  %544 = getelementptr %array.0, %array.0* %A, i32 0, i32 2
+  %544 = getelementptr %array.0, %array.0* %a, i32 0, i32 2
   %545 = getelementptr [3 x %dimension_descriptor], [3 x %dimension_descriptor]* %544, i32 0, i32 0
   %546 = getelementptr %dimension_descriptor, %dimension_descriptor* %545, i32 0, i32 1
   %547 = load i32, i32* %546, align 4
@@ -853,7 +853,7 @@ loop.body36:                                      ; preds = %loop.head35
   %569 = getelementptr %dimension_descriptor, %dimension_descriptor* %563, i32 0, i32 3
   %570 = load i32, i32* %569, align 4
   %571 = mul i32 %562, %570
-  %572 = getelementptr %array.0, %array.0* %A, i32 0, i32 0
+  %572 = getelementptr %array.0, %array.0* %a, i32 0, i32 0
   %573 = getelementptr [27 x i32], [27 x i32]* %572, i32 0, i32 %568
   %574 = load i32, i32* %573, align 4
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @8, i32 0, i32 0), i32 %574)

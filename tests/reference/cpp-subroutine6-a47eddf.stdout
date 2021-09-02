@@ -87,14 +87,14 @@ int ubound(const Kokkos::View<const int*> &x, int dim)
 
 void triad(const Kokkos::View<const float*> &a, const Kokkos::View<const float*> &b, float scalar, const Kokkos::View<float*> &c)
 {
-    int N;
-    int N2;
-    N = a.extent(0);
-    N2 = b.extent(0);
-    Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(1, N+1), KOKKOS_LAMBDA(const long i) {
+    int n;
+    int n2;
+    n = a.extent(0);
+    n2 = b.extent(0);
+    Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(1, n+1), KOKKOS_LAMBDA(const long i) {
         c[i-1] = a[i-1] + scalar*b[i-1];
     });
-    Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(1, N2+1), KOKKOS_LAMBDA(const long j) {
+    Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(1, n2+1), KOKKOS_LAMBDA(const long j) {
         c[j-1] = b[j-1] + scalar;
     });
 }
