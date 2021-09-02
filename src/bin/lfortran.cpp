@@ -1402,7 +1402,7 @@ int main(int argc, char *argv[])
             if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
                 return compile_to_object_file(arg_file, outfile, platform, false,
-                    show_stacktrace, !arg_no_color, arg_fixed_form);
+                    show_stacktrace, !arg_no_color, arg_fixed_form, arg_target);
 #else
                 std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;
