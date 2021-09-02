@@ -274,7 +274,9 @@ public:
             char *orig_name = symbol_name(x.m_external);
             require(std::string(x.m_original_name) == std::string(orig_name),
                 "ExternalSymbol::m_original_name must match external->m_name");
-            // TODO: check that module name matches x.m_module_name
+            ASR::Module_t *m = ASRUtils::get_sym_module(x.m_external);
+            require(std::string(x.m_module_name) == std::string(m->m_name),
+                "ExternalSymbol::m_module_name must match external's module name");
         }
     }
 

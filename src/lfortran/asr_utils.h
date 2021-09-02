@@ -222,6 +222,19 @@ static inline SymbolTable *symbol_symtab(const ASR::symbol_t *f)
     }
 }
 
+// Returns the Module_t the symbol is in, or nullptr if not in a module
+static inline ASR::Module_t *get_sym_module(const ASR::symbol_t *sym) {
+    const SymbolTable *s = symbol_parent_symtab(sym);
+    while (s->parent != nullptr) {
+        ASR::symbol_t *asr_owner = ASR::down_cast<ASR::symbol_t>(s->asr_owner);
+        if (ASR::is_a<ASR::Module_t>(*asr_owner)) {
+            return ASR::down_cast<ASR::Module_t>(asr_owner);
+        }
+        s = s->parent;
+    }
+    return nullptr;
+}
+
 const ASR::intentType intent_local=ASR::intentType::Local; // local variable (not a dummy argument)
 const ASR::intentType intent_in   =ASR::intentType::In; // dummy argument, intent(in)
 const ASR::intentType intent_out  =ASR::intentType::Out; // dummy argument, intent(out)
