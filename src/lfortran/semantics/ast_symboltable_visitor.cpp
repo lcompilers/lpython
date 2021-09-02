@@ -1323,7 +1323,7 @@ public:
                 s.from_str_view(pname.second);
                 char *proc_name = s.c_str(al);
                 ASR::asr_t *v = ASR::make_ClassProcedure_t(al, loc,
-                    current_scope, name, proc_name, proc_sym,
+                    clss->m_symtab, name, proc_name, proc_sym,
                     ASR::abiType::Source);
                 ASR::symbol_t *cls_proc_sym = ASR::down_cast<ASR::symbol_t>(v);
                 clss->m_symtab->scope[pname.first] = cls_proc_sym;
