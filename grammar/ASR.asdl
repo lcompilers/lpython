@@ -67,7 +67,11 @@ unit
 -- because it can be resolved in the current symbol table (nested subroutine)
 -- by following the parents. However if a symbol is used from a different
 -- module, then it is an external symbol, because usual symbol resolution by
--- going to the parents will not find the definition.
+-- going to the parents will not find the definition. The `module_name` member
+-- is the name of the module the symbol is in, the `scope_names` is a list of
+-- names if the symbol is in a nested symbol table. For example if it is a
+-- local variable in a function `f` that is nested in function `g`, then
+-- `scope_names=[g, f]`.
 
 -- REPL: each cell is parsed into full ASR, compiled + executed, the full ASR
 -- is transformed into interface ASR (abi=LFortran) and kept in the symbol
@@ -88,8 +92,8 @@ symbol
     | GenericProcedure(symbol_table parent_symtab, identifier name,
         symbol* procs, access access)
     | ExternalSymbol(symbol_table parent_symtab, identifier name,
-        symbol external, identifier module_name, identifier original_name,
-        access access)
+        symbol external, identifier module_name, identifier* scope_names,
+        identifier original_name, access access)
     | DerivedType(symbol_table symtab, identifier name, identifier* members,
         abi abi, access access, symbol? parent)
     | Variable(symbol_table parent_symtab, identifier name, intent intent,
