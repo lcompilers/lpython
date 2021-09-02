@@ -1773,9 +1773,18 @@ public:
                     v, args.p, args.size(), type, nullptr);
                 break;
             }
+            case (ASR::symbolType::DerivedType) : {
+                Vec<ASR::expr_t*> vals = visit_expr_list(x.m_args, x.n_args);
+                ASR::ttype_t* der = LFortran::ASRUtils::TYPE(
+                                    ASR::make_Derived_t(al, x.base.base.loc, v,
+                                                        nullptr, 0));
+                tmp = ASR::make_DerivedTypeConstructor_t(al, x.base.base.loc,
+                        v, vals.p, vals.size(), der);
+                break;
+            }
             default : throw SemanticError("Symbol '" + var_name
                     + "' is not a function or an array", x.base.base.loc);
-            }
+        }
     }
 
     void visit_Num(const AST::Num_t &x) {
