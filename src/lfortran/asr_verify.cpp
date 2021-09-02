@@ -84,6 +84,11 @@ public:
         return false;
     }
 
+    // Returns true if the `symtab_ID` (sym->symtab->parent) is the current
+    // symbol table `symtab` or any of its parents *and* if the symbol in the
+    // symbol table is equal to `sym`. It returns false otherwise, such as in the
+    // case when the symtab is in a different module or if the `sym`'s symbol table
+    // does not actually contain it.
     bool symtab_in_scope(const SymbolTable *symtab, const ASR::symbol_t *sym) {
         unsigned int symtab_ID = symbol_parent_symtab(sym)->counter;
         char *sym_name = symbol_name(sym);
@@ -91,10 +96,18 @@ public:
         while (s != nullptr) {
             if (s->counter == symtab_ID) {
                 if (s->scope.find(std::string(sym_name)) != s->scope.end()) {
-                    // The symbol table was found and the symbol `sym` is in it
-                    return true;
+                    if (s->scope.at(std::string(sym_name)) == sym) {
+                        // The symbol table was found and the symbol `sym` is in
+                        // it
+                        return true;
+                    } else {
+                        // The symbol table was found and the symbol in it
+                        // shares the name, but is not equal to `sym`
+                        return false;
+                    }
                 } else {
-                    // The symbol table was found, but the symbol `sym` is not in it
+                    // The symbol table was found, but the symbol `sym` is not
+                    // in it
                     return false;
                 }
             }
