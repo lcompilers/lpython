@@ -279,7 +279,8 @@ public:
             require(m,
                 "ExternalSymbol::m_external is not in a module");
             require(std::string(x.m_module_name) == std::string(m->m_name),
-                "ExternalSymbol::m_module_name must match external's module name");
+                "ExternalSymbol::m_module_name `" + std::string(x.m_module_name)
+                + "` must match external's module name `" + std::string(m->m_name) + "`");
             ASR::symbol_t *s = m->m_symtab->find_scoped_symbol(x.m_original_name, x.n_scope_names, x.m_scope_names);
             require(s != nullptr,
                 "ExternalSymbol::m_name + scope_names not found in a module");
