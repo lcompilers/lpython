@@ -83,6 +83,26 @@ public:
         return false;
     }
 
+    bool symtab_in_scope2(const SymbolTable *symtab, const ASR::symbol_t *sym) {
+        unsigned int symtab_ID = symbol_parent_symtab(sym)->counter;
+        char *sym_name = symbol_name(sym);
+        const SymbolTable *s = symtab;
+        while (s != nullptr) {
+            if (s->counter == symtab_ID) {
+                if (s->scope.find(std::string(sym_name)) != s->scope.end()) {
+                    // The symbol table was found and the symbol `sym` is in it
+                    return true;
+                } else {
+                    // The symbol table was found, but the symbol `sym` is not in it
+                    return false;
+                }
+            }
+            s = s->parent;
+        }
+        // The symbol table was not found in the scope of `symtab`.
+        return false;
+    }
+
     void visit_TranslationUnit(const TranslationUnit_t &x) {
         current_symtab = x.m_global_scope;
         require(x.m_global_scope != nullptr,
@@ -264,8 +284,7 @@ public:
     }
 
     void visit_ArrayRef(const ArrayRef_t &x) {
-        require(symtab_in_scope(current_symtab,
-             symbol_parent_symtab(x.m_v)->counter),
+        require(symtab_in_scope2(current_symtab, x.m_v),
             "ArrayRef::m_v cannot point outside of its symbol table");
         for (size_t i=0; i<x.n_args; i++) {
             visit_array_index(x.m_args[i]);
@@ -310,8 +329,7 @@ public:
     }
 
     void visit_DerivedPointer(const DerivedPointer_t &x) {
-        require(symtab_in_scope(current_symtab,
-             symbol_parent_symtab(x.m_derived_type)->counter),
+        require(symtab_in_scope2(current_symtab, x.m_derived_type),
             "DerivedPointer::m_derived_type cannot point outside of its symbol table");
         for (size_t i=0; i<x.n_dims; i++) {
             visit_dimension(x.m_dims[i]);
