@@ -1482,7 +1482,11 @@ public:
                                             ASR::Var_t *var = ASR::down_cast<ASR::Var_t>(arg);
                                             if (ASR::is_a<ASR::Variable_t>(*var->m_v)) {
                                                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var->m_v);
-                                                char *modname=(char*)"FIXME2";
+
+                                                Vec<char*> scope_names = ASRUtils::get_scope_names(al, v->m_parent_symtab);
+                                                LFORTRAN_ASSERT(scope_names.size() >= 1)
+                                                char *modname = scope_names[scope_names.size()-1];
+
                                                 ASR::symbol_t *new_v;
                                                 if (current_scope->scope.find(std::string(v->m_name)) != current_scope->scope.end()) {
                                                     new_v = current_scope->scope[std::string(v->m_name)];
@@ -1492,7 +1496,6 @@ public:
                                                         /* a_symtab */ current_scope,
                                                         /* a_name */ v->m_name,
                                                         (ASR::symbol_t*)v,
-                                                        //m->m_name,
                                                         modname, nullptr, 0,
                                                         v->m_name,
                                                         ASR::accessType::Private
