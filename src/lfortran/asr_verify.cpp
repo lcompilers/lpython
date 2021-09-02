@@ -360,6 +360,9 @@ public:
     }
 
     void visit_FunctionCall(const FunctionCall_t &x) {
+        require(x.m_name,
+            "FunctionCall::m_name must be present",
+            x.base.base.loc);
         if (x.m_dt) {
             SymbolTable *symtab = get_dt_symtab(x.m_dt, x.base.base.loc);
             require(symtab_in_scope(symtab, x.m_name),
@@ -367,7 +370,8 @@ public:
                 x.base.base.loc);
         } else {
             require(symtab_in_scope(current_symtab, x.m_name),
-                "FunctionCall::m_name cannot point outside of its symbol table",
+                "FunctionCall::m_name `" + std::string(symbol_name(x.m_name)) +
+                "` cannot point outside of its symbol table",
                 x.base.base.loc);
             if (check_external) {
                 const ASR::symbol_t *fn = ASRUtils::symbol_get_past_external(x.m_name);
