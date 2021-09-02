@@ -284,8 +284,7 @@ public:
     }
 
     void visit_ArrayRef(const ArrayRef_t &x) {
-        require(symtab_in_scope(current_symtab,
-             symbol_parent_symtab(x.m_v)->counter),
+        require(symtab_in_scope2(current_symtab, x.m_v),
             "ArrayRef::m_v cannot point outside of its symbol table");
         for (size_t i=0; i<x.n_args; i++) {
             visit_array_index(x.m_args[i]);
@@ -303,7 +302,8 @@ public:
     }
 
     void visit_FunctionCall(const FunctionCall_t &x) {
-        require(symtab_in_scope2(current_symtab, x.m_name),
+        require(symtab_in_scope(current_symtab,
+             symbol_parent_symtab(x.m_name)->counter),
             "FunctionCall::m_name cannot point outside of its symbol table",
             x.base.base.loc);
         for (size_t i=0; i<x.n_args; i++) {
@@ -329,8 +329,7 @@ public:
     }
 
     void visit_DerivedPointer(const DerivedPointer_t &x) {
-        require(symtab_in_scope(current_symtab,
-             symbol_parent_symtab(x.m_derived_type)->counter),
+        require(symtab_in_scope2(current_symtab, x.m_derived_type),
             "DerivedPointer::m_derived_type cannot point outside of its symbol table");
         for (size_t i=0; i<x.n_dims; i++) {
             visit_dimension(x.m_dims[i]);
