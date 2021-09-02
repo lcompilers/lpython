@@ -225,6 +225,7 @@ private:
 public:
     void visit_TranslationUnit(const TranslationUnit_t &x) {
         current_symtab = x.m_global_scope;
+        x.m_global_scope->asr_owner = (asr_t*)&x;
         for (auto &a : x.m_global_scope->scope) {
             this->visit_symbol(*a.second);
         }
@@ -234,6 +235,7 @@ public:
         SymbolTable *parent_symtab = current_symtab;
         current_symtab = x.m_symtab;
         x.m_symtab->parent = parent_symtab;
+        x.m_symtab->asr_owner = (asr_t*)&x;
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
         }
@@ -244,6 +246,7 @@ public:
         SymbolTable *parent_symtab = current_symtab;
         current_symtab = x.m_symtab;
         x.m_symtab->parent = parent_symtab;
+        x.m_symtab->asr_owner = (asr_t*)&x;
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
         }
@@ -254,6 +257,7 @@ public:
         SymbolTable *parent_symtab = current_symtab;
         current_symtab = x.m_symtab;
         x.m_symtab->parent = parent_symtab;
+        x.m_symtab->asr_owner = (asr_t*)&x;
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
         }
@@ -264,6 +268,7 @@ public:
         SymbolTable *parent_symtab = current_symtab;
         current_symtab = x.m_symtab;
         x.m_symtab->parent = parent_symtab;
+        x.m_symtab->asr_owner = (asr_t*)&x;
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
         }
@@ -274,6 +279,7 @@ public:
         SymbolTable *parent_symtab = current_symtab;
         current_symtab = x.m_symtab;
         x.m_symtab->parent = parent_symtab;
+        x.m_symtab->asr_owner = (asr_t*)&x;
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
         }
@@ -361,6 +367,7 @@ ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s,
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(node);
 
     // Connect the `parent` member of symbol tables
+    // Also set the `asr_owner` member correctly for all symbol tables
     ASR::FixParentSymtabVisitor p;
     p.visit_TranslationUnit(*tu);
 

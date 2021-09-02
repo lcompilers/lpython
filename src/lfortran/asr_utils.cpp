@@ -129,6 +129,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     LFORTRAN_ASSERT(symtab->resolve_symbol(module_name));
 
     // Create a temporary TranslationUnit just for fixing the symbols
+    ASR::asr_t *orig_asr_owner = symtab->asr_owner;
     ASR::TranslationUnit_t *tu
         = ASR::down_cast2<ASR::TranslationUnit_t>(ASR::make_TranslationUnit_t(al, loc,
             symtab, nullptr, 0));
@@ -187,6 +188,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     // Fix all external symbols
     fix_external_symbols(*tu, *symtab);
     LFORTRAN_ASSERT(asr_verify(*tu));
+    symtab->asr_owner = orig_asr_owner;
 
     return mod2;
 }
