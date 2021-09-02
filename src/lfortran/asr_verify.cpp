@@ -278,8 +278,16 @@ public:
     }
 
     void visit_SubroutineCall(const SubroutineCall_t &x) {
-        require(symtab_in_scope(current_symtab, x.m_name),
-            "SubroutineCall::m_name cannot point outside of its symbol table");
+        if (x.m_dt) {
+            SymbolTable *symtab = get_dt_symtab(x.m_dt, x.base.base.loc);
+            require(symtab_in_scope(symtab, x.m_name),
+                "SubroutineCall::m_name cannot point outside of its symbol table",
+                x.base.base.loc);
+        } else {
+            require(symtab_in_scope(current_symtab, x.m_name),
+                "SubroutineCall::m_name cannot point outside of its symbol table",
+                x.base.base.loc);
+        }
         for (size_t i=0; i<x.n_args; i++) {
             visit_expr(*x.m_args[i]);
         }
