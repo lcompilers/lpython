@@ -1479,6 +1479,10 @@ ast = true
 ast_f90 = true
 
 [[test]]
+filename = "uppercase1.f90"
+asr = true
+
+[[test]]
 filename = "fixed_form1.f"
 ast = true
 ast_f90 = true
