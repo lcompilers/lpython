@@ -8,12 +8,18 @@
 namespace LFortran  {
 
 namespace ASR {
+    struct asr_t;
     struct symbol_t;
 }
 
 struct SymbolTable {
     std::map<std::string, ASR::symbol_t*> scope;
     SymbolTable *parent;
+    // The ASR node (either symbol_t or TranslationUnit_t) that contains this
+    // SymbolTable as m_symtab / m_global_scope member. One of:
+    // * symbol_symtab(down_cast<symbol_t>(this->asr_owner)) == this
+    // * down_cast2<TranslationUnit_t>(this->asr_owner)->m_global_scope == this
+    ASR::asr_t *asr_owner = nullptr;
     unsigned int counter;
 
     SymbolTable(SymbolTable *parent);
