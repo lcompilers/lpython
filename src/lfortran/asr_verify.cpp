@@ -83,6 +83,16 @@ public:
         return false;
     }
 
+    bool symtab_in_scope2(const SymbolTable *symtab, const ASR::symbol_t *sym) {
+        unsigned int symtab_ID = symbol_parent_symtab(sym)->counter;
+        const SymbolTable *s = symtab;
+        while (s != nullptr) {
+            if (s->counter == symtab_ID) return true;
+            s = s->parent;
+        }
+        return false;
+    }
+
     void visit_TranslationUnit(const TranslationUnit_t &x) {
         current_symtab = x.m_global_scope;
         require(x.m_global_scope != nullptr,
@@ -283,8 +293,7 @@ public:
     }
 
     void visit_FunctionCall(const FunctionCall_t &x) {
-        require(symtab_in_scope(current_symtab,
-             symbol_parent_symtab(x.m_name)->counter),
+        require(symtab_in_scope2(current_symtab, x.m_name),
             "FunctionCall::m_name cannot point outside of its symbol table",
             x.base.base.loc);
         for (size_t i=0; i<x.n_args; i++) {
