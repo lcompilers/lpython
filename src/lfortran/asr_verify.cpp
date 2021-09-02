@@ -274,7 +274,16 @@ public:
             char *orig_name = symbol_name(x.m_external);
             require(std::string(x.m_original_name) == std::string(orig_name),
                 "ExternalSymbol::m_original_name must match external->m_name");
-            // TODO: check that module name matches x.m_module_name
+            ASR::Module_t *m = ASRUtils::get_sym_module(x.m_external);
+            require(m,
+                "ExternalSymbol::m_external is not in a module");
+            require(std::string(x.m_module_name) == std::string(m->m_name),
+                "ExternalSymbol::m_module_name must match external's module name");
+            ASR::symbol_t *s = m->m_symtab->find_scoped_symbol(x.m_original_name, x.n_scope_names, x.m_scope_names);
+            require(s != nullptr,
+                "ExternalSymbol::m_name + scope_names not found in a module");
+            require(s == x.m_external,
+                "ExternalSymbol::m_name + scope_names found but not equal to m_external");
         }
     }
 

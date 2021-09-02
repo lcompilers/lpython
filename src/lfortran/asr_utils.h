@@ -222,6 +222,32 @@ static inline SymbolTable *symbol_symtab(const ASR::symbol_t *f)
     }
 }
 
+// Returns the Module_t the symbol is in, or nullptr if not in a module
+static inline ASR::Module_t *get_sym_module(const ASR::symbol_t *sym) {
+    const SymbolTable *s = symbol_parent_symtab(sym);
+    while (s->parent != nullptr) {
+        ASR::symbol_t *asr_owner = ASR::down_cast<ASR::symbol_t>(s->asr_owner);
+        if (ASR::is_a<ASR::Module_t>(*asr_owner)) {
+            return ASR::down_cast<ASR::Module_t>(asr_owner);
+        }
+        s = s->parent;
+    }
+    return nullptr;
+}
+
+// Returns the name of scopes in reverse order (local scope first, function second, module last)
+static inline Vec<char*> get_scope_names(Allocator &al, const SymbolTable *symtab) {
+    Vec<char*> scope_names;
+    scope_names.reserve(al, 4);
+    const SymbolTable *s = symtab;
+    while (s->parent != nullptr) {
+        char *owner_name = symbol_name(ASR::down_cast<ASR::symbol_t>(s->asr_owner));
+        scope_names.push_back(al, owner_name);
+        s = s->parent;
+    }
+    return scope_names;
+}
+
 const ASR::intentType intent_local=ASR::intentType::Local; // local variable (not a dummy argument)
 const ASR::intentType intent_in   =ASR::intentType::In; // dummy argument, intent(in)
 const ASR::intentType intent_out  =ASR::intentType::Out; // dummy argument, intent(out)

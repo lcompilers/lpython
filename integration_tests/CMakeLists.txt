@@ -228,6 +228,8 @@ RUN(NAME modules_18 LABELS gfortran llvm EXTRAFILES
         modules_18b.f90 modules_15c.c)
 RUN(NAME modules_19 LABELS gfortran llvm EXTRAFILES
         modules_19b.f90)
+RUN(NAME modules_20 LABELS gfortran llvm EXTRAFILES
+        modules_20b.f90)
 
 RUN(NAME if_04 LABELS gfortran x86)
 RUN(NAME case_01 LABELS gfortran llvm)
@@ -354,7 +356,7 @@ RUN(NAME return_03 LABELS gfortran llvm)
 RUN(NAME class_01 LABELS gfortran)
 RUN(NAME class_02 LABELS gfortran llvm)
 RUN(NAME class_03 LABELS gfortran)
-RUN(NAME class_04 LABELS gfortran llvm)
+RUN(NAME class_04 LABELS gfortran)
 
 RUN(NAME test_iso_c_binding LABELS gfortran llvm)
 RUN(NAME test_iso_fortran_env LABELS gfortran llvm)

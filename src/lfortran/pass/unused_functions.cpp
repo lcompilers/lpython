@@ -36,6 +36,27 @@ public:
         }
     }
 
+    void visit_GenericProcedure(const ASR::GenericProcedure_t &x) {
+        uint64_t h = get_hash((ASR::asr_t*)&x);
+        fn_declarations[h] = x.m_name;
+    }
+
+    void visit_ExternalSymbol(const ASR::ExternalSymbol_t &x) {
+        if (ASR::is_a<ASR::Function_t>(*x.m_external)) {
+            uint64_t h = get_hash((ASR::asr_t*)&x);
+            fn_declarations[h] = x.m_name;
+            h = get_hash((ASR::asr_t*)x.m_external);
+            fn_used[h] = x.m_name;
+        }
+        if (ASR::is_a<ASR::GenericProcedure_t>(*x.m_external)) {
+            uint64_t h = get_hash((ASR::asr_t*)&x);
+            fn_declarations[h] = x.m_name;
+            h = get_hash((ASR::asr_t*)x.m_external);
+            fn_used[h] = x.m_name;
+        }
+    }
+
+
     void visit_FunctionCall(const ASR::FunctionCall_t &x) {
         {
             const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_name);
@@ -44,11 +65,15 @@ public:
                 std::string name = f->m_name;
                 uint64_t h = get_hash((ASR::asr_t*)f);
                 fn_used[h] = name;
+                h = get_hash((ASR::asr_t*)x.m_name);
+                fn_used[h] = name;
             }
             if (ASR::is_a<ASR::GenericProcedure_t>(*s)) {
                 ASR::GenericProcedure_t *g = ASR::down_cast<ASR::GenericProcedure_t>(s);
                 std::string name = g->m_name;
                 uint64_t h = get_hash((ASR::asr_t*)g);
+                fn_used[h] = name;
+                h = get_hash((ASR::asr_t*)x.m_name);
                 fn_used[h] = name;
             }
         }
@@ -59,11 +84,15 @@ public:
                 std::string name = f->m_name;
                 uint64_t h = get_hash((ASR::asr_t*)f);
                 fn_used[h] = name;
+                h = get_hash((ASR::asr_t*)x.m_original_name);
+                fn_used[h] = name;
             }
             if (ASR::is_a<ASR::GenericProcedure_t>(*s)) {
                 ASR::GenericProcedure_t *g = ASR::down_cast<ASR::GenericProcedure_t>(s);
                 std::string name = g->m_name;
                 uint64_t h = get_hash((ASR::asr_t*)g);
+                fn_used[h] = name;
+                h = get_hash((ASR::asr_t*)x.m_original_name);
                 fn_used[h] = name;
             }
         }
@@ -73,6 +102,7 @@ public:
         for (size_t i=0; i<x.n_keywords; i++) {
             visit_keyword(x.m_keywords[i]);
         }
+        visit_ttype(*x.m_type);
         if (x.m_value)
             visit_expr(*x.m_value);
         if (x.m_dt)
@@ -95,11 +125,6 @@ public:
         }
     }
 
-    void visit_GenericProcedure(const ASR::GenericProcedure_t &x) {
-        uint64_t h = get_hash((ASR::asr_t*)&x);
-        fn_declarations[h] = x.m_name;
-    }
-
     void visit_ClassProcedure(const ASR::ClassProcedure_t &x) {
         const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_proc);
         if (ASR::is_a<ASR::Function_t>(*s)) {
@@ -107,11 +132,15 @@ public:
             std::string name = f->m_name;
             uint64_t h = get_hash((ASR::asr_t*)f);
             fn_used[h] = name;
+            h = get_hash((ASR::asr_t*)x.m_proc);
+            fn_used[h] = name;
         }
         if (ASR::is_a<ASR::GenericProcedure_t>(*s)) {
             ASR::GenericProcedure_t *g = ASR::down_cast<ASR::GenericProcedure_t>(s);
             std::string name = g->m_name;
             uint64_t h = get_hash((ASR::asr_t*)g);
+            fn_used[h] = name;
+            h = get_hash((ASR::asr_t*)x.m_proc);
             fn_used[h] = name;
         }
     }

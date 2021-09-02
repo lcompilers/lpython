@@ -1457,8 +1457,8 @@ public:
                                 ASR::FunctionCall_t *fc = ASR::down_cast<ASR::FunctionCall_t>(t->m_len_expr);
                                 if (ASR::is_a<ASR::Function_t>(*fc->m_name)) {
                                     ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(fc->m_name);
-                                    //ASR::Module_t *m = nullptr; // TODO -- find the function (f) 's module
-                                    char *modname=(char*)"FIXME1";
+                                    ASR::Module_t *m = ASR::down_cast2<ASR::Module_t>(f->m_symtab->parent->asr_owner);
+                                    char *modname = m->m_name;
                                     ASR::symbol_t *new_es;
                                     if (current_scope->scope.find(std::string(f->m_name)) != current_scope->scope.end()) {
                                         new_es = current_scope->scope[std::string(f->m_name)];
@@ -1468,7 +1468,6 @@ public:
                                             /* a_symtab */ current_scope,
                                             /* a_name */ f->m_name,
                                             (ASR::symbol_t*)f,
-                                            //m->m_name,
                                             modname, nullptr, 0,
                                             f->m_name,
                                             ASR::accessType::Private
@@ -1483,18 +1482,28 @@ public:
                                             ASR::Var_t *var = ASR::down_cast<ASR::Var_t>(arg);
                                             if (ASR::is_a<ASR::Variable_t>(*var->m_v)) {
                                                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var->m_v);
-                                                char *modname=(char*)"FIXME2";
                                                 ASR::symbol_t *new_v;
                                                 if (current_scope->scope.find(std::string(v->m_name)) != current_scope->scope.end()) {
                                                     new_v = current_scope->scope[std::string(v->m_name)];
+                                                    // TODO: the below is not the case in general --- if it is not the case, we should construct a new
+                                                    // ExternalSymbol, and name it differently
+                                                    LFORTRAN_ASSERT(ASR::is_a<ASR::ExternalSymbol_t>(*new_v))
+                                                    LFORTRAN_ASSERT(ASR::down_cast<ASR::ExternalSymbol_t>(new_v)->m_external == (ASR::symbol_t*)v)
                                                 } else {
+                                                    Vec<char*> scope_names0 = ASRUtils::get_scope_names(al, v->m_parent_symtab);
+                                                    LFORTRAN_ASSERT(scope_names0.size() >= 1)
+                                                    char *modname = scope_names0[scope_names0.size()-1];
+                                                    Vec<char*>  scope_names;
+                                                    scope_names.reserve(al, scope_names0.size()-1);
+                                                    for (size_t i=0; i < scope_names0.size()-1; i++) {
+                                                        scope_names.push_back(al, scope_names0[scope_names0.size()-i-2]);
+                                                    }
                                                     new_v = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(
                                                         al, v->base.base.loc,
                                                         /* a_symtab */ current_scope,
                                                         /* a_name */ v->m_name,
                                                         (ASR::symbol_t*)v,
-                                                        //m->m_name,
-                                                        modname, nullptr, 0,
+                                                        modname, scope_names.p, scope_names.size(),
                                                         v->m_name,
                                                         ASR::accessType::Private
                                                         ));
