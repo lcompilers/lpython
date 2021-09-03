@@ -205,6 +205,9 @@ public:
         std::string tmp;
         while (s[pos] != ' ') {
             tmp += s[pos];
+            if (! (s[pos] >= '0' && s[pos] <= '9')) {
+                throw LFortranException("read_int64: Expected integer, got `" + tmp + "`");
+            }
             pos++;
             if (pos >= s.size()) {
                 throw LFortranException("read_int64: String is too short for deserialization.");
