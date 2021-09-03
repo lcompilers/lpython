@@ -25,16 +25,6 @@ char *s2c(Allocator &al, const std::string &s);
 std::string replace(const std::string &s,
     const std::string &regex, const std::string &replace);
 
-inline std::string str2lower(const std::string &s) {
-    // return to_lower(s) ?
-   std::string res;
-   for(auto x: s) res.push_back(std::tolower(x));
-   return res;
-}
-
 } // namespace LFortran
-
-
-
 
 #endif // LFORTRAN_STRING_UTILS_H
