@@ -211,7 +211,7 @@ public:
             }
         }
         pos++;
-        uint64_t n = std::stoi(tmp);
+        uint64_t n = std::stoull(tmp);
         return n;
     }
 
