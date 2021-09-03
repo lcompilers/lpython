@@ -357,6 +357,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             sub = "bool ";
         } else if (is_a<ASR::Character_t>(*return_var->m_type)) {
             sub = "std::string ";
+        } else if (is_a<ASR::Complex_t>(*return_var->m_type)) {
+            sub = "std::complex ";
         } else {
             throw CodeGenError("Return type not supported");
         }
@@ -426,6 +428,10 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                 LFORTRAN_ASSERT(x.n_args > 0);
                 visit_expr(*x.m_args[0]);
                 src = "(int)" + src;
+            } else if (fn_name == "len") {
+                LFORTRAN_ASSERT(x.n_args > 0);
+                visit_expr(*x.m_args[0]);
+                src = "(" + src + ").size()";
             } else {
                 throw CodeGenError("Intrinsic function '" + fn_name
                         + "' not implemented");
@@ -517,6 +523,11 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             }
             case (ASR::cast_kindType::RealToInteger) : {
                 src = "(int)(" + src + ")";
+                break;
+            }
+            case (ASR::cast_kindType::RealToReal) : {
+                // In C++, we do not need to cast float to float explicitly:
+                // src = src;
                 break;
             }
             case (ASR::cast_kindType::ComplexToReal) : {
