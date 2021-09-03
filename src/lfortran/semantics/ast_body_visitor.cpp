@@ -501,9 +501,14 @@ public:
                 } else {
                     ASR::Variable_t* tmp_v = ASR::down_cast<ASR::Variable_t>(tmp_sym);
                     if( tmp_v->m_storage != ASR::storage_typeType::Allocatable ) {
-                        throw SemanticError("Only an allocatable variable symbol "
-                                            "can be deallocated.",
-                                            tmp_expr->base.loc);
+                        // If it is not allocatable, it can also be a pointer
+                        if (ASR::is_a<ASR::RealPointer_t>(*tmp_v->m_type)) {
+                            // OK
+                        } else {
+                            throw SemanticError("Only an allocatable or a pointer variable "
+                                                "can be deallocated.",
+                                                tmp_expr->base.loc);
+                        }
                     }
                     arg_vec.push_back(al, tmp_sym);
                 }
