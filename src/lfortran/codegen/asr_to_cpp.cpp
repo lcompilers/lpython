@@ -36,7 +36,7 @@ std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims)
         if (!start && !end) {
             dims += "*";
         } else if (start && end) {
-            if (is_a<ASR::ConstantInteger_t>(*start) || is_a<ASR::ConstantInteger_t>(*end)) {
+            if (is_a<ASR::ConstantInteger_t>(*start) && is_a<ASR::ConstantInteger_t>(*end)) {
                 ASR::ConstantInteger_t *s = down_cast<ASR::ConstantInteger_t>(start);
                 ASR::ConstantInteger_t *e = down_cast<ASR::ConstantInteger_t>(end);
                 if (s->m_n == 1) {
@@ -45,7 +45,7 @@ std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims)
                     throw CodeGenError("Lower dimension must be 1 for now");
                 }
             } else {
-                throw CodeGenError("Only numerical dimensions supported for now");
+                dims += "[ /* FIXME symbolic dimensions */ ]";
             }
         } else {
             throw CodeGenError("Dimension type not supported");
@@ -99,6 +99,10 @@ public:
             ASR::Real_t *t = down_cast<ASR::Real_t>(v.m_type);
             std::string dims = convert_dims(t->n_dims, t->m_dims);
             sub = format_type(dims, "float", v.m_name, use_ref, dummy);
+        } else if (is_a<ASR::Complex_t>(*v.m_type)) {
+            ASR::Complex_t *t = down_cast<ASR::Complex_t>(v.m_type);
+            std::string dims = convert_dims(t->n_dims, t->m_dims);
+            sub = format_type(dims, "std::complex", v.m_name, use_ref, dummy);
         } else if (is_a<ASR::Logical_t>(*v.m_type)) {
             ASR::Logical_t *t = down_cast<ASR::Logical_t>(v.m_type);
             std::string dims = convert_dims(t->n_dims, t->m_dims);
@@ -353,6 +357,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             sub = "bool ";
         } else if (is_a<ASR::Character_t>(*return_var->m_type)) {
             sub = "std::string ";
+        } else if (is_a<ASR::Complex_t>(*return_var->m_type)) {
+            sub = "std::complex ";
         } else {
             throw CodeGenError("Return type not supported");
         }
@@ -422,6 +428,10 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                 LFORTRAN_ASSERT(x.n_args > 0);
                 visit_expr(*x.m_args[0]);
                 src = "(int)" + src;
+            } else if (fn_name == "len") {
+                LFORTRAN_ASSERT(x.n_args > 0);
+                visit_expr(*x.m_args[0]);
+                src = "(" + src + ").size()";
             } else {
                 throw CodeGenError("Intrinsic function '" + fn_name
                         + "' not implemented");
@@ -484,16 +494,22 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     }
 
     void visit_Var(const ASR::Var_t &x) {
-        src = ASR::down_cast<ASR::Variable_t>(x.m_v)->m_name;
+        const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
+        src = ASR::down_cast<ASR::Variable_t>(s)->m_name;
         last_unary_plus = false;
         last_binary_plus = false;
     }
 
     void visit_ArrayRef(const ASR::ArrayRef_t &x) {
-        std::string out = ASR::down_cast<ASR::Variable_t>(x.m_v)->m_name;
+        const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
+        std::string out = ASR::down_cast<ASR::Variable_t>(s)->m_name;
         out += "[";
         for (size_t i=0; i<x.n_args; i++) {
-            visit_expr(*x.m_args[i].m_right);
+            if (x.m_args[i].m_right) {
+                visit_expr(*x.m_args[i].m_right);
+            } else {
+                src = "/* FIXME right index */";
+            }
             out += src;
             if (i < x.n_args-1) out += ",";
         }
@@ -515,7 +531,16 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                 src = "(int)(" + src + ")";
                 break;
             }
-            default : throw CodeGenError("Cast kind not implemented");
+            case (ASR::cast_kindType::RealToReal) : {
+                // In C++, we do not need to cast float to float explicitly:
+                // src = src;
+                break;
+            }
+            case (ASR::cast_kindType::ComplexToReal) : {
+                src = "(double)(" + src + ")";
+                break;
+            }
+            default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented");
         }
     }
 
@@ -653,6 +678,15 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         last_unary_plus = false;
     }
 
+    void visit_StrOp(const ASR::StrOp_t &x) {
+        this->visit_expr(*x.m_left);
+        std::string left_val = src;
+        this->visit_expr(*x.m_right);
+        std::string right_val = src;
+        src = "(" + left_val + ") + (" + right_val + ")";
+        last_unary_plus = false;
+    }
+
     void visit_BoolOp(const ASR::BoolOp_t &x) {
         this->visit_expr(*x.m_left);
         std::string left_val = "(" + src + ")";
@@ -703,6 +737,45 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         src = out;
     }
 
+    void visit_Allocate(const ASR::Allocate_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string out = indent + "// FIXME: allocate(";
+        for (size_t i=0; i<x.n_args; i++) {
+            ASR::symbol_t* a = x.m_args[i].m_a;
+            //ASR::dimension_t* dims = x.m_args[i].m_dims;
+            //size_t n_dims = x.m_args[i].n_dims;
+            out += std::string(ASRUtils::symbol_name(a)) + ", ";
+        }
+        out += ");\n";
+        src = out;
+    }
+
+    void visit_ExplicitDeallocate(const ASR::ExplicitDeallocate_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string out = indent + "// FIXME: deallocate(";
+        for (size_t i=0; i<x.n_vars; i++) {
+            out += std::string(ASRUtils::symbol_name(x.m_vars[i])) + ", ";
+        }
+        out += ");\n";
+        src = out;
+    }
+
+    void visit_ImplicitDeallocate(const ASR::ImplicitDeallocate_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string out = indent + "// FIXME: implicit deallocate(";
+        for (size_t i=0; i<x.n_vars; i++) {
+            out += std::string(ASRUtils::symbol_name(x.m_vars[i])) + ", ";
+        }
+        out += ");\n";
+        src = out;
+    }
+
+    void visit_Select(const ASR::Select_t &/*x*/) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string out = indent + "// FIXME: select case()\n";
+        src = out;
+    }
+
     void visit_Write(const ASR::Write_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "std::cout ";
@@ -737,6 +810,22 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     void visit_Cycle(const ASR::Cycle_t & /* x */) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         src = indent + "continue;\n";
+    }
+
+    void visit_Return(const ASR::Return_t & /* x */) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        src = indent + "return;\n";
+    }
+
+    void visit_Stop(const ASR::Stop_t & /* x */) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        src = indent + "exit(0);\n";
+    }
+
+    void visit_ImpliedDoLoop(const ASR::ImpliedDoLoop_t &/*x*/) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string out = indent + " /* FIXME: implied do loop */ ";
+        src = out;
     }
 
     void visit_DoLoop(const ASR::DoLoop_t &x) {

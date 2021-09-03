@@ -1209,10 +1209,17 @@ public:
     void visit_Name(const AST::Name_t &x) {
         if (x.n_member == 0) {
             tmp = resolve_variable(x.base.base.loc, to_lower(x.m_id));
-        } else if (x.n_member == 1 && x.m_member[0].n_args == 0) {
-            SymbolTable* scope = current_scope;
-            tmp = resolve_variable2(x.base.base.loc, to_lower(x.m_id),
-                to_lower(x.m_member[0].m_name), scope);
+        } else if (x.n_member == 1) {
+            if (x.m_member[0].n_args == 0) {
+                SymbolTable* scope = current_scope;
+                tmp = resolve_variable2(x.base.base.loc, to_lower(x.m_id),
+                    to_lower(x.m_member[0].m_name), scope);
+            } else {
+                // TODO: incorporate m_args
+                SymbolTable* scope = current_scope;
+                tmp = resolve_variable2(x.base.base.loc, to_lower(x.m_id),
+                    to_lower(x.m_member[0].m_name), scope);
+            }
         } else {
             SymbolTable* scope = current_scope;
             tmp = resolve_variable2(x.base.base.loc, to_lower(x.m_member[1].m_name), to_lower(x.m_member[0].m_name), scope);

@@ -279,7 +279,8 @@ public:
             require(m,
                 "ExternalSymbol::m_external is not in a module");
             require(std::string(x.m_module_name) == std::string(m->m_name),
-                "ExternalSymbol::m_module_name must match external's module name");
+                "ExternalSymbol::m_module_name `" + std::string(x.m_module_name)
+                + "` must match external's module name `" + std::string(m->m_name) + "`");
             ASR::symbol_t *s = m->m_symtab->find_scoped_symbol(x.m_original_name, x.n_scope_names, x.m_scope_names);
             require(s != nullptr,
                 "ExternalSymbol::m_name + scope_names not found in a module");
@@ -299,7 +300,7 @@ public:
             "Var_t::m_v does not point to a Variable_t, ExternalSymbol_t," \
             "Function_t, or Subroutine_t");
         require(symtab_in_scope(current_symtab, x.m_v),
-            "Var::m_v cannot point outside of its symbol table");
+            "Var::m_v `" + std::string(ASRUtils::symbol_name(x.m_v)) + "` cannot point outside of its symbol table");
     }
 
     void visit_ArrayRef(const ArrayRef_t &x) {
