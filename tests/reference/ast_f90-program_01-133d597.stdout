@@ -13,7 +13,6 @@ end do
 contains
 
 subroutine rand(x) 
-
 ! Returns a psuedorandom scalar drawn from the standard normal distribution.
 !
 ! [1] Marsaglia, G., & Bray, T. A. (1964). A Convenient Method for
