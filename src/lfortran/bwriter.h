@@ -177,6 +177,11 @@ public:
         s.append(t);
         s += " ";
     }
+
+    void write_float64(double d) {
+        s.append(std::to_string(d));
+        s += " ";
+    }
 };
 
 class TextReader
@@ -207,6 +212,20 @@ public:
         }
         pos++;
         uint64_t n = std::stoi(tmp);
+        return n;
+    }
+
+    double read_float64() {
+        std::string tmp;
+        while (s[pos] != ' ') {
+            tmp += s[pos];
+            pos++;
+            if (pos >= s.size()) {
+                throw LFortranException("read_int64: String is too short for deserialization.");
+            }
+        }
+        pos++;
+        double n = std::stod(tmp);
         return n;
     }
 
