@@ -1,5 +1,4 @@
 program defop1 
-
 ! Tests for syntax (AST) only:
 e = a.in.b
 E = A.IN.B
