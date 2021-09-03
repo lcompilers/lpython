@@ -722,6 +722,19 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         src = out;
     }
 
+    void visit_Allocate(const ASR::Allocate_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string out = indent + "// FIXME: allocate(";
+        for (size_t i=0; i<x.n_args; i++) {
+            ASR::symbol_t* a = x.m_args[i].m_a;
+            //ASR::dimension_t* dims = x.m_args[i].m_dims;
+            //size_t n_dims = x.m_args[i].n_dims;
+            out += std::string(ASRUtils::symbol_name(a)) + ", ";
+        }
+        out += ");\n";
+        src = out;
+    }
+
     void visit_Write(const ASR::Write_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "std::cout ";
@@ -756,6 +769,11 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     void visit_Cycle(const ASR::Cycle_t & /* x */) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         src = indent + "continue;\n";
+    }
+
+    void visit_Return(const ASR::Return_t & /* x */) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        src = indent + "return;\n";
     }
 
     void visit_DoLoop(const ASR::DoLoop_t &x) {
