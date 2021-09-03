@@ -519,7 +519,11 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                 src = "(int)(" + src + ")";
                 break;
             }
-            default : throw CodeGenError("Cast kind not implemented");
+            case (ASR::cast_kindType::ComplexToReal) : {
+                src = "(double)(" + src + ")";
+                break;
+            }
+            default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented");
         }
     }
 
