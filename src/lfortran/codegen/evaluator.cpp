@@ -109,7 +109,7 @@ void _lfortran_printf(const char* format, ...);
 
 }
 
-LLVMEvaluator::LLVMEvaluator()
+LLVMEvaluator::LLVMEvaluator(const std::string &t)
 {
     llvm::InitializeNativeTarget();
     llvm::InitializeNativeTargetAsmPrinter();
@@ -117,7 +117,10 @@ LLVMEvaluator::LLVMEvaluator()
 
     context = std::make_unique<llvm::LLVMContext>();
 
-    target_triple = LLVMGetDefaultTargetTriple();
+    if (t != "")
+        target_triple = t;
+    else
+        target_triple = LLVMGetDefaultTargetTriple();
 
     std::string Error;
     const llvm::Target *target = llvm::TargetRegistry::lookupTarget(target_triple, Error);

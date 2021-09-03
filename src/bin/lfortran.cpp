@@ -669,7 +669,7 @@ int compile_to_object_file(const std::string &infile,
         LFortran::Platform platform,
         bool assembly=false,
         bool show_stacktrace=false, bool colors=true,
-        bool fixed_form=false)
+        bool fixed_form=false, const std::string &target = "")
 {
     std::string input = read_file(infile);
 
@@ -697,7 +697,7 @@ int compile_to_object_file(const std::string &infile,
     }
 
     // ASR -> LLVM
-    LFortran::LLVMEvaluator e;
+    LFortran::LLVMEvaluator e(target);
 
     if (!LFortran::ASRUtils::main_program_present(*asr)) {
         // Create an empty object file (things will be actually
@@ -908,7 +908,7 @@ int compile_to_object_file_cpp(const std::string &infile,
 int link_executable(const std::vector<std::string> &infiles,
     const std::string &outfile,
     const std::string &runtime_library_dir, Backend backend,
-    bool static_executable, bool kokkos, bool openmp, LFortran::Platform platform)
+    bool static_executable, bool kokkos, bool openmp, LFortran::Platform platform, const std::string &target)
 {
     /*
     The `gcc` line for dynamic linking that is constructed below:
@@ -968,15 +968,39 @@ int link_executable(const std::vector<std::string> &infiles,
     */
     if (backend == Backend::llvm) {
         if (platform == LFortran::Platform::Windows) {
-            std::string cmd = "link -out:" + outfile + " ";
-            for (auto &s : infiles) {
-                cmd += s + " ";
-            }
-            cmd += runtime_library_dir + "\\lfortran_runtime_static.lib";
-            int err = system(cmd.c_str());
-            if (err) {
-                std::cout << "The command '" + cmd + "' failed." << std::endl;
-                return 10;
+            // FIXME: if target is empty, assume lfortran was compiled with MSVC
+            if (target == "" || target == "x86_64-pc-windows-msvc") {
+                std::string cmd = "link /NOLOGO /OUT:" + outfile + " ";
+                for (auto &s : infiles) {
+                    cmd += s + " ";
+                }
+                cmd += runtime_library_dir + "\\lfortran_runtime_static.lib";
+                int err = system(cmd.c_str());
+                if (err) {
+                    std::cout << "The command '" + cmd + "' failed." << std::endl;
+                    return 10;
+                }
+            } else if (target == "x86_64-w64-windows-gnu") {
+                // FIXME: Duplicate code
+                std::string CC = "gcc";
+                std::string base_path = "\"" + runtime_library_dir + "\"";
+                std::string options;
+                std::string runtime_lib = "lfortran_runtime";
+                if (static_executable) {
+                    options += " -static ";
+                    runtime_lib = "lfortran_runtime_static";
+                }
+                std::string cmd = CC + options + " -o " + outfile + " ";
+                for (auto &s : infiles) {
+                    cmd += s + " ";
+                }
+                cmd += + " -L"
+                    + base_path + " -Wl,-rpath," + base_path + " -l" + runtime_lib;
+                int err = system(cmd.c_str());
+                if (err) {
+                    std::cout << "The command '" + cmd + "' failed." << std::endl;
+                    return 10;
+                }
             }
             return 0;
         } else {
@@ -1093,6 +1117,7 @@ int main(int argc, char *argv[])
         bool static_link = false;
         std::string arg_backend = "llvm";
         std::string arg_kernel_f;
+        std::string arg_target = "";
 
         std::string arg_fmt_file;
         int arg_fmt_indent = 4;
@@ -1145,6 +1170,7 @@ int main(int argc, char *argv[])
         app.add_flag("--static", static_link, "Create a static executable");
         app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp, x86)")->capture_default_str();
         app.add_flag("--openmp", openmp, "Enable openmp");
+        app.add_option("--target", arg_target, "Generate code for the given target")->capture_default_str();
 
         /*
         * Subcommands:
@@ -1376,7 +1402,7 @@ int main(int argc, char *argv[])
             if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
                 return compile_to_object_file(arg_file, outfile, platform, false,
-                    show_stacktrace, !arg_no_color, arg_fixed_form);
+                    show_stacktrace, !arg_no_color, arg_fixed_form, arg_target);
 #else
                 std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;
@@ -1401,7 +1427,7 @@ int main(int argc, char *argv[])
             if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
                 err = compile_to_object_file(arg_file, tmp_o, platform, false,
-                    show_stacktrace, !arg_no_color, arg_fixed_form);
+                    show_stacktrace, !arg_no_color, arg_fixed_form, arg_target);
 #else
                 std::cerr << "Compiling Fortran files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;
@@ -1414,10 +1440,10 @@ int main(int argc, char *argv[])
             }
             if (err) return err;
             return link_executable({tmp_o}, outfile, runtime_library_dir,
-                    backend, static_link, true, openmp, platform);
+                    backend, static_link, true, openmp, platform, arg_target);
         } else {
             return link_executable(arg_files, outfile, runtime_library_dir,
-                    backend, static_link, true, openmp, platform);
+                    backend, static_link, true, openmp, platform, arg_target);
         }
     } catch(const LFortran::LFortranException &e) {
         std::cerr << e.stacktrace();
