@@ -99,6 +99,10 @@ public:
             ASR::Real_t *t = down_cast<ASR::Real_t>(v.m_type);
             std::string dims = convert_dims(t->n_dims, t->m_dims);
             sub = format_type(dims, "float", v.m_name, use_ref, dummy);
+        } else if (is_a<ASR::Complex_t>(*v.m_type)) {
+            ASR::Complex_t *t = down_cast<ASR::Complex_t>(v.m_type);
+            std::string dims = convert_dims(t->n_dims, t->m_dims);
+            sub = format_type(dims, "std::complex", v.m_name, use_ref, dummy);
         } else if (is_a<ASR::Logical_t>(*v.m_type)) {
             ASR::Logical_t *t = down_cast<ASR::Logical_t>(v.m_type);
             std::string dims = convert_dims(t->n_dims, t->m_dims);
