@@ -948,9 +948,25 @@ public:
             }
         }
         Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
-        ASR::ttype_t *type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(
-                LFortran::ASRUtils::symbol_get_past_external(v))
-                ->m_return_var)->m_type;
+        const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(v);
+        if (ASR::is_a<ASR::Variable_t>(*s)) {
+            // This happens for things like:
+            // integer :: Y(5)
+            // real :: X(Y(1)+1)
+            ASR::ttype_t *type = ASR::down_cast<ASR::Variable_t>(s)->m_type;
+            Vec<ASR::array_index_t> indices;
+            // FIXME: convert args to indices:
+            indices.p = nullptr;
+            indices.n = 0;
+            asr = ASR::make_ArrayRef_t(al, x.base.base.loc, v,
+                indices.p, indices.size(), type, nullptr);
+            return;
+        } else if (ASR::is_a<ASR::Function_t>(*s)) {
+            // pass
+        } else {
+            throw SemanticError("Expected a function call or an array", x.base.base.loc);
+        }
+        ASR::ttype_t *type = ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(s)->m_return_var)->m_type;
         // Add value where possible
         ASR::expr_t *value = nullptr;
         switch(args.n) {
