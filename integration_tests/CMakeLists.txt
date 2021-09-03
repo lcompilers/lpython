@@ -230,6 +230,8 @@ RUN(NAME modules_19 LABELS gfortran llvm EXTRAFILES
         modules_19b.f90)
 RUN(NAME modules_20 LABELS gfortran llvm EXTRAFILES
         modules_20b.f90)
+RUN(NAME modules_21 LABELS gfortran llvm EXTRAFILES
+        modules_21b.f90)
 
 RUN(NAME if_04 LABELS gfortran x86)
 RUN(NAME case_01 LABELS gfortran llvm)
