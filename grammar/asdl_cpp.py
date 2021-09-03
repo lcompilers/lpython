@@ -979,8 +979,11 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                     rhs = "deserialize_%s()" % (field.type)
                 else:
                     assert field.type not in products
-                    rhs = "down_cast<%s_t>(deserialize_%s())" % (field.type,
-                        field.type)
+                    if field.type == "symbol":
+                        rhs = "self().read_symbol()"
+                    else:
+                        rhs = "down_cast<%s_t>(deserialize_%s())" % (field.type,
+                            field.type)
                 if field.opt:
                     self.emit('if (present) {', 3)
                 self.emit('x.m_%s = %s;' % (field.name, rhs), 4)
