@@ -1355,7 +1355,7 @@ return make_Program_t(al, a_loc,
         ((If_t*)stmt)->m_stmt_name = name2char(id_first); \
         std::string first = name2char(id_first), \
                     last  = name2char(id_last); \
-        if (LFortran::str2lower(first) != LFortran::str2lower(last)) { \
+        if (LFortran::to_lower(first) != LFortran::to_lower(last)) { \
             throw LFortran::LFortranException("statement name is inconsistent"); \
         }
 

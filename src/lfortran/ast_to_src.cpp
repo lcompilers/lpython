@@ -1434,7 +1434,7 @@ public:
     }
 #define ATTRTYPE(x) \
             case (simple_attributeType::Attr##x) : \
-                r.append(str2lower(#x)); \
+                r.append(to_lower(#x)); \
                 break;
 
     void visit_SimpleAttribute(const SimpleAttribute_t &x) {
