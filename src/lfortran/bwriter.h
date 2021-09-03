@@ -1,6 +1,9 @@
 #ifndef LFORTRAN_BWRITER_H
 #define LFORTRAN_BWRITER_H
 
+#include <sstream>
+#include <iomanip>
+
 #include <lfortran/exception.h>
 
 namespace LFortran {
@@ -179,7 +182,9 @@ public:
     }
 
     void write_float64(double d) {
-        s.append(std::to_string(d));
+        std::stringstream str;
+        str << std::fixed << std::setprecision(17) << d;
+        s.append(str.str());
         s += " ";
     }
 };
