@@ -9,6 +9,7 @@
 #include <lfortran/ast.h>
 #include <lfortran/asr.h>
 #include <lfortran/utils.h>
+#include <lfortran/config.h>
 
 namespace LFortran {
 
@@ -108,10 +109,12 @@ public:
 
 private:
     Allocator al;
+#ifdef HAVE_LFORTRAN_LLVM
     std::unique_ptr<LLVMEvaluator> e;
     Platform platform;
-    SymbolTable *symbol_table;
     int eval_count;
+#endif
+    SymbolTable *symbol_table;
     std::string run_fn;
 };
 

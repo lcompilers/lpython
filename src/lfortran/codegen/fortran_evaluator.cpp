@@ -2,8 +2,6 @@
 #include <fstream>
 
 #include <lfortran/codegen/fortran_evaluator.h>
-#include <lfortran/codegen/evaluator.h>
-#include <lfortran/codegen/asr_to_llvm.h>
 #include <lfortran/codegen/asr_to_cpp.h>
 #include <lfortran/ast_to_src.h>
 #include <lfortran/exception.h>
@@ -13,6 +11,14 @@
 #include <lfortran/parser/parser.h>
 #include <lfortran/pickle.h>
 
+#ifdef HAVE_LFORTRAN_LLVM
+#include <lfortran/codegen/evaluator.h>
+#include <lfortran/codegen/asr_to_llvm.h>
+#else
+namespace LFortran {
+    class LLVMEvaluator {};
+}
+#endif
 
 namespace LFortran {
 
@@ -24,22 +30,34 @@ using Result = FortranEvaluator::Result<T>;
 /* ------------------------------------------------------------------------- */
 // FortranEvaluator
 
-FortranEvaluator::FortranEvaluator(Platform platform) :
+FortranEvaluator::FortranEvaluator(
+#ifdef HAVE_LFORTRAN_LLVM
+    Platform platform
+#else
+    Platform /*platform*/
+#endif
+    ) :
     al{1024*1024},
+#ifdef HAVE_LFORTRAN_LLVM
     e{std::make_unique<LLVMEvaluator>()},
     platform{platform},
-    symbol_table{nullptr},
-    eval_count{0}
+    eval_count{0},
+#endif
+    symbol_table{nullptr}
 {
 }
 
-FortranEvaluator::~FortranEvaluator()
-{
-}
+FortranEvaluator::~FortranEvaluator() = default;
 
 Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
-            const std::string &code_orig, bool verbose)
+#ifdef HAVE_LFORTRAN_LLVM
+            const std::string &code_orig, bool verbose
+#else
+            const std::string &/*code_orig*/, bool /*verbose*/
+#endif
+            )
 {
+#ifdef HAVE_LFORTRAN_LLVM
     try {
         EvalResult result;
 
@@ -133,6 +151,9 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
         error.msg = e.msg();
         return error;
     }
+#else
+    throw LFortranException("LLVM is not enabled");
+#endif
 }
 
 Result<std::string> FortranEvaluator::get_ast(const std::string &code)
@@ -250,18 +271,35 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
     return asr;
 }
 
-Result<std::string> FortranEvaluator::get_llvm(const std::string &code)
+Result<std::string> FortranEvaluator::get_llvm(
+#ifdef HAVE_LFORTRAN_LLVM
+    const std::string &code
+#else
+    const std::string &/*code*/
+#endif
+    )
 {
+#ifdef HAVE_LFORTRAN_LLVM
     Result<std::unique_ptr<LLVMModule>> res = get_llvm2(code);
     if (res.ok) {
         return res.result->str();
     } else {
         return res.error;
     }
+#else
+    throw LFortranException("LLVM is not enabled");
+#endif
 }
 
-Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(const std::string &code)
+Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(
+#ifdef HAVE_LFORTRAN_LLVM
+    const std::string &code
+#else
+    const std::string &/*code*/
+#endif
+    )
 {
+#ifdef HAVE_LFORTRAN_LLVM
     Result<ASR::TranslationUnit_t*> asr = get_asr2(code, false);
     if (!asr.ok) {
         return asr.error;
@@ -282,16 +320,29 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(const std::strin
     }
 
     return m;
+#else
+    throw LFortranException("LLVM is not enabled");
+#endif
 }
 
-Result<std::string> FortranEvaluator::get_asm(const std::string &code)
+Result<std::string> FortranEvaluator::get_asm(
+#ifdef HAVE_LFORTRAN_LLVM
+    const std::string &code
+#else
+    const std::string &/*code*/
+#endif
+    )
 {
+#ifdef HAVE_LFORTRAN_LLVM
     Result<std::unique_ptr<LLVMModule>> res = get_llvm2(code);
     if (res.ok) {
         return e->get_asm(*res.result->m_m);
     } else {
         return res.error;
     }
+#else
+    throw LFortranException("LLVM is not enabled");
+#endif
 }
 
 Result<std::string> FortranEvaluator::get_cpp(const std::string &code)
@@ -303,7 +354,26 @@ Result<std::string> FortranEvaluator::get_cpp(const std::string &code)
     symbol_table = old_symbol_table;
     if (asr.ok) {
         // ASR -> C++
-        return LFortran::asr_to_cpp(*asr.result);
+        try {
+            return LFortran::asr_to_cpp(*asr.result);
+        } catch (const SemanticError &e) {
+            // Note: the asr_to_cpp should only throw CodeGenError
+            // but we currently do not have location information for
+            // CodeGenError. We need to add it. Until then we can raise
+            // SemanticError to get the location information.
+            FortranEvaluator::Error error;
+            error.type = FortranEvaluator::Error::Semantic;
+            error.loc = e.loc;
+            error.msg = e.msg();
+            error.stacktrace_addresses = e.stacktrace_addresses();
+            return error;
+        } catch (const CodeGenError &e) {
+            FortranEvaluator::Error error;
+            error.type = FortranEvaluator::Error::CodeGen;
+            error.msg = e.msg();
+            error.stacktrace_addresses = e.stacktrace_addresses();
+            return error;
+        }
     } else {
         return asr.error;
     }

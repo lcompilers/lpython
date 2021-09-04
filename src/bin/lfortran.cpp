@@ -523,32 +523,22 @@ int emit_asr(const std::string &infile, bool colors,
     return 0;
 }
 
-int emit_cpp(const std::string &infile)
+int emit_cpp(const std::string &infile, bool show_stacktrace, bool colors)
 {
     std::string input = read_file(infile);
 
-    // Src -> AST
-    Allocator al(64*1024*1024);
-    LFortran::AST::TranslationUnit_t* ast;
-    try {
-        ast = LFortran::parse2(al, input);
-    } catch (const LFortran::TokenizerError &e) {
-        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
+    LFortran::FortranEvaluator fe(LFortran::get_platform());
+    LFortran::FortranEvaluator::Result<std::string> cpp = fe.get_cpp(input);
+    if (cpp.ok) {
+        std::cout << cpp.result;
+        return 0;
+    } else {
+        if (show_stacktrace) {
+            std::cerr << fe.error_stacktrace(cpp.error);
+        }
+        std::cerr << fe.format_error(cpp.error, input, colors);
         return 1;
-    } catch (const LFortran::ParserError &e) {
-        std::cerr << "Parsing error: " << e.msg() << std::endl;
-        return 2;
     }
-
-    // AST -> ASR
-    LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast);
-
-    // ASR -> CPP
-    std::string cpp;
-    cpp = LFortran::asr_to_cpp(*asr);
-
-    std::cout << cpp;
-    return 0;
 }
 
 
@@ -1381,7 +1371,7 @@ int main(int argc, char *argv[])
 #endif
         }
         if (show_cpp) {
-            return emit_cpp(arg_file);
+            return emit_cpp(arg_file, show_stacktrace, !arg_no_color);
         }
         if (arg_S) {
             if (backend == Backend::llvm) {
