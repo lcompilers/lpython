@@ -14,6 +14,7 @@
 #include <lfortran/codegen/asr_to_py.h>
 #include <lfortran/codegen/asr_to_x86.h>
 #include <lfortran/ast_to_src.h>
+#include <lfortran/codegen/fortran_evaluator.h>
 #include <lfortran/codegen/evaluator.h>
 #include <lfortran/pass/do_loops.h>
 #include <lfortran/pass/global_stmts.h>

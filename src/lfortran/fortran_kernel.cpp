@@ -23,7 +23,7 @@
 #include <lfortran/parser/parser.h>
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/codegen/asr_to_llvm.h>
-#include <lfortran/codegen/evaluator.h>
+#include <lfortran/codegen/fortran_evaluator.h>
 #include <lfortran/asr_utils.h>
 #include <lfortran/string_utils.h>
 
