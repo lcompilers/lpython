@@ -675,7 +675,7 @@ std::string format_semantic_error(const std::string &filename,
         out << " - " << loc.last_line << ":" << loc.last_column;
     }
     if(use_colors) out << " " << redon << "semantic error:" << redoff << " ";
-    else out << " " << "syntax error:" <<  " ";
+    else out << " " << "semantic error:" <<  " ";
     out << msg << std::endl;
     if (loc.first_line == loc.last_line) {
         std::string line = get_line(input, loc.first_line);
