@@ -2,8 +2,6 @@
 #include <fstream>
 
 #include <lfortran/codegen/fortran_evaluator.h>
-#include <lfortran/codegen/evaluator.h>
-#include <lfortran/codegen/asr_to_llvm.h>
 #include <lfortran/codegen/asr_to_cpp.h>
 #include <lfortran/ast_to_src.h>
 #include <lfortran/exception.h>
@@ -12,7 +10,16 @@
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/parser/parser.h>
 #include <lfortran/pickle.h>
+#include <lfortran/config.h>
 
+#ifdef HAVE_LFORTRAN_LLVM
+#include <lfortran/codegen/evaluator.h>
+#include <lfortran/codegen/asr_to_llvm.h>
+#else
+namespace LFortran {
+    class LLVMEvaluator {};
+}
+#endif
 
 namespace LFortran {
 
@@ -26,20 +33,21 @@ using Result = FortranEvaluator::Result<T>;
 
 FortranEvaluator::FortranEvaluator(Platform platform) :
     al{1024*1024},
+#ifdef HAVE_LFORTRAN_LLVM
     e{std::make_unique<LLVMEvaluator>()},
+#endif
     platform{platform},
     symbol_table{nullptr},
     eval_count{0}
 {
 }
 
-FortranEvaluator::~FortranEvaluator()
-{
-}
+FortranEvaluator::~FortranEvaluator() = default;
 
 Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
             const std::string &code_orig, bool verbose)
 {
+#ifdef HAVE_LFORTRAN_LLVM
     try {
         EvalResult result;
 
@@ -133,6 +141,7 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
         error.msg = e.msg();
         return error;
     }
+#endif
 }
 
 Result<std::string> FortranEvaluator::get_ast(const std::string &code)
@@ -252,16 +261,19 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
 
 Result<std::string> FortranEvaluator::get_llvm(const std::string &code)
 {
+#ifdef HAVE_LFORTRAN_LLVM
     Result<std::unique_ptr<LLVMModule>> res = get_llvm2(code);
     if (res.ok) {
         return res.result->str();
     } else {
         return res.error;
     }
+#endif
 }
 
 Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(const std::string &code)
 {
+#ifdef HAVE_LFORTRAN_LLVM
     Result<ASR::TranslationUnit_t*> asr = get_asr2(code, false);
     if (!asr.ok) {
         return asr.error;
@@ -282,16 +294,19 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(const std::strin
     }
 
     return m;
+#endif
 }
 
 Result<std::string> FortranEvaluator::get_asm(const std::string &code)
 {
+#ifdef HAVE_LFORTRAN_LLVM
     Result<std::unique_ptr<LLVMModule>> res = get_llvm2(code);
     if (res.ok) {
         return e->get_asm(*res.result->m_m);
     } else {
         return res.error;
     }
+#endif
 }
 
 Result<std::string> FortranEvaluator::get_cpp(const std::string &code)
