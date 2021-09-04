@@ -10,6 +10,7 @@ set(SRC
     semantics/ast_to_asr.cpp
     semantics/asr_scopes.cpp
 
+    codegen/fortran_evaluator.cpp
     codegen/asr_to_cpp.cpp
     codegen/asr_to_py.cpp
     codegen/x86_assembler.cpp
