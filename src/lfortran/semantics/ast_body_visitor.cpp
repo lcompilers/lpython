@@ -2008,8 +2008,13 @@ public:
         //                                                 ASR::intentType::Local, nullptr,
         //                                                 ASR::storage_typeType::Default, LFortran::ASRUtils::expr_type(a_start),
         //                                                 ASR::abiType::Source, ASR::Public);
-        LFORTRAN_ASSERT(current_scope->scope.find(std::string(x.m_var)) != current_scope->scope.end());
-        ASR::symbol_t* a_sym = current_scope->scope[std::string(x.m_var)];
+        std::string var_name = to_lower(x.m_var);
+        if (current_scope->scope.find(var_name) == current_scope->scope.end()) {
+            throw SemanticError("The implied do loop variable '" + var_name + "' is not declared", x.base.base.loc);
+        };
+
+        LFORTRAN_ASSERT(current_scope->scope.find(var_name) != current_scope->scope.end());
+        ASR::symbol_t* a_sym = current_scope->scope[var_name];
         // current_scope->scope[a_var_name] = a_sym;
         ASR::expr_t* a_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, a_sym));
         tmp = ASR::make_ImpliedDoLoop_t(al, x.base.base.loc, a_values, n_values,
