@@ -303,7 +303,26 @@ Result<std::string> FortranEvaluator::get_cpp(const std::string &code)
     symbol_table = old_symbol_table;
     if (asr.ok) {
         // ASR -> C++
-        return LFortran::asr_to_cpp(*asr.result);
+        try {
+            return LFortran::asr_to_cpp(*asr.result);
+        } catch (const SemanticError &e) {
+            // Note: the asr_to_cpp should only throw CodeGenError
+            // but we currently do not have location information for
+            // CodeGenError. We need to add it. Until then we can raise
+            // SemanticError to get the location information.
+            FortranEvaluator::Error error;
+            error.type = FortranEvaluator::Error::Semantic;
+            error.loc = e.loc;
+            error.msg = e.msg();
+            error.stacktrace_addresses = e.stacktrace_addresses();
+            return error;
+        } catch (const CodeGenError &e) {
+            FortranEvaluator::Error error;
+            error.type = FortranEvaluator::Error::CodeGen;
+            error.msg = e.msg();
+            error.stacktrace_addresses = e.stacktrace_addresses();
+            return error;
+        }
     } else {
         return asr.error;
     }
