@@ -21,7 +21,7 @@ contains
     end do
     end subroutine
 
-    logical function verify(a, b) result(r) 
+    logical function verify(a, b) result(r)
     integer, intent(in) :: a(:), b(:)
     integer :: i
     r = .true.
