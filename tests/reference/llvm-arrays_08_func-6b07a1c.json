@@ -2,11 +2,11 @@
     "basename": "llvm-arrays_08_func-6b07a1c",
     "cmd": "lfortran --show-llvm {infile} -o {outfile}",
     "infile": "tests/../integration_tests/arrays_08_func.f90",
-    "infile_hash": "f4b7229dcbd4fa11a7521c97a6d610e9bc83561fc9b7bf0640e14fc4",
+    "infile_hash": "31dc0eac87716ea184d20ac42f94636f0a25c0ee00022272c2b1327d",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "llvm-arrays_08_func-6b07a1c.stdout",
-    "stdout_hash": "b8da3918137a81d791ebb1f5207894db164451c553dbba8734249ffc",
+    "stdout_hash": "c58cdaab97872407bed45b1b63df560a0364d92bbd870c971d7df414",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
