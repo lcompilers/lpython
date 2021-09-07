@@ -1,20 +1,21 @@
-program arrays_08_func
+program arrays_11
 implicit none
 integer :: x(10), y(10), i
 logical :: r
 do i = 1, size(x)
     x(i) = i
 end do
-call copy_from_to(x, y)
+call sub(size(x), x, y)
 r = verify(x, y)
 print *, r
 if (.not. r) error stop
 
 contains
 
-    subroutine copy_from_to(a, b)
-    integer, intent(in) :: a(:)
-    integer, intent(out) :: b(:)
+    subroutine sub(n, a, b)
+    integer, intent(in) :: n
+    integer, intent(in) :: a(n)
+    integer, intent(out) :: b(n)
     integer :: i
     do i = 1, size(a)
         b(i) = a(i)
