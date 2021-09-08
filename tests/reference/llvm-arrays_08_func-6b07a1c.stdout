@@ -10,6 +10,7 @@ source_filename = "LFortran"
 %array.3 = type { [10 x i32], i32, [1 x %dimension_descriptor] }
 
 @0 = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
+@1 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
 
 define i32 @__module_lfortran_intrinsic_array_size(%size_arg* %x) {
 .entry:
@@ -175,6 +176,7 @@ loop.end:                                         ; preds = %loop.head
 define i32 @main() {
 .entry:
   %i = alloca i32, align 4
+  %r = alloca i1, align 1
   %x = alloca %array.3, align 8
   %0 = getelementptr %array.3, %array.3* %x, i32 0, i32 1
   store i32 0, i32* %0, align 4
@@ -302,9 +304,27 @@ loop.end:                                         ; preds = %loop.head
   %86 = getelementptr %array_call.2, %array_call.2* %77, i32 0, i32 2
   store [1 x %dimension_descriptor] %85, [1 x %dimension_descriptor]* %86, align 4
   %87 = call i1 @verify(%array_call.1* %67, %array_call.2* %77)
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0), i1 %87)
+  store i1 %87, i1* %r, align 1
+  %88 = load i1, i1* %r, align 1
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0), i1 %88)
+  %89 = load i1, i1* %r, align 1
+  %90 = xor i1 %89, true
+  br i1 %90, label %then, label %else
+
+then:                                             ; preds = %loop.end
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @1, i32 0, i32 0))
+  call void @exit(i32 1)
+  br label %ifcont
+
+else:                                             ; preds = %loop.end
+  br label %ifcont
+
+ifcont:                                           ; preds = %else, %then
+  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
   ret i32 0
 }
 
 declare void @_lfortran_printf(i8*, ...)
+
+declare void @exit(i32)
 

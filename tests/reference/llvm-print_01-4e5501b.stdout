@@ -2,6 +2,7 @@
 source_filename = "LFortran"
 
 @0 = private unnamed_addr constant [16 x i8] c"%d %d %d %d %d\0A\00", align 1
+@1 = private unnamed_addr constant [16 x i8] c"%d %d %d %d %d\0A\00", align 1
 
 define i32 @main() {
 .entry:
@@ -12,6 +13,11 @@ define i32 @main() {
   %2 = load i32, i32* %x, align 4
   %3 = add i32 25, %2
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @0, i32 0, i32 0), i32 %0, i32 1, i32 3, i32 %1, i32 %3)
+  %4 = load i32, i32* %x, align 4
+  %5 = load i32, i32* %x, align 4
+  %6 = load i32, i32* %x, align 4
+  %7 = add i32 25, %6
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @1, i32 0, i32 0), i32 %4, i32 1, i32 3, i32 %5, i32 %7)
   ret i32 0
 }
 

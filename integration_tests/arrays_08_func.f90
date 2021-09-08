@@ -1,11 +1,14 @@
 program arrays_08_func
 implicit none
 integer :: x(10), y(10), i
+logical :: r
 do i = 1, size(x)
     x(i) = i
 end do
 call copy_from_to(x, y)
-print *, verify(x, y)
+r = verify(x, y)
+print *, r
+if (.not. r) error stop
 
 contains
 
@@ -18,7 +21,7 @@ contains
     end do
     end subroutine
 
-    logical function verify(a, b) result(r) 
+    logical function verify(a, b) result(r)
     integer, intent(in) :: a(:), b(:)
     integer :: i
     r = .true.

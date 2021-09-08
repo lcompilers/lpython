@@ -1,5 +1,4 @@
 program builtin_01 
-
 ! AST only tests
 implicit none 
 

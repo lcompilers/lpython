@@ -1,5 +1,5 @@
 module modules_15b
-use iso_c_binding, only: c_int, c_float, c_double
+use iso_c_binding, only: c_int, c_float, c_double, c_char, c_null_char
 implicit none
 
 interface
@@ -199,6 +199,19 @@ interface
     integer(c_int), intent(out) :: r
     end subroutine
 
+    ! int f_string(char *s)
+    integer(c_int) function f_string0(s) result(r) bind(c, name="f_string")
+    import :: c_int, c_char
+    character(len=1, kind=c_char), intent(in) :: s(*)
+    end function
+
 end interface
+
+contains
+
+integer function f_string(s) result(r)
+character(*), intent(in) :: s
+r = f_string0(s // c_null_char)
+end function
 
 end module

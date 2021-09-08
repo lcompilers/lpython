@@ -9,7 +9,7 @@ source_filename = "LFortran"
 @3 = private unnamed_addr constant [11 x i8] c"(%lf,%lf)\0A\00", align 1
 @4 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
 
-declare i8 @__module_lfortran_intrinsic_array_char(i32*)
+declare i8* @__module_lfortran_intrinsic_array_char(i32*)
 
 define double @__module_lfortran_intrinsic_math2_dabs(double* %x) {
 .entry:

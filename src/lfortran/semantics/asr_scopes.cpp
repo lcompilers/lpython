@@ -159,4 +159,43 @@ void SymbolTable::mark_all_variables_external(Allocator &/*al*/) {
     }
 }
 
+ASR::symbol_t *SymbolTable::find_scoped_symbol(const std::string &name,
+        size_t n_scope_names, char **m_scope_names) {
+    const SymbolTable *s = this;
+    for(size_t i=0; i < n_scope_names; i++) {
+        std::string scope_name = m_scope_names[i];
+        if (s->scope.find(scope_name) != scope.end()) {
+            ASR::symbol_t *sym = s->scope.at(scope_name);
+            s = ASRUtils::symbol_symtab(sym);
+            if (s == nullptr) {
+                // The m_scope_names[i] found in the appropriate symbol table,
+                // but points to a symbol that itself does not have a symbol
+                // table
+                return nullptr;
+            }
+        } else {
+            // The m_scope_names[i] not found in the appropriate symbol table
+            return nullptr;
+        }
+    }
+    if (s->scope.find(name) != scope.end()) {
+        ASR::symbol_t *sym = s->scope.at(name);
+        LFORTRAN_ASSERT(sym)
+        return sym;
+    } else {
+        // The `name` not found in the appropriate symbol table
+        return nullptr;
+    }
+}
+
+std::string SymbolTable::get_unique_name(const std::string &name) {
+    std::string unique_name = name;
+    int counter = 1;
+    while (scope.find(unique_name) != scope.end()) {
+        unique_name = name + std::to_string(counter);
+        counter++;
+    }
+    return unique_name;
+}
+
 } // namespace LFortran

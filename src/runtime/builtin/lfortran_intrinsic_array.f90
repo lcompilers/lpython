@@ -66,6 +66,10 @@ interface
     character function char(x)
     integer, intent(in) :: x
     end function
+
+    integer function len(x)
+    character(len=*), intent(in) :: x
+    end function
 end interface
 
 end module

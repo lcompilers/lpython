@@ -87,10 +87,10 @@ int ubound(const Kokkos::View<const int*> &x, int dim)
 
 void sum_reduce(const Kokkos::View<const float*> &a, float &s)
 {
-    int N;
-    N = a.extent(0);
+    int n;
+    n = a.extent(0);
     s = 0;
-    Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(1, N+1), KOKKOS_LAMBDA(const long i) {
+    Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(1, n+1), KOKKOS_LAMBDA(const long i) {
         s = s + a[i-1];
     });
 }

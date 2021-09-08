@@ -218,7 +218,6 @@ public:
             for (size_t i=0; i<y.n_inside; i++) {
                 switch (y.m_inside[i]->type) {
                     case trivia_nodeType::Comment: {
-                        if(i == 0) r += "\n";
                         r += std::string(
                             down_cast<Comment_t>(y.m_inside[i])->m_comment
                         );
@@ -233,7 +232,6 @@ public:
                         break;
                     }
                     case trivia_nodeType::EndOfLine: {
-                        if(i == 0) r += "\n";
                         r += "\n";
                         break;
                     }
@@ -1434,7 +1432,7 @@ public:
     }
 #define ATTRTYPE(x) \
             case (simple_attributeType::Attr##x) : \
-                r.append(str2lower(#x)); \
+                r.append(to_lower(#x)); \
                 break;
 
     void visit_SimpleAttribute(const SimpleAttribute_t &x) {

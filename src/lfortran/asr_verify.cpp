@@ -56,30 +56,37 @@ public:
         require(cond, msg);
     }
 
-    // Returns true if the `symtab_ID` is the current symbol table `symtab` or
-    // any of its parents. It returns false otherwise, such as in the case when
-    // the symtab is in a different module.
-    bool symtab_in_scope(const SymbolTable *symtab, unsigned int symtab_ID) {
+    // Returns true if the `symtab_ID` (sym->symtab->parent) is the current
+    // symbol table `symtab` or any of its parents *and* if the symbol in the
+    // symbol table is equal to `sym`. It returns false otherwise, such as in the
+    // case when the symtab is in a different module or if the `sym`'s symbol table
+    // does not actually contain it.
+    bool symtab_in_scope(const SymbolTable *symtab, const ASR::symbol_t *sym) {
+        unsigned int symtab_ID = symbol_parent_symtab(sym)->counter;
+        char *sym_name = symbol_name(sym);
         const SymbolTable *s = symtab;
         while (s != nullptr) {
-            if (s->counter == symtab_ID) return true;
-            for(auto &sym : s->scope){
-                const SymbolTable *s_loc;
-                if( ASR::is_a<ASR::ExternalSymbol_t>(*sym.second) ) {
-                    ASR::ExternalSymbol_t* der_ext = ASR::down_cast<ASR::ExternalSymbol_t>(sym.second);
-                    ASR::symbol_t* der_sym = der_ext->m_external;
-                    if (check_external) {
-                        LFORTRAN_ASSERT(der_sym)
-                        if( ASR::is_a<DerivedType_t>(*der_sym)) {
-                            ASR::DerivedType_t *der_type = ASR::down_cast<ASR::DerivedType_t>(der_sym);
-                            s_loc = der_type->m_symtab;
-                            if(symtab_in_scope(s_loc, symtab_ID)) return true;
-                        }
+            if (s->counter == symtab_ID) {
+                ASR::symbol_t *sym2 = s->get_symbol(sym_name);
+                if (sym2) {
+                    if (sym2 == sym) {
+                        // The symbol table was found and the symbol `sym` is in
+                        // it
+                        return true;
+                    } else {
+                        // The symbol table was found and the symbol in it
+                        // shares the name, but is not equal to `sym`
+                        return false;
                     }
+                } else {
+                    // The symbol table was found, but the symbol `sym` is not
+                    // in it
+                    return false;
                 }
             }
             s = s->parent;
         }
+        // The symbol table was not found in the scope of `symtab`.
         return false;
     }
 
@@ -91,6 +98,10 @@ public:
             "The TranslationUnit::m_global_scope->parent must be nullptr");
         require(id_symtab_map.find(x.m_global_scope->counter) == id_symtab_map.end(),
             "TranslationUnit::m_global_scope->counter must be unique");
+        require(x.m_global_scope->asr_owner == (ASR::asr_t*)&x,
+            "The TranslationUnit::m_global_scope::asr_owner must point to itself");
+        require(down_cast2<TranslationUnit_t>(current_symtab->asr_owner)->m_global_scope == current_symtab,
+            "The asr_owner invariant failed");
         id_symtab_map[x.m_global_scope->counter] = x.m_global_scope;
         for (auto &a : x.m_global_scope->scope) {
             this->visit_symbol(*a.second);
@@ -117,6 +128,10 @@ public:
             "The Program::m_symtab's parent must be TranslationUnit");
         require(id_symtab_map.find(x.m_symtab->counter) == id_symtab_map.end(),
             "Program::m_symtab->counter must be unique");
+        require(x.m_symtab->asr_owner == (ASR::asr_t*)&x,
+            "The X::m_symtab::asr_owner must point to X");
+        require(ASRUtils::symbol_symtab(down_cast<symbol_t>(current_symtab->asr_owner)) == current_symtab,
+            "The asr_owner invariant failed");
         id_symtab_map[x.m_symtab->counter] = x.m_symtab;
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
@@ -138,6 +153,10 @@ public:
             "The Module::m_symtab's parent must be TranslationUnit");
         require(id_symtab_map.find(x.m_symtab->counter) == id_symtab_map.end(),
             "Module::m_symtab->counter must be unique");
+        require(x.m_symtab->asr_owner == (ASR::asr_t*)&x,
+            "The X::m_symtab::asr_owner must point to X");
+        require(ASRUtils::symbol_symtab(down_cast<symbol_t>(current_symtab->asr_owner)) == current_symtab,
+            "The asr_owner invariant failed");
         id_symtab_map[x.m_symtab->counter] = x.m_symtab;
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
@@ -163,8 +182,12 @@ public:
             "The Subroutine::m_symtab cannot be nullptr");
         require(x.m_symtab->parent == parent_symtab,
             "The Subroutine::m_symtab->parent is not the right parent");
+        require(x.m_symtab->asr_owner == (ASR::asr_t*)&x,
+            "The X::m_symtab::asr_owner must point to X");
         require(id_symtab_map.find(x.m_symtab->counter) == id_symtab_map.end(),
             "Subroutine::m_symtab->counter must be unique");
+        require(ASRUtils::symbol_symtab(down_cast<symbol_t>(current_symtab->asr_owner)) == current_symtab,
+            "The asr_owner invariant failed");
         id_symtab_map[x.m_symtab->counter] = x.m_symtab;
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
@@ -185,8 +208,12 @@ public:
             "The Function::m_symtab cannot be nullptr");
         require(x.m_symtab->parent == parent_symtab,
             "The Function::m_symtab->parent is not the right parent");
+        require(x.m_symtab->asr_owner == (ASR::asr_t*)&x,
+            "The X::m_symtab::asr_owner must point to X");
         require(id_symtab_map.find(x.m_symtab->counter) == id_symtab_map.end(),
             "Function::m_symtab->counter must be unique");
+        require(ASRUtils::symbol_symtab(down_cast<symbol_t>(current_symtab->asr_owner)) == current_symtab,
+            "The asr_owner invariant failed");
         id_symtab_map[x.m_symtab->counter] = x.m_symtab;
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
@@ -208,8 +235,12 @@ public:
             "The DerivedType::m_symtab cannot be nullptr");
         require(x.m_symtab->parent == parent_symtab,
             "The DerivedType::m_symtab->parent is not the right parent");
+        require(x.m_symtab->asr_owner == (ASR::asr_t*)&x,
+            "The X::m_symtab::asr_owner must point to X");
         require(id_symtab_map.find(x.m_symtab->counter) == id_symtab_map.end(),
             "Derivedtype::m_symtab->counter must be unique");
+        require(ASRUtils::symbol_symtab(down_cast<symbol_t>(current_symtab->asr_owner)) == current_symtab,
+            "The asr_owner invariant failed");
         id_symtab_map[x.m_symtab->counter] = x.m_symtab;
         for (auto &a : x.m_symtab->scope) {
             this->visit_symbol(*a.second);
@@ -222,7 +253,7 @@ public:
         require(symtab != nullptr,
             "Variable::m_parent_symtab cannot be nullptr");
         require(symtab->scope.find(std::string(x.m_name)) != symtab->scope.end(),
-            "Variable not found in parent_symtab symbol table");
+            "Variable '" + std::string(x.m_name) + "' not found in parent_symtab symbol table");
         symbol_t *symtab_sym = symtab->scope[std::string(x.m_name)];
         const symbol_t *current_sym = &x.base;
         require(symtab_sym == current_sym,
@@ -244,7 +275,17 @@ public:
             char *orig_name = symbol_name(x.m_external);
             require(std::string(x.m_original_name) == std::string(orig_name),
                 "ExternalSymbol::m_original_name must match external->m_name");
-            // TODO: check that module name matches x.m_module_name
+            ASR::Module_t *m = ASRUtils::get_sym_module(x.m_external);
+            require(m,
+                "ExternalSymbol::m_external is not in a module");
+            require(std::string(x.m_module_name) == std::string(m->m_name),
+                "ExternalSymbol::m_module_name `" + std::string(x.m_module_name)
+                + "` must match external's module name `" + std::string(m->m_name) + "`");
+            ASR::symbol_t *s = m->m_symtab->find_scoped_symbol(x.m_original_name, x.n_scope_names, x.m_scope_names);
+            require(s != nullptr,
+                "ExternalSymbol::m_name + scope_names not found in a module");
+            require(s == x.m_external,
+                "ExternalSymbol::m_name + scope_names found but not equal to m_external");
         }
     }
 
@@ -258,14 +299,12 @@ public:
                 || is_a<Function_t>(*x.m_v) || is_a<Subroutine_t>(*x.m_v),
             "Var_t::m_v does not point to a Variable_t, ExternalSymbol_t," \
             "Function_t, or Subroutine_t");
-        require(symtab_in_scope(current_symtab,
-             symbol_parent_symtab(x.m_v)->counter),
-            "Var::m_v cannot point outside of its symbol table");
+        require(symtab_in_scope(current_symtab, x.m_v),
+            "Var::m_v `" + std::string(ASRUtils::symbol_name(x.m_v)) + "` cannot point outside of its symbol table");
     }
 
     void visit_ArrayRef(const ArrayRef_t &x) {
-        require(symtab_in_scope(current_symtab,
-             symbol_parent_symtab(x.m_v)->counter),
+        require(symtab_in_scope(current_symtab, x.m_v),
             "ArrayRef::m_v cannot point outside of its symbol table");
         for (size_t i=0; i<x.n_args; i++) {
             visit_array_index(x.m_args[i]);
@@ -274,31 +313,90 @@ public:
     }
 
     void visit_SubroutineCall(const SubroutineCall_t &x) {
-        require(symtab_in_scope(current_symtab,
-             symbol_parent_symtab(x.m_name)->counter),
-            "SubroutineCall::m_name cannot point outside of its symbol table");
+        if (x.m_dt) {
+            SymbolTable *symtab = get_dt_symtab(x.m_dt, x.base.base.loc);
+            require(symtab_in_scope(symtab, x.m_name),
+                "SubroutineCall::m_name cannot point outside of its symbol table",
+                x.base.base.loc);
+        } else {
+            require(symtab_in_scope(current_symtab, x.m_name),
+                "SubroutineCall::m_name cannot point outside of its symbol table",
+                x.base.base.loc);
+        }
         for (size_t i=0; i<x.n_args; i++) {
             visit_expr(*x.m_args[i]);
         }
     }
 
+    SymbolTable *get_dt_symtab(ASR::expr_t *dt, const Location &loc) {
+        require(ASR::is_a<ASR::Var_t>(*dt),
+            "m_dt must point to a Var",
+            loc);
+        ASR::Var_t *var = ASR::down_cast<ASR::Var_t>(dt);
+        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var->m_v);
+        ASR::symbol_t *type_sym=nullptr;
+        switch (v->m_type->type) {
+            case (ASR::ttypeType::Derived): {
+                type_sym = ASR::down_cast<ASR::Derived_t>(v->m_type)->m_derived_type;
+                break;
+            }
+            case (ASR::ttypeType::DerivedPointer): {
+                type_sym = ASR::down_cast<ASR::DerivedPointer_t>(v->m_type)->m_derived_type;
+                break;
+            }
+            case (ASR::ttypeType::Class): {
+                type_sym = ASR::down_cast<ASR::Class_t>(v->m_type)->m_class_type;
+                break;
+            }
+            default :
+                require(false,
+                    "m_dt::m_v::m_type must point to a type with a symbol table (Derived or Class)",
+                    loc);
+        }
+        LFORTRAN_ASSERT(type_sym)
+        SymbolTable *symtab = ASRUtils::symbol_symtab(type_sym);
+        require(symtab,
+            "m_dt::m_v::m_type::class/derived_type must point to a symbol with a symbol table",
+            loc);
+        return symtab;
+    }
+
     void visit_FunctionCall(const FunctionCall_t &x) {
-        require(symtab_in_scope(current_symtab,
-             symbol_parent_symtab(x.m_name)->counter),
-            "FunctionCall::m_name cannot point outside of its symbol table",
+        require(x.m_name,
+            "FunctionCall::m_name must be present",
             x.base.base.loc);
+        if (x.m_dt) {
+            SymbolTable *symtab = get_dt_symtab(x.m_dt, x.base.base.loc);
+            require(symtab_in_scope(symtab, x.m_name),
+                "FunctionCall::m_name cannot point outside of its symbol table",
+                x.base.base.loc);
+        } else {
+            require(symtab_in_scope(current_symtab, x.m_name),
+                "FunctionCall::m_name `" + std::string(symbol_name(x.m_name)) +
+                "` cannot point outside of its symbol table",
+                x.base.base.loc);
+            if (check_external) {
+                const ASR::symbol_t *fn = ASRUtils::symbol_get_past_external(x.m_name);
+                require(ASR::is_a<ASR::Function_t>(*fn),
+                    "FunctionCall::m_name must be a Function",
+                    x.base.base.loc);
+            }
+        }
         for (size_t i=0; i<x.n_args; i++) {
             visit_expr(*x.m_args[i]);
         }
         for (size_t i=0; i<x.n_keywords; i++) {
             visit_keyword(x.m_keywords[i]);
         }
+        SymbolTable *parent_symtab = current_symtab;
+        current_symtab = ASRUtils::symbol_symtab(x.m_name);
+        if (current_symtab == nullptr) current_symtab = parent_symtab;
         visit_ttype(*x.m_type);
+        current_symtab = parent_symtab;
     }
 
     void visit_Derived(const Derived_t &x) {
-        require(symtab_in_scope(current_symtab,
-                symbol_parent_symtab(x.m_derived_type)->counter),
+        require(symtab_in_scope(current_symtab, x.m_derived_type),
             "Derived::m_derived_type cannot point outside of its symbol table");
         for (size_t i=0; i<x.n_dims; i++) {
             visit_dimension(x.m_dims[i]);
@@ -306,8 +404,7 @@ public:
     }
 
     void visit_DerivedPointer(const DerivedPointer_t &x) {
-        require(symtab_in_scope(current_symtab,
-             symbol_parent_symtab(x.m_derived_type)->counter),
+        require(symtab_in_scope(current_symtab, x.m_derived_type),
             "DerivedPointer::m_derived_type cannot point outside of its symbol table");
         for (size_t i=0; i<x.n_dims; i++) {
             visit_dimension(x.m_dims[i]);

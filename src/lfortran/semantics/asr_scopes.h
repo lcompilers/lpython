@@ -8,12 +8,18 @@
 namespace LFortran  {
 
 namespace ASR {
+    struct asr_t;
     struct symbol_t;
 }
 
 struct SymbolTable {
     std::map<std::string, ASR::symbol_t*> scope;
     SymbolTable *parent;
+    // The ASR node (either symbol_t or TranslationUnit_t) that contains this
+    // SymbolTable as m_symtab / m_global_scope member. One of:
+    // * symbol_symtab(down_cast<symbol_t>(this->asr_owner)) == this
+    // * down_cast2<TranslationUnit_t>(this->asr_owner)->m_global_scope == this
+    ASR::asr_t *asr_owner = nullptr;
     unsigned int counter;
 
     SymbolTable(SymbolTable *parent);
@@ -38,8 +44,25 @@ struct SymbolTable {
         return scope[name];
     }
 
+    // Obtains the symbol `name` from the current symbol table
+    // Returns `nullptr` if symbol not found.
+    ASR::symbol_t* get_symbol(const std::string &name) const {
+        //auto it = scope.find(to_lower(name));
+        auto it = scope.find(name);
+        if (it == scope.end()) {
+            return nullptr;
+        } else {
+            return it->second;
+        }
+    }
+
     // Marks all variables as external
     void mark_all_variables_external(Allocator &al);
+
+    ASR::symbol_t *find_scoped_symbol(const std::string &name,
+        size_t n_scope_names, char **m_scope_names);
+
+    std::string get_unique_name(const std::string &name);
 };
 
 } // namespace LFortran

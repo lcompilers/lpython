@@ -108,6 +108,23 @@ void exit(llvm::LLVMContext &context, llvm::Module &module,
     builder.CreateCall(fn_exit, {exit_code});
 }
 
+void string_init(llvm::LLVMContext &context, llvm::Module &module,
+        llvm::IRBuilder<> &builder, llvm::Value* arg_size, llvm::Value* arg_string) {
+    std::string func_name = "_lfortran_string_init";
+    llvm::Function *fn = module.getFunction(func_name);
+    if (!fn) {
+        llvm::FunctionType *function_type = llvm::FunctionType::get(
+                llvm::Type::getVoidTy(context), {
+                    llvm::Type::getInt32Ty(context),
+                    llvm::Type::getInt8PtrTy(context)
+                }, true);
+        fn = llvm::Function::Create(function_type,
+                llvm::Function::ExternalLinkage, func_name, module);
+    }
+    std::vector<llvm::Value*> args = {arg_size, arg_string};
+    builder.CreateCall(fn, args);
+}
+
 class ASRToLLVMVisitor : public ASR::BaseVisitor<ASRToLLVMVisitor>
 {
 private:
@@ -138,10 +155,13 @@ public:
     std::unique_ptr<llvm::Module> module;
     std::unique_ptr<llvm::IRBuilder<>> builder;
     Platform platform;
+    Allocator &al;
 
     llvm::Value *tmp;
     llvm::BasicBlock *current_loophead, *current_loopend, *if_return;
     bool early_return = false;
+    bool dead_block = false;
+    llvm::BasicBlock *dead_bb;
     std::string mangle_prefix;
     bool prototype_only;
     llvm::StructType *complex_type_4, *complex_type_8;
@@ -200,10 +220,11 @@ public:
     std::unique_ptr<LLVMUtils> llvm_utils;
     std::unique_ptr<LLVMArrUtils::Descriptor> arr_descr;
 
-    ASRToLLVMVisitor(llvm::LLVMContext &context, Platform platform) : 
+    ASRToLLVMVisitor(Allocator &al, llvm::LLVMContext &context, Platform platform) :
     context(context),
     builder(std::make_unique<llvm::IRBuilder<>>(context)),
     platform{platform},
+    al{al},
     prototype_only(false),
     llvm_utils(std::make_unique<LLVMUtils>(context, builder.get())),
     arr_descr(LLVMArrUtils::Descriptor::get_descriptor(context,
@@ -613,6 +634,21 @@ public:
         return builder->CreateLoad(presult);
     }
 
+    llvm::Value* lfortran_str_len(llvm::Value* str)
+    {
+        std::string runtime_func_name = "_lfortran_str_len";
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getInt32Ty(context), {
+                        character_type->getPointerTo()
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        return builder->CreateCall(fn, {str});
+    }
+
 
     // This function is called as:
     // float complex_re(complex a)
@@ -880,13 +916,48 @@ public:
         uint32_t v_h = get_hash((ASR::asr_t*)v);
         LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
         llvm::Value* array = llvm_symtab[v_h];
-        std::vector<llvm::Value*> indices;
-        for( size_t r = 0; r < x.n_args; r++ ) {
-            ASR::array_index_t curr_idx = x.m_args[r];
-            this->visit_expr_wrapper(curr_idx.m_right, true);
-            indices.push_back(tmp);
+        if (is_a<ASR::Character_t>(*x.m_type)
+             && ASR::down_cast<ASR::Character_t>(x.m_type)->n_dims == 0) {
+            // String indexing:
+            if (x.n_args == 1) {
+                if (ASR::is_a<ASR::Var_t>(*x.m_args[0].m_left)
+                  &&ASR::is_a<ASR::Var_t>(*x.m_args[0].m_right)) {
+                    ASR::Variable_t *l = EXPR2VAR(x.m_args[0].m_left);
+                    ASR::Variable_t *r = EXPR2VAR(x.m_args[0].m_right);
+                    if (l == r) {
+                        this->visit_expr_wrapper(x.m_args[0].m_left, true);
+                        llvm::Value *idx = tmp;
+                        idx = builder->CreateSub(idx, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+                        //std::vector<llvm::Value*> idx_vec = {llvm::ConstantInt::get(context, llvm::APInt(32, 0)), idx};
+                        std::vector<llvm::Value*> idx_vec = {idx};
+                        llvm::Value *str = builder->CreateLoad(array);
+                        llvm::Value *p = builder->CreateGEP(str, idx_vec);
+                        // TODO: Currently the string starts at the right location, but goes to the end of the original string.
+                        // We have to allocate a new string, copy it and add null termination.
+
+                        tmp = builder->CreateAlloca(character_type, nullptr);
+                        builder->CreateStore(p, tmp);
+
+                        //tmp = p;
+                    } else {
+                        throw CodeGenError("Only string(a:b) for a==b supported for now.");
+                    }
+                } else {
+                    throw CodeGenError("Only string(a:b) for a,b variables for now.");
+                }
+            } else {
+                throw CodeGenError("Only string(a:b) supported for now.");
+            }
+        } else {
+            // Array indexing:
+            std::vector<llvm::Value*> indices;
+            for( size_t r = 0; r < x.n_args; r++ ) {
+                ASR::array_index_t curr_idx = x.m_args[r];
+                this->visit_expr_wrapper(curr_idx.m_right, true);
+                indices.push_back(tmp);
+            }
+            tmp = arr_descr->get_single_element(array, indices, x.n_args);
         }
-        tmp = arr_descr->get_single_element(array, indices, x.n_args);
     }
 
     void visit_DerivedRef(const ASR::DerivedRef_t& x) {
@@ -1257,7 +1328,7 @@ public:
                             break;
                         }
                         case (ASR::ttypeType::CharacterPointer) : {
-                            type = llvm::Type::getInt8PtrTy(context);
+                            type = character_type;
                             break;
                         }
                         case (ASR::ttypeType::DerivedPointer) : {
@@ -1329,6 +1400,32 @@ public:
                                     finder);
                             builder->CreateStore(target_var, llvm_utils->create_gep(ptr,
                                         idx));
+                        }
+                    } else {
+                        if (is_a<ASR::Character_t>(*v->m_type) && !is_array_type) {
+                            ASR::Character_t *t = down_cast<ASR::Character_t>(v->m_type);
+                            target_var = ptr;
+                            int strlen = t->m_len;
+                            if (strlen >= 0) {
+                                // Compile time length
+                                std::string empty(strlen, ' ');
+                                Str str;
+                                str.from_str_view(empty);
+                                char *s = str.c_str(al);
+                                llvm::Value *init_value = builder->CreateGlobalStringPtr(s);
+                                builder->CreateStore(init_value, target_var);
+                            } else if (strlen == -3) {
+                                LFORTRAN_ASSERT(t->m_len_expr)
+                                this->visit_expr(*t->m_len_expr);
+                                llvm::Value *arg_size = tmp;
+                                arg_size = builder->CreateAdd(arg_size, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+                                // TODO: this temporary string is never deallocated (leaks memory)
+                                llvm::Value *init_value = LLVMArrUtils::lfortran_malloc(context, *module, *builder, arg_size);
+                                string_init(context, *module, *builder, arg_size, init_value);
+                                builder->CreateStore(init_value, target_var);
+                            } else {
+                                throw CodeGenError("Unsupported len value in ASR");
+                            }
                         }
                     }
                 }
@@ -1455,7 +1552,11 @@ public:
                         break;
                     }
                     case (ASR::ttypeType::Character) :
-                        throw CodeGenError("Character argument type not implemented yet in conversion");
+                        if (arg->m_abi == ASR::abiType::BindC) {
+                            type = character_type;
+                        } else {
+                            type = character_type->getPointerTo();
+                        }
                         break;
                     case (ASR::ttypeType::Logical) : {
                         ASR::Logical_t* v_type = down_cast<ASR::Logical_t>(arg->m_type);
@@ -1908,7 +2009,7 @@ public:
                 break;
             }
             case (ASR::ttypeType::Character) :
-                return_type = llvm::Type::getInt8Ty(context);
+                return_type = character_type;
                 break;
             case (ASR::ttypeType::Logical) :
                 return_type = llvm::Type::getInt1Ty(context);
@@ -2152,10 +2253,24 @@ public:
     void visit_Assignment(const ASR::Assignment_t &x) {
         llvm::Value *target, *value;
         uint32_t h;
+        bool lhs_is_string_arrayref = false;
         if( x.m_target->type == ASR::exprType::ArrayRef || 
             x.m_target->type == ASR::exprType::DerivedRef ) {
             this->visit_expr(*x.m_target);
             target = tmp;   
+            if (is_a<ASR::ArrayRef_t>(*x.m_target)) {
+                ASR::ArrayRef_t *asr_target0 = ASR::down_cast<ASR::ArrayRef_t>(x.m_target);
+                if (is_a<ASR::Variable_t>(*asr_target0->m_v)) {
+                    ASR::Variable_t *asr_target = ASR::down_cast<ASR::Variable_t>(asr_target0->m_v);
+                    if ( is_a<ASR::Character_t>(*asr_target->m_type) ) {
+                        ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(asr_target->m_type);
+                        if (t->n_dims == 0) {
+                            target = builder->CreateLoad(target);
+                            lhs_is_string_arrayref = true;
+                        }
+                    }
+                }
+            }
         } else {
             ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
             h = get_hash((ASR::asr_t*)asr_target);
@@ -2192,11 +2307,19 @@ public:
                 if( asr_target->m_type->type == 
                     ASR::ttypeType::Character ) {
                     target = arr_descr->get_pointer_to_data(target);
+                }
             }
-        }
         }
         this->visit_expr_wrapper(x.m_value, true);
         value = tmp;
+        if ( is_a<ASR::Character_t>(*expr_type(x.m_value)) ) {
+            ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(expr_type(x.m_value));
+            if (t->n_dims == 0) {
+                if (lhs_is_string_arrayref) {
+                    value = builder->CreateLoad(value);
+                }
+            }
+        }
         builder->CreateStore(value, target);
         auto finder = std::find(nested_globals.begin(), 
                 nested_globals.end(), h);
@@ -2317,8 +2440,28 @@ public:
                 }
             }
             tmp = builder->CreateAnd(real_res, img_res);
+        } else if (optype == ASR::ttypeType::Character) {
+            // TODO: For now we only compare the first character of the strings
+            switch (x.m_op) {
+                case (ASR::cmpopType::Eq) : {
+                    left = builder->CreateLoad(left);
+                    right = builder->CreateLoad(right);
+                    tmp = builder->CreateICmpEQ(left, right);
+                    break;
+                }
+                case (ASR::cmpopType::NotEq) : {
+                    left = builder->CreateLoad(left);
+                    right = builder->CreateLoad(right);
+                    tmp = builder->CreateICmpNE(left, right);
+                    break;
+                }
+                default : {
+                    throw SemanticError("Comparison operator not implemented for strings",
+                            x.base.base.loc);
+                }
+            }
         } else {
-            throw CodeGenError("Only Integer and Real implemented in Compare");
+            throw CodeGenError("Only Integer, Real, Complex, Character implemented in Compare");
         }
     }
 
@@ -2337,7 +2480,11 @@ public:
         llvm::Value *thenV = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
         if (!early_return) {
             builder->CreateBr(mergeBB);
+        } else if (dead_block) {
+            // Terminate the dead block if the previous Br didn't terminate it
+            builder->CreateBr(dead_bb);
         }
+        dead_block = false;
 
         thenBB = builder->GetInsertBlock();
         fn->getBasicBlockList().push_back(elseBB);
@@ -2389,16 +2536,18 @@ public:
 
     void visit_Exit(const ASR::Exit_t & /* x */) {
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
-        llvm::BasicBlock *after = llvm::BasicBlock::Create(context, "after", fn);
+        dead_bb = llvm::BasicBlock::Create(context, "dead_block", fn);
         builder->CreateBr(current_loopend);
-        builder->SetInsertPoint(after);
+        builder->SetInsertPoint(dead_bb);
+        dead_block = true;
     }
 
     void visit_Cycle(const ASR::Cycle_t & /* x */) {
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
-        llvm::BasicBlock *after = llvm::BasicBlock::Create(context, "after", fn);
+        dead_bb = llvm::BasicBlock::Create(context, "dead_block", fn);
         builder->CreateBr(current_loophead);
-        builder->SetInsertPoint(after);
+        builder->SetInsertPoint(dead_bb);
+        dead_block = true;
     }
 
     void visit_Return(const ASR::Return_t & /* x */) {
@@ -3054,6 +3203,19 @@ public:
     }
 
     void visit_Print(const ASR::Print_t &x) {
+        handle_print(x);
+    }
+
+    void visit_Write(const ASR::Write_t &x) {
+        if (x.m_fmt == nullptr && x.m_unit == nullptr) {
+            handle_print(x);
+        } else {
+            throw CodeGenError("fmt and unit not implemented in write yet");
+        }
+    }
+
+    template <typename T>
+    void handle_print(const T &x) {
         std::vector<llvm::Value *> args;
         std::vector<std::string> fmt;
         for (size_t i=0; i<x.n_values; i++) {
@@ -3351,6 +3513,7 @@ public:
                     llvm::Value *value=tmp;
                     llvm::Type *target_type;
                     ASR::ttype_t* arg_type = expr_type(x.m_args[i]);
+                    bool character_bindc = false;
                     switch (arg_type->type) {
                         case (ASR::ttypeType::Integer) : {
                             int a_kind = down_cast<ASR::Integer_t>(arg_type)->m_kind;
@@ -3367,9 +3530,25 @@ public:
                             target_type = getComplexType(a_kind);
                             break;
                         }
-                        case (ASR::ttypeType::Character) :
-                            throw CodeGenError("Character argument type not implemented yet in conversion");
+                        case (ASR::ttypeType::Character) : {
+                            const ASR::symbol_t* func_subrout = symbol_get_past_external(x.m_name);
+                            ASR::Variable_t *orig_arg = nullptr;
+                            if( func_subrout->type == ASR::symbolType::Function ) {
+                                ASR::Function_t* func = down_cast<ASR::Function_t>(func_subrout);
+                                orig_arg = EXPR2VAR(func->m_args[i]);
+                            } else if( func_subrout->type == ASR::symbolType::Subroutine ) {
+                                ASR::Subroutine_t* sub = down_cast<ASR::Subroutine_t>(func_subrout);
+                                orig_arg = EXPR2VAR(sub->m_args[i]);
+                            } else {
+                                LFORTRAN_ASSERT(false)
+                            }
+                            if (orig_arg->m_abi == ASR::abiType::BindC) {
+                                character_bindc = true;
+                            }
+
+                            target_type = character_type;
                             break;
+                        }
                         case (ASR::ttypeType::Logical) :
                             target_type = llvm::Type::getInt1Ty(context);
                             break;
@@ -3384,10 +3563,12 @@ public:
                             break;
                         }
                         default: {
-                            llvm::AllocaInst *target = builder->CreateAlloca(
-                                target_type, nullptr);
-                            builder->CreateStore(value, target);
-                            tmp = target;
+                            if (!character_bindc) {
+                                llvm::AllocaInst *target = builder->CreateAlloca(
+                                    target_type, nullptr);
+                                builder->CreateStore(value, target);
+                                tmp = target;
+                            }
                         }
                     }
                 }
@@ -3492,7 +3673,14 @@ public:
                 h = get_hash((ASR::asr_t*)s);
             } else {
                 if( s->m_deftype == ASR::deftypeType::Interface ) {
-                    throw CodeGenError("Intrinsic not implemented yet.");
+                    if (func_name == "len") {
+                        std::vector<llvm::Value *> args = convert_call_args(x, "len");
+                        LFORTRAN_ASSERT(args.size() == 1)
+                        tmp = lfortran_str_len(args[0]);
+                        return;
+                    } else {
+                        throw CodeGenError("Intrinsic not implemented yet.");
+                    }
                 } else {
                     h = get_hash((ASR::asr_t*)s);
                 }
@@ -3585,7 +3773,7 @@ public:
 std::unique_ptr<LLVMModule> asr_to_llvm(ASR::TranslationUnit_t &asr,
         llvm::LLVMContext &context, Allocator &al, Platform platform, std::string run_fn)
 {
-    ASRToLLVMVisitor v(context, platform);
+    ASRToLLVMVisitor v(al, context, platform);
     pass_wrap_global_stmts_into_function(al, asr, run_fn);
 
     // Uncomment for debugging the ASR after the transformation

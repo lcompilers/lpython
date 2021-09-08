@@ -1,5 +1,4 @@
 program attributes1 
-
 ! test for AST(to fmt) only
 character(len=4) :: a, b
 character, intent(in) :: str*(*)

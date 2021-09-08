@@ -243,6 +243,8 @@ class ASTNodeVisitor(ASDLVisitor):
             self.emit("%s m_%s;%s" % (type_, f.name, seq), 2)
             args.append("%s a_%s" % (type_, f.name))
             lines.append("n->m_%s = a_%s;" % (f.name, f.name))
+            if f.name in ["global_scope", "symtab"]:
+                lines.append("a_%s->asr_owner = (asr_t*)n;" % (f.name))
             if f.seq:
                 args.append("size_t n_%s" % (f.name))
                 lines.append("n->n_%s = n_%s;" % (f.name, f.name))
@@ -977,8 +979,11 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                     rhs = "deserialize_%s()" % (field.type)
                 else:
                     assert field.type not in products
-                    rhs = "down_cast<%s_t>(deserialize_%s())" % (field.type,
-                        field.type)
+                    if field.type == "symbol":
+                        rhs = "self().read_symbol()"
+                    else:
+                        rhs = "down_cast<%s_t>(deserialize_%s())" % (field.type,
+                            field.type)
                 if field.opt:
                     self.emit('if (present) {', 3)
                 self.emit('x.m_%s = %s;' % (field.name, rhs), 4)

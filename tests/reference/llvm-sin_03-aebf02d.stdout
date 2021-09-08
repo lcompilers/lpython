@@ -64,23 +64,23 @@ ifcont:                                           ; preds = %else, %then
 
 define double @__module_lfortran_intrinsic_trig_kernel_dsin(double* %x) {
 .entry:
-  %S1 = alloca double, align 8
-  store double 0x3FEFFFFFFFFFFFF8, double* %S1, align 8
-  %S2 = alloca double, align 8
-  store double 0xBFC55555555552B9, double* %S2, align 8
-  %S3 = alloca double, align 8
-  store double 0x3F8111111110208B, double* %S3, align 8
-  %S4 = alloca double, align 8
-  store double 0xBF2A01A019677B7B, double* %S4, align 8
-  %S5 = alloca double, align 8
-  store double 0x3EC71DE371212827, double* %S5, align 8
-  %S6 = alloca double, align 8
-  store double 0xBE5AE6315D6BA572, double* %S6, align 8
-  %S7 = alloca double, align 8
-  store double 0x3DE60DE3F77343C0, double* %S7, align 8
-  %S8 = alloca double, align 8
-  store double 0xBD69E2CFF677919D, double* %S8, align 8
   %res = alloca double, align 8
+  %s1 = alloca double, align 8
+  store double 0x3FEFFFFFFFFFFFF8, double* %s1, align 8
+  %s2 = alloca double, align 8
+  store double 0xBFC55555555552B9, double* %s2, align 8
+  %s3 = alloca double, align 8
+  store double 0x3F8111111110208B, double* %s3, align 8
+  %s4 = alloca double, align 8
+  store double 0xBF2A01A019677B7B, double* %s4, align 8
+  %s5 = alloca double, align 8
+  store double 0x3EC71DE371212827, double* %s5, align 8
+  %s6 = alloca double, align 8
+  store double 0xBE5AE6315D6BA572, double* %s6, align 8
+  %s7 = alloca double, align 8
+  store double 0x3DE60DE3F77343C0, double* %s7, align 8
+  %s8 = alloca double, align 8
+  store double 0xBD69E2CFF677919D, double* %s8, align 8
   %z = alloca double, align 8
   %0 = load double, double* %x, align 8
   %1 = load double, double* %x, align 8

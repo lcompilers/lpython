@@ -476,10 +476,24 @@ void _lfortran_strcat(char** s1, char** s2, char** dest)
     *dest = &(dest_char[0]);
 }
 
+int _lfortran_str_len(char** s)
+{
+    return strlen(*s);
+}
+
 char* _lfortran_malloc(int size) {
     return (char*)malloc(size);
 }
 
 void _lfortran_free(char* ptr) {
     free((void*)ptr);
+}
+
+// size_plus_one is the size of the string including the null character
+void _lfortran_string_init(int size_plus_one, char *s) {
+    int size = size_plus_one-1;
+    for (int i=0; i < size; i++) {
+        s[i] = ' ';
+    }
+    s[size] = '\0';
 }

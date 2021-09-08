@@ -1,6 +1,9 @@
 #ifndef LFORTRAN_BWRITER_H
 #define LFORTRAN_BWRITER_H
 
+#include <sstream>
+#include <iomanip>
+
 #include <lfortran/exception.h>
 
 namespace LFortran {
@@ -177,6 +180,13 @@ public:
         s.append(t);
         s += " ";
     }
+
+    void write_float64(double d) {
+        std::stringstream str;
+        str << std::fixed << std::setprecision(17) << d;
+        s.append(str.str());
+        s += " ";
+    }
 };
 
 class TextReader
@@ -200,13 +210,30 @@ public:
         std::string tmp;
         while (s[pos] != ' ') {
             tmp += s[pos];
+            if (! (s[pos] >= '0' && s[pos] <= '9')) {
+                throw LFortranException("read_int64: Expected integer, got `" + tmp + "`");
+            }
             pos++;
             if (pos >= s.size()) {
                 throw LFortranException("read_int64: String is too short for deserialization.");
             }
         }
         pos++;
-        uint64_t n = std::stoi(tmp);
+        uint64_t n = std::stoull(tmp);
+        return n;
+    }
+
+    double read_float64() {
+        std::string tmp;
+        while (s[pos] != ' ') {
+            tmp += s[pos];
+            pos++;
+            if (pos >= s.size()) {
+                throw LFortranException("read_int64: String is too short for deserialization.");
+            }
+        }
+        pos++;
+        double n = std::stod(tmp);
         return n;
     }
 

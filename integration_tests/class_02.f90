@@ -1,6 +1,7 @@
 module class_circle2
   implicit none
   private
+  public :: main
   real :: pi = 3.1415926535897931d0 ! Class-wide private constant
 
   type, public :: Circle
@@ -21,15 +22,19 @@ contains
     area = this%circle_area()  ! Call the type-bound function
     print *, 'Circle: r = ', this%radius, ' area = ', area
   end subroutine circle_print
-end module class_Circle2
 
-
-program circle_test
-  use class_circle2, only: Circle
-  implicit none
-
+  subroutine main()
   type(Circle) :: c     ! Declare a variable of type Circle.
   c = Circle(1.0)       ! Use the implicit constructor, radius = 1.5.
   c%radius = 1.5
   call c%circle_print          ! Call the type-bound subroutine
-end program circle_test
+  end subroutine
+end module
+
+
+program circle_test
+use class_circle2, only: main
+implicit none
+
+call main()
+end program

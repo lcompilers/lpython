@@ -13,7 +13,8 @@ use modules_15b, only: &
     sub_int_float_complex_value, sub_int_double_complex_value, &
     f_float_complex_value_return, f_double_complex_value_return, &
     f_int_double_value_name, &
-    sub_int_double_value_name
+    sub_int_double_value_name, &
+    f_string
 implicit none
 integer :: i, a, n, I32(3)
 real(sp) :: r32, X32(3)
@@ -182,5 +183,10 @@ X64(3) = 3.3_dp
 call sub_int_doublearray(n, X64, r64)
 print *, r64
 if (abs(r64 - 6.6_dp) > 1e-10_dp) error stop
+
+if (f_string("123") /= 3) error stop
+if (f_string("abcde") /= 5) error stop
+if (f_string(" ") /= 1) error stop
+if (f_string("") /= 0) error stop
 
 end
