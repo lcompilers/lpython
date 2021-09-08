@@ -1,6 +1,5 @@
 #include <iostream>
-#include <memory>
-
+#include <memory> 
 #include <lfortran/asr.h>
 #include <lfortran/containers.h>
 #include <lfortran/exception.h>
@@ -279,28 +278,8 @@ public:
                 fargs_wip += "]";
             }
 
-            if (ASR::intentType::Out == it->asr_obj->m_intent)
-            { 
-                rtn_wip = it->asr_obj->m_name;
-
-                // TODO: remove argument from cython wrapper argument list,
-                // cdef it correctly so that it can be passed to fortran and then returned
-
-                /* 
-                pyxbody += "    cdef " + cyargs_wip;
-                pyxbody += " = empty((";
-                for(int l = 0 ; l < it->ndim ; l++)
-                {
-                }
-                pyxbody += "), order=\"";
-                if(c_order) pyxbody += 'C';
-                else        pyxbody += 'F';
-                pyxbody += "\")\n";
-                cyargs_wip.clear();
-                */
-
-            }
-            if (ASR::intentType::InOut == it->asr_obj->m_intent) {
+            if (ASR::intentType::Out == it->asr_obj->m_intent ||
+                ASR::intentType::InOut == it->asr_obj->m_intent) {
                 rtn_wip = it->asr_obj->m_name;
             }
 
@@ -331,8 +310,6 @@ public:
             
 
         } /* build_return_strings */
-
-        if ( !return_statement.empty() ) return_statement = "    return " + return_statement;
 
         return std::make_tuple(c, cyargs, fargs, pyxbody, return_statement);
     }
@@ -446,6 +423,8 @@ public:
 
         std::string c_args, cy_args, call_args, pyx_body, rtn_statement;       
         std::tie(c_args,cy_args,call_args,pyx_body,rtn_statement) = helper_visit_arguments(x.n_args, x.m_args);
+
+        if (!rtn_statement.empty()) rtn_statement = "    return " + rtn_statement;
         
         chdr += c_args + ")";
         pxd = "    " + chdr + "\n";
@@ -466,9 +445,34 @@ public:
         // Return type and function name
         bool bindc_name_not_given = x.m_bindc_name == NULL || !strcmp("",x.m_bindc_name);
         std::string effective_name = bindc_name_not_given ? x.m_name : x.m_bindc_name;
+       
+        /* 
+        #define _X(ASR_TYPE, KIND, CTYPE_STR) \
+        if ( is_a<ASR_TYPE>(*arg->m_type) && (down_cast<ASR_TYPE>(arg->m_type)->m_kind == KIND) ) { \
+            chdr = CTYPE_STR;                                                                       \
+        } else  
 
-        // TODO deal with functions
-        // very similar to subroutines, just need to account for the return value
+        CTYPELIST { 
+            throw CodeGenError("Unrecognized or non-interoperable return type/kind"); 
+        }
+        #undef _X
+        chdr += " " + effective_name + " (";
+
+        std::string c_args, cy_args, call_args, pyx_body, rtn_statement;       
+        std::tie(c_args,cy_args,call_args,pyx_body,rtn_statement) = helper_visit_arguments(x.n_args, x.m_args);
+
+        rtn_statement = "    return " + rtnarg_str;  // TODO this doesn't exist
+        if (!rtn_statement.empty()) rtn_statement += ", " + rtn_statement;
+        
+        chdr += c_args + ")";
+        pxd = "    " + chdr + "\n";
+        chdr += ";\n" ;
+
+        pyx = "def " + effective_name + " (" + cy_args + "):\n";
+        pyx += pyx_body;
+        pyx += "    " + pxdf +"."+ effective_name + " (" + call_args + ")\n";
+        pyx += rtn_statement + "\n\n";
+        */
 
     }
 
