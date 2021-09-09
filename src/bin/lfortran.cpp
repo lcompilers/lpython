@@ -33,6 +33,14 @@
 #include <lfortran/utils.h>
 #include <lfortran/parser/parser.tab.hh>
 
+#ifdef HAVE_LFORTRAN_LLVM
+#include <llvm/Support/Host.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Support/TargetRegistry.h>
+#include <llvm/Target/TargetMachine.h>
+#include <llvm/Support/raw_ostream.h>
+#endif
+
 #include <cpp-terminal/terminal.h>
 #include <cpp-terminal/prompt0.h>
 
@@ -1109,6 +1117,7 @@ int main(int argc, char *argv[])
         std::string arg_backend = "llvm";
         std::string arg_kernel_f;
         std::string arg_target = "";
+        bool print_targets = false;
 
         std::string arg_fmt_file;
         int arg_fmt_indent = 4;
@@ -1162,6 +1171,7 @@ int main(int argc, char *argv[])
         app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp, x86)")->capture_default_str();
         app.add_flag("--openmp", openmp, "Enable openmp");
         app.add_option("--target", arg_target, "Generate code for the given target")->capture_default_str();
+        app.add_flag("--print-targets", print_targets, "Print the registered targets");
 
         /*
         * Subcommands:
@@ -1207,7 +1217,28 @@ int main(int argc, char *argv[])
                 case (LFortran::Platform::Windows) : std::cout << "Windows"; break;
             }
             std::cout << std::endl;
+#ifdef HAVE_LFORTRAN_LLVM
+            std::cout << "Default target: " << llvm::sys::getDefaultTargetTriple() << std::endl;
+#endif
             return 0;
+        }
+
+        if (print_targets) {
+#ifdef HAVE_LFORTRAN_LLVM
+            llvm::InitializeNativeTarget();
+#ifdef HAVE_TARGET_AARCH64
+            LLVMInitializeAArch64TargetInfo();
+#endif
+#ifdef HAVE_TARGET_X86
+            LLVMInitializeX86TargetInfo();
+#endif
+            llvm::raw_ostream &os = llvm::outs();
+            llvm::TargetRegistry::printRegisteredTargetsForVersion(os);
+            return 0;
+#else
+            std::cerr << "The --print-targets option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+            return 1;
+#endif
         }
 
         if (fmt) {
