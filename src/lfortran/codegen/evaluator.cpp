@@ -40,7 +40,7 @@
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Target/TargetOptions.h>
 #include <llvm/Support/TargetRegistry.h>
-
+#include <llvm/Support/Host.h>
 #include <lfortran/codegen/KaleidoscopeJIT.h>
 
 #include <lfortran/codegen/evaluator.h>
@@ -309,6 +309,11 @@ void LLVMEvaluator::print_targets()
 #endif
     llvm::raw_ostream &os = llvm::outs();
     llvm::TargetRegistry::printRegisteredTargetsForVersion(os);
+}
+
+std::string LLVMEvaluator::get_default_target_triple()
+{
+    return llvm::sys::getDefaultTargetTriple();
 }
 
 } // namespace LFortran

@@ -1210,7 +1210,7 @@ int main(int argc, char *argv[])
             }
             std::cout << std::endl;
 #ifdef HAVE_LFORTRAN_LLVM
-            std::cout << "Default target: " << llvm::sys::getDefaultTargetTriple() << std::endl;
+            std::cout << "Default target: " << LFortran::LLVMEvaluator::get_default_target_triple() << std::endl;
 #endif
             return 0;
         }

@@ -64,6 +64,7 @@ public:
     static void print_version_message();
     llvm::LLVMContext &get_context();
     static void print_targets();
+    static std::string get_default_target_triple();
 };
 
 
