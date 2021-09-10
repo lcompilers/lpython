@@ -63,6 +63,7 @@ public:
     static std::string module_to_string(llvm::Module &m);
     static void print_version_message();
     llvm::LLVMContext &get_context();
+    static void print_targets();
 };
 
 

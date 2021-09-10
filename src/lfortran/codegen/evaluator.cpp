@@ -298,5 +298,17 @@ llvm::LLVMContext &LLVMEvaluator::get_context()
     return *context;
 }
 
+void LLVMEvaluator::print_targets()
+{
+    llvm::InitializeNativeTarget();
+#ifdef HAVE_TARGET_AARCH64
+    LLVMInitializeAArch64TargetInfo();
+#endif
+#ifdef HAVE_TARGET_X86
+    LLVMInitializeX86TargetInfo();
+#endif
+    llvm::raw_ostream &os = llvm::outs();
+    llvm::TargetRegistry::printRegisteredTargetsForVersion(os);
+}
 
 } // namespace LFortran

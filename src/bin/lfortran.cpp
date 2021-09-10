@@ -33,14 +33,6 @@
 #include <lfortran/utils.h>
 #include <lfortran/parser/parser.tab.hh>
 
-#ifdef HAVE_LFORTRAN_LLVM
-#include <llvm/Support/Host.h>
-#include <llvm/Support/TargetSelect.h>
-#include <llvm/Support/TargetRegistry.h>
-#include <llvm/Target/TargetMachine.h>
-#include <llvm/Support/raw_ostream.h>
-#endif
-
 #include <cpp-terminal/terminal.h>
 #include <cpp-terminal/prompt0.h>
 
@@ -1225,15 +1217,7 @@ int main(int argc, char *argv[])
 
         if (print_targets) {
 #ifdef HAVE_LFORTRAN_LLVM
-            llvm::InitializeNativeTarget();
-#ifdef HAVE_TARGET_AARCH64
-            LLVMInitializeAArch64TargetInfo();
-#endif
-#ifdef HAVE_TARGET_X86
-            LLVMInitializeX86TargetInfo();
-#endif
-            llvm::raw_ostream &os = llvm::outs();
-            llvm::TargetRegistry::printRegisteredTargetsForVersion(os);
+            LFortran::LLVMEvaluator::print_targets();
             return 0;
 #else
             std::cerr << "The --print-targets option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
