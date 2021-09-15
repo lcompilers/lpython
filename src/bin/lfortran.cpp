@@ -954,46 +954,22 @@ int link_executable(const std::vector<std::string> &infiles,
             [Requesting program interpreter: /lib64/ld-linux-x86-64.so.2]
 
     There are probably simpler ways.
-
-
     */
+
+    std::string t = (target == "") ? LFortran::LLVMEvaluator::get_default_target_triple() : target;
+
     if (backend == Backend::llvm) {
-        if (platform == LFortran::Platform::Windows) {
-            // FIXME: if target is empty, assume lfortran was compiled with MSVC
-            if (target == "" || target == "x86_64-pc-windows-msvc") {
-                std::string cmd = "link /NOLOGO /OUT:" + outfile + " ";
-                for (auto &s : infiles) {
-                    cmd += s + " ";
-                }
-                cmd += runtime_library_dir + "\\lfortran_runtime_static.lib";
-                int err = system(cmd.c_str());
-                if (err) {
-                    std::cout << "The command '" + cmd + "' failed." << std::endl;
-                    return 10;
-                }
-            } else if (target == "x86_64-w64-windows-gnu") {
-                // FIXME: Duplicate code
-                std::string CC = "gcc";
-                std::string base_path = "\"" + runtime_library_dir + "\"";
-                std::string options;
-                std::string runtime_lib = "lfortran_runtime";
-                if (static_executable) {
-                    options += " -static ";
-                    runtime_lib = "lfortran_runtime_static";
-                }
-                std::string cmd = CC + options + " -o " + outfile + " ";
-                for (auto &s : infiles) {
-                    cmd += s + " ";
-                }
-                cmd += + " -L"
-                    + base_path + " -Wl,-rpath," + base_path + " -l" + runtime_lib;
-                int err = system(cmd.c_str());
-                if (err) {
-                    std::cout << "The command '" + cmd + "' failed." << std::endl;
-                    return 10;
-                }
+        if (t == "x86_64-pc-windows-msvc") {
+            std::string cmd = "link /NOLOGO /OUT:" + outfile + " ";
+            for (auto &s : infiles) {
+                cmd += s + " ";
             }
-            return 0;
+            cmd += runtime_library_dir + "\\lfortran_runtime_static.lib";
+            int err = system(cmd.c_str());
+            if (err) {
+                std::cout << "The command '" + cmd + "' failed." << std::endl;
+                return 10;
+            }
         } else {
             std::string CC;
             if (platform == LFortran::Platform::macOS) {
@@ -1021,8 +997,8 @@ int link_executable(const std::vector<std::string> &infiles,
                 std::cout << "The command '" + cmd + "' failed." << std::endl;
                 return 10;
             }
-            return 0;
         }
+        return 0;
     } else if (backend == Backend::cpp) {
         std::string CXX = "g++";
         std::string options, post_options;
