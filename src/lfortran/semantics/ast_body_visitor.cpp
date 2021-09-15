@@ -64,6 +64,8 @@ private:
         {"len_trim", "lfortran_intrinsic_string"},
         {"trim", "lfortran_intrinsic_string"},
 };
+    std::map<AST::intrinsicopType, std::string> intrinsic2str = {{AST::intrinsicopType::STAR, "~mul"}};
+    std::map<AST::operatorType, std::string> binop2str = {{AST::operatorType::Mul, "~mul"}};
 
 public:
     Allocator &al;
@@ -1038,7 +1040,7 @@ public:
         ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
         this->visit_expr(*x.m_right);
         ASR::expr_t *right = LFortran::ASRUtils::EXPR(tmp);
-        CommonVisitorMethods::visit_BinOp(al, x, left, right, tmp);
+        CommonVisitorMethods::visit_BinOp(al, x, left, right, tmp, binop2str[x.m_op], current_scope);
     }
 
     void visit_StrOp(const AST::StrOp_t &x) {

@@ -5,11 +5,66 @@
 #include <lfortran/ast.h>
 
 namespace LFortran {
+
 class CommonVisitorMethods {
 public:
+
+    inline static bool is_op_overloaded(ASR::binopType op, std::string& intrinsic_op_name,
+                                        SymbolTable* curr_scope) {
+        bool result = true;
+        switch(op) {
+            case ASR::binopType::Add: {
+                if(intrinsic_op_name != "~Add") {
+                    result = false;
+                }
+                break;
+            }
+            case ASR::binopType::Sub: {
+                if(intrinsic_op_name != "~Sub") {
+                    result = false;
+                }
+                break;
+            }
+            case ASR::binopType::Mul: {
+                if(intrinsic_op_name != "~mul") {
+                    result = false;
+                }
+                break;
+            }
+            case ASR::binopType::Div: {
+                if(intrinsic_op_name != "~Div") {
+                    result = false;
+                }
+                break;
+            }
+            case ASR::binopType::Pow: {
+                if(intrinsic_op_name != "~Pow") {
+                    result = false;
+                }
+                break;
+            }
+        }
+        if( result && curr_scope->scope.find(intrinsic_op_name) == curr_scope->scope.end() ) {
+            result = false;
+        }
+        return result;
+    }
+
+    inline static bool use_overloaded(ASR::ttype_t *left_type, ASR::ttype_t *right_type,
+                        ASR::binopType op, std::string& intrinsic_op_name,
+                        SymbolTable* curr_scope) {
+        std::cout<<"intrinsic_op_name: "<<intrinsic_op_name<<std::endl;
+        if( is_op_overloaded(op, intrinsic_op_name, curr_scope) ) {
+            ASR::symbol_t* sym = curr_scope->scope[intrinsic_op_name];
+            const ASR::symbol_t* orig_sym = ASRUtils::symbol_get_past_external(sym);
+            std::cout<<orig_sym->type<<" "<<ASR::symbolType::GenericProcedure<<std::endl;
+        }
+    }
+
   inline static void visit_BinOp(Allocator &al, const AST::BinOp_t &x,
                                  ASR::expr_t *&left, ASR::expr_t *&right,
-                                 ASR::asr_t *&asr) {
+                                 ASR::asr_t *&asr, std::string& intrinsic_op_name,
+                                 SymbolTable* curr_scope) {
     ASR::binopType op;
     switch (x.m_op) {
     case (AST::Add):
@@ -37,6 +92,11 @@ public:
     // Cast LHS or RHS if necessary
     ASR::ttype_t *left_type = LFortran::ASRUtils::expr_type(left);
     ASR::ttype_t *right_type = LFortran::ASRUtils::expr_type(right);
+
+    if( use_overloaded(left_type, right_type, op, intrinsic_op_name, curr_scope) ) {
+        return ;
+    }
+
     ASR::expr_t **conversion_cand = &left;
     ASR::ttype_t *source_type = left_type;
     ASR::ttype_t *dest_type = right_type;

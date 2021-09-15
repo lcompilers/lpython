@@ -1,6 +1,5 @@
 module overload_asterisk_m
     implicit none
-    private
     public operator (*)
 
     interface operator (*)
