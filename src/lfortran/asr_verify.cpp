@@ -2,6 +2,8 @@
 #include <lfortran/exception.h>
 #include <lfortran/asr_utils.h>
 #include <lfortran/asr_verify.h>
+#include <lfortran/asr.h>
+#include <iostream>
 
 
 namespace LFortran {
@@ -356,7 +358,7 @@ public:
                     loc);
         }
         LFORTRAN_ASSERT(type_sym)
-        SymbolTable *symtab = ASRUtils::symbol_symtab(type_sym);
+        SymbolTable *symtab = ASRUtils::symbol_symtab(ASRUtils::symbol_get_past_external(type_sym));
         require(symtab,
             "m_dt::m_v::m_type::class/derived_type must point to a symbol with a symbol table",
             loc);
