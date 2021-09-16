@@ -1080,7 +1080,7 @@ public:
                 ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
                 if( der_type->m_symtab->counter != current_scope->counter ) {
                     ASR::symbol_t* der_ext;
-                    char* module_name = (char*)"nullptr";
+                    char* module_name = (char*)"~nullptr";
                     ASR::symbol_t* m_external = der->m_derived_type;
                     if( m_external->type == ASR::symbolType::ExternalSymbol ) {
                         ASR::ExternalSymbol_t* m_ext = (ASR::ExternalSymbol_t*)(&(m_external->base));
