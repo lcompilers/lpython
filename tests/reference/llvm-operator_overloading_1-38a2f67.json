@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-operator_overloading_1-38a2f67",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/operator_overloading_1.f90",
+    "infile_hash": "97e0fbe454f6a6cb120322f029b70ccb9d631315cfea41969e93608c",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-operator_overloading_1-38a2f67.stdout",
+    "stdout_hash": "779442c583e7d820881eb80fe864ea08c8632520536f5887bb4a1f10",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
