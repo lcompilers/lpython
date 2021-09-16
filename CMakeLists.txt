@@ -86,11 +86,41 @@ find_package(StaticZLIB REQUIRED)
 
 # LLVM
 set(WITH_LLVM no CACHE BOOL "Build with LLVM support")
+set(WITH_TARGET_AARCH64 no CACHE BOOL "Enable target AARCH64")
+set(WITH_TARGET_X86 no CACHE BOOL "Enable target X86")
 if (WITH_LLVM)
     set(LFORTRAN_LLVM_COMPONENTS core support mcjit orcjit native asmparser asmprinter)
     find_package(LLVM REQUIRED)
     message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
     message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+
+    # Always enable the native target
+    if ("${LLVM_NATIVE_ARCH}" STREQUAL "AArch64")
+        set(WITH_TARGET_AARCH64 yes)
+    endif()
+
+    if ("${LLVM_NATIVE_ARCH}" STREQUAL "X86")
+        set(WITH_TARGET_X86 yes)
+    endif()
+
+    if (WITH_TARGET_AARCH64)
+        if (NOT ("${LLVM_TARGETS_TO_BUILD}" MATCHES "AArch64"))
+            message(FATAL_ERROR "The selected LLVM library doesn't have support for AArch64 targets")
+        endif()
+
+        list(APPEND LFORTRAN_LLVM_COMPONENTS aarch64info aarch64utils aarch64desc aarch64asmparser aarch64codegen aarch64disassembler)
+        add_definitions("-DHAVE_TARGET_AARCH64=1")
+    endif()
+
+    if (WITH_TARGET_X86)
+        if (NOT ("${LLVM_TARGETS_TO_BUILD}" MATCHES "X86"))
+            message(FATAL_ERROR "The selected LLVM library doesn't have support for X86 targets")
+        endif()
+
+        list(APPEND LFORTRAN_LLVM_COMPONENTS x86info x86desc x86codegen x86asmparser x86disassembler)
+        add_definitions("-DHAVE_TARGET_X86=1")
+    endif()
+
     llvm_map_components_to_libnames(llvm_libs ${LFORTRAN_LLVM_COMPONENTS})
     unset(LFORTRAN_LLVM_COMPONENTS)
 
@@ -235,6 +265,8 @@ message("WITH_JSON: ${WITH_JSON}")
 message("WITH_FMT: ${WITH_FMT}")
 message("WITH_LFORTRAN_BINARY_MODFILES: ${WITH_LFORTRAN_BINARY_MODFILES}")
 message("WITH_RUNTIME_LIBRARY: ${WITH_RUNTIME_LIBRARY}")
+message("WITH_TARGET_AARCH64: ${WITH_TARGET_AARCH64}")
+message("WITH_TARGET_X86: ${WITH_TARGET_X86}")
 
 
 add_subdirectory(src)

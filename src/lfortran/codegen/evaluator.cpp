@@ -40,7 +40,7 @@
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Target/TargetOptions.h>
 #include <llvm/Support/TargetRegistry.h>
-
+#include <llvm/Support/Host.h>
 #include <lfortran/codegen/KaleidoscopeJIT.h>
 
 #include <lfortran/codegen/evaluator.h>
@@ -111,6 +111,21 @@ LLVMEvaluator::LLVMEvaluator(const std::string &t)
     llvm::InitializeNativeTarget();
     llvm::InitializeNativeTargetAsmPrinter();
     llvm::InitializeNativeTargetAsmParser();
+
+#ifdef HAVE_TARGET_AARCH64
+    LLVMInitializeAArch64Target();
+    LLVMInitializeAArch64TargetInfo();
+    LLVMInitializeAArch64TargetMC();
+    LLVMInitializeAArch64AsmPrinter();
+    LLVMInitializeAArch64AsmParser();
+#endif
+#ifdef HAVE_TARGET_X86
+    LLVMInitializeX86Target();
+    LLVMInitializeX86TargetInfo();
+    LLVMInitializeX86TargetMC();
+    LLVMInitializeX86AsmPrinter();
+    LLVMInitializeX86AsmParser();
+#endif
 
     context = std::make_unique<llvm::LLVMContext>();
 
@@ -298,5 +313,22 @@ llvm::LLVMContext &LLVMEvaluator::get_context()
     return *context;
 }
 
+void LLVMEvaluator::print_targets()
+{
+    llvm::InitializeNativeTarget();
+#ifdef HAVE_TARGET_AARCH64
+    LLVMInitializeAArch64TargetInfo();
+#endif
+#ifdef HAVE_TARGET_X86
+    LLVMInitializeX86TargetInfo();
+#endif
+    llvm::raw_ostream &os = llvm::outs();
+    llvm::TargetRegistry::printRegisteredTargetsForVersion(os);
+}
+
+std::string LLVMEvaluator::get_default_target_triple()
+{
+    return llvm::sys::getDefaultTargetTriple();
+}
 
 } // namespace LFortran
