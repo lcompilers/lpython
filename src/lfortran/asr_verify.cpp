@@ -2,8 +2,6 @@
 #include <lfortran/exception.h>
 #include <lfortran/asr_utils.h>
 #include <lfortran/asr_verify.h>
-#include <lfortran/asr.h>
-#include <iostream>
 
 
 namespace LFortran {
