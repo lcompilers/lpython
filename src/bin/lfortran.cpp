@@ -956,7 +956,11 @@ int link_executable(const std::vector<std::string> &infiles,
     There are probably simpler ways.
     */
 
+#ifdef HAVE_LFORTRAN_LLVM
     std::string t = (target == "") ? LFortran::LLVMEvaluator::get_default_target_triple() : target;
+#else
+    std::string t = (platform == LFortran::Platform::Windows) ? "x86_64-pc-windows-msvc" : target;
+#endif
 
     if (backend == Backend::llvm) {
         if (t == "x86_64-pc-windows-msvc") {
