@@ -106,8 +106,14 @@ public:
     std::vector<std::string> current_procedure_args;
     ASR::abiType current_procedure_abi_type = ASR::abiType::Source;
     std::map<SymbolTable*, std::map<AST::decl_attribute_t*, AST::simple_attributeType>> overloaded_ops;
-    std::map<AST::intrinsicopType, std::string> intrinsic2str = {{AST::intrinsicopType::STAR, "~mul"}};
-    std::map<AST::operatorType, std::string> binop2str = {{AST::operatorType::Mul, "~mul"}};
+    std::map<AST::intrinsicopType, std::string> intrinsic2str = {
+        {AST::intrinsicopType::STAR, "~mul"},
+        {AST::intrinsicopType::PLUS, "~add"},
+    };
+    std::map<AST::operatorType, std::string> binop2str = {
+        {AST::operatorType::Mul, "~mul"},
+        {AST::operatorType::Add, "~add"},
+    };
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
       : al{al}, current_scope{symbol_table}, is_derived_type{false} {}
@@ -1290,6 +1296,10 @@ public:
                 AST::InterfaceModuleProcedure_t *proc
                     = AST::down_cast<AST::InterfaceModuleProcedure_t>(item);
                 for (size_t i = 0; i < proc->n_names; i++) {
+                    /* Check signatures of procedures
+                    * to ensure there are no two procedures
+                    * with same signatures.
+                    */
                     char *proc_name = proc->m_names[i];
                     proc_names.push_back(std::string(proc_name));
                 }

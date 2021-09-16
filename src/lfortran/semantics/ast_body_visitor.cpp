@@ -64,8 +64,14 @@ private:
         {"len_trim", "lfortran_intrinsic_string"},
         {"trim", "lfortran_intrinsic_string"},
 };
-    std::map<AST::intrinsicopType, std::string> intrinsic2str = {{AST::intrinsicopType::STAR, "~mul"}};
-    std::map<AST::operatorType, std::string> binop2str = {{AST::operatorType::Mul, "~mul"}};
+    std::map<AST::intrinsicopType, std::string> intrinsic2str = {
+        {AST::intrinsicopType::STAR, "~mul"},
+        {AST::intrinsicopType::PLUS, "~add"},
+    };
+    std::map<AST::operatorType, std::string> binop2str = {
+        {AST::operatorType::Mul, "~mul"},
+        {AST::operatorType::Add, "~add"},
+    };
 
 public:
     Allocator &al;

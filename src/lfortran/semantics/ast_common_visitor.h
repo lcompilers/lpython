@@ -14,13 +14,13 @@ public:
         bool result = true;
         switch(op) {
             case ASR::binopType::Add: {
-                if(intrinsic_op_name != "~Add") {
+                if(intrinsic_op_name != "~add") {
                     result = false;
                 }
                 break;
             }
             case ASR::binopType::Sub: {
-                if(intrinsic_op_name != "~Sub") {
+                if(intrinsic_op_name != "~sub") {
                     result = false;
                 }
                 break;
@@ -32,13 +32,13 @@ public:
                 break;
             }
             case ASR::binopType::Div: {
-                if(intrinsic_op_name != "~Div") {
+                if(intrinsic_op_name != "~div") {
                     result = false;
                 }
                 break;
             }
             case ASR::binopType::Pow: {
-                if(intrinsic_op_name != "~Pow") {
+                if(intrinsic_op_name != "~pow") {
                     result = false;
                 }
                 break;
