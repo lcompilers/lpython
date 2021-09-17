@@ -1,4 +1,4 @@
-# Fortran Testsuite
+# LFortran Development Status
 
 This page documents what Fortran features are supported by LFortran. For each
 feature we list a short description, the filename with the test and current
