@@ -274,6 +274,7 @@ documentation:
     - export CONDA_PREFIX="$HOME/conda_root"
     - export PATH="$HOME/conda_root/bin:$PATH"
     - conda install -c conda-forge nbconvert=5.6.0 mkdocs
+    - pip install mkdocs-material
     - tar xzf dist/lfortran-*.tar.gz
     - cd lfortran-*
     - CXXFLAGS="-Werror" cmake
