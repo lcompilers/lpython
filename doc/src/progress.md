@@ -1,88 +1,383 @@
 # LFortran Development Status
 
+This page documents what Fortran features are supported by LFortran. For each
+feature we list a short description, the filename with the test and current
+status for each parts of the compiler:
 
-## Development
+* AST: The code can be parsed to AST (`lfortran --show-ast test.f90`)
+* ASR: The code can be transformed to ASR (`lfortran --show-asr test.f90`)
+* LLVM: LFortran can generate LLVM IR (`lfortran --show-llvm test.f90`)
+* BIN: The LLVM IR can compile to a binary
+* RUN: The binary runs without errors
 
-**LFortran** is currently under development and some of the features of Fortran might not be supported currently. The information regarding which functions are currently supported and which one's are still being worked on will be available in this section. You can submit any new issue you find while using LFortran to our [issue tracker](https://gitlab.com/lfortran/lfortran/issues). You can also check out any of the issues mentioned in the sections below and provide suggestions and ideas to help us get the feature implemented.
+If all are green it means the feature fully works and you can use it in your
+codes. Otherwise you can see what the status is of each feature.
 
-## Fortran Standards Supported
+This page is generated automatically using the [Compiler
+Tester](https://gitlab.com/lfortran/compiler_tester) repository which contains
+all the Fortran tests and scripts to run LFortran to produce the tables below.
+We are looking for contributors to contribute more tests. Our goal is to have a
+comprehensive Fortran testsuite that can be used to test any Fortran compiler.
 
-LFortran currently supports a subset of the latest Fortran standard [Fortran 2018 standard](https://j3-fortran.org/doc/year/18/18-007r1.pdf). This document describes details about which features are supported and which are not.
 
-### Related Issues:
+Testing the LFortran compiler version:
 
-- [#120](https://gitlab.com/lfortran/lfortran/issues/120)
+```console
+$ lfortran --version
+LFortran version: 0.12.0-491-gaf48ff273
+Platform: macOS
+Default target: x86_64-apple-darwin20.3.0
+```
 
-## Features Supported
+# Topics
 
-LFortran is currently in development and you might find some unsupported features while using it. We are working on fixing the issues and improving and expanding LFortran. You can also help out by reporting any new bug you find or you can check out any of the issues mentioned in the section and help us implement the feature faster.
+## Full programs that compute something interesting
 
-### Currently Supported:
+### Basic Numerics
 
-- AST Generation
-- ASR Generation for most nodes
-- Fortran Modules
-- Functions
-- Subroutines
-- Basic data types like int, float, character
-- Binary Operations
-- Conditional and iterative statements
-- Printing
+Directory: `tests/programs/numerics`
 
-### Not Supported/Currently in Development
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `Pure Fortran sin(x) implementation` | ✅  | ✅  | ✅   | ✅  | ✅  | [t01_sin_implementation.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/programs/numerics/t01_sin_implementation.f90) |
 
-- Strings and Arrays
-- Nested Function Definitions
-- Complex Numbers
-- Optional Arguments
-- ASR not created for a few features supported by LFortran
-    - Conditional and iterative statements
-    - Function Calls
-    - Arithmetic assignment(like a = 10)
-    - Assignments with binary operations including any number
-    - Logical Variables
-    - Print Statements
-    - Some intrinsic Fortran Functions (see below)
 
-### Related Issues
+## Modules
 
-- [#114 Strings](https://gitlab.com/lfortran/lfortran/issues/114)
-- [#121 ASR](https://gitlab.com/lfortran/lfortran/issues/121)
-- [#122 Nested Function Definitions](https://gitlab.com/lfortran/lfortran/issues/122)
-- [#125 Complex Numbers](https://gitlab.com/lfortran/lfortran/issues/125)
-- [#126 Optional Arguments](https://gitlab.com/lfortran/lfortran/issues/126)
+### Basic Usage
+
+Directory: `tests/modules/basic`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `Basic modules` | ✅  | ✅  | ✅   | ✅  | ✅  | [t01.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/modules/basic/t01.f90) |
+
+
+### Module Functions and Subroutines
+
+Directory: `tests/modules/procedures`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `Module functions` | ✅  | ✅  | ✅   | ✅  | ✅  | [t01.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/modules/procedures/t01.f90) |
+| `Module subroutines` | ✅  | ✅  | ✅   | ✅  | ✅  | [t02.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/modules/procedures/t02.f90) |
+| `Nested subroutines` | ✅  | ✅  | ✅   | ✅  | ✅  | [t03.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/modules/procedures/t03.f90) |
+
+
+## Expressions
+
+### Arithmetic Operations
+
+Directory: `tests/expressions/arit`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `+,-,*,/` | ✅  | ✅  | ✅   | ✅  | ✅  | [basic_operations.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/expressions/arit/basic_operations.f90) |
+
+
+### Integers
+
+Directory: `tests/expressions/integers`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `integers` | ✅  | ✅  | ✅   | ✅  | ✅  | [integer_kind.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/expressions/integers/integer_kind.f90) |
+
+
+### Real Numbers
+
+Directory: `tests/expressions/reals`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `single/double reals` | ✅  | ✅  | ✅   | ✅  | ✅  | [real_kind.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/expressions/reals/real_kind.f90) |
+
+
+### Complex Numbers
+
+Directory: `tests/expressions/complex`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `single/double complex` | ✅  | ✅  | ✅   | ✅  | ✅  | [complex_kind.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/expressions/complex/complex_kind.f90) |
+
+
+### Strings
+
+Directory: `tests/expressions/character`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `character` | ✅  | ✅  | ✅   | ✅  | ✅  | [t01_character.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/expressions/character/t01_character.f90) |
+
+
+### Derived Types
+
+Directory: `tests/expressions/derived_type`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `basic derived types` | ✅  | ✅  | ✅   | ✅  | ✅  | [t01_derived_type.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/expressions/derived_type/t01_derived_type.f90) |
+
+
+## Statements
+
+### If Statement
+
+Directory: `tests/statements/if`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `Test .false.` | ✅  | ✅  | ✅   | ✅  | ✅  | [if_01.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/statements/if/if_01.f90) |
+| `single line if statement` | ✅  | ✅  | ✅   | ✅  | ✅  | [if_02.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/statements/if/if_02.f90) |
+| `multi line if statement` | ✅  | ✅  | ✅   | ✅  | ✅  | [if_03.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/statements/if/if_03.f90) |
+| `nested if statements` | ✅  | ✅  | ✅   | ✅  | ✅  | [if_04.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/statements/if/if_04.f90) |
+
+
+### While Statement
+
+Directory: `tests/statements/while`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `Simple while loops` | ✅  | ✅  | ✅   | ✅  | ✅  | [while_01.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/statements/while/while_01.f90) |
+| `exit / cycle in while loops` | ✅  | ✅  | ✅   | ✅  | ✅  | [while_02.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/statements/while/while_02.f90) |
+
+
+### Print Statement
+
+Directory: `tests/statements/print`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `Basic print` | ✅  | ✅  | ✅   | ✅  | ✅  | [t01.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/statements/print/t01.f90) |
+
+
+### Open, Read, Write, Close Statement
+
+Directory: `tests/statements/file_io`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `open/read/write/close` | ✅  | ✅  | ❌   | ❌  | ❌  | [t01.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/statements/file_io/t01.f90) |
+
 
 ## Intrinsic Functions
 
-LFortran does not support some of the standard intrinsic functions for the Fortran standard. Work is being done on having support for these functions. The testing for the functions is still being done. The list will be updated with the rest of the functions soon.
+### abs
 
-### Currently Supported:
+Directory: `tests/intrinsic/abs`
 
-- log
-- sin
-- cos
-- tan
-- sinh
-- cosh
-- tanh
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `scalar single/double real` | ✅  | ✅  | ✅   | ✅  | ✅  | [t01_scalar_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/abs/t01_scalar_real.f90) |
+| `scalar single/double complex` | ✅  | ❌  | ❌   | ❌  | ❌  | [t02_scalar_complex.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/abs/t02_scalar_complex.f90) |
+| `array 1D single/double real` | ✅  | ✅  | ❌   | ❌  | ❌  | [t03_array1d_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/abs/t03_array1d_real.f90) |
 
-### Not Supported/Currently in Development:
 
-- abs
-- sqrt
-- asin
-- acos
-- atan
-- exp
-- int
-- real
-- nint
-- floor
-- fraction
-- real
-- max
-- min
-- mod
+### exp
 
-### Implementation Details
-This section is still subject to change. At the moment; the intrinsic functions are dispatched to `libm` and `glibc`. However, all functions are also being implemented so as to be usable from the Fortran runtime as well.
+Directory: `tests/intrinsic/exp`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `scalar single/double real` | ✅  | ✅  | ✅   | ✅  | ✅  | [t01_scalar_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/exp/t01_scalar_real.f90) |
+| `scalar single/double complex` | ✅  | ✅  | ✅   | ✅  | ✅  | [t02_scalar_complex.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/exp/t02_scalar_complex.f90) |
+| `array 1D single/double real` | ✅  | ✅  | ❌   | ❌  | ❌  | [t03_array1d_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/exp/t03_array1d_real.f90) |
+
+
+### log
+
+Directory: `tests/intrinsic/log`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `scalar single/double real` | ✅  | ✅  | ✅   | ✅  | ✅  | [t01_scalar_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/log/t01_scalar_real.f90) |
+| `scalar single/double complex` | ✅  | ✅  | ✅   | ✅  | ✅  | [t02_scalar_complex.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/log/t02_scalar_complex.f90) |
+| `array 1D single/double real` | ✅  | ✅  | ❌   | ❌  | ❌  | [t03_array1d_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/log/t03_array1d_real.f90) |
+
+
+### sqrt
+
+Directory: `tests/intrinsic/sqrt`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `scalar single/double real` | ✅  | ✅  | ✅   | ✅  | ✅  | [t01_scalar_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/sqrt/t01_scalar_real.f90) |
+| `scalar single/double complex` | ✅  | ❌  | ❌   | ❌  | ❌  | [t02_scalar_complex.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/sqrt/t02_scalar_complex.f90) |
+| `array 1D single/double real` | ✅  | ✅  | ❌   | ❌  | ❌  | [t03_array1d_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/sqrt/t03_array1d_real.f90) |
+
+
+### sin
+
+Directory: `tests/intrinsic/sin`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `scalar single/double real` | ✅  | ✅  | ✅   | ✅  | ✅  | [t01_scalar_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/sin/t01_scalar_real.f90) |
+| `scalar single/double complex` | ✅  | ❌  | ❌   | ❌  | ❌  | [t02_scalar_complex.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/sin/t02_scalar_complex.f90) |
+| `array 1D single/double real` | ✅  | ✅  | ❌   | ❌  | ❌  | [t03_array1d_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/sin/t03_array1d_real.f90) |
+
+
+### cos
+
+Directory: `tests/intrinsic/cos`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `scalar single/double real` | ✅  | ✅  | ✅   | ✅  | ✅  | [t01_scalar_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/cos/t01_scalar_real.f90) |
+| `scalar single/double complex` | ✅  | ✅  | ✅   | ✅  | ✅  | [t02_scalar_complex.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/cos/t02_scalar_complex.f90) |
+| `array 1D single/double real` | ✅  | ✅  | ❌   | ❌  | ❌  | [t03_array1d_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/cos/t03_array1d_real.f90) |
+
+
+### tan
+
+Directory: `tests/intrinsic/tan`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `scalar single/double real` | ✅  | ✅  | ✅   | ✅  | ✅  | [t01_scalar_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/tan/t01_scalar_real.f90) |
+| `scalar single/double complex` | ✅  | ✅  | ✅   | ✅  | ✅  | [t02_scalar_complex.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/tan/t02_scalar_complex.f90) |
+| `array 1D single/double real` | ✅  | ✅  | ❌   | ❌  | ❌  | [t03_array1d_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/tan/t03_array1d_real.f90) |
+
+
+### sinh
+
+Directory: `tests/intrinsic/sinh`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `scalar single/double real` | ✅  | ✅  | ✅   | ✅  | ✅  | [t01_scalar_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/sinh/t01_scalar_real.f90) |
+| `scalar single/double complex` | ✅  | ✅  | ✅   | ✅  | ✅  | [t02_scalar_complex.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/sinh/t02_scalar_complex.f90) |
+| `array 1D single/double real` | ✅  | ✅  | ❌   | ❌  | ❌  | [t03_array1d_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/sinh/t03_array1d_real.f90) |
+
+
+### cosh
+
+Directory: `tests/intrinsic/cosh`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `scalar single/double real` | ✅  | ✅  | ✅   | ✅  | ✅  | [t01_scalar_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/cosh/t01_scalar_real.f90) |
+| `scalar single/double complex` | ✅  | ✅  | ✅   | ✅  | ✅  | [t02_scalar_complex.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/cosh/t02_scalar_complex.f90) |
+| `array 1D single/double real` | ✅  | ✅  | ❌   | ❌  | ❌  | [t03_array1d_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/cosh/t03_array1d_real.f90) |
+
+
+### tanh
+
+Directory: `tests/intrinsic/tanh`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `scalar single/double real` | ✅  | ✅  | ✅   | ✅  | ✅  | [t01_scalar_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/tanh/t01_scalar_real.f90) |
+| `scalar single/double complex` | ✅  | ✅  | ✅   | ✅  | ✅  | [t02_scalar_complex.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/tanh/t02_scalar_complex.f90) |
+| `array 1D single/double real` | ✅  | ✅  | ❌   | ❌  | ❌  | [t03_array1d_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/tanh/t03_array1d_real.f90) |
+
+
+### asin
+
+Directory: `tests/intrinsic/asin`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `scalar single/double real` | ✅  | ✅  | ✅   | ✅  | ✅  | [t01_scalar_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/asin/t01_scalar_real.f90) |
+| `scalar single/double complex` | ✅  | ✅  | ✅   | ✅  | ✅  | [t02_scalar_complex.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/asin/t02_scalar_complex.f90) |
+| `array 1D single/double real` | ✅  | ✅  | ❌   | ❌  | ❌  | [t03_array1d_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/asin/t03_array1d_real.f90) |
+
+
+### acos
+
+Directory: `tests/intrinsic/acos`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `scalar single/double real` | ✅  | ✅  | ✅   | ✅  | ✅  | [t01_scalar_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/acos/t01_scalar_real.f90) |
+| `scalar single/double complex` | ✅  | ✅  | ✅   | ✅  | ✅  | [t02_scalar_complex.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/acos/t02_scalar_complex.f90) |
+| `array 1D single/double real` | ✅  | ✅  | ❌   | ❌  | ❌  | [t03_array1d_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/acos/t03_array1d_real.f90) |
+
+
+### atan
+
+Directory: `tests/intrinsic/atan`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `scalar single/double real` | ✅  | ✅  | ✅   | ✅  | ✅  | [t01_scalar_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/atan/t01_scalar_real.f90) |
+| `scalar single/double complex` | ✅  | ✅  | ✅   | ✅  | ✅  | [t02_scalar_complex.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/atan/t02_scalar_complex.f90) |
+| `array 1D single/double real` | ✅  | ✅  | ❌   | ❌  | ❌  | [t03_array1d_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/atan/t03_array1d_real.f90) |
+
+
+### modulo
+
+Directory: `tests/intrinsic/modulo`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `scalar single/double real` | ✅  | ❌  | ❌   | ❌  | ❌  | [t01_scalar_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/modulo/t01_scalar_real.f90) |
+| `array 1D single/double real` | ✅  | ✅  | ❌   | ❌  | ❌  | [t03_array1d_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/modulo/t03_array1d_real.f90) |
+
+
+### mod
+
+Directory: `tests/intrinsic/mod`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `scalar single/double real` | ✅  | ❌  | ❌   | ❌  | ❌  | [t01_scalar_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/mod/t01_scalar_real.f90) |
+| `array 1D single/double real` | ✅  | ❌  | ❌   | ❌  | ❌  | [t03_array1d_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/mod/t03_array1d_real.f90) |
+
+
+### min
+
+Directory: `tests/intrinsic/min`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `scalar single/double real` | ✅  | ✅  | ❌   | ❌  | ❌  | [t01_scalar_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/min/t01_scalar_real.f90) |
+
+
+### max
+
+Directory: `tests/intrinsic/max`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `scalar single/double real` | ✅  | ✅  | ❌   | ❌  | ❌  | [t01_scalar_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/max/t01_scalar_real.f90) |
+
+
+### int
+
+Directory: `tests/intrinsic/int`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `scalar single/double real` | ✅  | ❌  | ❌   | ❌  | ❌  | [t01_scalar_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/int/t01_scalar_real.f90) |
+
+
+### real
+
+Directory: `tests/intrinsic/real`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `scalar single/double real` | ✅  | ✅  | ✅   | ✅  | ✅  | [t01_scalar_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/real/t01_scalar_real.f90) |
+
+
+### floor
+
+Directory: `tests/intrinsic/floor`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `scalar single/double real` | ✅  | ❌  | ❌   | ❌  | ❌  | [t01_scalar_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/floor/t01_scalar_real.f90) |
+
+
+### nint
+
+Directory: `tests/intrinsic/nint`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `scalar single/double real` | ✅  | ❌  | ❌   | ❌  | ❌  | [t01_scalar_real.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/intrinsic/nint/t01_scalar_real.f90) |
+
+
