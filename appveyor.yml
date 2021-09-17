@@ -8,7 +8,7 @@ build_script:
 - call conda config --set always_yes yes --set changeps1 no
 - call conda info -a
 - call conda update -q conda
-- call conda install -c conda-forge python=3.7 re2c m2-bison xonsh llvmdev=11.1.0 jupyter xeus xtl nlohmann_json cppzmq jupyter_kernel_test pytest
+- call conda install -c conda-forge python=3.7 re2c m2-bison xonsh llvmdev=11.1.0 jupyter xeus=1.0.1 xtl nlohmann_json cppzmq jupyter_kernel_test pytest
 - set CONDA_PREFIX=C:\\Miniconda37-x64
 - set WIN=1
 - set MACOS=0

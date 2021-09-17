@@ -257,7 +257,7 @@ build.xsh:
     - export PATH="$HOME/conda_root/bin:$PATH"
     - sudo apt-get update
     - sudo apt-get install -yq --no-install-recommends zlib1g-dev git
-    - conda install -c conda-forge llvmdev=11.0.1 toml pytest jupyter xeus xtl nlohmann_json cppzmq jupyter_kernel_test
+    - conda install -c conda-forge llvmdev=11.0.1 toml pytest jupyter xeus=1.0.1 xtl nlohmann_json cppzmq jupyter_kernel_test
     - export LFORTRAN_CMAKE_GENERATOR="Unix Makefiles"
     - export WIN=0
     - export MACOS=0
