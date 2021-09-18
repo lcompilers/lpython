@@ -243,7 +243,6 @@ public:
             ASR::symbol_t* slice_sym = ASR::down_cast<ASR::symbol_t>(slice_asr);
             current_scope->scope[std::string(new_var_name)] = slice_sym;
             slice_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, slice_sym));
-            // std::cout<<"Inside ArrayRef "<<slice_var<<std::endl;
             Vec<ASR::expr_t*> idx_vars_target, idx_vars_value;
             PassUtils::create_idx_vars(idx_vars_target, x.n_args, x.base.base.loc, al, current_scope, "_t");
             PassUtils::create_idx_vars(idx_vars_value, x.n_args, x.base.base.loc, al, current_scope, "_v");
@@ -322,16 +321,13 @@ public:
 
     void visit_Print(const ASR::Print_t& x) {
         ASR::Print_t& xx = const_cast<ASR::Print_t&>(x);
-        // std::cout<<"Inside Slice Print "<<xx.n_values<<std::endl;
         for( size_t i = 0; i < xx.n_values; i++ ) {        
             slice_var = nullptr;
             create_slice_var = true;
             this->visit_expr(*xx.m_values[i]);
             create_slice_var = false;
-            // std::cout<<"Inside Print "<<slice_var<<std::endl;
             if( slice_var != nullptr ) {
                 xx.m_values[i] = slice_var;
-                // std::cout<<"Inside Print "<<x.m_values[i]<<std::endl;
             }
         }
         // If any slicing happened then do loop must have been created
