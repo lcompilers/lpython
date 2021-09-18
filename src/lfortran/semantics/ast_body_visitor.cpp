@@ -1110,6 +1110,8 @@ public:
                                 if( der_ext_tmp->m_external == m_external ) {
                                     make_new_ext_sym = false;
                                 }
+                            } else {
+                                make_new_ext_sym = false;
                             }
                         }
                         if( make_new_ext_sym ) {
