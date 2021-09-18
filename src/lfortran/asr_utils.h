@@ -289,6 +289,10 @@ ASR::TranslationUnit_t* find_and_load_module(Allocator &al, const std::string &m
 
 void set_intrinsic(ASR::TranslationUnit_t* trans_unit);
 
+ASR::asr_t* getDerivedRef_t(Allocator& al, const Location& loc,
+                            ASR::asr_t* v_var, ASR::symbol_t* member,
+                            SymbolTable* current_scope);
+
 void set_intrinsic(ASR::symbol_t* sym);
 
 static inline int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {
