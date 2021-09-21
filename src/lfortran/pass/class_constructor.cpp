@@ -105,9 +105,6 @@ public:
                                          LFortran::ASRUtils::symbol_get_past_external(dt_der->m_derived_type)->base));
         for( size_t i = 0; i < dt_dertype->n_members; i++ ) {
             ASR::symbol_t* member = dt_dertype->m_symtab->resolve_symbol(std::string(dt_dertype->m_members[i], strlen(dt_dertype->m_members[i])));
-            ASR::Variable_t* member_variable = down_cast<ASR::Variable_t>
-                                                (LFortran::ASRUtils::symbol_get_past_external(member));
-            ASR::ttype_t* member_type = member_variable->m_type;
             ASR::expr_t* derived_ref = LFortran::ASRUtils::EXPR(ASRUtils::getDerivedRef_t(al, x.base.base.loc, (ASR::asr_t*)result_var, member, current_scope));
             ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, derived_ref, x.m_args[i]));
             class_constructor_result.push_back(al, assign);

@@ -9,90 +9,6 @@ namespace LFortran {
 class CommonVisitorMethods {
 public:
 
-    inline static bool is_op_overloaded(ASR::binopType op, std::string& intrinsic_op_name,
-                                        SymbolTable* curr_scope) {
-        bool result = true;
-        switch(op) {
-            case ASR::binopType::Add: {
-                if(intrinsic_op_name != "~add") {
-                    result = false;
-                }
-                break;
-            }
-            case ASR::binopType::Sub: {
-                if(intrinsic_op_name != "~sub") {
-                    result = false;
-                }
-                break;
-            }
-            case ASR::binopType::Mul: {
-                if(intrinsic_op_name != "~mul") {
-                    result = false;
-                }
-                break;
-            }
-            case ASR::binopType::Div: {
-                if(intrinsic_op_name != "~div") {
-                    result = false;
-                }
-                break;
-            }
-            case ASR::binopType::Pow: {
-                if(intrinsic_op_name != "~pow") {
-                    result = false;
-                }
-                break;
-            }
-        }
-        if( result && curr_scope->scope.find(intrinsic_op_name) == curr_scope->scope.end() ) {
-            result = false;
-        }
-        return result;
-    }
-
-    inline static bool use_overloaded(ASR::expr_t* left, ASR::ttype_t *left_type,
-                                      ASR::expr_t* right, ASR::ttype_t *right_type,
-                                      ASR::binopType op, std::string& intrinsic_op_name,
-                                      SymbolTable* curr_scope, ASR::asr_t*& asr, Allocator &al,
-                                      const Location& loc) {
-        bool found = false;
-        if( is_op_overloaded(op, intrinsic_op_name, curr_scope) ) {
-            ASR::symbol_t* sym = curr_scope->scope[intrinsic_op_name];
-            const ASR::symbol_t* orig_sym = ASRUtils::symbol_get_past_external(sym);
-            ASR::GenericProcedure_t* gen_proc = ASR::down_cast<ASR::GenericProcedure_t>(orig_sym);
-            for( size_t i = 0; i < gen_proc->n_procs && !found; i++ ) {
-                ASR::symbol_t* proc = gen_proc->m_procs[i];
-                switch(proc->type) {
-                    case ASR::symbolType::Function: {
-                        ASR::Function_t* func = ASR::down_cast<ASR::Function_t>(proc);
-                        if( func->n_args == 2 ) {
-                            ASR::ttype_t* left_arg_type = ASRUtils::expr_type(func->m_args[0]);
-                            ASR::ttype_t* right_arg_type = ASRUtils::expr_type(func->m_args[1]);
-                            if( left_arg_type->type == left_type->type && 
-                                right_arg_type->type == right_type->type ) {
-                                found = true;
-                                Vec<ASR::expr_t*> a_args;
-                                a_args.reserve(al, 2);
-                                a_args.push_back(al, left);
-                                a_args.push_back(al, right);
-                                asr = ASR::make_FunctionCall_t(al, loc, curr_scope->scope[std::string(func->m_name)], nullptr,
-                                                               a_args.p, 2, nullptr, 0,
-                                                               ASRUtils::expr_type(func->m_return_var),
-                                                               nullptr, nullptr);
-                            }
-                        }
-                        break;
-                    }
-                    default: {
-                        throw SemanticError("While overloading binary operators only functions can be used",
-                                            proc->base.loc);
-                    }
-                }
-            }
-        }
-        return found;
-    }
-
   inline static void visit_BinOp(Allocator &al, const AST::BinOp_t &x,
                                  ASR::expr_t *&left, ASR::expr_t *&right,
                                  ASR::asr_t *&asr, std::string& intrinsic_op_name,
@@ -124,11 +40,11 @@ public:
     // Cast LHS or RHS if necessary
     ASR::ttype_t *left_type = LFortran::ASRUtils::expr_type(left);
     ASR::ttype_t *right_type = LFortran::ASRUtils::expr_type(right);
-
-    if( use_overloaded(left, left_type, right, right_type, op,
-                       intrinsic_op_name, curr_scope, asr, al,
-                       x.base.base.loc) ) {
-        return ;
+    ASR::expr_t *overloaded = nullptr;
+    if( LFortran::ASRUtils::use_overloaded(left, right, op,
+        intrinsic_op_name, curr_scope, asr, al,
+        x.base.base.loc) ) {
+        overloaded = LFortran::ASRUtils::EXPR(asr);
     }
 
     ASR::expr_t **conversion_cand = &left;
@@ -215,7 +131,7 @@ public:
       }
     }
     asr = ASR::make_BinOp_t(al, x.base.base.loc, left, op, right, dest_type,
-                            value);
+                            value, overloaded);
   }
 
   inline static void visit_Compare(Allocator &al, const AST::Compare_t &x,

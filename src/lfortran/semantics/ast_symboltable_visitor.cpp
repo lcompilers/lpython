@@ -106,10 +106,17 @@ public:
     std::vector<std::string> current_procedure_args;
     ASR::abiType current_procedure_abi_type = ASR::abiType::Source;
     std::map<SymbolTable*, std::map<AST::decl_attribute_t*, AST::simple_attributeType>> overloaded_ops;
+
     std::map<AST::intrinsicopType, std::string> intrinsic2str = {
         {AST::intrinsicopType::STAR, "~mul"},
         {AST::intrinsicopType::PLUS, "~add"},
     };
+
+    std::map<AST::intrinsicopType, ASR::binopType> intrinsic2binop = {
+        {AST::intrinsicopType::STAR, ASR::binopType::Mul},
+        {AST::intrinsicopType::PLUS, ASR::binopType::Add}
+    };
+
     std::map<AST::operatorType, std::string> binop2str = {
         {AST::operatorType::Mul, "~mul"},
         {AST::operatorType::Add, "~add"},
@@ -1350,11 +1357,11 @@ public:
                 x = resolve_symbol(loc, name);
                 symbols.push_back(al, x);
             }
-            ASR::asr_t *v = ASR::make_GenericProcedure_t(al, loc,
-                current_scope,
-                generic_name, symbols.p, symbols.size(), ASR::Public);
+            ASR::asr_t *v = ASR::make_CustomOperator_t(al, loc, current_scope,
+                                generic_name, symbols.p, symbols.size(), ASR::Public);
             current_scope->scope[intrinsic2str[proc.first]] = ASR::down_cast<ASR::symbol_t>(v);
         }
+        overloaded_op_procs.clear();
     }
 
     void add_generic_procedures() {
@@ -1458,6 +1465,19 @@ public:
                 } else if (ASR::is_a<ASR::GenericProcedure_t>(*item.second)) {
                     ASR::GenericProcedure_t *gp = ASR::down_cast<
                         ASR::GenericProcedure_t>(item.second);
+                    ASR::asr_t *ep = ASR::make_ExternalSymbol_t(
+                        al, gp->base.base.loc,
+                        current_scope,
+                        /* a_name */ gp->m_name,
+                        (ASR::symbol_t*)gp,
+                        m->m_name, nullptr, 0, gp->m_name,
+                        dflt_access
+                        );
+                    std::string sym = to_lower(gp->m_name);
+                    current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(ep);
+                }  else if (ASR::is_a<ASR::CustomOperator_t>(*item.second)) {
+                    ASR::CustomOperator_t *gp = ASR::down_cast<
+                        ASR::CustomOperator_t>(item.second);
                     ASR::asr_t *ep = ASR::make_ExternalSymbol_t(
                         al, gp->base.base.loc,
                         current_scope,

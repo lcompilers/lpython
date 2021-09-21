@@ -146,16 +146,16 @@ public:
 
                 ASR::expr_t* gap = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc,
                                                         end, ASR::binopType::Sub, start, 
-                                                        int32_type, nullptr));
+                                                        int32_type, nullptr, nullptr));
                 // ASR::expr_t* slice_size = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc,
                 //                                                  gap, ASR::binopType::Add, const_1,
                 //                                                  int64_type, nullptr));
                 ASR::expr_t* slice_size = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc,
                                                                 gap, ASR::binopType::Div, step,
-                                                                int32_type, nullptr));
+                                                                int32_type, nullptr, nullptr));
                 ASR::expr_t* actual_size = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc,
                                                                 slice_size, ASR::binopType::Add, const_1,
-                                                                int32_type, nullptr));
+                                                                int32_type, nullptr, nullptr));
                 ASR::dimension_t curr_dim;
                 curr_dim.loc = x.base.base.loc;
                 curr_dim.m_start = const_1;
@@ -281,7 +281,7 @@ public:
                     doloop_body.push_back(al, set_to_one);
                     doloop_body.push_back(al, doloop);
                 }
-                ASR::expr_t* inc_expr = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc, idx_vars_target[i], ASR::binopType::Add, const_1, int32_type, nullptr));
+                ASR::expr_t* inc_expr = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc, idx_vars_target[i], ASR::binopType::Add, const_1, int32_type, nullptr, nullptr));
                 ASR::stmt_t* assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_target[i], inc_expr));
                 doloop_body.push_back(al, assign_stmt);
                 doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));

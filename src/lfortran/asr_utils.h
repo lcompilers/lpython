@@ -145,6 +145,9 @@ static inline char *symbol_name(const ASR::symbol_t *f)
         case ASR::symbolType::ClassProcedure: {
             return ASR::down_cast<ASR::ClassProcedure_t>(f)->m_name;
         }
+        case ASR::symbolType::CustomOperator: {
+            return ASR::down_cast<ASR::CustomOperator_t>(f)->m_name;
+        }
         default : throw LFortranException("Not implemented");
     }
 }
@@ -178,6 +181,9 @@ static inline SymbolTable *symbol_parent_symtab(const ASR::symbol_t *f)
         }
         case ASR::symbolType::ClassProcedure: {
             return ASR::down_cast<ASR::ClassProcedure_t>(f)->m_parent_symtab;
+        }
+        case ASR::symbolType::CustomOperator: {
+            return ASR::down_cast<ASR::CustomOperator_t>(f)->m_parent_symtab;
         }
         default : throw LFortranException("Not implemented");
     }
@@ -292,6 +298,14 @@ void set_intrinsic(ASR::TranslationUnit_t* trans_unit);
 ASR::asr_t* getDerivedRef_t(Allocator& al, const Location& loc,
                             ASR::asr_t* v_var, ASR::symbol_t* member,
                             SymbolTable* current_scope);
+
+bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
+                    ASR::binopType op, std::string& intrinsic_op_name,
+                    SymbolTable* curr_scope, ASR::asr_t*& asr,
+                    Allocator &al, const Location& loc);
+
+bool is_op_overloaded(ASR::binopType op, std::string& intrinsic_op_name,
+                      SymbolTable* curr_scope);
 
 void set_intrinsic(ASR::symbol_t* sym);
 
