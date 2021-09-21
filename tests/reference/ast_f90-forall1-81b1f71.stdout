@@ -1,5 +1,5 @@
 program forall1
-implicit none 
+implicit none
 ! Only for Syntax check
 
 !>>>>>>>>>>>>> Single line statments <<<<<<<<<<<<<<
@@ -17,23 +17,23 @@ forall (i = 1:n, j = 1:m, A(i, j) /= 0)
 end forall
 forall (i = 1:1000, j = 1:1000, i /= j)
     A(i, j) = A(j, i)
-end forall 
+end forall
 
 !>>>>>>>>>>>>> Multipe line statements <<<<<<<<<<<<<<
 forall (j = 1:n) shared(i) local(x) default(none)
     forall (i = 1:j)
         A(i, j) = B(i)
     end forall
-end forall 
+end forall
 
 forall (i = 1:N) reduce(*: s)
     s = s + a(i)
-end forall 
+end forall
 
 forall (i = 3:N + 1, j = 3:N + 1)
     C(i, j) = C(i, j + 2) + C(i, j - 2)
     D(i, j) = C(i, j) + C(i + 2, j) + C(i - 2, j)
-end forall 
+end forall
 
 forall (x = 1:100, J(x) > 0)
     where (I(x, :) < 0)
@@ -41,7 +41,7 @@ forall (x = 1:100, J(x) > 0)
     else where
         I(x, :) = 1
     end where
-end forall 
+end forall
 
 outer: forall (i = 1:100)
     inner: forall (j = 1:100, i /= j)

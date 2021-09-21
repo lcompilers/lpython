@@ -221,7 +221,7 @@ public:
     }
 
     std::string print_trivia_inside(const trivia_t &x) {
-        std::string r = " ";
+        std::string r;
         auto y = (TriviaNode_t &)x;
         if(y.n_inside > 0) {
             for (size_t i=0; i<y.n_inside; i++) {
@@ -234,6 +234,7 @@ public:
                         break;
                     }
                     case trivia_nodeType::EOLComment: {
+                        r += " ";
                         r += std::string(
                             down_cast<EOLComment_t>(y.m_inside[i])->m_comment
                         );
@@ -257,7 +258,7 @@ public:
     }
 
     std::string print_trivia_after(const trivia_t &x) {
-        std::string r = " ";
+        std::string r;
         auto y = (TriviaNode_t &)x;
         if(y.n_after > 0) {
             for (size_t i=0; i<y.n_after; i++) {
@@ -270,6 +271,7 @@ public:
                         break;
                     }
                     case trivia_nodeType::EOLComment: {
+                        r += " ";
                         r += std::string(
                             down_cast<EOLComment_t>(y.m_after[i])->m_comment
                         );

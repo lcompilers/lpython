@@ -1,18 +1,18 @@
 program doconcurrentloop_02
-implicit none 
+implicit none
 
 real, dimension(10) :: a
 real :: sum
-integer :: N, i 
+integer :: N, i
 
 N = size(a)
-sum = 0 
+sum = 0
 
 do concurrent (i = 1:N)
     a(i) = a(i - 1) + 5
-end do 
+end do
 
-call arraySum(a, sum) 
+call arraySum(a, sum)
 
 
 contains

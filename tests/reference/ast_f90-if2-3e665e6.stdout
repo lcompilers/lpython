@@ -1,7 +1,7 @@
 program expr2
 implicit none
 integer :: x
-time = 12 
+time = 12
 
 if (time < 10) then ! Comment 1
     print *, "Good morning"

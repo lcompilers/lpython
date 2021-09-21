@@ -1,11 +1,11 @@
 program derived_types_03
-implicit none 
+implicit none
 
 type :: X
     integer :: i
-end type X 
+end type X
 
-type(X) :: b 
+type(X) :: b
 
 
 contains
@@ -15,7 +15,7 @@ type :: A
     integer :: i
 end type A
 type(A) :: b
-end subroutine Y 
+end subroutine Y
 
 
 integer function Z()
@@ -24,7 +24,7 @@ type :: A
 end type A
 type(A) :: b
 Z = 5
-end function Z 
+end function Z
 
 
 end program derived_types_03
