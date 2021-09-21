@@ -1654,6 +1654,8 @@ public:
                     x.m_args[i])->m_v));
                 llvm::Type* type = get_subroutine_type(*fn)->getPointerTo();
                 args.push_back(type);
+            } else {
+                throw CodeGenError("Argument type not implemented");
             }
         }
         return args;
