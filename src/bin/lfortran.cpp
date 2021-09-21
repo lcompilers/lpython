@@ -844,7 +844,10 @@ int compile_to_object_file_cpp(const std::string &infile,
                 out.open(outfile_empty);
                 out << " ";
             }
-            std::string cmd = "gcc -c " + outfile_empty + " -o " + outfile;
+            char *env_CC = std::getenv("LFORTRAN_CC");
+            std::string CC="gcc";
+            if (env_CC) CC = env_CC;
+            std::string cmd = CC + " -c " + outfile_empty + " -o " + outfile;
             int err = system(cmd.c_str());
             if (err) {
                 std::cout << "The command '" + cmd + "' failed." << std::endl;
@@ -981,6 +984,8 @@ int link_executable(const std::vector<std::string> &infiles,
             } else {
                 CC = "gcc";
             }
+            char *env_CC = std::getenv("LFORTRAN_CC");
+            if (env_CC) CC = env_CC;
             std::string base_path = "\"" + runtime_library_dir + "\"";
             std::string options;
             std::string runtime_lib = "lfortran_runtime";
