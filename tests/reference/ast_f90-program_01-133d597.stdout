@@ -7,12 +7,12 @@ print *, "Normal random numbers:"
 do i = 1, 10
     call rand(a)
     print *, a
-end do 
+end do
 
 
 contains
 
-subroutine rand(x) 
+subroutine rand(x)
 ! Returns a psuedorandom scalar drawn from the standard normal distribution.
 !
 ! [1] Marsaglia, G., & Bray, T. A. (1964). A Convenient Method for
@@ -36,7 +36,7 @@ else
     x = u(2)
 end if
 first = .not. first
-end subroutine rand 
+end subroutine rand
 
 
 end program program_01
