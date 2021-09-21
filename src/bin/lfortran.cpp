@@ -690,7 +690,10 @@ int compile_to_object_file(const std::string &infile,
         m = LFortran::asr_to_llvm(*asr, e.get_context(), al, platform);
     } catch (const LFortran::CodeGenError &e) {
         if (show_stacktrace) {
-            std::cerr << e.stacktrace();
+            std::vector<LFortran::StacktraceItem> d = e.stacktrace_addresses();
+            get_local_addresses(d);
+            get_local_info(d);
+            std::cerr << stacktrace2str(d, LFortran::stacktrace_depth);
         }
         std::cerr << "Code generation error: " << e.msg() << std::endl;
         return 5;
@@ -1422,7 +1425,10 @@ int main(int argc, char *argv[])
                     backend, static_link, true, openmp, platform, arg_target);
         }
     } catch(const LFortran::LFortranException &e) {
-        std::cerr << e.stacktrace();
+        std::vector<LFortran::StacktraceItem> d = e.stacktrace_addresses();
+        get_local_addresses(d);
+        get_local_info(d);
+        std::cerr << stacktrace2str(d, LFortran::stacktrace_depth);
         std::cerr << e.name() + ": " << e.msg() << std::endl;
         return 1;
     } catch(const std::runtime_error &e) {
