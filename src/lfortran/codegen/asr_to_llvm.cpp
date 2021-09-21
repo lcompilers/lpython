@@ -1654,6 +1654,8 @@ public:
                     x.m_args[i])->m_v));
                 llvm::Type* type = get_subroutine_type(*fn)->getPointerTo();
                 args.push_back(type);
+            } else {
+                throw CodeGenError("Argument type not implemented");
             }
         }
         return args;
@@ -3531,7 +3533,6 @@ public:
                             break;
                         }
                         case (ASR::ttypeType::Character) : {
-                            const ASR::symbol_t* func_subrout = symbol_get_past_external(x.m_name);
                             ASR::Variable_t *orig_arg = nullptr;
                             if( func_subrout->type == ASR::symbolType::Function ) {
                                 ASR::Function_t* func = down_cast<ASR::Function_t>(func_subrout);
@@ -3564,10 +3565,27 @@ public:
                         }
                         default: {
                             if (!character_bindc) {
-                                llvm::AllocaInst *target = builder->CreateAlloca(
-                                    target_type, nullptr);
-                                builder->CreateStore(value, target);
-                                tmp = target;
+                                bool use_value = false;
+                                ASR::Variable_t *orig_arg = nullptr;
+                                if( func_subrout->type == ASR::symbolType::Function ) {
+                                    ASR::Function_t* func = down_cast<ASR::Function_t>(func_subrout);
+                                    orig_arg = EXPR2VAR(func->m_args[i]);
+                                } else if( func_subrout->type == ASR::symbolType::Subroutine ) {
+                                    ASR::Subroutine_t* sub = down_cast<ASR::Subroutine_t>(func_subrout);
+                                    orig_arg = EXPR2VAR(sub->m_args[i]);
+                                } else {
+                                    LFORTRAN_ASSERT(false)
+                                }
+                                if (orig_arg->m_abi == ASR::abiType::BindC
+                                    && orig_arg->m_value_attr) {
+                                    use_value = true;
+                                }
+                                if (!use_value) {
+                                    llvm::AllocaInst *target = builder->CreateAlloca(
+                                        target_type, nullptr);
+                                    builder->CreateStore(value, target);
+                                    tmp = target;
+                                }
                             }
                         }
                     }
