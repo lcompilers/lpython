@@ -1,11 +1,11 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-%array = type { [3 x %complex_4], i32, [1 x %dimension_descriptor] }
+%array = type { [3 x %complex_4], i32, [1 x %dimension_descriptor], i1 }
 %complex_4 = type { float, float }
 %dimension_descriptor = type { i32, i32, i32, i32 }
-%array.0 = type { [4 x %complex_4], i32, [1 x %dimension_descriptor] }
-%array.1 = type { [4 x %complex_4], i32, [2 x %dimension_descriptor] }
+%array.0 = type { [4 x %complex_4], i32, [1 x %dimension_descriptor], i1 }
+%array.1 = type { [4 x %complex_4], i32, [2 x %dimension_descriptor], i1 }
 
 @0 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
 @1 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1

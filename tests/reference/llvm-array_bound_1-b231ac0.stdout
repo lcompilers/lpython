@@ -2,10 +2,10 @@
 source_filename = "LFortran"
 
 %dimension_descriptor = type { i32, i32, i32, i32 }
-%array.0 = type { [196 x i32], i32, [3 x %dimension_descriptor] }
-%array.1 = type { [96 x i32], i32, [4 x %dimension_descriptor] }
-%array.2 = type { [35 x i32], i32, [2 x %dimension_descriptor] }
-%array.3 = type { [4 x i32], i32, [1 x %dimension_descriptor] }
+%array.0 = type { [196 x i32], i32, [3 x %dimension_descriptor], i1 }
+%array.1 = type { [96 x i32], i32, [4 x %dimension_descriptor], i1 }
+%array.2 = type { [35 x i32], i32, [2 x %dimension_descriptor], i1 }
+%array.3 = type { [4 x i32], i32, [1 x %dimension_descriptor], i1 }
 
 @0 = private unnamed_addr constant [10 x i8] c"%d %d %d\0A\00", align 1
 @1 = private unnamed_addr constant [10 x i8] c"%d %d %d\0A\00", align 1
