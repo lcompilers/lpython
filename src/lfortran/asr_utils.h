@@ -235,6 +235,16 @@ static inline ASR::Module_t *get_sym_module(const ASR::symbol_t *sym) {
     return nullptr;
 }
 
+// Returns the TranslationUnit_t's symbol table by going via parents
+static inline SymbolTable *get_tu_symtab(SymbolTable *symtab) {
+    SymbolTable *s = symtab;
+    while (s->parent != nullptr) {
+        s = s->parent;
+    }
+    LFORTRAN_ASSERT(ASR::is_a<ASR::unit_t>(*s->asr_owner))
+    return s;
+}
+
 // Returns the name of scopes in reverse order (local scope first, function second, module last)
 static inline Vec<char*> get_scope_names(Allocator &al, const SymbolTable *symtab) {
     Vec<char*> scope_names;

@@ -1307,14 +1307,10 @@ public:
             if (intrinsic_procedures.find(remote_sym)
                         != intrinsic_procedures.end()) {
                 std::string module_name = intrinsic_procedures[remote_sym];
-                bool shift_scope = false;
-                if (current_scope->parent->parent) {
-                    current_scope = current_scope->parent;
-                    shift_scope = true;
-                }
-                ASR::Module_t *m = LFortran::ASRUtils::load_module(al, current_scope->parent, module_name,
-                    x.base.base.loc, true);
-                if (shift_scope) current_scope = scope;
+
+                SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
+                ASR::Module_t *m = ASRUtils::load_module(al, tu_symtab, module_name,
+                        x.base.base.loc, true);
 
                 ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
                 if (!t) {
