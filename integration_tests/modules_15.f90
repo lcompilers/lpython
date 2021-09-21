@@ -64,6 +64,11 @@ i = f_int_float_complex_value(a, c32)
 print *, i
 if (i /= 15) error stop
 
+c32 = (5._sp, 7._sp)
+i = f_int_float_complex_value(3, c32)
+print *, i
+if (i /= 15) error stop
+
 a = 3
 c32 = (5._sp, 7._sp)
 call sub_int_float_complex_value(a, c32, i)
