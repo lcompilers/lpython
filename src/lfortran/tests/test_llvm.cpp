@@ -795,6 +795,18 @@ TEST_CASE("FortranEvaluator 8") {
     CHECK(r.result.f32 == 3.5);
 }
 
+TEST_CASE("FortranEvaluator 8 double") {
+    FortranEvaluator e(LFortran::get_platform());
+    FortranEvaluator::Result<FortranEvaluator::EvalResult>
+    r = e.evaluate("real(8) :: a = 3.5");
+    CHECK(r.ok);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::none);
+    r = e.evaluate("a");
+    CHECK(r.ok);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::real8);
+    CHECK(r.result.f64 == 3.5);
+}
+
 TEST_CASE("FortranEvaluator integer kind 1") {
     FortranEvaluator e(LFortran::get_platform());
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
