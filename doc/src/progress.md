@@ -72,7 +72,7 @@ Directory: `tests/expressions/arit`
 
 | Description | AST | ASR | LLVM | BIN | RUN | Filename |
 | ----------- | --- | --- | ---- | --- | --- | -------- |
-| `+,-,*,/` | ✅  | ✅  | ✅   | ✅  | ✅  | [basic_operations.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/expressions/arit/basic_operations.f90) |
+| `+,-,*,/,**` | ✅  | ✅  | ✅   | ✅  | ✅  | [basic_operations.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/expressions/arit/basic_operations.f90) |
 
 
 ### Integers
@@ -82,6 +82,8 @@ Directory: `tests/expressions/integers`
 | Description | AST | ASR | LLVM | BIN | RUN | Filename |
 | ----------- | --- | --- | ---- | --- | --- | -------- |
 | `integers` | ✅  | ✅  | ✅   | ✅  | ✅  | [integer_kind.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/expressions/integers/integer_kind.f90) |
+| `relational operations` | ✅  | ✅  | ✅   | ✅  | ✅  | [t01_rel_operations.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/expressions/integers/t01_rel_operations.f90) |
+| `logical operations` | ✅  | ✅  | ✅   | ✅  | ✅  | [t02_logical_operations.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/expressions/integers/t02_logical_operations.f90) |
 
 
 ### Real Numbers
@@ -91,6 +93,7 @@ Directory: `tests/expressions/reals`
 | Description | AST | ASR | LLVM | BIN | RUN | Filename |
 | ----------- | --- | --- | ---- | --- | --- | -------- |
 | `single/double reals` | ✅  | ✅  | ✅   | ✅  | ✅  | [real_kind.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/expressions/reals/real_kind.f90) |
+| `defined operator` | ✅  | ❌  | ❌   | ❌  | ❌  | [t01_def_op.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/expressions/reals/t01_def_op.f90) |
 
 
 ### Complex Numbers
@@ -109,6 +112,7 @@ Directory: `tests/expressions/character`
 | Description | AST | ASR | LLVM | BIN | RUN | Filename |
 | ----------- | --- | --- | ---- | --- | --- | -------- |
 | `character` | ✅  | ✅  | ✅   | ✅  | ✅  | [t01_character.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/expressions/character/t01_character.f90) |
+| `string concatenation` | ✅  | ✅  | ✅   | ✅  | ✅  | [t02_concat_operation.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/expressions/character/t02_concat_operation.f90) |
 
 
 ### Derived Types
@@ -121,6 +125,34 @@ Directory: `tests/expressions/derived_type`
 
 
 ## Statements
+
+### Allocate Statement
+
+Directory: `tests/statements/allocate`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `allocate statement` | ✅  | ✅  | ✅   | ✅  | ✅  | [t01.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/statements/allocate/t01.f90) |
+
+
+### Block Statement
+
+Directory: `tests/statements/block`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `block statement` | ✅  | ❌  | ❌   | ❌  | ❌  | [t01.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/statements/block/t01.f90) |
+
+
+### Goto Statement
+
+Directory: `tests/statements/goto`
+
+| Description | AST | ASR | LLVM | BIN | RUN | Filename |
+| ----------- | --- | --- | ---- | --- | --- | -------- |
+| `computed go-to statement` | ✅  | ❌  | ❌   | ❌  | ❌  | [t01.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/statements/goto/t01.f90) |
+| `go-to statement` | ✅  | ❌  | ❌   | ❌  | ❌  | [t02.f90](https://gitlab.com/lfortran/compiler_tester/-/blob/master/tests/statements/goto/t02.f90) |
+
 
 ### If Statement
 
