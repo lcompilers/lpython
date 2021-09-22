@@ -807,6 +807,32 @@ TEST_CASE("FortranEvaluator 8 double") {
     CHECK(r.result.f64 == 3.5);
 }
 
+TEST_CASE("FortranEvaluator 9 single complex") {
+    LFortran::Platform platform = LFortran::get_platform();
+    if (platform != LFortran::Platform::Windows) {
+        FortranEvaluator e(platform);
+        FortranEvaluator::Result<FortranEvaluator::EvalResult>
+        r = e.evaluate("(2.5_4, 3.5_4)");
+        CHECK(r.ok);
+        CHECK(r.result.type == FortranEvaluator::EvalResult::complex4);
+        CHECK(r.result.c32.re == 2.5);
+        CHECK(r.result.c32.im == 3.5);
+    }
+}
+
+TEST_CASE("FortranEvaluator 9 double complex") {
+    LFortran::Platform platform = LFortran::get_platform();
+    if (platform != LFortran::Platform::Windows) {
+        FortranEvaluator e(platform);
+        FortranEvaluator::Result<FortranEvaluator::EvalResult>
+        r = e.evaluate("(2.5_8, 3.5_8)");
+        CHECK(r.ok);
+        CHECK(r.result.type == FortranEvaluator::EvalResult::complex8);
+        CHECK(r.result.c64.re == 2.5);
+        CHECK(r.result.c64.im == 3.5);
+    }
+}
+
 TEST_CASE("FortranEvaluator integer kind 1") {
     FortranEvaluator e(LFortran::get_platform());
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
