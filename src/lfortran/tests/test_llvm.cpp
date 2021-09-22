@@ -26,9 +26,9 @@ define i64 @f1()
     ret i64 4
 }
     )""");
-    CHECK(e.intfn("f1") == 4);
+    CHECK(e.int64fn("f1") == 4);
     e.add_module("");
-    CHECK(e.intfn("f1") == 4);
+    CHECK(e.int64fn("f1") == 4);
 
     e.add_module(R"""(
 define i64 @f1()
@@ -36,9 +36,9 @@ define i64 @f1()
     ret i64 5
 }
     )""");
-    CHECK(e.intfn("f1") == 5);
+    CHECK(e.int64fn("f1") == 5);
     e.add_module("");
-    CHECK(e.intfn("f1") == 5);
+    CHECK(e.int64fn("f1") == 5);
 }
 
 TEST_CASE("llvm 1 fail") {
@@ -72,7 +72,7 @@ define i64 @f1()
     ret i64 %1
 }
     )""");
-    CHECK(e.intfn("f1") == 4);
+    CHECK(e.int64fn("f1") == 4);
 
     e.add_module(R"""(
 @count = external global i64
@@ -83,7 +83,7 @@ define i64 @f2()
     ret i64 %1
 }
     )""");
-    CHECK(e.intfn("f2") == 4);
+    CHECK(e.int64fn("f2") == 4);
 
     CHECK_THROWS_AS(e.add_module(R"""(
 define i64 @f3()
@@ -118,11 +118,11 @@ define void @inc()
     ret void
 }
     )""");
-    CHECK(e.intfn("f1") == 5);
+    CHECK(e.int64fn("f1") == 5);
     e.voidfn("inc");
-    CHECK(e.intfn("f1") == 6);
+    CHECK(e.int64fn("f1") == 6);
     e.voidfn("inc");
-    CHECK(e.intfn("f1") == 7);
+    CHECK(e.int64fn("f1") == 7);
 
     e.add_module(R"""(
 @count = external global i64
@@ -135,13 +135,13 @@ define void @inc2()
     ret void
 }
     )""");
-    CHECK(e.intfn("f1") == 7);
+    CHECK(e.int64fn("f1") == 7);
     e.voidfn("inc2");
-    CHECK(e.intfn("f1") == 9);
+    CHECK(e.int64fn("f1") == 9);
     e.voidfn("inc");
-    CHECK(e.intfn("f1") == 10);
+    CHECK(e.int64fn("f1") == 10);
     e.voidfn("inc2");
-    CHECK(e.intfn("f1") == 12);
+    CHECK(e.int64fn("f1") == 12);
 
     // Test that we can have another independent LLVMEvaluator and use both at
     // the same time:
@@ -164,19 +164,19 @@ define void @inc()
 }
     )""");
 
-    CHECK(e2.intfn("f1") == 5);
+    CHECK(e2.int64fn("f1") == 5);
     e2.voidfn("inc");
-    CHECK(e2.intfn("f1") == 6);
+    CHECK(e2.int64fn("f1") == 6);
     e2.voidfn("inc");
-    CHECK(e2.intfn("f1") == 7);
+    CHECK(e2.int64fn("f1") == 7);
 
-    CHECK(e.intfn("f1") == 12);
+    CHECK(e.int64fn("f1") == 12);
     e2.voidfn("inc");
-    CHECK(e2.intfn("f1") == 8);
-    CHECK(e.intfn("f1") == 12);
+    CHECK(e2.int64fn("f1") == 8);
+    CHECK(e.int64fn("f1") == 12);
     e.voidfn("inc");
-    CHECK(e2.intfn("f1") == 8);
-    CHECK(e.intfn("f1") == 13);
+    CHECK(e2.int64fn("f1") == 8);
+    CHECK(e.int64fn("f1") == 13);
 
 }
 
@@ -199,11 +199,11 @@ define void @inc()
     ret void
 }
 )""");
-    CHECK(e.intfn("f1") == 5);
+    CHECK(e.int64fn("f1") == 5);
     e.voidfn("inc");
-    CHECK(e.intfn("f1") == 6);
+    CHECK(e.int64fn("f1") == 6);
     e.voidfn("inc");
-    CHECK(e.intfn("f1") == 7);
+    CHECK(e.int64fn("f1") == 7);
 
     e.add_module(R"""(
 declare void @inc()
@@ -215,13 +215,13 @@ define void @inc2()
     ret void
 }
 )""");
-    CHECK(e.intfn("f1") == 7);
+    CHECK(e.int64fn("f1") == 7);
     e.voidfn("inc2");
-    CHECK(e.intfn("f1") == 9);
+    CHECK(e.int64fn("f1") == 9);
     e.voidfn("inc");
-    CHECK(e.intfn("f1") == 10);
+    CHECK(e.int64fn("f1") == 10);
     e.voidfn("inc2");
-    CHECK(e.intfn("f1") == 12);
+    CHECK(e.int64fn("f1") == 12);
 
     CHECK_THROWS_AS(e.add_module(R"""(
 define void @inc2()
@@ -273,7 +273,7 @@ define i64 @f()
     ret i64 %r
 }
     )""");
-    CHECK(e.intfn("f") == 6);
+    CHECK(e.int64fn("f") == 6);
 }
 
 TEST_CASE("llvm array 2") {
@@ -318,7 +318,7 @@ define i64 @f()
     ret i64 %r
 }
     )""");
-    CHECK(e.intfn("f") == 6);
+    CHECK(e.int64fn("f") == 6);
 }
 
 int f(int a, int b) {
@@ -342,7 +342,7 @@ define i64 @f1()
     ret i64 %r
 }
     )""");
-    CHECK(e.intfn("f1") == 5);
+    CHECK(e.int64fn("f1") == 5);
 }
 
 
@@ -371,7 +371,7 @@ end function)";
 
     // LLVM -> Machine code -> Execution
     e.add_module(std::move(m));
-    CHECK(e.intfn("f") == 5);
+    CHECK(e.int32fn("f") == 5);
 }
 
 TEST_CASE("ASR -> LLVM 2") {
@@ -398,7 +398,7 @@ end function)";
 
     // LLVM -> Machine code -> Execution
     e.add_module(std::move(m));
-    CHECK(e.intfn("f") == 4);
+    CHECK(e.int32fn("f") == 4);
 }
 
 TEST_CASE("FortranEvaluator 1") {
@@ -412,8 +412,8 @@ TEST_CASE("FortranEvaluator 1") {
     CHECK(r.result.type == FortranEvaluator::EvalResult::statement);
     r = e.evaluate("i");
     CHECK(r.ok);
-    CHECK(r.result.type == FortranEvaluator::EvalResult::integer);
-    CHECK(r.result.i == 5);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
+    CHECK(r.result.i32 == 5);
 }
 
 TEST_CASE("FortranEvaluator 2") {
@@ -439,8 +439,8 @@ end do
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
     r = e.evaluate("j");
     CHECK(r.ok);
-    CHECK(r.result.type == FortranEvaluator::EvalResult::integer);
-    CHECK(r.result.i == 15);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
+    CHECK(r.result.i32 == 15);
 }
 
 TEST_CASE("FortranEvaluator 4") {
@@ -454,8 +454,8 @@ end function
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
     r = e.evaluate("fn(2, 3)");
     CHECK(r.ok);
-    CHECK(r.result.type == FortranEvaluator::EvalResult::integer);
-    CHECK(r.result.i == 5);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
+    CHECK(r.result.i32 == 5);
 
     e.evaluate(R"(
 integer function fn(i, j)
@@ -465,8 +465,8 @@ end function
 )");
     r = e.evaluate("fn(2, 3)");
     CHECK(r.ok);
-    CHECK(r.result.type == FortranEvaluator::EvalResult::integer);
-    CHECK(r.result.i == -1);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
+    CHECK(r.result.i32 == -1);
 }
 
 TEST_CASE("FortranEvaluator 5") {
@@ -483,8 +483,8 @@ end subroutine
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
     r = e.evaluate("r");
     CHECK(r.ok);
-    CHECK(r.result.type == FortranEvaluator::EvalResult::integer);
-    CHECK(r.result.i == 5);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
+    CHECK(r.result.i32 == 5);
 
     e.evaluate(R"(
 integer subroutine fn(i, j, r)
@@ -496,8 +496,8 @@ end subroutine
     e.evaluate("call fn(2, 3, r)");
     r = e.evaluate("r");
     CHECK(r.ok);
-    CHECK(r.result.type == FortranEvaluator::EvalResult::integer);
-    CHECK(r.result.i == -1);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
+    CHECK(r.result.i32 == -1);
 }
 
 TEST_CASE("FortranEvaluator 6") {
@@ -669,7 +669,7 @@ define i64 @f()
     ret i64 %raddr
 }
     )""");
-    int64_t r = e.intfn("f");
+    int64_t r = e.int64fn("f");
     CHECK(r != 8);
     int64_t *p = (int64_t*)r;
     CHECK(*p == 8);
@@ -689,7 +689,7 @@ define i64 @f()
     ret i64 %raddr
 }
     )""");
-    int64_t r = e.intfn("f");
+    int64_t r = e.int64fn("f");
     float *p = (float *)r;
     CHECK(std::abs(*p - 8) < 1e-6);
 }
@@ -779,8 +779,8 @@ TEST_CASE("FortranEvaluator 7") {
     CHECK(r.result.type == FortranEvaluator::EvalResult::none);
     r = e.evaluate("i");
     CHECK(r.ok);
-    CHECK(r.result.type == FortranEvaluator::EvalResult::integer);
-    CHECK(r.result.i == 5);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
+    CHECK(r.result.i32 == 5);
 }
 
 TEST_CASE("FortranEvaluator 8") {
@@ -795,6 +795,18 @@ TEST_CASE("FortranEvaluator 8") {
     CHECK(r.result.f32 == 3.5);
 }
 
+TEST_CASE("FortranEvaluator 8 double") {
+    FortranEvaluator e(LFortran::get_platform());
+    FortranEvaluator::Result<FortranEvaluator::EvalResult>
+    r = e.evaluate("real(8) :: a = 3.5");
+    CHECK(r.ok);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::none);
+    r = e.evaluate("a");
+    CHECK(r.ok);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::real8);
+    CHECK(r.result.f64 == 3.5);
+}
+
 TEST_CASE("FortranEvaluator integer kind 1") {
     FortranEvaluator e(LFortran::get_platform());
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
@@ -806,8 +818,8 @@ TEST_CASE("FortranEvaluator integer kind 1") {
     CHECK(r.result.type == FortranEvaluator::EvalResult::statement);
     r = e.evaluate("i");
     CHECK(r.ok);
-    CHECK(r.result.type == FortranEvaluator::EvalResult::integer);
-    CHECK(r.result.i == 5);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
+    CHECK(r.result.i32 == 5);
 }
 
 TEST_CASE("FortranEvaluator integer kind 2") {
@@ -821,8 +833,8 @@ TEST_CASE("FortranEvaluator integer kind 2") {
     CHECK(r.result.type == FortranEvaluator::EvalResult::statement);
     r = e.evaluate("i");
     CHECK(r.ok);
-    CHECK(r.result.type == FortranEvaluator::EvalResult::integer);
-    CHECK(r.result.i == 5);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::integer8);
+    CHECK(r.result.i64 == 5);
 }
 
 TEST_CASE("FortranEvaluator re-declaration 1") {
@@ -836,8 +848,8 @@ TEST_CASE("FortranEvaluator re-declaration 1") {
     CHECK(r.result.type == FortranEvaluator::EvalResult::statement);
     r = e.evaluate("i");
     CHECK(r.ok);
-    CHECK(r.result.type == FortranEvaluator::EvalResult::integer);
-    CHECK(r.result.i == 5);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
+    CHECK(r.result.i32 == 5);
 
     r = e.evaluate("integer :: i");
     CHECK(r.ok);
@@ -847,8 +859,8 @@ TEST_CASE("FortranEvaluator re-declaration 1") {
     CHECK(r.result.type == FortranEvaluator::EvalResult::statement);
     r = e.evaluate("i");
     CHECK(r.ok);
-    CHECK(r.result.type == FortranEvaluator::EvalResult::integer);
-    CHECK(r.result.i == 6);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
+    CHECK(r.result.i32 == 6);
 }
 
 TEST_CASE("FortranEvaluator re-declaration 2") {
@@ -864,8 +876,8 @@ end function
     CHECK(r.result.type == FortranEvaluator::EvalResult::none);
     r = e.evaluate("fn(3)");
     CHECK(r.ok);
-    CHECK(r.result.type == FortranEvaluator::EvalResult::integer);
-    CHECK(r.result.i == 4);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
+    CHECK(r.result.i32 == 4);
 
     r = e.evaluate(R"(
 integer function fn(i)
@@ -877,6 +889,6 @@ end function
     CHECK(r.result.type == FortranEvaluator::EvalResult::none);
     r = e.evaluate("fn(3)");
     CHECK(r.ok);
-    CHECK(r.result.type == FortranEvaluator::EvalResult::integer);
-    CHECK(r.result.i == 2);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
+    CHECK(r.result.i32 == 2);
 }
