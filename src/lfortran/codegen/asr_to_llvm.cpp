@@ -2115,6 +2115,42 @@ public:
             early_return = false;
         }
         llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
+        // Handle Complex type return value for BindC:
+        if (x.m_abi == ASR::abiType::BindC) {
+            ASR::ttype_t* arg_type = asr_retval->m_type;
+            llvm::Value *tmp = ret_val;
+            if (is_a<ASR::Complex_t>(*arg_type)) {
+                int c_kind = extract_kind_from_ttype_t(arg_type);
+                if (c_kind == 4) {
+                    if (platform == Platform::Windows) {
+                        // tmp is {float, float}*
+                        // type_fx2p is i64*
+                        llvm::Type* type_fx2p = llvm::Type::getInt64PtrTy(context);
+                        // Convert {float,float}* to i64* using bitcast
+                        tmp = builder->CreateBitCast(tmp, type_fx2p);
+                        // Then convert i64* -> i64
+                        tmp = builder->CreateLoad(tmp);
+                    } else {
+                        // tmp is {float, float}*
+                        // type_fx2p is <2 x float>*
+                        llvm::Type* type_fx2p = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2)->getPointerTo();
+                        // Convert {float,float}* to <2 x float>* using bitcast
+                        tmp = builder->CreateBitCast(tmp, type_fx2p);
+                        // Then convert <2 x float>* -> <2 x float>
+                        tmp = builder->CreateLoad(tmp);
+                    }
+                } else {
+                    LFORTRAN_ASSERT(c_kind == 8)
+                    if (platform == Platform::Windows) {
+                        // 128 bit aggregate type is passed by reference
+                    } else {
+                        // Pass by value
+                        tmp = builder->CreateLoad(tmp);
+                    }
+                }
+            ret_val2 = tmp;
+            }
+        }
         builder->CreateRet(ret_val2);
     }
 
