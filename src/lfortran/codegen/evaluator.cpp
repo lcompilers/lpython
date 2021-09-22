@@ -90,13 +90,15 @@ std::string LLVMModule::get_return_type(const std::string &fn_name)
     }
     llvm::Type *type = fn->getReturnType();
     if (type->isFloatTy()) {
-        return "real";
+        return "real4";
+    } else if (type->isDoubleTy()) {
+        return "real8";
     } else if (type->isIntegerTy()) {
         return "integer";
     } else if (type->isVoidTy()) {
         return "void";
     } else {
-        throw LFortranException("Return type not supported");
+        throw LFortranException("LLVMModule::get_return_type(): Return type not supported");
     }
 }
 
@@ -237,6 +239,12 @@ bool LLVMEvaluator::boolfn(const std::string &name) {
 float LLVMEvaluator::floatfn(const std::string &name) {
     intptr_t addr = get_symbol_address(name);
     float (*f)() = (float (*)())addr;
+    return f();
+}
+
+double LLVMEvaluator::doublefn(const std::string &name) {
+    intptr_t addr = get_symbol_address(name);
+    double (*f)() = (double (*)())addr;
     return f();
 }
 

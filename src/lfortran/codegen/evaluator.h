@@ -55,6 +55,7 @@ public:
     int64_t intfn(const std::string &name);
     bool boolfn(const std::string &name);
     float floatfn(const std::string &name);
+    double doublefn(const std::string &name);
     void voidfn(const std::string &name);
     std::string get_asm(llvm::Module &m);
     void save_asm_file(llvm::Module &m, const std::string &filename);

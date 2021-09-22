@@ -60,7 +60,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                 } else if (LFortran::ASRUtils::expr_type(value)->type == ASR::ttypeType::Real) {
                     s.from_str(al, fn_name_s + std::to_string(idx));
                     var_name = s.c_str(al);
-                    type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, loc, 4, nullptr, 0));
+                    type = ASRUtils::expr_type(value);
                     return_var = ASR::make_Variable_t(al, loc,
                         fn_scope, var_name, LFortran::ASRUtils::intent_local, nullptr, nullptr,
                         ASR::storage_typeType::Default, type,

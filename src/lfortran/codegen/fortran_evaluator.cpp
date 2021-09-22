@@ -106,17 +106,21 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
             int r = e->intfn(run_fn);
             result.type = EvalResult::integer;
             result.i = r;
-        } else if (return_type == "real") {
+        } else if (return_type == "real4") {
             float r = e->floatfn(run_fn);
-            result.type = EvalResult::real;
-            result.f = r;
+            result.type = EvalResult::real4;
+            result.f32 = r;
+        } else if (return_type == "real8") {
+            double r = e->doublefn(run_fn);
+            result.type = EvalResult::real8;
+            result.f64 = r;
         } else if (return_type == "void") {
             e->voidfn(run_fn);
             result.type = EvalResult::statement;
         } else if (return_type == "none") {
             result.type = EvalResult::none;
         } else {
-            throw LFortran::LFortranException("Return type not supported");
+            throw LFortranException("FortranEvaluator::evaluate(): Return type not supported");
         }
         return result;
     } catch (const TokenizerError &e) {
