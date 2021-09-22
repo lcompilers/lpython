@@ -4,6 +4,7 @@
 #include <math.h>
 #include <complex.h>
 #include <string.h>
+#include <inttypes.h>
 
 struct _lfortran_complex {
     float re, im;
@@ -496,4 +497,12 @@ void _lfortran_string_init(int size_plus_one, char *s) {
         s[i] = ' ';
     }
     s[size] = '\0';
+}
+
+int32_t _lfortran_iand32(int32_t x, int32_t y) {
+    return x & y;
+}
+
+int64_t _lfortran_iand64(int64_t x, int64_t y) {
+    return x & y;
 }

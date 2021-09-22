@@ -77,6 +77,9 @@ if (WITH_RUNTIME_LIBRARY)
       ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.mod
       ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_math2.mod
     )
+    LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_bit impure
+      ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.mod
+    )
 
     add_custom_target(lfortran2
         ALL
@@ -90,6 +93,7 @@ if (WITH_RUNTIME_LIBRARY)
             ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_trig.mod
             ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_sin.mod
             ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_string.mod
+            ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_bit.mod
     )
 
     install(
@@ -102,6 +106,7 @@ if (WITH_RUNTIME_LIBRARY)
               ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_trig.mod
               ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_sin.mod
               ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_string.mod
+              ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_bit.mod
         DESTINATION share/lfortran/lib
     )
 endif()

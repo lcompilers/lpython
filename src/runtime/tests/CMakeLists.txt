@@ -32,6 +32,7 @@ message("Installation prefix: ${CMAKE_INSTALL_PREFIX}")
 set(SRC
     ../impure/lfortran_intrinsics.c
     ../impure/lfortran_intrinsic_math.f90
+    ../impure/lfortran_intrinsic_bit.f90
     ../pure/lfortran_intrinsic_math2.f90
     ../pure/lfortran_intrinsic_string.f90
     ../impure/lfortran_intrinsic_sin.f90
