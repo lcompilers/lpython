@@ -272,9 +272,15 @@ namespace LFortran
                 publish_execution_result(execution_counter, std::move(pub_data), nl::json::object());
                 break;
             }
-            case (LFortran::FortranEvaluator::EvalResult::real) : {
+            case (LFortran::FortranEvaluator::EvalResult::real4) : {
                 nl::json pub_data;
-                pub_data["text/plain"] = std::to_string(r.f);
+                pub_data["text/plain"] = std::to_string(r.f32);
+                publish_execution_result(execution_counter, std::move(pub_data), nl::json::object());
+                break;
+            }
+            case (LFortran::FortranEvaluator::EvalResult::real8) : {
+                nl::json pub_data;
+                pub_data["text/plain"] = std::to_string(r.f64);
                 publish_execution_result(execution_counter, std::move(pub_data), nl::json::object());
                 break;
             }

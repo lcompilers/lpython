@@ -424,8 +424,8 @@ r = 3
 r
 )");
     CHECK(r.ok);
-    CHECK(r.result.type == FortranEvaluator::EvalResult::real);
-    CHECK(r.result.f == 3);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::real4);
+    CHECK(r.result.f32 == 3);
 }
 
 TEST_CASE("FortranEvaluator 3") {
@@ -791,8 +791,8 @@ TEST_CASE("FortranEvaluator 8") {
     CHECK(r.result.type == FortranEvaluator::EvalResult::none);
     r = e.evaluate("a");
     CHECK(r.ok);
-    CHECK(r.result.type == FortranEvaluator::EvalResult::real);
-    CHECK(r.result.f == 3.5);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::real4);
+    CHECK(r.result.f32 == 3.5);
 }
 
 TEST_CASE("FortranEvaluator integer kind 1") {
