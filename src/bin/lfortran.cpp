@@ -280,10 +280,16 @@ int prompt(bool verbose)
         }
 
         switch (r.type) {
-            case (LFortran::FortranEvaluator::EvalResult::integer) : {
+            case (LFortran::FortranEvaluator::EvalResult::integer4) : {
                 if (verbose) std::cout << "Return type: integer" << std::endl;
                 if (verbose) section("Result:");
-                std::cout << r.i << std::endl;
+                std::cout << r.i32 << std::endl;
+                break;
+            }
+            case (LFortran::FortranEvaluator::EvalResult::integer8) : {
+                if (verbose) std::cout << "Return type: integer(8)" << std::endl;
+                if (verbose) section("Result:");
+                std::cout << r.i64 << std::endl;
                 break;
             }
             case (LFortran::FortranEvaluator::EvalResult::real4) : {

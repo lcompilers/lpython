@@ -102,10 +102,14 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
 
         // LLVM -> Machine code -> Execution
         e->add_module(std::move(m));
-        if (return_type == "integer") {
-            int r = e->intfn(run_fn);
-            result.type = EvalResult::integer;
-            result.i = r;
+        if (return_type == "integer4") {
+            int32_t r = e->int32fn(run_fn);
+            result.type = EvalResult::integer4;
+            result.i32 = r;
+        } else if (return_type == "integer8") {
+            int64_t r = e->int64fn(run_fn);
+            result.type = EvalResult::integer8;
+            result.i64 = r;
         } else if (return_type == "real4") {
             float r = e->floatfn(run_fn);
             result.type = EvalResult::real4;
