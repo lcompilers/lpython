@@ -289,13 +289,13 @@ int prompt(bool verbose)
             case (LFortran::FortranEvaluator::EvalResult::real4) : {
                 if (verbose) std::cout << "Return type: real" << std::endl;
                 if (verbose) section("Result:");
-                std::cout << r.f32 << std::endl;
+                std::cout << std::setprecision(8) << r.f32 << std::endl;
                 break;
             }
             case (LFortran::FortranEvaluator::EvalResult::real8) : {
                 if (verbose) std::cout << "Return type: real(8)" << std::endl;
                 if (verbose) section("Result:");
-                std::cout << r.f64 << std::endl;
+                std::cout << std::setprecision(17) << r.f64 << std::endl;
                 break;
             }
             case (LFortran::FortranEvaluator::EvalResult::statement) : {
