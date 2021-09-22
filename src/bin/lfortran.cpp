@@ -304,6 +304,18 @@ int prompt(bool verbose)
                 std::cout << std::setprecision(17) << r.f64 << std::endl;
                 break;
             }
+            case (LFortran::FortranEvaluator::EvalResult::complex4) : {
+                if (verbose) std::cout << "Return type: complex" << std::endl;
+                if (verbose) section("Result:");
+                std::cout << std::setprecision(8) << "(" << r.c32.re << ", " << r.c32.im << ")" << std::endl;
+                break;
+            }
+            case (LFortran::FortranEvaluator::EvalResult::complex8) : {
+                if (verbose) std::cout << "Return type: complex(8)" << std::endl;
+                if (verbose) section("Result:");
+                std::cout << std::setprecision(17) << "(" << r.c64.re << ", " << r.c64.im << ")" << std::endl;
+                break;
+            }
             case (LFortran::FortranEvaluator::EvalResult::statement) : {
                 if (verbose) {
                     std::cout << "Return type: none" << std::endl;

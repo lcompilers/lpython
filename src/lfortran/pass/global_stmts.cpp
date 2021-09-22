@@ -71,6 +71,20 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                     fn_scope->scope[std::string(var_name)] = down_cast<ASR::symbol_t>(return_var);
                     target = return_var_ref;
                     idx++;
+                } else if (LFortran::ASRUtils::expr_type(value)->type == ASR::ttypeType::Complex) {
+                    s.from_str(al, fn_name_s + std::to_string(idx));
+                    var_name = s.c_str(al);
+                    type = ASRUtils::expr_type(value);
+                    return_var = ASR::make_Variable_t(al, loc,
+                        fn_scope, var_name, LFortran::ASRUtils::intent_local, nullptr, nullptr,
+                        ASR::storage_typeType::Default, type,
+                        ASR::abiType::Source,
+                        ASR::Public, ASR::presenceType::Required, false);
+                    return_var_ref = EXPR(ASR::make_Var_t(al, loc,
+                        down_cast<ASR::symbol_t>(return_var)));
+                    fn_scope->scope[std::string(var_name)] = down_cast<ASR::symbol_t>(return_var);
+                    target = return_var_ref;
+                    idx++;
                 } else {
                     throw SemanticError("Return type not supported in interactive mode",
                             loc);

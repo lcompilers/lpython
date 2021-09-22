@@ -118,6 +118,16 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
             double r = e->doublefn(run_fn);
             result.type = EvalResult::real8;
             result.f64 = r;
+        } else if (return_type == "complex4") {
+            std::complex<float> r = e->complex4fn(run_fn);
+            result.type = EvalResult::complex4;
+            result.c32.re = r.real();
+            result.c32.im = r.imag();
+        } else if (return_type == "complex8") {
+            std::complex<double> r = e->complex8fn(run_fn);
+            result.type = EvalResult::complex8;
+            result.c64.re = r.real();
+            result.c64.im = r.imag();
         } else if (return_type == "void") {
             e->voidfn(run_fn);
             result.type = EvalResult::statement;
