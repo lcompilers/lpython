@@ -1,6 +1,7 @@
 #ifndef LFORTRAN_EVALUATOR_H
 #define LFORTRAN_EVALUATOR_H
 
+#include <complex>
 #include <iostream>
 #include <memory>
 
@@ -57,6 +58,8 @@ public:
     bool boolfn(const std::string &name);
     float floatfn(const std::string &name);
     double doublefn(const std::string &name);
+    std::complex<float> complex4fn(const std::string &name);
+    std::complex<double> complex8fn(const std::string &name);
     void voidfn(const std::string &name);
     std::string get_asm(llvm::Module &m);
     void save_asm_file(llvm::Module &m, const std::string &filename);

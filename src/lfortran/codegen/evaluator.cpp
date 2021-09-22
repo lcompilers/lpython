@@ -53,6 +53,7 @@
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/parser/parser.h>
 #include <lfortran/pickle.h>
+#include <lfortran/string_utils.h>
 
 
 namespace LFortran {
@@ -97,6 +98,22 @@ std::string LLVMModule::get_return_type(const std::string &fn_name)
         return "integer4";
     } else if (type->isIntegerTy(64)) {
         return "integer8";
+    } else if (type->isStructTy()) {
+        llvm::StructType *st = llvm::cast<llvm::StructType>(type);
+        if (st->hasName()) {
+            if (startswith(std::string(st->getName()), "complex_4")) {
+                return "complex4";
+            } else if (startswith(std::string(st->getName()), "complex_8")) {
+                return "complex8";
+            } else {
+                throw LFortranException("LLVMModule::get_return_type(): Struct return type `" + std::string(st->getName()) + "` not supported");
+            }
+        } else {
+            throw LFortranException("LLVMModule::get_return_type(): Noname struct return type not supported");
+        }
+    } else if (type->isVectorTy()) {
+        // Used for passing complex_4 on some platforms
+        return "complex4";
     } else if (type->isVoidTy()) {
         return "void";
     } else {
@@ -253,6 +270,18 @@ float LLVMEvaluator::floatfn(const std::string &name) {
 double LLVMEvaluator::doublefn(const std::string &name) {
     intptr_t addr = get_symbol_address(name);
     double (*f)() = (double (*)())addr;
+    return f();
+}
+
+std::complex<float> LLVMEvaluator::complex4fn(const std::string &name) {
+    intptr_t addr = get_symbol_address(name);
+    std::complex<float> (*f)() = (std::complex<float> (*)())addr;
+    return f();
+}
+
+std::complex<double> LLVMEvaluator::complex8fn(const std::string &name) {
+    intptr_t addr = get_symbol_address(name);
+    std::complex<double> (*f)() = (std::complex<double> (*)())addr;
     return f();
 }
 
