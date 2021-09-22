@@ -3,7 +3,7 @@ real :: dummy
 dummy = 10
 call x(dummy)
 call y(dummy)
-end program entry1 
+end program entry1
 
 
 subroutine x(dummy)

@@ -53,4 +53,3 @@ define i32 @main() {
 }
 
 attributes #0 = { nounwind readnone speculatable willreturn }
-

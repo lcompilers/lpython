@@ -1,9 +1,9 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-%array = type { [3 x i32], i32, [1 x %dimension_descriptor] }
+%array = type { [3 x i32], i32, [1 x %dimension_descriptor], i1 }
 %dimension_descriptor = type { i32, i32, i32, i32 }
-%array.0 = type { [4 x i32], i32, [1 x %dimension_descriptor] }
+%array.0 = type { [4 x i32], i32, [1 x %dimension_descriptor], i1 }
 
 @0 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
 @1 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
@@ -576,4 +576,3 @@ ifcont49:                                         ; preds = %else48, %then47
 declare void @_lfortran_printf(i8*, ...)
 
 declare void @exit(i32)
-

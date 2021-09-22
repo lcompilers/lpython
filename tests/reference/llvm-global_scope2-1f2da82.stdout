@@ -3,9 +3,8 @@ source_filename = "LFortran"
 
 @x = global i32 0
 
-define void @f() {
+define void @__lfortran_evaluate_1() {
 .entry:
   store i32 6, i32* @x, align 4
   ret void
 }
-

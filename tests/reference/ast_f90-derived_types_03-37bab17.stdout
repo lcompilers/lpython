@@ -1,4 +1,4 @@
-program derived_types_03 
+program derived_types_03
 ! AST only
 do nn = 1, ndiag
     ing = diag(nn)%len
@@ -7,7 +7,7 @@ do nn = 1, ndiag
         return
     end if
     ndpwds = ndpwds + SIZE(diag(nn)%cell_id)
-end do 
+end do
 
 do k = 1, nz
     do j = 1, ny

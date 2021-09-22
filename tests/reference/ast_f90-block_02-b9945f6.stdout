@@ -10,7 +10,7 @@ A = 10
     B = A/2
     call Square(B)
 end block loop
-end program Block_02 
+end program Block_02
 
 
 subroutine Square(B)

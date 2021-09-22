@@ -108,4 +108,3 @@ define i32 @main() {
 declare void @_lfortran_printf(i8*, ...)
 
 declare void @_lfortran_complex_mul(%complex_4*, %complex_4*, %complex_4*, ...)
-

@@ -24,4 +24,3 @@ define i32 @main() {
   call void @__module_module_11_access_internally()
   ret i32 0
 }
-

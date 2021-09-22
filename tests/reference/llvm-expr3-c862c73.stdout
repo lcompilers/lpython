@@ -1,25 +1,24 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-define i32 @f() {
+define i32 @__lfortran_evaluate_1() {
 .entry:
-  %f1 = alloca i32, align 4
-  %f2 = alloca i32, align 4
-  %f3 = alloca i32, align 4
-  %f4 = alloca i32, align 4
-  %f5 = alloca i32, align 4
-  %f6 = alloca i32, align 4
-  %f7 = alloca i32, align 4
-  %f8 = alloca i32, align 4
-  store i32 5, i32* %f1, align 4
-  store i32 8, i32* %f2, align 4
-  store i32 16, i32* %f3, align 4
-  store i32 11, i32* %f4, align 4
-  store i32 2, i32* %f5, align 4
-  store i32 64, i32* %f6, align 4
-  store i32 8, i32* %f7, align 4
-  store i32 8, i32* %f8, align 4
-  %0 = load i32, i32* %f8, align 4
+  %__lfortran_evaluate_11 = alloca i32, align 4
+  %__lfortran_evaluate_12 = alloca i32, align 4
+  %__lfortran_evaluate_13 = alloca i32, align 4
+  %__lfortran_evaluate_14 = alloca i32, align 4
+  %__lfortran_evaluate_15 = alloca i32, align 4
+  %__lfortran_evaluate_16 = alloca i32, align 4
+  %__lfortran_evaluate_17 = alloca i32, align 4
+  %__lfortran_evaluate_18 = alloca i32, align 4
+  store i32 5, i32* %__lfortran_evaluate_11, align 4
+  store i32 8, i32* %__lfortran_evaluate_12, align 4
+  store i32 16, i32* %__lfortran_evaluate_13, align 4
+  store i32 11, i32* %__lfortran_evaluate_14, align 4
+  store i32 2, i32* %__lfortran_evaluate_15, align 4
+  store i32 64, i32* %__lfortran_evaluate_16, align 4
+  store i32 8, i32* %__lfortran_evaluate_17, align 4
+  store i32 8, i32* %__lfortran_evaluate_18, align 4
+  %0 = load i32, i32* %__lfortran_evaluate_18, align 4
   ret i32 %0
 }
-

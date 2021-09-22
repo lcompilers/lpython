@@ -19,4 +19,3 @@ define i32 @main() {
   call void @print_int()
   ret i32 0
 }
-

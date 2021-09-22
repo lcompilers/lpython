@@ -280,16 +280,40 @@ int prompt(bool verbose)
         }
 
         switch (r.type) {
-            case (LFortran::FortranEvaluator::EvalResult::integer) : {
+            case (LFortran::FortranEvaluator::EvalResult::integer4) : {
                 if (verbose) std::cout << "Return type: integer" << std::endl;
                 if (verbose) section("Result:");
-                std::cout << r.i << std::endl;
+                std::cout << r.i32 << std::endl;
                 break;
             }
-            case (LFortran::FortranEvaluator::EvalResult::real) : {
+            case (LFortran::FortranEvaluator::EvalResult::integer8) : {
+                if (verbose) std::cout << "Return type: integer(8)" << std::endl;
+                if (verbose) section("Result:");
+                std::cout << r.i64 << std::endl;
+                break;
+            }
+            case (LFortran::FortranEvaluator::EvalResult::real4) : {
                 if (verbose) std::cout << "Return type: real" << std::endl;
                 if (verbose) section("Result:");
-                std::cout << r.f << std::endl;
+                std::cout << std::setprecision(8) << r.f32 << std::endl;
+                break;
+            }
+            case (LFortran::FortranEvaluator::EvalResult::real8) : {
+                if (verbose) std::cout << "Return type: real(8)" << std::endl;
+                if (verbose) section("Result:");
+                std::cout << std::setprecision(17) << r.f64 << std::endl;
+                break;
+            }
+            case (LFortran::FortranEvaluator::EvalResult::complex4) : {
+                if (verbose) std::cout << "Return type: complex" << std::endl;
+                if (verbose) section("Result:");
+                std::cout << std::setprecision(8) << "(" << r.c32.re << ", " << r.c32.im << ")" << std::endl;
+                break;
+            }
+            case (LFortran::FortranEvaluator::EvalResult::complex8) : {
+                if (verbose) std::cout << "Return type: complex(8)" << std::endl;
+                if (verbose) section("Result:");
+                std::cout << std::setprecision(17) << "(" << r.c64.re << ", " << r.c64.im << ")" << std::endl;
                 break;
             }
             case (LFortran::FortranEvaluator::EvalResult::statement) : {
@@ -586,73 +610,42 @@ int save_mod_files(const LFortran::ASR::TranslationUnit_t &u)
 
 #ifdef HAVE_LFORTRAN_LLVM
 
-int emit_llvm(const std::string &infile, LFortran::Platform platform)
+int emit_llvm(const std::string &infile, LFortran::Platform platform,
+        bool show_stacktrace, bool colors)
 {
     std::string input = read_file(infile);
 
-    // Src -> AST
-    Allocator al(64*1024*1024);
-    LFortran::AST::TranslationUnit_t* ast;
-    try {
-        ast = LFortran::parse2(al, input);
-    } catch (const LFortran::TokenizerError &e) {
-        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
+    LFortran::FortranEvaluator fe(platform);
+    LFortran::FortranEvaluator::Result<std::string> llvm = fe.get_llvm(input);
+    if (llvm.ok) {
+        std::cout << llvm.result;
+        return 0;
+    } else {
+        if (show_stacktrace) {
+            std::cerr << fe.error_stacktrace(llvm.error);
+        }
+        std::cerr << fe.format_error(llvm.error, input, colors);
         return 1;
-    } catch (const LFortran::ParserError &e) {
-        std::cerr << "Parsing error: " << e.msg() << std::endl;
-        return 2;
     }
-
-    // AST -> ASR
-    LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast);
-
-    // ASR -> LLVM
-    LFortran::LLVMEvaluator e;
-    std::unique_ptr<LFortran::LLVMModule> m;
-    try {
-        m = LFortran::asr_to_llvm(*asr, e.get_context(), al, platform);
-    } catch (const LFortran::CodeGenError &e) {
-        std::cerr << "Code generation error: " << e.msg() << std::endl;
-        return 5;
-    }
-
-    std::cout << m->str() << std::endl;
-    return 0;
 }
 
-int emit_asm(const std::string &infile, LFortran::Platform platform)
+int emit_asm(const std::string &infile, LFortran::Platform platform,
+        bool show_stacktrace, bool colors)
 {
     std::string input = read_file(infile);
 
-    // Src -> AST
-    Allocator al(64*1024*1024);
-    LFortran::AST::TranslationUnit_t* ast;
-    try {
-        ast = LFortran::parse2(al, input);
-    } catch (const LFortran::TokenizerError &e) {
-        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
+    LFortran::FortranEvaluator fe(platform);
+    LFortran::FortranEvaluator::Result<std::string> r = fe.get_asm(input);
+    if (r.ok) {
+        std::cout << r.result;
+        return 0;
+    } else {
+        if (show_stacktrace) {
+            std::cerr << fe.error_stacktrace(r.error);
+        }
+        std::cerr << fe.format_error(r.error, input, colors);
         return 1;
-    } catch (const LFortran::ParserError &e) {
-        std::cerr << "Parsing error: " << e.msg() << std::endl;
-        return 2;
     }
-
-    // AST -> ASR
-    LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast);
-
-    // ASR -> LLVM
-    LFortran::LLVMEvaluator e;
-    std::unique_ptr<LFortran::LLVMModule> m;
-    try {
-        m = LFortran::asr_to_llvm(*asr, e.get_context(), al, platform);
-    } catch (const LFortran::CodeGenError &e) {
-        std::cerr << "Code generation error: " << e.msg() << std::endl;
-        return 5;
-    }
-
-    std::cout << e.get_asm(*(m->m_m)) << std::endl;
-
-    return 0;
 }
 
 int compile_to_object_file(const std::string &infile,
@@ -705,7 +698,10 @@ int compile_to_object_file(const std::string &infile,
         m = LFortran::asr_to_llvm(*asr, e.get_context(), al, platform);
     } catch (const LFortran::CodeGenError &e) {
         if (show_stacktrace) {
-            std::cerr << e.stacktrace();
+            std::vector<LFortran::StacktraceItem> d = e.stacktrace_addresses();
+            get_local_addresses(d);
+            get_local_info(d);
+            std::cerr << stacktrace2str(d, LFortran::stacktrace_depth);
         }
         std::cerr << "Code generation error: " << e.msg() << std::endl;
         return 5;
@@ -844,7 +840,10 @@ int compile_to_object_file_cpp(const std::string &infile,
                 out.open(outfile_empty);
                 out << " ";
             }
-            std::string cmd = "gcc -c " + outfile_empty + " -o " + outfile;
+            char *env_CC = std::getenv("LFORTRAN_CC");
+            std::string CC="gcc";
+            if (env_CC) CC = env_CC;
+            std::string cmd = CC + " -c " + outfile_empty + " -o " + outfile;
             int err = system(cmd.c_str());
             if (err) {
                 std::cout << "The command '" + cmd + "' failed." << std::endl;
@@ -981,6 +980,8 @@ int link_executable(const std::vector<std::string> &infiles,
             } else {
                 CC = "gcc";
             }
+            char *env_CC = std::getenv("LFORTRAN_CC");
+            if (env_CC) CC = env_CC;
             std::string base_path = "\"" + runtime_library_dir + "\"";
             std::string options;
             std::string runtime_lib = "lfortran_runtime";
@@ -1351,7 +1352,7 @@ int main(int argc, char *argv[])
         }
         if (show_llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-            return emit_llvm(arg_file, platform);
+            return emit_llvm(arg_file, platform, show_stacktrace, !arg_no_color);
 #else
             std::cerr << "The --show-llvm option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
             return 1;
@@ -1359,7 +1360,7 @@ int main(int argc, char *argv[])
         }
         if (show_asm) {
 #ifdef HAVE_LFORTRAN_LLVM
-            return emit_asm(arg_file, platform);
+            return emit_asm(arg_file, platform, show_stacktrace, !arg_no_color);
 #else
             std::cerr << "The --show-asm option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
             return 1;
@@ -1432,7 +1433,10 @@ int main(int argc, char *argv[])
                     backend, static_link, true, openmp, platform, arg_target);
         }
     } catch(const LFortran::LFortranException &e) {
-        std::cerr << e.stacktrace();
+        std::vector<LFortran::StacktraceItem> d = e.stacktrace_addresses();
+        get_local_addresses(d);
+        get_local_info(d);
+        std::cerr << stacktrace2str(d, LFortran::stacktrace_depth);
         std::cerr << e.name() + ": " << e.msg() << std::endl;
         return 1;
     } catch(const std::runtime_error &e) {

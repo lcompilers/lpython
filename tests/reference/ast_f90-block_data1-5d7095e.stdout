@@ -2,7 +2,7 @@ block data init
     implicit integer (a-z)
     common /range/ x0, x1
     data x0, x1/1, 10/
-end block data init 
+end block data init
 
 
 program block_data1

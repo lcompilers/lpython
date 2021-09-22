@@ -135,6 +135,9 @@ public:
         Repeat,      // do, while, forall
         Keyword,     // any other keyword: print
 
+        // Operators
+        Operator,
+
         // Reset
         Reset,       // resets any previously set formatting
     };
@@ -187,6 +190,12 @@ public:
                     break;
                 }
 
+                case (gr::Operator) : {
+                    syn_color = color(fg::blue) + color(style::bold);
+                    syn_reset = color(fg::reset) + color(style::reset);
+                    break;
+                }
+
                 case (gr::Reset) : {
                     syn_color = syn_reset;
                     syn_reset = "";
@@ -212,7 +221,7 @@ public:
     }
 
     std::string print_trivia_inside(const trivia_t &x) {
-        std::string r = " ";
+        std::string r;
         auto y = (TriviaNode_t &)x;
         if(y.n_inside > 0) {
             for (size_t i=0; i<y.n_inside; i++) {
@@ -225,6 +234,7 @@ public:
                         break;
                     }
                     case trivia_nodeType::EOLComment: {
+                        r += " ";
                         r += std::string(
                             down_cast<EOLComment_t>(y.m_inside[i])->m_comment
                         );
@@ -248,7 +258,7 @@ public:
     }
 
     std::string print_trivia_after(const trivia_t &x) {
-        std::string r = " ";
+        std::string r;
         auto y = (TriviaNode_t &)x;
         if(y.n_after > 0) {
             for (size_t i=0; i<y.n_after; i++) {
@@ -261,6 +271,7 @@ public:
                         break;
                     }
                     case trivia_nodeType::EOLComment: {
+                        r += " ";
                         r += std::string(
                             down_cast<EOLComment_t>(y.m_after[i])->m_comment
                         );
@@ -662,7 +673,9 @@ public:
             r.append(s);
         }
         r += " :: operator(";
+        r += syn(gr::Operator);
         r += "." + std::string(x.m_optype) + ".";
+        r += syn();
         r += ")";
         r += " => ";
         for (size_t i=0; i<x.n_names; i++) {
@@ -894,7 +907,11 @@ public:
 
     void visit_InterfaceHeaderDefinedOperator
             (const InterfaceHeaderDefinedOperator_t &x) {
-        s = " operator (." + std::string(x.m_operator_name) + ".)";
+        s = " operator (";
+        s += syn(gr::Operator);
+        s += "." + std::string(x.m_operator_name) + ".";
+        s += syn();
+        s += ")";
     }
 
     void visit_AbstractInterfaceHeader
@@ -1660,7 +1677,11 @@ public:
     }
 
     void visit_AttrDefinedOperator(const AttrDefinedOperator_t &x) {
-        s = "operator (." + std::string(x.m_op_name) + ".)";
+        s = "operator (";
+        s += syn(gr::Operator);
+        s += "." + std::string(x.m_op_name) + ".";
+        s += syn();
+        s += ")";
     }
 
     void visit_AttrStat(const AttrStat_t &x) {
@@ -3418,7 +3439,9 @@ public:
         } else {
             s += "(" + left + ")";
         }
+        s += syn(gr::Operator);
         s += "." + std::string(x.m_op) + ".";
+        s += syn();
         if (right_precedence >= last_expr_precedence) {
             s += right;
         } else {
@@ -3996,13 +4019,25 @@ public:
     }
 
     void visit_RenameOperator(const RenameOperator_t &x) {
-        s = "operator(." + std::string(x.m_local_defop) + ".)";
+        s = "operator(";
+        s += syn(gr::Operator);
+        s += "." + std::string(x.m_local_defop) + ".";
+        s += syn();
+        s += ")";
         s += " => ";
-        s += "operator(." + std::string(x.m_use_defop) + ".)";
+        s += "operator(";
+        s += syn(gr::Operator);
+        s += "." + std::string(x.m_use_defop) + ".";
+        s += syn();
+        s += ")";
     }
 
     void visit_DefinedOperator(const DefinedOperator_t &x) {
-        s = "operator (." + std::string(x.m_opName) + ".)";
+        s = "operator (";
+        s += syn(gr::Operator);
+        s += "." + std::string(x.m_opName) + ".";
+        s += syn();
+        s += ")";
     }
 
     void visit_UseWrite(const UseWrite_t &x) {

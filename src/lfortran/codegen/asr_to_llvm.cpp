@@ -788,14 +788,6 @@ public:
 
         // TODO: handle depencencies across modules and main program
 
-        // Then do all the procedures
-        for (auto &item : x.m_global_scope->scope) {
-            if (is_a<ASR::Function_t>(*item.second)
-                || is_a<ASR::Subroutine_t>(*item.second)) {
-                visit_symbol(*item.second);
-            }
-        }
-
         // Then do all the modules in the right order
         std::vector<std::string> build_order
             = determine_module_dependencies(x);
@@ -804,6 +796,14 @@ public:
                 != x.m_global_scope->scope.end());
             ASR::symbol_t *mod = x.m_global_scope->scope[item];
             visit_symbol(*mod);
+        }
+
+        // Then do all the procedures
+        for (auto &item : x.m_global_scope->scope) {
+            if (is_a<ASR::Function_t>(*item.second)
+                || is_a<ASR::Subroutine_t>(*item.second)) {
+                visit_symbol(*item.second);
+            }
         }
 
         // Then the main program
@@ -1654,6 +1654,8 @@ public:
                     x.m_args[i])->m_v));
                 llvm::Type* type = get_subroutine_type(*fn)->getPointerTo();
                 args.push_back(type);
+            } else {
+                throw CodeGenError("Argument type not implemented");
             }
         }
         return args;
@@ -2113,6 +2115,42 @@ public:
             early_return = false;
         }
         llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
+        // Handle Complex type return value for BindC:
+        if (x.m_abi == ASR::abiType::BindC) {
+            ASR::ttype_t* arg_type = asr_retval->m_type;
+            llvm::Value *tmp = ret_val;
+            if (is_a<ASR::Complex_t>(*arg_type)) {
+                int c_kind = extract_kind_from_ttype_t(arg_type);
+                if (c_kind == 4) {
+                    if (platform == Platform::Windows) {
+                        // tmp is {float, float}*
+                        // type_fx2p is i64*
+                        llvm::Type* type_fx2p = llvm::Type::getInt64PtrTy(context);
+                        // Convert {float,float}* to i64* using bitcast
+                        tmp = builder->CreateBitCast(tmp, type_fx2p);
+                        // Then convert i64* -> i64
+                        tmp = builder->CreateLoad(tmp);
+                    } else {
+                        // tmp is {float, float}*
+                        // type_fx2p is <2 x float>*
+                        llvm::Type* type_fx2p = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2)->getPointerTo();
+                        // Convert {float,float}* to <2 x float>* using bitcast
+                        tmp = builder->CreateBitCast(tmp, type_fx2p);
+                        // Then convert <2 x float>* -> <2 x float>
+                        tmp = builder->CreateLoad(tmp);
+                    }
+                } else {
+                    LFORTRAN_ASSERT(c_kind == 8)
+                    if (platform == Platform::Windows) {
+                        // 128 bit aggregate type is passed by reference
+                    } else {
+                        // Pass by value
+                        tmp = builder->CreateLoad(tmp);
+                    }
+                }
+            ret_val2 = tmp;
+            }
+        }
         builder->CreateRet(ret_val2);
     }
 
@@ -3535,7 +3573,6 @@ public:
                             break;
                         }
                         case (ASR::ttypeType::Character) : {
-                            const ASR::symbol_t* func_subrout = symbol_get_past_external(x.m_name);
                             ASR::Variable_t *orig_arg = nullptr;
                             if( func_subrout->type == ASR::symbolType::Function ) {
                                 ASR::Function_t* func = down_cast<ASR::Function_t>(func_subrout);
@@ -3568,10 +3605,27 @@ public:
                         }
                         default: {
                             if (!character_bindc) {
-                                llvm::AllocaInst *target = builder->CreateAlloca(
-                                    target_type, nullptr);
-                                builder->CreateStore(value, target);
-                                tmp = target;
+                                bool use_value = false;
+                                ASR::Variable_t *orig_arg = nullptr;
+                                if( func_subrout->type == ASR::symbolType::Function ) {
+                                    ASR::Function_t* func = down_cast<ASR::Function_t>(func_subrout);
+                                    orig_arg = EXPR2VAR(func->m_args[i]);
+                                } else if( func_subrout->type == ASR::symbolType::Subroutine ) {
+                                    ASR::Subroutine_t* sub = down_cast<ASR::Subroutine_t>(func_subrout);
+                                    orig_arg = EXPR2VAR(sub->m_args[i]);
+                                } else {
+                                    LFORTRAN_ASSERT(false)
+                                }
+                                if (orig_arg->m_abi == ASR::abiType::BindC
+                                    && orig_arg->m_value_attr) {
+                                    use_value = true;
+                                }
+                                if (!use_value) {
+                                    llvm::AllocaInst *target = builder->CreateAlloca(
+                                        target_type, nullptr);
+                                    builder->CreateStore(value, target);
+                                    tmp = target;
+                                }
                             }
                         }
                     }

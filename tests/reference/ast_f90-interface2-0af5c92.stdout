@@ -1,5 +1,5 @@
 module interface2
-implicit none 
+implicit none
 
 abstract interface
     subroutine read_params(this, params)
@@ -7,12 +7,12 @@ abstract interface
     class(porous_drag_model), intent(inout) :: this
     type(parameter_list), pointer, intent(in) :: params
     end subroutine read_params
-end interface 
+end interface
 
 interface assignment (=)
     module procedure SomeProc
     procedure SomeProc2
     procedure SomeProc3
-end interface assignment (=) 
+end interface assignment (=)
 
 end module interface2

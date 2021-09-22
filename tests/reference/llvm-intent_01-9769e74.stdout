@@ -38,4 +38,3 @@ define i32 @main() {
   call void @__module_dflt_intent_foo(float* %0, float* %1)
   ret i32 0
 }
-

@@ -1,22 +1,22 @@
 module a_04
-implicit none 
+implicit none
 
 
 contains
 
 subroutine b()
 print *, "b()"
-end subroutine b 
+end subroutine b
 
 
-end module a_04 
+end module a_04
 
 
 program modules_04
 use, intrinsic :: iso_fortran_env
-implicit none 
+implicit none
 
-call f() 
+call f()
 
 
 contains
@@ -24,14 +24,14 @@ contains
 subroutine f()
 use a_04, only: b
 call b()
-end subroutine f 
+end subroutine f
 
 
 integer function g()
 use a_04, only: b
 call b()
 g = 5
-end function g 
+end function g
 
 
 end program modules_04

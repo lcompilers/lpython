@@ -3,13 +3,12 @@ source_filename = "LFortran"
 
 @x = global i32 0
 
-define i32 @f() {
+define i32 @__lfortran_evaluate_1() {
 .entry:
-  %f1 = alloca i32, align 4
+  %__lfortran_evaluate_11 = alloca i32, align 4
   store i32 6, i32* @x, align 4
   %0 = load i32, i32* @x, align 4
-  store i32 %0, i32* %f1, align 4
-  %1 = load i32, i32* %f1, align 4
+  store i32 %0, i32* %__lfortran_evaluate_11, align 4
+  %1 = load i32, i32* %__lfortran_evaluate_11, align 4
   ret i32 %1
 }
-
