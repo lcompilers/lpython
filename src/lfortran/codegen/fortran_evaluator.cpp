@@ -116,7 +116,7 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
         } else if (return_type == "none") {
             result.type = EvalResult::none;
         } else {
-            throw LFortran::LFortranException("Return type not supported");
+            throw LFortranException("FortranEvaluator::evaluate(): Return type not supported");
         }
         return result;
     } catch (const TokenizerError &e) {

@@ -96,7 +96,7 @@ std::string LLVMModule::get_return_type(const std::string &fn_name)
     } else if (type->isVoidTy()) {
         return "void";
     } else {
-        throw LFortranException("Return type not supported");
+        throw LFortranException("LLVMModule::get_return_type(): Return type not supported");
     }
 }
 
