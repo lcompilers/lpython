@@ -2847,4 +2847,3 @@ loop.end96:                                       ; preds = %loop.head88
   call void @check(%array.0* %1709, i32* %1719)
   ret i32 0
 }
-

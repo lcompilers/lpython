@@ -1705,4 +1705,3 @@ ifcont49:                                         ; preds = %else48, %then47
 declare i8* @_lfortran_malloc(i32, ...)
 
 declare void @_lfortran_free(i8*, ...)
-

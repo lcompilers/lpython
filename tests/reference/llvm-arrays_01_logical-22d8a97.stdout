@@ -900,4 +900,3 @@ ifcont75:                                         ; preds = %else74, %then73
 declare void @_lfortran_printf(i8*, ...)
 
 declare void @exit(i32)
-

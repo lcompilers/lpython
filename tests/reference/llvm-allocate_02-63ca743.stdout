@@ -1870,4 +1870,3 @@ ifcont13:                                         ; preds = %else12, %then11
 }
 
 declare void @_lfortran_printf(i8*, ...)
-

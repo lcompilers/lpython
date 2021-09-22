@@ -878,4 +878,3 @@ declare void @_lfortran_printf(i8*, ...)
 declare float @llvm.pow.f32(float, float) #0
 
 attributes #0 = { nounwind readnone speculatable willreturn }
-

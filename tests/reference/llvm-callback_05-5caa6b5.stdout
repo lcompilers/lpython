@@ -39,4 +39,3 @@ define i32 @main() {
   call void @__module_callback_05_px_call1(i32* %x)
   ret i32 0
 }
-

@@ -815,4 +815,3 @@ ifcont71:                                         ; preds = %else70, %then69
 declare void @_lfortran_printf(i8*, ...)
 
 declare void @exit(i32)
-
