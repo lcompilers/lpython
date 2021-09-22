@@ -316,6 +316,7 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::CodeGen;
         error.msg = e.msg();
+        error.stacktrace_addresses = e.stacktrace_addresses();
         return error;
     }
 

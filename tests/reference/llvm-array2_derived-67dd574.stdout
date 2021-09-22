@@ -491,4 +491,3 @@ define i32 @main() {
   store i32 %310, i32* %306, align 4
   ret i32 0
 }
-

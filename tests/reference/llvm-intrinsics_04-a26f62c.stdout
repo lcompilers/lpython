@@ -133,4 +133,3 @@ ifcont3:                                          ; preds = %else2, %then1
 declare void @_lfortran_printf(i8*, ...)
 
 declare void @exit(i32)
-

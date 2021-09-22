@@ -1252,4 +1252,3 @@ declare void @exit(i32)
 declare void @_lfortran_complex_sub(%complex_4*, %complex_4*, %complex_4*, ...)
 
 declare void @_lfortran_complex_add(%complex_4*, %complex_4*, %complex_4*, ...)
-

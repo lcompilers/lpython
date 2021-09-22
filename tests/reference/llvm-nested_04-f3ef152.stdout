@@ -58,4 +58,3 @@ define i32 @main() {
   store i32 %1, i32* %test, align 4
   ret i32 0
 }
-

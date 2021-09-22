@@ -15,4 +15,3 @@ define i32 @main() {
   store %complex_4 %3, %complex_4* %x, align 4
   ret i32 0
 }
-

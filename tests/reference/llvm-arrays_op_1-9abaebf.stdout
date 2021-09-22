@@ -1944,4 +1944,3 @@ loop.end42:                                       ; preds = %loop.head40
 }
 
 declare void @_lfortran_printf(i8*, ...)
-

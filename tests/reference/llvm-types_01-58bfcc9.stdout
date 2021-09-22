@@ -9,4 +9,3 @@ define i32 @main() {
   store float 1.000000e+00, float* %r, align 4
   ret i32 0
 }
-

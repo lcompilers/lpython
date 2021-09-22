@@ -221,4 +221,3 @@ ifcont:                                           ; preds = %else, %then
 }
 
 declare void @exit(i32)
-

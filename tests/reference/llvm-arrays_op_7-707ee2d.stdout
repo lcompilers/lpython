@@ -263,4 +263,3 @@ loop.end3:                                        ; preds = %loop.head1
 }
 
 declare void @_lfortran_printf(i8*, ...)
-

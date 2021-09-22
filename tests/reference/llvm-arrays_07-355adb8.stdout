@@ -4158,4 +4158,3 @@ loop.end189:                                      ; preds = %loop.head184
 }
 
 declare void @_lfortran_printf(i8*, ...)
-
