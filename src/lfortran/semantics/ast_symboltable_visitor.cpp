@@ -112,11 +112,6 @@ public:
         {AST::intrinsicopType::PLUS, "~add"},
     };
 
-    std::map<AST::intrinsicopType, ASR::binopType> intrinsic2binop = {
-        {AST::intrinsicopType::STAR, ASR::binopType::Mul},
-        {AST::intrinsicopType::PLUS, ASR::binopType::Add}
-    };
-
     std::map<AST::operatorType, std::string> binop2str = {
         {AST::operatorType::Mul, "~mul"},
         {AST::operatorType::Add, "~add"},
