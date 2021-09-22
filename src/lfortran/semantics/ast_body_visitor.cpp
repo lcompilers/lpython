@@ -714,6 +714,7 @@ public:
                     const ASR::symbol_t* orig_sym = LFortran::ASRUtils::symbol_get_past_external(orig_arg_var->m_v);
                     ASR::Variable_t* orig_var = ASR::down_cast<ASR::Variable_t>(orig_sym);
                     if( var->m_storage == ASR::storage_typeType::Allocatable &&
+                        orig_var->m_storage == ASR::storage_typeType::Allocatable &&
                         orig_var->m_intent == ASR::intentType::Out ) {
                         del_syms.push_back(al, arg_var->m_v);
                     }
