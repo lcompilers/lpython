@@ -605,39 +605,23 @@ int emit_llvm(const std::string &infile, LFortran::Platform platform,
     }
 }
 
-int emit_asm(const std::string &infile, LFortran::Platform platform)
+int emit_asm(const std::string &infile, LFortran::Platform platform,
+        bool show_stacktrace, bool colors)
 {
     std::string input = read_file(infile);
 
-    // Src -> AST
-    Allocator al(64*1024*1024);
-    LFortran::AST::TranslationUnit_t* ast;
-    try {
-        ast = LFortran::parse2(al, input);
-    } catch (const LFortran::TokenizerError &e) {
-        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
+    LFortran::FortranEvaluator fe(platform);
+    LFortran::FortranEvaluator::Result<std::string> r = fe.get_asm(input);
+    if (r.ok) {
+        std::cout << r.result;
+        return 0;
+    } else {
+        if (show_stacktrace) {
+            std::cerr << fe.error_stacktrace(r.error);
+        }
+        std::cerr << fe.format_error(r.error, input, colors);
         return 1;
-    } catch (const LFortran::ParserError &e) {
-        std::cerr << "Parsing error: " << e.msg() << std::endl;
-        return 2;
     }
-
-    // AST -> ASR
-    LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast);
-
-    // ASR -> LLVM
-    LFortran::LLVMEvaluator e;
-    std::unique_ptr<LFortran::LLVMModule> m;
-    try {
-        m = LFortran::asr_to_llvm(*asr, e.get_context(), al, platform);
-    } catch (const LFortran::CodeGenError &e) {
-        std::cerr << "Code generation error: " << e.msg() << std::endl;
-        return 5;
-    }
-
-    std::cout << e.get_asm(*(m->m_m)) << std::endl;
-
-    return 0;
 }
 
 int compile_to_object_file(const std::string &infile,
@@ -1352,7 +1336,7 @@ int main(int argc, char *argv[])
         }
         if (show_asm) {
 #ifdef HAVE_LFORTRAN_LLVM
-            return emit_asm(arg_file, platform);
+            return emit_asm(arg_file, platform, show_stacktrace, !arg_no_color);
 #else
             std::cerr << "The --show-asm option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
             return 1;
