@@ -809,7 +809,7 @@ TEST_CASE("FortranEvaluator 8 double") {
 
 TEST_CASE("FortranEvaluator 9 single complex") {
     LFortran::Platform platform = LFortran::get_platform();
-    if (platform != LFortran::Platform::Windows) {
+    if (platform == LFortran::Platform::Linux) {
         FortranEvaluator e(platform);
         FortranEvaluator::Result<FortranEvaluator::EvalResult>
         r = e.evaluate("(2.5_4, 3.5_4)");
