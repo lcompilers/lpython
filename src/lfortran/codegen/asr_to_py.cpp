@@ -445,24 +445,28 @@ public:
         // Return type and function name
         bool bindc_name_not_given = x.m_bindc_name == NULL || !strcmp("",x.m_bindc_name);
         std::string effective_name = bindc_name_not_given ? x.m_name : x.m_bindc_name;
-       
-        /* 
+        
+        ASR::Variable_t *rtnvar = ASRUtils::EXPR2VAR(x.m_return_var);
+        std::string rtnvar_type;
         #define _X(ASR_TYPE, KIND, CTYPE_STR) \
-        if ( is_a<ASR_TYPE>(*arg->m_type) && (down_cast<ASR_TYPE>(arg->m_type)->m_kind == KIND) ) { \
-            chdr = CTYPE_STR;                                                                       \
+        if ( is_a<ASR_TYPE>(*rtnvar->m_type) && (down_cast<ASR_TYPE>(rtnvar->m_type)->m_kind == KIND) ) { \
+            rtnvar_type = CTYPE_STR;                                                                     \
         } else  
 
         CTYPELIST { 
             throw CodeGenError("Unrecognized or non-interoperable return type/kind"); 
         }
         #undef _X
-        chdr += " " + effective_name + " (";
+        std::string rtnvar_name = effective_name + "_rtnval__";
+
+        chdr = rtnvar_type + " " + effective_name + " (";
 
         std::string c_args, cy_args, call_args, pyx_body, rtn_statement;       
         std::tie(c_args,cy_args,call_args,pyx_body,rtn_statement) = helper_visit_arguments(x.n_args, x.m_args);
 
-        rtn_statement = "    return " + rtnarg_str;  // TODO this doesn't exist
-        if (!rtn_statement.empty()) rtn_statement += ", " + rtn_statement;
+        std::string rtnarg_str =  rtnvar_name;
+        if(!rtn_statement.empty()) rtnarg_str += ", ";
+        rtn_statement = "    return " + rtnarg_str  + rtn_statement;
         
         chdr += c_args + ")";
         pxd = "    " + chdr + "\n";
@@ -470,9 +474,8 @@ public:
 
         pyx = "def " + effective_name + " (" + cy_args + "):\n";
         pyx += pyx_body;
-        pyx += "    " + pxdf +"."+ effective_name + " (" + call_args + ")\n";
+        pyx += "    cdef " + rtnvar_type + " " + rtnvar_name  + " = " + pxdf +"."+ effective_name + " (" + call_args + ")\n";
         pyx += rtn_statement + "\n\n";
-        */
 
     }
 
