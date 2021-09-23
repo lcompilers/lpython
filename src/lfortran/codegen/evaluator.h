@@ -65,6 +65,7 @@ public:
     void save_asm_file(llvm::Module &m, const std::string &filename);
     void save_object_file(llvm::Module &m, const std::string &filename);
     void create_empty_object_file(const std::string &filename);
+    void opt(llvm::Module &m);
     static std::string module_to_string(llvm::Module &m);
     static void print_version_message();
     llvm::LLVMContext &get_context();
