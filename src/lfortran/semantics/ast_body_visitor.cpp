@@ -63,6 +63,7 @@ private:
         {"tiny", "lfortran_intrinsic_array"},
         {"len_trim", "lfortran_intrinsic_string"},
         {"trim", "lfortran_intrinsic_string"},
+        {"iand", "lfortran_intrinsic_bit"},
 };
 
 public:
