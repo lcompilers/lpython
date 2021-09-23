@@ -2,7 +2,7 @@
 source_filename = "LFortran"
 
 %dimension_descriptor = type { i32, i32, i32, i32 }
-%array.0 = type { [4 x i32], i32, [3 x %dimension_descriptor] }
+%array.0 = type { [4 x i32], i32, [3 x %dimension_descriptor], i1 }
 
 @0 = private unnamed_addr constant [13 x i8] c"%d %d %d %d\0A\00", align 1
 @1 = private unnamed_addr constant [13 x i8] c"%d %d %d %d\0A\00", align 1
@@ -1888,4 +1888,3 @@ loop.end42:                                       ; preds = %loop.head34
 }
 
 declare void @_lfortran_printf(i8*, ...)
-

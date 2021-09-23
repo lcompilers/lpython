@@ -36,4 +36,3 @@ define i32 @main() {
   store i32 %0, i32* %c, align 4
   ret i32 0
 }
-

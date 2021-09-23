@@ -213,6 +213,7 @@ namespace LFortran {
                 }
             }
             std::pair<std::pair<int, int>, std::pair<int, int>> array_key = std::make_pair(std::make_pair((int)type_, a_kind), std::make_pair(rank, size));
+            std::pair<std::pair<int, int>, int> malloc_array_key = std::make_pair(std::make_pair((int)type_, a_kind), rank);
             if( tkr2array.find(array_key) != tkr2array.end() ) {
                 if( get_pointer ) {
                     return tkr2array[array_key]->getPointerTo();
@@ -224,13 +225,18 @@ namespace LFortran {
             if( size > 0 ) {
                 array_type_vec = {  llvm::ArrayType::get(el_type, size), 
                                     llvm::Type::getInt32Ty(context),
-                                    dim_des_array  };
+                                    dim_des_array,
+                                    llvm::Type::getInt1Ty(context)  };
+                tkr2array[array_key] = llvm::StructType::create(context, array_type_vec, "array");
             } else {
                 array_type_vec = {  el_type->getPointerTo(),
                                     llvm::Type::getInt32Ty(context),
-                                    dim_des_array  };
+                                    dim_des_array,
+                                    llvm::Type::getInt1Ty(context)  };
+                llvm::StructType* new_array_type = llvm::StructType::create(context, array_type_vec, "array");
+                tkr2array[array_key] = new_array_type;
+                tkr2mallocarray[malloc_array_key] = new_array_type;
             }
-            tkr2array[array_key] = llvm::StructType::create(context, array_type_vec, "array");
             if( get_pointer ) {
                 return tkr2array[array_key]->getPointerTo();
             }
@@ -249,6 +255,7 @@ namespace LFortran {
         (ASR::ttype_t* m_type_, int a_kind, int rank, llvm::Type* el_type, bool get_pointer) {
             ASR::ttypeType type_ = m_type_->type;
             std::pair<std::pair<int, int>, int> array_key = std::make_pair(std::make_pair((int)type_, a_kind), rank);
+            std::pair<std::pair<int, int>, std::pair<int, int>> stack_array_key = std::make_pair(std::make_pair((int)type_, a_kind), std::make_pair(rank, 0));
             if( tkr2mallocarray.find(array_key) != tkr2mallocarray.end() ) {
                 if( get_pointer ) {
                     return tkr2mallocarray[array_key]->getPointerTo();
@@ -261,7 +268,9 @@ namespace LFortran {
                 llvm::Type::getInt32Ty(context),
                 dim_des_array,
                 llvm::Type::getInt1Ty(context)};
-            tkr2mallocarray[array_key] = llvm::StructType::create(context, array_type_vec, "array");
+            llvm::StructType* new_array_type = llvm::StructType::create(context, array_type_vec, "array");
+            tkr2mallocarray[array_key] = new_array_type;
+            tkr2array[stack_array_key] = new_array_type;
             if( get_pointer ) {
                 return tkr2mallocarray[array_key]->getPointerTo();
             }

@@ -17,4 +17,3 @@ define i32 @main() {
   call void @__module_a_01_b()
   ret i32 0
 }
-

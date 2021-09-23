@@ -72,7 +72,7 @@ end subroutine sum
 complex function reduce_sum(c) result(r)
 implicit none
 
-complex, allocatable, intent(in) :: c(:, :, :)
+complex, intent(in) :: c(:, :, :)
 integer :: i, j, k
 
 r = 0

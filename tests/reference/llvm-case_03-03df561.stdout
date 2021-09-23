@@ -92,4 +92,3 @@ ifcont11:                                         ; preds = %ifcont9, %then5
 }
 
 declare void @_lfortran_printf(i8*, ...)
-

@@ -50,7 +50,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                     return_var = ASR::make_Variable_t(al, loc,
                         fn_scope, var_name, LFortran::ASRUtils::intent_local, nullptr, nullptr,
                         ASR::storage_typeType::Default, type,
-                        ASR::abiType::Source,
+                        ASR::abiType::BindC,
                         ASR::Public, ASR::presenceType::Required, false);
                     return_var_ref = EXPR(ASR::make_Var_t(al, loc,
                         down_cast<ASR::symbol_t>(return_var)));
@@ -60,11 +60,25 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                 } else if (LFortran::ASRUtils::expr_type(value)->type == ASR::ttypeType::Real) {
                     s.from_str(al, fn_name_s + std::to_string(idx));
                     var_name = s.c_str(al);
-                    type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, loc, 4, nullptr, 0));
+                    type = ASRUtils::expr_type(value);
                     return_var = ASR::make_Variable_t(al, loc,
                         fn_scope, var_name, LFortran::ASRUtils::intent_local, nullptr, nullptr,
                         ASR::storage_typeType::Default, type,
-                        ASR::abiType::Source,
+                        ASR::abiType::BindC,
+                        ASR::Public, ASR::presenceType::Required, false);
+                    return_var_ref = EXPR(ASR::make_Var_t(al, loc,
+                        down_cast<ASR::symbol_t>(return_var)));
+                    fn_scope->scope[std::string(var_name)] = down_cast<ASR::symbol_t>(return_var);
+                    target = return_var_ref;
+                    idx++;
+                } else if (LFortran::ASRUtils::expr_type(value)->type == ASR::ttypeType::Complex) {
+                    s.from_str(al, fn_name_s + std::to_string(idx));
+                    var_name = s.c_str(al);
+                    type = ASRUtils::expr_type(value);
+                    return_var = ASR::make_Variable_t(al, loc,
+                        fn_scope, var_name, LFortran::ASRUtils::intent_local, nullptr, nullptr,
+                        ASR::storage_typeType::Default, type,
+                        ASR::abiType::BindC,
                         ASR::Public, ASR::presenceType::Required, false);
                     return_var_ref = EXPR(ASR::make_Var_t(al, loc,
                         down_cast<ASR::symbol_t>(return_var)));
@@ -101,7 +115,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                 /* a_body */ body.p,
                 /* n_body */ body.size(),
                 /* a_return_var */ return_var_ref,
-                ASR::abiType::Source,
+                ASR::abiType::BindC,
                 ASR::Public, ASR::Implementation, nullptr);
             std::string sym_name = fn_name;
             if (unit.m_global_scope->scope.find(sym_name) != unit.m_global_scope->scope.end()) {

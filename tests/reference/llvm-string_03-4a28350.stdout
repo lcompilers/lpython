@@ -79,4 +79,3 @@ define i32 @main() {
 declare void @_lfortran_strcat(i8**, i8**, i8**)
 
 declare void @_lfortran_printf(i8*, ...)
-

@@ -129,4 +129,3 @@ ifcont19:                                         ; preds = %else18, %then17
 declare void @_lfortran_printf(i8*, ...)
 
 declare void @exit(i32)
-

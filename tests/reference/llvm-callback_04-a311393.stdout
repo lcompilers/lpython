@@ -34,4 +34,3 @@ define i32 @main() {
   call void @__module_dr_fortran_cb_print_dr_fortran(void ()* @__module_dr_fortran_cb_print_fortran)
   ret i32 0
 }
-

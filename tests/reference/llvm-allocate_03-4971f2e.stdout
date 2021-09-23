@@ -560,4 +560,3 @@ ifcont7:                                          ; preds = %else6, %then5
 }
 
 declare void @exit(i32)
-

@@ -24,11 +24,15 @@ public:
 
     struct EvalResult {
         enum {
-            integer, real, statement, none
+            integer4, integer8, real4, real8, complex4, complex8, statement, none
         } type;
         union {
-            int64_t i;
-            float f;
+            int32_t i32;
+            int64_t i64;
+            float f32;
+            double f64;
+            struct {float re, im;} c32;
+            struct {double re, im;} c64;
         };
         std::string ast;
         std::string asr;

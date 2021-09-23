@@ -102,21 +102,39 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
 
         // LLVM -> Machine code -> Execution
         e->add_module(std::move(m));
-        if (return_type == "integer") {
-            int r = e->intfn(run_fn);
-            result.type = EvalResult::integer;
-            result.i = r;
-        } else if (return_type == "real") {
+        if (return_type == "integer4") {
+            int32_t r = e->int32fn(run_fn);
+            result.type = EvalResult::integer4;
+            result.i32 = r;
+        } else if (return_type == "integer8") {
+            int64_t r = e->int64fn(run_fn);
+            result.type = EvalResult::integer8;
+            result.i64 = r;
+        } else if (return_type == "real4") {
             float r = e->floatfn(run_fn);
-            result.type = EvalResult::real;
-            result.f = r;
+            result.type = EvalResult::real4;
+            result.f32 = r;
+        } else if (return_type == "real8") {
+            double r = e->doublefn(run_fn);
+            result.type = EvalResult::real8;
+            result.f64 = r;
+        } else if (return_type == "complex4") {
+            std::complex<float> r = e->complex4fn(run_fn);
+            result.type = EvalResult::complex4;
+            result.c32.re = r.real();
+            result.c32.im = r.imag();
+        } else if (return_type == "complex8") {
+            std::complex<double> r = e->complex8fn(run_fn);
+            result.type = EvalResult::complex8;
+            result.c64.re = r.real();
+            result.c64.im = r.imag();
         } else if (return_type == "void") {
             e->voidfn(run_fn);
             result.type = EvalResult::statement;
         } else if (return_type == "none") {
             result.type = EvalResult::none;
         } else {
-            throw LFortran::LFortranException("Return type not supported");
+            throw LFortranException("FortranEvaluator::evaluate(): Return type not supported");
         }
         return result;
     } catch (const TokenizerError &e) {
@@ -316,6 +334,7 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::CodeGen;
         error.msg = e.msg();
+        error.stacktrace_addresses = e.stacktrace_addresses();
         return error;
     }
 

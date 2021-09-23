@@ -2,4 +2,3 @@
 source_filename = "LFortran"
 
 @x = global i32 0
-

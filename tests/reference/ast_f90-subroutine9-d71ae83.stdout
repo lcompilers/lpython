@@ -1,31 +1,31 @@
 subroutine a()
 import, none
 implicit none
-end subroutine a 
+end subroutine a
 
 
 subroutine b()
 import, all
 implicit none
-end subroutine b 
+end subroutine b
 
 
 subroutine c()
 import :: a, b
 implicit none
-end subroutine c 
+end subroutine c
 
 
 subroutine d()
 import :: a, b
 implicit none
-end subroutine d 
+end subroutine d
 
 
 subroutine e()
 import, only: a, b
 implicit none
-end subroutine e 
+end subroutine e
 
 
 subroutine f()

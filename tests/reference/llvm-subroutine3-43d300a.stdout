@@ -8,4 +8,3 @@ define i32 @f() {
   %0 = load i32, i32* %f, align 4
   ret i32 %0
 }
-

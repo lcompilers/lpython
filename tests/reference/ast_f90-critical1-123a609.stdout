@@ -12,7 +12,7 @@ do
     critical
         job = joblist[1]
         joblist[1] = job - 1
-    end critical 
+    end critical
 
 ! >>>>>>>> Syntax check(AST) >>>>>>>>
     critical ()
@@ -23,7 +23,7 @@ do
     end critical
     critical (errmsg = Sample)
         Sample = "Error message"
-    end critical 
+    end critical
 ! <<<<<<<< Syntax check(AST) <<<<<<<<
 
     if (job > 0) then

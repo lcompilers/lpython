@@ -25,4 +25,3 @@ define i32 @main() {
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @2, i32 0, i32 0), i32 %1)
   ret i32 0
 }
-

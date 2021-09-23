@@ -12,7 +12,7 @@ select rank (x)
         error stop "process bad arg"
 end select
 return
-end subroutine process 
+end subroutine process
 
 
 subroutine initialize(arg, size)
