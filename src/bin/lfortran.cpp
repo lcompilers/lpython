@@ -445,8 +445,11 @@ int format(const std::string &file, bool inplace, bool color, int indent,
     return 0;
 }
 
-int python_wrapper(const std::string &infile, std::string /*array_order*/)
+int python_wrapper(const std::string &infile, std::string array_order)
 {
+
+    bool c_order = (0==array_order.compare("c"));
+
     std::string input = read_file(infile);
 
     // Src -> AST
@@ -465,14 +468,34 @@ int python_wrapper(const std::string &infile, std::string /*array_order*/)
     // AST -> ASR
     LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast);
 
-    // ASR -> C / Python
-    // TODO: this returns a C header file
-    // we will have to also return the Cython files, as arguments
-    std::string c_h;
-    c_h = LFortran::asr_to_py(*asr);
+    // figure out pyx and pxd filenames
+    auto prefix = infile.substr(0,infile.rfind('.'));
+    auto chdr_fname = prefix + ".h";
+    auto pxd_fname = prefix  + "_pxd.pxd"; // the "_pxd" is an ugly hack, see comment in asr_to_py.cpp
+    auto pyx_fname = prefix  + ".pyx";
 
-    // TODO: change this to print to a file
-    std::cout << c_h;
+    // The ASR to Python converter needs to know the name of the .h file that will be written, 
+    // but needs all path information stripped off - just the filename.
+    auto chdr_fname_forcodegen = chdr_fname;
+    {
+        // Find last ocurrence of \ or /, and delete everything up to that point.
+        auto pos_windows = chdr_fname_forcodegen.rfind('\\');
+        auto pos_other = chdr_fname_forcodegen.rfind('/');
+        auto lastpos = std::max( (pos_windows == std::string::npos ? 0 : pos_windows) , 
+                                 (pos_other   == std::string::npos ? 0 : pos_other) );
+        if (lastpos > 0UL) chdr_fname_forcodegen.erase(0,lastpos+1);
+    }
+
+    // ASR -> (C header file, Cython pxd file, Cython pyx file)
+    std::string c_h, pxd, pyx;
+    std::tie(c_h, pxd, pyx) = LFortran::asr_to_py(*asr, c_order, chdr_fname_forcodegen);
+
+
+    // save generated outputs to files.
+    std::ofstream(chdr_fname) << c_h;
+    std::ofstream(pxd_fname)  << pxd;
+    std::ofstream(pyx_fname)  << pyx;
+    
     return 0;
 }
 
