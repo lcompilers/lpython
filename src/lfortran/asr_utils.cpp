@@ -319,7 +319,7 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
     bool found = false;
     if( is_op_overloaded(op, intrinsic_op_name, curr_scope) ) {
         ASR::symbol_t* sym = curr_scope->scope[intrinsic_op_name];
-        const ASR::symbol_t* orig_sym = ASRUtils::symbol_get_past_external(sym);
+        ASR::symbol_t* orig_sym = ASRUtils::symbol_get_past_external(sym);
         ASR::CustomOperator_t* gen_proc = ASR::down_cast<ASR::CustomOperator_t>(orig_sym);
         for( size_t i = 0; i < gen_proc->n_procs && !found; i++ ) {
             ASR::symbol_t* proc = gen_proc->m_procs[i];
@@ -336,7 +336,7 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                             a_args.reserve(al, 2);
                             a_args.push_back(al, left);
                             a_args.push_back(al, right);
-                            asr = ASR::make_FunctionCall_t(al, loc, curr_scope->scope[std::string(func->m_name)], nullptr,
+                            asr = ASR::make_FunctionCall_t(al, loc, curr_scope->scope[std::string(func->m_name)], orig_sym,
                                                             a_args.p, 2, nullptr, 0,
                                                             ASRUtils::expr_type(func->m_return_var),
                                                             nullptr, nullptr);
