@@ -80,6 +80,11 @@ set(WITH_LFORTRAN_BINARY_MODFILES YES
 set(WITH_RUNTIME_LIBRARY YES
     CACHE BOOL "Compile and install the runtime library")
 
+set(WITH_DLLEXPORT no CACHE BOOL "Build the runtime with dllexport attribute")
+if (WITH_DLLEXPORT)
+    add_definitions("-DHAVE_LFORTRAN_DLLEXPORT=1")
+endif()
+
 # Find ZLIB with our custom finder before including LLVM since the finder for LLVM
 # might search for ZLIB again and find the shared libraries instead of the static ones
 find_package(StaticZLIB REQUIRED)
@@ -267,6 +272,7 @@ message("WITH_LFORTRAN_BINARY_MODFILES: ${WITH_LFORTRAN_BINARY_MODFILES}")
 message("WITH_RUNTIME_LIBRARY: ${WITH_RUNTIME_LIBRARY}")
 message("WITH_TARGET_AARCH64: ${WITH_TARGET_AARCH64}")
 message("WITH_TARGET_X86: ${WITH_TARGET_X86}")
+message("WITH_DLLEXPORT: ${WITH_DLLEXPORT}")
 
 
 add_subdirectory(src)
