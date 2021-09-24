@@ -157,7 +157,7 @@ namespace LFortran
             if (startswith(code, "%%showllvm")) {
                 code0 = code.substr(code.find("\n")+1);
                 FortranEvaluator::Result<std::string>
-                res = e.get_llvm(code0);
+                res = e.get_llvm(code0, false);
                 nl::json result;
                 if (res.ok) {
                     publish_stream("stdout", res.result);
@@ -177,7 +177,7 @@ namespace LFortran
             if (startswith(code, "%%showasm")) {
                 code0 = code.substr(code.find("\n")+1);
                 FortranEvaluator::Result<std::string>
-                res = e.get_asm(code0);
+                res = e.get_asm(code0, false);
                 nl::json result;
                 if (res.ok) {
                     publish_stream("stdout", res.result);

@@ -445,8 +445,11 @@ int format(const std::string &file, bool inplace, bool color, int indent,
     return 0;
 }
 
-int python_wrapper(const std::string &infile, std::string /*array_order*/)
+int python_wrapper(const std::string &infile, std::string array_order)
 {
+
+    bool c_order = (0==array_order.compare("c"));
+
     std::string input = read_file(infile);
 
     // Src -> AST
@@ -465,14 +468,34 @@ int python_wrapper(const std::string &infile, std::string /*array_order*/)
     // AST -> ASR
     LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast);
 
-    // ASR -> C / Python
-    // TODO: this returns a C header file
-    // we will have to also return the Cython files, as arguments
-    std::string c_h;
-    c_h = LFortran::asr_to_py(*asr);
+    // figure out pyx and pxd filenames
+    auto prefix = infile.substr(0,infile.rfind('.'));
+    auto chdr_fname = prefix + ".h";
+    auto pxd_fname = prefix  + "_pxd.pxd"; // the "_pxd" is an ugly hack, see comment in asr_to_py.cpp
+    auto pyx_fname = prefix  + ".pyx";
 
-    // TODO: change this to print to a file
-    std::cout << c_h;
+    // The ASR to Python converter needs to know the name of the .h file that will be written, 
+    // but needs all path information stripped off - just the filename.
+    auto chdr_fname_forcodegen = chdr_fname;
+    {
+        // Find last ocurrence of \ or /, and delete everything up to that point.
+        auto pos_windows = chdr_fname_forcodegen.rfind('\\');
+        auto pos_other = chdr_fname_forcodegen.rfind('/');
+        auto lastpos = std::max( (pos_windows == std::string::npos ? 0 : pos_windows) , 
+                                 (pos_other   == std::string::npos ? 0 : pos_other) );
+        if (lastpos > 0UL) chdr_fname_forcodegen.erase(0,lastpos+1);
+    }
+
+    // ASR -> (C header file, Cython pxd file, Cython pyx file)
+    std::string c_h, pxd, pyx;
+    std::tie(c_h, pxd, pyx) = LFortran::asr_to_py(*asr, c_order, chdr_fname_forcodegen);
+
+
+    // save generated outputs to files.
+    std::ofstream(chdr_fname) << c_h;
+    std::ofstream(pxd_fname)  << pxd;
+    std::ofstream(pyx_fname)  << pyx;
+    
     return 0;
 }
 
@@ -611,12 +634,13 @@ int save_mod_files(const LFortran::ASR::TranslationUnit_t &u)
 #ifdef HAVE_LFORTRAN_LLVM
 
 int emit_llvm(const std::string &infile, LFortran::Platform platform,
-        bool show_stacktrace, bool colors)
+        bool show_stacktrace, bool colors, bool fast)
 {
     std::string input = read_file(infile);
 
     LFortran::FortranEvaluator fe(platform);
-    LFortran::FortranEvaluator::Result<std::string> llvm = fe.get_llvm(input);
+    LFortran::FortranEvaluator::Result<std::string> llvm
+        = fe.get_llvm(input, fast);
     if (llvm.ok) {
         std::cout << llvm.result;
         return 0;
@@ -630,12 +654,12 @@ int emit_llvm(const std::string &infile, LFortran::Platform platform,
 }
 
 int emit_asm(const std::string &infile, LFortran::Platform platform,
-        bool show_stacktrace, bool colors)
+        bool show_stacktrace, bool colors, bool fast)
 {
     std::string input = read_file(infile);
 
     LFortran::FortranEvaluator fe(platform);
-    LFortran::FortranEvaluator::Result<std::string> r = fe.get_asm(input);
+    LFortran::FortranEvaluator::Result<std::string> r = fe.get_asm(input, fast);
     if (r.ok) {
         std::cout << r.result;
         return 0;
@@ -653,7 +677,8 @@ int compile_to_object_file(const std::string &infile,
         LFortran::Platform platform,
         bool assembly=false,
         bool show_stacktrace=false, bool colors=true,
-        bool fixed_form=false, const std::string &target = "")
+        bool fixed_form=false, const std::string &target = "",
+        bool fast=false)
 {
     std::string input = read_file(infile);
 
@@ -707,6 +732,10 @@ int compile_to_object_file(const std::string &infile,
         return 5;
     }
 
+    if (fast) {
+        e.opt(*m->m_m);
+    }
+
     // LLVM -> Machine code (saves to an object file)
     if (assembly) {
         e.save_asm_file(*(m->m_m), outfile);
@@ -717,9 +746,12 @@ int compile_to_object_file(const std::string &infile,
     return 0;
 }
 
-int compile_to_assembly_file(const std::string &infile, const std::string &outfile, LFortran::Platform platform, bool fixed_form)
+int compile_to_assembly_file(const std::string &infile,
+    const std::string &outfile, LFortran::Platform platform, bool fixed_form,
+    bool fast)
 {
-    return compile_to_object_file(infile, outfile, platform, true, false, fixed_form);
+    return compile_to_object_file(infile, outfile, platform, true, false,
+        fixed_form, fast);
 }
 #endif
 
@@ -1107,6 +1139,7 @@ int main(int argc, char *argv[])
         std::string arg_pywrap_array_order="f";
 
         bool openmp = false;
+        bool fast = false;
 
         CLI::App app{"LFortran: modern interactive LLVM-based Fortran compiler"};
         // Standard options compatible with gfortran, gcc or clang
@@ -1143,6 +1176,7 @@ int main(int argc, char *argv[])
         app.add_flag("--static", static_link, "Create a static executable");
         app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp, x86)")->capture_default_str();
         app.add_flag("--openmp", openmp, "Enable openmp");
+        app.add_flag("--fast", fast, "Best performance (disable strict standard compliance)");
         app.add_option("--target", arg_target, "Generate code for the given target")->capture_default_str();
         app.add_flag("--print-targets", print_targets, "Print the registered targets");
 
@@ -1352,7 +1386,7 @@ int main(int argc, char *argv[])
         }
         if (show_llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-            return emit_llvm(arg_file, platform, show_stacktrace, !arg_no_color);
+            return emit_llvm(arg_file, platform, show_stacktrace, !arg_no_color, fast);
 #else
             std::cerr << "The --show-llvm option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
             return 1;
@@ -1360,7 +1394,7 @@ int main(int argc, char *argv[])
         }
         if (show_asm) {
 #ifdef HAVE_LFORTRAN_LLVM
-            return emit_asm(arg_file, platform, show_stacktrace, !arg_no_color);
+            return emit_asm(arg_file, platform, show_stacktrace, !arg_no_color, fast);
 #else
             std::cerr << "The --show-asm option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
             return 1;
@@ -1373,7 +1407,7 @@ int main(int argc, char *argv[])
             if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
                 return compile_to_assembly_file(arg_file, outfile, platform,
-                        arg_fixed_form);
+                        arg_fixed_form, fast);
 #else
                 std::cerr << "The -S option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;
@@ -1389,7 +1423,7 @@ int main(int argc, char *argv[])
             if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
                 return compile_to_object_file(arg_file, outfile, platform, false,
-                    show_stacktrace, !arg_no_color, arg_fixed_form, arg_target);
+                    show_stacktrace, !arg_no_color, arg_fixed_form, arg_target, fast);
 #else
                 std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;
@@ -1414,7 +1448,7 @@ int main(int argc, char *argv[])
             if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
                 err = compile_to_object_file(arg_file, tmp_o, platform, false,
-                    show_stacktrace, !arg_no_color, arg_fixed_form, arg_target);
+                    show_stacktrace, !arg_no_color, arg_fixed_form, arg_target, fast);
 #else
                 std::cerr << "Compiling Fortran files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;

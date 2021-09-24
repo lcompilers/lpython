@@ -291,14 +291,16 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
 
 Result<std::string> FortranEvaluator::get_llvm(
 #ifdef HAVE_LFORTRAN_LLVM
-    const std::string &code
+    const std::string &code,
+    bool fast
 #else
-    const std::string &/*code*/
+    const std::string &/*code*/,
+    bool /*fast*/
 #endif
     )
 {
 #ifdef HAVE_LFORTRAN_LLVM
-    Result<std::unique_ptr<LLVMModule>> res = get_llvm2(code);
+    Result<std::unique_ptr<LLVMModule>> res = get_llvm2(code, fast);
     if (res.ok) {
         return res.result->str();
     } else {
@@ -311,9 +313,11 @@ Result<std::string> FortranEvaluator::get_llvm(
 
 Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(
 #ifdef HAVE_LFORTRAN_LLVM
-    const std::string &code
+    const std::string &code,
+    bool fast
 #else
-    const std::string &/*code*/
+    const std::string &/*code*/,
+    bool /*fast*/
 #endif
     )
 {
@@ -329,13 +333,18 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(
     // ASR -> LLVM
     std::unique_ptr<LFortran::LLVMModule> m;
     try {
-        m = LFortran::asr_to_llvm(*asr.result, e->get_context(), al, platform, run_fn);
+        m = LFortran::asr_to_llvm(*asr.result, e->get_context(), al, platform,
+            run_fn);
     } catch (const CodeGenError &e) {
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::CodeGen;
         error.msg = e.msg();
         error.stacktrace_addresses = e.stacktrace_addresses();
         return error;
+    }
+
+    if (fast) {
+        e->opt(*m->m_m);
     }
 
     return m;
@@ -346,14 +355,16 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(
 
 Result<std::string> FortranEvaluator::get_asm(
 #ifdef HAVE_LFORTRAN_LLVM
-    const std::string &code
+    const std::string &code,
+    bool fast
 #else
-    const std::string &/*code*/
+    const std::string &/*code*/,
+    bool /*fast*/
 #endif
     )
 {
 #ifdef HAVE_LFORTRAN_LLVM
-    Result<std::unique_ptr<LLVMModule>> res = get_llvm2(code);
+    Result<std::unique_ptr<LLVMModule>> res = get_llvm2(code, fast);
     if (res.ok) {
         return e->get_asm(*res.result->m_m);
     } else {

@@ -65,6 +65,9 @@ cd share/lfortran/nb
 jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --output Demo1_out.ipynb Demo1.ipynb
 jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --output Demo2_out.ipynb Demo2.ipynb
 cat Demo1_out.ipynb
+jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --output "Hello World_out.ipynb" "Hello World.ipynb"
+jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --output "Operators Control Flow_out.ipynb" "Operators Control Flow.ipynb"
+jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --output Variables_out.ipynb Variables.ipynb
 cd ../../..
 
 cp lfortran-$lfortran_version/test-bld/src/bin/lfortran src/bin

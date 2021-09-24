@@ -4,6 +4,8 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/Analysis/Passes.h>
+#include <llvm/Analysis/TargetTransformInfo.h>
+#include <llvm/Analysis/TargetLibraryInfo.h>
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
 #include <llvm/ExecutionEngine/MCJIT.h>
@@ -30,7 +32,14 @@
 #include <llvm/Target/TargetMachine.h>
 #include <llvm/Transforms/Scalar.h>
 #include <llvm/Transforms/Scalar/GVN.h>
+#include <llvm/Transforms/Scalar/InstSimplifyPass.h>
 #include <llvm/Transforms/Vectorize.h>
+#include <llvm/Transforms/IPO.h>
+#include <llvm/Transforms/IPO/AlwaysInliner.h>
+#include <llvm/Transforms/IPO/PassManagerBuilder.h>
+#include <llvm/Transforms/Instrumentation/AddressSanitizer.h>
+#include <llvm/Transforms/Instrumentation/ThreadSanitizer.h>
+#include <llvm/Transforms/InstCombine/InstCombine.h>
 #include <llvm/ExecutionEngine/ObjectCache.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/FileSystem.h>
@@ -338,6 +347,39 @@ void LLVMEvaluator::create_empty_object_file(const std::string &filename) {
     std::string source;
     std::unique_ptr<llvm::Module> module = parse_module(source);
     save_object_file(*module, filename);
+}
+
+void LLVMEvaluator::opt(llvm::Module &m) {
+    m.setTargetTriple(target_triple);
+    m.setDataLayout(TM->createDataLayout());
+
+    llvm::legacy::PassManager mpm;
+    mpm.add(new llvm::TargetLibraryInfoWrapperPass(TM->getTargetTriple()));
+    mpm.add(llvm::createTargetTransformInfoWrapperPass(TM->getTargetIRAnalysis()));
+    llvm::legacy::FunctionPassManager fpm(&m);
+    fpm.add(llvm::createTargetTransformInfoWrapperPass(TM->getTargetIRAnalysis()));
+
+    int optLevel = 3;
+    int sizeLevel = 0;
+    llvm::PassManagerBuilder builder;
+    builder.OptLevel = optLevel;
+    builder.SizeLevel = sizeLevel;
+    builder.Inliner = llvm::createFunctionInliningPass(optLevel, sizeLevel,
+        false);
+    builder.DisableUnrollLoops = false;
+    builder.LoopVectorize = true;
+    builder.SLPVectorize = true;
+    builder.populateFunctionPassManager(fpm);
+    builder.populateModulePassManager(mpm);
+
+    fpm.doInitialization();
+    for (llvm::Function &func : m) {
+        fpm.run(func);
+    }
+    fpm.doFinalization();
+
+    mpm.add(llvm::createVerifierPass());
+    mpm.run(m);
 }
 
 std::string LLVMEvaluator::module_to_string(llvm::Module &m) {
