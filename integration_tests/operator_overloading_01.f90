@@ -1,4 +1,4 @@
-module overload_asterisk_m
+module operator_overloading_01_overload_asterisk_m
     implicit none
     public operator (*)
 
@@ -29,8 +29,8 @@ contains
     end function
 end module
 
-program main
-  use overload_asterisk_m
+program operator_overloading_01
+  use operator_overloading_01_overload_asterisk_m
   implicit none
   logical, parameter :: T = .true., F = .false.
 
