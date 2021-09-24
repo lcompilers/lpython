@@ -19,6 +19,7 @@ private:
     Allocator &al;
     Vec<ASR::stmt_t*> class_constructor_result;
     ASR::expr_t* result_var;
+    SymbolTable* current_scope;
 
 public:
 
@@ -58,6 +59,7 @@ public:
         // FIXME: this is a hack, we need to pass in a non-const `x`,
         // which requires to generate a TransformVisitor.
         ASR::Program_t &xx = const_cast<ASR::Program_t&>(x);
+        current_scope = xx.m_symtab;
         transform_stmts(xx.m_body, xx.n_body);
 
         // Transform nested functions and subroutines
@@ -77,6 +79,7 @@ public:
         // FIXME: this is a hack, we need to pass in a non-const `x`,
         // which requires to generate a TransformVisitor.
         ASR::Subroutine_t &xx = const_cast<ASR::Subroutine_t&>(x);
+        current_scope = xx.m_symtab;
         transform_stmts(xx.m_body, xx.n_body);
     }
 
@@ -84,6 +87,7 @@ public:
         // FIXME: this is a hack, we need to pass in a non-const `x`,
         // which requires to generate a TransformVisitor.
         ASR::Function_t &xx = const_cast<ASR::Function_t&>(x);
+        current_scope = xx.m_symtab;
         transform_stmts(xx.m_body, xx.n_body);
     }
 
@@ -101,11 +105,7 @@ public:
                                          LFortran::ASRUtils::symbol_get_past_external(dt_der->m_derived_type)->base));
         for( size_t i = 0; i < dt_dertype->n_members; i++ ) {
             ASR::symbol_t* member = dt_dertype->m_symtab->resolve_symbol(std::string(dt_dertype->m_members[i], strlen(dt_dertype->m_members[i])));
-            ASR::Variable_t* member_variable = down_cast<ASR::Variable_t>
-                                                (LFortran::ASRUtils::symbol_get_past_external(member));
-            ASR::ttype_t* member_type = member_variable->m_type;
-            ASR::expr_t* derived_ref = LFortran::ASRUtils::EXPR(ASR::make_DerivedRef_t(al, x.base.base.loc, result_var,
-                                                                member, member_type, nullptr));
+            ASR::expr_t* derived_ref = LFortran::ASRUtils::EXPR(ASRUtils::getDerivedRef_t(al, x.base.base.loc, (ASR::asr_t*)result_var, member, current_scope));
             ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, derived_ref, x.m_args[i]));
             class_constructor_result.push_back(al, assign);
         }

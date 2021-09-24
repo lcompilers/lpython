@@ -66,6 +66,11 @@ private:
         {"iand", "lfortran_intrinsic_bit"},
 };
 
+    std::map<AST::operatorType, std::string> binop2str = {
+        {AST::operatorType::Mul, "~mul"},
+        {AST::operatorType::Add, "~add"},
+    };
+
 public:
     Allocator &al;
     ASR::asr_t *asr, *tmp;
@@ -1040,7 +1045,7 @@ public:
         ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
         this->visit_expr(*x.m_right);
         ASR::expr_t *right = LFortran::ASRUtils::EXPR(tmp);
-        CommonVisitorMethods::visit_BinOp(al, x, left, right, tmp);
+        CommonVisitorMethods::visit_BinOp(al, x, left, right, tmp, binop2str[x.m_op], current_scope);
     }
 
     void visit_StrOp(const AST::StrOp_t &x) {
@@ -1071,61 +1076,6 @@ public:
             }
         }
         return ASR::make_Var_t(al, loc, v);
-    }
-
-    ASR::asr_t* getDerivedRef_t(const Location& loc, ASR::asr_t* v_var, ASR::symbol_t* member) {
-        ASR::Variable_t* member_variable = ((ASR::Variable_t*)(&(member->base)));
-        ASR::ttype_t* member_type = member_variable->m_type;
-        switch( member_type->type ) {
-            case ASR::ttypeType::Derived: {
-                ASR::Derived_t* der = (ASR::Derived_t*)(&(member_type->base));
-                ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
-                if( der_type->m_symtab->counter != current_scope->counter ) {
-                    ASR::symbol_t* der_ext;
-                    char* module_name = (char*)"nullptr";
-                    ASR::symbol_t* m_external = der->m_derived_type;
-                    if( m_external->type == ASR::symbolType::ExternalSymbol ) {
-                        ASR::ExternalSymbol_t* m_ext = (ASR::ExternalSymbol_t*)(&(m_external->base));
-                        m_external = m_ext->m_external;
-                        module_name = m_ext->m_module_name;
-                    }
-                    Str mangled_name;
-                    mangled_name.from_str(al, "1_" +
-                                              std::string(module_name) + "_" +
-                                              std::string(der_type->m_name));
-                    char* mangled_name_char = mangled_name.c_str(al);
-                    if( current_scope->scope.find(mangled_name.str()) == current_scope->scope.end() ) {
-                        bool make_new_ext_sym = true;
-                        ASR::symbol_t* der_tmp = nullptr;
-                        if( current_scope->scope.find(std::string(der_type->m_name)) != current_scope->scope.end() ) {
-                            der_tmp = current_scope->scope[std::string(der_type->m_name)];
-                            if( der_tmp->type == ASR::symbolType::ExternalSymbol ) {
-                                ASR::ExternalSymbol_t* der_ext_tmp = (ASR::ExternalSymbol_t*)(&(der_tmp->base));
-                                if( der_ext_tmp->m_external == m_external ) {
-                                    make_new_ext_sym = false;
-                                }
-                            }
-                        }
-                        if( make_new_ext_sym ) {
-                            der_ext = (ASR::symbol_t*)ASR::make_ExternalSymbol_t(al, loc, current_scope, mangled_name_char, m_external,
-                                                                                module_name, nullptr, 0, der_type->m_name, ASR::accessType::Public);
-                            current_scope->scope[mangled_name.str()] = der_ext;
-                        } else {
-                            LFORTRAN_ASSERT(der_tmp != nullptr);
-                            der_ext = der_tmp;
-                        }
-                    } else {
-                        der_ext = current_scope->scope[mangled_name.str()];
-                    }
-                    ASR::asr_t* der_new = ASR::make_Derived_t(al, loc, der_ext, der->m_dims, der->n_dims);
-                    member_type = (ASR::ttype_t*)(der_new);
-                }
-                break;
-            }
-            default :
-                break;
-        }
-        return ASR::make_DerivedRef_t(al, loc, LFortran::ASRUtils::EXPR(v_var), member, member_type, nullptr);
     }
 
     ASR::asr_t* resolve_variable2(const Location &loc, const std::string &var_name,
@@ -1167,7 +1117,7 @@ public:
             }
             if( member != nullptr ) {
                 ASR::asr_t* v_var = ASR::make_Var_t(al, loc, v);
-                return getDerivedRef_t(loc, v_var, member);
+                return ASRUtils::getDerivedRef_t(al, loc, v_var, member, current_scope);
             } else {
                 throw SemanticError("Variable '" + dt_name + "' doesn't have any member named, '" + var_name + "'.", loc);
             }

@@ -5,11 +5,14 @@
 #include <lfortran/ast.h>
 
 namespace LFortran {
+
 class CommonVisitorMethods {
 public:
+
   inline static void visit_BinOp(Allocator &al, const AST::BinOp_t &x,
                                  ASR::expr_t *&left, ASR::expr_t *&right,
-                                 ASR::asr_t *&asr) {
+                                 ASR::asr_t *&asr, std::string& intrinsic_op_name,
+                                 SymbolTable* curr_scope) {
     ASR::binopType op;
     switch (x.m_op) {
     case (AST::Add):
@@ -37,6 +40,13 @@ public:
     // Cast LHS or RHS if necessary
     ASR::ttype_t *left_type = LFortran::ASRUtils::expr_type(left);
     ASR::ttype_t *right_type = LFortran::ASRUtils::expr_type(right);
+    ASR::expr_t *overloaded = nullptr;
+    if( LFortran::ASRUtils::use_overloaded(left, right, op,
+        intrinsic_op_name, curr_scope, asr, al,
+        x.base.base.loc) ) {
+        overloaded = LFortran::ASRUtils::EXPR(asr);
+    }
+
     ASR::expr_t **conversion_cand = &left;
     ASR::ttype_t *source_type = left_type;
     ASR::ttype_t *dest_type = right_type;
@@ -121,7 +131,7 @@ public:
       }
     }
     asr = ASR::make_BinOp_t(al, x.base.base.loc, left, op, right, dest_type,
-                            value);
+                            value, overloaded);
   }
 
   inline static void visit_Compare(Allocator &al, const AST::Compare_t &x,

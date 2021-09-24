@@ -146,16 +146,16 @@ public:
 
                 ASR::expr_t* gap = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc,
                                                         end, ASR::binopType::Sub, start, 
-                                                        int32_type, nullptr));
+                                                        int32_type, nullptr, nullptr));
                 // ASR::expr_t* slice_size = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc,
                 //                                                  gap, ASR::binopType::Add, const_1,
                 //                                                  int64_type, nullptr));
                 ASR::expr_t* slice_size = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc,
                                                                 gap, ASR::binopType::Div, step,
-                                                                int32_type, nullptr));
+                                                                int32_type, nullptr, nullptr));
                 ASR::expr_t* actual_size = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc,
                                                                 slice_size, ASR::binopType::Add, const_1,
-                                                                int32_type, nullptr));
+                                                                int32_type, nullptr, nullptr));
                 ASR::dimension_t curr_dim;
                 curr_dim.loc = x.base.base.loc;
                 curr_dim.m_start = const_1;
@@ -243,7 +243,6 @@ public:
             ASR::symbol_t* slice_sym = ASR::down_cast<ASR::symbol_t>(slice_asr);
             current_scope->scope[std::string(new_var_name)] = slice_sym;
             slice_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, slice_sym));
-            // std::cout<<"Inside ArrayRef "<<slice_var<<std::endl;
             Vec<ASR::expr_t*> idx_vars_target, idx_vars_value;
             PassUtils::create_idx_vars(idx_vars_target, x.n_args, x.base.base.loc, al, current_scope, "_t");
             PassUtils::create_idx_vars(idx_vars_value, x.n_args, x.base.base.loc, al, current_scope, "_v");
@@ -282,7 +281,7 @@ public:
                     doloop_body.push_back(al, set_to_one);
                     doloop_body.push_back(al, doloop);
                 }
-                ASR::expr_t* inc_expr = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc, idx_vars_target[i], ASR::binopType::Add, const_1, int32_type, nullptr));
+                ASR::expr_t* inc_expr = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc, idx_vars_target[i], ASR::binopType::Add, const_1, int32_type, nullptr, nullptr));
                 ASR::stmt_t* assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_target[i], inc_expr));
                 doloop_body.push_back(al, assign_stmt);
                 doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
@@ -322,16 +321,13 @@ public:
 
     void visit_Print(const ASR::Print_t& x) {
         ASR::Print_t& xx = const_cast<ASR::Print_t&>(x);
-        // std::cout<<"Inside Slice Print "<<xx.n_values<<std::endl;
         for( size_t i = 0; i < xx.n_values; i++ ) {        
             slice_var = nullptr;
             create_slice_var = true;
             this->visit_expr(*xx.m_values[i]);
             create_slice_var = false;
-            // std::cout<<"Inside Print "<<slice_var<<std::endl;
             if( slice_var != nullptr ) {
                 xx.m_values[i] = slice_var;
-                // std::cout<<"Inside Print "<<x.m_values[i]<<std::endl;
             }
         }
         // If any slicing happened then do loop must have been created

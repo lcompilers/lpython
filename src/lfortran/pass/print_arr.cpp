@@ -102,13 +102,10 @@ public:
     }
 
     void visit_Print(const ASR::Print_t& x) {
-        // std::cout<<"Inside Print Node "<<x.n_values<<std::endl;
         if( x.n_values == 1 && PassUtils::is_array(x.m_values[0]) ) {
-            // std::cout<<"Inside Print Array Pass ";
             ASR::expr_t* arr_expr = x.m_values[0];
 
             int n_dims = PassUtils::get_rank(arr_expr);
-            // std::cout<<n_dims<<std::endl;
             Vec<ASR::expr_t*> idx_vars;
             PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, current_scope);
             ASR::stmt_t* doloop = nullptr;

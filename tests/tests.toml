@@ -1448,25 +1448,25 @@ filename = "flush1.f90"
 ast = true
 ast_f90 = true
 
-#[[test]]
-#filename = "../integration_tests/class_01.f90"
-#asr = true
-#llvm = true
+[[test]]
+filename = "../integration_tests/class_01.f90"
+asr = true
+llvm = true
 
-#[[test]]
-#filename = "../integration_tests/class_02.f90"
-#asr = true
-#llvm = true
+[[test]]
+filename = "../integration_tests/class_02.f90"
+asr = true
+llvm = true
 
-#[[test]]
-#filename = "../integration_tests/class_03.f90"
-#asr = true
-#llvm = true
+[[test]]
+filename = "../integration_tests/class_03.f90"
+asr = true
+llvm = true
 
-#[[test]]
-#filename = "../integration_tests/class_04.f90"
-#asr = true
-#llvm = true
+[[test]]
+filename = "../integration_tests/class_04.f90"
+asr = true
+llvm = true
 
 [[test]]
 filename = "print1.f90"
@@ -1507,6 +1507,10 @@ asr = true
 filename = "../integration_tests/const_kind_02.f90"
 asr = true
 
+[[test]]
+filename = "../integration_tests/operator_overloading_01.f90"
+asr = true
+llvm = true
 
 [[test]]
 filename = "team1.f90"

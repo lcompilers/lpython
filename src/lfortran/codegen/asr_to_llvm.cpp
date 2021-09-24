@@ -2650,6 +2650,10 @@ public:
     }
 
     void visit_BinOp(const ASR::BinOp_t &x) {
+        if( x.m_overloaded ) {
+            this->visit_expr(*x.m_overloaded);
+            return ;
+        }
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
             return;

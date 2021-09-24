@@ -250,6 +250,150 @@ ASR::TranslationUnit_t* find_and_load_module(Allocator &al, const std::string &m
     }
     return asr;
 }
+
+ASR::asr_t* getDerivedRef_t(Allocator& al, const Location& loc,
+                            ASR::asr_t* v_var, ASR::symbol_t* member,
+                            SymbolTable* current_scope) {
+    ASR::Variable_t* member_variable = ((ASR::Variable_t*)(&(member->base)));
+    ASR::ttype_t* member_type = member_variable->m_type;
+    switch( member_type->type ) {
+        case ASR::ttypeType::Derived: {
+            ASR::Derived_t* der = (ASR::Derived_t*)(&(member_type->base));
+            ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
+            if( der_type->m_symtab->counter != current_scope->counter ) {
+                ASR::symbol_t* der_ext;
+                char* module_name = (char*)"~nullptr";
+                ASR::symbol_t* m_external = der->m_derived_type;
+                if( m_external->type == ASR::symbolType::ExternalSymbol ) {
+                    ASR::ExternalSymbol_t* m_ext = (ASR::ExternalSymbol_t*)(&(m_external->base));
+                    m_external = m_ext->m_external;
+                    module_name = m_ext->m_module_name;
+                }
+                Str mangled_name;
+                mangled_name.from_str(al, "1_" +
+                                            std::string(module_name) + "_" +
+                                            std::string(der_type->m_name));
+                char* mangled_name_char = mangled_name.c_str(al);
+                if( current_scope->scope.find(mangled_name.str()) == current_scope->scope.end() ) {
+                    bool make_new_ext_sym = true;
+                    ASR::symbol_t* der_tmp = nullptr;
+                    if( current_scope->scope.find(std::string(der_type->m_name)) != current_scope->scope.end() ) {
+                        der_tmp = current_scope->scope[std::string(der_type->m_name)];
+                        if( der_tmp->type == ASR::symbolType::ExternalSymbol ) {
+                            ASR::ExternalSymbol_t* der_ext_tmp = (ASR::ExternalSymbol_t*)(&(der_tmp->base));
+                            if( der_ext_tmp->m_external == m_external ) {
+                                make_new_ext_sym = false;
+                            }
+                        } else {
+                            make_new_ext_sym = false;
+                        }
+                    }
+                    if( make_new_ext_sym ) {
+                        der_ext = (ASR::symbol_t*)ASR::make_ExternalSymbol_t(al, loc, current_scope, mangled_name_char, m_external,
+                                                                            module_name, nullptr, 0, der_type->m_name, ASR::accessType::Public);
+                        current_scope->scope[mangled_name.str()] = der_ext;
+                    } else {
+                        LFORTRAN_ASSERT(der_tmp != nullptr);
+                        der_ext = der_tmp;
+                    }
+                } else {
+                    der_ext = current_scope->scope[mangled_name.str()];
+                }
+                ASR::asr_t* der_new = ASR::make_Derived_t(al, loc, der_ext, der->m_dims, der->n_dims);
+                member_type = (ASR::ttype_t*)(der_new);
+            }
+            break;
+        }
+        default :
+            break;
+    }
+    return ASR::make_DerivedRef_t(al, loc, LFortran::ASRUtils::EXPR(v_var), member, member_type, nullptr);
+}
+
+bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
+                    ASR::binopType op, std::string& intrinsic_op_name,
+                    SymbolTable* curr_scope, ASR::asr_t*& asr,
+                    Allocator &al, const Location& loc) {
+    ASR::ttype_t *left_type = LFortran::ASRUtils::expr_type(left);
+    ASR::ttype_t *right_type = LFortran::ASRUtils::expr_type(right);
+    bool found = false;
+    if( is_op_overloaded(op, intrinsic_op_name, curr_scope) ) {
+        ASR::symbol_t* sym = curr_scope->scope[intrinsic_op_name];
+        ASR::symbol_t* orig_sym = ASRUtils::symbol_get_past_external(sym);
+        ASR::CustomOperator_t* gen_proc = ASR::down_cast<ASR::CustomOperator_t>(orig_sym);
+        for( size_t i = 0; i < gen_proc->n_procs && !found; i++ ) {
+            ASR::symbol_t* proc = gen_proc->m_procs[i];
+            switch(proc->type) {
+                case ASR::symbolType::Function: {
+                    ASR::Function_t* func = ASR::down_cast<ASR::Function_t>(proc);
+                    if( func->n_args == 2 ) {
+                        ASR::ttype_t* left_arg_type = ASRUtils::expr_type(func->m_args[0]);
+                        ASR::ttype_t* right_arg_type = ASRUtils::expr_type(func->m_args[1]);
+                        if( left_arg_type->type == left_type->type && 
+                            right_arg_type->type == right_type->type ) {
+                            found = true;
+                            Vec<ASR::expr_t*> a_args;
+                            a_args.reserve(al, 2);
+                            a_args.push_back(al, left);
+                            a_args.push_back(al, right);
+                            asr = ASR::make_FunctionCall_t(al, loc, curr_scope->scope[std::string(func->m_name)], orig_sym,
+                                                            a_args.p, 2, nullptr, 0,
+                                                            ASRUtils::expr_type(func->m_return_var),
+                                                            nullptr, nullptr);
+                        }
+                    }
+                    break;
+                }
+                default: {
+                    throw SemanticError("While overloading binary operators only functions can be used",
+                                        proc->base.loc);
+                }
+            }
+        }
+    }
+    return found;
+}
+
+bool is_op_overloaded(ASR::binopType op, std::string& intrinsic_op_name,
+                      SymbolTable* curr_scope) {
+    bool result = true;
+    switch(op) {
+        case ASR::binopType::Add: {
+            if(intrinsic_op_name != "~add") {
+                result = false;
+            }
+            break;
+        }
+        case ASR::binopType::Sub: {
+            if(intrinsic_op_name != "~sub") {
+                result = false;
+            }
+            break;
+        }
+        case ASR::binopType::Mul: {
+            if(intrinsic_op_name != "~mul") {
+                result = false;
+            }
+            break;
+        }
+        case ASR::binopType::Div: {
+            if(intrinsic_op_name != "~div") {
+                result = false;
+            }
+            break;
+        }
+        case ASR::binopType::Pow: {
+            if(intrinsic_op_name != "~pow") {
+                result = false;
+            }
+            break;
+        }
+    }
+    if( result && curr_scope->scope.find(intrinsic_op_name) == curr_scope->scope.end() ) {
+        result = false;
+    }
+    return result;
+}
     } // namespace ASRUtils
 
 

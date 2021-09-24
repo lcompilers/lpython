@@ -91,6 +91,7 @@ public:
     SymbolTable *current_scope;
     SymbolTable *global_scope;
     std::map<std::string, std::vector<std::string>> generic_procedures;
+    std::map<AST::intrinsicopType, std::vector<std::string>> overloaded_op_procs;
     std::map<std::string, std::map<std::string, std::string>> class_procedures;
     std::string dt_name;
     ASR::accessType dflt_access = ASR::Public;
@@ -104,6 +105,17 @@ public:
     Vec<char*> data_member_names;
     std::vector<std::string> current_procedure_args;
     ASR::abiType current_procedure_abi_type = ASR::abiType::Source;
+    std::map<SymbolTable*, std::map<AST::decl_attribute_t*, AST::simple_attributeType>> overloaded_ops;
+
+    std::map<AST::intrinsicopType, std::string> intrinsic2str = {
+        {AST::intrinsicopType::STAR, "~mul"},
+        {AST::intrinsicopType::PLUS, "~add"},
+    };
+
+    std::map<AST::operatorType, std::string> binop2str = {
+        {AST::operatorType::Mul, "~mul"},
+        {AST::operatorType::Add, "~add"},
+    };
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
       : al{al}, current_scope{symbol_table}, is_derived_type{false} {}
@@ -151,6 +163,7 @@ public:
             visit_program_unit(*x.m_contains[i]);
         }
         add_generic_procedures();
+        add_overloaded_procedures();
         add_class_procedures();
         asr = ASR::make_Module_t(
             al, x.base.base.loc,
@@ -479,7 +492,7 @@ public:
         ASR::expr_t *left = LFortran::ASRUtils::EXPR(asr);
         this->visit_expr(*x.m_right);
         ASR::expr_t *right = LFortran::ASRUtils::EXPR(asr);
-        CommonVisitorMethods::visit_BinOp(al, x, left, right, asr);
+        CommonVisitorMethods::visit_BinOp(al, x, left, right, asr, binop2str[x.m_op], current_scope);
     }
 
     void visit_String(const AST::String_t &x) {
@@ -589,19 +602,30 @@ public:
                     // private :: x, y, z
                     for (size_t i=0; i<x.n_syms; i++) {
                         AST::var_sym_t &s = x.m_syms[i];
-                        std::string sym = to_lower(s.m_name);
-                        if (sa->m_attr == AST::simple_attributeType
-                                ::AttrPrivate) {
-                            assgnd_access[sym] = ASR::accessType::Private;
-                        } else if (sa->m_attr == AST::simple_attributeType
-                                ::AttrPublic) {
-                            assgnd_access[sym] = ASR::accessType::Public;
-                        } else if (sa->m_attr == AST::simple_attributeType
-                                ::AttrOptional) {
-                            assgnd_presence[sym] = ASR::presenceType::Optional;
+                        if( s.m_name == nullptr &&
+                            s.m_spec->type == AST::decl_attributeType::AttrIntrinsicOperator ) {
+                                // Operator Overloading Encountered
+                                if( sa->m_attr != AST::simple_attributeType::AttrPublic &&
+                                    sa->m_attr != AST::simple_attributeType::AttrPrivate ) {
+                                    overloaded_ops[current_scope][s.m_spec] = AST::simple_attributeType::AttrPublic;
+                                } else {
+                                    overloaded_ops[current_scope][s.m_spec] = sa->m_attr;
+                                }
                         } else {
-                            throw SemanticError("Attribute declaration not "
-                                    "supported", x.base.base.loc);
+                            std::string sym = to_lower(s.m_name);
+                            if (sa->m_attr == AST::simple_attributeType
+                                    ::AttrPrivate) {
+                                assgnd_access[sym] = ASR::accessType::Private;
+                            } else if (sa->m_attr == AST::simple_attributeType
+                                    ::AttrPublic) {
+                                assgnd_access[sym] = ASR::accessType::Public;
+                            } else if (sa->m_attr == AST::simple_attributeType
+                                    ::AttrOptional) {
+                                assgnd_presence[sym] = ASR::presenceType::Optional;
+                            } else {
+                                throw SemanticError("Attribute declaration not "
+                                        "supported", x.base.base.loc);
+                            }
                         }
                     }
                 }
@@ -1266,32 +1290,73 @@ public:
         }
     }
 
+    void fill_interface_proc_names(const AST::Interface_t& x,
+                                    std::vector<std::string>& proc_names) {
+        for (size_t i = 0; i < x.n_items; i++) {
+            AST::interface_item_t *item = x.m_items[i];
+            if (AST::is_a<AST::InterfaceModuleProcedure_t>(*item)) {
+                AST::InterfaceModuleProcedure_t *proc
+                    = AST::down_cast<AST::InterfaceModuleProcedure_t>(item);
+                for (size_t i = 0; i < proc->n_names; i++) {
+                    /* Check signatures of procedures
+                    * to ensure there are no two procedures
+                    * with same signatures.
+                    */
+                    char *proc_name = proc->m_names[i];
+                    proc_names.push_back(std::string(proc_name));
+                }
+            } else {
+                throw SemanticError("Interface procedure type not imlemented yet", item->base.loc);
+            }
+        }
+    }
+
     void visit_Interface(const AST::Interface_t &x) {
         if (AST::is_a<AST::InterfaceHeaderName_t>(*x.m_header)) {
             std::string generic_name = to_lower(AST::down_cast<AST::InterfaceHeaderName_t>(x.m_header)->m_name);
             std::vector<std::string> proc_names;
-            for (size_t i = 0; i < x.n_items; i++) {
-                AST::interface_item_t *item = x.m_items[i];
-                if (AST::is_a<AST::InterfaceModuleProcedure_t>(*item)) {
-                    AST::InterfaceModuleProcedure_t *proc
-                        = AST::down_cast<AST::InterfaceModuleProcedure_t>(item);
-                    for (size_t i = 0; i < proc->n_names; i++) {
-                        char *proc_name = proc->m_names[i];
-                        proc_names.push_back(std::string(proc_name));
-                    }
-                } else {
-                    throw SemanticError("Interface procedure type not imlemented yet", item->base.loc);
-                }
-            }
+            fill_interface_proc_names(x, proc_names);
             generic_procedures[std::string(generic_name)] = proc_names;
         } else if (AST::is_a<AST::InterfaceHeader_t>(*x.m_header)) {
             std::vector<std::string> proc_names;
             for (size_t i = 0; i < x.n_items; i++) {
                 visit_interface_item(*x.m_items[i]);
             }
+        } else if (AST::is_a<AST::InterfaceHeaderOperator_t>(*x.m_header)) {
+            AST::intrinsicopType opType = AST::down_cast<AST::InterfaceHeaderOperator_t>(x.m_header)->m_op;
+            std::vector<std::string> proc_names;
+            fill_interface_proc_names(x, proc_names);
+            overloaded_op_procs[opType] = proc_names;
         } else {
             throw SemanticError("Interface type not imlemented yet", x.base.base.loc);
         }
+    }
+
+    void add_overloaded_procedures() {
+        for (auto &proc : overloaded_op_procs) {
+            Location loc;
+            loc.first_line = 1;
+            loc.last_line = 1;
+            loc.first_column = 1;
+            loc.last_column = 1;
+            Str s;
+            s.from_str_view(intrinsic2str[proc.first]);
+            char *generic_name = s.c_str(al);
+            Vec<ASR::symbol_t*> symbols;
+            symbols.reserve(al, proc.second.size());
+            for (auto &pname : proc.second) {
+                ASR::symbol_t *x;
+                Str s;
+                s.from_str_view(pname);
+                char *name = s.c_str(al);
+                x = resolve_symbol(loc, name);
+                symbols.push_back(al, x);
+            }
+            ASR::asr_t *v = ASR::make_CustomOperator_t(al, loc, current_scope,
+                                generic_name, symbols.p, symbols.size(), ASR::Public);
+            current_scope->scope[intrinsic2str[proc.first]] = ASR::down_cast<ASR::symbol_t>(v);
+        }
+        overloaded_op_procs.clear();
     }
 
     void add_generic_procedures() {
@@ -1395,6 +1460,19 @@ public:
                 } else if (ASR::is_a<ASR::GenericProcedure_t>(*item.second)) {
                     ASR::GenericProcedure_t *gp = ASR::down_cast<
                         ASR::GenericProcedure_t>(item.second);
+                    ASR::asr_t *ep = ASR::make_ExternalSymbol_t(
+                        al, gp->base.base.loc,
+                        current_scope,
+                        /* a_name */ gp->m_name,
+                        (ASR::symbol_t*)gp,
+                        m->m_name, nullptr, 0, gp->m_name,
+                        dflt_access
+                        );
+                    std::string sym = to_lower(gp->m_name);
+                    current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(ep);
+                }  else if (ASR::is_a<ASR::CustomOperator_t>(*item.second)) {
+                    ASR::CustomOperator_t *gp = ASR::down_cast<
+                        ASR::CustomOperator_t>(item.second);
                     ASR::asr_t *ep = ASR::make_ExternalSymbol_t(
                         al, gp->base.base.loc,
                         current_scope,

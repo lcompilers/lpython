@@ -91,6 +91,8 @@ symbol
         string? bindc_name)
     | GenericProcedure(symbol_table parent_symtab, identifier name,
         symbol* procs, access access)
+    | CustomOperator(symbol_table parent_symtab, identifier name,
+        symbol* procs, access access)
     | ExternalSymbol(symbol_table parent_symtab, identifier name,
         symbol external, identifier module_name, identifier* scope_names,
         identifier original_name, access access)
@@ -179,7 +181,7 @@ stmt
 
 expr
     = BoolOp(expr left, boolop op, expr right, ttype type, expr? value)
-    | BinOp(expr left, binop op, expr right, ttype type, expr? value)
+    | BinOp(expr left, binop op, expr right, ttype type, expr? value, expr? overloaded)
     | StrOp(expr left, strop op, expr right, ttype type, expr? value)
     | UnaryOp(unaryop op, expr operand, ttype type, expr? value)
     | Compare(expr left, cmpop op, expr right, ttype type, expr? value)
