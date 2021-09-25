@@ -1,11 +1,7 @@
 if(UNIX)
-    include(CheckCXXSourceRuns)
-    check_cxx_source_runs("#include <CLI11.hpp>
-    int main(int argc, char *argv[]) {CLI::App app{\"test\"}; CLI11_PARSE(app, argc, argv);" runs-cli11)
-    if (NOT runs-cli11)
-        # This is sometimes needed to fix link errors for CLI11
-        set(stdc++fs-lib stdc++fs)
-    endif()
+    # File system support required by CLI11
+    find_library(stdc++fs stdc++fs)
+    set(stdc++fs-lib "$<$<BOOL:${stdc++fs}>:stdc++fs>")
 endif()
 add_executable(lfortran lfortran.cpp)
 target_include_directories(lfortran PRIVATE "tpl")
