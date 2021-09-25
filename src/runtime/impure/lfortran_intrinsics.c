@@ -18,10 +18,12 @@ typedef float _Complex float_complex_t;
 typedef double _Complex double_complex_t;
 #endif
 
-#ifdef HAVE_LFORTRAN_DLLEXPORT
+#ifdef _WIN32
 #define LFORTRAN_API __declspec(dllexport)
+#elif defined(__linux__)
+#define LFORTRAN_API __attribute__((visibility("default")))
 #else
-#define LFORTRAN_API
+#define LFORTRAN_API /* Nothing */
 #endif
 
 LFORTRAN_API double _lfortran_sum(int n, double *v)

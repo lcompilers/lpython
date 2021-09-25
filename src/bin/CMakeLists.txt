@@ -10,6 +10,11 @@ if (LFORTRAN_STATIC_BIN)
         endif()
     endif()
 endif()
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_link_options(lfortran PRIVATE -export-dynamic)
+endif()
+
 if (WITH_STACKTRACE AND APPLE AND CMAKE_CXX_COMPILER_ID MATCHES Clang)
     # On macOS we have to call dsymutil to create the dSYM bundle so that the
     # stacktrace can find debugging information corresponding to the lfortran
