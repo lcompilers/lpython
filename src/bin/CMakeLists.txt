@@ -1,9 +1,11 @@
-include(CheckCXXSourceRuns)
-check_cxx_source_runs("#include <CLI11.hpp>
-int main(int argc, char *argv[]) {CLI::App app{\"test\"}; CLI11_PARSE(app, argc, argv);" has-fs)
-if (NOT has-fs)
-    # This is sometimes needed to fix link errors for CLI11
-    set(stdc++fs-lib stdc++fs)
+if(UNIX)
+    include(CheckCXXSourceRuns)
+    check_cxx_source_runs("#include <CLI11.hpp>
+    int main(int argc, char *argv[]) {CLI::App app{\"test\"}; CLI11_PARSE(app, argc, argv);" runs-cli11)
+    if (NOT runs-cli11)
+        # This is sometimes needed to fix link errors for CLI11
+        set(stdc++fs-lib stdc++fs)
+    endif()
 endif()
 add_executable(lfortran lfortran.cpp)
 target_include_directories(lfortran PRIVATE "tpl")
