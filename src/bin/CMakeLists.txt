@@ -1,10 +1,13 @@
+include(CheckCXXSourceRuns)
+check_cxx_source_runs("#include <CLI11.hpp>
+int main(int argc, char *argv[]) {CLI::App app{\"test\"}; CLI11_PARSE(app, argc, argv);" has-fs)
+if (NOT has-fs)
+    # This is sometimes needed to fix link errors for CLI11
+    set(stdc++fs-lib stdc++fs)
+endif()
 add_executable(lfortran lfortran.cpp)
 target_include_directories(lfortran PRIVATE "tpl")
-target_link_libraries(lfortran lfortran_lib)
-if (UNIX AND NOT APPLE)
-    # This is sometimes needed to fix link errors for CLI11
-    target_link_libraries(lfortran stdc++fs)
-endif()
+target_link_libraries(lfortran lfortran_lib ${stdc++fs-lib})
 if (LFORTRAN_STATIC_BIN)
     if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
         # Link statically on Linux with gcc or clang
@@ -138,8 +141,4 @@ if (WITH_FMT)
 endif()
 
 add_executable(cpptranslate cpptranslate.cpp)
-target_link_libraries(cpptranslate lfortran_lib)
-if (UNIX AND NOT APPLE)
-    # This is sometimes needed to fix link errors for CLI11
-    target_link_libraries(cpptranslate stdc++fs)
-endif()
+target_link_libraries(cpptranslate lfortran_lib ${stdc++fs-lib})
