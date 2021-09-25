@@ -187,7 +187,7 @@ cxx_binary_tests:
 # Test Jupyter Kernel
 jupyter_kernel:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images:full3-1.10.0
+  image: registry.gitlab.com/lfortran/ci-images:full3-1.11.0
   script:
     - export CONDA_PREFIX="$HOME/conda_root"
     - export PATH="$HOME/conda_root/bin:$PATH"
@@ -267,7 +267,7 @@ build.xsh:
 # Build and upload documentation
 documentation:
   stage: build
-  image: registry.gitlab.com/lfortran/ci-images:full3-1.10.0
+  image: registry.gitlab.com/lfortran/ci-images:full3-1.11.0
   script:
     - sudo apt-get update
     - sudo apt-get install -yq --no-install-recommends openssh-client git
