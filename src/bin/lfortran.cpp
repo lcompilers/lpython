@@ -2,6 +2,7 @@
 #include <iostream>
 #include <stdlib.h>
 
+#define CLI11_HAS_FILESYSTEM 0
 #include <bin/CLI11.hpp>
 
 #include <lfortran/stacktrace.h>

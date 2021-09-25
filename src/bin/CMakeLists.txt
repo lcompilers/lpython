@@ -1,10 +1,6 @@
 add_executable(lfortran lfortran.cpp)
 target_include_directories(lfortran PRIVATE "tpl")
 target_link_libraries(lfortran lfortran_lib)
-if (UNIX AND NOT APPLE)
-    # This is sometimes needed to fix link errors for CLI11
-    target_link_libraries(lfortran stdc++fs)
-endif()
 if (LFORTRAN_STATIC_BIN)
     if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
         # Link statically on Linux with gcc or clang
@@ -139,7 +135,3 @@ endif()
 
 add_executable(cpptranslate cpptranslate.cpp)
 target_link_libraries(cpptranslate lfortran_lib)
-if (UNIX AND NOT APPLE)
-    # This is sometimes needed to fix link errors for CLI11
-    target_link_libraries(cpptranslate stdc++fs)
-endif()
