@@ -781,10 +781,14 @@ char *str2str_null(Allocator &al, const LFortran::Str &s) {
 #define ASSIGN(label, variable, l) make_Assign_t(p.m_a, l, 0, label, name2char(variable), nullptr)
 #define ASSIGNMENT(x, y, l) make_Assignment_t(p.m_a, l, 0, EXPR(x), EXPR(y), nullptr)
 #define ASSOCIATE(x, y, l) make_Associate_t(p.m_a, l, 0, EXPR(x), EXPR(y), nullptr)
-#define GOTO(x, l) make_GoTo_t(p.m_a, l, 0, \
+#define GOTO(x, l) make_GoTo_t(p.m_a, l, 0, nullptr, \
         EXPR(INTEGER(x, l)), nullptr, 0, nullptr)
-#define GOTO1(labels, e, l) make_GoTo_t(p.m_a, l, 0, \
+#define GOTO1(labels, e, l) make_GoTo_t(p.m_a, l, 0, nullptr, \
         EXPR(e), EXPRS(labels), labels.size(), nullptr)
+#define GOTO2(id, l) make_GoTo_t(p.m_a, l, 0, name2char(id), \
+        nullptr, nullptr, 0, nullptr)
+#define GOTO3(id, labels, l) make_GoTo_t(p.m_a, l, 0, name2char(id), \
+        nullptr, EXPRS(labels), labels.size(), nullptr)
 
 
 ast_t* SUBROUTINE_CALL0(Allocator &al, struct_member_t* mem, size_t n,
