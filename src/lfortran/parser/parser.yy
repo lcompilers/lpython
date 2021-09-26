@@ -1513,6 +1513,9 @@ goto_statement
     : goto TK_INTEGER { $$ = GOTO($2, @$); }
     | goto "(" expr_list ")" expr { $$ = GOTO1($3, $5, @$); }
     | goto "(" expr_list ")" "," expr { $$ = GOTO1($3, $6, @$); }
+    | goto id { $$ = GOTO2($2, @$); }
+    | goto id "(" expr_list ")" { $$ = GOTO3($2, $4, @$); }
+    | goto id "," "(" expr_list ")" { $$ = GOTO3($2, $5, @$); }
     ;
 
 goto
