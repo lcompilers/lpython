@@ -132,7 +132,7 @@ std::string LLVMModule::get_return_type(const std::string &fn_name)
 
 extern "C" {
 
-void _lfortran_printf(const char* format, ...);
+float _lfortran_scos(float x);
 
 }
 
@@ -179,7 +179,7 @@ LLVMEvaluator::LLVMEvaluator(const std::string &t)
     llvm::TargetMachine *TM2 = llvm::EngineBuilder().selectTarget();
     jit = std::make_unique<llvm::orc::KaleidoscopeJIT>(TM2);
 
-    _lfortran_printf("");
+    _lfortran_scos(0.5);
     llvm::sys::DynamicLibrary::LoadLibraryPermanently(nullptr);
 }
 
