@@ -1753,17 +1753,25 @@ public:
         r += "go to";
         r += syn();
         r.append(" ");
+        if (x.m_int_var) {
+            r += x.m_int_var;
+        }
         if(x.n_labels > 0) {
+            if (x.m_int_var) r += ", ";
             r += "(";
             for (size_t i=0; i<x.n_labels; i++) {
                 this->visit_expr(*x.m_labels[i]);
                 r.append(s);
                 if (i < x.n_labels-1) r.append(", ");
             }
-            r += "), ";
+            r += ")";
+            if (x.m_goto_label) r += ", ";
+
         }
-        this->visit_expr(*x.m_goto_label);
-        r.append(s);
+        if (x.m_goto_label) {
+            this->visit_expr(*x.m_goto_label);
+            r.append(s);
+        }
         if(x.m_trivia){
             r += print_trivia_after(*x.m_trivia);
         } else {
