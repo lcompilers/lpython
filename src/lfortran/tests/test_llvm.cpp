@@ -921,24 +921,22 @@ end function
 
 TEST_CASE("FortranEvaluator 10 trig functions") {
     LFortran::Platform platform = LFortran::get_platform();
-    if (platform != LFortran::Platform::Linux) {
-        FortranEvaluator e(platform);
-        FortranEvaluator::Result<FortranEvaluator::EvalResult>
-        r = e.evaluate("sin(1.0)");
-        CHECK(r.ok);
-        CHECK(r.result.type == FortranEvaluator::EvalResult::real4);
-        CHECK(std::abs(r.result.f32 - 0.8414709848078965) < 1e-7);
-        r = e.evaluate("sin(1.d0)");
-        CHECK(r.ok);
-        CHECK(r.result.type == FortranEvaluator::EvalResult::real8);
-        CHECK(std::abs(r.result.f64 - 0.8414709848078965) < 1e-14);
-        r = e.evaluate("cos(1.0)");
-        CHECK(r.ok);
-        CHECK(r.result.type == FortranEvaluator::EvalResult::real4);
-        CHECK(std::abs(r.result.f32 - 0.5403023058681398) < 1e-7);
-        r = e.evaluate("cos(1.d0)");
-        CHECK(r.ok);
-        CHECK(r.result.type == FortranEvaluator::EvalResult::real8);
-        CHECK(std::abs(r.result.f64 - 0.5403023058681398) < 1e-14);
-    }
+    FortranEvaluator e(platform);
+    FortranEvaluator::Result<FortranEvaluator::EvalResult>
+    r = e.evaluate("sin(1.0)");
+    CHECK(r.ok);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::real4);
+    CHECK(std::abs(r.result.f32 - 0.8414709848078965) < 1e-7);
+    r = e.evaluate("sin(1.d0)");
+    CHECK(r.ok);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::real8);
+    CHECK(std::abs(r.result.f64 - 0.8414709848078965) < 1e-14);
+    r = e.evaluate("cos(1.0)");
+    CHECK(r.ok);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::real4);
+    CHECK(std::abs(r.result.f32 - 0.5403023058681398) < 1e-7);
+    r = e.evaluate("cos(1.d0)");
+    CHECK(r.ok);
+    CHECK(r.result.type == FortranEvaluator::EvalResult::real8);
+    CHECK(std::abs(r.result.f64 - 0.5403023058681398) < 1e-14);
 }

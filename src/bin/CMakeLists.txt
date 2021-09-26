@@ -12,7 +12,7 @@ if (LFORTRAN_STATIC_BIN)
 endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    target_link_options(lfortran PRIVATE -export-dynamic)
+    target_link_options(lfortran PRIVATE "LINKER:--export-dynamic")
 endif()
 
 if (WITH_STACKTRACE AND APPLE AND CMAKE_CXX_COMPILER_ID MATCHES Clang)
