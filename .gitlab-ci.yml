@@ -123,7 +123,7 @@ cxx_binary_tests:
     - cd src/runtime/tests
     - CXXFLAGS="-Werror" cmake .
     - make
-    - ctest
+    - ctest --output-on-failure
     - cd ../../..
 
     - cd integration_tests
@@ -132,21 +132,21 @@ cxx_binary_tests:
     - cd build-gfortran
     - FC=gfortran cmake ..
     - make
-    - ctest -L gfortran
+    - ctest -L gfortran --output-on-failure
     - cd ..
 
     - mkdir build-lfortran-llvm
     - cd build-lfortran-llvm
     - FC=../../src/bin/lfortran cmake -DLFORTRAN_BACKEND=llvm ..
     - make
-    - ctest -L llvm
+    - ctest -L llvm --output-on-failure
     - cd ..
 
     - mkdir build-lfortran-x86
     - cd build-lfortran-x86
     - FC=../../src/bin/lfortran cmake -DLFORTRAN_BACKEND=x86 ..
     - make
-    - ctest -L x86
+    - ctest -L x86 --output-on-failure
     - cd ..
 
     - mkdir build-lfortran-cpp
@@ -164,7 +164,7 @@ cxx_binary_tests:
     - cd ..
     - FC=../../src/bin/lfortran FFLAGS="--openmp" cmake -DLFORTRAN_BACKEND=cpp ..
     - make
-    - ctest -L cpp
+    - ctest -L cpp --output-on-failure
     - cd ../..
 
     - cd examples/project1
@@ -201,7 +201,7 @@ jupyter_kernel:
          .
     - make
     - make install
-    - ctest
+    - ctest --output-on-failure
     - cd ..
     - jupyter kernelspec list --json
     - python ci/test_fortran_kernel.py -v
@@ -286,7 +286,7 @@ documentation:
          .
     - make
     - make install
-    - ctest
+    - ctest --output-on-failure
     - cd ..
     - jupyter kernelspec list --json
     - rm -r lfortran-*
