@@ -133,6 +133,12 @@ std::string LLVMModule::get_return_type(const std::string &fn_name)
 extern "C" {
 
 void _lfortran_printf(const char* format, ...);
+float _lfortran_ssin(float x);
+double _lfortran_dsin(double x);
+float _lfortran_scos(float x);
+double _lfortran_dcos(double x);
+float _lfortran_stan(float x);
+double _lfortran_dtan(double x);
 
 }
 
@@ -180,8 +186,19 @@ LLVMEvaluator::LLVMEvaluator(const std::string &t)
     jit = std::make_unique<llvm::orc::KaleidoscopeJIT>(TM2);
 
     llvm::sys::DynamicLibrary::AddSymbol("_lfortran_printf",
-        (void*)
-        reinterpret_cast<std::uintptr_t>(_lfortran_printf));
+        (void*) reinterpret_cast<std::uintptr_t>(_lfortran_printf));
+    llvm::sys::DynamicLibrary::AddSymbol("_lfortran_ssin",
+        (void*) reinterpret_cast<std::uintptr_t>(_lfortran_ssin));
+    llvm::sys::DynamicLibrary::AddSymbol("_lfortran_dsin",
+        (void*) reinterpret_cast<std::uintptr_t>(_lfortran_dsin));
+    llvm::sys::DynamicLibrary::AddSymbol("_lfortran_scos",
+        (void*) reinterpret_cast<std::uintptr_t>(_lfortran_scos));
+    llvm::sys::DynamicLibrary::AddSymbol("_lfortran_dcos",
+        (void*) reinterpret_cast<std::uintptr_t>(_lfortran_dcos));
+    llvm::sys::DynamicLibrary::AddSymbol("_lfortran_stan",
+        (void*) reinterpret_cast<std::uintptr_t>(_lfortran_stan));
+    llvm::sys::DynamicLibrary::AddSymbol("_lfortran_dtan",
+        (void*) reinterpret_cast<std::uintptr_t>(_lfortran_dtan));
     llvm::sys::DynamicLibrary::LoadLibraryPermanently(nullptr);
 }
 
