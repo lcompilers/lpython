@@ -179,8 +179,6 @@ LLVMEvaluator::LLVMEvaluator(const std::string &t)
     llvm::TargetMachine *TM2 = llvm::EngineBuilder().selectTarget();
     jit = std::make_unique<llvm::orc::KaleidoscopeJIT>(TM2);
 
-    llvm::sys::DynamicLibrary::AddSymbol("_lfortran_printf",
-        (void*) reinterpret_cast<std::uintptr_t>(_lfortran_printf));
     llvm::sys::DynamicLibrary::LoadLibraryPermanently(nullptr);
 }
 
