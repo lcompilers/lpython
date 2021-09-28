@@ -88,6 +88,7 @@ public:
     // In addition, it also inserts the following nodes if needed:
     //   * ImplicitDeallocate
     //   * GoToTarget
+    // The `body` Vec must already be reserved
     void transform_stmts(Vec<ASR::stmt_t*> &body, size_t n_body, AST::stmt_t **m_body) {
         tmp = nullptr;
         for (size_t i=0; i<n_body; i++) {
@@ -574,12 +575,7 @@ public:
                     }
                     Vec<ASR::stmt_t*> case_body_vec;
                     case_body_vec.reserve(al, Case_Stmt->n_body);
-                    for( std::uint32_t i = 0; i < Case_Stmt->n_body; i++ ) {
-                        this->visit_stmt(*(Case_Stmt->m_body[i]));
-                        if (tmp != nullptr) {
-                            case_body_vec.push_back(al, LFortran::ASRUtils::STMT(tmp));
-                        }
-                    }
+                    transform_stmts(case_body_vec, Case_Stmt->n_body, Case_Stmt->m_body);
                     tmp = ASR::make_CaseStmt_t(al, x.base.loc, a_test_vec.p, a_test_vec.size(),
                                         case_body_vec.p, case_body_vec.size());
                     break;
@@ -610,12 +606,7 @@ public:
                     }
                     Vec<ASR::stmt_t*> case_body_vec;
                     case_body_vec.reserve(al, Case_Stmt->n_body);
-                    for( std::uint32_t i = 0; i < Case_Stmt->n_body; i++ ) {
-                        this->visit_stmt(*(Case_Stmt->m_body[i]));
-                        if (tmp != nullptr) {
-                            case_body_vec.push_back(al, LFortran::ASRUtils::STMT(tmp));
-                        }
-                    }
+                    transform_stmts(case_body_vec, Case_Stmt->n_body, Case_Stmt->m_body);
                     tmp = ASR::make_CaseStmt_Range_t(al, x.base.loc, m_start, m_end,
                                         case_body_vec.p, case_body_vec.size());
                     break;
