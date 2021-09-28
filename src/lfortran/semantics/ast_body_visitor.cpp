@@ -95,9 +95,9 @@ public:
             this->visit_stmt(*m_body[i]);
             if (tmp != nullptr) {
                 ASR::stmt_t* tmp_stmt = LFortran::ASRUtils::STMT(tmp);
-                if( tmp_stmt->type == ASR::stmtType::SubroutineCall ) {
+                if (tmp_stmt->type == ASR::stmtType::SubroutineCall) {
                     ASR::stmt_t* impl_decl = create_implicit_deallocate_subrout_call(tmp_stmt);
-                    if( impl_decl != nullptr ) {
+                    if (impl_decl != nullptr) {
                         body.push_back(al, impl_decl);
                     }
                 }
