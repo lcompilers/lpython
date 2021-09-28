@@ -84,6 +84,26 @@ public:
         // Already visited this AST node in the SymbolTableVisitor
     };
 
+    // Transforms statements to a list of ASR statements
+    // In addition, it also inserts the following nodes if needed:
+    //   * ImplicitDeallocate
+    //   * GoToTarget
+    void transform_stmts(Vec<ASR::stmt_t*> &body, size_t n_body, AST::stmt_t **m_body) {
+        for (size_t i=0; i<n_body; i++) {
+            this->visit_stmt(*m_body[i]);
+            if (tmp != nullptr) {
+                ASR::stmt_t* tmp_stmt = LFortran::ASRUtils::STMT(tmp);
+                if( tmp_stmt->type == ASR::stmtType::SubroutineCall ) {
+                    ASR::stmt_t* impl_decl = create_implicit_deallocate_subrout_call(tmp_stmt);
+                    if( impl_decl != nullptr ) {
+                        body.push_back(al, impl_decl);
+                    }
+                }
+                body.push_back(al, tmp_stmt);
+            }
+        }
+    }
+
     void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
         ASR::TranslationUnit_t *unit = ASR::down_cast2<ASR::TranslationUnit_t>(asr);
         current_scope = unit->m_global_scope;
@@ -779,19 +799,7 @@ public:
         current_scope = v->m_symtab;
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
-        for (size_t i=0; i<x.n_body; i++) {
-            this->visit_stmt(*x.m_body[i]);
-            if (tmp != nullptr) {
-                ASR::stmt_t* tmp_stmt = LFortran::ASRUtils::STMT(tmp);
-                if( tmp_stmt->type == ASR::stmtType::SubroutineCall ) {
-                    ASR::stmt_t* impl_decl = create_implicit_deallocate_subrout_call(tmp_stmt);
-                    if( impl_decl != nullptr ) {
-                        body.push_back(al, impl_decl);
-                    }
-                }
-                body.push_back(al, tmp_stmt);
-            }
-        }
+        transform_stmts(body, x.n_body, x.m_body);
         ASR::stmt_t* impl_del = create_implicit_deallocate(x.base.base.loc);
         if( impl_del != nullptr ) {
             body.push_back(al, impl_del);
