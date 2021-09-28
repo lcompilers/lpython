@@ -101,6 +101,7 @@ public:
                         body.push_back(al, impl_decl);
                     }
                 }
+                int64_t label = stmt_label(m_body[i]);
                 body.push_back(al, tmp_stmt);
             }
             // To avoid last statement to be entered twice once we exit this node
