@@ -674,19 +674,7 @@ public:
         Vec<ASR::stmt_t*> body;
         current_body = &body;
         body.reserve(al, x.n_body);
-        for (size_t i=0; i<x.n_body; i++) {
-            this->visit_stmt(*x.m_body[i]);
-            if (tmp != nullptr) {
-                ASR::stmt_t* tmp_stmt = LFortran::ASRUtils::STMT(tmp);
-                if( tmp_stmt->type == ASR::stmtType::SubroutineCall ) {
-                    ASR::stmt_t* impl_decl = create_implicit_deallocate_subrout_call(tmp_stmt);
-                    if( impl_decl != nullptr ) {
-                        body.push_back(al, impl_decl);
-                    }
-                }
-                body.push_back(al, tmp_stmt);
-            }
-        }
+        transform_stmts(body, x.n_body, x.m_body);
         ASR::stmt_t* impl_del = create_implicit_deallocate(x.base.base.loc);
         if( impl_del != nullptr ) {
             body.push_back(al, impl_del);
