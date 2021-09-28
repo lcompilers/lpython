@@ -89,6 +89,7 @@ public:
     //   * ImplicitDeallocate
     //   * GoToTarget
     void transform_stmts(Vec<ASR::stmt_t*> &body, size_t n_body, AST::stmt_t **m_body) {
+        tmp = nullptr;
         for (size_t i=0; i<n_body; i++) {
             this->visit_stmt(*m_body[i]);
             if (tmp != nullptr) {
@@ -101,6 +102,8 @@ public:
                 }
                 body.push_back(al, tmp_stmt);
             }
+            // To avoid last statement to be entered twice once we exit this node
+            tmp = nullptr;
         }
     }
 
@@ -421,14 +424,7 @@ public:
         }
         SymbolTable* current_scope_copy = current_scope;
         current_scope = new_scope;
-        for( size_t i = 0; i < x.n_body; i++ ) {
-            this->visit_stmt(*x.m_body[i]);
-            if( tmp != nullptr ) {
-                current_body->push_back(al, LFortran::ASRUtils::STMT(tmp));
-            }
-            // To avoid last statement to be entered twice once we exit this node
-            tmp = nullptr;
-        }
+        transform_stmts(*current_body, x.n_body, x.m_body);
         current_scope->scope.clear();
         current_scope = current_scope_copy;
     }
