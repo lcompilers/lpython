@@ -2079,6 +2079,21 @@ public:
         tmp = nullptr;
     }
 
+    void visit_GoTo(const AST::GoTo_t &x) {
+        if (x.m_goto_label) {
+            if (AST::is_a<AST::Num_t>(*x.m_goto_label)) {
+                int goto_label = AST::down_cast<AST::Num_t>(x.m_goto_label)->m_n;
+                tmp = ASR::make_GoTo_t(al, x.base.base.loc, goto_label);
+            } else {
+                throw SemanticError("A goto label must be an integer",
+                    x.base.base.loc);
+            }
+        } else {
+            throw SemanticError("Currently only 'goto INTEGER' is supported",
+                x.base.base.loc);
+        }
+    }
+
     void visit_Stop(const AST::Stop_t &x) {
         ASR::expr_t *code;
         if (x.m_code) {
