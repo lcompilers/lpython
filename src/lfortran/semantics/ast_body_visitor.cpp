@@ -639,13 +639,7 @@ public:
                 }
                 AST::CaseStmt_Default_t *d =
                         AST::down_cast<AST::CaseStmt_Default_t>(body);
-                for( std::uint32_t j = 0; j < d->n_body; j++ ) {
-                    this->visit_stmt(*(d->m_body[j]));
-                    if (tmp != nullptr) {
-                        def_body.push_back(al,
-                            ASR::down_cast<ASR::stmt_t>(tmp));
-                    }
-                }
+                transform_stmts(def_body, d->n_body, d->m_body);
             } else {
                 this->visit_case_stmt(*body);
                 a_body_vec.push_back(al, ASR::down_cast<ASR::case_stmt_t>(tmp));
