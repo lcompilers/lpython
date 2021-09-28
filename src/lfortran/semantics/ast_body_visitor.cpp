@@ -1861,20 +1861,10 @@ public:
         ASR::expr_t *test = LFortran::ASRUtils::EXPR(tmp);
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
-        for (size_t i=0; i<x.n_body; i++) {
-            visit_stmt(*x.m_body[i]);
-            if (tmp != nullptr) {
-                body.push_back(al, LFortran::ASRUtils::STMT(tmp));
-            }
-        }
+        transform_stmts(body, x.n_body, x.m_body);
         Vec<ASR::stmt_t*> orelse;
         orelse.reserve(al, x.n_orelse);
-        for (size_t i=0; i<x.n_orelse; i++) {
-            visit_stmt(*x.m_orelse[i]);
-            if (tmp != nullptr) {
-                orelse.push_back(al, LFortran::ASRUtils::STMT(tmp));
-            }
-        }
+        transform_stmts(orelse, x.n_orelse, x.m_orelse);
         tmp = ASR::make_If_t(al, x.base.base.loc, test, body.p,
                 body.size(), orelse.p, orelse.size());
     }
@@ -1884,12 +1874,7 @@ public:
         ASR::expr_t *test = LFortran::ASRUtils::EXPR(tmp);
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
-        for (size_t i=0; i<x.n_body; i++) {
-            visit_stmt(*x.m_body[i]);
-            if (tmp != nullptr) {
-                body.push_back(al, LFortran::ASRUtils::STMT(tmp));
-            }
-        }
+        transform_stmts(body, x.n_body, x.m_body);
         tmp = ASR::make_WhileLoop_t(al, x.base.base.loc, test, body.p,
                 body.size());
     }
@@ -1963,12 +1948,7 @@ public:
 
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
-        for (size_t i=0; i<x.n_body; i++) {
-            visit_stmt(*x.m_body[i]);
-            if (tmp != nullptr) {
-                body.push_back(al, LFortran::ASRUtils::STMT(tmp));
-            }
-        }
+        transform_stmts(body, x.n_body, x.m_body);
         ASR::do_loop_head_t head;
         head.m_v = var;
         head.m_start = start;
@@ -2012,12 +1992,7 @@ public:
 
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
-        for (size_t i=0; i<x.n_body; i++) {
-            visit_stmt(*x.m_body[i]);
-            if (tmp != nullptr) {
-                body.push_back(al, LFortran::ASRUtils::STMT(tmp));
-            }
-        }
+        transform_stmts(body, x.n_body, x.m_body);
         ASR::do_loop_head_t head;
         head.m_v = var;
         head.m_start = start;
