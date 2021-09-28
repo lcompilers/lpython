@@ -164,6 +164,13 @@ stmt
     | DoLoop(do_loop_head head, stmt* body)
     | ErrorStop(expr? code)
     | Exit()
+        -- GoTo points to a GoToTarget with the corresponding target_id within
+        -- the same procedure. We currently use `int` IDs to link GoTo with
+        -- GoToTarget to avoid issues with serialization.
+    | GoTo(int target_id)
+        -- An empty statement, a target of zero or more GoTo statements
+        -- the `id` is only unique within a procedure
+    | GoToTarget(int id)
     | If(expr test, stmt* body, stmt* orelse)
     | IfArithmetic(expr test, int lt_label, int eq_label, int gt_label)
     | Print(string? fmt, expr* values)
