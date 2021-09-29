@@ -159,7 +159,6 @@ public:
 
     llvm::Value *tmp;
     llvm::BasicBlock *current_loophead, *current_loopend, *proc_return;
-    llvm::BasicBlock *dead_bb;
     std::string mangle_prefix;
     bool prototype_only;
     llvm::StructType *complex_type_4, *complex_type_8;
@@ -2534,14 +2533,14 @@ public:
 
     void visit_Exit(const ASR::Exit_t & /* x */) {
         builder->CreateBr(current_loopend);
-        dead_bb = llvm::BasicBlock::Create(context, "dead_block");
-        start_new_block(dead_bb);
+        llvm::BasicBlock *bb = llvm::BasicBlock::Create(context, "unreachable_after_exit");
+        start_new_block(bb);
     }
 
     void visit_Cycle(const ASR::Cycle_t & /* x */) {
         builder->CreateBr(current_loophead);
-        dead_bb = llvm::BasicBlock::Create(context, "dead_block");
-        start_new_block(dead_bb);
+        llvm::BasicBlock *bb = llvm::BasicBlock::Create(context, "unreachable_after_cycle");
+        start_new_block(bb);
     }
 
     void visit_Return(const ASR::Return_t & /* x */) {
