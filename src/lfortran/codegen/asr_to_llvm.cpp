@@ -2601,13 +2601,26 @@ public:
     }
 
     void visit_GoTo(const ASR::GoTo_t &x) {
-        LFORTRAN_ASSERT(llvm_goto_targets.find(x.m_target_id) != llvm_goto_targets.end());
+        if (llvm_goto_targets.find(x.m_target_id) == llvm_goto_targets.end()) {
+            // If the target does not exist yet, create it
+            llvm::BasicBlock *new_target = llvm::BasicBlock::Create(context, "goto_target");
+            llvm_goto_targets[x.m_target_id] = new_target;
+        }
         llvm::BasicBlock *target = llvm_goto_targets[x.m_target_id];
         builder->CreateBr(target);
     }
 
-    void visit_GoToTarget(const ASR::GoToTarget_t & /* x */) {
-        // Ignored: the llvm_goto_targets table already constructed
+    void visit_GoToTarget(const ASR::GoToTarget_t &x) {
+        if (llvm_goto_targets.find(x.m_id) == llvm_goto_targets.end()) {
+            // If the target does not exist yet, create it
+            llvm::BasicBlock *new_target = llvm::BasicBlock::Create(context, "goto_target");
+            llvm_goto_targets[x.m_id] = new_target;
+        }
+        llvm::BasicBlock *target = llvm_goto_targets[x.m_id];
+
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+        fn->getBasicBlockList().push_back(target);
+        builder->SetInsertPoint(target);
     }
 
     void visit_BoolOp(const ASR::BoolOp_t &x) {
