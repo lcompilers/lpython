@@ -19,7 +19,7 @@ class LLVMEvaluator;
 class FortranEvaluator
 {
 public:
-    FortranEvaluator(Platform platform);
+    FortranEvaluator(CompilerOptions &compiler_options);
     ~FortranEvaluator();
 
     struct EvalResult {

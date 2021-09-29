@@ -32,15 +32,15 @@ using Result = FortranEvaluator::Result<T>;
 
 FortranEvaluator::FortranEvaluator(
 #ifdef HAVE_LFORTRAN_LLVM
-    Platform platform
+    CompilerOptions &compiler_options
 #else
-    Platform /*platform*/
+    CompilerOptions /*platform*/
 #endif
     ) :
     al{1024*1024},
 #ifdef HAVE_LFORTRAN_LLVM
     e{std::make_unique<LLVMEvaluator>()},
-    platform{platform},
+    platform{compiler_options.platform},
     eval_count{0},
 #endif
     symbol_table{nullptr}
