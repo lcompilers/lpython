@@ -239,7 +239,8 @@ int prompt(bool verbose)
     std::cout << "    - History (Keys: Up, Down)" << std::endl;
 
     Allocator al(64*1024*1024);
-    LFortran::FortranEvaluator e(LFortran::get_platform());
+    CompilerOptions cu;
+    LFortran::FortranEvaluator e(cu);
 
     std::vector<std::string> history;
     std::function<bool(std::string)> iscomplete = determine_completeness;
@@ -578,7 +579,7 @@ int emit_cpp(const std::string &infile, bool show_stacktrace, bool colors,
 {
     std::string input = read_file(infile);
 
-    LFortran::FortranEvaluator fe(LFortran::get_platform());
+    LFortran::FortranEvaluator fe(compiler_options);
     LFortran::FortranEvaluator::Result<std::string> cpp = fe.get_cpp(input);
     if (cpp.ok) {
         std::cout << cpp.result;
@@ -657,12 +658,12 @@ int emit_llvm(const std::string &infile,
     }
 }
 
-int emit_asm(const std::string &infile, LFortran::Platform platform,
+int emit_asm(const std::string &infile,
         bool show_stacktrace, bool colors, bool fast, CompilerOptions &compiler_options)
 {
     std::string input = read_file(infile);
 
-    LFortran::FortranEvaluator fe(platform);
+    LFortran::FortranEvaluator fe(compiler_options);
     LFortran::FortranEvaluator::Result<std::string> r = fe.get_asm(input, fast);
     if (r.ok) {
         std::cout << r.result;
@@ -686,7 +687,7 @@ int compile_to_object_file(const std::string &infile,
 {
     std::string input = read_file(infile);
 
-    LFortran::FortranEvaluator fe(platform);
+    LFortran::FortranEvaluator fe(compiler_options);
     LFortran::ASR::TranslationUnit_t* asr;
 
 
@@ -1395,7 +1396,7 @@ int main(int argc, char *argv[])
         }
         if (show_llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-            return emit_llvm(arg_file, platform, show_stacktrace, !arg_no_color, fast, compiler_options);
+            return emit_llvm(arg_file, show_stacktrace, !arg_no_color, fast, compiler_options);
 #else
             std::cerr << "The --show-llvm option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
             return 1;
@@ -1403,7 +1404,7 @@ int main(int argc, char *argv[])
         }
         if (show_asm) {
 #ifdef HAVE_LFORTRAN_LLVM
-            return emit_asm(arg_file, platform, show_stacktrace, !arg_no_color, fast, compiler_options);
+            return emit_asm(arg_file, show_stacktrace, !arg_no_color, fast, compiler_options);
 #else
             std::cerr << "The --show-asm option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
             return 1;
