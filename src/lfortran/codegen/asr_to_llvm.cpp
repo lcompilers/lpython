@@ -240,7 +240,8 @@ public:
         llvm::Function *fn = last_bb->getParent();
         llvm::Instruction *block_terminator = last_bb->getTerminator();
         if (block_terminator == nullptr) {
-            // The block is not terminated --- terminate it by jumping to our new block
+            // The previous block is not terminated --- terminate it by jumping
+            // to our new block
             builder->CreateBr(bb);
         }
         fn->getBasicBlockList().push_back(bb);
@@ -887,16 +888,8 @@ public:
                 //print_util(cond, "%d");
                 call_lfortran_free(free_fn);
                 builder->CreateBr(mergeBB);
-
-
-                thenBB = builder->GetInsertBlock();
-                fn->getBasicBlockList().push_back(elseBB);
-                builder->SetInsertPoint(elseBB);
-
-                builder->CreateBr(mergeBB);
-                elseBB = builder->GetInsertBlock();
-                fn->getBasicBlockList().push_back(mergeBB);
-                builder->SetInsertPoint(mergeBB);
+                start_new_block(elseBB);
+                start_new_block(mergeBB);
             } else {
                 call_lfortran_free(free_fn);
             }
