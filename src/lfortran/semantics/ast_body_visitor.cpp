@@ -92,6 +92,13 @@ public:
     void transform_stmts(Vec<ASR::stmt_t*> &body, size_t n_body, AST::stmt_t **m_body) {
         tmp = nullptr;
         for (size_t i=0; i<n_body; i++) {
+            // If there is a label, create a GoToTarget node first
+            int64_t label = stmt_label(m_body[i]);
+            if (label != 0) {
+                ASR::asr_t *l = ASR::make_GoToTarget_t(al, m_body[i]->base.loc, label);
+                body.push_back(al, ASR::down_cast<ASR::stmt_t>(l));
+            }
+            // Visit the statement
             this->visit_stmt(*m_body[i]);
             if (tmp != nullptr) {
                 ASR::stmt_t* tmp_stmt = LFortran::ASRUtils::STMT(tmp);
@@ -100,11 +107,6 @@ public:
                     if (impl_decl != nullptr) {
                         body.push_back(al, impl_decl);
                     }
-                }
-                int64_t label = stmt_label(m_body[i]);
-                if (label != 0) {
-                    ASR::asr_t *l = ASR::make_GoToTarget_t(al, tmp_stmt->base.loc, label);
-                    body.push_back(al, ASR::down_cast<ASR::stmt_t>(l));
                 }
                 body.push_back(al, tmp_stmt);
             }
