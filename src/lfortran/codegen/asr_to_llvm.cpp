@@ -2608,13 +2608,22 @@ public:
         }
         llvm::BasicBlock *target = llvm_goto_targets[x.m_target_id];
         builder->CreateBr(target);
-        // Now insert a new block that is unreachable and add an unreachable instruction
+        // Now insert a new block that is unreachable and add a noop instruction
         // so that the block is not empty in case there are no more statements after this
         llvm::BasicBlock *unreachable_bb = llvm::BasicBlock::Create(context, "unreachable_bb");
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
         fn->getBasicBlockList().push_back(unreachable_bb);
         builder->SetInsertPoint(unreachable_bb);
-        builder->CreateUnreachable();
+        std::string func_name = "llvm.donothing";
+        llvm::Function *fn_nop = module->getFunction(func_name);
+        if (!fn_nop) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {}, false);
+            fn_nop = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, func_name,
+                    module.get());
+        }
+        builder->CreateCall(fn_nop, {});
     }
 
     void visit_GoToTarget(const ASR::GoToTarget_t &x) {
