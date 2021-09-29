@@ -1,1 +1,3 @@
-Semantic error: Variable 'd' not declared
+input:4:9 semantic error: Variable 'd' not declared
+c = a + d
+        ^
