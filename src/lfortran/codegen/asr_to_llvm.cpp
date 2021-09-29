@@ -160,7 +160,6 @@ public:
     llvm::Value *tmp;
     llvm::BasicBlock *current_loophead, *current_loopend, *if_return;
     bool early_return = false;
-    bool dead_block = false;
     llvm::BasicBlock *dead_bb;
     std::string mangle_prefix;
     bool prototype_only;
@@ -2533,11 +2532,7 @@ public:
         llvm::Value *thenV = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
         if (!early_return) {
             builder->CreateBr(mergeBB);
-        } else if (dead_block) {
-            // Terminate the dead block if the previous Br didn't terminate it
-            builder->CreateBr(dead_bb);
         }
-        dead_block = false;
 
         thenBB = builder->GetInsertBlock();
         start_new_block(elseBB);
@@ -2586,19 +2581,17 @@ public:
     }
 
     void visit_Exit(const ASR::Exit_t & /* x */) {
+        builder->CreateBr(current_loopend);
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
         dead_bb = llvm::BasicBlock::Create(context, "dead_block", fn);
-        builder->CreateBr(current_loopend);
         builder->SetInsertPoint(dead_bb);
-        dead_block = true;
     }
 
     void visit_Cycle(const ASR::Cycle_t & /* x */) {
+        builder->CreateBr(current_loophead);
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
         dead_bb = llvm::BasicBlock::Create(context, "dead_block", fn);
-        builder->CreateBr(current_loophead);
         builder->SetInsertPoint(dead_bb);
-        dead_block = true;
     }
 
     void visit_Return(const ASR::Return_t & /* x */) {
