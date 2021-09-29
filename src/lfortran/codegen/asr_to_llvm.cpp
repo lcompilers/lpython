@@ -2557,10 +2557,8 @@ public:
         }
         llvm::BasicBlock *target = llvm_goto_targets[x.m_target_id];
         builder->CreateBr(target);
-        // Now insert a new block that is unreachable and add a noop instruction
-        // so that the block is not empty in case there are no more statements after this
-        llvm::BasicBlock *unreachable_bb = llvm::BasicBlock::Create(context, "unreachable_bb");
-        start_new_block(unreachable_bb);
+        llvm::BasicBlock *bb = llvm::BasicBlock::Create(context, "unreachable_after_goto");
+        start_new_block(bb);
     }
 
     void visit_GoToTarget(const ASR::GoToTarget_t &x) {
