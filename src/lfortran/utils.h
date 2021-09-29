@@ -16,6 +16,7 @@ struct CompilerOptions {
     bool fixed_form = false;
     bool symtab_only = false;
     bool show_stacktrace = false;
+    bool use_colors = true;
     Platform platform;
 
     CompilerOptions () : platform{get_platform()} {};

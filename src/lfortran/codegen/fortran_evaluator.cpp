@@ -30,19 +30,15 @@ using Result = FortranEvaluator::Result<T>;
 /* ------------------------------------------------------------------------- */
 // FortranEvaluator
 
-FortranEvaluator::FortranEvaluator(
-#ifdef HAVE_LFORTRAN_LLVM
-    CompilerOptions compiler_options
-#else
-    CompilerOptions /*platform*/
-#endif
-    ) :
+FortranEvaluator::FortranEvaluator(CompilerOptions compiler_options)
+    :
     al{1024*1024},
 #ifdef HAVE_LFORTRAN_LLVM
     e{std::make_unique<LLVMEvaluator>()},
     platform{compiler_options.platform},
     eval_count{0},
 #endif
+    compiler_options{compiler_options},
     symbol_table{nullptr}
 {
 }
@@ -421,26 +417,34 @@ Result<std::string> FortranEvaluator::get_fmt(const std::string &code)
     }
 }
 
-std::string FortranEvaluator::format_error(const Error &e, const std::string &input,
-    bool use_colors) const
+std::string FortranEvaluator::format_error(const Error &e, const std::string &input) const
 {
+    std::string out;
+    if (compiler_options.show_stacktrace) {
+        out += error_stacktrace(e);
+    }
     switch (e.type) {
         case (LFortran::FortranEvaluator::Error::Tokenizer) : {
-            return format_syntax_error("input", input, e.loc, -1, &e.token_str, use_colors);
+            out += format_syntax_error("input", input, e.loc, -1, &e.token_str, compiler_options.use_colors);
+            break;
         }
         case (LFortran::FortranEvaluator::Error::Parser) : {
-            return format_syntax_error("input", input, e.loc, e.token, nullptr, use_colors);
+            out += format_syntax_error("input", input, e.loc, e.token, nullptr, compiler_options.use_colors);
+            break;
         }
         case (LFortran::FortranEvaluator::Error::Semantic) : {
-            return format_semantic_error("input", input, e.loc, e.msg, use_colors);
+            out += format_semantic_error("input", input, e.loc, e.msg, compiler_options.use_colors);
+            break;
         }
         case (LFortran::FortranEvaluator::Error::CodeGen) : {
-            return "Code generation error: " + e.msg + "\n";
+            out += "Code generation error: " + e.msg + "\n";
+            break;
         }
         default : {
             throw LFortranException("Unknown error type");
         }
     }
+    return out;
 }
 
 std::string FortranEvaluator::error_stacktrace(const Error &e) const
