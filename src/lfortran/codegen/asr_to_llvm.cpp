@@ -240,7 +240,8 @@ public:
         llvm::Function *fn = last_bb->getParent();
         llvm::Instruction *block_terminator = last_bb->getTerminator();
         if (block_terminator == nullptr) {
-            // The block is not terminated --- terminate it by jumping to our new block
+            // The previous block is not terminated --- terminate it by jumping
+            // to our new block
             builder->CreateBr(bb);
         }
         fn->getBasicBlockList().push_back(bb);
@@ -887,16 +888,8 @@ public:
                 //print_util(cond, "%d");
                 call_lfortran_free(free_fn);
                 builder->CreateBr(mergeBB);
-
-
-                thenBB = builder->GetInsertBlock();
-                fn->getBasicBlockList().push_back(elseBB);
-                builder->SetInsertPoint(elseBB);
-
-                builder->CreateBr(mergeBB);
-                elseBB = builder->GetInsertBlock();
-                fn->getBasicBlockList().push_back(mergeBB);
-                builder->SetInsertPoint(mergeBB);
+                start_new_block(elseBB);
+                start_new_block(mergeBB);
             } else {
                 call_lfortran_free(free_fn);
             }
@@ -2193,8 +2186,7 @@ public:
                 llvm::Value* rank = builder->CreateLoad(llvm_utils->create_gep(llvm_arg, 1));
                 builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 1)), llvm_ret_ptr);
 
-                llvm::Function *fn = builder->GetInsertBlock()->getParent();
-                llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head", fn);
+                llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
                 llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
                 llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
                 this->current_loophead = loophead;
@@ -2203,14 +2195,12 @@ public:
                 llvm::Value* r = builder->CreateAlloca(getIntType(4), nullptr);
                 builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), r);
                 // head
-                builder->CreateBr(loophead);
-                builder->SetInsertPoint(loophead);
+                start_new_block(loophead);
                 llvm::Value *cond = builder->CreateICmpSLT(builder->CreateLoad(r), rank);
                 builder->CreateCondBr(cond, loopbody, loopend);
 
                 // body
-                fn->getBasicBlockList().push_back(loopbody);
-                builder->SetInsertPoint(loopbody);
+                start_new_block(loopbody);
                 llvm::Value* r_val = builder->CreateLoad(r);
                 llvm::Value* ret_val = builder->CreateLoad(llvm_ret_ptr);
                 llvm::Value* dim_size = arr_descr->get_dimension_size(dim_des_val, r_val);
@@ -2221,8 +2211,7 @@ public:
                 builder->CreateBr(loophead);
 
                 // end
-                fn->getBasicBlockList().push_back(loopend);
-                builder->SetInsertPoint(loopend);
+                start_new_block(loopend);
 
                 define_function_exit(x);
             } else if( m_name == "lbound" || m_name == "ubound" ) {
@@ -2520,45 +2509,39 @@ public:
     }
 
     void visit_WhileLoop(const ASR::WhileLoop_t &x) {
-        llvm::Function *fn = builder->GetInsertBlock()->getParent();
-        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head", fn);
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
         llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
         llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
         this->current_loophead = loophead;
         this->current_loopend = loopend;
 
         // head
-        builder->CreateBr(loophead);
-        builder->SetInsertPoint(loophead);
+        start_new_block(loophead);
         this->visit_expr_wrapper(x.m_test, true);
         llvm::Value *cond = tmp;
         builder->CreateCondBr(cond, loopbody, loopend);
 
         // body
-        fn->getBasicBlockList().push_back(loopbody);
-        builder->SetInsertPoint(loopbody);
+        start_new_block(loopbody);
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
         }
         builder->CreateBr(loophead);
 
         // end
-        fn->getBasicBlockList().push_back(loopend);
-        builder->SetInsertPoint(loopend);
+        start_new_block(loopend);
     }
 
     void visit_Exit(const ASR::Exit_t & /* x */) {
         builder->CreateBr(current_loopend);
-        llvm::Function *fn = builder->GetInsertBlock()->getParent();
-        dead_bb = llvm::BasicBlock::Create(context, "dead_block", fn);
-        builder->SetInsertPoint(dead_bb);
+        dead_bb = llvm::BasicBlock::Create(context, "dead_block");
+        start_new_block(dead_bb);
     }
 
     void visit_Cycle(const ASR::Cycle_t & /* x */) {
         builder->CreateBr(current_loophead);
-        llvm::Function *fn = builder->GetInsertBlock()->getParent();
-        dead_bb = llvm::BasicBlock::Create(context, "dead_block", fn);
-        builder->SetInsertPoint(dead_bb);
+        dead_bb = llvm::BasicBlock::Create(context, "dead_block");
+        start_new_block(dead_bb);
     }
 
     void visit_Return(const ASR::Return_t & /* x */) {
@@ -2578,9 +2561,7 @@ public:
         // Now insert a new block that is unreachable and add a noop instruction
         // so that the block is not empty in case there are no more statements after this
         llvm::BasicBlock *unreachable_bb = llvm::BasicBlock::Create(context, "unreachable_bb");
-        llvm::Function *fn = builder->GetInsertBlock()->getParent();
-        fn->getBasicBlockList().push_back(unreachable_bb);
-        builder->SetInsertPoint(unreachable_bb);
+        start_new_block(unreachable_bb);
         std::string func_name = "llvm.donothing";
         llvm::Function *fn_nop = module->getFunction(func_name);
         if (!fn_nop) {
