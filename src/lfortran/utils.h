@@ -15,6 +15,7 @@ Platform get_platform();
 struct CompilerOptions {
     bool fixed_form = false;
     bool symtab_only = false;
+    bool show_stacktrace = false;
     Platform platform;
 
     CompilerOptions () : platform{get_platform()} {};

@@ -509,29 +509,19 @@ int emit_asr(const std::string &infile, bool colors,
 {
     std::string input = read_file(infile);
 
-    // Src -> AST
+    LFortran::FortranEvaluator fe(compiler_options);
+    LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
+        r = fe.get_asr2(input, compiler_options.fixed_form);
+    if (!r.ok) {
+        if (compiler_options.show_stacktrace) {
+            std::cerr << fe.error_stacktrace(r.error);
+        }
+        std::cerr << fe.format_error(r.error, input, colors);
+        return 2;
+    }
+    LFortran::ASR::TranslationUnit_t* asr = r.result;
+
     Allocator al(64*1024*1024);
-    LFortran::AST::TranslationUnit_t* ast;
-    try {
-        ast = LFortran::parse2(al, input, colors);
-    } catch (const LFortran::TokenizerError &e) {
-        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
-        return 1;
-    } catch (const LFortran::ParserError &e) {
-        std::cerr << "Parsing error: " << e.msg() << std::endl;
-        return 2;
-    }
-
-    // AST -> ASR
-    LFortran::ASR::TranslationUnit_t* asr;
-    try {
-        // FIXME: For now we only transform the first node in the list:
-        asr = LFortran::ast_to_asr(al, *ast);
-    } catch (const LFortran::SemanticError &e) {
-        std::cerr << "Semantic error: " << e.msg() << std::endl;
-        return 2;
-    }
-
     for (size_t i=0; i < passes.size(); i++) {
         switch (passes[i]) {
             case (ASRPass::do_loops) : {
