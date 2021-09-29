@@ -160,7 +160,6 @@ public:
     llvm::Value *tmp;
     llvm::BasicBlock *current_loophead, *current_loopend, *if_return;
     bool early_return = false;
-    bool dead_block = false;
     llvm::BasicBlock *dead_bb;
     std::string mangle_prefix;
     bool prototype_only;
@@ -233,6 +232,20 @@ public:
               llvm_utils.get(),
               LLVMArrUtils::DESCR_TYPE::_SimpleCMODescriptor))
     {
+    }
+
+    // Inserts a new block `bb` using the current builder
+    // and terminates the previous block if it is not already terminated
+    void start_new_block(llvm::BasicBlock *bb) {
+        llvm::BasicBlock *last_bb = builder->GetInsertBlock();
+        llvm::Function *fn = last_bb->getParent();
+        llvm::Instruction *block_terminator = last_bb->getTerminator();
+        if (block_terminator == nullptr) {
+            // The block is not terminated --- terminate it by jumping to our new block
+            builder->CreateBr(bb);
+        }
+        fn->getBasicBlockList().push_back(bb);
+        builder->SetInsertPoint(bb);
     }
 
     inline bool verify_dimensions_t(ASR::dimension_t* m_dims, int n_dims) {
@@ -2519,15 +2532,10 @@ public:
         llvm::Value *thenV = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
         if (!early_return) {
             builder->CreateBr(mergeBB);
-        } else if (dead_block) {
-            // Terminate the dead block if the previous Br didn't terminate it
-            builder->CreateBr(dead_bb);
         }
-        dead_block = false;
 
         thenBB = builder->GetInsertBlock();
-        fn->getBasicBlockList().push_back(elseBB);
-        builder->SetInsertPoint(elseBB);
+        start_new_block(elseBB);
         for (size_t i=0; i<x.n_orelse; i++) {
             this->visit_stmt(*x.m_orelse[i]);
         }
@@ -2535,8 +2543,7 @@ public:
 
         builder->CreateBr(mergeBB);
         elseBB = builder->GetInsertBlock();
-        fn->getBasicBlockList().push_back(mergeBB);
-        builder->SetInsertPoint(mergeBB);
+        start_new_block(mergeBB);
         if (!early_return){
             llvm::PHINode *PN = builder->CreatePHI(llvm::Type::getInt32Ty(context), 2,
                                             "iftmp");
@@ -2574,19 +2581,17 @@ public:
     }
 
     void visit_Exit(const ASR::Exit_t & /* x */) {
+        builder->CreateBr(current_loopend);
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
         dead_bb = llvm::BasicBlock::Create(context, "dead_block", fn);
-        builder->CreateBr(current_loopend);
         builder->SetInsertPoint(dead_bb);
-        dead_block = true;
     }
 
     void visit_Cycle(const ASR::Cycle_t & /* x */) {
+        builder->CreateBr(current_loophead);
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
         dead_bb = llvm::BasicBlock::Create(context, "dead_block", fn);
-        builder->CreateBr(current_loophead);
         builder->SetInsertPoint(dead_bb);
-        dead_block = true;
     }
 
     void visit_Return(const ASR::Return_t & /* x */) {
@@ -2633,18 +2638,7 @@ public:
             llvm_goto_targets[x.m_id] = new_target;
         }
         llvm::BasicBlock *target = llvm_goto_targets[x.m_id];
-
-        llvm::Function *fn = builder->GetInsertBlock()->getParent();
-        if (fn->getBasicBlockList().size() > 0) {
-            llvm::BasicBlock &last_bb = fn->getBasicBlockList().back();
-            llvm::Instruction *block_terminator = last_bb.getTerminator();
-            if (block_terminator == nullptr) {
-                // The block is not terminated --- terminate it by jumping to our new label
-                builder->CreateBr(target);
-            }
-        }
-        fn->getBasicBlockList().push_back(target);
-        builder->SetInsertPoint(target);
+        start_new_block(target);
     }
 
     void visit_BoolOp(const ASR::BoolOp_t &x) {
