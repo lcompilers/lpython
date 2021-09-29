@@ -9,6 +9,9 @@ define void @print_int() {
   store i32 5, i32* %a, align 4
   %0 = load i32, i32* %a, align 4
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0), i32 %0)
+  br label %return
+
+return:                                           ; preds = %.entry
   ret void
 }
 

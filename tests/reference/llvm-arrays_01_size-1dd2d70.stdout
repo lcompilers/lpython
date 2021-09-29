@@ -49,6 +49,9 @@ loop.body:                                        ; preds = %loop.head
   br label %loop.head
 
 loop.end:                                         ; preds = %loop.head
+  br label %return
+
+return:                                           ; preds = %loop.end
   %14 = load i32, i32* %size, align 4
   ret i32 %14
 }
@@ -168,7 +171,6 @@ else:                                             ; preds = %loop.end
   br label %ifcont
 
 ifcont:                                           ; preds = %else, %then
-  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
   %69 = getelementptr %array.0, %array.0* %a, i32 0, i32 2
   %70 = getelementptr [1 x %dimension_descriptor], [1 x %dimension_descriptor]* %69, i32 0, i32 0
   %71 = getelementptr %dimension_descriptor, %dimension_descriptor* %70, i32 0, i32 1
@@ -194,7 +196,6 @@ else2:                                            ; preds = %ifcont
   br label %ifcont3
 
 ifcont3:                                          ; preds = %else2, %then1
-  %iftmp4 = phi i32 [ 1, %then1 ], [ 2, %else2 ]
   %83 = getelementptr %array.0, %array.0* %a, i32 0, i32 2
   %84 = getelementptr [1 x %dimension_descriptor], [1 x %dimension_descriptor]* %83, i32 0, i32 0
   %85 = getelementptr %dimension_descriptor, %dimension_descriptor* %84, i32 0, i32 1
@@ -209,30 +210,29 @@ ifcont3:                                          ; preds = %else2, %then1
   %94 = getelementptr [3 x i32], [3 x i32]* %93, i32 0, i32 %89
   %95 = load i32, i32* %94, align 4
   %96 = icmp ne i32 %95, 13
-  br i1 %96, label %then5, label %else6
+  br i1 %96, label %then4, label %else5
 
-then5:                                            ; preds = %ifcont3
+then4:                                            ; preds = %ifcont3
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @2, i32 0, i32 0))
   call void @exit(i32 1)
-  br label %ifcont7
+  br label %ifcont6
 
-else6:                                            ; preds = %ifcont3
-  br label %ifcont7
+else5:                                            ; preds = %ifcont3
+  br label %ifcont6
 
-ifcont7:                                          ; preds = %else6, %then5
-  %iftmp8 = phi i32 [ 1, %then5 ], [ 2, %else6 ]
+ifcont6:                                          ; preds = %else5, %then4
   store i32 10, i32* %i, align 4
-  br label %loop.head9
+  br label %loop.head7
 
-loop.head9:                                       ; preds = %loop.body10, %ifcont7
+loop.head7:                                       ; preds = %loop.body8, %ifcont6
   %97 = load i32, i32* %i, align 4
   %98 = add i32 %97, 1
   %99 = load i32, i32* %size_b, align 4
   %100 = add i32 10, %99
   %101 = icmp sle i32 %98, %100
-  br i1 %101, label %loop.body10, label %loop.end11
+  br i1 %101, label %loop.body8, label %loop.end9
 
-loop.body10:                                      ; preds = %loop.head9
+loop.body8:                                       ; preds = %loop.head7
   %102 = load i32, i32* %i, align 4
   %103 = add i32 %102, 1
   store i32 %103, i32* %i, align 4
@@ -252,9 +252,9 @@ loop.body10:                                      ; preds = %loop.head9
   %117 = getelementptr [4 x i32], [4 x i32]* %116, i32 0, i32 %112
   %118 = load i32, i32* %i, align 4
   store i32 %118, i32* %117, align 4
-  br label %loop.head9
+  br label %loop.head7
 
-loop.end11:                                       ; preds = %loop.head9
+loop.end9:                                        ; preds = %loop.head7
   %119 = getelementptr %array.1, %array.1* %b, i32 0, i32 2
   %120 = getelementptr [1 x %dimension_descriptor], [1 x %dimension_descriptor]* %119, i32 0, i32 0
   %121 = getelementptr %dimension_descriptor, %dimension_descriptor* %120, i32 0, i32 1
@@ -269,18 +269,17 @@ loop.end11:                                       ; preds = %loop.head9
   %130 = getelementptr [4 x i32], [4 x i32]* %129, i32 0, i32 %125
   %131 = load i32, i32* %130, align 4
   %132 = icmp ne i32 %131, 11
-  br i1 %132, label %then12, label %else13
+  br i1 %132, label %then10, label %else11
 
-then12:                                           ; preds = %loop.end11
+then10:                                           ; preds = %loop.end9
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @3, i32 0, i32 0))
   call void @exit(i32 1)
-  br label %ifcont14
+  br label %ifcont12
 
-else13:                                           ; preds = %loop.end11
-  br label %ifcont14
+else11:                                           ; preds = %loop.end9
+  br label %ifcont12
 
-ifcont14:                                         ; preds = %else13, %then12
-  %iftmp15 = phi i32 [ 1, %then12 ], [ 2, %else13 ]
+ifcont12:                                         ; preds = %else11, %then10
   %133 = getelementptr %array.1, %array.1* %b, i32 0, i32 2
   %134 = getelementptr [1 x %dimension_descriptor], [1 x %dimension_descriptor]* %133, i32 0, i32 0
   %135 = getelementptr %dimension_descriptor, %dimension_descriptor* %134, i32 0, i32 1
@@ -295,18 +294,17 @@ ifcont14:                                         ; preds = %else13, %then12
   %144 = getelementptr [4 x i32], [4 x i32]* %143, i32 0, i32 %139
   %145 = load i32, i32* %144, align 4
   %146 = icmp ne i32 %145, 12
-  br i1 %146, label %then16, label %else17
+  br i1 %146, label %then13, label %else14
 
-then16:                                           ; preds = %ifcont14
+then13:                                           ; preds = %ifcont12
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @4, i32 0, i32 0))
   call void @exit(i32 1)
-  br label %ifcont18
+  br label %ifcont15
 
-else17:                                           ; preds = %ifcont14
-  br label %ifcont18
+else14:                                           ; preds = %ifcont12
+  br label %ifcont15
 
-ifcont18:                                         ; preds = %else17, %then16
-  %iftmp19 = phi i32 [ 1, %then16 ], [ 2, %else17 ]
+ifcont15:                                         ; preds = %else14, %then13
   %147 = getelementptr %array.1, %array.1* %b, i32 0, i32 2
   %148 = getelementptr [1 x %dimension_descriptor], [1 x %dimension_descriptor]* %147, i32 0, i32 0
   %149 = getelementptr %dimension_descriptor, %dimension_descriptor* %148, i32 0, i32 1
@@ -321,18 +319,17 @@ ifcont18:                                         ; preds = %else17, %then16
   %158 = getelementptr [4 x i32], [4 x i32]* %157, i32 0, i32 %153
   %159 = load i32, i32* %158, align 4
   %160 = icmp ne i32 %159, 13
-  br i1 %160, label %then20, label %else21
+  br i1 %160, label %then16, label %else17
 
-then20:                                           ; preds = %ifcont18
+then16:                                           ; preds = %ifcont15
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @5, i32 0, i32 0))
   call void @exit(i32 1)
-  br label %ifcont22
+  br label %ifcont18
 
-else21:                                           ; preds = %ifcont18
-  br label %ifcont22
+else17:                                           ; preds = %ifcont15
+  br label %ifcont18
 
-ifcont22:                                         ; preds = %else21, %then20
-  %iftmp23 = phi i32 [ 1, %then20 ], [ 2, %else21 ]
+ifcont18:                                         ; preds = %else17, %then16
   %161 = getelementptr %array.1, %array.1* %b, i32 0, i32 2
   %162 = getelementptr [1 x %dimension_descriptor], [1 x %dimension_descriptor]* %161, i32 0, i32 0
   %163 = getelementptr %dimension_descriptor, %dimension_descriptor* %162, i32 0, i32 1
@@ -347,29 +344,28 @@ ifcont22:                                         ; preds = %else21, %then20
   %172 = getelementptr [4 x i32], [4 x i32]* %171, i32 0, i32 %167
   %173 = load i32, i32* %172, align 4
   %174 = icmp ne i32 %173, 14
-  br i1 %174, label %then24, label %else25
+  br i1 %174, label %then19, label %else20
 
-then24:                                           ; preds = %ifcont22
+then19:                                           ; preds = %ifcont18
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @6, i32 0, i32 0))
   call void @exit(i32 1)
-  br label %ifcont26
+  br label %ifcont21
 
-else25:                                           ; preds = %ifcont22
-  br label %ifcont26
+else20:                                           ; preds = %ifcont18
+  br label %ifcont21
 
-ifcont26:                                         ; preds = %else25, %then24
-  %iftmp27 = phi i32 [ 1, %then24 ], [ 2, %else25 ]
+ifcont21:                                         ; preds = %else20, %then19
   store i32 0, i32* %i, align 4
-  br label %loop.head28
+  br label %loop.head22
 
-loop.head28:                                      ; preds = %loop.body29, %ifcont26
+loop.head22:                                      ; preds = %loop.body23, %ifcont21
   %175 = load i32, i32* %i, align 4
   %176 = add i32 %175, 1
   %177 = load i32, i32* %size_a, align 4
   %178 = icmp sle i32 %176, %177
-  br i1 %178, label %loop.body29, label %loop.end30
+  br i1 %178, label %loop.body23, label %loop.end24
 
-loop.body29:                                      ; preds = %loop.head28
+loop.body23:                                      ; preds = %loop.head22
   %179 = load i32, i32* %i, align 4
   %180 = add i32 %179, 1
   store i32 %180, i32* %i, align 4
@@ -402,9 +398,9 @@ loop.body29:                                      ; preds = %loop.head28
   %207 = load i32, i32* %206, align 4
   %208 = sub i32 %207, 10
   store i32 %208, i32* %193, align 4
-  br label %loop.head28
+  br label %loop.head22
 
-loop.end30:                                       ; preds = %loop.head28
+loop.end24:                                       ; preds = %loop.head22
   %209 = getelementptr %array.1, %array.1* %b, i32 0, i32 2
   %210 = getelementptr [1 x %dimension_descriptor], [1 x %dimension_descriptor]* %209, i32 0, i32 0
   %211 = getelementptr %dimension_descriptor, %dimension_descriptor* %210, i32 0, i32 1
@@ -419,18 +415,17 @@ loop.end30:                                       ; preds = %loop.head28
   %220 = getelementptr [4 x i32], [4 x i32]* %219, i32 0, i32 %215
   %221 = load i32, i32* %220, align 4
   %222 = icmp ne i32 %221, 1
-  br i1 %222, label %then31, label %else32
+  br i1 %222, label %then25, label %else26
 
-then31:                                           ; preds = %loop.end30
+then25:                                           ; preds = %loop.end24
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @7, i32 0, i32 0))
   call void @exit(i32 1)
-  br label %ifcont33
+  br label %ifcont27
 
-else32:                                           ; preds = %loop.end30
-  br label %ifcont33
+else26:                                           ; preds = %loop.end24
+  br label %ifcont27
 
-ifcont33:                                         ; preds = %else32, %then31
-  %iftmp34 = phi i32 [ 1, %then31 ], [ 2, %else32 ]
+ifcont27:                                         ; preds = %else26, %then25
   %223 = getelementptr %array.1, %array.1* %b, i32 0, i32 2
   %224 = getelementptr [1 x %dimension_descriptor], [1 x %dimension_descriptor]* %223, i32 0, i32 0
   %225 = getelementptr %dimension_descriptor, %dimension_descriptor* %224, i32 0, i32 1
@@ -445,18 +440,17 @@ ifcont33:                                         ; preds = %else32, %then31
   %234 = getelementptr [4 x i32], [4 x i32]* %233, i32 0, i32 %229
   %235 = load i32, i32* %234, align 4
   %236 = icmp ne i32 %235, 2
-  br i1 %236, label %then35, label %else36
+  br i1 %236, label %then28, label %else29
 
-then35:                                           ; preds = %ifcont33
+then28:                                           ; preds = %ifcont27
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @8, i32 0, i32 0))
   call void @exit(i32 1)
-  br label %ifcont37
+  br label %ifcont30
 
-else36:                                           ; preds = %ifcont33
-  br label %ifcont37
+else29:                                           ; preds = %ifcont27
+  br label %ifcont30
 
-ifcont37:                                         ; preds = %else36, %then35
-  %iftmp38 = phi i32 [ 1, %then35 ], [ 2, %else36 ]
+ifcont30:                                         ; preds = %else29, %then28
   %237 = getelementptr %array.1, %array.1* %b, i32 0, i32 2
   %238 = getelementptr [1 x %dimension_descriptor], [1 x %dimension_descriptor]* %237, i32 0, i32 0
   %239 = getelementptr %dimension_descriptor, %dimension_descriptor* %238, i32 0, i32 1
@@ -471,18 +465,17 @@ ifcont37:                                         ; preds = %else36, %then35
   %248 = getelementptr [4 x i32], [4 x i32]* %247, i32 0, i32 %243
   %249 = load i32, i32* %248, align 4
   %250 = icmp ne i32 %249, 3
-  br i1 %250, label %then39, label %else40
+  br i1 %250, label %then31, label %else32
 
-then39:                                           ; preds = %ifcont37
+then31:                                           ; preds = %ifcont30
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @9, i32 0, i32 0))
   call void @exit(i32 1)
-  br label %ifcont41
+  br label %ifcont33
 
-else40:                                           ; preds = %ifcont37
-  br label %ifcont41
+else32:                                           ; preds = %ifcont30
+  br label %ifcont33
 
-ifcont41:                                         ; preds = %else40, %then39
-  %iftmp42 = phi i32 [ 1, %then39 ], [ 2, %else40 ]
+ifcont33:                                         ; preds = %else32, %then31
   %251 = getelementptr %array.1, %array.1* %b, i32 0, i32 2
   %252 = getelementptr [1 x %dimension_descriptor], [1 x %dimension_descriptor]* %251, i32 0, i32 0
   %253 = getelementptr %dimension_descriptor, %dimension_descriptor* %252, i32 0, i32 1
@@ -565,18 +558,17 @@ ifcont41:                                         ; preds = %else40, %then39
   %329 = getelementptr [4 x i32], [4 x i32]* %328, i32 0, i32 %324
   %330 = load i32, i32* %329, align 4
   %331 = icmp ne i32 %330, 17
-  br i1 %331, label %then43, label %else44
+  br i1 %331, label %then34, label %else35
 
-then43:                                           ; preds = %ifcont41
+then34:                                           ; preds = %ifcont33
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @10, i32 0, i32 0))
   call void @exit(i32 1)
-  br label %ifcont45
+  br label %ifcont36
 
-else44:                                           ; preds = %ifcont41
-  br label %ifcont45
+else35:                                           ; preds = %ifcont33
+  br label %ifcont36
 
-ifcont45:                                         ; preds = %else44, %then43
-  %iftmp46 = phi i32 [ 1, %then43 ], [ 2, %else44 ]
+ifcont36:                                         ; preds = %else35, %then34
   %332 = getelementptr %array.1, %array.1* %b, i32 0, i32 2
   %333 = getelementptr [1 x %dimension_descriptor], [1 x %dimension_descriptor]* %332, i32 0, i32 0
   %334 = getelementptr %dimension_descriptor, %dimension_descriptor* %333, i32 0, i32 1
@@ -617,18 +609,17 @@ ifcont45:                                         ; preds = %else44, %then43
   %368 = getelementptr [4 x i32], [4 x i32]* %367, i32 0, i32 %363
   %369 = load i32, i32* %368, align 4
   %370 = icmp ne i32 %369, 11
-  br i1 %370, label %then47, label %else48
+  br i1 %370, label %then37, label %else38
 
-then47:                                           ; preds = %ifcont45
+then37:                                           ; preds = %ifcont36
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @11, i32 0, i32 0))
   call void @exit(i32 1)
-  br label %ifcont49
+  br label %ifcont39
 
-else48:                                           ; preds = %ifcont45
-  br label %ifcont49
+else38:                                           ; preds = %ifcont36
+  br label %ifcont39
 
-ifcont49:                                         ; preds = %else48, %then47
-  %iftmp50 = phi i32 [ 1, %then47 ], [ 2, %else48 ]
+ifcont39:                                         ; preds = %else38, %then37
   ret i32 0
 }
 

@@ -32,6 +32,9 @@ define double @__module_lfortran_intrinsic_trig_dsin(double* %x) {
   store double %13, double* %y, align 8
   %14 = call double @__module_lfortran_intrinsic_trig_kernel_dsin(double* %y)
   store double %14, double* %r, align 8
+  br label %return
+
+return:                                           ; preds = %.entry
   %15 = load double, double* %r, align 8
   ret double %15
 }
@@ -57,7 +60,9 @@ else:                                             ; preds = %.entry
   br label %ifcont
 
 ifcont:                                           ; preds = %else, %then
-  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
+  br label %return
+
+return:                                           ; preds = %ifcont
   %7 = load i32, i32* %r, align 4
   ret i32 %7
 }
@@ -110,6 +115,9 @@ define double @__module_lfortran_intrinsic_trig_kernel_dsin(double* %x) {
   %24 = fadd double 0x3FEFFFFFFFFFFFF8, %23
   %25 = fmul double %3, %24
   store double %25, double* %res, align 8
+  br label %return
+
+return:                                           ; preds = %.entry
   %26 = load double, double* %res, align 8
   ret double %26
 }
@@ -133,7 +141,9 @@ else:                                             ; preds = %.entry
   br label %ifcont
 
 ifcont:                                           ; preds = %else, %then
-  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
+  br label %return
+
+return:                                           ; preds = %ifcont
   %5 = load double, double* %r, align 8
   ret double %5
 }
@@ -157,7 +167,9 @@ else:                                             ; preds = %.entry
   br label %ifcont
 
 ifcont:                                           ; preds = %else, %then
-  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
+  br label %return
+
+return:                                           ; preds = %ifcont
   %5 = load double, double* %r, align 8
   ret double %5
 }
@@ -177,6 +189,9 @@ define double @__module_lfortran_intrinsic_trig_modulo(double* %x, double* %y) {
   %8 = fmul double %6, %7
   %9 = fsub double %0, %8
   store double %9, double* %r, align 8
+  br label %return
+
+return:                                           ; preds = %.entry
   %10 = load double, double* %r, align 8
   ret double %10
 }
@@ -195,6 +210,9 @@ define float @__module_lfortran_intrinsic_trig_ssin(float* %x) {
   %3 = load double, double* %tmp, align 8
   %4 = fptrunc double %3 to float
   store float %4, float* %r, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %5 = load float, float* %r, align 4
   ret float %5
 }

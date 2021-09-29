@@ -15,6 +15,9 @@ define float @__lfortran_evaluate_1() {
   store float 1.100000e+01, float* %__lfortran_evaluate_14, align 4
   store float 2.000000e+00, float* %__lfortran_evaluate_15, align 4
   store float 6.400000e+01, float* %__lfortran_evaluate_16, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %0 = load float, float* %__lfortran_evaluate_16, align 4
   ret float %0
 }

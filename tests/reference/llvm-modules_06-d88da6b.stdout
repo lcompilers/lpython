@@ -10,6 +10,9 @@ define i32 @__module_a_06_b() {
   %r = alloca i32, align 4
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @1, i32 0, i32 0), i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0))
   store i32 5, i32* %r, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %0 = load i32, i32* %r, align 4
   ret i32 %0
 }

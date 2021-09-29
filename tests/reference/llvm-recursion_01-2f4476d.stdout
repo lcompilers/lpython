@@ -36,7 +36,9 @@ else:                                             ; preds = %.entry
   br label %ifcont
 
 ifcont:                                           ; preds = %else, %then
-  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
+  br label %return
+
+return:                                           ; preds = %ifcont
   ret void
 }
 
@@ -70,6 +72,9 @@ decrement_sp:                                     ; preds = %.entry
   br label %normal_continue
 
 normal_continue:                                  ; preds = %decrement_sp, %.entry
+  br label %return
+
+return:                                           ; preds = %normal_continue
   ret void
 }
 

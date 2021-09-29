@@ -20,7 +20,6 @@ else:                                             ; preds = %.entry
   br label %ifcont
 
 ifcont:                                           ; preds = %else, %then
-  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
   ret i32 0
 }
 

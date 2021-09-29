@@ -11,6 +11,9 @@ define void @__module_dflt_intent_foo(float* %c, float* %d) {
   store float %0, float* %e, align 4
   %1 = call float @__module_dflt_intent_f(float* %d)
   store float %1, float* %g, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   ret void
 }
 
@@ -23,6 +26,9 @@ define float @__module_dflt_intent_f(float* %x) {
   %2 = load float, float* %f, align 4
   %3 = fpext float %2 to double
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0), double %3)
+  br label %return
+
+return:                                           ; preds = %.entry
   %4 = load float, float* %f, align 4
   ret float %4
 }

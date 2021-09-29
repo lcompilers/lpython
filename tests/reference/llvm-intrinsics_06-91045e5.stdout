@@ -17,6 +17,9 @@ define float @__module_lfortran_intrinsic_math_sacos(float* %x) {
   %0 = load float, float* %x, align 4
   %1 = call float @_lfortran_sacos(float %0)
   store float %1, float* %r, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %2 = load float, float* %r, align 4
   ret float %2
 }
@@ -29,6 +32,9 @@ define float @__module_lfortran_intrinsic_math_sacosh(float* %x) {
   %0 = load float, float* %x, align 4
   %1 = call float @_lfortran_sacosh(float %0)
   store float %1, float* %r, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %2 = load float, float* %r, align 4
   ret float %2
 }
@@ -41,6 +47,9 @@ define float @__module_lfortran_intrinsic_math_sasin(float* %x) {
   %0 = load float, float* %x, align 4
   %1 = call float @_lfortran_sasin(float %0)
   store float %1, float* %r, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %2 = load float, float* %r, align 4
   ret float %2
 }
@@ -53,6 +62,9 @@ define float @__module_lfortran_intrinsic_math_sasinh(float* %x) {
   %0 = load float, float* %x, align 4
   %1 = call float @_lfortran_sasinh(float %0)
   store float %1, float* %r, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %2 = load float, float* %r, align 4
   ret float %2
 }
@@ -65,6 +77,9 @@ define float @__module_lfortran_intrinsic_math_satan(float* %x) {
   %0 = load float, float* %x, align 4
   %1 = call float @_lfortran_satan(float %0)
   store float %1, float* %r, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %2 = load float, float* %r, align 4
   ret float %2
 }
@@ -77,6 +92,9 @@ define float @__module_lfortran_intrinsic_math_satanh(float* %x) {
   %0 = load float, float* %x, align 4
   %1 = call float @_lfortran_satanh(float %0)
   store float %1, float* %r, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %2 = load float, float* %r, align 4
   ret float %2
 }

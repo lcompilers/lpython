@@ -18,6 +18,9 @@ define i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %x,
   %4 = getelementptr %dimension_descriptor, %dimension_descriptor* %3, i32 0, i32 1
   %5 = load i32, i32* %4, align 4
   store i32 %5, i32* %lbound, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %6 = load i32, i32* %lbound, align 4
   ret i32 %6
 }
@@ -32,6 +35,9 @@ define i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %x,
   %4 = getelementptr %dimension_descriptor, %dimension_descriptor* %3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
   store i32 %5, i32* %ubound, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %6 = load i32, i32* %ubound, align 4
   ret i32 %6
 }
@@ -566,6 +572,9 @@ loop.end14:                                       ; preds = %loop.head9
   br label %loop.head7
 
 loop.end15:                                       ; preds = %loop.head7
+  br label %return
+
+return:                                           ; preds = %loop.end15
   ret void
 }
 
@@ -714,7 +723,6 @@ else:                                             ; preds = %loop.body4
   br label %ifcont
 
 ifcont:                                           ; preds = %else, %then
-  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
   br label %loop.head3
 
 loop.end:                                         ; preds = %loop.head3
@@ -724,6 +732,9 @@ loop.end5:                                        ; preds = %loop.head1
   br label %loop.head
 
 loop.end6:                                        ; preds = %loop.head
+  br label %return
+
+return:                                           ; preds = %loop.end6
   ret void
 }
 

@@ -14,6 +14,9 @@ define float @__module_callback_01_cb(float (float*)* %f, float* %a, float* %b) 
   %5 = call float %f(float* %b)
   %6 = fadd float %4, %5
   store float %6, float* %cb, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %7 = load float, float* %cb, align 4
   ret float %7
 }
@@ -24,6 +27,9 @@ define float @__module_callback_01_f(float* %x) {
   %0 = load float, float* %x, align 4
   %1 = fmul float 2.000000e+00, %0
   store float %1, float* %f, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %2 = load float, float* %f, align 4
   ret float %2
 }
@@ -33,6 +39,9 @@ define void @__module_callback_01_foo(float* %c, float* %d) {
   %0 = call float @__module_callback_01_cb(float (float*)* @__module_callback_01_f, float* %c, float* %d)
   %1 = fpext float %0 to double
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0), double %1)
+  br label %return
+
+return:                                           ; preds = %.entry
   ret void
 }
 

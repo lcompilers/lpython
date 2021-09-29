@@ -12,6 +12,9 @@ define float @__module_lfortran_intrinsic_math_scos(float* %x) {
   %0 = load float, float* %x, align 4
   %1 = call float @_lfortran_scos(float %0)
   store float %1, float* %r, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %2 = load float, float* %r, align 4
   ret float %2
 }
