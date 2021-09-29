@@ -2561,16 +2561,6 @@ public:
         // so that the block is not empty in case there are no more statements after this
         llvm::BasicBlock *unreachable_bb = llvm::BasicBlock::Create(context, "unreachable_bb");
         start_new_block(unreachable_bb);
-        std::string func_name = "llvm.donothing";
-        llvm::Function *fn_nop = module->getFunction(func_name);
-        if (!fn_nop) {
-            llvm::FunctionType *function_type = llvm::FunctionType::get(
-                    llvm::Type::getVoidTy(context), {}, false);
-            fn_nop = llvm::Function::Create(function_type,
-                    llvm::Function::ExternalLinkage, func_name,
-                    module.get());
-        }
-        builder->CreateCall(fn_nop, {});
     }
 
     void visit_GoToTarget(const ASR::GoToTarget_t &x) {
