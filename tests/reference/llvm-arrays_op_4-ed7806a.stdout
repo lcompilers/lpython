@@ -1658,7 +1658,6 @@ else:                                             ; preds = %loop.end42
   br label %ifcont
 
 ifcont:                                           ; preds = %else, %then
-  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
   %886 = load %array.0, %array.0* %b, align 8
   %887 = getelementptr %array.0, %array.0* %b, i32 0, i32 3
   %888 = load i1, i1* %887, align 1
@@ -1680,13 +1679,12 @@ else44:                                           ; preds = %ifcont
   br label %ifcont45
 
 ifcont45:                                         ; preds = %else44, %then43
-  %iftmp46 = phi i32 [ 1, %then43 ], [ 2, %else44 ]
   %895 = load %array.0, %array.0* %c, align 8
   %896 = getelementptr %array.0, %array.0* %c, i32 0, i32 3
   %897 = load i1, i1* %896, align 1
-  br i1 %897, label %then47, label %else48
+  br i1 %897, label %then46, label %else47
 
-then47:                                           ; preds = %ifcont45
+then46:                                           ; preds = %ifcont45
   %898 = getelementptr %array.0, %array.0* %c, i32 0, i32 0
   %899 = load i1*, i1** %898, align 8
   %900 = alloca i8*, align 8
@@ -1696,13 +1694,12 @@ then47:                                           ; preds = %ifcont45
   call void (i8*, ...) @_lfortran_free(i8* %902)
   %903 = getelementptr %array.0, %array.0* %c, i32 0, i32 3
   store i1 false, i1* %903, align 1
-  br label %ifcont49
+  br label %ifcont48
 
-else48:                                           ; preds = %ifcont45
-  br label %ifcont49
+else47:                                           ; preds = %ifcont45
+  br label %ifcont48
 
-ifcont49:                                         ; preds = %else48, %then47
-  %iftmp50 = phi i32 [ 1, %then47 ], [ 2, %else48 ]
+ifcont48:                                         ; preds = %else47, %then46
   ret i32 0
 }
 
