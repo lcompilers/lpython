@@ -74,7 +74,7 @@ namespace LFortran
         FortranEvaluator e;
 
     public:
-        custom_interpreter() : e{get_platform()} {}
+        custom_interpreter() : e{CompilerOptions()} {}
         virtual ~custom_interpreter() = default;
 
     private:

@@ -32,7 +32,7 @@ using Result = FortranEvaluator::Result<T>;
 
 FortranEvaluator::FortranEvaluator(
 #ifdef HAVE_LFORTRAN_LLVM
-    CompilerOptions &compiler_options
+    CompilerOptions compiler_options
 #else
     CompilerOptions /*platform*/
 #endif
