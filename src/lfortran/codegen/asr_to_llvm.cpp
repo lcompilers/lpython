@@ -159,7 +159,6 @@ public:
 
     llvm::Value *tmp;
     llvm::BasicBlock *current_loophead, *current_loopend, *proc_return;
-    bool early_return = false;
     llvm::BasicBlock *dead_bb;
     std::string mangle_prefix;
     bool prototype_only;
@@ -887,26 +886,17 @@ public:
                 builder->SetInsertPoint(thenBB);
                 //print_util(cond, "%d");
                 call_lfortran_free(free_fn);
-                llvm::Value *thenV = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
-                if (!early_return) {
-                    builder->CreateBr(mergeBB);
-                }
+                builder->CreateBr(mergeBB);
+
 
                 thenBB = builder->GetInsertBlock();
                 fn->getBasicBlockList().push_back(elseBB);
                 builder->SetInsertPoint(elseBB);
-                llvm::Value *elseV = llvm::ConstantInt::get(context, llvm::APInt(32, 2));
 
                 builder->CreateBr(mergeBB);
                 elseBB = builder->GetInsertBlock();
                 fn->getBasicBlockList().push_back(mergeBB);
                 builder->SetInsertPoint(mergeBB);
-                if (!early_return){
-                    llvm::PHINode *PN = builder->CreatePHI(llvm::Type::getInt32Ty(context), 2,
-                                                    "iftmp");
-                    PN->addIncoming(thenV, thenBB);
-                    PN->addIncoming(elseV, elseBB);
-                }
             } else {
                 call_lfortran_free(free_fn);
             }
@@ -2520,27 +2510,13 @@ public:
             this->visit_stmt(*x.m_body[i]);
         }
         builder->CreateBr(mergeBB);
-        //llvm::Value *thenV = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
 
-        //thenBB = builder->GetInsertBlock();
         start_new_block(elseBB);
         for (size_t i=0; i<x.n_orelse; i++) {
             this->visit_stmt(*x.m_orelse[i]);
         }
-        //llvm::Value *elseV = llvm::ConstantInt::get(context, llvm::APInt(32, 2));
 
-        //builder->CreateBr(mergeBB);
-        //elseBB = builder->GetInsertBlock();
         start_new_block(mergeBB);
-        // TODO: When is this needed?
-        /*
-        if (!early_return){
-            llvm::PHINode *PN = builder->CreatePHI(llvm::Type::getInt32Ty(context), 2,
-                                            "iftmp");
-            PN->addIncoming(thenV, thenBB);
-            PN->addIncoming(elseV, elseBB);
-        }
-        */
     }
 
     void visit_WhileLoop(const ASR::WhileLoop_t &x) {
