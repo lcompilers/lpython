@@ -2540,8 +2540,7 @@ public:
         dead_block = false;
 
         thenBB = builder->GetInsertBlock();
-        fn->getBasicBlockList().push_back(elseBB);
-        builder->SetInsertPoint(elseBB);
+        start_new_block(elseBB);
         for (size_t i=0; i<x.n_orelse; i++) {
             this->visit_stmt(*x.m_orelse[i]);
         }
@@ -2549,8 +2548,7 @@ public:
 
         builder->CreateBr(mergeBB);
         elseBB = builder->GetInsertBlock();
-        fn->getBasicBlockList().push_back(mergeBB);
-        builder->SetInsertPoint(mergeBB);
+        start_new_block(mergeBB);
         if (!early_return){
             llvm::PHINode *PN = builder->CreatePHI(llvm::Type::getInt32Ty(context), 2,
                                             "iftmp");
