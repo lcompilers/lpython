@@ -26,6 +26,9 @@ define i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %x,
   %4 = getelementptr %dimension_descriptor, %dimension_descriptor* %3, i32 0, i32 1
   %5 = load i32, i32* %4, align 4
   store i32 %5, i32* %lbound, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %6 = load i32, i32* %lbound, align 4
   ret i32 %6
 }
@@ -40,6 +43,9 @@ define i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %x,
   %4 = getelementptr %dimension_descriptor, %dimension_descriptor* %3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
   store i32 %5, i32* %ubound, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %6 = load i32, i32* %ubound, align 4
   ret i32 %6
 }

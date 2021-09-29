@@ -7,6 +7,9 @@ source_filename = "LFortran"
 define void @__module_a_01_b() {
 .entry:
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @1, i32 0, i32 0), i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0))
+  br label %return
+
+return:                                           ; preds = %.entry
   ret void
 }
 

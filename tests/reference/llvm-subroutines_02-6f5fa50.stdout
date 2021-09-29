@@ -13,6 +13,9 @@ define void @f(i32* %a, i32* %b) {
   %0 = load i32, i32* %a, align 4
   %1 = add i32 %0, 1
   store i32 %1, i32* %b, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   ret void
 }
 
@@ -21,12 +24,18 @@ define void @g(i32* %a, i32* %b) {
   %0 = load i32, i32* %a, align 4
   %1 = sub i32 %0, 1
   store i32 %1, i32* %b, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   ret void
 }
 
 define void @h(i32* %a, i32* %b) {
 .entry:
   call void @g(i32* %a, i32* %b)
+  br label %return
+
+return:                                           ; preds = %.entry
   ret void
 }
 
@@ -50,7 +59,6 @@ else:                                             ; preds = %.entry
   br label %ifcont
 
 ifcont:                                           ; preds = %else, %then
-  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
   %2 = load i32, i32* %j, align 4
   %3 = icmp ne i32 %2, 2
   br i1 %3, label %then1, label %else2
@@ -64,65 +72,60 @@ else2:                                            ; preds = %ifcont
   br label %ifcont3
 
 ifcont3:                                          ; preds = %else2, %then1
-  %iftmp4 = phi i32 [ 1, %then1 ], [ 2, %else2 ]
   call void @g(i32* %i, i32* %j)
   %4 = load i32, i32* %i, align 4
   %5 = icmp ne i32 %4, 1
-  br i1 %5, label %then5, label %else6
+  br i1 %5, label %then4, label %else5
 
-then5:                                            ; preds = %ifcont3
+then4:                                            ; preds = %ifcont3
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @2, i32 0, i32 0))
   call void @exit(i32 1)
-  br label %ifcont7
+  br label %ifcont6
 
-else6:                                            ; preds = %ifcont3
-  br label %ifcont7
+else5:                                            ; preds = %ifcont3
+  br label %ifcont6
 
-ifcont7:                                          ; preds = %else6, %then5
-  %iftmp8 = phi i32 [ 1, %then5 ], [ 2, %else6 ]
+ifcont6:                                          ; preds = %else5, %then4
   %6 = load i32, i32* %j, align 4
   %7 = icmp ne i32 %6, 0
-  br i1 %7, label %then9, label %else10
+  br i1 %7, label %then7, label %else8
 
-then9:                                            ; preds = %ifcont7
+then7:                                            ; preds = %ifcont6
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @3, i32 0, i32 0))
   call void @exit(i32 1)
-  br label %ifcont11
+  br label %ifcont9
 
-else10:                                           ; preds = %ifcont7
-  br label %ifcont11
+else8:                                            ; preds = %ifcont6
+  br label %ifcont9
 
-ifcont11:                                         ; preds = %else10, %then9
-  %iftmp12 = phi i32 [ 1, %then9 ], [ 2, %else10 ]
+ifcont9:                                          ; preds = %else8, %then7
   call void @h(i32* %i, i32* %j)
   %8 = load i32, i32* %i, align 4
   %9 = icmp ne i32 %8, 1
-  br i1 %9, label %then13, label %else14
+  br i1 %9, label %then10, label %else11
 
-then13:                                           ; preds = %ifcont11
+then10:                                           ; preds = %ifcont9
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @4, i32 0, i32 0))
+  call void @exit(i32 1)
+  br label %ifcont12
+
+else11:                                           ; preds = %ifcont9
+  br label %ifcont12
+
+ifcont12:                                         ; preds = %else11, %then10
+  %10 = load i32, i32* %j, align 4
+  %11 = icmp ne i32 %10, 0
+  br i1 %11, label %then13, label %else14
+
+then13:                                           ; preds = %ifcont12
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @5, i32 0, i32 0))
   call void @exit(i32 1)
   br label %ifcont15
 
-else14:                                           ; preds = %ifcont11
+else14:                                           ; preds = %ifcont12
   br label %ifcont15
 
 ifcont15:                                         ; preds = %else14, %then13
-  %iftmp16 = phi i32 [ 1, %then13 ], [ 2, %else14 ]
-  %10 = load i32, i32* %j, align 4
-  %11 = icmp ne i32 %10, 0
-  br i1 %11, label %then17, label %else18
-
-then17:                                           ; preds = %ifcont15
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @5, i32 0, i32 0))
-  call void @exit(i32 1)
-  br label %ifcont19
-
-else18:                                           ; preds = %ifcont15
-  br label %ifcont19
-
-ifcont19:                                         ; preds = %else18, %then17
-  %iftmp20 = phi i32 [ 1, %then17 ], [ 2, %else18 ]
   ret i32 0
 }
 

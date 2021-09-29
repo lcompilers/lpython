@@ -17,6 +17,9 @@ define float @__module_class_circle1_circle_area(%circle* %this) {
   %3 = call float @llvm.pow.f32(float %2, float 2.000000e+00)
   %4 = fmul float %0, %3
   store float %4, float* %area, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %5 = load float, float* %area, align 4
   ret float %5
 }
@@ -32,6 +35,9 @@ define void @__module_class_circle1_circle_print(%circle* %this) {
   %4 = load float, float* %area, align 4
   %5 = fpext float %4 to double
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @2, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @0, i32 0, i32 0), double %3, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @1, i32 0, i32 0), double %5)
+  br label %return
+
+return:                                           ; preds = %.entry
   ret void
 }
 

@@ -47,11 +47,12 @@ else2:                                            ; preds = %else
   br label %ifcont
 
 ifcont:                                           ; preds = %else2, %then1
-  %iftmp = phi i32 [ 1, %then1 ], [ 2, %else2 ]
   br label %ifcont3
 
 ifcont3:                                          ; preds = %ifcont, %then
-  %iftmp4 = phi i32 [ 1, %then ], [ 2, %ifcont ]
+  br label %return
+
+return:                                           ; preds = %ifcont3
   %8 = load i32, i32* %bin_add, align 4
   ret i32 %8
 }
@@ -63,6 +64,9 @@ define i1 @__module_operator_overloading_01_overload_asterisk_m_logical_and(i1* 
   %1 = load i1, i1* %log2, align 1
   %2 = and i1 %0, %1
   store i1 %2, i1* %logical_and, align 1
+  br label %return
+
+return:                                           ; preds = %.entry
   %3 = load i1, i1* %logical_and, align 1
   ret i1 %3
 }

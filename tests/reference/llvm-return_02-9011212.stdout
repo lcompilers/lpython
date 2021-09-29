@@ -15,6 +15,9 @@ define i32 @__module_many_returns_b(i32* %a) {
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @1, i32 0, i32 0), i8* getelementptr inbounds ([10 x i8], [10 x i8]* @0, i32 0, i32 0))
   %0 = call i32 @__module_many_returns_d(i32* %a)
   store i32 %0, i32* %b, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %1 = load i32, i32* %b, align 4
   ret i32 %1
 }
@@ -30,40 +33,49 @@ then:                                             ; preds = %.entry
   store i32 1, i32* %d, align 4
   br label %return
 
-return:                                           ; preds = %ifcont6, %then4, %then1, %then
-  %2 = load i32, i32* %d, align 4
-  ret i32 %2
+unreachable_after_return:                         ; No predecessors!
+  br label %ifcont
 
 else:                                             ; preds = %.entry
   br label %ifcont
 
-ifcont:                                           ; preds = %else
-  %3 = load i32, i32* %i, align 4
-  %4 = icmp eq i32 %3, 2
-  br i1 %4, label %then1, label %else2
+ifcont:                                           ; preds = %else, %unreachable_after_return
+  %2 = load i32, i32* %i, align 4
+  %3 = icmp eq i32 %2, 2
+  br i1 %3, label %then1, label %else3
 
 then1:                                            ; preds = %ifcont
   store i32 2, i32* %d, align 4
   br label %return
 
-else2:                                            ; preds = %ifcont
-  br label %ifcont3
+unreachable_after_return2:                        ; No predecessors!
+  br label %ifcont4
 
-ifcont3:                                          ; preds = %else2
-  %5 = load i32, i32* %i, align 4
-  %6 = icmp eq i32 %5, 3
-  br i1 %6, label %then4, label %else5
+else3:                                            ; preds = %ifcont
+  br label %ifcont4
 
-then4:                                            ; preds = %ifcont3
+ifcont4:                                          ; preds = %else3, %unreachable_after_return2
+  %4 = load i32, i32* %i, align 4
+  %5 = icmp eq i32 %4, 3
+  br i1 %5, label %then5, label %else7
+
+then5:                                            ; preds = %ifcont4
   store i32 3, i32* %d, align 4
   br label %return
 
-else5:                                            ; preds = %ifcont3
-  br label %ifcont6
+unreachable_after_return6:                        ; No predecessors!
+  br label %ifcont8
 
-ifcont6:                                          ; preds = %else5
+else7:                                            ; preds = %ifcont4
+  br label %ifcont8
+
+ifcont8:                                          ; preds = %else7, %unreachable_after_return6
   store i32 999, i32* %d, align 4
   br label %return
+
+return:                                           ; preds = %ifcont8, %then5, %then1, %then
+  %6 = load i32, i32* %d, align 4
+  ret i32 %6
 }
 
 declare void @_lfortran_printf(i8*, ...)

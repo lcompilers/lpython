@@ -9,12 +9,18 @@ define void @__module_a_b() {
 .entry:
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @2, i32 0, i32 0), i8* getelementptr inbounds ([4 x i8], [4 x i8]* @1, i32 0, i32 0))
   call void @__module_a_c()
+  br label %return
+
+return:                                           ; preds = %.entry
   ret void
 }
 
 define void @__module_a_c() {
 .entry:
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0), i32 5)
+  br label %return
+
+return:                                           ; preds = %.entry
   ret void
 }
 

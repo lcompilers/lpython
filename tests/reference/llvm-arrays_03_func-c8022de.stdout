@@ -39,6 +39,9 @@ loop.body:                                        ; preds = %loop.head
   br label %loop.head
 
 loop.end:                                         ; preds = %loop.head
+  br label %return
+
+return:                                           ; preds = %loop.end
   %14 = load i32, i32* %size, align 4
   ret i32 %14
 }
@@ -90,6 +93,9 @@ loop.body:                                        ; preds = %loop.head
   br label %loop.head
 
 loop.end:                                         ; preds = %loop.head
+  br label %return
+
+return:                                           ; preds = %loop.end
   %28 = load i32, i32* %r, align 4
   ret i32 %28
 }
@@ -184,7 +190,6 @@ else:                                             ; preds = %loop.end
   br label %ifcont
 
 ifcont:                                           ; preds = %else, %then
-  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
   ret i32 0
 }
 

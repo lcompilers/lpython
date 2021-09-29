@@ -19,6 +19,9 @@ define i32 @__lfortran_evaluate_1() {
   store i32 64, i32* %__lfortran_evaluate_16, align 4
   store i32 8, i32* %__lfortran_evaluate_17, align 4
   store i32 8, i32* %__lfortran_evaluate_18, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %0 = load i32, i32* %__lfortran_evaluate_18, align 4
   ret i32 %0
 }

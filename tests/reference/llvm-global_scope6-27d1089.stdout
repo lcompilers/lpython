@@ -13,5 +13,8 @@ define void @__lfortran_evaluate_1() {
   %2 = load i32, i32* @x, align 4
   %3 = add i32 %2, 1
   store i32 %3, i32* @x, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   ret void
 }

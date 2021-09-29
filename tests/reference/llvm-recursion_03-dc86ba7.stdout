@@ -50,6 +50,9 @@ normal_continue:                                  ; preds = %decrement_sp, %.ent
   store i32 %5, i32* %solver, align 4
   %14 = call i32 %f()
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @3, i32 0, i32 0), i8* getelementptr inbounds ([7 x i8], [7 x i8]* @2, i32 0, i32 0), i32 %14)
+  br label %return
+
+return:                                           ; preds = %normal_continue
   %15 = load i32, i32* %solver, align 4
   ret i32 %15
 }
@@ -61,6 +64,9 @@ define i32 @__module_recursion_03_solver_caller(i32 ()* %f, i32* %iter) {
   %solver_caller = alloca i32, align 4
   %0 = call i32 @__module_recursion_03_solver(i32 ()* %f, i32* %iter)
   store i32 %0, i32* %solver_caller, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %1 = load i32, i32* %solver_caller, align 4
   ret i32 %1
 }
@@ -82,30 +88,33 @@ then:                                             ; preds = %.entry
   store i32 1, i32* %sub1, align 4
   br label %return
 
-return:                                           ; preds = %ifcont, %then
-  %3 = load i32, i32* %sub1, align 4
-  ret i32 %3
+unreachable_after_return:                         ; No predecessors!
+  br label %ifcont
 
 else:                                             ; preds = %.entry
   br label %ifcont
 
-ifcont:                                           ; preds = %else
-  %4 = load i32, i32* @sp_sub1, align 4
-  %5 = load i32*, i32** getelementptr inbounds (%sub1_nstd_types, %sub1_nstd_types* @sub1_nstd_strct, i32 0, i32 0), align 8
-  %6 = getelementptr [1000 x %sub1_vals], [1000 x %sub1_vals]* @sub1_nstd_strct_stack, i32 0, i32 %4
-  %7 = getelementptr %sub1_vals, %sub1_vals* %6, i32 0, i32 0
-  %8 = load i32, i32* %5, align 4
-  store i32 %8, i32* %7, align 4
-  %9 = load %sub1_vals, %sub1_vals* %6, align 4
-  %10 = getelementptr [1000 x %sub1_vals], [1000 x %sub1_vals]* @sub1_nstd_strct_stack, i32 0, i32 %4
-  store %sub1_vals %9, %sub1_vals* %10, align 4
-  %11 = add i32 1, %4
-  store i32 %11, i32* @sp_sub1, align 4
-  %12 = call i32 @__module_recursion_03_getx()
-  store i32 %12, i32* %tmp, align 4
-  %13 = call i32 @__module_recursion_03_solver_caller(i32 ()* @__module_recursion_03_getx, i32* %iter)
-  store i32 %13, i32* %sub1, align 4
+ifcont:                                           ; preds = %else, %unreachable_after_return
+  %3 = load i32, i32* @sp_sub1, align 4
+  %4 = load i32*, i32** getelementptr inbounds (%sub1_nstd_types, %sub1_nstd_types* @sub1_nstd_strct, i32 0, i32 0), align 8
+  %5 = getelementptr [1000 x %sub1_vals], [1000 x %sub1_vals]* @sub1_nstd_strct_stack, i32 0, i32 %3
+  %6 = getelementptr %sub1_vals, %sub1_vals* %5, i32 0, i32 0
+  %7 = load i32, i32* %4, align 4
+  store i32 %7, i32* %6, align 4
+  %8 = load %sub1_vals, %sub1_vals* %5, align 4
+  %9 = getelementptr [1000 x %sub1_vals], [1000 x %sub1_vals]* @sub1_nstd_strct_stack, i32 0, i32 %3
+  store %sub1_vals %8, %sub1_vals* %9, align 4
+  %10 = add i32 1, %3
+  store i32 %10, i32* @sp_sub1, align 4
+  %11 = call i32 @__module_recursion_03_getx()
+  store i32 %11, i32* %tmp, align 4
+  %12 = call i32 @__module_recursion_03_solver_caller(i32 ()* @__module_recursion_03_getx, i32* %iter)
+  store i32 %12, i32* %sub1, align 4
   br label %return
+
+return:                                           ; preds = %ifcont, %then
+  %13 = load i32, i32* %sub1, align 4
+  ret i32 %13
 }
 
 define i32 @__module_recursion_03_getx() {
@@ -117,6 +126,9 @@ define i32 @__module_recursion_03_getx() {
   %2 = load i32*, i32** getelementptr inbounds (%sub1_nstd_types, %sub1_nstd_types* @sub1_nstd_strct, i32 0, i32 0), align 8
   %3 = load i32, i32* %2, align 4
   store i32 %3, i32* %getx, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %4 = load i32, i32* %getx, align 4
   ret i32 %4
 }

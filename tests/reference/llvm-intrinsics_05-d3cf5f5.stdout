@@ -14,6 +14,9 @@ define float @__module_lfortran_intrinsic_math_scosh(float* %x) {
   %0 = load float, float* %x, align 4
   %1 = call float @_lfortran_scosh(float %0)
   store float %1, float* %r, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %2 = load float, float* %r, align 4
   ret float %2
 }
@@ -26,6 +29,9 @@ define float @__module_lfortran_intrinsic_math_ssinh(float* %x) {
   %0 = load float, float* %x, align 4
   %1 = call float @_lfortran_ssinh(float %0)
   store float %1, float* %r, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %2 = load float, float* %r, align 4
   ret float %2
 }
@@ -38,6 +44,9 @@ define float @__module_lfortran_intrinsic_math_stanh(float* %x) {
   %0 = load float, float* %x, align 4
   %1 = call float @_lfortran_stanh(float %0)
   store float %1, float* %r, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %2 = load float, float* %r, align 4
   ret float %2
 }

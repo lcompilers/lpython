@@ -30,6 +30,9 @@ define void @__module_nested_05_a_b() {
   %4 = load float, float* %y, align 4
   %5 = fpext float %4 to double
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @5, i32 0, i32 0), double %5)
+  br label %return
+
+return:                                           ; preds = %.entry
   ret void
 }
 
@@ -48,6 +51,9 @@ define void @__module_nested_05_a_c() {
   %6 = load float*, float** getelementptr inbounds (%b_nstd_types, %b_nstd_types* @b_nstd_strct, i32 0, i32 1), align 8
   store float 3.500000e+00, float* %6, align 4
   store float* %6, float** getelementptr inbounds (%b_nstd_types, %b_nstd_types* @b_nstd_strct, i32 0, i32 1), align 8
+  br label %return
+
+return:                                           ; preds = %.entry
   ret void
 }
 

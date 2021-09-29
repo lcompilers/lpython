@@ -7,6 +7,9 @@ define float @__lfortran_evaluate_1() {
   %__lfortran_evaluate_12 = alloca float, align 4
   store i32 8, i32* %__lfortran_evaluate_11, align 4
   store float 0x4015333340000000, float* %__lfortran_evaluate_12, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %0 = load float, float* %__lfortran_evaluate_12, align 4
   ret float %0
 }

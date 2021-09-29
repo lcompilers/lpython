@@ -20,6 +20,9 @@ define i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %x,
   %4 = getelementptr %dimension_descriptor, %dimension_descriptor* %3, i32 0, i32 1
   %5 = load i32, i32* %4, align 4
   store i32 %5, i32* %lbound, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %6 = load i32, i32* %lbound, align 4
   ret i32 %6
 }
@@ -34,6 +37,9 @@ define i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %x,
   %4 = getelementptr %dimension_descriptor, %dimension_descriptor* %3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
   store i32 %5, i32* %ubound, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
   %6 = load i32, i32* %ubound, align 4
   ret i32 %6
 }
@@ -56,7 +62,7 @@ define void @check(%array.0* %c, i32* %op_code) {
   store i32 %5, i32* %i, align 4
   br label %loop.head
 
-loop.head:                                        ; preds = %loop.end17, %.entry
+loop.head:                                        ; preds = %loop.end14, %.entry
   %6 = load i32, i32* %i, align 4
   %7 = add i32 %6, 1
   %8 = alloca %dimension_descriptor*, align 8
@@ -67,7 +73,7 @@ loop.head:                                        ; preds = %loop.end17, %.entry
   store i32 1, i32* %11, align 4
   %12 = call i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %8, i32* %11)
   %13 = icmp sle i32 %7, %12
-  br i1 %13, label %loop.body, label %loop.end18
+  br i1 %13, label %loop.body, label %loop.end15
 
 loop.body:                                        ; preds = %loop.head
   %14 = load i32, i32* %i, align 4
@@ -95,7 +101,7 @@ loop.head1:                                       ; preds = %loop.end, %loop.bod
   store i32 2, i32* %27, align 4
   %28 = call i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %24, i32* %27)
   %29 = icmp sle i32 %23, %28
-  br i1 %29, label %loop.body2, label %loop.end17
+  br i1 %29, label %loop.body2, label %loop.end14
 
 loop.body2:                                       ; preds = %loop.head1
   %30 = load i32, i32* %j, align 4
@@ -112,7 +118,7 @@ loop.body2:                                       ; preds = %loop.head1
   store i32 %37, i32* %k, align 4
   br label %loop.head3
 
-loop.head3:                                       ; preds = %ifcont15, %loop.body2
+loop.head3:                                       ; preds = %ifcont13, %loop.body2
   %38 = load i32, i32* %k, align 4
   %39 = add i32 %38, 1
   %40 = alloca %dimension_descriptor*, align 8
@@ -247,13 +253,12 @@ else:                                             ; preds = %then
   br label %ifcont
 
 ifcont:                                           ; preds = %else, %then5
-  %iftmp = phi i32 [ 1, %then5 ], [ 2, %else ]
-  br label %ifcont15
+  br label %ifcont13
 
 else6:                                            ; preds = %loop.body4
   %134 = load i32, i32* %op_code, align 4
   %135 = icmp eq i32 %134, 1
-  br i1 %135, label %then7, label %else12
+  br i1 %135, label %then7, label %else11
 
 then7:                                            ; preds = %else6
   %136 = load i32, i32* %i, align 4
@@ -370,27 +375,27 @@ else9:                                            ; preds = %then7
   br label %ifcont10
 
 ifcont10:                                         ; preds = %else9, %then8
-  %iftmp11 = phi i32 [ 1, %then8 ], [ 2, %else9 ]
+  br label %ifcont12
+
+else11:                                           ; preds = %else6
+  br label %ifcont12
+
+ifcont12:                                         ; preds = %else11, %ifcont10
   br label %ifcont13
 
-else12:                                           ; preds = %else6
-  br label %ifcont13
-
-ifcont13:                                         ; preds = %else12, %ifcont10
-  %iftmp14 = phi i32 [ 1, %ifcont10 ], [ 2, %else12 ]
-  br label %ifcont15
-
-ifcont15:                                         ; preds = %ifcont13, %ifcont
-  %iftmp16 = phi i32 [ 1, %ifcont ], [ 2, %ifcont13 ]
+ifcont13:                                         ; preds = %ifcont12, %ifcont
   br label %loop.head3
 
 loop.end:                                         ; preds = %loop.head3
   br label %loop.head1
 
-loop.end17:                                       ; preds = %loop.head1
+loop.end14:                                       ; preds = %loop.head1
   br label %loop.head
 
-loop.end18:                                       ; preds = %loop.head
+loop.end15:                                       ; preds = %loop.head
+  br label %return
+
+return:                                           ; preds = %loop.end15
   ret void
 }
 

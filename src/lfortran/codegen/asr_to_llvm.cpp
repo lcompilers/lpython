@@ -158,8 +158,7 @@ public:
     Allocator &al;
 
     llvm::Value *tmp;
-    llvm::BasicBlock *current_loophead, *current_loopend, *if_return;
-    bool early_return = false;
+    llvm::BasicBlock *current_loophead, *current_loopend, *proc_return;
     llvm::BasicBlock *dead_bb;
     std::string mangle_prefix;
     bool prototype_only;
@@ -887,26 +886,17 @@ public:
                 builder->SetInsertPoint(thenBB);
                 //print_util(cond, "%d");
                 call_lfortran_free(free_fn);
-                llvm::Value *thenV = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
-                if (!early_return) {
-                    builder->CreateBr(mergeBB);
-                }
+                builder->CreateBr(mergeBB);
+
 
                 thenBB = builder->GetInsertBlock();
                 fn->getBasicBlockList().push_back(elseBB);
                 builder->SetInsertPoint(elseBB);
-                llvm::Value *elseV = llvm::ConstantInt::get(context, llvm::APInt(32, 2));
 
                 builder->CreateBr(mergeBB);
                 elseBB = builder->GetInsertBlock();
                 fn->getBasicBlockList().push_back(mergeBB);
                 builder->SetInsertPoint(mergeBB);
-                if (!early_return){
-                    llvm::PHINode *PN = builder->CreatePHI(llvm::Type::getInt32Ty(context), 2,
-                                                    "iftmp");
-                    PN->addIncoming(thenV, thenBB);
-                    PN->addIncoming(elseV, elseBB);
-                }
             } else {
                 call_lfortran_free(free_fn);
             }
@@ -2097,6 +2087,7 @@ public:
         parent_function = &x;
         parent_function_hash = h;
         llvm::Function* F = llvm_symtab_fn[h];
+        proc_return = llvm::BasicBlock::Create(context, "return");
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
                 ".entry", F);
         builder->SetInsertPoint(BB);
@@ -2110,6 +2101,7 @@ public:
         parent_subroutine = &x;
         parent_function_hash = h;
         llvm::Function* F = llvm_symtab_fn[h];
+        proc_return = llvm::BasicBlock::Create(context, "return");
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
                 ".entry", F);
         builder->SetInsertPoint(BB);
@@ -2118,16 +2110,10 @@ public:
     }
 
     inline void define_function_exit(const ASR::Function_t& x) {
-        if (early_return) {
-            builder->CreateBr(if_return);
-        }
+        start_new_block(proc_return);
         ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
         uint32_t h = get_hash((ASR::asr_t*)asr_retval);
         llvm::Value *ret_val = llvm_symtab[h];
-        if (early_return) {
-            builder->SetInsertPoint(if_return);
-            early_return = false;
-        }
         llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
         // Handle Complex type return value for BindC:
         if (x.m_abi == ASR::abiType::BindC) {
@@ -2170,13 +2156,7 @@ public:
 
 
     inline void define_subroutine_exit(const ASR::Subroutine_t& /*x*/) {
-        if (early_return) {
-            builder->CreateBr(if_return);
-        }
-        if (early_return) {
-            builder->SetInsertPoint(if_return);
-            early_return = false;
-        }
+        start_new_block(proc_return);
         builder->CreateRetVoid();
     }
 
@@ -2529,27 +2509,14 @@ public:
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
         }
-        llvm::Value *thenV = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
-        if (!early_return) {
-            builder->CreateBr(mergeBB);
-        }
+        builder->CreateBr(mergeBB);
 
-        thenBB = builder->GetInsertBlock();
         start_new_block(elseBB);
         for (size_t i=0; i<x.n_orelse; i++) {
             this->visit_stmt(*x.m_orelse[i]);
         }
-        llvm::Value *elseV = llvm::ConstantInt::get(context, llvm::APInt(32, 2));
 
-        builder->CreateBr(mergeBB);
-        elseBB = builder->GetInsertBlock();
         start_new_block(mergeBB);
-        if (!early_return){
-            llvm::PHINode *PN = builder->CreatePHI(llvm::Type::getInt32Ty(context), 2,
-                                            "iftmp");
-            PN->addIncoming(thenV, thenBB);
-            PN->addIncoming(elseV, elseBB);
-        }
     }
 
     void visit_WhileLoop(const ASR::WhileLoop_t &x) {
@@ -2595,14 +2562,9 @@ public:
     }
 
     void visit_Return(const ASR::Return_t & /* x */) {
-        llvm::Function *fn = builder->GetInsertBlock()->getParent();
-        if (!early_return){
-            llvm::BasicBlock *br_return = llvm::BasicBlock::Create(context, 
-                "return", fn);
-            early_return = true;
-            if_return = br_return;
-        }
-        builder->CreateBr(if_return);
+        builder->CreateBr(proc_return);
+        llvm::BasicBlock *bb = llvm::BasicBlock::Create(context, "unreachable_after_return");
+        start_new_block(bb);
     }
 
     void visit_GoTo(const ASR::GoTo_t &x) {

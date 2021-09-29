@@ -45,7 +45,6 @@ else:                                             ; preds = %loop.end
   br label %ifcont
 
 ifcont:                                           ; preds = %else, %then
-  %iftmp = phi i32 [ 1, %then ], [ 2, %else ]
   %9 = load i32, i32* %i, align 4
   %10 = icmp ne i32 %9, 10
   br i1 %10, label %then1, label %else2
@@ -59,133 +58,126 @@ else2:                                            ; preds = %ifcont
   br label %ifcont3
 
 ifcont3:                                          ; preds = %else2, %then1
-  %iftmp4 = phi i32 [ 1, %then1 ], [ 2, %else2 ]
   store i32 0, i32* %i, align 4
   store i32 0, i32* %j, align 4
-  br label %loop.head5
+  br label %loop.head4
 
-loop.head5:                                       ; preds = %ifcont9, %ifcont3
+loop.head4:                                       ; preds = %ifcont8, %ifcont3
   %11 = load i32, i32* %i, align 4
   %12 = icmp slt i32 %11, 10
-  br i1 %12, label %loop.body6, label %loop.end11
+  br i1 %12, label %loop.body5, label %loop.end9
 
-loop.body6:                                       ; preds = %loop.head5
+loop.body5:                                       ; preds = %loop.head4
   %13 = load i32, i32* %i, align 4
   %14 = add i32 %13, 1
   store i32 %14, i32* %i, align 4
   %15 = load i32, i32* %i, align 4
   %16 = icmp eq i32 %15, 2
-  br i1 %16, label %then7, label %else8
+  br i1 %16, label %then6, label %else7
 
-then7:                                            ; preds = %loop.body6
-  br label %loop.end11
+then6:                                            ; preds = %loop.body5
+  br label %loop.end9
 
 dead_block:                                       ; No predecessors!
-  br label %ifcont9
+  br label %ifcont8
 
-else8:                                            ; preds = %loop.body6
-  br label %ifcont9
+else7:                                            ; preds = %loop.body5
+  br label %ifcont8
 
-ifcont9:                                          ; preds = %else8, %dead_block
-  %iftmp10 = phi i32 [ 1, %dead_block ], [ 2, %else8 ]
+ifcont8:                                          ; preds = %else7, %dead_block
   %17 = load i32, i32* %j, align 4
   %18 = load i32, i32* %i, align 4
   %19 = add i32 %17, %18
   store i32 %19, i32* %j, align 4
-  br label %loop.head5
+  br label %loop.head4
 
-loop.end11:                                       ; preds = %then7, %loop.head5
+loop.end9:                                        ; preds = %then6, %loop.head4
   %20 = load i32, i32* %j, align 4
   %21 = icmp ne i32 %20, 1
-  br i1 %21, label %then12, label %else13
+  br i1 %21, label %then10, label %else11
 
-then12:                                           ; preds = %loop.end11
+then10:                                           ; preds = %loop.end9
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @2, i32 0, i32 0))
   call void @exit(i32 1)
-  br label %ifcont14
+  br label %ifcont12
 
-else13:                                           ; preds = %loop.end11
-  br label %ifcont14
+else11:                                           ; preds = %loop.end9
+  br label %ifcont12
 
-ifcont14:                                         ; preds = %else13, %then12
-  %iftmp15 = phi i32 [ 1, %then12 ], [ 2, %else13 ]
+ifcont12:                                         ; preds = %else11, %then10
   %22 = load i32, i32* %i, align 4
   %23 = icmp ne i32 %22, 2
-  br i1 %23, label %then16, label %else17
+  br i1 %23, label %then13, label %else14
 
-then16:                                           ; preds = %ifcont14
+then13:                                           ; preds = %ifcont12
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @3, i32 0, i32 0))
   call void @exit(i32 1)
-  br label %ifcont18
+  br label %ifcont15
 
-else17:                                           ; preds = %ifcont14
-  br label %ifcont18
+else14:                                           ; preds = %ifcont12
+  br label %ifcont15
 
-ifcont18:                                         ; preds = %else17, %then16
-  %iftmp19 = phi i32 [ 1, %then16 ], [ 2, %else17 ]
+ifcont15:                                         ; preds = %else14, %then13
   store i32 0, i32* %i, align 4
   store i32 0, i32* %j, align 4
-  br label %loop.head20
+  br label %loop.head16
 
-loop.head20:                                      ; preds = %ifcont25, %then22, %ifcont18
+loop.head16:                                      ; preds = %ifcont21, %then18, %ifcont15
   %24 = load i32, i32* %i, align 4
   %25 = icmp slt i32 %24, 10
-  br i1 %25, label %loop.body21, label %loop.end27
+  br i1 %25, label %loop.body17, label %loop.end22
 
-loop.body21:                                      ; preds = %loop.head20
+loop.body17:                                      ; preds = %loop.head16
   %26 = load i32, i32* %i, align 4
   %27 = add i32 %26, 1
   store i32 %27, i32* %i, align 4
   %28 = load i32, i32* %i, align 4
   %29 = icmp eq i32 %28, 2
-  br i1 %29, label %then22, label %else24
+  br i1 %29, label %then18, label %else20
 
-then22:                                           ; preds = %loop.body21
-  br label %loop.head20
+then18:                                           ; preds = %loop.body17
+  br label %loop.head16
 
-dead_block23:                                     ; No predecessors!
-  br label %ifcont25
+dead_block19:                                     ; No predecessors!
+  br label %ifcont21
 
-else24:                                           ; preds = %loop.body21
-  br label %ifcont25
+else20:                                           ; preds = %loop.body17
+  br label %ifcont21
 
-ifcont25:                                         ; preds = %else24, %dead_block23
-  %iftmp26 = phi i32 [ 1, %dead_block23 ], [ 2, %else24 ]
+ifcont21:                                         ; preds = %else20, %dead_block19
   %30 = load i32, i32* %j, align 4
   %31 = load i32, i32* %i, align 4
   %32 = add i32 %30, %31
   store i32 %32, i32* %j, align 4
-  br label %loop.head20
+  br label %loop.head16
 
-loop.end27:                                       ; preds = %loop.head20
+loop.end22:                                       ; preds = %loop.head16
   %33 = load i32, i32* %j, align 4
   %34 = icmp ne i32 %33, 53
-  br i1 %34, label %then28, label %else29
+  br i1 %34, label %then23, label %else24
 
-then28:                                           ; preds = %loop.end27
+then23:                                           ; preds = %loop.end22
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @4, i32 0, i32 0))
   call void @exit(i32 1)
-  br label %ifcont30
+  br label %ifcont25
 
-else29:                                           ; preds = %loop.end27
-  br label %ifcont30
+else24:                                           ; preds = %loop.end22
+  br label %ifcont25
 
-ifcont30:                                         ; preds = %else29, %then28
-  %iftmp31 = phi i32 [ 1, %then28 ], [ 2, %else29 ]
+ifcont25:                                         ; preds = %else24, %then23
   %35 = load i32, i32* %i, align 4
   %36 = icmp ne i32 %35, 10
-  br i1 %36, label %then32, label %else33
+  br i1 %36, label %then26, label %else27
 
-then32:                                           ; preds = %ifcont30
+then26:                                           ; preds = %ifcont25
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @5, i32 0, i32 0))
   call void @exit(i32 1)
-  br label %ifcont34
+  br label %ifcont28
 
-else33:                                           ; preds = %ifcont30
-  br label %ifcont34
+else27:                                           ; preds = %ifcont25
+  br label %ifcont28
 
-ifcont34:                                         ; preds = %else33, %then32
-  %iftmp35 = phi i32 [ 1, %then32 ], [ 2, %else33 ]
+ifcont28:                                         ; preds = %else27, %then26
   ret i32 0
 }
 
