@@ -13,6 +13,7 @@
 #include <lfortran/pickle.h>
 
 using LFortran::FortranEvaluator;
+using LFortran::CompilerOptions;
 
 
 TEST_CASE("llvm 1") {
@@ -402,7 +403,8 @@ end function)";
 }
 
 TEST_CASE("FortranEvaluator 1") {
-    FortranEvaluator e(LFortran::get_platform());
+    CompilerOptions cu;
+    FortranEvaluator e(cu);
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
     r = e.evaluate("integer :: i");
     CHECK(r.ok);
@@ -417,7 +419,8 @@ TEST_CASE("FortranEvaluator 1") {
 }
 
 TEST_CASE("FortranEvaluator 2") {
-    FortranEvaluator e(LFortran::get_platform());
+    CompilerOptions cu;
+    FortranEvaluator e(cu);
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
     r = e.evaluate(R"(real :: r
 r = 3
@@ -429,7 +432,8 @@ r
 }
 
 TEST_CASE("FortranEvaluator 3") {
-    FortranEvaluator e(LFortran::get_platform());
+    CompilerOptions cu;
+    FortranEvaluator e(cu);
     e.evaluate("integer :: i, j");
     e.evaluate(R"(j = 0
 do i = 1, 5
@@ -444,7 +448,8 @@ end do
 }
 
 TEST_CASE("FortranEvaluator 4") {
-    FortranEvaluator e(LFortran::get_platform());
+    CompilerOptions cu;
+    FortranEvaluator e(cu);
     e.evaluate(R"(
 integer function fn(i, j)
 integer, intent(in) :: i, j
@@ -470,7 +475,8 @@ end function
 }
 
 TEST_CASE("FortranEvaluator 5") {
-    FortranEvaluator e(LFortran::get_platform());
+    CompilerOptions cu;
+    FortranEvaluator e(cu);
     e.evaluate(R"(
 integer subroutine fn(i, j, r)
 integer, intent(in) :: i, j
@@ -501,7 +507,8 @@ end subroutine
 }
 
 TEST_CASE("FortranEvaluator 6") {
-    FortranEvaluator e(LFortran::get_platform());
+    CompilerOptions cu;
+    FortranEvaluator e(cu);
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
     r = e.evaluate("$");
     CHECK(!r.ok);
@@ -772,7 +779,8 @@ define float @f()
 }
 
 TEST_CASE("FortranEvaluator 7") {
-    FortranEvaluator e(LFortran::get_platform());
+    CompilerOptions cu;
+    FortranEvaluator e(cu);
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
     r = e.evaluate("integer :: i = 5");
     CHECK(r.ok);
@@ -784,7 +792,8 @@ TEST_CASE("FortranEvaluator 7") {
 }
 
 TEST_CASE("FortranEvaluator 8") {
-    FortranEvaluator e(LFortran::get_platform());
+    CompilerOptions cu;
+    FortranEvaluator e(cu);
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
     r = e.evaluate("real :: a = 3.5");
     CHECK(r.ok);
@@ -796,7 +805,8 @@ TEST_CASE("FortranEvaluator 8") {
 }
 
 TEST_CASE("FortranEvaluator 8 double") {
-    FortranEvaluator e(LFortran::get_platform());
+    CompilerOptions cu;
+    FortranEvaluator e(cu);
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
     r = e.evaluate("real(8) :: a = 3.5");
     CHECK(r.ok);
@@ -808,9 +818,9 @@ TEST_CASE("FortranEvaluator 8 double") {
 }
 
 TEST_CASE("FortranEvaluator 9 single complex") {
-    LFortran::Platform platform = LFortran::get_platform();
-    if (platform == LFortran::Platform::Linux) {
-        FortranEvaluator e(platform);
+    CompilerOptions cu;
+    if (cu.platform == LFortran::Platform::Linux) {
+        FortranEvaluator e(cu);
         FortranEvaluator::Result<FortranEvaluator::EvalResult>
         r = e.evaluate("(2.5_4, 3.5_4)");
         CHECK(r.ok);
@@ -821,9 +831,9 @@ TEST_CASE("FortranEvaluator 9 single complex") {
 }
 
 TEST_CASE("FortranEvaluator 9 double complex") {
-    LFortran::Platform platform = LFortran::get_platform();
-    if (platform != LFortran::Platform::Windows) {
-        FortranEvaluator e(platform);
+    CompilerOptions cu;
+    if (cu.platform != LFortran::Platform::Windows) {
+        FortranEvaluator e(cu);
         FortranEvaluator::Result<FortranEvaluator::EvalResult>
         r = e.evaluate("(2.5_8, 3.5_8)");
         CHECK(r.ok);
@@ -834,7 +844,8 @@ TEST_CASE("FortranEvaluator 9 double complex") {
 }
 
 TEST_CASE("FortranEvaluator integer kind 1") {
-    FortranEvaluator e(LFortran::get_platform());
+    CompilerOptions cu;
+    FortranEvaluator e(cu);
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
     r = e.evaluate("integer(4) :: i");
     CHECK(r.ok);
@@ -849,7 +860,8 @@ TEST_CASE("FortranEvaluator integer kind 1") {
 }
 
 TEST_CASE("FortranEvaluator integer kind 2") {
-    FortranEvaluator e(LFortran::get_platform());
+    CompilerOptions cu;
+    FortranEvaluator e(cu);
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
     r = e.evaluate("integer(8) :: i");
     CHECK(r.ok);
@@ -864,7 +876,8 @@ TEST_CASE("FortranEvaluator integer kind 2") {
 }
 
 TEST_CASE("FortranEvaluator re-declaration 1") {
-    FortranEvaluator e(LFortran::get_platform());
+    CompilerOptions cu;
+    FortranEvaluator e(cu);
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
     r = e.evaluate("integer :: i");
     CHECK(r.ok);
@@ -890,7 +903,8 @@ TEST_CASE("FortranEvaluator re-declaration 1") {
 }
 
 TEST_CASE("FortranEvaluator re-declaration 2") {
-    FortranEvaluator e(LFortran::get_platform());
+    CompilerOptions cu;
+    FortranEvaluator e(cu);
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
     r = e.evaluate(R"(
 integer function fn(i)
@@ -920,8 +934,8 @@ end function
 }
 
 TEST_CASE("FortranEvaluator 10 trig functions") {
-    LFortran::Platform platform = LFortran::get_platform();
-    FortranEvaluator e(platform);
+    CompilerOptions cu;
+    FortranEvaluator e(cu);
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
     r = e.evaluate("sin(1.0)");
     CHECK(r.ok);
