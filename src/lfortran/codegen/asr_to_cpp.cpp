@@ -828,6 +828,11 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         src = indent + "return;\n";
     }
 
+    void visit_GoToTarget(const ASR::GoToTarget_t & /* x */) {
+        // Ignore for now
+        src = "";
+    }
+
     void visit_Stop(const ASR::Stop_t & /* x */) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         src = indent + "exit(0);\n";

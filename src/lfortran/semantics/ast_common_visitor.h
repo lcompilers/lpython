@@ -6,6 +6,64 @@
 
 namespace LFortran {
 
+#define LFORTRAN_STMT_LABEL_TYPE(x) \
+        case AST::stmtType::x: { return AST::down_cast<AST::x##_t>(f)->m_label; }
+
+static inline int64_t stmt_label(AST::stmt_t *f)
+{
+    switch (f->type) {
+        LFORTRAN_STMT_LABEL_TYPE(Allocate)
+        LFORTRAN_STMT_LABEL_TYPE(Assign)
+        LFORTRAN_STMT_LABEL_TYPE(Assignment)
+        LFORTRAN_STMT_LABEL_TYPE(Associate)
+        LFORTRAN_STMT_LABEL_TYPE(Backspace)
+        LFORTRAN_STMT_LABEL_TYPE(Close)
+        LFORTRAN_STMT_LABEL_TYPE(Continue)
+        LFORTRAN_STMT_LABEL_TYPE(Cycle)
+        LFORTRAN_STMT_LABEL_TYPE(Deallocate)
+        LFORTRAN_STMT_LABEL_TYPE(Endfile)
+        LFORTRAN_STMT_LABEL_TYPE(Entry)
+        LFORTRAN_STMT_LABEL_TYPE(ErrorStop)
+        LFORTRAN_STMT_LABEL_TYPE(EventPost)
+        LFORTRAN_STMT_LABEL_TYPE(EventWait)
+        LFORTRAN_STMT_LABEL_TYPE(Exit)
+        LFORTRAN_STMT_LABEL_TYPE(Flush)
+        LFORTRAN_STMT_LABEL_TYPE(ForAllSingle)
+        LFORTRAN_STMT_LABEL_TYPE(Format)
+        LFORTRAN_STMT_LABEL_TYPE(FormTeam)
+        LFORTRAN_STMT_LABEL_TYPE(GoTo)
+        LFORTRAN_STMT_LABEL_TYPE(Inquire)
+        LFORTRAN_STMT_LABEL_TYPE(Nullify)
+        LFORTRAN_STMT_LABEL_TYPE(Open)
+        LFORTRAN_STMT_LABEL_TYPE(Return)
+        LFORTRAN_STMT_LABEL_TYPE(Print)
+        LFORTRAN_STMT_LABEL_TYPE(Read)
+        LFORTRAN_STMT_LABEL_TYPE(Rewind)
+        LFORTRAN_STMT_LABEL_TYPE(Stop)
+        LFORTRAN_STMT_LABEL_TYPE(SubroutineCall)
+        LFORTRAN_STMT_LABEL_TYPE(SyncAll)
+        LFORTRAN_STMT_LABEL_TYPE(SyncImages)
+        LFORTRAN_STMT_LABEL_TYPE(SyncMemory)
+        LFORTRAN_STMT_LABEL_TYPE(SyncTeam)
+        LFORTRAN_STMT_LABEL_TYPE(Write)
+        LFORTRAN_STMT_LABEL_TYPE(AssociateBlock)
+        LFORTRAN_STMT_LABEL_TYPE(Block)
+        LFORTRAN_STMT_LABEL_TYPE(ChangeTeam)
+        LFORTRAN_STMT_LABEL_TYPE(Critical)
+        LFORTRAN_STMT_LABEL_TYPE(DoConcurrentLoop)
+        LFORTRAN_STMT_LABEL_TYPE(DoLoop)
+        LFORTRAN_STMT_LABEL_TYPE(ForAll)
+        LFORTRAN_STMT_LABEL_TYPE(If)
+        LFORTRAN_STMT_LABEL_TYPE(IfArithmetic)
+        LFORTRAN_STMT_LABEL_TYPE(Select)
+        LFORTRAN_STMT_LABEL_TYPE(SelectRank)
+        LFORTRAN_STMT_LABEL_TYPE(SelectType)
+        LFORTRAN_STMT_LABEL_TYPE(Where)
+        LFORTRAN_STMT_LABEL_TYPE(WhileLoop)
+        default : throw LFortranException("Not implemented");
+    }
+}
+
 class CommonVisitorMethods {
 public:
 

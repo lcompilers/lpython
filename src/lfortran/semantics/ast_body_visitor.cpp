@@ -84,6 +84,37 @@ public:
         // Already visited this AST node in the SymbolTableVisitor
     };
 
+    // Transforms statements to a list of ASR statements
+    // In addition, it also inserts the following nodes if needed:
+    //   * ImplicitDeallocate
+    //   * GoToTarget
+    // The `body` Vec must already be reserved
+    void transform_stmts(Vec<ASR::stmt_t*> &body, size_t n_body, AST::stmt_t **m_body) {
+        tmp = nullptr;
+        for (size_t i=0; i<n_body; i++) {
+            // If there is a label, create a GoToTarget node first
+            int64_t label = stmt_label(m_body[i]);
+            if (label != 0) {
+                ASR::asr_t *l = ASR::make_GoToTarget_t(al, m_body[i]->base.loc, label);
+                body.push_back(al, ASR::down_cast<ASR::stmt_t>(l));
+            }
+            // Visit the statement
+            this->visit_stmt(*m_body[i]);
+            if (tmp != nullptr) {
+                ASR::stmt_t* tmp_stmt = LFortran::ASRUtils::STMT(tmp);
+                if (tmp_stmt->type == ASR::stmtType::SubroutineCall) {
+                    ASR::stmt_t* impl_decl = create_implicit_deallocate_subrout_call(tmp_stmt);
+                    if (impl_decl != nullptr) {
+                        body.push_back(al, impl_decl);
+                    }
+                }
+                body.push_back(al, tmp_stmt);
+            }
+            // To avoid last statement to be entered twice once we exit this node
+            tmp = nullptr;
+        }
+    }
+
     void visit_TranslationUnit(const AST::TranslationUnit_t &x) {
         ASR::TranslationUnit_t *unit = ASR::down_cast2<ASR::TranslationUnit_t>(asr);
         current_scope = unit->m_global_scope;
@@ -401,14 +432,7 @@ public:
         }
         SymbolTable* current_scope_copy = current_scope;
         current_scope = new_scope;
-        for( size_t i = 0; i < x.n_body; i++ ) {
-            this->visit_stmt(*x.m_body[i]);
-            if( tmp != nullptr ) {
-                current_body->push_back(al, LFortran::ASRUtils::STMT(tmp));
-            }
-            // To avoid last statement to be entered twice once we exit this node
-            tmp = nullptr;
-        }
+        transform_stmts(*current_body, x.n_body, x.m_body);
         current_scope->scope.clear();
         current_scope = current_scope_copy;
     }
@@ -558,12 +582,7 @@ public:
                     }
                     Vec<ASR::stmt_t*> case_body_vec;
                     case_body_vec.reserve(al, Case_Stmt->n_body);
-                    for( std::uint32_t i = 0; i < Case_Stmt->n_body; i++ ) {
-                        this->visit_stmt(*(Case_Stmt->m_body[i]));
-                        if (tmp != nullptr) {
-                            case_body_vec.push_back(al, LFortran::ASRUtils::STMT(tmp));
-                        }
-                    }
+                    transform_stmts(case_body_vec, Case_Stmt->n_body, Case_Stmt->m_body);
                     tmp = ASR::make_CaseStmt_t(al, x.base.loc, a_test_vec.p, a_test_vec.size(),
                                         case_body_vec.p, case_body_vec.size());
                     break;
@@ -594,12 +613,7 @@ public:
                     }
                     Vec<ASR::stmt_t*> case_body_vec;
                     case_body_vec.reserve(al, Case_Stmt->n_body);
-                    for( std::uint32_t i = 0; i < Case_Stmt->n_body; i++ ) {
-                        this->visit_stmt(*(Case_Stmt->m_body[i]));
-                        if (tmp != nullptr) {
-                            case_body_vec.push_back(al, LFortran::ASRUtils::STMT(tmp));
-                        }
-                    }
+                    transform_stmts(case_body_vec, Case_Stmt->n_body, Case_Stmt->m_body);
                     tmp = ASR::make_CaseStmt_Range_t(al, x.base.loc, m_start, m_end,
                                         case_body_vec.p, case_body_vec.size());
                     break;
@@ -632,13 +646,7 @@ public:
                 }
                 AST::CaseStmt_Default_t *d =
                         AST::down_cast<AST::CaseStmt_Default_t>(body);
-                for( std::uint32_t j = 0; j < d->n_body; j++ ) {
-                    this->visit_stmt(*(d->m_body[j]));
-                    if (tmp != nullptr) {
-                        def_body.push_back(al,
-                            ASR::down_cast<ASR::stmt_t>(tmp));
-                    }
-                }
+                transform_stmts(def_body, d->n_body, d->m_body);
             } else {
                 this->visit_case_stmt(*body);
                 a_body_vec.push_back(al, ASR::down_cast<ASR::case_stmt_t>(tmp));
@@ -673,19 +681,7 @@ public:
         Vec<ASR::stmt_t*> body;
         current_body = &body;
         body.reserve(al, x.n_body);
-        for (size_t i=0; i<x.n_body; i++) {
-            this->visit_stmt(*x.m_body[i]);
-            if (tmp != nullptr) {
-                ASR::stmt_t* tmp_stmt = LFortran::ASRUtils::STMT(tmp);
-                if( tmp_stmt->type == ASR::stmtType::SubroutineCall ) {
-                    ASR::stmt_t* impl_decl = create_implicit_deallocate_subrout_call(tmp_stmt);
-                    if( impl_decl != nullptr ) {
-                        body.push_back(al, impl_decl);
-                    }
-                }
-                body.push_back(al, tmp_stmt);
-            }
-        }
+        transform_stmts(body, x.n_body, x.m_body);
         ASR::stmt_t* impl_del = create_implicit_deallocate(x.base.base.loc);
         if( impl_del != nullptr ) {
             body.push_back(al, impl_del);
@@ -744,19 +740,7 @@ public:
         current_scope = v->m_symtab;
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
-        for (size_t i=0; i<x.n_body; i++) {
-            this->visit_stmt(*x.m_body[i]);
-            if (tmp != nullptr) {
-                ASR::stmt_t* tmp_stmt = LFortran::ASRUtils::STMT(tmp);
-                if( tmp_stmt->type == ASR::stmtType::SubroutineCall ) {
-                    ASR::stmt_t* impl_decl = create_implicit_deallocate_subrout_call(tmp_stmt);
-                    if( impl_decl != nullptr ) {
-                        body.push_back(al, impl_decl);
-                    }
-                }
-                body.push_back(al, tmp_stmt);
-            }
-        }
+        transform_stmts(body, x.n_body, x.m_body);
         ASR::stmt_t* impl_del = create_implicit_deallocate(x.base.base.loc);
         if( impl_del != nullptr ) {
             body.push_back(al, impl_del);
@@ -779,19 +763,7 @@ public:
         current_scope = v->m_symtab;
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
-        for (size_t i=0; i<x.n_body; i++) {
-            this->visit_stmt(*x.m_body[i]);
-            if (tmp != nullptr) {
-                ASR::stmt_t* tmp_stmt = LFortran::ASRUtils::STMT(tmp);
-                if( tmp_stmt->type == ASR::stmtType::SubroutineCall ) {
-                    ASR::stmt_t* impl_decl = create_implicit_deallocate_subrout_call(tmp_stmt);
-                    if( impl_decl != nullptr ) {
-                        body.push_back(al, impl_decl);
-                    }
-                }
-                body.push_back(al, tmp_stmt);
-            }
-        }
+        transform_stmts(body, x.n_body, x.m_body);
         ASR::stmt_t* impl_del = create_implicit_deallocate(x.base.base.loc);
         if( impl_del != nullptr ) {
             body.push_back(al, impl_del);
@@ -1896,20 +1868,10 @@ public:
         ASR::expr_t *test = LFortran::ASRUtils::EXPR(tmp);
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
-        for (size_t i=0; i<x.n_body; i++) {
-            visit_stmt(*x.m_body[i]);
-            if (tmp != nullptr) {
-                body.push_back(al, LFortran::ASRUtils::STMT(tmp));
-            }
-        }
+        transform_stmts(body, x.n_body, x.m_body);
         Vec<ASR::stmt_t*> orelse;
         orelse.reserve(al, x.n_orelse);
-        for (size_t i=0; i<x.n_orelse; i++) {
-            visit_stmt(*x.m_orelse[i]);
-            if (tmp != nullptr) {
-                orelse.push_back(al, LFortran::ASRUtils::STMT(tmp));
-            }
-        }
+        transform_stmts(orelse, x.n_orelse, x.m_orelse);
         tmp = ASR::make_If_t(al, x.base.base.loc, test, body.p,
                 body.size(), orelse.p, orelse.size());
     }
@@ -1919,12 +1881,7 @@ public:
         ASR::expr_t *test = LFortran::ASRUtils::EXPR(tmp);
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
-        for (size_t i=0; i<x.n_body; i++) {
-            visit_stmt(*x.m_body[i]);
-            if (tmp != nullptr) {
-                body.push_back(al, LFortran::ASRUtils::STMT(tmp));
-            }
-        }
+        transform_stmts(body, x.n_body, x.m_body);
         tmp = ASR::make_WhileLoop_t(al, x.base.base.loc, test, body.p,
                 body.size());
     }
@@ -1998,12 +1955,7 @@ public:
 
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
-        for (size_t i=0; i<x.n_body; i++) {
-            visit_stmt(*x.m_body[i]);
-            if (tmp != nullptr) {
-                body.push_back(al, LFortran::ASRUtils::STMT(tmp));
-            }
-        }
+        transform_stmts(body, x.n_body, x.m_body);
         ASR::do_loop_head_t head;
         head.m_v = var;
         head.m_start = start;
@@ -2047,12 +1999,7 @@ public:
 
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
-        for (size_t i=0; i<x.n_body; i++) {
-            visit_stmt(*x.m_body[i]);
-            if (tmp != nullptr) {
-                body.push_back(al, LFortran::ASRUtils::STMT(tmp));
-            }
-        }
+        transform_stmts(body, x.n_body, x.m_body);
         ASR::do_loop_head_t head;
         head.m_v = var;
         head.m_start = start;
@@ -2077,6 +2024,21 @@ public:
         // TODO: add a check here that we are inside a While loop
         // Nothing to generate, we return a null pointer
         tmp = nullptr;
+    }
+
+    void visit_GoTo(const AST::GoTo_t &x) {
+        if (x.m_goto_label) {
+            if (AST::is_a<AST::Num_t>(*x.m_goto_label)) {
+                int goto_label = AST::down_cast<AST::Num_t>(x.m_goto_label)->m_n;
+                tmp = ASR::make_GoTo_t(al, x.base.base.loc, goto_label);
+            } else {
+                throw SemanticError("A goto label must be an integer",
+                    x.base.base.loc);
+            }
+        } else {
+            throw SemanticError("Currently only 'goto INTEGER' is supported",
+                x.base.base.loc);
+        }
     }
 
     void visit_Stop(const AST::Stop_t &x) {

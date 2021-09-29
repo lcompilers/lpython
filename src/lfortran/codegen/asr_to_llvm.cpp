@@ -181,6 +181,7 @@ public:
     std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
     std::map<std::string, uint64_t> llvm_symtab_fn_names;
     std::map<uint64_t, llvm::Value*> llvm_symtab_fn_arg;
+    std::map<uint64_t, llvm::BasicBlock*> llvm_goto_targets;
 
     // Data members for handling nested functions
     std::map<uint64_t, std::vector<uint64_t>> nesting_map; /* For saving the 
@@ -2597,6 +2598,53 @@ public:
             if_return = br_return;
         }
         builder->CreateBr(if_return);
+    }
+
+    void visit_GoTo(const ASR::GoTo_t &x) {
+        if (llvm_goto_targets.find(x.m_target_id) == llvm_goto_targets.end()) {
+            // If the target does not exist yet, create it
+            llvm::BasicBlock *new_target = llvm::BasicBlock::Create(context, "goto_target");
+            llvm_goto_targets[x.m_target_id] = new_target;
+        }
+        llvm::BasicBlock *target = llvm_goto_targets[x.m_target_id];
+        builder->CreateBr(target);
+        // Now insert a new block that is unreachable and add a noop instruction
+        // so that the block is not empty in case there are no more statements after this
+        llvm::BasicBlock *unreachable_bb = llvm::BasicBlock::Create(context, "unreachable_bb");
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+        fn->getBasicBlockList().push_back(unreachable_bb);
+        builder->SetInsertPoint(unreachable_bb);
+        std::string func_name = "llvm.donothing";
+        llvm::Function *fn_nop = module->getFunction(func_name);
+        if (!fn_nop) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {}, false);
+            fn_nop = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, func_name,
+                    module.get());
+        }
+        builder->CreateCall(fn_nop, {});
+    }
+
+    void visit_GoToTarget(const ASR::GoToTarget_t &x) {
+        if (llvm_goto_targets.find(x.m_id) == llvm_goto_targets.end()) {
+            // If the target does not exist yet, create it
+            llvm::BasicBlock *new_target = llvm::BasicBlock::Create(context, "goto_target");
+            llvm_goto_targets[x.m_id] = new_target;
+        }
+        llvm::BasicBlock *target = llvm_goto_targets[x.m_id];
+
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+        if (fn->getBasicBlockList().size() > 0) {
+            llvm::BasicBlock &last_bb = fn->getBasicBlockList().back();
+            llvm::Instruction *block_terminator = last_bb.getTerminator();
+            if (block_terminator == nullptr) {
+                // The block is not terminated --- terminate it by jumping to our new label
+                builder->CreateBr(target);
+            }
+        }
+        fn->getBasicBlockList().push_back(target);
+        builder->SetInsertPoint(target);
     }
 
     void visit_BoolOp(const ASR::BoolOp_t &x) {
