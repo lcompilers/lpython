@@ -181,6 +181,7 @@ public:
     std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
     std::map<std::string, uint64_t> llvm_symtab_fn_names;
     std::map<uint64_t, llvm::Value*> llvm_symtab_fn_arg;
+    std::map<uint64_t, llvm::BasicBlock*> llvm_goto_targets;
 
     // Data members for handling nested functions
     std::map<uint64_t, std::vector<uint64_t>> nesting_map; /* For saving the 
@@ -2599,8 +2600,14 @@ public:
         builder->CreateBr(if_return);
     }
 
+    void visit_GoTo(const ASR::GoTo_t &x) {
+        LFORTRAN_ASSERT(llvm_goto_targets.find(x.m_target_id) != llvm_goto_targets.end());
+        llvm::BasicBlock *target = llvm_goto_targets[x.m_target_id];
+        builder->CreateBr(target);
+    }
+
     void visit_GoToTarget(const ASR::GoToTarget_t & /* x */) {
-        // Ignored for now
+        // Ignored: the llvm_goto_targets table already constructed
     }
 
     void visit_BoolOp(const ASR::BoolOp_t &x) {
