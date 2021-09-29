@@ -158,7 +158,7 @@ public:
     Allocator &al;
 
     llvm::Value *tmp;
-    llvm::BasicBlock *current_loophead, *current_loopend, *if_return;
+    llvm::BasicBlock *current_loophead, *current_loopend, *proc_return;
     bool early_return = false;
     llvm::BasicBlock *dead_bb;
     std::string mangle_prefix;
@@ -2119,13 +2119,13 @@ public:
 
     inline void define_function_exit(const ASR::Function_t& x) {
         if (early_return) {
-            builder->CreateBr(if_return);
+            builder->CreateBr(proc_return);
         }
         ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
         uint32_t h = get_hash((ASR::asr_t*)asr_retval);
         llvm::Value *ret_val = llvm_symtab[h];
         if (early_return) {
-            builder->SetInsertPoint(if_return);
+            builder->SetInsertPoint(proc_return);
             early_return = false;
         }
         llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
@@ -2171,10 +2171,10 @@ public:
 
     inline void define_subroutine_exit(const ASR::Subroutine_t& /*x*/) {
         if (early_return) {
-            builder->CreateBr(if_return);
+            builder->CreateBr(proc_return);
         }
         if (early_return) {
-            builder->SetInsertPoint(if_return);
+            builder->SetInsertPoint(proc_return);
             early_return = false;
         }
         builder->CreateRetVoid();
@@ -2600,9 +2600,9 @@ public:
             llvm::BasicBlock *br_return = llvm::BasicBlock::Create(context, 
                 "return", fn);
             early_return = true;
-            if_return = br_return;
+            proc_return = br_return;
         }
-        builder->CreateBr(if_return);
+        builder->CreateBr(proc_return);
     }
 
     void visit_GoTo(const ASR::GoTo_t &x) {
