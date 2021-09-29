@@ -78,13 +78,13 @@ loop.body5:                                       ; preds = %loop.head4
 then6:                                            ; preds = %loop.body5
   br label %loop.end9
 
-dead_block:                                       ; No predecessors!
+unreachable_after_exit:                           ; No predecessors!
   br label %ifcont8
 
 else7:                                            ; preds = %loop.body5
   br label %ifcont8
 
-ifcont8:                                          ; preds = %else7, %dead_block
+ifcont8:                                          ; preds = %else7, %unreachable_after_exit
   %17 = load i32, i32* %j, align 4
   %18 = load i32, i32* %i, align 4
   %19 = add i32 %17, %18
@@ -122,10 +122,10 @@ ifcont15:                                         ; preds = %else14, %then13
   store i32 0, i32* %j, align 4
   br label %loop.head16
 
-loop.head16:                                      ; preds = %ifcont21, %then18, %ifcont15
+loop.head16:                                      ; preds = %ifcont20, %then18, %ifcont15
   %24 = load i32, i32* %i, align 4
   %25 = icmp slt i32 %24, 10
-  br i1 %25, label %loop.body17, label %loop.end22
+  br i1 %25, label %loop.body17, label %loop.end21
 
 loop.body17:                                      ; preds = %loop.head16
   %26 = load i32, i32* %i, align 4
@@ -133,51 +133,51 @@ loop.body17:                                      ; preds = %loop.head16
   store i32 %27, i32* %i, align 4
   %28 = load i32, i32* %i, align 4
   %29 = icmp eq i32 %28, 2
-  br i1 %29, label %then18, label %else20
+  br i1 %29, label %then18, label %else19
 
 then18:                                           ; preds = %loop.body17
   br label %loop.head16
 
-dead_block19:                                     ; No predecessors!
-  br label %ifcont21
+unreachable_after_cycle:                          ; No predecessors!
+  br label %ifcont20
 
-else20:                                           ; preds = %loop.body17
-  br label %ifcont21
+else19:                                           ; preds = %loop.body17
+  br label %ifcont20
 
-ifcont21:                                         ; preds = %else20, %dead_block19
+ifcont20:                                         ; preds = %else19, %unreachable_after_cycle
   %30 = load i32, i32* %j, align 4
   %31 = load i32, i32* %i, align 4
   %32 = add i32 %30, %31
   store i32 %32, i32* %j, align 4
   br label %loop.head16
 
-loop.end22:                                       ; preds = %loop.head16
+loop.end21:                                       ; preds = %loop.head16
   %33 = load i32, i32* %j, align 4
   %34 = icmp ne i32 %33, 53
-  br i1 %34, label %then23, label %else24
+  br i1 %34, label %then22, label %else23
 
-then23:                                           ; preds = %loop.end22
+then22:                                           ; preds = %loop.end21
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @4, i32 0, i32 0))
   call void @exit(i32 1)
-  br label %ifcont25
+  br label %ifcont24
 
-else24:                                           ; preds = %loop.end22
-  br label %ifcont25
+else23:                                           ; preds = %loop.end21
+  br label %ifcont24
 
-ifcont25:                                         ; preds = %else24, %then23
+ifcont24:                                         ; preds = %else23, %then22
   %35 = load i32, i32* %i, align 4
   %36 = icmp ne i32 %35, 10
-  br i1 %36, label %then26, label %else27
+  br i1 %36, label %then25, label %else26
 
-then26:                                           ; preds = %ifcont25
+then25:                                           ; preds = %ifcont24
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @5, i32 0, i32 0))
   call void @exit(i32 1)
-  br label %ifcont28
+  br label %ifcont27
 
-else27:                                           ; preds = %ifcont25
-  br label %ifcont28
+else26:                                           ; preds = %ifcont24
+  br label %ifcont27
 
-ifcont28:                                         ; preds = %else27, %then26
+ifcont27:                                         ; preds = %else26, %then25
   ret i32 0
 }
 
