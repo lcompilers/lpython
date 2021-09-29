@@ -2599,6 +2599,10 @@ public:
         builder->CreateBr(if_return);
     }
 
+    void visit_GoToTarget(const ASR::GoToTarget_t & /* x */) {
+        // Ignored for now
+    }
+
     void visit_BoolOp(const ASR::BoolOp_t &x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
