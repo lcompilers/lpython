@@ -754,7 +754,7 @@ int compile_to_assembly_file(const std::string &infile,
 
 int compile_to_binary_x86(const std::string &infile, const std::string &outfile,
         bool time_report,
-        CompilerOptions &compiler_options)
+        CompilerOptions &/*compiler_options*/)
 {
     int time_file_read=0;
     int time_src_to_ast=0;
@@ -828,7 +828,7 @@ int compile_to_object_file_cpp(const std::string &infile,
         const std::string &outfile,
         bool assembly, bool kokkos, bool openmp,
         LFortran::Platform platform,
-        CompilerOptions &compiler_options)
+        CompilerOptions &/*compiler_options*/)
 {
     std::string input = read_file(infile);
 
