@@ -238,14 +238,12 @@ public:
     // Inserts a new block `bb` using the current builder
     // and terminates the previous block if it is not already terminated
     void start_new_block(llvm::BasicBlock *bb) {
-        llvm::Function *fn = builder->GetInsertBlock()->getParent();
-        if (fn->getBasicBlockList().size() > 0) {
-            llvm::BasicBlock &last_bb = fn->getBasicBlockList().back();
-            llvm::Instruction *block_terminator = last_bb.getTerminator();
-            if (block_terminator == nullptr) {
-                // The block is not terminated --- terminate it by jumping to our new block
-                builder->CreateBr(bb);
-            }
+        llvm::BasicBlock *last_bb = builder->GetInsertBlock();
+        llvm::Function *fn = last_bb->getParent();
+        llvm::Instruction *block_terminator = last_bb->getTerminator();
+        if (block_terminator == nullptr) {
+            // The block is not terminated --- terminate it by jumping to our new block
+            builder->CreateBr(bb);
         }
         fn->getBasicBlockList().push_back(bb);
         builder->SetInsertPoint(bb);
