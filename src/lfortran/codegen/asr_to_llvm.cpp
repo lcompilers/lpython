@@ -2608,6 +2608,13 @@ public:
         }
         llvm::BasicBlock *target = llvm_goto_targets[x.m_target_id];
         builder->CreateBr(target);
+        // Now insert a new block that is unreachable and add an unreachable instruction
+        // so that the block is not empty in case there are no more statements after this
+        llvm::BasicBlock *unreachable_bb = llvm::BasicBlock::Create(context, "unreachable_bb");
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+        fn->getBasicBlockList().push_back(unreachable_bb);
+        builder->SetInsertPoint(unreachable_bb);
+        builder->CreateUnreachable();
     }
 
     void visit_GoToTarget(const ASR::GoToTarget_t &x) {
