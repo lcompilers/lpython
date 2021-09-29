@@ -2619,6 +2619,14 @@ public:
         llvm::BasicBlock *target = llvm_goto_targets[x.m_id];
 
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
+        if (fn->getBasicBlockList().size() > 0) {
+            llvm::BasicBlock &last_bb = fn->getBasicBlockList().back();
+            llvm::Instruction *block_terminator = last_bb.getTerminator();
+            if (block_terminator == nullptr) {
+                // The block is not terminated --- terminate it by jumping to our new label
+                builder->CreateBr(target);
+            }
+        }
         fn->getBasicBlockList().push_back(target);
         builder->SetInsertPoint(target);
     }
