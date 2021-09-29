@@ -102,6 +102,10 @@ public:
                     }
                 }
                 int64_t label = stmt_label(m_body[i]);
+                if (label != 0) {
+                    ASR::asr_t *l = ASR::make_GoToTarget_t(al, tmp_stmt->base.loc, label);
+                    body.push_back(al, ASR::down_cast<ASR::stmt_t>(l));
+                }
                 body.push_back(al, tmp_stmt);
             }
             // To avoid last statement to be entered twice once we exit this node
