@@ -602,8 +602,8 @@ public:
                     // private :: x, y, z
                     for (size_t i=0; i<x.n_syms; i++) {
                         AST::var_sym_t &s = x.m_syms[i];
-                        if( s.m_name == nullptr &&
-                            s.m_spec->type == AST::decl_attributeType::AttrIntrinsicOperator ) {
+                        if (s.m_name == nullptr) {
+                            if (s.m_spec->type == AST::decl_attributeType::AttrIntrinsicOperator) {
                                 // Operator Overloading Encountered
                                 if( sa->m_attr != AST::simple_attributeType::AttrPublic &&
                                     sa->m_attr != AST::simple_attributeType::AttrPrivate ) {
@@ -611,6 +611,9 @@ public:
                                 } else {
                                     overloaded_ops[current_scope][s.m_spec] = sa->m_attr;
                                 }
+                            } else {
+                                throw SemanticError("Not implemented yet.", x.base.base.loc);
+                            }
                         } else {
                             std::string sym = to_lower(s.m_name);
                             if (sa->m_attr == AST::simple_attributeType
