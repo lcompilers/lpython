@@ -111,7 +111,7 @@ public:
     Result<std::string> get_cpp(const std::string &code);
     Result<std::string> get_fmt(const std::string &code);
 
-    std::string format_error(const Error &e, const std::string &input, bool use_colors=true) const;
+    std::string format_error(const Error &e, const std::string &input) const;
     std::string error_stacktrace(const Error &e) const;
 
 private:
@@ -121,6 +121,7 @@ private:
     Platform platform;
     int eval_count;
 #endif
+    CompilerOptions compiler_options;
     SymbolTable *symbol_table;
     std::string run_fn;
 };
