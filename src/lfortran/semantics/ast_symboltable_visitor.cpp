@@ -82,7 +82,8 @@ private:
         {"sum", "lfortran_intrinsic_array"},
         {"abs", "lfortran_intrinsic_array"},
         {"tiny", "lfortran_intrinsic_array"},
-        {"char", "lfortran_intrinsic_array"}
+        {"char", "lfortran_intrinsic_array"},
+        {"len", "lfortran_intrinsic_array"}
 };
 
 public:
