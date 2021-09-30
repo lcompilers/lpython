@@ -287,16 +287,14 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
 
 Result<std::string> FortranEvaluator::get_llvm(
 #ifdef HAVE_LFORTRAN_LLVM
-    const std::string &code,
-    bool fast
+    const std::string &code
 #else
-    const std::string &/*code*/,
-    bool /*fast*/
+    const std::string &/*code*/
 #endif
     )
 {
 #ifdef HAVE_LFORTRAN_LLVM
-    Result<std::unique_ptr<LLVMModule>> res = get_llvm2(code, fast);
+    Result<std::unique_ptr<LLVMModule>> res = get_llvm2(code);
     if (res.ok) {
         return res.result->str();
     } else {
@@ -309,11 +307,9 @@ Result<std::string> FortranEvaluator::get_llvm(
 
 Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(
 #ifdef HAVE_LFORTRAN_LLVM
-    const std::string &code,
-    bool fast
+    const std::string &code
 #else
-    const std::string &/*code*/,
-    bool /*fast*/
+    const std::string &/*code*/
 #endif
     )
 {
@@ -339,7 +335,7 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(
         return error;
     }
 
-    if (fast) {
+    if (compiler_options.fast) {
         e->opt(*m->m_m);
     }
 
@@ -351,16 +347,14 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(
 
 Result<std::string> FortranEvaluator::get_asm(
 #ifdef HAVE_LFORTRAN_LLVM
-    const std::string &code,
-    bool fast
+    const std::string &code
 #else
-    const std::string &/*code*/,
-    bool /*fast*/
+    const std::string &/*code*/
 #endif
     )
 {
 #ifdef HAVE_LFORTRAN_LLVM
-    Result<std::unique_ptr<LLVMModule>> res = get_llvm2(code, fast);
+    Result<std::unique_ptr<LLVMModule>> res = get_llvm2(code);
     if (res.ok) {
         return e->get_asm(*res.result->m_m);
     } else {
