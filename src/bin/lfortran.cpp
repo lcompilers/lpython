@@ -462,7 +462,7 @@ int python_wrapper(const std::string &infile, std::string array_order,
 
     // Src -> AST -> ASR
     LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
-        result = fe.get_asr2(input, compiler_options.fixed_form);
+        result = fe.get_asr2(input);
     if (result.ok) {
         asr = result.result;
     } else {
@@ -509,7 +509,7 @@ int emit_asr(const std::string &infile,
 
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
-        r = fe.get_asr2(input, compiler_options.fixed_form);
+        r = fe.get_asr2(input);
     if (!r.ok) {
         std::cerr << fe.format_error(r.error, input);
         return 2;
@@ -663,7 +663,7 @@ int compile_to_object_file(const std::string &infile,
 
     // Src -> AST -> ASR
     LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
-    result = fe.get_asr2(input, compiler_options.fixed_form);
+    result = fe.get_asr2(input);
     if (result.ok) {
         asr = result.result;
     } else {
@@ -810,7 +810,7 @@ int compile_to_object_file_cpp(const std::string &infile,
 
     // Src -> AST -> ASR
     LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
-        result = fe.get_asr2(input, compiler_options.fixed_form);
+        result = fe.get_asr2(input);
     if (result.ok) {
         asr = result.result;
     } else {

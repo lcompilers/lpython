@@ -214,7 +214,7 @@ Result<AST::TranslationUnit_t*> FortranEvaluator::get_ast2(
 
 Result<std::string> FortranEvaluator::get_asr(const std::string &code)
 {
-    Result<ASR::TranslationUnit_t*> asr = get_asr2(code, false);
+    Result<ASR::TranslationUnit_t*> asr = get_asr2(code);
     if (asr.ok) {
         return LFortran::pickle(*asr.result, true);
     } else {
@@ -223,7 +223,7 @@ Result<std::string> FortranEvaluator::get_asr(const std::string &code)
 }
 
 Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
-            const std::string &code_orig, bool fixed_form)
+            const std::string &code_orig)
 {
     ASR::TranslationUnit_t* asr;
     try {
@@ -231,7 +231,7 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
         AST::TranslationUnit_t* ast;
         LFortran::LocationManager lm;
         std::string code = LFortran::fix_continuation(code_orig, lm,
-                fixed_form);
+            compiler_options.fixed_form);
         ast = parse(al, code);
 
         // AST -> ASR
@@ -313,7 +313,7 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(
     )
 {
 #ifdef HAVE_LFORTRAN_LLVM
-    Result<ASR::TranslationUnit_t*> asr = get_asr2(code, false);
+    Result<ASR::TranslationUnit_t*> asr = get_asr2(code);
     if (!asr.ok) {
         return asr.error;
     }
@@ -369,7 +369,7 @@ Result<std::string> FortranEvaluator::get_cpp(const std::string &code)
     // Src -> AST -> ASR
     SymbolTable *old_symbol_table = symbol_table;
     symbol_table = nullptr;
-    Result<ASR::TranslationUnit_t*> asr = get_asr2(code, false);
+    Result<ASR::TranslationUnit_t*> asr = get_asr2(code);
     symbol_table = old_symbol_table;
     if (asr.ok) {
         // ASR -> C++
