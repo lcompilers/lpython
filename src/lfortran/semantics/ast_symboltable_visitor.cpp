@@ -1282,10 +1282,10 @@ public:
         for (size_t i = 0; i < x.n_symbols; i++) {
             AST::UseSymbol_t *use_sym = AST::down_cast<AST::UseSymbol_t>(
                 x.m_symbols[i]);
-            if (use_sym->m_rename) {
-                class_procedures[dt_name][to_lower(use_sym->m_rename)] = to_lower(use_sym->m_sym);
+            if (use_sym->m_local_rename) {
+                class_procedures[dt_name][to_lower(use_sym->m_local_rename)] = to_lower(use_sym->m_remote_sym);
             } else {
-                class_procedures[dt_name][to_lower(use_sym->m_sym)] = to_lower(use_sym->m_sym);
+                class_procedures[dt_name][to_lower(use_sym->m_remote_sym)] = to_lower(use_sym->m_remote_sym);
             }
         }
     }
@@ -1518,10 +1518,10 @@ public:
             // Only import individual symbols from the module, e.g.:
             //     use a, only: x, y, z
             for (size_t i = 0; i < x.n_symbols; i++) {
-                std::string remote_sym = to_lower(AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_sym);
+                std::string remote_sym = to_lower(AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_remote_sym);
                 std::string local_sym;
-                if (AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_rename) {
-                    local_sym = to_lower(AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_rename);
+                if (AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_local_rename) {
+                    local_sym = to_lower(AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_local_rename);
                 } else {
                     local_sym = remote_sym;
                 }
