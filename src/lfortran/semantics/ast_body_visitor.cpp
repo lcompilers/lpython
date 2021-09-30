@@ -20,65 +20,15 @@
 
 namespace LFortran {
 
-class BodyVisitor : public AST::BaseVisitor<BodyVisitor> {
+class BodyVisitor : public CommonVisitor<BodyVisitor> {
 private:
-    std::map<std::string, std::string> intrinsic_procedures = {
-        {"kind", "lfortran_intrinsic_kind"},
-        {"selected_int_kind", "lfortran_intrinsic_kind"},
-        {"selected_real_kind", "lfortran_intrinsic_kind"},
-        {"size", "lfortran_intrinsic_array"},
-        {"lbound", "lfortran_intrinsic_array"},
-        {"ubound", "lfortran_intrinsic_array"},
-        {"min", "lfortran_intrinsic_array"},
-        {"max", "lfortran_intrinsic_array"},
-        {"allocated", "lfortran_intrinsic_array"},
-        {"minval", "lfortran_intrinsic_array"},
-        {"maxval", "lfortran_intrinsic_array"},
-        {"real", "lfortran_intrinsic_array"},
-        {"floor", "lfortran_intrinsic_array"},
-        {"sum", "lfortran_intrinsic_array"},
-        {"len", "lfortran_intrinsic_array"},
-        {"abs", "lfortran_intrinsic_math2"},
-        {"aimag", "lfortran_intrinsic_math2"},
-        {"modulo", "lfortran_intrinsic_math2"},
-        {"exp", "lfortran_intrinsic_math"},
-        {"log", "lfortran_intrinsic_math"},
-        {"erf", "lfortran_intrinsic_math"},
-        {"sin", "lfortran_intrinsic_trig"},
-        {"cos", "lfortran_intrinsic_math"},
-        {"tan", "lfortran_intrinsic_math"},
-        {"sinh", "lfortran_intrinsic_math"},
-        {"cosh", "lfortran_intrinsic_math"},
-        {"tanh", "lfortran_intrinsic_math"},
-        {"asin", "lfortran_intrinsic_math"},
-        {"acos", "lfortran_intrinsic_math"},
-        {"atan", "lfortran_intrinsic_math"},
-        {"atan2", "lfortran_intrinsic_math"},
-        {"asinh", "lfortran_intrinsic_math"},
-        {"acosh", "lfortran_intrinsic_math"},
-        {"atanh", "lfortran_intrinsic_math"},
-        {"sqrt", "lfortran_intrinsic_math2"},
-        {"int", "lfortran_intrinsic_array"},
-        {"real", "lfortran_intrinsic_array"},
-        {"tiny", "lfortran_intrinsic_array"},
-        {"len_trim", "lfortran_intrinsic_string"},
-        {"trim", "lfortran_intrinsic_string"},
-        {"iand", "lfortran_intrinsic_bit"},
-};
-
-    std::map<AST::operatorType, std::string> binop2str = {
-        {AST::operatorType::Mul, "~mul"},
-        {AST::operatorType::Add, "~add"},
-    };
 
 public:
-    Allocator &al;
-    ASR::asr_t *asr, *tmp;
-    SymbolTable *current_scope;
+    ASR::asr_t *asr;
     Vec<ASR::stmt_t*> *current_body;
     ASR::Module_t *current_module = nullptr;
 
-    BodyVisitor(Allocator &al, ASR::asr_t *unit) : al{al}, asr{unit} {}
+    BodyVisitor(Allocator &al, ASR::asr_t *unit) : CommonVisitor(al, nullptr), asr{unit} {}
 
     void visit_Declaration(const AST::Declaration_t & /* x */){
         // Already visited this AST node in the SymbolTableVisitor
@@ -1010,14 +960,6 @@ public:
         this->visit_expr(*x.m_right);
         ASR::expr_t *right = LFortran::ASRUtils::EXPR(tmp);
         CommonVisitorMethods::visit_BoolOp(al, x, left, right, tmp);
-    }
-
-    void visit_BinOp(const AST::BinOp_t &x) {
-        this->visit_expr(*x.m_left);
-        ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
-        this->visit_expr(*x.m_right);
-        ASR::expr_t *right = LFortran::ASRUtils::EXPR(tmp);
-        CommonVisitorMethods::visit_BinOp(al, x, left, right, tmp, binop2str[x.m_op], current_scope);
     }
 
     void visit_StrOp(const AST::StrOp_t &x) {

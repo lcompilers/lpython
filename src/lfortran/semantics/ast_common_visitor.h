@@ -64,6 +64,7 @@ static inline int64_t stmt_label(AST::stmt_t *f)
     }
 }
 
+
 class CommonVisitorMethods {
 public:
 
@@ -567,6 +568,76 @@ static ASR::asr_t* comptime_intrinsic_real(ASR::expr_t *A,
 }
 
 }; // class CommonVisitorMethods
+
+
+template <class Derived>
+class CommonVisitor : public AST::BaseVisitor<Derived> {
+public:
+    std::map<std::string, std::string> intrinsic_procedures = {
+        {"kind", "lfortran_intrinsic_kind"},
+        {"selected_int_kind", "lfortran_intrinsic_kind"},
+        {"selected_real_kind", "lfortran_intrinsic_kind"},
+        {"size", "lfortran_intrinsic_array"},
+        {"lbound", "lfortran_intrinsic_array"},
+        {"ubound", "lfortran_intrinsic_array"},
+        {"min", "lfortran_intrinsic_array"},
+        {"max", "lfortran_intrinsic_array"},
+        {"allocated", "lfortran_intrinsic_array"},
+        {"minval", "lfortran_intrinsic_array"},
+        {"maxval", "lfortran_intrinsic_array"},
+        {"real", "lfortran_intrinsic_array"},
+        {"char", "lfortran_intrinsic_array"},
+        {"floor", "lfortran_intrinsic_array"},
+        {"sum", "lfortran_intrinsic_array"},
+        {"len", "lfortran_intrinsic_array"},
+        {"abs", "lfortran_intrinsic_math2"},
+        {"aimag", "lfortran_intrinsic_math2"},
+        {"modulo", "lfortran_intrinsic_math2"},
+        {"exp", "lfortran_intrinsic_math"},
+        {"log", "lfortran_intrinsic_math"},
+        {"erf", "lfortran_intrinsic_math"},
+        {"sin", "lfortran_intrinsic_trig"},
+        {"cos", "lfortran_intrinsic_math"},
+        {"tan", "lfortran_intrinsic_math"},
+        {"sinh", "lfortran_intrinsic_math"},
+        {"cosh", "lfortran_intrinsic_math"},
+        {"tanh", "lfortran_intrinsic_math"},
+        {"asin", "lfortran_intrinsic_math"},
+        {"acos", "lfortran_intrinsic_math"},
+        {"atan", "lfortran_intrinsic_math"},
+        {"atan2", "lfortran_intrinsic_math"},
+        {"asinh", "lfortran_intrinsic_math"},
+        {"acosh", "lfortran_intrinsic_math"},
+        {"atanh", "lfortran_intrinsic_math"},
+        {"sqrt", "lfortran_intrinsic_math2"},
+        {"int", "lfortran_intrinsic_array"},
+        {"real", "lfortran_intrinsic_array"},
+        {"tiny", "lfortran_intrinsic_array"},
+        {"len_trim", "lfortran_intrinsic_string"},
+        {"trim", "lfortran_intrinsic_string"},
+        {"iand", "lfortran_intrinsic_bit"},
+    };
+
+    std::map<AST::operatorType, std::string> binop2str = {
+        {AST::operatorType::Mul, "~mul"},
+        {AST::operatorType::Add, "~add"},
+    };
+
+    ASR::asr_t *tmp;
+    Allocator &al;
+    SymbolTable *current_scope;
+
+    CommonVisitor(Allocator &al, SymbolTable *symbol_table) : al{al}, current_scope{symbol_table} {}
+
+    void visit_BinOp(const AST::BinOp_t &x) {
+        this->visit_expr(*x.m_left);
+        ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
+        this->visit_expr(*x.m_right);
+        ASR::expr_t *right = LFortran::ASRUtils::EXPR(tmp);
+        CommonVisitorMethods::visit_BinOp(al, x, left, right, tmp, binop2str[x.m_op], current_scope);
+    }
+
+};
 
 } // namespace LFortran
 
