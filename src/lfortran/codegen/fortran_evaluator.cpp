@@ -35,7 +35,6 @@ FortranEvaluator::FortranEvaluator(CompilerOptions compiler_options)
     al{1024*1024},
 #ifdef HAVE_LFORTRAN_LLVM
     e{std::make_unique<LLVMEvaluator>()},
-    platform{compiler_options.platform},
     eval_count{0},
 #endif
     compiler_options{compiler_options},
@@ -88,7 +87,7 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
 
         // ASR -> LLVM
         std::unique_ptr<LFortran::LLVMModule> m;
-        m = LFortran::asr_to_llvm(*asr, e->get_context(), al, platform, run_fn);
+        m = LFortran::asr_to_llvm(*asr, e->get_context(), al, compiler_options.platform, run_fn);
 
         if (verbose) {
             result.llvm_ir = m->str();
@@ -325,7 +324,7 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(
     // ASR -> LLVM
     std::unique_ptr<LFortran::LLVMModule> m;
     try {
-        m = LFortran::asr_to_llvm(*asr.result, e->get_context(), al, platform,
+        m = LFortran::asr_to_llvm(*asr.result, e->get_context(), al, compiler_options.platform,
             run_fn);
     } catch (const CodeGenError &e) {
         FortranEvaluator::Error error;
