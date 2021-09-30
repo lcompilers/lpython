@@ -16,6 +16,10 @@ type :: c_ptr
 end type
 
 interface
+    logical function c_associated(c_ptr_1)
+    type(c_ptr), intent(in) :: c_ptr_1
+    end function
+
     subroutine c_f_pointer(cptr, fptr)
     type(c_ptr), intent(in) :: cptr
     !type(*), pointer, intent(out) :: fptr
