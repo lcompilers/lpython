@@ -92,6 +92,7 @@ public:
     SymbolTable *global_scope;
     std::map<std::string, std::vector<std::string>> generic_procedures;
     std::map<AST::intrinsicopType, std::vector<std::string>> overloaded_op_procs;
+    std::map<std::string, std::vector<std::string>> defined_op_procs;
     std::map<std::string, std::map<std::string, std::string>> class_procedures;
     std::string dt_name;
     ASR::accessType dflt_access = ASR::Public;
@@ -1339,6 +1340,11 @@ public:
             std::vector<std::string> proc_names;
             fill_interface_proc_names(x, proc_names);
             overloaded_op_procs[opType] = proc_names;
+        } else if (AST::is_a<AST::InterfaceHeaderDefinedOperator_t>(*x.m_header)) {
+            std::string op_name = to_lower(AST::down_cast<AST::InterfaceHeaderDefinedOperator_t>(x.m_header)->m_operator_name);
+            std::vector<std::string> proc_names;
+            fill_interface_proc_names(x, proc_names);
+            defined_op_procs[op_name] = proc_names;
         } else {
             throw SemanticError("Interface type not imlemented yet", x.base.base.loc);
         }
