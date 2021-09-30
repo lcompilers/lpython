@@ -92,6 +92,7 @@ public:
     SymbolTable *global_scope;
     std::map<std::string, std::vector<std::string>> generic_procedures;
     std::map<AST::intrinsicopType, std::vector<std::string>> overloaded_op_procs;
+    std::map<std::string, std::vector<std::string>> defined_op_procs;
     std::map<std::string, std::map<std::string, std::string>> class_procedures;
     std::string dt_name;
     ASR::accessType dflt_access = ASR::Public;
@@ -611,8 +612,17 @@ public:
                                 } else {
                                     overloaded_ops[current_scope][s.m_spec] = sa->m_attr;
                                 }
+                            } else if (s.m_spec->type == AST::decl_attributeType::AttrDefinedOperator) {
+                                //std::string op_name = to_lower(AST::down_cast<AST::AttrDefinedOperator_t>(s.m_spec)->m_op_name);
+                                // Custom Operator Overloading Encountered
+                                if( sa->m_attr != AST::simple_attributeType::AttrPublic &&
+                                    sa->m_attr != AST::simple_attributeType::AttrPrivate ) {
+                                    overloaded_ops[current_scope][s.m_spec] = AST::simple_attributeType::AttrPublic;
+                                } else {
+                                    overloaded_ops[current_scope][s.m_spec] = sa->m_attr;
+                                }
                             } else {
-                                throw SemanticError("Not implemented yet.", x.base.base.loc);
+                                throw SemanticError("Attribute type not implemented yet.", x.base.base.loc);
                             }
                         } else {
                             std::string sym = to_lower(s.m_name);
@@ -1330,6 +1340,11 @@ public:
             std::vector<std::string> proc_names;
             fill_interface_proc_names(x, proc_names);
             overloaded_op_procs[opType] = proc_names;
+        } else if (AST::is_a<AST::InterfaceHeaderDefinedOperator_t>(*x.m_header)) {
+            std::string op_name = to_lower(AST::down_cast<AST::InterfaceHeaderDefinedOperator_t>(x.m_header)->m_operator_name);
+            std::vector<std::string> proc_names;
+            fill_interface_proc_names(x, proc_names);
+            defined_op_procs[op_name] = proc_names;
         } else {
             throw SemanticError("Interface type not imlemented yet", x.base.base.loc);
         }
@@ -1360,6 +1375,31 @@ public:
             current_scope->scope[intrinsic2str[proc.first]] = ASR::down_cast<ASR::symbol_t>(v);
         }
         overloaded_op_procs.clear();
+
+        for (auto &proc : defined_op_procs) {
+            Location loc;
+            loc.first_line = 1;
+            loc.last_line = 1;
+            loc.first_column = 1;
+            loc.last_column = 1;
+            Str s;
+            s.from_str_view(proc.first);
+            char *generic_name = s.c_str(al);
+            Vec<ASR::symbol_t*> symbols;
+            symbols.reserve(al, proc.second.size());
+            for (auto &pname : proc.second) {
+                ASR::symbol_t *x;
+                Str s;
+                s.from_str_view(pname);
+                char *name = s.c_str(al);
+                x = resolve_symbol(loc, name);
+                symbols.push_back(al, x);
+            }
+            ASR::asr_t *v = ASR::make_CustomOperator_t(al, loc, current_scope,
+                                generic_name, symbols.p, symbols.size(), ASR::Public);
+            current_scope->scope[proc.first] = ASR::down_cast<ASR::symbol_t>(v);
+        }
+        defined_op_procs.clear();
     }
 
     void add_generic_procedures() {
