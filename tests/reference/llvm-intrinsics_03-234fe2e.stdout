@@ -1,10 +1,14 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
+%c_ptr = type { i32 }
+
 @0 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
 @1 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
 
 declare i8* @__module_lfortran_intrinsic_array_char(i32*)
+
+declare void @__module_lfortran_intrinsic_iso_c_binding_c_f_pointer(%c_ptr*, i32*)
 
 define float @__module_lfortran_intrinsic_math_scos(float* %x) {
 .entry:
