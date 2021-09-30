@@ -115,7 +115,6 @@ private:
     Allocator al;
 #ifdef HAVE_LFORTRAN_LLVM
     std::unique_ptr<LLVMEvaluator> e;
-    Platform platform;
     int eval_count;
 #endif
     CompilerOptions compiler_options;
