@@ -11,4 +11,8 @@ integer, parameter :: c_bool = 4
 integer, parameter :: c_char = 1
 character(len=1), parameter :: c_null_char = char(0)
 
+type :: c_ptr
+    integer ptr
+end type
+
 end module
