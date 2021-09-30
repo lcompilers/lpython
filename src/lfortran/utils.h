@@ -18,6 +18,7 @@ struct CompilerOptions {
     bool show_stacktrace = false;
     bool use_colors = true;
     bool fast = false;
+    bool openmp = false;
     Platform platform;
 
     CompilerOptions () : platform{get_platform()} {};
