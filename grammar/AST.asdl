@@ -413,7 +413,7 @@ type_stmt
     | ClassDefault(trivia? trivia, stmt* body)
 
 use_symbol
-    = UseSymbol(identifier sym, identifier? rename)
+    = UseSymbol(identifier remote_sym, identifier? local_rename)
     | UseAssignment()
     | IntrinsicOperator(intrinsicop op)
     | DefinedOperator(string opName)

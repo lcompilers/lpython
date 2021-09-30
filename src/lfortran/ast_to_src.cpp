@@ -4011,11 +4011,11 @@ public:
 
     void visit_UseSymbol(const UseSymbol_t &x) {
         s = "";
-        if (x.m_rename) {
-            s.append(x.m_rename);
+        if (x.m_local_rename) {
+            s.append(x.m_local_rename);
             s.append(" => ");
         }
-        s.append(x.m_sym);
+        s.append(x.m_remote_sym);
     }
 
     void visit_UseAssignment(const UseAssignment_t & /*x*/) {
