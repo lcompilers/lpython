@@ -29,9 +29,7 @@ ASR::TranslationUnit_t *ast_to_asr(Allocator &al, AST::TranslationUnit_t &ast,
         SymbolTable *symbol_table)
 {
     ASR::asr_t *unit = symbol_table_visitor(al, ast, symbol_table);
-
-    // Uncomment for debugging the ASR after SymbolTable building:
-    // std::cout << pickle(*unit) << std::endl;
+    LFORTRAN_ASSERT(asr_verify(*ASR::down_cast2<ASR::TranslationUnit_t>(unit)));
 
     ASR::TranslationUnit_t *tu = body_visitor(al, ast, unit);
     LFORTRAN_ASSERT(asr_verify(*tu));
