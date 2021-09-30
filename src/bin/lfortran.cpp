@@ -449,28 +449,26 @@ int format(const std::string &file, bool inplace, bool color, int indent,
     return 0;
 }
 
-int python_wrapper(const std::string &infile, std::string array_order)
+int python_wrapper(const std::string &infile, std::string array_order,
+    CompilerOptions &compiler_options)
 {
 
     bool c_order = (0==array_order.compare("c"));
 
     std::string input = read_file(infile);
 
-    // Src -> AST
-    Allocator al(64*1024*1024);
-    LFortran::AST::TranslationUnit_t* ast;
-    try {
-        ast = LFortran::parse2(al, input);
-    } catch (const LFortran::TokenizerError &e) {
-        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
-        return 1;
-    } catch (const LFortran::ParserError &e) {
-        std::cerr << "Parsing error: " << e.msg() << std::endl;
-        return 2;
-    }
+    LFortran::FortranEvaluator fe(compiler_options);
+    LFortran::ASR::TranslationUnit_t* asr;
 
-    // AST -> ASR
-    LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast);
+    // Src -> AST -> ASR
+    LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
+        result = fe.get_asr2(input, compiler_options.fixed_form);
+    if (result.ok) {
+        asr = result.result;
+    } else {
+        std::cerr << fe.format_error(result.error, input);
+        return 1;
+    }
 
     // figure out pyx and pxd filenames
     auto prefix = infile.substr(0,infile.rfind('.'));
@@ -806,25 +804,22 @@ int compile_to_object_file_cpp(const std::string &infile,
         const std::string &outfile,
         bool assembly, bool kokkos, bool openmp,
         LFortran::Platform platform,
-        CompilerOptions &/*compiler_options*/)
+        CompilerOptions &compiler_options)
 {
     std::string input = read_file(infile);
 
-    // Src -> AST
-    Allocator al(64*1024*1024);
-    LFortran::AST::TranslationUnit_t* ast;
-    try {
-        ast = LFortran::parse2(al, input);
-    } catch (const LFortran::TokenizerError &e) {
-        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
-        return 1;
-    } catch (const LFortran::ParserError &e) {
-        std::cerr << "Parsing error: " << e.msg() << std::endl;
-        return 2;
-    }
+    LFortran::FortranEvaluator fe(compiler_options);
+    LFortran::ASR::TranslationUnit_t* asr;
 
-    // AST -> ASR
-    LFortran::ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast);
+    // Src -> AST -> ASR
+    LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
+        result = fe.get_asr2(input, compiler_options.fixed_form);
+    if (result.ok) {
+        asr = result.result;
+    } else {
+        std::cerr << fe.format_error(result.error, input);
+        return 1;
+    }
 
     // Save .mod files
     {
@@ -1244,7 +1239,8 @@ int main(int argc, char *argv[])
         }
 
         if (pywrap) {
-            return python_wrapper(arg_pywrap_file, arg_pywrap_array_order);
+            return python_wrapper(arg_pywrap_file, arg_pywrap_array_order,
+                compiler_options);
         }
 
         if (arg_backend == "llvm") {
