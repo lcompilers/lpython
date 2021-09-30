@@ -1375,6 +1375,31 @@ public:
             current_scope->scope[intrinsic2str[proc.first]] = ASR::down_cast<ASR::symbol_t>(v);
         }
         overloaded_op_procs.clear();
+
+        for (auto &proc : defined_op_procs) {
+            Location loc;
+            loc.first_line = 1;
+            loc.last_line = 1;
+            loc.first_column = 1;
+            loc.last_column = 1;
+            Str s;
+            s.from_str_view(proc.first);
+            char *generic_name = s.c_str(al);
+            Vec<ASR::symbol_t*> symbols;
+            symbols.reserve(al, proc.second.size());
+            for (auto &pname : proc.second) {
+                ASR::symbol_t *x;
+                Str s;
+                s.from_str_view(pname);
+                char *name = s.c_str(al);
+                x = resolve_symbol(loc, name);
+                symbols.push_back(al, x);
+            }
+            ASR::asr_t *v = ASR::make_CustomOperator_t(al, loc, current_scope,
+                                generic_name, symbols.p, symbols.size(), ASR::Public);
+            current_scope->scope[proc.first] = ASR::down_cast<ASR::symbol_t>(v);
+        }
+        defined_op_procs.clear();
     }
 
     void add_generic_procedures() {
