@@ -1127,7 +1127,7 @@ int main(int argc, char *argv[])
         app.add_flag("--show-tokens", show_tokens, "Show tokens for the given file and exit");
         app.add_flag("--show-ast", show_ast, "Show AST for the given file and exit");
         app.add_flag("--show-asr", show_asr, "Show ASR for the given file and exit");
-        app.add_flag("--with-intrinsic-modules", with_intrinsic_modules, "Show intrinsic modules in ASR");
+        app.add_flag("--with-intrinsic-mods", with_intrinsic_modules, "Show intrinsic modules in ASR");
         app.add_flag("--show-ast-f90", show_ast_f90, "Show Fortran from AST for the given file and exit");
         app.add_flag("--no-color", arg_no_color, "Turn off colored AST/ASR");
         app.add_flag("--indent", arg_indent, "Indented print ASR/AST");
@@ -1136,7 +1136,7 @@ int main(int argc, char *argv[])
         app.add_flag("--show-cpp", show_cpp, "Show C++ translation source for the given file and exit");
         app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
         app.add_flag("--show-stacktrace", compiler_options.show_stacktrace, "Show internal stacktrace on compiler errors");
-        app.add_flag("--symtab-only", compiler_options.symtab_only, "Only create symbol tables in ASR (skip executable statements)");
+        app.add_flag("--symtab-only", compiler_options.symtab_only, "Only create symbol tables in ASR (skip executable stmt)");
         app.add_flag("--time-report", time_report, "Show compilation time report");
         app.add_flag("--static", static_link, "Create a static executable");
         app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp, x86)")->capture_default_str();
