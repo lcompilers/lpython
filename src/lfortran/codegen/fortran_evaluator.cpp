@@ -242,7 +242,7 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
             }
             symbol_table->mark_all_variables_external(al);
         }
-        asr = ast_to_asr(al, *ast, symbol_table);
+        asr = ast_to_asr(al, *ast, symbol_table, compiler_options.symtab_only);
         if (!symbol_table) symbol_table = asr->m_global_scope;
     } catch (const TokenizerError &e) {
         FortranEvaluator::Error error;
