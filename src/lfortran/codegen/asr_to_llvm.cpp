@@ -1475,6 +1475,15 @@ public:
                         }
                         break;
                     }
+                    case (ASR::ttypeType::IntegerPointer) : {
+                        ASR::IntegerPointer_t* v_type = down_cast<ASR::IntegerPointer_t>(arg->m_type);
+                        m_type_ = arg->m_type;
+                        m_dims = v_type->m_dims;
+                        n_dims = v_type->n_dims;
+                        a_kind = v_type->m_kind;
+                        type = getIntType(a_kind, true);
+                        break;
+                    }
                     case (ASR::ttypeType::Real) : {
                         ASR::Real_t* v_type = down_cast<ASR::Real_t>(arg->m_type);
                         m_type_ = arg->m_type;
