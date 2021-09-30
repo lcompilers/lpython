@@ -87,7 +87,7 @@ private:
 };
 
 public:
-    ASR::asr_t *asr;
+    ASR::asr_t *tmp;
     Allocator &al;
     SymbolTable *current_scope;
     SymbolTable *global_scope;
@@ -145,7 +145,7 @@ public:
             }
         }
         global_scope = nullptr;
-        asr = ASR::make_TranslationUnit_t(al, x.base.base.loc,
+        tmp = ASR::make_TranslationUnit_t(al, x.base.base.loc,
             current_scope, nullptr, 0);
     }
 
@@ -167,7 +167,7 @@ public:
         add_generic_procedures();
         add_overloaded_procedures();
         add_class_procedures();
-        asr = ASR::make_Module_t(
+        tmp = ASR::make_Module_t(
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
             /* a_name */ s2c(al, to_lower(x.m_name)),
@@ -176,9 +176,9 @@ public:
             false);
         std::string sym_name = to_lower(x.m_name);
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
-            throw SemanticError("Module already defined", asr->loc);
+            throw SemanticError("Module already defined", tmp->loc);
         }
-        parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
+        parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(tmp);
         current_scope = parent_scope;
         in_module = false;
     }
@@ -196,7 +196,7 @@ public:
         for (size_t i=0; i<x.n_contains; i++) {
             visit_program_unit(*x.m_contains[i]);
         }
-        asr = ASR::make_Program_t(
+        tmp = ASR::make_Program_t(
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
             /* a_name */ s2c(al, to_lower(x.m_name)),
@@ -206,9 +206,9 @@ public:
             /* n_body */ 0);
         std::string sym_name = to_lower(x.m_name);
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
-            throw SemanticError("Program already defined", asr->loc);
+            throw SemanticError("Program already defined", tmp->loc);
         }
-        parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
+        parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(tmp);
         current_scope = parent_scope;
     }
 
@@ -251,7 +251,7 @@ public:
         if (is_interface){
             deftype = ASR::deftypeType::Interface;
         }
-        asr = ASR::make_Subroutine_t(
+        tmp = ASR::make_Subroutine_t(
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
             /* a_name */ s2c(al, to_lower(x.m_name)),
@@ -267,10 +267,10 @@ public:
             if (f2->m_abi == ASR::abiType::Interactive) {
                 // Previous declaration will be shadowed
             } else {
-                throw SemanticError("Subroutine already defined", asr->loc);
+                throw SemanticError("Subroutine already defined", tmp->loc);
             }
         }
-        parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
+        parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(tmp);
         current_scope = parent_scope;
         /* FIXME: This can become incorrect/get cleared prematurely, perhaps
            in nested functions, and also in callback.f90 test, but it may not
@@ -368,7 +368,7 @@ public:
             if (return_type->m_kind != nullptr) {
                 if (return_type->n_kind == 1) {
                     visit_expr(*return_type->m_kind->m_value);
-                    ASR::expr_t* kind_expr = LFortran::ASRUtils::EXPR(asr);
+                    ASR::expr_t* kind_expr = LFortran::ASRUtils::EXPR(tmp);
                     if (return_type->m_type == AST::decl_typeType::TypeCharacter) {
                         a_len = ASRUtils::extract_len(kind_expr, x.base.base.loc);
                     } else {
@@ -434,7 +434,7 @@ public:
             deftype = ASR::deftypeType::Interface;
         }
 
-        asr = ASR::make_Function_t(
+        tmp = ASR::make_Function_t(
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
             /* a_name */ s2c(al, to_lower(x.m_name)),
@@ -450,10 +450,10 @@ public:
             if (f2->m_abi == ASR::abiType::Interactive) {
                 // Previous declaration will be shadowed
             } else {
-                throw SemanticError("Function already defined", asr->loc);
+                throw SemanticError("Function already defined", tmp->loc);
             }
         }
-        parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
+        parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(tmp);
         current_scope = parent_scope;
         current_procedure_args.clear();
         current_procedure_abi_type = ASR::abiType::Source;
@@ -461,32 +461,32 @@ public:
 
     void visit_StrOp(const AST::StrOp_t &x) {
         this->visit_expr(*x.m_left);
-        ASR::expr_t *left = LFortran::ASRUtils::EXPR(asr);
+        ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
         this->visit_expr(*x.m_right);
-        ASR::expr_t *right = LFortran::ASRUtils::EXPR(asr);
-        CommonVisitorMethods::visit_StrOp(al, x, left, right, asr);
+        ASR::expr_t *right = LFortran::ASRUtils::EXPR(tmp);
+        CommonVisitorMethods::visit_StrOp(al, x, left, right, tmp);
     }
 
     void visit_UnaryOp(const AST::UnaryOp_t &x) {
         this->visit_expr(*x.m_operand);
-        ASR::expr_t *operand = LFortran::ASRUtils::EXPR(asr);
-        CommonVisitorMethods::visit_UnaryOp(al, x, operand, asr);
+        ASR::expr_t *operand = LFortran::ASRUtils::EXPR(tmp);
+        CommonVisitorMethods::visit_UnaryOp(al, x, operand, tmp);
     }
 
     void visit_BoolOp(const AST::BoolOp_t &x) {
         this->visit_expr(*x.m_left);
-        ASR::expr_t *left = LFortran::ASRUtils::EXPR(asr);
+        ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
         this->visit_expr(*x.m_right);
-        ASR::expr_t *right = LFortran::ASRUtils::EXPR(asr);
-        CommonVisitorMethods::visit_BoolOp(al, x, left, right, asr);
+        ASR::expr_t *right = LFortran::ASRUtils::EXPR(tmp);
+        CommonVisitorMethods::visit_BoolOp(al, x, left, right, tmp);
     }
 
     void visit_Compare(const AST::Compare_t &x) {
         this->visit_expr(*x.m_left);
-        ASR::expr_t *left = LFortran::ASRUtils::EXPR(asr);
+        ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
         this->visit_expr(*x.m_right);
-        ASR::expr_t *right = LFortran::ASRUtils::EXPR(asr);
-        CommonVisitorMethods::visit_Compare(al, x, left, right, asr);
+        ASR::expr_t *right = LFortran::ASRUtils::EXPR(tmp);
+        CommonVisitorMethods::visit_Compare(al, x, left, right, tmp);
     }
 
     void visit_BinOp(const AST::BinOp_t &x) {
@@ -501,25 +501,25 @@ public:
         int s_len = strlen(x.m_s);
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
                 1, s_len, nullptr, nullptr, 0));
-        asr = ASR::make_ConstantString_t(al, x.base.base.loc, x.m_s, type);
+        tmp = ASR::make_ConstantString_t(al, x.base.base.loc, x.m_s, type);
     }
 
     void visit_Logical(const AST::Logical_t &x) {
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc,
                 4, nullptr, 0));
-        asr = ASR::make_ConstantLogical_t(al, x.base.base.loc, x.m_value, type);
+        tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, x.m_value, type);
     }
 
     void visit_Complex(const AST::Complex_t &x) {
         this->visit_expr(*x.m_re);
-        ASR::expr_t *re = LFortran::ASRUtils::EXPR(asr);
+        ASR::expr_t *re = LFortran::ASRUtils::EXPR(tmp);
         this->visit_expr(*x.m_im);
-        ASR::expr_t *im = LFortran::ASRUtils::EXPR(asr);
+        ASR::expr_t *im = LFortran::ASRUtils::EXPR(tmp);
         int re_kind = LFortran::ASRUtils::extract_kind_from_ttype_t(LFortran::ASRUtils::expr_type(re));
         int im_kind = LFortran::ASRUtils::extract_kind_from_ttype_t(LFortran::ASRUtils::expr_type(im));
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc,
                 std::max(re_kind, im_kind), nullptr, 0));
-        asr = ASR::make_ConstantComplex_t(al, x.base.base.loc,
+        tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc,
                 re, im, type);
     }
 
@@ -532,13 +532,13 @@ public:
             dim.loc = m_dim[i].loc;
             if (m_dim[i].m_start) {
                 this->visit_expr(*m_dim[i].m_start);
-                dim.m_start = LFortran::ASRUtils::EXPR(asr);
+                dim.m_start = LFortran::ASRUtils::EXPR(tmp);
             } else {
                 dim.m_start = nullptr;
             }
             if (m_dim[i].m_end) {
                 this->visit_expr(*m_dim[i].m_end);
-                dim.m_end = LFortran::ASRUtils::EXPR(asr);
+                dim.m_end = LFortran::ASRUtils::EXPR(tmp);
             } else {
                 dim.m_end = nullptr;
             }
@@ -771,7 +771,7 @@ public:
                     sym_type->m_kind != nullptr &&
                     sym_type->m_kind->m_value != nullptr) {
                     visit_expr(*sym_type->m_kind->m_value);
-                    ASR::expr_t* kind_expr = LFortran::ASRUtils::EXPR(asr);
+                    ASR::expr_t* kind_expr = LFortran::ASRUtils::EXPR(tmp);
                     a_kind = ASRUtils::extract_kind(kind_expr, x.base.base.loc);
                 }
                 if (sym_type->m_type == AST::decl_typeType::TypeReal) {
@@ -817,7 +817,7 @@ public:
                             case (AST::kind_item_typeType::Value) : {
                                 LFORTRAN_ASSERT(sym_type->m_kind->m_value != nullptr);
                                 visit_expr(*sym_type->m_kind->m_value);
-                                ASR::expr_t* len_expr0 = LFortran::ASRUtils::EXPR(asr);
+                                ASR::expr_t* len_expr0 = LFortran::ASRUtils::EXPR(tmp);
                                 a_len = ASRUtils::extract_len(len_expr0, x.base.base.loc);
                                 if (a_len == -3) {
                                     len_expr = len_expr0;
@@ -869,7 +869,7 @@ public:
                 ASR::expr_t* value = nullptr;
                 if (s.m_initializer != nullptr) {
                     this->visit_expr(*s.m_initializer);
-                    init_expr = LFortran::ASRUtils::EXPR(asr);
+                    init_expr = LFortran::ASRUtils::EXPR(tmp);
                     ASR::ttype_t *init_type = LFortran::ASRUtils::expr_type(init_expr);
                     ImplicitCastRules::set_converted_value(al, x.base.base.loc, &init_expr, init_type, type);
                     LFORTRAN_ASSERT(init_expr != nullptr);
@@ -931,7 +931,7 @@ public:
         asr_list.reserve(al, n);
         for (size_t i=0; i<n; i++) {
             visit_expr(*ast_list[i].m_end);
-            ASR::expr_t *expr = LFortran::ASRUtils::EXPR(asr);
+            ASR::expr_t *expr = LFortran::ASRUtils::EXPR(tmp);
             asr_list.push_back(al, expr);
         }
         return asr_list;
@@ -996,7 +996,7 @@ public:
             // FIXME: convert args to indices:
             indices.p = nullptr;
             indices.n = 0;
-            asr = ASR::make_ArrayRef_t(al, x.base.base.loc, v,
+            tmp = ASR::make_ArrayRef_t(al, x.base.base.loc, v,
                 indices.p, indices.size(), type, nullptr);
             return;
         } else if (ASR::is_a<ASR::Function_t>(*s)) {
@@ -1077,7 +1077,7 @@ public:
                     }
                 }
                 else if (var_name=="real") {
-                    asr = CommonVisitorMethods::comptime_intrinsic_real(args[0], nullptr, al, x.base.base.loc);
+                    tmp = CommonVisitorMethods::comptime_intrinsic_real(args[0], nullptr, al, x.base.base.loc);
                     return;
                 }
                 else if (var_name=="floor") {
@@ -1219,7 +1219,7 @@ public:
             }
             case 2: {
                 if (var_name=="real") {
-                    asr = CommonVisitorMethods::comptime_intrinsic_real(args[0], args[1], al, x.base.base.loc);
+                    tmp = CommonVisitorMethods::comptime_intrinsic_real(args[0], args[1], al, x.base.base.loc);
                     return;
                 } else {
                     throw SemanticError("Function '" + var_name + "' with " + std::to_string(args.n) +
@@ -1234,7 +1234,7 @@ public:
                         x.base.base.loc);
             }
         }
-        asr = ASR::make_FunctionCall_t(al, x.base.base.loc, v, nullptr,
+        tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, v, nullptr,
             args.p, args.size(), nullptr, 0, type, value, nullptr);
     }
 
@@ -1277,10 +1277,10 @@ public:
             }
             parent_sym = parent_scope->scope[parent_sym_name];
         }
-        asr = ASR::make_DerivedType_t(al, x.base.base.loc, current_scope,
+        tmp = ASR::make_DerivedType_t(al, x.base.base.loc, current_scope,
                 s2c(al, to_lower(x.m_name)), data_member_names.p, data_member_names.size(),
                 ASR::abiType::Source, dflt_access, parent_sym);
-        parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
+        parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(tmp);
         current_scope = parent_scope;
         is_derived_type = false;
     }
@@ -1728,7 +1728,7 @@ public:
         }
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
                 r_kind, nullptr, 0));
-        asr = ASR::make_ConstantReal_t(al, x.base.base.loc, r, type);
+        tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, r, type);
     }
 
     ASR::asr_t* resolve_variable(const Location &loc, const std::string &var_name) {
@@ -1741,7 +1741,7 @@ public:
     }
 
     void visit_Name(const AST::Name_t &x) {
-        asr = resolve_variable(x.base.base.loc, to_lower(x.m_id));
+        tmp = resolve_variable(x.base.base.loc, to_lower(x.m_id));
     }
 
     void visit_Num(const AST::Num_t &x) {
@@ -1782,7 +1782,7 @@ public:
             throw SemanticError("Integer constants larger than 2^62-1 are not implemented yet", x.base.base.loc);
         } else {
             LFORTRAN_ASSERT(!BigInt::is_int_ptr(x.m_n));
-            asr = ASR::make_ConstantInteger_t(al, x.base.base.loc, x.m_n, type);
+            tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, x.m_n, type);
         }
     }
 
@@ -1797,7 +1797,7 @@ ASR::asr_t *symbol_table_visitor(Allocator &al, AST::TranslationUnit_t &ast,
 {
     SymbolTableVisitor v(al, symbol_table);
     v.visit_TranslationUnit(ast);
-    ASR::asr_t *unit = v.asr;
+    ASR::asr_t *unit = v.tmp;
     return unit;
 }
 
