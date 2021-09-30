@@ -62,34 +62,8 @@ void extract_bind(T &x, ASR::abiType &abi_type, char *&bindc_name) {
 }
 
 
-class SymbolTableVisitor : public AST::BaseVisitor<SymbolTableVisitor> {
-private:
-    std::map<std::string, std::string> intrinsic_procedures = {
-        {"kind", "lfortran_intrinsic_kind"},
-        {"selected_int_kind", "lfortran_intrinsic_kind"},
-        {"selected_real_kind", "lfortran_intrinsic_kind"},
-        {"size", "lfortran_intrinsic_array"},
-        {"lbound", "lfortran_intrinsic_array"},
-        {"ubound", "lfortran_intrinsic_array"},
-        {"min", "lfortran_intrinsic_array"},
-        {"max", "lfortran_intrinsic_array"},
-        {"allocated", "lfortran_intrinsic_array"},
-        {"minval", "lfortran_intrinsic_array"},
-        {"maxval", "lfortran_intrinsic_array"},
-        {"real", "lfortran_intrinsic_array"},
-        {"floor", "lfortran_intrinsic_array"},
-        {"int", "lfortran_intrinsic_array"},
-        {"sum", "lfortran_intrinsic_array"},
-        {"abs", "lfortran_intrinsic_array"},
-        {"tiny", "lfortran_intrinsic_array"},
-        {"char", "lfortran_intrinsic_array"},
-        {"len", "lfortran_intrinsic_array"}
-};
-
+class SymbolTableVisitor : public CommonVisitor<SymbolTableVisitor> {
 public:
-    ASR::asr_t *tmp;
-    Allocator &al;
-    SymbolTable *current_scope;
     SymbolTable *global_scope;
     std::map<std::string, std::vector<std::string>> generic_procedures;
     std::map<AST::intrinsicopType, std::vector<std::string>> overloaded_op_procs;
@@ -114,13 +88,8 @@ public:
         {AST::intrinsicopType::PLUS, "~add"},
     };
 
-    std::map<AST::operatorType, std::string> binop2str = {
-        {AST::operatorType::Mul, "~mul"},
-        {AST::operatorType::Add, "~add"},
-    };
-
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
-      : al{al}, current_scope{symbol_table}, is_derived_type{false} {}
+      : CommonVisitor(al, symbol_table), is_derived_type{false} {}
 
 
     ASR::symbol_t* resolve_symbol(const Location &loc, const std::string &sub_name) {
@@ -487,14 +456,6 @@ public:
         this->visit_expr(*x.m_right);
         ASR::expr_t *right = LFortran::ASRUtils::EXPR(tmp);
         CommonVisitorMethods::visit_Compare(al, x, left, right, tmp);
-    }
-
-    void visit_BinOp(const AST::BinOp_t &x) {
-        this->visit_expr(*x.m_left);
-        ASR::expr_t *left = LFortran::ASRUtils::EXPR(asr);
-        this->visit_expr(*x.m_right);
-        ASR::expr_t *right = LFortran::ASRUtils::EXPR(asr);
-        CommonVisitorMethods::visit_BinOp(al, x, left, right, asr, binop2str[x.m_op], current_scope);
     }
 
     void visit_String(const AST::String_t &x) {
