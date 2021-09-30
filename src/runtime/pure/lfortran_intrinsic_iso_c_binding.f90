@@ -15,4 +15,12 @@ type :: c_ptr
     integer ptr
 end type
 
+interface
+    subroutine c_f_pointer(cptr, fptr)
+    type(c_ptr), intent(in) :: cptr
+    !type(*), pointer, intent(out) :: fptr
+    integer, pointer, intent(out) :: fptr
+    end subroutine
+end interface
+
 end module
