@@ -1,6 +1,7 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
+%c_ptr = type { i32 }
 %complex_8 = type { double, double }
 
 @0 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
@@ -10,6 +11,8 @@ source_filename = "LFortran"
 @4 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
 
 declare i8* @__module_lfortran_intrinsic_array_char(i32*)
+
+declare void @__module_lfortran_intrinsic_iso_c_binding_c_f_pointer(%c_ptr*, i32*)
 
 define double @__module_lfortran_intrinsic_math2_dabs(double* %x) {
 .entry:
