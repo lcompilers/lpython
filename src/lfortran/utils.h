@@ -19,6 +19,7 @@ struct CompilerOptions {
     bool use_colors = true;
     bool fast = false;
     bool openmp = false;
+    std::string target = "";
     Platform platform;
 
     CompilerOptions () : platform{get_platform()} {};
