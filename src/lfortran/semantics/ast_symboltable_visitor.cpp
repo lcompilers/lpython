@@ -836,6 +836,8 @@ public:
         }
     }
 
+    // It tries to evaluate intrinsic function calls if it can be done.
+    // If it cannot be done at compile time, it returns a nullptr.
     ASR::expr_t *intrinsic_function_evaluation(const AST::FuncCallOrArray_t &x,
             Vec<ASR::expr_t*> &args, std::string &var_name) {
         ASR::expr_t *value = nullptr;
