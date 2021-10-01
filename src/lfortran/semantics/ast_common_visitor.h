@@ -4,6 +4,7 @@
 #include <lfortran/asr.h>
 #include <lfortran/ast.h>
 #include <lfortran/bigint.h>
+#include <lfortran/string_utils.h>
 
 namespace LFortran {
 
@@ -630,6 +631,70 @@ public:
 
     CommonVisitor(Allocator &al, SymbolTable *symbol_table) : al{al}, current_scope{symbol_table} {}
 
+    ASR::asr_t* resolve_variable(const Location &loc, const std::string &var_name) {
+        SymbolTable *scope = current_scope;
+        ASR::symbol_t *v = scope->resolve_symbol(var_name);
+        if (!v) {
+            throw SemanticError("Variable '" + var_name + "' not declared", loc);
+        }
+        if( v->type == ASR::symbolType::Variable ) {
+            ASR::Variable_t* v_var = ASR::down_cast<ASR::Variable_t>(v);
+            if( v_var->m_type == nullptr &&
+                v_var->m_intent == ASR::intentType::AssociateBlock ) {
+                return (ASR::asr_t*)(v_var->m_symbolic_value);
+            }
+        }
+        return ASR::make_Var_t(al, loc, v);
+    }
+
+    ASR::asr_t* resolve_variable2(const Location &loc, const std::string &var_name,
+            const std::string &dt_name, SymbolTable*& scope) {
+        ASR::symbol_t *v = scope->resolve_symbol(dt_name);
+        if (!v) {
+            throw SemanticError("Variable '" + dt_name + "' not declared", loc);
+        }
+        ASR::Variable_t* v_variable = ((ASR::Variable_t*)(&(v->base)));
+        if ( v_variable->m_type->type == ASR::ttypeType::Derived ||
+             v_variable->m_type->type == ASR::ttypeType::DerivedPointer ||
+             v_variable->m_type->type == ASR::ttypeType::Class ) {
+            ASR::ttype_t* v_type = v_variable->m_type;
+            ASR::Derived_t* der = (ASR::Derived_t*)(&(v_type->base));
+            ASR::DerivedType_t *der_type;
+            if( der->m_derived_type->type == ASR::symbolType::ExternalSymbol ) {
+                ASR::ExternalSymbol_t* der_ext = (ASR::ExternalSymbol_t*)(&(der->m_derived_type->base));
+                ASR::symbol_t* der_sym = der_ext->m_external;
+                if( der_sym == nullptr ) {
+                    throw SemanticError("'" + std::string(der_ext->m_name) + "' isn't a Derived type.", loc);
+                } else {
+                    der_type = (ASR::DerivedType_t*)(&(der_sym->base));
+                }
+            } else {
+                der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
+            }
+            ASR::DerivedType_t *par_der_type = der_type;
+            // scope = der_type->m_symtab;
+            // ASR::symbol_t* member = der_type->m_symtab->resolve_symbol(var_name);
+            ASR::symbol_t* member = nullptr;
+            while( par_der_type != nullptr && member == nullptr ) {
+                scope = par_der_type->m_symtab;
+                member = par_der_type->m_symtab->resolve_symbol(var_name);
+                if( par_der_type->m_parent != nullptr ) {
+                    par_der_type = (ASR::DerivedType_t*)(LFortran::ASRUtils::symbol_get_past_external(par_der_type->m_parent));
+                } else {
+                    par_der_type = nullptr;
+                }
+            }
+            if( member != nullptr ) {
+                ASR::asr_t* v_var = ASR::make_Var_t(al, loc, v);
+                return ASRUtils::getDerivedRef_t(al, loc, v_var, member, current_scope);
+            } else {
+                throw SemanticError("Variable '" + dt_name + "' doesn't have any member named, '" + var_name + "'.", loc);
+            }
+        } else {
+            throw SemanticError("Variable '" + dt_name + "' is not a derived type", loc);
+        }
+    }
+
     void visit_BinOp(const AST::BinOp_t &x) {
         this->visit_expr(*x.m_left);
         ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
@@ -786,6 +851,36 @@ public:
             asr_list.push_back(al, expr);
         }
         return asr_list;
+    }
+
+    void visit_Name(const AST::Name_t &x) {
+        if (x.n_member == 0) {
+            tmp = resolve_variable(x.base.base.loc, to_lower(x.m_id));
+        } else if (x.n_member == 1) {
+            if (x.m_member[0].n_args == 0) {
+                SymbolTable* scope = current_scope;
+                tmp = this->resolve_variable2(x.base.base.loc, to_lower(x.m_id),
+                    to_lower(x.m_member[0].m_name), scope);
+            } else {
+                // TODO: incorporate m_args
+                SymbolTable* scope = current_scope;
+                tmp = this->resolve_variable2(x.base.base.loc, to_lower(x.m_id),
+                    to_lower(x.m_member[0].m_name), scope);
+            }
+        } else {
+            SymbolTable* scope = current_scope;
+            tmp = this->resolve_variable2(x.base.base.loc, to_lower(x.m_member[1].m_name), to_lower(x.m_member[0].m_name), scope);
+            ASR::DerivedRef_t* tmp2;
+            std::uint32_t i;
+            for( i = 2; i < x.n_member; i++ ) {
+                tmp2 = (ASR::DerivedRef_t*)this->resolve_variable2(x.base.base.loc,
+                                            to_lower(x.m_member[i].m_name), to_lower(x.m_member[i - 1].m_name), scope);
+                tmp = ASR::make_DerivedRef_t(al, x.base.base.loc, LFortran::ASRUtils::EXPR(tmp), tmp2->m_m, tmp2->m_type, nullptr);
+            }
+            i = x.n_member - 1;
+            tmp2 = (ASR::DerivedRef_t*)this->resolve_variable2(x.base.base.loc, to_lower(x.m_id), to_lower(x.m_member[i].m_name), scope);
+            tmp = ASR::make_DerivedRef_t(al, x.base.base.loc, LFortran::ASRUtils::EXPR(tmp), tmp2->m_m, tmp2->m_type, nullptr);
+        }
     }
 
 };

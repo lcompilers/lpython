@@ -1589,19 +1589,6 @@ public:
         }
     }
 
-    ASR::asr_t* resolve_variable(const Location &loc, const std::string &var_name) {
-        SymbolTable *scope = current_scope;
-        ASR::symbol_t *v = scope->resolve_symbol(var_name);
-        if (!v) {
-            throw SemanticError("Variable '" + var_name + "' not declared", loc);
-        }
-        return ASR::make_Var_t(al, loc, v);
-    }
-
-    void visit_Name(const AST::Name_t &x) {
-        tmp = resolve_variable(x.base.base.loc, to_lower(x.m_id));
-    }
-
 };
 
 ASR::asr_t *symbol_table_visitor(Allocator &al, AST::TranslationUnit_t &ast,
