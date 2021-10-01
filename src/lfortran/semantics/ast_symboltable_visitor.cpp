@@ -909,9 +909,7 @@ public:
                     }
                 }
                 else if (var_name=="real") {
-                    tmp = CommonVisitorMethods::comptime_intrinsic_real(args[0], nullptr, al, x.base.base.loc);
-                    // FIXME: shouldn't this return a value?
-                    return nullptr;
+                    value = ASR::down_cast<ASR::expr_t>(CommonVisitorMethods::comptime_intrinsic_real(args[0], nullptr, al, x.base.base.loc));
                 }
                 else if (var_name=="floor") {
                     // TODO: Implement optional kind; J3/18-007r1 --> FLOOR(A, [KIND])
@@ -1052,9 +1050,7 @@ public:
             }
             case 2: {
                 if (var_name=="real") {
-                    tmp = CommonVisitorMethods::comptime_intrinsic_real(args[0], args[1], al, x.base.base.loc);
-                    // FIXME: shouldn't this return a value?
-                    return nullptr;
+                    value = ASR::down_cast<ASR::expr_t>(CommonVisitorMethods::comptime_intrinsic_real(args[0], args[1], al, x.base.base.loc));
                 } else {
                     throw SemanticError("Function '" + var_name + "' with " + std::to_string(args.n) +
                             " arguments not supported yet",
