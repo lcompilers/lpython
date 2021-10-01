@@ -26,7 +26,6 @@ private:
 public:
     ASR::asr_t *asr;
     Vec<ASR::stmt_t*> *current_body;
-    ASR::Module_t *current_module = nullptr;
 
     BodyVisitor(Allocator &al, ASR::asr_t *unit) : CommonVisitor(al, nullptr), asr{unit} {}
 
@@ -1036,109 +1035,7 @@ public:
             std::string remote_sym = var_name;
             if (intrinsic_procedures.find(remote_sym)
                         != intrinsic_procedures.end()) {
-                std::string module_name = intrinsic_procedures[remote_sym];
-
-                SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
-                ASR::Module_t *m = ASRUtils::load_module(al, tu_symtab, module_name,
-                        x.base.base.loc, true);
-
-                ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
-                if (!t) {
-                    throw SemanticError("The symbol '" + remote_sym
-                        + "' not found in the module '" + module_name + "'",
-                        x.base.base.loc);
-                }
-                if (ASR::is_a<ASR::GenericProcedure_t>(*t)) {
-                    ASR::GenericProcedure_t *gp = ASR::down_cast<ASR::GenericProcedure_t>(t);
-                    ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
-                        al, gp->base.base.loc,
-                        /* a_symtab */ current_scope,
-                        /* a_name */ gp->m_name,
-                        (ASR::symbol_t*)gp,
-                        m->m_name, nullptr, 0, gp->m_name,
-                        ASR::accessType::Private
-                        );
-                    std::string sym = gp->m_name;
-                    current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
-                    symbol_resolve_generic_procedure(
-                        ASR::down_cast<ASR::symbol_t>(fn), x);
-                    if (current_module) {
-                        // Add the module `m` to current module dependencies
-                        Vec<char*> vec;
-                        vec.from_pointer_n_copy(al, current_module->m_dependencies,
-                                    current_module->n_dependencies);
-                        if (!present(vec, m->m_name)) {
-                            vec.push_back(al, m->m_name);
-                            current_module->m_dependencies = vec.p;
-                            current_module->n_dependencies = vec.size();
-                        }
-                    }
-                    return;
-                }
-
-                if (!ASR::is_a<ASR::Function_t>(*t)) {
-                    throw SemanticError("The symbol '" + remote_sym
-                        + "' found in the module '" + module_name + "', "
-                        + "but it is not a function.",
-                        x.base.base.loc);
-                }
-
-                ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
-                ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
-                    al, mfn->base.base.loc,
-                    /* a_symtab */ current_scope,
-                    /* a_name */ mfn->m_name,
-                    (ASR::symbol_t*)mfn,
-                    m->m_name, nullptr, 0, mfn->m_name,
-                    ASR::accessType::Private
-                    );
-                std::string sym = mfn->m_name;
-                current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
-                v = ASR::down_cast<ASR::symbol_t>(fn);
-                if (current_module) {
-                    // Add the module `m` to current module dependencies
-                    Vec<char*> vec;
-                    vec.from_pointer_n_copy(al, current_module->m_dependencies,
-                                current_module->n_dependencies);
-                    if (!present(vec, m->m_name)) {
-                        vec.push_back(al, m->m_name);
-                        current_module->m_dependencies = vec.p;
-                        current_module->n_dependencies = vec.size();
-                    }
-                }
-            } else if (to_lower(var_name) == "present") {
-                // Intrinsic function present(), add it to the global scope
-                ASR::TranslationUnit_t *unit = (ASR::TranslationUnit_t *)asr;
-                std::string fn_name_orig = "present";
-                char *fn_name = s2c(al, fn_name_orig);
-                SymbolTable *fn_scope =
-                    al.make_new<SymbolTable>(unit->m_global_scope);
-                ASR::ttype_t *type;
-                type = LFortran::ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
-                ASR::asr_t *return_var = ASR::make_Variable_t(
-                    al, x.base.base.loc, fn_scope, fn_name, LFortran::ASRUtils::intent_return_var,
-                    nullptr, nullptr, ASR::storage_typeType::Default, type,
-                    ASR::abiType::Source,
-                    ASR::Public, ASR::presenceType::Required, false);
-                fn_scope->scope[std::string(fn_name)] =
-                    ASR::down_cast<ASR::symbol_t>(return_var);
-                ASR::asr_t *return_var_ref = ASR::make_Var_t(
-                    al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(return_var));
-                ASR::asr_t *fn =
-                    ASR::make_Function_t(al, x.base.base.loc,
-                                       /* a_symtab */ fn_scope,
-                                       /* a_name */ fn_name,
-                                       /* a_args */ nullptr,
-                                       /* n_args */ 0,
-                                       /* a_body */ nullptr,
-                                       /* n_body */ 0,
-                                       /* a_return_var */ LFortran::ASRUtils::EXPR(return_var_ref),
-                                       ASR::abiType::Source,
-                                       ASR::Public, ASR::deftypeType::Implementation, nullptr);
-                std::string sym_name = fn_name;
-                unit->m_global_scope->scope[sym_name] =
-                    ASR::down_cast<ASR::symbol_t>(fn);
-                v = ASR::down_cast<ASR::symbol_t>(fn);
+                v = resolve_intrinsic_function(x.base.base.loc, remote_sym);
             } else {
                 throw SemanticError("Function or array '" + var_name +
                                     "' not declared",

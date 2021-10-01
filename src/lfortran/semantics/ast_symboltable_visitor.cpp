@@ -74,7 +74,6 @@ public:
     ASR::presenceType dflt_presence = ASR::presenceType::Required;
     std::map<std::string, ASR::accessType> assgnd_access;
     std::map<std::string, ASR::presenceType> assgnd_presence;
-    Vec<char *> current_module_dependencies;
     bool in_module = false;
     bool is_interface = false;
     bool is_derived_type = false;
@@ -107,6 +106,13 @@ public:
         }
         LFORTRAN_ASSERT(current_scope != nullptr);
         global_scope = current_scope;
+
+        // Create the TU early, so that asr_owner is set, so that
+        // ASRUtils::get_tu_symtab() can be used, which has an assert
+        // for asr_owner.
+        ASR::asr_t *tmp0 = ASR::make_TranslationUnit_t(al, x.base.base.loc,
+            current_scope, nullptr, 0);
+
         for (size_t i=0; i<x.n_items; i++) {
             AST::astType t = x.m_items[i]->type;
             if (t != AST::astType::expr && t != AST::astType::stmt) {
@@ -114,8 +120,7 @@ public:
             }
         }
         global_scope = nullptr;
-        tmp = ASR::make_TranslationUnit_t(al, x.base.base.loc,
-            current_scope, nullptr, 0);
+        tmp = tmp0;
     }
 
     void visit_Module(const AST::Module_t &x) {
@@ -832,47 +837,13 @@ public:
     }
 
     void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
-        SymbolTable *scope = current_scope;
         std::string var_name = to_lower(x.m_func);
         ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
         if (!v) {
             std::string remote_sym = var_name;
             if (intrinsic_procedures.find(remote_sym)
                         != intrinsic_procedures.end()) {
-                std::string module_name = intrinsic_procedures[remote_sym];
-
-                bool shift_scope = false;
-                if (current_scope->parent->parent) {
-                    current_scope = current_scope->parent;
-                    shift_scope = true;
-                }
-                ASR::Module_t *m = LFortran::ASRUtils::load_module(al, current_scope->parent,
-                    module_name, x.base.base.loc, true);
-                if (shift_scope) current_scope = scope;
-
-                ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
-                if (!t) {
-                    throw SemanticError("The symbol '" + remote_sym
-                        + "' not found in the module '" + module_name + "'",
-                        x.base.base.loc);
-                }
-
-                ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
-                ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
-                    al, mfn->base.base.loc,
-                    /* a_symtab */ current_scope,
-                    /* a_name */ mfn->m_name,
-                    (ASR::symbol_t*)mfn,
-                    m->m_name, nullptr, 0, mfn->m_name,
-                    ASR::accessType::Private
-                    );
-                std::string sym = to_lower(mfn->m_name);
-                current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
-                v = ASR::down_cast<ASR::symbol_t>(fn);
-                // Add the module `m` to current module dependencies
-                if (!present(current_module_dependencies, m->m_name)) {
-                    current_module_dependencies.push_back(al, m->m_name);
-                }
+                v = resolve_intrinsic_function(x.base.base.loc, remote_sym);
             } else {
                 throw SemanticError("Function '" + var_name + "' not found"
                     " or not implemented yet (if it is intrinsic)",
