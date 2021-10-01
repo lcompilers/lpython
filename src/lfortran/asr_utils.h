@@ -288,6 +288,38 @@ static inline bool all_args_have_value(const Vec<ASR::expr_t*> &args) {
     return true;
 }
 
+// Returns true if all arguments are evaluated
+static inline bool all_args_evaluated(const Vec<ASR::expr_t*> &args) {
+    for (auto &a : args) {
+        if (ASR::is_a<ASR::ConstantInteger_t>(*a)) {
+            // OK
+        } else if (ASR::is_a<ASR::ConstantReal_t>(*a)) {
+            // OK
+        } else if (ASR::is_a<ASR::ConstantComplex_t>(*a)) {
+            // OK
+        } else if (ASR::is_a<ASR::ConstantLogical_t>(*a)) {
+            // OK
+        } else if (ASR::is_a<ASR::ConstantString_t>(*a)) {
+            // OK
+        } else {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Returns a list of values
+static inline Vec<ASR::expr_t*> get_arg_values(Allocator &al, const Vec<ASR::expr_t*> &args) {
+    Vec<ASR::expr_t*> values;
+    values.reserve(al, args.size());
+    for (auto &a : args) {
+        ASR::expr_t *v = expr_value(a);
+        if (v == nullptr) return values;
+        values.push_back(al, v);
+    }
+    return values;
+}
+
 // Returns the TranslationUnit_t's symbol table by going via parents
 static inline SymbolTable *get_tu_symtab(SymbolTable *symtab) {
     SymbolTable *s = symtab;

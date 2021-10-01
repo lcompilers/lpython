@@ -33,8 +33,14 @@ struct ComptimeEval {
         auto search = comptime_eval_map.find(name);
         if (search != comptime_eval_map.end()) {
             comptime_eval_callback cb = search->second.first;
-            //bool eval_args = search->second.second;
-            return cb(al, loc, args);
+            bool eval_args = search->second.second;
+            if (eval_args) {
+                Vec<ASR::expr_t*> arg_values = ASRUtils::get_arg_values(al, args);
+                if (arg_values.size() != args.size()) return nullptr;
+                return cb(al, loc, arg_values);
+            } else {
+                return cb(al, loc, args);
+            }
         } else {
             throw SemanticError("Intrinsic function '" + name
                 + "' compile time evaluation is not implemented yet",
@@ -79,6 +85,7 @@ struct ComptimeEval {
     }
 
     static ASR::expr_t *eval_floor(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
         // TODO: Implement optional kind; J3/18-007r1 --> FLOOR(A, [KIND])
         // TODO: Rip out switch to work with optional arguments
         ASR::expr_t* func_expr = args[0];
@@ -87,8 +94,7 @@ struct ComptimeEval {
         int64_t ival {0};
         if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*func_type)) {
             if (func_kind == 4){
-                float rv = ASR::down_cast<ASR::ConstantReal_t>(
-                    LFortran::ASRUtils::expr_value(func_expr))->m_r;
+                float rv = ASR::down_cast<ASR::ConstantReal_t>(func_expr)->m_r;
                 if (rv<0) {
                     // negative number
                     // floor -> integer(|x|+1)
@@ -99,7 +105,7 @@ struct ComptimeEval {
                     }
                     return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, ival,func_type));
                 } else {
-                    double rv = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(func_expr))->m_r;
+                    double rv = ASR::down_cast<ASR::ConstantReal_t>(func_expr)->m_r;
                     int64_t ival = static_cast<int64_t>(rv);
                     if (rv<0) {
                         // negative number
