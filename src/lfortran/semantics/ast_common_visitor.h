@@ -942,6 +942,29 @@ public:
         }
     }
 
+    // Transforms intrinsics real(),int() to ImplicitCast. Return true if `f` is
+    // real/int (result in `tmp`), false otherwise (`tmp` unchanged)
+    bool intrinsic_function_transformation(Allocator &al, const Location &loc,
+            const ASR::Function_t &f, Vec<ASR::expr_t*> &args) {
+        if (std::string(f.m_name) == "real") {
+            // real(), int() are represented using ExplicitCast
+            // (for now we use ImplicitCast) in ASR, so we save them
+            // to tmp and exit:
+            ASR::expr_t *arg1;
+            if (args.size() == 1) {
+                arg1 = nullptr;
+            } else if (args.size() == 2) {
+                arg1 = args[1];
+            } else {
+                throw SemanticError("real(...) must have 1 or 2 arguments", loc);
+            }
+            tmp = CommonVisitorMethods::comptime_intrinsic_real(args[0], arg1, al, loc);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     // Evaluates an intrinsic function call at compile time. If it cannot
     // be done, returns nullptr.
     // `f` must be an intrinsic function
@@ -1018,10 +1041,7 @@ public:
                         throw SemanticError("Argument for tiny must be Real",
                                             loc);
                     }
-                }
-                else if (var_name=="real") {
-                    value = ASR::down_cast<ASR::expr_t>(CommonVisitorMethods::comptime_intrinsic_real(args[0], nullptr, al, loc));
-                }
+                } /*
                 else if (var_name=="dsin") {
                     // TODO: this is already double precision --- possibly
                     // pass the original GenericProcedure
@@ -1042,7 +1062,7 @@ public:
                     } else {
                         throw SemanticError("Argument for sin must be Real", loc);
                     }
-                }
+                }*/
                 else if (var_name=="floor") {
                     // TODO: Implement optional kind; J3/18-007r1 --> FLOOR(A, [KIND])
                     // TODO: Rip out switch to work with optional arguments
@@ -1177,20 +1197,17 @@ public:
                     } else {
                         throw SemanticError("integer_real_kind() must have one integer argument", loc);
                     }
-                }
-                break;
-            }
-            case 2: {
-                if (var_name=="real") {
-                    value = ASR::down_cast<ASR::expr_t>(CommonVisitorMethods::comptime_intrinsic_real(args[0], args[1], al, loc));
                 } else {
-                    throw SemanticError("Function '" + var_name + "' with " + std::to_string(args.n) +
-                            " arguments not supported yet",
-                            loc);
+                    // TODO: e.g. "if (len_trim(s1) /= 4) error stop" comes here
+                    // (we have to implement it):
+                    return value;
                 }
                 break;
             }
-            default:  { // Not implemented
+            default:  {
+                // TODO: e.g. "y = min(y, pi - y)" comes here (we have to implement
+                // it):
+                return value;
                 throw SemanticError("Function '" + var_name + "' with " + std::to_string(args.n) +
                         " arguments not supported yet",
                         loc);

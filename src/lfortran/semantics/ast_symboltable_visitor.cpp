@@ -882,7 +882,11 @@ public:
         } else if (ASR::is_a<ASR::Function_t>(*s)) {
             ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
             if (ASRUtils::is_intrinsic_function(f)) {
-                value = intrinsic_function_evaluation(x.base.base.loc, *f, args);
+                if (intrinsic_function_transformation(al, x.base.base.loc, *f, args)) {
+                    return;
+                } else {
+                    value = intrinsic_function_evaluation(x.base.base.loc, *f, args);
+                }
             }
         } else {
             throw SemanticError("Expected a function call or an array", x.base.base.loc);

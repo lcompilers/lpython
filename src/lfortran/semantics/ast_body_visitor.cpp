@@ -1079,7 +1079,11 @@ public:
                     ASR::expr_t* value = nullptr;
                     ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(f2);
                     if (ASRUtils::is_intrinsic_function(f)) {
-                        value = intrinsic_function_evaluation(x.base.base.loc, *f, args);
+                        if (intrinsic_function_transformation(al, x.base.base.loc, *f, args)) {
+                            return;
+                        } else {
+                            value = intrinsic_function_evaluation(x.base.base.loc, *f, args);
+                        }
                     }
                     tmp = ASR::make_FunctionCall_t(al, x.base.base.loc,
                         v, nullptr, args.p, args.size(), nullptr, 0, return_type,
