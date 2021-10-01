@@ -1028,55 +1028,26 @@ public:
             throw SemanticError("The symbol '" + remote_sym
                 + "' not found in the module '" + module_name + "'",
                 loc);
-        }
-        if (ASR::is_a<ASR::GenericProcedure_t>(*t)) {
-            ASR::GenericProcedure_t *gp = ASR::down_cast<ASR::GenericProcedure_t>(t);
-            ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
-                al, gp->base.base.loc,
-                /* a_symtab */ current_scope,
-                /* a_name */ gp->m_name,
-                (ASR::symbol_t*)gp,
-                m->m_name, nullptr, 0, gp->m_name,
-                ASR::accessType::Private
-                );
-            std::string sym = gp->m_name;
-            current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
-            ASR::symbol_t *v;
-            v = ASR::down_cast<ASR::symbol_t>(fn);
-            if (current_module) {
-                // Add the module `m` to current module dependencies
-                Vec<char*> vec;
-                vec.from_pointer_n_copy(al, current_module->m_dependencies,
-                            current_module->n_dependencies);
-                if (!present(vec, m->m_name)) {
-                    vec.push_back(al, m->m_name);
-                    current_module->m_dependencies = vec.p;
-                    current_module->n_dependencies = vec.size();
-                }
-            }
-            return v;
-        }
-
-        if (!ASR::is_a<ASR::Function_t>(*t)) {
+        } else if (! (ASR::is_a<ASR::GenericProcedure_t>(*t)
+                    || ASR::is_a<ASR::Function_t>(*t))) {
             throw SemanticError("The symbol '" + remote_sym
                 + "' found in the module '" + module_name + "', "
-                + "but it is not a function.",
+                + "but it is not a function or a generic function.",
                 loc);
         }
-
-        ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
+        char *fn_name = ASRUtils::symbol_name(t);
         ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
-            al, mfn->base.base.loc,
+            al, t->base.loc,
             /* a_symtab */ current_scope,
-            /* a_name */ mfn->m_name,
-            (ASR::symbol_t*)mfn,
-            m->m_name, nullptr, 0, mfn->m_name,
+            /* a_name */ fn_name,
+            t,
+            m->m_name, nullptr, 0, fn_name,
             ASR::accessType::Private
             );
-        std::string sym = mfn->m_name;
+        std::string sym = fn_name;
+
         current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
-        ASR::symbol_t *v;
-        v = ASR::down_cast<ASR::symbol_t>(fn);
+        ASR::symbol_t *v = ASR::down_cast<ASR::symbol_t>(fn);
         if (current_module) {
             // Add the module `m` to current module dependencies
             Vec<char*> vec;
