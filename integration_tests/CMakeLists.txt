@@ -191,7 +191,7 @@ RUN(NAME intrinsics_07 LABELS gfortran) # kind
 RUN(NAME intrinsics_08 LABELS gfortran) # tiny symboltable
 RUN(NAME intrinsics_09 LABELS gfortran) # tiny body
 RUN(NAME intrinsics_10 LABELS gfortran llvm) # real body
-RUN(NAME intrinsics_11 LABELS gfortran) # real symboltable
+RUN(NAME intrinsics_11 LABELS gfortran llvm) # real symboltable
 RUN(NAME intrinsics_12 LABELS gfortran llvm) # kind body
 RUN(NAME intrinsics_13 LABELS gfortran) # kind symboltable
 RUN(NAME intrinsics_14 LABELS gfortran) # selected_real,int_kind body
