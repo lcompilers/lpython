@@ -1022,6 +1022,27 @@ public:
                 else if (var_name=="real") {
                     value = ASR::down_cast<ASR::expr_t>(CommonVisitorMethods::comptime_intrinsic_real(args[0], nullptr, al, loc));
                 }
+                else if (var_name=="dsin") {
+                    // TODO: this is already double precision --- possibly
+                    // pass the original GenericProcedure
+                    ASR::expr_t* sin_arg = args[0];
+                    ASR::ttype_t* t = LFortran::ASRUtils::expr_type(args[0]);
+                    int k = ASRUtils::extract_kind_from_ttype_t(t);
+                    if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*t)) {
+                        if (k == 4) {
+                            float rv = ASR::down_cast<ASR::ConstantReal_t>(
+                                LFortran::ASRUtils::expr_value(sin_arg))->m_r;
+                            float val = sin(rv);
+                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t));
+                        } else {
+                            double rv = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(sin_arg))->m_r;
+                            double val = sin(rv);
+                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t));
+                        }
+                    } else {
+                        throw SemanticError("Argument for sin must be Real", loc);
+                    }
+                }
                 else if (var_name=="floor") {
                     // TODO: Implement optional kind; J3/18-007r1 --> FLOOR(A, [KIND])
                     // TODO: Rip out switch to work with optional arguments

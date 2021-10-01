@@ -375,6 +375,9 @@ public:
                 "FunctionCall::m_name `" + std::string(symbol_name(x.m_name)) +
                 "` cannot point outside of its symbol table",
                 x.base.base.loc);
+            // Check both `name` and `orig_name` that `orig_name` points
+            // to GenericProcedure (if applicable), both external and non
+            // external
             if (check_external) {
                 const ASR::symbol_t *fn = ASRUtils::symbol_get_past_external(x.m_name);
                 require(ASR::is_a<ASR::Function_t>(*fn),

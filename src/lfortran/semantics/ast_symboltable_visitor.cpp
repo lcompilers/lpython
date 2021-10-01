@@ -859,6 +859,8 @@ public:
         ASR::symbol_t *s = ASRUtils::symbol_get_past_external(v);
         ASR::symbol_t *orig_s = nullptr;
         if (ASR::is_a<ASR::GenericProcedure_t>(*s)) {
+            // TODO: if `v` was external we need to repack it to point to the
+            // actual function as ExternalSymbol, not GenericProcedure
             ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(s);
             int idx = select_generic_procedure(args, *p, x.base.base.loc);
             orig_s = s;
