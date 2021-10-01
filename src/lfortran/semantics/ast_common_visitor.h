@@ -965,6 +965,42 @@ public:
         }
     }
 
+    ASR::expr_t *comptime_kind_eval(const Location &loc, Vec<ASR::expr_t*> &args) {
+        // TODO: Refactor to allow early return
+        // kind_num --> value {4, 8, etc.}
+        int64_t kind_num = 4; // Default
+        ASR::expr_t* kind_expr = args[0];
+        // TODO: Check that the expression reduces to a valid constant expression (10.1.12)
+        switch( kind_expr->type ) {
+            case ASR::exprType::ConstantInteger: {
+                kind_num = ASR::down_cast<ASR::Integer_t>(ASR::down_cast<ASR::ConstantInteger_t>(kind_expr)->m_type)->m_kind;
+                break;
+            }
+            case ASR::exprType::ConstantReal:{
+                kind_num = ASR::down_cast<ASR::Real_t>(ASR::down_cast<ASR::ConstantReal_t>(kind_expr)->m_type)->m_kind;
+                break;
+            }
+            case ASR::exprType::ConstantLogical:{
+                kind_num = ASR::down_cast<ASR::Logical_t>(ASR::down_cast<ASR::ConstantLogical_t>(kind_expr)->m_type)->m_kind;
+                break;
+            }
+            case ASR::exprType::Var : {
+                kind_num = ASRUtils::extract_kind(kind_expr, loc);
+                break;
+            }
+            default: {
+                std::string msg = R"""(Only Integer literals or expressions which reduce to constant Integer are accepted as kind parameters.)""";
+                throw SemanticError(msg, loc);
+                break;
+            }
+        }
+        ASR::ttype_t *type = LFortran::ASRUtils::TYPE(
+                ASR::make_Integer_t(al, loc,
+                    4, nullptr, 0));
+        return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc,
+                kind_num, type));
+    }
+
     // Evaluates an intrinsic function call at compile time. If it cannot
     // be done, returns nullptr.
     // `f` must be an intrinsic function
@@ -976,39 +1012,7 @@ public:
         switch(args.n) {
             case 1: { // Single argument intrinsics
                 if (var_name=="kind") {
-                    // TODO: Refactor to allow early return
-                    // kind_num --> value {4, 8, etc.}
-                    int64_t kind_num = 4; // Default
-                    ASR::expr_t* kind_expr = args[0];
-                    // TODO: Check that the expression reduces to a valid constant expression (10.1.12)
-                    switch( kind_expr->type ) {
-                        case ASR::exprType::ConstantInteger: {
-                            kind_num = ASR::down_cast<ASR::Integer_t>(ASR::down_cast<ASR::ConstantInteger_t>(kind_expr)->m_type)->m_kind;
-                            break;
-                        }
-                        case ASR::exprType::ConstantReal:{
-                            kind_num = ASR::down_cast<ASR::Real_t>(ASR::down_cast<ASR::ConstantReal_t>(kind_expr)->m_type)->m_kind;
-                            break;
-                        }
-                        case ASR::exprType::ConstantLogical:{
-                            kind_num = ASR::down_cast<ASR::Logical_t>(ASR::down_cast<ASR::ConstantLogical_t>(kind_expr)->m_type)->m_kind;
-                            break;
-                        }
-                        case ASR::exprType::Var : {
-                            kind_num = ASRUtils::extract_kind(kind_expr, loc);
-                            break;
-                        }
-                    default: {
-                        std::string msg = R"""(Only Integer literals or expressions which reduce to constant Integer are accepted as kind parameters.)""";
-                        throw SemanticError(msg, loc);
-                        break;
-                    }
-                    }
-                    ASR::ttype_t *type = LFortran::ASRUtils::TYPE(
-                            ASR::make_Integer_t(al, loc,
-                                4, nullptr, 0));
-                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, kind_num,
-                        type));
+                    value = comptime_kind_eval(loc, args);
                 }
                 else if (var_name=="tiny") {
                     // We assume the input is valid
