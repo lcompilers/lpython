@@ -3,6 +3,7 @@
 
 #include <lfortran/assert.h>
 #include <lfortran/asr.h>
+#include <lfortran/string_utils.h>
 
 namespace LFortran  {
 
@@ -250,6 +251,41 @@ static inline ASR::Module_t *get_sym_module(const ASR::symbol_t *sym) {
         s = s->parent;
     }
     return nullptr;
+}
+
+// Returns the Module_t the symbol is in, or nullptr if not in a module
+// or no asr_owner yet
+static inline ASR::Module_t *get_sym_module0(const ASR::symbol_t *sym) {
+    const SymbolTable *s = symbol_parent_symtab(sym);
+    while (s->parent != nullptr) {
+        if (s->asr_owner != nullptr) {
+            ASR::symbol_t *asr_owner = ASR::down_cast<ASR::symbol_t>(s->asr_owner);
+            if (ASR::is_a<ASR::Module_t>(*asr_owner)) {
+                return ASR::down_cast<ASR::Module_t>(asr_owner);
+            }
+        }
+        s = s->parent;
+    }
+    return nullptr;
+}
+
+// Returns true if the Function is intrinsic, otherwise false
+static inline bool is_intrinsic_function(const ASR::Function_t *fn) {
+    ASR::symbol_t *sym = (ASR::symbol_t*)fn;
+    ASR::Module_t *m = get_sym_module0(sym);
+    if (m != nullptr) {
+        if (startswith(m->m_name, "lfortran_intrinsic")) return true;
+    }
+    return false;
+}
+
+// Returns true if all arguments have a `value`
+static inline bool all_args_have_value(const Vec<ASR::expr_t*> &args) {
+    for (auto &a : args) {
+        ASR::expr_t *v = expr_value(a);
+        if (v == nullptr) return false;
+    }
+    return true;
 }
 
 // Returns the TranslationUnit_t's symbol table by going via parents
