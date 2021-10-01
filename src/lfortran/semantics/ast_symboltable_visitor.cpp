@@ -106,6 +106,13 @@ public:
         }
         LFORTRAN_ASSERT(current_scope != nullptr);
         global_scope = current_scope;
+
+        // Create the TU early, so that asr_owner is set, so that
+        // ASRUtils::get_tu_symtab() can be used, which has an assert
+        // for asr_owner.
+        ASR::asr_t *tmp0 = ASR::make_TranslationUnit_t(al, x.base.base.loc,
+            current_scope, nullptr, 0);
+
         for (size_t i=0; i<x.n_items; i++) {
             AST::astType t = x.m_items[i]->type;
             if (t != AST::astType::expr && t != AST::astType::stmt) {
@@ -113,8 +120,7 @@ public:
             }
         }
         global_scope = nullptr;
-        tmp = ASR::make_TranslationUnit_t(al, x.base.base.loc,
-            current_scope, nullptr, 0);
+        tmp = tmp0;
     }
 
     void visit_Module(const AST::Module_t &x) {
