@@ -633,7 +633,9 @@ public:
     ASR::Module_t *current_module = nullptr;
     Vec<char *> current_module_dependencies;
 
-    CommonVisitor(Allocator &al, SymbolTable *symbol_table) : al{al}, current_scope{symbol_table} {}
+    CommonVisitor(Allocator &al, SymbolTable *symbol_table) : al{al}, current_scope{symbol_table} {
+        current_module_dependencies.reserve(al, 4);
+    }
 
     ASR::asr_t* resolve_variable(const Location &loc, const std::string &var_name) {
         SymbolTable *scope = current_scope;
@@ -732,6 +734,7 @@ public:
         current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
         ASR::symbol_t *v = ASR::down_cast<ASR::symbol_t>(fn);
         if (current_module) {
+            // We are in body visitor
             // Add the module `m` to current module dependencies
             Vec<char*> vec;
             vec.from_pointer_n_copy(al, current_module->m_dependencies,
@@ -741,45 +744,12 @@ public:
                 current_module->m_dependencies = vec.p;
                 current_module->n_dependencies = vec.size();
             }
-        }
-        return v;
-    }
-
-    ASR::symbol_t* resolve_intrinsic_function2(const Location &loc, std::string &remote_sym) {
-        SymbolTable *scope = current_scope;
-        std::string module_name = intrinsic_procedures[remote_sym];
-
-        bool shift_scope = false;
-        if (current_scope->parent->parent) {
-            current_scope = current_scope->parent;
-            shift_scope = true;
-        }
-        ASR::Module_t *m = LFortran::ASRUtils::load_module(al, current_scope->parent,
-            module_name, loc, true);
-        if (shift_scope) current_scope = scope;
-
-        ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
-        if (!t) {
-            throw SemanticError("The symbol '" + remote_sym
-                + "' not found in the module '" + module_name + "'",
-                loc);
-        }
-
-        ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
-        ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
-            al, mfn->base.base.loc,
-            /* a_symtab */ current_scope,
-            /* a_name */ mfn->m_name,
-            (ASR::symbol_t*)mfn,
-            m->m_name, nullptr, 0, mfn->m_name,
-            ASR::accessType::Private
-            );
-        std::string sym = to_lower(mfn->m_name);
-        current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
-        ASR::symbol_t *v = ASR::down_cast<ASR::symbol_t>(fn);
-        // Add the module `m` to current module dependencies
-        if (!present(current_module_dependencies, m->m_name)) {
-            current_module_dependencies.push_back(al, m->m_name);
+        } else {
+            // We are in the symtab visitor or body visitor (the
+            // current_module_dependencies is not used in body visitor)
+            if (!present(current_module_dependencies, m->m_name)) {
+                current_module_dependencies.push_back(al, m->m_name);
+            }
         }
         return v;
     }

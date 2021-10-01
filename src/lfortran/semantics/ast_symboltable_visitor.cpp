@@ -843,7 +843,7 @@ public:
             std::string remote_sym = var_name;
             if (intrinsic_procedures.find(remote_sym)
                         != intrinsic_procedures.end()) {
-                v = resolve_intrinsic_function2(x.base.base.loc, remote_sym);
+                v = resolve_intrinsic_function(x.base.base.loc, remote_sym);
             } else {
                 throw SemanticError("Function '" + var_name + "' not found"
                     " or not implemented yet (if it is intrinsic)",
