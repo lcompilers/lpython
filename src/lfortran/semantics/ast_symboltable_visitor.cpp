@@ -129,6 +129,13 @@ public:
         current_module_dependencies.reserve(al, 4);
         generic_procedures.clear();
         in_module = true;
+        ASR::asr_t *tmp0 = ASR::make_Module_t(
+            al, x.base.base.loc,
+            /* a_symtab */ current_scope,
+            /* a_name */ s2c(al, to_lower(x.m_name)),
+            nullptr,
+            0,
+            false);
         for (size_t i=0; i<x.n_use; i++) {
             visit_unit_decl1(*x.m_use[i]);
         }
@@ -141,13 +148,11 @@ public:
         add_generic_procedures();
         add_overloaded_procedures();
         add_class_procedures();
-        tmp = ASR::make_Module_t(
-            al, x.base.base.loc,
-            /* a_symtab */ current_scope,
-            /* a_name */ s2c(al, to_lower(x.m_name)),
-            current_module_dependencies.p,
-            current_module_dependencies.n,
-            false);
+        tmp = tmp0;
+        // Add module dependencies
+        ASR::Module_t *m = ASR::down_cast2<ASR::Module_t>(tmp);
+        m->m_dependencies = current_module_dependencies.p;
+        m->n_dependencies = current_module_dependencies.n;
         std::string sym_name = to_lower(x.m_name);
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             throw SemanticError("Module already defined", tmp->loc);
