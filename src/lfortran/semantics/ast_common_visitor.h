@@ -942,8 +942,8 @@ public:
         }
     }
 
-    // It tries to evaluate intrinsic function calls if it can be done.
-    // If it cannot be done at compile time, it returns a nullptr.
+    // Evaluates an intrinsic function call at compile time. If it cannot
+    // be done, returns nullptr.
     // `f` must be an intrinsic function
     ASR::expr_t *intrinsic_function_evaluation(const Location &loc,
             const ASR::Function_t &f, Vec<ASR::expr_t*> &args) {
@@ -1172,6 +1172,15 @@ public:
             default:  { // Not implemented
                 throw SemanticError("Function '" + var_name + "' with " + std::to_string(args.n) +
                         " arguments not supported yet",
+                        loc);
+            }
+        }
+        if (value == nullptr) {
+            if (ASRUtils::all_args_have_value(args)) {
+                // If all arguments are known at compile time (have `value`)
+                // then it must be possible to evaluate the intrinsic function
+                // at compile time. It is just not implemented yet:
+                throw SemanticError("Intrinsic function '" + var_name + "' compile time evaluation is not implemened yet",
                         loc);
             }
         }

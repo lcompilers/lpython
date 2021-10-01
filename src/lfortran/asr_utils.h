@@ -279,6 +279,15 @@ static inline bool is_intrinsic_function(const ASR::Function_t *fn) {
     return false;
 }
 
+// Returns true if all arguments have a `value`
+static inline bool all_args_have_value(const Vec<ASR::expr_t*> &args) {
+    for (auto &a : args) {
+        ASR::expr_t *v = expr_value(a);
+        if (v == nullptr) return false;
+    }
+    return true;
+}
+
 // Returns the TranslationUnit_t's symbol table by going via parents
 static inline SymbolTable *get_tu_symtab(SymbolTable *symtab) {
     SymbolTable *s = symtab;
