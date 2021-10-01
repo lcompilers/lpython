@@ -1001,6 +1001,44 @@ public:
                 kind_num, type));
     }
 
+    ASR::expr_t *comptime_floor_eval(const Location &loc, Vec<ASR::expr_t*> &args) {
+        // TODO: Implement optional kind; J3/18-007r1 --> FLOOR(A, [KIND])
+        // TODO: Rip out switch to work with optional arguments
+        ASR::expr_t* func_expr = args[0];
+        ASR::ttype_t* func_type = LFortran::ASRUtils::expr_type(func_expr);
+        int func_kind = ASRUtils::extract_kind_from_ttype_t(func_type);
+        int64_t ival {0};
+        if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*func_type)) {
+            if (func_kind == 4){
+                float rv = ASR::down_cast<ASR::ConstantReal_t>(
+                    LFortran::ASRUtils::expr_value(func_expr))->m_r;
+                if (rv<0) {
+                    // negative number
+                    // floor -> integer(|x|+1)
+                    ival = static_cast<int64_t>(rv-1);
+                } else {
+                        // positive, floor -> integer(x)
+                        ival = static_cast<int64_t>(rv);
+                    }
+                    return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, ival,func_type));
+                } else {
+                    double rv = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(func_expr))->m_r;
+                    int64_t ival = static_cast<int64_t>(rv);
+                    if (rv<0) {
+                        // negative number
+                        // floor -> integer(x+1)
+                        ival = static_cast<int64_t>(rv+1);
+                    } else {
+                        // positive, floor -> integer(x)
+                        ival = static_cast<int64_t>(rv);
+                    }
+                    return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, ival,func_type));
+            }
+        } else {
+            throw SemanticError("floor must have one real argument", loc);
+        }
+    }
+
     // Evaluates an intrinsic function call at compile time. If it cannot
     // be done, returns nullptr.
     // `f` must be an intrinsic function
@@ -1068,41 +1106,7 @@ public:
                     }
                 }*/
                 else if (var_name=="floor") {
-                    // TODO: Implement optional kind; J3/18-007r1 --> FLOOR(A, [KIND])
-                    // TODO: Rip out switch to work with optional arguments
-                    ASR::expr_t* func_expr = args[0];
-                    ASR::ttype_t* func_type = LFortran::ASRUtils::expr_type(func_expr);
-                    int func_kind = ASRUtils::extract_kind_from_ttype_t(func_type);
-                    int64_t ival {0};
-                    if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*func_type)) {
-                        if (func_kind == 4){
-                            float rv = ASR::down_cast<ASR::ConstantReal_t>(
-                                LFortran::ASRUtils::expr_value(func_expr))->m_r;
-                            if (rv<0) {
-                                // negative number
-                                // floor -> integer(|x|+1)
-                                ival = static_cast<int64_t>(rv-1);
-                            } else {
-                                    // positive, floor -> integer(x)
-                                    ival = static_cast<int64_t>(rv);
-                                }
-                                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, ival,func_type));
-                            } else {
-                                double rv = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(func_expr))->m_r;
-                                int64_t ival = static_cast<int64_t>(rv);
-                                if (rv<0) {
-                                    // negative number
-                                    // floor -> integer(x+1)
-                                    ival = static_cast<int64_t>(rv+1);
-                                } else {
-                                    // positive, floor -> integer(x)
-                                    ival = static_cast<int64_t>(rv);
-                                }
-                                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, ival,func_type));
-                        }
-                    } else {
-                        throw SemanticError("floor must have one real argument", loc);
-                    }
+                    value = comptime_floor_eval(loc, args);
                 }
                 else if (var_name=="int") {
                     ASR::expr_t* int_expr = args[0];
