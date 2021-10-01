@@ -839,7 +839,8 @@ public:
     // It tries to evaluate intrinsic function calls if it can be done.
     // If it cannot be done at compile time, it returns a nullptr.
     ASR::expr_t *intrinsic_function_evaluation(const AST::FuncCallOrArray_t &x,
-            Vec<ASR::expr_t*> &args, std::string &var_name) {
+            const ASR::Function_t &s, Vec<ASR::expr_t*> &args,
+            std::string &var_name) {
         ASR::expr_t *value = nullptr;
         switch(args.n) {
             case 1: { // Single argument intrinsics
@@ -1085,6 +1086,7 @@ public:
         }
         Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
         const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(v);
+        ASR::expr_t *value = nullptr;
         if (ASR::is_a<ASR::Variable_t>(*s)) {
             // This happens for things like:
             // integer :: Y(5)
@@ -1098,13 +1100,12 @@ public:
                 indices.p, indices.size(), type, nullptr);
             return;
         } else if (ASR::is_a<ASR::Function_t>(*s)) {
-            // pass
+            ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
+            value = intrinsic_function_evaluation(x, *f, args, var_name);
         } else {
             throw SemanticError("Expected a function call or an array", x.base.base.loc);
         }
         ASR::ttype_t *type = ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(s)->m_return_var)->m_type;
-        // Add value where possible
-        ASR::expr_t *value = intrinsic_function_evaluation(x, args, var_name);
         tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, v, nullptr,
             args.p, args.size(), nullptr, 0, type, value, nullptr);
     }
