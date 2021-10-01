@@ -856,7 +856,14 @@ public:
             }
         }
         Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
-        const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(v);
+        ASR::symbol_t *s = ASRUtils::symbol_get_past_external(v);
+        ASR::symbol_t *orig_s = nullptr;
+        if (ASR::is_a<ASR::GenericProcedure_t>(*s)) {
+            ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(s);
+            int idx = select_generic_procedure(args, *p, x.base.base.loc);
+            orig_s = s;
+            s = p->m_procs[idx];
+        }
         ASR::expr_t *value = nullptr;
         if (ASR::is_a<ASR::Variable_t>(*s)) {
             // This happens for things like:
@@ -879,7 +886,7 @@ public:
             throw SemanticError("Expected a function call or an array", x.base.base.loc);
         }
         ASR::ttype_t *type = ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(s)->m_return_var)->m_type;
-        tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, v, nullptr,
+        tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, v, orig_s,
             args.p, args.size(), nullptr, 0, type, value, nullptr);
     }
 
