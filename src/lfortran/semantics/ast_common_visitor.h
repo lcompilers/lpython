@@ -965,7 +965,7 @@ public:
         }
     }
 
-    ASR::expr_t *comptime_kind_eval(const Location &loc, Vec<ASR::expr_t*> &args) {
+    static ASR::expr_t *comptime_kind_eval(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
         // TODO: Refactor to allow early return
         // kind_num --> value {4, 8, etc.}
         int64_t kind_num = 4; // Default
@@ -1001,7 +1001,7 @@ public:
                 kind_num, type));
     }
 
-    ASR::expr_t *comptime_floor_eval(const Location &loc, Vec<ASR::expr_t*> &args) {
+    static ASR::expr_t *comptime_floor_eval(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
         // TODO: Implement optional kind; J3/18-007r1 --> FLOOR(A, [KIND])
         // TODO: Rip out switch to work with optional arguments
         ASR::expr_t* func_expr = args[0];
@@ -1039,6 +1039,7 @@ public:
         }
     }
 
+
     // Evaluates an intrinsic function call at compile time. If it cannot
     // be done, returns nullptr.
     // `f` must be an intrinsic function
@@ -1047,10 +1048,27 @@ public:
         LFORTRAN_ASSERT(ASRUtils::is_intrinsic_function(&f));
         std::string var_name = f.m_name;
         ASR::expr_t *value = nullptr;
+        typedef ASR::expr_t* (*const comptime_eval_callback)(Allocator &, const Location &, Vec<ASR::expr_t*> &);
+        /*
+            The last parameter is true if the callback accepts evaluated arguments.
+
+            If true, the arguments are first converted to their compile time
+            "values". If not possible, an error is produced in symtab mode (and
+            left unevaluated in body mode); otherwise the callback is called and
+            it always succeeds to evaluate the result at compile time.
+
+            If false, the arguments might not be compile time values. The
+            callback can return nullptr. If nullptr and symtab mode, an error is
+            produced. Otherwise the function is left unevaluated.
+        */
+        std::map<std::string, std::pair<comptime_eval_callback, bool>> comptime_eval_map = {
+            {"kind", {&comptime_kind_eval, false}},
+            {"floor", {&comptime_floor_eval, true}},
+        };
         switch(args.n) {
             case 1: { // Single argument intrinsics
                 if (var_name=="kind") {
-                    value = comptime_kind_eval(loc, args);
+                    value = comptime_kind_eval(al, loc, args);
                 }
                 else if (var_name=="tiny") {
                     // We assume the input is valid
@@ -1106,7 +1124,7 @@ public:
                     }
                 }*/
                 else if (var_name=="floor") {
-                    value = comptime_floor_eval(loc, args);
+                    value = comptime_floor_eval(al, loc, args);
                 }
                 else if (var_name=="int") {
                     ASR::expr_t* int_expr = args[0];
