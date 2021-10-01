@@ -836,41 +836,8 @@ public:
         }
     }
 
-    void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
-        std::string var_name = to_lower(x.m_func);
-        ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
-        if (!v) {
-            std::string remote_sym = var_name;
-            if (intrinsic_procedures.find(remote_sym)
-                        != intrinsic_procedures.end()) {
-                v = resolve_intrinsic_function(x.base.base.loc, remote_sym);
-            } else {
-                throw SemanticError("Function '" + var_name + "' not found"
-                    " or not implemented yet (if it is intrinsic)",
-                    x.base.base.loc);
-            }
-        }
-        Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
-        const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(v);
-        if (ASR::is_a<ASR::Variable_t>(*s)) {
-            // This happens for things like:
-            // integer :: Y(5)
-            // real :: X(Y(1)+1)
-            ASR::ttype_t *type = ASR::down_cast<ASR::Variable_t>(s)->m_type;
-            Vec<ASR::array_index_t> indices;
-            // FIXME: convert args to indices:
-            indices.p = nullptr;
-            indices.n = 0;
-            tmp = ASR::make_ArrayRef_t(al, x.base.base.loc, v,
-                indices.p, indices.size(), type, nullptr);
-            return;
-        } else if (ASR::is_a<ASR::Function_t>(*s)) {
-            // pass
-        } else {
-            throw SemanticError("Expected a function call or an array", x.base.base.loc);
-        }
-        ASR::ttype_t *type = ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(s)->m_return_var)->m_type;
-        // Add value where possible
+    ASR::expr_t *intrinsic_function_evaluation(const AST::FuncCallOrArray_t &x,
+            Vec<ASR::expr_t*> &args, std::string &var_name) {
         ASR::expr_t *value = nullptr;
         switch(args.n) {
             case 1: { // Single argument intrinsics
@@ -943,7 +910,8 @@ public:
                 }
                 else if (var_name=="real") {
                     tmp = CommonVisitorMethods::comptime_intrinsic_real(args[0], nullptr, al, x.base.base.loc);
-                    return;
+                    // FIXME: shouldn't this return a value?
+                    return nullptr;
                 }
                 else if (var_name=="floor") {
                     // TODO: Implement optional kind; J3/18-007r1 --> FLOOR(A, [KIND])
@@ -1085,7 +1053,8 @@ public:
             case 2: {
                 if (var_name=="real") {
                     tmp = CommonVisitorMethods::comptime_intrinsic_real(args[0], args[1], al, x.base.base.loc);
-                    return;
+                    // FIXME: shouldn't this return a value?
+                    return nullptr;
                 } else {
                     throw SemanticError("Function '" + var_name + "' with " + std::to_string(args.n) +
                             " arguments not supported yet",
@@ -1099,6 +1068,45 @@ public:
                         x.base.base.loc);
             }
         }
+        return value;
+    }
+
+    void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
+        std::string var_name = to_lower(x.m_func);
+        ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
+        if (!v) {
+            std::string remote_sym = var_name;
+            if (intrinsic_procedures.find(remote_sym)
+                        != intrinsic_procedures.end()) {
+                v = resolve_intrinsic_function(x.base.base.loc, remote_sym);
+            } else {
+                throw SemanticError("Function '" + var_name + "' not found"
+                    " or not implemented yet (if it is intrinsic)",
+                    x.base.base.loc);
+            }
+        }
+        Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
+        const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(v);
+        if (ASR::is_a<ASR::Variable_t>(*s)) {
+            // This happens for things like:
+            // integer :: Y(5)
+            // real :: X(Y(1)+1)
+            ASR::ttype_t *type = ASR::down_cast<ASR::Variable_t>(s)->m_type;
+            Vec<ASR::array_index_t> indices;
+            // FIXME: convert args to indices:
+            indices.p = nullptr;
+            indices.n = 0;
+            tmp = ASR::make_ArrayRef_t(al, x.base.base.loc, v,
+                indices.p, indices.size(), type, nullptr);
+            return;
+        } else if (ASR::is_a<ASR::Function_t>(*s)) {
+            // pass
+        } else {
+            throw SemanticError("Expected a function call or an array", x.base.base.loc);
+        }
+        ASR::ttype_t *type = ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(s)->m_return_var)->m_type;
+        // Add value where possible
+        ASR::expr_t *value = intrinsic_function_evaluation(x, args, var_name);
         tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, v, nullptr,
             args.p, args.size(), nullptr, 0, type, value, nullptr);
     }
