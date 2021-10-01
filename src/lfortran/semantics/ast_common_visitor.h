@@ -5,6 +5,7 @@
 #include <lfortran/ast.h>
 #include <lfortran/bigint.h>
 #include <lfortran/string_utils.h>
+#include <lfortran/utils.h>
 
 namespace LFortran {
 
@@ -629,6 +630,7 @@ public:
     ASR::asr_t *tmp;
     Allocator &al;
     SymbolTable *current_scope;
+    ASR::Module_t *current_module = nullptr;
 
     CommonVisitor(Allocator &al, SymbolTable *symbol_table) : al{al}, current_scope{symbol_table} {}
 
@@ -694,6 +696,52 @@ public:
         } else {
             throw SemanticError("Variable '" + dt_name + "' is not a derived type", loc);
         }
+    }
+
+    ASR::symbol_t* resolve_intrinsic_function(const Location &loc, std::string &remote_sym) {
+        std::string module_name = intrinsic_procedures[remote_sym];
+
+        SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
+        ASR::Module_t *m = ASRUtils::load_module(al, tu_symtab, module_name,
+                loc, true);
+
+        ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
+        if (!t) {
+            throw SemanticError("The symbol '" + remote_sym
+                + "' not found in the module '" + module_name + "'",
+                loc);
+        } else if (! (ASR::is_a<ASR::GenericProcedure_t>(*t)
+                    || ASR::is_a<ASR::Function_t>(*t))) {
+            throw SemanticError("The symbol '" + remote_sym
+                + "' found in the module '" + module_name + "', "
+                + "but it is not a function or a generic function.",
+                loc);
+        }
+        char *fn_name = ASRUtils::symbol_name(t);
+        ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
+            al, t->base.loc,
+            /* a_symtab */ current_scope,
+            /* a_name */ fn_name,
+            t,
+            m->m_name, nullptr, 0, fn_name,
+            ASR::accessType::Private
+            );
+        std::string sym = fn_name;
+
+        current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
+        ASR::symbol_t *v = ASR::down_cast<ASR::symbol_t>(fn);
+        if (current_module) {
+            // Add the module `m` to current module dependencies
+            Vec<char*> vec;
+            vec.from_pointer_n_copy(al, current_module->m_dependencies,
+                        current_module->n_dependencies);
+            if (!present(vec, m->m_name)) {
+                vec.push_back(al, m->m_name);
+                current_module->m_dependencies = vec.p;
+                current_module->n_dependencies = vec.size();
+            }
+        }
+        return v;
     }
 
     void visit_BinOp(const AST::BinOp_t &x) {
