@@ -70,6 +70,10 @@ interface
     integer function len(x)
     character(len=*), intent(in) :: x
     end function
+
+    logical function present(x)
+    integer, optional, intent(in) :: x
+    end function
 end interface
 
 end module

@@ -334,6 +334,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         } else if ((
                 std::string(x.m_name) == "int" ||
                 std::string(x.m_name) == "char" ||
+                std::string(x.m_name) == "present" ||
                 std::string(x.m_name) == "len"
                 ) && intrinsic_module) {
             // Intrinsic function `int`

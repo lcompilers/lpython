@@ -580,6 +580,7 @@ public:
         {"selected_int_kind", "lfortran_intrinsic_kind"},
         {"selected_real_kind", "lfortran_intrinsic_kind"},
         {"size", "lfortran_intrinsic_array"},
+        {"present", "lfortran_intrinsic_array"},
         {"lbound", "lfortran_intrinsic_array"},
         {"ubound", "lfortran_intrinsic_array"},
         {"min", "lfortran_intrinsic_array"},
