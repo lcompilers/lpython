@@ -428,62 +428,6 @@ public:
         current_procedure_abi_type = ASR::abiType::Source;
     }
 
-    void visit_StrOp(const AST::StrOp_t &x) {
-        this->visit_expr(*x.m_left);
-        ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
-        this->visit_expr(*x.m_right);
-        ASR::expr_t *right = LFortran::ASRUtils::EXPR(tmp);
-        CommonVisitorMethods::visit_StrOp(al, x, left, right, tmp);
-    }
-
-    void visit_UnaryOp(const AST::UnaryOp_t &x) {
-        this->visit_expr(*x.m_operand);
-        ASR::expr_t *operand = LFortran::ASRUtils::EXPR(tmp);
-        CommonVisitorMethods::visit_UnaryOp(al, x, operand, tmp);
-    }
-
-    void visit_BoolOp(const AST::BoolOp_t &x) {
-        this->visit_expr(*x.m_left);
-        ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
-        this->visit_expr(*x.m_right);
-        ASR::expr_t *right = LFortran::ASRUtils::EXPR(tmp);
-        CommonVisitorMethods::visit_BoolOp(al, x, left, right, tmp);
-    }
-
-    void visit_Compare(const AST::Compare_t &x) {
-        this->visit_expr(*x.m_left);
-        ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
-        this->visit_expr(*x.m_right);
-        ASR::expr_t *right = LFortran::ASRUtils::EXPR(tmp);
-        CommonVisitorMethods::visit_Compare(al, x, left, right, tmp);
-    }
-
-    void visit_String(const AST::String_t &x) {
-        int s_len = strlen(x.m_s);
-        ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
-                1, s_len, nullptr, nullptr, 0));
-        tmp = ASR::make_ConstantString_t(al, x.base.base.loc, x.m_s, type);
-    }
-
-    void visit_Logical(const AST::Logical_t &x) {
-        ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc,
-                4, nullptr, 0));
-        tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, x.m_value, type);
-    }
-
-    void visit_Complex(const AST::Complex_t &x) {
-        this->visit_expr(*x.m_re);
-        ASR::expr_t *re = LFortran::ASRUtils::EXPR(tmp);
-        this->visit_expr(*x.m_im);
-        ASR::expr_t *im = LFortran::ASRUtils::EXPR(tmp);
-        int re_kind = LFortran::ASRUtils::extract_kind_from_ttype_t(LFortran::ASRUtils::expr_type(re));
-        int im_kind = LFortran::ASRUtils::extract_kind_from_ttype_t(LFortran::ASRUtils::expr_type(im));
-        ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc,
-                std::max(re_kind, im_kind), nullptr, 0));
-        tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc,
-                re, im, type);
-    }
-
     void process_dims(Allocator &al, Vec<ASR::dimension_t> &dims,
         AST::dimension_t *m_dim, size_t n_dim) {
         LFORTRAN_ASSERT(dims.size() == 0);
@@ -885,17 +829,6 @@ public:
                 }
             } // for m_syms
         }
-    }
-
-    Vec<ASR::expr_t*> visit_expr_list(AST::fnarg_t *ast_list, size_t n) {
-        Vec<ASR::expr_t*> asr_list;
-        asr_list.reserve(al, n);
-        for (size_t i=0; i<n; i++) {
-            visit_expr(*ast_list[i].m_end);
-            ASR::expr_t *expr = LFortran::ASRUtils::EXPR(tmp);
-            asr_list.push_back(al, expr);
-        }
-        return asr_list;
     }
 
     void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
@@ -1656,42 +1589,6 @@ public:
         }
     }
 
-    void visit_Real(const AST::Real_t &x) {
-        double r = ASRUtils::extract_real(x.m_n);
-        char* s_kind;
-        int r_kind = ASRUtils::extract_kind_str(x.m_n, s_kind);
-        if (r_kind == 0) {
-            std::string var_name = to_lower(s_kind);
-            ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
-            if (v) {
-                const ASR::symbol_t *v3 = LFortran::ASRUtils::symbol_get_past_external(v);
-                if (ASR::is_a<ASR::Variable_t>(*v3)) {
-                    ASR::Variable_t *v2 = ASR::down_cast<ASR::Variable_t>(v3);
-                    if (v2->m_value) {
-                        if (ASR::is_a<ASR::ConstantInteger_t>(*v2->m_value)) {
-                            r_kind = ASR::down_cast<ASR::ConstantInteger_t>(v2->m_value)->m_n;
-                        } else {
-                            throw SemanticError("Variable '" + var_name + "' is constant but not an integer",
-                                x.base.base.loc);
-                        }
-                    } else {
-                        throw SemanticError("Variable '" + var_name + "' is not constant",
-                            x.base.base.loc);
-                    }
-                } else {
-                    throw SemanticError("Symbol '" + var_name + "' is not a variable",
-                        x.base.base.loc);
-                }
-            } else {
-                throw SemanticError("Variable '" + var_name + "' not declared",
-                    x.base.base.loc);
-            }
-        }
-        ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
-                r_kind, nullptr, 0));
-        tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, r, type);
-    }
-
     ASR::asr_t* resolve_variable(const Location &loc, const std::string &var_name) {
         SymbolTable *scope = current_scope;
         ASR::symbol_t *v = scope->resolve_symbol(var_name);
@@ -1703,52 +1600,6 @@ public:
 
     void visit_Name(const AST::Name_t &x) {
         tmp = resolve_variable(x.base.base.loc, to_lower(x.m_id));
-    }
-
-    void visit_Num(const AST::Num_t &x) {
-        int ikind = 4;
-        if (x.m_kind) {
-            ikind = std::atoi(x.m_kind);
-            if (ikind == 0) {
-                std::string var_name = to_lower(x.m_kind);
-                ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
-                if (v) {
-                    const ASR::symbol_t *v3 = LFortran::ASRUtils::symbol_get_past_external(v);
-                    if (ASR::is_a<ASR::Variable_t>(*v3)) {
-                        ASR::Variable_t *v2 = ASR::down_cast<ASR::Variable_t>(v3);
-                        if (v2->m_value) {
-                            if (ASR::is_a<ASR::ConstantInteger_t>(*v2->m_value)) {
-                                ikind = ASR::down_cast<ASR::ConstantInteger_t>(v2->m_value)->m_n;
-                            } else {
-                                throw SemanticError("Variable '" + var_name + "' is constant but not an integer",
-                                    x.base.base.loc);
-                            }
-                        } else {
-                            throw SemanticError("Variable '" + var_name + "' is not constant",
-                                x.base.base.loc);
-                        }
-                    } else {
-                        throw SemanticError("Symbol '" + var_name + "' is not a variable",
-                            x.base.base.loc);
-                    }
-                } else {
-                    throw SemanticError("Variable '" + var_name + "' not declared",
-                        x.base.base.loc);
-                }
-            }
-        }
-        ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                ikind, nullptr, 0));
-        if (BigInt::is_int_ptr(x.m_n)) {
-            throw SemanticError("Integer constants larger than 2^62-1 are not implemented yet", x.base.base.loc);
-        } else {
-            LFORTRAN_ASSERT(!BigInt::is_int_ptr(x.m_n));
-            tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, x.m_n, type);
-        }
-    }
-
-    void visit_Parenthesis(const AST::Parenthesis_t &x) {
-        visit_expr(*x.m_operand);
     }
 
 };
