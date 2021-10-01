@@ -3718,7 +3718,7 @@ public:
                         tmp = lfortran_str_len(args[0]);
                         return;
                     } else {
-                        throw CodeGenError("Intrinsic not implemented yet.");
+                        throw CodeGenError("Intrinsic '" + func_name + "' not implemented yet.");
                     }
                 } else {
                     h = get_hash((ASR::asr_t*)s);
