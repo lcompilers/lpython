@@ -843,10 +843,11 @@ public:
 
     // It tries to evaluate intrinsic function calls if it can be done.
     // If it cannot be done at compile time, it returns a nullptr.
+    // `f` must be an intrinsic function
     ASR::expr_t *intrinsic_function_evaluation(const AST::FuncCallOrArray_t &x,
-            const ASR::Function_t &f, Vec<ASR::expr_t*> &args,
-            std::string &var_name) {
+            const ASR::Function_t &f, Vec<ASR::expr_t*> &args) {
         LFORTRAN_ASSERT(ASRUtils::is_intrinsic_function(&f));
+        std::string var_name = f.m_name;
         ASR::expr_t *value = nullptr;
         switch(args.n) {
             case 1: { // Single argument intrinsics
@@ -1108,7 +1109,7 @@ public:
         } else if (ASR::is_a<ASR::Function_t>(*s)) {
             ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
             if (ASRUtils::is_intrinsic_function(f)) {
-                value = intrinsic_function_evaluation(x, *f, args, var_name);
+                value = intrinsic_function_evaluation(x, *f, args);
             }
         } else {
             throw SemanticError("Expected a function call or an array", x.base.base.loc);
