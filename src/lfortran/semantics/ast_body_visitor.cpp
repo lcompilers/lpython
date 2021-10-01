@@ -1016,18 +1016,18 @@ public:
             value, nullptr);
     }
 
-    ASR::symbol_t* resolve_intrinsic_procedure(const AST::FuncCallOrArray_t &x, std::string &remote_sym) {
+    ASR::symbol_t* resolve_intrinsic_procedure(const Location &loc, std::string &remote_sym) {
         std::string module_name = intrinsic_procedures[remote_sym];
 
         SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
         ASR::Module_t *m = ASRUtils::load_module(al, tu_symtab, module_name,
-                x.base.base.loc, true);
+                loc, true);
 
         ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
         if (!t) {
             throw SemanticError("The symbol '" + remote_sym
                 + "' not found in the module '" + module_name + "'",
-                x.base.base.loc);
+                loc);
         }
         if (ASR::is_a<ASR::GenericProcedure_t>(*t)) {
             ASR::GenericProcedure_t *gp = ASR::down_cast<ASR::GenericProcedure_t>(t);
@@ -1061,7 +1061,7 @@ public:
             throw SemanticError("The symbol '" + remote_sym
                 + "' found in the module '" + module_name + "', "
                 + "but it is not a function.",
-                x.base.base.loc);
+                loc);
         }
 
         ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
@@ -1111,7 +1111,7 @@ public:
             std::string remote_sym = var_name;
             if (intrinsic_procedures.find(remote_sym)
                         != intrinsic_procedures.end()) {
-                v = resolve_intrinsic_procedure(x, remote_sym);
+                v = resolve_intrinsic_procedure(x.base.base.loc, remote_sym);
             } else if (to_lower(var_name) == "present") {
                 // Intrinsic function present(), add it to the global scope
                 ASR::TranslationUnit_t *unit = (ASR::TranslationUnit_t *)asr;
