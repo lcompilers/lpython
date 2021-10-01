@@ -1016,7 +1016,7 @@ public:
             value, nullptr);
     }
 
-    ASR::symbol_t* resolve_intrinsic_procedure(const Location &loc, std::string &remote_sym) {
+    ASR::symbol_t* resolve_intrinsic_function(const Location &loc, std::string &remote_sym) {
         std::string module_name = intrinsic_procedures[remote_sym];
 
         SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
@@ -1082,7 +1082,7 @@ public:
             std::string remote_sym = var_name;
             if (intrinsic_procedures.find(remote_sym)
                         != intrinsic_procedures.end()) {
-                v = resolve_intrinsic_procedure(x.base.base.loc, remote_sym);
+                v = resolve_intrinsic_function(x.base.base.loc, remote_sym);
             } else {
                 throw SemanticError("Function or array '" + var_name +
                                     "' not declared",
