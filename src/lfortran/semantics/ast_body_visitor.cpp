@@ -1041,8 +1041,8 @@ public:
                 );
             std::string sym = gp->m_name;
             current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
-            symbol_resolve_generic_procedure(
-                ASR::down_cast<ASR::symbol_t>(fn), x);
+            ASR::symbol_t *v;
+            v = ASR::down_cast<ASR::symbol_t>(fn);
             if (current_module) {
                 // Add the module `m` to current module dependencies
                 Vec<char*> vec;
@@ -1054,7 +1054,7 @@ public:
                     current_module->n_dependencies = vec.size();
                 }
             }
-            return nullptr;
+            return v;
         }
 
         if (!ASR::is_a<ASR::Function_t>(*t)) {
