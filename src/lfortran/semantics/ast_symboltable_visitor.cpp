@@ -844,7 +844,7 @@ public:
     // It tries to evaluate intrinsic function calls if it can be done.
     // If it cannot be done at compile time, it returns a nullptr.
     // `f` must be an intrinsic function
-    ASR::expr_t *intrinsic_function_evaluation(const AST::FuncCallOrArray_t &x,
+    ASR::expr_t *intrinsic_function_evaluation(const Location &loc,
             const ASR::Function_t &f, Vec<ASR::expr_t*> &args) {
         LFORTRAN_ASSERT(ASRUtils::is_intrinsic_function(&f));
         std::string var_name = f.m_name;
@@ -871,19 +871,19 @@ public:
                             break;
                         }
                         case ASR::exprType::Var : {
-                            kind_num = ASRUtils::extract_kind(kind_expr, x.base.base.loc);
+                            kind_num = ASRUtils::extract_kind(kind_expr, loc);
                             break;
                         }
                     default: {
                         std::string msg = R"""(Only Integer literals or expressions which reduce to constant Integer are accepted as kind parameters.)""";
-                        throw SemanticError(msg, x.base.base.loc);
+                        throw SemanticError(msg, loc);
                         break;
                     }
                     }
                     ASR::ttype_t *type = LFortran::ASRUtils::TYPE(
-                            ASR::make_Integer_t(al, x.base.base.loc,
+                            ASR::make_Integer_t(al, loc,
                                 4, nullptr, 0));
-                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, kind_num,
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, kind_num,
                         type));
                 }
                 else if (var_name=="tiny") {
@@ -893,7 +893,7 @@ public:
                     // TODO: Arrays of reals are a valid argument for tiny
                     if (LFortran::ASRUtils::is_array(tiny_type)){
                         throw SemanticError("Array values not implemented yet",
-                                            x.base.base.loc);
+                                            loc);
                     }
                     // TODO: Figure out how to deal with higher precision later
                     if (ASR::is_a<LFortran::ASR::Real_t>(*tiny_type)) {
@@ -903,23 +903,23 @@ public:
                         int tiny_kind = LFortran::ASRUtils::extract_kind_from_ttype_t(tiny_type);
                         if (tiny_kind == 4){
                             float low_val = std::numeric_limits<float>::min();
-                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc,
+                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc,
                                                                                          low_val, // value
                                                                                          tiny_type));
                         } else {
                             double low_val = std::numeric_limits<double>::min();
-                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, x.base.base.loc,
+                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc,
                                                                                          low_val, // value
                                                                                          tiny_type));
                                 }
                     }
                     else {
                         throw SemanticError("Argument for tiny must be Real",
-                                            x.base.base.loc);
+                                            loc);
                     }
                 }
                 else if (var_name=="real") {
-                    value = ASR::down_cast<ASR::expr_t>(CommonVisitorMethods::comptime_intrinsic_real(args[0], nullptr, al, x.base.base.loc));
+                    value = ASR::down_cast<ASR::expr_t>(CommonVisitorMethods::comptime_intrinsic_real(args[0], nullptr, al, loc));
                 }
                 else if (var_name=="floor") {
                     // TODO: Implement optional kind; J3/18-007r1 --> FLOOR(A, [KIND])
@@ -940,7 +940,7 @@ public:
                                     // positive, floor -> integer(x)
                                     ival = static_cast<int64_t>(rv);
                                 }
-                                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, ival,func_type));
+                                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, ival,func_type));
                             } else {
                                 double rv = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(func_expr))->m_r;
                                 int64_t ival = static_cast<int64_t>(rv);
@@ -952,10 +952,10 @@ public:
                                     // positive, floor -> integer(x)
                                     ival = static_cast<int64_t>(rv);
                                 }
-                                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, ival,func_type));
+                                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, ival,func_type));
                         }
                     } else {
-                        throw SemanticError("floor must have one real argument", x.base.base.loc);
+                        throw SemanticError("floor must have one real argument", loc);
                     }
                 }
                 else if (var_name=="int") {
@@ -965,10 +965,10 @@ public:
                     if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*int_type)) {
                         if (int_kind == 4){
                             int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(int_expr))->m_n;
-                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, int_type));
+                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, ival, int_type));
                         } else {
                             int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(int_expr))->m_n;
-                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, int_type));
+                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, ival, int_type));
                         }
                     }
                     else if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*int_type)) {
@@ -976,11 +976,11 @@ public:
                             float rv = ASR::down_cast<ASR::ConstantReal_t>(
                                 LFortran::ASRUtils::expr_value(int_expr))->m_r;
                             int64_t ival = static_cast<int64_t>(rv);
-                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, int_type));
+                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, ival, int_type));
                         } else {
                             double rv = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(int_expr))->m_r;
                             int64_t ival = static_cast<int64_t>(rv);
-                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, int_type));
+                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, ival, int_type));
                         }
                     }
                     // TODO: Handle BOZ later
@@ -988,7 +988,7 @@ public:
 
                     // }
                     else {
-                        throw SemanticError("int must have only one argument", x.base.base.loc);
+                        throw SemanticError("int must have only one argument", loc);
                     }
                 }
                 else if (var_name=="char") {
@@ -999,9 +999,9 @@ public:
                             LFortran::ASRUtils::expr_value(real_expr))->m_n;
                         ASR::ttype_t* str_type =
                             LFortran::ASRUtils::TYPE(ASR::make_Character_t(al,
-                            x.base.base.loc, 1, 1, nullptr, nullptr, 0));
+                            loc, 1, 1, nullptr, nullptr, 0));
                         if (! (c >= 0 && c <= 127) ) {
-                            throw SemanticError("The argument 'x' in char(x) must be in the range 0 <= x <= 127.", x.base.base.loc);
+                            throw SemanticError("The argument 'x' in char(x) must be in the range 0 <= x <= 127.", loc);
                         }
                         char cc = c;
                         std::string svalue;
@@ -1010,10 +1010,10 @@ public:
                         s.from_str_view(svalue);
                         char *str_val = s.c_str(al);
                         value = ASR::down_cast<ASR::expr_t>(
-                            ASR::make_ConstantString_t(al, x.base.base.loc,
+                            ASR::make_ConstantString_t(al, loc,
                             str_val, str_type));
                     } else {
-                        throw SemanticError("char() must have one integer argument", x.base.base.loc);
+                        throw SemanticError("char() must have one integer argument", loc);
                     }
                 }
                 else if (var_name=="selected_int_kind") {
@@ -1029,10 +1029,10 @@ public:
                             a_kind = 8;
                         }
                         value = ASR::down_cast<ASR::expr_t>(
-                            ASR::make_ConstantInteger_t(al, x.base.base.loc,
+                            ASR::make_ConstantInteger_t(al, loc,
                             a_kind, real_type));
                     } else {
-                        throw SemanticError("integer_int_kind() must have one integer argument", x.base.base.loc);
+                        throw SemanticError("integer_int_kind() must have one integer argument", loc);
                     }
                 }
                 else if (var_name=="selected_real_kind") {
@@ -1050,28 +1050,28 @@ public:
                             a_kind = 8;
                         }
                         value = ASR::down_cast<ASR::expr_t>(
-                            ASR::make_ConstantInteger_t(al, x.base.base.loc,
+                            ASR::make_ConstantInteger_t(al, loc,
                             a_kind, real_type));
                     } else {
-                        throw SemanticError("integer_real_kind() must have one integer argument", x.base.base.loc);
+                        throw SemanticError("integer_real_kind() must have one integer argument", loc);
                     }
                 }
                 break;
             }
             case 2: {
                 if (var_name=="real") {
-                    value = ASR::down_cast<ASR::expr_t>(CommonVisitorMethods::comptime_intrinsic_real(args[0], args[1], al, x.base.base.loc));
+                    value = ASR::down_cast<ASR::expr_t>(CommonVisitorMethods::comptime_intrinsic_real(args[0], args[1], al, loc));
                 } else {
                     throw SemanticError("Function '" + var_name + "' with " + std::to_string(args.n) +
                             " arguments not supported yet",
-                            x.base.base.loc);
+                            loc);
                 }
                 break;
             }
             default:  { // Not implemented
                 throw SemanticError("Function '" + var_name + "' with " + std::to_string(args.n) +
                         " arguments not supported yet",
-                        x.base.base.loc);
+                        loc);
             }
         }
         return value;
@@ -1109,7 +1109,7 @@ public:
         } else if (ASR::is_a<ASR::Function_t>(*s)) {
             ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
             if (ASRUtils::is_intrinsic_function(f)) {
-                value = intrinsic_function_evaluation(x, *f, args);
+                value = intrinsic_function_evaluation(x.base.base.loc, *f, args);
             }
         } else {
             throw SemanticError("Expected a function call or an array", x.base.base.loc);
