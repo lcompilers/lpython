@@ -980,41 +980,9 @@ public:
                 if (var_name == "kind" ||
                     var_name == "floor" ||
                     var_name == "tiny" ||
+                    var_name == "int"
                     ) {
                     value = e.eval(var_name, al, loc, args);
-                }
-                else if (var_name=="int") {
-                    ASR::expr_t* int_expr = args[0];
-                    ASR::ttype_t* int_type = LFortran::ASRUtils::expr_type(int_expr);
-                    int int_kind = ASRUtils::extract_kind_from_ttype_t(int_type);
-                    if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*int_type)) {
-                        if (int_kind == 4){
-                            int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(int_expr))->m_n;
-                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, ival, int_type));
-                        } else {
-                            int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(int_expr))->m_n;
-                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, ival, int_type));
-                        }
-                    }
-                    else if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*int_type)) {
-                        if (int_kind == 4){
-                            float rv = ASR::down_cast<ASR::ConstantReal_t>(
-                                LFortran::ASRUtils::expr_value(int_expr))->m_r;
-                            int64_t ival = static_cast<int64_t>(rv);
-                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, ival, int_type));
-                        } else {
-                            double rv = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(int_expr))->m_r;
-                            int64_t ival = static_cast<int64_t>(rv);
-                            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, ival, int_type));
-                        }
-                    }
-                    // TODO: Handle BOZ later
-                    // else if () {
-
-                    // }
-                    else {
-                        throw SemanticError("int must have only one argument", loc);
-                    }
                 }
                 else if (var_name=="char") {
                     ASR::expr_t* real_expr = args[0];

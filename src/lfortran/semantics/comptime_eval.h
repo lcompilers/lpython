@@ -28,6 +28,8 @@ struct ComptimeEval {
         const static std::map<std::string, std::pair<comptime_eval_callback, bool>> comptime_eval_map = {
             {"kind", {&eval_kind, false}},
             {"tiny", {&eval_tiny, false}},
+            {"int", {&eval_int, false}},
+
             {"floor", {&eval_floor, true}},
             {"sin", {&eval_sin, true}},
         };
@@ -179,6 +181,34 @@ struct ComptimeEval {
             }
         } else {
             throw SemanticError("Argument for sin must be Real", loc);
+        }
+    }
+
+    static ASR::expr_t *eval_int(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        ASR::expr_t* int_expr = args[0];
+        ASR::ttype_t* int_type = LFortran::ASRUtils::expr_type(int_expr);
+        int int_kind = ASRUtils::extract_kind_from_ttype_t(int_type);
+        if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*int_type)) {
+            if (int_kind == 4){
+                int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(int_expr))->m_n;
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, ival, int_type));
+            } else {
+                int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(int_expr))->m_n;
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, ival, int_type));
+            }
+        } else if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*int_type)) {
+            if (int_kind == 4){
+                float rv = ASR::down_cast<ASR::ConstantReal_t>(
+                    LFortran::ASRUtils::expr_value(int_expr))->m_r;
+                int64_t ival = static_cast<int64_t>(rv);
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, ival, int_type));
+            } else {
+                double rv = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(int_expr))->m_r;
+                int64_t ival = static_cast<int64_t>(rv);
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, ival, int_type));
+            }
+        } else {
+            throw SemanticError("int must have only one argument", loc);
         }
     }
 
