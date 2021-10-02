@@ -27,6 +27,7 @@ struct ComptimeEval {
         */
         const static std::map<std::string, std::pair<comptime_eval_callback, bool>> comptime_eval_map = {
             {"kind", {&eval_kind, false}},
+            {"tiny", {&eval_tiny, false}},
             {"floor", {&eval_floor, true}},
         };
 
@@ -82,6 +83,39 @@ struct ComptimeEval {
                     4, nullptr, 0));
         return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc,
                 kind_num, type));
+    }
+
+    static ASR::expr_t *eval_tiny(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        // We assume the input is valid
+        // ASR::expr_t* tiny_expr = args[0];
+        ASR::ttype_t* tiny_type = LFortran::ASRUtils::expr_type(args[0]);
+        // TODO: Arrays of reals are a valid argument for tiny
+        if (LFortran::ASRUtils::is_array(tiny_type)){
+            throw SemanticError("Array values not implemented yet",
+                                loc);
+        }
+        // TODO: Figure out how to deal with higher precision later
+        if (ASR::is_a<LFortran::ASR::Real_t>(*tiny_type)) {
+            // We don't actually need the value yet, it is enough to know it is a double
+            // but it might provide further information later (precision)
+            // double tiny_val = ASR::down_cast<ASR::ConstantReal_t>(LFortran::ASRUtils::expr_value(tiny_expr))->m_r;
+            int tiny_kind = LFortran::ASRUtils::extract_kind_from_ttype_t(tiny_type);
+            if (tiny_kind == 4){
+                float low_val = std::numeric_limits<float>::min();
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc,
+                                                                                low_val, // value
+                                                                                tiny_type));
+            } else {
+                double low_val = std::numeric_limits<double>::min();
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc,
+                                                                                low_val, // value
+                                                                                tiny_type));
+                    }
+        }
+        else {
+            throw SemanticError("Argument for tiny must be Real",
+                                loc);
+        }
     }
 
     static ASR::expr_t *eval_floor(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
