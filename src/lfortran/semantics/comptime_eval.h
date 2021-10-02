@@ -30,6 +30,7 @@ struct ComptimeEval {
             {"tiny", {&eval_tiny, false}},
             {"int", {&eval_int, false}},
 
+            {"char", {&eval_char, true}},
             {"floor", {&eval_floor, true}},
             {"sin", {&eval_sin, true}},
         };
@@ -209,6 +210,32 @@ struct ComptimeEval {
             }
         } else {
             throw SemanticError("int must have only one argument", loc);
+        }
+    }
+
+    static ASR::expr_t *eval_char(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        ASR::expr_t* real_expr = args[0];
+        ASR::ttype_t* real_type = LFortran::ASRUtils::expr_type(real_expr);
+        if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*real_type)) {
+            int64_t c = ASR::down_cast<ASR::ConstantInteger_t>(real_expr)->m_n;
+            ASR::ttype_t* str_type =
+                LFortran::ASRUtils::TYPE(ASR::make_Character_t(al,
+                loc, 1, 1, nullptr, nullptr, 0));
+            if (! (c >= 0 && c <= 127) ) {
+                throw SemanticError("The argument 'x' in char(x) must be in the range 0 <= x <= 127.", loc);
+            }
+            char cc = c;
+            std::string svalue;
+            svalue += cc;
+            Str s;
+            s.from_str_view(svalue);
+            char *str_val = s.c_str(al);
+            return ASR::down_cast<ASR::expr_t>(
+                ASR::make_ConstantString_t(al, loc,
+                str_val, str_type));
+        } else {
+            throw SemanticError("char() must have one integer argument", loc);
         }
     }
 

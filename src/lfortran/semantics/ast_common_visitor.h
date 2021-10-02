@@ -981,33 +981,9 @@ public:
                     || var_name == "floor"
                     || var_name == "tiny"
                     || var_name == "int"
+                    || var_name == "char"
                     ) {
                     value = e.eval(var_name, al, loc, args);
-                }
-                else if (var_name=="char") {
-                    ASR::expr_t* real_expr = args[0];
-                    ASR::ttype_t* real_type = LFortran::ASRUtils::expr_type(real_expr);
-                    if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*real_type)) {
-                        int64_t c = ASR::down_cast<ASR::ConstantInteger_t>(
-                            LFortran::ASRUtils::expr_value(real_expr))->m_n;
-                        ASR::ttype_t* str_type =
-                            LFortran::ASRUtils::TYPE(ASR::make_Character_t(al,
-                            loc, 1, 1, nullptr, nullptr, 0));
-                        if (! (c >= 0 && c <= 127) ) {
-                            throw SemanticError("The argument 'x' in char(x) must be in the range 0 <= x <= 127.", loc);
-                        }
-                        char cc = c;
-                        std::string svalue;
-                        svalue += cc;
-                        Str s;
-                        s.from_str_view(svalue);
-                        char *str_val = s.c_str(al);
-                        value = ASR::down_cast<ASR::expr_t>(
-                            ASR::make_ConstantString_t(al, loc,
-                            str_val, str_type));
-                    } else {
-                        throw SemanticError("char() must have one integer argument", loc);
-                    }
                 }
                 else if (var_name=="selected_int_kind") {
                     ASR::expr_t* real_expr = args[0];
