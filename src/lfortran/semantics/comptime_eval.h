@@ -32,6 +32,7 @@ struct ComptimeEval {
             {"char", {&eval_char, true}},
             {"floor", {&eval_floor, true}},
             {"sin", {&eval_sin, true}},
+            {"selected_int_kind", {&eval_selected_int_kind, true}},
         };
 
         auto search = comptime_eval_map.find(name);
@@ -235,6 +236,27 @@ struct ComptimeEval {
                 str_val, str_type));
         } else {
             throw SemanticError("char() must have one integer argument", loc);
+        }
+    }
+
+    static ASR::expr_t *eval_selected_int_kind(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        ASR::expr_t* real_expr = args[0];
+        ASR::ttype_t* real_type = LFortran::ASRUtils::expr_type(real_expr);
+        if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*real_type)) {
+            int64_t R = ASR::down_cast<ASR::ConstantInteger_t>(
+                LFortran::ASRUtils::expr_value(real_expr))->m_n;
+            int a_kind = 4;
+            if (R < 10) {
+                a_kind = 4;
+            } else {
+                a_kind = 8;
+            }
+            return ASR::down_cast<ASR::expr_t>(
+                ASR::make_ConstantInteger_t(al, loc,
+                a_kind, real_type));
+        } else {
+            throw SemanticError("integer_int_kind() must have one integer argument", loc);
         }
     }
 

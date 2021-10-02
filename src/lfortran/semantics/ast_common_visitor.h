@@ -982,27 +982,9 @@ public:
                     || var_name == "tiny"
                     || var_name == "int"
                     || var_name == "char"
+                    || var_name == "selected_int_kind"
                     ) {
                     value = e.eval(var_name, al, loc, args);
-                }
-                else if (var_name=="selected_int_kind") {
-                    ASR::expr_t* real_expr = args[0];
-                    ASR::ttype_t* real_type = LFortran::ASRUtils::expr_type(real_expr);
-                    if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*real_type)) {
-                        int64_t R = ASR::down_cast<ASR::ConstantInteger_t>(
-                            LFortran::ASRUtils::expr_value(real_expr))->m_n;
-                        int a_kind = 4;
-                        if (R < 10) {
-                            a_kind = 4;
-                        } else {
-                            a_kind = 8;
-                        }
-                        value = ASR::down_cast<ASR::expr_t>(
-                            ASR::make_ConstantInteger_t(al, loc,
-                            a_kind, real_type));
-                    } else {
-                        throw SemanticError("integer_int_kind() must have one integer argument", loc);
-                    }
                 }
                 else if (var_name=="selected_real_kind") {
                     // TODO: Be more standards compliant 16.9.170
