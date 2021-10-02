@@ -977,10 +977,10 @@ public:
         ASR::expr_t *value = nullptr;
         switch(args.n) {
             case 1: { // Single argument intrinsics
-                if (var_name == "kind" ||
-                    var_name == "floor" ||
-                    var_name == "tiny" ||
-                    var_name == "int"
+                if (   var_name == "kind"
+                    || var_name == "floor"
+                    || var_name == "tiny"
+                    || var_name == "int"
                     ) {
                     value = e.eval(var_name, al, loc, args);
                 }
