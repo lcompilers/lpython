@@ -513,3 +513,11 @@ LFORTRAN_API int32_t _lfortran_iand32(int32_t x, int32_t y) {
 LFORTRAN_API int64_t _lfortran_iand64(int64_t x, int64_t y) {
     return x & y;
 }
+
+LFORTRAN_API int32_t _lfortran_ior32(int32_t x, int32_t y) {
+    return x | y;
+}
+
+LFORTRAN_API int64_t _lfortran_ior64(int64_t x, int64_t y) {
+    return x | y;
+}

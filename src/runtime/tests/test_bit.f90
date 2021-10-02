@@ -1,5 +1,5 @@
 program test_bit
-use lfortran_intrinsic_bit, only: iand
+use lfortran_intrinsic_bit, only: iand, ior
 implicit none
 
 integer(kind=4) :: a
@@ -15,5 +15,13 @@ if (iand(a, b) /= 0) error stop
 x = 3
 y = 1
 if (iand(x, y) /= 1) error stop
+
+a = 1
+b = 2
+if (ior(a, b) /= 3) error stop
+
+x = 2
+y = 3
+if (ior(x, y) /= 3) error stop
 
 end program
