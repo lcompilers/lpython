@@ -972,8 +972,8 @@ public:
     ASR::expr_t *intrinsic_function_evaluation(const Location &loc,
             const ASR::Function_t &f, Vec<ASR::expr_t*> &args) {
         LFORTRAN_ASSERT(ASRUtils::is_intrinsic_function(&f));
-        ComptimeEval e;
-        return e.eval(f.m_name, al, loc, args);
+        Intrinsics e;
+        return e.comptime_eval(f.m_name, al, loc, args);
     }
 
     int select_generic_procedure(const Vec<ASR::expr_t*> &args,
