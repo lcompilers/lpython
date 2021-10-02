@@ -704,7 +704,7 @@ public:
     }
 
     ASR::symbol_t* resolve_intrinsic_function(const Location &loc, std::string &remote_sym) {
-        std::string module_name = intrinsic_procedures[remote_sym];
+        std::string module_name = intrinsic_procedures2.get_module(remote_sym, loc);
 
         SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
         ASR::Module_t *m = ASRUtils::load_module(al, tu_symtab, module_name,

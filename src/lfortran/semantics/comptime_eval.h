@@ -88,7 +88,7 @@ struct IntrinsicProcedures {
     }
 
 
-    std::string get_intrinsic_module(std::string name, const Location &loc) const {
+    std::string get_module(std::string name, const Location &loc) const {
         auto search = comptime_eval_map.find(name);
         if (search != comptime_eval_map.end()) {
             std::string module_name = std::get<0>(search->second);
