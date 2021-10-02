@@ -9,9 +9,9 @@
 
 namespace LFortran {
 
-struct ComptimeEval {
+struct Intrinsics {
 
-    static ASR::expr_t *eval(std::string name, Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+    static ASR::expr_t *comptime_eval(std::string name, Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
         typedef ASR::expr_t* (*const comptime_eval_callback)(Allocator &, const Location &, Vec<ASR::expr_t*> &);
         /*
             The last parameter is true if the callback accepts evaluated arguments.
@@ -24,36 +24,70 @@ struct ComptimeEval {
             If false, the arguments might not be compile time values. The
             callback can return nullptr if it cannot evaluate itself.
         */
-        const static std::map<std::string, std::pair<comptime_eval_callback, bool>> comptime_eval_map = {
-            // Arguments can be evaluated or not
-            {"kind", {&eval_kind, false}},
-            {"tiny", {&eval_tiny, false}},
-            {"int", {&eval_int, false}},
+        const std::string m_kind = "lfortran_intrinsic_kind";
+        const std::string m_array = "lfortran_intrinsic_array";
+        const std::string m_trig = "lfortran_intrinsic_trig";
+        const std::string m_math = "lfortran_intrinsic_math";
+        const std::string m_math2 = "lfortran_intrinsic_math2";
+        const std::string m_string = "lfortran_intrinsic_string";
+        const std::string m_bit = "lfortran_intrinsic_bit";
 
-            // Require evalated arguments
-            {"char", {&eval_char, true}},
-            {"floor", {&eval_floor, true}},
-            {"sin", {&eval_sin, true}},
-            {"selected_int_kind", {&eval_selected_int_kind, true}},
-            {"selected_real_kind", {&eval_selected_real_kind, true}},
+        const static std::map<std::string, std::tuple<std::string, comptime_eval_callback, bool>> comptime_eval_map = {
+            // Arguments can be evaluated or not
+            {"kind", {m_kind, &eval_kind, false}},
+            {"tiny", {m_array, &eval_tiny, false}},
+            {"int", {m_array, &eval_int, false}},
+            {"real", {m_array, &not_implemented, false}}, // Implemented separately
+
+            // Require evaluated arguments
+            {"char", {m_array, &eval_char, true}},
+            {"floor", {m_array, &eval_floor, true}},
+            {"selected_int_kind", {m_kind, &eval_selected_int_kind, true}},
+            {"selected_real_kind", {m_kind, &eval_selected_real_kind, true}},
+            {"sin", {m_trig, &eval_sin, true}},
+            {"exp", {m_math, &not_implemented, false}},
+            {"log", {m_math, &not_implemented, false}},
+            {"erf", {m_math, &not_implemented, false}},
+            {"cos", {m_math, &not_implemented, false}},
+            {"tan", {m_math, &not_implemented, false}},
+            {"sinh", {m_math, &not_implemented, false}},
+            {"cosh", {m_math, &not_implemented, false}},
+            {"tanh", {m_math, &not_implemented, false}},
+            {"asin", {m_math, &not_implemented, false}},
+            {"acos", {m_math, &not_implemented, false}},
+            {"atan", {m_math, &not_implemented, false}},
+            {"atan2", {m_math, &not_implemented, false}},
+            {"asinh", {m_math, &not_implemented, false}},
+            {"acosh", {m_math, &not_implemented, false}},
+            {"atanh", {m_math, &not_implemented, false}},
+            {"sqrt", {m_math2, &not_implemented, false}},
+            {"iand", {m_bit, &not_implemented, false}},
 
             // These will fail if used in symbol table visitor, but will be
             // left unevaluated in body visitor
-            {"trim", {&not_implemented, false}},
-            {"len_trim", {&not_implemented, false}},
-            {"len", {&not_implemented, false}},
-            {"size", {&not_implemented, false}},
-            {"present", {&not_implemented, false}},
-            {"min", {&not_implemented, false}},
-            {"max", {&not_implemented, false}},
-            {"lbound", {&not_implemented, false}},
-            {"ubound", {&not_implemented, false}},
+            {"trim", {m_string, &not_implemented, false}},
+            {"len_trim", {m_string, &not_implemented, false}},
+            {"len", {m_array, &not_implemented, false}},
+            {"size", {m_array, &not_implemented, false}},
+            {"present", {m_array, &not_implemented, false}},
+            {"min", {m_array, &not_implemented, false}},
+            {"max", {m_array, &not_implemented, false}},
+            {"lbound", {m_array, &not_implemented, false}},
+            {"ubound", {m_array, &not_implemented, false}},
+            {"allocated", {"m_array", &not_implemented, false}},
+            {"minval", {m_array, &not_implemented, false}},
+            {"maxval", {m_array, &not_implemented, false}},
+            {"sum", {m_array, &not_implemented, false}},
+            {"abs", {m_math2, &not_implemented, false}},
+            {"aimag", {m_math2, &not_implemented, false}},
+            {"modulo", {m_math2, &not_implemented, false}},
+
         };
 
         auto search = comptime_eval_map.find(name);
         if (search != comptime_eval_map.end()) {
-            comptime_eval_callback cb = search->second.first;
-            bool eval_args = search->second.second;
+            comptime_eval_callback cb = std::get<1>(search->second);
+            bool eval_args = std::get<2>(search->second);
             if (eval_args) {
                 Vec<ASR::expr_t*> arg_values = ASRUtils::get_arg_values(al, args);
                 if (arg_values.size() != args.size()) return nullptr;
