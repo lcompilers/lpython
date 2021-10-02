@@ -633,6 +633,7 @@ public:
     SymbolTable *current_scope;
     ASR::Module_t *current_module = nullptr;
     Vec<char *> current_module_dependencies;
+    IntrinsicProcedures intrinsic_procedures2;
 
     CommonVisitor(Allocator &al, SymbolTable *symbol_table) : al{al}, current_scope{symbol_table} {
         current_module_dependencies.reserve(al, 4);
@@ -972,8 +973,7 @@ public:
     ASR::expr_t *intrinsic_function_evaluation(const Location &loc,
             const ASR::Function_t &f, Vec<ASR::expr_t*> &args) {
         LFORTRAN_ASSERT(ASRUtils::is_intrinsic_function(&f));
-        Intrinsics e;
-        return e.comptime_eval(f.m_name, al, loc, args);
+        return intrinsic_procedures2.comptime_eval(f.m_name, al, loc, args);
     }
 
     int select_generic_procedure(const Vec<ASR::expr_t*> &args,
