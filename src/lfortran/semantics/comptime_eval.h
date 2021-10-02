@@ -25,15 +25,29 @@ struct ComptimeEval {
             callback can return nullptr if it cannot evaluate itself.
         */
         const static std::map<std::string, std::pair<comptime_eval_callback, bool>> comptime_eval_map = {
+            // Arguments can be evaluated or not
             {"kind", {&eval_kind, false}},
             {"tiny", {&eval_tiny, false}},
             {"int", {&eval_int, false}},
 
+            // Require evalated arguments
             {"char", {&eval_char, true}},
             {"floor", {&eval_floor, true}},
             {"sin", {&eval_sin, true}},
             {"selected_int_kind", {&eval_selected_int_kind, true}},
             {"selected_real_kind", {&eval_selected_real_kind, true}},
+
+            // These will fail if used in symbol table visitor, but will be
+            // left unevaluated in body visitor
+            {"trim", {&not_implemented, false}},
+            {"len_trim", {&not_implemented, false}},
+            {"len", {&not_implemented, false}},
+            {"size", {&not_implemented, false}},
+            {"present", {&not_implemented, false}},
+            {"min", {&not_implemented, false}},
+            {"max", {&not_implemented, false}},
+            {"lbound", {&not_implemented, false}},
+            {"ubound", {&not_implemented, false}},
         };
 
         auto search = comptime_eval_map.find(name);
@@ -212,6 +226,11 @@ struct ComptimeEval {
         } else {
             throw SemanticError("int must have only one argument", loc);
         }
+    }
+
+    static ASR::expr_t *not_implemented(Allocator &/*al*/, const Location &/*loc*/, Vec<ASR::expr_t*> &/*args*/) {
+        // This intrinsic is not evaluated at compile time yet
+        return nullptr;
     }
 
     static ASR::expr_t *eval_char(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
