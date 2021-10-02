@@ -972,35 +972,8 @@ public:
     ASR::expr_t *intrinsic_function_evaluation(const Location &loc,
             const ASR::Function_t &f, Vec<ASR::expr_t*> &args) {
         LFORTRAN_ASSERT(ASRUtils::is_intrinsic_function(&f));
-        std::string var_name = f.m_name;
         ComptimeEval e;
-        ASR::expr_t *value = nullptr;
-        switch(args.n) {
-            case 1: { // Single argument intrinsics
-                value = e.eval(var_name, al, loc, args);
-                break;
-            }
-            default:  {
-                // TODO: e.g. "y = min(y, pi - y)" comes here (we have to implement
-                // it):
-                return value;
-                throw SemanticError("Function '" + var_name + "' with " + std::to_string(args.n) +
-                        " arguments not supported yet",
-                        loc);
-            }
-        }
-        /*
-        if (value == nullptr) {
-            if (ASRUtils::all_args_have_value(args)) {
-                // If all arguments are known at compile time (have `value`)
-                // then it must be possible to evaluate the intrinsic function
-                // at compile time. It is just not implemented yet:
-                throw SemanticError("Intrinsic function '" + var_name + "' compile time evaluation is not implemened yet",
-                        loc);
-            }
-        }
-        */
-        return value;
+        return e.eval(f.m_name, al, loc, args);
     }
 
     int select_generic_procedure(const Vec<ASR::expr_t*> &args,

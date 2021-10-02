@@ -44,6 +44,10 @@ struct ComptimeEval {
             {"len", {&not_implemented, false}},
             {"size", {&not_implemented, false}},
             {"present", {&not_implemented, false}},
+            {"min", {&not_implemented, false}},
+            {"max", {&not_implemented, false}},
+            {"lbound", {&not_implemented, false}},
+            {"ubound", {&not_implemented, false}},
         };
 
         auto search = comptime_eval_map.find(name);
