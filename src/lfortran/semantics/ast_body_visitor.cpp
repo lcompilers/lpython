@@ -951,15 +951,7 @@ public:
             v = current_scope->resolve_symbol(var_name);
         }
         if (!v) {
-            std::string remote_sym = var_name;
-            if (intrinsic_procedures.find(remote_sym)
-                        != intrinsic_procedures.end()) {
-                v = resolve_intrinsic_function(x.base.base.loc, remote_sym);
-            } else {
-                throw SemanticError("Function or array '" + var_name +
-                                    "' not declared",
-                                x.base.base.loc);
-            }
+            v = resolve_intrinsic_function(x.base.base.loc, var_name);
         }
         switch (v->type) {
             case ASR::symbolType::ClassProcedure : {

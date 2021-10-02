@@ -87,6 +87,14 @@ struct IntrinsicProcedures {
         };
     }
 
+    bool is_intrinsic(std::string name) const {
+        auto search = comptime_eval_map.find(name);
+        if (search != comptime_eval_map.end()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     std::string get_module(std::string name, const Location &loc) const {
         auto search = comptime_eval_map.find(name);
@@ -94,8 +102,8 @@ struct IntrinsicProcedures {
             std::string module_name = std::get<0>(search->second);
             return module_name;
         } else {
-            throw SemanticError("Intrinsic function '" + name
-                + "' not implemented yet",
+            throw SemanticError("Function '" + name
+                + "' not found among intrinsic procedures",
                 loc);
         }
     }
