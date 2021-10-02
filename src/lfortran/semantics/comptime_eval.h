@@ -17,13 +17,12 @@ struct ComptimeEval {
             The last parameter is true if the callback accepts evaluated arguments.
 
             If true, the arguments are first converted to their compile time
-            "values". If not possible, an error is produced in symtab mode (and
-            left unevaluated in body mode); otherwise the callback is called and
-            it always succeeds to evaluate the result at compile time.
+            "values". If not possible, nullptr is returned; otherwise the
+            callback is called and it always succeeds to evaluate the result at
+            compile time.
 
             If false, the arguments might not be compile time values. The
-            callback can return nullptr. If nullptr and symtab mode, an error is
-            produced. Otherwise the function is left unevaluated.
+            callback can return nullptr if it cannot evaluate itself.
         */
         const static std::map<std::string, std::pair<comptime_eval_callback, bool>> comptime_eval_map = {
             {"kind", {&eval_kind, false}},
