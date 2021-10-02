@@ -977,20 +977,7 @@ public:
         ASR::expr_t *value = nullptr;
         switch(args.n) {
             case 1: { // Single argument intrinsics
-                if (   var_name == "kind"
-                    || var_name == "floor"
-                    || var_name == "tiny"
-                    || var_name == "int"
-                    || var_name == "char"
-                    || var_name == "selected_int_kind"
-                    || var_name == "selected_real_kind"
-                    ) {
-                    value = e.eval(var_name, al, loc, args);
-                } else {
-                    // TODO: e.g. "if (len_trim(s1) /= 4) error stop" comes here
-                    // (we have to implement it):
-                    return value;
-                }
+                value = e.eval(var_name, al, loc, args);
                 break;
             }
             default:  {
@@ -1002,6 +989,7 @@ public:
                         loc);
             }
         }
+        /*
         if (value == nullptr) {
             if (ASRUtils::all_args_have_value(args)) {
                 // If all arguments are known at compile time (have `value`)
@@ -1011,6 +999,7 @@ public:
                         loc);
             }
         }
+        */
         return value;
     }
 
