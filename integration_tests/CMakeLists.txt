@@ -200,6 +200,7 @@ RUN(NAME intrinsics_16 LABELS gfortran) # aimag
 RUN(NAME intrinsics_17 LABELS gfortran llvm) # exp, log, erf
 RUN(NAME intrinsics_18 LABELS gfortran llvm)
 RUN(NAME intrinsics_19 LABELS gfortran llvm)
+RUN(NAME intrinsics_20 LABELS gfortran llvm)
 RUN(NAME intrinsics_open_close_read_write LABELS gfortran)
 
 RUN(NAME parameter_01 LABELS gfortran)
