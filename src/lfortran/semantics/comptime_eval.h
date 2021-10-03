@@ -65,6 +65,7 @@ struct IntrinsicProcedures {
             {"atanh", {m_math, &not_implemented, false}},
             {"sqrt", {m_math2, &not_implemented, false}},
             {"iand", {m_bit, &not_implemented, false}},
+            {"ior", {m_bit, &not_implemented, false}},
 
             // These will fail if used in symbol table visitor, but will be
             // left unevaluated in body visitor
