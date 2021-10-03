@@ -1074,7 +1074,7 @@ public:
                         if (intrinsic_function_transformation(al, x.base.base.loc, f->m_name, args)) {
                             return;
                         } else {
-                            value = intrinsic_function_evaluation(x.base.base.loc, *f, args);
+                            value = intrinsic_procedures.comptime_eval(f->m_name, al, x.base.base.loc, args);
                         }
                     }
                     tmp = ASR::make_FunctionCall_t(al, x.base.base.loc,

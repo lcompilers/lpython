@@ -926,15 +926,6 @@ public:
         }
     }
 
-    // Evaluates an intrinsic function call at compile time. If it cannot
-    // be done, returns nullptr.
-    // `f` must be an intrinsic function
-    ASR::expr_t *intrinsic_function_evaluation(const Location &loc,
-            const ASR::Function_t &f, Vec<ASR::expr_t*> &args) {
-        LFORTRAN_ASSERT(ASRUtils::is_intrinsic_function(&f));
-        return intrinsic_procedures.comptime_eval(f.m_name, al, loc, args);
-    }
-
     int select_generic_procedure(const Vec<ASR::expr_t*> &args,
             const ASR::GenericProcedure_t &p, Location loc) {
         for (size_t i=0; i < p.n_procs; i++) {
