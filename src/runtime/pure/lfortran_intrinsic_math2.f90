@@ -19,6 +19,10 @@ interface floor
     module procedure sfloor, dfloor
 end interface
 
+interface nint
+    module procedure snint, dnint
+end interface
+
 interface modulo
     module procedure imodulo, smodulo, dmodulo
 end interface
@@ -107,6 +111,26 @@ if (x >= 0) then
     r = x
 else
     r = x-1
+end if
+end function
+
+! nint ------------------------------------------------------------------------
+
+elemental integer function snint(x) result(r)
+real(sp), intent(in) :: x
+if (x >= 0) then
+    r = x+0.5_sp
+else
+    r = x-1-0.5_sp
+end if
+end function
+
+elemental integer function dnint(x) result(r)
+real(dp), intent(in) :: x
+if (x >= 0) then
+    r = x+0.5_dp
+else
+    r = x-1-0.5_dp
 end if
 end function
 
