@@ -850,13 +850,37 @@ public:
         Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
         ASR::symbol_t *s = ASRUtils::symbol_get_past_external(v);
         ASR::symbol_t *orig_s = nullptr;
+        ASR::symbol_t *final_sym = v;
         if (ASR::is_a<ASR::GenericProcedure_t>(*s)) {
-            // TODO: if `v` was external we need to repack it to point to the
-            // actual function as ExternalSymbol, not GenericProcedure
-            ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(s);
-            int idx = select_generic_procedure(args, *p, x.base.base.loc);
+            ASR::GenericProcedure_t *g = ASR::down_cast<ASR::GenericProcedure_t>(s);
+            int idx = select_generic_procedure(args, *g, x.base.base.loc);
             orig_s = s;
-            s = p->m_procs[idx];
+            s = g->m_procs[idx];
+
+            // Repack the final_sym
+            final_sym = s;
+            // TODO: handle the case when `v` is not an ExternalSymbol
+            ASR::ExternalSymbol_t *p = ASR::down_cast<ASR::ExternalSymbol_t>(v);
+            std::string local_sym = std::string(p->m_name) + "@"
+                + LFortran::ASRUtils::symbol_name(final_sym);
+            if (current_scope->scope.find(local_sym)
+                == current_scope->scope.end()) {
+                Str name;
+                name.from_str(al, local_sym);
+                char *cname = name.c_str(al);
+                ASR::asr_t *sub = ASR::make_ExternalSymbol_t(
+                    al, g->base.base.loc,
+                    /* a_symtab */ current_scope,
+                    /* a_name */ cname,
+                    final_sym,
+                    p->m_module_name, nullptr, 0, LFortran::ASRUtils::symbol_name(final_sym),
+                    ASR::accessType::Private
+                    );
+                final_sym = ASR::down_cast<ASR::symbol_t>(sub);
+                current_scope->scope[local_sym] = final_sym;
+            } else {
+                final_sym = current_scope->scope[local_sym];
+            }
         }
         ASR::expr_t *value = nullptr;
         if (ASR::is_a<ASR::Variable_t>(*s)) {
@@ -877,14 +901,14 @@ public:
                 if (intrinsic_function_transformation(al, x.base.base.loc, f->m_name, args)) {
                     return;
                 } else {
-                    value = intrinsic_procedures.comptime_eval(f->m_name, al, x.base.base.loc, args);
+                    value = intrinsic_procedures.comptime_eval(var_name, al, x.base.base.loc, args);
                 }
             }
         } else {
             throw SemanticError("Expected a function call or an array", x.base.base.loc);
         }
         ASR::ttype_t *type = ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(s)->m_return_var)->m_type;
-        tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, v, orig_s,
+        tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, final_sym, orig_s,
             args.p, args.size(), nullptr, 0, type, value, nullptr);
     }
 
