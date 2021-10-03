@@ -199,12 +199,9 @@ return:                                           ; preds = %.entry
 define i32 @main() {
 .entry:
   %x = alloca double, align 8
-  %0 = alloca double, align 8
-  store double 1.500000e+00, double* %0, align 8
-  %1 = call double @__module_lfortran_intrinsic_trig_dsin(double* %0)
-  store double %1, double* %x, align 8
-  %2 = load double, double* %x, align 8
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @0, i32 0, i32 0), double %2)
+  store double 0x3FEFEB7A9B2C6D8B, double* %x, align 8
+  %0 = load double, double* %x, align 8
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @0, i32 0, i32 0), double %0)
   ret i32 0
 }
 

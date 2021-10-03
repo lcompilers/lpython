@@ -929,6 +929,19 @@ public:
             final_sym = current_scope->scope[local_sym];
         }
         ASR::expr_t *value = nullptr;
+        ASR::symbol_t* final_sym2 = LFortran::ASRUtils::symbol_get_past_external(final_sym);
+        if (ASR::is_a<ASR::Function_t>(*final_sym2)) {
+            ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(final_sym2);
+            if (ASRUtils::is_intrinsic_function(f)) {
+                ASR::symbol_t* v2 = LFortran::ASRUtils::symbol_get_past_external(v);
+                ASR::GenericProcedure_t *gp = ASR::down_cast<ASR::GenericProcedure_t>(v2);
+                if (intrinsic_function_transformation(al, x.base.base.loc, gp->m_name, args)) {
+                    return;
+                } else {
+                    value = intrinsic_procedures.comptime_eval(gp->m_name, al, x.base.base.loc, args);
+                }
+            }
+        }
         tmp = ASR::make_FunctionCall_t(al, x.base.base.loc,
             final_sym, v, args.p, args.size(), nullptr, 0, return_type,
             value, nullptr);
@@ -1071,10 +1084,10 @@ public:
                     ASR::expr_t* value = nullptr;
                     ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(f2);
                     if (ASRUtils::is_intrinsic_function(f)) {
-                        if (intrinsic_function_transformation(al, x.base.base.loc, *f, args)) {
+                        if (intrinsic_function_transformation(al, x.base.base.loc, f->m_name, args)) {
                             return;
                         } else {
-                            value = intrinsic_function_evaluation(x.base.base.loc, *f, args);
+                            value = intrinsic_procedures.comptime_eval(f->m_name, al, x.base.base.loc, args);
                         }
                     }
                     tmp = ASR::make_FunctionCall_t(al, x.base.base.loc,

@@ -28,13 +28,10 @@ declare float @_lfortran_scos(float)
 define i32 @main() {
 .entry:
   %x = alloca float, align 4
-  %0 = alloca float, align 4
-  store float 9.500000e+00, float* %0, align 4
-  %1 = call float @__module_lfortran_intrinsic_math_scos(float* %0)
-  store float %1, float* %x, align 4
-  %2 = load float, float* %x, align 4
-  %3 = fpext float %2 to double
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @1, i32 0, i32 0), double %3)
+  store float 0xBFEFE8D5A0000000, float* %x, align 4
+  %0 = load float, float* %x, align 4
+  %1 = fpext float %0 to double
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @1, i32 0, i32 0), double %1)
   ret i32 0
 }
 

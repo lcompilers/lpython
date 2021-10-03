@@ -47,11 +47,11 @@ struct IntrinsicProcedures {
             {"floor", {m_array, &eval_floor, true}},
             {"selected_int_kind", {m_kind, &eval_selected_int_kind, true}},
             {"selected_real_kind", {m_kind, &eval_selected_real_kind, true}},
-            {"sin", {m_trig, &eval_sin, true}},
             {"exp", {m_math, &not_implemented, false}},
             {"log", {m_math, &not_implemented, false}},
             {"erf", {m_math, &not_implemented, false}},
-            {"cos", {m_math, &not_implemented, false}},
+            {"sin", {m_trig, &eval_sin, true}},
+            {"cos", {m_math, &eval_cos, true}},
             {"tan", {m_math, &not_implemented, false}},
             {"sinh", {m_math, &not_implemented, false}},
             {"cosh", {m_math, &not_implemented, false}},
@@ -257,6 +257,47 @@ struct IntrinsicProcedures {
             }
         } else {
             throw SemanticError("Argument for sin must be Real", loc);
+        }
+    }
+
+    static ASR::expr_t *eval_cos(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        // TODO: this is already double precision --- possibly
+        // pass the original GenericProcedure
+        if (args.size() != 1) {
+            throw SemanticError("Intrinsic function cos accepts exactly 1 argument", loc);
+        }
+        ASR::expr_t* cos_arg = args[0];
+        ASR::ttype_t* t = LFortran::ASRUtils::expr_type(args[0]);
+        int k = ASRUtils::extract_kind_from_ttype_t(t);
+        if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*t)) {
+            if (k == 4) {
+                float rv = ASR::down_cast<ASR::ConstantReal_t>(cos_arg)->m_r;
+                float val = cos(rv);
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t));
+            } else {
+                double rv = ASR::down_cast<ASR::ConstantReal_t>(cos_arg)->m_r;
+                double val = cos(rv);
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t));
+            }
+        } else if (LFortran::ASR::is_a<LFortran::ASR::Complex_t>(*t)) {
+            if (k == 4) {
+                return nullptr;
+                /*
+                float rv = ASR::down_cast<ASR::ConstantComplex_t>(cos_arg)->m_r;
+                float val = cos(rv);
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t));
+                */
+            } else {
+                return nullptr;
+                /*
+                double rv = ASR::down_cast<ASR::ConstantComplex_t>(cos_arg)->m_r;
+                double val = cos(rv);
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t));
+                */
+            }
+        } else {
+            throw SemanticError("Argument for cos must be Real or Complex", loc);
         }
     }
 
