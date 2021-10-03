@@ -194,7 +194,7 @@ RUN(NAME intrinsics_10 LABELS gfortran llvm) # real body
 RUN(NAME intrinsics_11 LABELS gfortran llvm) # real symboltable
 RUN(NAME intrinsics_12 LABELS gfortran llvm) # kind body
 RUN(NAME intrinsics_13 LABELS gfortran) # kind symboltable
-RUN(NAME intrinsics_14 LABELS gfortran) # selected_real,int_kind body
+RUN(NAME intrinsics_14 LABELS gfortran llvm) # selected_real,int_kind body
 RUN(NAME intrinsics_15 LABELS gfortran llvm) # real
 RUN(NAME intrinsics_16 LABELS gfortran) # aimag
 RUN(NAME intrinsics_17 LABELS gfortran llvm) # exp, log, erf
