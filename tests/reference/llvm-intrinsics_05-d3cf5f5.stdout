@@ -60,27 +60,18 @@ declare float @_lfortran_stanh(float)
 define i32 @main() {
 .entry:
   %x = alloca float, align 4
-  %0 = alloca float, align 4
-  store float 1.000000e+00, float* %0, align 4
-  %1 = call float @__module_lfortran_intrinsic_math_ssinh(float* %0)
-  store float %1, float* %x, align 4
+  store float 0x3FF2CD9FC0000000, float* %x, align 4
+  %0 = load float, float* %x, align 4
+  %1 = fpext float %0 to double
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @1, i32 0, i32 0), double %1)
+  store float 0x3FF8B07560000000, float* %x, align 4
   %2 = load float, float* %x, align 4
   %3 = fpext float %2 to double
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @1, i32 0, i32 0), double %3)
-  %4 = alloca float, align 4
-  store float 1.000000e+00, float* %4, align 4
-  %5 = call float @__module_lfortran_intrinsic_math_scosh(float* %4)
-  store float %5, float* %x, align 4
-  %6 = load float, float* %x, align 4
-  %7 = fpext float %6 to double
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @2, i32 0, i32 0), double %7)
-  %8 = alloca float, align 4
-  store float 1.000000e+00, float* %8, align 4
-  %9 = call float @__module_lfortran_intrinsic_math_stanh(float* %8)
-  store float %9, float* %x, align 4
-  %10 = load float, float* %x, align 4
-  %11 = fpext float %10 to double
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @3, i32 0, i32 0), double %11)
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @2, i32 0, i32 0), double %3)
+  store float 0x3FE85EFAC0000000, float* %x, align 4
+  %4 = load float, float* %x, align 4
+  %5 = fpext float %4 to double
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @3, i32 0, i32 0), double %5)
   ret i32 0
 }
 
