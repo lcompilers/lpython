@@ -337,9 +337,6 @@ struct IntrinsicProcedures {
     static ASR::expr_t *eval_erfc(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
         return eval_trig(al, loc, args, &erfc);
     }
-    static ASR::expr_t *eval_abs(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        return eval_trig(al, loc, args, &abs);
-    }
     static ASR::expr_t *eval_sqrt(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
         return eval_trig(al, loc, args, &sqrt);
     }
@@ -354,6 +351,30 @@ struct IntrinsicProcedures {
     }
     static ASR::expr_t *eval_atan2(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
         return eval_2args(al, loc, args, &atan2);
+    }
+
+    static ASR::expr_t *eval_abs(Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args
+            ) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        if (args.size() != 1) {
+            throw SemanticError("Intrinsic trig function accepts exactly 1 argument", loc);
+        }
+        ASR::expr_t* trig_arg = args[0];
+        ASR::ttype_t* t = LFortran::ASRUtils::expr_type(args[0]);
+        if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*t)) {
+            double rv = ASR::down_cast<ASR::ConstantReal_t>(trig_arg)->m_r;
+            double val = abs(rv);
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t));
+        } else if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*t)) {
+            int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(trig_arg)->m_n;
+            int64_t val = abs(rv);
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, val, t));
+        } else if (LFortran::ASR::is_a<LFortran::ASR::Complex_t>(*t)) {
+            return nullptr;
+        } else {
+            throw SemanticError("Argument of the abs function must be Integer, Real or Complex", loc);
+        }
     }
 
     static ASR::expr_t *eval_int(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
