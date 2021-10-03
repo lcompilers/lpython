@@ -9,4 +9,5 @@ program intrinsics_14
   print*,selected_real_kind(5_4) ! 4
   print*,selected_real_kind(5_8) ! 4
   print*,selected_real_kind(8) ! 8
+  print*,selected_char_kind("default") ! 1
 end program
