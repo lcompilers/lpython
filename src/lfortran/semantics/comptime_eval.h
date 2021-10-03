@@ -51,7 +51,7 @@ struct IntrinsicProcedures {
             {"log", {m_math, &not_implemented, false}},
             {"erf", {m_math, &not_implemented, false}},
             {"sin", {m_trig, &eval_sin, true}},
-            {"cos", {m_math, &eval_cos, false}},
+            {"cos", {m_math, &eval_cos, true}},
             {"tan", {m_math, &not_implemented, false}},
             {"sinh", {m_math, &not_implemented, false}},
             {"cosh", {m_math, &not_implemented, false}},
@@ -279,8 +279,24 @@ struct IntrinsicProcedures {
                 double val = cos(rv);
                 return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t));
             }
+        } else if (LFortran::ASR::is_a<LFortran::ASR::Complex_t>(*t)) {
+            if (k == 4) {
+                return nullptr;
+                /*
+                float rv = ASR::down_cast<ASR::ConstantComplex_t>(cos_arg)->m_r;
+                float val = cos(rv);
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t));
+                */
+            } else {
+                return nullptr;
+                /*
+                double rv = ASR::down_cast<ASR::ConstantComplex_t>(cos_arg)->m_r;
+                double val = cos(rv);
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t));
+                */
+            }
         } else {
-            throw SemanticError("Argument for cos must be Real", loc);
+            throw SemanticError("Argument for cos must be Real or Complex", loc);
         }
     }
 
