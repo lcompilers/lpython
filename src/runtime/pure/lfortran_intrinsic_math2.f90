@@ -27,6 +27,10 @@ interface modulo
     module procedure imodulo, smodulo, dmodulo
 end interface
 
+interface mod
+    module procedure imod, smod, dmod
+end interface
+
 contains
 
 ! abs --------------------------------------------------------------------------
@@ -149,6 +153,32 @@ end function
 elemental real(dp) function dmodulo(x, y) result(r)
 real(dp), intent(in) :: x, y
 r = x-floor(x/y)*y
+end function
+
+! mod --------------------------------------------------------------------------
+
+elemental integer function imod(x, y) result(r)
+integer, intent(in) :: x, y
+r = x-floor(real(x)/y)*y
+if (x < 0 .and. y < 0) return
+if (x < 0) r = r - y
+if (y < 0) r = r - y
+end function
+
+elemental real(sp) function smod(x, y) result(r)
+real(sp), intent(in) :: x, y
+r = x-floor(x/y)*y
+if (x < 0 .and. y < 0) return
+if (x < 0) r = r - y
+if (y < 0) r = r - y
+end function
+
+elemental real(dp) function dmod(x, y) result(r)
+real(dp), intent(in) :: x, y
+r = x-floor(x/y)*y
+if (x < 0 .and. y < 0) return
+if (x < 0) r = r - y
+if (y < 0) r = r - y
 end function
 
 end module
