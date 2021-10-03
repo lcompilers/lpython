@@ -31,6 +31,14 @@ interface mod
     module procedure imod, smod, dmod
 end interface
 
+interface min
+    module procedure imin, smin, dmin
+end interface
+
+interface max
+    module procedure imax, smax, dmax
+end interface
+
 contains
 
 ! abs --------------------------------------------------------------------------
@@ -179,6 +187,64 @@ r = x-floor(x/y)*y
 if (x < 0 .and. y < 0) return
 if (x < 0) r = r - y
 if (y < 0) r = r - y
+end function
+
+! min --------------------------------------------------------------------------
+
+elemental integer function imin(x, y) result(r)
+integer, intent(in) :: x, y
+if (x < y) then
+    r = x
+else
+    r = y
+end if
+end function
+
+elemental real(sp) function smin(x, y) result(r)
+real(sp), intent(in) :: x, y
+if (x < y) then
+    r = x
+else
+    r = y
+end if
+end function
+
+elemental real(dp) function dmin(x, y) result(r)
+real(dp), intent(in) :: x, y
+if (x < y) then
+    r = x
+else
+    r = y
+end if
+end function
+
+! max --------------------------------------------------------------------------
+
+elemental integer function imax(x, y) result(r)
+integer, intent(in) :: x, y
+if (x > y) then
+    r = x
+else
+    r = y
+end if
+end function
+
+elemental real(sp) function smax(x, y) result(r)
+real(sp), intent(in) :: x, y
+if (x > y) then
+    r = x
+else
+    r = y
+end if
+end function
+
+elemental real(dp) function dmax(x, y) result(r)
+real(dp), intent(in) :: x, y
+if (x > y) then
+    r = x
+else
+    r = y
+end if
 end function
 
 end module
