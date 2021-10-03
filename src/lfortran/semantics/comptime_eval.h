@@ -245,7 +245,7 @@ struct IntrinsicProcedures {
     typedef double (*trig_eval_callback_double)(double);
     static ASR::expr_t *eval_trig(Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args,
-            trig_eval_callback_single trig_single,
+            trig_eval_callback_single /*trig_single*/,
             trig_eval_callback_double trig_double
             ) {
         LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
@@ -254,23 +254,12 @@ struct IntrinsicProcedures {
         }
         ASR::expr_t* trig_arg = args[0];
         ASR::ttype_t* t = LFortran::ASRUtils::expr_type(args[0]);
-        int k = ASRUtils::extract_kind_from_ttype_t(t);
         if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*t)) {
-            if (k == 4) {
-                float rv = ASR::down_cast<ASR::ConstantReal_t>(trig_arg)->m_r;
-                float val = trig_single(rv);
-                return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t));
-            } else {
-                double rv = ASR::down_cast<ASR::ConstantReal_t>(trig_arg)->m_r;
-                double val = trig_double(rv);
-                return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t));
-            }
+            double rv = ASR::down_cast<ASR::ConstantReal_t>(trig_arg)->m_r;
+            double val = trig_double(rv);
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t));
         } else if (LFortran::ASR::is_a<LFortran::ASR::Complex_t>(*t)) {
-            if (k == 4) {
-                return nullptr;
-            } else {
-                return nullptr;
-            }
+            return nullptr;
         } else {
             throw SemanticError("Argument for trig function must be Real or Complex", loc);
         }
