@@ -845,15 +845,7 @@ public:
         std::string var_name = to_lower(x.m_func);
         ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
         if (!v) {
-            std::string remote_sym = var_name;
-            if (intrinsic_procedures.find(remote_sym)
-                        != intrinsic_procedures.end()) {
-                v = resolve_intrinsic_function(x.base.base.loc, remote_sym);
-            } else {
-                throw SemanticError("Function '" + var_name + "' not found"
-                    " or not implemented yet (if it is intrinsic)",
-                    x.base.base.loc);
-            }
+            v = resolve_intrinsic_function(x.base.base.loc, var_name);
         }
         Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
         ASR::symbol_t *s = ASRUtils::symbol_get_past_external(v);

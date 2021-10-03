@@ -9,30 +9,33 @@
 
 namespace LFortran {
 
-struct Intrinsics {
+struct IntrinsicProcedures {
 
-    static ASR::expr_t *comptime_eval(std::string name, Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        typedef ASR::expr_t* (*const comptime_eval_callback)(Allocator &, const Location &, Vec<ASR::expr_t*> &);
-        /*
-            The last parameter is true if the callback accepts evaluated arguments.
+    const std::string m_kind = "lfortran_intrinsic_kind";
+    const std::string m_array = "lfortran_intrinsic_array";
+    const std::string m_trig = "lfortran_intrinsic_trig";
+    const std::string m_math = "lfortran_intrinsic_math";
+    const std::string m_math2 = "lfortran_intrinsic_math2";
+    const std::string m_string = "lfortran_intrinsic_string";
+    const std::string m_bit = "lfortran_intrinsic_bit";
 
-            If true, the arguments are first converted to their compile time
-            "values". If not possible, nullptr is returned; otherwise the
-            callback is called and it always succeeds to evaluate the result at
-            compile time.
+    /*
+        The last parameter is true if the callback accepts evaluated arguments.
 
-            If false, the arguments might not be compile time values. The
-            callback can return nullptr if it cannot evaluate itself.
-        */
-        const std::string m_kind = "lfortran_intrinsic_kind";
-        const std::string m_array = "lfortran_intrinsic_array";
-        const std::string m_trig = "lfortran_intrinsic_trig";
-        const std::string m_math = "lfortran_intrinsic_math";
-        const std::string m_math2 = "lfortran_intrinsic_math2";
-        const std::string m_string = "lfortran_intrinsic_string";
-        const std::string m_bit = "lfortran_intrinsic_bit";
+        If true, the arguments are first converted to their compile time
+        "values". If not possible, nullptr is returned; otherwise the
+        callback is called and it always succeeds to evaluate the result at
+        compile time.
 
-        const static std::map<std::string, std::tuple<std::string, comptime_eval_callback, bool>> comptime_eval_map = {
+        If false, the arguments might not be compile time values. The
+        callback can return nullptr if it cannot evaluate itself.
+    */
+
+    typedef ASR::expr_t* (*comptime_eval_callback)(Allocator &, const Location &, Vec<ASR::expr_t*> &);
+    std::map<std::string, std::tuple<std::string, comptime_eval_callback, bool>> comptime_eval_map;
+
+    IntrinsicProcedures() {
+        comptime_eval_map = {
             // Arguments can be evaluated or not
             {"kind", {m_kind, &eval_kind, false}},
             {"tiny", {m_array, &eval_tiny, false}},
@@ -81,9 +84,31 @@ struct Intrinsics {
             {"abs", {m_math2, &not_implemented, false}},
             {"aimag", {m_math2, &not_implemented, false}},
             {"modulo", {m_math2, &not_implemented, false}},
-
         };
+    }
 
+    bool is_intrinsic(std::string name) const {
+        auto search = comptime_eval_map.find(name);
+        if (search != comptime_eval_map.end()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    std::string get_module(std::string name, const Location &loc) const {
+        auto search = comptime_eval_map.find(name);
+        if (search != comptime_eval_map.end()) {
+            std::string module_name = std::get<0>(search->second);
+            return module_name;
+        } else {
+            throw SemanticError("Function '" + name
+                + "' not found among intrinsic procedures",
+                loc);
+        }
+    }
+
+    ASR::expr_t *comptime_eval(std::string name, Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) const {
         auto search = comptime_eval_map.find(name);
         if (search != comptime_eval_map.end()) {
             comptime_eval_callback cb = std::get<1>(search->second);

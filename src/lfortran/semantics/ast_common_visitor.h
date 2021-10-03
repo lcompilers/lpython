@@ -577,52 +577,6 @@ static ASR::asr_t* comptime_intrinsic_real(ASR::expr_t *A,
 template <class Derived>
 class CommonVisitor : public AST::BaseVisitor<Derived> {
 public:
-    std::map<std::string, std::string> intrinsic_procedures = {
-        {"kind", "lfortran_intrinsic_kind"},
-        {"selected_int_kind", "lfortran_intrinsic_kind"},
-        {"selected_real_kind", "lfortran_intrinsic_kind"},
-        {"size", "lfortran_intrinsic_array"},
-        {"present", "lfortran_intrinsic_array"},
-        {"lbound", "lfortran_intrinsic_array"},
-        {"ubound", "lfortran_intrinsic_array"},
-        {"min", "lfortran_intrinsic_array"},
-        {"max", "lfortran_intrinsic_array"},
-        {"allocated", "lfortran_intrinsic_array"},
-        {"minval", "lfortran_intrinsic_array"},
-        {"maxval", "lfortran_intrinsic_array"},
-        {"real", "lfortran_intrinsic_array"},
-        {"char", "lfortran_intrinsic_array"},
-        {"floor", "lfortran_intrinsic_array"},
-        {"sum", "lfortran_intrinsic_array"},
-        {"len", "lfortran_intrinsic_array"},
-        {"abs", "lfortran_intrinsic_math2"},
-        {"aimag", "lfortran_intrinsic_math2"},
-        {"modulo", "lfortran_intrinsic_math2"},
-        {"exp", "lfortran_intrinsic_math"},
-        {"log", "lfortran_intrinsic_math"},
-        {"erf", "lfortran_intrinsic_math"},
-        {"sin", "lfortran_intrinsic_trig"},
-        {"cos", "lfortran_intrinsic_math"},
-        {"tan", "lfortran_intrinsic_math"},
-        {"sinh", "lfortran_intrinsic_math"},
-        {"cosh", "lfortran_intrinsic_math"},
-        {"tanh", "lfortran_intrinsic_math"},
-        {"asin", "lfortran_intrinsic_math"},
-        {"acos", "lfortran_intrinsic_math"},
-        {"atan", "lfortran_intrinsic_math"},
-        {"atan2", "lfortran_intrinsic_math"},
-        {"asinh", "lfortran_intrinsic_math"},
-        {"acosh", "lfortran_intrinsic_math"},
-        {"atanh", "lfortran_intrinsic_math"},
-        {"sqrt", "lfortran_intrinsic_math2"},
-        {"int", "lfortran_intrinsic_array"},
-        {"real", "lfortran_intrinsic_array"},
-        {"tiny", "lfortran_intrinsic_array"},
-        {"len_trim", "lfortran_intrinsic_string"},
-        {"trim", "lfortran_intrinsic_string"},
-        {"iand", "lfortran_intrinsic_bit"},
-    };
-
     std::map<AST::operatorType, std::string> binop2str = {
         {AST::operatorType::Mul, "~mul"},
         {AST::operatorType::Add, "~add"},
@@ -633,6 +587,7 @@ public:
     SymbolTable *current_scope;
     ASR::Module_t *current_module = nullptr;
     Vec<char *> current_module_dependencies;
+    IntrinsicProcedures intrinsic_procedures;
 
     CommonVisitor(Allocator &al, SymbolTable *symbol_table) : al{al}, current_scope{symbol_table} {
         current_module_dependencies.reserve(al, 4);
@@ -703,7 +658,12 @@ public:
     }
 
     ASR::symbol_t* resolve_intrinsic_function(const Location &loc, std::string &remote_sym) {
-        std::string module_name = intrinsic_procedures[remote_sym];
+        if (!intrinsic_procedures.is_intrinsic(remote_sym)) {
+            throw SemanticError("Function '" + remote_sym + "' not found"
+                " or not implemented yet (if it is intrinsic)",
+                loc);
+        }
+        std::string module_name = intrinsic_procedures.get_module(remote_sym, loc);
 
         SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
         ASR::Module_t *m = ASRUtils::load_module(al, tu_symtab, module_name,
@@ -972,8 +932,7 @@ public:
     ASR::expr_t *intrinsic_function_evaluation(const Location &loc,
             const ASR::Function_t &f, Vec<ASR::expr_t*> &args) {
         LFORTRAN_ASSERT(ASRUtils::is_intrinsic_function(&f));
-        Intrinsics e;
-        return e.comptime_eval(f.m_name, al, loc, args);
+        return intrinsic_procedures.comptime_eval(f.m_name, al, loc, args);
     }
 
     int select_generic_procedure(const Vec<ASR::expr_t*> &args,
