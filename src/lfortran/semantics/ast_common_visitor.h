@@ -906,8 +906,8 @@ public:
     // Transforms intrinsics real(),int() to ImplicitCast. Return true if `f` is
     // real/int (result in `tmp`), false otherwise (`tmp` unchanged)
     bool intrinsic_function_transformation(Allocator &al, const Location &loc,
-            const ASR::Function_t &f, Vec<ASR::expr_t*> &args) {
-        if (std::string(f.m_name) == "real") {
+            const std::string &fn_name, Vec<ASR::expr_t*> &args) {
+        if (fn_name == "real") {
             // real(), int() are represented using ExplicitCast
             // (for now we use ImplicitCast) in ASR, so we save them
             // to tmp and exit:
