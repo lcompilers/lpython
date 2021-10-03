@@ -45,11 +45,18 @@ struct IntrinsicProcedures {
             // Require evaluated arguments
             {"char", {m_array, &eval_char, true}},
             {"floor", {m_array, &eval_floor, true}},
+            {"nint", {m_math2, &eval_nint, true}},
             {"selected_int_kind", {m_kind, &eval_selected_int_kind, true}},
             {"selected_real_kind", {m_kind, &eval_selected_real_kind, true}},
-            {"exp", {m_math, &not_implemented, false}},
-            {"log", {m_math, &not_implemented, false}},
-            {"erf", {m_math, &not_implemented, false}},
+            {"exp", {m_math, &eval_exp, true}},
+            {"log", {m_math, &eval_log, true}},
+            {"erf", {m_math, &eval_erf, true}},
+            {"erfc", {m_math, &eval_erfc, true}},
+            {"abs", {m_math2, &eval_abs, true}},
+            {"sqrt", {m_math, &eval_sqrt, true}},
+            {"gamma", {m_math, &eval_gamma, true}},
+            {"log_gamma", {m_math, &eval_log_gamma, true}},
+            {"log10", {m_math, &eval_log10, true}},
 
             {"sin", {m_trig, &eval_sin, true}},
             {"cos", {m_math, &eval_cos, true}},
@@ -67,8 +74,8 @@ struct IntrinsicProcedures {
             {"acosh", {m_math, &eval_acosh, true}},
             {"atanh", {m_math, &eval_atanh, true}},
 
-            {"atan2", {m_math, &not_implemented, false}},
-            {"sqrt", {m_math2, &not_implemented, false}},
+            {"atan2", {m_math, &eval_atan2, true}},
+
             {"iand", {m_bit, &not_implemented, false}},
             {"ior", {m_bit, &not_implemented, false}},
 
@@ -87,7 +94,6 @@ struct IntrinsicProcedures {
             {"minval", {m_array, &not_implemented, false}},
             {"maxval", {m_array, &not_implemented, false}},
             {"sum", {m_array, &not_implemented, false}},
-            {"abs", {m_math2, &not_implemented, false}},
             {"aimag", {m_math2, &not_implemented, false}},
             {"modulo", {m_math2, &not_implemented, false}},
         };
@@ -205,38 +211,31 @@ struct IntrinsicProcedures {
     static ASR::expr_t *eval_floor(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
         LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
         // TODO: Implement optional kind; J3/18-007r1 --> FLOOR(A, [KIND])
-        // TODO: Rip out switch to work with optional arguments
         ASR::expr_t* func_expr = args[0];
         ASR::ttype_t* func_type = LFortran::ASRUtils::expr_type(func_expr);
-        int func_kind = ASRUtils::extract_kind_from_ttype_t(func_type);
-        int64_t ival {0};
         if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*func_type)) {
-            if (func_kind == 4){
-                float rv = ASR::down_cast<ASR::ConstantReal_t>(func_expr)->m_r;
-                if (rv<0) {
-                    // negative number
-                    // floor -> integer(|x|+1)
-                    ival = static_cast<int64_t>(rv-1);
-                } else {
-                        // positive, floor -> integer(x)
-                        ival = static_cast<int64_t>(rv);
-                    }
-                    return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, ival,func_type));
-                } else {
-                    double rv = ASR::down_cast<ASR::ConstantReal_t>(func_expr)->m_r;
-                    int64_t ival = static_cast<int64_t>(rv);
-                    if (rv<0) {
-                        // negative number
-                        // floor -> integer(x+1)
-                        ival = static_cast<int64_t>(rv+1);
-                    } else {
-                        // positive, floor -> integer(x)
-                        ival = static_cast<int64_t>(rv);
-                    }
-                    return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, ival,func_type));
-            }
+            double rv = ASR::down_cast<ASR::ConstantReal_t>(func_expr)->m_r;
+            int64_t ival = floor(rv);
+            ASR::ttype_t *type = LFortran::ASRUtils::TYPE(
+                    ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, ival, type));
         } else {
             throw SemanticError("floor must have one real argument", loc);
+        }
+    }
+
+    static ASR::expr_t *eval_nint(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        ASR::expr_t* func_expr = args[0];
+        ASR::ttype_t* func_type = LFortran::ASRUtils::expr_type(func_expr);
+        if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*func_type)) {
+            double rv = ASR::down_cast<ASR::ConstantReal_t>(func_expr)->m_r;
+            int64_t ival = round(rv);
+            ASR::ttype_t *type = LFortran::ASRUtils::TYPE(
+                    ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, ival, type));
+        } else {
+            throw SemanticError("nint must have one real argument", loc);
         }
     }
 
@@ -260,6 +259,29 @@ struct IntrinsicProcedures {
             return nullptr;
         } else {
             throw SemanticError("Argument for trig function must be Real or Complex", loc);
+        }
+    }
+
+    typedef double (*eval2_callback_double)(double, double);
+    static ASR::expr_t *eval_2args(Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args,
+            eval2_callback_double eval2_double
+            ) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        if (args.size() != 2) {
+            throw SemanticError("This intrinsic function accepts exactly 2 arguments", loc);
+        }
+        ASR::expr_t* trig_arg1 = args[0];
+        ASR::ttype_t* t1 = LFortran::ASRUtils::expr_type(args[0]);
+        ASR::expr_t* trig_arg2 = args[1];
+        ASR::ttype_t* t2 = LFortran::ASRUtils::expr_type(args[1]);
+        if (ASR::is_a<LFortran::ASR::Real_t>(*t1) && ASR::is_a<LFortran::ASR::Real_t>(*t2)) {
+            double rv1 = ASR::down_cast<ASR::ConstantReal_t>(trig_arg1)->m_r;
+            double rv2 = ASR::down_cast<ASR::ConstantReal_t>(trig_arg2)->m_r;
+            double val = eval2_double(rv1, rv2);
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t1));
+        } else {
+            throw SemanticError("Arguments for this intrinsic function must be Real", loc);
         }
     }
 
@@ -301,6 +323,37 @@ struct IntrinsicProcedures {
     }
     static ASR::expr_t *eval_atanh(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
         return eval_trig(al, loc, args, &atanh);
+    }
+
+    static ASR::expr_t *eval_exp(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        return eval_trig(al, loc, args, &exp);
+    }
+    static ASR::expr_t *eval_log(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        return eval_trig(al, loc, args, &log);
+    }
+    static ASR::expr_t *eval_erf(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        return eval_trig(al, loc, args, &erf);
+    }
+    static ASR::expr_t *eval_erfc(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        return eval_trig(al, loc, args, &erfc);
+    }
+    static ASR::expr_t *eval_abs(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        return eval_trig(al, loc, args, &abs);
+    }
+    static ASR::expr_t *eval_sqrt(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        return eval_trig(al, loc, args, &sqrt);
+    }
+    static ASR::expr_t *eval_gamma(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        return eval_trig(al, loc, args, &tgamma);
+    }
+    static ASR::expr_t *eval_log_gamma(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        return eval_trig(al, loc, args, &lgamma);
+    }
+    static ASR::expr_t *eval_log10(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        return eval_trig(al, loc, args, &log10);
+    }
+    static ASR::expr_t *eval_atan2(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        return eval_2args(al, loc, args, &atan2);
     }
 
     static ASR::expr_t *eval_int(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {

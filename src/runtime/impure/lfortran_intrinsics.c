@@ -184,6 +184,54 @@ LFORTRAN_API double _lfortran_derf(double x)
     return erf(x);
 }
 
+// erfc ------------------------------------------------------------------------
+
+LFORTRAN_API float _lfortran_serfc(float x)
+{
+    return erfcf(x);
+}
+
+LFORTRAN_API double _lfortran_derfc(double x)
+{
+    return erfc(x);
+}
+
+// log10 -----------------------------------------------------------------------
+
+LFORTRAN_API float _lfortran_slog10(float x)
+{
+    return log10f(x);
+}
+
+LFORTRAN_API double _lfortran_dlog10(double x)
+{
+    return log10(x);
+}
+
+// gamma -----------------------------------------------------------------------
+
+LFORTRAN_API float _lfortran_sgamma(float x)
+{
+    return tgammaf(x);
+}
+
+LFORTRAN_API double _lfortran_dgamma(double x)
+{
+    return tgamma(x);
+}
+
+// gamma -----------------------------------------------------------------------
+
+LFORTRAN_API float _lfortran_slog_gamma(float x)
+{
+    return lgammaf(x);
+}
+
+LFORTRAN_API double _lfortran_dlog_gamma(double x)
+{
+    return lgamma(x);
+}
+
 // sin -------------------------------------------------------------------------
 
 LFORTRAN_API float _lfortran_ssin(float x)
