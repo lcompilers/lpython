@@ -277,43 +277,43 @@ struct IntrinsicProcedures {
     }
 
     static ASR::expr_t *eval_sin(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        return eval_trig(al, loc, args, &sin, &sin);
+        return eval_trig(al, loc, args, &sinf, &sin);
     }
     static ASR::expr_t *eval_cos(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        return eval_trig(al, loc, args, &cos, &cos);
+        return eval_trig(al, loc, args, &cosf, &cos);
     }
     static ASR::expr_t *eval_tan(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        return eval_trig(al, loc, args, &tan, &tan);
+        return eval_trig(al, loc, args, &tanf, &tan);
     }
 
     static ASR::expr_t *eval_asin(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        return eval_trig(al, loc, args, &asin, &asin);
+        return eval_trig(al, loc, args, &asinf, &asin);
     }
     static ASR::expr_t *eval_acos(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        return eval_trig(al, loc, args, &acos, &acos);
+        return eval_trig(al, loc, args, &acosf, &acos);
     }
     static ASR::expr_t *eval_atan(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        return eval_trig(al, loc, args, &atan, &atan);
+        return eval_trig(al, loc, args, &atanf, &atan);
     }
 
     static ASR::expr_t *eval_sinh(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        return eval_trig(al, loc, args, &sinh, &sinh);
+        return eval_trig(al, loc, args, &sinhf, &sinh);
     }
     static ASR::expr_t *eval_cosh(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        return eval_trig(al, loc, args, &cosh, &cosh);
+        return eval_trig(al, loc, args, &coshf, &cosh);
     }
     static ASR::expr_t *eval_tanh(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        return eval_trig(al, loc, args, &tanh, &tanh);
+        return eval_trig(al, loc, args, &tanhf, &tanh);
     }
 
     static ASR::expr_t *eval_asinh(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        return eval_trig(al, loc, args, &asinh, &asinh);
+        return eval_trig(al, loc, args, &asinhf, &asinh);
     }
     static ASR::expr_t *eval_acosh(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        return eval_trig(al, loc, args, &acosh, &acosh);
+        return eval_trig(al, loc, args, &acoshf, &acosh);
     }
     static ASR::expr_t *eval_atanh(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        return eval_trig(al, loc, args, &atanh, &atanh);
+        return eval_trig(al, loc, args, &atanhf, &atanh);
     }
 
     static ASR::expr_t *eval_int(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
