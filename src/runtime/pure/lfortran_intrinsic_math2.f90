@@ -121,7 +121,7 @@ real(sp), intent(in) :: x
 if (x >= 0) then
     r = x+0.5_sp
 else
-    r = x-1-0.5_sp
+    r = x-1+0.5_sp
 end if
 end function
 
@@ -130,7 +130,7 @@ real(dp), intent(in) :: x
 if (x >= 0) then
     r = x+0.5_dp
 else
-    r = x-1-0.5_dp
+    r = x-1+0.5_dp
 end if
 end function
 

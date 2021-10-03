@@ -13,22 +13,10 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
-int abs(const Kokkos::View<const int*> &x)
-{
-    int abs;
-    return abs;
-}
-
 bool allocated(const Kokkos::View<const int*> &x)
 {
     bool allocated;
     return allocated;
-}
-
-int floor(const Kokkos::View<const float*> &x, int kind)
-{
-    int floor;
-    return floor;
 }
 
 int lbound(const Kokkos::View<const int*> &x, int dim)

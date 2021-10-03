@@ -31,20 +31,28 @@ real(dp), parameter :: &
     d11 = acosh(1.5_dp), &
     d12 = atanh(0.5_dp)
 
-print *, sin(0.5), sin(0.5_dp), s1, d2
-print *, cos(0.5), cos(0.5_dp), s2, d2
-print *, tan(0.5), tan(0.5_dp), s3, d3
+real :: x, x2
+real(dp) :: y, y2
 
-print *, asin(0.5), asin(0.5_dp), s4, d4
-print *, acos(0.5), acos(0.5_dp), s5, d5
-print *, atan(0.5), atan(0.5_dp), s6, d6
+x = 0.5
+y = 0.5_dp
+x2 = 1.5
+y2 = 1.5_dp
 
-print *, sinh(0.5), sinh(0.5_dp), s7, d7
-print *, cosh(0.5), cosh(0.5_dp), s8, d8
-print *, tanh(0.5), tanh(0.5_dp), s9, d9
+print *, sin(0.5), sin(0.5_dp), s1, d1, sin(x), sin(y)
+print *, cos(0.5), cos(0.5_dp), s2, d2, cos(x), cos(y)
+print *, tan(0.5), tan(0.5_dp), s3, d3, tan(x), tan(y)
 
-print *, asinh(0.5), asinh(0.5_dp), s10, d10
-print *, acosh(1.5), acosh(1.5_dp), s11, d11
-print *, atanh(0.5), atanh(0.5_dp), s12, d12
+print *, asin(0.5), asin(0.5_dp), s4, d4, asin(x), asin(y)
+print *, acos(0.5), acos(0.5_dp), s5, d5, acos(x), acos(y)
+print *, atan(0.5), atan(0.5_dp), s6, d6, atan(x), atan(y)
+
+print *, sinh(0.5), sinh(0.5_dp), s7, d7, sinh(x), sinh(y)
+print *, cosh(0.5), cosh(0.5_dp), s8, d8, cosh(x), cosh(y)
+print *, tanh(0.5), tanh(0.5_dp), s9, d9, tanh(x), tanh(y)
+
+print *, asinh(0.5), asinh(0.5_dp), s10, d10, asinh(x), asinh(y)
+print *, acosh(1.5), acosh(1.5_dp), s11, d11, acosh(x2), acosh(y2)
+print *, atanh(0.5), atanh(0.5_dp), s12, d12, atanh(x), atanh(y)
 
 end
