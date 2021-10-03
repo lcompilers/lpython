@@ -46,8 +46,8 @@ struct IntrinsicProcedures {
             {"char", {m_array, &eval_char, true}},
             {"floor", {m_math2, &eval_floor, true}},
             {"nint", {m_math2, &eval_nint, true}},
-            {"mod", {m_math2, &not_implemented, false}},
-            {"modulo", {m_math2, &not_implemented, false}},
+            {"mod", {m_math2, &eval_mod, true}},
+            {"modulo", {m_math2, &eval_modulo, true}},
             {"selected_int_kind", {m_kind, &eval_selected_int_kind, true}},
             {"selected_real_kind", {m_kind, &eval_selected_real_kind, true}},
             {"exp", {m_math, &eval_exp, true}},
@@ -240,7 +240,6 @@ struct IntrinsicProcedures {
         }
     }
 
-
     typedef double (*trig_eval_callback_double)(double);
     static ASR::expr_t *eval_trig(Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args,
@@ -283,6 +282,37 @@ struct IntrinsicProcedures {
             return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t1));
         } else {
             throw SemanticError("Arguments for this intrinsic function must be Real", loc);
+        }
+    }
+
+    typedef int64_t (*eval2_callback_int)(int64_t, int64_t);
+    static ASR::expr_t *eval_2args_ri(Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args,
+            eval2_callback_double eval2_double,
+            eval2_callback_int eval2_int
+            ) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        if (args.size() != 2) {
+            throw SemanticError("This intrinsic function accepts exactly 2 arguments", loc);
+        }
+        ASR::expr_t* trig_arg1 = args[0];
+        ASR::ttype_t* t1 = LFortran::ASRUtils::expr_type(args[0]);
+        ASR::expr_t* trig_arg2 = args[1];
+        ASR::ttype_t* t2 = LFortran::ASRUtils::expr_type(args[1]);
+        if (ASR::is_a<LFortran::ASR::Real_t>(*t1) && ASR::is_a<LFortran::ASR::Real_t>(*t2)) {
+            double rv1 = ASR::down_cast<ASR::ConstantReal_t>(trig_arg1)->m_r;
+            double rv2 = ASR::down_cast<ASR::ConstantReal_t>(trig_arg2)->m_r;
+            double val = eval2_double(rv1, rv2);
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t1));
+        } else if (ASR::is_a<LFortran::ASR::Integer_t>(*t1) && ASR::is_a<LFortran::ASR::Integer_t>(*t2)) {
+            int64_t rv1 = ASR::down_cast<ASR::ConstantInteger_t>(trig_arg1)->m_n;
+            int64_t rv2 = ASR::down_cast<ASR::ConstantInteger_t>(trig_arg2)->m_n;
+            int64_t val = eval2_int(rv1, rv2);
+            ASR::ttype_t *type = LFortran::ASRUtils::TYPE(
+                    ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, val, type));
+        } else {
+            throw SemanticError("Arguments for this intrinsic function must be Real or Integer", loc);
         }
     }
 
@@ -352,6 +382,46 @@ struct IntrinsicProcedures {
     }
     static ASR::expr_t *eval_atan2(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
         return eval_2args(al, loc, args, &atan2);
+    }
+
+    static double lfortran_modulo(double x, double y) {
+        if (x > 0 && y > 0) {
+            return std::fmod(x, y);
+        } else if (x < 0 && y < 0) {
+            return -std::fmod(-x, -y);
+        } else {
+            return std::remainder(x, y);
+        }
+    }
+
+    static int64_t lfortran_modulo_i(int64_t x, int64_t y) {
+        if (x > 0 && y > 0) {
+            return std::fmod(x, y);
+        } else if (x < 0 && y < 0) {
+            return -std::fmod(-x, -y);
+        } else {
+            return std::remainder(x, y);
+        }
+    }
+
+    static double lfortran_mod(double x, double y) {
+        return std::fmod(x, y);
+    }
+
+    static int64_t lfortran_mod_i(int64_t x, int64_t y) {
+        return std::fmod(x, y);
+    }
+
+    static ASR::expr_t *eval_modulo(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        return eval_2args_ri(al, loc, args,
+            &IntrinsicProcedures::lfortran_modulo,
+            &IntrinsicProcedures::lfortran_modulo_i);
+    }
+
+    static ASR::expr_t *eval_mod(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        return eval_2args_ri(al, loc, args,
+            &IntrinsicProcedures::lfortran_mod,
+            &IntrinsicProcedures::lfortran_mod_i);
     }
 
     static ASR::expr_t *eval_abs(Allocator &al, const Location &loc,
