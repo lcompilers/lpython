@@ -46,6 +46,8 @@ struct IntrinsicProcedures {
             {"char", {m_array, &eval_char, true}},
             {"floor", {m_math2, &eval_floor, true}},
             {"nint", {m_math2, &eval_nint, true}},
+            {"mod", {m_math2, &not_implemented, false}},
+            {"modulo", {m_math2, &not_implemented, false}},
             {"selected_int_kind", {m_kind, &eval_selected_int_kind, true}},
             {"selected_real_kind", {m_kind, &eval_selected_real_kind, true}},
             {"exp", {m_math, &eval_exp, true}},
@@ -95,7 +97,6 @@ struct IntrinsicProcedures {
             {"maxval", {m_array, &not_implemented, false}},
             {"sum", {m_array, &not_implemented, false}},
             {"aimag", {m_math2, &not_implemented, false}},
-            {"modulo", {m_math2, &not_implemented, false}},
         };
     }
 
