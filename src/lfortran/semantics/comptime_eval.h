@@ -235,70 +235,48 @@ struct IntrinsicProcedures {
         }
     }
 
-    static ASR::expr_t *eval_sin(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-        // TODO: this is already double precision --- possibly
-        // pass the original GenericProcedure
-        if (args.size() != 1) {
-            throw SemanticError("Intrinsic function sin accepts exactly 1 argument", loc);
-        }
-        ASR::expr_t* sin_arg = args[0];
-        ASR::ttype_t* t = LFortran::ASRUtils::expr_type(args[0]);
-        int k = ASRUtils::extract_kind_from_ttype_t(t);
-        if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*t)) {
-            if (k == 4) {
-                float rv = ASR::down_cast<ASR::ConstantReal_t>(sin_arg)->m_r;
-                float val = sin(rv);
-                return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t));
-            } else {
-                double rv = ASR::down_cast<ASR::ConstantReal_t>(sin_arg)->m_r;
-                double val = sin(rv);
-                return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t));
-            }
-        } else {
-            throw SemanticError("Argument for sin must be Real", loc);
-        }
-    }
 
-    static ASR::expr_t *eval_cos(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+    typedef float (*trig_eval_callback_single)(float);
+    typedef double (*trig_eval_callback_double)(double);
+    static ASR::expr_t *eval_trig(Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args,
+            trig_eval_callback_single trig_single,
+            trig_eval_callback_double trig_double
+            ) {
         LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-        // TODO: this is already double precision --- possibly
-        // pass the original GenericProcedure
         if (args.size() != 1) {
-            throw SemanticError("Intrinsic function cos accepts exactly 1 argument", loc);
+            throw SemanticError("Intrinsic trig function accepts exactly 1 argument", loc);
         }
-        ASR::expr_t* cos_arg = args[0];
+        ASR::expr_t* trig_arg = args[0];
         ASR::ttype_t* t = LFortran::ASRUtils::expr_type(args[0]);
         int k = ASRUtils::extract_kind_from_ttype_t(t);
         if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*t)) {
             if (k == 4) {
-                float rv = ASR::down_cast<ASR::ConstantReal_t>(cos_arg)->m_r;
-                float val = cos(rv);
+                float rv = ASR::down_cast<ASR::ConstantReal_t>(trig_arg)->m_r;
+                float val = trig_single(rv);
                 return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t));
             } else {
-                double rv = ASR::down_cast<ASR::ConstantReal_t>(cos_arg)->m_r;
-                double val = cos(rv);
+                double rv = ASR::down_cast<ASR::ConstantReal_t>(trig_arg)->m_r;
+                double val = trig_double(rv);
                 return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t));
             }
         } else if (LFortran::ASR::is_a<LFortran::ASR::Complex_t>(*t)) {
             if (k == 4) {
                 return nullptr;
-                /*
-                float rv = ASR::down_cast<ASR::ConstantComplex_t>(cos_arg)->m_r;
-                float val = cos(rv);
-                return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t));
-                */
             } else {
                 return nullptr;
-                /*
-                double rv = ASR::down_cast<ASR::ConstantComplex_t>(cos_arg)->m_r;
-                double val = cos(rv);
-                return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t));
-                */
             }
         } else {
-            throw SemanticError("Argument for cos must be Real or Complex", loc);
+            throw SemanticError("Argument for trig function must be Real or Complex", loc);
         }
+    }
+
+    static ASR::expr_t *eval_sin(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        return eval_trig(al, loc, args, &sin, &sin);
+    }
+
+    static ASR::expr_t *eval_cos(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        return eval_trig(al, loc, args, &cos, &cos);
     }
 
     static ASR::expr_t *eval_int(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
