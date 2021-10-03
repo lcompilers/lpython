@@ -48,6 +48,8 @@ struct IntrinsicProcedures {
             {"nint", {m_math2, &eval_nint, true}},
             {"mod", {m_math2, &eval_mod, true}},
             {"modulo", {m_math2, &eval_modulo, true}},
+            {"min", {m_math2, &eval_min, true}},
+            {"max", {m_math2, &eval_max, true}},
             {"selected_int_kind", {m_kind, &eval_selected_int_kind, true}},
             {"selected_real_kind", {m_kind, &eval_selected_real_kind, true}},
             {"exp", {m_math, &eval_exp, true}},
@@ -88,8 +90,6 @@ struct IntrinsicProcedures {
             {"len", {m_array, &not_implemented, false}},
             {"size", {m_array, &not_implemented, false}},
             {"present", {m_array, &not_implemented, false}},
-            {"min", {m_array, &not_implemented, false}},
-            {"max", {m_array, &not_implemented, false}},
             {"lbound", {m_array, &not_implemented, false}},
             {"ubound", {m_array, &not_implemented, false}},
             {"allocated", {"m_array", &not_implemented, false}},
@@ -422,6 +422,34 @@ struct IntrinsicProcedures {
         return eval_2args_ri(al, loc, args,
             &IntrinsicProcedures::lfortran_mod,
             &IntrinsicProcedures::lfortran_mod_i);
+    }
+
+    static double lfortran_min(double x, double y) {
+        return std::fmin(x, y);
+    }
+
+    static int64_t lfortran_min_i(int64_t x, int64_t y) {
+        return std::fmin(x, y);
+    }
+
+    static ASR::expr_t *eval_min(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        return eval_2args_ri(al, loc, args,
+            &IntrinsicProcedures::lfortran_min,
+            &IntrinsicProcedures::lfortran_min_i);
+    }
+
+    static double lfortran_max(double x, double y) {
+        return std::fmax(x, y);
+    }
+
+    static int64_t lfortran_max_i(int64_t x, int64_t y) {
+        return std::fmax(x, y);
+    }
+
+    static ASR::expr_t *eval_max(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        return eval_2args_ri(al, loc, args,
+            &IntrinsicProcedures::lfortran_max,
+            &IntrinsicProcedures::lfortran_max_i);
     }
 
     static ASR::expr_t *eval_abs(Allocator &al, const Location &loc,

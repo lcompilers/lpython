@@ -202,6 +202,7 @@ RUN(NAME intrinsics_18 LABELS gfortran llvm)
 RUN(NAME intrinsics_19 LABELS gfortran llvm)
 RUN(NAME intrinsics_20 LABELS gfortran llvm)
 RUN(NAME intrinsics_21 LABELS gfortran llvm)
+RUN(NAME intrinsics_22 LABELS gfortran llvm)
 RUN(NAME intrinsics_open_close_read_write LABELS gfortran)
 
 RUN(NAME parameter_01 LABELS gfortran)
