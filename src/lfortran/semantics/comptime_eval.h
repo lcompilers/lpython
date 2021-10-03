@@ -53,7 +53,7 @@ struct IntrinsicProcedures {
 
             {"sin", {m_trig, &eval_sin, true}},
             {"cos", {m_math, &eval_cos, true}},
-            {"tan", {m_math, &eval_sin, true}},
+            {"tan", {m_math, &eval_tan, true}},
 
             {"asin", {m_math, &eval_asin, true}},
             {"acos", {m_math, &eval_acos, true}},
