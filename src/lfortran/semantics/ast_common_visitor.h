@@ -692,7 +692,7 @@ public:
         }
     }
 
-    ASR::symbol_t* resolve_intrinsic_function(const Location &loc, std::string &remote_sym) {
+    ASR::symbol_t* resolve_intrinsic_function(const Location &loc, const std::string &remote_sym) {
         if (!intrinsic_procedures.is_intrinsic(remote_sym)) {
             throw SemanticError("Function '" + remote_sym + "' not found"
                 " or not implemented yet (if it is intrinsic)",
