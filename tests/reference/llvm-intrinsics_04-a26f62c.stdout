@@ -14,7 +14,7 @@ declare i8* @__module_lfortran_intrinsic_array_char(i32*)
 
 declare void @__module_lfortran_intrinsic_iso_c_binding_c_f_pointer(%c_ptr*, i32*)
 
-define double @__module_lfortran_intrinsic_math2_dabs(double* %x) {
+define double @__module_lfortran_intrinsic_math_dabs(double* %x) {
 .entry:
   %r = alloca double, align 8
   %0 = load double, double* %x, align 8
@@ -83,7 +83,7 @@ define i32 @main() {
   %3 = fsub double %2, 0x402C33ED50B88778
   %4 = alloca double, align 8
   store double %3, double* %4, align 8
-  %5 = call double @__module_lfortran_intrinsic_math2_dabs(double* %4)
+  %5 = call double @__module_lfortran_intrinsic_math_dabs(double* %4)
   %6 = fcmp ugt double %5, 1.000000e-10
   br i1 %6, label %then, label %else
 
@@ -123,7 +123,7 @@ ifcont:                                           ; preds = %else, %then
   %23 = fsub double %22, 0x3F30E5C06C0C177D
   %24 = alloca double, align 8
   store double %23, double* %24, align 8
-  %25 = call double @__module_lfortran_intrinsic_math2_dabs(double* %24)
+  %25 = call double @__module_lfortran_intrinsic_math_dabs(double* %24)
   %26 = fcmp ugt double %25, 1.000000e-10
   br i1 %26, label %then1, label %else2
 
