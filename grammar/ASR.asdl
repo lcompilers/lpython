@@ -191,6 +191,8 @@ expr
     | BinOp(expr left, binop op, expr right, ttype type, expr? value, expr? overloaded)
     | StrOp(expr left, strop op, expr right, ttype type, expr? value)
     | UnaryOp(unaryop op, expr operand, ttype type, expr? value)
+        -- Such as: (x, y+z), (3.0, 2.0) generally not known at compile time
+    | ComplexConstructor(expr re, expr im, ttype type, expr? value)
     | Compare(expr left, cmpop op, expr right, ttype type, expr? value)
     | FunctionCall(symbol name, symbol? original_name, expr* args,
             keyword* keywords, ttype type, expr? value, expr? dt)
@@ -200,7 +202,7 @@ expr
                     expr? increment, ttype type, expr? value)
     | ConstantInteger(int n, ttype type)
     | ConstantReal(float r, ttype type)
-    | ConstantComplex(expr re, expr im, ttype type)
+    | ConstantComplex(float re, float im, ttype type)
     | ConstantLogical(bool value, ttype type)
     | ConstantString(string s, ttype type)
     | Var(symbol v)
