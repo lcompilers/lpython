@@ -1,6 +1,6 @@
 module lfortran_intrinsic_sin
 ! Implicit dependencies
-! abs pure/math2
+! abs impure/math
 ! modulo pure/math2
 ! min builtin/array
 ! max builtin/array
