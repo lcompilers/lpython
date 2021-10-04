@@ -263,15 +263,13 @@ struct IntrinsicProcedures {
             return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t));
         } else if (LFortran::ASR::is_a<LFortran::ASR::Complex_t>(*t)) {
             if (trig_complex_double) {
-                ASR::expr_t *e_re = ASR::down_cast<ASR::ConstantComplex_t>(trig_arg)->m_re;
-                ASR::expr_t *e_im = ASR::down_cast<ASR::ConstantComplex_t>(trig_arg)->m_im;
-                double re = ASR::down_cast<ASR::ConstantReal_t>(e_re)->m_r;
-                double im = ASR::down_cast<ASR::ConstantReal_t>(e_im)->m_r;
+                double re = ASR::down_cast<ASR::ConstantComplex_t>(trig_arg)->m_re;
+                double im = ASR::down_cast<ASR::ConstantComplex_t>(trig_arg)->m_im;
                 std::complex<double> x(re, im);
                 std::complex<double> result = trig_complex_double(x);
-                e_re = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, std::real(result), t));
-                e_im = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, std::imag(result), t));
-                return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantComplex_t(al, loc, e_re, e_im, t));
+                re = std::real(result);
+                im = std::imag(result);
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantComplex_t(al, loc, re, im, t));
             } else {
                 return nullptr;
             }
@@ -463,10 +461,8 @@ TRIG(sqrt)
             int64_t val = abs(rv);
             return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, val, t));
         } else if (LFortran::ASR::is_a<LFortran::ASR::Complex_t>(*t)) {
-            ASR::expr_t *e_re = ASR::down_cast<ASR::ConstantComplex_t>(trig_arg)->m_re;
-            ASR::expr_t *e_im = ASR::down_cast<ASR::ConstantComplex_t>(trig_arg)->m_im;
-            double re = ASR::down_cast<ASR::ConstantReal_t>(e_re)->m_r;
-            double im = ASR::down_cast<ASR::ConstantReal_t>(e_im)->m_r;
+            double re = ASR::down_cast<ASR::ConstantComplex_t>(trig_arg)->m_re;
+            double im = ASR::down_cast<ASR::ConstantComplex_t>(trig_arg)->m_im;
             std::complex<double> x(re, im);
             double result = std::abs(x);
             return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, result, t));
@@ -485,8 +481,7 @@ TRIG(sqrt)
         ASR::expr_t* trig_arg = args[0];
         ASR::ttype_t* t = LFortran::ASRUtils::expr_type(args[0]);
         if (LFortran::ASR::is_a<LFortran::ASR::Complex_t>(*t)) {
-            ASR::expr_t *e_im = ASR::down_cast<ASR::ConstantComplex_t>(trig_arg)->m_im;
-            double im = ASR::down_cast<ASR::ConstantReal_t>(e_im)->m_r;
+            double im = ASR::down_cast<ASR::ConstantComplex_t>(trig_arg)->m_im;
             double result = im;
             return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, result, t));
         } else {

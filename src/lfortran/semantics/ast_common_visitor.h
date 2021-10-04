@@ -857,8 +857,9 @@ public:
         int a_kind_i = LFortran::ASRUtils::extract_kind_from_ttype_t(LFortran::ASRUtils::expr_type(im));
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc,
                 std::max(a_kind_r, a_kind_i), nullptr, 0));
-        tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc,
-                re, im, type);
+        ASR::expr_t *value = nullptr;
+        tmp = ASR::make_ComplexConstructor_t(al, x.base.base.loc,
+                re, im, type, value);
     }
 
     Vec<ASR::expr_t*> visit_expr_list(AST::fnarg_t *ast_list, size_t n) {
