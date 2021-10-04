@@ -97,7 +97,7 @@ struct IntrinsicProcedures {
             {"present", {m_array, &not_implemented, false}},
             {"lbound", {m_array, &not_implemented, false}},
             {"ubound", {m_array, &not_implemented, false}},
-            {"allocated", {"m_array", &not_implemented, false}},
+            {"allocated", {m_array, &not_implemented, false}},
             {"minval", {m_array, &not_implemented, false}},
             {"maxval", {m_array, &not_implemented, false}},
             {"sum", {m_array, &not_implemented, false}},
