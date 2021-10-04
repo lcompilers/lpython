@@ -54,7 +54,11 @@ macro(RUN)
         endif()
     else()
         # GFortran
-        set(ADD_TEST ON)
+        if ("gfortran" IN_LIST RUN_LABELS)
+            set(ADD_TEST ON)
+        else()
+            set(ADD_TEST OFF)
+        endif()
     endif()
 
     if (ADD_TEST)
