@@ -651,6 +651,9 @@ public:
     // into an ExternalSymbol if needed. It returns a FunctionCall ASR node.
     //
     // `args` are arguments of the function call as a list of `expr` nodes.
+    //
+    // If `fn` is intrinsic, it will also try to evaluate it into the `value`
+    // member of the returned `FunctionCall`.
     ASR::asr_t* create_FunctionCall(const Location &loc,
             ASR::symbol_t *fn, Vec<ASR::expr_t*> &args) {
         ASR::symbol_t *s = ASRUtils::symbol_get_past_external(fn);
