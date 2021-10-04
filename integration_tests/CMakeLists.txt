@@ -199,6 +199,7 @@ RUN(NAME intrinsics_15 LABELS gfortran llvm) # real
 RUN(NAME intrinsics_16 LABELS gfortran) # aimag
 RUN(NAME intrinsics_17 LABELS gfortran llvm) # exp, log, erf
 RUN(NAME intrinsics_18 LABELS gfortran llvm)
+RUN(NAME intrinsics_18c LABELS gfortran llvm)
 RUN(NAME intrinsics_19 LABELS gfortran llvm)
 RUN(NAME intrinsics_20 LABELS gfortran llvm)
 RUN(NAME intrinsics_21 LABELS gfortran llvm)
