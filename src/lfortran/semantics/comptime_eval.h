@@ -463,7 +463,13 @@ TRIG(sqrt)
             int64_t val = abs(rv);
             return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, val, t));
         } else if (LFortran::ASR::is_a<LFortran::ASR::Complex_t>(*t)) {
-            return nullptr;
+            ASR::expr_t *e_re = ASR::down_cast<ASR::ConstantComplex_t>(trig_arg)->m_re;
+            ASR::expr_t *e_im = ASR::down_cast<ASR::ConstantComplex_t>(trig_arg)->m_im;
+            double re = ASR::down_cast<ASR::ConstantReal_t>(e_re)->m_r;
+            double im = ASR::down_cast<ASR::ConstantReal_t>(e_im)->m_r;
+            std::complex<double> x(re, im);
+            double result = std::abs(x);
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, result, t));
         } else {
             throw SemanticError("Argument of the abs function must be Integer, Real or Complex", loc);
         }
