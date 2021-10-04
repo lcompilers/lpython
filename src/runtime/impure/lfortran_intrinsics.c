@@ -128,6 +128,18 @@ LFORTRAN_API double_complex_t _lfortran_zsqrt(double_complex_t x)
     return csqrt(x);
 }
 
+// aimag -----------------------------------------------------------------------
+
+LFORTRAN_API float _lfortran_caimag(float_complex_t x)
+{
+    return cimagf(x);
+}
+
+LFORTRAN_API double _lfortran_zaimag(double_complex_t x)
+{
+    return cimag(x);
+}
+
 // exp -------------------------------------------------------------------------
 
 LFORTRAN_API float _lfortran_sexp(float x)

@@ -45,7 +45,7 @@ struct IntrinsicProcedures {
             {"real", {m_array, &not_implemented, false}}, // Implemented separately
 
             // Require evaluated arguments
-            {"aimag", {m_math2, &eval_aimag, true}},
+            {"aimag", {m_math, &eval_aimag, true}},
             {"char", {m_array, &eval_char, true}},
             {"floor", {m_math2, &eval_floor, true}},
             {"nint", {m_math2, &eval_nint, true}},

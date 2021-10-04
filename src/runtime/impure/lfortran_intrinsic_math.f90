@@ -7,6 +7,10 @@ interface abs
     module procedure sabs, dabs, cabs, zabs
 end interface
 
+interface aimag
+    module procedure caimag, zaimag
+end interface
+
 interface sqrt
     module procedure ssqrt, dsqrt, csqrt, zsqrt
 end interface
@@ -121,6 +125,30 @@ end function
 elemental real(dp) function zabs(x) result(r)
 complex(dp), intent(in) :: x
 r = sqrt(real(x,dp)**2 + aimag(x)**2)
+end function
+
+! aimag ------------------------------------------------------------------------
+
+elemental real(sp) function caimag(x) result(r)
+complex(sp), intent(in) :: x
+interface
+    pure complex(c_float) function c_caimag(x) bind(c, name="_lfortran_caimag")
+    import :: c_float
+    complex(c_float), intent(in), value :: x
+    end function
+end interface
+r = c_caimag(x)
+end function
+
+elemental real(dp) function zaimag(x) result(r)
+complex(dp), intent(in) :: x
+interface
+    pure complex(c_double) function c_zaimag(x) bind(c, name="_lfortran_zaimag")
+    import :: c_double
+    complex(c_double), intent(in), value :: x
+    end function
+end interface
+r = c_zaimag(x)
 end function
 
 ! sqrt -------------------------------------------------------------------------
