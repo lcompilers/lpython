@@ -284,7 +284,7 @@ RUN(NAME types_14 LABELS gfortran llvm)
 
 RUN(NAME complex_01 LABELS gfortran llvm)
 RUN(NAME complex_02 LABELS gfortran llvm)
-#RUN(NAME complex_03 LABELS gfortran)
+RUN(NAME complex_03 LABELS llvm)
 RUN(NAME complex_04 LABELS gfortran llvm)
 RUN(NAME complex_05 LABELS gfortran llvm)
 RUN(NAME complex_06 LABELS gfortran llvm)
