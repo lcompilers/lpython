@@ -1,207 +1,36 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-@0 = private unnamed_addr constant [9 x i8] c"%23.17f\0A\00", align 1
+%c_ptr = type { i32 }
 
-define double @__module_lfortran_intrinsic_trig_dsin(double* %x) {
+@0 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
+@1 = private unnamed_addr constant [9 x i8] c"%23.17f\0A\00", align 1
+
+declare i8* @__module_lfortran_intrinsic_array_char(i32*)
+
+declare void @__module_lfortran_intrinsic_iso_c_binding_c_f_pointer(%c_ptr*, i32*)
+
+define double @__module_lfortran_intrinsic_math_dsin(double* %x) {
 .entry:
-  %n = alloca i32, align 4
   %r = alloca double, align 8
-  %y = alloca double, align 8
-  %0 = alloca double, align 8
-  store double 0x401921FB54442D18, double* %0, align 8
-  %1 = call double @__module_lfortran_intrinsic_trig_modulo(double* %x, double* %0)
-  store double %1, double* %y, align 8
-  %2 = load double, double* %y, align 8
-  %3 = fsub double 0x400921FB54442D18, %2
-  %4 = alloca double, align 8
-  store double %3, double* %4, align 8
-  %5 = call double @__module_lfortran_intrinsic_trig_min(double* %y, double* %4)
-  store double %5, double* %y, align 8
-  %6 = load double, double* %y, align 8
-  %7 = fsub double 0xC00921FB54442D18, %6
-  %8 = alloca double, align 8
-  store double %7, double* %8, align 8
-  %9 = call double @__module_lfortran_intrinsic_trig_max(double* %y, double* %8)
-  store double %9, double* %y, align 8
-  %10 = load double, double* %y, align 8
-  %11 = fsub double 0x400921FB54442D18, %10
-  %12 = alloca double, align 8
-  store double %11, double* %12, align 8
-  %13 = call double @__module_lfortran_intrinsic_trig_min(double* %y, double* %12)
-  store double %13, double* %y, align 8
-  %14 = call double @__module_lfortran_intrinsic_trig_kernel_dsin(double* %y)
-  store double %14, double* %r, align 8
+  %0 = load double, double* %x, align 8
+  %1 = call double @_lfortran_dsin(double %0)
+  store double %1, double* %r, align 8
   br label %return
 
 return:                                           ; preds = %.entry
-  %15 = load double, double* %r, align 8
-  ret double %15
+  %2 = load double, double* %r, align 8
+  ret double %2
 }
 
-define i32 @__module_lfortran_intrinsic_trig_floor(double* %x) {
-.entry:
-  %r = alloca i32, align 4
-  %0 = load double, double* %x, align 8
-  %1 = fcmp uge double %0, 0.000000e+00
-  br i1 %1, label %then, label %else
-
-then:                                             ; preds = %.entry
-  %2 = load double, double* %x, align 8
-  %3 = fptosi double %2 to i32
-  store i32 %3, i32* %r, align 4
-  br label %ifcont
-
-else:                                             ; preds = %.entry
-  %4 = load double, double* %x, align 8
-  %5 = fsub double %4, 1.000000e+00
-  %6 = fptosi double %5 to i32
-  store i32 %6, i32* %r, align 4
-  br label %ifcont
-
-ifcont:                                           ; preds = %else, %then
-  br label %return
-
-return:                                           ; preds = %ifcont
-  %7 = load i32, i32* %r, align 4
-  ret i32 %7
-}
-
-define double @__module_lfortran_intrinsic_trig_kernel_dsin(double* %x) {
-.entry:
-  %res = alloca double, align 8
-  %s1 = alloca double, align 8
-  store double 0x3FEFFFFFFFFFFFF8, double* %s1, align 8
-  %s2 = alloca double, align 8
-  store double 0xBFC55555555552B9, double* %s2, align 8
-  %s3 = alloca double, align 8
-  store double 0x3F8111111110208B, double* %s3, align 8
-  %s4 = alloca double, align 8
-  store double 0xBF2A01A019677B7B, double* %s4, align 8
-  %s5 = alloca double, align 8
-  store double 0x3EC71DE371212827, double* %s5, align 8
-  %s6 = alloca double, align 8
-  store double 0xBE5AE6315D6BA572, double* %s6, align 8
-  %s7 = alloca double, align 8
-  store double 0x3DE60DE3F77343C0, double* %s7, align 8
-  %s8 = alloca double, align 8
-  store double 0xBD69E2CFF677919D, double* %s8, align 8
-  %z = alloca double, align 8
-  %0 = load double, double* %x, align 8
-  %1 = load double, double* %x, align 8
-  %2 = fmul double %0, %1
-  store double %2, double* %z, align 8
-  %3 = load double, double* %x, align 8
-  %4 = load double, double* %z, align 8
-  %5 = load double, double* %z, align 8
-  %6 = load double, double* %z, align 8
-  %7 = load double, double* %z, align 8
-  %8 = load double, double* %z, align 8
-  %9 = load double, double* %z, align 8
-  %10 = load double, double* %z, align 8
-  %11 = fmul double %10, 0xBD69E2CFF677919D
-  %12 = fadd double 0x3DE60DE3F77343C0, %11
-  %13 = fmul double %9, %12
-  %14 = fadd double 0xBE5AE6315D6BA572, %13
-  %15 = fmul double %8, %14
-  %16 = fadd double 0x3EC71DE371212827, %15
-  %17 = fmul double %7, %16
-  %18 = fadd double 0xBF2A01A019677B7B, %17
-  %19 = fmul double %6, %18
-  %20 = fadd double 0x3F8111111110208B, %19
-  %21 = fmul double %5, %20
-  %22 = fadd double 0xBFC55555555552B9, %21
-  %23 = fmul double %4, %22
-  %24 = fadd double 0x3FEFFFFFFFFFFFF8, %23
-  %25 = fmul double %3, %24
-  store double %25, double* %res, align 8
-  br label %return
-
-return:                                           ; preds = %.entry
-  %26 = load double, double* %res, align 8
-  ret double %26
-}
-
-define double @__module_lfortran_intrinsic_trig_max(double* %x, double* %y) {
-.entry:
-  %r = alloca double, align 8
-  %0 = load double, double* %x, align 8
-  %1 = load double, double* %y, align 8
-  %2 = fcmp ugt double %0, %1
-  br i1 %2, label %then, label %else
-
-then:                                             ; preds = %.entry
-  %3 = load double, double* %x, align 8
-  store double %3, double* %r, align 8
-  br label %ifcont
-
-else:                                             ; preds = %.entry
-  %4 = load double, double* %y, align 8
-  store double %4, double* %r, align 8
-  br label %ifcont
-
-ifcont:                                           ; preds = %else, %then
-  br label %return
-
-return:                                           ; preds = %ifcont
-  %5 = load double, double* %r, align 8
-  ret double %5
-}
-
-define double @__module_lfortran_intrinsic_trig_min(double* %x, double* %y) {
-.entry:
-  %r = alloca double, align 8
-  %0 = load double, double* %x, align 8
-  %1 = load double, double* %y, align 8
-  %2 = fcmp ult double %0, %1
-  br i1 %2, label %then, label %else
-
-then:                                             ; preds = %.entry
-  %3 = load double, double* %x, align 8
-  store double %3, double* %r, align 8
-  br label %ifcont
-
-else:                                             ; preds = %.entry
-  %4 = load double, double* %y, align 8
-  store double %4, double* %r, align 8
-  br label %ifcont
-
-ifcont:                                           ; preds = %else, %then
-  br label %return
-
-return:                                           ; preds = %ifcont
-  %5 = load double, double* %r, align 8
-  ret double %5
-}
-
-define double @__module_lfortran_intrinsic_trig_modulo(double* %x, double* %y) {
-.entry:
-  %r = alloca double, align 8
-  %0 = load double, double* %x, align 8
-  %1 = load double, double* %x, align 8
-  %2 = load double, double* %y, align 8
-  %3 = fdiv double %1, %2
-  %4 = alloca double, align 8
-  store double %3, double* %4, align 8
-  %5 = call i32 @__module_lfortran_intrinsic_trig_floor(double* %4)
-  %6 = sitofp i32 %5 to double
-  %7 = load double, double* %y, align 8
-  %8 = fmul double %6, %7
-  %9 = fsub double %0, %8
-  store double %9, double* %r, align 8
-  br label %return
-
-return:                                           ; preds = %.entry
-  %10 = load double, double* %r, align 8
-  ret double %10
-}
+declare double @_lfortran_dsin(double)
 
 define i32 @main() {
 .entry:
   %x = alloca double, align 8
   store double 0x3FEFEB7A9B2C6D8B, double* %x, align 8
   %0 = load double, double* %x, align 8
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @0, i32 0, i32 0), double %0)
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @1, i32 0, i32 0), double %0)
   ret i32 0
 }
 
