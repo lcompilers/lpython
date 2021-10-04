@@ -2858,6 +2858,14 @@ public:
         
     }
 
+    void visit_ComplexConstructor(const ASR::ComplexConstructor_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        throw CodeGenError("ComplexConstructor with runtime arguments not implemented yet.");
+    }
+
     void visit_ConstantComplex(const ASR::ConstantComplex_t &x) {
         double re = x.m_re;
         double im = x.m_im;
