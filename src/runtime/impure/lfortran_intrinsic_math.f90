@@ -4,7 +4,7 @@ use, intrinsic :: iso_c_binding, only: c_float, c_double
 implicit none
 
 interface abs
-    module procedure sabs, dabs, cabs, zabs
+    module procedure iabs, sabs, dabs, cabs, zabs
 end interface
 
 interface aimag
@@ -98,6 +98,15 @@ end interface
 contains
 
 ! abs --------------------------------------------------------------------------
+
+elemental integer function iabs(x) result(r)
+integer, intent(in) :: x
+if (x >= 0) then
+    r = x
+else
+    r = -x
+end if
+end function
 
 elemental real(sp) function sabs(x) result(r)
 real(sp), intent(in) :: x
