@@ -191,6 +191,41 @@ inline static void visit_BinOp(Allocator &al, const AST::BinOp_t &x,
             }
             value = ASR::down_cast<ASR::expr_t>(
                 ASR::make_ConstantReal_t(al, x.base.base.loc, result, dest_type));
+        } else if (ASR::is_a<LFortran::ASR::Complex_t>(*dest_type)) {
+            ASR::ConstantComplex_t *left0
+                = ASR::down_cast<ASR::ConstantComplex_t>(
+                        LFortran::ASRUtils::expr_value(left));
+            ASR::ConstantComplex_t *right0
+                = ASR::down_cast<ASR::ConstantComplex_t>(
+                        LFortran::ASRUtils::expr_value(right));
+            std::complex<double> left_value(left0->m_re, left0->m_im);
+            std::complex<double> right_value(right0->m_re, right0->m_im);
+            std::complex<double> result;
+            switch (op) {
+                case (ASR::Add):
+                    result = left_value + right_value;
+                    break;
+                case (ASR::Sub):
+                    result = left_value - right_value;
+                    break;
+                case (ASR::Mul):
+                    result = left_value * right_value;
+                    break;
+                case (ASR::Div):
+                    result = left_value / right_value;
+                    break;
+                case (ASR::Pow):
+                    result = std::pow(left_value, right_value);
+                    break;
+                // Reconsider
+                default: {
+                    LFORTRAN_ASSERT(false);
+                    op = ASR::binopType::Pow;
+                }
+            }
+            value = ASR::down_cast<ASR::expr_t>(
+                ASR::make_ConstantComplex_t(al, x.base.base.loc,
+                    std::real(result), std::imag(result), dest_type));
         }
     }
     asr = ASR::make_BinOp_t(al, x.base.base.loc, left, op, right, dest_type,
