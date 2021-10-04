@@ -657,16 +657,16 @@ public:
             ASR::ttype_t* v_type = v_variable->m_type;
             ASR::Derived_t* der = (ASR::Derived_t*)(&(v_type->base));
             ASR::DerivedType_t *der_type;
-            if( der->m_derived_type->type == ASR::symbolType::ExternalSymbol ) {
-                ASR::ExternalSymbol_t* der_ext = (ASR::ExternalSymbol_t*)(&(der->m_derived_type->base));
+            if (ASR::is_a<ASR::ExternalSymbol_t>(*der->m_derived_type)) {
+                ASR::ExternalSymbol_t* der_ext = ASR::down_cast<ASR::ExternalSymbol_t>(der->m_derived_type);
                 ASR::symbol_t* der_sym = der_ext->m_external;
-                if( der_sym == nullptr ) {
+                if (der_sym == nullptr) {
                     throw SemanticError("'" + std::string(der_ext->m_name) + "' isn't a Derived type.", loc);
                 } else {
-                    der_type = (ASR::DerivedType_t*)(&(der_sym->base));
+                    der_type = ASR::down_cast<ASR::DerivedType_t>(der_sym);
                 }
             } else {
-                der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
+                der_type = ASR::down_cast<ASR::DerivedType_t>(der->m_derived_type);
             }
             ASR::DerivedType_t *par_der_type = der_type;
             // scope = der_type->m_symtab;
@@ -676,7 +676,7 @@ public:
                 scope = par_der_type->m_symtab;
                 member = par_der_type->m_symtab->resolve_symbol(var_name);
                 if( par_der_type->m_parent != nullptr ) {
-                    par_der_type = (ASR::DerivedType_t*)(LFortran::ASRUtils::symbol_get_past_external(par_der_type->m_parent));
+                    par_der_type = ASR::down_cast<ASR::DerivedType_t>(LFortran::ASRUtils::symbol_get_past_external(par_der_type->m_parent));
                 } else {
                     par_der_type = nullptr;
                 }
