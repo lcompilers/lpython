@@ -183,6 +183,18 @@ public:
                 value = (ASR::expr_t *)ASR::make_ConstantComplex_t(al, a_loc,
                     rval, 0, dest_type);
             }
+        } else if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::ComplexToReal) {
+            if (ASRUtils::expr_value(*convert_can)) {
+                LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*dest_type)
+                 || ASR::is_a<ASR::RealPointer_t>(*dest_type))
+                LFORTRAN_ASSERT(ASR::is_a<ASR::Complex_t>(*ASRUtils::expr_type(*convert_can)))
+                value = ASRUtils::expr_value(*convert_can);
+                LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantComplex_t>(*value))
+                ASR::ConstantComplex_t *r = ASR::down_cast<ASR::ConstantComplex_t>(value);
+                double rval = r->m_re;
+                value = (ASR::expr_t *)ASR::make_ConstantReal_t(al, a_loc,
+                    rval, dest_type);
+            }
         } else if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::IntegerToInteger) {
             if (ASRUtils::expr_value(*convert_can)) {
                 LFORTRAN_ASSERT(ASR::is_a<ASR::Integer_t>(*dest_type))
