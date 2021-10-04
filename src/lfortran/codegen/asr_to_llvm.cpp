@@ -2858,11 +2858,17 @@ public:
         
     }
 
+    void visit_ComplexConstructor(const ASR::ComplexConstructor_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        throw CodeGenError("ComplexConstructor with runtime arguments not implemented yet.");
+    }
+
     void visit_ConstantComplex(const ASR::ConstantComplex_t &x) {
-        LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantReal_t>(*x.m_re));
-        LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantReal_t>(*x.m_im));
-        double re = ASR::down_cast<ASR::ConstantReal_t>(x.m_re)->m_r;
-        double im = ASR::down_cast<ASR::ConstantReal_t>(x.m_im)->m_r;
+        double re = x.m_re;
+        double im = x.m_im;
         int a_kind = extract_kind_from_ttype_t(x.m_type);
         llvm::Value *re2, *im2;
         llvm::Type *type;

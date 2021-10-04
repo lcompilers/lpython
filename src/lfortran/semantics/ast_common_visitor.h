@@ -850,15 +850,38 @@ public:
 
     void visit_Complex(const AST::Complex_t &x) {
         this->visit_expr(*x.m_re);
-        ASR::expr_t *re = LFortran::ASRUtils::EXPR(tmp);
-        int a_kind_r = LFortran::ASRUtils::extract_kind_from_ttype_t(LFortran::ASRUtils::expr_type(re));
+        ASR::expr_t *re = ASRUtils::EXPR(tmp);
+        ASR::expr_t *re_value = ASRUtils::expr_value(re);
+        int a_kind_r = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(re));
         this->visit_expr(*x.m_im);
-        ASR::expr_t *im = LFortran::ASRUtils::EXPR(tmp);
-        int a_kind_i = LFortran::ASRUtils::extract_kind_from_ttype_t(LFortran::ASRUtils::expr_type(im));
-        ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc,
+        ASR::expr_t *im = ASRUtils::EXPR(tmp);
+        ASR::expr_t *im_value = ASRUtils::expr_value(im);
+        int a_kind_i = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(im));
+        // TODO: Add semantic checks what type are allowed
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc,
                 std::max(a_kind_r, a_kind_i), nullptr, 0));
-        tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc,
-                re, im, type);
+        ASR::expr_t *value = nullptr;
+        if (re_value && im_value) {
+            double re_double;
+            if (ASR::is_a<ASR::ConstantReal_t>(*re_value)) {
+                re_double = ASR::down_cast<ASR::ConstantReal_t>(re_value)->m_r;
+            } else if (ASR::is_a<ASR::ConstantInteger_t>(*re_value)) {
+                re_double = ASR::down_cast<ASR::ConstantInteger_t>(re_value)->m_n;
+            } else {
+                throw SemanticError("Argument `a` in a ComplexConstructor `(a,b)` must be either Real or Integer", x.base.base.loc);
+            }
+            double im_double;
+            if (ASR::is_a<ASR::ConstantReal_t>(*im_value)) {
+                im_double = ASR::down_cast<ASR::ConstantReal_t>(im_value)->m_r;
+            } else if (ASR::is_a<ASR::ConstantInteger_t>(*im_value)) {
+                im_double = ASR::down_cast<ASR::ConstantInteger_t>(im_value)->m_n;
+            } else {
+                throw SemanticError("Argument `b` in a ComplexConstructor `(a,b)` must be either Real or Integer", x.base.base.loc);
+            }
+            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantComplex_t(al, x.base.base.loc, re_double, im_double, type));
+        }
+        tmp = ASR::make_ComplexConstructor_t(al, x.base.base.loc,
+                re, im, type, value);
     }
 
     Vec<ASR::expr_t*> visit_expr_list(AST::fnarg_t *ast_list, size_t n) {
