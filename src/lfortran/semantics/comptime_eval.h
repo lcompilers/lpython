@@ -354,20 +354,15 @@ TRIG(asinh)
 TRIG(acosh)
 TRIG(atanh)
 
-    static ASR::expr_t *eval_exp(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        return eval_trig(al, loc, args, &exp, nullptr);
-    }
-    static ASR::expr_t *eval_log(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        return eval_trig(al, loc, args, &log, nullptr);
-    }
+TRIG(exp)
+TRIG(log)
+TRIG(sqrt)
+
     static ASR::expr_t *eval_erf(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
         return eval_trig(al, loc, args, &erf, nullptr);
     }
     static ASR::expr_t *eval_erfc(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
         return eval_trig(al, loc, args, &erfc, nullptr);
-    }
-    static ASR::expr_t *eval_sqrt(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        return eval_trig(al, loc, args, &sqrt, nullptr);
     }
     static ASR::expr_t *eval_gamma(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
         return eval_trig(al, loc, args, &tgamma, nullptr);
