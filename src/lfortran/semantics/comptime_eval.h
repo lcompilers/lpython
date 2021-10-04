@@ -60,7 +60,7 @@ struct IntrinsicProcedures {
             {"log", {m_math, &eval_log, true}},
             {"erf", {m_math, &eval_erf, true}},
             {"erfc", {m_math, &eval_erfc, true}},
-            {"abs", {m_math2, &eval_abs, true}},
+            {"abs", {m_math, &eval_abs, true}},
             {"sqrt", {m_math, &eval_sqrt, true}},
             {"gamma", {m_math, &eval_gamma, true}},
             {"log_gamma", {m_math, &eval_log_gamma, true}},
