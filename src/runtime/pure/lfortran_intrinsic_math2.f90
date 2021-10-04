@@ -104,16 +104,18 @@ end function
 
 elemental real(sp) function saimag(x) result(r)
 complex(sp), intent(in) :: x
+r = 3
 ! Uncomment once it is implemented
 !r = x%im
-error stop "aimag not implemented yet"
+!error stop "aimag not implemented yet"
 end function
 
 elemental real(dp) function daimag(x) result(r)
 complex(dp), intent(in) :: x
+r = 3
 ! Uncomment once it is implemented
 !r = x%im
-error stop "aimag not implemented yet"
+!error stop "aimag not implemented yet"
 end function
 
 ! floor ------------------------------------------------------------------------
