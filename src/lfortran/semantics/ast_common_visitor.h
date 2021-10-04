@@ -715,12 +715,12 @@ public:
         if (!v) {
             throw SemanticError("Variable '" + dt_name + "' not declared", loc);
         }
-        ASR::Variable_t* v_variable = ((ASR::Variable_t*)(&(v->base)));
-        if ( v_variable->m_type->type == ASR::ttypeType::Derived ||
-             v_variable->m_type->type == ASR::ttypeType::DerivedPointer ||
-             v_variable->m_type->type == ASR::ttypeType::Class ) {
+        ASR::Variable_t* v_variable = ASR::down_cast<ASR::Variable_t>(v);
+        if (ASR::is_a<ASR::Derived_t>(*v_variable->m_type) ||
+                ASR::is_a<ASR::DerivedPointer_t>(*v_variable->m_type) ||
+                ASR::is_a<ASR::Class_t>(*v_variable->m_type)) {
             ASR::ttype_t* v_type = v_variable->m_type;
-            ASR::Derived_t* der = (ASR::Derived_t*)(&(v_type->base));
+            ASR::Derived_t* der = ASR::down_cast<ASR::Derived_t>(v_type);
             ASR::DerivedType_t *der_type;
             if (ASR::is_a<ASR::ExternalSymbol_t>(*der->m_derived_type)) {
                 ASR::ExternalSymbol_t* der_ext = ASR::down_cast<ASR::ExternalSymbol_t>(der->m_derived_type);
