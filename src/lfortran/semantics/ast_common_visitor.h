@@ -720,10 +720,17 @@ public:
                 ASR::is_a<ASR::DerivedPointer_t>(*v_variable->m_type) ||
                 ASR::is_a<ASR::Class_t>(*v_variable->m_type)) {
             ASR::ttype_t* v_type = v_variable->m_type;
-            ASR::Derived_t* der = ASR::down_cast<ASR::Derived_t>(v_type);
+            ASR::symbol_t *derived_type = nullptr;
+            if (ASR::is_a<ASR::Derived_t>(*v_type)) {
+                derived_type = ASR::down_cast<ASR::Derived_t>(v_type)->m_derived_type;
+            } else if (ASR::is_a<ASR::DerivedPointer_t>(*v_type)) {
+                derived_type = ASR::down_cast<ASR::DerivedPointer_t>(v_type)->m_derived_type;
+            } else if (ASR::is_a<ASR::Class_t>(*v_type)) {
+                derived_type = ASR::down_cast<ASR::Class_t>(v_type)->m_class_type;
+            }
             ASR::DerivedType_t *der_type;
-            if (ASR::is_a<ASR::ExternalSymbol_t>(*der->m_derived_type)) {
-                ASR::ExternalSymbol_t* der_ext = ASR::down_cast<ASR::ExternalSymbol_t>(der->m_derived_type);
+            if (ASR::is_a<ASR::ExternalSymbol_t>(*derived_type)) {
+                ASR::ExternalSymbol_t* der_ext = ASR::down_cast<ASR::ExternalSymbol_t>(derived_type);
                 ASR::symbol_t* der_sym = der_ext->m_external;
                 if (der_sym == nullptr) {
                     throw SemanticError("'" + std::string(der_ext->m_name) + "' isn't a Derived type.", loc);
@@ -731,7 +738,7 @@ public:
                     der_type = ASR::down_cast<ASR::DerivedType_t>(der_sym);
                 }
             } else {
-                der_type = ASR::down_cast<ASR::DerivedType_t>(der->m_derived_type);
+                der_type = ASR::down_cast<ASR::DerivedType_t>(derived_type);
             }
             ASR::DerivedType_t *par_der_type = der_type;
             // scope = der_type->m_symtab;
