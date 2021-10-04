@@ -63,7 +63,8 @@ struct IntrinsicProcedures {
             {"log_gamma", {m_math, &eval_log_gamma, true}},
             {"log10", {m_math, &eval_log10, true}},
 
-            {"sin", {m_trig, &eval_sin, true}},
+            //{"sin", {m_trig, &eval_sin, true}},
+            {"sin", {m_math, &eval_sin, true}},
             {"cos", {m_math, &eval_cos, true}},
             {"tan", {m_math, &eval_tan, true}},
 
