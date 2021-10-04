@@ -644,6 +644,71 @@ public:
         return ASR::make_Var_t(al, loc, v);
     }
 
+    // `fn` is a local Function or GenericProcedure (that resolves to a
+    // Function), or an ExternalSymbol that points to a Function or
+    // GenericProcedure (that resolves to a Function). This function resolves
+    // the GeneralProcedure (based on `args`) and repacks the final function
+    // into an ExternalSymbol if needed. It returns a FunctionCall ASR node.
+    //
+    // `args` are arguments of the function call as a list of `expr` nodes.
+    ASR::asr_t* create_FunctionCall(const Location &loc,
+            ASR::symbol_t *fn, Vec<ASR::expr_t*> &args) {
+        ASR::symbol_t *s = ASRUtils::symbol_get_past_external(fn);
+        ASR::symbol_t *orig_s = nullptr;
+        ASR::symbol_t *final_sym = fn;
+        if (ASR::is_a<ASR::GenericProcedure_t>(*s)) {
+            ASR::GenericProcedure_t *g = ASR::down_cast<ASR::GenericProcedure_t>(s);
+            int idx = select_generic_procedure(args, *g, loc);
+            orig_s = s;
+            s = g->m_procs[idx];
+
+            // Repack the final_sym
+            final_sym = s;
+            // TODO: handle the case when `fn` is not an ExternalSymbol
+            ASR::ExternalSymbol_t *p = ASR::down_cast<ASR::ExternalSymbol_t>(fn);
+            std::string local_sym = std::string(p->m_name) + "@"
+                + LFortran::ASRUtils::symbol_name(final_sym);
+            if (current_scope->scope.find(local_sym)
+                == current_scope->scope.end()) {
+                Str name;
+                name.from_str(al, local_sym);
+                char *cname = name.c_str(al);
+                ASR::asr_t *sub = ASR::make_ExternalSymbol_t(
+                    al, g->base.base.loc,
+                    /* a_symtab */ current_scope,
+                    /* a_name */ cname,
+                    final_sym,
+                    p->m_module_name, nullptr, 0, LFortran::ASRUtils::symbol_name(final_sym),
+                    ASR::accessType::Private
+                    );
+                final_sym = ASR::down_cast<ASR::symbol_t>(sub);
+                current_scope->scope[local_sym] = final_sym;
+            } else {
+                final_sym = current_scope->scope[local_sym];
+            }
+        }
+        ASR::expr_t *value = nullptr;
+        if (ASR::is_a<ASR::Function_t>(*s)) {
+            ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
+            if (ASRUtils::is_intrinsic_function(f)) {
+                ASR::asr_t *old_tmp = tmp;
+                bool transform = intrinsic_function_transformation(al, loc, f->m_name, args);
+                ASR::asr_t *result=tmp; tmp = old_tmp;
+                if (transform) {
+                    return result;
+                } else {
+                    value = intrinsic_procedures.comptime_eval(ASRUtils::symbol_name(fn), al, loc, args);
+                }
+            }
+        } else {
+            throw SemanticError("create_FunctionCall() must be called with ExternalSymbol/GenericProcedure/Function that eventually resolve into a Function",
+                loc);
+        }
+        ASR::ttype_t *type = ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(s)->m_return_var)->m_type;
+        return ASR::make_FunctionCall_t(al, loc, final_sym, orig_s,
+            args.p, args.size(), nullptr, 0, type, value, nullptr);
+    }
+
     ASR::asr_t* resolve_variable2(const Location &loc, const std::string &var_name,
             const std::string &dt_name, SymbolTable*& scope) {
         ASR::symbol_t *v = scope->resolve_symbol(dt_name);
@@ -686,6 +751,25 @@ public:
                 return ASRUtils::getDerivedRef_t(al, loc, v_var, member, current_scope);
             } else {
                 throw SemanticError("Variable '" + dt_name + "' doesn't have any member named, '" + var_name + "'.", loc);
+            }
+        } else if (ASR::is_a<ASR::Complex_t>(*v_variable->m_type)) {
+            if (var_name == "re") {
+                ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, loc, v));
+                int kind = ASRUtils::extract_kind_from_ttype_t(v_variable->m_type);
+                ASR::ttype_t *dest_type = ASR::down_cast<ASR::ttype_t>(ASR::make_Real_t(al, loc, kind, nullptr, 0));
+                ImplicitCastRules::set_converted_value(
+                    al, loc, &val, v_variable->m_type, dest_type);
+                return (ASR::asr_t*)val;
+            } else if (var_name == "im") {
+                ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, loc, v));
+                ASR::symbol_t *fn_aimag = resolve_intrinsic_function(loc, "aimag");
+                Vec<ASR::expr_t*> args;
+                args.reserve(al, 1);
+                args.push_back(al, val);
+                ASR::asr_t *result = create_FunctionCall(loc, fn_aimag, args);
+                return result;
+            } else {
+                throw SemanticError("Complex variable '" + dt_name + "' only has %re and %im members, not '" + var_name + "'", loc);
             }
         } else {
             throw SemanticError("Variable '" + dt_name + "' is not a derived type", loc);
