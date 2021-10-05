@@ -654,6 +654,52 @@ public:
                 v, vals.p, vals.size(), der);
     }
 
+    ASR::asr_t* create_ArrayRef(const Location &loc,
+                AST::fnarg_t* m_args, size_t n_args,
+                    ASR::symbol_t *v,
+                    ASR::symbol_t *f2) {
+        Vec<ASR::array_index_t> args;
+        args.reserve(al, n_args);
+        for (size_t i=0; i<n_args; i++) {
+            ASR::array_index_t ai;
+            ai.loc = loc;
+            ASR::expr_t *m_start, *m_end, *m_step;
+            m_start = m_end = m_step = nullptr;
+            if (m_args[i].m_start != nullptr) {
+                this->visit_expr(*(m_args[i].m_start));
+                m_start = LFortran::ASRUtils::EXPR(tmp);
+                ai.loc = m_start->base.loc;
+            }
+            if (m_args[i].m_end != nullptr) {
+                this->visit_expr(*(m_args[i].m_end));
+                m_end = LFortran::ASRUtils::EXPR(tmp);
+                ai.loc = m_end->base.loc;
+            }
+            if (m_args[i].m_step != nullptr) {
+                this->visit_expr(*(m_args[i].m_step));
+                m_step = LFortran::ASRUtils::EXPR(tmp);
+                ai.loc = m_step->base.loc;
+            }
+            ai.m_left = m_start;
+            ai.m_right = m_end;
+            ai.m_step = m_step;
+            args.push_back(al, ai);
+        }
+
+        ASR::ttype_t *type;
+        type = ASR::down_cast<ASR::Variable_t>(f2)->m_type;
+        ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(f2);
+        if( var->m_type == nullptr &&
+            var->m_intent == ASR::intentType::AssociateBlock ) {
+            ASR::expr_t* orig_expr = var->m_symbolic_value;
+            ASR::Var_t* orig_Var = ASR::down_cast<ASR::Var_t>(orig_expr);
+            v = orig_Var->m_v;
+            type = ASR::down_cast<ASR::Variable_t>(v)->m_type;
+        }
+        return ASR::make_ArrayRef_t(al, loc,
+            v, args.p, args.size(), type, nullptr);
+    }
+
     // `fn` is a local Function or GenericProcedure (that resolves to a
     // Function), or an ExternalSymbol that points to a Function or
     // GenericProcedure (that resolves to a Function). This function resolves
