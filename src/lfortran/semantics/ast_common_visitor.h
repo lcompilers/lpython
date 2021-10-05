@@ -644,6 +644,16 @@ public:
         return ASR::make_Var_t(al, loc, v);
     }
 
+    ASR::asr_t* create_DerivedTypeConstructor(const Location &loc,
+            AST::fnarg_t* m_args, size_t n_args, ASR::symbol_t *v) {
+        Vec<ASR::expr_t*> vals = visit_expr_list(m_args, n_args);
+        ASR::ttype_t* der = LFortran::ASRUtils::TYPE(
+                            ASR::make_Derived_t(al, loc, v,
+                                                nullptr, 0));
+        return ASR::make_DerivedTypeConstructor_t(al, loc,
+                v, vals.p, vals.size(), der);
+    }
+
     // `fn` is a local Function or GenericProcedure (that resolves to a
     // Function), or an ExternalSymbol that points to a Function or
     // GenericProcedure (that resolves to a Function). This function resolves

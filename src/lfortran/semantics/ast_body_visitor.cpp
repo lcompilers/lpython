@@ -1122,12 +1122,8 @@ public:
                     tmp = ASR::make_ArrayRef_t(al, x.base.base.loc,
                         v, args.p, args.size(), type, nullptr);
                 } else if(ASR::is_a<ASR::DerivedType_t>(*f2)) {
-                    Vec<ASR::expr_t*> vals = visit_expr_list(x.m_args, x.n_args);
-                    ASR::ttype_t* der = LFortran::ASRUtils::TYPE(
-                                        ASR::make_Derived_t(al, x.base.base.loc, v,
-                                                            nullptr, 0));
-                    tmp = ASR::make_DerivedTypeConstructor_t(al, x.base.base.loc,
-                            v, vals.p, vals.size(), der);
+                    tmp = create_DerivedTypeConstructor(x.base.base.loc,
+                            x.m_args, x.n_args, v);
                 } else if (ASR::is_a<ASR::GenericProcedure_t>(*f2)) {
                     symbol_resolve_generic_procedure(v, x);
                 } else {
@@ -1179,12 +1175,8 @@ public:
                 break;
             }
             case (ASR::symbolType::DerivedType) : {
-                Vec<ASR::expr_t*> vals = visit_expr_list(x.m_args, x.n_args);
-                ASR::ttype_t* der = LFortran::ASRUtils::TYPE(
-                                    ASR::make_Derived_t(al, x.base.base.loc, v,
-                                                        nullptr, 0));
-                tmp = ASR::make_DerivedTypeConstructor_t(al, x.base.base.loc,
-                        v, vals.p, vals.size(), der);
+                tmp = create_DerivedTypeConstructor(x.base.base.loc,
+                        x.m_args, x.n_args, v);
                 break;
             }
             default : throw SemanticError("Symbol '" + var_name
