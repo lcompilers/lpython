@@ -1094,40 +1094,11 @@ public:
                         v, nullptr, args.p, args.size(), nullptr, 0, return_type,
                         value, nullptr);
                 } else if (ASR::is_a<ASR::Variable_t>(*f2)) {
-                    Vec<ASR::array_index_t> args;
-                    args.reserve(al, x.n_args);
-                    for (size_t i=0; i<x.n_args; i++) {
-                        ASR::array_index_t ai;
-                        if (x.m_args[i].m_start == nullptr && x.m_args[i].m_end) {
-                            visit_expr(*x.m_args[i].m_end);
-                            ai.m_left = nullptr;
-                            ai.m_right = LFortran::ASRUtils::EXPR(tmp);
-                            ai.m_step = nullptr;
-                            ai.loc = ai.m_right->base.loc;
-                        } else if (x.m_args[i].m_start == nullptr
-                                && x.m_args[i].m_end == nullptr) {
-                            ai.m_left = nullptr;
-                            ai.m_right = nullptr;
-                            ai.m_step = nullptr;
-                            ai.loc = x.base.base.loc;
-                        } else {
-                            throw SemanticError("Argument type not implemented yet",
-                                x.base.base.loc);
-                        }
-                        args.push_back(al, ai);
-                    }
-
-                    ASR::ttype_t *type;
-                    type = ASR::down_cast<ASR::Variable_t>(f2)->m_type;
-                    tmp = ASR::make_ArrayRef_t(al, x.base.base.loc,
-                        v, args.p, args.size(), type, nullptr);
+                    tmp = create_ArrayRef(x.base.base.loc,
+                        x.m_args, x.n_args, v, f2);
                 } else if(ASR::is_a<ASR::DerivedType_t>(*f2)) {
-                    Vec<ASR::expr_t*> vals = visit_expr_list(x.m_args, x.n_args);
-                    ASR::ttype_t* der = LFortran::ASRUtils::TYPE(
-                                        ASR::make_Derived_t(al, x.base.base.loc, v,
-                                                            nullptr, 0));
-                    tmp = ASR::make_DerivedTypeConstructor_t(al, x.base.base.loc,
-                            v, vals.p, vals.size(), der);
+                    tmp = create_DerivedTypeConstructor(x.base.base.loc,
+                            x.m_args, x.n_args, v);
                 } else if (ASR::is_a<ASR::GenericProcedure_t>(*f2)) {
                     symbol_resolve_generic_procedure(v, x);
                 } else {
@@ -1136,55 +1107,13 @@ public:
                 break;
             }
             case (ASR::symbolType::Variable) : {
-                Vec<ASR::array_index_t> args;
-                args.reserve(al, x.n_args);
-                for (size_t i=0; i<x.n_args; i++) {
-                    ASR::array_index_t ai;
-                    ai.loc = x.base.base.loc;
-                    ASR::expr_t *m_start, *m_end, *m_step;
-                    m_start = m_end = m_step = nullptr;
-                    if( x.m_args[i].m_start != nullptr ) {
-                        visit_expr(*(x.m_args[i].m_start));
-                        m_start = LFortran::ASRUtils::EXPR(tmp);
-                        ai.loc = m_start->base.loc;
-                    }
-                    if( x.m_args[i].m_end != nullptr ) {
-                        visit_expr(*(x.m_args[i].m_end));
-                        m_end = LFortran::ASRUtils::EXPR(tmp);
-                        ai.loc = m_end->base.loc;
-                    }
-                    if( x.m_args[i].m_step != nullptr ) {
-                        visit_expr(*(x.m_args[i].m_step));
-                        m_step = LFortran::ASRUtils::EXPR(tmp);
-                        ai.loc = m_step->base.loc;
-                    }
-                    ai.m_left = m_start;
-                    ai.m_right = m_end;
-                    ai.m_step = m_step;
-                    args.push_back(al, ai);
-                }
-
-                ASR::ttype_t *type;
-                type = ASR::down_cast<ASR::Variable_t>(v)->m_type;
-                ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(v);
-                if( var->m_type == nullptr &&
-                    var->m_intent == ASR::intentType::AssociateBlock ) {
-                    ASR::expr_t* orig_expr = var->m_symbolic_value;
-                    ASR::Var_t* orig_Var = ASR::down_cast<ASR::Var_t>(orig_expr);
-                    v = orig_Var->m_v;
-                    type = ASR::down_cast<ASR::Variable_t>(v)->m_type;
-                }
-                tmp = ASR::make_ArrayRef_t(al, x.base.base.loc,
-                    v, args.p, args.size(), type, nullptr);
+                tmp = create_ArrayRef(x.base.base.loc,
+                    x.m_args, x.n_args, v, v);
                 break;
             }
             case (ASR::symbolType::DerivedType) : {
-                Vec<ASR::expr_t*> vals = visit_expr_list(x.m_args, x.n_args);
-                ASR::ttype_t* der = LFortran::ASRUtils::TYPE(
-                                    ASR::make_Derived_t(al, x.base.base.loc, v,
-                                                        nullptr, 0));
-                tmp = ASR::make_DerivedTypeConstructor_t(al, x.base.base.loc,
-                        v, vals.p, vals.size(), der);
+                tmp = create_DerivedTypeConstructor(x.base.base.loc,
+                        x.m_args, x.n_args, v);
                 break;
             }
             default : throw SemanticError("Symbol '" + var_name
