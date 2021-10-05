@@ -836,6 +836,19 @@ public:
             value, nullptr);
     }
 
+    ASR::asr_t* create_ClassProcedure(const Location &loc,
+                AST::fnarg_t* m_args, size_t n_args,
+                    ASR::symbol_t *v,
+                    ASR::expr_t *v_expr) {
+        Vec<ASR::expr_t*> args = visit_expr_list(m_args, n_args);
+        ASR::ttype_t *type = nullptr;
+        ASR::ClassProcedure_t *v_class_proc = ASR::down_cast<ASR::ClassProcedure_t>(v);
+        type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(v_class_proc->m_proc)->m_return_var)->m_type;
+        return ASR::make_FunctionCall_t(al, loc,
+                v, nullptr, args.p, args.size(), nullptr, 0, type, nullptr,
+                v_expr);
+    }
+
     void handle_fn_or_array(const Location &loc,
                 AST::fnarg_t* m_args, size_t n_args, ASR::symbol_t *v,
                 ASR::expr_t *v_expr, std::string &var_name) {
@@ -848,17 +861,11 @@ public:
             tmp = create_DerivedTypeConstructor(loc, m_args, n_args, v);
             return;
         }
+        if (ASR::is_a<ASR::ClassProcedure_t>(*f2)) {
+            tmp = create_ClassProcedure(loc, m_args, n_args, v, v_expr);
+            return;
+        }
         switch (v->type) {
-            case ASR::symbolType::ClassProcedure : {
-                Vec<ASR::expr_t*> args = visit_expr_list(m_args, n_args);
-                ASR::ttype_t *type = nullptr;
-                ASR::ClassProcedure_t *v_class_proc = ASR::down_cast<ASR::ClassProcedure_t>(v);
-                type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(v_class_proc->m_proc)->m_return_var)->m_type;
-                tmp = ASR::make_FunctionCall_t(al, loc,
-                        v, nullptr, args.p, args.size(), nullptr, 0, type, nullptr,
-                        v_expr);
-                break;
-            }
             case ASR::symbolType::Function : {
                 Vec<ASR::expr_t*> args = visit_expr_list(m_args, n_args);
                 ASR::ttype_t *type;
