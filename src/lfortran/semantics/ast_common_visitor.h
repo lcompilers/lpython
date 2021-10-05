@@ -839,6 +839,15 @@ public:
     void handle_fn_or_array(const Location &loc,
                 AST::fnarg_t* m_args, size_t n_args, ASR::symbol_t *v,
                 ASR::expr_t *v_expr, std::string &var_name) {
+        ASR::symbol_t *f2 = ASRUtils::symbol_get_past_external(v);
+        if (ASR::is_a<ASR::Variable_t>(*f2)) {
+            tmp = create_ArrayRef(loc, m_args, n_args, v, f2);
+            return;
+        }
+        if (ASR::is_a<ASR::DerivedType_t>(*f2)) {
+            tmp = create_DerivedTypeConstructor(loc, m_args, n_args, v);
+            return;
+        }
         switch (v->type) {
             case ASR::symbolType::ClassProcedure : {
                 Vec<ASR::expr_t*> args = visit_expr_list(m_args, n_args);
@@ -897,28 +906,12 @@ public:
                     tmp = ASR::make_FunctionCall_t(al, loc,
                         v, nullptr, args.p, args.size(), nullptr, 0, return_type,
                         value, nullptr);
-                } else if (ASR::is_a<ASR::Variable_t>(*f2)) {
-                    tmp = create_ArrayRef(loc,
-                        m_args, n_args, v, f2);
-                } else if(ASR::is_a<ASR::DerivedType_t>(*f2)) {
-                    tmp = create_DerivedTypeConstructor(loc,
-                            m_args, n_args, v);
                 } else if (ASR::is_a<ASR::GenericProcedure_t>(*f2)) {
                     tmp = symbol_resolve_external_generic_procedure(loc, v,
                             m_args, n_args);
                 } else {
                     throw SemanticError("Unimplemented", loc);
                 }
-                break;
-            }
-            case (ASR::symbolType::Variable) : {
-                tmp = create_ArrayRef(loc,
-                    m_args, n_args, v, v);
-                break;
-            }
-            case (ASR::symbolType::DerivedType) : {
-                tmp = create_DerivedTypeConstructor(loc,
-                        m_args, n_args, v);
                 break;
             }
             default : throw SemanticError("Symbol '" + var_name
