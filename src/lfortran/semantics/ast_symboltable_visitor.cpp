@@ -841,30 +841,6 @@ public:
         }
     }
 
-    void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
-        std::string var_name = to_lower(x.m_func);
-        ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
-        if (!v) {
-            v = resolve_intrinsic_function(x.base.base.loc, var_name);
-        }
-        Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
-        ASR::symbol_t *s = ASRUtils::symbol_get_past_external(v);
-        if (ASR::is_a<ASR::Variable_t>(*s)) {
-            // This happens for things like:
-            // integer :: Y(5)
-            // real :: X(Y(1)+1)
-            ASR::ttype_t *type = ASR::down_cast<ASR::Variable_t>(s)->m_type;
-            Vec<ASR::array_index_t> indices;
-            // FIXME: convert args to indices:
-            indices.p = nullptr;
-            indices.n = 0;
-            tmp = ASR::make_ArrayRef_t(al, x.base.base.loc, v,
-                indices.p, indices.size(), type, nullptr);
-        } else {
-            tmp = create_FunctionCall(x.base.base.loc, v, args);
-        }
-    }
-
     void visit_DerivedType(const AST::DerivedType_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
