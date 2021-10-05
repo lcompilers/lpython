@@ -916,6 +916,7 @@ public:
         if (ASR::is_a<ASR::Function_t>(*f2)) {
             return create_Function(loc, args, v);
         } else {
+            LFORTRAN_ASSERT(ASR::is_a<ASR::GenericProcedure_t>(*f2))
             return create_GenericProcedure(loc, args, v);
         }
     }
