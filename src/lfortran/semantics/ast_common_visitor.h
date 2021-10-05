@@ -900,28 +900,6 @@ public:
         }
     }
 
-    void handle_fn_or_array(const Location &loc,
-                AST::fnarg_t* m_args, size_t n_args, ASR::symbol_t *v,
-                ASR::expr_t *v_expr, std::string &var_name) {
-        ASR::symbol_t *f2 = ASRUtils::symbol_get_past_external(v);
-        if (ASR::is_a<ASR::Function_t>(*f2) || ASR::is_a<ASR::GenericProcedure_t>(*f2)) {
-            Vec<ASR::expr_t*> args = visit_expr_list(m_args, n_args);
-            tmp = create_FunctionCall(loc, v, args);
-        } else {
-            switch (f2->type) {
-            case(ASR::symbolType::Variable):
-                tmp = create_ArrayRef(loc, m_args, n_args, v, f2); break;
-            case(ASR::symbolType::DerivedType):
-                tmp = create_DerivedTypeConstructor(loc, m_args, n_args, v); break;
-            case(ASR::symbolType::ClassProcedure):
-                tmp = create_ClassProcedure(loc, m_args, n_args, v, v_expr); break;
-            default: throw SemanticError("Symbol '" + var_name
-                        + "' is not a function or an array", loc);
-            }
-        }
-    }
-
-
     // `fn` is a local Function or GenericProcedure (that resolves to a
     // Function), or an ExternalSymbol that points to a Function or
     // GenericProcedure (that resolves to a Function). This function resolves
@@ -1071,8 +1049,22 @@ public:
         if (!v) {
             v = resolve_intrinsic_function(x.base.base.loc, var_name);
         }
-        handle_fn_or_array(x.base.base.loc, x.m_args, x.n_args, v,
-            v_expr, var_name);
+        ASR::symbol_t *f2 = ASRUtils::symbol_get_past_external(v);
+        if (ASR::is_a<ASR::Function_t>(*f2) || ASR::is_a<ASR::GenericProcedure_t>(*f2)) {
+            Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
+            tmp = create_FunctionCall(x.base.base.loc, v, args);
+        } else {
+            switch (f2->type) {
+            case(ASR::symbolType::Variable):
+                tmp = create_ArrayRef(x.base.base.loc, x.m_args, x.n_args, v, f2); break;
+            case(ASR::symbolType::DerivedType):
+                tmp = create_DerivedTypeConstructor(x.base.base.loc, x.m_args, x.n_args, v); break;
+            case(ASR::symbolType::ClassProcedure):
+                tmp = create_ClassProcedure(x.base.base.loc, x.m_args, x.n_args, v, v_expr); break;
+            default: throw SemanticError("Symbol '" + var_name
+                        + "' is not a function or an array", x.base.base.loc);
+            }
+        }
     }
 
     ASR::symbol_t* resolve_intrinsic_function(const Location &loc, const std::string &remote_sym) {
