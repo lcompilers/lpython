@@ -910,28 +910,20 @@ public:
                 AST::fnarg_t* m_args, size_t n_args, ASR::symbol_t *v,
                 ASR::expr_t *v_expr, std::string &var_name) {
         ASR::symbol_t *f2 = ASRUtils::symbol_get_past_external(v);
-        if (ASR::is_a<ASR::Variable_t>(*f2)) {
-            tmp = create_ArrayRef(loc, m_args, n_args, v, f2);
-            return;
-        }
-        if (ASR::is_a<ASR::DerivedType_t>(*f2)) {
-            tmp = create_DerivedTypeConstructor(loc, m_args, n_args, v);
-            return;
-        }
-        if (ASR::is_a<ASR::ClassProcedure_t>(*f2)) {
-            tmp = create_ClassProcedure(loc, m_args, n_args, v, v_expr);
-            return;
-        }
-        if (ASR::is_a<ASR::GenericProcedure_t>(*f2)) {
-            tmp = create_GenericProcedure(loc, m_args, n_args, v, v_expr);
-            return;
-        }
-        if (ASR::is_a<ASR::Function_t>(*f2)) {
-            tmp = create_Function(loc, m_args, n_args, v, f2, v_expr);
-            return;
-        }
-        throw SemanticError("Symbol '" + var_name
+        switch (f2->type) {
+        case(ASR::symbolType::Variable):
+            tmp = create_ArrayRef(loc, m_args, n_args, v, f2); break;
+        case(ASR::symbolType::DerivedType):
+            tmp = create_DerivedTypeConstructor(loc, m_args, n_args, v); break;
+        case(ASR::symbolType::ClassProcedure):
+            tmp = create_ClassProcedure(loc, m_args, n_args, v, v_expr); break;
+        case(ASR::symbolType::GenericProcedure):
+            tmp = create_GenericProcedure(loc, m_args, n_args, v, v_expr); break;
+        case(ASR::symbolType::Function):
+            tmp = create_Function(loc, m_args, n_args, v, f2, v_expr); break;
+        default: throw SemanticError("Symbol '" + var_name
                     + "' is not a function or an array", loc);
+        }
     }
 
 
