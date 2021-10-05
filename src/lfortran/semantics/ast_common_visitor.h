@@ -906,23 +906,35 @@ public:
         }
     }
 
+    ASR::asr_t* create_FunctionCall2(const Location &loc,
+                AST::fnarg_t* m_args, size_t n_args,
+                    ASR::symbol_t *v,
+                    ASR::symbol_t *f2,
+                    ASR::expr_t *v_expr) {
+        if (ASR::is_a<ASR::Function_t>(*f2)) {
+            return create_Function(loc, m_args, n_args, v, f2, v_expr);
+        } else {
+            return create_GenericProcedure(loc, m_args, n_args, v, v_expr);
+        }
+    }
+
     void handle_fn_or_array(const Location &loc,
                 AST::fnarg_t* m_args, size_t n_args, ASR::symbol_t *v,
                 ASR::expr_t *v_expr, std::string &var_name) {
         ASR::symbol_t *f2 = ASRUtils::symbol_get_past_external(v);
-        switch (f2->type) {
-        case(ASR::symbolType::Variable):
-            tmp = create_ArrayRef(loc, m_args, n_args, v, f2); break;
-        case(ASR::symbolType::DerivedType):
-            tmp = create_DerivedTypeConstructor(loc, m_args, n_args, v); break;
-        case(ASR::symbolType::ClassProcedure):
-            tmp = create_ClassProcedure(loc, m_args, n_args, v, v_expr); break;
-        case(ASR::symbolType::GenericProcedure):
-            tmp = create_GenericProcedure(loc, m_args, n_args, v, v_expr); break;
-        case(ASR::symbolType::Function):
-            tmp = create_Function(loc, m_args, n_args, v, f2, v_expr); break;
-        default: throw SemanticError("Symbol '" + var_name
-                    + "' is not a function or an array", loc);
+        if (ASR::is_a<ASR::Function_t>(*f2) || ASR::is_a<ASR::GenericProcedure_t>(*f2)) {
+            tmp = create_FunctionCall2(loc, m_args, n_args, v, f2, v_expr);
+        } else {
+            switch (f2->type) {
+            case(ASR::symbolType::Variable):
+                tmp = create_ArrayRef(loc, m_args, n_args, v, f2); break;
+            case(ASR::symbolType::DerivedType):
+                tmp = create_DerivedTypeConstructor(loc, m_args, n_args, v); break;
+            case(ASR::symbolType::ClassProcedure):
+                tmp = create_ClassProcedure(loc, m_args, n_args, v, v_expr); break;
+            default: throw SemanticError("Symbol '" + var_name
+                        + "' is not a function or an array", loc);
+            }
         }
     }
 
