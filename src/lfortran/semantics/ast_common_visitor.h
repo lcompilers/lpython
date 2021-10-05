@@ -827,10 +827,8 @@ public:
         if (ASR::is_a<ASR::Function_t>(*s)) {
             ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
             if (ASRUtils::is_intrinsic_function(f)) {
-                ASR::asr_t *old_tmp = tmp;
-                bool transform = intrinsic_function_transformation(al, loc, f->m_name, args);
-                ASR::asr_t *result=tmp; tmp = old_tmp;
-                if (transform) {
+                ASR::asr_t *result = intrinsic_function_transformation(al, loc, f->m_name, args);
+                if (result) {
                     return result;
                 } else {
                     value = intrinsic_procedures.comptime_eval(ASRUtils::symbol_name(fn), al, loc, args);
@@ -1190,7 +1188,7 @@ public:
 
     // Transforms intrinsics real(),int() to ImplicitCast. Return true if `f` is
     // real/int (result in `tmp`), false otherwise (`tmp` unchanged)
-    bool intrinsic_function_transformation(Allocator &al, const Location &loc,
+    ASR::asr_t* intrinsic_function_transformation(Allocator &al, const Location &loc,
             const std::string &fn_name, Vec<ASR::expr_t*> &args) {
         if (fn_name == "real") {
             // real(), int() are represented using ExplicitCast
@@ -1204,10 +1202,9 @@ public:
             } else {
                 throw SemanticError("real(...) must have 1 or 2 arguments", loc);
             }
-            tmp = CommonVisitorMethods::comptime_intrinsic_real(args[0], arg1, al, loc);
-            return true;
+            return CommonVisitorMethods::comptime_intrinsic_real(args[0], arg1, al, loc);
         } else {
-            return false;
+            return nullptr;
         }
     }
 

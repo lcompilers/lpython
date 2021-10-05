@@ -936,10 +936,8 @@ public:
                 ASR::symbol_t* v2 = LFortran::ASRUtils::symbol_get_past_external(v);
                 ASR::GenericProcedure_t *gp = ASR::down_cast<ASR::GenericProcedure_t>(v2);
 
-                ASR::asr_t *old_tmp = tmp;
-                bool transform = intrinsic_function_transformation(al, x.base.base.loc, gp->m_name, args);
-                ASR::asr_t *result=tmp; tmp = old_tmp;
-                if (transform) {
+                ASR::asr_t *result = intrinsic_function_transformation(al, x.base.base.loc, gp->m_name, args);
+                if (result) {
                     return result;
                 } else {
                     value = intrinsic_procedures.comptime_eval(gp->m_name, al, x.base.base.loc, args);
@@ -1017,7 +1015,9 @@ public:
                     ASR::expr_t* value = nullptr;
                     ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(f2);
                     if (ASRUtils::is_intrinsic_function(f)) {
-                        if (intrinsic_function_transformation(al, x.base.base.loc, f->m_name, args)) {
+                        ASR::asr_t* result = intrinsic_function_transformation(al, x.base.base.loc, f->m_name, args);
+                        if (result) {
+                            tmp = result;
                             return;
                         } else {
                             value = intrinsic_procedures.comptime_eval(f->m_name, al, x.base.base.loc, args);
