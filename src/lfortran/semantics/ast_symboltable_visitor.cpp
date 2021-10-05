@@ -847,17 +847,8 @@ public:
         if (!v) {
             v = resolve_intrinsic_function(x.base.base.loc, var_name);
         }
-        Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
-        ASR::symbol_t *s = ASRUtils::symbol_get_past_external(v);
-        if (ASR::is_a<ASR::Variable_t>(*s)) {
-            // This happens for things like:
-            // integer :: Y(5)
-            // real :: X(Y(1)+1)
-            tmp = create_ArrayRef(x.base.base.loc,
-                x.m_args, x.n_args, v, v);
-        } else {
-            tmp = create_FunctionCall(x.base.base.loc, v, args);
-        }
+        handle_fn_or_array(x.base.base.loc, x.m_args, x.n_args, v,
+            nullptr, var_name);
     }
 
     void visit_DerivedType(const AST::DerivedType_t &x) {

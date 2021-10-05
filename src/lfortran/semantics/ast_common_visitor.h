@@ -776,6 +776,156 @@ public:
         return return_type;
     }
 
+    ASR::asr_t* symbol_resolve_external_generic_procedure(
+                const Location &loc,
+                ASR::symbol_t *v,
+                AST::fnarg_t* m_args, size_t n_args) {
+        ASR::ExternalSymbol_t *p = ASR::down_cast<ASR::ExternalSymbol_t>(v);
+        ASR::symbol_t *f2 = ASR::down_cast<ASR::ExternalSymbol_t>(v)->m_external;
+        ASR::GenericProcedure_t *g = ASR::down_cast<ASR::GenericProcedure_t>(f2);
+        Vec<ASR::expr_t*> args = visit_expr_list(m_args, n_args);
+        int idx = select_generic_procedure(args, *g, loc);
+        ASR::symbol_t *final_sym;
+        final_sym = g->m_procs[idx];
+        if (!ASR::is_a<ASR::Function_t>(*final_sym)) {
+            throw SemanticError("ExternalSymbol must point to a Function", loc);
+        }
+        ASR::ttype_t *return_type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(final_sym)->m_return_var)->m_type;
+        // Create ExternalSymbol for the final subroutine:
+        // We mangle the new ExternalSymbol's local name as:
+        //   generic_procedure_local_name @
+        //     specific_procedure_remote_name
+        std::string local_sym = std::string(p->m_name) + "@"
+            + LFortran::ASRUtils::symbol_name(final_sym);
+        if (current_scope->scope.find(local_sym)
+            == current_scope->scope.end()) {
+            Str name;
+            name.from_str(al, local_sym);
+            char *cname = name.c_str(al);
+            ASR::asr_t *sub = ASR::make_ExternalSymbol_t(
+                al, g->base.base.loc,
+                /* a_symtab */ current_scope,
+                /* a_name */ cname,
+                final_sym,
+                p->m_module_name, nullptr, 0, LFortran::ASRUtils::symbol_name(final_sym),
+                ASR::accessType::Private
+                );
+            final_sym = ASR::down_cast<ASR::symbol_t>(sub);
+            current_scope->scope[local_sym] = final_sym;
+        } else {
+            final_sym = current_scope->scope[local_sym];
+        }
+        ASR::expr_t *value = nullptr;
+        ASR::symbol_t* final_sym2 = LFortran::ASRUtils::symbol_get_past_external(final_sym);
+        if (ASR::is_a<ASR::Function_t>(*final_sym2)) {
+            ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(final_sym2);
+            if (ASRUtils::is_intrinsic_function(f)) {
+                ASR::symbol_t* v2 = LFortran::ASRUtils::symbol_get_past_external(v);
+                ASR::GenericProcedure_t *gp = ASR::down_cast<ASR::GenericProcedure_t>(v2);
+
+                ASR::asr_t *result = intrinsic_function_transformation(al, loc, gp->m_name, args);
+                if (result) {
+                    return result;
+                } else {
+                    value = intrinsic_procedures.comptime_eval(gp->m_name, al, loc, args);
+                }
+            }
+        }
+        return ASR::make_FunctionCall_t(al, loc,
+            final_sym, v, args.p, args.size(), nullptr, 0, return_type,
+            value, nullptr);
+    }
+
+    void handle_fn_or_array(const Location &loc,
+                AST::fnarg_t* m_args, size_t n_args, ASR::symbol_t *v,
+                ASR::expr_t *v_expr, std::string &var_name) {
+        switch (v->type) {
+            case ASR::symbolType::ClassProcedure : {
+                Vec<ASR::expr_t*> args = visit_expr_list(m_args, n_args);
+                ASR::ttype_t *type = nullptr;
+                ASR::ClassProcedure_t *v_class_proc = ASR::down_cast<ASR::ClassProcedure_t>(v);
+                type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(v_class_proc->m_proc)->m_return_var)->m_type;
+                tmp = ASR::make_FunctionCall_t(al, loc,
+                        v, nullptr, args.p, args.size(), nullptr, 0, type, nullptr,
+                        v_expr);
+                break;
+            }
+            case ASR::symbolType::Function : {
+                Vec<ASR::expr_t*> args = visit_expr_list(m_args, n_args);
+                ASR::ttype_t *type;
+                type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(v)->m_return_var)->m_type;
+                tmp = ASR::make_FunctionCall_t(al, loc,
+                    v, nullptr, args.p, args.size(), nullptr, 0, type, nullptr,
+                    v_expr);
+                break;
+            }
+            case (ASR::symbolType::GenericProcedure) : {
+                ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(v);
+                Vec<ASR::expr_t*> args = visit_expr_list(m_args, n_args);
+                int idx = select_generic_procedure(args, *p, loc);
+                ASR::symbol_t *final_sym = p->m_procs[idx];
+
+                ASR::ttype_t *type;
+                type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(final_sym)->m_return_var)->m_type;
+                tmp = ASR::make_FunctionCall_t(al, loc,
+                    final_sym, v, args.p, args.size(), nullptr, 0, type, nullptr,
+                    v_expr);
+                break;
+            }
+            case (ASR::symbolType::ExternalSymbol) : {
+                ASR::symbol_t *f2 = ASR::down_cast<ASR::ExternalSymbol_t>(v)->m_external;
+                LFORTRAN_ASSERT(f2);
+                if (ASR::is_a<ASR::Function_t>(*f2)) {
+                    Vec<ASR::expr_t*> args = visit_expr_list(m_args, n_args);
+                    ASR::ttype_t *return_type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(f2)->m_return_var)->m_type;
+                    if (ASR::is_a<ASR::Character_t>(*return_type)) {
+                        return_type = handle_character_return(return_type, loc);
+                    }
+
+                    // Populate value
+                    ASR::expr_t* value = nullptr;
+                    ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(f2);
+                    if (ASRUtils::is_intrinsic_function(f)) {
+                        ASR::asr_t* result = intrinsic_function_transformation(al, loc, f->m_name, args);
+                        if (result) {
+                            tmp = result;
+                            return;
+                        } else {
+                            value = intrinsic_procedures.comptime_eval(f->m_name, al, loc, args);
+                        }
+                    }
+                    tmp = ASR::make_FunctionCall_t(al, loc,
+                        v, nullptr, args.p, args.size(), nullptr, 0, return_type,
+                        value, nullptr);
+                } else if (ASR::is_a<ASR::Variable_t>(*f2)) {
+                    tmp = create_ArrayRef(loc,
+                        m_args, n_args, v, f2);
+                } else if(ASR::is_a<ASR::DerivedType_t>(*f2)) {
+                    tmp = create_DerivedTypeConstructor(loc,
+                            m_args, n_args, v);
+                } else if (ASR::is_a<ASR::GenericProcedure_t>(*f2)) {
+                    tmp = symbol_resolve_external_generic_procedure(loc, v,
+                            m_args, n_args);
+                } else {
+                    throw SemanticError("Unimplemented", loc);
+                }
+                break;
+            }
+            case (ASR::symbolType::Variable) : {
+                tmp = create_ArrayRef(loc,
+                    m_args, n_args, v, v);
+                break;
+            }
+            case (ASR::symbolType::DerivedType) : {
+                tmp = create_DerivedTypeConstructor(loc,
+                        m_args, n_args, v);
+                break;
+            }
+            default : throw SemanticError("Symbol '" + var_name
+                    + "' is not a function or an array", loc);
+        }
+    }
+
 
     // `fn` is a local Function or GenericProcedure (that resolves to a
     // Function), or an ExternalSymbol that points to a Function or
