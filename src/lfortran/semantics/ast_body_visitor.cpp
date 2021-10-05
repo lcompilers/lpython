@@ -889,7 +889,7 @@ public:
     }
 
 
-    void symbol_resolve_external_generic_procedure(
+    ASR::asr_t* symbol_resolve_external_generic_procedure(
             ASR::symbol_t *v,
             const AST::FuncCallOrArray_t &x
             ) {
@@ -935,14 +935,18 @@ public:
             if (ASRUtils::is_intrinsic_function(f)) {
                 ASR::symbol_t* v2 = LFortran::ASRUtils::symbol_get_past_external(v);
                 ASR::GenericProcedure_t *gp = ASR::down_cast<ASR::GenericProcedure_t>(v2);
-                if (intrinsic_function_transformation(al, x.base.base.loc, gp->m_name, args)) {
-                    return;
+
+                ASR::asr_t *old_tmp = tmp;
+                bool transform = intrinsic_function_transformation(al, x.base.base.loc, gp->m_name, args);
+                ASR::asr_t *result=tmp; tmp = old_tmp;
+                if (transform) {
+                    return result;
                 } else {
                     value = intrinsic_procedures.comptime_eval(gp->m_name, al, x.base.base.loc, args);
                 }
             }
         }
-        tmp = ASR::make_FunctionCall_t(al, x.base.base.loc,
+        return ASR::make_FunctionCall_t(al, x.base.base.loc,
             final_sym, v, args.p, args.size(), nullptr, 0, return_type,
             value, nullptr);
     }
@@ -1029,7 +1033,7 @@ public:
                     tmp = create_DerivedTypeConstructor(x.base.base.loc,
                             x.m_args, x.n_args, v);
                 } else if (ASR::is_a<ASR::GenericProcedure_t>(*f2)) {
-                    symbol_resolve_external_generic_procedure(v, x);
+                    tmp = symbol_resolve_external_generic_procedure(v, x);
                 } else {
                     throw SemanticError("Unimplemented", x.base.base.loc);
                 }
