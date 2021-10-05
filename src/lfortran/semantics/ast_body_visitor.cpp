@@ -889,7 +889,7 @@ public:
     }
 
 
-    void symbol_resolve_generic_procedure(
+    void symbol_resolve_external_generic_procedure(
             ASR::symbol_t *v,
             const AST::FuncCallOrArray_t &x
             ) {
@@ -1100,7 +1100,7 @@ public:
                     tmp = create_DerivedTypeConstructor(x.base.base.loc,
                             x.m_args, x.n_args, v);
                 } else if (ASR::is_a<ASR::GenericProcedure_t>(*f2)) {
-                    symbol_resolve_generic_procedure(v, x);
+                    symbol_resolve_external_generic_procedure(v, x);
                 } else {
                     throw SemanticError("Unimplemented", x.base.base.loc);
                 }
