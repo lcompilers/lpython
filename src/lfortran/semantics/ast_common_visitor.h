@@ -871,14 +871,14 @@ public:
                 Vec<ASR::expr_t*> args,
                     ASR::symbol_t *v) {
         ASR::symbol_t *f2 = ASRUtils::symbol_get_past_external(v);
+        ASR::ttype_t *return_type = ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(f2)->m_return_var)->m_type;
+        ASR::expr_t* value = nullptr;
         if (ASR::is_a<ASR::ExternalSymbol_t>(*v)) {
-            ASR::ttype_t *return_type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(f2)->m_return_var)->m_type;
             if (ASR::is_a<ASR::Character_t>(*return_type)) {
                 return_type = handle_character_return(return_type, loc);
             }
 
             // Populate value
-            ASR::expr_t* value = nullptr;
             ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(f2);
             if (ASRUtils::is_intrinsic_function(f)) {
                 ASR::asr_t* result = intrinsic_function_transformation(al, loc, f->m_name, args);
@@ -888,16 +888,9 @@ public:
                     value = intrinsic_procedures.comptime_eval(f->m_name, al, loc, args);
                 }
             }
-            return ASR::make_FunctionCall_t(al, loc,
-                v, nullptr, args.p, args.size(), nullptr, 0, return_type,
-                value, nullptr);
-        } else {
-            ASR::ttype_t *type;
-            type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(v)->m_return_var)->m_type;
-            return ASR::make_FunctionCall_t(al, loc,
-                v, nullptr, args.p, args.size(), nullptr, 0, type, nullptr,
-                nullptr);
         }
+        return ASR::make_FunctionCall_t(al, loc, v, nullptr,
+            args.p, args.size(), nullptr, 0, return_type, value, nullptr);
     }
 
     // `fn` is a local Function or GenericProcedure (that resolves to a
