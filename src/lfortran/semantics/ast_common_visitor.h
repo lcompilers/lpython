@@ -869,8 +869,8 @@ public:
 
     ASR::asr_t* create_Function(const Location &loc,
                 Vec<ASR::expr_t*> args,
-                    ASR::symbol_t *v,
-                    ASR::symbol_t *f2) {
+                    ASR::symbol_t *v) {
+        ASR::symbol_t *f2 = ASRUtils::symbol_get_past_external(v);
         if (ASR::is_a<ASR::ExternalSymbol_t>(*v)) {
             ASR::ttype_t *return_type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(f2)->m_return_var)->m_type;
             if (ASR::is_a<ASR::Character_t>(*return_type)) {
@@ -901,11 +901,10 @@ public:
     }
 
     ASR::asr_t* create_FunctionCall2(const Location &loc,
-                Vec<ASR::expr_t*> args,
-                    ASR::symbol_t *v,
-                    ASR::symbol_t *f2) {
+                ASR::symbol_t *v, Vec<ASR::expr_t*> args) {
+        ASR::symbol_t *f2 = ASRUtils::symbol_get_past_external(v);
         if (ASR::is_a<ASR::Function_t>(*f2)) {
-            return create_Function(loc, args, v, f2);
+            return create_Function(loc, args, v);
         } else {
             return create_GenericProcedure(loc, args, v);
         }
@@ -917,7 +916,7 @@ public:
         ASR::symbol_t *f2 = ASRUtils::symbol_get_past_external(v);
         if (ASR::is_a<ASR::Function_t>(*f2) || ASR::is_a<ASR::GenericProcedure_t>(*f2)) {
             Vec<ASR::expr_t*> args = visit_expr_list(m_args, n_args);
-            tmp = create_FunctionCall2(loc, args, v, f2);
+            tmp = create_FunctionCall2(loc, v, args);
         } else {
             switch (f2->type) {
             case(ASR::symbolType::Variable):
