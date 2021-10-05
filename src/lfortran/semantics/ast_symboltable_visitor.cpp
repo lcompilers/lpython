@@ -853,13 +853,8 @@ public:
             // This happens for things like:
             // integer :: Y(5)
             // real :: X(Y(1)+1)
-            ASR::ttype_t *type = ASR::down_cast<ASR::Variable_t>(s)->m_type;
-            Vec<ASR::array_index_t> indices;
-            // FIXME: convert args to indices:
-            indices.p = nullptr;
-            indices.n = 0;
-            tmp = ASR::make_ArrayRef_t(al, x.base.base.loc, v,
-                indices.p, indices.size(), type, nullptr);
+            tmp = create_ArrayRef(x.base.base.loc,
+                x.m_args, x.n_args, v, v);
         } else {
             tmp = create_FunctionCall(x.base.base.loc, v, args);
         }
