@@ -841,16 +841,6 @@ public:
         }
     }
 
-    void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
-        std::string var_name = to_lower(x.m_func);
-        ASR::symbol_t *v = current_scope->resolve_symbol(var_name);
-        if (!v) {
-            v = resolve_intrinsic_function(x.base.base.loc, var_name);
-        }
-        handle_fn_or_array(x.base.base.loc, x.m_args, x.n_args, v,
-            nullptr, var_name);
-    }
-
     void visit_DerivedType(const AST::DerivedType_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);

@@ -852,66 +852,6 @@ public:
                 final_sym, original_sym, args.p, args.size(), v_expr);
     }
 
-    ASR::symbol_t* resolve_deriv_type_proc(const Location &loc, const std::string &var_name,
-            const std::string &dt_name, SymbolTable*& scope) {
-        ASR::symbol_t *v = scope->resolve_symbol(dt_name);
-        if (!v) {
-            throw SemanticError("Variable '" + dt_name + "' not declared", loc);
-        }
-        ASR::Variable_t* v_variable = ((ASR::Variable_t*)(&(v->base)));
-        if ( v_variable->m_type->type == ASR::ttypeType::Derived ||
-             v_variable->m_type->type == ASR::ttypeType::DerivedPointer ||
-             v_variable->m_type->type == ASR::ttypeType::Class ) {
-            ASR::ttype_t* v_type = v_variable->m_type;
-            ASR::Derived_t* der = (ASR::Derived_t*)(&(v_type->base));
-            ASR::DerivedType_t* der_type;
-            if( der->m_derived_type->type == ASR::symbolType::ExternalSymbol ) {
-                ASR::ExternalSymbol_t* der_ext = (ASR::ExternalSymbol_t*)(&(der->m_derived_type->base));
-                ASR::symbol_t* der_sym = der_ext->m_external;
-                if( der_sym == nullptr ) {
-                    throw SemanticError("'" + std::string(der_ext->m_name) + "' isn't a Derived type.", loc);
-                } else {
-                    der_type = (ASR::DerivedType_t*)(&(der_sym->base));
-                }
-            } else {
-                der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
-            }
-            scope = der_type->m_symtab;
-            ASR::symbol_t* member = der_type->m_symtab->resolve_symbol(var_name);
-            if( member != nullptr ) {
-                return member;
-            } else {
-                throw SemanticError("Variable '" + dt_name + "' doesn't have any member named, '" + var_name + "'.", loc);
-            }
-        } else {
-            throw SemanticError("Variable '" + dt_name + "' is not a derived type", loc);
-        }
-    }
-
-
-    void visit_FuncCallOrArray(const AST::FuncCallOrArray_t &x) {
-        SymbolTable *scope = current_scope;
-        std::string var_name = to_lower(x.m_func);
-        ASR::symbol_t *v = nullptr;
-        ASR::expr_t *v_expr = nullptr;
-        // If this is a type bound procedure (in a class) it won't be in the
-        // main symbol table. Need to check n_member.
-        if (x.n_member == 1) {
-            ASR::symbol_t *obj = current_scope->resolve_symbol(x.m_member[0].m_name);
-            ASR::asr_t *obj_var = ASR::make_Var_t(al, x.base.base.loc, obj);
-            v_expr = LFortran::ASRUtils::EXPR(obj_var);
-            v = resolve_deriv_type_proc(x.base.base.loc, var_name,
-                x.m_member[0].m_name, scope);
-        } else {
-            v = current_scope->resolve_symbol(var_name);
-        }
-        if (!v) {
-            v = resolve_intrinsic_function(x.base.base.loc, var_name);
-        }
-        handle_fn_or_array(x.base.base.loc, x.m_args, x.n_args, v,
-            v_expr, var_name);
-    }
-
     void visit_ArrayInitializer(const AST::ArrayInitializer_t &x) {
         Vec<ASR::expr_t*> body;
         body.reserve(al, x.n_args);
