@@ -871,14 +871,14 @@ public:
                 Vec<ASR::expr_t*> args,
                     ASR::symbol_t *v) {
         ASR::symbol_t *f2 = ASRUtils::symbol_get_past_external(v);
+        ASR::ttype_t *return_type = ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(f2)->m_return_var)->m_type;
+        ASR::expr_t* value = nullptr;
         if (ASR::is_a<ASR::ExternalSymbol_t>(*v)) {
-            ASR::ttype_t *return_type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(f2)->m_return_var)->m_type;
             if (ASR::is_a<ASR::Character_t>(*return_type)) {
                 return_type = handle_character_return(return_type, loc);
             }
 
             // Populate value
-            ASR::expr_t* value = nullptr;
             ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(f2);
             if (ASRUtils::is_intrinsic_function(f)) {
                 ASR::asr_t* result = intrinsic_function_transformation(al, loc, f->m_name, args);
@@ -888,39 +888,10 @@ public:
                     value = intrinsic_procedures.comptime_eval(f->m_name, al, loc, args);
                 }
             }
-            return ASR::make_FunctionCall_t(al, loc,
-                v, nullptr, args.p, args.size(), nullptr, 0, return_type,
-                value, nullptr);
-        } else {
-            ASR::ttype_t *type;
-            type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(v)->m_return_var)->m_type;
-            return ASR::make_FunctionCall_t(al, loc,
-                v, nullptr, args.p, args.size(), nullptr, 0, type, nullptr,
-                nullptr);
         }
+        return ASR::make_FunctionCall_t(al, loc, v, nullptr,
+            args.p, args.size(), nullptr, 0, return_type, value, nullptr);
     }
-
-    void handle_fn_or_array(const Location &loc,
-                AST::fnarg_t* m_args, size_t n_args, ASR::symbol_t *v,
-                ASR::expr_t *v_expr, std::string &var_name) {
-        ASR::symbol_t *f2 = ASRUtils::symbol_get_past_external(v);
-        if (ASR::is_a<ASR::Function_t>(*f2) || ASR::is_a<ASR::GenericProcedure_t>(*f2)) {
-            Vec<ASR::expr_t*> args = visit_expr_list(m_args, n_args);
-            tmp = create_FunctionCall(loc, v, args);
-        } else {
-            switch (f2->type) {
-            case(ASR::symbolType::Variable):
-                tmp = create_ArrayRef(loc, m_args, n_args, v, f2); break;
-            case(ASR::symbolType::DerivedType):
-                tmp = create_DerivedTypeConstructor(loc, m_args, n_args, v); break;
-            case(ASR::symbolType::ClassProcedure):
-                tmp = create_ClassProcedure(loc, m_args, n_args, v, v_expr); break;
-            default: throw SemanticError("Symbol '" + var_name
-                        + "' is not a function or an array", loc);
-            }
-        }
-    }
-
 
     // `fn` is a local Function or GenericProcedure (that resolves to a
     // Function), or an ExternalSymbol that points to a Function or
@@ -938,6 +909,7 @@ public:
         if (ASR::is_a<ASR::Function_t>(*f2)) {
             return create_Function(loc, args, v);
         } else {
+            LFORTRAN_ASSERT(ASR::is_a<ASR::GenericProcedure_t>(*f2))
             return create_GenericProcedure(loc, args, v);
         }
     }
@@ -1071,8 +1043,22 @@ public:
         if (!v) {
             v = resolve_intrinsic_function(x.base.base.loc, var_name);
         }
-        handle_fn_or_array(x.base.base.loc, x.m_args, x.n_args, v,
-            v_expr, var_name);
+        ASR::symbol_t *f2 = ASRUtils::symbol_get_past_external(v);
+        if (ASR::is_a<ASR::Function_t>(*f2) || ASR::is_a<ASR::GenericProcedure_t>(*f2)) {
+            Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
+            tmp = create_FunctionCall(x.base.base.loc, v, args);
+        } else {
+            switch (f2->type) {
+            case(ASR::symbolType::Variable):
+                tmp = create_ArrayRef(x.base.base.loc, x.m_args, x.n_args, v, f2); break;
+            case(ASR::symbolType::DerivedType):
+                tmp = create_DerivedTypeConstructor(x.base.base.loc, x.m_args, x.n_args, v); break;
+            case(ASR::symbolType::ClassProcedure):
+                tmp = create_ClassProcedure(x.base.base.loc, x.m_args, x.n_args, v, v_expr); break;
+            default: throw SemanticError("Symbol '" + var_name
+                        + "' is not a function or an array", x.base.base.loc);
+            }
+        }
     }
 
     ASR::symbol_t* resolve_intrinsic_function(const Location &loc, const std::string &remote_sym) {
