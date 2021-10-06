@@ -465,7 +465,7 @@ public:
     }
 
     ASR::accessType get_asr_simple_attr(AST::simple_attributeType simple_attr) {
-        ASR::accessType access_type;
+        ASR::accessType access_type = ASR::accessType::Public;
         switch( simple_attr ) {
             case AST::simple_attributeType::AttrPublic: {
                 access_type = ASR::accessType::Public;
