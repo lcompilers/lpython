@@ -710,7 +710,8 @@ std::string format_syntax_error(const std::string &filename,
 
 std::string format_semantic_error(const std::string &filename,
         const std::string &/*input*/, const Location &loc,
-        const std::string msg, bool use_colors)
+        const std::string msg, bool use_colors,
+        const LocationManager &lm)
 {
     std::stringstream out;
     out << filename << ":" << loc.first << ":" << loc.last;

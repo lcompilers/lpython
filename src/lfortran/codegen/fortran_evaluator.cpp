@@ -435,7 +435,7 @@ std::string FortranEvaluator::format_error(const Error &e, const std::string &in
             break;
         }
         case (LFortran::FortranEvaluator::Error::Semantic) : {
-            out += format_semantic_error("input", input, e.loc, e.msg, compiler_options.use_colors);
+            out += format_semantic_error("input", input, e.loc, e.msg, compiler_options.use_colors, lm);
             break;
         }
         case (LFortran::FortranEvaluator::Error::CodeGen) : {
