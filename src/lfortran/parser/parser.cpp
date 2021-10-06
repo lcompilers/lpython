@@ -276,6 +276,7 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
         // `out` is the final code (outcome)
         lm.out_start.push_back(0);
         lm.in_start.push_back(0);
+        lm.in_newlines.push_back(0);
         std::string out;
         size_t pos = 0;
         bool in_comment = false;
@@ -286,9 +287,11 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
                 size_t pos2=pos+1;
                 bool ws_or_comment;
                 cont1(s, pos2, ws_or_comment);
+                if (ws_or_comment) lm.in_newlines.push_back(pos2-1);
                 if (ws_or_comment) {
                     while (ws_or_comment) {
                         cont1(s, pos2, ws_or_comment);
+                        if (ws_or_comment) lm.in_newlines.push_back(pos2-1);
                     }
                     // `pos` will move by more than 1, close the old interval
     //                lm.in_size.push_back(pos-lm.in_start[lm.in_start.size()-1]);
@@ -300,6 +303,8 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
                     lm.out_start.push_back(out.size());
                     lm.in_start.push_back(pos);
                 }
+            } else {
+                if (s[pos] == '\n') lm.in_newlines.push_back(pos);
             }
             out += s[pos];
             pos++;
@@ -307,6 +312,11 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
         // set the size of the last interval
     //    lm.in_size.push_back(pos-lm.in_start[lm.in_start.size()-1]);
 
+        // Add the position of EOF as the last \n, whether or not the original
+        // file has it
+        lm.in_newlines.push_back(pos);
+        lm.in_start.push_back(pos);
+        lm.out_start.push_back(out.size());
         return out;
     }
 }

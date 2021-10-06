@@ -76,6 +76,7 @@ struct LocationManager {
     // The index into these vectors is the interval ID, starting from 0
     std::vector<uint32_t> out_start; // consecutive intervals in the output code
     std::vector<uint32_t> in_start; // start + size in the original code
+    std::vector<uint32_t> in_newlines; // position of all \n in the original code
 // `in_size` is current commented out, because it is equivalent to
 // out_start[n+1]-out_start[n], due to each interval being 1:1 for now. Once we
 // implement multiple interval types, we will need it:
