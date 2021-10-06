@@ -86,6 +86,7 @@ struct LocationManager {
         } else {
             line = interval+1;
             col = position-in_newlines[interval];
+            if (line == 1) col++;
         }
     }
 
