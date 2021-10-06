@@ -262,7 +262,7 @@ int prompt(bool verbose)
         try {
             LFortran::LocationManager lm;
             LFortran::FortranEvaluator::Result<LFortran::FortranEvaluator::EvalResult>
-            res = e.evaluate2(input, verbose, lm);
+            res = e.evaluate(input, verbose, lm);
             if (res.ok) {
                 r = res.result;
             } else {
@@ -633,14 +633,13 @@ int emit_llvm(const std::string &infile, CompilerOptions &compiler_options)
     std::string input = read_file(infile);
 
     LFortran::FortranEvaluator fe(compiler_options);
+    LFortran::LocationManager lm;
     LFortran::FortranEvaluator::Result<std::string> llvm
-        = fe.get_llvm(input);
+        = fe.get_llvm(input, lm);
     if (llvm.ok) {
         std::cout << llvm.result;
         return 0;
     } else {
-        // TODO: make get_llvm() return lm
-        LFortran::LocationManager lm;
         std::cerr << fe.format_error(llvm.error, input, lm);
         return 1;
     }
@@ -651,13 +650,12 @@ int emit_asm(const std::string &infile, CompilerOptions &compiler_options)
     std::string input = read_file(infile);
 
     LFortran::FortranEvaluator fe(compiler_options);
-    LFortran::FortranEvaluator::Result<std::string> r = fe.get_asm(input);
+    LFortran::LocationManager lm;
+    LFortran::FortranEvaluator::Result<std::string> r = fe.get_asm(input, lm);
     if (r.ok) {
         std::cout << r.result;
         return 0;
     } else {
-        // TODO: make get_asm() return lm
-        LFortran::LocationManager lm;
         std::cerr << fe.format_error(r.error, input, lm);
         return 1;
     }
