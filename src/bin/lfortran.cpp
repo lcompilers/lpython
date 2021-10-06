@@ -353,22 +353,27 @@ int emit_prescan(const std::string &infile, CompilerOptions &compiler_options)
     return 0;
 }
 
-int emit_tokens(const std::string &infile)
+int emit_tokens(const std::string &infile, bool line_numbers=false)
 {
     std::string input = read_file(infile);
     // Src -> Tokens
     Allocator al(64*1024*1024);
     std::vector<int> toks;
     std::vector<LFortran::YYSTYPE> stypes;
+    std::vector<LFortran::Location> locations;
     try {
-        toks = LFortran::tokens(al, input, &stypes);
+        toks = LFortran::tokens(al, input, &stypes, &locations);
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
     }
 
     for (size_t i=0; i < toks.size(); i++) {
-        std::cout << LFortran::pickle(toks[i], stypes[i]) << std::endl;
+        std::cout << LFortran::pickle(toks[i], stypes[i]);
+        if (line_numbers) {
+            std::cout << " " << locations[i].first << ":" << locations[i].last;
+        }
+        std::cout << std::endl;
     }
     return 0;
 }

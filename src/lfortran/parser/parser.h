@@ -113,7 +113,8 @@ std::string format_semantic_error(const std::string &filename,
 
 // Tokenizes the `input` and return a list of tokens
 std::vector<int> tokens(Allocator &al, const std::string &input,
-        std::vector<LFortran::YYSTYPE> *stypes=nullptr);
+        std::vector<YYSTYPE> *stypes=nullptr,
+        std::vector<Location> *locations=nullptr);
 
 // Converts token number to text
 std::string token2text(const int token);

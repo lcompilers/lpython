@@ -68,18 +68,20 @@ void Parser::parse(const std::string &input)
 }
 
 std::vector<int> tokens(Allocator &al, const std::string &input,
-        std::vector<LFortran::YYSTYPE> *stypes)
+        std::vector<YYSTYPE> *stypes,
+        std::vector<Location> *locations)
 {
-    LFortran::Tokenizer t;
+    Tokenizer t;
     t.set_string(input);
     std::vector<int> tst;
     int token = yytokentype::END_OF_FILE + 1; // Something different from EOF
     while (token != yytokentype::END_OF_FILE) {
-        LFortran::YYSTYPE y;
-        LFortran::Location l;
+        YYSTYPE y;
+        Location l;
         token = t.lex(al, y, l);
         tst.push_back(token);
         if (stypes) stypes->push_back(y);
+        if (locations) locations->push_back(l);
     }
     return tst;
 }
