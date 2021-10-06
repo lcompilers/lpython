@@ -1,2 +1,4 @@
-input:32:33 syntax error: token '~' is not recognized
+input:3:5 syntax error: token '~' is not recognized
+x = ~1
+    ^
 Tokenizing error: token '~' is not recognized

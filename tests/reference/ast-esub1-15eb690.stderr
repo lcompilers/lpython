@@ -1,2 +1,4 @@
-input:15:16 syntax error: token type 'identifier' is unexpected here
+input:1:16 syntax error: token type 'identifier' is unexpected here
+subroutine g() r
+               ^
 Parsing error: syntax error
