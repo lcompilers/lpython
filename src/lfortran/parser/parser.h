@@ -77,8 +77,16 @@ struct LocationManager {
     // `in_newlines` starts from 0
     void pos_to_linecol(uint32_t position, uint32_t &line, uint32_t &col) const {
         int32_t interval = bisection(in_newlines, position);
-        line = interval+1;
-        col = position-in_newlines[interval];
+        if (position == in_newlines[interval]) {
+            // position is exactly the \n character, make sure `line` is
+            // the line with \n, and `col` points to the position of \n
+            line = interval;
+            LFORTRAN_ASSERT(interval >= 1)
+            col = position-in_newlines[interval-1];
+        } else {
+            line = interval+1;
+            col = position-in_newlines[interval];
+        }
     }
 
 };
