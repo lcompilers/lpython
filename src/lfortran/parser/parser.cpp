@@ -621,17 +621,21 @@ std::string highlight_line(const std::string &line,
     if (first_column == 0 || last_column == 0) return "";
     LFORTRAN_ASSERT(first_column >= 1)
     LFORTRAN_ASSERT(first_column <= last_column)
-    LFORTRAN_ASSERT(last_column <= line.size())
+    LFORTRAN_ASSERT(last_column <= line.size()+1)
     std::stringstream out;
     if (line.size() > 0) {
         out << line.substr(0, first_column-1);
+        if(use_colors) out << redon;
         if (last_column <= line.size()) {
-            if(use_colors) out << redon;
             out << line.substr(first_column-1,
                     last_column-first_column+1);
-            if(use_colors) out << redoff;
-            out << line.substr(last_column);
+        } else {
+            // `last_column` points to the \n character
+            out << line.substr(first_column-1,
+                    last_column-first_column+1-1);
         }
+        if(use_colors) out << redoff;
+        if (last_column < line.size()) out << line.substr(last_column);
     }
     out << std::endl;
     if (first_column > 0) {
