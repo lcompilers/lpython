@@ -394,6 +394,67 @@ bool is_op_overloaded(ASR::binopType op, std::string& intrinsic_op_name,
     }
     return result;
 }
+
+bool use_overloaded_assignment(ASR::expr_t* target, ASR::expr_t* value,
+                               SymbolTable* curr_scope, ASR::asr_t*& asr,
+                               Allocator &al, const Location& loc) {
+    ASR::ttype_t *target_type = LFortran::ASRUtils::expr_type(target);
+    ASR::ttype_t *value_type = LFortran::ASRUtils::expr_type(value);
+    bool found = false;
+    if( curr_scope->scope.find("=") != curr_scope->scope.end() ) {
+        ASR::symbol_t* sym = curr_scope->scope["="];
+        ASR::symbol_t* orig_sym = ASRUtils::symbol_get_past_external(sym);
+        ASR::CustomAssignment_t* gen_proc = ASR::down_cast<ASR::CustomAssignment_t>(orig_sym);
+        for( size_t i = 0; i < gen_proc->n_procs && !found; i++ ) {
+            ASR::symbol_t* proc = gen_proc->m_procs[i];
+            switch(proc->type) {
+                case ASR::symbolType::Function: {
+                    ASR::Function_t* func = ASR::down_cast<ASR::Function_t>(proc);
+                    if( func->n_args == 2 ) {
+                        ASR::ttype_t* target_arg_type = ASRUtils::expr_type(func->m_args[0]);
+                        ASR::ttype_t* value_arg_type = ASRUtils::expr_type(func->m_args[1]);
+                        if( target_arg_type->type == target_type->type && 
+                            value_arg_type->type == value_type->type ) {
+                            found = true;
+                            Vec<ASR::expr_t*> a_args;
+                            a_args.reserve(al, 2);
+                            a_args.push_back(al, target);
+                            a_args.push_back(al, value);
+                            asr = ASR::make_FunctionCall_t(al, loc, curr_scope->scope[std::string(func->m_name)], orig_sym,
+                                                            a_args.p, 2, nullptr, 0,
+                                                            ASRUtils::expr_type(func->m_return_var),
+                                                            nullptr, nullptr);
+                        }
+                    }
+                    break;
+                }
+                case ASR::symbolType::Subroutine: {
+                    ASR::Subroutine_t* subrout = ASR::down_cast<ASR::Subroutine_t>(proc);
+                    if( subrout->n_args == 2 ) {
+                        ASR::ttype_t* target_arg_type = ASRUtils::expr_type(subrout->m_args[0]);
+                        ASR::ttype_t* value_arg_type = ASRUtils::expr_type(subrout->m_args[1]);
+                        if( target_arg_type->type == target_type->type && 
+                            value_arg_type->type == value_type->type ) {
+                            found = true;
+                            Vec<ASR::expr_t*> a_args;
+                            a_args.reserve(al, 2);
+                            a_args.push_back(al, target);
+                            a_args.push_back(al, value);
+                            asr = ASR::make_SubroutineCall_t(al, loc, curr_scope->scope[std::string(subrout->m_name)], orig_sym,
+                                                              a_args.p, 2, nullptr);
+                        }
+                    }
+                    break;
+                }
+                default: {
+                    throw SemanticError("While overloading binary operators only functions can be used",
+                                        proc->base.loc);
+                }
+            }
+        }
+    }
+    return found;
+}
     } // namespace ASRUtils
 
 

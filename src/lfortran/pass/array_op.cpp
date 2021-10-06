@@ -353,7 +353,7 @@ public:
                     ASR::expr_t* ref = PassUtils::create_array_ref(tmp_val, idx_vars, al);
                     ASR::expr_t* res = PassUtils::create_array_ref(result_var, idx_vars, al);
                     ASR::expr_t* impl_cast_el_wise = LFortran::ASRUtils::EXPR(ASR::make_ImplicitCast_t(al, x.base.base.loc, ref, x.m_kind, x.m_type, nullptr));
-                    ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, impl_cast_el_wise));
+                    ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, impl_cast_el_wise, nullptr, nullptr));
                     doloop_body.push_back(al, assign);
                 } else {
                     doloop_body.push_back(al, doloop);
@@ -393,7 +393,7 @@ public:
                         ref = tmp_val;
                     }
                     ASR::expr_t* res = PassUtils::create_array_ref(result_var, idx_vars, al);
-                    ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, ref));
+                    ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, ref, nullptr, nullptr));
                     doloop_body.push_back(al, assign);
                 } else {
                     doloop_body.push_back(al, doloop);
@@ -445,7 +445,7 @@ public:
                     ASR::expr_t* op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_UnaryOp_t(
                                                     al, x.base.base.loc, 
                                                     x.m_op, ref, x.m_type, nullptr));
-                    ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise));
+                    ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise, nullptr, nullptr));
                     doloop_body.push_back(al, assign);
                 } else {
                     doloop_body.push_back(al, doloop);
@@ -524,7 +524,7 @@ public:
                         case ASR::exprType::Compare:
                             op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(
                                                 al, x.base.base.loc, 
-                                                ref_1, (ASR::cmpopType)x.m_op, ref_2, x.m_type, nullptr));
+                                                ref_1, (ASR::cmpopType)x.m_op, ref_2, x.m_type, nullptr, nullptr));
                             break;
                         case ASR::exprType::BoolOp:
                             op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_BoolOp_t(
@@ -535,21 +535,21 @@ public:
                             throw SemanticError("The desired operation is not supported yet for arrays.",
                                                 x.base.base.loc);
                     }
-                    ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise));
+                    ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise, nullptr, nullptr));
                     doloop_body.push_back(al, assign);
                 } else {
-                    ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i+1], const_1));
+                    ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i+1], const_1, nullptr, nullptr));
                     doloop_body.push_back(al, set_to_one);
                     doloop_body.push_back(al, doloop);
                 }
                 ASR::expr_t* inc_expr = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc, idx_vars_value[i],
                                                                                    ASR::binopType::Add, const_1, int32_type,
                                                                                    nullptr, nullptr));
-                ASR::stmt_t* assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i], inc_expr));
+                ASR::stmt_t* assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i], inc_expr, nullptr, nullptr));
                 doloop_body.push_back(al, assign_stmt);
                 doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
-            ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[0], const_1));
+            ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[0], const_1, nullptr, nullptr));
             array_op_result.push_back(al, set_to_one);
             array_op_result.push_back(al, doloop);
         } else if( (rank_left == 0 && rank_right > 0) || 
@@ -608,7 +608,7 @@ public:
                         case ASR::exprType::Compare:
                             op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(
                                                     al, x.base.base.loc, 
-                                                    ref, (ASR::cmpopType)x.m_op, other_expr, x.m_type, nullptr));
+                                                    ref, (ASR::cmpopType)x.m_op, other_expr, x.m_type, nullptr, nullptr));
                             break;
                         case ASR::exprType::BoolOp:
                             op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_BoolOp_t(
@@ -619,19 +619,19 @@ public:
                             throw SemanticError("The desired operation is not supported yet for arrays.",
                                                 x.base.base.loc);
                     }
-                    ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise));
+                    ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise, nullptr, nullptr));
                     doloop_body.push_back(al, assign);
                 } else {
-                    ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i+1], const_1));
+                    ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i+1], const_1, nullptr, nullptr));
                     doloop_body.push_back(al, set_to_one);
                     doloop_body.push_back(al, doloop);
                 }
                 ASR::expr_t* inc_expr = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc, idx_vars_value[i], ASR::binopType::Add, const_1, int32_type, nullptr, nullptr));
-                ASR::stmt_t* assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i], inc_expr));
+                ASR::stmt_t* assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i], inc_expr, nullptr, nullptr));
                 doloop_body.push_back(al, assign_stmt);
                 doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
-            ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[0], const_1));
+            ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[0], const_1, nullptr, nullptr));
             array_op_result.push_back(al, set_to_one);
             array_op_result.push_back(al, doloop);
         }

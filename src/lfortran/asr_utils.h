@@ -162,6 +162,9 @@ static inline char *symbol_name(const ASR::symbol_t *f)
         case ASR::symbolType::CustomOperator: {
             return ASR::down_cast<ASR::CustomOperator_t>(f)->m_name;
         }
+        case ASR::symbolType::CustomAssignment: {
+            return (char*)"=";
+        }
         default : throw LFortranException("Not implemented");
     }
 }
@@ -198,6 +201,9 @@ static inline SymbolTable *symbol_parent_symtab(const ASR::symbol_t *f)
         }
         case ASR::symbolType::CustomOperator: {
             return ASR::down_cast<ASR::CustomOperator_t>(f)->m_parent_symtab;
+        }
+        case ASR::symbolType::CustomAssignment: {
+            return ASR::down_cast<ASR::CustomAssignment_t>(f)->m_parent_symtab;
         }
         default : throw LFortranException("Not implemented");
     }
@@ -397,6 +403,11 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
 
 bool is_op_overloaded(ASR::binopType op, std::string& intrinsic_op_name,
                       SymbolTable* curr_scope);
+
+bool use_overloaded_assignment(ASR::expr_t* target, ASR::expr_t* value,
+                               SymbolTable* curr_scope, ASR::asr_t*& asr,
+                               Allocator &al, const Location& loc);
+
 
 void set_intrinsic(ASR::symbol_t* sym);
 

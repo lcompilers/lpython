@@ -89,7 +89,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                     throw SemanticError("Return type not supported in interactive mode",
                             loc);
                 }
-                ASR::stmt_t* asr_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target, value));
+                ASR::stmt_t* asr_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target, value, nullptr, nullptr));
                 body.push_back(al, asr_stmt);
             } else if (unit.m_items[i]->type == ASR::asrType::stmt) {
                 ASR::stmt_t* asr_stmt = LFortran::ASRUtils::STMT(unit.m_items[i]);
