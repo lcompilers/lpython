@@ -45,10 +45,17 @@ FortranEvaluator::FortranEvaluator(CompilerOptions compiler_options)
 FortranEvaluator::~FortranEvaluator() = default;
 
 Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
+            const std::string &code_orig, bool verbose) {
+    LocationManager lm;
+    return evaluate2(code_orig, verbose, lm);
+}
+
+Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate2(
 #ifdef HAVE_LFORTRAN_LLVM
-            const std::string &code_orig, bool verbose
+            const std::string &code_orig, bool verbose, LocationManager &lm
 #else
-            const std::string &/*code_orig*/, bool /*verbose*/
+            const std::string &/*code_orig*/, bool /*verbose*/,
+                LocationManager &/*lm*/
 #endif
             )
 {
@@ -58,7 +65,6 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
 
         // Src -> AST
         LFortran::AST::TranslationUnit_t* ast;
-        LFortran::LocationManager lm;
         std::string code = LFortran::fix_continuation(code_orig, lm, false);
         ast = LFortran::parse(al, code);
 
@@ -365,12 +371,12 @@ Result<std::string> FortranEvaluator::get_asm(
 #endif
 }
 
-Result<std::string> FortranEvaluator::get_cpp(const std::string &code)
+Result<std::string> FortranEvaluator::get_cpp(const std::string &code,
+    LocationManager &lm)
 {
     // Src -> AST -> ASR
     SymbolTable *old_symbol_table = symbol_table;
     symbol_table = nullptr;
-    LocationManager lm;
     Result<ASR::TranslationUnit_t*> asr = get_asr2(code, lm);
     symbol_table = old_symbol_table;
     if (asr.ok) {
@@ -412,7 +418,8 @@ Result<std::string> FortranEvaluator::get_fmt(const std::string &code)
     }
 }
 
-std::string FortranEvaluator::format_error(const Error &e, const std::string &input) const
+std::string FortranEvaluator::format_error(const Error &e, const std::string &input,
+        const LocationManager &lm) const
 {
     std::string out;
     if (compiler_options.show_stacktrace) {

@@ -260,12 +260,13 @@ int prompt(bool verbose)
         LFortran::FortranEvaluator::EvalResult r;
 
         try {
+            LFortran::LocationManager lm;
             LFortran::FortranEvaluator::Result<LFortran::FortranEvaluator::EvalResult>
-            res = e.evaluate(input, verbose);
+            res = e.evaluate2(input, verbose, lm);
             if (res.ok) {
                 r = res.result;
             } else {
-                std::cerr << e.format_error(res.error, input);
+                std::cerr << e.format_error(res.error, input, lm);
                 continue;
             }
         } catch (const LFortran::LFortranException &e) {
@@ -467,7 +468,7 @@ int python_wrapper(const std::string &infile, std::string array_order,
     if (result.ok) {
         asr = result.result;
     } else {
-        std::cerr << fe.format_error(result.error, input);
+        std::cerr << fe.format_error(result.error, input, lm);
         return 1;
     }
 
@@ -513,7 +514,7 @@ int emit_asr(const std::string &infile,
     LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
         r = fe.get_asr2(input, lm);
     if (!r.ok) {
-        std::cerr << fe.format_error(r.error, input);
+        std::cerr << fe.format_error(r.error, input, lm);
         return 2;
     }
     LFortran::ASR::TranslationUnit_t* asr = r.result;
@@ -566,12 +567,13 @@ int emit_cpp(const std::string &infile, CompilerOptions &compiler_options)
     std::string input = read_file(infile);
 
     LFortran::FortranEvaluator fe(compiler_options);
-    LFortran::FortranEvaluator::Result<std::string> cpp = fe.get_cpp(input);
+    LFortran::LocationManager lm;
+    LFortran::FortranEvaluator::Result<std::string> cpp = fe.get_cpp(input, lm);
     if (cpp.ok) {
         std::cout << cpp.result;
         return 0;
     } else {
-        std::cerr << fe.format_error(cpp.error, input);
+        std::cerr << fe.format_error(cpp.error, input, lm);
         return 1;
     }
 }
@@ -632,7 +634,9 @@ int emit_llvm(const std::string &infile, CompilerOptions &compiler_options)
         std::cout << llvm.result;
         return 0;
     } else {
-        std::cerr << fe.format_error(llvm.error, input);
+        // TODO: make get_llvm() return lm
+        LFortran::LocationManager lm;
+        std::cerr << fe.format_error(llvm.error, input, lm);
         return 1;
     }
 }
@@ -647,7 +651,9 @@ int emit_asm(const std::string &infile, CompilerOptions &compiler_options)
         std::cout << r.result;
         return 0;
     } else {
-        std::cerr << fe.format_error(r.error, input);
+        // TODO: make get_asm() return lm
+        LFortran::LocationManager lm;
+        std::cerr << fe.format_error(r.error, input, lm);
         return 1;
     }
 }
@@ -670,7 +676,7 @@ int compile_to_object_file(const std::string &infile,
     if (result.ok) {
         asr = result.result;
     } else {
-        std::cerr << fe.format_error(result.error, input);
+        std::cerr << fe.format_error(result.error, input, lm);
         return 1;
     }
 
@@ -818,7 +824,7 @@ int compile_to_object_file_cpp(const std::string &infile,
     if (result.ok) {
         asr = result.result;
     } else {
-        std::cerr << fe.format_error(result.error, input);
+        std::cerr << fe.format_error(result.error, input, lm);
         return 1;
     }
 
