@@ -709,38 +709,35 @@ std::string format_syntax_error(const std::string &filename,
 }
 
 std::string format_semantic_error(const std::string &filename,
-        const std::string &/*input*/, const Location &loc,
+        const std::string &input, const Location &loc,
         const std::string msg, bool use_colors,
         const LocationManager &lm)
 {
+    uint32_t first_line, first_column, last_line, last_column;
+    lm.pos_to_linecol(lm.output_to_input_pos(loc.first), first_line, first_column);
+    lm.pos_to_linecol(lm.output_to_input_pos(loc.last), last_line, last_column);
+
     std::stringstream out;
-    out << filename << ":" << loc.first << ":" << loc.last;
-    if(use_colors) out << " " << redon << "semantic error:" << redoff << " ";
-    else out << " " << "semantic error:" <<  " ";
-    out << msg << std::endl;
-    // Original code
-    /*
-    out << filename << ":" << loc.first_line << ":" << loc.first_column;
-    if (loc.first_line != loc.last_line) {
-        out << " - " << loc.last_line << ":" << loc.last_column;
+    out << filename << ":" << first_line << ":" << first_column;
+    if (first_line != last_line) {
+        out << " - " << last_line << ":" << last_column;
     }
     if(use_colors) out << " " << redon << "semantic error:" << redoff << " ";
     else out << " " << "semantic error:" <<  " ";
     out << msg << std::endl;
-    if (loc.first_line == loc.last_line) {
-        std::string line = get_line(input, loc.first_line);
-        out << highlight_line(line, loc.first_column, loc.last_column, use_colors);
+    if (first_line == last_line) {
+        std::string line = get_line(input, first_line);
+        out << highlight_line(line, first_column, last_column, use_colors);
     } else {
-        out << "first (" << loc.first_line << ":" << loc.first_column;
+        out << "first (" << first_line << ":" << first_column;
         out << ")" << std::endl;
-        std::string line = get_line(input, loc.first_line);
-        out << highlight_line(line, loc.first_column, line.size(), use_colors);
-        out << "last (" << loc.last_line << ":" << loc.last_column;
+        std::string line = get_line(input, first_line);
+        out << highlight_line(line, first_column, line.size(), use_colors);
+        out << "last (" << last_line << ":" << last_column;
         out << ")" << std::endl;
-        line = get_line(input, loc.last_line);
-        out << highlight_line(line, 1, loc.last_column, use_colors);
+        line = get_line(input, last_line);
+        out << highlight_line(line, 1, last_column, use_colors);
     }
-    */
     return out.str();
 }
 
