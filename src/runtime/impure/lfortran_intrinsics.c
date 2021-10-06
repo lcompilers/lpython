@@ -581,3 +581,11 @@ LFORTRAN_API int32_t _lfortran_ior32(int32_t x, int32_t y) {
 LFORTRAN_API int64_t _lfortran_ior64(int64_t x, int64_t y) {
     return x | y;
 }
+
+LFORTRAN_API int32_t _lfortran_ibset32(int32_t i, int pos) {
+    return i | (1 << pos);
+}
+
+LFORTRAN_API int64_t _lfortran_ibset64(int64_t i, int pos) {
+    return i | (1LL << pos);
+}
