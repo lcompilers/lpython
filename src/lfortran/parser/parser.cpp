@@ -204,6 +204,19 @@ void copy_rest_of_line(std::string &out, const std::string &s, size_t &pos)
     pos++;
 }
 
+// Checks that newlines are computed correctly
+bool check_newlines(const std::string &s, const std::vector<uint32_t> newlines) {
+    std::vector<uint32_t> newlines2 = {0};
+    for (uint32_t pos=0; pos < s.size(); pos++) {
+        if (s[pos] == '\n') newlines2.push_back(pos);
+    }
+    if (newlines2.size() != newlines.size()) return false;
+    for (size_t i=0; i < newlines2.size(); i++) {
+        if (newlines2[i] != newlines[i]) return false;
+    }
+    return true;
+}
+
 std::string fix_continuation(const std::string &s, LocationManager &lm,
         bool fixed_form)
 {
@@ -311,6 +324,8 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
         }
         // set the size of the last interval
     //    lm.in_size.push_back(pos-lm.in_start[lm.in_start.size()-1]);
+
+        LFORTRAN_ASSERT(check_newlines(s, lm.in_newlines))
 
         // Add the position of EOF as the last \n, whether or not the original
         // file has it
