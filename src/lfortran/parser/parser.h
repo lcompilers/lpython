@@ -94,6 +94,17 @@ struct LocationManager {
         uint32_t in_pos = in_start[interval] + rel_pos;
         return in_pos;
     }
+
+    // Converts a linear position `position` to a (line, col) tuple
+    // `position` starts from 0
+    // `line` and `col` starts from 1
+    // `in_newlines` starts from 0
+    void pos_to_linecol(uint32_t position, uint32_t &line, uint32_t &col) const {
+        int32_t interval = bisection(in_newlines, position);
+        line = interval+1;
+        col = position-in_newlines[interval];
+    }
+
 };
 
 std::string fix_continuation(const std::string &s, LocationManager &lm,
