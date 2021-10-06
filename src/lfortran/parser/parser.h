@@ -84,6 +84,10 @@ struct LocationManager {
 //    std::vector<uint8_t> interval_type; // 0 .... 1:1; 1 ... any to one;
 //    std::vector<uint32_t> filename_id; // file name for each interval, ID
 //    std::vector<std::string> filenames; // filenames lookup for an ID
+
+    // Converts a position in the output code to a position in the original code
+    // Every character in the output code has a corresponding location in the
+    // original code, so this function always succeeds
     uint32_t output_to_input_pos(uint32_t out_pos) const {
         uint32_t interval = bisection(out_start, out_pos);
         uint32_t rel_pos = out_pos - out_start[interval];
