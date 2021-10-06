@@ -1517,6 +1517,11 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "../integration_tests/operator_overloading_02.f90"
+asr = true
+llvm = true
+
+[[test]]
 filename = "team1.f90"
 ast = true
 ast_f90 = true

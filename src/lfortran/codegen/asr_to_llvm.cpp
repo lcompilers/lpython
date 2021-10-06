@@ -2280,6 +2280,13 @@ public:
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
+        if( x.m_overloaded_expr ) {
+            this->visit_expr(*x.m_overloaded_expr);
+            return ;
+        } else if( x.m_overloaded_stmt ) {
+            this->visit_stmt(*x.m_overloaded_stmt);
+            return ;
+        }
         llvm::Value *target, *value;
         uint32_t h;
         bool lhs_is_string_arrayref = false;
