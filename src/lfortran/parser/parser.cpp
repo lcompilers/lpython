@@ -618,6 +618,10 @@ std::string highlight_line(const std::string &line,
         const size_t last_column,
         bool use_colors)
 {
+    if (first_column == 0 || last_column == 0) return "";
+    LFORTRAN_ASSERT(first_column >= 1)
+    LFORTRAN_ASSERT(first_column <= last_column)
+    LFORTRAN_ASSERT(last_column <= line.size())
     std::stringstream out;
     if (line.size() > 0) {
         out << line.substr(0, first_column-1);
