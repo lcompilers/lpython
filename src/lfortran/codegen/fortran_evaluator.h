@@ -5,6 +5,7 @@
 #include <memory>
 
 #include <lfortran/parser/alloc.h>
+#include <lfortran/parser/parser.h>
 #include <lfortran/semantics/asr_scopes.h>
 #include <lfortran/ast.h>
 #include <lfortran/asr.h>
@@ -100,7 +101,8 @@ public:
     Result<std::string> get_ast(const std::string &code);
     Result<AST::TranslationUnit_t*> get_ast2(const std::string &code);
     Result<std::string> get_asr(const std::string &code);
-    Result<ASR::TranslationUnit_t*> get_asr2(const std::string &code);
+    Result<ASR::TranslationUnit_t*> get_asr2(const std::string &code,
+        LocationManager &lm);
     Result<std::string> get_llvm(const std::string &code);
     Result<std::unique_ptr<LLVMModule>> get_llvm2(const std::string &code);
     Result<std::string> get_asm(const std::string &code);
