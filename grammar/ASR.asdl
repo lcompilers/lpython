@@ -93,6 +93,8 @@ symbol
         symbol* procs, access access)
     | CustomOperator(symbol_table parent_symtab, identifier name,
         symbol* procs, access access)
+    | CustomAssignment(symbol_table parent_symtab, symbol* procs,
+        access access)
     | ExternalSymbol(symbol_table parent_symtab, identifier name,
         symbol external, identifier module_name, identifier* scope_names,
         identifier original_name, access access)
@@ -153,7 +155,7 @@ abi                   -- External     ABI
 stmt
     = Allocate(alloc_arg* args, expr? stat)
     | Assign(int label, identifier variable)
-    | Assignment(expr target, expr value)
+    | Assignment(expr target, expr value, expr? overloaded_expr, stmt? overloaded_stmt)
     | Associate(expr target, expr value)
     | Cycle()
     -- deallocates if allocated otherwise throws a runtime error
