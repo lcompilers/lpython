@@ -40,10 +40,12 @@ AST::TranslationUnit_t* parse2(Allocator &al, const std::string &code_original,
         } else {
             token = e.token;
         }
-        std::cerr << format_syntax_error("input", code_prescanned, e.loc, token, nullptr, use_colors);
+        std::cerr << format_syntax_error("input", code_prescanned, e.loc,
+            token, nullptr, use_colors, lm);
         throw;
     } catch (const LFortran::TokenizerError &e) {
-        std::cerr << format_syntax_error("input", code_prescanned, e.loc, -1, &e.token, use_colors);
+        std::cerr << format_syntax_error("input", code_prescanned, e.loc,
+            -1, &e.token, use_colors, lm);
         throw;
     }
     return result;
@@ -644,34 +646,18 @@ std::string highlight_line(const std::string &line,
 }
 
 std::string format_syntax_error(const std::string &filename,
-        const std::string &/*input*/, const Location &loc, const int token,
-        const std::string *tstr, bool use_colors)
+        const std::string &input, const Location &loc, const int token,
+        const std::string *tstr, bool use_colors,
+        const LocationManager &lm)
 {
+    uint32_t first_line, first_column, last_line, last_column;
+    lm.pos_to_linecol(lm.output_to_input_pos(loc.first), first_line, first_column);
+    lm.pos_to_linecol(lm.output_to_input_pos(loc.last), last_line, last_column);
+
     std::stringstream out;
-    out << filename << ":" << loc.first << ":" << loc.last;
-    if(use_colors) out << " " << redon << "syntax error:" << redoff << " ";
-    else out << " " << "syntax error:" <<  " ";
-    if (token == -1) {
-        LFORTRAN_ASSERT(tstr != nullptr);
-        out << "token '";
-        out << *tstr;
-        out << "' is not recognized" << std::endl;
-    } else if (token == -2) {
-        out << "syntax is ambiguous" << std::endl;
-    } else {
-        if (token == yytokentype::END_OF_FILE) {
-            out << "end of file is unexpected here" << std::endl;
-        } else {
-            out << "token type '";
-            out << token2text(token);
-            out << "' is unexpected here" << std::endl;
-        }
-    }
-    // Original code:
-    /*
-    out << filename << ":" << loc.first_line << ":" << loc.first_column;
-    if (loc.first_line != loc.last_line) {
-        out << " - " << loc.last_line << ":" << loc.last_column;
+    out << filename << ":" << first_line << ":" << first_column;
+    if (first_line != last_line) {
+        out << " - " << last_line << ":" << last_column;
     }
     if(use_colors) out << " " << redon << "syntax error:" << redoff << " ";
     else out << " " << "syntax error:" <<  " ";
@@ -691,20 +677,19 @@ std::string format_syntax_error(const std::string &filename,
             out << "' is unexpected here" << std::endl;
         }
     }
-    if (loc.first_line == loc.last_line) {
-        std::string line = get_line(input, loc.first_line);
-        out << highlight_line(line, loc.first_column, loc.last_column, use_colors);
+    if (first_line == last_line) {
+        std::string line = get_line(input, first_line);
+        out << highlight_line(line, first_column, last_column, use_colors);
     } else {
-        out << "first (" << loc.first_line << ":" << loc.first_column;
+        out << "first (" << first_line << ":" << first_column;
         out << ")" << std::endl;
-        std::string line = get_line(input, loc.first_line);
-        out << highlight_line(line, loc.first_column, line.size(), use_colors);
-        out << "last (" << loc.last_line << ":" << loc.last_column;
+        std::string line = get_line(input, first_line);
+        out << highlight_line(line, first_column, line.size(), use_colors);
+        out << "last (" << last_line << ":" << last_column;
         out << ")" << std::endl;
-        line = get_line(input, loc.last_line);
-        out << highlight_line(line, 1, loc.last_column, use_colors);
+        line = get_line(input, last_line);
+        out << highlight_line(line, 1, last_column, use_colors);
     }
-    */
     return out.str();
 }
 

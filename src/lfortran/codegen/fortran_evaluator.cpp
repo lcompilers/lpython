@@ -427,15 +427,18 @@ std::string FortranEvaluator::format_error(const Error &e, const std::string &in
     }
     switch (e.type) {
         case (LFortran::FortranEvaluator::Error::Tokenizer) : {
-            out += format_syntax_error("input", input, e.loc, -1, &e.token_str, compiler_options.use_colors);
+            out += format_syntax_error("input", input, e.loc, -1, &e.token_str,
+                compiler_options.use_colors, lm);
             break;
         }
         case (LFortran::FortranEvaluator::Error::Parser) : {
-            out += format_syntax_error("input", input, e.loc, e.token, nullptr, compiler_options.use_colors);
+            out += format_syntax_error("input", input, e.loc, e.token, nullptr,
+                compiler_options.use_colors, lm);
             break;
         }
         case (LFortran::FortranEvaluator::Error::Semantic) : {
-            out += format_semantic_error("input", input, e.loc, e.msg, compiler_options.use_colors, lm);
+            out += format_semantic_error("input", input, e.loc, e.msg,
+                compiler_options.use_colors, lm);
             break;
         }
         case (LFortran::FortranEvaluator::Error::CodeGen) : {
