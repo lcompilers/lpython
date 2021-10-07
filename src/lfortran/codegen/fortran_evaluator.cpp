@@ -179,7 +179,8 @@ Result<std::string> FortranEvaluator::get_ast(const std::string &code,
 {
     Result<AST::TranslationUnit_t*> ast = get_ast2(code, lm);
     if (ast.ok) {
-        return LFortran::pickle(*ast.result, true);
+        return LFortran::pickle(*ast.result, compiler_options.use_colors,
+            compiler_options.indent);
     } else {
         return ast.error;
     }

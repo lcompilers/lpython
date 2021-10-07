@@ -19,6 +19,7 @@ struct CompilerOptions {
     bool symtab_only = false;
     bool show_stacktrace = false;
     bool use_colors = true;
+    bool indent = false;
     bool fast = false;
     bool openmp = false;
     std::string target = "";

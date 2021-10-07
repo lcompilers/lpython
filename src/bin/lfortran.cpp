@@ -379,8 +379,7 @@ int emit_tokens(const std::string &infile, bool line_numbers=false)
     return 0;
 }
 
-int emit_ast(const std::string &infile, bool indent,
-        CompilerOptions &compiler_options)
+int emit_ast(const std::string &infile, CompilerOptions &compiler_options)
 {
     std::string input = read_file(infile);
 
@@ -506,7 +505,7 @@ int python_wrapper(const std::string &infile, std::string array_order,
 }
 
 int emit_asr(const std::string &infile,
-    const std::vector<ASRPass> &passes, bool indent,
+    const std::vector<ASRPass> &passes,
     bool with_intrinsic_modules, CompilerOptions &compiler_options)
 {
     std::string input = read_file(infile);
@@ -559,7 +558,7 @@ int emit_asr(const std::string &infile,
             default : throw LFortran::LFortranException("Pass not implemened");
         }
     }
-    std::cout << LFortran::pickle(*asr, compiler_options.use_colors, indent,
+    std::cout << LFortran::pickle(*asr, compiler_options.use_colors, compiler_options.indent,
             with_intrinsic_modules) << std::endl;
     return 0;
 }
@@ -1100,7 +1099,6 @@ int main(int argc, char *argv[])
         bool show_ast_f90 = false;
         std::string arg_pass;
         bool arg_no_color = false;
-        bool arg_indent = false;
         bool show_llvm = false;
         bool show_cpp = false;
         bool show_asm = false;
@@ -1153,7 +1151,7 @@ int main(int argc, char *argv[])
         app.add_flag("--with-intrinsic-mods", with_intrinsic_modules, "Show intrinsic modules in ASR");
         app.add_flag("--show-ast-f90", show_ast_f90, "Show Fortran from AST for the given file and exit");
         app.add_flag("--no-color", arg_no_color, "Turn off colored AST/ASR");
-        app.add_flag("--indent", arg_indent, "Indented print ASR/AST");
+        app.add_flag("--indent", compiler_options.indent, "Indented print ASR/AST");
         app.add_option("--pass", arg_pass, "Apply the ASR pass and show ASR (implies --show-asr)");
         app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
         app.add_flag("--show-cpp", show_cpp, "Show C++ translation source for the given file and exit");
@@ -1319,7 +1317,7 @@ int main(int argc, char *argv[])
             return emit_tokens(arg_file);
         }
         if (show_ast) {
-            return emit_ast(arg_file, arg_indent, compiler_options);
+            return emit_ast(arg_file, compiler_options);
         }
         if (show_ast_f90) {
             return emit_ast_f90(arg_file, compiler_options);
@@ -1349,7 +1347,7 @@ int main(int argc, char *argv[])
             show_asr = true;
         }
         if (show_asr) {
-            return emit_asr(arg_file, passes, arg_indent,
+            return emit_asr(arg_file, passes,
                     with_intrinsic_modules, compiler_options);
         }
         if (show_llvm) {
