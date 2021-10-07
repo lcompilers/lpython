@@ -383,21 +383,17 @@ int emit_ast(const std::string &infile, bool indent,
         CompilerOptions &compiler_options)
 {
     std::string input = read_file(infile);
-    // Src -> AST
-    Allocator al(64*1024*1024);
-    LFortran::AST::TranslationUnit_t* ast;
-    try {
-        ast = LFortran::parse2(al, input, compiler_options.use_colors, compiler_options.fixed_form);
-    } catch (const LFortran::TokenizerError &e) {
-        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
-        return 1;
-    } catch (const LFortran::ParserError &e) {
-        std::cerr << "Parsing error: " << e.msg() << std::endl;
+
+    LFortran::FortranEvaluator fe(compiler_options);
+    LFortran::LocationManager lm;
+    LFortran::FortranEvaluator::Result<std::string> r = fe.get_ast(input, lm);
+    if (r.ok) {
+        std::cout << r.result << std::endl;
+        return 0;
+    } else {
+        std::cerr << fe.format_error(r.error, input, lm);
         return 2;
     }
-
-    std::cout << LFortran::pickle(*ast, compiler_options.use_colors, indent) << std::endl;
-    return 0;
 }
 
 int emit_ast_f90(const std::string &infile, CompilerOptions &compiler_options)
@@ -1093,7 +1089,6 @@ int main(int argc, char *argv[])
         std::vector<std::string> arg_I;
         std::vector<std::string> arg_l;
         std::vector<std::string> arg_L;
-        bool arg_cpp = false;
         std::string arg_o;
         std::vector<std::string> arg_files;
         bool arg_version = false;
@@ -1149,7 +1144,7 @@ int main(int argc, char *argv[])
         app.add_flag("--version", arg_version, "Display compiler version information");
 
         // LFortran specific options
-        app.add_flag("--cpp", arg_cpp, "Enable preprocessing");
+        app.add_flag("--cpp", compiler_options.c_preprocessor, "Enable C preprocessing");
         app.add_flag("--fixed-form", compiler_options.fixed_form, "Use fixed form Fortran source parsing");
         app.add_flag("--show-prescan", show_prescan, "Show tokens for the given file and exit");
         app.add_flag("--show-tokens", show_tokens, "Show tokens for the given file and exit");
@@ -1313,31 +1308,9 @@ int main(int argc, char *argv[])
             outfile = "a.out";
         }
 
-        if (arg_cpp) {
-            std::string file_cpp = arg_file + ".preprocessed";
-            std::string cmd = "gfortran -cpp -E " + arg_file + " -o "
-                + file_cpp;
-            int err = system(cmd.c_str());
-            if (err) {
-                std::cout << "The command '" + cmd + "' failed." << std::endl;
-                return 11;
-            }
-            std::string file_cpp2 = file_cpp + "2";
-            std::string input = read_file(file_cpp);
-            LFortran::LocationManager lm;
-            std::string output = LFortran::fix_continuation(input, lm, false);
-            {
-                std::ofstream out;
-                out.open(file_cpp2);
-                out << output;
-            }
-            arg_file = file_cpp2;
-        }
-
         if (arg_E) {
             return emit_c_preprocessor(arg_file, compiler_options);
         }
-
 
         if (show_prescan) {
             return emit_prescan(arg_file, compiler_options);

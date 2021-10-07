@@ -14,6 +14,8 @@ Platform get_platform();
 
 struct CompilerOptions {
     bool fixed_form = false;
+    bool c_preprocessor = false;
+    bool prescan = true;
     bool symtab_only = false;
     bool show_stacktrace = false;
     bool use_colors = true;

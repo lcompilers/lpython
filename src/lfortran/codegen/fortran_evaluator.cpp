@@ -9,6 +9,7 @@
 #include <lfortran/asr.h>
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/parser/parser.h>
+#include <lfortran/parser/preprocessor.h>
 #include <lfortran/pickle.h>
 
 #ifdef HAVE_LFORTRAN_LLVM
@@ -189,9 +190,20 @@ Result<AST::TranslationUnit_t*> FortranEvaluator::get_ast2(
 {
     try {
         // Src -> AST
-        LFortran::AST::TranslationUnit_t* ast;
-        std::string code = LFortran::fix_continuation(code_orig, lm, false);
-        ast = LFortran::parse(al, code);
+        std::string code;
+        if (compiler_options.c_preprocessor) {
+            // Preprocessor
+            CPreprocessor cpp;
+            code = cpp.run(code_orig);
+        } else {
+            // TODO: avoid this copy
+            code = code_orig;
+        }
+        if (compiler_options.prescan || compiler_options.fixed_form) {
+            code = fix_continuation(code, lm, compiler_options.fixed_form);
+        }
+        AST::TranslationUnit_t* ast;
+        ast = parse(al, code);
         return ast;
     } catch (const TokenizerError &e) {
         FortranEvaluator::Error error;
@@ -233,10 +245,13 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
     ASR::TranslationUnit_t* asr;
     try {
         // Src -> AST
+        Result<AST::TranslationUnit_t*> res = get_ast2(code_orig, lm);
         AST::TranslationUnit_t* ast;
-        std::string code = fix_continuation(code_orig, lm,
-            compiler_options.fixed_form);
-        ast = parse(al, code);
+        if (res.ok) {
+            ast = res.result;
+        } else {
+            return res.error;
+        }
 
         // AST -> ASR
         // Remove the old execution function if it exists
@@ -248,28 +263,6 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
         }
         asr = ast_to_asr(al, *ast, symbol_table, compiler_options.symtab_only);
         if (!symbol_table) symbol_table = asr->m_global_scope;
-    } catch (const TokenizerError &e) {
-        FortranEvaluator::Error error;
-        error.type = FortranEvaluator::Error::Tokenizer;
-        error.loc = e.loc;
-        error.msg = e.msg();
-        error.token_str = e.token;
-        error.stacktrace_addresses = e.stacktrace_addresses();
-        return error;
-    } catch (const ParserError &e) {
-        int token;
-        if (e.msg() == "syntax is ambiguous") {
-            token = -2;
-        } else {
-            token = e.token;
-        }
-        FortranEvaluator::Error error;
-        error.type = FortranEvaluator::Error::Parser;
-        error.loc = e.loc;
-        error.token = token;
-        error.msg = e.msg();
-        error.stacktrace_addresses = e.stacktrace_addresses();
-        return error;
     } catch (const SemanticError &e) {
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::Semantic;
