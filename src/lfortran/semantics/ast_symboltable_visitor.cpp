@@ -1040,10 +1040,8 @@ public:
             return ;
         }
         Location loc;
-        loc.first_line = 1;
-        loc.last_line = 1;
-        loc.first_column = 1;
-        loc.last_column = 1;
+        loc.first = 1;
+        loc.last = 1;
         std::string str_name = "=";
         Vec<ASR::symbol_t*> symbols;
         symbols.reserve(al, assgn_proc_names.size());
