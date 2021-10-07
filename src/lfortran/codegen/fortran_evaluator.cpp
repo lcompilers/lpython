@@ -191,20 +191,20 @@ Result<AST::TranslationUnit_t*> FortranEvaluator::get_ast2(
 {
     try {
         // Src -> AST
-        std::string code;
+        const std::string *code=&code_orig;
+        std::string tmp;
         if (compiler_options.c_preprocessor) {
             // Preprocessor
             CPreprocessor cpp;
-            code = cpp.run(code_orig);
-        } else {
-            // TODO: avoid this copy
-            code = code_orig;
+            tmp = cpp.run(code_orig);
+            code = &tmp;
         }
         if (compiler_options.prescan || compiler_options.fixed_form) {
-            code = fix_continuation(code, lm, compiler_options.fixed_form);
+            tmp = fix_continuation(*code, lm, compiler_options.fixed_form);
+            code = &tmp;
         }
         AST::TranslationUnit_t* ast;
-        ast = parse(al, code);
+        ast = parse(al, *code);
         return ast;
     } catch (const TokenizerError &e) {
         FortranEvaluator::Error error;
