@@ -7,6 +7,7 @@
 
 #include <lfortran/stacktrace.h>
 #include <lfortran/parser/parser.h>
+#include <lfortran/parser/preprocessor.h>
 #include <lfortran/pickle.h>
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/mod_to_asr.h>
@@ -1058,6 +1059,15 @@ int link_executable(const std::vector<std::string> &infiles,
     }
 }
 
+int emit_c_preprocessor(const std::string &infile, CompilerOptions &/*compiler_options*/)
+{
+    std::string input = read_file(infile);
+
+    LFortran::CPreprocessor cpp;
+    cpp.run(input);
+    return 0;
+}
+
 } // anonymous namespace
 
 int main(int argc, char *argv[])
@@ -1076,6 +1086,7 @@ int main(int argc, char *argv[])
         bool arg_c = false;
         bool arg_v = false;
         bool arg_E = false;
+        bool arg_g = false;
         std::string arg_J;
         std::vector<std::string> arg_I;
         std::vector<std::string> arg_l;
@@ -1131,6 +1142,7 @@ int main(int argc, char *argv[])
         app.add_option("-L", arg_L, "Library path option");
         app.add_option("-I", arg_I, "Include path")->allow_extra_args(false);
         app.add_option("-J", arg_J, "Where to save mod files");
+        app.add_flag("-g", arg_g, "Compile with debugging information");
         app.add_flag("--version", arg_version, "Display compiler version information");
 
         // LFortran specific options
@@ -1320,7 +1332,7 @@ int main(int argc, char *argv[])
         }
 
         if (arg_E) {
-            return 0;
+            return emit_c_preprocessor(arg_file, compiler_options);
         }
 
 
