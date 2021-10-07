@@ -93,8 +93,6 @@ symbol
         symbol* procs, access access)
     | CustomOperator(symbol_table parent_symtab, identifier name,
         symbol* procs, access access)
-    | CustomAssignment(symbol_table parent_symtab, symbol* procs,
-        access access)
     | ExternalSymbol(symbol_table parent_symtab, identifier name,
         symbol external, identifier module_name, identifier* scope_names,
         identifier original_name, access access)

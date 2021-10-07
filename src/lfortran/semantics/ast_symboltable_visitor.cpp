@@ -1042,7 +1042,10 @@ public:
         Location loc;
         loc.first = 1;
         loc.last = 1;
-        std::string str_name = "=";
+        std::string str_name = "~assign";
+        Str s;
+        s.from_str_view(str_name);
+        char *generic_name = s.c_str(al);
         Vec<ASR::symbol_t*> symbols;
         symbols.reserve(al, assgn_proc_names.size());
         for (auto &pname : assgn_proc_names) {
@@ -1053,8 +1056,8 @@ public:
             x = resolve_symbol(loc, name);
             symbols.push_back(al, x);
         }
-        ASR::asr_t *v = ASR::make_CustomAssignment_t(al, loc, current_scope,
-                            symbols.p, symbols.size(), assgn[current_scope]);
+        ASR::asr_t *v = ASR::make_CustomOperator_t(al, loc, current_scope,
+                            generic_name, symbols.p, symbols.size(), assgn[current_scope]);
         current_scope->scope[str_name] = ASR::down_cast<ASR::symbol_t>(v);
     }
 
@@ -1179,19 +1182,6 @@ public:
                         dflt_access
                         );
                     std::string sym = to_lower(gp->m_name);
-                    current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(ep);
-                } else if (ASR::is_a<ASR::CustomAssignment_t>(*item.second)) {
-                    ASR::CustomAssignment_t *ca = ASR::down_cast<
-                        ASR::CustomAssignment_t>(item.second);
-                    ASR::asr_t *ep = ASR::make_ExternalSymbol_t(
-                        al, ca->base.base.loc,
-                        current_scope,
-                        /* a_name */ (char*) "=",
-                        (ASR::symbol_t*)ca,
-                        m->m_name, nullptr, 0, (char*) "=",
-                        dflt_access
-                        );
-                    std::string sym = "=";
                     current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(ep);
                 } else if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                     ASR::Variable_t *mvar = ASR::down_cast<ASR::Variable_t>(item.second);
