@@ -1,6 +1,7 @@
 configure_file(config.h.in config.h)
 
 set(SRC
+    parser/preprocessor.cpp
     parser/tokenizer.cpp
     parser/parser.tab.cc
     parser/parser.cpp
