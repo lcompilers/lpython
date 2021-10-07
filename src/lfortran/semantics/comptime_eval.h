@@ -88,6 +88,7 @@ struct IntrinsicProcedures {
             {"iand", {m_bit, &not_implemented, false}},
             {"ior", {m_bit, &not_implemented, false}},
             {"ibset", {m_bit, &not_implemented, false}},
+            {"btest", {m_bit, &not_implemented, false}},
 
             // These will fail if used in symbol table visitor, but will be
             // left unevaluated in body visitor
