@@ -589,3 +589,11 @@ LFORTRAN_API int32_t _lfortran_ibset32(int32_t i, int pos) {
 LFORTRAN_API int64_t _lfortran_ibset64(int64_t i, int pos) {
     return i | (1LL << pos);
 }
+
+LFORTRAN_API int32_t _lfortran_btest32(int32_t i, int pos) {
+    return i & (1 << pos);
+}
+
+LFORTRAN_API int64_t _lfortran_btest64(int64_t i, int pos) {
+    return i & (1LL << pos);
+}
