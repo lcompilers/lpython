@@ -101,7 +101,7 @@ static_assert(sizeof(YYSTYPE) == sizeof(Vec<AST::ast_t*>));
 
 typedef struct LFortran::Location YYLTYPE;
 #define YYLTYPE_IS_DECLARED 1
-#define YYLTYPE_IS_TRIVIAL 1
+#define YYLTYPE_IS_TRIVIAL 0
 
 
-#endif
+#endif // LFORTRAN_PARSER_STYPE_H

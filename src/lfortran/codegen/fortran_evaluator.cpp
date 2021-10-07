@@ -44,11 +44,16 @@ FortranEvaluator::FortranEvaluator(CompilerOptions compiler_options)
 
 FortranEvaluator::~FortranEvaluator() = default;
 
+Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate2(const std::string &code) {
+    LocationManager lm;
+    return evaluate(code, false, lm);
+}
 Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
 #ifdef HAVE_LFORTRAN_LLVM
-            const std::string &code_orig, bool verbose
+            const std::string &code_orig, bool verbose, LocationManager &lm
 #else
-            const std::string &/*code_orig*/, bool /*verbose*/
+            const std::string &/*code_orig*/, bool /*verbose*/,
+                LocationManager &/*lm*/
 #endif
             )
 {
@@ -58,7 +63,6 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
 
         // Src -> AST
         LFortran::AST::TranslationUnit_t* ast;
-        LFortran::LocationManager lm;
         std::string code = LFortran::fix_continuation(code_orig, lm, false);
         ast = LFortran::parse(al, code);
 
@@ -169,9 +173,10 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
 #endif
 }
 
-Result<std::string> FortranEvaluator::get_ast(const std::string &code)
+Result<std::string> FortranEvaluator::get_ast(const std::string &code,
+    LocationManager &lm)
 {
-    Result<AST::TranslationUnit_t*> ast = get_ast2(code);
+    Result<AST::TranslationUnit_t*> ast = get_ast2(code, lm);
     if (ast.ok) {
         return LFortran::pickle(*ast.result, true);
     } else {
@@ -180,12 +185,11 @@ Result<std::string> FortranEvaluator::get_ast(const std::string &code)
 }
 
 Result<AST::TranslationUnit_t*> FortranEvaluator::get_ast2(
-            const std::string &code_orig)
+            const std::string &code_orig, LocationManager &lm)
 {
     try {
         // Src -> AST
         LFortran::AST::TranslationUnit_t* ast;
-        LFortran::LocationManager lm;
         std::string code = LFortran::fix_continuation(code_orig, lm, false);
         ast = LFortran::parse(al, code);
         return ast;
@@ -212,9 +216,10 @@ Result<AST::TranslationUnit_t*> FortranEvaluator::get_ast2(
     }
 }
 
-Result<std::string> FortranEvaluator::get_asr(const std::string &code)
+Result<std::string> FortranEvaluator::get_asr(const std::string &code,
+    LocationManager &lm)
 {
-    Result<ASR::TranslationUnit_t*> asr = get_asr2(code);
+    Result<ASR::TranslationUnit_t*> asr = get_asr2(code, lm);
     if (asr.ok) {
         return LFortran::pickle(*asr.result, true);
     } else {
@@ -223,14 +228,13 @@ Result<std::string> FortranEvaluator::get_asr(const std::string &code)
 }
 
 Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
-            const std::string &code_orig)
+            const std::string &code_orig, LocationManager &lm)
 {
     ASR::TranslationUnit_t* asr;
     try {
         // Src -> AST
         AST::TranslationUnit_t* ast;
-        LFortran::LocationManager lm;
-        std::string code = LFortran::fix_continuation(code_orig, lm,
+        std::string code = fix_continuation(code_orig, lm,
             compiler_options.fixed_form);
         ast = parse(al, code);
 
@@ -286,14 +290,14 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
 
 Result<std::string> FortranEvaluator::get_llvm(
 #ifdef HAVE_LFORTRAN_LLVM
-    const std::string &code
+    const std::string &code, LocationManager &lm
 #else
-    const std::string &/*code*/
+    const std::string &/*code*/, LocationManager &/*lm*/
 #endif
     )
 {
 #ifdef HAVE_LFORTRAN_LLVM
-    Result<std::unique_ptr<LLVMModule>> res = get_llvm2(code);
+    Result<std::unique_ptr<LLVMModule>> res = get_llvm2(code, lm);
     if (res.ok) {
         return res.result->str();
     } else {
@@ -306,14 +310,14 @@ Result<std::string> FortranEvaluator::get_llvm(
 
 Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(
 #ifdef HAVE_LFORTRAN_LLVM
-    const std::string &code
+    const std::string &code, LocationManager &lm
 #else
-    const std::string &/*code*/
+    const std::string &/*code*/, LocationManager &/*lm*/
 #endif
     )
 {
 #ifdef HAVE_LFORTRAN_LLVM
-    Result<ASR::TranslationUnit_t*> asr = get_asr2(code);
+    Result<ASR::TranslationUnit_t*> asr = get_asr2(code, lm);
     if (!asr.ok) {
         return asr.error;
     }
@@ -346,14 +350,14 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(
 
 Result<std::string> FortranEvaluator::get_asm(
 #ifdef HAVE_LFORTRAN_LLVM
-    const std::string &code
+    const std::string &code, LocationManager &lm
 #else
-    const std::string &/*code*/
+    const std::string &/*code*/, LocationManager &/*lm*/
 #endif
     )
 {
 #ifdef HAVE_LFORTRAN_LLVM
-    Result<std::unique_ptr<LLVMModule>> res = get_llvm2(code);
+    Result<std::unique_ptr<LLVMModule>> res = get_llvm2(code, lm);
     if (res.ok) {
         return e->get_asm(*res.result->m_m);
     } else {
@@ -364,12 +368,13 @@ Result<std::string> FortranEvaluator::get_asm(
 #endif
 }
 
-Result<std::string> FortranEvaluator::get_cpp(const std::string &code)
+Result<std::string> FortranEvaluator::get_cpp(const std::string &code,
+    LocationManager &lm)
 {
     // Src -> AST -> ASR
     SymbolTable *old_symbol_table = symbol_table;
     symbol_table = nullptr;
-    Result<ASR::TranslationUnit_t*> asr = get_asr2(code);
+    Result<ASR::TranslationUnit_t*> asr = get_asr2(code, lm);
     symbol_table = old_symbol_table;
     if (asr.ok) {
         // ASR -> C++
@@ -398,10 +403,11 @@ Result<std::string> FortranEvaluator::get_cpp(const std::string &code)
     }
 }
 
-Result<std::string> FortranEvaluator::get_fmt(const std::string &code)
+Result<std::string> FortranEvaluator::get_fmt(const std::string &code,
+    LocationManager &lm)
 {
     // Src -> AST
-    Result<AST::TranslationUnit_t*> ast = get_ast2(code);
+    Result<AST::TranslationUnit_t*> ast = get_ast2(code, lm);
     if (ast.ok) {
         // AST -> Fortran
         return LFortran::ast_to_src(*ast.result, true);
@@ -410,7 +416,8 @@ Result<std::string> FortranEvaluator::get_fmt(const std::string &code)
     }
 }
 
-std::string FortranEvaluator::format_error(const Error &e, const std::string &input) const
+std::string FortranEvaluator::format_error(const Error &e, const std::string &input,
+        const LocationManager &lm) const
 {
     std::string out;
     if (compiler_options.show_stacktrace) {
@@ -418,15 +425,18 @@ std::string FortranEvaluator::format_error(const Error &e, const std::string &in
     }
     switch (e.type) {
         case (LFortran::FortranEvaluator::Error::Tokenizer) : {
-            out += format_syntax_error("input", input, e.loc, -1, &e.token_str, compiler_options.use_colors);
+            out += format_syntax_error("input", input, e.loc, -1, &e.token_str,
+                compiler_options.use_colors, lm);
             break;
         }
         case (LFortran::FortranEvaluator::Error::Parser) : {
-            out += format_syntax_error("input", input, e.loc, e.token, nullptr, compiler_options.use_colors);
+            out += format_syntax_error("input", input, e.loc, e.token, nullptr,
+                compiler_options.use_colors, lm);
             break;
         }
         case (LFortran::FortranEvaluator::Error::Semantic) : {
-            out += format_semantic_error("input", input, e.loc, e.msg, compiler_options.use_colors);
+            out += format_semantic_error("input", input, e.loc, e.msg,
+                compiler_options.use_colors, lm);
             break;
         }
         case (LFortran::FortranEvaluator::Error::CodeGen) : {

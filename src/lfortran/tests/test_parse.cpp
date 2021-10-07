@@ -1255,59 +1255,43 @@ TEST_CASE("Location") {
 
     Allocator al(1024*1024);
     LFortran::AST::ast_t* result = parse(al, input)->m_items[0];
-    CHECK(result->loc.first_line == 1);
-    CHECK(result->loc.first_column == 1);
-    CHECK(result->loc.last_line == 4);
-    CHECK(result->loc.last_column == 19);
+    CHECK(result->loc.first == 0);
+    CHECK(result->loc.last == 56);
     auto sub = cast(Subroutine, result);
     auto stmt = cast(Assignment, sub->m_body[1]);
-    CHECK(stmt->base.base.loc.first_line == 3);
-    CHECK(stmt->base.base.loc.first_column == 5);
-    CHECK(stmt->base.base.loc.last_line == 3);
-    CHECK(stmt->base.base.loc.last_column == 14);
+    CHECK(stmt->base.base.loc.first == 27);
+    CHECK(stmt->base.base.loc.last == 36);
     auto m = cast(BinOp, stmt->m_value);
-    CHECK(m->base.base.loc.first_line == 3);
-    CHECK(m->base.base.loc.first_column == 9);
-    CHECK(m->base.base.loc.last_line == 3);
-    CHECK(m->base.base.loc.last_column == 14);
+    CHECK(m->base.base.loc.first == 31);
+    CHECK(m->base.base.loc.last == 36);
     auto i = cast(Num, m->m_left);
     CHECK(i->m_n == 213);
-    CHECK(i->base.base.loc.first_line == 3);
-    CHECK(i->base.base.loc.first_column == 9);
-    CHECK(i->base.base.loc.last_line == 3);
-    CHECK(i->base.base.loc.last_column == 11);
+    CHECK(i->base.base.loc.first == 31);
+    CHECK(i->base.base.loc.last == 33);
     auto sym = cast(Name, m->m_right);
     CHECK(std::string(sym->m_id) == "yz");
-    CHECK(sym->base.base.loc.first_line == 3);
-    CHECK(sym->base.base.loc.first_column == 13);
-    CHECK(sym->base.base.loc.last_line == 3);
-    CHECK(sym->base.base.loc.last_column == 14);
+    CHECK(sym->base.base.loc.first == 35);
+    CHECK(sym->base.base.loc.last == 36);
     auto sym2 = cast(Name, stmt->m_target);
     CHECK(std::string(sym2->m_id) == "x");
-    CHECK(sym2->base.base.loc.first_line == 3);
-    CHECK(sym2->base.base.loc.first_column == 5);
-    CHECK(sym2->base.base.loc.last_line == 3);
-    CHECK(sym2->base.base.loc.last_column == 5);
+    CHECK(sym2->base.base.loc.first == 27);
+    CHECK(sym2->base.base.loc.last == 27);
 
     input = R"(function f()
     x = y
     x = 213*yz
     end function)";
     result = parse(al, input)->m_items[0];
-    CHECK(result->loc.first_line == 1);
-    CHECK(result->loc.first_column == 1);
-    CHECK(result->loc.last_line == 4);
-    CHECK(result->loc.last_column == 17);
+    CHECK(result->loc.first == 0);
+    CHECK(result->loc.last == 54);
 
     input = R"(program f
     x = y
     x = 213*yz
     end program)";
     result = parse(al, input)->m_items[0];
-    CHECK(result->loc.first_line == 1);
-    CHECK(result->loc.first_column == 1);
-    CHECK(result->loc.last_line == 4);
-    CHECK(result->loc.last_column == 16);
+    CHECK(result->loc.first == 0);
+    CHECK(result->loc.last == 50);
 }
 
 TEST_CASE("Errors") {
@@ -1321,11 +1305,9 @@ TEST_CASE("Errors") {
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
         CHECK(e.token == yytokentype::TK_NEWLINE);
-        std::cerr << format_syntax_error("input", input, e.loc, e.token);
-        CHECK(e.loc.first_line == 1);
-        CHECK(e.loc.first_column == 6);
-        CHECK(e.loc.last_line == 1);
-        CHECK(e.loc.last_column == 6);
+//        std::cerr << format_syntax_error("input", input, e.loc, e.token);
+        CHECK(e.loc.first == 5);
+        CHECK(e.loc.last == 5);
     }
 
     input = R"(function f()
@@ -1338,11 +1320,9 @@ TEST_CASE("Errors") {
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
         CHECK(e.token == tt::TK_STAR);
-        std::cerr << format_syntax_error("input", input, e.loc, e.token);
-        CHECK(e.loc.first_line == 3);
-        CHECK(e.loc.first_column == 16);
-        CHECK(e.loc.last_line == 3);
-        CHECK(e.loc.last_column == 16);
+//        std::cerr << format_syntax_error("input", input, e.loc, e.token);
+        CHECK(e.loc.first == 38);
+        CHECK(e.loc.last == 38);
     }
 
     input = R"(function f()
@@ -1355,11 +1335,9 @@ TEST_CASE("Errors") {
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
         CHECK(e.token == tt::TK_STAR);
-        std::cerr << format_syntax_error("input", input, e.loc, e.token);
-        CHECK(e.loc.first_line == 3);
-        CHECK(e.loc.first_column == 13);
-        CHECK(e.loc.last_line == 3);
-        CHECK(e.loc.last_column == 13);
+//        std::cerr << format_syntax_error("input", input, e.loc, e.token);
+        CHECK(e.loc.first == 35);
+        CHECK(e.loc.last == 35);
     }
 
     input = R"(function f()
@@ -1372,11 +1350,9 @@ TEST_CASE("Errors") {
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
         CHECK(e.token == yytokentype::TK_NAME);
-        std::cerr << format_syntax_error("input", input, e.loc, e.token);
-        CHECK(e.loc.first_line == 2);
-        CHECK(e.loc.first_column == 11);
-        CHECK(e.loc.last_line == 2);
-        CHECK(e.loc.last_column == 13);
+//        std::cerr << format_syntax_error("input", input, e.loc, e.token);
+        CHECK(e.loc.first == 23);
+        CHECK(e.loc.last == 25);
     }
 
     input = "1 + .notx.";
@@ -1386,11 +1362,9 @@ TEST_CASE("Errors") {
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
         CHECK(e.token == yytokentype::TK_NEWLINE);
-        std::cerr << format_syntax_error("input", input, e.loc, e.token);
-        CHECK(e.loc.first_line == 1);
-        CHECK(e.loc.first_column == 11);
-        CHECK(e.loc.last_line == 1);
-        CHECK(e.loc.last_column == 11);
+//        std::cerr << format_syntax_error("input", input, e.loc, e.token);
+        CHECK(e.loc.first == 10);
+        CHECK(e.loc.last == 10);
     }
 
     input = "1 + x allocate y";
@@ -1400,11 +1374,9 @@ TEST_CASE("Errors") {
     } catch (const LFortran::ParserError &e) {
         CHECK(e.msg() == "syntax error");
         CHECK(e.token == yytokentype::KW_ALLOCATE);
-        std::cerr << format_syntax_error("input", input, e.loc, e.token);
-        CHECK(e.loc.first_line == 1);
-        CHECK(e.loc.first_column == 7);
-        CHECK(e.loc.last_line == 1);
-        CHECK(e.loc.last_column == 14);
+//        std::cerr << format_syntax_error("input", input, e.loc, e.token);
+        CHECK(e.loc.first == 6);
+        CHECK(e.loc.last == 13);
     }
     CHECK_THROWS_AS(parse2(al, input), LFortran::ParserError);
 
@@ -1414,11 +1386,9 @@ TEST_CASE("Errors") {
         CHECK(false);
     } catch (const LFortran::TokenizerError &e) {
         CHECK(e.token == "@");
-        std::cerr << format_syntax_error("input", input, e.loc, -1, &e.token);
-        CHECK(e.loc.first_line == 1);
-        CHECK(e.loc.first_column == 3);
-        CHECK(e.loc.last_line == 1);
-        CHECK(e.loc.last_column == 3);
+//        std::cerr << format_syntax_error("input", input, e.loc, -1, &e.token);
+        CHECK(e.loc.first == 2);
+        CHECK(e.loc.last == 2);
     }
     CHECK_THROWS_AS(parse2(al, input), LFortran::TokenizerError);
 }

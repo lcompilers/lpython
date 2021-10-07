@@ -47,6 +47,20 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
     throw LFortran::ParserError(msg, *yyloc, token);
 }
 
+#define YYLLOC_DEFAULT(Current, Rhs, N)                                 \
+    do                                                                  \
+      if (N)                                                            \
+        {                                                               \
+          (Current).first   = YYRHSLOC (Rhs, 1).first;                  \
+          (Current).last    = YYRHSLOC (Rhs, N).last;                   \
+        }                                                               \
+      else                                                              \
+        {                                                               \
+          (Current).first   = (Current).last   =                        \
+            YYRHSLOC (Rhs, 0).last;                                     \
+        }                                                               \
+    while (0)
+
 } // code
 
 

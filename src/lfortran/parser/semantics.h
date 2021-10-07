@@ -640,7 +640,7 @@ static inline reduce_opType convert_id_to_reduce_type(
 #define TYPE ast_t*
 
 // Assign last_* location to `a` from `b`
-#define LLOC(a, b) a.last_line = b.last_line; a.last_column = b.last_column;
+#define LLOC(a, b) a.last = b.last;
 
 #define ADD(x, y, l) make_BinOp_t(p.m_a, l, EXPR(x), operatorType::Add, EXPR(y))
 #define SUB(x, y, l) make_BinOp_t(p.m_a, l, EXPR(x), operatorType::Sub, EXPR(y))

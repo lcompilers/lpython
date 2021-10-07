@@ -8,8 +8,7 @@
 
 static inline void print_loc(const LFortran::Location &l)
 {
-    std::cout << "LOCATION:" << l.first_line << " " << l.first_column << " ";
-    std::cout << l.last_line << " " << l.last_column << std::endl;
+    std::cout << "LOCATION:" << l.first << " " << l.last << std::endl;
 }
 
 
