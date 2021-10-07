@@ -22,7 +22,7 @@ void parse_macro_definition(const std::string &line,
     while (line[i] != ' ') i++;
     name = std::string(&line[s1], i-s1);
     while (line[i] == ' ') i++;
-    subs = line.substr(i);
+    subs = line.substr(i, line.size()-i-1);
 }
 
 std::string CPreprocessor::run(const std::string &input) const {
