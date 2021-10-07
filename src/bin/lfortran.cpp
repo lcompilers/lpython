@@ -1087,6 +1087,7 @@ int main(int argc, char *argv[])
         bool arg_v = false;
         bool arg_E = false;
         bool arg_g = false;
+        std::vector<std::string> arg_D;
         std::string arg_J;
         std::vector<std::string> arg_I;
         std::vector<std::string> arg_l;
@@ -1143,6 +1144,7 @@ int main(int argc, char *argv[])
         app.add_option("-I", arg_I, "Include path")->allow_extra_args(false);
         app.add_option("-J", arg_J, "Where to save mod files");
         app.add_flag("-g", arg_g, "Compile with debugging information");
+        app.add_option("-D", arg_D, "Define <macro>=<value> (or 1 if <value> omitted)")->allow_extra_args(false);
         app.add_flag("--version", arg_version, "Display compiler version information");
 
         // LFortran specific options
