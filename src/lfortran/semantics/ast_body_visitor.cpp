@@ -731,6 +731,13 @@ public:
     void visit_Assignment(const AST::Assignment_t &x) {
         this->visit_expr(*x.m_target);
         ASR::expr_t *target = LFortran::ASRUtils::EXPR(tmp);
+        this->visit_expr(*x.m_value);
+        ASR::expr_t *value = LFortran::ASRUtils::EXPR(tmp);
+        ASR::stmt_t *overloaded_stmt = nullptr;
+        if( LFortran::ASRUtils::use_overloaded_assignment(target, value,
+            current_scope, asr, al, x.base.base.loc) ) {
+            overloaded_stmt = LFortran::ASRUtils::STMT(asr);
+        }
         ASR::ttype_t *target_type = LFortran::ASRUtils::expr_type(target);
         if( target->type != ASR::exprType::Var &&
             target->type != ASR::exprType::ArrayRef &&
@@ -742,8 +749,6 @@ public:
             );
         }
 
-        this->visit_expr(*x.m_value);
-        ASR::expr_t *value = LFortran::ASRUtils::EXPR(tmp);
         ASR::ttype_t *value_type = LFortran::ASRUtils::expr_type(value);
         if( target->type == ASR::exprType::Var && !ASRUtils::is_array(target_type) &&
             value->type == ASR::exprType::ConstantArray ) {
@@ -756,7 +761,8 @@ public:
                                                     value_type, target_type);
 
         }
-        tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value);
+        tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
+                                     overloaded_stmt);
     }
 
     void visit_SubroutineCall(const AST::SubroutineCall_t &x) {
