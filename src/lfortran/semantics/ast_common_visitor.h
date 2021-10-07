@@ -244,7 +244,9 @@ inline static void visit_BinOp(Allocator &al, const AST::BinOp_t &x,
          right_type->type != ASR::ttypeType::Integer) &&
         ((left_type->type != ASR::ttypeType::Complex ||
           right_type->type != ASR::ttypeType::Complex) &&
-         x.m_op != AST::cmpopType::Eq && x.m_op != AST::cmpopType::NotEq)) {
+         x.m_op != AST::cmpopType::Eq && x.m_op != AST::cmpopType::NotEq) &&
+         (left_type->type != ASR::ttypeType::Character ||
+          right_type->type != ASR::ttypeType::Character)) {
       throw SemanticError(
           "Compare: only Integer or Real can be on the LHS and RHS. "
           "If operator is .eq. or .neq. then Complex type is also acceptable",
