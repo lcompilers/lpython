@@ -456,11 +456,11 @@ TRIG(sqrt)
         ASR::ttype_t* t = LFortran::ASRUtils::expr_type(args[0]);
         if (LFortran::ASR::is_a<LFortran::ASR::Real_t>(*t)) {
             double rv = ASR::down_cast<ASR::ConstantReal_t>(trig_arg)->m_r;
-            double val = abs(rv);
+            double val = std::abs(rv);
             return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t));
         } else if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*t)) {
             int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(trig_arg)->m_n;
-            int64_t val = abs(rv);
+            int64_t val = std::abs(rv);
             return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, val, t));
         } else if (LFortran::ASR::is_a<LFortran::ASR::Complex_t>(*t)) {
             double re = ASR::down_cast<ASR::ConstantComplex_t>(trig_arg)->m_re;
