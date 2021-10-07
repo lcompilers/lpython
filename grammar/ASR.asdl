@@ -193,7 +193,7 @@ expr
     | UnaryOp(unaryop op, expr operand, ttype type, expr? value)
         -- Such as: (x, y+z), (3.0, 2.0) generally not known at compile time
     | ComplexConstructor(expr re, expr im, ttype type, expr? value)
-    | Compare(expr left, cmpop op, expr right, ttype type, expr? value)
+    | Compare(expr left, cmpop op, expr right, ttype type, expr? value, expr? overloaded)
     | FunctionCall(symbol name, symbol? original_name, expr* args,
             keyword* keywords, ttype type, expr? value, expr? dt)
     | DerivedTypeConstructor(symbol dt_sym, expr* args, ttype type)

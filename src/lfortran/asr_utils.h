@@ -398,6 +398,18 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
 bool is_op_overloaded(ASR::binopType op, std::string& intrinsic_op_name,
                       SymbolTable* curr_scope);
 
+bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
+                    ASR::cmpopType op, std::string& intrinsic_op_name,
+                    SymbolTable* curr_scope, ASR::asr_t*& asr,
+                    Allocator &al, const Location& loc);
+
+bool is_op_overloaded(ASR::cmpopType op, std::string& intrinsic_op_name,
+                      SymbolTable* curr_scope);
+
+bool use_overloaded_assignment(ASR::expr_t* target, ASR::expr_t* value,
+                               SymbolTable* curr_scope, ASR::asr_t*& asr,
+                               Allocator &al, const Location& loc);
+
 void set_intrinsic(ASR::symbol_t* sym);
 
 static inline int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {

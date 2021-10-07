@@ -394,6 +394,97 @@ bool is_op_overloaded(ASR::binopType op, std::string& intrinsic_op_name,
     }
     return result;
 }
+
+bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
+                    ASR::cmpopType op, std::string& intrinsic_op_name,
+                    SymbolTable* curr_scope, ASR::asr_t*& asr,
+                    Allocator &al, const Location& loc) {
+    ASR::ttype_t *left_type = LFortran::ASRUtils::expr_type(left);
+    ASR::ttype_t *right_type = LFortran::ASRUtils::expr_type(right);
+    bool found = false;
+    if( is_op_overloaded(op, intrinsic_op_name, curr_scope) ) {
+        ASR::symbol_t* sym = curr_scope->scope[intrinsic_op_name];
+        ASR::symbol_t* orig_sym = ASRUtils::symbol_get_past_external(sym);
+        ASR::CustomOperator_t* gen_proc = ASR::down_cast<ASR::CustomOperator_t>(orig_sym);
+        for( size_t i = 0; i < gen_proc->n_procs && !found; i++ ) {
+            ASR::symbol_t* proc = gen_proc->m_procs[i];
+            switch(proc->type) {
+                case ASR::symbolType::Function: {
+                    ASR::Function_t* func = ASR::down_cast<ASR::Function_t>(proc);
+                    if( func->n_args == 2 ) {
+                        ASR::ttype_t* left_arg_type = ASRUtils::expr_type(func->m_args[0]);
+                        ASR::ttype_t* right_arg_type = ASRUtils::expr_type(func->m_args[1]);
+                        if( left_arg_type->type == left_type->type && 
+                            right_arg_type->type == right_type->type ) {
+                            found = true;
+                            Vec<ASR::expr_t*> a_args;
+                            a_args.reserve(al, 2);
+                            a_args.push_back(al, left);
+                            a_args.push_back(al, right);
+                            asr = ASR::make_FunctionCall_t(al, loc, curr_scope->scope[std::string(func->m_name)], orig_sym,
+                                                            a_args.p, 2, nullptr, 0,
+                                                            ASRUtils::expr_type(func->m_return_var),
+                                                            nullptr, nullptr);
+                        }
+                    }
+                    break;
+                }
+                default: {
+                    throw SemanticError("While overloading binary operators only functions can be used",
+                                        proc->base.loc);
+                }
+            }
+        }
+    }
+    return found;
+}
+
+bool is_op_overloaded(ASR::cmpopType op, std::string& intrinsic_op_name,
+                      SymbolTable* curr_scope) {
+    bool result = true;
+    switch(op) {
+        case ASR::cmpopType::Eq: {
+            if(intrinsic_op_name != "~eq") {
+                result = false;
+            }
+            break;
+        }
+        case ASR::cmpopType::NotEq: {
+            if(intrinsic_op_name != "~noteq") {
+                result = false;
+            }
+            break;
+        }
+        case ASR::cmpopType::Lt: {
+            if(intrinsic_op_name != "~lt") {
+                result = false;
+            }
+            break;
+        }
+        case ASR::cmpopType::LtE: {
+            if(intrinsic_op_name != "~lte") {
+                result = false;
+            }
+            break;
+        }
+        case ASR::cmpopType::Gt: {
+            if(intrinsic_op_name != "~gt") {
+                result = false;
+            }
+            break;
+        }
+        case ASR::cmpopType::GtE: {
+            if(intrinsic_op_name != "~gte") {
+                result = false;
+            }
+            break;
+        }
+    }
+    if( result && curr_scope->scope.find(intrinsic_op_name) == curr_scope->scope.end() ) {
+        result = false;
+    }
+    return result;
+}
     } // namespace ASRUtils
 
 
