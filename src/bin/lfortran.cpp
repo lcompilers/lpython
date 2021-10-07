@@ -1064,7 +1064,8 @@ int emit_c_preprocessor(const std::string &infile, CompilerOptions &/*compiler_o
     std::string input = read_file(infile);
 
     LFortran::CPreprocessor cpp;
-    cpp.run(input);
+    std::string s = cpp.run(input);
+    std::cout << s;
     return 0;
 }
 

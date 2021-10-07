@@ -25,7 +25,7 @@ void parse_macro_definition(const std::string &line,
     subs = line.substr(i);
 }
 
-void CPreprocessor::run(const std::string &input) const {
+std::string CPreprocessor::run(const std::string &input) const {
     LFORTRAN_ASSERT(input[input.size()] == '\0');
     unsigned char *string_start=(unsigned char*)(&input[0]);
     unsigned char *cur = string_start;
@@ -84,7 +84,7 @@ void CPreprocessor::run(const std::string &input) const {
             }
         */
     }
-    std::cout << output << std::endl;
+    return output;
 }
 
 } // namespace LFortran

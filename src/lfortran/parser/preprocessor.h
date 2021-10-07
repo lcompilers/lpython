@@ -10,7 +10,7 @@ class CPreprocessor
 {
 public:
     std::string token(unsigned char *tok, unsigned char* cur) const;
-    void run(const std::string &input) const;
+    std::string run(const std::string &input) const;
 
     // Return the current token's location
     void token_loc(Location &loc, unsigned char *tok, unsigned char* cur,
