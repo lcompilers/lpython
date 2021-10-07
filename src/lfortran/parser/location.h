@@ -9,10 +9,8 @@ namespace LFortran
 
 struct Location
 {
-  uint16_t first_line;
-  uint16_t first_column;
-  uint16_t last_line;
-  uint16_t last_column;
+  uint32_t first;
+  uint32_t last;
 };
 
 } // namespace LFortran

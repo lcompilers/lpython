@@ -406,13 +406,13 @@ TEST_CASE("FortranEvaluator 1") {
     CompilerOptions cu;
     FortranEvaluator e(cu);
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
-    r = e.evaluate("integer :: i");
+    r = e.evaluate2("integer :: i");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::none);
-    r = e.evaluate("i = 5");
+    r = e.evaluate2("i = 5");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::statement);
-    r = e.evaluate("i");
+    r = e.evaluate2("i");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
     CHECK(r.result.i32 == 5);
@@ -422,7 +422,7 @@ TEST_CASE("FortranEvaluator 2") {
     CompilerOptions cu;
     FortranEvaluator e(cu);
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
-    r = e.evaluate(R"(real :: r
+    r = e.evaluate2(R"(real :: r
 r = 3
 r
 )");
@@ -434,14 +434,14 @@ r
 TEST_CASE("FortranEvaluator 3") {
     CompilerOptions cu;
     FortranEvaluator e(cu);
-    e.evaluate("integer :: i, j");
-    e.evaluate(R"(j = 0
+    e.evaluate2("integer :: i, j");
+    e.evaluate2(R"(j = 0
 do i = 1, 5
     j = j + i
 end do
 )");
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
-    r = e.evaluate("j");
+    r = e.evaluate2("j");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
     CHECK(r.result.i32 == 15);
@@ -450,25 +450,25 @@ end do
 TEST_CASE("FortranEvaluator 4") {
     CompilerOptions cu;
     FortranEvaluator e(cu);
-    e.evaluate(R"(
+    e.evaluate2(R"(
 integer function fn(i, j)
 integer, intent(in) :: i, j
 fn = i + j
 end function
 )");
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
-    r = e.evaluate("fn(2, 3)");
+    r = e.evaluate2("fn(2, 3)");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
     CHECK(r.result.i32 == 5);
 
-    e.evaluate(R"(
+    e.evaluate2(R"(
 integer function fn(i, j)
 integer, intent(in) :: i, j
 fn = i - j
 end function
 )");
-    r = e.evaluate("fn(2, 3)");
+    r = e.evaluate2("fn(2, 3)");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
     CHECK(r.result.i32 == -1);
@@ -477,30 +477,30 @@ end function
 TEST_CASE("FortranEvaluator 5") {
     CompilerOptions cu;
     FortranEvaluator e(cu);
-    e.evaluate(R"(
+    e.evaluate2(R"(
 integer subroutine fn(i, j, r)
 integer, intent(in) :: i, j
 integer, intent(out) :: r
 r = i + j
 end subroutine
 )");
-    e.evaluate("integer :: r");
-    e.evaluate("call fn(2, 3, r)");
+    e.evaluate2("integer :: r");
+    e.evaluate2("call fn(2, 3, r)");
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
-    r = e.evaluate("r");
+    r = e.evaluate2("r");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
     CHECK(r.result.i32 == 5);
 
-    e.evaluate(R"(
+    e.evaluate2(R"(
 integer subroutine fn(i, j, r)
 integer, intent(in) :: i, j
 integer, intent(out) :: r
 r = i - j
 end subroutine
 )");
-    e.evaluate("call fn(2, 3, r)");
-    r = e.evaluate("r");
+    e.evaluate2("call fn(2, 3, r)");
+    r = e.evaluate2("r");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
     CHECK(r.result.i32 == -1);
@@ -510,15 +510,15 @@ TEST_CASE("FortranEvaluator 6") {
     CompilerOptions cu;
     FortranEvaluator e(cu);
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
-    r = e.evaluate("$");
+    r = e.evaluate2("$");
     CHECK(!r.ok);
     CHECK(r.error.type == FortranEvaluator::Error::Tokenizer);
 
-    r = e.evaluate("1x");
+    r = e.evaluate2("1x");
     CHECK(!r.ok);
     CHECK(r.error.type == FortranEvaluator::Error::Parser);
 
-    r = e.evaluate("x = 'x'");
+    r = e.evaluate2("x = 'x'");
     CHECK(!r.ok);
     CHECK(r.error.type == FortranEvaluator::Error::Semantic);
 }
@@ -782,10 +782,10 @@ TEST_CASE("FortranEvaluator 7") {
     CompilerOptions cu;
     FortranEvaluator e(cu);
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
-    r = e.evaluate("integer :: i = 5");
+    r = e.evaluate2("integer :: i = 5");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::none);
-    r = e.evaluate("i");
+    r = e.evaluate2("i");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
     CHECK(r.result.i32 == 5);
@@ -795,10 +795,10 @@ TEST_CASE("FortranEvaluator 8") {
     CompilerOptions cu;
     FortranEvaluator e(cu);
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
-    r = e.evaluate("real :: a = 3.5");
+    r = e.evaluate2("real :: a = 3.5");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::none);
-    r = e.evaluate("a");
+    r = e.evaluate2("a");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::real4);
     CHECK(r.result.f32 == 3.5);
@@ -808,10 +808,10 @@ TEST_CASE("FortranEvaluator 8 double") {
     CompilerOptions cu;
     FortranEvaluator e(cu);
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
-    r = e.evaluate("real(8) :: a = 3.5");
+    r = e.evaluate2("real(8) :: a = 3.5");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::none);
-    r = e.evaluate("a");
+    r = e.evaluate2("a");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::real8);
     CHECK(r.result.f64 == 3.5);
@@ -822,7 +822,7 @@ TEST_CASE("FortranEvaluator 9 single complex") {
     if (cu.platform == LFortran::Platform::Linux) {
         FortranEvaluator e(cu);
         FortranEvaluator::Result<FortranEvaluator::EvalResult>
-        r = e.evaluate("(2.5_4, 3.5_4)");
+        r = e.evaluate2("(2.5_4, 3.5_4)");
         CHECK(r.ok);
         CHECK(r.result.type == FortranEvaluator::EvalResult::complex4);
         CHECK(r.result.c32.re == 2.5);
@@ -835,7 +835,7 @@ TEST_CASE("FortranEvaluator 9 double complex") {
     if (cu.platform != LFortran::Platform::Windows) {
         FortranEvaluator e(cu);
         FortranEvaluator::Result<FortranEvaluator::EvalResult>
-        r = e.evaluate("(2.5_8, 3.5_8)");
+        r = e.evaluate2("(2.5_8, 3.5_8)");
         CHECK(r.ok);
         CHECK(r.result.type == FortranEvaluator::EvalResult::complex8);
         CHECK(r.result.c64.re == 2.5);
@@ -847,13 +847,13 @@ TEST_CASE("FortranEvaluator integer kind 1") {
     CompilerOptions cu;
     FortranEvaluator e(cu);
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
-    r = e.evaluate("integer(4) :: i");
+    r = e.evaluate2("integer(4) :: i");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::none);
-    r = e.evaluate("i = 5");
+    r = e.evaluate2("i = 5");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::statement);
-    r = e.evaluate("i");
+    r = e.evaluate2("i");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
     CHECK(r.result.i32 == 5);
@@ -863,13 +863,13 @@ TEST_CASE("FortranEvaluator integer kind 2") {
     CompilerOptions cu;
     FortranEvaluator e(cu);
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
-    r = e.evaluate("integer(8) :: i");
+    r = e.evaluate2("integer(8) :: i");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::none);
-    r = e.evaluate("i = 5");
+    r = e.evaluate2("i = 5");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::statement);
-    r = e.evaluate("i");
+    r = e.evaluate2("i");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::integer8);
     CHECK(r.result.i64 == 5);
@@ -879,24 +879,24 @@ TEST_CASE("FortranEvaluator re-declaration 1") {
     CompilerOptions cu;
     FortranEvaluator e(cu);
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
-    r = e.evaluate("integer :: i");
+    r = e.evaluate2("integer :: i");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::none);
-    r = e.evaluate("i = 5");
+    r = e.evaluate2("i = 5");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::statement);
-    r = e.evaluate("i");
+    r = e.evaluate2("i");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
     CHECK(r.result.i32 == 5);
 
-    r = e.evaluate("integer :: i");
+    r = e.evaluate2("integer :: i");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::none);
-    r = e.evaluate("i = 6");
+    r = e.evaluate2("i = 6");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::statement);
-    r = e.evaluate("i");
+    r = e.evaluate2("i");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
     CHECK(r.result.i32 == 6);
@@ -906,7 +906,7 @@ TEST_CASE("FortranEvaluator re-declaration 2") {
     CompilerOptions cu;
     FortranEvaluator e(cu);
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
-    r = e.evaluate(R"(
+    r = e.evaluate2(R"(
 integer function fn(i)
 integer, intent(in) :: i
 fn = i+1
@@ -914,12 +914,12 @@ end function
 )");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::none);
-    r = e.evaluate("fn(3)");
+    r = e.evaluate2("fn(3)");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
     CHECK(r.result.i32 == 4);
 
-    r = e.evaluate(R"(
+    r = e.evaluate2(R"(
 integer function fn(i)
 integer, intent(in) :: i
 fn = i-1
@@ -927,7 +927,7 @@ end function
 )");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::none);
-    r = e.evaluate("fn(3)");
+    r = e.evaluate2("fn(3)");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::integer4);
     CHECK(r.result.i32 == 2);
@@ -937,19 +937,19 @@ TEST_CASE("FortranEvaluator 10 trig functions") {
     CompilerOptions cu;
     FortranEvaluator e(cu);
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
-    r = e.evaluate("sin(1.0)");
+    r = e.evaluate2("sin(1.0)");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::real4);
     CHECK(std::abs(r.result.f32 - 0.8414709848078965) < 1e-7);
-    r = e.evaluate("sin(1.d0)");
+    r = e.evaluate2("sin(1.d0)");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::real8);
     CHECK(std::abs(r.result.f64 - 0.8414709848078965) < 1e-14);
-    r = e.evaluate("cos(1.0)");
+    r = e.evaluate2("cos(1.0)");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::real4);
     CHECK(std::abs(r.result.f32 - 0.5403023058681398) < 1e-7);
-    r = e.evaluate("cos(1.d0)");
+    r = e.evaluate2("cos(1.d0)");
     CHECK(r.ok);
     CHECK(r.result.type == FortranEvaluator::EvalResult::real8);
     CHECK(std::abs(r.result.f64 - 0.5403023058681398) < 1e-14);

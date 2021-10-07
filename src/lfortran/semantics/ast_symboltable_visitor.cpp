@@ -986,11 +986,11 @@ public:
 
     void add_overloaded_procedures() {
         for (auto &proc : overloaded_op_procs) {
+            // FIXME LOCATION (we need to pass Location in, not initialize it
+            // here)
             Location loc;
-            loc.first_line = 1;
-            loc.last_line = 1;
-            loc.first_column = 1;
-            loc.last_column = 1;
+            loc.first = 1;
+            loc.last = 1;
             Str s;
             s.from_str_view(intrinsic2str[proc.first]);
             char *generic_name = s.c_str(al);
@@ -1011,11 +1011,10 @@ public:
         overloaded_op_procs.clear();
 
         for (auto &proc : defined_op_procs) {
+            // FIXME LOCATION
             Location loc;
-            loc.first_line = 1;
-            loc.last_line = 1;
-            loc.first_column = 1;
-            loc.last_column = 1;
+            loc.first = 1;
+            loc.last = 1;
             Str s;
             s.from_str_view(proc.first);
             char *generic_name = s.c_str(al);
@@ -1063,11 +1062,10 @@ public:
 
     void add_generic_procedures() {
         for (auto &proc : generic_procedures) {
+            // FIXME LOCATION
             Location loc;
-            loc.first_line = 1;
-            loc.last_line = 1;
-            loc.first_column = 1;
-            loc.last_column = 1;
+            loc.first = 1;
+            loc.last = 1;
             Str s;
             s.from_str_view(proc.first);
             char *generic_name = s.c_str(al);
@@ -1090,11 +1088,10 @@ public:
 
     void add_class_procedures() {
         for (auto &proc : class_procedures) {
+            // FIXME LOCATION
             Location loc;
-            loc.first_line = 1;
-            loc.last_line = 1;
-            loc.first_column = 1;
-            loc.last_column = 1;
+            loc.first = 1;
+            loc.last = 1;
             ASR::DerivedType_t *clss = ASR::down_cast<ASR::DerivedType_t>(
                 current_scope->scope[proc.first]);
             for (auto &pname : proc.second) {

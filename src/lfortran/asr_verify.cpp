@@ -51,8 +51,12 @@ public:
     }
     void require(bool cond, const std::string &error_msg,
                 const Location &loc) {
+        std::string msg = std::to_string(loc.first) + ":"
+            + std::to_string(loc.last) + ": " + error_msg;
+        /*
         std::string msg = std::to_string(loc.first_line) + ":"
             + std::to_string(loc.first_column) + ": " + error_msg;
+        */
         require(cond, msg);
     }
 

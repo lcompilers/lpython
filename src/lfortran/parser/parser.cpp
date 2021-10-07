@@ -14,15 +14,11 @@ AST::TranslationUnit_t* parse(Allocator &al, const std::string &s)
     p.parse(s);
     Location l;
     if (p.result.size() == 0) {
-        l.first_line=0;
-        l.first_column=0;
-        l.last_line=0;
-        l.last_column=0;
+        l.first=0;
+        l.last=0;
     } else {
-        l.first_line=p.result[0]->loc.first_line;
-        l.first_column=p.result[0]->loc.first_column;
-        l.last_line=p.result[p.result.size()-1]->loc.last_line;
-        l.last_column=p.result[p.result.size()-1]->loc.last_column;
+        l.first=p.result[0]->loc.first;
+        l.last=p.result[p.result.size()-1]->loc.last;
     }
     return (AST::TranslationUnit_t*)AST::make_TranslationUnit_t(al, l,
         p.result.p, p.result.size());
@@ -44,10 +40,12 @@ AST::TranslationUnit_t* parse2(Allocator &al, const std::string &code_original,
         } else {
             token = e.token;
         }
-        std::cerr << format_syntax_error("input", code_prescanned, e.loc, token, nullptr, use_colors);
+        std::cerr << format_syntax_error("input", code_prescanned, e.loc,
+            token, nullptr, use_colors, lm);
         throw;
     } catch (const LFortran::TokenizerError &e) {
-        std::cerr << format_syntax_error("input", code_prescanned, e.loc, -1, &e.token, use_colors);
+        std::cerr << format_syntax_error("input", code_prescanned, e.loc,
+            -1, &e.token, use_colors, lm);
         throw;
     }
     return result;
@@ -70,18 +68,20 @@ void Parser::parse(const std::string &input)
 }
 
 std::vector<int> tokens(Allocator &al, const std::string &input,
-        std::vector<LFortran::YYSTYPE> *stypes)
+        std::vector<YYSTYPE> *stypes,
+        std::vector<Location> *locations)
 {
-    LFortran::Tokenizer t;
+    Tokenizer t;
     t.set_string(input);
     std::vector<int> tst;
     int token = yytokentype::END_OF_FILE + 1; // Something different from EOF
     while (token != yytokentype::END_OF_FILE) {
-        LFortran::YYSTYPE y;
-        LFortran::Location l;
+        YYSTYPE y;
+        Location l;
         token = t.lex(al, y, l);
         tst.push_back(token);
         if (stypes) stypes->push_back(y);
+        if (locations) locations->push_back(l);
     }
     return tst;
 }
@@ -208,6 +208,19 @@ void copy_rest_of_line(std::string &out, const std::string &s, size_t &pos)
     pos++;
 }
 
+// Checks that newlines are computed correctly
+bool check_newlines(const std::string &s, const std::vector<uint32_t> newlines) {
+    std::vector<uint32_t> newlines2 = {0};
+    for (uint32_t pos=0; pos < s.size(); pos++) {
+        if (s[pos] == '\n') newlines2.push_back(pos);
+    }
+    if (newlines2.size() != newlines.size()) return false;
+    for (size_t i=0; i < newlines2.size(); i++) {
+        if (newlines2[i] != newlines[i]) return false;
+    }
+    return true;
+}
+
 std::string fix_continuation(const std::string &s, LocationManager &lm,
         bool fixed_form)
 {
@@ -280,6 +293,7 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
         // `out` is the final code (outcome)
         lm.out_start.push_back(0);
         lm.in_start.push_back(0);
+        lm.in_newlines.push_back(0);
         std::string out;
         size_t pos = 0;
         bool in_comment = false;
@@ -290,9 +304,11 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
                 size_t pos2=pos+1;
                 bool ws_or_comment;
                 cont1(s, pos2, ws_or_comment);
+                if (ws_or_comment) lm.in_newlines.push_back(pos2-1);
                 if (ws_or_comment) {
                     while (ws_or_comment) {
                         cont1(s, pos2, ws_or_comment);
+                        if (ws_or_comment) lm.in_newlines.push_back(pos2-1);
                     }
                     // `pos` will move by more than 1, close the old interval
     //                lm.in_size.push_back(pos-lm.in_start[lm.in_start.size()-1]);
@@ -304,6 +320,8 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
                     lm.out_start.push_back(out.size());
                     lm.in_start.push_back(pos);
                 }
+            } else {
+                if (s[pos] == '\n') lm.in_newlines.push_back(pos);
             }
             out += s[pos];
             pos++;
@@ -311,6 +329,13 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
         // set the size of the last interval
     //    lm.in_size.push_back(pos-lm.in_start[lm.in_start.size()-1]);
 
+        LFORTRAN_ASSERT(check_newlines(s, lm.in_newlines))
+
+        // Add the position of EOF as the last \n, whether or not the original
+        // file has it
+        lm.in_newlines.push_back(pos);
+        lm.in_start.push_back(pos);
+        lm.out_start.push_back(out.size());
         return out;
     }
 }
@@ -595,16 +620,24 @@ std::string highlight_line(const std::string &line,
         const size_t last_column,
         bool use_colors)
 {
+    if (first_column == 0 || last_column == 0) return "";
+    LFORTRAN_ASSERT(first_column >= 1)
+    LFORTRAN_ASSERT(first_column <= last_column)
+    LFORTRAN_ASSERT(last_column <= line.size()+1)
     std::stringstream out;
     if (line.size() > 0) {
         out << line.substr(0, first_column-1);
+        if(use_colors) out << redon;
         if (last_column <= line.size()) {
-            if(use_colors) out << redon;
             out << line.substr(first_column-1,
                     last_column-first_column+1);
-            if(use_colors) out << redoff;
-            out << line.substr(last_column);
+        } else {
+            // `last_column` points to the \n character
+            out << line.substr(first_column-1,
+                    last_column-first_column+1-1);
         }
+        if(use_colors) out << redoff;
+        if (last_column < line.size()) out << line.substr(last_column);
     }
     out << std::endl;
     if (first_column > 0) {
@@ -624,12 +657,17 @@ std::string highlight_line(const std::string &line,
 
 std::string format_syntax_error(const std::string &filename,
         const std::string &input, const Location &loc, const int token,
-        const std::string *tstr, bool use_colors)
+        const std::string *tstr, bool use_colors,
+        const LocationManager &lm)
 {
+    uint32_t first_line, first_column, last_line, last_column;
+    lm.pos_to_linecol(lm.output_to_input_pos(loc.first), first_line, first_column);
+    lm.pos_to_linecol(lm.output_to_input_pos(loc.last), last_line, last_column);
+
     std::stringstream out;
-    out << filename << ":" << loc.first_line << ":" << loc.first_column;
-    if (loc.first_line != loc.last_line) {
-        out << " - " << loc.last_line << ":" << loc.last_column;
+    out << filename << ":" << first_line << ":" << first_column;
+    if (first_line != last_line) {
+        out << " - " << last_line << ":" << last_column;
     }
     if(use_colors) out << " " << redon << "syntax error:" << redoff << " ";
     else out << " " << "syntax error:" <<  " ";
@@ -649,46 +687,51 @@ std::string format_syntax_error(const std::string &filename,
             out << "' is unexpected here" << std::endl;
         }
     }
-    if (loc.first_line == loc.last_line) {
-        std::string line = get_line(input, loc.first_line);
-        out << highlight_line(line, loc.first_column, loc.last_column, use_colors);
+    if (first_line == last_line) {
+        std::string line = get_line(input, first_line);
+        out << highlight_line(line, first_column, last_column, use_colors);
     } else {
-        out << "first (" << loc.first_line << ":" << loc.first_column;
+        out << "first (" << first_line << ":" << first_column;
         out << ")" << std::endl;
-        std::string line = get_line(input, loc.first_line);
-        out << highlight_line(line, loc.first_column, line.size(), use_colors);
-        out << "last (" << loc.last_line << ":" << loc.last_column;
+        std::string line = get_line(input, first_line);
+        out << highlight_line(line, first_column, line.size(), use_colors);
+        out << "last (" << last_line << ":" << last_column;
         out << ")" << std::endl;
-        line = get_line(input, loc.last_line);
-        out << highlight_line(line, 1, loc.last_column, use_colors);
+        line = get_line(input, last_line);
+        out << highlight_line(line, 1, last_column, use_colors);
     }
     return out.str();
 }
 
 std::string format_semantic_error(const std::string &filename,
         const std::string &input, const Location &loc,
-        const std::string msg, bool use_colors)
+        const std::string msg, bool use_colors,
+        const LocationManager &lm)
 {
+    uint32_t first_line, first_column, last_line, last_column;
+    lm.pos_to_linecol(lm.output_to_input_pos(loc.first), first_line, first_column);
+    lm.pos_to_linecol(lm.output_to_input_pos(loc.last), last_line, last_column);
+
     std::stringstream out;
-    out << filename << ":" << loc.first_line << ":" << loc.first_column;
-    if (loc.first_line != loc.last_line) {
-        out << " - " << loc.last_line << ":" << loc.last_column;
+    out << filename << ":" << first_line << ":" << first_column;
+    if (first_line != last_line) {
+        out << " - " << last_line << ":" << last_column;
     }
     if(use_colors) out << " " << redon << "semantic error:" << redoff << " ";
     else out << " " << "semantic error:" <<  " ";
     out << msg << std::endl;
-    if (loc.first_line == loc.last_line) {
-        std::string line = get_line(input, loc.first_line);
-        out << highlight_line(line, loc.first_column, loc.last_column, use_colors);
+    if (first_line == last_line) {
+        std::string line = get_line(input, first_line);
+        out << highlight_line(line, first_column, last_column, use_colors);
     } else {
-        out << "first (" << loc.first_line << ":" << loc.first_column;
+        out << "first (" << first_line << ":" << first_column;
         out << ")" << std::endl;
-        std::string line = get_line(input, loc.first_line);
-        out << highlight_line(line, loc.first_column, line.size(), use_colors);
-        out << "last (" << loc.last_line << ":" << loc.last_column;
+        std::string line = get_line(input, first_line);
+        out << highlight_line(line, first_column, line.size(), use_colors);
+        out << "last (" << last_line << ":" << last_column;
         out << ")" << std::endl;
-        line = get_line(input, loc.last_line);
-        out << highlight_line(line, 1, loc.last_column, use_colors);
+        line = get_line(input, last_line);
+        out << highlight_line(line, 1, last_column, use_colors);
     }
     return out.str();
 }

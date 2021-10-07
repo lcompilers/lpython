@@ -5,6 +5,7 @@
 #include <memory>
 
 #include <lfortran/parser/alloc.h>
+#include <lfortran/parser/parser.h>
 #include <lfortran/semantics/asr_scopes.h>
 #include <lfortran/ast.h>
 #include <lfortran/asr.h>
@@ -95,19 +96,28 @@ public:
 
     // Evaluates `code`.
     // If `verbose=true`, it saves ast, asr and llvm_ir in Result.
-    Result<EvalResult> evaluate(const std::string &code, bool verbose=false);
+    Result<EvalResult> evaluate(const std::string &code, bool verbose,
+        LocationManager &lm);
+    Result<EvalResult> evaluate2(const std::string &code);
 
-    Result<std::string> get_ast(const std::string &code);
-    Result<AST::TranslationUnit_t*> get_ast2(const std::string &code);
-    Result<std::string> get_asr(const std::string &code);
-    Result<ASR::TranslationUnit_t*> get_asr2(const std::string &code);
-    Result<std::string> get_llvm(const std::string &code);
-    Result<std::unique_ptr<LLVMModule>> get_llvm2(const std::string &code);
-    Result<std::string> get_asm(const std::string &code);
-    Result<std::string> get_cpp(const std::string &code);
-    Result<std::string> get_fmt(const std::string &code);
+    Result<std::string> get_ast(const std::string &code,
+        LocationManager &lm);
+    Result<AST::TranslationUnit_t*> get_ast2(const std::string &code,
+        LocationManager &lm);
+    Result<std::string> get_asr(const std::string &code,
+        LocationManager &lm);
+    Result<ASR::TranslationUnit_t*> get_asr2(const std::string &code,
+        LocationManager &lm);
+    Result<std::string> get_llvm(const std::string &code,
+        LocationManager &lm);
+    Result<std::unique_ptr<LLVMModule>> get_llvm2(const std::string &code,
+        LocationManager &lm);
+    Result<std::string> get_asm(const std::string &code, LocationManager &lm);
+    Result<std::string> get_cpp(const std::string &code, LocationManager &lm);
+    Result<std::string> get_fmt(const std::string &code, LocationManager &lm);
 
-    std::string format_error(const Error &e, const std::string &input) const;
+    std::string format_error(const Error &e, const std::string &input,
+            const LocationManager &lm) const;
     std::string error_stacktrace(const Error &e) const;
 
 private:

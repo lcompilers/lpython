@@ -17,6 +17,7 @@ void Tokenizer::set_string(const std::string &str)
     // to end with \0, but we check this here just in case.
     LFORTRAN_ASSERT(str[str.size()] == '\0');
     cur = (unsigned char *)(&str[0]);
+    string_start = cur;
     cur_line = cur;
     line_num = 1;
 }
@@ -634,10 +635,8 @@ std::string token(unsigned char *tok, unsigned char* cur)
 
 void token_loc(Location &loc)
 {
-    loc.first_line = 1;
-    loc.last_line = 1;
-    loc.first_column = 1;
-    loc.last_column = 1;
+    loc.first = 1;
+    loc.last = 1;
 }
 
 void lex_format(unsigned char *&cur, Location &loc,
