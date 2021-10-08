@@ -87,6 +87,12 @@ public:
     std::map<AST::intrinsicopType, std::string> intrinsic2str = {
         {AST::intrinsicopType::STAR, "~mul"},
         {AST::intrinsicopType::PLUS, "~add"},
+        {AST::intrinsicopType::EQ, "~eq"},
+        {AST::intrinsicopType::NOTEQ, "~noteq"},
+        {AST::intrinsicopType::LT, "~lt"},
+        {AST::intrinsicopType::LTE, "~lte"},
+        {AST::intrinsicopType::GT, "~gt"},
+        {AST::intrinsicopType::GTE, "~gte"}
     };
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
