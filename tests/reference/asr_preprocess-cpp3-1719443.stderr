@@ -1,0 +1,3 @@
+input:7:10 semantic error: Variable 'xx' not declared
+print *, xx, X123, y
+         ^~
