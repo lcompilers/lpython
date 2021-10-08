@@ -32,7 +32,7 @@ public:
 private:
 };
 
-static inline uint32_t bisection(std::vector<uint32_t> vec, uint32_t i) {
+static inline uint32_t bisection(const std::vector<uint32_t> &vec, uint32_t i) {
     LFORTRAN_ASSERT(vec.size() >= 2);
     if (i < vec[0]) throw LFortranException("Index out of bounds");
     if (i >= vec[vec.size()-1]) return vec.size()-1;
