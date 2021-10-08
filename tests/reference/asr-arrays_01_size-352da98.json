@@ -6,11 +6,7 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-arrays_01_size-352da98.stdout",
-<<<<<<< HEAD
-    "stdout_hash": "884919539ab82c4bdfb248b207ef11a646648f1ec22d74272944c869",
-=======
-    "stdout_hash": "09dcb4dcdab5a05c31fdd1707696df6fd99b562518dfb8aae06bff3e",
->>>>>>> master
+    "stdout_hash": "3e5eeccbcf0e4b6d33d0ff0f36f149bfb74b8d57ea2e0a8fda04d0f4",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
