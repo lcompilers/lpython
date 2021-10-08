@@ -121,6 +121,23 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm) co
     size_t N = lm.out_start0.size()-2;
     lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
     lm.interval_type0.push_back(0);
+
+    // Uncomment for debugging
+    /*
+    std::cout << "in_start0: ";
+    for (auto A : lm.in_start0) { std::cout << A << " "; }
+    std::cout << std::endl;
+    std::cout << "in_size0: ";
+    for (auto A : lm.in_size0) { std::cout << A << " "; }
+    std::cout << std::endl;
+    std::cout << "interval_type0: ";
+    for (auto A : lm.interval_type0) { std::cout << A << " "; }
+    std::cout << std::endl;
+    std::cout << "out_start0: ";
+    for (auto A : lm.out_start0) { std::cout << A << " "; }
+    std::cout << std::endl;
+    */
+
     return output;
 }
 
