@@ -26,11 +26,9 @@ void parse_macro_definition(const std::string &line,
 }
 
 void get_newlines(const std::string &s, std::vector<uint32_t> &newlines) {
-    newlines.push_back(0);
     for (uint32_t pos=0; pos < s.size(); pos++) {
         if (s[pos] == '\n') newlines.push_back(pos);
     }
-    newlines.push_back(s.size());
 }
 
 std::string CPreprocessor::run(const std::string &input, LocationManager &lm) const {
