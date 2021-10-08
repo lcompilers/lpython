@@ -48,20 +48,21 @@ std::string get_runtime_library_dir()
     }
 }
 
-std::string read_file(const std::string &filename)
+bool read_file(const std::string &filename, std::string &text)
 {
     std::ifstream ifs(filename.c_str(), std::ios::in | std::ios::binary
             | std::ios::ate);
 
     std::ifstream::pos_type filesize = ifs.tellg();
-    if (filesize < 0) return std::string();
+    if (filesize < 0) return false;
 
     ifs.seekg(0, std::ios::beg);
 
     std::vector<char> bytes(filesize);
     ifs.read(&bytes[0], filesize);
 
-    return std::string(&bytes[0], filesize);
+    text = std::string(&bytes[0], filesize);
+    return true;
 }
 
 bool present(Vec<char*> &v, const char* name) {

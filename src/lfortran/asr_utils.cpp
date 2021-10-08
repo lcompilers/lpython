@@ -241,8 +241,9 @@ ASR::TranslationUnit_t* find_and_load_module(Allocator &al, const std::string &m
         std::string rl_path = get_runtime_library_dir();
         modfilename = rl_path + "/" + modfilename;
     }
-    std::string modfile = read_file(modfilename);
-    if (modfile == "") return nullptr;
+
+    std::string modfile;
+    if (!read_file(modfilename, modfile)) return nullptr;
     ASR::TranslationUnit_t *asr = load_modfile(al, modfile, false,
         symtab);
     if (intrinsic) {
