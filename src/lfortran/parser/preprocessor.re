@@ -92,6 +92,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm) co
                 size_t N = lm.out_start0.size()-2;
                 lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
                 lm.interval_type0.push_back(0);
+                continue;
             }
             "#include" whitespace '"' [^"\x00]* '"' [^\n\x00]* newline {
                 std::string line = token(tok, cur);
@@ -126,6 +127,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm) co
                 N = lm.out_start0.size()-2;
                 lm.in_size0.push_back(token(tok, cur).size()-1);
                 lm.interval_type0.push_back(1);
+                continue;
             }
             name {
                 std::string t = token(tok, cur);
