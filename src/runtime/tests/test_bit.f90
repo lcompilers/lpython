@@ -1,5 +1,5 @@
 program test_bit
-use lfortran_intrinsic_bit, only: iand, ior, ibset, btest
+use lfortran_intrinsic_bit, only: iand, ior, ibclr, ibset, btest
 implicit none
 
 integer(kind=4) :: a
@@ -25,9 +25,11 @@ y = 3
 if (ior(x, y) /= 3) error stop
 
 a = 1
+if (ibclr(a, 0) /= 0) error stop
 if (ibset(a, 2) /= 5) error stop
 
 x = 2
+if (ibclr(x, 1) /= 0) error stop
 if (ibset(x, 3) /= 10) error stop
 
 a = 2
