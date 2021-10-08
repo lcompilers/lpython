@@ -102,7 +102,14 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm) co
                 while (startswith(line, "#include")) {
                     std::string filename;
                     parse_include_line(line, filename);
-                    // TODO: include `filename` relative to the current file
+                    // Construct a filename relative to the current file
+                    // TODO: make this multiplatform
+                    std::string base_dir = lm.in_filename;
+                    std::string::size_type n = base_dir.rfind("/");
+                    if (n != std::string::npos) {
+                        base_dir = base_dir.substr(0, n);
+                        filename = base_dir + "/" + filename;
+                    }
                     if (!read_file(filename, include)) {
                         throw LFortranException("C preprocessor: include file '" + filename + "' cannot be opened");
                     }
