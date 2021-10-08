@@ -81,7 +81,12 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm) co
             name {
                 std::string t = token(tok, cur);
                 if (macro_definitions.find(t) != macro_definitions.end()) {
-                    output.append(macro_definitions[t]);
+                    // TODO: this interval should not be 1:1. For now
+                    // we do not emit the macro expansion.
+                    //output.append(macro_definitions[t]);
+                    //lm.out_start0.push_back(output.size());
+                    //lm.in_start0.push_back(cur-string_start);
+                    output.append(t);
                 } else {
                     output.append(t);
                 }
