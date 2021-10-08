@@ -85,6 +85,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm) co
             name {
                 std::string t = token(tok, cur);
                 if (macro_definitions.find(t) != macro_definitions.end()) {
+                    // Prepare the start of the interval
                     lm.out_start0.push_back(output.size());
                     lm.in_start0.push_back(tok-string_start);
                     // The just created interval ID:
@@ -92,8 +93,19 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm) co
                     lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
                     lm.interval_type0.push_back(0);
 
-                    output.append(macro_definitions[t]);
+                    // Expand the macro
+                    std::string expansion = macro_definitions[t];
+                    int i = 0;
+                    while (macro_definitions.find(expansion) != macro_definitions.end()) {
+                        expansion = macro_definitions[expansion];
+                        i++;
+                        if (i == 40) {
+                            throw LFortranException("C preprocessor: maximum recursion limit reached");
+                        }
+                    }
+                    output.append(expansion);
 
+                    // Prepare the end of the interval
                     lm.out_start0.push_back(output.size());
                     lm.in_start0.push_back(cur-string_start);
                     // The just created interval ID:
