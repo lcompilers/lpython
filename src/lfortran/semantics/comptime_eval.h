@@ -87,6 +87,7 @@ struct IntrinsicProcedures {
 
             {"iand", {m_bit, &not_implemented, false}},
             {"ior", {m_bit, &not_implemented, false}},
+            {"ibclr", {m_bit, &not_implemented, false}},
             {"ibset", {m_bit, &not_implemented, false}},
             {"btest", {m_bit, &not_implemented, false}},
 
