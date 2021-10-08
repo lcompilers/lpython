@@ -139,9 +139,24 @@ struct LocationManager {
         if (preprocessor) {
             // If preprocessor was used, do one more remapping
             uint32_t interval0 = bisection(out_start0, in_pos);
-            uint32_t rel_pos0 = in_pos - out_start0[interval0];
-            uint32_t in_pos0 = in_start0[interval0] + rel_pos0;
-            return in_pos0;
+            if (interval_type0[interval0] == 0) {
+                // 1:1 interval
+                uint32_t rel_pos0 = in_pos - out_start0[interval0];
+                uint32_t in_pos0 = in_start0[interval0] + rel_pos0;
+                return in_pos0;
+            } else {
+                // many to many interval
+                uint32_t in_pos0;
+                if (in_pos == out_start0[interval0+1]-1) {
+                    // The end of the interval in "out" code
+                    // Return the end of the interval in "in" code
+                    in_pos0 = in_start0[interval0]+in_size0[interval0]-1;
+                } else {
+                    // Otherwise return the beginning of the interval in "in"
+                    in_pos0 = in_start0[interval0];
+                }
+                return in_pos0;
+            }
         } else {
             return in_pos;
         }
