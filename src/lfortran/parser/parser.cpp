@@ -621,6 +621,9 @@ std::string highlight_line(const std::string &line,
         bool use_colors)
 {
     if (first_column == 0 || last_column == 0) return "";
+    if (last_column > line.size()+1) {
+        throw LFortranException("The `last_column` in highlight_line is longer than the source line");
+    }
     LFORTRAN_ASSERT(first_column >= 1)
     LFORTRAN_ASSERT(first_column <= last_column)
     LFORTRAN_ASSERT(last_column <= line.size()+1)

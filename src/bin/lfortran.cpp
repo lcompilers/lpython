@@ -7,6 +7,7 @@
 
 #include <lfortran/stacktrace.h>
 #include <lfortran/parser/parser.h>
+#include <lfortran/parser/preprocessor.h>
 #include <lfortran/pickle.h>
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/mod_to_asr.h>
@@ -378,25 +379,20 @@ int emit_tokens(const std::string &infile, bool line_numbers=false)
     return 0;
 }
 
-int emit_ast(const std::string &infile, bool indent,
-        CompilerOptions &compiler_options)
+int emit_ast(const std::string &infile, CompilerOptions &compiler_options)
 {
     std::string input = read_file(infile);
-    // Src -> AST
-    Allocator al(64*1024*1024);
-    LFortran::AST::TranslationUnit_t* ast;
-    try {
-        ast = LFortran::parse2(al, input, compiler_options.use_colors, compiler_options.fixed_form);
-    } catch (const LFortran::TokenizerError &e) {
-        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
-        return 1;
-    } catch (const LFortran::ParserError &e) {
-        std::cerr << "Parsing error: " << e.msg() << std::endl;
+
+    LFortran::FortranEvaluator fe(compiler_options);
+    LFortran::LocationManager lm;
+    LFortran::FortranEvaluator::Result<std::string> r = fe.get_ast(input, lm);
+    if (r.ok) {
+        std::cout << r.result << std::endl;
+        return 0;
+    } else {
+        std::cerr << fe.format_error(r.error, input, lm);
         return 2;
     }
-
-    std::cout << LFortran::pickle(*ast, compiler_options.use_colors, indent) << std::endl;
-    return 0;
 }
 
 int emit_ast_f90(const std::string &infile, CompilerOptions &compiler_options)
@@ -509,7 +505,7 @@ int python_wrapper(const std::string &infile, std::string array_order,
 }
 
 int emit_asr(const std::string &infile,
-    const std::vector<ASRPass> &passes, bool indent,
+    const std::vector<ASRPass> &passes,
     bool with_intrinsic_modules, CompilerOptions &compiler_options)
 {
     std::string input = read_file(infile);
@@ -562,7 +558,7 @@ int emit_asr(const std::string &infile,
             default : throw LFortran::LFortranException("Pass not implemened");
         }
     }
-    std::cout << LFortran::pickle(*asr, compiler_options.use_colors, indent,
+    std::cout << LFortran::pickle(*asr, compiler_options.use_colors, compiler_options.indent,
             with_intrinsic_modules) << std::endl;
     return 0;
 }
@@ -1058,6 +1054,16 @@ int link_executable(const std::vector<std::string> &infiles,
     }
 }
 
+int emit_c_preprocessor(const std::string &infile, CompilerOptions &/*compiler_options*/)
+{
+    std::string input = read_file(infile);
+
+    LFortran::CPreprocessor cpp;
+    std::string s = cpp.run(input);
+    std::cout << s;
+    return 0;
+}
+
 } // anonymous namespace
 
 int main(int argc, char *argv[])
@@ -1076,11 +1082,12 @@ int main(int argc, char *argv[])
         bool arg_c = false;
         bool arg_v = false;
         bool arg_E = false;
+        bool arg_g = false;
+        std::vector<std::string> arg_D;
         std::string arg_J;
         std::vector<std::string> arg_I;
         std::vector<std::string> arg_l;
         std::vector<std::string> arg_L;
-        bool arg_cpp = false;
         std::string arg_o;
         std::vector<std::string> arg_files;
         bool arg_version = false;
@@ -1092,7 +1099,6 @@ int main(int argc, char *argv[])
         bool show_ast_f90 = false;
         std::string arg_pass;
         bool arg_no_color = false;
-        bool arg_indent = false;
         bool show_llvm = false;
         bool show_cpp = false;
         bool show_asm = false;
@@ -1131,10 +1137,12 @@ int main(int argc, char *argv[])
         app.add_option("-L", arg_L, "Library path option");
         app.add_option("-I", arg_I, "Include path")->allow_extra_args(false);
         app.add_option("-J", arg_J, "Where to save mod files");
+        app.add_flag("-g", arg_g, "Compile with debugging information");
+        app.add_option("-D", arg_D, "Define <macro>=<value> (or 1 if <value> omitted)")->allow_extra_args(false);
         app.add_flag("--version", arg_version, "Display compiler version information");
 
         // LFortran specific options
-        app.add_flag("--cpp", arg_cpp, "Enable preprocessing");
+        app.add_flag("--cpp", compiler_options.c_preprocessor, "Enable C preprocessing");
         app.add_flag("--fixed-form", compiler_options.fixed_form, "Use fixed form Fortran source parsing");
         app.add_flag("--show-prescan", show_prescan, "Show tokens for the given file and exit");
         app.add_flag("--show-tokens", show_tokens, "Show tokens for the given file and exit");
@@ -1143,7 +1151,7 @@ int main(int argc, char *argv[])
         app.add_flag("--with-intrinsic-mods", with_intrinsic_modules, "Show intrinsic modules in ASR");
         app.add_flag("--show-ast-f90", show_ast_f90, "Show Fortran from AST for the given file and exit");
         app.add_flag("--no-color", arg_no_color, "Turn off colored AST/ASR");
-        app.add_flag("--indent", arg_indent, "Indented print ASR/AST");
+        app.add_flag("--indent", compiler_options.indent, "Indented print ASR/AST");
         app.add_option("--pass", arg_pass, "Apply the ASR pass and show ASR (implies --show-asr)");
         app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
         app.add_flag("--show-cpp", show_cpp, "Show C++ translation source for the given file and exit");
@@ -1298,31 +1306,9 @@ int main(int argc, char *argv[])
             outfile = "a.out";
         }
 
-        if (arg_cpp) {
-            std::string file_cpp = arg_file + ".preprocessed";
-            std::string cmd = "gfortran -cpp -E " + arg_file + " -o "
-                + file_cpp;
-            int err = system(cmd.c_str());
-            if (err) {
-                std::cout << "The command '" + cmd + "' failed." << std::endl;
-                return 11;
-            }
-            std::string file_cpp2 = file_cpp + "2";
-            std::string input = read_file(file_cpp);
-            LFortran::LocationManager lm;
-            std::string output = LFortran::fix_continuation(input, lm, false);
-            {
-                std::ofstream out;
-                out.open(file_cpp2);
-                out << output;
-            }
-            arg_file = file_cpp2;
-        }
-
         if (arg_E) {
-            return 0;
+            return emit_c_preprocessor(arg_file, compiler_options);
         }
-
 
         if (show_prescan) {
             return emit_prescan(arg_file, compiler_options);
@@ -1331,7 +1317,7 @@ int main(int argc, char *argv[])
             return emit_tokens(arg_file);
         }
         if (show_ast) {
-            return emit_ast(arg_file, arg_indent, compiler_options);
+            return emit_ast(arg_file, compiler_options);
         }
         if (show_ast_f90) {
             return emit_ast_f90(arg_file, compiler_options);
@@ -1361,7 +1347,7 @@ int main(int argc, char *argv[])
             show_asr = true;
         }
         if (show_asr) {
-            return emit_asr(arg_file, passes, arg_indent,
+            return emit_asr(arg_file, passes,
                     with_intrinsic_modules, compiler_options);
         }
         if (show_llvm) {

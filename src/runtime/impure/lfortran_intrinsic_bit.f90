@@ -14,6 +14,10 @@ interface ibset
     module procedure ibset32, ibset64
 end interface
 
+interface btest
+    module procedure btest32, btest64
+end interface
+
 contains
 
 ! iand --------------------------------------------------------------------------
@@ -107,6 +111,44 @@ if (pos >= 0 .and. pos < 64) then
     r = c_ibset64(i, pos)
 else
     error stop "ibset(i, pos) for pos < 0 or pos >= bit_size(i) is not allowed"
+end if
+end function
+
+! btest --------------------------------------------------------------------------
+
+elemental logical function btest32(i, pos) result(r)
+integer(int32), intent(in) :: i
+integer, intent(in) :: pos
+interface
+    pure integer(int32) function c_btest32(i, pos) bind(c, name="_lfortran_btest32")
+    import :: int32
+    integer(int32), intent(in), value :: i
+    integer, intent(in), value :: pos
+    end function
+end interface
+
+if (pos >= 0 .and. pos < 32) then
+    r = c_btest32(i, pos) /= 0
+else
+    error stop "btest(i, pos) for pos < 0 or pos >= bit_size(i) is not allowed"
+end if
+end function
+
+elemental logical function btest64(i, pos) result(r)
+integer(int64), intent(in) :: i
+integer, intent(in) :: pos
+interface
+    pure integer(int64) function c_btest64(i, pos) bind(c, name="_lfortran_btest64")
+    import :: int64
+    integer(int64), intent(in), value :: i
+    integer, intent(in), value :: pos
+    end function
+end interface
+
+if (pos >= 0 .and. pos < 64) then
+    r = c_btest64(i, pos) /= 0
+else
+    error stop "btest(i, pos) for pos < 0 or pos >= bit_size(i) is not allowed"
 end if
 end function
 
