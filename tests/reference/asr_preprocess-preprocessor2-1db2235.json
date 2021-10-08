@@ -2,7 +2,7 @@
     "basename": "asr_preprocess-preprocessor2-1db2235",
     "cmd": "lfortran --cpp --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/preprocessor2.f90",
-    "infile_hash": "d1906818b44150f05571201fd4021509bc9773ac9fec4b4d4e3ead78",
+    "infile_hash": "0ad5c1e9977ab80f0d8872a378aa0927023ce0b47360bfedeea09364",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr_preprocess-preprocessor2-1db2235.stdout",
