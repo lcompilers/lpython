@@ -25,13 +25,25 @@ void parse_macro_definition(const std::string &line,
     subs = line.substr(i, line.size()-i-1);
 }
 
-std::string CPreprocessor::run(const std::string &input) const {
+void get_newlines(const std::string &s, std::vector<uint32_t> &newlines) {
+    newlines.push_back(0);
+    for (uint32_t pos=0; pos < s.size(); pos++) {
+        if (s[pos] == '\n') newlines.push_back(pos);
+    }
+    newlines.push_back(s.size());
+}
+
+std::string CPreprocessor::run(const std::string &input, LocationManager &lm) const {
     LFORTRAN_ASSERT(input[input.size()] == '\0');
     unsigned char *string_start=(unsigned char*)(&input[0]);
     unsigned char *cur = string_start;
     Location loc;
     std::string output;
     std::map<std::string, std::string> macro_definitions;
+    lm.preprocessor = true;
+    get_newlines(input, lm.in_newlines0);
+    lm.out_start0.push_back(0);
+    lm.in_start0.push_back(0);
     for (;;) {
         unsigned char *tok = cur;
         unsigned char *mar;
@@ -63,12 +75,31 @@ std::string CPreprocessor::run(const std::string &input) const {
                 parse_macro_definition(token(tok, cur),
                     macro_name, macro_subs);
                 macro_definitions[macro_name] = macro_subs;
-                //std::cout << "MACRO: " << macro_name << " " << macro_subs << std::endl;
+                lm.out_start0.push_back(output.size());
+                lm.in_start0.push_back(cur-string_start);
+                // The just created interval ID:
+                size_t N = lm.out_start0.size()-2;
+                lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
+                lm.interval_type0.push_back(0);
             }
             name {
                 std::string t = token(tok, cur);
                 if (macro_definitions.find(t) != macro_definitions.end()) {
+                    lm.out_start0.push_back(output.size());
+                    lm.in_start0.push_back(tok-string_start);
+                    // The just created interval ID:
+                    size_t N = lm.out_start0.size()-2;
+                    lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
+                    lm.interval_type0.push_back(0);
+
                     output.append(macro_definitions[t]);
+
+                    lm.out_start0.push_back(output.size());
+                    lm.in_start0.push_back(cur-string_start);
+                    // The just created interval ID:
+                    N = lm.out_start0.size()-2;
+                    lm.in_size0.push_back(t.size());
+                    lm.interval_type0.push_back(1);
                 } else {
                     output.append(t);
                 }
@@ -84,6 +115,29 @@ std::string CPreprocessor::run(const std::string &input) const {
             }
         */
     }
+    lm.out_start0.push_back(output.size());
+    lm.in_start0.push_back(input.size());
+    // The just created interval ID:
+    size_t N = lm.out_start0.size()-2;
+    lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
+    lm.interval_type0.push_back(0);
+
+    // Uncomment for debugging
+    /*
+    std::cout << "in_start0: ";
+    for (auto A : lm.in_start0) { std::cout << A << " "; }
+    std::cout << std::endl;
+    std::cout << "in_size0: ";
+    for (auto A : lm.in_size0) { std::cout << A << " "; }
+    std::cout << std::endl;
+    std::cout << "interval_type0: ";
+    for (auto A : lm.interval_type0) { std::cout << A << " "; }
+    std::cout << std::endl;
+    std::cout << "out_start0: ";
+    for (auto A : lm.out_start0) { std::cout << A << " "; }
+    std::cout << std::endl;
+    */
+
     return output;
 }
 

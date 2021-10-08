@@ -46,6 +46,7 @@ def main():
         ast_cpp_hip = test.get("ast_cpp_hip", False)
         ast_openmp = test.get("ast_openmp", False)
         asr = test.get("asr", False)
+        asr_preprocess = test.get("asr_preprocess", False)
         asr_indent = test.get("asr_indent", False)
         mod_to_asr = test.get("mod_to_asr", False)
         llvm = test.get("llvm", False)
@@ -92,6 +93,10 @@ def main():
 
         if asr:
             run_test("asr", "lfortran --show-asr --no-color {infile} -o {outfile}",
+                    filename, update_reference)
+
+        if asr_preprocess:
+            run_test("asr_preprocess", "lfortran --cpp --show-asr --no-color {infile} -o {outfile}",
                     filename, update_reference)
 
         if asr_indent:

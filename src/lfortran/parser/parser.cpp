@@ -209,7 +209,7 @@ void copy_rest_of_line(std::string &out, const std::string &s, size_t &pos)
 }
 
 // Checks that newlines are computed correctly
-bool check_newlines(const std::string &s, const std::vector<uint32_t> newlines) {
+bool check_newlines(const std::string &s, const std::vector<uint32_t> &newlines) {
     std::vector<uint32_t> newlines2 = {0};
     for (uint32_t pos=0; pos < s.size(); pos++) {
         if (s[pos] == '\n') newlines2.push_back(pos);

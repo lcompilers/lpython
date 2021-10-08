@@ -1,0 +1,13 @@
+{
+    "basename": "asr_preprocess-cpp3-1719443",
+    "cmd": "lfortran --cpp --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/cpp3.f90",
+    "infile_hash": "8b42a312082ab5a08623b751910516f3fa8bcc464dce36d988e4bdfe",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr_preprocess-cpp3-1719443.stderr",
+    "stderr_hash": "b8867c48aa80b6656e2febc5f6c6dec4c055c5b5f1c0aad60fcd7a05",
+    "returncode": 2
+}
