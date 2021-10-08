@@ -8,5 +8,5 @@ implicit none
 integer :: x, y
 x = (2+3)*5
 ! Error: `z12345678` not defined:
-print *, x, C123
+print *, x, C123, y
 end program
