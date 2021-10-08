@@ -1517,7 +1517,11 @@ asr = true
 llvm = true
 
 [[test]]
+<<<<<<< HEAD
 filename = "../integration_tests/operator_overloading_03.f90"
+=======
+filename = "../integration_tests/operator_overloading_02.f90"
+>>>>>>> master
 asr = true
 llvm = true
 

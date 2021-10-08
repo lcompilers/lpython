@@ -6,7 +6,11 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-recursion_03-8300fac.stdout",
+<<<<<<< HEAD
     "stdout_hash": "5e98768c6be4ad13151a3f5644807bf1fb3aac121cc949c5f1113661",
+=======
+    "stdout_hash": "57e2634291184151f2ee3316dc5885e7e88dbe13ec7b2ce70e781e8b",
+>>>>>>> master
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

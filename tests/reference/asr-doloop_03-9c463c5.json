@@ -6,7 +6,11 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-doloop_03-9c463c5.stdout",
+<<<<<<< HEAD
     "stdout_hash": "634b61a6a07875a69dbf7abaed552366dee00c10b50f1d2f0acdb728",
+=======
+    "stdout_hash": "b16aa0422f55a2ce5c8702640f150ec5bd631dcd9ddf71830f805047",
+>>>>>>> master
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
