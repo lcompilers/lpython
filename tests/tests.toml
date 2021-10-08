@@ -1215,6 +1215,11 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "../integration_tests/string_10.f90"
+asr = true
+llvm = true
+
+[[test]]
 filename = "global_scope7.f90"
 asr = true
 llvm = true
