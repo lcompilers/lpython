@@ -98,7 +98,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm) co
                     lm.in_start0.push_back(cur-string_start);
                     // The just created interval ID:
                     N = lm.out_start0.size()-2;
-                    lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
+                    lm.in_size0.push_back(t.size());
                     lm.interval_type0.push_back(1);
                 } else {
                     output.append(t);
