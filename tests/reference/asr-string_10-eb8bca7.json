@@ -2,7 +2,7 @@
     "basename": "asr-string_10-eb8bca7",
     "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/string_10.f90",
-    "infile_hash": "575c6bf5b025365e038ec10dc18670849a88f1cf8d90213d89f855f4",
+    "infile_hash": "ec1beb803001fdebef83afa6db63e119f0140f8eed7b554b266ba976",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-string_10-eb8bca7.stdout",
