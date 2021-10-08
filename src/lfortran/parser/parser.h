@@ -33,9 +33,9 @@ private:
 };
 
 static inline uint32_t bisection(const std::vector<uint32_t> &vec, uint32_t i) {
-    LFORTRAN_ASSERT(vec.size() >= 2);
-    if (i < vec[0]) throw LFortranException("Index out of bounds");
-    if (i >= vec[vec.size()-1]) return vec.size()-1;
+    if (vec.size() == 0) return 0;
+    if (i < vec[0]) return 0;
+    if (i >= vec[vec.size()-1]) return vec.size();
     uint32_t i1 = 0, i2 = vec.size()-1;
     while (i1 < i2-1) {
         uint32_t imid = (i1+i2)/2;
@@ -45,7 +45,7 @@ static inline uint32_t bisection(const std::vector<uint32_t> &vec, uint32_t i) {
             i1 = imid;
         }
     }
-    return i1;
+    return i1+1;
 }
 
 struct LocationManager {
@@ -133,12 +133,12 @@ struct LocationManager {
     // Every character in the output code has a corresponding location in the
     // original code, so this function always succeeds
     uint32_t output_to_input_pos(uint32_t out_pos) const {
-        uint32_t interval = bisection(out_start, out_pos);
+        uint32_t interval = bisection(out_start, out_pos)-1;
         uint32_t rel_pos = out_pos - out_start[interval];
         uint32_t in_pos = in_start[interval] + rel_pos;
         if (preprocessor) {
             // If preprocessor was used, do one more remapping
-            uint32_t interval0 = bisection(out_start0, in_pos);
+            uint32_t interval0 = bisection(out_start0, in_pos)-1;
             if (interval_type0[interval0] == 0) {
                 // 1:1 interval
                 uint32_t rel_pos0 = in_pos - out_start0[interval0];
@@ -174,16 +174,16 @@ struct LocationManager {
             newlines = &in_newlines;
         }
         int32_t interval = bisection(*newlines, position);
-        if (position == (*newlines)[interval]) {
+        if (interval >= 1 && position == (*newlines)[interval-1]) {
             // position is exactly the \n character, make sure `line` is
             // the line with \n, and `col` points to the position of \n
-            line = interval;
-            LFORTRAN_ASSERT(interval >= 1)
-            col = position-(*newlines)[interval-1];
+            interval -= 1;
+        }
+        line = interval+1;
+        if (line == 1) {
+            col = position+1;
         } else {
-            line = interval+1;
-            col = position-(*newlines)[interval];
-            if (line == 1) col++;
+            col = position-(*newlines)[interval-1];
         }
     }
 
