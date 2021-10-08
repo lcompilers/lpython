@@ -524,7 +524,7 @@ public:
                         case ASR::exprType::Compare:
                             op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(
                                                 al, x.base.base.loc, 
-                                                ref_1, (ASR::cmpopType)x.m_op, ref_2, x.m_type, nullptr));
+                                                ref_1, (ASR::cmpopType)x.m_op, ref_2, x.m_type, nullptr, nullptr));
                             break;
                         case ASR::exprType::BoolOp:
                             op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_BoolOp_t(
@@ -608,7 +608,7 @@ public:
                         case ASR::exprType::Compare:
                             op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(
                                                     al, x.base.base.loc, 
-                                                    ref, (ASR::cmpopType)x.m_op, other_expr, x.m_type, nullptr));
+                                                    ref, (ASR::cmpopType)x.m_op, other_expr, x.m_type, nullptr, nullptr));
                             break;
                         case ASR::exprType::BoolOp:
                             op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_BoolOp_t(

@@ -277,6 +277,7 @@ RUN(NAME interface_07 LABELS gfortran llvm)
 
 RUN(NAME operator_overloading_01 LABELS gfortran llvm)
 RUN(NAME operator_overloading_02 LABELS gfortran llvm)
+RUN(NAME operator_overloading_03 LABELS gfortran llvm)
 
 RUN(NAME types_07 LABELS gfortran)
 RUN(NAME types_08 LABELS gfortran)
