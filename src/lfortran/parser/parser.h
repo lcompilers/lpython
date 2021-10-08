@@ -76,7 +76,15 @@ struct LocationManager {
         uint32_t interval = bisection(out_start, out_pos);
         uint32_t rel_pos = out_pos - out_start[interval];
         uint32_t in_pos = in_start[interval] + rel_pos;
-        return in_pos;
+        if (preprocessor) {
+            // If preprocessor was used, do one more remapping
+            uint32_t interval0 = bisection(out_start0, in_pos);
+            uint32_t rel_pos0 = in_pos - out_start0[interval0];
+            uint32_t in_pos0 = in_start0[interval0] + rel_pos0;
+            return in_pos0;
+        } else {
+            return in_pos;
+        }
     }
 
     // Converts a linear position `position` to a (line, col) tuple
@@ -84,16 +92,22 @@ struct LocationManager {
     // `line` and `col` starts from 1
     // `in_newlines` starts from 0
     void pos_to_linecol(uint32_t position, uint32_t &line, uint32_t &col) const {
-        int32_t interval = bisection(in_newlines, position);
-        if (position == in_newlines[interval]) {
+        const std::vector<uint32_t> *newlines;
+        if (preprocessor) {
+            newlines = &in_newlines0;
+        } else {
+            newlines = &in_newlines;
+        }
+        int32_t interval = bisection(*newlines, position);
+        if (position == (*newlines)[interval]) {
             // position is exactly the \n character, make sure `line` is
             // the line with \n, and `col` points to the position of \n
             line = interval;
             LFORTRAN_ASSERT(interval >= 1)
-            col = position-in_newlines[interval-1];
+            col = position-(*newlines)[interval-1];
         } else {
             line = interval+1;
-            col = position-in_newlines[interval];
+            col = position-(*newlines)[interval];
             if (line == 1) col++;
         }
     }
