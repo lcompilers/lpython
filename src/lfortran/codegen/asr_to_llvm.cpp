@@ -2479,21 +2479,35 @@ public:
             tmp = builder->CreateAnd(real_res, img_res);
         } else if (optype == ASR::ttypeType::Character) {
             // TODO: For now we only compare the first character of the strings
+            left = builder->CreateLoad(left);
+            right = builder->CreateLoad(right);
             switch (x.m_op) {
                 case (ASR::cmpopType::Eq) : {
-                    left = builder->CreateLoad(left);
-                    right = builder->CreateLoad(right);
                     tmp = builder->CreateICmpEQ(left, right);
                     break;
                 }
                 case (ASR::cmpopType::NotEq) : {
-                    left = builder->CreateLoad(left);
-                    right = builder->CreateLoad(right);
                     tmp = builder->CreateICmpNE(left, right);
                     break;
                 }
+                case (ASR::cmpopType::Gt) : {
+                    tmp = builder->CreateICmpUGT(left, right);
+                    break;
+                }
+                case (ASR::cmpopType::GtE) : {
+                    tmp = builder->CreateICmpUGE(left, right);
+                    break;
+                }
+                case (ASR::cmpopType::Lt) : {
+                    tmp = builder->CreateICmpULT(left, right);
+                    break;
+                }
+                case (ASR::cmpopType::LtE) : {
+                    tmp = builder->CreateICmpULE(left, right);
+                    break;
+                }
                 default : {
-                    throw SemanticError("Comparison operator not implemented for strings",
+                    throw SemanticError("Comparison operator not implemented.",
                             x.base.base.loc);
                 }
             }
