@@ -100,18 +100,16 @@ struct LocationManager {
     //     void f(const MyType &x);
     // Here `f` from the output file maps using interval type 0 to `f` in A.cpp.
     // The `struct MyType` maps using interval type 0 to `struct MyType` in B.h.
-    // If we wanted to also store that it comes via the `#include` line, we
-    // would need another mapping using interval type 1 from `struct MyType` to
-    // `#include "B.h"`. Including files is recursive. Then we need one interval
-    // type 0 to point to the original code and several type 1 intervals to
-    // specify all the include lines. Macro expansion is also recursive and so
-    // the same idea applies.
+    // In addition, for this interval we store a list of files+positions
+    // of all recursive include lines.
     //
     // Note: even for macro expansion we can use intervals type 0 to point to
     // the copied text, such as `cos(` can point directly into the macro
     // definition, `3.5` can point to `b` using interval 1 (but can also point
     // to `3.5` in `X(1.5, 3.5)` using interval 0), `*y)` can again use interval
     // 0.
+    // Macros are recursive, so the same idea: one interval of type 0, and a
+    // list of files+positions.
     //
     //
     //
@@ -126,7 +124,7 @@ struct LocationManager {
     std::vector<uint32_t> out_start0; // consecutive intervals in the output code
     std::vector<uint32_t> in_start0; // start + size in the original code
     std::vector<uint32_t> in_size0; // Size of the `in` interval
-    std::vector<uint8_t> interval_type0; // 0 .... 1:1; 1 ... many to many;
+    std::vector<uint32_t> interval_type0; // 0 .... 1:1; 1 ... many to many;
     std::vector<uint32_t> in_newlines0; // position of all \n in the original code
 //    std::vector<uint32_t> filename_id; // file name for each interval, ID
 //    std::vector<std::string> filenames; // filenames lookup for an ID

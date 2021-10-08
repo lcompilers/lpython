@@ -77,16 +77,29 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm) co
                 macro_definitions[macro_name] = macro_subs;
                 lm.out_start0.push_back(output.size());
                 lm.in_start0.push_back(cur-string_start);
+                // The just created interval ID:
+                size_t N = lm.out_start0.size()-2;
+                lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
+                lm.interval_type0.push_back(0);
             }
             name {
                 std::string t = token(tok, cur);
                 if (macro_definitions.find(t) != macro_definitions.end()) {
-                    // TODO: this interval should not be 1:1. For now
-                    // we do not emit the macro expansion.
-                    //output.append(macro_definitions[t]);
-                    //lm.out_start0.push_back(output.size());
-                    //lm.in_start0.push_back(cur-string_start);
-                    output.append(t);
+                    lm.out_start0.push_back(output.size());
+                    lm.in_start0.push_back(tok-string_start);
+                    // The just created interval ID:
+                    size_t N = lm.out_start0.size()-2;
+                    lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
+                    lm.interval_type0.push_back(0);
+
+                    output.append(macro_definitions[t]);
+
+                    lm.out_start0.push_back(output.size());
+                    lm.in_start0.push_back(cur-string_start);
+                    // The just created interval ID:
+                    N = lm.out_start0.size()-2;
+                    lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
+                    lm.interval_type0.push_back(1);
                 } else {
                     output.append(t);
                 }
@@ -104,6 +117,10 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm) co
     }
     lm.out_start0.push_back(output.size());
     lm.in_start0.push_back(input.size());
+    // The just created interval ID:
+    size_t N = lm.out_start0.size()-2;
+    lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
+    lm.interval_type0.push_back(0);
     return output;
 }
 
