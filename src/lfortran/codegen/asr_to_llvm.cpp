@@ -2474,6 +2474,7 @@ public:
             }
             tmp = builder->CreateAnd(real_res, img_res);
         } else if (optype == ASR::ttypeType::Character) {
+            // TODO: For now we only compare the first character of the strings
             left = builder->CreateLoad(left);
             right = builder->CreateLoad(right);
             switch (x.m_op) {
