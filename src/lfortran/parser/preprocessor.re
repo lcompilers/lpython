@@ -44,13 +44,13 @@ void get_newlines(const std::string &s, std::vector<uint32_t> &newlines) {
     }
 }
 
-std::string CPreprocessor::run(const std::string &input, LocationManager &lm) const {
+std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
+        std::map<std::string, std::string> &macro_definitions) const {
     LFORTRAN_ASSERT(input[input.size()] == '\0');
     unsigned char *string_start=(unsigned char*)(&input[0]);
     unsigned char *cur = string_start;
     Location loc;
     std::string output;
-    std::map<std::string, std::string> macro_definitions;
     lm.preprocessor = true;
     get_newlines(input, lm.in_newlines0);
     lm.out_start0.push_back(0);
@@ -97,24 +97,21 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm) co
             "#include" whitespace '"' [^"\x00]* '"' [^\n\x00]* newline {
                 std::string line = token(tok, cur);
                 std::string include;
-                // Recursively include header files:
-                // TODO: extend this to a full c processing of includes
-                while (startswith(line, "#include")) {
-                    std::string filename;
-                    parse_include_line(line, filename);
-                    // Construct a filename relative to the current file
-                    // TODO: make this multiplatform
-                    std::string base_dir = lm.in_filename;
-                    std::string::size_type n = base_dir.rfind("/");
-                    if (n != std::string::npos) {
-                        base_dir = base_dir.substr(0, n);
-                        filename = base_dir + "/" + filename;
-                    }
-                    if (!read_file(filename, include)) {
-                        throw LFortranException("C preprocessor: include file '" + filename + "' cannot be opened");
-                    }
-                    line = include;
+                std::string filename;
+                parse_include_line(line, filename);
+                // Construct a filename relative to the current file
+                // TODO: make this multiplatform
+                std::string base_dir = lm.in_filename;
+                std::string::size_type n = base_dir.rfind("/");
+                if (n != std::string::npos) {
+                    base_dir = base_dir.substr(0, n);
+                    filename = base_dir + "/" + filename;
                 }
+                if (!read_file(filename, include)) {
+                    throw LFortranException("C preprocessor: include file '" + filename + "' cannot be opened");
+                }
+
+                include = run(include, lm, macro_definitions);
 
                 // Prepare the start of the interval
                 lm.out_start0.push_back(output.size());
