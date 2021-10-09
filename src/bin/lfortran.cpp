@@ -1070,7 +1070,8 @@ int emit_c_preprocessor(const std::string &infile, CompilerOptions &/*compiler_o
     LFortran::CPreprocessor cpp;
     LFortran::LocationManager lm;
     lm.in_filename = infile;
-    std::string s = cpp.run(input, lm);
+    std::map<std::string, std::string> md;
+    std::string s = cpp.run(input, lm, md);
     std::cout << s;
     return 0;
 }
